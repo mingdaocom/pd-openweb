@@ -39,6 +39,11 @@ export const ACTION_TYPES = {
     text: _l('封装业务流程'),
     icon: 'pbc',
   },
+  26: {
+    id: 'delayed',
+    text: _l('审批流'),
+    icon: 'workflow_delayed',
+  }
 };
 
 export const TYPE_TO_STYLE = {
@@ -118,10 +123,10 @@ export const FLOW_NODE_TYPE_STATUS = {
 
 export const INSTANCELOG_STATUS = {
   1: { text: _l('等待') },
-  2: { text: _l('已通过'), bg: '#4CAF50', shallowBg: '#4CAF5026', icon: 'ok' },
+  2: { text: _l('已通过'), bg: '#4CAF50', shallowBg: '#4CAF5026', icon: 'done' },
   3: { text: _l('流程中止'), bg: '#AAAAAA', shallowBg: '#AAAAAA26' },
   4: { text: _l('流程中止'), bg: '#AAAAAA', shallowBg: '#AAAAAA26' },
-  5: { text: _l('已否决'), bg: '#F44336', shallowBg: '#F4433626', icon: 'close' },
+  5: { text: _l('已否决'), bg: '#F44336', shallowBg: '#F4433626', icon: 'clear' },
   6: { text: _l('流程中止'), bg: '#AAAAAA' },
 };
 
@@ -178,3 +183,15 @@ export const getDateScope = () => {
   ];
   return data.concat(getYear());
 };
+
+export const covertTime = (time) => {
+  if (time < 0) time = time * -1;
+
+  const day = Math.floor(time / 24 / 60 / 60 / 1000);
+  const hour = Math.floor((time - day * 24 * 60 * 60 * 1000) / 60 / 60 / 1000);
+  const min = (time - day * 24 * 60 * 60 * 1000 - hour * 60 * 60 * 1000) / 60 / 1000;
+
+  return `${day ? _l('%0天', day) : ''}${hour ? _l('%0小时', hour) : ''}${
+    min ? _l('%0分钟', Math.floor(min) || 1) : ''
+  }`;
+}

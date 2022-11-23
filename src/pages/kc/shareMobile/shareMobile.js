@@ -1,9 +1,11 @@
 import './css/mobileShare.less';
-import doT from 'dot';
-var qs = require('query-string');
+import doT from '@mdfe/dot';
+import qs from 'query-string';
 import { downloadFile, formatFileSize, getClassNameByExt } from 'src/util';
-var mobileShareTpl = doT.template(require('./tpl/mobileShare.htm'));
-var { ATTACHMENT_TYPE } = require('src/components/shareAttachment/enum');
+import mobileShareHtml from './tpl/mobileShare.htm';
+var mobileShareTpl = doT.template(mobileShareHtml);
+import { ATTACHMENT_TYPE } from 'src/components/shareAttachment/enum';
+import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
 var shareajax = require('src/api/share');
 var { getPreviewLink } = require('src/api/chat');
 var { getWeiXinConfig } = require('src/api/weixin');
@@ -312,36 +314,34 @@ MobileSharePreview.prototype = {
   },
   saveToKnowledge: function () {
     var MSP = this;
-    require(['src/components/saveToKnowledge/saveToKnowledge'], saveToKnowledge => {
-      var sourceData = {};
-      var kcPath = {
-        type: 1,
-        node: {
-          id: null,
-          name: _l('我的文件'),
-        },
-      };
-      var attachmentType = MSP.attachmentType;
-      if (attachmentType === ATTACHMENT_TYPE.COMMON) {
-        sourceData.fileID = MSP.file.fileID;
-      } else if (attachmentType === ATTACHMENT_TYPE.KC) {
-        sourceData.nodeId = MSP.file.id;
-      } else if (attachmentType === ATTACHMENT_TYPE.QINIU) {
-        sourceData.name = MSP.file.name + (MSP.file.ext ? '.' + MSP.file.ext : '');
-        sourceData.filePath = MSP.file.qiniuPath;
-      }
-      sourceData.isShareFolder = !!MSP.options.shareFolderId;
-      saveToKnowledge(attachmentType, sourceData, {
-        createShare: false,
+    var sourceData = {};
+    var kcPath = {
+      type: 1,
+      node: {
+        id: null,
+        name: _l('我的文件'),
+      },
+    };
+    var attachmentType = MSP.attachmentType;
+    if (attachmentType === ATTACHMENT_TYPE.COMMON) {
+      sourceData.fileID = MSP.file.fileID;
+    } else if (attachmentType === ATTACHMENT_TYPE.KC) {
+      sourceData.nodeId = MSP.file.id;
+    } else if (attachmentType === ATTACHMENT_TYPE.QINIU) {
+      sourceData.name = MSP.file.name + (MSP.file.ext ? '.' + MSP.file.ext : '');
+      sourceData.filePath = MSP.file.qiniuPath;
+    }
+    sourceData.isShareFolder = !!MSP.options.shareFolderId;
+    saveToKnowledge(attachmentType, sourceData, {
+      createShare: false,
+    })
+      .save(kcPath)
+      .then(function () {
+        MSP.alert(_l('已存入 知识“我的文件” 中'));
       })
-        .save(kcPath)
-        .then(function () {
-          MSP.alert(_l('已存入 知识“我的文件” 中'));
-        })
-        .fail(function () {
-          MSP.alert(_l('保存失败'));
-        });
-    });
+      .fail(function () {
+        MSP.alert(_l('保存失败'));
+      });
   },
   renderImage: function () {
     var MSP = this;
@@ -436,4 +436,5 @@ MobileSharePreview.prototype = {
 };
 
 md.global.Config.disableKf5 = true;
-module.exports = MobileSharePreview;
+
+export default MobileSharePreview;

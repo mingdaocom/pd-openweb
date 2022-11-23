@@ -31,4 +31,5 @@ function formControl(exceptionList, Component = exceptionList) {
 
   return formControlComponent;
 }
-module.exports = formControl;
+
+export default formControl;

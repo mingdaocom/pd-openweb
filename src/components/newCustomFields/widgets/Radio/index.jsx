@@ -1,9 +1,11 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import RadioGroup from 'ming-ui/components/RadioGroup2';
+import React, { Component, Fragment } from 'react';
+import { Radio } from 'ming-ui';
 import cx from 'classnames';
 import { isLightColor } from 'src/util';
 import { browserIsMobile } from 'src/util';
+import OtherInput from '../Checkbox/OtherInput';
+import { getCheckAndOther } from '../../tools/utils';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -15,29 +17,12 @@ export default class Widgets extends Component {
     onChange: PropTypes.func,
   };
 
-  getData() {
-    const { disabled, options, value } = this.props;
-    const checkIds = JSON.parse(value || '[]');
-
-    return options
-      .filter(item => !item.isDeleted && ((disabled && _.includes(checkIds, item.key)) || !disabled))
-      .map(item => {
-        return {
-          text: this.renderList(item),
-          value: item.key,
-          checked: _.includes(checkIds, item.key),
-          title: item.value,
-        };
-      });
-  }
-
   /**
    * 渲染列表
    */
-  renderList = item => {
-    const { enumDefault2, value } = this.props;
-    const checkIds = JSON.parse(value || '[]');
-
+  renderList = (item, checkIds) => {
+    const { enumDefault2, value, disabled } = this.props;
+    const { otherValue } = getCheckAndOther(value);
     return (
       <span
         className={cx(
@@ -47,14 +32,14 @@ export default class Widgets extends Component {
         )}
         style={{ background: enumDefault2 === 1 ? item.color : checkIds.length > 1 ? '#eaeaea' : '' }}
       >
-        {item.value}
+        {otherValue && disabled && browserIsMobile() ? otherValue : item.value}
       </span>
     );
   };
 
   onChange = key => {
     const { value } = this.props;
-    const checkIds = JSON.parse(value || '[]');
+    const { checkIds } = getCheckAndOther(value);
 
     if (_.includes(checkIds, key)) {
       key = '';
@@ -64,9 +49,9 @@ export default class Widgets extends Component {
   };
 
   render() {
-    const { disabled, advancedSetting } = this.props;
+    const { disabled, advancedSetting, className, vertical, options, value } = this.props;
     const { direction } = advancedSetting || {};
-
+    const { checkIds } = getCheckAndOther(value);
     return (
       <div
         className={cx(
@@ -76,7 +61,44 @@ export default class Widgets extends Component {
         )}
         style={{ height: 'auto' }}
       >
-        <RadioGroup disabled={disabled} data={this.getData()} onChange={this.onChange} />
+        <div className={`ming RadioGroup2 ${className || ''}`}>
+          <div className={cx('RadioGroupCon', { flexColumn: vertical })}>
+            {options
+              .filter(item => !item.isDeleted && ((disabled && _.includes(checkIds, item.key)) || !disabled))
+              .map((item, index) => {
+                return browserIsMobile() && disabled && item.key === 'other' ? (
+                  <div className="flexColumn">
+                    <Radio
+                      key={index}
+                      disabled={disabled}
+                      text={this.renderList(item, checkIds)}
+                      value={item.key}
+                      checked={_.includes(checkIds, item.key)}
+                      title={item.value}
+                      onClick={this.onChange}
+                    />
+                  </div>
+                ) : (
+                  <div className="flexColumn">
+                    <Radio
+                      key={index}
+                      disabled={disabled}
+                      text={this.renderList(item, checkIds)}
+                      value={item.key}
+                      checked={_.includes(checkIds, item.key)}
+                      title={item.value}
+                      onClick={this.onChange}
+                    />
+                    {item.key === 'other' && (
+                      <div className="otherInputBox">
+                        <OtherInput {...this.props} isSelect={browserIsMobile() ? true : false} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+          </div>
+        </div>
       </div>
     );
   }

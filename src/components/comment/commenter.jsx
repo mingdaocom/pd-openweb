@@ -17,10 +17,10 @@ import postAjax from 'src/api/post';
 
 import { SOURCE_TYPE } from './config';
 
-import 'autoTextarea';
-import 'mentioninput';
-import 'emotion';
-import 'selectGroup';
+import 'src/components/autoTextarea/autoTextarea';
+import 'src/components/mentioninput/mentionsInput';
+import 'src/components/emotion/emotion';
+import 'src/components/selectGroup/selectAllGroup';
 import './css/commenter.less';
 import { getRandomString } from 'src/util';
 

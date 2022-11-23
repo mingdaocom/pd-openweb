@@ -40,7 +40,7 @@ export default class SheetDesc extends Component {
     }
   }
   render() {
-    const { worksheetId, title, visible, onClose, isEditing } = this.props;
+    const { worksheetId, title, visible, onClose, isEditing, isCharge } = this.props;
     const { desc } = this.state;
     return (
       <RcDialog
@@ -60,7 +60,7 @@ export default class SheetDesc extends Component {
           title={title}
           cacheKey={worksheetId ? 'sheetIntroDescription' : 'pageIntroDescription'}
           description={desc}
-          permissionType={100}
+          permissionType={isCharge ? 100 : 0}
           // isEditing={!desc}
           isEditing={isEditing}
           changeSetting={() => {}}

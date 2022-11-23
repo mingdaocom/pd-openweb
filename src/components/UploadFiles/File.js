@@ -5,11 +5,14 @@ import Icon from 'ming-ui/components/Icon';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import Progress from 'ming-ui/components/Progress';
-import * as postController from 'src/api/post';
 import kcService from 'src/pages/kc/api/service';
 import { editLinkAttachment } from 'src/api/attachment';
+import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { getFileExtends, isDocument, formatTime } from './utils';
 import { formatFileSize, isVideo, downloadFile, getClassNameByExt } from 'src/util';
+import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
+import addLinkFile from 'src/components/addLinkFile/addLinkFile';
+
 const vertical = {
   WebkitBoxOrient: 'vertical',
 };
@@ -182,67 +185,62 @@ export default class FileComponent extends Component {
       sourceData.fileID = data.fileID;
     }
 
-    require(['src/components/saveToKnowledge/saveToKnowledge'], saveToKnowledge => {
-      require(['src/components/kc/folderSelectDialog/folderSelectDialog'], folderDg => {
-        folderDg({
-          dialogTitle: _l('选择路径'),
-          isFolderNode: 1,
-          selectedItems: null,
-          zIndex: 9999,
-        })
-          .then(result => {
-            saveToKnowledge(nodeType, sourceData)
-              .save(result)
-              .then(function () {
-                alert(_l('保存成功'));
-              })
-              .fail(function () {
-                alert(_l('保存失败'), 2);
-              });
+    folderDg({
+      dialogTitle: _l('选择路径'),
+      isFolderNode: 1,
+      selectedItems: null,
+      zIndex: 9999,
+    })
+      .then(result => {
+        saveToKnowledge(nodeType, sourceData)
+          .save(result)
+          .then(function () {
+            alert(_l('保存成功'));
           })
-          .fail(() => {});
-      });
-    });
+          .fail(function () {
+            alert(_l('保存失败'), 2);
+          });
+      })
+      .fail(() => {});
   };
   handleEditLink = () => {
     const _this = this;
     const { data } = this.props;
-    require(['src/components/addLinkFile/addLinkFile'], addLinkFile => {
-      const handle = new addLinkFile({
-        isEdit: true,
-        data: {
-          name: data.originalFilename,
-          originLinkUrl: data.originLinkUrl,
-        },
-        callback: link => {
-          const { linkName, linkContent } = link;
-          let updatePromise;
-          if (data.refId) {
-            updatePromise = kcService.updateNode({
-              id: data.refId,
-              name: linkName + '.url',
-              newLinkUrl: linkContent,
-            });
-          } else {
-            updatePromise = editLinkAttachment({
-              fileId: data.fileID,
-              title: linkName,
-              originLinkUrl: linkContent,
-            });
-          }
-          $.when(updatePromise)
-            .then(() => {
-              alert(_l('修改成功'));
-              data.originalFilename = linkName;
-              data.shortLinkUrl = linkContent;
-              data.originLinkUrl = linkContent;
-              _this.props.onReplaceAttachment(data);
-            })
-            .fail(err => {
-              alert(_l('修改失败'), 3);
-            });
-        },
-      });
+
+    new addLinkFile({
+      isEdit: true,
+      data: {
+        name: data.originalFilename,
+        originLinkUrl: data.originLinkUrl,
+      },
+      callback: link => {
+        const { linkName, linkContent } = link;
+        let updatePromise;
+        if (data.refId) {
+          updatePromise = kcService.updateNode({
+            id: data.refId,
+            name: linkName + '.url',
+            newLinkUrl: linkContent,
+          });
+        } else {
+          updatePromise = editLinkAttachment({
+            fileId: data.fileID,
+            title: linkName,
+            originLinkUrl: linkContent,
+          });
+        }
+        $.when(updatePromise)
+          .then(() => {
+            alert(_l('修改成功'));
+            data.originalFilename = linkName;
+            data.shortLinkUrl = linkContent;
+            data.originLinkUrl = linkContent;
+            _this.props.onReplaceAttachment(data);
+          })
+          .fail(err => {
+            alert(_l('修改失败'), 3);
+          });
+      },
     });
   };
   handleOpenMenu = event => {

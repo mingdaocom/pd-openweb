@@ -4,7 +4,6 @@ import { bindActionCreators } from 'redux';
 import { LoadDiv, Checkbox, Icon } from 'ming-ui';
 import * as entitiesActions from '../../actions/entities';
 import * as currentActions from '../../actions/current';
-import * as Invite from 'src/components/common/inviteMember/inviteMember';
 import dialogInviteUser from '../../modules/dialogInviteUser';
 import DialogBatchEdit from '../../modules/dialogBatchEdit';
 import UserTable from '../userList/userTable';
@@ -12,7 +11,7 @@ import RoleController from 'src/api/role';
 import { encrypt } from 'src/util';
 import cx from 'classnames';
 import { Pagination } from 'antd';
-import { batchResetPassword } from 'src/api/user';
+import addFriends from 'src/components/addFriends/addFriends';
 
 class StructureContent extends Component {
   constructor(props) {
@@ -63,7 +62,7 @@ class StructureContent extends Component {
 
     return (
       <span className={cx('color_9e mLeft6 mRight8', { TxtMiddle: departmentId })}>
-        {typeCursor === 3 && !_.isUndefined(approveNumber) ? approveNumber : _.isUndefined(allCount) ? allCount : ''}
+        {!_.isUndefined(allCount) ? allCount : ''}
       </span>
     );
   }
@@ -83,29 +82,10 @@ class StructureContent extends Component {
   // 邀请加入
   inviteMore = () => {
     const { projectId } = this.props;
-    require(['mdDialog', 'chooseInvite'], dialogCreator => {
-      var dialog = dialogCreator.index({
-        dialogBoxID: 'inviteUser' + projectId,
-        width: 500,
-        container: {
-          header: _l('添加成员'),
-          content: '<div class="chooseInviteContainer pBottom50"></div>',
-          yesText: '',
-          noText: '',
-        },
-        readyFn() {
-          $('#inviteUser' + projectId)
-            .find('.chooseInviteContainer')
-            .chooseInvite({
-              projectId: projectId,
-              sourceId: projectId,
-              fromType: 4,
-              callback(data, callbackInviteResult) {
-                Invite.inviteByAccounts(projectId, data, callbackInviteResult);
-              },
-            });
-        },
-      });
+
+    addFriends({
+      projectId: projectId,
+      fromType: 4,
     });
   };
   // 导入导出
@@ -149,6 +129,7 @@ class StructureContent extends Component {
       removeUserFromSet = () => {},
     } = this.props;
     let { batchEditVisible, batchResetPasswordVisible } = this.state;
+
     return (
       <Fragment>
         {!isSearch ? (
@@ -188,7 +169,7 @@ class StructureContent extends Component {
               {_l('添加成员')}
             </div>
             <div className="actBtn" onClick={this.inviteMore}>
-              {_l('邀请加入')}
+              {_l('更多邀请')}
             </div>
             <div className="actBtn" onClick={this.exportInAndOut}>
               {_l('导入 / 导出 / 修改')}

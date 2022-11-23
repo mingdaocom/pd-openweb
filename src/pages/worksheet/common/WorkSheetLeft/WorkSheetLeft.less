@@ -80,7 +80,7 @@
     .rightArea,
     .workSheetItem .name,
     .newWorkSheet .text,
-    .workSheetItem .icon-public-folder-hidden {
+    .workSheetItem .icon-visibility_off {
       display: none;
     }
   }
@@ -237,20 +237,33 @@
 }
 
 .createNewMenu {
+  border-radius: 3px;
+  box-shadow: 0 3px 9px 1px rgba(0, 0, 0, 0.17);
+  background-color: #fff;
+  .Menu {
+    width: 240px;
+    position: unset;
+    box-shadow: unset;
+  }
   .MenuItem {
     height: 36px;
     line-height: 36px;
     font-size: 14px;
-  }
-  .Item-content {
-    i {
-      margin-right: 6px;
-      color: #757575;
-    }
-    &:hover {
-      i {
+    .Item-content {
+      color: #000;
+      .icon {
+        color: #9e9e9e;
+      }
+      &:hover {
         color: #fff;
+        .icon {
+          color: #fff;
+        }
       }
     }
+  }
+  .spaceLine {
+    height: 1px;
+    border-bottom: 1px solid #eaeaea;
   }
 }

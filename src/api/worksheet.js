@@ -1,5 +1,76 @@
 module.exports = {
   /**
+  * 新建生成打印模板e
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {string} args.projectId
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 行id
+  * @param {integer} args.pageIndex 页码
+  * @param {integer} args.pageSize 页大小
+  * @param {string} args.sortId
+  * @param {boolean} args.isAsc
+  * @param {string} args.keywords 关键词
+  * @param {} args.getType
+  * @param {string} args.viewId 视图Id
+  * @param {string} args.appId 应用Id
+  * @param {string} args.instanceId 通过工作流审批打印时必传
+  * @param {string} args.workId 通过工作流审批打印时必传
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getPrintTemplate: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetPrintTemplate', args, options);
+   },
+  /**
+  * 保存系统打印模板
+  * @param {Object} args 请求参数
+  * @param {string} args.id 模板id (空=新建 非空=修改)
+  * @param {} args.data
+  * @param {array} args.saveControls 勾选保存的控件
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editPrint: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'EditPrint', args, options);
+   },
+  /**
+  * 保存记录二维码打印模板配置
+  * @param {Object} args 请求参数
+  * @param {string} args.id 模板id
+  * @param {string} args.projectId 组织id
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.name 模板名称
+  * @param {integer} args.type 3-二维码打印 4-条码打印
+  * @param {integer} args.range 使用范围
+  * @param {array} args.views 视图id
+  * @param {} args.config 记录二维码打印配置
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   saveRecordCodePrintConfig: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'SaveRecordCodePrintConfig', args, options);
+   },
+  /**
+  * 修改打印模板名称
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {string} args.name
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editPrintName: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'EditPrintName', args, options);
+   },
+  /**
   * 修改表单名称
   * @param {Object} args 请求参数
   * @param {string} args.id
@@ -1171,6 +1242,7 @@ module.exports = {
   * @param {string} args.viewId 视图Id
   * @param {string} args.appId 应用Id
   * @param {boolean} args.restoreRelation 恢复关联
+  * @param {string} args.copyRelationControlId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1361,6 +1433,45 @@ module.exports = {
      return $.api('Worksheet', 'GetLogs', args, options);
    },
   /**
+  * 获取工作表操作日志
+  * @param {Object} args 请求参数
+  * @param {integer} args.pageSize 分页大小
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.objectType 日志对象类型 1:工作表 2:行记录 3:视图 4:按钮 5:业务规则 99:其他
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 记录id
+  * @param {array} args.filterUniqueIds 根据唯一码筛选
+  * @param {array} args.controlIds 筛选控件或属性ID
+  * @param {array} args.opeartorIds 筛选操作人
+  * @param {string} args.startDate 开始时间
+  * @param {string} args.endDate
+  * @param {string} args.lastMark 最后标记时间
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorksheetOpeationLogs: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetWorksheetOpeationLogs', args, options);
+   },
+  /**
+  * 获取子表日志详情
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 行记录id
+  * @param {string} args.uniqueId 唯一id
+  * @param {string} args.createTime 创建时间
+  * @param {} args.log 日志项集合
+  * @param {string} args.lastMark 最后标记时间
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getDetailTableLog: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetDetailTableLog', args, options);
+   },
+  /**
   * 获取分享行
   * @param {Object} args 请求参数
   * @param {string} args.shareId 分享id
@@ -1464,6 +1575,7 @@ module.exports = {
   * @param {string} args.viewId 视图Id
   * @param {string} args.appId 应用Id
   * @param {boolean} args.restoreRelation 恢复关联
+  * @param {string} args.copyRelationControlId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1501,7 +1613,7 @@ module.exports = {
   * @param {string} args.worksheetId 工作表id
   * @param {integer} args.type 视图类型 1：个人 2：公共
   * @param {array} args.items
-  * @param {string} args.filterId
+  * @param {string} args.filterId 筛选条件编号
   * @param {string} args.appId 应用Id
   * @param {integer} args.module 1:工作表 2:统计
   * @param {Object} options 配置参数
@@ -2065,7 +2177,7 @@ module.exports = {
      return $.api('Worksheet', 'GetPrint', args, options);
    },
   /**
-  * 新建生成打印模板
+  * 获取单个打印模板
   * @param {Object} args 请求参数
   * @param {string} args.id
   * @param {string} args.projectId
@@ -2085,35 +2197,8 @@ module.exports = {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getPrintTemplate: function (args, options = {}) {
+   getCodePrint: function (args, options = {}) {
      
-     return $.api('Worksheet', 'GetPrintTemplate', args, options);
-   },
-  /**
-  * 保存系统打印模板
-  * @param {Object} args 请求参数
-  * @param {string} args.id 模板id (空=新建 非空=修改)
-  * @param {} args.data
-  * @param {array} args.saveControls 勾选保存的控件
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editPrint: function (args, options = {}) {
-     
-     return $.api('Worksheet', 'EditPrint', args, options);
-   },
-  /**
-  * 修改打印模板名称
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {string} args.name
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editPrintName: function (args, options = {}) {
-     
-     return $.api('Worksheet', 'EditPrintName', args, options);
+     return $.api('Worksheet', 'GetCodePrint', args, options);
    },
 };

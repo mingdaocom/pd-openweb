@@ -1,34 +1,7 @@
+import { existAccountHint } from 'src/components/common/function';
 var InviteController = require('src/api/invitation');
 var Invite = {};
-Invite.inviteMembers = function(projectId, accountId, cb, opt) {
-  if (accountId) {
-    Invite.inviteByAccountIds(projectId, [{ accountId }]);
-    cb && cb();
-    return;
-  }
-  require(['dialogSelectUser'], function() {
-    $({}).dialogSelectUser({
-      title: _l('邀请新同事'),
-      zIndex: 11,
-      sourceId: projectId,
-      fromType: 4,
-      SelectUserSettings: {
-        filterAccountIds: [md.global.Account.accountId],
-        filterProjectId: projectId,
-        callback: function(users) {
-          Invite.inviteByAccountIds(projectId, users);
-        },
-      },
-      ChooseInviteSettings: {
-        projectId: projectId,
-        callback: function(data, callbackInviteResult) {
-          Invite.inviteByAccounts(projectId, data, callbackInviteResult);
-        },
-      },
-      ...opt,
-    });
-  });
-};
+
 // invite by accountIds
 Invite.inviteByAccountIds = function(projectId, users) {
   var accountIds = $.map(users, function(u) {
@@ -64,9 +37,7 @@ Invite.inviteByAccounts = function(projectId, users, cb) {
 Invite.inviteToProject = function(params, cb) {
   InviteController.inviteUser(params)
     .done(function(result) {
-      require(['mdFunction'], function(mdFunction) {
-        mdFunction.existAccountHint(result, cb);
-      });
+      existAccountHint(result, cb);
     })
     .fail(function() {
       alert('邀请失败', 2);
@@ -91,9 +62,7 @@ Invite.inviteToFriend = function(users, cb) {
     sourceId: md.global.Account.accountId,
   })
     .done(function(result) {
-      require(['mdFunction'], function(mdFunction) {
-        mdFunction.existAccountHint(result, cb(result));
-      });
+      existAccountHint(result, cb(result));
     })
     .fail(function() {
       alert('邀请失败', 2);
@@ -105,4 +74,4 @@ Invite.inviteToFriend = function(users, cb) {
     });
 };
 
-module.exports = Invite;
+export default Invite;

@@ -3,6 +3,9 @@ import { Icon } from 'ming-ui';
 import { FROM } from '../../../tools/config';
 import './style.less';
 import { getClassNameByExt } from 'src/util';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import task from './taskEntry';
+import calendar from 'src/pages/calendar/modules/calendarDetail';
 
 const Icons = {
   0: '',
@@ -48,31 +51,24 @@ export default class List extends Component {
       const moduleId = (_.get(item, 'link') || '').split('_')[1] || '';
       // 任务
       if (type === 1) {
-        require(['./taskEntry'], task => {
-          task.default(moduleId);
-        });
+        task(moduleId);
       }
       // 日程
       if ([3, 7].includes(type)) {
         item.calendarId = moduleId;
         item.recurTime = item.sidext || '';
-
-        require(['src/pages/calendar/modules/calendarDetail'], calendar => {
-          calendar.default({ calendarId: moduleId, recurTime: item.sidext || '' });
-        });
+        calendar({ calendarId: moduleId, recurTime: item.sidext || '' });
       }
 
       // 附件
       if (type === 4) {
         const attachmentId = _.last((_.get(item, 'link') || '').split('/')) || '';
 
-        require(['previewAttachments'], previewAttachments => {
-          previewAttachments({
-            index: 0,
-            attachments: [{ previewAttachmentType: 'KC_ID', refId: attachmentId }],
-            showThumbnail: true,
-            hideFunctions: ['editFileName'],
-          });
+        previewAttachments({
+          index: 0,
+          attachments: [{ previewAttachmentType: 'KC_ID', refId: attachmentId }],
+          showThumbnail: true,
+          hideFunctions: ['editFileName'],
         });
       }
     }

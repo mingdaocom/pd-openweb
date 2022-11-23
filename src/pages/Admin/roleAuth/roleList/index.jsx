@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import RoleController from 'src/api/role';
-import 'pager';
+import 'src/components/pager/pager';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import RoleItem from './roleItem';
 import RoleAuthCommon from '../common/common';

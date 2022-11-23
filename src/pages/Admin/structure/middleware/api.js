@@ -8,7 +8,7 @@ import * as jobController from 'src/api/job';
 import * as REQUEST_ACTIONS from '../actions/entities';
 import * as CURRENT_ACTIONS from '../actions/current';
 import * as SEARCH_ACTIONS from '../actions/search';
-import { projectId } from '../../config';
+import Config from '../../config';
 let promise = null;
 let prePromiseType = null;
 const promiseList = [
@@ -118,7 +118,7 @@ export default store => next => action => {
   if (promise && promiseList.includes(requestType) && promiseList.includes(prePromiseType)) {
     promise.abort();
   }
-  promise = requestFunc(Object.assign({}, params, { projectId }));
+  promise = requestFunc(Object.assign({}, params, { projectId: Config.projectId }));
   prePromiseType = requestType;
   promise.then(
     response => {

@@ -11,6 +11,8 @@ const STATUS2TEXT = {
 
 export default class Switch extends Component {
   static propTypes = {
+    /** 是否禁止关闭 */
+    disabledClose: bool,
     /** 流程运行状态 */
     status: string,
     /** 流程是否需要重新发布 */
@@ -29,6 +31,7 @@ export default class Switch extends Component {
     refreshPublish: func,
   };
   static defaultProps = {
+    disabledClose: false,
     status: 'close',
     pending: false,
     isRefresh: true,
@@ -59,7 +62,7 @@ export default class Switch extends Component {
   };
 
   render() {
-    const { pending, status, isNew, isRefresh, className } = this.props;
+    const { disabledClose, pending, status, isNew, isRefresh, className } = this.props;
     const { disabled } = this.state;
 
     return (
@@ -75,7 +78,10 @@ export default class Switch extends Component {
                 <div className="refreshFlow">{_l('更新发布')}</div>
               </div>
             )}
-            <div className={cx('switchWrap', `switchWrap-${status}`, { pending })} onClick={() => !disabled && this.handleClick('switchStatus')}>
+            <div
+              className={cx('switchWrap', `switchWrap-${status}`, { pending })}
+              onClick={() => !disabledClose && !disabled && this.handleClick('switchStatus')}
+            >
               <div className={cx('contentWrap', `contentWrap-${status}`)}>
                 <div>{STATUS2TEXT[status]}</div>
               </div>

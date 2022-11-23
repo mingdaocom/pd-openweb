@@ -98,6 +98,9 @@ export function fillUrl(url) {
 export function navigateTo(url, isReplace = false, noRedirect = false) {
   url = fillUrl(url);
   clearZombie();
+  if (!window.redirected) {
+    window.redirected = true;
+  }
   if (isReplace && urlStack.length) {
     urlStack.splice(urlStack.length - 1, 1, String(url));
   } else {

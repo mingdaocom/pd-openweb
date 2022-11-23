@@ -70,7 +70,7 @@ export const PAID_VERSION_TO_TEXT = {
     },
     portalupgrade: {
       hint: _l('账号余额不足'),
-      explain: _l('当前企业账号余额不足，无法通过短信通知用户，请先充值'),
+      explain: _l('当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值'),
       btnText: _l('立即充值'),
     },
   },
@@ -100,7 +100,7 @@ export const PAID_VERSION_TO_TEXT = {
     },
     portalupgrade: {
       hint: _l('账号余额不足'),
-      explain: _l('当前企业账号余额不足，无法通过短信通知用户，请先充值'),
+      explain: _l('当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值'),
       btnText: _l('立即充值'),
     },
   },
@@ -128,7 +128,7 @@ export const PAID_VERSION_TO_TEXT = {
     },
     portalupgrade: {
       hint: _l('账号余额不足'),
-      explain: _l('当前企业账号余额不足，无法通过短信通知用户，请先充值'),
+      explain: _l('当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值'),
       btnText: _l('立即充值'),
     },
   },
@@ -154,7 +154,7 @@ export const PAID_VERSION_TO_TEXT = {
     },
     portalupgrade: {
       hint: _l('账号余额不足'),
-      explain: _l('当前企业账号余额不足，无法通过短信通知用户，请先充值'),
+      explain: _l('当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值'),
       btnText: _l('立即充值'),
     },
   },
@@ -184,7 +184,7 @@ export const EXPERIENCE_VERSION_TO_TEXT = {
   },
   portalupgrade: {
     hint: _l('账号余额不足'),
-    explain: _l('当前企业账号余额不足，无法通过短信通知用户，请先充值'),
+    explain: _l('当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值'),
     btnText: _l('立即充值'),
   },
 };
@@ -213,7 +213,7 @@ export const OVERDUE_NET_TEXT = {
   },
   portalupgrade: {
     hint: _l('账号余额不足'),
-    explain: _l('当前企业账号余额不足，无法通过短信通知用户，请先充值'),
+    explain: _l('当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值'),
     btnText: _l('立即充值'),
   },
 };

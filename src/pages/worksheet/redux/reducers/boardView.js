@@ -90,6 +90,15 @@ const updateRecord = (state, data) => {
   const indexList = getIndex(state, data);
   if (!indexList) return state;
   const [keyIndex, rowIndex] = indexList;
+  let oldItem = _.get(state, `${keyIndex}.rows.${rowIndex}`);
+  if (oldItem) {
+    try {
+      oldItem = JSON.parse(oldItem);
+      data.item = { ...oldItem, ...data.item };
+    } catch (err) {
+      console.error(err);
+    }
+  }
   if (data.target !== undefined) {
     const { name, targetKey } = getKeyAndName(data);
     const targetIndex = _.findIndex(state, item => item.key === targetKey);

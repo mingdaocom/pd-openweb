@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, MembersAvatar, MembersName, NodeOperate } from '../components';
+import { CreateNode, MembersName, NodeOperate } from '../components';
 
 export default class Write extends Component {
   constructor(props) {
@@ -53,7 +53,7 @@ export default class Write extends Component {
   }
 
   render() {
-    const { item, disabled, selectNodeId, openDetail } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail, approvalSelectNodeId } = this.props;
 
     return (
       <div className="flexColumn">
@@ -65,10 +65,10 @@ export default class Write extends Component {
               { errorShadow: item.selectNodeId && item.isException },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(item.id, item.typeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId, approvalSelectNodeId)}
           >
             <div className="workflowAvatars flexRow">
-              <MembersAvatar accounts={item.accounts} type={item.typeId} />
+              <i className={cx('workflowAvatar icon-workflow_write', item.selectNodeId ? 'BGSkyBlue' : 'BGGray')} />
             </div>
             <NodeOperate nodeClassName="BGSkyBlue" {...this.props} />
             <div className="workflowContent Font13">{this.renderContent()}</div>

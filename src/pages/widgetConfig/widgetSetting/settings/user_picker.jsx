@@ -26,7 +26,7 @@ const DISPLAY_TYPE_OPTIONS = [
 ];
 
 export default function UserPicker(props) {
-  const { from, data, onChange, enableState } = props;
+  const { from, data, onChange, enableState, fromExcel } = props;
   const { enumDefault, advancedSetting = {}, controlId } = data;
   const { usertype } = advancedSetting;
   const isSaved = controlId && !controlId.includes('-');
@@ -46,44 +46,48 @@ export default function UserPicker(props) {
           onChange={value => onChange({ enumDefault: value })}
         />
       </SettingItem>
-      {enableState && (
+      {fromExcel ? null : (
         <Fragment>
-          {isSaved ? (
-            <SettingItem>
-              <span>
-                {_l('成员类型')}
-                <span className="mLeft8 Bold">
-                  {_.get(
-                    _.find(DISPLAY_TYPE_OPTIONS, i => i.value === usertype),
-                    'text',
-                  )}
-                </span>
-              </span>
-            </SettingItem>
-          ) : (
-            <SettingItem>
-              <div className="settingItemTitle">{_l('成员类型')}</div>
-              <RadioGroup
-                size="middle"
-                checkedValue={usertype}
-                data={DISPLAY_TYPE_OPTIONS}
-                onChange={value =>
-                  onChange(
-                    handleAdvancedSettingChange(data, {
-                      usertype: value,
-                      dynamicsrc: '',
-                      defaultfunc: '',
-                      defsource: '',
-                      defaulttype: '',
-                    }),
-                  )
-                }
-              />
-            </SettingItem>
+          {enableState && (
+            <Fragment>
+              {isSaved ? (
+                <SettingItem>
+                  <span>
+                    {_l('成员类型')}
+                    <span className="mLeft8 Bold">
+                      {_.get(
+                        _.find(DISPLAY_TYPE_OPTIONS, i => i.value === usertype),
+                        'text',
+                      )}
+                    </span>
+                  </span>
+                </SettingItem>
+              ) : (
+                <SettingItem>
+                  <div className="settingItemTitle">{_l('成员类型')}</div>
+                  <RadioGroup
+                    size="middle"
+                    checkedValue={usertype}
+                    data={DISPLAY_TYPE_OPTIONS}
+                    onChange={value =>
+                      onChange(
+                        handleAdvancedSettingChange(data, {
+                          usertype: value,
+                          dynamicsrc: '',
+                          defaultfunc: '',
+                          defsource: '',
+                          defaulttype: '',
+                        }),
+                      )
+                    }
+                  />
+                </SettingItem>
+              )}
+            </Fragment>
           )}
+          {from !== 'subList' && <Components.WidgetUserPermission {...props} />}
         </Fragment>
       )}
-     {from !== 'subList' && <Components.WidgetUserPermission {...props} />}
     </Fragment>
   );
 }

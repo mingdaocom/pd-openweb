@@ -177,9 +177,9 @@ module.exports = {
   /**
   * 发送 验证码（登录后）
   * @param {Object} args 请求参数
-  * @param {string} args.account 手机号
+  * @param {string} args.account 手机号/邮箱
   * @param {string} args.appId 应用ID
-  * @param {} args.portalSmsType 短信类型(不能为0) 1：注销  2：申请修改手机号 3：绑定新手机号
+  * @param {} args.codeType 验证码类型(不能为0) 1：注销；2：申请修改；3：绑定新账号
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）
@@ -195,7 +195,8 @@ module.exports = {
   * 检查 验证码
   * @param {Object} args 请求参数
   * @param {string} args.verifyCode 验证码
-  * @param {} args.handleType 检查类型 1: 注销  2：绑定手机号
+  * @param {string} args.account 账号：手机号/邮箱
+  * @param {} args.handleType 检查类型 1：注销；2：申请修改
   * @param {string} args.appId AppId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -314,17 +315,6 @@ module.exports = {
      return $.api('ExternalPortal', 'GetSimple', args, options);
    },
   /**
-  * 开发测试方法
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addSimple: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('ExternalPortal', 'AddSimple', args, options);
-   },
-  /**
   * 重新邀请
   * @param {Object} args 请求参数
   * @param {string} args.appId appId
@@ -440,7 +430,7 @@ module.exports = {
      return $.api('ExternalPortal', 'EditExAccountCancel', args, options);
    },
   /**
-  * 外部用户 绑定新手机号
+  * 外部用户 绑定新账户
   * @param {Object} args 请求参数
   * @param {string} args.verifyCode 验证码
   * @param {string} args.account 新手机号
@@ -449,9 +439,23 @@ module.exports = {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   editExAccountBindNewPhone: function (args, options = {}) {
+   bindExAccount: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'EditExAccountBindNewPhone', args, options);
+     return $.api('ExternalPortal', 'BindExAccount', args, options);
+   },
+  /**
+  * 外部用户 修改新账户
+  * @param {Object} args 请求参数
+  * @param {string} args.verifyCode 验证码
+  * @param {string} args.account 新手机号
+  * @param {string} args.appId AppId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editExAccount: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'EditExAccount', args, options);
    },
   /**
   * 批量删除用户
@@ -650,6 +654,14 @@ module.exports = {
   * @param {array} args.sheets 工作表权限集合
   * @param {array} args.userIds 角色成员id集合
   * @param {array} args.pages 自定义页面
+  * @param {} args.generalAdd 是否启用 通用新增
+  * @param {} args.gneralShare 是否启用 通用分享
+  * @param {} args.generalImport 是否启用 通用导入
+  * @param {} args.generalExport 是否启用 通用导出
+  * @param {} args.generalDiscussion 是否启用 通用讨论
+  * @param {} args.generalSystemPrinting 是否启用 通用系统打印
+  * @param {} args.generalAttachmentDownload 是否启用 通用附件下载
+  * @param {} args.generalLogging 是否启用 通用日志
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -702,7 +714,7 @@ module.exports = {
   /**
   * 发送外部门户验证码
   * @param {Object} args 请求参数
-  * @param {string} args.account 账号手机号
+  * @param {string} args.account 账号：手机号/邮箱
   * @param {string} args.appId 应用ID
   * @param {} args.verifyCodeType 类型短信或语音
   * @param {string} args.ticket 验证码返票据
@@ -750,12 +762,30 @@ module.exports = {
      return $.api('ExternalPortal', 'Login', args, options);
    },
   /**
+  * 外部门户密码登录与注册
+  * @param {Object} args 请求参数
+  * @param {string} args.account 账号
+  * @param {string} args.password 前端RSA加密过后的密码
+  * @param {string} args.appId 应用ID
+  * @param {string} args.verifyCode 验证码
+  * @param {boolean} args.autoLogin 是否自动登录
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   pwdLogin: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'PwdLogin', args, options);
+   },
+  /**
   * 收集信息与登录
   * @param {Object} args 请求参数
   * @param {string} args.state 验证码或者微信登录成功之后返回的临时状态码
 用于反向存储账户相关信息，具备有效期
   * @param {array} args.receiveControls 用户填写信息
-  * @param {boolean} args.autoLogin 是否自动登录
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -767,9 +797,7 @@ module.exports = {
   /**
   * 返回外部门户微信登录跳转地址
   * @param {Object} args 请求参数
-  * @param {string} args.wxAppId 微信公众号应用ID
   * @param {string} args.appId 应用ID
-  * @param {string} args.projectId 网络ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -784,6 +812,7 @@ module.exports = {
   * @param {string} args.code 授权码
   * @param {string} args.state 状态码，防止回放
   * @param {string} args.wxAppId 微信公众号应用Id
+  * @param {boolean} args.pcScan 是否PC扫码
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -793,18 +822,42 @@ module.exports = {
      return $.api('ExternalPortal', 'TpLogin', args, options);
    },
   /**
-  * 返回外部门户微信登录扫码地址
+  * 返回外部门户平台二维码登录扫码地址
   * @param {Object} args 请求参数
-  * @param {string} args.wxAppId 微信公众号应用ID
   * @param {string} args.appId 应用ID
-  * @param {string} args.projectId 网络ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getTpLoginScanUrl: function (args, options = {}) {
+   getSelfLoginScanUrl: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetTpLoginScanUrl', args, options);
+     return $.api('ExternalPortal', 'GetSelfLoginScanUrl', args, options);
+   },
+  /**
+  * 返回外部门户平台二维码扫码之后跳转登录地址
+  * @param {Object} args 请求参数
+  * @param {string} args.state 二维码所需的临时状态码
+用于反向存储应用与用户相关信息，具备有效期
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getSelfTpLoginUrlInfo: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'GetSelfTpLoginUrlInfo', args, options);
+   },
+  /**
+  * 返回外部门户微信公众号关注地址
+  * @param {Object} args 请求参数
+  * @param {string} args.state 二维码所需的临时状态码
+用于反向存储应用与用户相关信息，具备有效期
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getTpLoginSubscribedScanUrl: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'GetTpLoginSubscribedScanUrl', args, options);
    },
   /**
   * 获取外部门户微信扫码登录结果
@@ -821,5 +874,23 @@ module.exports = {
    scanTpLogin: function (args, options = {}) {
      
      return $.api('ExternalPortal', 'ScanTpLogin', args, options);
+   },
+  /**
+  * 外部门户用户修改/找回密码
+  * @param {Object} args 请求参数
+  * @param {string} args.account 账号
+  * @param {string} args.password 前端RSA加密过后的密码
+  * @param {string} args.appId 应用ID
+  * @param {string} args.verifyCode 验证码
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   findPwd: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'FindPwd', args, options);
    },
 };

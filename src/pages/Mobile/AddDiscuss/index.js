@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon } from 'ming-ui';
-import plupload from 'plupload';
+import plupload from '@mdfe/jquery-plupload';
 import { Flex, ActionSheet, ActivityIndicator, WhiteSpace } from 'antd-mobile';
 import SelectUser from 'mobile/components/SelectUser';
 import AttachmentFiles, { UploadFileWrapper } from '../Discuss/AttachmentFiles';
@@ -230,7 +230,7 @@ export default props => {
       onClose={onClose}
       visible={visible}
     >
-      {rowId && (
+      {(rowId || worksheetId) && (
         <AddDiscuss
           match={{ params: { appId, worksheetId, viewId, rowId, discussionInfo } }}
           onAdd={onAdd}

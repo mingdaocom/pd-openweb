@@ -5,4 +5,7 @@ import NodeShare from '../common/NodeShare';
 import '../main.css';
 
 const app = <NodeShare />;
-ReactDom.render(app, document.getElementById('app'));
+
+export default function () {
+  ReactDom.render(app, document.getElementById('app'));
+}

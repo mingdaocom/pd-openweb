@@ -52,7 +52,7 @@ export default class MoreOverlay extends Component {
       .fail(error => {
         alert(error, 2);
       });
-  };
+  }
   handleDelete = () => {
     const { report, filter, appId } = this.props;
     const { id, name } = report;
@@ -76,7 +76,21 @@ export default class MoreOverlay extends Component {
           });
       },
     });
-  };
+  }
+  handleCopy = () => {
+    const { report } = this.props;
+    const el = document.querySelector('.panelTab.active');
+    reportConfig.copyReport({
+      move: false,
+      reportId: report.id,
+      current: true,
+    }).then(data => {
+      if (data.reportId) {
+        alert(_l('复制成功'));
+        el && el.click();
+      }
+    });
+  }
   handleUpdateOwnerId = () => {
     const { ownerId, report } = this.props;
     reportConfig
@@ -90,7 +104,7 @@ export default class MoreOverlay extends Component {
           this.props.onRemove(report.id);
         }
       });
-  };
+  }
   renderOverlay() {
     const {
       reportType,
@@ -177,17 +191,29 @@ export default class MoreOverlay extends Component {
                 <span>{ownerId ? _l('转为公共图表') : _l('从公共中移出')}</span>
               </div>
             </Menu.Item>
-            <Menu.Item
-              className="pLeft10"
-              onClick={() => {
-                this.setState({ showPageMove: true });
-              }}
+            <Menu.SubMenu
+              popupClassName="chartMenu"
+              title={_l('复制到')}
+              icon={<Icon className="Gray_9e Font18 mRight5" icon="content-copy" />}
+              popupOffset={[0, 0]}
             >
-              <div className="flexRow valignWrapper">
-                <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="content-copy" />
-                <span>{_l('复制到自定义页面')}</span>
-              </div>
-            </Menu.Item>
+              <Menu.Item
+                style={{ width: 180 }}
+                className="pLeft20"
+                onClick={this.handleCopy}
+              >
+                <div className="flexRow valignWrapper">{_l('当前统计')}</div>
+              </Menu.Item>
+              <Menu.Item
+                style={{ width: 180 }}
+                className="pLeft20"
+                onClick={() => {
+                  this.setState({ showPageMove: true });
+                }}
+              >
+                <div className="flexRow valignWrapper">{_l('自定义页面')}</div>
+              </Menu.Item>
+            </Menu.SubMenu>
           </Fragment>
         )}
         {onRemove && (

@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Switch, LoadDiv, Support } from 'ming-ui';
+import { Icon, Switch, LoadDiv, Tooltip, Support } from 'ming-ui';
 import { Input, Select, Checkbox, Button } from 'antd';
 import cx from 'classnames';
 import './index.less';
@@ -7,18 +7,47 @@ import { formListTop, formListBottom } from './form.config.js';
 import projectSettingController from 'src/api/projectSetting';
 import Config from '../config';
 import ViewKeyDialog from './ViewKey';
-import { getFeatureStatus, buriedUpgradeVersionDialog, encrypt } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, encrypt, upgradeVersionDialog } from 'src/util';
 
-const FEATURE_ID = 15;
 const API_PROXY_FEATURE_ID = 22;
 
 const headerTitle = {
   index: _l('其他'),
   effective: _l('LDAP用户目录'),
   webProxy: _l('API网络代理'),
+  sso: _l('SSO'),
 };
-const ipRegExp =
-  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)+([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$/;
+const DATA_INFO = [
+  {
+    key: 'effective',
+    label: _l('LDAP用户目录'),
+    showSetting: true,
+    description: _l('在付费版下，您可以集成LDAP用户目录，实现统一身份认证管理 （需确保员工的账号已和邮箱绑定）'),
+    featureId: 15,
+  },
+  {
+    key: 'orgKey',
+    label: _l('组织密钥'),
+    showSetting: false,
+    docLink: 'https://www.showdoc.com.cn/mingdao',
+    description: _l('此密钥是用于访问企业授权开放接口的凭证'),
+  },
+  {
+    key: 'webProxy',
+    label: _l('API网络代理'),
+    showSetting: true,
+    docLink: 'https://help.mingdao.com/apiproxy.html',
+    description: _l('启用后，您可以在发送API请求时选择通过设置的代理服务器发送'),
+    featureId: 22,
+  },
+  {
+    key: 'sso',
+    label: _l('SSO'),
+    showSetting: true,
+    description: _l('您可以通过组织的二级域名，以SSO登录方式登录到平台'),
+  },
+];
+const ipRegExp = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)+([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$/;
 const portRegExp = new RegExp(
   /^([1-9](\d{0,3}))$|^([1-5]\d{4})$|^(6[0-4]\d{3})$|^(65[0-4]\d{2})$|^(655[0-2]\d)$|^(6553[0-5])$/,
 );
@@ -55,6 +84,7 @@ export default class OtherTool extends Component {
   componentDidMount() {
     this.getSettings();
     this.getApiProxyState();
+    this.getSsoSettings();
   }
 
   getSettings() {
@@ -121,6 +151,19 @@ export default class OtherTool extends Component {
       });
   };
 
+  updateSSO = () => {
+    projectSettingController
+      .setSso({
+        projectId: Config.projectId,
+        isOpenSso: this.state.sso,
+      })
+      .then(res => {
+        if (!res) {
+          alert(_l('操作失败'), 2);
+        }
+      });
+  };
+
   enableForm(key) {
     this.setState(
       {
@@ -132,6 +175,9 @@ export default class OtherTool extends Component {
         }
         if (key === 'webProxy') {
           this.updateWebProxyState();
+        }
+        if (key === 'sso') {
+          this.updateSSO();
         }
       },
     );
@@ -262,7 +308,7 @@ export default class OtherTool extends Component {
                       <span className="formItemDesc">{desc}</span>
                     )}
                   </div>
-                  <div className="errorMsg" id={'errorMsg' + key}></div>
+                  <div className="errorMsg" id={'errorMsg' + key} />
                 </div>
               </div>
             );
@@ -276,7 +322,7 @@ export default class OtherTool extends Component {
       <div className="formBox">
         <div className="formModuleTitle">{_l('服务器设置（带*为必填项）')}</div>
         {this.renderFormCommon(formListTop)}
-        <div className="splitLine"></div>
+        <div className="splitLine" />
         <div className="formModuleTitle">{_l('用户 schema')}</div>
         {this.renderFormCommon(formListBottom)}
         <Button type="primary" onClick={() => this.handleSubmit()} disabled={this.state.saveDisabled}>
@@ -339,8 +385,16 @@ export default class OtherTool extends Component {
   };
 
   renderWebProxy = () => {
-    const { http, https, ip, portNumber, openIdentityValidate, userName, webProxyPassword, isSaveWebProxy } =
-      this.state;
+    const {
+      http,
+      https,
+      ip,
+      portNumber,
+      openIdentityValidate,
+      userName,
+      webProxyPassword,
+      isSaveWebProxy,
+    } = this.state;
     return (
       <div className="formBox">
         <div className="formModuleTitle">{_l('代理服务器设置')}</div>
@@ -420,7 +474,7 @@ export default class OtherTool extends Component {
                 }}
               />
             </div>
-            <div className="errorMsg"></div>
+            <div className="errorMsg" />
           </div>
         </div>
         {openIdentityValidate && (
@@ -518,120 +572,126 @@ export default class OtherTool extends Component {
     });
   }
 
+  getApiProxySetting = () => {
+    projectSettingController
+      .getApiProxySettings({
+        projectId: Config.projectId,
+      })
+      .then(res => {
+        if (res) {
+          this.setState({
+            http: res.type === 0 || res.type === 1 ? true : false,
+            https: res.type === 0 || res.type === 2 ? true : false,
+            ip: res.ip,
+            portNumber: res.port,
+            openIdentityValidate: res.openIdentityValidate,
+            userName: res.userName,
+            webProxyPassword: res.password,
+            loading: false,
+          });
+        }
+        this.toggleComp('webProxy');
+      });
+  };
+  getSsoSettings = () => {
+    projectSettingController
+      .getSsoSettings({
+        projectId: Config.projectId,
+      })
+      .then(res => {
+        if (res) {
+          this.setState({
+            ssoWebUrl: res.ssoWebUrl,
+            ssoAppUrl: res.ssoAppUrl,
+            sso: res.isOpenSso,
+          });
+        }
+      });
+  };
   renderIndex() {
-    const { effective, webProxy } = this.state;
-    const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
-    const apiProxyFeatureType = getFeatureStatus(Config.projectId, API_PROXY_FEATURE_ID);
+    const licenseType = _.get(
+      _.find(md.global.Account.projects, item => item.projectId === Config.projectId) || {},
+      'licenseType',
+    );
     return (
       <Fragment>
-        {featureType && (
-          <div className="toolItem">
-            <div className="toolItemLabel">{_l('LDAP用户目录')}</div>
-            <div className="toolItemRight">
-              <div>
-                <Switch
-                  checked={effective}
-                  onClick={() => {
-                    if (featureType === '2') {
-                      buriedUpgradeVersionDialog(Config.projectId, FEATURE_ID);
-                      return;
-                    }
-                    this.enableForm('effective');
-                  }}
-                />
-                <button
-                  type="button"
-                  className={cx('ming Button Button--link mLeft24 ThemeColor3 mTop2 TxtTop adminHoverColor', {
-                    hidden: !effective,
-                  })}
-                  onClick={() => {
-                    if (featureType === '2') {
-                      buriedUpgradeVersionDialog(Config.projectId, FEATURE_ID);
-                      return;
-                    }
-                    this.toggleComp('effective');
-                  }}
-                >
-                  {_l('设置')}
-                </button>
-              </div>
-              <div className="toolItemDescribe">
-                {_l('在付费版下，您可以集成LDAP用户目录，实现统一身份认证管理 （需确保员工的账号已和邮箱绑定）')}
-              </div>
-            </div>
-          </div>
-        )}
-        <div className="toolItem">
-          <div className="toolItemLabel">{_l('组织密钥')}</div>
-          <div className="toolItemRight">
-            <div>
-              <button
-                type="button"
-                className="ming Button Button--link ThemeColor3 pLeft0 adminHoverColor Block"
-                onClick={this.handleChangeVisible.bind(this, true)}
-              >
-                {_l('查看密钥')}
-              </button>
-            </div>
-            <div className="toolItemDescribe">{_l('此密钥是用于访问企业授权开放接口的凭证')}</div>
-          </div>
-        </div>
-        {apiProxyFeatureType && (
-          <div className="toolItem">
-            <div className="toolItemLabel">{_l('API网络代理')}</div>
-            <div className="toolItemRight">
-              <div>
-                <Switch
-                  checked={webProxy}
-                  onClick={() => {
-                    if (apiProxyFeatureType === '2') {
-                      buriedUpgradeVersionDialog(Config.projectId, API_PROXY_FEATURE_ID);
-                      return;
-                    }
-                    this.enableForm('webProxy');
-                  }}
-                />
-                <button
-                  type="button"
-                  className={cx('ming Button Button--link mLeft24 ThemeColor3 mTop2 TxtTop adminHoverColor', {
-                    hidden: !webProxy,
-                  })}
-                  onClick={() => {
-                    if (apiProxyFeatureType === '2') {
-                      buriedUpgradeVersionDialog(Config.projectId, API_PROXY_FEATURE_ID);
-                      return;
-                    }
-                    projectSettingController
-                      .getApiProxySettings({
-                        projectId: Config.projectId,
-                      })
-                      .then(res => {
-                        if (res) {
-                          this.setState({
-                            http: res.type === 0 || res.type === 1 ? true : false,
-                            https: res.type === 0 || res.type === 2 ? true : false,
-                            ip: res.ip,
-                            portNumber: res.port,
-                            openIdentityValidate: res.openIdentityValidate,
-                            userName: res.userName,
-                            webProxyPassword: res.password,
-                            loading: false,
+        {DATA_INFO.map(item => {
+          const { key, featureId, docLink, showSetting, description } = item;
+          const featureType = getFeatureStatus(Config.projectId, featureId);
+          if (item.featureId && !featureType) return;
+          return (
+            <div className="toolItem">
+              <div className="toolItemLabel">{item.label}</div>
+              <div className="toolItemRight">
+                <div>
+                  {key !== 'orgKey' && (
+                    <Switch
+                      checked={this.state[key]}
+                      onClick={() => {
+                        if (featureType === '2') {
+                          buriedUpgradeVersionDialog(Config.projectId, featureId);
+                          return;
+                        }
+                        if (key === 'sso' && licenseType === 0) {
+                          return upgradeVersionDialog({
+                            projectId: Config.projectId,
+                            explainText: _l('请升级至付费版解锁开启'),
+                            isFree: true,
                           });
                         }
-                        this.toggleComp('webProxy');
-                      });
-                  }}
-                >
-                  {_l('设置')}
-                </button>
-              </div>
-              <div className="toolItemDescribe TxtMiddle">
-                {_l('启用后，您可以在发送API请求时选择通过设置的代理服务器发送')}
-                <Support type={3} href="https://help.mingdao.com/apiproxy.html" text={_l('查看文档')} />
+                        this.enableForm(key);
+                      }}
+                    />
+                  )}
+                  {key === 'orgKey' && (
+                    <div>
+                      <button
+                        type="button"
+                        className="ming Button Button--link ThemeColor3 pLeft0 adminHoverColor Block"
+                        onClick={this.handleChangeVisible.bind(this, true)}
+                      >
+                        {_l('查看密钥')}
+                      </button>
+                    </div>
+                  )}
+                  {showSetting && (
+                    <button
+                      type="button"
+                      className={cx('ming Button Button--link mLeft24 ThemeColor3 mTop2 TxtTop adminHoverColor', {
+                        hidden: !this.state[key],
+                      })}
+                      onClick={() => {
+                        if (featureType === '2') {
+                          buriedUpgradeVersionDialog(Config.projectId, featureId);
+                          return;
+                        }
+                        if (key === 'sso' && licenseType === 0) {
+                          return upgradeVersionDialog({
+                            projectId: Config.projectId,
+                            explainText: _l('请升级至付费版解锁开启'),
+                            isFree: true,
+                          });
+                        }
+                        switch (key) {
+                          case 'webProxy':
+                            return this.getApiProxySetting();
+                          default:
+                            this.toggleComp(key);
+                        }
+                      }}
+                    >
+                      {_l('设置')}
+                    </button>
+                  )}
+                </div>
+                <div className="toolItemDescribe">
+                  {description}
+                  {docLink && <Support text={_l('查看文档')} type={3} href={docLink} />}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })}
       </Fragment>
     );
   }
@@ -644,10 +704,72 @@ export default class OtherTool extends Component {
         return this.renderLdap();
       case 'webProxy':
         return this.renderWebProxy();
+      case 'sso':
+        return this.renderSSO();
       // case 'isSingleLogin':
       //   return this.renderLogin();
     }
   }
+
+  renderSSO = () => {
+    const { ssoWebUrl, ssoAppUrl, saveSSO } = this.state;
+    return (
+      <div className="formBox">
+        <div className="formModuleTitle">{_l('SSO链接地址')}</div>
+        <div className="formItem pLeft30 pRight20">
+          <div className="formLabel TxtLeft">{_l('WEB-PC端')}</div>
+          <div className="formRight">
+            <Input
+              value={ssoWebUrl}
+              onChange={e => {
+                this.setState({ ssoWebUrl: e.target.value });
+              }}
+            />
+            {saveSSO && !_.trim(ssoWebUrl) && <div className="errorMsg">{_l('请输入WEB-PC端')}</div>}
+          </div>
+        </div>
+        <div className="formItem pLeft30 pRight20">
+          <div className="formLabel TxtLeft">
+            {_l('WEB-移动端')}
+            <Tooltip
+              popupPlacement="bottom"
+              text={<span>{_l('若”WEB-移动端“未填写，通过WEB-移动端登录时，系统默认使用”WEB-PC端“地址登录')}</span>}
+            >
+              <Icon icon="info" className="Gray_9e mLeft10" />
+            </Tooltip>
+          </div>
+          <div className="formRight">
+            <Input value={ssoAppUrl} onChange={e => this.setState({ ssoAppUrl: e.target.value })} />
+          </div>
+        </div>
+        <div className="TxtRight pRight20">
+          <Button
+            type="primary"
+            className="mTop20"
+            onClick={() => {
+              this.setState({ saveSSO: true });
+              if (!_.trim(this.state.ssoWebUrl)) return;
+              projectSettingController
+                .setSsoUrl({
+                  projectId: Config.projectId,
+                  ssoWebUrl: _.trim(this.state.ssoWebUrl),
+                  ssoAppUrl: this.state.ssoAppUrl,
+                })
+                .then(res => {
+                  if (res) {
+                    alert(_l('保存成功'));
+                  } else {
+                    alert(_l('保存失败'), 2);
+                  }
+                });
+            }}
+          >
+            {_l('保存')}
+          </Button>
+        </div>
+      </div>
+    );
+  };
 
   setLevel(level) {
     this.setState({ level });
@@ -673,7 +795,7 @@ export default class OtherTool extends Component {
             icon="backspace"
             className={cx('Hand mRight18 TxtMiddle Font24 adminHeaderIconColor', { hidden: level === 'index' })}
             onClick={() => this.toggleComp('index')}
-          ></Icon>
+          />
           <span className="Font17">{title}</span>
         </div>
         <div className="toolContentBox">{this.renderContent()}</div>

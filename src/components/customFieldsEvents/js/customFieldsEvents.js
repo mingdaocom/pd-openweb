@@ -3,12 +3,14 @@ var attachments = [];
 var ajaxRequest = require('src/api/form');
 import RelationControl from 'src/components/relationControl/relationControl';
 import ReactDom from 'react-dom';
-import 'mdBusinessCard';
-import 'mdDialog';
+import 'src/components/mdBusinessCard/mdBusinessCard';
+import 'src/components/mdDialog/dialog';
 import { getClassNameByExt } from 'src/util';
 import nzh from 'nzh';
 let nzhCn = nzh.cn;
-
+import 'src/components/autoTextarea/autoTextarea';
+import 'src/components/uploadAttachment/uploadAttachment';
+import 'src/components/selectLocation/selectLocation';
 import { initUserListItem, initGroupListItem, initDatetimeItem, initDatetimeRangeItem, initMultipleDropdownItem } from '../init';
 
 const URL_REG = /((?:(https?(?::\/\/)(www\.)?)|(www\.))[a-z0-9-_.]+(?:\.[a-z0-9]{2,})(?:[-a-z0-9:%_+.~#?&//=@]*))/gi;
@@ -618,11 +620,7 @@ $.extend(MDValidation.prototype, {
 });
 
 var customEvents = function (settings) {
-  require('autoTextarea');
-  require('uploadAttachment');
-  require('selectLocation');
   attachments = [];
-  var moment = require('moment');
   var validationAfterPost = function ($el, value, callback) {
     if ($.isFunction(settings.validationAfterPost)) {
       settings.validationAfterPost($el, value, callback);

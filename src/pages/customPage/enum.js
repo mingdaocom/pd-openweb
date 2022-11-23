@@ -11,6 +11,10 @@ export const widgets = {
     icon: 'filter',
     name: _l('筛选器'),
   },
+  carousel: {
+    icon: 'slideshow',
+    name: _l('轮播图'),
+  },
   view: {
     icon: 'view_eye',
     name: _l('视图'),

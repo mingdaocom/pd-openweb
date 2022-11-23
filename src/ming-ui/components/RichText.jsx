@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { CKEditor } from '@mdfe/ckeditor5-react';
-import MDEditor from '@mdfe/ckeditor5-custom-build';
 import styled from 'styled-components';
 import { getToken } from 'src/util';
 import './less/RichText.less';
@@ -9,6 +8,7 @@ import '@mdfe/ckeditor5-custom-build/build/translations/zh.js';
 import '@mdfe/ckeditor5-custom-build/build/translations/en.js';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
+import _ from 'lodash';
 
 let whiteListClone = Object.assign({}, whiteList, {
   img: ['src'],
@@ -98,6 +98,8 @@ const Wrapper = styled.div(
       .ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_se{
         left: ${dropdownPanelPosition.left ? dropdownPanelPosition.left : 'initial'} ;
         right:  ${dropdownPanelPosition.right ? dropdownPanelPosition.right : '0'};
+        max-height: 200px ;
+        overflow: auto;
       }
     }
     .ck-content {
@@ -108,11 +110,21 @@ const Wrapper = styled.div(
       background: #f7f7f7 !important;
       border-radius: 3px !important;
       box-shadow: none !important;
+      padding: 0 7.8px;
+      > :first-child {
+        margin-top: 11.7px;
+      }
+      > :last-child {
+        margin-bottom: 11.7px;
+      }
       &.ck-focused {
         background: #fff !important;
         border: 1px solid #2196f3 !important;
       }
     }
+  }
+  &.clickInit {
+    cursor: text;
   }
   &.disabled {
     .ck-content {
@@ -289,19 +301,11 @@ export default ({
   dropdownPanelPosition,
   toolbarList,
   isRemark,
+  clickInit = false,
 }) => {
+  const [MDEditor, setComponent] = useState(null);
   const editorDiv = useRef();
   let editorDom = useRef();
-  useEffect(() => {
-    if (!disabled && editorDom && editorDom.current && editorDom.current.editor) {
-      editorDom.current.editor.plugins.get('FileRepository').createUploadAdapter = loader => {
-        return new MyUploadAdapter(loader);
-      };
-    }
-    if (disabled) {
-      $(editorDiv.current).find('a').attr('target', '_blank'); //只读的情况下，a标签新开页处理
-    }
-  }, [disabled]);
   const lang = () => {
     const lang = getCookie('i18n_langtag') || getNavigatorLang();
     if (lang === 'zh-Hant') {
@@ -314,9 +318,230 @@ export default ({
       return 'en';
     }
   };
+
+  function initEditor() {
+    import('@mdfe/ckeditor5-custom-build').then(component => {
+      setComponent(component);
+      setTimeout(() => {
+        if (!disabled && editorDom && editorDom.current && editorDom.current.editor) {
+          editorDom.current.editor.plugins.get('FileRepository').createUploadAdapter = loader => {
+            return new MyUploadAdapter(loader);
+          };
+          if (clickInit) {
+            editorDom.current.editor.focus();
+          }
+        }
+      }, 20);
+    });
+  }
+
+  useEffect(() => {
+    if (disabled) {
+      $(editorDiv.current).find('a').attr('target', '_blank'); // 只读的情况下，a标签新开页处理
+    } else if (!MDEditor && !clickInit) {
+      initEditor();
+    }
+  }, [disabled]);
+
+  let content;
+  if (disabled || !MDEditor) {
+    content = (
+      <div className="ck ck-reset ck-editor ck-rounded-corners ckByHtml" role="application" dir="ltr" lang="zh-cn">
+        <div className="ck ck-editor__main" role="presentation">
+          <div
+            className="ck-blurred ck ck-content ck-editor__editable ck-rounded-corners ck-editor__editable_inline ck-read-only"
+            lang="zh-cn"
+            dir="ltr"
+            role="textbox"
+            contenteditable="false"
+            dangerouslySetInnerHTML={{
+              __html: filterXSS(data || placeholder, {
+                stripIgnoreTag: true,
+                whiteList: newWhiteList,
+                css: false,
+              }),
+            }}
+          />
+        </div>
+      </div>
+    );
+  } else if (MDEditor) {
+    content = (
+      <CKEditor
+        editor={MDEditor.default}
+        id={id}
+        config={{
+          language: lang(),
+          toolbar: {
+            items: toolbarList
+              ? toolbarList
+              : [
+                  'undo',
+                  'redo',
+                  'removeFormat',
+                  '|',
+                  'paragraph',
+                  'heading1',
+                  'heading2',
+                  'heading3',
+                  '|',
+                  'fontFamily',
+                  'fontSize',
+                  'fontColor',
+                  'highlight',
+                  '|',
+                  'bold',
+                  'italic',
+                  'underline',
+                  'strikethrough',
+                  'subscript',
+                  'superscript',
+                  '|',
+                  'bulletedList',
+                  'numberedList',
+                  'todoList',
+                  '|',
+                  'alignment',
+                  'indent',
+                  'outdent',
+                  '|',
+                  'horizontalLine',
+                  'blockQuote',
+                  'link',
+                  'code',
+                  'imageUpload',
+                  'insertTable',
+                  'codeBlock',
+                  '|',
+                  'sourceEditing',
+                  'findAndReplace',
+                  // 'htmlEmbed',
+                ],
+            shouldNotGroupWhenFull: showTool,
+          },
+          heading: {
+            options: [
+              { model: 'paragraph', title: _l('正文'), class: 'ck-heading_paragraph' },
+              { model: 'heading1', view: 'h1', title: _l('一级标题'), class: 'ck-heading_heading1' },
+              { model: 'heading2', view: 'h2', title: _l('二级标题'), class: 'ck-heading_heading2' },
+              { model: 'heading3', view: 'h3', title: _l('三级标题'), class: 'ck-heading_heading3' },
+            ],
+          },
+          image: {
+            resizeUnit: 'px',
+            toolbar: [
+              'imageTextAlternative',
+              'imageStyle:inline',
+              'imageStyle:block',
+              'imageStyle:side',
+              '|',
+              'toggleImageCaption',
+            ],
+          },
+          highlight: {
+            options: [
+              {
+                model: 'yellowMarker',
+                class: 'marker-yellow',
+                title: _l('黄色标记'),
+                color: 'var(--ck-highlight-marker-yellow)',
+                type: 'marker',
+              },
+              {
+                model: 'greenMarker',
+                class: 'marker-green',
+                title: _l('绿色标记'),
+                color: 'var(--ck-highlight-marker-green)',
+                type: 'marker',
+              },
+              {
+                model: 'pinkMarker',
+                class: 'marker-pink',
+                title: _l('粉色标记'),
+                color: 'var(--ck-highlight-marker-pink)',
+                type: 'marker',
+              },
+              {
+                model: 'blueMarker',
+                class: 'marker-blue',
+                title: _l('蓝色标记'),
+                color: 'var(--ck-highlight-marker-blue)',
+                type: 'marker',
+              },
+            ],
+          },
+          fontFamily: {
+            options: [
+              'default',
+              '宋体, STFangsong, SimSun',
+              '黑体, STHeiti,  SimHei',
+              '微软雅黑,  Microsoft YaHei',
+              '楷体, STKaiti, STKaiti',
+              '仿宋, STFangsong, FangSong_GB2312',
+              'Arial, Helvetica, sans-serif',
+              'Courier New, Courier, monospace',
+              'Georgia, serif',
+              'Lucida Sans Unicode, Lucida Grande, sans-serif',
+              'Tahoma, Geneva, sans-serif',
+              'Times New Roman, Times, serif',
+              'Trebuchet MS, Helvetica, sans-serif',
+              'Verdana, Geneva, sans-serif',
+            ],
+          },
+          table: {
+            contentToolbar: [
+              'tableColumn',
+              'tableRow',
+              'mergeTableCells',
+              'tableProperties',
+              'tableCellProperties',
+              'toggleTableCaption',
+            ],
+          },
+          htmlSupport: {
+            allow: [
+              {
+                name: /^(p|span|div|img|iframe|table|tbody|thead|tfoot|tr|td|th|col|colgroup|caption|hr|br|ul|ol|li|blockquote|em|h[2-6])$/,
+                styles: true,
+              },
+            ],
+          },
+        }}
+        disabled={disabled}
+        data={data}
+        ref={editorDom}
+        onReady={editor => {
+          if (editor && editor.plugins) {
+            editor.plugins.get('FileRepository').createUploadAdapter = loader => {
+              return new MyUploadAdapter(loader);
+            };
+          }
+        }}
+        onChange={(event, editor) => {
+          const data = editor.getData();
+          changeSetting && changeSetting(true);
+          if (onActualSave) {
+            onActualSave(data);
+          }
+        }}
+        onBlur={(event, editor) => {
+          if (onSave) {
+            const data = editor.getData();
+            onSave(data);
+          }
+        }}
+        onFocus={(event, editor) => {
+          setTimeout(() => {
+            !showTool && $(editorDiv.current).find('.ck-sticky-panel').show();
+          }, 300);
+        }}
+      />
+    );
+  }
   return (
     <Wrapper
       className={cx(className, {
+        clickInit,
         disabled,
         showTool,
         editorNull: disabled && !data,
@@ -329,194 +554,17 @@ export default ({
       dropdownPanelPosition={dropdownPanelPosition}
       ref={editorDiv}
       onClick={() => {
-        onClickNull && disabled && onClickNull();
+        if (disabled && _.isFunction(onClickNull)) {
+          onClickNull();
+        }
+        if (!disabled && !MDEditor && clickInit) {
+          if (!disabled && !MDEditor) {
+            initEditor();
+          }
+        }
       }}
     >
-      {disabled ? (
-        <div class="ck ck-reset ck-editor ck-rounded-corners ckByHtml" role="application" dir="ltr" lang="zh-cn">
-          <div class="ck ck-editor__main" role="presentation">
-            <div
-              class="ck-blurred ck ck-content ck-editor__editable ck-rounded-corners ck-editor__editable_inline ck-read-only"
-              lang="zh-cn"
-              dir="ltr"
-              role="textbox"
-              contenteditable="false"
-              dangerouslySetInnerHTML={{
-                __html: filterXSS(data || placeholder, {
-                  stripIgnoreTag: true,
-                  whiteList: newWhiteList,
-                  css: false,
-                }),
-              }}
-            />
-          </div>
-        </div>
-      ) : (
-        <CKEditor
-          editor={MDEditor}
-          id={id}
-          config={{
-            language: lang(),
-            toolbar: {
-              items: toolbarList
-                ? toolbarList
-                : [
-                    'undo',
-                    'redo',
-                    'removeFormat',
-                    '|',
-                    'paragraph',
-                    'heading1',
-                    'heading2',
-                    'heading3',
-                    '|',
-                    'fontFamily',
-                    'fontSize',
-                    'fontColor',
-                    'highlight',
-                    '|',
-                    'bold',
-                    'italic',
-                    'underline',
-                    'strikethrough',
-                    'subscript',
-                    'superscript',
-                    '|',
-                    'bulletedList',
-                    'numberedList',
-                    'todoList',
-                    '|',
-                    'alignment',
-                    'indent',
-                    'outdent',
-                    '|',
-                    'horizontalLine',
-                    'blockQuote',
-                    'link',
-                    'code',
-                    'imageUpload',
-                    'insertTable',
-                    'codeBlock',
-                    '|',
-                    'sourceEditing',
-                    'findAndReplace',
-                    // 'htmlEmbed',
-                  ],
-              shouldNotGroupWhenFull: showTool,
-            },
-            heading: {
-              options: [
-                { model: 'paragraph', title: _l('正文'), class: 'ck-heading_paragraph' },
-                { model: 'heading1', view: 'h1', title: _l('一级标题'), class: 'ck-heading_heading1' },
-                { model: 'heading2', view: 'h2', title: _l('二级标题'), class: 'ck-heading_heading2' },
-                { model: 'heading3', view: 'h3', title: _l('三级标题'), class: 'ck-heading_heading3' },
-              ],
-            },
-            image: {
-              resizeUnit: 'px',
-              toolbar: [
-                'imageTextAlternative',
-                'imageStyle:inline',
-                'imageStyle:block',
-                'imageStyle:side',
-                '|',
-                'toggleImageCaption',
-              ],
-            },
-            highlight: {
-              options: [
-                {
-                  model: 'yellowMarker',
-                  class: 'marker-yellow',
-                  title: _l('黄色标记'),
-                  color: 'var(--ck-highlight-marker-yellow)',
-                  type: 'marker',
-                },
-                {
-                  model: 'greenMarker',
-                  class: 'marker-green',
-                  title: _l('绿色标记'),
-                  color: 'var(--ck-highlight-marker-green)',
-                  type: 'marker',
-                },
-                {
-                  model: 'pinkMarker',
-                  class: 'marker-pink',
-                  title: _l('粉色标记'),
-                  color: 'var(--ck-highlight-marker-pink)',
-                  type: 'marker',
-                },
-                {
-                  model: 'blueMarker',
-                  class: 'marker-blue',
-                  title: _l('蓝色标记'),
-                  color: 'var(--ck-highlight-marker-blue)',
-                  type: 'marker',
-                },
-              ],
-            },
-            fontFamily: {
-              options: [
-                'default',
-                'Arial, Helvetica, sans-serif',
-                'Courier New, Courier, monospace',
-                'Georgia, serif',
-                'Lucida Sans Unicode, Lucida Grande, sans-serif',
-                'Tahoma, Geneva, sans-serif',
-                'Times New Roman, Times, serif',
-                'Trebuchet MS, Helvetica, sans-serif',
-                'Verdana, Geneva, sans-serif',
-              ],
-            },
-            table: {
-              contentToolbar: [
-                'tableColumn',
-                'tableRow',
-                'mergeTableCells',
-                'tableProperties',
-                'tableCellProperties',
-                'toggleTableCaption',
-              ],
-            },
-            htmlSupport: {
-              allow: [
-                {
-                  name: /^(p|span|div|img|iframe|table|tbody|thead|tfoot|tr|td|th|col|colgroup|caption|hr|br|ul|ol|li|blockquote|em|h[2-6])$/,
-                  styles: true,
-                },
-              ],
-            },
-          }}
-          disabled={disabled}
-          data={data}
-          ref={editorDom}
-          onReady={editor => {
-            if (editor && editor.plugins) {
-              editor.plugins.get('FileRepository').createUploadAdapter = loader => {
-                return new MyUploadAdapter(loader);
-              };
-            }
-          }}
-          onChange={(event, editor) => {
-            const data = editor.getData();
-            changeSetting && changeSetting(true);
-            if (onActualSave) {
-              onActualSave(data);
-            }
-          }}
-          onBlur={(event, editor) => {
-            if (onSave) {
-              const data = editor.getData();
-              onSave(data);
-            }
-          }}
-          onFocus={(event, editor) => {
-            setTimeout(() => {
-              !showTool && $(editorDiv.current).find('.ck-sticky-panel').show();
-            }, 300);
-          }}
-        />
-      )}
+      {content}
     </Wrapper>
   );
 };

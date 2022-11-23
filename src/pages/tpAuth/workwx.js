@@ -1,8 +1,8 @@
 import { getRequest } from 'src/util';
-var DoT = require('dot');
+import DoT from '@mdfe/dot';
 var loginController = require('src/api/login');
-
-require('./style.css');
+import './style.css';
+import tpl from './tpl/noticeMessage.html';
 
 var WorkWeiXin = {};
 
@@ -121,7 +121,7 @@ WorkWeiXin.loginFaild = function () {
 
 WorkWeiXin.notBindProject = function () {
   $('.shade').hide();
-  var html = DoT.template(require('./tpl/noticeMessage.html'))({
+  var html = DoT.template(tpl)({
     title: _l('您的企业微信还未安装应用，无法进入系统'),
     desc: _l('请提醒您的企业微信管理员去企业微信后台安装应用'),
   });
@@ -130,7 +130,7 @@ WorkWeiXin.notBindProject = function () {
 
 WorkWeiXin.notJoinProject = function () {
   $('.shade').hide();
-  var html = DoT.template(require('./tpl/noticeMessage.html'))({
+  var html = DoT.template(tpl)({
     title: _l('您的企业微信账号还未同步，无法进入系统'),
     desc: _l('请提醒您的企业微信管理员去系统后台同步企业微信通讯录'),
   });
@@ -139,7 +139,7 @@ WorkWeiXin.notJoinProject = function () {
 
 WorkWeiXin.userFromError = function () {
   $('.shade').hide();
-  var html = DoT.template(require('./tpl/noticeMessage.html'))({
+  var html = DoT.template(tpl)({
     title: _l('账号来源类型受限'),
     desc: '',
   });
@@ -148,7 +148,7 @@ WorkWeiXin.userFromError = function () {
 
 WorkWeiXin.notProjectAdmin = function () {
   $('.shade').hide();
-  var html = DoT.template(require('./tpl/noticeMessage.html'))({
+  var html = DoT.template(tpl)({
     title: _l('您的账号没有后台的管理员权限，无法进入'),
     desc: _l('请提醒您的管理员去系统后台将您添加为管理员'),
   });

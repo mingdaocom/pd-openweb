@@ -1,30 +1,13 @@
-﻿/*
-依赖：dialog、global.js、basic.css
+﻿import './style.css';
+import '@mdfe/nanoscroller';
+import doT from '@mdfe/dot';
+import headerTpl from './tpl/header.html';
+import listTpl from './tpl/listItem.html';
+import 'src/components/mdDialog/dialog';
 
-define(function (require, exports, module) {
-   require("./dialogSelectGroup");
-
-   require.async('./dialogSelectGroup', function (GroupDialog) {
-      $('#trigger').on('click', function(){
-          GroupDialog({
-            projectId: 'xxxxx',
-            selectCb: function(groupIdArray) {
-              ///
-            }
-          });
-      });
-    });
-});
-
-*/
-
-import './style.css';
-
-import 'nanoScroller';
-var doT = require('dot');
 var groupController = require('src/api/group');
-var headerTplFunc = doT.template(require('./tpl/header.html'));
-var groupItemFunc = doT.template(require('./tpl/listItem.html'));
+var headerTplFunc = doT.template(headerTpl);
+var groupItemFunc = doT.template(listTpl);
 
 var DialogSelectGroup = function (opts) {
   var defaults = {
@@ -45,24 +28,23 @@ $.extend(DialogSelectGroup.prototype, {
   init: function () {
     var _this = this;
     var options = this.options;
-    // init `mdDialog`
-    require(['mdDialog'], function () {
-      _this.$dialog = $.DialogLayer({
-        dialogBoxID: options.dialogId,
-        zIndex: 1000,
-        container: {
-          header: _l('选择分享范围'),
-          width: 510,
-          status: 'disable',
-          yesText: _l('确认') + '<span class="groupCount"></span>',
-          yesFn: function () {
-            if ($.isFunction(options.selectCb)) {
-              options.selectCb.call(null, options.selectGroups);
-            }
-          },
+    _this.$dialog = $.DialogLayer({
+      dialogBoxID: options.dialogId,
+      zIndex: 1000,
+      container: {
+        header: _l('选择分享范围'),
+        width: 510,
+        status: 'disable',
+        yesText: _l('确认') + '<span class="groupCount"></span>',
+        yesFn: function () {
+          if ($.isFunction(options.selectCb)) {
+            options.selectCb.call(null, options.selectGroups);
+          }
         },
-      });
-      _this.render();
+      },
+      readyFn: () => {
+        _this.render();
+      },
     });
   },
   render: function () {
@@ -210,6 +192,6 @@ $.extend(DialogSelectGroup.prototype, {
   },
 });
 
-module.exports = function (opts) {
+export default function (opts) {
   return new DialogSelectGroup(opts);
 };

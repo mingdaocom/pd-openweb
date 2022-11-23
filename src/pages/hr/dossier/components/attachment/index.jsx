@@ -1,6 +1,6 @@
 ﻿import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import plupload from 'plupload';
+import plupload from '@mdfe/jquery-plupload';
 
 import './style.less';
 

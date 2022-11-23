@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { DatePicker } from 'antd';
-import 'dialogSelectUser';
-import 'quickSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
+import 'src/components/quickSelectUser/quickSelectUser';
 import 'moment/locale/zh-cn';
 import locale from 'antd/es/date-picker/locale/zh_CN';
 

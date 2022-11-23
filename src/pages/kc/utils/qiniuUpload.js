@@ -10,7 +10,7 @@ function clearUpTokenCache() {
   bucketTokenMap = {};
 }
 
-function createUploader(option) {
+export function createUploader(option) {
   option = assign(
     {
       ext_blacklist: ['exe', 'bat', 'vbs', 'cmd', 'com', 'url'],
@@ -25,6 +25,7 @@ function createUploader(option) {
       chunk_size: '4mb',
       max_file_size: md.global.SysSettings.fileUploadLimitSize + 'mb',
       bucket: 0,
+      type: 0,
     },
     option,
   );
@@ -130,7 +131,7 @@ function createUploader(option) {
         beforeUploadCheck = $.Deferred().reject();
       }
     }
-    getToken(tokenFiles).then(res => {
+    getToken(tokenFiles, option.type).then(res => {
       files.forEach((item, i) => {
         item.token = res[i].uptoken;
         item.key = res[i].key;
@@ -174,7 +175,7 @@ function createUploader(option) {
       if (file.size && !native.size) {
         file.notExists = true;
       }
-    } catch (e) { }
+    } catch (e) {}
 
     const fileExt = `.${File.GetExt(file.name)}`;
 
@@ -384,7 +385,7 @@ function createUploader(option) {
     } else {
       let fileExt = `.${File.GetExt(file.name)}`;
       let isPic = File.isPicture(fileExt);
-      getToken([{ bucket: isPic ? 4 : 3, ext: fileExt }]).then(res => {
+      getToken([{ bucket: isPic ? 4 : 3, ext: fileExt }], option.type).then(res => {
         $.ajax({
           url:
             option.url.replace(/(\/)$/, '') +
@@ -413,7 +414,3 @@ function createUploader(option) {
 
   return uploader;
 }
-
-module.exports = {
-  createUploader,
-};

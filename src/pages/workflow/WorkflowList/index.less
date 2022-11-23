@@ -22,73 +22,54 @@
 
 .workflowList {
   height: 100%;
-  .workflowHeader {
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    box-sizing: border-box;
-    border-bottom: 1px solid #eaeaea;
+  &.workflowListShadow {
+    margin: 16px 24px 0;
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.16);
+    border-radius: 5px;
     background-color: #fff;
-    border-radius: 4px 4px 0 0;
-  }
-  .workflowAdd {
-    line-height: 30px !important;
-    border-radius: 30px !important;
-    padding: 0 16px !important;
-    opacity: 0.87;
-    &:hover {
-      opacity: 1;
-    }
-    .icon {
-      margin-right: 2px;
-    }
-  }
-  .workflowHeaderBtn {
-    align-items: center;
-  }
-  .tabsBox {
-    width: 100%;
-    padding: 0 24px;
-    border-bottom: 1px solid #eaeaea;
-    background-color: #fff;
-    box-sizing: border-box;
-  }
-  .menuTab {
     overflow: hidden;
-    vertical-align: bottom;
+  }
+  .workflowHeader {
+    width: 240px;
+    padding: 16px 8px;
+    border-right: 1px solid #ddd;
     li {
-      color: #333333;
       font-size: 14px;
       cursor: pointer;
-      padding: 16px 0;
-      margin: 0 20px;
-      transition: border-color 0.3s ease-in-out;
-      border-bottom: 2px solid #2196f3;
-      &:not(.menuTab-active) {
-        border-color: transparent !important;
+      padding: 0 18px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      border-radius: 4px;
+      &:not(.active) {
+        color: #333;
       }
-      &:not(.menuTab-active):not(:hover) {
-        color: #757575 !important;
+      &.active {
+        background: #edf7fe;
+        font-weight: bold;
       }
-      &.menuTabLine {
-        padding: 0;
-        margin: 16px 10px 0 10px;
-        height: 18px;
-        width: 1px;
-        background: #bdbdbd;
-        border: none;
-        vertical-align: top;
-        cursor: default;
+      &:hover:not(.active) {
+        background: #f8f8f8;
       }
+      .activeLine {
+        height: 16px;
+        width: 3px;
+        background: #2196f3;
+        position: absolute;
+        top: 12px;
+        left: 0;
+      }
+    }
+    .workflowHeaderLine {
+      height: 1px;
+      background: #eaeaea;
+      margin: 8px 0;
     }
   }
   .manageListContainer {
-    margin: 20px;
     .manageListBox {
       height: 100%;
-      max-width: 1200px;
       margin: 0 auto;
     }
   }
@@ -96,9 +77,6 @@
     border-radius: 0 0 4px 4px;
     background: #fff;
     position: relative;
-    &.manageListBoxMaxHeight {
-      max-height: 560px;
-    }
     .manageListBoxContent {
       position: absolute;
       top: 0;
@@ -146,8 +124,15 @@
       .flexRow {
         align-items: center;
       }
+      .w120 {
+        width: 120px;
+      }
       .w150 {
         width: 150px;
+      }
+      .w180 {
+        width: 180px;
+        box-sizing: border-box;
       }
       .w240 {
         width: 240px;
@@ -215,7 +200,6 @@
     }
   }
   .flowEmptyWrap {
-    max-height: 440px;
     display: flex;
     height: 100%;
     background-color: #fff;
@@ -228,6 +212,7 @@
       background-size: 780px 130px;
       width: 130px;
       height: 130px;
+      margin-top: -40px;
       &-sheet {
         background-position: 0 0;
       }
@@ -244,6 +229,9 @@
         background-position: -520px 0;
       }
       &-pbc {
+        background-position: -650px 0;
+      }
+      &-approval {
         background-position: -650px 0;
       }
     }

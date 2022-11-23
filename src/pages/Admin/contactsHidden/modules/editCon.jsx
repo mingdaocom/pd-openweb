@@ -4,7 +4,7 @@ import '../container/index.less';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import PeopleAvatar from './peopleAvatar';
-import DialogSelectDept from 'dialogSelectDept';
+import DialogSelectDept from 'src/components/dialogSelectDept';
 import MoreActionDia from './moreActionDia';
 import { updateRulesByRuleId } from '../actions/action';
 
@@ -45,8 +45,9 @@ class EditCon extends React.Component {
         $this.addDataFn(accountIds, type, targetType.user);
       },
     };
-    import('dialogSelectUser').then(() => {
+    import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
       $({}).dialogSelectUser({
+        fromAdmin: true,
         showMoreInvite: false,
         SelectUserSettings: SelectUserSettingsForAdd,
       });
@@ -60,6 +61,7 @@ class EditCon extends React.Component {
     new DialogSelectDept({
       projectId,
       unique: false,
+      fromAdmin: true,
       // selectedDepartment: departmentInfos,
       selectedDepartment: [],
       showCreateBtn: false,

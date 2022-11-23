@@ -62,4 +62,4 @@ UnBindAccount.unBindResult = function(data) {
   }
 };
 
-module.exports = UnBindAccount;
+export default UnBindAccount;

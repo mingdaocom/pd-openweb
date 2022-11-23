@@ -1,7 +1,6 @@
 import EventEmitter from 'events';
 import moment from 'moment';
-var filterXss = require('xss');
-import { navigateTo } from 'src/router/navigateTo';
+import filterXss from 'xss';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
@@ -10,9 +9,8 @@ import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { renderCellText } from 'worksheet/components/CellControls';
-import { getWorksheetInfo } from 'src/api/worksheet';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import { head } from 'lodash';
+import _, { head } from 'lodash';
 
 export { calcDate, formatControlValue, getSelectedOptions } from './util-purejs';
 
@@ -229,17 +227,12 @@ export function filterRelatesheetMutipleControls(controls) {
 export function formatFormulaDate({ value, unit, hideUnitStr, dot = 0 }) {
   let content = '';
   const isNegative = value < 0; // 处理负数
-
   value = (Math.floor(value * Math.pow(10, dot)) / Math.pow(10, dot)).toFixed(dot);
-
   if (isNegative) {
     value = -1 * value;
   }
   const units = [_l('分钟'), _l('小时'), _l('天'), _l('月'), _l('年')];
   let unitStr = units[parseInt(unit, 10) - 1] || '';
-  if (unitStr) {
-    unitStr = ' ' + unitStr;
-  }
   if (hideUnitStr) {
     unitStr = '';
   }
@@ -252,19 +245,13 @@ export function formatFormulaDate({ value, unit, hideUnitStr, dot = 0 }) {
         content = value + unitStr;
       } else if (+value < dayMinute) {
         content =
-          Math.floor(value / hourMinute) +
-          ' ' +
-          units[1] +
-          ' ' +
-          (value % hourMinute >= 0 ? (value % hourMinute) + unitStr : '');
+          Math.floor(value / hourMinute) + units[1] + (value % hourMinute >= 0 ? (value % hourMinute) + unitStr : '');
       } else {
         content =
           Math.floor(value / dayMinute) +
-          ' ' +
           units[2] +
-          ' ' +
           (Math.floor((value % dayMinute) / hourMinute) >= 0
-            ? Math.floor((value % dayMinute) / hourMinute) + ' ' + units[1] + ' '
+            ? Math.floor((value % dayMinute) / hourMinute) + units[1]
             : '') +
           (value % hourMinute >= 0 ? (value % hourMinute).toFixed(dot) + unitStr : '');
       }
@@ -275,9 +262,7 @@ export function formatFormulaDate({ value, unit, hideUnitStr, dot = 0 }) {
       } else {
         content =
           Math.floor(value / dayHour) +
-          ' ' +
           units[2] +
-          ' ' +
           (value % dayHour >= 0 ? (value % dayHour).toFixed(dot) + unitStr : '');
       }
       break;
@@ -464,7 +449,7 @@ export function formatRecordToRelateRecord(controls, records = []) {
     records = [];
   }
   const titleControl = _.find(controls, control => control.attribute === 1);
-  const value = records.map(record => {
+  const value = records.map((record = {}) => {
     let name = titleControl ? record[titleControl.controlId] : '';
     if (titleControl && titleControl.type === 29 && name) {
       /**
@@ -512,6 +497,7 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
       const formdata = new DataFormat({
         data: controldata,
         from: FROM.NEWRECORD,
+        ignoreRequired: true,
       });
       let errorItems = formdata.getErrorControls();
       rulesErrors.forEach(errorItem => {
@@ -639,6 +625,7 @@ export function copySublistControlValue(control, value) {
     case WIDGETS_TO_API_TYPE_ENUM.USER_PICKER: // 成员
     case WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT: // 部门
     case WIDGETS_TO_API_TYPE_ENUM.SCORE: // 等级
+    case WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER: // 公式
     case WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET: // 关联记录
     case WIDGETS_TO_API_TYPE_ENUM.SWITCH: // 检查框
     case WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT: // 富文本

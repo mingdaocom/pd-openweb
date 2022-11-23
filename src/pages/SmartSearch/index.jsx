@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
+import ReactDom from 'react-dom';
 import { parse } from 'query-string';
-import { init, options } from './components/search';
+import Search from './components/search';
 
 export default class UserEntrypoint extends Component {
   componentDidMount() {
     $('html').addClass('AppSearch');
-    init();
+    Search.init();
   }
   shouldComponentUpdate(nextProps) {
     const nextQuery = parse(nextProps.location.search.substr(1));
@@ -13,13 +14,16 @@ export default class UserEntrypoint extends Component {
     const nextSearchType = nextQuery.searchType;
     if (
       this.props.location.search !== nextProps.location.search &&
-      (options.keywords !== nextSearchKey || (nextSearchType && options.searchType !== nextSearchType))
+      (Search.options.keywords !== nextSearchKey || (nextSearchType && Search.options.searchType !== nextSearchType))
     ) {
-      init();
+      Search.init();
     }
     return false;
   }
   componentWillUnmount() {
+    delete window.feedSelectDate;
+    delete window.feedCustomDate;
+    ReactDom.unmountComponentAtNode(document.querySelector('.smartSearchFilterDateWrap'));
     $('html').removeClass('AppSearch');
   }
   render() {

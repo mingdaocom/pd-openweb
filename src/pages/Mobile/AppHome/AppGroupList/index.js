@@ -19,9 +19,9 @@ class AppGroupList extends Component {
     super(props);
     this.state = {};
   }
-  getAppHomeList;
   componentDidMount() {
     const currentProject = getProject(localStorage.getItem('currentProjectId'));
+    this.setState({ projectId: currentProject.projectId });
     this.props.dispatch(actions.getMyApp(currentProject.projectId));
   }
   renderlist = (data = [], type) => {
@@ -31,24 +31,40 @@ class AppGroupList extends Component {
         {data.map((item, index) => {
           return (
             <div className={cx('groupItemDetail flexRow', { borderTop: index === 0 })} key={item.id}>
-              <div className="groupItemIcon">
-                {item.iconUrl ? (
-                  <SvgIcon url={item.iconUrl} fill="#9d9d9d" size={20} addClassName="mTop16" />
-                ) : (
-                  <Icon className="Gray_9d Font20" icon={item.icon} />
-                )}
-              </div>
               <div
-                className={cx('groupItemName flex', { currentGroupLast: index === data.length - 1 })}
+                className="flex flexRow"
                 onClick={() => {
-                  safeLocalStorageSetItem('currentGroupInfo', JSON.stringify({ id: item.id, groupType: item.groupType }));
+                  safeLocalStorageSetItem(
+                    'currentGroupInfo',
+                    JSON.stringify({ id: item.id, groupType: item.groupType }),
+                  );
                   window.mobileNavigateTo(`/mobile/groupAppList/${item.id}/${item.groupType}`);
                 }}
               >
-                {item.name}
-                {item.appIds && !_.isEmpty(item.appIds) && (
-                  <span className="Gray_9e Font17 mLeft10">{item.appIds.length}</span>
-                )}
+                <div className="groupItemIcon">
+                  {item.iconUrl ? (
+                    <SvgIcon url={item.iconUrl} fill="#9d9d9d" size={20} addClassName="mTop16" />
+                  ) : (
+                    <Icon className="Gray_9d Font20" icon={item.icon} />
+                  )}
+                </div>
+                <div className={cx('groupItemName flex', { currentGroupLast: index === data.length - 1 })}>
+                  {item.name}
+                  {item.appIds && !_.isEmpty(item.appIds) && (
+                    <span className="Gray_9e Font17 mLeft10">{item.appIds.length}</span>
+                  )}
+                </div>
+              </div>
+              <div className={cx('space', { currentGroupLast: index === data.length - 1 })}></div>
+              <div
+                className={cx('markedGroup', { currentGroupLast: index === data.length - 1 })}
+                onClick={() => {
+                  this.props.dispatch(
+                    actions.markedGroup({ ...item, projectId: this.state.projectId, isMarked: !item.isMarked }),
+                  );
+                }}
+              >
+                <Icon icon="h5_star" className="Font20" style={{ color: item.isMarked ? '#ffc400' : '#9e9e9e' }} />
               </div>
             </div>
           );

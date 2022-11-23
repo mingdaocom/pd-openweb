@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import moment from 'moment';
 import _ from 'lodash';
 import nzh from 'nzh';
-import LibMath from 'mathjs';
 import cx from 'classnames';
 import { Parser } from 'hot-formula-parser';
 
@@ -241,13 +240,7 @@ class FormContainer extends Component {
             return null;
           });
 
-          const tree = LibMath.parse(formula);
-
-          let value = Calc.exExec(tree);
-          if (!value) {
-            value = null;
-          }
-
+          value = null;
           _values[id] = value;
         }
 

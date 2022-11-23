@@ -49,7 +49,7 @@ function SideAppItem({
           ? `/app/${id}/${_.filter(
               [storage.lastGroupId, storage.lastWorksheetId, storage.lastViewId],
               item => !!item,
-            ).join('/')}`
+            ).join('/')}?from=insite`
           : `/app/${id}`
       }
       onClick={e => {

@@ -6,11 +6,11 @@ import Icon from './Icon';
 import Button from './Button';
 import Splitter from './Splitter';
 import $ from 'jquery';
-import 'autoTextarea';
-import 'mentioninput';
-import 'uploadAttachment';
-import 'emotion';
-import 'selectGroup';
+import 'src/components/autoTextarea/autoTextarea';
+import 'src/components/mentioninput/mentionsInput';
+import 'src/components/uploadAttachment/uploadAttachment';
+import 'src/components/emotion/emotion';
+import 'src/components/selectGroup/selectAllGroup';
 import './less/Commenter.less';
 import { getRandomString } from 'src/util';
 

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { arrayOf, func, number, string } from 'prop-types';
 import UserHead from 'src/pages/feed/components/userHead';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 
 const Con = styled.div`
   display: flex;
@@ -92,6 +92,7 @@ export default function Users(props) {
             showMoreInvite: false,
             SelectUserSettings: {
               includeUndefinedAndMySelf: true,
+              filterResigned: false,
               // includeSystemField: true,
               showMoreInvite: false,
               projectId,
@@ -120,6 +121,7 @@ export default function Users(props) {
             SelectUserSettings: {
               projectId,
               unique: !isMultiple,
+              filterResigned: false,
               callback(users) {
                 onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
                 setActive(false);

@@ -19,6 +19,8 @@ import {
 import { putControlByOrder, replaceHalfWithSizeControls } from 'src/pages/widgetConfig/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import { SYSTOPRINTTXT } from '../config';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import _ from 'lodash';
 
 export default class Con extends React.Component {
@@ -203,7 +205,6 @@ export default class Con extends React.Component {
     let relationsList = tableList.relationsData || {};
     let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
     let list = relationsList.data || [];
-    // console.log(list, relationControls, printData);
     //空置隐藏则不显示
     if (isHideNull && list.length <= 0) {
       return '';
@@ -380,14 +381,16 @@ export default class Con extends React.Component {
     );
   };
 
-  renderWorks = () => {
+  renderWorks = (_works=undefined, _name) => {
     const { printData } = this.props;
     const { workflow = [], processName } = printData;
-    const visibleItemLength = workflow.filter(item => item.checked).length;
+    let works = _works ? _works : workflow;
+    const visibleItemLength = works.filter(item => item.checked).length;
+    let name = _works ? _name : processName;
     return (
       <div className="worksTable">
-        {visibleItemLength ? <div className="Font15 bold mBottom12">{processName}</div> : null}
-        {workflow.map((item, index) => (
+        {visibleItemLength ? <div className="Font15 bold mBottom12">{name}</div> : null}
+        {works.map((item, index) => (
           <div
             className="workDetail clearfix "
             key={index}
@@ -444,6 +447,42 @@ export default class Con extends React.Component {
     );
   };
 
+  renderApproval = () => {
+    const { printData, sheetSwitchPermit, params } = this.props;
+    const {viewId} = params;
+    const { approval = [] } = printData;
+
+    const visibleItem = approval.filter(item => item.child.some(l=>l.checked));
+    if(!isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId)) {
+      return null;
+    }
+    return (
+      <React.Fragment>
+        {visibleItem.length>0 && (
+          <React.Fragment>
+            {
+              visibleItem.map((item, index) => {
+                return (
+                  <div className='approval'>
+                    {item.child.map(l=>{
+                      let _workList = l.processInfo.works.map(m => {
+                        return {
+                          ...m,
+                          checked: l.checked
+                        }
+                      })
+                      return this.renderWorks(_workList, l.processInfo.processName )
+                    })}
+                  </div>
+                )
+              })
+            }
+          </React.Fragment>
+        )}
+      </React.Fragment>
+    )
+  }
+
   getNumSys = () => {
     const { printData } = this.props;
     let num = 0;
@@ -470,11 +509,7 @@ export default class Con extends React.Component {
   render() {
     const { loading, shareUrl } = this.state;
     const { params, printData, controls, signature } = this.props;
-    const { receiveControls = [], workflow = [], showData } = printData;
-    let dta = [];
-    if (receiveControls.length > 0) {
-      dta = receiveControls.find(it => it.attribute === 1);
-    }
+    const { receiveControls = [], workflow = [], showData, approval=[], attributeName } = printData;
     return (
       <div className="flex">
         {loading ? (
@@ -506,7 +541,7 @@ export default class Con extends React.Component {
               )}
               <div className="createBy">
                 {/* 标题 */}
-                <h6 className="Font18">{printData.titleChecked && dta && renderCellText(dta)}</h6>
+                <h6 className="Font18">{printData.titleChecked && attributeName}</h6>
                 {this.getNumSys() > 0 && (
                   <div className="mTop10 sysBox">
                     {this.getNumSys() >= 4 ? (
@@ -549,6 +584,7 @@ export default class Con extends React.Component {
               {_.isEmpty(controls) ? undefined : this.renderControls()}
               {/* 工作流 */}
               {workflow.length > 0 && this.renderWorks()}
+              {approval.length>0 && this.renderApproval()}
               {/* 签名字段 */}
               {signature.length > 0 && signature.filter(item => item.checked).length > 0 ? (
                 <div className="flexRow mTop50 pBottom30 signatureContentWrapper">

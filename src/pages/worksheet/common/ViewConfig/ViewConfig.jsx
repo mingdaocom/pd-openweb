@@ -10,7 +10,7 @@ import sheetAjax from 'src/api/worksheet';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/';
 import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import SingleFilter from '../../common/WorkSheetFilter/common/SingleFilter';
+import FilterConfig from '../../common/WorkSheetFilter/common/FilterConfig';
 import CardAppearance from './CardAppearance';
 import CustomBtn from './components/customBtn/CustomBtn';
 import HierarchyViewSetting from './hierarchyViewSetting';
@@ -22,7 +22,16 @@ import FastFilter from './components/fastFilter';
 import NavGroup from './components/navGroup';
 import './ViewConfig.less';
 import { getAdvanceSetting } from 'src/util';
-import { updateViewAdvancedSetting, CAN_NOT_AS_VIEW_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import {
+  updateViewAdvancedSetting,
+  CAN_NOT_AS_VIEW_SORT,
+  NORMAL_SYSTEM_FIELDS,
+  NORMAL_SYSTEM_FIELDS_SORT,
+  WORKFLOW_SYSTEM_FIELDS,
+  WORKFLOW_SYSTEM_FIELDS_SORT,
+} from 'src/pages/worksheet/common/ViewConfig/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 
@@ -128,13 +137,17 @@ class ViewConfigCon extends Component {
       this.setState(this.fill(nextProps, nextProps.view.viewId === this.props.view.viewId));
     }
   }
-  fill = ({ columns, view }, isEqualViewId) => {
+  fill = ({ columns, view, sheetSwitchPermit }, isEqualViewId) => {
     const sortCid = view.sortCid || 'ctime';
     const sortingColumns = formatSortingColumns(columns);
     const sortType = view.sortType || this.getDefaultSortValue(sortCid, sortingColumns);
     const { showControlName = true, showControls = [], controls = [] } = view;
     const { customdisplay = '0', refreshtime = '0' } = getAdvanceSetting(view); //'0':表格显示列与表单中的字段保持一致 '1':自定义显示列
-    const syssort = getAdvanceSetting(view, 'syssort') || SYS.filter(o => !controls.includes(o));
+    const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
+    const defaultSysSort = isShowWorkflowSys
+      ? [...WORKFLOW_SYSTEM_FIELDS_SORT, ...NORMAL_SYSTEM_FIELDS_SORT]
+      : NORMAL_SYSTEM_FIELDS_SORT;
+    const syssort = getAdvanceSetting(view, 'syssort') || defaultSysSort.filter(o => !controls.includes(o));
     const sysids = getAdvanceSetting(view, 'sysids') || [];
     // sysids：显示的系统字段 syssort：系统字段顺序
     const config = {
@@ -394,20 +407,31 @@ class ViewConfigCon extends Component {
       sysids,
       syssort,
     } = this.state;
-    const { columns, view } = this.props;
+    const { columns, view, sheetSwitchPermit } = this.props;
+    const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
     const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
       c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49], c.type),
     );
+    const filteredColumnsData = isShowWorkflowSys
+      ? filteredColumns.concat(NORMAL_SYSTEM_FIELDS, WORKFLOW_SYSTEM_FIELDS)
+      : filteredColumns.concat(NORMAL_SYSTEM_FIELDS);
+
     // 画廊视图封面需要嵌入字段，其他配置过滤
     const coverColumns = filterHidedControls(columns, view.controls, false).filter(c => !!c.controlName);
     /* 多表关联层级视图 */
     const isRelateMultiSheetHierarchyView = viewTypeText === 'structure' && String(view.childType) === '2';
     const isCalendar = viewTypeText === 'calendar';
     const showControlsForSortControl = showControls.filter(id =>
-      _.find(filteredColumns, column => column.controlId === id && (column.fieldPermission || '111')[0] === '1'),
+      _.find(filteredColumnsData, column => column.controlId === id && (column.fieldPermission || '111')[0] === '1'),
     );
-    const sysControlsColumnsForSort = columns.filter(c => syssort.includes(c.controlId));
+    const sysControlsColumnsForSort = isShowWorkflowSys
+      ? [...columns.filter(c => syssort.includes(c.controlId)), ...NORMAL_SYSTEM_FIELDS, ...WORKFLOW_SYSTEM_FIELDS]
+      : [...columns.filter(c => syssort.includes(c.controlId)), ...NORMAL_SYSTEM_FIELDS];
+    const customizeColumns = isShowWorkflowSys
+      ? [...filteredColumns, ...NORMAL_SYSTEM_FIELDS, ...WORKFLOW_SYSTEM_FIELDS]
+      : [...filteredColumns, ...NORMAL_SYSTEM_FIELDS];
+
     return (
       <div className="viewConfigWrap">
         {/* 日历视图基本配置 */}
@@ -595,14 +619,14 @@ class ViewConfigCon extends Component {
                   noempty={false} //不需要至少显示一列
                   maxHeight={document.documentElement.clientHeight - 200}
                   showControls={showControlsForSortControl}
-                  columns={filteredColumns.filter(c => (c.fieldPermission || '111')[0] === '1')}
+                  columns={customizeColumns.filter(c => (c.fieldPermission || '111')[0] === '1')}
                   controlsSorts={showControlsForSortControl}
                   onChange={({ newShowControls, newControlSorts }) => {
                     this.setState(
                       {
                         showControls: _.uniqBy(
                           newShowControls.concat(
-                            filteredColumns.filter(c => (c.fieldPermission || '111')[0] === '0').map(c => c.controlId),
+                            customizeColumns.filter(c => (c.fieldPermission || '111')[0] === '0').map(c => c.controlId),
                           ),
                         ),
                         customdisplay: '1',
@@ -675,7 +699,7 @@ class ViewConfigCon extends Component {
                         this.setState(
                           {
                             filters: items,
-                            appearFilters: formatValuesOfOriginConditions(items),
+                            appearFilters: items,
                             shwoMoreMenu: false,
                           },
                           () => {
@@ -704,12 +728,15 @@ class ViewConfigCon extends Component {
             </Trigger>
           ) : null}
         </div>
-        <SingleFilter
+        <FilterConfig
+          version={view.filters && JSON.stringify(view.filters)}
+          supportGroup
           canEdit
           feOnly
           filterColumnClassName="sheetViewFilterColumnOption"
           projectId={projectId}
           appId={appId}
+          filterResigned={false}
           columns={segmentation(columns)}
           conditions={view.filters}
           onConditionsChange={conditions => {
@@ -797,8 +824,19 @@ class ViewConfigCon extends Component {
 
   renderSetting = () => {
     const { viewSetting } = this.state;
-    const { showCreateCustomBtnFn, worksheetId, appId, columns, view, btnData, refreshFn, btnList, viewId } =
-      this.props;
+    const {
+      showCreateCustomBtnFn,
+      worksheetId,
+      appId,
+      columns,
+      view,
+      btnData,
+      refreshFn,
+      btnList,
+      viewId,
+      sheetSwitchPermit,
+    } = this.props;
+    const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     const { hidebtn } = getAdvanceSetting(view); //隐藏不可用按钮 1：隐藏 0或者空：不隐藏
     switch (viewSetting) {
       case 'CustomAction': // 自定义动作
@@ -835,6 +873,7 @@ class ViewConfigCon extends Component {
         return (
           <MobileSet
             {...this.props}
+            isShowWorkflowSys={isShowWorkflowSys}
             coverColumns={filterHidedControls(columns, view.controls, false).filter(
               c => !!c.controlName && !_.includes([45], c.type), //移动端暂不支持嵌入字段作为封面
             )}

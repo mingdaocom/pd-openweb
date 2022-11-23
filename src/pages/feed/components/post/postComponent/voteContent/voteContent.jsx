@@ -63,4 +63,4 @@ class VoteContent extends React.Component {
   }
 }
 
-module.exports = connect(state => ({}))(VoteContent);
+export default connect(state => ({}))(VoteContent);

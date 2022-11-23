@@ -5,15 +5,15 @@ import { Select } from 'antd';
 import userController from 'src/api/user';
 import departmentController from 'src/api/department';
 import Act from '../dialogInviteUser/act';
-import DialogSelectDept from 'dialogSelectDept';
+import DialogSelectDept from 'src/components/dialogSelectDept';
 import DialogSelectJob from 'src/components/DialogSelectJob';
-import intlTelInput from '@mdfe/intl-tel-input';
-import utils from '@mdfe/intl-tel-input/build/js/utils';
-import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import RegExp from 'src/util/expression';
 import { getJobs, addJob } from 'src/api/job';
 import cx from 'classnames';
 import { checkSensitive } from 'src/api/fixedData.js';
+import intlTelInput from '@mdfe/intl-tel-input';
+import utils from '@mdfe/intl-tel-input/build/js/utils';
+import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 
 const { Option } = Select;
 const configs = [
@@ -104,7 +104,7 @@ class EditInfo extends React.Component {
       jobList: [],
       keywords: '',
       errors: {},
-      fullDepartmentInfo: {}
+      fullDepartmentInfo: {},
     };
     this.handleFieldBlur = this.handleFieldBlur.bind(this);
     this.handleFieldInput = this.handleFieldInput.bind(this);
@@ -242,18 +242,12 @@ class EditInfo extends React.Component {
       pageSize: 1000,
     });
     this.ajaxRequest.then(res => {
-      console.log(res, 'res');
       let newJobInfo = jobName && _.find(res.list, item => item.jobName === jobName);
       let jobIds = jobName && newJobInfo ? [newJobInfo.jobId] : [];
-      this.setState(
-        {
-          jobList: res.list,
-          jobIds: [...this.state.jobIds, ...jobIds],
-        },
-        () => {
-          console.log(this.state.jobList, 'jobListjobListjobListjobList');
-        },
-      );
+      this.setState({
+        jobList: res.list,
+        jobIds: [...this.state.jobIds, ...jobIds],
+      });
     });
   };
   handleAddJob = jobName => {
@@ -371,6 +365,7 @@ class EditInfo extends React.Component {
     new DialogSelectDept({
       projectId,
       unique: false,
+      fromAdmin: true,
       selectedDepartment: departmentInfos,
       showCreateBtn: false,
       selectFn(departments) {
@@ -400,7 +395,6 @@ class EditInfo extends React.Component {
   onBlur = e => {
     let { contactPhone } = this.state;
     let tel = e && e.target && e.target.value;
-    console.log(tel, contactPhone, !RegExp.isTel(tel));
     if (!tel) return;
     if (!RegExp.isTel(tel) && !RegExp.isMobile(tel)) {
       this.setState({ contactPhoneError: true });
@@ -498,7 +492,7 @@ class EditInfo extends React.Component {
             <div className="formGroup">
               <span className="formLabel">{_l('部门')}</span>
               {departmentInfos.map((item, i) => {
-                const fullName = (fullDepartmentInfo[item.departmentId] || '').split('/')
+                const fullName = (fullDepartmentInfo[item.departmentId] || '').split('/');
                 return (
                   <Tooltip
                     tooltipClass="departmentFullNametip"
@@ -515,10 +509,7 @@ class EditInfo extends React.Component {
                     }
                     mouseEnterDelay={0.5}
                   >
-                    <span
-                      className="itemSpan mAll5"
-                      onMouseEnter={() => this.getDepartmentFullName(item.departmentId)}
-                    >
+                    <span className="itemSpan mAll5" onMouseEnter={() => this.getDepartmentFullName(item.departmentId)}>
                       {item.departmentName}
                       {i === 0 && <span className="isTopIcon">主</span>}
                       <div className="moreOption">

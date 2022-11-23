@@ -78,8 +78,10 @@ class TopPostList extends React.Component {
   }
   render() {
     const { groupId, projectId, listType } = this.props.options;
-    if (!this.props.topPostIds.length || listType !== postEnum.LIST_TYPE.project || groupId || projectId === '') return false;
-    const pageIndex = this.state.pageIndex >= this.props.topPostIds.length ? this.props.topPostIds.length - 1 : this.state.pageIndex;
+    if (!this.props.topPostIds.length || listType !== postEnum.LIST_TYPE.project || groupId || projectId === '')
+      return false;
+    const pageIndex =
+      this.state.pageIndex >= this.props.topPostIds.length ? this.props.topPostIds.length - 1 : this.state.pageIndex;
     const postItem = this.props.postsById[this.props.topPostIds[pageIndex]];
 
     const header = (
@@ -103,7 +105,7 @@ class TopPostList extends React.Component {
   }
 }
 
-module.exports = connect((state) => {
+export default connect(state => {
   const { fontSize, topPostIds, postsById, options } = state.post;
   return { fontSize, topPostIds, postsById, options };
 })(TopPostList);

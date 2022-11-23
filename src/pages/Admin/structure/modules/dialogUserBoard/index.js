@@ -1,17 +1,22 @@
-﻿var doT = require('dot');
-var mdDialog = require('mdDialog').index;
+﻿import doT from '@mdfe/dot';
+import { index as mdDialog} from 'src/components/mdDialog/dialog';
 var userController = require('src/api/user');
 var importUserController = require('src/api/importUser');
-var Confirm = require('confirm');
 import ValidatePassword from '../validatePasswordDialog';
 import { getPssId } from 'src/util/pssId';
 import './style.less';
+import userTableHtml from './tpl/userTable.html';
+import { Dialog } from 'ming-ui';
+import 'src/components/mdBusinessCard/mdBusinessCard';
+import 'src/components/pager/pager';
+import 'src/components/tooltip/tooltip';
+import SelectDept from 'src/components/dialogSelectDept';
 
 const exportUsers = (projectId, accountIds = []) => {
   var url = `${md.global.Config.AjaxApiUrl}download/exportProjectUserList`;
   let projectName = (md.global.Account.projects || []).filter(item => item.projectId === projectId).length
-  ? (md.global.Account.projects || []).filter(item => item.projectId === projectId)[0].companyName
-  : '';
+    ? (md.global.Account.projects || []).filter(item => item.projectId === projectId)[0].companyName
+    : '';
 
   fetch(url, {
     method: 'POST',
@@ -147,7 +152,7 @@ UserBoard.prototype.renderExportList = function () {
         accountIds: options.accountIds,
         type: options.type,
       });
-      var tpl = doT.template(require('./tpl/userTable.html'))(renderData);
+      var tpl = doT.template(userTableHtml)(renderData);
       _this.dialog.content(tpl);
       _this.dialog.dialogCenter();
     }
@@ -177,12 +182,10 @@ UserBoard.prototype.bindExportEvent = function () {
   });
 
   $container.on('mouseover', 'img[data-accountid]', function () {
-    var $this = $(this);
-    require(['mdBusinessCard'], function () {
-      if ($this.data('bind')) return;
-      $this.mdBusinessCard();
-      $this.data('bind', true).trigger('mouseenter');
-    });
+  var $this = $(this);
+    if ($this.data('bind')) return;
+    $this.mdBusinessCard();
+    $this.data('bind', true).trigger('mouseenter');
   });
 };
 
@@ -229,20 +232,18 @@ UserBoard.prototype.renderInviteList = function (data) {
     var renderData = $.extend({}, data, {
       type: options.type,
     });
-    var tpl = doT.template(require('./tpl/userTable.html'))(renderData);
+    var tpl = doT.template(userTableHtml)(renderData);
     this.dialog.content(tpl);
     this.dialog.dialogCenter();
     if (data.allCount > options.pageIndex) {
-      require(['pager'], function () {
-        _this.$container.find('.pager').Pager({
-          pageIndex: options.pageIndex,
-          pageSize: options.pageSize,
-          count: data.allCount,
-          changePage: function (pageIndex) {
-            options.pageIndex = pageIndex;
-            _this.getUserList();
-          },
-        });
+      _this.$container.find('.pager').Pager({
+        pageIndex: options.pageIndex,
+        pageSize: options.pageSize,
+        count: data.allCount,
+        changePage: function (pageIndex) {
+          options.pageIndex = pageIndex;
+          _this.getUserList();
+        },
       });
     }
   }
@@ -275,17 +276,15 @@ UserBoard.prototype.bindInviteEvent = function () {
   $container.on('mouseenter', '[tip]', function () {
     var $this = $(this);
     if ($this.data('bind')) return;
-    require(['tooltip'], function () {
-      $this
-        .mdTooltip({
-          text: _l('取消邀请<br/>并移除'),
-          width: 80,
-          arrowLeft: 15,
-          offsetLeft: -28,
-        })
-        .data('bind', true)
-        .trigger('mouseenter');
-    });
+    $this
+      .mdTooltip({
+        text: _l('取消邀请<br/>并移除'),
+        width: 80,
+        arrowLeft: 15,
+        offsetLeft: -28,
+      })
+      .data('bind', true)
+      .trigger('mouseenter');
   });
 
   $container.on('click', '.cancelInvite', function () {
@@ -293,12 +292,10 @@ UserBoard.prototype.bindInviteEvent = function () {
     var account = $this.data('account');
     if (!account) return;
 
-    new Confirm(
-      {
-        title: '',
-        content: _l('确认取消邀请该用户吗'),
-      },
-      function () {
+    Dialog.confirm({
+      title: _l('确认取消邀请该用户吗'),
+      description: '',
+      onOk: () => {
         importUserController
           .cancelImportUser({
             accounts: [account],
@@ -316,7 +313,7 @@ UserBoard.prototype.bindInviteEvent = function () {
             }
           });
       },
-    );
+    });
   });
 };
 
@@ -354,19 +351,18 @@ UserBoard.prototype.adjustDialog = function () {
     _this.$btn = _this.$container.find('.adjustBtn');
     _this.$btn.on('click', function (e) {
       var $this = $(this);
-      require(['dialogSelectDept'], function (SelectDept) {
-        SelectDept({
-          projectId: options.projectId,
-          unique: false,
-          selectedDepartment: [],
-          showCreateBtn: false,
-          selectFn: function (data) {
-            $this.text(data.map(it => it.departmentName).join(',')).data(
-              'departmentid',
-              data.map(it => it.departmentId),
-            );
-          },
-        });
+      SelectDept({
+        projectId: options.projectId,
+        unique: false,
+        fromAdmin: true,
+        selectedDepartment: [],
+        showCreateBtn: false,
+        selectFn: function (data) {
+          $this.text(data.map(it => it.departmentName).join(',')).data(
+            'departmentid',
+            data.map(it => it.departmentId),
+          );
+        },
       });
     });
   });
@@ -414,6 +410,6 @@ UserBoard.prototype.adjustConfirm = function () {
   });
 };
 
-module.exports = function (opts) {
+export default function (opts) {
   return new UserBoard(opts);
 };

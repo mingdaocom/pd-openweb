@@ -25,7 +25,7 @@ class ConfirmButton extends Component {
       const promise = action.apply(this);
       if (promise && promise.then) {
         this.setState({ loading: true });
-        const stopLoading = (noClose) => {
+        const stopLoading = noClose => {
           if (this.mounted) {
             this.setState({ loading: false });
           }
@@ -44,7 +44,12 @@ class ConfirmButton extends Component {
 
   render() {
     return (
-      <Button type={this.props.type} onClick={this.handleClick} loading={this.state.loading}>
+      <Button
+        type={this.props.type}
+        disabled={this.props.disabled}
+        onClick={this.handleClick}
+        loading={this.state.loading}
+      >
         {this.props.children}
       </Button>
     );

@@ -16,7 +16,7 @@ class Detail extends Component {
     relationType: PropTypes.number,
     flowInfo: PropTypes.any,
     selectNodeId: PropTypes.string.isRequired,
-    selectNodeType: PropTypes.string.isRequired,
+    selectNodeType: PropTypes.any.isRequired,
     selectNodeName: PropTypes.string,
     isCopy: PropTypes.bool,
     closeDetail: PropTypes.func.isRequired,
@@ -48,7 +48,9 @@ class Detail extends Component {
    * 更新节点数据
    */
   updateNodeData = data => {
-    this.props.dispatch(updateNodeData(data));
+    const { processId } = this.props;
+
+    this.props.dispatch(updateNodeData(processId, data));
   };
 
   render() {

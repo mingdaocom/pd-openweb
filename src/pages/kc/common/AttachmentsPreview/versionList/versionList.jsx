@@ -1,10 +1,9 @@
-const PropTypes = require('prop-types');
-const React = require('react');
-const cx = require('classnames');
-const Popup = require('ming-ui/components/Popup');
-const LoadDiv = require('ming-ui/components/LoadDiv');
+import PropTypes from 'prop-types';
+import React from 'react';
+import cx from 'classnames';
+import { LoadDiv } from 'ming-ui';
 const kcAjax = require('src/api/kc');
-const utils = require('src/util');
+import { downloadFile } from 'src/util';
 
 class VersionList extends React.Component {
   static propTypes() {
@@ -33,14 +32,14 @@ class VersionList extends React.Component {
       .getMultiVersionFile({
         id: this.props.attachment.id,
       })
-      .then((list) => {
+      .then(list => {
         comp.setState({
           versionList: list.sort((a, b) => a.createTime < b.createTime),
         });
       });
   };
 
-  changeVersion = (version) => {
+  changeVersion = version => {
     const versionId = version.versionId ? version.versionId : '';
     if (version.versionId === this.state.activeVersionId) {
       return;
@@ -53,7 +52,8 @@ class VersionList extends React.Component {
 
   remove = (versionFile, i) => {
     const isFirst = versionFile.versionId === this.state.versionList[0].versionId;
-    const isLastLeft = this.state.versionList.length === 1 && versionFile.versionId === this.state.versionList[0].versionId;
+    const isLastLeft =
+      this.state.versionList.length === 1 && versionFile.versionId === this.state.versionList[0].versionId;
     if (confirm(!isLastLeft ? '确认删除该版本？' : '这是该文件的最后一个版本，确认删除？')) {
       const removedVersionId = versionFile.versionId;
       kcAjax
@@ -61,7 +61,7 @@ class VersionList extends React.Component {
           id: versionFile.id,
           versionId: removedVersionId,
         })
-        .then((outerItem) => {
+        .then(outerItem => {
           if (isLastLeft) {
             alert('删除成功');
             this.props.onClose();
@@ -90,7 +90,7 @@ class VersionList extends React.Component {
                 this.props.replaceAttachment(nextVersion);
                 this.setState({ activeVersionId: nextVersion.versionId || '' });
               }
-            }
+            },
           );
           alert('成功删除该版本');
         })
@@ -100,15 +100,15 @@ class VersionList extends React.Component {
     }
   };
 
-  download = (attachment) => {
+  download = attachment => {
     if (attachment.canDownload) {
-      window.open(utils.downloadFile(attachment.downloadUrl));
+      window.open(downloadFile(attachment.downloadUrl));
     } else {
       alert('您权限不足，无法保存。请联系文件夹管理员或文件上传者', 3);
     }
   };
 
-  renderList = (list) => {
+  renderList = list => {
     return list.map((version, i) => {
       const versionId = version.versionId ? version.versionId : '';
       return (
@@ -127,7 +127,9 @@ class VersionList extends React.Component {
           </span>
           <span className="createTime">{version.isNew ? '当前版本' : version.createTime}</span>
           <span className="historyBtn btnDelete">
-            {(version.isAdmin || version.isCreateUser || (version.owner.accountId === md.global.Account.accountId && list.length > 1)) && (
+            {(version.isAdmin ||
+              version.isCreateUser ||
+              (version.owner.accountId === md.global.Account.accountId && list.length > 1)) && (
               <i
                 className="icon-delete"
                 onClick={() => {
@@ -168,4 +170,4 @@ class VersionList extends React.Component {
   }
 }
 
-module.exports = VersionList;
+export default VersionList;

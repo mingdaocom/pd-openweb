@@ -9,10 +9,15 @@ import {
   API_ENUM_TO_TYPE,
 } from './enum';
 
-export function formatConditionForSave(condition, relationType) {
-  let { values, controlType } = condition;
+export function formatConditionForSave(condition, relationType, options = {}) {
+  let { controlId, values, controlType } = condition;
+  const { returnFullValues } = options;
+  if (_.get(condition, 'control') && controlType === 25) {
+    controlType = 8;
+    controlId = condition.control.dataSource.slice(1, -1);
+  }
   return {
-    controlId: condition.controlId,
+    controlId: controlId,
     dataType: controlType,
     spliceType: relationType,
     filterType: condition.type,
@@ -20,8 +25,11 @@ export function formatConditionForSave(condition, relationType) {
     dateRangeType: condition.dateRangeType,
     maxValue: condition.maxValue,
     minValue: condition.minValue,
+    isDynamicsource: condition.isDynamicsource,
+    dynamicSource: condition.dynamicSource || [],
     value: condition.value,
-    values,
+    values:
+      returnFullValues && _.includes([26, 27, 29, 19, 23, 24, 35, 48], controlType) ? condition.fullValues : values,
   };
 }
 
@@ -56,57 +64,132 @@ export function formatValues(controlType, filterType, values = []) {
   return values;
 }
 
+export function formatValuesOfCondition(condition) {
+  return condition.isGroup && condition.groupFilters
+    ? {
+        ...condition,
+        groupFilters: condition.groupFilters.map(c => ({
+          ...c,
+          values: formatValues(c.dataType, c.filterType, c.values),
+        })),
+      }
+    : {
+        ...condition,
+        values: formatValues(condition.dataType, condition.filterType, condition.values),
+      };
+}
+
 export function getTypeKey(type) {
   const whiteListKeys = Object.keys(CONTROL_FILTER_WHITELIST);
   const typeKey = _.find(whiteListKeys, key => _.includes(CONTROL_FILTER_WHITELIST[key].keys, type));
   return typeKey;
 }
 
+// TODO
 export function formatValuesOfOriginConditions(conditions) {
   return conditions.map(condition =>
-    Object.assign({}, condition, {
-      values: formatValues(condition.dataType, condition.filterType, condition.values),
-    }),
+    condition.isGroup && condition.groupFilters
+      ? {
+          ...condition,
+          groupFilters: condition.groupFilters.map(c => ({
+            ...c,
+            values: formatValues(c.dataType, c.filterType, c.values),
+          })),
+        }
+      : {
+          ...condition,
+          values: formatValues(condition.dataType, condition.filterType, condition.values),
+        },
   );
+}
+
+function formatConditions(items) {
+  return items.map(condition => {
+    const conditionGroupType = (CONTROL_FILTER_WHITELIST[getTypeKey(condition.dataType)] || {}).value;
+    return {
+      controlId: condition.controlId,
+      controlType: condition.dataType,
+      conditionGroupType,
+      keyStr: condition.controlId + Math.random().toString(16).slice(2),
+      type: condition.filterType,
+      dateRange: condition.dateRange,
+      dateRangeType: condition.dateRangeType,
+      spliceType: condition.spliceType,
+      maxValue: condition.maxValue,
+      minValue: condition.minValue,
+      value: condition.value,
+      fullValues: condition.values,
+      values: formatValues(condition.dataType, condition.filterType, condition.values),
+      folded: condition.folded,
+      dynamicSource: condition.dynamicSource || [],
+      isDynamicsource: condition.isDynamicsource,
+    };
+  });
 }
 
 export function formatOriginFilterValue(item) {
   item = typeof item === 'string' ? JSON.parse(item) : item;
   const items = item.items || [];
-  return {
+  const result = {
     id: item.filterId,
     name: item.name,
     type: item.type,
     createAccountId: item.createAccountId,
     relationType: items[0] ? items[0].spliceType : FILTER_RELATION_TYPE.AND,
-    conditions: items.map(condition => {
-      const conditionGroupType = (CONTROL_FILTER_WHITELIST[getTypeKey(condition.dataType)] || {}).value;
-      return {
-        controlId: condition.controlId,
-        controlType: condition.dataType,
-        conditionGroupType,
-        keyStr: condition.controlId + Math.random().toString(16).slice(2),
-        type: condition.filterType,
-        dateRange: condition.dateRange,
-        dateRangeType: condition.dateRangeType,
-        spliceType: condition.spliceType,
-        maxValue: condition.maxValue,
-        minValue: condition.minValue,
-        value: condition.value,
-        originValues: condition.values,
-        fullValues: condition.values,
-        values: formatValues(condition.dataType, condition.filterType, condition.values),
-        folded: condition.folded,
-        dynamicSource: condition.dynamicSource || [],
-        isDynamicsource: condition.isDynamicsource,
-      };
-    }),
+    conditions: formatConditions(items),
   };
+  return result;
+}
+
+export function formatOriginFilterGroupValue(filter) {
+  filter = typeof item === 'string' ? JSON.parse(filter) : filter;
+  const items = _.get(filter, 'items') || [];
+  const isGroup = items[0] && items[0].isGroup;
+  const result = {
+    id: filter.filterId || '',
+    name: filter.name,
+    type: filter.type,
+    createAccountId: filter.createAccountId,
+    isGroup,
+  };
+  if (isGroup) {
+    result.conditionsGroups = items.map(conditionsGroup => ({
+      ...conditionsGroup,
+      conditionSpliceType: _.get(conditionsGroup, 'groupFilters.0.spliceType') || FILTER_RELATION_TYPE.AND,
+      conditions: formatConditions(conditionsGroup.groupFilters),
+    }));
+  } else {
+    result.conditionsGroups = [
+      {
+        spliceType: FILTER_RELATION_TYPE.AND,
+        conditionSpliceType: _.get(items, '0.spliceType') || FILTER_RELATION_TYPE.AND,
+        conditions: formatConditions(items),
+      },
+    ];
+  }
+  return result;
 }
 
 export function checkFilterConditionsAvailable(filter) {
   const { conditions } = filter;
   return conditions && conditions.length && _.every(conditions, condition => checkConditionAvailable(condition));
+}
+
+export function filterUnavailableConditions(conditions) {
+  let newConditions = [...conditions];
+  newConditions = newConditions.map(condition => {
+    if (condition.isGroup && condition.groupFilters) {
+      condition.groupFilters = condition.groupFilters.filter(checkConditionAvailable);
+    }
+    return condition;
+  });
+  return newConditions.filter(condition => {
+    if (condition.isGroup) {
+      return !!condition.groupFilters.length;
+    } else {
+      return checkConditionAvailable(condition);
+    }
+  });
 }
 
 export function checkConditionAvailable(condition) {
@@ -741,7 +824,7 @@ export function getFilter({ control, formData = [] }) {
   } catch (err) {
     return [];
   }
-  conditions = conditions.map(condition => {
+  function handleFormatCondition(condition) {
     if (_.isEmpty(condition.dynamicSource)) {
       return Object.assign({}, condition, {
         values: formatValues(condition.dataType, condition.filterType, condition.values),
@@ -749,6 +832,28 @@ export function getFilter({ control, formData = [] }) {
     } else {
       condition.dateRange = 0;
       return fillConditionValue({ condition, formData, relateControl: control });
+    }
+  }
+  conditions = conditions.map(condition => {
+    if (!(condition.isGroup && condition.groupFilters)) {
+      return handleFormatCondition(condition);
+    } else {
+      const formattedGroupFilters = condition.groupFilters.map(handleFormatCondition);
+      if (_.get(condition, 'groupFilters.0.spliceType') === 1) {
+        // 且 条件
+        return !formattedGroupFilters.filter(f => !f).length
+          ? {
+              ...condition,
+              groupFilters: formattedGroupFilters,
+            }
+          : false;
+      } else {
+        // 或 条件
+        return {
+          ...condition,
+          groupFilters: formattedGroupFilters.filter(_.identity),
+        };
+      }
     }
   });
   const filteredConditions = conditions.filter(_.identity);
@@ -935,7 +1040,7 @@ export function formatDateValue({ type, value }) {
 
 export const getTabTypeBySelectUser = (control = {}) => {
   const { advancedSetting = {}, sourceControl = {}, controlId } = control;
-  return _.includes(['caid', 'ownerid'], controlId)
+  return _.includes(['caid', 'ownerid', 'daid'], controlId)
     ? 3
     : (advancedSetting.usertype || _.get(sourceControl.advancedSetting || {}, 'usertype')) === '2'
     ? 2

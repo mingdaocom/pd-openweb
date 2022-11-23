@@ -33,8 +33,9 @@ const parseValue = value => {
   return value;
 };
 
-const getPlaceHolder = (data) => {
+const getPlaceHolder = data => {
   const text = {
+    14: _l('请选择'),
     16: _l('请输入日期'),
     26: _l('请输入人员'),
     27: _l('请输入部门'),

@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import RoleController from 'src/api/role';
-import Button from 'ming-ui/components/Button';
+import { Dialog, Button } from 'ming-ui';
 import RoleAuthCommon from '../common/common';
-import Confirm from 'confirm';
 import { navigateTo } from 'src/router/navigateTo';
 
 import UserList from './userList';
@@ -13,7 +12,7 @@ import PermissionsList from './permissionList';
 import EditRoleDialog from '../createEditRole';
 import { Input } from 'antd';
 
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import './style.less';
 const { Search } = Input;
 class RoleDetail extends React.Component {
@@ -58,7 +57,7 @@ class RoleDetail extends React.Component {
     $({}).dialogSelectUser({
       sourceId: 0,
       fromType: 0,
-      showMoreInvite: false,
+      fromAdmin: true,
       SelectUserSettings: {
         filterAll: true, // 过滤全部
         filterFriend: true, // 是否过滤好友
@@ -150,12 +149,10 @@ class RoleDetail extends React.Component {
                   type="danger"
                   size="small"
                   onClick={() => {
-                    new Confirm(
-                      {
-                        content: '<span></span>',
-                        title: _l('您确定删除该角色？'),
-                      },
-                      function () {
+                    Dialog.confirm({
+                      title: _l('您确定删除该角色？'),
+                      description: '',
+                      onOk: () => {
                         RoleController.removeRole({
                           projectId: projectId,
                           roleId,
@@ -169,7 +166,7 @@ class RoleDetail extends React.Component {
                           navigateTo('/admin/sysroles/' + projectId);
                         });
                       },
-                    );
+                    });
                   }}
                 >
                   {_l('删除')}

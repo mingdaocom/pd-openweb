@@ -1,6 +1,7 @@
 import sheetAjax from 'src/api/worksheet';
 import homeAppAjax from 'src/api/homeApp';
 import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
+import { getRequest } from 'src/util';
 
 export const updateBase = base => (dispatch, getState) => {
   dispatch({
@@ -23,8 +24,24 @@ export const loadWorksheet = () => (dispatch, getState) => {
     localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`) &&
     JSON.parse(localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`));
   if (appNaviStyle === 2 && currentNavWorksheetInfo) {
-    dispatch({ type: 'WORKSHEET_INIT', value: currentNavWorksheetInfo });
-    dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: currentNavWorksheetInfo });
+    dispatch({
+      type: 'WORKSHEET_INIT',
+      value: {
+        ...currentNavWorksheetInfo,
+        views: currentNavWorksheetInfo.views.filter(
+          v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+        ),
+      },
+    });
+    dispatch({
+      type: 'MOBILE_WORK_SHEET_INFO',
+      data: {
+        ...currentNavWorksheetInfo,
+        views: currentNavWorksheetInfo.views.filter(
+          v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+        ),
+      },
+    });
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
   } else {
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: true });
@@ -54,8 +71,24 @@ export const loadWorksheet = () => (dispatch, getState) => {
           }
         });
       }
-      dispatch({ type: 'WORKSHEET_INIT', value: workSheetInfo });
-      dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: workSheetInfo });
+      dispatch({
+        type: 'WORKSHEET_INIT',
+        value: {
+          ...workSheetInfo,
+          views: workSheetInfo.views.filter(
+            v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+          ),
+        },
+      });
+      dispatch({
+        type: 'MOBILE_WORK_SHEET_INFO',
+        data: {
+          ...workSheetInfo,
+          views: workSheetInfo.views.filter(
+            v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+          ),
+        },
+      });
       dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
     });
   sheetAjax
@@ -98,9 +131,11 @@ export const loadWorksheet = () => (dispatch, getState) => {
 };
 
 export const fetchSheetRows = params => (dispatch, getState) => {
-  const { base, filters, sheetView, quickFilter, sheetFiltersGroup, mobileNavGroupFilters, sheetRowLoading } = getState().mobile;
+  const { base, filters, sheetView, quickFilter, sheetFiltersGroup, mobileNavGroupFilters, sheetRowLoading } =
+    getState().mobile;
   const { appId, worksheetId, viewId, maxCount } = base;
   const { keyWords } = filters;
+  const { chartId } = getRequest();
   let { pageIndex } = sheetView;
   let extraParams = params ? { ...params } : {};
   let pageSize = 20;
@@ -124,6 +159,7 @@ export const fetchSheetRows = params => (dispatch, getState) => {
     keyWords,
     filterControls: [],
     sortControls: [],
+    reportId: chartId ? chartId : undefined,
     filtersGroup: sheetFiltersGroup,
     fastFilters: quickFilter.map(f =>
       _.pick(f, [
@@ -174,7 +210,7 @@ export const unshiftSheetRow = data => (dispatch, getState) => {
     type: 'MOBILE_UNSHIFT_SHEET_ROWS',
     data: data,
   });
-}
+};
 
 export const changePageIndex = pageIndex => (dispatch, getState) => {
   const { sheetView } = getState().mobile;
@@ -188,17 +224,17 @@ export const changePageIndex = pageIndex => (dispatch, getState) => {
 
 export const updateQuickFilter =
   (filter = []) =>
-    (dispatch, getState) => {
-      dispatch({
-        type: 'MOBILE_UPDATE_QUICK_FILTER',
-        filter: filter,
-      });
-      dispatch({
-        type: 'MOBILE_UPDATE_SHEET_VIEW',
-        sheetView: { pageIndex: 1 },
-      });
-      dispatch(fetchSheetRows());
-    };
+  (dispatch, getState) => {
+    dispatch({
+      type: 'MOBILE_UPDATE_QUICK_FILTER',
+      filter: filter,
+    });
+    dispatch({
+      type: 'MOBILE_UPDATE_SHEET_VIEW',
+      sheetView: { pageIndex: 1 },
+    });
+    dispatch(fetchSheetRows());
+  };
 
 export const updateFilters = filters => (dispatch, getState) => {
   dispatch({
@@ -217,7 +253,7 @@ export const updateFiltersGroup = filter => (dispatch, getState) => {
     sheetView: { pageIndex: 1 },
   });
   dispatch(fetchSheetRows());
-}
+};
 
 export const resetSheetView = () => (dispatch, getState) => {
   dispatch({
@@ -262,52 +298,38 @@ export const changeSheetControls = () => (dispatch, getState) => {
     type: 'MOBILE_WORK_SHEET_CONTROLS',
     value: newControls,
   });
-  navigator.share && dispatch(updateWorksheetShareUrl(view.viewId));
 };
 
 export const updateCurrentView =
   ({ currentView, sortCid, sortType }) =>
-    (dispatch, getState) => {
-      const { worksheetInfo } = getState().mobile;
-      const { views } = worksheetInfo;
-      const base = {
-        appId: worksheetInfo.appId,
-        viewId: currentView.viewId,
-        worksheetId: currentView.worksheetId,
-      };
-      sheetAjax
-        .saveWorksheetView({
-          ...base,
-          name: currentView.name,
-          filters: currentView.filters,
-          controls: currentView.controls,
-          sortCid,
-          sortType,
-        })
-        .then(result => {
-          worksheetInfo.views = views.map(item => {
-            if (item.viewId === currentView.viewId) {
-              return result;
-            }
-            return item;
-          });
-          dispatch(fetchSheetRows(base));
-        });
-    };
-
-const updateWorksheetShareUrl = viewId => (dispatch, getState) => {
-  const { worksheetInfo } = getState().mobile;
-  sheetAjax
-    .getWorksheetShareUrl({
-      objectType: 1,
+  (dispatch, getState) => {
+    const { worksheetInfo } = getState().mobile;
+    const { views } = worksheetInfo;
+    const base = {
       appId: worksheetInfo.appId,
-      viewId,
-      worksheetId: worksheetInfo.worksheetId,
-    })
-    .then(shareUrl => {
-      worksheetInfo.shareUrl = shareUrl;
-    });
-};
+      viewId: currentView.viewId,
+      worksheetId: currentView.worksheetId,
+    };
+    sheetAjax
+      .saveWorksheetView({
+        ...base,
+        name: currentView.name,
+        filters: currentView.filters,
+        controls: currentView.controls,
+        sortCid,
+        sortType,
+      })
+      .then(result => {
+        worksheetInfo.views = views.map(item => {
+          if (item.viewId === currentView.viewId) {
+            return result;
+          }
+          return item;
+        });
+        dispatch(fetchSheetRows(base));
+      });
+  };
+
 
 export const changeMobileGroupFilters = data => (dispatch, getState) => {
   dispatch({ type: 'CHANGE_MOBILE_GROUPFILTERS', data });

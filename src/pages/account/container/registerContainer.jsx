@@ -364,9 +364,9 @@ export default class Container extends React.Component {
           keys={
             isLink
               ? loginForAdd || location.pathname.indexOf('join') >= 0 //定向邀请已存在手机号和邮箱不需要验证
-                ? ['emailOrTel', 'password']
-                : ['emailOrTel', 'code', 'password']
-              : ['tel', 'code', 'password']
+                ? ['emailOrTel', !loginForAdd ? 'setPassword' : 'password']
+                : ['emailOrTel', 'code', 'setPassword']
+              : ['tel', 'code', 'setPassword']
           }
           dataList={_.cloneDeep(registerData)}
           onChangeData={onChangeData}

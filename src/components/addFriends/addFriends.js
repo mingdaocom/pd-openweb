@@ -1,216 +1,213 @@
-﻿/**
- * @module addFriend
- * @desc 根据邮箱或者手机号搜索用户
- * @example
- * require.async('addFriend', function(addFriend) {
- *   addFriend(opts);
- * });
- */
-/**
- * @module addFriend
- * @desc 根据邮箱或者手机号搜索用户
- * @example
- * require.async('addFriend', function(addFriend) {
- *   addFriend(opts);
- * });
- */
-import './css/style.css';
-import RegExp from 'src/util/expression';
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import { Icon, Dialog } from 'ming-ui';
+import cx from 'classnames';
+import AddressBookInvite from './AddressBookInvite';
+import MobileOrEmailInvite from './MobileOrEmailInvite';
+import PublicLink from './PublicLink';
+import DetailList from './DetailList';
 
-var doT = require('dot');
-var Invite = require('src/components/common/inviteMember/inviteMember');
-/**
- * addFriend
- * @class addFriend
- * @param {object} opts
- * @constructor
- */
-var AddFriends = function (opts) {
-  var DEFAULTS = {};
-  this.Settings = $.extend({}, DEFAULTS, opts);
-
-  this.init();
+import './index.less';
+import _ from 'lodash';
+// 0：好友  1：群组  2：任务  3：知识  4：网络 5：日程 6：项目
+export const FROM_TYPE = {
+  PERSONAL: 0, // 个人好友
+  GROUPS: 1, // 群组
+  NORMAL: 4, // 网络
 };
-var Requests = require('src/api/addressBook');
-$.extend(AddFriends.prototype, {
-  init: function () {
-    var _this = this;
-    _this.render();
-  },
-  render: function () {
-    const { projects = [] } = md.global.Account;
-    var _this = this;
-    const { IsLocal } = md.global.Config;
-    _this.isPayUsers = projects.some(item => item.licenseType !== 0) || IsLocal;
 
-    require(['./tpl/addNewFriendsLayer.html', 'mdDialog', 'chooseInvite'], function (tpl, dialog) {
-      var $content = $(doT.template(tpl)());
-      var $dialog = dialog.index({
-        dialogBoxID: 'addNewFriends',
-        width: 500,
-        height: 550,
-        container: {
-          header: _l('邀请好友'),
-          content: $content.html(),
-          yesText: '', // hide btn
-          noText: '', // hide btn
-        },
-        drag: true,
-        fixed: false,
-        callback: function () {
-          if (_this.Settings.callback && $.isFunction(_this.Settings.callback)) {
-            _this.Settings.callback.call(null);
-          }
-        },
-        readyFn: function () {
-          _this.$container = $('#addNewFriends');
-          _this.$input = _this.$container.find('.mobilePhoneMailbox');
-          _this.$btn = _this.$container.find('.searchBtn');
-          _this.$searchClear = _this.$container.find('.searchClear');
-          _this.$searchResult = _this.$container.find('.addFriendSearchResult');
-          _this.$inviteBox = _this.$container.find('.inviteBox');
-          _this.$safeWarning = _this.$container.find('.safeWarning');
-          _this.bindEvent();
+const TAB_MODE = {
+  PUBLIC_LINK: 1,
+  MOBILE_EMAIL: 2,
+  ADDRESS_BOOK: 3,
+};
 
-          _this.$container.find('.inviteBox').chooseInvite({
-            sourceId: md.global.Account.accountId,
-            fromType: 0,
-            viewHistory: false,
-            zIndex: 15,
-            callback: function (data, cb) {
-              Invite.inviteToFriend(data, cb);
-            },
-          });
-          _this.$input.focus();
-          if (_this.isPayUsers) {
-            _this.$safeWarning.addClass('hidden');
-          } else {
-            _this.$searchResult.addClass('hidden');
-          }
-        },
-      });
+export const DETAIL_MODE = {
+  NORMAL: 0,
+  LINK: 1, // 使用链接
+  INVITE: 2, // 邀请记录
+};
+
+const DETAIL_MODE_TEXT = {
+  1: _l('查看使用中的链接'),
+  2: _l('邀请记录'),
+};
+
+
+class AddFriends extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      visible: true,
+      selectTab: this.DEFAULT_TABS[0].value,
+      isPayUsers: true,
+      detailMode: 0, //
+      url: '',
+      code: '',
+      tokens: [],
+    };
+  }
+
+  get DEFAULT_TABS() {
+    const { projectId } = this.props;
+    const { Account: { projects = [] } = {} } = md.global;
+    const project = _.find(projects, { projectId }) || {};
+    const { isProjectAdmin, isProjectAppManager } = project;
+    return [
+      isProjectAdmin && isProjectAppManager ? { text: _l('公开邀请'), value: 1, subText: _l('链接添加') } : null,
+      { text: _l('手机/邮箱邀请'), value: 2, subText: _l('搜索用户') },
+      { text: _l('从通讯录邀请'), value: 3 },
+    ].filter(_ => _);
+  }
+
+  componentDidMount() {
+    const { Config: { IsLocal } = {}, Account: { projects = [] } = {} } = md.global;
+    this.setState({
+      isPayUsers: projects.some(item => item.licenseType !== 0) || IsLocal,
     });
-  },
-  bindEvent: function () {
-    var _this = this;
-    var $inputWrapper = _this.$input.parent();
-    _this.$input.on({
-      keyup: function (event) {
-        if (_this.Settings.account === _this.$input.val()) return;
-        _this.$searchResult.html('');
-        _this.toggleBtnState();
-        if (event.keyCode === 13) {
-          _this.getResult();
-        }
-      },
-      focus: function () {
-        $inputWrapper.addClass('ThemeBorderColor4');
-        _this.toggleBtnState();
-      },
-      blur: function () {
-        $inputWrapper.removeClass('ThemeBorderColor4');
-        _this.toggleBtnState();
-      },
-    });
+  }
 
-    _this.$btn.on({
-      click: function () {
-        if (_this.Settings.account === _this.$input.val() || !$.trim(_this.$input.val()) || !_this.isPayUsers) return;
-        _this.getResult();
-      },
-    });
+  setDetailMode = value => {
+    this.setState({ detailMode: value });
+  };
 
-    _this.$searchClear.on('click', function () {
-      _this.Settings.account = '';
-      _this.$input.val(_this.Settings.account);
-      _this.$searchResult.html('');
-      $(this).hide();
-      _this.toggleBtnState();
-    });
+  setInfo = obj => {
+    this.setState({ ...obj });
+  };
 
-    _this.$searchResult.on('click', '.addFriend', function () {
-      var $this = $(this);
-      _this.callAddConfirm($this);
-    });
+  // 关闭弹层
+  onCancel = () => {
+    this.setState({ visible: false });
+  };
 
-    _this.$searchResult.on('click', '.inviteFriend', function () {
-      var $this = $(this);
-      Invite.inviteToFriend(
-        [
-          {
-            account: _this.Settings.account,
-            fullname: '',
-          },
-        ],
-        function (data) {
-          if (!data || !data.sendMessageResult) return;
-          $this.parent().text(_l('已邀请'));
-        },
+  renderHeader = () => {
+    const { fromType, fromText, projectId } = this.props;
+    let content = '';
+
+    if (fromType === FROM_TYPE.PERSONAL) {
+      content = (
+        <div className="headerText ellipsis">
+          <span className="Gray_75">{_l('邀请用户为')}</span>
+          <span className="mLeft3 mRight3">{_l('个人好友')}</span>
+          <span className="Gray_75">({_l('非同事')})</span>
+        </div>
       );
-    });
-  },
-  toggleBtnState: function () {
-    var _this = this;
-    if (!$.trim(_this.$input.val()) || !_this.isPayUsers) {
-      _this.$btn.removeClass('active');
-      _this.$searchClear.hide();
-      _this.$inviteBox.fadeIn();
     } else {
-      _this.$btn.addClass('active');
-      _this.$searchClear.show();
-    }
-  },
-
-  getResult: function () {
-    var _this = this;
-    var Settings = _this.Settings;
-    var keywords = $.trim(_this.$input.val());
-    if (!RegExp.isEmail(keywords) && keywords.indexOf('+') === -1) {
-      keywords = '+86' + keywords;
-    }
-    // cache account
-    Settings.account = keywords;
-
-    if (Settings.promise && Settings.promise.abort && Settings.promise.state() === 'pending') {
-      Settings.promise.abort();
+      content = (
+        <div className="headerText ellipsis w100">
+          <span className="Gray_75">{_l('邀请用户加入')}</span>
+          <span className="mLeft3">
+            {fromText ||
+              _.get(
+                _.find(md.global.Account.projects, i => i.projectId === projectId),
+                'companyName',
+              )}
+          </span>
+        </div>
+      );
     }
 
-    Settings.promise = Requests.getAccountByAccount({
-      account: keywords,
-    })
-      .done($.proxy(_this.renderList, _this))
-      .fail(err => {
-        if (err) {
-          alert(_l('请输入手机号/邮箱地址'), 3);
-        }
-      });
-  },
-  renderList: function (data) {
-    var _this = this;
-    _this.$inviteBox.fadeOut();
-    data.accoutKeyWords = this.Settings.account;
-    require(['./tpl/itemUser.html'], function (tpl, dialog) {
-      _this.$searchResult.html(doT.template(tpl)(data));
-    });
-  },
-  callAddConfirm: function ($item) {
-    var $user = $item.parents('.addUserItem');
-    require(['addFriendConfirm'], function (confirm) {
-      new confirm({
-        accountId: $user.find('.userOperation').data('accountid'),
-        callback: function () {
-          $user.find('.userOperation').text(_l('已邀请'));
-        },
-      });
-    });
-  },
-});
+    return (
+      <div className="addFriendsHeader">
+        <Icon icon="airplane" />
+        {content}
+      </div>
+    );
+  };
 
-/**
- * init function
- * @param {object} [opts]
- * @return {object} addFriendConfrim object
- */
-module.exports = function (opts) {
-  return new AddFriends(opts);
-};
+  renderTabs = () => {
+    const { selectTab } = this.state;
+    const { fromType } = this.props;
+    const isPersonal = fromType === FROM_TYPE.PERSONAL;
+    return (
+      <ul className="AddFriends-head-navbar">
+        {this.DEFAULT_TABS.map(tab => {
+          return (isPersonal || fromType === FROM_TYPE.GROUPS) && tab.value === TAB_MODE.ADDRESS_BOOK ? null : (
+            <li
+              key={tab.value}
+              onClick={() => this.setState({ selectTab: tab.value })}
+              className={cx('AddFriends-head-navbar__item', {
+                'AddFriends-head-navbar__item--active': selectTab === tab.value,
+              })}
+            >
+              {isPersonal ? tab.subText : tab.text}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
+
+  renderContent = () => {
+    const { selectTab, isPayUsers, url, code, tokens } = this.state;
+    const options = {
+      onCancel: this.onCancel,
+      projectId: this.props.projectId,
+      fromType: this.props.fromType,
+      isPayUsers,
+      setDetailMode: this.setDetailMode,
+    };
+    if (selectTab === TAB_MODE.PUBLIC_LINK) {
+      return <PublicLink {...options} {...{ url, code, tokens, setInfo: this.setInfo }} />;
+    } else if (selectTab === TAB_MODE.MOBILE_EMAIL) {
+      return <MobileOrEmailInvite {...options} />;
+    } else {
+      return <AddressBookInvite {...options} />;
+    }
+  };
+
+  render() {
+    const { isPayUsers, detailMode } = this.state;
+
+    return (
+      <Dialog
+        className="dialogAddFriendsBox"
+        width={640}
+        visible={this.state.visible}
+        title={null}
+        footer={null}
+        onCancel={this.onCancel}
+      >
+        <div className="dialogAddFriendsContainer">
+          {this.renderHeader()}
+          {!isPayUsers && (
+            <div class="safeWarning">
+              {_l(
+                '近期有不法分子利用平台进行诈骗活动。为了保障平台安全，暂时只允许付费组织中的用户发起邀请。对您使用造成的不便，深表歉意！',
+              )}
+            </div>
+          )}
+          {this.renderTabs()}
+          {this.renderContent()}
+        </div>
+
+        <Dialog
+          width={640}
+          visible={detailMode}
+          title={
+            <div className="inviteBackIcon">
+              <div className="iconBox" onClick={() => this.setDetailMode(DETAIL_MODE.NORMAL)}>
+                <Icon icon="arrow_back" />
+              </div>
+              {DETAIL_MODE_TEXT[detailMode]}
+            </div>
+          }
+          footer={null}
+          onCancel={() => this.setDetailMode(DETAIL_MODE.NORMAL)}
+        >
+          <div className="dialogAddFriendsContainer pTop0" style={{ height: 510 }}>
+            <DetailList detailMode={detailMode} {...this.props} />
+          </div>
+        </Dialog>
+      </Dialog>
+    );
+  }
+}
+
+export default function (opts) {
+  let DEFAULTS = {
+    fromType: 4,
+  };
+  const options = $.extend({}, DEFAULTS, opts);
+  ReactDOM.render(<AddFriends {...options} />, document.createElement('div'));
+}

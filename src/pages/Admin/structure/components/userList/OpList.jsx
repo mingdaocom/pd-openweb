@@ -1,9 +1,7 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import userController from 'src/api/user';
 import importUserController from 'src/api/importUser';
 import { loadUsers, loadInactiveUsers, loadApprovalUsers, loadAllUsers } from '../../actions/entities';
@@ -16,6 +14,7 @@ import departmentController from 'src/api/department';
 import { Dialog, Input } from 'ming-ui';
 import { encrypt } from 'src/util';
 import './userItem.less';
+import { sendNoticeInvite } from 'src/components/common/function';
 
 class UserItem extends Component {
   constructor(props) {
@@ -102,9 +101,7 @@ class UserItem extends Component {
     const { projectId, accountId } = this.props;
     return event => {
       event.stopPropagation();
-      require(['mdFunction'], MDFunction => {
-        MDFunction.sendNoticeInvite([accountId], '', projectId, type);
-      });
+      sendNoticeInvite([accountId], '', projectId, type);
     };
   }
 

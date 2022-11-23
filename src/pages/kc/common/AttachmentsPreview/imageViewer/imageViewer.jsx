@@ -381,4 +381,4 @@ const ImageViewer = createReactClass({
   },
 });
 
-module.exports = ImageViewer;
+export default ImageViewer;

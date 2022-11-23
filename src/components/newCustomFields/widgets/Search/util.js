@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
+import { isEmptyValue } from 'src/components/newCustomFields/tools/filterFn.js';
 
 const getValue = (control = {}, type) => {
   if (!control.value) return '';
@@ -28,6 +29,16 @@ const getValue = (control = {}, type) => {
         return noDelControls.map(i => i.value);
       }
       return noDelControls.map(i => i.value).join('、');
+    case 14:
+      let attachmentData;
+      if (control.value && _.isArray(JSON.parse(control.value))) {
+        attachmentData = JSON.parse(control.value);
+      } else {
+        const data = JSON.parse(control.value || '{}');
+        attachmentData = (data.attachments || []).concat(data.knowledgeAtts || []);
+      }
+      const fileId = _.get(attachmentData[0], 'fileID');
+      return /\w{8}(-\w{4}){3}-\w{12}/.test(fileId) ? [fileId] : [JSON.stringify(attachmentData[0])];
     case 15:
     case 16:
       const { formatMode } = getDatePickerConfigs(control);
@@ -106,7 +117,12 @@ const getDynamicValue = (item, formData, keywords) => {
       }
     }
   });
-  return _.includes([2, 6, 16], item.type) ? tempValues.join('') : _.flatten(tempValues).filter(i => i !== '');
+  if (_.includes([2, 6, 16], item.type)) {
+    return tempValues.join('');
+  }
+
+  const dealValue = _.flatten(tempValues).filter(i => !isEmptyValue(i));
+  return _.isEmpty(dealValue) ? '' : dealValue;
 };
 
 export const getParamsByConfigs = (requestMap = [], formData = [], keywords = '', getControlRef = () => {}) => {

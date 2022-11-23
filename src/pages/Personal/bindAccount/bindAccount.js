@@ -1,13 +1,14 @@
 ﻿import './bindAccount.css';
-import 'mdDialog';
+import 'src/components/mdDialog/dialog';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
 import captcha from 'src/components/captcha';
 import { encrypt } from 'src/util';
 import RegExp from 'src/util/expression';
+import tpl from './bindAccount.html';
+import doT from '@mdfe/dot';
 
-var doT = require('dot');
 var accountController = require('src/api/account');
 var BindAccount = {};
 BindAccount.options = {
@@ -26,7 +27,6 @@ BindAccount.bindAccountEmailMobile = function (opts) {
   var accountTitleString = '';
   var html = '';
   var verifyText = ''
-  var tpl = require('./bindAccount.html');
   if (BindAccount.options.isUpdateEmail) {
     verifyText = md.global.SysSettings.allowBindAccountNoVerify ? _l('邮箱地址') : _l('验证邮箱地址')
   } else {
@@ -393,4 +393,4 @@ BindAccount.countdown = function (obj) {
     }
   }, 1000);
 };
-module.exports = BindAccount;
+export default BindAccount;

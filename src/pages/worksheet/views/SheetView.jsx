@@ -20,6 +20,13 @@ import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
 import { getAdvanceSetting } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import {
+  NORMAL_SYSTEM_FIELDS,
+  NORMAL_SYSTEM_FIELDS_SORT,
+  WORKFLOW_SYSTEM_FIELDS,
+  WORKFLOW_SYSTEM_FIELDS_SORT,
+} from 'src/pages/worksheet/common/ViewConfig/util';
+
 import _ from 'lodash';
 
 @autoSize
@@ -145,7 +152,7 @@ class TableView extends React.Component {
   deActiveShift(e) {
     if (e.keyCode === 16) {
       this.shiftActive = false;
-      console.log({ shiftActive: this.shiftActive });
+      // console.log({ shiftActive: this.shiftActive });
     }
   }
 
@@ -157,6 +164,10 @@ class TableView extends React.Component {
     }
     if (refreshtime && _.includes(['10', '30', '60', '120', '180', '240', '300'], refreshtime)) {
       this.refreshTimer = setInterval(() => {
+        const { allWorksheetIsSelected, sheetSelectedRows = [] } = _.get(this, 'props.sheetViewConfig') || {};
+        if (allWorksheetIsSelected || sheetSelectedRows.length) {
+          return;
+        }
         refresh({ noLoading: true });
       }, Number(refreshtime) * 1000);
     }
@@ -217,7 +228,11 @@ class TableView extends React.Component {
   }
 
   get columns() {
-    const { view, controls, showControlIds = [] } = this.props;
+    const { view, showControlIds = [], sheetSwitchPermit } = this.props;
+    const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
+    const controls = isShowWorkflowSys
+      ? this.props.controls.concat(NORMAL_SYSTEM_FIELDS, WORKFLOW_SYSTEM_FIELDS)
+      : this.props.controls.concat(NORMAL_SYSTEM_FIELDS);
     const { sheetHiddenColumns } = this.props.sheetViewConfig;
     if (showControlIds && showControlIds.length) {
       return showControlIds.map(cid => _.find(controls, { controlId: cid })).filter(_.identity);
@@ -250,7 +265,29 @@ class TableView extends React.Component {
         syssort = [];
       }
       columns = filteredControls
-        .filter(c => !_.includes(['ownerid', 'caid', 'ctime', 'utime'], c.controlId))
+        .filter(
+          c =>
+            !_.includes(
+              [
+                'ownerid',
+                'caid',
+                'ctime',
+                'utime',
+                'wfname',
+                'wfstatus',
+                'wfcuaids',
+                'wfrtime',
+                'wfftime',
+                'wfdtime',
+                'wfcaid',
+                'wfctime',
+                'wfcotime',
+                'rowid',
+                'uaid',
+              ],
+              c.controlId,
+            ),
+        )
         .slice(0)
         .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1))
         .concat(
@@ -263,6 +300,14 @@ class TableView extends React.Component {
     if (!columns.length) {
       columns = [{}];
     }
+
+    const noSystemColumns = columns.filter(
+      it => !_.includes([...WORKFLOW_SYSTEM_FIELDS_SORT, ...NORMAL_SYSTEM_FIELDS_SORT], it.controlId),
+    );
+    const workflowSysColumns = columns.filter(it => _.includes(WORKFLOW_SYSTEM_FIELDS_SORT, it.controlId));
+    const normalSysColumns = columns.filter(it => _.includes(NORMAL_SYSTEM_FIELDS_SORT, it.controlId));
+    columns = _.isEmpty(showControls) ? [...workflowSysColumns, ...noSystemColumns, ...normalSysColumns] : columns;
+
     return columns;
   }
 
@@ -350,6 +395,7 @@ class TableView extends React.Component {
     return (
       <ColumnHead
         count={sheetViewData.count}
+        worksheetId={worksheetId}
         viewId={viewId}
         className={className}
         style={style}
@@ -400,6 +446,7 @@ class TableView extends React.Component {
       appId,
       view,
       viewId,
+      controls,
       worksheetInfo,
       sheetSwitchPermit,
       buttons,
@@ -431,6 +478,7 @@ class TableView extends React.Component {
         className={className}
         {...{ appId, viewId, worksheetId }}
         columns={this.columns}
+        controls={controls}
         projectId={projectId}
         allowAdd={allowAdd}
         style={cellstyle}
@@ -506,7 +554,7 @@ class TableView extends React.Component {
     const { worksheetInfo, updateControlOfRow, controls, sheetSearchConfig } = this.props;
     const { projectId, rules = [] } = worksheetInfo;
     const asyncUpdateCell = (cid, newValue) => {
-      if (typeof newValue === 'object') {
+      if (typeof newValue === 'object' || cid === cell.controlId) {
         return;
       }
       updateControlOfRow(

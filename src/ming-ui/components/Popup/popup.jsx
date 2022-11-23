@@ -64,4 +64,4 @@ class Popup extends React.Component {
   }
 }
 
-module.exports = Popup;
+export default Popup;

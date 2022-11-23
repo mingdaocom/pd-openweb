@@ -101,7 +101,7 @@ export const NODE_TYPE = {
   2: { type: 'branch', text: _l('分支') },
   3: { type: 'write', text: _l('填写') },
   4: { type: 'approve', text: _l('审批') },
-  5: { type: 'notice', text: _l('站内通知') },
+  5: { type: 'cc', text: _l('抄送') },
   6: { type: 'action', text: _l('动作') },
   7: { type: 'find', text: _l('获取单条数据') },
   8: { type: 'webhook', text: _l('发送 API 请求') },
@@ -122,6 +122,8 @@ export const NODE_TYPE = {
   23: { type: 'parameter', text: _l('连接参数') },
   24: { type: 'apiPackage', text: _l('API 连接与认证') },
   25: { type: 'api', text: _l('调用已集成 API') },
+  26: { type: 'approveProcess', text: _l('审批流程') },
+  27: { type: 'notice', text: _l('站内通知') },
   1000: { type: 'singleInfo', text: _l('获取单条人员/部门信息') },
   1001: { type: 'moreInfo', text: _l('获取多条人员/部门信息') },
 };
@@ -161,6 +163,7 @@ export const NODE_ICON = {
       6: 'hr_time',
       7: 'workflow_webhook',
       8: 'custom_actions',
+      9: 'approval',
       17: 'pbc',
       20: 'hr_structure',
       21: 'workflow',
@@ -173,6 +176,7 @@ export const NODE_ICON = {
       6: _l('按日期字段触发'),
       7: _l('Webhook触发'),
       8: _l('按钮触发'),
+      9: _l('审批流程触发'),
       17: _l('封装业务流程'),
       20: _l('人员事件触发'),
       21: _l('部门事件触发'),
@@ -185,6 +189,7 @@ export const NODE_ICON = {
       6: '#2196f3',
       7: '#4C7D9E',
       8: '#4C7D9E',
+      9: '#4158DB',
       17: '#4C7D9E',
       20: '#01ca83',
       21: '#01ca83',
@@ -192,7 +197,26 @@ export const NODE_ICON = {
       106: '#2196f3',
     },
   },
-
+  gateway: {
+    icon: 'workflow_branch',
+    text: _l('分支'),
+    bgColor: '#4c7d9e',
+  },
+  write: {
+    icon: 'workflow_write',
+    text: _l('填写'),
+    bgColor: '#00bcd4',
+  },
+  approve: {
+    icon: 'workflow_ea',
+    text: _l('审批'),
+    bgColor: '#7e57c2',
+  },
+  cc: {
+    icon: 'workflow_notice',
+    text: _l('抄送'),
+    bgColor: '#2196f3',
+  },
   action: {
     icon: {
       1: 'workflow_new',
@@ -213,26 +237,15 @@ export const NODE_ICON = {
     text: _l('获取单条数据'),
     bgColor: '#FFA340',
   },
-  records: {
-    icon: 'transport',
-    text: _l('获取多条数据'),
-    bgColor: '#FFA340',
+  webhook: {
+    icon: 'workflow_webhook',
+    text: _l('发送 API 请求'),
+    bgColor: '#4c7d9e',
   },
-
-  approve: {
-    icon: 'workflow_ea',
-    text: _l('审批'),
-    bgColor: '#7e57c2',
-  },
-  write: {
-    icon: 'workflow_write',
-    text: _l('填写'),
-    bgColor: '#00bcd4',
-  },
-  notice: {
-    icon: 'workflow_notice',
-    text: _l('站内通知'),
-    bgColor: '#2196f3',
+  formula: {
+    icon: 'workflow_function',
+    text: _l('运算'),
+    bgColor: '#4c7d9e',
   },
   msg: {
     icon: 'workflow_sms',
@@ -244,25 +257,19 @@ export const NODE_ICON = {
     text: _l('邮件'),
     bgColor: '#2196f3',
   },
-  push: {
-    icon: 'notifications_11',
-    text: _l('界面推送'),
-    bgColor: '#2196f3',
-  },
-
-  gateway: {
-    icon: 'workflow_branch',
-    text: _l('分支'),
-    bgColor: '#4c7d9e',
-  },
   delay: {
     icon: 'workflow_delayed',
     text: _l('延时'),
     bgColor: '#4c7d9e',
   },
-  formula: {
-    icon: 'workflow_function',
-    text: _l('运算'),
+  records: {
+    icon: 'transport',
+    text: _l('获取多条数据'),
+    bgColor: '#FFA340',
+  },
+  code: {
+    icon: 'url',
+    text: _l('代码块'),
     bgColor: '#4c7d9e',
   },
   link: {
@@ -274,6 +281,11 @@ export const NODE_ICON = {
     icon: 'subprocess',
     text: _l('子流程'),
     bgColor: '#4c7d9e',
+  },
+  push: {
+    icon: 'interface_push',
+    text: _l('界面推送'),
+    bgColor: '#2196f3',
   },
   file: {
     icon: 'print',
@@ -315,6 +327,16 @@ export const NODE_ICON = {
     text: _l('调用已集成 API'),
     bgColor: '#4c7d9e',
   },
+  approveProcess: {
+    icon: 'approval',
+    text: _l('审批流程'),
+    bgColor: '#4158DB',
+  },
+  notice: {
+    icon: 'hr_message_reminder',
+    text: _l('站内通知'),
+    bgColor: '#2196f3',
+  },
   singleInfo: {
     icon: 'person_search',
     text: _l('获取单条人员/部门信息'),
@@ -324,16 +346,5 @@ export const NODE_ICON = {
     icon: 'group-members',
     text: _l('获取多条人员/部门信息'),
     bgColor: '#2196f3',
-  },
-
-  webhook: {
-    icon: 'workflow_webhook',
-    text: _l('发送 API 请求'),
-    bgColor: '#4c7d9e',
-  },
-  code: {
-    icon: 'url',
-    text: _l('代码块'),
-    bgColor: '#4c7d9e',
   },
 };

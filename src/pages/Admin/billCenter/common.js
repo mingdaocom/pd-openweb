@@ -199,4 +199,4 @@ Common.getStatusStr = function (input) {
   return result;
 };
 
-module.exports = Common;
+export default Common;

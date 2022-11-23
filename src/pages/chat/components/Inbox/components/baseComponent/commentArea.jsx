@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import UploadFile from 'uploadFiles';
-import Commenter from 'commenter';
+import UploadFile from 'src/components/UploadFiles';
+import Commenter from 'src/components/comment/commenter';
 import { htmlDecodeReg } from 'src/util';
 import Avatar from './avatar';
 import UserLink from './userLink';
 import ReplyTo from './replyTo';
 import { SOURCE_TYPE } from '../../constants';
 import { formatTopic, splitSourceId, buildSourceLink } from '../../util';
-import { createLinksForMessage } from 'mdFunction';
+import { createLinksForMessage } from 'src/components/common/function';
 import DiscussionController from 'src/api/discussion';
 import postAjax from 'src/api/post';
 import confirm from 'ming-ui/components/Dialog/Confirm';

@@ -190,7 +190,8 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
   const isCascader = control && control.type === 35;
   const isArea = control && _.includes([19, 23, 24], control.type);
   // 人员
-  const isUserSingleSingle = control && control.type === 26 && control.enumDefault === 0;
+  const isUserSingleSingle =
+    control && ((control.type === 26 && control.enumDefault === 0) || control.controlId === 'daid');
   const isUserMultiple = control && control.type === 26 && control.enumDefault === 1;
   // 部门
   const isDepartment = control && control.type === 27;

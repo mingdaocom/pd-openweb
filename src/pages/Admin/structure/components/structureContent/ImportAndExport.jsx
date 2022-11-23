@@ -4,7 +4,7 @@ import { Input } from 'antd';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../../actions/entities';
-import DialogSelectDept from 'dialogSelectDept';
+import DialogSelectDept from 'src/components/dialogSelectDept';
 import cx from 'classnames';
 import Config from '../../../config';
 import importUser from 'src/api/importUser';
@@ -57,6 +57,7 @@ class ImportAndExport extends Component {
       unique: false,
       showCreateBtn: false,
       isShowAllOrg: true,
+      fromAdmin: true,
       allProject: true,
       selectFn(departments) {
         let orgList = departments.map(item => {

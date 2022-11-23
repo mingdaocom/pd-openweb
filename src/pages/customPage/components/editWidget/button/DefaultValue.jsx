@@ -7,7 +7,7 @@ import SortColumns from 'src/pages/worksheet/components/SortColumns';
 import Input from 'src/pages/worksheet/common/CreateCustomBtn/components/Inputs';
 import sheetApi from 'src/api/worksheet';
 import { DEF_TYPES, DEF_R_TYPES } from 'src/pages/worksheet/common/CreateCustomBtn/config';
-import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
+import { SYS } from 'src/pages/widgetConfig/config/widget';
 
 const AddButton = styled.div`
   color: #2196f3;
@@ -142,7 +142,7 @@ function DefaultValue(props) {
       <div className="mBottom15" key={control.controlId}>
         <div className="mBottom10 Font13">{control.controlName}</div>
         <div className="valignWrapper">
-          <DefaultValueInputWrap className={cx({ notOther: ![26, 15, 16, 17, 18].includes(control.type) || control.type === 34 })}>
+          <DefaultValueInputWrap className={cx({ notOther: ![26, 15, 16, 17, 18, 46].includes(control.type) || control.type === 34 })}>
             <Input
               item={data}
               data={{
@@ -224,7 +224,7 @@ function DefaultValue(props) {
               dragable={false}
               showControls={showControls}
               columns={controls.filter(c => {
-                if (FORM_HIDDEN_CONTROL_IDS.includes(c.controlId)) {
+                if (SYS.includes(c.controlId)) {
                   return false;
                 }
                 // 关联表列表

@@ -1,4 +1,2 @@
-﻿module.exports = {
-  PostList: require('./postList'),
-  PostDetails: require('./postDetails'),
-};
+﻿export { default as PostList } from './postList';
+export { default as PostDetails } from './postDetails';

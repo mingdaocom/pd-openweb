@@ -1,38 +1,6 @@
-﻿/*
- * @Author: cloudZQY
- * @Module: FolderSettings
- * @Description: 项目设置，任务专用
- * @Date: 2018-03-27 10:41:04
- * @Last Modified by: cloudZQY
- * @Last Modified time: 2018-03-27 10:41:37
- */
-/*
- * @Author: cloudZQY
- * @Module: FolderSettings
- * @Description: 项目设置，任务专用
- * @Date: 2018-03-27 10:41:04
- * @Last Modified by: cloudZQY
- * @Last Modified time: 2018-03-27 10:41:37
- */
-/*
- * @Author: cloudZQY
- * @Module: FolderSettings
- * @Description: 项目设置，任务专用
- * @Date: 2018-03-27 10:41:04
- * @Last Modified by: cloudZQY
- * @Last Modified time: 2018-03-27 10:41:37
- */
-/*
- * @Author: cloudZQY
- * @Module: FolderSettings
- * @Description: 项目设置，任务专用
- * @Date: 2018-03-27 10:41:04
- * @Last Modified by: cloudZQY
- * @Last Modified time: 2018-03-27 10:41:37
- */
-import React from 'react';
+﻿import React from 'react';
 import { connect } from 'react-redux';
-import 'tooltip';
+import 'src/components/tooltip/tooltip';
 import Checkbox from '../component/common/checkbox';
 import { changeTASKOptions } from '../redux/actions';
 import config from '../config';

@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import './index.less';
-import 'dialogSelectUser';
-import DialogSelectDept from 'dialogSelectDept';
+import 'src/components/dialogSelectUser/dialogSelectUser';
+import DialogSelectDept from 'src/components/dialogSelectDept';
 import { MenuItem } from 'ming-ui';
 import ActionFields from '../ActionFields';
 import SelectUsersFromApp from '../../../../components/SelectUsersFromApp';

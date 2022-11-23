@@ -47,7 +47,7 @@ class SheetRows extends Component {
     }
   }
   renderRow = item => {
-    const { worksheetControls, base, view, worksheetInfo, batchOptVisible, batchOptCheckedData } = this.props;
+    const { worksheetControls, base, view, worksheetInfo, batchOptVisible, batchOptCheckedData,sheetSwitchPermit } = this.props;
     return (
       <WingBlank size="md">
         <CustomRecordCard
@@ -60,6 +60,7 @@ class SheetRows extends Component {
           batchOptVisible={batchOptVisible}
           batchOptCheckedData={batchOptCheckedData}
           changeBatchOptData={this.props.changeBatchOptData}
+          sheetSwitchPermit={sheetSwitchPermit}
           onClick={() => {
             const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
             if (isMingdao) {

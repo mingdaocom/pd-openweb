@@ -1,1 +1,1 @@
-﻿module.exports = require('./attachmentInfo');
+﻿export { default } from './attachmentInfo';

@@ -1,17 +1,6 @@
-﻿/**
- * @module saveToKnowledge
- * @author peixiaochuang
- * @desc 存入知识中心  支持 知识文件，附件，和七牛filePath
- * @param {number} nodeType 文件类型（附件：1， 知识文件：2，七牛filePath: 3）
- * @param {object} sourceData 文件数据
- * @param {string} sourceData.fileID 附件的fileID (for 文件类型为附件)
- * @param {string} sourceData.nodeId 知识文件的nodeId (for 文件类型为知识文件)
- * @param {string} sourceData.name 附件的name (for 文件类型为七牛filePath)
- * @param {string} sourceData.filePath 附件的fileID (for 文件类型为七牛filePath)
- */
-
+﻿import createShare from 'src/components/createShare/createShare';
 var kc = require('src/api/kc');
-var kcUtil = require('src/pages/kc/util').default;
+import kcUtil from 'src/pages/kc/util';
 var copyNode = kc.copyNode;
 var addNode = kc.addNode;
 var attachmentAjax = require('src/api/attachment');
@@ -123,16 +112,14 @@ SaveToKnowledge.prototype = {
     }
     return promise.then(() => {
       if (SK.options.createShare) {
-        require(['createShare'], function (createShare) {
-          createShare.init({
-            linkURL:
-              md.global.Config.WebUrl +
-              'apps/kc/' +
-              (path.type === 1
-                ? 'my'
-                : path.type === 2 ? path.node.id : path.node.rootId ? path.node.position.slice(1) : path.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
-            content: _l('保存成功'),
-          });
+        createShare({
+          linkURL:
+            md.global.Config.WebUrl +
+            'apps/kc/' +
+            (path.type === 1
+              ? 'my'
+              : path.type === 2 ? path.node.id : path.node.rootId ? path.node.position.slice(1) : path.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
+          content: _l('保存成功'),
         });
       }
     });
@@ -160,6 +147,6 @@ SaveToKnowledge.prototype = {
   },
 };
 
-module.exports = function (nodeType, sourceData, options) {
+export default function (nodeType, sourceData, options) {
   return new SaveToKnowledge(nodeType, sourceData, options);
 };

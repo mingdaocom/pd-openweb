@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import ScrollView from 'ming-ui/components/ScrollView';
 import Icon from 'ming-ui/components/Icon';
 import Button from 'ming-ui/components/Button';
-
+import invite from 'src/components/invite';
 import SiderBarTabList from '../components/SiderBarTabList';
 import SiderBarTabItem from '../components/SiderBarTabItem';
 
@@ -78,9 +78,7 @@ export default class SideBar extends React.Component {
             style={{ width: '100%' }}
             className="invite-btn"
             onClick={() => {
-              require(['src/components/invite'], (invite) => {
-                invite();
-              });
+              invite();
             }}
           >
             <Icon icon="plus" className="mRight5 TxtMiddle" />

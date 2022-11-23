@@ -147,5 +147,5 @@ function MP3Player(_options) {
     }
   };
 }
-module.exports = MP3Player;
+export default MP3Player;
 window.MP3Player = MP3Player;

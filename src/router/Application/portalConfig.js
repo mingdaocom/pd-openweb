@@ -12,7 +12,7 @@ export default addSubPathOfRoutes(
     // 权限
     role: {
       path: '/(app/)?:appId/role/:editType?/:listType?',
-      component: () => import('pages/Roles'),
+      component: () => import('pages/Role'),
       sensitive: true,
     },
 

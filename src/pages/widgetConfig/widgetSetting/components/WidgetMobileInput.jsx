@@ -19,14 +19,16 @@ const SCAN_CODE_CONFIG = [
 export default ({ data, onChange }) => {
   let { strDefault, advancedSetting = {} } = data;
   strDefault = strDefault || '00';
-  const { scantype, dismanual = 0 } = advancedSetting;
+  const { scantype, dismanual = 0, getinput, getsave } = advancedSetting;
   const [disableAlbum] = strDefault.split('');
 
   useEffect(() => {
     if (!_.includes(['0', '1', '2'], scantype)) {
       onChange({
-        ...handleAdvancedSettingChange(data, { dismanual: '0', getinput: '0', getsave: '0' }),
-        strDefault: updateConfig({ config: strDefault, value: 0, index: 0 }),
+        ...(dismanual || getinput || getsave
+          ? handleAdvancedSettingChange(data, { dismanual: '0', getinput: '0', getsave: '0' })
+          : {}),
+        strDefault: data.strDefault ? updateConfig({ config: strDefault, value: 0, index: 0 }) : data.strDefault,
       });
     }
   }, [data.controlId]);
@@ -38,9 +40,7 @@ export default ({ data, onChange }) => {
           {_l('限制移动端输入')}
           <Tooltip
             placement={'bottom'}
-            title={_l(
-              '通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。',
-            )}
+            title={_l('通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。')}
           >
             <i className="icon-help Gray_9e Font16 pointer"></i>
           </Tooltip>

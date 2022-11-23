@@ -9,13 +9,31 @@ const Con = styled.div`
 `;
 
 export default function VCenterIconText(props) {
-  const { icon, text, iconSize = 20, textSize = 14, textLeft = 6, iconStyle = {}, textStyle = {}, ...rest } = props;
+  const {
+    icon,
+    text,
+    iconSize = 20,
+    textSize = 14,
+    textLeft = 6,
+    iconStyle = {},
+    textStyle = {},
+    afterElement,
+    ...rest
+  } = props;
   return (
     <Con {...rest}>
       {icon && (
-        <i className={`icon icon-${icon}`} style={{ fontSize: iconSize, marginRight: textLeft, ...iconStyle }}></i>
+        <i
+          className={`frontIcon icon icon-${icon}`}
+          style={{ fontSize: iconSize, marginRight: textLeft, ...iconStyle }}
+        ></i>
       )}
-      {text && <span style={{ fontSize: textSize, ...textStyle }}>{text}</span>}
+      {text && (
+        <span className="text" style={{ fontSize: textSize, ...textStyle }}>
+          {text}
+        </span>
+      )}
+      {!!afterElement && afterElement}
     </Con>
   );
 }

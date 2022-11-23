@@ -1,4 +1,4 @@
-import functionWrap from 'worksheet/components/FunctionWrap';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import ExportSheet from './ExportSheet';
 
 export default ExportSheet;

@@ -18,4 +18,4 @@ class AttachmentsLoading extends React.Component {
   }
 }
 
-module.exports = AttachmentsLoading;
+export default AttachmentsLoading;

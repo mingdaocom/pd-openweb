@@ -1,0 +1,192 @@
+.logBox {
+  padding: 16px 20px 0 20px;
+  padding-left: 20px !important;
+  box-sizing: border-box;
+  .paddingLeft27 {
+    padding-left: 27px;
+  }
+  .moreLogData {
+    margin-left: 28px;
+    cursor: pointer;
+  }
+  .selectTriggerChildAvatar {
+    .accountName {
+      cursor: pointer;
+      padding: 3px 5px;
+      border-radius: 5px;
+      &:hover {
+        background: #f7f7f7;
+        color: #2196f3;
+      }
+      &.mobileAccountName:hover {
+        background: #fff;
+        color: #9e9e9e;
+      }
+    }
+  }
+  .selectTriggerChild {
+    cursor: pointer;
+    padding: 3px 5px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+  }
+  .selectTriggerChild.hasHover:hover {
+    background: #f7f7f7;
+    color: #2196f3;
+    .icon {
+      color: #2196f3 !important;
+    }
+  }
+  .selectCon {
+    font-size: 13px;
+    color: #9e9e9e;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    .icon {
+      font-size: 18px;
+      color: #757575;
+    }
+    .icon.icon-arrow-down {
+      color: #9e9e9e;
+      font-size: 8px;
+      width: 18px;
+      display: inline-block;
+      text-align: center;
+    }
+    .icon-cancel1 {
+      display: none;
+    }
+    .selectUser,
+    .selectField,
+    .selectDate {
+      padding: 8px 12px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      width: fit-content;
+      cursor: pointer;
+      border-radius: 3px;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+      &:hover {
+        box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2);
+        .icon-cancel1 {
+          display: inline-block;
+        }
+        .icon-arrow-down {
+          display: none;
+        }
+      }
+    }
+    .selectUser {
+      margin-right: 8px;
+    }
+    .selectConText {
+      margin: 0 4px;
+    }
+    .selectLight {
+      color: #2196f3;
+      .icon {
+        color: #2196f3;
+      }
+    }
+    .left {
+      display: flex;
+    }
+  }
+  .worksheetRocordLogCard {
+    padding: 16px;
+    background-color: #fff;
+    margin-bottom: 16px;
+    border-radius: 5px;
+    box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.06);
+    .worksheetRocordLogCardTopBox {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      span {
+        line-height: 20px;
+      }
+      .worksheetRocordLogCardTitleAvatar {
+        margin-right: 2px;
+        height: auto !important;
+      }
+      .titleAvatarText {
+        a {
+          color: #333;
+          &:hover {
+            color: #40a9ff;
+          }
+        }
+      }
+    }
+    .worksheetRocordLogCardHrTime {
+      border-top: 1px solid #eaeaea;
+      color: #9e9e9e;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      padding-top: 16px;
+      margin-left: 7px;
+    }
+  }
+
+  .loadOldLog {
+    font-size: 12px;
+    color: #9e9e9e;
+    text-align: center;
+    margin: 16px 0;
+    span:hover {
+      font-size: #1890ff;
+      cursor: pointer;
+    }
+  }
+  .logDivider {
+    font-size: 12px;
+    color: #9e9e9e;
+  }
+  .worksheet-rocord-log-item {
+    margin-top: 4px;
+    .widgetTitle {
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      margin-right: 8px;
+      margin-left: 2px;
+      > span:first-child {
+        font-weight: 700;
+      }
+      .icon {
+        vertical-align: middle;
+        width: 20px;
+        display: inline-block;
+      }
+    }
+  }
+  .worksheet-rocord-log-item-Row {
+    display: flex;
+    justify-content: start;
+    align-items: flex-start;
+  }
+  .hideEle {
+    display: none;
+  }
+  &.mobileLogBox {
+    padding: 10px 10px 0 10px !important;
+    font-size: 13px;
+    .worksheetRocordLogCardTopBox {
+      font-size: 12px;
+    }
+    .worksheet-rocord-log-item {
+      padding: 0;
+      text-align: justify;
+      .widgetTitle {
+        font-weight: 600;
+      }
+    }
+  }
+}
+.worksheetRocordLog {
+  background: #fafafa;
+}

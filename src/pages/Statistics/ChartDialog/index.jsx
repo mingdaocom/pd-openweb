@@ -142,14 +142,14 @@ export default class ChartDialog extends Component {
       return;
     }
     if (reportType == reportTypes.PivotTable) {
-      if (_.isEmpty(yaxisList) || (_.isEmpty(pivotTable.lines) && _.isEmpty(pivotTable.columns))) {
-        alert(_l('请配置维度和数值后再保存图表'), 2);
+      if (_.isEmpty(yaxisList)) {
+        alert(_l('请配置数值后再保存图表'), 2);
       } else {
         this.handleSaveFilter();
       }
       return;
     } else {
-      if (_.isEmpty(yaxisList) || _.isEmpty(xaxes.controlId)) {
+      if (_.isEmpty(yaxisList)) {
         alert(_l('请配置维度和数值后再保存图表'), 2);
       } else {
         this.handleSaveFilter();

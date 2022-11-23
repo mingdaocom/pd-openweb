@@ -25,7 +25,6 @@ const ModalWrap = styled(Modal)`
 
 const BtnsWrap = styled.div`
   height: 50px;
-  border-top: 1px solid #f5f5f5;
   background-color: #fff;
   padding: 0 10px;
   box-sizing: border-box;

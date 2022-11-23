@@ -98,9 +98,9 @@ export default function SubControlConfig({
         <DynamicDefaultValue {..._.omit(rest, 'onChange')} {...subListProps} fromCondition={'relateSheet'} />
       )}
       {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...subListProps} />}
-      {(HAVE_CONFIG_SUB_LIST.includes(type) ||
-        (type === 10 && advancedSetting.checktype === '1') ||
-        (type === 11 && advancedSetting.showtype !== '2')) && <ControlSetting {...subListProps} />}
+      {(HAVE_CONFIG_SUB_LIST.includes(type) || (type === 11 && advancedSetting.showtype !== '2')) && (
+        <ControlSetting {...subListProps} />
+      )}
       {!NO_PERMISSION_WIDGET.includes(type) && <WidgetPermission {...subListProps} />}
       {/* {!_.includes(NO_CONTENT_CONTROL, type) && (
         <div className="widgetCommonConfig">

@@ -390,7 +390,7 @@ export default class Push extends Component {
         <DetailHeader
           {...this.props}
           data={{ ...data }}
-          icon="icon-notifications_11"
+          icon="icon-interface_push"
           bg="BGBlue"
           updateSource={this.updateSource}
         />

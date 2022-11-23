@@ -1,10 +1,10 @@
 import './style.less';
-
-var doT = require('dot');
-var dialogTpl = doT.template(require('./tpl/mobileDialog.htm'));
-var DialogLayer = require('mdDialog').index;
-var qs = require('query-string');
-var { ATTACHMENT_TYPE } = require('./enum');
+import doT from '@mdfe/dot';
+import mobileDialogHtml from './tpl/mobileDialog.htm';
+var dialogTpl = doT.template(mobileDialogHtml);
+import { index as DialogLayer} from 'src/components/mdDialog/dialog';
+import qs from 'query-string';
+import { ATTACHMENT_TYPE } from './enum';
 var { getShareLocalAttachmentUrl, getShortUrl } = require('src/api/attachment');
 
 var ToMobileDialog = function (options) {
@@ -61,10 +61,12 @@ ToMobileDialog.prototype = {
         yesText: '',
         noText: '',
       },
+      readyFn: () => {
+        TMD.$dialog = $('#sendToMobile');
+        TMD.$QRCode = TMD.$dialog.find('.urlQrCode');
+        this.renderQR();
+      },
     });
-    TMD.$dialog = $('#sendToMobile');
-    TMD.$QRCode = TMD.$dialog.find('.urlQrCode');
-    this.renderQR();
   },
   renderQR() {
     var TMD = this;

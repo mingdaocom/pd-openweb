@@ -30,7 +30,7 @@ export default class JSONParse extends Component {
   }
 
   render() {
-    const { item, disabled, selectNodeId, openDetail } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail } = this.props;
 
     return (
       <div className="flexColumn">
@@ -42,7 +42,7 @@ export default class JSONParse extends Component {
               { errorShadow: !!item.selectNodeId && item.isException },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(item.id, item.typeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
               <i

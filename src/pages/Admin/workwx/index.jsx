@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Link } from 'react-router-dom';
 import { Switch, Icon, Button, LoadDiv, Checkbox } from 'ming-ui';
 import { Tabs, Popover, Radio, Input, Select } from 'antd';
+import ClipboardButton from 'react-clipboard.js';
 import Ajax from 'src/api/workWeiXin';
 import Config from '../config';
 import Dialog from 'ming-ui/components/Dialog';
@@ -14,9 +15,17 @@ import SyncDialog from './components/SyncDialog';
 import InterfaceLicense from './components/InterfaceLicense';
 import UpgradeVersion from '../components/UpgradeVersion';
 import { getFeatureStatus } from 'src/util';
+import fucExampleImg from 'src/pages/Admin/workwx/img/fucExample.png';
+import setApiExampleImg from 'src/pages/Admin/workwx/img/setApiExample.png';
 import './style.less';
+import _ from 'lodash';
 
 const FEATURE_ID = 19;
+const quickAprData = [
+  { label: 'URL', key: 'url' },
+  { label: 'Token', key: 'token' },
+  { label: 'EncodingAESKey', key: 'encodingAESKey' },
+];
 
 export default class Workwx extends React.Component {
   constructor(props) {
@@ -51,6 +60,7 @@ export default class Workwx extends React.Component {
       isSetPassword: false,
       passwordError: false,
       syncWXLabel: md.global.Config.IsLocal ? 'job' : 'organize',
+      qwQuickAprData: {},
     };
   }
 
@@ -93,6 +103,12 @@ export default class Workwx extends React.Component {
           intergrationType: res.intergrationType, // 1代表老的模式，2代表待开发模式
           syncWXLabel: res.wxTagMappingField ? res.wxTagMappingField : this.state.syncWXLabel,
           syncWXLabelChecked: res.wxTagMappingField ? true : false,
+          qwQuickAprData: {
+            url: res.workWxCallBackUrl,
+            token: res.workWxToken,
+            encodingAESKey: res.workWxAesKey,
+          },
+          openQuickApproval: !!res.workWxCallBackUrl,
         });
       }
     });
@@ -339,6 +355,9 @@ export default class Workwx extends React.Component {
         this.setState({
           mingDaoUserInfos: temp,
           bindQWUserIds: temp.filter(item => item.wxUserInfo && item.wxUserInfo.userId).map(v => v.wxUserInfo.userId),
+          filterMatchPhoneBindUserIds: temp
+            .filter(item => item.wxUserInfo && item.wxUserInfo.userId && item.wxUserInfo.matchType !== 1)
+            .map(v => v.wxUserInfo.userId),
           logDetailItems,
           loading: false,
           showSyncDiaLog,
@@ -536,6 +555,35 @@ export default class Workwx extends React.Component {
       }
     });
   };
+  handleChangeOpenQuickApproval = checked => {
+    const { qwQuickAprData = {} } = this.state;
+    Ajax.editWXIsEnableQuickApprove({
+      projectId: Config.projectId,
+      status: checked ? 2 : 1,
+    }).then(res => {
+      if (res) {
+        this.setState({
+          openQuickApproval: !checked,
+        });
+        if (!checked || _.isEmpty(qwQuickAprData)) {
+          Ajax.getWXProjectSettingInfo({ projectId: Config.projectId }).then(res => {
+            this.setState({
+              qwQuickAprData: {
+                url: res.workWxCallBackUrl,
+                token: res.workWxToken,
+                encodingAESKey: res.workWxAesKey,
+              },
+            });
+          });
+        }
+      } else {
+        alert(_l('操作失败'));
+      }
+    });
+  };
+  handleCopyTextSuccess = () => {
+    return alert(_l('复制成功'));
+  };
   render() {
     let {
       isPassApply,
@@ -543,7 +591,9 @@ export default class Workwx extends React.Component {
       syncWXLabel,
       mingDaoUserInfos = [],
       bindQWUserIds = [],
+      filterMatchPhoneBindUserIds = [],
       logDetailItems = [],
+      qwQuickAprData = {},
     } = this.state;
     const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
     if (featureType === '2') {
@@ -778,6 +828,48 @@ export default class Workwx extends React.Component {
                     )}
                   </div>
                 </div>
+                {/* {md.global.Config.IsLocal && (
+                  <div className="stepItem">
+                    <div className="Font16 Gray mBottom16 bold">{_l('在企业微信中使用快速审批')}</div>
+                    <div className="Gray_9e exampleTxt mBottom24">
+                      {_l(
+                        '此功能需要配置企业微信中的应用接收回调消息服务。配置完成后，企业微信中的工作流审批消息卡片可以直接显示通过否决按钮，无需打开审批详情即可直接完成审批（注：需要审批节点启用了快速审批功能）。',
+                      )}
+                      <Popover title={null} arrowPointAtCenter={true} content={<img src={fucExampleImg} />}>
+                        <span className="Hand ThemeColor">{_l('示例')}</span>
+                      </Popover>
+                    </div>
+                    <Switch checked={this.state.openQuickApproval} onClick={this.handleChangeOpenQuickApproval} />
+                    <div className="Gray_9e mTop24">
+                      {_l('请将下面的字段内容完整准确的复制到企业微信-应用管理-接收消息-设置API接收对应的字段内。')}{' '}
+                      <Popover title={null} arrowPointAtCenter={true} content={<img src={setApiExampleImg} />}>
+                        <span className="Hand ThemeColor">{_l('示例')}</span>
+                      </Popover>
+                    </div>
+                    {this.state.openQuickApproval && (
+                      <Fragment>
+                        {quickAprData.map((it, index) => {
+                          
+                          return (
+                            <div
+                              className={cx('flexRow alignItemsCenter', { mTop24: index == 0, mTop32: index !== 0 })}
+                            >
+                              <div className="Font14 w166">{it.label}</div>
+                              <Input className="w418 Gray" disabled value={qwQuickAprData[it.key]} />
+                              <ClipboardButton
+                                component="span"
+                                data-clipboard-text={qwQuickAprData[it.key]}
+                                onSuccess={this.handleCopyTextSuccess}
+                              >
+                                <span className="mLeft16 Hand ThemeColor">{_l('复制')}</span>
+                              </ClipboardButton>
+                            </div>
+                          );
+                        })}
+                      </Fragment>
+                    )}
+                  </div>
+                )} */}
               </Tabs.TabPane>
             )}
             {intergrationType === 2 && this.state.status === 1 && (
@@ -797,6 +889,7 @@ export default class Workwx extends React.Component {
           }}
           mingDaoUserInfos={mingDaoUserInfos}
           bindQWUserIds={bindQWUserIds}
+          filterMatchPhoneBindUserIds={filterMatchPhoneBindUserIds}
           logDetailItems={logDetailItems}
         />
         {this.renderOverLinitDialog()}

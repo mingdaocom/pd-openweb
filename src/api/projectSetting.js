@@ -36,6 +36,18 @@ module.exports = {
      return $.api('ProjectSetting', 'GetAllowApplyManageRole', args, options);
    },
   /**
+  * 获取SSO相关配置
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getSsoSettings: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'GetSsoSettings', args, options);
+   },
+  /**
   * 二级域名
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -363,6 +375,33 @@ module.exports = {
      return $.api('ProjectSetting', 'SetAllowApplyManageRole', args, options);
    },
   /**
+  * 设置 是否开启SSO
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {boolean} args.isOpenSso 是否开启sso
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setSso: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'SetSso', args, options);
+   },
+  /**
+  * 设置 SsoUrl
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.ssoWebUrl sso web url
+  * @param {string} args.ssoAppUrl sso app url
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setSsoUrl: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'SetSsoUrl', args, options);
+   },
+  /**
   * 设置二级域名
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -549,5 +588,23 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
    editApiProxySettings: function (args, options = {}) {
      
      return $.api('ProjectSetting', 'EditApiProxySettings', args, options);
+   },
+  /**
+  * &lt;br&gt; ProcessType = 10 &gt;  RemoveProjectUserMemoryCache : 移除 （整网络）网络成员 内存缓存 
+&lt;br&gt; ProcessType = 11 &gt; ResetProjectUserMemoryCache : 重置 （整网络）网络成员 内存缓存 
+&lt;br&gt; ProcessType = 13 &gt; ResetAccountsProjectUserMemoryCache : 重置 网络成员 内存缓存 中 指定成员的 缓存数据！（需传递 AccountIds） 
+&lt;br&gt; ProcessType = 20 &gt; RemovePersonalContactsMemoryCache : 移除 个人联系人内存缓存（可指定 AccountIds，否则 为 全网络）（注：无 重置操作 选项） 
+&lt;br&gt; ProcessType = 30 &gt; RemoveAccountsMemoryCache : 移除 Account 缓存（独立的 缓存信息，好友、外协中使用）（与网络无关）（必须指定 AccountIds） 
+  * @param {Object} args 请求参数
+  * @param {} args.processType
+  * @param {string} args.projectId
+  * @param {array} args.accountIds
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   projectClearCache: function (args, options = {}) {
+     
+     return $.api('ProjectSetting', 'ProjectClearCache', args, options);
    },
 };

@@ -33,6 +33,7 @@ export function previewQiniuUrl(file, options = {}) {
         previewAttachmentType: 'QINIU',
         name: options.name || _l('图片预览'),
         path: file,
+        privateDownloadUrl: file,
         ext: options.ext || (file.match(/\.(\w+)$/) || '')[1],
       },
     ];

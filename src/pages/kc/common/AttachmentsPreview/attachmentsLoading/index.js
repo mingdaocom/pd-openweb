@@ -1,1 +1,1 @@
-﻿module.exports = require('./attachmentsLoading');
+﻿export { default } from './attachmentsLoading';

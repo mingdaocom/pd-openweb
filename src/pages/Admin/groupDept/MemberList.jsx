@@ -3,11 +3,11 @@ import { Input, Table, Spin, ConfigProvider } from 'antd';
 import { LoadDiv } from 'ming-ui';
 import Empty from '../common/TableEmpty';
 import Config from '../config';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 import ReactDom from 'react-dom';
 import groupController from 'src/api/group';
 import './index.less';
-import 'pager';
+import 'src/components/pager/pager';
 
 const { Search } = Input;
 
@@ -31,7 +31,7 @@ export default class MemberList extends Component {
           return (
             <div className="nameBox">
               <img src={record.avatar} alt="avatar" />
-              <span className="mRight5">{text}</span>
+              <span className="mRight5 ellipsis">{text}</span>
               {record.groupUserRole === 1 ? <i class="TxtMiddle icon-limit-othermember color_y Font10"></i> : ''}
             </div>
           );

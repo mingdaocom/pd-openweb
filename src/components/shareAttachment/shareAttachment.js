@@ -1,26 +1,29 @@
 ﻿import './style.less';
-import 'md.select';
+import 'src/components/select/select';
 import { formatFileSize } from 'src/util';
 import copy from 'copy-to-clipboard';
-var doT = require('dot');
-var mainTpl = doT.template(require('./tpl/main.htm'));
-var listTpl = doT.template(require('./tpl/searchList.htm'));
-var listItemTpl = doT.template(require('./tpl/searchListItem.htm'));
+import doT from '@mdfe/dot';
+import mainHtml from './tpl/main.htm';
+import searchListHtml from './tpl/searchList.htm';
+import searchListItemHtml from './tpl/searchListItem.htm';
+import s from 'src/components/common/mstc/s/s';
+import c from 'src/components/common/mstc/c/c';
+import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
+
+var mainTpl = doT.template(mainHtml);
+var listTpl = doT.template(searchListHtml);
+var listItemTpl = doT.template(searchListItemHtml);
 var { getNodeDetail, updateNode } = require('src/api/kc');
-var {
-  updateWorksheetShareRange,
-  updateWorksheetRowShareRange,
-  getWorksheetInfo,
-  getWorksheetShareUrl,
-} = require('src/api/worksheet');
-var { _getMyTaskList, _getChatList, _convertToOtherAttachment, createNewTask, createNewChat } = require('./ajax');
+var { updateWorksheetShareRange, updateWorksheetRowShareRange, getWorksheetShareUrl } = require('src/api/worksheet');
+import { _getMyTaskList, _getChatList, _convertToOtherAttachment, createNewTask, createNewChat } from './ajax';
 var { sendFileToChat, sendCardToChat } = require('src/api/chat');
 var { addDiscussion } = require('src/api/discussion');
 var { shareAttachmentByPost } = require('src/api/attachment');
-var { ATTACHMENT_TYPE, NODE_VISIBLE_TYPE, WORKSHEET_VISIBLE_TYPE, SEND_TO_TYPE, CHAT_CARD_TYPE } = require('./enum');
-var DialogLayer = require('mdDialog').index;
+import { ATTACHMENT_TYPE, NODE_VISIBLE_TYPE, WORKSHEET_VISIBLE_TYPE, SEND_TO_TYPE, CHAT_CARD_TYPE } from './enum';
+import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
+import { index as DialogLayer } from 'src/components/mdDialog/dialog';
 import { getClassNameByExt } from 'src/util';
-var toMobileDailog = require('./toMobile').default;
+import toMobileDailog from './toMobile';
 
 // 目的地选择列表组件
 var SelectSendTo = function (options, callback) {
@@ -253,35 +256,37 @@ ShareAttachment.prototype = {
         yesText: '',
         noText: '',
       },
+      readyFn: () => {
+        SA.$dialog = $('#' + dialogBoxID);
+        SA.dialogEle = {};
+        SA.dialogEle.$fileName = SA.$dialog.find('#fileName');
+        SA.dialogEle.$fileNameText = SA.$dialog.find('.fileNameText');
+        SA.dialogEle.$canDownloadSwitch = SA.$dialog.find('#canDownload');
+        if (
+          options.attachmentType === ATTACHMENT_TYPE.KC ||
+          options.attachmentType === ATTACHMENT_TYPE.WORKSHEET ||
+          options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW
+        ) {
+          SA.dialogEle.$fileName.hide();
+          SA.dialogEle.$fileNameText.text(SA.file.name).removeClass('hide');
+        } else {
+          SA.dialogEle.$fileName.val(SA.file.name);
+        }
+        if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEET) {
+          SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheet');
+        }
+        if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
+          SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheetRow');
+        }
+        SA.bindEvent();
+        SA.previewFile();
+        if (options.attachmentType === ATTACHMENT_TYPE.KC && options.node) {
+          SA.initModules();
+        } else {
+          SA.fetchBaseData(SA.initModules.bind(SA));
+        }
+      },
     });
-    SA.$dialog = $('#' + dialogBoxID);
-    SA.dialogEle = {};
-    SA.dialogEle.$fileName = SA.$dialog.find('#fileName');
-    SA.dialogEle.$fileNameText = SA.$dialog.find('.fileNameText');
-    SA.dialogEle.$canDownloadSwitch = SA.$dialog.find('#canDownload');
-    if (
-      options.attachmentType === ATTACHMENT_TYPE.KC ||
-      options.attachmentType === ATTACHMENT_TYPE.WORKSHEET ||
-      options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW
-    ) {
-      SA.dialogEle.$fileName.hide();
-      SA.dialogEle.$fileNameText.text(SA.file.name).removeClass('hide');
-    } else {
-      SA.dialogEle.$fileName.val(SA.file.name);
-    }
-    if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEET) {
-      SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheet');
-    }
-    if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
-      SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheetRow');
-    }
-    SA.bindEvent();
-    SA.previewFile();
-    if (options.attachmentType === ATTACHMENT_TYPE.KC && options.node) {
-      SA.initModules();
-    } else {
-      SA.fetchBaseData(SA.initModules.bind(SA));
-    }
   },
   bindEvent: function () {
     var SA = this;
@@ -669,10 +674,13 @@ ShareAttachment.prototype = {
     SA.$dialog.find('#linkContent').val(SA.options.node.shareUrl);
     SA.$dialog.find('.copyLinkCon').removeClass('hide').addClass('inited');
 
-    SA.$dialog.find('#copyLinkBtn').off().on('click', function () {
-      copy(SA.options.node.shareUrl);
-      alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方'));
-    });
+    SA.$dialog
+      .find('#copyLinkBtn')
+      .off()
+      .on('click', function () {
+        copy(SA.options.node.shareUrl);
+        alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方'));
+      });
   },
   initSelectSendTo: function (type, callback) {
     var SA = this;
@@ -724,34 +732,32 @@ ShareAttachment.prototype = {
       }
       case SEND_TO_TYPE.FEED: {
         $sendToContent.empty();
-        require(['s'], function (s) {
-          var sObj = {
-            callback: function (postItem) {
-              if (SA.dialog) {
-                SA.dialog.closeDialog();
-              }
-            },
-          };
-          if (SA.options.attachmentType === ATTACHMENT_TYPE.COMMON) {
-            if (SA.newFileName) {
-              SA.options.node.originalFileName = SA.newFileName;
+        var sObj = {
+          callback: function (postItem) {
+            if (SA.dialog) {
+              SA.dialog.closeDialog();
             }
-            sObj.defaultAttachmentData = [SA.options.node];
-          } else if (SA.options.attachmentType === ATTACHMENT_TYPE.KC) {
-            sObj.defaultKcAttachmentData = [SA.options.node];
-          } else if (SA.options.attachmentType === ATTACHMENT_TYPE.QINIU) {
-            SA.options.node.originalFileName = SA.options.name;
-            SA.options.node.fileSize = SA.options.size;
-            if (SA.newFileName) {
-              SA.options.node.originalFileName = SA.newFileName;
-            }
-            sObj.defaultAttachmentData = [SA.options.node];
+          },
+        };
+        if (SA.options.attachmentType === ATTACHMENT_TYPE.COMMON) {
+          if (SA.newFileName) {
+            SA.options.node.originalFileName = SA.newFileName;
           }
-          if (shareDesc) {
-            sObj.postMsg = shareDesc;
+          sObj.defaultAttachmentData = [SA.options.node];
+        } else if (SA.options.attachmentType === ATTACHMENT_TYPE.KC) {
+          sObj.defaultKcAttachmentData = [SA.options.node];
+        } else if (SA.options.attachmentType === ATTACHMENT_TYPE.QINIU) {
+          SA.options.node.originalFileName = SA.options.name;
+          SA.options.node.fileSize = SA.options.size;
+          if (SA.newFileName) {
+            SA.options.node.originalFileName = SA.newFileName;
           }
-          s(sObj);
-        });
+          sObj.defaultAttachmentData = [SA.options.node];
+        }
+        if (shareDesc) {
+          sObj.postMsg = shareDesc;
+        }
+        s(sObj);
         break;
       }
       case SEND_TO_TYPE.TASK: {
@@ -798,9 +804,7 @@ ShareAttachment.prototype = {
         if (shareDesc) {
           cObj.Message = shareDesc;
         }
-        require(['c'], function (c) {
-          c(cObj);
-        });
+        c(cObj);
         break;
       }
       case SEND_TO_TYPE.KC: {
@@ -836,46 +840,44 @@ ShareAttachment.prototype = {
     $shareAttachmentFooter.removeClass('hide');
   },
   selectKcPath: function (callback) {
-    require(['src/components/kc/folderSelectDialog/folderSelectDialog'], folderDg => {
-      folderDg({
-        dialogTitle: _l('选择路径'),
-        isFolderNode: 1,
-        reRootName: true,
-      })
-        .then(result => {
-          // 路径处理逻辑直接拷贝的动态的存入知识处理逻辑
-          var path = result.type === 3 ? result.rootName || '' : result.node.name;
-          path += '/';
-          if (result.type == 3) {
-            var position = result.node.position;
-            var positionArr = position.split('/');
-            var isOmit = false;
-            positionArr.forEach(function (part, i) {
-              if (i > 1) {
-                if (i > positionArr.length - 4) {
-                  var partStr = part;
-                  path += partStr + '/';
-                } else {
-                  if (!isOmit) {
-                    path += '.../';
-                    isOmit = true;
-                  }
+    folderDg({
+      dialogTitle: _l('选择路径'),
+      isFolderNode: 1,
+      reRootName: true,
+    })
+      .then(result => {
+        // 路径处理逻辑直接拷贝的动态的存入知识处理逻辑
+        var path = result.type === 3 ? result.rootName || '' : result.node.name;
+        path += '/';
+        if (result.type == 3) {
+          var position = result.node.position;
+          var positionArr = position.split('/');
+          var isOmit = false;
+          positionArr.forEach(function (part, i) {
+            if (i > 1) {
+              if (i > positionArr.length - 4) {
+                var partStr = part;
+                path += partStr + '/';
+              } else {
+                if (!isOmit) {
+                  path += '.../';
+                  isOmit = true;
                 }
               }
-            });
-          }
-          path = path
-            .split('/')
-            .map(function (str) {
-              return '<span class="pathStr ellipsis">' + str + '</span>';
-            })
-            .join('/');
-          callback(result, path);
-        })
-        .fail(() => {
-          // alert('保存失败，未能成功调出知识文件选择层');
-        });
-    });
+            }
+          });
+        }
+        path = path
+          .split('/')
+          .map(function (str) {
+            return '<span class="pathStr ellipsis">' + str + '</span>';
+          })
+          .join('/');
+        callback(result, path);
+      })
+      .fail(() => {
+        // alert('保存失败，未能成功调出知识文件选择层');
+      });
   },
   sendToMobile: function (sendToType) {
     var SA = this;
@@ -1124,36 +1126,34 @@ ShareAttachment.prototype = {
           alert(_l('请先选择文件夹'), 3);
           return;
         }
-        require(['src/components/saveToKnowledge/saveToKnowledge'], saveToKnowledge => {
-          var sourceData = {};
-          sourceData.des = shareDesc;
-          sourceData.allowDown = allowDown;
-          if (attachmentType === ATTACHMENT_TYPE.COMMON) {
-            sourceData.fileID = SA.options.id;
-            if (SA.newFileName) {
-              sourceData.originalFileName = SA.newFileName;
-            }
-          } else if (attachmentType === ATTACHMENT_TYPE.KC) {
-            sourceData.nodeId = SA.options.id;
-          } else if (attachmentType === ATTACHMENT_TYPE.QINIU) {
-            sourceData.name = SA.options.name + (SA.options.ext[0] === '.' ? SA.options.ext : '.' + SA.options.ext);
-            sourceData.filePath = SA.options.qiniuPath;
-            if (SA.newFileName) {
-              sourceData.name = SA.newFileName;
-            }
+        var sourceData = {};
+        sourceData.des = shareDesc;
+        sourceData.allowDown = allowDown;
+        if (attachmentType === ATTACHMENT_TYPE.COMMON) {
+          sourceData.fileID = SA.options.id;
+          if (SA.newFileName) {
+            sourceData.originalFileName = SA.newFileName;
           }
-          saveToKnowledge(attachmentType, sourceData)
-            .save(SA.kcPath)
-            .then(function (message) {
-              // alert(message || '保存成功');
-              if (SA.dialog) {
-                SA.dialog.closeDialog();
-              }
-            })
-            .fail(function (message) {
-              alert(message || _l('保存失败'), 3);
-            });
-        });
+        } else if (attachmentType === ATTACHMENT_TYPE.KC) {
+          sourceData.nodeId = SA.options.id;
+        } else if (attachmentType === ATTACHMENT_TYPE.QINIU) {
+          sourceData.name = SA.options.name + (SA.options.ext[0] === '.' ? SA.options.ext : '.' + SA.options.ext);
+          sourceData.filePath = SA.options.qiniuPath;
+          if (SA.newFileName) {
+            sourceData.name = SA.newFileName;
+          }
+        }
+        saveToKnowledge(attachmentType, sourceData)
+          .save(SA.kcPath)
+          .then(function (message) {
+            // alert(message || '保存成功');
+            if (SA.dialog) {
+              SA.dialog.closeDialog();
+            }
+          })
+          .fail(function (message) {
+            alert(message || _l('保存失败'), 3);
+          });
         break;
       }
       default: {

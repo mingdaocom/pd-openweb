@@ -5,7 +5,16 @@ import { Checkbox } from 'antd-mobile';
 import CellControl from 'src/pages/worksheet/components/CellControls';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import worksheetAjax from 'src/api/worksheet';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
+import {
+  NORMAL_SYSTEM_FIELDS,
+  WORKFLOW_SYSTEM_FIELDS,
+  WORKFLOW_SYSTEM_FIELDS_SORT,
+} from 'src/pages/worksheet/common/ViewConfig/util';
 import './index.less';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 
 function getCoverControlData(data) {
   return _.find(data, file => File.isPicture(file.ext));
@@ -48,29 +57,29 @@ export default class RecordCard extends Component {
       { controlId: 'caid', controlName: _l('创建者'), type: 26 },
       { controlId: 'ctime', controlName: _l('创建时间'), type: 16 },
       { controlId: 'utime', controlName: _l('最近修改时间'), type: 16 },
+      ...NORMAL_SYSTEM_FIELDS,
+      ...WORKFLOW_SYSTEM_FIELDS,
     ].concat(controls);
     return showControls.map(scid => _.find(allControls, c => c.controlId === scid));
   }
   previewAttachment(attachments, index) {
-    require(['previewAttachments'], previewAttachments => {
-      previewAttachments({
-        index: index || 0,
-        attachments: attachments.map(attachment => {
-          if (attachment.fileId.slice(0, 2) === 'o_') {
-            return Object.assign({}, attachment, {
-              previewAttachmentType: 'QINIU',
-              path: attachment.previewUrl,
-              name: (attachment.originalFilename || _l('图片')) + attachment.ext,
-            });
-          }
+    previewAttachments({
+      index: index || 0,
+      attachments: attachments.map(attachment => {
+        if (attachment.fileId.slice(0, 2) === 'o_') {
           return Object.assign({}, attachment, {
-            previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
+            previewAttachmentType: 'QINIU',
+            path: attachment.previewUrl,
+            name: (attachment.originalFilename || _l('图片')) + attachment.ext,
           });
-        }),
-        showThumbnail: true,
-        hideFunctions: ['editFileName'],
-        disableNoPeimission: true,
-      });
+        }
+        return Object.assign({}, attachment, {
+          previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
+        });
+      }),
+      showThumbnail: true,
+      hideFunctions: ['editFileName'],
+      disableNoPeimission: true,
     });
   }
   handleCoverClick = e => {
@@ -134,7 +143,7 @@ export default class RecordCard extends Component {
           )
         ) : (
           <div className="withoutImg img flexRow valignWrapper">
-            <Icon className="Font30" icon="attach_file" />
+            <img src={emptyCover}></img>
           </div>
         )}
       </div>
@@ -179,7 +188,7 @@ export default class RecordCard extends Component {
             {nameVisible ? visibleControl.controlName : ''}
           </div>
         )}
-        <div className="controlContent ellipsis">
+        <div className="controlContent">
           {data[visibleControl.controlId] ? (
             <CellControl
               rowHeight={34}
@@ -195,13 +204,18 @@ export default class RecordCard extends Component {
     );
   }
   renderContent() {
-    const { view, data, controls, allowAdd } = this.props;
+    const { data, view, allowAdd, controls, sheetSwitchPermit } = this.props;
     const { advancedSetting, coverCid, showControlName } = view;
+    const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     let titleControl = _.find(controls, control => control.attribute === 1) || {};
     const titleText = getTitleTextFromControls(controls, data);
     const { checked } = this.state;
     const appshowtype = advancedSetting.appshowtype || '0';
-    const displayControls = view.displayControls.filter(id => id !== titleControl.controlId);
+    const displayControls = isShowWorkflowSys
+      ? view.displayControls.filter(id => id !== titleControl.controlId)
+      : view.displayControls
+          .filter(id => id !== titleControl.controlId)
+          .filter(v => !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, v));
     return (
       <div className="recordCardContent flex">
         <div className="flexRow valignWrapper mBottom5">

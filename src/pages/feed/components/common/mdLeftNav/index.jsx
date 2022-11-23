@@ -12,4 +12,4 @@ MDLeftNav.propTypes = {
   children: PropTypes.any,
 };
 
-module.exports = MDLeftNav;
+export default MDLeftNav;

@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import _ from 'lodash';
 
 /**
  *  日期公式计算
@@ -144,5 +145,12 @@ export function getSelectedOptions(options, value) {
   try {
     selectedKeys = JSON.parse(value);
   } catch (err) {}
-  return options.filter(option => selectedKeys.indexOf(option.key) > -1);
+  return options.filter(option =>
+    _.find(selectedKeys, s => {
+      if (s.indexOf('other') > -1 || s.indexOf('add_') > -1) {
+        return s.indexOf(option.key) > -1;
+      }
+      return s === option.key;
+    }),
+  );
 }

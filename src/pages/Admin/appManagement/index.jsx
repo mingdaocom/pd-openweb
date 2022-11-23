@@ -11,7 +11,7 @@ import UserHead from 'src/pages/feed/components/userHead/userHead';
 import ajaxRequest from 'src/api/appManagement';
 import { deleteApp } from 'src/api/homeApp';
 import projectSettingAjaxRequest from 'src/api/projectSetting';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import CustomIcon from './CustomIcon';
 import SvgIcon from 'src/components/SvgIcon';
 import Trigger from 'rc-trigger';
@@ -373,7 +373,7 @@ export default class AppManagement extends Component {
     };
     ReactDom.render(
       <Dialog {...options}>
-        <ImportApp closeDialog={() => this.closeDialog('importSingleAppDialog')} />
+        <ImportApp closeDialog={() => this.closeDialog('importSingleAppDialog')}  />
       </Dialog>,
       document.createElement('div'),
     );
@@ -489,9 +489,8 @@ export default class AppManagement extends Component {
     evt.on('click', '.updateAppCharge', function () {
       $(this).dialogSelectUser({
         sourceId: that.props.match.params.projectId,
-        title: _l('选择应用负责人'),
-        showMoreInvite: false,
         fromType: 4,
+        fromAdmin: true,
         SelectUserSettings: {
           filterAll: true,
           filterFriend: true,

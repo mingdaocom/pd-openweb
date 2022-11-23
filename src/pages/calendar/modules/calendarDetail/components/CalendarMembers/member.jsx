@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Icon from 'ming-ui/components/Icon';
-import 'mdBusinessCard';
+import 'src/components/mdBusinessCard/mdBusinessCard';
 import { MEMBER_STATUS } from '../../constant';
 
 export default class Member extends Component {

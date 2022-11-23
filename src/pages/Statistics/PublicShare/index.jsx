@@ -25,7 +25,7 @@ export default class PublicShareChart extends Component {
       id,
       sourceType: 31
     }).then(data => {
-      window.publicAppAuthorization = data.shareAuthor;
+      window.pageShareAuthor = data.shareAuthor;
       this.setState({ data, loading: false });
     });
   }

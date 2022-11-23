@@ -1,12 +1,4 @@
-﻿/**
- * @module mdBusinesscard
- * @author puck
- * @desc new mdBusinesscard inspired by bootstrap-tooltip
- * @example
- * require.async('mdBusinessCard',function(){ $('').mdBusinessCard(); });
- */
-
-import store from 'redux/configureStore';
+﻿import store from 'redux/configureStore';
 import * as actions from 'src/pages/chat/redux/actions';
 import * as utils from 'src/pages/chat/utils';
 import departmentController from 'src/api/department';
@@ -24,10 +16,10 @@ var BusinessCard = function (element, options) {
   this.init('businesscard', element, options);
 };
 
-var doT = require('dot');
+import doT from '@mdfe/dot';
 var userController = require('src/api/user');
 var groupController = require('src/api/group');
-var cardTpl = require('./tpl/mdBusinessCard.html');
+import cardTpl from './tpl/mdBusinessCard.html';
 /**
  * @typedef {object} cardTypeEnum
  * @type {{USER: number, GROUP: number, SECRET: number}}
@@ -297,13 +289,6 @@ BusinessCard.prototype.bindEvent = function () {
     } else if (options.type === TYPES.GROUP) {
       isWindow ? utils.windowOpen(sourceId, fullname, true) : store.dispatch(actions.addGroupSession(sourceId));
     }
-    // } else {
-    // require(['addFriendConfirm'], function (dialog) {
-    //   dialog({
-    //     accountId: options.sourceId,
-    //   });
-    // });
-    // }
   });
 
   // 飞入效果

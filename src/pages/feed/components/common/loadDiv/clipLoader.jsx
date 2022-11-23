@@ -82,4 +82,4 @@ class Loader extends React.Component {
   }
 }
 
-module.exports = Loader;
+export default Loader;

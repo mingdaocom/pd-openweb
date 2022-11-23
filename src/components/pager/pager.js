@@ -1,6 +1,6 @@
 import './style.css';
 
-module.exports = (function ($) {
+export default (function ($) {
   $.fn.Pager = function (param) {
     new $Pager(this, param);
     return $(this);

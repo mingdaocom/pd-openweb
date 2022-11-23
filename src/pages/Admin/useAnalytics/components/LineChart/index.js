@@ -1,5 +1,4 @@
 import React from 'react';
-import { Line, DualAxes } from '@antv/g2plot';
 import { formatter } from '../../util';
 
 export default class LineChart extends React.Component {
@@ -9,7 +8,10 @@ export default class LineChart extends React.Component {
     this.lineChart = null;
   }
   componentDidMount() {
-    this.renderChart();
+    import('@antv/g2plot').then(data => {
+      this.g2plotComponent = data;
+      this.renderChart();
+    });
   }
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.data, nextProps.data)) {
@@ -38,6 +40,8 @@ export default class LineChart extends React.Component {
     const { isDualAxes, configObj = {}, chartInfo = {}, currentDimension } = this.props;
     const { type, total, total1, total2 } = chartInfo;
     const { data = [] } = this.state;
+    const { Line, DualAxes } = this.g2plotComponent;
+
     if (isDualAxes) {
       let data1 = !_.isEmpty(data)
         ? (!_.isEmpty(data[0]) && data[0].every(item => item.value === 0)) || _.isEmpty(data[0])

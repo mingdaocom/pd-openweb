@@ -416,6 +416,19 @@ module.exports = {
      return $.api('WorkWeiXin', 'EditWXProjectTagMappingField', args, options);
    },
   /**
+  * 编辑私有部署企业微信是否启用快速审批
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {integer} args.status 1代表开通；2代表关闭
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editWXIsEnableQuickApprove: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'EditWXIsEnableQuickApprove', args, options);
+   },
+  /**
   * 检测企业微信自建应用集成通讯录同步到明道云
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id

@@ -9,7 +9,7 @@ import {
 import appManagementAjax from 'src/api/appManagement';
 import update from 'immutability-helper';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
-import { formatValues } from 'worksheet/common/WorkSheetFilter/util';
+import { formatValuesOfCondition } from 'worksheet/common/WorkSheetFilter/util';
 import { addRecord } from 'worksheet/common/newRecord';
 import { refresh as sheetViewRefresh, addRecord as sheetViewAddRecord, setViewLayout } from './sheetview';
 import { refresh as galleryViewRefresh } from './galleryview';
@@ -47,21 +47,35 @@ export const clearChartId = base => {
 
 export const updateWorksheetLoading = loading => ({ type: 'WORKSHEET_UPDATE_LOADING', loading });
 
+let worksheetRequest = null;
+
 export function loadWorksheet(worksheetId) {
   return (dispatch, getState) => {
     const { base = {} } = getState().sheet;
     const { viewId, chartId } = base;
+
+    if (
+      worksheetRequest &&
+      worksheetRequest.state() === 'pending' &&
+      worksheetRequest.abort &&
+      base.type !== 'single'
+    ) {
+      worksheetRequest.abort();
+    }
+
     dispatch({
       type: 'WORKSHEET_FETCH_START',
     });
 
-    getWorksheetInfo({
+    worksheetRequest = getWorksheetInfo({
       worksheetId,
       reportId: chartId || undefined,
       getViews: true,
       getTemplate: true,
       getRules: true,
-    })
+    });
+
+    worksheetRequest
       .then(async res => {
         let queryRes;
         if (res.isWorksheetQuery) {
@@ -188,10 +202,7 @@ export function saveView(viewId, newConfig, cb) {
       });
     }
     if (saveParams.filters) {
-      saveParams.filters = saveParams.filters.map(f => ({
-        ...f,
-        values: formatValues(f.dataType, f.filterType, f.values),
-      }));
+      saveParams.filters = saveParams.filters.map(formatValuesOfCondition);
     }
     saveWorksheetView({
       ..._.pick(base, ['appId', 'worksheetId']),

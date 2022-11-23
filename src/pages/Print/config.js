@@ -4,7 +4,7 @@ export const fromType = {
 };
 
 export const printType = {
-  WORKFLOW: 'workflow', // 工作流
+  WORKFLOW: 'flow', // 工作流
   WORKSHEET: 'worksheet', //
 };
 
@@ -47,6 +47,8 @@ export const MAX_FONT_SIZE = 18;
 export const PRINT_TYPE = {
   SYS_PRINT: 0, // 系统打印
   WORD_PRINT: 2, // word模版打印
+  QR_CODE_PRINT: 3, // 二维码打印
+  BAR_CODE_PRINT: 4, // 条码打印
 };
 
 export const SYSTOPRINT = {

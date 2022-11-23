@@ -6,7 +6,7 @@ import { timeParticleSizeDropdownData, areaParticleSizeDropdownData, isTimeContr
 import { Table } from 'antd';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { browserIsMobile, getClassNameByExt } from 'src/util';
-import previewAttachments from 'previewAttachments';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 
 const isMobile = browserIsMobile();
 
@@ -332,7 +332,7 @@ export default class extends Component {
   getColumnsHeader(linesData) {
     let { lines, columns, style, yaxisList } = this.props.reportData;
     const { pivotTableUnilineShow, pivotTableLineFreeze } = style ? style : {};
-    
+
     columns = _.cloneDeep(columns);
 
     if (columns.length && lines.length && yaxisList.length === 1) {
@@ -502,7 +502,7 @@ export default class extends Component {
     const { reportData } = this.props;
     const { yaxisList, columns, pivotTable } = reportData;
     const { showColumnTotal, columnSummary } = pivotTable || reportData;
-    
+
     if (!(showColumnTotal && columns.length)) return null;
 
     let index = 0;
@@ -555,7 +555,7 @@ export default class extends Component {
     const { yaxisList, pivotTable } = reportData;
     const { lineSummary, columnSummary, showLineTotal } = pivotTable || reportData;
     const tableLentghData = Array.from({ length: linesData[0] ? linesData[0].data.length : 1 });
-    
+
     const dataSource = tableLentghData.map((__, index) => {
       const obj = { key: index };
       linesData.forEach(item => {

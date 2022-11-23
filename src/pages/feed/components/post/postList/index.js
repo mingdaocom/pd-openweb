@@ -1,1 +1,1 @@
-﻿module.exports = require('./postList');
+﻿export { default } from './postList';

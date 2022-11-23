@@ -2,8 +2,7 @@ import PDFObject from 'pdfobject';
 import { autobind } from 'core-decorators';
 import genQrDataurl, { QRErrorCorrectLevel } from './genQrDataurl';
 import { A4_OPTS, QRPRINT_OPTS, A4_SIZE, QRPRINT_SIZES } from './printConfig';
-
-const jsPDF = require('jspdf');
+import jsPDF from 'jspdf';
 
 function cutText(text, fontSize, width) {
   fontSize = fontSize || 12;

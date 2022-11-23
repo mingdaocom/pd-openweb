@@ -48,7 +48,7 @@ const NumberRange = styled.div`
 `;
 
 export default function Number(props) {
-  const { data, onChange, fromPortal } = props;
+  const { data, onChange, fromPortal, fromExcel } = props;
   const [visible, setVisible] = useState(false);
   const [nameVisible, setNameVisible] = useState(false);
   const [numValue, setNumValue] = useState();
@@ -185,92 +185,101 @@ export default function Number(props) {
         </Fragment>
       )}
 
-      <DynamicDefaultValue {...props} />
-
-      {isNumber && (
+      {fromExcel ? null : (
         <Fragment>
-          <WidgetVerify {...props} />
-          <NumberConfig {...props} />
-        </Fragment>
-      )}
+          <DynamicDefaultValue {...props} />
 
-      {numshow !== '1' && isNumber && (
-        <SettingItem>
-          <div className="settingItemTitle">{_l('单位')}</div>
-          <PreSuffix {...props} />
-        </SettingItem>
-      )}
+          {isNumber && (
+            <Fragment>
+              <WidgetVerify {...props} />
+              <NumberConfig {...props} />
+            </Fragment>
+          )}
 
-      {!isNumber && (
-        <Fragment>
-          <SettingItem>
-            <div className="settingItemTitle">{_l('颜色')}</div>
-            <div className="labelWrap">
-              <Dropdown
-                border
-                isAppendToBody
-                style={{ width: '120px', marginRight: '10px' }}
-                data={NUMBER_COLOR_TYPE}
-                value={_.get(itemcolor, 'type') || 1}
-                onChange={type => {
-                  onChange(
-                    handleAdvancedSettingChange(data, {
-                      itemcolor: JSON.stringify({
-                        ...itemcolor,
-                        type,
-                      }),
-                    }),
-                  );
-                }}
-              />
-              {itemcolor.type === 1 ? (
-                <WidgetColor
-                  type="normal"
-                  color={itemcolor.color}
-                  handleChange={color => {
-                    onChange(handleAdvancedSettingChange(data, { itemcolor: JSON.stringify({ ...itemcolor, color }) }));
-                  }}
-                />
-              ) : (
-                <span className="ThemeColor3 ThemeHoverColor2 pointer LineHeight36" onClick={() => setVisible(true)}>
-                  {_l('设置')}
-                </span>
-              )}
-            </div>
-          </SettingItem>
-          <SettingItem>
-            <div className="settingItemTitle">{_l('设置')}</div>
-            <div className="labelWrap mTop12">
-              <Checkbox
-                size="small"
-                checked={showinput === '1'}
-                onClick={checked => onChange(handleAdvancedSettingChange(data, { showinput: checked ? '0' : '1' }))}
-                text={_l('显示输入框')}
-              />
-            </div>
-            <div className="labelWrap mTop12">
-              <Checkbox
-                size="small"
-                checked={itemnames}
-                onClick={checked => {
-                  if (checked) {
-                    onChange(handleAdvancedSettingChange(data, { itemnames: '' }));
-                  } else {
-                    setNameVisible(true);
-                  }
-                }}
-                text={_l('显示刻度')}
-              />
-            </div>
-            {itemnames && (
-              <EditInfo style={{ margin: '12px 0' }} onClick={() => setNameVisible(true)}>
-                <div className="text overflow_ellipsis Gray">{itemnames.map(i => i.value).join('、')}</div>
-                <div className="edit">
-                  <i className="icon-edit"></i>
+          {numshow !== '1' && isNumber && (
+            <SettingItem>
+              <div className="settingItemTitle">{_l('单位')}</div>
+              <PreSuffix {...props} />
+            </SettingItem>
+          )}
+
+          {!isNumber && (
+            <Fragment>
+              <SettingItem>
+                <div className="settingItemTitle">{_l('颜色')}</div>
+                <div className="labelWrap">
+                  <Dropdown
+                    border
+                    isAppendToBody
+                    style={{ width: '120px', marginRight: '10px' }}
+                    data={NUMBER_COLOR_TYPE}
+                    value={_.get(itemcolor, 'type') || 1}
+                    onChange={type => {
+                      onChange(
+                        handleAdvancedSettingChange(data, {
+                          itemcolor: JSON.stringify({
+                            ...itemcolor,
+                            type,
+                          }),
+                        }),
+                      );
+                    }}
+                  />
+                  {itemcolor.type === 1 ? (
+                    <WidgetColor
+                      type="normal"
+                      color={itemcolor.color}
+                      handleChange={color => {
+                        onChange(
+                          handleAdvancedSettingChange(data, { itemcolor: JSON.stringify({ ...itemcolor, color }) }),
+                        );
+                      }}
+                    />
+                  ) : (
+                    <span
+                      className="ThemeColor3 ThemeHoverColor2 pointer LineHeight36"
+                      onClick={() => setVisible(true)}
+                    >
+                      {_l('设置')}
+                    </span>
+                  )}
                 </div>
-              </EditInfo>
-            )}
-          </SettingItem>
+              </SettingItem>
+              <SettingItem>
+                <div className="settingItemTitle">{_l('设置')}</div>
+                <div className="labelWrap mTop12">
+                  <Checkbox
+                    size="small"
+                    checked={showinput === '1'}
+                    onClick={checked => onChange(handleAdvancedSettingChange(data, { showinput: checked ? '0' : '1' }))}
+                    text={_l('显示输入框')}
+                  />
+                </div>
+                <div className="labelWrap mTop12">
+                  <Checkbox
+                    size="small"
+                    checked={itemnames}
+                    onClick={checked => {
+                      if (checked) {
+                        onChange(handleAdvancedSettingChange(data, { itemnames: '' }));
+                      } else {
+                        setNameVisible(true);
+                      }
+                    }}
+                    text={_l('显示刻度')}
+                  />
+                </div>
+                {itemnames && (
+                  <EditInfo style={{ margin: '12px 0' }} onClick={() => setNameVisible(true)}>
+                    <div className="text overflow_ellipsis Gray">{itemnames.map(i => i.value).join('、')}</div>
+                    <div className="edit">
+                      <i className="icon-edit"></i>
+                    </div>
+                  </EditInfo>
+                )}
+              </SettingItem>
+            </Fragment>
+          )}
         </Fragment>
       )}
 

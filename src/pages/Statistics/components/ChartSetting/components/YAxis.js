@@ -228,15 +228,26 @@ export default class YAxis extends Component {
       />
     );
   }
+  renderWithoutFidldItem() {
+    const { currentReport, yaxisList, split } = this.props;
+    const { reportType, xaxes } = currentReport;
+    const Content = <WithoutFidldItem onVerification={this.handleVerification} onAddControl={this.handleAddControl} />
+
+    if ([reportTypes.PieChart, reportTypes.FunnelChart].includes(reportType)) {
+      return (
+        (xaxes.controlId ? _.isEmpty(yaxisList) : true) && Content
+      )
+    }
+
+    if ([reportTypes.NumberChart, reportTypes.CountryLayer].includes(reportType)) {
+      return _.isEmpty(yaxisList) && Content;
+    }
+
+    return _.isEmpty(split.controlId) && Content;
+  }
   render() {
     const { name, currentReport, axisControls, allControls, yaxisList, split } = this.props;
     const { reportType } = currentReport;
-    const only = [
-      reportTypes.PieChart,
-      reportTypes.NumberChart,
-      reportTypes.FunnelChart,
-      reportTypes.CountryLayer,
-    ].includes(reportType);
     return (
       <div className="fieldWrapper mBottom20">
         <div className="Bold mBottom12">{name}</div>
@@ -254,12 +265,7 @@ export default class YAxis extends Component {
           onChangeControlId={this.handleChangeControlId}
           onSortEnd={this.handleSortEnd}
         />
-        {!only && _.isEmpty(split.controlId) && (
-          <WithoutFidldItem onVerification={this.handleVerification} onAddControl={this.handleAddControl} />
-        )}
-        {only && _.isEmpty(yaxisList) && (
-          <WithoutFidldItem onVerification={this.handleVerification} onAddControl={this.handleAddControl} />
-        )}
+        {this.renderWithoutFidldItem()}
         {this.renderModal()}
       </div>
     );

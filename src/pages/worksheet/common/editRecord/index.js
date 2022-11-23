@@ -1,5 +1,5 @@
 import EditRecord from './EditRecord';
-import functionWrap from 'worksheet/components/FunctionWrap';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 
 export default EditRecord;
 

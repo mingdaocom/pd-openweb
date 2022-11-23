@@ -3,11 +3,17 @@ import PropTypes, { func } from 'prop-types';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Motion, spring } from 'react-motion';
-import { getRowRelationRows, getSwitchPermit, editWorksheetControls, getQueryBySheetId } from 'src/api/worksheet';
+import {
+  getRowRelationRows,
+  getSwitchPermit,
+  editWorksheetControls,
+  getQueryBySheetId,
+  getRowDetail,
+} from 'src/api/worksheet';
 import update from 'immutability-helper';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { replaceByIndex } from 'worksheet/util';
+import { replaceByIndex, emitter } from 'worksheet/util';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import Skeleton from 'src/router/Application/Skeleton';
@@ -345,6 +351,23 @@ export default function RelateRecordTable(props) {
       alert(_l('取消关联失败！'), 2);
     }
   }
+  function handleUpdateRow({ worksheetId, recordId }) {
+    if (worksheetId === control.dataSource) {
+      getRowDetail({
+        checkView: true,
+        getType: 1,
+        rowId: recordId,
+        worksheetId,
+      }).then(row => {
+        if (row.resultCode === 1) {
+          tableActions.updateRecord(_.omit(safeParse(row.rowData), ['allowedit', 'allowdelete']));
+        }
+      });
+    }
+  }
+  useEffect(() => {
+    tableActions.updateRecords(relateRecordData[control.controlId] ? relateRecordData[control.controlId].value : []);
+  }, [relateRecordData[control.controlId]]);
   useEffect(() => {
     if (isNewRecord) {
       loadRows({ showHideTip: true });
@@ -396,6 +419,10 @@ export default function RelateRecordTable(props) {
       setSheetHiddenColumnIds([]);
       setSheetColumnWidths({});
     });
+    emitter.addListener('RELOAD_RECORD_INFO', handleUpdateRow);
+    return () => {
+      emitter.removeListener('RELOAD_RECORD_INFO', handleUpdateRow);
+    };
   }, []);
   useEffect(() => {
     if (_.includes(['ADD_RECORDS', 'DELETE_RECORDS', 'UPDATE_RECORD', 'UPDATE_COUNT'], lastAction)) {
@@ -450,7 +477,7 @@ export default function RelateRecordTable(props) {
     }
   }
   const rowCount = records.length > 3 ? records.length + 1 : 4;
-  const numberWidth = String(pageIndex * PAGE_SIZE).length * 8;
+  const numberWidth = String(isNewRecord ? records.length * 10 : pageIndex * PAGE_SIZE).length * 8;
   let rowHeadWidth = (numberWidth > 24 ? numberWidth : 24) + 32;
   function handleUpdateCell({ cell, cells, updateRecordId }, options = {}) {
     updateRecordControl({
@@ -498,6 +525,7 @@ export default function RelateRecordTable(props) {
         sheetViewHighlightRows={highlightRows}
         renderRowHead={({ className, style, rowIndex, row }) => (
           <RowHead
+            relateRecordControlId={control.controlId}
             allowOpenRecord={allowlink !== '0'}
             className={className}
             style={style}

@@ -9,6 +9,7 @@ import PostMain from '../post/postMain';
 import PostFooter from '../post/postFooter';
 import PostCommentInput from './postCommentInput';
 import UploadFiles from 'src/components/UploadFiles';
+import { index as dialog } from 'src/components/mdDialog/dialog';
 
 /**
  * 动态的单条回复
@@ -67,20 +68,18 @@ class PostComment extends React.Component {
   handleRemoveComment = () => {
     const { commentItem, dispatch } = this.props;
     const comp = this;
-    require(['mdDialog'], (mdDialog) => {
-      mdDialog.index({
-        width: 420,
-        container: {
-          header: _l('确认删除此条回复') + '?',
-          content: "<div class='mTop10'></div>",
-          yesFn() {
-            const deleteAttachment = $(`#isDeleteAttachmentOf${commentItem.commentID}`).prop('checked');
-            comp.clearCommentBox();
-            dispatch(removeComment(commentItem.postID, commentItem.commentID));
-          },
-          noFn: true,
+    dialog({
+      width: 420,
+      container: {
+        header: _l('确认删除此条回复') + '?',
+        content: "<div class='mTop10'></div>",
+        yesFn() {
+          const deleteAttachment = $(`#isDeleteAttachmentOf${commentItem.commentID}`).prop('checked');
+          comp.clearCommentBox();
+          dispatch(removeComment(commentItem.postID, commentItem.commentID));
         },
-      });
+        noFn: true,
+      },
     });
   };
 
@@ -136,4 +135,4 @@ class PostComment extends React.Component {
   }
 }
 
-module.exports = connect(state => ({}))(PostComment);
+export default connect(state => ({}))(PostComment);

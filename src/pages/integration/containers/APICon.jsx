@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import { Icon, ScrollView, Support, LoadDiv, Dialog, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
@@ -188,6 +188,12 @@ function APICon(props) {
     }
     fetchData();
   }, [props.currentProjectId, keywords, pageIndex, hasOnchange]);
+  const handleSearch = useCallback(
+    _.throttle(v => {
+      setState({ keywords: v, pageIndex: 1 });
+    }, 500),
+    [],
+  );
   /**
    * 切换流程的启用状态
    */
@@ -472,14 +478,7 @@ function APICon(props) {
               <span className="TxtMiddle">{_l('管理第三方 API ，在工作表或工作流中调用')}</span>
               <Support type={3} href="https://help.mingdao.com/integration.html#api管理" text={_l('使用帮助')} />
             </span>
-            <SearchInput
-              className="searchCon"
-              placeholder={_l('搜索 API')}
-              value={keywords}
-              onChange={v => {
-                setState({ keywords: v, pageIndex: 1 });
-              }}
-            />
+            <SearchInput className="searchCon" placeholder={_l('搜索 API')} value={keywords} onChange={handleSearch} />
           </p>
         </div>
         {loading && pageIndex === 1 ? (

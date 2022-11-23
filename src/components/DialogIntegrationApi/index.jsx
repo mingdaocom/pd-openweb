@@ -6,6 +6,7 @@ import { getList, getApiList } from 'src/pages/workflow/api/packageVersion';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import './index.less';
 import { Tooltip } from 'antd';
+import img from 'staticfiles/images/query.png';
 
 const empty_list = [
   _l('快递单号查询'),
@@ -160,8 +161,8 @@ export default class SelectIntegrationApi extends Component {
     if (noData) {
       content = (
         <div className="emptyContent">
-          <img src={require('staticfiles/images/query.png')} width={180} />
-          <div className="Font17 Bold mBottom15">{_l('安装系统预集成的API，或自定义添加')}</div>
+          <img src={img} width={180} />
+          <div className="Font17 Bold mBottom15">{_l('安装预集成的API，或自定义添加')}</div>
           <div className="tagList">
             {empty_list.map(item => (
               <span className="tagItem">{item}</span>

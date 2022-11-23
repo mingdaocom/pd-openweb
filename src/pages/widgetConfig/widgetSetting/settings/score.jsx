@@ -4,6 +4,7 @@ import { Dropdown, Dialog } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import { getDefaultData, getColor, getDynamicColors } from '../../config/score';
 import { handleAdvancedSettingChange, getAdvanceSetting } from '../../util/setting';
+import 'src/pages/worksheet/components/DialogImportExcelCreate/SetImportExcelCreateWorksheetOrApp/index.less';
 const { WidgetIcon, AttachmentConfig, WidgetColor } = components;
 
 const SCORE_COLOR_TYPE = [
@@ -95,6 +96,7 @@ export default function Score({ data, onChange }) {
         width={500}
         visible={visible}
         title={_l('动态颜色')}
+        dialogClasses='dynamicSettingColorDialog'
         onCancel={() => {
           setColors(itemcolor.colors);
           setVisible(false);

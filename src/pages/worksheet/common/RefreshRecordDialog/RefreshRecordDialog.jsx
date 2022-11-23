@@ -342,7 +342,7 @@ export default function RefreshRecordDialog(props) {
                 }}
               />
             ))}
-            {!!refreshSortControls.length && <div className="secTitle Gray_75">{_l('刷新选项排序')}</div>}
+            {!!refreshSortControls.length && <div className="secTitle Gray_75">{_l('刷新选项排序和分值')}</div>}
             {refreshSortControls.map((c, i) => (
               <Checkbox
                 key={i}

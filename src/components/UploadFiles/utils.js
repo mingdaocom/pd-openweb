@@ -1,9 +1,8 @@
 import kcCtrl from 'src/api/kc';
-import { Dialog } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
 import React from 'react';
 import 'src/pages/PageHeader/components/NetState/index.less';
 import { formatFileSize } from 'src/util';
+import { index as dialog } from 'src/components/mdDialog/dialog';
 
 export const QiniuUpload = {
   Tokens: {
@@ -246,10 +245,9 @@ export const checkAccountUploadLimit = (size, params = {}) => {
 };
 
 export const openMdDialog = () => {
-  require(['mdDialog'], function(mdDialog) {
-    mdDialog.index({
-      container: {
-        content: `<div id="uploadStorageOverDialog">
+  dialog({
+    container: {
+      content: `<div id="uploadStorageOverDialog">
                     <div class="mTop20 mLeft30">
                       <div class="uploadStorageOverLogo Left"></div>
                       <div class="uploadStorageOverTxt Left">您已经没有足够的流量来上传该附件！</div>
@@ -259,11 +257,10 @@ export const openMdDialog = () => {
                       <a href="/personal?type=enterprise" class="uploadStorageOverBtn btnBootstrap btnBootstrap-primary btnBootstrap-small">升级至专业版</a>
                     </div>
                   </div>`,
-        width: 450,
-        yesText: false,
-        noText: false,
-      },
-    });
+      width: 450,
+      yesText: false,
+      noText: false,
+    },
   });
 };
 

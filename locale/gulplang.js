@@ -1,10 +1,15 @@
 const gulp = require('gulp');
 const fs = require('fs');
+const path = require('path');
 const each = require('gulp-each');
 const gettextToI18next = require('i18next-conv').gettextToI18next;
-const opencc = require('node-opencc');
 const UglifyJS = require('uglify-js');
-const langs = require('../src/common/langConfig');
+const langs = eval(
+  fs
+    .readFileSync(path.join(__dirname, '../src/common/langConfig.js'))
+    .toString()
+    .replace('export default config;', 'module.exports = config;'),
+);
 const langPackage = require('./en/mdTranslation.js');
 
 // 提取key
@@ -81,60 +86,6 @@ const buildDPPot = function(done) {
   done();
 };
 
-const _getPoHeader = function(lang) {
-  const setting = langs.find(item => item.key === lang) || {};
-  const header =
-    'msgid ""\n' +
-    'msgstr ""\n' +
-    '"Project-Id-Version: mingdao-web\\n"\n' +
-    '"POT-Creation-Date:  ' +
-    new Date().toLocaleString() +
-    '+08:00\\n"\n' +
-    '"MIME-Version: 1.0\\n"\n' +
-    '"Content-Type: text/plain; charset=UTF-8\\n"\n' +
-    '"Content-Transfer-Encoding: 8bit\\n"\n' +
-    '"X-Generator: i18n.POTGenerator\\n"\n' +
-    '"Plural-Forms: nplurals=1; plural=0;\\n"\n' +
-    '"Last-Translator: ""\\n"\n' +
-    '"Language-Team: ' +
-    setting.languageTeam +
-    '\\n"\n' +
-    '"Language: ' +
-    setting.language +
-    '\\n"\n' +
-    '"PO-Revision-Date:  ' +
-    new Date().toLocaleString() +
-    '-0400\\n"\n\n';
-
-  return header;
-};
-
-const buildAutoTransPot = function(done) {
-  gettextToI18next('zh-Hant', fs.readFileSync('locale/mdTranslation_new.pot')).then(function(result) {
-    if (result) {
-      let newKeys = [];
-      let resultJson = JSON.parse(result);
-      for (let key in resultJson) {
-        newKeys.push(key);
-      }
-
-      const hantHeader = _getPoHeader('zh-Hant');
-      let hantContent = '';
-      newKeys.map(function(item) {
-        hantContent += `#: Disabled references:1\nmsgid "${item}"\nmsgstr "${opencc.simplifiedToTaiwanWithPhrases(
-          item,
-        )}"\n\n`;
-      });
-
-      fs.writeFile('locale/zh-Hant/mdTranslation_new_auto.po', hantHeader + hantContent, function(err) {
-        console.log(`mdTranslation_new_auto.po 繁体生成${err ? '失败' : '成功'}`);
-      });
-    }
-  });
-
-  done();
-};
-
 const buildPoToJs = function(done) {
   langs.forEach(item => {
     const filePath = `locale/${item.key}/mdTranslation`;
@@ -167,9 +118,6 @@ gulp.task('getDPLangKey', getDPLangKey);
 
 // 增量pot文件
 gulp.task('buildDPPot', gulp.series(['getDPLangKey'], buildDPPot));
-
-// 增量的pot文件里面的key自动生成翻译
-gulp.task('buildAutoTransPot', buildAutoTransPot);
 
 // po文件转js文件，供_l('xxxx')使用
 gulp.task('buildPoToJs', buildPoToJs);

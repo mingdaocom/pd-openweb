@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import * as actions from '../../redux/roleManage/action';
 import RoleUserList from './RoleUserList';
 import dialogUserBoard from '../../structure/modules/dialogUserBoard';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import { addOrganizeUsers, deleteOrganizeUsers } from 'src/api/organize.js';
 import cx from 'classnames';
 
@@ -43,9 +43,10 @@ class RoleManageContent extends Component {
         });
       },
     };
-    import('dialogSelectUser').then(() => {
+    import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
       $({}).dialogSelectUser({
         showMoreInvite: false,
+        fromAdmin: true,
         SelectUserSettings: SelectUserSettingsForAdd,
       });
     });

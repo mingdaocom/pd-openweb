@@ -6,6 +6,7 @@ import { getAppSimpleInfo } from 'src/api/homeApp';
 import WorkSheetCommenter from './WorkSheetCommenter';
 import WorkSheetCommentList from './WorkSheetCommentList';
 import _ from 'lodash';
+import '@mdfe/nanoscroller';
 
 export default class WorkSheetComment extends React.Component {
   static propTypes = {
@@ -139,9 +140,7 @@ export default class WorkSheetComment extends React.Component {
   scrollToListTop() {
     if (this.scrollView && this.scrollView.nanoScroller && this.commentList) {
       const $nano = $(this.scrollView.nanoScroller);
-      require(['nanoScroller'], () => {
-        $(this.scrollView.nanoScroller).nanoScroller({ scrollTop: 0 });
-      });
+      $(this.scrollView.nanoScroller).nanoScroller({ scrollTop: 0 });
     }
   }
   @autobind

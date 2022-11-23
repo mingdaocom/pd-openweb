@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Modal, Switch } from 'ming-ui';
-import functionWrap from 'worksheet/components/FunctionWrap';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import { Tip99, Hr, Bold600 } from 'worksheet/components/Basics';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import { getUrl, getPublicShare, updatePublicShareStatus } from './controller';

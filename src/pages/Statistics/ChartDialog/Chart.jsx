@@ -159,13 +159,13 @@ export default class Chart extends Component {
       );
     }
     if ([reportTypes.PieChart].includes(reportType)) {
-      const { aggregations = [], summary } = reportData;
-      return aggregations.filter(item => item.v).length ? (
+      const { map, summary } = reportData;
+      return map.length ? (
         <Chart
           {...props}
           reportData={{
             ...currentReport,
-            aggregations,
+            map,
             summary: settingVisible ? currentReport.summary : summary,
             reportId,
           }}

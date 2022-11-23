@@ -79,12 +79,6 @@ const WrapCon = styled.div`
         .imgCon {
           margin: 20px 0;
           height: 43px;
-          position: relative;
-          img {
-            position: absolute;
-            left: 50%;
-            transform: translate(-50%, 0);
-          }
         }
       }
     }
@@ -242,7 +236,7 @@ class EditPublishSetDialog extends React.Component {
                 <ul>
                   {[1, 2, 3].map(o => {
                     let cur = false;
-                    let s = o;
+                    let s = ['pcCon', 'webCon', 'appCon'][o - 1];
                     if (o === 1) {
                       cur = pcDisplay;
                     }
@@ -269,13 +263,7 @@ class EditPublishSetDialog extends React.Component {
                           this.publishSettings(curData);
                         }}
                       >
-                        <div className={cx('imgCon Hand')}>
-                          <img
-                            className="imgcur"
-                            height={43}
-                            src={require(`src/pages/PageHeader/AppPkgHeader/AppDetail/img/${s}.png`)}
-                          />
-                        </div>
+                        <div className={cx(`imgCon Hand publishSettingsImgCon ${s}`)}></div>
                         <Switch size="small" checked={!cur} />
                         <span className="mLeft6 TxtMiddle Hand">
                           {o === 1 ? _l('PC端') : o === 2 ? _l('Web移动端') : _l('App')}

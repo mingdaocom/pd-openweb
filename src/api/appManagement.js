@@ -10,6 +10,14 @@ module.exports = {
   * @param {array} args.sheets 工作表权限集合
   * @param {array} args.userIds 角色成员id集合
   * @param {array} args.pages 自定义页面
+  * @param {} args.generalAdd 是否启用 通用新增
+  * @param {} args.gneralShare 是否启用 通用分享
+  * @param {} args.generalImport 是否启用 通用导入
+  * @param {} args.generalExport 是否启用 通用导出
+  * @param {} args.generalDiscussion 是否启用 通用讨论
+  * @param {} args.generalSystemPrinting 是否启用 通用系统打印
+  * @param {} args.generalAttachmentDownload 是否启用 通用附件下载
+  * @param {} args.generalLogging 是否启用 通用日志
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -44,6 +52,14 @@ module.exports = {
   * @param {array} args.projectOrganizeIds 网络角色
   * @param {array} args.jobIds 职位ids
   * @param {string} args.projectId 网络id
+  * @param {} args.enableGeneralAdd 是否启用 通用新增
+  * @param {} args.enableGneralShare 是否启用 通用分享
+  * @param {} args.enableGeneralImport 是否启用 通用导入
+  * @param {} args.enableGeneralExport 是否启用 通用导出
+  * @param {} args.enableGeneralDiscussion 是否启用 通用讨论
+  * @param {} args.enableGeneralSystemPrinting 是否启用 通用系统打印
+  * @param {} args.enableGeneralAttachmentDownload 是否启用 通用附件下载
+  * @param {} args.enableGeneralLogging 是否启用 通用日志
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -57,6 +73,7 @@ module.exports = {
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
   * @param {string} args.roleId 角色id
+  * @param {boolean} args.selectAll 是否全选
   * @param {array} args.userIds 用户
   * @param {array} args.departmentIds 部门
   * @param {array} args.jobIds 职位
@@ -117,7 +134,8 @@ module.exports = {
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
   * @param {string} args.sourceAppRoleId 来源角色id
-  * @param {string} args.resultAppRoleId 目标角色id
+  * @param {array} args.resultAppRoleIds 目标角色id
+  * @param {boolean} args.selectAll 是否全选
   * @param {array} args.userIds 用户id集合
   * @param {array} args.departmentIds 部门id集合
   * @param {array} args.jobIds 职位id集合
@@ -189,6 +207,34 @@ module.exports = {
      return $.api('AppManagement', 'CopyRole', args, options);
    },
   /**
+  * 复制角色到外部门户
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.roleId 角色Id
+  * @param {string} args.roleName 角色名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   copyRoleToExternalPortal: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'CopyRoleToExternalPortal', args, options);
+   },
+  /**
+  * 复制外部门户角色到内部
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.roleId 角色Id
+  * @param {string} args.roleName 角色名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   copyExternalRolesToInternal: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'CopyExternalRolesToInternal', args, options);
+   },
+  /**
   * 角色排序
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
@@ -224,6 +270,87 @@ module.exports = {
    getRolesWithUsers: function (args, options = {}) {
      
      return $.api('AppManagement', 'GetRolesWithUsers', args, options);
+   },
+  /**
+  * 分页获取 全部成员
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {} args.appRolePagingModel 应用角色分页模型
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getTotalMemrber: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetTotalMemrber', args, options);
+   },
+  /**
+  * 分页获取 外协成员
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {} args.appRolePagingModel 应用角色 分页模型
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getOutsourcingMembers: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetOutsourcingMembers', args, options);
+   },
+  /**
+  * 获取 应用角色概要
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppRoleSummary: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetAppRoleSummary', args, options);
+   },
+  /**
+  * 根据角色 分页获取 角色下的用户集
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {string} args.roleId 角色Id
+  * @param {} args.appRolePagingModel 应用角色分页模型
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMembersByRole: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetMembersByRole', args, options);
+   },
+  /**
+  * 批量编辑用户角色
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {array} args.dstRoleIds 目标角色Ids
+  * @param {} args.selectMember 选中的角色成员
+  * @param {boolean} args.selectAll 是否全选
+  * @param {boolean} args.isOutsourcing 是否全选外协
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   batchEditMemberRole: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'BatchEditMemberRole', args, options);
+   },
+  /**
+  * 批量成员退出应用
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {} args.selectMember 选中的角色成员
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   batchMemberQuitApp: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'BatchMemberQuitApp', args, options);
    },
   /**
   * 获取应用下某个角色的具体权限信息
@@ -331,11 +458,12 @@ module.exports = {
      return $.api('AppManagement', 'GetAppForSheetIds', args, options);
    },
   /**
-  * 
+  * 获取导出相关功能模块token
   * @param {Object} args 请求参数
   * @param {} args.tokenType 功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
   * @param {string} args.worksheetId
   * @param {string} args.viewId
+  * @param {string} args.projectId 网络id ，TokenType = 4或6时，这个必穿
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -646,7 +774,7 @@ module.exports = {
   /**
   * 更新应用申请状态
   * @param {Object} args 请求参数
-  * @param {string} args.id 申请信息的id
+  * @param {array} args.ids 申请信息的id
   * @param {string} args.appId 应用id
   * @param {integer} args.status 状态 2=通过，3=拒绝
   * @param {string} args.roleId 角色id（拒绝时可空）

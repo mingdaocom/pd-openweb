@@ -114,9 +114,10 @@ class Card extends Component {
     const { reportData } = this.state;
     const { appId, filter, style } = reportData;
     const viewDataType = style ? (style.viewDataType || 1) : 1;
-    if (viewDataType === 2 && filter.viewId && ![VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.gunter].includes(filter.viewType.toString())) {
+    if (viewDataType === 2 && filter.viewId && [VIEW_DISPLAY_TYPE.sheet].includes(filter.viewType.toString())) {
       reportApi.getReportSingleCacheId({
         ...data,
+        ...filter,
         isPersonal: true,
         reportId: id
       }).then(result => {
@@ -141,7 +142,7 @@ class Card extends Component {
       <Chart
         loading={loading}
         isThumbnail={true}
-        isViewOriginalData={!isMobile && !this.isPublicShare}
+        isViewOriginalData={!this.isPublicShare}
         onOpenChartDialog={this.handleOpenChartDialog}
         reportData={{
           ...reportData,
@@ -151,13 +152,13 @@ class Card extends Component {
     );
   }
   renderContent() {
-    const { reportType, map, contrastMap, aggregations, data } = this.state.reportData;
+    const { reportType, map, contrastMap, data } = this.state.reportData;
 
     if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.RadarChart, reportTypes.FunnelChart, reportTypes.DualAxes, reportTypes.CountryLayer].includes(reportType)) {
       return (map.length || contrastMap.length) ? this.renderChart() : <WithoutData />;
     }
     if ([reportTypes.PieChart].includes(reportType)) {
-      return aggregations.length ? this.renderChart() : <WithoutData />;
+      return map.length ? this.renderChart() : <WithoutData />;
     }
     if ([reportTypes.NumberChart].includes(reportType)) {
       return this.renderChart();
@@ -296,6 +297,11 @@ class Card extends Component {
         {dialogVisible && (
           <ChartDialog
             {...this.props}
+            report={{
+              ...report,
+              name: reportData.name,
+              desc: reportData.desc
+            }}
             activeData={activeData}
             worksheetId={reportData.appId}
             settingVisible={settingVisible}

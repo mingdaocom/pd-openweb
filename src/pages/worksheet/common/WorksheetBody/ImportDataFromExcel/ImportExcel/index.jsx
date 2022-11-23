@@ -30,6 +30,7 @@ export default class ImportExcel extends React.Component {
       max_file_size: '10mb',
       bucket: 3,
       chunk_size: '10mb',
+      type: 8,
       filters: {
         mime_types: [{ title: 'Excel files', extensions: 'xlsx,xls,xlsm,csv' }],
         max_file_size: '10mb',

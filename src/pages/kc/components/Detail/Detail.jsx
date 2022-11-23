@@ -9,7 +9,7 @@ import UserHead from 'src/pages/feed/components/userHead';
 import UserName from 'src/pages/feed/components/userName';
 import { Switch, Checkbox } from 'ming-ui';
 import AttachmentsPreview from '../../common/AttachmentsPreview';
-
+import 'src/components/mdBusinessCard/mdBusinessCard';
 import service from '../../api/service';
 import { NODE_TYPE, NODE_VISIBLE_TYPE, LOG_TYPE } from '../../constant/enum';
 import { shallowEqual, humanDateTime, humanFileSize } from '../../utils';
@@ -424,18 +424,16 @@ class Detail extends React.Component {
   };
 
   bindBusinessCard = () => {
-    require(['src/components/mdBusinessCard/mdBusinessCard'], () => {
-      if (!this._isMounted) {
-        return;
-      }
-      $(ReactDom.findDOMNode(this))
-        .find('[data-accountid], [data-groupid]')
-        .each(function () {
-          $(this).mdBusinessCard({
-            secretType: 1,
-          });
+    if (!this._isMounted) {
+      return;
+    }
+    $(ReactDom.findDOMNode(this))
+      .find('[data-accountid], [data-groupid]')
+      .each(function () {
+        $(this).mdBusinessCard({
+          secretType: 1,
         });
-    });
+      });
   };
 
   render() {
@@ -655,4 +653,4 @@ class AttributePair extends React.Component {
   }
 }
 
-module.exports = Detail;
+export default Detail;

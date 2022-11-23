@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 import ajaxRequest from 'src/api/taskCenter';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import './less/copyTask.less';
 
 export default class CopyTask extends Component {

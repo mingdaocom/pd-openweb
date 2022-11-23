@@ -4,7 +4,7 @@ import ScrollView from 'ming-ui/components/ScrollView';
 import { TYPES, LOADTYPES, NAMES } from '../constants';
 import { Divider } from 'antd';
 import inboxController from 'src/api/inbox';
-import 'mdBusinessCard';
+import 'src/components/mdBusinessCard/mdBusinessCard';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Button from 'ming-ui/components/Button';
 import Message from './inboxMessage';

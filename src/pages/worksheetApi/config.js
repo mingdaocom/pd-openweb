@@ -679,6 +679,18 @@ export const MENU_LIST_APPENDIX = [
         type: 'boolean',
         desc: _l('是否升序（false：降序）'),
       },
+      {
+        name: 'isGroup',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('当前筛选条件是否是筛选组，为true时需要传 groupFilters 参数，只支持一层筛选组'),
+      },
+      {
+        name: 'groupFilters',
+        required: _l('否'),
+        type: 'list[object]',
+        desc: _l('筛选组列表，对象为筛选器对象'),
+      },
     ],
   },
   {
@@ -1317,7 +1329,7 @@ export const OPTIONS_FUNCTION_LIST = [
       enableScore: false,
     },
     successData: {
-      code: 0,
+      code: 1,
       msg: 'string',
       data: true,
     },
@@ -1337,7 +1349,7 @@ export const OPTIONS_FUNCTION_LIST = [
       sign: 'sign',
     },
     successData: {
-      code: 0,
+      code: 1,
       msg: 'string',
       data: [
         {
@@ -1409,7 +1421,7 @@ export const OPTIONS_FUNCTION_LIST = [
       enableScore: false,
     },
     successData: {
-      code: 0,
+      code: 1,
       msg: 'string',
       data: true,
     },
@@ -1446,92 +1458,92 @@ export const SIDEBAR_LIST = [
 
 export const ADD_API_CONTROLS = [
   {
-      controlName: _l('文本'),//控件名称
-      alias: _l('字段别名'),
-      type:2,//控件编号 2:文本,3:手机,4:座机,5:邮箱,15:日期,16:日期时间,19:地区—省,23:地区—省—市,24:地区—省—市—县
-      required:true //true：必填,false：非必填
+    controlName: _l('文本'), //控件名称
+    alias: _l('字段别名'),
+    type: 2, //控件编号 2:文本,3:手机,4:座机,5:邮箱,15:日期,16:日期时间,19:地区—省,23:地区—省—市,24:地区—省—市—县
+    required: true, //true：必填,false：非必填
   },
   {
-      controlName: _l('数值'),//控件名称
-      alias: _l('字段别名'),
-      type:6, // 6:数值,8:金额
-      dot:2, //保留小数位（0-14）
-      required: true //true：必填,false：非必填
+    controlName: _l('数值'), //控件名称
+    alias: _l('字段别名'),
+    type: 6, // 6:数值,8:金额
+    dot: 2, //保留小数位（0-14）
+    required: true, //true：必填,false：非必填
   },
   {
-      controlName: _l('单选'),//控件名称
-      alias: _l('字段别名'),
-      type: 11,//控件编号 11:单选,10:多选
-      options:[
-        {
-          value: _l('选项名称1'),
-          index: 1, //排序
-        },
-        {
-          value: _l('选项名称2'),
-          index: 2, //排序
-        }
-     ],
-      required: true //true：必填,false：非必填
+    controlName: _l('单选'), //控件名称
+    alias: _l('字段别名'),
+    type: 11, //控件编号 11:单选,10:多选
+    options: [
+      {
+        value: _l('选项名称1'),
+        index: 1, //排序
+      },
+      {
+        value: _l('选项名称2'),
+        index: 2, //排序
+      },
+    ],
+    required: true, //true：必填,false：非必填
   },
   {
-      controlName: _l('多选'),//控件名称
-      alias: _l('字段别名'),
-      type: 10,//控件编号 11:单选,10:多选
-      options:[
-        {
-          value: _l('选项名称1'),
-          index: 1, //排序
-        },
-        {
-          value: _l('选项名称2'),
-          index: 2, //排序
-        },
-        {
-          value: _l('选项名称3'),
-          index: 3, //排序
-        },
-     ],
-      required: true //true：必填,false：非必填
+    controlName: _l('多选'), //控件名称
+    alias: _l('字段别名'),
+    type: 10, //控件编号 11:单选,10:多选
+    options: [
+      {
+        value: _l('选项名称1'),
+        index: 1, //排序
+      },
+      {
+        value: _l('选项名称2'),
+        index: 2, //排序
+      },
+      {
+        value: _l('选项名称3'),
+        index: 3, //排序
+      },
+    ],
+    required: true, //true：必填,false：非必填
   },
   {
     controlName: _l('时间-时分'),
     alias: _l('字段别名'),
     type: 46,
     required: true,
-    unit: 1 // 1时分，6时分秒
+    unit: 1, // 1时分，6时分秒
   },
   {
     controlName: _l('时间-时分秒'),
     alias: _l('字段别名'),
     type: 46,
     required: true,
-    unit: 6 // 1时分，6时分秒
+    unit: 6, // 1时分，6时分秒
   },
   {
     controlName: _l('成员-单选'),
     type: 26,
     alias: _l('字段别名'),
     enumDefault: 0,
-    required: true
+    required: true,
   },
   {
     controlName: _l('成员-多选'),
     type: 26,
     alias: _l('字段别名'),
     enumDefault: 1,
-    required: true
+    required: true,
   },
   {
     controlName: _l('附件'),
     alias: _l('字段别名'),
     type: 14,
     required: true,
-  }
+  },
 ];
 
 export const ADD_WORKSHEET_SUCCESS = {
-  "data": _l("工作表ID"),
-  "success": true,
-  "error_code": 1
+  data: _l('工作表ID'),
+  success: true,
+  error_code: 1,
 };

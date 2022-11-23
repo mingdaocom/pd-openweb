@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { string, func, bool } from 'prop-types';
 import { Icon, Dialog, ScrollView, LoadDiv, Checkbox } from 'ming-ui';
-import cx from 'classnames';
 import './index.less';
 import process from '../../api/process';
 

@@ -130,7 +130,7 @@ export default class WorkSheetItem extends Component {
 
         {
           <MenuItem
-            icon={<Icon icon="public-folder-hidden" className="Font14" />}
+            icon={<Icon icon="visibility_off" className="Font16" />}
             onClick={() => {
               this.setWorksheetStatus();
               this.setState({ menuIsVisible: false });
@@ -202,7 +202,7 @@ export default class WorkSheetItem extends Component {
             </span>
             {status === 2 && (
               <Tooltip popupPlacement="bottom" text={<span>{_l('仅管理员可见')}</span>}>
-                <Icon className="Font14 mRight10" icon={'public-folder-hidden'} style={{ color: '#ee6f09' }} />
+                <Icon className="Font16 mRight10" icon={'visibility_off'} style={{ color: '#ee6f09' }} />
               </Tooltip>
             )}
             <div className="flex" />

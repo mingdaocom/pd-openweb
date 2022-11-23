@@ -1,23 +1,10 @@
-﻿/**
- * @module addFriendConfirm
- * @desc apply to add Friend
- * @author puck
- * @example
- * require.async('addFriendConfirm', function(addFriendConfirm) { addFriendConfirm(opts); });
- */
-/**
- * @module addFriendConfirm
- * @desc apply to add Friend
- * @author puck
- * @example
- * require.async('addFriendConfirm', function(addFriendConfirm) { addFriendConfirm(opts); });
- */
-var doT = require('dot');
+﻿import doT from '@mdfe/dot';
 var addressBookController = require('src/api/addressBook');
 var userController = require('src/api/user');
-var tpl = require('./tpl/addFriendConfirm.html');
-
+import tpl from './tpl/addFriendConfirm.html'
 import './css/style.css';
+import { index as dialog } from 'src/components/mdDialog/dialog';
+
 /**
  * addFriendConfirm
  * @class addFriendConfirm
@@ -42,20 +29,21 @@ $.extend(RecommendDialog.prototype, {
     var Settings = this.Settings;
     Settings.showExtraInput = !data.companyName || !data.profession;
     data.showExtraInput = Settings.showExtraInput;
-    require(['mdDialog'], function (dialog) {
-      _this.dialog = dialog.index({
-        dialogBoxID: 'recommendDialog',
-        container: {
-          header: _l('添加为好友'),
-          content: doT.template(tpl)(data),
-          yesFn: $.proxy(_this.send, _this),
-        },
-        status: Settings.showExtraInput ? 'disabled' : 'enable',
-      });
-      _this.dialog.dialogCenter();
-      _this.$dialog = $('#recommendDialog');
-      _this.checkInput();
+    _this.dialog = dialog({
+      dialogBoxID: 'recommendDialog',
+      container: {
+        header: _l('添加为好友'),
+        content: doT.template(tpl)(data),
+        yesFn: $.proxy(_this.send, _this),
+      },
+      status: Settings.showExtraInput ? 'disabled' : 'enable',
+      readyFn: () => {
+        _this.$dialog = $('#recommendDialog');
+      },
     });
+
+    _this.dialog.dialogCenter();
+    _this.checkInput();
   },
   getUserInfo: function () {
     var _this = this;
@@ -140,7 +128,7 @@ $.extend(RecommendDialog.prototype, {
  * @param [opts.callback] callback after send message
  * @return {object} addFriendConfrim object
  */
-module.exports = function (opts) {
+export default function (opts) {
   /* eslint-disable no-new */
   new RecommendDialog(opts);
 };

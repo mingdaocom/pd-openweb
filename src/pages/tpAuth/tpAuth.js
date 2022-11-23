@@ -1,9 +1,9 @@
 import { getRequest } from 'src/util';
 var loginController = require('src/api/login');
-var { setPssId } = require('src/util/pssId');
+import { setPssId } from 'src/util/pssId';
+import './style.css';
+import './account-common.less';
 
-require('./style.css');
-require('./account-common.less');
 var TPAuth = {};
 
 TPAuth.options = {

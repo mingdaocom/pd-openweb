@@ -14,7 +14,7 @@ import {
   Switch,
 } from 'antd-mobile';
 import { Icon } from 'ming-ui';
-import { ROLE_TYPES, ROLE_CONFIG } from 'pages/Roles/config';
+import { ROLE_TYPES, ROLE_CONFIG } from 'src/pages/Role/config.js';
 import cx from 'classnames';
 import './index.less';
 
@@ -100,7 +100,7 @@ class ChangeRole extends React.Component {
                     projectId: params.projectId === 'individual' ? '' : params.projectId,
                     appId: params.appId,
                     sourceAppRoleId: params.roleId,
-                    resultAppRoleId: this.state.checkId,
+                    resultAppRoleIds: [this.state.checkId],
                     userIds:
                       params.accountId === 'undefined'
                         ? accountIds

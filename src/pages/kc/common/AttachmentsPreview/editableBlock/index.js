@@ -1,1 +1,1 @@
-﻿module.exports = require('./editableBlock');
+﻿export { default } from './editableBlock';

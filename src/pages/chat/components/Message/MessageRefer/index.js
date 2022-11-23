@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Constant from '../../../utils/constant';
-import previewAttachments from 'previewAttachments';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import kc from 'src/api/kc';
 import './index.less';
 

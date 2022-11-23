@@ -26,7 +26,7 @@ class ApplyList extends React.Component {
     ActionSheet.close();
   }
 
-  showActionSheet = (id) => {
+  showActionSheet = id => {
     const { applyList, roleList } = this.props.applyData;
     const { params } = this.props.match;
     const BUTTONS = _.map(roleList, (item, i) => {
@@ -36,31 +36,41 @@ class ApplyList extends React.Component {
         </span>
       );
     });
-    ActionSheet.showActionSheetWithOptions({
-      options: BUTTONS,
-      maskClosable: true,
-      message: (
-        <div className="flexRow header">
-          <span className="Font13">{_l('申请管理')}</span>
-          <div className="closeIcon" onClick={() => { ActionSheet.close(); }}>
-            <Icon icon="close" />
+    ActionSheet.showActionSheetWithOptions(
+      {
+        options: BUTTONS,
+        maskClosable: true,
+        message: (
+          <div className="flexRow header">
+            <span className="Font13">{_l('申请管理')}</span>
+            <div
+              className="closeIcon"
+              onClick={() => {
+                ActionSheet.close();
+              }}
+            >
+              <Icon icon="close" />
+            </div>
           </div>
-        </div>
-      ),
-      'data-seed': 'logId',
-    }, (buttonIndex) => {
-      if (buttonIndex === -1) return;
-      if (buttonIndex < roleList.length) {
-        this.props.dispatch(actions.editAppApplyStatus({
-          id,
-          appId: params.appId,
-          status: 2,
-          role: roleList[buttonIndex],
-          roleId: roleList[buttonIndex].roleId,
-        }));
-      }
-    });
-  }
+        ),
+        'data-seed': 'logId',
+      },
+      buttonIndex => {
+        if (buttonIndex === -1) return;
+        if (buttonIndex < roleList.length) {
+          this.props.dispatch(
+            actions.editAppApplyStatus({
+              ids: [id],
+              appId: params.appId,
+              status: 2,
+              role: roleList[buttonIndex],
+              roleId: roleList[buttonIndex].roleId,
+            }),
+          );
+        }
+      },
+    );
+  };
 
   render() {
     const { applyData, isApplyLoading } = this.props;
@@ -77,60 +87,60 @@ class ApplyList extends React.Component {
 
     return (
       <React.Fragment>
-        {
-          applyList.length ? (
-            <React.Fragment>
-              {_.map(applyList, (item, i) => {
-                return (
-                  <React.Fragment key={item.id}>
-                  <WhiteSpace size="xl"/>
-                    <List.Item className="listApply" key={item.id}>
-                      <div className="flexRow">
-                        <span className="Gray Font17 flex">{item.accountInfo.fullName}</span>
-                        <div>
-                          <span
-                            className="InlineBlock toBeBtn rejectBtn"
-                            onClick={() => {
-                              prompt(_l('拒绝'), _l('请填写拒绝的原因'), [
-                                { text: _l('取消') },
-                                {
-                                  text: _l('确认'),
-                                  onPress: value => {
-                                    this.props.dispatch(actions.editAppApplyStatus({
-                                      id: item.id,
+        {applyList.length ? (
+          <React.Fragment>
+            {_.map(applyList, (item, i) => {
+              return (
+                <React.Fragment key={item.id}>
+                  <WhiteSpace size="xl" />
+                  <List.Item className="listApply" key={item.id}>
+                    <div className="flexRow">
+                      <span className="Gray Font17 flex">{item.accountInfo.fullName}</span>
+                      <div>
+                        <span
+                          className="InlineBlock toBeBtn rejectBtn"
+                          onClick={() => {
+                            prompt(_l('拒绝'), _l('请填写拒绝的原因'), [
+                              { text: _l('取消') },
+                              {
+                                text: _l('确认'),
+                                onPress: value => {
+                                  this.props.dispatch(
+                                    actions.editAppApplyStatus({
+                                      ids: [item.id],
                                       appId: params.appId,
                                       status: 3,
-                                      remark: value
-                                    }));
-                                  }
-                              }
-                              ]);
-                            }}
-                          >
-                            {_l('拒绝')}
-                          </span>
-                          <span
-                            className="InlineBlock toBeBtn mLeft15"
-                            onClick={() => {
-                              this.showActionSheet(item.id);
-                            }}
-                          >
-                            {_l('同意')}
-                          </span>
-                        </div>
+                                      remark: value,
+                                    }),
+                                  );
+                                },
+                              },
+                            ]);
+                          }}
+                        >
+                          {_l('拒绝')}
+                        </span>
+                        <span
+                          className="InlineBlock toBeBtn mLeft15"
+                          onClick={() => {
+                            this.showActionSheet(item.id);
+                          }}
+                        >
+                          {_l('同意')}
+                        </span>
                       </div>
-                      {item.remark ? <div className="Gray_9e Font13 mTop10 applyInfo">{item.remark}</div> : null}
-                    </List.Item>
-                  </React.Fragment>
-                );
-              })}
-            </React.Fragment>
-          ) : (
-            <div className="h100">
-              <WithoutRows text={_l('暂无申请')} />
-            </div>
-          )
-        }
+                    </div>
+                    {item.remark ? <div className="Gray_9e Font13 mTop10 applyInfo">{item.remark}</div> : null}
+                  </List.Item>
+                </React.Fragment>
+              );
+            })}
+          </React.Fragment>
+        ) : (
+          <div className="h100">
+            <WithoutRows text={_l('暂无申请')} />
+          </div>
+        )}
         <Back
           className="low"
           onClick={() => {
@@ -142,9 +152,10 @@ class ApplyList extends React.Component {
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { applyData, isApplyLoading } = state.mobile;
   return {
-    applyData, isApplyLoading,
+    applyData,
+    isApplyLoading,
   };
 })(ApplyList);

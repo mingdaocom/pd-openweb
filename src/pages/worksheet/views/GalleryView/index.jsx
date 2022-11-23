@@ -20,6 +20,7 @@ import { addRecord } from 'worksheet/common/newRecord';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 
 const isMobile = browserIsMobile();
 
@@ -248,6 +249,7 @@ export default class RecordGallery extends Component {
               });
               coverData = { ...coverData, value: urlList.join('') };
             }
+            let abstractData = controls.find(it => it.controlId === abstract) || {};
             let data = {
               coverData,
               coverImage,
@@ -258,16 +260,17 @@ export default class RecordGallery extends Component {
               fields: this.formData(item),
               formData,
               rowId: item.rowid,
-              abstractValue: abstract
-                ? renderCellText({
-                    ...(controls.find(it => it.controlId === abstract) || {}),
-                    value: item[abstract],
-                  })
-                : '',
+              abstractValue:
+                abstract //&& controlState(abstractData).visible //排除无查看权限的
+                  ? renderCellText({
+                      ...abstractData,
+                      value: item[abstract],
+                    })
+                  : '',
             };
             return (
               <div
-                className="galleryItem"
+                className={cx('galleryItem', { mobile: isMobile })}
                 style={isMobile ? { width: '100%', padding: '5px 0px' } : { width: this.getWith() }}
                 onClick={() => {
                   const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
@@ -315,6 +318,8 @@ export default class RecordGallery extends Component {
                 allowAdd={worksheetInfo.allowAdd}
                 visible
                 projectId={worksheetInfo.projectId}
+                currentSheetRows={gallery}
+                showPrevNext={true}
                 appId={appId}
                 viewId={viewId}
                 from={1}

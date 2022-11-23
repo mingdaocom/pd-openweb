@@ -1,8 +1,9 @@
 ﻿import React, { Component } from 'react';
 import NodeShare from './common/NodeShare';
 import './main.css';
+import alert from 'src/components/alert/alert';
 
-window.alert = require('alert');
+window.alert = alert;
 
 export default class KcShareEntrypoint extends Component {
   componentDidMount() {

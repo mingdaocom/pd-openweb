@@ -42,10 +42,27 @@ class WorksheetDetailShare extends React.Component {
       getRowRelationRowDetailData,
       viewSet = {},
       sheetSwitchPermit = [],
-      viewIdForPermit
+      viewIdForPermit,
     } = this.props;
     const Controls = rowDetail.filter(
-      item => !_.find(viewSet.controls || [], hidedControlId => item.controlId === hidedControlId), // || item.attribute === 1,
+      item =>
+        !_.find(viewSet.controls || [], hidedControlId => item.controlId === hidedControlId) &&
+        !_.includes(
+          [
+            'wfname',
+            'wfstatus',
+            'wfcuaids',
+            'wfrtime',
+            'wfftime',
+            'wfdtime',
+            'wfcaid',
+            'wfctime',
+            'wfcotime',
+            'rowid',
+            'uaid',
+          ],
+          item.controlId,
+        ), // || item.attribute === 1,
     );
     let noRight = relationRowDetailResultCode === 7 && step === SHARE_TYPE.WORKSHEETDRELATIONDETAIL;
     if (!rowDetail) {

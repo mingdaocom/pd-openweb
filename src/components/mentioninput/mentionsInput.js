@@ -1,8 +1,9 @@
 import './css/mentionsInput.css';
 import { AT_ALL_TEXT, SOURCE_TYPE } from 'src/components/comment/config';
-var _ = require('lodash');
 import { htmlEncodeReg, getCaretPosition, setCaretPosition } from 'src/util';
-var doT = require('dot');
+import doT from '@mdfe/dot';
+import addFriends from 'src/components/addFriends/addFriends';
+
 var categoryAjax = require('src/api/category');
 var userAjax = require('src/api/user');
 
@@ -542,9 +543,7 @@ Modified by Kenneth Auchenberg
           }
         }
         $noData.find('.invite').on('mousedown', function (evt) {
-          require(['addFriends'], function (addFriends) {
-            addFriends();
-          });
+          addFriends();
           evt.stopPropagation();
         });
         elmAutocompleteList.append($noData);

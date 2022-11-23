@@ -349,8 +349,8 @@ export default class RelateRecordCards extends Component {
                 : () => {
                     if (from === FROM.SHARE || from === FROM.WORKFLOW) {
                       openRelateSheet('', record.wsid, record.rowid, viewId);
-                    } else if (isMobile || from === FROM.H5_ADD || from === FROM.H5_EDIT) {
-                      openRelateSheet(appId, dataSource, record.rowid, viewId);
+                    } else if (isMobile) {
+                      disabled && this.setState({ previewRecord: { recordId: record.rowid } });
                     } else {
                       this.setState({ previewRecord: { recordId: record.rowid } });
                     }

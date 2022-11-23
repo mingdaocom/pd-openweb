@@ -1,10 +1,10 @@
 import './emotion.css';
 import { getCaretPosition, setCaretPosition } from 'src/util';
-var twemoji = require('twemoji');
+import twemoji from 'twemoji';
 twemoji.base = '/images/emotion/twemoji/';
 twemoji.size = 72;
 twemoji.className = 'emotion-twemoji';
-var emotionData = require('./data');
+import emotionData from './data';
 
 const isRetina = !!(window.devicePixelRatio && window.devicePixelRatio > 1);
 
@@ -609,4 +609,4 @@ if (typeof $ !== 'undefined' && $.fn) {
   $.fn.emotion.Constructor = Emotion;
 }
 
-module.exports = Emotion;
+export default Emotion;

@@ -11,7 +11,7 @@ export default class Branch extends Component {
   }
 
   renderTips = () => {
-    const { item, isCopy, hideNodes } = this.props;
+    const { processId, item, isCopy, hideNodes, isApproval } = this.props;
     const isHide = _.includes(hideNodes, item.id);
 
     if (isCopy) return null;
@@ -20,7 +20,9 @@ export default class Branch extends Component {
       <div className="flexRow alignItemsCenter">
         {!isHide && (
           <span
-            className="workflowBranchBtnSmall Gray_9e ThemeHoverColor3 workflowBranchBtnSmallTips"
+            className={cx('workflowBranchBtnSmall Gray_9e ThemeHoverColor3 workflowBranchBtnSmallTips', {
+              Visibility: isApproval,
+            })}
             onClick={this.switchBranchType}
             data-tip={
               item.gatewayType === 1
@@ -34,7 +36,15 @@ export default class Branch extends Component {
 
         <span
           className="workflowBranchBtnBig mLeft8 mRight8"
-          data-tip={isHide ? _l('展开') : item.gatewayType === 1 ? _l('包容分支(点击折叠)') : _l('唯一分支(点击折叠)')}
+          data-tip={
+            isHide
+              ? _l('展开')
+              : isApproval
+              ? _l('收起')
+              : item.gatewayType === 1
+              ? _l('包容分支(点击折叠)')
+              : _l('唯一分支(点击折叠)')
+          }
           onClick={this.changeShrink}
         />
 
@@ -43,7 +53,7 @@ export default class Branch extends Component {
             className="workflowBranchBtnSmall Gray_9e ThemeHoverColor3"
             data-tip={_l('添加分支')}
             onClick={() => {
-              this.props.addFlowNode({ prveId: item.id, name: '', typeId: 2 });
+              this.props.addFlowNode(processId, { prveId: item.id, name: '', typeId: 2 });
             }}
           >
             <i className="icon-add" />
@@ -57,7 +67,7 @@ export default class Branch extends Component {
    * 展开收起
    */
   changeShrink = () => {
-    const { item, hideNodes, updateHideNodes } = this.props;
+    const { item, hideNodes, updateHideNodes, updateRefreshThumbnail } = this.props;
     const workflowHideNodes = hideNodes.slice();
 
     if (_.includes(hideNodes, item.id)) {
@@ -68,6 +78,7 @@ export default class Branch extends Component {
 
     updateHideNodes(workflowHideNodes);
     safeLocalStorageSetItem('workflowHideNodes', JSON.stringify(workflowHideNodes));
+    updateRefreshThumbnail();
   };
 
   /**
@@ -80,13 +91,13 @@ export default class Branch extends Component {
   };
 
   render() {
-    const { data, item, hideNodes } = this.props;
-    const showAddBtn = !item.resultTypeId;
+    const { data, item, hideNodes, disabled } = this.props;
+    const showAddBtn = !item.resultTypeId && !disabled;
     const isHide = _.includes(hideNodes, item.id);
 
     return (
       <div className={cx('flexColumn', { workflowBranchHide: isHide })}>
-        <div className={cx('workflowBranch', { pTop0: !showAddBtn })}>
+        <div className={cx('workflowBranch', { pTop0: !showAddBtn })} data-id={item.id}>
           {showAddBtn && (
             <Tooltip title={this.renderTips} overlayClassName="workflowBranchTips" align={{ offset: [0, 34] }}>
               <i

@@ -1,4 +1,4 @@
-import 'modernizr';
+import 'src/components/modernizr/modernizr';
 
 export const WEEKDAYS = _.map(new Array(7), (value, index) => {
   return moment()

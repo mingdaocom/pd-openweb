@@ -692,7 +692,7 @@ export const checkRequired = item => {
 };
 
 // 验证必填及格式
-export const onValidator = (item, from, data, masterData) => {
+export const onValidator = (item, data, masterData, ignoreRequired) => {
   let errorType = '';
   let errorText = '';
 
@@ -813,6 +813,17 @@ export const onValidator = (item, from, data, masterData) => {
           }
         }
       }
+
+      // 其他选项必填
+      if (_.includes([9, 10, 11], item.type) && !ignoreRequired) {
+        const hasOtherOption = _.find(item.options, i => i.key === 'other' && !i.isDeleted);
+        const selectOther = _.find(JSON.parse(item.value || '[]'), i => i.includes('other'));
+        if (hasOtherOption && _.get(item.advancedSetting, 'otherrequired') === '1' && selectOther) {
+          if (selectOther === 'other' || !_.replace(selectOther, 'other:', '')) {
+            errorType = FORM_ERROR_TYPE.OTHER_REQUIRED;
+          }
+        }
+      }
     }
 
     if (isRelateRecordTableControl(item)) {
@@ -848,6 +859,7 @@ export default class DataFormat {
     isCreate = false,
     disabled = false,
     ignoreLock = false,
+    ignoreRequired = false,
     recordCreateTime = '',
     masterRecordRowId = '',
     masterData,
@@ -1016,7 +1028,7 @@ export default class DataFormat {
         }
       }
 
-      const { errorType, errorText } = onValidator(item, from, data, masterData);
+      const { errorType, errorText } = onValidator(item, data, masterData, ignoreRequired);
 
       if (errorType) {
         _.remove(this.errorItems, obj => obj.controlId === item.controlId);
@@ -1088,7 +1100,7 @@ export default class DataFormat {
             removeUniqueItem(controlId);
             _.remove(this.errorItems, obj => obj.controlId === item.controlId && !obj.errorMessage);
 
-            const { errorType, errorText } = onValidator(item, this.from, this.data, this.masterData);
+            const { errorType, errorText } = onValidator(item, this.data, this.masterData);
             if (errorType) {
               this.errorItems.push({
                 controlId: item.controlId,
@@ -1697,6 +1709,8 @@ export default class DataFormat {
         .then(result => {
           this.setLoadingInfo(controlId, false);
 
+          if (result.resultCode === 7) return;
+
           const formatValue = JSON.stringify(
             JSON.parse(value || '[]').map((i, index) =>
               index === 0 ? Object.assign(i, { sourcevalue: result.rowData, isGet: true }) : i,
@@ -1877,13 +1891,18 @@ export default class DataFormat {
         //表删除、没有控件、不符合查询时机、当前配置控件已删除等不执行
         if (templates.length > 0 && controls.length > 0 && canSearch && currentControl) {
           //关联记录
-          if (_.includes([29], controlType) && _.get(currentControl.advancedSetting || {}, 'showtype') !== '2') {
+          if (_.includes([29], controlType)) {
             //关联单条取第一条记录
             this.getFilterRowsData(
               items,
               {
                 worksheetId: sourceId,
-                pageSize: currentControl.enumDefault === 1 ? 1 : 50,
+                pageSize:
+                  currentControl.enumDefault === 1
+                    ? 1
+                    : _.get(currentControl.advancedSetting || {}, 'showtype') !== '2'
+                    ? 50
+                    : 200,
                 id,
               },
               controlId,
@@ -1911,7 +1930,7 @@ export default class DataFormat {
             if (canMapConfigs.length > 0) {
               this.getFilterRowsData(
                 items,
-                { worksheetId: sourceId, pageSize: controlType === 34 ? 50 : 1, id },
+                { worksheetId: sourceId, pageSize: controlType === 34 ? 200 : 1, id },
                 controlId,
               ).then(res => {
                 this.setLoadingInfo(controlId, false);

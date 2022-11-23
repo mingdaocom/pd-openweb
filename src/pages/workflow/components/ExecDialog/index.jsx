@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { string, func, bool } from 'prop-types';
 import autoSize from 'ming-ui/decorators/autoSize';
+import ScrollView from 'ming-ui/components/ScrollView';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import instanceVersion from '../../api/instanceVersion';
 import { STATUS_ERROR_MESSAGE } from './config';
@@ -95,7 +96,6 @@ export default class ExecDialog extends Component {
       })
       .fail(res => {
         onError();
-        onClose();
       });
   };
 
@@ -150,18 +150,20 @@ export default class ExecDialog extends Component {
           />
         }
         workflow={
-          <ul className="pAll20">
-            {works.map((item, index) => {
-              return (
-                <StepItem
-                  key={index}
-                  data={item}
-                  currentWork={currentWork}
-                  currentType={(currentWorkItem || {}).type}
-                />
-              );
-            })}
-          </ul>
+          <ScrollView className="flex">
+            <ul className="pAll20">
+              {works.map((item, index) => {
+                return (
+                  <StepItem
+                    key={index}
+                    data={item}
+                    currentWork={currentWork}
+                    currentType={(currentWorkItem || {}).type}
+                  />
+                );
+              })}
+            </ul>
+          </ScrollView>
         }
         instanceId={id}
         workId={workId}

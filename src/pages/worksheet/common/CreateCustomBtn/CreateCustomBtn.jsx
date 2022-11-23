@@ -7,10 +7,11 @@ import AppointDialog from './components/AppointDialog';
 import ShowBtnFilterDialog from './components/ShowBtnFilterDialog';
 import sheetAjax from 'src/api/worksheet';
 import process from 'src/pages/workflow/api/process';
+import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
 import WorkflowDialog from 'src/pages/workflow/components/WorkflowDialog';
 import DoubleConfirmDialog from './components/DoubleConfirmDialog';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
-import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/util';
+import { formatValuesOfCondition } from '../../common/WorkSheetFilter/util';
 import color from 'color';
 import { COLORS, ICONS } from './config';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
@@ -255,39 +256,15 @@ class CreateCustomBtnCon extends React.Component {
           checkedValue={showType}
         />
         {filters.length > 0 && showType === 2 && (
-          <div className="filterTextCon">
-            <div className="txtFilter">
-              {filterItemTexts.length > 0 ? (
-                filterItemTexts.map((item, index) => (
-                  <div key={item.id} className="flexRow pRight10 mTop5">
-                    {index ? (
-                      <span className="mRight10 Gray_75 Font13">
-                        {filterItemTexts[index - 1] && filterItemTexts[index - 1].spliceType == 1 ? _l('且') : _l('或')}
-                      </span>
-                    ) : null}
-                    <span className="mRight10">{item.name}</span>
-                    {item.type ? (
-                      <span className="Bold LineHeight19 mRight10 Gray Font13">{item.type.text}</span>
-                    ) : null}
-                    <span>{item.value}</span>
-                  </div>
-                ))
-              ) : (
-                <div className="flexRow pRight10 mTop5">
-                  <span className="mRight10 Gray_9e">{_l('设为筛选条件的字段已删除')}</span>
-                </div>
-              )}
-            </div>
-            <Icon
-              icon="hr_edit"
-              className="Gray_9d Font18 editFilter Hand"
-              onClick={() => {
-                this.setState({
-                  isShowBtnFilterDialog: true,
-                });
-              }}
-            />
-          </div>
+          <FilterItemTexts
+            filterItemTexts={filterItemTexts}
+            loading={false}
+            editFn={() =>
+              this.setState({
+                isShowBtnFilterDialog: true,
+              })
+            }
+          />
         )}
         <h5 className="Gray mTop6">{_l('点击后')}</h5>
         <RadioGroup
@@ -594,7 +571,7 @@ class CreateCustomBtnCon extends React.Component {
               btnId: btnId || '',
               name: this.state.name.replace(/(^\s*)|(\s*$)/g, ''),
               worksheetId,
-              filters: formatValuesOfOriginConditions(this.state.filters), //筛选条件
+              filters: this.state.filters.map(formatValuesOfCondition), //筛选条件
               confirmMsg: this.state.doubleConfirm.confirmMsg, //确认信息
               sureName: this.state.doubleConfirm.sureName, //确认按钮
               cancelName: this.state.doubleConfirm.cancelName, //取消按钮

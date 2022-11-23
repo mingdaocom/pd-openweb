@@ -26,4 +26,4 @@ function withHoverState(Component) {
   return HoverStateComponent;
 }
 
-module.exports = withHoverState;
+export default withHoverState;

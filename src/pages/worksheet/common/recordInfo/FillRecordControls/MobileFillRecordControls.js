@@ -228,6 +228,7 @@ class FillRecordControls extends React.Component {
           <div ref={this.formcon}>
             <CustomFields
               isWorksheetQuery
+              ignoreLock
               ref={this.customwidget}
               data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}
               recordId={recordId}

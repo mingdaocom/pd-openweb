@@ -1,10 +1,15 @@
 .MDMap {
   overflow: hidden;
   .MDMapSidebar {
-    width: 300px;
+    width: 380px;
     height: 100%;
     border-right: 1px solid rgba(0, 0, 0, 0.05);
     padding: 16px 0;
+    .distanceInfo {
+      height: 57px;
+      line-height: 60px;
+      padding: 0 16px;
+    }
   }
   .MDMapInput {
     border-radius: 18px;
@@ -16,13 +21,20 @@
     width: 100%;
   }
   .MDMapList {
+    display: flex;
     padding: 0 16px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     height: 57px;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
     cursor: pointer;
+    box-sizing: border-box;
     &:hover {
       background: #f8f8f8;
+    }
+    span {
+      display: flex;
+      flex-shrink: 0;
     }
   }
 }

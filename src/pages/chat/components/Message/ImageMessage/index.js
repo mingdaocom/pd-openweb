@@ -3,7 +3,7 @@ import cx from 'classnames';
 import './index.less';
 import * as utils from '../../../utils/';
 import { handleMessageFilePreview } from '../MessageToolbar';
-import previewAttachments from 'previewAttachments';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 
 export default class ImageMessage extends Component {

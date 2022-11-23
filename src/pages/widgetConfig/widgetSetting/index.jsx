@@ -26,6 +26,7 @@ import errorBoundary from 'ming-ui/decorators/errorBoundary';
 const {
   WidgetIntro,
   WidgetExplain,
+  WidgetOtherExplain,
   WidgetDes,
   WidgetPermission,
   WidgetName,
@@ -62,7 +63,7 @@ function WidgetSetting(props) {
     setWidgets,
     ...rest
   } = props;
-  const { type, controlId, advancedSetting = {} } = data;
+  const { type, controlId, advancedSetting = {}, options = [] } = data;
   const ENUM_TYPE = enumWidgetType[type];
   const info = DEFAULT_CONFIG[ENUM_TYPE] || {};
   const queryConfig = _.find(queryConfigs, item => item.controlId === controlId) || {};
@@ -99,17 +100,18 @@ function WidgetSetting(props) {
           {!rest.quickAddControl && (
             <Fragment>
               {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...allProps} />}
-              {(!NO_VERIFY_WIDGET.includes(type) || (type === 50 && enumDefault === 2)) && (
-                <WidgetVerify {...allProps} />
-              )}
-              {(HAVE_CONFIG_CONTROL.includes(type) ||
-                (type === 10 && advancedSetting.checktype === '1') ||
-                (type === 11 && advancedSetting.showtype !== '2')) && <ControlSetting {...allProps} />}
+              {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...allProps} />}
+              {HAVE_CONFIG_CONTROL.includes(type) && <ControlSetting {...allProps} />}
               {!NO_PERMISSION_WIDGET.includes(type) && <WidgetPermission {...allProps} />}
               {/* // 文本控件移动端输入 */}
               {includes([2], type) && <WidgetMobileInput {...allProps} />}
               {canAdjustWidth(widgets, data) && <WidgetWidth {...allProps} handleClick={handleAdjustWidthClick} />}
-              {HAS_EXPLAIN_CONTROL.includes(type) && <WidgetExplain {...allProps} />}
+              {(HAS_EXPLAIN_CONTROL.includes(type) ||
+                (type === 11 && advancedSetting.showtype !== '2') ||
+                (type === 10 && advancedSetting.checktype === '1')) && <WidgetExplain {...allProps} />}
+              {includes([9, 10, 11], type) && _.find(options, i => i.key === 'other' && !i.isDeleted) && (
+                <WidgetOtherExplain {...allProps} />
+              )}
               {!NO_DES_WIDGET.includes(type) && <WidgetDes {...allProps} />}
             </Fragment>
           )}

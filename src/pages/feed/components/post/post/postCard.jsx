@@ -33,7 +33,7 @@ class PostCard extends React.Component {
   bindComponentWillLeave = () => {
     if (this.props.leavingAnimation) {
       const timeout = this.props.leavingAnimation.timeout;
-      this.componentWillLeave = (cb) => {
+      this.componentWillLeave = cb => {
         this.setState({ leaving: true });
         setTimeout(cb, timeout || 400);
       };
@@ -46,7 +46,11 @@ class PostCard extends React.Component {
 
   render() {
     const props = _.assign({}, this.props);
-    props.className = cx('card postCard clearfix', this.props.className, this.state.leaving ? this.leavingCss : undefined);
+    props.className = cx(
+      'card postCard clearfix',
+      this.props.className,
+      this.state.leaving ? this.leavingCss : undefined,
+    );
     const component = props.component || 'div';
     delete props.component;
     delete props.leavingAnimation;
@@ -54,4 +58,4 @@ class PostCard extends React.Component {
   }
 }
 
-module.exports = PostCard;
+export default PostCard;

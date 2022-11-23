@@ -1,4 +1,4 @@
-import 'mdDialog';
+import 'src/components/mdDialog/dialog';
 import reInvitedFunc from './template/reInvited.tpl';
 import './css/reInvite.less';
 // 更新日程后操作 是否弹出提示层 发送私信重新确认

@@ -89,8 +89,8 @@ class RecordAction extends Component {
         timeout = setTimeout(() => {
           Modal.alert(
             <div className="feedbackInfo">
-              <span className="custBtnName">{_l('“%0', custBtnName)}</span>
-              {_l('” 正在等待%0', TYPES[type])}
+              <span className="custBtnName">{custBtnName}</span>
+              {_l(' 正在等待%0', TYPES[type])}
             </div>,
             '',
             [{ text: _l('关闭') }],
@@ -108,20 +108,22 @@ class RecordAction extends Component {
       timeout = setTimeout(() => {
         Modal.alert(
           <div className="feedbackInfo">
-            <span className="custBtnName">{_l('“%0"', custBtnName)}</span>
+            <span className="custBtnName">{custBtnName}</span>
             <span className="verticalAlignM">{_l(' 执行成功!')}</span>
           </div>,
           '',
           [{ text: _l('关闭') }],
         );
+        this.setState({ btnDisable: {} });
+        this.props.updateBtnDisabled({});
       }, 1000);
     } else {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         Modal.alert(
           <div className="feedbackInfo">
-            <span className="custBtnName">{_l('“%0', custBtnName)}</span>
-            <span className="verticalAlignM">{_l('” 执行失败!')}</span>
+            <span className="custBtnName">{custBtnName}</span>
+            <span className="verticalAlignM">{_l(' 执行失败!')}</span>
           </div>,
           '',
           [{ text: _l('关闭') }],
@@ -232,7 +234,7 @@ class RecordAction extends Component {
         className: 'flowToastInfo',
         content: (
           <div className="feedbackInfo">
-            <span className="custBtnName">{_l('“%0"', btn.name)}</span>
+            <span className="custBtnName">{btn.name}</span>
             <span className="verticalAlignM">{_l('正在执行...')}</span>
           </div>
         ),
@@ -252,8 +254,8 @@ class RecordAction extends Component {
         timeout = setTimeout(() => {
           Modal.alert(
             <div className="feedbackInfo">
-              <span className="custBtnName">{_l('“%0', btn.name)}</span>
-              {_l('” 执行失败!')}
+              <span className="custBtnName">{btn.name}</span>
+              {_l(' 执行失败!')}
             </div>,
             '',
             [{ text: _l('关闭') }],
@@ -261,12 +263,17 @@ class RecordAction extends Component {
         }, durationValue);
       }
       this.props.loadCustomBtns();
+      setTimeout(() => {
+        this.setState({ btnDisable: {} });
+        this.props.updateBtnDisabled({});
+      }, 500);
     });
   };
   disableCustomButton = id => {
     this.setState({
       btnDisable: { ...this.state.btnDisable, [id]: true },
     });
+    this.props.updateBtnDisabled({ [id]: true });
   };
   async fillRecord(btn) {
     const { worksheetId, rowId } = this.props;
@@ -301,8 +308,8 @@ class RecordAction extends Component {
         this.fillRecordId = rowId;
         this.fillRecordProps = {
           formData: rowInfo.receiveControls,
-          appId: this.props.appId
-        };  
+          appId: this.props.appId,
+        };
         this.setState({
           fillRecordVisible: true,
         });
@@ -319,7 +326,7 @@ class RecordAction extends Component {
           if (addRelationControl.enumDefault === 1 && controldata.length) {
             Modal.alert(
               _l('无法执行按钮“%0”', btn.name),
-              _l('“%0”已有关联记录，无法重复添加', addRelationControl.controlName),
+              _l('%0已有关联记录，无法重复添加', addRelationControl.controlName),
               [{ text: _l('确定'), onPress: () => {} }],
             );
             return;
@@ -590,7 +597,7 @@ class RecordAction extends Component {
           }}
           openRecord={(rowId, viewId) => {
             this.setState({
-              previewRecord: { rowId, viewId }
+              previewRecord: { rowId, viewId },
             });
           }}
           onAdd={this.handleAddRecordCallback}
@@ -621,7 +628,7 @@ class RecordAction extends Component {
       >
         <React.Fragment>
           <div className="flexRow header">
-            <span className="Font13">{!isMobileOperate ? sheetRow.titleName : _l('对选中记录执行操作')}</span>
+            <span className="Font13">{!isMobileOperate ? _l('更多操作') : _l('对选中记录执行操作')}</span>
             <div className="closeIcon" onClick={hideRecordActionVisible}>
               <Icon icon="close" />
             </div>
@@ -734,12 +741,12 @@ class RecordAction extends Component {
         rowId={previewRecord.rowId}
         onClose={() => {
           this.setState({
-            previewRecord: {}
+            previewRecord: {},
           });
         }}
       />
     );
-  }
+  };
   render() {
     return (
       <div ref={this.recef}>

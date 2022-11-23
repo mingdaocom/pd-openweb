@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { string } from 'prop-types';
 import { Checkbox } from 'ming-ui';
 import { isLightColor } from 'src/util';
@@ -24,26 +24,33 @@ const MultiSelectDrop = styled(CommonDisplay)`
 `;
 
 export default function MultiSelect({ data }) {
-  const { options } = data;
+  const { options, hint } = data;
   const { direction, checktype = '0' } = getAdvanceSetting(data);
   const checkedValue = parseOptionValue(data.default);
   if (checktype === '1') {
     return (
       <MultiSelectDrop>
         <div className="optionsWrap">
-          {checkedValue.map(id => {
-            const item = find(options, option => option.key === id) || {};
-            return (
-              <OptionWrap
-                className={cx('optionItem', {
-                  light: isLightColor(item.color),
-                  withoutColor: data.enumDefault2 !== 1,
-                })}
-                color={item.color}>
-                {item.value}
-              </OptionWrap>
-            );
-          })}
+          {_.isEmpty(checkedValue) ? (
+            <span>{hint || _l('请选择')}</span>
+          ) : (
+            <Fragment>
+              {checkedValue.map(id => {
+                const item = find(options, option => option.key === id) || {};
+                return (
+                  <OptionWrap
+                    className={cx('optionItem', {
+                      light: isLightColor(item.color),
+                      withoutColor: data.enumDefault2 !== 1,
+                    })}
+                    color={item.color}
+                  >
+                    {item.value}
+                  </OptionWrap>
+                );
+              })}
+            </Fragment>
+          )}
         </div>
         <i className="icon-expand_more"></i>
       </MultiSelectDrop>
@@ -53,7 +60,8 @@ export default function MultiSelect({ data }) {
     <OptionsWrap
       className={cx({
         horizontal: direction !== '1',
-      })}>
+      })}
+    >
       {getOptions(data).map(item => (
         <div key={item.key} className="option">
           <Checkbox checked={checkedValue.includes(item.key)} />
@@ -63,7 +71,8 @@ export default function MultiSelect({ data }) {
               withoutColor: data.enumDefault2 !== 1,
               horizontal: direction !== '1',
             })}
-            color={item.color}>
+            color={item.color}
+          >
             {item.value}
           </OptionWrap>
         </div>

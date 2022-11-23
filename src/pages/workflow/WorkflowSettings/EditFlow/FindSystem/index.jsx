@@ -60,7 +60,7 @@ export default class FindSystem extends Component {
   }
 
   render() {
-    const { item, disabled, selectNodeId, openDetail } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail } = this.props;
     const isSystem = _.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.WORKSHEET_FIND], item.actionId);
 
     return (
@@ -73,7 +73,7 @@ export default class FindSystem extends Component {
               { errorShadow: (!!item.selectNodeId || isSystem) && item.isException },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(item.id, item.typeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
               <i

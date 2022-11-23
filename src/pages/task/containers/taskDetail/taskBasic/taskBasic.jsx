@@ -15,10 +15,10 @@ import {
 } from '../../../utils/taskComm';
 import { checkIsProject } from '../../../utils/utils';
 import UserHead from 'src/pages/feed/components/userHead';
-import 'dialogSelectUser';
-import 'quickSelectUser';
-import 'tooltip';
-import 'selectize';
+import 'src/components/dialogSelectUser/dialogSelectUser';
+import 'src/components/quickSelectUser/quickSelectUser';
+import 'src/components/tooltip/tooltip';
+import '@mdfe/selectize';
 import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import Dropdown from 'ming-ui/components/Dropdown';

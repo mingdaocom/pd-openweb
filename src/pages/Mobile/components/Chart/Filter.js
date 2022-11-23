@@ -13,7 +13,7 @@ import {
   isPastAndFuture,
 } from 'statistics/common';
 
-const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20];
+const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21];
 
 const InputCon = styled(Input)`
   width: 100%;
@@ -64,16 +64,16 @@ function Group(props) {
 }
 
 function ChartFilter(props) {
-  const datePeriod = dropdownScopeData.filter(item => item.value !== 20);
+  const datePeriod = dropdownScopeData.filter(item => ![20, 21].includes(item.value));
   const { reportType, xaxes, rangeValue, rangeType } = props.data;
-  const { rangeValue: defaultRangeValue, rangeType: defaultRangeType } = props.defaultData;
+  const { rangeValue: defaultRangeValue, rangeType: defaultRangeType, filter } = props.defaultData;
   const xAxisisTime = isTimeControl(xaxes.controlType);
   const moreVisible = true;
 
   const RenderDatePicker = () => {
     const isCustom = defaultRangeType === 20;
     const scopeData = _.find(dropdownScopeData, { value: defaultRangeType }) || {};
-    const [ minValue, maxValue ] = isCustom ? defaultRangeValue.split('-').map(item => moment(item)) : scopeData.getScope();
+    const [ minValue, maxValue ] = isCustom ? defaultRangeValue.split('-').map(item => moment(item)) : [moment(filter.startDate), moment(filter.endDate)];
     const startDateValue = minValue ? moment(minValue).toDate() : null;
     const endDateValue = maxValue ? moment(maxValue).toDate() : null;
     const [startDate, setStartDate] = useState(null);

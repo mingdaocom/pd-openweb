@@ -7,7 +7,7 @@ import ClipboardButton from 'react-clipboard.js';
 import ValidPassword from './ValidPassword';
 import ExitDialog from './ExitDialog';
 import EditCardInfo from './EditCardInfo';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 import ReactDom from 'react-dom';
 import { navigateTo } from 'router/navigateTo';
 

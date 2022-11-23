@@ -30,32 +30,6 @@ const Wrap = styled.div`
   .icon-delete2:hover {
     color: #2196F3;
   }
-
-  .customPageSelect {
-    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
-    &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-      border-color: #2196F3 !important;
-    }
-    .ant-select-selector {
-      border-radius: 4px !important;
-      box-shadow: none !important;
-    }
-    .ant-select-arrow {
-      width: auto;
-      height: auto;
-      top: 40%;
-    }
-    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item,
-    .ant-select-selection-placeholder {
-      opacity: 1;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-    }
-    &.ant-select-single.ant-select-open .ant-select-selection-item {
-      color: inherit;
-    }
-  }
 `;
 
 function Setting(props) {

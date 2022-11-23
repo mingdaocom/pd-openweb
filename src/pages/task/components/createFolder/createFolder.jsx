@@ -2,8 +2,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import ajaxRequest from 'src/api/taskCenter';
-import mdFunction from 'mdFunction';
-import 'selectGroup';
+import { expireDialogAsync } from 'src/components/common/function';
+import 'src/components/selectGroup/selectAllGroup';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import Slider from 'react-slick';
 
@@ -110,8 +110,7 @@ export default class CreateFolder extends Component {
   networkSelect(projectId, companyName) {
     if (projectId !== this.state.projectId) {
       // 监测网络是否过期
-      mdFunction
-        .expireDialogAsync(projectId)
+      expireDialogAsync(projectId)
         .then(() => {
           this.setState(
             {

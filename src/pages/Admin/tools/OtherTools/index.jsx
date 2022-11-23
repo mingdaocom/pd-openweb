@@ -9,6 +9,9 @@ import './index.less';
 import AdminCommon from 'src/pages/Admin/common/common';
 import ExportDialog from '../modules/ExportDialog';
 import Stat from '../../stat';
+import 'src/components/uploadAttachment/uploadAttachment';
+import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectGroups from 'src/components/dialogSelectGroups';
 const { TextArea } = Input;
 
 const headerTitle = {
@@ -96,20 +99,18 @@ export default class OtherTools extends Component {
 
   uploadFiled() {
     const _this = this;
-    require(['uploadAttachment'], function () {
-      _this.uploadAttachmentObj = $('#hidUploadAttachment').uploadAttachment({
-        checkDocVersionUrl: '',
-        pluploadID: '#uploadAttachment',
-        folder: 'Accessories',
-        showDownload: false,
-        checkProjectLimitFileSizeUrl: '',
-        bucketType: 1,
-        callback: function (attachments, totalSize) {
-          _this.setState({
-            attachments,
-          });
-        },
-      });
+    _this.uploadAttachmentObj = $('#hidUploadAttachment').uploadAttachment({
+      checkDocVersionUrl: '',
+      pluploadID: '#uploadAttachment',
+      folder: 'Accessories',
+      showDownload: false,
+      checkProjectLimitFileSizeUrl: '',
+      bucketType: 1,
+      callback: function (attachments, totalSize) {
+        _this.setState({
+          attachments,
+        });
+      },
     });
   }
 
@@ -144,39 +145,35 @@ export default class OtherTools extends Component {
   //选择用户
   selectUser() {
     const _this = this;
-    require(['dialogSelectUser'], function () {
-      $({}).dialogSelectUser({
-        showMoreInvite: false,
-        SelectUserSettings: {
-          projectId: Config.projectId,
-          filterAll: true,
-          filterFriend: true,
-          filterOthers: true,
-          filterOtherProject: true,
-          dataRange: 2,
-          callback: function (userArr) {
-            _this.setState({
-              users: userArr,
-            });
-          },
+    $({}).dialogSelectUser({
+      fromAdmin: true,
+      SelectUserSettings: {
+        projectId: Config.projectId,
+        filterAll: true,
+        filterFriend: true,
+        filterOthers: true,
+        filterOtherProject: true,
+        dataRange: 2,
+        callback: function (userArr) {
+          _this.setState({
+            users: userArr,
+          });
         },
-      });
+      },
     });
   }
 
   //选择群组
   selectGroups() {
     const _this = this;
-    require(['src/components/dialogSelectGroups'], function (dialogSelectGroups) {
-      new dialogSelectGroups({
-        defaultGroups: _this.state.groups,
-        projectId: Config.projectId,
-        selectCallback: function (groupArr) {
-          _this.setState({
-            groups: groupArr,
-          });
-        },
-      });
+    new dialogSelectGroups({
+      defaultGroups: _this.state.groups,
+      projectId: Config.projectId,
+      selectCallback: function (groupArr) {
+        _this.setState({
+          groups: groupArr,
+        });
+      },
     });
   }
 

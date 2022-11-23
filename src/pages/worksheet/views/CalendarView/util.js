@@ -63,9 +63,9 @@ const getEnd = (data, o) => {
   return !data[o.end] || moment(data[o.begin]).isAfter(data[o.end])
     ? ''
     : moment(
-        //全天事件 都要加一天
-        !getAllDay(data, o) ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day'),
-      ).format(o.endFormat);
+      //全天事件 都要加一天
+      !getAllDay(data, o) ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day'),
+    ).format(o.endFormat);
 };
 const getIsOverOneDay = (data, o) => {
   return (
@@ -97,6 +97,7 @@ export const setDataFormat = pram => {
   let stringColor = getStringColor(calendarData, data, currentView, worksheetControls);
   let list = [];
   calendarInfo.map(o => {
+    let editable = controlState(o.startData).editable
     if (!!data[o.begin]) {
       let start = getStart(data, o);
       let allDay = getAllDay(data, o);
@@ -108,7 +109,7 @@ export const setDataFormat = pram => {
         keyIds: `${data.rowid}-${o.begin}`,
         extendedProps: {
           ...data,
-          editable: controlState(worksheetControls.find(item => item.controlId === data[o.begin]) || []).editable,
+          editable,
           stringColor,
         },
         title:
@@ -119,11 +120,13 @@ export const setDataFormat = pram => {
         start,
         end,
         allDay: !!allDay,
+        editable,
         timeList: [
           {
             info: o,
             start,
             end,
+            editable,
             allDay: !!allDay,
           },
         ],
@@ -154,13 +157,13 @@ export const setDataFormatByRowId = pram => {
       start,
       end,
       allDay: !!allDay,
+      editable: controlState(o.startData).editable,
     });
   });
   return [
     {
       extendedProps: {
         ...data,
-        editable: controlState(worksheetControls.find(item => item.controlId === data[o.begin]) || []).editable,
         stringColor,
       },
       title:
@@ -180,12 +183,12 @@ export const getCalendarViewType = (strType, data) => {
   const str = !['1', '2'].includes(strType)
     ? 'dayGridMonth'
     : strType === '1'
-    ? isTimeStyle(data)
-      ? 'timeGridWeek'
-      : 'dayGridWeek'
-    : isTimeStyle(data)
-    ? 'timeGridDay'
-    : 'dayGridDay';
+      ? isTimeStyle(data)
+        ? 'timeGridWeek'
+        : 'dayGridWeek'
+      : isTimeStyle(data)
+        ? 'timeGridDay'
+        : 'dayGridDay';
   return str;
 };
 

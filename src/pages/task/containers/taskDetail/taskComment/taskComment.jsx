@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import { htmlDecodeReg } from 'src/util';
-import Commenter from 'commenter';
+import Commenter from 'src/components/comment/commenter';
 import Icon from 'ming-ui/components/Icon';
 import './taskComment.less';
 import { addTaskDiscussions, discussionsAddMembers } from '../../../redux/actions';

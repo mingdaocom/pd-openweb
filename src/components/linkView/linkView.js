@@ -3,7 +3,7 @@ import './style.css';
 
 var postController = require('src/api/post');
 
-module.exports = (function ($) {
+export default (function ($) {
   $.fn.linkView = function (param) {
     return new LinkView(this, param);
   };

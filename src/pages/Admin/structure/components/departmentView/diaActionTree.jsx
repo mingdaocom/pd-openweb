@@ -11,8 +11,8 @@ import {
 import { removeCursor, updateCursor, updateTypeCursor } from '../../actions/current';
 import './index.less';
 
-const EditDialog = require('../../modules/dialogCreateEditDept');
-const CreateDialog = require('../../modules/dialogCreateEditDept');
+import EditDialog from '../../modules/dialogCreateEditDept';
+import CreateDialog from '../../modules/dialogCreateEditDept';
 
 const handleDialogCallback = (dispatch, payload) => {
   const { response = {}, pageIndex, type, expandedKeys, projectId } = payload;

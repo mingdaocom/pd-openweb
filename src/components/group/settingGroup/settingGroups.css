@@ -424,14 +424,6 @@
   white-space: nowrap;
 }
 
-.groupSettingContent .groupMember .addGroupMember {
-  font-size: 22px;
-
-  float: left;
-
-  vertical-align: middle;
-}
-
 .groupSettingContent .groupMember .addGroupMembers {
   font-size: 14px;
   padding: 10px 25px;

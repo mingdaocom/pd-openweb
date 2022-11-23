@@ -2,7 +2,11 @@
  * init -> formatAttachment -> loadAttachment
  */
 import attachmentAjax from 'src/api/attachment';
-
+import kcAjax from 'src/api/kc';
+import fileAjax from 'src/api/file';
+import { getToken } from 'src/util';
+import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
+import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { NODE_VISIBLE_TYPE, PICK_TYPE } from '../../../constant/enum';
 import { addNodeViewCount } from '../../../api/service';
 import { EXT_TYPE_DIC, PREVIEW_TYPE, LOADED_STATUS } from '../constant/enum';
@@ -472,20 +476,18 @@ export function updateAllowDownload() {
 
 function selectFolder() {
   const promise = $.Deferred();
-  require(['src/components/kc/folderSelectDialog/folderSelectDialog'], folderDg => {
-    folderDg({
-      dialogTitle: _l('选择路径'),
-      isFolderNode: 1,
-      selectedItems: null,
-      zIndex: 9999,
+  folderDg({
+    dialogTitle: _l('选择路径'),
+    isFolderNode: 1,
+    selectedItems: null,
+    zIndex: 9999,
+  })
+    .then(result => {
+      promise.resolve(result);
     })
-      .then(result => {
-        promise.resolve(result);
-      })
-      .fail(() => {
-        promise.reject();
-      });
-  });
+    .fail(() => {
+      promise.reject();
+    });
   return promise;
 }
 
@@ -507,36 +509,34 @@ export function saveToKnowlwdge(savePath) {
     }
     savePromise
       .then(path => {
-        require(['src/components/saveToKnowledge/saveToKnowledge'], saveToKnowledge => {
-          const sourceData = {};
-          let attachmentType;
-          if (previewAttachmentType === 'COMMON') {
-            attachmentType = 1;
-            sourceData.fileID = sourceNode.fileID;
-            sourceData.allowDown = !!(sourceNode.allowDown && sourceNode.allowDown === 'ok');
-            if (previewType === PREVIEW_TYPE.PICTURE) {
-              sourceData.allowDown = true;
-            }
-          } else if (previewAttachmentType === 'KC') {
-            attachmentType = 2;
-            sourceData.nodeId = sourceNode.id;
-            if (state.extra && state.extra.shareFolderId) {
-              sourceData.isShareFolder = true;
-            }
-          } else if (previewAttachmentType === 'QINIU') {
-            attachmentType = 0;
-            sourceData.name = currentAttachment.name + '.' + currentAttachment.ext;
-            sourceData.filePath = sourceNode.path;
+        const sourceData = {};
+        let attachmentType;
+        if (previewAttachmentType === 'COMMON') {
+          attachmentType = 1;
+          sourceData.fileID = sourceNode.fileID;
+          sourceData.allowDown = !!(sourceNode.allowDown && sourceNode.allowDown === 'ok');
+          if (previewType === PREVIEW_TYPE.PICTURE) {
+            sourceData.allowDown = true;
           }
-          saveToKnowledge(attachmentType, sourceData)
-            .save(path)
-            .then(message => {
-              // alert(message || '保存成功');
-            })
-            .fail(message => {
-              alert(message || _l('保存失败'), 3);
-            });
-        });
+        } else if (previewAttachmentType === 'KC') {
+          attachmentType = 2;
+          sourceData.nodeId = sourceNode.id;
+          if (state.extra && state.extra.shareFolderId) {
+            sourceData.isShareFolder = true;
+          }
+        } else if (previewAttachmentType === 'QINIU') {
+          attachmentType = 0;
+          sourceData.name = currentAttachment.name + '.' + currentAttachment.ext;
+          sourceData.filePath = sourceNode.path;
+        }
+        saveToKnowledge(attachmentType, sourceData)
+          .save(path)
+          .then(message => {
+            // alert(message || '保存成功');
+          })
+          .fail(message => {
+            alert(message || _l('保存失败'), 3);
+          });
       })
       .fail(() => {
         // alert(_l('保存失败'), 2, 3000);

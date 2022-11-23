@@ -3,8 +3,6 @@ import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
 import { formatFiltersValue } from 'src/components/newCustomFields/tools/utils';
-import ChartCard from 'statistics/Card';
-import MobileChartCard from 'mobile/CustomPage/ChartContent';
 import { browserIsMobile } from 'src/util';
 
 const EmbedWrap = styled.div`
@@ -42,13 +40,27 @@ export default class Widgets extends Component {
   state = {
     value: '',
     needUpdate: '',
+    ChartComponents: null,
   };
 
   componentDidMount() {
+    const isMobile = browserIsMobile();
+
     if (this.props.enumDefault === 1) {
       this.setValue();
       this.embedWatch = setInterval(this.setValue, 3000);
+    } else {
+      if (isMobile) {
+        import('mobile/CustomPage/ChartContent').then(component => {
+          this.setState({ ChartComponents: component });
+        });
+      } else {
+        import('statistics/Card').then(component => {
+          this.setState({ ChartComponents: component });
+        });
+      }
     }
+
     if (_.isFunction(this.props.addRefreshEvents)) {
       this.props.addRefreshEvents(this.props.controlId, this.handleReloadIFrame.bind(this));
     }
@@ -84,8 +96,18 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { advancedSetting = {}, controlName, enumDefault, dataSource, formData, recordId, from = '', projectId } = this.props;
-    const { value, needUpdate } = this.state;
+    const {
+      advancedSetting = {},
+      controlName,
+      enumDefault,
+      dataSource,
+      formData,
+      recordId,
+      from = '',
+      projectId,
+      isCharge
+    } = this.props;
+    const { value, needUpdate, ChartComponents } = this.state;
 
     const getContent = () => {
       const isLegal = enumDefault === 1 ? /^https?:\/\/.+$/.test(value) : dataSource;
@@ -111,27 +133,31 @@ export default class Widgets extends Component {
               mozallowfullscreen="true"
               allowfullscreen="true"
               src={value}
-            ></iframe>
+            />
           </div>
         );
       } else {
         const formatFilters = formatFiltersValue(JSON.parse(advancedSetting.filters || '[]'), formData, recordId);
         const { reportid } = dataSource ? JSON.parse(dataSource) : {};
         const isMobile = browserIsMobile();
+
+        if (!ChartComponents) return null;
+
         return (
           <Fragment>
             {isMobile ? (
               <div className="embedContainer chartPadding flexColumn">
-                <MobileChartCard reportId={reportid} filters={formatFilters} needUpdate={needUpdate} />
+                <ChartComponents.default reportId={reportid} filters={formatFilters} needUpdate={needUpdate} />
               </div>
             ) : (
-              <ChartCard
+              <ChartComponents.default
                 className="embedContainer chartPadding"
                 report={{ id: reportid }}
                 projectId={projectId}
                 sourceType={1}
                 filters={formatFilters}
                 needUpdate={needUpdate}
+                isCharge={isCharge}
               />
             )}
           </Fragment>

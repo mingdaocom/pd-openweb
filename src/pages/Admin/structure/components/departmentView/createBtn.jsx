@@ -11,7 +11,7 @@ import './index.less';
 
 export const emitter = new EventEmitter();
 
-const CreateDialog = require('../../modules/dialogCreateEditDept');
+import CreateDialog from '../../modules/dialogCreateEditDept';
 
 class CreateBtn extends Component {
   constructor(props) {

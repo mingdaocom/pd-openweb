@@ -12,6 +12,15 @@ export function loading(state = true, action) {
   }
 }
 
+export function error(state = false, action) {
+  switch (action.type) {
+    case 'WORKSHEET_INIT_FAIL':
+      return true;
+    default:
+      return false;
+  }
+}
+
 export function worksheetInfo(state = {}, action) {
   let newState;
   switch (action.type) {

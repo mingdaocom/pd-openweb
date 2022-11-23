@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dialog } from 'ming-ui';
-import SingleFilter from '../../../common/WorkSheetFilter/common/SingleFilter';
+import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 
 const segmentation = columns => {
@@ -43,14 +43,16 @@ class ShowBtnFilterDialog extends React.Component {
         }}
         visible={isShowBtnFilterDialog}
       >
-        <SingleFilter
+        <FilterConfig
           from="custombutton"
           canEdit
           feOnly
+          supportGroup
           filterColumnClassName="showBtnFilter"
           projectId={projectId}
           appId={appId}
           offset={[0, 0]}
+          filterResigned={false}
           columns={segmentation(columns)}
           conditions={this.state.filters}
           onConditionsChange={conditions => {

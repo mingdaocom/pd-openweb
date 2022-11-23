@@ -1,8 +1,0 @@
-@font-face {
-  font-family: 'emoji';
-  src: url('./NotoEmoji-Regular.woff') format('woff');
-}
-
-.emojiFontFace {
-  font-family: emoji, "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
-}

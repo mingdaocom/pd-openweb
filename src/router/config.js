@@ -12,6 +12,7 @@ export const ROUTE_CONFIG = {
   groupValidate: {
     path: '/group/groupValidate',
     component: () => import('src/components/group/groupValidate/GroupValidateComponent'),
+    title: _l('群组资料'),
   },
 
   // 动态
@@ -271,6 +272,7 @@ const withoutHeaderPathList = [
   'worksheet/public/query',
   'printForm',
   'print',
+  'workflow',
   'workflowEdit',
   'workflow/checksheet',
   'worksheet/field/edit',
@@ -281,6 +283,7 @@ const withoutHeaderPathList = [
   'worksheet/uploadTemplateSheet',
   'gunterExport',
   'integrationConnect',
+  'role',
 ];
 const withoutChatPathList = [
   'demo',

@@ -38,7 +38,7 @@ export default class Email extends Component {
   }
 
   render() {
-    const { item, disabled, selectNodeId, openDetail } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail } = this.props;
 
     return (
       <div className="flexColumn">
@@ -50,7 +50,7 @@ export default class Email extends Component {
               { errorShadow: !!item.accounts.length && item.isException },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(item.id, item.typeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
               <i className={cx('workflowAvatar icon-workflow_email', item.accounts.length ? 'BGBlue' : 'BGGray')} />

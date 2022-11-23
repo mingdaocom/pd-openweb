@@ -222,7 +222,7 @@ export default class WorkSheetFilter extends Component {
           const ownerControl = _.find(columns, c => c.controlId === 'ownerid');
           const ownerCondition = getDefaultCondition(ownerControl);
           ownerCondition.values = [md.global.Account.accountId];
-          ownerCondition.originValues = [
+          ownerCondition.fullValues = [
             JSON.stringify({
               accountId: md.global.Account.accountId,
               name: md.global.Account.fullname,

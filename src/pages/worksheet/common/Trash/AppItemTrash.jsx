@@ -84,7 +84,9 @@ export default function AppItemTrash(props) {
               size={34}
               className="InlineBlock"
             />,
-            <span className="mLeft20 ellipsis">{appItem.name}</span>,
+            <span className="mLeft20 ellipsis" style={{ maxWidth: 250 }}>
+              {appItem.name}
+            </span>,
           ],
           <span className="ellipsis">{appItem.type === 0 ? _l('工作表') : _l('自定义页面')}</span>,
           [

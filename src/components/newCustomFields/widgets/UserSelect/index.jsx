@@ -2,8 +2,8 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { FROM } from '../../tools/config';
 import UserHead from 'src/pages/feed/components/userHead';
-import 'dialogSelectUser';
-import 'quickSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
+import 'src/components/quickSelectUser/quickSelectUser';
 import cx from 'classnames';
 import SelectUser from 'mobile/components/SelectUser';
 import { browserIsMobile, getCurrentProject } from 'src/util';
@@ -159,7 +159,7 @@ export default class Widgets extends Component {
                 {item.name || item.fullname || item.fullName}
               </span>
 
-              {((enumDefault === 0 && value.length === 1) || enumDefault !== 0) && !disabled && (
+              {!disabled && (
                 <i className="icon-minus-square Font16 tagDel" onClick={() => this.removeUser(item.accountId)} />
               )}
             </div>

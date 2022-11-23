@@ -28,15 +28,16 @@ export default class Widgets extends Component {
     }
   }
 
-  onChange = value => {
+  onChange = _.debounce(value => {
     this.props.onChange(value);
-  };
+  }, 500);
 
   render() {
-    const { disabled, value, type, flag } = this.props;
+    const { disabled, value, type, flag, richTextControlCount = 0 } = this.props;
 
     return (
       <RichText
+        clickInit={richTextControlCount >= 3}
         maxWidth={this.state.width}
         id={flag}
         data={value || ''}

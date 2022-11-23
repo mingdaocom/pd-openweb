@@ -146,7 +146,9 @@ export default function RelateRecordTableNav(props) {
               </IconCon>
             )}
             {control.controlName}
-            {!!control.value && Number(control.value) !== 0 && <Num> ( {control.value || 0} ) </Num>}
+            {_.isNumber(Number(control.value)) && !_.isNaN(Number(control.value)) && Number(control.value) !== 0 && (
+              <Num> ( {control.value || 0} ) </Num>
+            )}
           </Tab>
         ))}
       </TabCon>

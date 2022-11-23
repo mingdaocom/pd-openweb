@@ -91,7 +91,7 @@ export default class BoardTitle extends Component {
       rowId,
     } = this.props;
 
-    if (noGroup) return <div className="noGroupTitle">{_l('未指定')}</div>;
+    if (noGroup) return <div className="noGroupTitle">{name}</div>;
     if (_.includes(CAN_AS_BOARD_OPTION, type)) {
       const isColorful = enumDefault2 === 1 && color;
       return (
@@ -117,11 +117,7 @@ export default class BoardTitle extends Component {
     }
     if (_.includes([28], type)) {
       const itemnames = JSON.parse(advancedSetting.itemnames || '[]');
-      const currentName =
-        _.get(
-          _.find(itemnames, i => i.key === keyType),
-          'value',
-        ) || name;
+      const currentName = _.get(_.find(itemnames, i => i.key === keyType), 'value') || name;
       return <div className="gradeType">{currentName}</div>;
     }
     return (

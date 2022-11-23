@@ -16,13 +16,13 @@
 */
 var prefixer = '.autoTextarea';
 var KEYDOWN = 'keydown' + prefixer;
-var EVENTS = _.map(['keyup', 'blur', 'focus'], function (e) {
+var EVENTS = _.map(['keyup', 'blur', 'focus'], function(e) {
   return e + prefixer;
 }).join(' ');
 
-module.exports = (function ($) {
-  $.fn.autoTextarea = function (options) {
-    return $(this).each(function () {
+export default (function($) {
+  $.fn.autoTextarea = function(options) {
+    return $(this).each(function() {
       var $this = $(this);
       var opts = $.extend(
         {
@@ -30,10 +30,10 @@ module.exports = (function ($) {
           minHeight: $this.height(),
           gap: $this.outerHeight() - $this.height(),
         },
-        options
+        options,
       );
 
-      var initTextArea = function () {
+      var initTextArea = function() {
         $this.css('height', 0);
         var origHeight = $.trim($this.val()) === '' ? opts.minHeight : $this.get(0).scrollHeight - opts.gap;
 
@@ -45,12 +45,12 @@ module.exports = (function ($) {
 
         $this.height(origHeight).scrollTop($this.scrollTop());
         $this.data('autoTextarea', {
-          setOpts: function (newOpts) {
+          setOpts: function(newOpts) {
             opts = Object.assign({}, opts, newOpts);
           },
         });
 
-        $this.on(KEYDOWN, function (event) {
+        $this.on(KEYDOWN, function(event) {
           if (event.keyCode === 13) {
             var height = this.scrollHeight - opts.gap;
             if (height > opts.maxHeight) {
@@ -60,7 +60,7 @@ module.exports = (function ($) {
           }
         });
 
-        $this.on(EVENTS, function () {
+        $this.on(EVENTS, function() {
           if (!$this.val()) {
             $this.height(opts.minHeight);
           }
@@ -96,7 +96,7 @@ module.exports = (function ($) {
 
       if (exist) {
         exist.setOpts(opts);
-        _.forEach(EVENTS.split(' '), function (e) {
+        _.forEach(EVENTS.split(' '), function(e) {
           $this.off(e);
         });
         $this.off(KEYDOWN);

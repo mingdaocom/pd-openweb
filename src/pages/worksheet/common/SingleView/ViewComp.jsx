@@ -43,7 +43,7 @@ function ViewComp(props) {
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
   return (
     <Con className="SingleViewWrap">
-      {showPageTitle && view.name && <DocumentTitle title={`${worksheetInfo.name}-${view.name}`} />}
+      {showPageTitle && worksheetInfo.name && <DocumentTitle title={`${worksheetInfo.name}${view.name ? ` - ${view.name}` : ''}`} />}
       {showHeader && (
         <Header
           maxCount={maxCount}

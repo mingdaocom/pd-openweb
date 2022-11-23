@@ -2,18 +2,20 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import './index.less';
 import cx from 'classnames';
-import { Tooltip } from 'antd';
+import { Tooltip, Popover } from 'antd';
 import WorkflowInfo from './WorkflowInfo';
 import { updateProcess, updatePublishState } from '../../redux/actions';
 import process from '../../api/process';
 import Switch from '../../components/Switch';
-import { Button, Icon } from 'ming-ui';
+import { Button, Icon, Checkbox } from 'ming-ui';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import PublishErrorDialog from '../../components/PublishErrorDialog';
 import { APP_TYPE } from '../enum';
-import _ from 'lodash';
 import { selectRecord } from 'src/components/recordCardListDialog';
+import sheetAjax from 'src/api/worksheet';
+import systemFieldsPNG from './images/systemFields.png';
+import flowPNG from './images/flow.png';
 
 const TABS_OPTS = [
   { tabIndex: 1, name: _l('流程') },
@@ -42,6 +44,9 @@ class Header extends Component {
       publishErrorVisible: false,
       errorInfo: {},
       isProgressing: false,
+      data: {},
+      showApprovalFields: false,
+      showApprovalDetail: false,
     };
   }
 
@@ -103,7 +108,7 @@ class Header extends Component {
             // 未发布
             if (unpublished) {
               setTimeout(() => {
-                this.setState({ showPublishDialog: true });
+                this.setState({ showPublishDialog: true, data: result });
               }, 300);
             }
           } else {
@@ -123,8 +128,17 @@ class Header extends Component {
   errorNodeCenter() {
     setTimeout(() => {
       const { errorInfo } = this.state;
-      const errorNodeId = errorInfo.errorNodeIds[errorInfo.errorNodeIds.length - 1];
-      const $el = $(`.workflowBox[data-id=${errorNodeId}]`);
+      const { errorNodeIds, errorNodeMap } = errorInfo;
+      const firstNodeId = errorNodeIds[0];
+      let $el;
+
+      if (!errorNodeMap[firstNodeId]) {
+        $el = $(`.workflowBox[data-id=${firstNodeId}]`);
+      } else {
+        $el = $(`.approvalProcessBoxBox[data-id=${firstNodeId}]`).find(
+          `.workflowBox[data-id=${errorNodeMap[firstNodeId][0]}]`,
+        );
+      }
 
       if (!$el.length) return;
 
@@ -255,8 +269,115 @@ class Header extends Component {
     }
   };
 
+  /**
+   * 渲染发布成功弹层
+   */
+  renderPublishDialog() {
+    const { showPublishDialog, data, showApprovalFields, showApprovalDetail } = this.state;
+
+    if (!showPublishDialog) return null;
+
+    return (
+      <DialogBase visible width={480}>
+        <div className="publishSuccessDialog">
+          <div className="publishSuccessImg" />
+
+          {!data.apps.length ? (
+            <Fragment>
+              <div className="Font20 mTop35">{_l('太棒了！流程已自动化运行')}</div>
+              <div className="Font14 mTop25 Gray_75">{_l('你再一次为大家节省时间提升了工作效率！')}</div>
+              <div
+                className="Font14 mTop15 Gray_75"
+                dangerouslySetInnerHTML={{
+                  __html: _l(
+                    '一段时间后，你就可以在%0中看到进入流程的数据和详细的运行状态了',
+                    `<span class="mLeft5 mRight5 ThemeColor3 ThemeHoverColor2 pointer publishDialogOpenHistory">${_l(
+                      '历史',
+                    )}</span>`,
+                  ),
+                }}
+              />
+              <Button size="large" onClick={() => this.setState({ showPublishDialog: false })} className="mTop40">
+                {_l('我知道了')}
+              </Button>
+            </Fragment>
+          ) : (
+            <Fragment>
+              <div className="Font20 mTop35">{_l('流程已成功发布！')}</div>
+              <div className="Font14 mTop25 Gray_75">
+                {_l('是否为%0开启审批功能项（已开启可忽略）', data.apps.map(item => `“${item.name}”`).join('、'))}
+              </div>
+
+              <div className="mTop30 flexRow w100 alignItemsCenter" style={{ marginLeft: 180 }}>
+                <Checkbox
+                  className="mRight5"
+                  checked={showApprovalFields}
+                  text={_l('在视图上显示审批系统字段')}
+                  onClick={checked => this.setState({ showApprovalFields: !checked })}
+                />
+                <Popover
+                  title={null}
+                  arrowPointAtCenter={true}
+                  placement="bottomLeft"
+                  content={<img width={500} src={systemFieldsPNG} />}
+                >
+                  <Icon type="workflow_help" className="Font16 Gray_9e" />
+                </Popover>
+              </div>
+              <div className="mTop15 flexRow w100 alignItemsCenter" style={{ marginLeft: 180 }}>
+                <Checkbox
+                  className="mRight5"
+                  checked={showApprovalDetail}
+                  text={_l('打开记录时显示审批流转详情')}
+                  onClick={checked => this.setState({ showApprovalDetail: !checked })}
+                />
+                <Popover
+                  title={null}
+                  arrowPointAtCenter={true}
+                  placement="bottomLeft"
+                  content={<img width={500} src={flowPNG} />}
+                >
+                  <Icon type="workflow_help" className="Font16 Gray_9e" />
+                </Popover>
+              </div>
+              <Button
+                size="large"
+                onClick={() => {
+                  const switchList = [];
+
+                  if (showApprovalFields) {
+                    switchList.push({ state: true, type: 40, roleType: 0 });
+                  }
+
+                  if (showApprovalDetail) {
+                    switchList.push({ state: true, type: 41, roleType: 0 });
+                  }
+
+                  if (switchList.length) {
+                    data.apps.forEach(({ id }) => {
+                      sheetAjax.batchEditSwitch({ worksheetId: id, switchList }).then(result => {
+                        if (!result) {
+                          alert(_l('修改失败，请稍后再试！'), 2);
+                        }
+                      });
+                    });
+                  }
+
+                  this.setState({ showPublishDialog: false, showApprovalFields: false, showApprovalDetail: false });
+                }}
+                className="mTop40"
+              >
+                {_l('确定')}
+              </Button>
+            </Fragment>
+          )}
+        </div>
+      </DialogBase>
+    );
+  }
+
   render() {
-    const { visible, showPublishDialog, publishErrorVisible, errorInfo } = this.state;
+    const { visible, publishErrorVisible, errorInfo } = this.state;
     const { tabIndex, switchTabs, flowInfo } = this.props;
 
     return (
@@ -275,20 +396,22 @@ class Header extends Component {
           </div>
         </div>
 
-        {TABS_OPTS.map((item, i) => {
-          return (
-            <div
-              key={i}
-              className={cx('Font16 ThemeColor3 ThemeBorderColor3 workflowHeaderTab', {
-                active: tabIndex === item.tabIndex,
-                mRight60: TABS_OPTS.length - 1 === i,
-              })}
-              onClick={() => switchTabs(item.tabIndex)}
-            >
-              {item.name}
-            </div>
-          );
-        })}
+        {TABS_OPTS.filter(item => flowInfo.startAppType !== APP_TYPE.APPROVAL_START || item.tabIndex !== 3).map(
+          (item, i) => {
+            return (
+              <div
+                key={i}
+                className={cx('Font16 ThemeColor3 ThemeBorderColor3 workflowHeaderTab', {
+                  active: tabIndex === item.tabIndex,
+                  mRight60: TABS_OPTS.length - 1 === i,
+                })}
+                onClick={() => switchTabs(item.tabIndex)}
+              >
+                {item.name}
+              </div>
+            );
+          },
+        )}
 
         <div className="flex flexRow" style={{ justifyContent: 'flex-end' }}>
           {flowInfo.parentId ? (
@@ -310,6 +433,7 @@ class Header extends Component {
               {this.renderActionBtn()}
 
               <Switch
+                disabledClose={flowInfo.startAppType === APP_TYPE.APPROVAL_START && flowInfo.enabled}
                 status={flowInfo.enabled ? 'active' : 'close'}
                 pending={!!flowInfo.pending}
                 isRefresh={flowInfo.publishStatus === 1 && flowInfo.enabled}
@@ -343,29 +467,7 @@ class Header extends Component {
           />
         )}
 
-        {showPublishDialog && (
-          <DialogBase visible width={480}>
-            <div className="publishSuccessDialog">
-              <div className="publishSuccessImg" />
-              <div className="Font20 mTop35">{_l('太棒了！流程已自动化运行')}</div>
-              <div className="Font14 mTop25 Gray_75">{_l('你再一次为大家节省时间提升了工作效率！')}</div>
-              <div
-                className="Font14 mTop15 Gray_75"
-                dangerouslySetInnerHTML={{
-                  __html: _l(
-                    '一段时间后，你就可以在%0中看到进入流程的数据和详细的运行状态了',
-                    `<span class="mLeft5 mRight5 ThemeColor3 ThemeHoverColor2 pointer publishDialogOpenHistory">${_l(
-                      '历史',
-                    )}</span>`,
-                  ),
-                }}
-              />
-              <Button size="large" onClick={() => this.setState({ showPublishDialog: false })} className="mTop40">
-                {_l('我知道了')}
-              </Button>
-            </div>
-          </DialogBase>
-        )}
+        {this.renderPublishDialog()}
       </div>
     );
   }

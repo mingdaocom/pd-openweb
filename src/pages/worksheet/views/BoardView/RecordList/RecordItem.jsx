@@ -264,7 +264,6 @@ function SortableRecordItem(props) {
                   key: keyType,
                   rowId: currentRowId,
                   item: {
-                    ...prevRow,
                     ...newItem,
                     ..._.pick(prevRow, ['allowdelete', 'allowedit']),
                   },

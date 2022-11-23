@@ -112,6 +112,7 @@ function PreviewWraper(props) {
   const [now, setNow] = useState(0);
 
   const data = { key: 'now', value: { type: 'static', data: now } };
+  const source = { key: 'source', value: { type: 'static', data: 'embedUrl' } };
 
   const handleReLoad = () => {
     setNow(Date.now());
@@ -159,7 +160,7 @@ function PreviewWraper(props) {
         )}
       </div>
       <div className="flex">
-        <PreviewContent {..._.pick(props, ['value', 'info'])} param={param.concat(data)} />
+        <PreviewContent {..._.pick(props, ['value', 'info'])} param={param.concat(data).concat(source)} />
       </div>
     </PreviewContentWrapper>
   );

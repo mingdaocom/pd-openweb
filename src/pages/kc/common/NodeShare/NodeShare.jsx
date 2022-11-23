@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { getAttachment } from './controller';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { NODE_TYPE } from '../../constant/enum';
+import AttachmentsPreview from '../AttachmentsPreview';
 
 const Abnormal = styled.div`
   display: flex;
@@ -20,8 +21,6 @@ const Abnormal = styled.div`
   }
 `;
 
-let AttachmentsPreview;
-
 class NodeShare extends React.Component {
   state = {
     node: null,
@@ -33,20 +32,17 @@ class NodeShare extends React.Component {
 
   componentDidMount() {
     this._isMounted = true;
-    require.ensure([], require => {
-      AttachmentsPreview = require('../AttachmentsPreview');
-      getAttachment().then(({ node, allowDownload = true } = {}) => {
-        if (!node) {
-          this.setState({ loading: false });
-          return;
-        }
-        if (node.type === NODE_TYPE.FOLDER) {
-          node = null;
-        }
-        if (this._isMounted) {
-          this.setState({ node, allowDownload, loading: false });
-        }
-      });
+    getAttachment().then(({ node, allowDownload = true } = {}) => {
+      if (!node) {
+        this.setState({ loading: false });
+        return;
+      }
+      if (node.type === NODE_TYPE.FOLDER) {
+        node = null;
+      }
+      if (this._isMounted) {
+        this.setState({ node, allowDownload, loading: false });
+      }
     });
   }
 
@@ -82,4 +78,4 @@ class NodeShare extends React.Component {
   }
 }
 
-module.exports = preall(NodeShare, { allownotlogin: true });
+export default preall(NodeShare, { allownotlogin: true });

@@ -158,7 +158,10 @@ export default class SelectOtherField extends Component {
       types = types.filter(item => item.key !== OTHER_FIELD_TYPE.FX);
     }
     // 没有动态值的控件
-    if (_.includes(CAN_NOT_AS_FIELD_DYNAMIC_FIELD, data.type)) {
+    if (
+      _.includes(CAN_NOT_AS_FIELD_DYNAMIC_FIELD, data.type) ||
+      (data.type === 29 && _.get(data.advancedSetting || {}, 'showtype') === '2')
+    ) {
       types = types.filter(item => item.key !== OTHER_FIELD_TYPE.FIELD);
     }
     // 有其他字段的控件
@@ -188,8 +191,9 @@ export default class SelectOtherField extends Component {
       propFiledVisible,
     } = this.props;
     const filterTypes = this.getCurrentField(data);
-    //子表特殊处理
-    const isSubList = _.includes([34], data.type);
+    //子表、列表特殊处理
+    const isSubList =
+      _.includes([34], data.type) || (data.type === 29 && _.get(data.advancedSetting || {}, 'showtype') === '2');
     return (
       <Fragment>
         <div ref={this.$wrap} className="selectOtherFieldContainer">

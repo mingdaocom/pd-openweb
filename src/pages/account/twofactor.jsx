@@ -197,10 +197,6 @@ class TwofactorContainer extends React.Component {
     );
   };
 
-  showLangChang = () => {
-    $('.showLangChangeBottom').removeClass('Hidden');
-  };
-
   render() {
     if (!this.state.hasSend) {
       return <LoadDiv className="" style={{ margin: '50px auto' }} />;
@@ -212,7 +208,6 @@ class TwofactorContainer extends React.Component {
             </div>
             {this.renderCon()}
             {this.renderFooter()}
-            {this.showLangChang()}
           </div>
           <ChangeLang />
         </div>

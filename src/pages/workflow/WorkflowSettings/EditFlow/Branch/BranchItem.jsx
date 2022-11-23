@@ -145,7 +145,7 @@ export default class BranchItem extends Component {
    * 渲染删除结果分支
    */
   renderDeleteResultNode() {
-    const { isCopy, item, deleteNode } = this.props;
+    const { processId, isCopy, item, deleteNode } = this.props;
 
     if (isCopy) return null;
 
@@ -163,7 +163,7 @@ export default class BranchItem extends Component {
             description: _l('分支删除后，该分支下的所有节点都将被删除'),
             okText: _l('删除'),
             onOk: () => {
-              deleteNode(item.id);
+              deleteNode(processId, item.id);
             },
           });
         }}
@@ -172,7 +172,18 @@ export default class BranchItem extends Component {
   }
 
   render() {
-    const { data, item, disabled, renderNode, clearBorderType, openDetail, isCopy } = this.props;
+    const {
+      processId,
+      data,
+      item,
+      disabled,
+      renderNode,
+      clearBorderType,
+      openDetail,
+      isCopy,
+      isApproval,
+      approvalSelectNodeId,
+    } = this.props;
     const resultTypeText = {
       1: _l('审批通过'),
       2: _l('审批不通过'),
@@ -193,7 +204,9 @@ export default class BranchItem extends Component {
               { workflowBranchSpecial: _.includes([1, 2, 3, 4], item.resultTypeId) },
               { errorShadow: item.isException },
             )}
-            onMouseDown={() => !disabled && !item.resultTypeId && openDetail(item.id, item.typeId)}
+            onMouseDown={() =>
+              !disabled && !item.resultTypeId && openDetail(processId, item.id, item.typeId, approvalSelectNodeId)
+            }
           >
             {_.includes([1, 2, 3, 4], item.resultTypeId) ? (
               <Fragment>
@@ -225,7 +238,7 @@ export default class BranchItem extends Component {
           <CreateNode {...this.props} />
         </section>
 
-        {item.nextId && renderNode(data, item.nextId)}
+        {item.nextId && renderNode({ processId, data, firstId: item.nextId, isApproval, approvalSelectNodeId })}
       </div>
     );
   }

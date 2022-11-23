@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import './shareFolderOrTask.less';
 import copy from 'copy-to-clipboard';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 
 export default class ShareFolderOrTask extends Component {
   static defaultProps = {

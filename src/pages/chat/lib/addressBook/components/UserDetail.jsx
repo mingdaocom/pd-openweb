@@ -1,22 +1,15 @@
 ﻿import React from 'react';
 import cx from 'classnames';
-
 import Dropdown from 'ming-ui/components/Dropdown';
-import { Tooltip, Icon, LoadDiv, ScrollView } from 'ming-ui';
-
+import { Tooltip, Icon, LoadDiv, ScrollView, Dialog } from 'ming-ui';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
-
 import { LazyloadImg } from 'src/pages/feed/components/common/img';
-
 import AddFriend from './AddFriend';
-
 import API, { removeFriend } from '../api';
 import { config } from '../config';
 import departmentController from 'src/api/department';
-
-const AddFriendConfirm = require('addFriendConfirm');
-const Confirm = require('confirm');
+import AddFriendConfirm from 'src/components/addFriendConfirm/addFriendConfirm';
 
 const defaultState = {
   data: null,
@@ -98,12 +91,10 @@ export default class UserDetail extends React.Component {
 
   deleteFriendConfirm() {
     const { accountId } = this.props;
-    new Confirm(
-      {
-        content: _l('确认删除当前好友？'),
-        title: _l('删除后您将不显示在对方的好友列表里'),
-      },
-      () => {
+    Dialog.confirm({
+      title: _l('确认删除当前好友？'),
+      description: _l('删除后您将不显示在对方的好友列表里'),
+      onOk: () => {
         removeFriend(accountId).done(() => {
           alert(_l('删除成功'), 1);
           this.setState({
@@ -114,7 +105,7 @@ export default class UserDetail extends React.Component {
           });
         });
       },
-    );
+    });
   }
 
   renderFriendTag() {

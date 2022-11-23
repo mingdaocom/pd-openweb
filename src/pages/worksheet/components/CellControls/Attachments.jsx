@@ -10,6 +10,7 @@ import { deleteAttachmentOfControl } from 'worksheet/api';
 import { openControlAttachmentInNewTab, downloadAttachmentById } from 'worksheet/controllers/record';
 import { getClassNameByExt, formatFileSize } from 'src/util';
 import { bool, func, number, shape, string } from 'prop-types';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 
 const Con = styled.div`
   &:hover {
@@ -205,39 +206,37 @@ function previewAttachment(
   disableDownload,
   handleOpenControlAttachmentInNewTab,
 ) {
-  require(['previewAttachments'], previewAttachments => {
-    const recordAttachmentSwitch = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
-    let hideFunctions = ['editFileName'];
-    if (!recordAttachmentSwitch || disableDownload) {
-      /* 是否不可下载 且 不可保存到知识和分享 */
-      hideFunctions.push('download', 'share', 'saveToKnowlege');
-    }
-    previewAttachments(
-      {
-        index: index || 0,
-        fromType: 4,
-        attachments: attachments.map(attachment => {
-          if (attachment.fileID.slice(0, 2) === 'o_') {
-            return Object.assign({}, attachment, {
-              previewAttachmentType: 'QINIU',
-              path: attachment.origin.url || attachment.previewUrl,
-              ext: attachment.ext.slice(1),
-              name: attachment.originalFilename || _l('图片'),
-            });
-          }
+  const recordAttachmentSwitch = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
+  let hideFunctions = ['editFileName'];
+  if (!recordAttachmentSwitch || disableDownload) {
+    /* 是否不可下载 且 不可保存到知识和分享 */
+    hideFunctions.push('download', 'share', 'saveToKnowlege');
+  }
+  previewAttachments(
+    {
+      index: index || 0,
+      fromType: 4,
+      attachments: attachments.map(attachment => {
+        if (attachment.fileID.slice(0, 2) === 'o_') {
           return Object.assign({}, attachment, {
-            previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
+            previewAttachmentType: 'QINIU',
+            path: attachment.origin.url || attachment.previewUrl,
+            ext: attachment.ext.slice(1),
+            name: attachment.originalFilename || _l('图片'),
           });
-        }),
-        showThumbnail: true,
-        hideFunctions: hideFunctions,
-        disableNoPeimission: true,
-      },
-      {
-        openControlAttachmentInNewTab: handleOpenControlAttachmentInNewTab,
-      },
-    );
-  });
+        }
+        return Object.assign({}, attachment, {
+          previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
+        });
+      }),
+      showThumbnail: true,
+      hideFunctions: hideFunctions,
+      disableNoPeimission: true,
+    },
+    {
+      openControlAttachmentInNewTab: handleOpenControlAttachmentInNewTab,
+    },
+  );
 }
 
 function HoverPreviewPanel(props, cb = () => {}) {

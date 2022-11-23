@@ -17,7 +17,7 @@ import MenuItem from 'ming-ui/components/MenuItem';
 import Icon from 'ming-ui/components/Icon';
 import Splitter from 'ming-ui/components/Splitter';
 import ScrollView from 'ming-ui/components/ScrollView';
-
+import { index as dialog } from 'src/components/mdDialog/dialog';
 import service from '../../api/service';
 import * as kcActions from '../../redux/actions/kcAction';
 import { ROOT_FILTER_TYPE, ROOT_PERMISSION_TYPE, PICK_TYPE } from '../../constant/enum';
@@ -372,33 +372,32 @@ class KcLeft extends Component {
   /* 流量详情*/
   @autobind
   usageDialog(usage) {
-    require(['mdDialog'], mdDialog => {
-      let usageContent = '';
-      const percent = (usage.used / usage.total) * 100;
+    let usageContent = '';
+    const percent = (usage.used / usage.total) * 100;
 
-      usageContent +=
-        '<div class="usageList Relative">' +
-        _l('本月上传流量已用') +
-        '<span data-tip="' +
-        _l('在各模块上传文件时，会计入每月上传量。免费用户上传流量为300M/月，付费版用户10G/月，多个组织可叠加。') +
-        '"><i class="icon-help ThemeColor4" ></i></span><span class="usageSize">' +
-        humanFileSize(usage.used) +
-        ' (' +
-        (percent > 100 ? 100 : percent).toFixed(2) +
-        '%)/' +
-        humanFileSize(usage.total) +
-        '</span></div>';
-      mdDialog.index({
-        dialogBoxID: 'usageDialog',
-        className: 'kcDialogBox',
-        width: 410,
-        container: {
-          header: _l('使用详情'),
-          content: usageContent,
-          noText: '',
-          yesText: '',
-        },
-      });
+    usageContent +=
+      '<div class="usageList Relative">' +
+      _l('本月上传流量已用') +
+      '<span data-tip="' +
+      _l('在各模块上传文件时，会计入每月上传量。免费用户上传流量为300M/月，付费版用户10G/月，多个组织可叠加。') +
+      '"><i class="icon-help ThemeColor4" ></i></span><span class="usageSize">' +
+      humanFileSize(usage.used) +
+      ' (' +
+      (percent > 100 ? 100 : percent).toFixed(2) +
+      '%)/' +
+      humanFileSize(usage.total) +
+      '</span></div>';
+
+    dialog({
+      dialogBoxID: 'usageDialog',
+      className: 'kcDialogBox',
+      width: 410,
+      container: {
+        header: _l('使用详情'),
+        content: usageContent,
+        noText: '',
+        yesText: '',
+      },
     });
   }
 

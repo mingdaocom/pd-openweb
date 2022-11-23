@@ -1,6 +1,7 @@
 const structureController = require('src/api/structure');
 const projectSettingController = require('src/api/projectSetting');
-const Config = require('../config');
+import Config from '../config';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 
 export function getAuth() {
   return projectSettingController
@@ -61,43 +62,40 @@ export function setStructureSelfEdit(params) {
 }
 
 export function selectUser({ title, accountId, unique, isSetParent, callback }) {
-  require(['dialogSelectUser'], function () {
-    var dialogSelectUserObj = $({}).dialogSelectUser({
-      title: title || _l('添加下属'),
-      showMoreInvite: false,
-      SelectUserSettings: {
-        projectId: Config.projectId,
-        filterAll: true,
-        filterFriend: true,
-        filterOthers: true,
-        filterOtherProject: true,
-        unique: !!unique,
-        showTabs: ['structureUsers'],
-        extraTabs: [
-          {
-            id: 'structureUsers',
-            name: '所有人',
-            type: 4,
-            page: true,
-            actions: {
-              getUsers: function (args) {
-                args = $.extend({}, args, {
-                  accountId,
-                  projectId: Config.projectId,
-                  isSetParent,
-                });
-                return structureController.getAllowChooseUsers(args);
-              },
+  $({}).dialogSelectUser({
+    fromAdmin: true,
+    SelectUserSettings: {
+      projectId: Config.projectId,
+      filterAll: true,
+      filterFriend: true,
+      filterOthers: true,
+      filterOtherProject: true,
+      unique: !!unique,
+      showTabs: ['structureUsers'],
+      extraTabs: [
+        {
+          id: 'structureUsers',
+          name: '所有人',
+          type: 4,
+          page: true,
+          actions: {
+            getUsers: function (args) {
+              args = $.extend({}, args, {
+                accountId,
+                projectId: Config.projectId,
+                isSetParent,
+              });
+              return structureController.getAllowChooseUsers(args);
             },
           },
-        ],
-        callback: function (accounts) {
-          if (typeof callback === 'function') {
-            callback(accounts);
-          }
         },
+      ],
+      callback: function (accounts) {
+        if (typeof callback === 'function') {
+          callback(accounts);
+        }
       },
-    });
+    },
   });
 }
 

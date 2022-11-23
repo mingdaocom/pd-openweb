@@ -94,7 +94,6 @@ module.exports = {
   * @param {Object} args 请求参数
   * @param {string} args.onProjectId 页面所在组织Id（可空）
   * @param {string} args.accountId 账号Id
-  * @param {boolean} args.withSameProjectId 是否同一网络
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -176,6 +175,21 @@ module.exports = {
    getContactUserList: function (args, options = {}) {
      
      return $.api('User', 'GetContactUserList', args, options);
+   },
+  /**
+  * 获取网络下已离职的用户信息
+  * @param {Object} args 请求参数
+  * @param {integer} args.pageIndex 页码
+  * @param {integer} args.pageSize 页大小
+  * @param {string} args.keywords 关键司
+  * @param {string} args.projectId 网络Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getProjectResignedUserList: function (args, options = {}) {
+     
+     return $.api('User', 'GetProjectResignedUserList', args, options);
    },
   /**
   * 网络管理 - 获取网络下用户列表（projectId不存在加载好友，projectId存在加载公司通讯录）

@@ -6,6 +6,8 @@ import SignatureComp from 'src/components/newCustomFields/widgets/Signature';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import EditableCellCon from '../EditableCellCon';
 import { FROM } from './enum';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+
 export default class Date extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -52,19 +54,18 @@ export default class Date extends React.Component {
     const {
       cell: { controlName },
     } = this.props;
-    require(['previewAttachments'], previewAttachments => {
-      previewAttachments({
-        index: 0,
-        attachments: [
-          {
-            name: controlName + '.png',
-            path: value,
-            previewAttachmentType: 'QINIU',
-          },
-        ],
-        showThumbnail: true,
-        hideFunctions: ['editFileName'],
-      });
+
+    previewAttachments({
+      index: 0,
+      attachments: [
+        {
+          name: controlName + '.png',
+          path: value,
+          previewAttachmentType: 'QINIU',
+        },
+      ],
+      showThumbnail: true,
+      hideFunctions: ['editFileName'],
     });
   }
 

@@ -226,6 +226,9 @@ class Dropdown extends Component {
       });
       this.props.$formDataChange(nextProps.value);
     }
+    if (_.isBoolean(nextProps.popupVisible)) {
+      this.setState({ showMenu: nextProps.popupVisible });
+    }
   }
   /* eslint-disable */
   getTextFromDataById(data, value) {
@@ -300,11 +303,7 @@ class Dropdown extends Component {
     const { keywords } = this.state;
     const text = typeof item.text === 'string' ? item.text : item.searchText || '';
 
-    return (
-      String(text)
-        .toLowerCase()
-        .indexOf(keywords.toLowerCase()) > -1
-    );
+    return String(text).toLowerCase().indexOf(keywords.toLowerCase()) > -1;
   }
 
   checkIsNull(item) {
@@ -447,7 +446,7 @@ class Dropdown extends Component {
 
   displayPointer = () => {
     const { value } = this.state;
-    const { placeholder, data, cancelAble, disabledClickElement } = this.props;
+    const { dropIcon, placeholder, data, cancelAble, disabledClickElement } = this.props;
     const selectedData = _.find(data, item => item.value === value);
     return (
       <div
@@ -507,10 +506,10 @@ class Dropdown extends Component {
                 }
               }}
             />
-            <Icon icon="arrow-down-border" className="Gray_9e mLeft8 dropArrow" />
+            <Icon icon={dropIcon || 'arrow-down-border'} className="Gray_9e mLeft8 dropArrow" />
           </Fragment>
         ) : (
-          <Icon icon="arrow-down-border" className="mLeft8 Gray_9e" />
+          <Icon icon={dropIcon || 'arrow-down-border'} className="mLeft8 Gray_9e" />
         )}
       </div>
     );

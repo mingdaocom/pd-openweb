@@ -1,6 +1,6 @@
 ﻿import { CALL_API } from '../middleware/api';
 import { PAGE_SIZE, COMPANY_DEPARMENTID } from '../constant';
-import { getProjectInfo } from '../../config';
+import Config from '../../config';
 import departmentController from 'src/api/department';
 
 // async actions and action creator
@@ -88,7 +88,7 @@ export const INIT_ROOT = 'INIT_ROOT';
  */
 export const initRoot = departmentId => {
   // 获取网络信息
-  const departmentName = getProjectInfo().companyName;
+  const departmentName = Config.getProjectInfo().companyName;
   return {
     type: INIT_ROOT,
     response: [

@@ -117,7 +117,7 @@ export default class MyAppItem extends Component {
     const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${id}`));
     if (storage) {
       const { lastGroupId, lastWorksheetId, lastViewId } = storage;
-      return `/app/${id}/${_.filter([lastGroupId, lastWorksheetId, lastViewId], item => !!item).join('/')}`;
+      return `/app/${id}/${_.filter([lastGroupId, lastWorksheetId, lastViewId], item => !!item).join('/')}?from=insite`;
     } else {
       return `/app/${id}`;
     }

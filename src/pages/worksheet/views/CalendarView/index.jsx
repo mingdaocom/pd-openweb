@@ -33,8 +33,9 @@ import { permitList } from 'src/pages/FormSet/config';
 import CurrentDateInfo from 'mobile/RecordList/View/CalendarView/components/CurrentDateInfo';
 import Trigger from 'rc-trigger';
 import autoSize from 'ming-ui/decorators/autoSize';
-
 import styled from 'styled-components';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+
 const Wrap = styled.div`
   width: 100%;
   height: 100%;
@@ -499,7 +500,9 @@ class RecordCalendar extends Component {
 
   useViewInfoUpdate = (o, item) => {
     const { selectTimeInfo = {}, changeData } = this.state;
-
+    if (!controlState(o.startData).editable) {
+      return alert(_l('当前日期字段不可编辑'), 3);
+    }
     if (changeData && changeData.rowid) {
       this.changeEventFn({
         ...item,
@@ -904,12 +907,14 @@ class RecordCalendar extends Component {
                 });
               }}
               eventDidMount={info => {
-                // let { startData } = calendarInfo[0] || {};
                 let startData = _.get(info, ['event', 'extendedProps', 'startData']) || {};
                 $(info.el.offsetParent).attr('title', info.event._def.title);
+                if (!_.get(info, ['event', 'extendedProps', 'editable'])) {
+                  $(info.el).css({ cursor: 'not-allowed' });
+                }
                 let time = info.event._def.extendedProps[info.event._def.extendedProps.begin] || '';
                 let d = $(info.el.offsetParent).find('.fc-event-time');
-                if (startData.type === 15) {
+                if (!isTimeStyle(startData)) {
                   //日期视图 不显示时间
                   d.html(``);
                 } else {
@@ -1102,7 +1107,7 @@ class RecordCalendar extends Component {
                 let { startData } = calendarInfo[0] || {};
                 let colorHover = getHoverColor(item.event.backgroundColor);
                 if (
-                  (startData.type === 15 && !item.event.allDay) ||
+                  (!isTimeStyle(startData) && !item.event.allDay) ||
                   (!item.event.allDay && item.view.type === 'dayGridMonth')
                 ) {
                   $(item.el).find('.fc-daygrid-event-dot').css({
@@ -1123,7 +1128,7 @@ class RecordCalendar extends Component {
               eventMouseLeave={item => {
                 let { startData } = calendarInfo[0] || {};
                 if (
-                  (startData.type === 15 && !item.event.allDay) ||
+                  (!isTimeStyle(startData) && !item.event.allDay) ||
                   (!item.event.allDay && item.view.type === 'dayGridMonth')
                 ) {
                   $(item.el).find('.fc-daygrid-event-dot').css({

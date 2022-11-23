@@ -5,7 +5,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 
 export default function RecordInfoRight(props) {
-  const { className, recordbase, workflow, sheetSwitchPermit, onFold, projectId, formFlag, formdata } = props;
+  const { className, recordbase, workflow, approval, sheetSwitchPermit, onFold, projectId, formFlag, formdata } = props;
   const { isSubList, appId, viewId, appSectionId, worksheetId, recordId, recordTitle } = recordbase;
   let hiddenTabs = [];
   if (isSubList) {
@@ -19,6 +19,14 @@ export default function RecordInfoRight(props) {
   if (!isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) {
     hiddenTabs.push('logs');
   }
+  // 审批权限 || 流程详情不需要显示表审批
+  if (!isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId) || workflow) {
+    hiddenTabs.push('approval');
+  }
+  if (!workflow) {
+    hiddenTabs.push('workflow');
+  }
+
 
   if (md.global.Account.isPortal) {
     //外部门户 需要判断当前是否开始讨论
@@ -41,13 +49,14 @@ export default function RecordInfoRight(props) {
       hiddenTabs.push('discussPortal'); //不允许外部门户参与讨论，不显示外部门户讨论
     }
   }
-  if ([...new Set(hiddenTabs)].length >= 4) {
+  if ([...new Set(hiddenTabs)].length >= 6) {
     return '';
   }
   return (
     <div className={`recordInfoInfo ${className || ''}`}>
       <DiscussLogFile
         workflow={workflow}
+        approval={approval}
         hiddenTabs={hiddenTabs}
         appId={appId}
         appSectionId={appSectionId}
@@ -71,6 +80,7 @@ export default function RecordInfoRight(props) {
 RecordInfoRight.propTypes = {
   className: PropTypes.string,
   workflow: PropTypes.element,
+  approval: PropTypes.element,
   recordbase: PropTypes.shape({}),
   sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),
   onFold: PropTypes.func,

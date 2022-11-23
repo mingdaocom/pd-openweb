@@ -16,7 +16,8 @@ import { PREVIEW_TYPE, LOADED_STATUS } from '../constant/enum';
 import EditableBlock from '../editableBlock';
 import _ from 'lodash';
 import 'rc-trigger/assets/index.css';
-const VersionList = require('../versionList');
+import VersionList from '../versionList';
+import 'src/components/mdDialog/dialog';
 
 class PreviewHeader extends React.Component {
   static propTypes = {
@@ -82,17 +83,15 @@ class PreviewHeader extends React.Component {
   };
 
   handleLogin = () => {
-    require(['mdDialog'], () => {
-      const dialog = $.DialogLayer({
-        container: {
-          header: _l('保存到'),
-          content: _l('请先登录'),
-          yesText: _l('登录'),
-          yesFn: () => {
-            window.location = '/login.htm?ReturnUrl=' + encodeURIComponent(window.location.href);
-          },
+    const dialog = $.DialogLayer({
+      container: {
+        header: _l('保存到'),
+        content: _l('请先登录'),
+        yesText: _l('登录'),
+        yesFn: () => {
+          window.location = '/login.htm?ReturnUrl=' + encodeURIComponent(window.location.href);
         },
-      });
+      },
     });
   };
 
@@ -364,4 +363,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(PreviewHeader);
+export default connect(mapStateToProps, mapDispatchToProps)(PreviewHeader);

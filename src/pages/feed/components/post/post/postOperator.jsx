@@ -99,4 +99,4 @@ class PostOperator extends React.Component {
   }
 }
 
-module.exports = connect(state => ({}))(PostOperator);
+export default connect(state => ({}))(PostOperator);

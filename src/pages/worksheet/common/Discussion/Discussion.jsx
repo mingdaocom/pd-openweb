@@ -18,7 +18,7 @@ export default class Discussion extends Component {
     super(props);
   }
   render() {
-    let hiddenTabs = ['discussPortal'];//工作表讨论暂时不支持外部讨论功能
+    let hiddenTabs = ['discussPortal', 'approval', 'workflow'];//工作表讨论暂时不支持外部讨论功能
     if (!this.props.logSwitch) {
       // 工作表日志权限
       hiddenTabs.push('logs');

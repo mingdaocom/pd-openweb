@@ -9,7 +9,6 @@ import {
 } from 'src/api/worksheet';
 import { SYSTEM_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getLRUWorksheetConfig, saveLRUWorksheetConfig, clearLRUWorksheetConfig } from 'worksheet/util';
-import { wrapAjax } from './util';
 import { getNavGroupCount } from './index';
 
 export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, updateWorksheetControls } = {}) => {
@@ -70,7 +69,12 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
           dispatch({
             type: 'WORKSHEET_UPDATE_CONTROLS',
             controls: _.get(res, 'template.controls').filter(
-              c => c.controlId.length === 24 || _.includes(['ownerid', 'caid', 'ctime', 'utime'], c.controlId),
+              c =>
+                c.controlId.length === 24 ||
+                _.includes(
+                  SYSTEM_CONTROL.map(c => c.controlId),
+                  c.controlId,
+                ),
             ),
           });
         } catch (err) {}
@@ -232,21 +236,6 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId }, options 
   };
 }
 
-export function hideRows(rowIds) {
-  return (dispatch, getState) => {
-    const { sheetview } = getState().sheet;
-    const { rows } = sheetview.sheetViewData;
-    rowIds = rowIds.filter(rowId => _.find(rows, r => rowId === r.rowid));
-    if (rowIds.length) {
-      dispatch({
-        type: 'WORKSHEET_SHEETVIEW_HIDE_ROWS',
-        rowIds,
-      });
-    }
-    dispatch(updateNavGroup());
-  };
-}
-
 export function updateRows(rowIds, value) {
   return {
     type: 'WORKSHEET_SHEETVIEW_UPDATE_ROWS_BY_ROWIDS',
@@ -311,6 +300,22 @@ export const setHighLightOfRows = (rowIds, tableId) => {
 export const clearSelect = () => ({
   type: 'WORKSHEET_SHEETVIEW_CLEAR_SELECT',
 });
+
+export function hideRows(rowIds) {
+  return (dispatch, getState) => {
+    const { sheetview } = getState().sheet;
+    const { rows } = sheetview.sheetViewData;
+    rowIds = rowIds.filter(rowId => _.find(rows, r => rowId === r.rowid));
+    if (rowIds.length) {
+      dispatch(clearSelect());
+      dispatch({
+        type: 'WORKSHEET_SHEETVIEW_HIDE_ROWS',
+        rowIds,
+      });
+    }
+    dispatch(updateNavGroup());
+  };
+}
 
 export function selectRows({ rows = [], selectAll }) {
   if (selectAll) {
@@ -489,8 +494,8 @@ export function setViewLayout(viewId) {
       }
       if (advancedSetting.sheetcolumnwidths) {
         try {
-          sheetColumnWidths = JSON.parse(advancedSetting.sheetcolumnwidths);
-          clearLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_WIDTH', viewId);
+          sheetColumnWidths = { ...sheetColumnWidths, ...JSON.parse(advancedSetting.sheetcolumnwidths) };
+          saveLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_WIDTH', viewId, JSON.stringify(sheetColumnWidths));
         } catch (err) {}
       }
     }

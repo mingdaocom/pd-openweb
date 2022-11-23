@@ -9,6 +9,7 @@ export const FLOW_TYPE = {
   SUB_PROCESS: '8',
   USER: '9',
   PBC: '10',
+  APPROVAL: '11',
 };
 
 export const FLOW_TYPE_NULL = {
@@ -22,7 +23,7 @@ export const FLOW_TYPE_NULL = {
   },
   3: {
     icon: 'other',
-    text: _l('没有外部流程修改本应用数据'),
+    text: _l('暂无修改本应用的外部流程'),
   },
   4: {
     icon: 'workflow',
@@ -34,23 +35,27 @@ export const FLOW_TYPE_NULL = {
   },
   6: {
     icon: 'sheet',
-    text: _l('Webhook触发器触发时运行流程'),
+    text: _l('在服务器接收到第三方推送的消息后运行流程'),
   },
   7: {
     icon: 'other',
-    text: _l('没有自定义动作'),
+    text: _l('当用户点击记录的自定义按钮后运行流程 '),
   },
   8: {
     icon: 'subprocess',
-    text: _l('没有子流程'),
+    text: _l('在某个流程流转过程中可以创建一个子流程并执行'),
   },
   9: {
     icon: 'user',
-    text: _l('人员或部门事件触发时运行流程'),
+    text: _l('当组织人员入/离职或外部用户注册/登录/删除时运行流程'),
   },
   10: {
     icon: 'pbc',
-    text: _l('封装业务能力运行流程'),
+    text: _l('封装应用中可被复用的数据处理能力，自定义输入/输出'),
+  },
+  11: {
+    icon: 'approval',
+    text: _l('对业务数据发起审批流程，实现自动化和人工审批的打通'),
   },
 };
 
@@ -79,6 +84,11 @@ export const START_APP_TYPE = {
     iconName: 'custom_actions',
     iconColor: '#4C7D9E',
     text: _l('自定义动作'),
+  },
+  9: {
+    iconName: 'approval',
+    iconColor: '#4158DB',
+    text: _l('审批流程'),
   },
   subprocess: {
     iconName: 'subprocess',

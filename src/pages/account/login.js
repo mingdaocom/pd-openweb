@@ -85,15 +85,12 @@ class LoginContainer extends React.Component {
       location.href = browserIsMobile() ? `/mobile` : `/app`;
       return;
     }
-    const {
-      accountId = '',
-      encryptPassword = '',
-      account = '',
-      projectId = '',
-      loginType = 0,
-    } = JSON.parse(window.localStorage.getItem('LoginCheckList') || '{}');
+    const { accountId = '', encryptPassword = '', account = '', projectId = '', loginType = 0 } = JSON.parse(
+      window.localStorage.getItem('LoginCheckList') || '{}',
+    );
     if (request.unionId || !accountId || !encryptPassword || (loginType === 1 && (!projectId || !account))) {
-      if (location.href.indexOf('network') < 0) {//network =>getProjectBaseInfo 获取信息后 更新loading
+      if (location.href.indexOf('network') < 0) {
+        //network =>getProjectBaseInfo 获取信息后 更新loading
         this.setState({ loading: false });
       }
     } else {
@@ -194,6 +191,9 @@ class LoginContainer extends React.Component {
               logo: data.logo,
               openLDAP: data.openLDAP,
               canLDAP: data.openLDAP,
+              isOpenSso: data.isOpenSso,
+              ssoWebUrl: data.ssoWebUrl,
+              ssoAppUrl: data.ssoAppUrl,
               projectId: data.projectId,
               text: data.companyName,
               logo: data.logo,
@@ -276,6 +276,13 @@ class LoginContainer extends React.Component {
     });
   };
 
+  changeOpenLDAP = () => {
+    this.setState({
+      openLDAP: !this.state.openLDAP,
+      loginData: { ...this.state.loginData, password: '', isCheck: false },
+    });
+  };
+
   renderCon = () => {
     let pram = {
       projectId: this.state.projectId,
@@ -285,6 +292,7 @@ class LoginContainer extends React.Component {
       openLDAP: this.state.openLDAP,
       loginData: this.state.loginData,
       isFrequentLoginError: this.state.isFrequentLoginError,
+      canLDAP: this.state.canLDAP,
       onChangeData: (data, callback) => {
         this.setState(
           {
@@ -304,43 +312,55 @@ class LoginContainer extends React.Component {
     };
     switch (this.state.step) {
       case 0:
-        return <Container {...pram} />;
+        return <Container {...pram} changeOpenLDAP={this.changeOpenLDAP} />;
     }
   };
 
   renderFooter = () => {
-    let { linkInvite, isNetwork, openLDAP, canLDAP, hideRegister, intergrationScanEnabled } = this.state;
+    let { linkInvite, isNetwork, openLDAP, canLDAP, intergrationScanEnabled, isOpenSso, ssoWebUrl, ssoAppUrl, hideRegister } =
+      this.state;
     const isBindAccount = !!request.unionId;
     const isMobile = browserIsMobile();
     const scanLoginEnabled = intergrationScanEnabled && !isMobile;
+
     return (
       <React.Fragment>
         {!isBindAccount && (
           <React.Fragment>
             <div className="tpLogin TxtCenter">
               {(!isNetwork || canLDAP || scanLoginEnabled) && <div className="title">{_l('或')}</div>}
-              {scanLoginEnabled && (
-                <div className="mBottom20">
+              <div className="mBottom20">
+                {scanLoginEnabled && (
                   <a title={_l('企业微信登录')} onClick={this.getWorkWeiXinCorpInfoByApp}>
-                    <i className="workWeixinIcon hvr-pop"></i>
+                    <i className="workWeixinIcon hvr-pop" />
                   </a>
-                </div>
+                )}
+                {isOpenSso && (
+                  <a href={isMobile ? ssoAppUrl : ssoWebUrl} title={_l('sso登录')}>
+                    <i className="ssoIcon hvr-pop" />
+                  </a>
+                )}
+              </div>
+              {!isNetwork && (
+                <React.Fragment>
+                  {!isMobile && (
+                    <a href="//tp.mingdao.com/weixin/authRequest" title={_l('微信登录')}>
+                      <i className="weixinIcon hvr-pop" />
+                    </a>
+                  )}
+                  <a href="//tp.mingdao.com/qq/authRequest" title={_l('个人QQ登录')}>
+                    <i className="personalQQIcon hvr-pop" />
+                  </a>
+                  {/* {!isMobile && (
+                    <a href="//liteapi.mingdao.com/workwx/authRequest" title={_l('企业微信登录')}>
+                      <i className="workWeixinIcon hvr-pop"></i>
+                    </a>
+                  )} */}
+                </React.Fragment>
               )}
-              {canLDAP && (
-                <span
-                  className="changeLoginType Hand Font14 Gray_75"
-                  onClick={() => {
-                    this.setState({
-                      openLDAP: !openLDAP,
-                    });
-                  }}
-                >
-                  {!openLDAP ? _l('切换LDAP登录') : _l('切换系统账户登录')}
-                </span>
-              )}
-              <div className="Clear"></div>
+              <div className="Clear" />
             </div>
-            <div className={cx({ line: !hideRegister, mTop80: !canLDAP })}></div>
+            <span className={cx('line', { mTop80: !canLDAP })} />
           </React.Fragment>
         )}
         {!hideRegister && (
@@ -369,10 +389,6 @@ class LoginContainer extends React.Component {
     );
   };
 
-  showLangChang = () => {
-    $('.showLangChangeBottom').removeClass('Hidden');
-  };
-
   render() {
     if (this.state.loading) {
       return <LoadDiv className="" style={{ margin: '50px auto' }} />;
@@ -392,7 +408,6 @@ class LoginContainer extends React.Component {
             </div>
             {this.renderCon()}
             {this.renderFooter()}
-            {this.showLangChang()}
           </div>
           <ChangeLang />
           {md.global.Config.IsPlatformLocal && md.global.Config.IsCobranding && (

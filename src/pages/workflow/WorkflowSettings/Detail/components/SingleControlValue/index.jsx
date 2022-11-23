@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import { MultipleDropdown, Dropdown, TagTextarea, CityPicker, Icon, QiniuUpload } from 'ming-ui';
 import { DateTime, DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
-import DialogSelectDept from 'dialogSelectDept';
+import DialogSelectDept from 'src/components/dialogSelectDept';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
 import { getIcons } from '../../../utils';
@@ -11,7 +11,7 @@ import { previewQiniuUrl } from 'src/components/previewAttachments';
 import { TimePicker } from 'antd';
 import { FORMAT_TEXT } from '../../../enum';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
-import previewAttachments from 'previewAttachments';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import DialogSelectOrgRole from 'src/components/DialogSelectOrgRole';
 
 export default class SingleControlValue extends Component {
@@ -322,13 +322,13 @@ export default class SingleControlValue extends Component {
    */
   previewAttachments(file) {
     if (file.serverName) {
-      previewQiniuUrl(file.serverName + file.key, {
+      previewQiniuUrl(file.url, {
         ext: File.GetExt(file.fileExt),
         name: file.originalFileName,
       });
     } else {
       previewAttachments({
-        attachments: [file],
+        attachments: [Object.assign({}, file, { path: file.privateDownloadUrl })],
         callFrom: 'player',
       });
     }

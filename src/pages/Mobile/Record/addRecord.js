@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
-import functionWrap from 'worksheet/components/FunctionWrap';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import homeAppApi from 'src/api/homeApp';
 import { Flex, ActivityIndicator } from 'antd-mobile';
 import worksheetApi from 'src/api/worksheet';
@@ -10,19 +10,21 @@ export default class AddRecord extends Component {
     super(props);
     this.state = {
       loading: true,
-      worksheetInfo: undefined
-    }
+      worksheetInfo: undefined,
+    };
   }
   componentDidMount() {
     const { params } = this.props.match;
-    worksheetApi.getWorksheetInfo({
-      appId: params.appId,
-      worksheetId: params.worksheetId,
-      getTemplate: true,
-      getViews: true
-    }).then(data => {
-      this.setState({ loading: false, worksheetInfo: data });
-    });
+    worksheetApi
+      .getWorksheetInfo({
+        appId: params.appId,
+        worksheetId: params.worksheetId,
+        getTemplate: true,
+        getViews: true,
+      })
+      .then(data => {
+        this.setState({ loading: false, worksheetInfo: data });
+      });
   }
   render() {
     const { params } = this.props.match;
@@ -43,13 +45,17 @@ export default class AddRecord extends Component {
               worksheetInfo={worksheetInfo}
               addType={2}
               notDialog={true}
-              onAdd={(data) => {
-                homeAppApi.getAppSimpleInfo({
-                  workSheetId: params.worksheetId
-                }).then(data => {
-                  const { appId, appSectionId } = data;
-                  window.mobileNavigateTo(`/mobile/recordList/${appId}/${appSectionId}/${params.worksheetId}/${params.viewId}`);
-                });
+              onAdd={data => {
+                homeAppApi
+                  .getAppSimpleInfo({
+                    workSheetId: params.worksheetId,
+                  })
+                  .then(data => {
+                    const { appId, appSectionId } = data;
+                    window.mobileNavigateTo(
+                      `/mobile/recordList/${appId}/${appSectionId}/${params.worksheetId}/${params.viewId}`,
+                    );
+                  });
               }}
             />
           </div>

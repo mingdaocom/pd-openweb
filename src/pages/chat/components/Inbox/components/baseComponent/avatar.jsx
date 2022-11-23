@@ -3,7 +3,7 @@ import { MSGTYPES } from '../../constants';
 import { applicationIcon } from 'src/util';
 
 import cx from 'classnames';
-import 'mdBusinessCard';
+import 'src/components/mdBusinessCard/mdBusinessCard';
 
 const formatUser = function (props) {
   const { accountId, fullname, avatar, inboxType, appId } = props;

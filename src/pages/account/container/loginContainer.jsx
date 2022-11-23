@@ -1,4 +1,5 @@
 import React from 'react';
+import { Icon } from 'ming-ui';
 import Message from '../components/message';
 import cx from 'classnames';
 import loginController from 'src/api/login';
@@ -163,13 +164,20 @@ export default class Container extends React.Component {
   };
 
   render() {
-    const { loginData = {}, onChangeData, isNetwork, openLDAP } = this.props;
+    const { loginData = {}, onChangeData, isNetwork, openLDAP, canLDAP } = this.props;
     let { isCheck = false } = loginData;
     let { loginDisabled } = this.state;
     return (
       <React.Fragment>
-        <div className="titleHeader">
-          <div className={cx('title', { mTop40: !isNetwork, mTop30: isNetwork })}>{_l('登录')}</div>
+        <div className={cx('titleHeader flexRow alignItemsCenter', { mTop40: !isNetwork, mTop30: isNetwork })}>
+          <div className="title">{openLDAP ? _l('LDAP登录') : _l('登录')}</div>
+          <div className="flex TxtRight">
+            {canLDAP && (
+              <span className="changeLoginType Hand Gray_9e Hover_49" onClick={this.props.changeOpenLDAP}>
+                <Icon icon="swap_horiz" className="mRight5" /> {!openLDAP ? _l('LDAP登录') : _l('平台账户登录')}
+              </span>
+            )}
+          </div>
         </div>
         <Message
           type="login"

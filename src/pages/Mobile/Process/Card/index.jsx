@@ -3,7 +3,7 @@ import { Icon, Button } from 'ming-ui';
 import cx from 'classnames';
 import { Checkbox } from 'antd-mobile';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
-import { FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
+import { covertTime, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
 import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
@@ -68,15 +68,6 @@ export default class Card extends Component {
       });
     }
   }
-  covertTime(time) {
-    if (time < 0) time = time * -1;
-
-    const day = Math.floor(time / 24 / 60 / 60 / 1000);
-    const hour = Math.floor((time - day * 24 * 60 * 60 * 1000) / 60 / 60 / 1000);
-    const min = Math.ceil((time - day * 24 * 60 * 60 * 1000 - hour * 60 * 60 * 1000) / 60 / 1000);
-
-    return `${day ? _l('%0天', day) : ''}${hour ? _l('%0小时', hour) : ''}${min ? _l('%0分钟', min) : ''}`;
-  }
   renderTimeConsuming() {
     const { workItem = {} } = this.props.item;
 
@@ -108,7 +99,8 @@ export default class Card extends Component {
     }
 
     if (!maxEndTimeConsuming) {
-      return <span className="overflow_ellipsis Gray_9e mLeft10">{_l('耗时：%0', this.covertTime(maxTimeConsuming))}</span>;
+      const time = covertTime(maxTimeConsuming);
+      return time ? <span className="overflow_ellipsis Gray_9e mLeft10">{_l('耗时：%0', time)}</span> : null;
     }
 
     return (
@@ -119,7 +111,7 @@ export default class Card extends Component {
         }}
       >
         <Icon icon={maxEndTimeConsuming > 0 ? 'overdue_network' : 'task'} className="Font14 mRight2" />
-        <div className="overflow_ellipsis">{_l('耗时：%0', this.covertTime(maxTimeConsuming))}</div>
+        <div className="overflow_ellipsis">{_l('耗时：%0', covertTime(maxTimeConsuming))}</div>
       </span>
     );
   }
@@ -146,7 +138,7 @@ export default class Card extends Component {
       >
         <Icon icon={time > 0 ? 'error1' : 'hourglass'} className="Font14 mRight2" />
         <div className="overflow_ellipsis">
-          {time > 0 ? _l('已超时%0', this.covertTime(time)) : _l('剩余%0', this.covertTime(time))}
+          {time > 0 ? _l('已超时%0', covertTime(time)) : _l('剩余%0', covertTime(time))}
         </div>
       </span>
     );
@@ -218,7 +210,7 @@ export default class Card extends Component {
           )}
           {passBatchType !== -1 && (
             <Button
-              className="pass mRight5"
+              className="ellipsis pass mRight5"
               type="ghostgray"
               size="small"
               onClick={(event) => {
@@ -230,7 +222,7 @@ export default class Card extends Component {
           )}
           {overruleBatchType !== -1 && (
             <Button
-              className="overrule"
+              className="ellipsis overrule"
               type="ghostgray"
               size="small"
               onClick={(event) => {

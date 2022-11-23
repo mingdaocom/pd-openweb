@@ -150,7 +150,7 @@ export default function LogDialog(props) {
                 src={
                   tab !== 0
                     ? getInfo(data.json.result)
-                    : [1, 4].includes(data.contentType) //contentType 1 4 请求使用这个requests
+                    : [1, 4, 5].includes(data.contentType) //contentType 1 4 5 请求使用这个requests
                     ? data.requests
                     : getInfo(data.body)
                 }

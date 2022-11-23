@@ -16,7 +16,7 @@ function User(props) {
         <div className="department">{department}</div>
         <div className="job">{job}</div>
       </div>
-      {subTotalCount ? (
+      {subTotalCount && subTotalCount > 0 ? (
         <div className="subordinateCount">
           <span className="icon-charger Gray_a TxtMiddle Font14" />
           <span className="TxtMiddle Gray mLeft5">{subTotalCount}</span>

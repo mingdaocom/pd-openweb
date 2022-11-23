@@ -8,6 +8,7 @@ import ButtonList from './ButtonList';
 import PreviewWraper from '../previewContent';
 import { RichText } from 'ming-ui';
 import FiltersGroupPreview from '../editWidget/filter/FiltersGroupPreview';
+import CarouselPreview from '../editWidget/carousel/Carousel';
 import MobileFilter from 'src/pages/Mobile/CustomPage/FilterContent';
 
 const WidgetContent = styled.div`
@@ -111,6 +112,12 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
         />
       );
     }
+  }
+  if (componentType === 'carousel') {
+    const { config, componentConfig } = widget;
+    return (
+      <CarouselPreview config={config} componentConfig={componentConfig} />
+    );
   }
   return (
     <WidgetContent className={componentType} ref={ref}>

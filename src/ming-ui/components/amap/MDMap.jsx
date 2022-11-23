@@ -4,6 +4,7 @@ import { Modal } from 'antd-mobile';
 import MapLoader from './MapLoader';
 import MapHandler from './MapHandler';
 import '../less/MDMap.less';
+import { Tooltip } from 'antd';
 
 export default class MDMap extends Component {
   static defaultProps = {
@@ -64,10 +65,21 @@ export default class MDMap extends Component {
       this.setState({ defaultLocation: result });
 
       if (defaultAddress) {
-        this.setPosition(defaultAddress.lng, defaultAddress.lat);
+        this.setPosition(defaultAddress.x, defaultAddress.y);
       } else {
         this.setPosition(result.position.lng, result.position.lat);
       }
+    } else if (status === 'error' && defaultAddress) {
+      const defaultLocation = {
+        addressComponent: { building: defaultAddress.title },
+        formattedAddress: defaultAddress.address,
+        position: {
+          lng: defaultAddress.x,
+          lat: defaultAddress.y,
+        },
+      };
+      this.setState({ defaultLocation });
+      this.setPosition(defaultAddress.x, defaultAddress.y);
     }
   };
 
@@ -122,17 +134,22 @@ export default class MDMap extends Component {
   }
 
   handleChange = event => {
-    this._maphHandler.autoCompleteSearch(event.currentTarget.value.trim(), (status, result) => {
+    new AMap.PlaceSearch().search(event.currentTarget.value.trim(), (status, result) => {
       this.setState({
         list:
           status === 'complete'
-            ? result.tips.filter(
+            ? (_.get(result, 'poiList.pois') || []).filter(
                 item =>
                   item.location && item.location.lng && this.compareDistance(item.location.lng, item.location.lat),
               )
             : [],
       });
     });
+  };
+
+  handleClearAndSet = location => {
+    (document.getElementsByClassName('MDMapInput')[0] || {}).value = '';
+    this.setPosition(location.lng, location.lat);
   };
 
   renderOperatorIcon() {
@@ -190,7 +207,7 @@ export default class MDMap extends Component {
           />
         </div>
         {!!distance && (
-          <div className="MDMapList flexColumn mTop5">
+          <div className="distanceInfo">
             <div className="Font12" style={{ color: '#4CAF50' }}>
               <Icon icon="task-setting_promet" className="Font14 mRight5" />
               {_l('仅能定位周边%0米以内的地点', distance)}
@@ -207,38 +224,54 @@ export default class MDMap extends Component {
 
     return (
       <ScrollView className="flex mTop5">
-        {!keywords && defaultLocation && (
-          <div
-            className="MDMapList flexColumn"
-            onClick={() =>
-              this.geoLocation(
-                defaultLocation.position.lng,
-                defaultLocation.position.lat,
-                defaultLocation.formattedAddress,
-                (defaultLocation.addressComponent || {}).building,
-              )
-            }
-          >
-            <div className="ellipsis bold Gray">
-              {(defaultLocation.addressComponent || {}).building}（{_l('我的位置')}）
+        {!keywords && defaultLocation && defaultLocation.formattedAddress && (
+          <div className="MDMapList">
+            <div
+              className="flexColumn flex ellipsis"
+              onClick={() =>
+                this.geoLocation(
+                  defaultLocation.position.lng,
+                  defaultLocation.position.lat,
+                  defaultLocation.formattedAddress,
+                  (defaultLocation.addressComponent || {}).building,
+                )
+              }
+            >
+              <div className="ellipsis bold Gray">{(defaultLocation.addressComponent || {}).building}</div>
+              <div className="ellipsis Gray_9e">{defaultLocation.formattedAddress}</div>
             </div>
-            <div className="ellipsis Gray_9e">{defaultLocation.formattedAddress}</div>
+            <Tooltip title={_l('当前位置')}>
+              <Icon
+                icon="gps_fixed"
+                className="Font18 Gray_9e ThemeHoverColor3 pointer"
+                onClick={() => this.handleClearAndSet(defaultLocation.position)}
+              />
+            </Tooltip>
           </div>
         )}
         {(keywords ? list : defaultList).map((item, index) => {
           if (item.address && typeof item.address === 'string') {
             return (
-              <div
-                key={index}
-                className="MDMapList flexColumn"
-                onClick={() => {
-                  this._maphHandler.getAddress(item.location.lng, item.location.lat, address => {
-                    this.geoLocation(item.location.lng, item.location.lat, address || item.address, item.name);
-                  });
-                }}
-              >
-                <div className="ellipsis bold Gray">{item.name}</div>
-                <div className="ellipsis Gray_9e">{item.address}</div>
+              <div className="MDMapList">
+                <div
+                  key={index}
+                  className="flexColumn flex ellipsis"
+                  onClick={() => {
+                    this._maphHandler.getAddress(item.location.lng, item.location.lat, address => {
+                      this.geoLocation(item.location.lng, item.location.lat, address || item.address, item.name);
+                    });
+                  }}
+                >
+                  <div className="ellipsis bold Gray">{item.name}</div>
+                  <div className="ellipsis Gray_9e">{item.address}</div>
+                </div>
+                <Tooltip title={_l('定位')}>
+                  <Icon
+                    icon="location"
+                    className="Font20 Gray_9e ThemeHoverColor3 pointer"
+                    onClick={() => this.handleClearAndSet(item.location)}
+                  />
+                </Tooltip>
               </div>
             );
           }
@@ -265,9 +298,9 @@ export default class MDMap extends Component {
     }
 
     return (
-      <Dialog.DialogBase className="MDMap" width="720" visible>
+      <Dialog.DialogBase className="MDMap" width="960" visible>
         {this.renderOperatorIcon()}
-        <div className="flexRow" style={{ height: 480 }}>
+        <div className="flexRow" style={{ height: 560 }}>
           <div className="MDMapSidebar flexColumn">
             {this.renderSearch()}
             {this.renderSearchList()}

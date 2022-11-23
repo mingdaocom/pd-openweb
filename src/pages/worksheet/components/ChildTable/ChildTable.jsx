@@ -894,8 +894,8 @@ class ChildTable extends React.Component {
               <span
                 className="addRowByLine h5 flex"
                 onClick={() => {
-                  this.updateDefsourceOfControl();
-                  this.setState({ previewRowIndex: -1, recordVisible: true });
+                  this.handleAddRowByLine();
+                  this.setState({ previewRowIndex: tableRows.length, recordVisible: true });
                 }}
               >
                 <i className="icon icon-plus mRight5 Font16"></i>

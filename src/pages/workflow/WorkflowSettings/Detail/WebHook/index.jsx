@@ -587,7 +587,6 @@ export default class WebHook extends Component {
     return (
       <Fragment>
         <div className="Font13 bold mTop20">{_l('请求失败设置')}</div>
-        <div className="mTop10 Gray_9e">{_l('当 API 请求失败时，自定义超时重试次数和错误消息')}</div>
 
         {isIntegration && (
           <Fragment>

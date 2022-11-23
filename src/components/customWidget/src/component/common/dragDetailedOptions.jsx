@@ -17,7 +17,7 @@ import _ from 'lodash';
 import './dragDetailedOptions.less';
 import Dropdown from './dropdown';
 import { getSettingsModel } from '../settingsBox/settingsModels';
-import MDDialog from 'mdDialog';
+import MDDialog from 'src/components/mdDialog/dialog';
 import Checkbox from './checkbox';
 
 let targetType = 'dragOptions';

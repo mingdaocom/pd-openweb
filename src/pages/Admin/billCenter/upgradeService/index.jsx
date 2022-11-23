@@ -14,7 +14,7 @@ const productList = [5000, 3000, 2000, 1000];
 export default class UpgradeService extends Component {
   constructor() {
     super();
-    Config.setPageTitle(_l('升级明道云产品'));
+    Config.setPageTitle(_l('升级产品'));
     this.state = {
       step: 1,
       versionId: null,

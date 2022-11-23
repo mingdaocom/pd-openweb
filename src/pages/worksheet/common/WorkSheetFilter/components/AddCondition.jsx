@@ -11,7 +11,7 @@ export default class AddCondition extends Component {
     defaultVisible: PropTypes.bool,
     columns: PropTypes.arrayOf(PropTypes.shape({})),
     onAdd: PropTypes.func,
-    from: PropTypes.string, //来源
+    from: PropTypes.string, // 来源
   };
   constructor(props) {
     super(props);
@@ -46,6 +46,7 @@ export default class AddCondition extends Component {
       disabled,
       from,
       columns,
+      isAppendToBody,
       onAdd,
       children,
       renderInParent,
@@ -108,7 +109,7 @@ export default class AddCondition extends Component {
               </Menu>
             </div>
           }
-          getPopupContainer={() => (renderInParent ? this.box : document.body)}
+          getPopupContainer={() => (renderInParent && !isAppendToBody ? this.box : document.body)}
           popupAlign={{
             points: ['tl', 'bl'],
             offset: this.props.offset ? this.props.offset : [0, 12],

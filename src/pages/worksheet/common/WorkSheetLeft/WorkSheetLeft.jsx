@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
-import { ScrollView, Dialog, Tooltip, Menu, MenuItem, Checkbox, LoadDiv } from 'ming-ui';
+import { ScrollView, Dialog, Tooltip, Menu, MenuItem, Checkbox, LoadDiv, Icon } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import color from 'color';
@@ -15,9 +15,26 @@ import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
 import sheetApi from 'src/api/worksheet';
 import CreateNew from './CreateNew';
 import WorkSheetItem from './WorkSheetItem';
+import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
 import './WorkSheetLeft.less';
 import { browserIsMobile, getAppFeaturesVisible } from 'src/util';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
+
+const CREATE_ITEM_LIST = [
+  {
+    type: 'worksheet',
+    text: _l('工作表'),
+    subList: [
+      { type: 'blank', icon: 'plus', text: _l('从空白创建'), createType: 'worksheet' },
+      { type: 'importExcel', icon: 'new_excel', text: _l('从Excel创建'), createType: 'importExcel' },
+    ],
+  },
+  {
+    type: 'customPageGroup',
+    text: '',
+    subList: [{ type: 'customPage', icon: 'dashboard', text: _l('创建自定义页面'), createType: 'customPage' }],
+  },
+];
 
 function getProjectfoldedFromStorage() {
   let result = {};
@@ -46,14 +63,16 @@ const CopySheetConfirmDescription = props => {
 
   useEffect(() => {
     if (!type && _.isEmpty(props.controls)) {
-      sheetApi.getWorksheetInfo({
-        getTemplate: true,
-        worksheetId: workSheetId
-      }).then(data => {
-        const controls = _.get(data, 'template.controls');
-        setLoading(false);
-        setControls(controls.filter(c => c.type === 29));
-      });
+      sheetApi
+        .getWorksheetInfo({
+          getTemplate: true,
+          worksheetId: workSheetId,
+        })
+        .then(data => {
+          const controls = _.get(data, 'template.controls');
+          setLoading(false);
+          setControls(controls.filter(c => c.type === 29));
+        });
     } else {
       setLoading(false);
       setControls(props.controls.filter(c => c.type === 29));
@@ -64,73 +83,71 @@ const CopySheetConfirmDescription = props => {
     props.onChanegSelectIds(selectIds);
   }, [selectIds]);
 
-  return (
-    type ? (
-      _l('仅复制当前自定义页面的所有配置')
-    ) : (
-      <Fragment>
-        <div>{_l('仅复制目标工作表的所有配置，工作表下的数据不会被复制')}</div>
-        {loading && <LoadDiv className="mTop10" />}
-        {!!controls.length && (
-          <Fragment>
-            <div className="mTop24 mBottom20 Font14">
+  return type ? (
+    _l('仅复制当前自定义页面的所有配置')
+  ) : (
+    <Fragment>
+      <div>{_l('仅复制目标工作表的所有配置，工作表下的数据不会被复制')}</div>
+      {loading && <LoadDiv className="mTop10" />}
+      {!!controls.length && (
+        <Fragment>
+          <div className="mTop24 mBottom20 Font14">
+            <Checkbox
+              className="mBottom10 Font14 Gray"
+              checked={isCopyRelevance}
+              text={<span className="Font14">{_l('同时复制关联关系')}</span>}
+              onClick={() => {
+                setIsCopyRelevance(!isCopyRelevance);
+              }}
+            />
+            <div className="Gray_9e mLeft25">{_l('未勾选时，所有关联记录字段将被复制为文本字段')}</div>
+            <div className="Gray_9e mLeft25">{_l('勾选时，选中的关联记录字段将会完整复制与其他表的关联关系')}</div>
+          </div>
+          {isCopyRelevance && (
+            <Fragment>
               <Checkbox
-                className="mBottom10 Font14 Gray"
-                checked={isCopyRelevance}
-                text={<span className="Font14">{_l('同时复制关联关系')}</span>}
-                onClick={() => {
-                  setIsCopyRelevance(!isCopyRelevance);
+                checked={selectIds.length === controls.length}
+                indeterminate={selectIds.length === controls.length ? false : selectIds.length}
+                className="mBottom10"
+                text={
+                  <Fragment>
+                    <span className="Font14 Gray mRight2">{_l('全选')}</span>
+                    <span className="Font14 Gray_9e">{`${selectIds.length}/${controls.length}`}</span>
+                  </Fragment>
+                }
+                onClick={value => {
+                  if (value) {
+                    setSelectIds([]);
+                  } else {
+                    setSelectIds(controls.map(c => c.controlId));
+                  }
                 }}
               />
-              <div className="Gray_9e mLeft25">{_l('未勾选时，所有关联记录字段将被复制为文本字段')}</div>
-              <div className="Gray_9e mLeft25">{_l('勾选时，选中的关联记录字段将会完整复制与其他表的关联关系')}</div>
-            </div>
-            {isCopyRelevance && (
-              <Fragment>
-                <Checkbox
-                  checked={selectIds.length === controls.length}
-                  indeterminate={selectIds.length === controls.length ? false : selectIds.length}
-                  className="mBottom10"
-                  text={(
-                    <Fragment>
-                      <span className="Font14 Gray mRight2">{_l('全选')}</span>
-                      <span className="Font14 Gray_9e">{`${selectIds.length}/${controls.length}`}</span>
-                    </Fragment>
-                  )}
-                  onClick={(value) => {
-                    if (value) {
-                      setSelectIds([]);
-                    } else {
-                      setSelectIds(controls.map(c => c.controlId));
-                    }
-                  }}
-                />
-                <div className="mLeft25" style={{ maxHeight: 200, overflowY: 'auto' }}>
-                  {controls.map(c => (
-                    <Checkbox
-                      key={c.controlId}
-                      className="mBottom10 Gray"
-                      checked={selectIds.includes(c.controlId)}
-                      text={<span className="Font14">{c.controlName}</span>}
-                      onClick={(value) => {
-                        if (value) {
-                          setSelectIds(selectIds.filter(id => id !== c.controlId));
-                        } else {
-                          const data = selectIds.concat(c.controlId);
-                          setSelectIds(data);
-                        }
-                      }}
-                    />
-                  ))}
-                </div>
-              </Fragment>
-            )}
-          </Fragment>
-        )}
-      </Fragment>
-    )
+              <div className="mLeft25" style={{ maxHeight: 200, overflowY: 'auto' }}>
+                {controls.map(c => (
+                  <Checkbox
+                    key={c.controlId}
+                    className="mBottom10 Gray"
+                    checked={selectIds.includes(c.controlId)}
+                    text={<span className="Font14">{c.controlName}</span>}
+                    onClick={value => {
+                      if (value) {
+                        setSelectIds(selectIds.filter(id => id !== c.controlId));
+                      } else {
+                        const data = selectIds.concat(c.controlId);
+                        setSelectIds(data);
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            </Fragment>
+          )}
+        </Fragment>
+      )}
+    </Fragment>
   );
-}
+};
 
 const SortableItem = SortableElement(({ sheet, index, ...other }) => {
   const { id, activeSheetId, onClick, onCopy, appPkg } = other;
@@ -248,17 +265,21 @@ class WorkSheetLeft extends Component {
       appId,
       appSectionId: groupId,
       name: workSheetName,
-      relationControlIds: []
+      relationControlIds: [],
     };
     Dialog.confirm({
       width: 480,
-      title: <span className="bold">{type ? _l('复制自定义页面 “%0”', workSheetName) : _l('复制工作表 “%0”', workSheetName)}</span>,
+      title: (
+        <span className="bold">
+          {type ? _l('复制自定义页面 “%0”', workSheetName) : _l('复制工作表 “%0”', workSheetName)}
+        </span>
+      ),
       description: (
         <CopySheetConfirmDescription
           type={type}
           workSheetId={workSheetId}
           controls={id === workSheetId ? controls : []}
-          onChanegSelectIds={(ids) => {
+          onChanegSelectIds={ids => {
             copyArgs.relationControlIds = ids;
           }}
         />
@@ -296,6 +317,10 @@ class WorkSheetLeft extends Component {
     });
   };
   switchCreateType = type => {
+    if (type === 'importExcel') {
+      this.setState({ dialogImportExcel: true, createMenuVisible: false });
+      return;
+    }
     this.setState({ createType: type, createMenuVisible: false });
   };
   handleCreate = (type, name) => {
@@ -319,24 +344,26 @@ class WorkSheetLeft extends Component {
   };
   renderMenu() {
     return (
-      <Menu className="createNewMenu">
-        <MenuItem
-          onClick={() => {
-            this.switchCreateType('worksheet');
-          }}
-        >
-          <i className="icon-table  Font18"></i>
-          <span className="mLeft5">{_l('工作表')}</span>
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            this.switchCreateType('customPage');
-          }}
-        >
-          <i className="icon-dashboard  Font18"></i>
-          <span className="mLeft5">{_l('自定义页面')}</span>
-        </MenuItem>
-      </Menu>
+      <div className="createNewMenu pTop12">
+        {CREATE_ITEM_LIST.map((item, index) => (
+          <Fragment>
+            <div className="Gray_9e pLeft12">{item.text}</div>
+            <Menu>
+              {item.subList.map(it => (
+                <MenuItem
+                  onClick={() => {
+                    this.switchCreateType(it.createType);
+                  }}
+                >
+                  <Icon icon={it.icon} className="Font18" />
+                  <span className="mLeft20">{it.text}</span>
+                </MenuItem>
+              ))}
+            </Menu>
+            {index < CREATE_ITEM_LIST.length - 1 && <div className="spaceLine"></div>}
+          </Fragment>
+        ))}
+      </div>
     );
   }
   renderContent() {
@@ -400,8 +427,8 @@ class WorkSheetLeft extends Component {
     );
   }
   render() {
-    const { id, loading, isUnfold, data, guidanceVisible } = this.props;
-    const { createType } = this.state;
+    const { id, loading, isUnfold, data, guidanceVisible, projectId, appId, groupId } = this.props;
+    const { createType, dialogImportExcel } = this.state;
     const sheetInfo = _.find(data, { workSheetId: id }) || {};
 
     // 获取url参数
@@ -417,6 +444,18 @@ class WorkSheetLeft extends Component {
             sheetListVisible={isUnfold}
             onClose={() => {
               this.props.sheetListActions.updateGuidanceVisible(false);
+            }}
+          />
+        )}
+        {dialogImportExcel && (
+          <DialogImportExcelCreate
+            projectId={projectId}
+            appId={appId}
+            groupId={groupId}
+            onCancel={() => this.setState({ dialogImportExcel: false })}
+            createType="worksheet"
+            refreshPage={() => {
+              this.getSheetList({ appId, groupId });
             }}
           />
         )}
@@ -439,7 +478,7 @@ const mapStateToProps = state => ({
   isUnfold: state.sheetList.isUnfold,
   appPkg: state.appPkg,
   guidanceVisible: state.sheetList.guidanceVisible,
-  controls: state.sheet.controls
+  controls: state.sheet.controls,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(WorkSheetLeft);

@@ -39996,3 +39996,1991 @@ msgstr "新增組織使用者 "
 msgid "; 同步企业微信用户 "
 msgstr "; 同步企業微信使用者 "
 
+#: Disabled references:1
+msgid "群组资料"
+msgstr "群組資料"
+
+#: Disabled references:1
+msgid "查看使用中的链接"
+msgstr "查看使用中的鏈接"
+
+#: Disabled references:1
+msgid "邀请记录"
+msgstr "邀請記錄"
+
+#: Disabled references:1
+msgid "公开邀请"
+msgstr "公開邀請"
+
+#: Disabled references:1
+msgid "链接添加"
+msgstr "鏈接添加"
+
+#: Disabled references:1
+msgid "手机/邮箱邀请"
+msgstr "手機/郵箱邀請"
+
+#: Disabled references:1
+msgid "从通讯录邀请"
+msgstr "從通訊錄邀請"
+
+#: Disabled references:1
+msgid "邀请用户为"
+msgstr "邀請用戶為"
+
+#: Disabled references:1
+msgid "非同事"
+msgstr "非同事"
+
+#: Disabled references:1
+msgid "邀请用户加入"
+msgstr "邀請用戶加入"
+
+#: Disabled references:1
+msgid "从联系人中选择用户，邀请加入到当前组织"
+msgstr "從聯繫人中選擇用戶，邀請加入到當前組織"
+
+#: Disabled references:1
+msgid "邀请设置"
+msgstr "邀請設置"
+
+#: Disabled references:1
+msgid "%0创建了邀请链接%1"
+msgstr "%0創建了邀請鏈接%1"
+
+#: Disabled references:1
+msgid "(二维码)"
+msgstr "(二維碼)"
+
+#: Disabled references:1
+msgid "非付费用户不允许添加"
+msgstr "非付費用戶不允許添加"
+
+#: Disabled references:1
+msgid "该用户未注册，你可以邀请TA加入并成为好友"
+msgstr "該用戶未註冊，你可以邀請TA加入並成為好友"
+
+#: Disabled references:1
+msgid "搜索手机号 / 邮箱添加好友"
+msgstr "搜索手機號 / 郵箱添加好友"
+
+#: Disabled references:1
+msgid "邀请后，成员会收到邀请链接，验证后可加入组织"
+msgstr "邀請後，成員會收到邀請鏈接，驗證後可加入組織"
+
+#: Disabled references:1
+msgid "通过链接"
+msgstr "通過鏈接"
+
+#: Disabled references:1
+msgid "用户可通过点击链接申请加入"
+msgstr "用戶可通過點擊鏈接申請加入"
+
+#: Disabled references:1
+msgid "重新获取邀请链接"
+msgstr "重新獲取邀請鏈接"
+
+#: Disabled references:1
+msgid "链接有效期："
+msgstr "鏈接有效期："
+
+#: Disabled references:1
+msgid "通过组织门牌号邀请"
+msgstr "通過組織門牌號邀請"
+
+#: Disabled references:1
+msgid "成员可通过搜索组织码申请加入"
+msgstr "成員可通過搜索組織碼申請加入"
+
+#: Disabled references:1
+msgid "系统默认打印"
+msgstr "系統默認打印"
+
+#: Disabled references:1
+msgid "审批流转详情"
+msgstr "審批流轉詳情"
+
+#: Disabled references:1
+msgid "未绑定微信公众号"
+msgstr "未綁定微信公眾號"
+
+#: Disabled references:1
+msgid "微信扫码登录方式关闭"
+msgstr "微信掃碼登錄方式關閉"
+
+#: Disabled references:1
+msgid "手机号/邮箱或者验证码错误"
+msgstr "手機號/郵箱或者驗證碼錯誤"
+
+#: Disabled references:1
+msgid "会通过短信/邮件告知您审核结果"
+msgstr "會通過短信/郵件告知您審核結果"
+
+#: Disabled references:1
+msgid "手机号/邮箱或者验证码错误！"
+msgstr "手機號/郵箱或者驗證碼錯誤！"
+
+#: Disabled references:1
+msgid "邮箱或者验证码错误"
+msgstr "郵箱或者驗證碼錯誤"
+
+#: Disabled references:1
+msgid "验证码登录"
+msgstr "驗證碼登錄"
+
+#: Disabled references:1
+msgid "密码登录"
+msgstr "密碼登錄"
+
+#: Disabled references:1
+msgid "手机号/邮箱或者验证码错误!"
+msgstr "手機號/郵箱或者驗證碼錯誤!"
+
+#: Disabled references:1
+msgid "手机号或者验证码错误!"
+msgstr "手機號或者驗證碼錯誤!"
+
+#: Disabled references:1
+msgid "邮箱或者验证码错误!"
+msgstr "郵箱或者驗證碼錯誤!"
+
+#: Disabled references:1
+msgid "请输入手机/邮箱！"
+msgstr "請輸入手機/郵箱！"
+
+#: Disabled references:1
+msgid "请输入邮箱！"
+msgstr "請輸入郵箱！"
+
+#: Disabled references:1
+msgid "请输入密码！"
+msgstr "請輸入密碼！"
+
+#: Disabled references:1
+msgid "密码错误校验失败"
+msgstr "密碼錯誤校驗失敗"
+
+#: Disabled references:1
+msgid "验证码登录后在个人信息页面完成密码设置!"
+msgstr "驗證碼登錄後在個人信息頁面完成密碼設置!"
+
+#: Disabled references:1
+msgid "忘记密码"
+msgstr "忘記密碼"
+
+#: Disabled references:1
+msgid "扫码成功，请绑定手机号/邮箱！"
+msgstr "掃碼成功，請綁定手機號/郵箱！"
+
+#: Disabled references:1
+msgid "扫码成功，请绑定邮箱"
+msgstr "掃碼成功，請綁定郵箱"
+
+#: Disabled references:1
+msgid "长按识别下方二维码，关注公众号"
+msgstr "長按識別下方二維碼，關注公眾號"
+
+#: Disabled references:1
+msgid "关注后重新扫码或者打开链接进入"
+msgstr "關注後重新掃碼或者打開鏈接進入"
+
+#: Disabled references:1
+msgid "微信已授权"
+msgstr "微信已授權"
+
+#: Disabled references:1
+msgid "可查看加入的，只能编辑、删除自己拥有的记录"
+msgstr "可查看加入的，只能編輯、刪除自己擁有的記錄"
+
+#: Disabled references:1
+msgid "可查看所有记录，但只能编辑、删除自己拥有的记录"
+msgstr "可查看所有記錄，但只能編輯、刪除自己擁有的記錄"
+
+#: Disabled references:1
+msgid "可查看、编辑、删除所有记录"
+msgstr "可查看、編輯、刪除所有記錄"
+
+#: Disabled references:1
+msgid "包含记录分享、视图分享"
+msgstr "包含記錄分享、視圖分享"
+
+#: Disabled references:1
+msgid "包含工作表讨论、记录讨论"
+msgstr "包含工作表討論、記錄討論"
+
+#: Disabled references:1
+msgid "包含工作表日志、记录日志"
+msgstr "包含工作表日誌、記錄日誌"
+
+#: Disabled references:1
+msgid "批量操作是指工作表的批量勾选记录功能，开启后用户可以批量执行拥有权限的操作。"
+msgstr "批量操作是指工作表的批量勾選記錄功能，開啟後用戶可以批量執行擁有權限的操作。"
+
+#: Disabled references:1
+msgid "创建当前新增的角色？"
+msgstr "創建當前新增的角色？"
+
+#: Disabled references:1
+msgid "保存当前角色权限配置 ？"
+msgstr "保存當前角色權限配置 ？"
+
+#: Disabled references:1
+msgid "不创建"
+msgstr "不創建"
+
+#: Disabled references:1
+msgid "不保存"
+msgstr "不保存"
+
+#: Disabled references:1
+msgid "应用：%0"
+msgstr "應用：%0"
+
+#: Disabled references:1
+msgid "支持微信、手机/邮箱验证码及密码登录"
+msgstr "支持微信、手機/郵箱驗證碼及密碼登錄"
+
+#: Disabled references:1
+msgid "与上一期相比"
+msgstr "與上一期相比"
+
+#: Disabled references:1
+msgid "自定义动态时间范围"
+msgstr "自定義動態時間範圍"
+
+#: Disabled references:1
+msgid "指定时间范围"
+msgstr "指定時間範圍"
+
+#: Disabled references:1
+msgid "过去365天"
+msgstr "過去365天"
+
+#: Disabled references:1
+msgid "将来365天"
+msgstr "將來365天"
+
+#: Disabled references:1
+msgid "过去"
+msgstr "過去"
+
+#: Disabled references:1
+msgid "将来"
+msgstr "將來"
+
+#: Disabled references:1
+msgid "sso登录"
+msgstr "sso登錄"
+
+#: Disabled references:1
+msgid "轮播图"
+msgstr "輪播圖"
+
+#: Disabled references:1
+msgid "使用 Javascript 语言"
+msgstr "使用 Javascript 語言"
+
+#: Disabled references:1
+msgid "使用 Python 语言"
+msgstr "使用 Python 語言"
+
+#: Disabled references:1
+msgid "当前筛选条件是否是筛选组，为true时需要传 groupFilters 参数，只支持一层筛选组"
+msgstr "當前篩選條件是否是篩選組，為true時需要傳 groupFilters 參數，只支持一層篩選組"
+
+#: Disabled references:1
+msgid "筛选组列表，对象为筛选器对象"
+msgstr "篩選組列表，對象為篩選器對象"
+
+#: Disabled references:1
+msgid "已选 %0/%1"
+msgstr "已選 %0/%1"
+
+#: Disabled references:1
+msgid "部门下没有可选成员"
+msgstr "部門下沒有可選成員"
+
+#: Disabled references:1
+msgid "从左侧选择部门后显示成员"
+msgstr "從左側選擇部門後顯示成員"
+
+#: Disabled references:1
+msgid "搜索用户%0"
+msgstr "搜索用戶%0"
+
+#: Disabled references:1
+msgid "请填写其他"
+msgstr "請填寫其他"
+
+#: Disabled references:1
+msgid "SSO"
+msgstr "SSO"
+
+#: Disabled references:1
+msgid "在付费版本下，您可以通过组织的二级域名，以SSO登录方式登录到平台"
+msgstr "在付費版本下，您可以通過組織的二級域名，以SSO登錄方式登錄到平台"
+
+#: Disabled references:1
+msgid "IP、域名"
+msgstr "IP、域名"
+
+#: Disabled references:1
+msgid "SSO链接地址"
+msgstr "SSO鏈接地址"
+
+#: Disabled references:1
+msgid "WEB-PC端"
+msgstr "WEB-PC端"
+
+#: Disabled references:1
+msgid "请输入WEB-PC端"
+msgstr "請輸入WEB-PC端"
+
+#: Disabled references:1
+msgid "WEB-移动端"
+msgstr "WEB-移動端"
+
+#: Disabled references:1
+msgid "若”WEB-移动端“未填写，通过WEB-移动端登录时，系统默认使用”WEB-PC端“地址登录"
+msgstr "若”WEB-移動端“未填寫，通過WEB-移動端登錄時，系統默認使用”WEB-PC端“地址登錄"
+
+#: Disabled references:1
+msgid "姓名 / 手机号 / 邮箱"
+msgstr "姓名 / 手機號 / 郵箱"
+
+#: Disabled references:1
+msgid "超出 %0 个企业微信用户需要被同步，请先增购组织用户"
+msgstr "超出 %0 個企業微信用戶需要被同步，請先增購組織用戶"
+
+#: Disabled references:1
+msgid "正在计算，请稍等"
+msgstr "正在計算，請稍等"
+
+#: Disabled references:1
+msgid "在企业微信中使用快速审批"
+msgstr "在企業微信中使用快速審批"
+
+#: Disabled references:1
+msgid "此功能需要配置企业微信中的应用接收回调消息服务。配置完成后，企业微信中的工作流审批消息卡片可以直接显示通过否决按钮，无需打开审批详情即可直接完成审批（注：需要审批节点启用了快速审批功能）。"
+msgstr "此功能需要配置企業微信中的應用接收回調消息服務。配置完成後，企業微信中的工作流審批消息卡片可以直接顯示通過否決按鈕，無需打開審批詳情即可直接完成審批（注：需要審批節點啟用了快速審批功能）。"
+
+#: Disabled references:1
+msgid "示例"
+msgstr "示例"
+
+#: Disabled references:1
+msgid "请将下面的字段内容完整准确的复制到企业微信-应用管理-接收消息-设置API接收对应的字段内。"
+msgstr "請將下面的字段內容完整準確的複製到企業微信-應用管理-接收消息-設置API接收對應的字段內。"
+
+#: Disabled references:1
+msgid "操作成功。为保障性能，系统将在空闲时删除此索引"
+msgstr "操作成功。為保障性能，系統將在空閒時刪除此索引"
+
+#: Disabled references:1
+msgid "仅控制系统默认的条形码/二维码打印功能。不包含配置的打印模板"
+msgstr "僅控制系統默認的條形碼/二維碼打印功能。不包含配置的打印模板"
+
+#: Disabled references:1
+msgid "在视图上呈现流程名称、状态、节点负责人、节点开始、剩余时间、发起人、发起时间"
+msgstr "在視圖上呈現流程名稱、狀態、節點負責人、節點開始、剩餘時間、發起人、發起時間"
+
+#: Disabled references:1
+msgid "Beta版可用于表格显示，筛选、统计等正在开发中..."
+msgstr "Beta版可用於表格顯示，篩選、統計等正在開發中..."
+
+#: Disabled references:1
+msgid "创建打印模板"
+msgstr "創建打印模板"
+
+#: Disabled references:1
+msgid "通过系统默认打印创建"
+msgstr "通過系統默認打印創建"
+
+#: Disabled references:1
+msgid "条形码打印"
+msgstr "條形碼打印"
+
+#: Disabled references:1
+msgid "二维码打印"
+msgstr "二維碼打印"
+
+#: Disabled references:1
+msgid "上传word模板"
+msgstr "上傳word模板"
+
+#: Disabled references:1
+msgid "使用范围：所有记录"
+msgstr "使用範圍：所有記錄"
+
+#: Disabled references:1
+msgid "使用范围：未指定视图"
+msgstr "使用範圍：未指定視圖"
+
+#: Disabled references:1
+msgid "使用范围：%0视图"
+msgstr "使用範圍：%0視圖"
+
+#: Disabled references:1
+msgid "打印尺寸"
+msgstr "打印尺寸"
+
+#: Disabled references:1
+msgid "创建方式"
+msgstr "創建方式"
+
+#: Disabled references:1
+msgid "word模版"
+msgstr "word模版"
+
+#: Disabled references:1
+msgid "条码打印"
+msgstr "條碼打印"
+
+#: Disabled references:1
+msgid "当前企业账户余额不足，无法发送短信/邮件"
+msgstr "當前企業賬戶餘額不足，無法發送短信/郵件"
+
+#: Disabled references:1
+msgid "新邮箱"
+msgstr "新郵箱"
+
+#: Disabled references:1
+msgid "该用户不存在，不能设置密码"
+msgstr "該用戶不存在，不能設置密碼"
+
+#: Disabled references:1
+msgid "请输入8-20位，需包含字母和数字"
+msgstr "請輸入8-20位，需包含字母和數字"
+
+#: Disabled references:1
+msgid "前后密码一致!"
+msgstr "前後密碼一致!"
+
+#: Disabled references:1
+msgid "验证码错误!"
+msgstr "驗證碼錯誤!"
+
+#: Disabled references:1
+msgid "密码修改次数过多被锁定，请 %0 分钟后再试，或 重置密码"
+msgstr "密碼修改次數過多被鎖定，請 %0 分鐘後再試，或 重置密碼"
+
+#: Disabled references:1
+msgid "验证码已经失效，请重新发送!"
+msgstr "驗證碼已經失效，請重新發送!"
+
+#: Disabled references:1
+msgid "修改密码失败,请稍后再试!"
+msgstr "修改密碼失敗,請稍後再試!"
+
+#: Disabled references:1
+msgid "请输入新密码！"
+msgstr "請輸入新密碼！"
+
+#: Disabled references:1
+msgid "设置密码"
+msgstr "設置密碼"
+
+#: Disabled references:1
+msgid "新应用仅您自己可见，请在“人员设置”将角色分配给协作者，再开始使用。"
+msgstr "新應用僅您自己可見，請在“人員設置”將角色分配給協作者，再開始使用。"
+
+#: Disabled references:1
+msgid "知晓了"
+msgstr "知曉了"
+
+#: Disabled references:1
+msgid "感谢你尝试安装明道云！我们精心挑选了两个初始应用，供您体验。"
+msgstr "感謝你嘗試安裝明道云！我們精心挑選了兩個初始應用，供您體驗。"
+
+#: Disabled references:1
+msgid "您也可从模板库添加一个应用"
+msgstr "您也可從模板庫添加一個應用"
+
+#: Disabled references:1
+msgid "仅限内部成员登录系统后根据权限访问"
+msgstr "僅限內部成員登錄系統後根據權限訪問"
+
+#: Disabled references:1
+msgid "是否保存修改的记录 ?"
+msgstr "是否保存修改的記錄 ?"
+
+#: Disabled references:1
+msgid "放弃"
+msgstr "放棄"
+
+#: Disabled references:1
+msgid "视图已隐藏"
+msgstr "視圖已隱藏"
+
+#: Disabled references:1
+msgid "您是平台唯一管理员，无法注销"
+msgstr "您是平台唯一管理員，無法註銷"
+
+#: Disabled references:1
+msgid "您尚有未退出的组织，请先至 个人中心-我的组织 退出所有组织，方可注销"
+msgstr "您尚有未退出的組織，請先至 個人中心-我的組織 退出所有組織，方可註銷"
+
+#: Disabled references:1
+msgid "请输入手机！"
+msgstr "請輸入手機！"
+
+#: Disabled references:1
+msgid "前后密码一致"
+msgstr "前後密碼一致"
+
+#: Disabled references:1
+msgid "忘记密码 - %0"
+msgstr "忘記密碼 - %0"
+
+#: Disabled references:1
+msgid "复制角色到外部门户"
+msgstr "複製角色到外部門戶"
+
+#: Disabled references:1
+msgid "用户扩展信息"
+msgstr "用戶擴展信息"
+
+#: Disabled references:1
+msgid "请保存当前新增角色"
+msgstr "請保存當前新增角色"
+
+#: Disabled references:1
+msgid "搜索角色"
+msgstr "搜索角色"
+
+#: Disabled references:1
+msgid "查看用户"
+msgstr "查看用戶"
+
+#: Disabled references:1
+msgid "应用管理员"
+msgstr "應用管理員"
+
+#: Disabled references:1
+msgid "应用管理员可以配置应用，管理应用下所有数据和人员"
+msgstr "應用管理員可以配置應用，管理應用下所有數據和人員"
+
+#: Disabled references:1
+msgid "拥有所有权限"
+msgstr "擁有所有權限"
+
+#: Disabled references:1
+msgid "应用管理员为系统内置角色，不可修改"
+msgstr "應用管理員為系統內置角色，不可修改"
+
+#: Disabled references:1
+msgid "当前统计"
+msgstr "當前統計"
+
+#: Disabled references:1
+msgid "请配置数值后再保存图表"
+msgstr "請配置數值後再保存圖表"
+
+#: Disabled references:1
+msgid "邮箱不能为空"
+msgstr "郵箱不能為空"
+
+#: Disabled references:1
+msgid "抱歉，操作过于频繁或者创建的组织已经达到上限，请升级至付费版本即可创建更多组织，如有疑问请咨询客服！"
+msgstr "抱歉，操作過於頻繁或者創建的組織已經達到上限，請升級至付費版本即可創建更多組織，如有疑問請諮詢客服！"
+
+#: Disabled references:1
+msgid "LDAP登录"
+msgstr "LDAP登錄"
+
+#: Disabled references:1
+msgid "平台账户登录"
+msgstr "平台賬戶登錄"
+
+#: Disabled references:1
+msgid "销售方纳税人识别号"
+msgstr "銷售方納稅人識別號"
+
+#: Disabled references:1
+msgid "节点负责人"
+msgstr "節點負責人"
+
+#: Disabled references:1
+msgid "节点开始时间"
+msgstr "節點開始時間"
+
+#: Disabled references:1
+msgid "剩余时间"
+msgstr "剩余時間"
+
+#: Disabled references:1
+msgid "自动化工作流"
+msgstr "自動化工作流"
+
+#: Disabled references:1
+msgid "触发流程"
+msgstr "觸發流程"
+
+#: Disabled references:1
+msgid "审批流"
+msgstr "審核流程"
+
+#: Disabled references:1
+msgid "记录添加成功"
+msgstr "記錄添加成功"
+
+#: Disabled references:1
+msgid "请输入补充信息"
+msgstr "請輸入補充信息"
+
+#: Disabled references:1
+msgid "条件组"
+msgstr "條件組"
+
+#: Disabled references:1
+msgid "添加条件组，结合 且/或 条件进行筛选"
+msgstr "添加條件組，結合 且/或 條件進行篩選"
+
+#: Disabled references:1
+msgid "SSO单点登录"
+msgstr "SSO單點登錄"
+
+#: Disabled references:1
+msgid "明道云可与您的系统账号集成，通过二级域名访问配置的登录地址，实现单点登录"
+msgstr "明道云可與您的系統賬號集成，通過二級域名訪問配置的登錄地址，實現單點登錄"
+
+#: Disabled references:1
+msgid "从Excel创建"
+msgstr "從Excel創建"
+
+#: Disabled references:1
+msgid "新建应用"
+msgstr "新建應用"
+
+#: Disabled references:1
+msgid "从Excel创建应用"
+msgstr "從Excel創建應用"
+
+#: Disabled references:1
+msgid "上传Excel文件创建您的应用"
+msgstr "上傳Excel文件創建您的應用"
+
+#: Disabled references:1
+msgid "移除后，其下属成员也将从汇报关系中移除"
+msgstr "移除後，其下屬成員也將從匯報關係中移除"
+
+#: Disabled references:1
+msgid "付费版下的网络支持直接通过二级域名访问网络。"
+msgstr "付費版下的網絡支持直接通過二級域名訪問網絡。"
+
+#: Disabled references:1
+msgid "当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值"
+msgstr "當前企業賬號餘額不足，無法通過短信/郵件通知用戶，請先充值"
+
+#: Disabled references:1
+msgid "星标失败"
+msgstr "星標失敗"
+
+#: Disabled references:1
+msgid "取消星标失败"
+msgstr "取消星標失敗"
+
+#: Disabled references:1
+msgid "流程进度"
+msgstr "流程進度"
+
+#: Disabled references:1
+msgid " 正在等待%0"
+msgstr " 正在等待%0"
+
+#: Disabled references:1
+msgid " 执行失败!"
+msgstr " 執行失敗!"
+
+#: Disabled references:1
+msgid "%0已有关联记录，无法重复添加"
+msgstr "%0已有關聯記錄，無法重複添加"
+
+#: Disabled references:1
+msgid "部门树"
+msgstr "部門樹"
+
+#: Disabled references:1
+msgid "操作失败,请稍后再试"
+msgstr "操作失敗,請稍後再試"
+
+#: Disabled references:1
+msgid "%0个人员申请加入"
+msgstr "%0個人員申請加入"
+
+#: Disabled references:1
+msgid "为选中的%0个申请人选择角色"
+msgstr "為選中的%0個申請人選擇角色"
+
+#: Disabled references:1
+msgid "保存并通过"
+msgstr "保存並通過"
+
+#: Disabled references:1
+msgid "操作人"
+msgstr "操作人"
+
+#: Disabled references:1
+msgid "添加时间"
+msgstr "添加時間"
+
+#: Disabled references:1
+msgid "修改角色"
+msgstr "修改角色"
+
+#: Disabled references:1
+msgid "%0个外协用户"
+msgstr "%0個外協用戶"
+
+#: Disabled references:1
+msgid "%0组织角色"
+msgstr "%0組織角色"
+
+#: Disabled references:1
+msgid "%0个职位"
+msgstr "%0個職位"
+
+#: Disabled references:1
+msgid "%0名人员"
+msgstr "%0名人員"
+
+#: Disabled references:1
+msgid "添加用户"
+msgstr "添加用戶"
+
+#: Disabled references:1
+msgid "按角色"
+msgstr "按角色"
+
+#: Disabled references:1
+msgid "无相关角色"
+msgstr "無相關角色"
+
+#: Disabled references:1
+msgid "你确认将%0个用户移出本应用吗？"
+msgstr "你確認將%0個用戶移出本應用嗎？"
+
+#: Disabled references:1
+msgid "你确认将“%0”移出本应用吗？"
+msgstr "你確認將“%0”移出本應用嗎？"
+
+#: Disabled references:1
+msgid "你确认移出%0个用户吗？"
+msgstr "你確認移出%0個用戶嗎？"
+
+#: Disabled references:1
+msgid "你确认将“%0”移出吗？"
+msgstr "你確認將“%0”移出嗎？"
+
+#: Disabled references:1
+msgid "搜索申请人"
+msgstr "搜索申請人"
+
+#: Disabled references:1
+msgid "搜索外协用户"
+msgstr "搜索外協用戶"
+
+#: Disabled references:1
+msgid "外协用户"
+msgstr "外協用戶"
+
+#: Disabled references:1
+msgid "将修改选中的%0个用户"
+msgstr "將修改選中的%0個用戶"
+
+#: Disabled references:1
+msgid "将选中的%0个用户移到其他角色"
+msgstr "將選中的%0個用戶移到其他角色"
+
+#: Disabled references:1
+msgid "请填写正确的邮箱或姓名"
+msgstr "請填寫正確的郵箱或姓名"
+
+#: Disabled references:1
+msgid "短信0.05元/条、邮件0.03/封，自动从企业账户扣费，请保持企业账户余额充足，目前短信邀请外部用户仅支持大陆手机号"
+msgstr "短信0.05元/條、郵件0.03/封，自動從企業賬戶扣費，請保持企業賬戶餘額充足，目前短信邀請外部用戶僅支持大陸手機號"
+
+#: Disabled references:1
+msgid "发送邮件通知"
+msgstr "發送郵件通知"
+
+#: Disabled references:1
+msgid "上传成功后会发送短信/邮箱邀请用户注册外部门户"
+msgstr "上傳成功後會發送短信/郵箱邀請用戶註冊外部門戶"
+
+#: Disabled references:1
+msgid "Excel表格第一行必须是字段名称，为保证短信发送成功请务必保证手机号真实有效，"
+msgstr "Excel表格第一行必須是字段名稱，為保證短信發送成功請務必保證手機號真實有效，"
+
+#: Disabled references:1
+msgid "邀请用户并发送短信/邮箱（短信0.05元/条、邮箱0.03/封，自动从企业账户扣费）"
+msgstr "邀請用戶並發送短信/郵箱（短信0.05元/條、郵箱0.03/封，自動從企業賬戶扣費）"
+
+#: Disabled references:1
+msgid "请输入角色名称！"
+msgstr "請輸入角色名稱！"
+
+#: Disabled references:1
+msgid "搜索用户名称、手机号、邮箱"
+msgstr "搜索用戶名稱、手機號、郵箱"
+
+#: Disabled references:1
+msgid "邮件通知内容设置"
+msgstr "郵件通知內容設置"
+
+#: Disabled references:1
+msgid "已输入 %0  个字（含签名），短信按 %1 条计费"
+msgstr "已輸入 %0  個字（含簽名），短信按 %1 條計費"
+
+#: Disabled references:1
+msgid "注册方式"
+msgstr "註冊方式"
+
+#: Disabled references:1
+msgid "取消手机号/邮箱注册后，外部用户将不能使用原账号登录，请您谨慎配置"
+msgstr "取消手機號/郵箱註冊後，外部用戶將不能使用原賬號登錄，請您謹慎配置"
+
+#: Disabled references:1
+msgid "至少选择一种注册方式"
+msgstr "至少選擇一種註冊方式"
+
+#: Disabled references:1
+msgid "登录设置"
+msgstr "登錄設置"
+
+#: Disabled references:1
+msgid "扫码登录后需要先关注微信公众号"
+msgstr "掃碼登錄後需要先關注微信公眾號"
+
+#: Disabled references:1
+msgid "限制允许登录的邮箱"
+msgstr "限制允許登錄的郵箱"
+
+#: Disabled references:1
+msgid "短信通知"
+msgstr "短信通知"
+
+#: Disabled references:1
+msgid "注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户;外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义;针对相应的短信会进行收费收费标准:短信0.05元/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。"
+msgstr "註冊開啟審核後，審核結果(通過、拒絕)會短信告知註冊用戶;外部門戶類型設為私有後再添加用戶後也會發送邀請通知，支持對短信內容自定義;針對相應的短信會進行收費收費標準:短信0.05元/條，自動從企業賬務中心扣費。 70字計一條短信，超過70字以67字每條計費。每個標點、空格、英文字母都算一個字。短信實際發送可能有10-20分鐘的延時。"
+
+#: Disabled references:1
+msgid "请谨慎填写您的组织简称、网站名、品牌名，2-8个汉字。如签名不符合规范，将会被运营商拦截。此签名适用于外部门户的短信场景:外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)"
+msgstr "請謹慎填寫您的組織簡稱、網站名、品牌名，2-8個漢字。如簽名不符合規範，將會被運營商攔截。此簽名適用於外部門戶的短信場景:外部門戶用戶註冊登錄、邀請外部用戶註冊、外部用戶審核(通過/拒絕)"
+
+#: Disabled references:1
+msgid "短信设置"
+msgstr "短信設置"
+
+#: Disabled references:1
+msgid "邮件通知"
+msgstr "郵件通知"
+
+#: Disabled references:1
+msgid "注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户;外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对邮件内容自定义;针对相应的邮件会进行收费收费标准:邮件0.03元/封，自动从企业账务中心扣费。"
+msgstr "註冊開啟審核後，審核結果(通過、拒絕)會郵件告知註冊用戶;外部門戶類型設為私有後再添加用戶後也會發送邀請通知，支持對郵件內容自定義;針對相應的郵件會進行收費收費標準:郵件0.03元/封，自動從企業賬務中心扣費。"
+
+#: Disabled references:1
+msgid "发件人名称"
+msgstr "發件人名稱"
+
+#: Disabled references:1
+msgid "请输入发件人名称"
+msgstr "請輸入發件人名稱"
+
+#: Disabled references:1
+msgid "邮件设置"
+msgstr "郵件設置"
+
+#: Disabled references:1
+msgid "复制角色到常规"
+msgstr "複製角色到常規"
+
+#: Disabled references:1
+msgid "设为默认权限"
+msgstr "設為默認權限"
+
+#: Disabled references:1
+msgid "下属加入/拥有的记录"
+msgstr "下屬加入/擁有的記錄"
+
+#: Disabled references:1
+msgid "汇报关系中，下属拥有的记录"
+msgstr "匯報關係中，下屬擁有的記錄"
+
+#: Disabled references:1
+msgid "操作权限"
+msgstr "操作權限"
+
+#: Disabled references:1
+msgid "包含记录讨论"
+msgstr "包含記錄討論"
+
+#: Disabled references:1
+msgid "插入代码"
+msgstr "插入代碼"
+
+#: Disabled references:1
+msgid "代码示例"
+msgstr "代碼示例"
+
+#: Disabled references:1
+msgid "编写代码对输入参数进行处理后用于 API 请求参数，如计算签名等"
+msgstr "編寫代碼對輸入參數進行處理後用於 API 請求參數，如計算簽名等"
+
+#: Disabled references:1
+msgid "编写代码对 API 请求结果进行处理后用于输出参数"
+msgstr "編寫代碼對 API 請求結果進行處理後用於輸出參數"
+
+#: Disabled references:1
+msgid "删除后可在字段回收站保留60天（免费版删除后无法恢复）"
+msgstr "刪除後可在字段回收站保留60天（免費版刪除後無法恢復）"
+
+#: Disabled references:1
+msgid "删除后可在字段回收站保留60天"
+msgstr "刪除後可在字段回收站保留60天"
+
+#: Disabled references:1
+msgid "暂无修改本应用的外部流程"
+msgstr "暫無修改本應用的外部流程"
+
+#: Disabled references:1
+msgid "在服务器接收到第三方推送的消息后运行流程"
+msgstr "在服務器接收到第三方推送的消息後運行流程"
+
+#: Disabled references:1
+msgid "当用户点击记录的自定义按钮后运行流程 "
+msgstr "當用戶點擊記錄的自定義按鈕後運行流程 "
+
+#: Disabled references:1
+msgid "在某个流程流转过程中可以创建一个子流程并执行"
+msgstr "在某個流程流轉過程中可以創建一個子流程並執行"
+
+#: Disabled references:1
+msgid "当组织人员入/离职或外部用户注册/登录/删除时运行流程"
+msgstr "當組織人員入/離職或外部用戶註冊/登錄/刪除時運行流程"
+
+#: Disabled references:1
+msgid "封装应用中可被复用的数据处理能力，自定义输入/输出"
+msgstr "封裝應用中可被復用的數據處理能力，自定義輸入/輸出"
+
+#: Disabled references:1
+msgid "对业务数据发起审批流程，实现自动化和人工审批的打通"
+msgstr "對業務數據發起審批流程，實現自動化和人工審批的打通"
+
+#: Disabled references:1
+msgid "距离此刻的时长"
+msgstr "距離此刻的時長"
+
+#: Disabled references:1
+msgid "补充信息的引导文字"
+msgstr "補充信息的引導文字"
+
+#: Disabled references:1
+msgid "流程已成功发布！"
+msgstr "流程已成功發布！"
+
+#: Disabled references:1
+msgid "是否为%0开启审批功能项（已开启可忽略）"
+msgstr "是否為%0開啟審批功能項（已開啟可忽略）"
+
+#: Disabled references:1
+msgid "在视图上显示审批系统字段"
+msgstr "在視圖上顯示審批系統字段"
+
+#: Disabled references:1
+msgid "打开记录时显示审批流转详情"
+msgstr "打開記錄時顯示審批流轉詳情"
+
+#: Disabled references:1
+msgid "触发者查看"
+msgstr "觸發者查看"
+
+#: Disabled references:1
+msgid "启用后，流程触发者可以在“我发起的”待办项中查看、追踪此流程"
+msgstr "啟用後，流程觸發者可以在“我發起的”待辦項中查看、追踪此流程"
+
+#: Disabled references:1
+msgid "此项配置仅对旧版人工节点生效。推荐使用新审批流程！"
+msgstr "此項配置僅對舊版人工節點生效。推薦使用新審批流程！"
+
+#: Disabled references:1
+msgid "审批流程触发"
+msgstr "審批流程觸發"
+
+#: Disabled references:1
+msgid "发起人："
+msgstr "發起人："
+
+#: Disabled references:1
+msgid "请先配置发起审批的数据对象"
+msgstr "請先配置發起審批的數據對象"
+
+#: Disabled references:1
+msgid "等我填写..."
+msgstr "等我填寫..."
+
+#: Disabled references:1
+msgid "等我审批..."
+msgstr "等我審批..."
+
+#: Disabled references:1
+msgid "等我查看..."
+msgstr "等我查看..."
+
+#: Disabled references:1
+msgid "同意并加签"
+msgstr "同意並加簽"
+
+#: Disabled references:1
+msgid "流程开始"
+msgstr "流程開始"
+
+#: Disabled references:1
+msgid "已执行"
+msgstr "已執行"
+
+#: Disabled references:1
+msgid "待执行"
+msgstr "待執行"
+
+#: Disabled references:1
+msgid "没有可选的审批流程"
+msgstr "沒有可選的審批流程"
+
+#: Disabled references:1
+msgid "从已有审批流程复制"
+msgstr "從已有審批流程複製"
+
+#: Disabled references:1
+msgid "整体耗时"
+msgstr "整體耗時"
+
+#: Disabled references:1
+msgid "填写中..."
+msgstr "填寫中..."
+
+#: Disabled references:1
+msgid "前往填写"
+msgstr "前往填寫"
+
+#: Disabled references:1
+msgid "前往办理"
+msgstr "前往辦理"
+
+#: Disabled references:1
+msgid "%0 于 %1 发起"
+msgstr "%0 於 %1 發起"
+
+#: Disabled references:1
+msgid "当前节点"
+msgstr "當前節點"
+
+#: Disabled references:1
+msgid "处理开始"
+msgstr "處理開始"
+
+#: Disabled references:1
+msgid "查看流转图"
+msgstr "查看流轉圖"
+
+#: Disabled references:1
+msgid "流转图"
+msgstr "流轉圖"
+
+#: Disabled references:1
+msgid "撤回成功"
+msgstr "撤回成功"
+
+#: Disabled references:1
+msgid "暂无审批流程"
+msgstr "暫無審批流程"
+
+#: Disabled references:1
+msgid "打印条形码"
+msgstr "打印條形碼"
+
+#: Disabled references:1
+msgid "公开链接"
+msgstr "公開鏈接"
+
+#: Disabled references:1
+msgid "标签打印机"
+msgstr "標籤打印機"
+
+#: Disabled references:1
+msgid "A4打印机"
+msgstr "A4打印機"
+
+#: Disabled references:1
+msgid "顶部"
+msgstr "頂部"
+
+#: Disabled references:1
+msgid "底部"
+msgstr "底部"
+
+#: Disabled references:1
+msgid "左边"
+msgstr "左邊"
+
+#: Disabled references:1
+msgid "右边"
+msgstr "右邊"
+
+#: Disabled references:1
+msgid "7%"
+msgstr "7%"
+
+#: Disabled references:1
+msgid "15%"
+msgstr "15%"
+
+#: Disabled references:1
+msgid "25%"
+msgstr "25%"
+
+#: Disabled references:1
+msgid "35%"
+msgstr "35%"
+
+#: Disabled references:1
+msgid "%0 x %1 mm"
+msgstr "%0 x %1 mm"
+
+#: Disabled references:1
+msgid "请选择数据来源字段"
+msgstr "請選擇數據來源字段"
+
+#: Disabled references:1
+msgid "正在生成打印文件···"
+msgstr "正在生成打印文件···"
+
+#: Disabled references:1
+msgid "字段%0"
+msgstr "字段%0"
+
+#: Disabled references:1
+msgid "强制单行"
+msgstr "強制單行"
+
+#: Disabled references:1
+msgid "宽度不能小于%0"
+msgstr "寬度不能小於%0"
+
+#: Disabled references:1
+msgid "宽度不能大于%0"
+msgstr "寬度不能大於%0"
+
+#: Disabled references:1
+msgid "高度不能小于%0"
+msgstr "高度不能小於%0"
+
+#: Disabled references:1
+msgid "高度不能大于%0"
+msgstr "高度不能大於%0"
+
+#: Disabled references:1
+msgid "尺寸"
+msgstr "尺寸"
+
+#: Disabled references:1
+msgid "宽/高"
+msgstr "寬/高"
+
+#: Disabled references:1
+msgid "编码方式：code128，仅支持数字、字母、符号，最大包含30个字符"
+msgstr "編碼方式：code128，僅支持數字、字母、符號，最大包含30個字符"
+
+#: Disabled references:1
+msgid "条形码数据源"
+msgstr "條形碼數據源"
+
+#: Disabled references:1
+msgid "打印方式"
+msgstr "打印方式"
+
+#: Disabled references:1
+msgid "布局"
+msgstr "佈局"
+
+#: Disabled references:1
+msgid "二维码设置"
+msgstr "二維碼設置"
+
+#: Disabled references:1
+msgid "条形码设置"
+msgstr "條形碼設置"
+
+#: Disabled references:1
+msgid "当前尺寸下最大容纳%0行文字，字段内容超过1行后，默认向下换行直到完整显示。"
+msgstr "當前尺寸下最大容納%0行文字，字段內容超過1行後，默認向下換行直到完整顯示。"
+
+#: Disabled references:1
+msgid "显示为标题"
+msgstr "顯示為標題"
+
+#: Disabled references:1
+msgid "最近修改人"
+msgstr "最近修改人"
+
+#: Disabled references:1
+msgid "刷新选项排序和分值"
+msgstr "刷新選項排序和分值"
+
+#: Disabled references:1
+msgid "启用“未指定”看板"
+msgstr "啟用“未指定”看板"
+
+#: Disabled references:1
+msgid "开启后，第1个看板显示“未指定”。将所有未设置分组的记录显示在“未指定”看板中。当没有未分组数据时，自动隐藏此看板"
+msgstr "開啟後，第1個看板顯示“未指定”。將所有未設置分組的記錄顯示在“未指定”看板中。當沒有未分組數據時，自動隱藏此看板"
+
+#: Disabled references:1
+msgid "固定第1个看板"
+msgstr "固定第1個看板"
+
+#: Disabled references:1
+msgid "当看板滚动时，始终固定第1个看板在左侧，方便向其他看板中拖拽记录。"
+msgstr "當看板滾動時，始終固定第1個看板在左側，方便向其他看板中拖拽記錄。"
+
+#: Disabled references:1
+msgid "新的筛选"
+msgstr "新的篩選"
+
+#: Disabled references:1
+msgid "已保存"
+msgstr "已保存"
+
+#: Disabled references:1
+msgid "已超时"
+msgstr "已超時"
+
+#: Disabled references:1
+msgid "%0不能为空"
+msgstr "%0不能為空"
+
+#: Disabled references:1
+msgid "表数据导入完成"
+msgstr "表數據導入完成"
+
+#: Disabled references:1
+msgid "共导入%0张表，总计%1行数据"
+msgstr "共導入%0張表，總計%1行數據"
+
+#: Disabled references:1
+msgid "超过导入上限(上限 50000 行)，请调整导入数据"
+msgstr "超過導入上限(上限 50000 行)，請調整導入數據"
+
+#: Disabled references:1
+msgid "当前版本最多支持20个Sheet"
+msgstr "當前版本最多支持20個Sheet"
+
+#: Disabled references:1
+msgid "当前版本单个sheet最多支持20000行"
+msgstr "當前版本單個sheet最多支持20000行"
+
+#: Disabled references:1
+msgid "当前版本单个sheet最多支持200列"
+msgstr "當前版本單個sheet最多支持200列"
+
+#: Disabled references:1
+msgid "正在导入表数据"
+msgstr "正在導入表數據"
+
+#: Disabled references:1
+msgid "数据将在后台持续导入，导入完成后会给您发送系统通知。"
+msgstr "數據將在後台持續導入，導入完成後會給您發送系統通知。"
+
+#: Disabled references:1
+msgid "从导航栏中隐藏"
+msgstr "從導航欄中隱藏"
+
+#: Disabled references:1
+msgid "全部视图"
+msgstr "全部視圖"
+
+#: Disabled references:1
+msgid "没有搜索到相关视图"
+msgstr "沒有搜索到相關視圖"
+
+#: Disabled references:1
+msgid "隐藏的视图"
+msgstr "隱藏的視圖"
+
+#: Disabled references:1
+msgid "以富文本查看"
+msgstr "以富文本查看"
+
+#: Disabled references:1
+msgid "修改前"
+msgstr "修改前"
+
+#: Disabled references:1
+msgid "修改后"
+msgstr "修改後"
+
+#: Disabled references:1
+msgid "签名.jpg"
+msgstr "簽名.jpg"
+
+#: Disabled references:1
+msgid "新增了%0条"
+msgstr "新增了%0條"
+
+#: Disabled references:1
+msgid "更新了%0条"
+msgstr "更新了%0條"
+
+#: Disabled references:1
+msgid "移除了%0条"
+msgstr "移除了%0條"
+
+#: Disabled references:1
+msgid "添加了"
+msgstr "添加了"
+
+#: Disabled references:1
+msgid "取消了"
+msgstr "取消了"
+
+#: Disabled references:1
+msgid "（被动）"
+msgstr "（被動）"
+
+#: Disabled references:1
+msgid "(已删除)"
+msgstr "(已刪除)"
+
+#: Disabled references:1
+msgid "筛选此字段"
+msgstr "篩選此字段"
+
+#: Disabled references:1
+msgid "查看其他字段"
+msgstr "查看其他字段"
+
+#: Disabled references:1
+msgid "通过自定义动作"
+msgstr "通過自定義動作"
+
+#: Disabled references:1
+msgid "创建了记录"
+msgstr "創建了記錄"
+
+#: Disabled references:1
+msgid "更新%0个字段"
+msgstr "更新%0個字段"
+
+#: Disabled references:1
+msgid "删除了记录"
+msgstr "刪除了記錄"
+
+#: Disabled references:1
+msgid "导入Excel文件"
+msgstr "導入Excel文件"
+
+#: Disabled references:1
+msgid "导出了记录"
+msgstr "導出了記錄"
+
+#: Disabled references:1
+msgid "恢复了记录"
+msgstr "恢復了記錄"
+
+#: Disabled references:1
+msgid "更新了记录"
+msgstr "更新了記錄"
+
+#: Disabled references:1
+msgid "部分字段无权限不可见"
+msgstr "部分字段無權限不可見"
+
+#: Disabled references:1
+msgid "筛选此用户"
+msgstr "篩選此用戶"
+
+#: Disabled references:1
+msgid "更新了 %0个字段"
+msgstr "更新了 %0個字段"
+
+#: Disabled references:1
+msgid "继续查看旧版日志"
+msgstr "繼續查看舊版日誌"
+
+#: Disabled references:1
+msgid "以下是旧版日志"
+msgstr "以下是舊版日誌"
+
+#: Disabled references:1
+msgid "旧版日志不支持进行筛选。因为新旧版本的升级，可能会产生一段时间重复记录的日志"
+msgstr "舊版日誌不支持進行篩選。因為新舊版本的升級，可能會產生一段時間重複記錄的日誌"
+
+#: Disabled references:1
+msgid "更新了 %0 个字段"
+msgstr "更新了 %0 個字段"
+
+#: Disabled references:1
+msgid "当前日期字段不可编辑"
+msgstr "當前日期字段不可編輯"
+
+#: Disabled references:1
+msgid "; 同步企业微信用户信息 "
+msgstr "; 同步企業微信用戶信息 "
+
+#: Disabled references:1
+msgid "脱敏"
+msgstr "脫敏"
+
+#: Disabled references:1
+msgid "可新增、查看、编辑哪些字段？"
+msgstr "可新增、查看、編輯哪些字段？"
+
+#: Disabled references:1
+msgid "指“新增记录”时，可查看的字段"
+msgstr "指“新增記錄”時，可查看的字段"
+
+#: Disabled references:1
+msgid "解密"
+msgstr "解密"
+
+#: Disabled references:1
+msgid "记录范围"
+msgstr "記錄範圍"
+
+#: Disabled references:1
+msgid "可执行哪些操作？"
+msgstr "可執行哪些操作？"
+
+#: Disabled references:1
+msgid "打印模版"
+msgstr "打印模版"
+
+#: Disabled references:1
+msgid "%0表中"
+msgstr "%0表中"
+
+#: Disabled references:1
+msgid "字段包含当前用户的记录"
+msgstr "字段包含當前用戶的記錄"
+
+#: Disabled references:1
+msgid "成员、部门、组织角色类型的字段，作为“拥有者”的记录，包含多个权限为“拥有者”字段时，权限为“或”关系"
+msgstr "成員、部門、組織角色類型的字段，作為“擁有者”的記錄，包含多個權限為“擁有者”字段時，權限為“或”關係"
+
+#: Disabled references:1
+msgid "额外包含以下记录"
+msgstr "額外包含以下記錄"
+
+#: Disabled references:1
+msgid "下属加入的记录"
+msgstr "下屬加入的記錄"
+
+#: Disabled references:1
+msgid "下属拥有的记录"
+msgstr "下屬擁有的記錄"
+
+#: Disabled references:1
+msgid "基于组织的人员汇报关系，下属所拥有的记录"
+msgstr "基於組織的人員匯報關係，下屬所擁有的記錄"
+
+#: Disabled references:1
+msgid "可查看哪些记录？"
+msgstr "可查看哪些記錄？"
+
+#: Disabled references:1
+msgid "可修改哪些记录？"
+msgstr "可修改哪些記錄？"
+
+#: Disabled references:1
+msgid "可删除哪些记录？"
+msgstr "可刪除哪些記錄？"
+
+#: Disabled references:1
+msgid "用户加入的"
+msgstr "用戶加入的"
+
+#: Disabled references:1
+msgid "用户拥有的"
+msgstr "用戶擁有的"
+
+#: Disabled references:1
+msgid "需要在统计数据源中指定统计的视图（当前只支持表视图）"
+msgstr "需要在統計數據源中指定統計的視圖（當前只支持表視圖）"
+
+#: Disabled references:1
+msgid "至今天"
+msgstr "至今天"
+
+#: Disabled references:1
+msgid "未勾选时，表示统计从过去365天开始到昨天的数据；勾选时，表示统计从过去365天开始到今天的数据。"
+msgstr "未勾選時，表示統計從過去365天開始到昨天的數據；勾選時，表示統計從過去365天開始到今天的數據。"
+
+#: Disabled references:1
+msgid "暂无轮播图片"
+msgstr "暫無輪播圖片"
+
+#: Disabled references:1
+msgid "无法形成轮播图"
+msgstr "無法形成輪播圖"
+
+#: Disabled references:1
+msgid "滚动"
+msgstr "滾動"
+
+#: Disabled references:1
+msgid "淡入淡出"
+msgstr "淡入淡出"
+
+#: Disabled references:1
+msgid "白色"
+msgstr "白色"
+
+#: Disabled references:1
+msgid "黑色"
+msgstr "黑色"
+
+#: Disabled references:1
+msgid "预览图片"
+msgstr "預覽圖片"
+
+#: Disabled references:1
+msgid "选择附件字段，轮播展示每条记录中的附件图片"
+msgstr "選擇附件字段，輪播展示每條記錄中的附件圖片"
+
+#: Disabled references:1
+msgid "请选择附件字段"
+msgstr "請選擇附件字段"
+
+#: Disabled references:1
+msgid "暂无附件字段"
+msgstr "暫無附件字段"
+
+#: Disabled references:1
+msgid "最多显示图片数量"
+msgstr "最多顯示圖片數量"
+
+#: Disabled references:1
+msgid "轮播图设置"
+msgstr "輪播圖設置"
+
+#: Disabled references:1
+msgid "填充方式"
+msgstr "填充方式"
+
+#: Disabled references:1
+msgid "背景色"
+msgstr "背景色"
+
+#: Disabled references:1
+msgid "请选择文本字段"
+msgstr "請選擇文本字段"
+
+#: Disabled references:1
+msgid "暂无文本字段"
+msgstr "暫無文本字段"
+
+#: Disabled references:1
+msgid "点击图片时"
+msgstr "點擊圖片時"
+
+#: Disabled references:1
+msgid "为选项赋分值"
+msgstr "為選項賦分值"
+
+#: Disabled references:1
+msgid "当"
+msgstr "當"
+
+#: Disabled references:1
+msgid "添加其他"
+msgstr "添加其他"
+
+#: Disabled references:1
+msgid "最新一条"
+msgstr "最新一條"
+
+#: Disabled references:1
+msgid "最多%0条"
+msgstr "最多%0條"
+
+#: Disabled references:1
+msgid "将查询到的最多200条记录字段写入子表字段，每行记录添加为一行子表明细"
+msgstr "將查詢到的最多200條記錄字段寫入子表字段，每行記錄添加為一行子表明細"
+
+#: Disabled references:1
+msgid "选择“其他”时，补充信息必填"
+msgstr "選擇“其他”時，補充信息必填"
+
+#: Disabled references:1
+msgid "勾选后，当用户选中“其他”时，必须在后面的文本框中填写内容。"
+msgstr "勾選後，當用戶選中“其他”時，必須在後面的文本框中填寫內容。"
+
+#: Disabled references:1
+msgid "目标日期 减去 此刻 "
+msgstr "目標日期 減去 此刻 "
+
+#: Disabled references:1
+msgid "此刻 减去 目标日期"
+msgstr "此刻 減去 目標日期"
+
+#: Disabled references:1
+msgid "自动进位"
+msgstr "自動進位"
+
+#: Disabled references:1
+msgid "超过12个月/24小时/60分钟的部分，分别进位为年/天/小时。如 90分钟 呈现为 1小时30分钟"
+msgstr "超過12個月/24小時/60分鐘的部分，分別進位為年/天/小時。如 90分鐘 呈現為 1小時30分鐘"
+
+#: Disabled references:1
+msgid "按部门层级逐级审批（开发中...）"
+msgstr "按部門層級逐級審批（開發中...）"
+
+#: Disabled references:1
+msgid "否决时，无需填写表单字段"
+msgstr "否決時，無需填寫表單字段"
+
+#: Disabled references:1
+msgid "此节点通过后，向发起人推送站内通知"
+msgstr "此節點通過後，向發起人推送站內通知"
+
+#: Disabled references:1
+msgid "必须先选择一个数据对象"
+msgstr "必須先選擇一個數據對象"
+
+#: Disabled references:1
+msgid "必须指定发起人"
+msgstr "必須指定發起人"
+
+#: Disabled references:1
+msgid "允许发起人撤回"
+msgstr "允許發起人撤回"
+
+#: Disabled references:1
+msgid "允许发起人催办"
+msgstr "允許發起人催辦"
+
+#: Disabled references:1
+msgid "发起人无需审批自动通过"
+msgstr "發起人無需審批自動通過"
+
+#: Disabled references:1
+msgid "已审批过的审批人自动通过"
+msgstr "已審批過的審批人自動通過"
+
+#: Disabled references:1
+msgid "发起审批的数据对象"
+msgstr "發起審批的數據對象"
+
+#: Disabled references:1
+msgid "指定发起人"
+msgstr "指定發起人"
+
+#: Disabled references:1
+msgid "发起人操作"
+msgstr "發起人操作"
+
+#: Disabled references:1
+msgid "注意！你将要更改审批流程的数据对象"
+msgstr "注意！你將要更改審批流程的數據對象"
+
+#: Disabled references:1
+msgid "发起审批流程"
+msgstr "發起審批流程"
+
+#: Disabled references:1
+msgid "对自动化工作流中的数据发起审批流程，实现业务自动化和人工审批的打通"
+msgstr "對自動化工作流中的數據發起審批流程，實現業務自動化和人工審批的打通"
+
+#: Disabled references:1
+msgid "必须指定数据对象"
+msgstr "必須指定數據對象"
+
+#: Disabled references:1
+msgid "发送附带记录的站内消息，此类消息会进入流程待办中的“待查看”项，需要用户手动确认已读"
+msgstr "發送附帶記錄的站內消息，此類消息會進入流程待辦中的“待查看”項，需要用戶手動確認已讀"
+
+#: Disabled references:1
+msgid "从组织角色字段获取"
+msgstr "從組織角色字段獲取"
+
+#: Disabled references:1
+msgid "设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从字段中获得第一个组织角色的相关信息"
+msgstr "設置篩選條件，獲得滿足條件的數據。如果未添加篩選條件，則只從字段中獲得第一個組織角色的相關信息"
+
+#: Disabled references:1
+msgid "从组织角色中获取"
+msgstr "從組織角色中獲取"
+
+#: Disabled references:1
+msgid "设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从当前组织的所有组织角色中获得第一个（最新创建）角色的相关信息"
+msgstr "設置篩選條件，獲得滿足條件的數據。如果未添加篩選條件，則只從當前組織的所有組織角色中獲得第一個（最新創建）角色的相關信息"
+
+#: Disabled references:1
+msgid "设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得所有来自该字段的组织角色的相关信息"
+msgstr "設置篩選條件，獲得滿足條件的數據。如果未添加篩選條件，則獲得所有來自該字段的組織角色的相關信息"
+
+#: Disabled references:1
+msgid "设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得当前组织的所有组织角色的相关信息"
+msgstr "設置篩選條件，獲得滿足條件的數據。如果未添加篩選條件，則獲得當前組織的所有組織角色的相關信息"
+
+#: Disabled references:1
+msgid "获取一个组织角色的相关信息，包含角色名称、备注、角色下人员，供流程中的其他节点使用。"
+msgstr "獲取一個組織角色的相關信息，包含角色名稱、備註、角色下人員，供流程中的其他節點使用。"
+
+#: Disabled references:1
+msgid "获取多个组织角色的相关信息，包含角色名称、备注、角色下人员，供流程中的其他节点使用。"
+msgstr "獲取多個組織角色的相關信息，包含角色名稱、備註、角色下人員，供流程中的其他節點使用。"
+
+#: Disabled references:1
+msgid "选择 JSON 来源"
+msgstr "選擇 JSON 來源"
+
+#: Disabled references:1
+msgid "步骤"
+msgstr "步驟"
+
+#: Disabled references:1
+msgid "审批流程异常，请删除后重新配置"
+msgstr "審批流程異常，請刪除後重新配置"
+
+#: Disabled references:1
+msgid "数据对象："
+msgstr "數據對象："
+
+#: Disabled references:1
+msgid "数据分支"
+msgstr "數據分支"
+
+#: Disabled references:1
+msgid "结果分支(开发中)"
+msgstr "結果分支(開發中)"
+
+#: Disabled references:1
+msgid "执行流程"
+msgstr "執行流程"
+
+#: Disabled references:1
+msgid "创建新流程"
+msgstr "創建新流程"
+
+#: Disabled references:1
+msgid "从空白创建一条新的审批流程"
+msgstr "從空白創建一條新的審批流程"
+
+#: Disabled references:1
+msgid "从已有审批流程复制不包括数据对象在内的流程框架，涉及相关对象的字段将被重置，需要重新配置这些节点"
+msgstr "從已有審批流程複製不包括數據對像在內的流程框架，涉及相關對象的字段將被重置，需要重新配置這些節點"
+
+#: Disabled references:1
+msgid "从组织角色字段获取一个指定角色的相关信息"
+msgstr "從組織角色字段獲取一個指定角色的相關信息"
+
+#: Disabled references:1
+msgid "从当前组织的所有组织角色中获取一个指定角色的相关信息"
+msgstr "從當前組織的所有組織角色中獲取一個指定角色的相關信息"
+
+#: Disabled references:1
+msgid "从组织角色字段获取批量角色的相关信息"
+msgstr "從組織角色字段獲取批量角色的相關信息"
+
+#: Disabled references:1
+msgid "从当前组织的所有组织角色中获取批量角色的相关信息"
+msgstr "從當前組織的所有組織角色中獲取批量角色的相關信息"
+
+#: Disabled references:1
+msgid "Beta"
+msgstr "Beta"
+
+#: Disabled references:1
+msgid "发起审批"
+msgstr "發起審批"
+
+#: Disabled references:1
+msgid "条件"
+msgstr "條件"
+
+#: Disabled references:1
+msgid "添加筛选条件，查询工作表数据"
+msgstr "添加篩選條件，查詢工作表數據"
+
+#: Disabled references:1
+msgid "没有保存的筛选器"
+msgstr "沒有保存的篩選器"
+
+#: Disabled references:1
+msgid "存在未保存的变更，是否需要保存？"
+msgstr "存在未保存的變更，是否需要保存？"
+
+#: Disabled references:1
+msgid "条件组为专业版功能"
+msgstr "條件組為專業版功能"
+
+#: Disabled references:1
+msgid "该筛选器中的筛选条件出错"
+msgstr "該篩選器中的篩選條件出錯"
+
+#: Disabled references:1
+msgid "打印记录"
+msgstr "打印記錄"
+
+#: Disabled references:1
+msgid "准备创建应用"
+msgstr "準備創建應用"
+
+#: Disabled references:1
+msgid "创建应用"
+msgstr "創建應用"
+
+#: Disabled references:1
+msgid "包含 %0 张工作表，导入 %1 行数据"
+msgstr "包含 %0 張工作表，導入 %1 行數據"
+
+#: Disabled references:1
+msgid "超过导入上限 (上限 50000 行)，请调整导入数据"
+msgstr "超過導入上限 (上限 50000 行)，請調整導入數據"
+
+#: Disabled references:1
+msgid "正在为您创建应用和工作表"
+msgstr "正在為您創建應用和工作表"
+
+#: Disabled references:1
+msgid "应用创建成功"
+msgstr "應用創建成功"
+
+#: Disabled references:1
+msgid "离开当前页面不会影响数据导入，导入完成后会通知您"
+msgstr "離開當前頁面不會影響數據導入，導入完成後會通知您"
+
+#: Disabled references:1
+msgid "查看应用"
+msgstr "查看應用"
+
+#: Disabled references:1
+msgid "关联到其他工作表"
+msgstr "關聯到其他工作表"
+
+#: Disabled references:1
+msgid "选择导入的列"
+msgstr "選擇導入的列"
+
+#: Disabled references:1
+msgid "标题字段无法取消"
+msgstr "標題字段無法取消"
+
+#: Disabled references:1
+msgid "不导入此列"
+msgstr "不導入此列"
+
+#: Disabled references:1
+msgid "设置导入数据"
+msgstr "設置導入數據"
+
+#: Disabled references:1
+msgid "当前表共%0行，仅显示前%1行"
+msgstr "當前表共%0行，僅顯示前%1行"
+
+#: Disabled references:1
+msgid "没有可导入Sheet"
+msgstr "沒有可導入Sheet"
+
+#: Disabled references:1
+msgid "请检查导入文件"
+msgstr "請檢查導入文件"
+
+#: Disabled references:1
+msgid "表头行"
+msgstr "表頭行"
+
+#: Disabled references:1
+msgid "导入所有列"
+msgstr "導入所有列"
+
+#: Disabled references:1
+msgid "导入%0/%1列"
+msgstr "導入%0/%1列"
+
+#: Disabled references:1
+msgid "关联到"
+msgstr "關聯到"
+
+#: Disabled references:1
+msgid "标题字段不能设置为此类型"
+msgstr "標題字段不能設置為此類型"
+
+#: Disabled references:1
+msgid "匹配字段"
+msgstr "匹配字段"
+
+#: Disabled references:1
+msgid "请选择映射的匹配字段"
+msgstr "請選擇映射的匹配字段"
+
+#: Disabled references:1
+msgid "选择导入的sheet"
+msgstr "選擇導入的sheet"
+
+#: Disabled references:1
+msgid "该sheet超过导入上限（上限20000行）"
+msgstr "該sheet超過導入上限（上限20000行）"
+
+#: Disabled references:1
+msgid "该sheet超过导入上限（上限200列）"
+msgstr "該sheet超過導入上限（上限200列）"
+
+#: Disabled references:1
+msgid "Sheet内不可以有合并单元格"
+msgstr "Sheet內不可以有合併單元格"
+
+#: Disabled references:1
+msgid "该sheet为空"
+msgstr "該sheet為空"
+
+#: Disabled references:1
+msgid "该sheet超过导入上限（上限%0张表）"
+msgstr "該sheet超過導入上限（上限%0張表）"
+
+#: Disabled references:1
+msgid "至少导入1张Sheet"
+msgstr "至少導入1張Sheet"
+
+#: Disabled references:1
+msgid "修改表名称"
+msgstr "修改表名稱"
+
+#: Disabled references:1
+msgid "不导入此sheet"
+msgstr "不導入此sheet"
+
+#: Disabled references:1
+msgid "上传Excel文件"
+msgstr "上傳Excel文件"
+
+#: Disabled references:1
+msgid "文件类型错误，仅支持xls、xlsx、csv文件"
+msgstr "文件類型錯誤，僅支持xls、xlsx、csv文件"
+
+#: Disabled references:1
+msgid "文件过大，仅支持 20MB 以内的文件"
+msgstr "文件過大，僅支持 20MB 以內的文件"
+
+#: Disabled references:1
+msgid "点击上传文件，或拖拽文件"
+msgstr "點擊上傳文件，或拖拽文件"
+
+#: Disabled references:1
+msgid "支持 20MB 以内的 xls、xlsx、csv 文件"
+msgstr "支持 20MB 以內的 xls、xlsx、csv 文件"
+
+#: Disabled references:1
+msgid "删除“发起审批流程”"
+msgstr "刪除“發起審批流程”"
+
+#: Disabled references:1
+msgid "同时删除审批流程内的所有节点"
+msgstr "同時刪除審批流程內的所有節點"
+
+#: Disabled references:1
+msgid "错误报告"
+msgstr "錯誤報告"
+

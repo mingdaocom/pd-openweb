@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Column, Bar } from '@antv/g2plot';
 import {
   getLegendType,
   formatControlInfo,
@@ -84,7 +83,10 @@ export default class extends Component {
     this.BarChart = null;
   }
   componentDidMount() {
-    this.renderBarChart(this.props);
+    import('@antv/g2plot').then(data => {
+      this.g2plotComponent = data;
+      this.renderBarChart(this.props);
+    });
   }
   componentWillUnmount() {
     this.BarChart && this.BarChart.destroy();
@@ -140,8 +142,9 @@ export default class extends Component {
     const event = data.gEvent;
     const currentData = data.data;
     const isNumber = isFormatNumber(xaxes.controlType);
-    const param = {
-      [xaxes.cid]: isNumber ? Number(currentData.data.originalId) : currentData.data.originalId
+    const param = {};
+    if (xaxes.cid) {
+      param[xaxes.cid] = isNumber ? Number(currentData.data.originalId) : currentData.data.originalId;
     }
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
@@ -232,7 +235,7 @@ export default class extends Component {
           type: 'cat',
           formatter: value => {
             const item = _.find(data, { originalId: value });
-            return item ? item.name : value;
+            return item ? item.name || _l('空') : value;
           }
         },
         groupName: {
@@ -325,6 +328,8 @@ export default class extends Component {
       baseConfig.isGroup = (isOptionsColor || isCustomColor || splitList.length === data.length) ? false : true;
     }
 
+    const { Column, Bar } = this.g2plotComponent;
+
     return {
       BarChartComponent: isVertical ? Column : Bar,
       BarChartConfig: baseConfig,
@@ -393,7 +398,7 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
-        <Menu.Item onClick={this.handleRequestOriginalData}>
+        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
             <span>{_l('查看原始数据')}</span>
           </div>

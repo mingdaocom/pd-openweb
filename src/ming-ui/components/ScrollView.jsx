@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
 import shallowEqual from 'shallowequal';
+import '@mdfe/nanoscroller';
 
 export default class ScrollView extends Component {
   static propTypes = {
@@ -37,27 +38,25 @@ export default class ScrollView extends Component {
   }
   triggerNanoScroller() {
     const SV = this;
-    require(['nanoScroller'], () => {
-      $(this.nanoScroller).nanoScroller({ scrollendOffset: 60 });
-      $(this.nanoScroller)
-        .off('update')
-        .on('update', (event, values) => {
-          // const scrollEvent = new Event('scroll', {
-          //   bubbles: false,
-          //   cancelable: false,
-          // });
-          const scrollEvent = document.createEvent('Event');
-          scrollEvent.initEvent('scroll', false, false);
-          window.dispatchEvent(scrollEvent);
-          if (SV.props.updateEvent && typeof SV.props.updateEvent === 'function') {
-            SV.props.updateEvent(event, values);
-          }
-        });
-      $(this.nanoScroller).bind('scrollend', e => {
-        if (typeof this.props.onScrollEnd === 'function') {
-          this.props.onScrollEnd(e);
+    $(this.nanoScroller).nanoScroller({ scrollendOffset: 60 });
+    $(this.nanoScroller)
+      .off('update')
+      .on('update', (event, values) => {
+        // const scrollEvent = new Event('scroll', {
+        //   bubbles: false,
+        //   cancelable: false,
+        // });
+        const scrollEvent = document.createEvent('Event');
+        scrollEvent.initEvent('scroll', false, false);
+        window.dispatchEvent(scrollEvent);
+        if (SV.props.updateEvent && typeof SV.props.updateEvent === 'function') {
+          SV.props.updateEvent(event, values);
         }
       });
+    $(this.nanoScroller).bind('scrollend', e => {
+      if (typeof this.props.onScrollEnd === 'function') {
+        this.props.onScrollEnd(e);
+      }
     });
   }
   render() {

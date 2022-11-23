@@ -24,7 +24,7 @@ export default class PublicSharePage extends Component {
       id,
       sourceType: 21
     }).then(data => {
-      window.publicAppAuthorization = data.shareAuthor;
+      window.pageShareAuthor = data.shareAuthor;
       this.setState({ data, loading: false });
     });
   }

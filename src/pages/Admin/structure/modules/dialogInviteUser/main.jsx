@@ -2,13 +2,13 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import classNames from 'classnames';
-import 'md.select';
+import 'src/components/select/select';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import Act from './act';
-import DialogSelectDept from 'dialogSelectDept';
+import DialogSelectDept from 'src/components/dialogSelectDept';
 import copy from 'copy-to-clipboard';
 var workSiteController = require('src/api/workSite');
 var importUserController = require('src/api/importUser');
@@ -104,7 +104,8 @@ const inviteCallback = (data, callback, copyText, isClear) => {
   } else {
     const { failUsers, successUsers, existsUsers, forbidUsers, successCount } = data;
     if (failUsers && failUsers.length) {
-      alert(_l('%0失败', text), 2);
+      const failReason = _.get(failUsers[0], 'failReason');
+      alert(failReason || _l('邀请失败'), 2);
     } else if (successUsers || successCount) {
       copyText && copy(copyText);
       copyText ? alert(_l('创建成功, 账号密码已复制'), 1) : alert(_l('邀请成功'), 1);
@@ -524,8 +525,7 @@ class Main extends Component {
     const { projectId } = this.props;
     const _this = this;
     $({}).dialogSelectUser({
-      title: _l('邀请成员'),
-      showMoreInvite: false,
+      fromAdmin: true,
       SelectUserSettings: {
         filterProjectId: projectId,
         unique: true,
@@ -548,6 +548,7 @@ class Main extends Component {
     new DialogSelectDept({
       projectId,
       unique: false,
+      fromAdmin: true,
       selectedDepartment: departmentInfos,
       showCreateBtn: false,
       selectFn(departments) {
@@ -720,20 +721,22 @@ class Main extends Component {
 
   getDepartmentFullName = (departmentId = '') => {
     let { projectId } = this.props;
-    let { fullDepartmentInfo = {} } = this.state
-    const departmentIds = [departmentId].filter(it => !fullDepartmentInfo[it])
+    let { fullDepartmentInfo = {} } = this.state;
+    const departmentIds = [departmentId].filter(it => !fullDepartmentInfo[it]);
     if (_.isEmpty(departmentIds)) {
       return;
     }
-    departmentController.getDepartmentFullNameByIds({
-      projectId,
-      departmentIds: [departmentId],
-    }).then(res => {
-      res.forEach(it => {
-        fullDepartmentInfo[it.id] = it.name;
+    departmentController
+      .getDepartmentFullNameByIds({
+        projectId,
+        departmentIds: [departmentId],
       })
-      this.setState({ fullDepartmentInfo })
-    });
+      .then(res => {
+        res.forEach(it => {
+          fullDepartmentInfo[it.id] = it.name;
+        });
+        this.setState({ fullDepartmentInfo });
+      });
   };
 
   render() {
@@ -749,7 +752,7 @@ class Main extends Component {
       jobList = [],
       jobIds = [],
       keywords = '',
-      fullDepartmentInfo = {}
+      fullDepartmentInfo = {},
     } = this.state;
     let jobResult = [...jobList];
 
@@ -796,7 +799,7 @@ class Main extends Component {
           <div className="formGroup mBottom24">
             <span className="formLabel">{_l('部门')}</span>
             {departmentInfos.map((item, i) => {
-              const fullName = (fullDepartmentInfo[item.departmentId] || '').split('/')
+              const fullName = (fullDepartmentInfo[item.departmentId] || '').split('/');
               return (
                 <Tooltip
                   tooltipClass="departmentFullNametip"
@@ -813,10 +816,7 @@ class Main extends Component {
                   }
                   mouseEnterDelay={0.5}
                 >
-                  <span
-                    className="itemSpan mAll5"
-                    onMouseEnter={() => this.getDepartmentFullName(item.departmentId)}
-                  >
+                  <span className="itemSpan mAll5" onMouseEnter={() => this.getDepartmentFullName(item.departmentId)}>
                     {item.departmentName}
                     {i === 0 && <span className="isTopIcon">主</span>}
                     <div className="moreOption">
@@ -971,6 +971,6 @@ class Main extends Component {
   }
 }
 
-module.exports = function (container, props) {
+export default function (container, props) {
   ReactDom.render(<Main {...props} />, container);
-};
+}

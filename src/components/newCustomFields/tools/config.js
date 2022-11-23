@@ -17,6 +17,7 @@ export const FORM_ERROR_TYPE = {
   DATE_TIME_RANGE: 'DATE_TIME_RANGE',
   RULE_ERROR: 'RULE_ERROR',
   RULE_REQUIRED: 'RULE_REQUIRED',
+  OTHER_REQUIRED: 'OTHER_REQUIRED',
 };
 
 export const FORM_ERROR_TYPE_TEXT = {
@@ -33,6 +34,7 @@ export const FORM_ERROR_TYPE_TEXT = {
   PASSPORT: _l('不是有效的护照号码'),
   HK_PASSPORT: _l('不是有效的港澳通行证号码'),
   TW_PASSPORT: _l('不是有效的台湾通行证号码'),
+  OTHER_REQUIRED: _l('请填写其他'),
   UNIQUE: ({ controlName: label }) => {
     return `${_l('%0不允许重复', label)}`;
   },

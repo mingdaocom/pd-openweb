@@ -46,10 +46,14 @@ export default class Approval extends Component {
    * 获取节点详情
    */
   getNodeDetail(props) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, isApproval } = props;
 
     flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
       this.setState({ data: result });
+
+      if (isApproval && !result.selectNodeId) {
+        this.onChange(result.flowNodeList[0].nodeId);
+      }
     });
   }
 
@@ -85,6 +89,7 @@ export default class Approval extends Component {
       multipleLevel,
       batch,
       schedule,
+      passSendMessage,
     } = data;
 
     if (!selectNodeId) {
@@ -124,6 +129,7 @@ export default class Approval extends Component {
         auth,
         batch,
         schedule,
+        passSendMessage,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -151,16 +157,22 @@ export default class Approval extends Component {
    * 渲染审批人
    */
   renderApprovalUser() {
+    const { isApproval } = this.props;
     const { data } = this.state;
-    const list = [{ text: _l('自定义'), value: 0 }, { text: _l('按部门层级逐级审批'), value: 1 }];
+    const list = [
+      { text: _l('自定义'), value: 0 },
+      { text: isApproval ? _l('按部门层级逐级审批（开发中...）') : _l('按部门层级逐级审批'), value: 1 },
+    ];
 
     return (
       <Fragment>
         <div className="Font13 bold mTop20">{_l('审批人')}</div>
+
         <div className="flexRow mTop10">
           {list.map((item, i) => (
             <div className="flex" key={i}>
               <Radio
+                disabled={isApproval && item.value === 1}
                 text={item.text}
                 checked={data.multipleLevelType === item.value || (item.value === 1 && data.multipleLevelType === 2)}
                 onClick={() =>
@@ -395,7 +407,7 @@ export default class Approval extends Component {
         )}
         <Checkbox
           className="mTop15 flexRow"
-          text={_l('否决时，无需填写')}
+          text={_l('否决时，无需填写表单字段')}
           checked={data.ignoreRequired}
           onClick={checked => this.updateSource({ ignoreRequired: !checked })}
         />
@@ -437,7 +449,7 @@ export default class Approval extends Component {
               )}
             </div>
             {data.isCallBack && (
-              <div className="backBox">
+              <div className="flowBackBox">
                 <div className="Font12 Gray_9e">{_l('允许退回的节点')}</div>
                 <div className="mTop4">{data.callBackNodeList.join('、') || _l('无可退回节点')}</div>
               </div>
@@ -529,6 +541,7 @@ export default class Approval extends Component {
    * 高级功能设置
    */
   renderSeniorSettings() {
+    const { isApproval } = this.props;
     const { data } = this.state;
 
     return (
@@ -569,6 +582,15 @@ export default class Approval extends Component {
             <Schedule schedule={data.schedule} updateSource={this.updateSource} {...this.props} />
           </Fragment>
         )}
+
+        {isApproval && (
+          <Checkbox
+            className="mTop15 flexRow"
+            text={<span>{_l('此节点通过后，向发起人推送站内通知')}</span>}
+            checked={data.passSendMessage}
+            onClick={checked => this.updateSource({ passSendMessage: !checked })}
+          />
+        )}
       </Fragment>
     );
   }
@@ -599,10 +621,9 @@ export default class Approval extends Component {
         <div className="flex mTop20">
           <ScrollView>
             <div className="workflowDetailBox">
-              <div className="Font13 bold">{_l('审批对象')}</div>
-              <div className="Font13 Gray_9e mTop10">{_l('当前流程中的节点对象')}</div>
-
+              <div className="Font13 bold">{_l('数据对象')}</div>
               <SelectNodeObject
+                disabled={this.props.isApproval}
                 appList={data.appList}
                 selectNodeId={data.selectNodeId}
                 selectNodeObj={data.selectNodeObj}
@@ -665,7 +686,7 @@ export default class Approval extends Component {
                 </Fragment>
               )}
 
-              <div className="Font13 bold mTop25">{_l('高级功能')}</div>
+              <div className="Font13 bold mTop25">{_l('其他')}</div>
               {this.renderSeniorSettings()}
 
               {data.selectNodeId && (

@@ -323,7 +323,13 @@ export default class Approve extends Component {
         onOk={() => this.onOk(backNodeId)}
         onCancel={isOverruleBack ? () => this.onOk() : onCancel}
         cancelText={isOverruleBack ? _l('直接否决') : _l('取消')}
-        okText={isOverruleBack ? _l('否决并退回') : (ACTION_TO_TEXT[action] || {}).okText}
+        okText={
+          isOverruleBack
+            ? _l('否决并退回')
+            : _.includes(['pass', 'overrule'], action)
+            ? _l('确定')
+            : (ACTION_TO_TEXT[action] || {}).okText
+        }
       >
         <div className="Gray_75 relative">
           {(passContent || overruleContent) && (
@@ -336,6 +342,7 @@ export default class Approve extends Component {
         <Textarea
           className="mTop10"
           height={120}
+          maxHeight={240}
           value={content}
           onChange={this.handleChange}
           placeholder={(ACTION_TO_TEXT[action] || {}).placeholder}

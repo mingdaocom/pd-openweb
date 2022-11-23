@@ -6,9 +6,9 @@ import cx from 'classnames';
 import Api from 'api/homeApp';
 // import * as htmlDocx from 'html-docx-js/dist/html-docx';
 // import {cssStr} from './wordcss';
-// const juice = require('juice');
+// import juice from 'juice';
 // import html2canvas from 'html2canvas';
-// const jsPDF = require('jspdf');
+// import jsPDF from 'jspdf';
 class Header extends React.Component {
   constructor(props) {
     super(props);
@@ -20,7 +20,7 @@ class Header extends React.Component {
   componentWillMount() {
     const { params } = this.props;
     const { type, from, appId, printType } = params;
-    if (from === fromType.PRINT && type === typeForCon.NEW && appId && printType !== 'workflow') {
+    if (from === fromType.PRINT && type === typeForCon.NEW && appId && printType !== 'flow') {
       Api.getAppDetail({ appId: appId }, { silent: true }).then(data => {
         this.setState({
           isUserAdmin: data.permissionType >= 100,
@@ -151,15 +151,7 @@ class Header extends React.Component {
                 </React.Fragment>
               )}
               <div className="Right">
-                {type === typeForCon.PREVIEW ? (
-                  <Icon
-                    icon="clear_1"
-                    className=" Font24"
-                    onClick={() => {
-                      this.props.onCloseFn();
-                    }}
-                  />
-                ) : (
+                {type !== typeForCon.PREVIEW && (
                   <React.Fragment>
                     <div
                       className="saveButton InlineBlock Hand Bold"

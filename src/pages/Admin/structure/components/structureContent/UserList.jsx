@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, LoadDiv, Checkbox, Tooltip } from 'ming-ui';
+import { Icon, Checkbox, Tooltip } from 'ming-ui';
 import { Dropdown, Table, Pagination } from 'antd';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../../actions/current';
 import OpList from '../userList/OpList';
 import cx from 'classnames';
+import { sendNoticeInvite } from 'src/components/common/function';
 
 class UserList extends Component {
   constructor(props) {
@@ -339,9 +340,7 @@ class UserList extends Component {
     const { projectId, accountId } = this.props;
     return event => {
       event.stopPropagation();
-      require(['mdFunction'], MDFunction => {
-        MDFunction.sendNoticeInvite([accountId], '', projectId, type);
-      });
+      sendNoticeInvite([accountId], '', projectId, type);
     };
   }
   handleSingleColumn = (checked, value) => {

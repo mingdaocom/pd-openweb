@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import Commenter from 'commenter';
-import CommentList from 'commentList';
+import Commenter from 'src/components/comment/commenter';
+import CommentList from 'src/components/comment/commentList';
 import { emitter } from 'worksheet/util';
 export default class WorkSheetCommentList extends Component {
   constructor(props) {

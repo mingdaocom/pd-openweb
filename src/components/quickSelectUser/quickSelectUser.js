@@ -1,13 +1,13 @@
-﻿/**
- * @module  quickSelectUser
- * @author puck
- * @desc 快速成员选择层
- * @example
- * require.async('quickSelectUser',function(){ $('').quickSelectUser(); });
- */
-import './css/style.css';
+﻿import './css/style.css';
 import RegExp from 'src/util/expression';
-import { get } from 'lodash';
+import doT from '@mdfe/dot';
+import userTpl from './tpl/listItem.html';
+import boxTpl from './tpl/box.html';
+import 'src/components/dialogSelectUser/dialogSelectUser';
+import 'src/components/mdDialog/dialog';
+import 'src/components/mdBusinessCard/mdBusinessCard';
+import _ from 'lodash';
+
 var userController = require('src/api/user');
 var externalPortalCotroller = require('src/api/externalPortal');
 var addressBookController = require('src/api/addressBook');
@@ -47,6 +47,7 @@ SelectUser.DEFAULTS = {
   })(),
 
   // public
+  prefixOnlySystemField: false,
   includeUndefinedAndMySelf: false,
   includeSystemField: false, // 是否显示系统字段
   isRangeData: false, // 是范围数据
@@ -72,8 +73,9 @@ SelectUser.DEFAULTS = {
   externalTab: _l('外部门户'),
   tabType: 1, // 1: 常规 2: 外部门户 3: 常规和外部门户
   tabIndex: 0, //0: 常规 1:外部用户
+  hidePortalCurrentUser: false, // 隐藏外部门户中当前用户
   appId: '',
-
+  isHidAddUser: false,
   // private
   selectItem: null,
   keywords: '',
@@ -98,11 +100,11 @@ SelectUser.DEFAULTS = {
     filterOtherProject: false, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
     allowSelectNull: false, // 是否允许选择列表为空
     unique: false, // 是否只可以选一个
-    callback: function (data) {},
+    callback: function (data) { },
   },
   ChooseInviteSettings: {
     viewHistory: true, // 是否呈现邀请记录
-    callback: function (data, callbackInviteResult) {},
+    callback: function (data, callbackInviteResult) { },
   },
   offset: {
     left: 0,
@@ -124,8 +126,10 @@ SelectUser.DEFAULTS = {
   loadingContent: LoadDiv(),
 };
 
-SelectUser.doT = require('dot');
-SelectUser.userTpl = require('./tpl/listItem.html');
+
+
+SelectUser.doT = doT;
+SelectUser.userTpl = userTpl;
 SelectUser.QrCodeTpl =
   '<div class="bubbleQrCode" style="display:none;"> <img src="{{= it.qrUrl }}" class="qrCode"> <p class="title">' +
   SelectUser.DEFAULTS.tip.qrCodeTitle +
@@ -211,16 +215,14 @@ $.extend(SelectUser.prototype, {
     var options = this.options;
     options.hasQRcode = options.sourceId && options.fromType && options.projectId !== undefined;
     options.tabIndex = options.tabType === 1 || options.tabType === 3 ? 0 : 1;
-    require(['./tpl/box.html'], function (tpl) {
-      _this.$box = $(SelectUser.doT.template(tpl)(options));
-      let tabItems = _this.$box.find('.tabBox .tabItem');
-      if (tabItems.length > 1) {
-        tabItems[0].setAttribute('class', 'tabItem flex active');
-      }
-      _this.append();
-      _this.getCooperaters();
-      _this.initEvent();
-    });
+    _this.$box = $(SelectUser.doT.template(boxTpl)(options));
+    let tabItems = _this.$box.find('.tabBox .tabItem');
+    if (tabItems.length > 1) {
+      tabItems[0].setAttribute('class', 'tabItem flex active');
+    }
+    _this.append();
+    _this.getCooperaters();
+    _this.initEvent();
   },
   getQRCode: function () {
     // 获取邀请的二维码
@@ -359,7 +361,12 @@ $.extend(SelectUser.prototype, {
             var prefixAccountLength = options.prefixAccountIds.length;
 
             if (options.includeSystemField) {
-              renderData.prefixUsers = renderData.users.splice(0, 6);
+              if(options.prefixOnlySystemField) {
+                renderData.prefixUsers = renderData.users.filter(l=>_.startsWith(l.accountId, 'user'));
+                renderData.users = renderData.users.filter(l=>!_.startsWith(l.accountId, 'user'))
+              } else {
+                renderData.prefixUsers = renderData.users.splice(0, 6);
+              }
             } else {
               if (hasPrefix) {
                 if (options.includeUndefinedAndMySelf) {
@@ -413,13 +420,11 @@ $.extend(SelectUser.prototype, {
         .toggleClass('hover', e.type === 'mouseenter');
     });
 
-    require(['mdBusinessCard'], () => {
-      _this.$coOperationList.add(_this.$searchResultList).on('mouseenter mouseleave', '.userHead', function (e) {
-        const accountId = $(this).parent().data('accountid');
-        $(this).mdBusinessCard({
-          accountId,
-          projectId: options.SelectUserSettings.projectId,
-        });
+    _this.$coOperationList.add(_this.$searchResultList).on('mouseenter mouseleave', '.userHead', function (e) {
+      const accountId = $(this).parent().data('accountid');
+      $(this).mdBusinessCard({
+        accountId,
+        projectId: options.SelectUserSettings.projectId,
       });
     });
 
@@ -457,17 +462,15 @@ $.extend(SelectUser.prototype, {
 
     _this.$box.find('.contact-icon').on('click', function (e) {
       e.stopPropagation();
-      require(['dialogSelectUser'], function () {
-        options.SelectUserSettings.includeUndefinedAndMySelf = options.includeUndefinedAndMySelf;
-        options.SelectUserSettings.includeSystemField = options.includeSystemField;
-        options.SelectUserSettings.prefixAccountIds = options.prefixAccountIds;
-        $('body').dialogSelectUser({
-          sourceId: options.sourceId,
-          fromType: typeof options.fromType === 'number' ? options.fromType : options.FROMTYPE[options.fromType],
-          showMoreInvite: options.showMoreInvite,
-          SelectUserSettings: options.SelectUserSettings,
-          ChooseInviteSettings: options.ChooseInviteSettings,
-        });
+      options.SelectUserSettings.includeUndefinedAndMySelf = options.includeUndefinedAndMySelf;
+      options.SelectUserSettings.includeSystemField = options.includeSystemField;
+      options.SelectUserSettings.prefixAccountIds = options.prefixAccountIds;
+      $('body').dialogSelectUser({
+        sourceId: options.sourceId,
+        fromType: typeof options.fromType === 'number' ? options.fromType : options.FROMTYPE[options.fromType],
+        showMoreInvite: options.showMoreInvite,
+        SelectUserSettings: options.SelectUserSettings,
+        ChooseInviteSettings: options.ChooseInviteSettings,
       });
       // close pane
       _this.closePane();
@@ -632,7 +635,9 @@ $.extend(SelectUser.prototype, {
         options.externalUserList = options.pageIndex > 1 ? options.externalUserList.concat(tempData) : tempData;
         var renderData = {};
         const currentAccount = tempData.find(item => item.accountId === md.global.Account.accountId);
-        if (options.includeSystemField || options.includeUndefinedAndMySelf) {
+        if (options.hidePortalCurrentUser && options.tabIndex === 1) {
+          renderData.prefixUsers = [];
+        } else if (options.includeSystemField || options.includeUndefinedAndMySelf) {
           renderData.prefixUsers = [
             {
               accountId: 'user-self',
@@ -729,80 +734,78 @@ $.extend(SelectUser.prototype, {
     }
     if (_this.$dialog) return;
     _this.closePane();
-    require(['mdDialog'], function () {
-      var id = 'inviteDialog_' + +new Date();
-      _this.$dialog = $.DialogLayer({
-        dialogBoxID: id,
-        showClose: false,
-        zIndex: parseInt(options.zIndex, 10) + 1,
-        container: {
-          yesText: options.tip.sendBtn,
-          yesFn: function () {
-            var $dialogLayer = _this.$dialogLayer;
-            var accounts = {};
-            var accountKey = $dialogLayer.$mailInput.val();
-            var result = SelectUser.Utils.isEmailOrPhone(accountKey);
-            if (result.isPhone && result.result) {
-              accountKey = '+86' + $dialogLayer.$mailInput.val();
-            }
-            accounts[accountKey] = $dialogLayer.$nameInput.val();
-            // send invite
-            SelectUser.invite.getInviteAccountInfo
-              .call(null, {
-                accounts: accounts,
-              })
-              .done(function (data) {
-                if (data && $.isFunction(options.ChooseInviteSettings.callback)) {
-                  options.ChooseInviteSettings.callback(data);
-                }
-              });
-          },
-        },
-        status: 'disable',
-        readyFn: function () {
-          _this.$dialogLayer = $('#' + id);
+    var id = 'inviteDialog_' + +new Date();
+    _this.$dialog = $.DialogLayer({
+      dialogBoxID: id,
+      showClose: false,
+      zIndex: parseInt(options.zIndex, 10) + 1,
+      container: {
+        yesText: options.tip.sendBtn,
+        yesFn: function () {
           var $dialogLayer = _this.$dialogLayer;
-          var $mailInput = $dialogLayer.find('.phoneMail input');
-          var $nameInput = $dialogLayer.find('.name input');
-          $dialogLayer.$mailInput = $dialogLayer.find('.phoneMail input');
-          $dialogLayer.$nameInput = $dialogLayer.find('.name input');
-          if (type === 'name') {
-            $nameInput.val(keywords).prop('disabled', true);
-          } else if (type !== '') {
-            $mailInput.val(keywords).prop('disabled', true);
-            _this.$dialog.enable();
+          var accounts = {};
+          var accountKey = $dialogLayer.$mailInput.val();
+          var result = SelectUser.Utils.isEmailOrPhone(accountKey);
+          if (result.isPhone && result.result) {
+            accountKey = '+86' + $dialogLayer.$mailInput.val();
           }
-
-          $mailInput
-            .on('blur focus', function () {
-              var $this = $(this);
-              var relatedTarget = e ? e.relatedTarget : null;
-              if ($this.val() && !$(relatedTarget).hasClass('noText')) {
-                var validResult = SelectUser.Utils.isEmailOrPhone($this.val());
-                var isValid = validResult.result;
-                $this.toggleClass('error-input', !isValid);
-                if (isValid) {
-                  _this.$dialog.enable();
-                } else {
-                  _this.$dialog.disable();
-                }
-                return false;
-              }
+          accounts[accountKey] = $dialogLayer.$nameInput.val();
+          // send invite
+          SelectUser.invite.getInviteAccountInfo
+            .call(null, {
+              accounts: accounts,
             })
-            .on('focus', function () {
-              $mailInput.removeClass('error-input');
+            .done(function (data) {
+              if (data && $.isFunction(options.ChooseInviteSettings.callback)) {
+                options.ChooseInviteSettings.callback(data);
+              }
             });
-
-          $mailInput.add($nameInput).not('[disabled]').first().trigger('focus');
         },
-        callback: function () {
-          // close dialog callback
-          _this.$dialog = null;
-        },
-      });
+      },
+      status: 'disable',
+      readyFn: function () {
+        _this.$dialogLayer = $('#' + id);
+        var $dialogLayer = _this.$dialogLayer;
+        var $mailInput = $dialogLayer.find('.phoneMail input');
+        var $nameInput = $dialogLayer.find('.name input');
+        $dialogLayer.$mailInput = $dialogLayer.find('.phoneMail input');
+        $dialogLayer.$nameInput = $dialogLayer.find('.name input');
+        if (type === 'name') {
+          $nameInput.val(keywords).prop('disabled', true);
+        } else if (type !== '') {
+          $mailInput.val(keywords).prop('disabled', true);
+          _this.$dialog.enable();
+        }
 
-      _this.$dialog.content(SelectUser.dialogTpl);
+        $mailInput
+          .on('blur focus', function () {
+            var $this = $(this);
+            var relatedTarget = e ? e.relatedTarget : null;
+            if ($this.val() && !$(relatedTarget).hasClass('noText')) {
+              var validResult = SelectUser.Utils.isEmailOrPhone($this.val());
+              var isValid = validResult.result;
+              $this.toggleClass('error-input', !isValid);
+              if (isValid) {
+                _this.$dialog.enable();
+              } else {
+                _this.$dialog.disable();
+              }
+              return false;
+            }
+          })
+          .on('focus', function () {
+            $mailInput.removeClass('error-input');
+          });
+
+        $mailInput.add($nameInput).not('[disabled]').first().trigger('focus');
+      },
+      callback: function () {
+        // close dialog callback
+        _this.$dialog = null;
+      },
     });
+
+    _this.$dialog.content(SelectUser.dialogTpl);
     if (e) {
       e.stopPropagation();
     }

@@ -50,20 +50,20 @@
             </div>
             <div class="userCompany overflow_ellipsis Gray_bd Font12" title="{{?( user.projectId && user.projectId && user.projectId === it.projectId) || it.isSameProject }}
             {{=(user.department ? user.department :  '')}}
-            {{=(user.department && user.job ? ' / ' : '')}}
+            {{=(user.department && user.job ? ' | ' : '')}}
             {{!user.job}}
             {{??}}
             {{=(user.profession ? user.profession :  '')}}
-            {{=(user.profession && user.companyName ? ' / ' : '')}}
+            {{=(user.profession && user.companyName ? ' | ' : '')}}
             {{!user.companyName}}
             {{?}}" >
                 {{?( user.projectId && user.projectId && user.projectId === it.projectId) || it.isSameProject }}
                 {{=(user.department ? user.department :  '')}}
-                {{=(user.department && user.job ? ' / ' : '')}}
+                {{=(user.department && user.job ? ' | ' : '')}}
                 {{!user.job}}
                 {{??}}
                 {{=(user.profession ? user.profession :  '')}}
-                {{=(user.profession && user.companyName ? ' / ' : '')}}
+                {{=(user.profession && user.companyName ? ' | ' : '')}}
                 {{!user.companyName}}
                 {{?}}
             </div>

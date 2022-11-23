@@ -1,3 +1,1 @@
-﻿module.exports = {
-  Updater: require('./updater'),
-};
+﻿export { default as Updater } from './updater';

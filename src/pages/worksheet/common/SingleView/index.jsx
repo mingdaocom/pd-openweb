@@ -29,6 +29,7 @@ function SingleView(props, ref) {
         chartId,
         maxCount,
         showAsSheetView,
+        type: 'single',
       }),
     );
   }, []);

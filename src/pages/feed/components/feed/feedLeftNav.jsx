@@ -18,6 +18,7 @@ import { connect } from 'react-redux';
 import { searchAll } from '../../redux/postActions';
 import { navigateTo } from 'src/router/navigateTo';
 import './feedLeftNav.css';
+import CreateGroup from 'src/components/group/create/creatGroup';
 
 class FeedLeftNav extends React.Component {
   static propTypes = {
@@ -156,13 +157,11 @@ class FeedLeftNav extends React.Component {
   createGroup = (e, projectId) => {
     e.preventDefault();
     e.stopPropagation();
-    require(['src/components/group/create/creatGroup'], CreatGroup => {
-      CreatGroup.createInit({
-        projectId,
-        callback(group) {
-          window.location.href = `/feed?groupId=${group.groupId}`;
-        },
-      });
+    CreateGroup.createInit({
+      projectId,
+      callback(group) {
+        window.location.href = `/feed?groupId=${group.groupId}`;
+      },
     });
   };
 
@@ -376,7 +375,7 @@ class FeedLeftNav extends React.Component {
   }
 }
 
-module.exports = connect(state => {
+export default connect(state => {
   const { options } = state.post;
   return { options };
 })(FeedLeftNav);

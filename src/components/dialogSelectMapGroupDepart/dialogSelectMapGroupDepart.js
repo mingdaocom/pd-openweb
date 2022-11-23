@@ -1,10 +1,11 @@
 ﻿import './style.css';
 import { htmlEncodeReg } from 'src/util';
-import { checkSensitive } from 'src/api/fixedData.js';
+import { checkSensitive } from 'src/api/fixedData';
+import { index as dialog } from 'src/components/mdDialog/dialog';
 
 var departmentController = require('src/api/department');
 
-module.exports = (function ($) {
+export default (function ($) {
   $.fn.dialogSelectMapGroupDepart = function (param) {
     return new DialogSelectMapGroupDepart(this, param);
   };
@@ -66,19 +67,19 @@ module.exports = (function ($) {
       <div class="Clear"></div></div></div></div>
       `;
 
-      require(['mdDialog'], function (mdDialog) {
-        _this.dialog = mdDialog.index({
-          dialogBoxID: 'dialogSelectMapGroupDepart',
-          width: 400,
-          container: {
-            header: options.title,
-            content: html,
-            yesText: '',
-            noText: '',
-          },
-        });
-        _this.loadData();
-        _this.bindEvent();
+      _this.dialog = dialog({
+        dialogBoxID: 'dialogSelectMapGroupDepart',
+        width: 400,
+        container: {
+          header: options.title,
+          content: html,
+          yesText: '',
+          noText: '',
+        },
+        readyFn: () => {
+          _this.loadData();
+          _this.bindEvent();
+        },
       });
     };
 

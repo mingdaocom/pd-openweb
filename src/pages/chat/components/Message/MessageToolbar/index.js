@@ -8,7 +8,7 @@ import Trigger from 'rc-trigger';
 import ClipboardButton from 'react-clipboard.js';
 import * as cardSender from '../../../utils/cardSender';
 import { getCurrentTime } from '../../../utils';
-import previewAttachments from 'previewAttachments';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import Dialog from 'ming-ui/components/Dialog';
 import { downloadFile } from 'src/util';
 

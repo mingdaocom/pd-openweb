@@ -60,6 +60,7 @@ const Drag = styled.div(
 function Sheet(props) {
   const {
     loading,
+    error,
     appId,
     groupId,
     worksheetId,
@@ -93,7 +94,9 @@ function Sheet(props) {
   const hasGroupFilter =
     !_.isEmpty(view.navGroup) && view.navGroup.length > 0 && _.includes([sheet, gallery], String(view.viewType));
   const basePara = {
+    type,
     loading,
+    error,
     appId,
     groupId,
     worksheetId,
@@ -153,44 +156,46 @@ function Sheet(props) {
               </React.Fragment>
             )}
             {type === 'single' && <SheetHeader {...basePara} onlyBatchOperate />}
-            {!_.isEmpty(view.fastFilters) && _.includes([sheet, gallery], String(view.viewType)) && !chartId && (
-              <QuickFilterCon>
-                <QuickFilter {...basePara} filters={view.fastFilters} />
-              </QuickFilterCon>
-            )}
-            {hasGroupFilter && !chartId ? (
-              <ConView>
-                {dragMaskVisible && (
-                  <DragMask
-                    value={groupFilterWidth}
-                    min={100}
-                    max={360}
-                    onChange={value => {
-                      setDragMaskVisible(false);
-                      setGroupFilterWidth(value);
-                      safeLocalStorageSetItem('navGroupWidth', value);
+            <Con id="worksheetRightContentBox">
+              {!_.isEmpty(view.fastFilters) && _.includes([sheet, gallery], String(view.viewType)) && !chartId && (
+                <QuickFilterCon>
+                  <QuickFilter {...basePara} filters={view.fastFilters} />
+                </QuickFilterCon>
+              )}
+              {hasGroupFilter && !chartId ? (
+                <ConView>
+                  {dragMaskVisible && (
+                    <DragMask
+                      value={groupFilterWidth}
+                      min={100}
+                      max={360}
+                      onChange={value => {
+                        setDragMaskVisible(false);
+                        setGroupFilterWidth(value);
+                        safeLocalStorageSetItem('navGroupWidth', value);
+                      }}
+                    />
+                  )}
+                  <GroupFilter
+                    width={groupFilterWidth}
+                    isOpenGroup={isOpenGroup}
+                    changeGroupStatus={isOpen => {
+                      setIsOpenGroup(isOpen);
+                      safeLocalStorageSetItem('navGroupIsOpen', isOpen);
+                      if (isOpen) {
+                        setGroupFilterWidth(window.localStorage.getItem('navGroupWidth') || 210);
+                      } else {
+                        setGroupFilterWidth(32);
+                      }
                     }}
                   />
-                )}
-                <GroupFilter
-                  width={groupFilterWidth}
-                  isOpenGroup={isOpenGroup}
-                  changeGroupStatus={isOpen => {
-                    setIsOpenGroup(isOpen);
-                    safeLocalStorageSetItem('navGroupIsOpen', isOpen);
-                    if (isOpen) {
-                      setGroupFilterWidth(window.localStorage.getItem('navGroupWidth') || 210);
-                    } else {
-                      setGroupFilterWidth(32);
-                    }
-                  }}
-                />
-                {isOpenGroup && <Drag left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)}></Drag>}
+                  {isOpenGroup && <Drag left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)}></Drag>}
+                  <View {...basePara} />
+                </ConView>
+              ) : (
                 <View {...basePara} />
-              </ConView>
-            ) : (
-              <View {...basePara} />
-            )}
+              )}
+            </Con>
           </React.Fragment>
         )}
       </Con>
@@ -223,6 +228,7 @@ export default connect(
     worksheetInfo: state.sheet.worksheetInfo,
     isCharge: state.sheet.isCharge,
     loading: state.sheet.loading,
+    error: state.sheet.error,
     views: state.sheet.views,
     activeViewStatus: state.sheet.activeViewStatus,
   }),

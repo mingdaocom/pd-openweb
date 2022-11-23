@@ -34,30 +34,4 @@ module.exports = {
      
      return $.api('Contact', 'SubmitLinkContent', args, options);
    },
-  /**
-  * 新增来源流量
-  * @param {Object} args 请求参数
-  * @param {string} args.regFrom 注册广告来源
-  * @param {string} args.referrer 注册来源页面
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addFlow: function (args, options = {}) {
-     
-     return $.api('Contact', 'AddFlow', args, options);
-   },
-  /**
-  * 发送用户反馈信息
-  * @param {Object} args 请求参数
-  * @param {string} args.content 留言
-  * @param {string} args.textErrorMessage 错误信息
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   sendFeedBack: function (args, options = {}) {
-     
-     return $.api('Contact', 'SendFeedBack', args, options);
-   },
 };

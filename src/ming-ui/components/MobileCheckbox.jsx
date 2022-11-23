@@ -41,7 +41,7 @@ export default class MobileCheckbox extends Component {
   }
 
   render() {
-    const { disabled, allowAdd, children, data, checked, callback, renderText } = this.props;
+    const { disabled, allowAdd, children, data, checked, callback, renderText, otherValue } = this.props;
     const { visible, selectChecked, keywords } = this.state;
     let source = [].concat(data);
 
@@ -49,6 +49,12 @@ export default class MobileCheckbox extends Component {
       if ((item || '').indexOf('add_') > -1) {
         source.push({ key: item, color: '#2196F3', value: item.split('add_')[1] });
       }
+    });
+    const otherValueData = selectChecked.map(it => {
+      if (_.includes(it, 'other')) {
+        return `other:${otherValue}`;
+      }
+      return it;
     });
 
     return (

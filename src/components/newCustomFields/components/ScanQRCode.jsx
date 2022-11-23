@@ -6,7 +6,6 @@ import cx from 'classnames';
 import { getWeiXinConfig } from 'src/api/weixin';
 import { getSignatureInfo } from 'src/api/workWeiXin';
 import { Modal, Button } from 'antd-mobile';
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { browserIsMobile } from 'src/util';
 import styled from 'styled-components';
 
@@ -20,21 +19,6 @@ const ErrorWrap = styled.div`
     background-color: #f5f5f5;
   }
 `;
-
-const formatsToSupport = [
-  Html5QrcodeSupportedFormats.QR_CODE,
-  Html5QrcodeSupportedFormats.CODE_39,
-  Html5QrcodeSupportedFormats.CODE_93,
-  Html5QrcodeSupportedFormats.CODE_128,
-  Html5QrcodeSupportedFormats.EAN_8,
-  Html5QrcodeSupportedFormats.EAN_13,
-  Html5QrcodeSupportedFormats.UPC_A,
-  Html5QrcodeSupportedFormats.UPC_E,
-  Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION,
-  Html5QrcodeSupportedFormats.ITF,
-  Html5QrcodeSupportedFormats.RSS_14,
-  Html5QrcodeSupportedFormats.RSS_EXPANDED
-];
 
 const bindWeiXin = () => {
   return new Promise((reslove, reject) => {
@@ -130,7 +114,8 @@ export default class Widgets extends Component {
       isError: false,
       devices: [],
       cameraId: null,
-      resetCameraLoading: false
+      resetCameraLoading: false,
+      scanShape: 'square'
     }
     this.id = Date.now();
     this.html5QrCode = null;
@@ -152,9 +137,29 @@ export default class Widgets extends Component {
       $.getScript('https://res.wx.qq.com/open/js/jweixin-1.2.0.js');
       return;
     }
+    import('html5-qrcode').then(data => {
+      this.qrCodeComponent = data;
+    });
   }
   componentWillUnmount() {
     this.clearQrcode();
+  }
+  get formatsToSupport() {
+    const { Html5QrcodeSupportedFormats } = this.qrCodeComponent;
+    return [
+      Html5QrcodeSupportedFormats.QR_CODE,
+      Html5QrcodeSupportedFormats.CODE_39,
+      Html5QrcodeSupportedFormats.CODE_93,
+      Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.EAN_13,
+      Html5QrcodeSupportedFormats.UPC_A,
+      Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.UPC_EAN_EXTENSION,
+      Html5QrcodeSupportedFormats.ITF,
+      Html5QrcodeSupportedFormats.RSS_14,
+      Html5QrcodeSupportedFormats.RSS_EXPANDED
+    ];
   }
   handleWxScanQRCode = () => {
     wx.scanQRCode({
@@ -248,9 +253,9 @@ export default class Widgets extends Component {
   handleChangeCamera = () => {
     const { cameraId, devices, resetCameraLoading } = this.state;
     const index = _.findIndex(devices, { id: cameraId });
-    const nextCameraId = index === -1 ? devices[0].id : (devices[index + 1] || devices[0]).id;
-    
-    if (resetCameraLoading) return;
+    const nextCameraId = index === -1 ? _.get(devices[0], 'id') : (devices[index + 1] || devices[0]).id;
+
+    if (resetCameraLoading || !this.html5QrCode) return;
 
     this.setState({ resetCameraLoading: true });
     this.setState({
@@ -266,7 +271,23 @@ export default class Widgets extends Component {
       });
     });
   }
+  handleChangeSize = () => {
+    const { scanShape, resetCameraLoading } = this.state;
+
+    if (resetCameraLoading || !this.html5QrCode) return;
+
+    this.setState({ resetCameraLoading: true });
+    this.setState({
+      scanShape: scanShape === 'square' ? 'rectangle' : 'square'
+    }, () => {
+      this.html5QrCode.stop().then((ignore) => {
+        this.startQrcode();
+        this.setState({ resetCameraLoading: false });
+      });
+    });
+  }
   getCameras() {
+    const { Html5Qrcode } = this.qrCodeComponent;
     return new Promise((reslove, reject) => {
       Html5Qrcode.getCameras().then(devices => {
         if (devices && devices.length) {
@@ -276,16 +297,25 @@ export default class Widgets extends Component {
     });
   }
   initQrcode() {
-    this.html5QrCode = new Html5Qrcode(`qrcodeWrapper-${this.id}`, { formatsToSupport });
+    const { Html5Qrcode } = this.qrCodeComponent;
+    this.html5QrCode = new Html5Qrcode(`qrcodeWrapper-${this.id}`, { formatsToSupport: this.formatsToSupport });
     this.startQrcode();
   }
   startQrcode() {
+    const { scanShape } = this.state;
     const config = {
       fps: 10,
+      aspectRatio: 1,
+      rememberLastUsedCamera: true,
       qrbox: function(viewfinderWidth, viewfinderHeight) {
-        var n = viewfinderWidth > viewfinderHeight ? viewfinderHeight : viewfinderWidth;
-        var ratio = Math.floor(.8 * n);
-        return ratio < 250 ? n < 250 ? { width: n, height: n } : { width: 250, height: 250 } : { width: ratio, height: ratio }
+        if (scanShape === 'square') {
+          const n = viewfinderWidth > viewfinderHeight ? viewfinderHeight : viewfinderWidth;
+          const ratio = Math.floor(.8 * n);
+          return ratio < 250 ? n < 250 ? { width: n, height: n } : { width: 250, height: 250 } : { width: ratio, height: ratio };
+        } else {
+          return { width: viewfinderWidth - 20, height: 220 };
+          // return { width: 330, height: 220 };
+        }
       }
     };
     const { cameraId } = this.state;
@@ -319,7 +349,7 @@ export default class Widgets extends Component {
     this.setState({ isError: false });
   }
   render() {
-    const { visible, isError, devices } = this.state;
+    const { visible, isError, devices, scanShape } = this.state;
     const { className, children } = this.props;
     return (
       <Fragment>
@@ -344,9 +374,14 @@ export default class Widgets extends Component {
                 <div id={`qrcodeWrapper-${this.id}`} className="qrcodeWrapper flex"></div>
               )}
               {!isError && (
-                <div className="Absolute" style={{ left: '5%', top: '5%' }} onClick={this.handleChangeCamera}>
-                  <Icon className="Font28 White" icon="switch_camera" />
-                </div>
+                <Fragment>
+                  <div className="Absolute" style={{ left: '5%', top: '5%' }} onClick={this.handleChangeCamera}>
+                    <Icon className="Font28 White" icon="switch_camera" />
+                  </div>
+                  <div className="Absolute" style={{ left: '15%', top: '5%' }} onClick={this.handleChangeSize}>
+                    <Icon className="Font28 White" icon={scanShape === 'square' ? 'get_bigger' : 'put_away'} />
+                  </div>
+                </Fragment>
               )}
               <div className="Absolute" style={{ right: '5%', top: '5%' }} onClick={this.handleClose}>
                 <Icon className={cx('Font28', isError ? 'Gray_9e' : 'White')} icon="closeelement-bg-circle" />

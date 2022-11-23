@@ -12,12 +12,17 @@ import { formatControlToServer } from 'src/components/newCustomFields/tools/util
 import CellErrorTips from './comps/CellErrorTip';
 import { FROM } from './enum';
 import EditableCellCon from '../EditableCellCon';
+import { browserIsMobile } from 'src/util';
 
 function getOptionStyle(option, cell) {
-  return cell.enumDefault2 === 1 && option.color
+  return (cell.enumDefault2 === 1 && option.color) || cell.controlId === 'wfstatus'
     ? {
         backgroundColor: option.color,
-        color: option.color && isLightColor(option.color) ? '#333' : '#fff',
+        color:
+          (option.color && isLightColor(option.color)) ||
+          (cell.controlId === 'wfstatus' && _.includes(['abort', 'other'], option.key))
+            ? '#333'
+            : '#fff',
       }
     : {};
 }
@@ -61,6 +66,13 @@ export default class Options extends React.Component {
     );
   }
 
+  get isSubList() {
+    return this.props.tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST;
+  }
+  get isRelateRecord() {
+    return this.props.tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD;
+  }
+
   con = React.createRef();
   cell = React.createRef();
 
@@ -86,6 +98,13 @@ export default class Options extends React.Component {
     if (error) {
       return;
     }
+    if (isMultiple && this.isSubList) {
+      console.log(value);
+      this.setState({
+        value,
+      });
+      return;
+    }
     updateCell({
       value: formatControlToServer(Object.assign({}, cell, { value })).value,
     });
@@ -96,7 +115,8 @@ export default class Options extends React.Component {
 
   @autobind
   handleExit(target) {
-    const { cell, error, updateEditingStatus } = this.props;
+    const { cell, error, updateEditingStatus, updateCell } = this.props;
+    const { value } = this.state;
     const isMultiple = cell.type === 10;
     if (!isMultiple || !error) {
       updateEditingStatus(false);
@@ -107,11 +127,24 @@ export default class Options extends React.Component {
       });
       return;
     }
+    if (isMultiple && this.isSubList && value !== this.props.cell.value) {
+      updateCell({
+        value: formatControlToServer(Object.assign({}, cell, { value })).value,
+      });
+    }
+  }
+
+  getShowValue(option) {
+    const { cell } = this.props;
+    if (option.key === 'other') {
+      const otherValue = _.find(JSON.parse(cell.value || '[]'), i => i.includes(option.key));
+      return otherValue === 'other' ? _l('其他') : _.replace(otherValue, 'other:', '') || _l('其他');
+    }
+    return option.value;
   }
 
   render() {
     const {
-      isSubList,
       from,
       className,
       rowIndex,
@@ -130,14 +163,10 @@ export default class Options extends React.Component {
     const selectedOptions = value ? getSelectedOptions(cell.options, value) : [];
     const isMultiple = cell.type === 10;
     const getPopupContainer =
-      tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
-      tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD
+      this.isSubList || this.isRelateRecord
         ? () => $(this.cell.current).parents('.recordInfoForm')[0] || document.body
         : popupContainer;
-    const showErrorAsPopup =
-      (tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
-        tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD) &&
-      rowIndex === 1;
+    const showErrorAsPopup = (this.isSubList || this.isRelateRecord) && rowIndex === 1;
     const editcontent = (
       <div
         className={cx(
@@ -199,6 +228,8 @@ export default class Options extends React.Component {
         {error && !showErrorAsPopup && <CellErrorTips error={error} pos={rowIndex === 1 ? 'bottom' : 'top'} />}
       </div>
     );
+    const isMobile = browserIsMobile();
+
     return (
       <React.Fragment>
         <EditableCellCon
@@ -213,19 +244,22 @@ export default class Options extends React.Component {
         >
           {!!value && (
             <div className={cx('cellOptions cellControl', { singleLine })}>
-              {selectedOptions.map((option, index) => (
-                <span
-                  className="cellOption ellipsis"
-                  key={index}
-                  style={Object.assign(
-                    {},
-                    { ...getOptionStyle(option, cell), maxWidth: style.width - 14 },
-                    from === FROM.CARD ? { margin: '0px 4px 0px 0px' } : {},
-                  )}
-                >
-                  {option.value}
-                </span>
-              ))}
+              {selectedOptions.map((option, index) => {
+                const otherValue = _.find(JSON.parse(cell.value || '[]'), i => i.includes(option.key));
+                return (
+                  <span
+                    className="cellOption ellipsis"
+                    key={index}
+                    style={Object.assign(
+                      {},
+                      { ...getOptionStyle(option, cell), maxWidth: style.width - 14 },
+                      from === FROM.CARD ? { margin: '0px 4px 0px 0px' } : {},
+                    )}
+                  >
+                    {this.getShowValue(option)}
+                  </span>
+                );
+              })}
             </div>
           )}
         </EditableCellCon>

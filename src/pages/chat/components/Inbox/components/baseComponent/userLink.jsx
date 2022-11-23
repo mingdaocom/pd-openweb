@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import 'mdBusinessCard';
+import 'src/components/mdBusinessCard/mdBusinessCard';
 
 export default class UserLink extends React.Component {
   constructor(props) {

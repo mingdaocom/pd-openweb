@@ -27,7 +27,7 @@ const ScalePoint = styled.span`
 `;
 
 export default function Dropdown({ data }) {
-  const { enumDefault2, options = [] } = data;
+  const { enumDefault2, options = [], hint } = data;
   const checkedValue = parseOptionValue(data.default);
   const { value, color, key: checkedKey } = _.find(getOptions(data), item => item.key === head(checkedValue)) || {};
   const { direction, showtype } = getAdvanceSetting(data);
@@ -50,7 +50,7 @@ export default function Dropdown({ data }) {
           {value}
         </OptionWrap>
       ) : (
-        <span>{_l('请选择')}</span>
+        <span>{hint || _l('请选择')}</span>
       )}
       <i className="icon-arrow-down-border"></i>
     </CommonDisplay>

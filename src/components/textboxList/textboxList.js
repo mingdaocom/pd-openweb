@@ -1,7 +1,7 @@
 import './style.css';
 import { htmlEncodeReg } from 'src/util';
 
-module.exports = (function ($) {
+export default (function ($) {
   $.fn.selection = function () {
     var s, e, range, stored_range;
     if (this[0].selectionStart == undefined) {

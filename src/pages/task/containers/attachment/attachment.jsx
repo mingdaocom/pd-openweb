@@ -6,7 +6,7 @@ import config from '../../config/config';
 import { errorMessage, setStateToStorage } from '../../utils/utils';
 import cx from 'classnames';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import previewAttachments from 'previewAttachments';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { attachmentSwitch } from '../../redux/actions';
 import TaskDetail from '../taskDetail/taskDetail';
 import { isVideo, downloadFile, getClassNameByExt } from 'src/util';

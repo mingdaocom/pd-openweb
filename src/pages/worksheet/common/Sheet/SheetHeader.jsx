@@ -48,7 +48,7 @@ const VerticalCenter = styled.div`
 
 function SheetHeader(props) {
   const { appPkg, isUnfold, sheetList, worksheetInfo, controls, sheetSwitchPermit } = props;
-  const { appId, groupId, view, viewId, isCharge } = props;
+  const { type, appId, groupId, view, viewId, isCharge } = props;
   // functions
   const {
     onlyBatchOperate,
@@ -91,6 +91,7 @@ function SheetHeader(props) {
   const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetViewConfig;
   const batchOperateComp = (
     <BatchOperate
+      type={type}
       isCharge={isCharge}
       appId={appId}
       worksheetId={worksheetId}
@@ -169,10 +170,8 @@ function SheetHeader(props) {
                 icon="knowledge-message"
                 className="Hand sheetDesc"
                 onClick={() => {
-                  if (isCharge) {
-                    setDescIsEditing(false);
-                    setSheetDescVisible(true);
-                  }
+                  setDescIsEditing(false);
+                  setSheetDescVisible(true);
                 }}
               />
             </Popover>
@@ -181,6 +180,7 @@ function SheetHeader(props) {
           )}
           <SheetDesc
             title={_l('工作表说明')}
+            isCharge={isCharge}
             visible={sheetDescVisible}
             worksheetId={worksheetId}
             isEditing={descIsEditing}
@@ -193,26 +193,24 @@ function SheetHeader(props) {
               updateWorksheetInfo({ desc: value });
             }}
           />
-          {(isCharge || (isOpenPermit(permitList.importSwitch, sheetSwitchPermit) && allowAdd)) && (
-            <SheetMoreOperate
-              isCharge={isCharge}
-              appId={appId}
-              groupId={groupId}
-              viewId={viewId}
-              worksheetInfo={worksheetInfo}
-              controls={controls}
-              sheetSwitchPermit={sheetSwitchPermit}
-              // funcs
-              setSheetDescVisible={value => {
-                setDescIsEditing(true);
-                setSheetDescVisible(value);
-              }}
-              setEditNameVisible={setEditNameVisible}
-              updateWorksheetInfo={updateWorksheetInfo}
-              reloadWorksheet={() => refreshSheet(view)}
-              deleteSheet={deleteSheet}
-            />
-          )}
+          <SheetMoreOperate
+            isCharge={isCharge}
+            appId={appId}
+            groupId={groupId}
+            viewId={viewId}
+            worksheetInfo={worksheetInfo}
+            controls={controls}
+            sheetSwitchPermit={sheetSwitchPermit}
+            // funcs
+            setSheetDescVisible={value => {
+              setDescIsEditing(true);
+              setSheetDescVisible(value);
+            }}
+            setEditNameVisible={setEditNameVisible}
+            updateWorksheetInfo={updateWorksheetInfo}
+            reloadWorksheet={() => refreshSheet(view)}
+            deleteSheet={deleteSheet}
+          />
           {editNameVisible && (
             <SelectIcon
               projectId={projectId}
@@ -234,11 +232,12 @@ function SheetHeader(props) {
             />
           )}
         </div>
-        <VerticalCenter>
-          {(String(view.viewType) === VIEW_DISPLAY_TYPE.structure && _.includes([0, 1], Number(view.childType))) ||
-          String(view.viewType) === VIEW_DISPLAY_TYPE.gunter ? null : (
-            <Fragment>
-              {/* {!!chartId && (
+        {viewId && (
+          <VerticalCenter>
+            {(String(view.viewType) === VIEW_DISPLAY_TYPE.structure && _.includes([0, 1], Number(view.childType))) ||
+            String(view.viewType) === VIEW_DISPLAY_TYPE.gunter ? null : (
+              <Fragment>
+                {/* {!!chartId && (
                 <span className={cx('worksheetFilterBtn ThemeColor3 ThemeBGColor6 active')}>
                   <i className="icon icon-worksheet_filter" />
                   <span className="selectedFilterName ellipsis">{_l('来自统计图的筛选')}</span>
@@ -250,72 +249,78 @@ function SheetHeader(props) {
                   />
                 </span>
               )} */}
-              <SearchInput
-                viewId={viewId}
-                className="queryInput"
-                onOk={value => {
-                  updateFiltersWithView({ keyWords: (value || '').trim() });
-                }}
-                onClear={() => {
-                  updateFiltersWithView({ keyWords: '' });
-                }}
-              />
-              <WorkSheetFilter
-                chartId={chartId}
-                isCharge={isCharge}
-                appId={appId}
-                viewId={viewId}
-                projectId={projectId}
-                worksheetId={worksheetId}
-                columns={controls}
-                onChange={({ searchType, filterControls }) => {
-                  updateFiltersWithView({ searchType, filterControls });
-                }}
-                clearChartId={clearChartId}
-              />
-            </Fragment>
-          )}
-          {!window.isPublicApp && (
-            <Tooltip popupPlacement="bottom" text={<span>{_l('统计')}</span>}>
-              <span className="mRight16 mTop4">
-                <Icon
-                  className={cx('openStatisticsBtn Gray_9e Font18 pointer', { ThemeColor3: statisticsVisible })}
-                  icon="worksheet_column_chart"
-                  onClick={() => setStatisticsVisible(!statisticsVisible)}
+                <SearchInput
+                  viewId={viewId}
+                  className="queryInput"
+                  onOk={value => {
+                    updateFiltersWithView({ keyWords: (value || '').trim() });
+                  }}
+                  onClear={() => {
+                    updateFiltersWithView({ keyWords: '' });
+                  }}
                 />
-              </span>
-            </Tooltip>
-          )}
-          {/* 工作表讨论权限 && 工作表日志权限 */}
-          {!window.isPublicApp &&
-            !md.global.Account.isPortal &&
-            !(
-              !isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) &&
-              !isOpenPermit(permitList.logSwitch, sheetSwitchPermit)
-            ) && (
-              <Tooltip
-                popupPlacement="bottom"
-                text={
-                  <span>{isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) ? _l('讨论') : _l('日志')}</span>
-                }
-              >
+                <WorkSheetFilter
+                  chartId={chartId}
+                  isCharge={isCharge}
+                  appId={appId}
+                  viewId={viewId}
+                  projectId={projectId}
+                  worksheetId={worksheetId}
+                  columns={controls}
+                  filterResigned={false} // 筛选---人员层不显示离职栏
+                  onChange={({ searchType, filterControls }) => {
+                    updateFiltersWithView({ searchType, filterControls });
+                  }}
+                  clearChartId={clearChartId}
+                />
+              </Fragment>
+            )}
+            {!window.isPublicApp && (
+              <Tooltip popupPlacement="bottom" text={<span>{_l('统计')}</span>}>
                 <span className="mRight16 mTop4">
                   <Icon
-                    className="Font18 Gray_9e pointer"
-                    icon={isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) ? 'discussion' : 'draft-box'}
-                    onClick={() => setDiscussionVisible(!discussionVisible)}
+                    className={cx('openStatisticsBtn Gray_9e Font18 pointer', { ThemeColor3: statisticsVisible })}
+                    icon="worksheet_column_chart"
+                    onClick={() => setStatisticsVisible(!statisticsVisible)}
                   />
                 </span>
               </Tooltip>
             )}
-          {/* 显示创建按钮 */}
-          {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd && (
-            <span style={{ backgroundColor: appPkg.iconColor || '#2196f3' }} className="addRow" onClick={openNewRecord}>
-              <span className="Icon icon icon-plus Font13 mRight5 White" />
-              <span className="White bold">{entityName}</span>
-            </span>
-          )}
-        </VerticalCenter>
+            {/* 工作表讨论权限 && 工作表日志权限 */}
+            {!window.isPublicApp &&
+              !md.global.Account.isPortal &&
+              !(
+                !isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) &&
+                !isOpenPermit(permitList.logSwitch, sheetSwitchPermit)
+              ) && (
+                <Tooltip
+                  popupPlacement="bottom"
+                  text={
+                    <span>{isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) ? _l('讨论') : _l('日志')}</span>
+                  }
+                >
+                  <span className="mRight16 mTop4">
+                    <Icon
+                      className="Font18 Gray_9e pointer"
+                      icon={isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) ? 'discussion' : 'draft-box'}
+                      onClick={() => setDiscussionVisible(!discussionVisible)}
+                    />
+                  </span>
+                </Tooltip>
+              )}
+            {/* 显示创建按钮 */}
+            {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd && (
+              <span
+                style={{ backgroundColor: appPkg.iconColor || '#2196f3' }}
+                className="addRow"
+                onClick={openNewRecord}
+              >
+                <span className="Icon icon icon-plus Font13 mRight5 White" />
+                <span className="White bold">{entityName}</span>
+              </span>
+            )}
+          </VerticalCenter>
+        )}
       </Con>
       <CSSTransitionGroup transitionName="Discussion" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
         {discussionVisible && (

@@ -192,6 +192,13 @@ class WorkSheet extends Component {
     }
     if ((_.isEmpty(sheetList) || _.isEmpty(currentSheet)) && !md.global.Account.isPortal) {
       const emptySheet = id && _.isEmpty(currentSheet);
+      if (
+        !_.isEmpty(sheetList.filter(s => s.appId === appId)) &&
+        new URL(location.href).searchParams.get('from') === 'insite'
+      ) {
+        navigateTo(`/app/${appId}`, true);
+        return;
+      }
       return (
         <WorksheetEmpty
           sheetCount={sheetList.length}

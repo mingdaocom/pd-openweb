@@ -25,7 +25,7 @@ const OPTIONS_DISPLAY = [
     text: _l('平铺'),
   },
 ];
-export default function MultiSelect({ data, onChange, globalSheetInfo, fromPortal }) {
+export default function MultiSelect({ data, onChange, globalSheetInfo, fromPortal, fromExcel }) {
   const { direction, checktype = '0' } = getAdvanceSetting(data);
   return (
     <Fragment>
@@ -52,12 +52,14 @@ export default function MultiSelect({ data, onChange, globalSheetInfo, fromPorta
           />
         </SettingItem>
       )}
-      <OptionList.SelectOptions
-        data={data}
-        globalSheetInfo={globalSheetInfo}
-        onChange={onChange}
-        fromPortal={fromPortal}
-      />
+      {!fromExcel && (
+        <OptionList.SelectOptions
+          data={data}
+          globalSheetInfo={globalSheetInfo}
+          onChange={onChange}
+          fromPortal={fromPortal}
+        />
+      )}
     </Fragment>
   );
 }

@@ -14,8 +14,10 @@ import { listConfigStr, listPermit, batch } from '../config';
 const tipStr = {
   10: _l('在工作表右上方显示的创建记录按钮。关闭后，则无法直接在工作表中创建记录，只能通过关联记录等其他位置创建'),
   22: _l('表格视图可以单元格直接编辑，看板、层级、画廊视图可以在卡片上直接修改文本类标题和检查框'),
+  23: _l('仅控制系统默认的条形码/二维码打印功能。不包含配置的打印模板'),
   32: _l('仅控制系统默认提供的打印方式，不包含打印模版'),
   33: _l('可以控制附件的下载、分享、保存到知识（不包含用户自行上传的附件）'),
+  40: _l('在视图上呈现流程名称、状态、节点负责人、节点开始、剩余时间、发起人、发起时间'),
 };
 // "state": true,  //开关状态
 // "type": 10,  //业务类型枚举
@@ -136,6 +138,9 @@ function FunctionalSwitch(props) {
       case '3':
         str = _l('记录');
         break;
+      case '4':
+        str = _l('审批');
+        break;
       default:
         str = '';
         break;
@@ -150,6 +155,7 @@ function FunctionalSwitch(props) {
     let l = viewIds.filter(o => Ids.includes(o)).length; //有效的视图数量
     switch (key) {
       case '2':
+      case '4':
         return len <= 0 ? _l('所有视图') : _l('%0个视图', l);
       case '3':
         return len <= 0 ? _l('所有记录') : _l('%0个视图下的记录', l);
@@ -239,7 +245,7 @@ function FunctionalSwitch(props) {
                             {/* batch内的操作 开关缩进 */}
                             {batch.includes(o.type) && renderSwitch(o)}
                             <span
-                              className="con"
+                              className="con flexRow"
                               onClick={e => {
                                 const target = e.target;
                                 if (o.state) {
@@ -262,7 +268,13 @@ function FunctionalSwitch(props) {
                             >
                               {listConfigStr[o.type]}
                               {o.type === 21 && (
-                                <span className="Gray_9e">（{_l('批量操作中的导出功能需额外设置')}）</span>
+                                <span
+                                  className="Gray_9e InlineBlock overflow_ellipsis WordBreak TxtMiddle"
+                                  style={{ maxWidth: 330 }}
+                                  title={_l('批量操作中的导出功能需额外设置')}
+                                >
+                                  （{_l('批量操作中的导出功能需额外设置')}）
+                                </span>
                               )}
                               {/* 批量操作显示数量 */}
                               {[25].includes(o.type) && !noBatch && (
@@ -270,7 +282,7 @@ function FunctionalSwitch(props) {
                                   {batchNum}/{batch.length}
                                 </span>
                               )}
-                              {[10, 22, 33, 32].includes(o.type) && (
+                              {[10, 22, 23, 33, 32, 40].includes(o.type) && (
                                 <Tooltip popupPlacement="bottom" text={<span>{tipStr[o.type]}</span>}>
                                   <Icon icon="help" className="Font14 Gray_9e mLeft4" />
                                 </Tooltip>
@@ -293,16 +305,25 @@ function FunctionalSwitch(props) {
                                 </span>
                               )}
                               {/* 作用范围 */}
-                              {[...batch, 12, 13, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36].includes(o.type) &&
+                              {[...batch, 12, 13, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 41].includes(o.type) &&
                                 o.state && <Icon icon="navigate_next" className="Gray_c Right Hand Font20" />}
                               {/* 10, 11, 25没有范围的操作 */}
-                              {o.state && ![10, 11, 25].includes(o.type) && (
+                              {o.state && ![10, 11, 25, 40].includes(o.type) && (
                                 <span className="Gray_bd Right text">
                                   {key === '1'
                                     ? o.roleType === 100
                                       ? _l('仅管理员')
                                       : _l('所有用户')
                                     : strRight(key, o)}
+                                </span>
+                              )}
+                              {[40].includes(o.type) && (
+                                <span
+                                  className="Gray_bd Right text overflow_ellipsis WordBreak TxtMiddle"
+                                  style={{ cursor: 'default', maxWidth: 420 }}
+                                  title={_l('Beta版可用于表格显示，筛选、统计等正在开发中...')}
+                                >
+                                  {_l('Beta版可用于表格显示，筛选、统计等正在开发中...')}
                                 </span>
                               )}
                             </span>
@@ -314,14 +335,14 @@ function FunctionalSwitch(props) {
                 );
               })}
             </div>
-            {/* 10, 11,25 没有范围选择 */}
-            {info.showDialog && ![10, 11, 25].includes(info.showData.type || '') && (
+            {/* 10, 11, 25, 40 没有范围选择 */}
+            {info.showDialog && ![10, 11, 25, 40].includes(info.showData.type || '') && (
               <Range
                 showDialog={info.showDialog}
                 hasViewRange={![12, 13].includes(info.showData.type || '')} //是否可选视图范围
                 text={{
-                  allview: info.showData.type / 10 >= 3 ? _l('所有记录') : '',
-                  assignview: info.showData.type / 10 >= 3 ? _l('应用于指定的视图下的记录') : '',
+                  allview: info.showData.type / 10 >= 4 ? _l('所有记录') : '',
+                  assignview: info.showData.type / 10 >= 4 ? _l('应用于指定的视图下的记录') : '',
                 }}
                 onClickAwayExceptions={['.switchBox li.isOpen .con']}
                 onClickAway={() => {

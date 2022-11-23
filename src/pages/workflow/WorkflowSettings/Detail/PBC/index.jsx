@@ -66,7 +66,7 @@ export default class PBC extends Component {
           .forEach(item => {
             const parentNode = _.find(result.subProcessVariables, o => o.controlId === item.dataSource);
 
-            if (_.includes([10000007, 10000008], parentNode.type)) {
+            if (parentNode && _.includes([10000007, 10000008], parentNode.type)) {
               result.fields.forEach(o => {
                 if (o.fieldId === item.controlId) {
                   o.dataSource = parentNode.controlId;

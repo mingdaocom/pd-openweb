@@ -51,7 +51,7 @@ export default class SaveDia extends React.Component {
         title={_l('保存模板')}
         okText={_l('确定')}
         cancelText={_l('取消')}
-        className="saveDiaCon"
+        className={cx('saveDiaCon', this.props.className)}
         width="480px"
         onCancel={() => {
           // this.props.setValue();
@@ -63,6 +63,7 @@ export default class SaveDia extends React.Component {
             return;
           }
           this.props.setValue(this.state.printData);
+          this.props.onCancel();
         }}
         visible={this.props.showSaveDia}
       >

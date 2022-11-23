@@ -114,7 +114,7 @@ export default class Button extends Component {
         const stopLoading = () => {
           if (this.mounted) this.setState({ loading: false });
         };
-        this.promise.then(stopLoading, stopLoading);
+        this.promise && this.promise.then(stopLoading, stopLoading);
       } catch (e) {
         console.error(e); // eslint-disable-line
       }

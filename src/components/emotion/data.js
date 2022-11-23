@@ -762,4 +762,4 @@ emotionData[1].content = defaultData;
 emotionData[6].content = bearData;
 emotionData[7].content = AruData;
 
-module.exports = emotionData;
+export default emotionData;

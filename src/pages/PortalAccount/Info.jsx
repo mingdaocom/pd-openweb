@@ -4,9 +4,11 @@ import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
 import { LoadDiv } from 'ming-ui';
 import { getUserCollect, infoLogin } from 'src/api/externalPortal';
-import { goApp, accountResultAction, setAutoLoginKey } from './util';
+import { accountResultAction, setAutoLoginKey } from './util';
 import { statusList } from './util';
 import SvgIcon from 'src/components/SvgIcon';
+import CustomFields from 'src/components/newCustomFields';
+import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 
 const Wrap = styled.div`
   .Hide {
@@ -87,8 +89,6 @@ const Wrap = styled.div`
   }
 `;
 
-let CustomFields = null;
-let formatControlToServer = null;
 export default function Info(props) {
   const [loading, setLoading] = useState(true);
   const {
@@ -102,36 +102,33 @@ export default function Info(props) {
     appColor = '#00bcd4',
     appLogoUrl = 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg',
     isAutoLogin,
+    registerMode = {},
   } = props;
   const [sending, setSending] = useState(false); //点击
   const [cells, setCells] = useState([]);
   const customwidget = useRef(null);
   useEffect(() => {
-    require.ensure([], require => {
-      CustomFields = require('src/components/newCustomFields').default;
-      formatControlToServer = require('src/components/newCustomFields/tools/utils.js').formatControlToServer;
-      getUserCollect({
-        appId,
-        exAccountId: accountId,
-      }).then(res => {
-        res = res.map(o => {
-          if (o.type === 36) {
-            //检查框默认值处理
-            let defsource = _.get(o, ['advancedSetting', 'defsource']);
-            try {
-              defsource = JSON.parse(defsource)[0];
-            } catch (error) {
-              defsource = {};
-            }
-            let { staticValue = '' } = defsource;
-            return { ...o, value: staticValue || o.value };
-          } else {
-            return o;
+    getUserCollect({
+      appId,
+      exAccountId: accountId,
+    }).then(res => {
+      res = res.map(o => {
+        if (o.type === 36) {
+          //检查框默认值处理
+          let defsource = _.get(o, ['advancedSetting', 'defsource']);
+          try {
+            defsource = JSON.parse(defsource)[0];
+          } catch (error) {
+            defsource = {};
           }
-        });
-        setCells(res);
-        setLoading(false);
+          let { staticValue = '' } = defsource;
+          return { ...o, value: staticValue || o.value };
+        } else {
+          return o;
+        }
       });
+      setCells(res);
+      setLoading(false);
     });
   }, []);
   return (
@@ -179,6 +176,15 @@ export default function Info(props) {
                 const { accountResult, sessionId, accountId, projectId } = res;
                 if (statusList.includes(accountResult)) {
                   setStatus(accountResult);
+                } else if ([20].includes(accountResult)) {
+                  return alert(
+                    registerMode.email && registerMode.phone
+                      ? _l('手机号/邮箱或者验证码错误！')
+                      : registerMode.phone
+                      ? _l('手机号或者验证码错误')
+                      : _l('邮箱或者验证码错误'),
+                    3,
+                  );
                 } else {
                   accountResultAction(res);
                 }

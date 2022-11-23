@@ -31,7 +31,7 @@ export function getSheetList(args) {
       const isCharge = isHaveCharge(data.appRoleType, data.isLock);
       dispatch({ type: 'SHEET_LIST_UPDATE_IS_CHARGE', isCharge });
       if (data.workSheetInfo.length) {
-        dispatch({ type: 'SHEET_LIST', data: data.workSheetInfo });
+        dispatch({ type: 'SHEET_LIST', data: data.workSheetInfo.map(s => ({ ...args, ...s })) });
       }
       const { worksheetId } = getState().sheet.base;
       const sheetInfo = _.find(data.workSheetInfo, { workSheetId: worksheetId }) || {};

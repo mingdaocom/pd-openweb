@@ -11,7 +11,7 @@ class RadioGroup2 extends Component {
       PropTypes.shape({
         text: PropTypes.any, // Raio显示的名称
         value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.object]),
-      })
+      }),
     ), // 数据
     checked: PropTypes.string, // 选中
     defaultCheckedValue: PropTypes.string, // 默认选中
@@ -35,7 +35,7 @@ class RadioGroup2 extends Component {
   }
 
   componentDidMount() {
-    if (this.props.checkedValue) {
+    if (typeof this.props.checkedValue !== 'undefined') {
       this.handleClick(this.props.checkedValue);
     }
   }
@@ -52,18 +52,25 @@ class RadioGroup2 extends Component {
       data: this.state.data.map(item =>
         Object.assign(item, {
           checked: item.value === value,
-        })
+        }),
       ),
     });
   }
 
   render() {
-    const { vertical , radioItemClassName } = this.props;
+    const { vertical, radioItemClassName } = this.props;
     return (
       <div className={`ming RadioGroup2 ${this.props.className || ''}`}>
         <div className={cx('RadioGroupCon', { flexColumn: vertical })}>
           {this.state.data.map((item, index) => (
-            <Radio {...item} className={radioItemClassName} onClick={(...arg) => this.handleClick(...arg)} key={index} size={this.props.size} disabled={this.props.disabled} />
+            <Radio
+              {...item}
+              className={radioItemClassName}
+              onClick={(...arg) => this.handleClick(...arg)}
+              key={index}
+              size={this.props.size}
+              disabled={this.props.disabled}
+            />
           ))}
         </div>
       </div>

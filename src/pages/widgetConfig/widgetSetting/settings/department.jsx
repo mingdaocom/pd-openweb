@@ -16,7 +16,7 @@ const DEPARTMENT_TYPES = [
 ];
 
 export default function Department(props) {
-  const { data, from, onChange } = props;
+  const { data, from, onChange, fromExcel } = props;
   const { enumDefault } = data;
   return (
     <Fragment>
@@ -32,7 +32,7 @@ export default function Department(props) {
           }}
         />
       </SettingItem>
-      {from !== 'subList' && <Components.WidgetUserPermission {...props} />}
+      {from !== 'subList' && !fromExcel && <Components.WidgetUserPermission {...props} />}
     </Fragment>
   );
 }

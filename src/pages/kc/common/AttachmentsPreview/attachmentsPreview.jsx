@@ -258,7 +258,7 @@ class AttachmentsPreview extends React.Component {
                     );
                   }
                   case PREVIEW_TYPE.IFRAME:
-                    {/*if ((ext || '').toLocaleLowerCase() === 'pdf')
+                    {/*if ((ext || '').toLocaleLowerCase() === 'pdf' && !window.isDingTalk) {
                       return (
                         <iframe
                           width="100%"
@@ -267,7 +267,8 @@ class AttachmentsPreview extends React.Component {
                           src={`/preview/pdf/web/viewer.html?url=${currentAttachment.sourceNode.privateDownloadUrl}&showDownload=${showDownload}`}
                         />
                       );
-                      */}
+                    }
+                    */}
                     if (previewAttachmentType === 'KC' && extra && extra.shareFolderId) {
                       viewUrl = previewUtil.urlAddParams(viewUrl, { shareFolderId: extra.shareFolderId });
                     }
@@ -427,4 +428,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(AttachmentsPreview);
+export default connect(mapStateToProps, mapDispatchToProps)(AttachmentsPreview);

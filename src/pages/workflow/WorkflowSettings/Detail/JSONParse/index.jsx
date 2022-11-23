@@ -258,7 +258,7 @@ export default class JSONParse extends Component {
 
     return (
       <Fragment>
-        {!isIntegration && (
+        {!isIntegration ? (
           <Fragment>
             <div className="Font14 Gray_75 workflowDetailDesc">
               {_l(
@@ -268,14 +268,18 @@ export default class JSONParse extends Component {
 
             <div className="mTop20 bold">{_l('获取 JSON 对象')}</div>
             <div className="Gray_75 mTop10">{_l('当前流程中的节点对象')}</div>
-            <SelectNodeObject
-              appList={data.flowNodeList}
-              selectNodeId={data.selectNodeId}
-              selectNodeObj={data.selectNodeObj}
-              onChange={sId => this.getNodeDetail(this.props, sId)}
-            />
           </Fragment>
+        ) : (
+          <div className="bold">{_l('选择 JSON 来源')}</div>
         )}
+
+        <SelectNodeObject
+          isIntegration={isIntegration}
+          appList={data.flowNodeList}
+          selectNodeId={data.selectNodeId}
+          selectNodeObj={data.selectNodeObj}
+          onChange={sId => this.getNodeDetail(this.props, sId)}
+        />
 
         {data.selectNodeId && (
           <Fragment>
@@ -370,15 +374,14 @@ export default class JSONParse extends Component {
    * 渲染JSON结果
    */
   renderJSONResult() {
-    const { isIntegration } = this.props;
-    const { data, showDialog, foldIds } = this.state;
+    const { data, showDialog } = this.state;
 
     if (!data.selectNodeId) return null;
 
     return (
       <Fragment>
         <div
-          className={cx('webhookBtn InlineBlock', { mTop25: !isIntegration })}
+          className="webhookBtn InlineBlock mTop25"
           onClick={() => {
             if (!data.controls.length) {
               alert(_l('没有可以用来解析的流程参数'), 2);

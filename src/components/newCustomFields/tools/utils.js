@@ -3,7 +3,8 @@ import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkS
 import { FROM, FORM_ERROR_TYPE, UN_TEXT_TYPE } from './config';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getStringBytes, accMul, browserIsMobile } from 'src/util';
-import { getStrBytesLength } from 'src/pages/Roles/Portal/list/util';
+import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util.js';
+import { getSelectedOptions } from 'worksheet/util';
 import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
 
@@ -355,7 +356,10 @@ export function getTitleTextFromRelateControl(control = {}, data) {
 }
 
 // 控件状态
-export const controlState = (data = {}, from) => {
+export const controlState = (data, from) => {
+  if (!data) {
+    return {};
+  }
   const controlPermissions = data.controlPermissions || '111';
   const fieldPermission = data.fieldPermission || '111';
   let state = {
@@ -518,6 +522,12 @@ export const getCurrentValue = (item, data, control) => {
               if (d.toString().indexOf('add_') > -1) {
                 return d.split('add_')[1];
               }
+              if (d === 'other') {
+                return _l('其他');
+              }
+              if (d.toString().indexOf('other:') > -1) {
+                return _.replace(d, 'other:', '') || _l('其他');
+              }
               return (
                 _.get(
                   _.find(item.options || [], t => t.key === d && !t.isDeleted),
@@ -641,6 +651,23 @@ export const checkMobileVerify = (data, smsVerificationFiled) => {
     return false;
   if (!selectControl.value) return false;
   return true;
+};
+
+// 选项其他类型处理
+export const getCheckAndOther = value => {
+  let checkIds = [];
+  let otherValue = '';
+
+  JSON.parse(value || '[]').forEach(item => {
+    if (item.indexOf('other:') > -1) {
+      otherValue = _.replace(item, 'other:', '');
+      checkIds.push('other');
+    } else {
+      checkIds.push(item);
+    }
+  });
+
+  return { checkIds, otherValue };
 };
 
 // 查询文本类失焦校验(文本扫码特殊处理)

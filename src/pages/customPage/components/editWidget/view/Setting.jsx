@@ -5,7 +5,7 @@ import { Checkbox } from 'antd';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
 import { connect } from 'react-redux';
-import sheetAjax from 'src/api/worksheet';
+import sheetApi from 'src/api/worksheet';
 import { enumWidgetType } from 'src/pages/customPage/util';
 
 const Wrap = styled.div`
@@ -51,7 +51,7 @@ function Setting(props) {
 
   useEffect(() => {
     if (value) {
-      sheetAjax.getWorksheetInfo({
+      sheetApi.getWorksheetInfo({
         worksheetId: value,
         getTemplate: true,
         getViews: true,

@@ -88,9 +88,12 @@ function ViewControl(props) {
   const [activeBtnId, setActiveBtnId] = useState();
   const [activeFastFilterId, setActiveFastFilterId] = useState();
   const [btnDataInfo, setActiveBtnIdInfo] = useState();
-  useEffect(() => {
-    setActiveBtnIdInfo(_.find(sheetButtons, item => item.btnId === activeBtnId));
-  }, [activeBtnId, sheetButtons]);
+  useEffect(
+    () => {
+      setActiveBtnIdInfo(_.find(sheetButtons, item => item.btnId === activeBtnId));
+    },
+    [activeBtnId, sheetButtons],
+  );
   return (
     <Con>
       <ViewItems
@@ -146,11 +149,13 @@ function ViewControl(props) {
             projectId: projectId,
             searchArgs: filters,
             selectRowIds: sheetSelectedRows.map(item => item.rowid),
+            sheetSwitchPermit,
             columns: controls.filter(item => {
               return (
                 !_.find(view.controls, hideId => item.controlId === hideId) &&
                 item.controlPermissions &&
-                item.controlPermissions[0] === '1'
+                item.controlPermissions[0] === '1' &&
+                item.controlId !== 'rowid'
               );
             }),
             downLoadUrl: worksheetInfo.downLoadUrl,
@@ -228,6 +233,7 @@ function ViewControl(props) {
           projectId={projectId}
           worksheetId={worksheetId}
           worksheetControls={controls}
+          sheetSwitchPermit={sheetSwitchPermit}
           onClickAwayExceptions={[
             '.ant-select-dropdown',
             '.ChooseWidgetDialogWrap',

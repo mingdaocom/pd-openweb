@@ -448,6 +448,7 @@ export default class CustomButtons extends React.Component {
         )}
         {newRecordVisible && (
           <NewRecord
+            isCustomButton
             title={this.activeBtn.name}
             className="worksheetRelateNewRecord recordOperateDialog"
             worksheetId={this.btnAddRelateWorksheetId}

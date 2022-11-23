@@ -44,11 +44,11 @@ export default class NodeOperate extends Component {
    * 修改节点名称
    */
   updateNodeName = evt => {
-    const { item, updateNodeName } = this.props;
+    const { processId, item, updateNodeName } = this.props;
     const name = evt.currentTarget.value.trim();
 
     if (name && name !== item.name) {
-      updateNodeName(name, item.id);
+      updateNodeName(processId, name, item.id);
     } else {
       this.workflowNodeName.value = item.name;
     }
@@ -178,7 +178,7 @@ export default class NodeOperate extends Component {
           } else {
             flowNode.nodeDesc({ processId, nodeId: item.id, alias, desc }).then(result => {
               if (result) {
-                updateNodeDesc(item.id, alias, desc);
+                updateNodeDesc(processId, item.id, alias, desc);
                 resolve();
               } else {
                 document.getElementById('processNodeAlias').value = '';
@@ -196,7 +196,7 @@ export default class NodeOperate extends Component {
    * 渲染节点删除
    */
   renderDeleteNode() {
-    const { item, deleteNode } = this.props;
+    const { processId, item, deleteNode } = this.props;
     const { showDelete } = this.state;
 
     if (!showDelete) return null;
@@ -226,7 +226,7 @@ export default class NodeOperate extends Component {
               e.stopPropagation();
 
               if (!this.disabled) {
-                deleteNode(item.id);
+                deleteNode(processId, item.id);
                 this.disabled = true;
               }
             }}

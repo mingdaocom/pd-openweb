@@ -1,4 +1,4 @@
-﻿module.exports = function (arr) {
+﻿export default function (arr) {
   const obj = {};
   if (!arr) {
     return obj;

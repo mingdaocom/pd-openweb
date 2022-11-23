@@ -10,14 +10,14 @@ import InputSuffix from './InputSuffix';
 const COMPUTE_MODE = [
   {
     value: '1',
-    text: _l('目标日期 减去 今天日期 '),
+    text: _l('目标日期 减去 此刻 '),
   },
-  { value: '2', text: _l('今天日期 减去 目标日期') },
+  { value: '2', text: _l('此刻 减去 目标日期') },
 ];
 
 export default function ToTodaySetting({ data, onChange, ...rest }) {
   const { sourceControlId, unit = '3' } = data;
-  const { dateformulatype = '1', hideneg = '0' } = getAdvanceSetting(data);
+  const { dateformulatype = '1', hideneg = '0', autocarry = '0' } = getAdvanceSetting(data);
   return (
     <Fragment>
       <div className="Font12 Gray_9e mTop5">
@@ -43,6 +43,29 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
       </SettingItem>
       <InputSuffix data={data} onChange={onChange} />
       <SettingItem>
+        {_.includes(['1', '2', '4'], unit) && (
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={autocarry === '1'}
+              onClick={checked => {
+                onChange(handleAdvancedSettingChange(data, { autocarry: checked ? '0' : '1' }));
+              }}
+            >
+              <span style={{ marginRight: '6px' }}>{_l('自动进位')}</span>
+              <Tooltip
+                popupPlacement="bottom"
+                title={
+                  <span>
+                    {_l('超过12个月/24小时/60分钟的部分，分别进位为年/天/小时。如 90分钟 呈现为 1小时30分钟')}
+                  </span>
+                }
+              >
+                <i className="icon-help Gray_bd Font16 pointer"></i>
+              </Tooltip>
+            </Checkbox>
+          </div>
+        )}
         <div className="labelWrap">
           <Checkbox
             size="small"

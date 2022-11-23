@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import RoleController from 'src/api/role';
 
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import 'pager';
+import 'src/components/pager/pager';
 import './style.less';
 
 class RoleLog extends React.Component {

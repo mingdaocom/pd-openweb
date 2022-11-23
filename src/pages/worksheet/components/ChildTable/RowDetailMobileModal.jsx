@@ -29,12 +29,12 @@ export default function RowDetailModal(props) {
         {type === 'edit' && (
           <div className="flex leftAlign">
             <i
-              className={cx('headerBtn icon icon-arrow-up-border mRight8 Font18', { Gray_df: switchDisabled.prev })}
-              onClick={() => !switchDisabled.prev && onSwitch({ prev: true })}
+              className={cx('headerBtn icon icon-arrow-up-border mRight8 Font18', { Gray_df: switchDisabled.prev || mobileIsEdit })}
+              onClick={() => !(switchDisabled.prev || mobileIsEdit) && onSwitch({ prev: true })}
             ></i>
             <i
-              className={cx('headerBtn icon icon-arrow-down-border Font18', { Gray_df: switchDisabled.next })}
-              onClick={() => !switchDisabled.next && onSwitch({ next: true })}
+              className={cx('headerBtn icon icon-arrow-down-border Font18', { Gray_df: switchDisabled.next || mobileIsEdit })}
+              onClick={() => !(switchDisabled.next || mobileIsEdit) && onSwitch({ next: true })}
             ></i>
           </div>
         )}

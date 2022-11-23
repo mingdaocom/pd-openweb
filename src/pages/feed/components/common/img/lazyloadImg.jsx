@@ -5,6 +5,7 @@ import ReactDom from 'react-dom';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import _ from 'lodash';
 import cx from 'classnames';
+import '@mdfe/jquery-lazyload';
 
 /**
  * 通过 lazyload 懒加载的图片
@@ -34,14 +35,10 @@ const LazyloadImg = createReactClass({
         // effect: 'fadeIn', // 第一次慢，后面较快，不需要 fadeIn
         placeholder: this.props.placeholder,
       },
-      this.props.options
+      this.props.options,
     );
     const img = ReactDom.findDOMNode(this);
-    require(['@mdfe/jquery-lazyload'], () => {
-      $(img)
-        .show()
-        .lazyload(this.lazyloadOption);
-    });
+    $(img).show().lazyload(this.lazyloadOption);
   },
 
   render() {
@@ -55,4 +52,4 @@ const LazyloadImg = createReactClass({
   },
 });
 
-module.exports = LazyloadImg;
+export default LazyloadImg;

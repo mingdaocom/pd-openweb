@@ -214,4 +214,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(ThumbnailGuide);
+export default connect(mapStateToProps, mapDispatchToProps)(ThumbnailGuide);

@@ -6,7 +6,7 @@ var reportConfig = {
   /**
    * 复制图表
    * @param {Object} args 请求参数
-   * @param {CopyReportRequest} {move:是否移动(boolean),pageId:图标复制到自定义页面，必传自定义页面id(string),reportId:报表ID(string),sourcePageId:源自定义页面(string),sourceType:来源 空 代表 来自报表，1：page页面(integer),}*copyReportRequest
+   * @param {CopyReportRequest} {current:列表复制，放在复制的图表下方(boolean),move:是否移动(boolean),pageId:图标复制到自定义页面，必传自定义页面id(string),reportId:报表ID(string),sourcePageId:源自定义页面(string),sourceType:来源 空 代表 来自报表，1：page页面(integer),}*copyReportRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

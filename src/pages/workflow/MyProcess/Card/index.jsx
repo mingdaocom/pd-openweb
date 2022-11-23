@@ -4,7 +4,7 @@ import Icon from 'ming-ui/components/Icon';
 import { TABS } from '../index';
 import { Checkbox, Tooltip } from 'antd';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
-import { ACTION_TYPES, TYPE_TO_STYLE, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from '../config';
+import { covertTime, ACTION_TYPES, TYPE_TO_STYLE, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from '../config';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 
@@ -18,17 +18,6 @@ export default class Card extends Component {
       chatByLink: true,
       accountId: createAccount.accountId,
     });
-  }
-  covertTime(time) {
-    if (time < 0) time = time * -1;
-
-    const day = Math.floor(time / 24 / 60 / 60 / 1000);
-    const hour = Math.floor((time - day * 24 * 60 * 60 * 1000) / 60 / 60 / 1000);
-    const min = (time - day * 24 * 60 * 60 * 1000 - hour * 60 * 60 * 1000) / 60 / 1000;
-
-    return `${day ? _l('%0天', day) : ''}${hour ? _l('%0小时', hour) : ''}${
-      min ? _l('%0分钟', Math.floor(min) || 1) : ''
-    }`;
   }
   renderHeader() {
     const { stateTab, item } = this.props;
@@ -189,7 +178,8 @@ export default class Card extends Component {
     }
 
     if (!maxEndTimeConsuming) {
-      return <span className="Gray_9e mLeft10">{_l('耗时：%0', this.covertTime(maxTimeConsuming))}</span>;
+      const time = covertTime(maxTimeConsuming);
+      return time ? <span className="Gray_9e mLeft10">{_l('耗时：%0', time)}</span> : null;
     }
 
     return (
@@ -197,8 +187,8 @@ export default class Card extends Component {
         title={
           autoPass ? '' : 
           maxEndTimeConsuming > 0
-            ? _l('超时 %0 完成', this.covertTime(maxEndTimeConsuming))
-            : _l('提前 %0 完成', this.covertTime(maxEndTimeConsuming))
+            ? _l('超时 %0 完成', covertTime(maxEndTimeConsuming))
+            : _l('提前 %0 完成', covertTime(maxEndTimeConsuming))
         }
       >
         <span
@@ -208,7 +198,7 @@ export default class Card extends Component {
           }}
         >
           <Icon icon={maxEndTimeConsuming > 0 ? 'overdue_network' : 'task'} className="Font14 mRight2" />
-          {_l('耗时：%0', this.covertTime(maxTimeConsuming))}
+          {_l('耗时：%0', covertTime(maxTimeConsuming))}
         </span>
       </Tooltip>
     );
@@ -235,7 +225,7 @@ export default class Card extends Component {
         }}
       >
         <Icon icon={time > 0 ? 'error1' : 'hourglass'} className="Font14 mRight2" />
-        {time > 0 ? _l('已超时%0', this.covertTime(time)) : _l('剩余%0', this.covertTime(time))}
+        {time > 0 ? _l('已超时%0', covertTime(time)) : _l('剩余%0', covertTime(time))}
       </span>
     );
   }

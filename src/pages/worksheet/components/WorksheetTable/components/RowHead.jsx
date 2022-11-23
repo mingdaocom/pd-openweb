@@ -76,7 +76,7 @@ export default function RowHead(props) {
     viewId,
     worksheetId,
     projectId,
-    columns = [],
+    controls = [],
     data,
     lineNumberBegin,
     rowIndex,
@@ -133,7 +133,7 @@ export default function RowHead(props) {
           {!readonly && !isTrash && (
             <RecordOperate
               {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId, isCharge }}
-              formdata={columns.map(c => ({ ...c, value: row[c.controlId] }))}
+              formdata={controls.map(c => ({ ...c, value: row[c.controlId] }))}
               shows={['share', 'print', 'copy', 'openinnew']}
               allowCopy={allowAdd}
               defaultCustomButtons={customButtons}
@@ -272,7 +272,7 @@ RowHead.propTypes = {
   viewId: PropTypes.string,
   worksheetId: PropTypes.string,
   projectId: PropTypes.string,
-  columns: PropTypes.arrayOf(PropTypes.shape({})),
+  controls: PropTypes.arrayOf(PropTypes.shape({})),
   canSelectAll: PropTypes.bool,
   className: PropTypes.string,
   customButtons: PropTypes.arrayOf(PropTypes.shape({})),

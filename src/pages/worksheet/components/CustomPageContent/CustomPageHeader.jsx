@@ -175,10 +175,8 @@ export default function CustomPageHeader(props) {
                 icon="knowledge-message Font18 Gray_9"
                 className="Hand customPageDesc"
                 onClick={() => {
-                  if (isCharge) {
-                    setDescIsEditing(false);
-                    handleVisibleChange(true, 'editIntroVisible');
-                  }
+                  setDescIsEditing(false);
+                  handleVisibleChange(true, 'editIntroVisible');
                 }}
               />
             </Popover>
@@ -228,6 +226,7 @@ export default function CustomPageHeader(props) {
       </header>
       <SheetDesc
         title={_l('自定义页面说明')}
+        isCharge={isCharge}
         visible={editIntroVisible}
         desc={desc || ''}
         isEditing={descIsEditing}

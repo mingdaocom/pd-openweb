@@ -102,6 +102,8 @@ class ColumnHead extends Component {
   render() {
     const {
       className,
+      type = '',
+      worksheetId = '',
       count,
       style,
       isLast,
@@ -131,7 +133,25 @@ class ColumnHead extends Component {
       Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
     );
     let canFilter =
-      _.includes(filterWhiteKeys, itemType) && !_.includes(disabledFunctions, 'filter') && !window.hideColumnHeadFilter;
+      _.includes(filterWhiteKeys, itemType) &&
+      !_.includes(disabledFunctions, 'filter') &&
+      !window.hideColumnHeadFilter &&
+      !_.includes(
+        [
+          'wfname',
+          'wfstatus',
+          'wfcuaids',
+          'wfrtime',
+          'wfftime',
+          'wfdtime',
+          'wfcaid',
+          'wfctime',
+          'wfcotime',
+          'uaid',
+          'rowid',
+        ],
+        control.controlId,
+      );
     if (control.type === 30 && control.strDefault === '10') {
       canFilter = false;
     }
@@ -200,7 +220,7 @@ class ColumnHead extends Component {
             {canFilter && !rowIsSelected && !isShowOtherField && !hideColumnFilter && (
               <MenuItem
                 onClick={() => {
-                  emitter.emit('FILTER_ADD_FROM_COLUMNHEAD', control);
+                  emitter.emit('FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + type, control);
                   closeMenu();
                 }}
               >
@@ -219,7 +239,7 @@ class ColumnHead extends Component {
                 closeMenu();
               }}
             >
-              <i className="icon icon-workflow_hide"></i>
+              <i className="icon icon-visibility_off"></i>
               {_l('隐藏')}
             </MenuItem>
             {!!sheetHiddenColumns.length && (

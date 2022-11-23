@@ -15,6 +15,7 @@ import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import axios from 'axios';
 import { getControlsForPrint, sysToPrintData, isRelation } from './util';
 import { getToken } from 'src/api/appManagement';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 class PrintForm extends React.Component {
   constructor(props) {
     super(props);
@@ -30,6 +31,7 @@ class PrintForm extends React.Component {
         showData: false, // 空值是否隐藏 默认隐藏
         printOption: false, //选择平铺 //打印未选中的项
         shareType: 0, //0 = 默认，1= 内部
+        approval: [],
       },
       isChange: false, // 当前模板是否修改
       appId,
@@ -74,7 +76,7 @@ class PrintForm extends React.Component {
       isBatch, // 是否批量打印
     } = params;
     if (isDefault) {
-      if (params.printType === 'workflow') {
+      if (params.printType === 'flow') {
         this.initWorkflow();
       } else {
         this.getData();
@@ -169,10 +171,98 @@ class PrintForm extends React.Component {
       });
   };
 
+  getApproval = () => {
+    const { params, printData } = this.state;
+    if (params.printType && params.printType === 'flow') return;
+    const { worksheetId, rowId, workId } = params;
+    let approvalIds = printData.approvalIds;
+    let promiseList = [
+      instance.getTodoList2({
+        startAppId: worksheetId,
+        startSourceId: rowId || printData.rowIdForQr,
+        complete: true,
+      }),
+      instance.getTodoList2({
+        startAppId: worksheetId,
+        startSourceId: rowId || printData.rowIdForQr,
+      }),
+    ];
+    Promise.all(promiseList).then(([res1, res2]) => {
+      let ajaxList = [];
+      let res = res1.concat(res2);
+      res.forEach(item => {
+        ajaxList.push(instance.get2({ id: item.id, workId }));
+      });
+      axios.all(ajaxList).then(resData => {
+        let list = res.map((l, index) => {
+          return {
+            ...l,
+            processInfo: resData[index],
+          };
+        });
+        let _approval = [];
+        list.forEach(item => {
+          if (_approval.find(l => l.processId === item.process.parentId)) {
+            let _index = _approval.findIndex(m => m.processId === item.process.parentId);
+            _approval[_index].child.push({
+              ...item,
+              checked:
+                params.type === typeForCon.NEW
+                  ? true
+                  : approvalIds.find(l => l === item.process.parentId)
+                  ? true
+                  : false,
+            });
+          } else {
+            _approval.push({
+              name: item.process.name,
+              processId: item.process.parentId,
+              checked:
+                params.type === typeForCon.NEW
+                  ? true
+                  : approvalIds.find(l => l === item.process.parentId)
+                  ? true
+                  : false,
+              child: [].concat({
+                ...item,
+                checked:
+                  params.type === typeForCon.NEW
+                    ? true
+                    : approvalIds.find(l => l === item.process.parentId)
+                    ? true
+                    : false,
+              }),
+            });
+          }
+        });
+
+        this.setState({
+          printData: {
+            ...this.state.printData,
+            approval: _approval,
+          },
+        });
+      });
+    });
+  };
+
   getData = () => {
     const { params } = this.state;
-    const { printId, projectId, worksheetId, rowId, getType, viewId, appId, isDefault, from, printType, id, workId } =
-      params;
+    const {
+      printId,
+      projectId,
+      worksheetId,
+      rowId,
+      getType,
+      viewId,
+      appId,
+      isDefault,
+      from,
+      printType,
+      id,
+      workId,
+      type,
+    } = params;
     const sheetArgs = {
       id: printId,
       projectId,
@@ -194,6 +284,7 @@ class PrintForm extends React.Component {
         worksheetId,
         type: 1, // 1字段显隐
       }),
+      sheetAjax.getSwitchPermit({ worksheetId }),
     ];
     axios.all(ajaxList).then(resData => {
       const res = resData[0];
@@ -210,31 +301,43 @@ class PrintForm extends React.Component {
         rules: rules,
         data: res.receiveControls,
       });
-      receiveControls = getControlsForPrint(receiveControls, res.relations).filter(o => ![43, 49].includes(o.type));
+      receiveControls = getControlsForPrint(receiveControls, res.relations)
+        .filter(o => ![43, 49].includes(o.type))
+        .filter(o =>
+          printId || (!printId && type === typeForCon.NEW && from === fromType.FORMSET) // 模版打印/配置（新建模版）=> 不考虑显隐设置
+            ? true
+            : controlState(o).visible,
+        ); //系统打印需要根据用户权限显示
       let dat = (res.receiveControls || []).filter(o => ![43, 49].includes(o.type)); //去除 文本识别 43 接口查询按钮
       let attribute = dat.find(it => it.attribute === 1);
       let attributeName = !attribute ? _l('未命名') : renderCellText(attribute) || _l('未命名');
-      if (from === fromType.PRINT && printType !== 'workflow') {
+      if (from === fromType.PRINT && printType !== 'flow') {
         document.title = printId ? `${res.name}-${attributeName}` : `${_l('系统打印')}-${attributeName}`;
       }
-      this.setState({
-        printData: {
-          ...this.state.printData,
-          ..._.omit(res, ['rowId']),
-          rowIdForQr: res.rowId,
-          receiveControls,
-          rules,
-          font: Number(res.font || DEFAULT_FONT_SIZE),
-          orderNumber: dat
-            .filter(control => isRelation(control))
-            .map(it => {
-              // res.orderNumber取消序号呈现的关联表id
-              return { receiveControlId: it.controlId, checked: !(res.orderNumber || []).includes(it.controlId) };
-            }),
-          systemControl: sysToPrintData(res),
+      this.setState(
+        {
+          printData: {
+            ...this.state.printData,
+            ..._.omit(res, ['rowId']),
+            rowIdForQr: res.rowId,
+            receiveControls,
+            rules,
+            attributeName,
+            font: Number(res.font || DEFAULT_FONT_SIZE),
+            orderNumber: dat
+              .filter(control => isRelation(control))
+              .map(it => {
+                // res.orderNumber取消序号呈现的关联表id
+                return { receiveControlId: it.controlId, checked: !(res.orderNumber || []).includes(it.controlId) };
+              }),
+            systemControl: sysToPrintData(res),
+            approvalIds: res.approvalIds,
+          },
+          isLoading: false,
+          sheetSwitchPermit: resData[2],
         },
-        isLoading: false,
-      });
+        this.getApproval,
+      );
     });
   };
 
@@ -318,6 +421,16 @@ class PrintForm extends React.Component {
         controls.push(data);
       }
     });
+    let approvalIds = [];
+    if (printData.approval.length) {
+      printData.approval.forEach(item => {
+        if (item.checked) {
+          approvalIds.push(item.processId);
+        } else if (item.child.some(l => l.checked)) {
+          approvalIds.push(item.processId);
+        }
+      });
+    }
     sheetAjax
       .editPrint({
         id: printId,
@@ -350,6 +463,7 @@ class PrintForm extends React.Component {
             'name',
             'font',
           ]),
+          approvalIds: approvalIds,
           projectId,
           worksheetId,
           views: typeof views[0] === 'string' ? views : views.map(it => it.viewId), // string??
@@ -498,7 +612,7 @@ class PrintForm extends React.Component {
   };
 
   render() {
-    const { params, printData, isChange, showSaveDia, isLoading, error, showPdf } = this.state;
+    const { params, printData, isChange, showSaveDia, isLoading, error, showPdf, sheetSwitchPermit } = this.state;
     const { type, isDefault, worksheetId, viewId } = params;
     let { receiveControls = [], systemControl = [] } = printData;
     if (!worksheetId) {
@@ -530,7 +644,7 @@ class PrintForm extends React.Component {
       signature: receiveControls.filter(control => control.type === 42), // 签名
       onCloseFn: () => {
         if (!isChange) {
-          this.props.onBack();
+          this.props.onBack && this.props.onBack();
         } else {
           return Dialog.confirm({
             title: <span className="">{_l('您是否保存本次修改？')}</span>,
@@ -538,7 +652,7 @@ class PrintForm extends React.Component {
             cancelText: _l('否，放弃保存'),
             okText: _l('是，保存修改'),
             onCancel: evt => {
-              !this.state.showSaveDia && this.props.onBack();
+              !this.state.showSaveDia && this.props.onBack && this.props.onBack();
             },
             onOk: () => {
               this.saveFn();
@@ -551,6 +665,7 @@ class PrintForm extends React.Component {
       saveFn: this.saveFn,
       downFn: this.downFn,
       showPdf,
+      sheetSwitchPermit: sheetSwitchPermit,
     };
     return (
       <div className="printTem">

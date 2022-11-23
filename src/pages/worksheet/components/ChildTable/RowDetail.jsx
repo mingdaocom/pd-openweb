@@ -32,7 +32,7 @@ export default class RowDetail extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.data && nextProps.data.rowid !== this.props.data.rowid) {
+    if (nextProps.data && (nextProps.data.rowid !== this.props.data.rowid || !_.isEqual(nextProps.data, this.props.data))) {
       this.setState({
         flag: Math.random(),
       });

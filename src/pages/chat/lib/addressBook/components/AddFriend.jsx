@@ -1,9 +1,7 @@
 import React from 'react';
-
 import Icon from 'ming-ui/components/Icon';
 import Button from 'ming-ui/components/Button';
-
-const AddFriendConfirm = require('addFriendConfirm');
+import AddFriendConfirm from 'src/components/addFriendConfirm/addFriendConfirm';
 
 export default class AddFriend extends React.Component {
   render() {

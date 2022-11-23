@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { Radar } from '@antv/g2plot';
 import {
   formatControlInfo,
   formatrChartValue,
@@ -51,14 +50,10 @@ export default class extends Component {
     this.RadarChart = null;
   }
   componentDidMount() {
-    const { reportData, isViewOriginalData } = this.props;
-    const { displaySetup } = reportData;
-    const config = this.getComponentConfig(this.props);
-    this.RadarChart = new Radar(this.chartEl, config);
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.RadarChart.on('element:click', this.handleClick);
-    }
-    this.RadarChart.render();
+    import('@antv/g2plot').then(data => {
+      this.RadarComponent = data.Radar;
+      this.renderRadarChart();
+    });
   }
   componentWillUnmount() {
     this.RadarChart.destroy();
@@ -77,12 +72,23 @@ export default class extends Component {
       this.RadarChart.update(config);
     }
   }
+  renderRadarChart() {
+    const { reportData, isViewOriginalData } = this.props;
+    const { displaySetup } = reportData;
+    const config = this.getComponentConfig(this.props);
+    this.RadarChart = new this.RadarComponent(this.chartEl, config);
+    if (displaySetup.showRowList && isViewOriginalData) {
+      this.RadarChart.on('element:click', this.handleClick);
+    }
+    this.RadarChart.render();
+  }
   handleClick = ({ data, gEvent }) => {
     const { xaxes, split } = this.props.reportData;
     const currentData = data.data;
     const isNumber = isFormatNumber(xaxes.controlType);
-    const param = {
-      [xaxes.cid]: isNumber ? Number(currentData.originalId) : currentData.originalId
+    const param = {};
+    if (xaxes.cid) {
+      param[xaxes.cid] = isNumber ? Number(currentData.originalId) : currentData.originalId;
     }
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
@@ -127,6 +133,7 @@ export default class extends Component {
       meta: {
         name: {
           type: 'cat',
+          formatter: value => value || _l('空')
         },
         groupName: {
           formatter: value => formatControlInfo(value).name,
@@ -252,7 +259,7 @@ export default class extends Component {
             ))}
           </Fragment>
         ) : (
-          <Menu.Item onClick={this.handleRequestOriginalData}>
+          <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
             <div className="flexRow valignWrapper">
               <span>{_l('查看原始数据')}</span>
             </div>

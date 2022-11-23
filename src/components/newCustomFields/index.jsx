@@ -218,9 +218,10 @@ export default class CustomFields extends Component {
    * 获取字段显示规则
    */
   getRules = (nextProps, cb = () => {}, noInitSource) => {
-    const { worksheetId, data, disabled, onRulesLoad = () => {} } = nextProps || this.props;
+    const { worksheetId, disabled, onRulesLoad = () => {} } = nextProps || this.props;
 
     sheetAjax.getControlRules({ worksheetId, type: 1 }).then(rules => {
+      const { data } = nextProps || this.props;
       onRulesLoad(rules);
       this.setState({ rules }, () => {
         if (!noInitSource) {
@@ -235,10 +236,12 @@ export default class CustomFields extends Component {
    * 获取查询配置
    */
   getSearchConfig = nextProps => {
-    const { worksheetId, data, disabled } = nextProps || this.props;
+    const { worksheetId, disabled } = nextProps || this.props;
 
     sheetAjax.getQueryBySheetId({ worksheetId }).then(res => {
-      this.setState({ searchConfig: formatSearchConfigs(res) }, () => this.initSource(data, disabled));
+      this.setState({ searchConfig: formatSearchConfigs(res) }, () =>
+        this.initSource((nextProps || this.props).data, disabled),
+      );
     });
   };
 
@@ -276,7 +279,7 @@ export default class CustomFields extends Component {
       }
       return a.row - b.row;
     });
-
+    const richTextControlCount = data.filter(c => c.type === 41).length;
     data
       .filter(
         item =>
@@ -321,7 +324,7 @@ export default class CustomFields extends Component {
 
             {!_.includes([45], item.type) && this.getControlLabel(item)}
             <div className="customFormItemControl">
-              {this.getWidgets(Object.assign({}, item, controlProps))}
+              {this.getWidgets(Object.assign({}, item, controlProps, { richTextControlCount }))}
               {this.renderVerifyCode(item)}
             </div>
 

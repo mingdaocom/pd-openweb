@@ -26,7 +26,7 @@ export default class Push extends Component {
   }
 
   render() {
-    const { item, disabled, selectNodeId, openDetail } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail } = this.props;
 
     return (
       <div className="flexColumn">
@@ -38,10 +38,10 @@ export default class Push extends Component {
               { active: selectNodeId === item.id },
               { errorShadow: item.selectNodeId && item.isException },
             )}
-            onMouseDown={() => !disabled && openDetail(item.id, item.typeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
-              <i className={cx('workflowAvatar icon-notifications_11', item.pushType ? 'BGBlue' : 'BGGray')} />
+              <i className={cx('workflowAvatar icon-interface_push', item.pushType ? 'BGBlue' : 'BGGray')} />
             </div>
             <NodeOperate nodeClassName="BGBlue" {...this.props} />
             <div className="workflowContent Font13">{this.renderContent()}</div>

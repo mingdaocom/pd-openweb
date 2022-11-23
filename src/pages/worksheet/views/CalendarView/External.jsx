@@ -137,8 +137,8 @@ class External extends Component {
       <React.Fragment>
         {eventData.map(it => {
           const { extendedProps = {}, timeList = [] } = it;
-          const { editable, rowid, stringColor = '' } = extendedProps;
-          let begin = timeList.length === 1 ? timeList[0].start : '';
+          const { rowid, stringColor = '' } = extendedProps;
+          let editable = timeList.length > 1 ? timeList.filter(o => o.editable).length > 0 : timeList[0].editable; //多组时间,且有可编辑的权限，拖拽后选择时间组
           return (
             <div
               className={cx('clearfix fcEventCon', { fcEvent: editable })}

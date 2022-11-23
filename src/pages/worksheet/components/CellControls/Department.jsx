@@ -4,8 +4,10 @@ import { autobind } from 'core-decorators';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
+import { Tooltip } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import { getDepartmentFullNameByIds } from 'src/api/department';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
 
@@ -125,6 +127,7 @@ export default class Text extends React.Component {
       singleLine,
       popupContainer,
       cell,
+      projectId,
       editable,
       isediting,
       updateEditingStatus,
@@ -199,16 +202,30 @@ export default class Text extends React.Component {
           {!!value && (
             <div className={cx('cellDepartments cellControl', { singleLine })}>
               {value.map((department, index) => (
-                <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>
-                  <div className="flexRow">
-                    <div className="iconWrap" style={{ backgroundColor: '#2196f3' }}>
-                      <i className="Font14 icon-department"></i>
+                <Tooltip
+                  mouseEnterDelay={0.6}
+                  text={() =>
+                    new Promise(resolve =>
+                      getDepartmentFullNameByIds({
+                        projectId,
+                        departmentIds: [department.departmentId],
+                      }).then(res => {
+                        resolve(_.get(res, '0.name'));
+                      }),
+                    )
+                  }
+                >
+                  <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>
+                    <div className="flexRow">
+                      <div className="iconWrap" style={{ backgroundColor: '#2196f3' }}>
+                        <i className="Font14 icon-department"></i>
+                      </div>
+                      <div className="departmentName mLeft4 flex ellipsis">
+                        {department.departmentName ? department.departmentName : _l('该部门已删除')}
+                      </div>
                     </div>
-                    <div className="departmentName mLeft4 flex ellipsis">
-                      {department.departmentName ? department.departmentName : _l('该部门已删除')}
-                    </div>
-                  </div>
-                </span>
+                  </span>
+                </Tooltip>
               ))}
             </div>
           )}

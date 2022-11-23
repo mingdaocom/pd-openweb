@@ -17,7 +17,7 @@ const SortableItem = SortableElement(({ index, selected, column, handleItemClick
     <div className="flex overflow_ellipsis">
       <Icon
         icon={selected.indexOf(column.controlId) > -1 ? 'ic_toggle_on' : 'ic_toggle_off'}
-        className="switchIcon Font22 mRight12"
+        className="switchIcon Font30 mRight12"
       />
       <i className={cx('icon Gray_9e mRight6 Font16', 'icon-' + getIconByType(column.type))}></i>
       <span>{column.controlName || (column.type === 22 ? _l('分段') : _l('备注'))}</span>
@@ -59,7 +59,7 @@ export default class ChangeColumn extends Component {
     dragable: false,
     selected: [],
     columns: [],
-    placeholder: _l('搜索字段')
+    placeholder: _l('搜索字段'),
   };
 
   constructor(props) {

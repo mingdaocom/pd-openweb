@@ -21,6 +21,15 @@ export default class Widgets extends Component {
     originValue: '',
   };
 
+  isOnComposition = false;
+
+  componentWillReceiveProps(nextProps) {
+    if (this.text) {
+      this.text.value =
+        nextProps.enumDefault === 2 ? (nextProps.value || '').replace(/\r\n|\n/g, ' ') : nextProps.value || '';
+    }
+  }
+
   onFocus = e => {
     this.setState({ originValue: e.target.value.trim() });
   };
@@ -45,7 +54,7 @@ export default class Widgets extends Component {
    * 多行文本进入编辑
    */
   joinTextareaEdit = evt => {
-    const { disabled, advancedSetting } = this.props;
+    const { disabled, advancedSetting, value } = this.props;
     const href = evt.target.getAttribute('href');
 
     // 复制中的时候不进入编辑
@@ -60,7 +69,10 @@ export default class Widgets extends Component {
       evt.preventDefault();
     } else if (!disabled && advancedSetting.dismanual !== '1') {
       this.setState({ isEditing: true }, () => {
-        this.text && this.text.focus();
+        if (this.text) {
+          this.text.value = value || '';
+          this.text.focus();
+        }
       });
     }
   };
@@ -74,6 +86,20 @@ export default class Widgets extends Component {
     const isSingleLine = enumDefault === 2;
     const isScanQR = getIsScanQR();
     const startTextScanCode = !disabled && isScanQR && strDefault.split('')[1] === '1';
+    const compositionOptions = {
+      onCompositionStart: () => (this.isOnComposition = true),
+      onCompositionEnd: event => {
+        if (event.type === 'compositionend') {
+          this.isOnComposition = false;
+        }
+
+        // 谷歌浏览器：compositionstart onChange compositionend
+        // 火狐浏览器：compositionstart compositionend onChange
+        if (navigator.userAgent.indexOf('Chrome') > -1) {
+          this.onChange(event.target.value);
+        }
+      },
+    };
 
     // 开启扫码输入并且禁止手动输入
     if (startTextScanCode && disabledInput) {
@@ -108,14 +134,17 @@ export default class Widgets extends Component {
           <input
             type="text"
             className="customFormControlBox escclose"
-            style={{ width: startTextScanCode ? 'calc(100% - 42px)' : '100%', paddingTop: 2 }}
+            style={{ width: startTextScanCode ? 'calc(100% - 42px)' : '100%', padding: '7px 12px 6px' }}
             ref={text => {
               this.text = text;
             }}
             placeholder={hint}
             onFocus={this.onFocus}
-            value={(value || '').replace(/\r\n|\n/g, ' ')}
-            onChange={event => this.onChange(event.target.value)}
+            onChange={event => {
+              if (!this.isOnComposition) {
+                this.onChange(event.target.value);
+              }
+            }}
             onBlur={event => {
               const trimValue = event.target.value.trim();
               if (trimValue !== value) {
@@ -123,6 +152,7 @@ export default class Widgets extends Component {
               }
               this.onBlur();
             }}
+            {...compositionOptions}
           />
         ) : (
           <Textarea
@@ -131,12 +161,25 @@ export default class Widgets extends Component {
             style={{ width: startTextScanCode ? 'calc(100% - 42px)' : '100%' }}
             minHeight={enumDefault === 1 ? 90 : 36}
             maxHeight={400}
-            value={value}
+            manualRef={text => {
+              this.text = text;
+            }}
             placeholder={hint}
             spellCheck={false}
             onFocus={this.onFocus}
-            onChange={this.onChange}
-            onBlur={this.onBlur}
+            onChange={value => {
+              if (!this.isOnComposition) {
+                this.onChange(value);
+              }
+            }}
+            onBlur={event => {
+              const trimValue = event.target.value.trim();
+              if (trimValue !== value) {
+                this.onChange(trimValue);
+              }
+              this.onBlur();
+            }}
+            {...compositionOptions}
           />
         )}
 

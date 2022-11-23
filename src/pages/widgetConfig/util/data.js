@@ -3,6 +3,7 @@ import { CAN_NOT_AS_TEXT_GROUP } from '../config';
 import { navigateTo } from 'src/router/navigateTo';
 import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
+import { formatValuesOfCondition } from 'worksheet/common/WorkSheetFilter/util';
 import { renderCellText } from 'src/pages/worksheet/components/CellControls';
 import update from 'immutability-helper';
 import _, { includes, get, isEmpty, omit, findIndex, filter, find } from 'lodash';
@@ -170,7 +171,18 @@ export function handleCondition(condition) {
 export function handleFilters(data) {
   const filters = getAdvanceSetting(data, 'filters');
   try {
-    const filtersValue = filters.map(handleCondition);
+    let filtersValue = [];
+    if (filters.some(item => item.groupFilters)) {
+      filtersValue = filters.map(f => {
+        return {
+          ...f,
+          groupFilters: (f.groupFilters || []).map(handleCondition),
+        };
+      });
+    } else {
+      filtersValue = filters.map(handleCondition);
+    }
+
     return handleAdvancedSettingChange(data, { filters: JSON.stringify(filtersValue) });
   } catch (err) {
     return data;
@@ -453,7 +465,6 @@ export const dealRequestControls = (controls, needChild) => {
 
   // 查询过滤无效数据(附件不支持)
   const filterControls = controls
-    .filter(i => !_.includes([14], i.type))
     .filter(i => {
       const hasFind = _.find(controls, o => i.dataSource === o.controlId);
       return i.dataSource ? hasFind && hasFind.type !== 10000007 : true;

@@ -230,6 +230,22 @@ module.exports = {
      return $.api('HomeApp', 'GetWorksheetsByAppId', args, options);
    },
   /**
+  * 获取附件图片列表
+  * @param {Object} args 请求参数
+  * @param {string} args.workSheetId 工作表id
+  * @param {string} args.viewId 视图id
+  * @param {string} args.attachementControlId 控件id
+  * @param {integer} args.imageLimitCount 图片上限数量
+  * @param {array} args.filedIds 工作表字段控件id数组
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAttachementImages: function (args, options = {}) {
+     
+     return $.api('HomeApp', 'GetAttachementImages', args, options);
+   },
+  /**
   * 获取自定义页面详情
   * @param {Object} args 请求参数
   * @param {string} args.id

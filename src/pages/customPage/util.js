@@ -17,7 +17,7 @@ const enumObj = obj => {
   return obj;
 };
 
-export const enumWidgetType = enumObj({ analysis: 1, richText: 2, embedUrl: 3, button: 4, view: 5, filter: 6 });
+export const enumWidgetType = enumObj({ analysis: 1, richText: 2, embedUrl: 3, button: 4, view: 5, filter: 6, carousel: 7 });
 
 export const getEnumType = type => (typeof type === 'number' ? enumWidgetType[type] : type);
 export const getIndexById = ({ component, components }) => {
@@ -75,6 +75,7 @@ export const getComponentTitleText = component => {
   if (enumType === 'button') return _.get(button, ['buttonList', '0', 'name']);
   if (enumType === 'view') return config.name;
   if (enumType === 'filter') return _l('筛选组件');
+  if (enumType === 'carousel') return _l('轮播图');
   if (_.includes(['embedUrl'], enumType)) return value;
   return value;
 };

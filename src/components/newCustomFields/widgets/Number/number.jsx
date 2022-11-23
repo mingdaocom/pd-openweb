@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { accMul, accDiv } from 'src/util';
+import { accMul, accDiv, toFixed } from 'src/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -59,7 +59,7 @@ export default class Widgets extends Component {
     if (value === '-') {
       value = '';
     } else if (value) {
-      value = parseFloat(value).toFixed(advancedSetting.numshow === '1' ? dot + 2 : dot);
+      value = toFixed(parseFloat(value), advancedSetting.numshow === '1' ? dot + 2 : dot);
     }
 
     onChange(value);
@@ -81,7 +81,7 @@ export default class Widgets extends Component {
     }
 
     if (!isEditing) {
-      value = value || value === 0 ? parseFloat(value).toFixed(dot) : '';
+      value = value || value === 0 ? toFixed(parseFloat(value), dot) : '';
       // 数值兼容老的千分位配置enumDefault
       if (type !== 6 || _.isUndefined(thousandth) ? enumDefault !== 1 : thousandth !== '1') {
         const reg = value.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;

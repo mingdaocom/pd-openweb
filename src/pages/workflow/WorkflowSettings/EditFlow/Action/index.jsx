@@ -178,7 +178,7 @@ export default class Action extends Component {
   }
 
   render() {
-    const { item, disabled, selectNodeId, openDetail } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail } = this.props;
     const isSheet = _.includes([APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION, APP_TYPE.PROCESS], item.appType);
     const bgClassName = isSheet ? 'BGYellow' : 'BGGreen';
 
@@ -197,7 +197,7 @@ export default class Action extends Component {
               },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(item.id, item.typeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
               <i

@@ -4,7 +4,7 @@ import { Button, Divider } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { updateSysSettings } from '../common';
-import 'uploadAttachment';
+import 'src/components/uploadAttachment/uploadAttachment';
 
 const Wrap = styled.div`
   .uploadingImageWrap, .uploadingIconWrap {

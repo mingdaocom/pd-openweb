@@ -300,7 +300,6 @@ function CustomBtnFormSet(props) {
                                 setShowDropOption(false);
                               }}
                               setData={data => {
-                                console.log(data);
                                 const { printData = {} } = data;
                                 const isAllView = printData.range === 3 ? 0 : 1;
                                 const views =

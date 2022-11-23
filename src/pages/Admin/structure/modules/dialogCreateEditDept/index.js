@@ -1,13 +1,15 @@
 import './style.less';
-require('mdDialog');
-var doT = require('dot');
-var util = require('../util');
+import 'src/components/mdDialog/dialog';
+import doT from '@mdfe/dot';
+import { getRenderInfo } from '../util';
 var departmentController = require('src/api/department');
 import { checkSensitive } from 'src/api/fixedData.js';
-
-var chargerTpl = require('./tpl/chargeUserTpl.html');
-var mainTpl = require('./tpl/main.html').replace('#include.chargeUserTpl', chargerTpl);
+import chargerTpl from './tpl/chargeUserTpl.html';
+import mainHtml from './tpl/main.html';
 import { updateTreeData } from 'src/pages/Admin/structure/modules/util';
+import dialog from '../dialogSelectDeptUser';
+
+const mainTpl = mainHtml.replace('#include.chargeUserTpl', chargerTpl);
 
 var RESULTS = {
   FAILED: 0,
@@ -77,14 +79,13 @@ CreateEditDeptDialog.prototype.renderMain = function () {
   var options = this.options;
   var _this = this;
   var tplFunc = doT.template(mainTpl);
-  util.getRenderInfo(options.projectId, options.departmentId).then(function (data) {
+  getRenderInfo(options.projectId, options.departmentId).then(function (data) {
     options.data = data;
     var renderData = Object.assign({}, data, {
       type: options.type,
       isLevel0: options.isLevel0,
     });
     _this.dialog.content(tplFunc(renderData));
-    // FIXME: https://discuss.reactjs.org/t/understanding-the-new-setstate-callback-behavior-post-v16/8920
     setTimeout(function () {
       if (options.type === 'edit') {
         _this.appendDeleteDeptBtn();
@@ -129,12 +130,13 @@ CreateEditDeptDialog.prototype.bindEvent = function () {
       departmentId: _this.$parent.data('departmentid'),
       departmentName: _this.$parent.text(),
     };
-    import('dialogSelectDept').then(selectDeptDialog => {
+    import('src/components/dialogSelectDept').then(selectDeptDialog => {
       selectDeptDialog.default({
         projectId: options.projectId,
         selectedDepartment: [parentDepartment],
         includeProject: true,
         showCreateBtn: false,
+        fromAdmin: true,
         // unique: false,
         selectFn: function ([dept = {}]) {
           _this.$parent.text(dept.departmentName).data({
@@ -166,21 +168,19 @@ CreateEditDeptDialog.prototype.bindEvent = function () {
           chargeAccountIds.push($(item).data('accountid'));
         });
 
-      require(['../dialogSelectDeptUser'], function (dialog) {
-        dialog({
-          projectId: options.projectId,
-          departmentId: options.departmentId,
-          selectedUsers: chargeAccountIds,
-          isUnique: false,
-          maxCount: 5,
-          callback: function (accounts) {
-            var tpl = doT.template(chargerTpl)({
-              rebuild: true,
-              accounts: accounts,
-            });
-            _this.$charger.siblings('.chargerUserBox').html(tpl);
-          },
-        });
+      dialog({
+        projectId: options.projectId,
+        departmentId: options.departmentId,
+        selectedUsers: chargeAccountIds,
+        isUnique: false,
+        maxCount: 5,
+        callback: function (accounts) {
+          var tpl = doT.template(chargerTpl)({
+            rebuild: true,
+            accounts: accounts,
+          });
+          _this.$charger.siblings('.chargerUserBox').html(tpl);
+        },
       });
     });
   }
@@ -365,6 +365,6 @@ CreateEditDeptDialog.prototype.deleteErrorHandler = function (errMessage) {
   }
 };
 
-module.exports = function (opts) {
+export default function (opts) {
   return new CreateEditDeptDialog(opts);
-};
+}

@@ -1,0 +1,253 @@
+.GSelect-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  .GSelect-head {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: 'relative';
+    margin-bottom: 10px;
+    &-navbar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+      &__item {
+        display: flex;
+        border-style: solid;
+        font-weight: bold;
+        font-size: 14px;
+        border-width: 0;
+        margin-right: 24px;
+        padding: 6px 8px;
+        color: #333;
+        cursor: pointer;
+        position: relative;
+        &:last-child {
+          margin-right: 0;
+        }
+        &::after {
+          content: '';
+          position: absolute;
+          height: 3px;
+          left: 8px;
+          right: 8px;
+          bottom: 0px;
+          display: inline-block;
+        }
+        &:hover {
+          background-color: #f5f5f5;
+        }
+        &.GSelect-head-navbar__item--active {
+          color: #2196f3;
+          background-color: #fff !important;
+          &::after {
+            background-color: #2196f3;
+          }
+        }
+        &:not(.GSelect-head-navbar__item--active) {
+          border-color: transparent !important;
+        }
+      }
+    }
+    &-search-navbar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      margin-top: 16px;
+      &__item {
+        display: flex;
+        font-weight: bold;
+        font-size: 12px;
+        margin-right: 8px;
+        padding: 5px 15px;
+        color: #333;
+        background-color: #f8f8f8;
+        border-radius: 15px;
+        cursor: pointer;
+        &:last-child {
+          margin-right: 0;
+        }
+        &:hover {
+          background-color: #f2f2f2;
+        }
+        &.GSelect-head-search-navbar__item--active {
+          color: #2196f3;
+          background-color: #f0f7ff !important;
+        }
+      }
+    }
+    &-searchIcon {
+      font-size: 16px;
+      display: inline-block;
+      color: #999;
+      float: left;
+      margin-right: 7px;
+      line-height: normal;
+      margin-top: 9px;
+      height: 100%;
+      position: absolute;
+      height: 33px;
+      cursor: pointer;
+    }
+    &-searchArea {
+      display: flex;
+      position: relative;
+      height: 40px;
+      .searchIcon {
+        position: absolute;
+        left: 18px;
+        top: 13px;
+        font-size: 16px;
+        color: #757575;
+      }
+      input {
+        flex: 1;
+        border: 1px solid #f5f5f5;
+        padding: 0 18px 0 42px;
+        box-sizing: border-box;
+        background: #f5f5f5;
+        border-radius: 20px;
+        margin-top: 2px;
+        &:hover {
+          border-color: #f0f0f0;
+          background: #f0f0f0;
+        }
+        &:focus {
+          background: #ffffff;
+          border-color: #fff;
+          box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
+        }
+      }
+      &--deleteIcon {
+        position: absolute;
+        width: 34px;
+        height: 34px;
+        text-align: center;
+        line-height: 36px;
+        right: 2px;
+        top: 4px;
+        background-color: transparent;
+        border-radius: 50%;
+        cursor: pointer;
+        span {
+          font-size: 16px;
+          color: #9b9b9b;
+          border-radius: 50%;
+        }
+        &:hover {
+          background-color: #f8f8f8;
+        }
+      }
+    }
+  }
+  .GSelect-navTitle {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    color: #919191;
+  }
+  .GSelect-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+  }
+  .GSelect-filterBox {
+    height: 16px;
+    line-height: 16px;
+    margin: 5px 10px;
+    display: flex;
+    &__letter {
+      color: #757575;
+      -webkit-box-flex: 1;
+      flex: 1 0 auto;
+      text-align: left;
+      cursor: pointer;
+    }
+  }
+  .GSelect-userList {
+    padding-left: 22px;
+  }
+  .GSelect-User {
+    height: 40px;
+    line-height: 40px;
+    padding-left: 8px;
+    vertical-align: middle;
+    padding-right: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    &:hover {
+      background-color: #f5f5f5;
+      border-radius: 3px;
+    }
+    &.hoverSearchUserItem {
+      background-color: #f5f5f5;
+      border-radius: 3px;
+    }
+    &__avatar {
+      margin-right: 12px;
+      margin-left: 8px;
+      img {
+        height: 28px;
+        width: 28px;
+        border-radius: 50%;
+        vertical-align: top;
+      }
+    }
+    &__fullname {
+      width: 180px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      padding-right: 10px;
+      font-size: 14px;
+      .Gray_6 {
+        color: #333 !important;
+      }
+    }
+    &__companyName {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      padding-left: 10px;
+      width: 260px;
+      color: #757575;
+    }
+  }
+  .GSelect-footer {
+    margin-top: 10px;
+    &-buttonBox {
+      padding-top: 10px;
+      display: flex;
+      justify-content: flex-end;
+      .closeBtn {
+        line-height: 36px;
+        min-height: 36px;
+        padding: 0 32px;
+        min-width: 92px;
+        font-size: 14px;
+        color: #9e9e9e;
+        cursor: pointer;
+        &:hover {
+          background-color: #f5f5f5;
+        }
+      }
+    }
+  }
+  .GSelect-Dropdown {
+    position: relative;
+    .GSelect-Dropdown--input {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+  .GSelect-departmentContent {
+    margin-left: -10px;
+  }
+}

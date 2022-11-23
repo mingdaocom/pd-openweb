@@ -1,45 +1,43 @@
-import * as utils from './index';
 import React from 'react';
 import ReactDom from 'react-dom';
 import Constant from './constant';
-import mdFunction from 'mdFunction';
+import { createLinksForMessage } from 'src/components/common/function';
 import RelationControl from 'src/components/relationControl/relationControl';
+import 'src/components/createTask/createTask';
+import 'src/components/createCalendar/createCalendar';
+import s from 'src/components/common/mstc/s/s';
 
-const _initPost = function (acceptor, options, callback) {
-  require(['s'], (s) => {
-    s({
-      defaultPostType: options.defaultType,
-      showType: options.showType,
-      createShare: options.showSuccessTip || false,
-      postMsg: options.postMsg,
-      selectGroupOptions: {
-        defaultValue: options.isPost ? acceptor.id : '',
-        defaultValueAllowChange: false,
-      },
-      callback(post) {
-        const message = {
-          type: Constant.MSGTYPE_CARD,
-          card: {
-            md: post.postType === '7' ? 'vote' : 'post',
-            entityid: post.postID,
-            url: md.global.Config.WebUrl + 'feeddetail?itemID=' + post.postID,
-            title: mdFunction
-              .createLinksForMessage({
-                message: post.message,
-                rUserList: post.rUserList,
-                rGroupList: post.rGroupList,
-                categories: post.categories,
-                noLink: true,
-                filterFace: true,
-                filterTask: true,
-              })
-              .slice(0, 300),
-            text: '',
-          },
-        };
-        callback(message);
-      },
-    });
+const _initPost = function(acceptor, options, callback) {
+  s({
+    defaultPostType: options.defaultType,
+    showType: options.showType,
+    createShare: options.showSuccessTip || false,
+    postMsg: options.postMsg,
+    selectGroupOptions: {
+      defaultValue: options.isPost ? acceptor.id : '',
+      defaultValueAllowChange: false,
+    },
+    callback(post) {
+      const message = {
+        type: Constant.MSGTYPE_CARD,
+        card: {
+          md: post.postType === '7' ? 'vote' : 'post',
+          entityid: post.postID,
+          url: md.global.Config.WebUrl + 'feeddetail?itemID=' + post.postID,
+          title: createLinksForMessage({
+            message: post.message,
+            rUserList: post.rUserList,
+            rGroupList: post.rGroupList,
+            categories: post.categories,
+            noLink: true,
+            filterFace: true,
+            filterTask: true,
+          }).slice(0, 300),
+          text: '',
+        },
+      };
+      callback(message);
+    },
   });
 };
 
@@ -60,31 +58,29 @@ export const newTask = (acceptor, options = {}) => {
         },
       ];
     }
-    require(['src/components/createTask/createTask'], () => {
-      $.CreateTask({
-        MemberArray: members,
-        ProjectID: acceptor.isGroup ? acceptor.projectId : '',
-        Description: options.description || '',
-        createShare: options.showSuccessTip,
-        callback(res) {
-          if (res.status !== true) {
-            reject(res);
-            return false;
-          }
-          const task = res.data;
-          const message = {
-            type: Constant.MSGTYPE_CARD,
-            card: {
-              md: 'task',
-              entityid: task.taskID,
-              url: md.global.Config.WebUrl + 'apps/task/task_' + task.taskID,
-              title: task.taskName,
-              text: '',
-            },
-          };
-          resolve(message);
-        },
-      });
+    $.CreateTask({
+      MemberArray: members,
+      ProjectID: acceptor.isGroup ? acceptor.projectId : '',
+      Description: options.description || '',
+      createShare: options.showSuccessTip,
+      callback(res) {
+        if (res.status !== true) {
+          reject(res);
+          return false;
+        }
+        const task = res.data;
+        const message = {
+          type: Constant.MSGTYPE_CARD,
+          card: {
+            md: 'task',
+            entityid: task.taskID,
+            url: md.global.Config.WebUrl + 'apps/task/task_' + task.taskID,
+            title: task.taskName,
+            text: '',
+          },
+        };
+        resolve(message);
+      },
     });
   });
 };
@@ -94,9 +90,9 @@ export const newTask = (acceptor, options = {}) => {
  * @param {*} acceptor
  * @param {*} options
  */
-export const selectTask = (acceptor) => {
+export const selectTask = acceptor => {
   return new Promise((resolve, reject) => {
-    const onSubmit = (task) => {
+    const onSubmit = task => {
       const { sid, name } = task;
       const message = {
         type: Constant.MSGTYPE_CARD,
@@ -111,10 +107,7 @@ export const selectTask = (acceptor) => {
       resolve(message);
     };
 
-    ReactDom.render(
-      <RelationControl types={[1]} onSubmit={onSubmit} />,
-      document.createElement('div')
-    );
+    ReactDom.render(<RelationControl types={[1]} onSubmit={onSubmit} />, document.createElement('div'));
   });
 };
 
@@ -135,25 +128,23 @@ export const newSchedule = (acceptor, options = {}) => {
         },
       ];
     }
-    require(['src/components/createCalendar/createCalendar'], () => {
-      $.CreateCalendar({
-        MemberArray: members,
-        createShare: options.showSuccessTip,
-        Message: options.description || '',
-        callback(calendar) {
-          const message = {
-            type: Constant.MSGTYPE_CARD,
-            card: {
-              md: 'calendar',
-              entityid: calendar.calendarID,
-              url: md.global.Config.WebUrl + 'apps/calendar/detail_' + calendar.calendarID,
-              title: calendar.name,
-              text: '',
-            },
-          };
-          resolve(message);
-        },
-      });
+    $.CreateCalendar({
+      MemberArray: members,
+      createShare: options.showSuccessTip,
+      Message: options.description || '',
+      callback(calendar) {
+        const message = {
+          type: Constant.MSGTYPE_CARD,
+          card: {
+            md: 'calendar',
+            entityid: calendar.calendarID,
+            url: md.global.Config.WebUrl + 'apps/calendar/detail_' + calendar.calendarID,
+            title: calendar.name,
+            text: '',
+          },
+        };
+        resolve(message);
+      },
     });
   });
 };
@@ -162,9 +153,9 @@ export const newSchedule = (acceptor, options = {}) => {
  * 选择日程
  * @param {*} acceptor
  */
-export const selectSchedule = (acceptor) => {
+export const selectSchedule = acceptor => {
   return new Promise((resolve, reject) => {
-    const onSubmit = (item) => {
+    const onSubmit = item => {
       const { sid, name, sidext } = item;
       const message = {
         type: Constant.MSGTYPE_CARD,
@@ -181,12 +172,9 @@ export const selectSchedule = (acceptor) => {
         message.card.entityid += '_' + moment(sidext).format('YYYYMMDDHHmmss');
       }
       resolve(message);
-    }
+    };
 
-    ReactDom.render(
-      <RelationControl types={[3]} onSubmit={onSubmit} />,
-      document.createElement('div')
-    );
+    ReactDom.render(<RelationControl types={[3]} onSubmit={onSubmit} />, document.createElement('div'));
   });
 };
 
@@ -205,9 +193,9 @@ export const newVote = (acceptor, options) => {
         showSuccessTip: options.showSuccessTip,
         showType: ['post', 'vote'],
       },
-      (message) => {
+      message => {
         resolve(message);
-      }
+      },
     );
   });
 };
@@ -228,9 +216,9 @@ export const newFeed = (acceptor, options) => {
         showSuccessTip: options.showSuccessTip,
         showType: ['post', 'attachment'],
       },
-      (message) => {
+      message => {
         resolve(message);
-      }
+      },
     );
   });
 };

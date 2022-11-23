@@ -164,42 +164,36 @@ export default class DataSource extends Component {
       <Fragment>
         <div className="mTop15 horizontalPaddingWrapper">
           <div className="Bold Font13 Gray mBottom10">{_l('时间')}</div>
-          <Dropdown
-            visible={timeModalVisible}
-            onVisibleChange={visible => {
-              this.setState({ timeModalVisible: visible });
-            }}
-            trigger={['click']}
-            overlay={
-              <TimeModal
-                filter={filter}
-                controls={axisControls.filter(item => isTimeControl(item.type))}
-                onChangeFilter={data => {
-                  this.props.changeCurrentReport(
-                    {
-                      displaySetup: {
-                        ...displaySetup,
-                        contrastType: 0,
-                      },
-                      filter: {
-                        ...filter,
-                        ...data,
-                      },
-                    },
-                    true,
-                  );
-                }}
-              />
-            }
-          >
-            <div className="timeWrapper flexRow valignWrapper pointer">
-              <div className={cx('flex Font13 Bold', filter.rangeType === 20 ? 'flexColumn' : 'flexRow')}>
-                <span>{filter.filterRangeName}</span>
-                <span className={cx({ mLeft5: filter.rangeType !== 20 })}>({formatrChartTimeText(filter)})</span>
-              </div>
-              <Icon className="Gray_9e Font14" icon="arrow-down-border" />
+          <div className="timeWrapper flexRow valignWrapper pointer" onClick={() => { this.setState({ timeModalVisible: true }) }}>
+            <div className={cx('flex Font13 Bold', [20, 21].includes(filter.rangeType) ? 'flexColumn' : 'flexRow')}>
+              <span className="nowrap">{filter.filterRangeName}</span>
+              <span className={cx({ mLeft5: ![20, 21].includes(filter.rangeType) })}>({formatrChartTimeText(filter)})</span>
             </div>
-          </Dropdown>
+            <Icon className="Gray_9e Font14" icon="arrow-down-border" />
+          </div>
+          <TimeModal
+            filter={filter}
+            controls={axisControls.filter(item => isTimeControl(item.type))}
+            visible={timeModalVisible}
+            onCancel={() => {
+              this.setState({ timeModalVisible: false })
+            }}
+            onChangeFilter={data => {
+              this.props.changeCurrentReport(
+                {
+                  displaySetup: {
+                    ...displaySetup,
+                    contrastType: 0,
+                  },
+                  filter: {
+                    ...filter,
+                    ...data,
+                  },
+                },
+                true,
+              );
+            }}
+          />
         </div>
       </Fragment>
     );

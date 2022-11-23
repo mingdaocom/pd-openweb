@@ -24,6 +24,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import RecordForm from './RecordForm';
 import Header from './RecordForm/Header';
 import RecordInfoRight from './RecordInfoRight';
+import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import './RecordInfo.less';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { getDiscussConfig } from 'src/api/externalPortal';
@@ -405,6 +406,7 @@ export default class RecordInfo extends Component {
   @autobind
   onSave(error, { data, updateControlIds }) {
     const { callback = () => {}, noSave } = this.submitOptions || {};
+    data = data.filter(c => !isRelateRecordTableControl(c));
     if (error) {
       callback(true);
       this.setState({ submitLoading: false });
@@ -634,6 +636,7 @@ export default class RecordInfo extends Component {
     });
     this.loadRecord({ recordId: this.state.recordId, closeWhenNotViewData });
     emitter.emit('RELOAD_RECORD_INFO_DISCUSS');
+    emitter.emit('RELOAD_RECORD_INFO_LOG');
   }
 
   @autobind
@@ -878,20 +881,25 @@ export default class RecordInfo extends Component {
                         item.controlId === controlId ? { ...item, value: String(num) } : item,
                       ),
                     });
+                    if (_.isFunction(this.refreshEvents.loadcustombtns)) {
+                      this.refreshEvents.loadcustombtns();
+                    }
                   }
                   tempFormData
                     .filter(c => c.type === 37 && _.includes(c.dataSource, controlId))
                     .forEach(c => {
                       getRowDetail({ worksheetId, rowId: recordId, getType: 1 }).then(data => {
                         const controlValue = safeParse(data.rowData)[c.controlId];
+                        const newFormData = recordinfo.formData.map(cc =>
+                          cc.controlId === c.controlId ? { ...cc, value: controlValue } : cc,
+                        );
                         if (!_.isUndefined(controlValue)) {
                           this.setState({
                             recordinfo: {
                               ...recordinfo,
-                              formData: recordinfo.formData.map(cc =>
-                                cc.controlId === c.controlId ? { ...cc, value: controlValue } : cc,
-                              ),
+                              formData: newFormData,
                             },
+                            tempFormData: newFormData,
                           });
                           this.recordform.current.dataFormat.updateDataSource({
                             controlId: c.controlId,
@@ -921,6 +929,15 @@ export default class RecordInfo extends Component {
                   className="flex"
                   recordbase={recordbase}
                   workflow={workflow}
+                  approval={
+                    <SheetWorkflow
+                      worksheetId={worksheetId}
+                      recordId={recordId}
+                      isCharge={isCharge}
+                      refreshBtnNeedLoading={refreshBtnNeedLoading}
+                      formWidth={formWidth}
+                    />
+                  }
                   sheetSwitchPermit={sheetSwitchPermit}
                   projectId={this.props.projectId}
                   controls={controls}

@@ -36,4 +36,5 @@ MatchApp.init = function (opts) {
     window.location.href = MatchApp.options.downloadPage;
   }
 };
-module.exports = MatchApp;
+
+export default MatchApp;

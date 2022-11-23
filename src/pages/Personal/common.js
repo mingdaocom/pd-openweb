@@ -1,5 +1,5 @@
 var Common = {};
-var qs = require('query-string');
+import qs from 'query-string';
 
 Common.url = function(params) {
   return location.pathname + '?' + qs.stringify(params);
@@ -89,4 +89,4 @@ Common.guideType = {
   showGuideCourseList: 20, // 课程
 };
 
-module.exports = Common;
+export default Common;

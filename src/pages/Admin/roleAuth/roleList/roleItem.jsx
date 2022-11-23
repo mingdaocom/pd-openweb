@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import 'dialogSelectUser';
-import Confirm from 'confirm';
+import 'src/components/dialogSelectUser/dialogSelectUser';
+import { Dialog } from 'ming-ui';
 // import RoleAuthCommon from '../common/common';
 import RoleController from 'src/api/role';
 import { navigateTo } from 'src/router/navigateTo';
@@ -39,7 +39,7 @@ class RoleItem extends React.Component {
           $({}).dialogSelectUser({
             sourceId: 0,
             fromType: 0,
-            showMoreInvite: false,
+            fromAdmin: true,
             SelectUserSettings: {
               filterAll: true, // 过滤全部
               filterFriend: true, // 是否过滤好友
@@ -61,12 +61,9 @@ class RoleItem extends React.Component {
       } else if (type === 'delete') {
         return e => {
           e.stopPropagation();
-          new Confirm(
-            {
-              content: '<span></span>',
-              title: _l('您确定删除该角色？'),
-            },
-            function () {
+          Dialog.confirm({
+            title: _l('您确定删除该角色？'),
+            onOk: () => {
               RoleController.removeRole({
                 projectId,
                 roleId: role.roleId,
@@ -79,7 +76,7 @@ class RoleItem extends React.Component {
                 }
               });
             },
-          );
+          });
         };
       } else if (type === 'applyrole' && !this.state.hasClick) {
         return e => {

@@ -494,7 +494,7 @@ export const htmlEncodeReg = str => {
   const encodeHTMLRules = { '&': '&#38;', '<': '&lt;', '>': '&gt;', '"': '&#34;', "'": '&#39;', '/': '&#47;' };
   const matchHTML = /&(?!#?\w+;)|<|>|"|'|\//g;
   return str
-    ? str.toString().replace(matchHTML, function(m) {
+    ? str.toString().replace(matchHTML, function (m) {
         return encodeHTMLRules[m] || m;
       })
     : '';
@@ -520,7 +520,7 @@ export const htmlDecodeReg = str => {
   };
   const matchHTML = /&#(38|60|62|34|39|47);|&(amp|lt|gt|quot);/g;
   return str
-    ? str.toString().replace(matchHTML, function(m) {
+    ? str.toString().replace(matchHTML, function (m) {
         return decodeHTMLRules[m] || m;
       })
     : '';
@@ -724,9 +724,7 @@ export function getColorCountByBg(backgroundColor) {
     ',' +
     parseInt('0x' + backgroundColor.slice(5, 7)) +
     ')';
-  const RgbValueArry = RgbValue.replace('rgb(', '')
-    .replace(')', '')
-    .split(',');
+  const RgbValueArry = RgbValue.replace('rgb(', '').replace(')', '').split(',');
   return RgbValueArry[0] * 0.299 + RgbValueArry[1] * 0.587 + RgbValueArry[2] * 0.114;
 }
 
@@ -792,7 +790,9 @@ export const upgradeVersionDialog = options => {
         <div className="netStateWrap">
           <div className="imgWrap" />
           <div className="hint">{hint}</div>
-          {(!md.global.Config.IsLocal || options.explainText) && <div className="explain">{explainText}</div>}
+          {(!md.global.Config.IsLocal || !md.global.Account.isPortal || options.explainText) && (
+            <div className="explain">{explainText}</div>
+          )}
         </div>
       </div>
     );
@@ -804,7 +804,9 @@ export const upgradeVersionDialog = options => {
       <div className="netStateWrap">
         <div className="imgWrap" />
         <div className="hint">{hint}</div>
-        {(!md.global.Config.IsLocal || options.explainText) && <div className="explain">{explainText}</div>}
+        {(!md.global.Config.IsLocal || !md.global.Account.isPortal || options.explainText) && (
+          <div className="explain">{explainText}</div>
+        )}
       </div>
     ),
     noFooter: true,
@@ -868,7 +870,10 @@ export function buriedUpgradeVersionDialog(projectId, featureId, dialogType) {
     return upgradeVersionDialog({
       projectId,
       isFree: licenseType === 0 || licenseType === 2,
-      explainText: md.global.Config.IsLocal ? _l('请升级版本') : _l('请升级至%0解锁开启', upgradeName),
+      explainText:
+        md.global.Config.IsLocal || md.global.Account.isPortal
+          ? _l('请升级版本')
+          : _l('请升级至%0解锁开启', upgradeName),
       dialogType,
       versionType,
     });
@@ -876,8 +881,42 @@ export function buriedUpgradeVersionDialog(projectId, featureId, dialogType) {
     upgradeVersionDialog({
       projectId,
       isFree: licenseType === 0 || licenseType === 2,
-      explainText: md.global.Config.IsLocal ? _l('请升级版本') : _l('请升级至%0解锁开启', upgradeName),
+      explainText:
+        md.global.Config.IsLocal || md.global.Account.isPortal
+          ? _l('请升级版本')
+          : _l('请升级至%0解锁开启', upgradeName),
       versionType,
     });
+  }
+}
+
+export function toFixed(num, dot = 0) {
+  if (_.isObject(num) || _.isNaN(Number(num))) {
+    console.error(num, '不是数字');
+    return '';
+  }
+  if (dot === 0) {
+    return String(num);
+  }
+  if (dot < 0 || dot > 20) {
+    return String(num);
+  }
+  const strOfNum = String(num);
+  if (!/\./.test(strOfNum)) {
+    return strOfNum + '.' + ''.padEnd(dot, '0');
+  }
+  const decimal = (strOfNum.match(/\.(\d+)/)[1] || '').length;
+  if (decimal === dot) {
+    return strOfNum;
+  } else if (decimal < dot) {
+    return strOfNum + ''.padEnd(dot - decimal, '0');
+  } else {
+    const isNegative = num < 0;
+    if (isNegative) {
+      num = Math.abs(num);
+    }
+    let data = String(Math.round(num * Math.pow(10, dot)));
+    data = data.padStart(dot, '0');
+    return (isNegative ? '-' : '') + Math.floor(data / Math.pow(10, dot)) + '.' + data.slice(-1 * dot);
   }
 }

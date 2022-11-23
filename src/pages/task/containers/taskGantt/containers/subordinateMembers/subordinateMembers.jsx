@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import './subordinateMembers.less';
 import cx from 'classnames';
 import config from '../../config/config';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import { removeFollowMembers, updateUserStatus, addFollowMembers } from '../../redux/actions';
 import UserHead from 'src/pages/feed/components/userHead';
 import ajaxRequest from 'src/api/taskCenter';

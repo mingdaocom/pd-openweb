@@ -1,8 +1,9 @@
 ﻿import React from 'react';
 import ReactDom from 'react-dom';
-import mdFunction from 'src/components/common/function';
+import { createLinksForMessage } from 'src/components/common/function';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
+import CreateGroup from 'src/components/group/create/creatGroup';
 
 /**
  * 动态内容
@@ -35,31 +36,29 @@ class PostMessage extends React.Component {
   }
 
   bindEvents = () => {
-    require(['mdBusinessCard', 'src/components/group/create/creatGroup'], (card, CreatGroup) => {
-      if (!this._isMounted) {
-        return;
-      }
-      $(ReactDom.findDOMNode(this))
-        .find('[data-accountid], [data-groupid]')
-        .each(function () {
-          $(this).mdBusinessCard();
-        })
-        .end()
-        .find('[data-action=createGroup]')
-        .on('click', evt => {
-          evt.preventDefault();
-          CreatGroup.createInit({
-            callback(group) {
-              window.location.href =
-                'group/groupValidate?' +
-                qs.stringify({
-                  projectId: group.projectId,
-                  gID: group.groupId,
-                });
-            },
-          });
+    if (!this._isMounted) {
+      return;
+    }
+    $(ReactDom.findDOMNode(this))
+      .find('[data-accountid], [data-groupid]')
+      .each(function() {
+        $(this).mdBusinessCard();
+      })
+      .end()
+      .find('[data-action=createGroup]')
+      .on('click', evt => {
+        evt.preventDefault();
+        CreateGroup.createInit({
+          callback(group) {
+            window.location.href =
+              'group/groupValidate?' +
+              qs.stringify({
+                projectId: group.projectId,
+                gID: group.groupId,
+              });
+          },
         });
-    });
+      });
   };
 
   render() {
@@ -68,7 +67,7 @@ class PostMessage extends React.Component {
     if (!message) {
       return false;
     }
-    message = mdFunction.createLinksForMessage({
+    message = createLinksForMessage({
       message,
       rUserList: postItem.rUserList,
       rGroupList: postItem.rGroupList,
@@ -107,4 +106,4 @@ class PostMessage extends React.Component {
   }
 }
 
-module.exports = PostMessage;
+export default PostMessage;

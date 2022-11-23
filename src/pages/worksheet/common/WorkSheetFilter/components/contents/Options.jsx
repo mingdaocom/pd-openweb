@@ -25,7 +25,7 @@ export default class Options extends Component {
     disabled: PropTypes.bool,
     onChange: PropTypes.func,
     control: PropTypes.shape({}),
-    originValues: PropTypes.arrayOf(PropTypes.string), // 未格式化的数据
+    fullValues: PropTypes.arrayOf(PropTypes.string), // 未格式化的数据
     values: PropTypes.arrayOf(PropTypes.string),
   };
   static defaultProps = {
@@ -34,7 +34,7 @@ export default class Options extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedOptions: this.getDefaultSelectedOptions(props.originValues, props.control),
+      selectedOptions: this.getDefaultSelectedOptions(props.fullValues, props.control),
     };
   }
   getDefaultSelectedOptions(values, control) {
@@ -50,13 +50,19 @@ export default class Options extends Component {
           id: value,
           name: SCORE_TEXT[parseInt(value, 10) - 1],
         }));
-    } else {
+    } else if (_.includes([9, 10, 11], control.type)) {
       return values.length
-        ? _.compact(values.map(value => _.find(control.options, option => option.key === value))).map(option => ({
+        ? _.compact(
+            values.map(value =>
+              _.find(control.options, option => option.key === (value.startsWith('{') ? safeParse(value).id : value)),
+            ),
+          ).map(option => ({
             id: option.key,
             name: option.value,
           }))
         : [];
+    } else {
+      return [];
     }
   }
   getAreaLevel(type, filterType) {
@@ -245,7 +251,7 @@ export default class Options extends Component {
       let options = [];
       if (_.includes([9, 10, 11], control.type)) {
         options = control.options
-          .filter(option => !option.isDeleted)
+          .filter(option => !option.isDeleted || _.find(selectedOptions, o => o.id === option.key))
           .sort((a, b) => a.index - b.index)
           .map(option => ({ id: option.key, name: option.value }));
       } else if (control.type === 28) {

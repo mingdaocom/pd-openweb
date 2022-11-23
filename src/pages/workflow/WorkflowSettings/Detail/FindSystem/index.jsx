@@ -181,6 +181,26 @@ export default class FindSystem extends Component {
           ),
         },
       },
+      [APP_TYPE.ORGANIZATION_ROLE]: {
+        [ACTION_ID.RELATION]: {
+          title: _l('从组织角色字段获取'),
+          filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从字段中获得第一个组织角色的相关信息'),
+        },
+        [ACTION_ID.WORKSHEET_FIND]: {
+          title: _l('从组织角色中获取'),
+          filterText: _l(
+            '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从当前组织的所有组织角色中获得第一个（最新创建）角色的相关信息',
+          ),
+        },
+        [ACTION_ID.FROM_RECORD]: {
+          title: _l('从组织角色字段获取'),
+          filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得所有来自该字段的组织角色的相关信息'),
+        },
+        [ACTION_ID.FROM_WORKSHEET]: {
+          title: _l('从组织角色中获取'),
+          filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得当前组织的所有组织角色的相关信息'),
+        },
+      },
     };
     const DESC_TEXT = {
       [NODE_TYPE.FIND_SINGLE_MESSAGE]: {
@@ -193,6 +213,9 @@ export default class FindSystem extends Component {
         [APP_TYPE.EXTERNAL_USER]: _l(
           '获取一名外部用户的相关信息，包含用户名、手机号、角色、用户状态、openid和自定义字段，供流程中的其他节点使用。',
         ),
+        [APP_TYPE.ORGANIZATION_ROLE]: _l(
+          '获取一个组织角色的相关信息，包含角色名称、备注、角色下人员，供流程中的其他节点使用。',
+        ),
       },
       [NODE_TYPE.FIND_MORE_MESSAGE]: {
         [APP_TYPE.USER]: _l(
@@ -203,6 +226,9 @@ export default class FindSystem extends Component {
         ),
         [APP_TYPE.EXTERNAL_USER]: _l(
           '获取多名外部用户的相关信息，包含用户名、手机号、角色、用户状态、openid和自定义字段，供流程中的其他节点使用。',
+        ),
+        [APP_TYPE.ORGANIZATION_ROLE]: _l(
+          '获取多个组织角色的相关信息，包含角色名称、备注、角色下人员，供流程中的其他节点使用。',
         ),
       },
     };

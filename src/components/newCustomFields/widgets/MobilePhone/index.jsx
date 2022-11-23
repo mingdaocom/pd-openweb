@@ -126,7 +126,7 @@ export default class Widgets extends Component {
           onKeyDown={onInputKeydown}
         />
 
-        {(_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (browserIsMobile() && from === FROM.SHARE)) && !!value && (
+        {(_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (browserIsMobile() && disabled)) && !!value && (
           <a href={`tel:${value}`} className="Absolute customFormControlTelBtn" style={{ right: 0, top: 10 }}>
             <Icon icon="phone22" className="Font16 ThemeColor3" />
           </a>

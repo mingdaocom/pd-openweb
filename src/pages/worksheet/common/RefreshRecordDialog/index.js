@@ -1,5 +1,5 @@
 import RefreshRecordDialog from './RefreshRecordDialog';
-import functionWrap from 'worksheet/components/FunctionWrap';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 
 export default RefreshRecordDialog;
 

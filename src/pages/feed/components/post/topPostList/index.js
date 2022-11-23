@@ -1,3 +1,1 @@
-﻿module.exports = {
-  TopPostList: require('./topPostList'),
-};
+﻿export { default as TopPostList } from './topPostList';

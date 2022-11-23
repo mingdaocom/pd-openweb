@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { formatControlValue } from 'src/pages/worksheet/util-purejs';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { functions } from './enum';
+import { asyncRun } from 'worksheet/util';
 
 function replaceControlIdToValue(expression, formData, inString) {
   expression = expression.replace(/\$(.+?)\$/g, matched => {
@@ -107,7 +108,6 @@ export default function (control, formData, { update, type } = {}) {
       } else {
         if (fnType === 'javascript') {
           // 打包函数库时花括号内这段代码注释掉
-          const { asyncRun } = require('worksheet/util');
           result = asyncRun(
             expression,
             (err, value) => {

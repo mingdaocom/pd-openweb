@@ -9,6 +9,7 @@ import postAjax from 'src/api/post';
 import PostMessage from './postMessage';
 import PostComponent from '../postComponent';
 import FastCreateTaskSchedule from './fastCreateTaskSchedule';
+import '@mdfe/poshytip';
 
 // 减少 store 复杂性，回复消息存在这里
 const replyMessages = {};
@@ -68,40 +69,36 @@ class PostMain extends React.Component {
     const el = ReactDom.findDOMNode(this.replyMessage);
     const replyID = this.props.postItem.replyID;
     const postID = this.props.postItem.postID;
-    require(['poshytip'], () => {
-      $(el)
-        .poshytip({
-          showOn: 'none',
-          className: 'tip-white',
-          alignTo: 'target',
-          alignX: 'center',
-          alignY: 'top',
-          offsetX: 0,
-          offsetY: 10,
-          showTimeout: 1,
-          showAniDuration: 0,
-          zIndex: 1050,
-          content(updateCallback) {
-            const cached = getCachedReplyMessage(replyID);
-            if (cached) {
-              return `<div class="pAll10 breakAll">${cached}</div>`;
-            }
-            setTimeout(() => {
-              getReplyMessagePromise(postID, replyID)
-                .then(message => `<div class="pAll10 breakAll">${message}</div>`)
-                .then(updateCallback);
-            }, 0);
-            return `<div class="pAll10">${ReactDomServer.renderToString(React.createElement(LoadDiv))}</div>`;
-          },
-        })
-        .poshytip('show');
-    });
+    $(el)
+      .poshytip({
+        showOn: 'none',
+        className: 'tip-white',
+        alignTo: 'target',
+        alignX: 'center',
+        alignY: 'top',
+        offsetX: 0,
+        offsetY: 10,
+        showTimeout: 1,
+        showAniDuration: 0,
+        zIndex: 1050,
+        content(updateCallback) {
+          const cached = getCachedReplyMessage(replyID);
+          if (cached) {
+            return `<div class="pAll10 breakAll">${cached}</div>`;
+          }
+          setTimeout(() => {
+            getReplyMessagePromise(postID, replyID)
+              .then(message => `<div class="pAll10 breakAll">${message}</div>`)
+              .then(updateCallback);
+          }, 0);
+          return `<div class="pAll10">${ReactDomServer.renderToString(React.createElement(LoadDiv))}</div>`;
+        },
+      })
+      .poshytip('show');
   };
 
   hideReplyMessage = () => {
-    require(['poshytip'], () => {
-      $('.replyMessage').poshytip('destroy');
-    });
+    $('.replyMessage').poshytip('destroy');
   };
 
   toggleCreateTaskSchedule = (event) => {
@@ -215,4 +212,4 @@ class PostMain extends React.Component {
   }
 }
 
-module.exports = PostMain;
+export default PostMain;

@@ -1,7 +1,7 @@
 import React from 'react';
-import 'emotion';
+import 'src/components/emotion/emotion';
 import PropTypes from 'prop-types';
-import UploadFile from 'uploadFiles';
+import UploadFile from 'src/components/UploadFiles';
 import Avatar from './avatar';
 import UserLink from './userLink';
 import Star from './star';

@@ -291,7 +291,7 @@ export default function Embed(props) {
           globalSheetInfo={globalSheetInfo}
           onOk={conditions => {
             const newConditions = conditions.map(item => {
-              return item.isDynamicsource ? { ...item, values: [], value: '' } : item;
+              return item.isDynamicsource ? { ...item, values: [], value: '' } : { ...item, dynamicSource: [] };
             });
             onChange(
               handleAdvancedSettingChange(data, {

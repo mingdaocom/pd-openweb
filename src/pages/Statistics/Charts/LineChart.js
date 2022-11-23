@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Line, Area } from '@antv/g2plot';
 import {
   getLegendType,
   formatControlInfo,
@@ -125,7 +124,10 @@ export default class extends Component {
     this.LineChart = null;
   }
   componentDidMount() {
-    this.renderLineChart(this.props);
+    import('@antv/g2plot').then(data => {
+      this.g2plotComponent = data;
+      this.renderLineChart(this.props);
+    });
   }
   componentWillUnmount() {
     this.LineChart && this.LineChart.destroy();
@@ -183,8 +185,9 @@ export default class extends Component {
     const { contrastType } = displaySetup;
     const currentData = data.data;
     const isNumber = isFormatNumber(xaxes.controlType);
-    const param = {
-      [xaxes.cid]: contrastType ? currentData.name : (isNumber ? Number(currentData.originalId) : currentData.originalId)
+    const param = {};
+    if (xaxes.cid) {
+      param[xaxes.cid] = contrastType ? currentData.name : (isNumber ? Number(currentData.originalId) : currentData.originalId);
     }
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
@@ -218,7 +221,7 @@ export default class extends Component {
   getComponentConfig(props) {
     const { map, contrastMap, displaySetup, xaxes, yaxisList, style = {}, split } = props.reportData;
     const { isPile, isPerPile, isAccumulate, xdisplay, ydisplay, legendType, auxiliaryLines } = displaySetup;
-    const { position } = getLegendType();
+    const { position } = getLegendType(legendType);
     const { length } = _.isEmpty(map) ? contrastMap[0].value : map[0].value;
     const isPercentStackedArea = displaySetup.showChartType == 2 && isPerPile;
     const LineValue = isPercentStackedArea ? 0 : (displaySetup.lifecycleValue / length) * (displaySetup.isAccumulate ? length : 1);
@@ -226,6 +229,7 @@ export default class extends Component {
     const newYaxisList = formatYaxisList(sortData, yaxisList);
     const maxValue = getMaxValue(sortData, contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup, split.controlId) : null);
     const minValue = getMinValue(sortData, contrastMap.length ? formatChartData(contrastMap, yaxisList, displaySetup, split.controlId) : null);
+    const { Line, Area } = this.g2plotComponent;
     const ChartComponent = displaySetup.showChartType === 2 ? Area : Line;
     const colors = getChartColors(style);
     const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, sortData, { yaxisList: isPile || isPerPile || isAccumulate ? [] : yaxisList, colors });
@@ -246,7 +250,7 @@ export default class extends Component {
           range: [0, 1],
           formatter: value => {
             const item = _.find(sortData, { originalId: value });
-            return item ? item.name : value;
+            return item ? item.name || _l('空') : value;
           }
         },
         groupName: {
@@ -427,7 +431,7 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
-        <Menu.Item onClick={this.handleRequestOriginalData}>
+        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
             <span>{_l('查看原始数据')}</span>
           </div>

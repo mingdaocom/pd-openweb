@@ -46,7 +46,7 @@ export default class Back extends Component {
   }
   render() {
     return (
-      isWxWork ? null : this.renderContent()
+      null
     );
   }
 }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Commenter from 'commenter';
+import Commenter from 'src/components/comment/commenter';
 import UserHead from 'src/pages/feed/components/userHead';
 
 export default class WorkSheetCommenter extends Component {

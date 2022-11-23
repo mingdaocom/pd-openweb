@@ -1,1 +1,1 @@
-﻿module.exports = require('./thumbnailGuide');
+﻿export { default } from './thumbnailGuide';

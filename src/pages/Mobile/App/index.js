@@ -4,11 +4,9 @@ import { List, Flex, ActionSheet, Modal, ActivityIndicator, Accordion, Switch, T
 import { Icon, WaterMark } from 'ming-ui';
 import cx from 'classnames';
 import * as actions from './redux/actions';
-import { ROLE_TYPES } from 'pages/Roles/config';
+import { ROLE_TYPES } from 'src/pages/Role/config.js';
 import Back from '../components/Back';
 import guideImg from './img/guide.png';
-import textImg from './img/text.png';
-import okImg from './img/ok.png';
 import DocumentTitle from 'react-document-title';
 import { AppPermissionsInfo } from '../components/AppPermissions';
 import RecordList from 'mobile/RecordList';
@@ -308,14 +306,17 @@ class App extends Component {
       <div className="guideWrapper">
         <div className="guide" />
         <img className="guideImg Absolute" src={guideImg} />
-        <img className="textImg Absolute" src={textImg} />
-        <img
-          className="okImg Absolute"
-          src={okImg}
+        <div className="text Absolute Font18 White bold">
+          {_l('新应用仅您自己可见，请在“人员设置”将角色分配给协作者，再开始使用。')}
+        </div>
+        <div
+          className="ok Absolute Font18 White bold"
           onClick={() => {
             this.navigateTo(`/mobile/app/${params.appId}`);
           }}
-        />
+        >
+          {_l('知晓了')}
+        </div>
       </div>
     );
   };

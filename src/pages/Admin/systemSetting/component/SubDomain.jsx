@@ -4,7 +4,7 @@ import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import projectSettingController from 'src/api/projectSetting';
 import Config from '../../config';
 import './index.less';
-import cx from 'classnames';
+import 'src/components/uploadAttachment/uploadAttachment';
 
 export default class SubDomain extends Component {
   constructor(props) {
@@ -54,35 +54,33 @@ export default class SubDomain extends Component {
     if (_this.state.isUploading) {
       return;
     }
-    require(['uploadAttachment'], function() {
-      $(_this.upload).uploadAttachment({
-        filterExtensions: 'gif,png,jpg,jpeg,bmp',
-        pluploadID: '#upload_file',
-        multiSelection: false,
-        maxTotalSize: 2,
-        folder: 'ProjectLogo',
-        fileNamePrefix: 'HomeImage_',
-        onlyFolder: true,
-        onlyOne: true,
-        styleType: '0',
-        tokenType: 4, //网络logo
-        checkProjectLimitFileSizeUrl: '',
-        filesAdded: function() {
-          _this.setState({ isUploading: true });
-        },
-        callback: function(attachments) {
-          if (attachments.length > 0) {
-            var attachment = attachments[0];
-            var fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
-            _this.setState({
-              homeImage: attachment.fileName + attachment.fileExt,
-              currentHomeImage: `${fullFilePath}?imageView2/2/w/192/h/50/q/90`,
-              isCustomImage: _this.testHomeImage(attachment.fileName),
-              isUploading: false,
-            });
-          }
-        },
-      });
+    $(_this.upload).uploadAttachment({
+      filterExtensions: 'gif,png,jpg,jpeg,bmp',
+      pluploadID: '#upload_file',
+      multiSelection: false,
+      maxTotalSize: 2,
+      folder: 'ProjectLogo',
+      fileNamePrefix: 'HomeImage_',
+      onlyFolder: true,
+      onlyOne: true,
+      styleType: '0',
+      tokenType: 4, //网络logo
+      checkProjectLimitFileSizeUrl: '',
+      filesAdded: function () {
+        _this.setState({ isUploading: true });
+      },
+      callback: function (attachments) {
+        if (attachments.length > 0) {
+          var attachment = attachments[0];
+          var fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
+          _this.setState({
+            homeImage: attachment.fileName + attachment.fileExt,
+            currentHomeImage: `${fullFilePath}?imageView2/2/w/192/h/50/q/90`,
+            isCustomImage: _this.testHomeImage(attachment.fileName),
+            isUploading: false,
+          });
+        }
+      },
     });
   }
 
@@ -208,9 +206,7 @@ export default class SubDomain extends Component {
                     {domainName ? (
                       <span className="color_b">{domainName}</span>
                     ) : (
-                      <span className="domain-describe">
-                        {_l('可通过设置组织别名来实现更多的使用场景（如：LDAP 登录时指定组织）。')}
-                      </span>
+                      <span className="domain-describe">{_l('可通过设置组织别名来实现更多的使用场景（如：LDAP 登录时指定组织）。')}</span>
                     )}
                     <button
                       type="button"

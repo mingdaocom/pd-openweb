@@ -88,9 +88,9 @@ export default function installDialog({ projectId, type, onClose, ...rest }) {
   const $ref = useRef(null);
   const $copy = useRef(null);
   const handleSelectUser = () => {
-    import('dialogSelectUser').then(() => {
+    import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
       $({}).dialogSelectUser({
-        showMoreInvite: false,
+        fromAdmin: true,
         SelectUserSettings: {
           projectId, // 默认取哪个网络的用户 为空则表示默认加载全部
           filterAccountIds: [md.global.Account.accountId], // 不发自己

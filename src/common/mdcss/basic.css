@@ -167,15 +167,6 @@ textarea {
 .TxtBottom {
   vertical-align: bottom !important;
 }
-.verticalAlign1 {
-  vertical-align: 1px !important;
-}
-.verticalAlign-2 {
-  vertical-align: -2px !important;
-}
-.verticalAlign-1 {
-  vertical-align: -1px !important;
-}
 .divCenter {
   margin: 0 auto;
 }
@@ -254,11 +245,6 @@ body .Hidden {
 .wMax100 {
   max-width: 100%;
 }
-
-/*Font*/
-.Italic {
-  font-style: italic;
-}
 .Bold {
   font-weight: bold !important;
 }
@@ -289,7 +275,7 @@ body .Hidden {
   color: #49adfc !important;
 }
 .Hover_21:hover {
-  color: #2196F3 !important;
+  color: #2196f3 !important;
 }
 .ShaYellow {
   color: #c3af64 !important;
@@ -317,17 +303,8 @@ body .Hidden {
 .GrayBGFA {
   background-color: #fafafa;
 }
-.BGFF5A00 {
-  background-color: #ff5a00;
-}
 .BGDDD {
   background-color: #ddd;
-}
-.BGEFEFEF {
-  background-color: #efefef;
-}
-.lastItem {
-  background: none !important;
 }
 .BlueBG {
   background-color: #1e88e5;
@@ -1025,29 +1002,14 @@ body .Hidden {
 .Right8 {
   right: 8px;
 }
-.minHeight26 {
-  min-height: 26px !important;
-}
 .minHeight30 {
   min-height: 30px !important;
 }
 .minHeight36 {
   min-height: 36px !important;
 }
-.minHeight50 {
-  min-height: 50px !important;
-}
-.minHeight80 {
-  min-height: 80px !important;
-}
-.minHeight160 {
-  min-height: 160px !important;
-}
 .minWidth0 {
   min-width: 0;
-}
-.minWidth60 {
-  min-width: 60px !important;
 }
 .Width70 {
   width: 70px !important;
@@ -1064,17 +1026,8 @@ body .Hidden {
 .Width120 {
   width: 120px !important;
 }
-.Width170 {
-  width: 170px !important;
-}
-.Width180 {
-  width: 180px !important;
-}
 .Width190 {
   width: 190px !important;
-}
-.Width195 {
-  width: 195px !important;
 }
 .Width200 {
   width: 200px !important;
@@ -1085,23 +1038,11 @@ body .Hidden {
 .Width300 {
   width: 300px !important;
 }
-.Width360 {
-  width: 360px !important;
-}
 .Width400 {
   width: 400px !important;
 }
-.Width450 {
-  width: 450px !important;
-}
 .Width500 {
   width: 500px !important;
-}
-.Width530 {
-  width: 530px !important;
-}
-.Width550 {
-  width: 550px !important;
 }
 .White {
   color: white !important;
@@ -1152,12 +1093,18 @@ body .Hidden {
 .Gray_bd {
   color: #bdbdbd !important;
 }
+.Gray_76 {
+  color: #767676 !important;
+}
 .Black {
   color: #000 !important;
 }
 .Black18 {
   color: #000 !important;
   font-size: 18px;
+}
+.ThemeColor {
+  color: #2196f3;
 }
 .font8 {
   font-size: 16px;
@@ -1229,6 +1176,9 @@ body .Hidden {
 .Font48 {
   font-size: 48px !important;
 }
+.Font50 {
+  font-size: 50px !important;
+}
 .Font56 {
   font-size: 56px !important;
 }
@@ -1292,12 +1242,6 @@ body .Hidden {
 .LineHeight80 {
   line-height: 80px !important;
 }
-.Height15 {
-  height: 15px;
-}
-.Height26 {
-  height: 26px;
-}
 .Height30 {
   height: 30px;
 }
@@ -1310,19 +1254,8 @@ body .Hidden {
 .Height80 {
   height: 80px;
 }
-.Height180 {
-  height: 180px;
-}
-.Height200 {
-  height: 200px;
-}
 
 /*边框圆角*/
-.boderRadAll_2 {
-  -moz-border-radius: 2px;
-  -webkit-border-radius: 2px;
-  border-radius: 2px;
-}
 .boderRadAll_3 {
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
@@ -1337,11 +1270,6 @@ body .Hidden {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
-}
-.boderRadAll_10 {
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-  border-radius: 10px;
 }
 .boderRadAll_50 {
   -moz-border-radius: 50px;
@@ -1583,13 +1511,6 @@ body .Hidden {
   border: 1px solid #666 !important;
 }
 
-/*文本向下白色阴影 1px*/
-.textShadowBottomWhite {
-  text-shadow: white 0 1px 0;
-  -webkit-text-shadow: white 0 1px 0;
-  -moz-text-shadow: white 0 1px 0;
-}
-
 /*带 border 三角图标 background:#f8f8f8 border:#cfcfcf  上 */
 .arrowUpOuter {
   width: 0px;
@@ -1609,78 +1530,7 @@ body .Hidden {
   left: -9px;
 }
 
-/*带 border 三角图标 background:#f8f8f8 border:#cfcfcf  右 */
-.arrowRightOuter {
-  width: 0px;
-  height: 0px;
-  border-width: 9px 10px;
-  border-style: solid;
-  border-color: #fff #fff #fff #cfcfcf;
-  position: relative;
-}
-.arrowRightInner {
-  width: 0px;
-  height: 0px;
-  border: 9px solid;
-  border-color: transparent transparent transparent #f8f8f8;
-  position: absolute;
-  top: -9px;
-  left: -10px;
-}
-
-/*带 border 三角图标 background:#f8f8f8 border:#cfcfcf  下 */
-.arrowDownOuter {
-  width: 0px;
-  height: 0px;
-  border-width: 10px 9px;
-  border-style: solid;
-  border-color: #cfcfcf transparent transparent transparent;
-  position: relative;
-}
-.arrowDownInner {
-  width: 0px;
-  height: 0px;
-  border: 9px solid;
-  border-color: #f8f8f8 transparent transparent transparent;
-  position: absolute;
-  top: -11px;
-  left: -9px;
-}
-
 /*带 border 三角图标 background:#f8f8f8 border:#cfcfcf  左 */
-.arrowLeftOuter {
-  width: 0px;
-  height: 0px;
-  border-width: 9px 10px;
-  border-style: solid;
-  border-color: #fff #cfcfcf #fff #fff;
-  position: relative;
-}
-.arrowLeftInner {
-  width: 0px;
-  height: 0px;
-  border: 9px solid;
-  border-color: transparent #f8f8f8 transparent transparent;
-  position: absolute;
-  top: -9px;
-  left: -8px;
-}
-.arrowUp {
-  width: 0px;
-  height: 0px;
-  border-width: 4px;
-  border-style: solid;
-  border-color: transparent transparent black transparent;
-  overflow: hidden;
-}
-.arrowDown {
-  width: 0px;
-  height: 0px;
-  border-width: 4px 4px 0px 4px;
-  border-style: solid;
-  border-color: black transparent transparent transparent;
-  overflow: hidden;
-}
 .arrowRight {
   display: inline-block;
   width: 0px;
@@ -1698,16 +1548,6 @@ body .Hidden {
   border-style: solid;
   border-color: transparent #aaa transparent transparent;
   margin-left: 5px;
-}
-.arrowAutoLeft {
-  display: inline-block;
-  width: 0px;
-  height: 0px;
-  border-width: 30px 25px 30px 0px;
-  border-style: solid;
-  border-color: transparent #1e88e5 transparent transparent;
-  float: left;
-  background: #fff;
 }
 
 /*文本超出长度后 省略*/
@@ -1979,4 +1819,8 @@ body > object {
 
 .cursorDefault {
   cursor: default !important;
+}
+
+.zIndex99 {
+  z-index: 99;
 }

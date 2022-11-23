@@ -1,17 +1,17 @@
 import React from 'react'
+import 'src/components/mdBusinessCard/mdBusinessCard';
+
 export default class PeopleAvatar extends React.Component {
 
   componentDidMount = () => {
     const { user = [] } = this.props;
     const { targetId = '' } = user;
-    require(['mdBusinessCard'], () => {
-      $(this.avatar).one('mouseover', () => {
-        console.log(targetId)
-        $(this.avatar).mdBusinessCard({
-          accountId: targetId,
-        }).trigger('mouseenter');
-      });
-    })
+    $(this.avatar).one('mouseover', () => {
+      console.log(targetId)
+      $(this.avatar).mdBusinessCard({
+        accountId: targetId,
+      }).trigger('mouseenter');
+    });
   }
 
   render() {

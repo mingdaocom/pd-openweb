@@ -615,7 +615,16 @@ export const DEFAULT_DATA = {
     size: 6,
   },
 };
-
+export const WORKFLOW_SYSTEM_CONTROL = [
+  { controlId: 'wfname', controlName: _l('流程名称'), type: 2, display: true },
+  { controlId: 'wfstatus', controlName: _l('状态'), type: 2, display: true },
+  { controlId: 'wfcuaids', controlName: _l('节点负责人'), type: 26, display: true },
+  { controlId: 'wfrtime', controlName: _l('节点开始时间'), type: 16, display: true },
+  { controlId: 'wfftime', controlName: _l('剩余时间'), type: 16, display: true },
+  { controlId: 'wfcaid', controlName: _l('发起人'), type: 26, display: true },
+  { controlId: 'wfctime', controlName: _l('发起时间'), type: 16, display: true },
+  { controlId: 'rowid', controlName: _l('记录ID'), type: 2, display: true },
+];
 export const SYSTEM_DATE_CONTROL = [
   {
     controlId: 'ctime',
@@ -633,6 +642,14 @@ export const SYSTEM_DATE_CONTROL = [
   },
 ];
 export const SYSTEM_CONTROL = [
+  // ...WORKFLOW_SYSTEM_CONTROL,
+  // {
+  //   controlId: 'caid',
+  //   controlName: _l('创建者'),
+  //   controlPermissions: '100',
+  //   type: 26,
+  //   display: true,
+  // },
   {
     controlId: 'ownerid',
     controlName: _l('拥有者'),
@@ -644,7 +661,6 @@ export const SYSTEM_CONTROL = [
   {
     controlId: 'caid',
     controlName: _l('创建者'),
-    controlPermissions: '100',
     type: 26,
     display: true,
   },

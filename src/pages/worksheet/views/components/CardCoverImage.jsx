@@ -10,6 +10,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { getMultiRelateViewConfig } from '../util';
 import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import BarCode from 'src/components/newCustomFields/widgets/BarCode';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 
 const CoverImageWrap = styled.div`
   position: relative;
@@ -168,42 +169,41 @@ export default function CardCoverImage(props) {
       return;
     }
     e.stopPropagation();
-    require(['previewAttachments'], previewAttachments => {
-      const recordAttachmentSwitch = !viewId
-        ? true
-        : isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
-      let hideFunctions = ['editFileName'];
-      if (!recordAttachmentSwitch) {
-        /* 是否不可下载 且 不可保存到知识和分享 */
-        hideFunctions.push('download', 'share', 'saveToKnowlege');
-      }
-      previewAttachments(
-        {
-          index: 0,
-          attachments: allAttachments.map(attachment =>
-            Object.assign({}, attachment, {
-              previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
-            }),
-          ),
-          showThumbnail: true,
-          hideFunctions: hideFunctions,
-        },
-        {
-          openControlAttachmentInNewTab: recordAttachmentSwitch
-            ? fileId => {
-                openControlAttachmentInNewTab({
-                  controlId,
-                  fileId,
-                  appId,
-                  recordId: rowId,
-                  viewId,
-                  worksheetId,
-                });
-              }
-            : undefined,
-        },
-      );
-    });
+
+    const recordAttachmentSwitch = !viewId
+      ? true
+      : isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
+    let hideFunctions = ['editFileName'];
+    if (!recordAttachmentSwitch) {
+      /* 是否不可下载 且 不可保存到知识和分享 */
+      hideFunctions.push('download', 'share', 'saveToKnowlege');
+    }
+    previewAttachments(
+      {
+        index: 0,
+        attachments: allAttachments.map(attachment =>
+          Object.assign({}, attachment, {
+            previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
+          }),
+        ),
+        showThumbnail: true,
+        hideFunctions: hideFunctions,
+      },
+      {
+        openControlAttachmentInNewTab: recordAttachmentSwitch
+          ? fileId => {
+              openControlAttachmentInNewTab({
+                controlId,
+                fileId,
+                appId,
+                recordId: rowId,
+                viewId,
+                worksheetId,
+              });
+            }
+          : undefined,
+      },
+    );
   };
 
   const getStyle = () => {
@@ -223,7 +223,7 @@ export default function CardCoverImage(props) {
     if (!coverImage) {
       return (
         <div className={cx('coverWrap', 'emptyCoverWrap')}>
-          <img src={emptyCover}></img>
+          <img src={emptyCover} />
         </div>
       );
     }
@@ -236,7 +236,7 @@ export default function CardCoverImage(props) {
     }
     return (
       <div className={cx('coverWrap', '', { mobileOverWrap: isMobile })} onClick={previewAttachment}>
-        <div className={cx('fileIcon', getClassNameByExt(ext))}></div>
+        <div className={cx('fileIcon', getClassNameByExt(ext))} />
         {allAttachments.length > 1 && <div className="coverCount">{allAttachments.length}</div>}
       </div>
     );
@@ -248,10 +248,10 @@ export default function CardCoverImage(props) {
     return (
       <div className="coverWrap">
         {isLegalLink ? (
-          <iframe className="overflowHidden Border0" width="100%" height="100%" src={coverData.value}></iframe>
+          <iframe className="overflowHidden Border0" width="100%" height="100%" src={coverData.value} />
         ) : (
           <div className={cx('coverWrap', 'emptyCoverWrap', { mobileOverWrap: isMobile })}>
-            <img src={emptyCover}></img>
+            <img src={emptyCover} />
           </div>
         )}
       </div>

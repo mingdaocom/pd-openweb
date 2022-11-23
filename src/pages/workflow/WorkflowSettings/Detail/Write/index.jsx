@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, Checkbox, LoadDiv } from 'ming-ui';
-import { NODE_TYPE } from '../../enum';
 import flowNode from '../../../api/flowNode';
 import {
   SelectUserDropDown,
@@ -46,10 +45,14 @@ export default class Write extends Component {
    * 获取节点详情
    */
   getNodeDetail(props) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, isApproval } = props;
 
     flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
       this.setState({ data: result });
+
+      if (isApproval && !result.selectNodeId) {
+        this.onChange(result.flowNodeList[0].nodeId);
+      }
     });
   }
 
@@ -127,10 +130,9 @@ export default class Write extends Component {
         <div className="flex mTop20">
           <ScrollView>
             <div className="workflowDetailBox">
-              <div className="Font13 bold">{_l('填写对象')}</div>
-              <div className="Font13 Gray_9e mTop10">{_l('当前流程中的节点对象')}</div>
-
+              <div className="Font13 bold">{_l('数据对象')}</div>
               <SelectNodeObject
+                disabled={this.props.isApproval}
                 appList={data.appList}
                 selectNodeId={data.selectNodeId}
                 selectNodeObj={data.selectNodeObj}

@@ -50,4 +50,4 @@ class MDLeftNavSearch extends React.Component {
   }
 }
 
-module.exports = MDLeftNavSearch;
+export default MDLeftNavSearch;

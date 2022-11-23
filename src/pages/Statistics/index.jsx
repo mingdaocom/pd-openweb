@@ -213,14 +213,14 @@ export default class Statistics extends Component {
           {/* 外部门户只有 个人 */}
           {!isPortal && (
             <div
-              className={cx('commonality', { ThemeColor3: !ownerId, active: !ownerId })}
+              className={cx('panelTab commonality', { ThemeColor3: !ownerId, active: !ownerId })}
               onClick={this.handleSwitchView.bind(this, '')}
             >
               {_l('公共')}
             </div>
           )}
           <div
-            className={cx('personal', {
+            className={cx('panelTab personal', {
               ThemeColor3: ownerId || isPortal,
               active: ownerId || isPortal,
             })}

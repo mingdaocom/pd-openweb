@@ -192,6 +192,7 @@ export default class Portal extends Component {
           <div className="mLeft12 ellipsis flex mRight20">{item.name}</div>
         </div>
         <div className="w150 ellipsis">{item.mobilePhone}</div>
+        <div className="w150 ellipsis">{item.email}</div>
         <div className="columnWidth ellipsis">{item.appName}</div>
         <div className="columnWidth ellipsis">
           {item.createTime ? moment(item.createTime).format('YYYY年MM月DD日 HH:mm') : ''}
@@ -414,7 +415,7 @@ export default class Portal extends Component {
             <div className="flex" />
             <Search
               className="w200"
-              placeholder={_l('姓名 / 手机号')}
+              placeholder={_l('姓名 / 手机号 / 邮箱')}
               handleChange={keywords => this.updateState({ keywords: keywords.trim() })}
             />
           </div>
@@ -434,6 +435,7 @@ export default class Portal extends Component {
           </div>
           <div className="flex mLeft10">{_l('姓名')}</div>
           <div className="w150 flexRow">{_l('手机号')}</div>
+          <div className="w150 flexRow">{_l('邮箱')}</div>
           <div className="columnWidth flexRow">{_l('加入应用')}</div>
           <div className="columnWidth flexRow">
             <div

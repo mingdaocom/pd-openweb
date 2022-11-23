@@ -6,7 +6,7 @@ import { Icon, ScrollView, LoadDiv, Tooltip } from 'ming-ui';
 import ClipboardButton from 'react-clipboard.js';
 import ajaxRequest from 'src/api/appManagement';
 import Config from '../../config';
-import mdFunction from 'mdFunction';
+import { createLinksForMessage } from 'src/components/common/function';
 import { downloadFile } from 'src/util';
 import './index.less';
 
@@ -265,7 +265,7 @@ export default class AppLog extends React.Component {
       <Fragment>
         {list.map(item => {
           const isAppItem = !!item.appItem;
-          const message = mdFunction.createLinksForMessage({
+          const message = createLinksForMessage({
             message: item.message,
             rUserList: [item.operator],
           });

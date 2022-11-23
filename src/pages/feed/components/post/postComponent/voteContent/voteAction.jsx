@@ -50,4 +50,4 @@ VoteAction.propTypes = {
   voteItem: PropTypes.object.isRequired,
 };
 
-module.exports = VoteAction;
+export default VoteAction;

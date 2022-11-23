@@ -67,7 +67,7 @@ export default class HistoryDetail extends Component {
       return <div className="Gray_75">{_l('跳过')}</div>;
     }
 
-    const { type } = flowNode;
+    const { type, appType } = flowNode;
     const names = workItems.map(item => {
       const { workItemAccount, workItemLog } = item;
       if (workItemLog && workItemAccount) {
@@ -78,13 +78,15 @@ export default class HistoryDetail extends Component {
       }
     });
 
+    const isApproval = appType === 9 && type === 0;
+
     return (
       <Fragment>
         <div className="personDetail flex Gray_75 flexRow">
-          {_.includes([3, 4, 5], type) && (
+          {(_.includes([3, 4, 5], type) || isApproval) && (
             <Fragment>
               <div className="personInfo">
-                <span>{_l('%0人：', NODE_TYPE[type].text)}</span>
+                <span>{isApproval ? _l('发起人：') : _l('%0人：', NODE_TYPE[type].text)}</span>
                 {names.map(
                   (item, index) =>
                     item && (
@@ -302,7 +304,7 @@ export default class HistoryDetail extends Component {
                     </div>
 
                     <div className="operationPerson">
-                      {_.includes([16, 20], flowNode.type)
+                      {_.includes([16, 20, 26], flowNode.type)
                         ? this.renderSubProcess(item)
                         : flowNode.type === 19
                         ? this.renderTemplateInfo(item)

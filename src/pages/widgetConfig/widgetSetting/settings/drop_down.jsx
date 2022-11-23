@@ -33,8 +33,8 @@ const MULTI_SELECT_DISPLAY = [
   },
 ];
 
-export default function DropdownCom({ data, onChange, globalSheetInfo, fromPortal }) {
-  const { showtype = '0', direction = '0' } = getAdvanceSetting(data);
+export default function DropdownCom({ data, onChange, globalSheetInfo, fromPortal, fromExcel }) {
+  const { showtype = '0', direction = '0', otherrequired = '0' } = getAdvanceSetting(data);
   const FILTER_OPTIONS_DISPLAY = fromPortal ? OPTIONS_DISPLAY.filter(i => i.value !== '2') : OPTIONS_DISPLAY;
   return (
     <Fragment>
@@ -52,6 +52,9 @@ export default function DropdownCom({ data, onChange, globalSheetInfo, fromPorta
                   _.find(OPTIONS_DISPLAY, i => i.value === value),
                   'type',
                 ),
+                // 进度清除其他选项
+                options: value === '2' ? (data.options || []).filter(i => i.key !== 'other') : data.options,
+                otherrequired: value === '2' ? '0' : otherrequired,
               });
             }}
           />
@@ -68,12 +71,14 @@ export default function DropdownCom({ data, onChange, globalSheetInfo, fromPorta
           />
         </SettingItem>
       )}
-      <OptionList.SelectOptions
-        data={data}
-        globalSheetInfo={globalSheetInfo}
-        onChange={onChange}
-        fromPortal={fromPortal}
-      />
+      {!fromExcel && (
+        <OptionList.SelectOptions
+          data={data}
+          globalSheetInfo={globalSheetInfo}
+          onChange={onChange}
+          fromPortal={fromPortal}
+        />
+      )}
     </Fragment>
   );
 }

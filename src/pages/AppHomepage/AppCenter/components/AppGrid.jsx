@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { string, bool, shape, arrayOf, func } from 'prop-types';
 import styled from 'styled-components';
-import Trigger from 'rc-trigger';
 import { ScrollView, Icon } from 'ming-ui';
 import cx from 'classnames';
 import { VerticalMiddle, FlexSpacer, FlexCenter } from 'worksheet/components/Basics';
+import AddAppItem from './AddAppItem';
 import NoProjectsStatus from './NoProjectsStatus';
 import SearchInput from './SearchInput';
 import AppGroupSkeleton from './AppGroupSkeleton';
 import AppList from './AppList';
 import HomeSetting from './HomeSetting';
 import _ from 'lodash';
+import { navigateTo } from 'src/router/navigateTo';
 
 const Con = styled.div`
   flex: 1;
@@ -86,11 +87,38 @@ const GroupTab = styled.div`
 
 const SearchInputCon = styled.div`
   display: flex;
-  padding: 24px 80px 16px 76px;
+  padding: 24px 70px 16px 76px;
 `;
 
 const NoExternalAppTip = styled.div`
   margin: -12px 0 20px;
+`;
+
+const AddAppItemBtn = styled(AddAppItem)`
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  .newAppBtn {
+    font-size: 13px;
+    display: inline-block;
+    color: #fff;
+    line-height: 36px;
+    font-weight: 700;
+    border-radius: 36px;
+    height: 36px;
+    padding: 0 18px 0 16px;
+    cursor: pointer;
+    background: #2196f3;
+    &:hover {
+      background: #1565bf;
+    }
+  }
+  &.addAppItemWrap .addAppItemMenu {
+    top: 40px !important;
+    right: 0px;
+    left: auto !important;
+  }
 `;
 
 function GroupTitle(props) {
@@ -230,6 +258,7 @@ export default function AppGrid(props) {
     safeParse(localStorage.getItem(`home_fold_${md.global.Account.accountId}`) || '{}'),
   );
   const noProjects = !md.global.Account.projects.length;
+  const allowCreate = !keywords && !noProjects;
   const markedGroup = (props.markedGroup || [])
     .map(g => ({
       ...g,
@@ -262,9 +291,7 @@ export default function AppGrid(props) {
     );
   }
 
-  function handleKeyDown(e) {
-    console.log(e);
-  }
+  function handleKeyDown(e) {}
   useEffect(() => {
     safeLocalStorageSetItem(`home_fold_${md.global.Account.accountId}`, JSON.stringify(foldedMap));
   }, [foldedMap]);
@@ -297,7 +324,7 @@ export default function AppGrid(props) {
             />
             <AppList
               {...props}
-              allowCreate={!keywords && !noProjects}
+              allowCreate={allowCreate}
               type="group"
               groupId={activeGroup.id}
               groupType={activeGroup.groupType}
@@ -317,31 +344,41 @@ export default function AppGrid(props) {
         {!isExternal && projectId && (
           <HomeSetting setting={setting} onUpdate={value => actions.editHomeSetting({ projectId, ...value })} />
         )}
+        <div className="flex"></div>
+        {allowCreate &&
+          !_.get(
+            _.find(md.global.Account.projects, item => item.projectId === projectId),
+            'cannotCreateApp',
+          ) && (
+            <AddAppItemBtn
+              projectId={projectId}
+              createAppFromEmpty={(...args) =>
+                actions.createAppFromEmpty(...args, id => {
+                  navigateTo('/app/' + id);
+                })
+              }
+            >
+              <span className="newAppBtn">
+                <i className="Icon icon icon-plus Font13 mRight5 White"></i>
+                {_l('新建应用')}
+              </span>
+            </AddAppItemBtn>
+          )}
       </SearchInputCon>
       <ScrollCon>
         <AppsCon>
           {!isExternal && renderGroup({ title: _l('星标应用'), type: 'star', apps: markedApps })}
           {!isExternal && showType === 'tab' && !!markedGroup.length && (
-            <MarkedGroupTab
-              {...props}
-              allowCreate={!keywords && !noProjects}
-              projectId={projectId}
-              markedGroup={markedGroup}
-            />
+            <MarkedGroupTab {...props} allowCreate={allowCreate} projectId={projectId} markedGroup={markedGroup} />
           )}
           {!isExternal && showType === 'tile' && !!markedGroup.length && (
-            <MarkedGroupTile
-              {...props}
-              allowCreate={!keywords && !noProjects}
-              projectId={projectId}
-              markedGroup={markedGroup}
-            />
+            <MarkedGroupTile {...props} allowCreate={allowCreate} projectId={projectId} markedGroup={markedGroup} />
           )}
           {!isExternal &&
             renderGroup({
               title: _l('全部应用'),
               type: 'project',
-              allowCreate: !keywords && !noProjects,
+              allowCreate: allowCreate,
               apps: myApps,
             })}
           {(showExternalAndAlone || !projectId) &&

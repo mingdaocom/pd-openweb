@@ -16,12 +16,12 @@ function login() {
 
 function getParams() {
   const query = qs.parse(location.search.slice(1, location.search.length));
-  if (/^\/apps\/kcshare\/(\w+)/.test(location.pathname)) {
+  if (/\/apps\/kcshare\/(\w+)/.test(location.pathname)) {
     return {
       type: 'kc_share',
       id: location.pathname.match(/.*\/apps\/kcshare\/(\w+)/)[1],
     };
-  } else if (/^\/recordfile\/\w+/.test(location.pathname.replace(/^\/portal/, ''))) {
+  } else if (/\/recordfile\/\w+/.test(location.pathname.replace(/^\/portal/, ''))) {
     return {
       type: 'record_share',
       id: location.pathname.match(/.*\/recordfile\/(\w+)/)[1],

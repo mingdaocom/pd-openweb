@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import UserHead from 'src/pages/feed/components/userHead';
 import UserName from 'src/pages/feed/components/userName';
 import { SOURCE_TYPE } from './config';
-import mdFunction from 'mdFunction';
-import 'mdDialog';
+import { createLinksForMessage } from 'src/components/common/function';
+import 'src/components/mdDialog/dialog';
 import UploadFiles from 'src/components/UploadFiles';
 import ToolTip from 'ming-ui/components/Tooltip';
 import LoadDiv from 'ming-ui/components/LoadDiv';
@@ -124,7 +124,7 @@ export default class CommentListItem extends React.Component {
   render() {
     const { comment, bindBusinessCard, sourceType, children } = this.props;
     const { createAccount = {}, replyAccount = {}, replyId, location } = comment;
-    const message = mdFunction.createLinksForMessage({
+    const message = createLinksForMessage({
       sourceType,
       message: comment.message,
       rUserList: comment.accountsInMessage,

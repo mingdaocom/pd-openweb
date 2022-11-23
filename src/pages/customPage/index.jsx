@@ -15,7 +15,7 @@ import { updateSheetList } from 'src/pages/worksheet/redux/actions/sheetList';
 import { enumWidgetType, reorderComponents, fillObjectId } from './util';
 import MobileLayout from './mobileLayout';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
 import './index.less';
 
@@ -73,41 +73,49 @@ export default class CustomPage extends Component {
           pageId,
           version,
           apk: apk || {},
-          visible: true
+          visible: true,
         });
         this.$originComponents = components;
       })
       .always(() => updateLoading(false));
-  }
+  };
 
   handleBack = () => {
     const { updateModified, updateEditPageVisible } = this.props;
     updateEditPageVisible(false);
     updateModified(false);
-  }
+  };
 
   getCreateRecordBtns = components => {
     const btnComponent = components.filter(item => item.type === enumWidgetType.button);
-    return _.flatten(btnComponent.map(item => {
-      const btns = item.button.buttonList.filter(btn => {
-        return btn.action === 1 && (!_.isEmpty(_.get(btn, ['config', 'temporaryWriteControls'])) || _.get(btn, ['config', 'isEmptyWriteControls']))
-      });
-      return btns;
-    }));
-  }
+    return _.flatten(
+      btnComponent.map(item => {
+        const btns = item.button.buttonList.filter(btn => {
+          return (
+            btn.action === 1 &&
+            (!_.isEmpty(_.get(btn, ['config', 'temporaryWriteControls'])) ||
+              _.get(btn, ['config', 'isEmptyWriteControls']))
+          );
+        });
+        return btns;
+      }),
+    );
+  };
 
   getFilterBtns = components => {
     const btnComponent = components.filter(item => item.type === enumWidgetType.button);
-    return _.flatten(btnComponent.map(item => {
-      const btns = item.button.buttonList.filter(btn => {
-        return btn.action === 5 && !_.isEmpty(_.get(btn, ['config', 'filterConditions']))
-      });
-      return btns;
-    }));
-  }
+    return _.flatten(
+      btnComponent.map(item => {
+        const btns = item.button.buttonList.filter(btn => {
+          return btn.action === 5 && !_.isEmpty(_.get(btn, ['config', 'filterConditions']));
+        });
+        return btns;
+      }),
+    );
+  };
 
   getAlreadyDeleteBtn = components => {
-    const getBtn = (components) => {
+    const getBtn = components => {
       const btnComponents = components.filter(c => c.type === enumWidgetType.button);
       const createRecordBtns = btnComponents.map(c => {
         const btns = c.button.buttonList.filter(btn => {
@@ -116,12 +124,12 @@ export default class CustomPage extends Component {
         return btns;
       });
       return _.flatten(createRecordBtns);
-    }
+    };
     const originBtns = getBtn(this.$originComponents);
     const newBtns = getBtn(components);
-    const deleteBtns = originBtns.filter(b => !_.find(newBtns, { btnId: b.btnId }) );
+    const deleteBtns = originBtns.filter(b => !_.find(newBtns, { btnId: b.btnId }));
     return deleteBtns;
-  }
+  };
 
   // 找到已经删除的设置默认值的创建记录按钮，调用 optionWorksheetBtn 删除 btnId
   removeWorksheetBtn = () => {
@@ -137,10 +145,10 @@ export default class CustomPage extends Component {
       });
     });
     Promise.all(removeBtnRequest).then(data => {});
-  }
+  };
 
   getAlreadyDeleteFilterBtn = components => {
-    const getBtn = (components) => {
+    const getBtn = components => {
       const btnComponents = components.filter(c => c.type === enumWidgetType.button);
       const filterBtns = btnComponents.map(c => {
         const btns = c.button.buttonList.filter(btn => {
@@ -149,12 +157,12 @@ export default class CustomPage extends Component {
         return btns;
       });
       return _.flatten(filterBtns);
-    }
+    };
     const originBtns = getBtn(this.$originComponents);
     const newBtns = getBtn(components);
-    const deleteBtns = originBtns.filter(b => !_.find(newBtns, { filterId: b.filterId }) );
+    const deleteBtns = originBtns.filter(b => !_.find(newBtns, { filterId: b.filterId }));
     return deleteBtns;
-  }
+  };
 
   // 找到已经删除的设置筛选条件的扫码按钮，调用 deleteWorksheetFilter 删除 filterId
   removeFilterId = () => {
@@ -167,7 +175,7 @@ export default class CustomPage extends Component {
       });
     });
     Promise.all(removeBtnRequest).then(data => {});
-  }
+  };
 
   // 找到设置默认值的创建记录按钮，调用 saveWorksheetBtn 接口并保存 btnId
   fillBtnData = components => {
@@ -197,15 +205,15 @@ export default class CustomPage extends Component {
             showType: 9,
             btnId: item.btnId || undefined,
             worksheetId: item.value,
-            writeControls: writeControlsFormat
+            writeControls: writeControlsFormat,
           });
         });
         Promise.all(saveBtnRequest).then(data => {
           const btnIds = createRecordBtns.map((btn, index) => {
             return {
               id: btn.id,
-              btnId: data[index]
-            }
+              btnId: data[index],
+            };
           });
           const newComponents = components.map(component => {
             if (component.type === enumWidgetType.button) {
@@ -225,16 +233,16 @@ export default class CustomPage extends Component {
                           ...config,
                           temporaryWriteControls: undefined,
                           controls: undefined,
-                          isEmptyWriteControls: undefined
+                          isEmptyWriteControls: undefined,
                         },
-                        btnId
-                      }
+                        btnId,
+                      };
                     } else {
                       return btn;
                     }
-                  })
-                }
-              }
+                  }),
+                },
+              };
             } else {
               return component;
             }
@@ -245,7 +253,7 @@ export default class CustomPage extends Component {
         resolve(components);
       }
     });
-  }
+  };
 
   // 找到设置筛选条件的按钮，调用 saveWorksheetFilter 接口并保存 filterId
   fillFilterData = components => {
@@ -261,17 +269,17 @@ export default class CustomPage extends Component {
             filterId: filterId || undefined,
             worksheetId: value,
             module: 2,
-            items: formatValuesOfOriginConditions(filterConditions),
+            items: filterConditions.map(formatValuesOfCondition),
             name: '',
-            type: ''
+            type: '',
           });
         });
         Promise.all(filterBtnRequest).then(data => {
           const btnIds = filterBtns.map((btn, index) => {
             return {
               id: btn.id,
-              filterId: data[index].filterId
-            }
+              filterId: data[index].filterId,
+            };
           });
           const newComponents = components.map(component => {
             if (component.type === enumWidgetType.button) {
@@ -291,14 +299,14 @@ export default class CustomPage extends Component {
                           ...config,
                           filterConditions: undefined,
                         },
-                        filterId
-                      }
+                        filterId,
+                      };
                     } else {
                       return btn;
                     }
-                  })
-                }
-              }
+                  }),
+                },
+              };
             } else {
               return component;
             }
@@ -309,7 +317,7 @@ export default class CustomPage extends Component {
         resolve(components);
       }
     });
-  }
+  };
   // 保存筛选组件
   fillFilterComponent = components => {
     return new Promise((resolve, reject) => {
@@ -328,24 +336,24 @@ export default class CustomPage extends Component {
                 ...item,
                 values: formatFilterValuesToServer(item.dataType, item.values),
                 control: undefined,
-              }
-            })
+              };
+            }),
           });
         });
         Promise.all(saveFilterRequest).then(data => {
           const filterIds = filterComponent.map((component, index) => {
             return {
               id: component.id || component.uuid,
-              filtersGroupId: data[index].filtersGroupId
-            }
+              filtersGroupId: data[index].filtersGroupId,
+            };
           });
           const newComponents = components.map(component => {
             if (component.type === enumWidgetType.filter && !component.value) {
               return {
                 ...component,
                 filter: undefined,
-                value: _.find(filterIds, { id: component.id || component.uuid }).filtersGroupId
-              }
+                value: _.find(filterIds, { id: component.id || component.uuid }).filtersGroupId,
+              };
             } else {
               return component;
             }
@@ -356,7 +364,7 @@ export default class CustomPage extends Component {
         resolve(components);
       }
     });
-  }
+  };
 
   // 删除筛选组件
   removeFiltersGroup = () => {
@@ -364,10 +372,10 @@ export default class CustomPage extends Component {
     const filters = this.$originComponents.filter(c => c.type === enumWidgetType.filter && c.value);
     const getFilter = components => {
       return components.filter(c => c.type === enumWidgetType.filter && c.value);
-    }
+    };
     const originFilters = getFilter(this.$originComponents);
     const newFilters = getFilter(components);
-    const deleteFilters = originFilters.filter(f => !_.find(newFilters, { value: f.value }) );
+    const deleteFilters = originFilters.filter(f => !_.find(newFilters, { value: f.value }));
     const removeFilterRequest = deleteFilters.map(item => {
       return sheetApi.deleteFiltersGroupByIds({
         appId: ids.appId,
@@ -375,7 +383,7 @@ export default class CustomPage extends Component {
       });
     });
     Promise.all(removeFilterRequest).then(data => {});
-  }
+  };
 
   // 保存前处理数据，title处理掉空白字符，type转换为后端需要的数字
   dealComponents = components => {
@@ -386,17 +394,17 @@ export default class CustomPage extends Component {
         type: { $apply: value => (typeof value === 'number' ? value : enumWidgetType[value]) },
       });
     });
-  }
+  };
 
   // 清除 uuid
   dealComponentUUId = components => {
     return components.map(item => _.omit(item, 'uuid'));
-  }
+  };
 
   @autobind
   async handleSave() {
     const { version, pageId, components, updatePageInfo, updateSaveLoading } = this.props;
-    
+
     updateSaveLoading(true);
 
     let newComponents = this.dealComponents(components);
@@ -419,6 +427,7 @@ export default class CustomPage extends Component {
           this.removeFiltersGroup();
           this.$originComponents = components;
           updatePageInfo({ components, pageId, version, modified: false });
+          this.handleBack();
           alert(_l('保存成功'));
         } else {
           alert(_l('保存失败'));
@@ -434,7 +443,7 @@ export default class CustomPage extends Component {
     const { updatePageInfo } = this.props;
     updatePageInfo({ components: this.$originComponents });
     this.handleBack();
-  }
+  };
 
   switchType = type => {
     const { updateComponents, components } = this.props;
@@ -443,7 +452,7 @@ export default class CustomPage extends Component {
     if (orderComponent) {
       updateComponents(orderComponent);
     }
-  }
+  };
 
   render() {
     const { loading, ...rest } = this.props;
@@ -459,7 +468,9 @@ export default class CustomPage extends Component {
           onBack={this.handleBack}
           onSave={this.handleSave}
         />
-        <div className="customPageContentWrap">{loading ? <LoadDiv style={{ marginTop: '60px' }} /> : <Comp {...rest} />}</div>
+        <div className="customPageContentWrap">
+          {loading ? <LoadDiv style={{ marginTop: '60px' }} /> : <Comp {...rest} />}
+        </div>
       </CustomPageWrap>
     );
   }

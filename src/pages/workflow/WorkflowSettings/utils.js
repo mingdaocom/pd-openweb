@@ -3,8 +3,8 @@ import { NODE_TYPE, APP_TYPE, ACTION_ID, TRIGGER_ID, CONDITION_TYPE } from './en
 /**
  * 遍历获取统计id
  */
-export const getSameLevelIds = (data, firstId) => {
-  const ids = [firstId];
+export const getSameLevelIds = (data, firstId, excludeFirstId = false) => {
+  const ids = excludeFirstId ? [] : [firstId];
   let nextId = (data[firstId] || {}).nextId;
 
   while (nextId && nextId !== '99') {
@@ -43,6 +43,8 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-pbc';
       } else if (appType === APP_TYPE.PARAMETER) {
         icon = 'icon-parameter';
+      } else if (appType === APP_TYPE.APPROVAL_START) {
+        icon = 'icon-approval';
       } else {
         icon = 'icon-table';
       }
@@ -53,7 +55,7 @@ export const getIcons = (type, appType, actionId) => {
     case NODE_TYPE.APPROVAL:
       icon = 'icon-workflow_ea';
       break;
-    case NODE_TYPE.NOTICE:
+    case NODE_TYPE.CC:
       icon = 'icon-workflow_notice';
       break;
     case NODE_TYPE.ACTION:
@@ -98,7 +100,7 @@ export const getIcons = (type, appType, actionId) => {
       icon = 'icon-subprocess';
       break;
     case NODE_TYPE.PUSH:
-      icon = 'icon-notifications_11';
+      icon = 'icon-interface_push';
       break;
     case NODE_TYPE.FILE:
       icon = 'icon-print';
@@ -123,6 +125,12 @@ export const getIcons = (type, appType, actionId) => {
       break;
     case NODE_TYPE.API:
       icon = 'icon-api';
+      break;
+    case NODE_TYPE.APPROVAL_PROCESS:
+      icon = 'icon-approval';
+      break;
+    case NODE_TYPE.NOTICE:
+      icon = 'icon-hr_message_reminder';
       break;
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {
@@ -170,6 +178,8 @@ export const getStartNodeColor = (appType, triggerId) => {
     case APP_TYPE.EXTERNAL_USER:
       if (triggerId === TRIGGER_ID.DISCUSS) return 'BGBlue';
       return 'BGGreen';
+    case APP_TYPE.APPROVAL_START:
+      return 'BGDarkBlue';
     default:
       return 'BGBlue';
   }

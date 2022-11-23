@@ -1,0 +1,352 @@
+.inviteBackIcon {
+  font-weight: bold;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  margin-left: -8px;
+  .iconBox {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background-color: transparent;
+    margin-right: 8px;
+    text-align: center;
+    cursor: pointer;
+    &:hover {
+      background: #f5f5f5;
+      color: #2196f3;
+    }
+    i {
+      line-height: 32px;
+      font-size: 22px;
+    }
+  }
+}
+
+.dialogAddFriendsBox {
+  .mui-dialog-body {
+    padding: 0 24px 16px !important;
+  }
+}
+
+.dialogAddFriendsContainer {
+  height: 542px;
+  display: flex;
+  flex-direction: column;
+  .safeWarning {
+    background-color: #fff9d9;
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 3px;
+  }
+
+  .ViewDeatil {
+    .nano-pane {
+      right: -11px !important;
+    }
+  }
+
+  .inviteListItem {
+    display: flex;
+    height: 48px;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eaeaea;
+    .Green {
+      color: #4caf50;
+    }
+  }
+
+  .linkListItem {
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+    border-top: 1px solid #eaeaea;
+    margin-bottom: 20px;
+    &:first-child {
+      padding-top: 0;
+      border-top: none;
+    }
+    &:last-child {
+      margin-bottom: 0;
+    }
+    .linkInput {
+      flex: 1;
+      background-color: #f1f1f1;
+      padding: 0 17px;
+      box-sizing: border-box;
+      height: 36px;
+      line-height: 36px;
+      min-width: 0;
+      div {
+        display: inline-block;
+        width: 100%;
+      }
+    }
+    .trashBox {
+      margin-left: 8px;
+      width: 36px;
+      height: 36px;
+      text-align: center;
+      line-height: 36px;
+      background: #ffffff;
+      border: 1px solid #dddddd;
+      border-radius: 3px;
+      color: #9d9d9d;
+      cursor: pointer;
+      &:hover {
+        border-color: #f51744;
+        color: #f51744;
+      }
+    }
+  }
+
+  .addFriendsHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    i {
+      font-size: 40px;
+      margin-bottom: 12px;
+      color: #47b14b;
+    }
+    .headerText {
+      font-size: 17px;
+      font-weight: bold;
+    }
+  }
+
+  .AddFriends-head {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    position: 'relative';
+    margin-top: 26px;
+    &-navbar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      margin-top: 32px;
+      &__item {
+        display: flex;
+        border-style: solid;
+        font-weight: bold;
+        font-size: 14px;
+        margin-right: 12px;
+        padding: 5px 12px;
+        border-width: 0 0 3px 0;
+        border-color: transparent;
+        color: #333;
+        cursor: pointer;
+        &:last-child {
+          margin-right: 0;
+        }
+        &:hover {
+          background-color: #f5f5f5;
+        }
+        &.AddFriends-head-navbar__item--active {
+          color: #2196f3;
+          border-color: #2196f3;
+          border-width: 0 0 3px 0;
+          background-color: #fff !important;
+        }
+        &:not(.AddFriends-head-navbar__item--active) {
+          border-color: transparent !important;
+        }
+      }
+    }
+  }
+
+  .addFriendsContent {
+    padding-top: 30px;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+
+    .shareUrl > div > div {
+      font-size: 12px;
+    }
+
+    .getLinkBtn {
+      width: 142px;
+      height: 36px;
+      line-height: 36px;
+      text-align: center;
+      font-weight: bold;
+      background: rgba(33, 150, 243, 0.08);
+      border-radius: 5px;
+      color: #2196f3;
+      cursor: pointer;
+    }
+
+    .addFriendHeader {
+      height: 40px;
+      display: flex;
+      margin-bottom: 30px;
+      .inputWrapper {
+        flex: 1;
+        min-width: 0;
+        position: relative;
+        input {
+          height: 100%;
+          padding: 0 35px;
+          border: 1px solid #f5f5f5;
+          width: 100%;
+          background-color: #f5f5f5;
+        }
+        .searchIcon {
+          position: absolute;
+          top: 12px;
+          left: 15px;
+          font-size: 18px;
+          color: #757575;
+        }
+        .searchClear {
+          top: 10px;
+          align-self: center;
+          border-radius: 50%;
+          padding: 3px;
+          background: #ccc;
+          color: #fff;
+          position: absolute;
+          right: 10px;
+        }
+      }
+
+      .searchBtn {
+        height: 40px;
+        width: 85px;
+        margin-left: 16px;
+      }
+    }
+
+    .userItem {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      img {
+        width: 53px;
+        height: 53px;
+        border-radius: 50%;
+        background-color: #9e9e9e;
+      }
+      .userInfo {
+        flex: 1;
+        min-width: 0;
+        padding: 0 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .inviteButton {
+        width: 133px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+      }
+    }
+
+    .resultContent {
+      overflow-x: hidden;
+    }
+    .addBox {
+      & > span {
+        padding: 5px 8px;
+        display: inline-flex;
+        align-items: center;
+        background-color: transparent;
+        border-radius: 5px;
+        cursor: pointer;
+        &:hover {
+          background-color: #f5f5f5;
+        }
+      }
+      i {
+        margin-right: 5px;
+      }
+      &.recordIcon {
+        & > span {
+          padding: 5px 0px;
+          &:hover {
+            background-color: transparent;
+            color: #2196f3;
+          }
+        }
+      }
+    }
+    .inviteDrop {
+      .Dropdown--input {
+        width: auto;
+        height: 24px;
+        border-color: #eaeaea;
+      }
+    }
+    .inviteIcon {
+      position: absolute;
+      right: 25px;
+    }
+    .numberBox {
+      width: 209px;
+      height: 76px;
+      background: #f8f8f8;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 10px;
+      cursor: pointer;
+      i {
+        color: #bdbdbd;
+        &:hover {
+          color: #2196f3;
+        }
+      }
+    }
+    .footContainer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: auto 0 0 0;
+    }
+
+    .row {
+      margin-bottom: 10px;
+      display: flex;
+      & > div {
+        flex: 1;
+        min-width: 0;
+        .iti {
+          width: 100%;
+        }
+      }
+      .rowTel {
+        width: 100%;
+        height: 36px;
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        opacity: 1;
+        border-radius: 3px;
+        &.err {
+          border: 1px solid red;
+        }
+      }
+      .del {
+        opacity: 0;
+        margin-left: 8px;
+        line-height: 36px;
+        &.op0 {
+          opacity: 0 !important;
+        }
+      }
+      &:hover {
+        .del {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}

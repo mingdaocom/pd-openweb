@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
 import { assign } from 'lodash';
-import { execFunc } from 'ming-ui/utils/Utils';
+import execFunc from 'ming-ui/utils/Utils';
 
 /**
  * Given offsets, widths, and heights of two objects, determine if they collide (overlap).
@@ -272,4 +272,4 @@ function withDragSelect(Component) {
   return SelectableComponent;
 }
 
-module.exports = withDragSelect;
+export default withDragSelect;

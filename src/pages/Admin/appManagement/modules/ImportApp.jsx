@@ -95,7 +95,7 @@ export default class ImportApp extends React.Component {
       password: this.state.password,
       url: this.state.url,
       accountId: md.global.Account.accountId,
-      projectId: Config.projectId,
+      projectId: this.props.projectId ? this.props.projectId : Config.projectId,
     };
     $.ajax({
       type: 'POST',
@@ -132,8 +132,10 @@ export default class ImportApp extends React.Component {
       password: this.state.password,
       url: this.state.url,
       accountId: md.global.Account.accountId,
-      projectId: Config.projectId,
+      projectId: this.props.projectId ? this.props.projectId : Config.projectId,
       matchOffice: this.state.matchOffice,
+      groupId: this.props.groupId,
+      groupType: this.props.groupType,
     };
     this.props.closeDialog();
     $.ajax({

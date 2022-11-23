@@ -3,7 +3,7 @@
     <div class="groupSettingSearch">
         <div class="searchWrapper">
             <span class="icon-search pLeft5 searchIcon Font20"></span>
-            <input type="text" placeholder="{{= _l('搜索群成员')}}" class="searchInput">
+            <input type="text" placeholder="{{= _l('搜索群成员')}}" class="searchInput" />
             <span class="icon-closeelement-bg-circle searchCloseIcon Font14 Hand Hidden ThemeHoverColor3"></span>
         </div>
     </div>
@@ -16,59 +16,52 @@
         <li class="groupMemberOp ThemeBGColor3 remove" data-op="2">{{= _l('移出群组') }}</li>
         <li class="groupMemberOp ThemeBGColor3 apply" data-op="3">{{= _l('允许') }}</li>
         <li class="groupMemberOp ThemeBGColor3 apply" data-op="4">{{= _l('拒绝') }}</li>
-        <li class="groupMemberOp ThemeBGColor3 active" data-op="5">{{= _l('重新邀请') }}
-        </li>
-        <li class="groupMemberOp ThemeBGColor3 active" data-op="6">{{= _l('取消邀请') }}
-        </li>
+        <li class="groupMemberOp ThemeBGColor3 active" data-op="5">{{= _l('重新邀请') }}</li>
+        <li class="groupMemberOp ThemeBGColor3 active" data-op="6">{{= _l('取消邀请') }}</li>
     </ul>
 </div>
 {{? !it.isForbidInvite || it.isAdmin }}
-<div class="addGroupMembers">
-    <span class="addGroupMember icon-addapplication Hand mRight5 TxtMiddle ThemeColor3"></span><span
-    class="addGroupMemberTitle Hand">{{= _l('添加群成员') }}</span>
+<div class="addGroupMembers flexRow">
+    <span class="addGroupMember Hand Gray_9e ThemeHoverColor3 flexCenter">
+        <span class="icon-invite Font16 mRight8"></span><span>{{= _l('从通讯录添加') }}</span>
+    </span>
+    <span class="mLeft24 addGroupFriends Hand Gray_9e ThemeHoverColor3 flexCenter">
+        <span class="icon-airplane Font16 mRight8"></span>
+        <span>{{= _l('更多邀请') }}</span>
+    </span>
 </div>
-{{?}}
-{{??}}
-    {{# def.buildUserList:it.users }}
-{{?}}
-
-{{##def.buildUserList:users:
-{{? users && users.length }}
-{{~ users:user }}
+{{?}} {{??}} {{# def.buildUserList:it.users }} {{?}} {{##def.buildUserList:users: {{? users && users.length }} {{~
+users:user }}
 <li class="singleUser flexRow" data-accountid="{{= user.accountId }}">
     {{? user.accountId }}
     <a href="/user_{{= user.accountId }}" target="_blank" class="userAvatar">
-        <img class="circle" src="{{= user.avatar }}" data-accountid="{{= user.accountId }}"/>
+        <img class="circle" src="{{= user.avatar }}" data-accountid="{{= user.accountId }}" />
     </a>
     {{??}}
     <a href="javascript:void(0);" class="userAvatar cursorDefault">
-        <img class="circle" src="{{= user.avatar }}" data-accountid="{{= user.accountId }}"/>
+        <img class="circle" src="{{= user.avatar }}" data-accountid="{{= user.accountId }}" />
     </a>
     {{?}}
     <div class="groupUserName overflow_ellipsis" title="{{! user.fullname }}">{{! user.fullname }}</div>
     {{? user.isProjectUser }}
-    <div class="groupUserDepartment overflow_ellipsis Gray_6" title="{{! user.department || '' }}">{{!
-        user.department || '' }}
+    <div class="groupUserDepartment overflow_ellipsis Gray_6" title="{{! user.department || '' }}">
+        {{! user.department || '' }}
     </div>
     <div class="groupUserJob overflow_ellipsis Gray_9" title="{{! user.job || '' }}">{{! user.job || '' }}</div>
     {{??}}
-    <div class="groupUserCompany overflow_ellipsis Gray_6" title="{{! user.companyName || '' }}">{{!
-        user.companyName || '' }}
+    <div class="groupUserCompany overflow_ellipsis Gray_6" title="{{! user.companyName || '' }}">
+        {{! user.companyName || '' }}
     </div>
-    <div class="groupUserJob overflow_ellipsis verGray_9" title="{{! user.job || '' }}">{{! user.job || '' }}
-    </div>
-    {{?}}
-    {{? !it.isAdmin || (user.accountId === md.global.Account.accountId) }}
+    <div class="groupUserJob overflow_ellipsis verGray_9" title="{{! user.job || '' }}">{{! user.job || '' }}</div>
+    {{?}} {{? !it.isAdmin || (user.accountId === md.global.Account.accountId) }}
     <div class="groupMemberOperation">
-        {{? user.status === 1}}
-        {{? user.isCreateUser && user.groupUserRole === 1 }}
+        {{? user.status === 1}} {{? user.isCreateUser && user.groupUserRole === 1 }}
         <div class="settingMemberRole"><span class="roleName">{{= _l('群主') }}</span></div>
         {{?? user.groupUserRole === 1 }}
         <div class="settingMemberRole"><span class="roleName">{{= _l('管理员') }}</span></div>
         {{??}}
         <div class="settingMemberRole"><span class="roleName">{{= _l('成员') }}</span></div>
-        {{?}}
-        {{?? user.status === 0 }}
+        {{?}} {{?? user.status === 0 }}
         <div class="settingMemberRole"><span class="roleName">{{= _l('待审核用户') }}</span></div>
         {{?? user.status === 2 }}
         <div class="settingMemberRole"><span class="roleName">{{= _l('待激活用户') }}</span></div>
@@ -76,37 +69,37 @@
     </div>
     {{??}}
     <div class="groupMemberOperation auth">
-        {{? user.status === 1 }}
-        {{? user.isCreateUser && user.groupUserRole === 1 }}
-        <div class="settingMemberRole cursorDefault" data-type="creator"><span class="roleName">{{= _l('群主') }}</span>
+        {{? user.status === 1 }} {{? user.isCreateUser && user.groupUserRole === 1 }}
+        <div class="settingMemberRole cursorDefault" data-type="creator">
+            <span class="roleName">{{= _l('群主') }}</span>
         </div>
         {{?? user.groupUserRole === 1 }}
-        <div class="settingMemberRole" data-type="admin"><span
-            class="roleName">{{= _l('管理员') }}</span><span
-            class="icon-arrow-down-border font8"></span></div>
+        <div class="settingMemberRole" data-type="admin">
+            <span class="roleName">{{= _l('管理员') }}</span><span class="icon-arrow-down-border font8"></span>
+        </div>
         {{??}}
-        <div class="settingMemberRole" data-type="member"><span
-            class="roleName">{{= _l('成员') }}</span><span
-            class="icon-arrow-down-border font8"></span></div>
-        {{?}}
-        {{?? user.status === 0 }}
-        <div class="settingMemberRole" data-type="apply"><span class="roleName">{{= _l('等待审批加入群组') }}</span><span
-            class="icon-arrow-down-border font8"></span></div>
+        <div class="settingMemberRole" data-type="member">
+            <span class="roleName">{{= _l('成员') }}</span><span class="icon-arrow-down-border font8"></span>
+        </div>
+        {{?}} {{?? user.status === 0 }}
+        <div class="settingMemberRole" data-type="apply">
+            <span class="roleName">{{= _l('等待审批加入群组') }}</span
+            ><span class="icon-arrow-down-border font8"></span>
+        </div>
         {{??}}
-        <div class="settingMemberRole" data-type="active"><span class="roleName">{{= _l('等待激活加入群组') }}</span><span
-            class="icon-arrow-down-border font8"></span></div>
+        <div class="settingMemberRole" data-type="active">
+            <span class="roleName">{{= _l('等待激活加入群组') }}</span
+            ><span class="icon-arrow-down-border font8"></span>
+        </div>
         {{?}}
     </div>
     {{?}}
 </li>
-{{~}}
-{{??}}
+{{~}} {{??}}
 <li class="TxtCenter">
     <div class="mTop45">
-        <img src="/images/no_search_result.png" style="width:60px">
+        <img src="/images/no_search_result.png" style="width: 60px" />
     </div>
     <div class="Font16 mTop20">{{= _l('无匹配结果')}}</div>
 </li>
-{{?}}
-#}}
-
+{{?}} #}}

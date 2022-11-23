@@ -190,6 +190,8 @@ export const getReportData = () => {
           filterRangeId: filter.filterRangeId,
           rangeType: filter.rangeType,
           rangeValue: filter.rangeValue,
+          today: filter.today,
+          dynamicFilter: filter.dynamicFilter,
           sorts,
         })
       }
@@ -266,6 +268,8 @@ export const getTableData = () => {
           filterRangeId: filter.filterRangeId,
           rangeType: filter.rangeType,
           rangeValue: filter.rangeValue,
+          today: filter.today,
+          dynamicFilter: filter.dynamicFilter,
           sorts,
         });
       }
@@ -289,7 +293,7 @@ export const getReportSingleCacheId = (data) => {
   return (dispatch, getState) => {
     const { base, worksheetInfo, currentReport } = getState().statistics;
     const { report, sheetId, filters = [], filtersGroup = [] } = base;
-    const { viewId, filterControls = [], filterRangeId, rangeType, rangeValue } = currentReport.filter || {};
+    const { viewId, filterControls = [], filterRangeId, rangeType, rangeValue, dynamicFilter } = currentReport.filter || {};
     const { drillParticleSizeType } = currentReport.country || {};
     const { isPersonal, match, contrastType } = data;
 
@@ -310,7 +314,8 @@ export const getReportSingleCacheId = (data) => {
       filters: [[...filters], [...filterControls], [...filtersGroup]].filter(_ => _.length),
       filterRangeId,
       rangeType,
-      rangeValue
+      rangeValue,
+      dynamicFilter
     }, {
       fireImmediately: true
     }).then(result => {
@@ -341,7 +346,7 @@ export const requestOriginalData = (data) => {
     const viewDataType = style.viewDataType || 1;
     const { viewId } = filter;
     const view = _.find(worksheetInfo.views, { viewId });
-    if (viewDataType === 2 && view && ![VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.gunter].includes(view.viewType.toString())) {
+    if (viewDataType === 2 && view && [VIEW_DISPLAY_TYPE.sheet].includes(view.viewType.toString())) {
       data.isPersonal = true;
     } else {
       dispatch(changeBase({
@@ -547,7 +552,18 @@ export const changeControlCheckbox = (event, item) => {
         }));
         return
       }
-
+      if ([reportTypes.PieChart, reportTypes.FunnelChart]) {
+        if ((yaxisList.length && xaxes.controlId) || yaxisList.length > 1) {
+          dispatch(getReportConfigDetail({
+            reportId: base.report.id,
+            appId: base.sheetId,
+            reportType: reportTypes.PivotTable
+          }, () => {
+            dispatch(addColumns(item));
+          }));
+          return;
+        }
+      }
       if (_.isEmpty(xaxes.controlId) && !isNumber) {
         if (
           ([reportTypes.CountryLayer].includes(reportType) && !isAreaControl(item.type)) ||
@@ -1071,6 +1087,7 @@ export const changeDirection = (value) => {
     const { direction, reportData } = getState().statistics;
     const style = reportData.style || {};
     const newDirection = value ? value : (direction === 'vertical' ? 'horizontal' : 'vertical');
+    sessionStorage.setItem('chartSheetDirection', newDirection);
     dispatch({
       type: 'CHANGE_STATISTICS_DIRECTION',
       data: newDirection

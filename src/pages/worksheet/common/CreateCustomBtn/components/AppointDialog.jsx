@@ -204,7 +204,7 @@ class AppointDialog extends React.Component {
     return (
       <div
         className={cx('inputDef', {
-          notOther: (writeObject === 1 && ![26, 15, 16, 17, 18].includes(data.type)) || data.type === 34, ////日期 成员（常规）有动态默认值 填写时间 填写人 //子表不需要支持查询工作表
+          notOther: (writeObject === 1 && !DEF_R_TYPES.includes(data.type)) || data.type === 34, ////日期 成员（常规）有动态默认值 填写时间 填写人 //子表不需要支持查询工作表
         })}
       >
         <Input

@@ -4,11 +4,14 @@ import { Tooltip, LoadDiv } from 'ming-ui';
 import Config from '../config';
 import './index.less';
 import groupController from 'src/api/group';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 import ReactDom from 'react-dom';
 import Empty from '../common/TableEmpty';
 import cx from 'classnames'
-import 'pager';
+import 'src/components/pager/pager';
+import 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
+import CreateGroup from 'src/components/group/create/creatGroup';
+
 const { Search } = Input;
 
 const sortFieldTrans = {
@@ -224,14 +227,12 @@ export default class GroupsList extends Component {
 
   handleEditDept(record) {
     const _this = this;
-    require(['dialogSelectMapGroupDepart'], function() {
-      $('body').dialogSelectMapGroupDepart({
-        projectId: Config.projectId,
-        defaultSelectId: record.mapDepartmentId,
-        callback: function(data) {
-          _this.updateDeptMappingGroup(record.groupId, true, data.departmentId);
-        },
-      });
+    $('body').dialogSelectMapGroupDepart({
+      projectId: Config.projectId,
+      defaultSelectId: record.mapDepartmentId,
+      callback: function(data) {
+        _this.updateDeptMappingGroup(record.groupId, true, data.departmentId);
+      },
     });
   }
 
@@ -256,13 +257,11 @@ export default class GroupsList extends Component {
 
   handleSetDept(record) {
     const _this = this;
-    require(['dialogSelectMapGroupDepart'], function() {
-      $('body').dialogSelectMapGroupDepart({
-        projectId: Config.projectId,
-        callback: function(data) {
-          _this.updateDeptMappingGroup(record.groupId, true, data.departmentId);
-        },
-      });
+    $('body').dialogSelectMapGroupDepart({
+      projectId: Config.projectId,
+      callback: function(data) {
+        _this.updateDeptMappingGroup(record.groupId, true, data.departmentId);
+      },
     });
   }
 
@@ -380,13 +379,11 @@ export default class GroupsList extends Component {
 
   handleCreate() {
     const _this = this;
-    require(['src/components/group/create/creatGroup'], function(CreatGroup) {
-      CreatGroup.createInit({
-        projectId: Config.projectId,
-        callback: function() {
-          _this.getGroupsList();
-        },
-      });
+    CreateGroup.createInit({
+      projectId: Config.projectId,
+      callback: function() {
+        _this.getGroupsList();
+      },
     });
   }
 

@@ -1,12 +1,21 @@
-﻿import { navigateTo } from 'src/router/navigateTo';
+﻿import React from 'react';
+import ReactDom from 'react-dom';
+import { navigateTo } from 'src/router/navigateTo';
 import './search.less';
-import 'pager';
-import doT from 'dot';
+import 'src/components/pager/pager';
+import doT from '@mdfe/dot';
 import moment from 'moment';
-import MDFunction from 'mdFunction';
+import { createLinksForMessage } from 'src/components/common/function';
 import smartSearchCtrl from 'src/api/smartSearch';
 import rowsTpl from './tpl/search.html';
 import { getRequest, getClassNameByExt, htmlEncodeReg } from 'src/util';
+import userTpl from './tpl/user.html';
+import groupTpl from './tpl/group.html';
+import postTpl from './tpl/post.html';
+import taskTpl from './tpl/task.html';
+import kcnodeTpl from './tpl/kcnode.html';
+import DateFilter from 'src/components/DateFilter';
+import 'src/components/mdBusinessCard/mdBusinessCard';
 
 var Search = {};
 Search.options = {
@@ -61,74 +70,22 @@ Search.init = function () {
   Search.selectProjectInput();
   Search.bindEvent();
   // 日期选择
-  require([
-    'bootstrap-daterangepicker',
-    'bootstrap-daterangepicker/daterangepicker.css',
-    '@mdfe/date-picker-tpl/datePickerTpl.css',
-  ], function () {
-    var formatDate = 'YYYY-MM-DD'; //  'YYYY-MM-DD HH:MM'
-    var cb = function (start, end, label) {
-      var timeStr = $('#dateRangePicker').val();
-      var temp =
-        $.trim(timeStr.split(_l('至'))[0]) === Search.getDateStr(1) ||
-        $.trim(timeStr) === _l('全部时间') ||
-        $.trim(timeStr) === _l('搜索特定时间...')
-          ? ''
-          : $.trim(timeStr);
-      var tempTime = temp.split(_l('至'))[0] + '|' + temp.split(_l('至'))[1];
-      if (tempTime !== Search.options.dateRange) {
-        Search.options.dateRange = tempTime;
-        Search.manyConditionSearch();
-      }
-    };
-    var ranges = {};
-    ranges[_l('今天')] = [moment().startOf('day'), moment().endOf('day')];
-    ranges[_l('最近七天')] = [moment().subtract(6, 'days').startOf('day'), moment().endOf('day')];
-    ranges[_l('本月')] = [moment().startOf('month'), moment().endOf('day')];
-    ranges[_l('上月')] = [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')];
-    var optionSet = {
-      template: require('@mdfe/date-picker-tpl').double,
-      linkedCalendars: false,
-      minDate: '2010-01-01', // 最早日期
-      maxDate: moment().format('YYYY-MM-DD'), // 最晚日期
-      showDropdowns: true, // 显示下拉框
-      ranges: ranges,
-      opens: 'right',
-      autoUpdateInput: false,
-      locale: {
-        separator: _l('至'),
-        format: formatDate, // 定义显示格式
-        applyLabel: _l('确定'),
-        cancelLabel: _l('清除'),
-        fromLabel: '开始时间',
-        toLabel: '结束时间',
-        customRangeLabel: _l('自定义日期'),
-        daysOfWeek: [0, 1, 2, 3, 4, 5, 6].map(function (item) {
-          return moment().day(item).format('dd');
-        }),
-        monthNames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(function (item) {
-          return moment().month(item).format('MMM');
-        }),
-        firstDay: 1,
-      },
-    };
-
-    // 将定义的日期格式应用
-    $('#dateRangePicker').daterangepicker(optionSet, cb);
-
-    // 取消特定时间搜索
-    $('#dateRangePicker').on('cancel.daterangepicker', function (ev, picker) {
-      Search.options.dateRange = '';
-      $('#dateRangePicker').val('');
-      Search.manyConditionSearch();
-    });
-    $('#dateRangePicker').on('apply.daterangepicker', function (ev, picker) {
-      $('#dateRangePicker').val(
-        picker.startDate.format(formatDate) + (' ' + _l('至') + ' ' || ' 至 ') + picker.endDate.format(formatDate),
-      );
-      cb(picker.startDate, picker.endDate);
-    });
-  });
+  var formatDate = 'YYYY-MM-DD'; //  'YYYY-MM-DD HH:MM'
+  var cb = function (start, end, label) {
+    Search.options.dateRange = `${start}|${end}`;
+    Search.manyConditionSearch();
+  };
+  ReactDom.render((
+    <DateFilter
+      onChange={(startDate, endDate) => {
+        startDate = startDate ? startDate.format('YYYY-MM-DD') : '';
+        endDate = endDate ? endDate.format('YYYY-MM-DD') : '';
+        cb(startDate, endDate);
+      }}
+    >
+      <input type="text" id="dateRangePicker" className="selTxt Border0" placeholder={_l('搜索特定时间...')} readonly="readonly" />
+    </DateFilter>
+  ), document.querySelector('.smartSearchFilterDateWrap'));
 };
 // 个人和企业单选按钮组
 Search.selectProjectInput = function () {
@@ -443,8 +400,7 @@ Search.loadListByType = function () {
 };
 Search.userHtml = function (data, reg) {
   var strHtml = '';
-  var tpl = require('./tpl/user.html');
-  strHtml = doT.template(tpl)({
+  strHtml = doT.template(userTpl)({
     user: data,
     reg: reg,
     searchKeyword: Search.searchKeyword,
@@ -455,8 +411,7 @@ Search.userHtml = function (data, reg) {
 };
 Search.groupHtml = function (data, reg) {
   var strHtml = '';
-  var tpl = require('./tpl/group.html');
-  strHtml = doT.template(tpl)({
+  strHtml = doT.template(groupTpl)({
     group: data,
     reg: reg,
     searchKeyword: Search.searchKeyword,
@@ -475,7 +430,7 @@ Search.removeHTMLTag = function (str) {
 Search.postHtml = function (data, reg, searchKeyword) {
   var messageFn = function (dataItem) {
     var content = dataItem.postContent ? Search.removeHTMLTag(dataItem.postContent) : '';
-    var message = MDFunction.createLinksForMessage({
+    var message = createLinksForMessage({
       message: content,
       rUserList: dataItem.rUserList,
       rGroupList: dataItem.rGroupList,
@@ -506,8 +461,7 @@ Search.postHtml = function (data, reg, searchKeyword) {
     return attachmentIcon;
   };
   var strHtml = '';
-  var tpl = require('./tpl/post.html');
-  strHtml = doT.template(tpl)({
+  strHtml = doT.template(postTpl)({
     post: data,
     reg: reg,
     searchKeyword: Search.searchKeyword,
@@ -532,8 +486,7 @@ Search.taskHtml = function (data, reg) {
     };
   };
   var strHtml = '';
-  var tpl = require('./tpl/task.html');
-  strHtml = doT.template(tpl)({
+  strHtml = doT.template(taskTpl)({
     task: data,
     reg: reg,
     searchKeyword: Search.searchKeyword,
@@ -555,8 +508,7 @@ Search.kcnodeHtml = function (data, reg) {
     };
   };
   var strHtml = '';
-  var tpl = require('./tpl/kcnode.html');
-  strHtml = doT.template(tpl)({
+  strHtml = doT.template(kcnodeTpl)({
     kcnode: data,
     reg: reg,
     searchKeyword: Search.searchKeyword,
@@ -710,12 +662,10 @@ Search.infoNum = function (data) {
   } else {
     $('.totalCount').html(0);
   }
-  require(['mdBusinessCard'], function () {
-    $('img[data-accountid]').each(function () {
-      $(this).mdBusinessCard({
-        reset: true,
-        chatByLink: true,
-      });
+  $('img[data-accountid]').each(function () {
+    $(this).mdBusinessCard({
+      reset: true,
+      chatByLink: true,
     });
   });
 };
@@ -724,11 +674,11 @@ Search.selectProject = function () {
   $('.projects').on('click', '.projectNow', function (event) {
     $(this).siblings('ul').toggle();
   });
-  $(document).click(function (e) {
-    if (!(e.target === $('.projects')[0] || $.contains($('.projects')[0] || [], e.target))) {
-      $('.projects ul').hide();
-    }
-  });
+  // $(document).click(function (e) {
+  //   if (!(e.target === $('.projects')[0] || $.contains($('.projects')[0] || [], e.target))) {
+  //     $('.projects ul').hide();
+  //   }
+  // });
   $('.projects')
     .on('click', 'ul li', function (event) {
       Search.options.projectId = $(this).attr('projectId');
@@ -754,12 +704,12 @@ Search.selectPostAction = function () {
   $('.postSelectBox').on('click', function (event) {
     $(this).find('ul').toggle();
   });
-  $(document).click(function (e) {
-    var $target = $(e.target);
-    if (!$target.closest('.postSelectBox').length) {
-      $('.postSelectBox ul').hide();
-    }
-  });
+  // $(document).click(function (e) {
+  //   var $target = $(e.target);
+  //   if (!$target.closest('.postSelectBox').length) {
+  //     $('.postSelectBox ul').hide();
+  //   }
+  // });
   $('.postSelectBox')
     .on('click', 'li', function () {
       var $this = $(this);
@@ -780,4 +730,4 @@ Search.selectPostAction = function () {
     });
 };
 
-module.exports = Search;
+export default Search;

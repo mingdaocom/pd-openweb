@@ -4,7 +4,7 @@ import * as actions from './redux/actions';
 import { WingBlank, WhiteSpace, Card, Flex, ActionSheet, Modal, ActivityIndicator, Button, Switch } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import Back from '../components/Back';
-import { ROLE_TYPES, ROLE_CONFIG } from 'pages/Roles/config';
+import { ROLE_TYPES, ROLE_CONFIG } from 'src/pages/Role/config.js';
 import cx from 'classnames';
 import './index.less';
 

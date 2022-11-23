@@ -106,4 +106,4 @@ class VoteList extends React.Component {
   }
 }
 
-module.exports = connect(state => ({}))(VoteList);
+export default connect(state => ({}))(VoteList);

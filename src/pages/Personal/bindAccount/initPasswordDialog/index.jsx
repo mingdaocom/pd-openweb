@@ -112,6 +112,7 @@ export default class InitPasswordDialog extends React.Component {
               ticket: res.ticket,
               randStr: res.randstr,
               captchaType: md.staticglobal.getCaptchaType(),
+              needCheckCode: false,
             })
             .then(data => {
               if (data === 1) {

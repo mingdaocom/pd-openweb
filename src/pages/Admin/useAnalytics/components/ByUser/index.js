@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Icon, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import TableCom from '../TableCom';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import { usageStatisticsForDimension } from 'src/api/appManagement';
 import { getDepartmentFullNameByIds } from 'src/api/department';
 import UserHead from 'src/pages/feed/components/userHead';
@@ -188,8 +188,7 @@ export default class ByUser extends Component {
   handleSleelctUser = () => {
     const { projectId } = this.props;
     $({}).dialogSelectUser({
-      title: _l('添加人员'),
-      showMoreInvite: false,
+      fromAdmin: true,
       SelectUserSettings: {
         projectId,
         dataRange: 2,

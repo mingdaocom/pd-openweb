@@ -133,7 +133,7 @@ export default class ShowControlModal extends Component {
       const fieldsColumns = nextProps.fields.map(item => {
         return _.find(nextProps.relationControls, { controlId: item.controlId });
       });
-      const titleControl = _.find(nextProps.relationControls, { attribute: 1 });
+      const titleControl = _.find(nextProps.relationControls, { attribute: 1 }) || {};
       const titleField = {
         controlId: titleControl.controlId,
         controlName: titleControl.controlName,
@@ -211,7 +211,7 @@ export default class ShowControlModal extends Component {
   }
   renderFooter() {
     return (
-      <div className="mTop15 mBottom10 pRight8">
+      <div className="mTop20 mBottom10 pRight8">
         <ConfigProvider autoInsertSpaceInButton={false}>
           <Button type="link" onClick={() => { this.props.onHideDialogVisible(false) }}>{_l('取消')}</Button>
           <Button type="primary" onClick={this.handleSave}>{_l('确认')}</Button>

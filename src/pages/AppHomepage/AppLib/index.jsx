@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { upgradeVersionDialog } from 'src/util';
 import { LoadDiv } from 'ming-ui';
 import * as actions from 'src/pages/chat/redux/actions';
+import { emitter } from 'src/util';
 
 @connect(_ => ({}))
 class AppLib extends Component {
@@ -12,6 +13,7 @@ class AppLib extends Component {
     let str = 'https://alifile.mingdaocloud.com/open/js/applibrary.js' + '?' + moment().format('YYYYMMDD');
     this.state = {
       str,
+      projectId: localStorage.getItem('currentProjectId'),
     };
   }
   componentDidMount() {
@@ -21,7 +23,7 @@ class AppLib extends Component {
     const { Config = {}, Account = {} } = global;
     const { AppFileServer = '', IsLocal } = Config;
     const { accountId = '', projects = [], avatar } = Account;
-
+    emitter.addListener('CHANGE_CURRENT_PROJECT', this.reload);
     loadScript(this.state.str, err => {
       if (!err && window.MDLibrary) {
         window.MDLibrary({
@@ -44,15 +46,21 @@ class AppLib extends Component {
         });
       }
     });
-    $('.libraryEntry.active').on('click', () => {
-      location.href = '/app/lib';
-    });
   }
+
   componentWillUnmount() {
     let divStr = $(`script[src="${this.state.str}"]`);
     divStr.length > 0 && divStr.remove();
     $('html').removeClass('appListPage');
+    emitter.removeListener('CHANGE_CURRENT_PROJECT', this.reload);
   }
+
+  reload = () => {
+    const projectId = localStorage.getItem('currentProjectId');
+    if (projectId !== this.state.projectId) {
+      location.href = `/app/lib?projectId=${projectId}`;
+    }
+  };
 
   render() {
     return (

@@ -1,41 +1,39 @@
-import mdFunction from 'mdFunction';
+import { existAccountHint } from 'src/components/common/function';
 import * as ajax from './ajax';
 import Constant from './constant';
+import 'src/components/dialogSelectUser/dialogSelectUser';
+import Invite from 'src/components/common/inviteMember/inviteMember';
 
 const showInviteBox = options => {
-  require(['src/components/dialogSelectUser/dialogSelectUser'], () => {
-    let param = {
-      sourceId: options.sourceId,
-      fromType: options.fromType,
-      isChat: true,
-      SelectUserSettings: {
-        filterAccountIds: options.filterList || [md.global.Account.accountId],
-        callback(data) {
-          if (typeof options.callback === 'function') {
-            options.callback(data);
-          }
-        },
+  let param = {
+    sourceId: options.sourceId,
+    fromType: options.fromType,
+    isChat: true,
+    SelectUserSettings: {
+      filterAccountIds: options.filterList || [md.global.Account.accountId],
+      callback(data) {
+        if (typeof options.callback === 'function') {
+          options.callback(data);
+        }
       },
-      ChooseInviteSettings: {
-        callback(data, cb) {
-          if (typeof options.inviteCallback === 'function') {
-            options.inviteCallback(data, cb);
-          }
-        },
+    },
+    ChooseInviteSettings: {
+      callback(data, cb) {
+        if (typeof options.inviteCallback === 'function') {
+          options.inviteCallback(data, cb);
+        }
       },
-    };
+    },
+  };
 
-    param = $.extend(param, {
-      showMoreInvite: options.showMoreInvite !== false,
-    });
-    $('body').dialogSelectUser(param);
+  param = $.extend(param, {
+    showMoreInvite: options.showMoreInvite !== false,
   });
+  $('body').dialogSelectUser(param);
 };
 
 const inviteFriend = (accounts, cb) => {
-  require(['src/components/common/inviteMember/inviteMember'], Invite => {
-    Invite.inviteToFriend(accounts, cb);
-  });
+  Invite.inviteToFriend(accounts, cb);
 };
 
 export const addGroupMembers = session => {
@@ -73,7 +71,7 @@ export const addGroupMembers = session => {
         })
         .then(data => {
           const accountInfos = data.results[0].accountInfos || [];
-          mdFunction.existAccountHint(data);
+          existAccountHint(data);
           // console.log('addMembers', accountInfos);
         });
     } else if (type === Constant.SESSIONTYPE_USER) {
@@ -108,7 +106,7 @@ export const addGroupMembers = session => {
         })
         .then(data => {
           const accountInfos = data.results[0].accountInfos || [];
-          mdFunction.existAccountHint(data, cb);
+          existAccountHint(data, cb);
           // console.log('inviteCallback addMembers', accountInfos);
         });
     }

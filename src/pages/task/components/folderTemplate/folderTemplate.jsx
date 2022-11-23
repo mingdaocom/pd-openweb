@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import ajaxRequest from 'src/api/taskCenter';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 import CreateFolder from '../createFolder/createFolder';
 import { navigateTo } from 'src/router/navigateTo';
 import { errorMessage } from '../../utils/utils';

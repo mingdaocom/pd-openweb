@@ -68,4 +68,4 @@ RoleAuthCommon.formatRoleAuth = function(role, removeRoleModule = true) {
   }
 };
 
-module.exports = RoleAuthCommon;
+export default RoleAuthCommon;

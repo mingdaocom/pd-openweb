@@ -177,7 +177,7 @@ export default class FeiShu extends React.Component {
                 value={!this.state[`isShow${strId}`] ? this.state[`${strId}Format`] : this.state[strId]}
               />
               <Icon
-                icon={!this.state[`isShow${strId}`] ? 'circulated' : 'public-folder-hidden'}
+                icon={!this.state[`isShow${strId}`] ? 'circulated' : 'visibility_off'}
                 className="Gray_9e Font18 isShowIcon"
                 onClick={() => {
                   this.setState({

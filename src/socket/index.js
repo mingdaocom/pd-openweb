@@ -1,5 +1,6 @@
 import io from 'socket.io-client';
 import { wsexcelSocketInit } from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ImportDataFromExcel';
+import { wsexcelbatchSocketInit } from 'src/pages/worksheet/components/DialogImportExcelCreate/index.js';
 import workflowSocketInit from 'src/pages/workflow/socket';
 import worksheetSocket from 'worksheet/components/socket';
 import appSocketInit from 'src/pages/Admin/appManagement/socket';
@@ -42,4 +43,6 @@ export default () => {
   exportPivotTableSocket();
   // 自定义通知
   customNotice();
+
+  wsexcelbatchSocketInit();
 };

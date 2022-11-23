@@ -6,7 +6,7 @@ import { getProjectLicenseSupportInfo } from 'src/api/project';
 import { getProcessUseCount } from 'src/pages/workflow/api/processVersion';
 import { selectDateList, dateDimension, formatter } from '../../util';
 import { formatValue } from 'src/pages/Admin/homePage/config.js';
-import DialogSelectDept from 'dialogSelectDept';
+import DialogSelectDept from 'src/components/dialogSelectDept';
 import LineChart from '../LineChart';
 import loadingSvg from '../loading.svg';
 import axios from 'axios';
@@ -345,6 +345,7 @@ export default class Overview extends Component {
     new DialogSelectDept({
       projectId,
       unique: true,
+      fromAdmin: true,
       showCreateBtn: false,
       checkIncludeChilren: true,
       allProject: true,

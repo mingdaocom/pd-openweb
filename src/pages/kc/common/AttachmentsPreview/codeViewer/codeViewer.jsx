@@ -4,7 +4,7 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import { func, string, any } from 'prop-types';
 import { renderCode, renderMarkdown, renderTxt } from './core';
 import { PREVIEW_TYPE } from '../constant/enum';
-require('./codeViewer.less');
+import './codeViewer.less';
 
 const renderFn = {
   [String(PREVIEW_TYPE.CODE)]: renderCode,

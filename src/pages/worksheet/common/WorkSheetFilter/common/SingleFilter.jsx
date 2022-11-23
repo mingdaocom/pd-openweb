@@ -139,6 +139,7 @@ export default class SingleFilter extends Component {
       sourceControlId,
       globalSheetControls,
       filterDept,
+      filterResigned = true,
     } = this.props;
     const { relationType, conditions } = this.state;
     return conditions.map((condition, index) => {
@@ -163,6 +164,7 @@ export default class SingleFilter extends Component {
           isSheetFieldError={isSheetFieldError}
           relationType={relationType}
           control={control}
+          filterResigned={filterResigned}
           columns={this.props.columns}
           currentColumns={currentColumns}
           relateSheetList={relateSheetList} // 除去自身的本表的关联单条的数据

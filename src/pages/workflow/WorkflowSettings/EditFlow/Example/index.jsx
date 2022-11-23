@@ -37,7 +37,7 @@ export default class Example extends Component {
   }
 
   render() {
-    const { item, disabled, selectNodeId, openDetail } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail } = this.props;
 
     return (
       <div className="flexColumn">
@@ -49,7 +49,7 @@ export default class Example extends Component {
               { errorShadow: !!item.formulaValue && item.isException }, // 错误条件
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(item.id, item.typeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
               <i className={cx('workflowAvatar icon-workflow_function', item.formulaValue ? 'BGBlueAsh' : 'BGGray')} />

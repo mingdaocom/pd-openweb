@@ -3,10 +3,9 @@ import { connect } from 'react-redux';
 import { errorMessage, checkIsProject } from '../../utils/utils';
 import { clearFolderTip } from '../../redux/actions';
 import './folderDetail.less';
-import 'quickSelectUser';
-import 'dialogSelectUser';
+import 'src/components/quickSelectUser/quickSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import cx from 'classnames';
-import Confirm from 'confirm';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Icon from 'ming-ui/components/Icon';
 import ajaxRequest from 'src/api/taskCenter';
@@ -17,6 +16,7 @@ import ScrollView from 'ming-ui/components/ScrollView';
 import UserHead from 'src/pages/feed/components/userHead';
 import RichText from 'ming-ui/components/RichText';
 import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
+import Dialog from 'ming-ui/components/Dialog/Dialog';
 class FolderDetail extends Component {
   constructor(props) {
     super(props);
@@ -39,7 +39,7 @@ class FolderDetail extends Component {
     this.getFolderDetail();
 
     // tips
-    $('#tasks').on('mouseover', '.folderDetailHead .icon-help', function () {
+    $('#tasks').on('mouseover', '.folderDetailHead .icon-help', function() {
       const _this = $(this);
       if (_this.data('bindtip')) {
         return;
@@ -216,7 +216,7 @@ class FolderDetail extends Component {
     const that = this;
     const { data } = this.state;
 
-    evt.find('.updateFolderCharge').on('click', function () {
+    evt.find('.updateFolderCharge').on('click', function() {
       $(this).dialogSelectUser({
         sourceId: data.folderID,
         title: _l('选择负责人'),
@@ -569,35 +569,39 @@ class FolderDetail extends Component {
       msg = _l('确定退出该项目？');
     }
 
-    new Confirm({ content: msg }, () => {
-      ajaxRequest
-        .removeFolderMember({
-          folderID: that.props.taskConfig.folderId,
-          accountID: accountId,
-          isRemoveTaskMember: false,
-        })
-        .then(source => {
-          if (source.status) {
-            if (accountId === md.global.Account.accountId) {
-              alert(_l('退出成功'));
+    Dialog.confirm({
+      title: '',
+      description: msg,
+      onOk: () => {
+        ajaxRequest
+          .removeFolderMember({
+            folderID: that.props.taskConfig.folderId,
+            accountID: accountId,
+            isRemoveTaskMember: false,
+          })
+          .then(source => {
+            if (source.status) {
+              if (accountId === md.global.Account.accountId) {
+                alert(_l('退出成功'));
 
-              if (location.href.indexOf('application') > -1) {
-                location.reload();
+                if (location.href.indexOf('application') > -1) {
+                  location.reload();
+                } else {
+                  $(".folderList .commFolder[data-id='" + that.props.taskConfig.folderId + "']").remove();
+                  $('#taskNavigator .taskType li:first').click(); // 我的任务
+                }
               } else {
-                $(".folderList .commFolder[data-id='" + that.props.taskConfig.folderId + "']").remove();
-                $('#taskNavigator .taskType li:first').click(); // 我的任务
+                const data = _.cloneDeep(that.state.data);
+                _.remove(data.admins, item => item.accountID === accountId);
+                _.remove(data.ordinaryMembers, item => item.accountID === accountId);
+                that.setState({ data });
+                alert(_l('移除成功'));
               }
             } else {
-              const data = _.cloneDeep(that.state.data);
-              _.remove(data.admins, item => item.accountID === accountId);
-              _.remove(data.ordinaryMembers, item => item.accountID === accountId);
-              that.setState({ data });
-              alert(_l('移除成功'));
+              errorMessage(source.error);
             }
-          } else {
-            errorMessage(source.error);
-          }
-        });
+          });
+      },
     });
   }
 
@@ -642,21 +646,25 @@ class FolderDetail extends Component {
   refuseFolderMember(accountId) {
     const that = this;
 
-    new Confirm({ content: _l('确认拒绝该成员？') }, () => {
-      ajaxRequest
-        .refuseFolderMember({
-          folderID: that.props.taskConfig.folderId,
-          accountID: accountId,
-        })
-        .then(source => {
-          if (source.status) {
-            const data = _.cloneDeep(that.state.data);
-            _.remove(data.applyMembers, item => item.accountID === accountId);
-            that.setState({ data });
-          } else {
-            errorMessage(source.error);
-          }
-        });
+    Dialog.confirm({
+      title: '',
+      description: _l('确认拒绝该成员？'),
+      onOk: () => {
+        ajaxRequest
+          .refuseFolderMember({
+            folderID: that.props.taskConfig.folderId,
+            accountID: accountId,
+          })
+          .then(source => {
+            if (source.status) {
+              const data = _.cloneDeep(that.state.data);
+              _.remove(data.applyMembers, item => item.accountID === accountId);
+              that.setState({ data });
+            } else {
+              errorMessage(source.error);
+            }
+          });
+      },
     });
   }
 

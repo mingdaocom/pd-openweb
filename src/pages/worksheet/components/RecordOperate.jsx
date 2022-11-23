@@ -117,6 +117,7 @@ export default function RecordOperate(props) {
     preMenuItems = [],
     popupContainer,
     from,
+    relateRecordControlId,
     isCharge,
     projectId,
     appId,
@@ -315,6 +316,7 @@ export default function RecordOperate(props) {
                           worksheetId,
                           viewId,
                           rowIds: [recordId],
+                          relateRecordControlId,
                         },
                         newRows => {
                           onCopySuccess(newRows[0], recordId);

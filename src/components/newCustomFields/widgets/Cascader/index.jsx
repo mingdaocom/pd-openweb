@@ -61,9 +61,14 @@ export default class Widgets extends Component {
     if (!_.isUndefined(visible) && visible) {
       this.setState({ visible: true, popupVisible: true }, () => {
         this.loadData();
-        if (this.treeSelectComp.current) {
-          this.treeSelectComp.current.focus();
-        }
+        setTimeout(() => {
+          if (this.treeSelectComp.current) {
+            this.treeSelectComp.current.focus();
+          }
+          if (this.cascader) {
+            this.cascader.focus();
+          }
+        }, 30);
       });
     }
   }

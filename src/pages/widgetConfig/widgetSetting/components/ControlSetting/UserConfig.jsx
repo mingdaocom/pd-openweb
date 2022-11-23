@@ -95,7 +95,7 @@ export default function UserConfig({ globalSheetInfo, data, onChange }) {
         onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }));
       };
 
-      import('dialogSelectUser').then(() => {
+      import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
         $({}).dialogSelectUser({
           showMoreInvite: false,
           SelectUserSettings: {

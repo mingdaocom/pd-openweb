@@ -8,7 +8,7 @@ import CustomFields from 'src/components/newCustomFields';
 import { Hr } from 'worksheet/components/Basics';
 import { addWorksheetRow } from './action';
 import { getSubListError, filterHidedSubList } from 'worksheet/util';
-import { checkMobileVerify } from 'src/components/newCustomFields/tools/utils';
+import { checkMobileVerify, controlState } from 'src/components/newCustomFields/tools/utils';
 import './index.less';
 
 const ImgCon = styled.div`
@@ -285,7 +285,12 @@ export default class FillWorkseet extends React.Component {
           )}
         </div>
         <div className="submitCon">
-          <Button loading={submitLoading} style={{ height: '40px', lineHeight: '40px' }} onClick={this.handleSubmit}>
+          <Button
+            disabled={!formData.filter(c => controlState(c, 4).visible).length}
+            loading={submitLoading}
+            style={{ height: '40px', lineHeight: '40px' }}
+            onClick={this.handleSubmit}
+          >
             <span className="InlineBlock ellipsis" style={{ maxWidth: 140 }}>
               {submitBtnName}
             </span>

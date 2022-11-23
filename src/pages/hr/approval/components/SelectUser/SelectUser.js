@@ -1,5 +1,5 @@
 import * as ajax from 'src/pages/hr/approval/api/system';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 
 /**
  * hr 审批用的选人

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import SheetView from 'worksheet/views/SheetView';
 import BoardView from './BoardView';
 import HierarchyView from './HierarchyView';
+import { navigateTo } from 'src/router/navigateTo';
 import GalleryView from 'worksheet/views/GalleryView';
 import CalendarView from 'worksheet/views/CalendarView';
 import GunterView from 'worksheet/views/GunterView/enter';
@@ -32,7 +33,7 @@ const TYPE_TO_COMP = {
   [gunter]: GunterView,
 };
 function View(props) {
-  const { loading, view, showAsSheetView } = props;
+  const { loading, error, view, showAsSheetView } = props;
   let activeViewStatus = props.activeViewStatus;
   if (loading) {
     return (
@@ -81,20 +82,27 @@ function View(props) {
 
   if (_.isEmpty(view) && !props.chartId) {
     // 图表引用视图允许不存在 viewId
+    if (window.redirected && viewProps.appId && viewProps.groupId && viewProps.worksheetId) {
+      navigateTo(`/app/${viewProps.appId}/${viewProps.groupId}/${viewProps.worksheetId}`, true);
+    }
     activeViewStatus = -10000;
   }
 
   const Component = TYPE_TO_COMP[String(showAsSheetView ? sheet : view.viewType)];
-
   return (
     <Con>
-      {!Component || activeViewStatus !== 1 ? <UnNormal resultCode={activeViewStatus} /> : <Component {...viewProps} />}
+      {!Component || activeViewStatus !== 1 ? (
+        <UnNormal resultCode={error ? -999999 : activeViewStatus} />
+      ) : (
+        <Component {...viewProps} />
+      )}
     </Con>
   );
 }
 
 View.propTypes = {
   loading: PropTypes.bool,
+  error: PropTypes.bool,
   view: PropTypes.shape({}),
   activeViewStatus: PropTypes.number,
 };

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Dialog, Icon, Input, RadioGroup } from 'ming-ui';
 import { Select, Checkbox } from 'antd';
-import DialogSelectDept from 'dialogSelectDept';
+import DialogSelectDept from 'src/components/dialogSelectDept';
 import DialogSelectJob from 'src/components/DialogSelectJob';
 import { updateDepartmentForUsers, updateJobForUsers, updateWorkSiteForUsers, batchResetPassword } from 'src/api/user';
 import { getWorkSites } from 'src/api/workSite';
@@ -53,6 +53,7 @@ export default class DialogBatchEdit extends Component {
     new DialogSelectDept({
       projectId,
       unique: false,
+      fromAdmin: true,
       showCreateBtn: false,
       selectedDepartment: departmentInfos,
       selectFn(departments) {

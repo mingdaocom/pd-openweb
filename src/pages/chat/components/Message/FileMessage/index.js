@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { handleMessageFilePreview } from '../MessageToolbar';
-import previewAttachments from 'previewAttachments';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import Constant from '../../../utils/constant';
 import './index.less';
 import { formatFileSize, getClassNameByExt } from 'src/util';

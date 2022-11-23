@@ -54,6 +54,7 @@ export default function RowHead(props) {
     pageIndex,
     pageSize,
     recordId,
+    relateRecordControlId,
     deleteRelateRow,
     addReocord = () => {},
     saveSheetLayout = () => {},
@@ -97,6 +98,7 @@ export default function RowHead(props) {
           (recordId ? (
             <RecordOperate
               {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId }}
+              relateRecordControlId={relateRecordControlId}
               allowCopy
               allowAdd={allowAdd}
               isRelateRecordTable

@@ -15,8 +15,8 @@ import {
   Switch,
 } from 'antd-mobile';
 import { Icon, Dialog } from 'ming-ui';
-import DialogSelectDept from 'dialogSelectDept';
-import { ROLE_TYPES, ROLE_CONFIG } from 'pages/Roles/config';
+import DialogSelectDept from 'src/components/dialogSelectDept';
+import { ROLE_TYPES, ROLE_CONFIG } from 'src/pages/Role/config.js';
 import noMmberImg from '../img/noMember.png';
 import Back from '../../components/Back';
 import SelectUser from '../../components/SelectUser';
@@ -170,15 +170,11 @@ class MemberList extends Component {
   };
 
   handleSave = items => {
-    const { detail, list } = this.props.memberList;
+    const { detail } = this.props.memberList;
     const { params } = this.props.match;
     const { type, selectDepartmentType } = this.state;
-    const data = list.filter(item => {
-      return item.roleId === params.roleId;
-    })[0];
-    const depIds = data.departmentsInfos.map(dept => dept.departmentId);
-    const departments = items.filter(o => depIds.indexOf(o.departmentId) === -1);
-    const departmentIds = _.map(departments, ({ departmentId }) => departmentId);
+
+    const departmentIds = _.map(items, ({ departmentId }) => departmentId);
 
     this.props.dispatch(
       actions.addRoleMembers({

@@ -1,5 +1,6 @@
-import 'mdDialog';
-var doT = require('dot');
+import 'src/components/mdDialog/dialog';
+import doT from '@mdfe/dot';
+import tpl from './tpl/alipayDialog.html';
 var PayDia = {};
 
 PayDia.options = {
@@ -14,7 +15,7 @@ PayDia.init = function (opts) {
     dialogBoxID: 'PayDialogBox',
     width: 460,
     container: {
-      content: doT.template(require('./tpl/alipayDialog.html'))({
+      content: doT.template(tpl)({
         url: PayDia.options.url,
       }),
       noText: '',
@@ -30,4 +31,4 @@ PayDia.init = function (opts) {
   return dialog;
 };
 
-module.exports = PayDia;
+export default PayDia;

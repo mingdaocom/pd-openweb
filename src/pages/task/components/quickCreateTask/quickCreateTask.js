@@ -1,11 +1,11 @@
 ﻿import './css/quickCreateTask.less';
-import doT from 'dot';
+import doT from '@mdfe/dot';
 import ajaxRequest from 'src/api/taskCenter';
-import 'mdDatePicker';
-import 'mdBusinessCard';
-import 'quickSelectUser';
-import 'dialogSelectUser';
-import mdFunction from 'mdFunction';
+import 'src/components/mdDatePicker/mdDatePicker';
+import 'src/components/mdBusinessCard/mdBusinessCard';
+import 'src/components/quickSelectUser/quickSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
+import { expireDialogAsync } from 'src/components/common/function';
 import quickCreateTask from './tpl/quickCreateTask.html';
 import { errorMessage, checkIsProject } from '../../utils/utils';
 import Store from 'redux/configureStore';
@@ -46,7 +46,7 @@ class QuickCreateTask {
       }
     };
 
-    mdFunction.expireDialogAsync(this.settings.projectId).then(() => {
+    expireDialogAsync(this.settings.projectId).then(() => {
       createDom();
     });
   }

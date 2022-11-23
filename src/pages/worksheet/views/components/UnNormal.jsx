@@ -11,7 +11,7 @@ const UnNormalWrap = styled.div`
   background: #f5f5f5;
   overflow: hidden;
   .unNormalContent {
-    flex:1;
+    flex: 1;
     margin: 15px;
     border-radius: 4px;
     background: #fff;
@@ -41,13 +41,18 @@ const CODE_TYPE = {
   7: {
     src: withoutPermission,
     text: _l('视图无权限'),
-  }
-}
+  },
+};
 
 const UnNormal = props => {
-  const { resultCode } = props;
-  const { src, text } = CODE_TYPE[resultCode] || { src: abnormal, text: _l('服务异常，请 %0 后重试', `<a onclick="location.reload()">${_l('刷新')}</a>`) };
-
+  const { resultCode, errorText } = props;
+  let { src, text } = CODE_TYPE[resultCode] || {
+    src: abnormal,
+    text: _l('服务异常，请 %0 后重试', `<a onclick="location.reload()">${_l('刷新')}</a>`),
+  };
+  if (errorText) {
+    text = errorText;
+  }
   return (
     <UnNormalWrap>
       <div className="unNormalContent flexColumn">

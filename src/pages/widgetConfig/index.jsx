@@ -207,7 +207,7 @@ export default function Container(props) {
         setWidgets(nextWidgets);
         $originControls.current = flattenControls;
         setInfo({ version });
-        setStatus({ saved: true, saveIndex: status.saveIndex + 1 });
+        setStatus({ saved: true, saveIndex: status.saveIndex + 1, modify: false });
 
         localStorage.removeItem(`worksheetConfig-${sourceId}`);
 

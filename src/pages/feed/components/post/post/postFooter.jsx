@@ -70,4 +70,4 @@ PostFooter.propTypes = {
   detailUrl: PropTypes.string,
 };
 
-module.exports = PostFooter;
+export default PostFooter;

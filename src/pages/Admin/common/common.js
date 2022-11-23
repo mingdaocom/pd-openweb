@@ -1,13 +1,13 @@
 ﻿import { navigateTo } from 'router/navigateTo';
 import { upgradeVersionDialog } from 'src/util';
 var AdminCommon = {};
-var Config = require('../config');
+import Config from '../config';
 var RoleController = require('src/api/role');
-import 'md.select';
+import 'src/components/select/select';
 import './common.less';
-
-var JqueryWrapper = require('ming-ui/utils/JQueryWrapper').default;
-var MultipleDropdown = require('ming-ui/components/MultipleDropdown').default;
+import { expireDialogAsync } from 'src/components/common/function';
+import JqueryWrapper from 'ming-ui/utils/JQueryWrapper';
+import MultipleDropdown from 'ming-ui/components/MultipleDropdown';
 JqueryWrapper(MultipleDropdown, {
   name: 'reactMultipleDropdown',
 });
@@ -114,18 +114,16 @@ AdminCommon.initProjectSelect = function() {
       if (value === Config.projectId) {
         return;
       }
-      require(['mdFunction'], function(Function) {
-        Function.expireDialogAsync(value).then(
-          function() {
-            const params = Config.params.concat();
-            params[2] = value;
-            navigateTo('/' + params.join('/'));
-          },
-          function() {
-            $adminProjects.MDSelect('setValue', Config.projectId, currentCompanyName);
-          },
-        );
-      });
+      expireDialogAsync(value).then(
+        function() {
+          const params = Config.params.concat();
+          params[2] = value;
+          navigateTo('/' + params.join('/'));
+        },
+        function() {
+          $adminProjects.MDSelect('setValue', Config.projectId, currentCompanyName);
+        },
+      );
     },
   });
 };
@@ -138,4 +136,4 @@ AdminCommon.freeUpdateDialog = () => {
   });
 };
 
-module.exports = AdminCommon;
+export default AdminCommon;

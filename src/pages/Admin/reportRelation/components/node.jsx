@@ -13,9 +13,8 @@ import {
   fetchSubordinates,
 } from '../actions';
 import { selectUser } from '../common';
-import Confirm from 'confirm';
 
-import { Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, Dialog } from 'ming-ui';
 import Item from './item';
 import NoData from './noData';
 import styled from 'styled-components';
@@ -141,14 +140,10 @@ class Node extends Component {
 
   remove() {
     const { id, parentId, fullname, dispatch } = this.props;
-    const confirm = new Confirm(
-      {
-        title: _l('确认移除 %0 ?', fullname),
-        content: '移除后，其下属成员也将从汇报关系中移除',
-        cancel: _l('取消'),
-        confirm: _l('确认'),
-      },
-      function () {
+    Dialog.confirm({
+      title: _l('确认移除 %0 ?', fullname),
+      description: _l('移除后，其下属成员也将从汇报关系中移除'),
+      onOk: () => {
         dispatch(
           removeStructure({
             parentId,
@@ -156,7 +151,7 @@ class Node extends Component {
           }),
         );
       },
-    );
+    });
   }
 
   renderItem() {

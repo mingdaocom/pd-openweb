@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-
+import '@mdfe/nanoscroller';
 import './style.less';
 import { FREQUENCY, RECURTYPE, MEMBER_STATUS } from './constant';
-
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import { Config } from './index';
 import * as Common from './common';
-import { inviteCalendar } from '../comm/comm';
+import Comm from '../comm/comm';
 import { default as postMessageDialog } from './lib/postMessage';
 import { addToken } from 'src/util';
 
@@ -17,7 +17,7 @@ import CalendarMain from './container/CalendarMain';
 import CalendarComments from './container/CalendarComments';
 import CalendarCommenter from './container/CalendarCommenter';
 import ScrollView from 'ming-ui/components/ScrollView';
-import 'createTask';
+import 'src/components/createTask/createTask';
 
 const getStateIsRecurChange = (oldState, state) => {
   // 重复日程改变
@@ -120,23 +120,15 @@ export default class CalendarDetail extends Component {
       var $nano = $(this.scrollView.nanoScroller);
       var $nanoContent = $nano.find('.nano-content');
       var $commentList = $nano.find('.calendarComments');
-      require(['nanoScroller'], () => {
-        if (
-          $nanoContent.get(0).scrollTop > $commentList.get(0).offsetTop ||
-          $nanoContent.get(0).scrollTop + $nanoContent.height() < $commentList.get(0).offsetTop
-        ) {
-          $(this.scrollView.nanoScroller).nanoScroller({
-            scrollTo: $commentList,
-          });
-        }
-      });
+      if (
+        $nanoContent.get(0).scrollTop > $commentList.get(0).offsetTop ||
+        $nanoContent.get(0).scrollTop + $nanoContent.height() < $commentList.get(0).offsetTop
+      ) {
+        $(this.scrollView.nanoScroller).nanoScroller({
+          scrollTo: $commentList,
+        });
+      }
     }
-  }
-
-  componentDidUpdate() {
-    // setTimeout(() => {
-    //   this.changeDialogHeight();
-    // }, 300);
   }
 
   componentDidMount() {
@@ -262,11 +254,11 @@ export default class CalendarDetail extends Component {
     };
     const confirm = () => {
       const { id, recurTime, catID } = this.state;
-      inviteCalendar.confirm(id, recurTime, catID);
+      Comm.inviteCalendar.confirm(id, recurTime, catID);
     };
     const refuse = () => {
       const { id, recurTime, catID } = this.state;
-      inviteCalendar.refuse(id, recurTime, catID);
+      Comm.inviteCalendar.refuse(id, recurTime, catID);
     };
     const actionProps = {
       // variable
@@ -406,51 +398,49 @@ export default class CalendarDetail extends Component {
         });
       };
 
-      require(['dialogSelectUser'], function () {
-        $({}).dialogSelectUser({
-          sourceId: originRecur && isChildCalendar ? id + '|' + recurTime : id,
-          fromType: 5,
-          SelectUserSettings: {
-            filterAccountIds: members.map(user => user.accountID),
-            callback: function (users) {
-              Common.addMember(
-                {
-                  members,
-                  users,
-                },
-                {
-                  recurTime,
-                  originRecur,
-                  id,
-                  isChildCalendar,
-                }
-              ).then(addMemberCallback);
-            },
+      $({}).dialogSelectUser({
+        sourceId: originRecur && isChildCalendar ? id + '|' + recurTime : id,
+        fromType: 5,
+        SelectUserSettings: {
+          filterAccountIds: members.map(user => user.accountID),
+          callback: function (users) {
+            Common.addMember(
+              {
+                members,
+                users,
+              },
+              {
+                recurTime,
+                originRecur,
+                id,
+                isChildCalendar,
+              }
+            ).then(addMemberCallback);
           },
-          ChooseInviteSettings: {
-            callback: function (users, callback) {
-              Common.addMember(
-                {
-                  members,
-                  users,
-                },
-                {
-                  recurTime,
-                  originRecur,
-                  id,
-                  isChildCalendar,
-                }
-              ).then(args => {
-                addMemberCallback(args);
-                const { source: { code } } = args;
-                // 外部用户回调
-                callback({
-                  status: code,
-                });
+        },
+        ChooseInviteSettings: {
+          callback: function (users, callback) {
+            Common.addMember(
+              {
+                members,
+                users,
+              },
+              {
+                recurTime,
+                originRecur,
+                id,
+                isChildCalendar,
+              }
+            ).then(args => {
+              addMemberCallback(args);
+              const { source: { code } } = args;
+              // 外部用户回调
+              callback({
+                status: code,
               });
-            },
+            });
           },
-        });
+        },
       });
     };
 

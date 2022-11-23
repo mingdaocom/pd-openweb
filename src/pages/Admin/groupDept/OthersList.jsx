@@ -6,7 +6,7 @@ import './index.less';
 import transferController from 'src/api/transfer';
 import Config from '../config';
 import DetailDialog from './DetailDialog';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 import ReactDom from 'react-dom';
 import Empty from '../common/TableEmpty'
 

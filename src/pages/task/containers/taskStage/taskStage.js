@@ -2,22 +2,22 @@
 import ReactDom from 'react-dom';
 import './css/taskStage.less';
 import { connect } from 'react-redux';
-import doT from 'dot';
+import doT from '@mdfe/dot';
 import ajaxRequest from 'src/api/taskCenter';
 import Score from 'ming-ui/components/Score';
 import { listLoadingContent } from '../../utils/taskComm';
 import { formatTaskTime, errorMessage, formatStatus, checkIsProject, returnCustonValue } from '../../utils/utils';
 import config from '../../config/config';
-import 'autoTextarea';
-import 'mdDatePicker';
-import 'quickSelectUser';
+import 'src/components/autoTextarea/autoTextarea';
+import 'src/components/mdDatePicker/mdDatePicker';
+import 'src/components/quickSelectUser/quickSelectUser';
 import nodeLiComm from './tpl/nodeLiComm.html';
 import stageList from './tpl/stageList.html';
 import addList from './tpl/addList.html';
 import addNewStage from './tpl/addNewStage.html';
 import addNewStageTask from './tpl/addNewStageTask.html';
-import 'mdDialog';
-import mdFunction from 'mdFunction';
+import 'src/components/mdDialog/dialog';
+import { expireDialogAsync } from 'src/components/common/function';
 import TaskDetail from '../taskDetail/taskDetail';
 
 const taskStageSettings = {
@@ -501,7 +501,7 @@ class TaskStage extends Component {
       });
 
       // 监测网络是否过期
-      mdFunction.expireDialogAsync(that.props.taskConfig.projectId).then(() => {
+      expireDialogAsync(that.props.taskConfig.projectId).then(() => {
         that.addNewTask($this.parent());
       });
       event.stopPropagation();

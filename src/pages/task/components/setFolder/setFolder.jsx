@@ -1,9 +1,9 @@
 ﻿import React, { Component } from 'react';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 import './less/setFolder.less';
 import ajaxRequest from 'src/api/taskCenter';
 import RadioGroup from 'ming-ui/components/RadioGroup';
-import 'tooltip';
+import 'src/components/tooltip/tooltip';
 
 export default class SetFolder extends Component {
   constructor(props) {

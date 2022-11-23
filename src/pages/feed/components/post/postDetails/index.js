@@ -1,1 +1,1 @@
-﻿module.exports = require('./postDetails');
+﻿export { default } from './postDetails';

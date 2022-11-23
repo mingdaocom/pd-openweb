@@ -4,6 +4,8 @@ import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import ConnectAvator from '../../components/ConnectAvator';
 import Card from './Card';
+import Item from './Item';
+import { CARD_TYE_LIST } from 'src/pages/integration/config';
 
 const Wrap = styled.div`
   padding: 0 24px 24px;
@@ -33,8 +35,39 @@ const Wrap = styled.div`
     }
   }
 `;
+
+function ItemCon(props) {
+  return (
+    <React.Fragment>
+      <Item
+        {...props}
+        title={_l('代码块')}
+        icon={'worksheet_API'}
+        support={'https://help.mingdao.com/integration.html#输入参数'}
+      />
+      <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
+    </React.Fragment>
+  );
+}
+
 export default function Set(props) {
+  const { flowNodeMap, startEventId } = _.get(props, ['info']) || {};
   const canEdit = props.connectInfo.type === 1 && props.isConnectOwner;
+  const [newPreId, setNewId] = useState('');
+  const [list, setList] = useState([]);
+  useEffect(() => {
+    let l = [];
+    const getList = startEventId => {
+      let data = flowNodeMap[startEventId];
+      l.push(data);
+      if (!!flowNodeMap[data.nextId]) {
+        getList(data.nextId);
+      }
+    };
+    getList(startEventId);
+    setList(l.filter(o => [23, 8, 21, 14].includes(o.typeId)));
+  }, []);
+
   return (
     <Wrap className="flexColumn">
       {(props.connectInfo || {}).name &&
@@ -77,34 +110,73 @@ export default function Set(props) {
             )}
           </div>
         )}
-      <Card
-        {...props}
-        className="mTop24"
-        typeId={23}
-        title={_l('输入参数')}
-        des={_l('输入参数用于在工作表或工作流中使用 API 查询时，可以传入动态值')}
-        icon={'input'}
-        support={'https://help.mingdao.com/integration.html#输入参数'}
-        canEdit={canEdit}
-      />
-      <Card
-        {...props}
-        typeId={8}
-        title={_l('API 请求参数')}
-        des={_l('配置发送 API 请求时需要的 Query Param、Header、Body 等请求参数')}
-        icon={'tune'}
-        support={'https://help.mingdao.com/integration.html#api请求配置'}
-        canEdit={canEdit}
-      />
-      <Card
-        {...props}
-        typeId={21}
-        title={_l('输出参数')}
-        des={_l('在 API 查询时，可以将输出参数的值绑定到工作表字段或被工作流节点引用')}
-        icon={'output'}
-        support={'https://help.mingdao.com/integration.html#输出参数'}
-        canEdit={canEdit}
-      />
+      <div className="mTop24"></div>
+      {list.map((o, i) => {
+        if ([23, 8, 21].includes(o.typeId)) {
+          let desInfo = CARD_TYE_LIST.find(item => o.typeId === item.typeId);
+          return (
+            <React.Fragment>
+              <Card
+                {...props}
+                nodeInfo={o}
+                typeId={o.typeId}
+                title={desInfo.title}
+                des={desInfo.des}
+                icon={desInfo.icon}
+                support={desInfo.support}
+                canEdit={canEdit}
+                canAdd={
+                  canEdit && //可编辑才可新增
+                  o.typeId !== newPreId && //正在编辑下一个新增代码块
+                  [23, 8].includes(o.typeId) && //目前就这两个节点后可以新增代码块
+                  ![14].includes(list[i + 1].typeId) //是否已新增了代码块
+                }
+                onAddId={typeId => {
+                  setNewId(typeId);
+                }}
+              />
+              {i < list.length - 1 && (
+                <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
+              )}
+              {newPreId === o.typeId && [23, 8].includes(o.typeId) && (
+                <ItemCon
+                  {...props}
+                  isNew={true}
+                  prveId={o.id}
+                  nodeInfo={null}
+                  des={
+                    newPreId !== 8
+                      ? _l('编写代码对输入参数进行处理后用于 API 请求参数，如计算签名等')
+                      : _l('编写代码对 API 请求结果进行处理后用于输出参数')
+                  }
+                  onChange={() => {
+                    setNewId('');
+                  }}
+                  canEdit={canEdit}
+                />
+              )}
+            </React.Fragment>
+          );
+        } else if (o.typeId == 14) {
+          return (
+            <ItemCon
+              {...props}
+              isNew={false}
+              prveId={o.prveId}
+              nodeInfo={o}
+              des={
+                list[i - 1].typeId !== 8
+                  ? _l('编写代码对输入参数进行处理后用于 API 请求参数，如计算签名等')
+                  : _l('编写代码对 API 请求结果进行处理后用于输出参数')
+              }
+              onChange={() => {
+                setNewId('');
+              }}
+              canEdit={canEdit}
+            />
+          );
+        }
+      })}
     </Wrap>
   );
 }

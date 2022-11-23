@@ -48,4 +48,4 @@ class UserFeed extends React.Component {
   }
 }
 
-module.exports = UserFeed;
+export default UserFeed;

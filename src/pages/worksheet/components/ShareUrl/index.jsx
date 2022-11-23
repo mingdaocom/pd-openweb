@@ -213,6 +213,7 @@ export default class ShareUrl extends React.Component {
                   <img src={qrurl} />
                   <p className="ThemeColor3">
                     <span
+                      className="Hand"
                       onClick={() => {
                         saveAs(qrurlDownload, 'qrcode.jpg');
                       }}

@@ -1,39 +1,7 @@
-﻿/*
- * @Author: cloudZQY
- * @Module: FilterSettings
- * @Description: 筛选设置，任务专用
- * @Date: 2018-03-27 10:40:18
- * @Last Modified by: cloudZQY
- * @Last Modified time: 2018-03-27 10:41:45
- */
-/*
- * @Author: cloudZQY
- * @Module: FilterSettings
- * @Description: 筛选设置，任务专用
- * @Date: 2018-03-27 10:40:18
- * @Last Modified by: cloudZQY
- * @Last Modified time: 2018-03-27 10:41:45
- */
-/*
- * @Author: cloudZQY
- * @Module: FilterSettings
- * @Description: 筛选设置，任务专用
- * @Date: 2018-03-27 10:40:18
- * @Last Modified by: cloudZQY
- * @Last Modified time: 2018-03-27 10:41:45
- */
-/*
- * @Author: cloudZQY
- * @Module: FilterSettings
- * @Description: 筛选设置，任务专用
- * @Date: 2018-03-27 10:40:18
- * @Last Modified by: cloudZQY
- * @Last Modified time: 2018-03-27 10:41:45
- */
-import React from 'react';
+﻿import React from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
-import 'tooltip';
+import 'src/components/tooltip/tooltip';
 import Checkbox from '../component/common/checkbox';
 import { changeWidgetData } from '../redux/actions';
 import config from '../config';

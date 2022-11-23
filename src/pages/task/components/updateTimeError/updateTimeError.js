@@ -1,4 +1,4 @@
-﻿import 'mdDialog';
+﻿import 'src/components/mdDialog/dialog';
 import './updateTimeError.less';
 
 const errorMessage = (startTime) => {

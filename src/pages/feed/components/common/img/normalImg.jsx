@@ -32,4 +32,4 @@ class NormalImg extends React.Component {
   }
 }
 
-module.exports = NormalImg;
+export default NormalImg;

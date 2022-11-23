@@ -43,7 +43,9 @@ class Textarea extends Component {
     $textarea.height(0).height(this.textarea.scrollHeight - diff);
     $textarea.on(events, function(event) {
       if (chat) {
-        $(this).height(0).height(this.scrollHeight - diff);
+        $(this)
+          .height(0)
+          .height(this.scrollHeight - diff);
       } else {
         $(this).height(this.scrollHeight - diff);
       }
@@ -111,6 +113,7 @@ class Textarea extends Component {
       ...rest
     } = this.props;
     const obj = value !== undefined ? { value } : { defaultValue };
+
     return (
       <textarea
         {...rest}

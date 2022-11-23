@@ -8,8 +8,7 @@ import * as sheetviewActions from 'src/pages/worksheet/redux/actions/sheetview.j
 import { refreshWorksheetControls } from 'worksheet/redux/actions';
 import { Modal, Drawer } from 'antd-mobile';
 import { Icon, Button } from 'ming-ui';
-import QuickFilter from 'mobile/RecordList/QuickFilter';
-import Search from 'mobile/RecordList/QuickFilter/Search';
+import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import SheetRows, { WithoutRows } from '../../SheetRows';
 import { Flex, ActivityIndicator } from 'antd-mobile';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -18,48 +17,6 @@ import worksheetAjax from 'src/api/worksheet';
 import { TextTypes } from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
 import RecordAction from 'mobile/Record/RecordAction';
 import { startProcess } from 'src/pages/workflow/api/process';
-
-const SearchWrapper = styled.div`
-  background-color: #f2f2f3;
-
-  .filterStepListWrapper {
-    -webkit-overflow-scrolling: touch;
-    position: inherit;
-    .am-drawer-sidebar {
-      z-index: 100;
-      border-radius: 14px 0 0 14px;
-      background-color: #fff;
-      overflow: hidden;
-      -webkit-overflow-scrolling: touch;
-    }
-    .am-drawer-overlay,
-    .am-drawer-content {
-      position: inherit;
-    }
-    &.am-drawer-open {
-      z-index: 100;
-      position: fixed;
-    }
-    &.bottom50 {
-      bottom: 50px;
-    }
-  }
-`;
-
-const FilterWrapper = styled.div`
-  background-color: #fff;
-  padding: 10px;
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 10px;
-  .active {
-    color: #33a3f4 !important;
-  }
-`;
 
 const BatchOptBtn = styled.div`
   display: flex;
@@ -141,9 +98,7 @@ class SheetView extends Component {
               <Button
                 className="addRecordBtn valignWrapper mTop10"
                 onClick={() => {
-                  window.mobileNavigateTo(
-                    `/mobile/addRecord/${appId}/${worksheetInfo.worksheetId}/${view.viewId}`,
-                  );
+                  window.mobileNavigateTo(`/mobile/addRecord/${appId}/${worksheetInfo.worksheetId}/${view.viewId}`);
                 }}
               >
                 <Icon icon="add" className="Font22 White" />
@@ -183,7 +138,9 @@ class SheetView extends Component {
     this.setState({ customButtonLoading: true });
     worksheetAjax
       .getWorksheetBtns({
-        appId, worksheetId, viewId
+        appId,
+        worksheetId,
+        viewId,
       })
       .then(data => {
         this.setState({
@@ -442,32 +399,7 @@ class SheetView extends Component {
   showRunInfo = flag => {
     this.setState({ runInfoVisible: flag });
   };
-  handleOpenDrawer = () => {
-    const { filters, updateFilters } = this.props;
-    updateFilters({ visible: !filters.visible });
-  };
-  renderSidebar(view) {
-    const { fastFilters = [] } = view;
-    const { worksheetInfo } = this.props;
-    const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
-    const filters = fastFilters
-      .map(filter => ({
-        ...filter,
-        control: _.find(sheetControls, c => c.controlId === filter.controlId),
-      }))
-      .filter(c => c.control);
-    return (
-      <QuickFilter
-        projectId={worksheetInfo.projectId}
-        appId={worksheetInfo.appId}
-        worksheetId={worksheetInfo.worksheetId}
-        view={view}
-        filters={filters}
-        controls={sheetControls}
-        onHideSidebar={this.handleOpenDrawer}
-      />
-    );
-  }
+
   render() {
     const {
       view,
@@ -519,30 +451,17 @@ class SheetView extends Component {
             <a onClick={this.selectedAll}>{_l('全选')}</a>
           </div>
         )}
-        <SearchWrapper className="searchWrapper flexRow valignWrapper pLeft12 pRight12 pTop15 pBottom5">
-          <Search textFilters={textFilters} />
-          {!_.isEmpty(excludeTextFilter) && (
-            <FilterWrapper>
-              <Icon
-                icon="filter"
-                className={cx('Font20 Gray_9e', { active: isFilter })}
-                onClick={this.handleOpenDrawer}
-              />
-            </FilterWrapper>
-          )}
-          <Drawer
-            className={cx('filterStepListWrapper', {
-              open: filters.visible,
-              bottom50: detail.appNaviStyle === 2 && location.href.includes('mobile/app'),
-            })}
-            position="right"
-            sidebar={_.isEmpty(view) ? null : this.renderSidebar(view)}
-            open={filters.visible}
-            onOpenChange={this.handleOpenDrawer}
-          >
-            <Fragment />
-          </Drawer>
-        </SearchWrapper>
+        <QuickFilterSearch
+          textFilters={textFilters}
+          excludeTextFilter={excludeTextFilter}
+          isFilter={isFilter}
+          filters={filters}
+          detail={detail}
+          view={view}
+          worksheetInfo={worksheetInfo}
+          sheetControls={sheetControls}
+          updateFilters={this.props.updateFilters}
+        />
         {this.renderContent()}
         {batchOptVisible && (canDelete || showCusTomBtn) && (
           <BatchOptBtn>

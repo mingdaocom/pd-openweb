@@ -26,7 +26,8 @@
   .workflowBox {
     padding: 16px 36px 0;
     position: relative;
-    &::before {
+    &::before,
+    ~ .workflowLineBtn::before {
       content: "";
       position: absolute;
       top: 0;
@@ -38,6 +39,42 @@
       height: 100%;
       background-color: #ccc;
     }
+  }
+  .workflowBoxPending {
+    .workflowExecLine,
+    .workflowExecTopLine,
+    .workflowExecBottomLine {
+      background-color: #ccc;
+    }
+  }
+  .workflowBoxBranchPending {
+    .workflowExecBottomLine {
+      background-color: #ccc;
+    }
+  }
+  .workflowExecLine {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    height: 100%;
+    width: 3px;
+    background-color: #2196f3;
+  }
+  .workflowExecTopLine,
+  .workflowExecBottomLine {
+    position: absolute;
+    height: 3px;
+    background-color: #2196f3;
+    z-index: 1;
+  }
+  .workflowExecTopLine {
+    top: 0;
+  }
+  .workflowExecBottomLine {
+    bottom: 0;
   }
   .workflowItem {
     width: 261px;
@@ -76,6 +113,9 @@
       .workflowContent {
         opacity: 0.5 !important;
       }
+      .workflowAvatar {
+        box-shadow: 0 0 30px 30px rgba(255, 255, 255, 0.5) inset;
+      }
     }
     .workflowAvatars {
       justify-content: center;
@@ -96,25 +136,7 @@
         text-align: center;
         color: #fff;
         line-height: 36px;
-        margin-left: -10px;
         box-sizing: initial;
-        &:first-child {
-          margin-left: 0;
-        }
-        &.workflowAvatarSmall {
-          width: 28px;
-          height: 28px;
-          line-height: 28px;
-          font-size: 18px;
-        }
-        &.workflowAvatarMore {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          margin-left: -32px;
-          color: #fff;
-          background: rgba(0, 0, 0, 0.08);
-        }
       }
     }
     .workflowName {
@@ -244,6 +266,9 @@
     }
     .BGGray {
       background: #ddd;
+    }
+    .BGDarkBlue {
+      background: #4158DB;
     }
     .workflowContent {
       padding: 8px;
@@ -418,6 +443,17 @@
         }
       }
     }
+    .ming.Menu {
+      transform: translateX(-50%);
+      left: 50% !important;
+    }
+    .ming.MenuItem .Item-content {
+      color: #757575 !important;
+
+      &:hover {
+        background: #F5F5F5 !important;
+      }
+    }
   }
 }
 
@@ -564,17 +600,18 @@
       display: flex;
       align-items: center;
       padding: 8px 16px;
-      text-align: center;
       border-width: 5px;
       border-style: solid;
       border-color: #fff;
       cursor: pointer;
       float: left;
+      height: 70px;
       &:hover {
         background: #f8f8f8;
       }
       .nodeListIcon {
         margin-right: 10px;
+        min-width: 40px;
         width: 40px;
         height: 40px;
         border-radius: 50%;
@@ -585,6 +622,24 @@
           font-size: 22px;
           color: #fff;
         }
+      }
+      .nodeListOverdue {
+        margin-left: 10px;
+        height: 22px;
+        line-height: 22px;
+        padding: 0 7px;
+        border-radius: 3px;
+        background-color: #e8e8e8;
+        color: #757575;
+      }
+      .nodeListNew {
+        margin-left: 10px;
+        height: 22px;
+        line-height: 22px;
+        padding: 0 8px;
+        border-radius: 11px;
+        background: #4caf50;
+        color: #fff;
       }
     }
   }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import PropTypes, { string } from 'prop-types';
-import 'selectize';
+import '@mdfe/selectize';
 import { Icon, Tooltip } from 'ming-ui';
 import RelateBox from './RelateBox';
 export default class RelateFilter extends Component {

@@ -1,8 +1,10 @@
 import { getRequest } from 'src/util';
 import './paySuccess.css'
-var doT = require('dot');
+import doT from '@mdfe/dot';
+import rowsTpl from './tpl/paySuccess.html';
+import commonHeader from 'components/commonHeader';
+
 var orderController = require('src/api/order');
-var commonHeader = require('components/commonHeader');
 
 var paySuccess = {};
 var ORDERTYPE = {
@@ -39,18 +41,15 @@ paySuccess.getPayResult = function () {
     })
     .then(function (data) {
       if (data) {
-        require(['./tpl/paySuccess.html'], function (rowsTpl) {
-          var strHtml = doT.template(rowsTpl)({
-            data: data,
-            ORDERTYPE: ORDERTYPE,
-          });
-          $('#paySuccess').html(strHtml.toString());
+        var strHtml = doT.template(rowsTpl)({
+          data: data,
+          ORDERTYPE: ORDERTYPE,
         });
+        $('#paySuccess').html(strHtml.toString());
       } else {
         alert(_l('加载失败'), 2, false);
       }
     });
 };
-module.exports = paySuccess;
 
 paySuccess.init();

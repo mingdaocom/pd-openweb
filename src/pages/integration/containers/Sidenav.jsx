@@ -55,7 +55,7 @@ class Sidenav extends React.Component {
           {list.map(o => {
             return (
               <li className={cx('Bold', { cur: o.type === type || (!type && o.type === 'connect') })}>
-                <Link className="pLeft18" to={`/integration/${o.type}`}>
+                <Link className="pLeft18 overflow_ellipsis pRight10" to={`/integration/${o.type}`}>
                   <i className={`icon-${o.icon} mRight8 Font24 TxtMiddle`} /> {o.txt}
                 </Link>
               </li>

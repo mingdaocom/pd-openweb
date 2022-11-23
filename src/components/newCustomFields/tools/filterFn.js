@@ -14,8 +14,8 @@ import { accDiv } from 'src/util';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
 
-const isEmptyValue = value => {
-  return _.isUndefined(value) || _.isNull(value) || String(value).trim() === '' || _.isNaN(Number(value));
+export const isEmptyValue = value => {
+  return _.isUndefined(value) || _.isNull(value) || String(value).trim() === '';
 };
 
 const TIME_OPTIONS = {
@@ -1342,13 +1342,13 @@ const updataDataPermission = ({ attrs = [], it, checkRuleValidator, from, item =
     if (_.includes(attrs, 5)) {
       required = true;
       fieldPermission = replaceStr(fieldPermission, 1, '1');
-      const { errorText } = onValidator({ ...it, required, fieldPermission }, from);
+      const { errorText } = onValidator({ ...it, required, fieldPermission });
       checkRuleValidator(it.controlId, FORM_ERROR_TYPE.RULE_REQUIRED, errorText);
     } else {
       //编辑
       if (_.includes(attrs, 3)) {
         fieldPermission = replaceStr(fieldPermission, 1, '1');
-        const { errorType, errorText } = onValidator({ ...it, fieldPermission }, from);
+        const { errorType, errorText } = onValidator({ ...it, fieldPermission });
         checkRuleValidator(it.controlId, errorType, errorText);
       }
     }

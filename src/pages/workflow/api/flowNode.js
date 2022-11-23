@@ -7,7 +7,7 @@ var flowNode = {
    * 增加节点
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {增加节点} {actionId:默认执行的动作ID 1:新增  2： 修改(string),appType:应用类型(integer),isMove:移到分支一侧： true，不移动： false(boolean),moveType:移到分支一侧 0:不移动 1：左侧 2：右侧(integer),name:节点名称(string),nodeIds:复制的节点ids(array),processId:流程ID(string),prveId:前一个节点ID(string),resultFlow:是审批结果分支类型(默认false)(boolean),typeId:流程节点类型ID(integer),}*addFlowNode
+   * @param {增加节点} {actionId:默认执行的动作ID 1:新增  2： 修改(string),appType:应用类型(integer),approvalId:已有审批流id(string),gatewayType:分支类型(integer),isMove:移到分支一侧： true，不移动： false(boolean),moveType:移到分支一侧 0:不移动 1：左侧 2：右侧 3撤回分支(integer),name:节点名称(string),nodeIds:复制的节点ids(array),processId:流程ID(string),prveId:前一个节点ID(string),resultFlow:是审批结果分支类型(默认false)(boolean),typeId:流程节点类型ID(integer),}*addFlowNode
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -72,6 +72,7 @@ var flowNode = {
    * 获取流程详情
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
+   * @param {string} [args.instanceId] instanceId
    * @param {string} [args.processId] processId
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -268,7 +269,7 @@ var flowNode = {
   /**
    * 保存节点的配置信息
    * @param {Object} args 请求参数
-   * @param {SaveStartNode} {appId:引用对象ID(string),appType:应用类型(integer),assignFieldId:指定字段(string),assignFieldIds:指定字段(array),config:配置(ref),controls:webhook触发开始的字段配置(array),endTime:结束时间(string),executeEndTime:执行结束时间(string),executeTime:执行时间(string),executeTimeType:执行时间的类型 0:按以上日期 1：之前 2：之后(integer),flowNodeType:节点ID(integer),frequency:重复频率 1:天 2:周 3:月 4:年(integer),interval:重复间隔 间隔单位frequency(integer),isUpdate:是否修改(boolean),name:节点名称(string),nodeId:节点ID(string),number:设置的时间(integer),operateCondition:触发条件(array),params:key-value的参数(array),processId:流程ID(string),repeatType:循环类型 1:每天 2:工作日 3:每周 4:每月 5:每年 6:自定义(integer),returnJson:返回值自定义的json(string),returnMap:null(object),returns:自定义的返回值 key-value(array),time:时间(string),triggerId:触发方式(string),unit:单位：1 : 分，2 ：小时 3:天(integer),weekDays:周几 0:周天 1:周1...（需按顺序[0, 1, 2, 3, 4, 5, 6]）(array),}*开始
+   * @param {SaveStartNode} {appId:引用对象ID(string),appType:应用类型(integer),assignFieldId:指定字段(string),assignFieldIds:指定字段(array),config:配置(ref),controls:webhook触发开始的字段配置(array),endTime:结束时间(string),executeEndTime:执行结束时间(string),executeTime:执行时间(string),executeTimeType:执行时间的类型 0:按以上日期 1：之前 2：之后(integer),flowNodeType:节点ID(integer),frequency:重复频率 1:天 2:周 3:月 4:年(integer),interval:重复间隔 间隔单位frequency(integer),isUpdate:是否修改(boolean),name:节点名称(string),nodeId:节点ID(string),number:设置的时间(integer),operateCondition:触发条件(array),params:key-value的参数(array),processConfig:审批配置(ref),processId:流程ID(string),repeatType:循环类型 1:每天 2:工作日 3:每周 4:每月 5:每年 6:自定义(integer),returnJson:返回值自定义的json(string),returnMap:null(object),returns:自定义的返回值 key-value(array),time:时间(string),triggerId:触发方式(string),unit:单位：1 : 分，2 ：小时 3:天(integer),weekDays:周几 0:周天 1:周1...（需按顺序[0, 1, 2, 3, 4, 5, 6]）(array),}*开始
    * @param {SaveSMSNode} {accounts:通知发送的人员(array),flowNodeType:节点ID(integer),name:节点名称(string),nodeId:节点ID(string),processId:流程ID(string),smsContent:短信内容(string),templateId:短信模版ID (string),}*短信
    * @param {SaveEmailNode} {accounts:通知发送的人员(array),actionId:默认执行的动作   1： 新增 2：更新,20:获取关联他表 201:发送邮件(string),appType:选择其他对象时，应用类型 0:默认第3方,1:工作表,2:任务,3:邮件(integer),ccAccounts:通知抄送人(array),fields:配置的字段信息(array),flowNodeType:节点ID(integer),name:节点名称(string),nodeId:节点ID(string),processId:流程ID(string),}*邮件
    * @param {SaveTimerNode} {actionId:默认执行的动作  300： 延时到指定日期   301：延时一段时间(string),executeTimeType:执行时间的类型 0:按以上日期 1：之前 2：之后(integer),fieldControlId:日期字段控件ID(string),fieldNodeId:输入日期字段节点ID(string),fieldValue:输入日期的值(string),flowNodeType:节点ID(integer),hour:小时(integer),hourFieldValue:动态小时的值(ref),minute:分钟(integer),minuteFieldValue:动态分钟的值(ref),name:节点名称(string),nodeId:节点ID(string),number:设置的时间(integer),numberFieldValue:动态天的值(ref),processId:流程ID(string),time:时间(string),unit:单位：1 : 分，2 ：小时 3:天(integer),}*延时

@@ -2,6 +2,7 @@ import React from 'react';
 import user from 'src/api/user';
 import ScrollView from 'ming-ui/components/ScrollView';
 import UserProfile from './components/Profile';
+import addFriendConfirm from 'src/components/addFriendConfirm/addFriendConfirm';
 
 export default class UserEntryPoint extends React.PureComponent {
   state = {
@@ -45,10 +46,8 @@ export default class UserEntryPoint extends React.PureComponent {
             userInfo,
             isFriend: true,
           });
-          require(['addFriendConfirm'], function (addFriendConfirm) {
-            addFriendConfirm({
-              accountId: accountId,
-            });
+          addFriendConfirm({
+            accountId: accountId,
           });
           return;
         }

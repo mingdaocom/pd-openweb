@@ -38,9 +38,14 @@ export default function InputSuffix({ data, onChange }) {
           border
           className="unitDropdown"
           value={unit}
-          data={enumDefault === 3 ? UNIT_TYPE.slice(0, 3) : UNIT_TYPE}
+          data={UNIT_TYPE}
           onChange={value => {
-            onChange({ ...data, unit: value });
+            onChange(
+              handleAdvancedSettingChange(
+                { ...data, unit: value },
+                _.includes(['3', '5'], value) && setting.autocarry === '1' ? { autocarry: '' } : {},
+              ),
+            );
           }}
         />
         <PreSuffix data={data} onChange={onChange} />

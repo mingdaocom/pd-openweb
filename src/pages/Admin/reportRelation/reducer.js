@@ -58,7 +58,7 @@ const updateSingleEntity = (user, action) => {
       return {
         ...user,
         subordinates: subordinates.concat(addId),
-        subTotalCount: user.subTotalCount ? user.subTotalCount + 1 : 0,
+        subTotalCount: !_.isUndefined(user.subTotalCount) ? user.subTotalCount + 1 : 0,
       };
   }
 };

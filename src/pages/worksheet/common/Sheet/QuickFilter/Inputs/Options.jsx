@@ -120,6 +120,7 @@ export default function Options(props) {
     return (
       <Con>
         <Dropdown
+          fromFilter
           {...{ ...control, advancedSetting: { ...control.advancedSetting, allowadd: '0', showtype: '1' } }}
           default={undefined}
           dropdownClassName="scrollInTable"
@@ -141,6 +142,7 @@ export default function Options(props) {
         <Checkbox
           {...{ ...control, advancedSetting: { ...control.advancedSetting, checktype: '1' } }}
           default={undefined}
+          fromFilter
           isFocus
           dropdownClassName="scrollInTable"
           value={JSON.stringify(values)}

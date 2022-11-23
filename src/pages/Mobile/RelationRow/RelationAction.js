@@ -15,7 +15,6 @@ import styled from 'styled-components';
 
 const BtnsWrapper = styled(Flex)`
   height: 50px;
-  border-top: 1px solid #f5f5f5;
   background-color: #fff;
   a {
     text-decoration: none;

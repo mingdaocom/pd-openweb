@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1661937158988') format('woff2'),
-       url('iconfont.woff?t=1661937158988') format('woff'),
-       url('iconfont.ttf?t=1661937158988') format('truetype');
+  src: url('iconfont.woff2?t=1668001895793') format('woff2'),
+       url('iconfont.woff?t=1668001895793') format('woff'),
+       url('iconfont.ttf?t=1668001895793') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,90 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-eye_off:before {
+  content: "\e65d";
+}
+
+.icon-format_align_left:before {
+  content: "\eb4e";
+}
+
+.icon-format_align_center:before {
+  content: "\eb50";
+}
+
+.icon-format_align_right:before {
+  content: "\eb57";
+}
+
+.icon-interface_push:before {
+  content: "\ea91";
+}
+
+.icon-doc:before {
+  content: "\ea24";
+}
+
+.icon-put_away:before {
+  content: "\e633";
+}
+
+.icon-get_bigger:before {
+  content: "\e634";
+}
+
+.icon-rename_input:before {
+  content: "\ea8f";
+}
+
+.icon-title:before {
+  content: "\ea89";
+}
+
+.icon-compress_width:before {
+  content: "\ea8c";
+}
+
+.icon-airplane:before {
+  content: "\e860";
+}
+
+.icon-tune_new:before {
+  content: "\e69e";
+}
+
+.icon-upload_file:before {
+  content: "\e69c";
+}
+
+.icon-file_upload_off:before {
+  content: "\e69d";
+}
+
+.icon-construction:before {
+  content: "\e69a";
+}
+
+.icon-manage_accounts:before {
+  content: "\e69b";
+}
+
+.icon-approval:before {
+  content: "\eb4d";
+}
+
+.icon-desktop_off:before {
+  content: "\e659";
+}
+
+.icon-mobile_off:before {
+  content: "\e65a";
+}
+
+.icon-slideshow:before {
+  content: "\eb49";
 }
 
 .icon-flow:before {
@@ -251,10 +335,6 @@
 
 .icon-access_time_filled:before {
   content: "\eca9";
-}
-
-.icon-tune1:before {
-  content: "\e625";
 }
 
 .icon-external_users:before {
@@ -1463,10 +1543,6 @@
 
 .icon-zendeskHelp-qrcode:before {
   content: "\ebbc";
-}
-
-.icon-doc:before {
-  content: "\e8bd";
 }
 
 .icon-maximizing:before {

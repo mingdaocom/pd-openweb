@@ -21,12 +21,12 @@ export default ({ accounts }) => {
       if (obj.count === 0) {
         return (
           <Fragment key={i}>
-            <span className="yellow">{obj.roleName + `（${obj.entityName}）`}</span>
+            <span className="yellow">{obj.roleName ? obj.roleName + `（${obj.entityName}）` : obj.entityName}</span>
             {split}
           </Fragment>
         );
       }
-      return obj.roleName + `（${obj.entityName}）` + split;
+      return (obj.roleName ? obj.roleName + `（${obj.entityName}）` : obj.entityName) + split;
     } else {
       if (!obj.roleName || !obj.entityName) {
         return (

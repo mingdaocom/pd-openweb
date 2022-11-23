@@ -48,7 +48,7 @@ export default class Widgets extends Component {
       isSuccess: false,
       open: false,
       keywords: '',
-      data: {},
+      data: null,
     };
   }
 
@@ -86,6 +86,8 @@ export default class Widgets extends Component {
     const { keywords } = this.state;
     const isMobile = browserIsMobile();
 
+    this.setState({ data: null });
+
     const requestMap = safeParse(requestmap || '[]');
     if (!dataSource) return alert(_l('模版为空或已删除'), 3);
     if (type === 50 && (!itemsource || !itemtitle)) return alert(_l('下拉框的必填映射项未配置(选项列表，选项名)'), 3);
@@ -116,7 +118,7 @@ export default class Widgets extends Component {
     this.postList.then(res => {
       if (res.message) {
         alert(res.message, 3);
-        this.setState({ isSuccess: false, loading: false, data: {} });
+        this.setState({ isSuccess: false, loading: false, data: null });
         return;
       }
 
@@ -160,7 +162,7 @@ export default class Widgets extends Component {
 
   handleSelect = item => {
     const { advancedSetting: { responsemap } = {} } = this.props;
-    const { data = {} } = this.state;
+    const data = this.state.data || {};
     const responseMap = safeParse(responsemap || '[]');
     let rowData = {};
 
@@ -176,7 +178,7 @@ export default class Widgets extends Component {
 
   getOptions = () => {
     const { advancedSetting: { itemsource } = {} } = this.props;
-    const { data = {} } = this.state;
+    const data = this.state.data || {};
     return safeParse(data[itemsource] || '[]');
   };
 
@@ -254,7 +256,7 @@ export default class Widgets extends Component {
       hint = '',
     } = this.props;
     const { itemtitle = '', clicksearch, searchfirst, min = '0' } = advancedSetting;
-    const { loading, isSuccess, keywords, data = {}, open } = this.state;
+    const { loading, isSuccess, keywords, data, open } = this.state;
 
     let isMobile = browserIsMobile();
 
@@ -320,16 +322,10 @@ export default class Widgets extends Component {
           }
         },
         onDropdownVisibleChange: open => {
-          this.setState({ keywords: '' });
           // 预加载
           if (searchfirst === '1' && open) {
             this.handleSearch();
           }
-          if (!open) {
-            this.setState({ open });
-            this.search.blur();
-          }
-          onVisibleChange(open);
         },
       };
     }
@@ -358,6 +354,7 @@ export default class Widgets extends Component {
           ref={search => {
             this.search = search;
           }}
+          open={open}
           getPopupContainer={() => (isCell ? document.body : this.box)}
           dropdownClassName={dropdownClassName}
           className={cx('w100 customAntSelect', { customApiSelect: isSelectBtn, customSelectIcon: enumDefault === 2 })}
@@ -373,11 +370,11 @@ export default class Widgets extends Component {
           {...{ ...defaultSelectProps, ...selectProps }}
           notFoundContent={
             // 搜索框不打开时
-            !open ? null : loading ? (
+            loading ? (
               <LoadDiv className="flexCenter" size="small" />
-            ) : (
+            ) : data ? (
               <span className="Gray_9e">{_l('没有返回结果')}</span>
-            )
+            ) : null
           }
           onSelect={(value, option) => this.handleSelect(option)}
           onChange={value => {
@@ -386,8 +383,10 @@ export default class Widgets extends Component {
               this.props.onChange(value);
             }
           }}
+          onFocus={() => this.setState({ open: true })}
           onBlur={() => {
-            this.setState({ data: {}, open: false });
+            this.setState({ data: null, open: false, keywords: '' });
+            onVisibleChange(false);
           }}
         >
           {optionData.map((item, index) => {

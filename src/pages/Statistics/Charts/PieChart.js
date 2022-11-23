@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Pie } from '@antv/g2plot';
 import { getLegendType, formatrChartValue, formatYaxisList, getChartColors, getAlienationColor } from './common';
 import { formatSummaryName, getIsAlienationColor, isFormatNumber } from 'statistics/common';
 import { Dropdown, Menu } from 'antd';
@@ -19,6 +18,17 @@ const formatChartData = data => {
   return result;
 };
 
+const formatChartMap = data => {
+  return data.map(data => {
+    return {
+      name: data.key,
+      originalId: data.c_id,
+      value: Math.abs(data.value[0].v),
+      originalValue: data.value[0].v,
+    }
+  }).filter(item => item.originalValue);
+}
+
 export default class extends Component {
   constructor(props) {
     super(props);
@@ -32,13 +42,10 @@ export default class extends Component {
     this.PieChart = null;
   }
   componentDidMount() {
-    const { reportData, isViewOriginalData } = this.props;
-    const { displaySetup } = reportData;
-    this.PieChart = new Pie(this.chartEl, this.getPieConfig(this.props));
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.PieChart.on('element:click', this.handleClick);
-    }
-    this.PieChart.render();
+    import('@antv/g2plot').then(data => {
+      this.PieComponent = data.Pie;
+      this.renderPieChart();
+    });
   }
   componentWillUnmount() {
     this.PieChart && this.PieChart.destroy();
@@ -60,17 +67,27 @@ export default class extends Component {
     }
     if (displaySetup.showChartType !== oldDisplaySetup.showChartType) {
       this.PieChart.destroy();
-      this.PieChart = new Pie(this.chartEl, this.getPieConfig(nextProps));
+      this.PieChart = new this.PieComponent(this.chartEl, this.getPieConfig(nextProps));
       this.PieChart.render();
     }
+  }
+  renderPieChart() {
+    const { reportData, isViewOriginalData } = this.props;
+    const { displaySetup } = reportData;
+    this.PieChart = new this.PieComponent(this.chartEl, this.getPieConfig(this.props));
+    if (displaySetup.showRowList && isViewOriginalData) {
+      this.PieChart.on('element:click', this.handleClick);
+    }
+    this.PieChart.render();
   }
   handleClick = data => {
     const { xaxes } = this.props.reportData;
     const event = data.gEvent;
     const currentData = data.data;
     const isNumber = isFormatNumber(xaxes.controlType);
-    const param = {
-      [xaxes.cid]: isNumber ? Number(currentData.data.originalId) : currentData.data.originalId
+    const param = {};
+    if (xaxes.cid) {
+      param[xaxes.cid] = isNumber ? Number(currentData.data.originalId) : currentData.data.originalId;
     }
     this.setState({
       dropdownVisible: true,
@@ -121,8 +138,8 @@ export default class extends Component {
     }
   }
   getPieConfig(props) {
-    const { aggregations, displaySetup, yaxisList, summary, style, xaxes, reportId } = props.reportData;
-    const data = formatChartData(aggregations, displaySetup);
+    const { map, displaySetup, yaxisList, summary, style, xaxes, reportId } = props.reportData;
+    const data = xaxes.controlId ? formatChartData(map[0].value) : formatChartMap(map);
     const { position } = getLegendType(displaySetup.legendType);
     const isLabelVisible = displaySetup.showDimension || displaySetup.showNumber || displaySetup.showPercent;
     const newYaxisList = formatYaxisList(data, yaxisList);
@@ -131,7 +148,6 @@ export default class extends Component {
     const isNewChart = _.isUndefined(reportId) && _.isEmpty(style);
     const isAlienationColor = getIsAlienationColor(props.reportData);
     const isOptionsColor = isNewChart ? isAlienationColor : style ? style.colorType === 0 && isAlienationColor : false;
-
     this.setCount(newYaxisList);
 
     const findName = value => {
@@ -245,7 +261,7 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
-        <Menu.Item onClick={this.handleRequestOriginalData}>
+        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
             <span>{_l('查看原始数据')}</span>
           </div>

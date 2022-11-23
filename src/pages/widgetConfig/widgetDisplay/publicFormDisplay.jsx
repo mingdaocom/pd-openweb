@@ -13,7 +13,7 @@ export default function PublicFormDisplay(props) {
 
   useEffect(() => {
     setWidgets(genWidgetsByControls(controls));
-  }, [controls.length]);
+  }, [controls]);
 
   const [activeWidget, setActiveWidget] = useState({});
 

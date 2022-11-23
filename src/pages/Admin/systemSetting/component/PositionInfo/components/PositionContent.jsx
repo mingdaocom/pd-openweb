@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import * as actions from '../../../../redux/position/action';
 import RoleUserList from './RoleUserList';
 import dialogUserBoard from 'src/pages/Admin/components/dialogUserBoard';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import { addJobUser, deleteJobUsers } from 'src/api/job';
 import cx from 'classnames';
 
@@ -43,9 +43,9 @@ class PositionContent extends Component {
         });
       },
     };
-    import('dialogSelectUser').then(() => {
+    import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
       $({}).dialogSelectUser({
-        showMoreInvite: false,
+        fromAdmin: true,
         SelectUserSettings: SelectUserSettingsForAdd,
       });
     });

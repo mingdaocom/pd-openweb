@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { ButtonList } from 'src/pages/customPage/components/WidgetContent/ButtonList';
 import PreviewContent from './PreviewContent';
+import CarouselPreview from 'src/pages/customPage/components/editWidget/carousel/Carousel';
 import { StateChartContent } from './ChartContent';
 import ViewContent from './ViewContent';
 import Filter from './FilterContent';
@@ -16,7 +17,7 @@ const WidgetContent = styled.div`
   &.button {
     display: flex;
   }
-  &.mobileEmbedUrl, &.mobileView, &.mobileFilter {
+  &.mobileEmbedUrl, &.mobileView, &.mobileFilter, &.mobileCarousel {
     padding: 0 !important;
   }
   &.mobileFilter {
@@ -73,6 +74,12 @@ function WidgetDisplay(props) {
     if (componentType === 'filter') {
       return (
         <Filter ids={ids} apk={apk} widget={widget} />
+      );
+    }
+    if (componentType === 'carousel') {
+      const { config, componentConfig } = widget;
+      return (
+        <CarouselPreview config={config} componentConfig={componentConfig} />
       );
     }
   };

@@ -2,22 +2,22 @@
 import ReactDom from 'react-dom';
 import { Column, Pie } from '@antv/g2plot';
 import './css/folderChart.less';
+import { Icon } from 'ming-ui';
 import { connect } from 'react-redux';
+import { DatePicker } from 'antd';
+import locale from 'antd/es/date-picker/locale/zh_CN';
 import ajaxRequest from 'src/api/taskFolderStatistics';
-import doT from 'dot';
+import doT from '@mdfe/dot';
 import filterXss from 'xss';
 import { listLoadingContent } from '../../utils/taskComm';
 import { errorMessage } from '../../utils/utils';
-import 'bootstrap-daterangepicker';
-import 'bootstrap-daterangepicker/daterangepicker.css';
-import '@mdfe/date-picker-tpl/datePickerTpl.css';
-import datePickerTpl from '@mdfe/date-picker-tpl';
 import config from '../../config/config';
-import 'mdDialog';
+import 'src/components/mdDialog/dialog';
 import folderChart from './tpl/folderChart.html';
 import folderChartMaxView from './tpl/folderChartMaxView.html';
 import chargeList from './tpl/chargeList.html';
 import customDom from './tpl/customDom.html';
+import DateFilter from 'src/components/DateFilter';
 
 const folderChartSettings = {
   type: 1,
@@ -29,6 +29,9 @@ const folderChartSettings = {
   chargeAccountIDs: [],
   sort: 'desc',
 };
+
+const { RangePicker } = DatePicker;
+const { render, unmountComponentAtNode } = ReactDom;
 
 class FolderChart extends Component {
   constructor(props) {
@@ -46,6 +49,12 @@ class FolderChart extends Component {
         this.init();
       }, 0);
     }
+  }
+
+  componentWillUnmount() {
+    delete window.feedSelectDate;
+    delete window.feedCustomDate;
+    unmountComponentAtNode(document.querySelector('.folderChartTime'));
   }
 
   /**
@@ -82,8 +91,8 @@ class FolderChart extends Component {
           }),
         );
 
-        this.updateCustomFun();
         this.getDailyFolderStatistics();
+        this.renderCustomTime();
       });
   }
 
@@ -151,8 +160,7 @@ class FolderChart extends Component {
       $(this)
         .siblings('.folderChartTimeTxt')
         .html(moment().subtract(date, 'd').format('YYYY/MM/DD') + ' - ' + moment().format('YYYY/MM/DD'));
-      // 重新绑定自定义日期
-      that.updateCustomFun($el, moment().subtract(date, 'd'));
+
       // 刷新图表
       that.updateTimeRefreshChart(
         isDialog,
@@ -452,7 +460,10 @@ class FolderChart extends Component {
         header: '',
         yesText: null,
         noText: null,
-        content,
+        content
+      },
+      callback: () => {
+        unmountComponentAtNode(document.querySelector('#maxViewUpdateTime'));
       },
       width: 860,
       readyFn: () => {
@@ -475,10 +486,7 @@ class FolderChart extends Component {
           }
         } else {
           const date = Math.floor((folderChartSettings.endDate - folderChartSettings.startDate) / 24 / 3600 / 1000);
-          this.updateCustomFun(
-            $('#folderChartMaxView .folderChartTime li[data-type=custom]'),
-            moment().subtract(date, 'd'),
-          );
+          this.renderMaxCustomTime();
           // 渲染图表
           this['folderCharts' + folderChartSettings.chartView]('folderChartsMax');
         }
@@ -1051,75 +1059,6 @@ class FolderChart extends Component {
   }
 
   /**
-   * 自定义日期
-   */
-  updateCustomFun(
-    $el = $('.folderChartNavBox .folderChartTime li[data-type=custom]'),
-    startDate = moment().subtract(6, 'd'),
-  ) {
-    const that = this;
-    const options = {
-      parentEl: $('#folderChartMaxView').length ? '#folderChartMaxView .folderChartBox' : '.folderChartNavBox',
-      template: datePickerTpl.double,
-      linkedCalendars: false,
-      startDate,
-      minDate: '2010-01-01',
-      maxDate: moment(),
-      showDropdowns: true,
-      buttonClasses: 'taskFolerChartDatePicker',
-      opens: 'left',
-      locale: {
-        format: 'YYYY/MM/DD', // 定义显示格式
-        applyLabel: _l('确定'),
-        cancelLabel: _l('关闭'),
-        fromLabel: _l('开始时间'),
-        toLabel: _l('结束时间'),
-        daysOfWeek: [0, 1, 2, 3, 4, 5, 6].map(item => {
-          return moment().day(item).format('dd');
-        }),
-        monthNames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(item => {
-          return moment().month(item).format('MMM');
-        }),
-        firstDay: 1,
-      },
-    };
-    const callback = function (start, end) {
-      let index = 3;
-      const timeDiff = Math.floor((end - start) / 24 / 3600 / 1000);
-      const isDialog = $el.closest('#folderChartMaxView').length;
-
-      $el.siblings('.folderChartTimeTxt').html(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
-      if (timeDiff === 7) {
-        index = 0;
-      } else if (timeDiff === 14) {
-        index = 1;
-      } else if (timeDiff === 30) {
-        index = 2;
-      }
-      $el.siblings('li').removeClass().eq(index).addClass('activeClass ThemeBGColor3 ThemeBorderColor3');
-
-      // 刷新图表
-      that.updateTimeRefreshChart(isDialog, start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
-    };
-    $el.daterangepicker(options, callback);
-
-    $el.on('show.daterangepicker', evt => {
-      if (!$(evt.target).siblings('.activeClass').length) {
-        $(evt.target).addClass('activeClass ThemeBGColor3 ThemeBorderColor3');
-      }
-    });
-
-    $el.on('hide.daterangepicker', evt => {
-      if (!$(evt.target).hasClass('ThemeBGColor3')) {
-        $(evt.target).removeClass();
-      }
-      if (!$(evt.target).siblings('.activeClass').length) {
-        $(evt.target).addClass('activeClass ThemeBGColor3 ThemeBorderColor3');
-      }
-    });
-  }
-
-  /**
    * 刷新charts
    */
   updateCharts() {
@@ -1275,6 +1214,36 @@ class FolderChart extends Component {
         }
       }
     }
+  }
+
+  renderCustomTime() {
+    render((
+      <DateFilter
+        noClear={true}
+        onChange={(startDate, endDate) => {
+          startDate = startDate ? startDate.format('YYYY-MM-DD') : undefined;
+          endDate = endDate ? endDate.format('YYYY-MM-DD') : undefined;
+          this.updateTimeRefreshChart(false, startDate, endDate);
+        }}
+      >
+        <div className="mTop10 mRight10 pointer"><Icon icon="calander" className="Font16 Gray_9" /></div>
+      </DateFilter>
+    ), document.querySelector('.folderChartTime'));
+  }
+
+  renderMaxCustomTime() {
+    render((
+      <DateFilter
+        noClear={true}
+        onChange={(startDate, endDate) => {
+          startDate = startDate ? startDate.format('YYYY-MM-DD') : undefined;
+          endDate = endDate ? endDate.format('YYYY-MM-DD') : undefined;
+          this.updateTimeRefreshChart(true, startDate, endDate);
+        }}
+      >
+        <div className="mTop10 mRight10 pointer"><Icon icon="calander" className="Font16 Gray_9" /></div>
+      </DateFilter>
+    ), document.querySelector('#maxViewUpdateTime'));
   }
 
   /**

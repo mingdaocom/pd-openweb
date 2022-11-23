@@ -5,12 +5,11 @@ import qs from 'query-string';
 import cx from 'classnames';
 import _ from 'lodash';
 import Immutable from 'immutable';
-import Menu from 'ming-ui/components/Menu';
-import MenuItem from 'ming-ui/components/MenuItem';
 import Icon from 'ming-ui/components/Icon';
 import { notification, NotificationContent } from 'ming-ui/components/Notification';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withHoverState from 'ming-ui/decorators/withHoverState';
+import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { createUploader } from '../../utils/qiniuUpload';
 import { humanFileSize } from '../../utils';
 import { UPLOAD_STATUS, UPLOAD_ERROR, PICK_TYPE, MAX_FILE_COUNT } from '../../constant/enum';
@@ -388,31 +387,29 @@ class UploadAssistant extends React.Component {
     // if(document.body.clientWidth < 620 || document.body.clientHeight < 620) {
     //   window.resizeTo(620, 700);
     // }
-    require(['src/components/kc/folderSelectDialog/folderSelectDialog'], folderDg => {
-      folderDg({
-        dialogTitle: _l('上传到'),
-        isFolderNode: 1,
-      }).then(result => {
-        let uploadPathPromise, rootId, parentId;
-        switch (result.type) {
-          case PICK_TYPE.NODE:
-            uploadPathPromise = service.getReadablePosition(result.node.position);
-            rootId = result.node.rootId;
-            parentId = result.node.id;
-            break;
-          case PICK_TYPE.ROOT:
-            uploadPathPromise = service.getReadablePosition('/' + result.node.id);
-            rootId = parentId = result.node.id;
-            break;
-          case PICK_TYPE.MY:
-          default:
-            uploadPathPromise = _l('我的文件');
-            rootId = parentId = '';
-            break;
-        }
-        $.when(uploadPathPromise).then(uploadPath => {
-          this._isMounted && this.setState({ uploadPath, rootId, parentId });
-        });
+    folderDg({
+      dialogTitle: _l('上传到'),
+      isFolderNode: 1,
+    }).then(result => {
+      let uploadPathPromise, rootId, parentId;
+      switch (result.type) {
+        case PICK_TYPE.NODE:
+          uploadPathPromise = service.getReadablePosition(result.node.position);
+          rootId = result.node.rootId;
+          parentId = result.node.id;
+          break;
+        case PICK_TYPE.ROOT:
+          uploadPathPromise = service.getReadablePosition('/' + result.node.id);
+          rootId = parentId = result.node.id;
+          break;
+        case PICK_TYPE.MY:
+        default:
+          uploadPathPromise = _l('我的文件');
+          rootId = parentId = '';
+          break;
+      }
+      $.when(uploadPathPromise).then(uploadPath => {
+        this._isMounted && this.setState({ uploadPath, rootId, parentId });
       });
     });
   };
@@ -563,4 +560,4 @@ class UploadAssistant extends React.Component {
   }
 }
 
-module.exports = UploadAssistant;
+export default UploadAssistant;

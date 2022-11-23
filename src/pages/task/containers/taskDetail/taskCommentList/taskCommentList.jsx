@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import './taskCommentList.less';
-import Commenter from 'commenter';
-import CommentList from 'commentList';
+import Commenter from 'src/components/comment/commenter';
+import CommentList from 'src/components/comment/commentList';
 import { htmlDecodeReg } from 'src/util';
 import { removeTaskDiscussions, addTaskDiscussions, discussionsAddMembers, updateCommentList } from '../../../redux/actions';
 

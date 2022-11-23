@@ -57,7 +57,7 @@ export default function ColumnHead(props) {
               closeMenu();
             }}
           >
-            <i className="icon icon-workflow_hide"></i>
+            <i className="icon icon-visibility_off"></i>
             {_l('隐藏')}
           </MenuItem>
           {!!sheetHiddenColumnIds.length && (

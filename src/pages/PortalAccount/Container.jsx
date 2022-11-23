@@ -2,75 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
-import { LoadDiv, Icon, Checkbox } from 'ming-ui';
-import { sendVerifyCode, login, getTpLoginScanUrl, scanTpLogin } from 'src/api/externalPortal';
-import { statusList, accountResultAction, setAutoLoginKey } from './util';
-import Message from 'src/pages/account/components/message';
-import captcha from 'src/components/captcha';
+import { Icon } from 'ming-ui';
+import { statusList } from './util';
 import SvgIcon from 'src/components/SvgIcon';
-import wxIcon from 'src/pages/account/img/weixinIcon.png';
-import { getRequest } from 'src/util/sso';
+import LoginContainer from './LoginContainer';
 
-const WrapTpLogin = styled.div`
-  text-align: center;
-  .phoneLogin {
-    color: #2196f3;
-  }
-  .weixinIcon {
-    vertical-align: middle;
-    background-image: url(${wxIcon});
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    background-size: cover;
-    background-repeat: no-repeat;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -moz-osx-font-smoothing: grayscale;
-  }
-`;
-const WropWXCon = styled.div`
-  .erweima {
-    text-align: center;
-    width: 300px;
-    height: 300px;
-    background: #ffffff;
-    border: 1px solid #f4f4f4;
-    border-radius: 8px;
-    margin: 20px auto;
-    box-sizing: border-box;
-    position: relative;
-    img {
-      width: 100%;
-      height: 100%;
-    }
-    .isOverTime {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      top: 0;
-      background: rgba(250, 250, 250, 0.9);
-      i {
-        color: #2196f3;
-        margin: 80px 0 0;
-        display: inline-block;
-      }
-      p {
-        margin: 24px auto;
-      }
-      .refresh {
-        padding: 10px 24px;
-        background: #2196f3;
-        opacity: 1;
-        border-radius: 18px;
-        color: #fff;
-      }
-    }
-  }
-`;
 const Wrap = styled.div`
   .Hide {
     display: none;
@@ -161,7 +97,7 @@ const Wrap = styled.div`
     text-align: center;
   }
   .pageTitle {
-    margin-bottom: 32px;
+    margin-bottom: 24px;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
@@ -181,9 +117,9 @@ const Wrap = styled.div`
     &:hover {
       background: #42a5f5;
     }
-    &.sending {
-      background: #f5f5f5;
-    }
+    // &.sending {
+    //   background: #f5f5f5;
+    // }
     &.disable {
       cursor: default;
       background: #bdbdbd !important;
@@ -199,221 +135,17 @@ const Wrap = styled.div`
   }
 `;
 
-function useInterval(callback, delay) {
-  const savedCallback = useRef(callback);
-  useEffect(() => {
-    savedCallback.current = callback;
-  }, [callback]);
-  useEffect(() => {
-    if (!delay && delay !== 0) {
-      return;
-    }
-    const id = setInterval(() => savedCallback.current(), delay);
-    return () => clearInterval(id);
-  }, [delay]);
-}
 export default function Container(props) {
   const {
     logoImageUrl,
     pageMode = 3,
     pageTitle = '',
-    appId = '',
-    state,
-    setState,
-    setAccount,
-    projectId,
     status,
-    setStatus,
-    allowUserType,
     appColor = '#00bcd4',
     appLogoUrl = 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg',
     isErrUrl,
-    setAccountId,
-    loginMode = {},
-    isWXOfficialExist,
-    authorizerInfo,
-    termsAndAgreementEnable, //开启了协议
-    setParamForPcWx,
-    paramForPcWx,
     noticeScope = {},
-    isAutoLogin,
-    setAutoLogin,
   } = props;
-  // md.global.Config.IsLocal = true
-  let request = getRequest();
-  const [loading, setLoading] = useState(true); //二维码获取
-  const [sending, setSending] = useState(false); //点击登录
-  const [isQrLogin, setIsQrLogin] = useState(
-    loginMode.weChat &&
-      isWXOfficialExist && //点击进入微信登录 手机和微信同时设置时，默认微信优先
-      !md.global.Config.IsLocal && //私有部署没有扫描登录
-      !request.mdAppId, //微信扫码登录流程回跳只进手机号验证码流程
-  );
-  const [urlWX, setUrlWX] = useState(''); //微信二维码url
-  let [scan, setCan] = useState(true); // 微信扫码有效期10分钟
-  let [stateWX, setStateWX] = useState('');
-
-  useEffect(() => {
-    !!paramForPcWx && setIsQrLogin(false); //扫码完成，取得返回值，未绑定手机号，进入手机号验证流程
-  }, [paramForPcWx]);
-
-  const [paramLogin, setParam] = useState({
-    account: '',
-    verifyCodeType: '',
-    ticket: '',
-    randStr: '',
-    captchaType: md.staticglobal.getCaptchaType(),
-  });
-  const [dataLogin, setData] = useState({
-    dialCode: '',
-    warnningData: [],
-    emailOrTel: '', // 邮箱或手机
-    verifyCode: '', // 验证码
-  });
-  const getScanUrl = () => {
-    getTpLoginScanUrl({
-      wxAppId: authorizerInfo.appId,
-      appId,
-      projectId,
-    }).then(res => {
-      if (res.accountResult === 1) {
-        setLoading(false);
-        if (res.scanUrl) {
-          setCan(true);
-          setStateWX(res.state);
-          setUrlWX(res.scanUrl);
-        }
-      } else {
-        if (statusList.includes(res.accountResult)) {
-          // _l('需要收集信息');
-          setStatus(res.accountResult);
-        } else {
-          accountResultAction(res);
-        }
-      }
-    });
-  };
-  const refreshUrl = () => {
-    if (!stateWX || !appId) {
-      return;
-    }
-    isQrLogin &&
-      scanTpLogin({
-        state: stateWX,
-        appId,
-        autoLogin: isAutoLogin, //自动登录的参数
-      }).then(res => {
-        setAutoLoginKey({ ...res, appId });
-        const { accountResult, sessionId, state, accountId } = res;
-        //31过期， 30未扫码，可继续轮询
-        if (accountResult === 31) {
-          setCan(false);
-        } else if (accountResult === 30) {
-          setCan(true);
-        } else {
-          if (accountResult === 1) {
-            accountResultAction(res);
-          } else {
-            setParamForPcWx({
-              mdAppId: appId || '',
-              wxState: state || '',
-              status: accountResult,
-              accountId: accountId || '',
-            });
-          }
-        }
-      });
-  };
-  useInterval(
-    () => {
-      refreshUrl();
-    },
-    scan ? 3000 : null,
-  );
-
-  useEffect(() => {
-    isQrLogin && getScanUrl();
-  }, [isQrLogin]);
-
-  //确认逻辑
-  const sendCode = () => {
-    if (sending) {
-      return;
-    }
-    const { dialCode, emailOrTel, verifyCode } = dataLogin;
-    if (!emailOrTel) {
-      setData({
-        ...dataLogin,
-        warnningData: [{ tipDom: '#txtMobilePhone', warnningText: _l('请输入手机号！') }],
-      });
-      return;
-    }
-    if (!verifyCode) {
-      setData({
-        ...dataLogin,
-        warnningData: [{ tipDom: '.txtLoginCode', warnningText: _l('请输入验证码！') }],
-      });
-      return;
-    }
-    setSending(true);
-    loginFn();
-  };
-
-  const doCaptchaFn = () => {
-    let callback = (res = {}) => {
-      if (res.ret !== 0) {
-        return;
-      }
-      loginFn(
-        Object.assign({}, res, {
-          captchaType: md.staticglobal.getCaptchaType(),
-        }),
-      );
-    };
-    if (md.staticglobal.getCaptchaType() === 1) {
-      new captcha(callback);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
-    }
-  };
-
-  const loginFn = (resRet = {}) => {
-    if (sending) {
-      return;
-    }
-    const { dialCode, emailOrTel, verifyCode } = dataLogin;
-    const { ticket, randstr } = resRet;
-    login({
-      ...paramLogin,
-      account: dialCode + emailOrTel,
-      verifyCode,
-      captchaType: md.staticglobal.getCaptchaType(),
-      ticket,
-      randStr: randstr,
-      appId, //应用ID
-      state, // 微信登录成功之后返回的临时状态码 用于反向存储微信相关信息，具备有效期
-      autoLogin: isAutoLogin,
-    }).then(res => {
-      setAutoLoginKey({ ...res, appId });
-      const { accountResult, sessionId, accountId, projectId, state } = res;
-      setState(res.state);
-      accountId && setAccountId(accountId);
-      setAccount(dialCode + emailOrTel);
-      setSending(false);
-      if ([21, 22].includes(accountResult)) {
-        //频繁登录或者图形验证码错误需要重新验证
-        //需要图形验证
-        doCaptchaFn();
-      } else {
-        if (statusList.includes(accountResult)) {
-          // _l('需要收集信息');
-          setStatus(accountResult);
-        } else {
-          accountResultAction(res);
-        }
-      }
-    });
-  };
 
   const getWaring = status => {
     switch (status) {
@@ -462,7 +194,6 @@ export default function Container(props) {
           ''
         )}
         <p className="Font26 Gray mAll0 mTop20 Bold pageTitle" style={{ WebkitBoxOrient: 'vertical' }}>
-          {/* {[10000, 20000].includes(status) ? '' : pageTitle} */}
           {pageTitle}
         </p>
         {status === 3 ? (
@@ -472,7 +203,7 @@ export default function Container(props) {
             </div>
             <p className="txtConsole">{_l('注册成功')}</p>
             <p className="txtConsole Font15 mTop6">{_l('请耐心等待运营方审核')}</p>
-            {noticeScope.exAccountSmsNotice && <p className="txtConsole Font15">{_l('会通过短信告知您审核结果')}</p>}
+            {noticeScope.exAccountSmsNotice && <p className="txtConsole Font15">{_l('会通过短信/邮件告知您审核结果')}</p>}
           </div>
         ) : status === 4 ? (
           <div className="tipConBox" style={tipStyle}>
@@ -480,9 +211,6 @@ export default function Container(props) {
               <Icon type="knowledge-message" className="Red" />
             </div>
             <p className="txtConsole">{_l('审核未通过')}</p>
-            {/* <p className="ThemeColor3 TxtCenter Hand mTop10" onClick={() => {}}>
-                {_l('重新审核')}
-              </p> */}
           </div>
         ) : [2, 10, 11, 12, 13, 14, 10000, 20000].includes(status) ? (
           <div className="tipConBox" style={tipStyle}>
@@ -498,162 +226,7 @@ export default function Container(props) {
               pageMode === 6 && !browserIsMobile() ? { marginTop: document.documentElement.clientHeight / 5 - 32 } : {}
             }
           >
-            {isQrLogin ? (
-              <WropWXCon>
-                <div className="erweima">
-                  {loading ? (
-                    <LoadDiv style={{ margin: '120px 0 0 0' }} />
-                  ) : urlWX ? (
-                    <img src={urlWX} />
-                  ) : (
-                    <p className="pAll30 Font18">{_l('授权不足，请管理员到组织管理-微信公众号重新绑定授权')}</p>
-                  )}
-                  {!scan && (
-                    <div className="isOverTime">
-                      <Icon icon={'error1'} className="Font48 " />
-                      <p className="Font18">{_l('当前二维码已过期')}</p>
-                      <span
-                        className="refresh Hand"
-                        onClick={() => {
-                          getScanUrl();
-                        }}
-                      >
-                        {_l('刷新')}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <p className="Gray_75 TxtCenter Font14">{_l('扫描微信二维码，关注公众号')}</p>
-                <div
-                  className="mTop24 flexRow alignItemsCenter Hand justifyContentCenter"
-                  onClick={() => {
-                    setAutoLogin(!isAutoLogin);
-                  }}
-                >
-                  <Checkbox checked={isAutoLogin} className="" name="" />
-                  <span className="Gray_9e">{_l('7天内免登录')}</span>
-                </div>
-                {loginMode.phone && ( //配置了手机登录
-                  <WrapTpLogin>
-                    <div
-                      className="phoneLogin mTop32 Hand ThemeHoverColor3"
-                      onClick={() => {
-                        setIsQrLogin(false);
-                      }}
-                    >
-                      <Icon type="phone" className="Font20 TxtTop" />
-                      <span className="Font15 TxtTop InlineBlock LineHeight20">{_l('手机验证码登录')}</span>
-                    </div>
-                  </WrapTpLogin>
-                )}
-              </WropWXCon>
-            ) : (
-              <React.Fragment>
-                {paramForPcWx && (
-                  <div
-                    className="Font17 Hand back Gray_75"
-                    onClick={() => {
-                      setIsQrLogin(true);
-                      setParamForPcWx(null);
-                    }}
-                  >
-                    <Icon icon="backspace mRight8" />
-                    {_l('返回')}
-                  </div>
-                )}
-                {(paramForPcWx || decodeURIComponent(location.href).indexOf('mdAppId') >= 0) && (
-                  <p className="Gray mTop20 Bold mBottom5">
-                    <Icon icon={'check_circle1'} className="Font20 TxtMiddle mRight5" style={{ color: '#4CAF50' }} />
-                    {_l('扫码成功，请绑定手机号')}
-                  </p>
-                )}
-                <Message
-                  type="portalLogin"
-                  keys={['tel', 'code']}
-                  openLDAP={false}
-                  dataList={dataLogin}
-                  isNetwork={false}
-                  onChangeData={data => {
-                    setData({ ...dataLogin, ...data });
-                  }}
-                  appId={appId}
-                  sendVerifyCode={sendVerifyCode}
-                  nextHtml={isValid => {
-                    return (
-                      <React.Fragment>
-                        {!paramForPcWx && (
-                          <div
-                            className="mTop12 flexRow alignItemsCenter Hand"
-                            onClick={() => {
-                              setAutoLogin(!isAutoLogin);
-                            }}
-                          >
-                            <Checkbox checked={isAutoLogin} className="" name="" />
-                            <span className="Gray_9e">{_l('7天内免登录')}</span>
-                          </div>
-                        )}
-                        <div
-                          className={cx('loginBtn mTop32 TxtCenter Hand', {
-                            sending: sending,
-                          })}
-                          onClick={() => {
-                            if (isValid()) {
-                              sendCode();
-                            }
-                          }}
-                        >
-                          {paramForPcWx ? _l('绑定并登录/注册') : allowUserType === 9 ? _l('登录') : _l('登录/注册')}
-                          {sending ? '...' : ''}
-                        </div>
-                        {termsAndAgreementEnable && (
-                          <div className=" mTop12">
-                            <div className="InlineBlock Gray_9e mLeft5 TxtTop LineHeight22">
-                              {_l('点登录即代表同意')}
-                              <span
-                                className="ThemeColor3 Hand mRight5 mLeft5"
-                                onClick={() => {
-                                  window.open(`${location.origin}${window.subPath || ''}/agreen?appId=${appId}`);
-                                }}
-                              >
-                                《{_l('用户协议')}》
-                              </span>
-                              {_l('和')}
-                              <span
-                                className="ThemeColor3 Hand mLeft5"
-                                onClick={() => {
-                                  window.open(`${location.origin}${window.subPath || ''}/privacy?appId=${appId}`);
-                                }}
-                              >
-                                《{_l('隐私政策')}》
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                        <p className="txt mTop30 TxtCenter Gray">{allowUserType === 9 && _l('本应用不开放注册')}</p>
-                      </React.Fragment>
-                    );
-                  }}
-                />
-                {loginMode.weChat &&
-                  isWXOfficialExist && //配置了微信扫码登录
-                  // !browserIsMobile() &&
-                  !paramForPcWx &&
-                  !md.global.Config.IsLocal && //私有部署隐藏二维码扫码登录
-                  !request.mdAppId && ( //微信扫码登录流程没有二维码扫码步骤
-                    <WrapTpLogin>
-                      {/* <div className="title Gray_9e mTop32">{_l('或')}</div> */}
-                      <div
-                        className="wxLogin mTop32 Hand Font15"
-                        onClick={() => {
-                          setIsQrLogin(true);
-                        }}
-                      >
-                        <i className="weixinIcon hvr-pop"></i> {_l('微信登录')}
-                      </div>
-                    </WrapTpLogin>
-                  )}
-              </React.Fragment>
-            )}
+            <LoginContainer {...props} />
           </div>
         )}
       </div>

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-var isBetween = require('dayjs/plugin/isBetween');
-var customParseFormat = require('dayjs/plugin/customParseFormat');
+import isBetween from 'dayjs/plugin/isBetween';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 dayjs.extend(isBetween);
 import _ from 'lodash';

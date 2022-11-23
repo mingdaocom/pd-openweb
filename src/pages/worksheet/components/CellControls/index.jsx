@@ -150,7 +150,7 @@ export default class CellControl extends React.Component {
 
   validate(cell, row) {
     const { tableFromModule, cellUniqueValidate, clearCellError, formdata } = this.props;
-    let { errorType } = onValidator(cell, undefined, formdata());
+    let { errorType } = onValidator(cell, formdata(), undefined, true);
     if (!errorType && cell.unique && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
       errorType = cellUniqueValidate(cell.controlId, cell.value, row.rowid) ? '' : 'UNIQUE';
     }
@@ -178,7 +178,7 @@ export default class CellControl extends React.Component {
     const errorType = this.validate({ ...cell, value }, row);
     let errorText;
     if (_.includes([15, 16], cell.type) && errorType && errorType !== 'REQUIRED') {
-      errorText = onValidator(cell, undefined, _.isFunction(formdata) ? formdata() : formdata).errorText;
+      errorText = onValidator(cell, _.isFunction(formdata) ? formdata() : formdata, undefined, true).errorText;
     } else {
       errorText = errorType && this.getErrorText(errorType, { ...cell, value });
     }
@@ -297,6 +297,8 @@ export default class CellControl extends React.Component {
         this.clicktimer = null;
         if (!window.cellisediting && !window.getSelection().toString()) {
           onClick(...args);
+        } else {
+          window.cellisediting = false;
         }
       }, 260);
     }

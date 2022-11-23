@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, Support, LoadDiv } from 'ming-ui';
+import Trigger from 'rc-trigger';
+import { MenuItemWrap } from '../style';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { Icon, Support, LoadDiv, Menu } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { CardTopWrap } from '../style';
 import { getNodeDetail } from 'src/pages/workflow/api/flowNode';
@@ -68,14 +71,44 @@ const Wrap = styled.div`
     line-height: 51px;
   }
 `;
+const WrapBtn = styled.div`
+  background: #ffffff;
+  border-radius: 18px;
+  color: #bdbdbd;
+  padding: 8px 12px;
+  margin: 0 auto;
+  &:hover {
+    color: #2196f3;
+  }
+`;
+function AddNode(props) {
+  const featureType = getFeatureStatus(localStorage.getItem('currentProjectId'), 8);
+  if (!props.canEdit || !featureType) {
+    return '';
+  }
+  return (
+    <React.Fragment>
+      <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
+      <WrapBtn
+        className="Hand flexRow alignItemsCenter"
+        onClick={() => {
+          if (featureType === '2') {
+            buriedUpgradeVersionDialog(localStorage.getItem('currentProjectId'), 8);
+            return;
+          }
+          props.onAdd();
+        }}
+      >
+        <Icon icon="worksheet_API" className="Font17" />
+        <span className="mLeft3">{_l('插入代码')}</span>
+      </WrapBtn>
+    </React.Fragment>
+  );
+}
 export default function Card(props) {
-  const [{ info, loading, showEdit, node }, setState] = useSetState({
+  const [{ info, loading, showEdit, node, nodeInfo }, setState] = useSetState({
     info: props.info,
-    node: _.get(props, ['info', 'flowNodeMap'])
-      ? _.get(props, ['info', 'flowNodeMap'])[
-          _.findKey(_.get(props, ['info', 'flowNodeMap']), ['typeId', props.typeId])
-        ] || {}
-      : {},
+    node: props.nodeInfo,
     loading: true,
     showEdit: false,
   });
@@ -95,7 +128,7 @@ export default function Card(props) {
     });
   };
   if (loading) {
-    return <LoadDiv className="mTop24" />;
+    return <LoadDiv />;
   }
   const getList = arr => {
     let list = [];
@@ -236,10 +269,6 @@ export default function Card(props) {
 
   return (
     <div className="flexColumn">
-      {[8, 21].includes(props.typeId) && (
-        <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
-      )}
-
       <Wrap className={props.className}>
         <CardTopWrap className="flexRow flex">
           <div className={cx('iconCon')}>
@@ -296,6 +325,14 @@ export default function Card(props) {
           </div>
         )}
       </Wrap>
+      {props.canAdd && (
+        <AddNode
+          {...props}
+          onAdd={() => {
+            props.onAddId(node.typeId);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -1,0 +1,67 @@
+.GSelect-result {
+  height: auto;
+  max-height: 110px;
+  padding-top: 12px;
+  padding-left: 10px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  &-box {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  &-subItem {
+    height: 28px;
+    background: #f7f7f7;
+    border-radius: 20px;
+    display: inline-block;
+    padding-right: 2px;
+    margin-right: 10px;
+    margin-bottom: 8px;
+    cursor: default;
+    position: relative;
+    &__avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: inline-flex;
+      font-size: 19px;
+      color: #fff;
+      background-color: #2196f3;
+      align-items: center;
+      justify-content: center;
+      vertical-align: top;
+      &__onlySelf {
+        background-color: initial;
+        color: #2196f3;
+      }
+    }
+    &__name {
+      vertical-align: top;
+      display: inline-block;
+      line-height: 28px;
+      margin-left: 8px;
+      max-width: 95px;
+    }
+    &__remove {
+      width: 22px;
+      height: 22px;
+      margin: 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #f7f7f7;
+      border-radius: 50%;
+      vertical-align: top;
+      color: #9e9e9e;
+      font-size: 13px;
+      cursor: pointer;
+      span {
+        margin-top: 2px;
+      }
+      &:hover {
+        color: #2196f3;
+        background-color: #fff;
+      }
+    }
+  }
+}

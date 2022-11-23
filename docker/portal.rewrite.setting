@@ -32,10 +32,12 @@ rewrite (?i)^(/|/portal/)agreen /privacyOrAgreen.html break;
 
 rewrite (?i)^(/|/portal/)login /portalLogin.html break;
 rewrite (?i)^(/|/portal/)network /portalLogin.html break;
+rewrite (?i)^(/|/portal/)findPwd /portalFindPassWord.html break;
 rewrite (?i)^(/|/portal/)logout /logout.html break;
 
 # auth
 rewrite (?i)^(/|/portal/)tpauth /portalLogin.html break;
+rewrite (?i)^(/|/portal/)wxscanauth /portalLogin.html break;
 rewrite (?i)^(/|/portal/)portalTpauth /portalLogin.html break;
 rewrite (?i)^(/|/portal/)wxauth(.*) /portalLogin.html break;
 

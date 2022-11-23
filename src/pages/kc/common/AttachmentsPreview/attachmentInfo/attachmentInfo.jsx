@@ -7,6 +7,7 @@ import { FROM_TYPE } from '../constant/enum';
 import * as Actions from '../actions/action';
 import attachmentAjax from 'src/api/attachment';
 import { cutStringWithHtml, htmlEncodeReg } from 'src/util';
+import { createLinksForMessage } from 'src/components/common/function';
 
 class attachmentInfo extends React.Component {
   static propTypes = {
@@ -63,22 +64,20 @@ class attachmentInfo extends React.Component {
           return;
         }
 
-        require(['mdFunction'], mdFunction => {
-          const detailMsg = mdFunction.createLinksForMessage({
-            message: data.result.replace(/\n/g, ' <br>'),
-            rUserList: data.rUserList,
-            rGroupList: data.rGroupList,
-            categories: data.categories,
-          });
-          const tempStr = detailMsg.replace(cutStringWithHtml(detailMsg, 200, 5), '');
-          if (tempStr.length > 0) {
-            postDetails = cutStringWithHtml(detailMsg, 200, 5) + '...';
-          } else {
-            postDetails = cutStringWithHtml(detailMsg, 200, 5);
-          }
-          _this.setState({
-            postDetails,
-          });
+        const detailMsg = createLinksForMessage({
+          message: data.result.replace(/\n/g, ' <br>'),
+          rUserList: data.rUserList,
+          rGroupList: data.rGroupList,
+          categories: data.categories,
+        });
+        const tempStr = detailMsg.replace(cutStringWithHtml(detailMsg, 200, 5), '');
+        if (tempStr.length > 0) {
+          postDetails = cutStringWithHtml(detailMsg, 200, 5) + '...';
+        } else {
+          postDetails = cutStringWithHtml(detailMsg, 200, 5);
+        }
+        _this.setState({
+          postDetails,
         });
       })
       .fail(() => {});
@@ -188,4 +187,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(attachmentInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(attachmentInfo);

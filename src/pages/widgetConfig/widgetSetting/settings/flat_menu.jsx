@@ -33,7 +33,7 @@ const OPTIONS_DISPLAY = [
   },
 ];
 
-export default function FlatMenu({ data, onChange, globalSheetInfo, fromPortal }) {
+export default function FlatMenu({ data, onChange, globalSheetInfo, fromPortal, fromExcel }) {
   const { direction = '0', showtype = '0' } = getAdvanceSetting(data);
   return (
     <Fragment>
@@ -65,12 +65,14 @@ export default function FlatMenu({ data, onChange, globalSheetInfo, fromPortal }
           onChange={value => onChange(handleAdvancedSettingChange(data, { direction: value }))}
         />
       </SettingItem>
-      <OptionList.SelectOptions
-        data={data}
-        globalSheetInfo={globalSheetInfo}
-        onChange={onChange}
-        fromPortal={fromPortal}
-      />
+      {!fromExcel && (
+        <OptionList.SelectOptions
+          data={data}
+          globalSheetInfo={globalSheetInfo}
+          onChange={onChange}
+          fromPortal={fromPortal}
+        />
+      )}
     </Fragment>
   );
 }

@@ -2,7 +2,7 @@ import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
 import { Select, DatePicker, Input, Dropdown, Menu } from 'antd';
 import { Icon, ScrollView } from 'ming-ui';
-import { dropdownScopeData, dropdownDayData, isPastAndFuture, isTimeControl, timeDataParticle, timeGatherParticle } from 'statistics/common';
+import { dropdownScopeData, dropdownDayData, isPastAndFuture, isTimeControl, timeDataParticle, timeGatherParticle, timeTypes, unitTypes } from 'statistics/common';
 import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
 import 'moment/locale/zh-cn';
 import locale from 'antd/es/date-picker/locale/zh_CN';
@@ -12,7 +12,7 @@ import * as actions from 'statistics/redux/actions';
 
 const { RangePicker } = DatePicker;
 
-const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20];
+const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21];
 
 @connect(
   state => ({
@@ -30,6 +30,7 @@ export default class extends Component {
       dropdownScopeValue: filter.rangeType,
       dropdownDayValue: filter.rangeValue || 7,
       particleSizeType: xaxes ? xaxes.particleSizeType : 0,
+      dynamicFilter: { startType: 1, startCount: 1, startUnit: 1, endType: 1, endCount: 1, endUnit: 1 },
       customRangeDay: false
     }
   }
@@ -59,12 +60,13 @@ export default class extends Component {
   handleSave = () => {
     const { filter } = this.props.currentReport;
     const { sheetVisible } = this.props.base;
-    const { dropdownScopeValue, dropdownDayValue } = this.state;
+    const { dropdownScopeValue, dropdownDayValue, dynamicFilter } = this.state;
     this.props.changeCurrentReport({
       filter: {
         ...filter,
         rangeType: dropdownScopeValue,
-        rangeValue: dropdownDayValue
+        rangeValue: dropdownDayValue,
+        dynamicFilter
       }
     }, true);
     if (sheetVisible) {
@@ -129,6 +131,7 @@ export default class extends Component {
               }}
             />
           )}
+          {dropdownScopeValue === 21 && this.renderDynamicFilter()}
         </Fragment>
       );
     }
@@ -140,11 +143,8 @@ export default class extends Component {
     }
 
     if (naturalTime.includes(currentRangeType)) {
-      const scopeData = _.find(dropdownScopeData, { value: filter.rangeType }) || {};
-      const scopeTime = filter.rangeType === 20 ? filter.rangeValue.split('-').map(item => moment(item)) : scopeData.getScope();
-
-      const disabledScopeData = _.find(dropdownScopeData, { value: currentRangeType }) || {};
-      const disabledDate = currentRangeType === 20 ? currentRangeValue.split('-').map(item => moment(item)) : disabledScopeData.getScope();
+      const scopeTime = filter.rangeType === 20 ? filter.rangeValue.split('-').map(item => moment(item)) : [moment(filter.startDate), moment(filter.endDate)];
+      const disabledDate = currentRangeType === 20 ? currentRangeValue.split('-').map(item => moment(item)) : [moment(filter.startDate), moment(filter.endDate)];
 
       return (
         <RangePicker
@@ -223,6 +223,108 @@ export default class extends Component {
         </Dropdown>
       );
     }
+  }
+  renderDynamicFilter() {
+    const { dynamicFilter } = this.state;
+    const unitValues = [1, 3, 4];
+    const changeDynamicFilter = (data) => {
+      this.setState({
+        dynamicFilter: {
+          ...dynamicFilter,
+          ...data
+        }
+      }, this.handleSave);
+    }
+    return (
+      <Fragment>
+        <div className="flexRow valignWrapper mTop20">
+          <div className="mRight15">{_l('从')}</div>
+          <Select
+            className="chartSelect flex"
+            value={dynamicFilter.startType}
+            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            onChange={value => {
+              changeDynamicFilter({ startType: value });
+            }}
+          >
+            {timeTypes.map(item => (
+              <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+                {item.name}
+              </Select.Option>
+            ))}
+          </Select>
+          {[5, 6].includes(dynamicFilter.startType) && (
+            <Fragment>
+              <Input
+                className="chartInput flex mLeft10 mRight10"
+                value={dynamicFilter.startCount}
+                onChange={(e) => {
+                  const value = event.target.value;
+                  changeDynamicFilter({ startCount: formatNumberFromInput(value).replace('-', '') });
+                }}
+              />
+              <Select
+                className="chartSelect flex"
+                value={dynamicFilter.startUnit}
+                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                onChange={value => {
+                  changeDynamicFilter({ startUnit: value });
+                }}
+              >
+                {unitTypes.map(item => (
+                  <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+                    {item.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Fragment>
+          )}
+        </div>
+        <div className="flexRow valignWrapper mTop10">
+          <div className="mRight15">{_l('至')}</div>
+          <Select
+            className="chartSelect flex"
+            value={dynamicFilter.endType}
+            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            onChange={value => {
+              changeDynamicFilter({ endType: value, startUnit: unitValues.includes(value) ? value : dynamicFilter.startUnit });
+            }}
+          >
+            {timeTypes.map(item => (
+              <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+                {item.name}
+              </Select.Option>
+            ))}
+          </Select>
+          {[5, 6].includes(dynamicFilter.endType) && (
+            <Fragment>
+              <Input
+                className="chartInput flex mLeft10 mRight10"
+                value={dynamicFilter.endCount}
+                onChange={(e) => {
+                  const value = event.target.value;
+                  changeDynamicFilter({ endCount: formatNumberFromInput(value).replace('-', '') });
+                }}
+              />
+              <Select
+                className="chartSelect flex"
+                value={dynamicFilter.endUnit}
+                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                onChange={value => {
+                  changeDynamicFilter({ endUnit: value, endUnit: unitValues.includes(value) ? value : dynamicFilter.endUnit });
+                }}
+              >
+                {unitTypes.map(item => (
+                  <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+                    {item.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Fragment>
+          )}
+        </div>
+      </Fragment>
+    );
   }
   renderGroup() {
     const { currentReport } = this.props;
@@ -305,7 +407,8 @@ export default class extends Component {
                 appId={worksheetInfo.appId}
                 columns={worksheetInfo.columns}
                 conditions={[]}
-                onConditionsChange={(conditions, localConditions) => {
+                filterResigned={false}
+                onConditionsChange={(conditions = [], localConditions) => {
                   conditions = conditions.map(item => {
                     const isTime = isTimeControl(item.dataType);
                     const isMoment = moment.isMoment(item.value);

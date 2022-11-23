@@ -10,9 +10,6 @@ import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import arrowRightImg from './img/arrowRight.png';
 import arrowLeftImg from './img/arrowLeft.png';
-import okImg from './img/ok.png';
-import text1Img from './img/text1.png';
-import text2Img from './img/text2.png';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import AppGroupSkeleton from './AppGroupSkeleton';
@@ -472,15 +469,16 @@ class AppHome extends React.Component {
         <div className="guideWrapper">
           <div className="guide guide1" />
           <img className="guideImg Absolute" src={arrowLeftImg} />
-          <img className="textImg Absolute" src={text1Img} />
-          <img
-            className="okImg Absolute"
-            src={okImg}
+          <div className="text Absolute Font18 White bold">{_l('感谢你尝试安装！我们精心挑选了两个初始应用，供您体验。')}</div>
+          <div
+            className="ok Absolute Font18 White bold"
             onClick={() => {
               this.addWebCache();
               this.setState({ guideStep: 2 });
             }}
-          />
+          >
+            {_l('知晓了')}
+          </div>
         </div>
       );
     } else {
@@ -488,14 +486,15 @@ class AppHome extends React.Component {
         <div className="guideWrapper">
           <div className="guide guide2" />
           <img className="guide2Img Absolute" src={arrowRightImg} />
-          <img className="text2Img Absolute" src={text2Img} />
-          <img
-            className="ok2Img Absolute"
-            src={okImg}
+          <div className="text2 Absolute Font18 White bold">{_l('您也可从模板库添加一个应用')}</div>
+          <div
+            className="ok2 Absolute Font18 White bold"
             onClick={() => {
               this.setState({ guideStep: 0 });
             }}
-          />
+          >
+            {_l('知晓了')}
+          </div>
         </div>
       );
     }

@@ -184,7 +184,7 @@ export default class Widgets extends Component {
           <MDMap
             isMobile={isMobile}
             distance={!!enumDefault2 ? parseInt(advancedSetting.distance) : 0}
-            defaultAddress={location ? { lng: location.x, lat: location.y } : null}
+            defaultAddress={location || null}
             onAddressChange={({ lng, lat, address, name }) => {
               onChange(JSON.stringify({ x: lng, y: lat, address, title: name }));
               this.setState({ visible: false });

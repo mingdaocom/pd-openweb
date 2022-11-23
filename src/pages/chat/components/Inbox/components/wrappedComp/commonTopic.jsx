@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import BaseMessageComponent from '../baseComponent/messageContent';
 
-import { createLinksForMessage } from 'mdFunction';
+import { createLinksForMessage } from 'src/components/common/function';
 import { formatInboxItem, splitSourceId, buildSourceLink } from '../../util';
 import { SOURCE_TYPE } from '../../constants';
 

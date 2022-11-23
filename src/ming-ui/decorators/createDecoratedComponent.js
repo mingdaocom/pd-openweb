@@ -17,4 +17,4 @@ function createDecoratedComponent(decorator, ...args) {
   return DecoratedComponent;
 }
 
-module.exports = createDecoratedComponent;
+export default createDecoratedComponent;

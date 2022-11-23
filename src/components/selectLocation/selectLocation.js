@@ -1,19 +1,8 @@
-﻿/*
-define(function (require, exports, module) {
-    require('./selectLocation');
-
-    $("#txtLocation").selectLocation({
-        callback: function (location) {
-        }
-    });
-});
-*/
-
-import './style.css';
+﻿import './style.css';
 
 var fixeddataController = require('src/api/fixedData');
 
-module.exports = (function ($) {
+export default (function ($) {
   $.fn.selectLocation = function (param) {
     return new SelectLocation(this, param);
   };

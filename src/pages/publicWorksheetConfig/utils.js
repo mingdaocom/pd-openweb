@@ -20,7 +20,11 @@ const defaultHidedControlTypes = [26, 27, 21, 48];
 
 export function getDisabledControls(controls, systemRelatedIds = {}) {
   const defaultHided = controls
-    .filter(control => defaultHidedControlTypes.includes(control.type) || defaultHidedControlTypes.includes(control.sourceControlType))
+    .filter(
+      control =>
+        defaultHidedControlTypes.includes(control.type) ||
+        (defaultHidedControlTypes.includes(control.sourceControlType) && control.type !== 29),
+    )
     .map(control => control.controlId);
   const hidedWhenNew = controls
     .filter(control => (control.controlPermissions || '000')[2] === '0')
@@ -48,7 +52,9 @@ export function overridePos(controls = [], newPosControls = []) {
   );
   newControls.forEach((control, index) => {
     if (control.type === 34) {
-      const hiddenIds = control.relationControls.filter(c => _.includes(defaultHidedControlTypes, c.type)).map(c => c.controlId);
+      const hiddenIds = control.relationControls
+        .filter(c => _.includes(defaultHidedControlTypes, c.type))
+        .map(c => c.controlId);
       if (hiddenIds.length) {
         control.showControls = control.showControls.filter(id => !_.includes(hiddenIds, id));
       }

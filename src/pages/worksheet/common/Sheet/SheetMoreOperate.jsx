@@ -21,7 +21,7 @@ export default function SheetMoreOperate(props) {
     <span className="moreOperate mLeft6 pointer" onClick={() => setMenuVisible(true)}>
       <Icon className="Gray_9d Font20" icon="more_horiz" />
       {menuVisible && (
-        <Menu onClick={e => e.stopPropagation()} onClickAway={() => setMenuVisible(false)}>
+        <Menu style={{zIndex: 999}} onClick={e => e.stopPropagation()} onClickAway={() => setMenuVisible(false)}>
           {isCharge && (
             <Fragment>
               <MenuItem

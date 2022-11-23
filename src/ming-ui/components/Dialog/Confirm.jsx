@@ -32,6 +32,7 @@ export default function confirm(props) {
         </ConfirmButton>
       )}
       <ConfirmButton
+        disabled={props.okDisabled}
         action={props.onOk}
         onClose={() => handleClose(!props.onlyClose, true)}
         type={props.buttonType || 'primary'}

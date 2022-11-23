@@ -125,7 +125,7 @@ export default class DateCalc extends Component {
                 text: _l('为日期加减时间'),
                 value: 2,
               },
-              { text: _l('距离今天的天数'), value: 3 },
+              { text: _l('距离此刻的时长'), value: 3 },
             ]}
             value={enumDefault}
             onChange={this.handleCalTypeChange}
@@ -189,8 +189,8 @@ export default class DateCalc extends Component {
                     { text: _l('年'), value: '5' },
                     { text: _l('月'), value: '4' },
                     { text: _l('天'), value: '3' },
-                    { text: _l('小时'), value: '2' },
-                    { text: _l('分钟'), value: '1' },
+                    { text: _l('时'), value: '2' },
+                    { text: _l('分'), value: '1' },
                   ]}
                   value={unit}
                   onChange={type => {

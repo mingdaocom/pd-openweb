@@ -220,15 +220,16 @@ export default class WorksheetTable extends PureComponent {
     let data = typeof this.props.data === 'function' ? this.props.data() : this.props.data;
     let nextData = typeof nextProps.data === 'function' ? nextProps.data() : nextProps.data;
     if (_.isArray(data)) {
-      data = data.filter(r => r.rowid);
+      data = data.filter(r => (r || {}).rowid);
     }
     if (_.isArray(nextData)) {
-      nextData = nextData.filter(r => r.rowid);
+      nextData = nextData.filter(r => (r || {}).rowid);
     }
     if (
       nextProps.width !== this.props.width ||
       !_.isEqual(nextProps.columns, this.props.columns) ||
-      nextProps.responseHeight !== this.props.responseHeight
+      nextProps.responseHeight !== this.props.responseHeight ||
+      nextProps.rowHeadWidth !== this.props.rowHeadWidth
     ) {
       this.columns = this.getColumns(nextProps);
     }
@@ -438,8 +439,13 @@ export default class WorksheetTable extends PureComponent {
     }
     control.fieldPermission =
       this.getControlFieldPermission(row.rowid, control.controlId, control) || control.fieldPermission || '111';
+
     if (this.updatedRows[row.rowid]) {
       row = this.updatedRows[row.rowid];
+    }
+    const controlPermissions = safeParse(row.controlpermissions);
+    if (!isSubList && !_.isEmpty(controlPermissions)) {
+      control.controlPermissions = controlPermissions[control.controlId] || control.controlPermissions;
     }
     let value;
     if (_.isFunction(getRowsCache)) {

@@ -1,4 +1,4 @@
-import functionWrap from 'worksheet/components/FunctionWrap';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import PrintQrCode from './PrintQrCode';
 
 export default PrintQrCode;

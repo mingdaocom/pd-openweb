@@ -1,9 +1,10 @@
-import 'mdDialog';
+import 'src/components/mdDialog/dialog';
 import AccountController from 'src/api/account';
 import './style.less';
 import { encrypt } from 'src/util';
 import captcha from 'src/components/captcha';
-var doT = require('dot');
+import doT from '@mdfe/dot';
+import tpl from './validatePassword.html';
 
 var ajax = null;
 
@@ -18,12 +19,11 @@ const errorMsg = {
   8: _l('验证码错误')
 }
 
-module.exports = function(opt) {
+export default function(opt) {
   var dialogId = 'validateAccountPasswordDialog';
   if ($('#' + dialogId).length) return;
 
   const options = $.extend({}, defaultOpts, opt);
-  var tpl = require('./validatePassword.html');
   var html = doT.template(tpl)({
     btnText: options.btnText,
   });

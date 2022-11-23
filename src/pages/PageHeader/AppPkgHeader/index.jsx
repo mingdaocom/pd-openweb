@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
 import './index.less';
-import { getAppFeaturesVisible } from 'src/util';
+import { getAppFeaturesVisible, browserIsMobile } from 'src/util';
 
 @connect(
   undefined,
@@ -42,10 +42,14 @@ export default class AppPkgHeader extends Component {
     const { worksheetId, viewId } = getIds(this.props);
     api.getAppSimpleInfo({ workSheetId: worksheetId }).then(({ appId, appSectionId, workSheetId }) => {
       if (appId && appSectionId) {
-        navigateTo(
-          `/app/${appId}/${appSectionId}/${workSheetId}${viewId ? '/' + viewId : ''}${location.search || ''}`,
-          true,
-        );
+        if (browserIsMobile()) {
+          location.href = `/mobile/recordList/${appId}/${appSectionId}/${workSheetId}${viewId ? '/' + viewId : ''}${location.search || ''}`;
+        } else {
+          navigateTo(
+            `/app/${appId}/${appSectionId}/${workSheetId}${viewId ? '/' + viewId : ''}${location.search || ''}`,
+            true,
+          );
+        }
       }
     });
   };

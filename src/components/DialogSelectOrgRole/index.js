@@ -138,7 +138,9 @@ class DialogSelectOrgRole extends Component {
             <i className="icon-user" />
           </div>
           <div className="GSelect-result-subItem__name overflow_ellipsis">{item.organizeName}</div>
-          <div className="GSelect-result-subItem__remove icon-minus" onClick={() => this.toggle(item, false)} />
+          <div className="GSelect-result-subItem__remove" onClick={() => this.toggle(item, false)}>
+            <span className="icon-close"></span>
+          </div>
         </div>
       );
     });
@@ -149,7 +151,7 @@ class DialogSelectOrgRole extends Component {
   }
 
   render() {
-    const { onClose, projectId, onSave, showCompanyName, orgRoleDialogVisible } = this.props;
+    const { onClose, projectId, onSave, showCompanyName, orgRoleDialogVisible, overlayClosable } = this.props;
     const { keywords, selectData } = this.state;
     let isShowRole =
       !md.global.Account.isPortal && (md.global.Account.projects || []).some(it => it.projectId === projectId);
@@ -162,6 +164,7 @@ class DialogSelectOrgRole extends Component {
         width={480}
         type="scroll"
         onCancel={onClose}
+        overlayClosable={overlayClosable}
         onOk={() => {
           onSave(selectData);
           onClose();

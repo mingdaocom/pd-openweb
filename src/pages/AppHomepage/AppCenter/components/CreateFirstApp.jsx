@@ -1,8 +1,9 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
 import { createApp } from 'api/homeApp';
 import { navigateTo } from 'router/navigateTo';
 import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
+import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
 import bgPng from '../assets/welcome.png';
 
 const FullCon = styled.div`
@@ -62,7 +63,7 @@ export default function NoProjectsStatus(props) {
   const INTRO_CONFIG = [
     {
       type: 'create',
-      icon: 'add',
+      icon: 'addapplication2',
       iconColor: '#2196f3',
       title: _l('创建空白应用'),
       desc: _l('从头开始创造您自己的应用'),
@@ -70,15 +71,24 @@ export default function NoProjectsStatus(props) {
     },
     {
       icon: 'custom_store',
-      iconColor: '#3cca8e',
+      iconColor: '#FAAF55',
       title: _l('从应用库安装'),
       desc: _l('安装应用库中现成的开箱模板，您可以直接使用，也可以继续按需修改'),
       href: `/app/lib?projectId=${projectId}`,
       key: 'installFromLib',
     },
+    {
+      type: 'excel_create',
+      icon: 'new_excel',
+      iconColor: '#78B84C',
+      title: _l('从Excel创建应用'),
+      desc: _l('上传Excel文件创建您的应用'),
+      // href: '#',
+    },
   ].filter(data => {
     return data.key === 'installFromLib' ? !md.global.SysSettings.hideTemplateLibrary : true;
   });
+  let [dialogImportExcel, setDialogImportExcel] = useState(false);
   return (
     <FullCon>
       <div className="welcomeImg">
@@ -93,6 +103,11 @@ export default function NoProjectsStatus(props) {
               <div
                 className="introItem"
                 onClick={() => {
+                  if (type === 'excel_create') {
+                    console.log('excel_create');
+                    setDialogImportExcel(true);
+                    return;
+                  }
                   if (type === 'create') {
                     createApp({
                       projectId,
@@ -125,6 +140,9 @@ export default function NoProjectsStatus(props) {
             ))}
           </div>
         </Fragment>
+      )}
+      {dialogImportExcel && (
+        <DialogImportExcelCreate projectId={projectId} onCancel={() => setDialogImportExcel(false)} createType="app" />
       )}
     </FullCon>
   );

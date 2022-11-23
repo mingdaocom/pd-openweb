@@ -1,40 +1,36 @@
-var doT = require('dot');
+import doT from '@mdfe/dot';
+import tpl from './content.html';
+import { index as DialogLayer } from 'src/components/mdDialog/dialog';
+
 var InviteDialog = function (opts = { friendVisible: true }) {
   this.opts = opts;
   this.init();
 };
-var addFriend = require('addFriends');
-var invite = require('src/components/common/inviteMember/inviteMember');
+import addFriend from 'src/components/addFriends/addFriends';
 import './style.css';
 
 InviteDialog.prototype.init = function () {
   var _this = this;
   if (md.global.Account.projects.length) {
-    require(['mdDialog'], function (DialogLayer) {
-      _this.Dialog = DialogLayer.index({
-        dialogBoxID: 'inviteDialog',
-        width: 420,
-        container: {
-          header: _l('邀请到'),
-          yesText: '',
-          noText: '',
-        },
-        readyFn: function () {
-          _this.Dialog.dialogCenter();
-          _this.bindEvent();
-        },
-      });
-      _this.render();
+    _this.Dialog = DialogLayer({
+      dialogBoxID: 'inviteDialog',
+      width: 420,
+      container: {
+        header: _l('邀请到'),
+        content: doT.template(tpl)(this.opts),
+        yesText: '',
+        noText: '',
+      },
+      readyFn: function () {
+        _this.$content = $('#inviteDialog');
+        _this.Dialog.dialogCenter();
+        _this.bindEvent();
+      },
     });
   } else {
     // 没有网络， 直接邀请好友
     this.invite();
   }
-};
-
-InviteDialog.prototype.render = function () {
-  this.$content = $('#inviteDialog');
-  this.Dialog.showContent(doT.template(require('./content.html'))(this.opts));
 };
 
 InviteDialog.prototype.bindEvent = function () {
@@ -48,17 +44,12 @@ InviteDialog.prototype.bindEvent = function () {
 };
 
 InviteDialog.prototype.invite = function (projectId) {
-  if (!projectId) {
-    addFriend();
-  } else {
-    invite.inviteMembers(projectId, this.opts.accountId, () => {
-      setTimeout(() => {
-        this.$content.find('.dialogCloseBtn').click();
-      }, 1000);
-    });
-  }
+  setTimeout(() => {
+    // 4网络，0个人好友
+    addFriend({ fromType: projectId ? 4 : 0, projectId });
+  }, 300);
 };
 
-module.exports = function (opts) {
-  var invite = new InviteDialog(opts);
-};
+export default function (opts) {
+  new InviteDialog(opts);
+}

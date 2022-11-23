@@ -1,8 +1,9 @@
 var accountController = require('src/api/account');
 import { getRequest } from 'src/util';
 var token = getRequest()['token'];
-var doT = require('dot');
-require('./style.css');
+import doT from '@mdfe/dot';
+import './style.css';
+import tpl from './template.html';
 
 var ACTIONRESULTS = {
   BindSuccessfully: 1, // 邮箱绑定已经成功
@@ -23,7 +24,7 @@ var render = function (result) {
     <div class="main"></div>
   </div>`);
   $('.main').html(
-    doT.template(require('./template.html'))({
+    doT.template(tpl)({
       result: result || ACTIONRESULTS.LinkAuthInvalid,
       ACTIONRESULTS: ACTIONRESULTS,
     }),

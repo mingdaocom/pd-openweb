@@ -1,10 +1,13 @@
 
-.customPageButtonWrap, .customPageViewWrap, .customPageFilterWrap {
+.customPageButtonWrap,
+.customPageViewWrap,
+.customPageFilterWrap,
+.customPageCarouselWrap {
   z-index: 999;
 }
 
 .selectOptionWrapper {
-  padding: 7px 12px 7px 20px;
+  padding: 7px 12px;
   &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
     font-weight: unset;
     color: #fff;
@@ -49,6 +52,31 @@
   button.save {
     font-weight: bold;
     width: 72px !important;
+  }
+  .customPageSelect {
+    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+    &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      border-color: #2196F3 !important;
+    }
+    .ant-select-selector {
+      border-radius: 4px !important;
+      box-shadow: none !important;
+    }
+    .ant-select-arrow {
+      width: auto;
+      height: auto;
+      top: 40%;
+    }
+    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item,
+    .ant-select-selection-placeholder {
+      opacity: 1;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+    }
+    &.ant-select-single.ant-select-open .ant-select-selection-item {
+      color: inherit;
+    }
   }
 }
 

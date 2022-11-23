@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import AddControlDiaLog from './AddControlDiaLog';
 import { SYS } from '../../../../../widgetConfig/config/widget';
 import { getStringBytes } from 'src/util';
-import { getStrBytesLength } from 'src/pages/Roles/Portal/list/util';
+import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util.js';
 
 const WrapFragment = styled.div`
   .addMarkInput,

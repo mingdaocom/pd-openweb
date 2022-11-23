@@ -18,10 +18,7 @@ import projectSetting from 'src/api/projectSetting';
 import { Select } from 'antd';
 import WorkflowMonitor from './components/WorkflowMonitor';
 
-const tablist = [
-  { tab: 'workflowList', tabName: _l('工作流') },
-  { tab: 'monitorTab', tabName: _l('监控') },
-];
+const tablist = [{ tab: 'workflowList', tabName: _l('工作流') }, { tab: 'monitorTab', tabName: _l('监控') }];
 
 const typeList = [
   { label: _l('全部类型'), value: '' },
@@ -31,6 +28,7 @@ const typeList = [
   { label: _l('Webhook'), value: 6 },
   { label: _l('子流程'), value: 8 },
   { label: _l('自定义动作'), value: 7 },
+  { label: _l('审批流程'), value: 11 },
   { label: _l('封装业务流程'), value: 10 },
 ];
 
@@ -273,7 +271,12 @@ export default class AdminWorkflowList extends Component {
         </div>
         <div className="columnWidth">{loading ? '-' : item.count.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,')}</div>
         <div className="columnWidth">
-          <PublishBtn list={list} item={item} updateSource={list => this.setState({ list })} />
+          <PublishBtn
+            disabled={item.startAppType === 9}
+            list={list}
+            item={item}
+            updateSource={list => this.setState({ list })}
+          />
         </div>
         <div className="columnWidth Gray_9e">
           {(START_APP_TYPE[item.child ? 'subprocess' : item.startAppType] || {}).text}

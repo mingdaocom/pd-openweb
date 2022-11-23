@@ -9,7 +9,7 @@
         <div class="contactSearchBox flexRow">
             <span class="Font20 mLeft5 icon icon-search Gray_9e"></span>
             <input type="text" class="searchInput" placeholder="{{=it.placeHolder}}" />
-            {{? !it.isRangeData}}
+            {{? !it.isRangeData && !it.isHidAddUser}}
             <span class="contact-icon ThemeColor3 tip-top" data-tip="{{=it.tip.contact}}">
                 <span class="icon-personalDataCommunication"></span>
             </span>

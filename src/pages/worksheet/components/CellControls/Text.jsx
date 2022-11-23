@@ -310,7 +310,7 @@ export default class Text extends React.Component {
                   <span
                     className={
                       cell.type === 32
-                        ? cx('worksheetCellPureString', { linelimit: needLineLimit, ellipsis: isMobile })
+                        ? cx('worksheetCellPureString nowrap', { linelimit: needLineLimit, ellipsis: isMobile })
                         : ''
                     }
                     title={text}

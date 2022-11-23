@@ -5,6 +5,7 @@ import { Dialog, Radio, ScrollView, Support, Icon } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { NODE_TYPE, ACTION_ID, APP_TYPE, TRIGGER_ID } from '../../enum';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import SelectApprovalProcess from '../../../components/SelectApprovalProcess';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -133,17 +134,42 @@ export default class CreateNodeDialog extends Component {
         },
         {
           id: 'artificial',
-          name: _l('人工'),
+          name: _l('待办'),
           items: [
+            {
+              type: 26,
+              name: _l('发起审批流程'),
+              iconColor: '#4158DB',
+              iconName: 'icon-approval',
+              typeText: _l('执行流程'),
+              secondList: [
+                {
+                  type: 26,
+                  appType: 10,
+                  name: _l('创建新流程'),
+                  describe: _l('从空白创建一条新的审批流程'),
+                  isNew: true,
+                },
+                {
+                  type: 26,
+                  appType: 10,
+                  name: _l('从已有审批流程复制'),
+                  describe: _l(
+                    '从已有审批流程复制不包括数据对象在内的流程框架，涉及相关对象的字段将被重置，需要重新配置这些节点',
+                  ),
+                },
+              ],
+            },
             { type: 4, name: _l('审批'), iconColor: '#7E57C2', iconName: 'icon-workflow_ea' },
             { type: 3, name: _l('填写'), iconColor: '#00BCD4', iconName: 'icon-workflow_write' },
+            { type: 5, name: _l('抄送'), iconColor: '#2196f3', iconName: 'icon-workflow_notice' },
           ],
         },
         {
           id: 'notice',
           name: _l('通知'),
           items: [
-            { type: 5, name: _l('发送站内通知'), iconColor: '#2196f3', iconName: 'icon-workflow_notice' },
+            { type: 27, name: _l('发送站内通知'), iconColor: '#2196f3', iconName: 'icon-hr_message_reminder' },
             { type: 10, name: _l('发送短信'), iconColor: '#2196f3', iconName: 'icon-workflow_sms' },
             {
               type: 11,
@@ -158,7 +184,7 @@ export default class CreateNodeDialog extends Component {
               featureId: 14,
               name: _l('界面推送'),
               iconColor: '#2196f3',
-              iconName: 'icon-notifications_11',
+              iconName: 'icon-interface_push',
             },
             {
               type: 19,
@@ -364,6 +390,13 @@ export default class CreateNodeDialog extends Component {
                   name: _l('从部门字段获取'),
                   describe: _l('从部门字段获取一个指定部门的相关信息'),
                 },
+                // {
+                //   type: 1000,
+                //   appType: 24,
+                //   actionId: '20',
+                //   name: _l('从组织角色字段获取'),
+                //   describe: _l('从组织角色字段获取一个指定角色的相关信息'),
+                // },
                 {
                   type: 1000,
                   appType: 20,
@@ -378,6 +411,13 @@ export default class CreateNodeDialog extends Component {
                   name: _l('从组织部门中获取'),
                   describe: _l('从当前组织的所有部门中获取一个指定部门的相关信息'),
                 },
+                // {
+                //   type: 1000,
+                //   appType: 24,
+                //   actionId: '406',
+                //   name: _l('从组织角色中获取'),
+                //   describe: _l('从当前组织的所有组织角色中获取一个指定角色的相关信息'),
+                // },
               ],
             },
             {
@@ -401,6 +441,13 @@ export default class CreateNodeDialog extends Component {
                   name: _l('从部门字段获取'),
                   describe: _l('从部门字段获取批量部门的相关信息'),
                 },
+                // {
+                //   type: 1001,
+                //   appType: 24,
+                //   actionId: '401',
+                //   name: _l('从组织角色字段获取'),
+                //   describe: _l('从组织角色字段获取批量角色的相关信息'),
+                // },
                 {
                   type: 1001,
                   appType: 20,
@@ -415,6 +462,13 @@ export default class CreateNodeDialog extends Component {
                   name: _l('从组织部门中获取'),
                   describe: _l('从当前组织的所有部门中获取批量部门的相关信息'),
                 },
+                // {
+                //   type: 1001,
+                //   appType: 24,
+                //   actionId: '400',
+                //   name: _l('从组织角色中获取'),
+                //   describe: _l('从当前组织的所有组织角色中获取批量角色的相关信息'),
+                // },
               ],
             },
             {
@@ -487,15 +541,15 @@ export default class CreateNodeDialog extends Component {
       showBranchDialog: false,
       moveType: 1,
       foldFeatures: safeParse(localStorage.getItem(`workflowFoldFeatures-${md.global.Account.accountId}`)) || {},
+      showApprovalDialog: false,
     };
 
     if (!_.includes([APP_TYPE.CUSTOM_ACTION, APP_TYPE.PBC], props.flowInfo.startAppType) || props.flowInfo.child) {
       this.state.list.forEach(o => {
-        console.log(o.items);
         _.remove(
           o.items,
           item =>
-            item.type === 17 ||
+            item.type === NODE_TYPE.PUSH ||
             (item.iconName === 'icon-custom_assignment' && md.global.SysSettings.forbidSuites.includes('2')),
         );
       });
@@ -507,16 +561,16 @@ export default class CreateNodeDialog extends Component {
     ) {
       _.remove(this.state.list, o => o.id !== 'notice');
       this.state.list.forEach(o => {
-        _.remove(o.items, item => item.type === 5);
+        _.remove(o.items, item => item.type === NODE_TYPE.CC);
       });
     }
 
     // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、界面推送
     [
-      { featureId: 4, type: [24, 25] },
-      { featureId: 8, type: [14] },
-      { featureId: 13, type: [18] },
-      { featureId: 14, type: [17] },
+      { featureId: 4, type: [NODE_TYPE.API_PACKAGE, NODE_TYPE.API] },
+      { featureId: 8, type: [NODE_TYPE.CODE] },
+      { featureId: 13, type: [NODE_TYPE.FILE] },
+      { featureId: 14, type: [NODE_TYPE.PUSH] },
     ].forEach(obj => {
       if (!_.includes(['1', '2'], getFeatureStatus(props.flowInfo.companyId, obj.featureId))) {
         this.state.list.forEach(o => {
@@ -535,6 +589,7 @@ export default class CreateNodeDialog extends Component {
         isOrdinary: true,
         showBranchDialog: false,
         moveType: 1,
+        showApprovalDialog: false,
       });
     }
   }
@@ -543,48 +598,14 @@ export default class CreateNodeDialog extends Component {
    * 内容
    */
   renderContent() {
-    const { isLast, nodeType, actionId, flowNodeMap, nodeId, flowInfo } = this.props;
-    const {
-      list,
-      selectItem,
-      selectSecond,
-      showDialog,
-      isOrdinary,
-      showBranchDialog,
-      moveType,
-      foldFeatures,
-    } = this.state;
-    const MOVE_TYPE = () => {
-      if (isOrdinary) {
-        return [{ text: _l('左侧'), value: 1 }, { text: _l('不移动'), value: 0 }];
-      }
-
-      if (nodeType === NODE_TYPE.APPROVAL) {
-        return [
-          { text: _l('左侧（通过分支）'), value: 1 },
-          { text: _l('右侧（否决分支）'), value: 2 },
-          { text: _l('不移动'), value: 0 },
-        ];
-      }
-
-      if (
-        _.includes([NODE_TYPE.SEARCH, NODE_TYPE.FIND_SINGLE_MESSAGE], nodeType) ||
-        (nodeType === NODE_TYPE.ACTION && actionId === ACTION_ID.RELATION)
-      ) {
-        return [
-          { text: _l('左侧（有数据分支）'), value: 1 },
-          { text: _l('右侧（无数据分支）'), value: 2 },
-          { text: _l('不移动'), value: 0 },
-        ];
-      }
-    };
+    const { list, selectItem, selectSecond, foldFeatures } = this.state;
 
     // 渲染二级数据
     if (selectSecond) {
       return (
         <div className="pTop20 pBottom15 pLeft12 pRight12">
           {selectItem.typeText && <div className="bold pLeft10">{selectItem.typeText}</div>}
-          {selectItem.type === 14 && (
+          {selectItem.type === NODE_TYPE.CODE && (
             <div className="Gray_75 mTop10 pLeft10">
               {_l('查看当前代码脚本的')}
               <a
@@ -596,7 +617,17 @@ export default class CreateNodeDialog extends Component {
               </a>
             </div>
           )}
-          {this.renderSecondList(selectItem.secondList)}
+
+          <ul className="secondNodeList">
+            {(selectItem.secondList || []).map((item, i) => {
+              return (
+                <li key={i} onClick={() => this.createNodeClick(item)}>
+                  <Radio className="Font15" text={item.name} disabled />
+                  <div className="Gray_75 Font13 mLeft30 mTop5">{item.describe}</div>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       );
     }
@@ -633,6 +664,9 @@ export default class CreateNodeDialog extends Component {
                           <i className={item.iconName} />
                         </span>
                         <div className="Font14">{item.name}</div>
+                        {item.type === NODE_TYPE.APPROVAL_PROCESS && (
+                          <div className="Font12 nodeListNew">{_l('Beta')}</div>
+                        )}
                       </li>
                     );
                   })}
@@ -641,94 +675,114 @@ export default class CreateNodeDialog extends Component {
             </div>
           );
         })}
-
-        {showDialog && (
-          <Dialog
-            visible
-            width={560}
-            title={
-              nodeType === NODE_TYPE.APPROVAL
-                ? _l('在审批节点下添加分支有两种选择：')
-                : _l('在查找指定数据节点下添加分支有两种选择：')
-            }
-            onCancel={() => this.setState({ showDialog: false, isOrdinary: true })}
-            onOk={() =>
-              isLast || (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId === ACTION_ID.PBC_OUT
-                ? this.onOk({ noMove: true })
-                : this.setState({ showDialog: false, showBranchDialog: true })
-            }
-          >
-            <Radio
-              className="Font15"
-              text={_l('添加普通分支')}
-              checked={isOrdinary}
-              onClick={() => this.setState({ isOrdinary: true })}
-            />
-            <div className="Gray_75 Font13 pLeft30 mTop5 mBottom15">
-              {nodeType === NODE_TYPE.APPROVAL
-                ? _l('只对“通过”审批的数据进行分支处理')
-                : _l('对查找到的数据进行分支处理。未查找到数据时，流程中止')}
-            </div>
-            <Radio
-              className="Font15"
-              text={nodeType === NODE_TYPE.APPROVAL ? _l('添加审批结果分支') : _l('添加查找结果分支')}
-              checked={!isOrdinary}
-              onClick={() => this.setState({ isOrdinary: false })}
-            />
-            <div className="Gray_75 Font13 pLeft30 mTop5">
-              {nodeType === NODE_TYPE.APPROVAL
-                ? _l('分支固定为“通过”和“未通过”。如果你同时需要对“未通过”审批的数据进行处理时选择此分支')
-                : _l(
-                    '分支固定为“查找到数据”和“未查找到数据”。如果你需要在“未查找到”数据的情况下继续执行流程，请选择此分支',
-                  )}
-            </div>
-          </Dialog>
-        )}
-
-        {showBranchDialog && (
-          <Dialog
-            visible
-            width={560}
-            title={_l('分支下方的节点整体放置在')}
-            onCancel={() => this.setState({ showBranchDialog: false, isOrdinary: true, moveType: 1 })}
-            onOk={this.onOk}
-          >
-            {MOVE_TYPE().map(o => (
-              <div key={o.value} className="mBottom15">
-                <Radio
-                  className="Font15"
-                  text={o.text}
-                  checked={moveType === o.value}
-                  onClick={() => this.setState({ moveType: o.value })}
-                />
-              </div>
-            ))}
-            <div className="Gray_75 Font13 pLeft30" style={{ marginTop: -10 }}>
-              {_l('等待分支汇集后再执行下方节点')}
-            </div>
-          </Dialog>
-        )}
       </div>
     );
   }
 
   /**
-   * 渲染二级列表
+   * 渲染结果分支
    */
-  renderSecondList(data) {
-    if (!data || !data.length) return null;
+  renderResultBranch() {
+    const { isLast, nodeType, flowNodeMap, nodeId } = this.props;
+    const { isOrdinary } = this.state;
 
     return (
-      <ul className="secondNodeList">
-        {data.map((item, i) => {
-          return (
-            <li key={i} onClick={() => this.createNodeClick(item)}>
-              <Radio className="Font15" text={item.name} disabled />
-              <div className="Gray_75 Font13 mLeft30 mTop5">{item.describe}</div>
-            </li>
-          );
-        })}
-      </ul>
+      <Dialog
+        visible
+        width={560}
+        title={
+          nodeType === NODE_TYPE.APPROVAL
+            ? _l('在审批节点下添加分支有两种选择：')
+            : _l('在查找指定数据节点下添加分支有两种选择：')
+        }
+        onCancel={() => this.setState({ showDialog: false, isOrdinary: true })}
+        onOk={() =>
+          isLast || (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId === ACTION_ID.PBC_OUT
+            ? this.onOk({ noMove: true })
+            : this.setState({ showDialog: false, showBranchDialog: true })
+        }
+      >
+        <Radio
+          className="Font15"
+          text={_l('添加普通分支')}
+          checked={isOrdinary}
+          onClick={() => this.setState({ isOrdinary: true })}
+        />
+        <div className="Gray_75 Font13 pLeft30 mTop5 mBottom15">
+          {nodeType === NODE_TYPE.APPROVAL
+            ? _l('只对“通过”审批的数据进行分支处理')
+            : _l('对查找到的数据进行分支处理。未查找到数据时，流程中止')}
+        </div>
+        <Radio
+          className="Font15"
+          text={nodeType === NODE_TYPE.APPROVAL ? _l('添加审批结果分支') : _l('添加查找结果分支')}
+          checked={!isOrdinary}
+          onClick={() => this.setState({ isOrdinary: false })}
+        />
+        <div className="Gray_75 Font13 pLeft30 mTop5">
+          {nodeType === NODE_TYPE.APPROVAL
+            ? _l('分支固定为“通过”和“未通过”。如果你同时需要对“未通过”审批的数据进行处理时选择此分支')
+            : _l(
+                '分支固定为“查找到数据”和“未查找到数据”。如果你需要在“未查找到”数据的情况下继续执行流程，请选择此分支',
+              )}
+        </div>
+      </Dialog>
+    );
+  }
+
+  /**
+   * 渲染分支
+   */
+  renderBranch() {
+    const { nodeType, actionId } = this.props;
+    const { isOrdinary, moveType } = this.state;
+    const MOVE_TYPE = () => {
+      if (isOrdinary) {
+        return [{ text: _l('左侧'), value: 1 }, { text: _l('不移动'), value: 0 }];
+      }
+
+      if (nodeType === NODE_TYPE.APPROVAL) {
+        return [
+          { text: _l('左侧（通过分支）'), value: 1 },
+          { text: _l('右侧（否决分支）'), value: 2 },
+          { text: _l('不移动'), value: 0 },
+        ];
+      }
+
+      if (
+        _.includes([NODE_TYPE.SEARCH, NODE_TYPE.FIND_SINGLE_MESSAGE], nodeType) ||
+        (nodeType === NODE_TYPE.ACTION && actionId === ACTION_ID.RELATION)
+      ) {
+        return [
+          { text: _l('左侧（有数据分支）'), value: 1 },
+          { text: _l('右侧（无数据分支）'), value: 2 },
+          { text: _l('不移动'), value: 0 },
+        ];
+      }
+    };
+
+    return (
+      <Dialog
+        visible
+        width={560}
+        title={_l('分支下方的节点整体放置在')}
+        onCancel={() => this.setState({ showBranchDialog: false, isOrdinary: true, moveType: 1 })}
+        onOk={this.onOk}
+      >
+        {MOVE_TYPE().map(o => (
+          <div key={o.value} className="mBottom15">
+            <Radio
+              className="Font15"
+              text={o.text}
+              checked={moveType === o.value}
+              onClick={() => this.setState({ moveType: o.value })}
+            />
+          </div>
+        ))}
+        <div className="Gray_75 Font13 pLeft30" style={{ marginTop: -10 }}>
+          {_l('等待分支汇集后再执行下方节点')}
+        </div>
+      </Dialog>
     );
   }
 
@@ -755,7 +809,7 @@ export default class CreateNodeDialog extends Component {
 
     // 二级创建
     if (item.secondList) {
-      if (_.includes([14], item.type) && featureType === '2') {
+      if (_.includes([NODE_TYPE.CODE], item.type) && featureType === '2') {
         buriedUpgradeVersionDialog(flowInfo.companyId, featureId);
         return;
       }
@@ -772,17 +826,19 @@ export default class CreateNodeDialog extends Component {
       (flowNodeMap[(flowNodeMap[nodeId] || {}).nextId] || {}).actionId !== ACTION_ID.PBC_OUT
     ) {
       this.setState({ selectItem: item, showBranchDialog: true });
-    } else if (_.includes([14, 17, 18], item.type) && featureType === '2') {
-      // 代码块、界面推送、Word打印模板
+    } else if (
+      _.includes([NODE_TYPE.CODE, NODE_TYPE.PUSH, NODE_TYPE.FILE, NODE_TYPE.API_PACKAGE, NODE_TYPE.API], item.type) &&
+      featureType === '2'
+    ) {
+      // 代码块、界面推送、Word打印模板、API连接与认证、调用已集成的API
       buriedUpgradeVersionDialog(flowInfo.companyId, featureId);
-    } else if (_.includes([24, 25], item.type) && featureType === '2') {
-      // API连接与认证、调用已集成的API
-      buriedUpgradeVersionDialog(flowInfo.companyId, featureId);
+    } else if (item.type === NODE_TYPE.APPROVAL_PROCESS && !item.isNew) {
+      this.setState({ showApprovalDialog: true });
     } else {
       this.addFlowNode({
         actionId: item.actionId,
         appType: item.appType,
-        name: item.name,
+        name: item.type === NODE_TYPE.APPROVAL_PROCESS ? _l('发起审批') : item.name,
         prveId: nodeId,
         typeId: item.type,
       });
@@ -790,7 +846,7 @@ export default class CreateNodeDialog extends Component {
   }
 
   /**
-   * branch dialog确定
+   * dialog确定
    */
   onOk = ({ noMove }) => {
     const { nodeId } = this.props;
@@ -817,18 +873,18 @@ export default class CreateNodeDialog extends Component {
   };
 
   /**
-   * 添加动作节点
+   * 添加节点
    */
   addFlowNode = args => {
-    const { addFlowNode, selectAddNodeId } = this.props;
+    const { flowInfo, addFlowNode, selectAddNodeId } = this.props;
 
-    addFlowNode(args);
+    addFlowNode(flowInfo.id, args);
     selectAddNodeId('');
   };
 
   render() {
-    const { nodeId, selectAddNodeId } = this.props;
-    const { selectItem, selectSecond } = this.state;
+    const { nodeId, selectAddNodeId, flowInfo } = this.props;
+    const { selectItem, selectSecond, showDialog, showBranchDialog, showApprovalDialog } = this.state;
 
     return (
       <ReactCSSTransitionGroup
@@ -875,6 +931,27 @@ export default class CreateNodeDialog extends Component {
             <div className="flex">
               <ScrollView>{this.renderContent()}</ScrollView>
             </div>
+
+            {showDialog && this.renderResultBranch()}
+
+            {showBranchDialog && this.renderBranch()}
+
+            {showApprovalDialog && (
+              <SelectApprovalProcess
+                companyId={flowInfo.companyId}
+                appId={flowInfo.relationId}
+                onOk={({ processId }) =>
+                  this.addFlowNode({
+                    appType: APP_TYPE.APPROVAL,
+                    name: _l('发起审批'),
+                    prveId: nodeId,
+                    typeId: NODE_TYPE.APPROVAL_PROCESS,
+                    approvalId: processId,
+                  })
+                }
+                onCancel={() => this.setState({ showApprovalDialog: false })}
+              />
+            )}
           </ClickAwayable>
         )}
       </ReactCSSTransitionGroup>

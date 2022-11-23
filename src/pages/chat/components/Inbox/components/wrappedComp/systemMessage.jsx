@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
-import 'emotion';
+import 'src/components/emotion/emotion';
 import Avatar from '../baseComponent/avatar';
 import Star from '../baseComponent/star';
 import { formatInboxItem } from '../../util';
@@ -95,6 +95,13 @@ export default class SystemMessage extends PureComponent {
           evt.preventDefault();
           const id = href.slice(href.indexOf('excelerrorpage') + 15).split('/');
           new ErrorDialog({ fileKey: id[0] });
+          return;
+        }
+        // 工作表导入
+        if (href.indexOf('excelbatcherrorpage') > -1) {
+          evt.preventDefault();
+          const id = href.slice(href.indexOf('excelbatcherrorpage') + 15).split('/');
+          new ErrorDialog({ fileKey: id[1], isBatch: true });
           return;
         }
       });

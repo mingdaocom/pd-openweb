@@ -24,6 +24,7 @@ const {
   RoleInput,
   ArrayInput,
   ObjectInput,
+  AttachmentInput,
 } = Components;
 
 const TYPE_TO_COMP = {
@@ -44,6 +45,7 @@ const TYPE_TO_COMP = {
   role: RoleInput,
   array: ArrayInput,
   array_object: ObjectInput,
+  attachment: AttachmentInput,
 };
 
 export default function DynamicDefaultValue(props) {
@@ -54,8 +56,7 @@ export default function DynamicDefaultValue(props) {
   if (!type) return null;
   // 选项集才有默认值
   if (type === 'option' && !dataSource) return null;
-  //关联多条列表没有默认值
-  if (data.type === 29 && enumDefault === 2 && showtype === '2') return null;
+
   const Comp = TYPE_TO_COMP[type];
 
   const dynamicValue = getAdvanceSetting(data, 'defsource') || [];

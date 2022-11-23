@@ -94,11 +94,11 @@ class DiscussList extends Component {
       <Item key={item.discussionId} align="top" thumb={item.createAccount.avatar} multipleLine>
         <Flex>
           <div className="name Font15">{item.createAccount.fullname}</div>
-          <div className="time">
+          <div className="flexRow valignWrapper Font14 Gray_9e">
             <div>{createTimeSpan(item.createTime)}</div>
-            {item.createAccount.accountId === md.global.Account.accountId ? (
-              <Icon icon="expand_more" onClick={this.openActionSheet.bind(this, item.discussionId)}/>
-            ) : null}
+            {item.createAccount.accountId === md.global.Account.accountId && (
+              <Icon className="mLeft5 Font22" icon="more_horiz" onClick={this.openActionSheet.bind(this, item.discussionId)}/>
+            )}
           </div>
         </Flex>
         <Brief>
@@ -115,7 +115,6 @@ class DiscussList extends Component {
               rUserList={item.accountsInMessage}
               sourceType={item.sourceType}
             />
-            <Icon icon="chat" className="Font20 Gray_9e" />
           </div>
         </Brief>
         {item.attachments.length ? (

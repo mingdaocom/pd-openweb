@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import privatePlatformAdminApi from 'src/api/privatePlatformAdmin';
 import UserHead from 'src/pages/feed/components/userHead';
 import { useClientRect } from '../common';
+import 'src/components/dialogSelectUser/dialogSelectUser.js';
 
 const Wrap = styled.div`
   .ant-table-thead th {
@@ -39,13 +40,13 @@ const columns = [
             lazy="false"
             user={{
               accountId: data.accountId,
-              userHead: data.avatar
+              userHead: data.avatar,
             }}
           />
           <div className="mLeft10">{data.fullname}</div>
         </div>
       );
-    }
+    },
   },
   {
     title: _l('手机'),
@@ -62,9 +63,9 @@ const columns = [
     dataIndex: 'operate',
     key: 'operate',
     render: () => {
-      return <a className="removeUser">{_l('移除')}</a>
-    }
-  }
+      return <a className="removeUser">{_l('移除')}</a>;
+    },
+  },
 ];
 
 const Admin = props => {
@@ -78,60 +79,69 @@ const Admin = props => {
   const tableHeight = _.get(rect, 'height');
 
   const handleAddUser = () => {
-    import('dialogSelectUser').then(() => {
-      $({}).dialogSelectUser({
-        fromType: 0,
-        sourceId: md.global.Account.accountId,
-        showMoreInvite: false,
-        SelectUserSettings: {
-          filterAccountIds: list.map(u => u.accountId),
-          callback: users => {
-            privatePlatformAdminApi.addPlatformAdmins({
+    $({}).dialogSelectUser({
+      fromType: 0,
+      sourceId: md.global.Account.accountId,
+      showMoreInvite: false,
+      SelectUserSettings: {
+        filterAccountIds: list.map(u => u.accountId),
+        callback: users => {
+          privatePlatformAdminApi
+            .addPlatformAdmins({
               accountIds: users.map(u => u.accountId),
-            }).then(data => {
+            })
+            .then(data => {
               data && getPlatformAdmins();
             });
-          },
         },
-      });
+      },
     });
-  }
+  };
 
-  const handleRemoveUser = (user) => {
+  const handleRemoveUser = user => {
     Dialog.confirm({
       title: _l('确定移除%0 ?', user.fullname),
       onOk: () => {
-        privatePlatformAdminApi.removePlatformAdmins({
-          accountIds: [user.accountId]
-        }).then(data => {
-          data && getPlatformAdmins();
-        });
-      }
+        privatePlatformAdminApi
+          .removePlatformAdmins({
+            accountIds: [user.accountId],
+          })
+          .then(data => {
+            data && getPlatformAdmins();
+          });
+      },
     });
-  }
+  };
 
   const getPlatformAdmins = () => {
     setLoading(true);
-    privatePlatformAdminApi.getPlatformAdmins({
-      pageIndex,
-      pageSize,
-      keywords,
-    }).then(data => {
-      const { count, list } = data;
-      setLoading(false);
-      setList(list);
-      setTotal(count);
-    });
-  }
+    privatePlatformAdminApi
+      .getPlatformAdmins({
+        pageIndex,
+        pageSize,
+        keywords,
+      })
+      .then(data => {
+        const { count, list } = data;
+        setLoading(false);
+        setList(list);
+        setTotal(count);
+      });
+  };
 
-  useEffect(() => {
-    getPlatformAdmins();
-  }, [pageIndex, keywords]);
+  useEffect(
+    () => {
+      getPlatformAdmins();
+    },
+    [pageIndex, keywords],
+  );
 
   return (
     <Wrap className="privateCardWrap big h100 flexColumn">
       <div className="Font17 bold mBottom8">{_l('管理员')}</div>
-      <div className="Gray_9e mBottom18">{_l('平台管理员账号管理，可从管理员所属组织中直接添加管理员成员，也可移除成员')}</div>
+      <div className="Gray_9e mBottom18">
+        {_l('平台管理员账号管理，可从管理员所属组织中直接添加管理员成员，也可移除成员')}
+      </div>
       <div className="flexRow valignWrapper headerOperate">
         <Button type="primary" onClick={handleAddUser}>
           <Icon icon="add" />
@@ -157,34 +167,34 @@ const Admin = props => {
           columns={columns}
           dataSource={list}
           locale={{
-            emptyText: _l('暂无数据')
+            emptyText: _l('暂无数据'),
           }}
           pagination={{
             position: ['none', 'bottomCenter'],
             pageSize,
             total,
-            onChange: (page) => {
+            onChange: page => {
               setPageIndex(page);
-            }
+            },
           }}
           scroll={{
             scrollToFirstRowOnChange: false,
-            y: `${tableHeight > 500 ? (tableHeight - 130) : 500}px`,
+            y: `${tableHeight > 500 ? tableHeight - 130 : 500}px`,
           }}
-          onRow={(record) => {
+          onRow={record => {
             return {
               onClick: e => {
                 const { target } = e;
                 if (target.classList.contains('removeUser')) {
                   handleRemoveUser(record);
                 }
-              }
-            }
+              },
+            };
           }}
         />
       </div>
     </Wrap>
   );
-}
+};
 
 export default Admin;

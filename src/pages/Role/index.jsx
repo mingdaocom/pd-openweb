@@ -1,0 +1,486 @@
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { Icon, LoadDiv, Support, WaterMark, Tooltip, Dialog } from 'ming-ui';
+import SvgIcon from 'src/components/SvgIcon';
+import DocumentTitle from 'react-document-title';
+import cx from 'classnames';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import HomeAjax from 'src/api/homeApp';
+import { getIds } from '../PageHeader/util';
+import { navigateTo } from 'router/navigateTo';
+import * as actionsPortal from 'src/pages/Role/PortalCon/redux/actions.js';
+import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
+import Portal from 'src/pages/Role/PortalCon/index';
+import openImg from './img/open.gif';
+import { editExPortalEnable, getPortalEnableState } from 'src/api/externalPortal';
+import AppRoleCon from 'src/pages/Role/AppRoleCon';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { ROLE_TYPES } from 'src/pages/Role/config';
+const EDITTYLE_CONFIG = [_l('常规'), _l('外部门户')];
+const RoleWrapper = styled.div`
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+`;
+
+const IconWrap = styled.div`
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: normal;
+  margin-left: -3px;
+  &:hover {
+    box-shadow: inset 0 0 20px 20px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const TopBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 50px;
+  padding-right: 24px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+  background-color: #ffffff;
+  z-index: 1;
+  .Gray_bd {
+    &:hover {
+      color: #9e9e9e !important;
+    }
+  }
+`;
+
+const Wrap = styled.div`
+  flex: 1;
+  display: block;
+  text-align: center;
+  & > span {
+    padding: 0 12px;
+    margin: 0 10px;
+    // color: #757575;
+    line-height: 48px;
+    display: inline-block;
+    box-sizing: border-box;
+    // &:hover {
+    //   color: #2196f3;
+    // }
+    &.current {
+      position: relative;
+      color: #2196f3;
+      border-bottom: 3px solid #2196f3;
+    }
+  }
+`;
+const WrapOpenPortalBtn = styled.div`
+  padding: 0 14px 0 8px;
+  line-height: 34px;
+  height: 34px;
+  background: #f3faff;
+  border-radius: 18px;
+  color: #2196f3;
+  font-weight: 500;
+  &:hover {
+    background: #ebf6fe;
+  }
+  .set {
+    margin-top: -4px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+`;
+const WrapPop = styled.div`
+  width: 640px;
+  background: #ffffff;
+  box-shadow: 0px 5px 24px rgba(0, 0, 0, 0.24);
+  border-radius: 5px;
+  overflow: hidden;
+  img {
+    width: 100%;
+  }
+  .con {
+    padding: 24px;
+    line-height: 26px;
+    h6 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333333;
+    }
+    li {
+      color: #757575;
+      line-height: 24px;
+      font-weight: 400;
+      &::before {
+        content: ' ';
+        width: 5px;
+        height: 5px;
+        display: inline-block;
+        background: #757575;
+        border-radius: 50%;
+        line-height: 32px;
+        margin-right: 10px;
+        vertical-align: middle;
+      }
+    }
+    .btn {
+      margin-top: 16px;
+      line-height: 36px;
+      background: #2196f3;
+      border-radius: 3px;
+      padding: 0 24px;
+      color: #fff;
+      font-weight: 600;
+      &:hover {
+        background: #1e88e5;
+      }
+    }
+    .helpPortal {
+      line-height: 36px;
+      float: right;
+      margin-top: 16px;
+      font-weight: 500;
+    }
+  }
+`;
+class AppRole extends Component {
+  state = {
+    applyList: undefined,
+    appDetail: undefined,
+    roles: null,
+    loading: true,
+    openLoading: false,
+    showApplyDialog: false,
+    activeRoleId: null,
+    // 是否对非管理员隐藏角色详情
+    rolesVisibleConfig: null,
+    quitAppConfirmVisible: false,
+    isOpenPortal: false, //是否开启外部门户
+    editType: 0, //0:用户角色编辑 1:外部门户编辑
+    showPortalSetting: false,
+    showPortalRoleSetting: false,
+    portalBaseSet: {},
+    hasGetIsOpen: false,
+  };
+
+  componentDidMount() {
+    this.ids = getIds(this.props);
+    this.fetchPortalInfo();
+    $('html').addClass('roleBody');
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.ids = getIds(this.props);
+    const {
+      match: {
+        params: { appId: currentAppId },
+      },
+    } = this.props;
+    const {
+      match: {
+        params: { appId: nextAppId, editType },
+      },
+    } = nextProps;
+    const { hasGetIsOpen, isOpenPortal } = this.state;
+    if (currentAppId !== nextAppId || !hasGetIsOpen) {
+      this.setState({
+        loading: true,
+      });
+      this.fetchPortalInfo(nextProps);
+    } else {
+      if (editType === 'external' && !isOpenPortal) {
+        navigateTo(`/app/${nextAppId}/role`);
+      }
+      this.setState({
+        editType: editType === 'external' && isOpenPortal ? 1 : 0,
+      });
+    }
+  }
+
+  componentWillUnmount() {
+    $('html').removeClass('roleBody');
+  }
+
+  fetch(props = this.props, withAppDetail = true) {
+    const {
+      match: {
+        params: { appId },
+      },
+    } = props;
+
+    HomeAjax.getAppDetail({
+      appId,
+    }).then(appDetail => {
+      this.setState({ appDetail, loading: false });
+      const {
+        match: {
+          params: { appId, editType },
+        },
+      } = this.props;
+      const isAdmin = isHaveCharge(appDetail.permissionType, appDetail.isLock);
+      if (editType === 'external' && !isAdmin) {
+        navigateTo(`/app/${appId}/role`);
+      }
+    });
+  }
+  fetchPortalInfo = (props = this.props) => {
+    const {
+      match: {
+        params: { appId, editType },
+      },
+    } = props;
+    getPortalEnableState({
+      appId,
+    }).then((portalBaseSet = {}) => {
+      this.setState(
+        {
+          isOpenPortal: portalBaseSet.isEnable,
+          hasGetIsOpen: true,
+          editType: editType === 'external' ? 1 : 0,
+          loading: true,
+        },
+        () => {
+          this.fetch(props);
+          if (!portalBaseSet.isEnable && editType === 'external') {
+            //无权限进外部门户编辑 跳转到 内部成员
+            navigateTo(`/app/${appId}/role`);
+            this.setState({
+              editType: 0,
+            });
+          }
+        },
+      );
+    });
+  };
+
+  handleChangePage = callback => {
+    if (this.child && this.child.state.hasChange) {
+      let isNew = !this.child.props.roleId;
+      return Dialog.confirm({
+        title: isNew ? _l('创建当前新增的角色？') : _l('保存当前角色权限配置 ？'),
+        okText: isNew ? _l('创建') : _l('保存'),
+        cancelText: isNew ? _l('不创建') : _l('不保存'),
+        width: 440,
+        onOk: () => {
+          this.child.state.hasChange = false;
+          this.child.setState({
+            hasChange: false,
+          });
+          this.child.onSave(true);
+        },
+        onCancel: () => {
+          this.child.state.hasChange = false;
+          this.child.setState({
+            hasChange: false,
+          });
+          this.child.onFormat();
+          callback && callback();
+        },
+      });
+    } else {
+      callback && callback();
+    }
+  };
+
+  render() {
+    const { appDetail = {}, loading, openLoading, editType, showPortalRoleSetting, isOpenPortal } = this.state;
+    const { projectId = '' } = appDetail;
+    const {
+      match: {
+        params: { appId },
+      },
+    } = this.props;
+    const isAdmin = isHaveCharge(appDetail.permissionType, appDetail.isLock);
+    const isOwner = appDetail.permissionType === ROLE_TYPES.OWNER;
+
+    const { iconColor, name, iconUrl } = appDetail;
+    if (loading) {
+      return <LoadDiv />;
+    }
+    const featureType = getFeatureStatus(projectId, 11);
+
+    return (
+      <WaterMark projectId={projectId}>
+        <RoleWrapper>
+          <DocumentTitle title={`${appDetail.name || ''} - ${_l('用户')}`} />
+          <TopBar className={cx('', { mBottom0: editType === 1 })}>
+            <div
+              className="flexRow pointer Gray_bd mLeft16"
+              onClick={() => navigateTo(`/app/${appId}`)}
+            >
+              <Tooltip popupPlacement="bottom" text={<span>{_l('应用：%0', name)}</span>}>
+                <div className="flexRow alignItemsCenter">
+                  <i className="icon-navigate_before Font20" />
+                  <IconWrap style={{ backgroundColor: iconColor }}>
+                    <SvgIcon url={iconUrl} fill="#fff" size={18} />
+                  </IconWrap>
+                </div>
+              </Tooltip>
+            </div>
+            <div
+              className={cx('nativeTitle Font17 bold mLeft16 overflow_ellipsis', {
+                flex: !isAdmin || (isAdmin && !isOpenPortal && featureType),
+              })}
+              style={{
+                maxWidth: !isAdmin || (isAdmin && !isOpenPortal && featureType) ? '100%' : 200,
+              }}
+            >
+              {/* {name} */}
+              {_l('用户')}
+            </div>
+            {isAdmin && isOpenPortal && (
+              <Wrap className="editTypeTab">
+                {[0, 1]
+                  .filter(o => (isAdmin ? true : o !== 1))
+                  .map(o => {
+                    if (o === 1 && !featureType) return;
+                    return (
+                      <span
+                        className={cx('editTypeTabLi Hand Bold Font14', { current: editType === o })}
+                        onClick={() => {
+                          if (o === editType) {
+                            return;
+                          }
+                          this.handleChangePage(() => {
+                            if (o === 1) {
+                              if (featureType === '2') {
+                                buriedUpgradeVersionDialog(projectId, 11);
+                                return;
+                              }
+                              navigateTo(`/app/${appId}/role/external`);
+                              //获取外部门户的角色信息
+                            } else {
+                              navigateTo(`/app/${appId}/role`);
+                            }
+                            this.setState({
+                              editType: o,
+                            });
+                          });
+                        }}
+                      >
+                        {EDITTYLE_CONFIG[o]}
+                      </span>
+                    );
+                  })}
+              </Wrap>
+            )}
+            {isAdmin && !isOpenPortal && featureType && (
+              <Trigger
+                action={['click']}
+                popup={
+                  <WrapPop className="openPortalWrap">
+                    <img src={openImg} className="Block" />
+                    <div className="con">
+                      <h6>{_l('将应用发布给组织外用户使用')}</h6>
+                      <ul>
+                        <li>{_l('用于提供会员服务，如：作为资料库、内容集、讨论组等。')}</li>
+                        <li>{_l('用于和你的业务客户建立关系，如：服务外部客户的下单，查单等场景。')}</li>
+                        <li>{_l('支持微信、手机/邮箱验证码及密码登录')}</li>
+                      </ul>
+                      <div
+                        className={cx('btn InlineBlock', { disable: openLoading })}
+                        onClick={() => {
+                          if (featureType === '2') {
+                            buriedUpgradeVersionDialog(projectId, 11);
+                            return;
+                          }
+                          if (openLoading) {
+                            return;
+                          }
+                          this.setState({
+                            openLoading: true,
+                          });
+                          editExPortalEnable({ appId, isEnable: !this.state.isEnable }).then(res => {
+                            if (res) {
+                              // window.appInfo.epEnableStatus = !this.state.isEnable;
+                              this.setState({ isOpenPortal: true, editType: 1, openLoading: false }, () => {
+                                navigateTo(`/app/${appId}/role/external`);
+                              });
+                            } else {
+                              this.setState({
+                                openLoading: false,
+                              });
+                              alert(_l('开启失败'), 2);
+                            }
+                          });
+                        }}
+                      >
+                        {openLoading ? _l('开启中...') : _l('启用外部门户')}
+                      </div>
+                      <Support
+                        href="https://help.mingdao.com/external.html"
+                        type={3}
+                        className="helpPortal"
+                        text={_l('了解更多')}
+                      />
+                    </div>
+                  </WrapPop>
+                }
+                popupAlign={{
+                  points: ['tr', 'tr'],
+                  offset: [17, 0],
+                }}
+              >
+                <WrapOpenPortalBtn className={cx('openPortalBtn Hand InlineBlock', { disable: openLoading })}>
+                  <Icon className="Font20 Hand mLeft10 mRight6 set " icon="external_users_01" />
+                  {openLoading ? _l('开启中...') : _l('启用外部门户')}
+                </WrapOpenPortalBtn>
+              </Trigger>
+            )}
+          </TopBar>
+          {editType === 0 ? (
+            <AppRoleCon
+              {...this.props}
+              appId={appId}
+              isAdmin={isAdmin}
+              isOwner={isOwner}
+              projectId={projectId}
+              isOpenPortal={isOpenPortal}
+              onRef={ref => {
+                this.child = ref;
+              }}
+              handleChangePage={this.handleChangePage}
+            />
+          ) : (
+            <Portal
+              {...this.props}
+              onRef={ref => {
+                this.child = ref;
+              }}
+              isOwner={isOwner}
+              handleChangePage={this.handleChangePage}
+              isAdmin={isAdmin}
+              appDetail={this.state.appDetail}
+              projectId={projectId}
+              portalName={appDetail.name}
+              appId={appId}
+              closePortal={() => {
+                editExPortalEnable({ appId, isEnable: false }).then(res => {
+                  if (res) {
+                    // window.appInfo.epEnableStatus = false;
+                    navigateTo(`/app/${appId}/role`);
+                    this.setState({ isOpenPortal: false, editType: 0 });
+                  } else {
+                    alert(_l('关闭失败！'), 2);
+                  }
+                });
+              }}
+              showPortalRoleSetting={showPortalRoleSetting}
+            />
+          )}
+        </RoleWrapper>
+      </WaterMark>
+    );
+  }
+}
+const mapStateToProps = state => ({
+  portal: state.portal,
+});
+const mapDispatchToProps = dispatch => bindActionCreators(actionsPortal, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(AppRole);

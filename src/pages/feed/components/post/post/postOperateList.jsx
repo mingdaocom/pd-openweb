@@ -2,18 +2,32 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
-import mdFunction from 'mdFunction';
+import { createLinksForMessage } from 'src/components/common/function';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
-import ClickAwayable from '../../../mixins/clickAwayable';
-import { POST_TYPE } from '../../../constants/postEnum';
-import { addTop, removeTop, remove, removeComment, editVoteEndTimeSuccess, editShareScopeSuccess } from '../../../redux/postActions';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+const ClickAway = createDecoratedComponent(withClickAway);
+import postEnum from '../../../constants/postEnum';
+const { POST_TYPE } = postEnum;
+import {
+  addTop,
+  removeTop,
+  remove,
+  removeComment,
+  editVoteEndTimeSuccess,
+  editShareScopeSuccess,
+} from '../../../redux/postActions';
 import { connect } from 'react-redux';
 import EditPostDialog from './EditPostDialog';
 import EditVoteEndTimeDialog from './EditVoteEndTimeDialog';
-
+import createTask from 'src/components/createTask/createTask';
 import './postOperateList.css';
-
+import createCalendar from 'src/components/createCalendar/createCalendar';
+import { index as dialog } from 'src/components/mdDialog/dialog';
+import addOldTask from 'src/components/createTask/addOldTask';
+import editShareScope from '../postComponent/editShareScope/editShareScope';
+import post from 'src/api/post';
 
 /**
  * 动态的操作列表
@@ -27,8 +41,6 @@ const PostOperateList = createReactClass({
     postItem: PropTypes.any.isRequired,
     handleHide: PropTypes.func,
   },
-
-  mixins: [ClickAwayable],
 
   getInitialState() {
     return {
@@ -54,42 +66,42 @@ const PostOperateList = createReactClass({
     this.componentClickAway();
     const postItem = this.props.postItem;
     const isComment = !!postItem.commentID;
-    require(['mdDialog'], (mdDialog) => {
-      let header;
-      if (isComment) {
-        header = _l('确认删除此条回复') /* 确认删除此条回复*/ + '?';
-      } else {
-        header = postItem.isMy || !postItem.multiProjects ? _l('确认要删除此动态吗？') : _l('移除后，该动态在动态墙中不可见，确认继续？');
-      }
-      mdDialog.index({
-        width: 420,
-        container: {
-          header,
-          content: "<div class='mTop10'></div>",
-          yesFn() {
-            if (isComment) {
-              const { postID, commentID } = postItem;
-              dispatch(removeComment(postID, commentID));
-            } else {
-              dispatch(remove(postItem.postID));
-            }
-          },
-          noFn: true,
-          yesText: _l('确定'),
-          noText: _l('取消'),
+    let header;
+    if (isComment) {
+      header = _l('确认删除此条回复') /* 确认删除此条回复*/ + '?';
+    } else {
+      header =
+        postItem.isMy || !postItem.multiProjects
+          ? _l('确认要删除此动态吗？')
+          : _l('移除后，该动态在动态墙中不可见，确认继续？');
+    }
+    dialog({
+      width: 420,
+      container: {
+        header,
+        content: "<div class='mTop10'></div>",
+        yesFn() {
+          if (isComment) {
+            const { postID, commentID } = postItem;
+            dispatch(removeComment(postID, commentID));
+          } else {
+            dispatch(remove(postItem.postID));
+          }
         },
-      });
+        noFn: true,
+        yesText: _l('确定'),
+        noText: _l('取消'),
+      },
     });
   },
 
   handleTop() {
     const { postItem, dispatch } = this.props;
     this.componentClickAway();
-    require(['mdDialog'], (mdDialog) => {
-      mdDialog.index({
-        container: {
-          header: _l('请选择置顶时长'),
-          content: `<div>
+    dialog({
+      container: {
+        header: _l('请选择置顶时长'),
+        content: `<div>
             <div class='mTop20 ThemeColor3 Font14' id='feedTopTime'>
               <label>
                 <input type='radio' name='feedTopTime' checked='checked' value='24' />
@@ -104,18 +116,15 @@ const PostOperateList = createReactClass({
             </div>
             <div class='Clear'></div>
             </div>`,
-          yesFn() {
-            const hours = $('#feedTopTime')
-              .find('input[type=radio]:checked')
-              .val();
-            dispatch(addTop({ postId: postItem.postID, hours }));
-          },
-          noFn: true,
-          yesText: _l('确定'),
-          noText: _l('取消'),
+        yesFn() {
+          const hours = $('#feedTopTime').find('input[type=radio]:checked').val();
+          dispatch(addTop({ postId: postItem.postID, hours }));
         },
-        width: 450,
-      });
+        noFn: true,
+        yesText: _l('确定'),
+        noText: _l('取消'),
+      },
+      width: 450,
     });
   },
 
@@ -128,48 +137,46 @@ const PostOperateList = createReactClass({
   handleCreateNewCalender() {
     const postItem = this.props.postItem;
     this.componentClickAway();
-    const message = mdFunction.createLinksForMessage({
+    const message = createLinksForMessage({
       message: postItem.message,
       rUserList: postItem.rUserList,
       rGroupList: postItem.rGroupList,
       categories: postItem.categories,
       noLink: true,
     });
-    require(['createCalendar'], (createCalendar) => {
-      createCalendar.index({
-        MemberArray: _(postItem.rUserList)
-          .filter(a => a)
-          .map(a => ({ accountId: a.aid, avatar: a.avatar, fullname: a.name }))
-          .concat(
-            _(postItem.comments)
-              .map(c => c.user)
-              .filter(a => a)
-              .map(a => ({ accountId: a.accountId, avatar: a.avatar, fullname: a.userName }))
-              .value()
-          )
-          .concat(
-            _(postItem.comments)
-              .map(c =>
-                _(c.rUserList)
-                  .filter(a => a)
-                  .map(a => ({ accountId: a.aid, avatar: a.avatar, fullname: a.name }))
-                  .value()
-              )
-              .flatten()
-              .value()
-          )
-          .uniq('accountId')
-          .filter(a => a.accountId)
-          .value(),
-        Message: message.replace(/<[^>]+>/g, ''),
-      });
+    createCalendar({
+      MemberArray: _(postItem.rUserList)
+        .filter(a => a)
+        .map(a => ({ accountId: a.aid, avatar: a.avatar, fullname: a.name }))
+        .concat(
+          _(postItem.comments)
+            .map(c => c.user)
+            .filter(a => a)
+            .map(a => ({ accountId: a.accountId, avatar: a.avatar, fullname: a.userName }))
+            .value(),
+        )
+        .concat(
+          _(postItem.comments)
+            .map(c =>
+              _(c.rUserList)
+                .filter(a => a)
+                .map(a => ({ accountId: a.aid, avatar: a.avatar, fullname: a.name }))
+                .value(),
+            )
+            .flatten()
+            .value(),
+        )
+        .uniq('accountId')
+        .filter(a => a.accountId)
+        .value(),
+      Message: message.replace(/<[^>]+>/g, ''),
     });
   },
 
   handleCreateNewTask(param) {
     const postItem = _.clone(this.props.postItem);
     this.componentClickAway();
-    const message = mdFunction.createLinksForMessage({
+    const message = createLinksForMessage({
       message: postItem.message,
       rUserList: postItem.rUserList,
       rGroupList: postItem.rGroupList,
@@ -177,28 +184,24 @@ const PostOperateList = createReactClass({
       noLink: true,
     });
     if (param === 1) {
-      require(['createTask'], (createTask) => {
-        createTask.index({
-          MemberArray: _(postItem.rUserList)
-            .uniq('aid')
-            .map(a => ({ accountId: a.aid, avatar: a.avatar, fullname: a.name }))
-            .value(),
-          Description: message.replace(/<[^>]+>/g, ''),
-          PostID: postItem.postID,
-          isFromPost: true,
-          ProjectID: postItem.projectIds && postItem.projectIds.length === 1 ? postItem.projectIds[0] : null,
-        });
+      createTask({
+        MemberArray: _(postItem.rUserList)
+          .uniq('aid')
+          .map(a => ({ accountId: a.aid, avatar: a.avatar, fullname: a.name }))
+          .value(),
+        Description: message.replace(/<[^>]+>/g, ''),
+        PostID: postItem.postID,
+        isFromPost: true,
+        ProjectID: postItem.projectIds && postItem.projectIds.length === 1 ? postItem.projectIds[0] : null,
       });
     } else if (param === 2) {
-      require(['src/components/createTask/addOldTask.js'], (addOldTask) => {
-        addOldTask.index({
-          MemberArray: _(postItem.rUserList)
-            .uniq('aid')
-            .map(a => ({ accountId: a.aid, avatar: a.avatar, fullname: a.name }))
-            .value(),
-          Description: message.replace(/<[^>]+>/g, ''),
-          PostID: postItem.postID,
-        });
+      addOldTask({
+        MemberArray: _(postItem.rUserList)
+          .uniq('aid')
+          .map(a => ({ accountId: a.aid, avatar: a.avatar, fullname: a.name }))
+          .value(),
+        Description: message.replace(/<[^>]+>/g, ''),
+        PostID: postItem.postID,
       });
     }
   },
@@ -207,7 +210,7 @@ const PostOperateList = createReactClass({
     const { dispatch } = this.props;
     this.componentClickAway();
     const postItem = _.clone(this.props.postItem);
-    EditVoteEndTimeDialog.show(postItem, (deadline) => {
+    EditVoteEndTimeDialog.show(postItem, deadline => {
       dispatch(editVoteEndTimeSuccess({ postId: postItem.postID, deadline }));
     });
   },
@@ -216,10 +219,8 @@ const PostOperateList = createReactClass({
     const { dispatch } = this.props;
     this.componentClickAway();
     const postItem = _.clone(this.props.postItem);
-    require(['src/components/editShareScope/editShareScope'], (editShareScope) => {
-      editShareScope(postItem, (scope) => {
-        dispatch(editShareScopeSuccess({ postId: postItem.postID, scope }));
-      });
+    editShareScope(postItem, scope => {
+      dispatch(editShareScopeSuccess({ postId: postItem.postID, scope }));
     });
   },
 
@@ -235,7 +236,9 @@ const PostOperateList = createReactClass({
 
     // Remove
     const removeOption = canRemove && (
-      <MenuItem onClick={() => this.handleRemove()}>{postItem.isMy || !postItem.multiProjects ? _l('删除') : _l('从本组织移除')}</MenuItem>
+      <MenuItem onClick={() => this.handleRemove()}>
+        {postItem.isMy || !postItem.multiProjects ? _l('删除') : _l('从本组织移除')}
+      </MenuItem>
     );
 
     // Top
@@ -266,7 +269,11 @@ const PostOperateList = createReactClass({
         );
       } else if (!postItem.source) {
         taskHtml = (
-          <MenuItem target="_blank" rel="noopener noreferrer" href={'/' + postItem.source.appUrl + '?appDetailID=' + postItem.source.detailID}>
+          <MenuItem
+            target="_blank"
+            rel="noopener noreferrer"
+            href={'/' + postItem.source.appUrl + '?appDetailID=' + postItem.source.detailID}
+          >
             {_l('查看任务')}
           </MenuItem>
         );
@@ -307,26 +314,30 @@ const PostOperateList = createReactClass({
 
     if (editOption || topOption || taskHtml || calendarOption || removeOption || editVoteEndTime || editScope) {
       return (
-        <Menu>
-          {editOption}
-          {editScope}
-          {editVoteEndTime}
-          {topOption}
-          {taskHtml}
-          {calendarOption}
-          {removeOption}
-        </Menu>
+        <ClickAway onClickAway={this.componentClickAway}>
+          <Menu>
+            {editOption}
+            {editScope}
+            {editVoteEndTime}
+            {topOption}
+            {taskHtml}
+            {calendarOption}
+            {removeOption}
+          </Menu>
+        </ClickAway>
       );
     }
     return (
-      <Menu>
-        <MenuItem className="cursorDefault">{_l('无操作权限')}</MenuItem>
-      </Menu>
+      <ClickAway onClickAway={this.componentClickAway}>
+        <Menu>
+          <MenuItem className="cursorDefault">{_l('无操作权限')}</MenuItem>
+        </Menu>
+      </ClickAway>
     );
   },
 });
 
-module.exports = connect((state) => {
+export default connect(state => {
   const { options } = state.post;
   return { options };
 })(PostOperateList);

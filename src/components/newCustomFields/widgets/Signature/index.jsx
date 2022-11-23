@@ -4,7 +4,7 @@ import { Button, Dialog } from 'ming-ui';
 import { Modal } from 'antd-mobile';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
-import previewAttachments from 'previewAttachments';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import * as SignaturePad from 'signature_pad/dist/signature_pad';
 import axios from 'axios';
 import cx from 'classnames';

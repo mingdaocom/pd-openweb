@@ -6,9 +6,10 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import Checkbox from 'ming-ui/components/Checkbox';
 import Button from 'ming-ui/components/Button';
 import UserHead from 'src/pages/feed/components/userHead';
-import MdBusinessCard from 'reactMdBusinessCard';
+import MdBusinessCard from 'src/components/mdBusinessCard/reactMdBusinessCard';
 import Empty from '../../common/TableEmpty';
 import { htmlEncodeReg } from 'src/util';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 
 const TYPES = {
   OA: 'OA',
@@ -62,22 +63,19 @@ const defaultWorksheetState = {
 
 export const callDialogSelectUser = function (projectId) {
   var dfd = $.Deferred();
-  require(['dialogSelectUser'], function () {
-    $({}).dialogSelectUser({
-      title: _l('选择负责人'),
-      showMoreInvite: false,
-      SelectUserSettings: {
-        projectId: projectId,
-        filterAll: true,
-        filterFriend: true,
-        filterOtherProject: true,
-        filterOthers: true,
-        unique: true,
-        callback: function (users) {
-          dfd.resolve(users);
-        },
+  $({}).dialogSelectUser({
+    fromAdmin: true,
+    SelectUserSettings: {
+      projectId: projectId,
+      filterAll: true,
+      filterFriend: true,
+      filterOtherProject: true,
+      filterOthers: true,
+      unique: true,
+      callback: function (users) {
+        dfd.resolve(users);
       },
-    });
+    },
   });
   return dfd.promise();
 };

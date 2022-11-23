@@ -190,7 +190,6 @@
           text-align: left;
           font-size: 12px;
           letter-spacing: 0px;
-          color: #757575;
           .viewText {
             height: 40px;
             line-height: 20px;
@@ -219,6 +218,11 @@
           span:first-child {
             flex: 1;
           }
+        }
+        .createMethod, .printSize {
+          font-size: 12px;
+          color: #757575;
+          margin-top: 13px;
         }
       }
       .moreOptionTrigger {
@@ -251,6 +255,61 @@
           }
         }
       }
+    }
+  }
+}
+.printTempDrawer {
+  .ant-drawer-header {
+    border-bottom: none;
+  }
+  .ant-drawer-header-title {
+    flex-direction: row-reverse;
+    .ant-drawer-close {
+      margin-right: 0;
+    }
+  }
+  .printTempDrawerListTitle {
+    font-size: 13px;
+    line-height: 1em;
+    margin-bottom: 16px;
+  }
+  .printTempDrawerListTitle:nth-child(2) {
+    margin-top: 33px;
+  }
+  .printTempDrawerListItem {
+    height: 64px;
+    font-size: 14px;
+    line-height: 48px;
+    border-radius: 6px 6px 6px 6px;
+    padding: 8px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    .iconbox {
+      width: 48px;
+      height: 48px;
+      display: inline-block;
+      text-align: center;
+      background: #F5F5F5;
+      border-radius: 35px 35px 35px 35px;
+      margin-right: 16px;
+    }
+    .Icon {
+      font-size: 24px;
+      color: #445A64;
+      vertical-align: middle;
+    }
+    .Icon.icon-doc {
+      font-size: 20px;
+    }
+    .Icon.icon-new_word {
+      color: #2196F3;
+    }
+  }
+  .printTempDrawerListItem:hover {
+    background: #FAFAFA;
+    .iconbox {
+      background: #FFFFFF;
+      box-shadow: 0px 0px 4px 1px rgba(0,0,0,0.0784);
     }
   }
 }

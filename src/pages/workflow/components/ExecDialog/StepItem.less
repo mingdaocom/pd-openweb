@@ -5,7 +5,7 @@
 .workflowStep {
   &:last-child {
     .pointerLine {
-      width: 0;
+      width: 0 !important;
     }
   }
 
@@ -13,14 +13,6 @@
     margin-left: 14px;
     padding: 12px 0;
     min-width: 0;
-  }
-
-  .signTypeWrap {
-    padding: 10px 0 0 16px;
-
-    span {
-      color: #757575;
-    }
   }
 
   .userName {
@@ -32,6 +24,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     vertical-align: top;
+    font-weight: bold;
   }
 
   .stepName {
@@ -46,70 +39,64 @@
 
   .stepContent {
     align-items: center;
+    margin: 0 16px;
+    border-bottom: 1px solid #eaeaea;
 
     &:last-child {
-      .stepDetail {
-        border-bottom: 0;
-      }
+      border-bottom: 0;
     }
 
     .avatarBox {
-      padding: 16px;
-      padding-right: 0;
+      padding: 16px 0;
       align-self: flex-start;
     }
 
     .stepDetail {
       margin-left: 10px;
-      line-height: 16px;
-      padding: 16px 0 12px;
-      border-bottom: 1px solid #eaeaea;
+      line-height: 17px;
+      padding: 16px 0;
       min-width: 0;
 
       .timeAction {
-        margin-top: 8px;
+        margin-top: 4px;
         align-items: center;
         flex-wrap: wrap;
         font-size: 12px;
-
-        .action-5 {
-          color: @refuseColor;
-        }
-
-        .action-4 {
-          color: @passColor;
-        }
       }
 
       .action {
         color: #757575;
-        margin-left: 5px;
+        margin-left: 10px;
+        font-size: 14px;
+        font-weight: bold;
+        flex: 1;
+        &.action-5 {
+          color: @refuseColor;
+        }
+        &.action-4,
+        &.action-17 {
+          color: @passColor;
+        }
       }
 
       .info {
-        margin-top: 8px;
-        color: #757575;
+        margin-top: 4px;
+        color: #9e9e9e;
         word-break: break-all;
         padding-right: 12px;
-        font-size: 12px;
+        font-size: 14px;
+      }
 
-        .modifiedFieldInfo {
-          margin-left: 8px;
-        }
-
-        .triggerField {
-          margin-left: 4px;
-        }
-
-        .infoSignature {
-          box-shadow: 0 1px 4px rgba(0,0,0,0.12), 0 0 2px rgba(0,0,0,0.12);
-          border-radius: 4px;
-          height: 100px;
-          background-color: #fff;
-          background-repeat: no-repeat;
-          background-size: contain;
-          background-position: center;
-        }
+      .infoSignature {
+        margin-top: 6px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.12), 0 0 2px rgba(0,0,0,0.12);
+        border-radius: 4px;
+        height: 70px;
+        background-color: #fff;
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center;
+        margin-right: 60px;
       }
 
       .waitInfo {
@@ -135,9 +122,6 @@
     align-items: center;
     width: 20px;
     transform: translateY(20px);
-    &.active {
-      transform: translateY(14px);
-    }
 
     .pointerItem {
       width: 11px;
@@ -150,7 +134,7 @@
         position: relative;
         width: 20px;
         height: 20px;
-        margin-top: 0px;
+        margin-top: -6px;
         flex: 0 0 20px;
         background-color: #fff;
         box-shadow: 0 0 10px 1px #2196f3;

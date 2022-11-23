@@ -10,7 +10,8 @@ import fixeddataController from 'src/api/fixedData';
 import ClipboardButton from 'react-clipboard.js';
 import AdminCommon from 'src/pages/Admin/common/common';
 import DialogSettingInviteRules from 'src/pages/Admin/structure/modules/dialogSettingInviteRules/inde.jsx';
-import 'uploadAttachment';
+
+import 'src/components/uploadAttachment/uploadAttachment';
 
 export default class CommonInfo extends Component {
   constructor(props) {

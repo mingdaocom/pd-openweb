@@ -399,6 +399,7 @@ export default function RelateSheet(props) {
         {filterVisible && (
           <FilterDialog
             {...props}
+            supportGroup
             relationControls={controls}
             globalSheetControls={globalSheetControls}
             fromCondition={'relateSheet'}

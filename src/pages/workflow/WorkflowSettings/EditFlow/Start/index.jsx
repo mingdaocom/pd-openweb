@@ -250,6 +250,22 @@ export default class Start extends Component {
         </Fragment>
       );
     }
+
+    // 审批流程
+    if (item.appType === APP_TYPE.APPROVAL_START) {
+      return (
+        <Fragment>
+          <div className="workflowContentInfo ellipsis workflowContentBG">
+            <span className="Gray_9e">{_l('数据对象：')}</span>
+            {_l('工作表“%0”', item.appName)}
+          </div>
+          <div className="pLeft8 pRight8 mTop9 Gray_75 pBottom5">
+            “{item.triggerName || <span style={{ color: '#f44336' }}>{_l('流程已删除')}</span>}”
+            <span className="mLeft5">{_l('触发')}</span>
+          </div>
+        </Fragment>
+      );
+    }
   }
 
   openDocument = evt => {
@@ -260,7 +276,7 @@ export default class Start extends Component {
   };
 
   render() {
-    const { item, selectNodeId, openDetail, isCopy, child } = this.props;
+    const { processId, item, selectNodeId, openDetail, isCopy, child } = this.props;
 
     return (
       <div className="flexColumn">
@@ -276,7 +292,7 @@ export default class Start extends Component {
               },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => openDetail(item.id, item.typeId)}
+            onMouseDown={() => openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
               <i

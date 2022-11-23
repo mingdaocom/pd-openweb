@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, Dialog } from 'ming-ui';
 import structureController from 'src/api/structure';
 import projectSettingController from 'src/api/projectSetting';
 import roleController from 'src/api/role';
 import Relation from 'src/pages/Admin/reportRelation';
 import cx from 'classnames';
-import Confirm from 'confirm';
 import './index.less';
 import { navigateTo } from 'router/navigateTo';
 import { getRequest } from 'src/util';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 
 const barList = [
   { label: _l('我的汇报关系'), key: 'report' },
@@ -111,54 +111,52 @@ export default class ReportRelation extends Component {
   handleAddSub() {
     const { projectId } = this.state;
     const _this = this;
-    require(['dialogSelectUser'], function () {
-      var accountId = md.global.Account.accountId;
-      var dialogSelectUserObj = $({}).dialogSelectUser({
-        title: _l('添加下属'),
-        showMoreInvite: false,
-        SelectUserSettings: {
-          projectId: projectId,
-          filterAll: true,
-          filterFriend: true,
-          filterOthers: true,
-          filterOtherProject: true,
-          unique: false,
-          showTabs: ['structureUsers'],
-          extraTabs: [
-            {
-              id: 'structureUsers',
-              name: '所有人',
-              type: 4,
-              page: true,
-              actions: {
-                getUsers: function (args) {
-                  args = $.extend({}, args, {
-                    accountId,
-                    projectId: projectId,
-                  });
-                  return structureController.getAllowChooseUsers(args);
-                },
+    var accountId = md.global.Account.accountId;
+    var dialogSelectUserObj = $({}).dialogSelectUser({
+      title: _l('添加下属'),
+      showMoreInvite: false,
+      SelectUserSettings: {
+        projectId: projectId,
+        filterAll: true,
+        filterFriend: true,
+        filterOthers: true,
+        filterOtherProject: true,
+        unique: false,
+        showTabs: ['structureUsers'],
+        extraTabs: [
+          {
+            id: 'structureUsers',
+            name: '所有人',
+            type: 4,
+            page: true,
+            actions: {
+              getUsers: function (args) {
+                args = $.extend({}, args, {
+                  accountId,
+                  projectId: projectId,
+                });
+                return structureController.getAllowChooseUsers(args);
               },
             },
-          ],
-          callback: function (accounts) {
-            structureController
-              .addStructure({
-                accountIds: _.map(accounts, ({ accountId }) => accountId),
-                parentId: accountId,
-                isTop: false,
-                projectId: projectId,
-              })
-              .then(function (res) {
-                if (res && res.success) {
-                  _this.fetchRender(1);
-                } else {
-                  alert(_l('操作失败', 2));
-                }
-              });
           },
+        ],
+        callback: function (accounts) {
+          structureController
+            .addStructure({
+              accountIds: _.map(accounts, ({ accountId }) => accountId),
+              parentId: accountId,
+              isTop: false,
+              projectId: projectId,
+            })
+            .then(function (res) {
+              if (res && res.success) {
+                _this.fetchRender(1);
+              } else {
+                alert(_l('操作失败', 2));
+              }
+            });
         },
-      });
+      },
     });
   }
 
@@ -166,14 +164,10 @@ export default class ReportRelation extends Component {
     const { projectId } = this.state;
     const _this = this;
 
-    new Confirm(
-      {
-        title: _l('确认移除 %0 ?', fullname),
-        content: '移除后，其下属成员也将从汇报关系中移除',
-        cancel: _l('取消'),
-        confirm: _l('确认'),
-      },
-      function () {
+    Dialog.confirm({
+      title: _l('确认移除 %0 ?', fullname),
+      description: _l('移除后，其下属成员也将从汇报关系中移除'),
+      onOk: () => {
         structureController
           .removeParentID({
             accountId,
@@ -188,7 +182,7 @@ export default class ReportRelation extends Component {
             }
           });
       },
-    );
+    });
   }
 
   handleGoAdmin() {
@@ -201,7 +195,7 @@ export default class ReportRelation extends Component {
       <div className="layoutWrapper">
         <div>
           <div className="listTitle">{_l('直属上级')}</div>
-          <div className={cx('list parents', { hasAuth: isAdmin })}>
+          <div className={cx('list parents')}>
             {parents.length ? (
               this.renderList(parents)
             ) : (

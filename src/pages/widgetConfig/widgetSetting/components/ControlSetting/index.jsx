@@ -8,6 +8,7 @@ import UserConfig from './UserConfig';
 import DateConfig from './DateConfig';
 import TimeConfig from './TimeConfig';
 import ScoreConfig from './ScoreConfig';
+import DropConfig from './DropConfig';
 
 const TYPE_TO_COMP = {
   3: TelConfig,
@@ -35,9 +36,9 @@ const CASCADER_CONFIG = [
 ];
 
 export default function WidgetConfig(props) {
-  const { from, data, onChange } = props;
+  const { data, onChange } = props;
   const { type, enumDefault, advancedSetting = {}, strDefault } = data;
-  const { allowadd, showxy, showtype, checktype, analysislink, uselast } = getAdvanceSetting(data);
+  const { showxy, showtype, analysislink, uselast } = getAdvanceSetting(data);
 
   const getConfig = () => {
     if (type === 2 || type === 32) {
@@ -53,21 +54,8 @@ export default function WidgetConfig(props) {
         </div>
       );
     }
-    if ((type === 11 && showtype !== '2') || (type === 10 && checktype === '1')) {
-      return (
-        <div className="labelWrap">
-          <Checkbox
-            size="small"
-            checked={allowadd === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowadd: checked ? '0' : '1' }))}
-          >
-            <span>{_l('允许用户增加选项')}</span>
-            <Tooltip placement={'bottom'} title={_l('勾选后，用户填写时可输入不在备选项中的内容，并添加至选项列表')}>
-              <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
-            </Tooltip>
-          </Checkbox>
-        </div>
-      );
+    if (_.includes([9, 10, 11], type)) {
+      return <DropConfig {...props} />;
     }
     if (type === 40) {
       return (

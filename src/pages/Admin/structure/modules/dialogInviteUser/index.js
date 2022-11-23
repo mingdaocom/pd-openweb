@@ -1,7 +1,6 @@
 import './style.less';
-var mdDialog = require('mdDialog').index;
-var render = require('./main');
-var util = require('../util');
+import { index as mdDialog} from 'src/components/mdDialog/dialog';
+import render from './main';
 
 var DialogInviteUser = function (opts) {
   var defaults = {
@@ -49,6 +48,6 @@ DialogInviteUser.prototype.init = function () {
   });
 };
 
-module.exports = function (opts) {
+export default function (opts) {
   return new DialogInviteUser(opts);
 };

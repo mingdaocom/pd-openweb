@@ -4,6 +4,7 @@ import moment from 'moment';
 import base64 from 'js-base64';
 import { assign, trim, isObject, isEmpty } from 'lodash';
 import { PICK_TYPE, ROOT_PERMISSION_TYPE, NODE_SORT_TYPE, NODE_SORT_BY } from '../constant/enum';
+import { index as dialog } from 'src/components/mdDialog/dialog';
 
 const base64encode = base64.Base64.encode;
 
@@ -252,12 +253,10 @@ export function confirm(
     container.noText = noText;
   }
 
-  require(['mdDialog'], mdDialog => {
-    mdDialog.index({
-      showClose,
-      className: className || null,
-      container,
-    });
+  dialog({
+    showClose,
+    className: className || null,
+    container,
   });
   return dfd.promise();
 }

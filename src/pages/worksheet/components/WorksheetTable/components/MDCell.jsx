@@ -53,7 +53,28 @@ export default function MDCell(props) {
       className={className}
       style={style}
       allowlink={allowlink}
-      canedit={lineeditable && !_.find(['caid', 'ctime', 'utime'], id => id === control.controlId)}
+      canedit={
+        lineeditable &&
+        !_.find(
+          [
+            'caid',
+            'ctime',
+            'utime',
+            'wfname',
+            'wfstatus',
+            'wfcuaids',
+            'wfrtime',
+            'wfftime',
+            'wfdtime',
+            'wfcaid',
+            'wfctime',
+            'wfcotime',
+            'rowid',
+            'uaid',
+          ],
+          id => id === control.controlId,
+        )
+      }
       cell={{ ...control, value, disabled: !row.allowedit || control.disabled }}
       row={row}
       rowIndex={rowIndex}

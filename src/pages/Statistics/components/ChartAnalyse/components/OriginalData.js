@@ -72,7 +72,7 @@ export default class OriginalData extends Component {
   }
   renderFooter() {
     return (
-      <div className="mTop15 mBottom20 pRight8">
+      <div className="mTop20 mBottom10 pRight8">
         <ConfigProvider autoInsertSpaceInButton={false}>
           <Button
             type="link"
@@ -144,7 +144,7 @@ export default class OriginalData extends Component {
     const { style, viewId, worksheetInfo } = this.props;
     const { views } = worksheetInfo;
     const view = _.find(views, { viewId });
-    const disabled = view ? [VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.gunter].includes(view.viewType.toString()) : true;
+    const disabled = view ? ![VIEW_DISPLAY_TYPE.sheet].includes(view.viewType.toString()) : true;
     const viewDataType = style.viewDataType || 1;
     return (
       <Fragment>
@@ -157,7 +157,7 @@ export default class OriginalData extends Component {
               </Radio>
             </Space>
           </Radio.Group>
-          <div className="Font12 mLeft25 mTop5 Gray_9e">{_l('需要在统计数据源中指定统计的视图（不支持层级、甘特图视图）')}</div>
+          <div className="Font12 mLeft25 mTop5 Gray_9e">{_l('需要在统计数据源中指定统计的视图（当前只支持表视图）')}</div>
         </div>
         {viewDataType === 1 && this.renderShowControls()}
       </Fragment>

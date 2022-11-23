@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { encrypt } from 'src/util';
 import captcha from 'src/components/captcha';
 import { checkAccount } from 'src/api/account';
-import functionWrap from 'worksheet/components/FunctionWrap';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import { func, number, string } from 'prop-types';
 
 const Password = styled(Input.Password)`

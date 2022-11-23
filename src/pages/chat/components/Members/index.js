@@ -9,6 +9,7 @@ import { addGroupMembers } from '../../utils/group';
 import Constant from '../../utils/constant';
 import GroupController from 'src/api/group';
 import LoadDiv from 'ming-ui/components/LoadDiv';
+import InviteOrAddUsers from './InviteOrAddUsers';
 
 class Avatar extends Component {
   constructor(props) {
@@ -28,7 +29,7 @@ class Avatar extends Component {
     const { id, avatar } = this.props;
     return (
       <img
-        ref={(avatar) => {
+        ref={avatar => {
           this.avatar = avatar;
         }}
         src={avatar}
@@ -66,7 +67,7 @@ export default class Members extends Component {
       groupId: session.id,
       pageSize: 8,
       type: 1,
-    }).then((result) => {
+    }).then(result => {
       const { groupUsers } = result;
       this.setState({
         loading: false,
@@ -75,19 +76,7 @@ export default class Members extends Component {
       });
     });
   }
-  handleAddMembers() {
-    const { session } = this.props;
-    const { isAdmin, isForbidInvite } = session;
-    if (isAdmin || !isForbidInvite) {
-      addGroupMembers({
-        id: session.id,
-        type: Constant.SESSIONTYPE_GROUP,
-      });
-    } else {
-      alert(_l('当前仅允许群主及管理员邀请新成员'), 2);
-      return false;
-    }
-  }
+
   render() {
     const { session } = this.props;
     const { groupMemberCount, isPost } = session;
@@ -97,9 +86,12 @@ export default class Members extends Component {
         <div className="ChatPanel-Members-hander ChatPanel-sessionInfo-hander">
           <span>
             {`${isPost ? _l('群成员') : _l('成员')} (${groupMemberCount})`}
-            <i onClick={this.handleAddMembers.bind(this)} className="ThemeColor3 icon-invite" />
+            <InviteOrAddUsers {...session} />
           </span>
-          <span onClick={this.props.onSetPanelVisible.bind(this, true)} className="ChatPanel-sessionInfo-hander-entry ThemeColor3">
+          <span
+            onClick={this.props.onSetPanelVisible.bind(this, true)}
+            className="ChatPanel-sessionInfo-hander-entry ThemeColor3"
+          >
             {' '}
             {_l('所有成员')}
             <i className="icon-sidebar-more" />{' '}
@@ -108,7 +100,10 @@ export default class Members extends Component {
         <div className="ChatPanel-Members-body">
           <div className="ChatPanel-Members-list">
             {members.map((item, index) => (
-              <div key={item.accountId} className={cx('ChatPanel-Members-item', { 'ChatPanel-Members-creator': index === 0 })}>
+              <div
+                key={item.accountId}
+                className={cx('ChatPanel-Members-item', { 'ChatPanel-Members-creator': index === 0 })}
+              >
                 <Avatar id={item.accountId} avatar={item.avatar} />
               </div>
             ))}

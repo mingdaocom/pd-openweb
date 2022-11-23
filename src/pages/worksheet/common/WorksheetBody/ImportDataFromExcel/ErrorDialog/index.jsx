@@ -1,13 +1,15 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Icon, Dialog, ScrollView } from 'ming-ui';
+import WorksheetItem from 'src/pages/worksheet/components/DialogImportExcelCreate/SetImportExcelCreateWorksheetOrApp/WorksheetItem';
 import './index.less';
 
 class ErrorDialog extends Component {
   static propTypes = {
     fileKey: PropTypes.string,
+    isBatch: PropTypes.bool,
   };
 
   constructor(props) {
@@ -15,11 +17,17 @@ class ErrorDialog extends Component {
     this.state = {
       complete: false,
       data: {},
+      currentSheetInfo: {},
+      visible: true,
     };
   }
 
   componentDidMount() {
-    this.getSuccess();
+    if (this.props.isBatch) {
+      this.getBatchErrorLog();
+    } else {
+      this.getSuccess();
+    }
   }
 
   getSuccess() {
@@ -40,9 +48,41 @@ class ErrorDialog extends Component {
       },
     });
   }
+  getBatchErrorLog = () => {
+    const { fileKey } = this.props;
+
+    $.ajax(md.global.Config.WorksheetDownUrl + '/ExportExcel/GetImportLogs', {
+      data: {
+        randomKey: fileKey,
+      },
+      beforeSend: xhr => {
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      },
+      success: result => {
+        const errorData = (result.data || []).filter(it => it.errorCount);
+        this.setState({
+          complete: true,
+          data: result.data.map(it => ({
+            ...it,
+            sheetName: it.worksheetName,
+            sheetId: it.worksheetId,
+          })),
+          currentSheetInfo: errorData
+            ? { ...errorData[0], sheetName: errorData[0].worksheetName, sheetId: errorData[0].worksheetId }
+            : {},
+          selectedImportSheetIds: errorData.map(it => it.worksheetId),
+        });
+      },
+    });
+  };
 
   renderTitle = () => {
-    const { data } = this.state;
+    const { isBatch } = this.props;
+    const { currentSheetInfo = {} } = this.state;
+    const temp = _.isEmpty(currentSheetInfo)
+      ? this.state.data[0]
+      : _.find(this.state.data, it => it.worksheetId === currentSheetInfo.worksheetId) || {};
+    const data = isBatch ? temp : this.state.data;
     const { addCount, errorCount, repeatCount, skipCount, updateCount, repeated } = data;
     const formatNum = num => {
       return num.toString().replace(/(\d{1,3})(?=(?:\d{3})+$)/g, '$1,');
@@ -71,11 +111,89 @@ class ErrorDialog extends Component {
     return txt1 + txt2;
   };
 
-  render() {
-    const { fileKey } = this.props;
-    const { complete, data } = this.state;
+  renderBatch = () => {
+    const { data, currentSheetInfo, selectedImportSheetIds = [] } = this.state;
+    const temp = _.find(data, it => it.worksheetId === currentSheetInfo.worksheetId) || {};
+    return (
+      <div className="flexColumn h100">
+        <WorksheetItem
+          excelDetailData={data}
+          currentSheetInfo={currentSheetInfo}
+          selectedImportSheetIds={selectedImportSheetIds}
+          updateCurrentSheetInfo={data => {
+            this.setState({ currentSheetInfo: data });
+          }}
+          updateSelectedImportSheetIds={data => {
+            this.setState({ selectedImportSheetIds: data });
+          }}
+          disabled={true}
+        />
+        {this.renderErroContent(temp.excelLogs)}
+      </div>
+    );
+  };
 
+  renderErroContent = (data = []) => {
+    const { fileKey, isBatch } = this.props;
+    const { currentSheetInfo } = this.state;
+    return (
+      <Fragment>
+        <div className={cx('flexRow', { pTop15: isBatch })}>
+          <div>{this.renderTitle()}</div>
+          <div
+            className="successText"
+            data-tip={_l('错误单元格分两种，非留白和留白类错误，留白类错误在错误报告中红字提示')}
+          >
+            <Icon icon="novice-circle" className="Font14 pointer Gray_9e mLeft5" />
+          </div>
+          <div className="flex" />
+          <a
+            className="ThemeColor3 ThemeHoverColor2 pointer"
+            href={`${md.global.Config.WorksheetDownUrl}/ExportExcel/LoadErrorLog?randomKey=${fileKey}${
+              isBatch ? '&worksheetId=' + currentSheetInfo.sheetId : ''
+            }`}
+          >
+            {_l('下载错误报告')}
+          </a>
+        </div>
+        <ScrollView className="importErrorBox flex mTop15">
+          {data.map((item, index) => {
+            return (
+              <div key={index} className="mBottom10 pLeft12 pRight12">
+                <span className={cx('mRight5', item.logLvl !== 1 ? 'Red' : 'Gray_9e')}>
+                  ({_l('第%0行', item.rowNumber)})
+                </span>
+                <span className={cx('Bold mRight8', item.logLvl !== 1 ? 'Red' : 'Gray')}>{item.columnName}</span>
+                <span className={item.logLvl !== 1 && 'Red'}>{item.describe}</span>
+              </div>
+            );
+          })}
+        </ScrollView>
+      </Fragment>
+    );
+  };
+
+  render() {
+    const { isBatch } = this.props;
+    const { complete, data, visible } = this.state;
     if (!complete) return null;
+
+    if (isBatch) {
+      return (
+        <Dialog
+          className="importErrorDialog"
+          visible={visible}
+          width="640"
+          title={_l('错误报告')}
+          footer={null}
+          onCancel={() => {
+            this.setState({ visible: false });
+          }}
+        >
+          {this.renderBatch()}
+        </Dialog>
+      );
+    }
 
     return (
       <Dialog.confirm
@@ -86,43 +204,12 @@ class ErrorDialog extends Component {
         noFooter={true}
         anim={false}
       >
-        <div className="flexColumn h100">
-          <div className="flexRow">
-            <div>{this.renderTitle()}</div>
-            <div
-              className="successText"
-              data-tip={_l('错误单元格分两种，非留白和留白类错误，留白类错误在错误报告中红字提示')}
-            >
-              <Icon icon="novice-circle" className="Font14 pointer Gray_9e mLeft5" />
-            </div>
-            <div className="flex" />
-            <a
-              className="ThemeColor3 ThemeHoverColor2 pointer"
-              href={`${md.global.Config.WorksheetDownUrl}/ExportExcel/LoadErrorLog?randomKey=${fileKey}`}
-              target="_blank"
-            >
-              {_l('下载错误报告')}
-            </a>
-          </div>
-          <ScrollView className="importErrorBox flex mTop15">
-            {data.excelLogs.map((item, index) => {
-              return (
-                <div key={index} className="mBottom10 pLeft12 pRight12">
-                  <span className={cx('mRight5', item.logLvl !== 1 ? 'Red' : 'Gray_9e')}>
-                    ({_l('第%0行', item.rowNumber)})
-                  </span>
-                  <span className={cx('Bold mRight8', item.logLvl !== 1 ? 'Red' : 'Gray')}>{item.columnName}</span>
-                  <span className={item.logLvl !== 1 && 'Red'}>{item.describe}</span>
-                </div>
-              );
-            })}
-          </ScrollView>
-        </div>
+        <div className="flexColumn h100">{this.renderErroContent(data.excelLogs)}</div>
       </Dialog.confirm>
     );
   }
 }
 
-export default ({ fileKey }) => {
-  ReactDOM.render(<ErrorDialog fileKey={fileKey} />, document.createElement('div'));
+export default ({ fileKey, isBatch }) => {
+  ReactDOM.render(<ErrorDialog fileKey={fileKey} isBatch={isBatch} />, document.createElement('div'));
 };

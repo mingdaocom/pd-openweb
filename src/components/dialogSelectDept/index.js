@@ -1,14 +1,13 @@
-const React = require('react');
-const ReactDOM = require('react-dom');
+import React from 'react';
+import ReactDOM from 'react-dom';
 const departmentController = require('src/api/department');
-const DialogLayer = require('mdDialog').default;
-const DepartmentList = require('src/components/GeneralSelect').DepartmentList;
-const NoData = require('src/components/GeneralSelect/NoData').default;
-const CreateDialog = require('src/pages/Admin/structure/modules/dialogCreateEditDept');
+import DialogLayer from 'src/components/mdDialog/dialog';
+import { DepartmentList } from 'src/components/dialogSelectUser/GeneralSelect';
+import NoData from 'src/components/dialogSelectUser/GeneralSelect/NoData';
+import CreateDialog from 'src/pages/Admin/structure/modules/dialogCreateEditDept';
 const roleController = require('src/api/role');
 import { LoadDiv, Radio, Checkbox } from 'ming-ui';
 import cx from 'classnames';
-
 import './style.less';
 
 class DialogSelectDept extends React.Component {
@@ -67,19 +66,25 @@ class DialogSelectDept extends React.Component {
     const selectFn = this.props.selectFn;
     selectFn.call(
       null,
-      _.map(selectedDepartment.filter(o => !o.checkIncludeChilren || o.departmentId.indexOf('orgs_') > -1), dept => ({
-        departmentId: dept.departmentId,
-        departmentName: dept.departmentName,
-        haveSubDepartment: dept.haveSubDepartment,
-        userCount: dept.userCount,
-      })),
+      _.map(
+        selectedDepartment.filter(o => !o.checkIncludeChilren || o.departmentId.indexOf('orgs_') > -1),
+        dept => ({
+          departmentId: dept.departmentId,
+          departmentName: dept.departmentName,
+          haveSubDepartment: dept.haveSubDepartment,
+          userCount: dept.userCount,
+        }),
+      ),
       checkIncludeChilren
-        ? _.map(selectedDepartment.filter(o => o.checkIncludeChilren && o.departmentId.indexOf('orgs_') < 0), dept => ({
-            departmentId: dept.departmentId,
-            departmentName: dept.departmentName,
-            haveSubDepartment: dept.haveSubDepartment,
-            userCount: dept.userCount,
-          }))
+        ? _.map(
+            selectedDepartment.filter(o => o.checkIncludeChilren && o.departmentId.indexOf('orgs_') < 0),
+            dept => ({
+              departmentId: dept.departmentId,
+              departmentName: dept.departmentName,
+              haveSubDepartment: dept.haveSubDepartment,
+              userCount: dept.userCount,
+            }),
+          )
         : null,
     );
   }
@@ -117,9 +122,12 @@ class DialogSelectDept extends React.Component {
   }
 
   fetchData() {
-    const { isAnalysis } = this.props;
+    const { isAnalysis, fromAdmin = false, projectId } = this.props;
     this.setState({ loading: true });
-    const isAdmin = location.href.indexOf('admin') > -1;
+    const isAdmin =
+      projectId &&
+      (_.find(md.global.Account.projects, project => project.projectId === projectId) || {}).isSuperAdmin &&
+      fromAdmin;
     if (this.promise && this.promise.state() === 'pending') {
       this.promise.abort();
     }
@@ -463,7 +471,9 @@ class DialogSelectDept extends React.Component {
         <div className="GSelect-result-subItem" key={`subItem-${id}`}>
           {avatar}
           <div className="GSelect-result-subItem__name overflow_ellipsis">{name}</div>
-          <div className="GSelect-result-subItem__remove icon-minus" onClick={() => deleteFn(id)} />
+          <div className="GSelect-result-subItem__remove " onClick={() => deleteFn(id)}>
+            <span className="icon-close"></span>
+          </div>
         </div>
       );
     });
@@ -606,7 +616,7 @@ class DialogSelectDept extends React.Component {
   }
 }
 
-module.exports = function(opts) {
+export default function (opts) {
   const DEFAULTS = {
     title: _l('选择部门'),
     dialogBoxID: 'dialogSelectDept',
@@ -617,7 +627,7 @@ module.exports = function(opts) {
     includeProject: false,
     checkIncludeChilren: false,
     allProject: false,
-    selectFn: function(depts) {
+    selectFn: function (depts) {
       // console.log(depts);
     },
   };
@@ -631,7 +641,7 @@ module.exports = function(opts) {
     container: {
       header: options.title,
     },
-    callback: function() {
+    callback: function () {
       if (typeof opts.onClose === 'function') {
         opts.onClose();
       }
@@ -649,6 +659,7 @@ module.exports = function(opts) {
     allProject: options.allProject,
     checkIncludeChilren: options.checkIncludeChilren,
     isAnalysis: options.isAnalysis,
+    fromAdmin: options.fromAdmin,
   };
 
   ReactDOM.render(<DialogSelectDept {...listProps} {...{ dialogProps }} />, document.createElement('div'));

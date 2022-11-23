@@ -1,5 +1,5 @@
 import WorkSheetTrash from './WorkSheetTrash';
-import functionWrap from 'worksheet/components/FunctionWrap';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 
 export default WorkSheetTrash;
 

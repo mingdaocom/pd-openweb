@@ -1,9 +1,10 @@
 ﻿import './css/createShare.css';
 import moment from 'moment';
 import { htmlEncodeReg } from 'src/util';
-
 import copy from 'copy-to-clipboard';
-var animatePopup = require('animatePopup');
+import animatePopup from 'src/components/animatePopup/animatePopup';
+import 'src/components/mdDialog/dialog';
+
 var CreateShare = function (opts) {
   var defaults = {
     isCreate: true,
@@ -68,51 +69,48 @@ $.extend(CreateShare.prototype, {
   contentDialog: function () {
     var _this = this;
     var settings = this.settings.calendarOpt;
+    var dialogOpts = {
+      dialogBoxID: 'createShare',
+      container: {
+        header: settings.title,
+        content: _this.getContentHtml(settings.keyStatus, settings.token),
+        yesText: '',
+        noText: '',
+      },
+      width: 520,
+      readyFn: function () {
+        _this.editBtnClass(settings.keyStatus);
+        _this.createClip();
 
-    require(['mdDialog'], function () {
-      var dialogOpts = {
-        dialogBoxID: 'createShare',
-        container: {
-          header: settings.title,
-          content: _this.getContentHtml(settings.keyStatus, settings.token),
-          yesText: '',
-          noText: '',
-        },
-        width: 520,
-        readyFn: function () {
-          _this.editBtnClass(settings.keyStatus);
-          _this.createClip();
-
-          $('#createShare').on('click', '.shareBtn', function () {
-            settings.ajaxRequest
-              .updateCalednarShare({
-                calendarID: settings.shareID,
-                recurTime: settings.recurTime,
-                keyStatus: !settings.keyStatus,
-              })
-              .then(function (resource) {
-                if (resource.code === 1) {
-                  settings.keyStatus = !settings.keyStatus;
-                  if (settings.keyStatus) {
-                    settings.token = resource.data;
-                  }
-                  // 更新内容
-                  $('#createShare .dialogContent').html(_this.getContentHtml(settings.keyStatus, settings.token));
-                  // 更换按钮样式
-                  _this.editBtnClass(settings.keyStatus);
-                  // 回调
-                  if ($.isFunction(settings.shareCallback)) {
-                    settings.shareCallback(settings.keyStatus, settings.token);
-                  }
-                  _this.createClip();
+        $('#createShare').on('click', '.shareBtn', function () {
+          settings.ajaxRequest
+            .updateCalednarShare({
+              calendarID: settings.shareID,
+              recurTime: settings.recurTime,
+              keyStatus: !settings.keyStatus,
+            })
+            .then(function (resource) {
+              if (resource.code === 1) {
+                settings.keyStatus = !settings.keyStatus;
+                if (settings.keyStatus) {
+                  settings.token = resource.data;
                 }
-              });
-          });
-        },
-      };
+                // 更新内容
+                $('#createShare .dialogContent').html(_this.getContentHtml(settings.keyStatus, settings.token));
+                // 更换按钮样式
+                _this.editBtnClass(settings.keyStatus);
+                // 回调
+                if ($.isFunction(settings.shareCallback)) {
+                  settings.shareCallback(settings.keyStatus, settings.token);
+                }
+                _this.createClip();
+              }
+            });
+        });
+      },
+    };
 
-      settings.dialog = $.DialogLayer(dialogOpts);
-    });
+    settings.dialog = $.DialogLayer(dialogOpts);
   },
   getURL: function (token) {
     return this.settings.calendarOpt.openURL + '?calendartoken=' + this.settings.calendarOpt.token;
@@ -192,6 +190,6 @@ $.extend(CreateShare.prototype, {
   },
 });
 
-exports.init = function (opts) {
+export default function (opts) {
   return new CreateShare(opts);
 };

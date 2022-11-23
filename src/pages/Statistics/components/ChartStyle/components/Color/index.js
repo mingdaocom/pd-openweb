@@ -49,7 +49,7 @@ export default class ColorEntrance extends Component {
   }
   renderBaseColorFooter() {
     return (
-      <div className="mTop15 mBottom20 pRight8">
+      <div className="mTop20 mBottom10 pRight8">
         <ConfigProvider autoInsertSpaceInButton={false}>
           <Button
             type="link"
@@ -105,7 +105,7 @@ export default class ColorEntrance extends Component {
   }
   renderRuleColorFooter() {
     return (
-      <div className="mTop15 mBottom20 pRight8">
+      <div className="mTop20 mBottom10 pRight8">
         <ConfigProvider autoInsertSpaceInButton={false}>
           <Button
             type="link"

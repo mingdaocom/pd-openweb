@@ -7,9 +7,9 @@ import ViewDisplayMenu from './viewDisplayMenu';
 import './ViewItems.less';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { getDefaultViewSet } from 'src/pages/worksheet/constants/common';
-import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import HiddenMenu from './HiddenMenu';
 export default class Item extends Component {
   static defaultProps = {
     item: {},
@@ -20,20 +20,13 @@ export default class Item extends Component {
       visible: false,
       isEdit: false,
       changeViewDisplayTypeVisible: false,
+      changeHiddenTypeVisible: false,
     };
   }
   componentWillMount() {
     clearTimeout(this.timer);
   }
 
-  isDisabledConfig = () => {
-    const { currentView } = this.props;
-    const { viewType, viewControl, viewControls, childType } = currentView;
-    if (_.includes(['0', '3', '4', '5'], String(viewType))) return false;
-    if (String(viewType) === '2' && String(childType) === '2' && !_.isEmpty(viewControls)) return false;
-    if (_.includes(['1', '2'], String(viewType)) && viewControl) return false;
-    return true;
-  };
   canShare = () => {
     const { item, currentView, sheetSwitchPermit } = this.props;
     return (
@@ -47,16 +40,14 @@ export default class Item extends Component {
     return isOpenPermit(permitList.viewExportSwitch, sheetSwitchPermit, item.viewId);
   };
   renderSettingMenu = () => {
-    const { item, isCharge, changeViewDisplayType, currentView, sheetSwitchPermit } = this.props;
-    const { changeViewDisplayTypeVisible } = this.state;
+    const { item, isCharge, changeViewDisplayType, currentView, sheetSwitchPermit, updateAdvancedSetting } = this.props;
+    const { changeViewDisplayTypeVisible, changeHiddenTypeVisible } = this.state;
     return (
       <Menu className="viewItemMoreOperate">
         {isCharge && (
           <MenuItem
-            icon={<Icon icon="settings" />}
-            disabled={this.isDisabledConfig()}
+            icon={<Icon icon="settings" className="Font18"/>}
             onClick={() => {
-              if (this.isDisabledConfig()) return;
               this.props.onOpenView(item);
               this.setState({
                 visible: false,
@@ -69,16 +60,16 @@ export default class Item extends Component {
         {isCharge && (
           <MenuItem
             className="changeViewDisplayTypeMenuWrap"
-            icon={<Icon icon="swap_horiz" />}
+            icon={<Icon icon="swap_horiz" className="Font18"/>}
             onMouseEnter={() => this.setState({ changeViewDisplayTypeVisible: true })}
             onMouseLeave={() => this.setState({ changeViewDisplayTypeVisible: false })}
           >
             <span className="text">{_l('更改视图类型')}</span>
-            <Icon icon="arrow-right-tip Font14" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
+            <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
             {changeViewDisplayTypeVisible && (
               <ViewDisplayMenu
                 onClickAway={() => this.setState({ changeViewDisplayTypeVisible: false })}
-                style={{ top: '-6px', left: '100%' }}
+                style={{ top: '-6px', left: '100%', borderRadius: '3px' }}
                 onClick={(viewType = 'sheet') => {
                   if (viewType !== VIEW_DISPLAY_TYPE[item.viewType]) {
                     changeViewDisplayType(
@@ -100,7 +91,7 @@ export default class Item extends Component {
         )}
         {isCharge && (
           <MenuItem
-            icon={<Icon icon="content-copy" />}
+            icon={<Icon icon="content-copy" className="Font16"/>}
             onClick={() => {
               this.props.onCopyView(item);
               this.setState({
@@ -115,7 +106,7 @@ export default class Item extends Component {
         {/* 分享视图权限 目前只有表视图才能分享*/}
         {this.canShare() && (
           <MenuItem
-            icon={<Icon icon="share" />}
+            icon={<Icon icon="share" className="Font18"/>}
             onClick={() => {
               if (window.isPublicApp) {
                 alert(_l('预览模式下，不能操作'), 3);
@@ -133,7 +124,7 @@ export default class Item extends Component {
         {/* 导出视图下记录权限 */}
         {this.canExport() && (
           <MenuItem
-            icon={<Icon icon="download" />}
+            icon={<Icon icon="download" className="Font18"/>}
             onClick={() => {
               if (window.isPublicApp) {
                 alert(_l('预览模式下，不能操作'), 3);
@@ -150,7 +141,34 @@ export default class Item extends Component {
         )}
         {isCharge && (
           <MenuItem
-            icon={<Icon icon="hr_delete" />}
+            icon={<Icon icon={item.advancedSetting.showhide!=='hide' ? "visibility_off" : "visibility"} className="Font18"/>}
+            className="hiddenTypeMenuWrap"
+            onMouseEnter={() => this.setState({ changeHiddenTypeVisible: true })}
+            onMouseLeave={() => this.setState({ changeHiddenTypeVisible: false })}
+          >
+            <span className='text'>{item.advancedSetting.showhide!=='hide' ? _l('从导航栏中隐藏') : _l('取消隐藏')}</span>
+            <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
+            {changeHiddenTypeVisible && (
+              <HiddenMenu
+                showhide={item.advancedSetting.showhide || 'show'}
+                onClick={(showhiden)=>{
+                  updateAdvancedSetting({
+                    ...item,
+                    advancedSetting: {
+                      ...item.advancedSetting,
+                      showhide: showhiden,
+                    }
+                  });
+                  this.setState({ visible: false });
+                }}
+                style={{ top: '-6px', left: '100%'}}
+              />
+            )}
+          </MenuItem>
+        )}
+        {isCharge && (
+          <MenuItem
+            icon={<Icon icon="hr_delete" className="Font18"/>}
             className="delete"
             onClick={() => {
               this.props.onRemoveView(item);
@@ -180,11 +198,13 @@ export default class Item extends Component {
   render() {
     const { item, currentViewId, isCharge, sheetSwitchPermit, currentView, getNavigateUrl } = this.props;
     const { isEdit } = this.state;
+
     return (
       <div
         className={cx('valignWrapper workSheetViewItem pointer', {
           active: currentViewId === item.viewId,
         })}
+        style={item.advancedSetting.showhide && item.advancedSetting.showhide.search(/hide|hpc/g)!==-1 ? {display: 'none'} : {}}
       >
         <MdLink
           className={cx('name valignWrapper overflowHidden h100', {

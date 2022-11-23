@@ -5,9 +5,13 @@ import './index.less';
 import ChatController from 'src/api/chat';
 import * as utils from '../../../utils/';
 import { htmlDecodeReg } from 'src/util';
-import mdFunction from 'mdFunction';
+import { createLinksForMessage } from 'src/components/common/function';
 import TaskDetail from 'src/pages/task/containers/taskDetail/taskDetail';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
+import DialogLayer from 'src/components/mdDialog/dialog';
+import ReactDom from 'react-dom';
+import postAjax from 'src/api/post';
+import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
 
 const vertical = {
   WebkitBoxOrient: 'vertical',
@@ -59,7 +63,7 @@ export default class CardMessage extends Component {
         } else if (card.md === 'post' || card.md === 'vote') {
           const post = result.posts[0];
           if (post) {
-            post.message = mdFunction.createLinksForMessage({
+            post.message = createLinksForMessage({
               message: post.message,
               rUserList: post.rUserList,
               rGroupList: post.rGroupList,
@@ -102,71 +106,64 @@ export default class CardMessage extends Component {
         const removeFn = () => {
           feedDialog.closeDialog();
         };
-        require(['mdDialog', 'react-dom', 'src/api/post', 'src/pages/feed/components/post/postDetails/postDetails'], (
-          dialogLayer,
-          ReactDom,
-          postAjax,
-          PostDetails,
-        ) => {
-          const DialogLayer = dialogLayer.default;
-          postAjax
-            .getPostDetail({
-              postId: entityid,
-            })
-            .then(postItem => {
-              if (postItem.ban === '1') {
-                alert(_l('暂无权限查看该动态或者该动态已经被删除'));
-                return;
-              }
-              if (postItem.success !== '1') {
-                postItem = undefined;
-              }
-              // 格式化返回的数据
-              if (!postItem) return postItem;
-              const properties = {};
-              if (typeof postItem.commentCount !== 'number') {
-                properties.commentCount = parseInt(postItem.commentCount, 10);
-              }
-              if (typeof postItem.likeCount !== 'number') {
-                properties.likeCount = parseInt(postItem.likeCount, 10);
-              }
-              if (!postItem.categories) {
-                properties.categories = [];
-              }
-              if (!postItem.tags) {
-                properties.tags = [];
-              }
-              if (Object.keys(properties).length) {
-                postItem = Object.assign({}, postItem, properties);
-              }
-              feedDialog = ReactDom.render(
-                <DialogLayer
-                  dialogBoxID="chatFeedDialog"
-                  width={800}
-                  container={{
-                    header: _l('动态详情'),
-                    yesText: '',
-                    noText: '',
-                  }}
-                  readyFn={function (Comp) {
-                    $('#chatFeedDialog_container').on('scroll', () => {
-                      if (typeof $.fn.lazyload === 'function') {
-                        $('#chatFeedDialog_container .lazy').lazyload();
-                      }
-                    });
-                    $('#chatFeedDialog_container').on('click', event => {
-                      if (!$(event.target).closest('#chatFeedDialog').length) {
-                        Comp.closeDialog();
-                      }
-                    });
-                  }}
-                >
-                  <PostDetails onRemove={removeFn} postItem={postItem} />
-                </DialogLayer>,
-                document.createElement('div'),
-              );
-            });
-        });
+
+        postAjax
+          .getPostDetail({
+            postId: entityid,
+          })
+          .then(postItem => {
+            if (postItem.ban === '1') {
+              alert(_l('暂无权限查看该动态或者该动态已经被删除'));
+              return;
+            }
+            if (postItem.success !== '1') {
+              postItem = undefined;
+            }
+            // 格式化返回的数据
+            if (!postItem) return postItem;
+            const properties = {};
+            if (typeof postItem.commentCount !== 'number') {
+              properties.commentCount = parseInt(postItem.commentCount, 10);
+            }
+            if (typeof postItem.likeCount !== 'number') {
+              properties.likeCount = parseInt(postItem.likeCount, 10);
+            }
+            if (!postItem.categories) {
+              properties.categories = [];
+            }
+            if (!postItem.tags) {
+              properties.tags = [];
+            }
+            if (Object.keys(properties).length) {
+              postItem = Object.assign({}, postItem, properties);
+            }
+            feedDialog = ReactDom.render(
+              <DialogLayer
+                dialogBoxID="chatFeedDialog"
+                width={800}
+                container={{
+                  header: _l('动态详情'),
+                  yesText: '',
+                  noText: '',
+                }}
+                readyFn={function(Comp) {
+                  $('#chatFeedDialog_container').on('scroll', () => {
+                    if (typeof $.fn.lazyload === 'function') {
+                      $('#chatFeedDialog_container .lazy').lazyload();
+                    }
+                  });
+                  $('#chatFeedDialog_container').on('click', event => {
+                    if (!$(event.target).closest('#chatFeedDialog').length) {
+                      Comp.closeDialog();
+                    }
+                  });
+                }}
+              >
+                <PostDetails onRemove={removeFn} postItem={postItem} />
+              </DialogLayer>,
+              document.createElement('div'),
+            );
+          });
         break;
       case 'task':
         this.setState({ openTaskDetail: true, taskId: entityid });
@@ -228,7 +225,9 @@ export default class CardMessage extends Component {
             className="Message-cardSummary Message-cardItem-task"
             dangerouslySetInnerHTML={{ __html: htmlDecodeReg(cardDetails.summary) }}
           />
-        ) : undefined}
+        ) : (
+          undefined
+        )}
       </div>
     );
   }
@@ -316,14 +315,16 @@ export default class CardMessage extends Component {
       <div className="Message-cardHeader">
         <div className="Message-cardHeader-title">
           <span>{name}</span>
-          {attachments && attachments.length ? <i className="icon-attachment"></i> : undefined}
+          {attachments && attachments.length ? <i className="icon-attachment" /> : undefined}
         </div>
         {commentCount ? (
           <div className="Message-cardHeader-icon">
             <i className="icon-ic_textsms_black" />
             <span>{commentCount}</span>
           </div>
-        ) : undefined}
+        ) : (
+          undefined
+        )}
       </div>
     );
   }

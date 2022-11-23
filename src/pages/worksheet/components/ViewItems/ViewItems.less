@@ -6,7 +6,7 @@
   &::before,
   &::after {
     content: '';
-    width: 20px;
+    width: 16px;
     height: 43px;
     position: absolute;
     top: 0;
@@ -30,7 +30,7 @@
     overflow-y: hidden;
     .stance {
       height: 37px;
-      min-width: 20px;
+      min-width: 16px;
     }
   }
 }
@@ -129,6 +129,9 @@
       vertical-align: middle;
       color: #999;
     }
+    .Icon.Font16 {
+      margin: 0 3px;
+    }
     .text {
       font-size: 13px;
       margin-left: 4px;
@@ -140,21 +143,11 @@
           color: #bdbdbd;
         }
       }
-      .icon,
-      .text {
-        color: #fff;
-      }
     }
     &.delete {
       .Icon,
       .text {
         color: #f44338;
-      }
-      &:hover {
-        .Icon,
-        .text {
-          color: #fff;
-        }
       }
     }
   }
@@ -168,7 +161,7 @@
       position: absolute;
       .viewTypeItem.ant-menu-item {
         span.viewName {
-          margin-left: 24px;
+          margin-left: 30px;
         }
       }
     }
@@ -197,4 +190,206 @@
       color: #333;
     }
   }
+}
+.drawerWorksheetHidden {
+  z-index: 9;
+  .ant-drawer-body {
+    padding: 6px 8px;
+  }
+  .drawerWorksheetHiddenSearch {
+    border: none;
+  }
+  .searchBox {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    color: #333;
+    margin-bottom: 6px;
+    input {
+      padding-left: 9px;
+      border: none;
+      &::-webkit-input-placeholder {
+        color: #bdbdbd;
+      }
+    }
+  }
+  .drawerWorksheetHiddenListTitle {
+    font-size: 12px;
+    height: 32px;
+    line-height: 32px;
+    padding-left: 16px;
+    margin-bottom: 5px;
+  }
+  .drawerWorksheetHiddenHelper {
+    background-color: red;
+  }
+}
+
+.hiddenTypeMenuWrap {
+  & > .Item-content {
+    overflow: visible !important;
+    position: relative !important;
+    .hiddenMenu {
+      position: absolute;
+    }
+  }
+}
+.hiddenMenu.ant-menu {
+  background-color: #fff;
+  padding: 6px 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  .hiddenMenuItem.ant-menu-item {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 36px;
+    min-width: 180px;
+    line-height: 36px;
+    padding: 0 12px;
+    cursor: pointer;
+    margin: 0;
+    &:hover,
+    &:active {
+      background: rgba(0, 0, 0, 0.05);
+      color: #333;
+    }
+  }
+  .current.ant-menu-item {
+    background-color: #e0f4ff !important;
+    .ming.Icon.icon.icon-done {
+      font-size: 18px;
+      left: unset;
+      right: 13px;
+      color: #2196f3 !important;
+    }
+  }
+  .splitLine {
+    border: 1px solid #ddd;
+    border-top: none;
+    margin: 6px 0;
+  }
+}
+.drawerWorksheetShowList {
+  pointer-events: bounding-box;
+}
+.drawerWorksheetShowListItem {
+  padding: 9px 32px 9px 0px;
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  cursor: pointer;
+  background-color: white;
+  position: relative;
+  border-radius: 4px;
+  .icon-drag_indicator {
+    opacity: 0;
+    color: #9d9d9d;
+    font-size: 20px;
+  }
+  .viewName {
+    margin-left: 10px;
+    flex: 1;
+  }
+  .hideicon,
+  .more {
+    position: absolute;
+    top: 11px;
+    right: 12px;
+    opacity: 1;
+  }
+  .more {
+    opacity: 0;
+  }
+  &:hover {
+    background: rgba(0, 0, 0, 0.04) !important;
+    .icon-drag_indicator {
+      opacity: 1;
+      &:hover {
+        color: #757575;
+      }
+    }
+    .more {
+      opacity: 1;
+    }
+    .more:hover {
+      color: #757575 !important;
+    }
+    .hideicon {
+      right: 44px;
+    }
+  }
+  .sideEditName {
+    border: none;
+  }
+}
+.drawerWorksheetShowListItem.active {
+  background: #e0f4ff;
+  &:hover {
+    .icon-drag_indicator {
+      opacity: 1;
+    }
+  }
+}
+
+.viewItemMoreOperate .ming.MenuItem > .Item-content:not(.disabled):hover {
+  background-color: #f2f2f2 !important;
+  color: #333 !important;
+  & > span > .icon {
+    color: #9e9e9e !important;
+  }
+  &.delete {
+    .Icon,
+    .text {
+      color: #f44338 !important;
+    }
+  }
+}
+
+.viewItemMoreOperate .ming.MenuItem.delete .Item-content:not(.disabled):hover {
+  .Icon,
+  .text {
+    color: #f44338 !important;
+  }
+}
+
+.hiddenTypeMenuWrap {
+  & > .Item-content {
+    overflow: visible !important;
+    position: relative !important;
+    .hiddenMenu {
+      position: absolute;
+      border-radius: 3px;
+      font-size: 13px;
+    }
+  }
+}
+
+.worksheetSheet {
+  .addViewIcon:hover,
+  .allVieListwIcon:hover,
+  .sheetHeader .icon-back-02:hover,
+  .sheetHeader .moreOperate>.icon:hover,
+  .sheetHeader div:last-child >  span > i.icon:hover,
+  .sheetHeader .searchInputComp.queryInput.default .icon-search:hover {
+    color: #2196f3 !important;
+  }
+  .hoverGray {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    text-align: center;
+    line-height: 24px;
+    border-radius: 3px;
+  }
+  .hoverGray:hover {
+    background: #f5f5f5;
+  }
+}
+
+.HiddenItemTrigger .viewItemMoreOperate .splitLine {
+  margin: 6px 0;
+}
+.HiddenItemTrigger .viewItemMoreOperate {
+  position: relative;
 }

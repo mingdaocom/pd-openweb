@@ -44,7 +44,9 @@ export default function SearchParams(props) {
   const renderItem = item => {
     const isChild = item.dataSource;
     const mapItem = _.find(requestmap, i => i.id === item.controlId) || {};
-    const filterAllControls = item.type === 27 ? allControls.filter(i => i.type === 27) : allControls;
+    const filterAllControls = (item.type === 27 ? allControls.filter(i => i.type === 27) : allControls).filter(
+      i => i.controlId !== data.controlId,
+    );
     const isSearch = data.type === 50 && data.enumDefault === 2;
     return (
       <div className={cx('childWrap', { isChild })}>

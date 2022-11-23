@@ -120,7 +120,7 @@ export const NEED_SPECIAL_DISPLAY_CONTROLS = [
   2, 6, 9, 10, 11, 14, 19, 21, 22, 23, 24, 26, 27, 28, 29, 31, 34, 35, 36, 38, 40, 41, 42, 43, 47, 48, 49, 10010,
 ];
 
-export const HAVE_CONFIG_CONTROL = [2, 3, 15, 16, 26, 28, 32, 35, 40, 42, 46];
+export const HAVE_CONFIG_CONTROL = [2, 3, 9, 10, 11, 15, 16, 26, 28, 32, 35, 40, 42, 46];
 // 独占一行的控件
 export const FULL_LINE_CONTROL = [14, 21, 22, 34, 41, 10010];
 
@@ -131,4 +131,4 @@ export const NOT_HAVE_WIDTH_CONFIG = [43, 49];
 
 export const MAX_CONTROLS_COUNT = 2000;
 
-export const HAVE_CONFIG_SUB_LIST = [2, 3, 15, 16, 28, 32, 35, 46];
+export const HAVE_CONFIG_SUB_LIST = [2, 3, 10, 15, 16, 28, 32, 35, 46];

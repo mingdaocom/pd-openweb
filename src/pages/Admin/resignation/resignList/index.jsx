@@ -12,8 +12,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
-import 'pager';
-import Confirm from 'confirm';
+import 'src/components/pager/pager';
 import './style.less';
 import Empty from '../../common/TableEmpty';
 import AccountController from 'src/api/account';
@@ -220,22 +219,26 @@ export default class ResignList extends React.Component {
 
   recovery(accountId, fullName) {
     const { projectId } = this.props;
-    Confirm({ content: _l('确定恢复[%0]权限吗？', fullName) }, () => {
-      userController
-        .recoveryUser({
-          accountId,
-          projectId,
-        })
-        .then(data => {
-          if (data == 1) {
-            this.fetchList();
-            alert(_l('恢复成功'));
-          } else if (data == 4) {
-            alert(_l('当前用户数已超出人数限制'), 3, false);
-          } else {
-            alert(_l('恢复失败'), 2);
-          }
-        });
+    Dialog.confirm({
+      title: _l('确认框'),
+      description: _l('确定恢复[%0]权限吗？', fullName),
+      onOk: () => {
+        userController
+          .recoveryUser({
+            accountId,
+            projectId,
+          })
+          .then(data => {
+            if (data == 1) {
+              this.fetchList();
+              alert(_l('恢复成功'));
+            } else if (data == 4) {
+              alert(_l('当前用户数已超出人数限制'), 3, false);
+            } else {
+              alert(_l('恢复失败'), 2);
+            }
+          });
+      },
     });
   }
 

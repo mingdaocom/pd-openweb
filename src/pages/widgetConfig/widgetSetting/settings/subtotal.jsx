@@ -47,6 +47,8 @@ const getTotalType = control => {
     if (includes([0, 6, 8], control.enumDefault2)) return NUMBER_TYPE;
     if (includes([15, 16, 46], control.enumDefault2)) return DATE_TYPE;
   }
+  // 汇总选择公式字段
+  if (control.type === 38 && control.enumDefault2 === 0 && control.enumDefault === 1) return NUMBER_TYPE;
   const type = control.type === 30 ? control.sourceControlType : control.type;
   if (includes([6, 8, 31, 28], type)) return NUMBER_TYPE;
   if (includes([15, 16, 46], type)) return DATE_TYPE;

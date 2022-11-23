@@ -2,11 +2,9 @@ import React from 'react';
 import config from '../../../config';
 import RadioGroup from '../../common/radioGroup';
 import Dropdown from '../../common/dropdown';
-import 'bootstrap-daterangepicker';
-import 'bootstrap-daterangepicker/daterangepicker.css';
-import '@mdfe/date-picker-tpl/datePickerTpl.css';
+import locale from 'antd/es/date-picker/locale/zh_CN';
+import { DatePicker } from 'antd';
 import 'src/components/tooltip/tooltip';
-import datePickerTpl from '@mdfe/date-picker-tpl';
 import moment from 'moment';
 import firstInputSelect from '../../common/firstInputSelect';
 
@@ -51,65 +49,6 @@ class SettingsModel extends React.Component {
       offsetTop: -50,
       location: 'up',
     });
-
-    $(that.refs.date).on('mousedown', function () {
-      let $this = $(this);
-      if ($this.data('hasdatepicker')) {
-        return;
-      }
-      $this
-        .daterangepicker({
-          parentEl: '#customFildsEvents_container',
-          template: datePickerTpl.single(that.props.widget.data.type === 16),
-          showDropdowns: true,
-          autoUpdateInput: false,
-          singleDatePicker: true,
-          timePicker: true,
-          timePicker24Hour: true,
-          startDate: moment().format('YYYY-MM-DD HH:mm'),
-          opens: 'left',
-          drops: config.isWorkSheet ? 'down' : 'up',
-          locale: {
-            format: 'YYYY-MM-DD HH:mm',
-            applyLabel: _l('确定'),
-            cancelLabel: _l('清空'),
-            daysOfWeek: [0, 1, 2, 3, 4, 5, 6].map(function (item) {
-              return moment()
-                .day(item)
-                .format('dd');
-            }),
-            monthNames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(function (item) {
-              return moment()
-                .month(item)
-                .format('MMM');
-            }),
-            firstDay: 1,
-          },
-        })
-        .on({
-          'apply.daterangepicker': (event, picker) => {
-            var time = picker.startDate.format(that.props.widget.data.type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD');
-            that.props.changeWidgetData(
-              that.props.widget.id,
-              {
-                default: time,
-              },
-              true
-            );
-          },
-          'cancel.daterangepicker': (event, picker) => {
-            that.props.changeWidgetData(
-              that.props.widget.id,
-              {
-                default: '',
-              },
-              true
-            );
-          },
-        });
-
-      $this.data('hasdatepicker', true);
-    });
   }
 
   componentWillReceiveProps(nextProps, nextState) {
@@ -147,6 +86,7 @@ class SettingsModel extends React.Component {
         },
       ];
     }
+
     return (
       <div className="">
         <div className="wsItem">
@@ -188,26 +128,26 @@ class SettingsModel extends React.Component {
             </span>
           </span>
           <Dropdown data={defaultDateTimeTypes} value={widget.data.enumDefault} onChange={this.changeDateType.bind(this)} width="140px" />
-          <input
-            type="text"
-            ref="date"
-            style={{
-              display: widget.data.enumDefault === 4 ? 'inline-block' : 'none',
-              height: '32px',
-              border: '1px solid #ccc',
-              width: '131px',
-              borderRadius: '3px',
-              marginLeft: '25px',
-              cursor: 'pointer',
-              lineHeight: '32px',
-              paddingLeft: '10px',
-              verticalAlign: 'top',
-              boxSizing: 'border-box',
-            }}
-            placeholder={_l('选择日期')}
-            value={this.props.widget.data.default}
-            readOnly="true"
-          />
+          {widget.data.enumDefault === 4 && (
+            <span className="mLeft10">
+              <DatePicker
+                showTime={widget.data.type === 16 ? { format: 'HH:mm' } : null}
+                locale={locale}
+                value={moment(widget.data.default)}
+                placeholder={_l('选择日期')}
+                onChange={(value) => {
+                  const time = value ? value.format(widget.data.type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD') : '';
+                  this.props.changeWidgetData(
+                    widget.id,
+                    {
+                      default: time,
+                    },
+                    true
+                  );
+                }}
+              />
+            </span>
+          )}
         </div>
       </div>
     );

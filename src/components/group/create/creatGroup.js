@@ -1,9 +1,13 @@
 ﻿import './createGroup.css';
-import 'poshytip';
+import '@mdfe/poshytip';
 import { getStringBytes, upgradeVersionDialog } from 'src/util';
-
-var doT = require('dot');
-var utils = require('src/util');
+import doT from '@mdfe/dot';
+import mainHtml from './tpl/main.html';
+import groupHeadHtml from '../settingGroup/tpl/groupHead.html';
+import { expireDialogAsync } from 'src/components/common/function';
+import 'src/components/select/select';
+import 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
+import 'src/components/uploadAttachment/uploadAttachment';
 
 var CreateGroup = {};
 
@@ -55,7 +59,7 @@ CreateGroup.createInit = function (settings) {
     CreateGroup.options.isProject = false;
   }
 
-  var tpl = doT.template(require('./tpl/main.html'))({
+  var tpl = doT.template(mainHtml)({
     createGroupInProject: CreateGroup.options.settings.createGroupInProject,
     isProject: CreateGroup.options.isProject,
     openApproval: CreateGroup.options.settings.openApproval,
@@ -75,12 +79,14 @@ CreateGroup.createInit = function (settings) {
       // 关闭头像选择
       CreateGroup.$avatar.poshytip('destroy');
     },
+    readyFn: () => {
+      CreateGroup.$content = $('#dialogBoxCreateGroup').find('.dialogContent');
+      CreateGroup.checkIsProjectAdmin();
+      CreateGroup.bindHeadAvatar();
+      CreateGroup.bindEvent();
+    },
   });
 
-  CreateGroup.$content = $('#dialogBoxCreateGroup').find('.dialogContent');
-  CreateGroup.checkIsProjectAdmin();
-  CreateGroup.bindHeadAvatar();
-  CreateGroup.bindEvent();
   CreateGroup.dialog.dialogCenter();
 };
 
@@ -94,28 +100,26 @@ CreateGroup.bindEvent = function () {
   var $hiddenCompanys = $dialogBoxCreateGroup.find('.hiddenCompanys');
   var $approval = $dialogBoxCreateGroup.find('#createGroupApproval');
 
-  require(['md.select'], function () {
-    var _projects = [];
-    $.each(md.global.Account.projects, function (i, p) {
-      _projects.push({
-        id: p.projectId,
-        name: p.companyName,
-      });
+  var _projects = [];
+  $.each(md.global.Account.projects, function (i, p) {
+    _projects.push({
+      id: p.projectId,
+      name: p.companyName,
     });
+  });
 
-    $hiddenCompanys.MDSelect({
-      defualtSelectedValue: CreateGroup.options.settings.projectId,
-      dataArr: _projects,
-      showType: 4,
-      maxWidth: 300,
-      lineHeight: 24,
-      zIndex: 1,
-      wordLength: 100,
-      onChange: function (value, text) {
-        CreateGroup.options.settings.projectId = value;
-        CreateGroup.checkIsProjectAdmin();
-      },
-    });
+  $hiddenCompanys.MDSelect({
+    defualtSelectedValue: CreateGroup.options.settings.projectId,
+    dataArr: _projects,
+    showType: 4,
+    maxWidth: 300,
+    lineHeight: 24,
+    zIndex: 1,
+    wordLength: 100,
+    onChange: function (value, text) {
+      CreateGroup.options.settings.projectId = value;
+      CreateGroup.checkIsProjectAdmin();
+    },
   });
 
   // 群组类型
@@ -148,14 +152,12 @@ CreateGroup.bindEvent = function () {
     }
   });
   $selectDep.on('click', function () {
-    require(['dialogSelectMapGroupDepart'], function () {
-      $('body').dialogSelectMapGroupDepart({
-        projectId: CreateGroup.options.settings.projectId,
-        callback: function (data) {
-          CreateGroup.options.selectedDeptSetting = data;
-          $selectDep.html(_l('关联部门：【%0】', data.departmentName));
-        },
-      });
+    $('body').dialogSelectMapGroupDepart({
+      projectId: CreateGroup.options.settings.projectId,
+      callback: function (data) {
+        CreateGroup.options.selectedDeptSetting = data;
+        $selectDep.html(_l('关联部门：【%0】', data.departmentName));
+      },
     });
   });
 
@@ -202,9 +204,8 @@ CreateGroup.bindHeadAvatar = function () {
     fixed: true,
     content: function (updateCallback) {
       groupController.getGroupAvatarSelectList().then(function (result) {
-        var tpl = require('../settingGroup/tpl/groupHead.html');
         srcBasePath = result.basePath;
-        $groupSelect = $(doT.template(tpl)(result));
+        $groupSelect = $(doT.template(groupHeadHtml)(result));
         updateCallback($groupSelect);
         $avatar.poshytip('show');
         bindGroupHeadPlugin();
@@ -231,36 +232,33 @@ CreateGroup.bindHeadAvatar = function () {
       event.stopPropagation();
     });
 
-    // bind attachmentPlayer
-    require(['uploadAttachment'], function () {
-      $input.uploadAttachment({
-        filterExtensions: 'gif,png,jpg,jpeg,bmp',
-        pluploadID: '#uploadGroupAvatar',
-        multiSelection: false,
-        maxTotalSize: 4,
-        folder: 'GroupAvatar',
-        fileNamePrefix: 'GroupAvatarImage_',
-        onlyFolder: true,
-        onlyOne: true,
-        styleType: '0',
-        tokenType: 2,
-        checkProjectLimitFileSizeUrl: '',
-        filesAdded: function () {
-          $upload.html("<i class='uploadTip'>" + tips.uploadingTip + '</i>');
-        },
-        createPicProgressBar: '',
-        callback: function (attachments) {
-          $upload.html(tips.customAvatarTip);
+    $input.uploadAttachment({
+      filterExtensions: 'gif,png,jpg,jpeg,bmp',
+      pluploadID: '#uploadGroupAvatar',
+      multiSelection: false,
+      maxTotalSize: 4,
+      folder: 'GroupAvatar',
+      fileNamePrefix: 'GroupAvatarImage_',
+      onlyFolder: true,
+      onlyOne: true,
+      styleType: '0',
+      tokenType: 2,
+      checkProjectLimitFileSizeUrl: '',
+      filesAdded: function () {
+        $upload.html("<i class='uploadTip'>" + tips.uploadingTip + '</i>');
+      },
+      createPicProgressBar: '',
+      callback: function (attachments) {
+        $upload.html(tips.customAvatarTip);
 
-          if (attachments.length > 0) {
-            var attachment = attachments[0];
-            var avatar = attachment.fileName + attachment.fileExt;
-            CreateGroup.options.avatar = avatar;
+        if (attachments.length > 0) {
+          var attachment = attachments[0];
+          var avatar = attachment.fileName + attachment.fileExt;
+          CreateGroup.options.avatar = avatar;
 
-            $avatar.attr('src', `${srcBasePath + avatar}?imageView2/1/w/100/h/100/q/90`);
-          }
-        },
-      });
+          $avatar.attr('src', `${srcBasePath + avatar}?imageView2/1/w/100/h/100/q/90`);
+        }
+      },
     });
   }
 
@@ -308,8 +306,7 @@ CreateGroup.disableBtn = function () {
   var $btnCreate = $dialogBoxCreateGroup.find('.btnCreate');
 
   var _projectId = CreateGroup.options.settings.projectId;
-  require('mdFunction')
-    .expireDialogAsync(_projectId)
+  expireDialogAsync(_projectId)
     .then(
       function () {
         $btnCreate.prop('disabled', false).removeAttr('style');
@@ -356,4 +353,4 @@ CreateGroup.createGroupConfirm = function () {
     });
 };
 
-module.exports = CreateGroup;
+export default CreateGroup;

@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, MembersAvatar, MembersName, NodeOperate } from '../components';
+import { CreateNode, MembersName, NodeOperate } from '../components';
 
 export default class Approval extends Component {
   constructor(props) {
@@ -26,7 +26,7 @@ export default class Approval extends Component {
       );
     }
 
-    if (item.multipleLevelType !== 0) {
+    if (_.includes([1, 2], item.multipleLevelType)) {
       return <div className="pLeft8 pRight8">{_l('按部门层级逐级审批')}</div>;
     }
 
@@ -62,7 +62,7 @@ export default class Approval extends Component {
   }
 
   render() {
-    const { item, disabled, selectNodeId, openDetail } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail, approvalSelectNodeId } = this.props;
 
     return (
       <div className="flexColumn">
@@ -74,10 +74,10 @@ export default class Approval extends Component {
               { errorShadow: item.selectNodeId && item.isException },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(item.id, item.typeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId, approvalSelectNodeId)}
           >
             <div className="workflowAvatars flexRow">
-              <MembersAvatar accounts={item.multipleLevelType !== 0 ? [{}] : item.accounts} type={item.typeId} />
+              <i className={cx('workflowAvatar icon-workflow_ea', item.selectNodeId ? 'BGViolet' : 'BGGray')} />
             </div>
             <NodeOperate nodeClassName="BGViolet" {...this.props} />
             <div className="workflowContent">{this.renderContent()}</div>

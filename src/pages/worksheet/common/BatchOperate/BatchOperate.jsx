@@ -13,14 +13,14 @@ import { copyRow } from 'worksheet/controllers/record';
 import { add } from 'src/api/webCache';
 import { editRecord } from 'worksheet/common/editRecord';
 import { refreshRecord } from 'worksheet/common/RefreshRecordDialog';
-import { printQrCode } from 'worksheet/common/PrintQrCode';
+import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import { exportSheet } from 'worksheet/common/ExportSheet';
 import IconText from 'worksheet/components/IconText';
 import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
 import { filterHidedControls, checkCellIsEmpty } from 'worksheet/util';
+import PrintList from './PrintList';
 import SubButton from './SubButton';
 import Buttons from './Buttons';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import './BatchOperate.less';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -58,13 +58,12 @@ class BatchOperate extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: true,
       select1000: false,
       customButtonExpanded: false,
       customButtonLoading: false,
       customButtons: [],
-      printListExpanded: false,
-      printListLoading: false,
-      tempList: [],
+      templateList: [],
     };
   }
 
@@ -89,7 +88,7 @@ class BatchOperate extends React.Component {
       needReloadButtons = true;
     }
     if (nextProps.viewId === this.props.viewId && nextProps.selectedLength && !this.props.selectedLength) {
-      this.fetchPrintList();
+      this.loadPrintList();
       needReloadButtons = true;
       if (_.isEmpty(permission)) {
         updateViewPermission({ appId, worksheetId, viewId });
@@ -98,6 +97,19 @@ class BatchOperate extends React.Component {
     if (needReloadButtons) {
       this.loadCustomButtons(updateRowId);
     }
+  }
+
+  loadPrintList() {
+    const { worksheetId, viewId } = this.props;
+    getPrintList({
+      worksheetId,
+      viewId,
+    }).then(data => {
+      this.setState({
+        templateList: data.filter(d => d.type >= 2).sort((a, b) => a.type - b.type),
+        loading: false,
+      });
+    });
   }
 
   loadCustomButtons(rowId) {
@@ -124,26 +136,6 @@ class BatchOperate extends React.Component {
       });
     }
   }
-
-  // 获取打印模板
-  fetchPrintList = () => {
-    const { worksheetId, viewId, allWorksheetIsSelected } = this.props;
-    // 最多只支持全选本页所有记录 不支持选所有
-    if (allWorksheetIsSelected) {
-      return;
-    }
-    if (viewId && worksheetId) {
-      getPrintList({
-        worksheetId,
-        viewId,
-      }).then(tempList => {
-        this.setState({
-          tempList: tempList.filter(it => it.type === 2),
-          printListLoading: false,
-        });
-      });
-    }
-  };
 
   triggerCustomBtn(btn, isAll) {
     const { worksheetId, viewId, selectedRows, filters, quickFilter, navGroupFilters, clearSelect } = this.props;
@@ -319,156 +311,23 @@ class BatchOperate extends React.Component {
       if (allWorksheetIsSelected || args.hasFilters) {
         reload();
       } else {
-        updateRows(rowIds, [{}, ...controls].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })));
+        updateRows(
+          rowIds,
+          [{}, ...controls].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })),
+        );
       }
       getWorksheetSheetViewSummary();
     });
   }
 
-  // 批量打印|打印二维码
-  renderPrintList() {
-    const {
-      appId,
-      worksheetId,
-      viewId,
-      worksheetInfo,
-      allWorksheetIsSelected,
-      selectedRows,
-      selectedLength,
-      sheetSwitchPermit,
-    } = this.props;
-    const { printListLoading, printListExpanded, tempList = [] } = this.state;
-    const { projectId } = worksheetInfo;
-    // 不支持选择所有
-    const IsQrCodeSwitch =
-      !allWorksheetIsSelected &&
-      selectedLength <= 100 &&
-      isOpenPermit(permitList.QrCodeSwitch, sheetSwitchPermit, viewId);
-    const featureType = getFeatureStatus(projectId, 20);
-
-    if (allWorksheetIsSelected || (tempList.length <= 0 && !IsQrCodeSwitch)) {
-      return '';
-    }
-    if (!printListLoading) {
-      if (tempList.length <= 0) {
-        return IsQrCodeSwitch ? (
-          <IconText icon="zendeskHelp-qrcode" text={_l('打印二维码')} onClick={this.handlePrintQrCode} />
-        ) : (
-          ''
-        );
-      } else {
-        let selectedRowIds = [];
-        selectedRows.map(it => {
-          selectedRowIds.push(it.rowid);
-        });
-
-        return (
-          <div className="iconText Hand">
-            {/* <span
-              className="expandBtn ThemeHoverColor3"
-              onClick={() => {
-                this.setState({
-                  printListExpanded: true,
-                });
-              }}
-            >
-            </span> */}
-            <IconText
-              icon="print"
-              textCmp={() => {
-                return (
-                  <React.Fragment>
-                    {_l('打印')}
-                    <Icon icon="arrow-down-border" className="printDownIcon" />
-                  </React.Fragment>
-                );
-              }}
-              onClick={() => {
-                this.setState({
-                  printListExpanded: true,
-                });
-              }}
-            />
-            {printListExpanded && (
-              <Menu
-                className=""
-                style={{ left: '10px' }}
-                onClickAway={() => this.setState({ printListExpanded: false })}
-                onClickAwayExceptions={[]}
-              >
-                {IsQrCodeSwitch && (
-                  <MenuItem
-                    className="defaultPrint"
-                    onClick={() => {
-                      this.handlePrintQrCode();
-                      this.setState({ printListExpanded: false });
-                    }}
-                  >
-                    {_l('打印二维码')}
-                  </MenuItem>
-                )}
-                {featureType && (
-                  <div
-                    className={cx('printList', {
-                      noBorder: !IsQrCodeSwitch,
-                    })}
-                  >
-                    {tempList.map(it => (
-                      <MenuItem
-                        className=""
-                        onClick={() => {
-                          if (featureType === '2') {
-                            buriedUpgradeVersionDialog(projectId, 20);
-                            return;
-                          }
-
-                          let printId = it.id;
-                          let printData = {
-                            printId,
-                            isDefault: false, // word模板
-                            worksheetId,
-                            projectId,
-                            rowId: selectedRowIds.join(','),
-                            getType: 1,
-                            viewId,
-                            appId,
-                            name: it.name,
-                            isBatch: true,
-                          };
-                          let printKey = Math.random()
-                            .toString(36)
-                            .substring(2);
-                          add({
-                            key: `${printKey}`,
-                            value: JSON.stringify(printData),
-                          });
-                          window.open(`${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`);
-                          this.setState({
-                            printListExpanded: false,
-                          });
-                        }}
-                      >
-                        <span title={it.name}>{it.name}</span>
-                      </MenuItem>
-                    ))}
-                  </div>
-                )}
-              </Menu>
-            )}
-          </div>
-        );
-      }
-    }
-  }
-
   @autobind
-  handlePrintQrCode() {
+  handlePrintQrCode({ printType = 1 } = {}) {
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
     const { appId, viewId, controls, selectedRows, worksheetInfo } = this.props;
-    const { worksheetId, name } = worksheetInfo;
+    const { projectId, worksheetId, name } = worksheetInfo;
     const isMDClient = window.navigator.userAgent.indexOf('MDClient') > -1;
     const disablePrint =
       window.navigator.userAgent.indexOf('Chrome') < 0 &&
@@ -482,18 +341,21 @@ class BatchOperate extends React.Component {
       alert('当前浏览器不支持此功能，请使用Chrome、Firefox或其他国产浏览器', 3);
       return;
     }
-    printQrCode({
+    printQrBarCode({
+      printType,
       appId,
       viewId,
-      worksheetId: worksheetId,
+      worksheetId,
+      projectId,
       worksheetName: name,
-      columns: controls,
+      controls,
       selectedRows,
     });
   }
 
   render() {
     const {
+      type,
       isCharge,
       pageSize,
       appId,
@@ -521,7 +383,7 @@ class BatchOperate extends React.Component {
     // funcs
     const { reload, updateRows, hideRows, getWorksheetSheetViewSummary } = this.props;
     const { projectId, entityName, downLoadUrl } = worksheetInfo;
-    const { select1000, printListLoading, customButtonLoading } = this.state;
+    const { loading, select1000, customButtonLoading, templateList } = this.state;
     let { customButtons } = this.state;
     customButtons = customButtons.filter(b => !b.disabled);
     const selectedRow = selectedRows.length === 1 && selectedRows[0];
@@ -537,29 +399,30 @@ class BatchOperate extends React.Component {
       !_.isEmpty(permission) && permission.canEdit && isOpenPermit(permitList.batchEdit, sheetSwitchPermit, viewId);
     const canCopy =
       !_.isEmpty(permission) && permission.canEdit && isOpenPermit(permitList.copy, sheetSwitchPermit, viewId);
-
+    const showCodePrint =
+      !allWorksheetIsSelected &&
+      selectedLength <= 100 &&
+      isOpenPermit(permitList.QrCodeSwitch, sheetSwitchPermit, viewId);
+    const selectedTip = (
+      <div className="selected">
+        <span className="selectedStatus">
+          {allWorksheetIsSelected
+            ? _l(select1000 ? `已选择 ${md.global.SysSettings.worktableBatchOperateDataLimitCount} 条数据` : `已选择"${view.name}"所有 %0 条%1`, selectedLength, entityName)
+            : _l('已选择本页 %0 条%1', selectedLength, entityName)}
+        </span>
+      </div>
+    );
     return (
       <ReactCSSTransitionGroup
         transitionName="batchOperateCon"
         transitionEnterTimeout={500}
         transitionLeaveTimeout={300}
       >
-        {!!selectedLength && rows.length && !printListLoading && !_.isEmpty(permission) && (
-          <div className="batchOperateCon">
-            <div className="selected">
-              <span className="selectedStatus">
-                {allWorksheetIsSelected
-                  ? _l(
-                      select1000
-                        ? `已选择 ${md.global.SysSettings.worktableBatchOperateDataLimitCount} 条数据`
-                        : `已选择"${view.name}"所有 %0 条%1`,
-                      selectedLength,
-                      entityName,
-                    )
-                  : _l('已选择本页 %0 条%1', selectedLength, entityName)}
-              </span>
-            </div>
+        {!!selectedLength && rows.length && !loading && !_.isEmpty(permission) && (
+          <div className={cx('batchOperateCon', { single: type === 'single' })}>
+            {type !== 'single' && selectedTip}
             <div className="operate flexRow">
+              {type === 'single' && selectedTip}
               {permission && canEdit && (!selectedRow || selectedRow.allowedit) && (
                 <IconText
                   icon="hr_edit"
@@ -642,7 +505,21 @@ class BatchOperate extends React.Component {
                   }}
                 />
               )}
-              {this.renderPrintList()}
+              {!allWorksheetIsSelected && (showCodePrint || !_.isEmpty(templateList)) && (
+                <PrintList
+                  {...{
+                    showCodePrint,
+                    appId,
+                    worksheetId,
+                    projectId,
+                    viewId,
+                    controls,
+                    selectedRows,
+                    selectedRowIds: selectedRows.map(r => r.rowid),
+                    templateList,
+                  }}
+                />
+              )}
               {showExport && (
                 <IconText
                   icon="file_download"
@@ -660,9 +537,12 @@ class BatchOperate extends React.Component {
                       worksheetId,
                       projectId: projectId,
                       searchArgs: filters,
+                      sheetSwitchPermit,
                       selectRowIds: selectedRows.map(item => item.rowid),
                       columns: filterHidedControls(controls, view.controls).filter(item => {
-                        return item.controlPermissions && item.controlPermissions[0] === '1';
+                        return (
+                          item.controlPermissions && item.controlPermissions[0] === '1' && item.controlId !== 'rowid'
+                        );
                       }),
                       downLoadUrl: downLoadUrl,
                       worksheetSummaryTypes: rowsSummary.types,
@@ -732,8 +612,8 @@ class BatchOperate extends React.Component {
                               if (allWorksheetIsSelected || selectedRows.length === pageSize) {
                                 reload();
                               } else {
-                                hideRows(hasAuthRowIds);
                                 clearSelect();
+                                hideRows(hasAuthRowIds);
                               }
                             }
                           })

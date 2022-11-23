@@ -4,7 +4,7 @@ import { Checkbox, Dialog } from 'ming-ui';
 import { EditInfo } from '../../../styled';
 import styled from 'styled-components';
 import { getStringBytes } from 'src/util';
-import { getStrBytesLength } from 'src/pages/Roles/Portal/list/util';
+import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util.js';
 
 const ItemName = styled.div`
   display: flex;

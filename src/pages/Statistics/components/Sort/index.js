@@ -416,7 +416,7 @@ export default class Sort extends Component {
   }
   renderFooter() {
     return (
-      <div className="mTop15 mBottom20 pRight8">
+      <div className="mTop20 mBottom10 pRight8">
         <ConfigProvider autoInsertSpaceInButton={false}>
           <Button
             type="link"

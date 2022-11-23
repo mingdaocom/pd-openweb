@@ -52,7 +52,7 @@ export default class PBC extends Component {
   };
 
   render() {
-    const { item, disabled, selectNodeId, openDetail } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail } = this.props;
     const isPBCExport = item.actionId === ACTION_ID.PBC_OUT;
 
     return (
@@ -65,7 +65,7 @@ export default class PBC extends Component {
               { errorShadow: item.appId && item.isException },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(item.id, item.typeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
               <i

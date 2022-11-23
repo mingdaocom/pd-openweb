@@ -1,73 +1,5 @@
-/**
- * 使用后，点击组件之外的地方会触发组件��props.onClickAway 方法��
- * 用法:
- * var withClickAway = require('ming-ui/decorators/withClickAway');
- *
- * // ES5/ES6:
- * var CustomComponent = React.createClass({...});
- * CustomComponent = withClickAway(CustomComponent);
- *
- * // ES7:
- * @withClickAway
- * class CustomComponent {...}
- *
- * var component = <CustomComponent
- *   onClickAway={() => this.setState({hide: true})}
- *   onClickAwayExceptions={[]} />;
- */
-/**
- * 使用后，点击组件之外的地方会触发组件��props.onClickAway 方法��
- * 用法:
- * var withClickAway = require('ming-ui/decorators/withClickAway');
- *
- * // ES5/ES6:
- * var CustomComponent = React.createClass({...});
- * CustomComponent = withClickAway(CustomComponent);
- *
- * // ES7:
- * @withClickAway
- * class CustomComponent {...}
- *
- * var component = <CustomComponent
- *   onClickAway={() => this.setState({hide: true})}
- *   onClickAwayExceptions={[]} />;
- */
-/**
- * 使用后，点击组件之外的地方会触发组件��props.onClickAway 方法��
- * 用法:
- * var withClickAway = require('ming-ui/decorators/withClickAway');
- *
- * // ES5/ES6:
- * var CustomComponent = React.createClass({...});
- * CustomComponent = withClickAway(CustomComponent);
- *
- * // ES7:
- * @withClickAway
- * class CustomComponent {...}
- *
- * var component = <CustomComponent
- *   onClickAway={() => this.setState({hide: true})}
- *   onClickAwayExceptions={[]} />;
- */
-/**
- * 使用后，点击组件之外的地方会触发组件��props.onClickAway 方法��
- * 用法:
- * var withClickAway = require('ming-ui/decorators/withClickAway');
- *
- * // ES5/ES6:
- * var CustomComponent = React.createClass({...});
- * CustomComponent = withClickAway(CustomComponent);
- *
- * // ES7:
- * @withClickAway
- * class CustomComponent {...}
- *
- * var component = <CustomComponent
- *   onClickAway={() => this.setState({hide: true})}
- *   onClickAwayExceptions={[]} />;
- */
-import PropTypes from 'prop-types';
 
+import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
 import { compact, map, every, flatten } from 'lodash';
@@ -148,4 +80,4 @@ function withClickAway(exceptionList, Component = exceptionList) {
   return ClickAwayableComponent;
 }
 
-module.exports = withClickAway;
+export default withClickAway;

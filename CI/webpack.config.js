@@ -1,7 +1,7 @@
-var path = require('path');
+const path = require('path');
 const WebpackBar = require('webpackbar');
 const TerserJSPlugin = require('terser-webpack-plugin');
-var CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const AssetsPlugin = require('assets-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
@@ -23,20 +23,6 @@ function pathJoin(basedir, pathstr) {
     return result;
   }
 }
-
-
-const generateCssLoader = (isModule = false) => [
-  {
-    loader: 'css-loader',
-    options: isModule ? { module: true, localIdentName: '[local]___[hash:base64:5]' } : undefined,
-  },
-];
-
-const CSS_LOADERS = generateCssLoader();
-
-const SCRIPT_VENDORS = config.entry.vendors.map(p => path.resolve(__dirname, '../', p + '.js'));
-const SCRIPT_LOADER_BASE = [{ loader: 'script-loader' }];
-const VENDORS_LOADERS = SCRIPT_LOADER_BASE;
 
 module.exports = {
   entry: config.entry,
@@ -70,11 +56,11 @@ module.exports = {
       new TerserJSPlugin({
         terserOptions: {
           safari10: true,
-          compress: {
-            pure_funcs: ['console.log'],
+          format: {
+            comments: false,
           },
         },
-        extractComments: 'all',
+        extractComments: false,
       }),
       new CssMinimizerPlugin(),
     ],
@@ -90,7 +76,7 @@ module.exports = {
         nodemodules: {
           name: 'nodemodules',
           minChunks: isProduction ? 2 : 1,
-          test: /[\\/]node_modules[\\/](?!mathjs|react-handsontable|handsontable|hot-formula-parser)/,
+          test: /[\\/]node_modules[\\/](?!handsontable|hot-formula-parser)/,
         },
         default: false,
       },
@@ -99,99 +85,82 @@ module.exports = {
   module: {
     rules: (isProduction
       ? [
-        {
-          test: /\.css$/,
-          use: [MiniCssExtractPlugin.loader].concat(CSS_LOADERS),
-        },
-        {
-          test: /\.less$/,
-          oneOf: [
-            {
-              resourceQuery: /^\?module$/,
-              use: [MiniCssExtractPlugin.loader].concat(config.generateLessLoader(true)),
-            },
-            {
-              use: [MiniCssExtractPlugin.loader].concat(config.generateLessLoader()),
-            },
-          ],
-        },
-        {
-          test: /\.(woff2)(\?[^?]*)?$/,
-          use: {
-            loader: 'url-loader',
-            options: {
-              name: 'static/[name].[hash].[ext]',
-              limit: 100000,
+          {
+            test: /\.css$/,
+            use: [MiniCssExtractPlugin.loader].concat([{ loader: 'css-loader' }]),
+          },
+          {
+            test: /\.less$/,
+            use: [MiniCssExtractPlugin.loader].concat([{ loader: 'css-loader' }, { loader: 'less-loader' }]),
+          },
+          {
+            test: /\.(woff2)(\?[^?]*)?$/,
+            use: {
+              loader: 'url-loader',
+              options: {
+                name: 'static/[name].[hash].[ext]',
+                limit: 100000,
+              },
             },
           },
-        },
-        {
-          test: /\.(gif|jpg|png|svg)(\?[^?]*)?$/,
-          use: {
-            loader: 'url-loader',
-            options: {
-              name: 'static/[name].[hash].[ext]',
-              limit: 20000,
+          {
+            test: /\.(gif|jpg|png|svg)(\?[^?]*)?$/,
+            use: {
+              loader: 'url-loader',
+              options: {
+                name: 'static/[name].[hash].[ext]',
+                limit: 20000,
+              },
             },
           },
-        },
-        {
-          test: /\.(woff|eot|ttf)(\?[^?]*)?$/,
-          use: {
-            loader: 'url-loader',
-            options: {
-              name: 'static/[name].[hash].[ext]',
-              limit: 1,
+          {
+            test: /\.(woff|eot|ttf)(\?[^?]*)?$/,
+            use: {
+              loader: 'url-loader',
+              options: {
+                name: 'static/[name].[hash].[ext]',
+                limit: 1,
+              },
             },
           },
-        },
-      ]
+        ]
       : [
-        {
-          test: /\.(gif|jpg|png|svg|woff|woff2|eot|ttf)(\?[^?]*)?$/,
-          use: {
-            loader: 'url-loader',
-            options: {
-              name: 'static/[name].[hash].[ext]',
-              limit: 1000000,
+          {
+            test: /\.(gif|jpg|png|svg|woff|woff2|eot|ttf)(\?[^?]*)?$/,
+            use: {
+              loader: 'url-loader',
+              options: {
+                name: 'static/[name].[hash].[ext]',
+                limit: 1000000,
+              },
             },
           },
-        },
-        {
-          test: /\.css$/,
-          use: [
-            {
-              loader: 'style-loader',
-            },
-            {
-              loader: 'css-loader',
-              options: { sourceMap: true },
-            },
-          ],
-        },
-        {
-          test: /\.less$/,
-          oneOf: [
-            {
-              resourceQuery: /^\?module$/,
-              use: config.generateLessLoader(true),
-            },
-            {
-              use: config.generateLessLoader(),
-            },
-          ],
-        },
-        {
-          test: /\.js$/,
-          enforce: 'pre',
-          use: ['source-map-loader'],
-        },
-      ]
+          {
+            test: /\.css$/,
+            use: [{ loader: 'style-loader' }, { loader: 'css-loader', options: { sourceMap: true } }],
+          },
+          {
+            test: /\.less$/,
+            use: [
+              { loader: 'style-loader' },
+              { loader: 'css-loader', options: { sourceMap: true } },
+              { loader: 'less-loader', options: { sourceMap: true } },
+            ],
+          },
+          {
+            test: /\.js$/,
+            enforce: 'pre',
+            use: ['source-map-loader'],
+          },
+        ]
     ).concat([
       {
         test: /\.js$/,
-        include: pathJoin(path.join(__dirname, '../'), SCRIPT_VENDORS),
-        use: VENDORS_LOADERS,
+        include: pathJoin(
+          path.join(__dirname, '../'),
+          config.entry.vendors.map(p => path.resolve(__dirname, '../', p + '.js')),
+        ),
+        use: [{ loader: 'script-loader' }],
       },
       {
         test: /\.jsx?$/,

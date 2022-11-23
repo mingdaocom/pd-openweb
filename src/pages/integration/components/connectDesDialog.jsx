@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 import { Icon, Button } from 'ming-ui';
 import { useSetState } from 'react-use';
 import withClickAway from 'ming-ui/decorators/withClickAway';

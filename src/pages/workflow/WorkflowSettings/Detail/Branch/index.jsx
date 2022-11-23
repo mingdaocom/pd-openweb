@@ -74,6 +74,7 @@ export default class Branch extends Component {
       <Dialog
         className="workflowDialogBox"
         closable={false}
+        overlayClosable={false}
         visible
         title={
           <div className="flexRow" style={{ height: 24 }}>

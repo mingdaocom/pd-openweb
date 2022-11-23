@@ -65,7 +65,6 @@ export const exitRole =
       .quitAppForRole({
         appId,
         roleId,
-        callback,
       })
       .then(res => {
         dispatch({ type: 'MOBILE_UPDATELIST_FETCH_OVER' });

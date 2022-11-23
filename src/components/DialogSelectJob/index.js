@@ -116,14 +116,16 @@ class DialogSelectJob extends Component {
             <i className="icon-limit-principal" />
           </div>
           <div className="GSelect-result-subItem__name overflow_ellipsis">{item.jobName}</div>
-          <div className="GSelect-result-subItem__remove icon-minus" onClick={() => this.toggle(item, false)} />
+          <div className="GSelect-result-subItem__remove" onClick={() => this.toggle(item, false)}>
+            <span className="icon-close"></span>
+          </div>
         </div>
       );
     });
   }
 
   render() {
-    const { onClose, projectId, onSave, showCompanyName } = this.props;
+    const { onClose, projectId, onSave, showCompanyName, overlayClosable } = this.props;
     const { keywords, selectData } = this.state;
 
     return (
@@ -133,6 +135,7 @@ class DialogSelectJob extends Component {
         width={480}
         type="scroll"
         onCancel={onClose}
+        overlayClosable={overlayClosable}
         onOk={() => {
           onSave(selectData);
           onClose();

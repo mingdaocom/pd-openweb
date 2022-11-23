@@ -2,8 +2,7 @@ import React, { Component, Fragment } from 'react';
 import './index.less';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import processVersion from '../api/processVersion';
-import process from '../api/process';
-import { Button, Icon, Dropdown, ScrollView, LoadDiv, Support } from 'ming-ui';
+import { Icon, Dropdown, ScrollView, LoadDiv, Support, Button, Tooltip } from 'ming-ui';
 import qs from 'query-string';
 import { Link } from 'react-router-dom';
 import { navigateTo } from 'router/navigateTo';
@@ -14,14 +13,58 @@ import { DATE_TYPE, EXEC_TIME_TYPE, TIME_TYPE_NAME } from '../WorkflowSettings/e
 import PublishBtn from './components/PublishBtn';
 import DeleteFlowBtn from './components/DeleteFlowBtn';
 import CopyFlowBtn from './components/CopyFlowBtn';
-import CreateWorkflow from './components/CreateWorkflow';
 import ListName from './components/ListName';
 import { FLOW_TYPE, FLOW_TYPE_NULL, START_APP_TYPE } from './config/index';
 import { connect } from 'react-redux';
 import SvgIcon from 'src/components/SvgIcon';
+import CreateWorkflow from './components/CreateWorkflow';
+import styled from 'styled-components';
 import DocumentTitle from 'react-document-title';
-import HomeAjax from 'src/api/homeApp';
-import appManagement from 'src/api/appManagement';
+import homeApp from 'src/api/homeApp';
+import { addProcess } from 'src/pages/workflow/api/process';
+import { addWorkflow } from 'src/api/appManagement';
+
+const HeaderWrap = styled.div`
+  height: 50px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+  z-index: 15;
+  background-color: #fff;
+  padding: 0 24px 0 16px;
+  .applicationIcon {
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: normal;
+    margin-left: -3px;
+  }
+  .Gray_bd {
+    &:hover {
+      color: #9e9e9e !important;
+      .applicationIcon {
+        box-shadow: 0 0 20px 20px rgb(0 0 0 / 10%) inset;
+      }
+    }
+  }
+`;
+
+const CreateBtn = styled.div`
+  .workflowAdd {
+    line-height: 32px !important;
+    border-radius: 32px !important;
+    padding: 0 16px !important;
+    opacity: 0.87;
+    font-weight: bold;
+    &:hover {
+      opacity: 1;
+    }
+    .icon {
+      margin-right: 2px;
+    }
+  }
+`;
 
 @errorBoundary
 class AppWorkflowList extends Component {
@@ -34,14 +77,18 @@ class AppWorkflowList extends Component {
       type: this.getQueryStringType(),
       selectFilter: '',
       keywords: '',
-      createWorkflowVisible: false,
-      appDetail: {},
+      isCreate: false,
+      iconUrl: '',
+      iconColor: '',
+      name: '',
     };
   }
 
   ajaxRequest = null;
+  requestPending = false;
 
   componentDidMount() {
+    this.getAppDetail();
     this.checkIsAppAdmin();
   }
 
@@ -65,6 +112,17 @@ class AppWorkflowList extends Component {
   }
 
   /**
+   * 获得应用详情
+   */
+  getAppDetail() {
+    const appId = this.props.match.params.appId;
+
+    homeApp.getAppDetail({ appId }).then(({ iconUrl, iconColor, name }) => {
+      this.setState({ iconUrl, iconColor, name });
+    });
+  }
+
+  /**
    * 检测是否是应用管理员
    */
   checkIsAppAdmin() {
@@ -74,7 +132,6 @@ class AppWorkflowList extends Component {
       if (result) {
         this.getList(this.state.type);
         this.getCount();
-        this.getAppDetail();
       } else {
         navigateTo(`/app/${appId}`);
       }
@@ -118,16 +175,97 @@ class AppWorkflowList extends Component {
   }
 
   /**
-   * 获取应用详情
+   * 渲染头部
    */
-  getAppDetail() {
+  renderHeader() {
     const appId = this.props.match.params.appId;
+    const { type, iconUrl, iconColor, name, isCreate } = this.state;
 
-    HomeAjax.getAppDetail({
-      appId,
-    }).then(res => {
-      this.setState({ appDetail: res });
-    });
+    return (
+      <HeaderWrap className="flexRow alignItemsCenter">
+        <DocumentTitle title={`${name ? name + ' - ' : ''}${_l('工作流')}`} />
+
+        <Tooltip popupPlacement="bottom" text={<span>{_l('应用：%0', name)}</span>}>
+          <div className="flexRow pointer Gray_bd alignItemsCenter" onClick={() => navigateTo(`/app/${appId}`)}>
+            <i className="icon-navigate_before Font20" />
+            <div className="applicationIcon" style={{ backgroundColor: iconColor }}>
+              <SvgIcon url={iconUrl} fill="#fff" size={18} />
+            </div>
+          </div>
+        </Tooltip>
+
+        <div className="flex nativeTitle Font17 bold mLeft16">{_l('自动化工作流')}</div>
+
+        <CreateBtn>
+          {type !== FLOW_TYPE.PBC ? (
+            <Button
+              size="small"
+              icon="add"
+              className="workflowAdd"
+              style={{ backgroundColor: iconColor }}
+              onClick={() => this.setState({ isCreate: true })}
+            >
+              {_l('新建工作流')}
+            </Button>
+          ) : (
+            <Button
+              size="small"
+              icon="add"
+              className="workflowAdd"
+              onClick={() => !this.requestPending && this.createFlow(appId)}
+            >
+              {_l('新建封装业务流程')}
+            </Button>
+          )}
+        </CreateBtn>
+
+        {isCreate && (
+          <CreateWorkflow
+            appId={appId}
+            flowName={_l('未命名工作流')}
+            onBack={() => this.setState({ isCreate: false })}
+          />
+        )}
+      </HeaderWrap>
+    );
+  }
+
+  /**
+   * 渲染导航
+   */
+  renderNavigation() {
+    const { url } = this.props.match;
+    const { type, count } = this.state;
+
+    const TYPES = [
+      { text: _l('工作表事件'), value: FLOW_TYPE.APP, icon: 'icon-table' },
+      { text: _l('时间'), value: FLOW_TYPE.TIME, icon: 'icon-hr_time' },
+      { text: _l('人员事件'), value: FLOW_TYPE.USER, icon: 'icon-hr_structure' },
+      { text: _l('Webhook'), value: FLOW_TYPE.OTHER, icon: 'icon-workflow_webhook' },
+      { text: _l('子流程'), value: FLOW_TYPE.SUB_PROCESS, icon: 'icon-subprocess' },
+      { text: _l('自定义动作'), value: FLOW_TYPE.CUSTOM_ACTION, icon: 'icon-custom_actions' },
+      { text: _l('审批流程'), value: FLOW_TYPE.APPROVAL, icon: 'icon-approval' },
+      { text: _l('外部流程修改本应用'), value: FLOW_TYPE.OTHER_APP, icon: 'icon-public' },
+      { text: _l('封装业务流程'), value: FLOW_TYPE.PBC, icon: 'icon-pbc' },
+    ];
+
+    return (
+      <ul className="workflowHeader flexColumn">
+        {TYPES.map(item => (
+          <Fragment>
+            {item.value === FLOW_TYPE.PBC && <div className="workflowHeaderLine" />}
+            <Link className="NoUnderline" to={`${url}?type=${item.value}`} key={item.value}>
+              <li className={cx({ 'active ThemeColor3': type === item.value })}>
+                {type === item.value && <span className="activeLine" />}
+                <i className={cx('Font18', item.icon, type === item.value ? 'ThemeColor3' : 'Gray_9e')} />
+                <span className="flex ellipsis mLeft10">{item.text}</span>
+                <span className="Gray_9e mLeft10 Font13">{count[item.value] || ''}</span>
+              </li>
+            </Link>
+          </Fragment>
+        ))}
+      </ul>
+    );
   }
 
   /**
@@ -158,20 +296,22 @@ class AppWorkflowList extends Component {
       <Fragment>
         <div className="flexRow manageList manageListHeader bold">
           <div className="flex mLeft10">{_l('流程名称')}</div>
-          <div className="w240">
+          <div className="w180">
             {type === FLOW_TYPE.OTHER_APP
               ? _l('修改工作表')
               : type === FLOW_TYPE.CUSTOM_ACTION
               ? _l('按钮名称')
-              : _l('触发')}
+              : type === FLOW_TYPE.APPROVAL
+              ? _l('触发流程')
+              : _l('类型')}
           </div>
           <div className="w270">{type === FLOW_TYPE.OTHER_APP ? _l('执行动作') : _l('状态')}</div>
-          <div className="w150">{_l('创建者')}</div>
+          <div className="w120">{_l('创建者')}</div>
           {type !== FLOW_TYPE.CUSTOM_ACTION && (
             <Fragment>
               <div className="w20 mRight20" />
-              <div className="w20 mRight20" />
-              <div className="w20 mRight20" />
+              {!_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.APPROVAL], type) && <div className="w20 mRight20" />}
+              {type !== FLOW_TYPE.OTHER_APP && <div className="w20 mRight20" />}
             </Fragment>
           )}
         </div>
@@ -232,12 +372,12 @@ class AppWorkflowList extends Component {
             >
               <Icon icon={(START_APP_TYPE[data.child ? 'subprocess' : data.startAppType] || {}).iconName} />
             </div>
-            <div className="flex name mLeft10 mRight40">
+            <div className="flex name mLeft10 mRight24">
               <ListName item={data} />
             </div>
-            <div className="w240 pRight20">{this.column2Content(data)}</div>
+            <div className="w180 pRight20">{this.column2Content(data)}</div>
             <div className="w270 pRight20">{this.column3Content(data)}</div>
-            <div className="w150 Gray_75 flexRow">
+            <div className="w120 Gray_75 flexRow">
               <UserHead
                 size={28}
                 user={{ userHead: data.ownerAccount.avatar, accountId: data.ownerAccount.accountId }}
@@ -251,26 +391,30 @@ class AppWorkflowList extends Component {
                     <Icon icon="restore2" className="listBtn ThemeHoverColor3 Gray_9e" />
                   </span>
                 </Link>
-                <div className="w20 mRight20 TxtCenter">
-                  {type !== FLOW_TYPE.OTHER_APP && <CopyFlowBtn item={data} updateList={() => this.getList(type)} />}
-                </div>
-                <div className="w20 mRight20 TxtCenter">
-                  {type !== FLOW_TYPE.OTHER_APP && (
-                    <DeleteFlowBtn
-                      item={data}
-                      callback={id => {
-                        let count = _.cloneDeep(this.state.count);
-                        const newList = [].concat(list).map(o => {
-                          _.remove(o.processList, obj => obj.id === id);
-                          return o;
-                        });
+                {!_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.APPROVAL], type) && (
+                  <div className="w20 mRight20 TxtCenter">
+                    <CopyFlowBtn item={data} updateList={() => this.getList(type)} />
+                  </div>
+                )}
+                {type !== FLOW_TYPE.OTHER_APP && (
+                  <div className="w20 mRight20 TxtCenter">
+                    {type === FLOW_TYPE.APPROVAL && data.triggerId ? null : (
+                      <DeleteFlowBtn
+                        item={data}
+                        callback={id => {
+                          let count = _.cloneDeep(this.state.count);
+                          const newList = [].concat(list).map(o => {
+                            _.remove(o.processList, obj => obj.id === id);
+                            return o;
+                          });
 
-                        count[type] = count[type] - 1;
-                        this.setState({ count, list: newList });
-                      }}
-                    />
-                  )}
-                </div>
+                          count[type] = count[type] - 1;
+                          this.setState({ count, list: newList });
+                        }}
+                      />
+                    )}
+                  </div>
+                )}
               </Fragment>
             )}
           </div>
@@ -401,6 +545,15 @@ class AppWorkflowList extends Component {
       return userTriggerText[item.startAppType][item.triggerId];
     }
 
+    // 审批流程
+    if (type === FLOW_TYPE.APPROVAL) {
+      return (
+        <Link to={`/workflowedit/${item.triggerId}`} className="Gray ThemeHoverColor3">
+          {item.triggerName}
+        </Link>
+      );
+    }
+
     return item.appNames.join('、');
   }
 
@@ -412,7 +565,15 @@ class AppWorkflowList extends Component {
     let text;
 
     if (type !== FLOW_TYPE.OTHER_APP) {
-      return <PublishBtn list={list} item={item} showTime={true} updateSource={list => this.setState({ list })} />;
+      return (
+        <PublishBtn
+          disabled={type === FLOW_TYPE.APPROVAL}
+          list={list}
+          item={item}
+          showTime={true}
+          updateSource={list => this.setState({ list })}
+        />
+      );
     }
 
     return (
@@ -445,21 +606,21 @@ class AppWorkflowList extends Component {
     );
   }
 
-  createFlow = () => {
-    const { params } = this.props.match;
-
+  /**
+   * 创建封装业务流程
+   */
+  createFlow = appId => {
     this.requestPending = true;
 
-    process
-      .addProcess({
-        companyId: '',
-        relationId: params.appId,
-        relationType: 2,
-        startEventAppType: 17,
-        name: _l('未命名业务流程'),
-      })
+    addProcess({
+      companyId: '',
+      relationId: appId,
+      relationType: 2,
+      startEventAppType: 17,
+      name: _l('未命名业务流程'),
+    })
       .then(res => {
-        appManagement.addWorkflow({ projectId: res.companyId });
+        addWorkflow({ projectId: res.companyId });
         navigateTo(`/workflowedit/${res.id}`);
       })
       .always(() => {
@@ -468,139 +629,77 @@ class AppWorkflowList extends Component {
   };
 
   render() {
-    const { url, params } = this.props.match;
-    const { type, loading, list, selectFilter, createWorkflowVisible, count, appDetail } = this.state;
+    const appId = this.props.match.params.appId;
+    const { type, loading, list, selectFilter } = this.state;
     const filterList = [[{ text: type === FLOW_TYPE.OTHER_APP ? _l('全部应用') : _l('全部'), value: '' }], []];
-    const TYPES = [
-      { text: _l('工作表事件'), value: FLOW_TYPE.APP, display: true },
-      { text: _l('时间'), value: FLOW_TYPE.TIME, display: true },
-      { text: _l('人员事件'), value: FLOW_TYPE.USER, display: true },
-      { text: _l('Webhook'), value: FLOW_TYPE.OTHER, display: true },
-      { text: _l('子流程'), value: FLOW_TYPE.SUB_PROCESS },
-      { text: _l('自定义动作'), value: FLOW_TYPE.CUSTOM_ACTION },
-      { text: _l('外部流程修改本应用'), value: FLOW_TYPE.OTHER_APP },
-      { text: _l('封装业务流程'), value: FLOW_TYPE.PBC, display: true },
-    ];
 
     (list || []).forEach(item => {
       filterList[1].push({ text: item.groupName, value: item.groupId });
     });
 
     return (
-      <div className="workflowList flexColumn">
-        <DocumentTitle title={`${appDetail.name || ''} - ${_l('工作流')}`} />
-        <div className="workflowHeader flexRow">
-          <div className="flex" />
-          <ul className="menuTab flexRow">
-            {TYPES.map(item =>
-              count[item.value] > 0 || item.display ? (
-                <Fragment>
-                  {item.value === FLOW_TYPE.PBC && <li className="menuTabLine" />}
-                  <Link className="NoUnderline" to={`${url}?type=${item.value}`} key={item.value}>
-                    <li className={cx('ThemeColor3', { 'menuTab-active': type === item.value })}>
-                      <span className="bold">{item.text}</span>
-                      {count[item.value] > 0 ? `(${count[item.value]})` : ''}
-                    </li>
-                  </Link>
-                </Fragment>
-              ) : null,
-            )}
-          </ul>
-          <div className="flex" />
-          {type !== FLOW_TYPE.PBC && (
-            <div className="workflowHeaderBtn">
-              <Button
-                size="small"
-                icon="add"
-                className="workflowAdd"
-                style={{ backgroundColor: this.props.iconColor }}
-                onClick={() => this.setState({ createWorkflowVisible: true })}
-              >
-                {_l('新建工作流')}
-              </Button>
-            </div>
-          )}
-        </div>
+      <div className="flexColumn h100">
+        {this.renderHeader()}
 
-        {_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.PBC], type) && (
-          <div className="flexRow mLeft20 mRight20 mTop20" style={{ justifyContent: 'center' }}>
-            <div className="Gray_75 flex flexRow alignItemsCenter" style={{ maxWidth: 1200 }}>
-              <div className="flex">
-                {type === FLOW_TYPE.OTHER_APP
-                  ? _l(
-                      '这些其他应用下的流程可以修改本应用中的数据。如果你是这些应用的管理员，你可以在这里查看和编辑流程',
-                    )
-                  : _l('封装应用中可被复用的数据处理能力，接受约定的参数传入，流程执行后输出结果参数')}
+        <div className="workflowList flexRow workflowListShadow flex">
+          {this.renderNavigation()}
 
-                {FLOW_TYPE.PBC === type && (
-                  <Support
-                    className="pointer Gray_9e mLeft2"
-                    href="https://help.mingdao.com/flow_pbp.html"
-                    type={3}
-                    text={_l('帮助')}
-                  />
+          <div className="manageListContainer flex">
+            <div className="manageListBox">
+              <div className="manageListBoxContent flexColumn">
+                {loading ? (
+                  <LoadDiv className="mTop10" />
+                ) : !list.length ? (
+                  <div className="flowEmptyWrap flexColumn">
+                    <div className={cx('flowEmptyPic', `flowEmptyPic-${(FLOW_TYPE_NULL[type] || {}).icon}`)} />
+                    <div className="Gray_9e Font14 mTop20">{FLOW_TYPE_NULL[type].text}</div>
+                  </div>
+                ) : (
+                  <Fragment>
+                    <div className="manageListSearch flexRow">
+                      {!_.includes([FLOW_TYPE.OTHER, FLOW_TYPE.PBC], type) && (
+                        <Dropdown
+                          className="w180"
+                          data={filterList}
+                          value={selectFilter}
+                          openSearch
+                          border
+                          onChange={selectFilter => this.setState({ selectFilter })}
+                        />
+                      )}
+
+                      {_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.PBC], type) && (
+                        <div className="Gray_75 flexRow">
+                          {type === FLOW_TYPE.OTHER_APP
+                            ? _l(
+                                '这些其他应用下的流程可以修改本应用中的数据。如果你是这些应用的管理员，你可以在这里查看和编辑流程',
+                              )
+                            : _l('封装应用中可被复用的数据处理能力，接受约定的参数传入，流程执行后输出结果参数')}
+
+                          {FLOW_TYPE.PBC === type && (
+                            <Support
+                              className="pointer Gray_9e mLeft2"
+                              href="https://help.mingdao.com/flow_pbp.html"
+                              type={3}
+                              text={_l('帮助')}
+                            />
+                          )}
+                        </div>
+                      )}
+
+                      <div className="flex" />
+                      <Search
+                        placeholder={_l('搜索流程名称')}
+                        handleChange={keywords => this.setState({ keywords: keywords.trim() })}
+                      />
+                    </div>
+                    {this.renderContent()}
+                  </Fragment>
                 )}
               </div>
-              {type === FLOW_TYPE.PBC && (
-                <div className="workflowHeaderBtn">
-                  <Button
-                    size="small"
-                    icon="add"
-                    className="workflowAdd mLeft15"
-                    onClick={() => !this.requestPending && this.createFlow()}
-                  >
-                    {_l('新建封装业务流程')}
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="manageListContainer flex">
-          <div className={cx('manageListBox', { manageListBoxMaxHeight: !list.length })}>
-            <div className="manageListBoxContent flexColumn">
-              {loading ? (
-                <LoadDiv className="mTop10" />
-              ) : !list.length ? (
-                <div className="flowEmptyWrap flexColumn">
-                  <div className={cx('flowEmptyPic', `flowEmptyPic-${(FLOW_TYPE_NULL[type] || {}).icon}`)} />
-                  <div className="Gray_9e Font14 mTop20">{FLOW_TYPE_NULL[type].text}</div>
-                </div>
-              ) : (
-                <Fragment>
-                  <div className="manageListSearch flexRow">
-                    {!_.includes([FLOW_TYPE.OTHER, FLOW_TYPE.PBC], type) && (
-                      <Dropdown
-                        className="w180"
-                        data={filterList}
-                        value={selectFilter}
-                        openSearch
-                        border
-                        onChange={selectFilter => this.setState({ selectFilter })}
-                      />
-                    )}
-
-                    <div className="flex" />
-                    <Search
-                      placeholder={_l('搜索流程名称')}
-                      handleChange={keywords => this.setState({ keywords: keywords.trim() })}
-                    />
-                  </div>
-                  {this.renderContent()}
-                </Fragment>
-              )}
             </div>
           </div>
         </div>
-
-        {createWorkflowVisible && (
-          <CreateWorkflow
-            appId={params.appId}
-            flowName={_l('未命名工作流')}
-            onBack={() => this.setState({ createWorkflowVisible: false })}
-          />
-        )}
       </div>
     );
   }

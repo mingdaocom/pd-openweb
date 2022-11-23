@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Icon, Dialog } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, CustomTextarea, ParameterList, KeyPairs } from '../components';
+import { DetailHeader, DetailFooter, ParameterList, KeyPairs } from '../components';
 import { ACTION_ID } from '../../enum';
 import Editor from 'react-simple-code-editor';
 import { highlight, languages } from 'prismjs/components/prism-core';
@@ -45,17 +45,19 @@ export default class Code extends Component {
    * 获取节点详情
    */
   getNodeDetail(props) {
-    const { processId, selectNodeId, selectNodeType } = props;
+    const { processId, selectNodeId, selectNodeType, isIntegration } = props;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
-      if (!result.inputDatas.length) {
-        result.inputDatas.push({
-          name: '',
-          value: '',
-        });
-      }
-      this.setState({ data: result });
-    });
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }, { isIntegration })
+      .then(result => {
+        if (!result.inputDatas.length) {
+          result.inputDatas.push({
+            name: '',
+            value: '',
+          });
+        }
+        this.setState({ data: result });
+      });
   }
 
   /**
@@ -83,15 +85,18 @@ export default class Code extends Component {
     }
 
     flowNode
-      .saveNode({
-        processId: this.props.processId,
-        nodeId: this.props.selectNodeId,
-        flowNodeType: this.props.selectNodeType,
-        actionId,
-        name: name.trim(),
-        inputDatas: inputDatas.filter(item => item.name),
-        code: Base64.encode(code),
-      })
+      .saveNode(
+        {
+          processId: this.props.processId,
+          nodeId: this.props.selectNodeId,
+          flowNodeType: this.props.selectNodeType,
+          actionId,
+          name: name.trim(),
+          inputDatas: inputDatas.filter(item => item.name),
+          code: Base64.encode(code),
+        },
+        { isIntegration: this.props.isIntegration },
+      )
       .then(result => {
         this.props.updateNodeData(result);
         this.props.closeDetail();
@@ -124,7 +129,7 @@ export default class Code extends Component {
    * 发送
    */
   send = () => {
-    const { processId, selectNodeId } = this.props;
+    const { processId, selectNodeId, isIntegration } = this.props;
     const { data, sendRequest } = this.state;
     const { actionId, code, inputDatas } = data;
 
@@ -138,13 +143,16 @@ export default class Code extends Component {
     }
 
     flowNode
-      .codeTest({
-        processId,
-        nodeId: selectNodeId,
-        actionId,
-        code: Base64.encode(code),
-        inputDatas: inputDatas.filter(item => item.name),
-      })
+      .codeTest(
+        {
+          processId,
+          nodeId: selectNodeId,
+          actionId,
+          code: Base64.encode(code),
+          inputDatas: inputDatas.filter(item => item.name),
+        },
+        { isIntegration },
+      )
       .then(result => {
         if (result.status === 1) {
           this.updateSource({ controls: result.data.controls });
@@ -211,6 +219,7 @@ export default class Code extends Component {
                 key={this.props.selectNodeId}
                 processId={this.props.processId}
                 selectNodeId={this.props.selectNodeId}
+                isIntegration={this.props.isIntegration}
                 source={data.inputDatas}
                 sourceKey="inputDatas"
                 formulaMap={data.formulaMap}

@@ -1,4 +1,4 @@
-import 'modernizr';
+import 'src/components/modernizr/modernizr';
 import { htmlEncodeReg } from 'src/util';
 
 var Config = {
@@ -101,4 +101,4 @@ Config.DATE_FILTER = [
   { id: 'custom', text: _l('自定义日期') },
 ];
 
-module.exports = Config;
+export default Config;

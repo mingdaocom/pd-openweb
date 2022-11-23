@@ -195,6 +195,7 @@ export default class Editor extends Component {
             showTool={true}
             onActualSave={this.onChange}
             changeSetting={changeSetting}
+            minHeight={320}
           />
         )}
         {!toorIsBottom && <button id="editorFiles" />}
@@ -223,6 +224,7 @@ export default class Editor extends Component {
             showTool={true}
             onActualSave={this.onChange}
             changeSetting={changeSetting}
+            minHeight={320}
           />
         )}
       </Wrap>

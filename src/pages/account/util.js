@@ -3,6 +3,13 @@ import cx from 'classnames';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 
+// 特殊手机号验证是否合法
+export const specialTelVerify = value => {
+  return /\+234\d{10}$|\+63\d{10}$|\+852\d{8}$|\+861\d{10}$|\+5551\d{8}$|\+8536855\d{4}$|\+8536856\d{4}$|\+8536857\d{4}$|\+8536858\d{4}$|\+8536859\d{4}$/.test(
+    value || '',
+  );
+};
+
 export const inputFocusFn = (e, cb) => {
   $(e.target).closest('.mesDiv').addClass('current').find('.title').addClass('focusTitle');
   $(e.target)

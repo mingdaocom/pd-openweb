@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { Icon, ScrollView, LoadDiv } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import mdFunction from 'mdFunction';
+import { createLinksForMessage } from 'src/components/common/function';
 import { filterXSS } from 'xss';
 
 const PAGE_SIZE = 30;
@@ -90,7 +90,7 @@ export default class Discuss extends Component {
     const children = (
       <div className="logBox">
         {discussList.map((item, index) => {
-          const message = mdFunction.createLinksForMessage({
+          const message = createLinksForMessage({
             message: item.message,
             accountId: item.accountId,
             accountName: item.accountName,

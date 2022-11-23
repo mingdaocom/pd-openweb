@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
 import workSiteController from 'src/api/workSite';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 
 export default class EditMemberDialog extends Component {
   constructor() {
@@ -99,35 +100,33 @@ export default class EditMemberDialog extends Component {
 
   handleAdd() {
     const _this = this;
-    require(['dialogSelectUser'], function () {
-      $({}).dialogSelectUser({
-        showMoreInvite: false,
-        SelectUserSettings: {
-          showTabs: ['conactUser', 'department', 'group', 'subordinateUser'], // 用户列表子tab 联系人 部门 群组 下属
-          projectId: _this.props.projectId, // 默认取哪个网络的用户 为空则表示默认加载全部
-          inProject: true,
-          filterAll: true, // 过滤全部
-          filterFriend: true, // 是否过滤好友
-          filterOthers: true, // 是否过滤其他协作关系
-          filterAccountIds: _this.state.members, // 过滤指定的用户
-          filterOtherProject: true, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
-          dataRange: 0, // reference to dataRangeTypes 和 projectId 配合使用
-          callback: data => {
-            workSiteController
-              .addWorkSiteUser({
-                workSiteId: _this.props.workSiteId,
-                accountIds: _.map(data, user => user.accountId),
-                projectId: _this.props.projectId,
-              })
-              .then(data => {
-                if (data) {
-                  _this.getUserList();
-                  _this.props.getData();
-                } else alert(_l('添加失败'), 2);
-              });
-          },
+    $({}).dialogSelectUser({
+      fromAdmin: true,
+      SelectUserSettings: {
+        showTabs: ['conactUser', 'department', 'group', 'subordinateUser'], // 用户列表子tab 联系人 部门 群组 下属
+        projectId: _this.props.projectId, // 默认取哪个网络的用户 为空则表示默认加载全部
+        inProject: true,
+        filterAll: true, // 过滤全部
+        filterFriend: true, // 是否过滤好友
+        filterOthers: true, // 是否过滤其他协作关系
+        filterAccountIds: _this.state.members, // 过滤指定的用户
+        filterOtherProject: true, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
+        dataRange: 0, // reference to dataRangeTypes 和 projectId 配合使用
+        callback: data => {
+          workSiteController
+            .addWorkSiteUser({
+              workSiteId: _this.props.workSiteId,
+              accountIds: _.map(data, user => user.accountId),
+              projectId: _this.props.projectId,
+            })
+            .then(data => {
+              if (data) {
+                _this.getUserList();
+                _this.props.getData();
+              } else alert(_l('添加失败'), 2);
+            });
         },
-      });
+      },
     });
   }
 

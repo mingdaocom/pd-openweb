@@ -1,16 +1,12 @@
-﻿/**
- * @module dialogSelectGroups
- * @author puck
- * @desc 选择群组
- * @example
- * require.async('dialogSelectGroups',function(groupDialog){ groupDialog(opts); });
- */
-import './style.css';
+﻿import './style.css';
+import '@mdfe/nanoscroller';
+import doT from '@mdfe/dot';
+import headerTpl from './tpl/header.html';
+import listTpl from './tpl/groupList.html';
+import { index as DialogLayer } from 'src/components/mdDialog/dialog';
 
-import 'nanoScroller';
-var doT = require('dot');
-var mainRenderFunc = doT.template(require('./tpl/header.html'));
-var listRenderFunc = doT.template(require('./tpl/groupList.html'));
+var mainRenderFunc = doT.template(headerTpl);
+var listRenderFunc = doT.template(listTpl);
 var GroupAjaxController = require('src/api/group');
 
 /**
@@ -76,52 +72,50 @@ var GroupDialog = function (opts) {
 GroupDialog.prototype.init = function () {
   console.log('group dialog start init.');
   var _this = this;
-  require(['mdDialog'], function (DialogLayer) {
-    var $dialog;
-    $dialog = DialogLayer.index({
-      dialogBoxID: 'dialogSelectGroups',
-      container: {
-        header: _l('群组选择'),
-        content: mainRenderFunc(),
-        yesText: _l('确认') + '<span class="memberCount"></span>',
-        yesFn: function () {
-          var groupArr = _this.model.getSelectedGroups();
+  var $dialog;
+  $dialog = DialogLayer({
+    dialogBoxID: 'dialogSelectGroups',
+    container: {
+      header: _l('群组选择'),
+      content: mainRenderFunc(),
+      yesText: _l('确认') + '<span class="memberCount"></span>',
+      yesFn: function () {
+        var groupArr = _this.model.getSelectedGroups();
 
-          if (!groupArr.length && !_this.options.allowNull) {
-            if ($.isFunction(_this.options.nullCallback)) {
-              _this.options.nullCallback.call(null);
-            } else {
-              alert(_l('请选择群组'), 3);
-            }
-            return false;
+        if (!groupArr.length && !_this.options.allowNull) {
+          if ($.isFunction(_this.options.nullCallback)) {
+            _this.options.nullCallback.call(null);
           } else {
-            _this.options.selectCallback(groupArr);
+            alert(_l('请选择群组'), 3);
           }
-        },
+          return false;
+        } else {
+          _this.options.selectCallback(groupArr);
+        }
       },
-      width: 500,
-      status: false,
-      callback: function () {
-        // unbind all Event
-        Event.cancel();
-      },
-      readyFn: function () {
-        console.log('Base view init complete.');
-        var $content = $('#dialogSelectGroups');
-        var elements = {
-          $input: $content.find('.searchInput'),
-          $searchBtn: $content.find('.searchIcon'),
-          $list: $content.find('.groupListBox'),
-          $selectList: $content.find('.selectGroupBox'),
-          $memberCount: $content.find('.memberCount'),
-        };
-        _this.model = new Model(_this.options);
-        _this.view = new View(_this.model, elements);
-        _this.controller = new Controller(_this.model, _this.view);
+    },
+    width: 500,
+    status: false,
+    callback: function () {
+      // unbind all Event
+      Event.cancel();
+    },
+    readyFn: function () {
+      console.log('Base view init complete.');
+      var $content = $('#dialogSelectGroups');
+      var elements = {
+        $input: $content.find('.searchInput'),
+        $searchBtn: $content.find('.searchIcon'),
+        $list: $content.find('.groupListBox'),
+        $selectList: $content.find('.selectGroupBox'),
+        $memberCount: $content.find('.memberCount'),
+      };
+      _this.model = new Model(_this.options);
+      _this.view = new View(_this.model, elements);
+      _this.controller = new Controller(_this.model, _this.view);
 
-        _this.view.initialize();
-      },
-    });
+      _this.view.initialize();
+    },
   });
 };
 
@@ -398,4 +392,4 @@ Controller.prototype = {
   },
 };
 
-module.exports = GroupDialog;
+export default GroupDialog;

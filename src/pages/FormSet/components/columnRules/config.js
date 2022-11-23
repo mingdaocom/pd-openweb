@@ -448,7 +448,14 @@ export const filterDataRelationText = (dynamicSource = [], columns, sourceContro
 
 export const filterData = (columns = [], filterItem = [], isSetting, relationControls = [], sourceControlId = '') => {
   let dataList = [];
-  filterItem.map((item, index) => {
+  filterItem.forEach((item, index) => {
+    if (item.isGroup && item.groupFilters) {
+      dataList.push({
+        ...item,
+        groupFilters: filterData(columns, item.groupFilters, isSetting, relationControls, sourceControlId),
+      });
+      return;
+    }
     let controlData = [];
     if (isSetting) {
       controlData = relationControls.filter(column =>

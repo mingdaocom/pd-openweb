@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { MenuItem, Icon } from 'ming-ui';
 import styled from 'styled-components';
-import { getPrintList } from 'src/api/worksheet';
+import { getPrintList, getRowDetail } from 'src/api/worksheet';
 import { add } from 'src/api/webCache';
+import { generatePdf } from 'worksheet/common/PrintQrBarCode';
+import { getPrintCardInfoOfTemplate } from 'worksheet/common/PrintQrBarCode/enum';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -24,6 +26,12 @@ const MenuItemWrap = styled(MenuItem)`
       padding-left: 32px;
     }
   }
+`;
+
+const SecTitle = styled.div`
+  color: #999;
+  font-size: 12px;
+  margin: 12px 16px 4px;
 `;
 
 const FEATURE_ID = 20;
@@ -57,7 +65,7 @@ export default class PrintList extends Component {
         viewId,
       }).then(tempList => {
         let list = !viewId ? tempList.filter(o => o.range === 1) : tempList;
-        this.setState({ tempList: list, tempListLoaded: true });
+        this.setState({ tempList: list.sort((a, b) => a.type - b.type), tempListLoaded: true });
       });
     }
   }
@@ -81,16 +89,12 @@ export default class PrintList extends Component {
         workId,
         id: instanceId,
       };
-      let printKey = Math.random()
-        .toString(36)
-        .substring(2);
+      let printKey = Math.random().toString(36).substring(2);
       add({
         key: `${printKey}`,
         value: JSON.stringify(printData),
       });
-      window.open(
-        `${window.subPath || ''}/printForm/${appId}/${workId ? 'workflow' : 'worksheet'}/new/print/${printKey}`,
-      );
+      window.open(`${window.subPath || ''}/printForm/${appId}/${workId ? 'flow' : 'worksheet'}/new/print/${printKey}`);
     });
   }
 
@@ -147,43 +151,67 @@ export default class PrintList extends Component {
                     return (
                       <MenuItemWrap
                         className=""
-                        onClick={() => {
+                        icon={<Icon icon={getPrintCardInfoOfTemplate(it).icon} className="Font18" />}
+                        onClick={async () => {
                           onItemClick();
                           if (window.isPublicApp) {
                             alert(_l('预览模式下，不能操作'), 3);
                             return;
                           }
-                          if (it.type !== 0 && featureType === '2') {
-                            buriedUpgradeVersionDialog(projectId, FEATURE_ID);
-                            return;
+                          if (_.includes([3, 4], it.type)) {
+                            const data = await getRowDetail({
+                              appId,
+                              viewId,
+                              worksheetId,
+                              rowId: recordId,
+                              getTemplate: true,
+                            });
+                            generatePdf({
+                              templateId: it.id,
+                              appId,
+                              worksheetId,
+                              viewId,
+                              projectId,
+                              selectedRows: [safeParse(data.rowData)],
+                              controls: data.templateControls,
+                              zIndex: 9999,
+                            });
+                          } else {
+                            if (it.type !== 0 && featureType === '2') {
+                              buriedUpgradeVersionDialog(projectId, FEATURE_ID);
+                              return;
+                            }
+                            let printId = it.id;
+                            let isDefault = it.type === 0;
+                            let printData = {
+                              printId,
+                              isDefault, // 系统打印模板
+                              worksheetId,
+                              projectId: projectId,
+                              rowId: recordId,
+                              getType: 1,
+                              viewId,
+                              appId,
+                              name: it.name,
+                              attriData: attriData[0],
+                            };
+                            let printKey = Math.random().toString(36).substring(2);
+                            add({
+                              key: `${printKey}`,
+                              value: JSON.stringify(printData),
+                            });
+                            window.open(
+                              `${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`,
+                            );
                           }
-                          let printId = it.id;
-                          let isDefault = it.type === 0;
-                          let printData = {
-                            printId,
-                            isDefault, // 系统打印模板
-                            worksheetId,
-                            projectId: projectId,
-                            rowId: recordId,
-                            getType: 1,
-                            viewId,
-                            appId,
-                            name: it.name,
-                            attriData: attriData[0],
-                          };
-                          let printKey = Math.random()
-                            .toString(36)
-                            .substring(2);
-                          add({
-                            key: `${printKey}`,
-                            value: JSON.stringify(printData),
-                          });
-                          window.open(`${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`);
                         }}
                       >
-                        <span title={it.name} className="Block overflow_ellipsis WordBreak">
+                        <div title={it.name} className="ellipsis templateName">
                           {it.name}
-                        </span>
+                        </div>
+                        {_.includes([3, 4], it.type) && (
+                          <span className="detail">{getPrintCardInfoOfTemplate(it).text}</span>
+                        )}
                       </MenuItemWrap>
                     );
                   })}
@@ -191,15 +219,18 @@ export default class PrintList extends Component {
               )}
               {/* 系统打印权限 */}
               {isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId) && (
-                <MenuItemWrap
-                  className={cx({ defaultPrint: tempList.length > 0 })}
-                  onClick={() => {
-                    onItemClick();
-                    this.menuPrint();
-                  }}
-                >
-                  {_l('系统打印')}
-                </MenuItemWrap>
+                <Fragment>
+                  <SecTitle>{_l('系统默认打印')}</SecTitle>
+                  <MenuItemWrap
+                    className={cx({ defaultPrint: tempList.length > 0 })}
+                    onClick={() => {
+                      onItemClick();
+                      this.menuPrint();
+                    }}
+                  >
+                    {_l('打印记录')}
+                  </MenuItemWrap>
+                </Fragment>
               )}
             </div>
           }

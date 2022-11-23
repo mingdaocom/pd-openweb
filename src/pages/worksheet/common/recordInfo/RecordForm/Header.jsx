@@ -55,9 +55,10 @@ export default function InfoHeader(props) {
   const [discussCount, setDiscussCount] = useState();
   const discussVisible = isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId);
   const logVisible = isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId);
+  const workflowVisible = isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId);
   const portalNotHasDiscuss = md.global.Account.isPortal && !props.allowExAccountDiscuss; //外部用户且未开启讨论
   const showSodeBar =
-    (!md.global.Account.isPortal && (discussVisible || logVisible)) ||
+    (!md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
     (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible);
   function loadDiscussionsCount() {
     if (sideVisible || !discussVisible || portalNotHasDiscuss) {
@@ -88,16 +89,45 @@ export default function InfoHeader(props) {
       emitter.removeListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
     };
   }, []);
+
   if (viewId) {
     header = null;
   }
+
+  // 展开 收起 右侧按钮
+  const sideBarBtn = () => {
+    return (
+      <SodeBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
+        <span data-tip={sideVisible ? _l('收起') : _l('展开')}>
+          <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />
+        </span>
+        {!sideVisible && !!discussCount && (
+          <span className="discussCount">
+            {discussCount > 99 ? '99+' : discussCount}
+            <span className="text">{_l('条讨论')}</span>
+          </span>
+        )}
+      </SodeBarIcon>
+    );
+  };
+
+  // 关闭
+  const closeBtn = () => {
+    return (
+      <IconBtn className="Hand ThemeHoverColor3" onClick={onCancel}>
+        <i className="icon icon-close" />
+      </IconBtn>
+    );
+  };
+
   return (
-    <div
-      className={cx('recordHeader flexRow Font22', { bottomShadow: header })}
-      style={header ? { paddingRight: '56px' } : { zIndex: 10 }}
-    >
+    <div className="recordHeader flexRow Font22" style={{ zIndex: 10 }}>
       {!!header && !loading && (
-        <div className="customHeader flex">{React.cloneElement(header, { onSubmit: onSubmit, isSmall })}</div>
+        <div className="customHeader flex flexRow">
+          {React.cloneElement(header, { onSubmit: onSubmit, isSmall })}
+          {showSodeBar && sideBarBtn()}
+          {closeBtn()}
+        </div>
       )}
       {!header && (
         <div className="flex flexRow w100">
@@ -132,22 +162,8 @@ export default function InfoHeader(props) {
           ) : (
             <div className="flex" />
           )}
-          {showSodeBar && (
-            <SodeBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
-              <span data-tip={sideVisible ? _l('收起') : _l('展开')}>
-                <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />
-              </span>
-              {!sideVisible && !!discussCount && (
-                <span className="discussCount">
-                  {discussCount > 99 ? '99+' : discussCount}
-                  <span className="text">{_l('条讨论')}</span>
-                </span>
-              )}
-            </SodeBarIcon>
-          )}
-          <IconBtn className="Hand ThemeHoverColor3" onClick={onCancel}>
-            <i className="icon icon-close" />
-          </IconBtn>
+          {showSodeBar && sideBarBtn()}
+          {closeBtn()}
         </div>
       )}
     </div>

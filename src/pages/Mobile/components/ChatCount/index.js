@@ -17,6 +17,9 @@ const ChartCountWrap = styled.div`
   bottom: 60px;
   right: 20px;
   z-index: 99;
+  &.low {
+    bottom: 20px;
+  }
 `;
 
 export default class ChatCount extends Component {
@@ -52,14 +55,15 @@ export default class ChatCount extends Component {
       .then(res => {
         this.setState({ discussionCount: res.data });
       });
-  }
+  };
 
   render() {
-    const { appId, worksheetId, rowId, viewId, onClick = _.noop, autoOpenDiscuss } = this.props;
+    const { appId, worksheetId, rowId, viewId, onClick = _.noop, autoOpenDiscuss, originalData, className } = this.props;
     const { discussionCount, visible } = this.state;
     return (
       <Fragment>
         <ChartCountWrap
+          className={className}
           onClick={() => {
             this.setState({ visible: true });
             onClick();
@@ -76,9 +80,10 @@ export default class ChatCount extends Component {
           worksheetId={worksheetId}
           rowId={rowId}
           viewId={viewId}
+          originalData={originalData}
           onClose={() => {
             this.setState({
-              visible: false
+              visible: false,
             });
             if (autoOpenDiscuss) {
               window.mobileNavigateTo(location.pathname, true);

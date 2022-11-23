@@ -1,0 +1,58 @@
+.dialogSelectTitleContainer {
+  display: inline-flex;
+  align-items: center;
+  padding-left: 12px;
+  border-radius: 5px;
+  margin-left: -12px;
+  &:hover {
+    background-color: #f5f5f5;
+  }
+  .Dropdown--input {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: top;
+    padding: 5px 5px 5px 8px !important;
+    max-width: 500px;
+    .value {
+      color: #212121;
+      font-size: 17px;
+      font-weight: bold;
+      line-height: 20px;
+    }
+  }
+  .ming.Menu.List {
+    width: 300px;
+    .ming.MenuItem .Item-content:not(.disabled):hover {
+      background-color: #f7f7f7 !important;
+      color: #333 !important;
+    }
+    .ming.MenuItem.selectMenuItem .Item-content:not(.disabled) {
+      background: #d6ebfe;
+      color: #2196f3;
+      &:hover {
+        background: #d6ebfe !important;
+        color: #2196f3 !important;
+      }
+    }
+  }
+
+  .ming.Dropdown.disabled {
+    background-color: transparent !important;
+    .Dropdown--input {
+      background-color: transparent !important;
+      .value {
+        max-width: 100% !important;
+      }
+      .icon-arrow-down-border {
+        display: none !important;
+      }
+    }
+  }
+}
+
+.dialogSelectUserContainer {
+  display: flex;
+}

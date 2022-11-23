@@ -1,1 +1,1 @@
-﻿module.exports = require('./versionList');
+﻿export { default } from './versionList';

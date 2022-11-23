@@ -39,4 +39,4 @@ class LinkContent extends React.Component {
   }
 }
 
-module.exports = LinkContent;
+export default LinkContent;

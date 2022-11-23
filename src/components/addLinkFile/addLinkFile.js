@@ -1,15 +1,8 @@
-﻿/**
- * @module addLinkFile
- * @author peixiaochuang
- * @desc 创建或编辑链接文件弹层
- * @example
- */
-import './style.less';
+﻿import './style.less';
+import { index as DialogLayer} from 'src/components/mdDialog/dialog';
+import doT from '@mdfe/dot';
+import tpl from './addLinkFile.html';
 
-var DialogLayer = require('mdDialog').index;
-var postController = require('src/api/post');
-var doT = require('dot');
-var tpl = require('./addLinkFile.html');
 var addLinkFile = function (options) {
   var DEFAULTS = {
     isEdit: false,
@@ -121,4 +114,4 @@ addLinkFile.prototype = {
   },
 };
 
-module.exports = addLinkFile;
+export default addLinkFile;

@@ -4,7 +4,7 @@ import { Icon, LoadDiv, DatePicker } from 'ming-ui';
 import Config from '../../config';
 import { getActionLogs } from 'src/api/actionLog';
 import { exportLoginLog } from 'src/api/download';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import moment from 'moment';
 import './index.less';
 
@@ -147,8 +147,7 @@ export default class LoginLog extends Component {
   // 筛选登录人
   handleLoginUser = () => {
     $({}).dialogSelectUser({
-      title: _l('添加人员'),
-      showMoreInvite: false,
+      fromAdmin: true,
       SelectUserSettings: {
         projectId: Config.projectId,
         dataRange: 2,

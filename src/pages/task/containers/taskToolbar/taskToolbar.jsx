@@ -22,7 +22,7 @@ import CopyFolder from '../../components/copyFolder/copyFolder';
 import ShareFolderOrTask from '../../components/shareFolderOrTask/shareFolderOrTask';
 import Filter from './filter';
 import { htmlEncodeReg } from 'src/util';
-import mdFunction from 'mdFunction';
+import { expireDialogAsync } from 'src/components/common/function';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAwayable = createDecoratedComponent(withClickAway);
@@ -208,7 +208,7 @@ class TaskToolbar extends Component {
                 <li
                   className="ThemeBGColor3"
                   onClick={() => {
-                    mdFunction.expireDialogAsync(projectID).then(() => {
+                    expireDialogAsync(projectID).then(() => {
                       this.setState({ showCopyFolder: true, showOperator: false });
                     });
                   }}

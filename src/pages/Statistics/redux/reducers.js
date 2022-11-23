@@ -99,12 +99,10 @@ const reportSingleCacheLoading = (state = true, action) => {
   }
 }
 
-const direction = (state = 'horizontal', action) => {
+const direction = (state = (sessionStorage.getItem('chartSheetDirection') || 'horizontal'), action) => {
   switch (action.type) {
     case 'CHANGE_STATISTICS_DIRECTION':
       return action.data;
-    case 'CHANGE_STATISTICS_RESET':
-      return 'horizontal';
     default:
       return state;
   }

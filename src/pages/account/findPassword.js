@@ -11,6 +11,7 @@ let request = getRequest();
 import { hasCaptcha } from './util';
 import preall from 'src/common/preall';
 import { browserIsMobile } from 'src/util';
+import MatchApp from './matchApp';
 
 class FindPassword extends React.Component {
   constructor(props) {
@@ -42,9 +43,6 @@ class FindPassword extends React.Component {
       $('.btnForLogin').click();
     }
   };
-  showLangChang = () => {
-    $('.showLangChangeBottom').removeClass('Hidden');
-  };
   submitAccountVerify = () => {
     const { loginData = {} } = this.state;
     const { emailOrTel, password, verifyCode, dialCode } = loginData;
@@ -65,9 +63,7 @@ class FindPassword extends React.Component {
             if (!browserIsMobile()) {
               window.location.href = '/login.htm';
             } else {
-              require(['./matchApp'], function (MatchApp) {
-                MatchApp.init();
-              });
+              MatchApp.init();
             }
           });
         } else {
@@ -120,7 +116,7 @@ class FindPassword extends React.Component {
         </div>
         <Message
           type="findPassword"
-          keys={['emailOrTel', 'code', 'password']}
+          keys={['emailOrTel', 'code', 'setPassword']}
           maxLength="6"
           dataList={this.state.loginData}
           onChangeData={(data, callback) => {
@@ -196,7 +192,6 @@ class FindPassword extends React.Component {
             <img src={md.global.SysSettings.brandLogoUrl} height={40} />
           </div>
           {this.renderCon()}
-          {this.showLangChang()}
         </div>
         <ChangeLang />
       </div>

@@ -13,6 +13,7 @@ import SetControlName from './components/SetControlName';
 import _ from 'lodash';
 import { checkJSON } from '../utils';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { APP_TYPE } from '../enum';
 
 const TRIGGER_TYPE = {
   ALLOW: 0,
@@ -67,6 +68,7 @@ class ProcessConfig extends Component {
       pbcConfig,
       responseContentType,
       value,
+      triggerView,
     } = data;
 
     if (_.find(errorItems, o => o)) {
@@ -107,6 +109,7 @@ class ProcessConfig extends Component {
         pbcConfig,
         responseContentType,
         value: value.trim(),
+        triggerView,
       })
       .then(result => {
         if (result) {
@@ -235,8 +238,24 @@ class ProcessConfig extends Component {
           <div className="Gray_75 mLeft10">{_l('内不发送同类错误通知')}</div>
         </div>
 
-        <div className="processConfigLine" />
+        {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION], flowInfo.startAppType) && (
+          <Fragment>
+            <div className="processConfigLine" />
+            <div className="bold Font16 mTop20">{_l('触发者查看')}</div>
+            <div className="Gray_75 mTop5 mBottom8">
+              {_l('启用后，流程触发者可以在“我发起的”待办项中查看、追踪此流程')}
+            </div>
+            <div className="mTop10">
+              <Switch
+                checked={data.triggerView}
+                text={data.triggerView ? _l('开启') : _l('关闭')}
+                onClick={() => this.updateSource({ triggerView: !data.triggerView })}
+              />
+            </div>
+          </Fragment>
+        )}
 
+        <div className="processConfigLine" />
         <div className="bold Font16 mTop20">{_l('触发其他工作流')}</div>
         <div className="mTop15">
           <Radio
@@ -677,7 +696,12 @@ class ProcessConfig extends Component {
 
     const settings = [
       { text: _l('基础'), value: 1, icon: 'department' },
-      { text: _l('人工节点设置'), value: 2, icon: 'user_Review' },
+      {
+        text: _l('人工节点设置'),
+        value: 2,
+        icon: 'user_Review',
+        tip: _l('此项配置仅对旧版人工节点生效。推荐使用新审批流程！'),
+      },
       { text: _l('流程参数'), value: 3, icon: 'parameter' },
       { text: _l('平台API能力'), value: 4, icon: 'pbc' },
     ];
@@ -702,6 +726,11 @@ class ProcessConfig extends Component {
               >
                 <Icon icon={item.icon} />
                 {item.text}
+                {item.tip && (
+                  <span className="workflowDetailTipsWidth" data-tip={item.tip}>
+                    <Icon icon="info" className="mLeft5 Gray_9e" />
+                  </span>
+                )}
               </li>
             ))}
           </ul>

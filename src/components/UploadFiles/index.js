@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
 import './index.less';
-import previewAttachments from 'previewAttachments';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import FileComponent from './File';
 import * as ajax from 'src/pages/kc/common/AttachmentsPreview/ajax';
 import {
@@ -20,10 +20,12 @@ import {
 } from './utils';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { formatFileSize, getToken, upgradeVersionDialog } from 'src/util';
+import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import plupload from 'plupload';
+import plupload from '@mdfe/jquery-plupload';
 import { navigateTo } from 'src/router/navigateTo';
+import addLinkFile from 'src/components/addLinkFile/addLinkFile';
 
 export const errorCode = {
   40001: _l('鉴权失败'),
@@ -449,61 +451,59 @@ export default class UploadFiles extends Component {
     });
   }
   onOpenFolderSelectDialog() {
-    require(['src/components/kc/folderSelectDialog/folderSelectDialog'], selectNode => {
-      selectNode({
-        isFolderNode: 2,
-      }).then(result => {
-        let { kcAttachmentData, temporaryData, originCount } = this.state;
-        let { advancedSetting } = this.props;
-        let newKcAttachmentData = result.node.map(node => {
-          // 在添加之前，找出重复的文件
-          if (kcAttachmentData.filter(n => n.refId == node.id).length) {
-            alert(_l('已引用该文件'), 3);
-            return false;
-          }
-
-          return {
-            isUpload: true,
-            fileID: node.id,
-            refId: node.id,
-            originalFileName: node.name,
-            fileExt: node.ext ? '.' + node.ext : '',
-            fileSize: node.size,
-            allowDown: node.isDownloadable,
-            viewUrl: File.isPicture('.' + node.ext) ? node.viewUrl : null,
-            node,
-          };
-        });
-
-        // 可能会有重复的文件，用 false 表示的，这里需要过滤一下
-        newKcAttachmentData = kcAttachmentData.concat(newKcAttachmentData.filter(n => n));
-        let isAvailable = true;
-        // 附件配置控制（包含数量、单个文件大小、类型）
-        if (advancedSetting) {
-          isAvailable = checkFileAvailable(advancedSetting, newKcAttachmentData, temporaryData.length + originCount);
-        }
-        if (!isAvailable) return;
-
-        // 最多只能上传20个知识文件
-        if (newKcAttachmentData.length > 20) {
-          alert(_l('附件数量超过限制，一次上传不得超过20个附件'), 3);
+    selectNode({
+      isFolderNode: 2,
+    }).then(result => {
+      let { kcAttachmentData, temporaryData, originCount } = this.state;
+      let { advancedSetting } = this.props;
+      let newKcAttachmentData = result.node.map(node => {
+        // 在添加之前，找出重复的文件
+        if (kcAttachmentData.filter(n => n.refId == node.id).length) {
+          alert(_l('已引用该文件'), 3);
           return false;
         }
 
-        this.setState(
-          {
-            kcAttachmentData: newKcAttachmentData,
-          },
-          () => {
-            this.props.onKcAttachmentDataUpdate(newKcAttachmentData);
-            if (this._uploading) return;
-            // 必须等待 onKcAttachmentDataUpdate 把调用方当前的 state 更改后才能执行 onUploadComplete
-            setTimeout(() => {
-              this.props.onUploadComplete(true);
-            }, 0);
-          },
-        );
+        return {
+          isUpload: true,
+          fileID: node.id,
+          refId: node.id,
+          originalFileName: node.name,
+          fileExt: node.ext ? '.' + node.ext : '',
+          fileSize: node.size,
+          allowDown: node.isDownloadable,
+          viewUrl: File.isPicture('.' + node.ext) ? node.viewUrl : null,
+          node,
+        };
       });
+
+      // 可能会有重复的文件，用 false 表示的，这里需要过滤一下
+      newKcAttachmentData = kcAttachmentData.concat(newKcAttachmentData.filter(n => n));
+      let isAvailable = true;
+      // 附件配置控制（包含数量、单个文件大小、类型）
+      if (advancedSetting) {
+        isAvailable = checkFileAvailable(advancedSetting, newKcAttachmentData, temporaryData.length + originCount);
+      }
+      if (!isAvailable) return;
+
+      // 最多只能上传20个知识文件
+      if (newKcAttachmentData.length > 20) {
+        alert(_l('附件数量超过限制，一次上传不得超过20个附件'), 3);
+        return false;
+      }
+
+      this.setState(
+        {
+          kcAttachmentData: newKcAttachmentData,
+        },
+        () => {
+          this.props.onKcAttachmentDataUpdate(newKcAttachmentData);
+          if (this._uploading) return;
+          // 必须等待 onKcAttachmentDataUpdate 把调用方当前的 state 更改后才能执行 onUploadComplete
+          setTimeout(() => {
+            this.props.onUploadComplete(true);
+          }, 0);
+        },
+      );
     });
   }
   removeUploadingFile(id) {
@@ -523,33 +523,32 @@ export default class UploadFiles extends Component {
   }
   openLinkDialog(item) {
     const _this = this;
-    require(['src/components/addLinkFile/addLinkFile'], addLinkFile => {
-      const hanele = new addLinkFile({
-        showTitleTip: false,
-        callback: link => {
-          const { linkName, linkContent } = link;
-          const { temporaryData } = this.state;
-          if (
-            temporaryData.filter(attachment => attachment.fileExt === '.url' && attachment.originLinkUrl).length >= 20
-          ) {
-            alert(_l('附件数量超过限制，一次上传不得超过20个附件'), 3);
-            return;
-          }
-          const newTemporaryData = temporaryData.concat({
-            fileID: Math.random().toString(),
-            fileExt: '.url',
-            originalFileName: linkName,
-            oldOriginalFileName: linkName,
-            originLinkUrl: linkContent,
-            allowDown: true,
-          });
-          _this.setState({
-            temporaryData: newTemporaryData,
-          });
-          _this.props.onTemporaryDataUpdate(newTemporaryData);
-          _this.props.onUploadComplete(true);
-        },
-      });
+
+    new addLinkFile({
+      showTitleTip: false,
+      callback: link => {
+        const { linkName, linkContent } = link;
+        const { temporaryData } = this.state;
+        if (
+          temporaryData.filter(attachment => attachment.fileExt === '.url' && attachment.originLinkUrl).length >= 20
+        ) {
+          alert(_l('附件数量超过限制，一次上传不得超过20个附件'), 3);
+          return;
+        }
+        const newTemporaryData = temporaryData.concat({
+          fileID: Math.random().toString(),
+          fileExt: '.url',
+          originalFileName: linkName,
+          oldOriginalFileName: linkName,
+          originLinkUrl: linkContent,
+          allowDown: true,
+        });
+        _this.setState({
+          temporaryData: newTemporaryData,
+        });
+        _this.props.onTemporaryDataUpdate(newTemporaryData);
+        _this.props.onUploadComplete(true);
+      },
     });
   }
   onDeleteMDFile(attachment, event) {

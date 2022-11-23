@@ -60,6 +60,7 @@ export default function EditOptionList(props) {
         options={data}
         colorful={colorful}
         enableScore={enableScore}
+        showAssign={true}
         onChange={({ options, enableScore }) => {
           setData(options);
           if (typeof enableScore === 'boolean') {

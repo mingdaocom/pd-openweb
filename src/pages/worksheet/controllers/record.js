@@ -35,6 +35,7 @@ export async function downloadAttachmentById({ fileId, refId }) {
 }
 
 export function getFormDataForNewRecord({
+  isCustomButton,
   worksheetInfo,
   defaultRelatedSheet = {},
   defaultFormData = {},
@@ -48,6 +49,9 @@ export function getFormDataForNewRecord({
         controls = controls
           .filter(c => !_.includes(FORM_HIDDEN_CONTROL_IDS, c.controlId))
           .map(control => {
+            if (isCustomButton && _.get(control, 'controlPermissions.2') === '0') {
+              control.controlPermissions = control.controlPermissions.slice(0, 2) + '1';
+            }
             if (
               control.type === 29 &&
               Number(control.advancedSetting.showtype) !== RELATE_RECORD_SHOW_TYPE.LIST &&
@@ -228,11 +232,12 @@ export function submitNewRecord(props) {
     });
 }
 
-export function copyRow({ worksheetId, viewId, rowIds }, done = () => {}) {
+export function copyRow({ worksheetId, viewId, rowIds, relateRecordControlId }, done = () => {}) {
   copyRowApi({
     worksheetId,
     viewId,
     rowIds,
+    copyRelationControlId: relateRecordControlId,
   })
     .then(res => {
       if (res && res.resultCode === 1) {

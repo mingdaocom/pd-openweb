@@ -126,4 +126,4 @@ class PostCommentList extends React.Component {
   }
 }
 
-module.exports = connect(state => ({}))(PostCommentList);
+export default connect(state => ({}))(PostCommentList);

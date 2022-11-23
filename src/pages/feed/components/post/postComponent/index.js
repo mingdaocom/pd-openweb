@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { getSpecificComponent } from './factory';
+import getSpecificComponent from './factory';
 import PropTypes from 'prop-types';
 
 class PostComponent extends React.Component {
@@ -13,4 +13,4 @@ class PostComponent extends React.Component {
   }
 }
 
-module.exports = PostComponent;
+export default PostComponent;

@@ -27,6 +27,10 @@ export default function customNotice() {
           const id = href.slice(href.indexOf('excelerrorpage') + 15).split('/');
           new ErrorDialog({ fileKey: id[0] });
         }
+        if (href.indexOf('excelerrorpage') > -1) {
+          const id = href.slice(href.indexOf('excelbatcherrorpage') + 15).split('/');
+          new ErrorDialog({ fileKey: id[1], isBatch: true});
+        }
 
         if (href.indexOf('backup') > -1) {
           const currentAppId = location.href.slice(
@@ -51,24 +55,21 @@ export default function customNotice() {
 
     socket.on('custom', data => {
       const { id, status, title, msg } = data;
-      let duration = null;
       let action = '';
 
       if (status === 1) {
         action = 'info';
       } else if (status === 2) {
         action = 'success';
-        duration = 5;
       } else {
         action = 'error';
-        duration = 5;
       }
 
       antNotification[action]({
         key: id,
         className: 'customNotification',
         closeIcon: <Icon icon="close" className="Font20 Gray_9d ThemeHoverColor3" />,
-        duration,
+        duration: 5,
         message: title,
         description: <div dangerouslySetInnerHTML={{ __html: msg }} />,
         loading: status === 1,

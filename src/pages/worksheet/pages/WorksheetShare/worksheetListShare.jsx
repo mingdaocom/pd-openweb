@@ -119,7 +119,6 @@ class WorksheetListShare extends React.Component {
     const recordAttachmentSwitch = !!viewIdForPermit
       ? isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewIdForPermit)
       : true;
-    console.log(recordAttachmentSwitch);
     return (
       <React.Fragment>
         <div

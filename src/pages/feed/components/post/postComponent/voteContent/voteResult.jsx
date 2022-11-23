@@ -70,4 +70,4 @@ class VoteResult extends React.Component {
   }
 }
 
-module.exports = VoteResult;
+export default VoteResult;

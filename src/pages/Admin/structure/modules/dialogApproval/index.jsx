@@ -3,9 +3,9 @@ import './index.less';
 import { Dialog, LoadDiv, Icon } from 'ming-ui';
 import userController from 'src/api/user';
 import Act from '../dialogInviteUser/act';
-import DialogSelectDept from 'dialogSelectDept';
+import DialogSelectDept from 'src/components/dialogSelectDept';
 import DialogSelectJob from 'src/components/DialogSelectJob';
-import 'md.select';
+import 'src/components/select/select';
 
 class Approval extends React.Component {
   constructor(props) {
@@ -108,7 +108,7 @@ class Approval extends React.Component {
             });
             alert(_l('批准成功'));
           } else if (result === 4) {
-            alert(_l('当前用户数已超出人数限制'), 3, false);
+            alert(_l('当前用户数已超出人数限制'), 3);
           } else {
             alert(_l('操作失败'), 2);
           }
@@ -128,6 +128,7 @@ class Approval extends React.Component {
     new DialogSelectDept({
       projectId,
       unique: false,
+      fromAdmin: true,
       selectedDepartment: departmentInfos,
       showCreateBtn: false,
       selectFn(departments) {

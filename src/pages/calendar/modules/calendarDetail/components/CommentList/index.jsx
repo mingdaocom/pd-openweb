@@ -1,8 +1,8 @@
 ﻿import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import CheckBox from 'ming-ui/components/Checkbox';
-import Commenter from 'commenter';
-import CommentList from 'commentList';
+import Commenter from 'src/components/comment/commenter';
+import CommentList from 'src/components/comment/commentList';
 import { htmlDecodeReg } from 'src/util';
 export default class CalendarCommentList extends Component {
   constructor(props) {

@@ -4,7 +4,7 @@ export const NODE_TYPE = {
   BRANCH_ITEM: 2,
   WRITE: 3,
   APPROVAL: 4,
-  NOTICE: 5,
+  CC: 5,
   ACTION: 6,
   SEARCH: 7,
   WEBHOOK: 8,
@@ -25,6 +25,8 @@ export const NODE_TYPE = {
   PARAMETER: 23,
   API_PACKAGE: 24,
   API: 25,
+  APPROVAL_PROCESS: 26,
+  NOTICE: 27,
   SYSTEM: 100,
   FIND_SINGLE_MESSAGE: 1000,
   FIND_MORE_MESSAGE: 1001,
@@ -83,6 +85,8 @@ export const APP_TYPE = {
   DATE: 6,
   WEBHOOK: 7,
   CUSTOM_ACTION: 8,
+  APPROVAL_START: 9,
+  APPROVAL: 10,
   FORMULA: 11,
   CODE: 12,
   lINK: 13,
@@ -94,6 +98,7 @@ export const APP_TYPE = {
   DEPARTMENT: 21,
   TEMPLATE: 22,
   EXTERNAL_USER: 23,
+  ORGANIZATION_ROLE: 24,
   NO_AUTH: 30,
   BASIC_AUTH: 31,
   OAUTH2: 32,
@@ -151,8 +156,8 @@ export const CONTROLS_NAME = {
   48: _l('组织角色'),
   49: _l('接口查询'),
   50: _l('接口查询'),
-  10000001: _l('节点设置人员'),
-  10000002: _l('节点设置人员'),
+  10000001: _l('人员'),
+  10000002: _l('人员'),
   10000003: _l('数组'),
   10000004: _l('Row ID'),
   10000007: _l('普通数组'),
@@ -348,6 +353,12 @@ export const SUPPORT_HREF = {
   18: 'https://help.mingdao.com/flow30.html',
   // 发送服务号消息
   19: 'https://help.mingdao.com/flow_wechat.html',
+  // 调用业务流程
+  20: 'https://help.mingdao.com/flow70.html',
+  // JSON解析
+  21: 'https://help.mingdao.com/flow75.html',
+  // 调用已集成 API
+  25: 'https://help.mingdao.com/flow60.html',
   // 获取单条系统信息
   1000: 'https://help.mingdao.com/flow44.html',
   // 获取多条系统信息

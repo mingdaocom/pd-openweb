@@ -24,7 +24,7 @@ export default function WidgetStatus({ data, showTitle }) {
     <StatusWrap showTitle={showTitle}>
       {data.attribute === 1 && <i className="title icon-ic_title"></i>}
       {[visible, canAdd].some(i => i === '0') && (
-        <i className="icon-workflow_hide" style={{ color: visible === '0' ? '#9e9e9e' : '#ffa340' }}></i>
+        <i className="icon-visibility_off" style={{ color: visible === '0' ? '#9e9e9e' : '#ffa340' }}></i>
       )}
     </StatusWrap>
   );

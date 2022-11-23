@@ -4,12 +4,10 @@ import { notification } from 'ming-ui/components/Notification';
 import { ChatNotificationContent } from '../components/Notification';
 import renderLogout from '../components/Logout';
 import { getPssId } from 'src/util/pssId';
+import newMsgAudio from 'src/pages/chat/lib/mp3player/newMsgAudio.html';
 
 export const socketInitEvent = function() {
-
-  require(['src/pages/chat/lib/mp3player/newMsgAudio.html'], newMsgAudio => {
-    $(newMsgAudio).appendTo('body');
-  });
+  $(newMsgAudio).appendTo('body');
 
   stateInit.call(this);
 
@@ -28,7 +26,7 @@ export const socketInitEvent = function() {
         if (!window.currentLeave) {
           renderLogout();
         }
-      }, 1000);
+      }, 200);
     }
   });
 };

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { string } from 'prop-types';
+import React, { Fragment } from 'react';
 import { Dialog, Support } from 'ming-ui';
 import styled from 'styled-components';
+import img from '../../image/setAsTitle.png';
+
 const NoTitleControlWrap = styled.div`
   .closeText {
     text-align: right;
@@ -37,7 +38,7 @@ export default function NoTitleControlDialog({ onClose }) {
             text={_l('哪些字段可以设为标题？')}
           />
         </Fragment>
-        <img src={require('../../image/setAsTitle.png')} alt={_l('如何设置标题控件')} />
+        <img src={img} alt={_l('如何设置标题控件')} />
         <div className="closeText" onClick={onClose}>
           {_l('我知道了')}
         </div>

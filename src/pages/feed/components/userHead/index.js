@@ -1,1 +1,1 @@
-﻿module.exports = require('./userHead');
+﻿export { default } from './userHead';

@@ -2,13 +2,24 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Menu, MenuItem } from 'ming-ui';
-import { fieldCanSort, getSortData } from 'worksheet/util';
+import { emitter, fieldCanSort, getSortData } from 'worksheet/util';
 import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 
 export default function ColumnHead(props) {
-  const { selected, className, style, control, isAsc, isLast, changeSort, updateSheetColumnWidths, setFilter } = props;
+  const {
+    worksheetId,
+    selected,
+    className,
+    style,
+    control,
+    isAsc,
+    isLast,
+    changeSort,
+    updateSheetColumnWidths,
+    setFilter,
+  } = props;
   const isShowOtherField = isOtherShowFeild(control);
   const itemType = control.type === 30 ? control.sourceControlType : control.type;
   const filterWhiteKeys = _.flatten(
@@ -46,7 +57,7 @@ export default function ColumnHead(props) {
           {canFilter && !selected && !isShowOtherField && (
             <MenuItem
               onClick={() => {
-                setFilter(control);
+                emitter.emit('FILTER_ADD_FROM_COLUMNHEAD' + worksheetId + 'trash', control);
                 closeMenu();
               }}
             >

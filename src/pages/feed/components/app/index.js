@@ -1,5 +1,9 @@
-﻿module.exports = {
-  Feed: require('./feed'),
-  UserFeed: require('./userFeed'),
-  PostDetails: require('../post').PostDetails,
+﻿import Feed from './feed';
+import UserFeed from './userFeed';
+import { PostDetails } from '../post';
+
+export default {
+  Feed,
+  UserFeed,
+  PostDetails,
 };

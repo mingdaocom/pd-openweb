@@ -125,7 +125,7 @@ const ScaleBox = styled.div`
     cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')}};
     .pointItem {
       flex: 1;
-      line-height: 14px;
+      line-height: ${({ isMobile }) => (isMobile ? '12px' : '13px')} !important;
       text-align: center;
       transform: translateX(-50%);
     }
@@ -200,7 +200,7 @@ const PortraitScaleBox = styled.div`
         display: inline-block;
         user-select: none;
         text-align: left;
-        
+
       }
       &:first-child {
         padding: 0 0 12px;
@@ -213,7 +213,7 @@ const PortraitScaleBox = styled.div`
         .scaleText {
         }
       }
-      
+
     }
   }
 `;
@@ -390,6 +390,7 @@ export default function Steps(props) {
         <ScaleBox
           total={(100 / (filterOptions.length - 1)) * filterOptions.length}
           disabled={disabled}
+          isMobile={isMobile}
           onClick={e => {
             if (disabled) return;
             const { left, width, height } = barRef.current.getBoundingClientRect();

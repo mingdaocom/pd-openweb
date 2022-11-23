@@ -6,11 +6,11 @@ import transferController from 'src/api/transfer';
 
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import UserHead from 'src/pages/feed/components/userHead';
-import MdBusinessCard from 'reactMdBusinessCard';
+import MdBusinessCard from 'src/components/mdBusinessCard/reactMdBusinessCard';
 
 import Empty from '../../common/TableEmpty';
 
-import 'pager';
+import 'src/components/pager/pager';
 import './style.less';
 
 import { default as Detail, callDialogSelectUser } from './detail';
@@ -177,7 +177,7 @@ export default class HandOver extends React.Component {
             <MdBusinessCard sourceId={user.accountId}>
               <a className="Bold overflow_ellipsis" href={`/user_${user.accountId}`} title={user.fullname}>
                 {user.fullname}
-                {user.isRelationShip ? <span className="boderRadAll_3 TxtCenter otherRelationShip">协</span> : null}
+                {/* {user.isRelationShip ? <span className="boderRadAll_3 TxtCenter otherRelationShip">协</span> : null} */}
               </a>
             </MdBusinessCard>
             <span className="overflow_ellipsis Gray_bd wMax100" title={user.department}>

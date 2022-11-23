@@ -24,6 +24,7 @@ rewrite (?i)^/apps/kcsharelocal /kcshare.html break;
 rewrite (?i)^/apps/kcsharefolder/ /kcsharefolder.html break;
 rewrite (?i)^/recordfile /kcshare.html break;
 rewrite (?i)^/mobileChart /mobileChart.html break;
+rewrite (?i)^/mobileLog /mobileLog.html break;
 rewrite (?i)^/mobileGunter /mobileGunter.html break;
 rewrite (?i)^/mobile /mobile.html break;
 rewrite (?i)^/form/edit /customwidget.html break;

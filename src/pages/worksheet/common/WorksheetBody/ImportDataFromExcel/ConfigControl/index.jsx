@@ -29,6 +29,7 @@ const allowConfigControlTypes = [
   28,
   29,
   33,
+  36,
   41,
   46,
   48,
@@ -131,7 +132,24 @@ export default class ConfigControl extends Component {
 
     // 过滤掉系统字段
     data.template.controls = data.template.controls.filter(
-      item => !_.includes(['caid', 'ownerid', 'ctime', 'utime'], item.controlId),
+      item =>
+        !_.includes(
+          [
+            'rowid',
+            'caid',
+            'ctime',
+            'utime',
+            'uaid',
+            'wfname',
+            'wfcuaids',
+            'wfcaid',
+            'wfctime',
+            'wfrtime',
+            'wfftime',
+            'wfstatus',
+          ],
+          item.controlId,
+        ),
     );
 
     // 处理关联表数据
@@ -296,7 +314,7 @@ export default class ConfigControl extends Component {
       .filter(
         item =>
           _.includes([2, 3, 4, 5, 6, 7, 33], item.type) ||
-          (item.type === 26 && item.enumDefault === 0 && item.advancedSetting.usertype !== '2'),
+          (item.type === 26 && item.enumDefault === 0 && (item.advancedSetting || {}).usertype !== '2'),
       )
       .map(item => {
         return {
@@ -915,28 +933,32 @@ export default class ConfigControl extends Component {
           <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
           <div className="mLeft10 mRight10 flex ellipsis">{controlItem.controlName}</div>
 
-          {/** 提示文字 */}
-          <Tooltip text={<span>{_l('支持的字段类型包括：姓名、手机号、邮箱、工号、人员ID')}</span>}>
-            <i className="icon-workflow_help Gray_9e Font16" />
-          </Tooltip>
-          <div className="Gray_9e mLeft5">{_l('匹配字段：')}</div>
+          {controlItem.controlId !== 'ownerid' && (
+            <Fragment>
+              {/** 提示文字 */}
+              <Tooltip text={<span>{_l('支持的字段类型包括：姓名、手机号、邮箱、工号、人员ID')}</span>}>
+                <i className="icon-workflow_help Gray_9e Font16" />
+              </Tooltip>
+              <div className="Gray_9e mLeft5">{_l('匹配字段：')}</div>
 
-          {/** 匹配字段选择下拉框 */}
-          <Dropdown
-            disabled={isHiddenConfig}
-            menuStyle={{ width: 180 }}
-            data={controls}
-            value={controlItem.accountMatchId || null}
-            isAppendToBody
-            onChange={controlId => {
-              // 修改映射字段
-              const newControlMapping = [...controlMapping];
-              const item = newControlMapping.find(item => item.ControlId === controlItem.controlId);
-              if (item) item.accountMatchId = controlId;
-              controlItem.accountMatchId = controlId;
-              this.setState({ controlMapping: newControlMapping });
-            }}
-          />
+              {/** 匹配字段选择下拉框 */}
+              <Dropdown
+                disabled={isHiddenConfig}
+                menuStyle={{ width: 180 }}
+                data={controls}
+                value={controlItem.accountMatchId || null}
+                isAppendToBody
+                onChange={controlId => {
+                  // 修改映射字段
+                  const newControlMapping = [...controlMapping];
+                  const item = newControlMapping.find(item => item.ControlId === controlItem.controlId);
+                  if (item) item.accountMatchId = controlId;
+                  controlItem.accountMatchId = controlId;
+                  this.setState({ controlMapping: newControlMapping });
+                }}
+              />
+            </Fragment>
+          )}
         </div>
       );
     }

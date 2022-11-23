@@ -41,6 +41,4 @@ function getSpecificComponent(postItem, isReshare) {
   return component || false;
 }
 
-module.exports = {
-  getSpecificComponent,
-};
+export default getSpecificComponent;

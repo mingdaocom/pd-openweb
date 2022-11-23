@@ -36,11 +36,14 @@ class QiniuImg extends React.Component {
     if (this.props.quality) {
       imageView2 = imageView2 + '/q/' + this.props.quality;
     }
-    return src.indexOf('?') > 0 ? src.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, imageView2) : src + '?' + imageView2;
+    return src.indexOf('?') > 0
+      ? src.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, imageView2)
+      : src + '?' + imageView2;
   };
 
   render() {
-    let { src, size, width, height, placeholder, qiniuSize, qiniuWidth, qiniuHeight, mode, quality, lazy, ...rest } = this.props;
+    let { src, size, width, height, placeholder, qiniuSize, qiniuWidth, qiniuHeight, mode, quality, lazy, ...rest } =
+      this.props;
     // src = src.substr(0, src.indexOf('?'));
     width = width || size;
     height = height || size;
@@ -52,8 +55,12 @@ class QiniuImg extends React.Component {
       src: this.getQiniuSrc(src, this.mode, qiniuWidth, qiniuHeight),
       placeholder: this.getQiniuSrc(placeholder, this.mode, width, height),
     });
-    return this.props.lazy ? <LazyloadImg {...attrs} options={_.isObject(this.props.lazy) ? this.props.lazy : undefined} /> : <NormalImg {...attrs} />;
+    return this.props.lazy ? (
+      <LazyloadImg {...attrs} options={_.isObject(this.props.lazy) ? this.props.lazy : undefined} />
+    ) : (
+      <NormalImg {...attrs} />
+    );
   }
 }
 
-module.exports = QiniuImg;
+export default QiniuImg;

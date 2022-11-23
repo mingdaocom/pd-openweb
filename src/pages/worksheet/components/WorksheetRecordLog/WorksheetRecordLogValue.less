@@ -1,0 +1,292 @@
+.worksheetRocordLog .oldBackground {
+  background: #feeaec;
+  text-decoration: line-through;
+}
+.worksheetRocordLog .newBackground {
+  background: #dff8ea;
+}
+.worksheetRocordLog .defaultBackground {
+  background: #f0f0f0;
+}
+.WorksheetRocordLogSelectTags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: left;
+  .WorksheetRocordLogSelectTag {
+    height: auto;
+    width: fit-content;
+    line-height: 20px;
+    font-size: 13px;
+    padding: 0 8px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    border-radius: 3px;
+    -webkit-line-clamp: 5;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+  }
+  .hoverHighline {
+    cursor: pointer;
+    &:hover {
+      color: #0d47a1;
+    }
+  }
+  .noneTextLineThrough {
+    text-decoration: none !important;
+  }
+}
+.worksheetRocordLog .flexDirectionRever {
+  flex-direction: row-reverse;
+}
+.worksheetRocordLog .oldValue {
+  background: #feeaec;
+  text-decoration: line-through;
+}
+.worksheetRocordLog .newValue {
+  background: #dff8ea;
+}
+.worksheetRocordLog .defaultValue {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.WorksheetRecordLogDiffText {
+  font-size: 13px;
+  line-height: 20px;
+  word-break: break-word;
+  &.mobileLogDiffText {
+    word-break: break-word;
+  }
+  &.height100 {
+    height: 100px;
+  }
+  &.noHeight {
+    height: unset !important;
+  }
+  .added {
+    background: #dff8ea;
+  }
+  .removed {
+    text-decoration: line-through;
+    background: #feeaec;
+  }
+}
+.WorksheetRecordLogOpen {
+  color: #9e9e9e;
+  font-size: 13px;
+  cursor: pointer;
+  &:hover {
+    color: #2196f3;
+  }
+}
+
+.ellipsis5 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+}
+
+.WorksheetRecordLogThumbnail {
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  .WorksheetRecordLogThumbnailItem {
+    height: 20px;
+    display: flex;
+    line-height: 20px;
+    margin-right: 5px;
+    padding-right: 8px;
+    font-size: 13px;
+    margin-bottom: 4px;
+    width: fit-content;
+    border-radius: 3px;
+    overflow: hidden;
+    &:hover {
+      color: #0d47a1;
+    }
+    .itemImgCon {
+      font-size: 0;
+      margin-right: 8px;
+      position: relative;
+      &::after {
+        content: '';
+        position: absolute;
+        height: 20px;
+        width: 100%;
+        box-shadow: rgba(0, 0, 0, 0.05) 0 0 0 1px inset;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+    }
+    .itemImg {
+      height: 20px;
+      width: auto;
+      min-width: 16px;
+      max-width: 120px;
+    }
+  }
+}
+
+.WorksheetRecordLogDiffTextBottomButtons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.picturePreview {
+  text-align: center;
+  width: 240px;
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.24);
+  border-radius: 6px;
+  background-color: #fff;
+  overflow: hidden;
+  .fileDetail {
+    text-align: left;
+    font-size: 13px;
+    padding: 8px 16px;
+    word-break: break-all;
+  }
+  .fileName {
+    color: #333;
+  }
+  .fileSize {
+    color: #9e9e9e;
+  }
+  .imgCon {
+    background-color: #f5f5f5;
+    height: 160px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .picturePreviewImg {
+      max-width: 100%;
+      max-height: 160px;
+      object-fit: contain;
+    }
+  }
+}
+.richTextDiffDialog {
+  min-width: 900px !important;
+  max-width: calc(100vw - 32px) !important;
+  .mui-dialog-footer {
+    display: none;
+  }
+  .mui-dialog-header,
+  .mui-dialog-body {
+    padding: 0 !important;
+  }
+  .mui-dialog-body {
+    display: flex;
+  }
+  .leftCon {
+    border-right: 1px solid #eaeaea;
+  }
+  .leftCon,
+  .rightCon {
+    width: 50%;
+    padding: 21px 0;
+  }
+  .richTextHeader {
+    display: flex;
+    font-size: 17px;
+    font-weight: 600;
+    border-bottom: 1px solid #eaeaea;
+  }
+  .rightCon .contentCon,
+  .leftCon .contentCon,
+  .rightCon .title,
+  .leftCon .title {
+    padding: 0 24px;
+  }
+  .mui-dialog-body::-webkit-scrollbar {
+    width: 0;
+  }
+  .richTextContent {
+    word-break: break-word;
+  }
+}
+
+.worksheetRecordLogSubList {
+  padding-top: 4px;
+  font-size: 13px;
+  .worksheetRecordLogSubListItem {
+    margin-bottom: 6px;
+  }
+}
+
+.paddingBetween20 {
+  padding-left: 20px;
+}
+
+.worksheetRecordLogSubDialog {
+  .mui-dialog-footer {
+    display: none !important;
+  }
+  .tableTitle {
+    font-size: 17px;
+    margin-bottom: 20px;
+    line-height: 17px;
+    font-weight: 600;
+  }
+}
+
+.worksheetRecordLogSubTable {
+  .ant-table-thead > tr > th {
+    padding: 10px 7px;
+    font-size: 13px;
+    line-height: 13px;
+    color: #757575;
+    font-weight: 600;
+    background: #fafafa;
+  }
+  .ant-table-cell {
+    min-width: 200px;
+  }
+  .worksheetRecordLogSubTableRow > td {
+    padding: 10px 7px;
+    font-size: 13px;
+    line-height: 13px;
+    color: #333;
+  }
+  .worksheetRecordLogSubTableRow.add {
+    background: #dff8ea;
+  }
+  .worksheetRecordLogSubTableRow.remove {
+    background: #feeaec;
+    text-decoration: line-through;
+  }
+  .worksheetRecordLogSubTableRow.update {
+  }
+  .rectTag {
+    height: auto;
+    width: fit-content;
+    line-height: 20px;
+    font-size: 13px;
+    padding: 0 8px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    border-radius: 3px;
+    -webkit-line-clamp: 5;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.triggerSelectPopup {
+  padding: 12px 16px;
+  background: #fff;
+  display: inline-block;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
+  border-radius: 3px;
+  cursor: pointer;
+  &:hover {
+    color: #2196f3;
+  }
+}

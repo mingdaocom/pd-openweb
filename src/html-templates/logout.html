@@ -33,9 +33,6 @@
     <body>
         <script>
             var __api_server__ = <%- apiServer %>;
-            if (/theportal\.cn$/.test(location.host)) {
-                window.__api_server__.main = '/api/';
-            }
             if (/\/portal\//.test(location.pathname)) {
                 window.subPath = '/portal';
             }

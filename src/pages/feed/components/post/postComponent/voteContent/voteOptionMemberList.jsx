@@ -31,4 +31,4 @@ VoteOptionMemberList.propTypes = {
   ).isRequired,
 };
 
-module.exports = VoteOptionMemberList;
+export default VoteOptionMemberList;

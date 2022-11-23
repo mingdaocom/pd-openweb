@@ -3,11 +3,12 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import cx from 'classnames';
 import { QiniuImg } from '../common/img';
+import 'src/components/mdBusinessCard/mdBusinessCard';
 
 /**
  * 用户头像，带 hover 的层
  */
-class UserHead extends React.Component {
+export default class UserHead extends React.Component {
   static propTypes = {
     user: PropTypes.shape({
       accountId: PropTypes.string,
@@ -103,36 +104,31 @@ class UserHead extends React.Component {
     } else if (this.props.type === 'formAuth') {
       opHtml = "<span class='Gray_9e ThemeHoverColor3 pointer removeFormAuth oaButton'>" + _l('移除') + '</span>';
     }
-    // TODO
-    // if(this.props.user.accountId != md.global.Project.projectID){
-    require(['mdBusinessCard'], () => {
-      if (
-        !this._isMounted ||
-        $this.attr('data-accountid') == '2' ||
-        $this.attr('data-accountid') == '4' ||
-        $this.attr('data-accountid') == '5'
-      ) {
-        $this.mdBusinessCard('destroy');
-        return;
-      }
-      $this.mdBusinessCard({
-        id: this.props.cardId || 'batchReactChargeCard',
-        chatByLink: true, // Chat图标已link 方式跳转
-        accountId: this.props.user.accountId,
-        secretType: this.props.secretType || 0,
-        inviterAccount: this.props.inviterAccount || null,
-        force: true,
-        reset: !!opHtml,
-        opHtml,
-        projectId,
-        readyFn: (opts, dialog) => {
-          if (this.props.readyFn) {
-            this.props.readyFn(dialog);
-          }
-        },
-      });
+    if (
+      !this._isMounted ||
+      $this.attr('data-accountid') == '2' ||
+      $this.attr('data-accountid') == '4' ||
+      $this.attr('data-accountid') == '5'
+    ) {
+      $this.mdBusinessCard('destroy');
+      return;
+    }
+    $this.mdBusinessCard({
+      id: this.props.cardId || 'batchReactChargeCard',
+      chatByLink: true, // Chat图标已link 方式跳转
+      accountId: this.props.user.accountId,
+      secretType: this.props.secretType || 0,
+      inviterAccount: this.props.inviterAccount || null,
+      force: true,
+      reset: !!opHtml,
+      opHtml,
+      projectId,
+      readyFn: (opts, dialog) => {
+        if (this.props.readyFn) {
+          this.props.readyFn(dialog);
+        }
+      },
     });
-    // }
   };
 
   render() {
@@ -214,5 +210,3 @@ class UserHead extends React.Component {
     // );
   }
 }
-
-module.exports = UserHead;

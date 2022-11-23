@@ -26,7 +26,10 @@ export const ACTION_LIST = {
   3: { id: 'revoke', text: _l('撤回') },
   4: { id: 'pass', text: _l('通过') },
   5: { id: 'overrule', text: _l('否决') },
+  6: { id: 'transferApprove', text: _l('转审') },
+  7: { id: 'sign', text: _l('加签') },
   9: { id: 'submit', text: _l('提交') },
+  10: { id: 'transfer', text: _l('转交'), icon: 'sp_post_exchange_white' },
 };
 
 export const OPERATION_TYPE = {
@@ -34,10 +37,14 @@ export const OPERATION_TYPE = {
 };
 
 export const OPERATION_LIST = {
+  12: { id: 'print', text: _l('打印'), icon: 'print' },
+  16: { id: 'addApprove', text: _l('添加审批人'), icon: 'group_add1' },
+};
+
+export const MOBILE_OPERATION_LIST = {
   6: { id: 'transferApprove', text: _l('转审'), icon: 'swap_horiz' },
   7: { id: 'sign', text: _l('加签'), icon: 'countersign' },
   10: { id: 'transfer', text: _l('转交'), icon: 'sp_post_exchange_white' },
-  12: { id: 'print', text: _l('打印'), icon: 'print' },
   16: { id: 'addApprove', text: _l('添加审批人'), icon: 'group_add1' },
 };
 

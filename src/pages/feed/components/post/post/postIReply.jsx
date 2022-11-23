@@ -19,7 +19,10 @@ class PostIReply extends React.Component {
   };
 
   state = {
-    selectedOperation: !this.props.isSummary && parseInt(this.props.postItem.commentCount, 10) ? postEnum.OPERATE_TYPE.comment : undefined,
+    selectedOperation:
+      !this.props.isSummary && parseInt(this.props.postItem.commentCount, 10)
+        ? postEnum.OPERATE_TYPE.comment
+        : undefined,
   };
 
   toggleCommentBox = () => {
@@ -51,12 +54,14 @@ class PostIReply extends React.Component {
               _l('原内容已被删除')
             ) : (
               <span>
-                回复<UserName
+                回复
+                <UserName
                   user={{
                     userName: postItem.reply.replyUserName,
                     accountId: postItem.reply.replyAccountId,
                   }}
-                />的{sourceType}: <PostMessage postItem={postItem.reply} inline />
+                />
+                的{sourceType}: <PostMessage postItem={postItem.reply} inline />
               </span>
             )}
           </div>
@@ -73,4 +78,4 @@ class PostIReply extends React.Component {
   }
 }
 
-module.exports = PostIReply;
+export default PostIReply;

@@ -17,7 +17,7 @@ export default function FormHeader(props) {
     createTime,
     updateTime,
     createAccount = {},
-    editAccount,
+    editAccount = {},
     formData,
     appId,
   } = recordinfo;

@@ -282,7 +282,6 @@ export default class Widgets extends Component {
           onBlur(originValue);
         }}
         onChange={this.onChange}
-        onOk={this.onChange}
         {...compProps}
       />
     );

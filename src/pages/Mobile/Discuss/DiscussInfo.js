@@ -4,7 +4,6 @@ import { Icon, LoadDiv } from 'ming-ui';
 import { Tabs, Flex } from 'antd-mobile';
 import * as actions from './redux/actions';
 import DiscussList from './DiscussList';
-import AttachmentList from './AttachmentList';
 import Logs from './Logs';
 import Back from '../components/Back';
 import homeAppAjax from 'src/api/homeApp';
@@ -21,7 +20,6 @@ const tabs = md.global.Account.isPortal
   ? [{ title: _l('讨论'), type: 1 }]
   : [
       { title: _l('讨论'), type: 1 },
-      { title: _l('文件'), type: 2 },
       { title: _l('日志'), type: 3 },
     ];
 
@@ -54,7 +52,7 @@ class Discuss extends Component {
       exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
       loading: true,
       replyVisible: false,
-      discussionInfo: {}
+      discussionInfo: {},
     };
   }
   componentDidMount() {
@@ -109,7 +107,7 @@ class Discuss extends Component {
       });
   }
   render() {
-    const { isModal, onClose } = this.props;
+    const { isModal, onClose, originalData } = this.props;
     const { params } = this.props.match;
     const { worksheetId, rowId } = params;
     const { replyVisible, discussionInfo } = this.state;
@@ -145,7 +143,7 @@ class Discuss extends Component {
               onReply={(replyId, replyName) => {
                 this.setState({
                   replyVisible: true,
-                  discussionInfo: { replyId, replyName }
+                  discussionInfo: { replyId, replyName },
                 });
                 // window.mobileNavigateTo(
                 //   `/mobile/addDiscuss/${params.appId}/${params.worksheetId}/${params.viewId}/${
@@ -156,10 +154,12 @@ class Discuss extends Component {
             />
           </div>
           <div style={style}>
-            <AttachmentList worksheetId={params.worksheetId} rowId={rowId} height={style.height} />
-          </div>
-          <div style={style}>
-            <Logs worksheetId={params.worksheetId} rowId={rowId || ''} height={style.height} />
+            <Logs
+              worksheetId={params.worksheetId}
+              rowId={rowId || ''}
+              height={style.height}
+              originalData={originalData}
+            />
           </div>
         </Tabs>
         <Flex
@@ -176,14 +176,15 @@ class Discuss extends Component {
           }}
         >
           <div className="text">{_l('参与讨论...')}</div>
-          <Icon className="Gray_9e" icon="chat" />
         </Flex>
         {!isModal && (
           <Back
             onClick={() => {
               const { groupId } = this.state;
               if (rowId) {
-                window.mobileNavigateTo(`/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${rowId}`);
+                window.mobileNavigateTo(
+                  `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${rowId}`,
+                );
               } else if (groupId) {
                 window.mobileNavigateTo(`/mobile/recordList/${params.appId}/${groupId}/${params.worksheetId}`);
               }
@@ -200,15 +201,15 @@ class Discuss extends Component {
           onClose={() => {
             this.setState({
               replyVisible: false,
-              discussionInfo: {}
+              discussionInfo: {},
             });
           }}
-          onAdd={(data) => {
+          onAdd={data => {
             this.props.dispatch(actions.unshiftSheetDiscussion(data));
             this.props.onAddCount();
             this.setState({
               replyVisible: false,
-              discussionInfo: {}
+              discussionInfo: {},
             });
           }}
         />

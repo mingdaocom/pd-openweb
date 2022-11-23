@@ -162,6 +162,7 @@ export default class Condition extends Component {
       sourceControlId = '',
       filterDept,
       isSheetFieldError,
+      filterResigned = true,
       conditionItemForDynamicStyle,
     } = this.props;
     let conditionFilterTypes = getFilterTypes(control, condition.type, from);
@@ -301,6 +302,7 @@ export default class Condition extends Component {
                 appId,
                 sourceControlId,
                 from,
+                filterResigned: filterResigned,
                 conditionType: condition.controlType,
                 isDynamicsource: this.state.isDynamicsource,
                 globalSheetControls: this.props.globalSheetControls,

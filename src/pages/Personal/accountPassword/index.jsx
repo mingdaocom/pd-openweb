@@ -4,7 +4,7 @@ import account from 'src/api/account';
 import accountSetting from 'src/api/accountSetting';
 import accountGuideController from 'src/api/accountGuide';
 import wxController from 'src/api/weixin';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 import ReactDom from 'react-dom';
 import bindAccount from '../bindAccount/bindAccount';
 import unBindAccount from '../bindAccount/unBindAccount';
@@ -184,7 +184,7 @@ export default class AccountChart extends React.Component {
     bindAccount.bindAccountEmailMobile({
       isUpdateEmail: type === 'email',
       accountTitle: type === 'email' ? _l('绑定邮箱') : _l('绑定手机号码'),
-      callback: function () {
+      callback: function() {
         location.reload();
       },
     });
@@ -199,7 +199,7 @@ export default class AccountChart extends React.Component {
     }
     unBindAccount.init({
       isUnBindEmail: type === 'email',
-      callback: function () {
+      callback: function() {
         location.reload();
       },
     });
@@ -210,7 +210,7 @@ export default class AccountChart extends React.Component {
     bindAccount.bindAccountEmailMobile({
       isUpdateEmail: type === 'email',
       accountTitle: type === 'email' ? _l('修改邮箱') : _l('修改手机号码'),
-      callback: function () {
+      callback: function() {
         location.reload();
       },
     });
@@ -326,7 +326,7 @@ export default class AccountChart extends React.Component {
   //验证邮箱
   handleReviewEmail() {
     var throttled = _.throttle(
-      function (res) {
+      function(res) {
         if (res.ret === 0) {
           account
             .sendProjectBindEmail({
@@ -334,7 +334,7 @@ export default class AccountChart extends React.Component {
               randStr: res.randstr,
               captchaType: md.staticglobal.getCaptchaType(),
             })
-            .then(function (data) {
+            .then(function(data) {
               if (data) {
                 alert(_l('发送成功'));
               } else {
@@ -443,7 +443,7 @@ export default class AccountChart extends React.Component {
           isVerify={isVerify}
           onOk={password => {
             const _this = this;
-            var throttled = function (res) {
+            var throttled = function(res) {
               if (res.ret !== 0) {
                 return;
               }
@@ -548,7 +548,6 @@ export default class AccountChart extends React.Component {
     });
   };
 
-
   render() {
     const {
       email,
@@ -612,7 +611,7 @@ export default class AccountChart extends React.Component {
               </span>
             )}
           </span>
-          {this.renderRedDot(mobilePhoneWarnLight, 'cancelRedDotmobilePhone')}
+          {this.renderRedDot(mobilePhoneWarnLight, 'accountMobilePhone')}
         </div>
         {needInit ? null : (
           <Fragment>
@@ -654,7 +653,7 @@ export default class AccountChart extends React.Component {
                   </span>
                 )}
               </span>
-              {this.renderRedDot(emailWarnLight, 'cancelRedDotEmail')}
+              {this.renderRedDot(emailWarnLight, 'accountEmail')}
             </div>
             <div className="accountRowItem">
               <div className="accountLabel Gray_75">{_l('密码')}</div>
@@ -686,7 +685,7 @@ export default class AccountChart extends React.Component {
           </div>
         )}
 
-        {!md.global.Config.IsLoal && (
+        {!md.global.Config.IsLocal && (
           <div className="accountRowItem">
             <div className="accountLabel Gray_75">
               {_l('两步验证')}
@@ -695,7 +694,7 @@ export default class AccountChart extends React.Component {
             <Switch checked={isTwoauthentication} onClick={this.openVerify} />
           </div>
         )}
-        {!md.global.Config.IsLoal && (
+        {!md.global.Config.IsLocal && (
           <div className="accountRowItem">
             <div className="accountLabel Gray_75">
               {_l('微信通知')}
@@ -704,12 +703,14 @@ export default class AccountChart extends React.Component {
             <Switch checked={this.state.openWeixinLogin} onClick={this.openopenWeixinLogin} />
           </div>
         )}
-        <div className="accountRowItem">
-          <div className="accountLabel Gray_75">{_l('账户注销')}</div>
-          <div className="logout Hand" onClick={this.dealLoagout}>
-            {_l('注销')}
+        {md.global.Config.IsPlatformLocal && (
+          <div className="accountRowItem">
+            <div className="accountLabel Gray_75">{_l('账户注销')}</div>
+            <div className="logout Hand" onClick={this.dealLoagout}>
+              {_l('注销')}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="Font17 Bold Gray mBottom40 mTop20">{_l('隐私')}</div>
         {this.joinFriend()}

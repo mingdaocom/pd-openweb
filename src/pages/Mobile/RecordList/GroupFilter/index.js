@@ -493,7 +493,7 @@ const GroupFilter = props => {
                 }}
               >
                 <Icon icon="arrow-left-border" className="mRight2 Gray_75 TxtMiddle mBottom3" />
-                <span>{currentGroup.txt}</span>
+                <span className="Font15">{currentGroup.txt}</span>
               </div>
             )}
             <div className="groupDetailCon">

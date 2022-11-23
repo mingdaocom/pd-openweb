@@ -20,4 +20,4 @@ PostMoreLoader.propTypes = {
   loading: PropTypes.bool,
 };
 
-module.exports = { PostMoreLoader };
+export default PostMoreLoader;

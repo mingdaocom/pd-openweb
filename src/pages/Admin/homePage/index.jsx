@@ -10,6 +10,7 @@ import moment from 'moment';
 import { getCurrentProject } from 'src/util';
 import InstallDialog from './installDialog';
 import { Support, Tooltip, Icon } from 'ming-ui';
+import addFriends from 'src/components/addFriends/addFriends';
 
 export default function HomePage({ match, location: routerLocation }) {
   const { projectId } = _.get(match, 'params');
@@ -46,29 +47,9 @@ export default function HomePage({ match, location: routerLocation }) {
   const handleActionClick = action => {
     switch (action) {
       case 'addPerson':
-        require(['dialogSelectUser'], function () {
-          $({}).dialogSelectUser({
-            title: _l('邀请用户'),
-            elementId: 'projectInviteUser',
-            sourceId: projectId,
-            fromType: 4,
-            defaultShowMoreInvite: true,
-            SelectUserSettings: {
-              callback: function (users) {
-                require(['src/components/common/inviteMember/inviteMember'], function (Invite) {
-                  Invite.inviteByAccountIds(projectId, users);
-                });
-              },
-            },
-            ChooseInviteSettings: {
-              viewHistory: true, // 是否呈现邀请记录
-              callback: function (data, callbackInviteResult) {
-                require(['src/components/common/inviteMember/inviteMember'], function (Invite) {
-                  Invite.inviteByAccounts(projectId, data, callbackInviteResult);
-                });
-              },
-            },
-          });
+        addFriends({
+          projectId: projectId,
+          fromType: 4,
         });
         break;
       case 'createDepartment':
@@ -204,10 +185,10 @@ export default function HomePage({ match, location: routerLocation }) {
                     { key === 'effectiveUserCount' && (
                       <Fragment onClick={e => e.stopPropagation()}>
                         <div className="limitUser">
-                          {_l('上限 %0 人', getValue(data.limitUserCount || 0))}
+                          <span className="nowrap">{_l('上限 %0 人', getValue(data.limitUserCount || 0))}</span>
                           {/* {!isFree && !loading && (
                             <span
-                              className="ThemeColor3 hoverColor mLeft10 "
+                              className="ThemeColor3 hoverColor mLeft10 nowrap "
                               onClick={e => {
                                 e.stopPropagation();
                                 handleClick('user');

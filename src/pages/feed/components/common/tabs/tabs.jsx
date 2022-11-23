@@ -1,14 +1,15 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
-import Tab from './tab';
 
 import './tabs.css';
+
+export { default as Tab } from './tab';
 
 /**
  * tab
  */
-class Tabs extends React.Component {
+export class Tabs extends React.Component {
   static propTypes = {
     children: PropTypes.any,
   };
@@ -51,12 +52,12 @@ class Tabs extends React.Component {
               ref: el.props.focused ? 'current' : undefined,
               style: el.props.style,
               className: el.props.className,
-            })
+            }),
           )}
         </ul>
         <div
           className="mmTabIndicator ThemeBGColor3"
-          ref={(indicator) => {
+          ref={indicator => {
             this.indicator = indicator;
           }}
         />
@@ -64,5 +65,3 @@ class Tabs extends React.Component {
     );
   }
 }
-
-module.exports = { Tabs, Tab };

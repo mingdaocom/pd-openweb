@@ -80,6 +80,7 @@
       .workflowDetailBox {
         pointer-events: none;
       }
+      .workflowDetailHeader .icon-delete2,
       .workflowDetailFooter {
         display: none;
       }
@@ -128,6 +129,9 @@
       &.BGGreen {
         background: #01ca83;
       }
+      &.BGDarkBlue {
+        background: #4158DB;
+      }
       input {
         height: 34px;
         line-height: 34px;
@@ -168,6 +172,9 @@
       &.BGGreen {
         background: #01ca83;
       }
+      &.BGDarkBlue {
+        background: #4158DB;
+      }
       .flowDetailStartIcon {
         width: 68px;
         height: 68px;
@@ -187,6 +194,9 @@
           }
           &.green {
             color: #01ca83;
+          }
+          &.white {
+            color: #fff;
           }
         }
       }
@@ -674,7 +684,7 @@
         }
       }
     }
-    .backBox {
+    .flowBackBox {
       background: #F4F4F4;
       padding: 8px 12px;
       margin-left: 32px;
@@ -1196,5 +1206,13 @@
   max-height: inherit !important;
   .mui-dialog-body {
     overflow: inherit !important;
+  }
+}
+
+.deleteApprovalProcessDialog {
+  .mui-dialog-footer {
+    .Button--primary {
+      background: #f44336;
+    }
   }
 }

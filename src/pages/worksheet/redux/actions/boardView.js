@@ -5,6 +5,9 @@ import update from 'immutability-helper';
 import { includes, noop, isEmpty } from 'lodash';
 import { uniqBy } from 'lodash/array';
 import { getFilterRows, updateWorksheetRow } from 'src/api/worksheet';
+import { wrapAjax } from './util';
+
+const wrappedGetFilterRows = wrapAjax(getFilterRows);
 
 export function updateBoardViewRecordCount(data) {
   return { type: 'UPDATE_BOARD_VIEW_RECORD_COUNT', data };
@@ -64,7 +67,7 @@ export function updateBoardViewRecord(data) {
 
 const getBoardViewPara = (sheet = {}, view) => {
   const { base, controls } = sheet;
-  const { viewId, appId, chartId } = base;
+  const { viewId, appId, chartId, type } = base;
   view = view || getCurrentView(sheet);
   const { worksheetId, viewControl, advancedSetting } = view;
   if (!viewControl) {
@@ -77,6 +80,7 @@ const getBoardViewPara = (sheet = {}, view) => {
     relationWorksheetId = selectControl.dataSource;
   }
   let para = {
+    type,
     appId,
     worksheetId,
     viewId,
@@ -86,7 +90,7 @@ const getBoardViewPara = (sheet = {}, view) => {
     ...sheet.filters,
   };
   if (relationWorksheetId) {
-    para = { ...para, relationWorksheetId, kanbanSize: advancedSetting && advancedSetting.hidenone === '1' ? 50 : 20 };
+    para = { ...para, relationWorksheetId, kanbanSize: advancedSetting && advancedSetting.navshow === '1' ? 50 : 20 };
   }
   return para;
 };
@@ -112,7 +116,7 @@ export function initBoardViewData(view) {
 
 // 拉取看板数据以填满页面
 function getBoardViewDataFillPage({ para, dispatch }) {
-  getFilterRows(para).then(({ data, resultCode }) => {
+  (para.type === 'single' ? getFilterRows : wrappedGetFilterRows)(para).then(({ data, resultCode }) => {
     if (resultCode !== 1) {
       dispatch({
         type: 'WORKSHEET_UPDATE_ACTIVE_VIEW_STATUS',
@@ -152,7 +156,7 @@ export function getBoardViewPageData({ alwaysCallback = noop }) {
       alwaysCallback();
       return;
     }
-    getFilterRows({ ...para, kanbanIndex: kanbanIndex + 1 })
+    wrappedGetFilterRows({ ...para, kanbanIndex: kanbanIndex + 1 })
       .then(({ data }) => {
         // 将已经存在的看板过滤掉
         const existedKeys = boardData.map(item => item.key);
@@ -184,7 +188,7 @@ export function getSingleBoardPageData({ pageIndex, kanbanKey, alwaysCallback, c
       alwaysCallback();
       return;
     }
-    getFilterRows({ ...para, pageIndex, kanbanKey })
+    wrappedGetFilterRows({ ...para, pageIndex, kanbanKey })
       .then(({ data }) => {
         dispatch({ type: 'CHANGE_BOARD_VIEW_LOADING', loading: false });
         const boardViewIndex = _.findIndex(boardData, item => item.key === kanbanKey);

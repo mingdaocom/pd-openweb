@@ -1,8 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
 
-export default ({ isCopy, selectCopyIds, item, selectCopyNode }) => {
-  if (!isCopy) return null;
+export default ({ processId, isCopy, selectCopyIds, item, selectCopyNode, selectProcessId }) => {
+  if (!isCopy || processId !== selectProcessId) return null;
 
   const index = selectCopyIds.indexOf(item.id);
 

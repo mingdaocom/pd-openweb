@@ -2,14 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import { removePssId } from 'src/util/pssId';
-import TelCon from './TelCon';
+import AccountCon from './AccountCon';
 import cx from 'classnames';
 import { editExAccountCancel, checkExAccountVerifyCode } from 'src/api/externalPortal';
 import Config from 'src/pages/account/config';
 const { ActionResult } = Config;
 const DelDialogWrap = styled.div``;
 export default function DelDialog(props) {
-  const { setShow, show, appId, classNames } = props;
+  const { setShow, show, appId, classNames, account, type } = props;
   const [code, setCode] = useState('');
   const verificationOld = () => {
     if (!code) {
@@ -19,6 +19,7 @@ export default function DelDialog(props) {
         handleType: 1, //检查类型 1: 注销  2：绑定手机号
         appId,
         verifyCode: code,
+        account, //需要传入手机号或者邮箱
       }).then(data => {
         if (data.actionResult === 1) {
           Dialog.confirm({
@@ -87,7 +88,14 @@ export default function DelDialog(props) {
       visible={show}
     >
       <DelDialogWrap>
-        <TelCon setCode={data => setCode(data)} code={code} tel={props.data} type={1} appId={appId} />
+        <AccountCon
+          inputType={type}
+          setCode={data => setCode(data)}
+          code={code}
+          account={props.account}
+          type={1}
+          appId={appId}
+        />
       </DelDialogWrap>
     </Dialog>
   );

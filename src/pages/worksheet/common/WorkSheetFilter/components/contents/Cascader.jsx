@@ -10,18 +10,18 @@ export default class RelateRecord extends React.Component {
     disabled: PropTypes.bool,
     onChange: PropTypes.func,
     control: PropTypes.shape({}),
-    originValues: PropTypes.arrayOf(PropTypes.string),
+    fullValues: PropTypes.arrayOf(PropTypes.string),
   };
 
   static defaultProps = {
-    originValues: [],
+    fullValues: [],
   };
 
   constructor(props) {
     super(props);
-    let { originValues = [] } = props;
+    let { fullValues = [] } = props;
     this.state = {
-      records: _.map(originValues, r => safeParse(r)),
+      records: _.map(fullValues, r => safeParse(r)),
       selectRecordVisible: false,
     };
   }

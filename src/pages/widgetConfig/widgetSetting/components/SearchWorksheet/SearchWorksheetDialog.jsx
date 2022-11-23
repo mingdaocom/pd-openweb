@@ -91,8 +91,7 @@ export default class SearchWorksheetDialog extends Component {
 
   relateField = () => {
     const { data = {} } = this.props;
-    let { showtype } = getAdvanceSetting(data);
-    return _.includes([29], data.type) && showtype !== '2';
+    return _.includes([29], data.type);
   };
 
   setControls = () => {
@@ -474,13 +473,18 @@ export default class SearchWorksheetDialog extends Component {
                 )}
                 {relateField && (
                   <div>
-                    {_l('将查询到的%0记录关联到当前字段', data.enumDefault === 1 ? _l('最新一条') : _l('最多50条'))}
+                    {_l(
+                      '将查询到的%0记录关联到当前字段',
+                      data.enumDefault === 1
+                        ? _l('最新一条')
+                        : _l('最多%0条', _.get(data.advancedSetting || {}, 'showtype') !== '2' ? 50 : 200),
+                    )}
                   </div>
                 )}
                 {subField && (
                   <div>
                     <div className="Gray_75 mBottom12">
-                      {_l('将查询到的最多50条记录字段写入子表字段，每行记录添加为一行子表明细')}
+                      {_l('将查询到的最多200条记录字段写入子表字段，每行记录添加为一行子表明细')}
                     </div>
                     {this.renderMapping()}
                     <Trigger

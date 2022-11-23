@@ -2,8 +2,13 @@ import React, { Component } from 'react';
 import './index.less';
 import * as ajax from '../../utils/ajax';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import mdFunction from 'mdFunction';
+import { createLinksForMessage } from 'src/components/common/function';
 import { getClassNameByExt } from 'src/util';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import DialogLayer from 'src/components/mdDialog/dialog';
+import ReactDom from 'react-dom';
+import postAjax from 'src/api/post';
+import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
 
 const classify = files => {
   const imagelist = [];
@@ -29,16 +34,14 @@ export const formatFeeds = attachments => {
     if (item.attachments) {
       item.previewAttachments = classify(item.attachments);
     }
-    item.content = mdFunction
-      .createLinksForMessage({
-        message: item.message,
-        rUserList: item.rUserList,
-        rGroupList: item.rGroupList,
-        categories: item.categories,
-        noLink: true,
-        filterFace: true,
-      })
-      .slice(0, 300);
+    item.content = createLinksForMessage({
+      message: item.message,
+      rUserList: item.rUserList,
+      rGroupList: item.rGroupList,
+      categories: item.categories,
+      noLink: true,
+      filterFace: true,
+    }).slice(0, 300);
     item.content = item.content.length >= 70 ? item.content.slice(0, 70) + '...' : item.content;
     return item;
   });
@@ -52,74 +55,65 @@ export class FeesItem extends Component {
     event.stopPropagation();
     const { attachments } = this.props.item;
     const { index } = item;
-    require(['previewAttachments'], previewAttachments => {
-      previewAttachments(
-        {
-          index: index || 0,
-          attachments,
-          callFrom: 'player',
-          sourceID: item.sourceID,
-          commentID: item.commentID,
-          fromType: item.fromType,
-          docVersionID: item.docVersionID,
-          showThumbnail: true,
-          hideFunctions: ['editFileName'],
-        },
-        {},
-      );
-    });
+    previewAttachments(
+      {
+        index: index || 0,
+        attachments,
+        callFrom: 'player',
+        sourceID: item.sourceID,
+        commentID: item.commentID,
+        fromType: item.fromType,
+        docVersionID: item.docVersionID,
+        showThumbnail: true,
+        hideFunctions: ['editFileName'],
+      },
+      {},
+    );
   }
   handlePreviewFeed(item) {
     const { postID } = item;
 
     let feedDialog;
-    const removeFn = function () {
+    const removeFn = function() {
       feedDialog.closeDialog();
     };
-    require(['mdDialog', 'react-dom', 'src/api/post', 'src/pages/feed/components/post/postDetails/postDetails'], (
-      dialogLayer,
-      ReactDom,
-      postAjax,
-      PostDetails,
-    ) => {
-      const DialogLayer = dialogLayer.default;
-      postAjax
-        .getPostDetail({
-          postId: postID,
-        })
-        .then(postItem => {
-          if (postItem.success === '1') {
-            ReactDom.render(
-              <DialogLayer
-                dialogBoxID="chatFeedDialog"
-                width={800}
-                container={{
-                  header: _l('动态详情'),
-                  yesText: '',
-                  noText: '',
-                }}
-                readyFn={function (Comp) {
-                  $('#chatFeedDialog_container').on('scroll', () => {
-                    if (typeof $.fn.lazyload === 'function') {
-                      $('#chatFeedDialog_container .lazy').lazyload();
-                    }
-                  });
-                  $('#chatFeedDialog_container').on('click', event => {
-                    if (!$(event.target).closest('#chatFeedDialog').length) {
-                      Comp.closeDialog();
-                    }
-                  });
-                }}
-              >
-                <PostDetails onRemove={removeFn} postItem={postItem} />
-              </DialogLayer>,
-              document.createElement('div'),
-            );
-          } else {
-            return alert(_l('您的权限不足或此动态已被删除，无法查看'));
-          }
-        });
-    });
+
+    postAjax
+      .getPostDetail({
+        postId: postID,
+      })
+      .then(postItem => {
+        if (postItem.success === '1') {
+          ReactDom.render(
+            <DialogLayer
+              dialogBoxID="chatFeedDialog"
+              width={800}
+              container={{
+                header: _l('动态详情'),
+                yesText: '',
+                noText: '',
+              }}
+              readyFn={function(Comp) {
+                $('#chatFeedDialog_container').on('scroll', () => {
+                  if (typeof $.fn.lazyload === 'function') {
+                    $('#chatFeedDialog_container .lazy').lazyload();
+                  }
+                });
+                $('#chatFeedDialog_container').on('click', event => {
+                  if (!$(event.target).closest('#chatFeedDialog').length) {
+                    Comp.closeDialog();
+                  }
+                });
+              }}
+            >
+              <PostDetails onRemove={removeFn} postItem={postItem} />
+            </DialogLayer>,
+            document.createElement('div'),
+          );
+        } else {
+          return alert(_l('您的权限不足或此动态已被删除，无法查看'));
+        }
+      });
   }
   renderImage(files) {
     return (
@@ -231,7 +225,9 @@ export default class Feeds extends Component {
               {_l('所有动态')}
               <i className="icon-sidebar-more" />
             </span>
-          ) : undefined}
+          ) : (
+            undefined
+          )}
         </div>
         <div className="ChatPanel-Feeds-body">
           {postList.map(item => (

@@ -1,0 +1,200 @@
+.setImportDataContainer {
+  .mui-dialog-dialog {
+    height: 595px !important;
+    position: relative;
+  }
+  .mui-dialog-container > .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-header {
+    padding: 20px 24px 16px 20px;
+  }
+  .mui-dialog-scroll-container > .mui-dialog-dialog > .mui-dialog-body {
+    padding: 0;
+    overflow-x: hidden;
+  }
+  .sheetTabWrap {
+    height: 36px;
+    padding: 0 20px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .workSheetViewsWrapper {
+    width: 100%;
+    height: 38px;
+    position: relative;
+    overflow: hidden;
+    &::before,
+    &::after {
+      content: '';
+      width: 20px;
+      height: 36px;
+      position: absolute;
+      top: 0;
+      z-index: 1;
+    }
+    &::before {
+      left: 0;
+      background-image: linear-gradient(to right, #fff 30%, rgba(255, 255, 255, 0) 100%);
+    }
+    &::after {
+      right: 0;
+      background-image: linear-gradient(to left, #fff 30%, rgba(255, 255, 255, 0) 100%);
+    }
+    .viewsScroll {
+      display: flex;
+      position: absolute;
+      width: 100%;
+      top: 0;
+      left: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      .stance {
+        height: 37px;
+        min-width: 20px;
+      }
+    }
+  }
+  .operateWrap {
+    margin: 17px 20px 15px;
+  }
+  .tableWrap {
+    border-radius: 3px;
+    margin: 0 20px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    overflow-x: auto;
+    td {
+      max-width: 150px;
+      min-width: 150px;
+      height: 32px;
+      padding: 0 10px;
+      line-height: 32px;
+      text-align: left;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      border-right: 1px solid rgba(0, 0, 0, 0.06);
+      box-sizing: border-box;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    td.index {
+      width: 60px !important;
+      max-width: unset;
+      min-width: unset;
+      text-align: center;
+    }
+    // td:last-child {
+    //   border-right: 0;
+    // }
+    tr:nth-of-type(even) {
+      background: #fafcfd;
+    }
+    tr:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+    .sheetHead {
+      &:hover {
+        background-color: unset;
+      }
+      td:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
+    }
+  }
+  .footerContent {
+    justify-content: space-between;
+    align-items: center;
+    .cancelBtn {
+      color: #a3a3a3;
+      background-color: #f5f5f5;
+    }
+    .Button {
+      &.bold {
+        font-weight: bold;
+      }
+    }
+  }
+  .justifyContentBetween {
+    justify-content: space-between;
+  }
+}
+
+.sheetItemOperate {
+  & > .Item-content {
+    overflow: visible !important;
+    position: relative !important;
+    .viewTypeMenuWrap {
+      position: absolute;
+      .viewTypeItem.ant-menu-item {
+        span.viewName {
+          margin-left: 24px;
+        }
+      }
+    }
+  }
+}
+
+.editSheetNameInput {
+  height: 25px;
+  border: 1px solid #e0e0e0;
+}
+
+.selectImportSheetWrap {
+  width: 240px;
+  height: 245px;
+  overflow: auto;
+  padding: 10px 16px 16px;
+  background-color: #fff;
+  z-index: 1000;
+  border-radius: 3px;
+  box-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24);
+  .Checkbox {
+    margin-top: -2px;
+  }
+  .Colorff9 {
+    color: #ff9300;
+  }
+}
+
+.selectCellsWrap {
+  width: 240px;
+  max-height: 275px;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 3px;
+  box-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24);
+  overflow: auto;
+  .selectCellsItem {
+    display: flex;
+    height: 42px;
+    line-height: 42px;
+  }
+  .spaceLine {
+    height: 1px;
+    border-top: 1px solid #e0e0e0;
+    margin: 10px 0;
+  }
+  .checkBoxHalf {
+    .Checkbox-box {
+      background-color: #1e88e5 !important;
+      border: none !important;
+      i.icon {
+        display: none !important;
+      }
+      &::before {
+        content: '';
+        height: 2px;
+        background: #fff;
+        position: absolute;
+        top: 7px;
+        width: 8px;
+        left: 5px;
+      }
+    }
+  }
+}
+
+.dynamicSettingColorDialog {
+  z-index: 1055;
+}
+
+.disabledCellIcon {
+  position: unset !important;
+}

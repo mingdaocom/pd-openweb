@@ -1,0 +1,78 @@
+数据源类型
+sourceType -Int
+    记录链接 1
+    sourceUrlType -Int
+        内部链接 1
+        公开链接 2
+    字段 2
+        数据源字段ID
+        sourceControlId -String
+容错率
+codeFaultTolerance -Int
+标签自定义宽度
+labelCustomWidth -Number
+标签自定义高度
+labelCustomHeight -Number
+打印方式
+printType -Int
+    标签打印 1
+        尺寸
+        labelSize -Int
+            30mm*20mm 1
+            40mm*30mm 2
+            60mm*40mm 3
+            80mm*60mm 4
+            100mm*80mm 5
+        布局
+        layout -Int
+            横向 1
+            纵向 2
+        尺寸
+        codeSize -Int
+            大 1
+            中 2
+            小 3
+        位置
+        codePosition -Int
+            顶部 1
+            底部 2
+    A4打印 2
+        布局
+        A4Layout -Int
+            1*1 1
+            1*2 2
+            2*2 3
+            2*5 4
+            3*6 5
+    条形码 3
+        尺寸
+        labelSize -Int
+            30mm*20mm 1
+            40mm*30mm 2
+            60mm*40mm 3
+            80mm*60mm 4
+            100mm*80mm 5
+        布局
+        layout -Int
+            横向 1
+            纵向 2
+        位置
+        codePosition -Int
+            顶部 1
+            底部 2
+        高度
+        codeSize -Int
+            大 1
+            中 2
+            小 3
+
+字段数据
+showTexts [-Object]
+    { type: 1, value: "5cc43919e1865fb3d0a5596e" } 字段 value 为 controlId
+    { type: 2, value: "测试123" } 自定义文本
+
+是否显示字段名称
+showControlName -Bool
+
+第一个字段加粗显示
+firstIsBold -Bool

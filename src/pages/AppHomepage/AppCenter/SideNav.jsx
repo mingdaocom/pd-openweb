@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
@@ -9,12 +9,13 @@ import MyProcessEntry from 'src/pages/workflow/MyProcess/Entry';
 import PopupLinks from './components/PopupLinks';
 import privateSource from 'src/api/privateSource';
 import SvgIcon from 'src/components/SvgIcon';
+import _ from 'lodash';
 
 const NATIVE_APP_ITEM = [
   { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#2196f3', href: '/feed', key: 1 },
   { id: 'task', icon: 'task_basic_application', text: _l('任务'), color: '#3cca8f', href: '/apps/task', key: 2 },
   { id: 'calendar', icon: 'sidebar_calendar', text: _l('日程'), color: '#ff6d6c', href: '/apps/calendar/home', key: 3 },
-  { id: 'knowledge', icon: 'sidebar_knowledge', text: _l('文件'), color: '#F89803', href: '/apps/kc', key: 4 },
+  { id: 'knowledge', icon: 'sidebar_knowledge', text: _l('文件'), color: '#F89803', href: '/apps/kc/my', key: 4 },
   { id: 'hr', icon: 'hr_home', text: _l('人事'), color: '#607D8B', href: '/hr', key: 5, openInNew: true },
 ];
 
@@ -169,16 +170,11 @@ const moduleEntries = [
     icon: 'cooperation',
     name: _l('协作'),
   },
-];
-
-const resourceEntries = [
   {
-    icon: 'hub',
-    openInCurrent: true,
-    id: 'integration',
-    color: '#9D27B0',
-    name: _l('集成中心'),
     type: 'integration',
+    icon: 'hub',
+    name: _l('集成'),
+    fullName: _l('集成中心'),
     href: '/integration',
   },
 ];
@@ -237,6 +233,7 @@ export default function SideNav(props) {
       !_.includes(_.get(md, 'global.Config.ForbidSuites') || [], item.key) &&
       (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
   );
+
   useEffect(() => {
     privateSource.getSources({ status: 1 }).then(result => {
       const list = result.map(item => {
@@ -271,8 +268,12 @@ export default function SideNav(props) {
               const content = (
                 <ModuleEntry
                   key={i}
-                  className={cx('moduleEntry', { active: active === entry.type, isExpanded })}
-                  href={entry.href}
+                  className={cx('moduleEntry', {
+                    active: active === entry.type,
+                    libraryEntry: 'lib' === entry.type,
+                    isExpanded,
+                  })}
+                  href={'lib' === entry.type ? `${entry.href}?projectId=${projectId}` : entry.href}
                   onClick={
                     !entry.href
                       ? e => {
@@ -319,7 +320,15 @@ export default function SideNav(props) {
                       points: ['tl', 'tr'],
                       offset: [12, -4],
                     }}
-                    popup={<PopupLinks items={cooperationItems} />}
+                    popup={
+                      <PopupLinks
+                        items={NATIVE_APP_ITEM.filter(
+                          item =>
+                            !_.includes(_.get(md, 'global.Config.ForbidSuites') || [], item.key) &&
+                            (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
+                        )}
+                      />
+                    }
                   >
                     {content}
                   </Trigger>
@@ -330,10 +339,10 @@ export default function SideNav(props) {
         </ModuleEntries>
         <Spacer />
         <ResourceEntries>
-          {resourceEntries.concat(sourcesList).map((entry, index) => {
+          {sourcesList.map((entry, index) => {
             const content = (
               <ResourceEntry
-                {...(entry.href && !entry.openInCurrent ? { target: '_blank' } : {})}
+                {...(entry.href ? { target: '_blank' } : {})}
                 className="resourceEntry"
                 key={index}
                 href={entry.href}

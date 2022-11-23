@@ -10,7 +10,7 @@ import React, { Component } from 'react';
 import preall from 'src/common/preall';
 import store from '../redux/store';
 import config from '../config';
-import 'mdDialog';
+import 'src/components/mdDialog/dialog';
 import Contents from './Contents';
 import CustomWidgetContainer from './customWidgetContainer';
 import formControl from 'src/api/form';

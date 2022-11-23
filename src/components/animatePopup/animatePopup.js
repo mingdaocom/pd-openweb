@@ -1,21 +1,6 @@
-﻿/** *********************************************************
- 过程名称： animatePopup
- 功能描述： 新建分享
- 编写日期： 2015/12/30
- 程序作者： Rocky
- ************************************************************/
-
-/** *********************************************************
- 过程名称： animatePopup
- 功能描述： 新建分享
- 编写日期： 2015/12/30
- 程序作者： Rocky
- ************************************************************/
-
-import './animatePopup.less';
-
-var tpl = require('./animatePopup.html');
-var doT = require('dot');
+﻿import './animatePopup.less';
+import tpl from './animatePopup.html';
+import doT from '@mdfe/dot';
 
 var animatePopup = function (options) {
   var defaultOptions = {
@@ -108,4 +93,5 @@ var animatePopup = function (options) {
 
   return $animatePopup;
 };
-module.exports = animatePopup;
+
+export default animatePopup;

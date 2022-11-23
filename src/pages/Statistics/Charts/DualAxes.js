@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { DualAxes } from '@antv/g2plot';
 import {
   formatControlInfo,
   formatrChartValue,
@@ -56,14 +55,10 @@ export default class extends Component {
     this.DualAxes = null;
   }
   componentDidMount() {
-    const { reportData, isViewOriginalData } = this.props;
-    const { displaySetup } = reportData;
-    const config = this.getComponentConfig(this.props);
-    this.DualAxes = new DualAxes(this.chartEl, config);
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.DualAxes.on('element:click', this.handleClick);
-    }
-    this.DualAxes.render();
+    import('@antv/g2plot').then(data => {
+      this.DualAxesComponent = data.DualAxes;
+      this.renderDualAxesChart();
+    });
   }
   componentWillUnmount() {
     this.DualAxes && this.DualAxes.destroy();
@@ -116,9 +111,19 @@ export default class extends Component {
     ) {
       this.DualAxes.destroy();
       const config = this.getComponentConfig(nextProps);
-      this.DualAxes = new DualAxes(this.chartEl, config);
+      this.DualAxes = new this.DualAxesComponent(this.chartEl, config);
       this.DualAxes.render();
     }
+  }
+  renderDualAxesChart() {
+    const { reportData, isViewOriginalData } = this.props;
+    const { displaySetup } = reportData;
+    const config = this.getComponentConfig(this.props);
+    this.DualAxes = new this.DualAxesComponent(this.chartEl, config);
+    if (displaySetup.showRowList && isViewOriginalData) {
+      this.DualAxes.on('element:click', this.handleClick);
+    }
+    this.DualAxes.render();
   }
   getComponentConfig(props) {
     const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, split, sorts, style } = props.reportData;
@@ -303,6 +308,7 @@ export default class extends Component {
         name: {
           type: 'cat',
           ...(sortLineXAxis.length ? { values: sortLineXAxis } : {}),
+          formatter: value => value || _l('空')
         },
         groupName: {
           formatter: value => formatControlInfo(value).name,
@@ -386,8 +392,9 @@ export default class extends Component {
     const currentData = data.data;
     const isRight = 'rightValue' in currentData.data;
     const isNumber = isFormatNumber(xaxes.controlType);
-    const param = {
-      [xaxes.cid]: isNumber ? Number(currentData.data.originalId) : currentData.data.originalId
+    const param = {};
+    if (xaxes.cid) {
+      param[xaxes.cid] = isNumber ? Number(currentData.data.originalId) : currentData.data.originalId;
     }
     if (split.controlId && !isRight) {
       const isNumber = isFormatNumber(split.controlType);
@@ -436,7 +443,7 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
-        <Menu.Item onClick={this.handleRequestOriginalData}>
+        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
             <span>{_l('查看原始数据')}</span>
           </div>

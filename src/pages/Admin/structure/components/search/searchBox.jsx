@@ -5,7 +5,7 @@ import Result from './searchResult';
 import { fetchSearchResult, clearSearchKeywords, getCustomList } from '../../actions/search';
 import { loadUsers, getFullTree, loadAllUsers, loadDepartments } from '../../actions/entities';
 import { updateCursor, updateTypeCursor, updateType } from '../../actions/current';
-import { throttle } from 'lodash';
+import { debounce } from 'lodash';
 
 class SearchBox extends Component {
   constructor(props) {
@@ -20,7 +20,7 @@ class SearchBox extends Component {
     };
   }
 
-  handChange = throttle(value => {
+  handChange = debounce(value => {
     const { dispatch, projectId } = this.props;
     if (!value) {
       this.handleClear();
@@ -35,7 +35,7 @@ class SearchBox extends Component {
         },
       );
     }
-  }, 400);
+  }, 600);
 
   handleClear = () => {
     const { dispatch } = this.props;
@@ -59,6 +59,10 @@ class SearchBox extends Component {
   handleFocus() {
     $(this.box).addClass('ThemeBorderColor3').removeClass('ThemeBorderColor8');
     this.handleReset();
+    const { result: { departments = [], users = [] } = {} } = this.props;
+    if (departments.length || users.length) {
+      this.setState({ showResult: true });
+    }
   }
 
   handleReset() {
@@ -83,7 +87,7 @@ class SearchBox extends Component {
     return (
       <Result
         onClickAway={() => {
-          this.handleClear();
+          this.setState({ showResult: false });
         }}
         onClickAwayExceptions={['.searchInput']}
         isSearching={isSearching || (this.ajaxObj && this.ajaxObj.state() === 'pending')}

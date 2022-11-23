@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import './index.less';
 import { Dropdown, CityPicker, Icon } from 'ming-ui';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
-import 'dialogSelectUser';
-import DialogSelectDept from 'dialogSelectDept';
+import 'src/components/dialogSelectUser/dialogSelectUser';
+import DialogSelectDept from 'src/components/dialogSelectDept';
 import cx from 'classnames';
 import TagInput from '../TagInput';
 import { CONTROLS_NAME, CONDITION_TYPE, DATE_LIST, FORMAT_TEXT } from '../../../enum';
@@ -967,6 +967,7 @@ export default class TriggerCondition extends Component {
       title: _l('选择人员'),
       showMoreInvite: false,
       SelectUserSettings: {
+        filterResigned: false,
         filterAccountIds: unique ? [] : users.map(item => item.value.key),
         projectId: this.props.projectId,
         dataRange: 2,

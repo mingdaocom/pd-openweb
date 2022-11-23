@@ -5,7 +5,7 @@ import { SettingItem } from '../../styled';
 import { DEFAULT_TEXT, SWITCH_TYPES } from 'src/pages/widgetConfig/config/setting.js';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import { getStringBytes } from 'src/util';
-import { getStrBytesLength } from 'src/pages/Roles/Portal/list/util';
+import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util.js';
 
 export default function Switch({ data, onChange }) {
   const { showtype = '0' } = getAdvanceSetting(data);

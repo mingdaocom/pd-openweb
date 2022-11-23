@@ -140,7 +140,7 @@ module.exports = {
      return $.api('Department', 'GetOneDepartmentFullTree', args, options);
    },
   /**
-  * 网络管理 - 按关键词搜索部门，同时搜索部门下的用户，通用邀请层使用（Admin）
+  * 网络管理 - 按关键词搜索部门（仅搜部门），通用邀请层使用（Admin）
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.keywords 关键词
@@ -398,7 +398,7 @@ module.exports = {
      return $.api('Department', 'PagedProjectDepartmentTrees', args, options);
    },
   /**
-  * 按关键词搜索部门，同时搜索部门下的用户，通用邀请层使用
+  * 按关键词搜索部门（仅搜部门），通用邀请层使用
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.keywords 关键词

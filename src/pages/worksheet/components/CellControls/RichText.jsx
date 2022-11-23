@@ -35,7 +35,10 @@ export default class Text extends React.Component {
 
   @autobind
   handleChange() {
-    const { updateCell } = this.props;
+    const { cell, updateCell } = this.props;
+    if ((cell.value || '') === this.state.value) {
+      return;
+    }
     updateCell({
       value: this.state.value,
     });

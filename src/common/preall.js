@@ -5,11 +5,8 @@ import project from 'src/api/project';
 import redirect from './redirect';
 import { LoadDiv } from 'ming-ui';
 import { getPssId, setPssId } from 'src/util/pssId';
-if (/theportal\.cn$/.test(location.host) && window.__api_server__ && window.__api_server__.main) {
-  window.__api_server__.main = '/api/';
-}
 
-function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => { }) {
+function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   const urlparams = qs.parse(unescape(unescape(window.location.search.slice(1))));
   let args = {};
   const urlObj = new URL(decodeURIComponent(location.href));
@@ -50,18 +47,6 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => { }) {
       return;
     }
 
-    const ua = window.navigator.userAgent.toLowerCase();
-    if (
-      ua.match(/MicroMessenger/i) == 'micromessenger' &&
-      (((window.subPath || location.href.indexOf('theportal.cn') > -1) && !data['md.global'].Account.isPortal) ||
-        (!window.subPath && location.href.indexOf('theportal.cn') === -1 && data['md.global'].Account.isPortal))
-    ) {
-      location.href = `${
-        data['md.global'].Account.isPortal ? '' : window.subPath || ''
-      }/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
-      return;
-    }
-
     window.config = data.config;
     window.md.global = data['md.global'];
     window.md.global.Config.ServiceTel = '400-665-6655';
@@ -88,7 +73,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => { }) {
   });
 }
 
-const wrapComponent = function (Comp, { allownotlogin, hideloading, transfertoken } = {}) {
+const wrapComponent = function(Comp, { allownotlogin, hideloading, transfertoken } = {}) {
   class Pre extends React.Component {
     constructor(props) {
       super(props);
@@ -107,7 +92,10 @@ const wrapComponent = function (Comp, { allownotlogin, hideloading, transfertoke
     render() {
       const { loading } = this.state;
 
-      if (navigator.userAgent.toLowerCase().indexOf('mobile') > -1 && navigator.userAgent.toLowerCase().indexOf('dingtalk') > -1) {
+      if (
+        navigator.userAgent.toLowerCase().indexOf('mobile') > -1 &&
+        navigator.userAgent.toLowerCase().indexOf('dingtalk') > -1
+      ) {
         document.title = _l('应用');
       }
 
@@ -130,7 +118,7 @@ function getMomentLocale(lang) {
   }
 }
 
-export default function (Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
+export default function(Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
   if (_.isObject(Comp) && Comp.type === 'function') {
     getGlobalMeta({ allownotlogin, transfertoken }, preloadcb);
   } else {

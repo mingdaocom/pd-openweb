@@ -1,14 +1,18 @@
 ﻿/*
 依赖：字符图标、dialog、plupload、global.js
 */
-var _ = require('lodash');
-var doT = require('dot');
+import doT from '@mdfe/dot';
 var kcCtrl = require('src/api/kc');
 import './css/uploadAttachment.css';
+import headerTpl from './tpl/header.htm';
+import saveToKcHtml from './tpl/addToKc.htm';
+import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog';
+import '@mdfe/jquery-plupload';
+import { index as dialog } from 'src/components/mdDialog/dialog';
 import { formatFileSize, getClassNameByExt, htmlEncodeReg, getToken } from 'src/util';
 var MAX_IMG_VIEW_SIZE = 20971520;
 
-module.exports = (function ($) {
+export default (function ($) {
   function UploadAttachment(el, param) {
     var _this = this;
     var defaults = {
@@ -58,7 +62,7 @@ module.exports = (function ($) {
       }
       if (options.showKcAttachmentEntry) {
         pluploadID = 'uploadAttaachmentsBtn_' + _this.getRandStr(15) + '_' + _this.getHashCode(new Date());
-        headerHtml = doT.template(require('./tpl/header.htm'))({
+        headerHtml = doT.template(headerTpl)({
           pluploadID: pluploadID,
           showArrow: options.showArrow,
           arrowLeft: options.arrowLeft,
@@ -83,7 +87,6 @@ module.exports = (function ($) {
         </div>
         </div>
         `;
-        var saveToKcHtml = require('./tpl/addToKc.htm');
         var kcAttachmentsList =
           '<hr class="updaterAttachmentSplitter ThemeBorderColor5 Hidden" /><div class="kcAttachmentList mLeft10"></div>';
         var container = options.showKcAttachmentEntry
@@ -193,56 +196,54 @@ module.exports = (function ($) {
         .on('click', function () {
           var $attachmentList = _this.findAttachmentList();
           var $kcAttachmentList = $(el).next('.uploadAttaachmentsContainer').find('.kcAttachmentList');
-          require(['src/components/kc/folderSelectDialog/folderSelectDialog'], function (selectNode) {
-            selectNode({
-              isFolderNode: 2,
-            }).then(function (result) {
-              if (!result || !result.node || !result.node.length) {
-                alert(_l('未选择文件'), 3);
-              }
-              if (options.kcAttachmentData.length + result.node.length > 10) {
-                alert(_l('附件数量超过限制，一次上传不得超过10个附件'), 3);
-                return false;
-              }
+          selectNode({
+            isFolderNode: 2,
+          }).then(function (result) {
+            if (!result || !result.node || !result.node.length) {
+              alert(_l('未选择文件'), 3);
+            }
+            if (options.kcAttachmentData.length + result.node.length > 10) {
+              alert(_l('附件数量超过限制，一次上传不得超过10个附件'), 3);
+              return false;
+            }
 
-              var nodes = [];
-              var hasAlreadyAdded = false;
-              for (var i = 0; i < result.node.length; i++) {
-                if ($kcAttachmentList.find('[data-node-id=' + result.node[i].id + ']').length) {
-                  hasAlreadyAdded = true;
-                } else {
-                  nodes.push(result.node[i]);
-                }
-              }
-              if (hasAlreadyAdded) {
-                alert(_l('已引用该文件'), 3);
-              }
-              if (!nodes.length) {
-                return;
+            var nodes = [];
+            var hasAlreadyAdded = false;
+            for (var i = 0; i < result.node.length; i++) {
+              if ($kcAttachmentList.find('[data-node-id=' + result.node[i].id + ']').length) {
+                hasAlreadyAdded = true;
               } else {
-                result.node = nodes;
+                nodes.push(result.node[i]);
               }
-              var html = _this.renderKcAttachments(result.node);
-              $kcAttachmentList.append(html);
-              if (options.kcFilesAdded) {
-                options.kcFilesAdded();
-              }
-              if (options.attachmentData.length) {
-                $(el).next().find('.updaterAttachmentSplitter').show();
-              }
-              if (options.callback) {
-                options.callback.call(
-                  this,
-                  options.showKcAttachmentEntry
-                    ? {
-                        attachmentData: options.attachmentData,
-                        kcAttachmentData: options.kcAttachmentData,
-                      }
-                    : options.attachmentData,
-                  _this.getAttachmentTotalSize(),
-                );
-              }
-            });
+            }
+            if (hasAlreadyAdded) {
+              alert(_l('已引用该文件'), 3);
+            }
+            if (!nodes.length) {
+              return;
+            } else {
+              result.node = nodes;
+            }
+            var html = _this.renderKcAttachments(result.node);
+            $kcAttachmentList.append(html);
+            if (options.kcFilesAdded) {
+              options.kcFilesAdded();
+            }
+            if (options.attachmentData.length) {
+              $(el).next().find('.updaterAttachmentSplitter').show();
+            }
+            if (options.callback) {
+              options.callback.call(
+                this,
+                options.showKcAttachmentEntry
+                  ? {
+                      attachmentData: options.attachmentData,
+                      kcAttachmentData: options.kcAttachmentData,
+                    }
+                  : options.attachmentData,
+                _this.getAttachmentTotalSize(),
+              );
+            }
           });
         });
     };
@@ -366,274 +367,268 @@ module.exports = (function ($) {
 
     // 绑定上传
     _this.bindPlupload = function (id) {
-      require(['plupload'], function () {
-        var $plupload = $(id).plupload({
-          url: options.uploadUrl,
-          drop_element: options.dropPasteElement,
-          paste_element: options.dropPasteElement,
-          multi_selection: options.multiSelection,
-          file_data_name: options.fileDataName,
-          filters: options.filterExtensions
-            ? [{ title: options.filterTitle, extensions: options.filterExtensions }]
-            : undefined,
-          method: {
-            StateChanged: function (up) {
-              return false;
-            },
-            FilesAdded: function (up, files) {
-              var error = false;
-              var count = 0;
-              var fileSize = 0;
-              var i;
-              for (i = 0; i < files.length; i++) {
-                if (File.isValid('.' + File.GetExt(files[i].name))) count++;
-                fileSize += files[i].size;
-              }
-              if (count !== files.length) {
-                alert(_l('含有不支持格式的文件'), 3);
-                error = true;
-              }
+      var $plupload = $(id).plupload({
+        url: options.uploadUrl,
+        drop_element: options.dropPasteElement,
+        paste_element: options.dropPasteElement,
+        multi_selection: options.multiSelection,
+        file_data_name: options.fileDataName,
+        filters: options.filterExtensions
+          ? [{ title: options.filterTitle, extensions: options.filterExtensions }]
+          : undefined,
+        max_file_size: options.maxTotalSize + 'm',
+        method: {
+          StateChanged: function (up) {
+            return false;
+          },
+          FilesAdded: function (up, files) {
+            var error = false;
+            var count = 0;
+            var fileSize = 0;
+            var i;
+            for (i = 0; i < files.length; i++) {
+              if (File.isValid('.' + File.GetExt(files[i].name))) count++;
+              fileSize += files[i].size;
+            }
+            if (count !== files.length) {
+              alert(_l('含有不支持格式的文件'), 3);
+              error = true;
+            }
 
-              var totalFileCount = options.attachmentData.length + files.length;
-              var nodeFileCount = $(el).next().find('.kcFileList .kcDocItem').length;
+            var totalFileCount = options.attachmentData.length + files.length;
+            var nodeFileCount = $(el).next().find('.kcFileList .kcDocItem').length;
 
-              if (options.currentFile) {
-                // 正在上传 或者 排队中
-                var uploadingFiles = options.currentFile.files
-                  .slice(0, options.currentFile.files.length - files.length)
-                  .filter(function (item) {
-                    return item.status == 1 || item.status == 2;
-                  });
-
-                if (uploadingFiles) {
-                  totalFileCount = totalFileCount + uploadingFiles.length;
-                }
-              }
-              // 判断是否超过10个文件
-              if (totalFileCount + nodeFileCount > 10) {
-                alert(_l('附件数量超过限制，一次上传不得超过10个附件'), 3);
-                error = true;
-              }
-              // 判断已上传的总大小是否超出限制
-              var currentTotalSize = _this.getAttachmentTotalSize();
-              var totalSize = parseFloat(currentTotalSize) + parseFloat(fileSize / 1024 / 1024);
-              if (totalSize > options.maxTotalSize) {
-                alert(_l('附件总大小超过 %0，请您分批次上传', formatFileSize(options.maxTotalSize * 1024 * 1024)), 3);
-                error = true;
-              }
-
-              // 文件选择之后
-              if (!error && options.filesAdded) {
-                if (options.filesAdded(up, files) === false) {
-                  error = true;
-                }
-              }
-              // 粘贴文件显示附件组件
-              var $con = $('#' + options.attachmentsConId);
-              if (!!$con.length && $con.is(':hidden')) {
-                $con.show(0, function () {
-                  if (options.pluploadObj) {
-                    options.pluploadObj.refresh();
-                  }
+            if (options.currentFile) {
+              // 正在上传 或者 排队中
+              var uploadingFiles = options.currentFile.files
+                .slice(0, options.currentFile.files.length - files.length)
+                .filter(function (item) {
+                  return item.status == 1 || item.status == 2;
                 });
-                if (options.toggleFn) {
-                  options.toggleFn();
+
+              if (uploadingFiles) {
+                totalFileCount = totalFileCount + uploadingFiles.length;
+              }
+            }
+            // 判断是否超过10个文件
+            if (totalFileCount + nodeFileCount > 10) {
+              alert(_l('附件数量超过限制，一次上传不得超过10个附件'), 3);
+              error = true;
+            }
+            // 判断已上传的总大小是否超出限制
+            var currentTotalSize = _this.getAttachmentTotalSize();
+            var totalSize = parseFloat(currentTotalSize) + parseFloat(fileSize / 1024 / 1024);
+            if (totalSize > options.maxTotalSize) {
+              alert(_l('附件总大小超过 %0，请您分批次上传', formatFileSize(options.maxTotalSize * 1024 * 1024)), 3);
+              error = true;
+            }
+
+            // 文件选择之后
+            if (!error && options.filesAdded) {
+              if (options.filesAdded(up, files) === false) {
+                error = true;
+              }
+            }
+            // 粘贴文件显示附件组件
+            var $con = $('#' + options.attachmentsConId);
+            if (!!$con.length && $con.is(':hidden')) {
+              $con.show(0, function () {
+                if (options.pluploadObj) {
+                  options.pluploadObj.refresh();
                 }
+              });
+              if (options.toggleFn) {
+                options.toggleFn();
               }
+            }
 
-              if (error) {
-                up.stop();
-                // up.splice(0, files.length);
-                up.splice(up.files.length - files.length, up.files.length);
-                return false;
-              }
+            if (error) {
+              up.stop();
+              // up.splice(0, files.length);
+              up.splice(up.files.length - files.length, up.files.length);
+              return false;
+            }
 
-              // 判断个人上传流量是否达到上限
-              _this
-                .checkAccountUploadLimit(
-                  files.reduce(function (total, file) {
-                    return total + file.size || 0;
-                  }, 0),
-                )
-                .then(function (available) {
-                  if (available) {
-                    if (options.newPluploadID) {
-                      options.dropPasteElement = '';
-                      _this.bindPlupload(options.newPluploadID);
-                    }
-                    // 只允许上传一个文件
-                    if (options.onlyOne) {
-                      options.attachmentData = [];
-                    }
+            // 判断个人上传流量是否达到上限
+            _this
+              .checkAccountUploadLimit(
+                files.reduce(function (total, file) {
+                  return total + file.size || 0;
+                }, 0),
+              )
+              .then(function (available) {
+                if (available) {
+                  if (options.newPluploadID) {
+                    options.dropPasteElement = '';
+                    _this.bindPlupload(options.newPluploadID);
+                  }
+                  // 只允许上传一个文件
+                  if (options.onlyOne) {
+                    options.attachmentData = [];
+                  }
 
-                    if (!_this.findAttachmentList().is(':visible')) {
-                      _this.findAttachmentList().show();
-                    }
+                  if (!_this.findAttachmentList().is(':visible')) {
+                    _this.findAttachmentList().show();
+                  }
 
-                    const tokenFiles = [];
-                    if (options.styleType != '0') {
-                      var i;
-                      for (i = 0; i < files.length; i++) {
-                        var file = files[i];
-                        // 上传图片
-                        if (File.isPicture('.' + File.GetExt(file.name))) {
-                          if (
-                            options.onlyOne &&
-                            _this.findAttachmentList().find('.uploadPicList .picItem').length > 0
-                          ) {
-                            _this
-                              .findAttachmentList()
-                              .find('.uploadPicList .picItem')
-                              .replaceWith(_this.createPicProgressBar(file));
-                          } else {
-                            _this
-                              .findAttachmentList()
-                              .find('.uploadPicList .clearFloat')
-                              .before(_this.createPicProgressBar(file));
-                          }
+                  const tokenFiles = [];
+                  if (options.styleType != '0') {
+                    var i;
+                    for (i = 0; i < files.length; i++) {
+                      var file = files[i];
+                      // 上传图片
+                      if (File.isPicture('.' + File.GetExt(file.name))) {
+                        if (options.onlyOne && _this.findAttachmentList().find('.uploadPicList .picItem').length > 0) {
+                          _this
+                            .findAttachmentList()
+                            .find('.uploadPicList .picItem')
+                            .replaceWith(_this.createPicProgressBar(file));
                         } else {
                           _this
                             .findAttachmentList()
-                            .find('.uploadDocList .clearFloat')
-                            .before(_this.createDocProgressBar(file));
+                            .find('.uploadPicList .clearFloat')
+                            .before(_this.createPicProgressBar(file));
                         }
-                        let fileExt = `.${File.GetExt(file.name)}`;
-                        let isPic = File.isPicture(fileExt);
-                        tokenFiles.push({
-                          bucket: options.bucketType ? options.bucketType : isPic ? 4 : 3,
-                          ext: fileExt,
-                        });
-                        _this.cancelUploadEvent(file.id);
+                      } else {
+                        _this
+                          .findAttachmentList()
+                          .find('.uploadDocList .clearFloat')
+                          .before(_this.createDocProgressBar(file));
                       }
-                    } else {
-                      for (i = 0; i < files.length; i++) {
-                        var file = files[i];
-                        let fileExt = `.${File.GetExt(files[i].name)}`;
-                        let isPic = File.isPicture(fileExt);
-                        tokenFiles.push({
-                          bucket: options.bucketType ? options.bucketType : isPic ? 4 : 3,
-                          ext: fileExt,
-                        });
-                      }
-                    }
-
-                    getToken(tokenFiles, options.tokenType).then(res => {
-                      files.forEach((item, i) => {
-                        item.token = res[i].uptoken;
-                        item.key = res[i].key;
-                        item.serverName = res[i].serverName;
-                        item.fileName = res[i].fileName;
-                        item.url = res[i].url;
+                      let fileExt = `.${File.GetExt(file.name)}`;
+                      let isPic = File.isPicture(fileExt);
+                      tokenFiles.push({
+                        bucket: options.bucketType ? options.bucketType : isPic ? 4 : 3,
+                        ext: fileExt,
                       });
-
-                      up.start();
-                    });
-
-                    options.currentFile = up;
-
-                    if (options.isUploadComplete) {
-                      options.isUploadComplete.call(this, false);
+                      _this.cancelUploadEvent(file.id);
                     }
                   } else {
-                    up.stop();
-                    up.splice(0, files.length);
-
-                    var html =
-                      '<div id="uploadStorageOverDialog">' +
-                      '<div class="mTop20 mLeft30">' +
-                      '<div class="uploadStorageOverLogo Left"></div>' +
-                      '<div class="uploadStorageOverTxt Left">' +
-                      _l('您已经没有足够的流量来上传该附件！') +
-                      '</div>' +
-                      '<div class="Clear"></div>' +
-                      '</div>' +
-                      '<div class="mTop20 mBottom20 TxtCenter">' +
-                      '<a href="/personal?type=enterprise" class="uploadStorageOverBtn btnBootstrap btnBootstrap-primary btnBootstrap-small">' +
-                      _l('升级至付费版') +
-                      '</a>' +
-                      '</div>' +
-                      '</div>';
-
-                    require(['mdDialog'], function (mdDialog) {
-                      mdDialog.index({
-                        container: {
-                          content: html,
-                          width: 450,
-                          yesText: false,
-                          noText: false,
-                        },
+                    for (i = 0; i < files.length; i++) {
+                      var file = files[i];
+                      let fileExt = `.${File.GetExt(files[i].name)}`;
+                      let isPic = File.isPicture(fileExt);
+                      tokenFiles.push({
+                        bucket: options.bucketType ? options.bucketType : isPic ? 4 : 3,
+                        ext: fileExt,
                       });
-                    });
+                    }
                   }
-                });
-              return false;
-            },
-            BeforeUpload: function (uploader, file) {
-              // 上传文件到七牛
-              var fileExt = '.' + File.GetExt(file.name);
-              // token
-              uploader.settings.multipart_params = {
-                token: file.token,
-              };
 
-              uploader.settings.multipart_params.key = file.key;
-              uploader.settings.multipart_params['x:serverName'] = file.serverName;
-              uploader.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
-              uploader.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
-              uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-                file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
-              );
-              uploader.settings.multipart_params['x:fileExt'] = fileExt;
+                  getToken(tokenFiles, options.tokenType).then(res => {
+                    files.forEach((item, i) => {
+                      item.token = res[i].uptoken;
+                      item.key = res[i].key;
+                      item.serverName = res[i].serverName;
+                      item.fileName = res[i].fileName;
+                      item.url = res[i].url;
+                    });
 
-              // 隐藏排队中 显示进度条
-              var $itemContainer = null;
-              if (File.isPicture(fileExt)) {
-                $itemContainer = $('#picItem_' + file.id);
-              } else {
-                $itemContainer = $('#docItem_' + file.id);
-              }
-              $('#complete_' + file.id).show();
-              $itemContainer.find('.progressBefore').hide();
+                    up.start();
+                  });
 
-              return options.beforeUpload(uploader, file);
-            },
-            FileUploaded: function (up, file, response) {
-              if (response.response == '1') {
-                _this.uploadFailed(file);
-              } else {
-                var obj = _this.formatResponseData(file, decodeURIComponent(response.response));
-                _this.uploadSuccess(obj);
-              }
-              options.fileUploaded(up, file, response);
-            },
-            UploadProgress: function (up, file) {
-              if (options.styleType != '0') {
-                // 不是有默认的样式
-                var progress = parseInt((file.loaded / (file.size || 0)) * 100, 10);
-                $('#complete_' + file.id).text(progress + '%');
-                $('#file_' + file.id)
-                  .find('.progressbar')
-                  .css('width', progress + '%');
-              }
-              options.uploadProgress(up, file);
-            },
-            Error: function (up, error) {
-              if (error.code === window.plupload.FILE_SIZE_ERROR) {
-                alert(_l('单个文件大小超过 %0，无法支持上传', formatFileSize(options.maxTotalSize * 1024 * 1024)), 2);
-              } else {
-                alert(_l('上传失败，请稍后再试。'), 2);
-              }
-              if (error.file) {
-                _this.uploadFailed(error.file);
-              }
-              options.error(up, error);
-            },
+                  options.currentFile = up;
+
+                  if (options.isUploadComplete) {
+                    options.isUploadComplete.call(this, false);
+                  }
+                } else {
+                  up.stop();
+                  up.splice(0, files.length);
+
+                  var html =
+                    '<div id="uploadStorageOverDialog">' +
+                    '<div class="mTop20 mLeft30">' +
+                    '<div class="uploadStorageOverLogo Left"></div>' +
+                    '<div class="uploadStorageOverTxt Left">' +
+                    _l('您已经没有足够的流量来上传该附件！') +
+                    '</div>' +
+                    '<div class="Clear"></div>' +
+                    '</div>' +
+                    '<div class="mTop20 mBottom20 TxtCenter">' +
+                    '<a href="/personal?type=enterprise" class="uploadStorageOverBtn btnBootstrap btnBootstrap-primary btnBootstrap-small">' +
+                    _l('升级至付费版') +
+                    '</a>' +
+                    '</div>' +
+                    '</div>';
+
+                  dialog({
+                    container: {
+                      content: html,
+                      width: 450,
+                      yesText: false,
+                      noText: false,
+                    },
+                  });
+                }
+              });
+            return false;
           },
-        });
-        if (!options.pluploadObj) {
-          options.pluploadObj = $plupload.data('plupload');
-        }
+          BeforeUpload: function (uploader, file) {
+            // 上传文件到七牛
+            var fileExt = '.' + File.GetExt(file.name);
+            // token
+            uploader.settings.multipart_params = {
+              token: file.token,
+            };
+
+            uploader.settings.multipart_params.key = file.key;
+            uploader.settings.multipart_params['x:serverName'] = file.serverName;
+            uploader.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
+            uploader.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
+            uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
+              file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
+            );
+            uploader.settings.multipart_params['x:fileExt'] = fileExt;
+
+            // 隐藏排队中 显示进度条
+            var $itemContainer = null;
+            if (File.isPicture(fileExt)) {
+              $itemContainer = $('#picItem_' + file.id);
+            } else {
+              $itemContainer = $('#docItem_' + file.id);
+            }
+            $('#complete_' + file.id).show();
+            $itemContainer.find('.progressBefore').hide();
+
+            return options.beforeUpload(uploader, file);
+          },
+          FileUploaded: function (up, file, response) {
+            if (response.response == '1') {
+              _this.uploadFailed(file);
+            } else {
+              var obj = _this.formatResponseData(file, decodeURIComponent(response.response));
+              _this.uploadSuccess(obj);
+            }
+            options.fileUploaded(up, file, response);
+          },
+          UploadProgress: function (up, file) {
+            if (options.styleType != '0') {
+              // 不是有默认的样式
+              var progress = parseInt((file.loaded / (file.size || 0)) * 100, 10);
+              $('#complete_' + file.id).text(progress + '%');
+              $('#file_' + file.id)
+                .find('.progressbar')
+                .css('width', progress + '%');
+            }
+            options.uploadProgress(up, file);
+          },
+          Error: function (up, error) {
+            if (error.code === window.plupload.FILE_SIZE_ERROR) {
+              alert(_l('单个文件大小超过 %0，无法支持上传', formatFileSize(options.maxTotalSize * 1024 * 1024)), 2);
+            } else {
+              alert(_l('上传失败，请稍后再试。'), 2);
+            }
+            if (error.file) {
+              _this.uploadFailed(error.file);
+            }
+            options.error(up, error);
+          },
+        },
       });
+      if (!options.pluploadObj) {
+        options.pluploadObj = $plupload.data('plupload');
+      }
     };
 
     // 判断个人上传流量是否达到上限

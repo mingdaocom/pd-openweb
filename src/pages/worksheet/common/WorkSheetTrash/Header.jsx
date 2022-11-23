@@ -132,9 +132,7 @@ function Header(props, ref) {
           }}
         />
         <WorkSheetFilter
-          exposeComp={comp => {
-            filterComp.current = comp;
-          }}
+          type="trash"
           onlyUseEditing
           zIndex={1000}
           isCharge={isCharge}
@@ -142,6 +140,7 @@ function Header(props, ref) {
           viewId={viewId}
           projectId={projectId}
           worksheetId={worksheetId}
+          filterResigned={false}
           columns={controls}
           onChange={({ searchType, filterControls }) => {
             loadRows({ pageIndex: 1, searchType, filterControls });

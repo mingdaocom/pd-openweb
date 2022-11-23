@@ -26,7 +26,8 @@ import {
 import InvoiceSetting from './invoiceSetting';
 import ApplyInvoice from './applyInvoice';
 import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
-import { orderRecordStatus } from '../common';
+import Common from '../common';
+import img from 'staticfiles/images/billinfo_system.png';
 
 export default function BillInfo({ match }) {
   const { 0: projectId } = _.get(match, 'params');
@@ -158,7 +159,7 @@ export default function BillInfo({ match }) {
       </Fragment>
     ) : (
       <Fragment>
-        <img src={require('staticfiles/images/billinfo_system.png')} alt={_l('系统')} />
+        <img src={img} alt={_l('系统')} />
         <span>{_l('系统')}</span>
       </Fragment>
     );
@@ -208,7 +209,7 @@ export default function BillInfo({ match }) {
                         </Fragment>
                       ) : (
                         <Fragment>
-                          <img src={require('staticfiles/images/billinfo_system.png')} alt={_l('系统')} />
+                          <img src={img} alt={_l('系统')} />
                           <span>{_l('系统')}</span>
                         </Fragment>
                       )}
@@ -235,7 +236,7 @@ export default function BillInfo({ match }) {
                         </Fragment>
                       ) : (
                         <Fragment>
-                          <img src={require('staticfiles/images/billinfo_system.png')} alt={_l('系统')} />
+                          <img src={img} alt={_l('系统')} />
                           <span>{_l('系统')}</span>
                         </Fragment>
                       )}
@@ -249,7 +250,7 @@ export default function BillInfo({ match }) {
                       action={['click']}
                       popup={
                         <AccountIdOperation>
-                          {status === orderRecordStatus.success &&
+                          {status === Common.orderRecordStatus.success &&
                             _.includes([enumInvoiceStatus.notApply], invoiceStatus) && (
                               <li
                                 onClick={() => {

@@ -14,7 +14,7 @@ const Con = styled.div(
   ({ width }) => `
   width: ${width}px;
   transition: width 0.2s;
-  border-top: 1px solid #e0e0e0;
+  // border-top: 1px solid #e0e0e0;
   position:relative;
   z-index: 3;
   .searchBar {

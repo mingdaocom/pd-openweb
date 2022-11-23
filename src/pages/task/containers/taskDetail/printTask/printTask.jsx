@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 import './less/printTask.less';
 import cx from 'classnames';
 import ajaxRequest from 'src/api/taskCenter';

@@ -3,7 +3,7 @@ import { func, string } from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 import Dialog from 'ming-ui/components/Dialog/Dialog';
 import OtherAction from './OtherAction';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 
 export default class AddApproveWay extends Component {
   static PropTypes = {

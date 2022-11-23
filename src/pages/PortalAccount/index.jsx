@@ -2,22 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import cx from 'classnames';
-import 'uploadAttachment';
+import 'src/components/uploadAttachment/uploadAttachment';
 import { browserIsMobile } from 'src/util';
 import Container from './Container';
 import TPAuth from './tpAuth';
 import Info from './Info';
 import { LoadDiv } from 'ming-ui';
 import { getRequest } from 'src/util/sso';
-import {
-  statusList,
-  urlList,
-  getSuffix,
-  accountResultAction,
-  setAutoLoginKey,
-  getCurrentId,
-} from './util';
-import { getTpLoginUrlInfo, getPortalSetByAppId, autoLogin } from 'src/api/externalPortal';
+import { statusList, urlList, getSuffix, accountResultAction, setAutoLoginKey, getCurrentId } from './util';
+import { getTpLoginUrlInfo, getPortalSetByAppId, autoLogin, getSelfTpLoginUrlInfo } from 'src/api/externalPortal';
 import preall from 'src/common/preall';
 const Wrap = styled.div`
   display: flex;
@@ -68,9 +61,27 @@ function ContainerCon(props) {
   };
 
   useEffect(() => {
-    getCurrentId(id => {
-      setCurrentAppId(id);
-    });
+    if (window.location.pathname.indexOf('wxscanauth') >= 0) {
+      //手机微信扫码后=>获取跳转地址
+      const request = getRequest();
+      const { state = '' } = request;
+      getSelfTpLoginUrlInfo({
+        state, // 二维码所需的临时状态码
+      }).then(function (res) {
+        if (!res) {
+          //应用状态不对，没返回URL
+          setLoading(false);
+          setStatus(10000); //你访问的链接错误
+        } else {
+          safeLocalStorageSetItem('pcScan', res);
+          location.href = res; // 跳转到登录
+        }
+      });
+    } else {
+      getCurrentId(id => {
+        setCurrentAppId(id);
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -137,8 +148,8 @@ function ContainerCon(props) {
               const { appId, projectId } = portalSetResult;
               getTpLoginUrlInfo({
                 appId, //应用ID
-                projectId, //网络ID
-                wxAppId: authorizerInfo.appId, //微信公众号应用ID
+                // projectId, //网络ID
+                // wxAppId: authorizerInfo.appId, //微信公众号应用ID
               }).then(res => {
                 setLoading(false);
                 window.location.href = res; //进入微信授权=>微信登录 流程
@@ -271,7 +282,7 @@ function ContainerCon(props) {
           status={status}
           setStatus={setStatus}
           setAccountId={setAccountId}
-          setState={state => setState(state)}
+          setLogState={state => setState(state)}
           {...baseSetInfo}
           appId={appId}
           getBaseInfo={getBaseInfo}

@@ -106,7 +106,7 @@ class PortalMessage extends Component {
               {count > 99 ? '99+' : count}
             </div>
           )}
-          <i className={cx('icon-hr_message_reminder Font24 Hand', { Gray_9e: isMobile })} onClick={() => {}}></i>
+          <i className={cx('icon-hr_message_reminder Font20 Hand', { Gray_9e: isMobile })} onClick={() => {}}></i>
         </Wrap>
         <div id="chatPanel">{rp && <PortalMg />}</div>
       </React.Fragment>

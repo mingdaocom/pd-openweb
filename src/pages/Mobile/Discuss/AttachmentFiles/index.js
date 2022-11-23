@@ -5,6 +5,7 @@ import { Icon, Progress } from 'ming-ui';
 import './index.less';
 import { getRandomString, getClassNameByExt, getToken } from 'src/util';
 import { checkFileAvailable } from 'src/components/UploadFiles/utils.js';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 
 const formatResponseData = (file, response) => {
   const item = {};
@@ -242,29 +243,27 @@ export default class AttachmentList extends Component {
   previewAttachment(index) {
     const { attachments, hideDownload } = this.props;
     const { updateTime } = attachments[index];
-    require(['previewAttachments'], previewAttachments => {
-      const hideFunctions = ['editFileName'];
-      if (hideDownload) {
-        /* 是否不可下载 且 不可保存到知识和分享 */
-        hideFunctions.push('download', 'share', 'saveToKnowlege');
-      }
-      previewAttachments({
-        index: index || 0,
-        attachments: updateTime
-          ? attachments
-          : attachments.map(item => {
-              return {
-                name: `${item.originalFileName || _l('未命名')}${item.fileExt}`,
-                path: `${item.previewUrl || item.url}`,
-                previewAttachmentType: 'QINIU',
-                size: item.fileSize,
-                fileid: item.fileID,
-              };
-            }),
-        callFrom: updateTime ? 'player' : 'chat',
-        showThumbnail: true,
-        hideFunctions,
-      });
+    const hideFunctions = ['editFileName'];
+    if (hideDownload) {
+      /* 是否不可下载 且 不可保存到知识和分享 */
+      hideFunctions.push('download', 'share', 'saveToKnowlege');
+    }
+    previewAttachments({
+      index: index || 0,
+      attachments: updateTime
+        ? attachments
+        : attachments.map(item => {
+            return {
+              name: `${item.originalFileName || _l('未命名')}${item.fileExt}`,
+              path: `${item.previewUrl || item.url}`,
+              previewAttachmentType: 'QINIU',
+              size: item.fileSize,
+              fileid: item.fileID,
+            };
+          }),
+      callFrom: updateTime ? 'player' : 'chat',
+      showThumbnail: true,
+      hideFunctions,
     });
   }
   renderImage(item, index) {

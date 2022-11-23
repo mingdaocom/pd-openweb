@@ -10,19 +10,6 @@ export default class CalendarSummary extends Component {
     this.changeText = this.changeText.bind(this);
   }
 
-  componentDidUpdate() {
-    const { attachments, calendarId } = this.props;
-    if (attachments && attachments.length) {
-      require(['attachmentPlayer'], ({ GetThumbHtml }) => {
-        this.attachmentBox.innerHTML = GetThumbHtml({
-          attachments,
-          type: 'calendar',
-          sourceID: calendarId,
-        });
-      });
-    }
-  }
-
   changeText(value) {
     if (!this.props.editable) return false;
     this.props.change({

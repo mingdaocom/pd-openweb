@@ -178,6 +178,7 @@ export default function NavShow(props) {
         ))}
       {filterVisible && value === '3' && (
         <FilterDialog
+          allowEmpty
           data={data}
           overlayClosable={false}
           relationControls={relateControls}

@@ -8,7 +8,7 @@ export default class SaveWorksheetFilter extends Component {
     title: PropTypes.string,
     visible: PropTypes.bool,
     isCharge: PropTypes.bool,
-    onHide: PropTypes.func,
+    onClose: PropTypes.func,
     onSave: PropTypes.func,
     filterName: PropTypes.string,
     filterType: PropTypes.number,
@@ -26,7 +26,7 @@ export default class SaveWorksheetFilter extends Component {
     }
   }
   render() {
-    const { title, visible, isCharge, onHide, onSave } = this.props;
+    const { title, visible, isCharge, onClose, onSave } = this.props;
     const { filterName, filterType } = this.state;
     return (
       <Dialog
@@ -35,7 +35,7 @@ export default class SaveWorksheetFilter extends Component {
         anim={false}
         title={title || _l('保存筛选器')}
         width={480}
-        onCancel={onHide}
+        onCancel={onClose}
         onText={_l('保存')}
         onOk={() => {
           if (!_.trim(filterName)) {
@@ -43,7 +43,7 @@ export default class SaveWorksheetFilter extends Component {
             return;
           }
           onSave({ filterName, filterType });
-          onHide();
+          onClose();
         }}
       >
         <div className="formItem flexRow" ref={form => (this.form = form)}>

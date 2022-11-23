@@ -1,8 +1,9 @@
 ﻿import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
-import 'emotion';
+import 'src/components/emotion/emotion';
 import { addSuccess } from '../../redux/postActions';
+import MyUpdater from '../common/myupdater/myupdater';
 import { connect } from 'react-redux';
 import UploadFiles from 'src/components/UploadFiles';
 import './updater.css';
@@ -40,35 +41,36 @@ class Updater extends React.Component {
   componentDidMount() {
     this._isMounted = true;
     const comp = this;
-    require(['myupdater'], (MyUpdater) => {
-      $(() => {
-        $('.myUpdateItem_Content a').each(function () {
-          if ($(this).data('targetdiv')) {
-            $(this).attr('targetdiv', $(this).data('targetdiv'));
-          }
-        });
-        this.MyUpdater = MyUpdater;
-        MyUpdater.Init({
-          clearFilesData: () => {
-            this.clearFilesData();
-          },
-          projectId: comp.props.projectId,
-          group: { groupId: comp.props.groupId, isJoin: true },
-        });
-      });
+    $('.myUpdateItem_Content a').each(function () {
+      if ($(this).data('targetdiv')) {
+        $(this).attr('targetdiv', $(this).data('targetdiv'));
+      }
+    });
+    this.MyUpdater = MyUpdater;
+    MyUpdater.Init({
+      clearFilesData: () => {
+        this.clearFilesData();
+      },
+      projectId: comp.props.projectId,
+      group: { groupId: comp.props.groupId, isJoin: true },
     });
     this.initEmotion();
     $('#hidden_UpdaterType').val('0');
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.temporaryData.length !== this.state.temporaryData.length || nextState.kcAttachmentData.length !== this.state.kcAttachmentData.length) {
+    if (
+      nextState.temporaryData.length !== this.state.temporaryData.length ||
+      nextState.kcAttachmentData.length !== this.state.kcAttachmentData.length
+    ) {
       return true;
     }
     if (nextProps.groupId !== this.props.groupId || nextProps.projectId !== this.props.projectId) {
-      require(['myupdater'], (MyUpdater) => {
-        this.MyUpdater = MyUpdater;
-        MyUpdater.Init({ clearFilesData: this.clearFilesData.bind(this), projectId: nextProps.projectId, group: { groupId: nextProps.groupId } });
+      this.MyUpdater = MyUpdater;
+      MyUpdater.Init({
+        clearFilesData: this.clearFilesData.bind(this),
+        projectId: nextProps.projectId,
+        group: { groupId: nextProps.groupId },
       });
     }
     return false;
@@ -89,19 +91,17 @@ class Updater extends React.Component {
       kcAttachmentData: this.state.kcAttachmentData,
       isUploadComplete: this.state.isUploadComplete,
     };
-    require(['myupdater'], (MyUpdater) => {
-      if (!this._isMounted) {
-        return;
-      }
-      MyUpdater.PostUpdater(resultData, this.postBtn, (result) => {
-        addPost(result.post);
-        this.setState({
-          kcAttachmentData: [],
-          temporaryData: [],
-          isUploadComplete: true,
-        });
-        $('body').click(); // 发布器收起
+    if (!this._isMounted) {
+      return;
+    }
+    MyUpdater.PostUpdater(resultData, this.postBtn, result => {
+      addPost(result.post);
+      this.setState({
+        kcAttachmentData: [],
+        temporaryData: [],
+        isUploadComplete: true,
       });
+      $('body').click(); // 发布器收起
     });
   };
 
@@ -127,12 +127,10 @@ class Updater extends React.Component {
   };
 
   viewLink = () => {
-    require(['myupdater'], (MyUpdater) => {
-      if (!this._isMounted) {
-        return;
-      }
-      MyUpdater.ViewLink(this.linkBtn);
-    });
+    if (!this._isMounted) {
+      return;
+    }
+    MyUpdater.ViewLink(this.linkBtn);
   };
 
   handleMouseover = () => {
@@ -147,14 +145,14 @@ class Updater extends React.Component {
     $('#textarea_Updater').focus();
   };
 
-  handleOpen = (res) => {
+  handleOpen = res => {
     const $Attachment_updater = $('[targetdiv="#Attachment_updater"]');
     if (!$Attachment_updater.hasClass('ThemeColor3')) {
       $Attachment_updater.click();
     }
   };
 
-  handleUploadComplete = (bool) => {
+  handleUploadComplete = bool => {
     this.setState({
       isUploadComplete: bool,
     });
@@ -163,11 +161,13 @@ class Updater extends React.Component {
 
     if (
       bool &&
-      (!value || value == (_l('知会工作是一种美德') + '...') || value == _l('上传附件...')) &&
+      (!value || value == _l('知会工作是一种美德') + '...' || value == _l('上传附件...')) &&
       (this.state.temporaryData.length || this.state.kcAttachmentData.length)
     ) {
       $('#textarea_Updater').val(
-        this.state.temporaryData.length ? this.state.temporaryData[0].originalFileName : this.state.kcAttachmentData[0].originalFileName
+        this.state.temporaryData.length
+          ? this.state.temporaryData[0].originalFileName
+          : this.state.kcAttachmentData[0].originalFileName,
       );
       $('#textarea_Updater').focus();
     }
@@ -189,7 +189,7 @@ class Updater extends React.Component {
                   <div className="msgExpandDiv" style={{ marginRight: '-4px' }}>
                     <a
                       className="faceBtn icon-smile"
-                      ref={(faceBtn) => {
+                      ref={faceBtn => {
                         this.faceBtn = faceBtn;
                       }}
                       onMouseOver={this.handleMouseover}
@@ -228,13 +228,13 @@ class Updater extends React.Component {
                       arrowLeft={4}
                       temporaryData={this.state.temporaryData}
                       kcAttachmentData={this.state.kcAttachmentData}
-                      onTemporaryDataUpdate={(result) => {
+                      onTemporaryDataUpdate={result => {
                         this.handleOpen(result), this.setState({ temporaryData: result });
                       }}
-                      onKcAttachmentDataUpdate={(result) => {
+                      onKcAttachmentDataUpdate={result => {
                         this.setState({ kcAttachmentData: result });
                       }}
-                      onUploadComplete={(bool) => {
+                      onUploadComplete={bool => {
                         this.handleUploadComplete(bool);
                       }}
                     />
@@ -251,7 +251,9 @@ class Updater extends React.Component {
                     />
                     <div
                       id="Div_JoinKnowledge"
-                      className={cx('mLeft0 mAll5 Left', { Hidden: !(this.state.temporaryData.length || this.state.kcAttachmentData.length) })}
+                      className={cx('mLeft0 mAll5 Left', {
+                        Hidden: !(this.state.temporaryData.length || this.state.kcAttachmentData.length),
+                      })}
                       style={{ width: '200px' }}
                     >
                       <input type="text" className="Hidden" id="txtKnowledge" style={{ width: '370px', opacity: 0 }} />
@@ -273,7 +275,7 @@ class Updater extends React.Component {
                             <input
                               type="button"
                               className="btnBootstrap btnBootstrap-primary btnBootstrap-small linkBtn"
-                              ref={(linkBtn) => {
+                              ref={linkBtn => {
                                 this.linkBtn = linkBtn;
                               }}
                               onClick={this.viewLink}
@@ -297,7 +299,7 @@ class Updater extends React.Component {
                         type="button"
                         className="TxtMiddle btnBootstrap btnBootstrap-primary btnBootstrap-small"
                         style={{ padding: '2px 15px' }}
-                        ref={(postBtn) => {
+                        ref={postBtn => {
                           this.postBtn = postBtn;
                         }}
                         onClick={this.post}
@@ -320,7 +322,7 @@ class Updater extends React.Component {
   }
 }
 
-module.exports = connect((state) => {
+export default connect(state => {
   const { projectId, groupId } = state.post.options;
   return { projectId, groupId };
 })(Updater);

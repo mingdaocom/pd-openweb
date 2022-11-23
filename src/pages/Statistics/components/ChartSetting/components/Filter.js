@@ -48,7 +48,7 @@ export default class Filter extends Component {
     const item = _.find(columns, { controlId: data.controlId });
     this.singleFilter.addCondition(_.find(columns, { controlId: data.controlId }));
   };
-  saveFilter = conditions => {
+  saveFilter = (conditions = []) => {
     const { oldConditions } = this.state;
     if (_.isEqual(oldConditions, conditions)) {
       return
@@ -80,7 +80,7 @@ export default class Filter extends Component {
       });
   };
   render() {
-    const { currentReport, projectId, axisControls, worksheetInfo, filterItem } = this.props;
+    const { currentReport, projectId, axisControls, worksheetInfo, filterItem, filterResigned = true } = this.props;
     return (
       <div className="mBottom20">
         <div className="Bold mBottom12 Font13">{_l('筛选')}</div>
@@ -92,6 +92,7 @@ export default class Filter extends Component {
             filterColumnClassName="sheetStatisticsFilterColumnOption"
             canEdit={true}
             appId={worksheetInfo.appId}
+            filterResigned={filterResigned}
             projectId={projectId}
             columns={worksheetInfo.columns}
             conditions={filterItem}

@@ -83,6 +83,7 @@ export const dealBoardViewData = props => {
         ...item,
         ...extraPara,
         ..._.pick(control, ['required', 'fieldPermission']),
+        name: key === '-1' ? view.advancedSetting.emptyname || _l('未指定') : item.name,
         // 未分类
         noGroup: key === '-1',
         data: itemData,

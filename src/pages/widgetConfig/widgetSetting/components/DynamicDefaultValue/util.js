@@ -123,6 +123,8 @@ export const FILTER = {
     isFormulaResultAsNumber(item) ||
     relateSheetFiledIsNumber(item) ||
     isFormulaResultAsSubtotal(item),
+  // 附件
+  14: item => _.includes([14], item.type),
   // 日期
   15: item => _.includes(CAN_AS_DATE_TIME_DYNAMIC_FIELD, item.type) || isFormulaResultAsDate(item),
   16: item => _.includes(CAN_AS_DATE_TIME_DYNAMIC_FIELD, item.type) || isFormulaResultAsDateTime(item),
@@ -172,7 +174,7 @@ export const getControls = ({ data = {}, controls, isCurrent, fromSearch = false
   if (_.includes([2], type) && isCurrent) {
     controls = controls.filter(con => con.type !== 33);
   }
-  if (_.includes([2, 3, 4, 5, 6, 8, 15, 16, 19, 23, 24, 28, 36, 45, 46, 48, 10000007, 10000008], type))
+  if (_.includes([2, 3, 4, 5, 6, 8, 14, 15, 16, 19, 23, 24, 28, 36, 45, 46, 48, 10000007, 10000008], type))
     return _.filter(controls, filterFn);
   // 单选选项集
   if (_.includes([9, 11], type)) {

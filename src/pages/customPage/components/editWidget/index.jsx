@@ -12,6 +12,7 @@ import Analysis from './analysis';
 import ButtonComp from './button';
 import View from './view';
 import Filter from './filter';
+import Carousel from './carousel';
 import RcDialog from 'rc-dialog';
 import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
 
@@ -38,6 +39,7 @@ const TYPE_TO_COMPONENTS = {
   button: ButtonComp,
   view: View,
   filter: Filter,
+  carousel: Carousel
 };
 
 function EditWidget(props) {

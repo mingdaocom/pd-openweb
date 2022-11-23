@@ -1,9 +1,9 @@
 ﻿import React, { Component } from 'react';
-import DialogLayer from 'mdDialog';
-import 'dialogSelectUser';
+import DialogLayer from 'src/components/mdDialog/dialog';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import './less/copyFolder.less';
 import ajaxRequest from 'src/api/taskCenter';
-import mdFunction from 'mdFunction';
+import { expireDialogAsync } from 'src/components/common/function';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { errorMessage } from '../../utils/utils';
@@ -158,8 +158,7 @@ export default class CopyFolder extends Component {
   }
 
   switchNetwork(projectId) {
-    mdFunction
-      .expireDialogAsync(projectId)
+    expireDialogAsync(projectId)
       .then(() => {
         this.setState({ projectId, showNetwork: false });
       })

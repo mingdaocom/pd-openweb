@@ -4,6 +4,7 @@ import login from 'src/api/login';
 import { navigateTo } from 'src/router/navigateTo';
 import { Support, Tooltip } from 'ming-ui';
 import { removePssId } from 'src/util/pssId';
+import { showFollowWeixinDialog } from 'src/components/common/function';
 
 export default function UserMenu(props) {
   const [userVisible, handleChangeVisible] = useState(false);

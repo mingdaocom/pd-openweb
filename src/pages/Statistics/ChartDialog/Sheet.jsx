@@ -146,7 +146,7 @@ export default class ChartSheet extends Component {
             </div>
           )}
           <div className="Font15 Gray bold ellipsis dataTitle">
-            {_l('原始数据')}：{title}
+            {_l('原始数据')}{title && `：${title}`}
           </div>
         </div>
       );
@@ -167,11 +167,6 @@ export default class ChartSheet extends Component {
             <Icon className="Font20 Gray_9e pointer hoverHighlight mLeft12" icon="launch" onClick={this.handleToView} />
           </Tooltip>
         )}
-        {/*!settingVisible && (
-          <Tooltip title={direction === 'vertical' ? _l('切换为竖版模式') : _l('切换为横版模式')}>
-            <Icon className={cx('Font20 Gray_9e pointer mLeft12 hoverHighlight', direction)} icon="call_to_action_on" onClick={onChangeDirection} />
-          </Tooltip>
-        )*/}
         <Icon
           icon="close"
           className="Font22 Gray_9e pointer mLeft12 hoverHighlight"

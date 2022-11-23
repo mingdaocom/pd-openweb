@@ -70,6 +70,7 @@ export default function WidgetColor({ handleChange, color, text, type }) {
       popup={() => {
         return <ColorSelectWrap color={color} handleChange={handleChange} />;
       }}
+      zIndex={1100}
       popupAlign={{
         points: ['tl', 'bl'],
         offset: [-120, 0],

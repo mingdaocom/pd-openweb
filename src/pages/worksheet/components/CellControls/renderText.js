@@ -1,8 +1,9 @@
 import { formatFormulaDate, domFilterHtmlScript, getSelectedOptions } from '../../util';
 import { RELATION_TYPE_NAME } from './enum';
-import { accMul } from 'src/util';
+import { accMul, toFixed } from 'src/util';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
+import _ from 'lodash';
 
 export default function renderText(cell, options = {}) {
   try {
@@ -31,6 +32,9 @@ export default function renderText(cell, options = {}) {
     }
     if (_.includes([6, 31, 37], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
       value = accMul(value, 100);
+    }
+    if (cell.controlId === 'wfftime') {
+      return formatFormulaDate({ value: cell.value, unit: '1' }).replace(/^-/, _l('已超时'));
     }
     switch (type) {
       // 纯文本
@@ -61,7 +65,7 @@ export default function renderText(cell, options = {}) {
       case 6: // NUMBER_INPUT 数值
       case 8: // MONEY_AMOUNT 金额
       case 31: // NEW_FORMULA 公式
-        value = _.isUndefined(cell.dot) ? value : _.round(value, cell.dot).toFixed(cell.dot);
+        value = _.isUndefined(cell.dot) ? value : toFixed(value, cell.dot);
         if (!options.noSplit) {
           if (
             cell.type !== 6
@@ -103,6 +107,19 @@ export default function renderText(cell, options = {}) {
         if (cell.enumDefault === 2) {
           return moment(cell.value).format(cell.unit === '3' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
         } else {
+          if (_.includes(['1', '2'], unit)) {
+            if (cell.advancedSetting.autocarry === '1') {
+              return formatFormulaDate({ value: cell.value, unit, dot: cell.dot });
+            } else {
+              return (
+                toFixed(value, cell.dot) +
+                {
+                  1: _l('分钟'),
+                  2: _l('小时'),
+                }[unit]
+              );
+            }
+          }
           return (
             (suffix ? '' : prefix) +
             formatFormulaDate({ value: cell.value, unit, hideUnitStr: suffix || prefix, dot: cell.dot }) +
@@ -137,7 +154,15 @@ export default function renderText(cell, options = {}) {
       case 10: // MULTI_SELECT 多选
       case 11: // OPTIONS 单选 下拉
         selectedOptions = getSelectedOptions(cell.options, cell.value);
-        return selectedOptions.map((option, index) => option.value).join('、');
+        return selectedOptions
+          .map((option, index) => {
+            if (option.key === 'other') {
+              const otherValue = _.find(JSON.parse(cell.value || '[]'), i => i.includes(option.key));
+              return otherValue === 'other' ? _l('其他') : _.replace(otherValue, 'other:', '') || _l('其他');
+            }
+            return option.value;
+          })
+          .join('、');
       case 26: // USER_PICKER 成员
         try {
           parsedData = JSON.parse(value);

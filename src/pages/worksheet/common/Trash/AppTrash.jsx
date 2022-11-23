@@ -96,7 +96,9 @@ export default function AppTrash(props) {
                 className="InlineBlock"
               />
             </AppIcon>,
-            <span className="mLeft20 ellipsis">{app.appName}</span>,
+            <span className="mLeft20 ellipsis" style={{ maxWidth: 250 }}>
+              {app.appName}
+            </span>,
           ],
           app.wsCount,
           [

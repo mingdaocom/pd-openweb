@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import UserHead from 'src/pages/feed/components/userHead';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FILTER_CONDITION_TYPE } from '../../enum';
@@ -12,16 +12,16 @@ export default class Users extends Component {
     disabled: PropTypes.bool,
     projectId: PropTypes.string,
     onChange: PropTypes.func,
-    originValues: PropTypes.arrayOf(PropTypes.string),
+    fullValues: PropTypes.arrayOf(PropTypes.string),
     from: PropTypes.string, // rule显示规则不出现 当前用户 当前用户的下属 未指定
   };
   static defaultProps = {
-    originValues: [],
+    fullValues: [],
   };
   constructor(props) {
     super(props);
     this.state = {
-      users: (props.originValues || [])
+      users: (props.fullValues || [])
         .map(value => {
           let user = {};
           try {
@@ -62,7 +62,7 @@ export default class Users extends Component {
   }
   @autobind
   addUser() {
-    const { projectId, from = '', control = {}, appId } = this.props;
+    const { projectId, from = '', control = {}, appId, filterResigned } = this.props;
     const tabType = getTabTypeBySelectUser(control);
     const _this = this;
     if (this.props.disabled) {
@@ -74,6 +74,7 @@ export default class Users extends Component {
       isTask: false,
       includeUndefinedAndMySelf: !_.includes(['rule', 'portal'], from),
       includeSystemField: !_.includes(['rule', 'portal', 'subTotal'], from),
+      isHidAddUser: md.global.Account.isPortal,
       tabType,
       offset: {
         top: 0,
@@ -84,6 +85,7 @@ export default class Users extends Component {
       SelectUserSettings: {
         unique: this.selectSingle,
         projectId,
+        filterResigned: filterResigned,
         callback(users) {
           _this.addUsers(users);
         },

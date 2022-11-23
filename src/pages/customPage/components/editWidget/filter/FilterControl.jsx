@@ -116,7 +116,17 @@ export default function FilterControl(props) {
           {filterOnlyShowField(templateControls)
           .filter(c => FASTFILTER_CONDITION_TYPE.includes(c.type) || (c.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && FASTFILTER_CONDITION_TYPE.includes((c.sourceControl || {}).type)))
           .filter(c => index ? c.type === firstControlData.type : true)
-          .filter(c => (isOptionControl || isRelateControl) ? firstControlData.dataSource === c.dataSource : true)
+          .filter(c => {
+            if (isOptionControl || isRelateControl) {
+              if (c.dataSource && firstControlData.dataSource) {
+                return c.dataSource === firstControlData.dataSource;
+              } else {
+                return false;
+              }
+            } else {
+              return true;
+            }
+          })
           .map(c => (
             <Select.Option
               className="selectOptionWrapper"

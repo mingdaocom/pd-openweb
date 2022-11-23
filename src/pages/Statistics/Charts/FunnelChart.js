@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Funnel } from '@antv/g2plot';
 import { getLegendType, formatrChartValue, formatYaxisList, getChartColors } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import { Dropdown, Menu } from 'antd';
@@ -45,7 +44,6 @@ const mergeDataTime = (data, contrastData) => {
 
 // 调整空值位置
 const formatEmptyDataPosition = (data, isAccumulate, xaxisEmpty) => {
-
   const cloneData = _.cloneDeep(data);
 
   if (xaxisEmpty) {
@@ -63,9 +61,29 @@ const formatEmptyDataPosition = (data, isAccumulate, xaxisEmpty) => {
   return cloneData;
 }
 
-const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { xaxisEmpty }) => {
+// 兼容多数值显示
+const fillMapValue = map => {
+  const data = map.map(data => {
+    const value = data.value.map(item => {
+      return {
+        ...item,
+        x: data.key,
+        originalX: data.c_id
+      }
+    });
+    return {
+      ...data,
+      value
+    }
+  });
+  const value = data.map(item => item.value[0]);
+  data[0].value = value;
+  return [data[0]];
+}
+
+const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { controlId, xaxisEmpty }) => {
   const result = [];
-  const cloneData = formatEmptyDataPosition(_.cloneDeep(data), isAccumulate, xaxisEmpty);
+  const cloneData = formatEmptyDataPosition(controlId ? data : fillMapValue(data), isAccumulate, xaxisEmpty);
   const { value } = cloneData[0] || { value: [] };
   if (isAccumulate) {
     cloneData.map(item => {
@@ -89,7 +107,7 @@ const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { xaxisEmpt
           groupName: element.key,
           index: value.length - index,
           value: target[0].v,
-          name,
+          name: name || _l('空'),
         });
       }
     });
@@ -116,14 +134,10 @@ export default class extends Component {
     this.FunnelChart = null;
   }
   componentDidMount() {
-    const { reportData, isViewOriginalData } = this.props;
-    const { displaySetup } = reportData;
-    const config = this.getComponentConfig(this.props);
-    this.FunnelChart = new Funnel(this.chartEl, config);
-    if (displaySetup.showRowList && isViewOriginalData) {
-      this.FunnelChart.on('element:click', this.handleClick);
-    }
-    this.FunnelChart.render();
+    import('@antv/g2plot').then(data => {
+      this.FunnelComponent = data.Funnel;
+      this.renderFunnelChart();
+    });
   }
   componentWillUnmount() {
     this.FunnelChart && this.FunnelChart.destroy();
@@ -150,17 +164,28 @@ export default class extends Component {
     ) {
       this.FunnelChart.destroy();
       const config = this.getComponentConfig(nextProps);
-      this.FunnelChart = new Funnel(this.chartEl, config);
+      this.FunnelChart = new this.FunnelComponent(this.chartEl, config);
       this.FunnelChart.render();
     }
+  }
+  renderFunnelChart() {
+    const { reportData, isViewOriginalData } = this.props;
+    const { displaySetup } = reportData;
+    const config = this.getComponentConfig(this.props);
+    this.FunnelChart = new this.FunnelComponent(this.chartEl, config);
+    if (displaySetup.showRowList && isViewOriginalData) {
+      this.FunnelChart.on('element:click', this.handleClick);
+    }
+    this.FunnelChart.render();
   }
   handleClick = ({ data, gEvent }) => {
     const { xaxes, split, displaySetup } = this.props.reportData;
     const { contrastType } = displaySetup;
     const currentData = data.data;
     const isNumber = isFormatNumber(xaxes.controlType);
-    const param = {
-      [xaxes.cid]: isNumber ? Number(currentData.id) : currentData.id
+    const param = {}
+    if (xaxes.cid) {
+      param[xaxes.cid] = isNumber ? Number(currentData.id) : currentData.id;
     }
     this.setState({
       dropdownVisible: true,
@@ -197,7 +222,7 @@ export default class extends Component {
     this.setCount(newYaxisList);
 
     const baseConfig = {
-      appendPadding: displaySetup.showChartType === 2 ? [50, 0, 50, 0] : [0, 100, 0, 100],
+      appendPadding: displaySetup.showChartType === 2 ? [50, 0, 50, 0] : [0, 150, 0, 150],
       xField: 'name',
       yField: style.funnelCurvature === 1 ? 'index' : 'value',
       meta: {
@@ -274,7 +299,7 @@ export default class extends Component {
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
-        <Menu.Item onClick={this.handleRequestOriginalData}>
+        <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
             <span>{_l('查看原始数据')}</span>
           </div>

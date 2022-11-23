@@ -33,4 +33,4 @@ TopPostPager.propTypes = {
   handleChangeItem: PropTypes.func.isRequired,
 };
 
-module.exports = TopPostPager;
+export default TopPostPager;

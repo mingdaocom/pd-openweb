@@ -1,0 +1,150 @@
+import { combineReducers } from 'redux';
+import { pageSize } from '../UserCon/config';
+export const loading = (state = false, action) => {
+  switch (action.type) {
+    case 'UPDATE_ROLE_LOADING':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
+export const pageLoading = (state = false, action) => {
+  switch (action.type) {
+    case 'ROLE_UPDATE_PAGE_LOADING':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
+export const quickTag = (state = { tab: '', roleId: '' }, action) => {
+  switch (action.type) {
+    case 'UPDATE_QUICKTAG':
+      return action.data || { tab: '', roleId: '' };
+    default:
+      return state;
+  }
+};
+
+export const roleId = (state = 'all', action) => {
+  switch (action.type) {
+    case 'UPDATE_ROLEID':
+      return action.data;
+    default:
+      return state;
+  }
+};
+//成员数据
+export const user = (state = [], action) => {
+  switch (action.type) {
+    case 'UPDATE_APPUSER':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
+//成员全部总数
+export const total = (state = 0, action) => {
+  switch (action.type) {
+    case 'UPDATE_APPUSER_LIST_ALL_TOTAL':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
+//成员数组数据
+export const userList = (state = [], action) => {
+  switch (action.type) {
+    case 'UPDATE_APPUSER_LIST':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
+//申请数据
+export const apply = (state = [], action) => {
+  switch (action.type) {
+    case 'UPDATE_APPLYINFO':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
+//外协数据
+export const outsourcing = (state = {}, action) => {
+  switch (action.type) {
+    case 'UPDATE_OUTSOURCING':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
+//角色数据
+export const roleInfos = (state = [], action) => {
+  switch (action.type) {
+    case 'UPDATE_APPROLESUMMARY':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
+export const selectedIds = (state = [], action) => {
+  switch (action.type) {
+    case 'UPDATE_SELECTLIST':
+      return action.data;
+    default:
+      return state;
+  }
+};
+let ints = {
+  number: 1,
+  size: pageSize,
+  // ascendingByType: true, //类型递增
+  // ascendingByTime: true, //时间递增
+  filterBy: {
+    filterByName: '',
+    filterByMemberType: -1,
+  },
+  sortBy: {
+    ascendingByType: {
+      enable: false,
+      state: true,
+    },
+    ascendingByTime: {
+      enable: true,
+      state: true,
+    },
+  },
+  // name: '', //根据名称过滤
+  // memberType: 0, //成员类型过滤
+};
+export const appRolePagingModel = (state = ints, action) => {
+  switch (action.type) {
+    case 'UPDATE_APPROLEPAGINGMODEL':
+      return action.data || ints;
+    default:
+      return state;
+  }
+};
+
+export default combineReducers({
+  loading,
+  user,
+  outsourcing,
+  apply,
+  appRolePagingModel,
+  roleInfos,
+  roleId,
+  selectedIds,
+  userList,
+  total,
+  pageLoading,
+  quickTag,
+});

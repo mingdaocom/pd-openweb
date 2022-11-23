@@ -25,6 +25,8 @@ const ShadowCon = styled.div`
   overflow: hidden;
 `;
 
+const HIDDEN_CONTROL_IDS = ['rowid'];
+
 const Shadow = styled.div`
   margin-top: 6px;
   height: 6px;
@@ -169,7 +171,9 @@ export default function RecordForm(props) {
       from: recordId ? 3 : 2,
       rules: recordinfo.rules,
       data: formdata,
-    }).filter(control => isRelateRecordTableControl(control) && controlState(control, recordId ? 3 : 2).visible),
+    })
+      .filter(control => isRelateRecordTableControl(control) && controlState(control, recordId ? 3 : 2).visible)
+      .map(c => (isLock ? { ...c, disabled: true } : c)),
     'row',
   ).filter(c => !c.hidden);
   const scrollRef = useRef();
@@ -322,7 +326,7 @@ export default function RecordForm(props) {
                   from={recordId ? 3 : isMobile ? 5 : 2}
                   flag={formFlag}
                   controlProps={controlProps}
-                  data={formdata}
+                  data={formdata.filter(c => !_.includes(HIDDEN_CONTROL_IDS, c.controlId))}
                   systemControlData={systemControlData}
                   rules={recordinfo.rules}
                   isWorksheetQuery={recordinfo.isWorksheetQuery}

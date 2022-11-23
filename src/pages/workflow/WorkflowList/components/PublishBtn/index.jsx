@@ -96,12 +96,17 @@ export default class PublishBtn extends Component {
   };
 
   render() {
-    const { item, showTime } = this.props;
+    const { disabled = false, item, showTime } = this.props;
     const { publishData, dialogVisible } = this.state;
 
     return (
       <div className="flexRow">
-        <Switch checked={item.enabled} text={item.enabled ? _l('开启') : _l('关闭')} onClick={this.switchEnabled} />
+        <Switch
+          disabled={disabled}
+          checked={item.enabled}
+          text={item.enabled ? _l('开启') : _l('关闭')}
+          onClick={this.switchEnabled}
+        />
         {!!showTime && (
           <span
             className={cx('mLeft10 Font12', item.publishStatus === 1 ? 'ThemeColor3' : 'Gray_9e')}

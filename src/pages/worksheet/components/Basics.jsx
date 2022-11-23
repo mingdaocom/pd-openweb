@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 
 // common
 const commonInput = `
@@ -190,4 +190,16 @@ export const FlexCenter = styled.div`
 
 export const FlexSpacer = styled.div`
   flex: 1;
+`;
+
+// animations
+
+export const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 `;

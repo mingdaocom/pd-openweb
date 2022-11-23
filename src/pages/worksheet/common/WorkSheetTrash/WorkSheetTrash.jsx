@@ -4,6 +4,7 @@ import { Modal, Dialog, Checkbox } from 'ming-ui';
 import styled from 'styled-components';
 import update from 'immutability-helper';
 import { getFilterRows, removeWorksheetRows, restoreWorksheetRows } from 'src/api/worksheet';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import { RowHead } from 'worksheet/components/WorksheetTable/components/';
 import ColumnHead from './TrashColumnHead';
@@ -153,6 +154,20 @@ export default function WorkSheetTrash(props) {
   const hasAuthRows = selectRows.filter(item => item.allowedit || item.allowEdit);
   const hasAuthRowIds = hasAuthRows.map(item => item.rowid);
   const actions = createActions(dispatch, state);
+  const controlsForShow = controls
+    .filter(column => column.controlId !== 'utime' && controlState(column).visible)
+    .concat([
+      {
+        controlId: 'dtime',
+        controlName: _l('删除时间'),
+        type: 16,
+      },
+      {
+        controlId: 'daid',
+        controlName: _l('删除者'),
+        type: 26,
+      },
+    ]);
   function loadRows(args) {
     actions.loadRows(
       Object.assign({}, { appId, worksheetId, pageIndex, pageSize, sortControls: [sortControl], filterControls }, args),
@@ -285,7 +300,7 @@ export default function WorkSheetTrash(props) {
           appId={appId}
           viewId={viewId}
           worksheetId={worksheetId}
-          controls={controls}
+          controls={controlsForShow}
           pageSize={pageSize}
           pageIndex={pageIndex}
           count={count}
@@ -303,26 +318,15 @@ export default function WorkSheetTrash(props) {
             viewId={viewId}
             noRenderEmpty={!searchText}
             lineNumberBegin={lineNumberBegin}
-            columns={controls
-              .filter(column => column.controlId !== 'utime')
-              .concat([
-                {
-                  controlId: 'dtime',
-                  controlName: _l('删除时间'),
-                  type: 16,
-                },
-                {
-                  controlId: 'daid',
-                  controlName: _l('删除者'),
-                  type: 26,
-                },
-              ])}
+            columns={controlsForShow}
             rowHeight={34}
             selectedIds={selected}
             data={records}
             renderColumnHead={({ control, ...rest }) => (
               <ColumnHead
                 {...rest}
+                worksheetId={worksheetId}
+                type="trash"
                 selected={!!selected.length}
                 control={control}
                 isAsc={control.controlId === (sortControl || {}).controlId ? (sortControl || {}).isAsc : undefined}
@@ -345,7 +349,6 @@ export default function WorkSheetTrash(props) {
                         ],
                   });
                 }}
-                setFilter={headerRef.current.addFilterByControl}
               />
             )}
             renderRowHead={({ className, style, rowIndex, row }) => (

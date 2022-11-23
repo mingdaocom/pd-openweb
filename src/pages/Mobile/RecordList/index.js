@@ -19,6 +19,7 @@ import { getAdvanceSetting } from 'src/util';
 import cx from 'classnames';
 import FixedPage from 'mobile/App/FixedPage.jsx';
 import { openAddRecord } from 'mobile/Record/addRecord';
+import alreadyDelete from './State/assets/alreadyDelete.png';
 
 @withRouter
 @AppPermissions
@@ -132,14 +133,22 @@ class RecordList extends Component {
       (!calendarInfo[0].startData || !calendarInfo[0].startData.controlId);
     const isHaveSelectControl = _.includes([1, 2, 4, 5], view.viewType)
       ? viewControl === 'create' ||
-      (viewControl && _.find(controls, item => item.controlId === viewControl)) ||
-      !_.isEmpty(viewControls) ||
-      !(!calendarcids[0].begin || isDelete)
+        (viewControl && _.find(controls, item => item.controlId === viewControl)) ||
+        !_.isEmpty(viewControls) ||
+        !(!calendarcids[0].begin || isDelete)
       : true;
     const { hash } = history.location;
     const isHideTabBar = hash.includes('hideTabBar') || !!sessionStorage.getItem('hideTabBar');
     const canDelete = isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId);
     const showCusTomBtn = isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId);
+    if (_.isEmpty(views)) {
+      return (
+        <div className="flexColumn h100 justifyContentCenter alignItemsCenter Font16 Gray_9e">
+          <img style={{ width: 70 }} src={alreadyDelete} />
+          {_l('视图已隐藏')}
+        </div>
+      );
+    }
     return (
       <Fragment>
         <div
@@ -151,7 +160,7 @@ class RecordList extends Component {
           {!batchOptVisible && (
             <div className={cx('viewTabs z-depth-1', { isPortal: md.global.Account.isPortal })}>
               <Tabs
-                tabBarInactiveTextColor="#9e9e9e"
+                tabBarInactiveTextColor="#757575"
                 tabs={views}
                 page={viewIndex === -1 ? 999 : viewIndex}
                 onTabClick={view => {
@@ -160,7 +169,7 @@ class RecordList extends Component {
                   this.props.changeMobileGroupFilters([]);
                   safeLocalStorageSetItem(`mobileViewSheet-${view.viewId}`, view.viewType);
                 }}
-                renderTab={tab => <span className="ellipsis">{tab.name}</span>}
+                renderTab={tab => <span className="tabName ellipsis bold">{tab.name}</span>}
               ></Tabs>
             </div>
           )}

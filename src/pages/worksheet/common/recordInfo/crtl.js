@@ -11,7 +11,9 @@ import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { formatControlToServer, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils.js';
 import { openShareDialog } from 'src/pages/worksheet/components/Share';
 import { getAppFeaturesPath } from 'src/util';
-import { replacePorTalUrl } from 'src/pages/PortalAccount/util'
+import { replacePorTalUrl } from 'src/pages/PortalAccount/util';
+import createTask from 'src/components/createTask/createTask';
+
 export function getWorksheetInfo(...args) {
   return getWorksheetInfoApi(...args);
 }
@@ -345,16 +347,14 @@ export async function handleCreateTask({ appId, worksheetId, viewId, recordId })
     const row = await getRowDetail({ appId, worksheetId, viewId, rowId: recordId });
     let recordTitle = getTitleTextFromControls(row.formData);
     const source = appId + '|' + worksheetId + '|' + viewId + '|' + recordId;
-    require(['createTask'], createTask => {
-      createTask.index({
-        TaskName: recordTitle || _l('未命名'),
-        MemberArray: _.isEmpty(row.ownerAccount)
-          ? []
-          : [row.ownerAccount].filter(item => item.accountId.indexOf('a#') === -1),
-        worksheetAndRowId: source,
-        isFromPost: true,
-        ProjectID: row.projectId,
-      });
+    createTask({
+      TaskName: recordTitle || _l('未命名'),
+      MemberArray: _.isEmpty(row.ownerAccount)
+        ? []
+        : [row.ownerAccount].filter(item => item.accountId.indexOf('a#') === -1),
+      worksheetAndRowId: source,
+      isFromPost: true,
+      ProjectID: row.projectId,
     });
   } catch (err) {
     alert(_l('创建任务失败'));

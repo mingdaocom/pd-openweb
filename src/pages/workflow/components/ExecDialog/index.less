@@ -76,7 +76,8 @@
   }
 
   .headerBtn {
-    padding: 6px 32px;
+    border-radius: 4px;
+    padding: 4px 23px;
 
     &.overrule {
       background-color: @refuseColor;
@@ -98,6 +99,39 @@
       background-color: #fff;
       border: 1px solid @refuseColor;
       color: @refuseColor;
+    }
+
+    &.transferApprove,
+    &.sign,
+    &.transfer {
+      padding: 3px 23px;
+      background-color: #fff;
+      border: 1px solid #BDBDBD;
+      color: #333;
+      &:hover {
+        border-color: #2196f3;
+        color: #2196f3;
+      }
+    }
+
+    span {
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: block;
+    }
+  }
+
+  .iconWrap {
+    border-radius: 5px;
+    width: 30px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+      background-color: #f7f7f7;
     }
   }
 

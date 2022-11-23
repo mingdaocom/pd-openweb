@@ -9,7 +9,7 @@ import PostCard from '../post/postCard';
 import PostBody from '../post/postBody';
 import PostIReply from '../post/postIReply';
 import { HomePostFilter } from '../postListHead';
-import { PostMoreLoader } from './postLoader';
+import PostMoreLoader from './postLoader';
 
 import './postList.css';
 
@@ -30,6 +30,11 @@ class PostList extends React.Component {
       accountId: PropTypes.string,
     }),
   };
+
+  componentWillUnmount() {
+    delete window.feedSelectDate;
+    delete window.feedCustomDate;
+  }
 
   // 上级触发 dispatch
   // componentDidMount() {
@@ -68,20 +73,20 @@ class PostList extends React.Component {
       posts = (
         <PostCard key={0} {...commonProps}>
           {header}
-            <LoadDiv size="big" className="pTop20 pBottom20" />
+          <LoadDiv size="big" className="pTop20 pBottom20" />
         </PostCard>
       );
     } else if (!postList || !postList.length) {
       posts = (
         <PostCard key={0} {...commonProps}>
           {header}
-            <div className={'feedNoData ' + emptyStatus}>
-              <div className="focusUpdaterCon InlineBlock" onClick={() => this.props.dispatch(focusUpdater())}>
-                <div className="iconCon">
-                  <span className="statusIcon" />
-                </div>
-                {this.props.options.accountId && this.props.options.accountId !== md.global.Account.accountId ? (
-                  <p>暂无可见动态</p>
+          <div className={'feedNoData ' + emptyStatus}>
+            <div className="focusUpdaterCon InlineBlock" onClick={() => this.props.dispatch(focusUpdater())}>
+              <div className="iconCon">
+                <span className="statusIcon" />
+              </div>
+              {this.props.options.accountId && this.props.options.accountId !== md.global.Account.accountId ? (
+                <p>暂无可见动态</p>
               ) : (
                 <p>
                   {
@@ -91,31 +96,39 @@ class PostList extends React.Component {
                       normal: '',
                     }[emptyStatus]
                   }
-                    <span className="hide">
-                      {_l('与团队开放沟通，共享信息')} <br />
-                      {_l('快去发表动态吧~')}
-                    </span>
+                  <span className="hide">
+                    {_l('与团队开放沟通，共享信息')} <br />
+                    {_l('快去发表动态吧~')}
+                  </span>
                 </p>
               )}
-              </div>
             </div>
+          </div>
         </PostCard>
       );
     } else {
       posts = this.props.loading
         ? undefined
         : postList.map((postItem, i) => (
-          <PostCard key={postItem.commentID || postItem.postID} {...commonProps} className={i !== 0 && postItem._fresh ? 'fadeIn ani' : ''}>
-            {i === 0 ? header : undefined}
-            {postItem.isIReply ? <PostIReply postItem={postItem} /> : <PostBody keywords={this.props.options.keywords} postItem={postItem} />}
-          </PostCard>
+            <PostCard
+              key={postItem.commentID || postItem.postID}
+              {...commonProps}
+              className={i !== 0 && postItem._fresh ? 'fadeIn ani' : ''}
+            >
+              {i === 0 ? header : undefined}
+              {postItem.isIReply ? (
+                <PostIReply postItem={postItem} />
+              ) : (
+                <PostBody keywords={this.props.options.keywords} postItem={postItem} />
+              )}
+            </PostCard>
           ));
     }
 
     return (
       <div className="postList">
         <ul>{posts}</ul>
-          <PostMoreLoader
+        <PostMoreLoader
           className={this.props.hasMore ? undefined : 'hide'}
           loading={this.props.loadingMore}
           onClick={this.props.loadingMore ? undefined : () => this.props.dispatch(loadMore())}
@@ -125,4 +138,4 @@ class PostList extends React.Component {
   }
 }
 
-module.exports = connect(state => state.post)(PostList);
+export default connect(state => state.post)(PostList);

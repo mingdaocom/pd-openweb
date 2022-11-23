@@ -1,21 +1,23 @@
 import React, { Component, Fragment } from 'react';
-import { object, number } from 'prop-types';
+import { object, number, bool, func, string } from 'prop-types';
 import cx from 'classnames';
 import UserHead from 'src/pages/feed/components/userHead/userHead';
-import { Tooltip, Icon, Linkify } from 'ming-ui';
+import { Tooltip, Icon, Linkify, Menu, MenuItem } from 'ming-ui';
+import { ActionSheet } from 'antd-mobile';
 import moment from 'moment';
 import { renderToString } from 'react-dom/server';
-import { operation } from '../../api/instance';
+import { operation, revoke } from '../../api/instance';
 import _ from 'lodash';
 import './StepItem.less';
+import { browserIsMobile } from 'src/util';
 
 const UNNECESSARY_OPERATION_CODE = 22;
 const OVERRULE = 5;
 
 const WAIT_TEXT = {
-  3: _l('等你填写...'),
-  4: _l('等你审核...'),
-  5: _l('等你查看...'),
+  3: _l('等我填写...'),
+  4: _l('等我审批...'),
+  5: _l('等我查看...'),
 };
 
 const SIGN_TYPE = {
@@ -34,12 +36,12 @@ const OPERATION_LOG_ACTION = {
   1: _l('提交'),
   2: _l('转交'),
   3: _l('查看'),
-  4: _l('通过申请'),
-  5: _l('否决申请'),
+  4: _l('通过'),
+  5: _l('否决'),
   8: _l('转审'),
   9: _l('添加审批人'),
   16: _l('审批前加签'),
-  17: _l('通过申请并加签'),
+  17: _l('同意并加签'),
   18: _l('修改申请内容'),
   22: _l('无需审批'),
 };
@@ -57,34 +59,79 @@ const START_TYPE_TEXT = {
 /**
  * 格式化时间
  */
-const formatTime = time => moment(time).format('YYYY年MMMDo HH:mm');
+const formatTime = time => moment(time).format('YYYY.MM.DD HH:mm');
 
 export default class StepItem extends Component {
   static propTypes = {
     data: object,
     currentType: number,
     currentWork: object,
+    firstWorkId: string,
+    isAppAdmin: bool,
+    isLast: bool,
+    onClose: func,
   };
   static defaultProps = {
     data: {},
     currentType: 0,
     currentWork: {},
+    isAppAdmin: false,
+    isLast: false,
+    onClose: () => {},
   };
 
   state = {
-    operated: false,
+    moreOperationVisible: false,
   };
 
   /**
    * 节点步骤一经渲染便不会改变,故阻止更新以优化性能
    */
   shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.operated !== this.state.operated) {
+    if (nextState.moreOperationVisible !== this.state.moreOperationVisible) {
       return true;
     }
 
     return false;
   }
+
+  /**
+   * mobile端的更多操作
+   */
+  handleOperatorAction = () => {
+    const { data, isAppAdmin, isLast, firstWorkId, onClose } = this.props;
+    const { moreOperationVisible } = this.state;
+    const { instanceId, workId, allowUrge } = data || {};
+    const handleUrge = () => {
+      operation({ id: instanceId, workId, operationType: 18 }).then(data => {
+        alert(_l('已催办'));
+      });
+    };
+    const handleRevoke = () => {
+      revoke({ id: instanceId, workId: isAppAdmin ? firstWorkId : workId });
+      onClose();
+    };
+    const BUTTONS = [
+      { name: _l('催办'), icon: 'hr_message_reminder', fn: handleUrge },
+      { name: _l('撤回'), icon: 'restart', fn: handleRevoke },
+    ];
+    ActionSheet.showActionSheetWithOptions({
+      options: BUTTONS.map(item => (
+        <div className="flexRow valignWrapper w100" onClick={item.fn}>
+          <Icon className="mRight10 Font18 Gray_9e" icon={item.icon} />
+          <span className="Bold">{item.name}</span>
+        </div>
+      )),
+      message: (
+        <div className="flexRow header">
+          <span className="Font13">{_l('操作')}</span>
+          <div className="closeIcon" onClick={() => ActionSheet.close()}>
+            <Icon icon="close" />
+          </div>
+        </div>
+      ),
+    });
+  };
 
   /**
    * 根据类型的不同渲染内容
@@ -107,7 +154,7 @@ export default class StepItem extends Component {
         );
       }
       if (isCurrentWork && isCurrentUser) {
-        return <div className="waitInfo current Font14">{WAIT_TEXT[type]}</div>;
+        return <div className="waitInfo current Font14 bold">{WAIT_TEXT[type]}</div>;
       }
       return (
         <Fragment>
@@ -126,7 +173,7 @@ export default class StepItem extends Component {
           <div className="userName">{workItemAccount.fullName}</div>
           <div className="info">
             {START_TYPE_TEXT[triggerId]}
-            {triggerField && <span className="triggerField"> ({triggerField})</span>}
+            {triggerField && <span className="mLeft4"> ({triggerField})</span>}
           </div>
         </Fragment>
       );
@@ -140,48 +187,25 @@ export default class StepItem extends Component {
       if (type === 3) {
         return (
           <Fragment>
-            <div className="userName">{workItemAccount.fullName}</div>
-            <div className="timeAction flexRow">
-              {action !== UNNECESSARY_OPERATION_CODE && (
-                <span className="Gray_9e">{_l('于 %0', formatTime(operationTime))}</span>
-              )}
-
-              <div className={cx('action', `action-${action}`)}>
-                {action === UNNECESSARY_OPERATION_CODE ? UNNECESSARY_OPERATION[type] : OPERATION_LOG_ACTION[action]}
+            <div className="flexRow alignItemsCenter">
+              <div className="userName">{workItemAccount.fullName}</div>
+              <div className={cx('action ellipsis', `action-${action}`)}>
+                {action === UNNECESSARY_OPERATION_CODE
+                  ? UNNECESSARY_OPERATION[type]
+                  : fields
+                  ? this.renderWriteFields(fields)
+                  : OPERATION_LOG_ACTION[action] + (_.includes([2], action) ? actionTargetName : '')}
               </div>
-              {actionTargetName && <div className="targetName">{actionTargetName}</div>}
             </div>
-            {fields && (
-              <div className="info Font12">
-                <span className="pointer">{_l('填写了%0个字段', fields.length)}</span>
-                {!!fields.length && (
-                  <Tooltip
-                    tooltipClass="workflowStepFieldsWrap "
-                    popupPlacement={'bottom'}
-                    text={
-                      <ul>
-                        {fields.map(({ name, toValue }, index) => (
-                          <li key={index} className="writeFields">
-                            <span className="field">{`${name}: `}</span>
-                            <span className="val">{toValue}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    }
-                  >
-                    <span className="modifiedFieldInfo">
-                      <Icon icon="workflow_info" className="Font16 Gray_9e" />
-                    </span>
-                  </Tooltip>
-                )}
-              </div>
-            )}
-            {opinion && (
-              <div className="info Font12">
-                {_l('备注: ')}
-                {opinion}
-              </div>
-            )}
+            {opinion && <div className="info Gray_9e">{opinion}</div>}
+            <div className="timeAction flexRow Gray_9e">
+              {action !== UNNECESSARY_OPERATION_CODE && (
+                <Fragment>
+                  {formatTime(operationTime)}
+                  <span className="mLeft4">{_l('提交')}</span>
+                </Fragment>
+              )}
+            </div>
           </Fragment>
         );
       }
@@ -192,39 +216,22 @@ export default class StepItem extends Component {
       if (type === 4) {
         return (
           <Fragment>
-            <div className="userName">{workItemAccount.fullName}</div>
-            <div className="timeAction flexRow">
-              {action !== UNNECESSARY_OPERATION_CODE && (
-                <span className="Gray_9e">{_l('于 %0', formatTime(operationTime))}</span>
-              )}
-
-              {action === UNNECESSARY_OPERATION_CODE ? (
-                <Fragment>
-                  <div className={cx('action', `action-${action}`)}>{UNNECESSARY_OPERATION[type]}</div>
-                  {actionTargetName && <div className="targetName">{actionTargetName}</div>}
-                </Fragment>
-              ) : (
-                <Fragment>
-                  <div className={cx('action', `action-${action}`)}>
-                    {action === OVERRULE && actionTargetName
-                      ? _l('退回到%0', actionTargetName)
-                      : OPERATION_LOG_ACTION[action]}
-                  </div>
-                </Fragment>
-              )}
+            <div className="flexRow alignItemsCenter">
+              <div className="userName">{workItemAccount.fullName}</div>
+              <div className={cx('action ellipsis', `action-${action}`)}>
+                {action === UNNECESSARY_OPERATION_CODE
+                  ? UNNECESSARY_OPERATION[type]
+                  : action === OVERRULE && actionTargetName
+                  ? _l('退回到%0', actionTargetName)
+                  : OPERATION_LOG_ACTION[action] + (_.includes([8, 9, 16, 17], action) ? actionTargetName : '')}
+              </div>
             </div>
-            {opinion && (
-              <div className="info Font12">
-                {_l('备注：')}
-                {opinion}
-              </div>
-            )}
-            {signature && (
-              <div className="info Font12 flexRow">
-                <div>{_l('签名：')}</div>
-                <div className="flex infoSignature" style={{ backgroundImage: `url(${signature.server})` }} />
-              </div>
-            )}
+            {fields && fields.length && <div className="mTop4">{this.renderWriteFields(fields)}</div>}
+            {opinion && <div className="info Gray_9e">{opinion}</div>}
+            {signature && <div className="infoSignature" style={{ backgroundImage: `url(${signature.server})` }} />}
+            <div className="timeAction flexRow Gray_9e">
+              {action !== UNNECESSARY_OPERATION_CODE && formatTime(operationTime)}
+            </div>
           </Fragment>
         );
       }
@@ -236,15 +243,46 @@ export default class StepItem extends Component {
         return (
           <Fragment>
             <div className="userName">{workItemAccount.fullName}</div>
-            <div className="timeAction flexRow">
-              <span className="Gray_9e">{_l('于 %0', formatTime(operationTime))}</span>
-              <div className="action">{_l('查看')}</div>
+            <div className="timeAction flexRow Gray_9e">
+              {formatTime(operationTime)}
+              <span className="mLeft4">{_l('查看')}</span>
             </div>
           </Fragment>
         );
       }
     }
   };
+
+  /**
+   * 渲染填写的字段
+   */
+  renderWriteFields(fields) {
+    if (!fields || !fields.length) return null;
+
+    return (
+      <Fragment>
+        <span className="pointer Font14 ThemeColor3">{_l('填写%0个字段', fields.length)}</span>
+        {!!fields.length && !browserIsMobile() && (
+          <Tooltip
+            tooltipClass="workflowStepFieldsWrap "
+            popupPlacement={'bottom'}
+            text={
+              <ul>
+                {fields.map(({ name, toValue }, index) => (
+                  <li key={index} className="writeFields">
+                    <span className="field">{`${name}: `}</span>
+                    <span className="val">{toValue}</span>
+                  </li>
+                ))}
+              </ul>
+            }
+          >
+            <Icon icon="workflow_info" className="Font16 Gray_9e mLeft4" />
+          </Tooltip>
+        )}
+      </Fragment>
+    );
+  }
 
   /**
    * 生成链接
@@ -300,7 +338,8 @@ export default class StepItem extends Component {
     }
 
     if (!maxEndTimeConsuming) {
-      return <span className="Gray_9e">{_l('耗时：%0', this.covertTime(maxTimeConsuming))}</span>;
+      const time = this.covertTime(maxTimeConsuming);
+      return time ? <span className="Gray_9e">{_l('耗时：%0', time)}</span> : null;
     }
 
     return (
@@ -373,21 +412,63 @@ export default class StepItem extends Component {
     );
   }
 
+  /**
+   * 更多操作
+   */
+  renderOperator() {
+    const { data, isAppAdmin, isLast, firstWorkId, onClose } = this.props;
+    const { moreOperationVisible } = this.state;
+    const { instanceId, workId, allowUrge } = data || {};
+
+    if ((isLast && isAppAdmin) || allowUrge) {
+      return (
+        <div className="relative">
+          <Icon
+            icon="more_horiz Gray_9e ThemeHoverColor3 mLeft10 pointer Font22"
+            onClick={() =>
+              browserIsMobile() ? this.handleOperatorAction() : this.setState({ moreOperationVisible: true })
+            }
+          />
+
+          {moreOperationVisible && (
+            <Menu style={{ left: -150 }} onClickAway={() => this.setState({ moreOperationVisible: false })}>
+              {((isLast && isAppAdmin) || allowUrge) && (
+                <MenuItem
+                  onClick={() => {
+                    operation({ id: instanceId, workId, operationType: 18 }).then(data => {
+                      alert(_l('已催办'));
+                    });
+                    this.setState({ moreOperationVisible: false });
+                  }}
+                >
+                  <Icon icon="hr_message_reminder" className="Font14" />
+                  <span className="mLeft20">{_l('催办')}</span>
+                </MenuItem>
+              )}
+              {isLast && isAppAdmin && (
+                <MenuItem
+                  onClick={() => {
+                    revoke({ id: instanceId, workId: isAppAdmin ? firstWorkId : workId });
+                    onClose();
+                  }}
+                >
+                  <Icon icon="restart" className="Font14" />
+                  <span className="mLeft20">{_l('撤回')}</span>
+                </MenuItem>
+              )}
+            </Menu>
+          )}
+        </div>
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { data, currentWork, currentType } = this.props;
-    const { operated } = this.state;
-    const {
-      instanceId,
-      workId,
-      flowNode,
-      workItems,
-      countersign,
-      countersignType,
-      condition,
-      multipleLevelType,
-      sort,
-      allowUrge,
-    } = data || {};
+    const { workId, flowNode, workItems, countersign, countersignType, condition, multipleLevelType, sort } =
+      data || {};
     /** 是否是当前流程节点 */
     let isCurrentWork = workId === (currentWork || {}).workId && _.includes([3, 4, 5], currentType);
 
@@ -404,19 +485,7 @@ export default class StepItem extends Component {
             </div>
             {this.renderTimeConsuming()}
             {this.renderSurplusTime()}
-            {allowUrge && !operated && (
-              <span
-                className="Gray_9e ThemeHoverColor3 mLeft10 pointer"
-                style={{ borderBottom: `2px dotted #ddd` }}
-                onClick={() => {
-                  this.setState({ operated: true });
-                  operation({ id: instanceId, workId, operationType: 18 });
-                }}
-              >
-                {_l('催办')}
-              </span>
-            )}
-            {operated && <span className="Gray_9e mLeft10">{_l('已催办')}</span>}
+            {this.renderOperator()}
           </div>
           <div className="stepContentWrap mTop10">
             <div className={'stepName bold Font15 flex ellipsis'}>
@@ -424,29 +493,17 @@ export default class StepItem extends Component {
               {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
             </div>
             {countersign && (
-              <div className="signTypeWrap flexRow">
-                {countersignType === 3 ? (
-                  <Fragment>
-                    <span className="nowrap">{currentType === 3 ? _l('填写') : _l('或签')}：</span>
-                    <div className="signType">{MULTIPLE_OPERATION[currentType || '4']}</div>
-                  </Fragment>
-                ) : (
-                  <Fragment>
-                    <span className="nowrap">{_l('会签')}：</span>
-                    <div className="signType">
-                      {condition ? condition + '%' : ''}
-                      {SIGN_TYPE[countersignType]}
-                    </div>
-                  </Fragment>
-                )}
+              <div className="mTop10 mLeft16 Gray_9e mRight16">
+                {countersignType === 3
+                  ? MULTIPLE_OPERATION[flowNode.type || '4']
+                  : `${condition ? condition + '%' : ''}${SIGN_TYPE[countersignType]}`}
               </div>
             )}
 
             {workItems[0].type === 5 && (
               <Fragment>
-                <div className="Gray_9e pLeft16 pRight16 pTop10">{_l('通知内容：')}</div>
                 <div
-                  className="pLeft16 pRight16 pTop5 breakAll"
+                  className="pLeft16 pRight16 pTop6 breakAll Gray_75"
                   style={{ whiteSpace: 'normal' }}
                   dangerouslySetInnerHTML={{
                     __html: filterXSS(this.generateLink(workItems[0].opinion), {
@@ -463,7 +520,7 @@ export default class StepItem extends Component {
               return (
                 <div key={index} className="stepContent flexRow">
                   <div className="avatarBox">
-                    <UserHead lazy="false" size={33} user={{ userHead: avatar, accountId }} />
+                    <UserHead lazy="false" size={36} user={{ userHead: avatar, accountId }} />
                   </div>
                   <div className="stepDetail flex flexColumn">{this.renderDetail(item)}</div>
                 </div>

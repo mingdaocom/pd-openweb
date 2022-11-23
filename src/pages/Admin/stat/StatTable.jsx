@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import statisticController from 'src/api/statistic';
-import 'pager';
+import 'src/components/pager/pager';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Icon from 'ming-ui/components/Icon';
 import UserName from 'src/pages/feed/components/userName/userName';

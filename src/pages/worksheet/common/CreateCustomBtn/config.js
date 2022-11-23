@@ -55,6 +55,8 @@ export const DEF_TYPES = [
   // 34,//子表按钮默认值 暂不支持
   // 35,
   36,
+  46,
+  48,
 ];
 //动态默认值
-export const DEF_R_TYPES = [15, 16, 17, 18, 26];
+export const DEF_R_TYPES = [15, 16, 17, 18, 26, 46];

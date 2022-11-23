@@ -1,22 +1,22 @@
 ﻿var alertTimerArr = [];
 import './style.css';
 
-(function ($) {
-  $.fn.alert = function (param) {
+(function($) {
+  $.fn.alert = function(param) {
     var defaults = {
       msg: '',
       type: '1',
       timeout: 0,
-      callback: function () {},
+      callback: function() {},
     };
 
     var options = $.extend(defaults, param);
 
-    this.each(function () {
+    this.each(function() {
       var _this = $(this);
 
       _this.timer = null;
-      _this.init = function () {
+      _this.init = function() {
         _this.clearTimer();
         var alterDialog = $('<span/>').attr('class', 'mdAlertDialog');
         if (options.type) {
@@ -36,7 +36,7 @@ import './style.css';
         var close = $('<span/>')
           .addClass('mdClose')
           .text('×')
-          .click(function (e) {
+          .click(function(e) {
             e.stopPropagation();
             _this.close();
             _this.clearTimer();
@@ -53,18 +53,18 @@ import './style.css';
         });
 
         if (options.timeout != 0) {
-          _this.timer = setTimeout(function () {
+          _this.timer = setTimeout(function() {
             _this.close();
           }, options.timeout);
 
           alertTimerArr.push(_this.timer);
         }
       };
-      _this.close = function (isInit) {
+      _this.close = function(isInit) {
         $('.mdAlertDialog').remove();
         _this.callback();
       };
-      _this.clearTimer = function () {
+      _this.clearTimer = function() {
         $('.mdAlertDialog').remove();
         for (var i = 0; i < alertTimerArr.length; i++) {
           var timer = alertTimerArr[i];
@@ -74,7 +74,7 @@ import './style.css';
         }
         alertTimerArr = [];
       };
-      _this.callback = function () {
+      _this.callback = function() {
         if (options.callback) {
           options.callback();
         }
@@ -84,7 +84,7 @@ import './style.css';
   };
 })(jQuery);
 
-module.exports = function (msg, type, timeout, callback) {
+export default function(msg, type, timeout, callback) {
   if (timeout === undefined) {
     timeout = 3000;
   }
@@ -93,7 +93,7 @@ module.exports = function (msg, type, timeout, callback) {
     msg: msg,
     type: type,
     timeout: timeout,
-    callback: function () {
+    callback: function() {
       if (callback) {
         callback();
       }
@@ -101,4 +101,4 @@ module.exports = function (msg, type, timeout, callback) {
     },
   });
   return dfd.promise();
-};
+}

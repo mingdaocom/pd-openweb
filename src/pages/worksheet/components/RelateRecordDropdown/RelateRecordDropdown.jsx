@@ -76,6 +76,7 @@ export default class RelateRecordDropdown extends React.Component {
       newrecordVisible: false,
       selected: props.selected || [],
       keywords: '',
+      activeIndex: undefined,
     };
     this.initSearchControl(props);
   }
@@ -106,6 +107,7 @@ export default class RelateRecordDropdown extends React.Component {
   }
 
   cell = React.createRef();
+  list = React.createRef();
 
   get active() {
     const { isediting } = this.props;
@@ -267,6 +269,17 @@ export default class RelateRecordDropdown extends React.Component {
     }
   }
 
+  @autobind
+  handleInputKeyDown(e) {
+    if (e.key === 'ArrowUp') {
+      this.list.current.updateActiveId(-1);
+    } else if (e.key === 'ArrowDown') {
+      this.list.current.updateActiveId(1);
+    } else if (e.key === 'Enter') {
+      this.list.current.handleEnter();
+    }
+  }
+
   handleChange() {
     const { multiple, doNotClearKeywordsWhenChange, onChange } = this.props;
     const { selected } = this.state;
@@ -320,6 +333,7 @@ export default class RelateRecordDropdown extends React.Component {
             mountRef={ref => (this.inputRef = ref)}
             value={keywords}
             onChange={value => this.setState({ keywords: value })}
+            onKeyDown={this.handleInputKeyDown}
           />
         )}
         {!selected.length && active && !keywords && this.searchControl && (
@@ -345,7 +359,7 @@ export default class RelateRecordDropdown extends React.Component {
 
   renderMultipe() {
     const { insheet, control, allowOpenRecord, entityName, cellFrom } = this.props;
-    const { selected, keywords } = this.state;
+    const { selected, keywords, activeIndex } = this.state;
     const { active } = this;
     const length = selected.length;
     return (
@@ -401,6 +415,7 @@ export default class RelateRecordDropdown extends React.Component {
             mountRef={ref => (this.inputRef = ref)}
             value={keywords}
             onChange={value => this.setState({ keywords: value })}
+            onKeyDown={this.handleInputKeyDown}
           />
         )}
       </React.Fragment>
@@ -410,7 +425,7 @@ export default class RelateRecordDropdown extends React.Component {
   renderPopup({ disabledManualWrite }) {
     const { multiple, control, formData, insheet, disableNewRecord, onVisibleChange } = this.props;
     const formDataArray = typeof formData === 'function' ? formData() : formData;
-    const { keywords, selected, listvisible, newrecordVisible, renderToTop, cellToTop } = this.state;
+    const { keywords, selected, listvisible, newrecordVisible, renderToTop, cellToTop, activeIndex } = this.state;
     const xOffset = this.isMobile ? 0 : this.getXOffset();
     return (
       <ClickAway
@@ -435,6 +450,8 @@ export default class RelateRecordDropdown extends React.Component {
         )}
         {listvisible && !disabledManualWrite && (
           <RelateRecordList
+            ref={this.list}
+            activeIndex={activeIndex}
             keyWords={keywords}
             control={control}
             formData={formDataArray}

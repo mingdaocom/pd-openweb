@@ -2,7 +2,9 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
 import cx from 'classnames';
+import { Tooltip } from 'ming-ui';
 import SelectUser from 'mobile/components/SelectUser';
+import { getDepartmentFullNameByIds } from 'src/api/department';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { browserIsMobile } from 'src/util';
 
@@ -80,22 +82,36 @@ export default class Widgets extends Component {
       >
         {value.map((item, index) => {
           return (
-            <div className={cx('customFormControlTags', { selected: browserIsMobile() && !disabled })} key={index}>
-              <div className="departWrap" style={{ backgroundColor: '#2196f3' }}>
-                <i className="Font16 icon-department" />
+            <Tooltip
+              mouseEnterDelay={0.6}
+              text={() =>
+                new Promise(resolve =>
+                  getDepartmentFullNameByIds({
+                    projectId,
+                    departmentIds: [item.departmentId],
+                  }).then(res => {
+                    resolve(_.get(res, '0.name'));
+                  }),
+                )
+              }
+            >
+              <div className={cx('customFormControlTags', { selected: browserIsMobile() && !disabled })} key={index}>
+                <div className="departWrap" style={{ backgroundColor: '#2196f3' }}>
+                  <i className="Font16 icon-department" />
+                </div>
+
+                <span className="ellipsis mLeft5" style={{ maxWidth: 200 }}>
+                  {item.departmentName}
+                </span>
+
+                {((enumDefault === 0 && value.length === 1) || enumDefault !== 0) && !disabled && (
+                  <i
+                    className="icon-minus-square Font16 tagDel"
+                    onClick={() => this.removeDepartment(item.departmentId)}
+                  />
+                )}
               </div>
-
-              <span className="ellipsis mLeft5" style={{ maxWidth: 200 }}>
-                {item.departmentName}
-              </span>
-
-              {((enumDefault === 0 && value.length === 1) || enumDefault !== 0) && !disabled && (
-                <i
-                  className="icon-minus-square Font16 tagDel"
-                  onClick={() => this.removeDepartment(item.departmentId)}
-                />
-              )}
-            </div>
+            </Tooltip>
           );
         })}
 

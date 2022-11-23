@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Select, Input, Dropdown, Button } from 'antd';
 import { Icon, LoadDiv, Checkbox, Tooltip, Dialog } from 'ming-ui';
-import { Line } from '@antv/g2plot';
 import flowMonitor from 'src/pages/workflow/api/processVersion.js';
 import appManagement from 'src/api/appManagement';
 import { navigateTo } from 'src/router/navigateTo';
@@ -61,7 +60,10 @@ export default class WorkflowMonitor extends Component {
     this.lineChart = null;
   }
   componentDidMount() {
-    this.renderChart();
+    import('@antv/g2plot').then(data => {
+      this.g2plotComponent = data;
+      this.renderChart();
+    });
     this.getChartData();
     this.getRealTimeData();
     this.getFlowList();
@@ -195,6 +197,7 @@ export default class WorkflowMonitor extends Component {
     let initChartData = [];
     let diffMinite = Math.floor(moment().subtract(5, 'm').format('mm') % 5);
     let currentDate = moment().minute(moment().add(5, 'm').format('mm') - diffMinite);
+    const { Line } = this.g2plotComponent;
     for (let i = 12; i > 0; i--) {
       let date = moment(currentDate)
         .subtract(i * 5, 'm')

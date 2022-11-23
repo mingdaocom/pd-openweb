@@ -1,8 +1,13 @@
-import 'jqueryUI';
+import '@mdfe/jquery-ui';
 import './css/addOldTask.css';
 import { htmlEncodeReg } from 'src/util';
+import doT from '@mdfe/dot';
+import taskHtml from './tpl/addOldTask.html';
+import 'src/components/mdDialog/dialog';
+import 'src/components/mdAutocomplete/mdAutocomplete';
+
 var ajaxRequest = require('src/api/taskCenter');
-var AddOldTask = function (opts) {
+var AddOldTask = function(opts) {
   var defaults = {
     frameid: 'divaddtask',
     TaskID: '',
@@ -15,7 +20,7 @@ var AddOldTask = function (opts) {
 };
 
 $.extend(AddOldTask.prototype, {
-  init: function () {
+  init: function() {
     var _this = this;
     var settings = this.settings;
 
@@ -24,33 +29,23 @@ $.extend(AddOldTask.prototype, {
       container: {
         header: _l('加入任务'),
         yesText: _l('确认'),
-        yesFn: function () {
+        content: doT.template(taskHtml)(_this.settings),
+        yesFn: function() {
           return _this.send();
         },
       },
       width: 460,
-      readyFn: function () {
+      readyFn: function() {
+        _this.eventInit();
         $('#txtOldTaskName').focus();
       },
       callback: null,
     };
 
-    require(['mdDialog', 'mdAutocomplete'], function () {
-      settings.dialog = $.DialogLayer(dialogOpts);
-      _this.showDialog();
-    });
+    settings.dialog = $.DialogLayer(dialogOpts);
+    settings.dialog.dialogCenter();
   },
-  showDialog: function () {
-    var _this = this;
-    var settings = _this.settings;
-    require(['dot', './tpl/addOldTask.html'], function (doT, taskHtml) {
-      var html = doT.template(taskHtml)(_this.settings);
-      settings.dialog.content(html);
-      _this.eventInit();
-      settings.dialog.dialogCenter();
-    });
-  },
-  eventInit: function () {
+  eventInit: function() {
     var _this = this;
     var settings = _this.settings;
 
@@ -62,8 +57,10 @@ $.extend(AddOldTask.prototype, {
         keywords: '',
         projectId: settings.ProjectID,
       },
-      beforeSearch: function (data) {
-        data.keywords = $('#txtOldTaskName').val().trim();
+      beforeSearch: function(data) {
+        data.keywords = $('#txtOldTaskName')
+          .val()
+          .trim();
       },
       clearBtn: false,
       autoUlStyle: {
@@ -71,12 +68,12 @@ $.extend(AddOldTask.prototype, {
         width: 370,
         y: 10,
       },
-      render: function (source) {
+      render: function(source) {
         var list = source;
         var count = source.length;
         if (count > 0) {
           var sb = '';
-          $.each(list, function (i, item) {
+          $.each(list, function(i, item) {
             sb =
               sb +
               `<li data-id="${item.taskID}" data-name="${htmlEncodeReg(item.taskName)}">
@@ -91,13 +88,13 @@ $.extend(AddOldTask.prototype, {
 
         return `<li class="searching">${_l('没有搜索到结果')}</li>`;
       },
-      select: function ($li) {
+      select: function($li) {
         $('#txtOldTaskName').val($li.data('name'));
         settings.TaskID = $li.data('id');
       },
     });
   },
-  send: function () {
+  send: function() {
     var settings = this.settings;
     var taskID = settings.TaskID;
     var postID = settings.PostID;
@@ -112,24 +109,24 @@ $.extend(AddOldTask.prototype, {
         taskID: taskID,
         postID: postID,
       })
-      .then(function (source) {
+      .then(function(source) {
         if (source.status) {
           window.location = 'apps/task/task_' + taskID;
         }
       })
-      .fail(function () {
+      .fail(function() {
         alert(_l('操作失败，请稍后再试'), 2);
       });
   },
 });
 
-exports.index = function (opts) {
+export default function(opts) {
   return new AddOldTask(opts);
-};
+}
 
-(function ($) {
+(function($) {
   if (!$.fn.AddOldTask) {
-    $.fn.AddOldTask = function (opts) {
+    $.fn.AddOldTask = function(opts) {
       return new AddOldTask(opts);
     };
   }

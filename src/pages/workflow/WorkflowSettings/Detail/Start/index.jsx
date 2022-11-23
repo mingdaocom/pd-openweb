@@ -14,6 +14,7 @@ import WorksheetContent from './WorksheetContent';
 import DateContent from './DateContent';
 import PBCContent from './PBCContent';
 import DiscussContent from './DiscussContent';
+import ApprovalProcess from './ApprovalProcess';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -107,6 +108,7 @@ export default class Start extends Component {
       controls = [],
       returnJson,
       returns = [],
+      processConfig,
     } = data;
     let { time } = data;
     time = isDateField ? '' : time;
@@ -196,6 +198,7 @@ export default class Start extends Component {
           }),
           returnJson,
           returns: returns.filter(o => !!o.name),
+          processConfig,
         },
         { isIntegration: this.props.isIntegration },
       )
@@ -372,6 +375,9 @@ export default class Start extends Component {
                   <PBCContent {...this.props} data={data} updateSource={this.updateSource} />
                 )}
                 {data.triggerId === TRIGGER_ID.DISCUSS && <DiscussContent data={data} />}
+                {data.appType === APP_TYPE.APPROVAL_START && (
+                  <ApprovalProcess data={data} updateSource={this.updateSource} />
+                )}
               </Fragment>
             )}
           </ScrollView>
@@ -391,6 +397,7 @@ export default class Start extends Component {
                 APP_TYPE.EXTERNAL_USER,
                 APP_TYPE.PBC,
                 APP_TYPE.PARAMETER,
+                APP_TYPE.APPROVAL_START,
               ],
               data.appType,
             )

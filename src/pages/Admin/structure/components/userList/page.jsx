@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import 'pager';
+import 'src/components/pager/pager';
 import { Icon } from 'ming-ui';
 
 class Pager extends Component {

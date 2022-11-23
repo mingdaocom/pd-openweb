@@ -1,7 +1,7 @@
 import React from 'react';
 import BaseMessageComponent from '../baseComponent/messageContent';
 
-import { createLinksForMessage } from 'mdFunction';
+import { createLinksForMessage } from 'src/components/common/function';
 import { formatInboxItem } from '../../util';
 
 /**

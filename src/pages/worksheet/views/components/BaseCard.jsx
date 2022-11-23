@@ -259,12 +259,11 @@ const BaseCard = props => {
   };
 
   const renderAbstract = () => {
-    if (isGalleryView && abstract) {
-      return (
-        <div className="abstractWrap galleryViewAbstract">{abstractValue || <div className="emptyHolder"></div>}</div>
-      );
-    }
-    return abstractValue && <div className="abstractWrap">{abstractValue}</div>;
+    return abstract ? (
+      <div className={cx('abstractWrap', { galleryViewAbstract: isGalleryView })}>
+        {abstractValue || <div className="emptyHolder"></div>}
+      </div>
+    ) : null;
   };
 
   const getPopAlign = () => {
@@ -301,18 +300,20 @@ const BaseCard = props => {
         {renderAbstract()}
         {!_.isEmpty(otherFields) && (
           <RecordFieldsWrap hasCover={!!coverImage}>
-            {otherFields.map(item => {
-              if (checkCellIsEmpty(item.value) && !isGalleryView) return null;
-              const content = (
-                <CellControl from={4} cell={item} sheetSwitchPermit={sheetSwitchPermit} viewId={viewId} />
-              );
-              // 画廊视图或有内容控件则渲染
-              return (
-                <div key={item.controlId} className={'fieldItem'} style={item.type === 6 ? { width: '100%' } : {}}>
-                  {renderContent({ content, item })}
-                </div>
-              );
-            })}
+            {otherFields
+              // .filter(o => controlState(o).visible)//排除无查看权限的字段
+              .map(item => {
+                if (checkCellIsEmpty(item.value) && !isGalleryView) return null;
+                const content = (
+                  <CellControl from={4} cell={item} sheetSwitchPermit={sheetSwitchPermit} viewId={viewId} />
+                );
+                // 画廊视图或有内容控件则渲染
+                return (
+                  <div key={item.controlId} className={'fieldItem'} style={item.type === 6 ? { width: '100%' } : {}}>
+                    {renderContent({ content, item })}
+                  </div>
+                );
+              })}
           </RecordFieldsWrap>
         )}
       </div>

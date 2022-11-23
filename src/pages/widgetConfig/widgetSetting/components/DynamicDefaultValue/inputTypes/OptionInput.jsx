@@ -52,7 +52,7 @@ const DefaultOptionSetting = styled(SettingItem)`
 `;
 
 const DefaultOptionsMenu = styled(DropdownContent)`
-  max-height: 600px;
+  max-height: 500px;
   overflow: auto;
   .clearDefault {
     line-height: 36px;
@@ -159,6 +159,7 @@ export default function DefaultOptions(props) {
             trigger={['click']}
             visible={visible}
             onVisibleChange={setVisible}
+            getPopupContainer={() => document.querySelector('.defaultOptionsWrap') || document.body}
             overlay={
               <DefaultOptionsMenu onClick={e => e.stopPropagation()}>
                 <div

@@ -311,6 +311,7 @@ export default class ChartSetting extends Component {
         {reportType === reportTypes.FunnelChart && this.renderCurvature()}
         {reportType === reportTypes.FunnelChart && this.renderAccumulate()}
         <Filter
+          filterResigned={false}
           projectId={projectId}
           filterItem={filterItem}
           axisControls={axisControls}

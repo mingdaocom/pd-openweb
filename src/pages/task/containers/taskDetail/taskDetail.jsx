@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import './taskDetail.less';
-import 'mdDialog';
+import 'src/components/mdDialog/dialog';
 import ajaxRequest from 'src/api/taskCenter';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import withClickAway from 'ming-ui/decorators/withClickAway';

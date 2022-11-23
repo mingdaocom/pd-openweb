@@ -1,8 +1,7 @@
 ﻿import $ from 'jquery';
 import config from './js/config';
 import { cuntomFieldsEvents } from './js/customFieldsEvents';
-import attachmentPlayer from 'attachmentPlayer';
-import doT from 'dot';
+import doT from '@mdfe/dot';
 import tpl from './tpl/customFields.html';
 import './css/customFieldsEvents.less';
 import CustomScore from './js/customScore';
@@ -29,13 +28,13 @@ export default function customFieldsInit(options) {
           attachmentType: options.attachmentType,
           hasAuth: options.hasAuth, // 全部控件是否有权限编辑
           controlType: config,
-          attachmentPlayer: attachmentPlayer,
           type: options.type || 'oa', // oa || task
           isShowAttachmentBtn: options.isShowAttachmentBtn || false,
           linkify: linkify,
           getClassNameByExt: getClassNameByExt,
           nzhCn: nzh.cn,
-        }))
+        }),
+      )
       .addClass('Relative');
 
     var postUpdate = ($el, value, callback) => {
@@ -84,11 +83,7 @@ export default function customFieldsInit(options) {
 
     // 打开关联控件
     options.$el.on('click', '.customRelationBox .overflow_ellipsis:not(.customRelationDelete)', function (event) {
-      window.open(
-        $(this)
-          .closest('li')
-          .data('link')
-      );
+      window.open($(this).closest('li').data('link'));
     });
 
     new CustomScore(options.hasAuth, options.validationAfterPost);

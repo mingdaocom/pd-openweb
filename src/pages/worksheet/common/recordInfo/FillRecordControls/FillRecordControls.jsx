@@ -63,6 +63,25 @@ class FillRecordControls extends React.Component {
           isCreate: true,
           from: 2,
           projectId,
+          onAsyncChange: ({ controlId, value }) => {
+            const updatedControl = _.find(formData, { controlId });
+            if (
+              updatedControl &&
+              _.includes(
+                [
+                  26, // 人员
+                  27, // 部门
+                  48, // 组织
+                ],
+                updatedControl.type,
+              )
+            ) {
+              this.setState(oldState => ({
+                formFlag: Math.random(),
+                formData: oldState.formData.map(c => (c.controlId === controlId ? { ...c, value } : c)),
+              }));
+            }
+          },
         })
           .getDataSource()
           .filter(
@@ -200,7 +219,7 @@ class FillRecordControls extends React.Component {
 
   render() {
     const { recordId, visible, className, title, worksheetId, projectId, hideDialog } = this.props;
-    const { submitLoading, formData, showError, isSubmitting } = this.state;
+    const { submitLoading, formData, showError, formFlag, isSubmitting } = this.state;
     return (
       <Modal
         allowScale
@@ -224,6 +243,7 @@ class FillRecordControls extends React.Component {
           <CustomFields
             isWorksheetQuery
             ignoreLock
+            flag={formFlag}
             ref={this.customwidget}
             popupContainer={document.body}
             data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}

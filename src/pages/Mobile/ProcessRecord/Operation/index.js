@@ -2,7 +2,7 @@ import React, { Fragment, Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { ActionSheet, Modal, List, WhiteSpace } from 'antd-mobile';
 import SelectUser from 'mobile/components/SelectUser';
-import { OPERATION_LIST } from 'src/pages/workflow/components/ExecDialog/config';
+import { MOBILE_OPERATION_LIST } from 'src/pages/workflow/components/ExecDialog/config';
 
 const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
 
@@ -20,9 +20,10 @@ class Operation extends Component {
   handleOperation = (buttonIndex) => {
     const { instance, onClose } = this.props;
     const { operationTypeList } = instance;
-    const newOperationTypeList = operationTypeList[1].filter(item => item !== 12);
+    const baseActionList = [4, 5, 9];
+    const newOperationTypeList = operationTypeList[1].filter(item => item !== 12).concat(operationTypeList[0].filter(n => !baseActionList.includes(n)));;
     if (newOperationTypeList[buttonIndex]) {
-      const { id } = OPERATION_LIST[newOperationTypeList[buttonIndex]];
+      const { id } = MOBILE_OPERATION_LIST[newOperationTypeList[buttonIndex]];
       if (id === 'sign') {
         onClose();
         const BUTTONS = [_l('通过申请后增加一位审批人'), _l('在我审批前增加一位审批人'), _l('取消')];
@@ -70,7 +71,7 @@ class Operation extends Component {
     const { operationTypeList, app } = instance;
     const newOperationTypeList = operationTypeList[1].filter(item => item !== 12);
     const buttons = newOperationTypeList.map(item => {
-      return OPERATION_LIST[item].text;
+      return MOBILE_OPERATION_LIST[item].text;
     });
 
     return (

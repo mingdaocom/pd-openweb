@@ -8,6 +8,7 @@ import cx from 'classnames';
 import './style.less';
 import alipayDialog from 'src/components/pay/payDialog/alipayDialog';
 import { encrypt, addToken } from 'src/util';
+import contact from 'src/components/common/contact/contact';
 
 const params = Config.params;
 const orderId = params[3];
@@ -183,9 +184,7 @@ export default class WaitingPay extends Component {
   }
 
   handleHelp() {
-    require(['src/components/common/contact/contact'], function(contact) {
-      contact.popupLinkContent(_l('付款帮助'), 1);
-    });
+    contact.popupLinkContent(_l('付款帮助'), 1);
   }
 
   handleCheckBox(e) {
@@ -316,7 +315,7 @@ export default class WaitingPay extends Component {
             <div className={cx('warpShowBankAcountInfo', { Hidden: payStyle !== 'balancePay' })}>
               {balanceNotEnough ? (
                 <span className="Block Red mTop15">
-                  {_l('对不起，您的明道云余额不足！')}
+                  {_l('对不起，您的余额不足！')}
                   {/* <a href={`/admin/valueaddservice/${Config.projectId}`}> {_l('前去充值')} </a>
                   {_l('或使用其他支付方式')} */}
                 </span>

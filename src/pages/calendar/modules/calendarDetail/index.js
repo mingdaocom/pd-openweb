@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import CalendarDetail from './root';
 import { getParamsFromUrl, getCalendarDetail } from './common';
-import MdDialog from 'mdDialog';
+import MdDialog from 'src/components/mdDialog/dialog';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import ErrorState from 'src/components/errorPage/errorState';
 import DocumentTitle from 'react-document-title';

@@ -196,11 +196,12 @@ export const HomePageWrap = styled.div`
     .inviteUserBox {
       width: 25%;
       .inviteUser {
-        width: 100px;
         position: unset;
         background-color: rgb(76, 175, 80, 0.1);
         color: #4caf50;
         margin: 0 auto;
+        display: inline-block;
+        white-space: nowrap;
       }
       .inviteUser:hover {
         background-color: #c8e6c9;

@@ -7,7 +7,7 @@ import { ACTION_LIST, OPERATION_LIST, SELECT_USER_TITLE, ACTION_TO_METHOD, OPERA
 import SvgIcon from 'src/components/SvgIcon';
 import OtherAction from './OtherAction';
 import AddApproveWay from './AddApproveWay';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import instance from '../../api/instance';
 import { add } from 'src/api/webCache';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -54,14 +54,8 @@ export default class Header extends Component {
    * 头部更多操作的处理逻辑
    */
   handleMoreOperation = action => {
-    const { projectId, id, workId, onSubmit, data } = this.props;
+    const { projectId, id, workId, data } = this.props;
     const { app } = data;
-
-    this.setState({ action });
-
-    if (action === 'sign') {
-      this.switchStatus('addApproveWayVisible', true);
-    }
 
     if (action === 'print') {
       safeLocalStorageSetItem('plus_projectId', projectId);
@@ -79,35 +73,14 @@ export default class Header extends Component {
         appId: app.id,
         workId,
       };
-      let printKey = Math.random().toString(36).substring(2);
+      let printKey = Math.random()
+        .toString(36)
+        .substring(2);
       add({
         key: `${printKey}`,
         value: JSON.stringify(printData),
       });
-      window.open(`${window.subPath || ''}/printForm/${app.id}/workflow/new/print/${printKey}`);
-    }
-
-    if (action === 'transferApprove' || action === 'transfer') {
-      $({}).dialogSelectUser({
-        title: SELECT_USER_TITLE[action],
-        showMoreInvite: false,
-        SelectUserSettings: {
-          projectId,
-          filterAll: true,
-          filterFriend: true,
-          filterOthers: true,
-          filterOtherProject: true,
-          filterAccountIds: [md.global.Account.accountId],
-          unique: true,
-          callback: user => {
-            const selectedUser = user[0];
-            this.setState({
-              selectedUser,
-              otherActionVisible: true,
-            });
-          },
-        },
-      });
+      window.open(`${window.subPath || ''}/printForm/${app.id}/flow/new/print/${printKey}`);
     }
 
     if (action === 'addApprove') {
@@ -123,6 +96,7 @@ export default class Header extends Component {
           filterAccountIds: [md.global.Account.accountId],
           callback: selectedUsers => {
             this.setState({
+              action,
               selectedUsers,
               otherActionVisible: true,
             });
@@ -133,7 +107,7 @@ export default class Header extends Component {
   };
 
   handleClick = id => {
-    const { onSubmit, data } = this.props;
+    const { projectId, onSubmit, data } = this.props;
     const { ignoreRequired } = (data || {}).flowNode || {};
     /**
      * 填写节点的提交点击后直接提交,不需要出备注弹层
@@ -150,6 +124,45 @@ export default class Header extends Component {
       this.request('revoke');
       return;
     }
+
+    /**
+     * 加签
+     */
+    if (id === 'sign') {
+      this.setState({ action: id });
+      this.switchStatus('addApproveWayVisible', true);
+      return;
+    }
+
+    /**
+     * 转审 || 转交
+     */
+    if (_.includes(['transferApprove', 'transfer'], id)) {
+      $({}).dialogSelectUser({
+        title: SELECT_USER_TITLE[id],
+        showMoreInvite: false,
+        SelectUserSettings: {
+          projectId,
+          filterAll: true,
+          filterFriend: true,
+          filterOthers: true,
+          filterOtherProject: true,
+          filterAccountIds: [md.global.Account.accountId],
+          unique: true,
+          callback: user => {
+            const selectedUser = user[0];
+            this.setState({
+              action: id,
+              selectedUser,
+              otherActionVisible: true,
+            });
+          },
+        },
+      });
+
+      return;
+    }
+
     if (ignoreRequired) {
       this.setState({ action: id, otherActionVisible: true });
     } else {
@@ -332,7 +345,7 @@ export default class Header extends Component {
             )}
 
             <div
-              className="more flexRow tip-bottom mLeft30"
+              className="more flexRow tip-bottom mLeft15"
               onClick={() => this.setState({ moreOperationVisible: !moreOperationVisible })}
             >
               <div className="iconWrap flexRow" data-tip={_l('更多操作')}>

@@ -103,7 +103,8 @@ export default class RecordItem extends React.PureComponent {
   }
 
   render() {
-    const { multiple, coverCid, control, showControls, data, selected, showCoverAndControls, onClick } = this.props;
+    const { active, multiple, coverCid, control, showControls, data, selected, showCoverAndControls, onClick } =
+      this.props;
     const { cover } = this;
     const titleText = getTitleTextFromRelateControl(control, data);
     const size = showCoverAndControls && showControls.length ? SIZE.BIG : SIZE.NORMAL;
@@ -128,7 +129,7 @@ export default class RecordItem extends React.PureComponent {
     }
     return (
       <div
-        className={cx(baseCle, 'flexRow', { selected, big: size === SIZE.BIG })}
+        className={cx(baseCle, 'flexRow', { selected, big: size === SIZE.BIG, hover: active })}
         onClick={onClick}
         style={{ ...style, minHeight: height }}
       >

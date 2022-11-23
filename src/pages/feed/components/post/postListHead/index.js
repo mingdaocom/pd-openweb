@@ -1,3 +1,1 @@
-﻿module.exports = {
-  HomePostFilter: require('./postFilter'),
-};
+﻿export { default as HomePostFilter } from './postFilter';

@@ -2,7 +2,7 @@ var KcController = require('src/api/kc');
 let canUpload = undefined;
 let timer = null;
 
-module.exports = function (callback) {
+export default function (callback) {
   if (!window.uploadAssistantWindow || window.uploadAssistantWindow.closed) {
     var url = '/apps/kcupload';
     var name = 'uploadAssistant';

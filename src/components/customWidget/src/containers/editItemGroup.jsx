@@ -23,6 +23,7 @@ import {
   changeWidgetData,
 } from '../redux/actions';
 import { autobind } from 'core-decorators';
+import img from '../image/editDefault.png';
 
 @connect(
   state => ({
@@ -101,7 +102,7 @@ import { autobind } from 'core-decorators';
     seleteSingleWidghtCustomFormula: bindActionCreators(seleteSingleWidghtCustomFormula, dispatch),
     seleteSingleWidghtFormula: bindActionCreators(seleteSingleWidghtFormula, dispatch),
     changeWidgetData: bindActionCreators(changeWidgetData, dispatch),
-  })
+  }),
 )
 export default class EditItemGroup extends Component {
   /**
@@ -111,7 +112,10 @@ export default class EditItemGroup extends Component {
    */
   @autobind
   handleMouseLeave(event) {
-    if (this.props.dragState === config.DRAG_STATE.LEFT_HALF_DRAGGING || this.props.dragState === config.DRAG_STATE.LEFT_NORMAL_DRAGGING) {
+    if (
+      this.props.dragState === config.DRAG_STATE.LEFT_HALF_DRAGGING ||
+      this.props.dragState === config.DRAG_STATE.LEFT_NORMAL_DRAGGING
+    ) {
       this.props.resetEditBox();
     }
   }
@@ -128,7 +132,7 @@ export default class EditItemGroup extends Component {
         if (widget.id === global.selectFormulaId && widget.data.enumDefault === 1) {
           isCustomFormula = true;
         }
-      })
+      }),
     );
 
     if (isCustomFormula) {
@@ -152,9 +156,13 @@ export default class EditItemGroup extends Component {
     // 检查是否有关联的大写金额组件
     let moneyCns = getBindMoneyCn(id, props.editWidgets);
     if (formulars.influenceWidgets.length || moneyCns.influenceWidgets.length) {
-      showDeleteConfirmModal(formulars.controlName, formulars.influenceWidgets.concat(moneyCns.influenceWidgets), () => {
-        props.deleteWidget(id);
-      });
+      showDeleteConfirmModal(
+        formulars.controlName,
+        formulars.influenceWidgets.concat(moneyCns.influenceWidgets),
+        () => {
+          props.deleteWidget(id);
+        },
+      );
     } else {
       props.deleteWidget(id);
     }
@@ -169,7 +177,7 @@ export default class EditItemGroup extends Component {
                 {
                   overfull: widgetList.length > 2,
                 },
-                'editWidgetList'
+                'editWidgetList',
               );
               return (
                 <div className={sc} key={'key' + row}>
@@ -212,25 +220,25 @@ export default class EditItemGroup extends Component {
             changeDragState={this.props.changeDragState}
           />
           <div
-              className="editboxDefault"
+            className="editboxDefault"
+            style={{
+              marginTop: 60,
+              paddingBottom: 60,
+              textAlign: 'center',
+              width: '100%',
+            }}
+          >
+            <img src={img} alt="默认图片" />
+            <p
               style={{
-                marginTop: 60,
-                paddingBottom: 60,
-                textAlign: 'center',
-                width: '100%',
+                fontSize: '16px',
+                color: '#333',
+                opacity: 0.4,
               }}
             >
-              <img src={require('../image/editDefault.png')} alt="默认图片" />
-              <p
-                style={{
-                  fontSize: '16px',
-                  color: '#333',
-                  opacity: 0.4,
-                }}
-              >
-                {_l('将控件拖拽到这里编辑')}
-              </p>
-            </div>
+              {_l('将控件拖拽到这里编辑')}
+            </p>
+          </div>
         </div>
       </div>
     );

@@ -8,7 +8,7 @@ import Detail from '../Detail';
 import cx from 'classnames';
 import { Dialog, LoadDiv, EditingBar } from 'ming-ui';
 import { getSameLevelIds } from '../utils';
-import { NODE_TYPE, APP_TYPE } from '../enum';
+import { APP_TYPE, NODE_TYPE } from '../enum';
 import {
   addFlowNode,
   deleteFlowNode,
@@ -30,6 +30,7 @@ class EditFlow extends Component {
       selectNodeType: '',
       scale: 100,
       isCopy: false,
+      selectProcessId: '',
       selectCopyIds: [],
       hideNodes: JSON.parse(localStorage.getItem('workflowHideNodes') || '[]'),
       refreshPosition: '',
@@ -79,15 +80,17 @@ class EditFlow extends Component {
   change = false;
 
   changeScreenWidth() {
-    let maxWidth = $('.workflowEdit').width();
+    const $box = $('.workflowEdit');
+    const $content = $box.find('.workflowEditContent');
+    let maxWidth = $box.width();
 
-    $('.workflowEdit .workflowEditContent > .flexColumn > .workflowBranch').map((i, item) => {
-      if (maxWidth < ($(item).width() * this.state.scale) / 100) {
-        maxWidth = ($(item).width() * this.state.scale) / 100;
+    $content.find('> .flexColumn > .workflowBranch, > .flexColumn > .approvalProcessBoxBox').map((i, item) => {
+      if (maxWidth < ($(item).innerWidth() * this.state.scale) / 100) {
+        maxWidth = ($(item).innerWidth() * this.state.scale) / 100;
       }
     });
 
-    $('.workflowEdit .workflowEditContent').width(maxWidth);
+    $content.width(maxWidth);
   }
 
   setViewCenter() {
@@ -136,8 +139,8 @@ class EditFlow extends Component {
   /**
    * 复制节点
    */
-  selectCopy = () => {
-    this.setState({ isCopy: true });
+  selectCopy = processId => {
+    this.setState({ isCopy: true, selectProcessId: processId });
   };
 
   /**
@@ -150,6 +153,7 @@ class EditFlow extends Component {
       actionId: '',
       isCopy: false,
       selectCopyIds: [],
+      selectProcessId: '',
     });
   };
 
@@ -172,7 +176,7 @@ class EditFlow extends Component {
    * 创建复制节点
    */
   createCopyNode = () => {
-    const { nodeId, selectCopyIds } = this.state;
+    const { nodeId, selectCopyIds, selectProcessId } = this.state;
     const copyNodeSize = selectCopyIds.length;
 
     if (!copyNodeSize) {
@@ -182,7 +186,7 @@ class EditFlow extends Component {
 
     this.props.dispatch(
       addFlowNode(
-        this.props.workflowDetail.id,
+        selectProcessId,
         {
           prveId: nodeId,
           nodeIds: selectCopyIds,
@@ -203,33 +207,39 @@ class EditFlow extends Component {
   /**
    * 添加节点
    */
-  addFlowNode = args => {
-    this.props.dispatch(addFlowNode(this.props.workflowDetail.id, args));
+  addFlowNode = (processId, args) => {
+    this.props.dispatch(
+      addFlowNode(processId, args, id => {
+        if (args.typeId === NODE_TYPE.APPROVAL_PROCESS) {
+          this.openDetail(processId, id, args.typeId);
+        }
+      }),
+    );
   };
 
   /**
    * 删除节点
    */
-  deleteNode = id => {
+  deleteNode = (processId, id) => {
     // 删除当前打开详情的节点，关闭详情
     if (id === this.state.selectNodeId) {
       this.closeDetail();
     }
-    this.props.dispatch(deleteFlowNode(this.props.workflowDetail.id, id));
+    this.props.dispatch(deleteFlowNode(processId, id));
   };
 
   /**
    * 修改节点名称
    */
-  updateNodeName = (name, id) => {
-    this.props.dispatch(updateFlowNodeName(this.props.workflowDetail.id, id, name));
+  updateNodeName = (processId, name, id) => {
+    this.props.dispatch(updateFlowNodeName(processId, id, name));
   };
 
   /**
    * 更新节点别名和说明
    */
-  updateNodeDesc = (id, alias, desc) => {
-    this.props.dispatch(updateNodeDesc(id, alias, desc));
+  updateNodeDesc = (processId, id, alias, desc) => {
+    this.props.dispatch(updateNodeDesc(processId, id, alias, desc));
   };
 
   /**
@@ -242,7 +252,7 @@ class EditFlow extends Component {
   /**
    * render节点
    */
-  renderNode = (data, firstId) => {
+  renderNode = ({ processId, data, firstId, excludeFirstId = false, isApproval, approvalSelectNodeId = '' }) => {
     const { flowInfo, workflowDetail } = this.props;
     const { startEventId, flowNodeMap, child } = workflowDetail;
     const firstNode = flowNodeMap[startEventId];
@@ -250,23 +260,30 @@ class EditFlow extends Component {
       ((firstNode.appType === APP_TYPE.SHEET || firstNode.appType === APP_TYPE.DATE) && !firstNode.appName) ||
       (firstNode.appType === APP_TYPE.LOOP && !firstNode.executeTime) ||
       (firstNode.appType === APP_TYPE.WEBHOOK && !firstNode.count) ||
-      (firstNode.appType === APP_TYPE.PBC && !firstNode.appId && !child);
+      (firstNode.appType === APP_TYPE.PBC && !firstNode.appId && !child) ||
+      (this.state.isCopy && processId !== this.state.selectProcessId);
 
-    return getSameLevelIds(data, firstId).map((id, i) => {
+    return getSameLevelIds(data, firstId, excludeFirstId).map((id, i) => {
       const props = {
         key: id,
         companyId: flowInfo.companyId,
-        processId: this.props.workflowDetail.id,
+        processId,
+        data,
         item: data[id],
         disabled,
         nodeId: this.state.nodeId,
         selectNodeId: this.state.selectNodeId,
         isCopy: this.state.isCopy,
         selectCopyIds: this.state.selectCopyIds,
+        selectProcessId: this.state.selectProcessId,
         child,
         relationId: flowInfo.relationId,
         isRelease: !!flowInfo.parentId,
         hideNodes: this.state.hideNodes,
+        dispatch: this.props.dispatch,
+        isApproval: isApproval || firstNode.appType === APP_TYPE.APPROVAL_START,
+        approvalSelectNodeId,
+        renderNode: this.renderNode,
         selectAddNodeId: this.selectAddNodeId,
         selectCopy: this.selectCopy,
         selectCopyNode: this.selectCopyNode,
@@ -277,15 +294,12 @@ class EditFlow extends Component {
         updateNodeDesc: this.updateNodeDesc,
         updateBranchGatewayType: this.updateBranchGatewayType,
         updateHideNodes: hideNodes => this.setState({ hideNodes }),
+        updateRefreshThumbnail: () => this.setState({ refreshThumbnail: +new Date(), refreshPosition: +new Date() }),
       };
 
       if (!data[id]) return null;
 
       const NodeComponent = nodeModules[data[id].typeId];
-      // 分支
-      if (data[id].typeId === NODE_TYPE.BRANCH) {
-        return <NodeComponent {...props} dispatch={this.props.dispatch} data={data} renderNode={this.renderNode} />;
-      }
 
       return <NodeComponent {...props} />;
     });
@@ -294,11 +308,18 @@ class EditFlow extends Component {
   /**
    * 打开详情
    */
-  openDetail = (id, type) => {
+  openDetail = (processId, id, type, approvalSelectNodeId) => {
+    const { flowInfo } = this.props;
     const switchDetail = () => {
-      this.setState({ selectNodeId: id, selectNodeType: type });
+      this.setState({ selectProcessId: processId, selectNodeId: id, selectNodeType: type });
       this.change = false;
     };
+
+    // 审批流开始节点未完成配置
+    if (flowInfo.id !== processId && !approvalSelectNodeId) {
+      alert(_l('请先配置发起审批的数据对象'), 2);
+      return;
+    }
 
     if (this.state.selectNodeId !== id) {
       if (this.change) {
@@ -349,28 +370,77 @@ class EditFlow extends Component {
     }
   }, 300);
 
+  /**
+   * 获取详情参数
+   */
+  getDetailOptions() {
+    const { flowInfo, workflowDetail } = this.props;
+    const { selectProcessId, selectNodeId, isCopy } = this.state;
+
+    if (!selectProcessId || isCopy) return {};
+
+    if (selectProcessId === workflowDetail.id) {
+      return {
+        companyId: flowInfo.companyId,
+        processId: flowInfo.id,
+        relationId: flowInfo.relationId,
+        relationType: flowInfo.relationType,
+        flowInfo,
+        selectNodeName: (workflowDetail.flowNodeMap[selectNodeId] || {}).name,
+        isApproval: flowInfo.startAppType === APP_TYPE.APPROVAL_START,
+      };
+    } else {
+      let approvalProcessDetail = {};
+
+      Object.keys(workflowDetail.flowNodeMap).forEach(key => {
+        if (
+          workflowDetail.flowNodeMap[key].processNode &&
+          workflowDetail.flowNodeMap[key].processNode.id === selectProcessId
+        ) {
+          approvalProcessDetail = workflowDetail.flowNodeMap[key].processNode;
+        }
+      });
+
+      return {
+        companyId: approvalProcessDetail.companyId,
+        processId: approvalProcessDetail.id,
+        relationId: flowInfo.relationId,
+        relationType: flowInfo.relationType,
+        selectNodeName: (approvalProcessDetail.flowNodeMap[selectNodeId] || {}).name,
+        isApproval: true,
+      };
+    }
+  }
+
   render() {
     const { flowInfo, workflowDetail } = this.props;
-    const { refreshPosition, refreshThumbnail, showThumbnail } = this.state;
+    const {
+      nodeId,
+      nodeType,
+      actionId,
+      selectNodeId,
+      selectNodeType,
+      scale,
+      isCopy,
+      selectCopyIds,
+      refreshPosition,
+      refreshThumbnail,
+      showThumbnail,
+    } = this.state;
 
     if (_.isEmpty(workflowDetail)) {
       return <LoadDiv className="mTop15" />;
     }
 
     const { startEventId, flowNodeMap } = workflowDetail;
-    const { nodeId, nodeType, actionId, selectNodeId, selectNodeType, scale, isCopy, selectCopyIds } = this.state;
     const detailProps = {
-      companyId: flowInfo.companyId,
-      processId: flowInfo.id,
-      relationId: flowInfo.relationId,
-      relationType: flowInfo.relationType,
-      flowInfo,
       selectNodeId,
       selectNodeType,
-      selectNodeName: selectNodeId ? (flowNodeMap[selectNodeId] || {}).name : '',
       isCopy,
       closeDetail: this.closeDetail,
       haveChange: this.haveChange,
+      deleteNode: this.deleteNode,
+      ...this.getDetailOptions(),
     };
     const startNodeError =
       (flowNodeMap[startEventId] || {}).appId &&
@@ -391,7 +461,7 @@ class EditFlow extends Component {
             className="workflowEditContent"
             style={{ transform: `scale(${scale / 100})`, transformOrigin: 'center top' }}
           >
-            {this.renderNode(flowNodeMap, startEventId)}
+            {this.renderNode({ processId: flowInfo.id, data: flowNodeMap, firstId: startEventId })}
             <End />
           </div>
         </div>

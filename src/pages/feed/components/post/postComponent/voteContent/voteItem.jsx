@@ -52,4 +52,4 @@ class VoteItem extends React.Component {
   }
 }
 
-module.exports = VoteItem;
+export default VoteItem;

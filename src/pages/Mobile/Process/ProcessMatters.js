@@ -177,7 +177,7 @@ export default class ProcessMatters extends Component {
     this.getTodoList();
   }
   handleApproveDone = ({ id }) => {
-    const { list, countData, topTab } = this.state;
+    const { list, countData, topTab = {} } = this.state;
     const countDataState = {
       ...countData
     }

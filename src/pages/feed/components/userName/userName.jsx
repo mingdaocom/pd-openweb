@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import cx from 'classnames';
 import _ from 'lodash';
+import 'src/components/mdBusinessCard/mdBusinessCard';
 
 /**
  * 用户姓名，正常用户可以点到其详情页。带 hover 的层
@@ -47,15 +48,13 @@ class UserName extends React.Component {
     if (!this.props.bindBusinessCard) {
       return false;
     }
-    require(['mdBusinessCard'], () => {
-      if (!this._isMounted || !accountId || accountId == '2' || accountId == '4') {
-        return;
-      }
-      $this.mdBusinessCard({
-        force: true,
-        accountId,
-        chatByLink: true, // Chat图标已link 方式跳转
-      });
+    if (!this._isMounted || !accountId || accountId == '2' || accountId == '4') {
+      return;
+    }
+    $this.mdBusinessCard({
+      force: true,
+      accountId,
+      chatByLink: true, // Chat图标已link 方式跳转
     });
   };
 
@@ -82,4 +81,4 @@ class UserName extends React.Component {
   }
 }
 
-module.exports = UserName;
+export default UserName;

@@ -84,11 +84,15 @@ export const fetchExternal = () => {
     const { base = {} } = getState().sheet;
     const { worksheetId, viewId } = base;
     let isMobile = browserIsMobile();
-    if (!(getShowExternalData() || []).includes(`${worksheetId}-${viewId}`) && !isMobile) {
+    const initType = dispatch(getInitType());
+    if (
+      !(getShowExternalData() || []).includes(`${worksheetId}-${viewId}`) &&
+      !isMobile &&
+      'eventNoScheduled' !== initType
+    ) {
       dispatch(getEventScheduledData('eventNoScheduled'));
-    } else {
-      dispatch(getEventScheduledData(dispatch(getInitType())));
     }
+    dispatch(getEventScheduledData(initType));
   };
 };
 
@@ -327,7 +331,7 @@ export function getEventList({
       pageIndex,
       pageSize: keyWords ? 10000 : 20,
       keyWords,
-      filtersGroup: filters.filtersGroup
+      filtersGroup: filters.filtersGroup,
     };
     getFilterRowsIds.push(viewId);
     let list = [];
@@ -405,7 +409,10 @@ export function getEventList({
         filterControls,
       };
     }
-    getFilterRows = sheetAjax.getFilterRows(prams);
+    getFilterRows = sheetAjax.getFilterRows({
+      ...prams,
+      filterControls: [...(filters.filterControls || []), ...(prams.filterControls || [])],
+    });
     let l = calenderEventList[`${typeEvent}Dt`] || [];
     getFilterRows.then(rowsData => {
       getFilterRowsIds = getFilterRowsIds.filter(o => o !== viewId);
@@ -461,8 +468,8 @@ export function getEventList({
           [typeEvent]: !isAdd
             ? events
             : isUp
-              ? events.concat(calenderEventList[typeEvent])
-              : calenderEventList[typeEvent].concat(events),
+            ? events.concat(calenderEventList[typeEvent])
+            : calenderEventList[typeEvent].concat(events),
           [`${typeEvent}Dt`]: l,
           [`${typeEvent}IsAll`]: isUp ? calenderEventList[`${typeEvent}IsAll`] : s.length < 20,
           [`${typeEvent}Index`]: isUp ? calenderEventList[`${typeEvent}Index`] : pageIndex,
@@ -477,12 +484,12 @@ export function getEventList({
           eventScheduledDtResort:
             typeEvent === 'eventScheduled'
               ? dataResort({
-                arr: calenderEventList.eventScheduledDtResort || [],
-                addData: events,
-                isUp,
-                isAdd,
-                updataRowIds: calenderEventList.updataRowIds,
-              })
+                  arr: calenderEventList.eventScheduledDtResort || [],
+                  addData: events,
+                  isUp,
+                  isAdd,
+                  updataRowIds: calenderEventList.updataRowIds,
+                })
               : calenderEventList.eventScheduledDtResort,
         };
         //重新获取已排期的数据 充值已排期今天之前的数据
@@ -669,8 +676,8 @@ export function updateEventData(rowId, data, time) {
         events =
           typeEvent === 'eventScheduled' //非排期数据不需要重新根据时间排序
             ? events.sort((a, b) => {
-              return Date.parse(a.start) - Date.parse(b.start);
-            })
+                return Date.parse(a.start) - Date.parse(b.start);
+              })
             : events;
         updataRowIds = add
           ? updataRowIds.includes(rowId)

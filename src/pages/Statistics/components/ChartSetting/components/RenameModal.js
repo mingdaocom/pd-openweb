@@ -23,7 +23,7 @@ export default class RenameModal extends Component {
   }
   renderFooter() {
     return (
-      <div className="mTop15 mBottom10 pRight8">
+      <div className="mTop20 mBottom10 pRight8">
         <ConfigProvider autoInsertSpaceInButton={false}>
           <Button type="link" onClick={() => { this.props.onHideDialogVisible(false) }}>{_l('取消')}</Button>
           <Button type="primary" onClick={this.handleSave}>{_l('确认')}</Button>

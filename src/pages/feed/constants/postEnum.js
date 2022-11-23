@@ -36,4 +36,4 @@ const enums = {
   OPERATE_TYPE: ck(['comment', 'tag']),
 };
 
-module.exports = enums;
+export default enums;

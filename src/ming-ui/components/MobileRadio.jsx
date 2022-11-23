@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Modal, List } from 'antd-mobile';
-import { Icon } from 'ming-ui';
+import { Modal, List, Button } from 'antd-mobile';
+import { Icon, Radio } from 'ming-ui';
 import './less/MobileCheckbox.less';
 
 export default class MobileRadio extends Component {
@@ -71,12 +71,17 @@ export default class MobileRadio extends Component {
               {data
                 .filter(item => item.value.indexOf(keywords) > -1)
                 .map(item => (
-                  <List.Item key={item.key} onClick={() => this.onChange(item.key)}>
+                  <List.Item
+                    key={item.key}
+                    onClick={() => {
+                      this.onChange(item.key);
+                    }}
+                  >
                     <div className="flexRow" style={{ alignItems: 'center' }}>
+                      <Radio checked={_.includes(value, item.key)} />
                       <span className="ellipsis Font15 flex mRight15">
                         {renderText ? renderText(item) : item.value}
                       </span>
-                      {_.includes(value, item.key) && <Icon icon="done" className="Font20 ThemeColor3" />}
                     </div>
                   </List.Item>
                 ))}
@@ -87,6 +92,15 @@ export default class MobileRadio extends Component {
                 </List.Item>
               )}
             </List>
+            <div className="flexRow valignWrapper mobileCheckboxBtnsWrapper">
+              <Button
+                type="link"
+                className="mLeft10 mRight10 flex Font14 bold Gray_75"
+                onClick={() => this.setState({ visible: false })}
+              >
+                {_l('取消')}
+              </Button>
+            </div>
           </div>
         </Modal>
       </Fragment>

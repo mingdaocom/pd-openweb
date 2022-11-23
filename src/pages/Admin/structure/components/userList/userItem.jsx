@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
@@ -21,12 +20,12 @@ import RefuseUserJoinDia from '../../modules/refuseUserJoinDia';
 import EditInfo from '../../modules/dialogEditInfo/edit';
 import departmentController from 'src/api/department';
 import moment from 'moment';
-import userBoard from '../../modules/dialogUserBoard';
 import { Checkbox, Tooltip, Dialog, Input } from 'ming-ui';
-import { Dropdown } from 'antd';
 import './userItem.less';
+import { sendNoticeInvite } from 'src/components/common/function';
+import 'src/components/mdBusinessCard/mdBusinessCard';
 import { encrypt } from 'src/util';
-import RegExp from 'src/util/expression';
+import Trigger from 'rc-trigger';
 
 const refreshData = (departmentId, typeCursor, projectId, pageIndex, dispatch) => {
   if (departmentId) {
@@ -52,7 +51,6 @@ const refreshData = (departmentId, typeCursor, projectId, pageIndex, dispatch) =
 class OpList extends Component {
   render() {
     const {
-      isOpen,
       user,
       handleEditUserClick,
       handleResetPasswordClick,
@@ -68,143 +66,139 @@ class OpList extends Component {
       isChargeUser,
     } = this.props;
     // if (typeCursor === 1) return null;
-    if (isOpen) {
-      return (
-        <div className="opList">
-          <ul className=" TxtLeft">
-            {typeCursor === 2 && (
-              <React.Fragment>
-                <li
-                  className="opItem"
-                  onClick={() => {
-                    // if (!user.accountId) return;
-                    importUserController
-                      .reInviteImportUser({
-                        accounts: [user.accountId],
-                        projectId: projectId,
-                      })
-                      .done(function (result) {
-                        setValue();
-                        if (result) {
-                          alert(_l('重新邀请成功'), 1);
-                        } else {
-                          alert(_l('重新邀请失败'), 2);
-                        }
-                      });
-                  }}
-                >
-                  {_l('重新邀请')}
+    return (
+      <div className="userOpList">
+        <ul className=" TxtLeft">
+          {typeCursor === 2 && (
+            <React.Fragment>
+              <li
+                className="opItem"
+                onClick={() => {
+                  // if (!user.accountId) return;
+                  importUserController
+                    .reInviteImportUser({
+                      accounts: [user.accountId],
+                      projectId: projectId,
+                    })
+                    .done(function (result) {
+                      setValue();
+                      if (result) {
+                        alert(_l('重新邀请成功'), 1);
+                      } else {
+                        alert(_l('重新邀请失败'), 2);
+                      }
+                    });
+                }}
+              >
+                {_l('重新邀请')}
+              </li>
+              <li
+                className="opItem"
+                onClick={() => {
+                  Confirm({
+                    className: 'deleteNodeConfirm',
+                    title: _l('确认取消邀请该用户吗'),
+                    description: '',
+                    okText: _l('确定'),
+                    onOk: () => {
+                      importUserController
+                        .cancelImportUser({
+                          accounts: [user.accountId],
+                          projectId: projectId,
+                        })
+                        .done(function (result) {
+                          setValue();
+                          if (result) {
+                            dispatch(loadInactiveUsers(projectId, 1));
+                          } else {
+                            alert(_l('取消失败'), 2);
+                          }
+                        });
+                    },
+                  });
+                }}
+              >
+                {_l('取消邀请并移除')}
+              </li>
+            </React.Fragment>
+          )}
+          {typeCursor === 3 && (user.status == 3 || user.status == 2) && (
+            <React.Fragment>
+              {user.status == 3 && (
+                <li className="opItem" onClick={handleRefuseClick}>
+                  {_l('拒绝')}
                 </li>
+              )}
+              <li className="opItem" onClick={handleApprovalClick}>
+                {user.status == 2 ? _l('重新审核') : user.status == 3 ? _l('审批') : ''}
+              </li>
+            </React.Fragment>
+          )}
+          {(typeCursor === 0 || typeCursor === 1) && (
+            <React.Fragment>
+              <li
+                className="opItem"
+                onClick={() => {
+                  this.props.handleEditUserClick();
+                  $('.dropDownOptBox .opList').css({ display: 'none' });
+                }}
+              >
+                {_l('编辑')}
+              </li>
+              {!md.global.Config.IsPlatformLocal && (
+                <li className="opItem" onClick={handleResetPasswordClick}>
+                  {_l('重置密码')}
+                </li>
+              )}
+              {departmentId && !isChargeUser && (
                 <li
                   className="opItem"
                   onClick={() => {
-                    Confirm({
-                      className: 'deleteNodeConfirm',
-                      title: _l('确认取消邀请该用户吗'),
-                      description: '',
-                      okText: _l('确定'),
-                      onOk: () => {
-                        importUserController
-                          .cancelImportUser({
-                            accounts: [user.accountId],
-                            projectId: projectId,
-                          })
-                          .done(function (result) {
-                            setValue();
-                            if (result) {
-                              dispatch(loadInactiveUsers(projectId, 1));
-                            } else {
-                              alert(_l('取消失败'), 2);
-                            }
-                          });
-                      },
+                    this.props.setAndCancelCharge({
+                      projectId: projectId,
+                      departmentId: departmentId,
+                      chargeAccountId: user.accountId,
                     });
                   }}
                 >
-                  {_l('取消邀请并移除')}
+                  {_l('设为部门负责人')}
                 </li>
-              </React.Fragment>
-            )}
-            {typeCursor === 3 && (user.status == 3 || user.status == 2) && (
-              <React.Fragment>
-                {user.status == 3 && (
-                  <li className="opItem" onClick={handleRefuseClick}>
-                    {_l('拒绝')}
-                  </li>
-                )}
-                <li className="opItem" onClick={handleApprovalClick}>
-                  {user.status == 2 ? _l('重新审核') : user.status == 3 ? _l('审批') : ''}
-                </li>
-              </React.Fragment>
-            )}
-            {(typeCursor === 0 || typeCursor === 1) && (
-              <React.Fragment>
+              )}
+              {departmentId && isChargeUser && (
                 <li
                   className="opItem"
                   onClick={() => {
-                    this.props.handleEditUserClick();
-                    $('.dropDownOptBox .opList').css({ display: 'none' });
+                    this.props.setAndCancelCharge({
+                      projectId: projectId,
+                      departmentId: departmentId,
+                      chargeAccountId: user.accountId,
+                    });
                   }}
                 >
-                  {_l('编辑')}
+                  {_l('取消部门负责人')}
                 </li>
-                {!md.global.Config.IsPlatformLocal && (
-                  <li className="opItem" onClick={handleResetPasswordClick}>
-                    {_l('重置密码')}
-                  </li>
-                )}
-                {departmentId && !isChargeUser && (
-                  <li
-                    className="opItem"
-                    onClick={() => {
-                      this.props.setAndCancelCharge({
-                        projectId: projectId,
-                        departmentId: departmentId,
-                        chargeAccountId: user.accountId,
-                      });
-                    }}
-                  >
-                    {_l('设为部门负责人')}
-                  </li>
-                )}
-                {departmentId && isChargeUser && (
-                  <li
-                    className="opItem"
-                    onClick={() => {
-                      this.props.setAndCancelCharge({
-                        projectId: projectId,
-                        departmentId: departmentId,
-                        chargeAccountId: user.accountId,
-                      });
-                    }}
-                  >
-                    {_l('取消部门负责人')}
-                  </li>
-                )}
-                {/* <li className="opItem" onClick={() => {
-                userBoard({
-                  type: 'adjust',
-                  projectId,
-                  accountIds: [accountId],
-                  noFn() { },
-                  yesFn() {
-                    refreshData(departmentId, typeCursor, projectId, 1, dispatch);
-                  }
-                });
-              }}>{_l('调整部门')}</li> */}
-                {user.accountId === md.global.Account.accountId ? null : (
-                  <li className="opItem leaveText" onClick={handleRemoveUserClick}>
-                    {_l('离职')}
-                  </li>
-                )}
-              </React.Fragment>
-            )}
-          </ul>
-        </div>
-      );
-    } else {
-      return null;
-    }
+              )}
+              {/* <li className="opItem" onClick={() => {
+              userBoard({
+                type: 'adjust',
+                projectId,
+                accountIds: [accountId],
+                noFn() { },
+                yesFn() {
+                  refreshData(departmentId, typeCursor, projectId, 1, dispatch);
+                }
+              });
+            }}>{_l('调整部门')}</li> */}
+              {user.accountId === md.global.Account.accountId ? null : (
+                <li className="opItem leaveText" onClick={handleRemoveUserClick}>
+                  {_l('离职')}
+                </li>
+              )}
+            </React.Fragment>
+          )}
+        </ul>
+      </div>
+    );
   }
 }
 
@@ -232,19 +226,18 @@ class UserItem extends Component {
       showRefuseUserJoin: false,
       fullDepartmentInfo: {},
       password: '',
+      optListVisible: false,
     };
   }
 
   componentDidMount() {
     const { accountId } = this.props;
-    require(['mdBusinessCard'], () => {
-      $(this.avatar).one('mouseover', () => {
-        $(this.avatar)
-          .mdBusinessCard({
-            accountId,
-          })
-          .trigger('mouseenter');
-      });
+    $(this.avatar).one('mouseover', () => {
+      $(this.avatar)
+        .mdBusinessCard({
+          accountId,
+        })
+        .trigger('mouseenter');
     });
   }
 
@@ -297,9 +290,7 @@ class UserItem extends Component {
     const { projectId, accountId } = this.props;
     return event => {
       event.stopPropagation();
-      require(['mdFunction'], MDFunction => {
-        MDFunction.sendNoticeInvite([accountId], '', projectId, type);
-      });
+      sendNoticeInvite([accountId], '', projectId, type);
     };
   }
 
@@ -400,12 +391,14 @@ class UserItem extends Component {
 
   handleRefuseClick = () => {
     this.setState({
+      optListVisible: false,
       showRefuseUserJoin: true,
     });
   };
 
   handleApprovalClick() {
     this.setState({
+      optListVisible: false,
       showDialogApproval: true,
     });
   }
@@ -467,18 +460,21 @@ class UserItem extends Component {
 
   handleEditUserClick() {
     this.setState({
+      optListVisible: false,
       showDialog: !this.state.showDialog,
     });
   }
 
   handleResetPasswordClick() {
     this.setState({
+      optListVisible: false,
       resetPasswordShowDialog: !this.state.resetPasswordShowDialog,
     });
   }
 
   handleRemoveUserClick() {
     const { accountId, projectId, user, departmentId, dispatch, pageIndex, typeCursor } = this.props;
+    this.changeOptListVisible();
     TransferDialog({
       accountId,
       projectId,
@@ -501,6 +497,7 @@ class UserItem extends Component {
 
   setAndCancelCharge = ({ projectId, departmentId, chargeAccountId }) => {
     let { typeCursor, dispatch } = this.props;
+    this.changeOptListVisible();
     departmentController
       .editDepartmentSingleChargeUser({
         projectId,
@@ -515,6 +512,10 @@ class UserItem extends Component {
           alert(_l('设置失败', 2));
         }
       });
+  };
+
+  changeOptListVisible = () => {
+    this.setState({ optListVisible: !this.state.optListVisible });
   };
 
   render() {
@@ -532,16 +533,10 @@ class UserItem extends Component {
       dispatch,
       fullDepartmentInfo = {},
     } = this.props;
-    const { isMinSc } = this.state;
+    const { isMinSc, optListVisible } = this.state;
     let { jobs, departments, departmentInfos, jobInfos, department = '', job = '' } = user;
     let departmentData = departments || departmentInfos || [];
-    if (typeCursor === 2) {
-      departmentData = department;
-    }
     let jobData = jobs || jobInfos;
-    if (typeCursor === 2) {
-      jobData = job;
-    }
     let totalColWidth = 0;
     columnsInfo.forEach(item => {
       if (isHideCurrentColumn(item.value)) {
@@ -549,13 +544,7 @@ class UserItem extends Component {
       }
     });
     let setWidth = $('.listInfo') && totalColWidth > $('.listInfo').width();
-    let departmentTitle = _.isArray(departmentData)
-      ? departmentData
-          .map((it, i) => {
-            return `${it.name || it.departmentName}`;
-          })
-          .join('')
-      : departmentData;
+
     return (
       <tr key={user.accountId} className={classNames('userItem', { isChecked: isChecked })}>
         {(typeCursor === 0 || typeCursor === 1) && (
@@ -610,25 +599,19 @@ class UserItem extends Component {
             {
               <div
                 className="job WordBreak overflow_ellipsis"
-                title={
-                  typeCursor === 2
-                    ? jobData
-                    : (jobData || []).map((it, i) => {
-                        if (jobData.length - 1 > i) {
-                          return `${it.name || it.jobName};`;
-                        }
-                        return `${it.name || it.jobName}`;
-                      })
-                }
+                title={(jobData || []).map((it, i) => {
+                  if (jobData.length - 1 > i) {
+                    return `${it.name || it.jobName};`;
+                  }
+                  return `${it.name || it.jobName}`;
+                })}
               >
-                {typeCursor === 2
-                  ? jobData
-                  : (jobData || []).map((it, i) => {
-                      if (jobData.length - 1 > i) {
-                        return `${it.name || it.jobName} ; `;
-                      }
-                      return `${it.name || it.jobName}`;
-                    })}
+                {(jobData || []).map((it, i) => {
+                  if (jobData.length - 1 > i) {
+                    return `${it.name || it.jobName} ; `;
+                  }
+                  return `${it.name || it.jobName}`;
+                })}
               </div>
             }
           </td>
@@ -648,37 +631,31 @@ class UserItem extends Component {
                 popupPlacement="bottom"
                 text={
                   <div>
-                    {typeCursor === 2
-                      ? departmentData
-                      : (departmentData || []).map((it, depIndex) => {
-                          const fullName = (
-                            fullDepartmentInfo[it.id] ||
-                            fullDepartmentInfo[it.departmentId] ||
-                            ''
-                          ).split('/');
-                          return (
-                            <div className={cx({ mBottom8: depIndex < departmentData.length - 1 })}>
-                              {fullName.map((n, i) => (
-                                <span>
-                                  {n}
-                                  {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
-                                </span>
-                              ))}
-                            </div>
-                          );
-                        })}
+                    {(departmentData || []).map((it, depIndex) => {
+                      const fullName = (fullDepartmentInfo[it.id] || fullDepartmentInfo[it.departmentId] || '').split(
+                        '/',
+                      );
+                      return (
+                        <div className={cx({ mBottom8: depIndex < departmentData.length - 1 })}>
+                          {fullName.map((n, i) => (
+                            <span>
+                              {n}
+                              {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 }
                 mouseEnterDelay={0.5}
               >
                 <span className="ellipsis InlineBlock wMax100 space">
-                  {typeCursor === 2
-                    ? departmentData
-                    : (departmentData || [])
-                        .map(it => {
-                          return `${it.name || it.departmentName}`;
-                        })
-                        .join(';')}
+                  {(departmentData || [])
+                    .map(it => {
+                      return `${it.name || it.departmentName}`;
+                    })
+                    .join('；')}
                 </span>
               </Tooltip>
             </div>
@@ -719,11 +696,12 @@ class UserItem extends Component {
           </td>
         )}
         <td className="actTh">
-          <Dropdown
-            overlayClassName="dropDownOptBox"
-            trigger={['click']}
-            placement="bottomLeft"
-            overlay={
+          <Trigger
+            action={['click']}
+            popupAlign={{ points: ['tl', 'bl'], offset: [-5, 0] }}
+            popupVisible={optListVisible}
+            onPopupVisibleChange={optListVisible => this.setState({ optListVisible })}
+            popup={
               <OpList
                 {...this.props}
                 onClickAway={clearActiveDialog(this.props)}
@@ -742,10 +720,10 @@ class UserItem extends Component {
               />
             }
           >
-            <span className="tip-top Hand" onClick={this.handleOpBtnClick}>
+            <span className="tip-top Hand" onClick={e => e.stopPropagation()}>
               <span className="icon-moreop TxtMiddle Font18 Gray_9e" />
             </span>
-          </Dropdown>
+          </Trigger>
 
           {this.renderEditInfo()}
           {this.renderResetPasswordInfo()}

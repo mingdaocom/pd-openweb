@@ -38,4 +38,4 @@ MedalContent.propTypes = {
   }),
 };
 
-module.exports = MedalContent;
+export default MedalContent;

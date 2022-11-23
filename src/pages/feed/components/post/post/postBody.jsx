@@ -34,7 +34,7 @@ class PostBody extends React.Component {
     changeJoinOpera: false,
   };
 
-  setTriangleStyle = (el) => {
+  setTriangleStyle = el => {
     const $el = $(el);
     let button;
     if (this.state.selectedOperation === postEnum.OPERATE_TYPE.comment) {
@@ -55,7 +55,11 @@ class PostBody extends React.Component {
     //   - ($button.width() / 2)
     //   + ((parseInt($el.css('border-bottom-width'), 10) || 0) / 2);
     const triangleMarginRight =
-      $op.width() - $buttonWrapper.position().left - $button.position().left - $button.width() / 2 + (parseInt($el.css('border-bottom-width'), 10) || 0) / 2;
+      $op.width() -
+      $buttonWrapper.position().left -
+      $button.position().left -
+      $button.width() / 2 +
+      (parseInt($el.css('border-bottom-width'), 10) || 0) / 2;
     $el.css({ marginRight: triangleMarginRight });
   };
 
@@ -213,28 +217,33 @@ class PostBody extends React.Component {
           <span
             className={cx(
               'postActionIcon ThemeBorderColor5 Hand',
-              this.state.selectedOperation === postEnum.OPERATE_TYPE.comment ? 'ThemeColor3' : 'ThemeColor4'
+              this.state.selectedOperation === postEnum.OPERATE_TYPE.comment ? 'ThemeColor3' : 'ThemeColor4',
             )}
             onClick={this.props.isSummary ? this.gotoPostDetail : this.toggleCommentBox}
             data-tip={_l('回复')}
           >
             <i
-              ref={(commentButton) => {
+              ref={commentButton => {
                 this.commentButton = commentButton;
               }}
               className={'icon-replyto'}
             />
             <span>{commentCount || 0}</span>
-            {this.state.selectedOperation === postEnum.OPERATE_TYPE.comment && <div className="commentListContainerTriangle" />}
+            {this.state.selectedOperation === postEnum.OPERATE_TYPE.comment && (
+              <div className="commentListContainerTriangle" />
+            )}
           </span>
 
           <span
-            className={cx('postActionIcon ThemeBorderColor5 Hand', this.state.selectedOperation === postEnum.OPERATE_TYPE.tag ? 'ThemeColor3' : 'ThemeColor4')}
+            className={cx(
+              'postActionIcon ThemeBorderColor5 Hand',
+              this.state.selectedOperation === postEnum.OPERATE_TYPE.tag ? 'ThemeColor3' : 'ThemeColor4',
+            )}
             onClick={this.props.isSummary ? this.gotoPostDetail : this.toggleTagBox}
             data-tip={_l('添加标签')}
           >
             <i
-              ref={(tagButton) => {
+              ref={tagButton => {
                 this.tagButton = tagButton;
               }}
               className={'icon-category-tags'}
@@ -248,20 +257,25 @@ class PostBody extends React.Component {
                 <i className={cx('Hand icon-some-praise')} onClick={this.toggleLike} />
               </span>
               {postItem.likeCount ? (
-                <span className="Hand" data-tip={_l('点赞人员')} onClick={this.props.isSummary ? this.gotoPostDetail : this.showLikedUsers}>
+                <span
+                  className="Hand"
+                  data-tip={_l('点赞人员')}
+                  onClick={this.props.isSummary ? this.gotoPostDetail : this.showLikedUsers}
+                >
                   {postItem.likeCount}
                 </span>
               ) : (
                 false
               )}
             </span>
-          ) : (
-            undefined
-          )}
+          ) : undefined}
           <div
-            className={cx('postActionIcon ThemeBorderColor5 Hand postOperatorFavBtn', this.props.postItem.isFav ? 'favorited' : 'ThemeColor4')}
+            className={cx(
+              'postActionIcon ThemeBorderColor5 Hand postOperatorFavBtn',
+              this.props.postItem.isFav ? 'favorited' : 'ThemeColor4',
+            )}
             onClick={this.props.postItem.isFav ? this.handleRemoveFavorite : this.handleFavorite}
-            ref={(favBtn) => {
+            ref={favBtn => {
               this.favBtn = favBtn;
             }}
             data-tip={this.props.postItem.isFav ? _l('取消收藏') : _l('收藏')}
@@ -278,14 +292,11 @@ class PostBody extends React.Component {
             focusCommentBox={this.state.focusCommentBox}
             showLikedUsers={this.state.showLikedUsers}
           />
-        ) : (
-          undefined
-        )}
+        ) : undefined}
 
         {this.state.selectedOperation === postEnum.OPERATE_TYPE.tag ? <PostTagInput postItem={postItem} /> : undefined}
       </div>
     );
   }
 }
-
-module.exports = connect(state => ({}))(PostBody);
+export default connect(state => ({}))(PostBody);

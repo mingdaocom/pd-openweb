@@ -1,5 +1,5 @@
 ﻿import * as ACTIONS from '../actions/current';
-import { params, projectId } from '../../config';
+import Config from '../../config';
 import { COMPANY_DEPARMENTID } from '../constant';
 
 const initialState = () => {
@@ -7,19 +7,19 @@ const initialState = () => {
   if (location.href.indexOf('admin/approve') > -1) {
     typeCursor = 3;
   }
-  if (params && params[3] === 'uncursor') {
+  if (Config.params && Config.params[3] === 'uncursor') {
     typeCursor = 2;
   }
   return {
-    projectId,
+    projectId: Config.projectId,
     root: COMPANY_DEPARMENTID,
     departmentId: COMPANY_DEPARMENTID,
     selectedAccountIds: [], // 批量选中的用户
     activeAccountId: null, // 当前活动用户设置列表的accountId
     approveNumber: 0, // 网络未激活人数
     isSearch: false, // 搜索结果呈现
-    autoShow: params && params[3] === 'create', // 默认呈现创建部门层
-    autoImport: params && params[3] === 'importusers', //默认呈现批量导入层
+    autoShow: Config.params && Config.params[3] === 'create', // 默认呈现创建部门层
+    autoImport: Config.params && Config.params[3] === 'importusers', //默认呈现批量导入层
     typeNum: 0, // 0部门/1职位,
     typeCursor,
     isSelectAll: false, // 是否全选
@@ -59,7 +59,7 @@ export default (state = initialState(), action) => {
     case ACTIONS.UPDATE_PROJECT_ID:
       return {
         ...state,
-        projectId,
+        projectId: Config.projectId,
       };
     case ACTIONS.UPDATE_TYPE:
       return {

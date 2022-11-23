@@ -98,12 +98,13 @@ export default class DateInput extends Component {
       return;
     }
 
-    import('dialogSelectUser').then(() => {
+    import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
       $({}).dialogSelectUser({
         showMoreInvite: false,
         title: _l('设置默认人员'),
         SelectUserSettings: {
           unique,
+          projectId: globalSheetInfo.projectId,
           callback: users => {
             const usersId = this.formatUsersId(users);
             this.props.onDynamicValueChange(unique ? usersId : getUsers(usersId));

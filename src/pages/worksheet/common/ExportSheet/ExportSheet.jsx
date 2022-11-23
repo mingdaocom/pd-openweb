@@ -5,6 +5,9 @@ import appManagement from 'src/api/appManagement';
 import './ExportSheet.less';
 import { isRelateRecordTableControl } from 'worksheet/util';
 import RadioGroup from 'ming-ui/components/RadioGroup2';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import _ from 'lodash';
 
 export default class ExportSheet extends Component {
   static propTypes = {
@@ -29,9 +32,62 @@ export default class ExportSheet extends Component {
   constructor(props) {
     super(props);
     const exportExtIds = {};
+    const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, props.sheetSwitchPermit);
 
     // 字段列表添加记录ID
     props.columns.unshift({ type: 2, controlId: 'rowid', controlName: _l('记录ID') });
+    if (isShowWorkflowSys) {
+      props.columns.push(
+        { controlId: 'uaid', controlName: _l('最近修改人'), type: 26 },
+        { controlId: 'wfname', controlName: _l('流程名称'), type: 2 },
+        {
+          controlId: 'wfstatus',
+          controlName: _l('状态'),
+          type: 11,
+          options: [
+            {
+              key: 'pass',
+              color: '#4caf50',
+              index: 1,
+              enumDefault2: 1,
+              value: _l('通过'),
+            },
+            {
+              key: 'refuse',
+              color: '#f44336',
+              index: 2,
+              enumDefault2: 1,
+              value: _l('否决'),
+            },
+            {
+              key: 'abort',
+              color: '#e8e8e8',
+              index: 3,
+              enumDefault2: 1,
+              value: _l('中止'),
+            },
+            {
+              key: 'other',
+              color: 'rgba(33, 150, 243, 0.13)',
+              index: 4,
+              enumDefault2: 1,
+              value: _l('其他'),
+            },
+          ],
+        },
+        { controlId: 'wfcuaids', controlName: _l('节点负责人'), type: 26 },
+        { controlId: 'wfrtime', controlName: _l('节点开始时间'), type: 16 },
+        { controlId: 'wfftime', controlName: _l('剩余时间'), type: 2 },
+        { controlId: 'wfcaid', controlName: _l('发起人'), type: 26 },
+        { controlId: 'wfctime', controlName: _l('发起时间'), type: 16 },
+      );
+    } else {
+      props.columns.push({
+        controlId: 'uaid',
+        controlName: _l('最近修改人'),
+        type: 26,
+      });
+    }
 
     // 成员字段和关联表字段支持映射
     props.columns
@@ -73,11 +129,10 @@ export default class ExportSheet extends Component {
     };
   }
 
-  getColumnRpts(exportControlsId = [], systemColumn = []) {
+  getColumnRpts(exportControlsId = []) {
     const { columns, worksheetSummaryTypes } = this.props;
     return columns
       .filter(control => _.includes(exportControlsId, control.controlId))
-      .concat(systemColumn)
       .map(control => ({
         controlId: control.controlId,
         rptType:
@@ -97,7 +152,7 @@ export default class ExportSheet extends Component {
 
   getDefaultColumnsSelected(exportShowColumns, showTabs) {
     const selected = {};
-    const { sheetHiddenColumns, columns, exportView } = this.props;
+    const { sheetHiddenColumns, exportView, columns, sheetSwitchPermit } = this.props;
     const { showControls } = exportView;
 
     // 选择导出表格显示列字段
@@ -111,12 +166,13 @@ export default class ExportSheet extends Component {
 
     // 导出所有字段
     else {
-      columns
-        .filter(item => this.checkControlVisible(item))
-        .filter(item => !(isRelateRecordTableControl(item) || item.type === 34 || item.type === 43))
-        .forEach(column => {
-          selected[column.controlId] = true;
-        });
+      this.sortControls(
+        columns
+          .filter(item => this.checkControlVisible(item))
+          .filter(item => !(isRelateRecordTableControl(item) || item.type === 34 || item.type === 43)),
+      ).forEach(column => {
+        selected[column.controlId] = true;
+      });
 
       // 增加记录id
       selected.rowid = true;
@@ -213,17 +269,9 @@ export default class ExportSheet extends Component {
 
       // 获取Token 功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
       const token = await appManagement.getToken({ worksheetId, viewId, tokenType: 3 });
-      const systemColumn = [];
       const exportControlsId = [];
       _.forEach(columnsSelected, (value, key) => {
-        const column = _.find(columns, item => item.controlId === key);
-
-        // 系统字段
-        if (['ownerid', 'caid', 'ctime', 'utime'].includes(key) && value) {
-          // 创建者、拥有者的字段类型为：成员
-          if (key === 'ownerid' || key === 'caid') column.type = 26;
-          if (columnsSelected[key]) systemColumn.push(column);
-        } else if (columnsSelected[key]) exportControlsId.push(key);
+        columnsSelected[key] && exportControlsId.push(key);
       });
 
       const args = {
@@ -236,12 +284,9 @@ export default class ExportSheet extends Component {
         type,
         exportControlsId,
         filterControls,
-        // columnRpts: isStatistics ? this.getColumnRpts(exportControlsId, systemColumn) : null,
         keyWords,
         searchType,
-        // rowIds: columns.filter( item => columnsSelected[ item.controlId ]).map( item => item.controlId ) ,
         rowIds: selectRowIds,
-        systemColumn,
         isSort: exportShowColumns,
         fastFilters: (quickFilter || []).map(f =>
           _.pick(f, [
@@ -291,13 +336,13 @@ export default class ExportSheet extends Component {
       }
 
       // 未选择字段
-      if (!exportControlsId.length && !systemColumn.length) {
+      if (!exportControlsId.length) {
         alert(_l('至少选择一个字段'), 3);
         return;
       }
 
       // 是否需要导出列统计结果
-      args.columnRpts = isStatistics ? this.getColumnRpts(exportControlsId, systemColumn) : null;
+      args.columnRpts = isStatistics ? this.getColumnRpts(exportControlsId) : null;
 
       // 访问导出excel接口
       fetch(`${this.props.downLoadUrl}/ExportExcel/Export`, {
@@ -312,6 +357,41 @@ export default class ExportSheet extends Component {
     })().catch(() => {});
   }
 
+  /**
+   * 排序
+   */
+  sortControls(columns) {
+    return columns.sort((a, b) => {
+      if (
+        _.includes(
+          [
+            'rowid',
+            'ownerid',
+            'caid',
+            'ctime',
+            'utime',
+            'uaid',
+            'wfname',
+            'wfcuaids',
+            'wfcaid',
+            'wfctime',
+            'wfrtime',
+            'wfftime',
+            'wfstatus',
+          ],
+          a.controlId,
+        )
+      ) {
+        return 0;
+      }
+
+      if (a.row === b.row) {
+        return a.col - b.col;
+      }
+      return a.row - b.row;
+    });
+  }
+
   render() {
     const {
       onHide,
@@ -320,6 +400,7 @@ export default class ExportSheet extends Component {
       exportView,
       exportView: { viewId },
       hideStatistics,
+      sheetSwitchPermit,
     } = this.props;
     let columns = [].concat(this.props.columns);
     const { advancedSetting, showControls } = exportView;
@@ -341,12 +422,7 @@ export default class ExportSheet extends Component {
     ) {
       columns = exportView.showControls.map(id => columns.find(item => item.controlId === id)).filter(item => !!item);
     } else {
-      columns = columns.sort((a, b) => {
-        if (a.row === b.row) {
-          return a.col - b.col;
-        }
-        return a.row - b.row;
-      });
+      columns = this.sortControls(columns);
     }
 
     // 过滤掉不支持导出的字段、无权限字段
@@ -459,8 +535,7 @@ export default class ExportSheet extends Component {
                     <Checkbox
                       style={{ left: '40px' }}
                       size="small"
-                      checked={exportExtIds[column.controlId].relaRowId && type !== 1}
-                      disabled={type === 1}
+                      checked={exportExtIds[column.controlId].relaRowId}
                       text={_l('记录ID')}
                       onClick={() => {
                         exportExtIds[column.controlId].relaRowId = !exportExtIds[column.controlId].relaRowId;
@@ -474,7 +549,7 @@ export default class ExportSheet extends Component {
                 {column.type == 26 &&
                   (!column.advancedSetting || column.advancedSetting.usertype != '2') &&
                   !!columnsSelected[column.controlId] &&
-                  !['caid', 'ownerid'].includes(column.controlId) && (
+                  !['caid', 'ownerid', 'uaid', 'wfcuaids', 'wfcaid'].includes(column.controlId) && (
                     <Fragment>
                       {/** 姓名 */}
                       <Checkbox disabled={true} style={{ left: '40px' }} size="small" checked={true} onClick={() => {}}>
@@ -485,8 +560,7 @@ export default class ExportSheet extends Component {
                       <Checkbox
                         style={{ left: '40px' }}
                         size="small"
-                        checked={exportExtIds[column.controlId].jobId && type !== 1}
-                        disabled={type === 1}
+                        checked={exportExtIds[column.controlId].jobId}
                         text={_l('工号')}
                         onClick={() => {
                           exportExtIds[column.controlId].jobId = !exportExtIds[column.controlId].jobId;
@@ -498,8 +572,7 @@ export default class ExportSheet extends Component {
                       <Checkbox
                         style={{ left: '40px' }}
                         size="small"
-                        checked={exportExtIds[column.controlId].userId && type !== 1}
-                        disabled={type === 1}
+                        checked={exportExtIds[column.controlId].userId}
                         text={_l('人员ID')}
                         onClick={() => {
                           exportExtIds[column.controlId].userId = !exportExtIds[column.controlId].userId;

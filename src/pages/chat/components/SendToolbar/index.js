@@ -6,7 +6,7 @@ import * as utils from '../../utils';
 import * as ajax from '../../utils/ajax';
 import * as socket from '../../utils/socket';
 import Constant from '../../utils/constant';
-import fileConfirm from 'fileConfirm';
+import fileConfirm from '../fileConfirm/fileConfirm';
 import Trigger from 'rc-trigger';
 import GroupController from 'src/api/group';
 import { sendCardToChat } from 'src/api/chat';

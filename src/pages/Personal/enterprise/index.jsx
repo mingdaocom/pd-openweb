@@ -3,7 +3,7 @@ import account from 'src/api/account';
 import { LoadDiv } from 'ming-ui';
 import EnterpriseCard from './modules/EnterpriseCard';
 import cx from 'classnames';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 import ReactDom from 'react-dom';
 import InvitationList from './modules/InvitationList';
 import bindAccount from '../bindAccount/bindAccount';

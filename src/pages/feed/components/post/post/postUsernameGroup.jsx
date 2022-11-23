@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import _ from 'lodash';
 import UserName from '../../userName';
+import 'src/components/mdBusinessCard/mdBusinessCard';
 
 /**
  * 动态发布者姓名和发布到的群组
@@ -24,9 +25,7 @@ class PostUsernameGroup extends React.Component {
 
   bindCard = () => {
     const $this = $(ReactDom.findDOMNode(this));
-    require(['src/components/mdBusinessCard/mdBusinessCard'], () => {
-      $this.find('[data-groupid]').mdBusinessCard();
-    });
+    $this.find('[data-groupid]').mdBusinessCard();
   };
 
   render() {
@@ -116,4 +115,4 @@ class PostUsernameGroup extends React.Component {
   }
 }
 
-module.exports = PostUsernameGroup;
+export default PostUsernameGroup;

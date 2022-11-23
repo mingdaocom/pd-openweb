@@ -99,4 +99,4 @@ const editableBlock = createReactClass({
   },
 });
 
-module.exports = editableBlock;
+export default editableBlock;

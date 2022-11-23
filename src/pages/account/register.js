@@ -162,15 +162,6 @@ class RegisterContainer extends React.Component {
     }
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    if (!nextState.loading) {
-      var $showLangChangeBottom = $('.showLangChangeBottom');
-      if ($showLangChangeBottom) {
-        $showLangChangeBottom.show();
-      }
-    }
-  }
-
   goRegisterFn = () => {
     // 注册来源
     var s = request.s || '';
@@ -459,12 +450,6 @@ class RegisterContainer extends React.Component {
     }
   };
 
-  showLangChang = () => {
-    if (this.state.step === 'register') {
-      $('.showLangChangeBottom').removeClass('Hidden');
-    }
-  };
-
   render() {
     if (this.state.loading) {
       return <LoadDiv className="" style={{ margin: '50px auto' }} />;
@@ -476,7 +461,6 @@ class RegisterContainer extends React.Component {
             <img src={md.global.SysSettings.brandLogoUrl} height={40} />
           </div>
           {this.renderCon()}
-          {this.showLangChang()}
         </div>
         <ChangeLang />
       </div>

@@ -14,6 +14,9 @@ import {
 } from '../config';
 
 import './sidenav.less';
+import moment from 'moment';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 
 let sidenavList = [
   'setting', //设置
@@ -30,6 +33,7 @@ class Sidenav extends React.Component {
       receiveControlsCheckAll: false,
       workflowCheckAll: true,
       closeList: [],
+      openApprovalList: [],
     };
   }
 
@@ -277,6 +281,34 @@ class Sidenav extends React.Component {
     });
   }
 
+  toggleApprovalCheckItem(index, childIndex = undefined) {
+    const { handChange, printData = [], systemControl } = this.props;
+    const { approval = [] } = printData;
+    const newApproval = approval.map((item, i) => {
+      if (childIndex === undefined && i === index) {
+        let _checked = !item.checked;
+        item.checked = _checked;
+        item.child.forEach(childData => {
+          childData.checked = _checked;
+        });
+      } else if (childIndex !== undefined && i === index) {
+        item.child = item.child.map((l, m) => {
+          if (m === childIndex) {
+            l.checked = !l.checked;
+          }
+          return l;
+        });
+        item.checked = item.child.every(l => l.checked === true);
+      }
+      return item;
+    });
+    handChange({
+      ...printData,
+      approval: newApproval,
+    });
+  }
+
+
   renderWorkflow() {
     const { handChange, printData = [], systemControl } = this.props;
     const { workflow = [] } = printData;
@@ -297,6 +329,70 @@ class Sidenav extends React.Component {
           />
         ))}
       </div>
+    );
+  }
+
+  renderApproval() {
+    const { openApprovalList } = this.state;
+    const { printData, handChange } = this.props;
+    const { approval = [] } = printData;
+    if (approval.length <= 0 || this.state.closeList.includes('workflow')) {
+      return '';
+    }
+
+    return (
+      <React.Fragment>
+        {approval.map((item, index) => {
+          return (
+            <div className="approvalItem">
+              <div className="approvalItem1Con">
+                <Checkbox
+                  checked={item.checked}
+                  key={item.processId}
+                  className="approvalItem1ConCheck"
+                  onClick={() => {
+                    this.toggleApprovalCheckItem(index);
+                  }}
+                  text={item.name}
+                />
+                <Icon
+                  icon={openApprovalList.find(l => l === item.processId) ? 'expand_less' : 'expand_more'}
+                  className="Font18 expand Hand TxtCenter Gray_9e"
+                  onClick={() => {
+                    if (item.child.length < 2) return;
+                    if (openApprovalList.find(l => l === item.processId)) {
+                      this.setState({
+                        openApprovalList: openApprovalList.filter(l=>l!==item.processId)
+                      })
+                    } else {
+                      this.setState({
+                        openApprovalList: openApprovalList.concat(item.processId),
+                      });
+                    }
+                  }}
+                />
+              </div>
+              {item.child.length > 0 && !openApprovalList.find(l => l === item.processId) && (
+                <React.Fragment>
+                  {item.child.map((l, i) => (
+                    <div className="approvalItem2Con">
+                      <Checkbox
+                        checked={l.checked}
+                        key={l.id}
+                        className="approvalItem2ConCheck"
+                        onClick={() => {
+                          this.toggleApprovalCheckItem(index, i);
+                        }}
+                        text={`${moment(l.createDate).format('YYYY.MM.DD HH:mm:ss')}发起`}
+                      />
+                    </div>
+                  ))}
+                </React.Fragment>
+              )}
+            </div>
+          );
+        })}
+      </React.Fragment>
     );
   }
 
@@ -503,9 +599,9 @@ class Sidenav extends React.Component {
   };
 
   render() {
-    const { handChange, params, printData, systemControl, controls = [], signature = [], saveTem } = this.props;
-    const { printId, type, from, printType, isDefault } = params;
-    const { receiveControls = [], workflow = [], shareType = 0 } = printData;
+    const { handChange, params, printData, systemControl, controls = [], signature = [], saveTem, sheetSwitchPermit } = this.props;
+    const { printId, type, from, printType, isDefault, viewId  } = params;
+    const { receiveControls = [], workflow = [], shareType = 0, approval = [] } = printData;
     const { receiveControlsCheckAll, workflowCheckAll, closeList = [] } = this.state;
     return (
       <div className="sidenavBox flexRow">
@@ -571,6 +667,14 @@ class Sidenav extends React.Component {
             )}
           </div>
           <div className="lineBox"></div>
+          {isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId) && approval.length > 0 && (
+            <React.Fragment>
+              <div className="plate pBottom20">
+                <p className="headline Bold">{_l('审批')}</p>
+                {this.renderApproval()}
+              </div>
+            </React.Fragment>
+          )}
           {workflow.length > 0 && (
             <React.Fragment>
               <div className="plate">

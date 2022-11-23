@@ -82,7 +82,7 @@ export const goApp = (sessionId, appId) => {
   setPssId(sessionId);
   const request = getRequest();
   const { ReturnUrl = '' } = request;
-  if (ReturnUrl && !browserIsMobile()) {
+  if (ReturnUrl) {
 
     window.location.replace(ReturnUrl);
 
@@ -147,8 +147,14 @@ export const accountResultAction = res => {
     case 15:
       msg = _l('您不在运营方的邀请范围内');
       break;
+    case 16:
+      msg = _l('未绑定微信公众号');
+      break;
+    case 17:
+      msg = _l('微信扫码登录方式关闭');
+      break;
     case 20:
-      msg = _l('手机号或者验证码错误');
+      msg = _l('手机号/邮箱或者验证码错误');
       break;
     case 21:
       msg = _l('验证码错误');

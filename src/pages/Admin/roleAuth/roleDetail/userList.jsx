@@ -126,12 +126,12 @@ class RoleUserList extends React.Component {
           {_.map(users, user => {
             return (
               <tr key={user.accountId} className="tdHover">
-                <td className="avatarBox ">
+                <td className="avatarBox LineHeight48">
                   <UserHead user={{ userHead: user.avatar, accountId: user.accountId }} lazy={'false'} size={32} />
                 </td>
                 <td className="userName">{user.fullName}</td>
                 <td className="userProfession">{user.profession}</td>
-                <td className="userDepartment">{user.departName}</td>
+                <td className="userDepartment">{(user.departName || '').replace(/;/g, '；')}</td>
                 {!isApply ? (
                   <td
                     className={cx('userOperation ThemeHoverColor3', {
@@ -198,7 +198,7 @@ class RoleUserList extends React.Component {
         </table>
         <div className="roleAuthDetailScroll" ref={node => (this.roleAuthDetailScroll = node)}>
           <table className="w100">
-            <tbody className="roleUserList" ref={node => (this.roleUserList = node)}>
+            <tbody className="roleUserList roleUserListEmpty" ref={node => (this.roleUserList = node)}>
               {this.renderUserList()}
             </tbody>
           </table>

@@ -5,7 +5,7 @@ import Dropdown from 'ming-ui/components/Dropdown';
 import GroupController from 'src/api/group';
 import ScrollView from 'ming-ui/components/ScrollView';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import { addGroupMembers } from '../../utils/group';
+import InviteOrAddUsers from './InviteOrAddUsers';
 
 export class Member extends Component {
   constructor(props) {
@@ -29,9 +29,7 @@ export class Member extends Component {
             {item.job ? <span>{item.job}</span> : undefined}
           </div>
         </div>
-        {accountId === item.accountId ? (
-          undefined
-        ) : (
+        {accountId === item.accountId ? undefined : (
           <div className="userAction" onClick={this.props.onOpenSession.bind(this, item)}>
             <i className="ThemeColor3 icon-chat-session" />
           </div>
@@ -48,7 +46,10 @@ export default class MembersPanel extends Component {
       pageIndex: 1,
       loading: false,
       members: [],
-      dropdownData: [{ text: _l('全部'), value: 1 }, { text: _l('仅显示其他协作关系'), value: 4 }],
+      dropdownData: [
+        { text: _l('全部'), value: 1 },
+        { text: _l('仅显示其他协作关系'), value: 4 },
+      ],
       dropdownValue: 1,
       groupMemberCount: 0,
     };
@@ -64,7 +65,7 @@ export default class MembersPanel extends Component {
         },
         () => {
           this.getGroupUsers();
-        }
+        },
       );
     }
   }
@@ -85,7 +86,7 @@ export default class MembersPanel extends Component {
       pageIndex,
       pageSize: 15,
       type: dropdownValue,
-    }).then((result) => {
+    }).then(result => {
       const { groupUsers, groupMemberCount } = result;
       this.setState({
         pageIndex: groupUsers.length >= 15 ? pageIndex + 1 : 0,
@@ -105,25 +106,13 @@ export default class MembersPanel extends Component {
       },
       () => {
         this.getGroupUsers();
-      }
+      },
     );
   }
   handleScrollEnd() {
     this.getGroupUsers();
   }
-  handleAddMembers() {
-    const { session } = this.props;
-    const { isForbidInvite, isAdmin } = session;
-    if (isAdmin || !isForbidInvite) {
-      addGroupMembers({
-        id: session.id,
-        type: Constant.SESSIONTYPE_GROUP,
-      });
-    } else {
-      alert(_l('当前仅允许群主及管理员邀请新成员'), 2);
-      return false;
-    }
-  }
+
   render() {
     const { dropdownValue, dropdownData, loading, members } = this.state;
     const { session } = this.props;
@@ -136,16 +125,21 @@ export default class MembersPanel extends Component {
             {_l('返回')}
           </span>
           <span className="title">{`${_l('成员')} (${groupMemberCount})`}</span>
-          <span onClick={this.handleAddMembers.bind(this)} data-tip={_l('添加成员')} className="addMember tip-bottom-left ThemeColor3">
-            <i className="icon-invite" />
-          </span>
+          <InviteOrAddUsers {...session} />
         </div>
         <div className="filter">
-          <Dropdown className="dropdown" value={dropdownValue} data={dropdownData} onChange={this.handleDropdownChange.bind(this)} />
+          <Dropdown
+            className="dropdown"
+            value={dropdownValue}
+            data={dropdownData}
+            onChange={this.handleDropdownChange.bind(this)}
+          />
         </div>
         <div className="content">
           <ScrollView onScrollEnd={this.handleScrollEnd.bind(this)} className="flex">
-            {members.map(item => <Member item={item} key={item.accountId} onOpenSession={this.props.onOpenSession} />)}
+            {members.map(item => (
+              <Member item={item} key={item.accountId} onOpenSession={this.props.onOpenSession} />
+            ))}
             <LoadDiv className={cx({ Hidden: !loading })} size="small" />
           </ScrollView>
         </div>

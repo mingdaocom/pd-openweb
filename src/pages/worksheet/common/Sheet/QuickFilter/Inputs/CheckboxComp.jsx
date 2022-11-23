@@ -52,7 +52,7 @@ export default function CheckboxComp(props) {
       <Con>
         <RadioGroup
           size="middle"
-          checkedValue={isChecked ? '1' : '0'}
+          checkedValue={filterType === 0 || _.isUndefined(filterType) ? undefined : isChecked ? '1' : '0'}
           data={itemnames.map(item => ({ text: item.value, value: item.key }))}
           onChange={type => handleChange(type !== '1')}
         />

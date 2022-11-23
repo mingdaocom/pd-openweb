@@ -4,8 +4,11 @@ import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import './style.css';
 import contactController from 'src/api/contact';
 import RegExp from 'src/util/expression';
-
-var doT = require('dot');
+import tpl from './tpl/form.html';
+import doT from '@mdfe/dot';
+import { index as dialog } from 'src/components/mdDialog/dialog';
+import 'src/components/select/select';
+import 'src/components/selectLocation/selectLocation';
 
 var Contact = {};
 
@@ -18,35 +21,31 @@ Contact.Options = {
  * @return {[type]} [description]
  */
 Contact.popupLinkContent = function (title, leadType) {
+  Contact.dialog = dialog({
+    fixed: false,
+    dialogBoxID: 'dialogContact',
+    container: {
+      header: title + ' ( <span class="red">*</span>为必填项 )',
+      yesText: null,
+      noText: null,
+    },
+    width: 458,
+  });
 
-  require(['mdDialog'], function (mdDialog) {
+  contactController.getContactInfo({}).then(function (res) {
+    if (res) {
+      res.leadType = leadType;
 
-    Contact.dialog = mdDialog.index({
-      fixed: false,
-      dialogBoxID: 'dialogContact',
-      container: {
-        header: title + ' ( <span class="red">*</span>为必填项 )',
-        yesText: null,
-        noText: null,
-      },
-      width: 458,
-    });
+      var html = doT.template(tpl)({
+        user: res.user,
+        leadType: leadType,
+      });
 
-    contactController.getContactInfo({}).then(function (res) {
-      if (res) {
-        res.leadType = leadType;
-
-        var html = doT.template(require('./tpl/form.html'))({
-          user: res.user,
-          leadType: leadType,
-        });
-
-        Contact.Options.$container = $('#dialogContact');
-        Contact.dialog.content(html);
-        Contact.dialog.dialogCenter();
-        Contact.bindEvent(res);
-      }
-    });
+      Contact.Options.$container = $('#dialogContact');
+      Contact.dialog.content(html);
+      Contact.dialog.dialogCenter();
+      Contact.bindEvent(res);
+    }
   });
 };
 
@@ -75,25 +74,21 @@ Contact.bindEvent = function (data) {
   var $companyCity = $dialogContact.find('.txtCity');
   if ($companyCity.length > 0) {
     $companyCity.on('mouseover', function () {
-      require(['selectLocation'], function () {
-        $companyCity.selectLocation({
-          style: {
-            top: 25,
-          },
-        });
+      $companyCity.selectLocation({
+        style: {
+          top: 25,
+        },
       });
     });
   }
 
   var $hidIndustry = $dialogContact.find('.hidIndustry');
   if ($hidIndustry.length > 0 && data.industries && data.industries.length > 0) {
-    require(['md.select'], function () {
-      $hidIndustry.MDSelect({
-        dataArr: data.industries,
-        showType: 4,
-        zIndex: 22,
-        wordLength: 100,
-      });
+    $hidIndustry.MDSelect({
+      dataArr: data.industries,
+      showType: 4,
+      zIndex: 22,
+      wordLength: 100,
     });
   }
 
@@ -243,5 +238,4 @@ Contact.submitLinkContent = function (leadType) {
   }
 };
 
-
-module.exports = Contact;
+export default Contact;

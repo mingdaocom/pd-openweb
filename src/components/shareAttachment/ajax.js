@@ -1,6 +1,7 @@
 ﻿var { getChatList, convertToOtherAttachment } = require('src/api/chat');
 var { getMyTaskList } = require('src/api/taskCenter');
 var { addDiscussionGroup } = require('src/api/group');
+import 'src/components/createTask/createTask';
 
 export function _getMyTaskList(params) {
   var promise = $.Deferred();
@@ -53,15 +54,13 @@ export function _convertToOtherAttachment(params) {
 
 export function createNewTask() {
   var promise = $.Deferred();
-  import('createTask').then(function (s) {
-    $.CreateTask({
-      relationCallback: function (result) {
-        promise.resolve({
-          taskID: result.taskID,
-          taskName: result.taskName,
-        });
-      },
-    });
+  $.CreateTask({
+    relationCallback: function (result) {
+      promise.resolve({
+        taskID: result.taskID,
+        taskName: result.taskName,
+      });
+    },
   });
   return promise;
 }

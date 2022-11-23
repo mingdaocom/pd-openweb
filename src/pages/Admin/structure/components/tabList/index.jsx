@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import TreeView from '../departmentView';
 import CreateBtn from '../departmentView/createBtn';
 import { Icon } from 'ming-ui';
+import { Dropdown, Menu } from 'antd';
 import {
   loadAllUsers,
   loadDepartments,
@@ -13,6 +14,7 @@ import {
   updateImportType,
 } from '../../actions/entities';
 import { updateCursor, updateTypeCursor, fetchInActive, fetchApproval } from '../../actions/current';
+import projectSettingAjax from 'src/api/projectSetting';
 import './index.less';
 import cx from 'classnames';
 
@@ -65,20 +67,53 @@ class TabList extends React.Component {
     }
   };
 
+  // 刷新缓存
+  clearCache = () => {
+    const { projectId } = this.props;
+    Promise.all([
+      projectSettingAjax.projectClearCache({ projectId, processType: 10 }),
+      projectSettingAjax.projectClearCache({ projectId, processType: 20 }),
+    ]).then(([data1, data2]) => {
+      if (data1 && data2) {
+        alert(_l('刷新成功'));
+      } else {
+        alert(_l('刷新失败'), 2);
+      }
+    });
+  };
+
   render() {
     const { typeCursor = 0, approveNumber, inActiveNumber, root, cursor } = this.props;
     return (
       <React.Fragment>
         <div className="departmentTop mRight24">
           <ul>
-            <li
-              onClick={() => {
-                this.handleClick(0);
-              }}
-              className={cx('Hand', { current: cursor === root && (typeCursor === 1 || typeCursor === 0) })}
-            >
-              <Icon className={cx('Font16 Gray_9e listName mRight10')} icon="person" />
-              <span>{_l('全组织')}</span>
+            <li className={cx('Hand flexRow', { current: cursor === root && (typeCursor === 1 || typeCursor === 0) })}>
+              <div
+                className="flex"
+                onClick={() => {
+                  this.handleClick(0);
+                }}
+              >
+                <Icon className={cx('Font16 Gray_9e listName mRight10')} icon="person" />
+                <span>{_l('全组织')}</span>
+              </div>
+              <Dropdown
+                overlayStyle={{ width: 150 }}
+                trigger={['click']}
+                placement="bottomLeft"
+                overlay={
+                  <Menu>
+                    <Menu.Item key="0" onClick={this.clearCache}>
+                      {_l('刷新所有成员信息')}
+                    </Menu.Item>
+                  </Menu>
+                }
+              >
+                <div style={{ width: 24 }} onClick={e => e.stopPropagation()}>
+                  <Icon icon="moreop" />
+                </div>
+              </Dropdown>
             </li>
             <li
               onClick={() => {

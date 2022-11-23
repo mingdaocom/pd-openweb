@@ -6,6 +6,9 @@ import charts from 'statistics/Charts';
 import { WithoutData, Abnormal } from 'statistics/components/ChartStatus';
 import { reportTypes } from 'statistics/Charts/common';
 import styled from 'styled-components';
+import { getAppFeaturesPath } from 'src/util';
+import reportApi from 'statistics/api/report';
+import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import './index.less';
 
 const Content = styled.div`
@@ -20,11 +23,34 @@ function Chart({ data }) {
     return <Abnormal />;
   }
 
+  const isMingdao = navigator.userAgent.toLowerCase().includes('mingdao application');
+  const isIOS = navigator.userAgent.toLowerCase().includes('iphone');
+  const isWeixin = isIOS && navigator.userAgent.toLowerCase().includes('micromessenger');
+  const isSafari = isIOS && navigator.userAgent.toLowerCase().includes('safari');
   const isMapEmpty = _.isEmpty(data.map);
   const isContrastMapEmpty = _.isEmpty(data.contrastMap);
   const Charts = charts[data.reportType];
   const WithoutDataComponent = <WithoutData />;
-  const ChartComponent = <Charts reportData={data} isThumbnail={true} />;
+  const filter = data.filter || {};
+  const viewOriginalSheet = (params) => {
+    reportApi.getReportSingleCacheId({
+      ...filter,
+      ...params,
+      isPersonal: true,
+      reportId: data.reportId
+    }).then(result => {
+      if (result.id) {
+        const url = `/worksheet/${data.appId}/view/${filter.viewId}?chartId=${result.id}&${getAppFeaturesPath()}`;
+        if (isMingdao || isWeixin || isSafari) {
+          window.location.href = url;
+        } else {
+          window.open(url);
+        }
+      }
+    });
+  }
+  const isViewOriginalData = filter.viewId && [VIEW_DISPLAY_TYPE.sheet].includes(filter.viewType.toString());
+  const ChartComponent = <Charts reportData={data} isThumbnail={true} isViewOriginalData={isViewOriginalData} onOpenChartDialog={viewOriginalSheet} />;
 
   switch (data.reportType) {
     case reportTypes.BarChart:
@@ -34,7 +60,7 @@ function Chart({ data }) {
       return isMapEmpty && isContrastMapEmpty ? WithoutDataComponent : ChartComponent;
       break;
     case reportTypes.PieChart:
-      return _.isEmpty(data.aggregations) ? WithoutDataComponent : ChartComponent;
+      return _.isEmpty(data.map) ? WithoutDataComponent : ChartComponent;
       break;
     case reportTypes.NumberChart:
       return ChartComponent;

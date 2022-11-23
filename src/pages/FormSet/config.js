@@ -14,21 +14,23 @@ export const listConfigStr = {
   25: _l('批量操作'), // BatchGroup
   24: _l('编辑'), //
   26: _l('复制'), //
-  23: _l('打印二维码'), //
+  23: _l('系统默认打印'), //
   27: _l('导出'), //
   28: _l('删除'), //
   29: _l('执行自定义动作'), //
   // 记录都是3开头
   30: _l('记录分享'),
   // 31: _l('发送填写记录'),
-  32: _l('系统打印'),
+  32: _l('系统默认打印'),
   33: _l('附件下载'),
   34: _l('记录日志'),
   35: _l('记录讨论'), // recordDiscussSwitch
   36: _l('记录复制'), // recordCopySwitch
+  40: _l('系统字段'),
+  41: _l('审批流转详情'),
 };
 export const batch = [24, 26, 23, 27, 28, 29]; //批量操作下的操作
-export const listPermit = [10, 11, 12, 13, 20, 21, 22, 25, 24, 26, 23, 27, 28, 29, 30, 36, 35, 32, 33, 34];
+export const listPermit = [10, 11, 12, 13, 20, 21, 22, 25, 24, 26, 23, 27, 28, 29, 30, 36, 35, 32, 33, 34, 40, 41];
 export const permitList = {
   createButtonSwitch: 10, // createButtonSwitch 显示创建按钮
   discussSwitch: 11, // discussSwitch 工作表讨论
@@ -40,7 +42,7 @@ export const permitList = {
   batchGroup: 25, //BatchGroup 批量操作
   batchEdit: 24, //	 批量编辑
   copy: 26, //复制
-  QrCodeSwitch: 23, // 	 打印二维码
+  QrCodeSwitch: 23, // 	 系统默认打印
   export: 27, // 	 导出
   delete: 28, // 	 删除
   execute: 29, // 	 执行自定义动作
@@ -51,6 +53,8 @@ export const permitList = {
   recordLogSwitch: 34, // recordLogSwitch 查看记录操作日志
   recordDiscussSwitch: 35, // recordDiscussSwitch 记录讨论
   recordCopySwitch: 36, // 记录复制
+  sysControlSwitch: 40, // 系统字段
+  approveDetailsSwitch: 41, // 审批流转详情
 };
 
 export const MODULE_TYPE_TO_NAME = {

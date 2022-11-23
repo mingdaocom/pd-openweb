@@ -8,7 +8,7 @@ import AddAppDialog from '../../components/AddAppDialog';
 import { Table, ConfigProvider } from 'antd';
 import { authorize } from 'src/pages/workflow/api/packageVersion.js';
 import { getProcessConfig, saveProcessConfig } from 'src/pages/workflow/api/process.js';
-import 'dialogSelectUser';
+import 'src/components/dialogSelectUser/dialogSelectUser';
 import { NODE_TYPE, USER_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
 import Member from 'src/pages/workflow/WorkflowSettings/Detail/components/Member/index.jsx';
 const TRIGGER_TYPE = {

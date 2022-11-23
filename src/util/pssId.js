@@ -9,7 +9,6 @@ export const setPssId = (id, verification = false) => {
       verification ||
       userAgent.includes('dingtalk') ||
       userAgent.includes('miniprogram') ||
-      location.href.indexOf('theportal.cn') > -1 ||
       location.href.indexOf('localhost') > -1
     ) {
       window.setCookie('md_pss_id', id);

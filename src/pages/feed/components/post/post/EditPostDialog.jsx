@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { edit } from '../../../redux/postActions';
-import mdFunction from 'mdFunction';
+import { createLinksForMessage } from 'src/components/common/function';
 import { htmlDecodeReg } from 'src/util';
 import UploadFiles from 'src/components/UploadFiles';
 import { Dialog, Textarea, Button } from 'ming-ui';
@@ -72,21 +72,22 @@ export default class EditPostDialog extends React.Component {
     return attachment;
   }
   setContent(postItem) {
-    Promise.all([import('mentioninput'), import('selectGroup')]).then(() => {
+    Promise.all([
+      import('src/components/mentioninput/mentionsInput'),
+      import('src/components/selectGroup/selectAllGroup'),
+    ]).then(() => {
       const message = htmlDecodeReg(
-        mdFunction
-          .createLinksForMessage(_.assign({ noLink: true }, postItem))
+        createLinksForMessage(_.assign({ noLink: true }, postItem))
           .replace(/<br>/g, '\n')
           .replace(/<[^>]+>/g, ''),
       );
-      const messageMentions = mdFunction
-        .createLinksForMessage(
-          _.assign({ noLink: true }, postItem, {
-            message: postItem.message
-              .replace('/[aid]([0-9a-zA-Z-]*\\|?.*)[/aid]/', 'user:$1')
-              .replace('/[gid]([0-9a-zA-Z-]*\\|?.*)[/gid]/', 'group:$1'),
-          }),
-        )
+      const messageMentions = createLinksForMessage(
+        _.assign({ noLink: true }, postItem, {
+          message: postItem.message
+            .replace('/[aid]([0-9a-zA-Z-]*\\|?.*)[/aid]/', 'user:$1')
+            .replace('/[gid]([0-9a-zA-Z-]*\\|?.*)[/gid]/', 'group:$1'),
+        }),
+      )
         .replace(/<br>/g, '\n')
         .replace(/<[^>]+>/g, '');
       const mentionsCollection = _.map(postItem.rUserList, account => ({
@@ -126,7 +127,9 @@ export default class EditPostDialog extends React.Component {
     }
     const { postItem } = this.props;
     const { postID } = postItem;
-    const $textarea = $(ReactDOM.findDOMNode(this.textarea)).parent().find('textarea');
+    const $textarea = $(ReactDOM.findDOMNode(this.textarea))
+      .parent()
+      .find('textarea');
     $textarea.mentionsInput('val', data => {
       const postMsg = data;
       if (!postMsg || !$.trim(postMsg)) {

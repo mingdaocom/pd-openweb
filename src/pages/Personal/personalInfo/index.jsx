@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import DialogLayer from 'mdDialog';
+import DialogLayer from 'src/components/mdDialog/dialog';
 import ReactDom from 'react-dom';
 import AvatorInfo from './modules/AvatorInfo';
 import EditDetail from './modules/EditDetail';

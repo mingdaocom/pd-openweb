@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { arrayOf, string, shape, func, bool } from 'prop-types';
+import { arrayOf, string, shape, func, bool, number } from 'prop-types';
 import styled from 'styled-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
@@ -55,24 +55,38 @@ ControlIconItem.propTypes = {
 };
 
 export default function ControlSelect(props) {
-  const { disabled, selected, style, controls = [], hiddenIds = [], onChange = () => {} } = props;
+  const {
+    disabled,
+    selected,
+    style,
+    popupStyle,
+    offset,
+    controls = [],
+    hiddenIds = [],
+    children,
+    isAppendToBody,
+    onChange = () => {},
+  } = props;
   const control = _.find(controls, { controlId: selected });
   return (
     <AddCondition
+      style={popupStyle}
       disabled={disabled}
-      renderInParent
+      renderInParent={!isAppendToBody}
       columns={controls.filter(c => !_.includes(hiddenIds, c.controlId))}
       onAdd={onChange}
-      offset={[0, 0]}
+      offset={offset || [0, 0]}
       classNamePopup="addControlDrop"
     >
-      <Con disabled={disabled} className="controlSelect" style={style}>
-        <div className="flex">
-          {!control && <span className="placeholder">{_l('请选择')}</span>}
-          {control && <ControlIconItem control={control} />}
-        </div>
-        <i className="icon-arrow-down-border Font18 Gray_9e downIcon"></i>
-      </Con>
+      {children || (
+        <Con disabled={disabled} className="controlSelect" style={style}>
+          <div className="flex">
+            {!control && <span className="placeholder">{_l('请选择')}</span>}
+            {control && <ControlIconItem control={control} />}
+          </div>
+          <i className="icon-arrow-down-border Font18 Gray_9e downIcon"></i>
+        </Con>
+      )}
     </AddCondition>
   );
 }
@@ -82,6 +96,7 @@ ControlSelect.propTypes = {
   selected: string,
   style: shape({}),
   controls: arrayOf(shape({})),
+  offset: arrayOf(number),
   hiddenIds: arrayOf(string),
   onChange: func,
 };

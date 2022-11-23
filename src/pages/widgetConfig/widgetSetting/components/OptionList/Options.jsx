@@ -14,8 +14,8 @@ import { isLightColor } from 'src/util';
 import { getAdvanceSetting, parseOptionValue } from '../../../util/setting';
 import SelectColor from './SelectColor';
 import { OPTION_COLORS_LIST } from '../../../config';
-import AssignValue from './AssignValue';
 import BatchAdd from './BatchAdd';
+import AssignValue from './AssignValue';
 import 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/SubSheet/style.less';
 
 const OptionsWrap = styled.div`
@@ -31,13 +31,11 @@ const OptionsWrap = styled.div`
 const HandleOption = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 12px;
 
   .operate {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     width: 116px;
     &.flexEnd {
       justify-content: flex-end;
@@ -59,6 +57,13 @@ const HandleOption = styled.div`
     cursor: pointer;
     &:hover {
       color: #2b65c4;
+    }
+  }
+
+  .otherAdd {
+    &.disabled {
+      color: #bdbdbd !important;
+      cursor: not-allowed;
     }
   }
 `;
@@ -93,7 +98,7 @@ const DragItem = styled.li`
   }
 
   .optionContent {
-    margin-left: 8px;
+    margin-left: ${props => (props.isOther ? '21px' : '8px')}
     padding-right: 8px;
     display: flex;
     align-items: center;
@@ -124,6 +129,7 @@ const DragItem = styled.li`
     outline: none;
     padding: 0 8px;
     line-height: 37px;
+    ${({ isOther }) => (isOther ? 'cursor: not-allowed;' : '')}
   }
   .deleteWrap {
     color: #9e9e9e;
@@ -156,11 +162,12 @@ const OptionItem = SortableElement(
     const [visible, setVisible] = useState(false);
     const { key, value, isDeleted, color } = item;
     const checked = includes(checkedValue, key);
+    const isOther = key === 'other' && !isDeleted;
     return (
-      <DragItem>
+      <DragItem isOther={isOther}>
         {!isDeleted && (
           <Fragment>
-            <DragHandle />
+            {!isOther && <DragHandle />}
             <div className="optionContent">
               {colorful && (
                 <Trigger
@@ -182,6 +189,7 @@ const OptionItem = SortableElement(
               <div className="optionName">
                 <input
                   id={key}
+                  disabled={isOther}
                   autoFocus={index === focusIndex}
                   value={value}
                   onKeyDown={e => {
@@ -228,37 +236,48 @@ const OptionList = SortableContainer(({ options = [], ...rest }) => {
 });
 
 export default function SelectOptions(props) {
-  const { mode = 'add', onAdd, enableScore, onChange, options, isMulti, data = {}, fromPortal } = props;
+  const { mode = 'add', onAdd, onChange, options, isMulti, data = {}, showAssign = false, fromPortal, enableScore } = props;
   const [focusIndex, setIndex] = useState(-1);
   const checkedValue = parseOptionValue(data.default);
   const { showtype } = getAdvanceSetting(data);
+
+  const hasOther = _.find(options, i => i.key === 'other' && !i.isDeleted);
+  const findOther = _.find(options, i => i.key === 'other');
 
   const [{ assignValueVisible, batchAddVisible }, setVisible] = useSetState({
     assignValueVisible: false,
     batchAddVisible: false,
   });
 
-  const addOption = () => {
+  const addOption = isOther => {
     const colorIndex = _.findIndex(OPTION_COLORS_LIST, item => item === (_.last(options) || {}).color);
     const nextKey = uuidv4();
-    const nextOptions = update(options, {
-      $push: [
-        {
-          key: nextKey,
-          value: _l('选项%0', options.length + 1),
-          isDeleted: false,
-          index: options.length + 1,
-          color: OPTION_COLORS_LIST[(colorIndex + 1) % OPTION_COLORS_LIST.length],
-        },
-      ],
-    });
+
+    const newIndex = findOther ? options.length - 1 : options.length;
+    const newItem = {
+      key: isOther ? 'other' : nextKey,
+      value: isOther ? _l('其他') : _l('选项%0', newIndex + 1),
+      isDeleted: false,
+      index: newIndex + 1,
+      color: OPTION_COLORS_LIST[(colorIndex + 1) % OPTION_COLORS_LIST.length],
+    };
+
+    const nextOptions =
+      isOther && findOther
+        ? update(options, { [options.length - 1]: { $apply: item => ({ ...item, isDeleted: false }) } })
+        : update(options, { $splice: [[newIndex, 0, newItem]] });
+
     onChange({
-      options: nextOptions,
+      options: nextOptions.map((item, idx) => ({ ...item, index: idx + 1 })),
     });
-    setIndex(nextOptions.length - 1);
-    setTimeout(() => {
-      document.getElementById(nextKey).select();
-    }, 50);
+
+    if (!isOther) {
+      setIndex(newIndex);
+      setTimeout(() => {
+        document.getElementById(nextKey).select();
+      }, 50);
+    }
+
     if (onAdd) {
       onAdd();
     }
@@ -306,20 +325,27 @@ export default function SelectOptions(props) {
         helperClass="selectOptionSortableList"
       />
       <HandleOption>
-        <div className="addOptions" onClick={addOption}>
+        <div className="addOptions" onClick={() => addOption()}>
           <i className="icon-add Font18"></i>
           <span>{_l('添加选项')}</span>
         </div>
-        <div className={cx('operate', { TxtRight: fromPortal })}>
-          <div className={cx('batchAdd hoverText', { flex: fromPortal })} onClick={() => updateVisible('batchAdd')}>
-            {_l('批量添加')}
-          </div>
-          {!fromPortal && (
-            <div className="assignValue hoverText" onClick={() => updateVisible('assignValue')}>
-              {_l('赋分值')}
-            </div>
-          )}
+        <div className="batchAdd hoverText mLeft24" onClick={() => updateVisible('batchAdd')}>
+          {_l('批量添加')}
         </div>
+        <div
+          className={cx('otherAdd hoverText mLeft24', { disabled: hasOther, Hidden: showtype === '2' })}
+          onClick={() => {
+            if (hasOther) return;
+            addOption(true);
+          }}
+        >
+          {_l('添加其他')}
+        </div>
+        {!fromPortal && showAssign && (
+          <div className="assignValue hoverText flex TxtRight" onClick={() => updateVisible('assignValue')}>
+            {_l('赋分值')}
+          </div>
+        )}
       </HandleOption>
       {assignValueVisible && (
         <AssignValue
@@ -356,7 +382,16 @@ export default function SelectOptions(props) {
               if (mode === 'edit') {
                 return formatOptions(textArr);
               }
-              return options.concat(formatOptions(textArr.filter(v => !texts.includes(v))));
+              const newOptions = update(options, {
+                $splice: [
+                  [
+                    findOther ? options.length - 1 : options.length,
+                    0,
+                    ...formatOptions(textArr.filter(v => !texts.includes(v))),
+                  ],
+                ],
+              });
+              return newOptions.map((item, idx) => ({ ...item, index: idx + 1 }));
             };
             onChange({ options: getNewItems() });
             updateVisible('batchAdd', false);

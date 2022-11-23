@@ -1,1 +1,1 @@
-﻿module.exports = require('./voteContent');
+﻿export { default } from './voteContent';

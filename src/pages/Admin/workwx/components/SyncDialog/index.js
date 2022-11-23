@@ -16,6 +16,7 @@ export default class SyncDialog extends Component {
     this.state = {
       mingDaoUserInfos: [],
       bindQWUserIds: [], // 已绑定的企业微信列表
+      filterMatchPhoneBindUserIds: [],
       pageIndex: 1,
       pageSize: 20,
       allCount: 0,
@@ -36,6 +37,7 @@ export default class SyncDialog extends Component {
       this.setState({
         mingDaoUserInfos: nextProps.mingDaoUserInfos,
         bindQWUserIds: nextProps.bindQWUserIds,
+        filterMatchPhoneBindUserIds: nextProps.filterMatchPhoneBindUserIds,
         logDetailItems: nextProps.logDetailItems,
       });
     }
@@ -138,6 +140,9 @@ export default class SyncDialog extends Component {
     this.setState({
       mingDaoUserInfos: temp,
       bindQWUserIds: temp.filter(item => item.wxUserInfo && item.wxUserInfo.userId).map(v => v.wxUserInfo.userId),
+      filterMatchPhoneBindUserIds: temp
+        .filter(item => item.wxUserInfo && item.wxUserInfo.userId && item.wxUserInfo.matchType !== 1)
+        .map(v => v.wxUserInfo.userId),
     });
   };
 
@@ -304,6 +309,7 @@ export default class SyncDialog extends Component {
       workwxKeyword = '',
       mingDaoUserInfos = [],
       bindQWUserIds = [],
+      filterMatchPhoneBindUserIds = [],
       loading,
     } = this.state;
     const extra = isBindRelationship ? { footer: null } : {};
@@ -370,7 +376,9 @@ export default class SyncDialog extends Component {
               <div className="Gray_75">
                 {_l('新增组织用户 ')}
                 <span className="bold Gray">
-                  {this.getCount(4) - bindQWUserIds.length >= 0 ? this.getCount(4) - bindQWUserIds.length : 0}
+                  {this.getCount(4) - filterMatchPhoneBindUserIds.length >= 0
+                    ? this.getCount(4) - filterMatchPhoneBindUserIds.length
+                    : 0}
                 </span>
                 {_l(' 个；匹配到已有组织用户 ')}
                 <span className="bold Gray">{bindQWUserIds.length}</span>

@@ -53,6 +53,7 @@ function NewRecordForm(props) {
   const {
     loading,
     from,
+    isCustomButton,
     isCharge,
     notDialog,
     appId,
@@ -100,6 +101,7 @@ function NewRecordForm(props) {
       if (_.isEmpty(formdata)) {
         setWorksheetInfo(props.worksheetInfo);
         const newFormdata = await getFormDataForNewRecord({
+          isCustomButton,
           worksheetInfo: props.worksheetInfo,
           defaultRelatedSheet,
           defaultFormData,
@@ -253,13 +255,16 @@ function NewRecordForm(props) {
             onAdd(rowData);
           }
         },
+        onSubmitEnd: () => {
+          onSubmitEnd();
+          setRequesting(false);
+        },
         ..._.pick(props, [
           'notDialog',
           'addWorksheetRow',
           'customBtn',
           'masterRecord',
           'addType',
-          'onSubmitEnd',
           'updateWorksheetControls',
         ]),
       });
@@ -356,7 +361,25 @@ function NewRecordForm(props) {
             mountRef={ref => (customwidget.current = ref.current)}
             formFlag={random}
             recordinfo={worksheetInfo}
-            formdata={formdata}
+            formdata={formdata.filter(
+              it =>
+                !_.includes(
+                  [
+                    'wfname',
+                    'wfstatus',
+                    'wfcuaids',
+                    'wfrtime',
+                    'wfftime',
+                    'wfdtime',
+                    'wfcaid',
+                    'wfctime',
+                    'wfcotime',
+                    'rowid',
+                    'uaid',
+                  ],
+                  it.controlId,
+                ),
+            )}
             relateRecordData={relateRecordData}
             worksheetId={worksheetId}
             showError={errorVisible}
@@ -364,6 +387,24 @@ function NewRecordForm(props) {
               if (isSubmitting.current) {
                 return;
               }
+              const relateRecordListControls = data.filter(isRelateRecordTableControl);
+              relateRecordListControls.forEach(c => {
+                if (String(c.value || '').startsWith('[')) {
+                  try {
+                    const records = safeParse(c.value);
+                    setRelateRecordData(oldValue => ({
+                      ...oldValue,
+                      [c.controlId]: {
+                        ...c,
+                        value: records.map(r => r.row || safeParse(r.sourcevalue)),
+                      },
+                    }));
+                    c.value = records.length;
+                  } catch (err) {
+                    c.value = '0';
+                  }
+                }
+              });
               setFormdata([...data]);
               if (needCache && viewId && !noSaveTemp && cache.current.formUserChanged) {
                 saveToLocal('tempNewRecord', viewId, JSON.stringify(getRecordTempValue(data, relateRecordData)));

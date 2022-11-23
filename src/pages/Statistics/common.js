@@ -137,6 +137,8 @@ export function initConfigDetail(id, data, currentReport) {
       filterRangeId: 'ctime',
       filterRangeName: _l('创建时间'),
       rangeType: defaultDropdownScopeData,
+      rangeValue: 365,
+      today: true
     };
   }
 
@@ -171,9 +173,6 @@ export function initConfigDetail(id, data, currentReport) {
     result.xaxes = currentReport.xaxes;
     result.split = currentReport.split;
 
-    if ([reportTypes.NumberChart, reportTypes.FunnelChart, reportTypes.PieChart, reportTypes.CountryLayer].includes(reportType)) {
-      result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
-    }
     if (reportTypes.NumberChart === reportType) {
       result.xaxes = {};
     }
@@ -187,7 +186,8 @@ export function initConfigDetail(id, data, currentReport) {
         result.split = currentReport.split;
       }
     }
-    if ([reportTypes.RadarChart, reportTypes.FunnelChart].includes(reportType)) {
+    if ([reportTypes.FunnelChart, reportTypes.PieChart].includes(reportType)) {
+      result.yaxisList = currentReport.yaxisList;
       if (isTimeControl(currentReport.xaxes.controlType)) {
         result.xaxes = {};
       }
@@ -210,6 +210,7 @@ export function initConfigDetail(id, data, currentReport) {
       } else {
         result.xaxes = {};
       }
+      result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
     }
 
     if (result.displaySetup) {
@@ -460,7 +461,7 @@ export const isCustomSort = (type) => {
   }
 };
 
-export const defaultDropdownScopeData = 8;
+export const defaultDropdownScopeData = 18;
 
 /**
  * 处理数据对比的周期文案
@@ -522,6 +523,9 @@ export const formatContrastTypes = ({ rangeType, rangeValue }) => {
       const diff = endDate.diff(startDate, 'days');
       base.push({ text: _l('与之前的%0天相比', diff), value: 1 }, last);
       break;
+    case 21:
+      base.push({ text: _l('与上一期相比'), value: 1 }, last);
+      break;
     default:
       break;
   }
@@ -551,101 +555,152 @@ export const dropdownScopeData = [
   {
     text: _l('本周'),
     value: 4,
-    getScope: () => {
-      return [moment().startOf('w'), moment().endOf('w')];
-    }
   },
   {
     text: _l('上周'),
     value: 5,
-    getScope: () => {
-      return [moment().startOf('w').add(-1, 'w'), moment().endOf('w').add(-1, 'w')];
-    }
   },
   {
     text: _l('下周'),
     value: 6,
-    getScope: () => {
-      return [moment().startOf('w').add(1, 'w'), moment().endOf('w').add(1, 'w')];
-    }
   },
   {
     text: _l('本月'),
     value: 8,
-    getScope: () => {
-      return [moment().startOf('M'), moment().endOf('M')];
-    }
   },
   {
     text: _l('上月'),
     value: 9,
-    getScope: () => {
-      return [moment().startOf('M').add(-1, 'M'), moment().endOf('M').add(-1, 'M')];
-    }
   },
   {
     text: _l('下月'),
     value: 10,
-    getScope: () => {
-      return [moment().startOf('M').add(1, 'M'), moment().endOf('M').add(1, 'M')];
-    }
   },
   {
     text: _l('本季度'),
     value: 11,
-    getScope: () => {
-      return [moment().startOf('Q'), moment().endOf('Q')];
-    }
   },
   {
     text: _l('上季度'),
     value: 12,
-    getScope: () => {
-      return [moment().startOf('Q').add(-1, 'Q'), moment().endOf('Q').add(-1, 'Q')];
-    }
   },
   {
     text: _l('下季度'),
     value: 13,
-    getScope: () => {
-      return [moment().startOf('Q').add(1, 'Q'), moment().endOf('Q').add(1, 'Q')];
-    }
   },
   {
     text: _l('本年'),
     value: 15,
-    getScope: () => {
-      return [moment().startOf('Y'), moment().endOf('Y')];
-    }
   },
   {
     text: _l('上一年'),
     value: 16,
-    getScope: () => {
-      return [moment().startOf('Y').add(-1, 'Y'), moment().endOf('Y').add(-1, 'Y')];
-    }
   },
   {
     text: _l('下一年'),
     value: 17,
-    getScope: () => {
-      return [moment().startOf('Y').add(1, 'Y'), moment().endOf('Y').add(1, 'Y')];
-    }
   },
   {
     text: _l('过去...天'),
     value: 18,
   },
   {
-    text: _l('未来...天'),
+    text: _l('将来...天'),
     value: 19,
   },
   {
-    text: _l('自定义时间'),
+    text: _l('自定义动态时间范围'),
+    value: 21,
+  },
+  {
+    text: _l('指定时间范围'),
     value: 20,
     type: 'hr',
   },
 ];
+
+export const pastAndFutureData = [
+  {
+    text: _l('过去7天'),
+    value: '18-7',
+  },
+  {
+    text: _l('过去30天'),
+    value: '18-30',
+  },
+  {
+    text: _l('过去365天'),
+    value: '18-365',
+  },
+  {
+    text: _l('将来7天'),
+    value: '19-7',
+  },
+  {
+    text: _l('将来30天'),
+    value: '19-30',
+  },
+  {
+    text: _l('将来365天'),
+    value: '19-365',
+  },
+];
+
+export const timeTypes = [{
+  name: _l('今天'),
+  value: 1,
+}, {
+  name: _l('本月'),
+  value: 3,
+}, {
+  name: _l('本年'),
+  value: 4,
+}, {
+  name: _l('过去'),
+  value: 5,
+}, {
+  name: _l('将来'),
+  value: 6,
+}];
+
+export const unitTypes = [{
+  name: _l('天'),
+  value: 1,
+}, {
+  name: _l('月'),
+  value: 3,
+}, {
+  name: _l('年'),
+  value: 4,
+}];
+
+
+// export const getDynamicFilterScope = (dynamicFilter) => {
+//   const { endType, endCount, endUnit } = dynamicFilter;
+//   const unitTypes = {
+//     1: 'd',
+//     2: 'M',
+//     3: 'y'
+//   }
+//   const getStartTime = () => {
+//     const { startType, startCount, startUnit } = dynamicFilter;
+//     if (startType === 1) {
+//       return moment().format('YYYY/MM/DD');
+//     }
+//     if (startType === 2) {
+//       return moment().startOf('M').format('YYYY/MM/DD');
+//     }
+//     if (startType === 3) {
+//       return moment().startOf('Y').format('YYYY/MM/DD');
+//     }
+//     if (startType === 4) {
+//       // return moment().add(-startCount, unitTypes[startUnit]).format('YYYY/MM/DD');
+//     }
+//   }
+
+//   const startTime = getStartTime();
+// }
+
 
 /**
  * 是否是 过去...天 & 未来...天
@@ -884,11 +939,19 @@ export const fillValueMap = result => {
   const xaxisValueMap = valueMap[xaxes.controlId];
   const splitIdValueMap = valueMap[splitId];
 
-  if (reportType === reportTypes.PieChart) {
-    result.map = [];
-    result.aggregations.forEach(item => {
-      item.originalX = item.x;
-      item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x;
+  if (reportType === reportTypes.PieChart && xaxes.controlId) {
+    result.map = result.map.map(data => {
+      const value = data.value.map(item => {
+        return {
+          ...item,
+          originalX: item.x,
+          x: _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x
+        }
+      });
+      return {
+        ...data,
+        value
+      }
     });
     return result;
   }
@@ -897,7 +960,7 @@ export const fillValueMap = result => {
     result.contrastMap.forEach(control => {
       control.value.forEach(item => {
         item.originalX = item.x;
-        item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x || _l('空');
+        item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x;
       });
       return control;
     });
@@ -918,7 +981,7 @@ export const fillValueMap = result => {
       control.key = _.isEmpty(rightSplitIdValueMap) ? control.key : rightSplitIdValueMap[control.key] || control.key;
       control.value.forEach(item => {
         item.originalX = item.x;
-        item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x || _l('空');
+        item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x;
       });
       return control;
     });
@@ -929,7 +992,7 @@ export const fillValueMap = result => {
     control.key = _.isEmpty(splitIdValueMap) ? control.key : splitIdValueMap[control.key] || control.key;
     control.value.forEach(item => {
       item.originalX = item.x;
-      item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x || _l('空');
+      item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x;
     });
     return control;
   });
@@ -1245,10 +1308,22 @@ export const checkedDropdownItem = (value, list) => {
 /**
  * 格式化统计范围时间文案
  */
-export const formatrChartTimeText = ({ rangeType, rangeValue }) => {
+export const formatrChartTimeText = ({ rangeType, rangeValue, dynamicFilter }) => {
   const typeName = _.find(dropdownScopeData, { value: rangeType }) || {};
   const text = isPastAndFuture(rangeType) ? typeName.text.replace(/(\...)/i, rangeValue) : typeName.text;
-  return rangeType === 20 ? rangeValue : text;
+  if (rangeType === 20) {
+    return rangeValue;
+  } else if (rangeType === 21) {
+    const { startType, startCount, startUnit } = dynamicFilter;
+    const { endType, endCount, endUnit } = dynamicFilter;
+    const start = _.find(timeTypes, { value: startType }).name;
+    const end = _.find(timeTypes, { value: endType }).name;
+    const startUnitText = [5, 6].includes(startType) ? `${startCount}${ _.find(unitTypes, { value: startUnit }).name }` : '';
+    const endUnitText = [5, 6].includes(endType) ? `${endCount}${ _.find(unitTypes, { value: endUnit }).name }` : '';
+    return _l('%0至%1', start + startUnitText, end + endUnitText);
+  } else {
+    return text;
+  }
 };
 
 /**

@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import uploadNewVersionDailog from 'src/components/kcUploadNewVersion/kcUploadNewVersion';
+import uploadNewVersionDailog from './kcUploadNewVersion/kcUploadNewVersion';
 
 import service from '../api/service';
 import { createUploader } from '../utils/qiniuUpload';
@@ -85,4 +85,4 @@ class UploadNewVersion extends React.Component {
   }
 }
 
-module.exports = UploadNewVersion;
+export default UploadNewVersion;

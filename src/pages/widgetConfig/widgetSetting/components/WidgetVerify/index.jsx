@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'antd';
 import { SettingItem } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import InputValue from './InputValue';
@@ -77,14 +78,24 @@ const VerifySettingItem = styled(SettingItem)`
       margin-top: 12px;
     }
   }
+  .dropLabel {
+    .Checkbox {
+      white-space: normal;
+      align-items: flex-start;
+    }
+    .Checkbox-box {
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+  }
 `;
 
 export default function WidgetVerify(props) {
   const { data = {}, onChange, fromPortal } = props;
-  const { type } = data;
+  const { type, options = [] } = data;
   const Comp = CompConfig[type] || null;
   const settings = fromPortal ? TYPES_SETTING_PORTAL[type] || ['required'] : TYPES_SETTING[type] || ['required'];
-  const { max = '', min = '', checkrange = '0', allowweek = '', allowtime = '', showtype } = getAdvanceSetting(data);
+  const { max = '', min = '', checkrange = '0', showtype, otherrequired = '0' } = getAdvanceSetting(data);
   const { title, placeholder = [] } = TYPE_TO_TEXT[type] || {};
   return (
     <VerifySettingItem>
@@ -152,6 +163,23 @@ export default function WidgetVerify(props) {
           </NumberRange>
         )}
       </div>
+
+      {_.includes([9, 10, 11], type) && showtype !== '2' && _.find(options, i => i.key === 'other' && !i.isDeleted) && (
+        <div className="labelWrap dropLabel">
+          <Checkbox
+            size="small"
+            checked={otherrequired === '1'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { otherrequired: checked ? '0' : '1' }))}
+          >
+            <span>
+              {_l('选择“其他”时，补充信息必填')}
+              <Tooltip placement={'bottom'} title={_l('勾选后，当用户选中“其他”时，必须在后面的文本框中填写内容。')}>
+                <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+              </Tooltip>
+            </span>
+          </Checkbox>
+        </div>
+      )}
       {Comp && <Comp {...props} />}
     </VerifySettingItem>
   );

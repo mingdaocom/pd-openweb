@@ -206,6 +206,33 @@
     min-height: 120px;
     max-height: 600px;
     overflow-y: auto;
+    .ck-editor {
+      img {
+        max-width: 100%;
+      }
+    }
   }
 }
-
+.publishSettingsImgCon {
+  background-repeat: no-repeat;
+  background-size: auto 43px;
+  background-position: center;
+  &.pcCon {
+    background-image: url(./img/1.png);
+  }
+  &.pcConhover {
+    background-image: url(./img/1hover.png);
+  }
+  &.webCon {
+    background-image: url(./img/2.png);
+  }
+  &.webConhover {
+    background-image: url(./img/2hover.png);
+  }
+  &.appCon {
+    background-image: url(./img/3.png);
+  }
+  &.appConhover {
+    background-image: url(./img/3hover.png);
+  }
+}
