@@ -20,7 +20,7 @@ export default class Widgets extends Component {
     if (!value || (enumDefault === 3 && advancedSetting.hideneg === '1' && parseInt(value, 10) < 0)) {
       content = '';
     } else if ((enumDefault === 1 || enumDefault === 3) && _.includes(['1', '2'], unit)) {
-      if (advancedSetting.autocarry === '1') {
+      if (advancedSetting.autocarry === '1' || enumDefault === 1) {
         content = formatFormulaDate({ value, unit, dot });
       } else {
         content =

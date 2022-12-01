@@ -18,7 +18,7 @@ import { getIconNameByExt } from 'src/util';
 const HoverState = createDecoratedComponent(withHoverState);
 
 const ONE_PX_IMG =
-  'https://dn-mdmedia.qbox.me/fe288386-3d26-4eab-b5d2-51eeab82a7f9/2016/0/28/a5083931-2675-9402-2f70-2ad885ddfebf.png';
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAQSURBVHgBAQUA+v8A/////wn7A/2j0UkKAAAAAElFTkSuQmCC';
 
 export default createReactClass({
   displayName: 'KcAppItem',

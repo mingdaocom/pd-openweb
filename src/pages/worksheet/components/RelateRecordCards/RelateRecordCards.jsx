@@ -485,7 +485,7 @@ export default class RelateRecordCards extends Component {
                   disabledManualWrite={disabledManualWrite}
                   multiple={enumDefault === 2}
                   coverCid={coverCid}
-                  filterRowIds={records.map(r => r.rowid).concat(recordId)}
+                  filterRowIds={records.map(r => r.rowid).concat(control.dataSource === worksheetId ? recordId : [])}
                   showControls={showControls}
                   appId={appId}
                   viewId={viewId}

@@ -890,7 +890,7 @@ export default class RecordInfo extends Component {
                     .forEach(c => {
                       getRowDetail({ worksheetId, rowId: recordId, getType: 1 }).then(data => {
                         const controlValue = safeParse(data.rowData)[c.controlId];
-                        const newFormData = recordinfo.formData.map(cc =>
+                        const newFormData = tempFormData.map(cc =>
                           cc.controlId === c.controlId ? { ...cc, value: controlValue } : cc,
                         );
                         if (!_.isUndefined(controlValue)) {

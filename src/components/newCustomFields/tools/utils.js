@@ -659,7 +659,7 @@ export const getCheckAndOther = value => {
   let otherValue = '';
 
   JSON.parse(value || '[]').forEach(item => {
-    if (item.indexOf('other:') > -1) {
+    if ((item || '').toString().indexOf('other:') > -1) {
       otherValue = _.replace(item, 'other:', '');
       checkIds.push('other');
     } else {

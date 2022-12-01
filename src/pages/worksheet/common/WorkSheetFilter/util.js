@@ -637,8 +637,17 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
   if (
     defaultValue === FILTER_CONDITION_TYPE.ISNULL || // 为空
     defaultValue === FILTER_CONDITION_TYPE.HASVALUE || // 不为空
-    defaultValue === FILTER_CONDITION_TYPE.BETWEEN || // 在范围内
-    defaultValue === FILTER_CONDITION_TYPE.NBETWEEN // 不在范围内
+    // 在范围内 不在范围内(部门、地区支持属于不属于)
+    ((defaultValue === FILTER_CONDITION_TYPE.BETWEEN || defaultValue === FILTER_CONDITION_TYPE.NBETWEEN) &&
+      !_.includes(
+        [
+          API_ENUM_TO_TYPE.GROUP_PICKER,
+          API_ENUM_TO_TYPE.AREA_INPUT_19,
+          API_ENUM_TO_TYPE.AREA_INPUT_23,
+          API_ENUM_TO_TYPE.AREA_INPUT_24,
+        ],
+        conditionType,
+      ))
   ) {
     return [];
   }

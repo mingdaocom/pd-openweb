@@ -8,7 +8,7 @@ import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImport
 import ImportApp from 'src/pages/Admin/appManagement/modules/ImportApp.jsx';
 import { navigateTo } from 'src/router/navigateTo';
 import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
-import { upgradeVersionDialog, getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 
 const ADD_APP_MODE = [
   { id: 'createFromEmpty', icon: 'plus', text: _l('从空白创建'), href: '/app/lib' },
@@ -127,28 +127,30 @@ export default class AddAppItem extends Component {
               this.setState({ addTypeVisible: false });
             }}
           >
-            {(groupId ? ADD_APP_MODE : ADD_APP_MODE).map(({ id, icon, text, href, featureId }) => {
-              const featureType = getFeatureStatus(projectId, 2);
-              if (featureId && !featureType) return;
-              return (
-                <MenuItem
-                  key={id}
-                  icon={<Icon icon={icon} className="addItemIcon Font18" />}
-                  onClick={() => {
-                    if (featureType === 2) {
-                      buriedUpgradeVersionDialog(projectId, 2);
-                      return;
-                    }
-                    if (id === 'importExcelCreateApp') {
-                      this.setState({ dialogImportExcel: true });
-                    }
-                    this.handleClick({ id, href });
-                  }}
-                >
-                  {text}
-                </MenuItem>
-              );
-            })}
+            {ADD_APP_MODE.filter(o => !(o.id === 'installFromLib' && md.global.SysSettings.hideTemplateLibrary)).map(
+              ({ id, icon, text, href, featureId }) => {
+                const featureType = getFeatureStatus(projectId, 2);
+                if (featureId && !featureType) return;
+                return (
+                  <MenuItem
+                    key={id}
+                    icon={<Icon icon={icon} className="addItemIcon Font18" />}
+                    onClick={() => {
+                      if (featureType === 2) {
+                        buriedUpgradeVersionDialog(projectId, 2);
+                        return;
+                      }
+                      if (id === 'importExcelCreateApp') {
+                        this.setState({ dialogImportExcel: true });
+                      }
+                      this.handleClick({ id, href });
+                    }}
+                  >
+                    {text}
+                  </MenuItem>
+                );
+              },
+            )}
           </Menu>
         )}
         {dialogImportExcel && (

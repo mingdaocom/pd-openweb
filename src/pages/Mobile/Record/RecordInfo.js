@@ -78,7 +78,7 @@ class Record extends Component {
     const baseIds = this.getBaseIds();
     const getRowByIdRequest = worksheetAjax.getRowDetail({
       ...baseIds,
-      getType: 1,
+      getType: location.search.includes('share') ? 3 : 1,
       checkView: true,
       appId: null,
     });
@@ -601,10 +601,9 @@ class Record extends Component {
                   </Button>
                 </WingBlank>
               )}
-              {customBtns.length >= 2 &&
+              {(customBtns.length >= 2 || allowShare || sheetRow.allowDelete) &&
                 baseIds.appId &&
-                !this.props.isMobileOperate &&
-                (allowShare || sheetRow.allowDelete || (isSubList == 'true' && editable == 'true')) && (
+                !this.props.isMobileOperate && (
                   <div
                     className="moreOperation"
                     onClick={() => {

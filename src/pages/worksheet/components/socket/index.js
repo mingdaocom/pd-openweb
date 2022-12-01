@@ -64,7 +64,7 @@ const NoticeHeader = ({ storeId, type, finished, total, title, status = 1, execu
       <Notice>
         {!isPending && (
           <div className={cx('iconWrap')}>
-            {finished === total ? <i className={'icon icon-Import-success'}></i> : <LoadDiv size="small" />}
+            {finished === total ? <i className={'icon icon-Import-success'} /> : <LoadDiv size="small" />}
           </div>
         )}
         <div className="statusText">
@@ -83,7 +83,7 @@ const NoticeHeader = ({ storeId, type, finished, total, title, status = 1, execu
     <Notice>
       {!isPending && (
         <div className={cx('iconWrap', { rotate: id === 'pending' && !isOperate })}>
-          <i className={`icon icon-${isOperate ? 'interrupt_button' : icon} ${id}`}></i>
+          <i className={`icon icon-${isOperate ? 'interrupt_button' : icon} ${id}`} />
         </div>
       )}
 
@@ -148,7 +148,8 @@ export default function initWorksheetSocket() {
 
   if (!socket) return;
   socket.on('workflow', data => {
-    const { status, type, worksheetId, rowId, storeId, total, finished, title, executeType } = data;
+    const { status, type, worksheetId, rowId, storeId, total, finished, title, executeType, close } = data;
+
     if (status === 2 || (type === 4 && status === 1)) {
       emitter.emit('RELOAD_RECORD_INFO', {
         worksheetId,
@@ -156,6 +157,12 @@ export default function initWorksheetSocket() {
         closeWhenNotViewData: true,
       });
     }
+
+    if (close) {
+      notification.close('workflow');
+      return;
+    }
+
     if (storeId) {
       if (total === finished && !complete[storeId]) {
         complete[storeId] = data;

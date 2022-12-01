@@ -230,10 +230,10 @@ export default class RecordCard extends Component {
               }}
             />
           )}
-          <div className="Gray Blod Font16 ellipsis">{titleText}</div>
+          <div className="Gray bold Font16 ellipsis">{titleText}</div>
         </div>
         {advancedSetting.abstract && (
-          <div className="Gray_9e Font12 mBottom8">{this.renderControl(advancedSetting.abstract)}</div>
+          <div className="Gray_9e Font12 mBottom8 abstract">{this.renderControl(advancedSetting.abstract)}</div>
         )}
         <div className={cx(`cardContent${appshowtype}`)}>
           {(appshowtype === '0' ? displayControls.slice(0, 3) : displayControls).map(id =>

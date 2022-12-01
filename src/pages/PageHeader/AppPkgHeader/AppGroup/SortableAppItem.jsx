@@ -98,7 +98,7 @@ export default class SortableAppItem extends Component {
     const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
     const worksheets = _.filter(storage.worksheets || [], item => item.groupId === appSectionId);
     const { worksheetId, viewId } = worksheets.length ? worksheets[worksheets.length - 1] : {};
-    return `/app/${appId}/${appSectionId}/${_.filter([worksheetId, viewId], item => !!item).join('/')}`;
+    return `/app/${appId}/${appSectionId}/${_.filter([worksheetId, viewId], item => !!item).join('/')}?from=insite`;
   };
 
   handleKeyDown = e => {

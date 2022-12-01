@@ -63,7 +63,11 @@ class WorkSheet extends Component {
     }
     const id = this.getValidedWorksheetId(nextProps);
     let { appId, groupId, viewId } = nextProps.match.params;
-    if (appId !== this.props.match.params.appId || groupId !== this.props.match.params.groupId) {
+    if (
+      appId !== this.props.match.params.appId ||
+      groupId !== this.props.match.params.groupId ||
+      nextProps.match.params.worksheetId !== this.props.match.params.worksheetId
+    ) {
       updateWorksheetLoading(true);
     }
     if (
@@ -193,7 +197,7 @@ class WorkSheet extends Component {
     if ((_.isEmpty(sheetList) || _.isEmpty(currentSheet)) && !md.global.Account.isPortal) {
       const emptySheet = id && _.isEmpty(currentSheet);
       if (
-        !_.isEmpty(sheetList.filter(s => s.appId === appId)) &&
+        !_.isEmpty(sheetList.filter(s => s.appId === appId && s.appSectionId === groupId)) &&
         new URL(location.href).searchParams.get('from') === 'insite'
       ) {
         navigateTo(`/app/${appId}`, true);

@@ -60,7 +60,7 @@ export default class Add extends React.Component {
           });
           let str = _l('操作失败');
           if (data.joinProjectResult === 2) {
-            str = _l('请等待管理员审批');
+            str = _l('您已提交申请，请耐心等待管理员审批！');
           } else if (data.joinProjectResult === 3) {
             str = _l('您已是该组织成员');
           } else if (data.joinProjectResult === 4) {
@@ -71,6 +71,8 @@ export default class Add extends React.Component {
             str = _l('验证码错误');
           } else if (data.joinProjectResult === 7) {
             str = _l('该组织未开启搜索加入，请联系组织管理员');
+          } else if (data.joinProjectResult === 12) {
+            str = _l('您提交的加入申请未被通过');
           }
           if (data.joinProjectResult === 3) {
             alert(str, 1, 2000, function () {

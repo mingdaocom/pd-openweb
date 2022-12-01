@@ -332,16 +332,6 @@ class WorkSheetLeft extends Component {
     onCreateItem({ type, name: name.slice(0, 25) });
     this.setState({ createType: '' });
   };
-  getAlign = () => {
-    const $item = document.getElementById('createCustomItem');
-    if (!$item) return;
-    const { bottom } = $item.getBoundingClientRect();
-    if (window.innerHeight - bottom > 75) {
-      return { points: ['tl', 'bl'], offset: [10, 0] };
-    } else {
-      return { points: ['bl', 'tl'], offset: [10, -60] };
-    }
-  };
   renderMenu() {
     return (
       <div className="createNewMenu pTop12">
@@ -408,7 +398,14 @@ class WorkSheetLeft extends Component {
               popupVisible={createMenuVisible}
               onPopupVisibleChange={visible => this.setState({ createMenuVisible: visible })}
               action={['click']}
-              popupAlign={this.getAlign()}
+              popupAlign={{
+                points: ['tl', 'bl'],
+                offset: [10, 0],
+                overflow: {
+                  adjustX: true,
+                  adjustY: true,
+                }
+              }}
               popup={this.renderMenu()}
             >
               <div

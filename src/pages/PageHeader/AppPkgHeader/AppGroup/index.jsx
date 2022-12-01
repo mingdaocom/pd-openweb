@@ -90,7 +90,7 @@ export default class extends Component {
       this.setState({ appRoleType, data }, () => {
         setTimeout(() => {
           this.ensurePointerVisible();
-        }, 0);
+        }, 500);
       });
     });
   };

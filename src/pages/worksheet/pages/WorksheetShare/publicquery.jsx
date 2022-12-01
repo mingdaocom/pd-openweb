@@ -109,7 +109,7 @@ class Publicquery extends React.Component {
               disableRules
               recordId="00000"
               ref={this.customwidget}
-              data={controls.map(c => ({ ...c, size: 12, required: true, unique: false }))}
+              data={controls.map(c => ({ ...c, size: 12, required: true, unique: false, fieldPermission: '111' }))} //公开查询，不受字段本身的只读属性影响
               projectId={projectId}
               worksheetId={worksheetId}
             />

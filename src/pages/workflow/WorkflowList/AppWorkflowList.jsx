@@ -295,7 +295,9 @@ class AppWorkflowList extends Component {
     return (
       <Fragment>
         <div className="flexRow manageList manageListHeader bold">
-          <div className="flex mLeft10">{_l('流程名称')}</div>
+          <div className="flex mLeft10" style={{ minWidth: 120 }}>
+            {_l('流程名称')}
+          </div>
           <div className="w180">
             {type === FLOW_TYPE.OTHER_APP
               ? _l('修改工作表')

@@ -7,6 +7,9 @@
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.16);
   position: relative;
 
+  .descBoxInfo {
+    display: none;
+  }
   &.coverRight {
     flex-direction: row-reverse;
     .fill,
@@ -68,7 +71,7 @@
     }
   }
   .recordCardContent {
-    padding: 5px 12px;
+    padding: 10px 12px;
     width: 0;
     overflow: hidden;
 
@@ -102,7 +105,7 @@
         overflow: hidden;
       }
       .controlWrapper {
-        margin-bottom: 5px;
+        margin-bottom: 7px;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -126,18 +129,23 @@
 
   .controlContent {
     .editableCellCon {
-      word-break: break-all;
       overflow: hidden;
       text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      /* autoprefixer: off */
-      -webkit-box-orient: vertical;
-      /* autoprefixer: on */
+      white-space: nowrap;
+      vertical-align: top;
     }
     .linelimit {
       display: inherit !important;
     }
+  }
+  .abstract .editableCellCon {
+    white-space: initial;
+    word-break: break-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    /* autoprefixer: off */
+    -webkit-box-orient: vertical;
+    /* autoprefixer: on */
   }
   .emptyTag {
     border-radius: 3px;

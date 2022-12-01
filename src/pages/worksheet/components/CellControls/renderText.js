@@ -108,7 +108,7 @@ export default function renderText(cell, options = {}) {
           return moment(cell.value).format(cell.unit === '3' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
         } else {
           if (_.includes(['1', '2'], unit)) {
-            if (cell.advancedSetting.autocarry === '1') {
+            if (cell.advancedSetting.autocarry === '1' || cell.enumDefault === 1) {
               return formatFormulaDate({ value: cell.value, unit, dot: cell.dot });
             } else {
               return (

@@ -156,6 +156,7 @@ export default class Widgets extends Component {
         } else if (!item.subid) {
           this.props.onChange(itemData[item.cid], control.controlId);
         }
+        this.setState({ data: null, open: false, keywords: '' });
       }
     });
   };
