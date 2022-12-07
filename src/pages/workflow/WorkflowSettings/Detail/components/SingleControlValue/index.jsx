@@ -653,16 +653,16 @@ export default class SingleControlValue extends Component {
                         <img
                           src={o.serverName + o.key}
                           style={{ height: 28 }}
-                          onClick={() => this.previewAttachments(o)}
+                          // onClick={() => this.previewAttachments(o)}
                         />
                       ) : (
                         <span
                           className={`fileIcon fileIcon-${ext}`}
                           style={{ width: 24, height: 28 }}
-                          onClick={() => this.previewAttachments(o)}
+                          // onClick={() => this.previewAttachments(o)}
                         />
                       )}
-                      <span className="ThemeHoverColor3 pointer" onClick={() => this.previewAttachments(o)}>
+                      <span className="ThemeHoverColor3 pointer">
                         <span className="ellipsis InlineBlock mLeft5" style={{ maxWidth: 200 }}>
                           {o.originalFileName || o.originalFilename}
                         </span>

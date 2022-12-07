@@ -47,18 +47,8 @@ export default class Cascader extends React.Component {
   }
 
   render() {
-    const {
-      from,
-      className,
-      style,
-      error,
-      cell,
-      editable,
-      isediting,
-      updateEditingStatus,
-      updateCell,
-      onClick,
-    } = this.props;
+    const { from, className, style, error, cell, editable, isediting, updateEditingStatus, updateCell, onClick } =
+      this.props;
     const { value } = this.state;
     return (
       <EditableCellCon
@@ -73,26 +63,28 @@ export default class Cascader extends React.Component {
       >
         {!isediting && <div className="cellread linelimit">{value && renderText({ ...cell, value })}</div>}
         {isediting && (
-          <CascaderDropdown
-            value={value}
-            from={from}
-            visible={isediting}
-            disabled={!editable}
-            onChange={this.handleChange}
-            dataSource={cell.dataSource}
-            viewId={cell.viewId}
-            advancedSetting={cell.advancedSetting}
-            onPopupVisibleChange={visible => {
-              if (!visible) {
-                if (!_.isUndefined(this.value)) {
-                  updateCell({
-                    value: this.value,
-                  });
+          <div onClick={e => e.stopPropagation()}>
+            <CascaderDropdown
+              value={value}
+              from={from}
+              visible={isediting}
+              disabled={!editable}
+              onChange={this.handleChange}
+              dataSource={cell.dataSource}
+              viewId={cell.viewId}
+              advancedSetting={cell.advancedSetting}
+              onPopupVisibleChange={visible => {
+                if (!visible) {
+                  if (!_.isUndefined(this.value)) {
+                    updateCell({
+                      value: this.value,
+                    });
+                  }
+                  updateEditingStatus(false);
                 }
-                updateEditingStatus(false);
-              }
-            }}
-          />
+              }}
+            />
+          </div>
         )}
       </EditableCellCon>
     );

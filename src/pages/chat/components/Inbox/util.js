@@ -253,7 +253,7 @@ export const buildSourceLink = function (type, _sourceId, _extendsId) {
         } else {
           linkUrl = !browserIsMobile()
             ? replacePorTalUrl(`/app/${appId}/${sourceId}/${viewId}/row/${childId}?share`)
-            : `/mobile/record/${appId}/${sourceId}/${viewId}/${childId}`;//h5跳到记录详情
+            : `/mobile/record/${appId}/${sourceId}/${viewId}/${childId}?share`;//h5跳到记录详情
         }
       } else {
         linkUrl = ' /worksheet/' + sourceId + '/row/' + childId + '?share';

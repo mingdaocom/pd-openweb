@@ -130,7 +130,7 @@ msgstr "My Apps"
 
 #: Disabled references:1
 msgid "应用库"
-msgstr "Library"
+msgstr "App Library"
 
 #: Disabled references:1
 msgid "应用"
@@ -5878,15 +5878,15 @@ msgstr "Video"
 
 #: Disabled references:1
 msgid "明道云博客"
-msgstr "Mingdao"
+msgstr "Blog"
 
 #: Disabled references:1
 msgid "第三方应用"
-msgstr "Integration"
+msgstr "More Apps"
 
 #: Disabled references:1
 msgid "零代码社区"
-msgstr "Zero code community"
+msgstr "Online Community"
 
 #: Disabled references:1
 msgid "应用伙伴"
@@ -8562,11 +8562,11 @@ msgstr "Pending"
 
 #: Disabled references:1
 msgid "待填写"
-msgstr "To fill in"
+msgstr "To fill"
 
 #: Disabled references:1
 msgid "我发起的"
-msgstr "I triggered"
+msgstr "My Initiated"
 
 #: Disabled references:1
 msgid "已完成"
@@ -11062,7 +11062,7 @@ msgstr "Forwarded for Approval"
 
 #: Disabled references:1
 msgid "待查看"
-msgstr "To be checked"
+msgstr "To read"
 
 #: Disabled references:1
 msgid "已查看"
@@ -38952,7 +38952,7 @@ msgstr "Displayed as -- (interrupt)"
 
 #: Disabled references:1
 msgid "流程待办"
-msgstr "Process to-do"
+msgstr "To-do"
 
 #: Disabled references:1
 msgid "外部协作"
@@ -39032,19 +39032,19 @@ msgstr "Collaboration"
 
 #: Disabled references:1
 msgid "学习资源"
-msgstr "Learning Resources"
+msgstr "Learn"
 
 #: Disabled references:1
 msgid "推广奖励"
-msgstr "Promotion Rewards"
+msgstr "Promote"
 
 #: Disabled references:1
 msgid "集成中心"
-msgstr "Integration Center"
+msgstr "Integration"
 
 #: Disabled references:1
 msgid "学习"
-msgstr "learn"
+msgstr "Learn"
 
 #: Disabled references:1
 msgid "视频学习"
@@ -39052,7 +39052,7 @@ msgstr "Video Course"
 
 #: Disabled references:1
 msgid "帮助文档"
-msgstr "Help Doc"
+msgstr "Help"
 
 #: Disabled references:1
 msgid "实践案例"

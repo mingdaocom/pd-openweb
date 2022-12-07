@@ -454,8 +454,16 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
           return;
         }
         //人员、部门、关联表、组织角色
-        if (_.includes([26, 27, 29, 35, 48], currentControl.type)) {
+        if (_.includes([26, 27, 35, 48], currentControl.type)) {
           item.values = JSON.parse(currentControl.value || '[]').map(ac => ac[FILTER_TYPE[currentControl.type]]);
+          return;
+        }
+        if (_.includes([29], currentControl.type)) {
+          if (_.isArray(JSON.parse(currentControl.value || '[]'))) {
+            item.values = JSON.parse(currentControl.value || '[]').map(ac => ac[FILTER_TYPE[currentControl.type]]);
+          } else {
+            item.values = (currentControl.data || []).map(ac => ac.rowid);
+          }
           return;
         }
       }
@@ -578,9 +586,7 @@ export const getCurrentValue = (item, data, control) => {
 
 // 特殊手机号验证是否合法
 export const specialTelVerify = value => {
-  return /\+234\d{10}$|\+63\d{10}$|\+852\d{8}$|\+861\d{10}$|\+5551\d{8}$|\+8536855\d{4}$|\+8536856\d{4}$|\+8536857\d{4}$|\+8536858\d{4}$|\+8536859\d{4}$/.test(
-    value || '',
-  );
+  return /\+234\d{10}$|\+63\d{10}$|\+852\d{8}$|\+85368\d{6}$|\+861\d{10}$|\+5551\d{8}$/.test(value || '');
 };
 
 export const compareWithTime = (start, end, type) => {

@@ -326,7 +326,10 @@ export default class UploadFiles extends Component {
           } else if (currentFileLength > 20) {
             alert(_l('附件数量超过限制，一次上传不得超过20个附件'), 3);
             const num = currentFileLength - 20;
-            files.splice(files.length - num, num);
+            files.splice(files.length - num, num).map(file => {
+              uploader.removeFile({ id: file.id });
+            });
+
           }
 
           const tokenFiles = [];

@@ -238,7 +238,7 @@ export default class HistoryDetail extends Component {
             <HistoryStatus statusCode={data.status} size={44} color={color} textSize={18} />
             <div className="title flex mRight15">
               <div className="overflow_ellipsis Font18">
-                {_l('数据：') + (works.length && works[0].flowNode.appType === 17 ? _l('输入参数') : title)}
+                {_l('数据：') + (works.length && works[0].flowNode.appType === 17 ? _l('输入参数') : (title || ''))}
               </div>
               <div style={{ color }}>
                 {cause

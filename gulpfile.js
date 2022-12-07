@@ -105,13 +105,13 @@ gulp.task('clean-build', done => {
   done();
 });
 
-const blackWordList = ['hart-dev.com', 'batheticrecords.com', '@mingdao.com'];
+const blackWordList = ['http://hart-dev.com', 'batheticrecords.com', 'http://developer.yahoo.com/yui/license.html'];
 
 gulp.task('remove-unsafe-words', () => {
   return gulp
-    .src(['./build/**/*.js'])
+    .src(['./build/dist/**/*.js'])
     .pipe($.replace(new RegExp(`(${blackWordList.join('|')})`, 'g'), '--****--'))
-    .pipe(gulp.dest('./build'));
+    .pipe(gulp.dest('./build/dist'));
 });
 
 /** 本地方法命令 */
@@ -164,7 +164,7 @@ gulp.task('publish', publishdone => {
   //   console.log('dist 文件不存在，请先执行 release 操作');
   //   return;
   // }
-  gulp.series('clean-file', 'generate-mainweb', 'copy', function log(done) {
+  gulp.series('clean-file', 'remove-unsafe-words', 'generate-mainweb', 'copy', function log(done) {
     done();
     publishdone();
     console.log(gutil.colors.green('publish 成功 🎉'));

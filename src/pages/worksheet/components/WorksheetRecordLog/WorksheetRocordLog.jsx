@@ -765,7 +765,7 @@ function WorksheetRocordLog(props, ref) {
     loadNewEdition({ startDateTime: undefined, endDateTime: undefined, lastMark: undefined });
   };
 
-  function handleScroll() {
+  const handleScroll = _.debounce(() => {
     if ((selectUser || selectField || selectDate.range) && sign.newDataEnd) return;
     if (loading) return;
     if (loadouted && sign.newDataEnd) return;
@@ -781,7 +781,7 @@ function WorksheetRocordLog(props, ref) {
         oldLogIndex: pageIndexs.oldLogIndex + 1,
       });
     }
-  }
+  }, 500)
 
   const selectUserCallback = value => {
     setSelectUser(value);

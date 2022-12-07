@@ -1,4 +1,5 @@
-﻿import React from 'react';
+﻿import cx from 'classnames';
+import React from 'react';
 import createTask from 'src/components/createTask/createTask';
 import createReactClass from 'create-react-class';
 import createCalendar from 'src/components/createCalendar/createCalendar';
