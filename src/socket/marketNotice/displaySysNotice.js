@@ -1,3 +1,4 @@
+import moment from 'moment';
 import animatePopup from 'src/components/animatePopup/animatePopup';
 
 let _Popup = null;

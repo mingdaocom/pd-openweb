@@ -6,6 +6,7 @@ import { getRePosFromStr } from 'ming-ui/components/TagTextarea';
 import { TagTextarea, Icon } from 'ming-ui';
 import { isNumberControl, normTypes } from 'statistics/common';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const ControlTag = styled.div`
   line-height: 24px;

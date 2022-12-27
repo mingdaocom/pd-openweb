@@ -9,8 +9,9 @@ import ReactDom from 'react-dom';
 import Empty from '../common/TableEmpty';
 import cx from 'classnames'
 import 'src/components/pager/pager';
-import 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
+import DialogSelectMapGroupDepart from 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
 import CreateGroup from 'src/components/group/create/creatGroup';
+import moment from 'moment';
 
 const { Search } = Input;
 
@@ -227,7 +228,7 @@ export default class GroupsList extends Component {
 
   handleEditDept(record) {
     const _this = this;
-    $('body').dialogSelectMapGroupDepart({
+    DialogSelectMapGroupDepart({
       projectId: Config.projectId,
       defaultSelectId: record.mapDepartmentId,
       callback: function(data) {

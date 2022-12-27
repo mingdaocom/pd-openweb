@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import { getItem, setItem } from '../../util';
+import _ from 'lodash';
 
 const NATIVE_MODULES = [
   { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#2196f3', href: '/feed', key: 1 },

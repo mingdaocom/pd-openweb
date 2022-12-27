@@ -4,10 +4,10 @@ import { getParaIds } from './util';
 import update from 'immutability-helper';
 import { includes, noop, isEmpty } from 'lodash';
 import { uniqBy } from 'lodash/array';
-import { getFilterRows, updateWorksheetRow } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { wrapAjax } from './util';
 
-const wrappedGetFilterRows = wrapAjax(getFilterRows);
+const wrappedGetFilterRows = wrapAjax(worksheetAjax.getFilterRows);
 
 export function updateBoardViewRecordCount(data) {
   return { type: 'UPDATE_BOARD_VIEW_RECORD_COUNT', data };
@@ -116,7 +116,7 @@ export function initBoardViewData(view) {
 
 // 拉取看板数据以填满页面
 function getBoardViewDataFillPage({ para, dispatch }) {
-  (para.type === 'single' ? getFilterRows : wrappedGetFilterRows)(para).then(({ data, resultCode }) => {
+  (para.type === 'single' ? worksheetAjax.getFilterRows : wrappedGetFilterRows)(para).then(({ data, resultCode }) => {
     if (resultCode !== 1) {
       dispatch({
         type: 'WORKSHEET_UPDATE_ACTIVE_VIEW_STATUS',
@@ -223,7 +223,7 @@ export function sortBoardRecord({ srcKey, targetKey, value, ...para }) {
   return (dispatch, getState) => {
     const { sheet } = getState();
     const { rowId } = para;
-    updateWorksheetRow(para).then(res => {
+    worksheetAjax.updateWorksheetRow(para).then(res => {
       if (!isEmpty(res.data)) {
         dispatch({ type: 'SORT_BOARD_VIEW_RECORD', data: { key: srcKey, rowId, targetKey } });
         dispatch(updateBoardViewRecordCount([srcKey, -1]));

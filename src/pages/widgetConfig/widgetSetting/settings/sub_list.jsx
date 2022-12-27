@@ -5,8 +5,8 @@ import { Tooltip } from 'antd';
 import update from 'immutability-helper';
 import { v4 as uuidv4 } from 'uuid';
 import cx from 'classnames';
-import { getWorksheetInfo, getQueryBySheetId } from 'src/api/worksheet';
-import { changeSheet } from 'src/api/appManagement';
+import worksheetAjax from 'src/api/worksheet';
+import appManagementAjax from 'src/api/appManagement';
 import styled from 'styled-components';
 import { getSortData } from 'src/pages/worksheet/util';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
@@ -93,7 +93,8 @@ export default function SubListSetting(props) {
     }
     if (saveIndex && dataSource && !dataSource.includes('-')) {
       setLoading(true);
-      getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
+      worksheetAjax
+        .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
         .then(res => {
           const controls = _.get(res, ['template', 'controls']);
           const saveData = _.find(allControls, i => i.controlId === data.controlId);
@@ -124,7 +125,7 @@ export default function SubListSetting(props) {
 
   const getQueryConfigs = ({ isWorksheetQuery, worksheetId }) => {
     if (isWorksheetQuery) {
-      getQueryBySheetId({ worksheetId }).then(res => {
+      worksheetAjax.getQueryBySheetId({ worksheetId }).then(res => {
         const formatSearchData = formatSearchConfigs(res);
         setSubQueryConfigs(formatSearchData);
         window.subListSheetConfig[controlId] = {
@@ -147,9 +148,7 @@ export default function SubListSetting(props) {
   };
 
   const filterRelationControls = info => {
-    return (_.get(info, ['template', 'controls']) || []).filter(
-      item => item.controlId !== 'ownerid' && !_.includes([45, 47, 49], item.type),
-    );
+    return (_.get(info, ['template', 'controls']) || []).filter(item => !_.includes([45, 47, 49], item.type));
   };
 
   useEffect(() => {
@@ -164,7 +163,8 @@ export default function SubListSetting(props) {
       return;
     }
     setLoading(true);
-    getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
+    worksheetAjax
+      .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
       .then(res => {
         const controls = filterRelationControls(res);
         const defaultShowControls = getDefaultShowControls(controls);
@@ -229,15 +229,17 @@ export default function SubListSetting(props) {
           if (window.subListSheetConfig[controlId]) {
             window.subListSheetConfig[controlId].mode = 'relate';
           }
-          changeSheet({
-            sourceWorksheetId: currentWorksheetId,
-            worksheetId: dataSource,
-            name: data.controlName,
-          }).then(res => {
-            if (res) {
-              alert(_l('转换成功'));
-            }
-          });
+          appManagementAjax
+            .changeSheet({
+              sourceWorksheetId: currentWorksheetId,
+              worksheetId: dataSource,
+              name: data.controlName,
+            })
+            .then(res => {
+              if (res) {
+                alert(_l('转换成功'));
+              }
+            });
         },
       });
     } else {

@@ -9,7 +9,7 @@ import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
 import Search from 'src/pages/workflow/components/Search';
 import UserHead from 'src/pages/feed/components/userHead/userHead';
 import ajaxRequest from 'src/api/appManagement';
-import { deleteApp } from 'src/api/homeApp';
+import homeAppAjax from 'src/api/homeApp';
 import projectSettingAjaxRequest from 'src/api/projectSetting';
 import 'src/components/dialogSelectUser/dialogSelectUser';
 import CustomIcon from './CustomIcon';
@@ -24,6 +24,8 @@ import AppLog from './modules/AppLog';
 import { Drawer } from 'antd';
 import EventEmitter from 'events';
 import { upgradeVersionDialog, getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import _ from 'lodash';
+import moment from 'moment';
 
 export const emitter = new EventEmitter();
 
@@ -281,7 +283,7 @@ export default class AppManagement extends Component {
                             total: oldTotal - 1,
                             hiddenIds: _.uniq([...hiddenIds, item.appId]),
                           });
-                          deleteApp({
+                          homeAppAjax.deleteApp({
                             appId: item.appId,
                             projectId,
                             isHomePage: false,

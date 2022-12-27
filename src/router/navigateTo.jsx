@@ -1,6 +1,6 @@
 ﻿import ReactDOM from 'react-dom';
 import redirect from 'src/common/redirect';
-import $ from 'jquery';
+
 import { getAppFeaturesPath } from 'src/util';
 import { getSuffix } from 'src/pages/PortalAccount/util';
 export const urlStack = [];

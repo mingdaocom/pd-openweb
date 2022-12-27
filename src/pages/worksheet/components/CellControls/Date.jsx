@@ -42,6 +42,18 @@ export default class Date extends React.Component {
   editIcon = React.createRef();
 
   @autobind
+  handleTableKeyDown(e) {
+    const { updateEditingStatus } = this.props;
+    switch (e.key) {
+      case 'Escape':
+        updateEditingStatus(false);
+        break;
+      default:
+        break;
+    }
+  }
+
+  @autobind
   handleChange(value) {
     const { tableFromModule, updateCell, updateEditingStatus, onValidate } = this.props;
     const error = !onValidate(value);
@@ -70,7 +82,7 @@ export default class Date extends React.Component {
   render() {
     const {
       className,
-      formdata = () => [],
+      rowFormData = () => [],
       masterData = () => {},
       style,
       tableFromModule,
@@ -98,12 +110,12 @@ export default class Date extends React.Component {
         <Trigger
           getPopupContainer={cellPopupContainer}
           popupVisible={isediting && !!error}
-          popup={<CellErrorTips error={error} pos={rowIndex === 1 ? 'bottom' : 'top'} />}
+          popup={<CellErrorTips error={error} pos={rowIndex === 0 ? 'bottom' : 'top'} />}
           destroyPopupOnHide
           zIndex="1051"
           popupAlign={{
-            points: rowIndex === 1 ? ['tl', 'bl'] : ['bl', 'tl'],
-            offset: rowIndex === 1 ? [0, -3] : [0, 0],
+            points: rowIndex === 0 ? ['tl', 'bl'] : ['bl', 'tl'],
+            offset: rowIndex === 0 ? [0, -3] : [0, 0],
           }}
         >
           <EditableCellCon
@@ -122,7 +134,7 @@ export default class Date extends React.Component {
                 {renderText({ ...cell, value })}
               </div>
             )}
-            {isediting && error && <CellErrorTips error={error} pos={rowIndex === 1 ? 'bottom' : 'top'} />}
+            {isediting && error && <CellErrorTips error={error} pos={rowIndex === 0 ? 'bottom' : 'top'} />}
           </EditableCellCon>
         </Trigger>
         {isediting && (
@@ -148,7 +160,7 @@ export default class Date extends React.Component {
                 <DatePicker
                   {...cell}
                   {...(tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? { value } : {})}
-                  formData={formdata()}
+                  formData={rowFormData()}
                   masterData={masterData()}
                   dropdownClassName="scrollInTable"
                   onChange={this.handleChange}

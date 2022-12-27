@@ -1,15 +1,14 @@
-import { getRowDetail as getRowDetailApi } from 'src/api/worksheet';
-import { updateWorksheetRow } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { replaceByIndex } from 'worksheet/util';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
+import _ from 'lodash';
 
 export function getRowDetail(params, controls, options = {}) {
   return new Promise((resolve, reject) => {
     if (!controls) {
       params.getTemplate = true;
     }
-    getRowDetailApi(params, options)
+    worksheetAjax.getRowDetail(params, options)
       .then(data => {
         const rowData = safeParse(data.rowData);
         let controlPermissions = safeParse(rowData.controlpermissions);
@@ -37,7 +36,7 @@ export function deleteAttachmentOfControl(
     },
   ];
 
-  updateWorksheetRow({
+  worksheetAjax.updateWorksheetRow({
     appId,
     viewId,
     worksheetId,

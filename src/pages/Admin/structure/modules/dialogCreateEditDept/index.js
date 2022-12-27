@@ -2,8 +2,8 @@ import './style.less';
 import 'src/components/mdDialog/dialog';
 import doT from '@mdfe/dot';
 import { getRenderInfo } from '../util';
-var departmentController = require('src/api/department');
-import { checkSensitive } from 'src/api/fixedData.js';
+import departmentController from 'src/api/department';
+import fixedDataAjax from 'src/api/fixedData.js';
 import chargerTpl from './tpl/chargeUserTpl.html';
 import mainHtml from './tpl/main.html';
 import { updateTreeData } from 'src/pages/Admin/structure/modules/util';
@@ -194,7 +194,7 @@ CreateEditDeptDialog.prototype.createDept = function () {
   if ($.trim(deptName) === '') {
     return alert(_l('请输入部门名称'), 2);
   }
-  checkSensitive({ content: deptName }).then(res => {
+  fixedDataAjax.checkSensitive({ content: deptName }).then(res => {
     if (res) {
       return alert(_l('输入内容包含敏感词，请重新填写'), 3);
     }
@@ -257,7 +257,7 @@ CreateEditDeptDialog.prototype.editDept = function () {
   if ($.trim(deptName) === '') {
     return alert(_l('请输入部门名称'), 2);
   }
-  checkSensitive({ content: deptName }).then(res => {
+  fixedDataAjax.checkSensitive({ content: deptName }).then(res => {
     if (res) {
       return alert(_l('输入内容包含敏感词，请重新填写'), 3);
     }

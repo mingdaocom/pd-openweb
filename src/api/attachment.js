@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 根据fileID获取附件详情 (动态分享)
   * @param {Object} args 请求参数

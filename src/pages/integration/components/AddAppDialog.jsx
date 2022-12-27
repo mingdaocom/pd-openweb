@@ -7,7 +7,7 @@ import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput'
 import APITable from './APITable';
 import SvgIcon from 'src/components/SvgIcon';
 import { WrapFooter } from '../containers/style';
-import { getAppsForProject, getManagerApps } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
 const WrapHeader = styled.div`
   .searchCon > div {
@@ -89,7 +89,7 @@ export default function AddAppDialog(props) {
     }
     setState({ loading: true });
     Ajax = props.isSuperAdmin
-      ? getAppsForProject({
+      ? appManagementAjax.getAppsForProject({
           projectId: localStorage.getItem('currentProjectId'),
           status: '',
           order: 3,
@@ -97,7 +97,7 @@ export default function AddAppDialog(props) {
           pageSize: 30,
           keyword: keywords,
         })
-      : getManagerApps({
+      : appManagementAjax.getManagerApps({
           projectId: localStorage.getItem('currentProjectId'),
         });
     Ajax.then(res => {

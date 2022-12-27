@@ -1,3 +1,5 @@
+import moment from 'moment';
+import _ from 'lodash';
 /**
  * 图表类型
  */

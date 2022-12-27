@@ -7,6 +7,7 @@ import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-ho
 import reportConfig from 'statistics/api/reportConfig';
 import { getSortData, isCustomSort, isTimeControl, formatSorts, timeParticleSizeDropdownData } from '../../common';
 import { reportTypes } from '../../Charts/common';
+import _ from 'lodash';
 
 const SortContent = styled.div`
   border-radius: 3px;

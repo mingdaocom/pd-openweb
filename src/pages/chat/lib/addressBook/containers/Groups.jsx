@@ -10,6 +10,7 @@ import GroupFilter from '../components/GroupFilter';
 import API from '../api';
 
 import { SEARCH_GROUP_TYPES, GROUP_STATUS } from '../constants';
+import _ from 'lodash';
 
 const formatGroupsData = (store, list) => {
   const result = store || {};

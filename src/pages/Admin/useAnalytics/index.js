@@ -8,6 +8,7 @@ import UpgradeVersion from '../components/UpgradeVersion';
 import { getFeatureStatus } from '../../../util';
 import cx from 'classnames';
 import './index.less';
+import moment from 'moment';
 
 const TABS = [
   { key: 'overview', label: _l('总览') },

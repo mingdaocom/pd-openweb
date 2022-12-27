@@ -3,6 +3,7 @@ import React from 'react';
 import Button from 'ming-ui/components/Button';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import API, { editAgreeFriend, editRefuseFriend } from '../api';
+import _ from 'lodash';
 
 export default class NewFriendsList extends React.Component {
   constructor() {

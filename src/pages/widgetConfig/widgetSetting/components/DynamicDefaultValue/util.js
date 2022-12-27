@@ -103,9 +103,7 @@ const isSameUser = (item = {}, usertype) => {
 // 根据类型筛选 可用的动态默认值类型
 export const FILTER = {
   // 文本
-  2: item =>
-    (_.includes(CAN_AS_TEXT_DYNAMIC_FIELD, item.type) && !_.includes(['caid', 'ownerid'], item.controlId)) ||
-    isSingleRelate(item),
+  2: item => _.includes(CAN_AS_TEXT_DYNAMIC_FIELD, item.type) || isSingleRelate(item),
   3: item => _.includes([3], item.type),
   4: item => _.includes([4], item.type),
   5: item => _.includes(CAN_AS_EMAIL_DYNAMIC_FIELD, item.type),
@@ -147,9 +145,7 @@ export const FILTER = {
   // 检查框
   36: item => _.includes(CAN_AS_SWITCH_DYNAMIC_FIELD, item.type),
   // 嵌入
-  45: item =>
-    (_.includes(CAN_AS_EMBED_DYNAMIC_FIELD, item.type) && !_.includes(['caid', 'ownerid'], item.controlId)) ||
-    isSingleRelate(item),
+  45: item => _.includes(CAN_AS_EMBED_DYNAMIC_FIELD, item.type) || isSingleRelate(item),
   // 时间
   46: item => _.includes(CAN_AS_TIME_DYNAMIC_FIELD, item.type) || isFormulaResultAsTime(item),
   // 组织角色

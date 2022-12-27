@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Dialog, Input } from 'ming-ui';
+import _ from 'lodash';
 
 export default class PasswordRuleDialog extends Component {
   constructor(props) {

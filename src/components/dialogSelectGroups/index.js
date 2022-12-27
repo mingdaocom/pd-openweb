@@ -4,10 +4,11 @@ import doT from '@mdfe/dot';
 import headerTpl from './tpl/header.html';
 import listTpl from './tpl/groupList.html';
 import { index as DialogLayer } from 'src/components/mdDialog/dialog';
+import GroupAjaxController from 'src/api/group';
+import _ from 'lodash';
 
 var mainRenderFunc = doT.template(headerTpl);
 var listRenderFunc = doT.template(listTpl);
-var GroupAjaxController = require('src/api/group');
 
 /**
  * Event Monitor
@@ -30,7 +31,7 @@ Event.prototype = {
   },
 };
 
-var Event = new Event();
+var event = new Event();
 
 /**
  * selectCallback callback
@@ -130,7 +131,7 @@ var Model = function (opts) {
   this.pageIndex = 1;
   this.pageSize = opts.pageSize;
 
-  this.Event = Event;
+  this.Event = event;
 
   this.initModel(opts);
 };
@@ -187,7 +188,7 @@ var View = function (model, elements) {
   this._elements = elements;
   this.timer = null;
 
-  this.Event = Event;
+  this.Event = event;
 
   var _this = this;
 
@@ -330,7 +331,7 @@ View.prototype = {
 var Controller = function (model, view) {
   this._model = model;
   this._view = view;
-  this.Event = Event;
+  this.Event = event;
   var _this = this;
 
   this.Event.attach('init', function () {

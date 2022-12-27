@@ -6,6 +6,7 @@ import { getSuffix } from 'src/pages/PortalAccount/util';
 import api from 'src/api/homeApp';
 import { navigateTo } from 'router/navigateTo';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 export default class WithTitle extends Component {
   static propTypes = {
@@ -45,7 +46,7 @@ export default class WithTitle extends Component {
       getSuffix(location.href) === md.global.Account.addressSuffix
     ) {
       let url = location.href;
-      url = url.replace(md.global.Account.addressSuffix, 'app/' + md.global.Account.appId);
+      url = url.replace('/' + md.global.Account.addressSuffix, '/app/' + md.global.Account.appId);
       location.href = url;
     }
 

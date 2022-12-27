@@ -1,6 +1,6 @@
-﻿import { getNodeDetail } from 'src/api/kc';
+﻿import kcAjax from 'src/api/kc';
 import chatController from 'src/api/chat';
-import { updateNode, copyNode, addFile } from '../../../api/service';
+import kcService from '../../../api/service';
 import attachmentAjax from 'src/api/attachment';
 
 const rejectErr = function (ajaxPromise) {
@@ -25,7 +25,7 @@ const rejectErr = function (ajaxPromise) {
 };
 
 export function getKcNodeDetail(nodeId) {
-  return getNodeDetail({ id: nodeId, actionType: 14 });
+  return kcAjax.getNodeDetail({ id: nodeId, actionType: 14 });
 }
 
 export function getPreviewLink(attachment) {
@@ -86,7 +86,7 @@ export function renameFile(docVersionID, fileID, newName, ext, sourceID) {
 
 export function renameKcFile(id, name, ext) {
   return rejectErr(
-    updateNode({
+    kcService.updateNode({
       name: name + (ext ? '.' + ext : ''),
       id,
     })
@@ -104,11 +104,11 @@ export function saveToKnowledge(fileId, toId, toRootId) {
 }
 
 export function kcCopyNode(ids, toId, toType, copySource) {
-  return copyNode(ids, toId, toType, copySource);
+  return kcService.copyNode(ids, toId, toType, copySource);
 }
 
 export function kcAddFile(options) {
-  return addFile(options);
+  return kcService.addFile(options);
 }
 
 export function deleteAttachment(docVersionID, fileID, sourceID, commentID, fromType, removeFromKC, visibleFileName) {

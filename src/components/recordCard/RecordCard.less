@@ -62,6 +62,15 @@
     font-size: 14px;
     font-weight: 500;
     color: #333;
+    .maskHoverTheme {
+      cursor: pointer;
+      &:hover {
+        color: #1d5786 !important;
+        i {
+          color: #9e9e9e !important;
+        }
+      }
+    }
   }
   .visibleControls {
     margin-top: 2px;
@@ -133,6 +142,14 @@
           display: none;
         }
       }
+    }
+  }
+  .hoverShow {
+    visibility: hidden;
+  }
+  &:hover {
+    .hoverShow {
+      visibility: visible;
     }
   }
 }

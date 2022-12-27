@@ -4,6 +4,7 @@ import sheetAjax from 'src/api/worksheet';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { Toast } from 'antd-mobile';
 import ScanQRCode from './ScanQRCode';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -37,11 +38,12 @@ export default class Widgets extends Component {
   }
   handleRelateRow = content => {
     const currentWorksheetId = this.props.worksheetId;
-    if (content.includes('worksheetshare')) {
-      const shareId = content.match(/\/worksheetshare\/(.*)/)[1];
+    if (content.includes('worksheetshare') || content.includes('public/record')) {
+      const shareId = (content.match(/\/worksheetshare\/(.*)/) || content.match(/\/public\/record\/(.*)/))[1];
       sheetAjax.getShareInfoByShareId({
         shareId,
       }).then(result => {
+        result = result.data || {};
         if (currentWorksheetId === result.worksheetId) {
           this.getRowById(result);
         } else {

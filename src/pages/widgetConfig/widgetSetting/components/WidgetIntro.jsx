@@ -1,62 +1,76 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import { Menu, MenuItem, Dialog, Support } from 'ming-ui';
 import { DEFAULT_INTRO_LINK } from '../../config';
 import { WidgetIntroWrap } from '../../styled';
-import { DEFAULT_CONFIG } from '../../config/widget';
+import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../../config/widget';
 import { enumWidgetType, getWidgetInfo } from '../../util';
+import { handleAdvancedSettingChange } from '../../util/setting';
 import { WHOLE_SIZE } from '../../config/Drag';
 import { Tooltip } from 'antd';
+import _ from 'lodash';
 
 const SWITCH_ENUM = {
-  2: 'RICH_TEXT',
-  9: 'MULTI_SELECT',
-  10: 'FLAT_MENU',
-  11: 'MULTI_SELECT',
-  29: 'SUB_LIST',
-  41: 'TEXT',
-};
-
-const CAN_SWITCH_FIELD = [2, 3, 4, 6, 5, 7, 9, 11, 15, 16, 26, 27];
-
-const getWidgetInfoByType = type => {
-  const nextType = SWITCH_ENUM[type] || 'TEXT';
-  return DEFAULT_CONFIG[nextType] || {};
+  2: ['EMAIL', 'MOBILE_PHONE', 'AUTO_ID', 'CRED', 'SEARCH', 'RICH_TEXT'], // 文本
+  3: ['TEXT'], // 电话
+  4: ['TEXT'], // 电话
+  5: ['TEXT'], // 邮箱
+  6: ['MONEY', 'SCORE'], // 数值
+  7: ['TEXT'], // 证件
+  8: ['NUMBER'], // 金额
+  9: ['MULTI_SELECT'], // 单选
+  10: ['FLAT_MENU'], // 多选
+  11: ['MULTI_SELECT'], // 单选
+  28: ['NUMBER'], // 等级
+  29: ['SUB_LIST'], // 关联记录
+  30: item =>
+    (item.strDefault || '10').split('')[0] !== '1' && item.sourceControlId
+      ? [enumWidgetType[_.get(item, 'sourceControl.type')]]
+      : [], // 他表字段
+  31: ['NUMBER', 'MONEY', 'SCORE'], // 公式---数值计算
+  32: ['TEXT'], // 文本组合
+  37: item => [enumWidgetType[item.enumDefault2]], // 汇总
+  38: item => (item.enumDefault === 2 ? ['DATE'] : ['NUMBER']), // 公式日期计算
+  33: ['TEXT'], // 自动编号
+  41: ['TEXT'], // 富文本
+  50: ['TEXT'], // api查询
 };
 
 export default function WidgetIntro(props) {
   const { data = {}, from, onChange } = props;
-  const { type, controlId, sourceControl = {}, enumDefault2 } = data;
+  const { type, controlId, sourceControl = {}, enumDefault2, advancedSetting } = data;
   const { icon, widgetName, intro, moreIntroLink } = getWidgetInfo(type);
   const [visible, setVisible] = useState(false);
-  const getSwitchEnum = () => {
-    // 汇总字段
-    if (type === 37) {
-      return DEFAULT_CONFIG[enumWidgetType[enumDefault2]];
-    }
-    // 他表字段
-    if (type === 30) {
-      if (_.isEmpty(sourceControl) || !_.includes(CAN_SWITCH_FIELD, sourceControl.type)) return;
-      return DEFAULT_CONFIG[enumWidgetType[sourceControl.type]];
-    }
-    return DEFAULT_CONFIG[SWITCH_ENUM[type]];
-  };
+  const [switchList, setSwitchList] = useState([]);
 
-  const switchType = () => {
+  useEffect(() => {
+    let newList = ((_.includes([30, 37, 38], type) ? SWITCH_ENUM[type](data) : SWITCH_ENUM[type]) || []).filter(i => i);
+    newList = newList.map(i => ({ ...DEFAULT_CONFIG[i], type: i }));
+    setSwitchList(newList);
+  }, [controlId, data]);
+
+  const switchType = info => {
     setVisible(false);
+    let newData = DEFAULT_DATA[info.type] || {};
 
-    if (type === 2) {
-      onChange({ type: 41, size: WHOLE_SIZE, advancedSetting: { defsource: '' } });
+    if (_.isEmpty(newData)) return;
+
+    newData = _.omit(newData, ['controlName']);
+    newData.type = WIDGETS_TO_API_TYPE_ENUM[info.type];
+
+    if (info.type === 'DATE' || info.type === 'DATE_TIME') {
+      newData = { ...newData, enumDefault: 0, unit: '' };
+    }
+
+    if (type === 6 || type === 8) {
+      // 转金额或数值保留前后缀
+      if (_.includes(['MONEY', 'NUMBER'], info.type)) {
+        newData = handleAdvancedSettingChange(newData, _.pick(advancedSetting, ['prefix', 'suffix']));
+      }
+      onChange(newData);
       return;
     }
-    // 他表字段
-    if (type === 30) {
-      onChange({
-        ...sourceControl,
-        attribute: 0,
-      });
-      return;
-    }
+
     // 多选转单选 需要将默认选中设为一个
     if (type === 10) {
       const defaultChecked = JSON.parse(data.default || '[]');
@@ -68,22 +82,8 @@ export default function WidgetIntro(props) {
       onChange({ type: 10, advancedSetting: { direction: '0' } });
       return;
     }
-    if (type === 37) {
-      onChange({ type: enumDefault2 });
-      return;
-    }
-    // 富文本
-    if (type === 41 && controlId) {
-      Dialog.confirm({
-        title: _l('变更字段类型'),
-        description: _l('将富文本变更为普通文本后，文本样式、图片等信息将丢失。你确定要进行变更吗？'),
-        okText: _l('确定'),
-        onOk: () => {
-          onChange({ type: 2 });
-        },
-      });
-      return;
-    }
+
+    // 关联记录
     if (type === 29) {
       Dialog.confirm({
         title: _l('将关联记录字段转为子表字段'),
@@ -100,15 +100,67 @@ export default function WidgetIntro(props) {
       });
       return;
     }
-    onChange({ type: enumWidgetType[SWITCH_ENUM[type]] });
+
+    // 他表字段
+    if (type === 30) {
+      onChange({
+        ..._.omit(sourceControl, ['controlId']),
+        attribute: 0,
+      });
+      return;
+    }
+
+    // 汇总
+    if (type === 37) {
+      onChange({
+        ...newData,
+        dataSource: '',
+        sourceControlId: '',
+      });
+      return;
+    }
+
+    // 公式
+    if (type === 31 || type === 38) {
+      Dialog.confirm({
+        title: _l('变更字段类型'),
+        description: _l(
+          '此为不可逆操作，将公式变更为%0后，公式计算方式将丢失，保存后无法再转换为公式类型。你确定要进行变更吗？',
+          info.widgetName,
+        ),
+        okText: _l('确定'),
+        onOk: () => {
+          onChange({
+            ...newData,
+            unit: type === 38 ? '' : newData.unit,
+            dataSource: '',
+            sourceControlId: '',
+          });
+        },
+      });
+      return;
+    }
+
+    // 富文本
+    if (type === 41 && controlId) {
+      Dialog.confirm({
+        title: _l('变更字段类型'),
+        description: _l('将富文本变更为普通文本后，文本样式、图片等信息将丢失。你确定要进行变更吗？'),
+        okText: _l('确定'),
+        onOk: () => {
+          onChange(newData);
+        },
+      });
+      return;
+    }
+
+    onChange(newData);
   };
 
   const isAllowSwitch = () => {
     if (type === 29 && from === 'subList') return false;
-    return _.includes([2, 9, 10, 11, 27, 29, 37, 41], type);
+    return switchList.length > 0;
   };
-
-  const switchControl = getSwitchEnum();
 
   return (
     <WidgetIntroWrap>
@@ -124,18 +176,22 @@ export default function WidgetIntro(props) {
             />
           </span>
         </Tooltip>
-        {isAllowSwitch() && !_.isEmpty(switchControl) && (
+        {isAllowSwitch() && (
           <div className="introSwitch">
             <span data-tip={_l('变更类型')} onClick={() => setVisible(true)}>
               <i className="icon icon-swap_horiz pointer Font22" />
             </span>
             <Menu className={cx('introSwitchMenu', { Hidden: !visible })} onClickAway={() => setVisible(false)}>
-              <MenuItem
-                onClick={() => switchType(type)}
-                icon={<i className={cx('icon', `icon-${switchControl.icon}`)} />}
-              >
-                {switchControl.widgetName}
-              </MenuItem>
+              {switchList.map(i => {
+                return (
+                  <MenuItem
+                    onClick={() => switchType(i)}
+                    icon={<i className={cx('icon TxtMiddle', `icon-${i.icon}`)} />}
+                  >
+                    {i.widgetName}
+                  </MenuItem>
+                );
+              })}
             </Menu>
           </div>
         )}

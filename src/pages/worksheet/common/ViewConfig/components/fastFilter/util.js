@@ -1,4 +1,6 @@
+import _ from 'lodash';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 // 文本筛选方式
 const TEXT_TYPE = [
   { text: _l('精准搜索'), value: FILTER_CONDITION_TYPE.EQ },
@@ -276,21 +278,8 @@ export const FASTFILTER_CONDITION_TYPE = [
 export const ADVANCEDSETTING_KEYS = ['allowscan', 'daterange', 'allowitem', 'direction'];
 
 export const getControlFormatType = (control = {}) => {
-  let { type } = control;
-  if ([30, 37].includes(type)) {
-    const { sourceControl = {} } = control;
-    type = sourceControl.type;
-    if (control.type === 37) {
-      if ([0, 6, 8].includes(control.enumDefault2)) type = control.enumDefault2;
-      if ([15, 16].includes(control.enumDefault2)) type = control.enumDefault2;
-    }
-  }
-  if ([50].includes(type)) {
-    return 2;
-  }
-  return type;
+  return redefineComplexControl(control).type;
 };
-
 export const getSetDefault = (control = {}) => {
   let type = getControlFormatType(control);
   let fastFilterSet = {

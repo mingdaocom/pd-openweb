@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 发送注册验证码
   * @param {Object} args 请求参数

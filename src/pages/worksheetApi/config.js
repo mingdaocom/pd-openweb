@@ -126,6 +126,12 @@ export const MENU_LIST = [
         type: 'boolean',
         desc: _l('是否只返回controlId，默认false'),
       },
+      {
+        name: 'getSystemControl',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否获取系统字段，默认false'),
+      },
     ]),
   },
   {
@@ -177,6 +183,12 @@ export const MENU_LIST = [
         type: 'string',
         desc: _l('行记录ID'),
       },
+      {
+        name: 'getSystemControl',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否获取系统字段，默认false'),
+      },
     ]),
   },
   {
@@ -189,6 +201,12 @@ export const MENU_LIST = [
         required: _l('是'),
         type: 'string',
         desc: _l('行记录ID'),
+      },
+      {
+        name: 'getSystemControl',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否获取系统字段，默认false'),
       },
     ]),
   },
@@ -289,6 +307,44 @@ export const MENU_LIST = [
         required: _l('是'),
         type: 'number',
         desc: _l('页码'),
+      },
+      {
+        name: 'getSystemControl',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否获取系统字段，默认false'),
+      },
+    ]),
+  },
+  {
+    id: 'GetRowShareLink',
+    title: _l('获取记录分享链接 GET'),
+    apiName: 'worksheet/getRowShareLink',
+    data: sameParameters.concat([
+      {
+        name: 'rowId',
+        required: _l('是'),
+        type: 'string',
+        desc: _l('行记录ID'),
+      },
+      {
+        name: 'visibleFields',
+        required: _l('否'),
+        type: 'list[string]',
+        desc: _l('可见字段ID集合'),
+      },
+      {
+        name: 'validTime',
+        required: _l('否'),
+        type: 'number',
+        desc: _l('单位s,为空表示永久有效'),
+
+      },
+      {
+        name: 'password',
+        required: _l('否'),
+        type: 'string',
+        desc: _l('为空表示不需要密码'),
       },
     ]),
   },
@@ -437,6 +493,12 @@ const sameAppRoleParams = [
     type: 'list[string]',
     desc: _l('职位Id合集'),
   },
+  {
+    name: 'orgRoleIds',
+    required: _l('否'),
+    type: 'list[string]',
+    desc: _l('组织角色Id合集'),
+  },
 ];
 
 export const appSuccessData = {
@@ -494,6 +556,7 @@ const appRoleSuccessData = {
           jobName: _l('职位名称'),
         },
       ],
+      projectOrganizes: ["组织角色ID"]
     },
   ],
   error_code: 1,

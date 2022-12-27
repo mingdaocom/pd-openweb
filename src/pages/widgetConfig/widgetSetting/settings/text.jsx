@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import RadioGroup from 'ming-ui/components/RadioGroup';
 import { SettingItem } from '../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 
 const DISPLAY_OPTIONS = [
   {
@@ -15,6 +16,7 @@ const DISPLAY_OPTIONS = [
 
 export default function Text(props) {
   const { data, onChange } = props;
+  const { datamask } = getAdvanceSetting(data);
   return (
     <Fragment>
       <SettingItem>
@@ -22,7 +24,13 @@ export default function Text(props) {
           size="middle"
           checkedValue={data.enumDefault}
           data={DISPLAY_OPTIONS}
-          onChange={value => onChange({ enumDefault: value })}
+          onChange={value => {
+            if (value !== 2 && datamask === '1') {
+              onChange({ ...handleAdvancedSettingChange(data, { datamask: '0' }), enumDefault: value });
+              return;
+            }
+            onChange({ enumDefault: value });
+          }}
         />
       </SettingItem>
     </Fragment>

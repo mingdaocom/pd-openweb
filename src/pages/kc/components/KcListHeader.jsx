@@ -11,6 +11,7 @@ import withHoverState from 'ming-ui/decorators/withHoverState';
 import { expireDialogAsync } from 'src/components/common/function';
 import Trigger from 'rc-trigger';
 import { NODE_STATUS, PICK_TYPE } from '../constant/enum';
+import _ from 'lodash';
 
 const HoverState = createDecoratedComponent(withHoverState);
 

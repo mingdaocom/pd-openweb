@@ -1,5 +1,5 @@
 import { existAccountHint } from 'src/components/common/function';
-var InviteController = require('src/api/invitation');
+import InviteController from 'src/api/invitation';
 var Invite = {};
 
 // invite by accountIds

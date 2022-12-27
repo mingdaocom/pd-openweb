@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import DialogSelectOrgRole from 'src/components/DialogSelectOrgRole';
+import { selectOrgRole as selectOrgRolePc } from 'src/components/DialogSelectOrgRole';
 import SelectOrgRole from 'mobile/components/SelectOrgRole';
 import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -15,7 +16,6 @@ export default class Widgets extends Component {
   };
 
   state = {
-    orgRoleDialogVisible: false,
     showMobileOrgRole: false,
   };
 
@@ -23,7 +23,7 @@ export default class Widgets extends Component {
    * 选择组织角色
    */
   pickOrgRole = () => {
-    const { projectId } = this.props;
+    const { projectId, enumDefault } = this.props;
 
     if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
       alert(_l('您不是该组织成员，无法获取其组织角色列表，请联系组织管理员'), 3);
@@ -33,7 +33,11 @@ export default class Widgets extends Component {
     if (browserIsMobile()) {
       this.setState({ showMobileOrgRole: true });
     } else {
-      this.setState({ orgRoleDialogVisible: true });
+      selectOrgRolePc({
+        projectId,
+        unique: enumDefault === 0,
+        onSave: this.onSave,
+      });
     }
   };
 
@@ -59,7 +63,7 @@ export default class Widgets extends Component {
   render() {
     const { projectId, disabled, enumDefault } = this.props;
     const value = JSON.parse(this.props.value || '[]');
-    const { orgRoleDialogVisible, showMobileOrgRole } = this.state;
+    const { showMobileOrgRole } = this.state;
 
     return (
       <div
@@ -99,16 +103,6 @@ export default class Widgets extends Component {
           >
             <i className={enumDefault === 0 && value.length ? 'icon-swap_horiz Font16' : 'icon-plus Font14'} />
           </div>
-        )}
-
-        {orgRoleDialogVisible && (
-          <DialogSelectOrgRole
-            projectId={projectId}
-            orgRoleDialogVisible={orgRoleDialogVisible}
-            unique={enumDefault === 0}
-            onSave={this.onSave}
-            onClose={() => this.setState({ orgRoleDialogVisible: false })}
-          />
         )}
 
         {showMobileOrgRole && (

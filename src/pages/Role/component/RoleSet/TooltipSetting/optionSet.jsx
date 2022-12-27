@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Checkbox, Tooltip } from 'ming-ui';
+import { Checkbox, Tooltip, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import lookPng from './img/e.png';
 import { sheetActionList, recordActionList } from 'src/pages/Role/config.js';
+import worksheetAjax from 'src/api/worksheet';
 
 const Wrap = styled.div`
   text-align: left;
@@ -30,9 +31,23 @@ const Wrap = styled.div`
 export default function Set(props) {
   const { changeSheetOptionInfo } = props;
   const [sheet, setState] = useState(props.sheet);
+  const [loading, setLoading] = useState(true);
+  const [componentData, setComponentData] = useState({});
   useEffect(() => {
     setState(props.sheet);
+    getComponent(props.sheet);
   }, [props]);
+
+  const getComponent = data => {
+    worksheetAjax
+      .getFormComponent({
+        worksheetId: data.sheetId,
+      })
+      .then(res => {
+        setLoading(false);
+        setComponentData(res);
+      });
+  };
   const renderList = (title, actionList) => {
     let isNotAll = actionList.filter(o => !(sheet[o.key] || {}).enable).length > 0;
     return (
@@ -146,6 +161,9 @@ export default function Set(props) {
       </React.Fragment>
     );
   };
+  if (loading) {
+    return <LoadDiv className='mTop80' />;
+  }
   return (
     <Wrap className="TxtLeft">
       <div className="mTop30 Font16 title LineHeight26">
@@ -163,12 +181,17 @@ export default function Set(props) {
           _l('记录'),
           recordActionList.filter(o => (props.isForPortal ? !['recordShare', 'recordLogging'].includes(o.key) : true)),
         )}
-        {sheet.customeButtons.length > 0 &&
-          renderAcitionList(_l('自定义动作'), sheet.customeButtons, sheet.unableCustomButtons, 'unableCustomButtons')}
-        {sheet.printTempletes.length > 0 &&
+        {(componentData.customeButtons || []).length > 0 &&
+          renderAcitionList(
+            _l('自定义动作'),
+            componentData.customeButtons,
+            sheet.unableCustomButtons,
+            'unableCustomButtons',
+          )}
+        {(componentData.printTempletes || []).length > 0 &&
           renderAcitionList(
             _l('打印模版'),
-            sheet.printTempletes,
+            componentData.printTempletes,
             sheet.unablePrintTemplates,
             'unablePrintTemplates',
             true,

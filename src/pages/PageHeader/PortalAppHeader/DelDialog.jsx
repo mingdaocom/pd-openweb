@@ -4,7 +4,7 @@ import { Dialog } from 'ming-ui';
 import { removePssId } from 'src/util/pssId';
 import AccountCon from './AccountCon';
 import cx from 'classnames';
-import { editExAccountCancel, checkExAccountVerifyCode } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import Config from 'src/pages/account/config';
 const { ActionResult } = Config;
 const DelDialogWrap = styled.div``;
@@ -15,7 +15,7 @@ export default function DelDialog(props) {
     if (!code) {
       alert(_l('请输入验证码'), 3);
     } else {
-      checkExAccountVerifyCode({
+      externalPortalAjax.checkExAccountVerifyCode({
         handleType: 1, //检查类型 1: 注销  2：绑定手机号
         appId,
         verifyCode: code,
@@ -31,7 +31,7 @@ export default function DelDialog(props) {
             buttonType: 'danger',
             className: cx('userInfoDialog', classNames),
             onOk: () => {
-              editExAccountCancel({
+              externalPortalAjax.editExAccountCancel({
                 appId,
               }).then(res => {
                 if (res.actionResult === 1) {

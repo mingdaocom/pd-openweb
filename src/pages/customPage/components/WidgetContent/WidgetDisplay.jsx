@@ -116,7 +116,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
   if (componentType === 'carousel') {
     const { config, componentConfig } = widget;
     return (
-      <CarouselPreview config={config} componentConfig={componentConfig} />
+      <CarouselPreview editable={editable} config={config} componentConfig={componentConfig} />
     );
   }
   return (

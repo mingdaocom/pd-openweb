@@ -1,5 +1,6 @@
 ﻿import flowNode from '../api/flowNode';
 import process from '../api/process';
+import _ from 'lodash';
 
 // 获取工作流基础信息
 export const getFlowInfo = processId => (dispatch, getState) => {

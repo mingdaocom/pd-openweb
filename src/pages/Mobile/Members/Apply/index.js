@@ -7,6 +7,7 @@ import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 const prompt = Modal.prompt;
 

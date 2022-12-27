@@ -4,7 +4,7 @@ import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { Dialog } from 'ming-ui';
 import EditableCellCon from '../EditableCellCon';
-import { domFilterHtmlScript } from 'worksheet/util';
+import { regexFilterHtmlScript } from 'worksheet/util';
 import renderText from './renderText';
 import { RichText } from 'ming-ui';
 export default class Text extends React.Component {
@@ -34,6 +34,19 @@ export default class Text extends React.Component {
   }
 
   @autobind
+  handleTableKeyDown(e) {
+    const { updateEditingStatus } = this.props;
+    switch (e.key) {
+      case 'Escape':
+        this.handleChange();
+        updateEditingStatus(false);
+        break;
+      default:
+        break;
+    }
+  }
+
+  @autobind
   handleChange() {
     const { cell, updateCell } = this.props;
     if ((cell.value || '') === this.state.value) {
@@ -59,6 +72,7 @@ export default class Text extends React.Component {
         }}
       >
         <RichText
+          autoFocus
           data={this.state.value || ''}
           onSave={value => {
             this.setState({
@@ -89,7 +103,7 @@ export default class Text extends React.Component {
         {!!value && (
           <div
             className={cx('worksheetCellPureString', { linelimit: needLineLimit })}
-            title={domFilterHtmlScript(value)}
+            title={regexFilterHtmlScript(value)}
           >
             {renderText({ ...cell, value })}
           </div>

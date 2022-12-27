@@ -3,10 +3,9 @@ import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import UserHead from 'src/pages/feed/components/userHead';
 import { Button, LoadDiv, ScrollView } from 'ming-ui';
-import { getChatList, sendCardToChat } from 'src/api/chat';
-import { getAllAddressbook } from 'src/api/addressBook';
-import { getGroups } from 'src/api/group';
-
+import chatAjax from 'src/api/chat';
+import addressBookAjax from 'src/api/addressBook';
+import groupAjax from 'src/api/group';
 import { Bold600, commonShadow, Tipbd, Tip9e, BorderBox, Textarea } from 'worksheet/components/Basics';
 import { debounce } from 'lodash';
 
@@ -82,7 +81,7 @@ export default function SendToChat(props) {
     setLoading(true);
     if (keywords) {
       Promise.all([
-        getGroups({
+        groupAjax.getGroups({
           keywords,
           pageIndex: 1,
           pageSize: 20,
@@ -91,7 +90,7 @@ export default function SendToChat(props) {
           sortType: 1,
           status: 1,
         }),
-        getAllAddressbook({
+        addressBookAjax.getAllAddressbook({
           isFilterOther: true,
           keywords,
           pageIndex: 1,
@@ -119,7 +118,7 @@ export default function SendToChat(props) {
         );
       });
     } else {
-      getChatList({
+      chatAjax.getChatList({
         keywords,
         size: 20,
       }).then(data => {
@@ -132,7 +131,7 @@ export default function SendToChat(props) {
     if (card && !card.url) {
       card.url = url;
     }
-    sendCardToChat({
+    chatAjax.sendCardToChat({
       cards: card ? [card] : [],
       message: description,
       [selectedUser.type === 1 ? 'toAccountId' : 'toGroupId']: selectedUser.value,

@@ -7,6 +7,7 @@ import { getIsAlienationColor } from 'statistics/common';
 import styled from 'styled-components';
 import BaseColor from './BaseColor';
 import RuleColor from './RuleColor';
+import _ from 'lodash';
 
 const EntranceWrapper = styled.div`
   border: 1px solid #d9d9d9;

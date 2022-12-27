@@ -1,5 +1,4 @@
 import sheetAjax from 'src/api/worksheet';
-import { getProjectLicenseSupportInfo } from 'src/api/project';
 
 export function loadPrint({ worksheetId }) {
   return (dispatch, getState) => {

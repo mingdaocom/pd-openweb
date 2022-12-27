@@ -2,6 +2,7 @@
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import _ from 'lodash';
 import OAOptionsBox from '../component/OAoptionsBox/OAoptionsBox';
 import TASKOptionsBox from '../component/TASKoptionsBox/TASKoptionsBox';
 import config from '../config';
@@ -51,7 +52,7 @@ import {
     changeFormulaEditStatus: bindActionCreators(changeFormulaEditStatus, dispatch), // 新公式正在编辑判断
     changeWidgetHalf: bindActionCreators(changeWidgetHalf, dispatch),
     addBottomWidget: bindActionCreators(addBottomWidget, dispatch),
-  })
+  }),
 )
 export default class SettingsBox extends React.Component {
   static = {
@@ -90,7 +91,7 @@ export default class SettingsBox extends React.Component {
             }
           });
         }
-      })
+      }),
     );
     if (!dataChange) return false;
     this.props.changeWidgetData(id, data);
@@ -121,24 +122,29 @@ export default class SettingsBox extends React.Component {
       const enumDefault = choosedWidget.data.enumDefault;
       const dataSource = `$${choosedWidget.data.controlId || choosedWidget.id}$`;
       const allWidgets = _.flatten(this.props.editWidgets);
-      const sheetFields = allWidgets.filter(widget => widget.enumName === 'SHEETFIELD' && widget.data.dataSource === dataSource);
+      const sheetFields = allWidgets.filter(
+        widget => widget.enumName === 'SHEETFIELD' && widget.data.dataSource === dataSource,
+      );
       if (sheetFields.length > 0) {
         if (enumDefault === 1) {
-          sheetFields.forEach((item) => {
+          sheetFields.forEach(item => {
             this.props.changeWidgetData(item.id, {
               fieldList: [],
               sourceControlId: '',
             });
           });
         } else if (enumDefault === 2) {
-          sheetFields.forEach((item) => {
+          sheetFields.forEach(item => {
             this.props.deleteWidget(item.id);
           });
         }
       }
       // 删除关联本表对应的控件
       if (choosedWidget.data.dataSource === config.global.sourceId) {
-        const needDeleteWidget = _.find(allWidgets, widget => widget.data.sourceControlId === choosedWidget.data.controlId);
+        const needDeleteWidget = _.find(
+          allWidgets,
+          widget => widget.data.sourceControlId === choosedWidget.data.controlId,
+        );
         if (needDeleteWidget) {
           this.props.deleteWidget(needDeleteWidget.id);
         }
@@ -157,7 +163,7 @@ export default class SettingsBox extends React.Component {
           $(event.target).removeClass('active');
         },
       },
-      'input[type="text"], textarea'
+      'input[type="text"], textarea',
     );
 
     // 回车提交
@@ -168,28 +174,36 @@ export default class SettingsBox extends React.Component {
     });
 
     // 将正在修改的widget存起来
-    $('.widgetSettingsBox').on('focus', 'input[type="text"]:not(.formulaInput,.customFormulaText,.allowEmpty)', event => {
-      event.target.select();
-      this.props.editWidgets.forEach(list =>
-        list.forEach(widget => {
-          if (widget.id === this.props.effictiveWidgetId) {
-            config.dataCopy = _.cloneDeep(widget);
-          }
-        })
-      );
-    });
+    $('.widgetSettingsBox').on(
+      'focus',
+      'input[type="text"]:not(.formulaInput,.customFormulaText,.allowEmpty)',
+      event => {
+        event.target.select();
+        this.props.editWidgets.forEach(list =>
+          list.forEach(widget => {
+            if (widget.id === this.props.effictiveWidgetId) {
+              config.dataCopy = _.cloneDeep(widget);
+            }
+          }),
+        );
+      },
+    );
 
-    $('.widgetSettingsBox').on('blur', 'input[type="text"]:not(.formulaInput,.customFormulaText,.allowEmpty)', event => {
-      // 填入空数据时还原
-      if (event.target.value.trim() === '') {
-        this.props.emptyToPrev();
-      }
+    $('.widgetSettingsBox').on(
+      'blur',
+      'input[type="text"]:not(.formulaInput,.customFormulaText,.allowEmpty)',
+      event => {
+        // 填入空数据时还原
+        if (event.target.value.trim() === '') {
+          this.props.emptyToPrev();
+        }
 
-      // 修改影响老数据时的提示
-      let editComfirm = event.target.getAttribute('data-editcomfirm');
-      let oldData = util.loadDataPoint();
-      let newData = this.props.editWidgets;
-    });
+        // 修改影响老数据时的提示
+        let editComfirm = event.target.getAttribute('data-editcomfirm');
+        let oldData = util.loadDataPoint();
+        let newData = this.props.editWidgets;
+      },
+    );
   }
 
   render() {

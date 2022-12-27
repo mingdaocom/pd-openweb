@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import DialogSelectOrgRole from 'src/components/DialogSelectOrgRole';
+import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
+import _ from 'lodash';
 
 // enumDefault 单选 0 多选 1
 export default class Text extends React.Component {
@@ -29,7 +30,6 @@ export default class Text extends React.Component {
     super(props);
     this.state = {
       value: safeParse(props.cell.value, 'array'),
-      visible: false,
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -46,6 +46,23 @@ export default class Text extends React.Component {
   }
 
   @autobind
+  handleTableKeyDown(e) {
+    const { updateEditingStatus } = this.props;
+    switch (e.key) {
+      case 'Escape':
+        // updateEditingStatus(false);
+        break;
+      case 'Enter':
+        if (!this.isSelecting) {
+          this.handleSelect();
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  @autobind
   handleChange() {
     const { updateCell } = this.props;
     const { value } = this.state;
@@ -56,21 +73,29 @@ export default class Text extends React.Component {
 
   @autobind
   handleSelect() {
-    const { projectId } = this.props;
-
+    const { projectId, cell } = this.props;
+    const single = cell.enumDefault === 0;
+    this.isSelecting = true;
     if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
       alert(_l('您不是该组织成员，无法获取其组织角色列表，请联系组织管理员'), 3);
       return;
     }
 
-    this.setState({ visible: true });
+    selectOrgRole({
+      projectId,
+      unique: single,
+      onSave: this.onSave,
+      onClose: () => {
+        this.isSelecting = false;
+      },
+    });
   }
 
   @autobind
   onSave(data) {
+    this.isSelecting = false;
     const { cell, updateEditingStatus } = this.props;
     const { value } = this.state;
-
     const filterData = data.map(i => ({ organizeId: i.organizeId, organizeName: i.organizeName }));
     if (cell.enumDefault === 0) {
       // 单选
@@ -124,11 +149,10 @@ export default class Text extends React.Component {
       cell,
       editable,
       isediting,
-      projectId,
       updateEditingStatus,
       onClick,
     } = this.props;
-    const { value, visible } = this.state;
+    const { value } = this.state;
     const single = cell.enumDefault === 0;
     const editcontent = (
       <ClickAwayable
@@ -148,7 +172,7 @@ export default class Text extends React.Component {
             <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>
               <div className="flexRow">
                 <div className="iconWrap" style={{ backgroundColor: '#FFAD00' }}>
-                  <i className="Font14 icon-user"></i>
+                  <i className="Font14 icon-user" />
                 </div>
                 <div className="departmentName mLeft4 flex ellipsis">
                   {organize.organizeName ? organize.organizeName : _l('该组织角色已删除')}
@@ -157,14 +181,14 @@ export default class Text extends React.Component {
                   <i
                     className="Font14 Gray_9e icon-close Hand mLeft4"
                     onClick={() => this.deleteDepartment(organize.organizeId)}
-                  ></i>
+                  />
                 )}
               </div>
             </span>
           ))}
           {!single && (
             <span className="addBtn" onClick={this.handleSelect}>
-              <i className="icon icon-add Gray_75 Font14"></i>
+              <i className="icon icon-add Gray_75 Font14" />
             </span>
           )}
         </div>
@@ -201,7 +225,7 @@ export default class Text extends React.Component {
                   <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>
                     <div className="flexRow">
                       <div className="iconWrap" style={{ backgroundColor: '#FFAD00' }}>
-                        <i className="Font14 icon-user"></i>
+                        <i className="Font14 icon-user" />
                       </div>
                       <div className="departmentName mLeft4 flex ellipsis">
                         {organize.organizeName ? organize.organizeName : _l('该组织角色已删除')}
@@ -213,16 +237,6 @@ export default class Text extends React.Component {
             )}
           </EditableCellCon>
         </Trigger>
-
-        {visible && (
-          <DialogSelectOrgRole
-            projectId={projectId}
-            orgRoleDialogVisible={visible}
-            unique={single}
-            onSave={this.onSave}
-            onClose={() => this.setState({ visible: false })}
-          />
-        )}
       </Fragment>
     );
   }

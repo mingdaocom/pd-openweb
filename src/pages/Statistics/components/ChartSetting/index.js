@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'statistics/redux/actions';
 import './index.less';
+import _ from 'lodash';
 
 @connect(
   state => ({
@@ -213,7 +214,7 @@ export default class ChartSetting extends Component {
     return (
       <Fragment>
         {
-          reportType && ![reportTypes.NumberChart].includes(reportType) && (
+          reportType && (
             <XAxis
               name={x}
               disableParticleSizeTypes={filterDisableParticleSizeTypes(xaxes.controlId, disableParticleSizeTypes)}

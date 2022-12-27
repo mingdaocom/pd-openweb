@@ -7,6 +7,7 @@ import config, { OPEN_TYPE } from '../../../config/config';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
 import { afterUpdateTaskDateInfo, afterUpdateTaskDate } from '../../../utils/taskComm';
 import { updateTaskStartTimeAndDeadline, updateTaskActualStartTime, updateCompletedTime } from '../../../redux/actions';
+import moment from 'moment';
 
 const TASK_STATUS = {
   nostart: -1,

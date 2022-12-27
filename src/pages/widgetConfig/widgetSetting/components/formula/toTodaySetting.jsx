@@ -6,6 +6,7 @@ import { FORMULA_DATE_DISPLAY_TYPE } from '../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange, parseDataSource } from '../../../util/setting';
 import DynamicSelectDateControl from '../DynamicSelectDateControl';
 import InputSuffix from './InputSuffix';
+import _ from 'lodash';
 
 const COMPUTE_MODE = [
   {

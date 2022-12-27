@@ -12,6 +12,7 @@ import RelateRecordList from './RelateRecordList';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import AutoWidthInput from './AutoWidthInput';
 import './style.less';
+import _ from 'lodash';
 
 const OnlyScanTip = styled.div`
   width: 310px;
@@ -62,7 +63,6 @@ export default class RelateRecordDropdown extends React.Component {
   };
 
   static defaultProps = {
-    renderToTop: () => {},
     onVisibleChange: () => {},
     onChange: () => {},
     onClick: () => {},
@@ -86,7 +86,7 @@ export default class RelateRecordDropdown extends React.Component {
       if (this.canSelect) {
         this.openPopup();
       } else {
-        if (this.props.selected.length > 0) {
+        if (this.props.selected.length > 0 && this.props.multiple) {
           return;
         }
         if (this.props.multiple && this.props.selected.length >= MAX_COUNT) {
@@ -271,12 +271,19 @@ export default class RelateRecordDropdown extends React.Component {
 
   @autobind
   handleInputKeyDown(e) {
+    const { control } = this.props;
+    const { selected } = this.state;
     if (e.key === 'ArrowUp') {
       this.list.current.updateActiveId(-1);
     } else if (e.key === 'ArrowDown') {
       this.list.current.updateActiveId(1);
     } else if (e.key === 'Enter') {
       this.list.current.handleEnter();
+    } else if (e.key === 'Backspace') {
+      const needDelete = selected.slice(-1)[0];
+      if (needDelete && control.enumDefault !== 1) {
+        this.handleDelete(needDelete);
+      }
     }
   }
 
@@ -328,7 +335,7 @@ export default class RelateRecordDropdown extends React.Component {
             {selected[0].rowid ? getTitleTextFromRelateControl(control, selected[0]) : _l('关联当前%0', entityName)}
           </span>
         )}
-        {active && (
+        {canSelect && active && (
           <AutoWidthInput
             mountRef={ref => (this.inputRef = ref)}
             value={keywords}
@@ -336,13 +343,14 @@ export default class RelateRecordDropdown extends React.Component {
             onKeyDown={this.handleInputKeyDown}
           />
         )}
-        {!selected.length && active && !keywords && this.searchControl && (
+        {canSelect && !selected.length && active && !keywords && this.searchControl && (
           <PlaceHolder>{_l('搜索%0', this.searchControl.controlName)}</PlaceHolder>
         )}
         {insheet && isediting && !canSelect && selected.length === 0 && (
           <span
             className="activeSelectedItem addBtn Hand"
-            onClick={() => {
+            onClick={e => {
+              e.stopPropagation();
               if (this.props.multiple && this.props.selected.length >= MAX_COUNT) {
                 alert(_l('最多关联%0条', MAX_COUNT), 3);
                 return;
@@ -358,7 +366,7 @@ export default class RelateRecordDropdown extends React.Component {
   }
 
   renderMultipe() {
-    const { insheet, control, allowOpenRecord, entityName, cellFrom } = this.props;
+    const { insheet, isediting, control, allowOpenRecord, entityName, cellFrom } = this.props;
     const { selected, keywords, activeIndex } = this.state;
     const { active } = this;
     const length = selected.length;
@@ -410,13 +418,28 @@ export default class RelateRecordDropdown extends React.Component {
             ]
           ),
         )}
-        {active && (
+        {this.canSelect && active && (
           <AutoWidthInput
             mountRef={ref => (this.inputRef = ref)}
             value={keywords}
             onChange={value => this.setState({ keywords: value })}
             onKeyDown={this.handleInputKeyDown}
           />
+        )}
+        {insheet && isediting && !this.canSelect && (
+          <span
+            className="activeSelectedItem addBtn Hand"
+            onClick={e => {
+              e.stopPropagation();
+              if (this.props.multiple && this.props.selected.length >= MAX_COUNT) {
+                alert(_l('最多关联%0条', MAX_COUNT), 3);
+                return;
+              }
+              this.setState({ newrecordVisible: true });
+            }}
+          >
+            <i className="icon icon-plus" />
+          </span>
         )}
       </React.Fragment>
     );

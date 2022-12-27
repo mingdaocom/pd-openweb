@@ -3,9 +3,9 @@ import { AT_ALL_TEXT, SOURCE_TYPE } from 'src/components/comment/config';
 import { htmlEncodeReg, getCaretPosition, setCaretPosition } from 'src/util';
 import doT from '@mdfe/dot';
 import addFriends from 'src/components/addFriends/addFriends';
-
-var categoryAjax = require('src/api/category');
-var userAjax = require('src/api/user');
+import categoryAjax from 'src/api/category';
+import userAjax from 'src/api/user';
+import _ from 'lodash';
 
 /*
 jQuery `input` special event v1.0

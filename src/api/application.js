@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取用户安装应用 包括置顶
   * @param {Object} args 请求参数

@@ -12,9 +12,11 @@ import ImportDeptAndRole from '../components/ImportDeptAndRole';
 import EmptyStatus from './components/EmptyStatus';
 import * as actions from '../redux/roleManage/action';
 import { getPssId } from 'src/util/pssId';
-import { deleteOrganizes } from 'src/api/organize.js';
+import organizeAjax from 'src/api/organize.js';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
+import moment from 'moment';
 
 class RoleManage extends Component {
   constructor(props) {
@@ -94,7 +96,7 @@ class RoleManage extends Component {
   };
   delCurrentRole = item => {
     const { projectId } = this.props;
-    deleteOrganizes({
+    organizeAjax.deleteOrganizes({
       organizeIds: [item.organizeId],
       projectId,
     }).then(res => {
@@ -125,6 +127,7 @@ class RoleManage extends Component {
             updateSearchValue={this.props.updateSearchValue}
             getRoleList={this.props.getRoleList}
             updateIsRequestList={this.props.updateIsRequestList}
+            updateRolePageInfo={this.props.updateRolePageInfo}
           />
           <input type="text" style={{ width: 0, height: 0, border: 0 }} />
           <div className="actBox flexRow">

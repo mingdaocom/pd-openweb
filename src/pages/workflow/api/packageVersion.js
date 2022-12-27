@@ -259,4 +259,4 @@ var packageVersion = {
     return $.api(controllerName, 'v1packagevalidate', JSON.stringify(args), $.extend(base, options));
   },
 };
-module.exports = packageVersion;
+export default packageVersion;

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { getOrganizes } from 'src/api/organize';
-import { Dialog, LoadDiv, Checkbox, ScrollView, Radio } from 'ming-ui';
+import organizeAjax from 'src/api/organize';
+import { Dialog, LoadDiv, Checkbox, ScrollView, Radio, FunctionWrap } from 'ming-ui';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 class DialogSelectOrgRole extends Component {
   static defaultProps = {
@@ -44,7 +45,7 @@ class DialogSelectOrgRole extends Component {
     if (this.promise && this.promise.state() === 'pending' && this.promise.abort) {
       this.promise.abort();
     }
-    this.promise = getOrganizes({ keywords, projectId, pageIndex, pageSize: 10 });
+    this.promise = organizeAjax.getOrganizes({ keywords, projectId, pageIndex, pageSize: 10 });
     this.promise
       .then(result => {
         let list = pageIndex > 1 ? data.concat(result.list) : result.list;
@@ -139,7 +140,7 @@ class DialogSelectOrgRole extends Component {
           </div>
           <div className="GSelect-result-subItem__name overflow_ellipsis">{item.organizeName}</div>
           <div className="GSelect-result-subItem__remove" onClick={() => this.toggle(item, false)}>
-            <span className="icon-close"></span>
+            <span className="icon-close" />
           </div>
         </div>
       );
@@ -239,3 +240,6 @@ class DialogSelectOrgRole extends Component {
 }
 
 export default DialogSelectOrgRole;
+
+export const selectOrgRole = props =>
+  FunctionWrap(DialogSelectOrgRole, { ...props, visibleName: 'orgRoleDialogVisible' });

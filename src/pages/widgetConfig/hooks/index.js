@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { getWorksheetInfo } from 'src/api/worksheet';
-import { getAppForManager } from 'src/api/appManagement';
+import worksheetAjax from 'src/api/worksheet';
+import appManagementAjax from 'src/api/appManagement';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
 
 // 获取表信息
 export const useSheetInfo = ({ worksheetId, ...rest }) => {
@@ -10,7 +11,7 @@ export const useSheetInfo = ({ worksheetId, ...rest }) => {
   useEffect(() => {
     if (!worksheetId || loading) return;
     setLoading(true);
-    getWorksheetInfo({ worksheetId, getTemplate: true, getViews: true, ...rest })
+    worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true, getViews: true, ...rest })
       .then(res => {
         const { views, template } = res;
         setData({
@@ -51,7 +52,7 @@ export const useRect = () => {
 export const useGetApps = (para, dep = []) => {
   const [apps, setApps] = useState([]);
   useEffect(() => {
-    getAppForManager(para).then(data => {
+    appManagementAjax.getAppForManager(para).then(data => {
       setApps(data);
     });
   }, dep);
@@ -62,7 +63,7 @@ export const useGetApps = (para, dep = []) => {
 export const useGetOptionList = (para, dep = []) => {
   const [list, setList] = useState([]);
   useEffect(() => {
-    getAppForManager(para).then(data => {
+    appManagementAjax.getAppForManager(para).then(data => {
       setList(data);
     });
   }, dep);

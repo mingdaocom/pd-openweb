@@ -10,6 +10,7 @@ import MyProcessEntry from 'src/pages/workflow/MyProcess/Entry';
 import MyProcess from 'src/pages/workflow/MyProcess';
 import './index.less';
 import { getAppFeaturesVisible } from 'src/util';
+import _ from 'lodash';
 
 const BtnCon = styled.div`
   cursor: pointer;

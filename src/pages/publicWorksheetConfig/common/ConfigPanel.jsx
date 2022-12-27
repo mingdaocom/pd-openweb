@@ -13,6 +13,7 @@ import HidedControls from '../components/HidedControls';
 import PublicConfig from './PublicConfig';
 import { VISIBLE_TYPE } from '../enum';
 import { getDisabledControls } from '../utils';
+import _ from 'lodash';
 
 const BackBtn = styled.span`
   cursor: pointer;

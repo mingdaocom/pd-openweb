@@ -52,7 +52,7 @@
             <li class="LineHeight30 Font14">
                 <span class="orderListTitle InlineBlock">{{=_l('购买时限')}}</span>
                 <span class="mLeft20 dataRange">
-                    {{= moment(it.data.startDate).format("YYYY.MM.DD")}} {{= _l('至')}} {{= moment(it.data.endDate).format("YYYY.MM.DD")}}
+                    {{= it.moment(it.data.startDate).format("YYYY.MM.DD")}} {{= _l('至')}} {{= it.moment(it.data.endDate).format("YYYY.MM.DD")}}
                 </span>
             </li>
             {{?}}

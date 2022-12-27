@@ -1,3 +1,4 @@
+import _ from 'lodash';
 export const FILTER_TYPE = {
   PERSONAL: 1,
   PUBLIC: 2,

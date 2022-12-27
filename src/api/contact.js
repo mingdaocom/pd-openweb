@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取联系信息
   * @param {Object} args 请求参数

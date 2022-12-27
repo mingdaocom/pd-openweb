@@ -67,7 +67,7 @@ export default class FeedDetailEntrypoint extends Component {
   }
   render() {
     return (
-      <ScrollView className="relativeContainer">
+      <ScrollView className="relative">
         <div id="postDetail" className={this.props.error ? 'card' : ''}>
           {this.props.error ? this.renderError() : this.renderPostDetail()}
         </div>

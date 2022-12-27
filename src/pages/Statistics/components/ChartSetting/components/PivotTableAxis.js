@@ -21,6 +21,7 @@ import {
   filterDisableParticleSizeTypes
 } from 'statistics/common';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 const SortableItemContent = styled.div`
   position: relative;

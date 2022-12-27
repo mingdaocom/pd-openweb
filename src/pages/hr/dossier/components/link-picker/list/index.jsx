@@ -8,6 +8,7 @@ import calendar from 'src/pages/calendar/modules/calendarDetail';
 import { getClassNameByExt } from 'src/util';
 import Icon from 'ming-ui/components/Icon';
 import './style.less';
+import _ from 'lodash';
 
 const Icons = {
   0: '',

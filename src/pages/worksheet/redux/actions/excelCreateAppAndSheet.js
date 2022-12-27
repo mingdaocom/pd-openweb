@@ -1,3 +1,4 @@
+import _ from 'lodash';
 export const updateExcelDetailData = data => (dispatch, getState) => {
   const excelDetailData = data.map(item => ({
     ...item,

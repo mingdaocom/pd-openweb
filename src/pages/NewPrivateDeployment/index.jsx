@@ -10,6 +10,7 @@ import { Switch, Route } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import privateGuideApi from 'src/api/privateGuide';
 import AuthorizationIntercept from './Platform/AuthorizationIntercept';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   width: 100%;

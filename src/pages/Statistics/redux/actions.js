@@ -24,6 +24,7 @@ import {
   redefineComplexControl,
 } from 'worksheet/common/WorkSheetFilter/util';
 import { getAppFeaturesPath } from 'src/util';
+import _ from 'lodash';
 
 export const changeBase = (data) => {
   return (dispatch, getState) => {
@@ -376,6 +377,7 @@ export const getWorksheetInfo = (worksheetId) => {
       worksheetId,
       getTemplate: true,
       getViews: true,
+      getSwitchPermit: true,
     });
     worksheetFilterByIdRequest = filterId ? worksheetAjax.getWorksheetFilterById({ filterId }) : null;
 
@@ -392,6 +394,7 @@ export const getWorksheetInfo = (worksheetId) => {
           appId: worksheetResult.appId,
           name: worksheetResult.name,
           views: worksheetResult.views,
+          switches: worksheetResult.switches,
           columns: (_.get(worksheetResult, ['template', 'controls']) || []).map(item => redefineComplexControl(item))
         }
       });

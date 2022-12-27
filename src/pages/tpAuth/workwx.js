@@ -1,6 +1,6 @@
 import { getRequest } from 'src/util';
 import DoT from '@mdfe/dot';
-var loginController = require('src/api/login');
+import loginController from 'src/api/login';
 import './style.css';
 import tpl from './tpl/noticeMessage.html';
 

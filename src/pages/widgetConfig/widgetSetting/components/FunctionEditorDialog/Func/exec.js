@@ -35,7 +35,7 @@ function formatFunctionResult(controlType, value) {
     case WIDGETS_TO_API_TYPE_ENUM.NUMBER:
     case WIDGETS_TO_API_TYPE_ENUM.MONEY:
       try {
-        result = result.match(/[\d\.]+/)[0];
+        result = result.match(/^-?[\d\.]+/)[0];
       } catch (err) {}
       break;
     case WIDGETS_TO_API_TYPE_ENUM.DATE:

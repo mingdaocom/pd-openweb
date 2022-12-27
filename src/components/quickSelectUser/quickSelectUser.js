@@ -7,10 +7,11 @@ import 'src/components/dialogSelectUser/dialogSelectUser';
 import 'src/components/mdDialog/dialog';
 import 'src/components/mdBusinessCard/mdBusinessCard';
 import _ from 'lodash';
+import userController from 'src/api/user';
+import externalPortalCotroller from 'src/api/externalPortal';
+import addressBookController from 'src/api/addressBook';
+import invitation from 'src/api/invitation';
 
-var userController = require('src/api/user');
-var externalPortalCotroller = require('src/api/externalPortal');
-var addressBookController = require('src/api/addressBook');
 var SelectUser = function (element, options) {
   this.$element = $(element);
   this.$box = null;
@@ -100,11 +101,11 @@ SelectUser.DEFAULTS = {
     filterOtherProject: false, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
     allowSelectNull: false, // 是否允许选择列表为空
     unique: false, // 是否只可以选一个
-    callback: function (data) { },
+    callback: function (data) {},
   },
   ChooseInviteSettings: {
     viewHistory: true, // 是否呈现邀请记录
-    callback: function (data, callbackInviteResult) { },
+    callback: function (data, callbackInviteResult) {},
   },
   offset: {
     left: 0,
@@ -126,8 +127,6 @@ SelectUser.DEFAULTS = {
   loadingContent: LoadDiv(),
 };
 
-
-
 SelectUser.doT = doT;
 SelectUser.userTpl = userTpl;
 SelectUser.QrCodeTpl =
@@ -147,11 +146,17 @@ SelectUser.dialogTpl =
   SelectUser.DEFAULTS.tip.dialogNameLabel +
   '</p><p><input type="text" class="input-control Right ThemeBorderColor3"/></p></div>' +
   '</div>';
-SelectUser.invite = require('src/api/invitation');
 
 SelectUser.Utils = {
   buildUserList: function (userArray) {
-    return SelectUser.doT.template(SelectUser.userTpl)(userArray);
+    return SelectUser.doT.template(SelectUser.userTpl)({
+      ...userArray,
+      prefixUsers: (userArray.prefixUsers || []).map((user, index) => ({ ...user, index })),
+      users: (userArray.users || []).map((user, index) => ({
+        ...user,
+        index: (userArray.prefixUsers || []).length + index,
+      })),
+    });
   },
   toggleLoading: function (container, flag, cb) {
     // 添加或移除 loading
@@ -227,7 +232,7 @@ $.extend(SelectUser.prototype, {
   getQRCode: function () {
     // 获取邀请的二维码
     var options = this.options;
-    return SelectUser.invite.getQRCodeInviteLink.call(null, {
+    return invitation.getQRCodeInviteLink({
       sourceId: options.sourceId,
       fromType: typeof options.fromType === 'number' ? options.fromType : options.FROMTYPE[options.fromType],
       linkFromType: options.LINKFROMTYPE.QRCode,
@@ -361,9 +366,9 @@ $.extend(SelectUser.prototype, {
             var prefixAccountLength = options.prefixAccountIds.length;
 
             if (options.includeSystemField) {
-              if(options.prefixOnlySystemField) {
-                renderData.prefixUsers = renderData.users.filter(l=>_.startsWith(l.accountId, 'user'));
-                renderData.users = renderData.users.filter(l=>!_.startsWith(l.accountId, 'user'))
+              if (options.prefixOnlySystemField) {
+                renderData.prefixUsers = renderData.users.filter(l => _.startsWith(l.accountId, 'user'));
+                renderData.users = renderData.users.filter(l => !_.startsWith(l.accountId, 'user'));
               } else {
                 renderData.prefixUsers = renderData.users.splice(0, 6);
               }
@@ -471,6 +476,11 @@ $.extend(SelectUser.prototype, {
         showMoreInvite: options.showMoreInvite,
         SelectUserSettings: options.SelectUserSettings,
         ChooseInviteSettings: options.ChooseInviteSettings,
+        onCancel: () => {
+          if (typeof _this.options.onClose === 'function') {
+            _this.options.onClose();
+          }
+        },
       });
       // close pane
       _this.closePane();
@@ -498,7 +508,7 @@ $.extend(SelectUser.prototype, {
       }
     });
 
-    $(document).on('keyup.quickSelectUser', function (event) {
+    $(document).on('keyup.quickSelectUser' + this._id, function (event) {
       if (event.keyCode === 27) {
         _this.closePane();
       }
@@ -557,7 +567,10 @@ $.extend(SelectUser.prototype, {
     var curIndex;
     if (!$items.length) return;
     $active = $items.filter('.hover').removeClass('hover');
-    curIndex = $active.index();
+    curIndex = Number($active.data('index'));
+    if (_.isNaN(curIndex)) {
+      curIndex = -1;
+    }
     if (e.keyCode === KEYMAPS.UP) {
       curIndex--;
       if (curIndex === -1) {
@@ -751,8 +764,8 @@ $.extend(SelectUser.prototype, {
           }
           accounts[accountKey] = $dialogLayer.$nameInput.val();
           // send invite
-          SelectUser.invite.getInviteAccountInfo
-            .call(null, {
+          invitation
+            .getInviteAccountInfo({
               accounts: accounts,
             })
             .done(function (data) {
@@ -821,6 +834,7 @@ $.extend(SelectUser.prototype, {
     }
     _this.$element.removeData('md.quickSelectUser');
     $(document).off('click.quickSelectUser' + this._id);
+    $(document).off('keyup.quickSelectUser' + this._id);
   },
 });
 

@@ -3,6 +3,7 @@ import { Input } from 'antd';
 import { formatNumberFromInput } from 'src/util';
 import { DynamicValueInputWrap } from '../styled';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
+import _ from 'lodash';
 
 export default function NumberInput(props) {
   const { dynamicValue, data, clearOldDefault, onDynamicValueChange, defaultType } = props;

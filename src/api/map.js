@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 应用库首页
   * @param {Object} args 请求参数

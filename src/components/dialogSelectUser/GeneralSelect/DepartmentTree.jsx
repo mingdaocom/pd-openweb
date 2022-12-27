@@ -5,6 +5,7 @@ import NoData from './NoData';
 import { Icon, Checkbox, ScrollView } from 'ming-ui';
 import styled from 'styled-components';
 import departmentController from 'src/api/department';
+import _ from 'lodash';
 
 const DepartmentTreeWrapper = styled.div`
   overflow: auto;

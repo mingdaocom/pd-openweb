@@ -1,12 +1,7 @@
-import {
-  saveSetting,
-  saveWorksheet,
-  refreshPublicWorksheetUrl,
-  getPublicWorksheetInfo,
-  reset,
-} from 'src/api/publicWorksheet';
-import { addTextControl } from 'src/api/form';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
+import formAjax from 'src/api/form';
 import { getNewControlColRow } from '../utils';
+import _ from 'lodash';
 
 function changeKeyToServer(value) {
   if (!_.isUndefined(value.coverUrl)) {
@@ -30,7 +25,7 @@ export const updateSettings = value => (dispatch, getState) => {
       worksheetInfo: { worksheetId, projectId },
     },
   } = getState();
-  saveSetting({
+  publicWorksheetAjax.saveSetting({
     projectId,
     worksheetId,
     ...value,
@@ -54,7 +49,7 @@ function updateBaseConfig(dispatch, getState, value, cb) {
   const params = {
     ...serverValue,
   };
-  saveWorksheet({
+  publicWorksheetAjax.saveWorksheet({
     projectId,
     worksheetId,
     ...params,
@@ -76,7 +71,7 @@ export function refreshShareUrl() {
         worksheetInfo: { worksheetId },
       },
     } = getState();
-    refreshPublicWorksheetUrl({ worksheetId }).then(data => {
+    publicWorksheetAjax.refreshPublicWorksheetUrl({ worksheetId }).then(data => {
       alert(_l('刷新成功'));
       dispatch({ type: 'PUBLICWORKSHEET_UPDATE_URL', url: data.url });
     });
@@ -95,7 +90,7 @@ export function addWorksheetControl(controlName, cb = () => {}) {
         worksheetInfo: { worksheetId },
       },
     } = state;
-    addTextControl({
+    formAjax.addTextControl({
       worksheetId,
       name: controlName,
     })
@@ -112,7 +107,7 @@ export function addWorksheetControl(controlName, cb = () => {}) {
 
 export function loadPublicWorksheet({ worksheetId }) {
   return (dispatch, getState) => {
-    getPublicWorksheetInfo({ worksheetId })
+    publicWorksheetAjax.getPublicWorksheetInfo({ worksheetId })
       .then(data => {
         dispatch({
           type: 'PUBLICWORKSHEET_LOAD_SUCCESS',
@@ -223,7 +218,7 @@ export function resetControls() {
         worksheetInfo: { worksheetId },
       },
     } = getState();
-    reset({ worksheetId })
+    publicWorksheetAjax.reset({ worksheetId })
       .then(data => {
         if (data && data.success) {
           data = data.info;

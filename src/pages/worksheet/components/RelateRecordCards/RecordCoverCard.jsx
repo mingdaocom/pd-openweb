@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import _ from 'lodash';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import { browserIsMobile } from 'src/util';
+import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import CardCellControls from './CardCellControls';
 
 const Con = styled.div`
@@ -22,6 +24,14 @@ const Con = styled.div`
   }
   &:last-child {
     margin-bottom: 0px;
+  }
+  .hoverShow {
+    visibility: hidden;
+  }
+  &:hover {
+    .hoverShow {
+      visibility: visible;
+    }
   }
 `;
 
@@ -70,9 +80,33 @@ function click(func) {
 }
 
 export default function RecordCoverCard(props) {
-  const { disabled, width, title, controls, data, cover, onClick, onDelete, viewId, allowlink } = props;
+  const {
+    disabled,
+    width,
+    controls,
+    data,
+    cover,
+    onClick,
+    onDelete,
+    viewId,
+    allowlink,
+    sourceEntityName,
+    parentControl,
+    isCharge,
+  } = props;
   const coverSize = 50 + 28 * controls.slice(0, 3).length;
   const isMobile = browserIsMobile();
+  const [forceShowFullValue, setForceShowFullValue] = useState(false);
+  const titleControl = _.find(parentControl.relationControls, { attribute: 1 });
+  const titleMasked =
+    titleControl &&
+    _.get(titleControl, 'advancedSetting.datamask') === '1' &&
+    _.get(titleControl, 'advancedSetting.isdecrypt') === '1';
+  const title =
+    props.title ||
+    (data.rowid
+      ? getTitleTextFromRelateControl(parentControl, data, { noMask: forceShowFullValue })
+      : _l('关联当前%0', sourceEntityName));
   return (
     <Con
       onClick={onClick}
@@ -92,8 +126,18 @@ export default function RecordCoverCard(props) {
       >
         <Title key="title" className="ellipsis" title={title} style={{ marginBottom: controls.length ? 8 : 0 }}>
           {title}
+          {titleMasked && !forceShowFullValue && (
+            <i
+              className="icon icon-eye_off ThemeHoverColor3 Hand maskData Font16 Gray_9e mLeft4 mTop4 hoverShow"
+              style={{ verticalAlign: 'middle' }}
+              onClick={e => {
+                e.stopPropagation();
+                setForceShowFullValue(true);
+              }}
+            ></i>
+          )}
         </Title>
-        <CardCellControls width={width} controls={controls} data={data} viewId={viewId} />
+        <CardCellControls width={width} controls={controls} data={data} viewId={viewId} isCharge={isCharge} />
       </ControlCon>
       {cover && !!controls.length && (
         <img

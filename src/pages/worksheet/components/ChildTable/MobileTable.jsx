@@ -5,6 +5,7 @@ import CellControl from 'worksheet/components/CellControls';
 import styled from 'styled-components';
 import { Modal } from 'antd-mobile';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const alert = Modal.alert;
 

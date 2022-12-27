@@ -6,6 +6,7 @@ import { syncAppDetail } from 'src/pages/PageHeader/redux/action';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import PasswordValidate from './PasswordValidate';
+import moment from 'moment';
 
 function RestoreAppDialog(props) {
   const {

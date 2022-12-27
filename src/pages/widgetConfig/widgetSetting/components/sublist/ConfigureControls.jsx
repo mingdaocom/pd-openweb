@@ -13,7 +13,8 @@ import SelectDataSource from '../SelectDataSource';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGET_GROUP_TYPE } from '../../../config/widget';
 import { enumWidgetType, getWidgetInfo } from '../../../util';
 import { handleAdvancedSettingChange } from '../../../util/setting';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
+import _ from 'lodash';
 
 const AllWidgetsWrap = styled.div`
   overflow: auto;
@@ -213,7 +214,7 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                           okText: _l('确定'),
                           onOk: () => {
                             if (dataSource) {
-                              getWorksheetInfo({ worksheetId: dataSource, getTemplate: true }).then(res => {
+                              worksheetAjax.getWorksheetInfo({ worksheetId: dataSource, getTemplate: true }).then(res => {
                                 addControl({
                                   ...data,
                                   controlName,

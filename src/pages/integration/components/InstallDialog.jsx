@@ -4,7 +4,7 @@ import { Icon, Dialog, LoadDiv } from 'ming-ui';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import APITable from './APITable';
-import { validate, getApiList, install, getDetail } from 'src/pages/workflow/api/packageVersion';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import axios from 'axios';
 import ConnectAvator from './ConnectAvator';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
@@ -54,7 +54,7 @@ export default function InstallDialog(props) {
   // 获取基本详情
   const getDetailInfo = id => {
     let ajaxList = [
-      getDetail(
+      packageVersionAjax.getDetail(
         {
           isPublic: true,
           id: info.id,
@@ -64,7 +64,7 @@ export default function InstallDialog(props) {
     ];
     if (props.info.type === 2) {
       ajaxList.push(
-        validate(
+        packageVersionAjax.validate(
           //安装的连接，需要验证还有哪些api还没安装
           {
             id: info.id,
@@ -75,7 +75,7 @@ export default function InstallDialog(props) {
       );
     } else {
       ajaxList.push(
-        getApiList(
+        packageVersionAjax.getApiList(
           {
             companyId: projectId,
             pageIndex: 1,
@@ -98,7 +98,7 @@ export default function InstallDialog(props) {
   };
 
   const onInstall = () => {
-    install(
+    packageVersionAjax.install(
       {
         apis: selectedList,
         companyId: projectId, // info.companyId, //安装的时候 companyId传下

@@ -3,6 +3,7 @@ import { ScrollView, LoadDiv } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, TimeSelect, SpecificFieldsValue } from '../components';
 import { TIME_TYPE } from '../../enum';
+import _ from 'lodash';
 
 export default class Delay extends Component {
   constructor(props) {

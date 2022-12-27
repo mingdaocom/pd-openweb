@@ -6,6 +6,7 @@ import { Icon, ScrollView } from 'ming-ui';
 import ajaxRequest from 'src/api/appManagement';
 import SvgIcon from 'src/components/SvgIcon';
 import { getToken } from 'src/util';
+import _ from 'lodash';
 
 export default class CustomIcon extends Component {
   state = {

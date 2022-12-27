@@ -85,7 +85,8 @@ export default class GetMoreRecord extends Component {
           ACTION_ID.FROM_ARRAY,
           ACTION_ID.FROM_API_ARRAY,
           ACTION_ID.FROM_CODE_ARRAY,
-          ACTION_ID.FROM_PBC_ARRAY,
+          ACTION_ID.FROM_PBC_INPUT_ARRAY,
+          ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
           ACTION_ID.FROM_JSON_PARSE_ARRAY,
         ],
         actionId,
@@ -239,7 +240,8 @@ export default class GetMoreRecord extends Component {
               ACTION_ID.FROM_ARRAY,
               ACTION_ID.FROM_API_ARRAY,
               ACTION_ID.FROM_CODE_ARRAY,
-              ACTION_ID.FROM_PBC_ARRAY,
+              ACTION_ID.FROM_PBC_INPUT_ARRAY,
+              ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
               ACTION_ID.FROM_JSON_PARSE_ARRAY,
             ],
             data.actionId,
@@ -261,7 +263,8 @@ export default class GetMoreRecord extends Component {
               ACTION_ID.FROM_ARRAY,
               ACTION_ID.FROM_API_ARRAY,
               ACTION_ID.FROM_CODE_ARRAY,
-              ACTION_ID.FROM_PBC_ARRAY,
+              ACTION_ID.FROM_PBC_INPUT_ARRAY,
+              ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
               ACTION_ID.FROM_JSON_PARSE_ARRAY,
             ],
             data.actionId,
@@ -276,7 +279,8 @@ export default class GetMoreRecord extends Component {
             ACTION_ID.FROM_ARRAY,
             ACTION_ID.FROM_API_ARRAY,
             ACTION_ID.FROM_CODE_ARRAY,
-            ACTION_ID.FROM_PBC_ARRAY,
+            ACTION_ID.FROM_PBC_INPUT_ARRAY,
+            ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
             ACTION_ID.FROM_JSON_PARSE_ARRAY,
           ],
           data.actionId,
@@ -317,12 +321,13 @@ export default class GetMoreRecord extends Component {
       { text: _l('发送API请求数组'), value: ACTION_ID.FROM_ARRAY },
       { text: _l('调用已集成API数组'), value: ACTION_ID.FROM_API_ARRAY },
       { text: _l('代码块数组'), value: ACTION_ID.FROM_CODE_ARRAY },
-      { text: _l('业务流程数组'), value: ACTION_ID.FROM_PBC_ARRAY },
+      { text: _l('业务流程输入数组'), value: ACTION_ID.FROM_PBC_INPUT_ARRAY },
+      { text: _l('业务流程输出数组'), value: ACTION_ID.FROM_PBC_OUTPUT_ARRAY },
       { text: _l('JSON解析数组'), value: ACTION_ID.FROM_JSON_PARSE_ARRAY },
     ];
 
     if (flowInfo.startAppType !== APP_TYPE.PBC || flowInfo.child) {
-      _.remove(list, item => item.value === ACTION_ID.FROM_PBC_ARRAY);
+      _.remove(list, item => _.includes([ACTION_ID.FROM_PBC_INPUT_ARRAY], item.value));
     }
 
     return (
@@ -532,7 +537,8 @@ export default class GetMoreRecord extends Component {
       [ACTION_ID.FROM_ARRAY]: _l('选择发送API请求节点'),
       [ACTION_ID.FROM_API_ARRAY]: _l('选择API节点'),
       [ACTION_ID.FROM_CODE_ARRAY]: _l('选择代码块节点'),
-      [ACTION_ID.FROM_PBC_ARRAY]: _l('选择业务流程节点'),
+      [ACTION_ID.FROM_PBC_INPUT_ARRAY]: _l('选择业务流程节点'),
+      [ACTION_ID.FROM_PBC_OUTPUT_ARRAY]: _l('选择业务流程节点'),
       [ACTION_ID.FROM_JSON_PARSE_ARRAY]: _l('选择JSON解析节点'),
     };
 
@@ -657,7 +663,8 @@ export default class GetMoreRecord extends Component {
                 ACTION_ID.FROM_ARRAY,
                 ACTION_ID.FROM_API_ARRAY,
                 ACTION_ID.FROM_CODE_ARRAY,
-                ACTION_ID.FROM_PBC_ARRAY,
+                ACTION_ID.FROM_PBC_INPUT_ARRAY,
+                ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
                 ACTION_ID.FROM_JSON_PARSE_ARRAY,
               ],
               data.actionId,

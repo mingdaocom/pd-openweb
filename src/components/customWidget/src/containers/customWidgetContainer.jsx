@@ -19,6 +19,7 @@ import formControl from 'src/api/form';
 import { autobind } from 'core-decorators';
 import '../css/main.less';
 import ErrorState from 'src/components/errorPage/errorState';
+import _ from 'lodash';
 
 @DragDropContext(HTML5Backend)
 @connect(

@@ -9,6 +9,8 @@ import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { Option } from './Options';
 import RightSidebar from './RightSidebar';
 import DateTimeList from './DateTimeList';
+import _ from 'lodash';
+import moment from 'moment';
 
 const InputCon = styled(Input)`
   width: 100%;

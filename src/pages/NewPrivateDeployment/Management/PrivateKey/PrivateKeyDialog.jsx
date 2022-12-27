@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, Textarea, LoadDiv } from 'ming-ui';
 import privateGuideApi from 'src/api/privateGuide';
+import _ from 'lodash';
 
 export default props => {
   const { visible, onCancel, onSave } = props;

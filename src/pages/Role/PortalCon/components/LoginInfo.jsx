@@ -9,8 +9,9 @@ import PorTalTable from 'src/pages/Role/PortalCon/tabCon/portalComponent/PortalT
 import cx from 'classnames';
 import autoSize from 'ming-ui/decorators/autoSize';
 const AutoSizePorTalTable = autoSize(PorTalTable);
-import { getUserActionLogs } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import { pageSize } from '../tabCon/util';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   .con {
@@ -137,7 +138,7 @@ function LoginInfo(props) {
     }
     setloading(true);
     ajaxFn && ajaxFn.abort();
-    ajaxFn = getUserActionLogs({
+    ajaxFn = externalPortalAjax.getUserActionLogs({
       appId,
       fullnameOrMobilePhone: searchValue, //用户名或手机号
       startDate,

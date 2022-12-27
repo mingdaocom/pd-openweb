@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { HomePageWrap, FreeTrialWrap } from './styled';
 import cx from 'classnames';
-import { getProjectLicenseSupportInfo, getInviteGiveRule } from 'src/api/project';
-import { getProcessUseCount } from 'src/pages/workflow/api/processVersion';
+import projectAjax from 'src/api/project';
+import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import axios from 'axios';
 import { Modal, Button, Progress } from 'antd';
 import { QUICK_ENTRY_CONFIG, USER_COUNT, ITEM_COUNT, UPLOAD_COUNT, formatFileSize, formatValue } from './config';
@@ -11,6 +11,7 @@ import { getCurrentProject } from 'src/util';
 import InstallDialog from './installDialog';
 import { Support, Tooltip, Icon } from 'ming-ui';
 import addFriends from 'src/components/addFriends/addFriends';
+import _ from 'lodash';
 
 export default function HomePage({ match, location: routerLocation }) {
   const { projectId } = _.get(match, 'params');
@@ -26,9 +27,9 @@ export default function HomePage({ match, location: routerLocation }) {
     document.title = _l('组织管理 - 首页 - %0', companyName);
     axios
       .all([
-        getProjectLicenseSupportInfo({ projectId }),
-        getProcessUseCount({ companyId: projectId }),
-        getInviteGiveRule({ projectId }),
+        projectAjax.getProjectLicenseSupportInfo({ projectId }),
+        processVersionAjax.getProcessUseCount({ companyId: projectId }),
+        projectAjax.getInviteGiveRule({ projectId }),
       ])
       .then(res => {
         let data = res.reduce((p, c) => ({ ...p, ...c }), {});

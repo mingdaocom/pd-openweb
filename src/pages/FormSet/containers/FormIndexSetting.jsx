@@ -2,11 +2,12 @@ import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import MoreOption from '../components/MoreOption';
-import { getRowIndexes, removeRowIndex, updateRowIndexCustomeIndexName } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { CreateIndex } from 'worksheet/common';
 import { Support, Icon, LoadDiv } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const Con = styled.div`
   width: 100%;
@@ -208,7 +209,7 @@ function FormIndexSetting(props) {
   }, [isRename]);
 
   const getIndexesInfo = () => {
-    getRowIndexes({ worksheetId }).then(res => {
+    worksheetAjax.getRowIndexes({ worksheetId }).then(res => {
       setIndexList(res.worksheetRowIndexConfigs || []);
       let worksheetAvailableFields = (res.worksheetAvailableFields || []).filter(
         item => !_.includes(FILTER_TYPE_LIST, item.controlType),
@@ -219,7 +220,7 @@ function FormIndexSetting(props) {
   };
   // 重命名
   const editIndex = obj => {
-    updateRowIndexCustomeIndexName({
+    worksheetAjax.updateRowIndexCustomeIndexName({
       appId,
       worksheetId, // 工作表Id
       indexConfigId: obj.indexConfigId, // 索引配置Id （系统级索引可为空）
@@ -371,7 +372,7 @@ function FormIndexSetting(props) {
                               setShowMoreOption(false);
                             }}
                             deleteFn={data => {
-                              removeRowIndex({
+                              worksheetAjax.removeRowIndex({
                                 appId,
                                 worksheetId: item.worksheetId,
                                 indexConfigId: item.indexConfigId,

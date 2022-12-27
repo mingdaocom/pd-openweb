@@ -5,12 +5,17 @@ import { upgradeVersionDialog } from 'src/util';
 import { LoadDiv } from 'ming-ui';
 import * as actions from 'src/pages/chat/redux/actions';
 import { emitter } from 'src/util';
+import _ from 'lodash';
+import moment from 'moment';
 
 @connect(_ => ({}))
 class AppLib extends Component {
   constructor(props) {
     super(props);
     let str = 'https://alifile.mingdaocloud.com/open/js/applibrary.js' + '?' + moment().format('YYYYMMDD');
+    if (_.get(window, 'md.global.SysSettings.templateLibraryTypes') === '2') {
+      str = '/src/library/applibrary.js';
+    }
     this.state = {
       str,
       projectId: localStorage.getItem('currentProjectId'),
@@ -32,7 +37,7 @@ class AppLib extends Component {
             return upgradeVersionDialog({ ...data, isFree: licenseType === 0 });
           },
           MDAppLibraryId: 'containerAppLib',
-          getUrl: 'https://pd.mingdao.com/api/',
+          getUrl: (md && md.global && md.global.SysSettings && md.global.SysSettings.templateLibraryTypes === '2') ? __api_server__.main : 'https://pd.mingdao.com/api/',
           installUrl: AppFileServer,
           accountId,
           projects,

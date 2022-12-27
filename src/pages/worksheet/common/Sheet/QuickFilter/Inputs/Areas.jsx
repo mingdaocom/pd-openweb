@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { arrayOf, func, string, shape } from 'prop-types';
 import CityPicker from 'ming-ui/components/CityPicker';
 import { BaseSelectedItem } from './Styles';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

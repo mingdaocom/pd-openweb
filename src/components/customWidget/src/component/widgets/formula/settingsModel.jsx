@@ -10,6 +10,7 @@ import { classSet, returnCustomDataSource, returnCustomString, checkCustomFormul
 import { getEditModel } from '../../editBox/editModels';
 import firstInputSelect from '../../common/firstInputSelect';
 import Number from '../../common/number';
+import _ from 'lodash';
 
 @firstInputSelect
 class SettingsModel extends React.Component {

@@ -1,9 +1,10 @@
-import { renderCellText } from 'worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { getAdvanceSetting } from 'src/util';
 import moment from 'moment';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { isLightColor } from 'src/util';
 import { OPTION_COLORS_LIST, OPTION_COLORS_LIST_HOVER } from 'src/pages/widgetConfig/config';
+import _ from 'lodash';
 const defaultColor = '#C9E6FC';
 export const eventStr = {
   0: 'eventAll', //全部
@@ -63,9 +64,9 @@ const getEnd = (data, o) => {
   return !data[o.end] || moment(data[o.begin]).isAfter(data[o.end])
     ? ''
     : moment(
-      //全天事件 都要加一天
-      !getAllDay(data, o) ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day'),
-    ).format(o.endFormat);
+        //全天事件 都要加一天
+        !getAllDay(data, o) ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day'),
+      ).format(o.endFormat);
 };
 const getIsOverOneDay = (data, o) => {
   return (
@@ -97,7 +98,7 @@ export const setDataFormat = pram => {
   let stringColor = getStringColor(calendarData, data, currentView, worksheetControls);
   let list = [];
   calendarInfo.map(o => {
-    let editable = controlState(o.startData).editable
+    let editable = controlState(o.startData).editable;
     if (!!data[o.begin]) {
       let start = getStart(data, o);
       let allDay = getAllDay(data, o);
@@ -183,12 +184,12 @@ export const getCalendarViewType = (strType, data) => {
   const str = !['1', '2'].includes(strType)
     ? 'dayGridMonth'
     : strType === '1'
-      ? isTimeStyle(data)
-        ? 'timeGridWeek'
-        : 'dayGridWeek'
-      : isTimeStyle(data)
-        ? 'timeGridDay'
-        : 'dayGridDay';
+    ? isTimeStyle(data)
+      ? 'timeGridWeek'
+      : 'dayGridWeek'
+    : isTimeStyle(data)
+    ? 'timeGridDay'
+    : 'dayGridDay';
   return str;
 };
 

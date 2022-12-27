@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Switch, Button } from 'ming-ui';
-import { getPublicQuery, editPublicQueryState } from 'src/api/publicWorksheet';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
 import Skeleton from 'src/router/Application/Skeleton';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import QueryConfigDialog from './QueryConfigDialog';
 import { VISIBLE_TYPE } from '../enum';
+import _ from 'lodash';
 
 export default function EnablePanel(props) {
   const { worksheetId, worksheetInfo } = props;
@@ -13,7 +14,7 @@ export default function EnablePanel(props) {
   const [configVisible, setConfigVisible] = useState();
   const enabled = queryInfo.visibleType === VISIBLE_TYPE.PUBLIC;
   useEffect(() => {
-    getPublicQuery({ worksheetId }).then(data => {
+    publicWorksheetAjax.getPublicQuery({ worksheetId }).then(data => {
       if (!data.title) {
         data.title = _l('查询%0', worksheetInfo.name);
       }
@@ -50,7 +51,7 @@ export default function EnablePanel(props) {
         onClick={() => {
           const newVisibleType =
             queryInfo.visibleType === VISIBLE_TYPE.PUBLIC ? VISIBLE_TYPE.CLOSE : VISIBLE_TYPE.PUBLIC;
-          editPublicQueryState({
+            publicWorksheetAjax.editPublicQueryState({
             worksheetId,
             visibleType: newVisibleType,
           }).then(url => {

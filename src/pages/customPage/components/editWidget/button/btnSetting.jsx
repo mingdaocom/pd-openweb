@@ -6,10 +6,8 @@ import cx from 'classnames';
 import sheetAjax from 'src/api/worksheet';
 import { connect } from 'react-redux';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
-import { getWorksheetsByAppId } from 'src/api/homeApp';
-import { getAppForManager } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 import { useSetState } from 'react-use';
-import { COLORS, ICONS } from './config';
 import './index.less';
 import BtnName from './BtnName';
 import LinkPara from '../LinkPara';
@@ -18,6 +16,7 @@ import FilterData from './FilterData';
 import SelectProcess from './SelectProcess';
 import ClickConfirm from './ClickConfirm';
 import { DropdownContent } from 'src/pages/widgetConfig/styled';
+import _ from 'lodash';
 
 const BtnSettingWrap = styled.div`
   display: flex;
@@ -260,7 +259,7 @@ function BtnSetting(props) {
   }, [btnSetting.param]);
 
   useEffect(() => {
-    getAppForManager({ projectId }).then(data => {
+    appManagementAjax.getAppForManager({ projectId }).then(data => {
       if (Array.isArray(data)) {
         let sheets = [];
         let pageList = [];
@@ -752,7 +751,10 @@ function BtnSetting(props) {
         inputs: [],
       }
     } else {
-      data.config = {}
+      data.config = {
+        icon: _.get(btnSetting, 'config.icon'),
+        iconUrl: _.get(btnSetting, 'config.iconUrl')
+      }
     }
 
     if (_.get(data, ['config', 'isNewBtn'])) {

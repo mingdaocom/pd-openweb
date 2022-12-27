@@ -7,6 +7,7 @@ import Constant from '../../utils/constant';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { getClassNameByExt } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import moment from 'moment';
 
 export const splitFiles = list => {
   const ranges = {};

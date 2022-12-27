@@ -11,8 +11,8 @@ import accountController from 'src/api/account';
 import cx from 'classnames';
 import './cancellation.less';
 import moment from 'moment';
-import { applyLogOffAccount, getApplyLogOffAccount } from 'src/api/account';
-import { getDeclare } from 'src/api/privateDeclare';
+import privateDeclareAjax from 'src/api/privateDeclare';
+import accountAjax from 'src/api/account';
 
 const errorMsg = {
   6: _l('密码错误'),
@@ -39,7 +39,7 @@ export default class Cancellation extends Component {
     $('html').addClass('enterpriseLogoutCon');
     document.title = _l('账户注销');
     this.checkLogoutStatus();
-    getDeclare().then(res => {
+    privateDeclareAjax.getDeclare().then(res => {
       this.setState({
         summary: res.agreement,
       });
@@ -62,7 +62,7 @@ export default class Cancellation extends Component {
       return;
     }
     this.setState({ loading: true });
-    getApplyLogOffAccount({ state })
+    accountAjax.getApplyLogOffAccount({ state })
       .then(res => {
         if (res === 0 || res === 5) {
           location.href = '/login';
@@ -179,7 +179,7 @@ export default class Cancellation extends Component {
           className={cx('mTop40', { disabled: second || !checkedAgree })}
           onClick={() => {
             if (second || !checkedAgree) return;
-            applyLogOffAccount({}).then(res => {
+            accountAjax.applyLogOffAccount({}).then(res => {
               let type = res === 0 || res === 5 ? 2 : res === 1 ? 1 : 3;
               const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
               alert(actionMsg[res], type);

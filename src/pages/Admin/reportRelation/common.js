@@ -1,5 +1,5 @@
-const structureController = require('src/api/structure');
-const projectSettingController = require('src/api/projectSetting');
+import structureController from 'src/api/structure';
+import projectSettingController from 'src/api/projectSetting';
 import Config from '../config';
 import 'src/components/dialogSelectUser/dialogSelectUser';
 
@@ -65,7 +65,6 @@ export function selectUser({ title, accountId, unique, isSetParent, callback }) 
   $({}).dialogSelectUser({
     fromAdmin: true,
     SelectUserSettings: {
-      projectId: Config.projectId,
       filterAll: true,
       filterFriend: true,
       filterOthers: true,

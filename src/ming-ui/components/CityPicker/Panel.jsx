@@ -4,6 +4,7 @@ import cx from 'classnames';
 import LoadDiv from '../LoadDiv';
 import host from './config';
 import fixeddataController from 'src/api/fixedData';
+import _ from 'lodash';
 
 const particularlyCity = ['110000', '120000', '310000', '500000', '810000', '820000'];
 const overseas = ['910000'];

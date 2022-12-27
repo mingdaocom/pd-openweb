@@ -4,6 +4,7 @@ import cx from 'classnames';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import './ColumnListDropdown.less';
+import _ from 'lodash';
 
 export default class ColumnListDropdown extends React.Component {
   static propTypes = {

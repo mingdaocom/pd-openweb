@@ -2,6 +2,7 @@ import React from 'react';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Icon, Radio } from 'ming-ui';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const RangeBox = styled.div`
   width: 320px;

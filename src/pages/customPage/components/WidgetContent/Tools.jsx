@@ -7,6 +7,7 @@ import 'rc-trigger/assets/index.css';
 import { useToggle } from 'react-use';
 import { getEnumType } from '../../util';
 import PageMove from 'statistics/components/PageMove';
+import _ from 'lodash';
 
 const WEB_CONTENT_TOOLS = [
   { type: 'setting', icon: 'settings', tip: _l('设置') },

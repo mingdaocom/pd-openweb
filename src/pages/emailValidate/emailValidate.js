@@ -1,4 +1,4 @@
-var accountController = require('src/api/account');
+import accountController from 'src/api/account';
 import { getRequest } from 'src/util';
 var token = getRequest()['token'];
 import doT from '@mdfe/dot';

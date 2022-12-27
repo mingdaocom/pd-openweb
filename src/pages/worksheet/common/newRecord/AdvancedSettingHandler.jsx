@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
+import _ from 'lodash';
 
 export default function AdvancedSettingHandler(Comp) {
   return function NewRecord(props) {
@@ -8,15 +9,17 @@ export default function AdvancedSettingHandler(Comp) {
     const [worksheetInfo, setWorksheetInfo] = useState(props.worksheetInfo || {});
     useEffect(() => {
       if (loading) {
-        getWorksheetInfo({
-          handleDefault: true,
-          getTemplate: true,
-          getRules: true,
-          worksheetId,
-        }).then(data => {
-          setWorksheetInfo(data);
-          setLoading(false);
-        });
+        worksheetAjax
+          .getWorksheetInfo({
+            handleDefault: true,
+            getTemplate: true,
+            getRules: true,
+            worksheetId,
+          })
+          .then(data => {
+            setWorksheetInfo(data);
+            setLoading(false);
+          });
       }
     }, []);
     const advancedSettingData = worksheetInfo.advancedSetting || {};
@@ -37,6 +40,7 @@ export default function AdvancedSettingHandler(Comp) {
             ['true', '1'],
             _.isUndefined(advancedSettingData.showcontinue) ? '1' : advancedSettingData.showcontinue,
           ), // 是否显示保留数据继续提交选项
+          draftVisible: advancedSettingData.closedrafts !== '1',
         }
       : undefined;
     return <Comp {...props} loading={loading} worksheetInfo={worksheetInfo} advancedSetting={advancedSetting} />;

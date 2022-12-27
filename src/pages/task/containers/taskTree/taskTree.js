@@ -10,6 +10,7 @@ import config from '../../config/config';
 import treeMaster from './tpl/treeMaster.html';
 import quickCreateTask from '../../components/quickCreateTask/quickCreateTask';
 import TaskDetail from '../taskDetail/taskDetail';
+import _ from 'lodash';
 
 const taskTreeSettings = {
   pageIndex: 1,

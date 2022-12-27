@@ -1,9 +1,10 @@
 import React from 'react';
 import { Dialog } from 'ming-ui';
 import './dialogCreateAndEditRole.less';
-import { checkSensitive } from 'src/api/fixedData.js';
-import { addOrganize, editOrganizeName, deleteOrganizes } from 'src/api/organize.js';
+import fixedDataAjax from 'src/api/fixedData.js';
+import organizeAjax from 'src/api/organize.js';
 import cx from 'classnames';
+import _ from 'lodash';
 
 class DialogCreateAndEditRole extends React.Component {
   constructor(props) {
@@ -45,12 +46,12 @@ class DialogCreateAndEditRole extends React.Component {
               this.setState({ exsistCurrentName: true });
               return;
             }
-            checkSensitive({ content: roleName }).then(res => {
+            fixedDataAjax.checkSensitive({ content: roleName }).then(res => {
               if (res) {
                 return alert(_l('输入内容包含敏感词，请重新填写'), 3);
               }
               if (filed === 'edit') {
-                editOrganizeName({
+                organizeAjax.editOrganizeName({
                   organizeName: roleName,
                   projectId,
                   remark,
@@ -69,7 +70,7 @@ class DialogCreateAndEditRole extends React.Component {
                   this.props.onCancel();
                 });
               } else {
-                addOrganize({ organizeName: roleName, projectId, remark }).then(res => {
+                organizeAjax.addOrganize({ organizeName: roleName, projectId, remark }).then(res => {
                   if (!res) {
                     alert(_l('创建失败'), 2);
                     this.props.onCancel();

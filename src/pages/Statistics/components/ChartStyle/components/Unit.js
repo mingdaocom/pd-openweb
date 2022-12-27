@@ -3,6 +3,7 @@ import { Icon } from 'ming-ui';
 import { Collapse, Select, Input } from 'antd';
 import { reportTypes, numberLevel } from 'statistics/Charts/common';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const FixTypeWrapper = styled.div`
   position: relative;
@@ -190,12 +191,13 @@ export default function unitPanelGenerator(props) {
   const { reportType, yaxisList, rightY } = currentReport;
   const isPivotTable = reportType === reportTypes.PivotTable;
   const isDualAxes = reportType === reportTypes.DualAxes;
+  const isNumberChart = reportType === reportTypes.NumberChart;
   const rightYaxisList = rightY ? rightY.yaxisList : [];
   const firstYaxis = yaxisList[0];
   const firstRightYaxis = rightYaxisList[0];
   return (
     <Fragment>
-      {isPivotTable ? (
+      {isPivotTable || isNumberChart ? (
         <Collapse.Panel header={_l('显示单位')} key="pivotTableUnit" {...collapseProps}>
           {
             yaxisList.map(item => (

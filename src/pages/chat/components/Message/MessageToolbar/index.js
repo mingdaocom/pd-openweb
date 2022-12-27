@@ -11,6 +11,7 @@ import { getCurrentTime } from '../../../utils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import Dialog from 'ming-ui/components/Dialog';
 import { downloadFile } from 'src/util';
+import moment from 'moment';
 
 const confirm = Dialog.confirm;
 

@@ -9,8 +9,8 @@ import RecordCard from 'src/components/recordCard';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import './index.less';
+import _ from 'lodash';
 
-@withRouter
 class RelationList extends Component {
   constructor(props) {
     super(props);
@@ -19,8 +19,7 @@ class RelationList extends Component {
     }
   }
   componentDidMount() {
-    const { match, controlId, control, instanceId, workId, worksheetId, rowId } = this.props;
-    const { params } = match;
+    const { controlId, control, instanceId, workId, worksheetId, rowId, getType } = this.props;
     let newParams = null;
     if (instanceId && workId) {
       newParams = {
@@ -33,7 +32,6 @@ class RelationList extends Component {
     } else {
       const { viewId, appId } = this.props;
       newParams = {
-        ...params,
         viewId,
         appId,
         worksheetId,
@@ -42,7 +40,7 @@ class RelationList extends Component {
       };
     }
     this.props.updateBase(newParams);
-    this.props.loadRow(control);
+    this.props.loadRow(control, getType);
   }
   componentWillUnmount() {
     this.props.reset();

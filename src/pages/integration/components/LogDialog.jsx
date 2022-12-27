@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import { LoadDiv, Dialog } from 'ming-ui';
 import { useSetState } from 'react-use';
 import JsonView from 'react-json-view';
-import { getHistoryDetail } from 'src/pages/workflow/api/packageVersion';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { FLOW_STATUS } from 'src/pages/workflow/WorkflowSettings/History/config.js';
 import _ from 'lodash';
 import cx from 'classnames';
+import moment from 'moment';
 const TABLIST = ['请求参数', '返回值'];
 const Wrap = styled.div`
   .tabCon {
@@ -45,7 +46,7 @@ export default function LogDialog(props) {
   }, []);
   const getLogDetail = () => {
     setState({ loading: true });
-    getHistoryDetail(
+    packageVersionAjax.getHistoryDetail(
       {
         instanceId: props.info.id,
       },

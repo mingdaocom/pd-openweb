@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
 import { ACTION_ID } from '../../enum';
+import _ from 'lodash';
 
 export default class GetMoreRecord extends Component {
   constructor(props) {
@@ -20,7 +21,8 @@ export default class GetMoreRecord extends Component {
       [ACTION_ID.FROM_ARRAY]: _l('从发送API请求数组获取数据'),
       [ACTION_ID.FROM_CODE_ARRAY]: _l('从代码块数组获取数据'),
       [ACTION_ID.FROM_ARTIFICIAL]: _l('从人工节点获取操作明细数据'),
-      [ACTION_ID.FROM_PBC_ARRAY]: _l('从业务流程数组获取数据'),
+      [ACTION_ID.FROM_PBC_INPUT_ARRAY]: _l('从业务流程输入数组获取数据'),
+      [ACTION_ID.FROM_PBC_OUTPUT_ARRAY]: _l('从业务流程输出数组获取数据'),
       [ACTION_ID.FROM_API_ARRAY]: _l('从API数组获取数据'),
       [ACTION_ID.FROM_JSON_PARSE_ARRAY]: _l('从JSON解析数组获取数据'),
     };
@@ -43,7 +45,8 @@ export default class GetMoreRecord extends Component {
         [
           ACTION_ID.FROM_ARRAY,
           ACTION_ID.FROM_CODE_ARRAY,
-          ACTION_ID.FROM_PBC_ARRAY,
+          ACTION_ID.FROM_PBC_INPUT_ARRAY,
+          ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
           ACTION_ID.FROM_API_ARRAY,
           ACTION_ID.FROM_JSON_PARSE_ARRAY,
         ],

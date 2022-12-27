@@ -5,6 +5,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import SortColumns from 'src/pages/worksheet/components/SortColumns';
 import { isOptionControl } from 'statistics/common';
+import _ from 'lodash';
 
 const ShowControlIdWrapper = styled.div`
   border-radius: 4px;

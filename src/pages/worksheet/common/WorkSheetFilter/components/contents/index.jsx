@@ -11,6 +11,7 @@ import DiabledInput from './DiabledInput';
 import RelateRecord from './RelateRecord';
 import Cascader from './Cascader';
 import RelateFilter from './RelateFilter';
+import _ from 'lodash';
 
 export default function (key, props) {
   if (props.isDynamicsource) {

@@ -12,6 +12,7 @@ import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import * as actions from './redux/actions';
 import sheetAjax from 'src/api/worksheet';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const BtnsWrapper = styled(Flex)`
   height: 50px;
@@ -33,7 +34,6 @@ const BtnsWrapper = styled(Flex)`
   }
 `;
 
-@withRouter
 class RelationAction extends Component {
   constructor(props) {
     super(props);
@@ -51,7 +51,7 @@ class RelationAction extends Component {
     });
   }
   removeRelationRows = () => {
-    const { base, relationRow, match, actionParams, updateRelationRows, permissionInfo } = this.props;
+    const { base, relationRow, actionParams, updateRelationRows, permissionInfo, getDataType } = this.props;
     const { worksheet } = relationRow;
     const { selectedRecordIds } = actionParams;
     const { isSubList } = permissionInfo;
@@ -82,6 +82,7 @@ class RelationAction extends Component {
           controlId: base.controlId,
           isAdd: false,
           rowIds: selectedRecordIds,
+          updateType: getDataType,
         })
         .then(data => {
           if (data.isSuccess) {
@@ -100,7 +101,7 @@ class RelationAction extends Component {
     }
   }
   addRelationRows(newRelationRows) {
-    const { base, relationRows } = this.props;
+    const { base, relationRows, getDataType } = this.props;
     const ids = relationRows.map(item => item.rowid);
     const list = newRelationRows.filter(item => !ids.includes(item.rowid));
 
@@ -118,6 +119,7 @@ class RelationAction extends Component {
         controlId: base.controlId,
         isAdd: true,
         rowIds: list.map(r => r.rowid),
+        updateType: getDataType,
       })
       .then(data => {
         if (data.isSuccess) {
@@ -192,6 +194,8 @@ class RelationAction extends Component {
             entityName={worksheet.entityName}
             relateSheetBeLongProject={worksheet.projectId}
             relateSheetId={worksheet.worksheetId}
+            getDataType={this.props.getDataType}
+            relationRowIds={(this.props.relationRows || []).map(it => it.rowid)}
             onClose={() => {
               this.setState({ recordkeyWords: '' });
               this.handleSetShowRelevanceRecord(false);

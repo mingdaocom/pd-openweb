@@ -10,6 +10,7 @@ import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import Card from './Card';
 import './index.less';
+import _ from 'lodash';
 
 export const processInformTabs = [{
   name: _l('全部'),

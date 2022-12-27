@@ -5,7 +5,7 @@ import { Tooltip } from 'antd';
 import ChartDialog from '../ChartDialog';
 import login from 'src/api/login';
 import reportApi from '../api/report';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
 import { fillValueMap } from '../common';
@@ -16,15 +16,17 @@ import MoreOverlay from './MoreOverlay';
 import charts from '../Charts';
 import { browserIsMobile, getAppFeaturesPath } from 'src/util';
 import './Card.less';
+import _ from 'lodash';
 
 const isMobile = browserIsMobile();
 
 let isCheckLogin = true;
 
-@errorBoundary
 class Card extends Component {
   static defaultProps = {
     needEnlarge: true,
+    needTimingRefresh: true,
+    onLoad: _.noop
   };
   constructor(props) {
     super(props);
@@ -73,10 +75,10 @@ class Card extends Component {
     }
   }
   getData = (props, reload = false) => {
-    const { report, filters, filtersGroup } = props;
+    const { needTimingRefresh, report, filters, filtersGroup } = props;
     const shareAuthor = window.shareAuthor;
     const headersConfig = {
-      shareAuthor,
+      share: shareAuthor,
     };
     this.setState({ loading: true });
     this.abortRequest();
@@ -97,8 +99,9 @@ class Card extends Component {
         reportData: fillValueMap(result),
         loading: false,
       });
+      this.props.onLoad(result);
     });
-    this.initInterval();
+    needTimingRefresh && this.initInterval();
   }
   handleOperateClick = ({ settingVisible, sheetVisible = false, activeData }) => {
     this.setState({
@@ -139,20 +142,22 @@ class Card extends Component {
     const { reportType } = reportData;
     const Chart = charts[reportType];
     return (
-      <Chart
-        loading={loading}
-        isThumbnail={true}
-        isViewOriginalData={!this.isPublicShare}
-        onOpenChartDialog={this.handleOpenChartDialog}
-        reportData={{
-          ...reportData,
-          reportId: id
-        }}
-      />
+      <ErrorBoundary>
+        <Chart
+          loading={loading}
+          isThumbnail={true}
+          isViewOriginalData={!this.isPublicShare}
+          onOpenChartDialog={this.handleOpenChartDialog}
+          reportData={{
+            ...reportData,
+            reportId: id
+          }}
+        />
+      </ErrorBoundary>
     );
   }
   renderContent() {
-    const { reportType, map, contrastMap, data } = this.state.reportData;
+    const { reportType, map, contrastMap, contrast, data } = this.state.reportData;
 
     if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.RadarChart, reportTypes.FunnelChart, reportTypes.DualAxes, reportTypes.CountryLayer].includes(reportType)) {
       return (map.length || contrastMap.length) ? this.renderChart() : <WithoutData />;
@@ -161,7 +166,7 @@ class Card extends Component {
       return map.length ? this.renderChart() : <WithoutData />;
     }
     if ([reportTypes.NumberChart].includes(reportType)) {
-      return this.renderChart();
+      return (map.length || contrastMap.length || contrast.length) ? this.renderChart() : <WithoutData />;
     }
     if ([reportTypes.PivotTable].includes(reportType)) {
       return _.isEmpty(data.data) ? <WithoutData /> : this.renderChart();
@@ -204,7 +209,7 @@ class Card extends Component {
             </span>
           )}
           <div className="flex valignWrapper ellipsis">
-            <div className="pointer ellipsis bold pLeft5">{reportData.name}</div>
+            <div className="pointer ellipsis bold pLeft5 reportName">{reportData.name}</div>
             {reportData.desc && (
               <Tooltip title={reportData.desc} placement="bottom">
                 <Icon
@@ -272,7 +277,6 @@ class Card extends Component {
                 }}
                 ownerId={ownerId}
                 appId={appId}
-                getPopupContainer={() => document.querySelector(`.statisticsCard-${report.id} .header .ant-dropdown-open`)}
                 worksheetId={sourceType ? worksheetId : null}
                 onOpenSetting={permissions ? () => {
                   this.handleOperateClick({

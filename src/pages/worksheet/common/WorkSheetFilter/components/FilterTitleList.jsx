@@ -6,6 +6,7 @@ import { Menu, MenuItem, Icon, Tooltip } from 'ming-ui';
 import { sortableContainer, sortableElement, sortableHandle, arrayMove } from 'react-sortable-hoc';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { FILTER_TYPE } from '../enum';
+import _ from 'lodash';
 
 const Con = styled.div`
   .title {
@@ -54,7 +55,6 @@ const FilterTitleItemCon = styled(VerticalMiddle)`
     position: absolute;
     top: 12px;
     left: 18px;
-    display: none !important; // 后端不支持
   }
   .icon {
     font-size: 18px;
@@ -66,7 +66,7 @@ const FilterTitleItemCon = styled(VerticalMiddle)`
   &.active {
     background: #e5f3fe;
     color: #2196f3;
-    .icon {
+    .filterIcon {
       color: #2196f3;
     }
   }
@@ -84,7 +84,7 @@ const FilterTitleItemCon = styled(VerticalMiddle)`
     }
   }
   &.draggingItem {
-    z-index: 99;
+    z-index: 9999;
     background: #f5f5f5;
     .dragger {
       display: inline-block;
@@ -92,7 +92,7 @@ const FilterTitleItemCon = styled(VerticalMiddle)`
   }
 `;
 
-const DragHandle = sortableHandle(() => <i className="icon icon-drag dragger hoverShow"></i>);
+const DragHandle = sortableHandle(() => <i className="icon icon-drag dragger hoverShow ThemeHoverColor3"></i>);
 
 function FilterTitleItem(props) {
   const {
@@ -121,7 +121,7 @@ function FilterTitleItem(props) {
     >
       <VerticalMiddle className="content">
         <DragHandle />
-        <i className="icon icon-worksheet_filter"></i>
+        <i className="icon icon-worksheet_filter filterIcon"></i>
         <span title={name} className="Font14 mLeft10 ellipsis">
           {name}
         </span>
@@ -229,7 +229,7 @@ export default function FilterTitleList(props) {
     activeFilter = {},
     controls = [],
     filters = [],
-    onChange = () => {},
+    onSortEnd = () => {},
     onEditFilter = () => {},
     onCopy = () => {},
     onDelete = () => {},
@@ -252,18 +252,7 @@ export default function FilterTitleList(props) {
         onSortStart={() => setIsDragging(true)}
         onSortEnd={({ oldIndex, newIndex }) => {
           setIsDragging(false);
-          console.log(oldIndex, newIndex);
-          onChange(arrayMove(filters, oldIndex, newIndex));
-          // const sortedGroups = arrayMove(item.groups, oldIndex, newIndex);
-          // setSorts(oldSorts => ({ ...oldSorts, [item.type]: sortedGroups.map(g => g.id) }));
-          // editGroupSort({
-          //   projectId,
-          //   ids: sortedGroups.map(g => g.id),
-          //   sortType: getSortType(item.type),
-          // });
-          // if (item.type === 'star') {
-          //   actions.updateGroupSorts(sortedGroups);
-          // }
+          onSortEnd(arrayMove(filters, oldIndex, newIndex).map(f => f.id));
         }}
       >
         {filters.map((filter, i) => (

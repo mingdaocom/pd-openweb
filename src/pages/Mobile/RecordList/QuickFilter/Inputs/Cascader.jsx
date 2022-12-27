@@ -2,10 +2,11 @@ import React, { Fragment, Component } from 'react';
 import { Icon, Radio, LoadDiv } from 'ming-ui';
 import { Modal, List } from 'antd-mobile';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import sheetAjax from 'src/api/worksheet';
 import nzh from 'nzh';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const CascaderCon = styled.div`
   position: relative;

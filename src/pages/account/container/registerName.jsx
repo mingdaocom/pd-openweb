@@ -6,7 +6,8 @@ import Config from '../config';
 import { getRequest } from 'src/util';
 let request = getRequest();
 import { inputFocusFn, inputBlurFn, setWarnningData } from '../util';
-import { checkSensitive } from 'src/api/fixedData.js';
+import fixedDataAjax from 'src/api/fixedData.js';
+import _ from 'lodash';
 
 export default class RegisterName extends React.Component {
   constructor(props) {
@@ -124,7 +125,7 @@ export default class RegisterName extends React.Component {
       warnningData.push({ tipDom: this.fullName, warnningText: _l('请填写姓名') });
       isRight = false;
     } else {
-      await checkSensitive({ content: fullName }).then(res => {
+      await fixedDataAjax.checkSensitive({ content: fullName }).then(res => {
         if (res) {
           warnningData.push({ tipDom: this.fullName, warnningText: _l('输入内容包含敏感词，请重新填写') });
           isRight = false;

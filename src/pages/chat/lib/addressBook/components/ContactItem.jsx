@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 
 import { LazyloadImg } from 'src/pages/feed/components/common/img';
+import _ from 'lodash';
 
 export default function ContactItem(props) {
   const {

@@ -3,6 +3,7 @@ import { autobind } from 'core-decorators';
 import genQrDataurl, { QRErrorCorrectLevel } from './genQrDataurl';
 import { A4_OPTS, QRPRINT_OPTS, A4_SIZE, QRPRINT_SIZES } from './printConfig';
 import jsPDF from 'jspdf';
+import _ from 'lodash';
 
 function cutText(text, fontSize, width) {
   fontSize = fontSize || 12;

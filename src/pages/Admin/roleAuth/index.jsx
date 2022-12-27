@@ -1,22 +1,19 @@
 import React from 'react';
 import classNames from 'classnames';
 import { Route } from 'react-router-dom';
-
 import { Button, Icon, Checkbox } from 'ming-ui';
 import Link from 'src/router/Link.jsx';
-
 import RoleAuthCommon from './common/common';
 import RoleList from './roleList';
 import RoleDetail from './roleDetail';
 import RoleLog from './roleLog';
-
 import CreateRole from './createEditRole';
 import ApplyRole from './applyForRole';
 import Config from '../config';
 import { navigateTo } from 'src/router/navigateTo';
-import { setAllowApplyManageRole, getAllowApplyManageRole } from 'src/api/projectSetting';
-
+import projectSettingAjax from 'src/api/projectSetting';
 import './common/style.less';
+import _ from 'lodash';
 
 export default class RoleAuth extends React.Component {
   state = {
@@ -56,7 +53,7 @@ export default class RoleAuth extends React.Component {
   }
 
   getAllowApplyManageRole = params => {
-    getAllowApplyManageRole({ projectId: params.projectId }).then(res => {
+    projectSettingAjax.getAllowApplyManageRole({ projectId: params.projectId }).then(res => {
       this.setState({ allowApplyManage: res });
     });
   };
@@ -131,7 +128,7 @@ export default class RoleAuth extends React.Component {
                   checked={allowApplyManage}
                   onClick={val => {
                     this.setState({ allowApplyManage: !val }, () => {
-                      setAllowApplyManageRole({
+                      projectSettingAjax.setAllowApplyManageRole({
                         projectId,
                         allowApplyManageRole: !val,
                       }).then(res => {

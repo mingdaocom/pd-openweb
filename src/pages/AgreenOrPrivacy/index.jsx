@@ -4,8 +4,7 @@ import styled from 'styled-components';
 import { browserIsMobile } from 'src/util';
 import cx from 'classnames';
 import { RichText, LoadDiv } from 'ming-ui';
-import { getDeclare } from 'src/api/privateDeclare';
-
+import privateDeclareAjax from 'src/api/privateDeclare';
 
 const Wrap = styled.div`
   background: #f5f5f5;
@@ -35,7 +34,7 @@ class AgreenOrPrivacy extends React.Component {
     };
   }
   componentDidMount() {
-    this.ajax = getDeclare();
+    this.ajax = privateDeclareAjax.getDeclare();
     this.ajax.then(res => {
       document.title = location.pathname.indexOf('privacy') < 0 ? _l('服务协议') : _l('隐私政策');
       this.setState({

@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import _ from 'lodash';
 
 function getCoverControlData(data) {
   return _.find(data, file => File.isPicture(file.ext) || file.previewUrl);

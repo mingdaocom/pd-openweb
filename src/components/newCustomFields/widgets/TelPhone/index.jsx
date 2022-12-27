@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { FROM } from '../../tools/config';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {

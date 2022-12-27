@@ -1,4 +1,4 @@
-﻿var postAjax = require('src/api/post');
+﻿import postAjax from 'src/api/post';
 import 'src/components/emotion/emotion';
 import './style.css';
 import tpl from './s.html';
@@ -8,11 +8,12 @@ import UploadFiles from 'src/components/UploadFiles';
 import 'src/components/voteUpdater/voteUpdater';
 import 'src/components/mentioninput/mentionsInput';
 import 'src/components/selectGroup/selectAllGroup';
-import 'src/components/linkView/linkView';
+import LinkView from 'src/components/linkView/linkView';
 import createShare from 'src/components/createShare/createShare';
 import doT from '@mdfe/dot';
 import { index as mdDialog } from 'src/components/mdDialog/dialog';
 import 'src/components/autoTextarea/autoTextarea';
+import _ from 'lodash';
 
 var langUploadFiles = _l('上传附件');
 var langShareLink = _l('分享网站') + '...';
@@ -640,7 +641,7 @@ export default function(options) {
         var $btnShare = $('#MDUpdater_button_Share');
         $btnShare.attr('disabled', true).addClass('Disabled');
 
-        $('#MDUpdater_Link_updater .updaterLinkView').linkView({
+        LinkView($('#MDUpdater_Link_updater .updaterLinkView'), {
           viewUrl: linkUrl,
           callback: function(data) {
             if (data.errorCode != '1') {

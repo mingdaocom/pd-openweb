@@ -1,5 +1,6 @@
 import { ajax, login, browserIsMobile, getRequest, checkLogin, isBefore, replenishRet } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
+import _ from 'lodash';
 
 const { t, i, ret, url, code, p, pc_slide = '' } = getRequest();
 const isPcSlide = pc_slide.includes('true');

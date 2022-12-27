@@ -172,6 +172,4 @@ export const EXECUTE_ERROR_MESSAGE = {
   error: '发生多种错误，如需确认，请逐条操作',
 };
 
-export const CONSTANT = {
-  MAX_FILE_COUNT: 300,
-};
+export const MAX_FILE_COUNT = 300;

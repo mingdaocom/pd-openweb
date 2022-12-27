@@ -2,8 +2,9 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
 import { LoadDiv } from 'ming-ui';
-const kcAjax = require('src/api/kc');
+import kcAjax from 'src/api/kc';
 import { downloadFile } from 'src/util';
+import _ from 'lodash';
 
 class VersionList extends React.Component {
   static propTypes() {

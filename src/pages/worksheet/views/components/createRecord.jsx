@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import { getPosition } from '../HierarchyView/util';
+import _ from 'lodash';
 
 const CreateRecordWrap = styled.div`
   width: 280px;

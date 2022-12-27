@@ -1,11 +1,11 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import axios from 'axios';
 import { LoadDiv, Dropdown, ScrollView } from 'ming-ui';
-import { getTransactionRecordByPage, cancelOrder } from 'src/api/order';
+import orderAjax from 'src/api/order';
 import UserHead from 'src/pages/feed/components/userHead/userHead.jsx';
 import copy from 'copy-to-clipboard';
-import { getProjectLicenseSupportInfo } from 'src/api/project';
-import { updateAppBillingStatus } from 'src/api/application';
+import projectAjax from 'src/api/project';
+import applicationAjax from 'src/api/application';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import cx from 'classnames';
@@ -28,21 +28,20 @@ import ApplyInvoice from './applyInvoice';
 import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
 import Common from '../common';
 import img from 'staticfiles/images/billinfo_system.png';
+import _ from 'lodash';
 
 export default function BillInfo({ match }) {
   const { 0: projectId } = _.get(match, 'params');
   const [data, setData] = useSetState({});
   const [paras, setPara] = useSetState({ pageIndex: 1, pageSize: 20, status: 0, recordTypes: PAID_RECORD_TYPE });
-  const [
-    { applyInvoiceVisible, applyOrderId, invoiceVisible, operateMenuVisible, datePickerVisible },
-    setVisible,
-  ] = useSetState({
-    applyInvoiceVisible: false,
-    invoiceVisible: false,
-    operateMenuVisible: -1,
-    datePickerVisible: false,
-    applyOrderId: '',
-  });
+  const [{ applyInvoiceVisible, applyOrderId, invoiceVisible, operateMenuVisible, datePickerVisible }, setVisible] =
+    useSetState({
+      applyInvoiceVisible: false,
+      invoiceVisible: false,
+      operateMenuVisible: -1,
+      datePickerVisible: false,
+      applyOrderId: '',
+    });
   const [loading, setLoading] = useState(false);
   const [hasMoreDataFlag, setFlag] = useState(true);
   const [displayRecordType, setType] = useState('paid');
@@ -53,7 +52,8 @@ export default function BillInfo({ match }) {
   const { companyName } = getCurrentProject(projectId);
   const refreshData = () => {
     setLoading(true);
-    getTransactionRecordByPage({ projectId, ...paras })
+    orderAjax
+      .getTransactionRecordByPage({ projectId, ...paras, status: displayRecordType === 'recharge' ? 0 : paras.status })
       .then(({ list }) => {
         setData({ list });
         if (list.length < pageSize) {
@@ -69,30 +69,34 @@ export default function BillInfo({ match }) {
     if (confirm(_l('确定取消该订单？'))) {
       if (_.includes([5, 6], recordType)) {
         alert(_l('正在取消订单...'), 1, 80000);
-        updateAppBillingStatus({
-          projectId,
-          billingId: orderId,
-          status: 0,
-        }).then(function(data) {
-          if (data.success) {
-            alert(_l('已成功取消订单'));
-            refreshData();
-          } else {
-            alert(_l('取消订单失败'), 2);
-          }
-        });
+        applicationAjax
+          .updateAppBillingStatus({
+            projectId,
+            billingId: orderId,
+            status: 0,
+          })
+          .then(function (data) {
+            if (data.success) {
+              alert(_l('已成功取消订单'));
+              refreshData();
+            } else {
+              alert(_l('取消订单失败'), 2);
+            }
+          });
       } else {
-        cancelOrder({
-          projectId,
-          orderId,
-        }).then(function(data) {
-          if (data) {
-            alert(_l('已成功取消订单'));
-            refreshData();
-          } else {
-            alert(_l('取消订单失败'), 2);
-          }
-        });
+        orderAjax
+          .cancelOrder({
+            projectId,
+            orderId,
+          })
+          .then(function (data) {
+            if (data) {
+              alert(_l('已成功取消订单'));
+              refreshData();
+            } else {
+              alert(_l('取消订单失败'), 2);
+            }
+          });
       }
     }
   };
@@ -103,32 +107,27 @@ export default function BillInfo({ match }) {
     };
   }, []);
 
-  useEffect(
-    () => {
-      axios.all([getProjectLicenseSupportInfo({ projectId })]).then(res => {
-        let data = res.reduce((p, c) => ({ ...p, ...c }), {});
-        setData(data);
-      });
-    },
-    [displayRecordType],
-  );
+  useEffect(() => {
+    axios.all([projectAjax.getProjectLicenseSupportInfo({ projectId })]).then(res => {
+      let data = res.reduce((p, c) => ({ ...p, ...c }), {});
+      setData(data);
+    });
+  }, [displayRecordType]);
 
-  useEffect(
-    () => {
-      setLoading(true);
-      getTransactionRecordByPage({ projectId, ...paras })
-        .then(({ list, allCount }) => {
-          setData({ list, allCount });
-          if (list.length < pageSize) {
-            setFlag(false);
-          }
-        })
-        .always(() => {
-          setLoading(false);
-        });
-    },
-    [paras],
-  );
+  useEffect(() => {
+    setLoading(true);
+    orderAjax
+      .getTransactionRecordByPage({ projectId, ...paras, status: displayRecordType === 'recharge' ? 0 : paras.status })
+      .then(({ list, allCount }) => {
+        setData({ list, allCount });
+        if (list.length < pageSize) {
+          setFlag(false);
+        }
+      })
+      .always(() => {
+        setLoading(false);
+      });
+  }, [paras]);
   const handleClick = type => {
     if (type === 'recharge') {
       location.href = `/admin/valueaddservice/${projectId}`;

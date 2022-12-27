@@ -11,9 +11,9 @@ import { TYPELIST } from '../../config';
 import Trigger from 'rc-trigger';
 import PublishDialog from '../../components/PublishDialog';
 import { RedMenuItemWrap, MenuItemWrap, ActWrap } from '../style';
-import { add, getApiList, upper, getDetail, delete as deleteConnect } from 'src/pages/workflow/api/packageVersion';
-import { get } from 'src/pages/workflow/api/flowNode';
-import { updateProcess } from 'src/pages/workflow/api/process';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import flowNodeAjax from 'src/pages/workflow/api/flowNode';
+import processAjax from 'src/pages/workflow/api/process';
 import _ from 'lodash';
 import ConnectAvator from '../../components/ConnectAvator';
 
@@ -236,7 +236,7 @@ function ConnectCon(props) {
   };
   // 获取基本详情
   const getDetailInfo = id => {
-    getDetail(
+    packageVersionAjax.getDetail(
       {
         isPublic: true,
         id: id,
@@ -268,7 +268,7 @@ function ConnectCon(props) {
   };
   //创建api管理
   const addConnet = () => {
-    add(
+    packageVersionAjax.add(
       {
         companyId: localStorage.getItem('currentProjectId'),
         defaultFlowNode: {
@@ -310,7 +310,7 @@ function ConnectCon(props) {
     if (!processId) {
       return;
     }
-    get(
+    flowNodeAjax.get(
       {
         processId,
       },
@@ -324,7 +324,7 @@ function ConnectCon(props) {
     });
   };
   const getApiListFetch = id => {
-    getApiList(
+    packageVersionAjax.getApiList(
       {
         companyId: localStorage.getItem('currentProjectId'),
         pageIndex: 1,
@@ -339,7 +339,7 @@ function ConnectCon(props) {
   };
   // 更新基本信息
   const updateInfo = info => {
-    updateProcess(
+    processAjax.updateProcess(
       {
         companyId: localStorage.getItem('currentProjectId'),
         processId: connectData.id,
@@ -365,7 +365,7 @@ function ConnectCon(props) {
     });
   };
   const upperConnect = info => {
-    upper(
+    packageVersionAjax.upper(
       {
         id: connectData.id,
         ...info,
@@ -444,7 +444,7 @@ function ConnectCon(props) {
   };
 
   const onDel = () => {
-    deleteConnect(
+    packageVersionAjax.delete(
       {
         id: connectData.id,
       },

@@ -4,6 +4,7 @@ import { Icon, Dropdown, Tooltip, Switch } from 'ming-ui';
 import { fromType, printType, typeForCon, DEFAULT_FONT_SIZE, MIDDLE_FONT_SIZE, MAX_FONT_SIZE } from '../config';
 import cx from 'classnames';
 import Api from 'api/homeApp';
+import _ from 'lodash';
 // import * as htmlDocx from 'html-docx-js/dist/html-docx';
 // import {cssStr} from './wordcss';
 // import juice from 'juice';

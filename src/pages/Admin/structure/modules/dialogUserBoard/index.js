@@ -1,7 +1,7 @@
 ﻿import doT from '@mdfe/dot';
 import { index as mdDialog} from 'src/components/mdDialog/dialog';
-var userController = require('src/api/user');
-var importUserController = require('src/api/importUser');
+import userController from 'src/api/user';
+import importUserController from 'src/api/importUser';
 import ValidatePassword from '../validatePasswordDialog';
 import { getPssId } from 'src/util/pssId';
 import './style.less';
@@ -11,6 +11,8 @@ import 'src/components/mdBusinessCard/mdBusinessCard';
 import 'src/components/pager/pager';
 import 'src/components/tooltip/tooltip';
 import SelectDept from 'src/components/dialogSelectDept';
+import _ from 'lodash';
+import moment from 'moment';
 
 const exportUsers = (projectId, accountIds = []) => {
   var url = `${md.global.Config.AjaxApiUrl}download/exportProjectUserList`;

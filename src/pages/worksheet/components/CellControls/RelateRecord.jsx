@@ -4,10 +4,13 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { formatRecordToRelateRecord } from 'worksheet/util';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { isKeyBoardInputChar } from 'worksheet/util';
 import EditableCellCon from '../EditableCellCon';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import autobind from 'core-decorators/lib/autobind';
+import _ from 'lodash';
+import { browserIsMobile } from 'src/util';
 
 const RecordCardCellRelateRecord = styled.div`
   display: inline-block;
@@ -48,9 +51,12 @@ export default class RelateRecord extends React.Component {
   shouldComponentUpdate(nextProps) {
     return (
       this.props.isediting !== nextProps.isediting ||
-      (nextProps.from === 4 && this.props.cell.value !== nextProps.cell.value)
+      (nextProps.from === 4 && this.props.cell.value !== nextProps.cell.value) ||
+      _.isEqual(this.props.cell.style, nextProps.cell.style)
     );
   }
+
+  dropdownRef = React.createRef();
 
   parseValue(value) {
     if (!value) {
@@ -64,9 +70,28 @@ export default class RelateRecord extends React.Component {
   }
 
   @autobind
-  renderToTop({ cellHeight, popupHeight } = {}) {
-    const { style, tableScrollTop, gridHeight } = this.props;
-    return popupHeight > gridHeight - (style.top - tableScrollTop) - (cellHeight || style.height);
+  handleTableKeyDown(e) {
+    const { tableId, recordId, cell, isediting, updateCell, updateEditingStatus } = this.props;
+    switch (e.key) {
+      case 'Escape':
+        this.handleVisibleChange(false);
+        break;
+      default:
+        (() => {
+          if (isediting || !e.key || !isKeyBoardInputChar(e.key)) {
+            return;
+          }
+          updateEditingStatus(true);
+          setTimeout(() => {
+            const input = document.querySelector(`.cell-${tableId}-${recordId}-${cell.controlId} input`);
+            if (this.dropdownRef.current) {
+              this.dropdownRef.current.setState({ keywords: (input.value = e.key) });
+            }
+          }, 100);
+          e.stopPropagation();
+          e.preventDefault();
+        })();
+    }
   }
 
   getReordsLength(value) {
@@ -125,11 +150,12 @@ export default class RelateRecord extends React.Component {
 
   render() {
     const {
+      tableId,
       singleLine,
       className,
       style,
       from,
-      formdata,
+      rowFormData,
       recordId,
       worksheetId,
       cell,
@@ -156,7 +182,7 @@ export default class RelateRecord extends React.Component {
           )}
         </div>
       );
-    } else if (from === 4) {
+    } else if (from === 4 || (from === 21 && browserIsMobile())) {
       return this.renderSelected();
     } else {
       return (
@@ -172,12 +198,13 @@ export default class RelateRecord extends React.Component {
           onIconClick={() => updateEditingStatus(true)}
         >
           <RelateRecordDropdown
+            ref={this.dropdownRef}
             insheet
             disabled={!editable}
             selected={records}
             cellFrom={from}
-            control={{ ...cell, formData: formdata }}
-            formData={formdata}
+            control={{ ...cell, formData: rowFormData }}
+            formData={rowFormData}
             viewId={cell.viewId}
             recordId={recordId}
             dataSource={cell.dataSource}
@@ -195,9 +222,12 @@ export default class RelateRecord extends React.Component {
             popupContainer={() => document.body}
             multiple={cell.enumDefault === 2}
             onVisibleChange={this.handleVisibleChange}
-            selectedClassName={cx('sheetview', { canedit: editable, cellControlEdittingStatus: isediting, singleLine })}
+            selectedClassName={cx('sheetview', `cell-${tableId}-${recordId}-${cell.controlId}`, {
+              canedit: editable,
+              cellControlEdittingStatus: isediting,
+              singleLine,
+            })}
             selectedStyle={{ width: style.width, minHeight: style.height, borderRadius: 0 }}
-            renderToTop={this.renderToTop}
             onChange={newRecords => {
               this.records = newRecords;
               this.changed = true;

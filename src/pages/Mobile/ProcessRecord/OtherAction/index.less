@@ -5,15 +5,21 @@
 @submitColor: #1e88e5;
 
 .otherActionWrapper {
-  height: 300px;
-  &.signatureWrapper {
-    height: 420px;
-  }
   .am-textarea-item {
-    padding: 16px;
+    padding: 10px 16px;
   }
-  .am-textarea-control, textarea {
-    height: 100%;
+  .title {
+    text-align: left;
+    padding: 10px 16px 0;
+  }
+  .am-textarea-control {
+    height: 150px;
+    border: 1px solid #e3e3e3;
+    padding: 10px;
+    border-radius: 4px;
+    >textarea {
+      height: 100%;
+    }
   }
   .actionBtnWrapper {
     height: 50px;

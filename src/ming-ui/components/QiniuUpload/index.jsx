@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { createUploader } from 'src/pages/kc/utils/qiniuUpload';
+import _ from 'lodash';
 
 export default class QiniuUpload extends React.Component {
   static propTypes = {

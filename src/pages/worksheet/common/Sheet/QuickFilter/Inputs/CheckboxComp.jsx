@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { func, string } from 'prop-types';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

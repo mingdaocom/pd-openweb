@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 使用明道云账号登录
   * @param {Object} args 请求参数

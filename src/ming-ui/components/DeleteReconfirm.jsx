@@ -5,6 +5,7 @@ import RadioGroup from 'ming-ui/components/RadioGroup2';
 import Checkbox from 'ming-ui/components/Checkbox';
 import Button from 'ming-ui/components/Button';
 import './less/DeleteReconfirm.less';
+import _ from 'lodash';
 
 const noop = () => {};
 

@@ -3,6 +3,7 @@ import WithTitleRoute from './withTitle';
 import { Route, Redirect } from 'react-router-dom';
 import Loadable from 'react-loadable';
 import ErrorPage from 'src/components/errorPage/errorPage';
+import _ from 'lodash';
 
 function Loading(props) {
   const { error } = props;

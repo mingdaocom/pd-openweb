@@ -1,15 +1,6 @@
-﻿/** *********************************************************
-插件名称?.mdAutocomplete
-功能描述???出?
-编写日期?015/7/15
-程序作者： zhongping
-调用方式
-bug记录?
-************************************************************/
+﻿import './css/mdAutocomplete.css';
 
-import './css/mdAutocomplete.css';
-
-var MdAutocomplete = function (settings) {
+var MdAutocomplete = function(settings) {
   var defaults = {
     element: '', // input?d
     appendTo: 'body', // 添加到的容器 默认?ody
@@ -51,18 +42,18 @@ var MdAutocomplete = function (settings) {
 
 $.extend(MdAutocomplete.prototype, {
   // 初始?
-  init: function () {
+  init: function() {
     this._bindInputEvent();
   },
 
   // 绑定 input 事件
-  _bindInputEvent: function () {
+  _bindInputEvent: function() {
     var _this = this,
       settings = _this.settings;
 
     $('#' + settings.element).on({
       // 键按?
-      keydown: function (event) {
+      keydown: function(event) {
         var $autocomplete = $('#' + settings.autocompleteId);
 
         if ($autocomplete.length > 0) {
@@ -113,9 +104,14 @@ $.extend(MdAutocomplete.prototype, {
         }
       },
 
-      focus: function () {
+      focus: function() {
         var $autocomplete = $('#' + settings.autocompleteId);
-        if ($autocomplete.length > 0 && $(this).val().trim() != '') {
+        if (
+          $autocomplete.length > 0 &&
+          $(this)
+            .val()
+            .trim() != ''
+        ) {
           var autoUlStyle = settings.autoUlStyle,
             gapRight = 5,
             btnWidth = 16;
@@ -131,7 +127,7 @@ $.extend(MdAutocomplete.prototype, {
       },
 
       // 键弹?
-      keyup: function (event) {
+      keyup: function(event) {
         // 上下左右返回
         if (event.keyCode > 36 && event.keyCode < 41) {
           return;
@@ -179,10 +175,10 @@ $.extend(MdAutocomplete.prototype, {
   },
 
   // 绑定
-  _bindSearchEvent: function ($ul) {
+  _bindSearchEvent: function($ul) {
     var _this = this;
     var settings = _this.settings;
-    $ul.on('scroll', function () {
+    $ul.on('scroll', function() {
       if (!settings.isMore || !settings.data.pageIndex || settings.ajaxRequest) {
         return;
       }
@@ -200,17 +196,20 @@ $.extend(MdAutocomplete.prototype, {
 
     $ul.on(
       {
-        mouseover: function () {
+        mouseover: function() {
           var $this = $(this);
           // 查找 为空 不做处理
           if ($this.hasClass('searching') || $this.hasClass('emptyItem')) {
             return;
           }
           // 选中
-          $this.addClass(settings.autoUlStyle.hoverClass).siblings().removeClass(settings.autoUlStyle.hoverClass);
+          $this
+            .addClass(settings.autoUlStyle.hoverClass)
+            .siblings()
+            .removeClass(settings.autoUlStyle.hoverClass);
         },
 
-        click: function (event) {
+        click: function(event) {
           var $this = $(this);
 
           // 选中回调
@@ -234,7 +233,7 @@ $.extend(MdAutocomplete.prototype, {
 
     // 清除
     if (settings.clearBtn) {
-      $('#' + settings.btnId).on('click', function () {
+      $('#' + settings.btnId).on('click', function() {
         $(this).hide();
         settings.$element.val('');
         // 清空内容隐藏
@@ -252,7 +251,7 @@ $.extend(MdAutocomplete.prototype, {
       settings.readyFn.call(this);
     }
 
-    $(document).on('click', function (event) {
+    $(document).on('click', function(event) {
       let $target = $(event.target);
 
       if (!$target.is($('#' + settings.element))) {
@@ -262,7 +261,7 @@ $.extend(MdAutocomplete.prototype, {
   },
 
   // 滚动条位?
-  _scrollPosition: function (isUp) {
+  _scrollPosition: function(isUp) {
     // 参数
     var settings = this.settings,
       $searchContent = $('#' + settings.element + '_autocomplete'),
@@ -303,7 +302,7 @@ $.extend(MdAutocomplete.prototype, {
   },
 
   // 搜索
-  _search: function () {
+  _search: function() {
     var _this = this,
       settings = _this.settings,
       keywords = settings.$element.val().trim();
@@ -418,7 +417,7 @@ $.extend(MdAutocomplete.prototype, {
 
     // 开始搜索
     settings.ajaxRequest = settings.source[settings.op](settings.data);
-    settings.ajaxRequest.then(function (source) {
+    settings.ajaxRequest.then(function(source) {
       settings.ajaxRequest = false;
       if (source.status) {
         var html;
@@ -426,7 +425,7 @@ $.extend(MdAutocomplete.prototype, {
         // 自己渲染
         if ($.isFunction(settings.render)) {
           settings.isMore = source.data && source.data.length === 20;
-          html = settings.render(source.data, function (renderHtml) {
+          html = settings.render(source.data, function(renderHtml) {
             if (!settings.data.pageIndex || settings.data.pageIndex === 1) {
               $ul.html(renderHtml);
             } else {
@@ -469,29 +468,9 @@ $.extend(MdAutocomplete.prototype, {
   },
 });
 
-// 导出
-exports.index = function (opts) {
+export default opts => {
+  if (opts && opts.element) {
+    opts.$element = $('#' + opts.element);
+  }
   return new MdAutocomplete(opts);
 };
-
-// 加载???行 绑定 jquery
-(function ($) {
-  // 是否绑定?
-  if (!$.fn.mdAutocomplete) {
-    // 全局函数
-    $.fn.mdAutocomplete = function (opts) {
-      if (opts && opts.element) {
-        opts.$element = $('#' + opts.element);
-      } else {
-        var $this = $(this);
-        if (!opts) {
-          opts = {};
-        }
-        opts.element = $this.attr('id');
-        opts.$element = $this;
-      }
-      new MdAutocomplete(opts);
-      return this;
-    };
-  }
-})(jQuery);

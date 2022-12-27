@@ -71,54 +71,6 @@ export const ViewSettingWrap = styled.div`
   }
 `;
 
-export const NORMAL_SYSTEM_FIELDS = [
-  { advancedSetting: {}, controlId: 'rowid', controlName: _l('记录ID'), controlPermissions: '111', type: 2 },
-  { advancedSetting: {}, controlId: 'uaid', controlName: _l('最近修改人'), controlPermissions: '111', type: 26 },
-];
-export const WORKFLOW_SYSTEM_FIELDS = [
-  { controlId: 'wfname', controlName: _l('流程名称'), type: 2, controlPermissions: '111' },
-  {
-    controlId: 'wfstatus',
-    controlName: _l('状态'),
-    type: 11,
-    controlPermissions: '111',
-    options: [
-      {
-        key: 'pass',
-        color: '#4caf50',
-        index: 1,
-        enumDefault2: 1,
-        value: _l('通过'),
-      },
-      {
-        key: 'refuse',
-        color: '#f44336',
-        index: 2,
-        enumDefault2: 1,
-        value: _l('否决'),
-      },
-      {
-        key: 'abort',
-        color: '#e8e8e8',
-        index: 3,
-        enumDefault2: 1,
-        value: _l('中止'),
-      },
-      {
-        key: 'other',
-        color: 'rgba(33, 150, 243, 0.13)',
-        index: 4,
-        enumDefault2: 1,
-        value: _l('其他'),
-      },
-    ],
-  },
-  { controlId: 'wfcuaids', controlName: _l('节点负责人'), type: 26, controlPermissions: '111' },
-  { controlId: 'wfrtime', controlName: _l('节点开始时间'), type: 16, controlPermissions: '111' },
-  { controlId: 'wfftime', controlName: _l('剩余时间'), type: 2, controlPermissions: '111' },
-  { controlId: 'wfcaid', controlName: _l('发起人'), type: 26, controlPermissions: '111' },
-  { controlId: 'wfctime', controlName: _l('发起时间'), type: 16, controlPermissions: '111' },
-];
 export const NORMAL_SYSTEM_FIELDS_SORT = ['rowid', 'caid', 'ownerid', 'uaid', 'ctime', 'utime'];
 export const WORKFLOW_SYSTEM_FIELDS_SORT = [
   'wfname',

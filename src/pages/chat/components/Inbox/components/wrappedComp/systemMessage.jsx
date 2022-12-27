@@ -11,8 +11,8 @@ import ExecDialog from 'src/pages/workflow/components/ExecDialog';
 import linkify from 'linkifyjs/html';
 import xss from 'xss';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
+import TaskCenterController from 'src/api/taskCenter';
 
-const TaskCenterController = require('src/api/taskCenter');
 /**
  * 系统消息
  * @export
@@ -102,6 +102,13 @@ export default class SystemMessage extends PureComponent {
           evt.preventDefault();
           const id = href.slice(href.indexOf('excelbatcherrorpage') + 15).split('/');
           new ErrorDialog({ fileKey: id[1], isBatch: true });
+          return;
+        }
+
+        // MAP平台
+        if (href.indexOf('map/admin') > -1 || href.indexOf('map/packages') > -1) {
+          evt.preventDefault();
+          window.open(href);
           return;
         }
       });

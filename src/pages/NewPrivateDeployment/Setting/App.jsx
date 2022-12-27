@@ -57,6 +57,9 @@ const DataRestriction = props => {
       <div className="flexRow valignWrapper mBottom15">
         <div style={style} className="Gray_75">{_l('自定义页面统计图刷新时间间隔')}</div><div>{_l('%0秒', sysSettings.refreshReportInterval)}</div>
       </div>
+      <div className="flexRow valignWrapper mBottom15">
+        <div style={style} className="Gray_75">{_l('应用批量导出工作表上限')}</div><div>{_l('%0个', sysSettings.exportAppWorksheetLimitCount)}</div>
+      </div>
       <div className="mTop5">
         <Button
           ghost

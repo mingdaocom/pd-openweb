@@ -24,7 +24,7 @@ export default function DynamicInput({
   useEffect(() => {
     setSourceName(name);
     if (defaultType === 'dynamicsrc') {
-      if (queryConfig.templates && !queryConfig.templates.length) {
+      if (!(_.get(queryConfig, 'templates[0].controls') || []).length) {
         const com = `：<span class="Red">${_l('已删除')}</span>`;
         setSourceName(com);
       }

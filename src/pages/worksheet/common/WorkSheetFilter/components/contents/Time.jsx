@@ -8,6 +8,7 @@ import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 import TimePicker from 'src/components/newCustomFields/widgets/Time';
 import { FILTER_CONDITION_TYPE } from '../../enum';
+import _ from 'lodash';
 
 export default class Date extends Component {
   static propTypes = {

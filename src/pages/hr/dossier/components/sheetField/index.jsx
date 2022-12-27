@@ -6,6 +6,7 @@ import UploadFiles from 'src/components/UploadFiles';
 import UserHead from 'src/pages/feed/components/userHead';
 import List from '../link-picker/list';
 import './style.less';
+import _ from 'lodash';
 
 class SheetField extends Component {
   static propTypes = {

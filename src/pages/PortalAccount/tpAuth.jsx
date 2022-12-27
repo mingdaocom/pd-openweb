@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import { getRequest } from 'src/util';
-import { tpLogin, getTpLoginSubscribedScanUrl } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import { accountResultAction } from './util';
 import { LoadDiv, Icon } from 'ming-ui';
 import styled from 'styled-components';
@@ -52,7 +52,7 @@ export default function TPAuth(props) {
   const getUrl = () => {
     const request = getRequest();
     const { state = '' } = request;
-    getTpLoginSubscribedScanUrl({
+    externalPortalAjax.getTpLoginSubscribedScanUrl({
       state, //??链接上带的state
     }).then(url => {
       setState({
@@ -66,7 +66,7 @@ export default function TPAuth(props) {
     const request = getRequest();
     const { state = '', appid = '', code = '', ReturnUrl = '' } = request;
     const pcScan = !!localStorage.getItem('pcScan'); //是否是pc端的扫码登录
-    tpLogin({
+    externalPortalAjax.tpLogin({
       state,
       wxAppId: appid,
       code,

@@ -1,4 +1,4 @@
-import $ from 'jquery';
+
 import React from 'react';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
 

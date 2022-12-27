@@ -1,6 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { DragDropContext } from 'react-dnd';
+import _ from 'lodash';
 import MouseBackEnd from '@mdfe/react-dnd-mouse-backend';
 import config from './common/config';
 import Checklist from './checklist';

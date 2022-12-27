@@ -10,6 +10,7 @@ import { getAppFeaturesPath } from 'src/util';
 import reportApi from 'statistics/api/report';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import './index.less';
+import _ from 'lodash';
 
 const Content = styled.div`
   flex: 1;
@@ -29,6 +30,7 @@ function Chart({ data }) {
   const isSafari = isIOS && navigator.userAgent.toLowerCase().includes('safari');
   const isMapEmpty = _.isEmpty(data.map);
   const isContrastMapEmpty = _.isEmpty(data.contrastMap);
+  const isContrastEmpty = _.isEmpty(data.contrast);
   const Charts = charts[data.reportType];
   const WithoutDataComponent = <WithoutData />;
   const filter = data.filter || {};
@@ -60,10 +62,10 @@ function Chart({ data }) {
       return isMapEmpty && isContrastMapEmpty ? WithoutDataComponent : ChartComponent;
       break;
     case reportTypes.PieChart:
-      return _.isEmpty(data.map) ? WithoutDataComponent : ChartComponent;
+      return isMapEmpty ? WithoutDataComponent : ChartComponent;
       break;
     case reportTypes.NumberChart:
-      return ChartComponent;
+      return isMapEmpty && isContrastMapEmpty && isContrastEmpty ? WithoutDataComponent : ChartComponent;
       break;
     case reportTypes.RadarChart:
       return isMapEmpty ? WithoutDataComponent : ChartComponent;
@@ -116,7 +118,7 @@ function ChartWrapper({ data, loading, onOpenFilterModal, onOpenZoomModal, onLoa
           isVertical && <Icon className={cx('Font18 Gray_9e', { Visibility: isMobileChartPage })} icon="task-new-fullscreen" onClick={onOpenZoomModal} />
         )}
       </div>
-      <Content className="flexColumn overflowHidden">
+      <Content className={cx('flexColumn overflowHidden', `statisticsCard-${data.reportId}`)}>
         {loading ? (
           <Flex justify="center" align="center" className="h100">
             <ActivityIndicator size="large" />

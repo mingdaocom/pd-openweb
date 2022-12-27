@@ -18,6 +18,8 @@ import CalendarComments from './container/CalendarComments';
 import CalendarCommenter from './container/CalendarCommenter';
 import ScrollView from 'ming-ui/components/ScrollView';
 import 'src/components/createTask/createTask';
+import _ from 'lodash';
+import moment from 'moment';
 
 const getStateIsRecurChange = (oldState, state) => {
   // 重复日程改变

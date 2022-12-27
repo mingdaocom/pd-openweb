@@ -24,6 +24,7 @@ export default function HideItem(props) {
   const [edit, setEdit] = useState(false);
   const [status, setStatus] = useState(undefined);
   const nameRef = useRef(null);
+  let focusFlag = false;
 
   useEffect(() => {
     let _prop = {};
@@ -113,7 +114,8 @@ export default function HideItem(props) {
     );
   };
 
-  const handleSaveName = event => {
+  const handleSaveName = (event) => {
+    if(!focusFlag) return;
     const value = event.target.value.trim();
     const { name } = item;
     if (value && name !== value) {
@@ -123,11 +125,10 @@ export default function HideItem(props) {
     setEdit(false);
   };
 
-  const handleFocus = () => {
-    setTimeout(() => {
-      nameRef.current.select();
-    }, 0);
-  };
+  const handleFocus = _.debounce((event) => {
+    focusFlag=true;
+    nameRef && nameRef.current && nameRef.current.select();
+  }, 500);
 
   const clickHandle = e => {
     if (!e.target.className.includes('icon')) {

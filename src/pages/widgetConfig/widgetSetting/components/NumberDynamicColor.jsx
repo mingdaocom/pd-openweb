@@ -3,6 +3,7 @@ import { Dialog } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import WidgetColor from './WidgetColor';
+import _ from 'lodash';
 
 const DynamicColorWrap = styled.div`
   display: flex;

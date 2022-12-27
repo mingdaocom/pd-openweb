@@ -18,6 +18,7 @@ import qiniuAjax from 'src/api/qiniu';
 import { Base64 } from 'js-base64';
 import { downloadFile, getToken } from 'src/util';
 import axios from 'axios';
+import _ from 'lodash';
 
 export default class GanttDialog extends Component {
   static propTypes = {

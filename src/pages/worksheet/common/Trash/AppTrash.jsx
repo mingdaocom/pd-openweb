@@ -6,7 +6,8 @@ import { VerifyPasswordConfirm } from 'ming-ui';
 import BaseTrash from './BaseTrash';
 import UserHead from 'src/pages/feed/components/userHead';
 import SvgIcon from 'src/components/SvgIcon';
-import { getAppRecoveryRecordList, restoreApp, appRecycleBinDelete } from 'src/api/homeApp';
+import homeAppAjax from 'src/api/homeApp';
+import _ from 'lodash';
 
 const AppIcon = styled.div`
   display: inline-flex;
@@ -40,7 +41,7 @@ export default function AppTrash(props) {
     if (args.pageIndex) {
       setPageIndex(args.pageIndex);
     }
-    getAppRecoveryRecordList({
+    homeAppAjax.getAppRecoveryRecordList({
       pageIndex: args.pageIndex || pageIndex,
       pageSize: 20,
       projectId,
@@ -131,7 +132,7 @@ export default function AppTrash(props) {
           } else {
             setPendingCache(app.id, true);
           }
-          restoreApp({
+          homeAppAjax.restoreApp({
             id: app.id,
             projectId,
             isHomePage,
@@ -167,7 +168,7 @@ export default function AppTrash(props) {
             ),
             passwordPlaceHolder: _l('请输入密码确认删除'),
             onOk: () => {
-              appRecycleBinDelete({
+              homeAppAjax.appRecycleBinDelete({
                 id: app.id,
                 projectId,
                 isHomePage,

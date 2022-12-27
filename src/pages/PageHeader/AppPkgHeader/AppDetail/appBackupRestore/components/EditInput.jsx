@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from 'antd';
 import { Icon } from 'ming-ui';
-import { renameBackupFileName } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 import styled from 'styled-components';
 
 const EditInputCon = styled.div`
@@ -55,7 +55,7 @@ export default function EditInput(props) {
             setCanEdit(false);
             if (!value) return setValue(actCurrentFileInfo.backupFileName);
             if (value === actCurrentFileInfo.backupFileName) return;
-            renameBackupFileName({
+            appManagementAjax.renameBackupFileName({
               projectId,
               appId,
               id: actCurrentFileInfo.id,

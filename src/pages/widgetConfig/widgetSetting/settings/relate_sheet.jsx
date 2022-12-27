@@ -144,7 +144,11 @@ export default function RelateSheet(props) {
   return (
     <RelateSheetWrap>
       {dataSource ? (
-        <RelateSheetInfo name={sourceEntityName || worksheetInfo.name} id={dataSource} />
+        <RelateSheetInfo
+          name={sourceEntityName || worksheetInfo.name}
+          id={dataSource}
+          appName={globalSheetInfo.appId === worksheetInfo.appId ? _l('本应用') : worksheetInfo.appName}
+        />
       ) : (
         <ConfigRelate
           {...props}
@@ -403,7 +407,7 @@ export default function RelateSheet(props) {
             relationControls={controls}
             globalSheetControls={globalSheetControls}
             fromCondition={'relateSheet'}
-            allControls={allControls.concat(SYSTEM_CONTROL.filter(c => _.includes(['caid', 'ownerid'], c.controlId)))}
+            allControls={allControls}
             onChange={({ filters }) => {
               onChange(handleAdvancedSettingChange(data, { filters: JSON.stringify(filters) }));
               setState({ filterVisible: false });
@@ -417,7 +421,7 @@ export default function RelateSheet(props) {
             globalSheetControls={globalSheetControls}
             loading={loading}
             controls={controls}
-            allControls={allControls.concat(SYSTEM_CONTROL.filter(c => _.includes(['caid', 'ownerid'], c.controlId)))}
+            allControls={allControls}
             editFn={() => setState({ filterVisible: true })}
           />
         )}
@@ -580,7 +584,7 @@ export default function RelateSheet(props) {
           </div>
         )}
       </SettingItem>
-      {dataSource !== sourceId && (
+      {dataSource !== sourceId && from !== 'subList' && (
         <BothWayRelate
           worksheetInfo={worksheetInfo}
           onOk={obj => {

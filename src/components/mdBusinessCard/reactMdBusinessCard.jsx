@@ -9,6 +9,7 @@ import UserController from 'src/api/user';
 import GroupController from 'src/api/group';
 import './css/mdBusinessCard.less';
 import placements from './placements';
+import _ from 'lodash';
 
 const TYPES = {
   USER: 1,

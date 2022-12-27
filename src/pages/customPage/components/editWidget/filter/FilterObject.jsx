@@ -5,6 +5,7 @@ import { Icon, LoadDiv } from 'ming-ui';
 import { Dropdown, Checkbox, Tag, Space, Input, Divider, Tooltip } from 'antd';
 import { enumWidgetType } from 'src/pages/customPage/util';
 import reportApi from 'statistics/api/report';
+import _ from 'lodash';
 
 const TagWrap = styled.div`
   .tag {

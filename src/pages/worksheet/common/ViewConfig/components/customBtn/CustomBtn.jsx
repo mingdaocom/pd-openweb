@@ -7,6 +7,7 @@ import sheetAjax from 'src/api/worksheet';
 import { COLORS, ICONS, BORDERCOLORS } from 'src/pages/worksheet/common/CreateCustomBtn/config.js';
 import cx from 'classnames';
 import color from 'color';
+import _ from 'lodash';
 
 const SortHandle = SortableHandle(() => <Icon className="mRight10 Font16 mLeft7 Hand" icon="drag" />);
 

@@ -4,10 +4,10 @@ import { htmlEncodeReg } from 'src/util';
 import doT from '@mdfe/dot';
 import taskHtml from './tpl/addOldTask.html';
 import 'src/components/mdDialog/dialog';
-import 'src/components/mdAutocomplete/mdAutocomplete';
+import mdAutocomplete from 'src/components/mdAutocomplete/mdAutocomplete';
+import ajaxRequest from 'src/api/taskCenter';
 
-var ajaxRequest = require('src/api/taskCenter');
-var AddOldTask = function(opts) {
+var AddOldTask = function (opts) {
   var defaults = {
     frameid: 'divaddtask',
     TaskID: '',
@@ -49,7 +49,8 @@ $.extend(AddOldTask.prototype, {
     var _this = this;
     var settings = _this.settings;
 
-    $('#txtOldTaskName').mdAutocomplete({
+    mdAutocomplete({
+      element: 'txtOldTaskName',
       appendTo: '.oldTaskContainer',
       source: ajaxRequest,
       op: 'getMyTaskList',
@@ -122,12 +123,4 @@ $.extend(AddOldTask.prototype, {
 
 export default function(opts) {
   return new AddOldTask(opts);
-}
-
-(function($) {
-  if (!$.fn.AddOldTask) {
-    $.fn.AddOldTask = function(opts) {
-      return new AddOldTask(opts);
-    };
-  }
-})(jQuery);
+};

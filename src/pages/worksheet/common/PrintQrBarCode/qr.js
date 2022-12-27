@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import genQrDataURL from 'src/pages/worksheet/common/PrintQrCode/genQrDataurl';
 
 export class QrLabel {

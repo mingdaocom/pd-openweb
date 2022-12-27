@@ -12,6 +12,7 @@ import { navigateTo } from '../../../../router/navigateTo';
 import { compareProps } from 'pages/PageHeader/util.js';
 import SvgIcon from 'src/components/SvgIcon';
 import CreateLinkDialog from './CreateLinkDialog';
+import moment from 'moment';
 
 const passApplyConfig = {
   1: 'dingAppCourse',

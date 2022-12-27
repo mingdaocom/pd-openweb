@@ -4,6 +4,7 @@ import { Tooltip } from 'antd';
 import SheetDealDataType from './SheetDealDataType';
 import { SettingItem } from '../../styled';
 import { updateConfig, handleAdvancedSettingChange } from '../../util/setting';
+import _ from 'lodash';
 
 const SCAN_CODE_CONFIG = [
   {

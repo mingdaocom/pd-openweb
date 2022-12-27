@@ -12,6 +12,8 @@ import './index.less';
 export const emitter = new EventEmitter();
 
 import CreateDialog from '../../modules/dialogCreateEditDept';
+import _ from 'lodash';
+import moment from 'moment';
 
 class CreateBtn extends Component {
   constructor(props) {

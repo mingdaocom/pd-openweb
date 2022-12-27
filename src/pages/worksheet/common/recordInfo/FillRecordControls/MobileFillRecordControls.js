@@ -8,6 +8,7 @@ import { getSubListError, filterHidedSubList } from 'worksheet/util';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;
@@ -162,7 +163,10 @@ class FillRecordControls extends React.Component {
             control.value.rows &&
             control.value.rows.length &&
             getSubListError(
-              control.value,
+              {
+                ...control.value,
+                rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.props.rules`),
+              },
               _.get(this.cellObjs || {}, `${control.controlId}.cell.controls`) || control.relationControls,
               control.showControls,
               3,

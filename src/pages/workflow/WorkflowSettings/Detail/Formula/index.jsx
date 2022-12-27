@@ -18,6 +18,8 @@ import {
 import { ACTION_ID } from '../../enum';
 import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
 import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default class Formula extends Component {
   constructor(props) {

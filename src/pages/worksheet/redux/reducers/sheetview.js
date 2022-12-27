@@ -1,3 +1,4 @@
+import _ from 'lodash';
 // 表视图记录更新临时存储
 export function rowCache(state = {}, action) {
   switch (action.type) {
@@ -107,6 +108,8 @@ export function sheetViewData(state = initialSheetViewData, action) {
     // 开始获取记录数据
     case 'WORKSHEET_SHEETVIEW_FETCH_ROWS_START':
       return { ...state, loading: !(action.value || {}).noLoading };
+    case 'WORKSHEET_SHEETVIEW_REFRESH':
+      return { ...state, refreshFlag: Math.random() };
     // 更新记录数据
     case 'WORKSHEET_SHEETVIEW_FETCH_ROWS':
     case 'WORKSHEET_SHEETVIEW_UPDATE_ROWS':

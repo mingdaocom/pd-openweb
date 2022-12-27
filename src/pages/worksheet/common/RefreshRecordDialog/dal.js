@@ -1,4 +1,5 @@
-import { refreshWorksheetRows } from 'src/api/worksheet';
+import _ from 'lodash';
+import worksheetAjax from 'src/api/worksheet';
 
 export function refreshRecord({
   updateControls,
@@ -43,7 +44,7 @@ export function refreshRecord({
     args.keyWords = searchArgs.keyWords;
     args.searchType = searchArgs.searchType;
   }
-  refreshWorksheetRows(args)
+  worksheetAjax.refreshWorksheetRows(args)
     .then(cb)
     .fail(err => {
       alert(_l('修改失败'), 2);

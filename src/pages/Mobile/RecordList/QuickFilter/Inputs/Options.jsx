@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import OptionsList from './OptionsList';
 import RightSidebar from './RightSidebar';
+import _ from 'lodash';
 
 export const Option = styled.div`
   cursor: pointer;

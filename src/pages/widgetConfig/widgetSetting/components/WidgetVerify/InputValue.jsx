@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Checkbox, Input } from 'ming-ui';
+import _ from 'lodash';
 
-export default function InputValue({ type, value, onChange, onBlur, placeholder }) {
+export default function InputValue({ type, value, className, onChange, onBlur, placeholder }) {
   const [isEditing, setEditing] = useState(false);
   const parseValue = value => {
     const dealValue = [2, 10].includes(type)
@@ -37,6 +38,7 @@ export default function InputValue({ type, value, onChange, onBlur, placeholder 
   };
   return isEditing ? (
     <Input
+      className={className}
       placeholder={placeholder}
       value={value}
       onChange={value => onChange(parseValue(value))}
@@ -50,6 +52,11 @@ export default function InputValue({ type, value, onChange, onBlur, placeholder 
       }}
     />
   ) : (
-    <Input value={displayValue(value)} onFocus={() => setEditing(true)} placeholder={placeholder} />
+    <Input
+      className={className}
+      value={displayValue(value)}
+      onFocus={() => setEditing(true)}
+      placeholder={placeholder}
+    />
   );
 }

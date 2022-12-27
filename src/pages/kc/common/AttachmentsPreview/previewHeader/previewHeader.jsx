@@ -215,7 +215,7 @@ class PreviewHeader extends React.Component {
           )}
         </div>
         <div className="flexRow Width500 btns">
-          {showSaveToKnowlege && !md.global.Account.isPortal && (
+          {showSaveToKnowlege && !md.global.Account.isPortal && !window.share && (
             <Trigger
               popupVisible={this.state.showSaveTo}
               onPopupVisibleChange={visible => {
@@ -289,7 +289,8 @@ class PreviewHeader extends React.Component {
             canDownload &&
             showDownload &&
             ((attachment.originNode || attachment.sourceNode || {}).fileID ||
-              (attachment.originNode || attachment.sourceNode || {}).fileId) && (
+              (attachment.originNode || attachment.sourceNode || {}).fileId) &&
+              !window.share && (
               <div className="openNewPage">
                 <span className="normal" data-tip={_l('新页面打开')}>
                   <i
@@ -304,7 +305,7 @@ class PreviewHeader extends React.Component {
                 </span>
               </div>
             )}
-          {canDownload && showShare && !md.global.Account.isPortal && (
+          {canDownload && showShare && !md.global.Account.isPortal && !window.share && (
             <div className="shareNode">
               <span className="normal" data-tip={_l('分享')}>
                 <i

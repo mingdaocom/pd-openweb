@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import moment from 'moment';
 import filterXss from 'xss';
+import copy from 'copy-to-clipboard';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
@@ -8,7 +9,7 @@ import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { renderCellText } from 'worksheet/components/CellControls';
+import renderCellText from 'worksheet/components/CellControls/renderText';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import _, { head } from 'lodash';
 
@@ -277,7 +278,7 @@ export function formatFormulaDate({ value, unit, hideUnitStr, dot = 0 }) {
  * 缺点：转义后的字符没有处理 (可以用 https://github.com/mathiasbynens/he 处理)
  */
 export function regexFilterHtmlScript(str) {
-  return str.replace(/(<([^>]+)>)/gi, '');
+  return filterXss(str).replace(/(<([^>]+)>)/gi, '');
 }
 
 /**
@@ -989,4 +990,55 @@ export function handleSortRows(rows, control, isAsc) {
     newRows = newRows.reverse();
   }
   return newRows;
+}
+
+export function isKeyBoardInputChar(value) {
+  return (
+    `1234567890-=!@#$%^&*()_+[];',./{}|:"<>?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`.indexOf(value) > -1
+  );
+}
+
+export function handleCopyControlText(control) {
+  let content;
+  try {
+    if (_.includes([WIDGETS_TO_API_TYPE_ENUM.SIGNATURE, WIDGETS_TO_API_TYPE_ENUM.SUB_LIST], control.type)) {
+      content = control.value;
+    } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT) {
+      content = safeParse(control.value)
+        .map(c => `${c.originalFilename}${c.ext}(${c.previewUrl})`)
+        .join(',');
+    } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.RELATION) {
+      content = safeParse(control.value)
+        .map(
+          c =>
+            `[${
+              {
+                1: _l('任务'),
+                2: _l('项目'),
+                3: _l('日程'),
+                4: _l('文件'),
+                5: _l('申请单'),
+                6: '',
+                7: _l('日程'),
+              }[c.type]
+            }]${c.name}(${c.link})`,
+        )
+        .join(',');
+    } else {
+      content = renderCellText(control);
+    }
+  } catch (err) {}
+  window.tempCopyForSheetView = content;
+  copy(content);
+}
+
+export function getScrollBarWidth() {
+  let width;
+  var scroll = document.createElement('div');
+  scroll.style = 'position: absolute; left: -10000px; top: -10000px; width: 100px; height: 100px; overflow: scroll;';
+  scroll.innerHTML = '<div style="width: 100px;height:200px"></div>';
+  document.body.appendChild(scroll);
+  width = scroll.offsetWidth - scroll.clientWidth;
+  document.body.removeChild(scroll);
+  return width || 10;
 }

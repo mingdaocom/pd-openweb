@@ -7,6 +7,7 @@ import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/Sele
 import { connect } from 'react-redux';
 import sheetApi from 'src/api/worksheet';
 import { enumWidgetType } from 'src/pages/customPage/util';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   box-sizing: border-box;

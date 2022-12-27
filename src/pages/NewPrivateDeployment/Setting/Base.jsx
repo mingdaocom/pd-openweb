@@ -12,7 +12,6 @@ const Base = (props) => {
   const [hideDownloadApp, setHideDownloadApp] = useState(SysSettings.hideDownloadApp);
   const [downloadAppRedirectUrl, setDownloadAppRedirectUrl] = useState(SysSettings.downloadAppRedirectUrl);
   const [appDialogVisible, setAppDialogVisible] = useState(false);
-  const [hideTemplateLibrary, setHideTemplateLibrary] = useState(SysSettings.hideTemplateLibrary);
   const [serviceStatusWebhookUrl, setServiceStatusWebhookUrl] = useState(SysSettings.serviceStatusWebhookUrl);
   const [allowBindAccountNoVerify, setAllowBindAccountNoVerify] = useState(SysSettings.allowBindAccountNoVerify);
   const [serverStateDialogVisible, setServerStateDialogVisible] = useState(false);
@@ -102,28 +101,6 @@ const Base = (props) => {
           />
         </Dialog>
       </Fragment>
-    );
-  }
-
-  const renderTemplateLibrary = () => {
-    return (
-      <div className="flexRow valignWrapper">
-        <div className="flex flexColumn">
-          <div className="Font14 bold mBottom8">{_l('应用库')}</div>
-          <div className="Gray_9e">{_l('显示应用库')}</div>
-        </div>
-        <Switch
-          checked={!hideTemplateLibrary}
-          onClick={value => {
-            updateSysSettings({
-              hideTemplateLibrary: value
-            }, () => {
-              setHideTemplateLibrary(value);
-              md.global.SysSettings.hideTemplateLibrary = value;
-            });
-          }}
-        />
-      </div>
     );
   }
 
@@ -253,8 +230,6 @@ const Base = (props) => {
     <div className="privateCardWrap flexColumn">
       <div className="Font17 bold mBottom25">{_l('通用')}</div>
       {renderHelpTip()}
-      <Divider className="mTop20 mBottom20" />
-      {renderTemplateLibrary()}
       <Divider className="mTop20 mBottom20" />
       {IsPlatformLocal && (
         <Fragment>

@@ -1,10 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { getWorkWXAlternativeAppScanCodeUrl, editWorkWXAlternativeAppStatus } from 'src/api/workWeiXin.js';
+import workWeiXinAjax from 'src/api/workWeiXin.js';
 import Config from '../../config';
 import { Icon, Button, LoadDiv } from 'ming-ui';
 import wechatIcon from '../img/wechat_work.png';
 import styled from 'styled-components';
 import gearImg from '../img/gear.gif';
+import _ from 'lodash';
 
 const BuildAppBox = styled.div`
   padding: 15px 32px 0;
@@ -149,7 +150,7 @@ export default class BuildAppNewRules extends Component {
   // 获取二维码链接
   geterwima = () => {
     this.setState({ isLoading: true });
-    getWorkWXAlternativeAppScanCodeUrl({ projectId: Config.projectId }).then(res => {
+    workWeiXinAjax.getWorkWXAlternativeAppScanCodeUrl({ projectId: Config.projectId }).then(res => {
       if (res) {
         this.setState({
           url: md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${res}&download=true`,
@@ -160,7 +161,7 @@ export default class BuildAppNewRules extends Component {
   };
   // 确认授权
   confirmAuthorize = () => {
-    editWorkWXAlternativeAppStatus({
+    workWeiXinAjax.editWorkWXAlternativeAppStatus({
       projectId: Config.projectId,
     }).then(res => {
       if (res) {

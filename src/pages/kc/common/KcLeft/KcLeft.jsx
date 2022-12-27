@@ -617,7 +617,7 @@ class KcLeft extends Component {
 
     return (
       <div className="kcLeft">
-        <div className="leftNavHairGlass ThemeBG fixedContainer" />
+        <div className="leftNavHairGlass ThemeBG Fixed" />
         <MDLeftNav className="yunFileNav ThemeBGColor9 snowFixedContainer">
           <div className="flexColumn">
             <div className="fileMenuTop">

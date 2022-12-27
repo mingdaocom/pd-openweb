@@ -1,23 +1,7 @@
 import React from 'react';
 import { Dialog } from 'ming-ui';
-import {
-  getMyApp,
-  getGroup,
-  addToGroup,
-  removeToGroup,
-  addGroup,
-  editGroup,
-  deleteGroup,
-  markedGroup,
-  editAppInfo,
-  deleteApp,
-  markApp,
-  createApp,
-  updateAppSort,
-  editGroupSort,
-  editHomeSetting,
-} from 'src/api/homeApp';
-import { quitRole } from 'src/api/appManagement';
+import homeAppAjax from 'src/api/homeApp';
+import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
 
 export const initialState = {
@@ -237,7 +221,7 @@ export class CreateActions {
     if (window.homeGetMyAppAjax) {
       window.homeGetMyAppAjax.abort();
     }
-    window.homeGetMyAppAjax = getMyApp({ projectId });
+    window.homeGetMyAppAjax = homeAppAjax.getMyApp({ projectId });
     window.homeGetMyAppAjax.then(data => {
       delete window.homeGetMyAppAjax;
       if (
@@ -314,7 +298,7 @@ export class CreateActions {
       type: 'UPDATE_APPS_LOADING',
       value: true,
     });
-    getGroup({ id: activeGroupId, groupType: activeGroupType, projectId }).then(data => {
+    homeAppAjax.getGroup({ id: activeGroupId, groupType: activeGroupType, projectId }).then(data => {
       this.dispatch({
         type: 'UPDATE_GROUP_APPS',
         apps: data.apps,
@@ -327,7 +311,7 @@ export class CreateActions {
     });
   }
   addGroup({ projectId, name, icon, groupType, cb = () => { } }) {
-    addGroup({ projectId, name, icon, groupType })
+    homeAppAjax.addGroup({ projectId, name, icon, groupType })
       .then(({ id, status }) => {
         if (status === 1) {
           cb();
@@ -348,7 +332,7 @@ export class CreateActions {
       .fail(cb);
   }
   editGroup({ id, projectId, name, icon, groupType, cb = () => { } }) {
-    editGroup({ id, projectId, name, icon, groupType })
+    homeAppAjax.editGroup({ id, projectId, name, icon, groupType })
       .then(status => {
         cb(status);
         if (status === 1) {
@@ -367,7 +351,7 @@ export class CreateActions {
       .fail(cb);
   }
   deleteGroup({ id, projectId, groupType, cb = () => { } }) {
-    deleteGroup({ id, projectId, groupType })
+    homeAppAjax.deleteGroup({ id, projectId, groupType })
       .then(() => {
         cb();
         this.dispatch({
@@ -378,7 +362,7 @@ export class CreateActions {
       .fail(cb);
   }
   markGroup({ id, isMarked, groupType, projectId, cb = () => { } }) {
-    markedGroup({
+    homeAppAjax.markedGroup({
       id,
       isMarked,
       groupType,
@@ -403,7 +387,7 @@ export class CreateActions {
     } else {
       args.projectGroups = [editingGroup.id];
     }
-    (isRemove ? removeToGroup : addToGroup)(args)
+    (isRemove ? homeAppAjax.removeToGroup : homeAppAjax.addToGroup)(args)
       .then(() => {
         this.dispatch({
           type: 'UPDATE_GROUP_OF_APP',
@@ -424,7 +408,7 @@ export class CreateActions {
     });
   }
   saveApp(app) {
-    editAppInfo(app)
+    homeAppAjax.editAppInfo(app)
       .then()
       .fail(() => {
         alert(_l('更新应用失败！'), 2);
@@ -436,7 +420,7 @@ export class CreateActions {
       type: 'DELETE_APP',
       appId: para.appId,
     });
-    deleteApp({
+    homeAppAjax.deleteApp({
       ...para,
       isHomePage: true,
     })
@@ -454,7 +438,7 @@ export class CreateActions {
       });
   }
   quitApp(para) {
-    quitRole(para).then(res => {
+    appManagementAjax.quitRole(para).then(res => {
       if (res.isRoleForUser) {
         if (res.isRoleDepartment) {
           this.dispatch({
@@ -476,7 +460,7 @@ export class CreateActions {
     });
   }
   markApp(para) {
-    markApp({
+    homeAppAjax.markApp({
       ...para,
       isHomePage: true,
     })
@@ -501,7 +485,7 @@ export class CreateActions {
     });
   }
   createAppFromEmpty(para, cb = _.noop) {
-    createApp(para)
+    homeAppAjax.createApp(para)
       .then(data => {
         this.dispatch({
           type: 'ADD_APP',
@@ -528,7 +512,7 @@ export class CreateActions {
         sortType = 7;
       }
     }
-    updateAppSort({ sortType, appIds, projectId, groupId })
+    homeAppAjax.updateAppSort({ sortType, appIds, projectId, groupId })
       .then(res => {
         if (!res.data) {
           return $.Deferred().reject();
@@ -544,7 +528,7 @@ export class CreateActions {
       type: 'UPDATE_SETTING',
       value: { displayType, exDisplay, markedAppDisplay },
     });
-    editHomeSetting({ projectId, displayType, exDisplay, markedAppDisplay })
+    homeAppAjax.editHomeSetting({ projectId, displayType, exDisplay, markedAppDisplay })
       .then(data => {
         if (data) {
           if (editingKey === 'markedAppDisplay') {

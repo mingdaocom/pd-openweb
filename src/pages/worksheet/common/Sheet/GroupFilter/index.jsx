@@ -5,10 +5,11 @@ import { connect } from 'react-redux';
 import { Input, Icon, ScrollView, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import sheetAjax from 'src/api/worksheet';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { updateGroupFilter, getNavGroupCount } from 'worksheet/redux/actions';
 import { getAdvanceSetting } from 'src/util';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
+import _ from 'lodash';
 
 const Con = styled.div(
   ({ width }) => `

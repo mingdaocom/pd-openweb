@@ -8,7 +8,7 @@ Common.url = function(params) {
 Common.MENULEFT = [
   {
     title: _l('个人信息'),
-    icon: 'icon-person',
+    icon: 'icon-portrait',
     typetag: ['information'],
     component: () => import('./personalInfo'),
   },
@@ -19,10 +19,16 @@ Common.MENULEFT = [
     component: () => import('./enterprise'),
   },
   {
-    title: _l('账户与安全'),
-    icon: 'icon-lock',
+    title: _l('账户与隐私'),
+    icon: 'icon-person',
     typetag: ['account', 'management'],
     component: () => import('./accountPassword'),
+  },
+  {
+    title: _l('安全设置'),
+    icon: 'icon-gpp_good',
+    typetag: ['securitySetting'],
+    component: () => import('./SecuritySetting'),
   },
   {
     title: _l('偏好设置'),
@@ -87,6 +93,19 @@ Common.guideType = {
   kcSharedFolder: 16, // 探索共享文件夹
   showGuide: 19, //显示guide
   showGuideCourseList: 20, // 课程
+};
+
+Common.settingOptions = {
+  openDeskNotice: 2,
+  openWeixinLogin: 3,
+  joinFriendMode: 5,
+  lang: 6,
+  isPrivateMobile: 9,
+  isPrivateEmail: 10,
+  isTwoauthentication: 12,
+  isOpenMessageSound: 14,
+  isOpenMessageTwinkle: 15,
+  allowMultipleDevicesUse: 16,
 };
 
 export default Common;

@@ -15,6 +15,7 @@ import Tooltip from 'ming-ui/components/Tooltip';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import './index.less';
+import _ from 'lodash';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class ContextMenu extends Component {

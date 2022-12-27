@@ -6,6 +6,7 @@ import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import RelateRecordOptions from './RelateRecordOptions';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import MobileRecordCardListDialog from 'src/components/recordCardListDialog/mobile';
+import _ from 'lodash';
 
 export default function RelateRecord(props) {
   const { values = [], control, advancedSetting, onChange = () => {}, appId, worksheetId } = props;

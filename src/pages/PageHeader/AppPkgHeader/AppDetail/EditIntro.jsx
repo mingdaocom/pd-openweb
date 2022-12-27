@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { string, func, bool } from 'prop-types';
 import Editor from './EditorDiaLogContent';
 import { compareProps } from '../../util';
+import _ from 'lodash';
 export default class AppIntro extends Component {
   static propTypes = {
     isEditing: bool,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getWorksheetsByAppId } from 'src/api/homeApp';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import homeAppAjax from 'src/api/homeApp';
+import worksheetAjax from 'src/api/worksheet';
 import { Icon, LoadDiv, MenuItem, Menu } from 'ming-ui';
 import styled from 'styled-components';
 import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
@@ -14,6 +14,7 @@ import { SYS } from 'src/pages/widgetConfig/config/widget';
 import cx from 'classnames';
 import { WIDGETS_TO_API_TYPE_ENUM_N } from 'src/pages/Role/PortalCon/setting/InfoSet';
 import SelectWorksheet from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SelectWorksheet';
+import _ from 'lodash';
 const typeList = _.keys(WIDGETS_TO_API_TYPE_ENUM_N);
 
 export default function ReviewFreeByWorksheetWrap(props) {
@@ -33,7 +34,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getWorksheetsByAppId({ appId, type: 0 }).then(res => {
+    homeAppAjax.getWorksheetsByAppId({ appId, type: 0 }).then(res => {
       setSheetList(res);
       setOriginSheetList(res);
       setLoading(false);
@@ -67,7 +68,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
 
   const setControlsFn = data => {
     if (!data.workSheetId) return;
-    getWorksheetInfo({ worksheetId: data.workSheetId, getTemplate: true, appId }).then(res => {
+    worksheetAjax.getWorksheetInfo({ worksheetId: data.workSheetId, getTemplate: true, appId }).then(res => {
       let da = { sourceId: data.workSheetId, sourceName: res.name, templates: res.template, appName };
       da = clear ? { ...da, configs: [], items: [] } : da;
       onChange({

@@ -3,6 +3,7 @@ import { Dropdown } from 'antd';
 import { Menu, MenuItem, TagTextarea } from 'ming-ui';
 import styled from 'styled-components';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import _ from 'lodash';
 
 const BtnParamWrap = styled.div`
   align-items: flex-start;

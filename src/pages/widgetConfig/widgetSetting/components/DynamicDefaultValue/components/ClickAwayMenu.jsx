@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Menu, MenuItem } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const ClearSelect = styled.div`
   padding: 4px 16px 6px 16px;

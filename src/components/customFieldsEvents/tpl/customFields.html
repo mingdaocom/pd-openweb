@@ -364,10 +364,10 @@
         </span>
         {{?list.name}}
           {{?list.ext1}}
-          <span class="{{=list.type === 4 ? '' : 'mLeft20'}}">{{!list.type === 3 ? moment(list.ext1).format('YYYY-MM-DD HH:mm') : list.ext1}}</span>
+          <span class="{{=list.type === 4 ? '' : 'mLeft20'}}">{{!list.type === 3 ? it.moment(list.ext1).format('YYYY-MM-DD HH:mm') : list.ext1}}</span>
           {{?}}
           {{?list.ext2}}
-          <span class="mLeft20">{{!list.type === 3 ? moment(list.ext2).format('YYYY-MM-DD HH:mm') : list.ext2}}</span>
+          <span class="mLeft20">{{!list.type === 3 ? it.moment(list.ext2).format('YYYY-MM-DD HH:mm') : list.ext2}}</span>
           {{?}}
           {{?list.type === 4}}
           <span class="flex"></span>

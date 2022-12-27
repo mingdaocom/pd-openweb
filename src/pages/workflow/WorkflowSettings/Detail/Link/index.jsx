@@ -1,7 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Radio, Icon } from 'ming-ui';
+import { ScrollView, LoadDiv, Radio, Icon, Checkbox } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, SelectNodeObject, CustomTextarea, WriteFields } from '../components';
+import { DetailHeader, DetailFooter, SelectNodeObject, CustomTextarea, WriteFields, Deadline } from '../components';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default class Link extends Component {
   constructor(props) {
@@ -55,10 +57,28 @@ export default class Link extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, selectNodeId, linkType, linkName, formProperties } = data;
+    const { name, selectNodeId, linkType, linkName, formProperties, time, password } = data;
+    const newPassword = password.trim();
 
     if (!selectNodeId) {
       alert(_l('必须先选择一个对象'), 2);
+      return;
+    }
+
+    if (newPassword) {
+      if (newPassword.length < 4) {
+        alert(_l('密码不能少于4位'), 2);
+        return;
+      }
+
+      if (/^[0-9]*$/.test(newPassword) || /^[a-zA-Z]*$/.test(newPassword)) {
+        alert(_l('密码必须由字母+数字组成'), 2);
+        return;
+      }
+    }
+
+    if (time.type === 2 && !time.executeTime.fieldValue && !time.executeTime.fieldControlId) {
+      alert(_l('链接有效期不能为空'), 2);
       return;
     }
 
@@ -76,6 +96,8 @@ export default class Link extends Component {
         linkType,
         linkName,
         formProperties,
+        time,
+        password: newPassword,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -142,6 +164,79 @@ export default class Link extends Component {
           />
         </div>
 
+        <div className="mTop20 bold">{_l('密码')}</div>
+        <div className="flexRow mTop10">
+          <input
+            type="text"
+            className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+            defaultValue={data.password}
+            maxLength={8}
+            onChange={evt => {
+              if (!this.isOnComposition) {
+                this.updatePassword(evt);
+              }
+            }}
+            onCompositionStart={() => (this.isOnComposition = true)}
+            onCompositionEnd={evt => {
+              if (evt.type === 'compositionend') {
+                this.isOnComposition = false;
+              }
+              this.updatePassword(evt);
+            }}
+          />
+        </div>
+
+        <div className="mTop20">
+          <Checkbox
+            className="InlineFlex bold"
+            text={_l('设置链接有效期')}
+            checked={data.time.enable}
+            onClick={checked => {
+              const parameter = { enable: !checked };
+
+              // 初始化
+              if (!data.type) {
+                parameter.type = 1;
+                parameter.executeTime = { fieldValue: '1' };
+                parameter.unit = 3;
+              }
+
+              this.updateSource({ time: Object.assign({}, data.time, parameter) });
+            }}
+          />
+        </div>
+
+        {data.time.enable && (
+          <Fragment>
+            <div className="mTop10 flexRow">
+              {[{ text: _l('指定时长'), value: 1 }, { text: _l('指定的日期时间'), value: 2 }].map(item => (
+                <div key={item.value} style={{ width: 160 }}>
+                  <Radio
+                    text={item.text}
+                    checked={data.time.type === item.value}
+                    onClick={() =>
+                      this.updateSource({
+                        time: Object.assign({}, data.time, {
+                          type: item.value,
+                          executeTime: { fieldValue: item.value === 1 ? '1' : '' },
+                          unit: item.value === 1 ? 3 : undefined,
+                        }),
+                      })
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+            <Deadline
+              processId={this.props.processId}
+              selectNodeId={this.props.selectNodeId}
+              data={data.time}
+              minDate={moment()}
+              onChange={time => this.updateSource({ time })}
+            />
+          </Fragment>
+        )}
+
         {data.selectNodeId && (
           <Fragment>
             <div className="Font13 bold mTop25">{_l('设置字段')}</div>
@@ -188,6 +283,16 @@ export default class Link extends Component {
 
     this.updateSource({ linkType, formProperties });
   }
+
+  /**
+   * 修改密码
+   */
+  updatePassword = evt => {
+    const password = evt.currentTarget.value.replace(/[^0-9a-zA-Z]/gi, '');
+
+    evt.currentTarget.value = password;
+    this.updateSource({ password });
+  };
 
   render() {
     const { data } = this.state;

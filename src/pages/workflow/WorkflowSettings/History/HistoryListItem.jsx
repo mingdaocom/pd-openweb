@@ -3,8 +3,10 @@ import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import HistoryStatus from './HistoryStatus';
 import { FLOW_FAIL_REASON, FLOW_STATUS, STATUS2COLOR } from './config';
-import { resetInstance, endInstance } from '../../api/instanceVersion';
-import { getProcessPublish } from '../../api/process';
+import instanceVersion from '../../api/instanceVersion';
+import process from '../../api/process';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default ({
   status,
@@ -65,7 +67,7 @@ export default ({
 
               setRetry(true);
 
-              (showRetry ? resetInstance : endInstance)({ instanceId: id }).then(res => {
+              (showRetry ? instanceVersion.resetInstance : instanceVersion.endInstance)({ instanceId: id }).then(res => {
                 updateSource(Object.assign(res, { id }), index);
                 setRetry(false);
               });
@@ -83,7 +85,7 @@ export default ({
 
             setVersion(true);
 
-            getProcessPublish({ instanceId: id }).then(res => {
+            process.getProcessPublish({ instanceId: id }).then(res => {
               setVersion(moment(res.lastPublishDate).format('YYYY-MM-DD HH:mm'));
               setWorkflowId(res.id);
             });

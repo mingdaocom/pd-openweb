@@ -6,8 +6,9 @@ import { Checkbox } from 'ming-ui';
 import { getControls, filterControls, getOtherSelectField } from '../util';
 import { SelectFieldsWrap } from 'src/pages/widgetConfig/styled';
 import { getIconByType } from '../../../../util';
-import { SYSTEM_CONTROL } from '../../../../config/widget';
+import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL, SYSTEM_PERSON_CONTROL } from '../../../../config/widget';
 import { DYNAMIC_FROM_MODE } from '../config';
+import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
 
 const Empty = styled.div`
@@ -16,6 +17,10 @@ const Empty = styled.div`
   text-align: center;
   background-color: #fff;
 `;
+
+const filterSys = (controls = []) => {
+  return controls.filter(i => !_.includes(SYS_CONTROLS, i.controlId));
+};
 
 @withClickAway
 export default class SelectFields extends Component {
@@ -92,8 +97,8 @@ export default class SelectFields extends Component {
 
     // 获取当前表的控件
     const fieldList = {
-      current: getControls({ data, controls: subListControls, isCurrent: true }),
-      [worksheetId]: getControls({ data, controls: globalSheetControls, isCurrent: true }),
+      current: getControls({ data, controls: filterSys(subListControls), isCurrent: true }),
+      [worksheetId]: getControls({ data, controls: filterSys(globalSheetControls), isCurrent: true }),
     };
     // 获取关联表控件下的所有符合条件的字段
     sheetList.slice(initSheetList.length).forEach(({ id }) => {
@@ -102,7 +107,9 @@ export default class SelectFields extends Component {
       let relationControls = _.get(relateSheetControl, 'relationControls') || [];
       // 如果relationControl没有返回系统字段， 则手动添加上
       if (!relationControls.some(item => item.controlId === 'ctime')) {
-        relationControls = relationControls.concat(SYSTEM_CONTROL);
+        relationControls = relationControls
+          .concat([...SYSTEM_CONTROL, ...WORKFLOW_SYSTEM_CONTROL, ...SYSTEM_PERSON_CONTROL])
+          .filter(i => !_.includes(['wfstatus'], i));
       }
 
       const filteredRelationControls = getControls({ data, controls: relationControls });

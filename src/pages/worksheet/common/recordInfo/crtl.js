@@ -1,11 +1,4 @@
-import {
-  updateWorksheetRow,
-  deleteWorksheetRows,
-  getWorksheetBtns,
-  updateRowRelationRows,
-  getWorksheetInfo as getWorksheetInfoApi,
-} from 'src/api/worksheet';
-import { getControlRules } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { formatControlToServer, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils.js';
@@ -13,9 +6,10 @@ import { openShareDialog } from 'src/pages/worksheet/components/Share';
 import { getAppFeaturesPath } from 'src/util';
 import { replacePorTalUrl } from 'src/pages/PortalAccount/util';
 import createTask from 'src/components/createTask/createTask';
+import _ from 'lodash';
 
 export function getWorksheetInfo(...args) {
-  return getWorksheetInfoApi(...args);
+  return worksheetAjax.getWorksheetInfo(...args);
 }
 
 export function loadRecord({
@@ -49,7 +43,7 @@ export function loadRecord({
     } else {
       promise = Promise.all([
         getRowDetail(apiargs, controls),
-        getControlRules({
+        worksheetAjax.getControlRules({
           worksheetId,
           type: 1, // 1字段显隐
         }),
@@ -86,7 +80,7 @@ export function updateRecord(
     triggerUniqueError,
     updateSuccess,
   },
-  callback = () => { },
+  callback = () => {},
 ) {
   const updatedControls = data
     .filter(control => updateControlIds.indexOf(control.controlId) > -1 && control.type !== 30)
@@ -105,10 +99,18 @@ export function updateRecord(
     apiargs.instanceId = instanceId;
     apiargs.workId = workId;
   }
-  updateWorksheetRow(apiargs)
+
+  // 处理工作流的暂存直接点击的情况
+  if (!updatedControls.length) {
+    callback('empty');
+    return;
+  }
+
+  worksheetAjax
+    .updateWorksheetRow(apiargs)
     .then(res => {
       if (res && res.data) {
-        callback(null, res.data);
+        callback(null, res.data, res.requestLogId);
         if (typeof updateSuccess === 'function') {
           updateSuccess(
             [recordId],
@@ -135,35 +137,39 @@ export function updateRecordControl({ appId, viewId, worksheetId, recordId, cell
     if (_.isEmpty(cells) && cell) {
       cells = [cell];
     }
-    updateWorksheetRow({
-      appId,
-      viewId,
-      worksheetId: worksheetId,
-      rowId: recordId,
-      newOldControl: cells,
-    }).then(data => {
-      if (!data.data) {
-        if (data.resultCode === 11) {
-          alert(_l('编辑失败，%0不允许重复', cell.controlName || ''), 3);
+    worksheetAjax
+      .updateWorksheetRow({
+        appId,
+        viewId,
+        worksheetId: worksheetId,
+        rowId: recordId,
+        newOldControl: cells,
+      })
+      .then(data => {
+        if (!data.data) {
+          if (data.resultCode === 11) {
+            alert(_l('编辑失败，%0不允许重复', cell.controlName || ''), 3);
+          } else {
+            alert(_l('编辑失败'), 3);
+          }
+          reject();
         } else {
-          alert(_l('编辑失败'), 3);
+          resolve(data.data);
         }
-        reject();
-      } else {
-        resolve(data.data);
-      }
-    });
+      });
   });
 }
 
-export function deleteRecord({ worksheetId, recordId, viewId, appId }) {
+export function deleteRecord({ worksheetId, recordId, viewId, appId, deleteType }) {
   return new Promise((resolve, reject) => {
-    deleteWorksheetRows({
-      worksheetId,
-      rowIds: [recordId],
-      viewId,
-      appId,
-    })
+    worksheetAjax
+      .deleteWorksheetRows({
+        worksheetId,
+        rowIds: [recordId],
+        viewId,
+        appId,
+        deleteType: deleteType === 21 ? deleteType : undefined,
+      })
       .then(data => {
         if (data.isSuccess) {
           resolve();
@@ -187,7 +193,8 @@ export class RecordApi {
 
   getWorksheetBtns(options) {
     return new Promise((resolve, reject) => {
-      getWorksheetBtns(_.assign({}, this.baseArgs, options))
+      worksheetAjax
+        .getWorksheetBtns(_.assign({}, this.baseArgs, options))
         .then(data => {
           resolve(data);
         })
@@ -208,6 +215,7 @@ export function updateRelateRecords({
   controlId,
   isAdd,
   recordIds,
+  updateType,
 }) {
   return new Promise((resolve, reject) => {
     const args = {
@@ -218,12 +226,14 @@ export function updateRelateRecords({
       controlId,
       isAdd,
       rowIds: recordIds,
+      updateType: updateType === 21 ? updateType : undefined,
     };
     if (instanceId && workId) {
       args.instanceId = instanceId;
       args.workId = workId;
     }
-    updateRowRelationRows(args)
+    worksheetAjax
+      .updateRowRelationRows(args)
       .then(data => {
         if (data.isSuccess) {
           resolve();
@@ -246,7 +256,7 @@ function isOwner(ownerAccount, formdata) {
       .filter(c => c.type === 26 && c.userPermission === 2)
       .map(u => JSON.parse(u.value))
       .filter(c => c && c.length);
-  } catch (err) { }
+  } catch (err) {}
   accountsOfOwner.forEach(accounts => {
     accounts.forEach(account => {
       if (account.accountId === md.global.Account.accountId) {
@@ -259,12 +269,13 @@ function isOwner(ownerAccount, formdata) {
 
 export function updateRecordOwner({ worksheetId, recordId, accountId }) {
   return new Promise((resolve, reject) => {
-    updateWorksheetRow({
-      worksheetId,
-      rowId: recordId,
-      getType: 3,
-      newOldControl: [{ controlId: 'ownerid', type: 26, value: accountId }],
-    })
+    worksheetAjax
+      .updateWorksheetRow({
+        worksheetId,
+        rowId: recordId,
+        getType: 3,
+        newOldControl: [{ controlId: 'ownerid', type: 26, value: accountId }],
+      })
       .then(res => {
         if (res && res.data) {
           const account = JSON.parse(res.data.ownerid)[0];
@@ -345,7 +356,7 @@ export async function handleShare({ isCharge, appId, worksheetId, viewId, record
 export async function handleCreateTask({ appId, worksheetId, viewId, recordId }) {
   try {
     const row = await getRowDetail({ appId, worksheetId, viewId, rowId: recordId });
-    let recordTitle = getTitleTextFromControls(row.formData);
+    let recordTitle = getTitleTextFromControls(row.formData, undefined, undefined, { noMask: true });
     const source = appId + '|' + worksheetId + '|' + viewId + '|' + recordId;
     createTask({
       TaskName: recordTitle || _l('未命名'),
@@ -372,11 +383,13 @@ export async function getRecordLandUrl({ appId, worksheetId, viewId, recordId })
   }
   const appFeaturesPath = getAppFeaturesPath();
   if (viewId) {
-    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}${appFeaturesPath ? '?' + appFeaturesPath : ''
-      }`;
+    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}${
+      appFeaturesPath ? '?' + appFeaturesPath : ''
+    }`;
   } else {
-    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/row/${recordId}${appFeaturesPath ? '?' + appFeaturesPath : ''
-      }`;
+    return `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/row/${recordId}${
+      appFeaturesPath ? '?' + appFeaturesPath : ''
+    }`;
   }
 }
 

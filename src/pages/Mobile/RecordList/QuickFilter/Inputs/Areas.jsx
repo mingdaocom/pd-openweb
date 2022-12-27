@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Icon, MobileCityPicker } from 'ming-ui';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const AreaCon = styled.div`
   position: relative;

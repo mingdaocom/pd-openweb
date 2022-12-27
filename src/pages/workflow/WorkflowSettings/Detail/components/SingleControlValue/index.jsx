@@ -12,7 +12,8 @@ import { TimePicker } from 'antd';
 import { FORMAT_TEXT } from '../../../enum';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import DialogSelectOrgRole from 'src/components/DialogSelectOrgRole';
+import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
+import moment from 'moment';
 
 export default class SingleControlValue extends Component {
   constructor(props) {
@@ -20,7 +21,6 @@ export default class SingleControlValue extends Component {
     this.state = {
       moreFieldsIndex: '',
       isUploading: false,
-      visibleRoleDialog: false,
     };
 
     // 缓存当前的附件的量
@@ -30,7 +30,6 @@ export default class SingleControlValue extends Component {
   }
 
   cacheFile = [];
-  cacheOptions = {};
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.item.fieldId !== this.props.item.fieldId) {
@@ -243,7 +242,39 @@ export default class SingleControlValue extends Component {
   }
 
   /**
-   * 刪除 成员 or 部门 or 组织橘色
+   * 组织角色选择
+   */
+  selectRole(item, i, unique) {
+    selectOrgRole({
+      projectId: this.props.companyId,
+      unique,
+      onSave: roles => {
+        if (!unique) {
+          const oldIds = JSON.parse(item.fieldValue || '[]').map(item => item.organizeId);
+          _.remove(roles, item => _.includes(oldIds, item.organizeId));
+        }
+
+        roles = roles.map(item => {
+          return {
+            organizeId: item.organizeId,
+            organizeName: item.organizeName,
+          };
+        });
+
+        this.updateSingleControlValue(
+          {
+            fieldValue: unique
+              ? JSON.stringify(roles)
+              : JSON.stringify(JSON.parse(item.fieldValue || '[]').concat(roles)),
+          },
+          i,
+        );
+      },
+    });
+  }
+
+  /**
+   * 刪除 成员 or 部门 or 组织角色
    */
   deleteTags(id, i) {
     const { updateSource } = this.props;
@@ -353,7 +384,7 @@ export default class SingleControlValue extends Component {
 
   render() {
     const { controls, item, i } = this.props;
-    const { isUploading, visibleRoleDialog } = this.state;
+    const { isUploading } = this.state;
     const formulaMap = _.cloneDeep(this.props.formulaMap);
     let list = [];
 
@@ -394,8 +425,8 @@ export default class SingleControlValue extends Component {
       );
     }
 
-    // 文本框 || 文本组合 || 自动编号 || 富文本
-    if (item.type === 2 || item.type === 32 || item.type === 33 || item.type === 41) {
+    // 文本框 || 文本组合 || 自动编号 || 富文本 || API查询
+    if (item.type === 2 || item.type === 32 || item.type === 33 || item.type === 41 || item.type === 50) {
       return (
         <div className="mTop8 flexRow relative">
           <TagTextarea
@@ -524,8 +555,10 @@ export default class SingleControlValue extends Component {
       );
     }
 
-    // 单选项 || 下拉框 || 检查项
-    if (item.type === 9 || item.type === 11 || item.type === 36) {
+    // 单选项 || 下拉框 || 检查项 || 外部门户角色
+    if (item.type === 9 || item.type === 11 || item.type === 36 || item.type === 44) {
+      const disabledOtherFields = _.includes(['folder_stage_id', 'portal_role', 'portal_status'], item.fieldId);
+
       list = ((_.find(controls, obj => obj.controlId === item.fieldId) || {}).options || []).map(o => {
         return {
           text: o.value,
@@ -551,7 +584,7 @@ export default class SingleControlValue extends Component {
                 {
                   actionCustomBoxError: item.fieldValue && !_.find(list, obj => obj.value === item.fieldValue),
                 },
-                { clearBorderRadius: item.fieldId !== 'folder_stage_id' },
+                { clearBorderRadius: !disabledOtherFields },
               )}
               data={list}
               value={item.fieldValue || undefined}
@@ -560,7 +593,7 @@ export default class SingleControlValue extends Component {
               onChange={fieldValue => this.updateSingleControlValue({ fieldValue }, i)}
             />
           )}
-          {item.fieldId !== 'folder_stage_id' && this.renderOtherFields(item, i)}
+          {!disabledOtherFields && this.renderOtherFields(item, i)}
         </div>
       );
     }
@@ -834,8 +867,7 @@ export default class SingleControlValue extends Component {
                 } else if (item.type === 27) {
                   this.selectDepartment(item, i, unique);
                 } else {
-                  this.cacheOptions = { item, i, unique };
-                  this.setState({ visibleRoleDialog: true });
+                  this.selectRole(item, i, unique);
                 }
               }}
             >
@@ -865,39 +897,6 @@ export default class SingleControlValue extends Component {
             </div>
           )}
           {this.renderOtherFields(item, i)}
-
-          {visibleRoleDialog && (
-            <DialogSelectOrgRole
-              projectId={this.props.companyId}
-              orgRoleDialogVisible
-              unique={this.cacheOptions.unique}
-              onSave={roles => {
-                const unique = this.cacheOptions.unique;
-
-                if (!unique) {
-                  const oldIds = JSON.parse(this.cacheOptions.item.fieldValue || '[]').map(item => item.organizeId);
-                  _.remove(roles, item => _.includes(oldIds, item.organizeId));
-                }
-
-                roles = roles.map(item => {
-                  return {
-                    organizeId: item.organizeId,
-                    organizeName: item.organizeName,
-                  };
-                });
-
-                this.updateSingleControlValue(
-                  {
-                    fieldValue: unique
-                      ? JSON.stringify(roles)
-                      : JSON.stringify(JSON.parse(item.fieldValue || '[]').concat(roles)),
-                  },
-                  i,
-                );
-              }}
-              onClose={() => this.setState({ visibleRoleDialog: false })}
-            />
-          )}
         </div>
       );
     }

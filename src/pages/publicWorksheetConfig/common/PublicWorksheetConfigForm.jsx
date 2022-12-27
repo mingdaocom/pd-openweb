@@ -16,6 +16,7 @@ import FormPreview from './FormPreview';
 import { themes } from '../enum';
 import { getDisabledControls, overridePos } from '../utils';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const TopBar = styled.div(
   ({ color }) => `height: 10px; background: ${color}; opacity: .4; border-radius: 3px 3px 0 0;`,

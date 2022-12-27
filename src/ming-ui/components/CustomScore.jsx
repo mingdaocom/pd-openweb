@@ -9,6 +9,7 @@ import cx from 'classnames';
 import { Tooltip } from 'ming-ui';
 import { getStringBytes } from 'src/util';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const CustomScoreIcon = styled.div`
   .scoreIcon {

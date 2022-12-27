@@ -1,5 +1,5 @@
 import React from 'react';
-import $ from 'jquery';
+
 import ReactDOM from 'react-dom';
 
 import { SignType } from 'src/components/customWidget/src/component/widgets/datetimeRange/data';

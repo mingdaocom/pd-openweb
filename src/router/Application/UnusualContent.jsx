@@ -6,6 +6,7 @@ import api from 'api/appManagement';
 import unauthorizedPic from './assets/unauthorized.png';
 import turnoffPic from './assets/turnoff.png';
 import './index.less';
+import _ from 'lodash';
 
 const STATUS_TO_TEXT = {
   2: { src: turnoffPic, text: _l('应用已关闭') },

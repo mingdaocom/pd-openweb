@@ -1,17 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Select } from 'antd';
-import { formatContrastTypes } from 'statistics/common';
+import { Select, Checkbox } from 'antd';
+import { formatContrastTypes, formatLineChartContrastTypes } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
-
-const colorList = [{
-  name: _l('绿升红降'),
-  value: 0
-}, {
-  name: _l('红升绿降'),
-  value: 1
-}];
 
 export default class DataContrast extends Component {
   constructor(props) {
@@ -35,19 +27,76 @@ export default class DataContrast extends Component {
       true,
     );
   }
-  renderContrast() {
+  renderNumberChartContrast() {
     const { currentReport } = this.props;
     const { displaySetup, filter } = currentReport;
+    const contrastTypes = formatContrastTypes(filter);
     return (
       <div className="mBottom16">
-        <div className="mBottom8">{_l('对比')}</div>
+        <div className="flexRow mBottom8">
+          <Checkbox
+            checked={displaySetup.contrast}
+            onChange={(event) => {
+              const { checked } = event.target;
+              this.props.onUpdateDisplaySetup({
+                ...displaySetup,
+                contrast: checked
+              }, true);
+            }}
+          >
+            {_l('环比')}
+          </Checkbox>
+        </div>
+        {!!contrastTypes.length && (
+          <div className="flexRow mBottom8">
+            <Checkbox
+              checked={displaySetup.contrastType}
+              onChange={(event) => {
+                const { checked } = event.target;
+                this.props.onUpdateDisplaySetup({
+                  ...displaySetup,
+                  contrastType: checked ? 2 : 0
+                }, true);
+              }}
+            >
+              {_l('同比')}
+            </Checkbox>
+          </div>
+        )}
+        {!!displaySetup.contrastType && !!contrastTypes.length && (
+          <Select
+            className="chartSelect w100"
+            value={displaySetup.contrastType}
+            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            onChange={this.handleChangeDropdown}
+          >
+            {contrastTypes.map(item => (
+              <Select.Option
+                className="selectOptionWrapper"
+                key={item.value}
+                value={item.value}
+              >
+                {item.text}
+              </Select.Option>
+            ))}
+          </Select>
+        )}
+      </div>
+    );
+  }
+  renderLineChartContrast() {
+    const { currentReport } = this.props;
+    const { displaySetup, filter } = currentReport;
+    const contrastTypes = formatLineChartContrastTypes(filter);
+    return (
+      <div className="mBottom16">
         <Select
           className="chartSelect w100"
-          value={displaySetup.contrastType}
+          value={displaySetup.contrastType || 0}
           suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
           onChange={this.handleChangeDropdown}
         >
-          {formatContrastTypes(filter).map(item => (
+          {contrastTypes.map(item => (
             <Select.Option
               className="selectOptionWrapper"
               disabled={item.disabled}
@@ -61,41 +110,12 @@ export default class DataContrast extends Component {
       </div>
     );
   }
-  renderContrastColor() {
-    const { currentReport, onChangeStyle } = this.props;
-    const { style } = currentReport;
-    return (
-      <div className="mBottom16">
-        <div className="mBottom8">{_l('颜色')}</div>
-        <div className="chartTypeSelect flexRow valignWrapper">
-          {
-            colorList.map(item => (
-              <div
-                key={item.value}
-                className={cx('flex centerAlign pointer Gray_75', { active: (style.contrastColor || 0) === item.value })}
-                onClick={() => {
-                  onChangeStyle({
-                    contrastColor: item.value
-                  }, true);
-                }}
-              >
-                {item.name}
-              </div>
-            ))
-          }
-        </div>
-      </div>
-    );
-  }
   render() {
-    const { contrastVisible, contrastColorVisible } = this.props;
+    const { contrastVisible, isNumberChart } = this.props;
     return (
       <Fragment>
         {contrastVisible && (
-          this.renderContrast()
-        )}
-        {contrastColorVisible && (
-          this.renderContrastColor()
+          isNumberChart ? this.renderNumberChartContrast() : this.renderLineChartContrast()
         )}
       </Fragment>
     );

@@ -7,8 +7,9 @@ import * as actions from '../../../../redux/position/action';
 import RoleUserList from './RoleUserList';
 import dialogUserBoard from 'src/pages/Admin/components/dialogUserBoard';
 import 'src/components/dialogSelectUser/dialogSelectUser';
-import { addJobUser, deleteJobUsers } from 'src/api/job';
+import jobAjax from 'src/api/job';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const PAGE_SIZE = 50;
 
@@ -31,7 +32,7 @@ class PositionContent extends Component {
       dataRange: 2,
       callback: accountIds => {
         //添加到职位
-        addJobUser({
+        jobAjax.addJobUser({
           projectId,
           jobId: currentPosition.jobId,
           accountIds: _.map(accountIds, user => user.accountId),
@@ -54,7 +55,7 @@ class PositionContent extends Component {
   removeUsers = () => {
     const { selectUserIds = [], currentPosition = {}, projectId } = this.props;
     if (_.isEmpty(selectUserIds)) return;
-    deleteJobUsers({
+    jobAjax.deleteJobUsers({
       projectId,
       accountIds: selectUserIds,
       jobId: currentPosition.jobId,

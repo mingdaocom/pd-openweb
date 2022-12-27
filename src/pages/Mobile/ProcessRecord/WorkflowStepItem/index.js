@@ -12,7 +12,7 @@ class WorkflowStepItem extends Component {
     super(props);
   }
   render() {
-    const { instance } = this.props;
+    const { instance, worksheetId, recordId } = this.props;
     const { works, currentWork, currentWorkItem } = instance;
     return (
       <Wrap className="stepList">
@@ -24,6 +24,8 @@ class WorkflowStepItem extends Component {
               data={item}
               currentWork={currentWork}
               currentType={(currentWorkItem || {}).type}
+              worksheetId={worksheetId}
+              rowId={recordId}
             />
           );
         })}

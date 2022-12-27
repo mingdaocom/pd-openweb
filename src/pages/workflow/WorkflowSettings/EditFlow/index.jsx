@@ -17,6 +17,7 @@ import {
   updateBranchGatewayType,
 } from '../../redux/actions';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import _ from 'lodash';
 
 @errorBoundary
 class EditFlow extends Component {
@@ -310,10 +311,13 @@ class EditFlow extends Component {
    */
   openDetail = (processId, id, type, approvalSelectNodeId) => {
     const { flowInfo } = this.props;
+    const { isCopy } = this.state;
     const switchDetail = () => {
       this.setState({ selectProcessId: processId, selectNodeId: id, selectNodeType: type });
       this.change = false;
     };
+
+    if (isCopy) return;
 
     // 审批流开始节点未完成配置
     if (flowInfo.id !== processId && !approvalSelectNodeId) {

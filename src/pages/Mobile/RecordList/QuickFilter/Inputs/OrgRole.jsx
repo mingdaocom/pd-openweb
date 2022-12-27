@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Icon } from 'ming-ui';
 import SelectOrgRole from 'mobile/components/SelectOrgRole';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const OrgRoleCon = styled.div`
   position: relative;

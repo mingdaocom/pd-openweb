@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import Avatar from 'react-avatar-edit';
 import { Base64 } from 'js-base64';
-import { editAccountAvatar } from 'src/api/account';
+import accountAjax from 'src/api/account';
 import { getToken } from 'src/util';
 import { browserIsMobile } from 'src/util';
 import styled from 'styled-components';
@@ -91,7 +91,7 @@ export default class AvatarEditor extends Component {
               this.props.editAvatar(res[0]);
               this.props.closeDialog();
             } else {
-              editAccountAvatar({ fileName: JSON.parse(xhr.responseText).key.replace('UserAvatar/', '') }).then(() => {
+              accountAjax.editAccountAvatar({ fileName: JSON.parse(xhr.responseText).key.replace('UserAvatar/', '') }).then(() => {
                 this.props.updateAvator();
                 this.props.closeDialog();
               });

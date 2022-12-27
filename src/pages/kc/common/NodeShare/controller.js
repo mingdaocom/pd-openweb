@@ -1,8 +1,8 @@
-import { getNodeById } from '../../api/service';
-import { getShareNode } from 'src/api/share';
+import kcService from '../../api/service';
+import shareAjax from 'src/api/share';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import { getAttachmentDetail } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import qs from 'query-string';
 import _ from 'lodash';
 
@@ -21,6 +21,13 @@ function getParams() {
       type: 'kc_share',
       id: location.pathname.match(/.*\/apps\/kcshare\/(\w+)/)[1],
     };
+  } else if (/.*\/recordfile\/(\w+)\/(\d+)/.test(location.pathname.replace(/^\/portal/, ''))) {
+    // 草稿箱内文件详情添加getType
+    return {
+      type: 'record_share',
+      id: location.pathname.match(/.*\/recordfile\/(\w+)\/(\d+)/)[1],
+      getType: location.pathname.match(/.*\/recordfile\/(\w+)\/(\d+)/)[2],
+    };
   } else if (/\/recordfile\/\w+/.test(location.pathname.replace(/^\/portal/, ''))) {
     return {
       type: 'record_share',
@@ -36,13 +43,13 @@ function getParams() {
 }
 
 export function getAttachment() {
-  const { type, id } = getParams();
+  const { type, id, getType } = getParams();
   if (!id) {
     return;
   }
   switch (type) {
     case 'kc_share':
-      return getShareNode({ shareId: id }).then(r => {
+      return shareAjax.getShareNode({ shareId: id }).then(r => {
         if (r.actionResult === 2) {
           login();
           return Promise.reject();
@@ -51,15 +58,17 @@ export function getAttachment() {
         }
       });
     case 'kc':
-      return getNodeById(id).then(node => ({ node: { ...node, isKc: true } }));
+      return kcService.getNodeById(id).then(node => ({ node: { ...node, isKc: true } }));
     case 'record_share':
       if (!_.get(md, 'global.Account.accountId')) {
         login();
         return;
       }
-      return getAttachmentDetail({
-        attachmentShareId: id,
-      })
+      return worksheetAjax
+        .getAttachmentDetail({
+          attachmentShareId: id,
+          getType: !!getType ? Number(getType) : undefined,
+        })
         .then(res => {
           if (res.resultCode === 1) {
             const recordAttachmentSwitch = isOpenPermit(

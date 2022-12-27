@@ -3,14 +3,13 @@ import { calcDate } from 'src/pages/worksheet/util';
 import { Parser } from 'hot-formula-parser';
 import nzh from 'nzh';
 import { v4 as uuidv4 } from 'uuid';
-import { FORM_ERROR_TYPE, FROM, TIME_UNIT, FORM_ERROR_TYPE_TEXT } from './config';
+import { FORM_ERROR_TYPE, FROM, TIME_UNIT, FORM_ERROR_TYPE_TEXT, SYSTEM_ENUM } from './config';
 import { isRelateRecordTableControl, checkCellIsEmpty } from 'worksheet/util';
 import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import {
-  controlState,
   Validator,
   getRangeErrorType,
   formatFiltersValue,
@@ -24,9 +23,9 @@ import intlTelInput from '@mdfe/intl-tel-input';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
 import moment from 'moment';
 import MapLoader from 'ming-ui/components/amap/MapLoader';
-import { getDepartmentsByAccountId } from 'src/api/department';
-import { getOrganizesByAccountId } from 'src/api/organize';
-import { getFilterRowsByQueryDefault, getRowDetail } from 'src/api/worksheet';
+import departmentAjax from 'src/api/department';
+import organizeAjax from 'src/api/organize';
+import worksheetAjax from 'src/api/worksheet';
 import { getCurrentProject } from 'src/util';
 import { checkRuleLocked } from './filterFn';
 import _ from 'lodash';
@@ -53,7 +52,8 @@ export const initIntlTelInput = () => {
 
 // 时间字段处理
 const formatTimeValue = (control = {}, isCurrent = false, value) => {
-  const mode = control.unit === '6' ? 'HH:mm:ss' : 'HH:mm';
+  // 汇总输出格式unit为9
+  const mode = control.unit === '6' || control.unit === '9' ? 'HH:mm:ss' : 'HH:mm';
   if (isCurrent) return moment(moment().format(mode), mode).format('HH:mm:ss');
   if (!value) return '';
   return moment(value).year()
@@ -193,7 +193,10 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
 
         //文本类控件(默认值为选项、成员、部门等异化)
         if (_.includes([2], currentItem.type)) {
-          const currentControl = _.find(parentControl.relationControls || [], re => re.controlId === item.cid);
+          let currentControl = _.find(parentControl.relationControls || [], re => re.controlId === item.cid);
+          if (!currentControl && _.includes(['ownerid', 'caid', 'uaid', 'wfcuaids', 'wfcaid'], item.cid)) {
+            currentControl = { type: 26 };
+          }
           return getCurrentValue(currentControl, sourcevalue, currentItem);
         }
 
@@ -378,7 +381,7 @@ const parseNewFormula = (data, formulaStr, dot = 2, nullzero = '0', isPercent) =
     return parseFloat(
       _.find([6, 8, 28, 31, 37], c => c === column.type || c === column.sourceControlType)
         ? column.value
-        : formatColumnToText(column, true),
+        : formatColumnToText(column, true, true),
       10,
     );
   });
@@ -579,7 +582,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
         return;
       } else {
         dateColumnType = column.type;
-        date = formatColumnToText(column, true);
+        date = formatColumnToText(column, true, true);
       }
     } else if (currentItem.sourceControlId === '$ctime$') {
       date = recordCreateTime || new Date();
@@ -612,7 +615,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
         hasUndefinedColumn = true;
       }
 
-      return parseFloat(formatColumnToText(matchedColumn, true), 10);
+      return parseFloat(formatColumnToText(matchedColumn, true, true), 10);
     });
 
     formulaResult = hasUndefinedColumn ? {} : calcDate(date, expression);
@@ -692,11 +695,11 @@ export const checkRequired = item => {
 };
 
 // 验证必填及格式
-export const onValidator = (item, data, masterData, ignoreRequired) => {
+export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllControls }) => {
   let errorType = '';
   let errorText = '';
 
-  if (!item.hidden && !item.disabled) {
+  if (!item.hidden && (!item.disabled || verifyAllControls)) {
     errorType = checkRequired(item);
 
     if (!errorType) {
@@ -843,13 +846,23 @@ export const onValidator = (item, data, masterData, ignoreRequired) => {
 
 /**
  * 自定义字段数据格式化
- * @param {string} 网络id
+ * @param {string} projectId 网络id
  * @param {[]} data 数据源
+ * @param {[]} rules 业务规则
  * @param {boolean} isCreate 是否创建
  * @param {boolean} disabled 是否全部禁用
+ * @param {boolean} ignoreLock 去除锁定
+ * @param {boolean} ignoreRequired 去除其他选项的必填
+ * @param {boolean} verifyAllControls 验证所有可见控件
  * @param {string} recordCreateTime 记录创建时间，编辑的时候会用到
- * @param {string} from 来源参考config.js中的FROM
+ * @param {string} masterRecordRowId 主记录的id 编辑时用的
+ * @param {[]} masterData 主记录的数据源
+ * @param {number} from 来源参考config.js中的FROM
+ * @param {[]} searchConfig 查询的配置
+ * @param {object} embedData 嵌入参数
  * @param {function} onAsyncChange 异步更新
+ * @param {function} updateLoadingItems 异步更新的控件更新父级 子表用
+ * @param {function} activeTrigger 主动触发保存 汇总字段这类引起的
  */
 export default class DataFormat {
   constructor({
@@ -860,6 +873,7 @@ export default class DataFormat {
     disabled = false,
     ignoreLock = false,
     ignoreRequired = false,
+    verifyAllControls = false,
     recordCreateTime = '',
     masterRecordRowId = '',
     masterData,
@@ -885,6 +899,7 @@ export default class DataFormat {
     this.onAsyncChange = onAsyncChange;
     this.updateLoadingItems = updateLoadingItems;
     this.activeTrigger = activeTrigger;
+    this.loopList = [];
 
     const departmentIds = [];
     const locationIds = [];
@@ -944,11 +959,11 @@ export default class DataFormat {
         ) {
           const unit = TIME_UNIT[item.unit] || 'd';
           const today = moment().startOf(unit);
-          const time = moment(item.sourceControlId).startOf(unit);
+          const time = moment(item.sourceControlId);
           if (item.advancedSetting.dateformulatype === '1' || _.isUndefined(item.advancedSetting.dateformulatype)) {
-            item.value = String(Math.floor(moment(time).diff(today, unit, true)));
+            item.value = String(Math.floor(moment(time).diff(today, unit)));
           } else {
-            item.value = String(Math.floor(moment(today).diff(time, unit, true)));
+            item.value = String(Math.floor(moment(today).diff(time, unit)));
           }
         }
 
@@ -996,6 +1011,9 @@ export default class DataFormat {
       item.advancedSetting = item.advancedSetting || {};
       item.dataSource = item.dataSource || '';
       item.disabled = !!disabled || item.disabled;
+      item.fieldPermission = _.includes(SYSTEM_ENUM, item.controlId)
+        ? '0' + (item.fieldPermission || '111').slice(-2)
+        : item.fieldPermission;
       item.defaultState = {
         required: item.required,
         controlPermissions: item.controlPermissions,
@@ -1028,7 +1046,7 @@ export default class DataFormat {
         }
       }
 
-      const { errorType, errorText } = onValidator(item, data, masterData, ignoreRequired);
+      const { errorType, errorText } = onValidator({ item, data, masterData, ignoreRequired, verifyAllControls });
 
       if (errorType) {
         _.remove(this.errorItems, obj => obj.controlId === item.controlId);
@@ -1100,7 +1118,7 @@ export default class DataFormat {
             removeUniqueItem(controlId);
             _.remove(this.errorItems, obj => obj.controlId === item.controlId && !obj.errorMessage);
 
-            const { errorType, errorText } = onValidator(item, this.data, this.masterData);
+            const { errorType, errorText } = onValidator({ item, data: this.data, masterData: this.masterData });
             if (errorType) {
               this.errorItems.push({
                 controlId: item.controlId,
@@ -1136,7 +1154,11 @@ export default class DataFormat {
       };
       const depthUpdateData = (controlId, depth, value) => {
         const currentItem = _.find(this.data, item => item.controlId === controlId);
-        let currentSearchByChange = searchByChange;
+        let currentSearchByChange = depth === 0 ? searchByChange : false;
+        // onChange主动更新，清空循环列表
+        if (currentSearchByChange) {
+          this.loopList = [];
+        }
 
         // 最多递归5层
         if (depth > 5) {
@@ -1211,7 +1233,7 @@ export default class DataFormat {
                   : `${formulaResult.result.toFixed(singleControl.dot)}${singleControl.unit}`;
               }
 
-              return formatColumnToText(singleControl, true);
+              return formatColumnToText(singleControl, true, true);
             });
           }
 
@@ -1348,10 +1370,11 @@ export default class DataFormat {
                           const maxDate = _.max(
                             noUndefinedValues.filter(_.identity).map(c => new Date(c || 0).getTime()),
                           );
-                          value =
-                            currentItem.enumDefault2 === 15
-                              ? moment(maxDate).format('YYYY-MM-DD')
-                              : moment(maxDate).format('YYYY-MM-DD HH:mm:ss');
+                          const { formatMode, mode } = getDatePickerConfigs({
+                            type: currentItem.enumDefault2,
+                            advancedSetting: { showtype: currentItem.unit },
+                          });
+                          value = moment(maxDate).format(formatMode);
                         }
                       } else {
                         value = _.max(
@@ -1372,10 +1395,11 @@ export default class DataFormat {
                           const minDate = _.min(
                             noUndefinedValues.filter(_.identity).map(c => new Date(c || 0).getTime()),
                           );
-                          value =
-                            currentItem.enumDefault2 === 15
-                              ? moment(minDate).format('YYYY-MM-DD')
-                              : moment(minDate).format('YYYY-MM-DD HH:mm:ss');
+                          const { formatMode } = getDatePickerConfigs({
+                            type: currentItem.enumDefault2,
+                            advancedSetting: { showtype: currentItem.unit },
+                          });
+                          value = moment(minDate).format(formatMode);
                         }
                       } else {
                         value = _.min(
@@ -1554,37 +1578,39 @@ export default class DataFormat {
 
     this.setLoadingInfo(ids, true);
 
-    getDepartmentsByAccountId({ projectId: this.projectId, accountIds: [md.global.Account.accountId] }).then(result => {
-      let departments = [];
-      this.setLoadingInfo(ids, false);
+    departmentAjax
+      .getDepartmentsByAccountId({ projectId: this.projectId, accountIds: [md.global.Account.accountId] })
+      .then(result => {
+        let departments = [];
+        this.setLoadingInfo(ids, false);
 
-      result.maps.forEach(item => {
-        item.departments.forEach(obj => {
-          departments.push({
-            departmentId: obj.id,
-            departmentName: obj.name,
+        result.maps.forEach(item => {
+          item.departments.forEach(obj => {
+            departments.push({
+              departmentId: obj.id,
+              departmentName: obj.name,
+            });
+          });
+        });
+
+        departments = _.uniqBy(departments, 'departmentId');
+
+        ids.forEach(controlId => {
+          const { enumDefault } = this.data.find(item => item.controlId === controlId) || {};
+          const value = enumDefault === 0 ? JSON.stringify(departments.slice(0, 1)) : JSON.stringify(departments);
+
+          this.updateDataSource({
+            controlId,
+            value,
+            isInit: true,
+          });
+
+          this.onAsyncChange({
+            controlId,
+            value,
           });
         });
       });
-
-      departments = _.uniqBy(departments, 'departmentId');
-
-      ids.forEach(controlId => {
-        const { enumDefault } = this.data.find(item => item.controlId === controlId) || {};
-        const value = enumDefault === 0 ? JSON.stringify(departments.slice(0, 1)) : JSON.stringify(departments);
-
-        this.updateDataSource({
-          controlId,
-          value,
-          isInit: true,
-        });
-
-        this.onAsyncChange({
-          controlId,
-          value,
-        });
-      });
-    });
   }
 
   /**
@@ -1601,37 +1627,39 @@ export default class DataFormat {
 
     this.setLoadingInfo(ids, true);
 
-    getOrganizesByAccountId({ projectId: this.projectId, accountIds: [md.global.Account.accountId] }).then(result => {
-      let organizes = [];
-      this.setLoadingInfo(ids, false);
+    organizeAjax
+      .getOrganizesByAccountId({ projectId: this.projectId, accountIds: [md.global.Account.accountId] })
+      .then(result => {
+        let organizes = [];
+        this.setLoadingInfo(ids, false);
 
-      result.maps.forEach(item => {
-        item.organizes.forEach(obj => {
-          organizes.push({
-            organizeId: obj.id,
-            organizeName: obj.name,
+        result.maps.forEach(item => {
+          item.organizes.forEach(obj => {
+            organizes.push({
+              organizeId: obj.id,
+              organizeName: obj.name,
+            });
+          });
+        });
+
+        organizes = _.uniqBy(organizes, 'organizeId');
+
+        ids.forEach(controlId => {
+          const { enumDefault } = this.data.find(item => item.controlId === controlId) || {};
+          const value = enumDefault === 0 ? JSON.stringify(organizes.slice(0, 1)) : JSON.stringify(organizes);
+
+          this.updateDataSource({
+            controlId,
+            value,
+            isInit: true,
+          });
+
+          this.onAsyncChange({
+            controlId,
+            value,
           });
         });
       });
-
-      organizes = _.uniqBy(organizes, 'organizeId');
-
-      ids.forEach(controlId => {
-        const { enumDefault } = this.data.find(item => item.controlId === controlId) || {};
-        const value = enumDefault === 0 ? JSON.stringify(organizes.slice(0, 1)) : JSON.stringify(organizes);
-
-        this.updateDataSource({
-          controlId,
-          value,
-          isInit: true,
-        });
-
-        this.onAsyncChange({
-          controlId,
-          value,
-        });
-      });
-    });
   }
 
   /**
@@ -1677,7 +1705,7 @@ export default class DataFormat {
    * 获取当前关联记录数据
    */
   getCurrentRelateData({ controlId, dataSource: worksheetId, value }) {
-    const control = JSON.parse(value || '[]')[0];
+    const control = _.isArray(value) ? value[0] : JSON.parse(value || '[]')[0];
     const { isGet, sid } = control || {};
     const hasRelate = _.find(this.data, ({ advancedSetting: { defsource } = {}, dataSource, type }) => {
       return (
@@ -1705,7 +1733,8 @@ export default class DataFormat {
         params.shareId = window.recordShareLinkId;
         params.getType = 13;
       }
-      getRowDetail(params)
+      worksheetAjax
+        .getRowDetail(params)
         .then(result => {
           this.setLoadingInfo(controlId, false);
 
@@ -1759,8 +1788,18 @@ export default class DataFormat {
             this.setLoadingInfo(item.controlId, true);
 
             const INFO_OPTIONS = {
-              27: { id: 'departmentId', name: 'departmentName', ids: 'departments', api: getDepartmentsByAccountId },
-              48: { id: 'organizeId', name: 'organizeName', ids: 'organizes', api: getOrganizesByAccountId },
+              27: {
+                id: 'departmentId',
+                name: 'departmentName',
+                ids: 'departments',
+                api: departmentAjax.getDepartmentsByAccountId,
+              },
+              48: {
+                id: 'organizeId',
+                name: 'organizeName',
+                ids: 'organizes',
+                api: organizeAjax.getOrganizesByAccountId,
+              },
             };
 
             const infoObj = INFO_OPTIONS[item.type];
@@ -1825,6 +1864,9 @@ export default class DataFormat {
    */
   getFilterRowsData = (filters = [], para, controlId) => {
     this.setLoadingInfo(controlId, true);
+    if (!_.includes(this.loopList, controlId)) {
+      this.loopList.push(controlId);
+    }
 
     const formatFilters = formatFiltersValue(filters, this.data);
     let params = {
@@ -1838,7 +1880,7 @@ export default class DataFormat {
     if (window.isPublicWorksheet) {
       params.formId = window.publicWorksheetShareId;
     }
-    return getFilterRowsByQueryDefault(params);
+    return worksheetAjax.getFilterRowsByQueryDefault(params);
   };
 
   /**
@@ -1889,7 +1931,13 @@ export default class DataFormat {
         // 满足查询时机
         const canSearch = this.getSearchStatus(items, controls);
         //表删除、没有控件、不符合查询时机、当前配置控件已删除等不执行
-        if (templates.length > 0 && controls.length > 0 && canSearch && currentControl) {
+        if (
+          templates.length > 0 &&
+          controls.length > 0 &&
+          canSearch &&
+          currentControl &&
+          !_.includes(this.loopList, controlId)
+        ) {
           //关联记录
           if (_.includes([29], controlType)) {
             //关联单条取第一条记录
@@ -1904,6 +1952,7 @@ export default class DataFormat {
                     ? 50
                     : 200,
                 id,
+                getAllControls: true,
               },
               controlId,
             ).then(res => {
@@ -1930,7 +1979,12 @@ export default class DataFormat {
             if (canMapConfigs.length > 0) {
               this.getFilterRowsData(
                 items,
-                { worksheetId: sourceId, pageSize: controlType === 34 ? 200 : 1, id },
+                {
+                  worksheetId: sourceId,
+                  pageSize: controlType === 34 ? 200 : 1,
+                  id,
+                  getAllControls: controlType === 34,
+                },
                 controlId,
               ).then(res => {
                 this.setLoadingInfo(controlId, false);

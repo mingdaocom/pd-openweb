@@ -13,40 +13,35 @@
     font-size: 13px;
     line-height: 34px;
   }
-  .worksheetTable {
-    .mdTable {
-      position: relative;
-      background-color: transparent;
-      .cell.row-0 {
-        border-top: 1px solid rgba(0, 0, 0, 0.12) !important;
-      }
-      .cell:not(.columnHead) {
-        &.control-31, // FORMULA_NUMBER 公式
-        &.control-38, // FORMULA_DATE 公式
-        &.control-37, // SUBTOTAL 汇总
-        &.control-30, // SHEET_FIELD 他表字段
-        &.control-33, // AUTO_ID 自动编号
-        &.control-32, // CONCATENATE  文本组合
-        &.control-10010, // REMARK  备注
-        &.control-25 // MONEY_CN 大写金额
-        {
-          background-color: #f5f5f5 !important;
-        }
-      }
-      .cell.readonly {
+  .sheetViewTable {
+    position: relative;
+    background-color: transparent;
+    .cell:not(.columnHead) {
+      &.control-31, // FORMULA_NUMBER 公式
+      &.control-38, // FORMULA_DATE 公式
+      &.control-37, // SUBTOTAL 汇总
+      &.control-30, // SHEET_FIELD 他表字段
+      &.control-33, // AUTO_ID 自动编号
+      &.control-32, // CONCATENATE  文本组合
+      &.control-10010, // REMARK  备注
+      &.control-25 // MONEY_CN 大写金额
+      {
         background-color: #f5f5f5 !important;
       }
-      .cell.cellControlErrorStatus.row-1.errorActive {
-        &:before {
-          bottom: -1px !important;
-          top: auto !important;
-          border-top-color: transparent !important;
-          border-bottom-color: #f44336 !important;
-        }
+    }
+    .cell.readonly {
+      background-color: #f5f5f5 !important;
+    }
+    .cell.cellControlErrorStatus.row-0.errorActive {
+      &:before {
+        bottom: -1px !important;
+        top: auto !important;
+        border-top-color: transparent !important;
+        border-bottom-color: #f44336 !important;
       }
-      .cell.cellControlErrorStatus .ghostAngle {
-        display: inline-block;
-      }
+    }
+    .cell.cellControlErrorStatus .ghostAngle {
+      display: inline-block;
     }
   }
   .operate {

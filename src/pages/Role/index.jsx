@@ -14,7 +14,7 @@ import * as actionsPortal from 'src/pages/Role/PortalCon/redux/actions.js';
 import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 import Portal from 'src/pages/Role/PortalCon/index';
 import openImg from './img/open.gif';
-import { editExPortalEnable, getPortalEnableState } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import AppRoleCon from 'src/pages/Role/AppRoleCon';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { ROLE_TYPES } from 'src/pages/Role/config';
@@ -234,7 +234,7 @@ class AppRole extends Component {
         params: { appId, editType },
       },
     } = props;
-    getPortalEnableState({
+    externalPortalAjax.getPortalEnableState({
       appId,
     }).then((portalBaseSet = {}) => {
       this.setState(
@@ -395,7 +395,7 @@ class AppRole extends Component {
                           this.setState({
                             openLoading: true,
                           });
-                          editExPortalEnable({ appId, isEnable: !this.state.isEnable }).then(res => {
+                          externalPortalAjax.editExPortalEnable({ appId, isEnable: !this.state.isEnable }).then(res => {
                             if (res) {
                               // window.appInfo.epEnableStatus = !this.state.isEnable;
                               this.setState({ isOpenPortal: true, editType: 1, openLoading: false }, () => {
@@ -460,7 +460,7 @@ class AppRole extends Component {
               portalName={appDetail.name}
               appId={appId}
               closePortal={() => {
-                editExPortalEnable({ appId, isEnable: false }).then(res => {
+                externalPortalAjax.editExPortalEnable({ appId, isEnable: false }).then(res => {
                   if (res) {
                     // window.appInfo.epEnableStatus = false;
                     navigateTo(`/app/${appId}/role`);

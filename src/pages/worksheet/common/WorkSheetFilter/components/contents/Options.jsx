@@ -4,9 +4,10 @@ import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import CityPicker from 'ming-ui/components/CityPicker';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
-import selectOrgRole from 'src/components/DialogSelectOrgRole/selectOrgRole';
+import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
 import TagCon from './TagCon';
 import { FILTER_CONDITION_TYPE } from '../../enum';
+import _ from 'lodash';
 
 const SCORE_TEXT = [
   _l('一级'),

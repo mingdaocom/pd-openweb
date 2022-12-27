@@ -1,11 +1,13 @@
 import React from 'react';
 import { Icon } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import cx from 'classnames';
 import { Switch } from 'antd';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import styled from 'styled-components';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
+
+import _ from 'lodash';
 const ChooseWidgetWrap = styled.div`
    {
     width: 300px;
@@ -200,7 +202,7 @@ export default class ChooseWidget extends React.Component {
               data.map((item, index) => {
                 if (
                   (item.type === 29 && item.enumDefault === 2 && item.advancedSetting.showtype === '2') || //排除关联表多条
-                  SYS.includes(item.controlId) //排除系统字段
+                  ALL_SYS.includes(item.controlId) //排除系统字段
                 ) {
                   return '';
                 }

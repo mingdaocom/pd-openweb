@@ -4,9 +4,11 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { Flex, Modal, WingBlank, Button, ActionSheet } from 'antd-mobile';
 import { ScrollView, LoadDiv } from 'ming-ui';
+import { removeFromLocal } from 'worksheet/util';
 import NewRecordContent from './NewRecordContent';
 import AdvancedSettingHandler from './AdvancedSettingHandler';
 import TouchHandler from 'mobile/components/TouchHandler';
+import MobileDraft from 'src/pages/Mobile/MobileDraft';
 
 const ModalWrap = styled(Modal)`
   height: 95%;
@@ -76,22 +78,17 @@ export function MobileRecordRecoverConfirm(props) {
   return (
     <ModalWrap popup animationType="slide-up" onClose={onCancel} visible={visible} style={{ height: 130 }}>
       <div className="flexColumn h100">
-        <Flex align="center" className="Font17 Gray bold pLeft15 pRight15 mTop24 mBottom32">{title}</Flex>
+        <Flex align="center" className="Font17 Gray bold pLeft15 pRight15 mTop24 mBottom32">
+          {title}
+        </Flex>
         <BtnsWrap className="footerBox valignWrapper flexRow" style={{ border: 'none' }}>
           <WingBlank className="flex" size="sm">
-            <Button
-              className="Font13 bold Gray_75"
-              onClick={onCancel}
-            >
+            <Button className="Font13 bold Gray_75" onClick={onCancel}>
               {cancelText}
             </Button>
           </WingBlank>
           <WingBlank className="flex" size="sm">
-            <Button
-              className="Font13 bold"
-              type="primary"
-              onClick={onUpdate}
-            >
+            <Button className="Font13 bold" type="primary" onClick={onUpdate}>
               {updateText}
             </Button>
           </WingBlank>
@@ -102,7 +99,18 @@ export function MobileRecordRecoverConfirm(props) {
 }
 
 function NewRecord(props) {
-  const { visible, className, hideNewRecord = _.noop, notDialog, advancedSetting = {}, ...rest } = props;
+  const {
+    visible,
+    className,
+    hideNewRecord = _.noop,
+    notDialog,
+    advancedSetting = {},
+    showDraft,
+    showDraftsEntry,
+    sheetSwitchPermit,
+    ...rest
+  } = props;
+  const { appId, viewId, worksheetInfo } = rest;
   const newRecordContent = useRef(null);
   const [loading, setLoading] = useState();
   const [autoFill, setAutoFill] = useState(null);
@@ -115,7 +123,7 @@ function NewRecord(props) {
       if (!notDialog) {
         window.removeEventListener('popstate', hideNewRecord, false);
       }
-    }
+    };
   }, []);
 
   const showActionSheetWithOptions = (retain, noretain) => {
@@ -160,7 +168,24 @@ function NewRecord(props) {
       <div className="title Font18 Gray flex bold leftAlign ellipsis">
         {advancedSetting.title || props.title || (props.entityName && _l('创建%0', props.entityName))}
       </div>
-      <i className="icon icon-closeelement-bg-circle Gray_9e Font22" onClick={hideNewRecord}></i>
+      {visible && showDraft && showDraftsEntry && (
+        <MobileDraft
+          appId={appId}
+          worksheetId={worksheetInfo.worksheetId}
+          controls={_.get(worksheetInfo, 'template.controls')}
+          worksheetInfo={worksheetInfo}
+          showDraft={advancedSetting.closedrafts !== '1'}
+          sheetSwitchPermit={sheetSwitchPermit}
+        />
+      )}
+      <i
+        className="icon icon-closeelement-bg-circle Gray_9e Font22"
+        onClick={() => {
+          hideNewRecord();
+          removeFromLocal('tempNewRecord', viewId);
+        }}
+      >
+      </i>
     </div>
   );
   const content = (
@@ -180,6 +205,21 @@ function NewRecord(props) {
 
   const footer = (
     <BtnsWrap className="footerBox valignWrapper flexRow">
+      {showDraft && (
+        <WingBlank className="flexColumn TxtCenter" size="sm">
+          <div
+            onClick={() => {
+              newRecordContent.current.newRecord({
+                autoFill,
+                rowStatus: 21,
+              });
+            }}
+          >
+            <i className="icon-drafts_approval Font20 Gray_9e "></i>
+            <div className="Font12 bold Gray_9e">{_l('存草稿')}</div>
+          </div>
+        </WingBlank>
+      )}
       {advancedSetting.continueBtnVisible && (
         <WingBlank className="flex" size="sm">
           <Button

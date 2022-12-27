@@ -16,6 +16,7 @@ import { DEFAULT_CREATE, ADVANCE_AUTHORITY } from '../config';
 import { updateAppGroup } from '../../redux/action';
 import './index.less';
 import { getAppFeaturesVisible } from 'src/util';
+import _ from 'lodash';
 
 const mapStateToProps = () => ({});
 const mapDispatchToProps = dispatch => ({

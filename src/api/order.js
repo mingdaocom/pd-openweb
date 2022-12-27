@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取主授权所有版本,最大订单人数
   * @param {Object} args 请求参数

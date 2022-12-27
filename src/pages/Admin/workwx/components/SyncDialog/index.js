@@ -1,14 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { Dialog, Icon, ScrollView, LoadDiv } from 'ming-ui';
 import { Pagination, Input } from 'antd';
-import {
-  unbindWorkWxUserRelation,
-  getWorkWXStructureInfo,
-  syncWorkWXToMingByApp,
-  getWorkWxUserRelations,
-} from 'src/api/workWeiXin';
+import workWeiXinAjax from 'src/api/workWeiXin';
 import Trigger from 'rc-trigger';
 import './index.less';
+import _ from 'lodash';
 
 export default class SyncDialog extends Component {
   constructor(props) {
@@ -48,7 +44,7 @@ export default class SyncDialog extends Component {
     if (this.ajaxPromise && this.ajaxPromise.state() === 'pending' && this.ajaxPromise.abort) {
       this.ajaxPromise.abort();
     }
-    this.ajaxPromise = getWorkWxUserRelations({
+    this.ajaxPromise = workWeiXinAjax.getWorkWxUserRelations({
       projectId: this.props.projectId,
       pageIndex,
       pageSize,
@@ -85,7 +81,7 @@ export default class SyncDialog extends Component {
         }}
         onOk={() => {
           this.setState({ syncLoading: true });
-          syncWorkWXToMingByApp({
+          workWeiXinAjax.syncWorkWXToMingByApp({
             projectId,
             userMaps: userMaps,
           }).then(res => {
@@ -256,7 +252,7 @@ export default class SyncDialog extends Component {
       this.ajaxWorkWXUsers.abort();
     }
     this.setState({ searchLoading: true });
-    this.ajaxWorkWXUsers = getWorkWXStructureInfo({
+    this.ajaxWorkWXUsers = workWeiXinAjax.getWorkWXStructureInfo({
       projectId: this.props.projectId,
       keywords,
     });
@@ -275,7 +271,7 @@ export default class SyncDialog extends Component {
       title: _l('确定解绑'),
       description: _l('企微账号与平台账号解绑后，将不能通过平台官网登录；后续点击同步可以重新选择账号绑定。'),
       onOk: () => {
-        unbindWorkWxUserRelation({
+        workWeiXinAjax.unbindWorkWxUserRelation({
           projectId,
           mingdaoAccountId,
           workwxUserId,

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { combineReducers } from 'redux';
 
 function lastAction(state = null, action) {

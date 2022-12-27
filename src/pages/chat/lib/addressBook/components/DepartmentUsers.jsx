@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import UserDetail from './/UserDetail';
 import styled from 'styled-components';
 import { ScrollView, Icon, LoadDiv } from 'ming-ui';
+import _ from 'lodash';
 
 const LoadingWrapper = styled.div`
   display: flex;

@@ -7,17 +7,11 @@ import { Drawer } from 'antd';
 import * as actions from '../../redux/actions/action';
 import * as columnRules from '../../redux/actions/columnRules';
 import EditBox from './EditBox';
-import {
-  getNameWidth,
-  getTextById,
-  getActionLabelByType,
-  filterData,
-  getArrBySpliceType,
-  isRelateMoreList,
-} from './config';
+import { getNameWidth, getTextById, getActionLabelByType, filterData, isRelateMoreList } from './config';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import cx from 'classnames';
+import _ from 'lodash';
 class ColumnRulesCon extends React.Component {
   constructor(props) {
     super(props);
@@ -38,23 +32,28 @@ class ColumnRulesCon extends React.Component {
   renderFilterItemTexts = (filters = [], disabled = false) => {
     const { worksheetControls = [] } = this.props;
     const formatControls = worksheetControls.map(redefineComplexControl);
-    let filterItemTexts = getArrBySpliceType(filters).map(item => {
-      return item.map(it => {
-        let transData = filterData(formatControls, [it], true, formatControls);
-        if (it.dataType === 29) {
-          const control = _.find(formatControls || [], con => con.controlId === it.controlId);
-          if (isRelateMoreList(control, it)) {
-            transData = [{ ...transData[0], name: _l('字段已删除') }];
+    let filterItemTexts = filters.map(item => {
+      return {
+        ...item,
+        groupFilters: (item.groupFilters || []).map(it => {
+          let transData = filterData(formatControls, [it], true, formatControls);
+          if (it.dataType === 29) {
+            const control = _.find(formatControls || [], con => con.controlId === it.controlId);
+            if (isRelateMoreList(control, it)) {
+              transData = [{ ...transData[0], name: _l('字段已删除') }];
+            }
           }
-        }
-        return transData[0] || {};
-      });
+          return transData[0] || {};
+        }),
+      };
     });
 
     const renderItemText = (item, index) => {
       return (
         <span key={index}>
-          {index ? <span className="mLeft10 mRight10 gray_9e Font13">{_l('且')}</span> : null}
+          {index ? (
+            <span className="mLeft10 mRight10 gray_9e Font13">{item.spliceType === 2 ? _l('或') : _l('且')}</span>
+          ) : null}
           {item.id ? (
             <Fragment>
               {item.name}
@@ -73,17 +72,20 @@ class ColumnRulesCon extends React.Component {
         </span>
       );
     };
+
     return (
       <React.Fragment>
         {filterItemTexts.map((item, index) => {
           return (
             <span className={cx({ Gray_bd: disabled })}>
-              {index ? <span className="mLeft10 mRight10">{_l('或')}</span> : null}
               {filterItemTexts.length > 1 ? <span className="gray_9e mRight2">(</span> : null}
-              {item.map((child, childIdx) => {
+              {(item.groupFilters || []).map((child, childIdx) => {
                 return renderItemText(child, childIdx);
               })}
               {filterItemTexts.length > 1 ? <span className="gray_9e mLeft2">)</span> : null}
+              {index !== filterItemTexts.length - 1 ? (
+                <span className="mLeft10 mRight10">{item.spliceType === 2 ? _l('或') : _l('且')}</span>
+              ) : null}
             </span>
           );
         })}
@@ -100,23 +102,12 @@ class ColumnRulesCon extends React.Component {
       <div
         ref={con => (this[ruleId] = con)}
         className={cx('ruleItemCon', { active: editingId === ruleId, disabled: disabled })}
-        onClick={e => {
-          if (
-            ($(e.target).closest('.ruleItemOptions')[0] &&
-              ($(e.target).closest('.ruleItemOptions')[0].className || '').indexOf('ruleItemOptions')) > -1 ||
-            ($(e.target).closest('.DropdownDeleteRuleTrigger')[0] &&
-              $(e.target).closest('.DropdownDeleteRuleTrigger')[0].className === 'DropdownDeleteRuleTrigger') ||
-            (e.target && e.target.className.indexOf('ruleNameInput') > -1)
-          ) {
-            e.preventDefault();
-            return;
-          }
-          selectColumnRules(columnRules);
-        }}
+        onClick={e => selectColumnRules(columnRules)}
       >
         <div
           className="ruleNameInputBox"
           onClick={e => {
+            e.stopPropagation();
             setTimeout(() => {
               this[columnRules.ruleId].focus();
               $(this[columnRules.ruleId]).css('width', `${getNameWidth(name) + 32}px`);
@@ -160,7 +151,7 @@ class ColumnRulesCon extends React.Component {
           );
         })}
 
-        <div className={cx('ruleItemOptions', { Block: showDeleteBox === ruleId })}>
+        <div className={cx('ruleItemOptions', { Block: showDeleteBox === ruleId })} onClick={e => e.stopPropagation()}>
           <Tooltip
             popupPlacement="bottom"
             getPopupContainer={() => this[ruleId]}
@@ -291,29 +282,31 @@ class ColumnRulesCon extends React.Component {
           </div>
           {this.renderCon()}
         </div>
-        <Drawer
-          className="columnRulesDrawerContainer"
-          width={640}
-          title={<span>{editingId.indexOf('new_') >= 0 ? _l('新建规则') : _l('编辑规则')}</span>}
-          placement="right"
-          onClose={() => clearColumnRules()}
-          visible={isEdit}
-          maskClosable={false}
-          getContainer={false}
-          closeIcon={<i className="icon-close Font20" />}
-          footer={
-            <div className="ruleFooter">
-              <Button className="mRight15" size="medium" onClick={() => saveControlRules()}>
-                {_l('确定')}
-              </Button>
-              <Button size="medium" type="secondary" className="closeBtn" onClick={() => clearColumnRules()}>
-                {_l('取消')}
-              </Button>
-            </div>
-          }
-        >
-          <EditBox />
-        </Drawer>
+        {isEdit && (
+          <Drawer
+            className="columnRulesDrawerContainer"
+            width={640}
+            title={<span>{editingId.indexOf('new_') >= 0 ? _l('新建规则') : _l('编辑规则')}</span>}
+            placement="right"
+            onClose={() => clearColumnRules()}
+            visible={true}
+            maskClosable={false}
+            getContainer={false}
+            closeIcon={<i className="icon-close Font20" />}
+            footer={
+              <div className="ruleFooter">
+                <Button className="mRight15" size="medium" onClick={() => saveControlRules()}>
+                  {_l('确定')}
+                </Button>
+                <Button size="medium" type="secondary" className="closeBtn" onClick={() => clearColumnRules()}>
+                  {_l('取消')}
+                </Button>
+              </div>
+            }
+          >
+            <EditBox />
+          </Drawer>
+        )}
       </div>
     );
   }

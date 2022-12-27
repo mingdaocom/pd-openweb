@@ -9,6 +9,7 @@ import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import NumberConfig from '../components/ControlSetting/NumberConfig';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
+import _ from 'lodash';
 const { PointerConfig, PreSuffix, WidgetColor, NumberDynamicColor, SliderScaleConfig } = components;
 
 const NUMBER_TYPES = [
@@ -109,6 +110,7 @@ export default function Number(props) {
               newOptions.max = '100';
               newOptions.itemcolor = JSON.stringify(defaultItemColor);
               newOptions.showinput = '1';
+              newOptions.datamask = '';
               setNumValue(newOptions.numinterval);
             }
             onChange(handleAdvancedSettingChange(data, newOptions));

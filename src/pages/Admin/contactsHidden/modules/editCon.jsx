@@ -7,6 +7,7 @@ import PeopleAvatar from './peopleAvatar';
 import DialogSelectDept from 'src/components/dialogSelectDept';
 import MoreActionDia from './moreActionDia';
 import { updateRulesByRuleId } from '../actions/action';
+import _ from 'lodash';
 
 const targetType = {
   user: 10, // 10=人员、20=部门

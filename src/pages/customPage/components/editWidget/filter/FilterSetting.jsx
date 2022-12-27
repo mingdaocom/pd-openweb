@@ -1,20 +1,26 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Checkbox, Dropdown, Input, Divider, Tooltip, Radio } from 'antd';
 import { enumWidgetType } from 'src/pages/customPage/util';
 import {
-    TEXT_FILTER_TYPE, RELA_FILTER_TYPE, GROUP_FILTER_TYPE, NUMBER_FILTER_TYPE,
-    OPTIONS_ALLOWITEM, DIRECTION_TYPE, SHOW_RELATE_TYPE,
-    DATE_RANGE
+  TEXT_FILTER_TYPE,
+  RELA_FILTER_TYPE,
+  GROUP_FILTER_TYPE,
+  NUMBER_FILTER_TYPE,
+  OPTIONS_ALLOWITEM,
+  DIRECTION_TYPE,
+  SHOW_RELATE_TYPE,
+  DATE_RANGE,
 } from 'worksheet/common/ViewConfig/components/fastFilter/util';
 
 const RadioWrap = styled.div`
   border-radius: 3px;
   padding: 3px;
-  background-color: #EFF0F0;
-  >div {
+  background-color: #eff0f0;
+  > div {
     justify-content: center;
     box-sizing: border-box;
     padding: 4px 10px;
@@ -46,7 +52,8 @@ const TimeInputWrap = styled.div`
   border: 1px solid #d9d9d9;
   padding: 5px 11px;
   transition: all 0.3s;
-  &:hover, &.active {
+  &:hover,
+  &.active {
     border-color: #40a9ff;
   }
 `;
@@ -57,14 +64,14 @@ export default function FilterSetting(props) {
   const { dataType } = props;
   const [timeVisible, setTimeVisible] = useState(false);
 
-  const changeAdvancedSetting = (data) => {
+  const changeAdvancedSetting = data => {
     setFilter({
       advancedSetting: {
         ...advancedSetting,
-        ...data
-      }
+        ...data,
+      },
     });
-  }
+  };
 
   const renderDrop = data => {
     const { filterType } = filter;
@@ -96,10 +103,12 @@ export default function FilterSetting(props) {
           {data.types.map((item, index) => (
             <div
               key={item.value}
-              className={cx('valignWrapper flex', { active: item.value == (advancedSetting[data.key] || data.default) })}
+              className={cx('valignWrapper flex', {
+                active: item.value == (advancedSetting[data.key] || data.default),
+              })}
               onClick={() => {
                 changeAdvancedSetting({
-                  [data.key]: item.value
+                  [data.key]: item.value,
                 });
               }}
             >
@@ -128,19 +137,18 @@ export default function FilterSetting(props) {
 
   let daterange = getDaterange();
 
-  const renderOverlay = (data) => {
+  const renderOverlay = data => {
     let isAllRange = daterange.length >= DATE_RANGE.default.length;
     return (
       <div className="flexColumn">
-      {
-        data.map((item, index) => {
+        {data.map((item, index) => {
           if (_.isArray(item)) {
             return (
               <Fragment key={index}>
                 {renderOverlay(item)}
                 {!!item.length && <Divider className="mTop5 mBottom5" />}
               </Fragment>
-            )
+            );
           } else {
             return (
               <Fragment key={index}>
@@ -164,13 +172,12 @@ export default function FilterSetting(props) {
                   {item.text}
                 </Checkbox>
               </Fragment>
-            )
+            );
           }
-        })
-      }
+        })}
       </div>
     );
-  }
+  };
 
   const renderTimeType = () => {
     let isAllRange = daterange.length >= DATE_RANGE.default.length;
@@ -184,11 +191,7 @@ export default function FilterSetting(props) {
             setTimeVisible(visible);
           }}
           getPopupContainer={() => document.querySelector('.customPageFilterWrap .setting')}
-          overlay={(
-            <TimeWrap className="WhiteBG card pTop10">
-              {renderOverlay(DATE_RANGE.types)}
-            </TimeWrap>
-          )}
+          overlay={<TimeWrap className="WhiteBG card pTop10">{renderOverlay(DATE_RANGE.types)}</TimeWrap>}
         >
           <TimeInputWrap className={cx('w100 valignWrapper WhiteBG pointer mBottom10', { active: timeVisible })}>
             <div className={cx('flex', { Gray_bd: daterange.length <= 0 })}>

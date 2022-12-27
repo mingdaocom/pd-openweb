@@ -3,6 +3,7 @@ import cx from 'classnames';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
 import SelectOtherFields from '../SelectOtherFields';
 import Tag from '../Tag';
+import moment from 'moment';
 
 export default class SpecificFieldsValue extends Component {
   constructor(props) {
@@ -16,6 +17,7 @@ export default class SpecificFieldsValue extends Component {
     hasOtherField: true,
     min: 0,
     max: 0,
+    minDate: null,
   };
 
   renderSelectFieldsValue = () => {
@@ -90,7 +92,7 @@ export default class SpecificFieldsValue extends Component {
   };
 
   renderDate() {
-    const { data, updateSource, timePicker } = this.props;
+    const { data, updateSource, timePicker, minDate } = this.props;
 
     return (
       <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius">
@@ -98,6 +100,7 @@ export default class SpecificFieldsValue extends Component {
           selectedValue={data.fieldValue ? moment(data.fieldValue) : null}
           timePicker={!!timePicker}
           allowClear={false}
+          min={minDate}
           onOk={e => updateSource({ fieldValue: e.format(timePicker ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD') })}
         >
           {data.fieldValue ? (
@@ -111,7 +114,7 @@ export default class SpecificFieldsValue extends Component {
   }
 
   renderNumber() {
-    const { type, data, updateSource, hasOtherField, min, max, noScope } = this.props;
+    const { type, data, updateSource, hasOtherField, min, max } = this.props;
     const PLACEHOLDER = {
       numberFieldValue: _l('填写天数'),
       hourFieldValue: _l('填写小时数'),
@@ -127,7 +130,7 @@ export default class SpecificFieldsValue extends Component {
         })}
         placeholder={PLACEHOLDER[type]}
         value={data.fieldValue}
-        onChange={e => updateSource({ fieldValue: noScope ? e.target.value : this.formatVal(e.target.value) })}
+        onChange={e => updateSource({ fieldValue: this.formatVal(e.target.value) })}
         onBlur={e => {
           if (min && min > parseInt(e.target.value || 0, 10)) {
             e.target.value = min;

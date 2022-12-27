@@ -4,9 +4,10 @@ import { Dialog } from 'ming-ui';
 import BaseTrash from './BaseTrash';
 import UserHead from 'src/pages/feed/components/userHead';
 import SvgIcon from 'src/components/SvgIcon';
-import { getAppItemRecoveryList, removeWorkSheetForApp, appItemRecovery } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 import { string } from 'prop-types';
 import moment from 'moment';
+import _ from 'lodash';
 
 export default function AppItemTrash(props) {
   const { appId, projectId, onCancel } = props;
@@ -30,7 +31,7 @@ export default function AppItemTrash(props) {
     if (args.pageIndex) {
       setPageIndex(args.pageIndex);
     }
-    getAppItemRecoveryList({
+    appManagementAjax.getAppItemRecoveryList({
       keyword: _.isUndefined(args.keyword) ? keyword : args.keyword,
       pageIndex: args.pageIndex || pageIndex,
       pageSize: 14,
@@ -119,7 +120,7 @@ export default function AppItemTrash(props) {
           } else {
             setPendingCache(appItem.id, true);
           }
-          appItemRecovery({
+          appManagementAjax.appItemRecovery({
             id: appItem.id,
             projectId,
             appId,
@@ -149,7 +150,7 @@ export default function AppItemTrash(props) {
             description: _l('彻底删除该数据后，将无法恢复。'),
             okText: _l('彻底删除'),
             onOk: () => {
-              removeWorkSheetForApp({
+              appManagementAjax.removeWorkSheetForApp({
                 appId,
                 projectId,
                 appSectionId: needDeleteItem.appSectionId,

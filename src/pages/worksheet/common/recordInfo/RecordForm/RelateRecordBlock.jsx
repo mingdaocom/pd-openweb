@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import RelateRecordTableNav from './RelateRecordTableNav';
 import RelateRecordTable from './RelateRecordTable';
+import _ from 'lodash';
 
 const Con = styled.div`
   margin-top: -2px;
@@ -46,6 +47,7 @@ export default function RelateRecordBlock(props) {
     onScrollLeftChange,
     onRelateRecordsChange = () => {},
     onActiveIdChange = () => {},
+    from,
   } = props;
   const { recordId } = recordbase;
   const [loading, setLoading] = useState(true);
@@ -121,6 +123,7 @@ export default function RelateRecordBlock(props) {
         loading={loading}
         controls={activeControl.relationControls}
         addRefreshEvents={addRefreshEvents}
+        from={from}
         setRelateNumOfControl={num => {
           setRelateNumOfControl(num, activeControl.controlId, activeControl);
         }}

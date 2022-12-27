@@ -1,5 +1,7 @@
 import React from 'react';
 import { formatter } from '../../util';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default class LineChart extends React.Component {
   constructor(props) {

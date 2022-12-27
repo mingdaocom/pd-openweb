@@ -6,11 +6,13 @@ import { Dialog, Dropdown } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import RadioGroup from 'ming-ui/components/RadioGroup';
 import CustomFields from 'src/components/newCustomFields';
+import { SYSTEM_CONTROL_WITH_UAID, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { CONTROL_EDITABLE_BLACKLIST } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import './EditRecord.less';
+import _ from 'lodash';
 
 export default class EditRecord extends Component {
   static propTypes = {
@@ -54,9 +56,11 @@ export default class EditRecord extends Component {
       const formData = data.template.controls;
       const controlsForSelect = data.template.controls.filter(
         control =>
-          control.type < 10000 &&
-          !_.includes(CONTROL_EDITABLE_BLACKLIST, control.type) &&
-          !_.find(view.controls, id => control.controlId === id) &&
+          ((control.type < 10000 &&
+            !_.includes(CONTROL_EDITABLE_BLACKLIST, control.type) &&
+            !_.find(SYSTEM_CONTROL_WITH_UAID.concat(WORKFLOW_SYSTEM_CONTROL), { controlId: control.controlId }) &&
+            !_.find(view.controls, id => control.controlId === id)) ||
+            control.controlId === 'ownerid') &&
           controlState(control).visible &&
           controlState(control).editable,
       );
@@ -401,7 +405,10 @@ export default class EditRecord extends Component {
                 worksheetId={worksheetId}
                 onChange={data => {
                   const newState = {
-                    formData: data,
+                    formData: formData.map(item => {
+                      const newItem = _.find(data, c => c.controlId === item.controlId);
+                      return newItem || item;
+                    }),
                   };
                   this.setState(newState);
                 }}

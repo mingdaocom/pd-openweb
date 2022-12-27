@@ -9,9 +9,11 @@ import OtherAction from './OtherAction';
 import AddApproveWay from './AddApproveWay';
 import 'src/components/dialogSelectUser/dialogSelectUser';
 import instance from '../../api/instance';
-import { add } from 'src/api/webCache';
+import webCacheAjax from 'src/api/webCache';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default class Header extends Component {
   static propTypes = {
@@ -76,7 +78,7 @@ export default class Header extends Component {
       let printKey = Math.random()
         .toString(36)
         .substring(2);
-      add({
+      webCacheAjax.add({
         key: `${printKey}`,
         value: JSON.stringify(printData),
       });
@@ -110,7 +112,7 @@ export default class Header extends Component {
     const { projectId, onSubmit, data } = this.props;
     const { ignoreRequired } = (data || {}).flowNode || {};
     /**
-     * 填写节点的提交点击后直接提交,不需要出备注弹层
+     * 填写
      */
     if (id === 'submit') {
       this.request('submit');
@@ -118,10 +120,18 @@ export default class Header extends Component {
     }
 
     /**
-     * 撤回直接提交,不需要出备注弹层
+     * 撤回
      */
     if (id === 'revoke') {
       this.request('revoke');
+      return;
+    }
+
+    /**
+     * 催办
+     */
+    if (id === 'urge') {
+      this.request('operation', { operationType: 18 }, true);
       return;
     }
 
@@ -131,6 +141,14 @@ export default class Header extends Component {
     if (id === 'sign') {
       this.setState({ action: id });
       this.switchStatus('addApproveWayVisible', true);
+      return;
+    }
+
+    /**
+     * 暂存
+     */
+    if (id === 'stash') {
+      this.request('operation', { operationType: 13 });
       return;
     }
 
@@ -228,12 +246,13 @@ export default class Header extends Component {
   request = (action, restPara = {}, noSave = false) => {
     const { id, workId, onSave, onClose, onSubmit } = this.props;
     const { isRequest } = this.state;
-    const saveFunction = error => {
-      if (error) {
+    const isStash = restPara.operationType === 13;
+    const saveFunction = ({ error, logId }) => {
+      if (error && error !== 'empty') {
         this.setState({ isRequest: false });
       } else {
-        instance[action]({ id, workId, ...restPara }).then(() => {
-          onSave();
+        instance[action]({ id, workId: restPara.operationType === 18 ? '' : workId, logId, ...restPara }).then(() => {
+          onSave(isStash);
           onClose();
         });
       }
@@ -246,9 +265,9 @@ export default class Header extends Component {
     this.setState({ isRequest: true, action });
 
     if (noSave) {
-      saveFunction();
+      saveFunction({});
     } else {
-      onSubmit({ callback: saveFunction });
+      onSubmit({ callback: saveFunction, ignoreError: isStash, ignoreAlert: isStash, silent: isStash });
     }
   };
 
@@ -290,7 +309,7 @@ export default class Header extends Component {
     if (flowNode) {
       const { text, color } =
         currentWorkItem && currentWorkItem.type && currentWorkItem.type !== 0
-          ? FLOW_NODE_TYPE_STATUS[currentWorkItem.type][currentWorkItem.operationType]
+          ? FLOW_NODE_TYPE_STATUS[currentWorkItem.type][currentWorkItem.operationType] || {}
           : {};
       const urgeTime = (
         (works || [])
@@ -327,20 +346,26 @@ export default class Header extends Component {
               </div>
             ) : (
               <div className="operation flexRow">
-                {operationTypeList[0].map(item => {
-                  let { id, text } = ACTION_LIST[item];
-                  return (
-                    <Button
-                      disabled={isRequest && id === action}
-                      key={id}
-                      size={'tiny'}
-                      onClick={() => this.handleClick(id)}
-                      className={cx('headerBtn mLeft16', id)}
-                    >
-                      {isRequest && id === action ? _l('处理中...') : btnMap[item] || text}
-                    </Button>
-                  );
-                })}
+                {operationTypeList[0]
+                  .map(key => {
+                    return Object.assign({}, ACTION_LIST[key], { key });
+                  })
+                  .sort((a, b) => a.sort - b.sort)
+                  .map(item => {
+                    let { id, text, icon, key } = item;
+                    return (
+                      <Button
+                        disabled={isRequest && id === action}
+                        key={id}
+                        size={'tiny'}
+                        onClick={() => this.handleClick(id)}
+                        className={cx('headerBtn mLeft16', id)}
+                      >
+                        {icon && <Icon type={icon} className="Font16 mRight3" />}
+                        {isRequest && id === action ? _l('处理中...') : btnMap[key] || text}
+                      </Button>
+                    );
+                  })}
               </div>
             )}
 

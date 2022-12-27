@@ -6,6 +6,7 @@ import Components from '../components';
 import WidgetVerify from '../components/WidgetVerify';
 import { updateConfig } from '../../util/setting';
 import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import _ from 'lodash';
 
 const SORT_TYPE = [
   { value: 1, text: _l('新的在前') },

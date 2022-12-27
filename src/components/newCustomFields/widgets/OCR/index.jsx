@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { Icon, QiniuUpload } from 'ming-ui';
 import ajax from 'src/api/worksheet';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {

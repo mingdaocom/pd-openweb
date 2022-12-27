@@ -171,6 +171,7 @@ export class UploadFileWrapper extends Component {
         const ua = window.navigator.userAgent.toLowerCase();
         const isAndroid = ua.includes('android');
         const isMiniprogram = ua.includes('miniprogram');
+        const isFeishu = ua.includes('feishu');
         const equipment = type === 3 ? 'microphone' : type === 4 ? 'camcorder' : 'camera';
         if (ele) {
           if (isAndroid && isMiniprogram) {
@@ -191,7 +192,7 @@ export class UploadFileWrapper extends Component {
             ele.setAttribute('capture', 'camera');
           } else if (type) {
             ele.setAttribute('accept', fileTypeObj[type]);
-          } else {
+          } else if (!(isFeishu && isAndroid)) {
             ele.setAttribute('accept', accept[inputType]);
           }
         }

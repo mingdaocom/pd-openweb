@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import DropdownWrapper from 'worksheet/components/DropdownWrapper';
 import ChangeColumn from 'worksheet/common/ChangeColumn';
 import './index.less';
+import _ from 'lodash';
 
 export default class SortColumns extends React.Component {
   static propTypes = {
@@ -53,7 +54,6 @@ export default class SortColumns extends React.Component {
       children,
       onChange,
       maxHeight,
-      viewType,
     } = this.props;
     const columns = this.props.columns.filter(c => !_.find(ghostControlIds, gcid => gcid === c.controlId));
     const displayControls = showControls.filter(dcid => _.find(columns, fc => fc.controlId === dcid));
@@ -71,7 +71,7 @@ export default class SortColumns extends React.Component {
               min1msg={min1msg}
               maxSelectedNum={maxSelectedNum}
               selected={showControls}
-              columns={viewType === 0 ? columns : columns.filter(it => !_.includes(['rowid', 'uaid'], it.controlId))}
+              columns={columns}
               controlsSorts={controlsSorts}
               onChange={({ selected, newControlSorts }) => {
                 onChange({

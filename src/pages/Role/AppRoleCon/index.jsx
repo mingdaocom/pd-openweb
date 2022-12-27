@@ -11,6 +11,7 @@ import RoleCon from './RoleCon';
 import { Checkbox, Tooltip } from 'ming-ui';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import LoadDiv from 'ming-ui/components/LoadDiv';
+import _ from 'lodash';
 
 const conList = [
   {

@@ -5,6 +5,7 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/se
 import PointerConfig from '../PointerConfig';
 import styled from 'styled-components';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const WeekdayWrap = styled.ul`
    {

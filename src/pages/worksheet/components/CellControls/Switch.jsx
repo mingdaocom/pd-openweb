@@ -9,6 +9,7 @@ import { autobind } from 'core-decorators';
 import { FROM } from './enum';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 export default class Switch extends React.Component {
   static propTypes = {
@@ -30,6 +31,17 @@ export default class Switch extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.cell.value !== this.props.cell.value) {
       this.setState({ value: nextProps.cell.value === '1' });
+    }
+  }
+
+  @autobind
+  handleTableKeyDown(e) {
+    switch (e.key) {
+      case 'Enter':
+        this.handleChange(!!this.state.value);
+        break;
+      default:
+        break;
     }
   }
 

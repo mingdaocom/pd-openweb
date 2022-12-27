@@ -11,6 +11,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import { mdAppResponse } from 'src/util';
+import _ from 'lodash';
 
 const Con = styled.div`
   width: 100%;
@@ -21,6 +22,7 @@ const Con = styled.div`
 
 const ViewCon = styled.div`
   flex: 1;
+  min-height: 0;
   border: 1px solid #e0e0e0 !important;
 `;
 
@@ -52,7 +54,7 @@ function ViewComp(props) {
     !workSheetLoading && (
       <Con className="SingleViewWrap">
         {showHeader && (
-          <div className="SingleViewHeader mobile flexRow">
+          <div className="SingleViewHeader mobile flexRow valignWrapper">
             {headerLeft}
             <div className="flex" />
             {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd && (

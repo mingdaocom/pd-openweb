@@ -3,6 +3,7 @@ import { ScrollView, LoadDiv } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter } from '../components';
 import { ACTION_ID } from '../../enum';
+import _ from 'lodash';
 
 export default class Example extends Component {
   constructor(props) {

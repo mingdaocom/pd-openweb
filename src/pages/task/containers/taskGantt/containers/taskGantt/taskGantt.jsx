@@ -19,6 +19,7 @@ import {
 } from '../../redux/actions';
 import ajaxRequest from 'src/api/taskCenter';
 import _ from 'lodash';
+import moment from 'moment';
 
 class TaskGantt extends Component {
   constructor(props) {

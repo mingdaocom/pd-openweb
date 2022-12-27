@@ -17,7 +17,7 @@ import {
 } from './config';
 import './index.less';
 import { browserIsMobile } from 'src/util';
-
+import _ from 'lodash';
 class NetState extends Component {
   static propTypes = {
     onClose: func,

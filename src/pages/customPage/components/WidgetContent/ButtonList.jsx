@@ -7,10 +7,10 @@ import { Dialog } from 'ming-ui';
 import { Modal, Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import ScanQRCode from 'src/components/newCustomFields/components/ScanQRCode';
-import { getAppSimpleInfo } from 'src/api/homeApp';
-import { getDepartmentsByAccountId } from 'src/api/department';
-import { getWorksheetBtnByID, getShareInfoByShareId } from 'src/api/worksheet';
-import { startProcessByPBC } from 'src/pages/workflow/api/process';
+import homeAppAjax from 'src/api/homeApp';
+import departmentAjax from 'src/api/department';
+import worksheetAjax from 'src/api/worksheet';
+import processAjax from 'src/pages/workflow/api/process';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { hrefReg } from 'src/pages/customPage/components/previewContent';
 import { RecordInfoModal } from 'mobile/Record';
@@ -18,6 +18,8 @@ import { genUrl } from '../../util';
 import { connect } from 'react-redux';
 import { browserIsMobile, mdAppResponse } from 'src/util';
 import { getRequest } from 'src/util';
+import _ from 'lodash';
+import moment from 'moment';
 
 const ButtonListWrap = styled.div`
   width: 100%;
@@ -30,7 +32,7 @@ const ButtonListWrap = styled.div`
 
 const getDepartments = (projectId, accountId) => {
   return new Promise((resolve, reject) => {
-    getDepartmentsByAccountId({
+    departmentAjax.getDepartmentsByAccountId({
       projectId,
       accountIds: [accountId]
     }).then(data => {
@@ -64,7 +66,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     if (isRequestDepartments) {
       departments = await getDepartments(projectId, accountId);
     }
-    startProcessByPBC({
+    processAjax.startProcessByPBC({
       pushUniqueId: isMingdao ? (pushUniqueId || md.global.Config.pushUniqueId) : md.global.Config.pushUniqueId,
       appId,
       triggerId: id,
@@ -118,7 +120,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     if (action === 1 && value) {
       const { btnId } = item;
       isMobile && Toast.loading(_l('加载中，请稍后'));
-      const { appId } = await getAppSimpleInfo({ workSheetId: value });
+      const { appId } = await homeAppAjax.getAppSimpleInfo({ workSheetId: value });
       isMobile && Toast.hide();
       const param = { visible: true, value, viewId, appId, name };
       if (isMingdao) {
@@ -128,7 +130,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       }
       if (btnId) {
         isMobile && Toast.loading(_l('加载中，请稍后'));
-        const { writeControls } = await getWorksheetBtnByID({ appId, worksheetId: value, btnId });
+        const { writeControls } = await worksheetAjax.getWorksheetBtnByID({ appId, worksheetId: value, btnId });
         isMobile && Toast.hide();
         setInfo({ ...param, writeControls });
       } else {
@@ -137,7 +139,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     }
     if (_.includes([2, 3], action) && value) {
       isMobile && Toast.loading(_l('加载中，请稍后'));
-      const { appId, appSectionId } = await getAppSimpleInfo({ workSheetId: value });
+      const { appId, appSectionId } = await homeAppAjax.getAppSimpleInfo({ workSheetId: value });
       isMobile && Toast.hide();
       const getUrl = () => {
         let urlName = '/app';
@@ -228,10 +230,10 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
 
     // 链接
     if (hrefReg.test(result)) {
-      if (config.recordLink && result.includes('worksheetshare')) {
-        const shareId = result.match(/\/worksheetshare\/(.*)/)[1];
+      if (config.recordLink && (result.includes('worksheetshare') || result.includes('public/record'))) {
+        const shareId = (result.match(/\/worksheetshare\/(.*)/) || result.match(/\/public\/record\/(.*)/))[1];
         Toast.loading(_l('加载中，请稍后'));
-        const shareData = await getShareInfoByShareId({ shareId });
+        const shareData = await worksheetAjax.getShareInfoByShareId({ shareId }).data || {};
         Toast.hide();
         if (shareData.rowId) {
           if (isMingdao) {
@@ -261,7 +263,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
     if (config.text === 1 && value && viewId) {
       const { isFilter } = config;
       isMobile && Toast.loading(_l('加载中，请稍后'));
-      const { appId } = await getAppSimpleInfo({ workSheetId: value });
+      const { appId } = await homeAppAjax.getAppSimpleInfo({ workSheetId: value });
       isMobile && Toast.hide();
       const filterId = isFilter && scanBtn.filterId ? scanBtn.filterId : '';
       const searchId = scanBtn.searchId ? scanBtn.searchId : '';

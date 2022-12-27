@@ -9,6 +9,7 @@ import appManagement from 'src/api/appManagement';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import './index.less';
 import 'worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
+import _ from 'lodash';
 
 export default class PublicShareChart extends Component {
   constructor(props) {
@@ -25,14 +26,14 @@ export default class PublicShareChart extends Component {
       id,
       sourceType: 31
     }).then(data => {
-      window.pageShareAuthor = data.shareAuthor;
+      window.share = _.get(data, 'data.shareAuthor');
       this.setState({ data, loading: false });
     });
   }
   renderChart() {
-    const { data } = this.state;
+    const { resultCode, data } = this.state.data;
     return (
-      data.status ? (
+      resultCode === 1 ? (
         <ChartDialog
           permissions={false}
           sourceType={1}

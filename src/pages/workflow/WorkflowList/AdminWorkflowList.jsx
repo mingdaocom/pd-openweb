@@ -17,6 +17,8 @@ import appManagement from 'src/api/appManagement';
 import projectSetting from 'src/api/projectSetting';
 import { Select } from 'antd';
 import WorkflowMonitor from './components/WorkflowMonitor';
+import _ from 'lodash';
+import moment from 'moment';
 
 const tablist = [{ tab: 'workflowList', tabName: _l('工作流') }, { tab: 'monitorTab', tabName: _l('监控') }];
 

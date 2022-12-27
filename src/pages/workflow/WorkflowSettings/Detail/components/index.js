@@ -2,6 +2,7 @@ export { default as ActionFields } from './ActionFields';
 export { default as AddOptions } from './AddOptions';
 export { default as ButtonName } from './ButtonName';
 export { default as CustomTextarea } from './CustomTextarea';
+export { default as Deadline } from './Deadline';
 export { default as DetailFooter } from './DetailFooter';
 export { default as DetailHeader } from './DetailHeader';
 export { default as FilterAndSort } from './FilterAndSort';

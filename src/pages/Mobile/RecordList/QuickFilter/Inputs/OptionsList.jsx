@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { getFilterRows } from 'src/api/worksheet';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
+import _ from 'lodash';
 
 const Item = styled.div`
   padding: 8px 0;

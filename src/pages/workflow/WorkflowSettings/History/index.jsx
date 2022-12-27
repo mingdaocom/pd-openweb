@@ -14,6 +14,8 @@ import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponen
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { FLOW_STATUS } from './config';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
+import _ from 'lodash';
+import moment from 'moment';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 

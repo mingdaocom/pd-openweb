@@ -3,6 +3,7 @@ import { Motion, spring } from 'react-motion';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import SvgIcon from 'src/components/SvgIcon';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

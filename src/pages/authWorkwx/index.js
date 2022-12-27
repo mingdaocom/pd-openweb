@@ -1,5 +1,6 @@
 import { ajax, login, browserIsMobile, getRequest, checkLogin } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
+import _ from 'lodash';
 
 const { code, state, url, p } = getRequest();
 const isMobile = browserIsMobile();

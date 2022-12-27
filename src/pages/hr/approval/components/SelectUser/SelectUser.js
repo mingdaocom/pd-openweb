@@ -1,4 +1,4 @@
-import * as ajax from 'src/pages/hr/approval/api/system';
+import ajax from 'src/pages/hr/approval/api/system';
 import 'src/components/dialogSelectUser/dialogSelectUser';
 
 /**

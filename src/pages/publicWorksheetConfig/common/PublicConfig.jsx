@@ -14,6 +14,7 @@ import SourceKeys from '../components/SourceKeys';
 import AddControlDialog from '../components/AddControlDialog';
 import { FILL_TIMES } from '../enum';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const NewDropdown = styled(Dropdown)`
   width: 250px;

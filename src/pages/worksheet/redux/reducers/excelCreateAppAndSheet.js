@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
 
 export const excelDetailData = (state = [], action) => {

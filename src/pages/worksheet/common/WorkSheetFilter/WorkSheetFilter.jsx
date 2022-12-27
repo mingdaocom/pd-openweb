@@ -19,6 +19,7 @@ import {
   formatConditionForSave,
 } from './util';
 import './WorkSheetFilter.less';
+import _ from 'lodash';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 @withClickAway

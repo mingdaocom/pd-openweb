@@ -13,6 +13,7 @@ import report from './api/report';
 import reportSort from './api/reportSort';
 import { reportTypes } from 'statistics/Charts/common';
 import './index.less';
+import _ from 'lodash';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 const exceptions = [

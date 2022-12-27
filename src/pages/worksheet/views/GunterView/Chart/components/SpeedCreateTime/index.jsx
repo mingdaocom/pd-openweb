@@ -5,6 +5,8 @@ import { bindActionCreators } from 'redux';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { getWorkDays, getDays, getWeeks, getMonths } from 'src/pages/worksheet/views/GunterView/util';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
+import _ from 'lodash';
+import moment from 'moment';
 
 const SpeedCreateTimeWrapper = styled.div`
   height: 100%;
@@ -142,12 +144,15 @@ export default class SpeedCreateTime extends Component {
   }
   componentDidMount() {
     const { gunterView, base } = this.props;
+    const { viewConfig }  = gunterView;
+    const { startId, endId } = viewConfig;
     this.debounceHandleMouseMove = _.throttle(this.handleMouseMove, 50);
     this.gunterViewEl = document.querySelector(`.gunterView-${base.viewId} .gunterChartWrapper`);
     this.gunterViewEl.addEventListener('mousemove', this.debounceHandleMouseMove);
     this.gunterViewEl.addEventListener('mouseleave', this.handleMouseLeave);
     gunterView.chartScroll.on('scrollStart', this.handleMouseLeave);
     this.initPeriodList(gunterView);
+    this.setState({ disable: startId.includes('time') || endId.includes('time') });
   }
   componentWillUnmount() {
     const { chartScroll } = this.props.gunterView;
@@ -259,7 +264,7 @@ export default class SpeedCreateTime extends Component {
     }
   };
   render() {
-    const { left, top, width, records, hoverIndex, isMilepost } = this.state;
+    const { disable, left, top, width, records, hoverIndex, isMilepost } = this.state;
     const record = records[hoverIndex];
     const style = {
       left,
@@ -268,6 +273,9 @@ export default class SpeedCreateTime extends Component {
       borderColor: record ? record.color : null,
     };
     const currentMilepostWidth = width > milepostWidth ? width : milepostWidth;
+    if (disable) {
+      return null;
+    }
     return (
       <Fragment>
         {left !== null && (

@@ -7,6 +7,8 @@ import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/co
 import { covertTime, ACTION_TYPES, TYPE_TO_STYLE, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from '../config';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default class Card extends Component {
   constructor(props) {

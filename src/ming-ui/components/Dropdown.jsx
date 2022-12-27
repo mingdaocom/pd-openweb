@@ -9,6 +9,7 @@ import Icon from './Icon';
 import Trigger from 'rc-trigger';
 import formControl from 'ming-ui/decorators/formControl';
 import './less/Dropdown.less';
+import _ from 'lodash';
 
 const builtinPlacements = {
   left: {
@@ -180,7 +181,7 @@ class Dropdown extends Component {
      * render title
      */
     renderTitle: PropTypes.func,
-    AppendToBody: PropTypes.bool,
+    isAppendToBody: PropTypes.bool,
     selectClose: PropTypes.bool,
     openSearch: PropTypes.bool,
     cancelAble: PropTypes.bool, //可取消的
@@ -447,7 +448,7 @@ class Dropdown extends Component {
   displayPointer = () => {
     const { value } = this.state;
     const { dropIcon, placeholder, data, cancelAble, disabledClickElement } = this.props;
-    const selectedData = _.find(data, item => item.value === value);
+    const selectedData = _.find(_.flatten(data), item => item.value === value);
     return (
       <div
         className={cx('Dropdown--input', { 'Dropdown--border': !!this.props.border }, { active: this.state.showMenu })}
@@ -528,6 +529,7 @@ class Dropdown extends Component {
             popupVisible={this.state.showMenu}
             popupAlign={{
               points: ['tl', 'bl'],
+              offset: [0, 1],
               overflow: {
                 adjustX: true,
                 adjustY: true,

@@ -1,5 +1,6 @@
 import React from 'react';
 import { emitter } from 'worksheet/util';
+import _ from 'lodash';
 
 export default function (Comp, { onlyWidth } = {}) {
   return class AutoSizer extends React.PureComponent {

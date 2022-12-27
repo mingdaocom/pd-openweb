@@ -9,7 +9,7 @@ import Constant from '../../utils/constant';
 import fileConfirm from '../fileConfirm/fileConfirm';
 import Trigger from 'rc-trigger';
 import GroupController from 'src/api/group';
-import { sendCardToChat } from 'src/api/chat';
+import chatAjax from 'src/api/chat';
 import _ from 'lodash';
 import '../../lib/mentionInput/js/mentionInput';
 import { isVideo, setCaretPosition, getToken } from 'src/util';
@@ -327,7 +327,7 @@ export default class SendToolbar extends Component {
       message: '',
       [session.isGroup ? 'toGroupId' : 'toAccountId']: session.id,
     };
-    sendCardToChat(params)
+    chatAjax.sendCardToChat(params)
       .then(reuslt => {
         alert(_l('发送成功'));
       })

@@ -39,7 +39,7 @@ const SelectedFilter = styled(FlexCenter)`
 
 export default function FiltersPopup(props) {
   const { zIndex, actions, state, onChange, ...rest } = props;
-  const { worksheetId = '', type = '' } = rest;
+  const { worksheetId = '', type = '', className } = rest;
   const filtersRef = useRef();
   const [popupVisible, setPopupVisible] = useState();
   const { needSave, editingFilter, activeFilter } = state;
@@ -124,7 +124,7 @@ export default function FiltersPopup(props) {
     >
       <div className="mTop4">
         {!filteredText && (
-          <span data-tip={_l('筛选')} className="mRight10 mTop2">
+          <span data-tip={_l('筛选')} className={`mRight10 mTop2 ${className}`}>
             <i className="icon icon-worksheet_filter Gray_9e Hand Font18 ThemeHoverColor3"></i>
           </span>
         )}

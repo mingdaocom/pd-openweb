@@ -10,7 +10,7 @@
  * (c) 2013 Adam Shaw
  */
 
-import $ from 'jquery';
+
 import moment from 'moment';
 
     var defaults = {

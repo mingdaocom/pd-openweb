@@ -210,7 +210,8 @@ class WorksheetEmpty extends Component {
     return (
       <div className="contentBox">
         <img className="Width110" src={abnormal} />
-        <span className="Block TxtCenter Gray_75 Font17 mTop30">{_l('应用项无权限或者已删除')}</span>
+        <span className="Block TxtCenter Gray_75 Font17 mTop30">{_l('地址无法访问')}</span>
+        <span className="Block TxtCenter Gray_75 Font17">{_l('被取消了查看权限或已删除')}</span>
       </div>
     );
   }

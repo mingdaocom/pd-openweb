@@ -8,6 +8,7 @@ import { RecordInfoModal } from 'mobile/Record';
 import './index.less';
 import { dateFormat } from '../util.js';
 import withoutRows from '../../../../SheetRows/assets/withoutRows.png';
+import _ from 'lodash';
 
 class CurrentDateInfo extends Component {
   constructor(props) {

@@ -4,6 +4,8 @@ import { lang } from 'src/util/enum';
 import { getPssId } from 'src/util/pssId';
 import langConfig from './langConfig';
 import alert from 'src/components/alert/alert';
+import _ from 'lodash';
+import moment from 'moment';
 
 /**
  * 获取浏览器默认语言
@@ -484,17 +486,18 @@ window.createTimeSpan = dateStr => {
     };
     let serverPath = __api_server__.main;
 
-    // 自定义页面&统计服务分享鉴权
-    if (window.pageShareAuthor) {
-      headers.shareAuthor = window.pageShareAuthor;
+    if (window.share) {
+      headers.share = window.share;
+      headers.Authorization = '';
     }
 
     if (window.publicAppAuthorization) {
       headers.shareAuthor = window.publicAppAuthorization;
       const { global = {} } = md;
-      const { Config = {} } = global;
+      const { Config = {}, SysSettings = {} } = global;
       const { IsLocal } = Config;
-      if (IsLocal) {
+      const { templateLibraryTypes } = SysSettings;
+      if (IsLocal && !/#isPrivateBuild/.test(location.hash) && templateLibraryTypes !== '2') {
         serverPath = 'https://www.mingdao.com/api/';
       }
     }

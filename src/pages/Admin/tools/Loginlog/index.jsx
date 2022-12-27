@@ -2,11 +2,12 @@ import React, { Component, createRef } from 'react';
 import { Select, Table, Tooltip, Pagination, Button } from 'antd';
 import { Icon, LoadDiv, DatePicker } from 'ming-ui';
 import Config from '../../config';
-import { getActionLogs } from 'src/api/actionLog';
-import { exportLoginLog } from 'src/api/download';
+import actionLogAjax from 'src/api/actionLog';
+import downloadAjax from 'src/api/download';
 import 'src/components/dialogSelectUser/dialogSelectUser';
 import moment from 'moment';
 import './index.less';
+import _ from 'lodash';
 
 const seachdateList = [
   { value: 0, label: _l('今天') },
@@ -142,7 +143,7 @@ export default class LoginLog extends Component {
     if (accountId) {
       params.accountId = accountId;
     }
-    exportLoginLog(params);
+    downloadAjax.exportLoginLog(params);
   };
   // 筛选登录人
   handleLoginUser = () => {
@@ -179,7 +180,7 @@ export default class LoginLog extends Component {
     if (accountId) {
       params.accountId = accountId;
     }
-    getActionLogs(params).then(res => {
+    actionLogAjax.getActionLogs(params).then(res => {
       this.setState({
         logListData: _.get(res, ['data', 'list']) || [],
         count: _.get(res, ['data', 'totalCount']) || 0,

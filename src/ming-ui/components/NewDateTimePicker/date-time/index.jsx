@@ -7,6 +7,7 @@ import './style.less';
 import DateTimePicker from 'ming-ui/components/NewDateTimePicker/date-time-picker';
 import LibCalender from 'ming-ui/components/lib/calender';
 import PositionContainer from 'ming-ui/components/PositionContainer';
+import moment from 'moment';
 
 class DateTime extends Component {
   constructor(props) {

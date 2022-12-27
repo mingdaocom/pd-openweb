@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { Dialog, Icon, Input, RadioGroup } from 'ming-ui';
-import { Select, Checkbox } from 'antd';
+import { Select } from 'antd';
 import DialogSelectDept from 'src/components/dialogSelectDept';
-import DialogSelectJob from 'src/components/DialogSelectJob';
-import { updateDepartmentForUsers, updateJobForUsers, updateWorkSiteForUsers, batchResetPassword } from 'src/api/user';
-import { getWorkSites } from 'src/api/workSite';
+import { selectJob } from 'src/components/DialogSelectJob';
+import userAjax from 'src/api/user';
+import workSiteAjax from 'src/api/workSite';
 import Act from '../dialogInviteUser/act';
 import { encrypt } from 'src/util';
 import './index.less';
+import _ from 'lodash';
 
 const { Option } = Select;
 const options = [
@@ -66,7 +67,7 @@ export default class DialogBatchEdit extends Component {
   dialogSelectJobFn = e => {
     const { projectId } = this.props;
     const { jobInfos } = this.state;
-    new DialogSelectJob({
+    selectJob({
       projectId,
       onSave: data => {
         const jobIds = jobInfos.map(job => job.jobId);
@@ -78,14 +79,16 @@ export default class DialogBatchEdit extends Component {
   };
   getWorkSites = () => {
     const { projectId } = this.props;
-    getWorkSites({
-      projectId,
-      pageSize: 10000,
-      sortField: 1,
-      sortType: 1,
-    }).then(res => {
-      this.setState({ workSiteInfo: _.get(res, 'list') || [] });
-    });
+    workSiteAjax
+      .getWorkSites({
+        projectId,
+        pageSize: 10000,
+        sortField: 1,
+        sortType: 1,
+      })
+      .then(res => {
+        this.setState({ workSiteInfo: _.get(res, 'list') || [] });
+      });
   };
   chnageMessageWay = value => {
     this.setState({ messageWay: value });
@@ -95,21 +98,23 @@ export default class DialogBatchEdit extends Component {
     let { departmentInfos = [], jobInfos = [], workSiteId = '', filedValue } = this.state;
     if (filedValue === 1) {
       let departmentIds = departmentInfos.map(item => item.departmentId);
-      updateDepartmentForUsers({
-        projectId,
-        accountIds: selectedAccountIds,
-        departmentIds,
-      }).then(res => {
-        if (res) {
-          this.props.loadData(1);
-          alert(_l('修改成功'));
-        } else {
-          alert(_l('修改失败'), 2);
-        }
-      });
+      userAjax
+        .updateDepartmentForUsers({
+          projectId,
+          accountIds: selectedAccountIds,
+          departmentIds,
+        })
+        .then(res => {
+          if (res) {
+            this.props.loadData(1);
+            alert(_l('修改成功'));
+          } else {
+            alert(_l('修改失败'), 2);
+          }
+        });
     } else if (filedValue === 2) {
       let jobIds = jobInfos.map(item => item.jobId);
-      updateJobForUsers({ projectId, accountIds: selectedAccountIds, jobIds }).then(res => {
+      userAjax.updateJobForUsers({ projectId, accountIds: selectedAccountIds, jobIds }).then(res => {
         if (res) {
           this.props.loadData(1);
           alert(_l('修改成功'));
@@ -118,7 +123,7 @@ export default class DialogBatchEdit extends Component {
         }
       });
     } else if (filedValue === 3) {
-      updateWorkSiteForUsers({ projectId, accountIds: selectedAccountIds, workSiteId }).then(res => {
+      userAjax.updateWorkSiteForUsers({ projectId, accountIds: selectedAccountIds, workSiteId }).then(res => {
         if (res) {
           this.props.loadData(1);
           alert(_l('修改成功'));
@@ -143,7 +148,7 @@ export default class DialogBatchEdit extends Component {
       alert(passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字'), 3);
       return;
     }
-    batchResetPassword({
+    userAjax.batchResetPassword({
       projectId,
       accountIds: selectedAccountIds,
       password: encrypt(password),
@@ -182,7 +187,7 @@ export default class DialogBatchEdit extends Component {
         onOk={this.submit}
       >
         <div className="Gray_75 Bold ">{_l('选择编辑字段')}</div>
-        <RadioGroup data={options} onChange={this.changeRadio} checkedValue={filedValue}></RadioGroup>
+        <RadioGroup data={options} onChange={this.changeRadio} checkedValue={filedValue} />
         <div className="Gray_75 Bold mTop20 mBottom12">{_l('设为')}</div>
         {filedValue === 1 &&
           departmentInfos.map((item, i) => {
@@ -323,11 +328,7 @@ export default class DialogBatchEdit extends Component {
         {/* {filedValue === 4 && (
           <div>
             <div className="Gray_75 Bold mTop35">{_l('通知用户新密码')}</div>
-            <Checkbox.Group
-              value={messageWay}
-              options={checkedOptions}
-              onChange={this.chnageMessageWay}
-            ></Checkbox.Group>
+            <Checkbox.Group value={messageWay} options={checkedOptions} onChange={this.chnageMessageWay} />
           </div>
         )} */}
       </Dialog>

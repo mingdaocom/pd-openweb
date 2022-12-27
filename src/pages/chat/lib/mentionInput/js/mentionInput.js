@@ -1,5 +1,6 @@
 import '../css/mentionsInput.css';
 import { getRequest, htmlEncodeReg, setCaretPosition, getCaretPosition } from 'src/util';
+import _ from 'lodash';
 const Request = getRequest();
 
 (function ($) {

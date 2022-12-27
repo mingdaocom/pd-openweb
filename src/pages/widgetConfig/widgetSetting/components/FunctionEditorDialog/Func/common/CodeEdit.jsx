@@ -2,6 +2,7 @@ import { arrayOf, func, shape, string, bool } from 'prop-types';
 import React, { useEffect, forwardRef, useImperativeHandle, useRef } from 'react';
 import styled from 'styled-components';
 import FunctionEditor from './FunctionEditor';
+import _ from 'lodash';
 
 const Con = styled.div`
   padding: ${({ readOnly }) => (readOnly ? '4px 6px;' : '20px 0 0;')}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog } from 'ming-ui';
-import { getApps, getValidBackupFileInfo } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { LoadDiv, Support } from 'ming-ui';
@@ -77,7 +77,7 @@ export default function CreateBackupModal(props) {
   }, [appId]);
 
   const getBackupCount = () => {
-    getValidBackupFileInfo({ appId, projectId }).then(res => {
+    appManagementAjax.getValidBackupFileInfo({ appId, projectId }).then(res => {
       setCountLoading(false);
       setValidLimit(res.validLimit);
       setCurrentValid(res.currentValid);
@@ -96,7 +96,7 @@ export default function CreateBackupModal(props) {
       accountId: md.global.Account.accountId,
       appName,
     };
-    getApps({ appIds: [appId] }).then(({ token }) => {
+    appManagementAjax.getApps({ appIds: [appId] }).then(({ token }) => {
       params.token = token;
       $.ajax({
         type: 'POST',

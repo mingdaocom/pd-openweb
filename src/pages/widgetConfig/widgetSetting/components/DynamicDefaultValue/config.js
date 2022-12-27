@@ -1,3 +1,4 @@
+import _ from 'lodash';
 /* 可以作为文本拼接的控件 */
 export const CAN_AS_TEXT_DYNAMIC_FIELD = [
   2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 25, 26, 27, 28, 31, 32, 33, 46, 50,
@@ -70,11 +71,20 @@ export const SYSTEM_FIELD_TO_TEXT = {
   caid: _l('创建者'),
   utime: _l('最近修改时间'),
   ownerid: _l('拥有者'),
+  rowid: _l('记录ID'),
+  uaid: _l('最近修改人'),
+  wfname: _l('流程名称'),
+  wfcuaids: _l('节点负责人'),
+  wfcaid: _l('发起人'),
+  wfctime: _l('发起时间'),
+  wfrtime: _l('节点开始时间'),
+  wfftime: _l('剩余时间'),
+  wfstatus: _l('状态'),
 };
 
 // 控件规则匹配规则 未保存的控件正则 匹配uuid 已保存的控件正则 形如 $5e047c2ab2bfdd0001e9b8f9$
 export const FIELD_REG_EXP =
-  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword)?))?\$/g;
+  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid)?))?\$/g;
 
 export const TIME_TYPES = [
   {

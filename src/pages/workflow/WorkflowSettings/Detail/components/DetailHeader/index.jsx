@@ -3,6 +3,7 @@ import cx from 'classnames';
 import { Support, Dialog } from 'ming-ui';
 import NodeNameInput from '../NodeNameInput';
 import { SUPPORT_HREF } from '../../../enum';
+import _ from 'lodash';
 
 // 获取当前打开节点的详细类型
 const getNodeTypeForSupportHref = ({ actionId, appType }, selectNodeType) => {

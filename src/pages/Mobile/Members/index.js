@@ -7,6 +7,7 @@ import Back from '../components/Back';
 import { ROLE_TYPES, ROLE_CONFIG } from 'src/pages/Role/config.js';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 class Members extends Component {
   constructor(props) {

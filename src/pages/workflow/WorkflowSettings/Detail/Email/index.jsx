@@ -11,6 +11,7 @@ import {
   ActionFields,
 } from '../components';
 import copy from 'copy-to-clipboard';
+import _ from 'lodash';
 
 export default class Email extends Component {
   constructor(props) {

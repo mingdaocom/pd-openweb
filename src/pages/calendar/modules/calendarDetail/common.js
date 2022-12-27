@@ -1,9 +1,11 @@
-﻿import * as AjaxRequest from 'src/api/calendar';
+﻿import AjaxRequest from 'src/api/calendar';
 import { RECURTYPE, FREQUENCY, REMINDTYPE, WEEKDAYS, RECURLAYERS, MEMBER_STATUS } from './constant';
 import recurCalendarUpdate from './lib/recurCalendarUpdateDialog';
 import afterRefreshOp from './lib/afterRefreshOp';
 import createShare from 'src/components/createShare/createShare';
 import { Config } from './index';
+import _ from 'lodash';
+import moment from 'moment';
 
 export function getParamsFromUrl() {
   const result = /detail_([^_?]+)_?([^_?]+)?/.exec(location.href);

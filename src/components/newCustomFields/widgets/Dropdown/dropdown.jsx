@@ -161,7 +161,7 @@ export default class Widgets extends Component {
           allowClear={checkIds.length > 0}
           listHeight={320}
           value={checkItems}
-          placeholder={hint || _l('请选择')}
+          placeholder={hint}
           suffixIcon={<Icon icon="arrow-down-border Font14" />}
           labelInValue={true}
           filterOption={() => true}

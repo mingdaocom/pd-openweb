@@ -8,7 +8,7 @@ import ShareUrl from 'worksheet/components/ShareUrl';
 import { WrapCon, WrapHeader, WrapContext } from '../style';
 import PortalSetting from 'src/pages/Role/PortalCon/setting';
 import EditPortalUrlDialog from './components/EditPortalUrlDialog';
-import { getPortalSet } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import Statistics from './tabCon/Statistics';
 import UserCon from './tabCon/UserCon';
 import RoleCon from './tabCon/RoleCon';
@@ -93,7 +93,7 @@ class PortalCon extends React.Component {
 
   fetchPorBaseInfo = () => {
     const { portal = {}, appId, setBaseInfo } = this.props;
-    getPortalSet({
+    externalPortalAjax.getPortalSet({
       appId,
     }).then(portalSet => {
       const { baseInfo = {} } = portal;

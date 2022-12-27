@@ -4,6 +4,8 @@ import cx from 'classnames';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
 import { DATE_TYPE } from '../../enum';
 import RadioGroup from 'ming-ui/components/RadioGroup2';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default class LoopContent extends Component {
   constructor(props) {

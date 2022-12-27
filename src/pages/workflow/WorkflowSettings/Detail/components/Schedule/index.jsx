@@ -1,7 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Dropdown, Dialog, Icon } from 'ming-ui';
 import { TIME_TYPE, TIME_TYPE_NAME, EXEC_TIME_TYPE, NODE_TYPE } from '../../../enum';
-import Time from 'ming-ui/components/NewTimePicker';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Switch } from 'antd';
@@ -10,6 +9,8 @@ import SpecificFieldsValue from '../SpecificFieldsValue';
 import Member from '../Member';
 import SelectUserDropDown from '../SelectUserDropDown';
 import MembersName from '../../../EditFlow/components/MembersName';
+import _ from 'lodash';
+import Deadline from '../Deadline';
 
 const Button = styled.span`
   border: 1px solid #2196f3;
@@ -121,16 +122,9 @@ export default ({
               <SpecificFieldsValue
                 processId={processId}
                 selectNodeId={selectNodeId}
-                type={
-                  item.unit === TIME_TYPE.MINUTE
-                    ? 'minuteFieldValue'
-                    : item.unit === TIME_TYPE.HOUR
-                    ? 'hourFieldValue'
-                    : 'numberFieldValue'
-                }
+                type="number"
                 min={1}
                 allowedEmpty
-                noScope
                 data={item.executeTime}
                 updateSource={executeTime => changeAction(item.id, { executeTime })}
               />
@@ -165,9 +159,9 @@ export default ({
   const getHeaderText = () => {
     return (
       (schedule.executeTime.fieldValue ||
-        schedule.executeTime.fieldNodeName + '-' + schedule.executeTime.fieldControlName) +
+        (schedule.executeTime.fieldNodeName || '') + '-' + (schedule.executeTime.fieldControlName || '')) +
       (schedule.type === 1 ? TIME_TYPE_NAME[schedule.unit] : '') +
-      (schedule.dayTime ? _l('的%0', schedule.dayTime) : '')
+      (schedule.dayTime ? _l('的%0', s.dayTime) : '')
     );
   };
   const renderRemindContent = (item, index) => {
@@ -282,82 +276,13 @@ export default ({
             />
           </div>
 
-          {data.type === 1 ? (
-            <div className="flexRow alignItemsCenter mTop10">
-              <div>{_l('到达此节点后的')}</div>
-              <div className="flex mLeft10">
-                <SpecificFieldsValue
-                  processId={processId}
-                  selectNodeId={selectNodeId}
-                  type={
-                    data.unit === TIME_TYPE.MINUTE
-                      ? 'minuteFieldValue'
-                      : data.unit === TIME_TYPE.HOUR
-                      ? 'hourFieldValue'
-                      : 'numberFieldValue'
-                  }
-                  min={1}
-                  allowedEmpty
-                  data={data.executeTime}
-                  updateSource={executeTime => changeData(Object.assign({}, data, { executeTime }))}
-                />
-              </div>
-              <Dropdown
-                className="mLeft10"
-                style={{ width: 100 }}
-                data={UNIT_List}
-                value={data.unit}
-                border
-                onChange={unit => {
-                  changeData(Object.assign({}, data, { unit }));
-                }}
-              />
-            </div>
-          ) : (
-            <div className="flexRow alignItemsCenter mTop10">
-              <div className="flex">
-                <SpecificFieldsValue
-                  processId={processId}
-                  selectNodeId={selectNodeId}
-                  type="date"
-                  timePicker
-                  data={data.executeTime}
-                  updateSource={executeTime =>
-                    changeData(
-                      Object.assign({}, data, {
-                        executeTime,
-                        dayTime: executeTime.fieldControlType === 15 ? '08:00' : '',
-                      }),
-                    )
-                  }
-                />
-              </div>
-              {data.executeTime && !!data.executeTime.fieldControlType && data.executeTime.fieldControlType === 15 && (
-                <Fragment>
-                  <div className="mLeft10">{_l('的')}</div>
-                  <div className="mLeft10" style={{ width: 100 }}>
-                    <Time
-                      type="minute"
-                      value={{
-                        hour: data.dayTime ? parseInt(data.dayTime.split(':')[0]) : 8,
-                        minute: data.dayTime ? parseInt(data.dayTime.split(':')[1]) : 0,
-                        second: 0,
-                      }}
-                      onChange={(event, value) => {
-                        changeData(
-                          Object.assign({}, data, {
-                            dayTime:
-                              value.hour.toString().padStart(2, '0') + ':' + value.minute.toString().padStart(2, '0'),
-                          }),
-                        );
-                      }}
-                    />
-                  </div>
-                  <div className="mLeft10">{_l('执行')}</div>
-                </Fragment>
-              )}
-            </div>
-          )}
+          <Deadline
+            processId={processId}
+            selectNodeId={selectNodeId}
+            data={data}
+            text={_l('到达此节点后的')}
+            onChange={changeData}
+          />
 
           <div className="mTop25 flexRow alignItemsCenter">
             <div className="bold">{_l('截止提醒')}</div>

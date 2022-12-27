@@ -6,6 +6,7 @@ import 'src/components/dialogSelectUser/dialogSelectUser';
 import UserHead from 'src/pages/feed/components/userHead';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FILTER_CONDITION_TYPE } from '../../enum';
+import _ from 'lodash';
 
 export default class Users extends Component {
   static propTypes = {

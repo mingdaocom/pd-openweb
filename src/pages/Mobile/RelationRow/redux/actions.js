@@ -1,6 +1,7 @@
 import sheetAjax from 'src/api/worksheet';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
+import _ from 'lodash';
 
 const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   const { allowAdd } = worksheet;
@@ -44,7 +45,7 @@ export const updateBase = base => (dispatch, getState) => {
   });
 }
 
-export const loadRow = (control) => (dispatch, getState) => {
+export const loadRow = (control, getType) => (dispatch, getState) => {
 
   const { base, rowInfo } = getState().mobile;
   const { instanceId, workId, worksheetId, rowId } = base;
@@ -55,11 +56,11 @@ export const loadRow = (control) => (dispatch, getState) => {
     params.workId = workId;
     params.rowId = rowId;
     params.worksheetId = worksheetId;
-    params.getType = 9;
+    params.getType = getType || 9;
   } else {
     const { appId, viewId, controlId } = base;
     params.controlId = controlId;
-    params.getType = 1;
+    params.getType = getType || 1;
     params.checkView = true;
     params.appId = appId;
     params.worksheetId = worksheetId;
@@ -70,14 +71,14 @@ export const loadRow = (control) => (dispatch, getState) => {
   if (_.isEmpty(rowInfo)) {
     sheetAjax.getRowByID(params).then(result => {
       dispatch({ type: 'MOBILE_RELATION_ROW_INFO', data: result });
-      dispatch(loadRowRelationRows(control));
+      dispatch(loadRowRelationRows(control, getType));
     });
   } else {
     dispatch(loadRowRelationRows(control));
   }
 }
 
-export const loadRowRelationRows = (relationControl) => (dispatch, getState) => {
+export const loadRowRelationRows = (relationControl, getType) => (dispatch, getState) => {
 
   const { base, loadParams, relationRows, rowInfo } = getState().mobile;
   const { pageIndex } = loadParams;
@@ -86,15 +87,20 @@ export const loadRowRelationRows = (relationControl) => (dispatch, getState) => 
   const params = {
     controlId,
     rowId,
-    worksheetId
+    worksheetId,
+    getType
   };
-  
+
   dispatch({ type: 'MOBILE_RELATION_LOAD_PARAMS', data: { loading: true } });
 
   if (_.isEmpty(instanceId)) {
     const { appId, viewId } = base;
     params.appId = appId;
     params.viewId = viewId;
+  }
+
+  if (window.share) {
+    params.shareId = (location.href.match(/\/public\/(record|view)\/(\w{24})/) || '')[2];
   }
 
   sheetAjax.getRowRelationRows({

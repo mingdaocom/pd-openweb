@@ -4,6 +4,7 @@ import DragDetailedOptions from '../../common/dragDetailedOptions';
 import firstInputSelect from '../../common/firstInputSelect';
 import Number from '../../common/number';
 import Dropdown from '../../common/dropdown';
+import _ from 'lodash';
 
 @firstInputSelect
 class SettingsModel extends React.Component {

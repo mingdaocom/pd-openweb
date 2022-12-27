@@ -5,6 +5,7 @@ import { DragSource, DropTarget } from 'react-dnd';
 import { classSet, createNewWidget, strlen } from '../../utils/util';
 import config from '../../config';
 import { findDOMNode } from 'react-dom';
+import _ from 'lodash';
 
 class EditItem extends React.Component {
   static propTypes = {

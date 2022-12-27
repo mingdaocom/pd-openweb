@@ -5,7 +5,7 @@ import cx from 'classnames';
 import Icon from './Icon';
 import Button from './Button';
 import Splitter from './Splitter';
-import $ from 'jquery';
+
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/mentioninput/mentionsInput';
 import 'src/components/uploadAttachment/uploadAttachment';

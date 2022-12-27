@@ -3,6 +3,7 @@ import { Textarea, Dropdown } from 'ming-ui';
 import CustomTextarea from '../CustomTextarea';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
+import _ from 'lodash';
 
 export default ({
   processId = '',

@@ -1,4 +1,3 @@
-var orderController = require('src/api/order');
 /**
  * [Common 账务中心公用模块]
  * @type {Object}

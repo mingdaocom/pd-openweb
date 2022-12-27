@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Collapse, Checkbox, Switch } from 'antd';
+import { Collapse, Switch } from 'antd';
 import OriginalData from './components/OriginalData';
 import DataContrast from './components/DataContrast';
 import PeriodTarget from './components/PeriodTarget';
@@ -9,8 +9,9 @@ import AuxiliaryLine from './components/AuxiliaryLine';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'statistics/redux/actions';
-import { isTimeControl, formatContrastTypes } from 'statistics/common';
+import { isTimeControl } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
+import _ from 'lodash';
 
 @connect(
   state => ({
@@ -101,9 +102,9 @@ export default class ChartAnalyse extends Component {
     const isNumberChart = reportType === reportTypes.NumberChart;
     const mapKeys = Object.keys(reportData.map || []);
     const contrastVisible = ((mapKeys.length < 2 && xAxisisTime) || [reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType));
-    const contrastColorVisible = reportTypes.NumberChart === reportType && displaySetup.contrastType !== 0;
+    const switchChecked = displaySetup.contrastType || displaySetup.contrast;
 
-    if (!contrastVisible && !contrastColorVisible) {
+    if (!contrastVisible) {
       return null;
     }
 
@@ -111,22 +112,21 @@ export default class ChartAnalyse extends Component {
       <Collapse.Panel
         header={_l('数据对比')}
         key="dataContrast"
-        className={cx({ collapsible: isNumberChart ? !displaySetup.contrastType : false })}
+        className={cx({ collapsible: isNumberChart ? !switchChecked : false })}
         extra={(
           isNumberChart ? (
             <Switch
               size="small"
-              checked={displaySetup.contrastType}
+              checked={switchChecked}
               disabled={!rangeType}
               onClick={(checked, event) => {
                 event.stopPropagation();
               }}
               onChange={checked => {
-                const list = formatContrastTypes(filter);
-                const first = list[1];
                 this.handleChangeDisplaySetup({
                   ...displaySetup,
-                  contrastType: checked ? first.value : 0
+                  contrastType: checked ? 2 : 0,
+                  contrast: checked ? true : false
                 }, true);
               }}
             />
@@ -134,8 +134,8 @@ export default class ChartAnalyse extends Component {
         )}
       >
         <DataContrast
+          isNumberChart={isNumberChart}
           contrastVisible={contrastVisible}
-          contrastColorVisible={contrastColorVisible}
           currentReport={currentReport}
           onUpdateDisplaySetup={this.handleChangeDisplaySetup}
           onChangeStyle={this.handleChangeStyle}

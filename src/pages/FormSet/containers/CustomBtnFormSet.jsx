@@ -13,6 +13,7 @@ import { redefineComplexControl, formatValuesOfOriginConditions } from 'workshee
 import cx from 'classnames';
 import { RangeDrop } from 'src/pages/FormSet/components/RangeDrop';
 import { refreshBtnData } from 'src/pages/FormSet/util';
+import _ from 'lodash';
 const Con = styled.div`
   width: 100%;
   height: 100%;
@@ -382,6 +383,7 @@ function CustomBtnFormSet(props) {
                 '.CodeMirror-hints',
                 '.ck',
                 '.ant-picker-dropdown',
+                '.Tooltip',
               ]}
               onClickAway={() => setShowCreateCustomBtn(false)}
               isEdit={isEdit}

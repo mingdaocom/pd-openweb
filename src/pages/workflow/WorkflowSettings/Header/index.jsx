@@ -16,6 +16,8 @@ import { selectRecord } from 'src/components/recordCardListDialog';
 import sheetAjax from 'src/api/worksheet';
 import systemFieldsPNG from './images/systemFields.png';
 import flowPNG from './images/flow.png';
+import _ from 'lodash';
+import moment from 'moment';
 
 const TABS_OPTS = [
   { tabIndex: 1, name: _l('流程') },

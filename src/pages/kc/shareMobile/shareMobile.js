@@ -6,11 +6,12 @@ import mobileShareHtml from './tpl/mobileShare.htm';
 var mobileShareTpl = doT.template(mobileShareHtml);
 import { ATTACHMENT_TYPE } from 'src/components/shareAttachment/enum';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
-var shareajax = require('src/api/share');
-var { getPreviewLink } = require('src/api/chat');
-var { getWeiXinConfig } = require('src/api/weixin');
-var attachmentAjax = require('src/api/attachment');
-var { getDetailUrl } = require('src/api/kc');
+import shareajax from 'src/api/share';
+import chatAjax from 'src/api/chat';
+import weixinAjax from 'src/api/weixin';
+import attachmentAjax from 'src/api/attachment';
+import kcAjax from 'src/api/kc';
+import moment from 'moment';
 
 var RENDER_BY_SERVICE_TYPE = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'pdf'];
 
@@ -281,7 +282,7 @@ MobileSharePreview.prototype = {
           : file.downloadUrl
         : file.viewUrl;
     } else if (attachmentType === ATTACHMENT_TYPE.QINIU) {
-      const fetchPromise = getPreviewLink({
+      const fetchPromise = chatAjax.getPreviewLink({
         id: Math.random().toString(16).slice(2),
         path: file.qiniuPath,
       });
@@ -400,7 +401,7 @@ MobileSharePreview.prototype = {
   },
   loadWeiXinShare: function () {
     var MSP = this;
-    getWeiXinConfig({
+    weixinAjax.getWeiXinConfig({
       url: encodeURI(location.href),
     }).then(function (data) {
       if (data.code === 1) {

@@ -13,6 +13,7 @@ import GunterView from './GunterView';
 import GroupFilter from '../GroupFilter';
 import State from '../State';
 import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import _ from 'lodash';
 
 const { board, sheet, calendar, gallery, structure, gunter } = VIEW_DISPLAY_TYPE;
 

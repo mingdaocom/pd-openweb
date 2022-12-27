@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { formatNumberFromInput } from 'src/util';
 import { reportTypes } from 'statistics/Charts/common';
 import WidgetColor from 'src/pages/widgetConfig/widgetSetting/components/WidgetColor';
+import _ from 'lodash';
 
 const AddLine = styled.div`
   color: #2196F3;

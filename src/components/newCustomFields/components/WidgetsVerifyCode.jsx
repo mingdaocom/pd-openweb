@@ -4,7 +4,7 @@ import { Button } from 'ming-ui';
 import captcha from 'src/components/captcha';
 import { specialTelVerify } from '../tools/utils';
 import { initIntlTelInput } from '../tools/DataFormat';
-import { sendVerifyCode } from 'src/api/publicWorksheet';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
 
 export default class WidgetsVerifyCode extends Component {
   constructor(props) {
@@ -49,7 +49,7 @@ export default class WidgetsVerifyCode extends Component {
         return;
       }
 
-      sendVerifyCode({
+      publicWorksheetAjax.sendVerifyCode({
         account: value,
         ticket: res.ticket,
         randStr: res.randstr,

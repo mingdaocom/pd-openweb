@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import flowNode from '../../../api/flowNode';
 import { ScrollView, LoadDiv } from 'ming-ui';
 import { SelectUserDropDown, Member, DetailHeader, DetailFooter, CustomTextarea } from '../components';
+import _ from 'lodash';
 
 export default class Notice extends Component {
   constructor(props) {

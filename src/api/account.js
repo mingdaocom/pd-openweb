@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取账户一览信息
   * @param {Object} args 请求参数
@@ -251,6 +251,7 @@ module.exports = {
   * 发送修改帐号验证码
   * @param {Object} args 请求参数
   * @param {string} args.account 账号
+  * @param {boolean} args.needCheckCode 是否需要验证密码输入
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）
@@ -313,6 +314,19 @@ module.exports = {
    clearMqSession: function (args, options = {}) {
      
      return $.api('Account', 'ClearMqSession', args, options);
+   },
+  /**
+  * 退出指定设备已经登录的账号
+  * @param {Object} args 请求参数
+  * @param {string} args.platform 平台（web或app）
+  * @param {string} args.sessionId 会话ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exitAccount: function (args, options = {}) {
+     
+     return $.api('Account', 'ExitAccount', args, options);
    },
   /**
   * 获取我加入的网络

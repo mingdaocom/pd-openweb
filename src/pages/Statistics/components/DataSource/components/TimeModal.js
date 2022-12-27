@@ -6,6 +6,8 @@ import cx from 'classnames';
 import 'moment/locale/zh-cn';
 import locale from 'antd/es/date-picker/locale/zh_CN';
 import { formatNumberFromInput } from 'src/util';
+import _ from 'lodash';
+import moment from 'moment';
 
 const { RangePicker } = DatePicker;
 
@@ -28,7 +30,7 @@ export default class TimeModal extends Component {
     }
   }
   handleSave = () => {
-    const { controls, onChangeFilter, onCancel } = this.props;
+    const { controls, onChangeFilter } = this.props;
     const { filterRangeId, rangeType, rangeValue, today, dynamicFilter } = this.state;
     const control = _.find(controls, { controlId: filterRangeId }) || {};
     onChangeFilter({
@@ -39,7 +41,6 @@ export default class TimeModal extends Component {
       today: [18, 19].includes(rangeType) ? today : false,
       dynamicFilter
     });
-    onCancel();
   }
   renderFooter() {
     const { onCancel } = this.props;
@@ -51,7 +52,13 @@ export default class TimeModal extends Component {
         >
           {_l('取消')}
         </Button>
-        <Button type="primary" onClick={this.handleSave}>
+        <Button
+          type="primary"
+          onClick={() => {
+            this.handleSave();
+            onCancel();
+          }}
+        >
           {_l('确认')}
         </Button>
       </div>

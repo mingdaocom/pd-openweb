@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { getCodePrint, getRowsShortUrl } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import GeneratingPopup from './GeneratingPopup';
 import { getCodeTexts, getCodeContent } from './util';
 import { SOURCE_TYPE, SOURCE_URL_TYPE } from './enum';
 import { QrPdf } from './print';
+import _ from 'lodash';
 
 export default function GeneratingPdf(props) {
   const { config, appId, worksheetId, viewId, templateId, projectId, selectedRows, controls, zIndex, onClose } = props;
@@ -47,7 +48,7 @@ export default function GeneratingPdf(props) {
           setLoading(false);
         }
         if (config.sourceType === SOURCE_TYPE.URL && config.sourceUrlType === SOURCE_URL_TYPE.PUBLIC) {
-          getRowsShortUrl({
+          worksheetAjax.getRowsShortUrl({
             appId,
             viewId,
             worksheetId,
@@ -72,7 +73,7 @@ export default function GeneratingPdf(props) {
     if (config) {
       print(config);
     } else {
-      getCodePrint({
+      worksheetAjax.getCodePrint({
         id: templateId,
         projectId,
       }).then(async data => {

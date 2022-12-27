@@ -2,6 +2,7 @@ import React, { useEffect, useState, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { View } from 'src/pages/customPage/components/editWidget/view/Preview';
 import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
+import _ from 'lodash';
 
 function ViewContent(props) {
   const { setting } = props;

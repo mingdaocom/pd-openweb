@@ -3,6 +3,7 @@ import { Icon, Dialog, RichText, LoadDiv } from 'ming-ui';
 import { Tabs } from 'antd';
 import privateDeclare from 'src/api/privateDeclare';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const DialogWrap = styled(Dialog)`
   .mui-dialog-body {

@@ -2,7 +2,7 @@
 依赖：字符图标、dialog、plupload、global.js
 */
 import doT from '@mdfe/dot';
-var kcCtrl = require('src/api/kc');
+import kcCtrl from 'src/api/kc';
 import './css/uploadAttachment.css';
 import headerTpl from './tpl/header.htm';
 import saveToKcHtml from './tpl/addToKc.htm';
@@ -10,6 +10,7 @@ import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog'
 import '@mdfe/jquery-plupload';
 import { index as dialog } from 'src/components/mdDialog/dialog';
 import { formatFileSize, getClassNameByExt, htmlEncodeReg, getToken } from 'src/util';
+import _ from 'lodash';
 var MAX_IMG_VIEW_SIZE = 20971520;
 
 export default (function ($) {

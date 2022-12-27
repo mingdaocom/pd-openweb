@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import CustomFields from 'src/components/newCustomFields';
+import _ from 'lodash';
 
 export default class RowDetail extends React.Component {
   static propTypes = {
@@ -32,7 +33,11 @@ export default class RowDetail extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.data && (nextProps.data.rowid !== this.props.data.rowid || !_.isEqual(nextProps.data, this.props.data))) {
+    if (
+      nextProps.data &&
+      (nextProps.data.rowid !== this.props.data.rowid ||
+        (this.props.isMobile && !_.isEqual(nextProps.data, this.props.data)))
+    ) {
       this.setState({
         flag: Math.random(),
       });

@@ -6,6 +6,7 @@ import cx from 'classnames';
 import DialogIntegrationApi from 'src/components/DialogIntegrationApi';
 import SvgIcon from 'src/components/SvgIcon';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import _ from 'lodash';
 
 export default class Api extends Component {
   constructor(props) {

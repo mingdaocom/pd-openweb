@@ -4,6 +4,8 @@ import CheckBox from 'ming-ui/components/Checkbox';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
 import { htmlDecodeReg } from 'src/util';
+import _ from 'lodash';
+import moment from 'moment';
 export default class CalendarCommentList extends Component {
   constructor(props) {
     super(props);

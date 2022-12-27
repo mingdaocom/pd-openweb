@@ -4,6 +4,7 @@ import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import EditGroupMenuItem from './EditGroupMenuItem';
 import update from 'immutability-helper';
+import _ from 'lodash';
 
 const ROLE_OPERATION = {
   // 无权限

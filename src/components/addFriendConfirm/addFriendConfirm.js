@@ -1,9 +1,10 @@
 ﻿import doT from '@mdfe/dot';
-var addressBookController = require('src/api/addressBook');
-var userController = require('src/api/user');
+import addressBookController from 'src/api/addressBook';
+import userController from 'src/api/user';
 import tpl from './tpl/addFriendConfirm.html'
 import './css/style.css';
 import { index as dialog } from 'src/components/mdDialog/dialog';
+import _ from 'lodash';
 
 /**
  * addFriendConfirm

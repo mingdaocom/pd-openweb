@@ -78,7 +78,7 @@ export default function RowHead(props) {
   } = props;
   const isSavedData = !/^temp/.test(row.rowid);
   const hideOperate = disabled || (isSavedData && (!allowAdd || !allowCancel));
-  if (rowIndex === 0) {
+  if (rowIndex === -1) {
     return (
       <div className={className} style={style}>
         {changeSheetLayoutVisible && (
@@ -95,7 +95,7 @@ export default function RowHead(props) {
   return (
     <Con className={cx(className, { disabled: disabled || (isSavedData && !allowAdd && !allowCancel) })} style={style}>
       <span className="rowIndex">
-        <span className={cx('num', { ThemeColor3: !isSavedData })}>{rowIndex}</span>
+        <span className={cx('num', { ThemeColor3: !isSavedData })}>{rowIndex + 1}</span>
       </span>
       {!hideOperate && (
         <RecordOperate
@@ -120,7 +120,7 @@ export default function RowHead(props) {
       {!disabled && isSavedData && allowCancel && !allowAdd && (
         <i className="operateBtn delete icon icon-task-new-delete hand" onClick={onDelete}></i>
       )}
-      <span className="open" onClick={() => onOpen(rowIndex - 1)}>
+      <span className="open" onClick={() => onOpen(rowIndex)}>
         <i className="icon icon-worksheet_enlarge ThemeHoverColor3"></i>
       </span>
     </Con>

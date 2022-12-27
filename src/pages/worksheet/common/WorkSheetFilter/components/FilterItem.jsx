@@ -12,6 +12,7 @@ import wrapDisableClick from './wrapDisableClick';
 import { FILTER_TYPE, CONTROL_FILTER_WHITELIST } from '../enum';
 import { getTypeKey, checkConditionAvailable, getDefaultCondition } from '../util';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
+import _ from 'lodash';
 
 const NewMenuItem = wrapDisableClick(MenuItem);
 

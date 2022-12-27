@@ -1,14 +1,18 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'antd';
 import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import cx from 'classnames';
 import AttachmentFiles, { UploadFileWrapper } from 'mobile/Discuss/AttachmentFiles';
-import { getAttachmentToList } from 'src/api/attachment';
+import attachmentApi from 'src/api/attachment';
+import downloadApi from 'src/api/download';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
+import './index.less';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -29,6 +33,7 @@ export default class Widgets extends Component {
       temporaryKnowledgeAtts: [],
       isComplete: null,
       uploadStart: false,
+      downloadAllLoading: false
     };
   }
 
@@ -76,7 +81,7 @@ export default class Widgets extends Component {
       args.shareId = window.shareState.shareId;
       args.type = window.shareState.isRecordShare ? 3 : window.shareState.isPublicQuery ? 11 : 14;
     }
-    getAttachmentToList(args)
+    attachmentApi.getAttachmentToList(args)
       .then(data => {
         this.setState({ loading: false, value: JSON.stringify(data) });
       })
@@ -151,6 +156,28 @@ export default class Widgets extends Component {
     return $(this.fileBox).closest('.customFieldsContainer')[0];
   };
 
+  handleDownloadAll = () => {
+    const { downloadAllLoading } = this.state;
+    const { appId, worksheetId, viewId, recordId, controlId, from } = this.props;
+
+    if (downloadAllLoading) return;
+
+    this.setState({ downloadAllLoading: true });
+    downloadApi
+      .rowAttachments({
+        appId,
+        worksheetId,
+        viewId,
+        rowId: recordId,
+        controlId,
+        checkView: true,
+        getType: from === 21 ? from : 1,
+      })
+      .always(() => {
+        this.setState({ downloadAllLoading: false });
+      });
+  };
+
   render() {
     const {
       from,
@@ -208,9 +235,31 @@ export default class Widgets extends Component {
     if (browserIsMobile()) {
       return (
         <div
-          className={cx('customFormControlBox customFormFileBox', { controlDisabled: disabled })}
+          className={cx('customFormFileBox customFormAttachmentBox', { controlDisabled: disabled })}
           style={{ height: 'auto' }}
         >
+          {!disabled && (
+            <div className="triggerTraget mobile mBottom0" style={{ height: 34 }}>
+              <UploadFileWrapper
+                from={from}
+                className="Block"
+                inputType={enumDefault2}
+                advancedSetting={advancedSetting}
+                originCount={originCount}
+                disabledGallery={strDefault.split('')[0] === '1'}
+                files={attachments || []}
+                onChange={(files, isComplete = false) => {
+                  this.setState({
+                    isComplete,
+                  });
+                  this.filesChanged(files, 'attachments');
+                }}
+              >
+                <Icon className="Gray_9e" icon="attachment" />
+                <span className="Gray Font13 mLeft5 addFileName">{_l('上传附件')}</span>
+              </UploadFileWrapper>
+            </div>
+          )}
           {!_.isEmpty(attachmentData) && (
             <AttachmentFiles
               from={from}
@@ -235,26 +284,6 @@ export default class Widgets extends Component {
               }}
             />
           )}
-          {!disabled && (
-            <UploadFileWrapper
-              from={from}
-              className="Block"
-              inputType={enumDefault2}
-              advancedSetting={advancedSetting}
-              originCount={originCount}
-              disabledGallery={strDefault.split('')[0] === '1'}
-              files={attachments || []}
-              onChange={(files, isComplete = false) => {
-                this.setState({
-                  isComplete,
-                });
-                this.filesChanged(files, 'attachments');
-              }}
-            >
-              <Icon icon="attachment" />
-              <span className="Gray_75 mLeft5">{_l('上传附件')}</span>
-            </UploadFileWrapper>
-          )}
         </div>
       );
     }
@@ -263,60 +292,69 @@ export default class Widgets extends Component {
 
     return (
       <div
-        className={cx('customFormControlBox', { controlDisabled: disabled })}
+        className={cx('customFormControlBox customFormControlScore customFormAttachmentBox', { controlDisabled: disabled })}
         style={{ height: 'auto' }}
         ref={fileBox => {
           this.fileBox = fileBox;
         }}
       >
         {!disabled && (
-          <UploadFilesTrigger
-            noTotal={!!(md.global.Account.projects && md.global.Account.projects.length)}
-            id={this.id}
-            from={from}
-            projectId={projectId}
-            offset={[-12, 2]}
-            canAddLink={false}
-            minWidth={130}
-            showAttInfo={false}
-            advancedSetting={advancedSetting}
-            originCount={originCount}
-            attachmentData={[]}
-            onUploadComplete={isComplete => {
-              this.setState({ isComplete }, () => {
-                if (!$dom.is(':visible') && uploadStart) {
-                  this.onSaveTemporary();
-                }
-              });
+          <div className="flexRow valignWrapper spaceBetween">
+            <UploadFilesTrigger
+              noTotal={!!(md.global.Account.projects && md.global.Account.projects.length)}
+              id={this.id}
+              from={from}
+              projectId={projectId}
+              offset={[0, 2]}
+              canAddLink={false}
+              minWidth={130}
+              showAttInfo={false}
+              advancedSetting={advancedSetting}
+              originCount={originCount}
+              attachmentData={[]}
+              onUploadComplete={isComplete => {
+                this.setState({ isComplete }, () => {
+                  if (!$dom.is(':visible') && uploadStart) {
+                    this.onSaveTemporary();
+                  }
+                });
 
-              setTimeout(() => this.setState({ uploadStart: true }), 200);
-            }}
-            temporaryData={temporaryAttachments}
-            onTemporaryDataUpdate={res => this.setState({ temporaryAttachments: res })}
-            kcAttachmentData={temporaryKnowledgeAtts}
-            onKcAttachmentDataUpdate={res => this.setState({ temporaryKnowledgeAtts: res })}
-            getPopupContainer={this.getPopupContainer}
-            onCancel={this.onCancelTemporary}
-            onOk={this.onSaveTemporary}
-          >
-            <div
-              className="ThemeHoverColor3 pointer flexRow Font13 Gray_75"
-              style={{ height: 34, alignItems: 'center' }}
+                setTimeout(() => this.setState({ uploadStart: true }), 200);
+              }}
+              temporaryData={temporaryAttachments}
+              onTemporaryDataUpdate={res => this.setState({ temporaryAttachments: res })}
+              kcAttachmentData={temporaryKnowledgeAtts}
+              onKcAttachmentDataUpdate={res => this.setState({ temporaryKnowledgeAtts: res })}
+              getPopupContainer={this.getPopupContainer}
+              onCancel={this.onCancelTemporary}
+              onOk={this.onSaveTemporary}
             >
-              <Icon icon="attachment" className="Font16" />
-              <span className="mLeft5">{_l('添加附件')}</span>
-              {isComplete === false && uploadStart && (
-                <span className="mLeft5 ThemeColor3">
-                  {_l(
-                    '(%0/%1个附件上传中...)',
-                    $dom.find('.UploadFiles-file-wrapper:not(.UploadFiles-fileEmpty)').length -
-                      $dom.find('.Progress--circle').length,
-                    $dom.find('.UploadFiles-file-wrapper:not(.UploadFiles-fileEmpty)').length,
-                  )}
-                </span>
-              )}
-            </div>
-          </UploadFilesTrigger>
+              <div
+                className="pointer flexRow Font13 Gray_9e alignItemsCenter"
+                style={{ height: 34 }}
+              >
+                <Icon icon="attachment" className="Font16" />
+                <span className="mLeft5 Gray addFileName">{_l('添加附件')}</span>
+                {isComplete === false && uploadStart && (
+                  <span className="mLeft5 ThemeColor3">
+                    {_l(
+                      '(%0/%1个附件上传中...)',
+                      $dom.find('.UploadFiles-file-wrapper:not(.UploadFiles-fileEmpty)').length -
+                        $dom.find('.Progress--circle').length,
+                      $dom.find('.UploadFiles-file-wrapper:not(.UploadFiles-fileEmpty)').length,
+                    )}
+                  </span>
+                )}
+              </div>
+            </UploadFilesTrigger>
+            {!_.isEmpty(attachmentData) && (
+              <div className="flexRow valignWrapper">
+                <Tooltip title={_l('全部下载')} placement="bottom">
+                  <Icon className="handleBtn Gray_9e Font18 pointer" icon="download" onClick={this.handleDownloadAll} />
+                </Tooltip>
+              </div>
+            )}
+          </div>
         )}
 
         <UploadFiles

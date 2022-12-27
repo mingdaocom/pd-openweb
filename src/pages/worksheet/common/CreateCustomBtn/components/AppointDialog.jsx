@@ -7,6 +7,7 @@ import ChooseWidget from './ChooseWidget';
 import styled from 'styled-components';
 import Input from '../components/Inputs';
 import { DEF_TYPES, DEF_R_TYPES } from 'src/pages/worksheet/common/CreateCustomBtn/config.js';
+import _ from 'lodash';
 const Wrap = styled.div`
   .controlname {
     width: 200px;

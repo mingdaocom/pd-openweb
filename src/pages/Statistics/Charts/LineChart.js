@@ -13,6 +13,9 @@ import {
 } from './common';
 import { Dropdown, Menu } from 'antd';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import _ from 'lodash';
+import moment from 'moment';
+import { toFixed } from 'src/util';
 
 const lastDateText = _l('上一期');
 
@@ -321,7 +324,7 @@ export default class extends Component {
           if (isPercentStackedArea) {
             return {
               name,
-              value: `${(value * 100).toFixed(Number.isInteger(value) ? 0 : 2)}%`
+              value: `${toFixed(value * 100, Number.isInteger(value) ? 0 : 2)}%`
             }
           } else {
             const { dot } = _.find(yaxisList, { controlId: id }) || {};

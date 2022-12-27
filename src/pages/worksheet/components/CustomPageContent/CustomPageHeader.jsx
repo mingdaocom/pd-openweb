@@ -6,7 +6,7 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import update from 'immutability-helper';
-import { updatePage } from 'statistics/api/custom';
+import customAjax from 'statistics/api/custom';
 import { Popover } from 'antd';
 import { SelectIcon } from '../../common';
 import OperateMenu from './OperateMenu';
@@ -16,6 +16,7 @@ import { pick } from 'lodash';
 import { createFontLink, exportImage } from 'src/pages/customPage/util';
 import { saveAs } from 'file-saver';
 import SvgIcon from 'src/components/SvgIcon';
+import moment from 'moment';
 
 export default function CustomPageHeader(props) {
   const {
@@ -60,7 +61,7 @@ export default function CustomPageHeader(props) {
   };
 
   const handleUpdatePage = obj => {
-    updatePage({ appId: pageId, ...obj }).then(isSuccess => {
+    customAjax.updatePage({ appId: pageId, ...obj }).then(isSuccess => {
       if (isSuccess) {
         updatePageInfo(obj);
       } else {
@@ -152,9 +153,11 @@ export default function CustomPageHeader(props) {
               <div className="svgWrap valignWrapper" style={{ backgroundColor: apk.iconColor }}>
                 <SvgIcon url={apk.iconUrl} fill="#fff" size={22} />
               </div>
-              <span className="pageName Font17 ellipsis">
-                {appName}-{name}
-              </span>
+              {(appName || name) && (
+                <span className="pageName Font17 ellipsis">
+                  {appName}-{name}
+                </span>
+              )}
             </div>
           ) : (
             <span className="pageName Font17">{name}</span>

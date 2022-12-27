@@ -3,15 +3,17 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Tooltip } from 'ming-ui';
 import styled from 'styled-components';
-import { getDiscussionsCount } from 'src/api/discussion';
+import _ from 'lodash';
+import discussionAjax from 'src/api/discussion';
 import { emitter } from 'worksheet/util';
 import IconBtn from './IconBtn';
 import SwitchRecord from './SwitchRecord';
 import Operates from './Operates';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 
-const SodeBarIcon = styled(IconBtn)`
+const SideBarIcon = styled(IconBtn)`
   display: flex;
   .discussCount {
     font-size: 14px;
@@ -20,6 +22,11 @@ const SodeBarIcon = styled(IconBtn)`
     font-size: 13px;
     margin-left: 2px;
   }
+`;
+
+const PoweredBy = styled.div`
+  font-size: 12px;
+  color: #757575;
 `;
 
 export default function InfoHeader(props) {
@@ -46,19 +53,21 @@ export default function InfoHeader(props) {
     onSideIconClick,
     handleAddSheetRow,
     viewId,
+    from,
     // allowExAccountDiscuss = false, //允许外部用户讨论
     // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
   } = props;
   let { header } = props;
-  const { isSmall, worksheetId, recordId } = recordbase;
+  const { isSmall, worksheetId, recordId, notDialog } = recordbase;
   const rowId = useRef(recordId);
   const [discussCount, setDiscussCount] = useState();
   const discussVisible = isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId);
   const logVisible = isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId);
   const workflowVisible = isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId);
   const portalNotHasDiscuss = md.global.Account.isPortal && !props.allowExAccountDiscuss; //外部用户且未开启讨论
-  const showSodeBar =
-    (!md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
+  const isPublicShare = _.get(window, 'shareState.isPublicRecord') || _.get(window, 'shareState.isPublicView');
+  const showSideBar =
+    (!isPublicShare && !md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
     (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible);
   function loadDiscussionsCount() {
     if (sideVisible || !discussVisible || portalNotHasDiscuss) {
@@ -69,15 +78,17 @@ export default function InfoHeader(props) {
     if (md.global.Account.isPortal && props.allowExAccountDiscuss && props.exAccountDiscussEnum === 1) {
       entityType = 2;
     }
-    getDiscussionsCount({
-      pageIndex: 1,
-      pageSize: 1,
-      sourceId: worksheetId + '|' + rowId.current,
-      sourceType: 8,
-      entityType, // 0 = 全部，1 = 不包含外部讨论，2=外部讨论
-    }).then(data => {
-      setDiscussCount(data.data);
-    });
+    discussionAjax
+      .getDiscussionsCount({
+        pageIndex: 1,
+        pageSize: 1,
+        sourceId: worksheetId + '|' + rowId.current,
+        sourceType: 8,
+        entityType, // 0 = 全部，1 = 不包含外部讨论，2=外部讨论
+      })
+      .then(data => {
+        setDiscussCount(data.data);
+      });
   }
   useEffect(() => {
     rowId.current = recordId;
@@ -97,7 +108,7 @@ export default function InfoHeader(props) {
   // 展开 收起 右侧按钮
   const sideBarBtn = () => {
     return (
-      <SodeBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
+      <SideBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
         <span data-tip={sideVisible ? _l('收起') : _l('展开')}>
           <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />
         </span>
@@ -107,16 +118,23 @@ export default function InfoHeader(props) {
             <span className="text">{_l('条讨论')}</span>
           </span>
         )}
-      </SodeBarIcon>
+      </SideBarIcon>
     );
   };
 
   // 关闭
   const closeBtn = () => {
-    return (
+    const btn = (
       <IconBtn className="Hand ThemeHoverColor3" onClick={onCancel}>
         <i className="icon icon-close" />
       </IconBtn>
+    );
+    return notDialog ? (
+      btn
+    ) : (
+      <Tooltip offset={[0, 0]} text={<span>{_l('关闭（esc）')}</span>}>
+        {btn}
+      </Tooltip>
     );
   };
 
@@ -124,8 +142,11 @@ export default function InfoHeader(props) {
     <div className="recordHeader flexRow Font22" style={{ zIndex: 10 }}>
       {!!header && !loading && (
         <div className="customHeader flex flexRow">
+          {from === RECORD_INFO_FROM.DRAFT && (
+            <SwitchRecord currentSheetRows={currentSheetRows} currentIndex={currentIndex} onSwitch={switchRecord} />
+          )}
           {React.cloneElement(header, { onSubmit: onSubmit, isSmall })}
-          {showSodeBar && sideBarBtn()}
+          {showSideBar && from !== RECORD_INFO_FROM.DRAFT && sideBarBtn()}
           {closeBtn()}
         </div>
       )}
@@ -145,7 +166,7 @@ export default function InfoHeader(props) {
               <i className="icon icon-task-later" />
             </Tooltip>
           </span>
-          {!iseditting ? (
+          {!isPublicShare && !iseditting ? (
             <Operates
               addRefreshEvents={addRefreshEvents}
               iseditting={iseditting}
@@ -162,8 +183,8 @@ export default function InfoHeader(props) {
           ) : (
             <div className="flex" />
           )}
-          {showSodeBar && sideBarBtn()}
-          {closeBtn()}
+          {showSideBar && sideBarBtn()}
+          {(!isPublicShare || _.get(window, 'shareState.isPublicView')) && closeBtn()}
         </div>
       )}
     </div>

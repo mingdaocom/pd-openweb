@@ -4,6 +4,7 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Radio, Switch } from 'ming-ui';
 import { VerticalMiddle, FlexCenter } from 'worksheet/components/Basics';
+import _ from 'lodash';
 
 const EditPanelCon = styled.div`
   width: 260px;

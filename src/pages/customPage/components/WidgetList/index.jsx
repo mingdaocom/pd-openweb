@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { widgets } from '../../enum';
 import EditWidget from '../editWidget';
+import _ from 'lodash';
 
 const WidgetWrap = styled.div`
   box-sizing: border-box;

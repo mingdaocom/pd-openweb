@@ -1,8 +1,9 @@
 import React from 'react';
 import CellControl from 'worksheet/components/CellControls';
-import { renderCellText } from 'worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { Checkbox, Switch, Radio } from 'ming-ui';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
+import _ from 'lodash';
 
 export const pageSize = 20;
 export const COLORS = [
@@ -60,27 +61,5 @@ export const renderText = o => {
     return renderCellText({ ...o });
   } else {
     return <CellControl cell={{ ...o }} from={4} mode="portal" />;
-  }
-};
-
-export const getStrBytesLength = (str = '', bytesLength = 16) => {
-  let result = '';
-  let strlen = str.length; // 字符串长度
-  let chrlen = str.replace(/[^\x00-\xff]/g, '**').length; // 字节长度
-  if (chrlen <= bytesLength) {
-    return str;
-  }
-  for (let i = 0, j = 0; i < strlen; i++) {
-    let chr = str.charAt(i);
-    if (/[\x00-\xff]/.test(chr)) {
-      j++;
-    } else {
-      j += 2;
-    }
-    if (j <= bytesLength) {
-      result += chr;
-    } else {
-      return result;
-    }
   }
 };

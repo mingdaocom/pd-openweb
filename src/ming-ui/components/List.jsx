@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component, cloneElement } from 'react';
 import cx from 'classnames';
 import './less/List.less';
+import _ from 'lodash';
 
 class List extends Component {
   static propTypes = {

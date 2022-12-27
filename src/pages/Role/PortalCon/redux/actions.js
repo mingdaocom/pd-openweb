@@ -1,14 +1,4 @@
-import sheetAjax from 'src/api/worksheet';
-import {
-  getExRoles,
-  getUserTemple,
-  getFilterRows,
-  editExAccountsRole,
-  editExAccountState,
-  getExAccountCategoryCount,
-} from 'src/api/externalPortal';
-import { formatValues } from 'worksheet/common/WorkSheetFilter/util';
-// import { pageSize } from '../list/util';
+import externalPortalAjax from 'src/api/externalPortal';
 const pageSize = 100;
 export const getControls = appId => {
   return (dispatch, getState) => {
@@ -17,7 +7,7 @@ export const getControls = appId => {
         appId,
       }),
     );
-    getUserTemple({ appId }).then((data = []) => {
+    externalPortalAjax.getUserTemple({ appId }).then((data = []) => {
       dispatch(setControls(data));
     });
   };
@@ -25,7 +15,7 @@ export const getControls = appId => {
 
 export const getCount = appId => {
   return (dispatch, getState) => {
-    getExAccountCategoryCount({ appId }).then(res => {
+    externalPortalAjax.getExAccountCategoryCount({ appId }).then(res => {
       const { commonCount = 0, unApproveCount = 0, roleMemberStatistics } = res;
       dispatch({
         type: 'UPDATE_COMMONCOUNT',
@@ -89,7 +79,7 @@ export const updateListByRoleid = ({ roleId = '', rowIds = [] }, cb) => {
     const { portal = {} } = getState();
     const { filters = [], keyWords, pageIndex, fastFilters = [], baseInfo = {}, list } = portal;
     const { appId = '' } = baseInfo;
-    editExAccountsRole({
+    externalPortalAjax.editExAccountsRole({
       appId,
       newRoleId: roleId,
       rowIds,
@@ -121,7 +111,7 @@ export const updateListByStatus = ({ newState, rowIds, cb }) => {
     const { portal = {} } = getState();
     const { filters = [], keyWords, pageIndex, fastFilters = [], baseInfo = {}, list } = portal;
     const { appId = '' } = baseInfo;
-    editExAccountState({
+    externalPortalAjax.editExAccountState({
       appId,
       newState,
       rowIds,
@@ -133,7 +123,7 @@ export const updateListByStatus = ({ newState, rowIds, cb }) => {
           setList(
             list.map(o => {
               if (rowIds.includes(o.rowid)) {
-                return { ...o, portal_status: newState + '' };
+                return { ...o, portal_status: JSON.stringify([newState]) };
               } else {
                 return o;
               }
@@ -158,7 +148,7 @@ export const changePageIndex = index => {
 
 export const getPortalRoleList = appId => {
   return (dispatch, getState) => {
-    getExRoles({
+    externalPortalAjax.getExRoles({
       appId,
     }).then(res => {
       dispatch({ type: 'UPDATE_ROLELIST', data: res });
@@ -309,7 +299,7 @@ export const getList = (PotralStatus = 0, cb) => {
     } = portal;
     const { appId = '' } = baseInfo;
     // ajaxFn && ajaxFn.abort();
-    ajaxFn = getFilterRows({
+    ajaxFn = externalPortalAjax.getFilterRows({
       pageSize,
       pageIndex,
       keyWords,
@@ -318,7 +308,7 @@ export const getList = (PotralStatus = 0, cb) => {
         PotralStatus === 3
           ? []
           : !!telFilters
-          ? fastFilters.concat({
+            ? fastFilters.concat({
               controlId: 'portal_mobile',
               dataType: 3,
               dynamicSource: [],
@@ -326,7 +316,7 @@ export const getList = (PotralStatus = 0, cb) => {
               spliceType: 1,
               values: getFilterTels(telFilters),
             })
-          : fastFilters,
+            : fastFilters,
       appId,
       PotralStatus, //3待审核
       sortControls,

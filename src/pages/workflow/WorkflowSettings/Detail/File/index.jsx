@@ -3,6 +3,7 @@ import { ScrollView, LoadDiv, Dropdown } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, SelectNodeObject, CustomTextarea } from '../components';
 import cx from 'classnames';
+import _ from 'lodash';
 
 export default class File extends Component {
   constructor(props) {

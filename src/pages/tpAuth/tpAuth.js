@@ -1,5 +1,5 @@
 import { getRequest } from 'src/util';
-var loginController = require('src/api/login');
+import loginController from 'src/api/login';
 import { setPssId } from 'src/util/pssId';
 import './style.css';
 import './account-common.less';

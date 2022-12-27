@@ -152,6 +152,118 @@
             }
           }
 
+          .conditionItemContent {
+            padding-right: 0 !important;
+            display: flex;
+            .dynamicSource {
+              width: 130px;
+              border-color: #e0e0e0;
+              height: 36px;
+              border-radius: 4px;
+              box-shadow: none !important;
+              font-size: 13px;
+              &.flexItem {
+                flex: 1;
+                min-width: 0;
+                margin-right: 0px;
+              }
+              .ant-select-arrow {
+                margin-top: -8px !important;
+              }
+              .ant-select-selector {
+                border-color: #e0e0e0;
+                height: 36px;
+                border-radius: 4px;
+                box-shadow: none !important;
+                .ant-select-selection-search-input {
+                  height: 34px;
+                }
+                .ant-select-selection-item {
+                  line-height: 34px;
+                }
+              }
+            }
+            .conditionValue {
+              flex: 1;
+              min-width: 0;
+              margin-left: 12px;
+              &.inputTextErrorBorder {
+                .inputText {
+                  border: 1px solid #f44336;
+                }
+              }
+
+              &.selectizeInputErrorBorder {
+                .selectize-input {
+                  border: 1px solid #f44336;
+                }
+              }
+              &.numberRangeErrorBorder {
+                .numberRange > input {
+                  border: 1px solid #f44336;
+                }
+              }
+              &.numberConditionErrorBorder {
+                .worksheetFilterNumberCondition input {
+                  border: 1px solid #f44336;
+                }
+              }
+              &.numberMinErrorBorder {
+                .numberRange > div:first-child {
+                  input {
+                    border: 1px solid #f44336;
+                  }
+                }
+              }
+              &.numberMaxErrorBorder {
+                .numberRange > div:last-child {
+                  input {
+                    border: 1px solid #f44336;
+                  }
+                }
+              }
+              &.optionConditionErrorBorder {
+                .filterTagCon {
+                  border: 1px solid #f44336;
+                }
+              }
+              &.userConditionErrorBorder {
+                .usersCon {
+                  border: 1px solid #f44336;
+                }
+              }
+              &.dateConditionErrorBorder {
+                .dateInputCon {
+                  border: 1px solid #f44336;
+                }
+              }
+              &.timeConditionErrorBorder {
+                .dateInputCon {
+                  border: 1px solid #f44336;
+                }
+              }
+              &.timeRangeConditionErrorBorder {
+                .dateRangeInputCon {
+                  border-color: #f44336;
+                }
+              }
+              &.recordConditionErrorBorder {
+                .worksheetFilterRelateRecordCondition .recordsCon {
+                  border: 1px solid #f44336;
+                }
+              }
+              &.cascaderConditionErrorBorder {
+                .worksheetFilterCascaderCondition .recordsCon {
+                  border: 1px solid #f44336;
+                }
+              }
+            }
+          }
+
+          .conditionDropdownMenu {
+            width: 120px !important;
+          }
+
           .ruleListSelect {
             width: 110px;
             margin-right: 12px;

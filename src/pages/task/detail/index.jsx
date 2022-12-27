@@ -1,9 +1,10 @@
 ﻿import './index.less';
 import React, { Component } from 'react';
-import $ from 'jquery';
+
 import TaskDetail from '../containers/taskDetail/taskDetail';
 import UniformRoute from 'src/router/withTitle';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 class TaskDetailEntrypoint extends Component {
   componentDidMount() {

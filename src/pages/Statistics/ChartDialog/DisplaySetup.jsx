@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../redux/actions.js';
 import { chartNav, isTimeControl } from '../common';
+import _ from 'lodash';
 
 const DisplaySetup = ({
   settingVisible,

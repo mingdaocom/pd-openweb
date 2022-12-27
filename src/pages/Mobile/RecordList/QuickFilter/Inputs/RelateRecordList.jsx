@@ -3,9 +3,10 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon, ScrollView } from 'ming-ui';
 import { Flex, ActivityIndicator } from 'antd-mobile';
-import { getFilterRows } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { arrayOf, bool, func, shape } from 'prop-types';
+import _ from 'lodash';
 
 const Con = styled.div`
   .loadingWrapper {
@@ -50,7 +51,7 @@ export default function RelateRecordList(props) {
     };
     setLoading(true);
     setPageIndex(pageIndex);
-    const res = await getFilterRows(args);
+    const res = await worksheetAjax.getFilterRows(args);
     setRecords(records.length ? records.concat(res.data) : res.data);
     setIsMore(res.data.length === pageSize);
     setLoading(false);

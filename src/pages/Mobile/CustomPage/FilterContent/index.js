@@ -15,6 +15,7 @@ import { bindActionCreators } from 'redux';
 import { formatFilters } from 'src/pages/customPage/components/editWidget/filter/util';
 import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter';
 import { conditionAdapter, formatQuickFilter } from 'mobile/RecordList/QuickFilter/Inputs';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   &.disableFiltersGroup {

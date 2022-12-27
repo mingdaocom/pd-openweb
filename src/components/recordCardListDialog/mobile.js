@@ -14,6 +14,7 @@ import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 import './mobile.less';
+import _ from 'lodash';
 
 export default class RecordCardListDialog extends Component {
   static propTypes = {
@@ -71,6 +72,12 @@ export default class RecordCardListDialog extends Component {
       (window.isPublicWorksheet ? publicWorksheetAjax : sheetAjax)
         .getWorksheetInfo({ worksheetId: control.dataSource, getTemplate: true })
         .then(data => {
+          window.worksheetControlsCache = {};
+          data.template.controls.forEach(c => {
+            if (c.type === 29) {
+              window.worksheetControlsCache[c.dataSource] = c.relationControls;
+            }
+          });
           this.setState(
             {
               allowAdd: data.allowAdd,
@@ -110,6 +117,8 @@ export default class RecordCardListDialog extends Component {
       multiple,
       control,
       formData,
+      getDataType,
+      relationRowIds = [],
     } = this.props;
     const { pageIndex, keyWords, list, sortControls, worksheetInfo } = this.state;
     if (!keyWords && this.clickSearch) {
@@ -179,7 +188,9 @@ export default class RecordCardListDialog extends Component {
         if (res.resultCode === 1) {
           this.setState(
             {
-              list: list.concat(res.data.filter(record => !_.find(filterRowIds, fid => record.rowid === fid))),
+              list: getDataType
+                ? list.concat(res.data.filter(rec => !_.includes(relationRowIds, rec.rowid)))
+                : list.concat(res.data.filter(record => !_.find(filterRowIds, fid => record.rowid === fid))),
               loading: false,
               loadouted: res.data.length < 20,
               controls: res.template ? res.template.controls : [],
@@ -445,8 +456,19 @@ export default class RecordCardListDialog extends Component {
             this.setState({ showNewRecord: false });
           }}
           onAdd={row => {
-            onOk([row]);
-            onClose();
+            if (multiple) {
+              this.setState(
+                {
+                  list: [row, ...list],
+                },
+                () => {
+                  this.handleSelect(row, true);
+                },
+              );
+            } else {
+              onOk([row]);
+              onClose();
+            }
           }}
         />
         {list.length
@@ -507,12 +529,7 @@ export default class RecordCardListDialog extends Component {
             </WingBlank>
             {multiple && (
               <WingBlank className="flex" size="sm">
-                <Button
-                  className="bold"
-                  type="primary"
-                  disabled={!selectedRecords.length}
-                  onClick={this.handleConfirm}
-                >
+                <Button className="bold" type="primary" disabled={!selectedRecords.length} onClick={this.handleConfirm}>
                   {multiple && selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定')}
                 </Button>
               </WingBlank>

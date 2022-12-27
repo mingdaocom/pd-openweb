@@ -8,6 +8,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import ReactDom from 'react-dom';
 import AvatorInfo from 'src/pages/Personal/personalInfo/modules/AvatorInfo.jsx';
 import 'src/pages/Personal/personalInfo/modules/index.less';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   p,

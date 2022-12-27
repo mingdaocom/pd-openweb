@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import './taskBasic.less';
+import _ from 'lodash';
 import { connect } from 'react-redux';
 import ajaxRequest from 'src/api/taskCenter';
 import Textarea from 'ming-ui/components/Textarea';
@@ -18,7 +19,7 @@ import UserHead from 'src/pages/feed/components/userHead';
 import 'src/components/dialogSelectUser/dialogSelectUser';
 import 'src/components/quickSelectUser/quickSelectUser';
 import 'src/components/tooltip/tooltip';
-import '@mdfe/selectize';
+import s from '@mdfe/selectize';
 import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import Dropdown from 'ming-ui/components/Dropdown';

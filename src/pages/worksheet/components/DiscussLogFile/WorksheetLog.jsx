@@ -5,6 +5,7 @@ import { Icon, ScrollView, LoadDiv } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import { createLinksForMessage } from 'src/components/common/function';
 import { filterXSS } from 'xss';
+import _ from 'lodash';
 
 const PAGE_SIZE = 30;
 

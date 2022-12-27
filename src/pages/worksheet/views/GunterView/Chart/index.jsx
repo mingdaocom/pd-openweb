@@ -13,6 +13,7 @@ import IScroll from 'worksheet/views/GunterView/components/Iscroll';
 import Skeleton from 'src/router/Application/Skeleton';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import './index.less';
+import _ from 'lodash';
 
 const isGunterExport = location.href.includes('gunterExport');
 

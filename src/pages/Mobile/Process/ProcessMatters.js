@@ -11,6 +11,7 @@ import { getRequest } from 'src/util';
 import './index.less';
 import 'src/pages/worksheet/common/newRecord/NewRecord.less';
 import 'mobile/ProcessRecord/OtherAction/index.less';
+import _ from 'lodash';
 
 const tabs = [{
   name: _l('待办'),
@@ -177,20 +178,37 @@ export default class ProcessMatters extends Component {
     this.getTodoList();
   }
   handleApproveDone = ({ id }) => {
-    const { list, countData, topTab = {} } = this.state;
-    const countDataState = {
-      ...countData
+    const { list, countData, appCount, topTab = {} } = this.state;
+    const { appId } = getRequest();
+    if (appId) {
+      const countDataState = {
+        ...appCount
+      }
+      if (topTab.id === 'waitingApproval') {
+        countDataState.approveCount = appCount.approveCount - 1;
+      }
+      if (topTab.id === 'waitingWrite') {
+        countDataState.writeCount = appCount.writeCount - 1;
+      }
+      this.setState({
+        list: list.filter(item => item.id !== id),
+        appCount: countDataState
+      });
+    } else {
+      const countDataState = {
+        ...countData
+      }
+      if (topTab.id === 'waitingApproval') {
+        countDataState.waitingApproval = countData.waitingApproval - 1;
+      }
+      if (topTab.id === 'waitingWrite') {
+        countDataState.waitingWrite = countData.waitingWrite - 1;
+      }
+      this.setState({
+        list: list.filter(item => item.id !== id),
+        countData: countDataState
+      });
     }
-    if (topTab.id === 'waitingApproval') {
-      countDataState.waitingApproval = countData.waitingApproval - 1;
-    }
-    if (topTab.id === 'waitingWrite') {
-      countDataState.waitingWrite = countData.waitingWrite - 1;
-    }
-    this.setState({
-      list: list.filter(item => item.id !== id),
-      countData: countDataState
-    });
   }
   hanndleApprove = (type, batchType) => {
     const { approveCards } = this.state;
@@ -208,7 +226,7 @@ export default class ProcessMatters extends Component {
     const batchType = approveType === 4 ? 'passBatchType' : 'overruleBatchType';
     const { approveCards } = this.state;
     const selects = approveCards.map(({ id, workId, flowNode }) => {
-      const data = { id, workId };
+      const data = { id, workId, opinion: _l('批量处理') };
       if (flowNode[batchType] === 1) {
         return {
           ...data,
@@ -290,17 +308,17 @@ export default class ProcessMatters extends Component {
 
     if (tab.id === 'waitingWrite') {
       if (appId) {
-        return appCount.writeCount ? `(${appCount.writeCount})` : null;
+        return appCount.writeCount > 0 ? `(${appCount.writeCount})` : null;
       } else {
-        return countData.waitingWrite ? `(${countData.waitingWrite})` : null;
+        return countData.waitingWrite > 0 ? `(${countData.waitingWrite})` : null;
       }
     }
 
     if (tab.id === 'waitingApproval') {
       if (appId) {
-        return appCount.approveCount ? `(${appCount.approveCount})` : null;
+        return appCount.approveCount > 0 ? `(${appCount.approveCount})` : null;
       } else {
-        return countData.waitingApproval ? `(${countData.waitingApproval})` : null;
+        return countData.waitingApproval > 0 ? `(${countData.waitingApproval})` : null;
       }
     }
   }
@@ -502,7 +520,7 @@ export default class ProcessMatters extends Component {
           instanceId={previewRecord.instanceId}
           workId={previewRecord.workId}
           onClose={(data) => {
-            if (data.id) {
+            if (data.id && !data.isStash) {
               this.handleApproveDone(data);
             }
             this.setState({

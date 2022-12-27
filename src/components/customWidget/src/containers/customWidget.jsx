@@ -18,6 +18,7 @@ import util, { clearStorage } from '../utils/util';
 import { refreshAllWidgets } from '../redux/actions';
 import { autobind } from 'core-decorators';
 import { Provider } from 'react-redux';
+import _ from 'lodash';
 
 @preall
 export default class CustomWidget extends Component {

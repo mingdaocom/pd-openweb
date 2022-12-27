@@ -14,6 +14,7 @@ import Cascader from './Cascader';
 import OrgRole from './OrgRole';
 import { shape } from 'prop-types';
 import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
+import _ from 'lodash';
 
 export function conditionAdapter(condition) {
   if (

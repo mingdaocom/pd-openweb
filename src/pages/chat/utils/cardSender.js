@@ -6,6 +6,7 @@ import RelationControl from 'src/components/relationControl/relationControl';
 import 'src/components/createTask/createTask';
 import 'src/components/createCalendar/createCalendar';
 import s from 'src/components/common/mstc/s/s';
+import moment from 'moment';
 
 const _initPost = function(acceptor, options, callback) {
   s({

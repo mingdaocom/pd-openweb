@@ -29,7 +29,7 @@
 </ul>
 
 {{##def.buildUser:user:
-    <li class="userItem {{=isHide ? 'Hidden' : ''}}" data-accountid="{{=user.accountId}}">
+    <li class="userItem {{=isHide ? 'Hidden' : ''}}" data-accountid="{{=user.accountId}}" data-index="{{=user.index}}">
         {{? user.avatarhtml}}
             {{=user.avatarhtml}}
         {{??}}

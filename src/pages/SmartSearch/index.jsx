@@ -27,6 +27,6 @@ export default class UserEntrypoint extends Component {
     $('html').removeClass('AppSearch');
   }
   render() {
-    return <div className="keyWordsMain relativeContainer mTop20" />;
+    return <div className="keyWordsMain relative mTop20" />;
   }
 }

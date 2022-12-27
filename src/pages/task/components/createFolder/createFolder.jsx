@@ -6,6 +6,7 @@ import { expireDialogAsync } from 'src/components/common/function';
 import 'src/components/selectGroup/selectAllGroup';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import Slider from 'react-slick';
+import _ from 'lodash';
 
 const SamplePrevArrow = props => {
   return <span className="slick-btn icon-arrow-left-border" onClick={props.onClick} />;

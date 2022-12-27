@@ -24,6 +24,7 @@ import SelectJob from '../../components/SelectJob';
 import SelectOrgRole from '../../components/SelectOrgRole';
 import './index.less';
 import '../index.less';
+import _ from 'lodash';
 
 const isIPhone = new RegExp('\\biPhone\\b|\\biPod\\b', 'i').test(window.navigator.userAgent);
 let wrapProps;

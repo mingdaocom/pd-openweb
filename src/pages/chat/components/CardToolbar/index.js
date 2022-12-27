@@ -2,13 +2,12 @@
 import cx from 'classnames';
 import './index.less';
 import config from '../../utils/config';
-import * as utils from '../../utils';
-import * as ajax from '../../utils/ajax';
 import * as cardSender from '../../utils/cardSender';
 import Constant from '../../utils/constant';
 import Trigger from 'rc-trigger';
-import * as taskCenter from 'src/api/taskCenter';
-import * as calendar from 'src/api/calendar';
+import taskCenter from 'src/api/taskCenter';
+import calendar from 'src/api/calendar';
+import moment from 'moment';
 
 const items = [
   {

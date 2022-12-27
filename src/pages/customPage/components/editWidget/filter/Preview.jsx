@@ -10,6 +10,7 @@ import Filters from 'worksheet/common/Sheet/QuickFilter/Filters';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter';
 import { formatFilters } from './util';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   display: flex;

@@ -4,8 +4,8 @@ import { Input } from 'antd';
 import AccountController from 'src/api/account';
 import { encrypt } from 'src/util';
 import styled from 'styled-components';
-import { restore } from 'src/api/appManagement.js';
 import captcha from 'src/components/captcha';
+import appManagementAjax from 'src/api/appManagement.js';
 import cx from 'classnames';
 
 const Footer = styled.div`
@@ -100,7 +100,7 @@ export default class PasswordValidate extends Component {
             isRestoreNew: false,
           };
 
-          restore(params).then(res => {
+          appManagementAjax.restore(params).then(res => {
             if (res) {
               getBackupCount();
               getList(1);

@@ -2,7 +2,6 @@
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-import $ from 'jquery';
 import { AT_ALL_TEXT } from './config';
 
 import Icon from 'ming-ui/components/Icon';
@@ -23,6 +22,7 @@ import 'src/components/emotion/emotion';
 import 'src/components/selectGroup/selectAllGroup';
 import './css/commenter.less';
 import { getRandomString } from 'src/util';
+import _ from 'lodash';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 

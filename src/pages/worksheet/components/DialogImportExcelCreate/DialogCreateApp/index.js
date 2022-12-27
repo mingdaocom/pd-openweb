@@ -9,6 +9,7 @@ import { navigateTo } from 'src/router/navigateTo';
 
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 export default class DialogCreateApp extends Component {
   constructor(props) {

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 用户是否具有这些模块的权限
   * @param {Object} args 请求参数

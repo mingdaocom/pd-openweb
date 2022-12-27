@@ -4,6 +4,7 @@ import Skeleton from 'src/router/Application/Skeleton';
 import MajorAxisLabel from '../MajorAxisLabel';
 import MinorAxisLabel from '../MinorAxisLabel';
 import Today from '../Today';
+import _ from 'lodash';
 
 @connect(
   state => ({

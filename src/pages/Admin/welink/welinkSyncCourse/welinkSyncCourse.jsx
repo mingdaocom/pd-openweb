@@ -4,6 +4,7 @@ import Ajax from 'src/api/workWeiXin';
 import { LoadDiv } from 'ming-ui';
 import { compareProps } from 'pages/PageHeader/util.js';
 import './style.less';
+import moment from 'moment';
 
 export default class WelinkSyncCourse extends React.Component {
   constructor(props) {

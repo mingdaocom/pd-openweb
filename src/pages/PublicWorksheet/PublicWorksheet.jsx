@@ -14,6 +14,7 @@ import { getPublicWorksheet, getPublicWorksheetInfo } from './action';
 import FillWorksheet from './FillWorksheet';
 import NotFillStatus from './notFillStatus';
 import './index.less';
+import moment from 'moment';
 
 const TopBar = styled.div(
   ({ color }) => `height: 10px; background: ${color}; opacity: .4; border-radius: 3px 3px 0 0;`,

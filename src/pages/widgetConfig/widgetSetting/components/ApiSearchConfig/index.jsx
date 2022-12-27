@@ -4,7 +4,7 @@ import { LoadDiv } from 'ming-ui';
 import { Tooltip } from 'antd';
 import SvgIcon from 'src/components/SvgIcon';
 import DialogIntegrationApi from 'src/components/DialogIntegrationApi';
-import { getApiControlDetail } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { SettingItem } from '../../../styled';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { dealRequestControls } from '../../../util/data';
@@ -140,7 +140,7 @@ export default function ApiSearchConfig(props) {
     if (!data.dataSource) return;
     setLoading(true);
 
-    getApiControlDetail({ apiTemplateId: data.dataSource }).then(res => {
+    worksheetAjax.getApiControlDetail({ apiTemplateId: data.dataSource }).then(res => {
       const { basicInfo = {}, requestControls = [], responseControls = [] } = res || {};
       setApiInfo(basicInfo);
       dealResult(requestControls, responseControls);

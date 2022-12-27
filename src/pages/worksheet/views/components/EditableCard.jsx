@@ -2,7 +2,8 @@ import React, { forwardRef, useState, useEffect } from 'react';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import BaseCard from './BaseCard';
-import { updateWorksheetRow } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
+import _ from 'lodash';
 
 const EditableCardWrap = styled.div`
   position: relative;
@@ -49,7 +50,7 @@ const EditableCard = forwardRef((props, ref) => {
       const currentIndex = stateData.path.length - 1;
       worksheetId = _.get(viewControls[currentIndex], 'worksheetId');
     }
-    updateWorksheetRow({ rowId, worksheetId, newOldControl: [{ ...controlItem, value }] }).then(res => {
+    worksheetAjax.updateWorksheetRow({ rowId, worksheetId, newOldControl: [{ ...controlItem, value }] }).then(res => {
       if (res.data && res.resultCode === 1) {
         const nextControl = { [controlItem.controlId]: value };
         updateTitleData({ data: nextControl, rowId });

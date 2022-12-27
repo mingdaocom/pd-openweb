@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import jp from 'jsonpath';
 import { CONTROLS_NAME } from '../../../enum';
+import _ from 'lodash';
 
 export default ({ list, showControlType = false, json }) => {
   const renderList = source => {

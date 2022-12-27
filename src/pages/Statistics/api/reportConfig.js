@@ -126,4 +126,4 @@ var reportConfig = {
     return $.api(controllerName, 'reportConfigupdateReportName', JSON.stringify(args), $.extend(base, options));
   },
 };
-module.exports = reportConfig;
+export default reportConfig;

@@ -10,6 +10,7 @@ import { render } from 'react-dom';
 import cx from 'classnames';
 import { isDescendant } from 'ming-ui/utils/DomHelpers';
 import './less/PositionContainer.less';
+import _ from 'lodash';
 
 class PositionContainer extends Component {
   static propTypes = {

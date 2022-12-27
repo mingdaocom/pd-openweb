@@ -4,6 +4,7 @@ import cx from 'classnames';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import './popup.less';
+import _ from 'lodash';
 
 const ClickAway = createDecoratedComponent(withClickAway);
 

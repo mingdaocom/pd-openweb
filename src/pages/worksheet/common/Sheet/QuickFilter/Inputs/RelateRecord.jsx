@@ -4,6 +4,7 @@ import { arrayOf, func, shape, string } from 'prop-types';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown/RelateRecordDropdownCopy';
 import RelateRecordOptions from './RelateRecordOptions';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

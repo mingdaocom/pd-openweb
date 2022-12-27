@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import { Dialog, Button } from 'ming-ui';
-import { editCustomAddressSuffix } from 'src/api/externalPortal.js';
+import externalPortalAjax from 'src/api/externalPortal.js';
 
 import cx from 'classnames';
+import _ from 'lodash';
 const Load = styled.div`
   width: 15px;
   height: 15px;
@@ -77,7 +78,7 @@ export default function EditPortalUrlDialog(props) {
     }
   };
   const editAddressSuffix = _.debounce(cb => {
-    editCustomAddressSuffix({
+    externalPortalAjax.editCustomAddressSuffix({
       appId,
       customAddressSuffix: urlSuffix,
     }).then(res => {

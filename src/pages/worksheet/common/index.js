@@ -3,7 +3,7 @@ export { default as BatchOperate } from './BatchOperate';
 export { default as ChangeColumn } from './ChangeColumn';
 export { default as WorkSheetFilter } from './WorkSheetFilter';
 export { default as NewRecord } from './newRecord/NewRecord';
-export { addRecord } from './newRecord';
+export { default as addRecord } from './newRecord/addRecord';
 export { default as RecordInfo } from './recordInfo';
 export { default as EditRecord } from './editRecord';
 export { default as WorkSheetTrash } from './WorkSheetTrash';

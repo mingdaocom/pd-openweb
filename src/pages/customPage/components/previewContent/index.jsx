@@ -6,6 +6,7 @@ import { genUrl, parseLink } from '../../util';
 import { browserIsMobile } from 'src/util';
 import { Icon, Tooltip } from 'ming-ui';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const PreviewWrap = styled.div`
   height: 100%;

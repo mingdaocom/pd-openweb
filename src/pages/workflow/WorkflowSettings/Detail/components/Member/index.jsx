@@ -5,6 +5,7 @@ import { Dropdown } from 'ming-ui';
 import UserHead from 'src/pages/feed/components/userHead';
 import { USER_TYPE, NODE_TYPE, USER_ORGANIZE, DEPARTMENT_ORGANIZE } from '../../../enum';
 import Tag from '../Tag';
+import _ from 'lodash';
 
 export default class Member extends Component {
   /**

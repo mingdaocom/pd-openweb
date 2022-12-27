@@ -3,7 +3,7 @@ import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { LoadDiv, Icon, Checkbox } from 'ming-ui';
-import { sendVerifyCode, login, getSelfLoginScanUrl, scanTpLogin, pwdLogin } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import { statusList, accountResultAction, setAutoLoginKey } from './util';
 import captcha from 'src/components/captcha';
 import { getRequest } from 'src/util/sso';
@@ -116,6 +116,8 @@ export default function LoginContainer(props) {
     allowUserType,
     termsAndAgreementEnable,
     setAutoLogin,
+    loginForType,
+    loginForTypeBack,
   } = props;
   let request = getRequest();
   const [{ stateWX, scan, urlWX, isRegister, type, loading, sending, txt }, setState] = useSetState({
@@ -132,12 +134,13 @@ export default function LoginContainer(props) {
   useEffect(() => {
     let list = LOGIN_WAY.map(o => o.key).filter(o => loginMode[o]);
     setState({
-      type:
-        paramForPcWx || request.mdAppId //扫码后 需要填写手机号 //微信扫码登录流程回跳只进手机号验证码流程
-          ? 'phone'
-          : list.includes('weChat') && loginMode.weChat && isWXOfficialExist //点击进入微信登录 手机和微信同时设置时，默认微信优先
-          ? 'weChat'
-          : list[0],
+      type: !!loginForType
+        ? loginForType //已指定登录方式的情况下，直接走对应登录方式
+        : paramForPcWx || request.mdAppId //扫码后 需要填写手机号 //微信扫码登录流程回跳只进手机号验证码流程
+        ? 'phone'
+        : list.includes('weChat') && loginMode.weChat && isWXOfficialExist //点击进入微信登录 手机和微信同时设置时，默认微信优先
+        ? 'weChat'
+        : list[0],
     });
   }, [loginMode]);
 
@@ -156,74 +159,78 @@ export default function LoginContainer(props) {
     password: '',
   });
   const getScanUrl = () => {
-    getSelfLoginScanUrl({
-      appId,
-    }).then(res => {
-      if (res.accountResult === 1) {
-        setState({ loading: false });
-        if (res.scanUrl) {
-          const url = `${md.global.Config.AjaxApiUrl}code/CreateQrCodeImage?url=${encodeURIComponent(res.scanUrl)}`;
-          setState({ stateWX: res.state, scan: true, urlWX: url });
-        }
-      } else {
-        if (16 === res.accountResult) {
-          //16 代表未绑定微信公众号
-          setState({ stateWX: '', urlWX: '', txt: _l('未绑定微信公众号'), loading: false });
-        } else if (17 === res.accountResult) {
-          //17代表微信扫码登录方式关闭；
-          setState({ stateWX: '', urlWX: '', txt: _l('微信扫码登录方式关闭'), loading: false });
-        } else if (statusList.includes(res.accountResult)) {
-          // _l('需要收集信息');
-          setStatus(res.accountResult);
-        } else if ([20].includes(accountResult)) {
-          return alert(
-            registerMode.email && registerMode.phone
-              ? _l('手机号/邮箱或者验证码错误!')
-              : registerMode.phone
-              ? _l('手机号或者验证码错误!')
-              : _l('邮箱或者验证码错误!'),
-            3,
-          );
+    externalPortalAjax
+      .getSelfLoginScanUrl({
+        appId,
+      })
+      .then(res => {
+        if (res.accountResult === 1) {
+          setState({ loading: false });
+          if (res.scanUrl) {
+            const url = `${md.global.Config.AjaxApiUrl}code/CreateQrCodeImage?url=${encodeURIComponent(res.scanUrl)}`;
+            setState({ stateWX: res.state, scan: true, urlWX: url });
+          }
         } else {
-          accountResultAction(res);
+          if (16 === res.accountResult) {
+            //16 代表未绑定微信公众号
+            setState({ stateWX: '', urlWX: '', txt: _l('未绑定微信公众号'), loading: false });
+          } else if (17 === res.accountResult) {
+            //17代表微信扫码登录方式关闭；
+            setState({ stateWX: '', urlWX: '', txt: _l('微信扫码登录方式关闭'), loading: false });
+          } else if (statusList.includes(res.accountResult)) {
+            // _l('需要收集信息');
+            setStatus(res.accountResult);
+          } else if ([20].includes(accountResult)) {
+            return alert(
+              registerMode.email && registerMode.phone
+                ? _l('手机号/邮箱或者验证码错误!')
+                : registerMode.phone
+                ? _l('手机号或者验证码错误!')
+                : _l('邮箱或者验证码错误!'),
+              3,
+            );
+          } else {
+            accountResultAction(res);
+          }
         }
-      }
-    });
+      });
   };
   const refreshUrl = () => {
     if (!stateWX || !appId) {
       return;
     }
     type === 'weChat' &&
-      scanTpLogin({
-        state: stateWX,
-        appId,
-        autoLogin: isAutoLogin, //自动登录的参数
-      }).then(res => {
-        setAutoLoginKey({ ...res, appId });
-        const { accountResult, sessionId, state, accountId } = res;
-        //31过期， 30未扫码，可继续轮询
-        if (accountResult === 31) {
-          setState({ scan: false });
-        } else if (accountResult === 30) {
-          setState({ scan: true });
-        } else if (accountResult === 32) {
-          //32用户已经扫码但是未关注公众号 暂时接着轮询 ????
-          setState({ scan: true });
-        } else {
-          if (accountResult === 1 || accountResult === 24) {
-            //24代表账号频繁登录被锁，state里面会返回锁定时间；
-            accountResultAction(res);
+      externalPortalAjax
+        .scanTpLogin({
+          state: stateWX,
+          appId,
+          autoLogin: isAutoLogin, //自动登录的参数
+        })
+        .then(res => {
+          setAutoLoginKey({ ...res, appId });
+          const { accountResult, sessionId, state, accountId } = res;
+          //31过期， 30未扫码，可继续轮询
+          if (accountResult === 31) {
+            setState({ scan: false });
+          } else if (accountResult === 30) {
+            setState({ scan: true });
+          } else if (accountResult === 32) {
+            //32用户已经扫码但是未关注公众号 暂时接着轮询 ????
+            setState({ scan: true });
           } else {
-            setParamForPcWx({
-              mdAppId: appId || '',
-              wxState: state || '',
-              status: accountResult,
-              accountId: accountId || '',
-            });
+            if (accountResult === 1 || accountResult === 24) {
+              //24代表账号频繁登录被锁，state里面会返回锁定时间；
+              accountResultAction(res);
+            } else {
+              setParamForPcWx({
+                mdAppId: appId || '',
+                wxState: state || '',
+                status: accountResult,
+                accountId: accountId || '',
+              });
+            }
           }
-        }
-      });
+        });
   };
   useInterval(
     () => {
@@ -312,20 +319,22 @@ export default function LoginContainer(props) {
     }
     const { dialCode, emailOrTel, verifyCode } = dataLogin;
     const { ticket, randstr } = resRet;
-    login({
-      ...paramLogin,
-      account: dialCode + emailOrTel,
-      verifyCode,
-      captchaType: md.staticglobal.getCaptchaType(),
-      ticket,
-      randStr: randstr,
-      appId, //应用ID
-      state, // 微信登录成功之后返回的临时状态码 用于反向存储微信相关信息，具备有效期
-      autoLogin: isAutoLogin,
-    }).then(res => {
-      setAutoLoginKey({ ...res, appId });
-      loginCallback(res);
-    });
+    externalPortalAjax
+      .login({
+        ...paramLogin,
+        account: dialCode + emailOrTel,
+        verifyCode,
+        captchaType: md.staticglobal.getCaptchaType(),
+        ticket,
+        randStr: randstr,
+        appId, //应用ID
+        state, // 微信登录成功之后返回的临时状态码 用于反向存储微信相关信息，具备有效期
+        autoLogin: isAutoLogin,
+      })
+      .then(res => {
+        setAutoLoginKey({ ...res, appId });
+        loginCallback(res);
+      });
   };
 
   const loginCallback = res => {
@@ -366,64 +375,66 @@ export default function LoginContainer(props) {
     }
     const { dialCode, emailOrTel, verifyCode, password } = dataLogin;
     const { ticket, randstr } = resRet;
-    pwdLogin({
-      account: dialCode + emailOrTel,
-      password: encrypt(password),
-      appId,
-      verifyCode, //verifyCode不为空则代表是注册，为空则代表进行密码登录；
-      autoLogin: isAutoLogin,
-      captchaType: md.staticglobal.getCaptchaType(),
-      ticket,
-      randStr: randstr,
-    }).then(res => {
-      setAutoLoginKey({ ...res, appId });
-      const { accountResult, sessionId, accountId, projectId, state } = res;
-      switch (accountResult) {
-        case -1:
-          //-1代表用户不存在，则需要进入到密码注册流程；
-          setState({
-            isRegister: true,
-            sending: false,
-          });
-          alert(_l('请输入验证码'), 3);
-          break;
-        case -3:
-          // -3代表密码不符合格式规范，后端会强行校验；
-          const { md = {} } = window;
-          const { global = {} } = md;
-          const { SysSettings = {} } = global;
-          const { passwordRegexTip } = SysSettings;
-          setData({
-            ...dataLogin,
-            warnningData: [
-              { tipDom: '.passwordIcon', warnningText: passwordRegexTip || _l('8-20位，需包含字母和数字') },
-            ],
-          });
-          setState({
-            sending: false,
-          });
-          break;
-        case -2:
-          //-2代表密码错误校验失败；
-          setData({
-            ...dataLogin,
-            warnningData: [{ tipDom: '.passwordIcon', warnningText: _l('密码错误校验失败') }],
-          });
-          setState({
-            sending: false,
-          });
-          break;
-        case -4:
-          //-4代表用户未设置密码不能以密码方式登录，需要使用其他模式登录
-          alert(_l('验证码登录后在个人信息页面完成密码设置!'), 2);
-          setState({
-            sending: false,
-          });
-          break;
-        default:
-          loginCallback(res);
-      }
-    });
+    externalPortalAjax
+      .pwdLogin({
+        account: dialCode + emailOrTel,
+        password: encrypt(password),
+        appId,
+        verifyCode, //verifyCode不为空则代表是注册，为空则代表进行密码登录；
+        autoLogin: isAutoLogin,
+        captchaType: md.staticglobal.getCaptchaType(),
+        ticket,
+        randStr: randstr,
+      })
+      .then(res => {
+        setAutoLoginKey({ ...res, appId });
+        const { accountResult, sessionId, accountId, projectId, state } = res;
+        switch (accountResult) {
+          case -1:
+            //-1代表用户不存在，则需要进入到密码注册流程；
+            setState({
+              isRegister: true,
+              sending: false,
+            });
+            alert(_l('请输入验证码'), 3);
+            break;
+          case -3:
+            // -3代表密码不符合格式规范，后端会强行校验；
+            const { md = {} } = window;
+            const { global = {} } = md;
+            const { SysSettings = {} } = global;
+            const { passwordRegexTip } = SysSettings;
+            setData({
+              ...dataLogin,
+              warnningData: [
+                { tipDom: '.passwordIcon', warnningText: passwordRegexTip || _l('8-20位，需包含字母和数字') },
+              ],
+            });
+            setState({
+              sending: false,
+            });
+            break;
+          case -2:
+            //-2代表密码错误校验失败；
+            setData({
+              ...dataLogin,
+              warnningData: [{ tipDom: '.passwordIcon', warnningText: _l('密码错误校验失败') }],
+            });
+            setState({
+              sending: false,
+            });
+            break;
+          case -4:
+            //-4代表用户未设置密码不能以密码方式登录，需要使用其他模式登录
+            alert(_l('验证码登录后在个人信息页面完成密码设置!'), 2);
+            setState({
+              sending: false,
+            });
+            break;
+          default:
+            loginCallback(res);
+        }
+      });
   };
 
   const footer = (isValid, findPassword) => {
@@ -514,7 +525,7 @@ export default function LoginContainer(props) {
               setData({ ...dataLogin, ...data });
             }}
             appId={appId}
-            sendVerifyCode={sendVerifyCode}
+            sendVerifyCode={externalPortalAjax.sendVerifyCode}
             nextHtml={isValid => footer(isValid)}
           />
         );
@@ -531,7 +542,7 @@ export default function LoginContainer(props) {
               setData({ ...dataLogin, ...data });
             }}
             appId={appId}
-            sendVerifyCode={sendVerifyCode}
+            sendVerifyCode={externalPortalAjax.sendVerifyCode}
             nextHtml={isValid => footer(isValid, true)}
           />
         );
@@ -579,56 +590,72 @@ export default function LoginContainer(props) {
 
   return (
     <Wrap>
-      {paramForPcWx && (
+      {/* 未指定登录方式的情况下，对应tab,以及头部显示内容 */}
+      {!!loginForType ? (
         <div
           className="Font17 Hand back Gray_75"
           onClick={() => {
-            setState({
-              type: 'weChat',
-            });
-            setParamForPcWx(null);
+            loginForTypeBack();
           }}
         >
           <Icon icon="backspace mRight8" />
           {_l('返回')}
         </div>
+      ) : (
+        <React.Fragment>
+          {paramForPcWx && (
+            <div
+              className="Font17 Hand back Gray_75"
+              onClick={() => {
+                setState({
+                  type: 'weChat',
+                });
+                setParamForPcWx(null);
+              }}
+            >
+              <Icon icon="backspace mRight8" />
+              {_l('返回')}
+            </div>
+          )}
+          {(paramForPcWx || request.mdAppId) && (
+            <p className="Gray mTop20 Bold mBottom5">
+              <Icon icon={'check_circle1'} className="Font20 TxtMiddle mRight5" style={{ color: '#4CAF50' }} />
+              {registerMode.email && registerMode.phone
+                ? _l('扫码成功，请绑定手机号/邮箱！')
+                : registerMode.phone
+                ? _l('扫码成功，请绑定手机号')
+                : _l('扫码成功，请绑定邮箱')}
+            </p>
+          )}
+          {!(paramForPcWx || request.mdAppId) && LOGIN_WAY.filter(o => loginMode[o.key]).length > 1 && (
+            <ul className="flexRow">
+              {LOGIN_WAY.map((o, i) => {
+                if (!loginMode[o.key]) {
+                  return '';
+                }
+                return (
+                  <li
+                    className={cx('Hand')}
+                    onClick={() => {
+                      setState({ type: o.key, sending: false, isRegister: false });
+                      setData({
+                        dialCode: '',
+                        warnningData: [],
+                        emailOrTel: '', // 邮箱或手机
+                        verifyCode: '', // 验证码
+                        password: '',
+                      });
+                    }}
+                  >
+                    <span className={cx('Bold Font15', { isCur: type === o.key })}>{o.txt}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </React.Fragment>
       )}
-      {(paramForPcWx || request.mdAppId) && (
-        <p className="Gray mTop20 Bold mBottom5">
-          <Icon icon={'check_circle1'} className="Font20 TxtMiddle mRight5" style={{ color: '#4CAF50' }} />
-          {registerMode.email && registerMode.phone
-            ? _l('扫码成功，请绑定手机号/邮箱！')
-            : registerMode.phone
-            ? _l('扫码成功，请绑定手机号')
-            : _l('扫码成功，请绑定邮箱')}
-        </p>
-      )}
-      {!(paramForPcWx || request.mdAppId) && LOGIN_WAY.filter(o => loginMode[o.key]).length > 1 && (
-        <ul className="flexRow">
-          {LOGIN_WAY.map((o, i) => {
-            if (!loginMode[o.key]) {
-              return '';
-            }
-            return (
-              <li
-                className={cx('Hand')}
-                onClick={() => {
-                  setState({ type: o.key, sending: false, isRegister: false });
-                  setData({
-                    dialCode: '',
-                    warnningData: [],
-                    emailOrTel: '', // 邮箱或手机
-                    verifyCode: '', // 验证码
-                    password: '',
-                  });
-                }}
-              >
-                <span className={cx('Bold Font15', { isCur: type === o.key })}>{o.txt}</span>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+
       <WrapCon className="mTop28">{renderCon()}</WrapCon>
     </Wrap>
   );

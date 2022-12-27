@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import preall from 'src/common/preall';
 import GunterView from 'worksheet/views/GunterView/mobile';
 import store from 'src/redux/configureStore';
-import 'src/common/mdcss/inStyle.css';
 import 'src/common/mdcss/basic.css';
 import 'src/common/mdcss/Themes/theme.less';
 import 'src/common/mdcss/iconfont/mdfont.css';

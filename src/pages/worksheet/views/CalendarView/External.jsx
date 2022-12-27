@@ -8,6 +8,7 @@ import { eventStr } from './util';
 let isChangeing = false;
 import { bindActionCreators } from 'redux';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
+import _ from 'lodash';
 @connect(
   state => ({
     ...state.sheet,

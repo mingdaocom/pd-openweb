@@ -7,6 +7,7 @@ import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponen
 import './index.less';
 import { getIcons } from '../../../utils';
 import { APP_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
+import _ from 'lodash';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -102,6 +103,7 @@ export default class ActionFields extends Component {
       >
         <div className="conditionWrapContent">
           {title && <div className="pLeft16 pRight16 mTop15">{title}</div>}
+          {header && header}
           {openSearch && (
             <div
               className="flexRow mTop5 mBottom5"
@@ -119,14 +121,12 @@ export default class ActionFields extends Component {
                   this.search = search;
                 }}
                 autoFocus
-                className="mLeft5 flex Border0 placeholderColor"
-                placeholder={_l('搜索')}
+                className="mLeft5 flex Border0 placeholderColor Gray"
+                placeholder={_l('搜索流程节点对象下的字段')}
                 onChange={evt => this.setState({ keywords: evt.target.value.trim() })}
               />
             </div>
           )}
-
-          {header && header}
           <div className="conditionWrap">
             <div className="conditionScrollWrap">
               {!condition.length && keywords && (

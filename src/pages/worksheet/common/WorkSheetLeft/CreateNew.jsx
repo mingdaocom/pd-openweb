@@ -3,6 +3,7 @@ import { string, func } from 'prop-types';
 import { Dialog, Input } from 'ming-ui';
 import { createSheetOrCustomPageConfig } from '../../config';
 import styled from 'styled-components';
+import _ from 'lodash';
 const CreateNewContent = styled.div`
   display: flex;
   align-items: center;

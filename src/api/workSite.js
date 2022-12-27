@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取工作地点列表
   * @param {Object} args 请求参数

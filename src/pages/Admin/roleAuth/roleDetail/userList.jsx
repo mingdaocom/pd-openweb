@@ -5,6 +5,7 @@ import UserHead from 'src/pages/feed/components/userHead';
 
 import RoleController from 'src/api/role';
 import cx from 'classnames';
+import _ from 'lodash';
 
 class RoleUserList extends React.Component {
   static propTypes = {

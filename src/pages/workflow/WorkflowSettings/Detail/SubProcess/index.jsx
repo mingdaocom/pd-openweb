@@ -5,6 +5,7 @@ import process from '../../../api/process';
 import { DetailHeader, DetailFooter, SelectNodeObject, UpdateFields } from '../components';
 import { NODE_TYPE } from '../../enum';
 import ProcessVariables from '../../ProcessConfig/components/ProcessVariables';
+import _ from 'lodash';
 
 export default class SubProcess extends Component {
   constructor(props) {

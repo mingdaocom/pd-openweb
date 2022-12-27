@@ -6,6 +6,7 @@ import InviteDialog from 'src/components/invite';
 import AddFriends from 'src/components/addFriends/addFriends';
 import CreateGroup from 'src/components/group/create/creatGroup';
 import Invite from 'src/components/common/inviteMember/inviteMember';
+import _ from 'lodash';
 
 export default class SearchBar extends React.Component {
   constructor(props) {

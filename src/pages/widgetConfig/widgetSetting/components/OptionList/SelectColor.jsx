@@ -3,6 +3,7 @@ import { string, func, arrayOf } from 'prop-types';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { OPTION_COLORS_LIST } from '../../../config';
+import _ from 'lodash';
 
 const SelectColorWrap = styled.div`
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);

@@ -1,4 +1,4 @@
-module.exports = {<% for(var i = 0; i < fns.length; i++) {%>
+export default {<% for(var i = 0; i < fns.length; i++) {%>
   /**
   * <%= fns[i].description  %>
   * @param {Object} args 请求参数<% for(var fnkey in fns[i].params) {%>

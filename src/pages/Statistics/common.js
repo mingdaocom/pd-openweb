@@ -1,5 +1,8 @@
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { reportTypes } from './Charts/common';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import _ from 'lodash';
+import moment from 'moment';
 
 /**
  * 图表类型数据
@@ -173,14 +176,11 @@ export function initConfigDetail(id, data, currentReport) {
     result.xaxes = currentReport.xaxes;
     result.split = currentReport.split;
 
-    if (reportTypes.NumberChart === reportType) {
-      result.xaxes = {};
-    }
     if (reportTypes.DualAxes === reportType) {
       result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
       rightY.yaxisList = currentReport.yaxisList.length > 1 ? [currentReport.yaxisList[1]] : [];
     }
-    if ([reportTypes.LineChart, reportTypes.BarChart, reportTypes.RadarChart].includes(reportType)) {
+    if ([reportTypes.LineChart, reportTypes.BarChart, reportTypes.RadarChart, reportTypes.NumberChart].includes(reportType)) {
       result.yaxisList = currentReport.yaxisList;
       if (_.get(currentReport, ['split', 'controlId'])) {
         result.split = currentReport.split;
@@ -464,13 +464,43 @@ export const isCustomSort = (type) => {
 export const defaultDropdownScopeData = 18;
 
 /**
- * 处理数据对比的周期文案
+ * 处理数值图数据对比的周期文案
  */
 export const formatContrastTypes = ({ rangeType, rangeValue }) => {
+  const base = [];
+  switch (rangeType) {
+    case 4:
+    case 5:
+    case 6:
+      base.push({ text: _l('与上周同比'), value: 2 });
+      break;
+    case 8:
+    case 9:
+    case 10:
+      base.push({ text: _l('与上个月同比'), value: 2 });
+      break;
+    case 11:
+    case 12:
+    case 13:
+      base.push({ text: _l('与上个季度同比'), value: 2 });
+      break;
+    case 15:
+    case 16:
+    case 17:
+      base.push({ text: _l('与上一年同比'), value: 2 });
+      break;
+    default:
+      break;
+  }
+  return base;
+};
+
+/**
+ * 处理折线图数据对比的周期文案
+ */
+export const formatLineChartContrastTypes = ({ rangeType, rangeValue }) => {
   const base = [{ text: _l('无'), value: 0 }];
   const last = { text: _l('与上一年相比'), value: 2 };
-  const contrast = dropdownScopeData.filter(item => item.value === rangeType)[0];
-  const { text } = contrast;
   switch (rangeType) {
     case 0:
       // 全部
@@ -531,6 +561,7 @@ export const formatContrastTypes = ({ rangeType, rangeValue }) => {
   }
   return base;
 };
+
 
 /**
  * 统计范围
@@ -931,7 +962,7 @@ export const fillValueMap = result => {
     result.style = {};
   }
 
-  if ([reportTypes.PivotTable, reportTypes.NumberChart].includes(reportType)) {
+  if ([reportTypes.PivotTable].includes(reportType)) {
     result.map = [];
     return result;
   }
@@ -953,11 +984,21 @@ export const fillValueMap = result => {
         value
       }
     });
-    return result;
+    return fillDealMaskValueMap(result);
   }
 
   if ([reportTypes.FunnelChart, reportTypes.LineChart].includes(reportType)) {
     result.contrastMap.forEach(control => {
+      control.value.forEach(item => {
+        item.originalX = item.x;
+        item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x;
+      });
+      return control;
+    });
+  }
+
+  if ([reportTypes.NumberChart].includes(reportType)) {
+    result.contrast.forEach(control => {
       control.value.forEach(item => {
         item.originalX = item.x;
         item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x;
@@ -997,8 +1038,27 @@ export const fillValueMap = result => {
     return control;
   });
 
-  return result;
+  return fillDealMaskValueMap(result);
 };
+
+/**
+ * 配置掩码
+ */
+const fillDealMaskValueMap = result => {
+  const { xaxes, reportType } = result;
+  const advancedSetting = xaxes.advancedSetting || {};
+
+  if (advancedSetting.datamask === '1') {
+    result.map.forEach(control => {
+      control.value.forEach(item => {
+        item.x = dealMaskValue({ value: item.x, advancedSetting });
+      });
+      return control;
+    });
+  }
+
+  return result;
+}
 
 /**
  * 合并拿一些后端计算后的值

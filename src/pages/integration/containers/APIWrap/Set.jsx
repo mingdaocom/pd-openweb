@@ -6,6 +6,7 @@ import ConnectAvator from '../../components/ConnectAvator';
 import Card from './Card';
 import Item from './Item';
 import { CARD_TYE_LIST } from 'src/pages/integration/config';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   padding: 0 24px 24px;

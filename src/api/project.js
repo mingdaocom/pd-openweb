@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取我加入的网络
   * @param {Object} args 请求参数

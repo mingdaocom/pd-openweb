@@ -5,6 +5,7 @@ import cx from 'classnames';
 import { emitter, getProject } from 'src/util';
 import { ScrollView, Menu, MenuItem } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
+import _ from 'lodash';
 
 const ProjectSwitch = styled(VerticalMiddle)`
   cursor: pointer;

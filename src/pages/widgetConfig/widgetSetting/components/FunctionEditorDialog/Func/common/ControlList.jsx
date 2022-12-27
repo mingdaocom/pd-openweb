@@ -9,10 +9,13 @@ const Con = styled.div`
   padding: 10px 0;
   .fnTitle {
     font-weight: bold;
-    margin-left: 18px;
   }
   .ant-collapse-header {
     padding: 12px 14px !important;
+  }
+  .ant-collapse > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
+    margin-right: 4px;
+    vertical-align: middle;
   }
   .ant-collapse-item {
     border-bottom: none !important;
@@ -91,7 +94,9 @@ export default function ControlList(props) {
                     }}
                   >
                     <Icon className={`icon icon-${getIconByType(c.type || 6)}`} />
-                    {c.controlName}
+                    <span className="ellipsis" title={c.controlName}>
+                      {c.controlName}
+                    </span>
                   </ControlItem>
                 ))}
             </Collapse.Panel>

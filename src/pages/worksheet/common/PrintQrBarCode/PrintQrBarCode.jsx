@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Button, Checkbox } from 'ming-ui';
 import styled from 'styled-components';
-import { getCodePrint, getFilterRows, getRowsShortUrl, saveRecordCodePrintConfig } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import Skeleton from 'src/router/Application/Skeleton';
 import saveTemplateConfirm from 'src/pages/Print/components/saveTemplateConfirm';
 import FilterDetailName from 'worksheet/common/WorkSheetFilter/components/FilterDetailName';
@@ -25,6 +25,7 @@ import {
   getDefaultText,
 } from './util';
 import { generatePdf } from '.';
+import _ from 'lodash';
 
 const Con = styled.div`
   height: 100vh
@@ -172,7 +173,7 @@ export default function PrintQrBarCode(props) {
         sourceControlId: config.sourceControlId,
         row: previewRow,
         controls,
-      }) || 'SAMPLE',
+      }),
       getCodeTexts(
         {
           showTexts: config.showTexts,
@@ -208,21 +209,23 @@ export default function PrintQrBarCode(props) {
   }
   function updatePreviewRowShareUrl(recordId) {
     if (viewId) {
-      getRowsShortUrl({
-        appId,
-        viewId,
-        worksheetId,
-        rowIds: [recordId],
-      }).then(data => {
-        setPreviewRowPublicUrl(data[recordId]);
-      });
+      worksheetAjax
+        .getRowsShortUrl({
+          appId,
+          viewId,
+          worksheetId,
+          rowIds: [recordId],
+        })
+        .then(data => {
+          setPreviewRowPublicUrl(data[recordId]);
+        });
     }
   }
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     (async () => {
       if (id) {
-        const data = await getCodePrint({
+        const data = await worksheetAjax.getCodePrint({
           id,
           projectId,
         });
@@ -231,7 +234,7 @@ export default function PrintQrBarCode(props) {
         setLoading(false);
       }
       if (_.isEmpty(previewRow)) {
-        const resData = await getFilterRows({
+        const resData = await worksheetAjax.getFilterRows({
           worksheetId,
           pageSize: 1,
           pageIndex: 1,
@@ -294,7 +297,7 @@ export default function PrintQrBarCode(props) {
               },
             };
             function update(cb = () => {}) {
-              saveRecordCodePrintConfig(args).then(data => {
+              worksheetAjax.saveRecordCodePrintConfig(args).then(data => {
                 alert(_l('保存成功'));
                 setChanged(false);
                 if (!id) {

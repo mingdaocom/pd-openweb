@@ -4,6 +4,7 @@ import { TagTextarea } from 'ming-ui';
 import SelectOtherFields from '../SelectOtherFields';
 import Tag from '../Tag';
 import cx from 'classnames';
+import _ from 'lodash';
 
 export default class CustomTextarea extends Component {
   static propTypes = {

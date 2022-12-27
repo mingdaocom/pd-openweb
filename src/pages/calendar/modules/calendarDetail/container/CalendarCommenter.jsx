@@ -5,6 +5,7 @@ import Commenter from 'src/components/comment/commenter';
 
 import { htmlDecodeReg } from 'src/util';
 import Icon from 'ming-ui/components/Icon';
+import moment from 'moment';
 
 export default class CalendarCommenter extends Component {
   constructor(props) {

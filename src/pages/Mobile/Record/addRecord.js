@@ -14,11 +14,12 @@ export default class AddRecord extends Component {
     };
   }
   componentDidMount() {
-    const { params } = this.props.match;
+    const { params = {} } = this.props.match || {};
+    const { appId, worksheetId } = this.props;
     worksheetApi
       .getWorksheetInfo({
-        appId: params.appId,
-        worksheetId: params.worksheetId,
+        appId: params.appId || appId,
+        worksheetId: params.worksheetId || worksheetId,
         getTemplate: true,
         getViews: true,
       })
@@ -27,7 +28,8 @@ export default class AddRecord extends Component {
       });
   }
   render() {
-    const { params } = this.props.match;
+    const { params = {} } = this.props.match || {};
+    const { appId, worksheetId, viewId, defaultFormData = {} ,defaultFormDataEditable} = this.props;
     const { loading, worksheetInfo } = this.state;
 
     return (
@@ -39,9 +41,9 @@ export default class AddRecord extends Component {
         ) : (
           <div className="h100 pTop20">
             <MobileNewRecord
-              appId={params.appId}
-              worksheetId={params.worksheetId}
-              viewId={params.viewId}
+              appId={params.appId || appId}
+              worksheetId={params.worksheetId || worksheetId}
+              viewId={params.viewId || viewId}
               worksheetInfo={worksheetInfo}
               addType={2}
               notDialog={true}
@@ -57,6 +59,8 @@ export default class AddRecord extends Component {
                     );
                   });
               }}
+              defaultFormData={defaultFormData}
+              defaultFormDataEditable={defaultFormDataEditable}
             />
           </div>
         )}

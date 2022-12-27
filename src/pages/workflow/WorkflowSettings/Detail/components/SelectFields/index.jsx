@@ -3,6 +3,7 @@ import cx from 'classnames';
 import { Dropdown, Icon } from 'ming-ui';
 import { CONTROLS_NAME } from '../../../enum';
 import { Tooltip } from 'antd';
+import _ from 'lodash';
 
 export default function({ controls, selectedIds, placeholder = _l('请选择'), updateSource }) {
   const list = (controls || []).map(item => {

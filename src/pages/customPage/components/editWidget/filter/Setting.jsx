@@ -5,6 +5,7 @@ import { Input, Checkbox, Space, Divider, Tooltip } from 'antd';
 import { connect } from 'react-redux';
 import FilterObject from './FilterObject';
 import FilterControl from './FilterControl';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   box-sizing: border-box;

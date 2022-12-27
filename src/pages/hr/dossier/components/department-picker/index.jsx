@@ -7,6 +7,7 @@ import './style.less';
 import Icon from 'ming-ui/components/Icon';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
 import { FormError } from '../lib';
+import _ from 'lodash';
 
 class DepartmentPicker extends Component {
   constructor(props) {

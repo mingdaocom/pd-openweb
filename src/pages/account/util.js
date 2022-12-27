@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
+import _ from 'lodash';
 
 // 特殊手机号验证是否合法
 export const specialTelVerify = value => {

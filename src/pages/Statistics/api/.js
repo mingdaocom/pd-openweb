@@ -1,8 +1,8 @@
 import base, { controllerName } from './base';
 /**
- * 
+ *
 */
-var  = {
+var x = {
   /**
    * index
    * @param {Object} args 请求参数
@@ -104,4 +104,4 @@ var  = {
     return $.api(controllerName, 'downLoad{id}', args, $.extend(base, options));
   },
 };
-module.exports = ;
+export default x;

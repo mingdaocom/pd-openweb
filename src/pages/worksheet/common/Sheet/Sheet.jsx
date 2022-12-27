@@ -18,6 +18,7 @@ import DragMask from 'worksheet/common/DragMask';
 import { Icon } from 'ming-ui';
 const { sheet, gallery } = VIEW_DISPLAY_TYPE;
 import './style.less';
+import _ from 'lodash';
 
 const Con = styled.div`
   flex: 1;
@@ -189,7 +190,9 @@ function Sheet(props) {
                       }
                     }}
                   />
-                  {isOpenGroup && <Drag left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)}></Drag>}
+                  {!_.get(window, 'shareState.isPublicView') && isOpenGroup && (
+                    <Drag left={groupFilterWidth} onMouseDown={() => setDragMaskVisible(true)} />
+                  )}
                   <View {...basePara} />
                 </ConView>
               ) : (

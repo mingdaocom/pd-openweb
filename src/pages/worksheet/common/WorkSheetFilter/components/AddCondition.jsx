@@ -6,6 +6,7 @@ import { Menu, MenuItem, Input } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import _ from 'lodash';
 export default class AddCondition extends Component {
   static propTypes = {
     defaultVisible: PropTypes.bool,
@@ -45,7 +46,7 @@ export default class AddCondition extends Component {
     let {
       disabled,
       from,
-      columns,
+      columns = [],
       isAppendToBody,
       onAdd,
       children,
@@ -88,7 +89,7 @@ export default class AddCondition extends Component {
                 style={this.props.style}
               >
                 {columns.length ? (
-                  _.sortBy(columns, 'row').map((c, i) => (
+                  columns.map((c, i) => (
                     <MenuItem
                       className={cx({ segmentationLine: 'segmentation' in c })}
                       onClick={() => {
@@ -98,7 +99,9 @@ export default class AddCondition extends Component {
                       key={i}
                     >
                       <VerticalMiddle>
-                        <i className={cx('Font16 icon', `icon-${getIconByType(c.type)}`)}></i>
+                        <i
+                          className={cx('Font16 icon', `icon-${getIconByType(c.originType === 37 ? 37 : c.type)}`)}
+                        ></i>
                         <span className="ellipsis">{c.controlName}</span>
                       </VerticalMiddle>
                     </MenuItem>

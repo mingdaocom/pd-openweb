@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { CityPicker, Input, Icon } from 'ming-ui';
 import { Select, Checkbox } from 'antd';
+import _ from 'lodash';
 
 const area = [{
   text: _l('全国'),

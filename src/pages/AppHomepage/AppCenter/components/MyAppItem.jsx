@@ -15,6 +15,7 @@ import { compareProps, isCanEdit } from 'src/pages/PageHeader/util';
 import { ADVANCE_AUTHORITY } from 'src/pages/PageHeader/AppPkgHeader/config';
 import AppStatusComp from './AppStatus';
 import SvgIcon from 'src/components/SvgIcon';
+import _ from 'lodash';
 
 @withClickAway
 export default class MyAppItem extends Component {
@@ -117,7 +118,15 @@ export default class MyAppItem extends Component {
     const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${id}`));
     if (storage) {
       const { lastGroupId, lastWorksheetId, lastViewId } = storage;
-      return `/app/${id}/${_.filter([lastGroupId, lastWorksheetId, lastViewId], item => !!item).join('/')}?from=insite`;
+      if (lastGroupId && lastWorksheetId && lastViewId) {
+        return `/app/${id}/${[lastGroupId, lastWorksheetId, lastViewId].join('/')}?from=insite`;
+      } else if (lastGroupId && lastWorksheetId) {
+        return `/app/${id}/${[lastGroupId, lastWorksheetId].join('/')}?from=insite`;
+      } else if (lastGroupId) {
+        return `/app/${id}/${lastGroupId}?from=insite`;
+      } else {
+        return `/app/${id}`;
+      }
     } else {
       return `/app/${id}`;
     }

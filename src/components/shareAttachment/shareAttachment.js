@@ -9,21 +9,22 @@ import searchListItemHtml from './tpl/searchListItem.htm';
 import s from 'src/components/common/mstc/s/s';
 import c from 'src/components/common/mstc/c/c';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
+import KcController from 'src/api/kc';
+import WorksheetController from 'src/api/worksheet';
+import ChatController from 'src/api/chat';
+import DiscussionController from 'src/api/discussion';
+import AttachmentController from 'src/api/attachment';
 
 var mainTpl = doT.template(mainHtml);
 var listTpl = doT.template(searchListHtml);
 var listItemTpl = doT.template(searchListItemHtml);
-var { getNodeDetail, updateNode } = require('src/api/kc');
-var { updateWorksheetShareRange, updateWorksheetRowShareRange, getWorksheetShareUrl } = require('src/api/worksheet');
 import { _getMyTaskList, _getChatList, _convertToOtherAttachment, createNewTask, createNewChat } from './ajax';
-var { sendFileToChat, sendCardToChat } = require('src/api/chat');
-var { addDiscussion } = require('src/api/discussion');
-var { shareAttachmentByPost } = require('src/api/attachment');
 import { ATTACHMENT_TYPE, NODE_VISIBLE_TYPE, WORKSHEET_VISIBLE_TYPE, SEND_TO_TYPE, CHAT_CARD_TYPE } from './enum';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { index as DialogLayer } from 'src/components/mdDialog/dialog';
 import { getClassNameByExt } from 'src/util';
 import toMobileDailog from './toMobile';
+import _ from 'lodash';
 
 // 目的地选择列表组件
 var SelectSendTo = function (options, callback) {
@@ -349,7 +350,7 @@ ShareAttachment.prototype = {
       args.objectType = 2;
       args.rowId = SA.options.rowId;
     }
-    getWorksheetShareUrl(args).then(shareUrl => {
+    WorksheetController.getWorksheetShareUrl(args).then(shareUrl => {
       SA.options.node = Object.assign({}, SA.options.node, {
         shareUrl,
       });
@@ -360,7 +361,7 @@ ShareAttachment.prototype = {
     var SA = this;
     switch (SA.options.attachmentType) {
       case ATTACHMENT_TYPE.COMMON:
-        shareAttachmentByPost({
+        AttachmentController.shareAttachmentByPost({
           fileId: SA.options.id,
         })
           .then(function (data) {
@@ -374,7 +375,7 @@ ShareAttachment.prototype = {
           });
         break;
       case ATTACHMENT_TYPE.KC:
-        getNodeDetail({
+        KcController.getNodeDetail({
           id: SA.options.id,
         }).then(function (data) {
           if (!data) {
@@ -893,7 +894,7 @@ ShareAttachment.prototype = {
       case ATTACHMENT_TYPE.KC:
         file.shareUrl = options.node.shareUrl + '#';
         if (options.node.canChangeEditable && SA.options.node.visibleType !== NODE_VISIBLE_TYPE.PUBLIC) {
-          updateNode({
+          KcController.updateNode({
             id: options.node.id,
             visibleType: NODE_VISIBLE_TYPE.PUBLIC,
           }).then(function (data) {
@@ -976,7 +977,7 @@ ShareAttachment.prototype = {
             toGroupId: '',
           };
           params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = (SA.selectedChat || {}).value;
-          sendPromise = sendFileToChat(params);
+          sendPromise = ChatController.sendFileToChat(params);
         } else if (attachmentType === ATTACHMENT_TYPE.KC) {
           var cards = [
             {
@@ -993,7 +994,7 @@ ShareAttachment.prototype = {
             toGroupId: '',
           };
           params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = (SA.selectedChat || {}).value;
-          sendPromise = sendCardToChat(params);
+          sendPromise = ChatController.sendCardToChat(params);
         } else if (attachmentType === ATTACHMENT_TYPE.QINIU) {
           var originalFileName = SA.options.name;
           if (SA.newFileName) {
@@ -1014,7 +1015,7 @@ ShareAttachment.prototype = {
             toGroupId: '',
           };
           params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = (SA.selectedChat || {}).value;
-          sendPromise = sendFileToChat(params);
+          sendPromise = ChatController.sendFileToChat(params);
         } else if (attachmentType === ATTACHMENT_TYPE.WORKSHEET || attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
           params = {
             cards:
@@ -1048,7 +1049,7 @@ ShareAttachment.prototype = {
             toGroupId: '',
           };
           params[selectedChatType === CHAT_TYPE.PERSON ? 'toAccountId' : 'toGroupId'] = (SA.selectedChat || {}).value;
-          sendPromise = sendCardToChat(params);
+          sendPromise = ChatController.sendCardToChat(params);
         }
         sendPromise
           .then(function (data) {
@@ -1101,7 +1102,7 @@ ShareAttachment.prototype = {
           }
           params.attachments = JSON.stringify([node]);
         }
-        addDiscussion(params)
+        DiscussionController.addDiscussion(params)
           .then(function (data) {
             if (data.error) {
               alert(_l('分享失败'));
@@ -1247,7 +1248,7 @@ ShareAttachment.prototype = {
   updateVisibleType(visibleType, callback) {
     var SA = this;
     visibleType = parseInt(visibleType, 10);
-    updateNode({
+    KcController.updateNode({
       id: SA.options.id,
       visibleType: visibleType,
     })
@@ -1272,7 +1273,7 @@ ShareAttachment.prototype = {
   updateWorkSheetVisibleType(visibleType, callback) {
     var SA = this;
     visibleType = parseInt(visibleType, 10);
-    updateWorksheetShareRange({
+    WorksheetController.updateWorksheetShareRange({
       worksheetId: SA.options.id,
       viewId: SA.options.viewId,
       shareRange: visibleType,
@@ -1291,7 +1292,7 @@ ShareAttachment.prototype = {
   updateWorksheetRowShareRange(visibleType, callback) {
     var SA = this;
     visibleType = parseInt(visibleType, 10);
-    updateWorksheetRowShareRange({
+    WorksheetController.updateWorksheetRowShareRange({
       worksheetId: SA.options.id,
       rowId: SA.options.rowId,
       shareRange: visibleType,

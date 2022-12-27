@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
 import { emitter } from 'worksheet/util';
+import _ from 'lodash';
 export default class WorkSheetCommentList extends Component {
   constructor(props) {
     super(props);

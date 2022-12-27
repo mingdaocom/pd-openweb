@@ -7,7 +7,8 @@ import {
 } from '../util';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { getAdvanceSetting } from 'src/util';
-import { renderCellText } from 'worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import _ from 'lodash';
 
 // 获取svg的相关位置数据
 export const getPosition = ($parent, $cur, scale = 1) => {
@@ -84,9 +85,9 @@ export const dealHierarchyData = (
     formData,
     abstractValue: abstract
       ? renderCellText({
-        ...(worksheetControls.find(it => it.controlId === abstract) || {}),
-        value: item[abstract],
-      })
+          ...(worksheetControls.find(it => it.controlId === abstract) || {}),
+          value: item[abstract],
+        })
       : '',
   };
   // }

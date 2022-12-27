@@ -5,6 +5,7 @@ import DialogRelationControl from 'src/components/relationControl/relationContro
 import { getRelationText } from 'src/pages/widgetConfig/util/index';
 import List from './List';
 import cx from 'classnames';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {

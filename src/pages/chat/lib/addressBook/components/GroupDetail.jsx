@@ -11,7 +11,7 @@ import { LazyloadImg } from 'src/pages/feed/components/common/img';
 import API, { openGroup, closeGroup } from '../api';
 import { config } from '../config';
 
-import { default as SettingGroup } from 'src/components/group/settingGroup/settingGroups';
+import SettingGroup from 'src/components/group/settingGroup/settingGroups';
 
 export default class GroupDetail extends React.Component {
   constructor(props) {

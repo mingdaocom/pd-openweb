@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 删除某账户的实体的标签
   * @param {Object} args 请求参数

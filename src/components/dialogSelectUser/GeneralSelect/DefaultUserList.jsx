@@ -7,6 +7,7 @@
 import React, { Component } from 'react';
 import User from './User';
 import NoData from './NoData';
+import _ from 'lodash';
 
 export default class DefaultUserList extends Component {
   getChecked(user) {

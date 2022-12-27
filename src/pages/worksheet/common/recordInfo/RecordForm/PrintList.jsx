@@ -5,13 +5,14 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { MenuItem, Icon } from 'ming-ui';
 import styled from 'styled-components';
-import { getPrintList, getRowDetail } from 'src/api/worksheet';
-import { add } from 'src/api/webCache';
+import worksheetAjax from 'src/api/worksheet';
+import webCacheAjax from 'src/api/webCache';
 import { generatePdf } from 'worksheet/common/PrintQrBarCode';
 import { getPrintCardInfoOfTemplate } from 'worksheet/common/PrintQrBarCode/enum';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import _ from 'lodash';
 const MenuItemWrap = styled(MenuItem)`
   &.active,
   &.hover {
@@ -60,7 +61,7 @@ export default class PrintList extends Component {
   componentDidMount() {
     const { viewId, worksheetId } = this.props;
     if (worksheetId) {
-      getPrintList({
+      worksheetAjax.getPrintList({
         worksheetId,
         viewId,
       }).then(tempList => {
@@ -90,7 +91,7 @@ export default class PrintList extends Component {
         id: instanceId,
       };
       let printKey = Math.random().toString(36).substring(2);
-      add({
+      webCacheAjax.add({
         key: `${printKey}`,
         value: JSON.stringify(printData),
       });
@@ -159,7 +160,7 @@ export default class PrintList extends Component {
                             return;
                           }
                           if (_.includes([3, 4], it.type)) {
-                            const data = await getRowDetail({
+                            const data = await worksheetAjax.getRowDetail({
                               appId,
                               viewId,
                               worksheetId,
@@ -196,7 +197,7 @@ export default class PrintList extends Component {
                               attriData: attriData[0],
                             };
                             let printKey = Math.random().toString(36).substring(2);
-                            add({
+                            webCacheAjax.add({
                               key: `${printKey}`,
                               value: JSON.stringify(printData),
                             });

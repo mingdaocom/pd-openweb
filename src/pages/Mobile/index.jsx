@@ -10,6 +10,7 @@ import store from 'src/redux/configureStore';
 import { socketInit } from 'src/socket/mobileSocketInit';
 import { ROUTE_CONFIG, PORTAL } from './config';
 import './index.less';
+import _ from 'lodash';
 
 const isIphonex = () => {
   if (typeof window !== 'undefined' && window) {

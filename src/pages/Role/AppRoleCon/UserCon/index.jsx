@@ -15,14 +15,9 @@ import BatchDialog from 'src/pages/Role/AppRoleCon/component/BatchDialog';
 import { getCurrentProject } from 'src/util';
 import { Dialog, Icon, LoadDiv, Tooltip } from 'ming-ui';
 import DialogSelectDept from 'src/components/dialogSelectDept';
-import DialogSelectJob from 'src/components/DialogSelectJob';
-import DialogSelectOrgRole from 'src/components/DialogSelectOrgRole';
-import AppAjax, {
-  batchEditMemberRole,
-  batchMemberQuitApp,
-  removeRoleMembers,
-  removeUserToRole,
-} from 'src/api/appManagement';
+import { selectJob } from 'src/components/DialogSelectJob';
+import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
+import AppAjax from 'src/api/appManagement';
 import { getIcon, getColor, getTxtColor, userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { navigateTo } from 'src/router/navigateTo';
@@ -152,7 +147,6 @@ class Con extends React.Component {
       show: false,
       userIds: [],
       isAll: false,
-      orgRoleDialogVisible: false,
       keywords: '',
       roleList: [],
       showDeleRoleByMoveUser: false,
@@ -263,7 +257,7 @@ class Con extends React.Component {
                     >
                       <span className="flex Font14">
                         {o.name}
-                        {o.roleId === 'apply' && apply.length > 0 && <span className="hs mLeft2 InlineBlock"></span>}
+                        {o.roleId === 'apply' && apply.length > 0 && <span className="hs mLeft2 InlineBlock" />}
                       </span>
                       <span className="num">
                         {o.roleId === 'all'
@@ -347,9 +341,7 @@ class Con extends React.Component {
                       className="flex flexRow alignItemsCenter TxtMiddle Font14 overflow_ellipsis breakAll InlineBlock"
                       title={o.name}
                     >
-                      {roleId !== o.roleId && o.isMyRole && (
-                        <span className="isMyRole mRight3 InlineBlock TxtMiddle"></span>
-                      )}
+                      {roleId !== o.roleId && o.isMyRole && <span className="isMyRole mRight3 InlineBlock TxtMiddle" />}
                       {o.name}
                     </span>
 
@@ -455,7 +447,7 @@ class Con extends React.Component {
       anim: false,
       onOk: () => {
         let selectMember = this.setData();
-        batchMemberQuitApp({
+        AppAjax.batchMemberQuitApp({
           appId,
           selectMember,
         }).then(res => {
@@ -491,7 +483,7 @@ class Con extends React.Component {
           jobIds,
           organizeRoleIds,
         } = this.setData();
-        removeRoleMembers({
+        AppAjax.removeRoleMembers({
           selectAll,
           appId,
           roleId,
@@ -533,7 +525,7 @@ class Con extends React.Component {
     } = this.props;
     // batchEditMemberRole; 批量编辑用户角色
     let roleName = roleInfos.filter(o => roleIds.includes(o.roleId)).map(o => o.name);
-    batchEditMemberRole({
+    AppAjax.batchEditMemberRole({
       appId,
       selectMember: _.omit(this.setData(), ['selectAll']),
       dstRoleIds: roleIds,
@@ -610,7 +602,7 @@ class Con extends React.Component {
       jobIds,
       organizeRoleIds,
     } = this.setData();
-    removeUserToRole({
+    AppAjax.removeUserToRole({
       selectAll,
       sourceAppRoleId: roleId,
       resultAppRoleIds: roleIds,
@@ -637,7 +629,7 @@ class Con extends React.Component {
   addJobToRole = () => {
     const { projectId = '' } = this.props;
     const { roleId } = this.state;
-    new DialogSelectJob({
+    selectJob({
       showCompanyName: false,
       projectId,
       isAppRole: true,
@@ -765,7 +757,7 @@ class Con extends React.Component {
 
   renderCon = () => {
     const { roleId = 'all' } = this.state;
-    const { appRole = {} } = this.props;
+    const { appRole = {}, projectId } = this.props;
     const { roleInfos = [] } = appRole;
     switch (roleId) {
       case 'apply':
@@ -818,7 +810,17 @@ class Con extends React.Component {
             addDepartmentToRole={this.addDepartmentToRole}
             addJobToRole={this.addJobToRole}
             addOrgRole={() => {
-              this.setState({ orgRoleDialogVisible: true });
+              selectOrgRole({
+                projectId,
+                showCompanyName: false,
+                overlayClosable: false,
+                onSave: data => {
+                  let addOrgRoleList = data;
+                  if (!_.isEmpty(addOrgRoleList)) {
+                    this.addRoleMembers(roleId, { addOrgRoleList });
+                  }
+                },
+              });
             }}
             delUserRole={(userIds, isAll = false) => {
               this.setState(
@@ -844,7 +846,7 @@ class Con extends React.Component {
   };
 
   render() {
-    const { show, userIds, roleId, orgRoleDialogVisible } = this.state;
+    const { show, userIds, roleId } = this.state;
     const { appRole = {}, projectId } = this.props;
     const { outsourcing = {}, userList = [], roleInfos = [], pageLoading } = appRole;
     const { memberModels = [] } = outsourcing;
@@ -940,36 +942,6 @@ class Con extends React.Component {
             }}
           />
         )}
-        {orgRoleDialogVisible && (
-          <DialogSelectOrgRole
-            showCompanyName={false}
-            projectId={projectId}
-            overlayClosable={false}
-            orgRoleDialogVisible={orgRoleDialogVisible}
-            onClose={() => {
-              this.setState({ orgRoleDialogVisible: false });
-            }}
-            onSave={data => {
-              let addOrgRoleList = data;
-              if (!_.isEmpty(addOrgRoleList)) {
-                this.addRoleMembers(roleId, { addOrgRoleList });
-              }
-            }}
-          />
-        )}
-        {this.state.showDeleRoleByMoveUser && (
-          <DeleRoleDialog
-            roleList={this.state.roleList.filter(item => item.roleType !== 100 && item.roleId !== roleId)}
-            onOk={data => {
-              this.onRemoveRole({ ...this.state.roleList.find(o => o.roleId === roleId), resultRoleId: data });
-            }}
-            onCancel={() => {
-              this.setState({
-                showDeleRoleByMoveUser: false,
-              });
-            }}
-          />
-        )}
       </Wrap>
     );
   }
@@ -980,4 +952,7 @@ const mapStateToProps = state => ({
 });
 const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(Con);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Con);

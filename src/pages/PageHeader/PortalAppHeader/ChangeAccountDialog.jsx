@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Icon, Button, Dialog } from 'ming-ui';
-import { checkExAccountVerifyCode, bindExAccount, editExAccount } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import AccountCon from './AccountCon';
 import cx from 'classnames';
 import Config from 'src/pages/account/config';
@@ -20,7 +20,7 @@ export default function TelDialog(props) {
     if (!code) {
       alert(_l('请输入验证码'), 3);
     } else {
-      checkExAccountVerifyCode({
+      externalPortalAjax.checkExAccountVerifyCode({
         handleType: 2, //检查类型 1: 注销  2：绑定
         appId,
         verifyCode: code,
@@ -56,13 +56,13 @@ export default function TelDialog(props) {
     } else {
       let Ajax = null;
       if (isBind) {
-        Ajax = bindExAccount({
+        Ajax = externalPortalAjax.bindExAccount({
           appId,
           verifyCode: code,
           account: newAccount,
         });
       } else {
-        Ajax = editExAccount({
+        Ajax = externalPortalAjax.editExAccount({
           appId,
           verifyCode: code,
           account: newAccount,

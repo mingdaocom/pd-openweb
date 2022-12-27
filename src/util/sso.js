@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { getPssId } from 'src/util/pssId';
 
 export const browserIsMobile = () => {

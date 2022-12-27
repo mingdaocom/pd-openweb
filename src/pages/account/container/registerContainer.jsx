@@ -8,6 +8,7 @@ import captcha from 'src/components/captcha';
 import { encrypt } from 'src/util';
 import { setPssId } from 'src/util/pssId';
 import { getRequest, htmlDecodeReg } from 'src/util';
+import _ from 'lodash';
 
 export default class Container extends React.Component {
   constructor(props) {

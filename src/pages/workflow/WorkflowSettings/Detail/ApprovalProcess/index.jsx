@@ -4,6 +4,7 @@ import flowNode from '../../../api/flowNode';
 import { DetailHeader, DetailFooter, SelectNodeObject, Member, SelectUserDropDown } from '../components';
 import cx from 'classnames';
 import { Tooltip } from 'antd';
+import _ from 'lodash';
 
 export default class ApprovalProcess extends Component {
   constructor(props) {

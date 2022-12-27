@@ -5,6 +5,7 @@ import { Icon, Button } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import withEscClose from 'ming-ui/decorators/withEscClose';
 import appGroupIntroPic from '../../../../common/mdcss/images/appGroupIntro.gif';
+import _ from 'lodash';
 
 @withClickAway
 @withEscClose

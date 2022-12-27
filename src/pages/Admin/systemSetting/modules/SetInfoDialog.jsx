@@ -4,9 +4,10 @@ import CityPicker from 'ming-ui/components/CityPicker';
 import { Select } from 'antd';
 import classNames from 'classnames';
 import projectController from 'src/api/project';
-import { checkSensitive } from 'src/api/fixedData.js';
+import fixedDataAjax from 'src/api/fixedData.js';
 
 import './common.less';
+import _ from 'lodash';
 
 const dialogTitle = {
   1: '修改组织名称',
@@ -65,7 +66,7 @@ export default class SetInfoDialog extends Component {
         errors: errors,
       });
     }
-    checkSensitive({ content: value }).then(res => {
+    fixedDataAjax.checkSensitive({ content: value }).then(res => {
       if (res) {
         this.setState({
           errors: { ...errors, [field]: _l('输入内容包含敏感词，请重新填写') },
@@ -220,41 +221,42 @@ export default class SetInfoDialog extends Component {
       geographyName,
       geographyId,
     } = this.state;
-    Promise.all([checkSensitive({ content: companyDisplayName }), checkSensitive({ content: companyName })]).then(
-      results => {
-        if (!results.find(result => result)) {
-          projectController
-            .setProjectInfo({
-              companyName,
-              companyDisplayName,
-              companyNameEnglish,
-              industryId,
-              geographyId,
-              projectId: this.props.projectId,
-            })
-            .then(data => {
-              if (data == 0) {
-                alert(_l('设置失败'), 2);
-              } else if (data == 1) {
-                this.props.updateValue({
-                  companyDisplayName,
-                  companyNameEnglish,
-                  companyName,
-                  industryId,
-                  industryName,
-                  geographyId,
-                  geographyName,
-                });
-                alert(_l('设置成功'));
-              } else if (data == 3) {
-                alert(_l('您输入的信息含有禁用词汇'), 3);
-              }
-            });
-        } else {
-          alert(_l('输入内容包含敏感词，请重新填写'), 3);
-        }
-      },
-    );
+    Promise.all([
+      fixedDataAjax.checkSensitive({ content: companyDisplayName }),
+      fixedDataAjax.checkSensitive({ content: companyName }),
+    ]).then(results => {
+      if (!results.find(result => result)) {
+        projectController
+          .setProjectInfo({
+            companyName,
+            companyDisplayName,
+            companyNameEnglish,
+            industryId,
+            geographyId,
+            projectId: this.props.projectId,
+          })
+          .then(data => {
+            if (data == 0) {
+              alert(_l('设置失败'), 2);
+            } else if (data == 1) {
+              this.props.updateValue({
+                companyDisplayName,
+                companyNameEnglish,
+                companyName,
+                industryId,
+                industryName,
+                geographyId,
+                geographyName,
+              });
+              alert(_l('设置成功'));
+            } else if (data == 3) {
+              alert(_l('您输入的信息含有禁用词汇'), 3);
+            }
+          });
+      } else {
+        alert(_l('输入内容包含敏感词，请重新填写'), 3);
+      }
+    });
   }
 
   renderBodyContent() {

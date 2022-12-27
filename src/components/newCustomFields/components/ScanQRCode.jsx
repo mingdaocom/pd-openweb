@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import { Toast } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
-import { getWeiXinConfig } from 'src/api/weixin';
-import { getSignatureInfo } from 'src/api/workWeiXin';
-import { Modal, Button } from 'antd-mobile';
+import weixinAjax from 'src/api/weixin';
+import workWeiXinAjax from 'src/api/workWeiXin';
+import { Modal } from 'antd-mobile';
 import { browserIsMobile } from 'src/util';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const ErrorWrap = styled.div`
   justify-content: center;
@@ -24,7 +25,7 @@ const bindWeiXin = () => {
   return new Promise((reslove, reject) => {
     const entryUrl = sessionStorage.getItem('entryUrl');
     const url = (entryUrl || location.href).split('#')[0];
-    getWeiXinConfig({
+    weixinAjax.getWeiXinConfig({
       url: encodeURI(url),
     }).then(({ data, code }) => {
       if (code === 1) {
@@ -53,7 +54,7 @@ const bindWxWork = (projectId) => {
   return new Promise((reslove, reject) => {
     const url = location.href.split('#')[0];
     const { IsLocal } = md.global.Config;
-    getSignatureInfo({
+    workWeiXinAjax.getSignatureInfo({
       projectId,
       url: encodeURI(url),
       suiteType: 8,

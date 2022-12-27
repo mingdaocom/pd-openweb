@@ -9,6 +9,7 @@ import captcha from 'src/components/captcha';
 import { Input } from 'antd';
 import './index.less';
 import RegExp from 'src/util/expression';
+import _ from 'lodash';
 
 const checkFuncs = {
   account: ([input, iti]) => {

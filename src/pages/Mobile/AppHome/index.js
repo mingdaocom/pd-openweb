@@ -15,6 +15,8 @@ import SvgIcon from 'src/components/SvgIcon';
 import AppGroupSkeleton from './AppGroupSkeleton';
 import { getRandomString, getProject } from 'src/util';
 import styled from 'styled-components';
+import _ from 'lodash';
+import moment from 'moment';
 
 const GroupIcon = styled(SvgIcon)`
   font-size: 0px;

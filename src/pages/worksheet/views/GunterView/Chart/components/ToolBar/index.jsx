@@ -12,6 +12,7 @@ import { PERIODS } from 'worksheet/views/GunterView/config';
 import { browserIsMobile } from 'src/util';
 import { getSearchData } from 'worksheet/views/util';
 import './index.less';
+import _ from 'lodash';
 
 const ToolBarWrap = styled.div(
   ({ isMobile }) => `

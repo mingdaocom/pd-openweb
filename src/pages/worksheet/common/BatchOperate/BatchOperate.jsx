@@ -5,12 +5,11 @@ import styled from 'styled-components';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
-import { Tooltip, Menu, MenuItem, Icon, Dialog } from 'ming-ui';
+import { Tooltip, Dialog } from 'ming-ui';
 import { notification, NotificationContent } from 'ming-ui/components/Notification';
-import { startProcess } from 'src/pages/workflow/api/process';
-import { getWorksheetBtns, deleteWorksheetRows, updateWorksheetRows, getPrintList } from 'src/api/worksheet';
+import processAjax from 'src/pages/workflow/api/process';
+import worksheetAjax from 'src/api/worksheet';
 import { copyRow } from 'worksheet/controllers/record';
-import { add } from 'src/api/webCache';
 import { editRecord } from 'worksheet/common/editRecord';
 import { refreshRecord } from 'worksheet/common/RefreshRecordDialog';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
@@ -101,15 +100,17 @@ class BatchOperate extends React.Component {
 
   loadPrintList() {
     const { worksheetId, viewId } = this.props;
-    getPrintList({
-      worksheetId,
-      viewId,
-    }).then(data => {
-      this.setState({
-        templateList: data.filter(d => d.type >= 2).sort((a, b) => a.type - b.type),
-        loading: false,
+    worksheetAjax
+      .getPrintList({
+        worksheetId,
+        viewId,
+      })
+      .then(data => {
+        this.setState({
+          templateList: data.filter(d => d.type >= 2).sort((a, b) => a.type - b.type),
+          loading: false,
+        });
       });
-    });
   }
 
   loadCustomButtons(rowId) {
@@ -118,22 +119,24 @@ class BatchOperate extends React.Component {
       customButtonLoading: true,
     });
     if (viewId) {
-      getWorksheetBtns({
-        appId,
-        worksheetId,
-        viewId,
-        rowId,
-      }).then(data => {
-        this.setState({
-          customButtonLoading: false,
-          customButtons: data.filter(
-            btn =>
-              btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY ||
-              btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM ||
-              (btn.writeObject === 1 && btn.writeType === 1),
-          ),
+      worksheetAjax
+        .getWorksheetBtns({
+          appId,
+          worksheetId,
+          viewId,
+          rowId,
+        })
+        .then(data => {
+          this.setState({
+            customButtonLoading: false,
+            customButtons: data.filter(
+              btn =>
+                btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY ||
+                btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM ||
+                (btn.writeObject === 1 && btn.writeType === 1),
+            ),
+          });
         });
-      });
     }
   }
 
@@ -203,30 +206,32 @@ class BatchOperate extends React.Component {
         },
       ];
     }
-    startProcess({
-      appId: worksheetId,
-      sources: selectedRows.map(item => item.rowid).slice(0, md.global.SysSettings.worktableBatchOperateDataLimitCount),
-      triggerId: btn.btnId,
-      ...args,
-    }).then(data => {
-      if (!data) {
-        notification.open({
-          content: (
-            <NotificationContent
-              className="workflowNoticeContentWrap"
-              themeColor="error"
-              header={NoticeHeader}
-              content={<Content>{_l('失败，所有记录都不满足执行条件，或流程尚未启用')}</Content>}
-              showClose={true}
-              onClose={() => notification.close(`batchUpdateWorkflowNotice${btn.btnId}`)}
-            />
-          ),
-          key: `batchUpdateWorkflowNotice${btn.btnId}`,
-          duration: 3,
-          // maxCount: 5,
-        });
-      }
-    });
+    processAjax
+      .startProcess({
+        appId: worksheetId,
+        sources: selectedRows.map(item => item.rowid),
+        triggerId: btn.btnId,
+        ...args,
+      })
+      .then(data => {
+        if (!data) {
+          notification.open({
+            content: (
+              <NotificationContent
+                className="workflowNoticeContentWrap"
+                themeColor="error"
+                header={NoticeHeader}
+                content={<Content>{_l('失败，所有记录都不满足执行条件，或流程尚未启用')}</Content>}
+                showClose={true}
+                onClose={() => notification.close(`batchUpdateWorkflowNotice${btn.btnId}`)}
+              />
+            ),
+            key: `batchUpdateWorkflowNotice${btn.btnId}`,
+            duration: 3,
+            // maxCount: 5,
+          });
+        }
+      });
   }
 
   @autobind
@@ -301,7 +306,7 @@ class BatchOperate extends React.Component {
       );
       updateArgs.navGroupFilters = navGroupFilters;
     }
-    updateWorksheetRows(updateArgs).then(data => {
+    worksheetAjax.updateWorksheetRows(updateArgs).then(data => {
       if (data.successCount === selectedRows.length) {
         alert(_l('修改成功'));
       }
@@ -351,6 +356,12 @@ class BatchOperate extends React.Component {
       controls,
       selectedRows,
     });
+  }
+
+  findLastId(ids) {
+    const { rows } = this.props;
+    const indexList = ids.map(id => _.findIndex(rows, row => row.rowid === id));
+    return rows[_.max(indexList)].rowid;
   }
 
   render() {
@@ -495,7 +506,7 @@ class BatchOperate extends React.Component {
                             rowIds,
                           },
                           newRows => {
-                            addRecord(newRows, _.last(rowIds));
+                            addRecord(newRows, this.findLastId(rowIds));
                             clearSelect();
                             setHighLightOfRows(newRows.map(r => r.rowid));
                           },
@@ -601,7 +612,8 @@ class BatchOperate extends React.Component {
                         } else {
                           args.rowIds = hasAuthRowIds;
                         }
-                        deleteWorksheetRows(args)
+                        worksheetAjax
+                          .deleteWorksheetRows(args)
                           .then(res => {
                             if (res.isSuccess) {
                               if (hasAuthRowIds.length === selectedRows.length) {

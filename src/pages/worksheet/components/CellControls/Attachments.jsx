@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import { useClickAway } from 'react-use';
@@ -11,6 +11,7 @@ import { openControlAttachmentInNewTab, downloadAttachmentById } from 'worksheet
 import { getClassNameByExt, formatFileSize } from 'src/util';
 import { bool, func, number, shape, string } from 'prop-types';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import _ from 'lodash';
 
 const Con = styled.div`
   &:hover {
@@ -341,7 +342,7 @@ function Attachment(props) {
     onUpdate,
     deleteLocalAttachment,
   } = props;
-  const { appId, recordId, worksheetId } = cellInfo;
+  const { appId, recordId, worksheetId, from } = cellInfo;
   const { attachment } = props;
   const [isPicture, setIsPicture] = useState(File.isPicture(attachment.ext));
   const smallThumbnailUrl = (attachment.previewUrl || '').replace(
@@ -392,6 +393,7 @@ function Attachment(props) {
               worksheetId,
               controlId: cell.controlId,
               fileId,
+              getType: from === 21 ? from : undefined,
             });
           });
           e.stopPropagation();
@@ -419,7 +421,7 @@ function Attachment(props) {
   );
 }
 
-export default function cellAttachments(props) {
+function cellAttachments(props, sourceRef) {
   const {
     isSubList,
     from = 1,
@@ -444,12 +446,22 @@ export default function cellAttachments(props) {
   if (cell.type === 14 && onlyAllowMobileInput === '1') {
     editable = false;
   }
-  const [uploadFileVisible, setUploadFileVisible] = useState(false);
+  const [uploadFileVisible, setUploadFileVisible] = useState(isediting);
   const [attachments, setAttachments] = useState(parseValue(value));
   const [temporaryAttachments, setTemporaryAttachments] = useState([]);
   const [temporaryKnowledgeAtts, setTemporaryKnowledgeAtts] = useState([]);
   const fileHeight = rowHeight - 10;
   const fileWidth = (fileHeight * 21) / 24;
+  useImperativeHandle(sourceRef, () => ({
+    handleTableKeyDown(e) {
+      switch (e.key) {
+        case 'Escape':
+          updateEditingStatus(false);
+          break;
+        default:
+      }
+    },
+  }));
   const ref = useRef(null);
   useClickAway(ref, e => {
     if (
@@ -466,6 +478,11 @@ export default function cellAttachments(props) {
       updateEditingStatus(false);
     }
   });
+  useEffect(() => {
+    if (isediting) {
+      setUploadFileVisible(true);
+    }
+  }, [isediting]);
   useEffect(() => {
     setAttachments(parseValue(value));
   }, [value]);
@@ -597,7 +614,13 @@ export default function cellAttachments(props) {
       <CutCon className="CutCon">{attachmentsComp}</CutCon>
       {editable && (
         <OperateIcon className="OperateIcon">
-          <i className="ThemeHoverColor3 icon icon-attachment" onClick={() => updateEditingStatus(true)} />
+          <i
+            className="ThemeHoverColor3 icon icon-attachment"
+            onClick={e => {
+              e.stopPropagation();
+              updateEditingStatus(true);
+            }}
+          />
         </OperateIcon>
       )}
     </Con>
@@ -615,3 +638,5 @@ cellAttachments.propTypes = {
   onClick: func,
   updateEditingStatus: func,
 };
+
+export default forwardRef(cellAttachments);

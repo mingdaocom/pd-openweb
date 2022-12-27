@@ -7,6 +7,7 @@ import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
 import { validate, TextTypes } from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
 import { conditionAdapter, formatQuickFilter } from 'mobile/RecordList/QuickFilter/Inputs';
+import _ from 'lodash';
 
 const SearchRowsWrapper = styled.div`
   background-color: #fff;

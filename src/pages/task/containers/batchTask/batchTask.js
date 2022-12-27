@@ -2,7 +2,7 @@
 import 'src/components/quickSelectUser/quickSelectUser';
 import '@mdfe/selectize';
 import 'src/components/mdDialog/dialog';
-import 'src/components/mdAutocomplete/mdAutocomplete';
+import mdAutocomplete from 'src/components/mdAutocomplete/mdAutocomplete';
 import doT from '@mdfe/dot';
 import config from '../../config/config';
 import batchTaskTpl from './tpl/batchTask.html';
@@ -13,6 +13,8 @@ import { errorMessage, checkIsProject, taskStatusDialog } from '../../utils/util
 import { afterDeleteTask, afterUpdateTaskDate } from '../../utils/taskComm';
 import tagController from 'src/api/tag';
 import 'src/components/dialogSelectUser/dialogSelectUser';
+import _ from 'lodash';
+import moment from 'moment';
 
 const BatchTask = {};
 
@@ -373,7 +375,8 @@ BatchTask.bindDialog = function () {
     );
 
   // 无法 委托 每次生成的时候绑定
-  $('#batchTaskFolder').mdAutocomplete({
+  mdAutocomplete({
+    element: 'batchTaskFolder',
     appendTo: '.autoBatchFolder',
     clearBtn: false,
     focusIsSerach: true,

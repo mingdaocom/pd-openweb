@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { toFixed } from 'src/util';
 import { formatFormulaDate } from 'src/pages/worksheet/util';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default class Widgets extends Component {
   static propTypes = {

@@ -1,4 +1,5 @@
-var KcController = require('src/api/kc');
+import _ from 'lodash';
+import KcController from 'src/api/kc';
 let canUpload = undefined;
 let timer = null;
 

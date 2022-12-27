@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './style.less';
+
 export { default as Inbox } from './components/Inbox';
 
 export function index(options) {

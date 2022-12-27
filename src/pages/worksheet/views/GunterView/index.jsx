@@ -11,6 +11,7 @@ import { browserIsMobile } from 'src/util';
 import SelectionIndicator from './components/SelectionIndicator';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
 import './index.less';
+import _ from 'lodash';
 
 const Drag = styled.div(
   ({ left }) => `

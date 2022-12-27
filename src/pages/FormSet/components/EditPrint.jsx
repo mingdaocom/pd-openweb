@@ -5,7 +5,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import './editPrint.less';
 import { createUploader } from 'src/pages/kc/utils/qiniuUpload';
 import { getUrlByBucketName } from 'src/util';
-import { getToken } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 
 @withClickAway
 class EditPrint extends React.Component {
@@ -263,7 +263,7 @@ class EditPrint extends React.Component {
               let ajaxUrl;
               let option;
               //功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
-              const token = await getToken({
+              const token = await appManagementAjax.getToken({
                 worksheetId: worksheetId || templateId,
                 tokenType: 5,
               });

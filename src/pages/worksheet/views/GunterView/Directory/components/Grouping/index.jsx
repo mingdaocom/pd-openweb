@@ -7,6 +7,7 @@ import * as actions from 'worksheet/redux/actions/gunterview';
 import Skeleton from 'src/router/Application/Skeleton';
 import IScroll from 'worksheet/views/GunterView/components/Iscroll';
 import Group from '../Group';
+import _ from 'lodash';
 
 const GroupingTotalWrapper = styled.div`
   height: 100%;

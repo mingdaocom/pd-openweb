@@ -4,6 +4,7 @@ import Number from '../../common/number';
 import Checkbox from '../../common/checkbox';
 import Dropdown from '../../common/dropdown';
 import firstInputSelect from '../../common/firstInputSelect';
+import _ from 'lodash';
 
 @firstInputSelect
 class SettingsModel extends React.Component {

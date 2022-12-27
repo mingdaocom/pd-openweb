@@ -1,191 +1,89 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
 import { Icon, ScrollView, LoadDiv, Avatar, Tooltip } from 'ming-ui';
 import { Divider } from 'antd';
-import moment from 'moment';
-import _ from 'lodash';
-import filterXSS from 'xss';
+import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
-import { createLinksForMessage } from 'src/components/common/function';
-import DatePickSelect from '../DatePickerSelect';
+import moment from 'moment';
+import filterXSS from 'xss';
+import cx from 'classnames';
+import _ from 'lodash';
+import renderText from 'src/pages/worksheet/components/CellControls/renderText.js';
 import AddCondition from '../../common/WorkSheetFilter/components/AddCondition';
+import WorksheetRecordLogSelectTags from './component/WorksheetRecordLogSelectTags';
+import WorksheetRecordLogThumbnail from './component/WorksheetRecordLogThumbnail';
+import WorksheetRecordLogDiffText from './component/WorksheetRecordLogDiffText';
+import WorksheetRecordLogSubList from './component/WorksheetRecordLogSubList';
+import { createLinksForMessage } from 'src/components/common/function';
+import 'src/components/quickSelectUser/quickSelectUser';
+import TriggerSelect from './component/TriggerSelect';
+import DatePickSelect from '../DatePickerSelect';
+import sheetAjax from 'src/api/worksheet';
+import './WorksheetRocordLog.less';
+import { assembleListData, assembleNewLogListData, getShowWfstatusValue, numberControlHandle } from './util';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { browserIsMobile } from 'src/util';
+import {
+  SYSTEM_USER,
+  FILTER_FIELD_BY_ATTR,
+  CIRCLE_TAGS_CONTROL_TYPE,
+  RECT_TAGS_CONTROL_TYPE,
+  RETURN_OBJECT_CONTROL_TYPE,
+} from './enum.js';
 import {
   WIDGETS_TO_API_TYPE_ENUM,
   DEFAULT_CONFIG,
   WORKFLOW_SYSTEM_CONTROL,
 } from 'src/pages/widgetConfig/config/widget';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import sheetAjax from 'src/api/worksheet';
-import renderText from 'src/pages/worksheet/components/CellControls/renderText.js';
-import './WorksheetRocordLog.less';
-import 'src/components/quickSelectUser/quickSelectUser';
-import {
-  WorksheetRecordLogSelectTags,
-  WorksheetRecordLogDiffText,
-  WorksheetRecordLogThumbnail,
-  WorksheetRecordLogSubList,
-  TriggerSelect,
-} from './WorksheetRecordLogValue';
-import cx from 'classnames';
-import { browserIsMobile } from 'src/util';
-import { WFSTATUS_OPTIONS } from './enum.js';
 
 const reg = new RegExp('<[^<>]+>', 'g');
 const PAGE_SIZE = 20;
 
 const DISCUSS_LOG_ID = [];
 
-const cicleTags = [26, 36, 27, 10, 48, 11, 9];
-const rectTags = [6, 8, 5, 15, 16, 46, 3, 4, 24, 31, 28, 7, 40, 35, 37, 29, 27, 19, 23, 50, 21];
-const returnObject = [26, 27, 48];
-const filterField = {
-  27: ['departmentId', 'departmentName'],
-  26: ['accountId', 'fullname'],
-  48: ['organizeId', 'organizeName'],
-};
-
-const systemUser = {
-  'user-workflow': {
-    accountId: 'user-workflow',
-    avatar: 'https://p1.mingdaoyun.cn/UserAvatar/workflow.png?imageView2/1/w/48/h/48/q/90',
-    fullname: '工作流',
-  },
-  'user-publicform': {
-    accountId: 'user-publicform',
-    avatar: 'https://p1.mingdaoyun.cn/UserAvatar/publicform.png?imageView2/1/w/100/h/100/q/90',
-    fullname: '公开表单',
-  },
-  'user-api': {
-    accountId: 'user-api',
-    avatar: 'https://p1.mingdaoyun.cn/UserAvatar/worksheetapi.png?imageView2/1/w/100/h/100/q/90',
-    fullname: 'API',
-  },
-};
-
-function assembleListData(data) {
-  let _resArr = [];
-  // 前后相邻的两条 时间在同一天 且 操作者相同 的 并为一条
-  data.forEach(item => {
-    if (
-      !_resArr.length ||
-      !moment(_resArr[_resArr.length - 1].time).isSame(item.createTime, 'day') ||
-      _resArr[_resArr.length - 1].accountId !== item.accountId
-    ) {
-      _resArr.push({
-        time: item.createTime,
-        accountName: item.accountName,
-        accountId: item.accountId,
-        child: [].concat(item),
-        avatar: item.avatar,
-      });
-    } else {
-      _resArr[_resArr.length - 1].child.push(item);
-    }
-  });
-
-  return _resArr;
-}
-
-function assembleNewLogListData(data) {
-  let _resArr = [];
-  // 前后相邻的两条 时间在同一天 且 操作者相同 的 并为一条
-  data.forEach((item, index) => {
-    if (
-      !_resArr.length ||
-      !moment(_resArr[_resArr.length - 1].time).isSame(item.operatContent.createTime, 'day') ||
-      _resArr[_resArr.length - 1].accountId !== item.opeartorInfo.accountId ||
-      _resArr[_resArr.length - 1].type !== item.operatContent.type ||
-      _resArr[[_resArr.length - 1]].requestType !== item.operatContent.requestType ||
-      item.operatContent.requestType === 7 ||
-      item.operatContent.requestType === 2
-    ) {
-      _resArr.push({
-        ...item.opeartorInfo,
-        time: item.operatContent.createTime,
-        accountName: item.opeartorInfo.fullname,
-        type: item.operatContent.type,
-        requestType: item.operatContent.requestType,
-        child: [].concat(item),
-      });
-    } else {
-      _resArr[_resArr.length - 1].child.push(item);
-    }
-  });
-
-  return _resArr;
-}
-
-function getShowWfstatusValue(option) {
-  if (!option) return null;
-  let value = JSON.parse(option)[0];
-  if (_.startsWith(value, 'other')) {
-    return value === 'other' ? _l('其他') : _.replace(value, 'other:', '') || _l('其他');
-  }
-  return WFSTATUS_OPTIONS.find(l => l.key === value).value;
-}
-
 function renderContent(data, recordInfo, extendParam) {
   const { type, oldText, newText, oldValue, newValue, id, editType } = data;
   const { requestType } = extendParam;
   let controls = recordInfo.controls || recordInfo.formdata;
-  let control = controls ? controls.concat(WORKFLOW_SYSTEM_CONTROL).find(l => id === l.controlId) : undefined;
+  let control = controls ? controls.find(l => id === l.controlId) : undefined;
   let onlyNew = false;
-  if (cicleTags.includes(type) || rectTags.includes(type)) {
+  if (CIRCLE_TAGS_CONTROL_TYPE.includes(type) || RECT_TAGS_CONTROL_TYPE.includes(type)) {
     let oldList = [];
     let newList = [];
-    if (returnObject.includes(type)) {
-      oldList = oldValue ? JSON.parse(oldValue) : [];
-      newList = newValue ? JSON.parse(newValue) : [];
+    if (RETURN_OBJECT_CONTROL_TYPE.includes(type)) {
+      oldList = safeParse(oldValue, 'array');
+      newList = safeParse(newValue, 'array');
     } else if (type === 40) {
-      oldList = oldValue ? [JSON.parse(oldValue).address] : [];
-      newList = newValue ? [JSON.parse(newValue).address] : [];
-    } else if (type === 16) {
-      const { advancedSetting = {} } = control || {};
-      let formatString =
-        advancedSetting.showtype === '2'
-          ? 'YYYY-MM-DD HH'
-          : advancedSetting.showtype === '1'
-          ? 'YYYY-MM-DD HH:mm'
-          : 'YYYY-MM-DD HH:mm:ss';
-      oldList = oldValue ? [moment(oldValue).format(formatString)] : [];
-      newList = newValue ? [moment(newValue).format(formatString)] : [];
+      oldList = [safeParse(oldValue).address].filter(l => l);
+      newList = [safeParse(newValue).address].filter(l => l);
+    } else if (id.startsWith('wf') && [16, 38].includes(type)) {
+      oldList = oldValue ? [moment(oldValue).format('YYYY-MM-DD HH:mm:ss')] : [];
+      newList = newValue ? [moment(newValue).format('YYYY-MM-DD HH:mm:ss')] : [];
+    } else if (type === 16 || type === 38) {
+      oldList = oldValue ? [renderText({...control, value: oldValue})] : [];
+      newList = newValue ? [renderText({...control, value: newValue})] : [];
     } else if (type === 46 || type === 15) {
       oldList = oldValue ? [renderText({ ...control, value: oldValue })] : [];
       newList = newValue ? [renderText({ ...control, value: newValue })] : [];
     } else if (type === 29) {
       const { advancedSetting = {} } = control || {};
       if (requestType === 8 || advancedSetting.showtype === '2') {
-        let _data =  safeParse(safeParse(newValue).rows, 'array');
+        let _data = safeParse(safeParse(newValue).rows, 'array');
         oldList = editType === 2 ? _data : [];
         newList = editType === 1 ? _data : [];
         onlyNew = true;
       } else {
-        oldList = oldValue && JSON.parse(oldValue).rows && JSON.parse(JSON.parse(oldValue).rows);
-        newList = newValue && JSON.parse(newValue).rows && JSON.parse(JSON.parse(newValue).rows);
+        oldList = safeParse(safeParse(oldValue).rows, 'array');
+        newList = safeParse(safeParse(newValue).rows, 'array');
       }
     } else if (type === 21) {
-      oldList = oldValue ? JSON.parse(oldValue).map(l => l.name) : [];
-      newList = newValue ? JSON.parse(newValue).map(l => l.name) : [];
+      oldList = safeParse(oldValue, 'array').map(l => l.name);
+      newList = safeParse(newValue, 'array').map(l => l.name);
     } else {
       oldList = oldText ? oldText.split(',').filter(l => l) : oldValue ? oldValue.split(',').filter(l => l) : [];
       newList = newText ? newText.split(',').filter(l => l) : newValue ? newValue.split(',').filter(l => l) : [];
       if (type === 6 || type === 8) {
-        oldList = oldList.map(l => {
-          let number = renderText({ ...control, value: l });
-          if ((control || {}).dot === 0 && type === 6 && _.endsWith(number, '.0')) {
-            return number.replace('.0', '');
-          } else {
-            return number;
-          }
-        });
-        newList = newList.map((l, index) => {
-          let number = renderText({ ...control, value: l });
-          if ((control || {}).dot === 0 && type === 6 && _.endsWith(number, '.0')) {
-            return number.replace('.0', '');
-          } else {
-            return number;
-          }
-        });
+        oldList = numberControlHandle(oldList, control, type);
+        newList = numberControlHandle(newList, control, type);
       } else if (id === 'wfstatus') {
         oldList = oldValue ? [getShowWfstatusValue(oldValue)].filter(l => l) : [];
         newList = newValue ? [getShowWfstatusValue(newValue)].filter(l => l) : [];
@@ -202,16 +100,25 @@ function renderContent(data, recordInfo, extendParam) {
       _defaultValue = oldList;
       _newValue = editType === 1 ? newList : [];
       _oldValue = editType === 2 ? newList : [];
-    } else if (returnObject.includes(type)) {
-      _oldValue = editType === 2 ? newList.filter(l => oldList.find(m => m[filterField[type][0]]===l[filterField[type][0]])).map(l => l[filterField[type][1]]) : _.differenceBy(oldList, newList, filterField[type][0]).map(l => l[filterField[type][1]]);
+    } else if (RETURN_OBJECT_CONTROL_TYPE.includes(type)) {
+      _oldValue =
+        editType === 2
+          ? newList
+              .filter(l => oldList.find(m => m[FILTER_FIELD_BY_ATTR[type][0]] === l[FILTER_FIELD_BY_ATTR[type][0]]))
+              .map(l => l[FILTER_FIELD_BY_ATTR[type][1]])
+          : _.differenceBy(oldList, newList, FILTER_FIELD_BY_ATTR[type][0]).map(l => l[FILTER_FIELD_BY_ATTR[type][1]]);
       _newValue =
         editType === 2
           ? []
-          : _.differenceBy(newList, oldList, filterField[type][0]).map(l => l[filterField[type][1]]);
+          : _.differenceBy(newList, oldList, FILTER_FIELD_BY_ATTR[type][0]).map(l => l[FILTER_FIELD_BY_ATTR[type][1]]);
       _defaultValue =
         editType === 2
-          ? oldList.filter(l => !newList.find(m => m[filterField[type][0]]===l[filterField[type][0]])).map(l => l[filterField[type][1]])
-          : _.intersectionBy(oldList, newList, filterField[type][0]).map(l => l[filterField[type][1]]);
+          ? oldList
+              .filter(l => !newList.find(m => m[FILTER_FIELD_BY_ATTR[type][0]] === l[FILTER_FIELD_BY_ATTR[type][0]]))
+              .map(l => l[FILTER_FIELD_BY_ATTR[type][1]])
+          : _.intersectionBy(oldList, newList, FILTER_FIELD_BY_ATTR[type][0]).map(
+              l => l[FILTER_FIELD_BY_ATTR[type][1]],
+            );
     } else if (editType === 2) {
       _oldValue = newList.filter(l => oldList.find(m => _.isEqual(m, l)));
       _newValue = [];
@@ -226,7 +133,7 @@ function renderContent(data, recordInfo, extendParam) {
         oldValue={_oldValue}
         newValue={_newValue}
         defaultValue={_defaultValue || []}
-        type={cicleTags.includes(type) ? 'circle' : 'rect'}
+        type={CIRCLE_TAGS_CONTROL_TYPE.includes(type) ? 'circle' : 'rect'}
         needPreview={type === 29}
         data={data}
         control={control}
@@ -235,7 +142,7 @@ function renderContent(data, recordInfo, extendParam) {
         key={`WorksheetRecordLogSelectTags-${id}`}
       />
     );
-  } else if (type === 2 && id === 'del_discussion') {
+  } else if (type === 2 && ['del_discussion', 'transf_task'].indexOf(id) > -1) {
     let message = newValue.replace(/\n/g, '<br>');
     message = createLinksForMessage({
       message,
@@ -261,8 +168,8 @@ function renderContent(data, recordInfo, extendParam) {
       />
     );
   } else if (type === 14 || type === 42) {
-    let newList = newValue ? JSON.parse(newValue) : [];
-    let oldList = oldValue ? JSON.parse(oldValue) : [];
+    let newList = safeParse(newValue, 'array');
+    let oldList = safeParse(oldValue, 'array');
     if (typeof newList[0] !== 'object') {
       newList = [];
     }
@@ -302,7 +209,8 @@ function renderContent(data, recordInfo, extendParam) {
 }
 
 const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
-  const { selectField, moreList = [], setMoreList, lastMark } = extendParam;
+  const { selectField, moreList = [], setMoreList, lastMark, showFilter } = extendParam;
+  const isMobile = browserIsMobile();
   let logData = prop.operatContent.logData;
   let uniqueId = moreList.find(l => l === prop.operatContent.uniqueId);
   if (selectField && !uniqueId) {
@@ -326,14 +234,14 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
           const { advancedSetting = {} } = control || {};
           if (prop.operatContent.requestType === 8 || advancedSetting.showtype === '2') {
             let object = item.newValue
-              ? JSON.parse(item.newValue)
+              ? safeParse(item.newValue)
               : item.oldValue
-              ? JSON.parse(item.oldValue)
+              ? safeParse(item.oldValue)
               : undefined;
             if (object && object.rows) {
               extendText = `${item.editType === 1 ? ' ' + _l('添加了') : ' ' + _l('取消了')}${_l(
                 '%0条',
-                JSON.parse(object.rows).length || 1,
+                safeParse(object.rows, 'array').length || 1,
               )}`;
             } else if (object) {
               showDelete = false;
@@ -347,7 +255,7 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
             extendText += _l('（被动）');
           }
         }
-        if (item.id === 'del_discussion') {
+        if(["transf_task", "del_discussion"].indexOf(item.id) > -1) {
           showDelete = false;
         }
         if (item.isDeleted && showDelete) {
@@ -356,11 +264,11 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
 
         return (
           <div
-            className={`worksheet-rocord-log-item ${item.type === 34 ? 'worksheet-rocord-log-item-Row' : ''}`}
+            className={cx('worksheet-rocord-log-item', { 'worksheet-rocord-log-item-Row': item.type === 34 })}
             key={`worksheet-rocord-log-item-${item.id}`}
           >
             <div className="widgetTitle">
-              {item.isDeleted || browserIsMobile() || WORKFLOW_SYSTEM_CONTROL.find(l => l.controlId === item.id) ? (
+              {item.isDeleted || isMobile || !showFilter || WORKFLOW_SYSTEM_CONTROL.find(l => l.controlId === item.id) ? (
                 <span className="selectTriggerChild">
                   <Icon className="Font16 Gray_9e" icon={widgetInfo.icon} />
                   <span>{item.name}</span>
@@ -383,7 +291,7 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
 
               <span className="extendText">{extendText}</span>
             </div>
-            {(!item.isDeleted || item.id === 'del_discussion') &&
+            {(!item.isDeleted || ["transf_task", "del_discussion"].indexOf(item.id) > -1) &&
               renderContent(item, recordInfo, {
                 createTime: prop.operatContent.createTime,
                 uniqueId: prop.operatContent.uniqueId,
@@ -409,14 +317,14 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
 };
 const renderTitleName = data => {
   const { accountId, accountName, child, fullname } = data;
+  const isMobile = browserIsMobile();
   if (accountId === 'user-workflow') {
     return (
       <span className="titleAvatarText workflow Gray_9e">
-        <span className={cx('accountName', { mobileAccountName: browserIsMobile() })}>{_l('工作流')} </span>{' '}
+        <span className={cx('accountName', { mobileAccountName: isMobile })}>{_l('工作流')} </span>{' '}
       </span>
     );
   } else if (child[0].operatContent.requestType === 3) {
-    let btn = child[0].operatContent.extendParams.find(l => _.startsWith(l, 'btn:'));
     return (
       <span className="titleAvatarText">
         <span className="accountName">{accountName} </span>
@@ -427,7 +335,7 @@ const renderTitleName = data => {
     let _html = extendParam ? extendParam.replace('workflow', '') : undefined;
     return _html ? (
       <span className="titleAvatarText workflow Gray_9e">
-        <span className={cx('accountName', { mobileAccountName: browserIsMobile() })}>{_l('工作流')} </span>
+        <span className={cx('accountName', { mobileAccountName: isMobile })}>{_l('工作流')} </span>
       </span>
     ) : (
       <span className="titleAvatarText accountName">{fullname}</span>
@@ -437,17 +345,19 @@ const renderTitleName = data => {
   }
 };
 const renderTitleAvatar = data => {
-  const { accountId, accountName, child, fullname } = data;
+  const { accountId, child, fullname } = data;
+  const isMobile = browserIsMobile();
 
   if (accountId === 'user-workflow') {
     let _fullname = fullname;
     if (!reg.test(fullname) && child[0].operatContent.extendParams.find(l => _.startsWith(l, 'workflow:'))) {
       _fullname =
-        child[0].operatContent.extendParams.find(l => _.startsWith(l, 'workflow:')).replace('workflow:', '') || fullname;
+        child[0].operatContent.extendParams.find(l => _.startsWith(l, 'workflow:')).replace('workflow:', '') ||
+        fullname;
     }
     return (
       <span className="titleAvatarText workflow Gray_9e">
-        {browserIsMobile() ? (
+        {isMobile ? (
           <span className="ThemeColor">{_fullname.replace(reg, '')}</span>
         ) : (
           <span dangerouslySetInnerHTML={{ __html: filterXSS(_fullname) }}></span>
@@ -467,7 +377,7 @@ const renderTitleAvatar = data => {
     let _html = extendParam ? extendParam.replace('workflow', '') : undefined;
     return _html ? (
       <span className="titleAvatarText workflow Gray_9e">
-        {browserIsMobile() ? (
+        {isMobile ? (
           <span>{_html.replace(reg, '')}</span>
         ) : (
           <span dangerouslySetInnerHTML={{ __html: filterXSS(_html) }}></span>
@@ -534,39 +444,48 @@ const renderTitleText = (data, extendParam) => {
 };
 
 function WorksheetRocordLog(props, ref) {
-  const { controls, worksheetId, formdata } = props;
+  const { controls, worksheetId, formdata, showFilter = true, filterUniqueIds = undefined} = props;
   const selectUserRef = useRef();
-  const [loading, setLoading] = useState(false);
-  const [selectUser, setSelectUser] = useState(undefined);
-  const [selectField, setSelectField] = useState(undefined);
-  const [selectDate, setSelectDate] = useState({
-    visible: false,
-    range: undefined,
+  const [{ loading, showAddCondition, loadouted, sign, showDivider, lastMark }, setMark] = useSetState({
+    loading: false,
+    showAddCondition: false,
+    loadouted: false,
+    sign: {
+      newDataEnd: false,
+      oldLogEnd: false,
+      showLodOldButton: false,
+    },
+    showDivider: false,
+    lastMark: undefined,
   });
-  const [showAddCondition, setShowAddCondition] = useState(false);
-  const [pageIndexs, setPageIndexs] = useState({
-    newLogIndex: 1,
-    oldLogIndex: 0,
+  const [{ selectUser, selectField, selectDate, pageIndexs }, setPara] = useSetState({
+    selectUser: undefined,
+    selectField: undefined,
+    selectDate: {
+      visible: false,
+      range: undefined,
+    },
+    pageIndexs: {
+      newLogIndex: 1,
+      oldLogIndex: 0,
+    },
   });
-  const [discussList, setDiscussList] = useState([]); // 旧版日志列表
-  const [loadouted, setLoadouted] = useState(false);
-  const [discussData, setDiscussData] = useState([]); // 旧版日志数据
-  const [newEditionData, setNewEditionData] = useState([]); // 新版日志数据
-  const [newEditionList, setNewEditionList] = useState([]); // 新版日志列表
-  const [sign, setSign] = useState({
-    newDataEnd: false,
-    oldLogEnd: false,
-    showLodOldButton: false,
+  const [{ discussList, discussData }, setOldData] = useSetState({
+    discussList: [],
+    discussData: [],
   });
-  const [showDivider, setShowDivider] = useState(false);
+  const [{ newEditionData, newEditionList }, setNewData] = useSetState({
+    newEditionData: [],
+    newEditionList: [],
+  });
   const [moreList, setMoreList] = useState([]);
-  const [lastMark, setLastMark] = useState(undefined);
   const [worksheetInfo, setWorksheetInfo] = useState({});
   let INIT_SIGN = false;
   const isMobile = browserIsMobile();
 
   useImperativeHandle(ref, () => ({
     reload: initLog,
+    handleScroll: handleScroll,
   }));
 
   useEffect(() => {
@@ -587,7 +506,7 @@ function WorksheetRocordLog(props, ref) {
 
   useEffect(() => {
     initLog();
-  }, [props.rowId]);
+  }, [props.rowId, props.filterUniqueIds]);
 
   useEffect(() => {
     if (
@@ -598,6 +517,7 @@ function WorksheetRocordLog(props, ref) {
       INIT_SIGN = false;
       return;
     }
+
     loadNewEdition({});
   }, [pageIndexs.newLogIndex]);
 
@@ -607,28 +527,32 @@ function WorksheetRocordLog(props, ref) {
 
   function initLog() {
     INIT_SIGN = true;
-    setSelectUser(undefined);
-    setSelectField(undefined);
-    setSelectDate({
-      visible: false,
-      range: undefined,
+    setPara({
+      selectUser: undefined,
+      selectField: undefined,
+      selectDate: {
+        visible: false,
+        range: undefined,
+      },
+      pageIndexs: {
+        newLogIndex: 1,
+        oldLogIndex: 0,
+      },
     });
-    setPageIndexs({
-      newLogIndex: 1,
-      oldLogIndex: 0,
+    setOldData({ discussList: [] });
+    setMark({
+      sign: {
+        newDataEnd: false,
+        oldLogEnd: false,
+        showLodOldButton: false,
+      },
+      lastMark: undefined,
     });
-    setDiscussList([]);
-    setSign({
-      newDataEnd: false,
-      oldLogEnd: false,
-      showLodOldButton: false,
-    });
-    setLastMark(undefined);
     loadNewEdition({ lastMark: undefined });
   }
 
   function loadNewEdition(prop) {
-    const { worksheetId, rowId, pageSize = PAGE_SIZE } = props;
+    const { worksheetId, rowId, pageSize = PAGE_SIZE, filterUniqueIds } = props;
     const { pageIndex, filedId, opeartorId, startDateTime, endDateTime } = prop;
     let _opeartorId = prop.hasOwnProperty('opeartorId') ? opeartorId : selectUser && selectUser[0].accountId;
     let _filterId = prop.hasOwnProperty('filedId') ? filedId : selectField && selectField.controlId;
@@ -637,70 +561,80 @@ function WorksheetRocordLog(props, ref) {
       : selectDate.range && selectDate.range.value[0];
     let _endDate = prop.hasOwnProperty('endDateTime') ? endDateTime : selectDate.range && selectDate.range.value[1];
     let _lastMark = prop.hasOwnProperty('lastMark') ? prop.lastMark : lastMark;
-    setLoading(true);
-    sheetAjax
-      .getWorksheetOpeationLogs({
-        worksheetId,
-        rowId,
-        pageSize,
-        objectType: 2,
-        opeartorIds: _opeartorId ? [_opeartorId] : [],
-        controlIds: _filterId ? [_filterId] : [],
-        startDate: _startDate,
-        endDate: _endDate,
-        lastMark: _lastMark,
-      })
-      .then(res => {
-        setLoading(false);
-        setLastMark(res.lastMark);
-
-        let data = res.logs;
-        pageIndexs.newLogIndex === 1 ? setNewEditionData([]) : setNewEditionData(newEditionData.concat(data));
-        if (data.length) {
-          // 去重
-          let _data = assembleNewLogListData(data.filter(l => !DISCUSS_LOG_ID.includes(m => m === l.id)));
-          DISCUSS_LOG_ID.concat(data.map(l => l.operatContent.uniqueId));
-          pageIndexs.newLogIndex === 1 ? setNewEditionList(_data) : setNewEditionList(newEditionList.concat(_data));
-          if (data.length < PAGE_SIZE || data[data.length - 1].operatContent.type === 1) {
-            setSign({
+    setMark({ loading: true });
+    let param = {
+      worksheetId,
+      pageSize,
+      objectType: 2,
+      opeartorIds: _opeartorId ? [_opeartorId] : [],
+      controlIds: _filterId ? [_filterId] : [],
+      startDate: _startDate,
+      endDate: _endDate,
+      lastMark: _lastMark,
+      rowId: rowId,
+    };
+    let promise = filterUniqueIds
+      ? sheetAjax.batchGetWorksheetOpeationLogs({ ...param, filterUniqueIds: filterUniqueIds })
+      : sheetAjax.getWorksheetOpeationLogs(param);
+    promise.then(res => {
+      setMark({ loading: false, lastMark: res.lastMark });
+      let data = res.logs;
+      setOldData({ newEditionData: pageIndexs.newLogIndex === 1 ? [] : newEditionData.concat(data) });
+      if (data.length) {
+        // 去重
+        let _data = assembleNewLogListData(data.filter(l => !DISCUSS_LOG_ID.includes(m => m === l.id)));
+        DISCUSS_LOG_ID.concat(data.map(l => l.operatContent.uniqueId));
+        setNewData({ newEditionList: pageIndexs.newLogIndex === 1 ? _data : newEditionList.concat(_data) });
+        if (data.length < PAGE_SIZE || data[data.length - 1].operatContent.type === 1) {
+          setMark({
+            sign: {
               ...sign,
               newDataEnd: true,
               showLodOldButton:
                 data[data.length - 1].operatContent.type !== 1 && data[data.length - 1].operatContent.type !== 4,
-            });
-          } else {
-            sign.newDataEnd &&
-              setSign({
+            },
+          });
+        } else {
+          sign.newDataEnd &&
+            setMark({
+              sign: {
                 ...sign,
                 newDataEnd: false,
-              });
-          }
-        } else {
-          setSign({
+              },
+            });
+        }
+      } else {
+        setMark({
+          sign: {
             ...sign,
             newDataEnd: true,
-          });
-          if (pageIndexs.newLogIndex === 1) {
-            setShowDivider(true);
-            setPageIndexs({
+          },
+        });
+        if (pageIndexs.newLogIndex === 1) {
+          setPara({
+            pageIndexs: {
               ...pageIndexs,
               oldLogIndex: 1,
-            });
-            setSign({
+            },
+          });
+          setMark({
+            sign: {
               ...sign,
               newDataEnd: true,
-              showLodOldButton: false,
-            });
-            setNewEditionList([]);
-          }
+            },
+            showDivider: true,
+          });
+          setNewData({ newEditionList: [] });
         }
-      });
+      }
+    });
   }
 
   function loadLog() {
-    const { worksheetId, rowId, pageSize = PAGE_SIZE } = props;
+    const { worksheetId, rowId, pageSize = PAGE_SIZE, filterUniqueIds } = props;
+    if (filterUniqueIds) return;
     if (loadouted || selectUser || selectField || selectDate.range) return;
-    setLoading(true);
+    setMark({ loading: true });
     sheetAjax
       .getLogs({
         worksheetId,
@@ -709,19 +643,20 @@ function WorksheetRocordLog(props, ref) {
         pageIndex: pageIndexs.oldLogIndex,
       })
       .then(data => {
-        setLoading(false);
-        setLoadouted(data.length < PAGE_SIZE);
-        setDiscussData(discussData.concat(data));
+        setMark({ loading: false, loadouted: data.length < PAGE_SIZE });
+        setOldData({ discussData: discussData.concat(data) });
         if (data.length) {
           // 去重
           let _data = assembleListData(data.filter(l => !DISCUSS_LOG_ID.includes(m => m === l.id)));
           DISCUSS_LOG_ID.concat(_data.map(l => l.id));
-          setDiscussList(discussList.concat(_data));
+          setOldData({ discussList: discussList.concat(_data) });
           if (data[data.length - 1].templateId === 'addwsrow' || data.length < PAGE_SIZE) {
-            setSign({
-              ...sign,
-              newDataEnd: true,
-              oldLogEnd: true,
+            setMark({
+              sign: {
+                ...sign,
+                newDataEnd: true,
+                oldLogEnd: true,
+              },
             });
           }
         }
@@ -730,38 +665,44 @@ function WorksheetRocordLog(props, ref) {
 
   const clearSelectField = e => {
     e.stopPropagation();
-    setSelectField(undefined);
-    setPageIndexs({
-      ...pageIndexs,
-      newLogIndex: 1,
+    setMark({ lastMark: undefined });
+    setPara({
+      selectField: undefined,
+      pageIndexs: {
+        ...pageIndexs,
+        newLogIndex: 1,
+      },
     });
     setMoreList([]);
-    setLastMark(undefined);
     loadNewEdition({ filedId: undefined, lastMark: undefined });
   };
 
   const clearSelectUser = e => {
     e.stopPropagation();
-    setSelectUser(undefined);
-    setPageIndexs({
-      ...pageIndexs,
-      newLogIndex: 1,
+    setMark({ lastMark: undefined });
+    setPara({
+      selectUser: undefined,
+      pageIndexs: {
+        ...pageIndexs,
+        newLogIndex: 1,
+      },
     });
-    setLastMark(undefined);
     loadNewEdition({ opeartorId: undefined, lastMark: undefined });
   };
 
   const clearSelectDate = e => {
     e.stopPropagation();
-    setSelectDate({
-      visible: selectDate.visible,
-      range: undefined,
+    setMark({ lastMark: undefined });
+    setPara({
+      selectDate: {
+        visible: selectDate.visible,
+        range: undefined,
+      },
+      pageIndexs: {
+        ...pageIndexs,
+        newLogIndex: 1,
+      },
     });
-    setPageIndexs({
-      ...pageIndexs,
-      newLogIndex: 1,
-    });
-    setLastMark(undefined);
     loadNewEdition({ startDateTime: undefined, endDateTime: undefined, lastMark: undefined });
   };
 
@@ -771,25 +712,31 @@ function WorksheetRocordLog(props, ref) {
     if (loadouted && sign.newDataEnd) return;
     if (sign.newDataEnd && sign.oldLogEnd) return;
     if (!loading && !sign.newDataEnd) {
-      setPageIndexs({
-        ...pageIndexs,
-        newLogIndex: pageIndexs.newLogIndex + 1,
+      setPara({
+        pageIndexs: {
+          ...pageIndexs,
+          newLogIndex: pageIndexs.newLogIndex + 1,
+        },
       });
     } else if (!loading && sign.newDataEnd && !sign.oldLogEnd) {
-      setPageIndexs({
-        ...pageIndexs,
-        oldLogIndex: pageIndexs.oldLogIndex + 1,
+      setPara({
+        pageIndexs: {
+          ...pageIndexs,
+          oldLogIndex: pageIndexs.oldLogIndex + 1,
+        },
       });
     }
   }, 500)
 
   const selectUserCallback = value => {
-    setSelectUser(value);
-    setPageIndexs({
-      ...pageIndexs,
-      newLogIndex: 1,
+    setMark({ lastMark: undefined });
+    setPara({
+      selectUser: value,
+      pageIndexs: {
+        ...pageIndexs,
+        newLogIndex: 1,
+      },
     });
-    setLastMark(undefined);
     loadNewEdition({ opeartorId: value[0].accountId, lastMark: undefined });
   };
 
@@ -825,113 +772,117 @@ function WorksheetRocordLog(props, ref) {
   }
 
   const selectFieldChange = control => {
-    setSelectField(control);
-    setPageIndexs({
-      ...pageIndexs,
-      newLogIndex: 1,
+    setMark({ lastMark: undefined });
+    setPara({
+      selectField: control,
+      pageIndexs: {
+        ...pageIndexs,
+        newLogIndex: 1,
+      },
     });
     setMoreList([]);
-    setLastMark(undefined);
     loadNewEdition({ filedId: control.controlId, lastMark: undefined });
   };
 
   return (
-    <ScrollView className="logScroll flex worksheetRocordLog" onScrollEnd={handleScroll}>
+    <ScrollView className="logScroll flex worksheetRecordLog" onScrollEnd={handleScroll}>
       <div className={cx('logBox', { mobileLogBox: isMobile })}>
-        <div className={cx('selectCon', { hideEle: isMobile })}>
-          <div className="left">
-            <span className={`${selectUser ? 'selectLight' : ''} selectUser`} onClick={pickUser} ref={selectUserRef}>
-              <Icon icon="person" />
-              <span className="selectConText">{selectUser ? selectUser[0].fullname : _l('操作者')}</span>
-              <Icon icon="arrow-down" style={selectUser ? {} : { display: 'inline-block' }} />
-              {selectUser && <Icon onClick={clearSelectUser} icon="cancel1" />}
-            </span>
-            <AddCondition
-              columns={filterOnlyShowField(
-                _.filter(
-                  controls || formdata,
-                  it =>
-                    !_.includes([33, 47, 30, 22, 10010, 45, 43, 25], it.type) &&
-                    !_.includes(['caid', 'ctime', 'utime'], it.controlId),
-                ),
-              )}
-              defaultVisible={showAddCondition}
-              onAdd={control => {
-                selectFieldChange(control);
-              }}
-              comp={() => {
-                return (
-                  <span className={`${selectField ? 'selectLight' : ''} selectField`}>
-                    <Icon icon="title" />
-                    <span className="selectConText">{selectField ? selectField.controlName : _l('字段')}</span>
-                    <Icon icon="arrow-down" style={selectField ? {} : { display: 'inline-block' }} />
-                    {selectField && <Icon icon="cancel1" onClick={clearSelectField} />}
-                  </span>
-                );
-              }}
-              offset={[0, 0]}
-            />
-          </div>
-          <Trigger
-            popupVisible={selectDate.visible}
-            onPopupVisibleChange={visible =>
-              setSelectDate({
-                ...selectDate,
-                visible: visible,
-              })
-            }
-            action={['click']}
-            popupAlign={{ points: ['tr', 'br'] }}
-            popup={
-              <DatePickSelect
-                onChange={data => {
-                  if (!data.value) {
-                    return;
-                  }
-                  setSelectDate({
-                    visible: false,
-                    range: {
-                      ...data,
-                      value: [data.value[0], data.value[1]],
-                    },
-                  });
-                  setPageIndexs({
-                    ...pageIndexs,
-                    newLogIndex: 1,
-                  });
-                  setLastMark(undefined);
-                  loadNewEdition({
-                    startDateTime: moment(data.value[0]).format('YYYY-MM-DD HH:mm:ss'),
-                    endDateTime: moment(data.value[1]).format('YYYY-MM-DD HH:mm:ss'),
-                    lastMark: undefined,
-                  });
+        {showFilter && (
+          <div className={cx('selectCon', { hideEle: isMobile })}>
+            <div className="left">
+              <span className={cx({ selectLight: selectUser }, 'selectUser')} onClick={pickUser} ref={selectUserRef}>
+                <Icon icon="person" />
+                <span className="selectConText">{selectUser ? selectUser[0].fullname : _l('操作者')}</span>
+                <Icon icon="arrow-down" style={selectUser ? {} : { display: 'inline-block' }} />
+                {selectUser && <Icon onClick={clearSelectUser} icon="cancel1" />}
+              </span>
+              <AddCondition
+                columns={filterOnlyShowField(
+                  _.filter(
+                    controls || formdata,
+                    it =>
+                      !_.includes([33, 47, 30, 22, 10010, 45, 43, 25], it.type) &&
+                      !_.includes(['caid', 'ctime', 'utime', 'daid', 'rowid', 'uaid'], it.controlId),
+                  ),
+                )}
+                defaultVisible={showAddCondition}
+                onAdd={control => {
+                  selectFieldChange(control);
                 }}
+                comp={() => {
+                  return (
+                    <span className={cx({ selectLight: selectField }, 'selectField')}>
+                      <Icon icon="title" />
+                      <span className="selectConText">{selectField ? selectField.controlName : _l('字段')}</span>
+                      <Icon icon="arrow-down" style={selectField ? {} : { display: 'inline-block' }} />
+                      {selectField && <Icon icon="cancel1" onClick={clearSelectField} />}
+                    </span>
+                  );
+                }}
+                offset={[0, 0]}
               />
-            }
-          >
-            <span className={`${selectDate.range ? 'selectLight' : ''} selectDate`}>
-              <Icon icon="event" />
-              {selectDate.range && <span className="selectConText">{selectDate.range.label}</span>}
-              {selectDate.range && <Icon icon="arrow-down" />}
-              {selectDate.range && <Icon icon="cancel1" onClick={clearSelectDate} />}
-            </span>
-          </Trigger>
-        </div>
+            </div>
+            <Trigger
+              popupVisible={selectDate.visible}
+              onPopupVisibleChange={visible =>
+                setPara({
+                  selectDate: {
+                    ...selectDate,
+                    visible: visible,
+                  },
+                })
+              }
+              action={['click']}
+              popupAlign={{ points: ['tr', 'br'] }}
+              popup={
+                <DatePickSelect
+                  onChange={data => {
+                    if (!data.value) {
+                      return;
+                    }
+                    setPara({
+                      selectDate: {
+                        visible: false,
+                        range: {
+                          ...data,
+                          value: [data.value[0], data.value[1]],
+                        },
+                      },
+                      pageIndexs: {
+                        ...pageIndexs,
+                        newLogIndex: 1,
+                      },
+                    });
+                    setMark({ lastMark: undefined });
+                    loadNewEdition({
+                      startDateTime: moment(data.value[0]).format('YYYY-MM-DD HH:mm:ss'),
+                      endDateTime: moment(data.value[1]).format('YYYY-MM-DD HH:mm:ss'),
+                      lastMark: undefined,
+                    });
+                  }}
+                />
+              }
+            >
+              <span className={`${selectDate.range ? 'selectLight' : ''} selectDate`}>
+                <Icon icon="event" />
+                {selectDate.range && <span className="selectConText">{selectDate.range.label}</span>}
+                {selectDate.range && <Icon icon="arrow-down" />}
+                {selectDate.range && <Icon icon="cancel1" onClick={clearSelectDate} />}
+              </span>
+            </Trigger>
+          </div>
+        )}
         {newEditionList.length === 0 && (selectUser || selectField || selectDate.range) && (
           <div className="Gray_c pBottom10 noneContent" style={{ paddingTop: '120px', textAlign: 'center' }}>
             {_l('暂无数据')}
           </div>
         )}
         {newEditionList.map((item, index) => {
-          let _timeSign = undefined;
-          if (index === 0) {
-            _timeSign = createTimeSpan(moment(item.time).format('YYYY-MM-DD HH:mm:ss'));
-          }
           return (
             <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}-${index}`}>
-              <div className={`worksheetRocordLogCardTopBox ${item.type === 1 ? 'mBottom0' : ''}`}>
+              <div className={cx('worksheetRocordLogCardTopBox', { mBottom0: item.type === 1 })}>
                 <div className="worksheetRocordLogCardTitle">
-                  {isMobile ? (
+                  {(isMobile || !showFilter) ? (
                     <span className="selectTriggerChildAvatar">
                       <Avatar size={20} className="worksheetRocordLogCardTitleAvatar" src={item.avatar} />
                       {renderTitleName(item)}
@@ -945,8 +896,8 @@ function WorksheetRocordLog(props, ref) {
                           avatar: item.avatar,
                           fullname: item.fullname,
                         };
-                        if (systemUser.hasOwnProperty(item.accountId)) {
-                          userInfo = systemUser[item.accountId];
+                        if (SYSTEM_USER.hasOwnProperty(item.accountId)) {
+                          userInfo = SYSTEM_USER[item.accountId];
                         }
                         selectUserCallback([userInfo]);
                       }}
@@ -973,6 +924,7 @@ function WorksheetRocordLog(props, ref) {
                   moreList: moreList,
                   setMoreList: setMoreList,
                   lastMark: lastMark,
+                  showFilter: showFilter,
                 };
                 let showTooltips = false;
                 childData.operatContent.logData.forEach(logData => {
@@ -1013,15 +965,17 @@ function WorksheetRocordLog(props, ref) {
             </div>
           );
         })}
-        {sign.showLodOldButton && discussList.length === 0 && (
+        {!filterUniqueIds && sign.showLodOldButton && discussList.length === 0 && (
           <p className="loadOldLog">
             <span
               onClick={() => {
-                setPageIndexs({ ...pageIndexs, oldLogIndex: 1 });
-                setShowDivider(true);
-                setSign({
-                  ...sign,
-                  showLodOldButton: false,
+                setPara({ pageIndexs: { ...pageIndexs, oldLogIndex: 1 } });
+                setMark({
+                  sign: {
+                    ...sign,
+                    showLodOldButton: false,
+                  },
+                  showDivider: true,
                 });
               }}
             >
@@ -1029,7 +983,7 @@ function WorksheetRocordLog(props, ref) {
             </span>
           </p>
         )}
-        {!selectUser && !selectField && !selectDate.range && showDivider && discussList.length > 0 && (
+        {!filterUniqueIds && !selectUser && !selectField && !selectDate.range && showDivider && discussList.length > 0 && (
           <Divider className="logDivider">
             {_l('以下是旧版日志')}
             <Tooltip
@@ -1044,7 +998,7 @@ function WorksheetRocordLog(props, ref) {
           !selectDate.range &&
           discussList.map((item, index) => {
             return (
-              <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}`}>
+              <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}-${index}`}>
                 <div className="worksheetRocordLogCardTopBox">
                   <div className="worksheetRocordLogCardTitle">
                     <Avatar size={20} className="worksheetRocordLogCardTitleAvatar mRight8" src={item.avatar} />

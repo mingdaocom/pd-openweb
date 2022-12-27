@@ -8,6 +8,7 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/addon/display/placeholder';
 import { MODE } from './enum';
 import './TagTextarea.less';
+import _ from 'lodash';
 
 export default class TagTextarea extends React.Component {
   static propTypes = {

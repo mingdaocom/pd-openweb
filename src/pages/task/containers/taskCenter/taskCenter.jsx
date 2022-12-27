@@ -29,6 +29,7 @@ import TaskTree from '../taskTree/taskTree';
 import FolderDetail from '../folderDetail/folderDetail';
 import ajaxRequest from 'src/api/taskCenter';
 import ErrorState from 'src/components/errorPage/errorState';
+import _ from 'lodash';
 
 class TaskCenter extends Component {
   constructor(props) {
@@ -376,7 +377,7 @@ class TaskCenter extends Component {
       <div className="taskMainBox flexRow borderContainer">
         {hideNavigation ? null : (
           <Fragment>
-            <div className="fixedContainer ThemeBG leftNavHairGlass" />
+            <div className="Fixed ThemeBG leftNavHairGlass" />
             <TaskNavigation />
           </Fragment>
         )}

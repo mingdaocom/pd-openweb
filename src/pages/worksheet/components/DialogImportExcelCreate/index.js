@@ -20,6 +20,7 @@ import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFrom
 import appManagementController from 'src/api/appManagement';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
+import _ from 'lodash';
 
 export const wsexcelbatchSocketInit = () => {
   IM.socket.on('wsexcelbatch', ({ sheetCount, id, addCount, appId, appName, errorCount }) => {

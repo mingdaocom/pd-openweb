@@ -5,10 +5,11 @@ import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput'
 import APICard from '../../components/APICard';
 import APISetting from '../APIWrap';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
-import { getApiList, sortApis, deleteApi, getApiRelationList } from 'src/pages/workflow/api/packageVersion';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { LoadDiv, Dialog, Icon } from 'ming-ui';
-import { publish, copyProcess } from 'src/pages/workflow/api/process.js';
+import processAjax from 'src/pages/workflow/api/process.js';
 import InstallDialog from '../../components/InstallDialog';
+import _ from 'lodash';
 const Wrap = styled.div`
   .noData {
     .iconCon {
@@ -82,7 +83,7 @@ function APIList(props) {
   });
   const fetchData = () => {
     setState({ loading: true });
-    getApiList(
+    packageVersionAjax.getApiList(
       {
         companyId: localStorage.getItem('currentProjectId'),
         // types: [1, 2],
@@ -108,7 +109,7 @@ function APIList(props) {
       return;
     }
     setState({ publishing: true });
-    publish({ isPublish: !item.enabled, processId: item.id }, { isIntegration: true }).then(publishData => {
+    processAjax.publish({ isPublish: !item.enabled, processId: item.id }, { isIntegration: true }).then(publishData => {
       const { isPublish } = publishData;
       if (isPublish) {
         let listN = list.map(o => {
@@ -147,7 +148,7 @@ function APIList(props) {
       // description: _l('将复制目标工作流的所有节点和配置'),
       okText: _l('复制'),
       onOk: () => {
-        copyProcess({ processId: item.id, name: _l('-复制') }, { isIntegration: true }).then(res => {
+        processAjax.copyProcess({ processId: item.id, name: _l('-复制') }, { isIntegration: true }).then(res => {
           if (res) {
             setState({ keywords: '', pageIndex: 1, change: change + 1 });
           }
@@ -159,7 +160,7 @@ function APIList(props) {
    * 删除api
    */
   const onDel = async item => {
-    const cite = await getApiRelationList(
+    const cite = await packageVersionAjax.getApiRelationList(
       {
         id: item.id,
         isPublic: true,
@@ -196,7 +197,7 @@ function APIList(props) {
       ),
       buttonType: 'danger',
       onOk: () => {
-        deleteApi({ id: item.id }, { isIntegration: true }).then(res => {
+        packageVersionAjax.deleteApi({ id: item.id }, { isIntegration: true }).then(res => {
           if (res) {
             setState({
               list: list.filter(o => o.id !== item.id),
@@ -247,7 +248,7 @@ function APIList(props) {
       list: listNew,
       listSearch: listNew,
     });
-    sortApis(
+    packageVersionAjax.sortApis(
       {
         apis: listNew.map(o => o.id),
         id: props.id,

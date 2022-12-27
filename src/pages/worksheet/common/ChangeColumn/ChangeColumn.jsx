@@ -7,6 +7,7 @@ import cx from 'classnames';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { getControlsSorts, sortControlByIds } from 'worksheet/util';
 import './ChangeColumn.less';
+import _ from 'lodash';
 
 const SortHandle = SortableHandle(() => (
   <i className="icon icon-drag Gray_9e Font16 Right ThemeHoverColor3 Hand dragHandle"></i>

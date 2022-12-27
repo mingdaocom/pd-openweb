@@ -12,6 +12,7 @@ import Trigger from 'rc-trigger';
 import { FileItem, splitFiles } from './index';
 import DatePicker from 'ming-ui/components/DatePicker';
 import Tooltip from 'ming-ui/components/Tooltip';
+import moment from 'moment';
 const { RangePicker } = DatePicker;
 
 const fileTypeData = [

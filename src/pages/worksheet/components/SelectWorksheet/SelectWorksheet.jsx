@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import styled from 'styled-components';
 import { Input, ScrollView } from 'ming-ui';
-import { getWorksheetInfo } from 'src/api/worksheet';
-import { getWorksheetsByAppId, getPageInfo } from 'src/api/homeApp';
+import worksheetAjax from 'src/api/worksheet';
+import homeAppAjax from 'src/api/homeApp';
 import DropdownWrapper from '../DropdownWrapper';
 import cx from 'classnames';
 import SelectOtherWorksheetDialog from './SelectOtherWorksheetDialog';
 import './SelectWorksheet.less';
+import _ from 'lodash';
 
 const SearchWrap = styled.div`
   padding: 0 40px;
@@ -130,7 +131,7 @@ export default class SelectWroksheet extends React.Component {
   }
 
   loadWorksheets(appId, worksheetId, worksheetType) {
-    getWorksheetsByAppId({ appId, type: worksheetType })
+    homeAppAjax.getWorksheetsByAppId({ appId, type: worksheetType })
       .then(data => {
         this.setState(
           {
@@ -165,7 +166,7 @@ export default class SelectWroksheet extends React.Component {
         },
       });
     } else {
-      (worksheetType === 1 ? getPageInfo({ id: worksheetId }) : getWorksheetInfo({ worksheetId })).then(data => {
+      (worksheetType === 1 ? homeAppAjax.getPageInfo({ id: worksheetId }) : worksheetAjax.getWorksheetInfo({ worksheetId })).then(data => {
         if (data.name) {
           this.setState({
             selectedWorksheet: {

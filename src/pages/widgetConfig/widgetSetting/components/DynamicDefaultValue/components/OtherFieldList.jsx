@@ -3,7 +3,9 @@ import { string } from 'prop-types';
 import OtherField from './OtherField';
 import { OtherFieldList, FieldInfo, RelateControl } from '../styled';
 import { getDateType, getControlType, showClear, getTypeList } from '../util';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import _ from 'lodash';
+import moment from 'moment';
 
 const isOnlySelect = (dynamicValue, data) => {
   const type = getControlType(data);

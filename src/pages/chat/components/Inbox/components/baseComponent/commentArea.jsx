@@ -12,6 +12,8 @@ import { createLinksForMessage } from 'src/components/common/function';
 import DiscussionController from 'src/api/discussion';
 import postAjax from 'src/api/post';
 import confirm from 'ming-ui/components/Dialog/Confirm';
+import _ from 'lodash';
+import moment from 'moment';
 
 const loadAllComment = function (postId) {
   var _this = this;

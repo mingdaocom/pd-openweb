@@ -26,11 +26,40 @@ const ModalWrap = styled(Modal)`
 export default AppPermissions(RecordInfo);
 
 export const RecordInfoModal = forwardRef((props, ref) => {
-  const { rowId, appId, worksheetId, viewId, sheetSwitchPermit } = props;
+  const {
+    rowId,
+    appId,
+    worksheetId,
+    viewId,
+    sheetSwitchPermit,
+    getDataType,
+    from,
+    getDraftData = () => {},
+    notModal = false,
+  } = props;
   const { className, visible, onClose } = props;
   const store = useMemo(configureStore, []);
 
   if (!visible) return null;
+
+  const Content = (
+    <Provider store={store}>
+      <RecordInfo
+        isModal={true}
+        ids={{ appId, worksheetId, viewId, rowId }}
+        match={{ params: {} }}
+        sheetSwitchPermit={sheetSwitchPermit}
+        onClose={onClose}
+        getDataType={getDataType}
+        getDraftData={getDraftData}
+        from={from}
+      />
+    </Provider>
+  );
+
+  if (notModal) {
+    return Content;
+  }
 
   return (
     <ModalWrap
@@ -42,18 +71,9 @@ export const RecordInfoModal = forwardRef((props, ref) => {
     >
       {rowId && (
         <TouchHandler onClose={onClose} touchClassName=".RecordInfoModal">
-          <Provider store={store}>
-            <RecordInfo
-              isModal={true}
-              ids={{ appId, worksheetId, viewId, rowId }}
-              match={{params: {}}}
-              sheetSwitchPermit={sheetSwitchPermit}
-              onClose={onClose}
-            />
-          </Provider>
+          {Content}
         </TouchHandler>
       )}
     </ModalWrap>
   );
 });
-

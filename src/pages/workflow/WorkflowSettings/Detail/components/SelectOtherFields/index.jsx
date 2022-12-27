@@ -5,6 +5,7 @@ import flowNode from '../../../../api/flowNode';
 import ActionFields from '../ActionFields';
 import { CONTROLS_NAME, APP_TYPE } from '../../../enum';
 import { MenuItem } from 'ming-ui';
+import _ from 'lodash';
 
 export default class SelectOtherFields extends Component {
   static propTypes = {

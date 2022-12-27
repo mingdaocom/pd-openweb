@@ -171,6 +171,16 @@ const ORIGIN = [
     value: 2009,
   },
   {
+    text: _l('购买方地址/电话'),
+    match: TEXT,
+    value: 2031,
+  },
+  {
+    text: _l('购买方开户行及账号'),
+    match: TEXT,
+    value: 2032,
+  },
+  {
     text: _l('销售方名称'),
     match: TEXT,
     value: 2011,

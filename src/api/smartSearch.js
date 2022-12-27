@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 智能搜索（根据单个 SearchType）
   * @param {Object} args 请求参数

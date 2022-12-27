@@ -5,6 +5,7 @@ import projectSettingController from 'src/api/projectSetting';
 import Config from '../../config';
 import './index.less';
 import 'src/components/uploadAttachment/uploadAttachment';
+import _ from 'lodash';
 
 export default class SubDomain extends Component {
   constructor(props) {

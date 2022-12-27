@@ -3,6 +3,9 @@ import React, { Component } from 'react';
 import { Tooltip, Support } from 'ming-ui';
 import styled from 'styled-components';
 import { browserIsMobile } from 'src/util';
+import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
+import moment from 'moment';
+import _ from 'lodash';
 
 const Tips = styled.div`
   max-width: 230;
@@ -48,7 +51,7 @@ export default class Widgets extends Component {
   };
 
   render() {
-    const { value, dot, unit, advancedSetting = {}, enumDefault2 } = this.props;
+    const { value, dot, unit, advancedSetting = {}, enumDefault2, enumDefault } = this.props;
     let content = value;
 
     if (content === 'max') {
@@ -94,6 +97,14 @@ export default class Widgets extends Component {
         );
       }
       content = content + (unit ? ` ${unit}` : '');
+    }
+
+    if (!_.isUndefined(value) && _.includes([15, 16], enumDefault2) && _.includes([2, 3], enumDefault)) {
+      const { formatMode } = getDatePickerConfigs({
+        type: enumDefault2,
+        advancedSetting: { showtype: unit },
+      });
+      content = moment(value).format(formatMode);
     }
 
     if (!_.isUndefined(value) && advancedSetting.summaryresult === '1') {

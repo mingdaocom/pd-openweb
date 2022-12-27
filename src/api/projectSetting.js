@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取企业标识
   * @param {Object} args 请求参数
@@ -513,6 +513,8 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   * @param {string} args.departmentAttr 注册时需要填写部门
   * @param {string} args.jobAttr LDAP 用户职位
   * @param {string} args.workphoneAttr LDAP 用户工作电话
+  * @param {integer} args.searchRange 账户搜索范围
+  * @param {object} args.dnGroup DN/组
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

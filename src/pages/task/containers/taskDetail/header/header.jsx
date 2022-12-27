@@ -26,6 +26,7 @@ import ajaxRequest from 'src/api/taskCenter';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { navigateTo } from 'src/router/navigateTo';
+import _ from 'lodash';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 

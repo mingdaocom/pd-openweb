@@ -10,8 +10,9 @@ import UserTable from '../userList/userTable';
 import RoleController from 'src/api/role';
 import { encrypt } from 'src/util';
 import cx from 'classnames';
-import { Pagination } from 'antd';
+import { Pagination, Drawer } from 'antd';
 import addFriends from 'src/components/addFriends/addFriends';
+import AddUser from '../AddUser';
 
 class StructureContent extends Component {
   constructor(props) {
@@ -68,16 +69,7 @@ class StructureContent extends Component {
   }
   // 添加成员
   addUser = () => {
-    const { projectId, departmentInfos, departmentId, typeNum } = this.props;
-    let _this = this;
-    dialogInviteUser({
-      jobInfos: [],
-      departmentInfos: !departmentId || typeNum !== 0 ? '' : departmentInfos,
-      projectId,
-      callback() {
-        _this.props.fetchApproval(projectId);
-      },
-    });
+    this.setState({ openChangeUserInfoDrawer: true });
   };
   // 邀请加入
   inviteMore = () => {
@@ -120,6 +112,7 @@ class StructureContent extends Component {
       typeNum = 0,
       projectId,
       departmentId,
+      departmentInfos,
       typeCursor = 0,
       selectedAccountIds = [],
       departmentName,
@@ -128,8 +121,7 @@ class StructureContent extends Component {
       isLoading,
       removeUserFromSet = () => {},
     } = this.props;
-    let { batchEditVisible, batchResetPasswordVisible } = this.state;
-
+    let { batchEditVisible, batchResetPasswordVisible, openChangeUserInfoDrawer } = this.state;
     return (
       <Fragment>
         {!isSearch ? (
@@ -188,7 +180,7 @@ class StructureContent extends Component {
               <LoadDiv />
             </div>
           ) : (
-            <UserTable />
+            <UserTable projectId={projectId} />
           )}
           {allCount > pageSize && (
             <div className="pagination">
@@ -216,6 +208,19 @@ class StructureContent extends Component {
           />
         )}
         {batchResetPasswordVisible && this.renderBatchResetPassword()}
+
+        {openChangeUserInfoDrawer && (
+          <AddUser
+            projectId={projectId}
+            typeCursor={typeCursor}
+            actType={'add'}
+            departmentInfos={!departmentId || typeNum !== 0 ? '' : departmentInfos}
+            onClose={() => {
+              this.setState({ openChangeUserInfoDrawer: false });
+            }}
+            getData={this.props.fetchApproval}
+          />
+        )}
       </Fragment>
     );
   }

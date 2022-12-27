@@ -8,8 +8,8 @@ import ActionFields from '../ActionFields';
 import SelectUsersFromApp from '../../../../components/SelectUsersFromApp';
 import { USER_TYPE, CONTROLS_NAME } from '../../../enum';
 import flowNode from '../../../../api/flowNode';
-import DialogSelectJob from 'src/components/DialogSelectJob';
-import DialogSelectOrgRole from 'src/components/DialogSelectOrgRole';
+import { selectJob } from 'src/components/DialogSelectJob';
+import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
 
 export default class SelectUserDropDown extends Component {
   constructor(props) {
@@ -17,7 +17,6 @@ export default class SelectUserDropDown extends Component {
     this.state = {
       showSelectAppUserDialog: false,
       fieldsData: [],
-      showSelectRoleDialog: false,
     };
   }
 
@@ -64,56 +63,45 @@ export default class SelectUserDropDown extends Component {
    * 头部
    */
   header() {
-    const { specialType, disabledNodeRole, onlyNodeRole, from } = this.props;
+    const { specialType, disabledNodeRole, onlyNodeRole } = this.props;
 
     return (
       <ul className="flowDetailUserList">
+        {(specialType === 3 || specialType === 5) && (
+          <div className="explainHeader flexRow">
+            <i className={cx('Gray_9e', specialType === 3 ? 'icon-download_client' : 'icon-mailbox')} />
+            <input
+              type="text"
+              className="w100 Gray"
+              autoFocus
+              placeholder={specialType === 3 ? _l('输入手机号码') : _l('输入邮箱地址')}
+              onClick={evt => evt.stopPropagation()}
+              onKeyDown={this.addTelAndEmail}
+            />
+          </div>
+        )}
+
         {onlyNodeRole ? null : (
           <Fragment>
-            {(specialType === 3 || specialType === 5) && (
-              <div className="explainHeader flexRow">
-                <i className={cx('Gray_9e', specialType === 3 ? 'icon-download_client' : 'icon-mailbox')} />
-                <input
-                  type="text"
-                  className="w100"
-                  autoFocus
-                  placeholder={specialType === 3 ? _l('输入手机号码') : _l('输入邮箱地址')}
-                  onClick={evt => evt.stopPropagation()}
-                  onKeyDown={this.addTelAndEmail}
-                />
-              </div>
-            )}
             <MenuItem icon={<i className="icon-account_circle" />} onClick={this.addMembers}>
               {_l('通讯录')}
             </MenuItem>
-            <React.Fragment>
-              <MenuItem icon={<i className="icon-department" />} onClick={this.addDepartment}>
-                {_l('部门')}
-              </MenuItem>
-              <MenuItem
-                icon={<i className="icon-user" />}
-                onClick={() => this.setState({ showSelectRoleDialog: true })}
-              >
-                {_l('组织角色')}
-              </MenuItem>
-              <MenuItem icon={<i className="icon-limit-principal" />} onClick={this.addJob}>
-                {_l('职位')}
-              </MenuItem>
-              <MenuItem
-                icon={<i className="icon-group-members" />}
-                onClick={() => this.setState({ showSelectAppUserDialog: true })}
-              >
-                {_l('应用角色')}
-              </MenuItem>
-            </React.Fragment>
+            <MenuItem icon={<i className="icon-department" />} onClick={this.addDepartment}>
+              {_l('部门')}
+            </MenuItem>
+            <MenuItem icon={<i className="icon-user" />} onClick={this.addOrgRole}>
+              {_l('组织角色')}
+            </MenuItem>
+            <MenuItem icon={<i className="icon-limit-principal" />} onClick={this.addJob}>
+              {_l('职位')}
+            </MenuItem>
+            <MenuItem
+              icon={<i className="icon-group-members" />}
+              onClick={() => this.setState({ showSelectAppUserDialog: true })}
+            >
+              {_l('应用角色')}
+            </MenuItem>
           </Fragment>
-        )}
-
-        {!disabledNodeRole && (
-          <div className={cx('explainText', { explainTextClearStyle: onlyNodeRole })}>
-            <i className="icon-workflow_new Gray_9e" />
-            {_l('使用流程节点对象下的人员')}
-          </div>
         )}
       </ul>
     );
@@ -229,6 +217,22 @@ export default class SelectUserDropDown extends Component {
   };
 
   /**
+   * 添加组织角色
+   */
+  addOrgRole = e => {
+    const { companyId, unique, onClose } = this.props;
+
+    e.stopPropagation();
+
+    selectOrgRole({
+      projectId: companyId,
+      unique,
+      onSave: this.selectRole,
+      onClose,
+    });
+  };
+
+  /**
    * 添加职位
    */
   addJob = evt => {
@@ -238,7 +242,7 @@ export default class SelectUserDropDown extends Component {
     evt.stopPropagation();
     onClose();
 
-    new DialogSelectJob({
+    selectJob({
       projectId: companyId,
       unique,
       onSave: jobs => {
@@ -315,7 +319,6 @@ export default class SelectUserDropDown extends Component {
 
     onClose();
     updateSource({ accounts: unique ? roles : accounts.concat(roles) });
-    this.setState({ showSelectRoleDialog: false });
   };
 
   /**
@@ -355,7 +358,7 @@ export default class SelectUserDropDown extends Component {
 
   render() {
     const { visible, appId, companyId, onClose, unique } = this.props;
-    const { fieldsData, showSelectAppUserDialog, showSelectRoleDialog } = this.state;
+    const { fieldsData, showSelectAppUserDialog } = this.state;
 
     if (!visible) {
       return null;
@@ -377,26 +380,11 @@ export default class SelectUserDropDown extends Component {
       );
     }
 
-    // 选择组织角色
-    if (showSelectRoleDialog) {
-      return (
-        <DialogSelectOrgRole
-          projectId={companyId}
-          orgRoleDialogVisible
-          unique={unique}
-          onSave={this.selectRole}
-          onClose={() => {
-            onClose();
-            this.setState({ showSelectRoleDialog: false, visibleRoleDialog: false });
-          }}
-        />
-      );
-    }
-
     return (
       <ActionFields
         header={this.header()}
         className="actionFields"
+        openSearch
         noItemTips={_l('没有可用的字段')}
         condition={fieldsData}
         handleFieldClick={this.handleFieldClick}

@@ -4,12 +4,14 @@ import homeAppApi from 'src/api/homeApp';
 import cx from 'classnames';
 import { Carousel } from 'antd';
 import styled from 'styled-components';
-import { getAppSimpleInfo } from 'src/api/homeApp';
+import homeAppAjax from 'src/api/homeApp';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
 import { RecordInfoModal } from 'mobile/Record';
 import { browserIsMobile } from 'src/util';
 import { getUrlList } from './util';
+import _ from 'lodash';
 
 const CarouselComponent = styled(Carousel)`
   &.slick-slider .slick-dots li {
@@ -165,10 +167,11 @@ function Explain(props) {
 }
 
 export default function CarouselPreview(props) {
-  const { componentConfig = {}, config = {} } = props;
+  const { componentConfig = {}, config = {}, editable } = props;
   const [loading, setLoading] = useState(true);
   const [imageData, setImageData] = useState([]);
   const [rowData, setRowData] = useState([]);
+  const [controls, setControls] = useState([]);
   const [previewRecord, setPreviewRecord] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [code, setCode] = useState(0);
@@ -190,7 +193,7 @@ export default function CarouselPreview(props) {
             filedIds: [title, subTitle, url].filter(_ => _),
           })
           .then(data => {
-            const { code, imageData = [], rowData = [] } = data;
+            const { code, imageData = [], rowData = [], controls = [] } = data;
             setImageData(
               imageData.map(data => {
                 return {
@@ -200,6 +203,7 @@ export default function CarouselPreview(props) {
               }),
             );
             setRowData(rowData.map(data => JSON.parse(data)));
+            setControls(controls);
             setCode(code);
             setLoading(false);
           });
@@ -222,9 +226,11 @@ export default function CarouselPreview(props) {
     const { rowid } = data;
     const { action, openMode } = componentConfig;
 
+    if (editable || window.share) return;
+
     // 打开记录
     if (action === 1) {
-      const { appId } = await getAppSimpleInfo({ workSheetId: worksheetId });
+      const { appId } = await homeAppAjax.getAppSimpleInfo({ workSheetId: worksheetId });
 
       if (isMingdao) {
         location.href = `/app/${appId}/${worksheetId}/${viewId}/row/${rowid}`;
@@ -295,6 +301,8 @@ export default function CarouselPreview(props) {
 
   const renderImage = data => {
     const record = _.find(rowData, { rowid: data.rowId }) || {};
+    const titleControl = _.find(controls, { controlId: title }) || {};
+    const subTitleControl = _.find(controls, { controlId: subTitle }) || {};
     return (
       <div key={data.fileID}>
         <div style={style}>
@@ -304,7 +312,13 @@ export default function CarouselPreview(props) {
             style={{ backgroundImage: `url(${data.viewUrl})` }}
           />
           <div className="mask" />
-          {(record[title] || record[subTitle]) && <Explain title={record[title]} subTitle={record[subTitle]} onClick={() => handleTriggerAction(record)} />}
+          {(record[title] || record[subTitle]) && (
+            <Explain
+              title={dealMaskValue({ value: record[title], advancedSetting: titleControl.advancedSetting })}
+              subTitle={dealMaskValue({ value: record[subTitle], advancedSetting: subTitleControl.advancedSetting })}
+              onClick={() => handleTriggerAction(record)}
+            />
+          )}
         </div>
       </div>
     );

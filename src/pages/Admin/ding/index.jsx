@@ -11,6 +11,7 @@ import IntegrationSetPssword from '../components/IntegrationSetPssword';
 import UpgradeVersion from '../components/UpgradeVersion';
 import { getFeatureStatus } from 'src/util';
 import './style.less';
+import _ from 'lodash';
 
 const optionTypes = [
   { label: _l('新开浏览器打开'), key: 1 },

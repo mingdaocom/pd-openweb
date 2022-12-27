@@ -3,6 +3,7 @@ import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
 import cx from 'classnames';
+import _ from 'lodash';
 
 export default class Tel extends Component {
   componentDidMount() {

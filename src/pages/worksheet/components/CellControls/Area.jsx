@@ -10,6 +10,7 @@ import renderText from './renderText';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -42,11 +43,23 @@ export default class Date extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.cell.value !== this.props.cell.value) {
       const value = _.isObject(nextProps.cell.value) ? nextProps.cell.value.text : nextProps.cell.value;
-      this.setState({ value });
+      this.setState({ value, ...(value === '{"code":"","name":""}' ? { tempValue: undefined } : {}) });
     }
   }
 
   editIcon = React.createRef();
+
+  @autobind
+  handleTableKeyDown(e) {
+    const { updateEditingStatus } = this.props;
+    switch (e.key) {
+      case 'Escape':
+        updateEditingStatus(false);
+        break;
+      default:
+        break;
+    }
+  }
 
   @autobind
   handleChange(array) {
@@ -128,7 +141,7 @@ export default class Date extends React.Component {
         action={['click']}
         popup={editcontent}
         getPopupContainer={() => document.body}
-        popupClassName="filterTrigger cellControlAreaPopup"
+        popupClassName="filterTrigger cellControlAreaPopup cellNeedFocus"
         popupVisible={isediting}
         destroyPopupOnHide={!(navigator.userAgent.match(/[Ss]afari/) && !navigator.userAgent.match(/[Cc]hrome/))} // 不是 Safari
         popupAlign={{

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { getWorksheetInfo } from 'src/api/worksheet';
-import { getAppDetail } from 'src/api/homeApp';
+import worksheetAjax from 'src/api/worksheet';
+import homeAppAjax from 'src/api/homeApp';
+import _ from 'lodash';
 
 export default class WorksheetFileMessage extends Component {
   constructor(props) {
@@ -25,9 +26,9 @@ export default class WorksheetFileMessage extends Component {
     }
     let promise;
     if (_.includes(['report', 'customPage'], from)) {
-      promise = getAppDetail({ appId }).then(data => _l('"%0"应用', data.name));
+      promise = homeAppAjax.getAppDetail({ appId }).then(data => _l('"%0"应用', data.name));
     } else {
-      promise = getWorksheetInfo({ worksheetId }).then(data => _l('"%0"工作表', data.name));
+      promise = worksheetAjax.getWorksheetInfo({ worksheetId }).then(data => _l('"%0"工作表', data.name));
     }
     Promise.all([promise])
       .then(name => {

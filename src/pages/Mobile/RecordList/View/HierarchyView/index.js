@@ -4,6 +4,7 @@ import * as actions from 'mobile/RecordList/redux/actions';
 import { bindActionCreators } from 'redux';
 import HierarchyView from 'src/pages/worksheet/views/HierarchyView';
 import ViewErrorPage from '../components/ViewErrorPage'
+import _ from 'lodash';
 
 
 class MobileHierarchyView extends Component {

@@ -1,4 +1,5 @@
-import { getOrganizes, pagedOrganizeAccounts } from 'src/api/organize.js';
+import _ from 'lodash';
+import organizeAjax from 'src/api/organize.js';
 
 const PAGE_SIZE = 50;
 let ajaxRequest = null;
@@ -17,7 +18,7 @@ export const getRoleList = () => (dispatch, getState) => {
   if (ajaxRequest && ajaxRequest.state() === 'pending' && ajaxRequest.abort) {
     ajaxRequest.abort();
   }
-  ajaxRequest = getOrganizes({
+  ajaxRequest = organizeAjax.getOrganizes({
     pageIndex: pageIndex || 1,
     pageSize: PAGE_SIZE,
     projectId,
@@ -39,10 +40,7 @@ export const getRoleList = () => (dispatch, getState) => {
     });
     if (pageIndex === 1) {
       dispatch(updateCurrentRole(currentRole));
-      !searchValue &&
-        isRequestUserList &&
-        !_.isEmpty(currentRole) &&
-        dispatch(getUserList({ roleId: currentRole.organizeId }));
+      isRequestUserList && !_.isEmpty(currentRole) && dispatch(getUserList({ roleId: currentRole.organizeId }));
     }
   });
 };
@@ -63,7 +61,7 @@ export const getUserList = params => (dispatch, getState) => {
   const { roleId } = params || {};
   const { projectId, userPageIndex, currentRole } = getState().orgManagePage.roleManage;
   dispatch({ type: 'UPDATE_USER_LOADING', userLoading: true });
-  pagedOrganizeAccounts({
+  organizeAjax.pagedOrganizeAccounts({
     organizeId: roleId || '',
     pageIndex: userPageIndex || 1,
     pageSize: PAGE_SIZE,

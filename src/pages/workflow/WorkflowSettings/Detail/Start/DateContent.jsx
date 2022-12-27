@@ -4,6 +4,7 @@ import { TriggerCondition, TimeSelect } from '../components';
 import { Dropdown } from 'ming-ui';
 import Time from 'ming-ui/components/NewTimePicker';
 import { Tooltip } from 'antd';
+import _ from 'lodash';
 
 export default ({
   data,

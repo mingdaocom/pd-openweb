@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
 import { PERIOD_TYPE } from 'worksheet/views/GunterView/config';
+import moment from 'moment';
 
 const AxisLabel = styled.div`
   color: #333;

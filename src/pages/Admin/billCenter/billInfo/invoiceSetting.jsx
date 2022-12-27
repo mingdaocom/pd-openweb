@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import cx from 'classnames';
 import { Dialog, Input, RadioGroup, Button } from 'ming-ui';
-import { getProjectFinance, updateProjectFinance } from 'src/api/project';
-import { applyInvoice } from 'src/api/order';
+import projectAjax from 'src/api/project';
 import { useSetState } from 'react-use';
 import { invoiceConfig, newInvoiceConfig } from './config';
 import styled from 'styled-components';
@@ -50,14 +49,14 @@ export default function InvoiceSetting(props) {
   const [data, setData] = useSetState({});
 
   useEffect(() => {
-    getProjectFinance({ projectId }).then(data => {
+    projectAjax.getProjectFinance({ projectId }).then(data => {
       setData(data);
     });
   }, []);
 
   const saveSetting = () => {
     const saveApi = () => {
-      updateProjectFinance({ projectId, ...data, invoiceType: data.invoiceType || 1 })
+      projectAjax.updateProjectFinance({ projectId, ...data, invoiceType: data.invoiceType || 1 })
         .then(() => {
           alert(_l('保存成功'));
         })

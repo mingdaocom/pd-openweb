@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { autobind } from 'core-decorators';
 import CascaderDropdown from 'src/components/newCustomFields/widgets/Cascader';
 import { FILTER_CONDITION_TYPE } from '../../enum';
+import _ from 'lodash';
 
 export default class RelateRecord extends React.Component {
   static propTypes = {

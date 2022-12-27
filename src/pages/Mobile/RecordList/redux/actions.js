@@ -2,6 +2,7 @@ import sheetAjax from 'src/api/worksheet';
 import homeAppAjax from 'src/api/homeApp';
 import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 import { getRequest } from 'src/util';
+import _ from 'lodash';
 
 export const updateBase = base => (dispatch, getState) => {
   dispatch({
@@ -52,6 +53,7 @@ export const loadWorksheet = () => (dispatch, getState) => {
       worksheetId: base.worksheetId,
       getTemplate: true,
       getViews: true,
+      getSwitchPermit: true,
     })
     .then(workSheetInfo => {
       if (appNaviStyle === 2) {
@@ -89,18 +91,11 @@ export const loadWorksheet = () => (dispatch, getState) => {
           ),
         },
       });
-      dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
-    });
-  sheetAjax
-    .getSwitchPermit({
-      appId: base.appId,
-      worksheetId: base.worksheetId,
-    })
-    .then(res => {
       dispatch({
         type: 'MOBILE_SHEET_PERMISSION_INIT',
-        value: res,
+        value: workSheetInfo.switches,
       });
+      dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
     });
   homeAppAjax
     .getAppDetail({
@@ -329,7 +324,6 @@ export const updateCurrentView =
         dispatch(fetchSheetRows(base));
       });
   };
-
 
 export const changeMobileGroupFilters = data => (dispatch, getState) => {
   dispatch({ type: 'CHANGE_MOBILE_GROUPFILTERS', data });

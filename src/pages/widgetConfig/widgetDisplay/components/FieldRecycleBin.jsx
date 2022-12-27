@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Icon, Dialog, LoadDiv, Tooltip } from 'ming-ui';
-import { getWorksheetControls, editControlsStatus } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import UserHead from 'src/pages/feed/components/userHead/userHead';
 import { getWidgetInfo } from '../../util';
 import { isExceedMaxControlLimit } from '../../util/setting';
@@ -9,6 +9,7 @@ import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import SearchInput from 'worksheet/components/SearchInput';
 import cx from 'classnames';
 import './FieldRecycleBin.less';
+import _ from 'lodash';
 
 export default class FieldRecycleBin extends Component {
   constructor(props) {
@@ -30,7 +31,7 @@ export default class FieldRecycleBin extends Component {
 
     this.setState({ loading: true });
 
-    getWorksheetControls({
+    worksheetAjax.getWorksheetControls({
       worksheetId: globalSheetInfo.worksheetId,
       getControlType: 9,
     }).then(({ data = [] }) => {
@@ -115,7 +116,7 @@ export default class FieldRecycleBin extends Component {
 
     this.setState({ isComplete: true });
 
-    editControlsStatus({
+    worksheetAjax.editControlsStatus({
       worksheetId: globalSheetInfo.worksheetId,
       controlIds: [item.controlId],
       status: status === 'delete' ? 999 : 1,

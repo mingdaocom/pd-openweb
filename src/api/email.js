@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 修改 smtp 配置
   * @param {Object} args 请求参数

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { FASTFILTER_CONDITION_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/util';
 import Conditions from './Conditions';
+import _ from 'lodash';
 
 const Con = styled.div`
   position: relative;

@@ -7,6 +7,7 @@ import Button from 'ming-ui/components/Button';
 import invite from 'src/components/invite';
 import SiderBarTabList from '../components/SiderBarTabList';
 import SiderBarTabItem from '../components/SiderBarTabItem';
+import _ from 'lodash';
 
 export default class SideBar extends React.Component {
   static propTypes = {

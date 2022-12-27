@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Dialog } from 'ming-ui';
 import workSiteController from 'src/api/workSite';
-import { checkSensitive } from 'src/api/fixedData.js';
+import fixedDataAjax from 'src/api/fixedData.js';
 
 export default class SiteName extends Component {
   constructor(props) {
@@ -27,7 +27,7 @@ export default class SiteName extends Component {
 
   handleOk() {
     if (this.state.workSiteName) {
-      checkSensitive({ content: this.state.workSiteName }).then(res => {
+      fixedDataAjax.checkSensitive({ content: this.state.workSiteName }).then(res => {
         if (res) {
           this.showMes(_l('输入内容包含敏感词，请重新填写'));
           return;

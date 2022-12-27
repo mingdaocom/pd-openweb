@@ -5,7 +5,7 @@ import { LoadDiv, Icon } from 'ming-ui';
 import { browserIsMobile } from 'src/util';
 import MobileSearch from './MobileSearch';
 import { getParamsByConfigs, getShowValue, clearValue } from './util';
-import { excuteApiQuery } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { v4 as uuidv4 } from 'uuid';
 import cx from 'classnames';
 import './index.less';
@@ -113,7 +113,7 @@ export default class Widgets extends Component {
       params.formId = window.publicWorksheetShareId;
     }
 
-    this.postList = excuteApiQuery(params);
+    this.postList = worksheetAjax.excuteApiQuery(params);
 
     this.postList.then(res => {
       if (res.message) {

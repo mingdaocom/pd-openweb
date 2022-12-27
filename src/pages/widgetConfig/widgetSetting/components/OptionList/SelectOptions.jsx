@@ -3,7 +3,7 @@ import { Icon } from 'src';
 import { get, has, head, pick } from 'lodash';
 import { Support, Dialog, Dropdown } from 'ming-ui';
 import styled from 'styled-components';
-import { getCollectionsByCollectIds, saveOptionsCollection } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { SettingItem } from '../../../styled';
 import SelectOptionList from './SelectOptionList';
 import EditOptionList from './EditOptionList';
@@ -122,7 +122,7 @@ export default function SelectOptions(props) {
 
   useEffect(() => {
     if (!dataSource) return;
-    getCollectionsByCollectIds({ appId, collectionIds: [dataSource] }).then(({ msg, data, code }) => {
+    worksheetAjax.getCollectionsByCollectIds({ appId, collectionIds: [dataSource] }).then(({ msg, data, code }) => {
       if (code === 1) {
         setOptionList(head(data));
       } else {
@@ -153,7 +153,7 @@ export default function SelectOptions(props) {
         </span>
       ),
       onOk: () => {
-        saveOptionsCollection({ appId, colorful, options, name: controlName }).then(({ code, data, msg }) => {
+        worksheetAjax.saveOptionsCollection({ appId, colorful, options, name: controlName }).then(({ code, data, msg }) => {
           if (code === 1) {
             const { collectionId } = data;
             setOptionList(data);

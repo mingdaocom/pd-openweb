@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { getSelectedOptions } from 'worksheet/util';
 
 export function parseColumnToText(column, formData = {}) {

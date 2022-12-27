@@ -1,5 +1,6 @@
-import 'src/components/modernizr/modernizr';
 import { htmlEncodeReg } from 'src/util';
+import AdminController from 'src/api/adminManage';
+import _ from 'lodash';
 
 var Config = {
   params: null, // parameters from url， eg: /admin/:routeType/:projectId
@@ -7,7 +8,7 @@ var Config = {
   project: null, // current project info (from `md.global`)
 };
 
-Config.AdminController = require('src/api/adminManage');
+Config.AdminController = AdminController;
 
 Config.templates = {
   withTopMenu:
@@ -61,18 +62,8 @@ Config.getTitle = function(prefix) {
   return [_l('组织管理'), prefix, companyName].join(' - ');
 };
 
-// transitionName prefixed
-var transEndEventNames = {
-  WebkitTransition: 'webkitTransitionEnd',
-  MozTransition: 'transitionend',
-  OTransition: 'oTransitionend',
-  transition: 'transitionend',
-};
-
-var transEndEventName = transEndEventNames[Modernizr.prefixed('transition')];
-
 Config.EVENTS = {
-  transitionEnd: transEndEventName,
+  transitionEnd: 'transitionend',
 };
 
 Config.abortRequest = function(request) {

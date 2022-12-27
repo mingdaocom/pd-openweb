@@ -3,7 +3,7 @@ import sheetAjax from 'src/api/worksheet';
 import { Icon, Input, ScrollView, LoadDiv, Button } from 'ming-ui';
 import { Breadcrumb } from 'antd';
 import { Drawer } from 'antd-mobile';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { RecordInfoModal } from 'mobile/Record';
 import { openAddRecord } from 'mobile/Record/addRecord';
@@ -15,6 +15,7 @@ import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { getAdvanceSetting } from 'src/util';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 const { sheet, gallery } = VIEW_DISPLAY_TYPE;
 const TYPE_TO_COMP = {

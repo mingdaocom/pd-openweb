@@ -9,6 +9,7 @@ import './index.less';
 import { navigateTo } from 'router/navigateTo';
 import { getRequest } from 'src/util';
 import 'src/components/dialogSelectUser/dialogSelectUser';
+import _ from 'lodash';
 
 const barList = [
   { label: _l('我的汇报关系'), key: 'report' },

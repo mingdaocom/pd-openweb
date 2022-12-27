@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { Table } from 'antd';
 import { Resizable } from 'react-resizable';
 import { DEFAULT_FONT_SIZE } from '../config';
+import _ from 'lodash';
 let minPictureW = 169;
 let minW = 33;
 const ResizeableTitle = props => {

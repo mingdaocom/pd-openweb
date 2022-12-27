@@ -12,6 +12,7 @@ import {
 import { APP_TYPE, ACTION_ID, NODE_TYPE } from '../../enum';
 import { checkConditionsIsNull, getIcons } from '../../utils';
 import cx from 'classnames';
+import _ from 'lodash';
 
 export default class FindSystem extends Component {
   constructor(props) {
@@ -67,7 +68,7 @@ export default class FindSystem extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { appId, appType, name, actionId, selectNodeId, fields, conditions, executeType, random } = data;
+    const { appId, appType, name, actionId, selectNodeId, fields, conditions, executeType, random, relation } = data;
 
     if (saveRequest) {
       return;
@@ -102,6 +103,7 @@ export default class FindSystem extends Component {
         operateCondition: conditions,
         executeType,
         random,
+        relation,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -184,7 +186,9 @@ export default class FindSystem extends Component {
       [APP_TYPE.ORGANIZATION_ROLE]: {
         [ACTION_ID.RELATION]: {
           title: _l('从组织角色字段获取'),
-          filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从字段中获得第一个组织角色的相关信息'),
+          filterText: _l(
+            '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则只从字段中获得第一个组织角色的相关信息',
+          ),
         },
         [ACTION_ID.WORKSHEET_FIND]: {
           title: _l('从组织角色中获取'),
@@ -194,18 +198,22 @@ export default class FindSystem extends Component {
         },
         [ACTION_ID.FROM_RECORD]: {
           title: _l('从组织角色字段获取'),
-          filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得所有来自该字段的组织角色的相关信息'),
+          filterText: _l(
+            '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得所有来自该字段的组织角色的相关信息',
+          ),
         },
         [ACTION_ID.FROM_WORKSHEET]: {
           title: _l('从组织角色中获取'),
-          filterText: _l('设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得当前组织的所有组织角色的相关信息'),
+          filterText: _l(
+            '设置筛选条件，获得满足条件的数据。如果未添加筛选条件，则获得当前组织的所有组织角色的相关信息',
+          ),
         },
       },
     };
     const DESC_TEXT = {
       [NODE_TYPE.FIND_SINGLE_MESSAGE]: {
         [APP_TYPE.USER]: _l(
-          '获取一名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级），供流程中的其他节点使用。',
+          '获取一名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级（可选）），供流程中的其他节点使用。',
         ),
         [APP_TYPE.DEPARTMENT]: _l(
           '获取一个部门的相关信息，包含部门名称、部门负责人、部门人员及上下级部门，供流程中的其他节点使用。',
@@ -219,7 +227,7 @@ export default class FindSystem extends Component {
       },
       [NODE_TYPE.FIND_MORE_MESSAGE]: {
         [APP_TYPE.USER]: _l(
-          '获取多名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级），供流程中的其他节点使用。',
+          '获取多名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级（可选）），供流程中的其他节点使用。',
         ),
         [APP_TYPE.DEPARTMENT]: _l(
           '获取多个部门的相关信息，包含部门名称、部门负责人、部门人员及上下级部门，供流程中的其他节点使用。',
@@ -279,20 +287,40 @@ export default class FindSystem extends Component {
         )}
 
         {selectNodeType === NODE_TYPE.FIND_SINGLE_MESSAGE && (
+          <div className="mTop20">
+            <Checkbox
+              className="InlineFlex"
+              text={_l('在筛选条件的基础上，随机获取一个')}
+              checked={data.random}
+              onClick={checked => this.updateSource({ random: !checked })}
+            />
+          </div>
+        )}
+
+        {data.appType === APP_TYPE.USER && (
           <Fragment>
-            <div className="mTop20">
+            <div className="mTop20 bold">{_l('获取汇报关系')}</div>
+            <div className="mTop15" style={{ height: 23 }}>
               <Checkbox
                 className="InlineFlex"
-                text={_l('在筛选条件的基础上，随机获取一个')}
-                checked={data.random}
-                onClick={checked => this.updateSource({ random: !checked })}
+                text={_l('同时获取人员的汇报关系信息')}
+                checked={data.relation}
+                onClick={checked => this.updateSource({ relation: !checked })}
               />
             </div>
-            <FindResult
-              executeType={data.executeType}
-              switchExecuteType={executeType => this.updateSource({ executeType })}
-            />
+            <div className="mLeft25 Gray_9e">
+              {_l(
+                '包含人员的直属上司、直接下属、所有下属；如果您的使用场景无需汇报关系相关信息，推荐不勾选以提升您的查询效率',
+              )}
+            </div>
           </Fragment>
+        )}
+
+        {selectNodeType === NODE_TYPE.FIND_SINGLE_MESSAGE && (
+          <FindResult
+            executeType={data.executeType}
+            switchExecuteType={executeType => this.updateSource({ executeType })}
+          />
         )}
       </Fragment>
     );

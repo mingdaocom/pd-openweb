@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取七牛上传 token
   * @param {Object} args 请求参数

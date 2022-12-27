@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import 'rc-trigger/assets/index.css';
+import _ from 'lodash';
 
 const SelectCountWrap = styled.div`
   display: flex;

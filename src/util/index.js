@@ -8,8 +8,8 @@ import 'src/pages/PageHeader/components/NetState/index.less';
 import { LIGHT_COLOR, PUBLIC_KEY, APPLICATION_ICON } from './enum';
 import { getPssId } from 'src/util/pssId';
 import qs from 'query-string';
-import { getUploadToken, getFileUploadToken } from 'src/api/qiniu';
-import { getProjectLicenseInfo } from 'src/api/project';
+import qiniuAjax from 'src/api/qiniu';
+import projectAjax from 'src/api/project';
 
 export const emitter = new EventEmitter();
 
@@ -579,9 +579,9 @@ export function createElementFromHtml(html) {
  */
 export const getToken = (files, type = 0) => {
   if (!md.global.Account.accountId) {
-    return getFileUploadToken({ files });
+    return qiniuAjax.getFileUploadToken({ files });
   } else {
-    return getUploadToken({ files, type });
+    return qiniuAjax.getUploadToken({ files, type });
   }
 };
 
@@ -821,7 +821,7 @@ const getSyncLicenseInfo = projectId => {
   let projectInfo = _.find(projects.concat(externalProjects), o => o.projectId === projectId) || {};
 
   if (_.isEmpty(projectInfo)) {
-    getProjectLicenseInfo({ projectId }, { ajaxOptions: { async: false } }).then(res => {
+    projectAjax.getProjectLicenseInfo({ projectId }, { ajaxOptions: { async: false } }).then(res => {
       projectInfo = { ...res, projectId };
       md.global.Account.externalProjects = (md.global.Account.externalProjects || []).concat(projectInfo);
     });
@@ -896,7 +896,7 @@ export function toFixed(num, dot = 0) {
     return '';
   }
   if (dot === 0) {
-    return String(num);
+    return String(Math.round(num));
   }
   if (dot < 0 || dot > 20) {
     return String(num);

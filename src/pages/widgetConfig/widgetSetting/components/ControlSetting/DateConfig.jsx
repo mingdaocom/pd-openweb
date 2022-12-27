@@ -9,6 +9,7 @@ import { DATE_SHOW_TYPES } from '../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import { DropdownContent, DropdownPlaceholder } from '../../../styled';
 import DateInput from '../DynamicDefaultValue/inputTypes/DateInput.jsx';
+import moment from 'moment';
 
 const INTERVAL = [1, 5, 10, 15, 30, 60];
 

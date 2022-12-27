@@ -5,6 +5,7 @@ import * as actions from 'mobile/RecordList/redux/actions';
 import { bindActionCreators } from 'redux';
 import { Icon } from 'ming-ui';
 import FilterInput, { validate, conditionAdapter, formatQuickFilter, NumberTypes } from './Inputs';
+import _ from 'lodash';
 
 const Con = styled.div`
   .header {

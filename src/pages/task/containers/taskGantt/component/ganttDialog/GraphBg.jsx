@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import config from './config';
+import _ from 'lodash';
 const { TYPE_TO_WIDTH } = config;
 export default class GraphBg extends Component {
   shouldComponentUpdate(nextProp) {

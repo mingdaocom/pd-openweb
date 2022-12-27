@@ -1,3 +1,4 @@
+import _ from 'lodash';
 ﻿/* autoTextarea文本框根据输入内容自适应高度  lio 2012-3-31 add
 
 //调用：

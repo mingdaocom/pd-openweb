@@ -3,6 +3,7 @@ import CommonUserHandle from '../components/CommonUserHandle';
 import styled from 'styled-components';
 import { navigateTo } from 'src/router/navigateTo';
 import './index.less';
+import _ from 'lodash';
 
 const HomeEntry = styled.div`
   display: inline-block;

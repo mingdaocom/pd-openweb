@@ -6,6 +6,8 @@ import { STATUS2COLOR } from './config';
 import styled from 'styled-components';
 import { Menu, MenuItem, Support } from 'ming-ui';
 import { SUPPORT_HREF } from '../enum';
+import _ from 'lodash';
+import moment from 'moment';
 
 const HISTORY_TITLE = [
   { id: 'status', text: _l('状态') },

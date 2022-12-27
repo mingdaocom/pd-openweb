@@ -1,12 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import { addExRole, editAppExRole } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import Ajax from 'src/api/appManagement';
 import SettingForm from './SettingForm';
 import { PERMISSION_WAYS } from 'src/pages/Role/config.js';
 import styled from 'styled-components';
+import _ from 'lodash';
 const Wrap = styled.div`
    {
     flex: 1;
@@ -299,7 +298,7 @@ export default class RoleSet extends PureComponent {
         saveLoading: true,
       });
       if (isForPortal) {
-        promiseAjax = addExRole({ ...param, projectId });
+        promiseAjax = externalPortalAjax.addExRole({ ...param, projectId });
       } else {
         promiseAjax = Ajax.addRole(param);
       }
@@ -333,7 +332,7 @@ export default class RoleSet extends PureComponent {
         },
       };
       if (isForPortal) {
-        promiseAjax = editAppExRole(param);
+        promiseAjax = externalPortalAjax.editAppExRole(param);
       } else {
         promiseAjax = Ajax.editAppRole(param);
       }

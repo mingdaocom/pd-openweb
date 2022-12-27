@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 import { VCenterIconText, Tooltip, Dialog } from 'ming-ui';
 import cx from 'classnames';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import SaveButton from './SaveButton';
 import FilterDetailName from './FilterDetailName';
@@ -14,6 +13,7 @@ import ConditionsGroup from './ConditionsGroup';
 import { formatForSave } from '../model';
 import { FILTER_TYPE } from '../enum';
 import { saveWorksheetFilter } from '../../SaveWorksheetFilter';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;
@@ -79,10 +79,12 @@ export default function FilterDetail(props) {
     conditionProps,
     onBack,
     hideSave = false,
+    filterAddConditionControls = () => {},
     setActiveTab = () => {},
     onAddCondition = () => {},
     handleTriggerFilter = () => {},
     filterResigned = true,
+    filterError = [],
   } = props;
   const formattedCondition = formatForSave(filter);
   const canSave = !!_.sum(formattedCondition.map(c => (c.isGroup ? _.get(c, 'groupFilters.length') : 1)));
@@ -191,7 +193,9 @@ export default function FilterDetail(props) {
               appId={appId}
               projectId={projectId}
               isGroup={filter.isGroup}
+              filterError={filterError[groupIndex] || []}
               filterResigned={filterResigned}
+              filterAddConditionControls={filterAddConditionControls}
               conditionSpliceType={conditionsGroup.conditionSpliceType}
               conditions={conditionsGroup.conditions.map((c, i) => ({
                 ...c,
@@ -237,7 +241,7 @@ export default function FilterDetail(props) {
       <Footer className="flexRow" isSingleFilter={isSingleFilter}>
         {(!filter.isGroup || (filter.isGroup && conditionsGroups.length === 1)) && (
           <AddCondition
-            columns={filterOnlyShowField(controls)}
+            columns={filterAddConditionControls(controls)}
             onAdd={control => {
               if (filter.isGroup) {
                 actions.addCondition(control);
@@ -272,7 +276,8 @@ export default function FilterDetail(props) {
               if (featureType === '2') {
                 buriedUpgradeVersionDialog(projectId, 24);
               } else {
-                actions.addGroup();
+                const spliceType = _.get(conditionsGroups, '0.spliceType');
+                actions.addGroup(spliceType);
                 onAddCondition();
                 scrollToEnd();
               }

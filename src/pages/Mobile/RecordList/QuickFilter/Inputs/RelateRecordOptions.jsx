@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { getFilterRows } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import { Option } from './Options';
+import _ from 'lodash';
 
 export default function RelateRecordOptions(props) {
   const { selected, control, multiple, onChange, onSetMoreVisible } = props;
@@ -24,7 +25,7 @@ export default function RelateRecordOptions(props) {
       isGetWorksheet: true,
       getType: 7,
     };
-    const res = await getFilterRows(args);
+    const res = await worksheetAjax.getFilterRows(args);
     setLoading(false);
     setRecords(res.data);
   }

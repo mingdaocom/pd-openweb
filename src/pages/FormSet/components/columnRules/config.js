@@ -1,5 +1,5 @@
 import {
-  formatValuesOfOriginConditions,
+  formatOriginFilterGroupValue,
   checkConditionAvailable,
   getTypeKey,
   getFilterTypes,
@@ -11,8 +11,10 @@ import {
   DATE_OPTIONS,
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import { getIconByType, getSwitchItemNames } from 'src/pages/widgetConfig/util';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
+import { WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS } from 'pages/widgetConfig/config/widget';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
+import _ from 'lodash';
+import moment from 'moment';
 
 //初始规则数据
 export const originRuleItem = {
@@ -130,6 +132,7 @@ export function getNewDropDownData(dropDownData = [], actionType) {
     if (_.includes([29, 34], item.type) && item.relationControls) {
       item.relationControls = item.relationControls
         .filter(re => _.includes(item.showControls || [], re.controlId))
+        .filter(re => !_.includes(SYS_CONTROLS, re.controlId))
         .filter(i => !_.includes(filterControls, i.type));
       if (!item.relationControls.length) {
         delete item.relationControls;
@@ -167,20 +170,16 @@ export function getActionLabelByType(type) {
 
 //判断规则是否有效并能否提交
 export function checkConditionCanSave(filters = []) {
-  let filtersData = filters.map(it => {
-    return {
-      ...it,
-      conditionGroupType: (CONTROL_FILTER_WHITELIST[getTypeKey(it.dataType)] || {}).value,
-      type: it.filterType,
-      isDynamicsource: it.isDynamicsource || it.dynamicSource.length > 0,
-    };
-  });
-  return formatValuesOfOriginConditions(filtersData).every(data => checkConditionAvailable(data));
+  const formatFilter = formatOriginFilterGroupValue({ items: filters }) || {};
+  return (formatFilter.conditionsGroups || []).every(data =>
+    (data.conditions || []).every(i =>
+      checkConditionAvailable({ ...i, isDynamicsource: i.isDynamicsource || _.get(i, 'dynamicSource.length') }),
+    ),
+  );
 }
 
 //判断条件是否填写
 export function checkConditionError(condition) {
-  const control = formatCondition(condition) || {};
   const {
     value,
     values,
@@ -190,7 +189,7 @@ export function checkConditionError(condition) {
     minValue,
     maxValue,
     dateRange,
-  } = control;
+  } = condition;
   const conditionGroupType = (CONTROL_FILTER_WHITELIST[getTypeKey(dataType)] || {}).value;
   const type = condition.filterType;
   //动态参数输入框
@@ -202,7 +201,7 @@ export function checkConditionError(condition) {
   switch (conditionGroupType) {
     //文本框
     case CONTROL_FILTER_WHITELIST.TEXT.value:
-      return values && !values.length ? 'selectizeInputErrorBorder' : '';
+      return !(values && values.length) ? 'selectizeInputErrorBorder' : '';
     case CONTROL_FILTER_WHITELIST.NUMBER.value:
       if (type === FILTER_CONDITION_TYPE.BETWEEN || type === FILTER_CONDITION_TYPE.NBETWEEN) {
         let styleNumber = [];
@@ -248,31 +247,6 @@ export function checkConditionError(condition) {
   }
 }
 
-export function formatCondition(condition) {
-  const fullValues = condition.values && condition.values.length > 0 ? condition.fullValues : [];
-  return {
-    controlId: condition.controlId,
-    dataType: condition.controlType || condition.dataType,
-    spliceType: condition.spliceType,
-    filterType: condition.type || condition.filterType,
-    dateRange: condition.dateRange,
-    dateRangeType: condition.dateRangeType,
-    fullValues: fullValues,
-    values:
-      _.includes([26, 27, 29, 19, 23, 24, 35, 48], condition.controlType || condition.dataType) &&
-      fullValues &&
-      fullValues.length > 0
-        ? condition.fullValues
-        : condition.values || [],
-    maxValue: _.isUndefined(condition.maxValue) ? '' : condition.maxValue,
-    minValue: _.isUndefined(condition.minValue) ? '' : condition.minValue,
-    value: condition.value,
-    folded: condition.folded,
-    dynamicSource: condition.dynamicSource || [],
-    isDynamicsource: condition.isDynamicsource,
-  };
-}
-
 export function formatFilterValue(condition) {
   return {
     controlId: condition.controlId,
@@ -293,11 +267,16 @@ export function formatFilterValue(condition) {
 
 //filters保存，关联values取id
 export function formatValues(items) {
-  return items.map(item =>
-    _.includes([26, 27, 29, 19, 23, 24, 35, 48], item.dataType)
-      ? { ...item, values: item.values.map(val => (typeof val === 'string' ? safeParse(val).id : val)) }
-      : item,
-  );
+  return items.map(item => {
+    return {
+      ...item,
+      groupFilters: (item.groupFilters || []).map(i => {
+        return _.includes([26, 27, 29, 19, 23, 24, 35, 48], i.dataType)
+          ? { ...i, values: (i.values || []).map(val => (typeof val === 'string' ? safeParse(val).id : val)) }
+          : i;
+      }),
+    };
+  });
 }
 
 //过滤删除选项
@@ -320,7 +299,7 @@ export const filterText = (key, filterData, control) => {
   switch (key) {
     case CONTROL_FILTER_WHITELIST.NUMBER.value:
       if (filterType === FILTER_CONDITION_TYPE.BETWEEN || filterType === FILTER_CONDITION_TYPE.NBETWEEN) {
-        return `${filterData.minValue} - ${filterData.maxValue}`;
+        return `${filterData.minValue || ''} - ${filterData.maxValue || ''}`;
       } else {
         return filterData.value;
       }
@@ -490,20 +469,6 @@ export const filterData = (columns = [], filterItem = [], isSetting, relationCon
   });
   return dataList;
 };
-
-//filters转换成二维数组
-export function getArrBySpliceType(filters = []) {
-  let num = 0;
-  return Object.values(
-    filters.reduce((res, item) => {
-      res[num] ? res[num].push(item) : (res[num] = [item]);
-      if (item.spliceType === 2) {
-        num++;
-      }
-      return res;
-    }, {}),
-  );
-}
 
 const OCR_ICON_WHITELIST = {
   1: 'ocr',

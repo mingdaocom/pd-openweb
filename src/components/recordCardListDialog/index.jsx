@@ -15,6 +15,7 @@ import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import Header from './Header';
 import './recordCardListDialog.less';
+import _ from 'lodash';
 
 function getSearchConfig(control) {
   try {
@@ -96,6 +97,12 @@ export default class RecordCardListDialog extends Component {
       (window.isPublicWorksheet ? publicWorksheetAjax : sheetAjax)
         .getWorksheetInfo({ worksheetId: control.dataSource, getTemplate: true })
         .then(data => {
+          window.worksheetControlsCache = {};
+          data.template.controls.forEach(c => {
+            if (c.type === 29) {
+              window.worksheetControlsCache[c.dataSource] = c.relationControls;
+            }
+          });
           this.setState(
             {
               allowAdd: data.allowAdd,
@@ -359,6 +366,7 @@ export default class RecordCardListDialog extends Component {
       singleConfirm,
       onText,
       masterRecordRowId,
+      isCharge,
     } = this.props;
     const {
       loading,
@@ -383,6 +391,7 @@ export default class RecordCardListDialog extends Component {
     return (
       <Dialog
         className="recordCardListDialog"
+        overlayClosable={false}
         anim={false}
         visible={visible}
         width={window.innerWidth - 20 > 960 ? 960 : window.innerWidth - 20}
@@ -452,6 +461,7 @@ export default class RecordCardListDialog extends Component {
                           key={i}
                           from={2}
                           coverCid={coverCid}
+                          isCharge={isCharge}
                           showControls={cardControls.map(c => c.controlId)}
                           controls={controls}
                           data={record}

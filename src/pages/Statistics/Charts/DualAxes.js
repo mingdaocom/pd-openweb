@@ -14,6 +14,7 @@ import { formatChartData as formatLineChartData } from './LineChart';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import { Dropdown, Menu } from 'antd';
+import _ from 'lodash';
 
 const getLineChartXAxis = (controlId, data) => {
   if (controlId) {

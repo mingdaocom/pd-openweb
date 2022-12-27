@@ -4,7 +4,8 @@ import sheetAjax from 'src/api/worksheet';
 import ScrollView from 'ming-ui/components/ScrollView';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import _ from 'lodash';
 
 export default class RelateRecord extends Component {
   static propTypes = {
@@ -41,13 +42,13 @@ export default class RelateRecord extends Component {
     this.searchRecord = _.debounce(this.getRows, 500);
     this.$relateRecord = React.createRef();
   }
-  componentWillMount = function() {
+  componentWillMount = function () {
     this.getRows();
   };
   componentDidMount() {
     this.computeStyle();
   }
-  getRows = function(pageIndex = 1, keyWords) {
+  getRows = function (pageIndex = 1, keyWords) {
     const { appId, viewId, worksheetId, relateSheetId, recordId, controlId } = this.props;
     const clearState = {
       loading: true,

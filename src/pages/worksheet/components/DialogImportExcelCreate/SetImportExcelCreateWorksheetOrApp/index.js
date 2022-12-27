@@ -11,6 +11,7 @@ import './index.less';
 import ExcelControlSetting from './ExcelControlSetting';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const ImportLoadingWrap = styled.div`
   position: absolute;

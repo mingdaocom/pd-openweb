@@ -8,6 +8,7 @@ import cx from 'classnames';
 import SelectUser from 'mobile/components/SelectUser';
 import { browserIsMobile, getCurrentProject } from 'src/util';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {

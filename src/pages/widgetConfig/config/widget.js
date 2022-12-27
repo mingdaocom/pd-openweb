@@ -374,7 +374,7 @@ export const DEFAULT_DATA = {
     size: 6,
     enumDefault: 0,
     enumDefault2: 2,
-    unit: _l('元'),
+    // unit: _l('元'),
     dot: 2,
     hint: _l('请填写金额'),
     advancedSetting: {
@@ -402,6 +402,7 @@ export const DEFAULT_DATA = {
     controlName: _l('单选'),
     size: 6,
     enumDefault2: 1,
+    hint: _l('请选择'),
     advancedSetting: {
       showtype: '0',
     },
@@ -620,11 +621,12 @@ export const WORKFLOW_SYSTEM_CONTROL = [
   { controlId: 'wfstatus', controlName: _l('状态'), type: 2, display: true },
   { controlId: 'wfcuaids', controlName: _l('节点负责人'), type: 26, display: true },
   { controlId: 'wfrtime', controlName: _l('节点开始时间'), type: 16, display: true },
-  { controlId: 'wfftime', controlName: _l('剩余时间'), type: 16, display: true },
+  { controlId: 'wfftime', controlName: _l('剩余时间'), type: 38, display: true },
   { controlId: 'wfcaid', controlName: _l('发起人'), type: 26, display: true },
   { controlId: 'wfctime', controlName: _l('发起时间'), type: 16, display: true },
   { controlId: 'rowid', controlName: _l('记录ID'), type: 2, display: true },
 ];
+export const SYSTEM_PERSON_CONTROL = [{ controlId: 'uaid', controlName: _l('最近修改人'), type: 26, display: true }];
 export const SYSTEM_DATE_CONTROL = [
   {
     controlId: 'ctime',
@@ -642,7 +644,6 @@ export const SYSTEM_DATE_CONTROL = [
   },
 ];
 export const SYSTEM_CONTROL = [
-  // ...WORKFLOW_SYSTEM_CONTROL,
   // {
   //   controlId: 'caid',
   //   controlName: _l('创建者'),
@@ -667,11 +668,53 @@ export const SYSTEM_CONTROL = [
   ...SYSTEM_DATE_CONTROL,
 ];
 
+export const SYSTEM_CONTROL_WITH_UAID = [
+  {
+    controlId: 'ownerid',
+    controlName: _l('拥有者'),
+    controlPermissions: '111',
+    type: 26,
+    enumDefault: 0,
+    display: true,
+  },
+  {
+    controlId: 'caid',
+    controlName: _l('创建者'),
+    type: 26,
+    display: true,
+  },
+  {
+    controlId: 'ctime',
+    controlName: _l('创建时间'),
+    controlPermissions: '100',
+    type: 16,
+    display: true,
+  },
+  {
+    controlId: 'uaid',
+    controlName: _l('最近修改人'),
+    controlPermissions: '111',
+    type: 26,
+    enumDefault: 0,
+    display: true,
+  },
+  {
+    controlId: 'utime',
+    controlName: _l('最近修改时间'),
+    controlPermissions: '100',
+    type: 16,
+    display: true,
+  },
+];
+
 // 表单内需要排除的系统字段
 export const FORM_HIDDEN_CONTROL_IDS = ['ownerid', 'caid', 'ctime', 'utime', 'daid', 'uaid'];
 
 // 系统字段
 export const SYS = SYSTEM_CONTROL.map(o => o.controlId);
+
+// 全部系统字段
+export const ALL_SYS = SYS.concat(WORKFLOW_SYSTEM_CONTROL.map(o => o.controlId)).concat('uaid');
 
 export const COMMON_USE_WIDGETS = pick(DEFAULT_CONFIG, [
   'TEXT',
@@ -716,3 +759,16 @@ export const WIDGET_GROUP_TYPE = {
   RELATE: { widgets: RELATE_WIDGETS, title: _l('关联') },
   SPECIAL: { widgets: SPECIAL_WIDGETS, title: _l('特殊控件') },
 };
+
+export const NORMAL_CONTROLS = ['uaid', 'rowid'];
+
+export const SYS_CONTROLS = [
+  ...NORMAL_CONTROLS,
+  'wfname',
+  'wfcuaids',
+  'wfcaid',
+  'wfctime',
+  'wfrtime',
+  'wfftime',
+  'wfstatus',
+];

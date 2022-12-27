@@ -7,6 +7,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import RegExp from 'src/util/expression';
 import { encrypt } from 'src/util';
+import _ from 'lodash';
 
 const SetInitialPassword = styled.div`
   padding: 20px 0;

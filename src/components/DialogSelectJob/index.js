@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import JobController from 'src/api/job';
-import { Dialog, LoadDiv, Checkbox, ScrollView } from 'ming-ui';
+import { Dialog, LoadDiv, Checkbox, ScrollView, FunctionWrap } from 'ming-ui';
 import cx from 'classnames';
 import './style.less';
+import _ from 'lodash';
 
 class DialogSelectJob extends Component {
   static defaultProps = {
@@ -117,7 +117,7 @@ class DialogSelectJob extends Component {
           </div>
           <div className="GSelect-result-subItem__name overflow_ellipsis">{item.jobName}</div>
           <div className="GSelect-result-subItem__remove" onClick={() => this.toggle(item, false)}>
-            <span className="icon-close"></span>
+            <span className="icon-close" />
           </div>
         </div>
       );
@@ -125,12 +125,12 @@ class DialogSelectJob extends Component {
   }
 
   render() {
-    const { onClose, projectId, onSave, showCompanyName, overlayClosable } = this.props;
+    const { onClose, projectId, onSave, showCompanyName, overlayClosable, visible } = this.props;
     const { keywords, selectData } = this.state;
 
     return (
       <Dialog
-        visible
+        visible={visible}
         title={_l('选择职位')}
         width={480}
         type="scroll"
@@ -174,18 +174,6 @@ class DialogSelectJob extends Component {
   }
 }
 
-export default function initDialogSelectJob(props) {
-  const $container = document.createElement('div');
-  document.body.appendChild($container);
+export default DialogSelectJob;
 
-  function handleClose() {
-    setTimeout(() => {
-      const isHaveComponent = ReactDOM.unmountComponentAtNode($container);
-      if (isHaveComponent && $container.parentElement) {
-        $container.parentElement.removeChild($container);
-      }
-    }, 0);
-  }
-
-  ReactDOM.render(<DialogSelectJob onClose={handleClose} {...props} />, $container);
-}
+export const selectJob = props => FunctionWrap(DialogSelectJob, { ...props });

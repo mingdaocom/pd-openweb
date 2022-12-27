@@ -26,6 +26,7 @@ import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import plupload from '@mdfe/jquery-plupload';
 import { navigateTo } from 'src/router/navigateTo';
 import addLinkFile from 'src/components/addLinkFile/addLinkFile';
+import _ from 'lodash';
 
 export const errorCode = {
   40001: _l('鉴权失败'),
@@ -805,7 +806,7 @@ export default class UploadFiles extends Component {
     }
   }
   render() {
-    let { controlId, isUpload, arrowLeft, minWidth, maxWidth, height, canAddLink } = this.props;
+    let { controlId, isUpload, arrowLeft, minWidth, maxWidth, height, canAddLink, from } = this.props;
     let { temporaryData, kcAttachmentData, attachmentData } = this.state;
     let { totalSize, currentPrograss } = getAttachmentTotalSize(temporaryData);
     let length = temporaryData.length + kcAttachmentData.length + attachmentData.length;
@@ -838,7 +839,7 @@ export default class UploadFiles extends Component {
                 <i className="icon icon-knowledge-upload Gray_9e Font19" />
                 <span>{_l('本地')}</span>
               </div>
-              {!md.global.Account.isPortal && !md.global.SysSettings.forbidSuites.includes('4') && (
+              {!md.global.Account.isPortal && from !== FROM.DRAFT && !md.global.SysSettings.forbidSuites.includes('4') && (
                 <div className="flexRow valignWrapper" onClick={this.onOpenFolderSelectDialog.bind(this)}>
                   <i className="icon icon-folder Gray_9e Font18" />
                   <span>{_l('知识')}</span>

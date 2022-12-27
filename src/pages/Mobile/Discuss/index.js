@@ -1,9 +1,10 @@
 import React, { Fragment, Component } from 'react';
 import DiscussInfo from './DiscussInfo';
 import { ModalWrap } from '../baseStyled';
+import _ from 'lodash';
 
 export default props => {
-  const { isModal, match, appId, worksheetId, rowId, viewId } = props;
+  const { isModal, match, appId, worksheetId, rowId, viewId, projectId } = props;
   const { className, visible, onClose, onAddCount = _.noop, originalData } = props;
   if (isModal) {
     return (
@@ -15,6 +16,7 @@ export default props => {
             onClose={onClose}
             onAddCount={onAddCount}
             originalData={originalData}
+            projectId={projectId}
           />
         )}
       </ModalWrap>

@@ -2,8 +2,8 @@ import React, { Fragment, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Icon, Menu, MenuItem } from 'ming-ui';
 import { getPrintCardInfoOfTemplate } from 'worksheet/common/PrintQrBarCode/enum';
-import { getPrintList } from 'src/api/worksheet';
-import { add } from 'src/api/webCache';
+import worksheetAjax from 'src/api/worksheet';
+import webCacheAjax from 'src/api/webCache';
 import IconText from 'worksheet/components/IconText';
 import { printQrBarCode, generatePdf } from 'worksheet/common/PrintQrBarCode';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
@@ -75,7 +75,7 @@ export default function PrintList(props) {
   const [templateList, setTemplateList] = useState(props.templateList || []);
   const featureType = getFeatureStatus(projectId, 20);
   function loadPrintList() {
-    getPrintList({
+    worksheetAjax.getPrintList({
       worksheetId,
       viewId,
     }).then(data => {
@@ -177,7 +177,7 @@ export default function PrintList(props) {
                         isBatch: true,
                       };
                       let printKey = Math.random().toString(36).substring(2);
-                      add({
+                      webCacheAjax.add({
                         key: `${printKey}`,
                         value: JSON.stringify(printData),
                       });

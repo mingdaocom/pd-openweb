@@ -1,6 +1,7 @@
 import React from 'react';
 import { MSGTYPES } from '../constants';
 import * as Components from './wrappedComp';
+import _ from 'lodash';
 
 const { SystemMessage, PostReply, PostMention, CommonTopic } = Components;
 

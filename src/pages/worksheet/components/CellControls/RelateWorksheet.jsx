@@ -7,6 +7,7 @@ import cx from 'classnames';
 import RecordInfoWrapper from '../../common/recordInfo/RecordInfoWrapper';
 import { renderCellText } from '../../components/CellControls';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 class RelateWorksheet extends Component {
   static propTypes = {

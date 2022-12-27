@@ -4,17 +4,12 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import ReactDom from 'react-dom';
 import { Button, Input, Form, Modal } from 'antd';
 import { Dialog } from 'ming-ui';
-import {
-  addTpAuthorizerInfo,
-  getWeiXinBindingInfo,
-  cancelBindingWeiXin,
-  bindingWeiXin,
-  callBackWeiXinBinding,
-} from 'src/api/project';
+import projectAjax from 'src/api/project';
 import { getRequest } from 'src/util';
 import Config from '../config';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 const CONFIG_OPTIONS = [
   { key: 'name', text: _l('公众号名称'), clickText: _l('取消绑定'), clickKey: 'unbind' },
@@ -80,7 +75,7 @@ export default class WeiXin extends Component {
     const { state, auth_code } = getRequest();
     if (md.global.Config.IsPlatformLocal && auth_code) {
       this.setState({ loading: true });
-      callBackWeiXinBinding({ state, authCode: auth_code, projectId: Config.projectId }).then(res => {
+      projectAjax.callBackWeiXinBinding({ state, authCode: auth_code, projectId: Config.projectId }).then(res => {
         this.setState({ loading: false });
         if (res.flag) {
           location.href = `/admin/weixin/${Config.projectId}`;
@@ -94,7 +89,7 @@ export default class WeiXin extends Component {
   }
   getWeiXinBindingInfo = () => {
     this.setState({ loading: true });
-    getWeiXinBindingInfo({ projectId: Config.projectId }).then(res => {
+    projectAjax.getWeiXinBindingInfo({ projectId: Config.projectId }).then(res => {
       this.setState({ loading: false });
       if (_.isArray(res) && res.length) {
         this.setState({
@@ -109,7 +104,7 @@ export default class WeiXin extends Component {
   };
   submmit = () => {
     let { name, appId, appSecret } = this.state;
-    addTpAuthorizerInfo({ projectId: Config.projectId, name, appId, appSecret }).then(res => {
+    projectAjax.addTpAuthorizerInfo({ projectId: Config.projectId, name, appId, appSecret }).then(res => {
       if (res) {
         this.getWeiXinBindingInfo();
       }
@@ -131,7 +126,7 @@ export default class WeiXin extends Component {
         </span>
       ),
       onOk: () => {
-        bindingWeiXin({ projectId: Config.projectId }).then(res => {
+        projectAjax.bindingWeiXin({ projectId: Config.projectId }).then(res => {
           location.href = res;
         });
       },
@@ -178,7 +173,7 @@ export default class WeiXin extends Component {
           '取消绑定后，本组织内与公众号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。',
         ),
         onOk: () => {
-          cancelBindingWeiXin({ appId: data.appId }).then(result => {
+          projectAjax.cancelBindingWeiXin({ appId: data.appId }).then(result => {
             if (result) {
               alert(_l('成功取消绑定'));
               this.setState({ isBind: false, weixinInfo: [] });
@@ -198,7 +193,7 @@ export default class WeiXin extends Component {
   };
   cancelBind = () => {
     let { appId } = this.state;
-    cancelBindingWeiXin({ appId }).then(res => {
+    projectAjax.cancelBindingWeiXin({ appId }).then(res => {
       this.setState({ cancelBindVisible: false });
       if (res) {
         alert(_l('取消成功'), 1);
@@ -235,7 +230,7 @@ export default class WeiXin extends Component {
     );
   };
   handleBind = () => {
-    bindingWeiXin({ projectId: Config.projectId }).then(res => {
+    projectAjax.bindingWeiXin({ projectId: Config.projectId }).then(res => {
       location.href = res;
     });
   };

@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import alertImg from '../../assets/alert.png';
 import { addToken } from 'src/util';
 import { getPssId } from 'src/util/pssId';
+import moment from 'moment';
 
 const FailInfoCon = styled.div`
   padding: 0 24px;

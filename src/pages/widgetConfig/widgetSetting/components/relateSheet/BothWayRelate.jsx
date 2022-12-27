@@ -3,12 +3,13 @@ import { string } from 'prop-types';
 import { Checkbox, Dialog, Input, Dropdown, RadioGroup } from 'ming-ui';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
-import { getWorksheetControlsQuantity } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { SettingItem } from '../../../styled';
 import { RELATE_COUNT, RELATE_COUNT_TEXT, DISPLAY_TYPE_TEXT } from '../../../config/setting';
 import { getDisplayType } from '../../../util/setting';
 import { toEditWidgetPage } from '../../../util';
 import { useSheetInfo } from '../../../hooks';
+import _ from 'lodash';
 
 const ConfigWrap = styled.div`
   padding-bottom: 10px;
@@ -77,7 +78,7 @@ export default function BothWayRelate(props) {
   }, [controlId]);
 
   const handleClick = () => {
-    // getWorksheetControlsQuantity({ worksheetId }).then(({ data }) => {
+    // worksheetAjax.getWorksheetControlsQuantity({ worksheetId }).then(({ data }) => {
     //   const { totalNum, relationNum } = data;
     //   if (totalNum > 200) {
     //     alert(_l('关联表超过200个控件，无法关联'));

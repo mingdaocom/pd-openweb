@@ -4,7 +4,7 @@ import { Tooltip, Button } from 'antd';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import { includes, isEmpty } from 'lodash';
-import { editWorksheetControls } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { canSetAsTitle } from '../../util';
 import DeleteConfirm from './DeleteConfirm';
 import { NOT_NEED_DELETE_CONFIRM } from '../../config';
@@ -130,7 +130,7 @@ export default function WidgetOperation(props) {
 
     const deleteRelateControl = e => {
       e.stopPropagation();
-      editWorksheetControls({
+      worksheetAjax.editWorksheetControls({
         worksheetId: dataSource,
         controls: [handleAdvancedSettingChange(sourceControl, { hide: '1' })],
       }).then(res => {});

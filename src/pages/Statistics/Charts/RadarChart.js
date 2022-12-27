@@ -10,6 +10,7 @@ import {
 } from './common';
 import { Dropdown, Menu } from 'antd';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import _ from 'lodash';
 
 const formatChartData = (data, yaxisList, splitControlId) => {
   const result = [];

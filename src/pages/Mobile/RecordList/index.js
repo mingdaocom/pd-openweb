@@ -20,6 +20,7 @@ import cx from 'classnames';
 import FixedPage from 'mobile/App/FixedPage.jsx';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import alreadyDelete from './State/assets/alreadyDelete.png';
+import _ from 'lodash';
 
 @withRouter
 @AppPermissions
@@ -28,10 +29,11 @@ class RecordList extends Component {
     super(props);
     this.state = {
       previewRecordId: undefined,
-      tempViewIdForRecordInfo: undefined
-    }
+      tempViewIdForRecordInfo: undefined,
+    };
   }
   componentDidMount() {
+    const { params } = this.props.match || {};
     this.props.changeMobileGroupFilters([]);
     this.getApp(this.props);
     if (_.get(this.props, ['filters', 'visible'])) {
@@ -69,13 +71,13 @@ class RecordList extends Component {
   sheetViewOpenRecord = (recordId, viewId) => {
     this.setState({
       previewRecordId: recordId,
-      tempViewIdForRecordInfo: viewId
+      tempViewIdForRecordInfo: viewId,
     });
-  }
+  };
   setCache = params => {
     const { worksheetId, viewId } = params;
     safeLocalStorageSetItem(`mobileViewSheet-${worksheetId}`, viewId);
-  }
+  };
   handleChangeView = view => {
     const { match, now } = this.props;
     const { params } = match;
@@ -88,7 +90,7 @@ class RecordList extends Component {
         true,
       );
     }
-  }
+  };
   renderContent() {
     const {
       base,
@@ -109,7 +111,7 @@ class RecordList extends Component {
     const { detail } = appDetail;
     const { appNaviStyle } = detail;
 
-    const { views, name } = worksheetInfo;
+    const { views, name, advancedSetting = {} } = worksheetInfo;
     const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
     const { params } = match;
     const viewIndex = viewId ? _.findIndex(views, { viewId }) : 0;
@@ -185,8 +187,8 @@ class RecordList extends Component {
                   : [1, 3, 4].includes(view.viewType) ||
                     (!_.isEmpty(view.navGroup) && view.navGroup.length) ||
                     !(canDelete || showCusTomBtn)
-                    ? { bottom: '20px' }
-                    : { bottom: '78px' }
+                  ? { bottom: '20px' }
+                  : { bottom: '78px' }
               }
               onClick={() => {
                 if (!isHideTabBar && location.href.includes('mobile/app')) {
@@ -215,9 +217,9 @@ class RecordList extends Component {
             </div>
           )}
           {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
-            worksheetInfo.allowAdd &&
-            isHaveSelectControl &&
-            !batchOptVisible ? (
+          worksheetInfo.allowAdd &&
+          isHaveSelectControl &&
+          !batchOptVisible ? (
             <div className="addRecordItemWrapper">
               <Button
                 style={{ backgroundColor: appColor }}
@@ -237,12 +239,19 @@ class RecordList extends Component {
                     needCache: true,
                     openRecord: this.sheetViewOpenRecord,
                     onAdd: data => {
+                      if (_.isEmpty(data)) {
+                        return;
+                      }
+
                       if (view.viewType) {
                         this.props.addNewRecord(data, view);
                       } else {
                         this.props.unshiftSheetRow(data);
                       }
                     },
+                    showDraft: advancedSetting.closedrafts !== '1',
+                    showDraftsEntry: true,
+                    sheetSwitchPermit,
                   });
                 }}
               >
@@ -262,7 +271,7 @@ class RecordList extends Component {
           onClose={() => {
             this.setState({
               previewRecordId: undefined,
-              tempViewIdForRecordInfo: undefined
+              tempViewIdForRecordInfo: undefined,
             });
           }}
         />

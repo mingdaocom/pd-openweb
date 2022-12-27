@@ -4,6 +4,7 @@ import Emotion from 'src/components/emotion/emotion';
 import weixin from 'src/api/weixin';
 import { index as dialog } from 'src/components/mdDialog/dialog';
 import projectAjax from 'src/api/project';
+import userController from 'src/api/user';
 
 const replaceMessageCustomTag = function(message, tagName, replaceHtmlFunc, filterCustom) {
   var startTag, endTag, customReplaceStr;
@@ -266,7 +267,6 @@ export const createLinksForMessage = function(args) {
 
 // 发送提醒通知 未填写手机号码
 export const sendNoticeInvite = function(id, object, projectId, type) {
-  var userController = require('src/api/user');
   if (object) {
     object
       .removeAttr('onclick')

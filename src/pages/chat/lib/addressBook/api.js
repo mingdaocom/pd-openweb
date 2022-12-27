@@ -1,8 +1,7 @@
-const AddressListController = require('src/api/addressBook');
-const GroupController = require('src/api/group');
-const UserController = require('src/api/user');
-const DepartmentController = require('src/api/department');
-
+import AddressListController from 'src/api/addressBook';
+import GroupController from 'src/api/group';
+import UserController from 'src/api/user';
+import DepartmentController from 'src/api/department';
 import { SEARCH_GROUP_TYPES, GROUP_STATUS } from './constants';
 
 const RANGES = {

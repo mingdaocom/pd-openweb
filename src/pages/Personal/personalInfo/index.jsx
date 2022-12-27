@@ -10,8 +10,9 @@ import { Progress } from 'antd';
 import account from 'src/api/account';
 import './index.less';
 import { formatFileSize } from 'src/util';
-import { checkSensitive } from 'src/api/fixedData.js';
+import fixedDataAjax from 'src/api/fixedData.js';
 import cx from 'classnames';
+import _ from 'lodash';
 const detailList = [
   { label: _l('生日'), key: 'birthdate', filter: 'transFromDate' },
   { label: _l('性别'), key: 'gender', filter: 'transFormGender' },
@@ -373,7 +374,7 @@ export default class PersonalInfo extends React.Component {
   //修改姓名
   setFullName() {
     const { fullname } = this.state.baseDetail;
-    checkSensitive({ content: fullname }).then(res => {
+    fixedDataAjax.checkSensitive({ content: fullname }).then(res => {
       if (res) {
         this.setState({
           isErr: true,

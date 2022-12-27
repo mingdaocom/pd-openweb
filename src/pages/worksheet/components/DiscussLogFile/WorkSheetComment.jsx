@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { autobind } from 'core-decorators';
 import ScrollView from 'ming-ui/components/ScrollView';
-import { getAppSimpleInfo } from 'src/api/homeApp';
+import homeAppAjax from 'src/api/homeApp';
 import WorkSheetCommenter from './WorkSheetCommenter';
 import WorkSheetCommentList from './WorkSheetCommentList';
 import _ from 'lodash';
@@ -33,7 +33,7 @@ export default class WorkSheetComment extends React.Component {
       }
     }
     if (worksheetId && (!appId || !appSectionId)) {
-      getAppSimpleInfo({ worksheetId }).then(data => {
+      homeAppAjax.getAppSimpleInfo({ worksheetId }).then(data => {
         this.setState({ worksheetInfo: data });
       });
     }

@@ -3,7 +3,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { Menu, Dropdown } from 'antd';
 import { LoadDiv } from 'ming-ui';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import VerifyDel from 'src/pages/worksheet/views/components/VerifyDel';
 import { useSetState } from 'react-use';
 import CardDisplay from './CardDisplay';
@@ -12,6 +12,7 @@ import Abstract from './components/Abstract';
 import CoverSetting from './components/CoverSettingCon';
 import DisplayControl from './components/DisplayControl';
 import { updateViewAdvancedSetting } from './util';
+import _ from 'lodash';
 
 const EmptyHint = styled.div`
   margin: -6px 0 0 20px;
@@ -190,7 +191,7 @@ export default function HierarchyViewSetting(props) {
     const { worksheetId = '' } = _.last(viewControls) || {};
     if (controlLoading) return;
     setControls({ controlLoading: true });
-    getWorksheetInfo({ worksheetId, getTemplate: true })
+    worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true })
       .then(data => {
         setControls({
           availableControls: getSelectableControls(data),
@@ -202,7 +203,7 @@ export default function HierarchyViewSetting(props) {
   };
   const addViewControl = item => {
     const existSheet = viewControls.map(({ worksheetId }) => worksheetId); // 可选控件为关联表且关联他表
-    getWorksheetInfo({ worksheetId: item.dataSource, getTemplate: true }).then(data => {
+    worksheetAjax.getWorksheetInfo({ worksheetId: item.dataSource, getTemplate: true }).then(data => {
       setControls({
         availableControls: getSelectableControls(data, existSheet),
       });

@@ -5,6 +5,7 @@ import { default as Checkbox, SIZE_LIST } from './Checkbox';
 import withChildren from 'ming-ui/decorators/withChildren';
 import formControl from 'ming-ui/decorators/formControl';
 import './less/CheckboxGroup.less';
+import _ from 'lodash';
 
 @formControl
 @withChildren

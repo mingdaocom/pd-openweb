@@ -13,6 +13,7 @@ import {
   handleBatchDownload,
 } from '../../utils/common';
 import { clearSelect } from './selectAction';
+import _ from 'lodash';
 
 export function updateKcListElement(ele) {
   return {

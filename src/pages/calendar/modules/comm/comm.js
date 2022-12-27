@@ -1,5 +1,6 @@
 ﻿import doT from '@mdfe/dot';
 import inviteSingleTpl from './tpl/refuserDialogHtml.html';
+import calendarController from 'src/api/calendar';
 
 // 页面 初始化
 // 公用配置
@@ -17,9 +18,6 @@ Comm.settings = {
 };
 
 Comm.doT = doT;
-
-// 请求方法集合
-Comm.ajaxRequest = require('src/api/calendar');
 
 // url参数
 Comm.getQueryString = function (name) {
@@ -84,7 +82,7 @@ Comm.inviteCalendar = {
 
 // 发送请求 state:1 确认参加 or state:2 拒绝参加
 Comm.confirmOrUnconfirmInviteMe = function (calendarId, status, remark, recurTime, catID) {
-  Comm.ajaxRequest
+  calendarController
     .changeMember({
       calendarID: calendarId,
       recurTime: recurTime,
@@ -132,7 +130,7 @@ Comm.errorMessage = function (error) {
 
 // 查找用户所有分类
 Comm.getUserAllCalCategories = function (callback) {
-  Comm.ajaxRequest.getUserAllCalCategories().then(function (source) {
+  calendarController.getUserAllCalCategories().then(function (source) {
     if (source.code == 1) {
       if ($.isFunction(callback)) {
         callback(source.data);

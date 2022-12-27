@@ -5,6 +5,7 @@ import { Dialog, Textarea, Dropdown, Signature } from 'ming-ui';
 import { ACTION_TO_TEXT } from './config';
 import codeAuth from 'src/api/codeAuth';
 import cx from 'classnames';
+import _ from 'lodash';
 
 export default class Approve extends Component {
   static propTypes = {

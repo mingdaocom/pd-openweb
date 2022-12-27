@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { arrayOf, func, string } from 'prop-types';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
 import { BaseSelectedItem } from './Styles';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LoadDiv, ScrollView, Dialog } from 'ming-ui';
-import { getQuoteControlsById } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import styled from 'styled-components';
 import { groupBy, keys, find } from 'lodash';
 import { useFetchData } from '../../../widgetConfig/hooks';
@@ -24,7 +24,7 @@ const OptionQuoteWrap = styled.div`
   }
 `;
 export default function DeleteOptionList({ collectionId, name, ...rest }) {
-  const [loading, data] = useFetchData(getQuoteControlsById, { collectionId }, { deps: [collectionId] });
+  const [loading, data] = useFetchData(worksheetAjax.getQuoteControlsById, { collectionId }, { deps: [collectionId] });
   const groupData = groupBy(data, 'appId');
   return (
     <Dialog

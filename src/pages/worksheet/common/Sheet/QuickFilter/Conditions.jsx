@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import FilterInput, { validate, TextTypes, NumberTypes } from './Inputs';
 import { formatFilterValuesToServer } from './';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

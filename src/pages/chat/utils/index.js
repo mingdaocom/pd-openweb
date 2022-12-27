@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Constant from './constant';
 import { htmlDecodeReg } from 'src/util';
+import moment from 'moment';
 
 /**
  * 时间戳的转换
@@ -631,11 +632,7 @@ export const removeFlashTitle = (value, sessionList) => {
  */
 export const playReceiveAudio = () => {
   if (!window.isOpenMessageSound) return;
-  if (Modernizr.audio) {
-    document.getElementById('wcSound').play();
-  } else {
-    document.getElementById('wcSoundForIe').object.play();
-  }
+  document.getElementById('wcSound').play();
 };
 
 /**

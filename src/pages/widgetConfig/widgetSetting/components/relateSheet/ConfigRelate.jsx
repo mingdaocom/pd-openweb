@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
 import { LoadDiv, Dialog, Button, Support } from 'ming-ui';
-import { getWorksheetControls } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import SelectSheetFromApp from '../SelectSheetFromApp';
+import _ from 'lodash';
 
 const AddRelate = styled.div`
   .intro {
@@ -100,7 +101,7 @@ export default function ConfigRelate(props) {
   useEffect(() => {
     if (relateType !== 'exist' || loading) return;
     setControls({ loading: true });
-    getWorksheetControls({
+    worksheetAjax.getWorksheetControls({
       worksheetId: sourceId,
       getControlType: 1,
     })

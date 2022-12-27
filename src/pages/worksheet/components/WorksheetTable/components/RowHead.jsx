@@ -1,36 +1,49 @@
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { Checkbox, Menu, MenuItem, Dialog } from 'ming-ui';
+import { Checkbox, Menu, MenuItem, Tooltip } from 'ming-ui';
+import { FlexCenter } from 'worksheet/components/Basics';
 import RecordOperate from 'worksheet/components/RecordOperate';
 import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
 import { isEmpty } from 'lodash';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-
+import _ from 'lodash';
 const Con = styled.div`
-  display: inline-block;
   user-select: none;
-  padding: ${({ rowHeadOnlyNum }) => (rowHeadOnlyNum ? '0 12px !important' : '0 24px 0 40px !important')};
+  padding-left: 2px;
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
   font-size: 13px;
-  line-height: 34px;
-  text-align: center;
   color: #9e9e9e;
-  .moreOperate {
-    position: absolute;
-    left: 8px;
-    top: 5px;
+  padding: 0px !important;
+  align-items: center;
+  > * {
+    flex: 0 0 auto;
   }
-  .checkbox,
+  .numberCon {
+    display: inline-block;
+    text-align: center;
+  }
   .moreOperate {
+    margin-left: 8px;
+    visibility: hidden;
+  }
+  .checkbox {
+    margin-top: 5px;
     display: none;
     .Checkbox-box {
       margin: 0px;
     }
   }
+  .openRecord {
+    visibility: hidden;
+  }
   .topCheckbox {
+    position: absolute;
+    text-align: center;
     .checkboxCon {
       position: relative;
       display: inline-block;
@@ -39,11 +52,37 @@ const Con = styled.div`
       }
     }
   }
-  ${({ readonly }) =>
-    !readonly &&
-    `
-  &.hover,
-  &.selected {
+  .number {
+    display: inline-block;
+  }
+  &.rowHadFocus {
+    .openRecord {
+      visibility: visible;
+    }
+  }
+  &.hover {
+    .openRecord {
+      visibility: visible;
+    }
+  }
+  &.cell.noRightBorder {
+    border-right: none !important;
+  }
+  &.hideNumber {
+    .number {
+      display: none;
+    }
+  }
+  &.hover.hasBatch,
+  &.selected.hasBatch {
+    .number {
+      display: none;
+    }
+    .checkbox {
+      display: inline-block;
+    }
+  }
+  &.hideNumber {
     .number {
       display: none;
     }
@@ -53,20 +92,37 @@ const Con = styled.div`
   }
   &.hover {
     .moreOperate {
-      display: inline-block;
+      visibility: visible;
     }
-  }`}
+  }
+`;
+
+const OpenRecordBtn = styled(FlexCenter)`
+  margin-left: 8px;
+  font-size: 16px;
+  width: 24px;
+  height: 24px;
+  color: #2196f3;
+  border-radius: 4px;
+  &:hover {
+    background: #f5f5f5;
+  }
 `;
 
 export default function RowHead(props) {
   const {
+    tableType,
+    hasBatch = true,
+    showNumber = true,
+    showOperate = true,
+    numberWidth,
     readonly,
     isTrash,
+    isDraft,
     rowHeadOnlyNum,
     isCharge,
     tableId,
     layoutChangeVisible,
-    className,
     style,
     selectedIds,
     canSelectAll,
@@ -92,18 +148,13 @@ export default function RowHead(props) {
     resetSehetLayout,
     setHighLight = () => {},
     refreshWorksheetControls = () => {},
+    onOpenRecord = () => {},
   } = props;
+  let { className } = props;
   const [selectAllPanelVisible, setSelectAllPanelVisible] = useState();
-  const row = data[rowIndex - 1] || {};
+  const row = data[rowIndex] || {};
   const selected =
     canSelectAll && allWorksheetIsSelected ? !_.includes(selectedIds, row.rowid) : _.includes(selectedIds, row.rowid);
-  const hasBatch =
-    isOpenPermit(permitList.batchGroup, sheetSwitchPermit) && //开启了批量操作 且有可操作项
-    (isOpenPermit(permitList.batchEdit, sheetSwitchPermit, viewId) ||
-      isOpenPermit(permitList.QrCodeSwitch, sheetSwitchPermit, viewId) ||
-      isOpenPermit(permitList.export, sheetSwitchPermit, viewId) ||
-      isOpenPermit(permitList.execute, sheetSwitchPermit, viewId) ||
-      isOpenPermit(permitList.delete, sheetSwitchPermit, viewId));
   function handleCheckAll(force) {
     if (canSelectAll && allWorksheetIsSelected) {
       onSelectAllWorksheet(false);
@@ -118,19 +169,26 @@ export default function RowHead(props) {
       onSelect(data.map(item => item.rowid));
     }
   }
-  if (isEmpty(row) && rowIndex !== 0) {
-    return <Con className={cx(className, { selected })} style={style} />;
+  if (isEmpty(row) && rowIndex > -1) {
+    return <Con className={cx(className, 'noRightBorder', { selected })} style={style} />;
   }
   return (
     <Con
+      tableType={tableType}
       rowHeadOnlyNum={rowHeadOnlyNum}
-      className={cx(className, { selected })}
+      showOperate={showOperate}
+      className={cx(className, 'flexRow noRightBorder', { selected, hideNumber: !showNumber, hasBatch })}
       style={style}
       readonly={readonly || !hasBatch}
+      onClick={e => {
+        if (e.target.classList.contains('cell')) {
+          onOpenRecord();
+        }
+      }}
     >
-      {rowIndex !== 0 && (
+      {rowIndex !== -1 && (
         <React.Fragment>
-          {!readonly && !isTrash && (
+          {showOperate && !readonly && !isTrash && !isDraft ? (
             <RecordOperate
               {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId, isCharge }}
               formdata={controls.map(c => ({ ...c, value: row[c.controlId] }))}
@@ -166,99 +224,132 @@ export default function RowHead(props) {
                 }
               }}
             />
+          ) : (
+            <span className="moreOperate" style={{ width: 24 }} />
           )}
-          <div className="number">{lineNumberBegin + rowIndex}</div>
-          {!readonly && (
-            <div className="checkbox">
-              <Checkbox
-                checked={selected}
-                size="small"
-                onClick={() => {
-                  if (selectedIds.indexOf(row.rowid) > -1) {
-                    onSelect(
-                      selectedIds.filter(s => s !== row.rowid),
-                      row.rowid,
-                    );
-                  } else {
-                    onSelect(_.uniqBy(selectedIds.concat(row.rowid)), row.rowid);
-                  }
-                }}
-              />
+          {(hasBatch || showNumber) && (
+            <div className="numberCon" style={{ marginLeft: 10, width: numberWidth }}>
+              {showNumber && <div className="number">{lineNumberBegin + rowIndex + 1}</div>}
+              {!readonly && hasBatch && (
+                <div className="checkbox">
+                  <Checkbox
+                    checked={selected}
+                    size="small"
+                    onClick={() => {
+                      if (selectedIds.indexOf(row.rowid) > -1) {
+                        onSelect(
+                          selectedIds.filter(s => s !== row.rowid),
+                          row.rowid,
+                        );
+                      } else {
+                        onSelect(_.uniqBy(selectedIds.concat(row.rowid)), row.rowid);
+                      }
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
         </React.Fragment>
       )}
-      {!readonly && rowIndex === 0 && (
-        <div className="topCheckbox">
+      {!readonly && rowIndex === -1 && (
+        <Fragment>
           {layoutChangeVisible && <ChangeSheetLayout onSave={saveSheetLayout} onCancel={resetSehetLayout} />}
-          {hasBatch && (
-            <div className="checkboxCon">
-              <Checkbox
-                size="small"
-                clearselected={!!(data.length && selectedIds.length && selectedIds.length !== data.length)}
-                disabled={!data.length}
-                checked={
-                  canSelectAll && allWorksheetIsSelected
-                    ? !selectedIds.length
-                    : !!data.length && selectedIds.length === data.length
-                }
-                onClick={(checked, value, e) => {
-                  e.stopPropagation();
-                  handleCheckAll();
-                }}
-              />
-              {canSelectAll && (
-                <Trigger
-                  popupVisible={selectAllPanelVisible}
-                  onPopupVisibleChange={visible => {
-                    setSelectAllPanelVisible(visible);
+          <div className="topCheckbox" style={{ right: tableType === 'classic' ? 38 : 22, width: numberWidth }}>
+            {hasBatch && (
+              <div className="checkboxCon mTop3">
+                <Checkbox
+                  size="small"
+                  clearselected={!!(data.length && selectedIds.length && selectedIds.length !== data.length)}
+                  disabled={!data.length}
+                  checked={
+                    canSelectAll && allWorksheetIsSelected
+                      ? !selectedIds.length
+                      : !!data.length && selectedIds.length === data.length
+                  }
+                  onClick={(checked, value, e) => {
+                    e.stopPropagation();
+                    handleCheckAll();
                   }}
-                  popupAlign={{
-                    points: ['tl', 'bl'],
-                    offset: [-32, 10],
-                  }}
-                  action={['click']}
-                  popup={
-                    <Menu>
-                      <MenuItem
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleCheckAll(true);
-                          setSelectAllPanelVisible(false);
-                        }}
-                      >
-                        {_l('选择本页记录')}
-                      </MenuItem>
-                      <MenuItem
-                        onClick={e => {
-                          e.stopPropagation();
-                          setSelectAllPanelVisible(false);
-                          onSelectAllWorksheet(true);
-                        }}
-                      >
-                        {_l('选择所有记录')}
-                      </MenuItem>
-                      {(selectedIds.length || allWorksheetIsSelected) && (
+                />
+                {canSelectAll && (
+                  <Trigger
+                    popupVisible={selectAllPanelVisible}
+                    onPopupVisibleChange={visible => {
+                      setSelectAllPanelVisible(visible);
+                    }}
+                    popupAlign={{
+                      points: ['tl', 'bl'],
+                      offset: [-32, 10],
+                    }}
+                    action={['click']}
+                    popup={
+                      <Menu>
+                        <MenuItem
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleCheckAll(true);
+                            setSelectAllPanelVisible(false);
+                          }}
+                        >
+                          {_l('选择本页记录')}
+                        </MenuItem>
                         <MenuItem
                           onClick={e => {
                             e.stopPropagation();
                             setSelectAllPanelVisible(false);
-                            onReverseSelect();
+                            onSelectAllWorksheet(true);
                           }}
                         >
-                          {_l('反选')}
+                          {_l('选择所有记录')}
                         </MenuItem>
-                      )}
-                    </Menu>
-                  }
-                >
-                  <i className="icon icon-expand_more Hand" style={{ position: 'absolute', top: 12, right: -17 }}></i>
-                </Trigger>
-              )}
-            </div>
-          )}
-        </div>
+                        {(selectedIds.length || allWorksheetIsSelected) && (
+                          <MenuItem
+                            onClick={e => {
+                              e.stopPropagation();
+                              setSelectAllPanelVisible(false);
+                              onReverseSelect();
+                            }}
+                          >
+                            {_l('反选')}
+                          </MenuItem>
+                        )}
+                      </Menu>
+                    }
+                  >
+                    <i className="icon icon-expand_more Hand" style={{ position: 'absolute', top: 5, right: -15 }}></i>
+                  </Trigger>
+                )}
+              </div>
+            )}
+          </div>
+        </Fragment>
       )}
+      {tableType === 'classic' &&
+        (() => {
+          const btn = (
+            <OpenRecordBtn className="openRecord" onClick={() => onOpenRecord()}>
+              <i className="icon icon-worksheet_enlarge Hand ThemeHoverColor3" />
+            </OpenRecordBtn>
+          );
+
+          return localStorage.getItem('row_head_no_show_tip') !== '1' ? (
+            <Tooltip
+              destroyPopupOnHide
+              popupPlacement="bottom"
+              text={() => (document.querySelector('.cell.focus') ? _l('打开记录（空格）') : _l('打开记录'))}
+              onToolTipVisibleChange={visible => {
+                if (visible) {
+                  setTimeout(() => localStorage.setItem('row_head_no_show_tip', '1'), 1000);
+                }
+              }}
+            >
+              {btn}
+            </Tooltip>
+          ) : (
+            btn
+          );
+        })()}
     </Con>
   );
 }
@@ -266,6 +357,7 @@ export default function RowHead(props) {
 RowHead.propTypes = {
   readonly: PropTypes.bool,
   isTrash: PropTypes.bool,
+  isDraft: PropTypes.bool,
   style: PropTypes.shape({}),
   allWorksheetIsSelected: PropTypes.bool,
   appId: PropTypes.string,

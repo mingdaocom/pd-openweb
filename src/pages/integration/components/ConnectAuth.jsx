@@ -5,11 +5,9 @@ import { Icon, Support, LoadDiv } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { CardTopWrap } from '../containers/style';
 import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
-import { getNodeDetail } from 'src/pages/workflow/api/flowNode';
+import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { TYPELIST } from 'src/pages/integration/config';
-import { webHookTestRequest } from 'src/pages/workflow/api/flowNode';
 import { formatParameters } from 'src/pages/integration/config';
-import { get } from 'src/pages/workflow/api/flowNode';
 import axios from 'axios';
 const Wrap = styled.div`
   p {
@@ -77,13 +75,13 @@ function ConnectAuth(props) {
   const getInfo = () => {
     axios
       .all([
-        get(
+        flowNodeAjax.get(
           {
             processId: props.connectId,
           },
           { isIntegration: true },
         ),
-        getNodeDetail(
+        flowNodeAjax.getNodeDetail(
           {
             processId: props.id,
             nodeId: node.id,
@@ -105,7 +103,7 @@ function ConnectAuth(props) {
       });
   };
   const getNodeInfo = () => {
-    getNodeDetail(
+    flowNodeAjax.getNodeDetail(
       {
         processId: props.id,
         nodeId: node.id,
@@ -223,7 +221,7 @@ function ConnectAuth(props) {
   const getWebHookTestRequest = () => {
     const { webHookNodes = [{}] } = node;
     const { method, url, params, testMap, body, headers, formControls, contentType } = webHookNodes[0] || {};
-    webHookTestRequest(
+    flowNodeAjax.webHookTestRequest(
       {
         processId: props.id,
         nodeId: node.id,

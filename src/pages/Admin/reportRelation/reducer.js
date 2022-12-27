@@ -1,5 +1,6 @@
 import { Schema, arrayOf, normalize } from 'normalizr';
 import * as ACTIONS from './actions';
+import _ from 'lodash';
 
 const userSchema = new Schema('users', {
   idAttribute: 'accountId',

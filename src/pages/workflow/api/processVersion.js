@@ -184,4 +184,4 @@ var processVersion = {
     return $.api(controllerName, 'v1processupdateWaiting', JSON.stringify(args), $.extend(base, options));
   },
 };
-module.exports = processVersion;
+export default processVersion;

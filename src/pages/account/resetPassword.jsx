@@ -3,8 +3,7 @@ import ReactDOM from 'react-dom';
 import './login.less';
 import './components/message.less';
 import cx from 'classnames';
-import { getResetPasswordTrigerInfo, resetPasswordByState } from 'src/api/register';
-// import captcha from 'src/components/captcha';
+import registerAjax from 'src/api/register';
 import preall from 'src/common/preall';
 import { inputFocusFn, inputBlurFn, warnningTipFn, setWarnningData } from './util';
 import { encrypt, getRequest } from 'src/util';
@@ -41,7 +40,7 @@ class ResetPassword extends React.Component {
   }
 
   getResetPasswordTrigerInfo = () => {
-    getResetPasswordTrigerInfo({
+    registerAjax.getResetPasswordTrigerInfo({
       state: request.state,
     }).then(res => {
       this.setState({
@@ -120,7 +119,7 @@ class ResetPassword extends React.Component {
     this.setState({
       sending: true,
     });
-    resetPasswordByState({
+    registerAjax.resetPasswordByState({
       state: request.state,
       password: encrypt(password),
     }).then(res => {

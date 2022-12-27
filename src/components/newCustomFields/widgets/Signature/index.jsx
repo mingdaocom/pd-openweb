@@ -11,7 +11,7 @@ import cx from 'classnames';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { browserIsMobile, getToken } from 'src/util';
-import { getSign, editSign } from 'src/api/accountSetting';
+import accountSettingAjax from 'src/api/accountSetting';
 import { Base64 } from 'js-base64';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
@@ -121,7 +121,7 @@ export default class Signature extends Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if (!nextProps.value && this.state.signature) {
+    if (nextProps.flag !== this.props.flag && !nextProps.value && this.state.signature) {
       this.setState({ signature: null, isEdit: false, lastInfo: '' });
     }
   }
@@ -185,7 +185,9 @@ export default class Signature extends Component {
   };
 
   saveSignature = event => {
-    event.stopPropagation();
+    if (event) {
+      event.stopPropagation();
+    }
 
     if (this.state.lastInfo) {
       this.setState({ popupVisible: false, signature: this.state.lastInfo.url });
@@ -212,7 +214,7 @@ export default class Signature extends Component {
             if (md.global.Account.isPortal || window.isPublicWorksheet) {
               this.props.onChange(JSON.stringify({ bucket: 4, key: key }));
             } else {
-              editSign({ bucket: 4, key: key }).then(res => {
+              accountSettingAjax.editSign({ bucket: 4, key: key }).then(res => {
                 if (res) {
                   this.props.onChange(JSON.stringify({ bucket: 4, key: key }));
                 }
@@ -228,7 +230,7 @@ export default class Signature extends Component {
   };
 
   useLastSignature = () => {
-    getSign().then(res => {
+    accountSettingAjax.getSign().then(res => {
       if (!res.url) return alert(_l('暂无签名记录'));
       this.setState({ isEdit: true, lastInfo: res });
     });

@@ -17,10 +17,10 @@
         {{~it.calendars:calendar:i}}
             <div class="calendarListModel">
                 <ul>
-                    <li data-id="{{!calendar.eventID }}" data-time="{{!moment(calendar.start).format('YYYY-MM-DD')}}" data-recurtime="{{=calendar.recurTime ? moment(calendar.recurTime).toISOString() : ''}}" data-time-ms="{{!new Date(calendar.start).getTime() }}" class="pointer" data-istask="{{=calendar.isTask}}">
+                    <li data-id="{{!calendar.eventID }}" data-time="{{!it.moment(calendar.start).format('YYYY-MM-DD')}}" data-recurtime="{{=calendar.recurTime ? it.moment(calendar.recurTime).toISOString() : ''}}" data-time-ms="{{!new Date(calendar.start).getTime() }}" class="pointer" data-istask="{{=calendar.isTask}}">
                         <div class="calendarListColor"><span class="{{!it.colorClass(calendar.backgroundColor) }}"></span></div>
-                        <div class="calendarListDate">{{=moment(calendar.start).format('MMMDo')}}</div>
-                        <div class="calendarListTime">{{?calendar.allDay}}{{!_l('全天') }}{{??}}{{!moment(calendar.startTime).format('HH:mm')}} - {{!moment(calendar.endTime).format('HH:mm')}}{{?}}</div>
+                        <div class="calendarListDate">{{=it.moment(calendar.start).format('MMMDo')}}</div>
+                        <div class="calendarListTime">{{?calendar.allDay}}{{!_l('全天') }}{{??}}{{!it.moment(calendar.startTime).format('HH:mm')}} - {{!it.moment(calendar.endTime).format('HH:mm')}}{{?}}</div>
                         <div class="calendarListName">{{!calendar.createUserName }}</div>
                         <div class="calendarListTitle">{{!calendar.title }}</div>
                     </li>

@@ -4,6 +4,7 @@ import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { CreateNode, NodeOperate } from '../components';
 import { addFlowNode } from '../../../redux/actions';
 import { getFilterText } from '../../utils';
+import _ from 'lodash';
 
 export default class BranchItem extends Component {
   constructor(props) {
@@ -185,8 +186,8 @@ export default class BranchItem extends Component {
       approvalSelectNodeId,
     } = this.props;
     const resultTypeText = {
-      1: _l('审批通过'),
-      2: _l('审批不通过'),
+      1: _l('通过'),
+      2: _l('否决'),
       3: _l('有数据'),
       4: _l('无数据'),
     };

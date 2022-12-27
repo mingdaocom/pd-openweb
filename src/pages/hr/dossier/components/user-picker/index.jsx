@@ -8,6 +8,7 @@ import 'src/components/dialogSelectUser/dialogSelectUser';
 import './style.less';
 import SelectUser from '../../../approval/components/SelectUser/SelectUser';
 import { FormError } from '../lib';
+import _ from 'lodash';
 
 class UserPicker extends Component {
   constructor(props) {

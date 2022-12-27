@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取 外部用户导入模板
   * @param {Object} args 请求参数
@@ -224,5 +224,27 @@ module.exports = {
    downloadBackupFile: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return $.api('Download', 'DownloadBackupFile', args, options);
+   },
+  /**
+  * 批量下载行记录附件
+  * @param {Object} args 请求参数
+  * @param {string} args.controlId 附件控件id
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 行id
+  * @param {} args.getType
+  * @param {string} args.viewId 视图Id
+  * @param {string} args.appId 应用Id
+  * @param {string} args.instanceId 流程实例id
+  * @param {string} args.workId 运行节点id
+  * @param {boolean} args.getTemplate 是否获取模板
+  * @param {string} args.shareId 分享页获取关联记录iD
+  * @param {boolean} args.checkView 是否验证视图
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   rowAttachments: function (args, options = {}) {
+     
+     return $.api('Download', 'RowAttachments', args, options);
    },
 };

@@ -2,7 +2,6 @@ import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { transEndEventName } from '../../constant';
 
 import RepeatBox from './RepeatBox';
 import Icon from 'ming-ui/components/Icon';
@@ -13,6 +12,7 @@ const RangePicker = DatePicker.RangePicker;
 
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { formatShowTime, formatRecur } from '../../common';
+import moment from 'moment';
 
 @withClickAway
 class EditBlock extends Component {
@@ -133,7 +133,7 @@ export default class CalendarDate extends Component {
       $elem
         .height(_newHeight)
         .addClass('overflowHidden')
-        .one(transEndEventName, function () {
+        .one('transitionend', function () {
           $elem.removeClass('overflowHidden');
         });
     }

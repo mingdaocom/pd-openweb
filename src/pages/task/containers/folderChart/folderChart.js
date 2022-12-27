@@ -18,6 +18,8 @@ import folderChartMaxView from './tpl/folderChartMaxView.html';
 import chargeList from './tpl/chargeList.html';
 import customDom from './tpl/customDom.html';
 import DateFilter from 'src/components/DateFilter';
+import _ from 'lodash';
+import moment from 'moment';
 
 const folderChartSettings = {
   type: 1,

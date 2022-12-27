@@ -11,6 +11,8 @@ import { RecordInfoModal } from 'mobile/Record';
 import { getAdvanceSetting } from 'src/util';
 import { Icon } from 'ming-ui';
 import './index.less';
+import _ from 'lodash';
+import moment from 'moment';
 
 class MobileCalendarView extends Component {
   constructor(props) {

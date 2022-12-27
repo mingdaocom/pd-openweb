@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 保存基础信息
   * @param {Object} args 请求参数
@@ -226,6 +226,8 @@ module.exports = {
   * @param {} args.masterRecord 主记录信息
   * @param {string} args.pushUniqueId 推送ID
   * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
+  * @param {integer} args.rowStatus 1：正常 11：草稿箱
+  * @param {string} args.draftRowId 草稿ID
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）

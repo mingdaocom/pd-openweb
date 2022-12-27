@@ -4,6 +4,8 @@ import { Switch } from 'ming-ui';
 import PublishErrorDialog from '../../../components/PublishErrorDialog';
 import process from '../../../api/process';
 import { navigateTo } from 'router/navigateTo';
+import _ from 'lodash';
+import moment from 'moment';
 
 const publishStatus2Text = {
   0: _l('创建'),

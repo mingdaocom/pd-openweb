@@ -6,7 +6,7 @@ import { Icon } from 'src';
 import { Tooltip } from 'antd';
 import update from 'immutability-helper';
 import { groupBy, maxBy, head, keys, sortBy, isEmpty } from 'lodash';
-import { deleteOptionsCollection, getCollectionsByAppId } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import EditOptionList from 'src/pages/widgetConfig/widgetSetting/components/OptionList/EditOptionList';
 import { getOptions } from '../../../widgetConfig/util/setting';
 import { useSetState } from 'react-use';
@@ -200,7 +200,7 @@ export default function AllOptionList(props) {
   useEffect(() => {
     if (!visible) return;
     setLoading(true);
-    getCollectionsByAppId({ appId })
+    worksheetAjax.getCollectionsByAppId({ appId })
       .then(({ data }) => {
         setItems(data);
         waterfallList(data);
@@ -211,7 +211,7 @@ export default function AllOptionList(props) {
   }, [visible]);
   const deleteOptions = () => {
     const { collectionId } = items[deleteIndex] || {};
-    deleteOptionsCollection({ appId, collectionId }).then(({ data }) => {
+    worksheetAjax.deleteOptionsCollection({ appId, collectionId }).then(({ data }) => {
       if (data) {
         const nextItems = update(items, { $splice: [[deleteIndex, 1]] });
         setItems(nextItems);
@@ -235,7 +235,7 @@ export default function AllOptionList(props) {
         buttonType: 'danger',
         description: _l('此选项集未被任何选项使用'),
         onOk: () => {
-          deleteOptionsCollection({ appId, collectionId }).then(({ data }) => {
+          worksheetAjax.deleteOptionsCollection({ appId, collectionId }).then(({ data }) => {
             if (data) {
               const nextItems = update(items, { $splice: [[index, 1]] });
               setItems(nextItems);

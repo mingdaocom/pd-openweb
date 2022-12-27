@@ -5,6 +5,7 @@ import MapLoader from './MapLoader';
 import MapHandler from './MapHandler';
 import '../less/MDMap.less';
 import { Tooltip } from 'antd';
+import _ from 'lodash';
 
 export default class MDMap extends Component {
   static defaultProps = {
@@ -29,6 +30,11 @@ export default class MDMap extends Component {
     this._MapLoader.loadJs().then(() => {
       this.initMapObject();
     });
+    if (this.conRef.current) {
+      if (this.conRef.current.querySelector('.MDMapInput')) {
+        this.conRef.current.querySelector('.MDMapInput').focus();
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -37,6 +43,8 @@ export default class MDMap extends Component {
       this._maphHandler = null;
     }
   }
+
+  conRef = React.createRef();
 
   initMapObject() {
     this._maphHandler = new MapHandler(this._mapContainer, { zoom: 15 });
@@ -300,7 +308,7 @@ export default class MDMap extends Component {
     return (
       <Dialog.DialogBase className="MDMap" width="960" visible>
         {this.renderOperatorIcon()}
-        <div className="flexRow" style={{ height: 560 }}>
+        <div ref={this.conRef} className="flexRow" style={{ height: 560 }}>
           <div className="MDMapSidebar flexColumn">
             {this.renderSearch()}
             {this.renderSearchList()}

@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import Grouping from './components/Grouping';
 import { RecordWrapper } from './components/Record';
+import _ from 'lodash';
 
 const More = styled.div`
   height: 32px;

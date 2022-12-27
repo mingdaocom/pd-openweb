@@ -6,6 +6,7 @@ import { SettingItem } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import { DEFAULT_TYPES } from './config';
 import { Tooltip } from 'ming-ui';
+import _ from 'lodash';
 
 const {
   TextInput,

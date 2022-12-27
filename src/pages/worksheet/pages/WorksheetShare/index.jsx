@@ -7,15 +7,16 @@ import api from 'api/homeApp';
 import cx from 'classnames';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { renderCellText } from 'worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import WorksheetDetailShare from './worksheetDetailShare';
 import WorksheetListShare from './worksheetListShare';
-import { getPublicQueryById, query } from 'src/api/publicWorksheet';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
 import Publicquery from './publicquery';
 import './index.less';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { SHARE_TYPE, PAGESIZE } from './config';
+import _ from 'lodash';
 const iconColor = 'rgb(33, 150, 243)';
 
 class WorksheetSahre extends React.Component {
@@ -81,8 +82,8 @@ class WorksheetSahre extends React.Component {
     $('html').addClass('WorksheetSharePage');
     document.title = _l('加载中');
     let shareParam;
-    if (location.pathname.indexOf('printshare') >= 0) {
-      shareParam = location.pathname.match(/.*\/printshare\/(.*)/)[1];
+    if (location.pathname.indexOf('public/print') >= 0) {
+      shareParam = location.pathname.match(/.*\/public\/print\/(.*)/)[1];
     } else if (location.pathname.indexOf('public/query') >= 0) {
       shareParam = location.pathname.match(/.*\/public\/query\/(.*)/)[1];
       this.setState({ step: SHARE_TYPE.PUBLICQUERYINPUT, isPublicquery: true });
@@ -125,16 +126,24 @@ class WorksheetSahre extends React.Component {
     this.abortRequest(this.promiseShareInfo);
     if (isPublicquery) {
       //公开查询
-      this.promiseShareInfo = getPublicQueryById({ queryId: id });
+      this.promiseShareInfo = publicWorksheetAjax.getPublicQueryById({ queryId: id });
     } else {
       this.promiseShareInfo = sheetAjax.getShareInfoByShareId({
         shareId: id,
       });
     }
     this.promiseShareInfo.then(async (res = {}) => {
-      const { appId = '', worksheetId = '' } = isPublicquery ? res.worksheet || {} : res;
-      const { viewId = '', rowId = '', exported = false, shareAuthor } = res;
+      const { appId = '', worksheetId = '' } = isPublicquery ? res.worksheet || {} : res.data;
+      const { viewId = '', rowId = '', exported = false, shareAuthor } = isPublicquery ? res : res.data;
       shareAuthor && (window.shareAuthor = shareAuthor);
+      if (location.pathname.indexOf('worksheetshare') >= 0) {
+        if (rowId) {
+          location.href = `/public/record/${id}`;
+        } else {
+          location.href = `/public/view/${id}`;
+        }
+        return;
+      }
       let sheetSwitchPermit = await sheetAjax.getSwitchPermit({
         worksheetId: worksheetId,
       });
@@ -366,7 +375,7 @@ class WorksheetSahre extends React.Component {
     this.abortRequest(this.promiseRowsData);
     if (!printId) {
       if (location.pathname.indexOf('public/query') >= 0) {
-        this.promiseRowsData = query({
+        this.promiseRowsData = publicWorksheetAjax.query({
           worksheetId, // 工作表id
           getType: 1,
           pageSize: 100000, //公开查询不分页

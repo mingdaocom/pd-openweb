@@ -7,7 +7,7 @@ import cx from 'classnames';
 import Config from 'src/pages/account/config';
 import styled from 'styled-components';
 import { browserIsMobile } from 'src/util';
-import { sendAccountVerifyCode } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 
 const { ActionResult } = Config;
 const AccountWrap = styled.div`
@@ -252,7 +252,7 @@ class TelCon extends React.Component {
             return;
           }
         };
-        sendAccountVerifyCode(param).then(data => {
+        externalPortalAjax.sendAccountVerifyCode(param).then(data => {
           thenFn(data);
         });
       };

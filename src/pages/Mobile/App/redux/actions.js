@@ -2,6 +2,7 @@ import homeAppAjax from 'src/api/homeApp';
 import AppManagement from 'src/api/appManagement';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { Modal, Toast } from 'antd-mobile';
+import _ from 'lodash';
 
 export const getAppDetail = (appId, cb) => (dispatch, getState) => {
   const params = {

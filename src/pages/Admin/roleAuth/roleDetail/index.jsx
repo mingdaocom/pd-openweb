@@ -14,6 +14,7 @@ import { Input } from 'antd';
 
 import 'src/components/dialogSelectUser/dialogSelectUser';
 import './style.less';
+import _ from 'lodash';
 const { Search } = Input;
 class RoleDetail extends React.Component {
   static propTypes = {

@@ -11,6 +11,7 @@ import * as actions from 'worksheet/redux/actions/gunterview';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import _ from 'lodash';
 
 const GroupingItem = styled.div`
   width: 100%;

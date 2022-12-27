@@ -3,12 +3,13 @@ import { Flex, ActionSheet, Modal } from 'antd-mobile';
 import { Icon, LoadDiv } from 'ming-ui';
 import SvgIcon from 'src/components/SvgIcon';
 import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
-import { getGroup } from 'src/api/homeApp';
+import homeAppAjax from 'src/api/homeApp';
 import { getRandomString, getProject } from 'src/util';
 import Back from '../../components/Back';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 
@@ -28,7 +29,7 @@ class AppList extends Component {
     const { params = {} } = this.props.match;
     const { groupId, groupType } = params;
     const projectId = getProject(localStorage.getItem('currentProjectId')).projectId;
-    getGroup({ projectId, id: groupId, groupType }).then(res => {
+    homeAppAjax.getGroup({ projectId, id: groupId, groupType }).then(res => {
       this.setState({ currentGroupList: res.apps || [], loading: false, groupInfo: res });
     });
   };

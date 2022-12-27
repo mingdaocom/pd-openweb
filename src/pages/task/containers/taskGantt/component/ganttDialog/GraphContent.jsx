@@ -4,6 +4,7 @@ import ProcessBar from './ProcessBar';
 import cx from 'classnames';
 import config from './config';
 import { durDays, parseTime } from './time';
+import moment from 'moment';
 
 /**
  * 根据最早开始时间和实际起止时间计算时间跨度

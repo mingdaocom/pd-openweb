@@ -10,6 +10,7 @@ import MdBusinessCard from 'src/components/mdBusinessCard/reactMdBusinessCard';
 import Empty from '../../common/TableEmpty';
 import { htmlEncodeReg } from 'src/util';
 import 'src/components/dialogSelectUser/dialogSelectUser';
+import _ from 'lodash';
 
 const TYPES = {
   OA: 'OA',

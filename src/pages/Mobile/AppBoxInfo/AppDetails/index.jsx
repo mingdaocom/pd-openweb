@@ -51,8 +51,9 @@ class AppDetails extends React.Component {
   };
 
   fetch = () => {
+    let baseUrl = (md && md.global && md.global.SysSettings && md.global.SysSettings.templateLibraryTypes === '2') ? __api_server__.main : 'https://pd.mingdao.com/api/';
     axios
-      .post(`https://pd.mingdao.com/api/AppManagement/GetAppLibraryDetail`, {
+      .post(`${baseUrl}AppManagement/GetAppLibraryDetail`, {
         libraryId: this.props.libraryId,
       })
       .then(result => {

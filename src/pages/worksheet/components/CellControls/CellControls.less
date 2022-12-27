@@ -30,7 +30,7 @@
     vertical-align: middle;
     border-radius: 40px;
     color: #4d4d4d;
-    background-color: #e8e8e8;
+    background-color: #f2f2f2;
     .deleteIcon {
       color: rgba(0, 0, 0, 0.7);
       &:hover {
@@ -200,7 +200,7 @@
     margin-bottom: 4px;
     font-size: 13px;
     color: #333333;
-    background-color: #eaeaea;
+    background-color: #f2f2f2;
     padding-right: 8px;
     height: 21px;
     line-height: 21px;
@@ -415,27 +415,27 @@
   /* autoprefixer: on */
 }
 
-.rowheight-1 .linelimit {
+.rowHeight-1 .linelimit {
   -webkit-line-clamp: 2 !important;
 }
 
-.rowheight-2 .linelimit {
+.rowHeight-2 .linelimit {
   -webkit-line-clamp: 4 !important;
 }
 
-.rowheight-3 .linelimit {
+.rowHeight-3 .linelimit {
   -webkit-line-clamp: 5 !important;
 }
 
-.rowheight-1 .linelimitcomp {
+.rowHeight-1 .linelimitcomp {
   -webkit-line-clamp: 2 !important;
 }
 
-.rowheight-2 .linelimitcomp {
+.rowHeight-2 .linelimitcomp {
   -webkit-line-clamp: 3 !important;
 }
 
-.rowheight-3 .linelimitcomp {
+.rowHeight-3 .linelimitcomp {
   -webkit-line-clamp: 4 !important;
 }
 
@@ -459,6 +459,10 @@
   box-sizing: border-box !important;
   border: none !important;
   resize: none !important;
+  line-height: 1.5em;
+  &.supportShiftEnter {
+    padding-bottom: 24px !important;
+  }
 }
 
 .cellControlRichTextDialog {
@@ -480,7 +484,7 @@
   background-color: #fff;
   padding: 6px 6px;
   min-height: 36px;
-  .addBtn {
+  .addUserBtn {
     cursor: pointer;
     display: inline-block;
     box-sizing: border-box;
@@ -508,6 +512,7 @@
     }
     .cellMobileInput {
       padding-left: 6px !important;
+      padding-top: 2px !important;
     }
   }
   .cellMobileInput {
@@ -622,6 +627,7 @@
         display: none;
       }
       .ant-picker-input {
+        background: #fff;
         height: auto !important;
       }
       .ant-picker-input input {
@@ -654,6 +660,43 @@
       border: 3px solid transparent;
       border-left-color: #f44336;
       border-top-color: #f44336;
+    }
+  }
+}
+
+.editableCellCon.cell.masked {
+  > span,
+  > div {
+    cursor: pointer;
+    &:hover {
+      color: #1d5786;
+    }
+  }
+}
+
+.sheetViewTable {
+  .cell.focus.editable {
+    .guideText {
+      font-size: 13px;;
+      display: inline-block !important;
+    }
+  }
+}
+
+
+.workSheetTextCell {
+  &.empty {
+    text-align: left !important;
+  }
+}
+
+
+.editableCellCon.maskHoverTheme {
+  cursor: pointer;
+  &:hover {
+    color: #1d5786;
+    i.icon-eye_off {
+      color: #9e9e9e !important;
     }
   }
 }

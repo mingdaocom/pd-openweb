@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 健康检查
   * @param {Object} args 请求参数

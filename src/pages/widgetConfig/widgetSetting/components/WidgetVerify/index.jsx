@@ -8,6 +8,7 @@ import InputValue from './InputValue';
 import DateVerify from './DateVerify';
 import TextVerify from './TextVerify';
 import AttachmentVerify from './AttachmentVerify';
+import _ from 'lodash';
 
 const CompConfig = {
   2: TextVerify,

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { RadioGroup, Icon, ScrollView } from 'ming-ui';
 import { FlexCenter, Text, Button, RevertButton } from 'worksheet/styled';
 import ConfigureHierarchyView from './configureHierarchyView';
+import _ from 'lodash';
 
 const VIEW_TYPE_INFO = {
   1: {

@@ -1,6 +1,7 @@
 import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import { Modal } from 'antd-mobile';
+import _ from 'lodash';
 
 export const getMembersList = (appId, roleId) => (dispatch, getState) => {
   dispatch({ type: 'MOBILE_LIST_FETCH_START' });

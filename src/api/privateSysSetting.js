@@ -12,4 +12,29 @@ module.exports = {
      
      return $.api('PrivateSysSetting', 'EditSysSettings', args, options);
    },
+  /**
+  * 获取组织列表
+  * @param {Object} options 配置参数
+  * @param {string} options.keywords 关键词
+  * @param {integer} options.pageSize 数量
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getProjects: function (args, options = {}) {
+     
+     return $.api('PrivateSysSetting', 'GetProjects', args, options);
+   },
+  /**
+  * 获取组织
+  * @param {Object} options 配置参数
+  * @param {string} options.projectId 组织id
+  * @param {string} options.companyName 公司名
+  * @param {string} options.projectCode 门牌号
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getProject: function (args, options = {}) {
+     
+     return $.api('PrivateSysSetting', 'GetProject', args, options);
+   },
 };

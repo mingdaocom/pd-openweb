@@ -1,5 +1,6 @@
 import React from 'react';
 import global from '../../config/globalConfig';
+import _ from 'lodash';
 
 class ContentEditable extends React.Component {
   constructor(props) {

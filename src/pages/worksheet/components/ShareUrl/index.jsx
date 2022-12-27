@@ -7,6 +7,7 @@ import { Tooltip } from 'ming-ui';
 import { TextBlock } from 'worksheet/components/Basics';
 import SendToChat from './SendToChat';
 import './ShareUrl.less';
+import _ from 'lodash';
 
 const Url = styled(TextBlock)`
   overflow: hidden;

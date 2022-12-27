@@ -4,8 +4,9 @@ import { Dialog, LoadDiv, Icon } from 'ming-ui';
 import userController from 'src/api/user';
 import Act from '../dialogInviteUser/act';
 import DialogSelectDept from 'src/components/dialogSelectDept';
-import DialogSelectJob from 'src/components/DialogSelectJob';
+import { selectJob } from 'src/components/DialogSelectJob';
 import 'src/components/select/select';
+import _ from 'lodash';
 
 class Approval extends React.Component {
   constructor(props) {
@@ -142,7 +143,7 @@ class Approval extends React.Component {
   dialogSelectJobFn = e => {
     const { projectId } = this.props;
     const { jobInfos } = this.state;
-    new DialogSelectJob({
+    selectJob({
       projectId,
       onSave: data => {
         const jobIds = jobInfos.map(job => job.jobId);
@@ -171,7 +172,8 @@ class Approval extends React.Component {
         onOk={() => {
           this.saveFn(this.props.setValue);
         }}
-        visible={this.props.showDialog}>
+        visible={this.props.showDialog}
+      >
         {isLoading ? (
           <LoadDiv />
         ) : (

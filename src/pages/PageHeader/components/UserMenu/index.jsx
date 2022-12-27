@@ -5,6 +5,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import { Support, Tooltip } from 'ming-ui';
 import { removePssId } from 'src/util/pssId';
 import { showFollowWeixinDialog } from 'src/components/common/function';
+import _ from 'lodash';
 
 export default function UserMenu(props) {
   const [userVisible, handleChangeVisible] = useState(false);

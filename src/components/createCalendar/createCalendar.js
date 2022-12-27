@@ -4,7 +4,7 @@ import ReactDom from 'react-dom';
 import './css/createCalendar.less';
 import 'src/components/mdBusinessCard/mdBusinessCard';
 import 'src/components/quickSelectUser/quickSelectUser';
-var ajaxRequest = require('src/api/calendar');
+import ajaxRequest from 'src/api/calendar';
 import timezone from './timezone';
 import SelectTimezone from './component/SelectTimezone';
 import RegExp from 'src/util/expression';
@@ -19,6 +19,7 @@ import 'src/components/textboxList/textboxList';
 import 'src/components/autoTextarea/autoTextarea';
 import '@mdfe/jquery-plupload';
 import createShare from 'src/components/createShare/createShare';
+import moment from 'moment';
 
 var CreateCalendar = function (opts) {
   var _this = this;
@@ -52,7 +53,6 @@ var CreateCalendar = function (opts) {
     },
     callback: null,
     createShare: true,
-    ajaxRequest: require('src/api/calendar'),
   };
 
   _this.settings = $.extend(defaults, opts);
@@ -122,7 +122,7 @@ $.extend(CreateCalendar.prototype, {
       isSameClose: false,
     });
 
-    settings.dialog.content(doT.template(taskHtml)(settings));
+    settings.dialog.content(doT.template(taskHtml)(Object.assign({}, settings, { moment })));
   },
 
   // 事件初始化
@@ -1271,7 +1271,7 @@ CreateCalendar.methods = {
       return false;
     }
 
-    settings.ajaxRequest
+    ajaxRequest
       .getUserBusyStatus({
         accountID: accountId,
         startDate: moment(start).toISOString(),
@@ -1477,7 +1477,6 @@ CreateCalendar.methods = {
         shareID: data.calendarID,
         recurTime: '',
         token: data.token,
-        ajaxRequest: CreateCalendar.settings.ajaxRequest,
       },
     });
   },

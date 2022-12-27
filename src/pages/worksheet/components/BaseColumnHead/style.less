@@ -10,17 +10,25 @@
     font-size: 13px;
     color: #757575;
     line-height: 34px;
-    .text {
+    .textCon {
       display: inline-block;
     }
   }
+  .maskData,
   .dropIcon {
+    font-size: 14px;
     position: absolute;
     top: 0px;
     right: 5px;
-    line-height: 35px;
+    line-height: 32px;
     visibility: hidden;
     background-color: #fafafa;
+    color: #9e9e9e;
+    width: 16px;
+  }
+  .maskData {
+    visibility: visible;
+    // color: #bdbdbd;
   }
   .descIcon {
     font-size: 16px;
@@ -42,6 +50,24 @@
   .inner:hover {
     .dropIcon {
       visibility: visible;
+    }
+  }
+  &.wrapControlName {
+    .textCon {
+      margin-top: 8px;
+      vertical-align: text-bottom;
+    }
+    .controlName .text {
+      line-height: 1.3em;
+      text-overflow: unset;
+      overflow: visible;
+      white-space: unset;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
     }
   }
 }

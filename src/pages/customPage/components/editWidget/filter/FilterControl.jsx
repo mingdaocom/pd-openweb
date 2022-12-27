@@ -4,18 +4,21 @@ import cx from 'classnames';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Select, Divider } from 'antd';
 import { enumWidgetType } from 'src/pages/customPage/util';
+import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import sheetApi from 'src/api/worksheet';
 import { getIconByType, filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import FilterSetting from './FilterSetting';
 import FilterDefaultValue from './FilterDefaultValue';
 import { FASTFILTER_CONDITION_TYPE, getSetDefault } from 'worksheet/common/ViewConfig/components/fastFilter/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import _ from 'lodash';
 
 export default function FilterControl(props) {
   const { filter, setFilter } = props;
   const [sheetList, setSheetList] = useState([]);
   const [initLoading, setInitLoading] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [searchValue, setSearchValue] = useState('');
 
   const { objectControls = [], dataType } = filter;
   const filterObjectControls = _.uniqBy(objectControls, 'worksheetId');
@@ -34,6 +37,11 @@ export default function FilterControl(props) {
       Promise.all(request).then(data => {
         setInitLoading(false);
         setLoading(false);
+        data = data.map(sheet => {
+          const controls = _.get(sheet, 'template.controls');
+          _.set(sheet, 'template.controls', controls.map(redefineComplexControl));
+          return sheet;
+        });
         setSheetList(sheetList.concat(data));
       });
     }
@@ -80,6 +88,7 @@ export default function FilterControl(props) {
           )}
         </div>
         <Select
+          showSearch
           className={cx('customPageSelect w100', { Red: item.controlId && !currentControl })}
           value={item.controlId ? (currentControl ? item.controlId : _l('字段已删除')) : undefined}
           disabled={index && (lastControl.controlId ? false : true)}
@@ -87,6 +96,12 @@ export default function FilterControl(props) {
           placeholder={_l('请选择筛选字段')}
           notFoundContent={notFoundContent()}
           getPopupContainer={() => document.querySelector('.customPageFilterWrap .setting')}
+          onSearch={value => setSearchValue(value)}
+          filterOption={(searchValue, option) => {
+            const { value } = option;
+            const { controlName } = _.find(templateControls, { controlId: value }) || {};
+            return searchValue && controlName ? controlName.toLowerCase().includes(searchValue.toLowerCase()) : true;
+          }}
           onChange={value => {
             const { objectControls = [] } = filter;
             const newControls = objectControls.map(f => {
@@ -110,6 +125,7 @@ export default function FilterControl(props) {
               param.maxValue = '';
               Object.assign(param, data);
             }
+            setSearchValue('');
             setFilter(param);
           }}
         >
@@ -133,7 +149,7 @@ export default function FilterControl(props) {
               key={c.controlId}
               value={c.controlId}
             >
-              <div className="valignWrapper h100">
+              <div className="valignWrapper h100 w100">
                 <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
                 <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
               </div>

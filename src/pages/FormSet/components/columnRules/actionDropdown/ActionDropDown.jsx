@@ -5,6 +5,7 @@ import Trigger from 'rc-trigger';
 import { Icon, Checkbox, Tooltip } from 'ming-ui';
 import './ActionDropDown.less';
 import { getTextById, getNewDropDownData, getControlSpecialName, getNewIconByType } from '../config';
+import _ from 'lodash';
 export default class DropDownItem extends Component {
   static propTypes = {
     values: PropTypes.arrayOf(PropTypes.shape({})),

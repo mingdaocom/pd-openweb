@@ -6,6 +6,7 @@ import * as actions from '../../../../redux/position/action';
 import UserHead from 'src/pages/feed/components/userHead';
 import { Checkbox } from 'ming-ui';
 import cx from 'classnames';
+import _ from 'lodash';
 
 class RoleUserList extends Component {
   constructor(props) {

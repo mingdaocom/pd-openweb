@@ -7,6 +7,7 @@ import EmptyStatus from '../../components/Empty';
 import flowNode from '../../../api/flowNode';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 @dialogContentDisplay
 export default class MsgTemplate extends Component {

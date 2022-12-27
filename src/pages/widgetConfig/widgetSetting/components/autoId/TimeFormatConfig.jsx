@@ -4,6 +4,7 @@ import { Input } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { SettingItem } from '../../../styled';
+import moment from 'moment';
 
 const TimeFormatConfigWrap = styled.div`
   .intro {

@@ -8,7 +8,6 @@ import RadarChart from './RadarChart';
 import FunnelChart from './FunnelChart';
 import DualAxes from './DualAxes';
 import PivotTable from './PivotTable';
-import AntPivotTable from './AntPivotTable';
 import CountryLayer from './CountryLayer';
 import VerificationDataLength from './VerificationDataLength';
 
@@ -20,7 +19,7 @@ const charts = {
   [reportTypes.RadarChart]: VerificationDataLength(RadarChart),
   [reportTypes.FunnelChart]: VerificationDataLength(FunnelChart),
   [reportTypes.DualAxes]: VerificationDataLength(DualAxes),
-  [reportTypes.PivotTable]: AntPivotTable,
+  [reportTypes.PivotTable]: PivotTable,
   [reportTypes.CountryLayer]: CountryLayer,
 }
 

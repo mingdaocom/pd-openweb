@@ -4,7 +4,7 @@ import preall from 'src/common/preall';
 import { Provider } from 'react-redux';
 import store from 'src/redux/configureStore';
 import { LoadDiv } from 'ming-ui';
-import { getAppDetail } from 'src/api/homeApp';
+import homeAppAjax from 'src/api/homeApp';
 import AppAnalytics from './components/AppAnalytics';
 
 export default class AppAnalyticsWrap extends Component {
@@ -18,7 +18,7 @@ export default class AppAnalyticsWrap extends Component {
     let paramArr = window.location.href.split('/');
     let projectId = paramArr[paramArr.length - 2];
     let appId = paramArr[paramArr.length - 1];
-    getAppDetail({ appId }).then(data => {
+    homeAppAjax.getAppDetail({ appId }).then(data => {
       this.setState({
         loading: false,
         projectId,

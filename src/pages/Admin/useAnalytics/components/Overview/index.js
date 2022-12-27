@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { Icon, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import appManagement from 'src/api/appManagement';
-import { getProjectLicenseSupportInfo } from 'src/api/project';
-import { getProcessUseCount } from 'src/pages/workflow/api/processVersion';
+import projectAjax from 'src/api/project';
+import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import { selectDateList, dateDimension, formatter } from '../../util';
 import { formatValue } from 'src/pages/Admin/homePage/config.js';
 import DialogSelectDept from 'src/components/dialogSelectDept';
@@ -12,6 +12,8 @@ import loadingSvg from '../loading.svg';
 import axios from 'axios';
 import cx from 'classnames';
 import styled from 'styled-components';
+import _ from 'lodash';
+import moment from 'moment';
 
 const { Option } = Select;
 const Summary = styled.div`
@@ -160,7 +162,7 @@ export default class Overview extends Component {
   getOverviewData = () => {
     const { projectId } = this.props;
     axios
-      .all([getProjectLicenseSupportInfo({ projectId }), getProcessUseCount({ companyId: projectId })])
+      .all([projectAjax.getProjectLicenseSupportInfo({ projectId }), processVersionAjax.getProcessUseCount({ companyId: projectId })])
       .then(([data1, data2]) => {
         const { effectiveApkCount = 0, effectiveWorksheetCount = 0, effectiveWorksheetRowCount = 0 } = data1;
         const { useProcessCount: effectiveWorkflowCount } = data2;

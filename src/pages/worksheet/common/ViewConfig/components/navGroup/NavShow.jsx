@@ -8,6 +8,7 @@ import Input from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
 import sheetAjax from 'src/api/worksheet';
 import ScoreInput from './ScoreInput';
 import { formatFilterValues } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils.js';
+import _ from 'lodash';
 const Wrap = styled.div`
   .Dropdown {
     width: 100%;

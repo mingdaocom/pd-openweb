@@ -1,14 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-const departmentController = require('src/api/department');
+import departmentController from 'src/api/department';
 import DialogLayer from 'src/components/mdDialog/dialog';
 import { DepartmentList } from 'src/components/dialogSelectUser/GeneralSelect';
 import NoData from 'src/components/dialogSelectUser/GeneralSelect/NoData';
 import CreateDialog from 'src/pages/Admin/structure/modules/dialogCreateEditDept';
-const roleController = require('src/api/role');
+import roleController from 'src/api/role';
 import { LoadDiv, Radio, Checkbox } from 'ming-ui';
 import cx from 'classnames';
 import './style.less';
+import _ from 'lodash';
 
 class DialogSelectDept extends React.Component {
   constructor(props) {

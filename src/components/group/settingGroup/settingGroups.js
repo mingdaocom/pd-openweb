@@ -3,8 +3,8 @@ import '@mdfe/jquery-plupload';
 import 'src/components/mdBusinessCard/mdBusinessCard';
 import '@mdfe/poshytip';
 import { htmlEncodeReg } from 'src/util';
-var groupController = require('src/api/group');
-var invitationController = require('src/api/invitation');
+import groupController from 'src/api/group';
+import invitationController from 'src/api/invitation';
 import doT from '@mdfe/dot';
 import { index as dialog } from 'src/components/mdDialog/dialog';
 var ActionResult = {
@@ -23,11 +23,12 @@ import groupUserHtml from './tpl/groupUser.html';
 import groupSettingsHtml from './tpl/groupSettings.html';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { expireDialogAsync, existAccountHint } from 'src/components/common/function';
-import 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
+import DialogSelectMapGroupDepart from 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
 import 'src/components/dialogSelectUser/dialogSelectUser';
 import 'src/components/uploadAttachment/uploadAttachment';
 import addFriends from 'src/components/addFriends/addFriends';
 import 'src/components/select/select';
+import moment from 'moment';
 
 var tips = {
   MDGroup: _l('个人群组'),
@@ -468,7 +469,7 @@ $.extend(SettingGroup.prototype, {
         return false;
       }
       if (options.projectId) {
-        $({}).dialogSelectMapGroupDepart({
+        DialogSelectMapGroupDepart({
           defaultSelectId: groupDeptMapData.depID,
           projectId: options.projectId,
           callback: function(data) {
@@ -1632,11 +1633,4 @@ $.extend(SettingGroup.prototype, {
 
 export default function(opts) {
   return new SettingGroup(null, opts);
-};
-
-$.fn.SettingGroup = function(param) {
-  $(this).each(function() {
-    new SettingGroup(this, param);
-  });
-  return $(this);
 };

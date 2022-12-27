@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { DatePicker, RadioGroup } from 'ming-ui';
 import './index.less';
 import moment from 'moment';
-import { checkSensitive } from 'src/api/fixedData.js';
+import fixedDataAjax from 'src/api/fixedData.js';
 export default class EditDetail extends React.Component {
   constructor(props) {
     super(props);
@@ -30,10 +30,10 @@ export default class EditDetail extends React.Component {
       return;
     }
     Promise.all([
-      checkSensitive({ content: baseInfo.fullname }),
-      checkSensitive({ content: baseInfo.companyName }),
-      checkSensitive({ content: baseInfo.profession }),
-      checkSensitive({ content: baseInfo.address }),
+      fixedDataAjax.checkSensitive({ content: baseInfo.fullname }),
+      fixedDataAjax.checkSensitive({ content: baseInfo.companyName }),
+      fixedDataAjax.checkSensitive({ content: baseInfo.profession }),
+      fixedDataAjax.checkSensitive({ content: baseInfo.address }),
     ]).then(
       results => {
         if (!results.find(result => result)) {
@@ -59,7 +59,7 @@ export default class EditDetail extends React.Component {
 
   setTxterr = (e, domStr) => {
     const { errTxtInfo } = this.state;
-    checkSensitive({ content: e.target.value }).then(res => {
+    fixedDataAjax.checkSensitive({ content: e.target.value }).then(res => {
       if (res) {
         this.setState({ errTxtInfo: errTxtInfo.concat(domStr) });
       } else {

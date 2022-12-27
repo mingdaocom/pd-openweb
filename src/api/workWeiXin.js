@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 明道云通讯录同步到企业微信
   * @param {Object} args 请求参数

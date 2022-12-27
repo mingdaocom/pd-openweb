@@ -4,6 +4,7 @@ import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import DialogSelectGroups from 'src/components/dialogSelectDept';
 import update from 'immutability-helper';
+import _ from 'lodash';
 
 @connect(({ appPkg }) => ({
   projectId: appPkg.projectId,

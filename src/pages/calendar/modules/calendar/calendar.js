@@ -8,6 +8,8 @@ import recurCalendarUpdate from '../calendarDetail/lib/recurCalendarUpdateDialog
 import './calendar.less';
 import 'src/components/createCalendar/createCalendar';
 import listHtml from './tpl/list.html';
+import calendarAjax from 'src/api/calendar';
+import moment from 'moment';
 var CurrentDate;
 
 const eventLimitNum = () => {
@@ -79,7 +81,7 @@ Calendar.Method = {
         day: '', //
       },
       events: {
-        url: Calendar.Comm.ajaxRequest.getCalendars,
+        url: calendarAjax.getCalendars,
         data: {
           isWorkCalendar: Calendar.Comm.settings.isWorkCalendar,
           isTaskCalendar: Calendar.Comm.settings.isTaskCalendar,
@@ -706,7 +708,7 @@ Calendar.Method = {
           .format('YYYY-MM-DD');
       }
 
-      Calendar.Comm.ajaxRequest
+      calendarAjax
         .editCalendarTime({
           calendarID: calendarID,
           start: moment(starDate).toISOString(),
@@ -894,7 +896,7 @@ Calendar.Method = {
 
   // 日程列表加载
   calendarList: function (startDate2, endDate2, isFirst, scrollTop) {
-    Calendar.Comm.ajaxRequest
+    calendarAjax
       .getCalendarList2({
         memberIDs: Calendar.Comm.settings.otherUsers.join(','),
         isPrivateCalendar: Calendar.Comm.settings.isPrivateCalendar,
@@ -928,7 +930,7 @@ Calendar.Method = {
               .html(data.dateTime + ' ' + data.dateWeek);
             var listHeihgt = $(window).height() - $('.nativeHeaderWrap').height() - 118;
             $('#calendarList')
-              .html(Calendar.Comm.doT.template(listHtml)(data))
+              .html(Calendar.Comm.doT.template(listHtml)(Object.assign({}, data, { moment })))
               .find('.calendarList')
               .css('height', listHeihgt); // 往页面添加列表元素
             $('#calendarList .calendarNoList').css('height', listHeihgt + 45);
@@ -940,7 +942,7 @@ Calendar.Method = {
             }
             $('#calendarListMoreData').html(queryend);
             if (data.calendars) {
-              $('#calendarList .calendarListMore').before(Calendar.Comm.doT.template(listHtml)(data));
+              $('#calendarList .calendarListMore').before(Calendar.Comm.doT.template(listHtml)(Object.assign({}, data, { moment })));
             }
           }
         }

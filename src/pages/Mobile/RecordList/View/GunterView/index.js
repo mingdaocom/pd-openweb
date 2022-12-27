@@ -5,6 +5,7 @@ import ViewErrorPage from '../components/ViewErrorPage';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import { getAdvanceSetting } from 'src/util';
 import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
+import _ from 'lodash';
 
 class MobileGunterView extends Component {
   constructor(props) {

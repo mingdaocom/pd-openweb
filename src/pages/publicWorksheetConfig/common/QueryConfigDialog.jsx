@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import { Dropdown, Dialog, Input, Icon, Checkbox } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { editPublicQuery } from 'src/api/publicWorksheet';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
+import { WIDGETS_TO_API_TYPE_ENUM, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import _ from 'lodash';
 
 const Item = styled.div`
   margin-bottom: 20px;
@@ -94,7 +95,7 @@ export default function QueryConfigDialog(props) {
         if (!params.title) {
           params.title = _l('查询%0', queryInfo.worksheetName);
         }
-        editPublicQuery(params).then(() => {
+        publicWorksheetAjax.editPublicQuery(params).then(() => {
           alert(_l('设置成功'));
           onSuccess({ ...queryInfo, ...params });
           onClose();
@@ -131,7 +132,13 @@ export default function QueryConfigDialog(props) {
           className="queryConfigControlsDropdown w100"
           selectClose={false}
           data={worksheet.template.controls
-            .filter(c => !_.find(queryControlIds, cid => cid === c.controlId) && _.includes(AVAILABLE_TYPES, c.type))
+            .filter(
+              c =>
+                !_.find(
+                  queryControlIds.concat(WORKFLOW_SYSTEM_CONTROL.map(c => c.controlId)),
+                  cid => cid === c.controlId,
+                ) && _.includes(AVAILABLE_TYPES, c.type),
+            )
             .map(control => {
               return {
                 text: <span>{control.controlName}</span>,

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Menu, MenuItem } from 'ming-ui';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const ColumnListWrap = styled.div`
   position: absolute;

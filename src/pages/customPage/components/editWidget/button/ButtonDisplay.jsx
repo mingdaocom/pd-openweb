@@ -7,6 +7,7 @@ import { computeWidth } from '../../../util';
 import color from 'color';
 import SvgIcon from 'src/components/SvgIcon';
 import { ButtonListWrap, GraphWrap } from './styled';
+import _ from 'lodash';
 
 const ButtonDisplayWrap = styled.div`
   display: flex;

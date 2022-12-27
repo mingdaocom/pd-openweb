@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import { useSetState } from 'react-use';
-import { getApiRelationList } from 'src/pages/workflow/api/packageVersion';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import cx from 'classnames';
+import _ from 'lodash';
 const Wrap = styled.div`
   padding: 24px;
   width: 100%;
@@ -55,7 +56,7 @@ export default function Cite(props) {
   });
   //获取引用信息
   const getCiteInfo = () => {
-    getApiRelationList(
+    packageVersionAjax.getApiRelationList(
       {
         id: props.processId,
         isPublic: true,

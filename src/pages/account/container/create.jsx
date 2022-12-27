@@ -10,8 +10,8 @@ import { inputFocusFn, inputBlurFn, setWarnningData } from '../util';
 import { setPssId } from 'src/util/pssId';
 import { getDataByFilterXSS } from '../util';
 import styled from 'styled-components';
-import { checkSensitive } from 'src/api/fixedData.js';
-import { loadIndustry } from 'src/api/fixedData';
+import fixedDataAjax from 'src/api/fixedData.js';
+import _ from 'lodash';
 const WrapCon = styled.div`
   position: absolute;
   top: 100%;
@@ -69,7 +69,7 @@ export default class Create extends React.Component {
         $(this.companyName).bind('keydown', this.onInputBoxKeyDown);
       }
     }, 300);
-    loadIndustry({}).then(res => {
+    fixedDataAjax.loadIndustry({}).then(res => {
       this.setState({
         industryList: res.industries || [],
       });
@@ -194,7 +194,7 @@ export default class Create extends React.Component {
     let isRight = true;
     let warnningData = [];
     if (!!companyName) {
-      await checkSensitive({ content: companyName }).then(res => {
+      await fixedDataAjax.checkSensitive({ content: companyName }).then(res => {
         if (res) {
           warnningData.push({ tipDom: this.companyName, warnningText: _l('输入内容包含敏感词，请重新填写') });
           isRight = false;

@@ -1,15 +1,11 @@
-import {
-  getRowDetail,
-  addWorksheetRow as addWorksheetRowApi,
-  copyRow as copyRowApi,
-  getAttachmentShareId,
-} from 'src/api/worksheet';
-import { getNodeDetail } from 'src/api/kc';
-import { getAttachmentDetail } from 'src/api/attachment';
+import worksheetAjax from 'src/api/worksheet';
+import kcAjax from 'src/api/kc';
+import attachmentAjax from 'src/api/attachment';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 import { updateOptionsOfControls, checkCellIsEmpty } from 'worksheet/util';
+import _ from 'lodash';
 
 export async function downloadAttachmentById({ fileId, refId }) {
   try {
@@ -18,12 +14,12 @@ export async function downloadAttachmentById({ fileId, refId }) {
     }
     let data;
     if (refId) {
-      data = await getNodeDetail({
+      data = await kcAjax.getNodeDetail({
         actionType: 14,
         id: refId,
       });
     } else {
-      data = await getAttachmentDetail({
+      data = await attachmentAjax.getAttachmentDetail({
         fileId,
       });
     }
@@ -141,10 +137,11 @@ export function getFormDataForNewRecord({
       if (control && control.type === 29 && _.find(controls, c => c.dataSource === `$${control.controlId}$`)) {
         const value = safeParse(defaultFormData[control.controlId]);
         if (value.length && value[0].sid && !value[0].sourcevalue) {
-          getRowDetail({
-            worksheetId: control.dataSource,
-            rowId: value[0].sid,
-          })
+          worksheetAjax
+            .getRowDetail({
+              worksheetId: control.dataSource,
+              rowId: value[0].sid,
+            })
             .then(res => {
               value[0].sourcevalue = res.rowData;
               defaultFormData[control.controlId] = JSON.stringify(value);
@@ -176,6 +173,7 @@ export function submitNewRecord(props) {
     onSubmitSuccess = () => {},
     customwidget,
     setRequesting,
+    rowStatus,
   } = props;
   const receiveControls = formdata
     .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32)
@@ -186,18 +184,36 @@ export function submitNewRecord(props) {
     receiveControls,
     appId,
     projectId,
-    addType,
     viewId,
     worksheetId,
     masterRecord,
     pushUniqueId: md.global.Config.pushUniqueId,
+    rowStatus: rowStatus ? rowStatus : 1,
     ...customBtn,
   };
   if (args.masterRecord && !args.masterRecord.rowId) {
     delete args.masterRecord;
   }
-  addWorksheetRowApi(args)
+  worksheetAjax
+    .addWorksheetRow(args)
     .then(res => {
+      if (rowStatus === 21) {
+        if (res.resultCode === 20) {
+          //达到上限
+          onSubmitEnd();
+          setRequesting(false);
+          onSubmitSuccess({ isOverLimit: true, rowData: [] });
+          return;
+        } else if (res.data) {
+          alert(_l('保存草稿成功'));
+          onSubmitSuccess({ rowData: [] });
+          onSubmitEnd();
+          setRequesting(false);
+        } else {
+          alert(_l('保存草稿失败'));
+        }
+        return;
+      }
       if (res.resultCode === 1 && !res.data) {
         alert(_l('记录添加成功'));
         onSubmitEnd();
@@ -233,12 +249,13 @@ export function submitNewRecord(props) {
 }
 
 export function copyRow({ worksheetId, viewId, rowIds, relateRecordControlId }, done = () => {}) {
-  copyRowApi({
-    worksheetId,
-    viewId,
-    rowIds,
-    copyRelationControlId: relateRecordControlId,
-  })
+  worksheetAjax
+    .copyRow({
+      worksheetId,
+      viewId,
+      rowIds,
+      copyRelationControlId: relateRecordControlId,
+    })
     .then(res => {
       if (res && res.resultCode === 1) {
         alert(_l('复制成功'));
@@ -259,20 +276,29 @@ export function copyRow({ worksheetId, viewId, rowIds, relateRecordControlId }, 
     });
 }
 
-export async function openControlAttachmentInNewTab({ appId, controlId, fileId, recordId, viewId, worksheetId }) {
+export async function openControlAttachmentInNewTab({
+  appId,
+  controlId,
+  fileId,
+  recordId,
+  viewId,
+  worksheetId,
+  getType,
+}) {
   if (!controlId || !fileId || !recordId || !worksheetId) {
     console.error('参数不全');
     return;
   }
-  const shareId = await getAttachmentShareId({
+  const shareId = await worksheetAjax.getAttachmentShareId({
     appId,
     controlId,
     fileId,
     rowId: recordId,
     viewId,
     worksheetId,
+    getType,
   });
   if (shareId) {
-    window.open(`${window.subPath ? window.subPath : ''}/recordfile/${shareId}`);
+    window.open(`${window.subPath ? window.subPath : ''}/recordfile/${shareId}/${getType}`);
   }
 }

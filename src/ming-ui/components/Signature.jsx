@@ -5,7 +5,7 @@ import * as SignaturePad from 'signature_pad/dist/signature_pad';
 import axios from 'axios';
 import { getToken } from 'src/util';
 import { Base64 } from 'js-base64';
-import { getSign, editSign } from 'src/api/accountSetting';
+import accountSettingAjax from 'src/api/accountSetting';
 
 const SignatureBox = styled.div`
   width: 100%;
@@ -100,7 +100,7 @@ export default class Signature extends Component {
           .then(({ data }) => {
             const { key = '' } = data || {};
 
-            editSign({ bucket: 4, key: key });
+            accountSettingAjax.editSign({ bucket: 4, key: key });
             callback({ bucket: 4, key });
             this.isComplete = true;
           });
@@ -109,7 +109,7 @@ export default class Signature extends Component {
   };
 
   getSignature = () => {
-    getSign().then(res => {
+    accountSettingAjax.getSign().then(res => {
       if (!res.url) return alert(_l('暂无签名记录'));
       this.setState({ isEdit: false, signature: res.url, key: res.key });
     });

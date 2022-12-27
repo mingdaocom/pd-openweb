@@ -1,4 +1,7 @@
+import _ from 'lodash';
+
 const { SysSettings } = md.global;
+
 export const APP_MANAGEMENT_TABS = SysSettings.hideTemplateLibrary ? [] : [
   { text: _l('我的应用'), id: 'my', href: '/app/my', urlMatch: /app\/my/ },
   { text: _l('应用库'), id: 'lib', urlMatch: /app\/lib/, href: '/app/lib' },

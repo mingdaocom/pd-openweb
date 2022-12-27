@@ -10,6 +10,7 @@ import IndexSide from '../components/IndexSide';
 import HomepageIcon from '../components/HomepageIcon';
 import './index.less';
 import { compareProps } from '../util';
+import _ from 'lodash';
 
 export default class NativeHeader extends Component {
   static propTypes = {

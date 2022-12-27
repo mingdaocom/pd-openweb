@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import { Icon, ScrollView } from 'ming-ui';
 import { Modal, Button, WingBlank, Checkbox } from 'antd-mobile';
-import { getJobs } from 'src/api/job.js';
+import jobAjax from 'src/api/job.js';
 import './index.less';
+import _ from 'lodash';
 
 const { CheckboxItem } = Checkbox;
 
@@ -22,7 +23,7 @@ export default class SelectJob extends Component {
   getData = () => {
     const { projectId } = this.props;
     let { keywords, pageIndex = 1, jobList = [] } = this.state;
-    getJobs({
+    jobAjax.getJobs({
       projectId,
       keywords,
       pageIndex,

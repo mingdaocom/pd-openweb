@@ -6,12 +6,13 @@ import { Dialog, ScrollView } from 'ming-ui';
 import cx from 'classnames';
 import { VerticalMiddle, FlexCenter } from 'worksheet/components/Basics';
 import { navigateTo } from 'router/navigateTo';
-import { editGroupSort } from 'src/api/homeApp';
+import homeAppAjax from 'src/api/homeApp';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
 import GroupsSkeleton from './GroupsSkeleton';
 import EditGroup from './EditGroup';
 import GroupItem from './GroupItem';
+import _ from 'lodash';
 
 const Con = styled.div`
   width: 238px;
@@ -282,7 +283,7 @@ export default function Groups(props) {
                             setIsDragging(false);
                             const sortedGroups = arrayMove(item.groups, oldIndex, newIndex);
                             setSorts(oldSorts => ({ ...oldSorts, [item.type]: sortedGroups.map(g => g.id) }));
-                            editGroupSort({
+                            homeAppAjax.editGroupSort({
                               projectId,
                               ids: sortedGroups.map(g => g.id),
                               sortType: getSortType(item.type),

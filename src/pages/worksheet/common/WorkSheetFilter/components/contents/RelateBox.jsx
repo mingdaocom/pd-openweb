@@ -6,6 +6,7 @@ import '@mdfe/selectize';
 import { relateDy } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import withClickAway from 'ming-ui/decorators/withClickAway';
+import _ from 'lodash';
 
 @withClickAway
 export default class RelateBox extends Component {

@@ -6,6 +6,7 @@ import EmptyCon from './noData';
 import './worksheetDetailShare.less';
 import { SHARE_TYPE } from './config';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import _ from 'lodash';
 class WorksheetDetailShare extends React.Component {
   static propTypes = {
     worksheetId: PropTypes.string,

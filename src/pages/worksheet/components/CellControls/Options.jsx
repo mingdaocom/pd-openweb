@@ -5,7 +5,7 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { isLightColor } from 'src/util';
-import { getSelectedOptions } from 'worksheet/util';
+import { getSelectedOptions, isKeyBoardInputChar } from 'worksheet/util';
 import Dropdown from 'src/components/newCustomFields/widgets/Dropdown';
 import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
@@ -13,6 +13,7 @@ import CellErrorTips from './comps/CellErrorTip';
 import { FROM } from './enum';
 import EditableCellCon from '../EditableCellCon';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 function getOptionStyle(option, cell) {
   return (cell.enumDefault2 === 1 && option.color) || cell.controlId === 'wfstatus'
@@ -43,7 +44,7 @@ export default class Options extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      verticallPlace: 'top',
+      verticalPlace: 'top',
       value: props.cell.value,
       oldValue: props.cell.value,
     };
@@ -58,11 +59,12 @@ export default class Options extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     return (
+      nextProps.style !== this.props.style ||
       nextProps.isediting !== this.props.isediting ||
       (nextProps.cell.value !== this.props.cell.value && !nextProps.isediting) ||
       nextState.value !== this.state.value ||
       nextProps.className !== this.props.className ||
-      nextState.verticallPlace !== this.state.verticallPlace
+      nextState.verticalPlace !== this.state.verticalPlace
     );
   }
 
@@ -114,6 +116,18 @@ export default class Options extends React.Component {
   }
 
   @autobind
+  handleTableKeyDown(e) {
+    const { updateEditingStatus } = this.props;
+    switch (e.key) {
+      default:
+        if (!isKeyBoardInputChar(e.key)) {
+          return;
+        }
+        updateEditingStatus(true);
+        break;
+    }
+  }
+  @autobind
   handleExit(target) {
     const { cell, error, updateEditingStatus, updateCell } = this.props;
     const { value } = this.state;
@@ -145,6 +159,7 @@ export default class Options extends React.Component {
 
   render() {
     const {
+      tableType,
       from,
       className,
       rowIndex,
@@ -159,14 +174,14 @@ export default class Options extends React.Component {
       updateEditingStatus,
       onClick,
     } = this.props;
-    const { value, verticallPlace } = this.state;
+    const { value, verticalPlace } = this.state;
     const selectedOptions = value ? getSelectedOptions(cell.options, value) : [];
     const isMultiple = cell.type === 10;
     const getPopupContainer =
       this.isSubList || this.isRelateRecord
         ? () => $(this.cell.current).parents('.recordInfoForm')[0] || document.body
         : popupContainer;
-    const showErrorAsPopup = (this.isSubList || this.isRelateRecord) && rowIndex === 1;
+    const showErrorAsPopup = (this.isSubList || this.isRelateRecord) && rowIndex === 0;
     const editcontent = (
       <div
         className={cx(
@@ -174,7 +189,7 @@ export default class Options extends React.Component {
           {
             error: error,
           },
-          verticallPlace,
+          verticalPlace,
         )}
         ref={this.con}
         style={style}
@@ -225,7 +240,7 @@ export default class Options extends React.Component {
             }}
           />
         )}
-        {error && !showErrorAsPopup && <CellErrorTips error={error} pos={rowIndex === 1 ? 'bottom' : 'top'} />}
+        {error && !showErrorAsPopup && <CellErrorTips error={error} pos={rowIndex === 0 ? 'bottom' : 'top'} />}
       </div>
     );
     const isMobile = browserIsMobile();
@@ -262,12 +277,15 @@ export default class Options extends React.Component {
               })}
             </div>
           )}
+          {tableType === 'classic' && !isediting && (!value || value === '[]') && cell.hint && (
+            <span className="guideText Gray_bd hide mTop2">{cell.hint}</span>
+          )}
         </EditableCellCon>
         {showErrorAsPopup && isediting && (
           <Trigger
             getPopupContainer={getPopupContainer}
             popupVisible={!!error}
-            popup={<CellErrorTips error={error} pos={rowIndex === 1 ? 'bottom' : 'top'} />}
+            popup={<CellErrorTips error={error} pos={rowIndex === 0 ? 'bottom' : 'top'} />}
             destroyPopupOnHide
             popupAlign={{
               points: ['tl', 'bl'],

@@ -18,4 +18,4 @@ const check = {
     return $.api(controllerName, 'getEffectiveTime', JSON.stringify(args), $.extend(base, options));
   },
 };
-module.exports = check;
+export default check;

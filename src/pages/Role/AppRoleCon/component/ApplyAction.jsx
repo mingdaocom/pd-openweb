@@ -3,6 +3,7 @@ import Trigger from 'rc-trigger';
 import { Icon, Menu, MenuItem } from 'ming-ui';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import styled from 'styled-components';
+import _ from 'lodash';
 const Wrap = styled.div`
   .search {
     .conSearch {

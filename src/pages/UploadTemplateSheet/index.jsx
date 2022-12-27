@@ -4,6 +4,8 @@ import sheetAjax from 'src/api/worksheet';
 import { Icon, Support, Dialog } from 'ming-ui';
 import copy from 'copy-to-clipboard';
 import './index.less';
+import _ from 'lodash';
+import { FILTER_SYS } from 'src/pages/Print/config';
 let controlNo = [22, 10010, 43, 45, 47]; //分段、备注、OCR、嵌入字段,条码/
 export default class UploadTemplateSheet extends React.Component {
   constructor(props) {
@@ -311,7 +313,7 @@ export default class UploadTemplateSheet extends React.Component {
   /**
    * 兼容他表字段
    */
-   strForFile = data => {
+  strForFile = data => {
     let o = data.type === 30 ? { ...data, type: !data.sourceControlType ? data.type : data.sourceControlType } : data;
     return o.type === 42 || o.type === 14 || o.controlId === 'qrCode'
       ? `$[${o.type === 42 ? '48*20' : o.type === 14 ? '90*auto' : '20*20'}]$`
@@ -364,7 +366,11 @@ export default class UploadTemplateSheet extends React.Component {
           )}
         </p>
         {controls.map(it => {
-          if (!controlNo.includes(it.type) && !systemControl.some(o => o.controlId == it.controlId))
+          if (
+            !controlNo.includes(it.type) &&
+            !systemControl.some(o => o.controlId == it.controlId) &&
+            !FILTER_SYS.includes(it.controlId) //排除部分系统字段
+          )
             return this.renderItem(it);
           else return '';
         })}

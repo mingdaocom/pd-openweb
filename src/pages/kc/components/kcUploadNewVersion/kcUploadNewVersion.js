@@ -3,9 +3,9 @@
 import './style.less';
 import { formatFileSize, getClassNameByExt, getUrlByBucketName } from 'src/util';
 import mainTpl from './tpl/main.html';
-import { index as DialogLayer} from 'src/components/mdDialog/dialog';
+import { index as DialogLayer } from 'src/components/mdDialog/dialog';
 import doT from '@mdfe/dot';
-var kcAjax = require('src/api/kc');
+import kcAjax from 'src/api/kc';
 
 var UploadNewVersion = function(item, file, callback) {
   var NV = this;

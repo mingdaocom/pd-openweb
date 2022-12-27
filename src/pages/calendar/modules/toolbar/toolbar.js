@@ -9,6 +9,7 @@ import calendarInviteTpl from './tpl/calendarInvite.html';
 import addOtherUserTpl from './tpl/addOtherUser.html';
 import ClassificationCalendarHtml from './tpl/ClassificationCalendar.html';
 import 'src/components/dialogSelectUser/dialogSelectUser';
+import calendarAjax from 'src/api/calendar';
 
 Toolbar.settings = {
   oldCategoryList: [],
@@ -30,6 +31,7 @@ import 'src/components/mdBusinessCard/mdBusinessCard';
 import _ from 'lodash';
 import copy from 'copy-to-clipboard';
 import { formatRecur } from '../calendarDetail/common';
+import moment from 'moment';
 
 // 绑定事件
 Toolbar.Event = function() {
@@ -531,7 +533,7 @@ Toolbar.Method = {
 
   // 日程同步
   getIcsUrl: function() {
-    Toolbar.Comm.ajaxRequest.getIcsUrl().then(function(source) {
+    calendarAjax.getIcsUrl().then(function(source) {
       if (source.code == 1) {
         var url = source.data.replace(/^http[\s\S]*:\/\/?/, 'webcal://');
         $.DialogLayer({
@@ -615,7 +617,7 @@ Toolbar.Method = {
         });
         oldCategoryList.colorClass = Toolbar.Method.colorClass;
 
-        Toolbar.Comm.ajaxRequest
+        calendarAjax
           .updateUserCalCategoriesIndex({
             cateIDs: catIDs.join(','),
           })
@@ -640,7 +642,7 @@ Toolbar.Method = {
       container: {
         content: '<div class="Font14 mTop15">' + _l('删除之后该分类下的全部日程归类到工作日程？') + '</div>',
         yesFn: function() {
-          Toolbar.Comm.ajaxRequest
+          calendarAjax
             .deleteUserCalCategory({
               catID: catId,
             })
@@ -665,7 +667,7 @@ Toolbar.Method = {
 
   // 修改日程分类
   updateUserCalCategoryInfo: function(newCalCategory) {
-    Toolbar.Comm.ajaxRequest
+    calendarAjax
       .updateUserCalCategoryInfo({
         newCalCategory: JSON.stringify(newCalCategory),
       })
@@ -708,7 +710,7 @@ Toolbar.Method = {
 
   // 未确认日程计数
   calendarRemind: function() {
-    Toolbar.Comm.ajaxRequest.getUserInvitedCalendarsCount().then(function(source) {
+    calendarAjax.getUserInvitedCalendarsCount().then(function(source) {
       if (source.code == 1 && source.data > 0) {
         $('#calendarNumber')
           .html(source.data)
@@ -719,7 +721,7 @@ Toolbar.Method = {
 
   // 获取未确认日程
   getInvitedCalendars: function() {
-    Toolbar.Comm.ajaxRequest.invitedCalendars().then(function(source) {
+    calendarAjax.invitedCalendars().then(function(source) {
       if (source.code == 1) {
         var data = source.data;
         Toolbar.settings.dataCount = data.count;
@@ -760,7 +762,7 @@ Toolbar.Method = {
           $('#invitedMain')
             .show()
             .find('#invitedCalendars')
-            .html(Toolbar.Comm.doT.template(calendarInviteTpl)(data));
+            .html(Toolbar.Comm.doT.template(calendarInviteTpl)(Object.assign({}, data, { moment })));
         } else {
           $('#invitedMain')
             .show()
@@ -851,7 +853,7 @@ Toolbar.Method = {
     )
       return;
 
-    Toolbar.Comm.ajaxRequest
+    calendarAjax
       .getUserInfo({
         accountIDs: Toolbar.Comm.settings.otherUsers.join(','),
       })

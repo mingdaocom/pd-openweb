@@ -3,6 +3,7 @@ import { Button, Icon } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import './Guidance.less';
+import _ from 'lodash';
 
 const maxGuide = 7;
 

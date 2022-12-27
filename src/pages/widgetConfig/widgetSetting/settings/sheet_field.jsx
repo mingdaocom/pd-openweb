@@ -16,6 +16,7 @@ import { CAN_NOT_AS_OTHER_FIELD } from '../../config';
 import { SettingItem, DropdownPlaceholder, DropdownOverlay } from '../../styled';
 import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
 import { isEmpty, get, find } from 'lodash';
+import { SYS_CONTROLS } from '../../config/widget';
 
 const SHEET_FIELD_TYPES = [
   {
@@ -60,7 +61,7 @@ export default function SheetField(props) {
   const sheetList = filterControlsFromAll(allControls, item => isSingleRelateSheet(item) || item.type === 35);
 
   const getFieldsByControls = (controls = []) => {
-    return resortControlByColRow(controls).filter(
+    return resortControlByColRow(controls.filter(i => !_.includes(SYS_CONTROLS, i.controlId))).filter(
       ({ type, enumDefault }) => !(_.includes(CAN_NOT_AS_OTHER_FIELD, type) || (type === 38 && enumDefault === 3)),
     );
   };

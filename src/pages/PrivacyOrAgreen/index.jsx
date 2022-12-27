@@ -6,7 +6,7 @@ import { browserIsMobile } from 'src/util';
 import cx from 'classnames';
 import { getRequest } from 'src/util/sso';
 import { RichText, LoadDiv } from 'ming-ui';
-import { getUserAgreement, getPrivacyTerms } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import SvgIcon from 'src/components/SvgIcon';
 
 const Wrap = styled.div`
@@ -73,9 +73,9 @@ class PrivacyOrAgreen extends React.Component {
     const { appId = '' } = getRequest();
     this.ajax = null;
     if (location.pathname.indexOf('privacy') < 0) {
-      this.ajax = getUserAgreement({ AppId: appId });
+      this.ajax = externalPortalAjax.getUserAgreement({ AppId: appId });
     } else {
-      this.ajax = getPrivacyTerms({ AppId: appId });
+      this.ajax = externalPortalAjax.getPrivacyTerms({ AppId: appId });
     }
     this.ajax.then(res => {
       const { appColor = '#00bcd4', appLogoUrl = 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg' } = res;

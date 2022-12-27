@@ -1,3 +1,4 @@
+import _ from 'lodash';
 
 export function groupingScroll(state = null, action) {
   switch (action.type) {

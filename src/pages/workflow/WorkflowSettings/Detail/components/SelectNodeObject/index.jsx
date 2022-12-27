@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Dropdown } from 'ming-ui';
 import { getIcons } from '../../../utils';
+import _ from 'lodash';
 
 export default class SelectNodeObject extends Component {
   /**

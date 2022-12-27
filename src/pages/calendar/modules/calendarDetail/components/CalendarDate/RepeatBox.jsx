@@ -5,6 +5,8 @@ import { RECURTYPE, FREQUENCY, WEEKDAYS, RECURLAYERS } from '../../constant';
 import { formatRecur } from '../../common';
 import Dropdown from 'ming-ui/components/Dropdown';
 import DatePicker from 'ming-ui/components/DatePicker';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default class RepeatBox extends Component {
   static propTypes = {

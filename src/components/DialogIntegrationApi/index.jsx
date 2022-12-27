@@ -2,11 +2,12 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import SvgIcon from '../SvgIcon';
 import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
-import { getList, getApiList } from 'src/pages/workflow/api/packageVersion';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import './index.less';
 import { Tooltip } from 'antd';
 import img from 'staticfiles/images/query.png';
+import _ from 'lodash';
 
 const empty_list = [
   _l('快递单号查询'),
@@ -47,7 +48,7 @@ export default class SelectIntegrationApi extends Component {
   componentDidMount() {
     const { projectId, appId } = this.props;
 
-    getApiList({ companyId: projectId, types: [1, 2], apkId: appId }, { isIntegration: true }).then(res => {
+    packageVersionAjax.getApiList({ companyId: projectId, types: [1, 2], apkId: appId }, { isIntegration: true }).then(res => {
       if (!res.length) {
         this.setState({ noData: true, loading: false });
       } else {
@@ -72,7 +73,7 @@ export default class SelectIntegrationApi extends Component {
       this.postList.abort();
     }
 
-    this.postList = getList(
+    this.postList = packageVersionAjax.getList(
       {
         companyId: projectId,
         pageIndex,
@@ -109,7 +110,7 @@ export default class SelectIntegrationApi extends Component {
       this.childPostList.abort();
     }
 
-    this.childPostList = getApiList(
+    this.childPostList = packageVersionAjax.getApiList(
       {
         companyId: projectId,
         apkId: appId,

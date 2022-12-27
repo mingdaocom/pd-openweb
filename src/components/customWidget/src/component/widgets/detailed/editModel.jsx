@@ -1,6 +1,7 @@
 import React from 'react';
 import config from '../../../config';
 import { getEditModel } from '../../editBox/editModels';
+import _ from 'lodash';
 
 class EditModel extends React.Component {
   constructor(props) {

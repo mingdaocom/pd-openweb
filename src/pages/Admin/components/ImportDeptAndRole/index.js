@@ -8,6 +8,7 @@ import captcha from 'src/components/captcha';
 import UploadFile from '../UploadFile';
 import styled from 'styled-components';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const ImportWrap = styled.div`
   background: #fff;

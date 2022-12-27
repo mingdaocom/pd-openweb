@@ -6,6 +6,7 @@ import './saveDia.less';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { fromType, printType, typeForCon } from '../config';
 import RangeDrop from 'src/pages/FormSet/components/RangeDrop';
+import _ from 'lodash';
 
 export default class SaveDia extends React.Component {
   constructor(props) {

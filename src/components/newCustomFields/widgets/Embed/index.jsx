@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
 import { formatFiltersValue } from 'src/components/newCustomFields/tools/utils';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 const EmbedWrap = styled.div`
   .embedContainer {

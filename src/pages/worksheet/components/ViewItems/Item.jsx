@@ -10,6 +10,7 @@ import { getDefaultViewSet } from 'src/pages/worksheet/constants/common';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import HiddenMenu from './HiddenMenu';
+import _ from 'lodash';
 export default class Item extends Component {
   static defaultProps = {
     item: {},
@@ -31,8 +32,7 @@ export default class Item extends Component {
     const { item, currentView, sheetSwitchPermit } = this.props;
     return (
       isOpenPermit(permitList.viewShareSwitch, sheetSwitchPermit, item.viewId) &&
-      !md.global.Account.isPortal &&
-      +_.get(currentView, 'viewType') === 0
+      !md.global.Account.isPortal
     );
   };
   canExport = () => {

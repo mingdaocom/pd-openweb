@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { getSortData, isCustomSort, formatSorts, isTimeControl, timeParticleSizeDropdownData } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
+import _ from 'lodash';
 
 const defaultSort = {
   value: 0,

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取微信服务号二维码
   * @param {Object} args 请求参数

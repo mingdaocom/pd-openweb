@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Button } from 'ming-ui';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import alreadyDelete from 'src/pages/worksheet/assets/alreadyDelete.png';
 import withoutPermission from 'src/pages/worksheet/assets/withoutPermission.png';
@@ -32,7 +33,7 @@ const UnNormalWrap = styled.div`
 const CODE_TYPE = {
   '-10000': {
     src: abnormal,
-    text: _l('视图无权限或者已删除'),
+    text: _l('地址无法访问\n被取消了查看权限或已删除'),
   },
   4: {
     src: alreadyDelete,
@@ -46,9 +47,10 @@ const CODE_TYPE = {
 
 const UnNormal = props => {
   const { resultCode, errorText } = props;
-  let { src, text } = CODE_TYPE[resultCode] || {
+  let { src, text, renderRefresh } = CODE_TYPE[resultCode] || {
     src: abnormal,
-    text: _l('服务异常，请 %0 后重试', `<a onclick="location.reload()">${_l('刷新')}</a>`),
+    renderRefresh: true,
+    text: _l('服务出错，请刷新重试'),
   };
   if (errorText) {
     text = errorText;
@@ -58,6 +60,11 @@ const UnNormal = props => {
       <div className="unNormalContent flexColumn">
         <img src={src} />
         <p className="unNormalText" dangerouslySetInnerHTML={{ __html: text }}></p>
+        {renderRefresh && (
+          <Button className="mTop25" onClick={() => location.reload()}>
+            {_l('刷新')}
+          </Button>
+        )}
       </div>
     </UnNormalWrap>
   );

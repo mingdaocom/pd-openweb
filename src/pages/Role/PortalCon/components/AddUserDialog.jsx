@@ -5,8 +5,7 @@ import { bindActionCreators } from 'redux';
 import * as actions from '../redux/actions';
 import { Icon, Dialog, Checkbox, LoadDiv } from 'ming-ui';
 import 'src/components/uploadAttachment/uploadAttachment';
-import { importExAccounts } from 'src/api/externalPortal';
-import { editIsSendMsgs } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import { getPssId } from 'src/util/pssId';
 
 const Wrap = styled.div`
@@ -69,12 +68,12 @@ function AddUserDialog(props) {
 
   const update = () => {
     setLoading(true);
-    editIsSendMsgs({
+    externalPortalAjax.editIsSendMsgs({
       appId,
       isSendMsgs,
     }).then(res => {
       changeIsSendMsgs(isSendMsgs);
-      importExAccounts({
+      externalPortalAjax.importExAccounts({
         fileUrl: fileUrl,
         appId,
       }).then(

@@ -1,6 +1,8 @@
 import 'src/components/mdDialog/dialog';
-import reInvitedFunc from './template/reInvited.tpl';
+import tpl from './template/reInvited.html';
 import './css/reInvite.less';
+import doT from '@mdfe/dot';
+
 // 更新日程后操作 是否弹出提示层 发送私信重新确认
 export default function (confirmCallback, closeCallback) {
   var dialogId = 'calendarReInviteDialog';
@@ -10,7 +12,7 @@ export default function (confirmCallback, closeCallback) {
     isSameClose: false,
     container: {
       header: _l('提示'),
-      content: reInvitedFunc(),
+      content: doT.template(tpl)(),
       noText: '',
       yesText: '',
     },

@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { addRowIndex, updateRowIndex } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { Icon, Checkbox } from 'ming-ui';
 import { Input, Tooltip, Select } from 'antd';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 const { Option } = Select;
 
@@ -173,7 +174,7 @@ class CreateIndex extends Component {
       params.systemIndexName = currentIndexInfo.systemIndexName;
     }
     if (!isEdit) {
-      addRowIndex(params).then(res => {
+      worksheetAjax.addRowIndex(params).then(res => {
         if (res.responseEnum === 0) {
           alert(_l('操作成功'));
         } else if (res.responseEnum == -1) {
@@ -190,7 +191,7 @@ class CreateIndex extends Component {
         getIndexesInfo();
       });
     } else {
-      updateRowIndex(params).then(res => {
+      worksheetAjax.updateRowIndex(params).then(res => {
         if (res.responseEnum === 0) {
           let indexStateId =
             (res.rowIndexConfigs || []).filter(item => item.indexConfigId === currentIndexInfo.indexConfigId).length &&
@@ -355,7 +356,11 @@ class CreateIndex extends Component {
                     }
                   >
                     {(RULES[item.type || 0] || []).map((v, i) => (
-                      <Option key={`${index}-${i}`} value={v.value} disabled={wildcardIndex && v.value === 'text'}>
+                      <Option
+                        key={`${index}-${i}`}
+                        value={v.value}
+                        disabled={(wildcardIndex || uniqueIndex) && v.value === 'text'}
+                      >
                         {v.txt}
                       </Option>
                     ))}
@@ -380,7 +385,11 @@ class CreateIndex extends Component {
           </div>
           <div className="minBold sunTitle">{_l('索引类型')}</div>
           <div className="flexRow">
-            <Checkbox onClick={this.changeIndexOnly} checked={uniqueIndex}>
+            <Checkbox
+              onClick={this.changeIndexOnly}
+              checked={uniqueIndex}
+              disabled={selectedIndexList.some(item => item.indexType == 'text')}
+            >
               {_l('唯一索引')}
             </Checkbox>
             <Tooltip

@@ -8,8 +8,8 @@ import { encrypt } from 'src/util';
 import RegExp from 'src/util/expression';
 import tpl from './bindAccount.html';
 import doT from '@mdfe/dot';
+import accountController from 'src/api/account';
 
-var accountController = require('src/api/account');
 var BindAccount = {};
 BindAccount.options = {
   isUpdateEmail: true, // 对邮箱的更新

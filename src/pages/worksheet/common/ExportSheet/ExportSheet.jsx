@@ -36,57 +36,10 @@ export default class ExportSheet extends Component {
 
     // 字段列表添加记录ID
     props.columns.unshift({ type: 2, controlId: 'rowid', controlName: _l('记录ID') });
-    if (isShowWorkflowSys) {
-      props.columns.push(
-        { controlId: 'uaid', controlName: _l('最近修改人'), type: 26 },
-        { controlId: 'wfname', controlName: _l('流程名称'), type: 2 },
-        {
-          controlId: 'wfstatus',
-          controlName: _l('状态'),
-          type: 11,
-          options: [
-            {
-              key: 'pass',
-              color: '#4caf50',
-              index: 1,
-              enumDefault2: 1,
-              value: _l('通过'),
-            },
-            {
-              key: 'refuse',
-              color: '#f44336',
-              index: 2,
-              enumDefault2: 1,
-              value: _l('否决'),
-            },
-            {
-              key: 'abort',
-              color: '#e8e8e8',
-              index: 3,
-              enumDefault2: 1,
-              value: _l('中止'),
-            },
-            {
-              key: 'other',
-              color: 'rgba(33, 150, 243, 0.13)',
-              index: 4,
-              enumDefault2: 1,
-              value: _l('其他'),
-            },
-          ],
-        },
-        { controlId: 'wfcuaids', controlName: _l('节点负责人'), type: 26 },
-        { controlId: 'wfrtime', controlName: _l('节点开始时间'), type: 16 },
-        { controlId: 'wfftime', controlName: _l('剩余时间'), type: 2 },
-        { controlId: 'wfcaid', controlName: _l('发起人'), type: 26 },
-        { controlId: 'wfctime', controlName: _l('发起时间'), type: 16 },
+    if (!isShowWorkflowSys) {
+      _.remove(props.columns, o =>
+        _.includes(['uaid', 'wfname', 'wfstatus', 'wfcuaids', 'wfrtime', 'wfftime', 'wfcaid', 'wfctime'], o.controlId),
       );
-    } else {
-      props.columns.push({
-        controlId: 'uaid',
-        controlName: _l('最近修改人'),
-        type: 26,
-      });
     }
 
     // 成员字段和关联表字段支持映射
@@ -362,29 +315,6 @@ export default class ExportSheet extends Component {
    */
   sortControls(columns) {
     return columns.sort((a, b) => {
-      if (
-        _.includes(
-          [
-            'rowid',
-            'ownerid',
-            'caid',
-            'ctime',
-            'utime',
-            'uaid',
-            'wfname',
-            'wfcuaids',
-            'wfcaid',
-            'wfctime',
-            'wfrtime',
-            'wfftime',
-            'wfstatus',
-          ],
-          a.controlId,
-        )
-      ) {
-        return 0;
-      }
-
       if (a.row === b.row) {
         return a.col - b.col;
       }
@@ -393,15 +323,7 @@ export default class ExportSheet extends Component {
   }
 
   render() {
-    const {
-      onHide,
-      allWorksheetIsSelected,
-      selectRowIds,
-      exportView,
-      exportView: { viewId },
-      hideStatistics,
-      sheetSwitchPermit,
-    } = this.props;
+    const { onHide, allWorksheetIsSelected, selectRowIds, exportView, hideStatistics } = this.props;
     let columns = [].concat(this.props.columns);
     const { advancedSetting, showControls } = exportView;
     const {

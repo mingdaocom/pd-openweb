@@ -7,6 +7,7 @@ import Dialog from 'ming-ui/components/Dialog';
 import UserHead from 'src/pages/feed/components/userHead';
 
 import './style.less';
+import _ from 'lodash';
 
 export default class ApplyForRole extends React.Component {
   constructor() {

@@ -6,9 +6,11 @@ import '../less/manageBackupFilesDialog.less';
 import EditInput from './EditInput.jsx';
 import CreateAppBackupDialog from '../CreateAppBackupDialog';
 import HomeApiController from 'api/homeApp';
-import { getApps, deleteBackupFile, restore } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 import styled from 'styled-components';
 import { downloadFile } from 'src/util';
+import _ from 'lodash';
+import moment from 'moment';
 
 const EmptyStatusWrap = styled.div`
   width: 100%;
@@ -69,7 +71,7 @@ export default function BackupFiles(props) {
 
   // 获取token
   const getToken = () => {
-    getApps({ appIds: [appId] }).then(({ token }) => {
+    appManagementAjax.getApps({ appIds: [appId] }).then(({ token }) => {
       setToken(token);
     });
   };
@@ -99,7 +101,7 @@ export default function BackupFiles(props) {
           backupCurrentVersion: false,
           isRestoreNew: true,
         };
-        restore(params).then(res => {
+        appManagementAjax.restore(params).then(res => {
           getList(1);
         });
       },
@@ -120,7 +122,7 @@ export default function BackupFiles(props) {
       title: _l('删除备份'),
       description: _l('确定将备份文件“%0”删除吗？', item.backupFileName),
       onOk: () => {
-        deleteBackupFile({
+        appManagementAjax.deleteBackupFile({
           id: item.id,
           projectId,
           appId,

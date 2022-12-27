@@ -8,6 +8,7 @@ import { getProject } from 'src/util';
 import Back from '../../components/Back';
 
 import './index.less';
+import _ from 'lodash';
 const groupTitleList = {
   markedGroup: _l('星标'),
   personalGroups: _l('个人'),

@@ -7,11 +7,13 @@ import { browserIsMobile } from 'src/util';
 import Container from './Container';
 import TPAuth from './tpAuth';
 import Info from './Info';
-import { LoadDiv } from 'ming-ui';
+import { LoadDiv, Icon } from 'ming-ui';
 import { getRequest } from 'src/util/sso';
 import { statusList, urlList, getSuffix, accountResultAction, setAutoLoginKey, getCurrentId } from './util';
-import { getTpLoginUrlInfo, getPortalSetByAppId, autoLogin, getSelfTpLoginUrlInfo } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import preall from 'src/common/preall';
+import SvgIcon from 'src/components/SvgIcon';
+
 const Wrap = styled.div`
   display: flex;
   width: 100%;
@@ -36,8 +38,78 @@ const Wrap = styled.div`
     }
   }
 `;
+const WrapWx = styled.div`
+  padding: 0 32px;
+  padding-top: 100px;
+  text-align: center;
+  img {
+    max-width: 100%;
+    object-fit: contain;
+    margin: 0 auto;
+    display: block;
+  }
+  border-radius: 4px;
+  box-sizing: border-box;
+  height: 100%;
+  background: #fff;
+  .logoImageUrlIcon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    div {
+      height: 28px;
+    }
+  }
+  p {
+    margin: 0;
+    padding: 0;
+  }
+  .pageTitle {
+    margin-top: 40px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    text-overflow: ellipsis;
+    word-break: break-all;
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+    line-height: 1.5;
+  }
+  .actCon {
+    padding-bottom: 60px;
+    & > div {
+      text-align: center;
+      height: 40px;
+      width: 100%;
+      border-radius: 4px;
+      background: #f8f8f8;
+      color: #333;
+      line-height: 40px;
+      font-size: 14px;
+      margin-top: 13px;
+      .icon {
+        margin-right: 13px;
+        font-size: 20px;
+        color: #9d9d9d;
+      }
+      &.wxLogin {
+        background: #4caf50;
+        color: #ffffff;
+        .icon {
+          color: #fff;
+        }
+      }
+    }
+  }
+`;
 function ContainerCon(props) {
   const [isTpauth, setIsTpauth] = useState(false); //是否进入微信登录流程 weixin回跳的地址
+  const [isWXauth, setIsWXauth] = useState(false); //是否手机微信扫码进入外部门户登录页面
+  const [loginForType, setLoginForType] = useState(''); //微信点击相应登录方式
   const [baseSetInfo, setBaseSetInfo] = useState({}); //门户配置
   const [authorizerInfo, setAuthorizerInfo] = useState({}); //微信公众号信息
   const [loading, setLoading] = useState(true);
@@ -51,6 +123,8 @@ function ContainerCon(props) {
   const [status, setStatus] = useState(0); //0登录  1注册成功 2您的账号已停用 3待审核 4 审核未通过! 12您访问的门户成员已满额 10000  你访问的链接错误! 20000  你访问的链接已停止访问 是否进入填写信息  status = 9
   const [isAutoLogin, setAutoLogin] = useState(false); //是否自动登录
   const [currentAppId, setCurrentAppId] = useState('');
+  const [fixInfo, setFixInfo] = useState({});
+
   const isWeiXin = () => {
     var ua = window.navigator.userAgent.toLowerCase();
     if (ua.match(/MicroMessenger/i) == 'micromessenger') {
@@ -65,18 +139,20 @@ function ContainerCon(props) {
       //手机微信扫码后=>获取跳转地址
       const request = getRequest();
       const { state = '' } = request;
-      getSelfTpLoginUrlInfo({
-        state, // 二维码所需的临时状态码
-      }).then(function (res) {
-        if (!res) {
-          //应用状态不对，没返回URL
-          setLoading(false);
-          setStatus(10000); //你访问的链接错误
-        } else {
-          safeLocalStorageSetItem('pcScan', res);
-          location.href = res; // 跳转到登录
-        }
-      });
+      externalPortalAjax
+        .getSelfTpLoginUrlInfo({
+          state, // 二维码所需的临时状态码
+        })
+        .then(function (res) {
+          if (!res) {
+            //应用状态不对，没返回URL
+            setLoading(false);
+            setStatus(10000); //你访问的链接错误
+          } else {
+            safeLocalStorageSetItem('pcScan', res);
+            location.href = res; // 跳转到登录
+          }
+        });
     } else {
       getCurrentId(id => {
         setCurrentAppId(id);
@@ -107,18 +183,20 @@ function ContainerCon(props) {
   const onAutoLogin = cb => {
     const autoLoginKey = window.localStorage.getItem(`PortalLoginInfo-${currentAppId}`) || '';
     if (!!autoLoginKey) {
-      autoLogin({
-        appId: currentAppId,
-        autoLoginKey,
-      }).then(res => {
-        const { accountResult } = res;
-        setAutoLoginKey({ ...res, appId: currentAppId });
-        if (accountResult === 1) {
-          accountResultAction({ ...res, appId: currentAppId });
-        } else {
-          cb();
-        }
-      });
+      externalPortalAjax
+        .autoLogin({
+          appId: currentAppId,
+          autoLoginKey,
+        })
+        .then(res => {
+          const { accountResult } = res;
+          setAutoLoginKey({ ...res, appId: currentAppId });
+          if (accountResult === 1) {
+            accountResultAction({ ...res, appId: currentAppId });
+          } else {
+            cb();
+          }
+        });
     } else {
       cb();
     }
@@ -145,16 +223,9 @@ function ContainerCon(props) {
             const { weChat } = loginMode;
             if (isWXOfficialExist && weChat && isEnable && isExist) {
               //配置了微信登录//且 门户开启 门户存在
-              const { appId, projectId } = portalSetResult;
-              getTpLoginUrlInfo({
-                appId, //应用ID
-                // projectId, //网络ID
-                // wxAppId: authorizerInfo.appId, //微信公众号应用ID
-              }).then(res => {
-                setLoading(false);
-                window.location.href = res; //进入微信授权=>微信登录 流程
-                //微信登录 的地址应该是 wxauth?xxxxxxx参数
-              });
+              //进入微信登录落地页
+              setLoading(false);
+              setIsWXauth(true);
             } else {
               //没有配置微信登录 直接进入手机号登录流程
               setLoading(false);
@@ -193,12 +264,12 @@ function ContainerCon(props) {
         return false;
       }
       setAppId(domainName);
-      ajaxPromise = getPortalSetByAppId({ appId: domainName });
+      ajaxPromise = externalPortalAjax.getPortalSetByAppId({ appId: domainName });
     } else {
       accountId && setAccountId(accountId);
       domainName = mdAppId;
       setAppId(domainName);
-      ajaxPromise = getPortalSetByAppId({ appId: domainName });
+      ajaxPromise = externalPortalAjax.getPortalSetByAppId({ appId: domainName });
     }
     if (!domainName) {
       setStatus(10000);
@@ -223,6 +294,10 @@ function ContainerCon(props) {
           !isExist && setStatus(10000);
           setLoading(false);
         }
+        setFixInfo({
+          fixAccount: res.fixAccount,
+          fixRemark: res.fixRemark,
+        });
         setAuthorizerInfo(authorizerInfo);
         setBaseSetInfo(portalSetResult);
         setIsWXOfficialExist(isWXOfficialExist);
@@ -238,6 +313,74 @@ function ContainerCon(props) {
 
   if (loading) {
     return <LoadDiv className="" style={{ margin: '120px auto' }} />;
+  }
+  if (isWXauth) {
+    let appColor = baseSetInfo.appColor || '#00bcd4';
+    let appLogoUrl = baseSetInfo.appLogoUrl || 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg';
+    const { loginMode = {} } = baseSetInfo;
+    return (
+      <WrapWx className="flexColumn">
+        {baseSetInfo.logoImageUrl ? (
+          <img src={baseSetInfo.logoImageUrl} height={40} />
+        ) : appColor && appLogoUrl ? (
+          <span className={cx('logoImageUrlIcon')} style={{ backgroundColor: appColor }}>
+            <SvgIcon url={appLogoUrl} fill={'#fff'} size={28} />
+          </span>
+        ) : (
+          ''
+        )}
+        <p className="Font26 Gray mAll0 Bold pageTitle flex" style={{ WebkitBoxOrient: 'vertical' }}>
+          {baseSetInfo.pageTitle}
+        </p>
+        <div className="actCon">
+          <div
+            className="wxLogin flexRow alignItemsCenter justifyContentCenter"
+            onClick={() => {
+              //进入对应授权登录流程
+              const { appId } = baseSetInfo;
+              externalPortalAjax
+                .getTpLoginUrlInfo({
+                  appId, //应用ID
+                })
+                .then(res => {
+                  setLoading(false);
+                  window.location.href = res; //进入微信授权=>微信登录 流程
+                  //微信登录 的地址应该是 wxauth?xxxxxxx参数
+                });
+            }}
+          >
+            <Icon type="wechat" />
+            {_l('微信一键登录')}
+          </div>
+          {loginMode.phone && (
+            <div
+              className="phoneLogin flexRow alignItemsCenter justifyContentCenter"
+              onClick={() => {
+                //进入对应登录流程
+                setLoginForType('phone');
+                setIsWXauth(false);
+              }}
+            >
+              <Icon type="phone2" />
+              {_l('验证码登录')}
+            </div>
+          )}
+          {loginMode.password && (
+            <div
+              className="passwordLogin flexRow alignItemsCenter justifyContentCenter"
+              onClick={() => {
+                //进入对应登录流程
+                setLoginForType('password');
+                setIsWXauth(false);
+              }}
+            >
+              <Icon type="lock" />
+              {_l('密码登录')}
+            </div>
+          )}
+        </div>
+      </WrapWx>
+    );
   }
   return (
     <Wrap
@@ -272,6 +415,7 @@ function ContainerCon(props) {
           setState={state => setState(state)}
           account={account}
           setAccount={setAccount}
+          fixInfo={fixInfo}
         />
       ) : (
         <Container
@@ -284,6 +428,7 @@ function ContainerCon(props) {
           setAccountId={setAccountId}
           setLogState={state => setState(state)}
           {...baseSetInfo}
+          fixInfo={fixInfo}
           appId={appId}
           getBaseInfo={getBaseInfo}
           account={account}
@@ -293,6 +438,11 @@ function ContainerCon(props) {
           authorizerInfo={authorizerInfo}
           setParamForPcWx={setParamForPcWx}
           paramForPcWx={paramForPcWx}
+          loginForType={loginForType}
+          loginForTypeBack={() => {
+            setLoginForType('');
+            setIsWXauth(true);
+          }}
         />
       )}
     </Wrap>

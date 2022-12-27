@@ -21,8 +21,10 @@ import CreateWorkflow from './components/CreateWorkflow';
 import styled from 'styled-components';
 import DocumentTitle from 'react-document-title';
 import homeApp from 'src/api/homeApp';
-import { addProcess } from 'src/pages/workflow/api/process';
-import { addWorkflow } from 'src/api/appManagement';
+import processAjax from 'src/pages/workflow/api/process';
+import appManagementAjax from 'src/api/appManagement';
+import _ from 'lodash';
+import moment from 'moment';
 
 const HeaderWrap = styled.div`
   height: 50px;
@@ -614,7 +616,7 @@ class AppWorkflowList extends Component {
   createFlow = appId => {
     this.requestPending = true;
 
-    addProcess({
+    processAjax.addProcess({
       companyId: '',
       relationId: appId,
       relationType: 2,
@@ -622,7 +624,7 @@ class AppWorkflowList extends Component {
       name: _l('未命名业务流程'),
     })
       .then(res => {
-        addWorkflow({ projectId: res.companyId });
+        appManagementAjax.addWorkflow({ projectId: res.companyId });
         navigateTo(`/workflowedit/${res.id}`);
       })
       .always(() => {

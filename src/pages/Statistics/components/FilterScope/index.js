@@ -3,12 +3,18 @@ import cx from 'classnames';
 import { Select, DatePicker, Input, Dropdown, Menu } from 'antd';
 import { Icon, ScrollView } from 'ming-ui';
 import { dropdownScopeData, dropdownDayData, isPastAndFuture, isTimeControl, timeDataParticle, timeGatherParticle, timeTypes, unitTypes } from 'statistics/common';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
+import { reportTypes } from 'statistics/Charts/common';
 import 'moment/locale/zh-cn';
 import locale from 'antd/es/date-picker/locale/zh_CN';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'statistics/redux/actions';
+import _ from 'lodash';
+import moment from 'moment';
 
 const { RangePicker } = DatePicker;
 
@@ -35,6 +41,8 @@ export default class extends Component {
     }
   }
   getTableData = () => {
+    const { reportType } = this.props.currentReport;
+    if (reportType === reportTypes.PivotTable) return;
     this.props.changeBase({
       reportSingleCacheId: null,
       apkId: null,
@@ -381,6 +389,7 @@ export default class extends Component {
     const { projectId, worksheetInfo, currentReport } = this.props;
     const { filter, xaxes = {} } = currentReport || {};
     const xAxisisTime = isTimeControl(xaxes.controlType);
+    const sysControlSwitch = isOpenPermit(permitList.sysControlSwitch, worksheetInfo.switches, filter.viewId);
     return (
       <div className="ChartDialogSetting setting flexColumn ChartFilterPanel">
         <ScrollView className="flex">
@@ -405,10 +414,16 @@ export default class extends Component {
                 canEdit
                 projectId={projectId}
                 appId={worksheetInfo.appId}
-                columns={worksheetInfo.columns}
+                columns={worksheetInfo.columns.filter(item => {
+                  if (!sysControlSwitch && _.find(WORKFLOW_SYSTEM_CONTROL, { controlId: item.controlId })) {
+                    return false;
+                  } else {
+                    return true;
+                  }
+                })}
                 conditions={[]}
                 filterResigned={false}
-                onConditionsChange={(conditions = [], localConditions) => {
+                onConditionsChange={_.debounce((conditions = [], localConditions) => {
                   conditions = conditions.map(item => {
                     const isTime = isTimeControl(item.dataType);
                     const isMoment = moment.isMoment(item.value);
@@ -428,7 +443,7 @@ export default class extends Component {
                     }
                   }, true);
                   this.getTableData();
-                }}
+                }, 200)}
               />
             </div>
           </div>

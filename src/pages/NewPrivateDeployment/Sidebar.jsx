@@ -6,6 +6,7 @@ import { NavLink, withRouter } from 'react-router-dom';
 import { menuGroup } from './router.config';
 import { navigateTo } from 'src/router/navigateTo';
 import qs from 'query-string';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   width: 240px;

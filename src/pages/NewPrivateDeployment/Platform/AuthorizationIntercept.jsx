@@ -4,6 +4,7 @@ import { Button } from 'antd';
 import copy from 'copy-to-clipboard';
 import styled from 'styled-components';
 import privateGuideApi from 'src/api/privateGuide';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   .ming.Textarea {

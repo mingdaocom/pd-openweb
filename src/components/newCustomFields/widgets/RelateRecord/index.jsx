@@ -7,6 +7,7 @@ import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -113,7 +114,7 @@ export default class Widgets extends Component {
             multiple={enumDefault === 2}
             coverCid={coverCid}
             showControls={showControls}
-            allowOpenRecord={advancedSetting.allowlink === '1'}
+            allowOpenRecord={advancedSetting.allowlink === '1' && !_.get(window, 'shareState.shareId')}
             showCoverAndControls={advancedSetting.ddset === '1'}
             onChange={this.handleChange}
           />

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import { FORMULA } from './enum';
+import _ from 'lodash';
 
 export default class FnList extends Component {
   static propTypes = {

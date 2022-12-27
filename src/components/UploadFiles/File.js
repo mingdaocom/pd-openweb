@@ -6,12 +6,13 @@ import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import Progress from 'ming-ui/components/Progress';
 import kcService from 'src/pages/kc/api/service';
-import { editLinkAttachment } from 'src/api/attachment';
+import attachmentAjax from 'src/api/attachment';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { getFileExtends, isDocument, formatTime } from './utils';
 import { formatFileSize, isVideo, downloadFile, getClassNameByExt } from 'src/util';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
 import addLinkFile from 'src/components/addLinkFile/addLinkFile';
+import _ from 'lodash';
 
 const vertical = {
   WebkitBoxOrient: 'vertical',
@@ -223,7 +224,7 @@ export default class FileComponent extends Component {
             newLinkUrl: linkContent,
           });
         } else {
-          updatePromise = editLinkAttachment({
+          updatePromise = attachmentAjax.editLinkAttachment({
             fileId: data.fileID,
             title: linkName,
             originLinkUrl: linkContent,
@@ -800,7 +801,7 @@ export default class FileComponent extends Component {
               {((!isMDLink && !hideDownload) ||
                 !hideDownload ||
                 (isMDLink && fileResponse.accountId === md.global.Account.accountId)) &&
-                !md.global.Account.isPortal && (
+                !md.global.Account.isPortal && !window.share && (
                   <div
                     className="UploadFiles-panelBtn"
                     onClick={event => {

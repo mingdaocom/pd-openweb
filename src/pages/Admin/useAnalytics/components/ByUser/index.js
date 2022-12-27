@@ -3,13 +3,14 @@ import { Icon, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import TableCom from '../TableCom';
 import 'src/components/dialogSelectUser/dialogSelectUser';
-import { usageStatisticsForDimension } from 'src/api/appManagement';
-import { getDepartmentFullNameByIds } from 'src/api/department';
+import appManagementAjax from 'src/api/appManagement';
+import departmentAjax from 'src/api/department';
 import UserHead from 'src/pages/feed/components/userHead';
 import styled from 'styled-components';
 import { selectDateList, formatter } from '../../util';
 import { formatFileSize } from 'src/util';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const { Option } = Select;
 
@@ -172,7 +173,7 @@ export default class ByUser extends Component {
     if (_.isEmpty(departmentIds)) {
       return;
     }
-    getDepartmentFullNameByIds({
+    departmentAjax.getDepartmentFullNameByIds({
       projectId,
       departmentIds,
     }).then(res => {
@@ -220,7 +221,7 @@ export default class ByUser extends Component {
     if (this.ajaxRequst) {
       this.ajaxRequst.abort();
     }
-    this.ajaxRequst = usageStatisticsForDimension({
+    this.ajaxRequst = appManagementAjax.usageStatisticsForDimension({
       projectId,
       appId: appId ? appId : '',
       dayRange: selectedDate,

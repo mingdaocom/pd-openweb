@@ -9,6 +9,7 @@ import firstInputSelect from '../../common/firstInputSelect';
 import Number from '../../common/number';
 import { getControlValue } from '../../../utils/util';
 import { FORMULA } from './enum';
+import _ from 'lodash';
 
 @firstInputSelect
 class SettingsModel extends React.Component {

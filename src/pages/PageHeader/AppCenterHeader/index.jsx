@@ -8,6 +8,7 @@ import { ScrollView, Menu, MenuItem, MdLink } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import CommonUserHandle from '../components/CommonUserHandle';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

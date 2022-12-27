@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
+import { useKey } from 'react-use';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
@@ -22,6 +23,7 @@ import {
   refreshSheet,
   refreshWorksheetControls,
   clearChartId,
+  loadDraftDataCount,
 } from 'worksheet/redux/actions';
 import { updateSheetList, deleteSheet, updateSheetListIsUnfold } from 'worksheet/redux/actions/sheetList';
 import SheetMoreOperate from './SheetMoreOperate';
@@ -29,7 +31,9 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { getAppFeaturesVisible } from 'src/util';
 import { BatchOperate } from 'worksheet/common';
+import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;
@@ -44,10 +48,19 @@ const Con = styled.div`
 const VerticalCenter = styled.div`
   display: flex;
   align-items: center;
+  .draftDot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    right: 0;
+    top: 0;
+    background-color: #f44336;
+  }
 `;
 
 function SheetHeader(props) {
-  const { appPkg, isUnfold, sheetList, worksheetInfo, controls, sheetSwitchPermit } = props;
+  const { appPkg, isUnfold, sheetList, worksheetInfo, controls, sheetSwitchPermit, draftDataCount } = props;
   const { type, appId, groupId, view, viewId, isCharge } = props;
   // functions
   const {
@@ -77,18 +90,27 @@ function SheetHeader(props) {
     setHighLightOfRows,
     clearChartId,
     clearSelect,
+    loadDraftDataCount = () => {},
   } = props;
   const { pageSize } = sheetFetchParams;
   const updateFiltersWithView = args => updateFilters(args, view);
-  const { worksheetId, name, desc, projectId, allowAdd, entityName, roleType } = worksheetInfo;
+  const { worksheetId, name, desc, projectId, allowAdd, entityName, roleType, advancedSetting = {} } = worksheetInfo;
   const [sheetDescVisible, setSheetDescVisible] = useState();
   const [statisticsVisible, setStatisticsVisible] = useState();
   const [discussionVisible, setDiscussionVisible] = useState();
   const [editNameVisible, setEditNameVisible] = useState();
   const [descIsEditing, setDescIsEditing] = useState(false);
   const sheet = _.find(sheetList.filter(_.identity), s => s.workSheetId === worksheetId) || {};
+  const canNewRecord = isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd;
   const { rows, count, permission, rowsSummary } = sheetViewData;
   const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetViewConfig;
+
+  useEffect(() => {
+    if (advancedSetting.closedrafts !== '1') {
+      loadDraftDataCount({ appId, worksheetId });
+    }
+  }, [worksheetId]);
+
   const batchOperateComp = (
     <BatchOperate
       type={type}
@@ -126,6 +148,13 @@ function SheetHeader(props) {
       setHighLightOfRows={setHighLightOfRows}
     />
   );
+  useKey('Enter', e => {
+    if (e.ctrlKey) {
+      if (!document.querySelector('.workSheetNewRecord,.ant-modal-root') && e.target.tagName.toLowerCase() === 'body') {
+        openNewRecord();
+      }
+    }
+  });
   if (onlyBatchOperate) {
     return batchOperateComp;
   }
@@ -251,7 +280,7 @@ function SheetHeader(props) {
               )} */}
                 <SearchInput
                   viewId={viewId}
-                  className="queryInput"
+                  className="queryInput worksheetQueryInput"
                   onOk={value => {
                     updateFiltersWithView({ keyWords: (value || '').trim() });
                   }}
@@ -260,8 +289,10 @@ function SheetHeader(props) {
                   }}
                 />
                 <WorkSheetFilter
+                  className="mRight16 mTop1"
                   chartId={chartId}
                   isCharge={isCharge}
+                  sheetSwitchPermit={sheetSwitchPermit}
                   appId={appId}
                   viewId={viewId}
                   projectId={projectId}
@@ -308,8 +339,22 @@ function SheetHeader(props) {
                   </span>
                 </Tooltip>
               )}
+            {/* 草稿箱入口 */}
+            {advancedSetting.closedrafts !== '1' && (
+              <WorksheetDraft
+                showFillNext={true}
+                appId={appId}
+                viewId={viewId}
+                worksheetInfo={worksheetInfo}
+                sheetSwitchPermit={sheetSwitchPermit}
+                isCharge={isCharge}
+                needCache={false}
+                draftDataCount={draftDataCount}
+                addNewRecord={props.addNewRecord}
+              />
+            )}
             {/* 显示创建按钮 */}
-            {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd && (
+            {canNewRecord && (
               <span
                 style={{ backgroundColor: appPkg.iconColor || '#2196f3' }}
                 className="addRow"
@@ -383,7 +428,7 @@ export default connect(
     sheetFetchParams: state.sheet.sheetview.sheetFetchParams,
     sheetViewData: state.sheet.sheetview.sheetViewData,
     sheetViewConfig: state.sheet.sheetview.sheetViewConfig,
-    chartId: _.get(state, 'sheet.base.chartId'),
+    draftDataCount: state.sheet.draftDataCount,
   }),
   dispatch =>
     bindActionCreators(
@@ -419,6 +464,7 @@ export default connect(
         deleteSheet,
         refreshWorksheetControls,
         clearChartId,
+        loadDraftDataCount,
       },
       dispatch,
     ),

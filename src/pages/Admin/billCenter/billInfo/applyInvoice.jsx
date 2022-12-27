@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import cx from 'classnames';
 import { Dialog, Input, RadioGroup, Button } from 'ming-ui';
-import { getProjectFinance, updateProjectFinance } from 'src/api/project';
-import { applyInvoice } from 'src/api/order';
+import projectAjax from 'src/api/project';
+import orderAjax from 'src/api/order';
 import { useSetState } from 'react-use';
 import { applyInvoiceConfig, newInvoiceConfig } from './config';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const ApplyInvoiceWrap = styled.ul`
   display: flex;
@@ -49,7 +50,7 @@ export default function InvoiceSetting(props) {
   const [data, setData] = useSetState({});
 
   useEffect(() => {
-    getProjectFinance({ projectId }).then(data => {
+    projectAjax.getProjectFinance({ projectId }).then(data => {
       setData(data);
     });
   }, []);
@@ -70,7 +71,7 @@ export default function InvoiceSetting(props) {
             'taxRegContactPhone',
           ])
         : _.pick(data, ['companyName', 'price', 'address', 'recipientName', 'taxNumber', 'contactPhone']);
-    applyInvoice({ projectId, orderId, ...para, invoiceType: data.invoiceType || 1 })
+    orderAjax.applyInvoice({ projectId, orderId, ...para, invoiceType: data.invoiceType || 1 })
       .then(res => {
         if (!res) {
           alert(_l('申请失败'));

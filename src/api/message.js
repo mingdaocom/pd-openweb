@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 给指定的AccountId发送聊天消息
   * @param {Object} args 请求参数

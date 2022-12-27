@@ -6,6 +6,7 @@ import DialogLayer from 'src/components/mdDialog/dialog';
 import CreateFolder from '../createFolder/createFolder';
 import { navigateTo } from 'src/router/navigateTo';
 import { errorMessage } from '../../utils/utils';
+import _ from 'lodash';
 
 export default class FolderTemplate extends Component {
   constructor(props) {

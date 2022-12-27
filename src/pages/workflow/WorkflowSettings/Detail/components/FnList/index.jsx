@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Menu, MenuItem } from 'ming-ui';
 import { FORMULA } from './enum';
+import _ from 'lodash';
 
 export default class FnList extends Component {
   static propTypes = {

@@ -10,6 +10,7 @@ import { getSubListError, filterHidedSubList } from 'worksheet/util';
 import CustomFields from 'src/components/newCustomFields';
 import useWorksheetRowProvider from '../WorksheetRecordProvider';
 import './FillRecordControls.less';
+import _ from 'lodash';
 
 const LoadMask = styled.div`
   margin: -58px -24px;
@@ -44,11 +45,13 @@ class FillRecordControls extends React.Component {
     const { projectId } = props;
     const controls = update(props.formData.concat(props.masterFormData || []), {
       $apply: formData => {
+        let hasDefaultControlIs = [];
         const formDataForDataFormat = formData.map(c => {
           const newControl = { ...c };
           const writeControl = _.find(props.writeControls, wc => newControl.controlId === wc.controlId);
           newControl.advancedSetting = { ...(newControl.advancedSetting || {}), defsource: '', defaultfunc: '' };
           if (writeControl && writeControl.defsource && writeControl.defsource !== '[]') {
+            hasDefaultControlIs.push(c.controlId);
             newControl.value = '';
             if (_.includes([9, 10, 11], newControl.type)) {
               newControl.value = newControl.default = safeParse(writeControl.defsource)[0].staticValue;
@@ -58,39 +61,41 @@ class FillRecordControls extends React.Component {
           }
           return newControl;
         });
-        const defaultFormData = new DataFormat({
-          data: formDataForDataFormat,
-          isCreate: true,
-          from: 2,
-          projectId,
-          onAsyncChange: ({ controlId, value }) => {
-            const updatedControl = _.find(formData, { controlId });
-            if (
-              updatedControl &&
-              _.includes(
-                [
-                  26, // 人员
-                  27, // 部门
-                  48, // 组织
-                ],
-                updatedControl.type,
+        const defaultFormData = hasDefaultControlIs.length
+          ? new DataFormat({
+              data: formDataForDataFormat.filter(c => _.includes(hasDefaultControlIs, c.controlId)),
+              isCreate: true,
+              from: 2,
+              projectId,
+              onAsyncChange: ({ controlId, value }) => {
+                const updatedControl = _.find(formData, { controlId });
+                if (
+                  updatedControl &&
+                  _.includes(
+                    [
+                      26, // 人员
+                      27, // 部门
+                      48, // 组织
+                    ],
+                    updatedControl.type,
+                  )
+                ) {
+                  this.setState(oldState => ({
+                    formFlag: Math.random(),
+                    formData: oldState.formData.map(c => (c.controlId === controlId ? { ...c, value } : c)),
+                  }));
+                }
+              },
+            })
+              .getDataSource()
+              .filter(
+                c =>
+                  _.includes(
+                    props.writeControls.map(c => c.controlId),
+                    c.controlId,
+                  ) && !_.includes([30, 31, 37, 38], c.type),
               )
-            ) {
-              this.setState(oldState => ({
-                formFlag: Math.random(),
-                formData: oldState.formData.map(c => (c.controlId === controlId ? { ...c, value } : c)),
-              }));
-            }
-          },
-        })
-          .getDataSource()
-          .filter(
-            c =>
-              _.includes(
-                props.writeControls.map(c => c.controlId),
-                c.controlId,
-              ) && !_.includes([30, 31, 37, 38], c.type),
-          );
+          : [];
         formData = formData
           .map(c => {
             const writeControl = _.find(props.writeControls, wc => c.controlId === wc.controlId);
@@ -165,7 +170,7 @@ class FillRecordControls extends React.Component {
             getSubListError(
               {
                 ...control.value,
-                rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.state.rules`),
+                rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.rules`),
               },
               _.get(this.cellObjs || {}, `${control.controlId}.cell.controls`) || control.relationControls,
               control.showControls,

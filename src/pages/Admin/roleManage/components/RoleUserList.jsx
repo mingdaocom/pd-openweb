@@ -3,6 +3,7 @@ import { Checkbox } from 'ming-ui';
 import EmptyStatus from './EmptyStatus';
 import UserHead from 'src/pages/feed/components/userHead';
 import cx from 'classnames';
+import _ from 'lodash';
 
 class RoleUserList extends Component {
   constructor(props) {

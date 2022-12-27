@@ -3,11 +3,12 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import Icon from 'ming-ui/components/Icon';
 import sheetAjax from 'src/api/worksheet';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import RelateRecord from './RelateRecord';
 import './style.less';
 import { FormError } from '../lib';
+import _ from 'lodash';
 
 export default class RelateSheet extends Component {
   static propTypes = {
@@ -50,7 +51,7 @@ export default class RelateSheet extends Component {
       previewItem: {}, // 要预览的关联项
     };
   }
-  componentWillMount = function() {
+  componentWillMount = function () {
     if (!this.props.disabled) {
       sheetAjax.getWorksheetInfo({ worksheetId: this.props.dataSource }).then(data => {
         this.setState({
@@ -67,7 +68,7 @@ export default class RelateSheet extends Component {
     // check init value
     this.checkValue(this.state.value, false);
   }
-  checkValue = function(value, dirty) {
+  checkValue = function (value, dirty) {
     const error = {
       type: '',
       message: '',
@@ -100,7 +101,7 @@ export default class RelateSheet extends Component {
       });
     }
   }
-  deleteRecordItem = function(recordId) {
+  deleteRecordItem = function (recordId) {
     if (this.props.onChange) {
       this.props.onChange(
         null,
@@ -111,12 +112,12 @@ export default class RelateSheet extends Component {
       );
     }
   }.bind(this);
-  dataChange = function(value) {
+  dataChange = function (value) {
     this.setState(
       {
         showRelateRecord: false,
       },
-      function() {
+      function () {
         this.checkValue((this.props.value || []).concat(value), true);
         if (this.props.onChange) {
           this.props.onChange(null, (this.props.value || []).concat(value), {
@@ -126,7 +127,7 @@ export default class RelateSheet extends Component {
       },
     );
   }.bind(this);
-  renderList = function() {
+  renderList = function () {
     const { value, control, disabled } = this.props;
     if (value && value.length) {
       return (

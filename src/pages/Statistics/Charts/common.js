@@ -1,3 +1,5 @@
+import _ from 'lodash';
+import { toFixed } from 'src/util';
 
 /**
  * 图表类型
@@ -6,7 +8,7 @@ export const reportTypes = {
   BarChart: 1,
   LineChart: 2,
   PieChart: 3,
-  NumberChart: 4,
+  NumberChart: 10,
   RadarChart: 5,
   FunnelChart: 6,
   DualAxes: 7,
@@ -107,16 +109,16 @@ export const getAuxiliaryLineConfig = (auxiliaryLines = [], data, { yaxisList, c
         return item.value;
       }
       if (item.type === 'minLine' && controlId) {
-        return Number(getControlMinValue(data, controlId).toFixed(2));
+        return Number(toFixed(getControlMinValue(data, controlId), 2));
       }
       if (item.type === 'maxLine' && controlId) {
-        return Number(getControlMaxValue(data, controlId).toFixed(2));
+        return Number(toFixed(getControlMaxValue(data, controlId), 2));
       }
       if (item.type === 'averageLine' && controlId) {
-        return Number(getControlAvgValue(data, controlId).toFixed(2));
+        return Number(toFixed(getControlAvgValue(data, controlId), 2));
       }
       if (item.type === 'medianLine' && controlId) {
-        return Number(getControlMedianValue(data, controlId).toFixed(2));
+        return Number(toFixed(getControlMedianValue(data, controlId), 2));
       }
       if (item.type === 'percentLine' && controlId) {
         return getControlPercentValue(data, controlId, item.percent);
@@ -225,17 +227,17 @@ export const LegendTypeData = [
  */
 export const abbreviateNumber = (value, dot) => {
   if (value >= 1000000000) {
-    return `${(value / 1000000000).toFixed(dot)}B`;
+    return `${toFixed(value / 1000000000, dot)}B`;
   } else if (value >= 100000000) {
-    return `${(value / 100000000).toFixed(dot)}${_l('亿')}`;
+    return `${toFixed(dot, value / 100000000)}${_l('亿')}`;
   } else if (value >= 1000000) {
-    return `${(value / 1000000).toFixed(dot)}M`;
+    return `${toFixed(value / 1000000, dot)}M`;
   } else if (value >= 10000) {
-    return `${(value / 10000).toFixed(dot)}${_l('万')}`;
+    return `${toFixed(value / 10000, dot)}${_l('万')}`;
   } else if (value >= 1000) {
-    return `${(value / 1000).toFixed(dot)}K`;
+    return `${toFixed(value / 1000, dot)}K`;
   } else {
-    return dot === '' ? value : value.toFixed(dot);
+    return dot === '' ? value : toFixed(value, dot);
   }
 }
 
@@ -332,8 +334,9 @@ export const formatControlValueDot = (value, data) => {
     return value;
   }
 
-  const { magnitude, ydot, suffix, dot, controlId, fixType } = data;
+  const { magnitude, suffix, dot, controlId, fixType } = data;
   const isRecordCount = controlId === 'record_count';
+  const ydot = Number(data.ydot);
 
   const { format } = _.find(numberLevel, { value: magnitude || 0 });
   if (magnitude === 0) {
@@ -341,14 +344,14 @@ export const formatControlValueDot = (value, data) => {
   } else if (magnitude === 1) {
     let newValue = 0;
     if (ydot === '') {
-      newValue = Number(value.toFixed(dot)).toLocaleString('zh', { minimumFractionDigits: dot });
+      newValue = Number(toFixed(value, dot)).toLocaleString('zh', { minimumFractionDigits: dot });
     } else {
       const dot = isRecordCount ? 0 : ydot;
-      newValue = Number(value.toFixed(dot)).toLocaleString('zh', { minimumFractionDigits: dot });
+      newValue = Number(toFixed(value, dot)).toLocaleString('zh', { minimumFractionDigits: dot });
     }
     return fixType ? `${suffix}${newValue}` : `${newValue}${suffix}`;
   } else {
-    const newValue = format(value).toFixed(ydot);
+    const newValue = toFixed(format(value), ydot);
     const result = Number(newValue).toLocaleString('zh', { minimumFractionDigits: ydot });
     return fixType ? `${suffix}${result}` : `${result}${suffix}`;
   }
@@ -372,7 +375,7 @@ export const formatrChartValue = (value, isPerPile, yaxisList, id, isHideEmptyVa
   } else {
     if (isPerPile) {
       const { ydot = 2 } = yaxisList[0] || {};
-      return `${(value * 100).toFixed(Number.isInteger(value) ? 0 : ydot)}%`;
+      return `${toFixed(value * 100, Number.isInteger(value) ? 0 : Number(ydot))}%`;
     } else {
       return formatControlValueDot(value, id ? _.find(yaxisList, { controlId: id }) : yaxisList[0]);
     }
@@ -384,7 +387,7 @@ export const formatrChartValue = (value, isPerPile, yaxisList, id, isHideEmptyVa
  */
 export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
   if (isPerPile) {
-    return `${(value * 100).toFixed(0)}%`;
+    return `${toFixed(value * 100, 0)}%`;
   } else {
     if (_.isEmpty(yaxisList)) {
       return value;
@@ -392,10 +395,10 @@ export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
     const { magnitude, ydot, suffix, dot, fixType } = yaxisList[0];
     const { format } = _.find(numberLevel, { value: magnitude });
     if ([7, 8].includes(magnitude)) {
-      const result = format(value).toFixed(0);
+      const result = toFixed(format(value), 0);
       return fixType ? `${suffix}${result}` : `${result}${suffix}`;
     } else if (magnitude) {
-      const result = Number(format(value).toFixed(ydot));
+      const result = Number(toFixed(format(value), ydot));
       return magnitude === 1 ? result : fixType ? `${suffix}${result}` : `${result}${suffix}`;
     } else {
       return format(value);

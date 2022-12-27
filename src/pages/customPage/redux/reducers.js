@@ -20,6 +20,7 @@ import {
 } from './actionType';
 import { getDefaultLayout, getIndexById, enumWidgetType } from '../util';
 import maxBy from 'lodash/maxBy';
+import _ from 'lodash';
 
 const initialState = {
   loading: true,

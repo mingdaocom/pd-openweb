@@ -9,6 +9,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 import * as sheetActions from 'src/pages/worksheet/redux/actions/index';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
+import moment from 'moment';
 
 let getAppSectionDetailRequest;
 
@@ -58,6 +59,10 @@ export function updateSheetList(id, args) {
     });
     dispatch({ type: 'SHEET_LIST', data: list });
   };
+}
+
+export function clearSheetList() {
+  return { type: 'SHEET_LIST', data: [] };
 }
 
 export function updateSheetIconColor(iconColor) {

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 添加讨论
   * @param {Object} args 请求参数

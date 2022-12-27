@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import _ from 'lodash';
 import cx from 'classnames';
 import { ScrollView, Menu, Radio, MenuItem, LoadDiv, TagTextarea } from 'ming-ui';
 import flowNode from '../../../api/flowNode';

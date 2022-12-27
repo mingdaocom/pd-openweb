@@ -3,6 +3,7 @@ import { arrayOf, number, shape, string, bool, func } from 'prop-types';
 import styled from 'styled-components';
 import { browserIsMobile } from 'src/util';
 import { Tooltip } from 'ming-ui';
+import _ from 'lodash';
 
 const isMobile = browserIsMobile();
 

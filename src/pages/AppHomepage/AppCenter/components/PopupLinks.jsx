@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { shape, arrayOf, bool } from 'prop-types';
+import _ from 'lodash';
 
 const Con = styled.div`
   width: 220px;

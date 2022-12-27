@@ -1,12 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Button, ScrollView, LoadDiv, Icon } from 'ming-ui';
-import {
-  getWorkWxLicenseDetailByApp,
-  getWorkWxLicenseCreateOrderDetailByApp,
-  createWorkWxLicenseOrder,
-  getWorkWxLicenseOrderList,
-} from 'src/api/workWeiXin';
+import workWeiXinAjax from 'src/api/workWeiXin';
 import styled from 'styled-components';
+import moment from 'moment';
 
 const orderTypes = { 1: _l('购买账号'), 2: _l('续期账号'), 5: _l('历史企业迁移订单') };
 const orderStatus = {
@@ -101,7 +97,7 @@ export default class InterfaceLicense extends Component {
     const { projectId } = this.props;
     this.setState({ loading: true });
     this.getWorkWxLicenseOrderList();
-    getWorkWxLicenseDetailByApp({ projectId }).then(res => {
+    workWeiXinAjax.getWorkWxLicenseDetailByApp({ projectId }).then(res => {
       this.setState({ licenseDetail: res, loading: false });
     });
   };
@@ -110,7 +106,7 @@ export default class InterfaceLicense extends Component {
   clickBuy = buyMore => {
     const { projectId } = this.props;
     this.setState({ loading: true, step: 2 });
-    getWorkWxLicenseCreateOrderDetailByApp({ projectId }).then(res => {
+    workWeiXinAjax.getWorkWxLicenseCreateOrderDetailByApp({ projectId }).then(res => {
       this.setState({ buyMore, orderInfo: res, loading: false });
     });
   };
@@ -118,7 +114,7 @@ export default class InterfaceLicense extends Component {
   getWorkWxLicenseOrderList = () => {
     const { orderList = [], pageIndex = 1 } = this.state;
     const { projectId } = this.props;
-    getWorkWxLicenseOrderList({
+    workWeiXinAjax.getWorkWxLicenseOrderList({
       projectId,
       pageIndex,
       pageSize: 50,
@@ -146,7 +142,7 @@ export default class InterfaceLicense extends Component {
       // 申请续费
     } else {
       // 申请下单
-      createWorkWxLicenseOrder({ projectId }).then(res => {
+      workWeiXinAjax.createWorkWxLicenseOrder({ projectId }).then(res => {
         if (res.item1) {
           alert(_l('申请成功'));
           this.setState({ isRenewal: false }, () => {
@@ -163,7 +159,7 @@ export default class InterfaceLicense extends Component {
   // 续期
   clickRenewal = () => {
     const { projectId } = this.props;
-    getWorkWxLicenseCreateOrderDetailByApp({ projectId }).then(res => {
+    workWeiXinAjax.getWorkWxLicenseCreateOrderDetailByApp({ projectId }).then(res => {
       this.setState({ step: 2, isRenewal: true, orderInfo: res });
     });
   };
@@ -174,7 +170,7 @@ export default class InterfaceLicense extends Component {
       <div className="pLeft24 pRight24">
         <div className="Font15 bold mBottom18">
           {_l(
-            '为确保首次集成90天后正常使用，需向企业微信购买接口许可，购买许可费用由明道云承担支付，您无需额外支付，您只需提交申请购买即可',
+            '为确保首次集成90天后正常使用，需向企业微信购买接口许可，购买许可费用由平台承担支付，您无需额外支付，您只需提交申请购买即可',
           )}
         </div>
         <div className="Font13 mBottom5">{_l('已同步账号：%0个', licenseDetail.allAccountCount)}</div>
@@ -247,7 +243,7 @@ export default class InterfaceLicense extends Component {
           >
             {isRenewal ? _l('申请续期') : _l('申请下单')}
           </Button>
-          <div className="Gray_9e mTop20">{_l('购买费用由明道云支付，您只需申请下单即可')}</div>
+          <div className="Gray_9e mTop20">{_l('购买费用由平台支付，您只需申请下单即可')}</div>
         </div>
       </OrderInfo>
     );
@@ -259,7 +255,7 @@ export default class InterfaceLicense extends Component {
       <OrderDetail>
         <div className="Font15 bold mBottom20">
           {_l(
-            '为确保首次集成90天后正常使用，需向企业微信购买接口许可，购买许可费用由明道云承担支付，您无需额外支付，您只需提交申请购买即可',
+            '为确保首次集成90天后正常使用，需向企业微信购买接口许可，购买许可费用由平台承担支付，您无需额外支付，您只需提交申请购买即可',
           )}
         </div>
         <div className="Font14">

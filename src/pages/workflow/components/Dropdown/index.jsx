@@ -5,6 +5,7 @@ import Icon from 'ming-ui/components/Icon';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import './index.less';
+import _ from 'lodash';
 
 export default class Dropdown extends Component {
   static propTypes = {

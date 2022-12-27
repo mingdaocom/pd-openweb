@@ -5,6 +5,8 @@ import update from 'immutability-helper';
 import { getControlType, getControls } from '../util';
 import { OtherFieldWrap } from '../styled';
 import { SYSTEM_FIELD_TO_TEXT, USER_LIST, SYSTEM_LIST, CURRENT_TYPES, CUR_SEARCH_TYPES } from '../config';
+import _ from 'lodash';
+import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
 
 export default function OtherField(props) {
   const {
@@ -26,7 +28,8 @@ export default function OtherField(props) {
   }, [data.controlId]);
 
   const getFieldName = (controls, fieldId) => {
-    if (_.includes(['ctime', 'utime', 'ownerid', 'caid'], fieldId)) return SYSTEM_FIELD_TO_TEXT[fieldId];
+    if (_.includes(['ctime', 'utime', 'ownerid', 'caid', ...SYS_CONTROLS], fieldId))
+      return SYSTEM_FIELD_TO_TEXT[fieldId];
     if (fieldId === 'search-keyword') return CUR_SEARCH_TYPES[0].text;
     if (
       _.includes(
@@ -93,7 +96,7 @@ export default function OtherField(props) {
   const isFieldDeleteFn = (item, controls = []) => {
     const { cid, rcid } = item;
     const isFieldNotInControls = (controls, cid) => {
-      if (_.includes(['ctime', 'utime', 'ownerid', 'caid', 'search-keyword'], cid)) return false;
+      if (_.includes(['ctime', 'utime', 'ownerid', 'caid', 'search-keyword', ...SYS_CONTROLS], cid)) return false;
       if (
         _.includes(
           [

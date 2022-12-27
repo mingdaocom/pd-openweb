@@ -1,6 +1,7 @@
 ﻿import * as ACTIONS from '../actions/current';
 import Config from '../../config';
 import { COMPANY_DEPARMENTID } from '../constant';
+import _ from 'lodash';
 
 const initialState = () => {
   let typeCursor = 0;

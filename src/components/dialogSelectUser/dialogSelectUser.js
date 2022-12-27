@@ -202,7 +202,7 @@ class DialogSelectUser extends Component {
 
   render() {
     const { dialogProps, visible } = this.props;
-    const h = ($(window).height() - 150 > 905 ? 900 : $(window).height()) - 160;
+    const windowHeight = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
     return (
       <Dialog
         {...dialogProps}
@@ -211,7 +211,11 @@ class DialogSelectUser extends Component {
         footer={null}
         onCancel={this.props.onCancel}
       >
-        <div className="dialogSelectUserContainer" id="dialogBoxSelectUser" style={{ height: h }}>
+        <div
+          className="dialogSelectUserContainer"
+          id="dialogBoxSelectUser"
+          style={{ height: `${windowHeight - 160}px` }}
+        >
           {this.renderContent()}
         </div>
       </Dialog>

@@ -6,7 +6,7 @@ import { SettingItem } from 'src/pages/widgetConfig/styled';
 import { enumWidgetType, getIconByType } from 'src/pages/widgetConfig/util';
 import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
 import { HAS_RADIO_CONTROL, NO_OTHER_CONFIG, EXCEL_CONTROLS, getList } from './config';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -74,7 +74,7 @@ export default class ExcelControlSetting extends Component {
 
   getControls = worksheetId => {
     this.setState({ loading: true });
-    getWorksheetInfo({ worksheetId, getTemplate: true, getViews: false })
+    worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true, getViews: false })
       .then(res => {
         const { template } = res;
         this.setState({

@@ -11,6 +11,8 @@ import OtherAction from 'mobile/ProcessRecord/OtherAction';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import instance from 'src/pages/workflow/api/instance';
 import { processInformTabs } from 'mobile/Process/ProcessInform';
+import _ from 'lodash';
+import moment from 'moment';
 
 const TABS = {
   WAITING_DISPOSE: 1, // 待处理

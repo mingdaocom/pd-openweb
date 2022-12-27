@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { arrayOf, number, shape, string, bool, func } from 'prop-types';
 import { Modal, Slider, Input } from 'ming-ui';
 import { Tip9e } from 'worksheet/components/Basics';
+import _ from 'lodash';
 
 const SliderCon = styled.div`
   margin-top: 30px;

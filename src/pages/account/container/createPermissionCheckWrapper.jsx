@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { checkCreateCompany } from 'src/api/register';
+import registerAjax from 'src/api/register';
 
 const Abnormal = styled.div`
   display: flex;
@@ -21,7 +21,7 @@ export default function createPermissionCheckWrapper(Comp) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState();
     useEffect(() => {
-      checkCreateCompany().then(able => {
+      registerAjax.checkCreateCompany().then(able => {
         if (able) {
           setLoading(false);
         } else {

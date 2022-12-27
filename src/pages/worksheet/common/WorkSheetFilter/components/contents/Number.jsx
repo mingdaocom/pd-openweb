@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import NumberUtil from 'src/util/number';
 import { FILTER_CONDITION_TYPE } from '../../enum';
+import _ from 'lodash';
 
 export default class Number extends Component {
   static propTypes = {
@@ -83,7 +84,7 @@ export default class Number extends Component {
       <div className="worksheetFilterNumberCondition">
         {type === FILTER_CONDITION_TYPE.BETWEEN || type === FILTER_CONDITION_TYPE.NBETWEEN ? (
           <div className="numberRange flexRow">
-            <div>
+            <div className="flex">
               <input
                 disabled={disabled}
                 type="text"
@@ -95,7 +96,7 @@ export default class Number extends Component {
               />
             </div>
             <span className="split">-</span>
-            <div>
+            <div className="flex">
               <input
                 disabled={disabled}
                 type="text"

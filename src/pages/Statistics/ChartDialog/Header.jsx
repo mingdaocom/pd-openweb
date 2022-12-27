@@ -5,6 +5,7 @@ import { Tooltip } from 'antd';
 import reportConfig from '../api/reportConfig';
 import ChartDesc from '../components/ChartDesc';
 import Trigger from 'rc-trigger';
+import _ from 'lodash';
 
 export default class Header extends Component {
   constructor(props) {

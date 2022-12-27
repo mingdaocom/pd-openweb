@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import { Icon, ScrollView } from 'ming-ui';
 import { Modal, Button, WingBlank, Checkbox } from 'antd-mobile';
-import { getOrganizes } from 'src/api/organize.js';
+import organizeAjax from 'src/api/organize.js';
 import './index.less';
+import _ from 'lodash';
 
 const { CheckboxItem } = Checkbox;
 
@@ -22,7 +23,7 @@ export default class SelectOrgRole extends Component {
   getData = () => {
     const { projectId } = this.props;
     let { keywords, pageIndex = 1, orgRoleList = [] } = this.state;
-    getOrganizes({
+    organizeAjax.getOrganizes({
       projectId,
       keywords,
       pageIndex,

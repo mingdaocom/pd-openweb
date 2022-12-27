@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { Checkbox, Icon } from 'ming-ui';
 import { Modal, List, Button } from 'antd-mobile';
 import './less/MobileCheckbox.less';
+import _ from 'lodash';
 
 export default class MobileCheckbox extends Component {
   static propTypes = {

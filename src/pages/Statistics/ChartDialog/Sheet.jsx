@@ -10,6 +10,7 @@ import SingleView from 'src/pages/worksheet/common/SingleView';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'statistics/redux/actions';
+import _ from 'lodash';
 
 const Con = styled.div`
   padding: 17px 20px;

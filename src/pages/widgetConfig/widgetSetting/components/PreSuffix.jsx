@@ -38,6 +38,11 @@ export default function PreSuffix({ data, value, onChange }) {
     return type || 'suffix';
   };
   const [type, setType] = useState(getDefaultType);
+
+  useEffect(() => {
+    setType(getDefaultType);
+  }, [data.controlId]);
+
   return (
     <PreSuffixWrap>
       <Components.Dropdown
@@ -51,7 +56,8 @@ export default function PreSuffix({ data, value, onChange }) {
           const text = setting[prev];
           const nextSetting = { [prev]: '', [t]: text };
           onChange(handleAdvancedSettingChange(data, nextSetting));
-        }}></Components.Dropdown>
+        }}
+      ></Components.Dropdown>
       <Input
         style={{ borderRadius: '0' }}
         value={value || setting[type]}

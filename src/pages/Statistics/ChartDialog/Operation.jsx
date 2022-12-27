@@ -7,6 +7,7 @@ import { Tooltip } from 'antd';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../redux/actions.js';
+import _ from 'lodash';
 
 const Operation = ({
   settingVisible,
@@ -28,6 +29,8 @@ const Operation = ({
   const isChartPublicShare = location.href.includes('public/chart');
   const isPagePublicShare = location.href.includes('public/page') || window.shareAuthor;
   const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
+  const { style } = currentReport;
+  const { pivotTableColumnWidthConfig } = style || {};
   return (
     <div className="flexRow valignWrapper">
       {sheetVisible && !settingVisible ? (
@@ -74,6 +77,23 @@ const Operation = ({
             className={cx('Font20 Gray_9e pointer mLeft16', { active: scopeVisible })}
             onClick={() => {
               onChangeScopeVisible(!scopeVisible);
+            }}
+          />
+        </Tooltip>
+      )}
+      {settingVisible && [reportTypes.PivotTable].includes(reportData.reportType) && !_.isEmpty(pivotTableColumnWidthConfig) && (
+        <Tooltip title={_l('等分')} placement="bottom">
+          <Icon
+            icon="equal_division"
+            className="Font20 Gray_9e pointer mLeft16"
+            onClick={() => {
+              changeCurrentReport({
+                style: {
+                  ...style,
+                  pivotTableColumnWidthConfig: undefined
+                }
+              });
+              sessionStorage.removeItem(`pivotTableColumnWidthConfig-${report.id}`);
             }}
           />
         </Tooltip>

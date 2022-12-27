@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 创建部门（Admin）
   * @param {Object} args 请求参数

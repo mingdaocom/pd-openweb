@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { browserIsMobile, createElementFromHtml } from 'src/util';
-import { editWorksheetControls } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import Skeleton from 'src/router/Application/Skeleton';
 import { selectRecord } from 'src/components/recordCardListDialog';
@@ -28,7 +28,7 @@ import ColumnHead from '../BaseColumnHead';
 import RowHead from './ChildTableRowHead';
 import MobileTable from './MobileTable';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import WorksheetTable from '../WorksheetTable';
+import WorksheetTable from '../WorksheetTable/V2';
 import RowDetail from './RowDetailModal';
 import RowDetailMobile from './RowDetailMobileModal';
 import * as actions from './redux/actions';
@@ -65,7 +65,6 @@ class ChildTable extends React.Component {
     super(props);
     this.state = {
       controls: this.getControls(props),
-      editingControls: {},
       tempSheetColumnWidths: {},
       previewRowIndex: null,
       recordVisible: false,
@@ -118,6 +117,7 @@ class ChildTable extends React.Component {
     this.rowsCache = {};
     $(this.childTableCon).on('mouseenter', '.cell .ghostAngle', this.handleMouseEnter);
     $(this.childTableCon).on('mouseleave', '.cell .ghostAngle', this.handleMouseLeave);
+    window.addEventListener('keydown', this.handleKeyDown);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -132,11 +132,7 @@ class ChildTable extends React.Component {
     } else if (isAddRecord && valueChanged && typeof nextControl.value === 'undefined') {
       initRows([]);
     } else if (valueChanged && nextControl.value && nextControl.value.action === 'reset') {
-      resetRows().then(() => {
-        try {
-          this.worksheettable.current.table.initControlState();
-        } catch (err) {}
-      });
+      resetRows();
     } else if (valueChanged && nextControl.value && nextControl.value.action === 'clearAndSet') {
       this.handleClearAndSetRows(
         nextControl.value.rows.map(row =>
@@ -196,14 +192,15 @@ class ChildTable extends React.Component {
     }
     $(this.childTableCon).off('mouseenter', '.cell .ghostAngle', this.handleMouseEnter);
     $(this.childTableCon).off('mouseleave', '.cell .ghostAngle', this.handleMouseLeave);
+    window.removeEventListener('keydown', this.handleKeyDown);
   }
 
   worksheettable = React.createRef();
 
   getControls(props, { newControls } = {}) {
     const {
-      recordId,
-      control: { controlId, showControls = [], advancedSetting = {}, relationControls = [] },
+      isWorkflow,
+      control: { showControls = [], advancedSetting = {}, relationControls = [] },
       masterData,
       controls,
     } = props || this.props;
@@ -222,9 +219,12 @@ class ChildTable extends React.Component {
         if (!_.find(showControls, scid => control.controlId === scid)) {
           control.fieldPermission = '000';
         } else {
+          // control.fieldPermission = isWorkflow ? '111' : replaceByIndex(control.fieldPermission || '111', 2, '1');
           control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 2, '1');
         }
+        // if (!isWorkflow) {
         control.controlPermissions = '111';
+        // }
         return control;
       },
     );
@@ -242,6 +242,15 @@ class ChildTable extends React.Component {
 
   getControl(controlId) {
     return _.find(this.state.controls, { controlId });
+  }
+
+  @autobind
+  handleKeyDown(e) {
+    if (e.ctrlKey && e.key === 'Enter' && this.childTableCon.querySelector('.cell.focus')) {
+      e.preventDefault();
+      e.stopPropagation();
+      this.handleAddRowByLine();
+    }
   }
 
   handleClearAndSetRows(rows) {
@@ -293,7 +302,7 @@ class ChildTable extends React.Component {
   }
 
   loadRows(nextProps, { needResetControls } = {}) {
-    const { control, recordId, masterData, loadRows } = nextProps || this.props;
+    const { control, recordId, masterData, loadRows, from } = nextProps || this.props;
     if (!recordId || !masterData) {
       return;
     }
@@ -303,6 +312,7 @@ class ChildTable extends React.Component {
       recordId,
       controlId: control.controlId,
       isCustomButtonFillRecord: control.isCustomButtonFillRecord,
+      from,
       callback: res => {
         const state = { loading: false };
         if (needResetControls) {
@@ -378,6 +388,9 @@ class ChildTable extends React.Component {
   rowUpdate({ row, controlId, value, rowId } = {}, { isCreate = false, isQueryWorksheetFill = false } = {}) {
     const { masterData, projectId, recordId, searchConfig, rules = [] } = this.props;
     const asyncUpdateCell = (cid, newValue) => {
+      if (isQueryWorksheetFill && row[cid]) {
+        return;
+      }
       this.handleUpdateCell(
         {
           control: this.getControl(cid),
@@ -388,7 +401,8 @@ class ChildTable extends React.Component {
           row: { rowid: rowId || (row || {}).rowid },
         },
         {
-          updateSucessCb: needUpdateRow => {
+          isQueryWorksheetFill,
+          updateSuccessCb: needUpdateRow => {
             this.updateSheetRow(needUpdateRow);
           },
         },
@@ -439,7 +453,7 @@ class ChildTable extends React.Component {
   updateSheetRow(row) {
     if (isMobile) {
       this.handleRowDetailSave(row);
-    } else {
+    } else if (_.isFunction(_.get(this, 'worksheettable.current.table.updateSheetRow'))) {
       this.worksheettable.current.table.updateSheetRow({
         ...row,
         allowedit: true,
@@ -451,25 +465,19 @@ class ChildTable extends React.Component {
   @autobind
   handleAddRowByLine() {
     const { addRow, rows } = this.props;
-    const { controls } = this.state;
     this.updateDefsourceOfControl();
     const row = this.newRow();
-    const editingKey = `${row.rowid}-${controls[0].controlId}`;
-    const editable = controlState(controls[0]).editable;
     addRow(row);
-    this.setState(
-      {
-        editingControls: editable ? { [editingKey]: true } : {},
-      },
-      () => {
-        try {
-          this.worksheettable.current.table.mdtable.current.setScroll({
-            left: 0,
-            top: rows.length + 1 > 15 ? 100000 : 0,
-          });
-        } catch (err) {}
-      },
-    );
+    setTimeout(() => {
+      try {
+        this.worksheettable.current.table.refs.setScroll(0, rows.length + 1 > 15 ? 100000 : 0);
+        setTimeout(() => {
+          this.worksheettable.current.table.refs.dom.current
+            .querySelector('.cell.row-' + rows.length + '.canedit')
+            .click();
+        }, 100);
+      } catch (err) {}
+    }, 100);
   }
 
   @autobind
@@ -510,13 +518,6 @@ class ChildTable extends React.Component {
   }
 
   @autobind
-  updateEditingControls(key, value) {
-    this.setState({
-      editingControls: Object.assign({}, this.state.editingControls, { [key]: value }),
-    });
-  }
-
-  @autobind
   handleUpdateCell({ control, cell, row = {} }, options) {
     const { rows, updateRow } = this.props;
     const { controls } = this.state;
@@ -535,8 +536,8 @@ class ChildTable extends React.Component {
     newRow.isEdited = true;
     function update() {
       this.rowsCache[row.rowid] = { ...(this.rowsCache[row.rowid] || {}), [cell.controlId]: cell.value };
-      if (_.isFunction(options.updateSucessCb)) {
-        options.updateSucessCb(newRow);
+      if (_.isFunction(options.updateSuccessCb)) {
+        options.updateSuccessCb(newRow);
       }
       updateRow({ rowid: row.rowid, value: newRow });
     }
@@ -588,11 +589,7 @@ class ChildTable extends React.Component {
             .map(c => c.controlId),
         );
         if (previewRowIndex > -1) {
-          updateRow({ rowid: row.rowid, value: row }).then(() => {
-            try {
-              this.worksheettable.current.table.initControlState();
-            } catch (err) {}
-          });
+          updateRow({ rowid: row.rowid, value: row });
         } else {
           addRow(row);
         }
@@ -686,6 +683,7 @@ class ChildTable extends React.Component {
 
   render() {
     const {
+      isWorkflow,
       maxCount,
       from,
       recordId,
@@ -701,12 +699,11 @@ class ChildTable extends React.Component {
       searchConfig,
       sheetSwitchPermit,
     } = this.props;
-    const { allowadd, allowcancel, allowedit, batchcids, allowsingle } = parseAdvancedSetting(control.advancedSetting);
+    let { allowadd, allowcancel, allowedit, batchcids, allowsingle } = parseAdvancedSetting(control.advancedSetting);
     const {
       loading,
       tempSheetColumnWidths,
       previewRowIndex,
-      editingControls,
       sheetColumnWidths,
       sortedControl,
       cellErrors,
@@ -717,8 +714,13 @@ class ChildTable extends React.Component {
     const addRowFromRelateRecords = !!batchAddControls.length;
     const allowAddByLine =
       (_.isUndefined(_.get(control, 'advancedSetting.allowsingle')) && !addRowFromRelateRecords) || allowsingle;
-    const tableRows = rows.map(row => (!/^temp/.test(row.rowid) ? { ...row, allowedit } : row));
     const controlPermission = controlState(control, from);
+    // if (isWorkflow && controlPermission.editable) {
+    //   allowadd = true;
+    //   allowedit = true;
+    //   allowcancel = true;
+    // }
+    const tableRows = rows.map(row => (!/^temp/.test(row.rowid) ? { ...row, allowedit } : row));
     const disabled = !controlPermission.editable || control.disabled;
     const noColumns = !controls.length;
     const columns = this.getShowColumns();
@@ -738,6 +740,7 @@ class ChildTable extends React.Component {
         {!isMobile && !loading && (
           <div style={{ height: tableHeight }}>
             <WorksheetTable
+              tableType="classic"
               isSubList
               rules={rules}
               height={tableHeight}
@@ -745,15 +748,14 @@ class ChildTable extends React.Component {
               viewId={control.viewId}
               scrollBarHoverShow
               ref={this.worksheettable}
-              responseHeight={fullShowTable}
+              setHeightAsRowCount={fullShowTable}
               forceScrollOffset={fullShowTable && { height: true }}
               clickEnterEditing
               cellErrors={cellErrors}
               clearCellError={this.handleClearCellError}
               cellUniqueValidate={this.handleUniqueValidate}
-              editingControls={editingControls}
               fixedColumnCount={0}
-              lineeditable={!disabled}
+              lineEditable={!disabled}
               noRenderEmpty
               rowHeight={34}
               worksheetId={control.dataSource}
@@ -763,7 +765,6 @@ class ChildTable extends React.Component {
               controls={controls}
               data={tableRows.length === 1 ? tableRows.concat({ isSubListFooter: true }) : tableRows}
               sheetColumnWidths={{ ...sheetColumnWidths, ...tempSheetColumnWidths }}
-              updateEditingControls={this.updateEditingControls}
               rowHeadWidth={75}
               sheetSwitchPermit={sheetSwitchPermit}
               masterFormData={() => this.props.masterData.formData}
@@ -772,7 +773,7 @@ class ChildTable extends React.Component {
               renderRowHead={args => (
                 <RowHead
                   {...args}
-                  row={rows[args.rowIndex - 1]}
+                  row={rows[args.rowIndex]}
                   allowAdd={allowadd}
                   allowCancel={allowcancel}
                   changeSheetLayoutVisible={control.isCharge && !_.isEmpty(tempSheetColumnWidths)}
@@ -797,26 +798,28 @@ class ChildTable extends React.Component {
                         widths: newWidths,
                       },
                     };
-                    editWorksheetControls({
-                      worksheetId: this.props.masterData.worksheetId,
-                      controls: [
-                        { ..._.pick(newControl, ['controlId', 'advancedSetting']), editattrs: ['advancedSetting'] },
-                      ],
-                    }).then(res => {
-                      if (res.data) {
-                        closePopup();
-                        this.setState({
-                          tempSheetColumnWidths: {},
-                          sheetColumnWidths: this.getSheetColumnWidths(newControl),
-                        });
-                        if (_.isFunction(_.get(this, 'context.updateWorksheetControls'))) {
-                          _.get(
-                            this,
-                            'context.updateWorksheetControls',
-                          )(res.data.controls.filter(c => c.controlId === control.controlId));
+                    worksheetAjax
+                      .editWorksheetControls({
+                        worksheetId: this.props.masterData.worksheetId,
+                        controls: [
+                          { ..._.pick(newControl, ['controlId', 'advancedSetting']), editattrs: ['advancedSetting'] },
+                        ],
+                      })
+                      .then(res => {
+                        if (res.data) {
+                          closePopup();
+                          this.setState({
+                            tempSheetColumnWidths: {},
+                            sheetColumnWidths: this.getSheetColumnWidths(newControl),
+                          });
+                          if (_.isFunction(_.get(this, 'context.updateWorksheetControls'))) {
+                            _.get(
+                              this,
+                              'context.updateWorksheetControls',
+                            )(res.data.controls.filter(c => c.controlId === control.controlId));
+                          }
                         }
-                      }
-                    });
+                      });
                   }}
                   resetSehetLayout={() => {
                     this.setState({ tempSheetColumnWidths: {} });

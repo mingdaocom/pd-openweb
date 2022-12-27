@@ -7,8 +7,9 @@ import SelectUser from 'mobile/components/SelectUser';
 import AttachmentFiles, { UploadFileWrapper } from '../Discuss/AttachmentFiles';
 import discussionAjax from 'src/api/discussion';
 import './index.less';
-import { getDiscussConfig } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import { ModalWrap } from '../baseStyled';
+import _ from 'lodash';
 
 const BASE_BUTTONS = [_l('@用户'), _l('输入@')];
 const SHEET_AT_ALL = _l('@工作表全体成员');
@@ -48,7 +49,7 @@ class AddDiscuss extends Component {
     const { params } = this.props.match;
     const { appId } = params;
 
-    getDiscussConfig({ appId }).then(res => {
+    externalPortalAjax.getDiscussConfig({ appId }).then(res => {
       const {
         allowExAccountDiscuss, //允许外部用户讨论
         exAccountDiscussEnum,
@@ -203,6 +204,7 @@ class AddDiscuss extends Component {
             visible={true}
             type="user"
             appId={appId}
+            projectId={this.props.projectId}
             onSave={(members) => {
               const { value } = this.state;
               this.setState({
@@ -220,7 +222,7 @@ class AddDiscuss extends Component {
 
 export default props => {
   const { appId, worksheetId, viewId, rowId, discussionInfo } = props;
-  const { className, visible, onClose, onAdd } = props;
+  const { className, visible, onClose, onAdd ,projectId} = props;
 
   return (
     <ModalWrap
@@ -235,6 +237,7 @@ export default props => {
           match={{ params: { appId, worksheetId, viewId, rowId, discussionInfo } }}
           onAdd={onAdd}
           onClose={onClose}
+          projectId={projectId}
         />
       )}
     </ModalWrap>

@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
-import { renderCellText } from 'worksheet/components/CellControls';
-import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { SYSTOPRINT } from './config';
@@ -29,8 +29,8 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         ? ['ownerid', 'caid'].includes(item.controlId)
           ? 26
           : ['ctime', 'utime'].includes(item.controlId)
-            ? 16
-            : type
+          ? 16
+          : type
         : type,
   };
   switch (type) {
@@ -71,9 +71,9 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
     case 28:
       return value
         ? _.get(
-          _.find(getAdvanceSetting(item, 'itemnames') || [], i => i.key === `${value}`),
-          'value',
-        ) || _l('%0 级', value)
+            _.find(getAdvanceSetting(item, 'itemnames') || [], i => i.key === `${value}`),
+            'value',
+          ) || _l('%0 级', value)
         : '';
     case 29:
       if (item.advancedSetting && item.advancedSetting.showtype !== '2') {
@@ -81,7 +81,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         let records = [];
         try {
           records = JSON.parse(value);
-        } catch (err) { }
+        } catch (err) {}
         let list = (dataItem.relationControls || []).find(o => o.attribute === 1) || [];
         if (list.type && ![29, 30, dataItem.sourceControlType].includes(list.type)) {
           dataItem = { ...dataItem, sourceControlType: list.type };
@@ -123,16 +123,16 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                   <div className={cx('list', { borderTop: i >= 1 })}>
                     <div className="listText">
                       {/* 关联表卡片标题显示 */}
-                      {list.type === 38 ? renderCellText(
-                        item.controls.find(it => it.attribute === 1)
-                      ) : renderCellText({
-                        ...dataItem,
-                        type:
-                          list.type && ![29, 30, item.sourceControlType].includes(list.type)
-                            ? list.type
-                            : item.sourceControlType,
-                        value: da.name,
-                      }) || _l('未命名')}
+                      {list.type === 38
+                        ? renderCellText(item.controls.find(it => it.attribute === 1))
+                        : renderCellText({
+                            ...dataItem,
+                            type:
+                              list.type && ![29, 30, item.sourceControlType].includes(list.type)
+                                ? list.type
+                                : item.sourceControlType,
+                            value: da.name,
+                          }) || _l('未命名')}
                       {showControlsList.map(it => {
                         if (it.type === 41 || it.type === 22) {
                           //富文本|分段
@@ -182,9 +182,9 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                           File.isPicture(coverData.ext)
                             ? coverData.previewUrl.indexOf('imageView2') > -1
                               ? coverData.previewUrl.replace(
-                                /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                                'imageView2/1/w/76/h/76/q/90',
-                              )
+                                  /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+                                  'imageView2/1/w/76/h/76/q/90',
+                                )
                               : `${coverData.previewUrl}&imageView2/1/w/76/h/76/q/90`
                             : coverData.previewUrl
                         }
@@ -240,7 +240,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         let selectedKeys = [];
         try {
           selectedKeys = JSON.parse(dataItem.value);
-        } catch (err) { }
+        } catch (err) {}
         return dataItem.options.map(o => {
           let str = '';
           if (selectedKeys.includes(o.key)) {
@@ -290,9 +290,9 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
                     src={
                       pictureAttachments[index].previewUrl.indexOf('imageView2') > -1
                         ? pictureAttachments[index].previewUrl.replace(
-                          /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                          'imageView2/2/w/1200/q/90',
-                        )
+                            /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+                            'imageView2/2/w/1200/q/90',
+                          )
                         : `${pictureAttachments[index].previewUrl}&imageView2/2/w/1200/q/90`
                     }
                     alt=""
@@ -391,7 +391,7 @@ export const getControlsForPrint = (receiveControls, relations = []) => {
 };
 
 export const sysToPrintData = data => {
-  return SYSTEM_CONTROL.map(o => {
+  return SYSTEM_CONTROL_WITH_UAID.map(o => {
     return { ...o, checked: data[SYSTOPRINT[o.controlId]] };
   });
 };

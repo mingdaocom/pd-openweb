@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dropdown } from 'ming-ui';
 import { CONTROLS_NAME } from '../../../enum';
+import _ from 'lodash';
 
 export default ({ controls, sorts, updateSource }) => {
   const renderTitle = controlId => {

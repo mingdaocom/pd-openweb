@@ -8,6 +8,7 @@ import { Header, EditWidgetContent } from '../../../styled';
 import Preview from './Preview';
 import Setting from './Setting';
 import { v4 as uuidv4 } from 'uuid';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   background-color: #eee;

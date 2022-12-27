@@ -3,6 +3,7 @@ import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import OptionList from '../components/OptionList';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import _ from 'lodash';
 
 const OPTIONS_DISPLAY = [
   {

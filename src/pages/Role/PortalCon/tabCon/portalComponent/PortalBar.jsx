@@ -8,8 +8,9 @@ import cx from 'classnames';
 import { Switch } from 'antd';
 import FilterDrop from './FilterDrop';
 import * as actions from '../../redux/actions';
-import { editViewShowControls } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import SearchTelsDialog from './SearchTels';
+import _ from 'lodash';
 const Wrap = styled.div`
   .mRight14 {
     margin-right: 14px;
@@ -174,7 +175,7 @@ function PortalBar(props) {
     setColumns(getControls() || []);
   }, [controls]);
   const setShowControls = showPortalControlIds => {
-    editViewShowControls({
+    externalPortalAjax.editViewShowControls({
       appId,
       controlIds: showPortalControlIds,
     }).then(res => {

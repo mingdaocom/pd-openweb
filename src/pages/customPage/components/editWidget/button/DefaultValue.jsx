@@ -7,7 +7,8 @@ import SortColumns from 'src/pages/worksheet/components/SortColumns';
 import Input from 'src/pages/worksheet/common/CreateCustomBtn/components/Inputs';
 import sheetApi from 'src/api/worksheet';
 import { DEF_TYPES, DEF_R_TYPES } from 'src/pages/worksheet/common/CreateCustomBtn/config';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import _ from 'lodash';
 
 const AddButton = styled.div`
   color: #2196f3;
@@ -224,7 +225,7 @@ function DefaultValue(props) {
               dragable={false}
               showControls={showControls}
               columns={controls.filter(c => {
-                if (SYS.includes(c.controlId)) {
+                if (ALL_SYS.includes(c.controlId)) {
                   return false;
                 }
                 // 关联表列表

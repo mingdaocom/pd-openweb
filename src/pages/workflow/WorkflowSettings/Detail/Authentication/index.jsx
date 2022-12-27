@@ -14,6 +14,7 @@ import { APP_TYPE, METHODS_TYPE } from '../../enum';
 import cx from 'classnames';
 import styled from 'styled-components';
 import RadioGroup from 'ming-ui/components/RadioGroup2';
+import _ from 'lodash';
 
 const Tabs = styled.ul`
   border-bottom: 3px solid #f5f5f5;

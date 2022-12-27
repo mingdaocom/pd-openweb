@@ -9,6 +9,7 @@ import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/themes/prism.css';
 import { Base64 } from 'js-base64';
+import _ from 'lodash';
 
 export default class Code extends Component {
   constructor(props) {

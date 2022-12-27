@@ -9,6 +9,8 @@ import { DragSource } from 'react-dnd';
 import { findDOMNode, render } from 'react-dom';
 import DragPreview from '../dragPreview/dragPreview';
 import { formatTaskTime } from '../../../../utils/utils';
+import _ from 'lodash';
+import moment from 'moment';
 
 const ganttSource = {
   beginDrag(props, monitor, component) {

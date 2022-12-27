@@ -5,6 +5,7 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import { htmlDecodeReg } from 'src/util';
 import './printTask.less';
 import { navigateTo } from 'src/router/navigateTo';
+import _ from 'lodash';
 
 export default class PrintTask extends Component {
   constructor(props) {

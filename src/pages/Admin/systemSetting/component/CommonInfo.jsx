@@ -12,6 +12,7 @@ import AdminCommon from 'src/pages/Admin/common/common';
 import DialogSettingInviteRules from 'src/pages/Admin/structure/modules/dialogSettingInviteRules/inde.jsx';
 
 import 'src/components/uploadAttachment/uploadAttachment';
+import _ from 'lodash';
 
 export default class CommonInfo extends Component {
   constructor(props) {

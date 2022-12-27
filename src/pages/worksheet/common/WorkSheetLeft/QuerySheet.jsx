@@ -8,6 +8,7 @@ import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponen
 import sheetAjax from 'src/api/worksheet';
 import WorkSheetItem from './WorkSheetItem';
 import { groupSheetList } from '../../util';
+import _ from 'lodash';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 export default class QuerySheet extends Component {

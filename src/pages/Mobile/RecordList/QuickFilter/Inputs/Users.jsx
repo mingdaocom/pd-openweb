@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import SelectUser from 'mobile/components/SelectUser';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { Icon } from 'ming-ui';
+import _ from 'lodash';
 
 const UsersCon = styled.div`
   position: relative;

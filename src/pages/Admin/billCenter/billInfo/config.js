@@ -1,3 +1,4 @@
+import _ from 'lodash';
 const enumObj = obj => {
   _.keys(obj).forEach(key => (obj[obj[key]] = key));
   return obj;

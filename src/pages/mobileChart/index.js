@@ -7,10 +7,10 @@ import ChartContent from 'mobile/CustomPage/ChartContent';
 import { Flex, ActivityIndicator } from 'antd-mobile';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
-import 'src/common/mdcss/inStyle.css';
 import 'src/common/mdcss/basic.css';
 import 'src/common/mdcss/Themes/theme.less';
 import 'src/common/mdcss/iconfont/mdfont.css';
+import _ from 'lodash';
 
 const store = configureStore();
 

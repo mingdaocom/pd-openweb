@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { NODE_TYPE, APP_TYPE, ACTION_ID, TRIGGER_ID, CONDITION_TYPE } from './enum';
 
 /**
@@ -61,12 +62,18 @@ export const getIcons = (type, appType, actionId) => {
     case NODE_TYPE.ACTION:
       if (appType === APP_TYPE.TASK) {
         icon = 'icon-custom_assignment';
+      } else if (appType === APP_TYPE.PROCESS) {
+        icon = 'icon-parameter';
       } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.EDIT) {
         icon = 'icon-workflow_update';
       } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.ADD) {
         icon = 'icon-workflow_new';
       } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.RELATION) {
         icon = 'icon-workflow_search';
+      } else if (appType === APP_TYPE.EXTERNAL_USER && actionId === ACTION_ID.EDIT) {
+        icon = 'icon-update_information';
+      } else if (appType === APP_TYPE.EXTERNAL_USER && actionId === ACTION_ID.ADD) {
+        icon = 'icon-invited_users';
       }
       break;
     case NODE_TYPE.SEARCH:

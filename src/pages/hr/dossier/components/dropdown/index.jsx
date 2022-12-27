@@ -9,6 +9,7 @@ import { FormError } from '../lib';
 import CustomWidgetConfig from 'src/components/customWidget/src/config';
 
 import './style.less';
+import _ from 'lodash';
 
 class Dropdown extends Component {
   constructor(props) {

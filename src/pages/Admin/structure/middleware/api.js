@@ -1,14 +1,14 @@
 ﻿import { Schema, arrayOf, normalize } from 'normalizr';
 // ajax controllers
-import * as departmentController from 'src/api/department';
-import * as importUserController from 'src/api/importUser';
-import * as userController from 'src/api/user';
-import * as projectController from 'src/api/project';
-import * as jobController from 'src/api/job';
+import departmentController from 'src/api/department';
+import importUserController from 'src/api/importUser';
+import userController from 'src/api/user';
+import projectController from 'src/api/project';
 import * as REQUEST_ACTIONS from '../actions/entities';
 import * as CURRENT_ACTIONS from '../actions/current';
 import * as SEARCH_ACTIONS from '../actions/search';
 import Config from '../../config';
+import _ from 'lodash';
 let promise = null;
 let prePromiseType = null;
 const promiseList = [

@@ -4,6 +4,7 @@ import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import update from 'immutability-helper';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import _ from 'lodash';
 
 export default class DateInput extends Component {
   static propTypes = {

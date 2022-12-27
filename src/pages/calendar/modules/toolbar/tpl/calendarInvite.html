@@ -92,7 +92,7 @@
                 </div>
             </div>
             {{?}}
-            <div class="operator" data-calendarid="{{!calendar.id}}" data-recurtime="{{=calendar.recurTime ? moment(calendar.recurTime).toISOString() : ''}}">
+            <div class="operator" data-calendarid="{{!calendar.id}}" data-recurtime="{{=calendar.recurTime ? it.moment(calendar.recurTime).toISOString() : ''}}">
                 <span class="btnBootstrap btnBootstrapPadding boderRadAll_3 enterInvite">
                     {{= _l('确认')}}</span> <span class="btnBootstrap btnBootstrapPadding boderRadAll_3 mLeft10 refuseInvite">{{= _l('不能参加')}}</span>
             </div>

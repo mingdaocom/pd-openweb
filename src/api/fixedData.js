@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 加载省份信息
   * @param {Object} args 请求参数

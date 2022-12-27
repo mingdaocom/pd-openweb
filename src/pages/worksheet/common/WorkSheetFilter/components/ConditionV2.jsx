@@ -79,7 +79,7 @@ export default class Condition extends Component {
     const { type = '', controlType = '' } = condition;
     // 附件 检查框 地区 地区 地区 为空 不为空  在范围内 不在范围内没有动态筛选
     return (
-      from === 'relateSheet' &&
+      _.includes(['rule', 'relateSheet'], from) &&
       !(!_.includes([27], condition.controlType) && _.includes(listType, type)) &&
       !_.includes(listControlType, controlType)
     );
@@ -119,6 +119,7 @@ export default class Condition extends Component {
       isSheetFieldError,
       conditionItemForDynamicStyle,
       filterResigned = true,
+      conditionError,
     } = this.props;
     let conditionFilterTypes = getFilterTypes(control, condition.type, from);
     if (isRules && control) {
@@ -155,7 +156,7 @@ export default class Condition extends Component {
           ),
       );
     }
-    const isDynamicStyle = from === 'relateSheet'; // 动态值选择的特定样式
+    const isDynamicStyle = _.includes(['relateSheet', 'rule'], from); // 动态值选择的特定样式
     const isDynamicValue =
       !(!_.includes([27], condition.controlType) && _.includes(listType, condition.type)) &&
       !_.includes(listControlType, condition.controlType) &&
@@ -172,7 +173,9 @@ export default class Condition extends Component {
         >
           {control ? (
             <React.Fragment>
-              <i className={`controlIcon icon icon-${getIconByType(control.type)}`}></i>
+              <i
+                className={`controlIcon icon icon-${getIconByType(control.originType === 37 ? 37 : control.type)}`}
+              ></i>
               <span className={cx('columnName ellipsis', { errorName: isSheetFieldError })} title={control.controlName}>
                 {isSheetFieldError ? _l('%0(无效数据)', control.controlName) : control.controlName}
               </span>
@@ -237,6 +240,7 @@ export default class Condition extends Component {
                   () => {
                     onChange({
                       isDynamicsource: value === 1 ? false : true,
+                      ...(value === 1 ? { dynamicSource: [] } : {}), // 切换固定值时清空字段值
                     });
                   },
                 );
@@ -244,7 +248,7 @@ export default class Condition extends Component {
             />
           )}
           {control ? (
-            <div className="conditionValue">
+            <div className={cx('conditionValue', conditionError)}>
               {renderConditionValue(conditionGroupType, {
                 ...condition,
                 dateRange: from === 'subTotal' ? 18 : condition.dateRange,

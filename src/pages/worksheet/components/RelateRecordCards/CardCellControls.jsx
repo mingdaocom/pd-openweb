@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import CellControl from 'worksheet/components/CellControls';
 import { checkCellIsEmpty } from 'worksheet/util';
+import _ from 'lodash';
 
 const Con = styled.div``;
 
@@ -39,14 +40,14 @@ const Control = styled.div`
       overflow: hidden;
       width: 100%;
     }
-    * {
+    *:not(.icon) {
       font-size: 12px !important;
     }
   }
 `;
 
 export default function CardCellControls(props) {
-  const { width, controls, data, viewId } = props;
+  const { width, controls, data, viewId, isCharge } = props;
   let showColNum = 1;
   if (width > 950 && controls.length > 6) {
     showColNum = 3;
@@ -73,6 +74,7 @@ export default function CardCellControls(props) {
                     from={4}
                     viewId={viewId}
                     disableDownload
+                    isCharge={isCharge}
                   />
                 ) : (
                   <Empty />

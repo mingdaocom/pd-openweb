@@ -3,6 +3,7 @@ import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import { handleAdvancedSettingChange } from '../../util/setting';
 import Components from '../components';
+import _ from 'lodash';
 
 const DISPLAY_OPTIONS = [
   {

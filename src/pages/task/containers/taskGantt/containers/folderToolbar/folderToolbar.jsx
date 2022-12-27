@@ -9,6 +9,7 @@ import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponen
 import GanttDialog from '../../component/ganttDialog';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import { changeTaskStatus, changeView, changeFilterWeekend, changeSubTaskLevel, getTimeAxisSource, updateDataSource } from '../../redux/actions';
+import _ from 'lodash';
 
 class FolderToolbar extends Component {
   constructor(props) {

@@ -8,9 +8,11 @@ import 'src/components/quickSelectUser/quickSelectUser';
 import UserHead from 'src/pages/feed/components/userHead';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import { isKeyBoardInputChar } from 'worksheet/util';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import _ from 'lodash';
 
 // enumDefault 单选 0 多选 1
 export default class User extends React.Component {
@@ -76,11 +78,43 @@ export default class User extends React.Component {
       </div>
     );
   }
-
   @autobind
-  handleChange() {
-    const { cell, updateCell } = this.props;
+  handleTableKeyDown(e) {
+    const { editable, updateEditingStatus } = this.props;
+    if (!editable) {
+      return;
+    }
+    switch (e.key) {
+      case 'Escape':
+        updateEditingStatus(false);
+        break;
+      case 'Backspace':
+        this.deleteLastUser(false);
+        break;
+      case 'Enter':
+        if (!this.isPicking) {
+          this.pickUser();
+        }
+        break;
+      default:
+        if (!e.key || !isKeyBoardInputChar(e.key)) {
+          return;
+        }
+        updateEditingStatus(true);
+        if (!(e.target.tagName.toLowerCase() === 'input' && e.target.className === 'searchInput')) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+        break;
+    }
+  }
+  @autobind
+  handleChange(forceUpdate) {
+    const { isSubList, cell, updateCell } = this.props;
     const { value } = this.state;
+    if (isSubList && !forceUpdate) {
+      return;
+    }
     if (cell.controlId === 'ownerid') {
       updateCell({
         value: value[0] && value[0].accountId,
@@ -94,13 +128,14 @@ export default class User extends React.Component {
 
   @autobind
   pickUser(event) {
-    const { worksheetId, cell, projectId, updateEditingStatus, appId } = this.props;
+    const { isSubList, worksheetId, cell, projectId, updateEditingStatus, appId } = this.props;
     const { value } = this.state;
     const target = (this.cell && this.cell.current) || (event || {}).target;
     const tabType = getTabTypeBySelectUser(cell);
-    if (!target) {
+    if (!target || this.isPicking) {
       return;
     }
+    this.isPicking = true;
     if (
       tabType === 1 &&
       md.global.Account.isPortal &&
@@ -110,15 +145,16 @@ export default class User extends React.Component {
       return;
     }
     const filterAccountIds = value.map(item => item.accountId);
-    const callback = data => {
+    const callback = (data, forceUpdate) => {
       if (cell.enumDefault === 0) {
         // 单选
         this.setState(
           {
             value: data,
+            valueChanged: true,
           },
           () => {
-            this.handleChange();
+            this.handleChange(forceUpdate);
             updateEditingStatus(false);
           },
         );
@@ -130,10 +166,12 @@ export default class User extends React.Component {
         this.setState(
           {
             value: newData,
+            valueChanged: true,
           },
-          this.handleChange,
+          () => this.handleChange(forceUpdate),
         );
       }
+      this.isPicking = false;
     };
     $(target).quickSelectUser({
       isRangeData: !!(cell.advancedSetting && cell.advancedSetting.userrange),
@@ -165,9 +203,15 @@ export default class User extends React.Component {
         unique: cell.enumDefault === 0,
         projectId: projectId,
         filterAccountIds,
-        callback,
+        callback: selected => callback(selected, true),
       },
       selectCb: callback,
+      onClose: () => {
+        this.isPicking = false;
+        if (isSubList && this.state.valueChanged) {
+          this.handleChange(true);
+        }
+      },
     });
   }
 
@@ -195,6 +239,19 @@ export default class User extends React.Component {
     );
   }
 
+  @autobind
+  deleteLastUser() {
+    const { value } = this.state;
+    if (value.length) {
+      this.setState(
+        {
+          value: value.slice(0, -1),
+        },
+        this.handleChange,
+      );
+    }
+  }
+
   render() {
     const { className, singleLine, style, rowHeight, popupContainer, cell, editable, isediting, updateEditingStatus } =
       this.props;
@@ -215,7 +272,7 @@ export default class User extends React.Component {
         >
           {value.map((user, index) => this.renderCellUser(user, index))}
           {!single && (
-            <span className="addBtn" onClick={this.pickUser}>
+            <span className="addUserBtn" onClick={this.pickUser}>
               <i className="icon icon-add Gray_75 Font14"></i>
             </span>
           )}

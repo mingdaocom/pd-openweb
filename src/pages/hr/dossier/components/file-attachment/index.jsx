@@ -8,6 +8,7 @@ import Icon from 'ming-ui/components/Icon';
 import Button from 'ming-ui/components/Button';
 import cx from 'classnames';
 import './style.less';
+import _ from 'lodash';
 
 class FileAttachment extends Component {
   constructor(props) {

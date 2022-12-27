@@ -1,5 +1,5 @@
-import 'src/components/modernizr/modernizr';
-
+import moment from 'moment';
+import _ from 'lodash';
 export const WEEKDAYS = _.map(new Array(7), (value, index) => {
   return moment()
     .day(index)
@@ -38,12 +38,3 @@ export const MEMBER_STATUS = {
   CONFIRMED: 1,
   REFUSED: 2,
 };
-
-const transEndEventNames = {
-  WebkitTransition: 'webkitTransitionEnd',
-  MozTransition: 'transitionend',
-  OTransition: 'oTransitionEnd',
-  transition: 'transitionend',
-};
-
-export const transEndEventName = transEndEventNames[Modernizr.prefixed('transition')];

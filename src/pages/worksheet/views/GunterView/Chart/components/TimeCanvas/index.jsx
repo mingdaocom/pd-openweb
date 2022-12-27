@@ -2,6 +2,7 @@ import React, { Component, createRef } from 'react';
 import cx from 'classnames';
 import { connect } from 'react-redux';
 import { isWeekEndDay } from 'worksheet/views/GunterView/util';
+import _ from 'lodash';
 
 @connect(
   state => ({

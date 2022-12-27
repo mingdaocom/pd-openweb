@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 设置引导
   * @param {Object} args 请求参数

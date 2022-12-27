@@ -13,6 +13,7 @@ import {
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getRequest } from 'src/util';
 import './index.less';
+import _ from 'lodash';
 
 const pageSize = 20;
 

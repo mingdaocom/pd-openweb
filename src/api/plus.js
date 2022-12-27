@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取授权
   * @param {Object} args 请求参数

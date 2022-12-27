@@ -6,6 +6,7 @@ import { Icon } from 'ming-ui';
 import { statusList } from './util';
 import SvgIcon from 'src/components/SvgIcon';
 import LoginContainer from './LoginContainer';
+import { FixedContent } from 'src/pages/PortalAccount/style';
 
 const Wrap = styled.div`
   .Hide {
@@ -145,6 +146,7 @@ export default function Container(props) {
     appLogoUrl = 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg',
     isErrUrl,
     noticeScope = {},
+    fixInfo = {},
   } = props;
 
   const getWaring = status => {
@@ -167,8 +169,6 @@ export default function Container(props) {
         return _l('你访问的链接错误!');
       case 10:
         return _l('当前应用不存在');
-      case 14:
-        return _l('当前应用维护中');
     }
   };
 
@@ -180,8 +180,12 @@ export default function Container(props) {
         isCenterCon: pageMode !== 6,
         isR: pageMode === 6 && !browserIsMobile(),
         isM: browserIsMobile(),
-        isTipCon: statusList.includes(status),
+        isTipCon: statusList.filter(o => o !== 14).includes(status),
       })}
+      style={{
+        maxHeight: pageMode === 3 && [14].includes(status) ? document.documentElement.clientHeight - 64 : 'auto',
+        overflow: pageMode === 3 && [14].includes(status) ? 'auto' : 'initial',
+      }}
     >
       <div>
         {logoImageUrl ? (
@@ -203,7 +207,9 @@ export default function Container(props) {
             </div>
             <p className="txtConsole">{_l('注册成功')}</p>
             <p className="txtConsole Font15 mTop6">{_l('请耐心等待运营方审核')}</p>
-            {noticeScope.exAccountSmsNotice && <p className="txtConsole Font15">{_l('会通过短信/邮件告知您审核结果')}</p>}
+            {noticeScope.exAccountSmsNotice && (
+              <p className="txtConsole Font15">{_l('会通过短信/邮件告知您审核结果')}</p>
+            )}
           </div>
         ) : status === 4 ? (
           <div className="tipConBox" style={tipStyle}>
@@ -212,13 +218,24 @@ export default function Container(props) {
             </div>
             <p className="txtConsole">{_l('审核未通过')}</p>
           </div>
-        ) : [2, 10, 11, 12, 13, 14, 10000, 20000].includes(status) ? (
+        ) : [2, 10, 11, 12, 13, 10000, 20000].includes(status) ? (
           <div className="tipConBox" style={tipStyle}>
             <div className="txtIcon">
               <Icon type="knowledge-message" className="Red" />
             </div>
             <p className="txtConsole">{getWaring(status)}</p>
           </div>
+        ) : [14].includes(status) ? (
+          <FixedContent>
+            <div className="iconInfo mBottom25">
+              <Icon className="Font48" icon="setting" style={{ color: '#fd7558' }} />
+            </div>
+            <div className="Font18 mBottom20 fixeding">{_l('应用维护中...')}</div>
+            <div className="fixedInfo mBottom20">
+              {_l('该应用被%0设置为维护中状态,暂停访问', (fixInfo.fixAccount || {}).fullName || '')}
+            </div>
+            <div className="fixRemark">{fixInfo.fixRemark}</div>
+          </FixedContent>
         ) : (
           <div
             className="messageConBox"

@@ -4,9 +4,10 @@ import DialogSelectGroups from 'src/components/dialogSelectDept';
 import cx from 'classnames';
 import { Tooltip } from 'ming-ui';
 import SelectUser from 'mobile/components/SelectUser';
-import { getDepartmentFullNameByIds } from 'src/api/department';
+import departmentAjax from 'src/api/department';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -86,7 +87,7 @@ export default class Widgets extends Component {
               mouseEnterDelay={0.6}
               text={() =>
                 new Promise(resolve =>
-                  getDepartmentFullNameByIds({
+                  departmentAjax.getDepartmentFullNameByIds({
                     projectId,
                     departmentIds: [item.departmentId],
                   }).then(res => {

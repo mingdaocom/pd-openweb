@@ -56,6 +56,7 @@ export const SYSTOPRINT = {
   caid: 'createAccountChecked',
   ctime: 'createTimeChecked',
   utime: 'updateTimeChecked',
+  uaid: 'updateAccountChecked',
 };
 
 export const SYSTOPRINTTXT = {
@@ -63,6 +64,24 @@ export const SYSTOPRINTTXT = {
   createAccount: _l('创建者：'),
   createTime: _l('创建时间：'),
   updateTime: _l('最近修改时间：'),
+  updateAccount: _l('最近修改人：')
 };
 
 export const UNPRINTCONTROL = [43]; //不支持打印的type 文本识别 43
+
+//打印不支持的系统字段
+export const FILTER_SYS = [
+  'rowid',
+  // 'ownerid',
+  // 'caid',
+  // 'ctime',
+  // 'utime',
+  'uaid',
+  'wfname',
+  'wfcuaids',
+  'wfcaid',
+  'wfctime',
+  'wfrtime',
+  'wfftime',
+  'wfstatus',
+];

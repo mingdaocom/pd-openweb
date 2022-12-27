@@ -9,8 +9,8 @@ import { addTask } from 'src/pages/task/redux/actions';
 import { formatTaskTime } from 'src/pages/task/utils/utils';
 import 'src/components/mdBusinessCard/mdBusinessCard';
 import './css/createTask.css';
-var ajaxRequest = require('src/api/taskCenter');
-var calendarAjaxRequest = require('src/api/calendar');
+import ajaxRequest from 'src/api/taskCenter';
+import calendarAjaxRequest from 'src/api/calendar';
 import { expireDialogAsync } from 'src/components/common/function';
 import filterXss from 'xss';
 import 'src/components/quickSelectUser/quickSelectUser';
@@ -21,6 +21,7 @@ import 'src/components/mdDialog/dialog';
 import 'src/components/select/select';
 import 'src/components/autoTextarea/autoTextarea';
 import '@mdfe/jquery-plupload';
+import moment from 'moment';
 
 const commonProps = {
   timePicker: true,
@@ -153,11 +154,20 @@ $.extend(CreateTask.prototype, {
       settings.ProjectID = '';
     }
 
+    settings.companyName = _l('个人');
+    $.map(md.global.Account.projects, function(project, i) {
+      if (project.projectId === settings.ProjectID) {
+        settings.companyName = project.companyName;
+        return;
+      }
+    });
+
     // 弹出层参数
     var dialogOpts = {
       dialogBoxID: settings.frameid,
       container: {
         header: _l('创建任务'),
+        content: doT.template(taskHtml)(settings),
         yesText: '',
         noText: '',
       },
@@ -176,16 +186,6 @@ $.extend(CreateTask.prototype, {
 
     // 创建弹出层
     settings.dialog = $.DialogLayer(dialogOpts);
-
-    settings.companyName = _l('个人');
-    $.map(md.global.Account.projects, function(project, i) {
-      if (project.projectId === settings.ProjectID) {
-        settings.companyName = project.companyName;
-        return;
-      }
-    });
-    settings.dialog.content(doT.template(taskHtml)(settings));
-
     settings.dialog.dialogCenter();
   },
 

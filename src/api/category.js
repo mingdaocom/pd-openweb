@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取用户最常使用标签
   * @param {Object} args 请求参数

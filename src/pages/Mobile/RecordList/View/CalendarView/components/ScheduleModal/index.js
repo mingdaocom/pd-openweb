@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import './index.less';
+import moment from 'moment';
 
 let tabList = [
   { key: 'eventAll', txt: _l('全部') },

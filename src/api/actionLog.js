@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取登录日志列表
   * @param {Object} args 请求参数
@@ -16,5 +16,16 @@ module.exports = {
    getActionLogs: function (args, options = {}) {
      
      return $.api('ActionLog', 'GetActionLogs', args, options);
+   },
+  /**
+  * 获取登录设备列表
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAccountDevices: function (args, options = {}) {
+     
+     return $.api('ActionLog', 'GetAccountDevices', args, options);
    },
 };

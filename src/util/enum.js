@@ -31,6 +31,8 @@ export const LIGHT_COLOR = [
   '#CDA3F8',
   '#B3BCEA',
   '#BDBDBD',
+  '#E8E8E8',
+  '#E5F1FE',
 ];
 
 export const PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----

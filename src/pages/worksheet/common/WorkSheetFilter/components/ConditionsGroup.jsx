@@ -8,6 +8,7 @@ import { getTypeKey } from '../util';
 import { CONTROL_FILTER_WHITELIST, FILTER_RELATION_TYPE } from '../enum';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import Condition from './ConditionV2';
+import _ from 'lodash';
 
 const Con = styled.div`
   .conditionItem {
@@ -35,8 +36,8 @@ const Con = styled.div`
       }
       .columnName {
         display: inline-block;
-        max-width: 91px;
         font-weight: bold;
+        max-width: calc(100% - 200px);
       }
       .relation {
         margin-left: 14px;
@@ -64,7 +65,7 @@ const Con = styled.div`
         }
       }
       &.isbool {
-        padding-top: 4px;
+        line-height: 24px;
       }
     }
     .conditionItemContent {
@@ -131,7 +132,7 @@ const ConditionHeader = styled.div`
   width: 44px;
   .text {
     display: inline-block;
-    margin: 6px 0 0 6px;
+    margin: 2px 0 0 6px;
   }
   .Dropdown .Dropdown--input {
     padding: 2px 6px !important;
@@ -170,6 +171,8 @@ export default function ConditionsGroup(props) {
     onDelete,
     onUpdateGroup,
     filterResigned = true,
+    filterAddConditionControls = () => {},
+    filterError = [],
   } = props;
   return (
     <Con className={cx({ isSingleFilter })}>
@@ -222,6 +225,7 @@ export default function ConditionsGroup(props) {
               control={control}
               onDelete={() => onDelete(i)}
               onChange={value => onChange(value, i)}
+              conditionError={filterError[i] || ''}
               filterResigned={filterResigned}
               {...conditionProps}
             />
@@ -232,7 +236,7 @@ export default function ConditionsGroup(props) {
         <ConditionCon isSingleFilter={isSingleFilter}>
           <ConditionHeader />
           <div className="flex">
-            <AddCondition columns={filterOnlyShowField(controls)} onAdd={onAdd}>
+            <AddCondition columns={filterAddConditionControls(controls)} onAdd={onAdd}>
               <AddButton
                 className="mRight30 ThemeHoverColor3"
                 icon="add"

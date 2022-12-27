@@ -1,6 +1,6 @@
 import moment from 'moment';
-import { getAccessToken } from 'src/api/plus';
-import { checkFieldUnique } from 'src/api/worksheet';
+import plusAjax from 'src/api/plus';
+import worksheetAjax from 'src/api/worksheet';
 import { ACCOUNT_FIELD } from './constants/';
 
 export const setLicense = (license) => {
@@ -121,7 +121,7 @@ export const scrollEnd = fn => (e) => {
 
 export const changeProject = projectId =>
   new Promise((resolve, reject) => {
-    getAccessToken({ projectId })
+    plusAjax.getAccessToken({ projectId })
       .then((data) => {
         if (data.accessToken && data.projectId) {
           safeLocalStorageSetItem('plus_accessToken', data.accessToken);
@@ -175,7 +175,7 @@ export function tofix(value) {
 }
 
 export function checkControlUnique(worksheetId, controlId, controlType, controlValue) {
-  return checkFieldUnique({
+  return worksheetAjax.checkFieldUnique({
     worksheetId,
     controlId,
     controlType,

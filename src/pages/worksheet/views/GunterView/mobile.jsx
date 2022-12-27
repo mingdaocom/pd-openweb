@@ -8,6 +8,7 @@ import ViewErrorPage from 'mobile/RecordList/View/components/ViewErrorPage';
 import Gunter from './index.jsx';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import { getAdvanceSetting } from 'src/util';
+import _ from 'lodash';
 
 const data = getRequest();
 

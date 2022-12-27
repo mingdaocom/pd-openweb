@@ -9,6 +9,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import cx from 'classnames';
 
 import EditRoleDialog from '../createEditRole';
+import _ from 'lodash';
 class RoleItem extends React.Component {
   constructor() {
     super();

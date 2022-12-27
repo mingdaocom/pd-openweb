@@ -5,6 +5,7 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 
 import ListNull from './ListNull';
 import ContactItem from './ContactItem';
+import _ from 'lodash';
 
 export default class ContactList extends React.Component {
   constructor() {

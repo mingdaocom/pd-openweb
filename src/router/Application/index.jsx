@@ -11,6 +11,7 @@ import { getIds } from '../../pages/PageHeader/util';
 import { connect } from 'react-redux';
 import { setAppStatus } from '../../pages/PageHeader/redux/action';
 import { ADVANCE_AUTHORITY } from 'src/pages/PageHeader/AppPkgHeader/config';
+import _ from 'lodash';
 
 @connect(state => ({ appPkg: state.appPkg }), dispatch => ({ setAppStatus: status => dispatch(setAppStatus(status)) }))
 export default class Application extends Component {

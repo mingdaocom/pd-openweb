@@ -9,6 +9,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import { importDataFromExcel } from '../WorksheetBody/ImportDataFromExcel';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import _ from 'lodash';
 
 export default function SheetMoreOperate(props) {
   const { appId, groupId, viewId, isCharge, worksheetInfo, controls, sheetSwitchPermit } = props;

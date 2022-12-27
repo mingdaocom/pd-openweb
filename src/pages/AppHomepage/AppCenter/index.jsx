@@ -5,6 +5,7 @@ import { emitter, getProject } from 'src/util';
 import AppGroups from './AppGroups';
 import SideNav from './SideNav';
 import AppLib from 'src/pages/AppHomepage/AppLib';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

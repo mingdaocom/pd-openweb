@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import TabBar from '../components/TabBar';
 import './index.less';
 import AppWarehouse from 'src/pages/AppHomepage/AppLib';
+import _ from 'lodash';
 @withRouter
 export default class AddBox extends Component {
   constructor(props) {

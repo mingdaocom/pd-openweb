@@ -4,6 +4,7 @@ import { dealRequestControls } from '../../../util/data';
 import { Dialog, Support, Icon, Tooltip, ScrollView, Dropdown } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { getMapControls } from '../DynamicDefaultValue/util';
+import { SYS_CONTROLS, SYS } from 'src/pages/widgetConfig/config/widget';
 import cx from 'classnames';
 import './DialogMapping.less';
 import _ from 'lodash';
@@ -76,14 +77,18 @@ export default function DialogMapping(props) {
 
   const getDropData = (item = {}, showValue) => {
     const parentMappingItem = _.find(mappingData, i => i.id === item.dataSource);
-    const filterSelf = allControls.filter(i => i.controlId !== data.controlId);
+    const filterSYS = SYS.concat(SYS_CONTROLS);
+    const filterSelf = allControls.filter(i => i.controlId !== data.controlId || !_.includes(filterSYS, i.controlId));
     const filterMappingData = mappingData.filter(i => (i.subid || i.cid) !== showValue);
     let filterData = [];
 
     // 如果是子表
     if (parentMappingItem && parentMappingItem.type === 10000008) {
       const parentControl = _.find(filterSelf, i => i.controlId === parentMappingItem.cid) || {};
-      filterData = getMapControls(item, parentControl.relationControls).filter(
+      filterData = getMapControls(
+        item,
+        parentControl.relationControls.filter(i => !_.includes(filterSYS, i.controlId)),
+      ).filter(
         i =>
           !_.includes(
             filterMappingData.map(i => i.subid),

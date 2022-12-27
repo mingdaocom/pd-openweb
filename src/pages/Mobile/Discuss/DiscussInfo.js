@@ -11,8 +11,9 @@ import worksheetAjax from 'src/api/worksheet';
 import './index.less';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import { getDiscussConfig } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import AddDiscuss from 'mobile/AddDiscuss';
+import _ from 'lodash';
 
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 
@@ -81,7 +82,7 @@ class Discuss extends Component {
     const { params } = this.props.match;
     const { appId } = params;
 
-    getDiscussConfig({ appId }).then(res => {
+    externalPortalAjax.getDiscussConfig({ appId }).then(res => {
       const {
         allowExAccountDiscuss, //允许外部用户讨论
         exAccountDiscussEnum,
@@ -126,6 +127,7 @@ class Discuss extends Component {
     if (md.global.Account.isPortal && loading) {
       return <LoadDiv />;
     }
+
     return (
       <div className="discussTabs">
         {isModal && <Icon icon="closeelement-bg-circle" className="close Font22 Gray_9e" onClick={onClose} />}
@@ -212,6 +214,7 @@ class Discuss extends Component {
               discussionInfo: {},
             });
           }}
+          projectId={this.props.projectId}
         />
       </div>
     );

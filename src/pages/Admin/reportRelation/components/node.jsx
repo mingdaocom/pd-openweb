@@ -18,6 +18,7 @@ import { Icon, LoadDiv, Dialog } from 'ming-ui';
 import Item from './item';
 import NoData from './noData';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const LoadWrap = styled.div`
   width: 100%;

@@ -3,6 +3,7 @@ import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
 import AssignValue from '../OptionList/AssignValue';
 import { handleAdvancedSettingChange } from '../../../util/setting';
+import _ from 'lodash';
 
 export default function DropConfig(props) {
   const { data, onChange, fromPortal } = props;

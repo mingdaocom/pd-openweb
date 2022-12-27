@@ -2,6 +2,7 @@
 import { Dialog } from 'ming-ui';
 import './index.less';
 import { getRandomString } from 'src/util';
+import _ from 'lodash';
 
 export default (callback = () => {}, onCancel = () => {}) => {
   const randstr = getRandomString(16);

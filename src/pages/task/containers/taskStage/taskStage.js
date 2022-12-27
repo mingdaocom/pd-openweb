@@ -19,6 +19,7 @@ import addNewStageTask from './tpl/addNewStageTask.html';
 import 'src/components/mdDialog/dialog';
 import { expireDialogAsync } from 'src/components/common/function';
 import TaskDetail from '../taskDetail/taskDetail';
+import _ from 'lodash';
 
 const taskStageSettings = {
   timer: null, // 计时器

@@ -10,6 +10,7 @@ import DeleDialog from '../components/DeleAutoIdDialog';
 import cx from 'classnames';
 const confirm = Dialog.confirm;
 import { listConfigStr, listPermit, batch } from '../config';
+import _ from 'lodash';
 
 const tipStr = {
   10: _l('在工作表右上方显示的创建记录按钮。关闭后，则无法直接在工作表中创建记录，只能通过关联记录等其他位置创建'),

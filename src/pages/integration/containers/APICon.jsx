@@ -6,13 +6,14 @@ import { Switch } from 'antd';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { TableWrap, LogoWrap } from './style';
 import { PageSize, publishStatus2Text, formatDate } from '../config';
-import { getApiList, deleteApi, getApiRelationList } from 'src/pages/workflow/api/packageVersion';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import APISetting from 'src/pages/integration/containers/APIWrap/index.jsx';
 import SvgIcon from 'src/components/SvgIcon';
-import { publish, copyProcess } from 'src/pages/workflow/api/process.js';
+import processAjax from 'src/pages/workflow/api/process.js';
 import cx from 'classnames';
 import { Link } from 'react-router-dom';
 import ConnectAvator from '../components/ConnectAvator';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   background: #fff;
@@ -168,7 +169,7 @@ function APICon(props) {
     });
   const fetchData = () => {
     setState({ loading: true });
-    getApiList(
+    packageVersionAjax.getApiList(
       {
         companyId: props.currentProjectId,
         types: [1, 2], //（包括安装的和自定义添加的）
@@ -202,7 +203,7 @@ function APICon(props) {
       return;
     }
     setState({ publishing: true });
-    publish({ isPublish: !item.enabled, processId: item.id }, { isIntegration: true }).then(publishData => {
+    processAjax.publish({ isPublish: !item.enabled, processId: item.id }, { isIntegration: true }).then(publishData => {
       const { isPublish } = publishData;
       if (isPublish) {
         let data = {};
@@ -238,7 +239,7 @@ function APICon(props) {
       // description: _l('将复制目标工作流的所有节点和配置'),
       okText: _l('复制'),
       onOk: () => {
-        copyProcess({ processId: item.id, name: _l('-复制') }, { isIntegration: true }).then(res => {
+        processAjax.copyProcess({ processId: item.id, name: _l('-复制') }, { isIntegration: true }).then(res => {
           if (res) {
             setState({ keywords: '', pageIndex: 1, hasOnchange: hasOnchange + 1 });
           }
@@ -251,7 +252,7 @@ function APICon(props) {
    * 删除api
    */
   const onDel = async item => {
-    const cite = await getApiRelationList(
+    const cite = await packageVersionAjax.getApiRelationList(
       {
         id: item.id,
         isPublic: true,
@@ -288,7 +289,7 @@ function APICon(props) {
       ),
       buttonType: 'danger',
       onOk: () => {
-        deleteApi({ id: item.id }, { isIntegration: true }).then(res => {
+        packageVersionAjax.deleteApi({ id: item.id }, { isIntegration: true }).then(res => {
           if (res) {
             setState({
               list: list.filter(o => o.id !== item.id),

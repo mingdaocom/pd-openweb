@@ -3,6 +3,7 @@ export const FROM = {
   LAND: 2,
   RELATE_WORKSHEET: 3,
   CARD: 4,
+  DRAFT: 21,
 };
 
 export const RELATION_TYPE_NAME = {

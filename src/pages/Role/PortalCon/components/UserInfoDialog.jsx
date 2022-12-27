@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Icon, Dropdown, Dialog } from 'ming-ui';
 import CustomFields from 'src/components/newCustomFields';
-// import { getDetail } from 'src/api/externalPortal';
 
 import cx from 'classnames';
 const UserInfoDialogWrap = styled.div`

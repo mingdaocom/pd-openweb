@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import { bool, func, number, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -8,6 +8,7 @@ import { Steps } from 'ming-ui';
 import cx from 'classnames';
 import { FROM } from './enum';
 import { isLightColor } from 'src/util';
+import _ from 'lodash';
 
 function getOptionStyle(option, cell) {
   return cell.enumDefault2 === 1 && option.color
@@ -23,7 +24,7 @@ const ClickAway = createDecoratedComponent(withClickAway);
 const Con = styled.div`
   padding: 7px 6px !important;
   &:hover {
-    padding-right: 34px;
+    ${({ tableType }) => (tableType !== 'classic' ? 'padding-right: 34px;' : '')}
     .OperateIcon {
       display: inline-block;
     }
@@ -48,8 +49,9 @@ const OperateIcon = styled.div`
   cursor: pointer;
 `;
 
-export default function OptionsSteps(props) {
+function OptionsSteps(props, ref) {
   const {
+    tableType,
     className,
     style,
     from,
@@ -65,6 +67,26 @@ export default function OptionsSteps(props) {
     updateCell,
   } = props;
   const { options, enumDefault2, value } = cell;
+
+  useImperativeHandle(ref, () => ({
+    handleTableKeyDown(e) {
+      const selectedIndex = _.findIndex(options, { key: safeParse(value)[0] });
+      if (e.key === 'Escape') {
+        updateEditingStatus(false);
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        let nextIndex = selectedIndex + (e.key === 'ArrowUp' ? -1 : 1);
+        if (nextIndex < 0) {
+          nextIndex = 0;
+        }
+        if (nextIndex > options.length - 1) {
+          nextIndex = options.length - 1;
+        }
+        if (options[nextIndex]) {
+          updateCell({ value: JSON.stringify([options[nextIndex].key]) });
+        }
+      }
+    },
+  }));
 
   if (from === FROM.CARD || mode === 'mobileSub') {
     const option = _.find(options, op => op.key === JSON.parse(value || '[]')[0]) || {};
@@ -82,7 +104,7 @@ export default function OptionsSteps(props) {
 
   const sliderComp = (
     <Steps
-      tipDirection={rowIndex === 1 ? 'bottom' : undefined}
+      tipDirection={rowIndex === 0 ? 'bottom' : undefined}
       disabled={!editable || !isediting}
       showSelected={!isediting && rowHeight < 50}
       showTip={isediting}
@@ -123,12 +145,13 @@ export default function OptionsSteps(props) {
       className={cx(className, 'cellControl flexRow', {
         canedit: editable,
       })}
+      tableType={tableType}
       style={style}
       onClick={onClick}
     >
       <div className="flex">{sliderComp}</div>
       {editable && (
-        <OperateIcon className="OperateIcon">
+        <OperateIcon className="editIcon OperateIcon">
           <i className="ThemeHoverColor3 icon icon-edit" onClick={() => updateEditingStatus(true)} />
         </OperateIcon>
       )}
@@ -148,3 +171,5 @@ OptionsSteps.propTypes = {
   updateEditingStatus: func,
   updateCell: func,
 };
+
+export default forwardRef(OptionsSteps);

@@ -7,8 +7,7 @@ import * as ajax from '../../utils/ajax';
 import * as socket from '../../utils/socket';
 import Constant from '../../utils/constant';
 import ScrollView from 'ming-ui/components/ScrollView';
-
-import { getGroupUsers } from 'src/api/group';
+import groupAjax from 'src/api/group';
 
 export default class At extends Component {
   constructor(props) {
@@ -23,7 +22,7 @@ export default class At extends Component {
   }
   componentDidMount() {
     const { session } = this.props;
-    getGroupUsers({
+    groupAjax.getGroupUsers({
       groupId: session.id,
       pageIndex: 1,
       pageSize: 20,

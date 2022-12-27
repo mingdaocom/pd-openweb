@@ -7,8 +7,9 @@ import * as actions from '../../redux/roleManage/action';
 import RoleUserList from './RoleUserList';
 import dialogUserBoard from '../../structure/modules/dialogUserBoard';
 import 'src/components/dialogSelectUser/dialogSelectUser';
-import { addOrganizeUsers, deleteOrganizeUsers } from 'src/api/organize.js';
+import organizeAjax from 'src/api/organize.js';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const PAGE_SIZE = 50;
 
@@ -31,7 +32,7 @@ class RoleManageContent extends Component {
       dataRange: 2,
       callback: accountIds => {
         //添加到职位
-        addOrganizeUsers({
+        organizeAjax.addOrganizeUsers({
           projectId,
           organizeId: currentRole.organizeId,
           accountIds: _.map(accountIds, user => user.accountId),
@@ -55,7 +56,7 @@ class RoleManageContent extends Component {
   removeUsers = () => {
     const { selectUserIds = [], currentRole = {}, projectId } = this.props;
     if (_.isEmpty(selectUserIds)) return;
-    deleteOrganizeUsers({
+    organizeAjax.deleteOrganizeUsers({
       projectId,
       accountIds: selectUserIds,
       organizeId: currentRole.organizeId,

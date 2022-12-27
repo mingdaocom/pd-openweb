@@ -7,11 +7,12 @@ import cx from 'classnames';
 import ConnectLib from './ConnectLib';
 import ConnectList from './ConnectList';
 import { PageSize } from '../config';
-import { getList, count } from 'src/pages/workflow/api/packageVersion';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import ConnectWrap from './ConnectWrap';
 import bg from 'staticfiles/images/query.png';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   background: #fff;
@@ -127,7 +128,7 @@ function ConnectAndAuthCon(props) {
       ajaxPromise.abort();
     }
     setState({ loading: true });
-    ajaxPromise = getList(
+    ajaxPromise = packageVersionAjax.getList(
       {
         companyId: tab !== 'connectList' ? '' : props.currentProjectId,
         types: tab !== 'connectList' && !md.global.Config.IsLocal ? [3] : [1, 2],
@@ -183,7 +184,7 @@ function ConnectAndAuthCon(props) {
   }, [props.currentProjectId, pageIndex, keywords, tab, hasChange]);
 
   useEffect(() => {
-    count(
+    packageVersionAjax.count(
       {
         companyId: props.currentProjectId,
         types: [1, 2],

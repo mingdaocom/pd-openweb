@@ -6,6 +6,7 @@ import { getAdvanceSetting, handleAdvancedSettingChange, parseDataSource } from 
 import { getIconByType } from '../../util';
 import CommonComponents from '../../components';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const CODE_DISPLAY_OPTION = [
   {

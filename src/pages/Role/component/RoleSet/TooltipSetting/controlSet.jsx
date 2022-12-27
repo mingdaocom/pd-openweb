@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
 import lookPng from './img/s.png';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   text-align: left;
@@ -60,7 +61,6 @@ export default class extends React.PureComponent {
     this.getAddCheckboxProps = getFunction('notAdd');
     this.getEditCheckboxProps = getFunction('notEdit');
     this.getReadCheckboxProps = getFunction('notRead');
-    this.getDecryptCheckboxProps = getFunction('notDecrypt');
   }
 
   componentWillReceiveProps(nextProps) {
@@ -70,6 +70,14 @@ export default class extends React.PureComponent {
       });
     }
   }
+
+  getDecryptCheckboxProps = () => {
+    const { fields = [] } = this.state;
+    let fieldData = fields.filter(o => o.dataMask === '1');
+    const isAll = _.every(fieldData, o => o.isDecrypt);
+    const isPart = !isAll && _.some(fieldData, o => o.isDecrypt);
+    return { isAll, isPart };
+  };
 
   changeFields = (checked, fieldId, key) => {
     const { onChange } = this.props;
@@ -87,6 +95,15 @@ export default class extends React.PureComponent {
           ...field,
           notRead: true,
           notEdit: true,
+          isDecrypt: false, //取消查看，同时取消解密
+        };
+      }
+      //勾选解密时，同时勾选查看
+      if (key === 'isDecrypt' && checked && field.dataMask === '1') {
+        return {
+          ...field,
+          isDecrypt: true,
+          notRead: false,
         };
       }
       return {
@@ -130,39 +147,28 @@ export default class extends React.PureComponent {
   };
 
   changeFieldDecryptAuth = (checked, fieldId) => {
-    this.changeFields(checked, fieldId, 'notDecrypt');
+    this.changeFields(!checked, fieldId, 'isDecrypt');
   };
 
   renderList = () => {
     const { formatViews, sheet } = this.props;
-    const { showEdit } = formatViews(sheet.views);
+    const { showEdit, showRead } = formatViews(sheet.views);
     const showAdd = sheet.canAdd;
     const { fields } = this.state;
-    const showDecrypt = true;
-
+    const showDecrypt = fields.filter(o => o.dataMask === '1').length > 0;
     return (
       <div className="">
         {_.map(
           fields,
-          ({
-            fieldName,
-            fieldId,
-            type,
-            notAdd,
-            notEdit,
-            notRead,
-            notDecrypt,
-            isReadField,
-            hideWhenAdded,
-            isDecryptField = true,
-          }) => {
+          ({ fieldName, fieldId, type, notAdd, notEdit, notRead, isDecrypt, isReadField, hideWhenAdded, dataMask }) => {
+            const isDecryptField = dataMask === '1';
             return (
               <div className={'fieldItem flexRow alignItemsCenter'} key={fieldId}>
                 <div className={'filedName flexRow alignItemsCenter'}>
                   {<i className={cx('icon Gray_9e mRight6 Font16', 'icon-' + getIconByType(type))}></i>}
                   <span className="flex">
                     {fieldName || (type === 22 ? _l('分段') : _l('备注'))}
-                    {/* {isDecryptField && <span className="isDecrypt mLeft3">{_l('脱敏')}</span>} */}
+                    {isDecryptField && <span className="isDecrypt mLeft3">{_l('脱敏')}</span>}
                   </span>
                 </div>
                 <div className={'filedSetting flex'}>
@@ -189,16 +195,13 @@ export default class extends React.PureComponent {
                   )}
                 </div>
                 {/* 解密 */}
-                {/* <div className={'filedSetting flex'}>
-                  {!isDecryptField && (
-                    <Checkbox
-                      checked={showDecrypt ? !notDecrypt : false}
-                      disabled={!showDecrypt}
-                      value={fieldId}
-                      onClick={this.changeFieldDecryptAuth}
-                    />
-                  )}
-                </div> */}
+                {showDecrypt && (
+                  <div className={'filedSetting flex'}>
+                    {isDecryptField && (
+                      <Checkbox checked={isDecrypt} value={fieldId} onClick={this.changeFieldDecryptAuth} />
+                    )}
+                  </div>
+                )}
               </div>
             );
           },
@@ -209,15 +212,15 @@ export default class extends React.PureComponent {
 
   renderContent() {
     const { formatViews, sheet } = this.props;
-    const { showEdit } = formatViews(sheet.views);
+    const { showEdit, showRead } = formatViews(sheet.views);
     const showAdd = sheet.canAdd;
     const { fields } = this.state;
 
     const addProps = this.getAddCheckboxProps(fields);
     const readProps = this.getReadCheckboxProps(fields);
     const editProps = this.getEditCheckboxProps(fields);
-    const decryptProps = this.getDecryptCheckboxProps(fields);
-    const showDecrypt = true; ///????
+    const decryptProps = this.getDecryptCheckboxProps();
+    const showDecrypt = fields.filter(o => o.dataMask === '1').length > 0;
 
     return (
       <Wrap>
@@ -255,16 +258,17 @@ export default class extends React.PureComponent {
               {_l('编辑')}
             </Checkbox>
           </div>
-          {/* <div className={'filedSetting flex Bold'}>
-            <Checkbox
-              checked={showDecrypt ? decryptProps.isAll : false}
-              disabled={!showDecrypt}
-              clearselected={showDecrypt ? decryptProps.isPart : false}
-              onClick={this.changeFieldDecryptAuth}
-            >
-              {_l('解密')}
-            </Checkbox>
-          </div> */}
+          {showDecrypt && (
+            <div className={'filedSetting flex Bold'}>
+              <Checkbox
+                checked={decryptProps.isAll}
+                clearselected={decryptProps.isPart}
+                onClick={this.changeFieldDecryptAuth}
+              >
+                {_l('解密')}
+              </Checkbox>
+            </div>
+          )}
         </div>
         {this.renderList()}
       </Wrap>

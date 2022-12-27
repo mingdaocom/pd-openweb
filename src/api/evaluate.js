@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取当前用户的评价，能否评价
   * @param {Object} args 请求参数

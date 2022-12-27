@@ -3,11 +3,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import cx from 'classnames';
-import { renderCellText } from 'worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { PERIOD_TYPE, viewConfig } from 'worksheet/views/GunterView/config';
 import { timeToPercentage, percentageToTime } from 'worksheet/views/GunterView/util';
 import { Tooltip } from 'antd';
 import { Icon } from 'ming-ui';
+import _ from 'lodash';
+import moment from 'moment';
 
 const getAssignWorkDays = (value, time, dayOff) => {
   const result = [];
@@ -47,7 +49,7 @@ const getLastWorkEndTime = (time, dayOff) => {
 @connect(
   state => ({
     ..._.pick(state.sheet.gunterView, ['searchRecordId', 'viewConfig', 'chartScroll']),
-    ..._.pick(state.sheet, ['controls', 'base'])
+    ..._.pick(state.sheet, ['controls', 'base']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -61,7 +63,7 @@ export default class RowBlock extends Component {
       dragEndTime: null,
       currentChangeStartTime: null,
       currentChangeEndTime: null,
-      tooltipVisible: false
+      tooltipVisible: false,
     };
     this.$ref = createRef(null);
     this.isScroll = false;
@@ -124,24 +126,24 @@ export default class RowBlock extends Component {
     this.setState({ dragStartTime: null, dragEndTime: null });
     clearInterval(this.timer);
   }
-  handleAutoUpdateTime = (value) => {
+  handleAutoUpdateTime = value => {
     const { row } = this.props;
     const { dragStartTime, dragEndTime } = this.state;
     this.props.updateRecordDragTime(row, dragStartTime, dragEndTime, value);
-  }
+  };
   handleUpdateRecordTime = (start, end) => {
     const { dragStartTime, dragEndTime } = this.state;
     const { row, updateRecordTime } = this.props;
     // if (this.isScroll) {
     //   this.setState({ dragStartTime: start, dragEndTime: end });
     // } else {
-      // console.log(row.dragStartTime, row.dragBeforeStartTime, start);
-      // updateRecordTime(row, row.dragStartTime || start, row.dragEndTime || end);
+    // console.log(row.dragStartTime, row.dragBeforeStartTime, start);
+    // updateRecordTime(row, row.dragStartTime || start, row.dragEndTime || end);
     // }
     updateRecordTime(row, start, end);
-  }
+  };
   handleChange(value) {
-    const [ start, end ] = this.getAllTime(value);
+    const [start, end] = this.getAllTime(value);
     this.handleUpdateRecordTime(start, end);
   }
   getAllTime(value) {
@@ -162,23 +164,45 @@ export default class RowBlock extends Component {
         const startIsZero = !moment(row.startTime).minute() && !moment(row.startTime).hour();
         const startIsDayOff = dayOff.includes(moment(row.startTime).days());
         const startHoursWidth = startIsZero ? 0 : timeToPercentage(row.startTime, minDayWidth);
-        const startDay = (value > 0 ? (startIsDayOff ? value : startHoursWidth + value) : (startIsDayOff ? value - minDayWidth : (startHoursWidth + value) - minDayWidth)) / minDayWidth
+        const startDay =
+          (value > 0
+            ? startIsDayOff
+              ? value
+              : startHoursWidth + value
+            : startIsDayOff
+            ? value - minDayWidth
+            : startHoursWidth + value - minDayWidth) / minDayWidth;
         const currentStartTime = getNextWorkStartTime(row.startTime, dayOff);
         const starts = getAssignWorkDays(parseInt(startDay), currentStartTime, dayOff);
         const startDayTime = starts[starts.length - 1];
-        const startHours = value > 0 ? percentageToTime(startDay % 1 * 100) : percentageToTime(100 - (Math.abs(startDay) % 1 * 100));
-        const startTime = moment(startDayTime ? startDayTime : currentStartTime).add(startHours, 'h').format('YYYY-MM-DD HH:mm');
+        const startHours =
+          value > 0 ? percentageToTime((startDay % 1) * 100) : percentageToTime(100 - (Math.abs(startDay) % 1) * 100);
+        const startTime = moment(startDayTime ? startDayTime : currentStartTime)
+          .add(startHours, 'h')
+          .format('YYYY-MM-DD HH:mm');
 
         const endIsZero = !moment(row.endTime).minute() && !moment(row.endTime).hour();
         const endIsDayOff = dayOff.includes(moment(row.endTime).days());
         const endHoursWidth = endIsZero ? minDayWidth : timeToPercentage(row.endTime, minDayWidth);
-        const endDay = (value > 0 ? (endIsDayOff ? minDayWidth + value : endHoursWidth + value) : (endIsDayOff ? value : (endHoursWidth + value) - minDayWidth)) / minDayWidth;
+        const endDay =
+          (value > 0
+            ? endIsDayOff
+              ? minDayWidth + value
+              : endHoursWidth + value
+            : endIsDayOff
+            ? value
+            : endHoursWidth + value - minDayWidth) / minDayWidth;
         const currentEndTime = getLastWorkEndTime(row.endTime, dayOff);
         const ends = getAssignWorkDays(parseInt(endDay), currentEndTime, dayOff);
         const endDayTime = ends[ends.length - 1];
-        const endHours = value > 0 ? percentageToTime((endDayTime ? endDay : value / minDayWidth) % 1 * 100) : percentageToTime(100 - (Math.abs(endDay) % 1 * 100));
-        const endTime = moment(endDayTime ? endDayTime : currentEndTime).add(endHours, 'h').format('YYYY-MM-DD HH:mm');
-        
+        const endHours =
+          value > 0
+            ? percentageToTime(((endDayTime ? endDay : value / minDayWidth) % 1) * 100)
+            : percentageToTime(100 - (Math.abs(endDay) % 1) * 100);
+        const endTime = moment(endDayTime ? endDayTime : currentEndTime)
+          .add(endHours, 'h')
+          .format('YYYY-MM-DD HH:mm');
+
         return [startTime, endTime];
       } else if ((startType === 16 || endType === 16) && periodType === PERIOD_TYPE.day) {
         if (isStartHour && !isStartDayOff) {
@@ -197,7 +221,7 @@ export default class RowBlock extends Component {
       if (isHours) {
         const day = value / minDayWidth;
         const endIsZero = !moment(row.endTime).minute() && !moment(row.endTime).hour();
-        const hours = percentageToTime(day % 1 * 100);
+        const hours = percentageToTime((day % 1) * 100);
         const startDayCount = parseInt(day);
         const endDayCount = endIsZero ? parseInt(day) + 1 : parseInt(day);
         const startTime = moment(row.startTime).add(startDayCount, 'd').add(hours, 'h').format(startFormat);
@@ -211,7 +235,7 @@ export default class RowBlock extends Component {
     }
   }
   handleChangeStart(value) {
-    const [ start, end ] = this.getStartTime(value);
+    const [start, end] = this.getStartTime(value);
     this.handleUpdateRecordTime(start, end);
   }
   getStartTime(value) {
@@ -222,16 +246,26 @@ export default class RowBlock extends Component {
         const startIsZero = !moment(row.startTime).minute() && !moment(row.startTime).hour();
         const startIsDayOff = dayOff.includes(moment(row.startTime).days());
         const startHoursWidth = startIsZero ? 0 : timeToPercentage(row.startTime, minDayWidth);
-        const startDay = (value > 0 ? (startIsDayOff ? value : startHoursWidth + value) : (startIsDayOff ? value - minDayWidth : (startHoursWidth + value) - minDayWidth)) / minDayWidth
+        const startDay =
+          (value > 0
+            ? startIsDayOff
+              ? value
+              : startHoursWidth + value
+            : startIsDayOff
+            ? value - minDayWidth
+            : startHoursWidth + value - minDayWidth) / minDayWidth;
         const currentStartTime = getNextWorkStartTime(row.startTime, dayOff);
         const starts = getAssignWorkDays(parseInt(startDay), currentStartTime, dayOff);
         const startDayTime = starts[starts.length - 1];
-        const startHours = value > 0 ? percentageToTime(startDay % 1 * 100) : percentageToTime(100 - (Math.abs(startDay) % 1 * 100));
-        const startTime = moment(startDayTime ? startDayTime : currentStartTime).add(startHours, 'h').format('YYYY-MM-DD HH:mm');
+        const startHours =
+          value > 0 ? percentageToTime((startDay % 1) * 100) : percentageToTime(100 - (Math.abs(startDay) % 1) * 100);
+        const startTime = moment(startDayTime ? startDayTime : currentStartTime)
+          .add(startHours, 'h')
+          .format('YYYY-MM-DD HH:mm');
         return [startTime, null];
       } else {
         const day = value / minDayWidth;
-        const hours = percentageToTime(day % 1 * 100);
+        const hours = percentageToTime((day % 1) * 100);
         const dayCount = parseInt(day);
         const startTime = moment(row.startTime).add(dayCount, 'd').add(hours, 'h').format('YYYY-MM-DD HH:mm');
         return [startTime, null];
@@ -248,7 +282,7 @@ export default class RowBlock extends Component {
     }
   }
   handleChangeEnd(value) {
-    const [ start, end ] = this.getEndTime(value);
+    const [start, end] = this.getEndTime(value);
     this.handleUpdateRecordTime(start, end);
   }
   getEndTime(value) {
@@ -259,16 +293,28 @@ export default class RowBlock extends Component {
       if (onlyWorkDay) {
         const endIsDayOff = dayOff.includes(moment(row.endTime).days());
         const endHoursWidth = endIsZero ? minDayWidth : timeToPercentage(row.endTime, minDayWidth);
-        const endDay = (value > 0 ? (endIsDayOff ? minDayWidth + value : endHoursWidth + value) : (endIsDayOff ? value : (endHoursWidth + value) - minDayWidth)) / minDayWidth;
+        const endDay =
+          (value > 0
+            ? endIsDayOff
+              ? minDayWidth + value
+              : endHoursWidth + value
+            : endIsDayOff
+            ? value
+            : endHoursWidth + value - minDayWidth) / minDayWidth;
         const currentEndTime = getLastWorkEndTime(row.endTime, dayOff);
         const ends = getAssignWorkDays(parseInt(endDay), currentEndTime, dayOff);
         const endDayTime = ends[ends.length - 1];
-        const endHours = value > 0 ? percentageToTime((endDayTime ? endDay : value / minDayWidth) % 1 * 100) : percentageToTime(100 - (Math.abs(endDay) % 1 * 100));
-        const endTime = moment(endDayTime ? endDayTime : currentEndTime).add(endHours, 'h').format('YYYY-MM-DD HH:mm');
+        const endHours =
+          value > 0
+            ? percentageToTime(((endDayTime ? endDay : value / minDayWidth) % 1) * 100)
+            : percentageToTime(100 - (Math.abs(endDay) % 1) * 100);
+        const endTime = moment(endDayTime ? endDayTime : currentEndTime)
+          .add(endHours, 'h')
+          .format('YYYY-MM-DD HH:mm');
         return [null, endTime];
       } else {
         const day = value / minDayWidth;
-        const hours = percentageToTime(day % 1 * 100);
+        const hours = percentageToTime((day % 1) * 100);
         const dayCount = endIsZero ? parseInt(day) + 1 : parseInt(day);
         const endTime = moment(row.endTime).add(dayCount, 'd').add(hours, 'h').format('YYYY-MM-DD HH:mm');
         return [null, endTime];
@@ -298,7 +344,7 @@ export default class RowBlock extends Component {
     return false;
   }
   handleMouseDown = event => {
-    if (event.target.classList.contains('recordTitle')) return
+    if (event.target.classList.contains('recordTitle')) return;
     window.isDrag = true;
     event.stopPropagation();
     const { row, viewConfig } = this.props;
@@ -317,12 +363,12 @@ export default class RowBlock extends Component {
         const newLeft = event.clientX - x - left;
         changValue = isHours && !isMilepost ? newLeft : this.formatRemainder(newLeft);
         const { left: refLeft, width } = this.$ref.current.getBoundingClientRect();
-        const [ start, end ] = this.getAllTime(changValue);
+        const [start, end] = this.getAllTime(changValue);
         this.setState({
           tooltipVisible: true,
           tooltipLeft: event.clientX - refLeft - width / 2,
           currentChangeStartTime: start,
-          currentChangeEndTime: end
+          currentChangeEndTime: end,
         });
         this.$ref.current.style.transform = `translateX(${changValue}px)`;
         // this.$ref.current.style.left = `${left + changValue}px`;
@@ -337,7 +383,7 @@ export default class RowBlock extends Component {
       document.onmousemove = null;
       document.onmouseup = null;
     };
-  }
+  };
   handleMouseDownStart = event => {
     window.isDrag = true;
     event.stopPropagation();
@@ -356,7 +402,7 @@ export default class RowBlock extends Component {
       }
       changValue = newLeft - left;
       const { left: refLeft } = this.$ref.current.getBoundingClientRect();
-      const [ start, end ] = this.getStartTime(changValue);
+      const [start, end] = this.getStartTime(changValue);
       this.setState({
         tooltipVisible: true,
         tooltipLeft: event.clientX - refLeft - newWidth / 2,
@@ -373,7 +419,7 @@ export default class RowBlock extends Component {
       document.onmousemove = null;
       document.onmouseup = null;
     };
-  }
+  };
   handleMouseDownEnd = event => {
     window.isDrag = true;
     event.stopPropagation();
@@ -391,7 +437,7 @@ export default class RowBlock extends Component {
       }
       changValue = newWidth - width;
       const { left } = this.$ref.current.getBoundingClientRect();
-      const [ start, end ] = this.getEndTime(changValue);
+      const [start, end] = this.getEndTime(changValue);
       this.setState({
         tooltipVisible: true,
         tooltipLeft: event.clientX - left - newWidth / 2,
@@ -407,7 +453,7 @@ export default class RowBlock extends Component {
       document.onmousemove = null;
       document.onmouseup = null;
     };
-  }
+  };
   handleMouseEnter = event => {
     const { style } = this.props;
     const el = event.target.classList.contains('recordTitle') ? event.target.parentNode : event.target;
@@ -415,7 +461,7 @@ export default class RowBlock extends Component {
     this.setState({
       tooltipLeft: event.clientX - left - style.width / 2,
     });
-  }
+  };
   getTooltipText(isMilepost) {
     const { row } = this.props;
     const { currentChangeStartTime, currentChangeEndTime } = this.state;
@@ -435,14 +481,11 @@ export default class RowBlock extends Component {
   }
   renderMilepost(color) {
     return (
-      <svg
-        viewBox="0 0 1024 1024"
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width="28" height="28"
-      >
-        <path fill={color} d="M571.733333 153.6l298.666667 298.666667c34.133333 34.133333 34.133333 85.333333 0 119.466666l-298.666667 298.666667c-34.133333 34.133333-85.333333 34.133333-119.466666 0l-298.666667-298.666667c-34.133333-34.133333-34.133333-85.333333 0-119.466666l298.666667-298.666667c34.133333-34.133333 85.333333-34.133333 119.466666 0z">
-        </path>
+      <svg viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
+        <path
+          fill={color}
+          d="M571.733333 153.6l298.666667 298.666667c34.133333 34.133333 34.133333 85.333333 0 119.466666l-298.666667 298.666667c-34.133333 34.133333-85.333333 34.133333-119.466666 0l-298.666667-298.666667c-34.133333-34.133333-34.133333-85.333333 0-119.466666l298.666667-298.666667c34.133333-34.133333 85.333333-34.133333 119.466666 0z"
+        ></path>
       </svg>
     );
   }
@@ -469,7 +512,7 @@ export default class RowBlock extends Component {
           offset: [isMilepost ? 15 : tooltipLeft, 0],
         }}
         visible={tooltipVisible}
-        onVisibleChange={(tooltipVisible) => {
+        onVisibleChange={tooltipVisible => {
           this.setState({ tooltipVisible });
         }}
       >
@@ -488,7 +531,7 @@ export default class RowBlock extends Component {
         >
           {row.rowid === searchRecordId && <Icon className={cx('forward', { isMilepost })} icon="forward1" />}
           {isMilepost && this.renderMilepost(row.color)}
-          {(!disable && !isMilepost) && (
+          {!disable && !isMilepost && (
             <Fragment>
               {!startDisable && (
                 <div
@@ -498,11 +541,7 @@ export default class RowBlock extends Component {
                 ></div>
               )}
               {!endDisable && (
-                <div
-                  onMouseDown={this.handleMouseDownEnd}
-                  className="dragEnd"
-                  style={{ borderColor: row.color }}
-                ></div>
+                <div onMouseDown={this.handleMouseDownEnd} className="dragEnd" style={{ borderColor: row.color }}></div>
               )}
             </Fragment>
           )}

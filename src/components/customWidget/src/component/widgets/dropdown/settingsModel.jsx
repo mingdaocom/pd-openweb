@@ -1,5 +1,5 @@
 import React from 'react';
-import $ from 'jquery';
+
 import config from '../../../config';
 import DragOptions from '../../common/dragOptions';
 
@@ -7,6 +7,7 @@ import Dropdown from 'ming-ui/components/Dropdown';
 import RadioGroup from 'ming-ui/components/RadioGroup';
 import DataSourceList from '../../common/dataSourceList';
 import firstInputSelect from '../../common/firstInputSelect';
+import _ from 'lodash';
 
 @firstInputSelect
 class SettingsModel extends React.Component {

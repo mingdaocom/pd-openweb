@@ -1,4 +1,4 @@
-import $ from 'jquery';
+
 import SelectUser from 'src/pages/hr/approval/components/SelectUser/SelectUser';
 
 class CustomUserList {

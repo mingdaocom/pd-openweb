@@ -1,10 +1,11 @@
 import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
-import { createApp } from 'api/homeApp';
+import homeAppAjax from 'src/api/homeApp';
 import { navigateTo } from 'router/navigateTo';
 import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
 import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
 import bgPng from '../assets/welcome.png';
+import _ from 'lodash';
 
 const FullCon = styled.div`
   flex: 1;
@@ -109,7 +110,7 @@ export default function NoProjectsStatus(props) {
                     return;
                   }
                   if (type === 'create') {
-                    createApp({
+                    homeAppAjax.createApp({
                       projectId,
                       name: _l('未命名应用'),
                       icon: '0_lego',

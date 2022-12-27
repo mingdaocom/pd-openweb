@@ -2,20 +2,22 @@ import React from 'react';
 import Sidenav from './components/sidenav';
 import Header from './components/header';
 import Con from './components/content';
-import { Icon, Dialog, LoadDiv, Svg } from 'ming-ui';
+import { Icon, Dialog, LoadDiv } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import instance from 'src/pages/workflow/api/instanceVersion';
 import './index.less';
 import SaveDia from './components/saveDia';
-import { fromType, typeForCon, PRINT_TYPE, DEFAULT_FONT_SIZE } from './config';
+import { fromType, typeForCon, PRINT_TYPE, DEFAULT_FONT_SIZE, FILTER_SYS } from './config';
 import { notification, NotificationContent } from 'ming-ui/components/Notification';
-import { get, clear } from 'src/api/webCache';
-import { renderCellText } from 'worksheet/components/CellControls';
+import webCacheAjax from 'src/api/webCache';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import axios from 'axios';
 import { getControlsForPrint, sysToPrintData, isRelation } from './util';
-import { getToken } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
+import _ from 'lodash';
+
 class PrintForm extends React.Component {
   constructor(props) {
     super(props);
@@ -59,13 +61,56 @@ class PrintForm extends React.Component {
     let { params } = match;
     const { key } = params;
     if (key) {
-      clear({
+      webCacheAjax.clear({
         key: `${key}`,
       });
     }
   }
-
-  doDataFn = () => {
+  getParamFn = () => {
+    if (location.href.indexOf('printForm') > -1) {
+      const { params = {} } = this.state;
+      const { key } = params;
+      webCacheAjax
+        .get({
+          key: `${key}`,
+        })
+        .then(res => {
+          if (res) {
+            let data = JSON.parse(res);
+            this.setState(
+              {
+                params: {
+                  ...this.state.params,
+                  ...data,
+                },
+                printData: {
+                  ...this.state.printData,
+                  name: data.name,
+                },
+              },
+              () => {
+                this.getWorksheet();
+              },
+            );
+          }
+        });
+    } else {
+      this.getWorksheet();
+    }
+  };
+  getWorksheet = () => {
+    const { params } = this.state;
+    const { worksheetId } = params;
+    sheetAjax
+      .getWorksheetInfo({
+        worksheetId: worksheetId,
+        getSwitchPermit: true,
+      })
+      .then(res => {
+        this.setInfo(res);
+      });
+  };
+  setInfo = res => {
     const { params } = this.state;
     const {
       printId,
@@ -75,100 +120,63 @@ class PrintForm extends React.Component {
       attriData = {}, // 标题字段
       isBatch, // 是否批量打印
     } = params;
-    if (isDefault) {
-      if (params.printType === 'flow') {
-        this.initWorkflow();
-      } else {
-        this.getData();
-      }
-    } else {
-      this.setState({
-        isLoading: false,
-      });
-      if (from === fromType.PRINT && printId) {
-        document.title = `${name}-${isBatch ? _l('批量打印') : renderCellText(attriData) || _l('未命名')}`;
-      }
-      this.getDownLoadUrl();
-    }
-  };
-
-  getParamFn = () => {
-    if (location.href.indexOf('printForm') > -1) {
-      const { params = {} } = this.state;
-      const { key } = params;
-      get({
-        key: `${key}`,
-      }).then(res => {
-        if (res) {
-          let data = JSON.parse(res);
-          this.setState(
-            {
-              params: {
-                ...this.state.params,
-                ...data,
-              },
-              printData: {
-                ...this.state.printData,
-                name: data.name,
-              },
-            },
-            () => {
-              this.doDataFn();
-            },
-          );
+    this.setState(
+      {
+        downLoadUrl: res.downLoadUrl,
+        sheetSwitchPermit: res.switches,
+      },
+      () => {
+        if (isDefault) {
+          if (params.printType === 'flow') {
+            this.initWorkflow();
+          } else {
+            this.getData();
+          }
+        } else {
+          this.setState({
+            isLoading: false,
+          });
+          if (from === fromType.PRINT && printId) {
+            document.title = `${name}-${isBatch ? _l('批量打印') : renderCellText(attriData) || _l('未命名')}`;
+          }
+          this.getDownLoadUrl(res.downLoadUrl);
         }
-      });
-    } else {
-      this.doDataFn();
-    }
+      },
+    );
   };
 
-  getDownLoadUrl = () => {
+  getDownLoadUrl = async downLoadUrl => {
     const { params } = this.state;
     const { worksheetId, rowId, printId, projectId, appId, viewId } = params;
-    sheetAjax
-      .getWorksheetInfo({
-        worksheetId: worksheetId,
-      })
-      .then(res => {
-        this.setState(
-          {
-            downLoadUrl: res.downLoadUrl,
-          },
-          async () => {
-            //功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
-            const token = await getToken({ worksheetId, viewId, tokenType: 5 });
-            let payload = {
-              id: printId,
-              rowId: rowId,
-              accountId: md.global.Account.accountId,
-              worksheetId,
-              appId,
-              projectId,
-              t: new Date().getTime(),
-              viewId,
-              token,
-            };
-            $.ajax({
-              url: res.downLoadUrl + '/ExportWord/GetWordPath',
-              type: 'POST',
-              dataType: 'json',
-              contentType: 'application/json',
-              data: JSON.stringify(payload),
-            }).done(r => {
-              this.setState(
-                {
-                  ajaxUrlStr: r.data,
-                  worksheetName: res.name,
-                },
-                () => {
-                  this.getFiles();
-                },
-              );
-            });
-          },
-        );
-      });
+    //功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
+    const token = await appManagementAjax.getToken({ worksheetId, viewId, tokenType: 5 });
+    let payload = {
+      id: printId,
+      rowId: rowId,
+      accountId: md.global.Account.accountId,
+      worksheetId,
+      appId,
+      projectId,
+      t: new Date().getTime(),
+      viewId,
+      token,
+    };
+    $.ajax({
+      url: downLoadUrl + '/ExportWord/GetWordPath',
+      type: 'POST',
+      dataType: 'json',
+      contentType: 'application/json',
+      data: JSON.stringify(payload),
+    }).done(r => {
+      this.setState(
+        {
+          ajaxUrlStr: r.data,
+        },
+        () => {
+          this.getFiles();
+        },
+      );
+    });
   };
 
   getApproval = () => {
@@ -284,7 +292,6 @@ class PrintForm extends React.Component {
         worksheetId,
         type: 1, // 1字段显隐
       }),
-      sheetAjax.getSwitchPermit({ worksheetId }),
     ];
     axios.all(ajaxList).then(resData => {
       const res = resData[0];
@@ -302,7 +309,7 @@ class PrintForm extends React.Component {
         data: res.receiveControls,
       });
       receiveControls = getControlsForPrint(receiveControls, res.relations)
-        .filter(o => ![43, 49].includes(o.type))
+        .filter(o => ![43, 49].includes(o.type) && !FILTER_SYS.includes(o.controlId))
         .filter(o =>
           printId || (!printId && type === typeForCon.NEW && from === fromType.FORMSET) // 模版打印/配置（新建模版）=> 不考虑显隐设置
             ? true
@@ -334,7 +341,6 @@ class PrintForm extends React.Component {
             approvalIds: res.approvalIds,
           },
           isLoading: false,
-          sheetSwitchPermit: resData[2],
         },
         this.getApproval,
       );
@@ -455,6 +461,7 @@ class PrintForm extends React.Component {
             'createTimeChecked',
             'createAccountChecked', // 创建者
             'updateTimeChecked',
+            'updateAccountChecked', // 最近修改人
             'ownerAccountChecked',
             'showData', // 空值是否隐藏
             'printOption',

@@ -8,6 +8,7 @@ import projectSettingController from 'src/api/projectSetting';
 import Config from '../config';
 import ViewKeyDialog from './ViewKey';
 import { getFeatureStatus, buriedUpgradeVersionDialog, encrypt, upgradeVersionDialog } from 'src/util';
+import _ from 'lodash';
 
 const API_PROXY_FEATURE_ID = 22;
 
@@ -78,6 +79,8 @@ export default class OtherTool extends Component {
       saveDisabled: false,
       loading: false,
       isSaveWebProxy: false,
+      searchRange: 0,
+      DNGroupList: [{ dn: '', groupName: '' }],
     };
   }
 
@@ -94,6 +97,11 @@ export default class OtherTool extends Component {
         projectId: Config.projectId,
       })
       .then(data => {
+        let dnGroupObj = data.dnGroup || {};
+        let DNGroupList = [];
+        Object.keys(dnGroupObj).forEach(item => {
+          DNGroupList.push({ dn: item, groupName: dnGroupObj[item] });
+        });
         if (data) {
           this.setState({
             effective: data.effective,
@@ -103,6 +111,8 @@ export default class OtherTool extends Component {
             user: data.user,
             password: data.password,
             domainPath: data.domainPath,
+            DNGroupList: _.isEmpty(DNGroupList) ? [{ dn: '', groupName: '' }] : DNGroupList,
+            searchRange: data.searchRange || 0,
             enableSSL: data.enableSSL,
             searchFilter: data.searchFilter || '',
             emailAttr: data.emailAttr || '',
@@ -228,6 +238,7 @@ export default class OtherTool extends Component {
   };
 
   handleCheck() {
+    const { DNGroupList = [], searchRange } = this.state;
     let isChecked = false;
     const list = formListTop.concat(formListBottom);
     list &&
@@ -248,7 +259,8 @@ export default class OtherTool extends Component {
           }
         }
       });
-    return isChecked;
+    const dnGroupError = searchRange === 0 || (searchRange === 1 && DNGroupList.every(it => !!it.dn && !!it.groupName));
+    return isChecked && dnGroupError;
   }
 
   clearError(key) {
@@ -256,7 +268,14 @@ export default class OtherTool extends Component {
     $(`#errorMsg${key}`).text('');
   }
 
+  addDNGroup = () => {
+    const copyDNGroupList = [...this.state.DNGroupList];
+    copyDNGroupList.push({ dn: '', groupName: '' });
+    this.setState({ DNGroupList: copyDNGroupList });
+  };
+
   renderCompType(key, compType = 'input') {
+    const { searchRange, DNGroupList = [], checkDnGroupEmpty } = this.state;
     switch (compType) {
       case 'select':
         return this.selectTypeComp(key);
@@ -279,14 +298,96 @@ export default class OtherTool extends Component {
             onFocus={this.clearError.bind(this, key)}
           />
         );
+      case 'tab':
+        return (
+          <div className="searchRange flexRow">
+            {[
+              { key: 0, tab: 'BaseDN' },
+              { key: 1, tab: _l('DN/组名') },
+            ].map(it => (
+              <div
+                key={it.key}
+                className={cx('flex', { active: searchRange === it.key })}
+                onClick={() => {
+                  this.setState({ searchRange: it.key });
+                }}
+              >
+                {it.tab}
+              </div>
+            ))}
+          </div>
+        );
+      case 'group':
+        return (
+          <div className="DNGroup w100">
+            <div className="Gray_9e Font12 mTop8">{_l('根据组在对应的DN检索账户')}</div>
+            <div className="groupItem">
+              <div className="flex">DN</div>
+              <div className="flex mLeft12">{_l('组名')}</div>
+            </div>
+            {DNGroupList.map((it, i) => {
+              return (
+                <div className="groupItem mBottom16">
+                  <div className="flex">
+                    <Input
+                      style={{ height: 36 }}
+                      value={it.dn}
+                      onChange={e => {
+                        const copyDNGroupList = [...DNGroupList];
+                        copyDNGroupList[i].dn = e.target.value;
+                        this.setState({ DNGroupList: copyDNGroupList });
+                      }}
+                    />
+                    {checkDnGroupEmpty && !it.groupName && searchRange === 1 && (
+                      <div className={cx('TxtMiddle Red')}>{_l('请输入DN')}</div>
+                    )}
+                  </div>
+                  <div className="flex mLeft12">
+                    <Input
+                      style={{ height: 36 }}
+                      value={it.groupName}
+                      onChange={e => {
+                        const copyDNGroupList = [...DNGroupList];
+                        copyDNGroupList[i].groupName = e.target.value;
+                        this.setState({ DNGroupList: copyDNGroupList, checkDnGroupEmpty: false });
+                      }}
+                    />
+                    {checkDnGroupEmpty && !it.groupName && searchRange === 1 && (
+                      <div className={cx('TxtMiddle Red')}>{_l('请输入组名')}</div>
+                    )}
+                  </div>
+
+                  {DNGroupList.length > 1 && (
+                    <Icon
+                      icon="remove_circle_outline"
+                      className="minus mLeft15"
+                      onClick={() => {
+                        const copyDNGroupList = [...DNGroupList];
+                        copyDNGroupList.splice(i, 1);
+                        this.setState({ DNGroupList: copyDNGroupList, checkDnGroupEmpty: false });
+                      }}
+                    />
+                  )}
+                </div>
+              );
+            })}
+
+            <span className="Hand ThemeColor" onClick={this.addDNGroup}>
+              <Icon icon="plus" className="mRight5" /> {_l('添加')}
+            </span>
+          </div>
+        );
     }
   }
 
   renderFormCommon(list) {
+    const { searchRange } = this.state;
     return (
       <Fragment>
         {list &&
           list.map(({ label, key, compType, errorMsg, desc }) => {
+            if (key === 'domainPath' && searchRange !== 0) return;
+            if (key === 'DNGroup' && searchRange !== 1) return;
             return (
               <div className="formItem" key={key}>
                 <div className="formLabel">
@@ -533,33 +634,73 @@ export default class OtherTool extends Component {
 
   handleSubmit() {
     const noneError = this.handleCheck();
+    const {
+      type,
+      port,
+      enableSSL,
+      serverIP,
+      user,
+      password,
+      searchRange,
+      searchFilter,
+      emailAttr,
+      fullnameAttr,
+      departmentAttr,
+      jobAttr,
+      workphoneAttr,
+      domainPath,
+      DNGroupList = [],
+    } = this.state;
+    const dnGroupError = DNGroupList.every(it => !!it.dn && !!it.groupName);
+    if (!noneError || (searchRange === 1 && dnGroupError)) {
+      this.setState({ checkDnGroupEmpty: true });
+    } else {
+      this.setState({ checkDnGroupEmpty: false });
+    }
     if (noneError) {
       this.setState({ saveDisabled: true });
+      let dnGroup = {};
+      DNGroupList.filter(v => !!v.dn).forEach(it => (dnGroup[`${it.dn}`] = it.groupName));
+      const extra =
+        this.state.searchRange === 0
+          ? {
+              domainPath,
+              dnGroup: {},
+            }
+          : { dnGroup, domainPath: '' };
       projectSettingController
         .updateProjectLdapSetting({
-          ldapType: parseInt(this.state.type),
-          port: this.state.port,
-          enableSSL: this.state.enableSSL,
-          serverIP: this.state.serverIP,
-          user: this.state.user,
-          password: this.state.password,
-          domainPath: this.state.domainPath,
-          searchFilter: this.state.searchFilter,
-          emailAttr: this.state.emailAttr,
-          fullnameAttr: this.state.fullnameAttr,
-          departmentAttr: this.state.departmentAttr,
-          jobAttr: this.state.jobAttr,
-          workphoneAttr: this.state.workphoneAttr,
+          ldapType: parseInt(type),
+          port,
+          enableSSL,
+          serverIP,
+          user,
+          password,
+          searchRange,
+          searchFilter,
+          emailAttr,
+          fullnameAttr,
+          departmentAttr,
+          jobAttr,
+          workphoneAttr,
           projectId: Config.projectId,
+          ...extra,
         })
         .then(data => {
           if (data) {
             alert(_l('保存成功'));
-            this.setState({ saveDisabled: false });
+            this.setState({
+              saveDisabled: false,
+              domainPath: searchRange === 0 ? this.state.domainPath : '',
+              DNGroupList: searchRange === 1 ? DNGroupList : [{ dn: '', groupName: '' }],
+            });
           } else {
             alert(_l('连接失败，请确保系统能够正常访问您的服务器'), 3);
             this.setState({ saveDisabled: false });
           }
+        })
+        .fail(err => {
+          this.setState({ saveDisabled: false });
         });
     }
   }

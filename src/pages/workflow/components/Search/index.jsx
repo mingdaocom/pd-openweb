@@ -3,6 +3,7 @@ import { string, func } from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 export default class Search extends Component {
   static propTypes = {

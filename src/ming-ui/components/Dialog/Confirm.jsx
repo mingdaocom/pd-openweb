@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import Dialog from './Dialog';
 import ConfirmButton from './ConfirmButton';
 import '../less/Dialog.less';
+import _ from 'lodash';
 
 export default function confirm(props) {
   const container = document.createElement('div');

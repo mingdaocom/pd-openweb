@@ -10,6 +10,7 @@ import GroupController from 'src/api/group';
 import ScrollView from 'ming-ui/components/ScrollView';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { formatFeeds, FeesItem } from './index';
+import moment from 'moment';
 
 const splitFeeds = (list) => {
   const ranges = {};

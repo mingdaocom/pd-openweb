@@ -12,7 +12,10 @@ export default class UpdateSheetRecord extends Component {
 
         {data.appType !== APP_TYPE.PROCESS && (
           <Fragment>
-            <div className="Font13 Gray_9e mTop10">{_l('当前流程中的节点对象')}</div>
+            <div className="Font13 Gray_9e mTop10">
+              {_l('当前流程中的节点对象')}
+              {data.appType === APP_TYPE.EXTERNAL_USER && _l('（获取人员数据节点）')}
+            </div>
 
             <SelectNodeObject
               appList={data.flowNodeList}

@@ -18,6 +18,7 @@ import { getRequest, browserIsMobile, htmlEncodeReg } from 'src/util';
 let request = getRequest();
 import preall from 'src/common/preall';
 import { getDataByFilterXSS } from './util';
+import _ from 'lodash';
 
 const Create = createPermissionCheckWrapper(CreateComp);
 class RegisterContainer extends React.Component {

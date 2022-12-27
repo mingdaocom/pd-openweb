@@ -5,6 +5,7 @@ import ThirdAppGroup from './ThirdAppGroup';
 import api from 'api/application';
 
 import './index.less';
+import _ from 'lodash';
 
 export default class ThirdPartyApp extends Component {
   static propTypes = {

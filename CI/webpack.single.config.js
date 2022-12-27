@@ -14,7 +14,6 @@ module.exports = function (entryType) {
     entry: {
       css: [
         'src/common/mdcss/basic.css',
-        'src/common/mdcss/inStyle.css',
         'src/common/mdcss/iconfont/mdfont.css',
         'src/common/mdcss/animate.css',
         'src/common/mdcss/tip.css',
@@ -22,13 +21,8 @@ module.exports = function (entryType) {
       ],
       vendors: [
         'src/library/jquery/1.8.3/jquery',
-        'src/library/lodash/lodash.min',
-        'src/library/moment/moment.min',
-        'src/library/jquery/1.8.3/jqueryAnimate',
         'src/library/jquery/1.8.3/jquery.mousewheel.min',
         'src/library/plupload/plupload.full.min',
-        'src/library/moment/locale/zh-cn',
-        'src/library/moment/locale/zh-tw',
       ],
       globals: ['src/common/global'],
       ...singleEntryList,

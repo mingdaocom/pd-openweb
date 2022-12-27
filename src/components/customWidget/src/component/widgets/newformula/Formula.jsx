@@ -10,6 +10,7 @@ import ColumnListDropdown from '../../common/ColumnListDropdown';
 import FnList from './FnList';
 import { getControlTextValue, getAvailableColumn, createWorksheetColumnTag } from '../../../utils/util';
 import { FORMULA } from './enum';
+import _ from 'lodash';
 
 export default class Formula extends React.Component {
   static propTypes = {

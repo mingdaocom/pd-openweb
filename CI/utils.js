@@ -178,12 +178,14 @@ function getEntryFromHtml(filename, type) {
 
 function findEntryMap(type) {
   const entrySet = {};
-  fs.readdirSync(htmlTemplatesPath).forEach(filename => {
-    const entry = getEntryFromHtml(filename, type);
-    if (entry && entry.src) {
-      entrySet[getEntryName(entry.src, filename)] = entry.src;
-    }
-  });
+  fs.readdirSync(htmlTemplatesPath)
+    // .filter(name => /\.html?$/.test(name))
+    .forEach(filename => {
+      const entry = getEntryFromHtml(filename, type);
+      if (entry && entry.src) {
+        entrySet[getEntryName(entry.src, filename)] = entry.src;
+      }
+    });
   return entrySet;
 }
 

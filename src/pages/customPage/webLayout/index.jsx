@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { EditWidget, WidgetList, WidgetContent } from '../components';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const ContentWrap = styled.div`
   box-sizing: border-box;

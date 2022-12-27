@@ -29,7 +29,7 @@
         [
           "env",
           {
-            "modules": "commonjs",
+            "modules": false,
             "targets": {
               "browsers": ["last 2 versions"]
             }
@@ -71,7 +71,7 @@
         [
           "env",
           {
-            "modules": "commonjs",
+            "modules": false,
             "targets": {
               "browsers": ["> 0.6% in CN"]
             }

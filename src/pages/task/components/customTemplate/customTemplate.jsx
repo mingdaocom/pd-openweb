@@ -4,10 +4,11 @@ import './customTemplate.less';
 import CustomWidget from 'src/components/customWidget/src/containers/customWidget';
 import customWidgetConfig from 'src/components/customWidget/src/config';
 import CustomTemplateStage from './customTemplateStage';
-import { getTemplateAndStages } from 'src/api/taskCenter';
-import { saveTemplateWithControls } from 'src/api/form';
+import taskCenterAjax from 'src/api/taskCenter';
+import formAjax from 'src/api/form';
 import { navigateTo } from 'src/router/navigateTo';
 import store from 'src/components/customWidget/src/redux/store';
+import _ from 'lodash';
 
 export default class CustomTemplate extends Component {
   constructor(props) {
@@ -52,7 +53,7 @@ export default class CustomTemplate extends Component {
    * 获取数据
    */
   getTemplateAndStages() {
-    getTemplateAndStages({
+    taskCenterAjax.getTemplateAndStages({
       templateId: this.props.tempId,
     }).then((source) => {
       if (source.status) {
@@ -332,7 +333,7 @@ export default class CustomTemplate extends Component {
     });
 
     // 保存
-    saveTemplateWithControls({
+    formAjax.saveTemplateWithControls({
       controls,
       sourceType: 3,
       templateId: isCover ? this.state.templateId : '',

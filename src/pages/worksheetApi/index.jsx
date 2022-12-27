@@ -34,6 +34,7 @@ import preall from 'src/common/preall';
 import SecretKey from './SecretKey';
 import styled from 'styled-components';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   input {
@@ -1270,9 +1271,9 @@ class WorksheetApi extends Component {
 
   renderMapItem = o => {
     const { numberTypeList = [] } = this.state;
-    let { relationValue = [], controlId, value } = o;
+    let { relationValue = [], controlId, value, alias } = o;
     let list = {
-      controlId,
+      controlId: alias || controlId,
       value,
     };
     if (
@@ -1323,7 +1324,7 @@ class WorksheetApi extends Component {
    */
   renderAddRow(item, i) {
     return this.renderPostContent(item, i, {
-      controls: item.controls.filter(o => o.isSupport).map(o => this.renderMapItem(o)),
+      controls: item.controls.filter(o => o.isSupport && (o.controlId.length>20 || o.controlId==="ownerid")).map(o => this.renderMapItem(o)),
       triggerWorkflow: true,
     });
   }
@@ -1333,7 +1334,7 @@ class WorksheetApi extends Component {
    */
   renderAddRows(item, i) {
     return this.renderPostContent(item, i, {
-      rows: [item.controls.filter(o => o.isSupport).map(o => this.renderMapItem(o))],
+      rows: [item.controls.filter(o => o.isSupport && (o.controlId.length>20 || o.controlId==="ownerid")).map(o => this.renderMapItem(o))],
       triggerWorkflow: true,
     });
   }
@@ -1342,14 +1343,26 @@ class WorksheetApi extends Component {
    * 获取行记录详情
    */
   renderGetDetail(item, i) {
-    return this.renderPostContent(item, i, { rowId: _l('行记录ID') });
+    return this.renderPostContent(item, i, { rowId: _l('行记录ID'), getSystemControl: _l('是否获取系统字段，默认false') });
   }
 
   /**
    * 获取行记录详情 post
    */
   renderGetDetailPost(item, i) {
-    return this.renderPostContent(item, i, { rowId: _l('行记录ID') });
+    return this.renderPostContent(item, i, { rowId: _l('行记录ID'), getSystemControl: _l('是否获取系统字段，默认false') });
+  }
+  /**
+   * 获取行记录分享链接
+   */
+   renderGetRowShareLink(item, i) {
+    let otherOptions = {
+      rowId: _l('行记录ID'),
+      visibleFields: [_l('可见字段ID')],
+      validTime: _l('有效时间'),
+      password: _l('密码'),
+    };
+    return this.renderPostContent(item, i, otherOptions);
   }
 
   /**
@@ -1358,7 +1371,7 @@ class WorksheetApi extends Component {
   renderUpdateDetail(item, i) {
     return this.renderPostContent(item, i, {
       rowId: _l('行记录ID'),
-      controls: item.controls.filter(o => o.isSupport).map(o => this.renderMapItem(o)),
+      controls: item.controls.filter(o => o.isSupport && (o.controlId.length>20 || o.controlId==="ownerid")).map(o => this.renderMapItem(o)),
       triggerWorkflow: true,
     });
   }

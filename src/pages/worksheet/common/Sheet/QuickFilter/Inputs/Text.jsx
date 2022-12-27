@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
 import PasteDialog from '../PasteDialog';
+import _ from 'lodash';
 
 const Out = styled.div`
   display: flex;

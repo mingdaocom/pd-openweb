@@ -8,6 +8,7 @@ import './index.less';
 import { FASTFILTER_CONDITION_TYPE, getSetDefault } from './util';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   .hasData {

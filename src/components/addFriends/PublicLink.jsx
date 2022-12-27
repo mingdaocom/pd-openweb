@@ -5,6 +5,7 @@ import InviteController from 'src/api/invitation';
 import projectSettingController from 'src/api/projectSetting';
 import ClipboardButton from 'react-clipboard.js';
 import { FROM_TYPE, DETAIL_MODE } from './addFriends';
+import _ from 'lodash';
 
 const DISPLAY_OPTIONS = [
   {

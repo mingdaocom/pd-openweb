@@ -1,12 +1,15 @@
 import React, { Component, memo } from 'react';
 import { string } from 'prop-types';
-import { LoadDiv, Icon } from 'ming-ui';
+import { LoadDiv, Icon, Modal } from 'ming-ui';
 import styled from 'styled-components';
-import { get } from '../../api/flowNode';
+import flowNode from '../../api/flowNode';
 import { getSameLevelIds } from '../../WorkflowSettings/utils';
 import nodeModules from '../../WorkflowSettings/EditFlow/nodeModules';
 import { NODE_TYPE } from '../../WorkflowSettings/enum';
 import cx from 'classnames';
+import _ from 'lodash';
+import './index.less';
+import '../../WorkflowSettings/EditFlow/index.less'
 
 const Start = styled.div`
   padding: 0 0 32px 0 !important;
@@ -83,7 +86,7 @@ class FlowChart extends Component {
   componentWillMount() {
     const { processId, instanceId } = this.props;
 
-    get({ processId, instanceId }).then(result => {
+    flowNode.get({ processId, instanceId }).then(result => {
       this.setState({
         startEventId: result.startEventId,
         flowNodeMap: result.flowNodeMap,
@@ -107,7 +110,7 @@ class FlowChart extends Component {
   }
 
   changeScreenWidth() {
-    const $box = $('.workflowEdit');
+    const $box = $('.flowChartModal .workflowEdit');
     const $content = $box.find('.workflowEditContent');
     let maxWidth = $box.width();
 
@@ -121,12 +124,12 @@ class FlowChart extends Component {
   }
 
   setViewCenter() {
-    const box = document.getElementsByClassName('workflowEdit')[0] || {};
+    const box = $('.flowChartModal .workflowEdit')[0] || {};
     const scrollWidth = box.scrollWidth;
     const width = box.clientWidth;
 
     if (scrollWidth > width) {
-      $('.workflowEdit').scrollLeft((scrollWidth - width) / 2);
+      $('.flowChartModal .workflowEdit').scrollLeft((scrollWidth - width) / 2);
     }
   }
 
@@ -137,10 +140,10 @@ class FlowChart extends Component {
     const { flowNodeMap, execIds, execPendingIds } = this.state;
 
     ids.forEach((id, index) => {
-      const $el = $(`.workflowBox[data-id=${id}]`);
+      const $el = $(`.flowChartModal .workflowBox[data-id=${id}]`);
 
       if (isPending) {
-        $(`.workflowBox[data-id=${id}],.workflowBranch[data-id=${id}]`).addClass('workflowBoxPending');
+        $(`.flowChartModal .workflowBox[data-id=${id}],.workflowBranch[data-id=${id}]`).addClass('workflowBoxPending');
       }
 
       // 已执行的高亮 或者 未执行的第一个高亮
@@ -149,7 +152,7 @@ class FlowChart extends Component {
       }
 
       if (flowNodeMap[id].typeId === NODE_TYPE.BRANCH) {
-        const $branchEl = $(`.workflowBranch[data-id=${id}]`);
+        const $branchEl = $(`.flowChartModal .workflowBranch[data-id=${id}]`);
         const branchLeft = $branchEl.offset().left;
         const branchWidth = $branchEl.innerWidth();
 
@@ -162,7 +165,7 @@ class FlowChart extends Component {
           return;
         }
 
-        const $nextEl = $(`.workflowBox[data-id=${ids[index + 1]}]`);
+        const $nextEl = $(`.flowChartModal .workflowBox[data-id=${ids[index + 1]}]`);
         const nextLeft = $nextEl.offset().left;
         const nextWidth = $nextEl.innerWidth();
 
@@ -190,7 +193,7 @@ class FlowChart extends Component {
                 (!isPending && _.includes(execPendingIds, flowNodeMap[key].nextId)) ||
                 isPending)
             ) {
-              const $branchEl = $(`.workflowBranch[data-id=${key}]`);
+              const $branchEl = $(`.flowChartModal .workflowBranch[data-id=${key}]`);
               const $btn = $branchEl.siblings('.workflowLineBtn');
 
               if (!$branchEl.find('> .workflowExecBottomLine').length) {
@@ -243,7 +246,7 @@ class FlowChart extends Component {
    * 完整显示
    */
   fullDisplay = () => {
-    const $content = $('.workflowEdit')[0];
+    const $content = $('.flowChartModal .workflowEdit')[0];
 
     if ($content.clientHeight < $content.scrollHeight) {
       let scale = Math.floor((($content.clientHeight / $content.scrollHeight) * this.state.scale) / 10) * 10;
@@ -322,4 +325,23 @@ class FlowChart extends Component {
   }
 }
 
-export default memo(FlowChart);
+export default memo(({ processId, instanceId, onClose = () => {} }) => {
+  return (
+    <Modal
+      visible
+      className="flowChartModal"
+      closable={false}
+      title={
+        <div className="flexRow valignWrapper">
+          <div className="flex Font17 bold">{_l('流转图')}</div>
+          <Icon className="Gray_9e Font20 pointer" icon="close" onClick={onClose} />
+        </div>
+      }
+      type="fixed"
+      width={window.outerWidth - 60}
+      onCancel={onClose}
+    >
+      <FlowChart processId={processId} instanceId={instanceId} />
+    </Modal>
+  );
+});

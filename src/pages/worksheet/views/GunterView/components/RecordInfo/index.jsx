@@ -6,6 +6,7 @@ import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
 import { formatRecordTime, fillRecordTimeBlockColor } from 'src/pages/worksheet/views/GunterView/util';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 const isMobile = browserIsMobile();
 

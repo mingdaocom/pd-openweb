@@ -11,6 +11,7 @@ import sheetAjax from 'src/api/worksheet';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util';
 import NavShow from './NavShow';
+import _ from 'lodash';
 const Wrap = styled.div`
   .hasData {
     .cancle {

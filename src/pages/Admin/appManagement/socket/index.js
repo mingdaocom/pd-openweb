@@ -1,6 +1,7 @@
 import { antNotification } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import { emitter } from '../index';
+import _ from 'lodash';
 
 const TYPES = {
   1: _l('应用结构'),

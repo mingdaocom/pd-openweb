@@ -7,6 +7,7 @@ import Trigger from 'rc-trigger';
 import DatePickerFilter from './datePickerFilter';
 
 import './style.less';
+import moment from 'moment';
 
 const routeList = [
   {

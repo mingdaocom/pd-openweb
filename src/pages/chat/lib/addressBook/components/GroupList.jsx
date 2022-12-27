@@ -5,6 +5,7 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 
 import ListNull from './ListNull';
 import GroupItem from './GroupItem';
+import _ from 'lodash';
 
 export default class GroupList extends React.Component {
   constructor() {

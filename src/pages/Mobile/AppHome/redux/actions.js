@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import homeAppAjax from 'src/api/homeApp';
 
 export const getAppList = () => dispatch => {

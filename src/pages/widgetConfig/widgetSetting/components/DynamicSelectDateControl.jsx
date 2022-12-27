@@ -9,6 +9,7 @@ import { ControlTag } from '../../styled';
 import { SYSTEM_DATE_CONTROL } from '../../config/widget';
 import SelectControl from './SelectControl';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import moment from 'moment';
 
 const DateInfoWrap = styled.div`
   display: flex;

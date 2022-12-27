@@ -7,6 +7,7 @@ import { LoadDiv, ScrollView, Checkbox, Tooltip } from 'ming-ui';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import SvgIcon from 'src/components/SvgIcon';
 import cx from 'classnames';
+import _ from 'lodash';
 
 export default class SelectApp extends React.Component {
   constructor(props) {
@@ -172,6 +173,7 @@ export default class SelectApp extends React.Component {
 
   render() {
     const { selectListSheetCount, selectList } = this.state;
+    const exportAppWorksheetLimitCount = _.get(md, 'global.SysSettings.exportAppWorksheetLimitCount') || 200;
     return (
       <Fragment>
         <div className="selectAppContainer mTop10">
@@ -191,12 +193,15 @@ export default class SelectApp extends React.Component {
           <div className="selectAppRightContent">
             <div className="clearfix">
               <span className="Left Font15">{_l('已选')}</span>
-              <Tooltip popupPlacement="top" text={<span>{_l('导出的应用工作表总数上限200个')}</span>}>
+              <Tooltip
+                popupPlacement="top"
+                text={<span>{_l('导出的应用工作表总数上限%0个', exportAppWorksheetLimitCount)}</span>}
+              >
                 <span className="icon-info1 mLeft8 Gray_bd Right LineHeight20"></span>
               </Tooltip>
-              <span className={cx('Right', { errorMag: selectListSheetCount > 200 })}>
+              <span className={cx('Right', { errorMag: selectListSheetCount > exportAppWorksheetLimitCount })}>
                 <span>{selectListSheetCount}</span>
-                <span className="Gray_bd">/200</span>
+                <span className="Gray_bd">/{exportAppWorksheetLimitCount}</span>
               </span>
             </div>
             {this.renderSelectList()}
@@ -208,8 +213,15 @@ export default class SelectApp extends React.Component {
             disabled={!selectList.length}
             className={cx('ming Button Right nextBtn Button--primary Bold', { disabled: !selectList.length })}
             onClick={() => {
-              if (selectListSheetCount > 200) {
-                alert(_l('导出的应用共%0张表，已超过上限200张，请重新选择', selectListSheetCount), 3);
+              if (selectListSheetCount > exportAppWorksheetLimitCount) {
+                alert(
+                  _l(
+                    '导出的应用共%0张表，已超过上限%1张，请重新选择',
+                    selectListSheetCount,
+                    exportAppWorksheetLimitCount,
+                  ),
+                  3,
+                );
               } else {
                 this.props.handleNext(selectList);
               }

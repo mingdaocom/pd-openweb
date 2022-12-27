@@ -75,6 +75,12 @@ class Sidenav extends React.Component {
         updateTimeChecked: checked,
         systemControl: dataN,
       };
+    } else if (id === 'uaid') {
+      return {
+        ...printData,
+        updateAccountChecked: checked,
+        systemControl: dataN,
+      };
     }
   };
 
@@ -139,7 +145,10 @@ class Sidenav extends React.Component {
                     } else if (it.controlId === 'utime') {
                       printDataN = this.changeSysFn('utime', !printData.updateTimeChecked);
                       handChange(printDataN);
-                    } else {
+                    } else if (it.controlId === 'uaid') {
+                      printDataN = this.changeSysFn('uaid', !printData.updateAccountChecked);
+                      handChange(printDataN);
+                    }  else {
                       this.setData(it, 'checked', isRelationControls);
                     }
                   }}
@@ -501,6 +510,7 @@ class Sidenav extends React.Component {
         createAccountChecked: !receiveControlsCheckAll,
         createTimeChecked: !receiveControlsCheckAll,
         updateTimeChecked: !receiveControlsCheckAll,
+        updateAccountChecked: !receiveControlsCheckAll,
         orderNumber: orderNumber.map(it => {
           return {
             ...it,

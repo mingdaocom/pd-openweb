@@ -32,6 +32,7 @@ import {
   MOBILE_OPERATION_LIST,
 } from 'src/pages/workflow/components/ExecDialog/config';
 import './index.less';
+import _ from 'lodash';
 
 const { operation } = instance;
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
@@ -276,21 +277,21 @@ class ProcessRecord extends Component {
       })
       .then(result => {
         if (result && result.data) {
-          alert(_l('保存成功'));
+          alert(_l('操作成功'));
           const newReceiveControls = receiveControls.map(c => _.assign({}, c, { value: result.data[c.controlId] }));
           this.setState({
             isEdit: false,
             random: Date.now(),
-            sheetRow: Object.assign(sheetRow, { receiveControls: newReceiveControls }),
+            sheetRow: Object.assign(sheetRow, { receiveControls: newReceiveControls, logId: result.requestLogId }),
             originalData: newReceiveControls,
           });
           fn && fn();
         } else {
-          alert(_l('保存失败，请稍后重试'), 2);
+          alert(_l('操作失败，请稍后重试'), 2);
         }
       })
       .fail(error => {
-        alert(_l('保存失败，请稍后重试'), 2);
+        alert(_l('操作失败，请稍后重试'), 2);
       });
   }
   handleFooterBtnClick = id => {
@@ -321,6 +322,16 @@ class ProcessRecord extends Component {
     if (id === 'revoke') {
       this.handleSave(() => {
         this.request('revoke');
+      });
+      return;
+    }
+    if (id === 'urge') {
+      this.request('operation', { operationType: 18 });
+      return;
+    }
+    if (id === 'stash') {
+      this.handleSave(() => {
+        this.request('operation', { operationType: 13 });
       });
       return;
     }
@@ -377,12 +388,18 @@ class ProcessRecord extends Component {
     const { isModal, onClose } = this.props;
     const { params } = this.props.match;
     const { instanceId, workId } = params;
-    const { submitLoading } = this.state;
+    const { submitLoading, sheetRow } = this.state;
+    const isStash = restPara.operationType === 13;
     if (submitLoading) return;
     this.setState({ submitLoading: true, otherActionVisible: false });
-    instance[action]({ id: instanceId, workId, ...restPara }).then((data) => {
+    instance[action]({
+      id: instanceId,
+      workId: restPara.operationType === 18 ? '' : workId,
+      logId: sheetRow.logId,
+      ...restPara
+    }).then(() => {
       if (isModal) {
-        onClose({ id: instanceId });
+        onClose({ id: instanceId, isStash });
       } else {
         window.mobileNavigateTo('/mobile/processMatters');
       }
@@ -440,11 +457,11 @@ class ProcessRecord extends Component {
   renderProcessHandle() {
     const { instance, submitLoading, submitAction, isHasten } = this.state;
     const { operationTypeList, btnMap = {}, works } = instance;
-    const baseActionList = [3, 4, 5, 9];
+    const baseActionList = [3, 4, 5, 9, 18];
     const actionList = operationTypeList[0].filter(n => baseActionList.includes(n));
     const newOperationTypeList = operationTypeList[1]
-      .filter(item => item !== 12)
-      .concat(operationTypeList[0].filter(n => !baseActionList.includes(n)));
+      .concat(operationTypeList[0].filter(n => !baseActionList.includes(n)))
+      .filter(item => ![12, 13].includes(item));
     const buttons = newOperationTypeList.map(item => {
       return MOBILE_OPERATION_LIST[item];
     });
@@ -665,7 +682,7 @@ class ProcessRecord extends Component {
         {isModal && (
           <div className="header">
             <div className="flexRow valignWrapper">
-              <div className="flex"></div>
+              <div className="flex" />
               <Icon icon="closeelement-bg-circle" className="Font20 " onClick={onClose} />
             </div>
           </div>
@@ -678,6 +695,7 @@ class ProcessRecord extends Component {
     const { viewId, isEdit, random, sheetRow, rowId, worksheetId, instance, otherActionVisible } = this.state;
     const { operationTypeList, flowNode, app } = instance;
     const { type } = flowNode;
+
     return (
       <Fragment>
         <div className="flex" ref={con => (this.con = con)}>
@@ -701,7 +719,7 @@ class ProcessRecord extends Component {
               });
             }}
           />
-          <WorkflowStepItem instance={instance} />
+          <WorkflowStepItem instance={instance} worksheetId={worksheetId} recordId={rowId} />
         </div>
         {otherActionVisible && (
           <OtherAction
@@ -778,18 +796,23 @@ class ProcessRecord extends Component {
     const { isModal, onClose } = this.props;
     const { instance } = this.state;
     const { name, type, appType } = instance.flowNode;
+    const isStash = _.includes(instance.operationTypeList[0], 13);
     const action = ACTION_TYPES[type];
+
     return (
       <div className="header">
         <div className="flexRow valignWrapper">
           <div className="flex">
             <div
-              className={cx('sheetName Font13', action.id, typeof action.icon === 'string' ? '' : action.icon[appType])}
+              className={cx('sheetName ellipsis Font13', action.id, typeof action.icon === 'string' ? '' : action.icon[appType])}
             >
               <Icon icon={typeof action.icon === 'string' ? action.icon : action.icon[appType]} className="Font18" />
               <span>{name}</span>
             </div>
           </div>
+          {isStash && (
+            <Icon className="Font22 mRight10 Gray_9e" icon="save1" onClick={() => this.handleFooterBtnClick('stash')} />
+          )}
           {isModal && <Icon icon="closeelement-bg-circle" className="Font20 " onClick={onClose} />}
         </div>
       </div>
@@ -877,6 +900,7 @@ class ProcessRecord extends Component {
               appId={app.id}
               viewId={viewId}
               originalData={originalData}
+              projectId={sheetRow.projectId}
             />
           )}
         {this.renderActionSheet()}

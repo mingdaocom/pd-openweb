@@ -8,6 +8,7 @@ import API from '../api';
 import departmentController from 'src/api/department';
 import styled from 'styled-components';
 import { Icon, ScrollView } from 'ming-ui';
+import _ from 'lodash';
 
 const SearchContainer = styled.div`
   width: 100%;

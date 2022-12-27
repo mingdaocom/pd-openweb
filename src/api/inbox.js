@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 设置Inbox加星状态
   * @param {Object} args 请求参数

@@ -7,6 +7,7 @@ import RoleItem from './roleItem';
 import RoleAuthCommon from '../common/common';
 
 import './style.less';
+import _ from 'lodash';
 
 class RoleList extends React.Component {
   static propTypes = {

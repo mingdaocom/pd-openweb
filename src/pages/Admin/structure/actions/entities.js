@@ -2,6 +2,7 @@
 import { PAGE_SIZE, COMPANY_DEPARMENTID } from '../constant';
 import Config from '../../config';
 import departmentController from 'src/api/department';
+import _ from 'lodash';
 
 // async actions and action creator
 export const DEPARTMENT_REQUEST = 'DEPARTMENT_REQUEST';

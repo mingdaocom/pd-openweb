@@ -27,6 +27,7 @@ import './index.less';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../redux/actions.js';
+import _ from 'lodash';
 
 @connect(
   state => ({
@@ -304,7 +305,7 @@ export default class ChartDialog extends Component {
         settingVisible={settingVisible}
         scopeVisible={scopeVisible}
         renderHeaderDisplaySetup={this.renderHeaderDisplaySetup}
-        changeSheetVisible={(visible) => {
+        onChangeSheetVisible={(visible) => {
           this.handleChangeSheetVisible(visible);
         }}
       />
@@ -353,7 +354,7 @@ export default class ChartDialog extends Component {
                 <ChartSetting projectId={projectId} />
               </Tabs.TabPane>
               <Tabs.TabPane tab={_l('样式')} key="style" disabled={!reportData.status}>
-                <ChartStyle />
+                <ChartStyle projectId={projectId} />
               </Tabs.TabPane>
               <Tabs.TabPane tab={_l('分析')} key="analyse" disabled={!reportData.status}>
                 <ChartAnalyse />

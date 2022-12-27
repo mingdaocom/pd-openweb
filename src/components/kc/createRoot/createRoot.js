@@ -9,8 +9,9 @@ import { expireDialogAsync, existAccountHint } from 'src/components/common/funct
 import 'src/components/quickSelectUser/quickSelectUser';
 import 'src/components/dialogSelectUser/dialogSelectUser';
 import 'src/components/mdBusinessCard/mdBusinessCard';
+import kcAjax from 'src/api/kc';
+import _ from 'lodash';
 
-const kcAjax = require('src/api/kc');
 var PERMISSION_TYPE = {
   NONE: -1,
   ALL: 0,

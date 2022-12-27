@@ -13,6 +13,7 @@ import WidgetDisplay from './WidgetDisplay';
 import { getEnumType } from 'src/pages/customPage/util';
 import AppPermissions from '../components/AppPermissions';
 import 'react-grid-layout/css/styles.css';
+import _ from 'lodash';
 
 const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
 

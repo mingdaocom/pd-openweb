@@ -1,12 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import MDMap from 'ming-ui/components/amap/MDMap';
 import MapLoader from 'ming-ui/components/amap/MapLoader';
+import { isKeyBoardInputChar } from 'worksheet/util';
 import EditableCellCon from '../EditableCellCon';
 import { browserIsMobile } from 'src/util';
 
-function Location(props) {
+function Location(props, ref) {
   const { className, style, cell, editable, recordId, isediting, updateCell, onClick, updateEditingStatus } = props;
   const { enumDefault2, advancedSetting, strDefault } = cell;
   const onlyCanAppUse = (strDefault || '00')[0] === '1';
@@ -21,6 +22,24 @@ function Location(props) {
       ? [locationData.title, locationData.address].filter(o => o).join(' ')
       : `${_l('经度：%0', locationData.x)} ${_l('纬度：%0', locationData.y)}`;
   };
+
+  useImperativeHandle(ref, () => ({
+    handleTableKeyDown(e) {
+      switch (e.key) {
+        case 'Escape':
+          updateEditingStatus(false);
+          break;
+        default:
+          if (!isKeyBoardInputChar(e.key)) {
+            return;
+          }
+          updateEditingStatus(true);
+          e.stopPropagation();
+          e.preventDefault();
+          break;
+      }
+    },
+  }));
 
   return (
     <EditableCellCon
@@ -70,4 +89,4 @@ Location.propTypes = {
   updateEditingStatus: PropTypes.func,
 };
 
-export default Location;
+export default forwardRef(Location);

@@ -3,6 +3,7 @@ import { string } from 'prop-types';
 import SortableNode from './SortableNode';
 import CreateRecord from '../../components/createRecord';
 import { dealHierarchyData, getRelateDefaultValue } from '../util';
+import _ from 'lodash';
 
 export default class TreeNode extends Component {
   static propTypes = {};

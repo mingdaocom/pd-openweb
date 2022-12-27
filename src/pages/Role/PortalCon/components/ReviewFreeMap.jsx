@@ -5,6 +5,7 @@ import 'src/components/uploadAttachment/uploadAttachment';
 import cx from 'classnames';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { WIDGETS_TO_API_TYPE_ENUM_N } from 'src/pages/Role/PortalCon/setting/InfoSet';
+import _ from 'lodash';
 
 const typeList = _.keys(WIDGETS_TO_API_TYPE_ENUM_N);
 const Wrap = styled.div`
@@ -74,7 +75,9 @@ export default function ReviewFreeMap(props) {
     if (props.type === 1) {
       const { templates = {} } = props.query || {} || {};
       const { controls = [] } = templates;
-      setCells(controls.filter(item => typeList.includes(item.type + '')));
+      setCells(
+        controls.filter(item => !['rowid', 'wfname'].includes(item.controlId) && typeList.includes(item.type + '')),
+      );
     } else {
       const { cell = {} } = props;
       setCells(cell.cells);

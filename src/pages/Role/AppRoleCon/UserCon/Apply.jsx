@@ -11,7 +11,7 @@ import ApplyAction from 'src/pages/Role/AppRoleCon/component/ApplyAction';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import _ from 'lodash';
 import { getCurrentProject } from 'src/util';
-import { editAppApplyStatus } from 'src/api/appManagement.js';
+import appManagementAjax from 'src/api/appManagement.js';
 import UserHead from 'src/pages/feed/components/userHead';
 import BatchDialog from 'src/pages/Role/AppRoleCon/component/BatchDialog';
 import moment from 'moment';
@@ -147,7 +147,7 @@ function Apply(props) {
       return alert(_l('请选择角色', 3));
     }
     //2=通过，3=拒绝
-    editAppApplyStatus({ appId, ids: userIds, status: 2, roleId: targetRoleIds[0] }).then(res => {
+    appManagementAjax.editAppApplyStatus({ appId, ids: userIds, status: 2, roleId: targetRoleIds[0] }).then(res => {
       if (res) {
         setSelectedIds([]);
         getApplyList({ appId }, true);
@@ -196,7 +196,7 @@ function Apply(props) {
       description: <Textarea height={120} id="applyRoleRefuse" placeholder={_l('请填写拒绝原因')} />,
       onOk: () => {
         const remark = document.getElementById('applyRoleRefuse').value.trim();
-        editAppApplyStatus({
+        appManagementAjax.editAppApplyStatus({
           appId,
           ids: ids,
           status: 3,

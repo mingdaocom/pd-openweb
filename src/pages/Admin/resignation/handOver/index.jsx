@@ -14,6 +14,7 @@ import 'src/components/pager/pager';
 import './style.less';
 
 import { default as Detail, callDialogSelectUser } from './detail';
+import _ from 'lodash';
 
 export default class HandOver extends React.Component {
   static propTypes = {

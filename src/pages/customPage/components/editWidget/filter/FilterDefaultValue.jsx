@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { Select, Divider } from 'antd';
 import { connect } from 'react-redux';
 import Inputs, { OptionsTypes } from 'worksheet/common/Sheet/QuickFilter/Inputs/index';
+import _ from 'lodash';
 
 function FilterDefaultValue(props) {
   const { appPkg, filter, setFilter, firstControlData } = props;

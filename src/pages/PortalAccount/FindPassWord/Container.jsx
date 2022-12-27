@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { sendVerifyCode, findPwd } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import { setAutoLoginKey, toApp } from '../util';
 import captcha from 'src/components/captcha';
 import Message from 'src/pages/account/components/message';
@@ -184,7 +184,7 @@ export default function LoginContainer(props) {
     }
     const { dialCode, emailOrTel, verifyCode, password } = dataLogin;
     const { ticket, randstr } = resRet;
-    findPwd({
+    externalPortalAjax.findPwd({
       account: dialCode + emailOrTel,
       password: encrypt(password),
       appId,
@@ -211,7 +211,7 @@ export default function LoginContainer(props) {
           setData({ ...dataLogin, ...data });
         }}
         appId={appId}
-        sendVerifyCode={sendVerifyCode}
+        sendVerifyCode={externalPortalAjax.sendVerifyCode}
         nextHtml={isValid => {
           return (
             <React.Fragment>

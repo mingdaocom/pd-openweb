@@ -1,6 +1,8 @@
 
 import { PERIODS, PERIOD_TYPE } from './config';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
+import moment from 'moment';
 
 /**
  * 修改当前视图配置
@@ -602,7 +604,7 @@ export const timeToPercentage = (time, width) => {
   const [ date, hours ] = time.split(' ');
   if (hours) {
     const maxTime = 2359;
-    const value = Number(hours.replace(/:/, ''));
+    const value = Number(hours.slice(0, 5).replace(/:/, ''));
     const percentage = ((maxTime - value) / maxTime) * 100;
     return ((100 - percentage) / 100) * width;
   } else {

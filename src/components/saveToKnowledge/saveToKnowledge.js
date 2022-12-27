@@ -1,9 +1,10 @@
 ﻿import createShare from 'src/components/createShare/createShare';
-var kc = require('src/api/kc');
+import kc from 'src/api/kc';
 import kcUtil from 'src/pages/kc/util';
+import attachmentAjax from 'src/api/attachment';
+
 var copyNode = kc.copyNode;
 var addNode = kc.addNode;
-var attachmentAjax = require('src/api/attachment');
 
 var NODE_TYPE = {
   QINIU: 0,

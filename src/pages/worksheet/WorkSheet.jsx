@@ -17,6 +17,7 @@ import { updateBase, updateWorksheetLoading } from './redux/actions';
 import { addWorkSheet, updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
 import CustomPageContent from 'worksheet/components/CustomPageContent';
 import './worksheet.less';
+import _ from 'lodash';
 
 @connect(undefined, dispatch => ({
   addWorkSheet: bindActionCreators(addWorkSheet, dispatch),
@@ -88,8 +89,8 @@ class WorkSheet extends Component {
     }
     this.setCache(nextProps.match.params);
   }
-  shouldComponentUpdate() {
-    return !/\/app\/[\w-]+$/.test(location.pathname);
+  shouldComponentUpdate(nextProps) {
+    return nextProps.sheetListLoading !== this.props.sheetListLoading || !/\/app\/[\w-]+$/.test(location.pathname);
   }
   componentWillUnmount() {
     $(document.body).removeClass('fixedScreen');
@@ -145,7 +146,16 @@ class WorkSheet extends Component {
     if (match.params.worksheetId) {
       id = match.params.worksheetId;
     } else if (possessSheetList.length) {
-      id = possessSheetList[0].workSheetId;
+      // 以前是直接返回第一个表作为默认值会后面切换视图时新旧 worksheetId 比对出错，改为 navigate
+      if (match.params.appId && match.params.groupId) {
+        navigateTo(
+          `/app/${match.params.appId}/${match.params.groupId}/${possessSheetList[0].workSheetId}${
+            location.search || ''
+          }`,
+        );
+      } else {
+        id = possessSheetList[0].workSheetId;
+      }
     }
     return id;
   }
@@ -200,7 +210,7 @@ class WorkSheet extends Component {
         !_.isEmpty(sheetList.filter(s => s.appId === appId && s.appSectionId === groupId)) &&
         new URL(location.href).searchParams.get('from') === 'insite'
       ) {
-        navigateTo(`/app/${appId}`, true);
+        navigateTo(`/app/${appId}${groupId ? '/' + groupId : ''}`, true);
         return;
       }
       return (

@@ -1,15 +1,14 @@
 import React, { Component, Fragment } from 'react';
-import { object, number, bool, func, string } from 'prop-types';
+import { object, number, func, string } from 'prop-types';
 import cx from 'classnames';
 import UserHead from 'src/pages/feed/components/userHead/userHead';
-import { Tooltip, Icon, Linkify, Menu, MenuItem } from 'ming-ui';
-import { ActionSheet } from 'antd-mobile';
+import { Tooltip, Icon, Linkify } from 'ming-ui';
 import moment from 'moment';
 import { renderToString } from 'react-dom/server';
-import { operation, revoke } from '../../api/instance';
 import _ from 'lodash';
 import './StepItem.less';
 import { browserIsMobile } from 'src/util';
+import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
 
 const UNNECESSARY_OPERATION_CODE = 22;
 const OVERRULE = 5;
@@ -33,13 +32,14 @@ const MULTIPLE_OPERATION = {
 
 const OPERATION_LOG_ACTION = {
   0: _l('发起'),
-  1: _l('提交'),
+  1: _l('填写'),
   2: _l('转交'),
   3: _l('查看'),
   4: _l('通过'),
   5: _l('否决'),
   8: _l('转审'),
   9: _l('添加审批人'),
+  10: _l('被移除'),
   16: _l('审批前加签'),
   17: _l('同意并加签'),
   18: _l('修改申请内容'),
@@ -66,29 +66,30 @@ export default class StepItem extends Component {
     data: object,
     currentType: number,
     currentWork: object,
-    firstWorkId: string,
-    isAppAdmin: bool,
-    isLast: bool,
-    onClose: func,
+    worksheetId: string,
+    rowId: string,
   };
   static defaultProps = {
     data: {},
     currentType: 0,
     currentWork: {},
-    isAppAdmin: false,
-    isLast: false,
-    onClose: () => {},
+    worksheetId: '',
+    rowId: '',
   };
 
   state = {
     moreOperationVisible: false,
+    showLogDialog: false,
   };
 
   /**
    * 节点步骤一经渲染便不会改变,故阻止更新以优化性能
    */
   shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.moreOperationVisible !== this.state.moreOperationVisible) {
+    if (
+      nextState.moreOperationVisible !== this.state.moreOperationVisible ||
+      nextState.showLogDialog !== this.state.showLogDialog
+    ) {
       return true;
     }
 
@@ -96,55 +97,22 @@ export default class StepItem extends Component {
   }
 
   /**
-   * mobile端的更多操作
-   */
-  handleOperatorAction = () => {
-    const { data, isAppAdmin, isLast, firstWorkId, onClose } = this.props;
-    const { moreOperationVisible } = this.state;
-    const { instanceId, workId, allowUrge } = data || {};
-    const handleUrge = () => {
-      operation({ id: instanceId, workId, operationType: 18 }).then(data => {
-        alert(_l('已催办'));
-      });
-    };
-    const handleRevoke = () => {
-      revoke({ id: instanceId, workId: isAppAdmin ? firstWorkId : workId });
-      onClose();
-    };
-    const BUTTONS = [
-      { name: _l('催办'), icon: 'hr_message_reminder', fn: handleUrge },
-      { name: _l('撤回'), icon: 'restart', fn: handleRevoke },
-    ];
-    ActionSheet.showActionSheetWithOptions({
-      options: BUTTONS.map(item => (
-        <div className="flexRow valignWrapper w100" onClick={item.fn}>
-          <Icon className="mRight10 Font18 Gray_9e" icon={item.icon} />
-          <span className="Bold">{item.name}</span>
-        </div>
-      )),
-      message: (
-        <div className="flexRow header">
-          <span className="Font13">{_l('操作')}</span>
-          <div className="closeIcon" onClick={() => ActionSheet.close()}>
-            <Icon icon="close" />
-          </div>
-        </div>
-      ),
-    });
-  };
-
-  /**
    * 根据类型的不同渲染内容
    */
   renderDetail = item => {
     let { data, currentWork } = this.props;
     let { workId, flowNode = {} } = data || {};
-    const { type, workItemAccount, operationTime, opinion, workItemLog, viewTime, signature } = item;
+    const { type, workItemAccount, operationTime, workItemLog, viewTime, logIds, principal } = item;
     /** 是否是当前用户 */
     let isCurrentUser = md.global.Account.accountId === workItemAccount.accountId;
     /** 是否是当前流程节点 */
     let isCurrentWork = workId === (currentWork || {}).workId;
-    if (!operationTime) {
+
+    if (!operationTime && !logIds && !principal) {
+      // 等我操作
+      if (isCurrentWork && isCurrentUser) {
+        return <div className="waitInfo current Font14 bold">{WAIT_TEXT[type]}</div>;
+      }
       if (workItemLog && workItemLog.action === UNNECESSARY_OPERATION_CODE) {
         return (
           <Fragment>
@@ -152,9 +120,6 @@ export default class StepItem extends Component {
             <div className="info">{UNNECESSARY_OPERATION[type]}</div>
           </Fragment>
         );
-      }
-      if (isCurrentWork && isCurrentUser) {
-        return <div className="waitInfo current Font14 bold">{WAIT_TEXT[type]}</div>;
       }
       return (
         <Fragment>
@@ -178,8 +143,22 @@ export default class StepItem extends Component {
         </Fragment>
       );
     }
+
+    if (!workItemLog && principal) {
+      return (
+        <Fragment>
+          <div className="flexRow alignItemsCenter">
+            <div className="userName">
+              {workItemAccount.fullName + (principal ? _l('(%0委托)', principal.fullName) : '')}
+            </div>
+            <div className="flex" />
+          </div>
+        </Fragment>
+      );
+    }
+
     if (workItemLog) {
-      const { action, actionTargetName, fields } = workItemLog;
+      const { action, actionTargetName } = workItemLog;
 
       /**
        * 填写节点
@@ -188,24 +167,20 @@ export default class StepItem extends Component {
         return (
           <Fragment>
             <div className="flexRow alignItemsCenter">
-              <div className="userName">{workItemAccount.fullName}</div>
+              <div className="userName">
+                {workItemAccount.fullName + (principal ? _l('(%0委托)', principal.fullName) : '')}
+              </div>
               <div className={cx('action ellipsis', `action-${action}`)}>
                 {action === UNNECESSARY_OPERATION_CODE
                   ? UNNECESSARY_OPERATION[type]
-                  : fields
-                  ? this.renderWriteFields(fields)
+                  : !operationTime && !!logIds
+                  ? _l('暂存')
                   : OPERATION_LOG_ACTION[action] + (_.includes([2], action) ? actionTargetName : '')}
               </div>
+              {this.renderLogsContent(item)}
+              <div className="flex" />
             </div>
-            {opinion && <div className="info Gray_9e">{opinion}</div>}
-            <div className="timeAction flexRow Gray_9e">
-              {action !== UNNECESSARY_OPERATION_CODE && (
-                <Fragment>
-                  {formatTime(operationTime)}
-                  <span className="mLeft4">{_l('提交')}</span>
-                </Fragment>
-              )}
-            </div>
+            {this.renderAdditionalContent(item)}
           </Fragment>
         );
       }
@@ -217,21 +192,22 @@ export default class StepItem extends Component {
         return (
           <Fragment>
             <div className="flexRow alignItemsCenter">
-              <div className="userName">{workItemAccount.fullName}</div>
+              <div className="userName">
+                {workItemAccount.fullName + (principal ? _l('(%0委托)', principal.fullName) : '')}
+              </div>
               <div className={cx('action ellipsis', `action-${action}`)}>
                 {action === UNNECESSARY_OPERATION_CODE
                   ? UNNECESSARY_OPERATION[type]
                   : action === OVERRULE && actionTargetName
                   ? _l('退回到%0', actionTargetName)
+                  : !operationTime && !!logIds
+                  ? _l('暂存')
                   : OPERATION_LOG_ACTION[action] + (_.includes([8, 9, 16, 17], action) ? actionTargetName : '')}
               </div>
+              {this.renderLogsContent(item)}
+              <div className="flex" />
             </div>
-            {fields && fields.length && <div className="mTop4">{this.renderWriteFields(fields)}</div>}
-            {opinion && <div className="info Gray_9e">{opinion}</div>}
-            {signature && <div className="infoSignature" style={{ backgroundImage: `url(${signature.server})` }} />}
-            <div className="timeAction flexRow Gray_9e">
-              {action !== UNNECESSARY_OPERATION_CODE && formatTime(operationTime)}
-            </div>
+            {this.renderAdditionalContent(item)}
           </Fragment>
         );
       }
@@ -254,31 +230,76 @@ export default class StepItem extends Component {
   };
 
   /**
-   * 渲染填写的字段
+   * 渲染日志内容
    */
-  renderWriteFields(fields) {
-    if (!fields || !fields.length) return null;
+  renderLogsContent(item) {
+    const { worksheetId, rowId } = this.props;
+    const { showLogDialog } = this.state;
+    const { logIds } = item;
+
+    if (!logIds || !logIds.length) return null;
 
     return (
       <Fragment>
-        <span className="pointer Font14 ThemeColor3">{_l('填写%0个字段', fields.length)}</span>
-        {!!fields.length && !browserIsMobile() && (
-          <Tooltip
-            tooltipClass="workflowStepFieldsWrap "
-            popupPlacement={'bottom'}
-            text={
-              <ul>
-                {fields.map(({ name, toValue }, index) => (
-                  <li key={index} className="writeFields">
-                    <span className="field">{`${name}: `}</span>
-                    <span className="val">{toValue}</span>
-                  </li>
-                ))}
-              </ul>
-            }
-          >
-            <Icon icon="workflow_info" className="Font16 Gray_9e mLeft4" />
-          </Tooltip>
+        <span
+          data-tip={_l('查看更新记录')}
+          className="pointer mLeft5 Gray_9e ThemeHoverColor3 flexRow"
+          onClick={() => this.setState({ showLogDialog: true })}
+        >
+          <Icon type="visibility" className="Font16" />
+        </span>
+        {showLogDialog && (
+          <WorksheetRecordLogDialog
+            worksheetId={worksheetId}
+            rowId={rowId}
+            filterUniqueIds={logIds}
+            visible
+            onClose={() => this.setState({ showLogDialog: false })}
+          />
+        )}
+      </Fragment>
+    );
+  }
+
+  /**
+   * 渲染审批、填写的附加信息
+   */
+  renderAdditionalContent(item) {
+    const { operationTime, opinion, workItemLog, signature, logIds, updateTime } = item;
+    const { action, fields } = workItemLog;
+
+    return (
+      <Fragment>
+        {fields && fields.length && (
+          <div className="mTop4">
+            <span className="Font14 ThemeColor3">{_l('填写%0个字段', fields.length)}</span>
+            {!!fields.length && !browserIsMobile() && (
+              <Tooltip
+                tooltipClass="workflowStepFieldsWrap "
+                popupPlacement={'bottom'}
+                text={
+                  <ul>
+                    {fields.map(({ name, toValue }, index) => (
+                      <li key={index} className="writeFields">
+                        <span className="field">{`${name}: `}</span>
+                        <span className="val">{toValue}</span>
+                      </li>
+                    ))}
+                  </ul>
+                }
+              >
+                <Icon icon="workflow_info" className="Font16 Gray_9e mLeft4" />
+              </Tooltip>
+            )}
+          </div>
+        )}
+        {opinion && <div className="info Gray_9e">{opinion}</div>}
+        {signature && <div className="infoSignature" style={{ backgroundImage: `url(${signature.server})` }} />}
+        {action !== UNNECESSARY_OPERATION_CODE && (
+          <div className="timeAction flexRow Gray_9e">
+            {operationTime && formatTime(operationTime)}
+            {!operationTime && !!logIds && updateTime && formatTime(updateTime)}
+          </div>
         )}
       </Fragment>
     );
@@ -412,59 +433,6 @@ export default class StepItem extends Component {
     );
   }
 
-  /**
-   * 更多操作
-   */
-  renderOperator() {
-    const { data, isAppAdmin, isLast, firstWorkId, onClose } = this.props;
-    const { moreOperationVisible } = this.state;
-    const { instanceId, workId, allowUrge } = data || {};
-
-    if ((isLast && isAppAdmin) || allowUrge) {
-      return (
-        <div className="relative">
-          <Icon
-            icon="more_horiz Gray_9e ThemeHoverColor3 mLeft10 pointer Font22"
-            onClick={() =>
-              browserIsMobile() ? this.handleOperatorAction() : this.setState({ moreOperationVisible: true })
-            }
-          />
-
-          {moreOperationVisible && (
-            <Menu style={{ left: -150 }} onClickAway={() => this.setState({ moreOperationVisible: false })}>
-              {((isLast && isAppAdmin) || allowUrge) && (
-                <MenuItem
-                  onClick={() => {
-                    operation({ id: instanceId, workId, operationType: 18 }).then(data => {
-                      alert(_l('已催办'));
-                    });
-                    this.setState({ moreOperationVisible: false });
-                  }}
-                >
-                  <Icon icon="hr_message_reminder" className="Font14" />
-                  <span className="mLeft20">{_l('催办')}</span>
-                </MenuItem>
-              )}
-              {isLast && isAppAdmin && (
-                <MenuItem
-                  onClick={() => {
-                    revoke({ id: instanceId, workId: isAppAdmin ? firstWorkId : workId });
-                    onClose();
-                  }}
-                >
-                  <Icon icon="restart" className="Font14" />
-                  <span className="mLeft20">{_l('撤回')}</span>
-                </MenuItem>
-              )}
-            </Menu>
-          )}
-        </div>
-      );
-    }
-
-    return null;
-  }
-
   render() {
     const { data, currentWork, currentType } = this.props;
     const { workId, flowNode, workItems, countersign, countersignType, condition, multipleLevelType, sort } =
@@ -485,7 +453,6 @@ export default class StepItem extends Component {
             </div>
             {this.renderTimeConsuming()}
             {this.renderSurplusTime()}
-            {this.renderOperator()}
           </div>
           <div className="stepContentWrap mTop10">
             <div className={'stepName bold Font15 flex ellipsis'}>

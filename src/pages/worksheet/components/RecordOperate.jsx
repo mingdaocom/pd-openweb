@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Menu, MenuItem, Icon, Dialog } from 'ming-ui';
 import styled from 'styled-components';
-import { getWorksheetBtns } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { copyRow } from 'worksheet/controllers/record';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import {
@@ -17,6 +17,7 @@ import CustomButtons from 'worksheet/common/recordInfo/RecordForm/CustomButtons'
 import PrintList from 'worksheet/common/recordInfo/RecordForm/PrintList';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import _ from 'lodash';
 
 // TODO 完善菜单关闭交互
 
@@ -169,7 +170,7 @@ export default function RecordOperate(props) {
   async function loadButtons() {
     try {
       setCustomButtonLoading(true);
-      const newButtons = await getWorksheetBtns({
+      const newButtons = await worksheetAjax.getWorksheetBtns({
         appId,
         worksheetId,
         viewId,
@@ -386,7 +387,7 @@ export default function RecordOperate(props) {
                     onDelete();
                   } else {
                     try {
-                      await deleteRecord({ worksheetId, recordId });
+                      await deleteRecord({ worksheetId, recordId, deleteType: from });
                       alert(_l('删除成功'));
                       onDeleteSuccess({ appId, worksheetId, viewId, recordId });
                     } catch (err) {

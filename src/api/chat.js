@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 文件传输助手
   * @param {Object} args 请求参数

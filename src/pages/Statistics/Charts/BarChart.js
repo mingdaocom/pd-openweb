@@ -15,6 +15,8 @@ import {
 import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
 import { formatSummaryName, getIsAlienationColor, isFormatNumber } from 'statistics/common';
+import { toFixed } from 'src/util';
+import _ from 'lodash';
 
 export const formatDataCount = (data, isVertical, newYaxisList) => {
   const result = _.toArray(_.groupBy(data, 'originalId'));
@@ -281,7 +283,7 @@ export default class extends Component {
           if (isPerPile) {
             return {
               name,
-              value: `${(value * 100).toFixed(Number.isInteger(value) ? 0 : 2)}%`
+              value: `${toFixed(value * 100, Number.isInteger(value) ? 0 : 2)}%`
             }
           } else {
             const { dot } = _.find(yaxisList, { controlId: id }) || {};

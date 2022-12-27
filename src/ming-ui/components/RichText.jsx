@@ -302,6 +302,7 @@ export default ({
   toolbarList,
   isRemark,
   clickInit = false,
+  autoFocus = false,
 }) => {
   const [MDEditor, setComponent] = useState(null);
   const editorDiv = useRef();
@@ -327,7 +328,7 @@ export default ({
           editorDom.current.editor.plugins.get('FileRepository').createUploadAdapter = loader => {
             return new MyUploadAdapter(loader);
           };
-          if (clickInit) {
+          if (clickInit || autoFocus) {
             editorDom.current.editor.focus();
           }
         }

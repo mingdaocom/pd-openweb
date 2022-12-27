@@ -5,6 +5,7 @@ import { Tooltip, Icon } from 'ming-ui';
 import { htmlEncodeReg, htmlDecodeReg } from 'src/util';
 import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 const Wrapper = styled.div`
   background-color: #fff;

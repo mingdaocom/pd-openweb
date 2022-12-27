@@ -1,9 +1,10 @@
 import React from 'react';
 import { Dialog } from 'ming-ui';
 import './dialogCreateAndEditRole.less';
-import { checkSensitive } from 'src/api/fixedData.js';
-import { addJob, deleteJobs, editJobName } from 'src/api/job';
+import fixedDataAjax from 'src/api/fixedData.js';
+import jobAjax from 'src/api/job';
 import cx from 'classnames';
+import _ from 'lodash';
 
 class DialogCreateAndEditPosition extends React.Component {
   constructor(props) {
@@ -23,7 +24,7 @@ class DialogCreateAndEditPosition extends React.Component {
           <span
             className="LineHeight20 Left mTop5 Hand deleteBtn"
             onClick={() => {
-              deleteJobs({
+              jobAjax.deleteJobs({
                 jobIds: [currentPosition.jobId],
                 projectId,
               }).then(res => {
@@ -63,12 +64,12 @@ class DialogCreateAndEditPosition extends React.Component {
               this.setState({ exsistCurrentName: true });
               return;
             }
-            checkSensitive({ content: jobName }).then(res => {
+            fixedDataAjax.checkSensitive({ content: jobName }).then(res => {
               if (res) {
                 return alert(_l('输入内容包含敏感词，请重新填写'), 3);
               }
               if (filed === 'edit') {
-                editJobName({ jobName: jobName, projectId, jobId: currentPosition.jobId }).then(res => {
+                jobAjax.editJobName({ jobName: jobName, projectId, jobId: currentPosition.jobId }).then(res => {
                   if (res) {
                     alert(_l('修改成功'));
                     let roleInfo = { ...currentPosition, jobName };
@@ -86,7 +87,7 @@ class DialogCreateAndEditPosition extends React.Component {
                   this.props.onCancel();
                 });
               } else {
-                addJob({ jobName: jobName, projectId }).then(res => {
+                jobAjax.addJob({ jobName: jobName, projectId }).then(res => {
                   if (res) {
                     alert(_l('创建成功'));
                     let roleInfo = (positionList && !_.isEmpty(positionList) && positionList[0]) || {};

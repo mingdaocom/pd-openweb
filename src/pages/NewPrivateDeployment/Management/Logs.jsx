@@ -4,8 +4,9 @@ import { DatePicker, Input, Button, ConfigProvider } from 'antd';
 import styled from 'styled-components';
 import privateHkLog from 'src/api/privateHkLog';
 import { htmlEncodeReg, htmlDecodeReg } from 'src/util';
-import 'moment/locale/zh-cn';
+import moment from 'moment';
 import locale from 'antd/es/date-picker/locale/zh_CN';
+import _ from 'lodash';
 
 const { RangePicker } = DatePicker;
 

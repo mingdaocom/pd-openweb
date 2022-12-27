@@ -7,6 +7,7 @@ import { Icon, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
 import { PERIODS, PERIOD_TYPE } from 'worksheet/views/GunterView/config';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 const IconWrap = styled(Icon)`
   &.disable {

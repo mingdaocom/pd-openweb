@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, string } from 'prop-types';
-import selectOrgRole from 'src/components/DialogSelectOrgRole/selectOrgRole';
+import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
 import { BaseSelectedItem } from './Styles';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

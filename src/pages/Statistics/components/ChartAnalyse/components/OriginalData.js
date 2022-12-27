@@ -4,6 +4,7 @@ import { Icon } from 'ming-ui';
 import SortColumns from 'src/pages/worksheet/components/SortColumns';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const ShowControlIdWrapper = styled.div`
   border-radius: 4px;

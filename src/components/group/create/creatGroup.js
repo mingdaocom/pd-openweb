@@ -6,14 +6,12 @@ import mainHtml from './tpl/main.html';
 import groupHeadHtml from '../settingGroup/tpl/groupHead.html';
 import { expireDialogAsync } from 'src/components/common/function';
 import 'src/components/select/select';
-import 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
+import DialogSelectMapGroupDepart from 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
 import 'src/components/uploadAttachment/uploadAttachment';
+import groupController from 'src/api/group';
+import userController from 'src/api/user';
 
 var CreateGroup = {};
-
-var groupController = require('src/api/group');
-var userController = require('src/api/user');
-
 var projects = $.extend({}, md.global.Account).projects;
 var project = projects && projects.length ? projects[0] : {};
 
@@ -152,7 +150,7 @@ CreateGroup.bindEvent = function () {
     }
   });
   $selectDep.on('click', function () {
-    $('body').dialogSelectMapGroupDepart({
+    DialogSelectMapGroupDepart({
       projectId: CreateGroup.options.settings.projectId,
       callback: function (data) {
         CreateGroup.options.selectedDeptSetting = data;

@@ -7,9 +7,10 @@ import DialogSelectGroups from 'src/components/dialogSelectDept';
 import { Tooltip } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { getDepartmentFullNameByIds } from 'src/api/department';
+import departmentAjax from 'src/api/department';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
+import _ from 'lodash';
 
 // enumDefault 单选 0 多选 1
 export default class Text extends React.Component {
@@ -45,6 +46,22 @@ export default class Text extends React.Component {
       this.handleSelect();
     }
   }
+  @autobind
+  handleTableKeyDown(e) {
+    const { updateEditingStatus } = this.props;
+    switch (e.key) {
+      case 'Escape':
+        updateEditingStatus(false);
+        break;
+      case 'Enter':
+        if (!this.isSelecting) {
+          this.handleSelect();
+        }
+        break;
+      default:
+        break;
+    }
+  }
 
   @autobind
   handleChange() {
@@ -68,6 +85,7 @@ export default class Text extends React.Component {
       unique: cell.enumDefault === 0,
       showCreateBtn: false,
       selectFn: cb,
+      onClose: () => (this.isSelecting = false),
     });
   }
 
@@ -75,7 +93,9 @@ export default class Text extends React.Component {
   handleSelect() {
     const { cell, updateEditingStatus } = this.props;
     const { value } = this.state;
+    this.isSelecting = true;
     this.selectDepartments(data => {
+      this.isSelecting = false;
       if (cell.enumDefault === 0) {
         // 单选
         this.setState(
@@ -206,12 +226,14 @@ export default class Text extends React.Component {
                   mouseEnterDelay={0.6}
                   text={() =>
                     new Promise(resolve =>
-                      getDepartmentFullNameByIds({
-                        projectId,
-                        departmentIds: [department.departmentId],
-                      }).then(res => {
-                        resolve(_.get(res, '0.name'));
-                      }),
+                      departmentAjax
+                        .getDepartmentFullNameByIds({
+                          projectId,
+                          departmentIds: [department.departmentId],
+                        })
+                        .then(res => {
+                          resolve(_.get(res, '0.name'));
+                        }),
                     )
                   }
                 >

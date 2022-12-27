@@ -1,6 +1,17 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import { Icon } from 'ming-ui';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import styled from 'styled-components';
+
+const EmailWrap = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  z-index: ${props => (props.isEditing ? 2 : -1)};
+`;
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -13,6 +24,8 @@ export default class Widgets extends Component {
 
   state = {
     originValue: '',
+    isEditing: false,
+    maskStatus: _.get(this.props, 'advancedSetting.datamask') === '1',
   };
 
   componentWillReceiveProps(nextProps, nextState) {
@@ -26,30 +39,63 @@ export default class Widgets extends Component {
     this.props.onChange(value);
   };
 
+  getShowValue = () => {
+    const value = this.text ? (this.text.value || '').replace(/ /g, '') : this.props.value || '';
+    return this.state.maskStatus && value ? dealMaskValue({ ...this.props, value }) : value;
+  };
+
   render() {
-    const { disabled, hint, value, onBlur, onChange } = this.props;
-    const { originValue } = this.state;
+    const { disabled, hint, value, onBlur, onChange, maskPermissions } = this.props;
+    const { originValue, maskStatus, isEditing } = this.state;
+    const isMask = maskPermissions && value && maskStatus;
 
     return (
-      <input
-        type="text"
-        className={cx('customFormControlBox', { controlDisabled: disabled })}
-        ref={text => {
-          this.text = text;
-        }}
-        placeholder={hint}
-        disabled={disabled}
-        defaultValue={value}
-        onChange={this.onChange}
-        onFocus={e => this.setState({ originValue: e.target.value.trim() })}
-        onBlur={event => {
-          if (event.target.value.trim() !== value) {
-            onChange(event.target.value.trim());
-          }
+      <Fragment>
+        <div
+          className={cx(
+            'customFormControlBox customFormTextareaBox',
+            { Gray_bd: !value },
+            { controlDisabled: disabled },
+          )}
+          onClick={() => {
+            if (!disabled) {
+              this.setState({ isEditing: true }, () => this.text && this.text.focus());
+            }
+          }}
+        >
+          <span
+            className={cx({ maskHoverTheme: disabled && isMask })}
+            onClick={() => {
+              if (disabled && isMask) this.setState({ maskStatus: false });
+            }}
+          >
+            {this.getShowValue()}
+            {isMask && <Icon icon="eye_off" className={cx('Gray_bd', disabled ? 'mLeft7' : 'maskIcon')} />}
+          </span>
+        </div>
+        <EmailWrap isEditing={isEditing}>
+          <input
+            type="text"
+            className={cx('customFormControlBox', { controlDisabled: disabled })}
+            ref={text => {
+              this.text = text;
+            }}
+            placeholder={hint}
+            disabled={disabled}
+            defaultValue={value}
+            onChange={this.onChange}
+            onFocus={e => this.setState({ originValue: e.target.value.trim() })}
+            onBlur={event => {
+              if (event.target.value.trim() !== value) {
+                onChange(event.target.value.trim());
+              }
+              this.setState({ isEditing: false });
 
-          onBlur(originValue);
-        }}
-      />
+              onBlur(originValue);
+            }}
+          />
+        </EmailWrap>
+      </Fragment>
     );
   }
 }

@@ -3,11 +3,12 @@ import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import { Icon, Radio, Checkbox, Tooltip, Dialog } from 'ming-ui';
 import cx from 'classnames';
-import { createEPDiscussWorkFlow } from 'src/api/externalPortal';
-import { getWeiXinBindingInfo } from 'src/api/project';
+import externalPortalAjax from 'src/api/externalPortal';
+import projectAjax from 'src/api/project';
 import EditAgreementOrPrivacy from 'src/pages/Role/PortalCon/components/EditAgreementOrPrivacy';
 import WorkflowDialog from 'src/pages/workflow/components/WorkflowDialog';
 import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   position: relative;
@@ -152,7 +153,7 @@ export default function BaseSet(props) {
 
   useEffect(() => {
     if (_.get(props, ['portalSet', 'portalSetModel', 'loginMode', 'weChat']) && !isWXExist && !authorizerInfo.appId) {
-      getWeiXinBindingInfo({ projectId: projectId }).then(res => {
+      projectAjax.getWeiXinBindingInfo({ projectId: projectId }).then(res => {
         setIsWXExist(res && res.length > 0);
         setAuthorizerInfo(res && res.length > 0 ? res[0] : {});
         setCommonState({ loading: false });
@@ -175,7 +176,7 @@ export default function BaseSet(props) {
     if (ajaxRequest) {
       ajaxRequest.abort();
     }
-    ajaxRequest = createEPDiscussWorkFlow({
+    ajaxRequest = externalPortalAjax.createEPDiscussWorkFlow({
       appId,
     });
     ajaxRequest.then(res => {
@@ -198,11 +199,11 @@ export default function BaseSet(props) {
     let num = 0;
     WAY.map(it => {
       if (it.key === oKey) {
-        if (portalSetModel[key][it.key]) {
+        if ((portalSetModel[key] || {})[it.key]) {
           num = num + 1;
         }
       } else {
-        if (!portalSetModel[key][it.key]) {
+        if (!(portalSetModel[key] || {})[it.key]) {
           num = num + 1;
         }
       }
@@ -211,7 +212,7 @@ export default function BaseSet(props) {
       portalSetModel: {
         ...portalSetModel,
         [key]: {
-          ...portalSetModel[key],
+          ...(portalSetModel[key] || {}),
           [oKey]: num >= WAY.length ? !checked : checked,
         },
       },

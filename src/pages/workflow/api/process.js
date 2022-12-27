@@ -315,4 +315,4 @@ var process = {
     return $.api(controllerName, 'processupdateUseStatus', JSON.stringify(args), $.extend(base, options));
   },
 };
-module.exports = process;
+export default process;

@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import styled from 'styled-components';
+import _ from 'lodash';
+import moment from 'moment';
 
 const TimeDotWrapper = styled.div`
   position: relative;

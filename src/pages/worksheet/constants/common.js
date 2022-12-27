@@ -1,9 +1,9 @@
-import * as sheetAjax from 'src/api/worksheet';
+import sheetAjax from 'src/api/worksheet';
 import moment from 'moment';
-import qs from 'query-string';
 import { navigateTo } from 'src/router/navigateTo';
 import { formatTemporaryData, formatKcAttachmentData } from 'src/components/UploadFiles/utils.js';
 import { WORKSHEET_ROLE_TYPE, SUB_PERMISSION_NAME, ROW_HEIGHT, VIEW_DISPLAY_TYPE } from './enum';
+import _ from 'lodash';
 
 // 进入配置控件页面参数处理
 export const getCustomWidgetUri = function ({ sourceName, templateId, sourceId, projectId, appconfig = {} }) {

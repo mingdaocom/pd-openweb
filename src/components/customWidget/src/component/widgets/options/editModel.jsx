@@ -2,6 +2,7 @@
 import config from '../../../config';
 import Checkbox from '../../common/checkbox';
 import RadioGroup from '../../common/radioGroup';
+import _ from 'lodash';
 
 class EditModel extends React.Component {
   constructor(props) {

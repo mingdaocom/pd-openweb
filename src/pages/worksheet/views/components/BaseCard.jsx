@@ -1,11 +1,13 @@
 import React, { memo, useRef, useState } from 'react';
 import styled from 'styled-components';
-import CellControl, { renderCellText } from 'worksheet/components/CellControls';
+import CellControl from 'worksheet/components/CellControls';
+import renderCellText from 'worksheet/components/CellControls/renderText';
 import Switch from 'worksheet/components/CellControls/Switch';
 import RecordOperate from 'worksheet/components/RecordOperate';
 import { Checkbox } from 'ming-ui';
 import update from 'immutability-helper';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon } from 'src';
 import { FlexCenter, Text } from 'worksheet/styled';
 import { checkCellIsEmpty } from 'src/pages/worksheet/util';
@@ -39,6 +41,15 @@ const RecordItemWrap = styled.div`
     white-space: normal;
     &.isGalleryView {
       white-space: nowrap;
+    }
+    &.maskHoverTheme {
+      cursor: pointer;
+      &:hover {
+        color: #1d5786;
+        .i.icon-eye_off {
+          color: #9e9e9e !important;
+        }
+      }
     }
   }
   .abstractWrap {
@@ -108,6 +119,14 @@ const RecordItemWrap = styled.div`
     right: 0;
     visibility: hidden;
   }
+  .hoverShow {
+    visibility: hidden;
+  }
+  &:hover {
+    .hoverShow {
+      visibility: visible;
+    }
+  }
 `;
 
 const RecordFieldsWrap = styled(FlexCenter)`
@@ -155,15 +174,31 @@ const BaseCard = props => {
     currentView,
     viewParaOfRecord,
     allowCopy,
+    isCharge,
     sheetSwitchPermit = [],
     editTitle,
     onUpdate = noop,
     onDelete = noop,
     onCopySuccess = noop,
   } = props;
-  let { fields = [], rowId, coverImage, allowEdit, allowDelete, abstractValue } = data;
+  let { rowId, coverImage, allowEdit, allowDelete, abstractValue } = data;
+  const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
+  const fields = data.fields
+    ? !isShowWorkflowSys && _.isArray(data.fields)
+      ? data.fields.filter(
+          it =>
+            !_.includes(
+              ['wfname', 'wfstatus', 'wfcuaids', 'wfrtime', 'wfftime', 'wfdtime', 'wfcaid', 'wfctime', 'wfcotime'],
+              it.controlId,
+            ),
+        )
+      : data.fields
+    : [];
   const { path = [] } = stateData;
+  const titleIndex = findIndex(fields, item => item.attribute === 1);
+  const titleField = fields[titleIndex] || {};
   const para = getCardDisplayPara({ currentView, data: stateData });
+  const [forceShowFullValue, setForceShowFullValue] = useState(_.get(titleField, 'advancedSetting.datamask') !== '1');
   let viewId, worksheetId;
   const { appId, projectId, viewType, viewControls, childType, showControlName } = para;
   if (viewParaOfRecord) {
@@ -183,9 +218,12 @@ const BaseCard = props => {
   const isGalleryView = String(viewType) === '3';
   abstractValue = abstract ? abstractValue : '';
 
-  const titleIndex = findIndex(fields, item => item.attribute === 1);
-  const titleField = fields[titleIndex] || {};
   const otherFields = update(fields, { $splice: [[titleIndex, 1]] });
+  const titleMasked =
+    ((isCharge || _.get(titleField, 'advancedSetting.isdecrypt') === '1') &&
+      titleField.type === 2 &&
+      titleField.enumDefault === 2) ||
+    _.includes([6, 8, 3, 5, 7], titleField.type);
 
   const isShowControlName = () => {
     if (String(viewType) === '2' && String(childType) === '2') {
@@ -213,7 +251,8 @@ const BaseCard = props => {
   };
 
   const renderTitleControl = () => {
-    const content = renderCellText(titleField) || _l('未命名');
+    const titleValue = renderCellText(titleField, { noMask: forceShowFullValue });
+    const content = titleValue || _l('未命名');
     if (props.renderTitle) return props.renderTitle({ content, titleField });
     return (
       <div
@@ -221,10 +260,22 @@ const BaseCard = props => {
           haveOtherField: !isEmpty(otherFields),
           overflow_ellipsis: titleField.type === 2,
           isGalleryView,
+          maskHoverTheme: titleMasked && !forceShowFullValue,
         })}
         title={content}
+        onClick={e => {
+          if (!titleMasked) return;
+          e.stopPropagation();
+          setForceShowFullValue(true);
+        }}
       >
         {content}
+        {titleMasked && titleValue && !forceShowFullValue && (
+          <i
+            className="icon icon-eye_off Hand maskData Font16 Gray_bd mLeft4 mTop4 hoverShow"
+            style={{ verticalAlign: 'middle' }}
+          />
+        )}
       </div>
     );
   };
@@ -286,6 +337,7 @@ const BaseCard = props => {
     };
   };
   const isMobile = browserIsMobile();
+  const hideOperate = isMobile || _.get(window, 'shareState.isPublicView');
   return (
     <RecordItemWrap
       ref={$ref}
@@ -296,7 +348,7 @@ const BaseCard = props => {
       {/* // 封面图片左、上放置 */}
       {includes(['1', '2'], coverposition) && <CardCoverImage {...props} viewId={viewId} />}
       <div className="fieldContentWrap">
-        {renderTitleControl()}
+        {renderTitleControl({ forceShowFullValue })}
         {renderAbstract()}
         {!_.isEmpty(otherFields) && (
           <RecordFieldsWrap hasCover={!!coverImage}>
@@ -305,7 +357,13 @@ const BaseCard = props => {
               .map(item => {
                 if (checkCellIsEmpty(item.value) && !isGalleryView) return null;
                 const content = (
-                  <CellControl from={4} cell={item} sheetSwitchPermit={sheetSwitchPermit} viewId={viewId} />
+                  <CellControl
+                    from={4}
+                    cell={item}
+                    sheetSwitchPermit={sheetSwitchPermit}
+                    viewId={viewId}
+                    isCharge={isCharge}
+                  />
                 );
                 // 画廊视图或有内容控件则渲染
                 return (
@@ -319,7 +377,7 @@ const BaseCard = props => {
       </div>
       {/* // 封面图片右放置 */}
       {includes(['0'], coverposition) && <CardCoverImage {...props} viewId={viewId} />}
-      {!isMobile && (
+      {!hideOperate && (
         <div className="recordOperateWrap" onClick={e => e.stopPropagation()}>
           {isHaveRecordOperate() ? (
             <RecordOperate

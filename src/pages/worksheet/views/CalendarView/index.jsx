@@ -11,11 +11,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getAdvanceSetting, browserIsMobile } from 'src/util';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
-import { addRecord } from 'worksheet/common/newRecord';
+import addRecord from 'worksheet/common/newRecord/addRecord';
 import moment from 'moment';
 import LunarCalendar from 'lunar-calendar';
 import SelectFieldForStartOrEnd from '../components/SelectFieldForStartOrEnd';
-import { updateWorksheetRow } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import External from './External';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { saveView, updateWorksheetControls } from 'src/pages/worksheet/redux/actions';
@@ -291,24 +291,26 @@ class RecordCalendar extends Component {
     const { base, updataEditable } = this.props;
     const { appId, worksheetId, viewId } = base;
     updataEditable(false);
-    updateWorksheetRow({
-      rowId,
-      appId,
-      worksheetId,
-      viewId,
-      newOldControl,
-    }).then(({ data, resultCode }) => {
-      if (data && resultCode === 1) {
-        this.getEventsFn();
-        if (cb) {
-          cb(data);
+    worksheetAjax
+      .updateWorksheetRow({
+        rowId,
+        appId,
+        worksheetId,
+        viewId,
+        newOldControl,
+      })
+      .then(({ data, resultCode }) => {
+        if (data && resultCode === 1) {
+          this.getEventsFn();
+          if (cb) {
+            cb(data);
+          }
+          clickData = null;
+          this.setState({
+            changeData: null,
+          });
         }
-        clickData = null;
-        this.setState({
-          changeData: null,
-        });
-      }
-    });
+      });
   };
 
   addRecordInfo = defaultFormData => {

@@ -20,6 +20,7 @@ import CalendarSet from './components/calendarSet/index';
 import GunterSet from './components/gunterSet/index';
 import FastFilter from './components/fastFilter';
 import NavGroup from './components/navGroup';
+import Show from './components/Show';
 import './ViewConfig.less';
 import { getAdvanceSetting } from 'src/util';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -27,13 +28,12 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import {
   updateViewAdvancedSetting,
   CAN_NOT_AS_VIEW_SORT,
-  NORMAL_SYSTEM_FIELDS,
   NORMAL_SYSTEM_FIELDS_SORT,
-  WORKFLOW_SYSTEM_FIELDS,
   WORKFLOW_SYSTEM_FIELDS_SORT,
 } from 'src/pages/worksheet/common/ViewConfig/util';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import { SYS, ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import _ from 'lodash';
 
 const SysSortColumn = styled.div`
   .workSheetChangeColumn {
@@ -49,11 +49,27 @@ const SysSortColumn = styled.div`
     padding: 0 0;
   }
 `;
+const SwitchStyle = styled.div`
+  .switchText {
+    margin-right: 6px;
+    line-height: 24px;
+  }
+  .icon {
+    vertical-align: middle;
+    &-ic_toggle_on {
+      color: #00c345;
+    }
+    &-ic_toggle_off {
+      color: #bdbdbd;
+    }
+  }
+`;
 const viewTypeConfig = [
   { type: 'Setting', name: _l('设置'), icon: '' }, // 设置
+  { type: 'Show', name: _l('显示列'), icon: 'tune_new' }, // 显示列
   { type: 'Filter', name: _l('数据过滤'), icon: 'worksheet_filter' }, // 筛选
   { type: 'Sort', name: _l('排序'), icon: 'folder-sort' }, // 排序
-  { type: 'Controls', name: _l('显示字段'), icon: 'visibility' }, // 字段
+  { type: 'Controls', name: _l('字段'), icon: 'visibility' }, // 字段
   { type: 'Color', name: _l('颜色'), icon: 'task-color' }, // 颜色
   { type: 'FastFilter', name: _l('快速筛选'), icon: 'smart_button_black_24dp' }, // 快速筛选
   { type: 'NavGroup', name: _l('筛选列表'), icon: 'list' }, // 快速筛选
@@ -61,12 +77,23 @@ const viewTypeConfig = [
   { type: 'MobileSet', name: _l('移动端显示'), icon: 'phone' }, // 移动端设置
 ];
 const viewTypeGroup = [
-  { name: 'base', list: ['Setting'] },
+  { name: 'base', list: ['Setting', 'Show'] },
   { name: 'set', list: ['Filter', 'Sort', 'Controls'] },
   { name: 'action', list: ['FastFilter', 'NavGroup', 'CustomAction'] },
   { name: 'mobile', list: ['MobileSet'] },
 ];
-
+const setList = [
+  { key: 'showno', txt: _l('显示序号') },
+  {
+    key: 'showquick',
+    txt: _l('显示记录快捷方式'),
+    tips: _l('在记录前显示“更多”图标，点击后可以在下拉菜单中进行记录操作。'),
+  },
+  { key: 'showsummary', txt: _l('显示汇总行') },
+  { key: 'showvertical', txt: _l('显示垂直表格线') },
+  { key: 'alternatecolor', txt: _l('显示交替行颜色') },
+  { key: 'titlewrap', txt: _l('标题行文字换行') },
+];
 const formatSortingColumns = columns => {
   return columns
     .filter(item => {
@@ -142,7 +169,18 @@ class ViewConfigCon extends Component {
     const sortingColumns = formatSortingColumns(columns);
     const sortType = view.sortType || this.getDefaultSortValue(sortCid, sortingColumns);
     const { showControlName = true, showControls = [], controls = [] } = view;
-    const { customdisplay = '0', refreshtime = '0' } = getAdvanceSetting(view); //'0':表格显示列与表单中的字段保持一致 '1':自定义显示列
+    const {
+      customdisplay = '0',
+      refreshtime = '0',
+      showno = '1', //显示序号
+      showquick = '1', //显示记录快捷方式
+      showsummary = '1', //显示汇总行
+      showvertical = '1', //显示垂直表格线
+      alternatecolor = '0', //显示交替行颜色
+      titlewrap = '0', //标题行文字换行
+      fastedit = '1', //行内编辑
+      sheettype = '0', //表格交互
+    } = getAdvanceSetting(view); //'0':表格显示列与表单中的字段保持一致 '1':自定义显示列
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     const defaultSysSort = isShowWorkflowSys
       ? [...WORKFLOW_SYSTEM_FIELDS_SORT, ...NORMAL_SYSTEM_FIELDS_SORT]
@@ -167,6 +205,14 @@ class ViewConfigCon extends Component {
       showControlName, //显示字段名称
       sysids,
       syssort,
+      showno,
+      showquick,
+      showsummary,
+      showvertical,
+      alternatecolor,
+      titlewrap,
+      fastedit,
+      sheettype,
     };
     let data = {
       sortingColumns,
@@ -194,9 +240,9 @@ class ViewConfigCon extends Component {
   //字段的columns 排除系统字段 (拥有者除外,且拥有者排在第一个)
   formatColumnsListForControls = columns => {
     let data = columns.filter(
-      column => !['caid', 'ctime', 'utime'].includes(column.controlId) && (column.fieldPermission || '111')[0] === '1',
+      column => !ALL_SYS.includes(column.controlId) && (column.fieldPermission || '111')[0] === '1',
     );
-    data = data.filter(o => o.controlId === 'ownerid').concat(data.filter(o => o.controlId !== 'ownerid'));
+    data = columns.filter(o => o.controlId === 'ownerid').concat(data.filter(o => o.controlId !== 'ownerid'));
     return data;
   };
   columnChange = ({ newShowControls, newControlSorts }) => {
@@ -267,8 +313,19 @@ class ViewConfigCon extends Component {
       advancedSetting: updateViewAdvancedSetting(view, {
         customdisplay,
         refreshtime,
+
         sysids: JSON.stringify(sysids),
         syssort: JSON.stringify(syssort),
+        ..._.pick(this.state, [
+          'showno',
+          'showquick',
+          'showsummary',
+          'showvertical',
+          'alternatecolor',
+          'titlewrap',
+          'fastedit',
+          'sheettype',
+        ]),
       }),
     };
     if (!!editAttrs) {
@@ -311,7 +368,7 @@ class ViewConfigCon extends Component {
     };
     let hideLengthStr = (
       <span>
-        <span className="titleTxt">{_l('显示字段')}</span>
+        <span className="titleTxt">{_l('字段')}</span>
         {columnsList.length - controlsList.length > 0 && (
           <span className="Gray_9e InlineBlock mLeft5 numText">{`${columnsList.length - controlsList.length}/${
             columnsList.length
@@ -336,7 +393,8 @@ class ViewConfigCon extends Component {
                   // 暂时不做颜色
                   item.type === 'Color' ||
                   //只有表格和画廊有快速筛选
-                  (!['sheet', 'gallery'].includes(viewTypeText) && ['FastFilter', 'NavGroup'].includes(item.type))
+                  (!['sheet', 'gallery'].includes(viewTypeText) && ['FastFilter', 'NavGroup'].includes(item.type)) ||
+                  (!['sheet'].includes(viewTypeText) && o === 'Show') //只有表格有显示列
                 ) {
                   return '';
                 }
@@ -365,7 +423,7 @@ class ViewConfigCon extends Component {
                     >
                       <Icon className="mRight15 Font18 icon" icon={item.icon || icon} />
                       <span className="fontText">
-                        {it.name === 'base'
+                        {it.name === 'base' && o === 'Setting'
                           ? _l('%0设置', text)
                           : ['CustomAction', 'Filter', 'FastFilter'].includes(item.type)
                           ? getHtml(item.type)
@@ -397,40 +455,29 @@ class ViewConfigCon extends Component {
     );
   }
 
+  onChangeSet = (key, value) => {
+    this.setState(
+      {
+        [key]: value,
+      },
+      () => {
+        this.handleSave({ editAttrs: ['advancedSetting'] });
+      },
+    );
+  };
+
   renderViewSetting() {
-    const {
-      showControls = [],
-      controlsSorts,
-      rowHeight,
-      customdisplay = '0',
-      refreshtime = '0',
-      sysids,
-      syssort,
-    } = this.state;
+    const { rowHeight, refreshtime = '0', fastedit = '0', sheettype = '0' } = this.state;
     const { columns, view, sheetSwitchPermit } = this.props;
-    const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
     const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
       c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49], c.type),
     );
-    const filteredColumnsData = isShowWorkflowSys
-      ? filteredColumns.concat(NORMAL_SYSTEM_FIELDS, WORKFLOW_SYSTEM_FIELDS)
-      : filteredColumns.concat(NORMAL_SYSTEM_FIELDS);
-
     // 画廊视图封面需要嵌入字段，其他配置过滤
     const coverColumns = filterHidedControls(columns, view.controls, false).filter(c => !!c.controlName);
     /* 多表关联层级视图 */
     const isRelateMultiSheetHierarchyView = viewTypeText === 'structure' && String(view.childType) === '2';
     const isCalendar = viewTypeText === 'calendar';
-    const showControlsForSortControl = showControls.filter(id =>
-      _.find(filteredColumnsData, column => column.controlId === id && (column.fieldPermission || '111')[0] === '1'),
-    );
-    const sysControlsColumnsForSort = isShowWorkflowSys
-      ? [...columns.filter(c => syssort.includes(c.controlId)), ...NORMAL_SYSTEM_FIELDS, ...WORKFLOW_SYSTEM_FIELDS]
-      : [...columns.filter(c => syssort.includes(c.controlId)), ...NORMAL_SYSTEM_FIELDS];
-    const customizeColumns = isShowWorkflowSys
-      ? [...filteredColumns, ...NORMAL_SYSTEM_FIELDS, ...WORKFLOW_SYSTEM_FIELDS]
-      : [...filteredColumns, ...NORMAL_SYSTEM_FIELDS];
 
     return (
       <div className="viewConfigWrap">
@@ -512,7 +559,73 @@ class ViewConfigCon extends Component {
                 }}
               />
             </div>
-            <div className="commonConfigItem Font13 bold">{_l('自动刷新')}</div>
+            <div className="commonConfigItem Font13 bold">{_l('显示设置')}</div>
+            {setList.map(o => {
+              let show = this.state[o.key] === '1';
+              return (
+                <div className="">
+                  <SwitchStyle>
+                    <Icon
+                      icon={show ? 'ic_toggle_on' : 'ic_toggle_off'}
+                      className="Font30 Hand"
+                      onClick={() => {
+                        this.onChangeSet(o.key, show ? '0' : '1');
+                      }}
+                    />
+                    <div className="switchText InlineBlock Normal mLeft12 mTop8">{o.txt}</div>
+                    {o.tips && (
+                      <Tooltip text={<span>{o.tips}</span>} popupPlacement="top">
+                        <i className="icon-help Font16 Gray_9e mLeft3 TxtMiddle" />
+                      </Tooltip>
+                    )}
+                  </SwitchStyle>
+                </div>
+              );
+            })}
+            <div className="commonConfigItem Font13 bold mTop32">{_l('表格交互方式')}</div>
+            <div className="mTop12">
+              <Radio
+                className=""
+                text={_l('经典模式')}
+                checked={sheettype === '0'}
+                onClick={value => {
+                  this.onChangeSet('sheettype', '0');
+                }}
+              />
+              <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
+                {_l('点整行打开记录')}
+              </div>
+            </div>
+            <div className="mTop20">
+              <Radio
+                className=""
+                text={_l('电子表格模式')}
+                checked={sheettype === '1'}
+                onClick={value => {
+                  this.onChangeSet('sheettype', '1');
+                }}
+              />
+              <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
+                {_l('点单元格选中字段，按空格键打开记录')}
+              </div>
+            </div>
+            <div className="commonConfigItem Font13 bold mTop32">{_l('行内编辑')}</div>
+            <SwitchStyle className="flexRow mTop12">
+              <Icon
+                icon={fastedit === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
+                className="Font30 Hand"
+                onClick={() => {
+                  this.onChangeSet('fastedit', fastedit === '1' ? '0' : '1');
+                }}
+              />
+              <div className="flex mTop4">
+                <div className="switchText InlineBlock Normal mLeft12">{_l('允许行内编辑')}</div>
+                <div className="switchText InlineBlock Normal mLeft12 Gray_75 mTop4">
+                  {_l('无需打开记录详情，在表格行内直接编辑字段')}
+                </div>
+              </div>
+            </SwitchStyle>
+            <div className="commonConfigItem Font13 bold mTop32">{_l('自动刷新')}</div>
             <div className="Gray_9e mTop8 flex">{_l('每隔一段时间后自动刷新当前视图')}</div>
             <div className="commonConfigItem mTop12 mBottom32">
               <Dropdown
@@ -567,105 +680,6 @@ class ViewConfigCon extends Component {
                 }}
               />
             </div>
-
-            <div className="commonConfigItem Font13 bold">{_l('显示列')}</div>
-            <div className="flexRow commonConfigItem ming Dropdown w100 mTop15 hideColumns">
-              <div className="">
-                <Radio
-                  className=""
-                  text={_l('表格显示列与表单中的字段保持一致')}
-                  checked={customdisplay === '0'}
-                  onClick={value => {
-                    this.setState(
-                      {
-                        customdisplay: '0',
-                        showControls: [],
-                      },
-                      () => {
-                        this.handleSave({
-                          editAttrs: ['showControls', 'advancedSetting'],
-                        });
-                      },
-                    );
-                  }}
-                />
-              </div>
-              <div className="mTop15 mBottom20">
-                <Radio
-                  className=""
-                  text={_l('自定义显示列')}
-                  checked={customdisplay === '1'}
-                  onClick={value => {
-                    this.setState(
-                      {
-                        customdisplay: '1',
-                        showControls: filteredColumns
-                          .slice(0)
-                          .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1))
-                          .map(c => c.controlId),
-                      },
-                      () => {
-                        this.handleSave({
-                          editAttrs: ['showControls', 'advancedSetting'],
-                        });
-                      },
-                    );
-                  }}
-                />
-              </div>
-              {customdisplay === '1' ? (
-                <SortColumns
-                  layout={2}
-                  noempty={false} //不需要至少显示一列
-                  maxHeight={document.documentElement.clientHeight - 200}
-                  showControls={showControlsForSortControl}
-                  columns={customizeColumns.filter(c => (c.fieldPermission || '111')[0] === '1')}
-                  controlsSorts={showControlsForSortControl}
-                  onChange={({ newShowControls, newControlSorts }) => {
-                    this.setState(
-                      {
-                        showControls: _.uniqBy(
-                          newShowControls.concat(
-                            customizeColumns.filter(c => (c.fieldPermission || '111')[0] === '0').map(c => c.controlId),
-                          ),
-                        ),
-                        customdisplay: '1',
-                      },
-                      () => {
-                        this.handleSave({
-                          editAttrs: ['showControls', 'advancedSetting'],
-                        });
-                      },
-                    );
-                  }}
-                />
-              ) : (
-                <SysSortColumn>
-                  <div className="commonConfigItem Font13 bold">{_l('显示系统字段')}</div>
-                  <SortColumns
-                    layout={2}
-                    noempty={false} //不需要至少显示一列
-                    showControls={sysids}
-                    dragable={false} //不可排序
-                    columns={sysControlsColumnsForSort}
-                    controlsSorts={syssort}
-                    onChange={({ newShowControls, newControlSorts }) => {
-                      this.setState(
-                        {
-                          sysids: newShowControls,
-                          syssort: newControlSorts,
-                        },
-                        () => {
-                          this.handleSave({
-                            editAttrs: ['advancedSetting'],
-                          });
-                        },
-                      );
-                    }}
-                  />
-                </SysSortColumn>
-              )}
-            </div>
           </div>
         )}
       </div>
@@ -674,7 +688,7 @@ class ViewConfigCon extends Component {
 
   renderFilter = () => {
     const { existingFilters } = this.state;
-    const { columns, view, projectId, appId } = this.props;
+    const { columns, view, projectId, appId, sheetSwitchPermit } = this.props;
     return (
       <Fragment>
         <div className="flexRow commonConfigItem">
@@ -736,6 +750,8 @@ class ViewConfigCon extends Component {
           filterColumnClassName="sheetViewFilterColumnOption"
           projectId={projectId}
           appId={appId}
+          viewId={view.viewId}
+          sheetSwitchPermit={sheetSwitchPermit}
           filterResigned={false}
           columns={segmentation(columns)}
           conditions={view.filters}
@@ -823,7 +839,7 @@ class ViewConfigCon extends Component {
   };
 
   renderSetting = () => {
-    const { viewSetting } = this.state;
+    const { viewSetting, customdisplay = '0' } = this.state;
     const {
       showCreateCustomBtnFn,
       worksheetId,
@@ -836,6 +852,15 @@ class ViewConfigCon extends Component {
       viewId,
       sheetSwitchPermit,
     } = this.props;
+
+    const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
+      c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49], c.type),
+    );
+
+    const customizeColumns = isShowWorkflowSys
+      ? filteredColumns
+      : filteredColumns.filter(c => !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, c.controlId));
+
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     const { hidebtn } = getAdvanceSetting(view); //隐藏不可用按钮 1：隐藏 0或者空：不隐藏
     switch (viewSetting) {
@@ -873,6 +898,11 @@ class ViewConfigCon extends Component {
         return (
           <MobileSet
             {...this.props}
+            worksheetControls={
+              isShowWorkflowSys
+                ? this.props.worksheetControls
+                : this.props.worksheetControls.filter(c => !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, c.controlId))
+            }
             isShowWorkflowSys={isShowWorkflowSys}
             coverColumns={filterHidedControls(columns, view.controls, false).filter(
               c => !!c.controlName && !_.includes([45], c.type), //移动端暂不支持嵌入字段作为封面
@@ -884,6 +914,74 @@ class ViewConfigCon extends Component {
         return <FastFilter {...this.props} />;
       case 'NavGroup': // 分组筛选
         return <NavGroup {...this.props} />;
+      case 'Show': // 显示列
+        return (
+          <Show
+            {...this.props}
+            info={this.state}
+            onChange={type => {
+              if (type === '0') {
+                this.setState(
+                  {
+                    customdisplay: '0',
+                    showControls: [],
+                  },
+                  () => {
+                    this.handleSave({
+                      editAttrs: ['showControls', 'advancedSetting'],
+                    });
+                  },
+                );
+              } else {
+                this.setState(
+                  {
+                    customdisplay: '1',
+                    showControls: filteredColumns
+                      .slice(0)
+                      .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1))
+                      .map(c => c.controlId),
+                  },
+                  () => {
+                    this.handleSave({
+                      editAttrs: ['showControls', 'advancedSetting'],
+                    });
+                  },
+                );
+              }
+            }}
+            onChangeColumns={({ newShowControls, newControlSorts }) => {
+              if (customdisplay === '1') {
+                this.setState(
+                  {
+                    showControls: _.uniqBy(
+                      newShowControls.concat(
+                        customizeColumns.filter(c => (c.fieldPermission || '111')[0] === '0').map(c => c.controlId),
+                      ),
+                    ),
+                    customdisplay: '1',
+                  },
+                  () => {
+                    this.handleSave({
+                      editAttrs: ['showControls', 'advancedSetting'],
+                    });
+                  },
+                );
+              } else {
+                this.setState(
+                  {
+                    sysids: newShowControls,
+                    syssort: newControlSorts,
+                  },
+                  () => {
+                    this.handleSave({
+                      editAttrs: ['advancedSetting'],
+                    });
+                  },
+                );
+              }
+            }}
+          />
+        );
       default:
         return this.renderViewSetting(); // 基础设置
     }

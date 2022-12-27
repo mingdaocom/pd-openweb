@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取全局依赖的数据
   * @param {Object} args 请求参数

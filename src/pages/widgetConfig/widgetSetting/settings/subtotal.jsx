@@ -40,6 +40,35 @@ const NUMBER_TYPE = [
 
 const DATE_TYPE = [...COMMON_TYPE, { text: _l('最晚'), value: 2 }, { text: _l('最早'), value: 3 }];
 
+const getOutputType = enumDefault2 => {
+  if (enumDefault2 === 15) {
+    return [
+      { text: _l('年'), value: '5' },
+      { text: _l('年-月'), value: '4' },
+      { text: _l('年-月-日'), value: '3' },
+    ];
+  } else if (enumDefault2 === 16) {
+    return [
+      { text: _l('年-月-日 时'), value: '2' },
+      { text: _l('年-月-日 时:分'), value: '1' },
+      { text: _l('年-月-日 时:分:秒'), value: '6' },
+    ];
+  } else {
+    return [
+      { text: _l('时:分'), value: '8' },
+      { text: _l('时:分:秒'), value: '9' },
+    ];
+  }
+};
+
+const getDefaultUnit = selectedControl => {
+  if (_.includes([15, 16], selectedControl.type)) {
+    return _.get(selectedControl, 'advancedSetting.showtype') || (selectedControl.type === 15 ? '3' : '1');
+  } else if (selectedControl.type === 46) {
+    return selectedControl.unit === '1' ? '8' : '9';
+  }
+};
+
 const getTotalType = control => {
   if (isEmpty(control)) return COMMON_TYPE;
   // 汇总选择汇总字段
@@ -63,7 +92,7 @@ const RecordCount = styled.div`
 
 export default function Subtotal(props) {
   const { data, onChange, allControls } = props;
-  const { sourceControlId, dataSource, enumDefault, enumDefault2 } = data;
+  const { sourceControlId, dataSource, enumDefault, enumDefault2, unit } = data;
   const { summaryresult = '0', numshow } = getAdvanceSetting(data);
   const [visible, setVisible] = useState(false);
   const parsedDataSource = parseDataSource(dataSource);
@@ -75,7 +104,7 @@ export default function Subtotal(props) {
 
   useEffect(() => {
     // 初始化用老数据unit覆盖suffix
-    if (data.unit) {
+    if (data.unit && !_.includes([15, 16, 46], enumDefault2)) {
       onChange(handleAdvancedSettingChange({ ...data, unit: '' }, { suffix: data.unit }));
     }
   }, [data.controlId]);
@@ -84,9 +113,15 @@ export default function Subtotal(props) {
   const { dataSource: worksheetId, relationControls } = getControlByControlId(allControls, parsedDataSource);
   const { loading, data: sheetData } = useSheetInfo({ worksheetId });
   // 空白子表手动取值
-  const availableControls = (sheetData.info || {}).worksheetId
-    ? sheetData.controls
-    : (relationControls || []).concat(SYSTEM_CONTROL);
+  const availableControls = (
+    (sheetData.info || {}).worksheetId ? sheetData.controls || [] : (relationControls || []).concat(SYSTEM_CONTROL)
+  ).filter(
+    i =>
+      !_.includes(
+        ['wfname', 'wfcuaids', 'wfcaid', 'wfctime', 'wfrtime', 'wfftime', 'wfstatus', , 'rowid'],
+        i.controlId,
+      ),
+  );
 
   const selectedControl = getControlByControlId(availableControls, sourceControlId);
   const totalType = getTotalType(selectedControl);
@@ -229,23 +264,36 @@ export default function Subtotal(props) {
                     enumDefault2: 6,
                     dot: 0,
                   };
+
                   // 如果选择的是时间类型的汇总控件 则将enumDefault2设为时间类型
                   if (
                     selectedControl.type === 37 &&
                     _.includes([15, 16, 46], selectedControl.enumDefault2) &&
                     _.includes([2, 3], value)
                   ) {
-                    onChange({ ...nextData, enumDefault2: selectedControl.enumDefault2 });
+                    onChange({
+                      ...nextData,
+                      enumDefault2: selectedControl.enumDefault2,
+                      unit: '',
+                    });
                     return;
                   }
                   // 他表字段关联的是时间
                   if (selectedControl.type === 30 && includes([2, 3], value)) {
-                    onChange({ ...nextData, enumDefault2: get(selectedControl, ['sourceControl', 'type']) });
+                    onChange({
+                      ...nextData,
+                      enumDefault2: get(selectedControl, ['sourceControl', 'type']),
+                      unit: '',
+                    });
                     return;
                   }
 
                   if (_.includes([2, 3], value) && _.includes([15, 16, 46], selectedControl.type)) {
-                    onChange({ ...nextData, enumDefault2: selectedControl.type });
+                    onChange({
+                      ...nextData,
+                      enumDefault2: selectedControl.type,
+                      unit: getDefaultUnit(selectedControl),
+                    });
                   } else {
                     onChange(nextData);
                   }
@@ -324,6 +372,18 @@ export default function Subtotal(props) {
                 </SettingItem>
               )}
             </Fragment>
+          )}
+
+          {_.includes([15, 16, 46], enumDefault2) && _.includes([2, 3], enumDefault) && (
+            <SettingItem>
+              <div className="settingItemTitle">{_l('输出格式')}</div>
+              <Dropdown
+                border
+                value={unit}
+                data={getOutputType(enumDefault2)}
+                onChange={value => onChange({ unit: value })}
+              />
+            </SettingItem>
           )}
         </Fragment>
       )}

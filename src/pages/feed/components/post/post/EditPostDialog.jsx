@@ -5,6 +5,7 @@ import { createLinksForMessage } from 'src/components/common/function';
 import { htmlDecodeReg } from 'src/util';
 import UploadFiles from 'src/components/UploadFiles';
 import { Dialog, Textarea, Button } from 'ming-ui';
+import _ from 'lodash';
 
 export default class EditPostDialog extends React.Component {
   static show(postItem, dispatch) {

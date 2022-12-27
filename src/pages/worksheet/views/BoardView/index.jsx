@@ -7,16 +7,17 @@ import { bindActionCreators } from 'redux';
 import { DndProvider, useDrop } from 'react-dnd-latest';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { updateWorksheetRow } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import * as boardActions from 'src/pages/worksheet/redux/actions/boardView';
 import * as baseAction from 'src/pages/worksheet/redux/actions';
-import { getAdvanceSetting } from 'src/util';
+import { getAdvanceSetting, browserIsMobile } from 'src/util';
 import { filterAndFormatterControls } from '../util';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
 import Board from './RecordList';
 import { ITEM_TYPE } from './config';
 import { dealBoardViewData } from './util';
+import cx from 'classnames';
 import './index.less';
 
 export const RecordBoardWrap = styled.div`
@@ -180,7 +181,7 @@ function BoardView(props) {
     };
     if (Reflect.has(obj, 'rawRow')) {
       const originData = JSON.parse(rawRow) || {};
-      updateWorksheetRow(para).then(res => {
+      worksheetAjax.updateWorksheetRow(para).then(res => {
         if (!isEmpty(res.data)) {
           // 后端更新后返回的权限不准 使用获取时候的权限
           const originAuth = _.pick(originData, ['allowedit', 'allowdelete']);
@@ -272,7 +273,11 @@ function BoardView(props) {
       <Fragment>
         {!boardViewLoading && freezenav === '1' && <div className="boardFixedWrap">{renderBoard(true)}</div>}
 
-        <div className="boardListWrap" ref={$listWrapRef} style={{ paddingLeft: freezenav === '1' ? 0 : 14 }}>
+        <div
+          className={cx('boardListWrap', { pLeft0: browserIsMobile() })}
+          ref={$listWrapRef}
+          style={{ paddingLeft: freezenav === '1' ? 0 : 14 }}
+        >
           {boardViewLoading ? <LoadDiv /> : renderBoard()}
         </div>
       </Fragment>

@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import $ from 'jquery';
+
 import cx from 'classnames';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
@@ -11,6 +11,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import { NODE_TYPE, NODE_STATUS, NODE_OPERATOR_TYPE, NODE_VIEW_TYPE } from '../constant/enum';
 
 import UploadNewVersion from './UploadNewVersion';
+import _ from 'lodash';
 
 @withClickAway
 export default class RightMenu extends React.Component {

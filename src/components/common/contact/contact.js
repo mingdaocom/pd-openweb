@@ -8,7 +8,7 @@ import tpl from './tpl/form.html';
 import doT from '@mdfe/dot';
 import { index as dialog } from 'src/components/mdDialog/dialog';
 import 'src/components/select/select';
-import 'src/components/selectLocation/selectLocation';
+import SelectLocation from 'src/components/selectLocation/selectLocation';
 
 var Contact = {};
 
@@ -74,7 +74,7 @@ Contact.bindEvent = function (data) {
   var $companyCity = $dialogContact.find('.txtCity');
   if ($companyCity.length > 0) {
     $companyCity.on('mouseover', function () {
-      $companyCity.selectLocation({
+      SelectLocation($dialogContact.find('.txtCity'), {
         style: {
           top: 25,
         },

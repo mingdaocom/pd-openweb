@@ -4,8 +4,10 @@ import { Dialog, RadioGroup } from 'ming-ui';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { addSheet } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 import SelectSheetFromApp from './SelectSheetFromApp';
+import _ from 'lodash';
+import moment from 'moment';
 
 const DATA_SOURCE_MODE = [
   {
@@ -40,7 +42,7 @@ export default function SelectDataSource({ onClose, onOk, editType, appId, works
     if (dataSourceMode === 0) {
       setLoading(true);
       const currentTime = moment();
-      addSheet({
+      appManagementAjax.addSheet({
         name: _l('数据源 %0', `${currentTime.format('M-D HH:mm')}`),
         worksheetId: sourceId,
         worksheetType: 1,

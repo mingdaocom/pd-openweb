@@ -6,6 +6,7 @@ import Amap from 'ming-ui/components/amap/Amap';
 import MDMap from 'ming-ui/components/amap/MDMap';
 import { FROM } from '../../tools/config';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 const LocationWrap = styled.div`
   .location {

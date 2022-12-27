@@ -2,9 +2,10 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { Dialog, Button, Dropdown } from 'ming-ui';
 import styled from 'styled-components';
-import { getWorksheetsByAppId } from 'src/api/homeApp';
-import { getAppForManager } from 'src/api/appManagement';
+import homeAppAjax from 'src/api/homeApp';
+import appManagementAjax from 'src/api/appManagement';
 import update from 'immutability-helper';
+import _ from 'lodash';
 
 const Config = [
   {
@@ -65,7 +66,7 @@ export default function SelectWorksheetDialog(props) {
   };
 
   useEffect(() => {
-    getAppForManager({ projectId, type: 0 }).then(res => {
+    appManagementAjax.getAppForManager({ projectId, type: 0 }).then(res => {
       const getFormatApps = () => {
         const currentIndex = _.findIndex(res, item => item.appId === globalSheetInfo.appId);
         const currentApp = currentIndex > -1 ? res[currentIndex] : [];
@@ -85,7 +86,7 @@ export default function SelectWorksheetDialog(props) {
 
   useEffect(() => {
     if (!appId) return;
-    getWorksheetsByAppId({ appId, type: 0 }).then(res => {
+    homeAppAjax.getWorksheetsByAppId({ appId, type: 0 }).then(res => {
       setData({
         sheet: res.map(({ workSheetId: value, workSheetName: text }) =>
           value === worksheetId ? { text: _l('%0  (本表)', text), value } : { text, value },

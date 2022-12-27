@@ -125,6 +125,10 @@ export const ROUTE_CONFIG = {
     path: '/printForm/:appId/:printType/:type/:from/:key?',
     component: () => import('src/pages/Print'),
   },
+  printPivotTable: {
+    path: '/printPivotTable/:reportId',
+    component: () => import('src/pages/Statistics/PrintPivotTable'),
+  },
   uploadTemplateSheet: {
     path: '/worksheet/uploadTemplateSheet/:worksheetId?',
     component: () => import('src/pages/UploadTemplateSheet'),
@@ -299,6 +303,7 @@ const withoutChatPathList = [
   'worksheet/public/query',
   'printForm',
   'print',
+  'printPivotTable',
   'workflow/checksheet',
   'dingSyncCourse',
   'wxappSyncCourse',

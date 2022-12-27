@@ -5,6 +5,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import process from 'src/pages/workflow/api/process';
 import { Dialog, ScrollView } from 'ming-ui';
+import _ from 'lodash';
 
 const STATUS_TEXT = {
   1: _l('执行成功'),

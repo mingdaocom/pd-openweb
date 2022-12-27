@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Dialog, Button, LoadDiv } from 'ming-ui';
-import { deleteWorksheetAutoID } from 'src/api/worksheet';
-import { getProcessByControlId } from 'src/pages/workflow/api/process';
+import worksheetAjax from 'src/api/worksheet';
+import processAjax from 'src/pages/workflow/api/process';
 
 import cx from 'classnames';
 const Wrap = styled.div``;
@@ -16,7 +16,7 @@ export default function DeleDialog(props) {
       true;
     }
     setLoading(true);
-    getProcessByControlId({
+    processAjax.getProcessByControlId({
       controlId: 'autoid',
       appId: worksheetId,
       companyId,
@@ -27,7 +27,7 @@ export default function DeleDialog(props) {
     });
   };
   const deleAutoID = () => {
-    deleteWorksheetAutoID({ worksheetId }).then((res = {}) => {
+    worksheetAjax.deleteWorksheetAutoID({ worksheetId }).then((res = {}) => {
       if (res.data) {
         alert(_l('删除成功'));
         deleCallback();

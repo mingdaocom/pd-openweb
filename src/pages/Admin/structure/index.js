@@ -11,7 +11,7 @@ const store = configureStore();
 export default class App extends React.Component {
   constructor() {
     super();
-    Config.setPageTitle(_l('人员与部门'));
+    Config.setPageTitle(_l('成员与部门'));
   }
 
   componentDidMount() {

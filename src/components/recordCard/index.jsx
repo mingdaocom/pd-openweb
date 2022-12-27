@@ -6,6 +6,7 @@ import CellControl from 'src/pages/worksheet/components/CellControls';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import './RecordCard.less';
+import _ from 'lodash';
 
 const FROMS = {
   RECORDDETAIL: 1,
@@ -35,6 +36,9 @@ export default class RecordCard extends Component {
   };
   static defaultProps = {
     from: 1,
+  };
+  state = {
+    forceShowFullValue: null,
   };
   @autobind
   handleCoverClick(e) {
@@ -82,9 +86,25 @@ export default class RecordCard extends Component {
       coverCid,
       sourceEntityName,
       viewId,
+      isCharge,
     } = this.props;
     const { cover, cardControls } = this;
-    const titleText = data.rowid ? getTitleTextFromControls(controls, data) : _l('关联当前%0', sourceEntityName);
+    const { forceShowFullValue } = this.state;
+    const titleControl = _.find(controls || [], control => control.attribute === 1) || {};
+    const showFullValue = _.isNull(forceShowFullValue)
+      ? _.get(titleControl, 'advancedSetting.datamask') !== '1'
+      : forceShowFullValue;
+
+    const titleText = data.rowid
+      ? getTitleTextFromControls(controls, data, undefined, {
+          noMask: showFullValue,
+        })
+      : _l('关联当前%0', sourceEntityName);
+
+    const isMask =
+      (isCharge || _.get(titleControl, 'advancedSetting.isdecrypt') === '1') &&
+      (data[titleControl.controlId] || data.titleValue) &&
+      !showFullValue;
     return (
       <div
         className={cx('worksheetRecordCard', getKeyOfFrom(from).toLowerCase(), {
@@ -108,7 +128,22 @@ export default class RecordCard extends Component {
         <span className={cx('selectedIcon', { hide: !selected })}>
           <i className="icon icon-ok"></i>
         </span>
-        <p className="titleText ellipsis">{titleText}</p>
+        <p className="titleText ellipsis">
+          <span className={cx({ maskHoverTheme: isMask })}>
+            {titleText}
+            {isMask && (
+              <i
+                className="icon icon-eye_off Hand Font14 Gray_bd mLeft4"
+                style={{ verticalAlign: 'text-top' }}
+                onClick={e => {
+                  if (!isMask) return;
+                  e.stopPropagation();
+                  this.setState({ forceShowFullValue: true });
+                }}
+              ></i>
+            )}
+          </span>
+        </p>
         <div className="visibleControls flexRow">
           {cardControls.slice(0, from === FROMS.SELECT_RECORD_DIALOG ? 6 : 3).map((visibleControl, i) => (
             <div className="visibleControl flex" key={i}>
@@ -119,6 +154,7 @@ export default class RecordCard extends Component {
                     cell={Object.assign({}, visibleControl, { value: data[visibleControl.controlId] })}
                     from={4}
                     viewId={viewId}
+                    isCharge={isCharge}
                   />
                 ) : (
                   <div className="emptyTag"></div>

@@ -6,11 +6,25 @@ import Trigger from 'rc-trigger';
 import MobilePhoneEdit from 'src/components/newCustomFields/widgets/MobilePhone';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import { isKeyBoardInputChar } from 'worksheet/util';
 import CellErrorTips from './comps/CellErrorTip';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
+import { FROM } from './enum';
 
+function replaceNotNumber(value) {
+  return value
+    .replace(/[^-\d.]/g, '')
+    .replace(/^\./g, '')
+    .replace(/^-/, '$#$')
+    .replace(/-/g, '')
+    .replace('$#$', '-')
+    .replace(/^-\./, '-')
+    .replace('.', '$#$')
+    .replace(/\./g, '')
+    .replace('$#$', '.');
+}
 export default class MobilePhone extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -30,6 +44,7 @@ export default class MobilePhone extends React.Component {
     this.state = {
       value: props.cell.value,
       tempValue: props.cell.value,
+      forceShowFullValue: _.get(props.cell, 'advancedSetting.datamask') !== '1',
     };
   }
 
@@ -100,6 +115,11 @@ export default class MobilePhone extends React.Component {
     this.lastBlurTime = null;
   }
 
+  get masked() {
+    const { cell, isCharge } = this.props;
+    return this.state.value && (isCharge || _.get(cell, 'advancedSetting.isdecrypt') === '1');
+  }
+
   focus(time) {
     setTimeout(() => {
       if (this.editPhoneObj) {
@@ -118,6 +138,51 @@ export default class MobilePhone extends React.Component {
   }
 
   @autobind
+  handleTableKeyDown(e) {
+    const { cell, updateEditingStatus } = this.props;
+    const setKeyboardValue = value => {
+      updateEditingStatus(true, () => {
+        setTimeout(() => {
+          const inputDom = this.editRef.current.input;
+          if (inputDom) {
+            inputDom.value = value;
+            this.handleChange(value);
+          }
+        }, 10);
+      });
+    };
+    if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
+      if (window.tempCopyForSheetView) {
+        setKeyboardValue(window.tempCopyForSheetView);
+      } else {
+        navigator.clipboard.readText().then(setKeyboardValue);
+      }
+      return;
+    }
+    switch (e.key) {
+      default:
+        (() => {
+          const value = cell.type === 6 || cell.type === 8 ? replaceNotNumber(e.key) : e.key;
+          if (!value || !isKeyBoardInputChar(e.key)) {
+            return;
+          }
+          updateEditingStatus(true, () => {
+            setTimeout(() => {
+              const inputDom = this.editRef.current.input;
+              if (inputDom) {
+                inputDom.value = value;
+                this.handleChange(value);
+              }
+            }, 10);
+            e.stopPropagation();
+            e.preventDefault();
+          });
+        })();
+        break;
+    }
+  }
+
+  @autobind
   handleKeydown(e) {
     const { cell, updateEditingStatus } = this.props;
     if (e.keyCode === 27) {
@@ -126,14 +191,39 @@ export default class MobilePhone extends React.Component {
         value: cell.value,
       });
       e.preventDefault();
+    } else if (e.keyCode === 13) {
+      e.preventDefault();
+      this.handleBlur();
     }
   }
 
+  @autobind
+  handleUnMask(e) {
+    if (!this.masked) {
+      return;
+    }
+    e.stopPropagation();
+    this.setState({ forceShowFullValue: true });
+  }
+
   render() {
-    const { className, style, error, rowIndex, needLineLimit, cell, popupContainer, editable, isediting, onClick } =
-      this.props;
-    const { value } = this.state;
+    const {
+      tableType,
+      className,
+      style,
+      error,
+      rowIndex,
+      from,
+      needLineLimit,
+      cell,
+      popupContainer,
+      editable,
+      isediting,
+      onClick,
+    } = this.props;
+    const { value, forceShowFullValue } = this.state;
     const isSafari = /^((?!chrome).)*safari.*$/.test(navigator.userAgent.toLowerCase());
+    const isCard = from === FROM.CARD;
     const editProps = {
       ref: this.input,
       value,
@@ -151,18 +241,19 @@ export default class MobilePhone extends React.Component {
         onClickAway={this.handleBlur}
       >
         <MobilePhoneEdit
-          inputClassName="cellMobileInput"
+          inputClassName="cellMobileInput stopPropagation"
           enumDefault={cell.enumDefault}
           advancedSetting={cell.advancedSetting}
           value={value}
           ref={this.editRef}
+          isCell={true}
           onChange={this.handleChange}
           onInputKeydown={this.handleKeydown}
         />
         {error && (
           <CellErrorTips
             error={typeof error === 'string' ? error : _l('不是有效的电话号码')}
-            pos={rowIndex === 1 ? 'bottom' : 'top'}
+            pos={rowIndex === 0 ? 'bottom' : 'top'}
           />
         )}
       </ClickAwayable>
@@ -173,12 +264,14 @@ export default class MobilePhone extends React.Component {
         action={['click']}
         popup={editcontent}
         getPopupContainer={isSafari ? undefined : cell.enumDefault === 0 ? () => document.body : popupContainer}
-        popupClassName={cx('filterTrigger cellControlMobilePhoneEdit scrollInTable cellControlEdittingStatus', {
+        popupClassName={cx('filterTrigger cellControlMobilePhoneEdit scrollInTable', {
+          cellControlEdittingStatus: tableType !== 'classic',
           cellControlErrorStatus: error,
         })}
         popupVisible={isediting}
         popupAlign={{
           points: ['tl', 'tl'],
+          offset: [0, 0],
           overflow: {
             adjustY: true,
           },
@@ -187,16 +280,30 @@ export default class MobilePhone extends React.Component {
         <EditableCellCon
           hideOutline
           onClick={onClick}
-          className={cx(className, { canedit: editable })}
+          className={cx(className, {
+            canedit: editable,
+            masked: this.masked && !isCard,
+            maskHoverTheme: this.masked && isCard && !forceShowFullValue,
+          })}
           style={style}
           iconName="hr_edit"
           isediting={isediting}
           onIconClick={this.handleEdit}
         >
           {!isediting && !!value && (
-            <div className={cx('worksheetCellPureString ellipsis', { linelimit: needLineLimit })}>
-              {renderText({ ...cell, value })}
-            </div>
+            <span className={cx('ellipsis', { linelimit: needLineLimit })} onClick={this.handleUnMask}>
+              {renderText({ ...cell, value }, { noMask: forceShowFullValue })}
+            </span>
+          )}
+          {isCard && this.masked && !forceShowFullValue && (
+            <i
+              className="icon icon-eye_off Hand maskData Font16 Gray_bd mLeft4 mTop4 hoverShow"
+              style={{ verticalAlign: 'text-top' }}
+              onClick={this.handleUnMask}
+            ></i>
+          )}
+          {tableType === 'classic' && !isediting && !value && cell.hint && (
+            <span className="guideText Gray_bd hide">{cell.hint}</span>
           )}
         </EditableCellCon>
       </Trigger>

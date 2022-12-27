@@ -8,6 +8,7 @@ import { emitter } from 'worksheet/util';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { fieldCanSort, checkIsTextControl } from 'worksheet/util';
 import './style.less';
+import _ from 'lodash';
 
 export default class BaseColumnHead extends React.Component {
   static propTypes = {
@@ -85,28 +86,28 @@ export default class BaseColumnHead extends React.Component {
   resizeColumn({ clientX }) {
     const { isLast, columnIndex, control, style, updateSheetColumnWidths } = this.props;
     const columnWidth = style.width;
-    const mdtableElement = $(this.drag).parents('.mdTable')[0];
-    if (!mdtableElement) {
+    const tableElement = $(this.drag).parents('.sheetViewTable')[0];
+    if (!tableElement) {
       return;
     }
-    const mdtableId = (mdtableElement.className.match(/id-([\w-]+)-id/) || [])[1];
-    const defaultLeft = clientX - mdtableElement.getBoundingClientRect().left;
+    const tableId = (tableElement.className.match(/id-([\w-]+)-id/) || [])[1];
+    const defaultLeft = clientX - tableElement.getBoundingClientRect().left;
     let maskMinLeft;
     if (control.type === 6 && control.advancedSetting && control.advancedSetting.showtype === '2') {
       maskMinLeft = defaultLeft - (columnWidth - 10) + 120;
     }
-    emitter.emit('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + mdtableId, {
+    emitter.emit('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, {
       columnIndex,
       columnWidth,
       defaultLeft,
       maskMinLeft,
-      target: mdtableElement,
+      target: tableElement,
       callback: newWidth => {
         updateSheetColumnWidths({ controlId: control.controlId, value: newWidth });
         if (isLast) {
           setTimeout(() => {
-            if ($(mdtableElement).find('.scroll-hor')[0]) {
-              $(mdtableElement).find('.scroll-hor')[0].scrollLeft = 100000;
+            if ($(tableElement).find('.scroll-x')[0]) {
+              $(tableElement).find('.scroll-x')[0].scrollLeft = 100000;
             }
           }, 30);
         }
@@ -142,6 +143,7 @@ export default class BaseColumnHead extends React.Component {
     const control = redefineComplexControl(this.props.control);
     const controlType = control.sourceControlType || control.type;
     const canSort = !disabled && fieldCanSort(controlType);
+    const maskData = _.get(control, 'advancedSetting.datamask') === '1';
     let sustractWidth = 0;
     if (showRequired) {
       sustractWidth += 8;
@@ -160,15 +162,17 @@ export default class BaseColumnHead extends React.Component {
         <div className="inner">
           <div
             className={cx('controlName', { 'ThemeHoverColor3 Hand': canSort })}
+            style={{
+              width: style.width - 10,
+              height: style.height,
+            }}
             onClick={canSort ? this.handleChangeSort : () => {}}
           >
             {showRequired && control.required && <span className="requiredStatus">*</span>}
-            <span
-              className="text ellipsis"
-              title={control.controlName}
-              style={{ maxWidth: `calc(100% - ${sustractWidth}px)` }}
-            >
-              {control.controlName}
+            <span className="textCon" style={{ maxWidth: `calc(100% - ${sustractWidth}px)` }}>
+              <span className="text ellipsis" title={control.controlName}>
+                {control.controlName}
+              </span>
             </span>
             {canSort && typeof isAsc !== 'undefined' && <span className="sortIcon">{this.getSortIcon()}</span>}
             {control.desc && (
@@ -177,6 +181,7 @@ export default class BaseColumnHead extends React.Component {
               </Tooltip>
             )}
           </div>
+          {maskData && <i className="icon icon-eye_off maskData Font16"></i>}
           {showDropdown && !disabled && (
             <span className="dropIcon">
               <i

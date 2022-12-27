@@ -3,6 +3,7 @@ import { Icon, Menu, MenuItem, Checkbox, Tooltip } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const SheetTabWrap = styled.div`
   padding: ${props => (props.disabled ? '' : '0 20px')};

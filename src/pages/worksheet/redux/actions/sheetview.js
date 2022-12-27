@@ -1,13 +1,10 @@
 import _ from 'lodash';
+import worksheetAjax from 'src/api/worksheet';
 import {
-  updateWorksheetRow,
-  saveWorksheetView,
-  getFilterRows,
-  getFilterRowsTotalNum,
-  getFilterRowsReport,
-  getViewPermission,
-} from 'src/api/worksheet';
-import { SYSTEM_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+  SYSTEM_CONTROL,
+  WORKFLOW_SYSTEM_CONTROL,
+  WIDGETS_TO_API_TYPE_ENUM,
+} from 'src/pages/widgetConfig/config/widget';
 import { getLRUWorksheetConfig, saveLRUWorksheetConfig, clearLRUWorksheetConfig } from 'worksheet/util';
 import { getNavGroupCount } from './index';
 
@@ -63,7 +60,7 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
       },
     });
     dispatch(getWorksheetSheetViewSummary());
-    getFilterRows(args).then(res => {
+    worksheetAjax.getFilterRows(args).then(res => {
       if (updateWorksheetControls && _.get(res, 'template.controls')) {
         try {
           dispatch({
@@ -72,7 +69,7 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
               c =>
                 c.controlId.length === 24 ||
                 _.includes(
-                  SYSTEM_CONTROL.map(c => c.controlId),
+                  SYSTEM_CONTROL.conact(WORKFLOW_SYSTEM_CONTROL).map(c => c.controlId),
                   c.controlId,
                 ),
             ),
@@ -93,7 +90,7 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
       }
     });
     if (pageIndex === 1 && !chartId) {
-      getFilterRowsTotalNum(args).then(data => {
+      worksheetAjax.getFilterRowsTotalNum(args).then(data => {
         if (!data) {
           dispatch({
             type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT_ABNORMAL',
@@ -139,19 +136,21 @@ export function updateViewPermission() {
   return (dispatch, getState) => {
     const { base } = getState().sheet;
     const { appId, viewId, worksheetId } = base;
-    getViewPermission({
-      appId,
-      worksheetId,
-      viewId,
-    }).then(data => {
-      if (data.view) {
-        dispatch({
-          type: 'WORKSHEET_SHEETVIEW_UPDATE_PERMISSION',
-          viewId,
-          value: data.view,
-        });
-      }
-    });
+    worksheetAjax
+      .getViewPermission({
+        appId,
+        worksheetId,
+        viewId,
+      })
+      .then(data => {
+        if (data.view) {
+          dispatch({
+            type: 'WORKSHEET_SHEETVIEW_UPDATE_PERMISSION',
+            viewId,
+            value: data.view,
+          });
+        }
+      });
   };
 }
 
@@ -180,21 +179,23 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId }, options 
     if (_.isEmpty(newOldControl)) {
       return;
     }
-    updateWorksheetRow({
-      appId,
-      viewId,
-      worksheetId,
-      rowId: recordId,
-      newOldControl,
-    })
+    worksheetAjax
+      .updateWorksheetRow({
+        appId,
+        viewId,
+        worksheetId,
+        rowId: recordId,
+        newOldControl,
+      })
       .then(res => {
         if (res.resultCode === 1) {
           dispatch(updateNavGroup());
           if (_.isFunction(options.callback)) {
             options.callback(res.data);
           }
-          if (_.isFunction(options.updateSucessCb)) {
-            options.updateSucessCb(res.data);
+          // dispatch(updateRows([recordId], _.omit(res.data, ['allowedit', 'allowdelete'])));
+          if (_.isFunction(options.updateSuccessCb)) {
+            options.updateSuccessCb(res.data);
           } else {
             dispatch({
               type: 'WORKSHEET_SHEETVIEW_UPDATE_ROW_CACHE',
@@ -262,21 +263,22 @@ export function refresh({ resetPageIndex, changeFilters, noLoading, noClearSelec
     } else {
       dispatch(fetchRows({ noLoading, noClearSelected, updateWorksheetControls }));
     }
+    dispatch({ type: 'WORKSHEET_SHEETVIEW_REFRESH' });
   };
 }
 
 export const clearHighLight = tableId => {
   return () => {
-    $(`.mdTable.id-${tableId}-id .cell`).removeClass('highlight');
-    delete window[`sheettablehighlightrow${tableId}`];
+    $(`.sheetViewTable.id-${tableId}-id .cell`).removeClass('highlight');
+    delete window[`sheetTableHighlightRow${tableId}`];
   };
 };
 
 export const setHighLight = (tableId, rowIndex) => {
   return dispatch => {
     dispatch(clearHighLight(tableId));
-    $(`.mdTable.id-${tableId}-id .cell.row-${rowIndex}`).addClass('highlight');
-    window[`sheettablehighlightrow${tableId}`] = rowIndex;
+    $(`.sheetViewTable.id-${tableId}-id .cell.row-${rowIndex}`).addClass('highlight');
+    window[`sheetTableHighlightRow${tableId}`] = rowIndex;
   };
 };
 
@@ -291,8 +293,10 @@ export const setHighLightOfRows = (rowIds, tableId) => {
         return;
       }
       rowIndex = rowIndex + 1;
-      $(`${tableId ? `.mdTable.id-${tableId}-id` : '.mdTable'} .cell.row-${rowIndex}`).addClass('highlight');
-      window[`sheettablehighlightrow${tableId}`] = rowIndex;
+      $(`${tableId ? `.sheetViewTable.id-${tableId}-id` : '.sheetViewTable'} .cell.row-${rowIndex}`).addClass(
+        'highlight',
+      );
+      window[`sheetTableHighlightRow${tableId}`] = rowIndex;
     });
   };
 };
@@ -393,7 +397,8 @@ export function saveSheetLayout({ closePopup = () => {} }) {
       view: { ...view, ...updates },
     });
     closePopup();
-    saveWorksheetView(updates)
+    worksheetAjax
+      .saveWorksheetView(updates)
       .then(() => {})
       .fail(err => {
         alert(_l('保存表格外观失败！'), 3);
@@ -531,39 +536,41 @@ export function getWorksheetSheetViewSummary() {
     if (!columnRpts.length) {
       return;
     }
-    getFilterRowsReport({
-      appId,
-      viewId,
-      worksheetId,
-      reportId: chartId || undefined,
-      columnRpts,
-      filterControls: [],
-      keyWords: '',
-      searchType: 1,
-      ...filters,
-      fastFilters: quickFilter.map(f =>
-        _.pick(f, [
-          'controlId',
-          'dataType',
-          'spliceType',
-          'filterType',
-          'dateRange',
-          'value',
-          'values',
-          'minValue',
-          'maxValue',
-        ]),
-      ),
-      navGroupFilters,
-    }).then(data => {
-      if (data && data.length) {
-        dispatch({
-          type: 'WORKSHEET_SHEETVIEW_FETCH_REPORT_SUCCESS',
-          types: types,
-          values: [{}, ...data].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })),
-        });
-      }
-    });
+    worksheetAjax
+      .getFilterRowsReport({
+        appId,
+        viewId,
+        worksheetId,
+        reportId: chartId || undefined,
+        columnRpts,
+        filterControls: [],
+        keyWords: '',
+        searchType: 1,
+        ...filters,
+        fastFilters: quickFilter.map(f =>
+          _.pick(f, [
+            'controlId',
+            'dataType',
+            'spliceType',
+            'filterType',
+            'dateRange',
+            'value',
+            'values',
+            'minValue',
+            'maxValue',
+          ]),
+        ),
+        navGroupFilters,
+      })
+      .then(data => {
+        if (data && data.length) {
+          dispatch({
+            type: 'WORKSHEET_SHEETVIEW_FETCH_REPORT_SUCCESS',
+            types: types,
+            values: [{}, ...data].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })),
+          });
+        }
+      });
   };
 }
 

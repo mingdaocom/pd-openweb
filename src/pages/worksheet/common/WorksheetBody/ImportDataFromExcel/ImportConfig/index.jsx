@@ -5,6 +5,7 @@ import { Button, Icon, Radio, Dialog, ScrollView, Tooltip } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import './index.less';
+import _ from 'lodash';
 
 const titleLineArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ClickAwayable = createDecoratedComponent(withClickAway);

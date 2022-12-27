@@ -1,16 +1,9 @@
-import {
-  getWorksheetInfo,
-  getSwitchPermit,
-  saveWorksheetView,
-  getWorksheetBtns,
-  getNavGroup,
-  getQueryBySheetId,
-} from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import appManagementAjax from 'src/api/appManagement';
 import update from 'immutability-helper';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { formatValuesOfCondition } from 'worksheet/common/WorkSheetFilter/util';
-import { addRecord } from 'worksheet/common/newRecord';
+import addRecord from 'worksheet/common/newRecord/addRecord';
 import { refresh as sheetViewRefresh, addRecord as sheetViewAddRecord, setViewLayout } from './sheetview';
 import { refresh as galleryViewRefresh } from './galleryview';
 import { refresh as calendarViewRefresh } from './calendarview';
@@ -67,19 +60,23 @@ export function loadWorksheet(worksheetId) {
       type: 'WORKSHEET_FETCH_START',
     });
 
-    worksheetRequest = getWorksheetInfo({
+    worksheetRequest = worksheetAjax.getWorksheetInfo({
       worksheetId,
       reportId: chartId || undefined,
       getViews: true,
       getTemplate: true,
       getRules: true,
+      getSwitchPermit: true,
     });
 
     worksheetRequest
       .then(async res => {
+        if (_.get(window, 'shareState.isPublicView')) {
+          res.allowAdd = false;
+        }
         let queryRes;
         if (res.isWorksheetQuery) {
-          queryRes = await getQueryBySheetId({ worksheetId }, { silent: true });
+          queryRes = await worksheetAjax.getQueryBySheetId({ worksheetId }, { silent: true });
         }
 
         if (!res.isWorksheetQuery || queryRes) {
@@ -93,20 +90,18 @@ export function loadWorksheet(worksheetId) {
             value: formatSearchConfigs(_.get(queryRes, 'searchConfig') || []),
           });
         }
+        if (worksheetId && !_.get(window, 'shareState.isPublicView')) {
+          dispatch({
+            type: 'WORKSHEET_PERMISSION_INIT',
+            value: res.switches,
+          });
+        }
       })
       .fail(err => {
         dispatch({
           type: 'WORKSHEET_INIT_FAIL',
         });
       });
-    if (worksheetId) {
-      getSwitchPermit({ worksheetId }).then(res => {
-        dispatch({
-          type: 'WORKSHEET_PERMISSION_INIT',
-          value: res,
-        });
-      });
-    }
   };
 }
 
@@ -117,27 +112,29 @@ export const updateWorksheetInfo = info => ({
 
 export function loadCustomButtons({ appId, viewId, rowId, worksheetId }) {
   return dispatch => {
-    if (!worksheetId) {
+    if (!worksheetId || _.get(window, 'shareState.isPublicView')) {
       return;
     }
-    getWorksheetBtns({
-      appId,
-      viewId,
-      rowId,
-      worksheetId,
-    }).then(buttons => {
-      if (!viewId) {
-        dispatch({
-          type: 'WORKSHEET_UPDATE_SHEETBUTTONS',
-          buttons,
-        });
-      } else {
-        dispatch({
-          type: 'WORKSHEET_UPDATE_BUTTONS',
-          buttons,
-        });
-      }
-    });
+    worksheetAjax
+      .getWorksheetBtns({
+        appId,
+        viewId,
+        rowId,
+        worksheetId,
+      })
+      .then(buttons => {
+        if (!viewId) {
+          dispatch({
+            type: 'WORKSHEET_UPDATE_SHEETBUTTONS',
+            buttons,
+          });
+        } else {
+          dispatch({
+            type: 'WORKSHEET_UPDATE_BUTTONS',
+            buttons,
+          });
+        }
+      });
   };
 }
 
@@ -204,12 +201,13 @@ export function saveView(viewId, newConfig, cb) {
     if (saveParams.filters) {
       saveParams.filters = saveParams.filters.map(formatValuesOfCondition);
     }
-    saveWorksheetView({
-      ..._.pick(base, ['appId', 'worksheetId']),
-      viewId,
-      editAttrs,
-      ...saveParams,
-    })
+    worksheetAjax
+      .saveWorksheetView({
+        ..._.pick(base, ['appId', 'worksheetId']),
+        viewId,
+        editAttrs,
+        ...saveParams,
+      })
       .then(data => {
         // 使用后端返回的编辑后的值 更新当前视图
         const nextView = editAttrs.reduce(
@@ -283,7 +281,8 @@ export function addNewRecord(data, view) {
 // 打开创建记录弹层
 export function openNewRecord() {
   return (dispatch, getState) => {
-    const { base, views, worksheetInfo, navGroupFilters, sheetSwitchPermit, isCharge } = getState().sheet;
+    const { base, views, worksheetInfo, navGroupFilters, sheetSwitchPermit, isCharge, draftDataCount } =
+      getState().sheet;
     const { appId, viewId, worksheetId } = base;
     const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
     const { advancedSetting = {} } = view;
@@ -293,51 +292,76 @@ export function openNewRecord() {
       !_.isEmpty(view.navGroup) &&
       view.navGroup.length > 0 &&
       _.includes([VIEW_DISPLAY_TYPE.sheet, VIEW_DISPLAY_TYPE.gallery], String(view.viewType));
-    const getDefaultValueInCreate = () => {
+    function handleAdd(param = {}) {
+      addRecord({
+        ...param,
+        showFillNext: true,
+        appId,
+        viewId,
+        worksheetId,
+        worksheetInfo,
+        projectId: worksheetInfo.projectId,
+        needCache: true,
+        addType: 1,
+        showShare: isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId),
+        isCharge: isCharge,
+        entityName: worksheetInfo.entityName,
+        onAdd: data => {
+          if (!_.isEmpty(data)) {
+            dispatch(addNewRecord(data, view));
+            return;
+          }
+          dispatch({ type: 'UPDATE_DRAFT_DATA_COUNT', data: draftDataCount + 1 });
+        },
+        updateWorksheetControls: controls => {
+          dispatch(updateWorksheetSomeControls(controls));
+        },
+        loadDraftDataCount: () => {
+          dispatch(loadDraftDataCount({ appId, worksheetId }));
+        },
+        addNewRecord: (data, view) => {
+          dispatch(addNewRecord(data, view));
+        },
+      });
+    }
+    if (hasGroupFilter && !_.isEmpty(navGroupFilters) && navGroupFilters.length > 0) {
+      let defaultFormData;
       let data = navGroupFilters[0];
       if ([9, 10, 11].includes(data.dataType)) {
-        return { [data.controlId]: JSON.stringify([data.values[0]]) };
+        defaultFormData = { [data.controlId]: JSON.stringify([data.values[0]]) };
+        handleAdd({
+          defaultFormData,
+          defaultFormDataEditable: true,
+        });
       } else if ([29, 35]) {
-        return {
-          [data.controlId]: JSON.stringify([
-            {
-              sid: data.values[0],
-              name: data.navNames[0] || '',
-            },
-          ]),
-        };
+        const targetWorksheetId = _.find(worksheetInfo.template.controls, { controlId: data.controlId }).dataSource;
+        if (!targetWorksheetId) {
+          return;
+        }
+        worksheetAjax
+          .getRowDetail({
+            worksheetId: targetWorksheetId,
+            rowId: data.values[0],
+          })
+          .then(res => {
+            defaultFormData = {
+              [data.controlId]: JSON.stringify([
+                {
+                  sid: data.values[0],
+                  name: data.navNames[0] || '',
+                  sourcevalue: res.rowData,
+                },
+              ]),
+            };
+            handleAdd({
+              defaultFormData,
+              defaultFormDataEditable: true,
+            });
+          });
       }
-    };
-
-    let defaultFormData = {};
-    let param = {};
-    if (hasGroupFilter && !_.isEmpty(navGroupFilters) && navGroupFilters.length > 0) {
-      defaultFormData = getDefaultValueInCreate();
-      param = {
-        defaultFormData,
-        defaultFormDataEditable: true,
-      };
+    } else {
+      handleAdd();
     }
-    addRecord({
-      ...param,
-      showFillNext: true,
-      appId,
-      viewId,
-      worksheetId,
-      worksheetInfo,
-      projectId: worksheetInfo.projectId,
-      needCache: true,
-      addType: 1,
-      showShare: isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId),
-      isCharge: isCharge,
-      entityName: worksheetInfo.entityName,
-      onAdd: data => {
-        dispatch(addNewRecord(data, view));
-      },
-      updateWorksheetControls: controls => {
-        dispatch(updateWorksheetSomeControls(controls));
-      },
-    });
   };
 }
 
@@ -358,7 +382,7 @@ export const refreshWorksheetControls = controls => {
   return (dispatch, getState) => {
     const sheet = getState().sheet;
     const { worksheetId } = sheet.base;
-    getWorksheetInfo({ worksheetId, getTemplate: true }).then(res => {
+    worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true }).then(res => {
       dispatch({
         type: 'WORKSHEET_UPDATE_SOME_CONTROLS',
         controls: res.template.controls,
@@ -416,6 +440,9 @@ export function updateGroupFilter(navGroupFilters = [], view) {
 // 获取分组筛选的count
 export function getNavGroupCount() {
   return (dispatch, getState) => {
+    if (_.get(window, 'shareState.isPublicView')) {
+      return;
+    }
     const sheet = getState().sheet;
     const { filters = {}, base = {}, quickFilter = {} } = sheet;
     const { worksheetId, viewId } = base;
@@ -423,31 +450,33 @@ export function getNavGroupCount() {
     if (!worksheetId && !viewId) {
       return;
     }
-    getNavGroup({
-      worksheetId,
-      viewId,
-      filterControls,
-      searchType,
-      fastFilters: (_.isArray(quickFilter) ? quickFilter : []).map(f =>
-        _.pick(f, [
-          'controlId',
-          'dataType',
-          'spliceType',
-          'filterType',
-          'dateRange',
-          'value',
-          'values',
-          'minValue',
-          'maxValue',
-        ]),
-      ),
-      keyWords,
-    }).then(data => {
-      dispatch({
-        type: 'WORKSHEET_NAVGROUP_COUNT',
-        data,
+    worksheetAjax
+      .getNavGroup({
+        worksheetId,
+        viewId,
+        filterControls,
+        searchType,
+        fastFilters: (_.isArray(quickFilter) ? quickFilter : []).map(f =>
+          _.pick(f, [
+            'controlId',
+            'dataType',
+            'spliceType',
+            'filterType',
+            'dateRange',
+            'value',
+            'values',
+            'minValue',
+            'maxValue',
+          ]),
+        ),
+        keyWords,
+      })
+      .then(data => {
+        dispatch({
+          type: 'WORKSHEET_NAVGROUP_COUNT',
+          data,
+        });
       });
-    });
   };
 }
 
@@ -509,13 +538,34 @@ export function initMobileGunter({ appId, worksheetId, viewId, access_token }) {
       type: 'WORKSHEET_UPDATE_BASE',
       base,
     });
-    getWorksheetInfo({ worksheetId, getViews: true, getTemplate: true, getRules: true }, { headersConfig }).then(
-      res => {
+    worksheetAjax
+      .getWorksheetInfo({ worksheetId, getViews: true, getTemplate: true, getRules: true }, { headersConfig })
+      .then(res => {
         dispatch({
           type: 'WORKSHEET_INIT',
           value: res,
         });
-      },
-    );
+      });
   };
 }
+
+// 获取草稿箱数据
+export const loadDraftDataCount =
+  ({ appId, worksheetId }) =>
+  (dispatch, getState) => {
+    if (_.get(window, 'shareState.isPublicView')) {
+      return;
+    }
+    worksheetAjax
+      .getFilterRowsTotalNum({
+        appId,
+        worksheetId,
+        getType: 21,
+      })
+      .then(res => {
+        dispatch({
+          type: 'UPDATE_DRAFT_DATA_COUNT',
+          data: Number(res) || 0,
+        });
+      });
+  };

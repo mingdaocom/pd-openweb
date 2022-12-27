@@ -232,7 +232,7 @@ export default class Con extends React.Component {
                 </span>
               </div>
               <div className="mTop8">
-                <div className={'nameInput'}>{_l('应用管理员')}</div>
+                <div className={'nameInput'}>{_l('管理员')}</div>
               </div>
               <div className="Font14 mTop25 bold">{_l('描述')}</div>
               <div className="mTop8">

@@ -5,6 +5,7 @@ import AddDialog from 'mobile/AppBoxInfo/AppDetails/AddDialog';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import axios from 'axios';
+import _ from 'lodash';
 const { Item } = List;
 
 export default class AddBoxList extends Component {
@@ -26,7 +27,8 @@ export default class AddBoxList extends Component {
     this.setState({
       loading: true,
     });
-    axios.post(`https://pd.mingdao.com/api/AppManagement/GetAppsLibraryInfo`, { categoryId }).then(result => {
+    let baseUrl = (md && md.global && md.global.SysSettings && md.global.SysSettings.templateLibraryTypes === '2') ? __api_server__.main : 'https://pd.mingdao.com/api/';
+    axios.post(`${baseUrl}AppManagement/GetAppsLibraryInfo`, { categoryId }).then(result => {
       const { data } = result.data;
       if (data) {
         this.setState({

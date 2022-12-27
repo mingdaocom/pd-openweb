@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { Icon, Support, LoadDiv, Menu, Radio } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { CardTopWrap } from '../style';
-import { getNodeDetail, add, delete as deleteNode } from 'src/pages/workflow/api/flowNode';
+import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
 import Trigger from 'rc-trigger';
 import { RedMenuItemWrap, ActWrap } from '../style';
@@ -90,7 +90,7 @@ export default function Item(props) {
       : getCardInfo();
   }, []);
   const getCardInfo = () => {
-    getNodeDetail(
+    flowNodeAjax.getNodeDetail(
       {
         processId: info.id,
         nodeId: node.id,
@@ -110,7 +110,7 @@ export default function Item(props) {
 
   const addNode = () => {
     let typeInfo = TYPENODE.find(o => o.actionId === actionId) || {};
-    add(
+    flowNodeAjax.add(
       {
         processId: info.id,
         actionId,
@@ -125,7 +125,7 @@ export default function Item(props) {
   };
 
   const deleNode = () => {
-    deleteNode({ nodeId: node.id, processId: info.id }, { isIntegration: true }).then(res => {
+    flowNodeAjax.delete({ nodeId: node.id, processId: info.id }, { isIntegration: true }).then(res => {
       props.hasChange();
     });
   };

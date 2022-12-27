@@ -3,6 +3,7 @@ import TaskCenter from './containers/taskCenter/taskCenter';
 import store from 'redux/configureStore';
 import UniformRoute from 'src/router/withTitle';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 const MODULE_TO_TITLE = {
   center: _l(' 任务'),

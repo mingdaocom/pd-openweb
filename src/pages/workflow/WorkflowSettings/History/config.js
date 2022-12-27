@@ -221,14 +221,14 @@ export const NODE_ICON = {
     icon: {
       1: 'workflow_new',
       2: 'workflow_update',
-      20: 'workflow_search',
       3: 'hr_delete',
+      20: 'workflow_search',
     },
     text: {
       1: _l('新增记录'),
       2: _l('更新记录'),
-      20: _l('获得指定关联记录'),
       3: _l('删除记录'),
+      20: _l('获得指定关联记录'),
     },
     bgColor: '#FFA340',
   },

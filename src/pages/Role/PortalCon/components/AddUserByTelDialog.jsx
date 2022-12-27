@@ -6,10 +6,11 @@ import * as actions from '../redux/actions';
 import { Icon, Dialog, Checkbox, Radio, Dropdown } from 'ming-ui';
 import 'src/components/uploadAttachment/uploadAttachment';
 import cx from 'classnames';
-import { addExAccounts } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import Tel from './Tel';
 import EmailInput from './Email';
 import './AddUserByTelDialog.less';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   .ming.Radio .Radio-box {
@@ -117,7 +118,7 @@ function AddUserByTelDialog(props) {
       setLoading(false);
       return alert(type === 0 ? _l('请填写正确的手机号或姓名') : _l('请填写正确的邮箱或姓名'), 3);
     }
-    addExAccounts({
+    externalPortalAjax.addExAccounts({
       isSendMsgs,
       appId,
       addExAccountInfos: data,

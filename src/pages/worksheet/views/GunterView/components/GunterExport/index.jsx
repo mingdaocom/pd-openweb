@@ -7,6 +7,8 @@ import DocumentTitle from 'react-document-title';
 import { LoadDiv } from 'ming-ui';
 import printGunter from './print';
 import './index.less';
+import _ from 'lodash';
+import moment from 'moment';
 
 @connect(
   state => ({

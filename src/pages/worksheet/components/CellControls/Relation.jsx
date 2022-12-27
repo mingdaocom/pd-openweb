@@ -25,6 +25,7 @@ function Relation(props) {
   const { value } = cell;
   const relationData = value ? JSON.parse(value) : [];
   switch (from) {
+    case FROM.DRAFT:
     case FROM.COMMON:
     case FROM.RELATE_WORKSHEET:
       return (<div className={cx('cellRelations common cellControl', className)} style={style} onClick={props.onClick}>

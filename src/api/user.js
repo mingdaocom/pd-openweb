@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 分页 获取一般用户列表
   * @param {Object} args 请求参数

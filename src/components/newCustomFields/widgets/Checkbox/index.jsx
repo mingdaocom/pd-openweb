@@ -175,7 +175,7 @@ export default class Widgets extends Component {
           showSearch
           allowClear={checkIds.length > 0}
           listHeight={320}
-          placeholder={hint || _l('请选择')}
+          placeholder={hint}
           value={checkIds}
           tagRender={this.tagRender}
           showArrow

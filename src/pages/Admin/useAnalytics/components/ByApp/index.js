@@ -1,12 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Select } from 'antd';
 import { Tooltip, Icon, Dialog } from 'ming-ui';
-import {
-  appUsageOverviewStatistics,
-  usageStatisticsForDimension,
-  checkAppAdminForUser,
-  addRoleMemberForAppAdmin,
-} from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 import Search from 'src/pages/workflow/components/Search';
 import SvgIcon from 'src/components/SvgIcon';
 import TableCom from '../TableCom';
@@ -16,6 +11,7 @@ import { formatFileSize } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
 import cx from 'classnames';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const { Option } = Select;
 
@@ -368,7 +364,7 @@ export default class ByApp extends Component {
     if (this.ajaxRequst) {
       this.ajaxRequst.abort();
     }
-    this.ajaxRequst = appUsageOverviewStatistics({
+    this.ajaxRequst = appManagementAjax.appUsageOverviewStatistics({
       projectId,
       keyWord: keyword,
       appId: '',
@@ -410,7 +406,7 @@ export default class ByApp extends Component {
     if (this.useageRequest) {
       this.useageRequest.abort();
     }
-    this.useageRequest = usageStatisticsForDimension({
+    this.useageRequest = appManagementAjax.usageStatisticsForDimension({
       projectId,
       appId: '',
       userId: '',
@@ -466,7 +462,7 @@ export default class ByApp extends Component {
       };
     };
     this.setState({ checkAdmin: opts(true) }, () => {
-      checkAppAdminForUser({
+      appManagementAjax.checkAppAdminForUser({
         appId,
       }).then(result => {
         if (result) {
@@ -489,7 +485,7 @@ export default class ByApp extends Component {
       checkAdmin: { id },
       isAnalysis,
     } = this.state;
-    addRoleMemberForAppAdmin({
+    appManagementAjax.addRoleMemberForAppAdmin({
       appId: id,
     }).then(result => {
       if (result) {

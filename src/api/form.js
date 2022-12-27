@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 编辑保存模板及其所属控件
   * @param {Object} args 请求参数

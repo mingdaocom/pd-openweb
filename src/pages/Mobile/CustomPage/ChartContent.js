@@ -12,6 +12,7 @@ import { fillValueMap, version } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
 import { connect } from 'react-redux';
 import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
+import _ from 'lodash';
 
 const ModalContent = styled.div`
   background-color: #fff;
@@ -76,7 +77,7 @@ function ChartContent(props) {
   const [defaultData, setDefaultData] = useState();
   const shareAuthor = window.shareAuthor;
   const headersConfig = {
-    shareAuthor,
+    share: shareAuthor,
     access_token: accessToken,
   };
   const filtersGroup = formatFiltersGroup(objectId, props.filtersGroup);

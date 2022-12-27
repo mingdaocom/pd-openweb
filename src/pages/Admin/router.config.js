@@ -1,5 +1,5 @@
 export const permissionObj = {
-  // 组织管理('首页'， ‘人员与部门’，'组织角色', ‘汇报关系’, '群组与外协'，’通讯录隔离‘， ’离职交接‘， ’组织信息‘， ’账务‘，’管理员‘，’工具‘， ’其他‘)
+  // 组织管理('首页'， ‘成员与部门’，'组织角色', ‘汇报关系’, '群组与外协'，’通讯录隔离‘， ’离职交接‘， ’组织信息‘， ’账务‘，’管理员‘，’工具‘， ’其他‘)
   PROJECT_ADMIN: [
     'home',
     'upgradeservice',
@@ -72,7 +72,7 @@ export const menuList = [
     subMenuList: [
       {
         icon: 'icon-group',
-        name: _l('人员与部门'),
+        name: _l('成员与部门'),
         key: 'structure',
         routes: [
           {

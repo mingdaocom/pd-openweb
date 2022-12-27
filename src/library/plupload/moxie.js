@@ -1,3 +1,4 @@
+import _ from 'lodash';
 ﻿;var MXI_DEBUG = true;
 /**
  * mOxie - multi-runtime File API & XMLHttpRequest L2 Polyfill

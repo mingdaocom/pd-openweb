@@ -3,6 +3,7 @@ import { Select } from 'antd';
 import { Modal } from 'antd-mobile';
 import { LoadDiv, Icon, Radio } from 'ming-ui';
 import './index.less';
+import _ from 'lodash';
 
 export default class MobileSearch extends Component {
   constructor(props) {

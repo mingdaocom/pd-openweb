@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { getLegendType, formatrChartValue, formatYaxisList, getChartColors } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import { Dropdown, Menu } from 'antd';
+import { toFixed } from 'src/util';
+import _ from 'lodash';
 
 const mergeDataTime = (data, contrastData) => {
   const maxLengthData = data.length > contrastData.length ? data : contrastData;
@@ -257,7 +259,7 @@ export default class extends Component {
       conversionTag: displaySetup.showNumber && style.funnelCurvature !== 1
         ? {
             formatter: data => {
-              return _l('转化率%0', `${(data.$$percentage$$ * 100).toFixed(2)}%`);
+              return _l('转化率%0', `${toFixed(data.$$percentage$$ * 100, 2)}%`);
             },
           }
         : false,

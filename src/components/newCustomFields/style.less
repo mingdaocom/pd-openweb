@@ -157,6 +157,7 @@
     width: 100%;
     line-height: 20px;
     min-height: 20px;
+    transform: translate3d(0, 0, 0);
     &:hover {
       .RefreshBtn {
         display: inline-block;
@@ -187,6 +188,36 @@
     width: 100%;
     box-sizing: border-box;
     position: relative;
+
+    .maskIcon {
+      position: absolute;
+      right: 12px;
+      font-size: 16px;
+      top: 9px;
+    }
+
+    .customFormControlMobileHover {
+      &:hover {
+        .customFormControlBox {
+          border-color: #f2f2f2;
+          background: #f2f2f2;
+        }
+      }
+    }
+
+    .maskHoverTheme {
+      cursor: pointer;
+      i {
+        font-size: 16px;
+        vertical-align: middle;
+      }
+      &:hover {
+        color: #1d5786 !important;
+        i {
+          color: #9e9e9e !important;
+        }
+      }
+    }
 
     .descBoxInfo {
       position: absolute;
@@ -328,6 +359,9 @@
       &:not(.controlDisabled):hover {
         border-color: #f2f2f2;
         background: #f2f2f2;
+        .maskIcon {
+          color: #9e9e9e !important;
+        }
       }
 
       &:focus {

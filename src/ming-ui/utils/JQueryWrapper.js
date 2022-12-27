@@ -4,7 +4,7 @@
 /* eslint-disable object-shorthand */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import $ from 'jquery';
+
 import PositionContainer from 'ming-ui/components/PositionContainer';
 
 function prefixReact(str) {
@@ -29,10 +29,6 @@ export default function createJQueryPluginFromReactComponent(Component, options 
 
   const componentName = options.name || prefixReact(Component.displayName || Component.name);
   if (!componentName) throw new Error('未指定组件名');
-
-  if ($.fn[componentName]) {
-    console.warn('插件已定义，将覆盖原插件');
-  }
 
   const dataKey = `plugin_react_${componentName}`;
 

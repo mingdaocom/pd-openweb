@@ -1,9 +1,15 @@
+import _ from 'lodash';
+
 if (!window.escbind) {
   window.escbind = true;
   window.closeindex = 0;
   window.closeFns = {};
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
+      // 弹窗内存在正在编辑单元格时不触发esc关闭弹窗
+      if (e.target.classList.contains('stopPropagation') || window.hasEditingCell) {
+        return;
+      }
       const activeElement = document.activeElement;
       const activeElementTagName = activeElement && activeElement.tagName && activeElement.tagName.toLowerCase();
       if (

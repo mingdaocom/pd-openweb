@@ -9,6 +9,7 @@ import * as actions from '../redux/actions';
 import PictureSelect from '../components/PictureSelect';
 import { Hr, H1, H3, Absolute, Circle, CustomButton } from 'worksheet/components/Basics';
 import { themes, coverurls } from '../enum';
+import _ from 'lodash';
 
 const Con = styled.div`
   padding: 0 24px;

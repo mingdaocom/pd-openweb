@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Icon } from 'ming-ui';
+import _ from 'lodash';
 
 export default class RoleSearchBox extends Component {
   constructor(props) {
@@ -17,12 +18,15 @@ export default class RoleSearchBox extends Component {
     if (!value) {
       this.handleClear();
     } else {
+      this.props.updateIsRequestList(true);
       this.props.getRoleList();
     }
-  });
+  }, 200);
   handleClear = () => {
     this.setState({ searchValue: '' });
     this.props.updateSearchValue('');
+    this.props.updateRolePageInfo({ pageIndex: 1, isMore: false });
+    this.props.updateIsRequestList(true);
     this.props.getRoleList();
   };
   render() {

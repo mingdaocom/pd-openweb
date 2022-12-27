@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { func, number, string } from 'prop-types';
 import { formatNumberFromInput } from 'src/util';
 import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

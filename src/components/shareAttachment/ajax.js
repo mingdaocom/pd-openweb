@@ -1,11 +1,11 @@
-﻿var { getChatList, convertToOtherAttachment } = require('src/api/chat');
-var { getMyTaskList } = require('src/api/taskCenter');
-var { addDiscussionGroup } = require('src/api/group');
+﻿import chatController from 'src/api/chat';
+import taskCenterController from 'src/api/taskCenter';
+import groupController from 'src/api/group';
 import 'src/components/createTask/createTask';
 
 export function _getMyTaskList(params) {
   var promise = $.Deferred();
-  getMyTaskList(params)
+  taskCenterController.getMyTaskList(params)
     .then(function (res) {
       if (!res.status) {
         promise.reject(_l('获取数据失败'));
@@ -22,7 +22,7 @@ export function _getMyTaskList(params) {
 
 export function _getChatList(params) {
   var promise = $.Deferred();
-  getChatList(params)
+  chatController.getChatList(params)
     .then(function (res) {
       promise.resolve(res);
     })
@@ -41,7 +41,7 @@ export function _convertToOtherAttachment(params) {
     return promise;
   }
 
-  convertToOtherAttachment(params)
+  chatController.convertToOtherAttachment(params)
     .then(function (res) {
       promise.resolve({ data: res });
     })
@@ -76,7 +76,7 @@ export function createNewChat() {
         filterAccountIds: [md.global.Account.accountId],
         callback: function (data) {
           if (data.length > 1) {
-            addDiscussionGroup({
+            groupController.addDiscussionGroup({
               accountIds: data.map(function (account) {
                 return account.accountId;
               }),

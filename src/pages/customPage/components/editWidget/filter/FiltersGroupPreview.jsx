@@ -95,6 +95,7 @@ function FiltersGroupPreview(props) {
       ) : (
         <Filters
           projectId={projectId}
+          appId={appId}
           enableBtn={filter.enableBtn}
           filters={formatFilters(filters)}
           updateQuickFilter={filters => {

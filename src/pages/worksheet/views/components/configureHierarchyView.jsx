@@ -6,6 +6,7 @@ import { Button } from 'worksheet/styled';
 import { InfoWrap, SettingItem } from 'src/pages/widgetConfig/styled';
 import { useSetState } from 'react-use';
 import HierarchyRelateMultiSheet from './hierarchyRelateMultiSheet';
+import _ from 'lodash';
 
 const RELATE_TYPE = [
   { text: _l('本表关联'), value: 1 },

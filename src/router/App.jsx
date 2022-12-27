@@ -22,6 +22,7 @@ import { getSuffix } from 'src/pages/PortalAccount/util';
 import privateGuide from 'src/api/privateGuide';
 import Trigger from 'rc-trigger';
 import weixinCode from 'src/pages/privateDeployment/images/weixin.png';
+import _ from 'lodash';
 
 @preall
 @errorBoundary(true)

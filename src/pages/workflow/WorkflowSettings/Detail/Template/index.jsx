@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Dropdown, Radio } from 'ming-ui';
+import _ from 'lodash';
 import { NODE_TYPE } from '../../enum';
 import flowNode from '../../../api/flowNode';
 import {
@@ -176,7 +177,7 @@ export default class Template extends Component {
             companyId={this.props.companyId}
             processId={this.props.processId}
             nodeId={this.props.selectNodeId}
-            onlyNodeRole={true}
+            onlyNodeRole
             unique={false}
             accounts={data.accounts}
             updateSource={this.updateSource}
@@ -199,7 +200,10 @@ export default class Template extends Component {
         className: item.id === data.appId ? 'ThemeColor3' : '',
       };
     });
-    const list = [{ text: _l('H5链接'), value: 0 }, { text: _l('小程序路径'), value: 1 }];
+    const list = [
+      { text: _l('H5链接'), value: 0 },
+      { text: _l('小程序路径'), value: 1 },
+    ];
 
     return (
       <Fragment>

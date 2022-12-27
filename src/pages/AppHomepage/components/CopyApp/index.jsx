@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import homeApp from 'src/api/homeApp';
+import _ from 'lodash';
 
 const Title = styled.span`
   display: inline-block;

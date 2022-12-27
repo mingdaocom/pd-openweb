@@ -3,8 +3,9 @@ import '@mdfe/nanoscroller';
 import doT from '@mdfe/dot';
 import mainHtml from './tpl/main.html';
 import itemHtml from './tpl/item.html';
-import { index as mdDialog} from 'src/components/mdDialog/dialog';
-var departmentController = require('src/api/department');
+import { index as mdDialog } from 'src/components/mdDialog/dialog';
+import departmentController from 'src/api/department';
+import _ from 'lodash';
 
 var DEFAULTS = {
   dialogBoxID: 'selectDepartmentUser_',

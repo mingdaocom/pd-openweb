@@ -4,6 +4,7 @@ import { AS_ABSTRACT_CONTROL, filterAndFormatterControls } from 'src/pages/works
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import _ from 'lodash';
 
 // 摘要
 export default class Abstract extends React.Component {

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取角色列表
   * @param {Object} args 请求参数

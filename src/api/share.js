@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取知识文件分享信息
   * @param {Object} args 请求参数

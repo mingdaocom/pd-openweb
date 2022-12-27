@@ -5,6 +5,7 @@ import { SettingItem } from '../../styled';
 import { getDefaultData, getColor, getDynamicColors } from '../../config/score';
 import { handleAdvancedSettingChange, getAdvanceSetting } from '../../util/setting';
 import 'src/pages/worksheet/components/DialogImportExcelCreate/SetImportExcelCreateWorksheetOrApp/index.less';
+import _ from 'lodash';
 const { WidgetIcon, AttachmentConfig, WidgetColor } = components;
 
 const SCORE_COLOR_TYPE = [

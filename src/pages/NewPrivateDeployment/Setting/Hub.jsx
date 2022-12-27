@@ -7,6 +7,10 @@ import MessageSettings from './components/MessageSettings';
 import emailApi from 'src/api/email';
 import smsApi from 'src/api/sms';
 import styled from 'styled-components';
+import tencentyunIcon from '../images/tencentyunIcon.png';
+import aliyunIcon from '../images/aliyunIcon.png';
+import weixin from '../images/weixin.png';
+import _ from 'lodash';
 
 const PrivateDesc = styled.div`
   align-items: center;
@@ -158,14 +162,14 @@ const Message = props => {
     name: 'Tencentyun',
     tags: ['App ID', 'App Key'],
     keys: ['appId', 'appKey'],
-    icon: require('../images/tencentyunIcon.png'),
+    icon: tencentyunIcon,
   };
   const aliyunInfo = {
     title: _l('阿里云'),
     name: 'Aliyun',
     tags: ['Access Key', 'Access Secret'],
     keys: ['accessKey', 'accessSecret'],
-    icon: require('../images/aliyunIcon.png')
+    icon: aliyunIcon,
   };
 
   return (
@@ -185,7 +189,7 @@ const Message = props => {
         {_l('设置短信服务需要先购买腾讯云或阿里云的「短信服务」，如需自定义短信服务请')}
         <Trigger
           action={['hover']}
-          popup={<img className="card z-depth-2" style={{ width: 300 }} src={require('../images/weixin.png')} />}
+          popup={<img className="card z-depth-2" style={{ width: 300 }} src={weixin} />}
           popupAlign={{
             offset: [0, 7],
             points: ['tc', 'bc'],

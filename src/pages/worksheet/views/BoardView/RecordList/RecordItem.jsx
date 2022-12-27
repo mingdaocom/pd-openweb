@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import * as boardActions from 'worksheet/redux/actions/boardView';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
-import { updateWorksheetRow } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../config';
 import Components from '../../components';
 import { browserIsMobile } from 'src/util';
@@ -21,6 +21,7 @@ const RELATION_SHEET_TYPE = 29;
 const canDrag = props => {
   const { data = {}, viewControl, selectControl = {}, fieldPermission = '111', controlPermissions = '111' } = props;
   const { allowEdit } = data;
+  if (window.share) return false;
   if (viewControl === 'caid') return false;
   return (
     allowEdit &&
@@ -147,7 +148,7 @@ function SortableRecordItem(props) {
 
   const updateTitleControlData = control => {
     const { controlId, value } = control;
-    updateWorksheetRow({
+    worksheetAjax.updateWorksheetRow({
       rowId: data.rowId,
       ..._.pick(props, ['worksheetId', 'viewId']),
       newOldControl: [control],
@@ -184,6 +185,7 @@ function SortableRecordItem(props) {
         data={data}
         type="board"
         canDrag={canDrag(props)}
+        isCharge={isCharge}
         currentView={{
           ...currentView,
           projectId: worksheetInfo.projectId,
@@ -216,6 +218,7 @@ function SortableRecordItem(props) {
             type="board"
             currentView={currentView}
             data={data}
+            isCharge={isCharge}
             style={{ ...getStyle() }}
             closeEdit={closeEdit}
             updateTitleData={updateTitleControlData}

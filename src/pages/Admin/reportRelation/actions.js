@@ -1,8 +1,9 @@
-﻿const StructureController = require('src/api/structure');
+﻿import StructureController from 'src/api/structure';
 
 const COMPANY_FAKE_ACCOUNTID = '';
 
 import Config from '../config';
+import _ from 'lodash';
 // 打开关闭节点折叠
 export const OPEN_COLLAPSE = 'OPEN_COLLAPSE';
 export const CLOSE_COLLAPSE = 'CLOSE_COLLAPSE';

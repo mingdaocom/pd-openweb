@@ -9,6 +9,7 @@ import DateConfig from './DateConfig';
 import TimeConfig from './TimeConfig';
 import ScoreConfig from './ScoreConfig';
 import DropConfig from './DropConfig';
+import _ from 'lodash';
 
 const TYPE_TO_COMP = {
   3: TelConfig,

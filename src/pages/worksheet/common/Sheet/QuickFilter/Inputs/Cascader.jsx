@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { arrayOf, func, shape, string } from 'prop-types';
 import CascaderDropdown from 'src/components/newCustomFields/widgets/Cascader';
 import { BaseSelectedItem } from './Styles';
+import _ from 'lodash';
 
 const Con = styled.div`
   position: relative;

@@ -4,7 +4,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
 import { formatValuesOfCondition } from 'worksheet/common/WorkSheetFilter/util';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import update from 'immutability-helper';
 import _, { includes, get, isEmpty, omit, findIndex, filter, find } from 'lodash';
 import { getAdvanceSetting, handleAdvancedSettingChange } from './setting';
@@ -262,8 +262,8 @@ export const getMoneyCnControls = (controls, data) => {
 };
 
 // 获取控件的文本呈现值
-export function formatColumnToText(column, numberOnly) {
-  return renderCellText(column, { noUnit: numberOnly, noSplit: numberOnly });
+export function formatColumnToText(column, numberOnly, noMask) {
+  return renderCellText(column, { noUnit: numberOnly, noSplit: numberOnly, noMask: noMask });
 }
 
 // 通过id 获取控件的值

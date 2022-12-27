@@ -4,6 +4,7 @@ import { Input } from 'antd';
 import { Dialog } from 'ming-ui';
 import cx from 'classnames';
 import './ErrorMsg.less';
+import _ from 'lodash';
 const { TextArea } = Input;
 
 class ErrorMsg extends Component {

@@ -12,7 +12,6 @@ const RelateInfo = styled.div`
     margin: 0 6px;
   }
   .name {
-    margin-top: -2px;
     max-width: 220px;
     &.needLink {
       cursor: pointer;
@@ -21,16 +20,18 @@ const RelateInfo = styled.div`
   }
 `;
 
-export default function RelateSheetInfo({ name, id }) {
+export default function RelateSheetInfo({ name, id, appName }) {
   return (
     <RelateInfo>
       <i className="icon-link_record Font16 Gray_9e"></i>
       <div className="text">{_l('工作表')}</div>
       <div
         className={cx('name Bold overflow_ellipsis', { needLink: !!id })}
-        onClick={() => id && toEditWidgetPage({ sourceId: id, fromURL: 'newPage' })}>
+        onClick={() => id && toEditWidgetPage({ sourceId: id, fromURL: 'newPage' })}
+      >
         {name}
       </div>
+      {appName && <div className="mLeft6">({appName})</div>}
     </RelateInfo>
   );
 }

@@ -40,4 +40,4 @@ var custom = {
     return $.api(controllerName, 'customupdatePage', JSON.stringify(args), $.extend(base, options));
   },
 };
-module.exports = custom;
+export default custom;

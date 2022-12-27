@@ -4,6 +4,7 @@ import { Select } from 'antd';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
 import styled from 'styled-components';
+import _ from 'lodash';
 const CalendarColorChoose = styled.div`
    {
     position: relative;

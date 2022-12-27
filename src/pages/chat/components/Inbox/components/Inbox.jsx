@@ -4,6 +4,8 @@ import { DROPDOWN_GROUPLIST, TYPENAMES, INBOXTYPES } from '../constants';
 import InboxHeader from './inboxHeader';
 import InboxList from './inboxList';
 import { browserIsMobile } from 'src/util';
+import '../style.less';
+import _ from 'lodash';
 
 const getInitialLoadType = inboxType => {
   if (inboxType && DROPDOWN_GROUPLIST[inboxType]) {

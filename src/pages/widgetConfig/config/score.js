@@ -1,3 +1,4 @@
+import _ from 'lodash';
 const NUM_5 = 5;
 const COLOR_FED156 = '#FED156';
 const COLOR_FF9300 = '#FF9300';

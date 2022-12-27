@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取所有规则（带主作用对象）
   * @param {Object} args 请求参数

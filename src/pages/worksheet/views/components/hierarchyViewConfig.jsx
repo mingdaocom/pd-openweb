@@ -3,10 +3,11 @@ import { string } from 'prop-types';
 import { RadioGroup } from 'ming-ui';
 import styled from 'styled-components';
 import { Button } from 'worksheet/styled';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { Dropdown, Menu } from 'antd';
 import { InfoWrap, SettingItem } from 'src/pages/widgetConfig/styled';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
 
 const RELATE_TYPE = [
   { text: _l('本表关联'), value: 0 },
@@ -72,7 +73,7 @@ export default function HierarchyViewConfig({ fields, handleSelect, currentSheet
   const isRelateCurrentSheet = relateType === 0;
 
   const getNextGradeControls = (...para) => {
-    getWorksheetInfo({ ...para, getTemplate: true }).then(data => {
+    worksheetAjax.getWorksheetInfo({ ...para, getTemplate: true }).then(data => {
       setSelectable({ selectableControls: getSelectableControls(data), selectableSheet: data });
     });
   };

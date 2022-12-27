@@ -1,5 +1,6 @@
 ﻿import PropTypes from 'prop-types';
 import React, { Children } from 'react';
+import _ from 'lodash';
 
 function withChildren(exceptionList, Component = exceptionList) {
   class withChildrenComponent extends React.Component {

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Member from './member';
 import Icon from 'ming-ui/components/Icon';
+import _ from 'lodash';
 
 export default class CalendarMembers extends Component {
   renderWxMembers() {

@@ -3,9 +3,10 @@ import { Drawer } from 'antd';
 import { Icon, LoadDiv, Support } from 'ming-ui';
 import ActionLogs from './components/ActionLogs';
 import BackupFiles from './components/BackupFiles';
-import { pageGetBackupRestoreOperationLog, getValidBackupFileInfo } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 import './less/manageBackupFilesDialog.less';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const PAGESIZE = 30;
 
@@ -42,7 +43,7 @@ export default function ManageBackupFilesDialog(props) {
   };
 
   const getBackupCount = () => {
-    getValidBackupFileInfo({ appId, projectId }).then(res => {
+    appManagementAjax.getValidBackupFileInfo({ appId, projectId }).then(res => {
       setValidLimit(res.validLimit);
       setCurrentValid(res.currentValid);
       setCountLoading(false);
@@ -51,7 +52,7 @@ export default function ManageBackupFilesDialog(props) {
 
   const getList = pageIndex => {
     if (pageIndex > 1 && ((isLoading && isMore) || !isMore)) return;
-    pageGetBackupRestoreOperationLog({
+    appManagementAjax.pageGetBackupRestoreOperationLog({
       pageIndex: pageIndex || 1,
       pageSize: PAGESIZE,
       projectId,

@@ -9,6 +9,7 @@ import StructureContent from '../components/structureContent';
 import ImportAndExport from '../components/structureContent/ImportAndExport';
 import ImportDepAndPosition from '../components/structureContent/ImportDepAndPosition';
 import DialogSettingInviteRules from '../modules/dialogSettingInviteRules/inde.jsx';
+import _ from 'lodash';
 
 class Root extends React.Component {
   constructor(props) {
@@ -48,7 +49,7 @@ class Root extends React.Component {
               <div className="adminStructure">
                 <div className="structureNavigator">
                   <div className="Bold Font15 mBottom20 pLeft24">
-                    {_l('人员与部门')}
+                    {_l('成员与部门')}
                     <Tooltip text={<span>{_l('人员加入规则设置')}</span>} action={['hover']}>
                       <Icon
                         className="Font16 Gray_bd Hand mLeft8"

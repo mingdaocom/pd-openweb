@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 
 export function formatFilterValues(controlType, values = []) {

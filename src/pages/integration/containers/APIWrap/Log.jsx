@@ -6,7 +6,7 @@ import { useSetState } from 'react-use';
 import { TableWrap } from 'src/pages/integration/containers/style';
 import { Table, ConfigProvider } from 'antd';
 import LogDialog from '../../components/LogDialog';
-import { getHistoryList } from 'src/pages/workflow/api/packageVersion';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import moment from 'moment';
 import { FLOW_STATUS } from 'src/pages/workflow/WorkflowSettings/History/config.js';
 const Wrap = styled.div`
@@ -82,7 +82,7 @@ export default function Log(props) {
       return;
     }
     setState({ loading: true });
-    getHistoryList(
+    packageVersionAjax.getHistoryList(
       {
         processId: props.processId,
         pageSize: 50,

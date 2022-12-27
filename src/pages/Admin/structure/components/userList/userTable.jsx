@@ -1,19 +1,41 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-
-import DropDownCheck from './dropDownCheck';
 import UserItem from './userItem';
 import { LoadDiv, Icon, Checkbox, Tooltip } from 'ming-ui';
 import { Dropdown } from 'antd';
+import EditUser from '../EditUser';
 import classNames from 'classnames';
 import { updateUserOpList, removeUserFromSet, addUserToSet, updateSelectAll } from '../../actions/current';
+import { loadUsers, loadInactiveUsers, loadApprovalUsers, loadAllUsers } from '../../actions/entities';
 import cx from 'classnames';
 import './userItem.less';
+import _ from 'lodash';
 
 const clearActiveDialog = props => {
   const { dispatch } = props;
   dispatch(updateUserOpList(null));
+};
+
+const refreshData = (departmentId, typeCursor, projectId, pageIndex, dispatch) => {
+  if (departmentId) {
+    dispatch(loadUsers(departmentId, pageIndex));
+  } else {
+    switch (typeCursor) {
+      case 0:
+        dispatch(loadAllUsers(projectId, pageIndex));
+        break;
+      case 1:
+        dispatch(loadUsers(departmentId, pageIndex));
+        break;
+      case 2:
+        dispatch(loadInactiveUsers(projectId, pageIndex));
+        break;
+      case 3:
+        dispatch(loadApprovalUsers(projectId, pageIndex));
+        break;
+    }
+  }
 };
 
 class UserTable extends React.Component {
@@ -22,15 +44,15 @@ class UserTable extends React.Component {
     columnsInfo: [
       { value: 'name', label: _l('姓名'), checked: true, width: 200 },
       { value: 'status', label: _l('状态'), checked: true, typeCursor: 3, width: 32 },
-      { value: 'position', label: _l('职位'), checked: true, width: 160 },
       { value: 'department', label: _l('部门'), checked: true, width: 160 },
-      { value: 'adress', label: _l('工作地点'), checked: true, width: 120 },
-      { value: 'jobNum', label: _l('工号'), checked: true, width: 120 },
+      { value: 'position', label: _l('职位'), checked: true, width: 160 },
       { value: 'phone', label: _l('手机'), checked: true, width: 160 },
       { value: 'email', label: _l('邮箱'), checked: true, width: 180 },
+      { value: 'jobNum', label: _l('工号'), checked: true, width: 120 },
+      { value: 'adress', label: _l('工作地点'), checked: true, width: 120 },
+      { value: 'joinDate', label: _l('加入时间'), checked: true, typeCursor: 0, width: 120 },
       { value: 'applyDate', label: _l('申请日期'), checked: true, typeCursor: 3, width: 160 },
       { value: 'operator', label: _l('操作者'), checked: true, typeCursor: 3, width: 160 },
-      { value: 'joinDate', label: _l('加入时间'), checked: true, typeCursor: 0, width: 120 },
     ],
   };
 
@@ -105,14 +127,15 @@ class UserTable extends React.Component {
     const { typeCursor } = this.props;
     let { columnsInfo } = this.state;
     let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
-    let temp = (!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo;
-    let checkedLength = temp.filter(
-      item => (!item['typeCursor'] || item.typeCursor === this.props.typeCursor) && item.checked,
-    ).length;
-    let colLength = typeCursor === 3 ? 11 : 8;
+    let temp = ((!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo || []).filter(
+      item => _.isUndefined(item.typeCursor) || item.typeCursor === typeCursor,
+    );
+    let checkedLength = temp.filter(it => it.checked).length;
+    let colLength = temp.length;
+
     return (
       <div className="showColumnsBox">
-        <div className="statistics" className={classNames('statistics', { checkBoxHalf: checkedLength !== colLength })}>
+        <div className={classNames('statistics', { checkBoxHalf: checkedLength !== colLength })}>
           <Checkbox checked={_.every(temp, item => item.checked)} onClick={this.handleClickStastics}>
             <span className="verticalAlign">{_l('显示列 %0/%1', checkedLength, colLength)}</span>
           </Checkbox>
@@ -224,28 +247,27 @@ class UserTable extends React.Component {
           )}
           {this.isHideCurrentColumn('name') && (
             <th
-              className={cx('TxtLeft nameTh', { left0: typeCursor !== 0 })}
+              className={cx('TxtLeft nameTh', { left0: typeCursor !== 0, pLeft12: typeCursor !== 0 })}
               style={{ width: setWidth ? 200 : 'unset' }}
             >
               {_l('姓名')}
             </th>
           )}
           {props.typeCursor === 3 && this.isHideCurrentColumn('status') && <th className="statusTh">{_l('状态')}</th>}
-          {this.isHideCurrentColumn('position') && <th className="TxtLeft jobTh">{_l('职位')}</th>}
-          {/* {props.isSearch ? <th>{_l('部门')}</th> : null} */}
           {this.isHideCurrentColumn('department') && <th className="departmentTh">{_l('部门')}</th>}
-          {this.isHideCurrentColumn('adress') && <th className="workSiteTh">{_l('工作地点')}</th>}
-          {this.isHideCurrentColumn('jobNum') && <th className="jobNumberTh">{_l('工号')}</th>}
+          {this.isHideCurrentColumn('position') && <th className="TxtLeft jobTh">{_l('职位')}</th>}
           {this.isHideCurrentColumn('phone') && <th className="mobileTh">{_l('手机')}</th>}
           {!this.state.isMinSc && this.isHideCurrentColumn('email') && <th className="emailTh">{_l('邮箱')}</th>}
+          {this.isHideCurrentColumn('jobNum') && <th className="jobNumberTh">{_l('工号')}</th>}
+          {this.isHideCurrentColumn('adress') && <th className="workSiteTh">{_l('工作地点')}</th>}
+          {this.isHideCurrentColumn('joinDate') && props.typeCursor === 0 && (
+            <th className="joinDateTh">{_l('加入时间')}</th>
+          )}
           {!this.state.isMinSc && props.typeCursor === 3 && (
             <React.Fragment>
               {this.isHideCurrentColumn('applyDate') && <th className="dateTh">{_l('申请日期')}</th>}
               {this.isHideCurrentColumn('operator') && <th className="actMenTh">{_l('操作者')}</th>}
             </React.Fragment>
-          )}
-          {this.isHideCurrentColumn('joinDate') && props.typeCursor === 0 && (
-            <th className="joinDateTh">{_l('加入时间')}</th>
           )}
           <th width="80px" className="actTh" style={{ width: actWidth }}>
             <Dropdown
@@ -280,13 +302,22 @@ class UserTable extends React.Component {
     let { columnsInfo } = this.state;
     let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
     let temp = (!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo;
-    let { usersCurrentPage = [], projectId, chargeUsers = [], searchAccountIds, searchId = [], isSearch } = props;
+    let {
+      usersCurrentPage = [],
+      projectId,
+      chargeUsers = [],
+      searchAccountIds,
+      searchId = [],
+      isSearch,
+      typeCursor,
+    } = props;
     if (isSearch && !!searchId[0] && searchAccountIds.length > 0) {
       usersCurrentPage = searchAccountIds.filter(user => user.accountId === searchId[0]);
     }
     if (usersCurrentPage.length <= 0) return '';
     return _.sortBy(usersCurrentPage, user => !_.includes(chargeUsers, user.accountId)).map((user, index) => {
       const isChargeUser = _.includes(chargeUsers, user.accountId);
+
       return (
         <UserItem
           isSearch={props.isSearch}
@@ -294,10 +325,13 @@ class UserTable extends React.Component {
           user={user}
           projectId={projectId}
           key={user.accountId || index}
-          // onInputChange={handleInputChange}
           isHideCurrentColumn={this.isHideCurrentColumn}
           columnsInfo={temp}
           dateNow={Date.now()}
+          editCurrentUser={this.state.editCurrentUser}
+          clickRow={() => {
+            this.setState({ openChangeUserInfoDrawer: true, editCurrentUser: user });
+          }}
         />
       );
     });
@@ -338,8 +372,10 @@ class UserTable extends React.Component {
     }
   };
   render() {
-    const { isLoading } = this.props;
+    const { isLoading, projectId, dispatch, typeCursor, pageIndex, departmentId } = this.props;
+    const { openChangeUserInfoDrawer, editCurrentUser = {} } = this.state;
     if (isLoading) return <LoadDiv />;
+
     return (
       <div className="tableContent">
         <div className="theadContainer" ref={node => (this.headContainer = node)} onScroll={this.headScroll}>
@@ -352,6 +388,27 @@ class UserTable extends React.Component {
             <tbody>{this.renderCon()}</tbody>
           </table>
         </div>
+        {openChangeUserInfoDrawer && (
+          <EditUser
+            projectId={projectId}
+            typeCursor={typeCursor}
+            actType={'edit'}
+            key={`editUserInfo_${editCurrentUser.accountId}`}
+            accountId={editCurrentUser.accountId}
+            editCurrentUser={editCurrentUser}
+            departmentId={departmentId}
+            clickSave={() => {
+              refreshData(departmentId, typeCursor, projectId, pageIndex, dispatch);
+              this.setState({ openChangeUserInfoDrawer: false });
+            }}
+            onClose={() => {
+              this.setState({ openChangeUserInfoDrawer: false, editCurrentUser: {} });
+            }}
+            cancelInviteRemove={() => {
+              dispatch(loadInactiveUsers(projectId, 1));
+            }}
+          />
+        )}
       </div>
     );
   }
@@ -364,19 +421,13 @@ const mapStateToProp = (state, ownProps) => {
     pagination: { userList = {} },
     entities: { users, departments, searchUsers },
     current: { selectedAccountIds = [], activeAccountId, typeCursor, isSelectAll, departmentId },
-    search: { accountIds = [], showSeachResult = false },
+    search: { showSeachResult = false },
   } = state;
   let data = departments[departmentId] || {};
   const { chargeUsers = [] } = data;
   const usersPagination = userList && userList.ids ? userList : { ids: [] };
-  // const usersCurrentPage = []
-  // usersPagination.ids.map(id => {
-  //   if (!!users[id]) {
-  //     usersCurrentPage.push(users[id])
-  //   }
-  // });
 
-  const { ids = [], searchId = [] } = userList;
+  const { ids = [], searchId = [], pageIndex } = userList;
   let isThisPageCheck = selectedAccountIds.length > 0 ? true : false;
   ids.map(it => {
     if (!_.includes(selectedAccountIds, it)) {
@@ -398,6 +449,8 @@ const mapStateToProp = (state, ownProps) => {
     isSearch: userList && userList.isSearchResult,
     searchId,
     showSeachResult,
+    departmentId,
+    pageIndex,
   };
 };
 

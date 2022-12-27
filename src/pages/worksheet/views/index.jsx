@@ -12,6 +12,7 @@ import Skeleton from 'src/router/Application/Skeleton';
 import UnNormal from 'worksheet/views/components/UnNormal';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const { board, sheet, calendar, gallery, structure, gunter } = VIEW_DISPLAY_TYPE;
 
@@ -80,7 +81,7 @@ function View(props) {
     'groupFilterWidth',
   ]);
 
-  if (_.isEmpty(view) && !props.chartId) {
+  if (_.isEmpty(view) && !props.chartId && !_.get(window, 'shareState.isPublicView')) {
     // 图表引用视图允许不存在 viewId
     if (window.redirected && viewProps.appId && viewProps.groupId && viewProps.worksheetId) {
       navigateTo(`/app/${viewProps.appId}/${viewProps.groupId}/${viewProps.worksheetId}`, true);

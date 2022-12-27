@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, ScrollView, LoadDiv, Icon } from 'ming-ui';
 import './index.less';
-import { getList } from '../../api/packageVersion';
+import packageVersion from '../../api/packageVersion';
 import { navigateTo } from 'router/navigateTo';
+import _ from 'lodash';
 
 export default ({ appId, companyId, visible, onSave, onClose }) => {
   const [data, setData] = useState(null);
@@ -10,7 +11,7 @@ export default ({ appId, companyId, visible, onSave, onClose }) => {
   const [keywords, setKeywords] = useState('');
   const [hasMore, setMore] = useState(false);
   const getListFunc = (index = 1, keyword = '') => {
-    getList(
+    packageVersion.getList(
       {
         apkId: appId,
         companyId,

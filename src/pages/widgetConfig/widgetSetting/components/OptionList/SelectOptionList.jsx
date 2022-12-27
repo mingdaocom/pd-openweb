@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment, useCallback } from 'react';
 import { Support, Button, Dropdown, Dialog } from 'ming-ui';
-import { getCollectionsByAppId } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import { find } from 'lodash';
@@ -35,7 +35,7 @@ export default function SelectOptionList(props) {
 
   const getList = useCallback(() => {
     if (!app) return;
-    getCollectionsByAppId({ appId: app }).then(({ code, data, msg }) => {
+    worksheetAjax.getCollectionsByAppId({ appId: app }).then(({ code, data, msg }) => {
       if (code === 1) {
         setInfo({ list: data });
       } else {

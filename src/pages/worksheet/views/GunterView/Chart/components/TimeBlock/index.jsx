@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import RecordWrapper from './RecordWrapper';
 import './index.less';
+import _ from 'lodash';
 
 const lineHeight = 32;
 const groupingBlockHeight = 7;

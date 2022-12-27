@@ -233,4 +233,4 @@ const system = {
   },
 };
 
-module.exports = system;
+export default system;

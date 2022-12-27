@@ -4,6 +4,7 @@ import { encrypt } from 'src/util';
 import { Dialog, CheckboxGroup, Input } from 'ming-ui';
 // import { Input } from 'antd';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const CreateKeyWrap = styled.div`
   padding: 0 8px;

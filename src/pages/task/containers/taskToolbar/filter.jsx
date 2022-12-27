@@ -24,6 +24,7 @@ import ScrollView from 'ming-ui/components/ScrollView';
 import Checkbox from 'ming-ui/components/Checkbox';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import _ from 'lodash';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class Filter extends Component {

@@ -1,6 +1,10 @@
 import React, { Fragment, useEffect, useState, useImperativeHandle, useRef, forwardRef } from 'react';
 import styled from 'styled-components';
 import Skeleton from 'src/router/Application/Skeleton';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import SavedFilters from './components/SavedFilters';
 import FilterDetail from './components/FilterDetail';
 import Empty from './components/Empty';
@@ -31,7 +35,8 @@ const SwitchTab = styled.div`
     line-height: 24px;
     border-radius: 24px;
     color: #757575;
-    padding: 0 22px;
+    width: 50%;
+    text-align: center;
     display: inline-block;
     &.active {
       color: #2196f3;
@@ -59,9 +64,11 @@ function Filters(props, ref) {
     supportGroup = true,
     projectId,
     appId,
+    viewId,
     worksheetId,
     isCharge,
     columns,
+    sheetSwitchPermit = {},
     state = {},
     actions = {},
     onHideFilterPopup = () => {},
@@ -74,6 +81,7 @@ function Filters(props, ref) {
   const filterWhiteKeys = _.flatten(
     Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
   );
+  const showWorkflowControl = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit, viewId);
   const controls = columns
     .filter(c => (c.controlPermissions || '111')[0] === '1')
     .map(redefineComplexControl)
@@ -89,10 +97,18 @@ function Filters(props, ref) {
     deleteFilter,
     toggleFilterType,
     setActiveFilter,
+    sortFilters,
   } = actions;
   const [activeTab, setActiveTab] = useState(1);
   const isSavedEditing = !!editingFilter && !/^new/.test(editingFilter.id);
   const isNewEditing = !!editingFilter && /^new/.test(editingFilter.id);
+  function filterAddConditionControls(controls) {
+    return filterOnlyShowField(
+      showWorkflowControl
+        ? controls
+        : controls.filter(c => !_.find(WORKFLOW_SYSTEM_CONTROL, { controlId: c.controlId })),
+    );
+  }
   function filterWorksheet(filter) {
     const filterControls = formatForSave(filter);
     if (filterControls && _.isArray(filterControls)) {
@@ -182,6 +198,7 @@ function Filters(props, ref) {
                   }}
                   handleTriggerFilter={handleTriggerFilter}
                   filterResigned={filterResigned}
+                  filterAddConditionControls={filterAddConditionControls}
                 />
               )}
               {!editingFilter && <Empty isNew onAdd={handleAddNewFilter} />}
@@ -195,6 +212,7 @@ function Filters(props, ref) {
                   controls={controls}
                   filters={filters}
                   activeFilter={activeFilter}
+                  filterAddConditionControls={filterAddConditionControls}
                   triggerFilter={f => {
                     editFilter(undefined);
                     handleTriggerFilter(f);
@@ -211,6 +229,9 @@ function Filters(props, ref) {
                   onDelete={filter => deleteFilter({ appId, filter })}
                   onToggleFilterType={filter => toggleFilterType({ appId, worksheetId, filter, isCharge })}
                   onHideFilterPopup={onHideFilterPopup}
+                  onSortEnd={sortedIds => {
+                    sortFilters(appId, worksheetId, sortedIds);
+                  }}
                 />
               )}
               {isSavedEditing && (
@@ -234,6 +255,7 @@ function Filters(props, ref) {
                   }}
                   handleTriggerFilter={handleTriggerFilter}
                   filterResigned={filterResigned}
+                  filterAddConditionControls={filterAddConditionControls}
                 />
               )}
             </Fragment>

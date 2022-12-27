@@ -5,6 +5,7 @@ import Icon from 'ming-ui/components/Icon';
 import SearchContent from 'src/pages/SmartSearch/components/reactSmartSearch';
 import { navigateTo } from 'router/navigateTo';
 import './index.less';
+import _ from 'lodash';
 
 export default class GlobalSearch extends Component {
   static propTypes = {

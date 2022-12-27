@@ -5,6 +5,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import common from './common.js';
 import './index.less';
 import { getRequest } from 'src/util';
+import _ from 'lodash';
 
 const guideSettings = md.global.Account.guideSettings;
 const showWarn = guideSettings.accountEmail || guideSettings.accountMobilePhone;

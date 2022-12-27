@@ -17,6 +17,7 @@ import { COLORS, ICONS } from './config';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
+import _ from 'lodash';
 
 @errorBoundary
 class CreateCustomBtnCon extends React.Component {

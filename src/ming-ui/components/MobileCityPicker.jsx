@@ -4,6 +4,7 @@ import { LoadDiv } from 'ming-ui';
 import { Modal, List, Tabs } from 'antd-mobile';
 import Controller from 'src/api/fixedData';
 import './less/MobileCityPicker.less';
+import _ from 'lodash';
 
 const particularlyCity = ['110000', '120000', '310000', '500000', '810000', '820000'];
 const overseas = ['910000'];

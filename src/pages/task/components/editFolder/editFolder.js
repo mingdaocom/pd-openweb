@@ -3,7 +3,7 @@ import doT from '@mdfe/dot';
 import editFolderTpl from './tpl/editFolder.html';
 import 'src/components/mdDialog/dialog';
 import 'src/components/selectGroup/selectAllGroup';
-const ajaxRequest = require('src/api/taskCenter');
+import ajaxRequest from 'src/api/taskCenter';
 
 const EditFolder = function (opts) {
   const defaults = {
@@ -164,6 +164,6 @@ $.extend(EditFolder.prototype, {
   },
 });
 
-exports.init = function (opts) {
+export default function (opts) {
   return new EditFolder(opts);
 };

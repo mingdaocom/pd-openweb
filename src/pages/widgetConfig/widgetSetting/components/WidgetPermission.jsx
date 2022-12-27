@@ -5,6 +5,7 @@ import Icon from 'src/components/Icon';
 import { NOT_NEED_SET_READONLY_CONTROL } from '../../config';
 import { updateConfig } from '../../util/setting';
 import { SettingItem } from '../../styled';
+import _ from 'lodash';
 
 export default ({ from, data, info, onChange }) => {
   let { fieldPermission = '111', type } = data || {};

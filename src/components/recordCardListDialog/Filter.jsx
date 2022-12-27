@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import Conditions from 'src/pages/worksheet/common/Sheet/QuickFilter/Conditions';
 import _ from 'lodash';
 const ClickAwayable = createDecoratedComponent(withClickAway);
@@ -49,6 +50,23 @@ function formatSearchFilters(filters = [], controls = []) {
     const control = _.find(controls, { controlId: f.controlId });
     if (control && _.includes([6, 8], control.type)) {
       f.filterType = 11;
+    }
+    if (
+      control &&
+      _.includes(
+        [
+          WIDGETS_TO_API_TYPE_ENUM.TEXT, // 文本
+          WIDGETS_TO_API_TYPE_ENUM.TELEPHONE, // 电话号码
+          WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE, // 手机号码
+          WIDGETS_TO_API_TYPE_ENUM.EMAIL, // 邮件地址
+          WIDGETS_TO_API_TYPE_ENUM.CRED, // 证件
+          WIDGETS_TO_API_TYPE_ENUM.CONCATENATE, // 文本组合
+          WIDGETS_TO_API_TYPE_ENUM.AUTO_ID, // 自动编号
+        ],
+        control.type,
+      )
+    ) {
+      f.filterType = 1;
     }
     if (control && _.includes([10], control.type)) {
       f.advancedSetting.allowitem = '2';

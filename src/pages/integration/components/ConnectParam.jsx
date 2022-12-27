@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { Icon, Support, Checkbox, Tooltip } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { CardTopWrap } from '../containers/style';
-import { getNodeDetail, saveNode } from 'src/pages/workflow/api/flowNode';
+import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { v4 as uuidv4, validate } from 'uuid';
 import { formatStr } from 'src/pages/integration/config.js';
 const Wrap = styled.div`
@@ -154,7 +154,7 @@ function ConnectParam(props) {
     getParam();
   }, []);
   const getParam = () => {
-    getNodeDetail(
+    flowNodeAjax.getNodeDetail(
       {
         processId: props.id,
         nodeId: node.id,
@@ -174,7 +174,7 @@ function ConnectParam(props) {
       .map(o => {
         return { ...o, alias: o.controlName };
       });
-    saveNode(
+      flowNodeAjax.saveNode(
       {
         processId: props.id,
         nodeId: node.id,

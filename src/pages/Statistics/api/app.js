@@ -31,4 +31,4 @@ var app = {
     return $.api(controllerName, 'appgetReportConfigDetail', args, $.extend(base, options));
   },
 };
-module.exports = app;
+export default app;

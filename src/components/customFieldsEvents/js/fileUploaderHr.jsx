@@ -4,7 +4,7 @@
 /**
  * 文件上传模块（审批）
  */
-import $ from 'jquery';
+
 import ReactDOM from 'react-dom';
 import React from 'react';
 import UploadFiles from 'src/components/UploadFiles';

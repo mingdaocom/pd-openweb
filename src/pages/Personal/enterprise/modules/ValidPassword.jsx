@@ -6,6 +6,7 @@ import captcha from 'src/components/captcha';
 import { navigateTo } from 'router/navigateTo';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 export default class ValidPassWord extends Component {
   constructor() {

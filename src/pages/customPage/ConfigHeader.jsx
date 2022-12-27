@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { string } from 'prop-types';
 import styled from 'styled-components';
-import { editWorkSheetInfoForApp } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 import { Button, Dialog } from 'ming-ui';
 import cx from 'classnames';
 import { FlexCenter } from './util';
+import _ from 'lodash';
 
 const DisplayType = [
   { type: 'web', icon: 'desktop', text: _l('桌面配置') },
@@ -109,7 +110,7 @@ export default ({
   const save = () => {
     onSave();
     if (originName !== name) {
-      editWorkSheetInfoForApp({ appId, appSectionId: groupId, workSheetId: pageId, workSheetName: name }).then(res => {
+      appManagementAjax.editWorkSheetInfoForApp({ appId, appSectionId: groupId, workSheetId: pageId, workSheetName: name }).then(res => {
         if (res) {
           updatePageInfo({ pageName: name });
           updateSheetList(pageId, { workSheetName: name });

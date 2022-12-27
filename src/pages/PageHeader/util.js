@@ -1,3 +1,4 @@
+import _ from 'lodash';
 // 获取应用id、分组id、工作表id
 export const getIds = props => _.get(props, ['match', 'params']);
 

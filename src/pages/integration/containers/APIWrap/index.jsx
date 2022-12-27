@@ -6,16 +6,15 @@ import SvgIcon from 'src/components/SvgIcon';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
-// import withClickAway from 'ming-ui/decorators/withClickAway';
 import { RedMenuItemWrap, MenuItemWrap, LogoWrap, ActWrap, BtnWrap } from '../style';
 import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config.js';
 import Switch from 'src/pages/workflow/components/Switch';
 import Set from './Set';
 import Cite from './Cite';
 import Log from './Log';
-import { addApi, getDetail } from 'src/pages/workflow/api/packageVersion';
-import { get } from 'src/pages/workflow/api/flowNode';
-import { updateProcess, publish, getProcessPublish } from 'src/pages/workflow/api/process.js';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import flowNodeAjax from 'src/pages/workflow/api/flowNode';
+import processAjax from 'src/pages/workflow/api/process.js';
 import axios from 'axios';
 import moment from 'moment';
 
@@ -262,13 +261,13 @@ function APISetting(props) {
       return;
     }
     const res = await axios.all([
-      get(
+      flowNodeAjax.get(
         {
           processId,
         },
         { isIntegration: true },
       ),
-      getProcessPublish(
+      processAjax.getProcessPublish(
         {
           processId,
         },
@@ -280,7 +279,7 @@ function APISetting(props) {
       data: { ...data, ...res[1] },
     });
     !props.connectInfo //从连接的api管理进来的 参数上带了connectInfo，不需要重新获取
-      ? getDetail(
+      ? packageVersionAjax.getDetail(
           {
             isPublic: true,
             id: res[0].relationId,
@@ -311,7 +310,7 @@ function APISetting(props) {
   };
   // 更新基本信息
   const updateInfo = data => {
-    updateProcess(
+    processAjax.updateProcess(
       {
         companyId: localStorage.getItem('currentProjectId'),
         processId: data.id,
@@ -336,7 +335,7 @@ function APISetting(props) {
     });
   };
   const createApi = async () => {
-    const res = await addApi(
+    const res = await packageVersionAjax.addApi(
       {
         companyId: localStorage.getItem('currentProjectId'),
         explain: '',
@@ -368,7 +367,7 @@ function APISetting(props) {
     setState({
       pending: true,
     });
-    publish({ isPublish: enabled, processId: data.id }, { isIntegration: true }).then(publishData => {
+    processAjax.publish({ isPublish: enabled, processId: data.id }, { isIntegration: true }).then(publishData => {
       const { isPublish } = publishData;
       if (isPublish) {
         let newData = {

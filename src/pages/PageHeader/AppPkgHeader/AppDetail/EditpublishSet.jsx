@@ -3,11 +3,11 @@ import { Switch } from 'antd';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { getWXProjectSettingInfo, applyWorkWXAlternativeApp } from 'src/api/workWeiXin';
+import workWeiXinAjax from 'src/api/workWeiXin';
 import wechatPng from 'src/pages/PageHeader/AppPkgHeader/AppDetail/img/wechat_work.png';
 import { navigateTo } from 'src/router/navigateTo';
 import { Modal } from 'antd';
-import { publishSettings } from 'src/api/homeApp';
+import homeAppAjax from 'src/api/homeApp';
 import { Icon } from 'ming-ui';
 
 const Wrap = styled.div`
@@ -104,7 +104,7 @@ class EditPublishSetDialog extends React.Component {
   getWXProjectSettingInfo() {
     const { projectId, appId } = this.props;
     if (!md.global.Config.IsLocal) {
-      getWXProjectSettingInfo({ projectId, appId }).then(res => {
+      workWeiXinAjax.getWXProjectSettingInfo({ projectId, appId }).then(res => {
         if (res && res.status === 1) {
           // 已集成的提交申请弹层
           this.setState({ integratedWechat: true });
@@ -125,7 +125,7 @@ class EditPublishSetDialog extends React.Component {
   };
   submitApply = () => {
     const { projectId, appId, appName } = this.props;
-    applyWorkWXAlternativeApp({
+    workWeiXinAjax.applyWorkWXAlternativeApp({
       projectId,
       appId,
       appName,
@@ -194,7 +194,7 @@ class EditPublishSetDialog extends React.Component {
     const { data, projectId, appId, onChangePublish } = this.props;
     const { pcDisplay, webMobileDisplay, appDisplay } = data;
     onChangePublish(obj);
-    publishSettings({
+    homeAppAjax.publishSettings({
       appId,
       projectId,
       pcDisplay,

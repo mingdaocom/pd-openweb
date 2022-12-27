@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import Search from 'src/components/newCustomFields/widgets/Search';
 import EditableCellCon from '../EditableCellCon';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const Con = styled(EditableCellCon)`
   > div {
@@ -75,7 +76,7 @@ export default function CellSearch(props) {
     className,
     style,
     cell = {},
-    formdata,
+    rowFormData,
     updateEditingStatus,
     onClick,
     updateCell,
@@ -104,7 +105,7 @@ export default function CellSearch(props) {
               advancedSetting: { ...cell.advancedSetting, width: 200 },
               ..._.pick(props, ['projectId', 'recordId', 'appId', 'worksheetId', 'viewId']),
             }}
-            formData={!formdata ? null : formdata()}
+            formData={!rowFormData ? null : rowFormData()}
             defaultSelectProps={{ open: true, dropdownMatchSelectWidth: 420 }}
             onChange={(value, id) => {
               if (id) {

@@ -6,6 +6,7 @@ import sheetAjax from 'src/api/worksheet';
 import config from '../../../config';
 import ColumnListDropdown from '../../common/ColumnListDropdown';
 import { getControlTextValue, getAvailableColumn, getConcatedValue, createWorksheetColumnTag } from '../../../utils/util';
+import _ from 'lodash';
 
 export default class Concatenate extends React.Component {
   static propTypes = {

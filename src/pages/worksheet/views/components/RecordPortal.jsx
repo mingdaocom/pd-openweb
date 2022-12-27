@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { string } from 'prop-types';
 import { createPortal, findDOMNode } from 'react-dom';
 import { useEffect } from 'react';
+import _ from 'lodash';
 
 export default function RecordPortal({ children, closeEdit = _.noop }) {
   let $el = document.createElement('div');

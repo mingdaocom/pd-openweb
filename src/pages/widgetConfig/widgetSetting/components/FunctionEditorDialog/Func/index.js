@@ -10,6 +10,7 @@ import Tip from './common/Tip';
 import Footer from './common/Footer';
 import './style.less';
 import cx from 'classnames';
+import _ from 'lodash';
 
 window.emitter = new EventEmitter();
 

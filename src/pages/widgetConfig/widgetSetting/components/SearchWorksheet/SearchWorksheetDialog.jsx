@@ -3,24 +3,19 @@ import { Dialog, Dropdown, Menu, MenuItem, LoadDiv, Tooltip } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import { SearchWorksheetWrap, WorksheetListWrap } from '../DynamicDefaultValue/styled';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
 import SelectWorksheet from './SelectWorksheet';
-import { getWorksheetsByAppId } from 'src/api/homeApp';
-import { getWorksheetInfo, saveQuery } from 'src/api/worksheet';
+import homeAppAjax from 'src/api/homeApp';
+import worksheetAjax from 'src/api/worksheet';
 import SelectControl from '../SelectControl';
 import { getControls } from '../DynamicDefaultValue/util';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
 import '../DynamicDefaultValue/inputTypes/SubSheet/style.less';
 import cx from 'classnames';
 import _ from 'lodash';
 
-const rowControl = [{ controlId: 'rowid', type: 2, controlName: _l('记录Id') }];
-
-const filterSys = (list = []) => {
-  return list.filter(item => !_.includes(SYS, item.controlId));
-};
+const rowControl = [{ controlId: 'rowid', type: 2, controlName: _l('记录ID') }];
 
 export default class SearchWorksheetDialog extends Component {
   constructor(props) {
@@ -43,7 +38,7 @@ export default class SearchWorksheetDialog extends Component {
       visible: false,
       showMenu: false,
       controlVisible: false,
-      relationControls: filterSys(relationControls),
+      relationControls: relationControls,
       loading: true,
     };
   }
@@ -56,7 +51,7 @@ export default class SearchWorksheetDialog extends Component {
     const { globalSheetInfo = {}, dynamicData = {}, data = {}, queryConfig = {} } = this.props;
     const { id = '', sourceId = '', sourceName = '' } = dynamicData;
     if (!globalSheetInfo.appId) return null;
-    getWorksheetsByAppId({ appId: globalSheetInfo.appId, type: 0 }).then(res => {
+    homeAppAjax.getWorksheetsByAppId({ appId: globalSheetInfo.appId, type: 0 }).then(res => {
       const sheetList = (res || []).map(({ workSheetId: sheetId, workSheetName: sheetName }) => ({
         sheetId,
         sheetName,
@@ -77,9 +72,9 @@ export default class SearchWorksheetDialog extends Component {
             this.setState({
               items: queryConfig.items,
               configs: queryConfig.configs,
-              controls: queryConfig.templates ? filterSys(_.get(queryConfig.templates[0] || {}, 'controls')) : [],
+              controls: queryConfig.templates ? _.get(queryConfig.templates[0] || {}, 'controls') : [],
               sheetName: sourceName,
-              isSheetDelete: !(queryConfig.templates || []).length,
+              isSheetDelete: !(_.get(queryConfig, 'templates[0].controls') || []).length,
               appName: queryConfig.appName,
               loading: false,
             });
@@ -97,9 +92,9 @@ export default class SearchWorksheetDialog extends Component {
   setControls = () => {
     const { sheetId, appId } = this.state;
     if (!sheetId) return;
-    getWorksheetInfo({ worksheetId: sheetId, getTemplate: true, appId }).then(res => {
+    worksheetAjax.getWorksheetInfo({ worksheetId: sheetId, getTemplate: true, appId }).then(res => {
       const { controls = [] } = res.template || {};
-      this.setState({ controls: filterSys(controls), sheetName: res.name, isSheetDelete: !controls.length });
+      this.setState({ controls: controls, sheetName: res.name, isSheetDelete: !controls.length });
     });
   };
 
@@ -127,7 +122,7 @@ export default class SearchWorksheetDialog extends Component {
       items,
       configs,
     };
-    saveQuery(params).then(res => {
+    worksheetAjax.saveQuery(params).then(res => {
       const value = {
         id: res,
         sourceId: sheetId,
@@ -156,6 +151,7 @@ export default class SearchWorksheetDialog extends Component {
   // 获取子表下拉数据或查询表下拉数据
   getDropData = (controls = [], control = {}, hasRowId) => {
     let filterControls = getControls({ data: control, controls, isCurrent: true, fromSearch: true });
+    filterControls = filterControls.filter(i => !_.includes(['wfftime', 'rowid'], i.controlId));
     // 有记录id选项(同查询表的关联记录或者文本类控件)
     if (hasRowId) {
       if ((control.type === 29 && control.dataSource === this.state.sheetId) || _.includes([2, 32], control.type))
@@ -167,6 +163,7 @@ export default class SearchWorksheetDialog extends Component {
   // 过滤已经选中的映射字段
   filterSelectControls = (controls = []) => {
     const { configs = [] } = this.state;
+    controls = controls.filter(i => !_.includes(['wfftime', 'rowid'], i.controlId));
     controls = controls.filter(co => {
       return (
         _.includes([2, 3, 4, 5, 6, 8, 15, 16, 19, 23, 24, 26, 27, 28, 36, 46, 48], co.type) ||

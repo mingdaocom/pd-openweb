@@ -1,6 +1,6 @@
 import update from 'immutability-helper';
 import { autobind } from 'core-decorators';
-import { getWorksheetFilters, saveWorksheetFilter, deleteWorksheetFilter } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import {
   formatOriginFilterGroupValue,
   getDefaultCondition,
@@ -68,7 +68,7 @@ class Actions {
   }
   @autobind
   loadFilters(worksheetId, cb = () => {}) {
-    getWorksheetFilters({ worksheetId }).then(data => {
+    worksheetAjax.getWorksheetFilters({ worksheetId }).then(data => {
       let filters = data.map(formatOriginFilterGroupValue);
       if (md.global.Account.isPortal) {
         filters = filters.filter(o => o.type !== 2); // 外部门户 排除公共筛选
@@ -157,11 +157,11 @@ class Actions {
     });
   }
   @autobind
-  addGroup() {
+  addGroup(spliceType) {
     this.dispatch({
       type: 'ADD_GROUP',
       group: {
-        spliceType: FILTER_RELATION_TYPE.AND,
+        spliceType: spliceType || FILTER_RELATION_TYPE.AND,
         conditionSpliceType: FILTER_RELATION_TYPE.AND,
         conditions: [],
       },
@@ -212,47 +212,28 @@ class Actions {
   saveFilter({ appId, worksheetId, filter }, cb = () => {}) {
     const isNew = !filter.id || filter.id.startsWith('new');
     const items = formatForSave(filter);
-    saveWorksheetFilter({
-      appId,
-      filterId: isNew ? undefined : filter.id,
-      name: filter.name,
-      type: filter.type,
-      worksheetId,
-      items: items,
-    }).then(data => {
-      if (isNew) {
-        this.dispatch({
-          type: 'ADD_FILTER',
-          filter: formatOriginFilterGroupValue(data),
-        });
-      } else {
-        this.dispatch({
-          type: 'UPDATE_FILTER',
-          filter: formatOriginFilterGroupValue(data),
-        });
-      }
-      cb(formatOriginFilterGroupValue(data));
-      this.dispatch({
-        type: 'UPDATE',
-        value: {
-          editingFilter: undefined,
-          needSave: false,
-        },
-      });
-      alert(_l('保存成功！'));
-    });
-  }
-  @autobind
-  deleteFilter({ appId, filter }, cb = () => {}) {
-    deleteWorksheetFilter({
-      appId,
-      filterId: filter.id,
-    }).then(data => {
-      if (data) {
-        this.dispatch({
-          type: 'DELETE_FILTER',
-          filterId: filter.id,
-        });
+    worksheetAjax
+      .saveWorksheetFilter({
+        appId,
+        filterId: isNew ? undefined : filter.id,
+        name: filter.name,
+        type: filter.type,
+        worksheetId,
+        items: items,
+      })
+      .then(data => {
+        if (isNew) {
+          this.dispatch({
+            type: 'ADD_FILTER',
+            filter: formatOriginFilterGroupValue(data),
+          });
+        } else {
+          this.dispatch({
+            type: 'UPDATE_FILTER',
+            filter: formatOriginFilterGroupValue(data),
+          });
+        }
+        cb(formatOriginFilterGroupValue(data));
         this.dispatch({
           type: 'UPDATE',
           value: {
@@ -260,9 +241,44 @@ class Actions {
             needSave: false,
           },
         });
-      } else {
-        alert(_l('删除失败'), 3);
-      }
+        alert(_l('保存成功！'));
+      });
+  }
+  @autobind
+  deleteFilter({ appId, filter }, cb = () => {}) {
+    worksheetAjax
+      .deleteWorksheetFilter({
+        appId,
+        filterId: filter.id,
+      })
+      .then(data => {
+        if (data) {
+          this.dispatch({
+            type: 'DELETE_FILTER',
+            filterId: filter.id,
+          });
+          this.dispatch({
+            type: 'UPDATE',
+            value: {
+              editingFilter: undefined,
+              needSave: false,
+            },
+          });
+        } else {
+          alert(_l('删除失败'), 3);
+        }
+      });
+  }
+  @autobind
+  sortFilters(appId, worksheetId, sortedIds) {
+    worksheetAjax.sortWorksheetFilters({
+      appId,
+      worksheetId,
+      filterIds: sortedIds,
+    });
+    this.dispatch({
+      type: 'SORT_FILTERS',
+      ids: sortedIds,
     });
   }
 }
@@ -376,6 +392,12 @@ export function createReducer(state = {}, action) {
       return updateWithLastAction(state, {
         needSave: { $set: true },
         editingFilter: { conditionsGroups: { $splice: [[action.groupIndex, 1]] } },
+      });
+    case 'SORT_FILTERS':
+      return updateWithLastAction(state, {
+        filters: {
+          $apply: oldFilters => action.ids.map(id => _.find(oldFilters, { id })).filter(_.identity),
+        },
       });
     default:
       return state;

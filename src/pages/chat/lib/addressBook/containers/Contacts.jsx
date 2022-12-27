@@ -8,6 +8,7 @@ import ContactList from '../components/ContactList';
 import UserDetail from '../components/UserDetail';
 
 import API from '../api';
+import _ from 'lodash';
 
 const formatContactsData = (store, list) => {
   const result = store || {};

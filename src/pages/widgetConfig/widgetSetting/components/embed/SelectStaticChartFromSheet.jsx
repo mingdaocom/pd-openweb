@@ -3,8 +3,9 @@ import { Dropdown, Dialog } from 'ming-ui';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import reportApi from 'statistics/api/report.js';
-import { getAppInfo } from 'src/api/homeApp';
+import homeAppAjax from 'src/api/homeApp';
 import 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/SubSheet/style.less'
+import _ from 'lodash';
 
 const SelectItem = styled.div`
   .title {
@@ -58,7 +59,7 @@ export default function SelectStaticChartFromSheet(props) {
   const { sheetId, reportId } = ids;
 
   useEffect(() => {
-    getAppInfo({ appId }).then(({ appSectionDetail = [] }) => {
+    homeAppAjax.getAppInfo({ appId }).then(({ appSectionDetail = [] }) => {
       const workSheetInfo = appSectionDetail.reduce((total, cur) => {
         return total.concat(cur.workSheetInfo);
       }, []);

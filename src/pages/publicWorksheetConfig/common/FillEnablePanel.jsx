@@ -9,6 +9,7 @@ import ConfigPanel from '../common/ConfigPanel';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import * as actions from '../redux/actions';
 import { VISIBLE_TYPE } from '../enum';
+import _ from 'lodash';
 
 function EnablePanel(props) {
   const {

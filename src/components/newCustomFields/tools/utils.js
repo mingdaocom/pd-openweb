@@ -1,12 +1,13 @@
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FROM, FORM_ERROR_TYPE, UN_TEXT_TYPE } from './config';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getStringBytes, accMul, browserIsMobile } from 'src/util';
-import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util.js';
-import { getSelectedOptions } from 'worksheet/util';
+import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
+import moment from 'moment';
+import renderText from 'src/pages/worksheet/components/CellControls/renderText';
 
 export const convertControl = type => {
   switch (type) {
@@ -36,6 +37,7 @@ export const convertControl = type => {
       return 'CHECKBOX'; // 多选
 
     case 11:
+    case 44:
       return 'DROP_DOWN'; // 下拉框
 
     case 14:
@@ -332,7 +334,7 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
  * @param  {} controls 所有控件
  * @param  {} data 控件所在记录数据[可选]
  */
-export function getTitleTextFromControls(controls, data, titleSourceControlType) {
+export function getTitleTextFromControls(controls, data, titleSourceControlType, options = {}) {
   let titleControl = _.find(controls, control => control.attribute === 1) || {};
   if (titleSourceControlType) {
     titleControl.sourceControlType = titleSourceControlType;
@@ -340,7 +342,7 @@ export function getTitleTextFromControls(controls, data, titleSourceControlType)
   if (titleControl && data) {
     titleControl = Object.assign({}, titleControl, { value: data[titleControl.controlId] || data.titleValue });
   }
-  return titleControl ? renderCellText(titleControl) || _l('未命名') : _l('未命名');
+  return titleControl ? renderCellText(titleControl, options) || _l('未命名') : _l('未命名');
 }
 
 /**
@@ -348,11 +350,11 @@ export function getTitleTextFromControls(controls, data, titleSourceControlType)
  * @param  {} controls 所有控件
  * @param  {} data 控件所在记录数据[可选]
  */
-export function getTitleTextFromRelateControl(control = {}, data) {
+export function getTitleTextFromRelateControl(control = {}, data, options = {}) {
   if (data.name) {
     return data.name;
   }
-  return getTitleTextFromControls(control.relationControls, data, control.sourceControlType);
+  return getTitleTextFromControls(control.relationControls, data, control.sourceControlType, options);
 }
 
 // 控件状态
@@ -551,11 +553,14 @@ export const getCurrentValue = (item, data, control) => {
         //关联记录单条
         case 29:
           const formatData = JSON.parse(data || '[]')[0] || {};
-          if (!formatData.name) {
-            const titleControl = _.find(item.relationControls || [], r => r.attribute === 1) || {};
-            return JSON.parse((JSON.parse(data || '[]')[0] || {}).sourcevalue || '{}')[titleControl.controlId] || '';
+          let titleControl;
+          if (_.get(item, 'relationControls.length')) {
+            titleControl = _.find(item.relationControls, r => r.attribute === 1) || {};
+          } else if (_.get(window, 'worksheetControlsCache.' + item.dataSource)) {
+            titleControl =
+              _.find(_.get(window, 'worksheetControlsCache.' + item.dataSource) || [], r => r.attribute === 1) || {};
           }
-          return formatData.name;
+          return titleControl ? renderText({ ...titleControl, value: formatData.name }) : formatData.name;
         //公式
         case 31:
           const dot = item.dot || 0;
@@ -682,4 +687,54 @@ export const unTextSearch = item => {
     _.includes(UN_TEXT_TYPE, item.type) ||
     (item.type === 2 && browserIsMobile() && (item.strDefault || '10').split('')[1] === '1')
   );
+};
+
+// 渲染计数
+export const renderCount = item => {
+  const { type, enumDefault, value, advancedSetting } = item;
+  let count;
+
+  // 人员多选、部门多选、多条卡片
+  if (
+    (_.includes([26, 27], type) && enumDefault === 1) ||
+    (type === 29 && enumDefault === 2 && advancedSetting.showtype === '1')
+  ) {
+    count = JSON.parse(value || '[]').length;
+  }
+
+  // 附件
+  if (type === 14) {
+    const files = JSON.parse(value || '[]');
+
+    if (_.isArray(files)) {
+      count = files.length;
+    } else {
+      count = files.attachments.length + files.knowledgeAtts.length + files.attachmentData.length;
+    }
+  }
+
+  // 子表
+  if (type === 34) {
+    if (typeof value === 'object') {
+      count = value.num || (value.rows || []).length;
+    } else if (!_.isNaN(parseInt(item.value, 10))) {
+      count = parseInt(item.value, 10);
+    }
+  }
+
+  return count ? `(${count})` : null;
+};
+
+//控件切换成size情况，兼容老数据
+export const halfSwitchSize = (item, from) => {
+  const half =
+    item.half ||
+    (item.type === 28 && item.enumDefault === 1) ||
+    (item.type === 29 &&
+      item.enumDefault === 1 &&
+      parseInt(item.advancedSetting.showtype, 10) === 3 &&
+      from !== FROM.H5_ADD &&
+      from !== FROM.PUBLIC);
+
+  return half ? 6 : 12;
 };

@@ -5,6 +5,7 @@ import discussionAjax from 'src/api/discussion';
 import { SOURCE_TYPE } from './config';
 import CommentListItem from './commentListItem';
 import './css/commentList.less';
+import _ from 'lodash';
 
 class CommentList extends React.Component {
   static propTypes = {

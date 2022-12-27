@@ -4,6 +4,7 @@ import { Select, InputNumber } from 'antd';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 const operationTypeData = [
   { label: _l('不导出'), exampleType: 0 },

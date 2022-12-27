@@ -9,6 +9,8 @@ import { getTodoCount } from './Entry';
 import { getDateScope } from './config';
 import FilterConTent from './Filter';
 import './index.less';
+import _ from 'lodash';
+import TodoEntrust from './TodoEntrust';
 
 const dateScope = getDateScope();
 
@@ -362,7 +364,7 @@ export default class MyProcess extends Component {
     const batchType = approveType === 4 ? 'passBatchType' : 'overruleBatchType';
     const { approveCards } = this.state;
     const selects = approveCards.map(({ id, workId, flowNode }) => {
-      const data = { id, workId };
+      const data = { id, workId, opinion: _l('批量处理') };
       if (flowNode[batchType] === 1) {
         return {
           ...data,
@@ -419,10 +421,12 @@ export default class MyProcess extends Component {
       myProcessCount: myProcessCount - 1,
     });
   };
+
   renderHeader = () => {
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingApproval, waitingWrite, waitingExamine, mySponsor } = countData;
     const { stateTab, filter } = this.state;
+
     return (
       <div className="header card">
         <div className="valignWrapper flex title">
@@ -478,6 +482,8 @@ export default class MyProcess extends Component {
           </div>
         </div>
         <div className="flex close">
+          <TodoEntrust />
+
           {location.href.indexOf('myprocess') === -1 ? (
             <Fragment>
               <span className="mRight15" data-tip={_l('新页面打开')}>
@@ -546,7 +552,7 @@ export default class MyProcess extends Component {
               <div className="valignWrapper mTop2">
                 <Checkbox
                   checked={allowApproveList.length && allowApproveList.length === approveCards.length}
-                  onChange={(e) => {
+                  onChange={e => {
                     const { checked } = e.target;
                     if (checked) {
                       if (allowApproveList.length) {
@@ -562,11 +568,9 @@ export default class MyProcess extends Component {
                 />
                 <div className="valignWrapper mLeft5 mRight5">
                   {_l('全选')}
-                  {approveCards.length ? (
-                    _l('（已选择%0/%1条）', approveCards.length, list.length)
-                  ) : (
-                    list.length !== waitingApproval && _l('（已加载%0条）', list.length)
-                  )}
+                  {approveCards.length
+                    ? _l('（已选择%0/%1条）', approveCards.length, list.length)
+                    : list.length !== waitingApproval && _l('（已加载%0条）', list.length)}
                 </div>
               </div>
               <Tooltip
@@ -883,7 +887,8 @@ export default class MyProcess extends Component {
                 this.handleRead(this.state.selectCard);
               }
             }}
-            onSave={() => {
+            onSave={(isStash) => {
+              if (isStash) return;
               if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
                 this.handleSave(this.state.selectCard);
               }

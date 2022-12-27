@@ -6,10 +6,12 @@ import { LoadDiv, Button, Icon, ScrollView } from 'ming-ui';
 import { getSubListError, filterHidedSubList } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
 import './index.less';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import CustomFields from 'src/components/newCustomFields';
+import { VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import RecordCard from 'src/components/recordCard';
+import _ from 'lodash';
 
 const LoadMask = styled.div`
   position: absolute;
@@ -65,22 +67,39 @@ class WorksheetRowEdit extends Component {
    * 获取记录详情
    */
   getLinkDetail() {
-    const id = location.pathname.match(/.*\/recordshare\/(.*)/)[1];
+    const id = location.pathname.match(/.*\/public\/workflow\/(.*)/)[1];
 
     window.recordShareLinkId = id;
 
-    worksheetAjax.getLinkDetail({ id }).then(data => {
-      if (data.resultCode === 1) {
-        data.receiveControls.forEach(item => {
-          item.fieldPermission = '111';
-        });
-        data.shareAuthor && (window.shareAuthor = data.shareAuthor);
+    this.requestLinkDetail()
+      .then(data => {
         this.setState({ loading: false, data });
-      } else if (data.resultCode === 4) {
-        this.setState({ loading: false, isError: true });
-      }
-    });
+      })
+      .catch(data => {
+        this.setState({ loading: false, data, isError: true });
+      });
   }
+
+  requestLinkDetail = param => {
+    return new Promise((resolve, reject) => {
+      worksheetAjax
+        .getLinkDetail({
+          id: window.recordShareLinkId,
+          ...param,
+        })
+        .then(data => {
+          if (data.resultCode === 1) {
+            data.receiveControls.forEach(item => {
+              item.fieldPermission = '111';
+            });
+            data.shareAuthor && (window.shareAuthor = data.shareAuthor);
+            return resolve(data);
+          } else {
+            return reject(data);
+          }
+        });
+    });
+  };
 
   /**
    * 获得关联多条记录
@@ -88,7 +107,7 @@ class WorksheetRowEdit extends Component {
   getRowRelationRowsData = id => {
     const { data, pageIndex, rowRelationRowsData = {}, pageSize } = this.state;
     const { controlName, coverCid, showControls } = _.find(data.receiveControls, item => item.controlId === id);
-    const shareId = location.pathname.match(/.*\/recordshare\/(.*)/)[1];
+    const shareId = location.pathname.match(/.*\/public\/workflow\/(.*)/)[1];
 
     this.setState({ controlName, coverCid, showControls, loading: true });
 
@@ -146,25 +165,28 @@ class WorksheetRowEdit extends Component {
       return;
     }
     let hasError;
-    const id = location.pathname.match(/.*\/recordshare\/(.*)/)[1];
-    const subListControls = filterHidedSubList(data, 2);
+    const id = location.pathname.match(/.*\/public\/workflow\/(.*)/)[1];
+    const subListControls = filterHidedSubList(data, 7);
+    const getRows = controlId => {
+      try {
+        return this.cellObjs[controlId].cell.props.rows;
+      } catch (err) {
+        return [];
+      }
+    };
     if (subListControls.length) {
       const errors = subListControls
         .map(control => ({
           id: control.controlId,
-          value:
-            control.value &&
-            control.value.rows &&
-            control.value.rows.length &&
-            getSubListError(
-              {
-                rows: control.value.rows,
-                rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.state.rules`),
-              },
-              _.get(this.cellObjs || {}, `${control.controlId}.cell.controls`) || control.relationControls,
-              control.showControls,
-              2,
-            ),
+          value: getSubListError(
+            {
+              rows: getRows(control.controlId),
+              rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.rules`),
+            },
+            _.get(this.cellObjs || {}, `${control.controlId}.cell.controls`) || control.relationControls,
+            control.showControls,
+            2,
+          ),
         }))
         .filter(c => !_.isEmpty(c.value));
       if (errors.length) {
@@ -196,6 +218,7 @@ class WorksheetRowEdit extends Component {
 
     if (hasError) {
       alert(_l('请正确填写'), 3);
+      this.setState({ submitLoading: false });
       return false;
     } else {
       this.submitted = true;
@@ -219,13 +242,43 @@ class WorksheetRowEdit extends Component {
   };
 
   renderError() {
+    const { data } = this.state;
+
+    if ([14, 18, 19].includes(data.resultCode)) {
+      return (
+        <div className="worksheetRowEditBox" style={{ height: 500 }}>
+          <VerificationPass
+            validatorPassPromise={(value, captchaResult) => {
+              return new Promise((resolve, reject) => {
+                if (value) {
+                  this.requestLinkDetail({
+                    password: value,
+                    ...captchaResult,
+                  })
+                    .then(data => {
+                      this.setState({ isError: false, data });
+                    })
+                    .catch(data => {
+                      this.setState({ isError: true, data });
+                      reject(SHARE_STATE[data.resultCode]);
+                    });
+                } else {
+                  return reject();
+                }
+              });
+            }}
+          />
+        </div>
+      );
+    }
+
     return (
       <div
         className="worksheetRowEditBox flexColumn"
         style={{ height: 500, alignItems: 'center', justifyContent: 'center' }}
       >
         <i className="icon-Import-failure" style={{ color: '#FF7600', fontSize: 60 }} />
-        <div className="Font17 bold mTop15">{_l('链接已失效')}</div>
+        <div className="Font17 bold mTop15">{SHARE_STATE[data.resultCode]}</div>
       </div>
     );
   }

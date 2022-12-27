@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取读取API信息的地址
   * @param {Object} args 请求参数

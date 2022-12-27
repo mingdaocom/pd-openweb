@@ -5,6 +5,7 @@ import ImportConfig from './ImportConfig';
 import ConfigControl from './ConfigControl';
 import ErrorDialog from './ErrorDialog';
 import { antNotification } from 'ming-ui';
+import _ from 'lodash';
 
 export const wsexcelSocketInit = () => {
   IM.socket.on(

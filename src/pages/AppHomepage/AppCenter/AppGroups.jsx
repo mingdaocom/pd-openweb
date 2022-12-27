@@ -9,6 +9,7 @@ import Groups from './components/Groups';
 import AppGrid from './components/AppGrid';
 import './AppGroups.less';
 import { initialState, reducer, CreateActions } from './appHomeReducer';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

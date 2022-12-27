@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../redux/actions.js';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 const isMobile = browserIsMobile();
 
@@ -85,7 +86,7 @@ export default class Chart extends Component {
     });
   }
   renderChart() {
-    const { reportData, currentReport, base, getReportSingleCacheId, requestOriginalData } = this.props;
+    const { reportData, currentReport, base, getReportSingleCacheId, requestOriginalData, changeCurrentReport } = this.props;
     const { settingVisible, report = {} } = base;
     const reportId = report.id;
     const { reportType } = reportData;
@@ -105,8 +106,11 @@ export default class Chart extends Component {
       ) : (
         <Chart
           {...props}
+          settingVisible={settingVisible}
+          onChangeCurrentReport={changeCurrentReport}
           reportData={{
             ...currentReport,
+            reportId,
             data,
             columns,
             ylist,
@@ -175,11 +179,18 @@ export default class Chart extends Component {
       );
     }
     if ([reportTypes.NumberChart].includes(reportType)) {
+      const { map, contrast, contrastMap } = reportData;
       const params = {
-        ...reportData,
-        yaxisList: currentReport.yaxisList,
+        ...currentReport,
+        map,
+        contrast,
+        contrastMap
       };
-      return <Chart {...props} reportData={params} />;
+      if (map.length || contrast.length || contrastMap.length) {
+        return <Chart {...props} reportData={params} />;
+      } else {
+        return <WithoutData />;
+      }
     }
   }
   render() {
@@ -190,13 +201,14 @@ export default class Chart extends Component {
       worksheetInfo,
       reportData,
       currentReport,
-      changeSheetVisible,
+      onChangeSheetVisible,
       renderHeaderDisplaySetup,
     } = this.props;
     const viewId = _.get(currentReport, ['filter', 'viewId']);
     const view = _.find(worksheetInfo.views, { viewId });
-    const { direction } = this.props;
-    const { dragValue, dragMaskVisible, min, max, sheetSize } = this.state;
+    const { direction, scopeVisible } = this.props;
+    const { dragMaskVisible, min, max, sheetSize } = this.state;
+    const dragValue = this.state.dragValue - (scopeVisible && direction === 'horizontal' ? 320 : 0);
     return (
       <div
         className={cx('chartBody Relative flex', {
@@ -225,14 +237,15 @@ export default class Chart extends Component {
                 max={max}
                 onChange={value => {
                   const { offsetHeight, offsetWidth } = this.$chartRef.current;
-                  const size = (direction === 'vertical' ? offsetHeight : offsetWidth) - value;
+                  const sheetSize = (direction === 'vertical' ? offsetHeight : offsetWidth) - value;
+                  const dragValue = value + (scopeVisible ? 320 : 0);
                   this.setState({
                     dragMaskVisible: false,
-                    dragValue: value,
-                    sheetSize: size,
+                    dragValue,
+                    sheetSize,
                   });
-                  safeLocalStorageSetItem(`${direction}ChartSheetDragValue`, value);
-                  safeLocalStorageSetItem(`${direction}ChartSheetSheetSize`, size);
+                  safeLocalStorageSetItem(`${direction}ChartSheetDragValue`, dragValue);
+                  safeLocalStorageSetItem(`${direction}ChartSheetSheetSize`, sheetSize);
                 }}
               />
             )}
@@ -245,7 +258,7 @@ export default class Chart extends Component {
                 width: direction === 'horizontal' ? sheetSize : '100%',
               }}
               onClose={() => {
-                changeSheetVisible(false);
+                onChangeSheetVisible(false);
               }}
             />
             {direction === 'vertical' && (

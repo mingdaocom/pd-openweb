@@ -10,20 +10,6 @@ const config = require('./webpack.common.config');
 const isProduction = process.env.NODE_ENV === 'production';
 const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 
-function pathJoin(basedir, pathstr) {
-  if (typeof pathstr === 'string') {
-    return path.join(basedir, pathstr);
-  } else if (typeof pathstr === 'object' && typeof pathstr.length !== 'undefined') {
-    return pathstr.map(p => pathJoin(basedir, p));
-  } else {
-    const result = {};
-    Object.keys(pathstr).forEach(key => {
-      result[key] = pathJoin(basedir, pathstr[key]);
-    });
-    return result;
-  }
-}
-
 module.exports = {
   entry: config.entry,
   cache: true,
@@ -155,14 +141,6 @@ module.exports = {
         ]
     ).concat([
       {
-        test: /\.js$/,
-        include: pathJoin(
-          path.join(__dirname, '../'),
-          config.entry.vendors.map(p => path.resolve(__dirname, '../', p + '.js')),
-        ),
-        use: [{ loader: 'script-loader' }],
-      },
-      {
         test: /\.jsx?$/,
         exclude: [/node_modules|seajs/],
         use: ['thread-loader', 'cache-loader', 'babel-loader'],
@@ -170,10 +148,6 @@ module.exports = {
       {
         test: /\.html?$/,
         use: 'raw-loader',
-      },
-      {
-        test: /\.tpl$/,
-        use: ['@mdfe/dot-loader'],
       },
     ]),
   },
@@ -186,5 +160,6 @@ module.exports = {
     chunkFilename: isProduction ? '[name].[chunkhash].chunk.js' : '[name].dev.js',
     path: path.join(__dirname, '../build/dist/pack'),
     sourceMapFilename: isProduction ? '[name].[contenthash].js.map' : '[name].js.map',
+    pathinfo: false,
   },
 };

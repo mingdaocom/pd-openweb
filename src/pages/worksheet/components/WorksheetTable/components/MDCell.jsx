@@ -1,27 +1,42 @@
 import React from 'react';
 import CellControl from 'worksheet/components/CellControls';
+import _ from 'lodash';
 
 export default function MDCell(props) {
-  const { className, style, columnIndex, rowIndex, row, control, value, fixedColumnCount, getPopupContainer, from } =
-    props;
   const {
+    className,
+    style,
+    columnIndex,
+    rowIndex,
+    cellIndex,
+    row,
+    control,
+    value,
+    fixedColumnCount,
+    getPopupContainer,
+    from,
+  } = props;
+  const {
+    tableType,
+    tableId,
+    cache,
     worksheetId,
-    formdata,
+    rowFormData,
     masterData,
     isSubList,
     rowHeight,
     updateCell = () => {},
     onCellClick = () => {},
+    onFocusCell = () => {},
     onCellMouseDown = () => {},
     projectId,
-    lineeditable,
+    lineEditable,
     scrollTo,
     tableScrollTop,
-    gridHeight,
     isediting,
     error,
-    updateEditingControls,
     clearCellError,
+    enterEditing,
     cellUniqueValidate,
     clickEnterEditing,
     fromModule,
@@ -29,15 +44,20 @@ export default function MDCell(props) {
     viewId,
     appId,
     allowlink,
+    isCharge,
     onCellFocus,
     checkRulesErrorOfControl,
+    registerRef,
   } = props;
   const onClick = () => {
-    if (control.key === 'number' || rowIndex === 0 || !row.rowid || allowlink === '0') return;
-    onCellClick(control, row, rowIndex);
+    if (control.key === 'number' || !row.rowid || allowlink === '0') return;
+    onCellClick(control, row, rowIndex, columnIndex);
   };
   return (
     <CellControl
+      tableId={tableId}
+      tableType={tableType}
+      cache={cache}
       viewId={viewId}
       appId={appId}
       worksheetId={worksheetId}
@@ -46,15 +66,16 @@ export default function MDCell(props) {
       clickEnterEditing={clickEnterEditing}
       isSubList={isSubList}
       isediting={isediting}
+      isCharge={isCharge}
       error={error}
-      updateEditingControls={updateEditingControls}
       clearCellError={clearCellError}
+      enterEditing={enterEditing}
       cellUniqueValidate={cellUniqueValidate}
       className={className}
       style={style}
       allowlink={allowlink}
       canedit={
-        lineeditable &&
+        lineEditable &&
         !_.find(
           [
             'caid',
@@ -78,22 +99,25 @@ export default function MDCell(props) {
       cell={{ ...control, value, disabled: !row.allowedit || control.disabled }}
       row={row}
       rowIndex={rowIndex}
-      formdata={formdata}
+      cellIndex={cellIndex}
+      columnIndex={columnIndex}
+      rowFormData={rowFormData}
       masterData={masterData}
       rowHeight={rowHeight}
-      from={1}
-      popupContainer={() => getPopupContainer(columnIndex < fixedColumnCount)}
+      from={from === 21 ? from : 1}
+      popupContainer={() => getPopupContainer(columnIndex <= fixedColumnCount)}
       projectId={projectId}
       scrollTo={scrollTo}
       tableScrollTop={tableScrollTop}
-      gridHeight={gridHeight}
       updateCell={(cell, options) => {
         updateCell({ cell, control, row }, options);
       }}
       onClick={onClick}
+      onFocusCell={onFocusCell}
       onMouseDown={() => onCellMouseDown({ rowIndex })}
       onCellFocus={onCellFocus}
       checkRulesErrorOfControl={checkRulesErrorOfControl}
+      registerRef={registerRef}
     />
   );
 }

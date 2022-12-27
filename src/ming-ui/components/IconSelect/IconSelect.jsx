@@ -6,6 +6,7 @@ import cx from 'classnames';
 import ScrollView from 'ming-ui/components/ScrollView';
 import ICON_LIST from './IconList.js';
 import './IconSelect.less';
+import _ from 'lodash';
 
 // const ClickAwayable = createDecoratedComponent(withClickAway);
 const COLOR_LIST = ['#2196f3', '#01ca83', '#f44336', '#00bcd4', '#4c7d9e', '#ffa340'];

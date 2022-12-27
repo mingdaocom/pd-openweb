@@ -2,6 +2,7 @@ import React from 'react';
 import { Checkbox } from 'ming-ui';
 import { SettingItem } from '../../../styled';
 import { handleAdvancedSettingChange } from '../../../util/setting';
+import _ from 'lodash';
 
 export default function NumberConfig(props) {
   const { data, onChange } = props;

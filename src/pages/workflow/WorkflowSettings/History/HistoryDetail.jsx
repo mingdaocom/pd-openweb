@@ -14,8 +14,10 @@ import {
   ACTION_TYPE,
   COUNTER_TYPE,
 } from './config';
-import { resetInstance, endInstance } from '../../api/instanceVersion';
-import { getProcessPublish } from '../../api/process';
+import instanceVersion from '../../api/instanceVersion';
+import process from '../../api/process';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default class HistoryDetail extends Component {
   static propTypes = {
@@ -54,7 +56,7 @@ export default class HistoryDetail extends Component {
   getProcessPublish = () => {
     const { id } = this.props;
 
-    getProcessPublish({ instanceId: id }).then(res => {
+    process.getProcessPublish({ instanceId: id }).then(res => {
       this.setState({ processInfo: res });
     });
   };
@@ -83,10 +85,12 @@ export default class HistoryDetail extends Component {
     return (
       <Fragment>
         <div className="personDetail flex Gray_75 flexRow">
-          {(_.includes([3, 4, 5], type) || isApproval) && (
+          {(_.includes([0, 3, 4, 5], type) || isApproval) && (
             <Fragment>
               <div className="personInfo">
-                <span>{isApproval ? _l('发起人：') : _l('%0人：', NODE_TYPE[type].text)}</span>
+                <span>
+                  {isApproval ? _l('发起人：') : type === 0 ? _l('触发者：') : _l('%0人：', NODE_TYPE[type].text)}
+                </span>
                 {names.map(
                   (item, index) =>
                     item && (
@@ -177,7 +181,7 @@ export default class HistoryDetail extends Component {
             e.stopPropagation();
 
             this.retryPosition = retryPosition;
-            this.operationInstance(showRetry ? resetInstance : endInstance);
+            this.operationInstance(showRetry ? instanceVersion.resetInstance : instanceVersion.endInstance);
           }}
         >
           {showRetry ? (

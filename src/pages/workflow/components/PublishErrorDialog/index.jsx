@@ -3,6 +3,7 @@ import cx from 'classnames';
 import Dialog from 'ming-ui/components/Dialog';
 import Icon from 'ming-ui/components/Icon';
 import './index.less';
+import _ from 'lodash';
 
 const warnTypes = {
   99: _l('你的流程中未包含可执行操作的节点,请至少添加一个'),

@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Dropdown } from 'ming-ui';
 import { CONTROLS_NAME } from '../../../enum';
 import { SingleControlValue, AddOptions } from '../';
+import _ from 'lodash';
 
 export default class UpdateFields extends Component {
   static defaultProps = {

@@ -14,6 +14,7 @@ import 'src/components/mentioninput/mentionsInput';
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/uploadAttachment/uploadAttachment';
 import 'src/components/emotion/emotion';
+import _ from 'lodash';
 
 const LET_ME_REPLY = _l('我来回复');
 const TEXT_AREA_MIN_HEIGHT_COLLAPSE = 22;

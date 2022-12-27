@@ -4,11 +4,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'src/pages/Role/PortalCon/redux/actions';
 import _ from 'lodash';
-import { editDefaultExRole, removeExRole } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import RoleTem from 'src/pages/Role/component/RoleTemple';
 import { LoadDiv, Dialog } from 'ming-ui';
 import CopyRoleDialog from 'src/pages/Role/PortalCon/components/CopyRoleDialog';
-import { sortRoles, copyExternalRolesToInternal } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 class Con extends React.Component {
   constructor(props) {
     super(props);
@@ -65,7 +65,7 @@ class Con extends React.Component {
       buttonType: 'danger',
       description: '',
       onOk: () => {
-        removeExRole({
+        externalPortalAjax.removeExRole({
           appId: this.props.appId,
           roleId: data.roleId,
         }).then(res => {
@@ -87,7 +87,7 @@ class Con extends React.Component {
   // 复制外部门户角色到内部
   copyRoleToInternal = ({ roleId, roleName }) => {
     const { appId } = this.props;
-    copyExternalRolesToInternal({
+    appManagementAjax.copyExternalRolesToInternal({
       roleId,
       roleName,
       appId,
@@ -154,7 +154,7 @@ class Con extends React.Component {
             this.delDialog(data);
           }}
           handleMoveApp={list => {
-            sortRoles({
+            appManagementAjax.sortRoles({
               appId,
               roleIds: list.map(item => item.roleId),
             }).then(() => {
@@ -178,7 +178,7 @@ class Con extends React.Component {
                 });
                 break;
               case 2:
-                editDefaultExRole({ appId: appId, defaultRoleId: data.roleId }).then(res => {
+                externalPortalAjax.editDefaultExRole({ appId: appId, defaultRoleId: data.roleId }).then(res => {
                   let newRoleList = this.state.roleList.map(o => {
                     if (o.roleId === data.roleId) {
                       return { ...o, isDefault: true };

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 export function loading(state = true, action) {
   switch (action.type) {
     case 'WORKSHEET_UPDATE_LOADING':
@@ -175,3 +176,12 @@ export function controls(state = [], action) {
       return state;
   }
 }
+
+export const draftDataCount = (state = 0, action) => {
+  switch (action.type) {
+    case 'UPDATE_DRAFT_DATA_COUNT':
+      return action.data;
+    default:
+      return state;
+  }
+};

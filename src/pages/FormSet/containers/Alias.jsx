@@ -12,6 +12,7 @@ import './alias.less';
 import sheetAjax from 'src/api/worksheet';
 import { NOT_AS_TITLE_CONTROL } from '../../widgetConfig/config';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import _ from 'lodash';
 @withClickAway
 class DropControlList extends React.Component {
   render() {

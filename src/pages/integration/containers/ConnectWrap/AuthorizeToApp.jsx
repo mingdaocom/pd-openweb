@@ -6,8 +6,8 @@ import { useSetState } from 'react-use';
 import SvgIcon from 'src/components/SvgIcon';
 import AddAppDialog from '../../components/AddAppDialog';
 import { Table, ConfigProvider } from 'antd';
-import { authorize } from 'src/pages/workflow/api/packageVersion.js';
-import { getProcessConfig, saveProcessConfig } from 'src/pages/workflow/api/process.js';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion.js';
+import processAjax from 'src/pages/workflow/api/process.js';
 import 'src/components/dialogSelectUser/dialogSelectUser';
 import { NODE_TYPE, USER_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
 import Member from 'src/pages/workflow/WorkflowSettings/Detail/components/Member/index.jsx';
@@ -186,7 +186,7 @@ function AuthorizeToApp(props) {
   });
   const getProcessConfigInfo = () => {
     setState({ loading: true });
-    getProcessConfig(
+    processAjax.getProcessConfig(
       {
         processId: props.processId,
       },
@@ -196,7 +196,7 @@ function AuthorizeToApp(props) {
     });
   };
   const saveProcessConfigInfo = data => {
-    saveProcessConfig(
+    processAjax.saveProcessConfig(
       {
         processId: props.processId,
         errorNotifiers: data.errorNotifiers,
@@ -308,7 +308,7 @@ function AuthorizeToApp(props) {
     setState({
       optionLoading: true,
     });
-    authorize(
+    packageVersionAjax.authorize(
       {
         companyId: localStorage.getItem('currentProjectId'),
         apkIds: apkIds,

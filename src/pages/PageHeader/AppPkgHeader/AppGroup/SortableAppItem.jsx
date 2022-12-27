@@ -10,6 +10,7 @@ import { Menu, MenuItem, Icon, MdLink } from 'ming-ui';
 import { changeBoardViewData } from 'src/pages/worksheet/redux/actions/boardView';
 import { APP_GROUP_CONFIG, DEFAULT_CREATE, DEFAULT_GROUP_NAME, ADVANCE_AUTHORITY } from '../config';
 import { compareProps, getIds } from '../../util';
+import _ from 'lodash';
 
 @connect(state => state, dispatch => bindActionCreators({ changeBoardViewData }, dispatch))
 @SortableElement
@@ -119,16 +120,8 @@ export default class SortableAppItem extends Component {
     const url = this.getNavigateUrl(appSectionId);
     return (
       <li className={cx({ active: isFocus || groupId === appSectionId, isCanConfigAppGroup: isShowConfigIcon })}>
-        <MdLink
-          className="sortableItem"
-          to={url}
-          onClick={() => {
-            if (this.ids.groupId !== appSectionId) {
-              changeBoardViewData([]);
-            }
-          }}
-        >
-          {isFocus ? (
+        {isFocus ? (
+          <div className="sortableItem">
             <input
               defaultValue={name}
               ref={this.$nameRef}
@@ -137,12 +130,22 @@ export default class SortableAppItem extends Component {
               onBlur={e => this.handleNameBlur(value, e)}
               onKeyDown={this.handleKeyDown}
             />
-          ) : (
+          </div>
+        ) : (
+          <MdLink
+            className="sortableItem"
+            to={url}
+            onClick={(event) => {
+              if (this.ids.groupId !== appSectionId) {
+                changeBoardViewData([]);
+              }
+            }}
+          >
             <span title={name} onDoubleClick={() => this.handleDbClick(appSectionId)}>
               {name}
             </span>
-          )}
-        </MdLink>
+          </MdLink>
+        )}
         {permissionType >= ADVANCE_AUTHORITY && (
           <Trigger
             action={['click']}

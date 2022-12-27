@@ -12,12 +12,10 @@ import {
   loadAllUsers,
   updateFullDepartmentInfo,
 } from '../../actions/entities';
-import { updateUserOpList, addUserToSet, removeUserFromSet, emptyUserSet, fetchApproval } from '../../actions/current';
+import { updateUserOpList, addUserToSet, removeUserFromSet, emptyUserSet } from '../../actions/current';
 import cx from 'classnames';
 import TransferDialog from '../../modules/dialogHandover';
-import Approval from '../../modules/dialogApproval';
 import RefuseUserJoinDia from '../../modules/refuseUserJoinDia';
-import EditInfo from '../../modules/dialogEditInfo/edit';
 import departmentController from 'src/api/department';
 import moment from 'moment';
 import { Checkbox, Tooltip, Dialog, Input } from 'ming-ui';
@@ -25,6 +23,7 @@ import './userItem.less';
 import { sendNoticeInvite } from 'src/components/common/function';
 import 'src/components/mdBusinessCard/mdBusinessCard';
 import { encrypt } from 'src/util';
+import RegExp from 'src/util/expression';
 import Trigger from 'rc-trigger';
 
 const refreshData = (departmentId, typeCursor, projectId, pageIndex, dispatch) => {
@@ -60,21 +59,21 @@ class OpList extends Component {
       typeCursor,
       dispatch,
       setValue,
-      accountId,
       departmentId,
       handleRefuseClick,
       isChargeUser,
     } = this.props;
-    // if (typeCursor === 1) return null;
+
     return (
-      <div className="userOpList">
+      <div className="userOptlist">
         <ul className=" TxtLeft">
           {typeCursor === 2 && (
             <React.Fragment>
               <li
                 className="opItem"
-                onClick={() => {
-                  // if (!user.accountId) return;
+                onClick={e => {
+                  e.stopPropagation();
+                  this.props.changeOptListVisible();
                   importUserController
                     .reInviteImportUser({
                       accounts: [user.accountId],
@@ -94,7 +93,9 @@ class OpList extends Component {
               </li>
               <li
                 className="opItem"
-                onClick={() => {
+                onClick={e => {
+                  e.stopPropagation();
+                  this.props.changeOptListVisible();
                   Confirm({
                     className: 'deleteNodeConfirm',
                     title: _l('确认取消邀请该用户吗'),
@@ -136,16 +137,10 @@ class OpList extends Component {
           )}
           {(typeCursor === 0 || typeCursor === 1) && (
             <React.Fragment>
-              <li
-                className="opItem"
-                onClick={() => {
-                  this.props.handleEditUserClick();
-                  $('.dropDownOptBox .opList').css({ display: 'none' });
-                }}
-              >
+              <li className="opItem" onClick={handleEditUserClick}>
                 {_l('编辑')}
               </li>
-              {!md.global.Config.IsPlatformLocal && (
+              {md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal && (
                 <li className="opItem" onClick={handleResetPasswordClick}>
                   {_l('重置密码')}
                 </li>
@@ -153,7 +148,9 @@ class OpList extends Component {
               {departmentId && !isChargeUser && (
                 <li
                   className="opItem"
-                  onClick={() => {
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.props.changeOptListVisible();
                     this.props.setAndCancelCharge({
                       projectId: projectId,
                       departmentId: departmentId,
@@ -167,7 +164,9 @@ class OpList extends Component {
               {departmentId && isChargeUser && (
                 <li
                   className="opItem"
-                  onClick={() => {
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.props.changeOptListVisible();
                     this.props.setAndCancelCharge({
                       projectId: projectId,
                       departmentId: departmentId,
@@ -178,17 +177,6 @@ class OpList extends Component {
                   {_l('取消部门负责人')}
                 </li>
               )}
-              {/* <li className="opItem" onClick={() => {
-              userBoard({
-                type: 'adjust',
-                projectId,
-                accountIds: [accountId],
-                noFn() { },
-                yesFn() {
-                  refreshData(departmentId, typeCursor, projectId, 1, dispatch);
-                }
-              });
-            }}>{_l('调整部门')}</li> */}
               {user.accountId === md.global.Account.accountId ? null : (
                 <li className="opItem leaveText" onClick={handleRemoveUserClick}>
                   {_l('离职')}
@@ -212,17 +200,10 @@ const clearActiveDialog = props => {
 class UserItem extends Component {
   constructor(props) {
     super(props);
-    this.handleOpBtnClick = this.handleOpBtnClick.bind(this);
-    this.handleRemoveUserClick = this.handleRemoveUserClick.bind(this);
-    this.handleEditUserClick = this.handleEditUserClick.bind(this);
-    this.handleResetPasswordClick = this.handleResetPasswordClick.bind(this);
-    this.handleCheckbox = this.handleCheckbox.bind(this);
-    this.handleApprovalClick = this.handleApprovalClick.bind(this);
     this.state = {
       showDialog: false,
       resetPasswordShowDialog: false,
       isMinSc: false, // document.body.clientWidth <= 1380
-      showDialogApproval: false,
       showRefuseUserJoin: false,
       fullDepartmentInfo: {},
       password: '',
@@ -242,7 +223,7 @@ class UserItem extends Component {
   }
 
   renderContact(user) {
-    const { contactPhone, mobilePhone, isPrivateMobile, accountId } = user;
+    const { mobilePhone, isPrivateMobile } = user;
     let mobileTpl = null;
     if (mobilePhone) {
       mobileTpl = (
@@ -294,30 +275,40 @@ class UserItem extends Component {
     };
   }
 
-  handleOpBtnClick() {
-    const { accountId, dispatch } = this.props;
-    dispatch(updateUserOpList(accountId));
-  }
+  handleRefuseClick = e => {
+    e.stopPropagation();
+    this.changeOptListVisible();
+    this.setState({
+      optListVisible: false,
+      showRefuseUserJoin: true,
+    });
+  };
 
-  renderEditInfo = () => {
-    if (!this.state.showDialog) {
+  handleApprovalClick = e => {
+    e.stopPropagation();
+    this.changeOptListVisible();
+    this.props.clickRow();
+  };
+
+  refuseUserJoin = () => {
+    if (!this.state.showRefuseUserJoin) {
       return '';
     }
-    const { accountId, projectId, departmentId, dispatch, pageIndex, typeCursor } = this.props;
+    const { accountId, projectId, dispatch } = this.props;
     return (
-      <EditInfo
-        key={`editUserInfo_${accountId}`}
-        showDialog={this.state.showDialog}
+      <RefuseUserJoinDia
+        key={`RefuseUserJoinDia_${accountId}`}
+        showDialog={this.state.showRefuseUserJoin}
         accountId={accountId}
         projectId={projectId}
         setValue={({ isOk = false }) => {
           this.setState(
             {
-              showDialog: false,
+              showRefuseUserJoin: false,
             },
             () => {
               if (isOk) {
-                refreshData(departmentId, typeCursor, projectId, pageIndex, dispatch);
+                dispatch(loadApprovalUsers(projectId, 1));
               }
             },
           );
@@ -326,11 +317,73 @@ class UserItem extends Component {
     );
   };
 
+  handleEditUserClick = e => {
+    e.stopPropagation();
+    this.changeOptListVisible();
+    this.props.clickRow();
+  };
+
+  handleRemoveUserClick = e => {
+    e.stopPropagation();
+    this.changeOptListVisible();
+    const { accountId, projectId, user, departmentId, dispatch, pageIndex, typeCursor } = this.props;
+    this.changeOptListVisible();
+    TransferDialog({
+      accountId,
+      projectId,
+      user: { ...user },
+      success() {
+        dispatch(emptyUserSet());
+        refreshData(departmentId, typeCursor, projectId, 1, dispatch);
+      },
+    });
+  };
+
+  handleCheckbox = (isChecked, accountId) => {
+    const { dispatch } = this.props;
+    if (!isChecked) {
+      dispatch(addUserToSet([accountId]));
+    } else {
+      dispatch(removeUserFromSet([accountId]));
+    }
+  };
+
+  setAndCancelCharge = ({ projectId, departmentId, chargeAccountId }) => {
+    let { typeCursor, dispatch } = this.props;
+    this.changeOptListVisible();
+    departmentController
+      .editDepartmentSingleChargeUser({
+        projectId,
+        departmentId,
+        chargeAccountId,
+      })
+      .then(res => {
+        if (res) {
+          alert(_l('设置成功', 1));
+          refreshData(departmentId, typeCursor, projectId, 1, dispatch);
+        } else {
+          alert(_l('设置失败', 2));
+        }
+      });
+  };
+
+  changeOptListVisible = () => {
+    this.setState({ optListVisible: !this.state.optListVisible });
+  };
+
+  handleResetPasswordClick = e => {
+    e.stopPropagation();
+    this.changeOptListVisible();
+    this.setState({
+      resetPasswordShowDialog: !this.state.resetPasswordShowDialog,
+    });
+  };
+
   renderResetPasswordInfo = () => {
     const { md = {} } = window;
     const { global = {} } = md;
     const { SysSettings = {} } = global;
-    const { passwordRegexTip, passwordRegex } = SysSettings;
+    const { passwordRegexTip } = SysSettings;
     if (!this.state.resetPasswordShowDialog) {
       return '';
     }
@@ -349,6 +402,7 @@ class UserItem extends Component {
         <Input
           className="w100"
           type="password"
+          autocomplete="new-password"
           value={this.state.password}
           placeholder={passwordRegexTip || _l('密码，8-20位，必须含字母+数字')}
           onChange={value => {
@@ -389,135 +443,6 @@ class UserItem extends Component {
       });
   };
 
-  handleRefuseClick = () => {
-    this.setState({
-      optListVisible: false,
-      showRefuseUserJoin: true,
-    });
-  };
-
-  handleApprovalClick() {
-    this.setState({
-      optListVisible: false,
-      showDialogApproval: true,
-    });
-  }
-
-  refuseUserJoin = () => {
-    if (!this.state.showRefuseUserJoin) {
-      return '';
-    }
-    const { accountId, projectId, dispatch } = this.props;
-    return (
-      <RefuseUserJoinDia
-        key={`RefuseUserJoinDia_${accountId}`}
-        showDialog={this.state.showRefuseUserJoin}
-        accountId={accountId}
-        projectId={projectId}
-        setValue={({ isOk = false }) => {
-          this.setState(
-            {
-              showRefuseUserJoin: false,
-            },
-            () => {
-              if (isOk) {
-                dispatch(loadApprovalUsers(projectId, 1));
-              }
-            },
-          );
-        }}
-      />
-    );
-  };
-
-  renderApprovalInfo = () => {
-    if (!this.state.showDialogApproval) {
-      return '';
-    }
-    const { accountId, projectId, departmentId, dispatch, pageIndex } = this.props;
-    return (
-      <Approval
-        key={`Approval_${accountId}`}
-        showDialog={this.state.showDialogApproval}
-        accountId={accountId}
-        projectId={projectId}
-        setValue={({ isOk = false }) => {
-          this.setState(
-            {
-              showDialogApproval: false,
-            },
-            () => {
-              if (isOk) {
-                dispatch(loadApprovalUsers(projectId, 1));
-                dispatch(fetchApproval(projectId));
-              }
-            },
-          );
-        }}
-      />
-    );
-  };
-
-  handleEditUserClick() {
-    this.setState({
-      optListVisible: false,
-      showDialog: !this.state.showDialog,
-    });
-  }
-
-  handleResetPasswordClick() {
-    this.setState({
-      optListVisible: false,
-      resetPasswordShowDialog: !this.state.resetPasswordShowDialog,
-    });
-  }
-
-  handleRemoveUserClick() {
-    const { accountId, projectId, user, departmentId, dispatch, pageIndex, typeCursor } = this.props;
-    this.changeOptListVisible();
-    TransferDialog({
-      accountId,
-      projectId,
-      user: { ...user },
-      success() {
-        dispatch(emptyUserSet());
-        refreshData(departmentId, typeCursor, projectId, 1, dispatch);
-      },
-    });
-  }
-
-  handleCheckbox = (isChecked, accountId) => {
-    const { dispatch } = this.props;
-    if (!isChecked) {
-      dispatch(addUserToSet([accountId]));
-    } else {
-      dispatch(removeUserFromSet([accountId]));
-    }
-  };
-
-  setAndCancelCharge = ({ projectId, departmentId, chargeAccountId }) => {
-    let { typeCursor, dispatch } = this.props;
-    this.changeOptListVisible();
-    departmentController
-      .editDepartmentSingleChargeUser({
-        projectId,
-        departmentId,
-        chargeAccountId,
-      })
-      .then(res => {
-        if (res) {
-          alert(_l('设置成功', 1));
-          refreshData(departmentId, typeCursor, projectId, 1, dispatch);
-        } else {
-          alert(_l('设置失败', 2));
-        }
-      });
-  };
-
-  changeOptListVisible = () => {
-    this.setState({ optListVisible: !this.state.optListVisible });
-  };
-
   render() {
     const {
       user,
@@ -532,6 +457,7 @@ class UserItem extends Component {
       columnsInfo = [],
       dispatch,
       fullDepartmentInfo = {},
+      editCurrentUser = {},
     } = this.props;
     const { isMinSc, optListVisible } = this.state;
     let { jobs, departments, departmentInfos, jobInfos, department = '', job = '' } = user;
@@ -546,7 +472,14 @@ class UserItem extends Component {
     let setWidth = $('.listInfo') && totalColWidth > $('.listInfo').width();
 
     return (
-      <tr key={user.accountId} className={classNames('userItem', { isChecked: isChecked })}>
+      <tr
+        key={user.accountId}
+        className={classNames('userItem Hand', {
+          isChecked: isChecked,
+          bgColor: editCurrentUser.accountId === user.accountId,
+        })}
+        onClick={this.props.clickRow}
+      >
         {(typeCursor === 0 || typeCursor === 1) && (
           <td
             className={classNames('checkBox', {
@@ -560,22 +493,21 @@ class UserItem extends Component {
               key={`checkBox-${user.accountId}`}
               className="TxtMiddle InlineBlock"
               checked={isChecked}
-              // id="1"
-              onClick={(checked, id) => {
+              onClick={(checked, id, e) => {
+                e.stopPropagation();
                 this.handleCheckbox(isChecked, user.accountId);
               }}
             />
           </td>
         )}
         {isHideCurrentColumn('name') && (
-          <td className={cx('nameTh', { left0: typeCursor !== 0 })} style={{ width: setWidth ? 200 : 'unset' }}>
+          <td
+            className={cx('nameTh', { left0: typeCursor !== 0, pLeft12: typeCursor !== 0 })}
+            style={{ width: setWidth ? 200 : 'unset' }}
+          >
             <div className="flexRow">
               <img src={user.avatar} alt="" className="avatar" ref={avatar => (this.avatar = avatar)} />
-              <a
-                href={'/user_' + user.accountId}
-                className="overflow_ellipsis mLeft10 LineHeight32"
-                title={user.fullname}
-              >
+              <a className="overflow_ellipsis mLeft10 LineHeight32" title={user.fullname}>
                 {user.fullname}
               </a>
               {isChargeUser ? (
@@ -594,29 +526,6 @@ class UserItem extends Component {
             </span>
           </td>
         )}
-        {isHideCurrentColumn('position') && (
-          <td className="jobTh">
-            {
-              <div
-                className="job WordBreak overflow_ellipsis"
-                title={(jobData || []).map((it, i) => {
-                  if (jobData.length - 1 > i) {
-                    return `${it.name || it.jobName};`;
-                  }
-                  return `${it.name || it.jobName}`;
-                })}
-              >
-                {(jobData || []).map((it, i) => {
-                  if (jobData.length - 1 > i) {
-                    return `${it.name || it.jobName} ; `;
-                  }
-                  return `${it.name || it.jobName}`;
-                })}
-              </div>
-            }
-          </td>
-        )}
-        {/* {isSearch ? <td title={user.department}>{user.department}</td> : null} */}
         {isHideCurrentColumn('department') && (
           <td className="departmentTh">
             <div
@@ -661,23 +570,49 @@ class UserItem extends Component {
             </div>
           </td>
         )}
-        {isHideCurrentColumn('adress') && (
-          <td className="workSiteTh overflow_ellipsis WordBreak">{user.workSiteName || user.workSite}</td>
+        {isHideCurrentColumn('position') && (
+          <td className="jobTh">
+            {
+              <div
+                className="job WordBreak overflow_ellipsis"
+                title={(jobData || []).map((it, i) => {
+                  if (jobData.length - 1 > i) {
+                    return `${it.name || it.jobName};`;
+                  }
+                  return `${it.name || it.jobName}`;
+                })}
+              >
+                {(jobData || []).map((it, i) => {
+                  if (jobData.length - 1 > i) {
+                    return `${it.name || it.jobName} ; `;
+                  }
+                  return `${it.name || it.jobName}`;
+                })}
+              </div>
+            }
+          </td>
         )}
-        {isHideCurrentColumn('jobNum') && <td className="jobNumberTh overflow_ellipsis WordBreak">{user.jobNumber}</td>}
         {isHideCurrentColumn('phone') && (
           <td className="mobileTh overflow_ellipsis WordBreak"> {this.renderContact(user)}</td>
         )}
         {!isMinSc && isHideCurrentColumn('email') && (
           <td className="emailTh overflow_ellipsis WordBreak">{this.renderEmail(user)}</td>
         )}
+        {isHideCurrentColumn('jobNum') && <td className="jobNumberTh overflow_ellipsis WordBreak">{user.jobNumber}</td>}
+        {isHideCurrentColumn('adress') && (
+          <td className="workSiteTh overflow_ellipsis WordBreak">{user.workSiteName || user.workSite}</td>
+        )}
+        {isHideCurrentColumn('joinDate') && typeCursor === 0 && (
+          <td className="joinDateTh">
+            {user.addProjectTime
+              ? moment(user.addProjectTime).format('YYYY-MM-DD')
+              : moment(user.createTime).format('YYYY-MM-DD')}
+          </td>
+        )}
         {!isMinSc && typeCursor === 3 ? (
           <React.Fragment>
             {isHideCurrentColumn('applyDate') && (
-              <td className="dateTh overflow_ellipsis WordBreak">
-                {/* {user.createTime ? _l('%0天', moment().endOf('day').diff(moment(user.createTime).startOf('day'), 'days') + 1) : null} */}
-                {moment(user.updateTime).format('YYYY-MM-DD')}
-              </td>
+              <td className="dateTh overflow_ellipsis WordBreak">{moment(user.updateTime).format('YYYY-MM-DD')}</td>
             )}
             {isHideCurrentColumn('operator') && (
               <td className="actMenTh overflow_ellipsis WordBreak">
@@ -688,13 +623,7 @@ class UserItem extends Component {
         ) : (
           ''
         )}
-        {isHideCurrentColumn('joinDate') && typeCursor === 0 && (
-          <td className="joinDateTh">
-            {user.addProjectTime
-              ? moment(user.addProjectTime).format('YYYY-MM-DD')
-              : moment(user.createTime).format('YYYY-MM-DD')}
-          </td>
-        )}
+
         <td className="actTh">
           <Trigger
             action={['click']}
@@ -711,10 +640,10 @@ class UserItem extends Component {
                 handleApprovalClick={this.handleApprovalClick}
                 handleRefuseClick={this.handleRefuseClick}
                 setAndCancelCharge={this.setAndCancelCharge}
+                changeOptListVisible={this.changeOptListVisible}
                 setValue={() => {
                   this.setState({
                     showDialog: false,
-                    showDialogApproval: false,
                   });
                 }}
               />
@@ -724,10 +653,7 @@ class UserItem extends Component {
               <span className="icon-moreop TxtMiddle Font18 Gray_9e" />
             </span>
           </Trigger>
-
-          {this.renderEditInfo()}
           {this.renderResetPasswordInfo()}
-          {this.renderApprovalInfo()}
           {this.refuseUserJoin()}
         </td>
       </tr>

@@ -1,22 +1,23 @@
 import React, { Component, Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import { Menu, Dropdown, Tooltip } from 'antd';
+import _ from 'lodash';
 import WithoutFidldItem from './WithoutFidldItem';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import {
-    areaParticleSizeDropdownData,
-    timeParticleSizeDropdownData,
-    isNumberControl,
-    isTimeControl,
-    isAreaControl,
-    filterDisableParticleSizeTypes,
-    timeDataParticle,
-    filterTimeData,
-    timeGatherParticle
+  areaParticleSizeDropdownData,
+  timeParticleSizeDropdownData,
+  isNumberControl,
+  isTimeControl,
+  isAreaControl,
+  filterDisableParticleSizeTypes,
+  timeDataParticle,
+  filterTimeData,
+  timeGatherParticle,
 } from 'statistics/common';
 
 const timeGather = timeParticleSizeDropdownData.filter(item => [5, 8, 9, 10, 11].includes(item.value));
-const timeParticle = timeGatherParticle.filter(item => [11, 12, 14].includes(item.value))
+const timeParticle = timeGatherParticle.filter(item => [11, 12, 14].includes(item.value));
 
 export default class GroupingAxis extends Component {
   constructor(props) {
@@ -29,7 +30,7 @@ export default class GroupingAxis extends Component {
     } else {
       return true;
     }
-  }
+  };
   handleAddControl = data => {
     if (this.handleVerification(data, true)) {
       const { split, disableParticleSizeTypes } = this.props;
@@ -37,27 +38,29 @@ export default class GroupingAxis extends Component {
       const isArea = isAreaControl(data.type);
       const dropdownData = isTime ? timeGather : areaParticleSizeDropdownData;
       const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(data.controlId, disableParticleSizeTypes);
-      const allowTypes = dropdownData.map(item => item.value).filter(item => !newDisableParticleSizeTypes.includes(item));
+      const allowTypes = dropdownData
+        .map(item => item.value)
+        .filter(item => !newDisableParticleSizeTypes.includes(item));
       this.props.onChangeCurrentReport({
         controlId: data.controlId,
-        particleSizeType: (isTime || isArea) ? allowTypes[0] : 0,
-        ...data
+        particleSizeType: isTime || isArea ? allowTypes[0] : 0,
+        ...data,
       });
     }
-  }
+  };
   handleClear = () => {
     const { split } = this.props;
     this.props.onChangeCurrentReport({
       controlId: null,
-      particleSizeType: 0
+      particleSizeType: 0,
     });
-  }
-  handleUpdateTimeParticleSizeType = (value) => {
+  };
+  handleUpdateTimeParticleSizeType = value => {
     const { split } = this.props;
     this.props.onChangeCurrentReport({
-      particleSizeType: value
+      particleSizeType: value,
     });
-  }
+  };
   renderTimeOverlay(axis) {
     const { split, disableParticleSizeTypes } = this.props;
     const showtype = _.get(axis, 'advancedSetting.showtype');
@@ -80,7 +83,7 @@ export default class GroupingAxis extends Component {
           </Menu.Item>
         ))}
       </Menu>
-    )
+    );
   }
   renderAreaOverlay() {
     const { split, disableParticleSizeTypes } = this.props;
@@ -115,20 +118,15 @@ export default class GroupingAxis extends Component {
           <span className="Gray flex ellipsis">
             {axis.controlName}
             {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: split.particleSizeType || 1 }).text})`}
-            {isArea && ` (${_.get(_.find(areaParticleSizeDropdownData, { value: split.particleSizeType || 1 }), 'text')})`}
+            {isArea &&
+              ` (${_.get(_.find(areaParticleSizeDropdownData, { value: split.particleSizeType || 1 }), 'text')})`}
           </span>
+        ) : control.strDefault === '10' ? (
+          <span className="Red flex ellipsis">{`${control.controlName} (${_l('无效类型')})`}</span>
         ) : (
-          control.strDefault === '10' ? (
-            <span className="Red flex ellipsis">
-              {`${control.controlName} (${_l('无效类型')})`}
-            </span>
-          ) : (
-            <Tooltip title={`ID: ${split.controlId}`}>
-              <span className="Red flex ellipsis">
-                {_l('字段已删除')}
-              </span>
-            </Tooltip>
-          )
+          <Tooltip title={`ID: ${split.controlId}`}>
+            <span className="Red flex ellipsis">{_l('字段已删除')}</span>
+          </Tooltip>
         )}
         {isTime && (
           <Dropdown overlay={this.renderTimeOverlay(axis)} trigger={['click']} placement="bottomRight">

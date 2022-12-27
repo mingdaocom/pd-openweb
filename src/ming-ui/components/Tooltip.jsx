@@ -124,8 +124,19 @@ class Tooltip extends Component {
     );
   }
   render() {
-    const { action, children, text, popupPlacement, themeColor, offset, overflow, disable, disableAnimation } =
-      this.props;
+    const {
+      action,
+      children,
+      text,
+      popupPlacement,
+      themeColor,
+      offset,
+      overflow,
+      disable,
+      destroyPopupOnHide,
+      disableAnimation,
+      onToolTipVisibleChange,
+    } = this.props;
     const { loading } = this.state;
     const [adjustX, adjustY] = overflow;
     if (!text) {
@@ -140,6 +151,7 @@ class Tooltip extends Component {
         popup: this.renderPopup(),
         popupTransitionName: disableAnimation ? '' : `Tooltip-move-${popupPlacement}`,
         builtinPlacements,
+        destroyPopupOnHide,
         popupAlign: {
           offset,
           overflow: {
@@ -157,6 +169,9 @@ class Tooltip extends Component {
                 this.setState({ loading: false, value });
               });
             }
+          }
+          if (_.isFunction(onToolTipVisibleChange)) {
+            onToolTipVisibleChange(visible);
           }
         },
       },

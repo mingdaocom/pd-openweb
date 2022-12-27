@@ -8,6 +8,7 @@ import 'src/components/mdBusinessCard/mdBusinessCard';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Button from 'ming-ui/components/Button';
 import Message from './inboxMessage';
+import _ from 'lodash';
 
 export default class InboxList extends React.Component {
   static propTypes = {

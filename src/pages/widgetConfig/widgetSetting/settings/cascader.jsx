@@ -3,11 +3,11 @@ import { Modal, Tooltip } from 'antd';
 import { useSetState } from 'react-use';
 import { RadioGroup, Checkbox } from 'ming-ui';
 import styled from 'styled-components';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { SettingItem } from '../../styled';
-import { getUrlPara } from '../../util';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import components from '../components';
+import _ from 'lodash';
 
 const { SelectDataSource, RelateSheetInfo } = components;
 
@@ -88,7 +88,7 @@ export default function Cascader(props) {
   }, [controlId]);
   useEffect(() => {
     if (!dataSource) return;
-    getWorksheetInfo({
+    worksheetAjax.getWorksheetInfo({
       worksheetId: dataSource,
       getViews: true,
       getTemplate: true,

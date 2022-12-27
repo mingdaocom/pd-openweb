@@ -124,3 +124,22 @@ export const DATE_SHOW_TYPES = [
     format: _l('D/M/YYYY'),
   },
 ];
+
+export const DISPLAY_MASK = [
+  { text: _l('全掩盖'), value: 'all' },
+  { text: _l('姓名'), subText: _l('-显示前1个字，后1个字'), value: '1' },
+  { text: _l('手机号'), subText: _l('-显示前3位，后4位'), value: '2' },
+  { text: _l('邮箱'), subText: _l('-显示前3位，@和之后的字'), value: '3' },
+  { text: _l('金额'), subText: _l('-全掩盖，虚拟为5位'), value: '4' },
+  { text: _l('身份证件'), subText: _l('-显示后4位'), value: '5' },
+  { text: _l('住址'), subText: _l('-显示前4个字，后4个字'), value: '6' },
+  { text: _l('IP地址'), subText: _l('-显示第1段IP'), value: '7' },
+  { text: _l('车牌号'), subText: _l('-显示前1个字，后2位'), value: '8' },
+];
+
+export const CUSTOM_DISPLAY = [
+  {
+    text: _l('自定义规则'),
+    value: 'custom',
+  },
+];

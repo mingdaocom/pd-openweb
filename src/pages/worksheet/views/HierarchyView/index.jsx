@@ -1,13 +1,14 @@
 import React, { Fragment, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
+import _ from 'lodash';
 import domtoimage from 'dom-to-image';
 import { LoadDiv } from 'ming-ui';
 import { connect } from 'react-redux';
 import { saveAs } from 'file-saver';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
-import { addWorksheetRow, addWSRowsBatch, getWorksheetsControls } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { bindActionCreators } from 'redux';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
@@ -138,7 +139,7 @@ function Hierarchy(props) {
     const { viewType, childType } = view;
     if (viewType === 2 && childType === 2) {
       const ids = (viewControls || []).slice(1).map(item => item.worksheetId);
-      getWorksheetsControls({ worksheetIds: ids, handControlSource: true }).then(({ code, data }) => {
+      worksheetAjax.getWorksheetsControls({ worksheetIds: ids, handControlSource: true }).then(({ code, data }) => {
         if (code === 1) {
           const relateControls = ids.map(id => _.get(_.find(data || [], i => i.worksheetId === id) || {}, 'controls'));
           initHierarchyRelateSheetControls({ ids, controls: relateControls });
@@ -186,7 +187,7 @@ function Hierarchy(props) {
     setViewConfigVisible(true);
     saveView(viewId, { ...obj, viewType: 2 }, newView => {
       getDefaultHierarchyData(newView);
-      getWorksheetsControls({ worksheetIds: [worksheetId] }).then(({ code, data }) => {
+      worksheetAjax.getWorksheetsControls({ worksheetIds: [worksheetId] }).then(({ code, data }) => {
         if (code === 1) {
           const allControls = data.map(item => item.controls);
           updateWorksheetControls(allControls[0]);
@@ -304,41 +305,45 @@ function Hierarchy(props) {
         };
       });
     if (Array.isArray(value)) {
-      addWSRowsBatch({
-        worksheetId,
-        ...idPara,
-        receiveRows: value.map(item => getReceiveControls(item)),
-      }).then(res => {
-        if (res === value.length) {
-          if (_.isEmpty(addRecordPath.path)) {
-            getTopLevelHierarchyData({ worksheetId, ...idPara });
-          }
-          toggleChildren({
-            ...addRecordPath,
-            rowId: _.last(addRecordPath.pathId),
-            visible: true,
-          });
-        }
-      });
-    } else {
-      addWorksheetRow({
-        worksheetId,
-        ...idPara,
-        receiveControls: getReceiveControls(value),
-      }).then(({ data }) => {
-        if (data) {
-          if (_.isEmpty(addRecordPath.path)) {
-            addTopLevelStateFromTemp(data);
-          } else {
-            addHierarchyChildrenRecord({
-              data,
+      worksheetAjax
+        .addWSRowsBatch({
+          worksheetId,
+          ...idPara,
+          receiveRows: value.map(item => getReceiveControls(item)),
+        })
+        .then(res => {
+          if (res === value.length) {
+            if (_.isEmpty(addRecordPath.path)) {
+              getTopLevelHierarchyData({ worksheetId, ...idPara });
+            }
+            toggleChildren({
               ...addRecordPath,
-              spliceTempRecord,
+              rowId: _.last(addRecordPath.pathId),
+              visible: true,
             });
           }
-          scrollToBottom();
-        }
-      });
+        });
+    } else {
+      worksheetAjax
+        .addWorksheetRow({
+          worksheetId,
+          ...idPara,
+          receiveControls: getReceiveControls(value),
+        })
+        .then(({ data }) => {
+          if (data) {
+            if (_.isEmpty(addRecordPath.path)) {
+              addTopLevelStateFromTemp(data);
+            } else {
+              addHierarchyChildrenRecord({
+                data,
+                ...addRecordPath,
+                spliceTempRecord,
+              });
+            }
+            scrollToBottom();
+          }
+        });
     }
   };
 
@@ -441,14 +446,14 @@ function Hierarchy(props) {
               scale={scale}
               layerLength={getLayerLength()}
               layersName={_.isEmpty(layersName) ? initLayerTitle(view) : layersName}
-              updateLayersName={names => updateView({ ...view, layersName: names })}
+              updateLayersName={names => saveView(viewId, { layersName: names })}
             />
           )}
           <SortableTreeWrap scale={scale}>
             {_.isEmpty(hierarchyViewState) ? (
               <EmptyHierarchy
                 layersName={layersName}
-                updateLayersName={names => updateView({ ...view, layersName: names })}
+                updateLayersName={names => saveView(viewId, { layersName: names })}
                 allowAdd={worksheetInfo.allowAdd}
                 onAdd={() =>
                   handleAddRecord({
@@ -478,6 +483,7 @@ function Hierarchy(props) {
                     scale={scale / 100}
                     depth={0}
                     view={view}
+                    isCharge={isCharge}
                     stateTree={hierarchyViewState}
                     treeData={hierarchyViewData}
                     controls={controls}
@@ -516,7 +522,8 @@ function Hierarchy(props) {
           showAdd={
             !isDisabledCreate(sheetSwitchPermit) &&
             !_.isEmpty(hierarchyViewData) &&
-            (viewControl || !_.isEmpty(viewControls))
+            (viewControl || !_.isEmpty(viewControls)) &&
+            !_.get(window, 'shareState.isPublicView')
           }
           onClick={() =>
             handleAddRecord({
@@ -531,6 +538,7 @@ function Hierarchy(props) {
         scale={scale}
         treeData={hierarchyViewData}
         controls={controls}
+        isCharge={isCharge}
         currentView={view}
         hierarchyRelateSheetControls={hierarchyRelateSheetControls}
       />

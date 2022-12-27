@@ -2,6 +2,7 @@
 import config from '../../../config';
 import firstInputSelect from '../../common/firstInputSelect';
 import RadioGroup from 'ming-ui/components/RadioGroup';
+import _ from 'lodash';
 
 @firstInputSelect
 class SettingsModel extends React.Component {

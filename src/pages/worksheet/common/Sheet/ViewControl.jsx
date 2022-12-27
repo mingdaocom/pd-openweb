@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { last } from 'lodash';
+import _, { last } from 'lodash';
 import cx from 'classnames';
 import { Tooltip } from 'ming-ui';
 import ViewConfig from 'worksheet/common/ViewConfig';
@@ -29,6 +29,8 @@ import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { getSearchData } from 'worksheet/views/util';
 import EditFastFilter from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/Edit';
 import { openShareDialog } from 'src/pages/worksheet/components/Share';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
 
 const Con = styled.div`
   display: flex;
@@ -88,12 +90,11 @@ function ViewControl(props) {
   const [activeBtnId, setActiveBtnId] = useState();
   const [activeFastFilterId, setActiveFastFilterId] = useState();
   const [btnDataInfo, setActiveBtnIdInfo] = useState();
-  useEffect(
-    () => {
-      setActiveBtnIdInfo(_.find(sheetButtons, item => item.btnId === activeBtnId));
-    },
-    [activeBtnId, sheetButtons],
-  );
+  const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
+  useEffect(() => {
+    setActiveBtnIdInfo(_.find(sheetButtons, item => item.btnId === activeBtnId));
+  }, [activeBtnId, sheetButtons]);
+
   return (
     <Con>
       <ViewItems
@@ -272,7 +273,16 @@ function ViewControl(props) {
           ]}
           onClickAway={() => setViewConfigVisible(false)}
           columns={controls.filter(item => {
-            return item.viewDisplay || !('viewDisplay' in item);
+            if (isShowWorkflowSys) {
+              return item.viewDisplay || !('viewDisplay' in item);
+            }
+            return (
+              (item.viewDisplay || !('viewDisplay' in item)) &&
+              !_.includes(
+                ['wfname', 'wfstatus', 'wfcuaids', 'wfrtime', 'wfftime', 'wfdtime', 'wfcaid', 'wfctime', 'wfcotime'],
+                item.controlId,
+              )
+            );
           })}
           onClose={() => setViewConfigVisible(false)}
           updateCurrentView={data => {
@@ -327,6 +337,7 @@ function ViewControl(props) {
             '.CodeMirror-hints',
             '.ck',
             '.ant-picker-dropdown',
+            '.Tooltip',
           ]}
           onClickAway={() => setCreateCustomBtnVisible(false)}
           isEdit={createBtnIsEdit}

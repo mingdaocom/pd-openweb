@@ -6,6 +6,8 @@ import { getClassNameByExt } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import task from './taskEntry';
 import calendar from 'src/pages/calendar/modules/calendarDetail';
+import _ from 'lodash';
+import moment from 'moment';
 
 const Icons = {
   0: '',

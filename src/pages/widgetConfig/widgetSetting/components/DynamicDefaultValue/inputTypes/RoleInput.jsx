@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
-import DialogSelectOrgRole from 'src/components/DialogSelectOrgRole';
+import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
 import update from 'immutability-helper';
+import _ from 'lodash';
 
 export default class RoleInput extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      visible: false,
-    };
+    this.state = {};
   }
 
   // 成员多选数据处理
@@ -33,7 +32,6 @@ export default class RoleInput extends Component {
   };
   render() {
     const { defaultType, data = {}, globalSheetInfo: { projectId } = {}, onDynamicValueChange } = this.props;
-    const { visible } = this.state;
     return (
       <DynamicValueInputWrap>
         {defaultType ? (
@@ -42,27 +40,23 @@ export default class RoleInput extends Component {
           <OtherFieldList
             {...this.props}
             removeItem={this.removeItem}
-            onClick={() => this.setState({ visible: true })}
+            onClick={() => {
+              selectOrgRole({
+                projectId,
+                unique: data.enumDefault === 0,
+                onSave: arr => {
+                  const value = arr.map(({ organizeName, organizeId }) => ({
+                    cid: '',
+                    rcid: '',
+                    staticValue: JSON.stringify({ organizeId, organizeName }),
+                  }));
+                  onDynamicValueChange(value);
+                },
+              });
+            }}
           />
         )}
         <SelectOtherField {...this.props} ref={con => (this.$wrap = con)} />
-
-        {visible && (
-          <DialogSelectOrgRole
-            projectId={projectId}
-            orgRoleDialogVisible={visible}
-            unique={data.enumDefault === 0}
-            onSave={arr => {
-              const value = arr.map(({ organizeName, organizeId }) => ({
-                cid: '',
-                rcid: '',
-                staticValue: JSON.stringify({ organizeId, organizeName }),
-              }));
-              onDynamicValueChange(value);
-            }}
-            onClose={() => this.setState({ visible: false })}
-          />
-        )}
       </DynamicValueInputWrap>
     );
   }

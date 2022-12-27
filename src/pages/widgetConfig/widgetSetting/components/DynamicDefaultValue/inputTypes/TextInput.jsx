@@ -4,6 +4,7 @@ import { TagTextarea } from 'ming-ui';
 import { SelectOtherField, OtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import { transferValue } from '../util';
+import _ from 'lodash';
 
 export default class TextInput extends Component {
   static propTypes = {

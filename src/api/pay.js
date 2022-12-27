@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 跳转到支付宝付款页面
   * @param {Object} args 请求参数

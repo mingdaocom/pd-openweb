@@ -15,6 +15,7 @@ import Filter from './filter';
 import Carousel from './carousel';
 import RcDialog from 'rc-dialog';
 import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
+import _ from 'lodash';
 
 const Header = styled(FlexCenter)`
   position: absolute;

@@ -6,6 +6,7 @@ import cx from 'classnames';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import update from 'immutability-helper';
+import _ from 'lodash';
 
 const ItemTitle = styled.ul`
   background-color: #f5f5f8;

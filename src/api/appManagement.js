@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 添加角色
   * @param {Object} args 请求参数
@@ -967,6 +967,7 @@ module.exports = {
   * @param {Object} args 请求参数
   * @param {string} args.sourceId 分享来源id （页面id，图标id等）
   * @param {integer} args.sourceType 分享类型  21 =自定义页面，31 = 图表
+  * @param {string} args.appId 应用id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -981,6 +982,8 @@ module.exports = {
   * @param {string} args.sourceId 分享来源id （页面id，图标id等）
   * @param {integer} args.sourceType 分享类型  21 =自定义页面，31 = 图表
   * @param {integer} args.status 状态  0 = 关闭，1 =启用
+  * @param {string} args.password 密码
+  * @param {string} args.validTime 有效时间
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -993,6 +996,10 @@ module.exports = {
   * 获取分享基础信息
   * @param {Object} args 请求参数
   * @param {string} args.id 分享id
+  * @param {string} args.password 密码
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

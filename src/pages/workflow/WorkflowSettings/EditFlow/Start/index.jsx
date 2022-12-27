@@ -3,6 +3,8 @@ import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
 import { TRIGGER_ID, APP_TYPE, EXEC_TIME_TYPE, DATE_TYPE, TIME_TYPE_NAME, CUSTOM_ACTION_TEXT } from '../../enum';
 import { getIcons, getStartNodeColor } from '../../utils';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default class Start extends Component {
   constructor(props) {
@@ -208,7 +210,7 @@ export default class Start extends Component {
       return <div className="pLeft8 pRight8 Gray_75">{_l('当外部用户收到讨论通知时（被回复、被提到）触发')}</div>;
     }
 
-    // 人员与部门
+    // 成员与部门
     if (_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.EXTERNAL_USER], item.appType)) {
       const TEXT = {
         [APP_TYPE.USER]: {

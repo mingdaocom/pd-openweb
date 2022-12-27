@@ -8,6 +8,7 @@ import { Menu, MenuItem } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import './SummaryCell.less';
+import _ from 'lodash';
 const ClickAwayable = createDecoratedComponent(withClickAway); //
 
 export default class extends React.Component {

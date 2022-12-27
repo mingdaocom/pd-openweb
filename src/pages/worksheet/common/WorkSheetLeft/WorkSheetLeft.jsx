@@ -19,6 +19,7 @@ import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImport
 import './WorkSheetLeft.less';
 import { browserIsMobile, getAppFeaturesVisible } from 'src/util';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
+import _ from 'lodash';
 
 const CREATE_ITEM_LIST = [
   {
@@ -207,6 +208,7 @@ class WorkSheetLeft extends Component {
   }
   componentWillUnmount = function () {
     delete window.__worksheetLeftReLoad;
+    this.props.sheetListActions.clearSheetList();
   };
   getSheetList(props) {
     const { appId, groupId } = props || this.props;
@@ -404,7 +406,7 @@ class WorkSheetLeft extends Component {
                 overflow: {
                   adjustX: true,
                   adjustY: true,
-                }
+                },
               }}
               popup={this.renderMenu()}
             >

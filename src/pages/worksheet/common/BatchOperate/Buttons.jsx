@@ -5,6 +5,7 @@ import Trigger from 'rc-trigger';
 import { Menu } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import CustomButtons from 'worksheet/common/recordInfo/RecordForm/CustomButtons';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

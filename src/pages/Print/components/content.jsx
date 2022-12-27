@@ -1,6 +1,6 @@
 import React from 'react';
 import sheetAjax from 'src/api/worksheet';
-import { renderCellText } from 'worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import './content.less';
 import cx from 'classnames';
 import { getPrintContent, sortByShowControls, getVisibleControls, isRelation } from '../util';
@@ -17,11 +17,11 @@ import {
   UNPRINTCONTROL,
 } from '../config';
 import { putControlByOrder, replaceHalfWithSizeControls } from 'src/pages/widgetConfig/util';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
 import { SYSTOPRINTTXT } from '../config';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import _ from 'lodash';
+import moment from 'moment';
 
 export default class Con extends React.Component {
   constructor(props) {
@@ -63,8 +63,8 @@ export default class Con extends React.Component {
           rowId: rowId || rowIdForQr,
           objectType: 2,
         })
-        .then(shareUrl => {
-          let url = shareUrl;
+        .then(({ shareLink }) => {
+          let url = shareLink;
           if (
             from === fromType.PRINT &&
             type === typeForCon.PREVIEW &&
@@ -72,7 +72,7 @@ export default class Con extends React.Component {
             printId &&
             printType === 'worksheet'
           ) {
-            url = shareUrl.replace(/worksheetshare/, 'printshare');
+            url = url.replace('public/record', 'public/print');
             url = `${url}&&${printId}&&${projectId}`;
           }
           this.setState({
@@ -81,9 +81,8 @@ export default class Con extends React.Component {
         });
     } else {
       viewId = !viewId ? undefined : viewId;
-      let url = `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${
-        rowId || rowIdForQr
-      }`;
+      let url = `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${rowId ||
+        rowIdForQr}`;
       this.setState({
         shareUrl: `${__api_server__.main}code/CreateQrCodeImage?url=${encodeURIComponent(url)}`,
       });
@@ -381,7 +380,7 @@ export default class Con extends React.Component {
     );
   };
 
-  renderWorks = (_works=undefined, _name) => {
+  renderWorks = (_works = undefined, _name) => {
     const { printData } = this.props;
     const { workflow = [], processName } = printData;
     let works = _works ? _works : workflow;
@@ -449,44 +448,42 @@ export default class Con extends React.Component {
 
   renderApproval = () => {
     const { printData, sheetSwitchPermit, params } = this.props;
-    const {viewId} = params;
+    const { viewId } = params;
     const { approval = [] } = printData;
 
-    const visibleItem = approval.filter(item => item.child.some(l=>l.checked));
-    if(!isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId)) {
+    const visibleItem = approval.filter(item => item.child.some(l => l.checked));
+    if (!isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId)) {
       return null;
     }
     return (
       <React.Fragment>
-        {visibleItem.length>0 && (
+        {visibleItem.length > 0 && (
           <React.Fragment>
-            {
-              visibleItem.map((item, index) => {
-                return (
-                  <div className='approval'>
-                    {item.child.map(l=>{
-                      let _workList = l.processInfo.works.map(m => {
-                        return {
-                          ...m,
-                          checked: l.checked
-                        }
-                      })
-                      return this.renderWorks(_workList, l.processInfo.processName )
-                    })}
-                  </div>
-                )
-              })
-            }
+            {visibleItem.map((item, index) => {
+              return (
+                <div className="approval">
+                  {item.child.map(l => {
+                    let _workList = l.processInfo.works.map(m => {
+                      return {
+                        ...m,
+                        checked: l.checked,
+                      };
+                    });
+                    return this.renderWorks(_workList, l.processInfo.processName);
+                  })}
+                </div>
+              );
+            })}
           </React.Fragment>
         )}
       </React.Fragment>
-    )
-  }
+    );
+  };
 
   getNumSys = () => {
     const { printData } = this.props;
     let num = 0;
-    ['createTime', 'ownerAccount', 'createAccount', 'updateTime'].map(o => {
+    ['createTime', 'ownerAccount', 'createAccount', 'updateAccount', 'updateTime'].map(o => {
       if (this.isShow(printData[o], printData[o + 'Checked'])) {
         num = num + 1;
       }
@@ -506,10 +503,29 @@ export default class Con extends React.Component {
     return (!isHideNull || (data && isHideNull)) && checked;
   };
 
+  createByNeedWrap = () => {
+    const { printData } = this.props;
+    let createSign =
+      this.isShow(printData.createAccount, printData.createAccountChecked) &&
+      this.isShow(printData.createTime, printData.createTimeChecked);
+    let updateSign =
+      this.isShow(printData.updateAccount, printData.updateAccountChecked) &&
+      this.isShow(printData.updateTime, printData.updateTimeChecked);
+    if (createSign && updateSign) {
+      return false;
+    } else if (createSign && this.isShow(printData.ownerAccount, printData.ownerAccountChecked)) {
+      return true;
+    } else if (updateSign && this.getNumSys() % 2 === 1) {
+      return true;
+    }
+    return false;
+  };
+
   render() {
     const { loading, shareUrl } = this.state;
     const { params, printData, controls, signature } = this.props;
-    const { receiveControls = [], workflow = [], showData, approval=[], attributeName } = printData;
+    const { receiveControls = [], workflow = [], showData, approval = [], attributeName } = printData;
+    let wrap = false;
     return (
       <div className="flex">
         {loading ? (
@@ -544,35 +560,46 @@ export default class Con extends React.Component {
                 <h6 className="Font18">{printData.titleChecked && attributeName}</h6>
                 {this.getNumSys() > 0 && (
                   <div className="mTop10 sysBox">
-                    {this.getNumSys() >= 4 ? (
+                    {this.getNumSys() >= 5 ? (
                       <React.Fragment>
                         <span className="mBottom10 TxtLeft">
                           {_l('拥有者：')}
                           {printData.ownerAccount}
                         </span>
-                        <div className="clear"></div>
-                        <span className="TxtLeft">
+                        <div className="clear" />
+                        <span className="TxtLeft mBottom10">
                           {_l('创建者：')}
                           {printData.createAccount}
                         </span>
-                        <span className="TxtCenter ">
+                        <span className="TxtLeft mBottom10">
                           {_l('创建时间：')}
                           {printData.createTime}
                         </span>
-                        <span className="TxtRight">
+                        <span className="TxtLeft mBottom10">
+                          {_l('最近修改人：')}
+                          {printData.updateAccount}
+                        </span>
+                        <span className="TxtLeft mBottom10">
                           {_l('最近修改时间：')}
                           {printData.updateTime}
                         </span>
                       </React.Fragment>
                     ) : (
-                      <div className={`sysBox${this.getNumSys()}`}>
-                        {['ownerAccount', 'createAccount', 'createTime', 'updateTime'].map(o => {
+                      <div className={`sysBox${this.getNumSys() === 1 ? '' : 2}`}>
+                        {['ownerAccount', 'createAccount', 'createTime', 'updateAccount', 'updateTime'].map(o => {
                           if (this.isShow(printData[o], printData[o + 'Checked'])) {
+                            let _wrap = wrap;
+                            if (!wrap) {
+                              wrap = true;
+                            }
                             return (
-                              <span>
-                                {SYSTOPRINTTXT[o]}
-                                {printData[o]}
-                              </span>
+                              <React.Fragment>
+                                <span className="mBottom10">
+                                  {SYSTOPRINTTXT[o]}
+                                  {printData[o]}
+                                </span>
+                                {this.createByNeedWrap() && !_wrap && <div className="clear" />}
+                              </React.Fragment>
                             );
                           }
                         })}
@@ -584,7 +611,7 @@ export default class Con extends React.Component {
               {_.isEmpty(controls) ? undefined : this.renderControls()}
               {/* 工作流 */}
               {workflow.length > 0 && this.renderWorks()}
-              {approval.length>0 && this.renderApproval()}
+              {approval.length > 0 && this.renderApproval()}
               {/* 签名字段 */}
               {signature.length > 0 && signature.filter(item => item.checked).length > 0 ? (
                 <div className="flexRow mTop50 pBottom30 signatureContentWrapper">

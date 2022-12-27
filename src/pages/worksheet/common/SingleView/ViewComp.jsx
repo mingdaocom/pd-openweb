@@ -9,6 +9,7 @@ import { getSearchData } from 'worksheet/views/util';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import Sheet from 'worksheet/common/Sheet/Sheet';
 import Header from './Header';
+import _ from 'lodash';
 
 const Con = styled.div`
   width: 100%;

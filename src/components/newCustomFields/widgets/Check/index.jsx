@@ -4,6 +4,7 @@ import { Checkbox, Switch, RadioGroup } from 'ming-ui';
 import cx from 'classnames';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {

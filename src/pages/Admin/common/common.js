@@ -2,12 +2,13 @@
 import { upgradeVersionDialog } from 'src/util';
 var AdminCommon = {};
 import Config from '../config';
-var RoleController = require('src/api/role');
+import RoleController from 'src/api/role';
 import 'src/components/select/select';
 import './common.less';
 import { expireDialogAsync } from 'src/components/common/function';
 import JqueryWrapper from 'ming-ui/utils/JQueryWrapper';
 import MultipleDropdown from 'ming-ui/components/MultipleDropdown';
+import _ from 'lodash';
 JqueryWrapper(MultipleDropdown, {
   name: 'reactMultipleDropdown',
 });

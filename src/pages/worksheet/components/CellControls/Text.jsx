@@ -11,7 +11,10 @@ const ClickAwayable = createDecoratedComponent(withClickAway);
 import CellErrorTips from './comps/CellErrorTip';
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
+import { isKeyBoardInputChar } from 'worksheet/util';
+import { FROM } from './enum';
 import { browserIsMobile, accMul } from 'src/util';
+import _ from 'lodash';
 
 const InputCon = styled.div`
   box-sizing: border-box
@@ -34,11 +37,40 @@ const InputCon = styled.div`
   }
 `;
 
+const MultipleLineTip = styled.div`
+  position: absolute;
+  padding: 4px;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+  font-size: 12px;
+  color: #bdbdbd;
+  background: #fff;
+`;
+
+function replaceNotNumber(value) {
+  return value
+    .replace(/[^-\d.]/g, '')
+    .replace(/^\./g, '')
+    .replace(/^-/, '$#$')
+    .replace(/-/g, '')
+    .replace('$#$', '-')
+    .replace(/^-\./, '-')
+    .replace('.', '$#$')
+    .replace(/\./g, '')
+    .replace('$#$', '.');
+}
+
 const Input = React.forwardRef((props, ref) => {
   const { className, onChange, ...rest } = props;
   return (
     <InputCon className={className}>
-      <textarea {...rest} ref={ref} onChange={e => onChange(e.target.value.replace(/\r\n|\n/g, ''))} />
+      <textarea
+        {...rest}
+        className="stopPropagation"
+        ref={ref}
+        onChange={e => onChange(e.target.value.replace(/\r\n|\n/g, ''))}
+      />
     </InputCon>
   );
 });
@@ -67,6 +99,7 @@ export default class Text extends React.Component {
     this.state = {
       value: props.cell.value,
       oldValue: props.cell.value,
+      forceShowFullValue: _.get(props.cell, 'advancedSetting.datamask') !== '1',
     };
   }
 
@@ -91,9 +124,28 @@ export default class Text extends React.Component {
     return _.includes([6, 31, 37], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1';
   }
 
+  get controlCanMask() {
+    const { cell } = this.props;
+    return (
+      ((cell.type === 2 && cell.enumDefault === 2) || _.includes([6, 8, 3, 5, 7], cell.type)) &&
+      _.get(cell, 'advancedSetting.datamask') === '1'
+    );
+  }
+
+  get masked() {
+    const { cell, isCharge } = this.props;
+    return this.controlCanMask && this.state.value && (isCharge || _.get(cell, 'advancedSetting.isdecrypt') === '1');
+  }
+
+  get supportShiftEnter() {
+    const { cell } = this.props;
+    return cell.type === 2 && cell.enumDefault === 1;
+  }
+
   con = React.createRef();
   input = React.createRef();
 
+  @autobind
   focus(time) {
     setTimeout(() => {
       if (this.input && this.input.current) {
@@ -154,21 +206,57 @@ export default class Text extends React.Component {
   handleChange(value) {
     const { cell, onValidate } = this.props;
     if (cell.type === 6 || cell.type === 8) {
-      value = value
-        .replace(/[^-\d.]/g, '')
-        .replace(/^\./g, '')
-        .replace(/^-/, '$#$')
-        .replace(/-/g, '')
-        .replace('$#$', '-')
-        .replace(/^-\./, '-')
-        .replace('.', '$#$')
-        .replace(/\./g, '')
-        .replace('$#$', '.');
+      value = replaceNotNumber(value);
     }
     onValidate(value);
     this.setState({
       value,
     });
+  }
+
+  @autobind
+  handleTableKeyDown(e) {
+    const { cell, updateEditingStatus } = this.props;
+    const setKeyboardValue = value => {
+      updateEditingStatus(true, () => {
+        setTimeout(() => {
+          const inputDom = this.input.current;
+          if (inputDom) {
+            inputDom.value = value;
+            this.handleChange(value);
+          }
+        }, 10);
+      });
+    };
+    if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
+      if (window.tempCopyForSheetView) {
+        setKeyboardValue(window.tempCopyForSheetView);
+      } else {
+        navigator.clipboard.readText().then(setKeyboardValue);
+      }
+      return;
+    }
+    switch (e.key) {
+      default:
+        (() => {
+          const value = cell.type === 6 || cell.type === 8 ? replaceNotNumber(e.key) : e.key;
+          if (!value || !isKeyBoardInputChar(e.key)) {
+            return;
+          }
+          updateEditingStatus(true, () => {
+            setTimeout(() => {
+              const inputDom = this.input.current;
+              if (inputDom) {
+                inputDom.value = value;
+                this.handleChange(value);
+              }
+            }, 10);
+            e.stopPropagation();
+            e.preventDefault();
+          });
+        })();
+        break;
+    }
   }
 
   @autobind
@@ -180,12 +268,37 @@ export default class Text extends React.Component {
         value: this.state.oldValue,
       });
       e.preventDefault();
+    } else if (e.keyCode === 13) {
+      if (this.supportShiftEnter && e.shiftKey) {
+        return;
+      }
+      e.preventDefault();
+      this.handleBlur();
+    } else if (_.includes(['ArrowUp', 'ArrowDown'], e.key) && _.includes([6, 8], cell.type)) {
+      const num = Number(this.state.value);
+      if (_.isNumber(num) && !_.isNaN(num)) {
+        this.setState({
+          value: num + (e.key === 'ArrowUp' ? 1 : -1),
+        });
+      }
+      e.preventDefault();
+    } else if (e.keyCode === 9) {
+      this.handleBlur();
     }
   }
 
+  @autobind
+  handleUnMask(e) {
+    if (!this.masked) {
+      return;
+    }
+    e.stopPropagation();
+    this.setState({ forceShowFullValue: true });
+  }
   render() {
     const {
       className,
+      tableType,
       style,
       rowIndex,
       from,
@@ -197,7 +310,7 @@ export default class Text extends React.Component {
       editable,
       onClick,
     } = this.props;
-    let { value } = this.state;
+    let { value, forceShowFullValue } = this.state;
     const isMobile = browserIsMobile();
     const canedit =
       cell.type === 2 ||
@@ -211,6 +324,7 @@ export default class Text extends React.Component {
     if (cell.type === 7) {
       value = (value || '').toUpperCase();
     }
+    const isCard = from === FROM.CARD;
     const editProps = {
       ref: this.input,
       value: value,
@@ -227,7 +341,7 @@ export default class Text extends React.Component {
     const isSafari = /^((?!chrome).)*safari.*$/.test(navigator.userAgent.toLowerCase());
     const isMacWxWork =
       /wxwork/.test(navigator.userAgent.toLowerCase()) && /applewebkit/.test(navigator.userAgent.toLowerCase());
-    const text = renderText({ ...cell, value });
+    const text = renderText({ ...cell, value }, { noMask: forceShowFullValue });
     const editcontent = (
       <ClickAwayable
         onClickAwayExceptions={[this.editIcon && this.editIcon.current]}
@@ -245,7 +359,7 @@ export default class Text extends React.Component {
           >
             {isSafari || isMacWxWork ? ( // 子表行内编辑 input 位置会计算异常 改用textarea模拟
               <Input
-                className="Ming"
+                className="Ming stopPropagation"
                 {...editProps}
                 value={String(editProps.value || '').replace(/\r\n|\n/g, ' ')}
                 onChange={this.handleChange}
@@ -253,9 +367,9 @@ export default class Text extends React.Component {
             ) : (
               <input
                 type="text"
-                className="Ming"
+                className="Ming stopPropagation"
                 {...editProps}
-                value={String(editProps.value || '').replace(/\r\n|\n/g, ' ')}
+                value={String(_.isUndefined(editProps.value) ? '' : editProps.value).replace(/\r\n|\n/g, ' ')}
                 style={{}}
                 onChange={e => this.handleChange(e.target.value)}
               />
@@ -263,7 +377,10 @@ export default class Text extends React.Component {
           </div>
         ) : (
           <Textarea
-            className={cx('Ming textControlTextArea cellControlEdittingStatus', { cellControlErrorStatus: error })}
+            className={cx('Ming textControlTextArea cellControlEdittingStatus stopPropagation', {
+              supportShiftEnter: this.supportShiftEnter,
+              cellControlErrorStatus: error,
+            })}
             {...editProps}
             manualRef={ref => (this.input = { current: ref })}
             style={{
@@ -275,7 +392,8 @@ export default class Text extends React.Component {
             onChange={this.handleChange}
           />
         )}
-        {error && <CellErrorTips pos={rowIndex === 1 ? 'bottom' : 'top'} error={error} />}
+        {error && <CellErrorTips pos={rowIndex === 0 ? 'bottom' : 'top'} error={error} />}
+        {this.supportShiftEnter && <MultipleLineTip>{_l('Shift+Enter 换行')}</MultipleLineTip>}
       </ClickAwayable>
     );
     return (
@@ -296,10 +414,16 @@ export default class Text extends React.Component {
         <EditableCellCon
           hideOutline
           onClick={onClick}
-          className={cx(className, { canedit: editable && canedit })}
+          className={cx(className, 'workSheetTextCell', {
+            canedit: editable && canedit,
+            masked: this.masked && !isCard,
+            empty: !value,
+            maskHoverTheme: this.masked && isCard && !forceShowFullValue,
+          })}
           style={style}
           iconName="hr_edit"
           isediting={isediting}
+          editable={editable}
           onIconClick={this.handleEdit}
         >
           {!isediting &&
@@ -310,10 +434,14 @@ export default class Text extends React.Component {
                   <span
                     className={
                       cell.type === 32
-                        ? cx('worksheetCellPureString nowrap', { linelimit: needLineLimit, ellipsis: isMobile })
+                        ? cx('worksheetCellPureString nowrap', {
+                            linelimit: needLineLimit,
+                            ellipsis: isMobile,
+                          })
                         : ''
                     }
                     title={text}
+                    onClick={this.handleUnMask}
                   >
                     <Linkify
                       properties={{
@@ -329,18 +457,42 @@ export default class Text extends React.Component {
                 );
               } else if (cell.type === 5 && !isMobile) {
                 return (
-                  <a href={`mailto:${value}`} title={text} onClick={e => e.stopPropagation()}>
-                    {value}
+                  <a
+                    href={`mailto:${value}`}
+                    title={text}
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.handleUnMask(e);
+                    }}
+                  >
+                    {text}
                   </a>
                 );
               } else {
                 return (
-                  <div className={cx({ linelimit: needLineLimit, ellipsis: isMobile })} title={text}>
+                  <span
+                    className={cx({
+                      linelimit: needLineLimit,
+                      ellipsis: isMobile,
+                    })}
+                    title={text}
+                    onClick={this.handleUnMask}
+                  >
                     {text}
-                  </div>
+                  </span>
                 );
               }
             })()}
+          {tableType === 'classic' && !text && !isediting && cell.hint && (
+            <span className="guideText Gray_bd hide">{cell.hint}</span>
+          )}
+          {isCard && this.masked && !forceShowFullValue && (
+            <i
+              className="icon icon-eye_off Hand maskData Font16 Gray_bd mLeft4 mTop4 hoverShow"
+              style={{ verticalAlign: 'text-top' }}
+              onClick={this.handleUnMask}
+            ></i>
+          )}
         </EditableCellCon>
       </Trigger>
     );

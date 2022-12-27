@@ -2,9 +2,10 @@ import React, { Fragment, useState, useEffect } from 'react';
 import { Dropdown } from 'ming-ui';
 import ProcessInput from './ProcessInput';
 import SelectOtherPBCDialog from 'src/pages/workflow/WorkflowSettings/Detail/components/SelectOtherPBCDialog';
-import { getProcessApiInfo } from 'src/pages/workflow/api/process';
-import { list } from 'src/pages/workflow/api/processVersion';
+import processAjax from 'src/pages/workflow/api/process';
+import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import homeAppApi from 'src/api/homeApp';
+import _ from 'lodash';
 
 export default function SelectProcess(props) {
   const { appId, projectId, btnSetting, setDataSource, setBtnSetting } = props;
@@ -16,7 +17,7 @@ export default function SelectProcess(props) {
   const [otherProcessVisible, setOtherProcessVisible] = useState(false);
 
   const getList = () => {
-    list({
+    processVersionAjax.list({
       relationId: appId,
       processListType: 10,
     }).then(data => {
@@ -50,7 +51,7 @@ export default function SelectProcess(props) {
     if (btnSetting.processId) {
       const { inputs = [] } = btnSetting.config || {};
       setDataSource({ inputs });
-      getProcessApiInfo({
+      processAjax.getProcessApiInfo({
         processId: btnSetting.processId
       }).then(data => {
         if (data.relationId !== appId) {

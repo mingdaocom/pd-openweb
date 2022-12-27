@@ -17,6 +17,7 @@ import FixedPage from './FixedPage';
 import PortalAppHeader from 'src/pages/PageHeader/PortalAppHeader/index.jsx';
 import WorksheetUnNormal from 'mobile/RecordList/State';
 import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
+import _ from 'lodash';
 const Item = List.Item;
 let modal = null;
 

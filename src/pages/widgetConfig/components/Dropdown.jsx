@@ -2,6 +2,7 @@ import React, { Fragment, useState } from 'react';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
 import { DropdownOverlay, DropdownPlaceholder } from '../styled';
+import _ from 'lodash';
 
 export default function DropdownWrapper(props) {
   const {

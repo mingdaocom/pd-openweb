@@ -16,6 +16,7 @@ import TaskTimeBar from '../../component/taskTimeBar/taskTimeBar';
 import ajaxRequest from 'src/api/taskCenter';
 import { updateTimeError, updateTimeErrorDialog } from '../../../../components/updateTimeError/updateTimeError';
 import TaskDetail from '../../../taskDetail/taskDetail';
+import moment from 'moment';
 
 class TimeBarContainer extends Component {
   constructor(props) {

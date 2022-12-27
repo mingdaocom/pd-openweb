@@ -6,14 +6,17 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import Dropdown from 'ming-ui/components/Dropdown';
 import cx from 'classnames';
 import moment from 'moment';
+import projectAjax from 'src/api/projectSetting';
+import sheetAjax from 'src/api/worksheet';
 import postAjax from 'src/api/taskCenter';
-import { renderCellText } from 'src/pages/worksheet/components//CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import PrintOptDialog from './PrintOptDialog';
 import { formatFormulaDate } from 'src/pages/worksheet/util';
 import model from './model';
 import nzh from 'nzh';
 import './Print.less';
 import { langFormat, htmlDecodeReg, accAdd, accDiv, accMul } from 'src/util';
+import _ from 'lodash';
 
 const nzhCn = nzh.cn;
 const { task } = model;

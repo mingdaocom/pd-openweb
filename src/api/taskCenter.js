@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 任务添加附件
 adder: suncheng date: 2017年11月29日

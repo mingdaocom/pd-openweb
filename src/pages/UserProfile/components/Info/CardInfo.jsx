@@ -3,6 +3,7 @@ import cx from 'classnames';
 import projectAjax from 'src/api/project';
 import departmentController from 'src/api/department';
 import { Tooltip } from 'ming-ui';
+import _ from 'lodash';
 
 class CardInfo extends Component {
   constructor() {

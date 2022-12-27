@@ -6,6 +6,7 @@ import privatePlatformAdminApi from 'src/api/privatePlatformAdmin';
 import UserHead from 'src/pages/feed/components/userHead';
 import { useClientRect } from '../common';
 import 'src/components/dialogSelectUser/dialogSelectUser.js';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   .ant-table-thead th {

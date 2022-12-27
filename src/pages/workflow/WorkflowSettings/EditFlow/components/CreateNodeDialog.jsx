@@ -6,6 +6,7 @@ import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponen
 import { NODE_TYPE, ACTION_ID, APP_TYPE, TRIGGER_ID } from '../../enum';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import SelectApprovalProcess from '../../../components/SelectApprovalProcess';
+import _ from 'lodash';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -118,7 +119,7 @@ export default class CreateNodeDialog extends Component {
                   type: 13,
                   appType: 1,
                   name: _l('从对象数组获取数据'),
-                  describe: _l('获取发送API请求、调用已集成API、代码块、封装业务流程输入节点的JSON数组对象'),
+                  describe: _l('获取发送API请求、调用已集成API、代码块、业务流程输入/输出节点的JSON数组对象'),
                 },
               ],
             },
@@ -371,7 +372,7 @@ export default class CreateNodeDialog extends Component {
           items: [
             {
               type: 1000,
-              name: _l('获取单条人员/部门数据'),
+              name: _l('获取单条人员/部门/组织角色数据'),
               iconColor: '#2196f3',
               iconName: 'icon-person_search',
               typeText: _l('获取方式'),
@@ -390,13 +391,13 @@ export default class CreateNodeDialog extends Component {
                   name: _l('从部门字段获取'),
                   describe: _l('从部门字段获取一个指定部门的相关信息'),
                 },
-                // {
-                //   type: 1000,
-                //   appType: 24,
-                //   actionId: '20',
-                //   name: _l('从组织角色字段获取'),
-                //   describe: _l('从组织角色字段获取一个指定角色的相关信息'),
-                // },
+                {
+                  type: 1000,
+                  appType: 24,
+                  actionId: '20',
+                  name: _l('从组织角色字段获取'),
+                  describe: _l('从组织角色字段获取一个指定角色的相关信息'),
+                },
                 {
                   type: 1000,
                   appType: 20,
@@ -411,18 +412,18 @@ export default class CreateNodeDialog extends Component {
                   name: _l('从组织部门中获取'),
                   describe: _l('从当前组织的所有部门中获取一个指定部门的相关信息'),
                 },
-                // {
-                //   type: 1000,
-                //   appType: 24,
-                //   actionId: '406',
-                //   name: _l('从组织角色中获取'),
-                //   describe: _l('从当前组织的所有组织角色中获取一个指定角色的相关信息'),
-                // },
+                {
+                  type: 1000,
+                  appType: 24,
+                  actionId: '406',
+                  name: _l('从组织角色中获取'),
+                  describe: _l('从当前组织的所有组织角色中获取一个指定角色的相关信息'),
+                },
               ],
             },
             {
               type: 1001,
-              name: _l('获取多条人员/部门数据'),
+              name: _l('获取多条人员/部门/组织角色数据'),
               iconColor: '#2196f3',
               iconName: 'icon-group-members',
               typeText: _l('获取方式'),
@@ -441,13 +442,13 @@ export default class CreateNodeDialog extends Component {
                   name: _l('从部门字段获取'),
                   describe: _l('从部门字段获取批量部门的相关信息'),
                 },
-                // {
-                //   type: 1001,
-                //   appType: 24,
-                //   actionId: '401',
-                //   name: _l('从组织角色字段获取'),
-                //   describe: _l('从组织角色字段获取批量角色的相关信息'),
-                // },
+                {
+                  type: 1001,
+                  appType: 24,
+                  actionId: '401',
+                  name: _l('从组织角色字段获取'),
+                  describe: _l('从组织角色字段获取批量角色的相关信息'),
+                },
                 {
                   type: 1001,
                   appType: 20,
@@ -462,13 +463,13 @@ export default class CreateNodeDialog extends Component {
                   name: _l('从组织部门中获取'),
                   describe: _l('从当前组织的所有部门中获取批量部门的相关信息'),
                 },
-                // {
-                //   type: 1001,
-                //   appType: 24,
-                //   actionId: '400',
-                //   name: _l('从组织角色中获取'),
-                //   describe: _l('从当前组织的所有组织角色中获取批量角色的相关信息'),
-                // },
+                {
+                  type: 1001,
+                  appType: 24,
+                  actionId: '400',
+                  name: _l('从组织角色中获取'),
+                  describe: _l('从当前组织的所有组织角色中获取批量角色的相关信息'),
+                },
               ],
             },
             {
@@ -485,6 +486,22 @@ export default class CreateNodeDialog extends Component {
           id: 'external',
           name: _l('外部用户'),
           items: [
+            {
+              type: 6,
+              name: _l('更新外部用户信息'),
+              appType: 23,
+              actionId: '2',
+              iconColor: '#FFA340',
+              iconName: 'icon-update_information',
+            },
+            {
+              type: 6,
+              name: _l('邀请外部用户'),
+              appType: 23,
+              actionId: '1',
+              iconColor: '#FFA340',
+              iconName: 'icon-invited_users',
+            },
             {
               type: 1000,
               name: _l('获取单条外部人员数据'),
@@ -721,7 +738,7 @@ export default class CreateNodeDialog extends Component {
         />
         <div className="Gray_75 Font13 pLeft30 mTop5">
           {nodeType === NODE_TYPE.APPROVAL
-            ? _l('分支固定为“通过”和“未通过”。如果你同时需要对“未通过”审批的数据进行处理时选择此分支')
+            ? _l('分支固定为“通过”和“否决”。如果你同时需要对“否决”审批的数据进行处理时选择此分支')
             : _l(
                 '分支固定为“查找到数据”和“未查找到数据”。如果你需要在“未查找到”数据的情况下继续执行流程，请选择此分支',
               )}

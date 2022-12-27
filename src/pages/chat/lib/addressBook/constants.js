@@ -1,3 +1,4 @@
+import _ from 'lodash';
 export const TYPES = {
   NEW_FRIENDS: 'NEW_FRIENDS',
   ALL_CONTACTS: 'ALL_CONTACTS',

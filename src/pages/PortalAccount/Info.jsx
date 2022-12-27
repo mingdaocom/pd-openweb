@@ -3,12 +3,13 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
 import { LoadDiv } from 'ming-ui';
-import { getUserCollect, infoLogin } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import { accountResultAction, setAutoLoginKey } from './util';
 import { statusList } from './util';
 import SvgIcon from 'src/components/SvgIcon';
 import CustomFields from 'src/components/newCustomFields';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   .Hide {
@@ -108,7 +109,7 @@ export default function Info(props) {
   const [cells, setCells] = useState([]);
   const customwidget = useRef(null);
   useEffect(() => {
-    getUserCollect({
+    externalPortalAjax.getUserCollect({
       appId,
       exAccountId: accountId,
     }).then(res => {
@@ -166,7 +167,7 @@ export default function Info(props) {
               if (hasError) {
                 return;
               }
-              infoLogin({
+              externalPortalAjax.infoLogin({
                 state,
                 receiveControls: data.map(formatControlToServer),
                 autoLogin: isAutoLogin,

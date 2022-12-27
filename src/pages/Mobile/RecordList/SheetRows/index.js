@@ -8,7 +8,9 @@ import * as actions from '../redux/actions';
 import { WORKSHEET_TABLE_PAGESIZE } from 'src/pages/worksheet/constants/enum';
 import { RecordInfoModal } from 'mobile/Record';
 import withoutRows from './assets/withoutRows.png';
+import { browserIsMobile } from 'src/util';
 import './index.less';
+import _ from 'lodash';
 
 class SheetRows extends Component {
   constructor(props) {
@@ -68,10 +70,11 @@ class SheetRows extends Component {
               window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${item.rowid}`;
               return;
             }
-            if (!window.mobileNavigateTo) return;
-            this.setState({
-              previewRecordId: item.rowid
-            });
+            if (browserIsMobile()) {
+              this.setState({
+                previewRecordId: item.rowid
+              });
+            }
           }}
         />
       </WingBlank>

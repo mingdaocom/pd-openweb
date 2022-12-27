@@ -29,7 +29,7 @@ import config from '../../config/config';
 import { expireDialogAsync } from 'src/components/common/function';
 import CopyFolder from '../../components/copyFolder/copyFolder';
 import cx from 'classnames';
-import 'src/components/mdAutocomplete/mdAutocomplete';
+import mdAutocomplete from 'src/components/mdAutocomplete/mdAutocomplete';
 import searchData from './tpl/searchData.html';
 import {
   createFolder,
@@ -40,6 +40,7 @@ import {
   getLeftMenuCount,
 } from '../../utils/taskComm';
 import { navigateTo } from 'src/router/navigateTo';
+import _ from 'lodash';
 
 const taskNavigationSettings = {
   globalEvent: null,
@@ -149,7 +150,8 @@ class TaskNavigation extends Component {
     });
 
     // 搜索组件
-    $search.mdAutocomplete({
+    mdAutocomplete({
+      element: 'leftSearchTaskOrFolder',
       appendTo: '#taskNavigator .folderSearch',
       source: ajaxRequest,
       op: 'searchFolderList',

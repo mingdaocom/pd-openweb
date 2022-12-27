@@ -1,4 +1,5 @@
-import { getJobs, pagedJobAccounts } from 'src/api/job';
+import _ from 'lodash';
+import jobAjax from 'src/api/job';
 
 const PAGE_SIZE = 50;
 export const updateProjectId = projectId => dispatch => {
@@ -8,7 +9,7 @@ export const getPositionList = () => (dispatch, getState) => {
   const { positionPageInfo = {}, projectId, positionList = [], searchValue } = getState().orgManagePage.position;
   const { pageIndex } = positionPageInfo;
   let extra = searchValue ? { keywords: searchValue } : { pageIndex: pageIndex || 1, pageSize: PAGE_SIZE };
-  getJobs({
+  jobAjax.getJobs({
     projectId,
     ...extra,
   }).then(res => {
@@ -56,7 +57,7 @@ export const getUserList = params => (dispatch, getState) => {
   const { jobId = '' } = params;
   const { projectId, userPageIndex } = getState().orgManagePage.position;
   dispatch({ type: 'UPDATE_USER_LOADING', userLoading: true });
-  pagedJobAccounts({
+  jobAjax.pagedJobAccounts({
     jobId,
     pageIndex: userPageIndex || 1,
     pageSize: PAGE_SIZE,

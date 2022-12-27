@@ -14,6 +14,7 @@ import {
   HAS_EXPLAIN_CONTROL,
   HAVE_CONFIG_CONTROL,
   HAS_WARNING_CONTROL,
+  HAVE_MASK_WIDGET,
 } from '../config';
 import DynamicDefaultValue from './components/DynamicDefaultValue';
 import { enumWidgetType } from '../util';
@@ -21,6 +22,7 @@ import { changeWidgetSize } from '../util/widgets';
 import { canAdjustWidth } from '../util/setting';
 import WidgetVerify from './components/WidgetVerify';
 import ControlSetting from './components/ControlSetting';
+import ControlMask from './components/ControlMask';
 import components from './components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 const {
@@ -63,7 +65,7 @@ function WidgetSetting(props) {
     setWidgets,
     ...rest
   } = props;
-  const { type, controlId, advancedSetting = {}, options = [] } = data;
+  const { type, controlId, advancedSetting = {}, options = [], enumDefault } = data;
   const ENUM_TYPE = enumWidgetType[type];
   const info = DEFAULT_CONFIG[ENUM_TYPE] || {};
   const queryConfig = _.find(queryConfigs, item => item.controlId === controlId) || {};
@@ -102,6 +104,10 @@ function WidgetSetting(props) {
               {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...allProps} />}
               {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...allProps} />}
               {HAVE_CONFIG_CONTROL.includes(type) && <ControlSetting {...allProps} />}
+              {/**掩码设置 */}
+              {(HAVE_MASK_WIDGET.includes(type) ||
+                (type === 2 && enumDefault === 2) ||
+                (type === 6 && advancedSetting.showtype !== '2')) && <ControlMask {...allProps} />}
               {!NO_PERMISSION_WIDGET.includes(type) && <WidgetPermission {...allProps} />}
               {/* // 文本控件移动端输入 */}
               {includes([2], type) && <WidgetMobileInput {...allProps} />}

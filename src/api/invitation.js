@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 根据邀请账号生成账户信息
   * @param {Object} args 请求参数

@@ -11,6 +11,7 @@ import RoleAuthCommon from '../common/common';
 import PermissionList from './permissionsEdit';
 
 import './style.less';
+import _ from 'lodash';
 
 const TYPES = {
   EDIT: 'EDIT',

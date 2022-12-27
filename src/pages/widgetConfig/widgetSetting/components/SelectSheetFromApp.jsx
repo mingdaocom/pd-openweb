@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { Dropdown } from 'ming-ui';
 import styled from 'styled-components';
-import { getWorksheetInfo } from 'src/api/worksheet';
-import { getWorksheetsByAppId } from 'src/api/homeApp';
-import { getAppForManager } from 'src/api/appManagement';
+import worksheetAjax from 'src/api/worksheet';
+import homeAppAjax from 'src/api/homeApp';
+import appManagementAjax from 'src/api/appManagement';
 import { useSetState } from 'react-use';
 import update from 'immutability-helper';
 import _ from 'lodash';
@@ -59,7 +59,7 @@ export default function SelectSheetFromApp(props) {
   const { appId, sheetId, viewId } = ids;
 
   useEffect(() => {
-    getAppForManager({ projectId, type: 0 }).then(res => {
+    appManagementAjax.getAppForManager({ projectId, type: 0 }).then(res => {
       let selectAppId = '';
       const getFormatApps = () => {
         const currentIndex = _.findIndex(res, item => item.appId === currentAppId);
@@ -88,7 +88,7 @@ export default function SelectSheetFromApp(props) {
 
   useEffect(() => {
     if (!appId) return;
-    getWorksheetsByAppId({ appId, type: 0 }).then(res => {
+    homeAppAjax.getWorksheetsByAppId({ appId, type: 0 }).then(res => {
       setData({
         sheet: res.map(({ workSheetId: value, workSheetName: text }) =>
           value === sourceId ? { text: _l('%0  (本表)', text), value } : { text, value },
@@ -101,7 +101,7 @@ export default function SelectSheetFromApp(props) {
     if (!sheetId) return;
     const viewConfig = _.find(config, item => item.key === 'view');
     if (!viewConfig) return;
-    getWorksheetInfo({ worksheetId: sheetId, getViews: true, appId }).then(res => {
+    worksheetAjax.getWorksheetInfo({ worksheetId: sheetId, getViews: true, appId }).then(res => {
       const views = viewConfig.filter ? _.filter(res.views, viewConfig.filter) : res.views;
       const view = views.map(({ viewType, name, viewId }) => ({
         viewType,

@@ -3,6 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { Modal, List, Button } from 'antd-mobile';
 import { Icon, Radio } from 'ming-ui';
 import './less/MobileCheckbox.less';
+import _ from 'lodash';
 
 export default class MobileRadio extends Component {
   static propTypes = {

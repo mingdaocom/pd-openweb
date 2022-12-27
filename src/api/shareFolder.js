@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 根据文件夹id获取
   * @param {Object} args 请求参数

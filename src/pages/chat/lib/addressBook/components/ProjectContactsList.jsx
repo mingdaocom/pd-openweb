@@ -4,6 +4,7 @@ import departmentController from 'src/api/department';
 import ContactItem from './ContactItem';
 import cx from 'classnames';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const DepartmentTreeWrapper = styled.div`
   border-right: 1px solid #f3f3f3;

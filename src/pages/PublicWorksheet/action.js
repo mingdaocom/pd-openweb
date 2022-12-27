@@ -1,11 +1,11 @@
 import qs from 'query-string';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
-import { getControlRules } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { getDisabledControls, overridePos } from 'src/pages/publicWorksheetConfig/utils';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
-// import { formatFileControls } from 'mobile/Record';
 import { getInfo } from './utils';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 function getVisibleControls(data) {
   const disabledControlIds = getDisabledControls(
@@ -70,7 +70,7 @@ export function getPublicWorksheet(shareId, cb = (err, data) => {}) {
       }
       data.shareAuthor && (window.shareAuthor = data.shareAuthor);
       const controls = getVisibleControls(data);
-      getControlRules({
+      worksheetAjax.getControlRules({
         worksheetId: data.worksheetId,
         type: 1, // 1字段显隐
       }).then(rules => {

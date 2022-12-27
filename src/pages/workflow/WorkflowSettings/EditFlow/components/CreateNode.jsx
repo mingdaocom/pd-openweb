@@ -11,6 +11,7 @@ export default class CreateNode extends Component {
       showOptions: false,
       showBranchDialog: false,
       moveType: 1,
+      isOrdinary: true,
     };
   }
 
@@ -71,11 +72,10 @@ export default class CreateNode extends Component {
       { type: 5, name: _l('抄送'), iconColor: '#2196f3', iconName: 'icon-workflow_notice' },
       { type: 1, name: _l('数据分支'), iconColor: '#4C7D9E', iconName: 'icon-workflow_branch' },
       {
-        type: 1,
-        name: _l('结果分支(开发中)'),
-        iconColor: '#9e9e9e',
+        type: 0,
+        name: _l('审批结果分支'),
+        iconColor: '#4C7D9E',
         iconName: 'icon-user_Review',
-        disabled: true,
       },
       { type: -1, name: _l('复制'), iconColor: '#BDBDBD', iconName: 'icon-copy' },
     ];
@@ -84,6 +84,10 @@ export default class CreateNode extends Component {
 
     if (removeCopyBtn) {
       _.remove(LIST, o => o.type === -1);
+    }
+
+    if (item.typeId !== NODE_TYPE.APPROVAL) {
+      _.remove(LIST, o => o.type === 0);
     }
 
     return (
@@ -95,8 +99,6 @@ export default class CreateNode extends Component {
               className="flexRow"
               key={i}
               onClick={() => {
-                if (o.disabled) return;
-
                 if (_.includes([NODE_TYPE.WRITE, NODE_TYPE.APPROVAL, NODE_TYPE.CC], o.type)) {
                   addFlowNode(processId, {
                     name: o.name,
@@ -104,10 +106,18 @@ export default class CreateNode extends Component {
                     typeId: o.type,
                   });
                 } else if (o.type === NODE_TYPE.BRANCH) {
+                  // 数据分支
                   if (!item.nextId || item.nextId === '99' || removeCopyBtn) {
-                    this.createBranchNode({ noMove: true });
+                    this.createBranchNode({ noMove: true, isResultBranch: false });
                   } else {
-                    this.setState({ showBranchDialog: true });
+                    this.setState({ showBranchDialog: true, isOrdinary: true });
+                  }
+                } else if (o.type === 0) {
+                  // 审批结果分支
+                  if (!item.nextId || item.nextId === '99') {
+                    this.createBranchNode({ noMove: true, isResultBranch: true });
+                  } else {
+                    this.setState({ showBranchDialog: true, isOrdinary: false });
                   }
                 } else {
                   selectAddNodeId(item.id);
@@ -118,7 +128,7 @@ export default class CreateNode extends Component {
               }}
             >
               <i className={`Font16 ${o.iconName}`} style={{ color: o.iconColor }} />
-              <span className={cx('Font14 mLeft10', { Gray_bd: o.disabled })}>{o.name}</span>
+              <span className="Font14 mLeft10 Gray">{o.name}</span>
             </MenuItem>
           </Fragment>
         ))}
@@ -130,8 +140,14 @@ export default class CreateNode extends Component {
    * 渲染分支
    */
   renderBranch() {
-    const { moveType } = this.state;
-    const MOVE_TYPE = [{ text: _l('左侧'), value: 1 }, { text: _l('不移动'), value: 0 }];
+    const { moveType, isOrdinary } = this.state;
+    const MOVE_TYPE = isOrdinary
+      ? [{ text: _l('左侧'), value: 1 }, { text: _l('不移动'), value: 0 }]
+      : [
+          { text: _l('左侧（通过分支）'), value: 1 },
+          { text: _l('右侧（否决分支）'), value: 2 },
+          { text: _l('不移动'), value: 0 },
+        ];
 
     return (
       <Dialog
@@ -161,9 +177,9 @@ export default class CreateNode extends Component {
   /**
    * dialog确定
    */
-  createBranchNode = ({ noMove }) => {
+  createBranchNode = ({ noMove, isResultBranch }) => {
     const { processId, addFlowNode, item } = this.props;
-    const { moveType } = this.state;
+    const { moveType, isOrdinary } = this.state;
 
     addFlowNode(processId, {
       name: _l('分支'),
@@ -171,6 +187,7 @@ export default class CreateNode extends Component {
       typeId: NODE_TYPE.BRANCH,
       moveType: noMove ? 0 : moveType,
       gatewayType: 2,
+      resultFlow: noMove ? isResultBranch : !isOrdinary,
     });
 
     this.setState({ showBranchDialog: false });

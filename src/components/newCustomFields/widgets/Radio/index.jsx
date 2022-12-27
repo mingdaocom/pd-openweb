@@ -6,6 +6,7 @@ import { isLightColor } from 'src/util';
 import { browserIsMobile } from 'src/util';
 import OtherInput from '../Checkbox/OtherInput';
 import { getCheckAndOther } from '../../tools/utils';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {

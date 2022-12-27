@@ -19,6 +19,7 @@ import cx from 'classnames';
 import { getAdvanceSetting } from 'src/util';
 import { getGunterViewType } from 'src/pages/worksheet/views/GunterView/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
+import _ from 'lodash';
 const GunterTypeChoose = styled.div`
   ul > li {
     margin-top: 10px;

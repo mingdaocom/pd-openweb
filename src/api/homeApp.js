@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 添加应用
   * @param {Object} args 请求参数
@@ -257,6 +257,17 @@ module.exports = {
    getPageInfo: function (args, options = {}) {
      
      return $.api('HomeApp', 'GetPageInfo', args, options);
+   },
+  /**
+  * 
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppItemDetail: function (args, options = {}) {
+     
+     return $.api('HomeApp', 'GetAppItemDetail', args, options);
    },
   /**
   * 获取应用详细信息

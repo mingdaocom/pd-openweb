@@ -12,6 +12,7 @@ import CoverSetting from './components/CoverSettingCon';
 import DisplayControl from './components/DisplayControl';
 import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
 import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
+import _ from 'lodash';
 const DisplayControlOption = styled(FlexCenter)`
   .icon {
     font-size: 16px;

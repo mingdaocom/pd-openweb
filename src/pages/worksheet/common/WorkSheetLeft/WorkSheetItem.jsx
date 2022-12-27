@@ -6,8 +6,9 @@ import { Menu, MenuItem, Icon, MdLink } from 'ming-ui';
 import { SelectIcon, SheetMove } from '../../common';
 import Trigger from 'rc-trigger';
 import { withRouter } from 'react-router-dom';
-import { setWorksheetStatus } from 'src/api/homeApp';
+import homeAppAjax from 'src/api/homeApp';
 import SvgIcon from 'src/components/SvgIcon';
+import _ from 'lodash';
 
 @withRouter
 export default class WorkSheetItem extends Component {
@@ -57,7 +58,7 @@ export default class WorkSheetItem extends Component {
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
-    setWorksheetStatus({ appId, worksheetId: sheetInfo.workSheetId, status }).then(result => {
+    homeAppAjax.setWorksheetStatus({ appId, worksheetId: sheetInfo.workSheetId, status }).then(result => {
       if (result.data) {
         updateSheetList(sheetInfo.workSheetId, { status });
       }

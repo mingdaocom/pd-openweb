@@ -3,6 +3,7 @@ import discussionAjax from 'src/api/discussion';
 import { Icon } from 'ming-ui';
 import styled from 'styled-components';
 import DiscussInfo from 'mobile/Discuss';
+import _ from 'lodash';
 
 const ChartCountWrap = styled.div`
   width: 60px;
@@ -27,7 +28,7 @@ export default class ChatCount extends Component {
     super(props);
     this.state = {
       discussionCount: 0,
-      visible: false
+      visible: false,
     };
   }
 
@@ -58,7 +59,16 @@ export default class ChatCount extends Component {
   };
 
   render() {
-    const { appId, worksheetId, rowId, viewId, onClick = _.noop, autoOpenDiscuss, originalData, className } = this.props;
+    const {
+      appId,
+      worksheetId,
+      rowId,
+      viewId,
+      onClick = _.noop,
+      autoOpenDiscuss,
+      originalData,
+      className,
+    } = this.props;
     const { discussionCount, visible } = this.state;
     return (
       <Fragment>
@@ -81,6 +91,7 @@ export default class ChatCount extends Component {
           rowId={rowId}
           viewId={viewId}
           originalData={originalData}
+          projectId={this.props.projectId}
           onClose={() => {
             this.setState({
               visible: false,
@@ -91,11 +102,10 @@ export default class ChatCount extends Component {
           }}
           onAddCount={() => {
             this.setState({
-              discussionCount: discussionCount + 1
+              discussionCount: discussionCount + 1,
             });
           }}
-        >
-        </DiscussInfo>
+        ></DiscussInfo>
       </Fragment>
     );
   }

@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { Menu, MenuItem } from 'ming-ui';
 import { fieldCanSort, getSortData } from 'worksheet/util';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
+import _ from 'lodash';
 
 export default function ColumnHead(props) {
   const {
@@ -22,9 +23,14 @@ export default function ColumnHead(props) {
     updateSheetColumnWidths,
     frozen,
     getPopupContainer,
+    onShowFullValue,
   } = props;
   const itemType = control.type === 30 ? control.sourceControlType : control.type;
   const canSort = !disabled && fieldCanSort(itemType);
+  const maskData =
+    !_.get(window, 'shareState.isPublicView') &&
+    _.get(control, 'advancedSetting.datamask') === '1' &&
+    _.get(control, 'advancedSetting.isdecrypt') === '1';
   return (
     <BaseColumnHead
       className={className}
@@ -51,6 +57,12 @@ export default function ColumnHead(props) {
                 {item.text}
               </MenuItem>
             ))}
+          {maskData && (
+            <MenuItem onClick={onShowFullValue}>
+              <i className="icon icon-eye_off"></i>
+              {_l('解密')}
+            </MenuItem>
+          )}
           <MenuItem
             onClick={() => {
               hideColumn(control.controlId);

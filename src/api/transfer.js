@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 按网络获取交接记录
   * @param {Object} args 请求参数

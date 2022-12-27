@@ -8,6 +8,7 @@ import Trigger from 'rc-trigger';
 import privateSource from 'src/api/privateSource';
 import appManagement from 'src/api/appManagement';
 import './index.less';
+import _ from 'lodash';
 
 const COLORS = ['#e91e63', '#ff9800', '#4caf50', '#00bcd4', '#2196f3', '#9c27b0', '#3f51b5', '#455a64'];
 

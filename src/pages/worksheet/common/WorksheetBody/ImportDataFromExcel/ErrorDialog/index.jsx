@@ -5,6 +5,7 @@ import cx from 'classnames';
 import { Icon, Dialog, ScrollView } from 'ming-ui';
 import WorksheetItem from 'src/pages/worksheet/components/DialogImportExcelCreate/SetImportExcelCreateWorksheetOrApp/WorksheetItem';
 import './index.less';
+import _ from 'lodash';
 
 class ErrorDialog extends Component {
   static propTypes = {

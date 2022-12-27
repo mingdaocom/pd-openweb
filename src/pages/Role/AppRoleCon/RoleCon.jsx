@@ -7,7 +7,7 @@ import _ from 'lodash';
 import RoleTem from 'src/pages/Role/component/RoleTemple';
 import { LoadDiv, Dialog } from 'ming-ui';
 import CopyRoleDialog from 'src/pages/Role/PortalCon/components/CopyRoleDialog';
-import { sortRoles, copyRoleToExternalPortal, removeRole } from 'src/api/appManagement';
+import appManagementAjax from 'src/api/appManagement';
 import DeleRoleDialog from './component/DeleRoleDialog';
 class Con extends React.Component {
   constructor(props) {
@@ -59,7 +59,7 @@ class Con extends React.Component {
   //复制角色到外部门户
   copyRoleToPortal = ({ roleId, roleName }) => {
     const { appId } = this.props;
-    copyRoleToExternalPortal({
+    appManagementAjax.copyRoleToExternalPortal({
       roleId,
       roleName,
       appId,
@@ -86,7 +86,7 @@ class Con extends React.Component {
   onRemoveRole = data => {
     const { appId, projectId, getRoleSummary } = this.props;
     const { resultRoleId = '' } = data;
-    removeRole({
+    appManagementAjax.removeRole({
       appId,
       roleId: data.roleId,
       resultRoleId,
@@ -155,7 +155,7 @@ class Con extends React.Component {
             this.delDialog(data);
           }}
           handleMoveApp={list => {
-            sortRoles({
+            appManagementAjax.sortRoles({
               appId,
               roleIds: list.map(item => item.roleId),
             }).then(() => {

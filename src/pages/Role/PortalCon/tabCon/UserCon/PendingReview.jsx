@@ -8,7 +8,7 @@ import PortalBar from '../portalComponent/PortalBar';
 import cx from 'classnames';
 import Table from 'src/pages/Role/component/Table';
 import ChangeRoleDialog from 'src/pages/Role/PortalCon/components/ChangeRoleDialog';
-import { auditPassExAccountToNewRole, refusePassExAccount } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import ReviewFree from 'src/pages/Role/PortalCon/components/ReviewFree';
 import { pageSize, renderText } from '../util';
 import noVerifyAjax from 'src/api/noVerify';
@@ -219,7 +219,7 @@ function PendingReview(props) {
 
   //拒绝
   const editAppApplyStatus = rowIds => {
-    refusePassExAccount({
+    externalPortalAjax.refusePassExAccount({
       appId,
       rowIds: rowIds,
     }).then(res => {
@@ -336,7 +336,7 @@ function PendingReview(props) {
           setChangeRoleDialog={setShowPassDrop}
           changeRoleDialog={showPassDrop}
           onOk={roleId => {
-            auditPassExAccountToNewRole({
+            externalPortalAjax.auditPassExAccountToNewRole({
               appId,
               roleId,
               rowIds: selectedIds,

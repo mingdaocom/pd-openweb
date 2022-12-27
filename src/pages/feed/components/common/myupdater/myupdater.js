@@ -4,12 +4,12 @@ import 'src/components/mentioninput/mentionsInput';
 import 'src/components/selectGroup/selectAllGroup';
 import 'src/components/uploadAttachment/uploadAttachment';
 import { index as mdDialog } from 'src/components/mdDialog/dialog';
-import 'src/components/linkView/linkView';
+import LinkView from 'src/components/linkView/linkView';
 import 'src/components/voteUpdater/voteUpdater';
 import kcAjax from 'src/api/kc';
 import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog';
-var applicationAjax = require('src/api/application');
-var postAjax = require('src/api/post');
+import applicationAjax from 'src/api/application';
+import postAjax from 'src/api/post';
 
 var langUploadFiles = _l('上传附件') + '...';
 var langShareLink = _l('分享网站') + '...';
@@ -664,7 +664,7 @@ var MyUpdater = {
     var $btnShare = $('#button_Share');
     $btnShare.attr('disabled', true).addClass('Disabled');
 
-    $('#Link_updater .updaterLinkView').linkView({
+    LinkView($('#Link_updater .updaterLinkView'), {
       viewUrl: linkUrl,
       callback: function (data) {
         if (data.errorCode != '1') {

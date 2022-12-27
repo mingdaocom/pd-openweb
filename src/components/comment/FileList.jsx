@@ -4,7 +4,7 @@ import UploadFiles from 'src/components/UploadFiles';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Button from 'ming-ui/components/Button';
 import _ from 'lodash';
-import { default as AjaxRequest } from 'src/api/discussion';
+import AjaxRequest from 'src/api/discussion';
 import { SOURCE_TYPE } from './config';
 
 export default class FileList extends Component {

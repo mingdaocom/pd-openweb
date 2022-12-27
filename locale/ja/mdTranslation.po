@@ -45410,3 +45410,1003 @@ msgstr "承認プロセス内の全ノードの同時削除"
 msgid "错误报告"
 msgstr "エラーレポート"
 
+#: Disabled references:1
+msgid "成员可通过搜索组织门牌号申请加入"
+msgstr "会員は、組織のドアナンバーを検索して申し込むことができます"
+
+#: Disabled references:1
+msgid "成员与部门"
+msgstr "メンバー・部門"
+
+#: Disabled references:1
+msgid "微信一键登录"
+msgstr "WeChatワンクリック・ログイン"
+
+#: Disabled references:1
+msgid "最近修改人："
+msgstr "最終修正者"
+
+#: Disabled references:1
+msgid "账户与隐私"
+msgstr "アカウントとプライバシー"
+
+#: Disabled references:1
+msgid "安全设置"
+msgstr "セキュリティ設定"
+
+#: Disabled references:1
+msgid "与上周同比"
+msgstr "前年同期比 前週比"
+
+#: Disabled references:1
+msgid "与上个月同比"
+msgstr "前年同月比 前月比"
+
+#: Disabled references:1
+msgid "与上个季度同比"
+msgstr "前四半期比"
+
+#: Disabled references:1
+msgid "与上一年同比"
+msgstr "前年度比"
+
+#: Disabled references:1
+msgid "获取记录分享链接 GET"
+msgstr "記録共有リンクの取得 GET"
+
+#: Disabled references:1
+msgid "可见字段ID集合"
+msgstr "可視フィールドIDのコレクション"
+
+#: Disabled references:1
+msgid "单位s,为空表示永久有效"
+msgstr "ユニットs、nullは永久的な意味"
+
+#: Disabled references:1
+msgid "为空表示不需要密码"
+msgstr "空の場合、パスワードは必要ありません"
+
+#: Disabled references:1
+msgid "组织角色Id合集"
+msgstr "組織的役割IDコレクション"
+
+#: Disabled references:1
+msgid "可见字段ID"
+msgstr "可視フィールドID"
+
+#: Disabled references:1
+msgid "有效时间"
+msgstr "有効期限"
+
+#: Disabled references:1
+msgid " / 部门 / 群组"
+msgstr " / 部門別／グループ別"
+
+#: Disabled references:1
+msgid "存草稿"
+msgstr "ドラフトを保存する"
+
+#: Disabled references:1
+msgid "在表单中显示存草稿按钮，草稿数据在下次打开时可以继续编辑并提交"
+msgstr "フォームにSave Draftボタンを表示し、下書きデータを次回開いたときに編集して送信できるようにする。"
+
+#: Disabled references:1
+msgid "账户搜索范围"
+msgstr "アカウント検索範囲"
+
+#: Disabled references:1
+msgid "满足搜索范围的账户可登录平台"
+msgstr "検索条件を満たしたアカウントは、プラットフォームにログインすることができます"
+
+#: Disabled references:1
+msgid "DN/组名"
+msgstr "DN/グループ名"
+
+#: Disabled references:1
+msgid "根据组在对应的DN检索账户"
+msgstr "対応するDNでグループ別にアカウントを検索する"
+
+#: Disabled references:1
+msgid "组名"
+msgstr "グループ名"
+
+#: Disabled references:1
+msgid "请输入DN"
+msgstr "DNを入力してください"
+
+#: Disabled references:1
+msgid "请输入组名"
+msgstr "グループ名を入力してください"
+
+#: Disabled references:1
+msgid "删除草稿成功"
+msgstr "下書きの削除に成功"
+
+#: Disabled references:1
+msgid "删除草稿失败"
+msgstr "草稿の削除に失敗しました"
+
+#: Disabled references:1
+msgid "共%0条"
+msgstr "合計 %0 記事"
+
+#: Disabled references:1
+msgid "暂无草稿"
+msgstr "ドラフトなし"
+
+#: Disabled references:1
+msgid "批量处理"
+msgstr "バッチ処理"
+
+#: Disabled references:1
+msgid "记录保存成功"
+msgstr "成功する記録管理"
+
+#: Disabled references:1
+msgid "记录保存失败"
+msgstr "記録保持の失敗"
+
+#: Disabled references:1
+msgid "0分钟"
+msgstr "0分"
+
+#: Disabled references:1
+msgid "当前"
+msgstr "電流"
+
+#: Disabled references:1
+msgid "现在"
+msgstr "現在"
+
+#: Disabled references:1
+msgid "退出账号"
+msgstr "アカウントからログアウトする"
+
+#: Disabled references:1
+msgid "安全"
+msgstr "安全"
+
+#: Disabled references:1
+msgid "设备管理"
+msgstr "機器管理"
+
+#: Disabled references:1
+msgid "允许同时登录"
+msgstr "同時ログインを許可する"
+
+#: Disabled references:1
+msgid "关闭后不允许在同类型设备（网页端、移动客户端）上同时登录"
+msgstr "同じ種類のデバイス（ウェブ、モバイルクライアント）での同時ログインを無効にするクローズド化"
+
+#: Disabled references:1
+msgid "登录设备列表"
+msgstr "ログインデバイス一覧"
+
+#: Disabled references:1
+msgid "您当前已在以下设备上登录"
+msgstr "現在、以下のデバイスでログインしています。"
+
+#: Disabled references:1
+msgid "网页端"
+msgstr "ウェブサイド"
+
+#: Disabled references:1
+msgid "包括桌面端和移动端浏览器（企业微信、钉钉、飞书)，桌面客户端"
+msgstr "デスクトップおよびモバイルブラウザ（Enterprise WeChat、Pinning、Fishu）、デスクトップクライアントが含まれます。"
+
+#: Disabled references:1
+msgid "移动客户端"
+msgstr "モバイルクライアント"
+
+#: Disabled references:1
+msgid "环比"
+msgstr "リンギット"
+
+#: Disabled references:1
+msgid "同比"
+msgstr "前年同期比"
+
+#: Disabled references:1
+msgid "您已提交申请，请耐心等待管理员审批！"
+msgstr "アプリケーションを送信しました。管理者が承認するまで、しばらくお待ちください。"
+
+#: Disabled references:1
+msgid "您提交的加入申请未被通过"
+msgstr "会員登録が承認されていない"
+
+#: Disabled references:1
+msgid "使用 %0明道云%1 创建"
+msgstr "0MindowCloud%1 で作成されました。"
+
+#: Disabled references:1
+msgid "购买方地址/电话"
+msgstr "購入者様の住所/電話番号"
+
+#: Disabled references:1
+msgid "购买方开户行及账号"
+msgstr "購入者の口座銀行と口座番号"
+
+#: Disabled references:1
+msgid "全掩盖"
+msgstr "フルカバー"
+
+#: Disabled references:1
+msgid "-显示前1个字，后1个字"
+msgstr "-最初の1単語と最後の1単語を表示する"
+
+#: Disabled references:1
+msgid "-显示前3位，后4位"
+msgstr "-最初の3桁、最後の4桁を表示"
+
+#: Disabled references:1
+msgid "-显示前3位，@和之后的字"
+msgstr "-最初の3桁、@、の後に単語を表示する"
+
+#: Disabled references:1
+msgid "-全掩盖，虚拟为5位"
+msgstr "-フルマスク、仮想～5ビット"
+
+#: Disabled references:1
+msgid "身份证件"
+msgstr "本人確認書類"
+
+#: Disabled references:1
+msgid "-显示后4位"
+msgstr "-下4桁表示"
+
+#: Disabled references:1
+msgid "住址"
+msgstr "居住地住所"
+
+#: Disabled references:1
+msgid "-显示前4个字，后4个字"
+msgstr "-最初の4単語と最後の4単語を表示する"
+
+#: Disabled references:1
+msgid "-显示第1段IP"
+msgstr "-第1IPセグメントを表示"
+
+#: Disabled references:1
+msgid "-显示前1个字，后2位"
+msgstr "-最初の1単語と最後の2桁を表示する"
+
+#: Disabled references:1
+msgid "自定义规则"
+msgstr "カスタムルール"
+
+#: Disabled references:1
+msgid "保存草稿成功"
+msgstr "下書きの保存に成功"
+
+#: Disabled references:1
+msgid "保存草稿失败"
+msgstr "原稿の保存に失敗しました"
+
+#: Disabled references:1
+msgid "全部下载"
+msgstr "すべてダウンロード"
+
+#: Disabled references:1
+msgid "注销用户"
+msgstr "ユーザーのログアウト"
+
+#: Disabled references:1
+msgid "创建中"
+msgstr "作成中"
+
+#: Disabled references:1
+msgid "离开"
+msgstr "退出"
+
+#: Disabled references:1
+msgid "我所在的角色"
+msgstr "私が担当している役"
+
+#: Disabled references:1
+msgid "你确认离开此角色吗？"
+msgstr "この役から離れることは確定しているのですか？"
+
+#: Disabled references:1
+msgid "离开所有角色后你将不能访问此应用"
+msgstr "すべての役割を終えると、このアプリケーションにアクセスできなくなります。"
+
+#: Disabled references:1
+msgid "预设样式"
+msgstr "プリセットスタイル"
+
+#: Disabled references:1
+msgid "单元格"
+msgstr "セル"
+
+#: Disabled references:1
+msgid "行标题"
+msgstr "行の見出し"
+
+#: Disabled references:1
+msgid "列标题"
+msgstr "コラムの見出し"
+
+#: Disabled references:1
+msgid "列"
+msgstr "列"
+
+#: Disabled references:1
+msgid "此为不可逆操作，将公式变更为%0后，公式计算方式将丢失，保存后无法再转换为公式类型。你确定要进行变更吗？"
+msgstr "これは不可逆的な操作で、数式を%0に変更した後は、数式計算が失われ、保存後に数式型に戻すことはできません。本当に変更するのか？"
+
+#: Disabled references:1
+msgid "结束委托"
+msgstr "コミッションの終了"
+
+#: Disabled references:1
+msgid "确定结束该委托吗?"
+msgstr "本当に委託を終了するのですか？"
+
+#: Disabled references:1
+msgid "结束委托成功"
+msgstr "コミッションの終了に成功"
+
+#: Disabled references:1
+msgid "待办委托"
+msgstr "コミッションの未払い"
+
+#: Disabled references:1
+msgid "委托给"
+msgstr "嘱託"
+
+#: Disabled references:1
+msgid "委托时间"
+msgstr "コミッショニング時間"
+
+#: Disabled references:1
+msgid "截止时间"
+msgstr "締切日"
+
+#: Disabled references:1
+msgid "发起委托"
+msgstr "コミッションを開始する"
+
+#: Disabled references:1
+msgid "委托结束时间应大于开始时间"
+msgstr "コミッションの終了時刻は、開始時刻よりも大きい必要があります"
+
+#: Disabled references:1
+msgid "更新委托成功"
+msgstr "アップデートのコミッションが成功"
+
+#: Disabled references:1
+msgid "添加委托成功"
+msgstr "コミッションの追加に成功"
+
+#: Disabled references:1
+msgid "发起委托后，您负责的审批、填写事项将转交给被委托人"
+msgstr "委任が開始されると、自分の担当事項の承認と完了は委任者に引き継がれます"
+
+#: Disabled references:1
+msgid " *"
+msgstr " *"
+
+#: Disabled references:1
+msgid "委托"
+msgstr "コミッショニング"
+
+#: Disabled references:1
+msgid "触发者："
+msgstr "をトリガーとする。"
+
+#: Disabled references:1
+msgid "暂存"
+msgstr "一時保管"
+
+#: Disabled references:1
+msgid "当前用户无权限查看"
+msgstr "現在のユーザーは表示する権限を持っていません"
+
+#: Disabled references:1
+msgid "被移除"
+msgstr "削除"
+
+#: Disabled references:1
+msgid "(%0委托)"
+msgstr "(%0 委託)"
+
+#: Disabled references:1
+msgid "查看更新记录"
+msgstr "更新履歴を見る"
+
+#: Disabled references:1
+msgid "调整负责人"
+msgstr "調整責任者"
+
+#: Disabled references:1
+msgid "移除尚未进行操作的负责人，添加新的成员；您的操作仅对当前流程的本次运行生效"
+msgstr "まだアクションを実行していない担当者を削除し、新しいメンバーを追加する。あなたのアクションは、プロセスの現在の実行に対してのみ有効である"
+
+#: Disabled references:1
+msgid "新增负责人"
+msgstr "新しい担当者を追加する"
+
+#: Disabled references:1
+msgid "移除尚未进行操作的负责人，将其替换为新的成员；您的操作仅对当前流程的本次运行生效"
+msgstr "まだ操作を行っていない責任者を削除し、新しいメンバーと入れ替える。この操作は、現在実行中のプロセスに対してのみ有効である"
+
+#: Disabled references:1
+msgid "当前节点未进行操作的成员将设为通过"
+msgstr "カレントノードが操作していないメンバはパスに設定される"
+
+#: Disabled references:1
+msgid "当前节点未进行操作的成员将设为提交"
+msgstr "現在のノードで操作されていないメンバーは、コミットに設定されます"
+
+#: Disabled references:1
+msgid "确认跳过当前节点 ?"
+msgstr "カレントノードをスキップすることの確認 ?"
+
+#: Disabled references:1
+msgid "确认中止此条流程 ?"
+msgstr "このプロセスの中止を確認する？"
+
+#: Disabled references:1
+msgid "跳过当前节点"
+msgstr "現在のノードをスキップする"
+
+#: Disabled references:1
+msgid "调整当前节点负责人"
+msgstr "カレントノードリーダーの調整"
+
+#: Disabled references:1
+msgid "管理员操作"
+msgstr "アドミニストレーター業務"
+
+#: Disabled references:1
+msgid "已跳过当前节点"
+msgstr "現在のノードがスキップされた"
+
+#: Disabled references:1
+msgid "Shift+Enter 换行"
+msgstr "Shift+Enterで改行"
+
+#: Disabled references:1
+msgid "当前字段不可编辑"
+msgstr "現在のフィールドは編集不可"
+
+#: Disabled references:1
+msgid "无权限"
+msgstr "無許可"
+
+#: Disabled references:1
+msgid "分享已关闭"
+msgstr "シェアリングは終了しました"
+
+#: Disabled references:1
+msgid "图形验证验证错误"
+msgstr "グラフィカルな検証検証エラー"
+
+#: Disabled references:1
+msgid "需要密码"
+msgstr "パスワードが必要です"
+
+#: Disabled references:1
+msgid "请输入密码访问"
+msgstr "アクセスするにはパスワードを入力してください。"
+
+#: Disabled references:1
+msgid "图形验证失败"
+msgstr "グラフィカルな検証の失敗"
+
+#: Disabled references:1
+msgid "1小时后"
+msgstr "1時間後"
+
+#: Disabled references:1
+msgid "1天后"
+msgstr "1日後"
+
+#: Disabled references:1
+msgid "3天后"
+msgstr "3日後"
+
+#: Disabled references:1
+msgid "7天后"
+msgstr "7日後"
+
+#: Disabled references:1
+msgid "密码长度4~8位"
+msgstr "パスワードの長さ 4〜8桁"
+
+#: Disabled references:1
+msgid "密码必须包含数字或者字母"
+msgstr "パスワードは数字またはアルファベットを含む必要があります"
+
+#: Disabled references:1
+msgid "链接有效期"
+msgstr "リンク有効期限"
+
+#: Disabled references:1
+msgid "密码保护"
+msgstr "パスワードによる保護"
+
+#: Disabled references:1
+msgid "请输入4-8位密码"
+msgstr "4～8桁のパスワードを入力してください"
+
+#: Disabled references:1
+msgid "显示序号"
+msgstr "シリアルナンバーを表示する"
+
+#: Disabled references:1
+msgid "显示记录快捷方式"
+msgstr "録画のショートカットを表示する"
+
+#: Disabled references:1
+msgid "在记录前显示“更多”图标，点击后可以在下拉菜单中进行记录操作。"
+msgstr "記録の前に「More」アイコンが表示され、ドロップダウンメニューからクリックすることで記録操作を行うことができます。"
+
+#: Disabled references:1
+msgid "显示汇总行"
+msgstr "サマリー行を表示する"
+
+#: Disabled references:1
+msgid "显示垂直表格线"
+msgstr "テーブルの縦線を表示する"
+
+#: Disabled references:1
+msgid "显示交替行颜色"
+msgstr "列の代替色表示"
+
+#: Disabled references:1
+msgid "标题行文字换行"
+msgstr "ヘッダーラインテキストの改行"
+
+#: Disabled references:1
+msgid "表格交互方式"
+msgstr "フォームの相互作用"
+
+#: Disabled references:1
+msgid "经典模式"
+msgstr "クラシックモード"
+
+#: Disabled references:1
+msgid "点整行打开记录"
+msgstr "行全体をタップすると、レコードが開きます"
+
+#: Disabled references:1
+msgid "电子表格模式"
+msgstr "表計算モード"
+
+#: Disabled references:1
+msgid "点单元格选中字段，按空格键打开记录"
+msgstr "セルをタップしてフィールドを選択し、スペースバーを押すとレコードを開くことができます"
+
+#: Disabled references:1
+msgid "行内编辑"
+msgstr "インラインエディター"
+
+#: Disabled references:1
+msgid "允许行内编辑"
+msgstr "インライン編集を可能にする"
+
+#: Disabled references:1
+msgid "无需打开记录详情，在表格行内直接编辑字段"
+msgstr "レコードの詳細を開くことなく、フォームの行で直接フィールドを編集することができます。"
+
+#: Disabled references:1
+msgid "地址无法访问"
+msgstr "アドレスにアクセスできない"
+
+#: Disabled references:1
+msgid "被取消了查看权限或已删除"
+msgstr "閲覧不可または削除"
+
+#: Disabled references:1
+msgid "已选择%0条草稿"
+msgstr "選択された %0 ドラフト"
+
+#: Disabled references:1
+msgid "您的草稿箱已满，无法保存"
+msgstr "下書きボックスが一杯で保存できない"
+
+#: Disabled references:1
+msgid "草稿箱中的数量已达到10条"
+msgstr "下書きボックスの記事数が10件に達しました"
+
+#: Disabled references:1
+msgid "草稿箱中的草稿数量已经达到10条"
+msgstr "下書きボックスの下書き数が10枚に達しました"
+
+#: Disabled references:1
+msgid "查看草稿箱"
+msgstr "ドラフトボックスの表示"
+
+#: Disabled references:1
+msgid "地址无法访问\n被取消了查看权限或已删除"
+msgstr "アドレスにアクセスできない\n閲覧不可または削除"
+
+#: Disabled references:1
+msgid "服务出错，请刷新重试"
+msgstr "サービスエラーが発生しました。リフレッシュして再試行してください。"
+
+#: Disabled references:1
+msgid "姓名、手机和邮箱为个人账户信息，组织中无法修改"
+msgstr "名前、携帯電話、電子メールは個人のアカウント情報であり、組織内で変更することはできません"
+
+#: Disabled references:1
+msgid "邀请方式"
+msgstr "招待方法"
+
+#: Disabled references:1
+msgid "可直接输入创建新的工作地点"
+msgstr "ダイレクトエントリーで新しい勤務地を作成"
+
+#: Disabled references:1
+msgid "创建新工作地点：%0"
+msgstr "新しい勤務地の作成: %0"
+
+#: Disabled references:1
+msgid "刷新失败"
+msgstr "リフレッシュの失敗"
+
+#: Disabled references:1
+msgid "刷新所有成员信息"
+msgstr "すべての会員情報を更新する"
+
+#: Disabled references:1
+msgid "水平对齐方式"
+msgstr "ホリゾンタルアライメント"
+
+#: Disabled references:1
+msgid "每行显示个数"
+msgstr "1行の表示数"
+
+#: Disabled references:1
+msgid "允许容器内滚动"
+msgstr "コンテナ内のスクロールを許可する"
+
+#: Disabled references:1
+msgid "当统计项较多时，勾选此配置可以在容器内滚动查看"
+msgstr "統計情報が多い場合、この設定を確認し、コンテナをスクロールさせる"
+
+#: Disabled references:1
+msgid "卡片布局"
+msgstr "カードレイアウト"
+
+#: Disabled references:1
+msgid "统计值"
+msgstr "統計値"
+
+#: Disabled references:1
+msgid "对比值"
+msgstr "コントラスト値"
+
+#: Disabled references:1
+msgid "简单"
+msgstr "シンプル"
+
+#: Disabled references:1
+msgid "炫酷"
+msgstr "まぶしい"
+
+#: Disabled references:1
+msgid "左对齐"
+msgstr "左アライメント"
+
+#: Disabled references:1
+msgid "右对齐"
+msgstr "ライトアライメント"
+
+#: Disabled references:1
+msgid "对齐方式"
+msgstr "アライメント方式"
+
+#: Disabled references:1
+msgid "奇行"
+msgstr "変なもの"
+
+#: Disabled references:1
+msgid "偶行"
+msgstr "オケージョン"
+
+#: Disabled references:1
+msgid "冻结%0标题"
+msgstr "フリーズ %0 タイトル"
+
+#: Disabled references:1
+msgid "PC"
+msgstr "パーソナルコンピューター"
+
+#: Disabled references:1
+msgid "移动端屏幕尺寸较小，设置时请注意宽度和高度"
+msgstr "モバイルの画面サイズは小さいので、設定するときは幅と高さに注意してください"
+
+#: Disabled references:1
+msgid "开头显示"
+msgstr "オープニングディスプレイ"
+
+#: Disabled references:1
+msgid "指定字数"
+msgstr "単語数を指定する"
+
+#: Disabled references:1
+msgid "指定字符之前的字"
+msgstr "指定した文字の前の単語"
+
+#: Disabled references:1
+msgid "指定字符和之前的字"
+msgstr "文字とその前の単語を指定する"
+
+#: Disabled references:1
+msgid "结尾显示"
+msgstr "エンディングでは"
+
+#: Disabled references:1
+msgid "指定字符之后的字"
+msgstr "指定文字の後の単語"
+
+#: Disabled references:1
+msgid "指定字符和之后的字"
+msgstr "文字とその後に続く単語を指定する"
+
+#: Disabled references:1
+msgid "掩码设置"
+msgstr "マスクの設定"
+
+#: Disabled references:1
+msgid "请填写限制开头显示的%0"
+msgstr "制限の最初に表示される%0を記入してください。"
+
+#: Disabled references:1
+msgid "字符"
+msgstr "キャラクター"
+
+#: Disabled references:1
+msgid "请填写限制结尾显示的%0"
+msgstr "制限の末尾に表示されている%0を記入してください。"
+
+#: Disabled references:1
+msgid "虚拟掩码长度应在1～100以内"
+msgstr "仮想マスクの長さは1～100の範囲にすること"
+
+#: Disabled references:1
+msgid "掩码规则"
+msgstr "マスキングルール"
+
+#: Disabled references:1
+msgid "设置需要显示的字符，其他字符全部显示为掩码"
+msgstr "表示する文字を設定し、それ以外の文字はマスクとして表示されます"
+
+#: Disabled references:1
+msgid "字数"
+msgstr "単語数"
+
+#: Disabled references:1
+msgid "请输入字数"
+msgstr "単語数を入力してください"
+
+#: Disabled references:1
+msgid "请输入字符"
+msgstr "文字を入力してください"
+
+#: Disabled references:1
+msgid "中间显示"
+msgstr "ミドルディスプレイ"
+
+#: Disabled references:1
+msgid "按顺序输入显示的字符，多个使用,隔开。如：a,b,c"
+msgstr "表示された文字を、複数、区切って順番に入力する。例：a,b,c"
+
+#: Disabled references:1
+msgid "虚拟掩码长度"
+msgstr "仮想マスクの長さ"
+
+#: Disabled references:1
+msgid "未勾选时，按照真实字数显示掩码；勾选后，按照虚拟字数显示掩码，不暴露真实长度"
+msgstr "チェックを外すと実語数で表示し、チェックを入れると実長を表示せず、仮想語数で表示します。"
+
+#: Disabled references:1
+msgid "个字"
+msgstr "言葉"
+
+#: Disabled references:1
+msgid "试一试掩盖效果"
+msgstr "マスキング効果を試す"
+
+#: Disabled references:1
+msgid "掩盖"
+msgstr "カバーする"
+
+#: Disabled references:1
+msgid "掩码显示"
+msgstr "マスクの表示"
+
+#: Disabled references:1
+msgid "将字段值显示为掩码，应用管理员和有解密权限的用户可以点击后解密查看（解密权限需要在用户-角色-字段权限中配置）。在对外公开分享时始终掩盖"
+msgstr "アプリケーション管理者や復号化権限を持つユーザーがクリックし、復号化して表示できるマスクとしてフィールド値を表示します（復号化権限は、「ユーザー」-「役割」-「フィールド権限」で設定する必要があります）。公開するときは必ずマスクする"
+
+#: Disabled references:1
+msgid "掩码方式： "
+msgstr "マスキング方式。"
+
+#: Disabled references:1
+msgid "向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。短信0.05元/条，自动从企业账务中心扣费。"
+msgstr "指定された携帯電話番号に、外部ポータルへの登録を促すSMSが送信され、外部ポータルの下に該当するユーザーデータが自動的に作成される（会員ステータスは「非アクティブ」）。SMSは1通あたり0.05元で課金され、法人アカウントセンターから自動的に引き落とされます。"
+
+#: Disabled references:1
+msgid "邀请1名用户"
+msgstr "1ユーザーを招待する"
+
+#: Disabled references:1
+msgid "基于多条数据邀请多名用户"
+msgstr "複数のデータに基づいて複数のユーザーを招待する"
+
+#: Disabled references:1
+msgid "填充用户信息"
+msgstr "ユーザー情報を入力する"
+
+#: Disabled references:1
+msgid "根据此字段发送邀请短信，短信0.05元/条"
+msgstr "このフィールドに基づいて招待SMSを送信する、SMS $0.05/each。"
+
+#: Disabled references:1
+msgid "（获取人员数据节点）"
+msgstr "(Get Personnel Data Node)"
+
+#: Disabled references:1
+msgid "起点"
+msgstr "出発点"
+
+#: Disabled references:1
+msgid "指定成员"
+msgstr "指定されたメンバー"
+
+#: Disabled references:1
+msgid "的直属部门负责人"
+msgstr "直属の部長の"
+
+#: Disabled references:1
+msgid "终点"
+msgstr "エンドポイント"
+
+#: Disabled references:1
+msgid "该成员在通讯录中的"
+msgstr "のアドレス帳に登録されているメンバーです。"
+
+#: Disabled references:1
+msgid "允许审批人暂存"
+msgstr "承認者の保留の許可"
+
+#: Disabled references:1
+msgid "允许审批人批量、快速处理审批任务（在移动端可以直接点击待审批列表上的按钮进行审批）。在批量处理审批时将忽略表单中的必填字段。"
+msgstr "承認者が承認タスクを一括かつ迅速に処理できるようにします（モバイルでは、承認待ちリストのボタンを直接クリックして承認することができます）。承認の一括処理時に、フォームの必須項目が無視されるようになりました。"
+
+#: Disabled references:1
+msgid "获取一名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级（可选）），供流程中的其他节点使用。"
+msgstr "個人情報（氏名、性別、誕生日、携帯電話、電子メール）および組織情報（部署、役職、役職番号、部下（任意））を含む個人に関する情報を取得し、プロセスの他の時点で使用すること。"
+
+#: Disabled references:1
+msgid "获取多名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级（可选）），供流程中的其他节点使用。"
+msgstr "個人情報（氏名、性別、誕生日、携帯電話、電子メール）、組織情報（部署、役職、役職番号、部下（任意））など、複数人に関する情報を取得し、別のポイントで利用すること。"
+
+#: Disabled references:1
+msgid "获取汇报关系"
+msgstr "報告関係へのアクセス"
+
+#: Disabled references:1
+msgid "同时获取人员的汇报关系信息新增支持获取汇报关系"
+msgstr "担当者の報告関係情報の同時取り込み 報告関係の取り込みの新規サポート"
+
+#: Disabled references:1
+msgid "包含人员的直属上司、直接下属、所有下属；如果您的使用场景无需汇报关系相关信息，推荐不勾选以提升您的查询效率"
+msgstr "直属の上司、直属の部下、その人物のすべての部下を含める。使用シナリオで人間関係関連情報の報告が必要ない場合は、チェックを外しておくとクエリーの効率が上がるのでおすすめです。"
+
+#: Disabled references:1
+msgid "业务流程输入数组"
+msgstr "ビジネスプロセス入力配列"
+
+#: Disabled references:1
+msgid "业务流程输出数组"
+msgstr "ビジネスプロセス出力配列"
+
+#: Disabled references:1
+msgid "密码不能少于4位"
+msgstr "パスワードは4桁以下は不可"
+
+#: Disabled references:1
+msgid "密码必须由字母+数字组成"
+msgstr "パスワードは英字＋数字で構成されている必要があります。"
+
+#: Disabled references:1
+msgid "链接有效期不能为空"
+msgstr "リンクの有効期限を空にすることはできません"
+
+#: Disabled references:1
+msgid "设置链接有效期"
+msgstr "リンクの有効期限を設定する"
+
+#: Disabled references:1
+msgid "指定时长"
+msgstr "長さを指定する"
+
+#: Disabled references:1
+msgid "允许填写人暂存"
+msgstr "仮置き場への充填の許可"
+
+#: Disabled references:1
+msgid "更新用户信息"
+msgstr "ユーザー情報の更新"
+
+#: Disabled references:1
+msgid "邀请多名用户"
+msgstr "複数のユーザーを招待する"
+
+#: Disabled references:1
+msgid "填充%0个用户信息字段"
+msgstr "0 のユーザ情報フィールドを入力します。"
+
+#: Disabled references:1
+msgid "从业务流程输入数组获取数据"
+msgstr "ビジネスプロセスの入力配列からデータを取得する"
+
+#: Disabled references:1
+msgid "从业务流程输出数组获取数据"
+msgstr "ビジネスプロセスの出力配列からデータを取得する"
+
+#: Disabled references:1
+msgid "审批结果分支"
+msgstr "支店の承認結果"
+
+#: Disabled references:1
+msgid "获取发送API请求、调用已集成API、代码块、业务流程输入/输出节点的JSON数组对象"
+msgstr "APIリクエストの送信、統合APIの呼び出し、コードブロック、ビジネスプロセスの入出力ノードのためのJSON配列オブジェクトの取得"
+
+#: Disabled references:1
+msgid "获取单条人员/部门/组织角色数据"
+msgstr "個人／部門／組織の役割データへのアクセス"
+
+#: Disabled references:1
+msgid "获取多条人员/部门/组织角色数据"
+msgstr "複数の人/部署/組織のロールデータを取得する"
+
+#: Disabled references:1
+msgid "更新外部用户信息"
+msgstr "外部ユーザー情報の更新"
+
+#: Disabled references:1
+msgid "邀请外部用户"
+msgstr "外部ユーザーを招待する"
+
+#: Disabled references:1
+msgid "分支固定为“通过”和“否决”。如果你同时需要对“否决”审批的数据进行处理时选择此分支"
+msgstr "分岐は \"合格 \"と \"不合格 \"に固定されています。否定的な」承認のためのデータ処理も必要な場合は、このブランチを選択します。"
+
+#: Disabled references:1
+msgid "一级："
+msgstr "レベル1です。"
+
+#: Disabled references:1
+msgid "%0级："
+msgstr "0レベルです。"
+
+#: Disabled references:1
+msgid "打开记录（空格）"
+msgstr "オープンレコード（スペース）"
+
+#: Disabled references:1
+msgid "关闭（esc）"
+msgstr "閉じる（エスケープ）"
+
+#: Disabled references:1
+msgid "使用 %0 创建"
+msgstr "0 で作成されました。"
+
+#: Disabled references:1
+msgid "搜索流程节点对象下的字段"
+msgstr "プロセスノードオブジェクトの下のフィールドを検索する"
+
+#: Disabled references:1
+msgid "设置列权限"
+msgstr "カラムのパーミッションの設定"
+
+#: Disabled references:1
+msgid "未开启时按照子表本身权限，开启后可配置审批节点中的列权限"
+msgstr "オンにしない場合はサブテーブル自体に応じたパーミッション、オンにした場合は承認ノードでカラムのパーミッションを設定することができる"
+

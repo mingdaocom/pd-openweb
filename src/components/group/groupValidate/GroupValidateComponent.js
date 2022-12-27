@@ -5,6 +5,7 @@ import store from 'redux/configureStore';
 import * as actions from 'src/pages/chat/redux/actions';
 import qs from 'query-string';
 import { getRequest } from 'src/util';
+import moment from 'moment';
 
 export default class GroupValidate extends React.Component {
   constructor(props) {

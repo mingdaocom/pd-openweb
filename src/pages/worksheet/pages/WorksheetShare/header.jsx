@@ -7,6 +7,7 @@ import mingdaoImg from './img/mingdao.png';
 import SvgIcon from 'src/components/SvgIcon';
 import { SHARE_TYPE } from './config';
 import styled from 'styled-components';
+import moment from 'moment';
 
 const PublicqueryHeader = styled.div`
   width: 100%;

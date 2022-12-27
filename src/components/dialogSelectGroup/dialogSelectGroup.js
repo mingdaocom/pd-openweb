@@ -4,8 +4,8 @@ import doT from '@mdfe/dot';
 import headerTpl from './tpl/header.html';
 import listTpl from './tpl/listItem.html';
 import 'src/components/mdDialog/dialog';
+import groupController from 'src/api/group';
 
-var groupController = require('src/api/group');
 var headerTplFunc = doT.template(headerTpl);
 var groupItemFunc = doT.template(listTpl);
 

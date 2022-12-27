@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import config from '../../config/config';
 import './timeBarFences.less';
 import utils from '../../utils/utils';
+import _ from 'lodash';
+import moment from 'moment';
 
 // 时间栅栏
 export default class TimeBarFences extends Component {

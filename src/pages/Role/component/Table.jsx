@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Checkbox, LoadDiv, Icon } from 'ming-ui';
+import _ from 'lodash';
+import url from 'src/pages/worksheet/assets/record.png'
 const Wrap = styled.div`
   .opacity0 {
     opacity: 0 !important;
@@ -47,6 +49,21 @@ const Wrap = styled.div`
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    position: absolute;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .iconBox {
+      width: 130px;
+      height: 130px;
+      display: inline-block;
+      border-radius: 50%;
+      background: url(${url}) no-repeat;
+      background-size: 130px 130px;
+      background-color: #f5f5f5;
+    }
   }
   .checkBoxTr {
     opacity: 0;

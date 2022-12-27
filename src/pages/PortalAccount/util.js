@@ -1,6 +1,6 @@
 import { setPssId } from 'src/util/pssId';
 import { getRequest, browserIsMobile } from 'src/util';
-import { getAppIdByAddressSuffix } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 
 export const urlList = [
   'app/',
@@ -70,7 +70,7 @@ export const getCurrentId = (cb) => {
     }
   });
   if (!currentAppId) {
-    getAppIdByAddressSuffix({ customeAddressSuffix: getSuffix(href) }).then(res => {
+    externalPortalAjax.getAppIdByAddressSuffix({ customeAddressSuffix: getSuffix(href) }).then(res => {
       cb(res)
     })
   } else {

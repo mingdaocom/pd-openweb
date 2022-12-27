@@ -7,6 +7,8 @@ import cx from 'classnames';
 import './style.less';
 import orderController from 'src/api/order';
 import projectController from 'src/api/project';
+import _ from 'lodash';
+import moment from 'moment';
 
 const productList = [5000, 3000, 2000, 1000];
 

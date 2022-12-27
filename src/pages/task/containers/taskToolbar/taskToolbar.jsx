@@ -25,6 +25,7 @@ import { htmlEncodeReg } from 'src/util';
 import { expireDialogAsync } from 'src/components/common/function';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import _ from 'lodash';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class TaskToolbar extends Component {

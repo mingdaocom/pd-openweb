@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { string, func } from 'prop-types';
+import _ from 'lodash';
 
 /**
  * 高阶组件

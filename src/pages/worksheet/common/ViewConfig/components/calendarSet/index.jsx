@@ -11,6 +11,7 @@ import cx from 'classnames';
 import { getAdvanceSetting } from 'src/util';
 import { getCalendarViewType, getTimeControls, getCalendartypeData } from 'src/pages/worksheet/views/CalendarView/util';
 import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
+import _ from 'lodash';
 
 const CalendarTypeChoose = styled.div`
   ul > li {

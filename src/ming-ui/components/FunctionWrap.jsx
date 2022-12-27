@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'lodash';
 
 /**
  * 使用方法
@@ -29,7 +30,7 @@ export default function (Comp, props) {
       }}
       onCancel={() => {
         destory();
-        if (_.isFunction(props.onClose)) {
+        if (_.isFunction(props.onCancel)) {
           props.onCancel();
         }
       }}

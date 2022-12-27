@@ -2,10 +2,11 @@ import './style.less';
 import doT from '@mdfe/dot';
 import mobileDialogHtml from './tpl/mobileDialog.htm';
 var dialogTpl = doT.template(mobileDialogHtml);
-import { index as DialogLayer} from 'src/components/mdDialog/dialog';
+import { index as DialogLayer } from 'src/components/mdDialog/dialog';
 import qs from 'query-string';
 import { ATTACHMENT_TYPE } from './enum';
-var { getShareLocalAttachmentUrl, getShortUrl } = require('src/api/attachment');
+import attachmentController from 'src/api/attachment';
+import _ from 'lodash';
 
 var ToMobileDialog = function (options) {
   var DEFAULTS = {
@@ -76,7 +77,7 @@ ToMobileDialog.prototype = {
     var urlPromise = $.Deferred();
     switch (attachmentType) {
       case ATTACHMENT_TYPE.COMMON:
-        urlPromise = getShareLocalAttachmentUrl({
+        urlPromise = attachmentController.getShareLocalAttachmentUrl({
           fileID: options.file.fileID,
         });
         break;
@@ -110,7 +111,7 @@ ToMobileDialog.prototype = {
     var promise = $.Deferred();
     var options = TMD.options;
     var file = options.file;
-    getShareLocalAttachmentUrl({
+    attachmentController.getShareLocalAttachmentUrl({
       filePath: options.file.qiniuPath,
       hours: 48,
     }).then(function (url) {
@@ -125,7 +126,7 @@ ToMobileDialog.prototype = {
         size: file.size,
         genTime: new Date().getTime(),
       });
-      getShortUrl({
+      attachmentController.getShortUrl({
         url: escape(md.global.Config.WebUrl + 'apps/kc/shareLocalAttachment.aspx?' + urlParams),
       }).then(function (result) {
         promise.resolve(result.shortUrl || result);

@@ -6,6 +6,7 @@ import { FlexCenter } from 'worksheet/styled';
 import { isLightColor } from 'src/util';
 import UserHead from 'src/pages/feed/components/userHead';
 import { CAN_AS_BOARD_OPTION } from '../config';
+import _ from 'lodash';
 
 const BoardTitleWrap = styled(FlexCenter)`
   border-radius: 18px;

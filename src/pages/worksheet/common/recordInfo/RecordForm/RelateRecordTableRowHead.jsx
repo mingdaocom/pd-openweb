@@ -76,7 +76,7 @@ export default function RowHead(props) {
       cancelText={_l('取消')}
     >
       <Con className={className} style={style}>
-        {layoutChangeVisible && rowIndex === 0 && (
+        {layoutChangeVisible && rowIndex === -1 && (
           <ChangeSheetLayout
             description={_l('保存表格当前的列宽配置，并应用给所有用户')}
             onSave={saveSheetLayout}
@@ -89,7 +89,7 @@ export default function RowHead(props) {
             key="number"
             style={relateRecordControlPermission.editable && allowEdit ? {} : { display: 'inline-block' }}
           >
-            {(pageIndex - 1) * pageSize + rowIndex}
+            {(pageIndex - 1) * pageSize + rowIndex + 1}
           </span>
         )}
         {row.rowid &&

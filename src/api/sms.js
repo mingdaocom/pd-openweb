@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 修改服务商
   * @param {Object} args 请求参数

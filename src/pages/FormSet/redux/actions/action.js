@@ -1,5 +1,5 @@
 import sheetAjax from 'src/api/worksheet';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import _ from 'lodash';
 
 /**
  * 获取当前表info(包含template)
@@ -18,6 +18,7 @@ export function getWorksheetInfo(worksheetId) {
         worksheetId: worksheetId,
         getTemplate: true,
         getViews: true,
+        getSwitchPermit: true,
       })
       .then(data => {
         if (data.roleType !== 2) {
@@ -25,8 +26,7 @@ export function getWorksheetInfo(worksheetId) {
             type: 'NORIGHT',
           });
         } else {
-          let controls = data.template.controls.filter(item => !_.includes(SYS, item.controlId));
-          controls = _.sortBy(controls, o => o.row);
+          const controls = _.sortBy(data.template.controls, o => o.row);
           dispatch({
             type: 'COLUMNRULES_LOAD_SUCCESS',
           });

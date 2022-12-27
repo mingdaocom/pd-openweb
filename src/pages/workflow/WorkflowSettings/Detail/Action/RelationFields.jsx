@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Dropdown } from 'ming-ui';
 import { SelectNodeObject, FilterAndSort, FindResult } from '../components';
 import flowNode from '../../../api/flowNode';
+import _ from 'lodash';
 
 export default class RelationFields extends Component {
   /**

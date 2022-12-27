@@ -8,6 +8,7 @@ import { Slider } from 'ming-ui';
 import cx from 'classnames';
 import { FROM } from './enum';
 import { autobind } from 'core-decorators';
+import _ from 'lodash';
 
 const ClickAway = createDecoratedComponent(withClickAway);
 
@@ -77,6 +78,55 @@ export default class NumberSlider extends React.Component {
     }
   }
 
+  get prevValueId() {
+    const { rowIndex, cell } = this.props;
+    return `numberSlider-${rowIndex}-${cell.controlId}`;
+  }
+
+  @autobind
+  handleTableKeyDown(e) {
+    const { cell, isediting, updateEditingStatus, updateCell } = this.props;
+    const { min, max, numinterval } = cell.advancedSetting || {};
+    const minNumber = levelSafeParse(min);
+    const maxNumber = levelSafeParse(max);
+    if (isediting && (e.key === 'Escape' || (e.key === 'Enter' && String(this.state.value) !== cell.value))) {
+      updateEditingStatus(false);
+      this.handleExit();
+    } else if (isediting && _.includes(['ArrowUp', 'ArrowDown'], e.key)) {
+      const step = levelSafeParse(numinterval);
+      const value = levelSafeParse(this.state.value || min);
+      const newValue = value + step * (e.key === 'ArrowUp' ? 1 : -1);
+      if (newValue < minNumber || newValue > maxNumber) {
+        return;
+      }
+      if (_.isNumber(newValue) && !_.isNaN(newValue)) {
+        this.setState({ value: newValue });
+      }
+    } else if (/^[0-9]$/.test(e.key)) {
+      let inputValue = Number(e.key);
+      const { prevValueId } = this;
+      if (!_.isNaN(inputValue)) {
+        if (window[prevValueId]) {
+          inputValue = Number(window[prevValueId] + '' + inputValue);
+        }
+        if (
+          !_.isUndefined(minNumber) &&
+          !_.isUndefined(maxNumber) &&
+          (inputValue < minNumber || inputValue > maxNumber)
+        ) {
+          return;
+        }
+        window[prevValueId] = inputValue;
+        setTimeout(() => {
+          window[prevValueId] = undefined;
+        }, 500);
+        updateCell({
+          value: inputValue,
+        });
+      }
+    }
+  }
+
   @autobind
   handleChange(value) {
     const { updateCell, updateEditingStatus } = this.props;
@@ -85,6 +135,16 @@ export default class NumberSlider extends React.Component {
     updateCell({
       value,
     });
+  }
+
+  @autobind
+  handleExit() {
+    const { updateEditingStatus, updateCell } = this.props;
+    const { value } = this.state;
+    updateEditingStatus(false);
+    if (value !== this.props.cell.value) {
+      updateCell({ value: this.state.value });
+    }
   }
 
   render() {
@@ -115,7 +175,7 @@ export default class NumberSlider extends React.Component {
         showScaleText={isediting || rowHeight > 50}
         showAsPercent={numshow === '1'}
         numStyle={from === FROM.CARD ? { color: '#333' } : {}}
-        tipDirection={rowIndex === 1 ? 'bottom' : undefined}
+        tipDirection={rowIndex === 0 ? 'bottom' : undefined}
         min={levelSafeParse(min)}
         max={levelSafeParse(max)}
         step={levelSafeParse(numinterval)}
@@ -129,11 +189,7 @@ export default class NumberSlider extends React.Component {
         <Trigger
           zIndex={99}
           popup={
-            <ClickAway
-              onClickAway={() => {
-                updateEditingStatus(false);
-              }}
-            >
+            <ClickAway onClickAway={this.handleExit}>
               <EditingCon style={{ width: style.width, minHeight: style.height }}>{sliderComp}</EditingCon>
             </ClickAway>
           }
@@ -160,7 +216,7 @@ export default class NumberSlider extends React.Component {
       >
         <div className="flex">{sliderComp}</div>
         {editable && (
-          <OperateIcon className="OperateIcon">
+          <OperateIcon className="OperateIcon editIcon">
             <i className="ThemeHoverColor3 icon icon-edit" onClick={() => updateEditingStatus(true)} />
           </OperateIcon>
         )}

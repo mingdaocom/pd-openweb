@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1668001895793') format('woff2'),
-       url('iconfont.woff?t=1668001895793') format('woff'),
-       url('iconfont.ttf?t=1668001895793') format('truetype');
+  src: url('iconfont.woff2?t=1670813516594') format('woff2'),
+       url('iconfont.woff?t=1670813516594') format('woff'),
+       url('iconfont.ttf?t=1670813516594') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,82 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-card:before {
+  content: "\e63a";
+}
+
+.icon-list1:before {
+  content: "\e63b";
+}
+
+.icon-tiling:before {
+  content: "\e63c";
+}
+
+.icon-thumbnail:before {
+  content: "\e63d";
+}
+
+.icon-equal_division:before {
+  content: "\eb9a";
+}
+
+.icon-arrow_down:before {
+  content: "\e8bd";
+}
+
+.icon-not_checked:before {
+  content: "\e639";
+}
+
+.icon-merge:before {
+  content: "\eb98";
+}
+
+.icon-join_left:before {
+  content: "\eb8c";
+}
+
+.icon-join_full:before {
+  content: "\eb8d";
+}
+
+.icon-join_right:before {
+  content: "\eb8e";
+}
+
+.icon-join_inner:before {
+  content: "\eb97";
+}
+
+.icon-classify:before {
+  content: "\eb77";
+}
+
+.icon-storage:before {
+  content: "\e88a";
+}
+
+.icon-synchronization:before {
+  content: "\e8a0";
+}
+
+.icon-gpp_good:before {
+  content: "\e884";
+}
+
+.icon-lift:before {
+  content: "\e869";
+}
+
+.icon-align_vertical_top:before {
+  content: "\eb5f";
+}
+
+.icon-align_horizontal_center:before {
+  content: "\eb67";
 }
 
 .icon-eye_off:before {
@@ -431,10 +507,6 @@
 
 .icon-dropdown:before {
   content: "\eaaf";
-}
-
-.icon-stats_district_chart:before {
-  content: "\ec9d";
 }
 
 .icon-beta1:before {

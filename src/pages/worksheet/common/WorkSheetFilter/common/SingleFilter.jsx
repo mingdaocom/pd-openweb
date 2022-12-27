@@ -15,6 +15,7 @@ import {
   redefineComplexControl,
 } from '../util';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
+import _ from 'lodash';
 
 // setting编辑字段，关联他表筛选/汇总 rule字段显示规则=> 不需要验证的from
 const noCheckConditionAvailable = ['relateSheet', 'rule', 'subTotal', 'custombutton'];
@@ -102,8 +103,8 @@ export default class SingleFilter extends Component {
   handleConditionsChange(conditions, relationType) {
     const { onConditionsChange, feOnly } = this.props;
     const formatedConditions = conditions.map(condition => ({
-      controlId: condition.controlId,
-      dataType: condition.controlType,
+      controlId: condition.controlType === 25 ? condition.control.dataSource.slice(1, -1) : condition.controlId,
+      dataType: condition.controlType === 25 ? 8 : condition.controlType,
       spliceType: _.isUndefined(relationType) ? this.state.relationType : relationType,
       filterType: condition.type,
       dateRange: condition.dateRange,

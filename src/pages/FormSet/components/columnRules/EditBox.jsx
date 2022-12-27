@@ -5,18 +5,21 @@ import { Icon, ScrollView } from 'ming-ui';
 import { Select, Tooltip } from 'antd';
 import * as actions from '../../redux/actions/action';
 import * as columnRules from '../../redux/actions/columnRules';
-import SingleFilter from './singleFilter/SingleFilter';
 import ActionDropDown from './actionDropdown/ActionDropDown';
 import handleSetMsg from './errorMsgDialog/ErrorMsg';
 import { actionsListData, originActionItem, getActionLabelByType, filterUnAvailable } from './config';
+import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
+import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { SYS_CONTROLS, SYS } from 'src/pages/widgetConfig/config/widget';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
+import _ from 'lodash';
 
 class EditBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: '',
+      name: (props.selectRules || {}).name || '',
       visible: false,
     };
   }
@@ -50,22 +53,40 @@ class EditBox extends React.Component {
       updateFilters,
       ruleError = {},
       updateFilterError,
-      editingId,
       appId,
     } = this.props;
+    const filterControls = worksheetControls
+      .filter(i => !_.includes(['wfname', 'wfcuaids', 'wfcaid', 'wfctime', 'wfrtime', 'wfftime', 'rowid'], i.controlId))
+      .map(redefineComplexControl);
     return (
       <div className="conditionContainer">
         <div className="Font14 Bold">{_l('当满足以下条件时')}</div>
-        <SingleFilter
+        <FilterConfig
+          canEdit
+          feOnly
+          isRules={true}
+          supportGroup={true}
           projectId={projectId}
           appId={appId}
-          columns={worksheetControls}
-          filters={selectRules.filters}
-          editingId={editingId}
-          filterError={ruleError.filterError}
-          updateFilterError={updateFilterError}
-          onConditionsChange={conditions => {
-            updateFilters(conditions);
+          from={'rule'}
+          columns={filterControls}
+          currentColumns={filterControls}
+          conditions={selectRules.filters}
+          filterError={ruleError.filterError || []}
+          onConditionsChange={(conditions = []) => {
+            const newConditions = conditions.some(item => item.groupFilters)
+              ? conditions
+              : [
+                  {
+                    spliceType: 2,
+                    isGroup: true,
+                    groupFilters: conditions,
+                  },
+                ];
+            updateFilters(newConditions);
+            if ((_.flatten(ruleError.filterError) || []).filter(i => i).length) {
+              updateFilterError(newConditions);
+            }
           }}
         />
       </div>
@@ -146,7 +167,7 @@ class EditBox extends React.Component {
                   actionError={actionError}
                   actionType={actionItem.type}
                   values={actionItem.controls}
-                  dropDownData={worksheetControls}
+                  dropDownData={worksheetControls.filter(i => !_.includes(SYS_CONTROLS.concat(SYS), i.controlId))}
                   onChange={(key, value) => {
                     let currentActionData = { ...ruleItems[actionIndex] };
                     currentActionData[key] = value;

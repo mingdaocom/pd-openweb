@@ -4382,7 +4382,7 @@ msgstr "Amount"
 
 #: Disabled references:1
 msgid "单选"
-msgstr "Single Selection"
+msgstr "Choice"
 
 #: Disabled references:1
 msgid "平铺"
@@ -4390,7 +4390,7 @@ msgstr "Tile"
 
 #: Disabled references:1
 msgid "多选"
-msgstr "Multiple Selection"
+msgstr "Choices"
 
 #: Disabled references:1
 msgid "附件"
@@ -4406,11 +4406,11 @@ msgstr "Free Link"
 
 #: Disabled references:1
 msgid "分段"
-msgstr "Horizontal Line"
+msgstr "Line"
 
 #: Disabled references:1
 msgid "大写金额"
-msgstr "Amount in capital"
+msgstr "Uppercase"
 
 #: Disabled references:1
 msgid "成员"
@@ -4422,11 +4422,11 @@ msgstr "Level"
 
 #: Disabled references:1
 msgid "关联记录"
-msgstr "Associating Records"
+msgstr "Relationship"
 
 #: Disabled references:1
 msgid "他表字段"
-msgstr "Fields From Other Sheet"
+msgstr "Foreign"
 
 #: Disabled references:1
 msgid "公式"
@@ -4434,7 +4434,7 @@ msgstr "Formula"
 
 #: Disabled references:1
 msgid "文本组合"
-msgstr "Text Combination"
+msgstr "Concat"
 
 #: Disabled references:1
 msgid "自动编号"
@@ -4446,7 +4446,7 @@ msgstr "Subform"
 
 #: Disabled references:1
 msgid "级联选择"
-msgstr "Cascading selection"
+msgstr "Cascading"
 
 #: Disabled references:1
 msgid "检查框"
@@ -10870,7 +10870,7 @@ msgstr "We support self-hierarchy by single form only when the org view is used 
 
 #: Disabled references:1
 msgid "文本识别"
-msgstr "Text Recognition"
+msgstr "OCR"
 
 #: Disabled references:1
 msgid "识别输入图片，将识别结果填充到对应字段。"
@@ -40152,7 +40152,7 @@ msgstr "Use last signature"
 
 #: Disabled references:1
 msgid "组织角色"
-msgstr "Organizational Roles"
+msgstr "O-Roles"
 
 #: Disabled references:1
 msgid "使用分析"
@@ -40352,7 +40352,7 @@ msgstr "Role exists for members and cannot be deleted"
 
 #: Disabled references:1
 msgid "创建角色"
-msgstr "Character Creation"
+msgstr "Add Role"
 
 #: Disabled references:1
 msgid "导入角色"
@@ -43700,7 +43700,7 @@ msgstr "SSO Login"
 
 #: Disabled references:1
 msgid "轮播图"
-msgstr "Photo Carousel"
+msgstr "Image Carousel"
 
 #: Disabled references:1
 msgid "使用 Javascript 语言"
@@ -44156,7 +44156,7 @@ msgstr "Change role"
 
 #: Disabled references:1
 msgid "%0个外协用户"
-msgstr "%0 outsourced users"
+msgstr "%0 collaborators"
 
 #: Disabled references:1
 msgid "%0组织角色"
@@ -44204,11 +44204,11 @@ msgstr "Search for Applicants"
 
 #: Disabled references:1
 msgid "搜索外协用户"
-msgstr "Search for outsourced users"
+msgstr "Search for collaborators"
 
 #: Disabled references:1
 msgid "外协用户"
-msgstr "Outsourced Users"
+msgstr "External"
 
 #: Disabled references:1
 msgid "将修改选中的%0个用户"
@@ -44488,11 +44488,11 @@ msgstr "Filling in..."
 
 #: Disabled references:1
 msgid "前往填写"
-msgstr "Fill in now"
+msgstr "Go to fill"
 
 #: Disabled references:1
 msgid "前往办理"
-msgstr "Execute now"
+msgstr "Go to approval"
 
 #: Disabled references:1
 msgid "%0 于 %1 发起"
@@ -45409,4 +45409,1004 @@ msgstr "Delete all nodes within the approval workflow at the same time."
 #: Disabled references:1
 msgid "错误报告"
 msgstr "Error report"
+
+#: Disabled references:1
+msgid "成员可通过搜索组织门牌号申请加入"
+msgstr "Members can apply to join by searching the organization door number"
+
+#: Disabled references:1
+msgid "成员与部门"
+msgstr "Members and Departments"
+
+#: Disabled references:1
+msgid "微信一键登录"
+msgstr "One-click login with WeChat"
+
+#: Disabled references:1
+msgid "最近修改人："
+msgstr "Last modified by:"
+
+#: Disabled references:1
+msgid "账户与隐私"
+msgstr "Account and Privacy"
+
+#: Disabled references:1
+msgid "安全设置"
+msgstr "Security settings"
+
+#: Disabled references:1
+msgid "与上周同比"
+msgstr "Compare to last week"
+
+#: Disabled references:1
+msgid "与上个月同比"
+msgstr "Compare to last month"
+
+#: Disabled references:1
+msgid "与上个季度同比"
+msgstr "Compare to last quarter"
+
+#: Disabled references:1
+msgid "与上一年同比"
+msgstr "Compare to last year"
+
+#: Disabled references:1
+msgid "获取记录分享链接 GET"
+msgstr "Get record share link GET"
+
+#: Disabled references:1
+msgid "可见字段ID集合"
+msgstr "Aggregation of visible field ID"
+
+#: Disabled references:1
+msgid "单位s,为空表示永久有效"
+msgstr "The unit is s, left blank indicates permanent validity"
+
+#: Disabled references:1
+msgid "为空表示不需要密码"
+msgstr "Left blank indicates no password is required"
+
+#: Disabled references:1
+msgid "组织角色Id合集"
+msgstr "Aggregation of organizational role ID"
+
+#: Disabled references:1
+msgid "可见字段ID"
+msgstr "Visible field ID"
+
+#: Disabled references:1
+msgid "有效时间"
+msgstr "Valid time"
+
+#: Disabled references:1
+msgid " / 部门 / 群组"
+msgstr " /Department/Group"
+
+#: Disabled references:1
+msgid "存草稿"
+msgstr "Save as draft"
+
+#: Disabled references:1
+msgid "在表单中显示存草稿按钮，草稿数据在下次打开时可以继续编辑并提交"
+msgstr "The Save Draft button is displayed in the form, and the draft data can be edited and submitted next time it is opened"
+
+#: Disabled references:1
+msgid "账户搜索范围"
+msgstr "Account search range"
+
+#: Disabled references:1
+msgid "满足搜索范围的账户可登录平台"
+msgstr "The accounts that meet the search range can login to the platform"
+
+#: Disabled references:1
+msgid "DN/组名"
+msgstr "DN/Group Name"
+
+#: Disabled references:1
+msgid "根据组在对应的DN检索账户"
+msgstr "Retrieve accounts by group in the corresponding DN"
+
+#: Disabled references:1
+msgid "组名"
+msgstr "Group Name"
+
+#: Disabled references:1
+msgid "请输入DN"
+msgstr "Please enter the DN"
+
+#: Disabled references:1
+msgid "请输入组名"
+msgstr "Please enter the group name"
+
+#: Disabled references:1
+msgid "删除草稿成功"
+msgstr "Draft deleted successfully"
+
+#: Disabled references:1
+msgid "删除草稿失败"
+msgstr "Failed to delete draft"
+
+#: Disabled references:1
+msgid "共%0条"
+msgstr "Total %0 records"
+
+#: Disabled references:1
+msgid "暂无草稿"
+msgstr "No drafts yet"
+
+#: Disabled references:1
+msgid "批量处理"
+msgstr "Batch processing"
+
+#: Disabled references:1
+msgid "记录保存成功"
+msgstr "Record saved successfully"
+
+#: Disabled references:1
+msgid "记录保存失败"
+msgstr "Failed to save record"
+
+#: Disabled references:1
+msgid "0分钟"
+msgstr "0 minutes"
+
+#: Disabled references:1
+msgid "当前"
+msgstr "Current"
+
+#: Disabled references:1
+msgid "现在"
+msgstr "Now"
+
+#: Disabled references:1
+msgid "退出账号"
+msgstr "Exit account"
+
+#: Disabled references:1
+msgid "安全"
+msgstr "Security"
+
+#: Disabled references:1
+msgid "设备管理"
+msgstr "Equipment management"
+
+#: Disabled references:1
+msgid "允许同时登录"
+msgstr "Allow simultaneous login"
+
+#: Disabled references:1
+msgid "关闭后不允许在同类型设备（网页端、移动客户端）上同时登录"
+msgstr "When disabled, users cannot log in to the same type of devices (web client or mobile client) simultaneously"
+
+#: Disabled references:1
+msgid "登录设备列表"
+msgstr "Login device list"
+
+#: Disabled references:1
+msgid "您当前已在以下设备上登录"
+msgstr "You are currently logged in on the following devices"
+
+#: Disabled references:1
+msgid "网页端"
+msgstr "Web client"
+
+#: Disabled references:1
+msgid "包括桌面端和移动端浏览器（企业微信、钉钉、飞书)，桌面客户端"
+msgstr "Including desktop and mobile browser (WeChat Work, Dingtalk, Feishu), desktop client"
+
+#: Disabled references:1
+msgid "移动客户端"
+msgstr "Mobile Client"
+
+#: Disabled references:1
+msgid "环比"
+msgstr "Month-on-month ratio"
+
+#: Disabled references:1
+msgid "同比"
+msgstr "Year-on-year ratio"
+
+#: Disabled references:1
+msgid "您已提交申请，请耐心等待管理员审批！"
+msgstr "You have submitted your application. Please wait for approval!"
+
+#: Disabled references:1
+msgid "您提交的加入申请未被通过"
+msgstr "Your application has been rejected"
+
+#: Disabled references:1
+msgid "使用 %0明道云%1 创建"
+msgstr "Create with %0Mingdao%1"
+
+#: Disabled references:1
+msgid "购买方地址/电话"
+msgstr "Buyer Address/Phone"
+
+#: Disabled references:1
+msgid "购买方开户行及账号"
+msgstr "Buyer bank and account"
+
+#: Disabled references:1
+msgid "全掩盖"
+msgstr "Full cover"
+
+#: Disabled references:1
+msgid "-显示前1个字，后1个字"
+msgstr "- Show the first character and the last character"
+
+#: Disabled references:1
+msgid "-显示前3位，后4位"
+msgstr "- Show the first 3 characters and the last 4 characters"
+
+#: Disabled references:1
+msgid "-显示前3位，@和之后的字"
+msgstr "- Show the first 3 characters, @ and the following characters"
+
+#: Disabled references:1
+msgid "-全掩盖，虚拟为5位"
+msgstr "- Full cover, with 5 virtual characters"
+
+#: Disabled references:1
+msgid "身份证件"
+msgstr "ID card"
+
+#: Disabled references:1
+msgid "-显示后4位"
+msgstr "- Show the last 4 characters"
+
+#: Disabled references:1
+msgid "住址"
+msgstr "Address"
+
+#: Disabled references:1
+msgid "-显示前4个字，后4个字"
+msgstr "- Show the first 4 characters and the last 4 characters"
+
+#: Disabled references:1
+msgid "-显示第1段IP"
+msgstr "- Show the first segment IP"
+
+#: Disabled references:1
+msgid "-显示前1个字，后2位"
+msgstr "- Show the first character and the last 2 characters"
+
+#: Disabled references:1
+msgid "自定义规则"
+msgstr "Custom rules"
+
+#: Disabled references:1
+msgid "保存草稿成功"
+msgstr "Draft saved successfully"
+
+#: Disabled references:1
+msgid "保存草稿失败"
+msgstr "Failed to save draft"
+
+#: Disabled references:1
+msgid "全部下载"
+msgstr "Download All"
+
+#: Disabled references:1
+msgid "注销用户"
+msgstr "Sign off users"
+
+#: Disabled references:1
+msgid "创建中"
+msgstr "Creating"
+
+#: Disabled references:1
+msgid "离开"
+msgstr "Exit"
+
+#: Disabled references:1
+msgid "我所在的角色"
+msgstr "My Role"
+
+#: Disabled references:1
+msgid "你确认离开此角色吗？"
+msgstr "Are you sure you want to exit this Role?"
+
+#: Disabled references:1
+msgid "离开所有角色后你将不能访问此应用"
+msgstr "You will not be able to access this application after exiting all roles"
+
+#: Disabled references:1
+msgid "预设样式"
+msgstr "Preset style"
+
+#: Disabled references:1
+msgid "单元格"
+msgstr "Table Cell"
+
+#: Disabled references:1
+msgid "行标题"
+msgstr "Line Title"
+
+#: Disabled references:1
+msgid "列标题"
+msgstr "Column Title"
+
+#: Disabled references:1
+msgid "列"
+msgstr "Column"
+
+#: Disabled references:1
+msgid "此为不可逆操作，将公式变更为%0后，公式计算方式将丢失，保存后无法再转换为公式类型。你确定要进行变更吗？"
+msgstr "The operation is undone. After the formula is changed to %0, the formula calculation method will be lost and cannot be converted to the formula type once saved. Are you sure you want to make the change?"
+
+#: Disabled references:1
+msgid "结束委托"
+msgstr "End the delegation"
+
+#: Disabled references:1
+msgid "确定结束该委托吗?"
+msgstr "Are you sure to end the delegation?"
+
+#: Disabled references:1
+msgid "结束委托成功"
+msgstr "End the delegation successfully"
+
+#: Disabled references:1
+msgid "待办委托"
+msgstr "To-do delegation"
+
+#: Disabled references:1
+msgid "委托给"
+msgstr "Delegated to"
+
+#: Disabled references:1
+msgid "委托时间"
+msgstr "Delegation time"
+
+#: Disabled references:1
+msgid "截止时间"
+msgstr "Deadline"
+
+#: Disabled references:1
+msgid "发起委托"
+msgstr "Initiating a delegation"
+
+#: Disabled references:1
+msgid "委托结束时间应大于开始时间"
+msgstr "Delegation end time can't be earlier than start time"
+
+#: Disabled references:1
+msgid "更新委托成功"
+msgstr "Update delegation successfully"
+
+#: Disabled references:1
+msgid "添加委托成功"
+msgstr "Add delegation successfully"
+
+#: Disabled references:1
+msgid "发起委托后，您负责的审批、填写事项将转交给被委托人"
+msgstr "After a delegation is initiated, the approval and filling in items you are responsible for will be forwarded to the delegated person"
+
+#: Disabled references:1
+msgid " *"
+msgstr " *"
+
+#: Disabled references:1
+msgid "委托"
+msgstr "Delegation"
+
+#: Disabled references:1
+msgid "触发者："
+msgstr "Initiator:"
+
+#: Disabled references:1
+msgid "暂存"
+msgstr "Hold"
+
+#: Disabled references:1
+msgid "当前用户无权限查看"
+msgstr "The current user has no permission to view"
+
+#: Disabled references:1
+msgid "被移除"
+msgstr "Removed"
+
+#: Disabled references:1
+msgid "(%0委托)"
+msgstr "(Delegated by %0)"
+
+#: Disabled references:1
+msgid "查看更新记录"
+msgstr "View update records"
+
+#: Disabled references:1
+msgid "调整负责人"
+msgstr "Adjust the owner"
+
+#: Disabled references:1
+msgid "移除尚未进行操作的负责人，添加新的成员；您的操作仅对当前流程的本次运行生效"
+msgstr "Remove the owners that have not taken action and add new members. Your actions are valid only for this run of the current process"
+
+#: Disabled references:1
+msgid "新增负责人"
+msgstr "New owner"
+
+#: Disabled references:1
+msgid "移除尚未进行操作的负责人，将其替换为新的成员；您的操作仅对当前流程的本次运行生效"
+msgstr "Remove the owners that have not taken actions and replace with new members. Your actions are valid only for this run of the current process"
+
+#: Disabled references:1
+msgid "当前节点未进行操作的成员将设为通过"
+msgstr "Members not taking actions in the current node will be set to Approve"
+
+#: Disabled references:1
+msgid "当前节点未进行操作的成员将设为提交"
+msgstr "Members not taking actions in the current node will be set to Submit"
+
+#: Disabled references:1
+msgid "确认跳过当前节点 ?"
+msgstr "Are you sure to skip current node?"
+
+#: Disabled references:1
+msgid "确认中止此条流程 ?"
+msgstr "Are you sure to terminate the workflow?"
+
+#: Disabled references:1
+msgid "跳过当前节点"
+msgstr "Skip current node"
+
+#: Disabled references:1
+msgid "调整当前节点负责人"
+msgstr "Adjust the owner of current node"
+
+#: Disabled references:1
+msgid "管理员操作"
+msgstr "Admin operation"
+
+#: Disabled references:1
+msgid "已跳过当前节点"
+msgstr "Skipped current node"
+
+#: Disabled references:1
+msgid "Shift+Enter 换行"
+msgstr "Shift+Enter to wrap line"
+
+#: Disabled references:1
+msgid "当前字段不可编辑"
+msgstr "The current field is not editable"
+
+#: Disabled references:1
+msgid "无权限"
+msgstr "No permission"
+
+#: Disabled references:1
+msgid "分享已关闭"
+msgstr "Sharing is disabled"
+
+#: Disabled references:1
+msgid "图形验证验证错误"
+msgstr "Graphical verification error"
+
+#: Disabled references:1
+msgid "需要密码"
+msgstr "Password required"
+
+#: Disabled references:1
+msgid "请输入密码访问"
+msgstr "Please enter password for access"
+
+#: Disabled references:1
+msgid "图形验证失败"
+msgstr "Graphical verification failed"
+
+#: Disabled references:1
+msgid "1小时后"
+msgstr "1 hour later"
+
+#: Disabled references:1
+msgid "1天后"
+msgstr "1 day later"
+
+#: Disabled references:1
+msgid "3天后"
+msgstr "3 days later"
+
+#: Disabled references:1
+msgid "7天后"
+msgstr "7 days later"
+
+#: Disabled references:1
+msgid "密码长度4~8位"
+msgstr "The password should contain 4 to 8 characters"
+
+#: Disabled references:1
+msgid "密码必须包含数字或者字母"
+msgstr "The password must contain numbers or letters"
+
+#: Disabled references:1
+msgid "链接有效期"
+msgstr "Link validity"
+
+#: Disabled references:1
+msgid "密码保护"
+msgstr "Password protection"
+
+#: Disabled references:1
+msgid "请输入4-8位密码"
+msgstr "Please enter the 4-8 characters password"
+
+#: Disabled references:1
+msgid "显示序号"
+msgstr "Show the sequence number"
+
+#: Disabled references:1
+msgid "显示记录快捷方式"
+msgstr "Show the record shortcut"
+
+#: Disabled references:1
+msgid "在记录前显示“更多”图标，点击后可以在下拉菜单中进行记录操作。"
+msgstr "The \"More\" icon is displayed before recording. Click to record in the drop-down menu."
+
+#: Disabled references:1
+msgid "显示汇总行"
+msgstr "Show the rollup lines"
+
+#: Disabled references:1
+msgid "显示垂直表格线"
+msgstr "Show the vertical grid lines"
+
+#: Disabled references:1
+msgid "显示交替行颜色"
+msgstr "Show the alternate line colors"
+
+#: Disabled references:1
+msgid "标题行文字换行"
+msgstr "Wrap the title line"
+
+#: Disabled references:1
+msgid "表格交互方式"
+msgstr "Grid Interaction Mode"
+
+#: Disabled references:1
+msgid "经典模式"
+msgstr "Classic Mode"
+
+#: Disabled references:1
+msgid "点整行打开记录"
+msgstr "Click the full width to open the record"
+
+#: Disabled references:1
+msgid "电子表格模式"
+msgstr "Spreadsheet Mode"
+
+#: Disabled references:1
+msgid "点单元格选中字段，按空格键打开记录"
+msgstr "Click the cell to select the field and press the space bar to open the record"
+
+#: Disabled references:1
+msgid "行内编辑"
+msgstr "Inline editing"
+
+#: Disabled references:1
+msgid "允许行内编辑"
+msgstr "Allow inline editing"
+
+#: Disabled references:1
+msgid "无需打开记录详情，在表格行内直接编辑字段"
+msgstr "Edit fields directly in the table row without opening record details"
+
+#: Disabled references:1
+msgid "地址无法访问"
+msgstr "Address not accessible"
+
+#: Disabled references:1
+msgid "被取消了查看权限或已删除"
+msgstr "View permission canceled or deleted"
+
+#: Disabled references:1
+msgid "已选择%0条草稿"
+msgstr "%0 drafts selected"
+
+#: Disabled references:1
+msgid "您的草稿箱已满，无法保存"
+msgstr "Failed to save the draft, your Draft is full"
+
+#: Disabled references:1
+msgid "草稿箱中的数量已达到10条"
+msgstr "The number of drafts in the Draft has reached 10"
+
+#: Disabled references:1
+msgid "草稿箱中的草稿数量已经达到10条"
+msgstr "The number of drafts in the Draft has reached 10"
+
+#: Disabled references:1
+msgid "查看草稿箱"
+msgstr "View Draft"
+
+#: Disabled references:1
+msgid "地址无法访问\n被取消了查看权限或已删除"
+msgstr "Address not accessible, view permission is canceled or deleted"
+
+#: Disabled references:1
+msgid "服务出错，请刷新重试"
+msgstr "Something wrong, please refresh and try again"
+
+#: Disabled references:1
+msgid "姓名、手机和邮箱为个人账户信息，组织中无法修改"
+msgstr "Name, phone number and email address are personal account information and cannot be modified in the organization"
+
+#: Disabled references:1
+msgid "邀请方式"
+msgstr "Ways to invite"
+
+#: Disabled references:1
+msgid "可直接输入创建新的工作地点"
+msgstr "You can directly enter to create a new work location"
+
+#: Disabled references:1
+msgid "创建新工作地点：%0"
+msgstr "Create a new work location: %0"
+
+#: Disabled references:1
+msgid "刷新失败"
+msgstr "Refresh failed"
+
+#: Disabled references:1
+msgid "刷新所有成员信息"
+msgstr "Refresh all members information"
+
+#: Disabled references:1
+msgid "水平对齐方式"
+msgstr "Horizontal alignment"
+
+#: Disabled references:1
+msgid "每行显示个数"
+msgstr "Number of items displayed per line"
+
+#: Disabled references:1
+msgid "允许容器内滚动"
+msgstr "Allow scrolling through the container"
+
+#: Disabled references:1
+msgid "当统计项较多时，勾选此配置可以在容器内滚动查看"
+msgstr "When there are many statistical items, check this configuration to scroll through the container"
+
+#: Disabled references:1
+msgid "卡片布局"
+msgstr "Card layout"
+
+#: Disabled references:1
+msgid "统计值"
+msgstr "Statistics"
+
+#: Disabled references:1
+msgid "对比值"
+msgstr "Comparisons"
+
+#: Disabled references:1
+msgid "简单"
+msgstr "Simple"
+
+#: Disabled references:1
+msgid "炫酷"
+msgstr "Cool"
+
+#: Disabled references:1
+msgid "左对齐"
+msgstr "Left-aligned"
+
+#: Disabled references:1
+msgid "右对齐"
+msgstr "Right-aligned"
+
+#: Disabled references:1
+msgid "对齐方式"
+msgstr "Alignment"
+
+#: Disabled references:1
+msgid "奇行"
+msgstr "Odd row"
+
+#: Disabled references:1
+msgid "偶行"
+msgstr "Even row"
+
+#: Disabled references:1
+msgid "冻结%0标题"
+msgstr "Freeze %0 title"
+
+#: Disabled references:1
+msgid "PC"
+msgstr "PC"
+
+#: Disabled references:1
+msgid "移动端屏幕尺寸较小，设置时请注意宽度和高度"
+msgstr "The screen size of the mobile terminal is small. Please pay attention to the width and height when setting"
+
+#: Disabled references:1
+msgid "开头显示"
+msgstr "Display at the beginning"
+
+#: Disabled references:1
+msgid "指定字数"
+msgstr "the specified number of characters"
+
+#: Disabled references:1
+msgid "指定字符之前的字"
+msgstr "the characters before the specified characters"
+
+#: Disabled references:1
+msgid "指定字符和之前的字"
+msgstr "the specified characters and the preceding characters"
+
+#: Disabled references:1
+msgid "结尾显示"
+msgstr "Display at the end"
+
+#: Disabled references:1
+msgid "指定字符之后的字"
+msgstr "the characters after the specified characters"
+
+#: Disabled references:1
+msgid "指定字符和之后的字"
+msgstr "the specified characters and characters after it"
+
+#: Disabled references:1
+msgid "掩码设置"
+msgstr "Masking settings"
+
+#: Disabled references:1
+msgid "请填写限制开头显示的%0"
+msgstr "Please fill in the %0 displayed at the beginning of the limit"
+
+#: Disabled references:1
+msgid "字符"
+msgstr "Characters"
+
+#: Disabled references:1
+msgid "请填写限制结尾显示的%0"
+msgstr "Please fill in the %0 displayed at the end of the limit"
+
+#: Disabled references:1
+msgid "虚拟掩码长度应在1～100以内"
+msgstr "Virtual mask length should be within 1 to 100"
+
+#: Disabled references:1
+msgid "掩码规则"
+msgstr "Masking rules"
+
+#: Disabled references:1
+msgid "设置需要显示的字符，其他字符全部显示为掩码"
+msgstr "Please set the characters to be displayed, and all other characters will be displayed as masks"
+
+#: Disabled references:1
+msgid "字数"
+msgstr "Number of characters"
+
+#: Disabled references:1
+msgid "请输入字数"
+msgstr "Please enter the number of characters"
+
+#: Disabled references:1
+msgid "请输入字符"
+msgstr "Please enter characters"
+
+#: Disabled references:1
+msgid "中间显示"
+msgstr "Display in the middle"
+
+#: Disabled references:1
+msgid "按顺序输入显示的字符，多个使用,隔开。如：a,b,c"
+msgstr "Enter the displayed characters in order, and separate multiple characters with ‘,’, e.g. a,b,c"
+
+#: Disabled references:1
+msgid "虚拟掩码长度"
+msgstr "Virtual mask length"
+
+#: Disabled references:1
+msgid "未勾选时，按照真实字数显示掩码；勾选后，按照虚拟字数显示掩码，不暴露真实长度"
+msgstr "When unchecked, the mask is displayed according to the actual number of words; after checking, the mask is displayed according to the virtual number of words without revealing the real length"
+
+#: Disabled references:1
+msgid "个字"
+msgstr "characters"
+
+#: Disabled references:1
+msgid "试一试掩盖效果"
+msgstr "Try the masking effect"
+
+#: Disabled references:1
+msgid "掩盖"
+msgstr "Cover"
+
+#: Disabled references:1
+msgid "掩码显示"
+msgstr "Displayed with the masking effect"
+
+#: Disabled references:1
+msgid "将字段值显示为掩码，应用管理员和有解密权限的用户可以点击后解密查看（解密权限需要在用户-角色-字段权限中配置）。在对外公开分享时始终掩盖"
+msgstr "Display the field value as a mask, and the application administrator and users with decryption permission can click to decrypt and view (the decryption permission needs to be configured in the user-role-field permission). Always mask when sharing publicly"
+
+#: Disabled references:1
+msgid "掩码方式： "
+msgstr "Masking method:"
+
+#: Disabled references:1
+msgid "向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。短信0.05元/条，自动从企业账务中心扣费。"
+msgstr "Send SMS to designated phone number to invite users to register the external portal, and automatically create corresponding user data (membership status is ‘inactive’) under the external portal. The fee (0.05 yuan per SMS) will be automatically deducted from the enterprise accounting center."
+
+#: Disabled references:1
+msgid "邀请1名用户"
+msgstr "Invite one user"
+
+#: Disabled references:1
+msgid "基于多条数据邀请多名用户"
+msgstr "Invite multiple users based on multiple pieces of data"
+
+#: Disabled references:1
+msgid "填充用户信息"
+msgstr "Fill in user information"
+
+#: Disabled references:1
+msgid "根据此字段发送邀请短信，短信0.05元/条"
+msgstr "Send invitation SMS according to this field, 0.05 yuan per SMS"
+
+#: Disabled references:1
+msgid "（获取人员数据节点）"
+msgstr "(Get User Data Node)"
+
+#: Disabled references:1
+msgid "起点"
+msgstr "Starting point"
+
+#: Disabled references:1
+msgid "指定成员"
+msgstr "Designate members’"
+
+#: Disabled references:1
+msgid "的直属部门负责人"
+msgstr "immediate department head"
+
+#: Disabled references:1
+msgid "终点"
+msgstr "Ending point"
+
+#: Disabled references:1
+msgid "该成员在通讯录中的"
+msgstr "The member (in address book)"
+
+#: Disabled references:1
+msgid "允许审批人暂存"
+msgstr "Allow approver to hold"
+
+#: Disabled references:1
+msgid "允许审批人批量、快速处理审批任务（在移动端可以直接点击待审批列表上的按钮进行审批）。在批量处理审批时将忽略表单中的必填字段。"
+msgstr "Allow the approver to process tasks in batch and quickly (on the mobile phone, you can directly click the button on the pending list to approve). During batch approval, the required content will be ignored."
+
+#: Disabled references:1
+msgid "获取一名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级（可选）），供流程中的其他节点使用。"
+msgstr "Get information about one user, including personal info (name, gender, birthday, mobile phone, email) and organization info (department, position, job number, superiors and subordinates (optional)) for further use by other nodes."
+
+#: Disabled references:1
+msgid "获取多名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级（可选）），供流程中的其他节点使用。"
+msgstr "Get information about several users, including personal info (name, gender, birthday, mobile phone, email) and organization info (department, position, job number, superiors and subordinates (optional)) for further use by other nodes."
+
+#: Disabled references:1
+msgid "获取汇报关系"
+msgstr "Get reporting relationship"
+
+#: Disabled references:1
+msgid "同时获取人员的汇报关系信息新增支持获取汇报关系"
+msgstr "Get added support to obtain the reporting relationship of the user at the same time"
+
+#: Disabled references:1
+msgid "包含人员的直属上司、直接下属、所有下属；如果您的使用场景无需汇报关系相关信息，推荐不勾选以提升您的查询效率"
+msgstr "Including the user's direct supervisor, direct subordinate, and all subordinates; if your usage scenario does not require reporting relationship-related information, it is recommended to uncheck it to improve your query efficiency"
+
+#: Disabled references:1
+msgid "业务流程输入数组"
+msgstr "Business Process Input Arrays"
+
+#: Disabled references:1
+msgid "业务流程输出数组"
+msgstr "Business Process Output Arrays"
+
+#: Disabled references:1
+msgid "密码不能少于4位"
+msgstr "Password cannot be less than 4 characters"
+
+#: Disabled references:1
+msgid "密码必须由字母+数字组成"
+msgstr "Password must contain letters and numbers"
+
+#: Disabled references:1
+msgid "链接有效期不能为空"
+msgstr "Link validity cannot be empty"
+
+#: Disabled references:1
+msgid "设置链接有效期"
+msgstr "Set link validity"
+
+#: Disabled references:1
+msgid "指定时长"
+msgstr "Appointed Duration"
+
+#: Disabled references:1
+msgid "允许填写人暂存"
+msgstr "Allow applicant to hold"
+
+#: Disabled references:1
+msgid "更新用户信息"
+msgstr "Update user information"
+
+#: Disabled references:1
+msgid "邀请多名用户"
+msgstr "Invite multiple users"
+
+#: Disabled references:1
+msgid "填充%0个用户信息字段"
+msgstr "Fill in %0 user information"
+
+#: Disabled references:1
+msgid "从业务流程输入数组获取数据"
+msgstr "Getting data from business process input arrays"
+
+#: Disabled references:1
+msgid "从业务流程输出数组获取数据"
+msgstr "Getting data from business process output arrays"
+
+#: Disabled references:1
+msgid "审批结果分支"
+msgstr "Approval result branch"
+
+#: Disabled references:1
+msgid "获取发送API请求、调用已集成API、代码块、业务流程输入/输出节点的JSON数组对象"
+msgstr "Get JSON array objects that send API requests, call integrated APIs, code blocks, and business process input/output nodes"
+
+#: Disabled references:1
+msgid "获取单条人员/部门/组织角色数据"
+msgstr "Get single piece of user/department/organizational roles data"
+
+#: Disabled references:1
+msgid "获取多条人员/部门/组织角色数据"
+msgstr "Get multiple pieces of uses/department/organizational roles data"
+
+#: Disabled references:1
+msgid "更新外部用户信息"
+msgstr "Update external user information"
+
+#: Disabled references:1
+msgid "邀请外部用户"
+msgstr "Invite external users"
+
+#: Disabled references:1
+msgid "分支固定为“通过”和“否决”。如果你同时需要对“否决”审批的数据进行处理时选择此分支"
+msgstr "The branches are fixed to “Pass” and “Rejected”. Select this branch if you need to process the ‘Rejected’ data"
+
+#: Disabled references:1
+msgid "一级："
+msgstr "Level 1:"
+
+#: Disabled references:1
+msgid "%0级："
+msgstr "Level %0:"
+
+#: Disabled references:1
+msgid "打开记录（空格）"
+msgstr "Open record (space)"
+
+#: Disabled references:1
+msgid "关闭（esc）"
+msgstr "Close (Esc)"
+
+#: Disabled references:1
+msgid "使用 %0 创建"
+msgstr "Create with %0"
+
+#: Disabled references:1
+msgid "搜索流程节点对象下的字段"
+msgstr "Select the field under the node object"
+
+#: Disabled references:1
+msgid "设置列权限"
+msgstr "Set column permissions"
+
+#: Disabled references:1
+msgid "未开启时按照子表本身权限，开启后可配置审批节点中的列权限"
+msgstr "If not enabled, the permissions of the subform will apply, if enabled, the column permissions in the approval node can be configured"
 

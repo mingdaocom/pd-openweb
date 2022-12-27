@@ -26,9 +26,9 @@ export default class OtherInput extends Component {
   render() {
     const { advancedSetting = {}, value, options, isSelect, className, disabled, fromFilter } = this.props;
 
-    if (fromFilter) return null;
-
     const { checkIds, otherValue } = getCheckAndOther(value);
+    if (fromFilter || (disabled && !otherValue)) return null;
+
     const noDelOptions = options.filter(i => !i.isDeleted);
 
     const compositionOptions = {
@@ -50,19 +50,19 @@ export default class OtherInput extends Component {
       return (
         <div className={className} style={isSelect || disabled ? {} : { paddingLeft: '26px' }}>
           <TextArea
-            disabled={disabled}
             maxLength={200}
             className={cx('customFormControlBox customFormTextareaBox', {
               mTop10: isSelect,
               mobileCustomFormTextareaBox: browserIsMobile(),
+              controlDisabled: disabled,
             })}
-            style={{ padding: '7px 12px 6px' }}
+            style={{ padding: disabled ? '0px' : '7px 12px 6px' }}
             manualRef={text => {
               this.text = text;
             }}
             autoSize={true}
             defaultValue={otherValue || ''}
-            placeholder={advancedSetting.otherhint || _l('请输入补充信息')}
+            placeholder={advancedSetting.otherhint}
             onChange={e => {
               if (!this.isOnComposition) {
                 this.handleChange(checkIds, e.target.value.trim());

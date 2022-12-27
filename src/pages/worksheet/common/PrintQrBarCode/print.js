@@ -13,6 +13,7 @@ import {
   QR_LABEL_SIZES,
 } from './enum';
 import jsPDF from 'jspdf';
+import _ from 'lodash';
 
 function cutText(text, fontSize, width) {
   fontSize = fontSize || 12;

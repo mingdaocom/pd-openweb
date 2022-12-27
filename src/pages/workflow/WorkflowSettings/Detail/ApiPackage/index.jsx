@@ -7,6 +7,7 @@ import cx from 'classnames';
 import ConnectParam from 'src/pages/integration/components/ConnectParam';
 import ConnectAuth from 'src/pages/integration/components/ConnectAuth';
 import { APP_TYPE } from '../../enum';
+import _ from 'lodash';
 
 export default class ApiPackage extends Component {
   constructor(props) {

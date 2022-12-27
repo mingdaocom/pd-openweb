@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 根据账号查找用户
   * @param {Object} args 请求参数

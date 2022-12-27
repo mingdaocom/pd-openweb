@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import cx from 'classnames';
-import { getFilterRows } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import Option from './StyledOption';
+import _ from 'lodash';
 
 const Con = styled.div`
   position: relative;
@@ -26,7 +27,7 @@ export default function RelateRecordOptions(props) {
       isGetWorksheet: true,
       getType: 7,
     };
-    const res = await getFilterRows(args);
+    const res = await worksheetAjax.getFilterRows(args);
     setLoading(false);
     setRecords(res.data);
   }

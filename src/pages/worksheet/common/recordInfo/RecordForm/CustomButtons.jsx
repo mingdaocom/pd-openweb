@@ -8,9 +8,10 @@ import IconText from 'worksheet/components/IconText';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import FillRecordControls from '../FillRecordControls';
 import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
-import { updateWorksheetRow, getWorksheetInfo } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
-import { startProcess } from 'src/pages/workflow/api/process';
+import processAjax from 'src/pages/workflow/api/process';
+import _ from 'lodash';
 
 const MenuItemWrap = styled(MenuItem)`
   &.disabled {
@@ -124,14 +125,16 @@ export default class CustomButtons extends React.Component {
   triggerImmediately(btnId) {
     const { worksheetId, recordId, loadBtns, onButtonClick } = this.props;
     onButtonClick(btnId);
-    startProcess({
-      appId: worksheetId,
-      sources: [recordId],
-      triggerId: btnId,
-      pushUniqueId: md.global.Config.pushUniqueId,
-    }).then(data => {
-      loadBtns();
-    });
+    processAjax
+      .startProcess({
+        appId: worksheetId,
+        sources: [recordId],
+        triggerId: btnId,
+        pushUniqueId: md.global.Config.pushUniqueId,
+      })
+      .then(data => {
+        loadBtns();
+      });
   }
 
   @autobind
@@ -196,7 +199,7 @@ export default class CustomButtons extends React.Component {
       });
       return;
     }
-    updateWorksheetRow(args).then(res => {
+    worksheetAjax.updateWorksheetRow(args).then(res => {
       if (res && res.data) {
         this.setStateFn({
           fillRecordControlsVisible: false,
@@ -249,7 +252,7 @@ export default class CustomButtons extends React.Component {
         rowId: recordId,
       });
     } else {
-      const worksheetInfo = await getWorksheetInfo({
+      const worksheetInfo = await worksheetAjax.getWorksheetInfo({
         worksheetId,
         getTemplate: true,
       });

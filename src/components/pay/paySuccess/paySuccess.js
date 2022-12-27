@@ -3,8 +3,8 @@ import './paySuccess.css'
 import doT from '@mdfe/dot';
 import rowsTpl from './tpl/paySuccess.html';
 import commonHeader from 'components/commonHeader';
-
-var orderController = require('src/api/order');
+import orderController from 'src/api/order';
+import moment from 'moment';
 
 var paySuccess = {};
 var ORDERTYPE = {
@@ -44,6 +44,7 @@ paySuccess.getPayResult = function () {
         var strHtml = doT.template(rowsTpl)({
           data: data,
           ORDERTYPE: ORDERTYPE,
+          moment,
         });
         $('#paySuccess').html(strHtml.toString());
       } else {

@@ -8,6 +8,7 @@ import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-ho
 import { isNumberControl, normTypes, emptyShowTypes } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import _ from 'lodash';
 
 const SortableItemContent = styled.div`
   position: relative;
@@ -239,7 +240,7 @@ export default class YAxis extends Component {
       )
     }
 
-    if ([reportTypes.NumberChart, reportTypes.CountryLayer].includes(reportType)) {
+    if ([reportTypes.CountryLayer].includes(reportType)) {
       return _.isEmpty(yaxisList) && Content;
     }
 

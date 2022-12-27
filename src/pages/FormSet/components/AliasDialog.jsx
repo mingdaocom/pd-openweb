@@ -3,7 +3,8 @@ import { Dialog, Icon } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
 import './AliasDialog.less';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
+import _ from 'lodash';
 export default class AliasDialog extends React.Component {
   constructor(props) {
     super(props);
@@ -28,14 +29,14 @@ export default class AliasDialog extends React.Component {
         .then(res => {
           const { template = [] } = res;
           const { controls = [] } = template;
-          let controlsList = controls.filter(item => !_.includes(SYS, item.controlId));
+          let controlsList = controls.filter(item => !_.includes(ALL_SYS, item.controlId));
           this.setState({
             controls: controlsList,
             controlsOriginal: controlsList,
           });
         });
     } else {
-      let controlsList = controls.filter(item => !_.includes(SYS, item.controlId));
+      let controlsList = controls.filter(item => !_.includes(ALL_SYS, item.controlId));
       this.setState({
         controls: controlsList,
         controlsOriginal: controlsList,
@@ -192,7 +193,7 @@ export default class AliasDialog extends React.Component {
                         }
                         if (
                           it.alias &&
-                          (controls.filter(o => it.alias === o.alias).length > 1 || SYS.includes(it.alias))
+                          (controls.filter(o => it.alias === o.alias).length > 1 || ALL_SYS.includes(it.alias))
                         ) {
                           this.setState({
                             isChange: false,
@@ -200,7 +201,9 @@ export default class AliasDialog extends React.Component {
                             isError: false,
                           });
                           alert(
-                            SYS.includes(it.alias) ? _l('该别名与系统字段的别名相同，请重新输入') : _l('该别名已存在'),
+                            ALL_SYS.includes(it.alias)
+                              ? _l('该别名与系统字段的别名相同，请重新输入')
+                              : _l('该别名已存在'),
                             2,
                           );
                           return;

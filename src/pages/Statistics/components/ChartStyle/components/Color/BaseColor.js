@@ -5,6 +5,7 @@ import { Icon } from 'ming-ui';
 import { colorGroup, reportTypes } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common';
 import './BaseColor.less';
+import _ from 'lodash';
 
 export default class BaseColor extends Component {
   constructor(props) {

@@ -5,6 +5,7 @@ import { func, shape, string, number } from 'prop-types';
 import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
 import { Input } from 'ming-ui';
 import moment from 'moment';
+import _ from 'lodash';
 
 const InputCon = styled(Input)`
   width: 100%;

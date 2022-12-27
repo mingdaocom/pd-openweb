@@ -8,14 +8,17 @@ import Label from './components/Label';
 import XAxis from './components/XAxis';
 import yAxisPanelGenerator from './components/YAxis';
 import unitPanelGenerator from './components/Unit';
+import numberStylePanelGenerator, { numberSummaryPanelGenerator } from './components/NumberStyle';
 import Color from './components/Color/index';
-import FontSize from './components/FontSize';
+import PreinstallStyle from './components/PreinstallStyle';
+import TitleStyle from './components/TitleStyle';
 import { reportTypes, LegendTypeData } from 'statistics/Charts/common';
 import { isTimeControl } from 'statistics/common';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'statistics/redux/actions';
 import './index.less';
+import _ from 'lodash';
 
 @connect(
   state => ({
@@ -193,6 +196,9 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+  renderNumberCount() {
+    return numberSummaryPanelGenerator({ ...this.props, onChangeDisplayValue: this.handleChangeDisplayValue });
+  }
   handleChangeLineSummary = (data, isRequest = true) => {
     const { pivotTable = {} } = this.props.currentReport;
     this.props.changeCurrentReport(
@@ -221,6 +227,70 @@ export default class ChartStyle extends Component {
         },
       },
       isRequest
+    );
+  }
+  renderNumberStyle() {
+    return numberStylePanelGenerator({ ...this.props, onChangeStyle: this.handleChangeStyle });
+  }
+  renderPreinstallStyle() {
+    const { style } = this.props.currentReport;
+    return (
+      <Collapse.Panel
+        key="preinstallStyle"
+        header={_l('预设样式')}
+      >
+        <PreinstallStyle
+          style={style}
+          onChangeStyle={this.handleChangeStyle}
+        />
+      </Collapse.Panel>
+    );
+  }
+  renderCell() {
+    const { style } = this.props.currentReport;
+    return (
+      <Collapse.Panel
+        key="cell"
+        header={_l('单元格')}
+      >
+        <TitleStyle
+          type="cell"
+          style={style}
+          onChangeStyle={this.handleChangeStyle}
+        />
+      </Collapse.Panel>
+    );
+  }
+  renderLineTitleStyle() {
+    const { style } = this.props.currentReport;
+    return (
+      <Collapse.Panel
+        key="lineTitleStyle"
+        header={_l('行标题')}
+      >
+        <TitleStyle
+          name={_l('行')}
+          type="line"
+          style={style}
+          onChangeStyle={this.handleChangeStyle}
+        />
+      </Collapse.Panel>
+    );
+  }
+  renderColumnTitleStyle() {
+    const { style } = this.props.currentReport;
+    return (
+      <Collapse.Panel
+        key="columnTitleStyle"
+        header={_l('列标题')}
+      >
+        <TitleStyle
+          name={_l('列')}
+          type="column"
+          style={style}
+          onChangeStyle={this.handleChangeStyle}
+        />
+      </Collapse.Panel>
     );
   }
   renderPivotTableLineCount() {
@@ -510,55 +580,6 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
-  renderTableHeaderFreeze() {
-    const { style = {} } = this.props.currentReport;
-    const { pivotTableLineFreeze, pivotTableColumnFreeze } = style;
-    const freezeChecked = pivotTableLineFreeze || pivotTableColumnFreeze;
-    return (
-      <Collapse.Panel
-        key="headerFreeze"
-        header={_l('表头冻结')}
-        className={cx({ collapsible: !freezeChecked })}
-        extra={
-          <Switch
-            size="small"
-            checked={freezeChecked}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              this.handleChangeStyle({
-                pivotTableLineFreeze: checked,
-                pivotTableColumnFreeze: checked,
-              });
-            }}
-          />
-        }
-      >
-        <div className="flexColumn">
-          <div className="Gray_75 mBottom15">{_l('表头冻结配置只对桌面端有效')}</div>
-          <Checkbox
-            className="mLeft0 mBottom15"
-            checked={pivotTableLineFreeze}
-            onChange={() => {
-              this.handleChangeStyle({ pivotTableLineFreeze: !pivotTableLineFreeze });
-            }}
-          >
-            {_l('冻结维度(行)')}
-          </Checkbox>
-          <Checkbox
-            className="mLeft0 mBottom15"
-            checked={pivotTableColumnFreeze}
-            onChange={() => {
-              this.handleChangeStyle({ pivotTableColumnFreeze: !pivotTableColumnFreeze });
-            }}
-          >
-            {_l('冻结维度(列)')}
-          </Checkbox>
-        </div>
-      </Collapse.Panel>
-    );
-  }
   renderLegend() {
     const { displaySetup, yaxisList, split, reportType } = this.props.currentReport;
 
@@ -745,45 +766,6 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
-  renderFontSize() {
-    const { currentReport, changeCurrentReport } = this.props;
-    return (
-      <Collapse.Panel header={_l('字体大小')} key="fontSize">
-        <FontSize
-          currentReport={currentReport}
-          onChangeCurrentReport={changeCurrentReport}
-          onChangeStyle={this.handleChangeStyle}
-        />
-      </Collapse.Panel>
-    )
-  }
-  renderExportType() {
-    const { currentReport, changeCurrentReport } = this.props;
-    const { exportType } = currentReport.displaySetup;
-    return (
-      <Collapse.Panel
-        key="exportType"
-        header={_l('导出Excel数据格式')}
-        extra={
-          <Switch
-            size="small"
-            checked={exportType}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              this.handleChangeDisplaySetup({
-                ...currentReport.displaySetup,
-                exportType: checked ? 1 : 0
-              });
-            }}
-          />
-        }
-      >
-        <div className="Gray_75 mBottom20">{_l('按统计显示单位导出')}</div>
-      </Collapse.Panel>
-    );
-  }
   renderExpandIcon(panelProps) {
     return (
       <Icon
@@ -799,18 +781,20 @@ export default class ChartStyle extends Component {
     return (
       <div className="chartStyle">
         <Collapse className="chartCollapse" expandIcon={this.renderExpandIcon} ghost>
-          {reportTypes.NumberChart !== reportType && (
-            reportTypes.PivotTable === reportType ? (
-              <Fragment key="pivotTableCount">
-                {this.renderPivotTableLineCount()}
-                {this.renderPivotTableColumnCount()}
-              </Fragment>
-            ) : (
-              this.renderCount()
-            )
+          {reportTypes.PivotTable === reportType ? (
+            <Fragment key="pivotTableCount">
+              {this.renderPreinstallStyle()}
+              {this.renderCell()}
+              {this.renderLineTitleStyle()}
+              {this.renderColumnTitleStyle()}
+              {this.renderPivotTableLineCount()}
+              {this.renderPivotTableColumnCount()}
+            </Fragment>
+          ) : (
+            reportTypes.NumberChart === reportType ? this.renderNumberCount() : this.renderCount()
           )}
+          {reportTypes.NumberChart === reportType && this.renderNumberStyle()}
           {[reportTypes.PivotTable].includes(reportType) && this.renderLineHeight()}
-          {[reportTypes.PivotTable].includes(reportType) && this.renderTableHeaderFreeze()}
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable].includes(reportType) &&
             this.renderLegend()}
           {[reportTypes.LineChart, reportTypes.BarChart, reportTypes.DualAxes].includes(reportType) &&
@@ -824,8 +808,6 @@ export default class ChartStyle extends Component {
           {this.renderUnit()}
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable].includes(reportType) &&
             this.renderColor()}
-          {[reportTypes.NumberChart].includes(reportType) && this.renderFontSize()}
-          {/*{this.renderExportType()}*/}
         </Collapse>
       </div>
     );

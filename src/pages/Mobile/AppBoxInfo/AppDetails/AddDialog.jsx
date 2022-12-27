@@ -4,6 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { Modal, List, Toast } from 'antd-mobile';
 import axios from 'axios';
 import './AddDialog.less';
+import _ from 'lodash';
 
 const getRef = WrapperdComponent => {
   return props => {
@@ -27,9 +28,9 @@ class AddDialog extends Component {
 
     Toast.loading(_l('正在添加'), 0);
     this.props.onCancel();
-
+    let baseUrl =(md && md.global && md.global.SysSettings && md.global.SysSettings.templateLibraryTypes === '2') ? __api_server__.main : 'https://pd.mingdao.com/api/';
     axios
-      .post(`https://pd.mingdao.com/api/AppManagement/GetLibraryToken`, {
+      .post(`${baseUrl}AppManagement/GetLibraryToken`, {
         projectId,
         libraryId,
       })

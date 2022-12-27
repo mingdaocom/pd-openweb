@@ -2,6 +2,10 @@
 import * as actions from 'src/pages/chat/redux/actions';
 import * as utils from 'src/pages/chat/utils';
 import departmentController from 'src/api/department';
+import doT from '@mdfe/dot';
+import userController from 'src/api/user';
+import groupController from 'src/api/group';
+import cardTpl from './tpl/mdBusinessCard.html';
 
 var BusinessCard = function (element, options) {
   this.type = null;
@@ -16,10 +20,6 @@ var BusinessCard = function (element, options) {
   this.init('businesscard', element, options);
 };
 
-import doT from '@mdfe/dot';
-var userController = require('src/api/user');
-var groupController = require('src/api/group');
-import cardTpl from './tpl/mdBusinessCard.html';
 /**
  * @typedef {object} cardTypeEnum
  * @type {{USER: number, GROUP: number, SECRET: number}}
@@ -32,6 +32,7 @@ var TYPES = {
 };
 
 import './css/mdBusinessCard.less';
+import _ from 'lodash';
 
 BusinessCard.DEFAULTS = {
   id: 'businessCard',

@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import RecordBlock from './RecordBlock';
 import RecordInfo from 'worksheet/views/GunterView/components/RecordInfo';
+import _ from 'lodash';
 
 @connect(
   state => ({

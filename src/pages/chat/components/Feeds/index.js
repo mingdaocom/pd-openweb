@@ -94,11 +94,6 @@ export class FeesItem extends Component {
                 noText: '',
               }}
               readyFn={function(Comp) {
-                $('#chatFeedDialog_container').on('scroll', () => {
-                  if (typeof $.fn.lazyload === 'function') {
-                    $('#chatFeedDialog_container .lazy').lazyload();
-                  }
-                });
                 $('#chatFeedDialog_container').on('click', event => {
                   if (!$(event.target).closest('#chatFeedDialog').length) {
                     Comp.closeDialog();

@@ -1,8 +1,9 @@
-import { getWorksheetShareUrl, updateWorksheetRowShareRange, updateWorksheetShareRange } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { getNewRecordPageUrl } from 'worksheet/util';
-import { updatePublicWorksheetState } from 'src/api/publicWorksheet';
-import { getEntityShare, editEntityShareStatus } from 'src/api/appManagement';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
+import appManagementAjax from 'src/api/appManagement';
 import { getRecordLandUrl } from 'src/pages/worksheet/common/recordInfo/crtl';
+import _ from 'lodash';
 
 /**
  * 记录详情 recordInfo [ok]
@@ -40,76 +41,91 @@ export async function getUrl(args) {
 }
 
 export async function getPublicShare(args) {
-  const { from } = args;
-  let url, res;
+  const { from, validTime, password, isEdit } = args;
+  let res;
   if (args.isPublic === false) {
     return;
   }
   switch (from) {
     case 'recordInfo':
-      url = await getWorksheetShareUrl({
+      res = await worksheetAjax.getWorksheetShareUrl({
         appId: args.appId,
         worksheetId: args.worksheetId,
         viewId: args.viewId,
         rowId: args.rowId,
         objectType: 2,
+        validTime,
+        password,
+        isEdit,
       });
       break;
     case 'view':
-      url = await getWorksheetShareUrl({
+      res = await worksheetAjax.getWorksheetShareUrl({
         appId: args.appId,
         worksheetId: args.worksheetId,
         viewId: args.viewId,
         objectType: 1,
+        validTime,
+        password,
+        isEdit,
       });
       break;
     case 'customPage':
     case 'report':
-      res = await getEntityShare({
+      res = await appManagementAjax.getEntityShare({
+        appId: args.appId,
         sourceId: args.sourceId,
         sourceType: from === 'report' ? 31 : 21,
       });
-      url = res.url;
+      res.shareLink = res.url;
       break;
   }
-  return url;
+  return res;
 }
 
 export async function updatePublicShareStatus(args) {
-  const { from, isPublic, onUpdate } = args;
-  let url, res;
+  const { from, isPublic, onUpdate, validTime, password } = args;
+  let res;
   switch (from) {
     case 'recordInfo':
-      await updateWorksheetRowShareRange({
+      await worksheetAjax.updateWorksheetRowShareRange({
+        appId: args.appId,
         worksheetId: args.worksheetId,
         rowId: args.rowId,
+        viewId: args.viewId,
         shareRange: isPublic ? 2 : 1,
+        objectType: 2,
       });
       if (isPublic) {
-        url = await getWorksheetShareUrl({
+        res = await worksheetAjax.getWorksheetShareUrl({
+          appId: args.appId,
           worksheetId: args.worksheetId,
           rowId: args.rowId,
+          viewId: args.viewId,
           objectType: 2,
         });
       }
       break;
     case 'newRecord':
-      res = await updatePublicWorksheetState({
+      res = await publicWorksheetAjax.updatePublicWorksheetState({
         worksheetId: args.worksheetId,
         visibleType: isPublic ? 2 : 1,
       });
       if (isPublic) {
-        url = res.url;
+        res.shareLink = res.url;
       }
+      onUpdate({ visibleType: isPublic ? 2 : 1 });
       break;
     case 'view':
-      res = await updateWorksheetShareRange({
+      res = await worksheetAjax.updateWorksheetShareRange({
+        appId: args.appId,
         worksheetId: args.worksheetId,
         viewId: args.viewId,
         shareRange: isPublic ? 2 : 1,
+        objectType: 1,
       });
       if (isPublic) {
-        url = await getWorksheetShareUrl({
+        res = await worksheetAjax.getWorksheetShareUrl({
           appId: args.appId,
           worksheetId: args.worksheetId,
           viewId: args.viewId,
@@ -120,17 +136,19 @@ export async function updatePublicShareStatus(args) {
       break;
     case 'customPage':
     case 'report':
-      res = await editEntityShareStatus({
+      res = await appManagementAjax.editEntityShareStatus({
         sourceId: args.sourceId,
         sourceType: from === 'report' ? 31 : 21,
         status: isPublic ? 1 : 0,
+        validTime,
+        password
       });
       if (isPublic) {
-        url = res.appEntityShare.url;
+        res.shareLink = res.appEntityShare.url;
       }
       break;
   }
-  return url;
+  return res;
 }
 
 /**

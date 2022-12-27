@@ -336,7 +336,8 @@ function getTotalUsedSize() {
 function globalSearch(args) {
   return kc.globalSearch(args).then(assignHashFunc);
 }
-module.exports = {
+
+export default {
   getRoots,
   getRootDetail,
   getRootName,

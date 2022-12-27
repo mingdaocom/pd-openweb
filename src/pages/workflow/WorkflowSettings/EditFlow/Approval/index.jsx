@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, MembersName, NodeOperate } from '../components';
+import _ from 'lodash';
 
 export default class Approval extends Component {
   constructor(props) {
@@ -27,7 +28,14 @@ export default class Approval extends Component {
     }
 
     if (_.includes([1, 2], item.multipleLevelType)) {
-      return <div className="pLeft8 pRight8">{_l('按部门层级逐级审批')}</div>;
+      return (
+        <Fragment>
+          <div className="pLeft8 pRight8">{_l('按部门层级逐级审批')}</div>
+          <div className="pLeft8 pRight8 mTop4">
+            <MembersName accounts={item.accounts} multipleLevelAccounts={item.multipleLevelAccounts} />
+          </div>
+        </Fragment>
+      );
     }
 
     if (!item.accounts.length) {

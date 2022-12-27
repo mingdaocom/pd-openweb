@@ -1,8 +1,9 @@
 import { PUSH_TYPE } from '../WorkflowSettings/enum';
 import sheetAjax from 'src/api/worksheet';
 import homeAppAjax from 'src/api/homeApp';
-import { addRecord } from 'worksheet/common/newRecord';
+import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
+import _ from 'lodash';
 
 const getWorksheetInfo = worksheetId => {
   return new Promise((resolve, reject) => {

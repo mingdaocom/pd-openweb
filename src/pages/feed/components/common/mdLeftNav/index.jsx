@@ -5,7 +5,7 @@ import React from 'react';
 import './mdLeftNav.css';
 
 function MDLeftNav(props) {
-  return <div className={cx('fixedContainer mdLeftNav clearfix', props.className)}>{props.children}</div>;
+  return <div className={cx('Fixed mdLeftNav clearfix', props.className)}>{props.children}</div>;
 }
 MDLeftNav.propTypes = {
   className: PropTypes.string,

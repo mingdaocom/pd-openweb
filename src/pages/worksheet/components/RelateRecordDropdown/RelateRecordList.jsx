@@ -77,7 +77,10 @@ export default class RelateRecordList extends React.PureComponent {
   }
 
   handleUpdateScroll(newIndex) {
-    const itemHeight = 36;
+    let itemHeight = 34;
+    try {
+      itemHeight = this.con.current.querySelector(`.RelateRecordListItem:nth-child(${newIndex})`).offsetHeight;
+    } catch (err) {}
     const scrollContent = this.con.current.querySelector('.nano-content');
     const height = scrollContent.clientHeight;
     const scrollTop = scrollContent.scrollTop;
@@ -184,6 +187,13 @@ export default class RelateRecordList extends React.PureComponent {
           controls: res.template ? res.template.controls : [],
           worksheet: res.worksheet || {},
         });
+        if (pageIndex === 1) {
+          if (newRecords[0]) {
+            this.setState({
+              activeId: newRecords[0].rowid,
+            });
+          }
+        }
       } else {
         this.setState({
           loading: false,
@@ -308,9 +318,10 @@ export default class RelateRecordList extends React.PureComponent {
         {allowNewRecord && allowAdd && !window.isPublicWorksheet && (!error || error === 'notCorrectCondition') && (
           <div
             className="RelateRecordList-create"
-            onClick={(...args) => {
+            onClick={e => {
+              e.stopPropagation();
               this.setState({ activeId: undefined });
-              onNewRecord(...args);
+              onNewRecord(e);
             }}
           >
             <i className="icon icon-plus"></i> {worksheet.entityName || (control && control.sourceEntityName)}

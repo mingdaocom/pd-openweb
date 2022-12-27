@@ -8,6 +8,7 @@ import { TABS } from '../index';
 import SvgIcon from 'src/components/SvgIcon';
 import { getDateScope } from '../config';
 import './index.less';
+import _ from 'lodash';
 
 const selectArrowIcon = <Icon icon="expand_more" className="Gray_9e Font20" />;
 

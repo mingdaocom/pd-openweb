@@ -10,6 +10,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
+import _ from 'lodash';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 const Box = styled.span`

@@ -4,6 +4,7 @@ import { Modal, ScrollView, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import _ from 'lodash';
 
 const Header = styled.div`
   height: 52px;

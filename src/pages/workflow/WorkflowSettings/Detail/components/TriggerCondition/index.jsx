@@ -13,7 +13,8 @@ import ActionFields from '../ActionFields';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
 import { Tooltip, TimePicker } from 'antd';
-import DialogSelectOrgRole from 'src/components/DialogSelectOrgRole';
+import { selectOrgRole } from 'src/components/DialogSelectOrgRole';
+import moment from 'moment';
 
 export default class TriggerCondition extends Component {
   static propTypes = {
@@ -49,7 +50,6 @@ export default class TriggerCondition extends Component {
       showControlsIndex: '',
       moreFieldsIndex: '',
       controlsData: this.getFieldData(props.controls),
-      visibleRoleDialog: false,
     };
   }
 
@@ -60,7 +60,6 @@ export default class TriggerCondition extends Component {
   }
 
   cacheCityPickerData = [];
-  cacheOptions = {};
 
   /**
    * 获取字段
@@ -408,7 +407,7 @@ export default class TriggerCondition extends Component {
    * 渲染单个条件的值
    */
   renderItemValue(item, controlNumber = 0, i, j, showType, unit) {
-    const { isNodeHeader } = this.props;
+    const { isNodeHeader, projectId } = this.props;
 
     if (_.isEmpty(item)) {
       return <div className="flex triggerConditionNum triggerConditionDisabled" />;
@@ -786,13 +785,12 @@ export default class TriggerCondition extends Component {
                     _.includes(['9', '10'], item.conditionId) && enumDefault === 0,
                   );
                 } else {
-                  this.cacheOptions = {
-                    oldRoles: conditionValues,
+                  this.selectRole(
+                    conditionValues,
                     i,
                     j,
-                    unique: _.includes(['9', '10'], item.conditionId) && enumDefault === 0,
-                  };
-                  this.setState({ visibleRoleDialog: true });
+                    _.includes(['9', '10'], item.conditionId) && enumDefault === 0,
+                  );
                 }
               }}
             >
@@ -997,6 +995,24 @@ export default class TriggerCondition extends Component {
         }
 
         this.updateConditionValue({ value: departments, i, j, isSingle: unique });
+      },
+    });
+  }
+
+  /**
+   * 组织角色选择
+   */
+  selectRole(oldRoles, i, j, unique) {
+    selectOrgRole({
+      projectId: this.props.projectId,
+      unique,
+      onSave: roles => {
+        if (!unique) {
+          const oldIds = oldRoles.map(item => item.value.key);
+          _.remove(roles, item => _.includes(oldIds, item.organizeId));
+        }
+
+        this.updateConditionValue({ value: roles, i, j, isSingle: unique });
       },
     });
   }
@@ -1248,8 +1264,7 @@ export default class TriggerCondition extends Component {
   };
 
   render() {
-    const { projectId, Header, data } = this.props;
-    const { visibleRoleDialog } = this.state;
+    const { Header, data } = this.props;
 
     return (
       <Fragment>
@@ -1259,30 +1274,6 @@ export default class TriggerCondition extends Component {
             item.map((source, j) => this.renderItem(source, i, j, i === data.length - 1, j === item.length - 1)),
           )}
         </div>
-
-        {visibleRoleDialog && (
-          <DialogSelectOrgRole
-            projectId={projectId}
-            orgRoleDialogVisible
-            unique={this.cacheOptions.unique}
-            onSave={roles => {
-              const unique = this.cacheOptions.unique;
-
-              if (!unique) {
-                const oldIds = this.cacheOptions.oldRoles.map(item => item.value.key);
-                _.remove(roles, item => _.includes(oldIds, item.organizeId));
-              }
-
-              this.updateConditionValue({
-                value: roles,
-                i: this.cacheOptions.i,
-                j: this.cacheOptions.j,
-                isSingle: unique,
-              });
-            }}
-            onClose={() => this.setState({ visibleRoleDialog: false })}
-          />
-        )}
       </Fragment>
     );
   }

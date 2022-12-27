@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取头部即时数据
   * @param {Object} args 请求参数

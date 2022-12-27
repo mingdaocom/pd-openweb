@@ -8,6 +8,7 @@ import History from './History';
 import ProcessConfig from './ProcessConfig';
 import processVersion from '../api/processVersion';
 import { getFlowInfo, getProcessById, clearSource } from '../redux/actions';
+import _ from 'lodash';
 
 class WorkflowSettings extends Component {
   constructor(props) {

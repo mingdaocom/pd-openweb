@@ -8,6 +8,7 @@ import CreateRecordAndTask from './CreateRecordAndTask';
 import DeleteNodeObj from './DeleteNodeObj';
 import RelationFields from './RelationFields';
 import { checkConditionsIsNull } from '../../utils';
+import _ from 'lodash';
 
 export default class Action extends Component {
   constructor(props) {
@@ -123,7 +124,7 @@ export default class Action extends Component {
     // 新增验证必填项
     if (actionId === ACTION_ID.ADD) {
       data.controls.forEach(item => {
-        if (item.required) {
+        if (item.required || _.includes(['portal_mobile', 'portal_role'], item.controlId)) {
           fields.forEach(o => {
             if (item.controlId === o.fieldId && !o.fieldValue && !o.fieldValueId) {
               hasError++;
@@ -170,7 +171,7 @@ export default class Action extends Component {
   renderContent() {
     const { data, cacheKey } = this.state;
 
-    // 新增工作表记录 || 创建任务
+    // 新增工作表记录 || 创建任务 || 邀请外部用户
     if (data.actionId === ACTION_ID.ADD) {
       return (
         <CreateRecordAndTask
@@ -184,7 +185,7 @@ export default class Action extends Component {
       );
     }
 
-    // 修改工作表记录
+    // 修改工作表记录 || 更新外部用户信息
     if (data.actionId === ACTION_ID.EDIT) {
       return (
         <UpdateSheetRecord
@@ -283,7 +284,7 @@ export default class Action extends Component {
    */
   getIcon = data => {
     const { appType, actionId } = data;
-    const { TASK, PROCESS } = APP_TYPE;
+    const { TASK, PROCESS, EXTERNAL_USER } = APP_TYPE;
     const { EDIT, ADD, RELATION, DELETE } = ACTION_ID;
 
     if (appType === TASK) {
@@ -292,10 +293,10 @@ export default class Action extends Component {
       return 'icon-parameter';
     } else {
       if (actionId === EDIT) {
-        return 'icon-workflow_update';
+        return appType === EXTERNAL_USER ? 'icon-update_information' : 'icon-workflow_update';
       }
       if (actionId === ADD) {
-        return 'icon-workflow_new';
+        return appType === EXTERNAL_USER ? 'icon-invited_users' : 'icon-workflow_new';
       }
       if (actionId === RELATION) {
         return 'icon-workflow_search';
@@ -337,6 +338,7 @@ export default class Action extends Component {
                   !data.selectNodeObj.nodeName &&
                   !data.selectNodeObj.appName) ||
                 (data.actionId === ACTION_ID.ADD &&
+                  data.appType !== APP_TYPE.EXTERNAL_USER &&
                   ((data.appId && !_.find(data.appList, item => item.id === data.appId)) || !data.appId))) && (
                 <div className="Gray_9e Font13 flexRow flowDetailTips">
                   <i className="icon-task-setting_promet Font16" />

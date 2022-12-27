@@ -2,9 +2,10 @@ import React, { Component, Fragment } from 'react';
 import { Checkbox } from 'ming-ui';
 import UserHead from 'src/pages/feed/components/userHead';
 import UserName from 'src/pages/feed/components/userName';
-import { getDepartmentFullNameById } from 'src/api/department.js';
+import departmentAjax from 'src/api/department.js';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 
 export default class User extends Component {
   constructor(props) {
@@ -21,7 +22,7 @@ export default class User extends Component {
     if (this.promise && this.promise.state && this.promise.state() === 'pending') {
       this.promise.abort();
     }
-    this.promise = getDepartmentFullNameById({ departmentId, projectId });
+    this.promise = departmentAjax.getDepartmentFullNameById({ departmentId, projectId });
     this.promise.then(res => {
       this.setState({ currentFullDepartment: res, departmentId });
     });

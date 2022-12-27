@@ -5,6 +5,8 @@ import project from 'src/api/project';
 import redirect from './redirect';
 import { LoadDiv } from 'ming-ui';
 import { getPssId, setPssId } from 'src/util/pssId';
+import _ from 'lodash';
+import moment from 'moment';
 
 function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   const urlparams = qs.parse(unescape(unescape(window.location.search.slice(1))));
@@ -12,7 +14,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   const urlObj = new URL(decodeURIComponent(location.href));
   if (/^#publicapp/.test(urlObj.hash)) {
     window.isPublicApp = true;
-    window.publicAppAuthorization = urlObj.hash.slice(10);
+    window.publicAppAuthorization = urlObj.hash.slice(10).replace('#isPrivateBuild', '');
   }
   if (transfertoken && urlparams.token) {
     args.token = urlparams.token;
@@ -148,6 +150,17 @@ function parseShareId() {
   if (/\/form/.test(location.pathname)) {
     window.shareState.isPublicQuery = true;
     window.shareState.shareId = (location.pathname.match(/.*\/form\/(\w{32})/) || '')[1];
+  }
+  if (/\/public\/view/.test(location.pathname)) {
+    window.shareState.isPublicView = true;
+    window.shareState.shareId = (location.pathname.match(/.*\/public\/view\/(\w{24})/) || '')[1];
+  }
+  if (/\/public\/record/.test(location.pathname)) {
+    window.shareState.isPublicRecord = true;
+    window.shareState.shareId = (location.pathname.match(/.*\/public\/record\/(\w{24})/) || '')[1];
+  }
+  if (/\/public\/workflow/.test(location.pathname)) {
+    window.shareState.shareId = (location.pathname.match(/.*\/public\/workflow\/(\w{24})/) || '')[1];
   }
 }
 

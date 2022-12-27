@@ -8,6 +8,7 @@ import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { SUBMIT_NEXT_ACTION_LIST } from 'src/pages/FormSet/config';
+import _ from 'lodash';
 const Con = styled.div`
   p {
     margin: 0;
@@ -162,6 +163,7 @@ function SubmitFormSetting(props) {
   const [formSetting, setFormSetting] = useState();
   const [name, SetName] = useState(''); //临时存放
   const [isSaveIData, SetIsSaveIData] = useState(true);
+  const [openDraft, setOpenDraft] = useState(false);
   const { worksheetInfo = {}, worksheetId } = props;
   const { views = [] } = worksheetInfo;
   const [btnList, setBtnList] = useState([]);
@@ -190,6 +192,7 @@ function SubmitFormSetting(props) {
         continueview = '',
         subview = '',
         showcontinue = '1',
+        closedrafts = '',
       } = advancedSetting;
       const data = {
         title,
@@ -201,6 +204,7 @@ function SubmitFormSetting(props) {
         continuestatus, //创建按钮开闭状态
         continueview, //继续创建视图下拉款
         showcontinue, //更多设置是否显示继续创建,保留上次提交的内容
+        closedrafts, // 关闭存草稿
       };
       setFormSetting(data);
       updateSet(data);
@@ -228,6 +232,7 @@ function SubmitFormSetting(props) {
     let status =
       (formSetting.continueafter === '2' || formSetting.subafter === '2') && formSetting.showcontinue === '1';
     SetIsSaveIData(status);
+    setOpenDraft(formSetting.closedrafts !== '1');
   };
 
   const inputRender = (cb, n) => {
@@ -422,6 +427,20 @@ function SubmitFormSetting(props) {
           return renderBtnCon(o, i);
         })}
         <h5>{_l('更多设置')}</h5>
+        <div className="moreActionCon flexRow mTop12">
+          <div className="flex">
+            <h6 className="mTop20">{_l('存草稿')}</h6>
+            <p className="Gray_9e">{_l('在表单中显示存草稿按钮，草稿数据在下次打开时可以继续编辑并提交')}</p>
+          </div>
+          <div className="mRight16 mLeft40 Relative">
+            <Switch
+              checked={openDraft}
+              onClick={() => {
+                updateData(!openDraft ? '0' : '1', 'closedrafts');
+              }}
+            />
+          </div>
+        </div>
         <div className="moreActionCon flexRow mTop12">
           <div className="flex">
             <h6 className="mTop20">{_l('显示“继续创建时，保留上次提交内容”选项')}</h6>

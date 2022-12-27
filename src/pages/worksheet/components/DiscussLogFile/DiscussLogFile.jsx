@@ -8,6 +8,7 @@ import WorksheetLog from './WorksheetLog';
 import WorksheetRocordLog from '../WorksheetRecordLog/WorksheetRocordLog';
 import './DiscussLogFile.less';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import _ from 'lodash';
 
 @errorBoundary
 class DiscussLogFile extends Component {

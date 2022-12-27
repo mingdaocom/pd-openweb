@@ -4,6 +4,7 @@ import { classSet } from '../../utils/util';
 import global from '../../config/globalConfig';
 import './customFormula.less';
 import SingleFormula from './singleFormula';
+import _ from 'lodash';
 
 class CustomFormula extends React.Component {
   constructor(props) {

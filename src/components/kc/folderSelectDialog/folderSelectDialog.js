@@ -5,9 +5,10 @@ import { expireDialogAsync } from 'src/components/common/function';
 import doT from '@mdfe/dot';
 import rootTpl from './tpl/rootTpl.html';
 import nodeTpl from './tpl/nodeTpl.html';
-var ajax = require('src/api/kc');
+import ajax from 'src/api/kc';
 import { htmlEncodeReg } from 'src/util';
 import { index as dialog } from 'src/components/mdDialog/dialog';
+import _ from 'lodash';
 
 var PICK_TYPE = {
     MYFILE: 1,

@@ -8,11 +8,12 @@ import { getToken } from 'src/util';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { NODE_VISIBLE_TYPE, PICK_TYPE } from '../../../constant/enum';
-import { addNodeViewCount } from '../../../api/service';
+import kcService from '../../../api/service';
 import { EXT_TYPE_DIC, PREVIEW_TYPE, LOADED_STATUS } from '../constant/enum';
 import { splitFileName } from '../constant/util';
 import ACTION_TYPES from '../constant/actionTypes';
 import * as ajax from '../ajax';
+import _ from 'lodash';
 
 function addViewCount(attachment) {
   if (!attachment || !md.global.Account || !md.global.Account.accountId || !_.get(attachment, 'sourceNode.fileID')) {
@@ -24,7 +25,7 @@ function addViewCount(attachment) {
       fromType: attachment.sourceNode.fromType,
     });
   } else if (attachment.previewAttachmentType === 'KC') {
-    addNodeViewCount(attachment.sourceNode.refId || attachment.sourceNode.id);
+    kcService.addNodeViewCount(attachment.sourceNode.refId || attachment.sourceNode.id);
   }
 }
 
@@ -63,7 +64,12 @@ function loadAttachment(attachment, options = {}) {
     };
     if (window.shareState && window.shareState.shareId) {
       args.shareId = window.shareState.shareId;
-      args.type = window.shareState.isRecordShare ? 3 : window.shareState.isPublicQuery ? 11 : 14;
+      args.type =
+        window.shareState.isRecordShare || window.shareState.isPublicRecord
+          ? 3
+          : window.shareState.isPublicQuery || window.shareState.isPublicView
+          ? 11
+          : 14;
     }
     attachmentPromise = attachmentAjax.getAttachmentDetail(args).then(data => {
       if (!data) {

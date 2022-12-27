@@ -290,20 +290,21 @@
                   color: #757575;
                   box-sizing: border-box;
                   &.checkBox {
-                    width: 32px;
-                    min-width: 32px;
+                    width: 44px;
+                    min-width: 44px;
                     position: sticky;
                     background: #fff;
                     left: 0;
                     z-index: 2;
                     padding-right: 0;
+                    padding-left: 12px;
                   }
                   &.nameTh {
                     position: sticky;
                     width: 200px;
                     min-width: 200px;
                     background: #fff;
-                    left: 32px;
+                    left: 44px;
                     z-index: 2;
                     line-height: 32px;
                   }
@@ -407,12 +408,11 @@
           .theadContainer::-webkit-scrollbar {
             width: 0 !important;
             height: 0 !important;
+            display: none;
           }
           .theadContainer {
             -ms-overflow-style: none;
-          }
-          .theadContainer {
-            overflow: -moz-scrollbars-none;
+            scrollbar-width: none;
           }
           .tbodyContainer {
             width: 100%;
@@ -432,20 +432,21 @@
                     padding-right: 24px;
                     box-sizing: border-box;
                     &.checkBox {
-                      width: 32px;
-                      min-width: 32px;
+                      width: 44px;
+                      min-width: 44px;
                       position: sticky;
                       background: #fff;
                       left: 0;
                       z-index: 1;
                       padding-right: 0;
+                      padding-left: 12px;
                     }
                     &.nameTh {
                       position: sticky;
                       width: 200px;
                       min-width: 200px;
                       background: #fff;
-                      left: 32px;
+                      left: 44px;
                       z-index: 1;
                       a {
                         color: #333 !important;
@@ -570,6 +571,11 @@
                         color: #1e88e5 !important;
                       }
                     }
+                  }
+                }
+                .bgColor {
+                  td {
+                    background-color: #f7f7f7 !important;
                   }
                 }
               }
@@ -940,7 +946,7 @@
   }
 }
 
-.userOpList {
+.userOptlist {
   min-width: 126px;
   padding: 6px 0;
 

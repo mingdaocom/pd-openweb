@@ -2,6 +2,7 @@
 import config from '../../../config';
 import RadioGroup from '../../common/radioGroup';
 import firstInputSelect from '../../common/firstInputSelect';
+import _ from 'lodash';
 
 @firstInputSelect
 class SettingsModel extends React.Component {

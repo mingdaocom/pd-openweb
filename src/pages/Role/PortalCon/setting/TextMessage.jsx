@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util.js';
+import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { getStringBytes } from 'src/util';
 import { Icon } from 'ming-ui';
 import MailSettingsDialog from 'src/pages/Role/PortalCon/components/MailSettingsDialog';
@@ -174,7 +174,7 @@ export default function TextMessage(props) {
           onFocus={() => {
             preSign = emailSignature;
           }}
-          maxLength={'32'}//32个字符以内
+          maxLength={'32'} //32个字符以内
           onBlur={e => {
             if (!e.target.value.trim()) {
               setEmailSignature(preSign);

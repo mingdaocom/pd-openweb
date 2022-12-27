@@ -5,6 +5,8 @@ import accountSetting from 'src/api/accountSetting';
 import cx from 'classnames';
 import './index.less';
 import langConfig from 'src/common/langConfig';
+import common from '../common';
+import _ from 'lodash';
 
 const configs = [
   // {
@@ -19,15 +21,6 @@ const configs = [
 ];
 
 const languagueList = [{ key: 'zh-Hans', value: '简体中文' }].concat(langConfig);
-
-const settingOptions = {
-  joinFriendMode: 5,
-  isPrivateMobile: 9,
-  isPrivateEmail: 10,
-  isOpenMessageSound: 14,
-  isOpenMessageTwinkle: 15
-};
-
 export default class AccountChart extends React.Component {
   constructor(props) {
     super(props);
@@ -39,7 +32,6 @@ export default class AccountChart extends React.Component {
       // 邮箱是否仅自己可见
       isPrivateEmail: false,
       loading: false,
-      isHasWeixin: false,
     };
   }
 
@@ -54,7 +46,6 @@ export default class AccountChart extends React.Component {
         joinFriendMode: data.joinFriendMode,
         isPrivateMobile: data.isPrivateMobile,
         isPrivateEmail: data.isPrivateEmail,
-        isHasWeixin: data.isHasWeixin,
         isOpenMessageSound: data.isOpenMessageSound,
         isOpenMessageTwinkle: data.isOpenMessageTwinkle,
         loading: false,
@@ -66,7 +57,7 @@ export default class AccountChart extends React.Component {
   sureSettings(settingNum, value, successCallback) {
     accountSetting
       .editAccountSetting({
-        settingType: settingOptions[settingNum],
+        settingType: common.settingOptions[settingNum],
         settingValue: value,
       })
       .then(data => {
@@ -115,9 +106,7 @@ export default class AccountChart extends React.Component {
         {configs.map((item, index) => {
           return (
             <div className="systemSettingItem" key={index}>
-              <div className="systemSettingsLabel Gray_75">
-                {item.label}
-              </div>
+              <div className="systemSettingsLabel Gray_75">{item.label}</div>
               <div className="systemSettingsRight">{this[item.component]()}</div>
             </div>
           );
@@ -125,23 +114,37 @@ export default class AccountChart extends React.Component {
         <div className="systemSettingItem borderNoe">
           <div className="systemSettingsLabel Gray_75">{_l('浏览器新消息通知')}</div>
           <div className="systemSettingsRight">
-            <div className='Gray_75 mBottom16'>{_l('当有新消息时以何种方式提醒')}</div>
-            <div className='mBottom16'> <Checkbox checked={this.state.isOpenMessageSound} onClick={(isOpenMessageSound) => {
-              this.sureSettings('isOpenMessageSound', !isOpenMessageSound ? 1 : 0, () => {
-                window.isOpenMessageSound = !isOpenMessageSound;
-                this.setState({
-                  isOpenMessageSound: !isOpenMessageSound,
-                });
-              });
-            }}>{_l('通知音')} </Checkbox> </div>
-            <div> <Checkbox checked={this.state.isOpenMessageTwinkle} onClick={(isOpenMessageTwinkle) => {
-              this.sureSettings('isOpenMessageTwinkle', !isOpenMessageTwinkle ? 1 : 0, () => {
-                window.isOpenMessageTwinkle = !isOpenMessageTwinkle;
-                this.setState({
-                  isOpenMessageTwinkle: !isOpenMessageTwinkle,
-                });
-              });
-            }}>{_l('浏览器标签闪烁')}</Checkbox> </div>
+            <div className="Gray_75 mBottom16">{_l('当有新消息时以何种方式提醒')}</div>
+            <div className="mBottom16">
+              <Checkbox
+                checked={this.state.isOpenMessageSound}
+                onClick={isOpenMessageSound => {
+                  this.sureSettings('isOpenMessageSound', !isOpenMessageSound ? 1 : 0, () => {
+                    window.isOpenMessageSound = !isOpenMessageSound;
+                    this.setState({
+                      isOpenMessageSound: !isOpenMessageSound,
+                    });
+                  });
+                }}
+              >
+                {_l('通知音')}
+              </Checkbox>
+            </div>
+            <div>
+              <Checkbox
+                checked={this.state.isOpenMessageTwinkle}
+                onClick={isOpenMessageTwinkle => {
+                  this.sureSettings('isOpenMessageTwinkle', !isOpenMessageTwinkle ? 1 : 0, () => {
+                    window.isOpenMessageTwinkle = !isOpenMessageTwinkle;
+                    this.setState({
+                      isOpenMessageTwinkle: !isOpenMessageTwinkle,
+                    });
+                  });
+                }}
+              >
+                {_l('浏览器标签闪烁')}
+              </Checkbox>
+            </div>
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ import LibCalender from '../../lib/calender';
 import Checkbox from '../../Checkbox';
 import Button from '../../Button';
 import Dropdown from '../../Dropdown';
+import _ from 'lodash';
 
 class DateTimeRangeDoublePicker extends Component {
   constructor(props) {

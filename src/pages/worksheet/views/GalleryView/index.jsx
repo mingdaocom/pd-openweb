@@ -11,12 +11,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import ViewEmpty from '../components/ViewEmpty';
 import { isEmpty } from 'lodash';
-import { renderCellText } from 'worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import GalleryItem from './GalleryItem';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'worksheet/redux/actions/galleryview';
-import { addRecord } from 'worksheet/common/newRecord';
+import addRecord from 'worksheet/common/newRecord/addRecord';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
@@ -128,7 +128,7 @@ export default class RecordGallery extends Component {
   };
 
   formData = row => {
-    const { base, controls, views } = this.props;
+    const { base, controls, views, sheetSwitchPermit } = this.props;
     const { viewId } = base;
     const view = views.find(o => o.viewId === viewId) || {};
     const { displayControls = [] } = view;
@@ -140,8 +140,18 @@ export default class RecordGallery extends Component {
       // 标题字段
       arr.push({ ..._.pick(titleControl, RENDER_RECORD_NECESSARY_ATTR), value: parsedRow[titleControl.controlId] });
     }
+    const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
+    let displayControlsCopy = !isShowWorkflowSys
+      ? displayControls.filter(
+          it =>
+            !_.includes(
+              ['wfname', 'wfstatus', 'wfcuaids', 'wfrtime', 'wfftime', 'wfdtime', 'wfcaid', 'wfctime', 'wfcotime'],
+              it,
+            ),
+        )
+      : displayControls;
     // 配置的显示字段
-    displayControls.forEach(id => {
+    displayControlsCopy.forEach(id => {
       const currentControl = _.find(controls, ({ controlId }) => controlId === id);
       if (currentControl) {
         const value = parsedRow[id];
@@ -260,13 +270,12 @@ export default class RecordGallery extends Component {
               fields: this.formData(item),
               formData,
               rowId: item.rowid,
-              abstractValue:
-                abstract //&& controlState(abstractData).visible //排除无查看权限的
-                  ? renderCellText({
-                      ...abstractData,
-                      value: item[abstract],
-                    })
-                  : '',
+              abstractValue: abstract //&& controlState(abstractData).visible //排除无查看权限的
+                ? renderCellText({
+                    ...abstractData,
+                    value: item[abstract],
+                  })
+                : '',
             };
             return (
               <div

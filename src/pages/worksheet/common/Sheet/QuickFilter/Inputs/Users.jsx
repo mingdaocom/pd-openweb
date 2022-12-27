@@ -4,6 +4,7 @@ import { arrayOf, func, number, string } from 'prop-types';
 import UserHead from 'src/pages/feed/components/userHead';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import 'src/components/dialogSelectUser/dialogSelectUser';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

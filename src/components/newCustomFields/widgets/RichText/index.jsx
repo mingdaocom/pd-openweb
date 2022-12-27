@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { RichText } from 'ming-ui';
 import { browserIsMobile } from 'src/util';
 import autoSize from 'ming-ui/decorators/autoSize';
+import _ from 'lodash';
 @autoSize
 export default class Widgets extends Component {
   static propTypes = {

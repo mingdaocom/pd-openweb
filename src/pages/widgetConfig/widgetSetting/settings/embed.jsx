@@ -4,7 +4,7 @@ import { Checkbox, Dropdown, LoadDiv } from 'ming-ui';
 import { Input } from 'antd';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import reportApi from 'statistics/api/report.js';
 import SelectStaticChartFromSheet from '../components/embed/SelectStaticChartFromSheet';
@@ -14,6 +14,7 @@ import { SYSTEM_CONTROL } from '../../config/widget';
 import TextInput from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/TextInput';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const EMBED_TYPES = [
   {
@@ -125,7 +126,7 @@ export default function Embed(props) {
     if (!worksheetId) return;
     if (!loading) setCommonState({ loading: true });
 
-    getWorksheetInfo({
+    worksheetAjax.getWorksheetInfo({
       worksheetId: worksheetId,
       getTemplate: true,
       getViews: false,

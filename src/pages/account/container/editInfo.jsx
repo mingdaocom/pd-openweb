@@ -9,6 +9,7 @@ import account from 'src/api/account';
 let request = getRequest();
 import { inputFocusFn, inputBlurFn, setWarnningData } from '../util';
 import { encrypt } from 'src/util';
+import _ from 'lodash';
 
 export default class EditInfo extends React.Component {
   constructor(props) {

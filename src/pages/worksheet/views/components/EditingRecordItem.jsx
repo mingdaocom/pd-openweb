@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { updateWorksheetRow } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 import EditText from './EditText';
 import BaseCard from './BaseCard';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
+import _ from 'lodash';
 
 const EditingCardWrap = styled.div`
   position: absolute;
@@ -41,7 +42,7 @@ export default function EditingRecord(props) {
       const currentIndex = stateData.path.length - 1;
       worksheetId = _.get(viewControls[currentIndex], 'worksheetId');
     }
-    updateWorksheetRow({ rowId, worksheetId, newOldControl: [{ ...controlItem, value }] }).then(res => {
+    worksheetAjax.updateWorksheetRow({ rowId, worksheetId, newOldControl: [{ ...controlItem, value }] }).then(res => {
       if (res.data && res.resultCode === 1) {
         const nextControl = { [controlItem.controlId]: value };
         updateTitleData({ data: nextControl, rowId });

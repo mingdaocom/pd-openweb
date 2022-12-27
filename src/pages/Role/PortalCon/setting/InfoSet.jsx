@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import PortalSettingDialog from 'src/pages/widgetConfig/widgetSetting/components/PortalSettingDialog';
+import _ from 'lodash';
 
 const filterAlias = ['mobilephone', 'avatar', 'roleid', 'status', 'firstLoginTime', 'openid', 'portal_email'];
 const Wrap = styled.div`

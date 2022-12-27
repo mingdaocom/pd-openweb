@@ -3,6 +3,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Icon } from 'ming-ui';
 import { COLORS, ICONS } from 'src/pages/worksheet/common/CreateCustomBtn/config.js';
 import cx from 'classnames';
+import _ from 'lodash';
 
 @withClickAway
 class CustomBtnList extends React.Component {

@@ -21,6 +21,7 @@ import { FROM } from 'src/components/newCustomFields/tools/config';
 import { Icon } from 'ming-ui';
 import { completeControls } from 'worksheet/util';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 const MAX_COUNT = 50;
 
@@ -261,6 +262,7 @@ export default class RelateRecordCards extends Component {
       openRelateSheet,
       sourceEntityName,
       advancedSetting,
+      isCharge,
     } = control;
     const { showAll, controls } = this.state;
     const allowlink = (advancedSetting || {}).allowlink;
@@ -303,14 +305,14 @@ export default class RelateRecordCards extends Component {
                 viewId={viewId}
                 disabled={disabled}
                 width={cardWidth}
+                isCharge={isCharge}
                 key={i}
                 controls={this.controls}
                 data={record}
                 cover={this.getCoverUrl(coverCid, record)}
                 allowlink={allowlink}
-                title={
-                  record.rowid ? getTitleTextFromRelateControl(control, record) : _l('关联当前%0', sourceEntityName)
-                }
+                parentControl={control}
+                sourceEntityName={sourceEntityName}
                 onClick={
                   (disabled && !recordId) ||
                   (control.isSubList && _.get(window, 'shareState.shareId')) ||
@@ -384,6 +386,7 @@ export default class RelateRecordCards extends Component {
       sourceEntityName,
       sheetSwitchPermit,
       advancedSetting,
+      isCharge,
     } = control;
     const { showAddRecord, previewRecord, showNewRecord, sheetTemplateLoading } = this.state;
     const [, , onlyRelateByScanCode] = strDefault.split('').map(b => !!+b);
@@ -489,6 +492,7 @@ export default class RelateRecordCards extends Component {
                   showControls={showControls}
                   appId={appId}
                   viewId={viewId}
+                  isCharge={isCharge}
                   masterRecordRowId={recordId}
                   relateSheetId={dataSource}
                   parentWorksheetId={worksheetId}

@@ -6,6 +6,8 @@ import projectController from 'src/api/project';
 import accountController from 'src/api/account';
 import { encrypt } from 'src/util';
 import captcha from 'src/components/captcha';
+import _ from 'lodash';
+import moment from 'moment';
 const { TextArea } = Input;
 
 const reasons = [

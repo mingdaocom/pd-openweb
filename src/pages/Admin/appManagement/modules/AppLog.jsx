@@ -9,6 +9,7 @@ import Config from '../../config';
 import { createLinksForMessage } from 'src/components/common/function';
 import { downloadFile } from 'src/util';
 import './index.less';
+import _ from 'lodash';
 
 const headerBarData = [
   { label: _l('操作日志'), type: 'logs', apiAction: 'getLogs' },

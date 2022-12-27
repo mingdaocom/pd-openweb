@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { autobind } from 'core-decorators';
-import RecordCardListDialog from 'src/components/recordCardListDialog';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { FILTER_CONDITION_TYPE } from '../../enum';
+import _ from 'lodash';
 
 function safeParse(str) {
   try {
@@ -76,7 +76,25 @@ export default class RelateRecord extends React.Component {
     const { records, selectRecordVisible } = this.state;
     return (
       <div className="worksheetFilterRelateRecordCondition">
-        <div className={cx('recordsCon', { disabled })} onClick={() => this.setState({ selectRecordVisible: true })}>
+        <div
+          className={cx('recordsCon', { disabled })}
+          onClick={() => {
+            import('src/components/recordCardListDialog').then(({ selectRecord }) => {
+              selectRecord({
+                allowNewRecord: false,
+                multiple: !this.selectSingle,
+                coverCid: control.coverCid,
+                filterRowIds: records.map(r => r.id),
+                showControls: control.showControls,
+                appId: control.appId,
+                viewId: control.viewId,
+                relateSheetId: control.dataSource,
+                visible: true,
+                onOk: this.addRecord,
+              });
+            });
+          }}
+        >
           {records.length ? (
             records.map((record, index) => (
               <div className="recordItem" key={index}>
@@ -96,7 +114,7 @@ export default class RelateRecord extends React.Component {
           ) : (
             <span className="placeholder">{_l('请选择')}</span>
           )}
-          {selectRecordVisible && (
+          {/* {selectRecordVisible && (
             <RecordCardListDialog
               allowNewRecord={false}
               multiple={!this.selectSingle}
@@ -110,7 +128,7 @@ export default class RelateRecord extends React.Component {
               onClose={() => this.setState({ selectRecordVisible: false })}
               onOk={this.addRecord}
             />
-          )}
+          )} */}
         </div>
       </div>
     );

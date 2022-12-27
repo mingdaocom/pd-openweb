@@ -23,7 +23,7 @@ class Feed extends React.Component {
       >
         <div className="mdLeftNav feedLeftNav ThemeBG  feedLeftNavGlass" />
         <FeedLeftNav defaultGroups={this.props.defaultExpandedGroup} />
-        <div className="left feedContainer relativeContainer">
+        <div className="left feedContainer relative">
           <div className="contentLeft clearfix">
             <div className="feedContainerMain Left">
               <Updater />

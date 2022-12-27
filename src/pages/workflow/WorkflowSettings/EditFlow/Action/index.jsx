@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
 import { ACTION_ID, APP_TYPE } from '../../enum';
+import _ from 'lodash';
 
 export default class Action extends Component {
   constructor(props) {
@@ -13,24 +14,27 @@ export default class Action extends Component {
    */
   renderContent() {
     const { item } = this.props;
-    const isSheet = _.includes([APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION], item.appType);
 
     if (
       (!item.appId && !item.selectNodeId && item.appType !== APP_TYPE.PROCESS) ||
-      (item.appType === APP_TYPE.PROCESS && !item.fields.length)
+      (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER], item.appType) && !item.fields.length)
     ) {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
     }
 
     // 更新记录
-    if (isSheet && item.actionId === ACTION_ID.EDIT) {
+    if (_.includes([APP_TYPE.SHEET, APP_TYPE.EXTERNAL_USER], item.appType) && item.actionId === ACTION_ID.EDIT) {
       if (item.selectNodeName) {
         return (
           <Fragment>
-            <div className="workflowContentInfo ellipsis workflowContentBG">
-              <span className="Gray_9e mRight5">{item.appTypeName}</span>“{item.appName}”
+            {item.appType !== APP_TYPE.EXTERNAL_USER && (
+              <div className="workflowContentInfo ellipsis workflowContentBG">
+                <span className="Gray_9e mRight5">{item.appTypeName}</span>“{item.appName}”
+              </div>
+            )}
+            <div className="pLeft8 pRight8 mTop8 Gray_75">
+              {item.appType === APP_TYPE.EXTERNAL_USER ? _l('更新用户信息') : _l('更新记录')}
             </div>
-            <div className="pLeft8 pRight8 mTop8 Gray_75">{_l('更新记录')}</div>
             {item.fields.length === 0 ? (
               <div className="pLeft8 pRight8 mTop4 yellow pBottom5">{_l('未设置可执行的动作')}</div>
             ) : (
@@ -54,7 +58,7 @@ export default class Action extends Component {
     }
 
     // 新增工作表记录
-    if (isSheet && item.actionId === ACTION_ID.ADD) {
+    if (item.appType === APP_TYPE.SHEET && item.actionId === ACTION_ID.ADD) {
       if (item.appName) {
         return (
           <Fragment>
@@ -85,7 +89,7 @@ export default class Action extends Component {
     }
 
     // 删除记录
-    if (isSheet && item.actionId === ACTION_ID.DELETE) {
+    if (item.appType === APP_TYPE.SHEET && item.actionId === ACTION_ID.DELETE) {
       if (item.appName) {
         return (
           <Fragment>
@@ -106,7 +110,7 @@ export default class Action extends Component {
     }
 
     // 获得指定关联记录
-    if (isSheet && item.actionId === ACTION_ID.RELATION) {
+    if (item.appType === APP_TYPE.SHEET && item.actionId === ACTION_ID.RELATION) {
       if (item.selectNodeName) {
         if (!item.controlName || !item.sourceEntityName) {
           return (
@@ -139,7 +143,7 @@ export default class Action extends Component {
     }
 
     // 新建任务
-    if (item.appType === APP_TYPE.TASK && item.actionId === ACTION_ID.ADD) {
+    if (item.appType === APP_TYPE.TASK) {
       if (item.appName) {
         return (
           <Fragment>
@@ -175,12 +179,80 @@ export default class Action extends Component {
         </div>
       );
     }
+
+    // 邀请外部用户
+    if (item.appType === APP_TYPE.EXTERNAL_USER && item.actionId === ACTION_ID.ADD) {
+      if (item.appName) {
+        return (
+          <Fragment>
+            <div className="pLeft8 pRight8 ellipsis Gray_75">
+              {item.selectNodeId ? _l('邀请多名用户') : _l('邀请1名用户')}
+            </div>
+            {item.fields.length === 0 ? (
+              <div className="pLeft8 pRight8 mTop4 yellow">{_l('未设置可执行的动作')}</div>
+            ) : (
+              <div className="pLeft8 pRight8 mTop4 Gray_75">
+                {_l('填充%0个用户信息字段', item.fields.length)}
+                {item.errorFields.length > 0 ? '，' : ''}
+                <span className="yellow">{item.errorFields.length || ''}</span>
+                {item.errorFields.length > 0 ? _l('个字段存在异常') : ''}
+              </div>
+            )}
+          </Fragment>
+        );
+      }
+
+      return (
+        <div className="pLeft8 pRight8 red">
+          <i className="icon-workflow_info Font18 mRight5" />
+          {_l('工作表已删除')}
+        </div>
+      );
+    }
+  }
+
+  /**
+   * 获取图标
+   */
+  getIcon() {
+    const { item } = this.props;
+
+    if (item.appType === APP_TYPE.SHEET && item.actionId === ACTION_ID.EDIT) {
+      return 'icon-workflow_update';
+    }
+
+    if (item.appType === APP_TYPE.SHEET && item.actionId === ACTION_ID.ADD) {
+      return 'icon-workflow_new';
+    }
+
+    if (item.appType === APP_TYPE.SHEET && item.actionId === ACTION_ID.DELETE) {
+      return 'icon-hr_delete';
+    }
+
+    if (item.appType === APP_TYPE.SHEET && item.actionId === ACTION_ID.RELATION) {
+      return 'icon-workflow_search';
+    }
+
+    if (item.appType === APP_TYPE.TASK) {
+      return 'icon-custom_assignment';
+    }
+
+    if (item.appType === APP_TYPE.PROCESS) {
+      return 'icon-parameter';
+    }
+
+    if (item.appType === APP_TYPE.EXTERNAL_USER && item.actionId === ACTION_ID.EDIT) {
+      return 'icon-update_information';
+    }
+
+    if (item.appType === APP_TYPE.EXTERNAL_USER && item.actionId === ACTION_ID.ADD) {
+      return 'icon-invited_users';
+    }
   }
 
   render() {
     const { processId, item, disabled, selectNodeId, openDetail } = this.props;
-    const isSheet = _.includes([APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION, APP_TYPE.PROCESS], item.appType);
-    const bgClassName = isSheet ? 'BGYellow' : 'BGGreen';
+    const bgClassName = item.appType === APP_TYPE.TASK ? 'BGGreen' : 'BGYellow';
 
     return (
       <div className="flexColumn">
@@ -192,7 +264,7 @@ export default class Action extends Component {
               {
                 errorShadow:
                   (((item.appId || item.selectNodeId) && item.appType !== APP_TYPE.PROCESS) ||
-                    (item.appType === APP_TYPE.PROCESS && item.fields.length)) &&
+                    (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER], item.appType) && item.fields.length)) &&
                   item.isException,
               },
               { active: selectNodeId === item.id },
@@ -204,20 +276,10 @@ export default class Action extends Component {
                 className={cx(
                   'workflowAvatar',
                   (!item.appId && !item.selectNodeId && item.appType !== APP_TYPE.PROCESS) ||
-                    (item.appType === APP_TYPE.PROCESS && !item.fields.length)
+                    (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER], item.appType) && !item.fields.length)
                     ? 'BGGray'
                     : bgClassName,
-                  {
-                    'icon-workflow_update':
-                      isSheet && item.actionId === ACTION_ID.EDIT && item.appType !== APP_TYPE.PROCESS,
-                  },
-                  { 'icon-workflow_new': isSheet && item.actionId === ACTION_ID.ADD },
-                  { 'icon-hr_delete': isSheet && item.actionId === ACTION_ID.DELETE },
-                  {
-                    'icon-workflow_search': isSheet && item.actionId === ACTION_ID.RELATION,
-                  },
-                  { 'icon-custom_assignment': item.appType === APP_TYPE.TASK },
-                  { 'icon-parameter': isSheet && item.appType === APP_TYPE.PROCESS },
+                  this.getIcon(),
                 )}
               />
             </div>

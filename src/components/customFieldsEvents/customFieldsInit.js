@@ -1,4 +1,4 @@
-﻿import $ from 'jquery';
+﻿
 import config from './js/config';
 import { cuntomFieldsEvents } from './js/customFieldsEvents';
 import doT from '@mdfe/dot';
@@ -8,6 +8,8 @@ import CustomScore from './js/customScore';
 import nzh from 'nzh';
 import { initControls } from './init';
 import { getClassNameByExt } from 'src/util';
+import _ from 'lodash';
+import moment from 'moment';
 
 const URL_REG = /((?:(https?(?::\/\/)(www\.)?)|(www\.))[a-z0-9-_.]+(?:\.[a-z0-9]{2,})(?:[-a-z0-9:%_+.~#?&//=@]*))/gi;
 const linkify = text => {
@@ -33,6 +35,7 @@ export default function customFieldsInit(options) {
           linkify: linkify,
           getClassNameByExt: getClassNameByExt,
           nzhCn: nzh.cn,
+          moment,
         }),
       )
       .addClass('Relative');

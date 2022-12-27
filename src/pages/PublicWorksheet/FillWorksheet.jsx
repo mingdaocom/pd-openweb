@@ -10,6 +10,7 @@ import { addWorksheetRow } from './action';
 import { getSubListError, filterHidedSubList } from 'worksheet/util';
 import { checkMobileVerify, controlState } from 'src/components/newCustomFields/tools/utils';
 import './index.less';
+import _ from 'lodash';
 
 const ImgCon = styled.div`
   position: relative;
@@ -107,7 +108,7 @@ export default class FillWorkseet extends React.Component {
                 rows: control.value.rows,
                 rules:
                   _.get(this.cellObjs || {}, `${control.controlId}.cell.rules`) ||
-                  _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.state.rules`),
+                  _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.rules`),
               },
               _.get(this.cellObjs || {}, `${control.controlId}.cell.controls`) || control.relationControls,
               control.showControls,

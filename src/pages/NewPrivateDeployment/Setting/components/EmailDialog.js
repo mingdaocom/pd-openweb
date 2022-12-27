@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Dialog, Input, Checkbox } from 'ming-ui';
 import RegExp from 'src/util/expression';
 import emailApi from 'src/api/email';
+import _ from 'lodash';
 
 export default class EmailDialog extends Component {
   constructor(props) {

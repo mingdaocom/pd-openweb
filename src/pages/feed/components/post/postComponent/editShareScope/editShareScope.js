@@ -1,10 +1,11 @@
 import { index as DialogLayer } from 'src/components/mdDialog/dialog';
 import doT from '@mdfe/dot';
-var postAjax = require('src/api/post');
+import postAjax from 'src/api/post';
 import SelectGroup from 'src/components/selectGroup/selectAllGroup';
 import './style.less';
 import mainHtml from './tpl/main.html';
 import resultHtml from './tpl/result.html';
+import _ from 'lodash';
 
 var EditShareScope = function (options, callback) {
   var DEFAULTS = {};

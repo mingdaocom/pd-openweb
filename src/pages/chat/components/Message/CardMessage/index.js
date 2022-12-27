@@ -12,6 +12,7 @@ import DialogLayer from 'src/components/mdDialog/dialog';
 import ReactDom from 'react-dom';
 import postAjax from 'src/api/post';
 import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
+import moment from 'moment';
 
 const vertical = {
   WebkitBoxOrient: 'vertical',
@@ -147,11 +148,6 @@ export default class CardMessage extends Component {
                   noText: '',
                 }}
                 readyFn={function(Comp) {
-                  $('#chatFeedDialog_container').on('scroll', () => {
-                    if (typeof $.fn.lazyload === 'function') {
-                      $('#chatFeedDialog_container .lazy').lazyload();
-                    }
-                  });
                   $('#chatFeedDialog_container').on('click', event => {
                     if (!$(event.target).closest('#chatFeedDialog').length) {
                       Comp.closeDialog();

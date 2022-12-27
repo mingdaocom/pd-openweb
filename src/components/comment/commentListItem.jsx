@@ -12,6 +12,7 @@ import confirm from 'ming-ui/components/Dialog/Confirm';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 import discussionAjax from 'src/api/discussion';
+import _ from 'lodash';
 
 const newWhiteList = Object.assign({}, whiteList, { img: ['src', 'alt', 'title', 'width', 'height', 'class'] });
 

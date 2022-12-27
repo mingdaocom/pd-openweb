@@ -21,6 +21,7 @@ export const RENDER_RECORD_NECESSARY_ATTR = [
   'controlPermissions',
   'fieldPermission',
   'hint',
+  'sourceControl',
 ];
 
 // 可作为摘要的控件

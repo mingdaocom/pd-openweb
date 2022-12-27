@@ -1,11 +1,13 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Modal, Switch } from 'ming-ui';
+import { Icon, Modal, Switch } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { Tip99, Hr, Bold600 } from 'worksheet/components/Basics';
 import ShareUrl from 'worksheet/components/ShareUrl';
+import Validity from './Validity';
 import { getUrl, getPublicShare, updatePublicShareStatus } from './controller';
+import _ from 'lodash';
 
 function genCard(from, type = 'public', params = {}) {
   if (from === 'recordInfo' && type === 'private') {
@@ -32,9 +34,11 @@ function genCard(from, type = 'public', params = {}) {
 }
 
 export default function Share(props) {
-  const { from, title, isCharge, isPublic, card, params = {}, onUpdate = () => {}, onClose, getCopyContent } = props;
+  const { from, title, isCharge, card, params = {}, onUpdate = () => {}, onClose, getCopyContent } = props;
   const [url, setUrl] = useState();
+  const [isPublic, setIsPublic] = useState(props.isPublic);
   const [publicUrl, setPublicUrl] = useState(isPublic && props.publicUrl);
+  const [shareData, setShareData] = useState();
   const privateVisible = !_.includes(['report'], from);
   const isEmbed = _.includes(['view', 'customPage'], from);
   const privateTitle = isEmbed ? _l('嵌入链接') : _l('内部成员访问');
@@ -43,13 +47,35 @@ export default function Share(props) {
     disabledTip = from === 'recordInfo' ? _l('记录拥有者才能操作') : _l('应用管理员才能操作');
   }
   async function updatePublicShare(active) {
-    const newUrl = await updatePublicShareStatus({
+    const result = await updatePublicShareStatus({
       from,
       isPublic: active,
       ...params,
       onUpdate,
     });
-    setPublicUrl(newUrl);
+    setIsPublic(active);
+    setShareData(result);
+    setPublicUrl(result ? result.shareLink : undefined);
+  }
+  async function getPublicShareInfo(data) {
+    const result = await getPublicShare({
+      from,
+      isPublic,
+      ...params,
+      ...data,
+    });
+    setShareData(result);
+    setPublicUrl(result ? result.shareLink : undefined);
+  }
+  async function editEntityShare(data) {
+    const result = await updatePublicShareStatus({
+      from,
+      isPublic: true,
+      ...params,
+      ...shareData,
+      ...data
+    });
+    setShareData(result.appEntityShare);
   }
   useEffect(() => {
     if (privateVisible) {
@@ -65,12 +91,7 @@ export default function Share(props) {
   useEffect(() => {
     (async () => {
       if (!publicUrl) {
-        const newUrl = await getPublicShare({
-          from,
-          isPublic,
-          ...params,
-        });
-        setPublicUrl(newUrl);
+        getPublicShareInfo();
       }
     })();
   }, []);
@@ -127,7 +148,7 @@ export default function Share(props) {
             url={publicUrl}
             {...(_.isFunction(getCopyContent)
               ? {
-                  getCopyContent: urlForCopy => getCopyContent('public', urlForCopy),
+                  getCopyContent: urlForCopy => getCopyContent('public', shareData.password ? `${urlForCopy} ${_l('密码')}: ${shareData.password}` : urlForCopy),
                 }
               : {})}
           />
@@ -139,6 +160,27 @@ export default function Share(props) {
             >
               {_l('编辑公开表单')}
             </a>
+          )}
+          {_.includes(['view', 'recordInfo', 'customPage'], from) && (
+            <Validity
+              data={shareData}
+              onChange={(data) => {
+                setShareData({
+                  ...shareData,
+                  ...data
+                });
+                if (_.includes(['view', 'recordInfo'], from)) {
+                  getPublicShareInfo({
+                    isEdit: true,
+                    ...shareData,
+                    ...data
+                  });
+                }
+                if (_.includes(['customPage'], from)) {
+                  editEntityShare(data);
+                }
+              }}
+            />
           )}
         </Fragment>
       )}

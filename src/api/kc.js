@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取根目录(共享文件夹)列表
   * @param {Object} args 请求参数

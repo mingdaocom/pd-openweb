@@ -2,10 +2,15 @@ import React, { useEffect, useReducer } from 'react';
 import { bool, string, shape, arrayOf, number, func } from 'prop-types';
 import styled from 'styled-components';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
 import { createReducer, createActions, initialState, formatForSave } from '../model';
 import { redefineComplexControl, formatOriginFilterGroupValue } from '../util';
 import FilterDetail from '../components/FilterDetail';
 import { CONTROL_FILTER_WHITELIST } from '../enum';
+import _ from 'lodash';
 
 const Con = styled.div``;
 
@@ -16,9 +21,11 @@ export default function SingleFilter(props) {
     supportGroup,
     offset,
     appId,
+    viewId,
     projectId,
     isRules,
     feOnly,
+    sheetSwitchPermit,
     showSystemControls,
     filterColumnClassName, // 样式类名 待确认
     canEdit,
@@ -30,6 +37,7 @@ export default function SingleFilter(props) {
     globalSheetControls,
     filterDept,
     filterResigned = true,
+    filterError,
   } = props;
   let { columns } = props;
   const filterWhiteKeys = _.flatten(
@@ -55,6 +63,14 @@ export default function SingleFilter(props) {
     appId,
     projectId,
   };
+  const showWorkflowControl = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit, viewId);
+  function filterAddConditionControls(controls) {
+    return filterOnlyShowField(
+      showWorkflowControl
+        ? controls
+        : controls.filter(c => !_.find(WORKFLOW_SYSTEM_CONTROL, { controlId: c.controlId })),
+    );
+  }
   useEffect(() => {
     if (/^(ADD_|UPDATE_|DELETE_)/.test(state.lastAction)) {
       const formattedValues = formatForSave(state.editingFilter, { returnFullValues: feOnly, noCheck: true });
@@ -81,6 +97,8 @@ export default function SingleFilter(props) {
         actions={actions}
         controls={columns}
         filterResigned={filterResigned}
+        filterError={filterError}
+        filterAddConditionControls={filterAddConditionControls}
         conditionProps={{
           filterDept,
           sourceControlId,

@@ -328,7 +328,7 @@ class LoginContainer extends React.Component {
         {!isBindAccount && (
           <React.Fragment>
             <div className="tpLogin TxtCenter">
-              {(!isNetwork || canLDAP || scanLoginEnabled) && <div className="title">{_l('或')}</div>}
+              {(!isNetwork || canLDAP || scanLoginEnabled || isOpenSso) && <div className="title">{_l('或')}</div>}
               <div className="mBottom20">
                 {scanLoginEnabled && (
                   <a title={_l('企业微信登录')} onClick={this.getWorkWeiXinCorpInfoByApp}>

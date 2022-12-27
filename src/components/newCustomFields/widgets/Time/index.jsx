@@ -11,6 +11,7 @@ import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 import { getDynamicValue } from '../../tools/DataFormat';
 import { browserIsMobile } from 'src/util';
 import moment from 'moment';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {

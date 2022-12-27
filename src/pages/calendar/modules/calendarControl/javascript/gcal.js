@@ -8,7 +8,7 @@
  * Docs & License: http://arshaw.com/fullcalendar/
  * (c) 2013 Adam Shaw
  */
-import $ from 'jquery'; 
+
 
 var fc = $.fullCalendar;
 var applyAll = fc.applyAll;
@@ -83,7 +83,7 @@ function transformOptions(sourceOptions, start, end, timezone) {
 			return events;
 		}
 	});
-	
+
 }
 
 

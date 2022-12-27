@@ -7,6 +7,7 @@ import { searchUser } from '../common';
 
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import _ from 'lodash';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class SearchInput extends Component {

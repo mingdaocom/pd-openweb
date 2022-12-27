@@ -15,7 +15,7 @@ const ClickAwayable = createDecoratedComponent(withClickAway);
 import cx from 'classnames';
 import UserInfoDialog from 'src/pages/Role/PortalCon/components/UserInfoDialog';
 import './index.less';
-import { getDetail, saveUserDetail, getLoginUrl } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import { browserIsMobile } from 'src/util';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { getIds } from 'src/pages/PageHeader/util';
@@ -34,7 +34,7 @@ import DelDialog from './DelDialog';
 import FindPwdDialog from './FindPwdDialog';
 import PortalMessage from './PortalMessage';
 import { getAppId } from 'src/pages/PortalAccount/util.js';
-import { getPortalSetByAppId } from 'src/api/externalPortal';
+import _ from 'lodash';
 const WrapHeader = styled.div`
   .cover {
     position: fixed;
@@ -385,7 +385,7 @@ export default class PortalAppHeader extends Component {
         this.buildFavicon(data);
       });
     }
-    getLoginUrl({
+    externalPortalAjax.getLoginUrl({
       appId: appId,
     }).then(res => {
       this.setState({
@@ -399,24 +399,8 @@ export default class PortalAppHeader extends Component {
         appSectionDetail,
       });
     });
-    // getDetail({
-    //   exAccountId: md.global.Account.accountId,
-    //   appId: appId,
-    // }).then(res => {
-    //   const avatarData = res.receiveControls.find(o => o.controlId === 'portal_avatar') || {};
-    //   this.setState(
-    //     {
-    //       currentData: res.receiveControls,
-    //       avatar: avatarData.value || md.global.Account.avatar,
-    //       hasPassword: res.hasPassword,
-    //     },
-    //     () => {
-    //       md.global.Account.avatar = avatarData.value || md.global.Account.avatar;
-    //     },
-    //   );
-    // });
     this.getPortalDetail(appId);
-    getPortalSetByAppId({
+    externalPortalAjax.getPortalSetByAppId({
       appId,
     }).then(baseInfo => {
       this.setState({
@@ -426,7 +410,7 @@ export default class PortalAppHeader extends Component {
   };
 
   getPortalDetail = appId => {
-    getDetail({
+    externalPortalAjax.getDetail({
       exAccountId: md.global.Account.accountId,
       appId: appId,
     }).then(res => {
@@ -475,7 +459,7 @@ export default class PortalAppHeader extends Component {
         <AvatorInfo
           editAvatar={res => {
             ///更新数据 /////
-            saveUserDetail({
+            externalPortalAjax.saveUserDetail({
               appId: this.props.appId || getAppId(this.props.match.params),
               exAccountId: md.global.Account.accountId,
               newCell: currentData
@@ -785,7 +769,7 @@ export default class PortalAppHeader extends Component {
             setShow={() => this.setState({ showUserInfoDialog: false })}
             onOk={(data, ids) => {
               ///更新数据 /////
-              saveUserDetail({
+              externalPortalAjax.saveUserDetail({
                 appId: this.props.appId || getAppId(this.props.match.params),
                 exAccountId: md.global.Account.accountId,
                 newCell: data.filter(o => ids.includes(o.controlId)).map(formatControlToServer),

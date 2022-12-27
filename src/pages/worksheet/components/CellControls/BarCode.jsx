@@ -3,6 +3,7 @@ import { bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import BarCode from 'src/components/newCustomFields/widgets/BarCode';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const Con = styled.div`
   padding: 4px 6px !important;
@@ -19,7 +20,7 @@ const Con = styled.div`
 `;
 
 export default function OptionsSteps(props) {
-  const { className, style, formdata, cell = {}, rowHeight = 34, onClick } = props;
+  const { className, style, rowFormData, cell = {}, rowHeight = 34, onClick } = props;
   return (
     <Con className={cx(className, 'cellControl flexRow')} style={style} imgHeight={rowHeight - 9} onClick={onClick}>
       <BarCode
@@ -29,7 +30,7 @@ export default function OptionsSteps(props) {
           advancedSetting: { ...cell.advancedSetting, width: 200 },
           ..._.pick(props, ['recordId', 'appId', 'worksheetId', 'viewId']),
         }}
-        formData={!formdata ? null : formdata()}
+        formData={!rowFormData ? null : rowFormData()}
       />
     </Con>
   );

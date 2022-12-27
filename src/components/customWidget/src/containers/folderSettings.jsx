@@ -5,6 +5,7 @@ import Checkbox from '../component/common/checkbox';
 import { changeTASKOptions } from '../redux/actions';
 import config from '../config';
 import ScrollView from 'ming-ui/components/ScrollView';
+import _ from 'lodash';
 
 @connect(state => ({
   editWidgets: state.editWidgets,

@@ -8,16 +8,14 @@ import worksheetAjax from 'src/api/worksheet';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
-import {
-  NORMAL_SYSTEM_FIELDS,
-  WORKFLOW_SYSTEM_FIELDS,
-  WORKFLOW_SYSTEM_FIELDS_SORT,
-} from 'src/pages/worksheet/common/ViewConfig/util';
+import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
 import './index.less';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { isDocument } from 'src/components/UploadFiles/utils';
+import _ from 'lodash';
 
 function getCoverControlData(data) {
-  return _.find(data, file => File.isPicture(file.ext));
+  return _.find(data, file => File.isPicture(file.ext) || (isDocument(file.ext) && file.previewUrl));
 }
 
 const coverTypes = {
@@ -33,6 +31,7 @@ export default class RecordCard extends Component {
     const { data, view } = props;
     this.state = {
       checked: data[view.advancedSetting.checkradioid] === '1',
+      coverError: false
     };
   }
   get cover() {
@@ -57,10 +56,29 @@ export default class RecordCard extends Component {
       { controlId: 'caid', controlName: _l('创建者'), type: 26 },
       { controlId: 'ctime', controlName: _l('创建时间'), type: 16 },
       { controlId: 'utime', controlName: _l('最近修改时间'), type: 16 },
-      ...NORMAL_SYSTEM_FIELDS,
-      ...WORKFLOW_SYSTEM_FIELDS,
     ].concat(controls);
     return showControls.map(scid => _.find(allControls, c => c.controlId === scid));
+  }
+  get url() {
+    const { coverError } = this.state;
+    const { coverType } = this.props.view;
+    const { cover } = this;
+    const size = coverType ? 76 : 120;
+    const url =
+      cover && cover.previewUrl
+        ? cover.previewUrl.indexOf('imageView2') > -1
+          ? cover.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/w/${size}/h/${size}`)
+          : `${cover.previewUrl}&imageView2/1/w/${size}/h/${size}`
+        : null;
+    if (url && !coverError) {
+      const image = new Image();
+      image.onload = () => {}
+      image.onerror = () => {
+        this.setState({ coverError: true });
+      }
+      image.src = url;
+    }
+    return url;
   }
   previewAttachment(attachments, index) {
     previewAttachments({
@@ -125,17 +143,11 @@ export default class RecordCard extends Component {
   };
   renderCover() {
     const { coverType, advancedSetting } = this.props.view;
-    const { cover } = this;
-    const size = coverType ? 76 : 120;
-    const url =
-      cover && cover.previewUrl
-        ? cover.previewUrl.indexOf('imageView2') > -1
-          ? cover.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/w/${size}/h/${size}`)
-          : `${cover.previewUrl}&imageView2/1/w/${size}/h/${size}`
-        : null;
+    const { coverError } = this.state;
+    const { url } = this;
     return (
       <div className={cx('recordCardCover', coverTypes[coverType], `appshowtype${advancedSetting.appshowtype || '0'}`)}>
-        {url ? (
+        {url && !coverError ? (
           coverType ? (
             <img onClick={this.handleCoverClick} className="img" src={url} role="presentation" />
           ) : (

@@ -4,6 +4,7 @@ import { func, string } from 'prop-types';
 import { Collapse } from 'antd';
 import { functionTypes, functionDetails } from '../enum';
 import 'antd/lib/collapse/style/index.css';
+import _ from 'lodash';
 
 const ExpandIcon = styled.i`
   display: inline-block;

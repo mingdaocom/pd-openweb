@@ -4,6 +4,7 @@ import classNames from 'classnames';
 
 import Checkbox from 'ming-ui/components/Checkbox';
 import Switch from 'ming-ui/components/Switch';
+import _ from 'lodash';
 
 class PermissionList extends React.Component {
   static propTypes = {

@@ -7,6 +7,7 @@ import { Input } from 'antd';
 import { handleAdvancedSettingChange } from '../../../util/setting';
 import { getAdvanceSetting } from '../../../util';
 import PreSuffix from '../PreSuffix';
+import _ from 'lodash';
 
 const SuffixWrap = styled(SettingItem)`
   .unitDropdown {

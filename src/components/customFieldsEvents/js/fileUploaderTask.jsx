@@ -5,7 +5,7 @@
  * 文件上传模块（任务）
  */
 import React from 'react';
-import $ from 'jquery';
+
 import ReactDOM from 'react-dom';
 import UploadFiles from 'src/components/UploadFiles';
 import Button from 'ming-ui/components/Button';

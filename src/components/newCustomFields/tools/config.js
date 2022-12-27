@@ -1,3 +1,5 @@
+import moment from 'moment';
+import _ from 'lodash';
 export const FORM_ERROR_TYPE = {
   REQUIRED: 'REQUIRED',
   MOBILE_PHONE: 'MOBILE_PHONE',
@@ -128,6 +130,7 @@ export const FROM = {
   H5_EDIT: 6,
   WORKFLOW: 7, // 工作流
   CUSTOM_BUTTON: 8, // 自定义动作
+  DRAFT: 21,
 };
 
 export const TIME_UNIT = {
@@ -140,3 +143,20 @@ export const TIME_UNIT = {
 
 //非文本类控件
 export const UN_TEXT_TYPE = [9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 35, 36, 45, 47, 48];
+
+// 系统字段
+export const SYSTEM_ENUM = [
+  'uaid',
+  'wfname',
+  'wfcuaids',
+  'wfcaid',
+  'wfctime',
+  'wfrtime',
+  'wfftime',
+  'wfstatus',
+  'rowid',
+  'ownerid',
+  'caid',
+  'ctime',
+  'utime',
+];

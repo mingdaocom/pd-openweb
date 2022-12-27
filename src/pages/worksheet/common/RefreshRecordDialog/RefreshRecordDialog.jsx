@@ -5,9 +5,10 @@ import { VerticalMiddle, FlexCenter } from 'src/pages/worksheet/components/Basic
 import styled from 'styled-components';
 import ControlSelect from '../../components/ControlSelect';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
+import { WORKFLOW_SYSTEM_CONTROL, FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { refreshRecord } from './dal';
+import _ from 'lodash';
 
 const NewDialog = styled(Dialog)`
   .secTitle {
@@ -71,7 +72,8 @@ function getRefreshControls(controls) {
           WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD, // 他表字段
         ],
         c.type,
-      ) && !(c.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && c.strDefault[0] !== '0'),
+      ) ||
+      (c.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && _.get(c, 'strDefault.0') !== '1'),
   );
 }
 
@@ -182,7 +184,9 @@ export default function RefreshRecordDialog(props) {
     clearSelect = () => {},
     onClose = () => {},
   } = props;
-  const visibleControls = controls.filter(c => !_.includes(FORM_HIDDEN_CONTROL_IDS, c.controlId));
+  const visibleControls = controls.filter(
+    c => !_.includes(FORM_HIDDEN_CONTROL_IDS.concat(WORKFLOW_SYSTEM_CONTROL.map(cc => cc.controlId)), c.controlId),
+  );
   const refreshControls = getRefreshControls(visibleControls);
   const refreshSortControls = getRefreshSortControls(visibleControls);
   const refreshVisible = !!refreshControls.concat(refreshSortControls).length;

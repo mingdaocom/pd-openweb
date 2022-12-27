@@ -5,6 +5,7 @@ import { Dropdown, Input, Checkbox, MdAntDateRangePicker } from 'ming-ui';
 import DatePicker from 'src/components/newCustomFields/widgets/Date';
 import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { FILTER_CONDITION_TYPE, DATE_OPTIONS } from '../../enum';
+import _ from 'lodash';
 
 function getPicker(type) {
   return {

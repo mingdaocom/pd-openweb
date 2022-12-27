@@ -1,6 +1,7 @@
 import React from 'react';
 import { Overload } from 'statistics/components/ChartStatus';
 import { reportTypes } from '../Charts/common';
+import _ from 'lodash';
 
 const verificationDataLength = (Component) => {
   class VerificationDataLength extends React.Component {

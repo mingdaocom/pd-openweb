@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, Checkbox, LoadDiv } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
+import _ from 'lodash';
 import {
   SelectUserDropDown,
   Member,
@@ -79,7 +80,7 @@ export default class Write extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { selectNodeId, name, accounts, allowTransfer, formProperties, submitBtnName, schedule } = data;
+    const { selectNodeId, name, accounts, formProperties, submitBtnName, schedule, operationTypeList } = data;
 
     if (!selectNodeId) {
       alert(_l('必须先选择一个对象'), 2);
@@ -98,10 +99,10 @@ export default class Write extends Component {
         name: name.trim(),
         selectNodeId,
         accounts,
-        allowTransfer,
         formProperties,
         submitBtnName: submitBtnName.trim() || _l('提交'),
         schedule,
+        operationTypeList,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -110,6 +111,22 @@ export default class Write extends Component {
 
     this.setState({ saveRequest: true });
   };
+
+  /**
+   * 切换填写设置
+   */
+  switchWriteSettings(checked, value) {
+    const { data } = this.state;
+    const operationTypeList = _.cloneDeep(data.operationTypeList);
+
+    if (checked) {
+      operationTypeList.push(value);
+    } else {
+      _.remove(operationTypeList, item => item === value);
+    }
+
+    this.updateSource({ operationTypeList });
+  }
 
   render() {
     const { data, showSelectUserDialog } = this.state;
@@ -167,8 +184,14 @@ export default class Write extends Component {
               <Checkbox
                 className="mTop15 flexRow"
                 text={_l('允许转交他人填写')}
-                checked={data.allowTransfer}
-                onClick={checked => this.updateSource({ allowTransfer: !checked })}
+                checked={_.includes(data.operationTypeList, 10)}
+                onClick={checked => this.switchWriteSettings(!checked, 10)}
+              />
+              <Checkbox
+                className="mTop15 flexRow"
+                text={_l('允许填写人暂存')}
+                checked={_.includes(data.operationTypeList, 13)}
+                onClick={checked => this.switchWriteSettings(!checked, 13)}
               />
               <Checkbox
                 className="mTop15 flexRow"

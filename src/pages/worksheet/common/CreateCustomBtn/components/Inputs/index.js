@@ -4,6 +4,7 @@ import Trigger from 'rc-trigger';
 import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue';
 import cx from 'classnames';
 import styled from 'styled-components';
+import _ from 'lodash';
 const WrpCheck = styled.div`
   .Icon {
     left: 0 !important;

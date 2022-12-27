@@ -7,7 +7,7 @@ import { browserIsMobile, encrypt } from 'src/util';
 import cx from 'classnames';
 import Config from 'src/pages/account/config';
 const { ActionResult } = Config;
-import { sendVerifyCode, findPwd } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import { setAutoLoginKey, toApp } from 'src/pages/PortalAccount/util';
 
 const AccountWrap = styled.div`
@@ -219,7 +219,7 @@ export default function TelDialog(props) {
         randStr: res.randstr,
         captchaType: md.staticglobal.getCaptchaType(),
         account: props.account,
-        verifyCodeType: Config.CodeTypeEnum.message,
+        codeType: 4, //更新密码
       };
       let thenFn = data => {
         if (data.actionResult === 1) {
@@ -244,7 +244,7 @@ export default function TelDialog(props) {
           return;
         }
       }; //http://web.dev.mingdao.net/portal/wxscanauth?state=0af0120d50d207807308f07b0360800400fe08a009051068
-      sendVerifyCode(param).then(data => {
+      externalPortalAjax.sendAccountVerifyCode(param).then(data => {
         thenFn(data);
       });
     };
@@ -270,18 +270,20 @@ export default function TelDialog(props) {
       return;
     }
     const { ticket, randstr } = resRet;
-    findPwd({
-      account,
-      password: encrypt(psd),
-      appId,
-      verifyCode: code,
-      captchaType: md.staticglobal.getCaptchaType(),
-      ticket,
-      randStr: randstr,
-    }).then(res => {
-      setAutoLoginKey({ ...res, appId });
-      findPwdCallback(res);
-    });
+    externalPortalAjax
+      .findPwd({
+        account,
+        password: encrypt(psd),
+        appId,
+        verifyCode: code,
+        captchaType: md.staticglobal.getCaptchaType(),
+        ticket,
+        randStr: randstr,
+      })
+      .then(res => {
+        setAutoLoginKey({ ...res, appId });
+        findPwdCallback(res);
+      });
   };
 
   const doCaptchaFn = () => {

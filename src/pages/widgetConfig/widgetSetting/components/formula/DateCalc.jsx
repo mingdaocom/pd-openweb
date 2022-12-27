@@ -9,6 +9,7 @@ import DateCalcPicker from './DateCalcPicker';
 import { getFormulaControls, createWorksheetColumnTag, formatColumnToText } from '../../../util/data';
 import ToTodaySetting from './toTodaySetting';
 import { Tooltip } from 'antd';
+import _ from 'lodash';
 
 export default class DateCalc extends Component {
   static propTypes = {

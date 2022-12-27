@@ -162,4 +162,4 @@ var instanceVersion = {
     return $.api(controllerName, 'v1instanceresetInstance', args, $.extend(base, options));
   },
 };
-module.exports = instanceVersion;
+export default instanceVersion;

@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import Icon from 'ming-ui/components/Icon';
 import { FLOW_STATUS } from './config';
+import _ from 'lodash';
 
 const STATUS2ICON = {
   suspend: 'workflow_suspend',

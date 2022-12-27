@@ -1,9 +1,11 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Textarea, Linkify } from 'ming-ui';
+import { Textarea, Linkify, Icon } from 'ming-ui';
 import cx from 'classnames';
 import TextScanQRCode from '../../components/TextScanQRCode';
 import { getIsScanQR } from '../../components/ScanQRCode';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import { browserIsMobile } from 'src/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -19,11 +21,12 @@ export default class Widgets extends Component {
   state = {
     isEditing: false,
     originValue: '',
+    maskStatus: _.get(this.props, 'advancedSetting.datamask') === '1',
   };
 
   isOnComposition = false;
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps, nextState) {
     if (this.text) {
       this.text.value =
         nextProps.enumDefault === 2 ? (nextProps.value || '').replace(/\r\n|\n/g, ' ') : nextProps.value || '';
@@ -31,6 +34,10 @@ export default class Widgets extends Component {
   }
 
   onFocus = e => {
+    // 多行文本 tab键聚焦 值不写入问题
+    if (this.props.enumDefault !== 2 && this.text && this.text.value !== this.props.value) {
+      this.joinTextareaEdit(e)
+    }
     this.setState({ originValue: e.target.value.trim() });
   };
 
@@ -77,12 +84,34 @@ export default class Widgets extends Component {
     }
   };
 
-  render() {
-    const { disabled, value = '', enumDefault, strDefault = '10', advancedSetting, projectId } = this.props;
-    let { hint } = this.props;
-    const { isEditing } = this.state;
-    const disabledInput = advancedSetting.dismanual === '1';
+  getShowValue = hint => {
+    const { value = '', advancedSetting } = this.props;
     const isUnLink = advancedSetting.analysislink !== '1';
+
+    if (value) {
+      if (this.state.maskStatus) {
+        return dealMaskValue(this.props);
+      }
+      return isUnLink ? value : <Linkify properties={{ target: '_blank' }}>{value}</Linkify>;
+    } else {
+      return hint;
+    }
+  };
+
+  render() {
+    const {
+      disabled,
+      value = '',
+      enumDefault,
+      strDefault = '10',
+      advancedSetting,
+      projectId,
+      maskPermissions,
+    } = this.props;
+    let { hint } = this.props;
+    const { isEditing, maskStatus } = this.state;
+    const isMask = maskPermissions && enumDefault === 2 && value && maskStatus;
+    const disabledInput = advancedSetting.dismanual === '1';
     const isSingleLine = enumDefault === 2;
     const isScanQR = getIsScanQR();
     const startTextScanCode = !disabled && isScanQR && strDefault.split('')[1] === '1';
@@ -125,7 +154,17 @@ export default class Widgets extends Component {
             }}
             onClick={this.joinTextareaEdit}
           >
-            {value ? isUnLink ? value : <Linkify properties={{ target: '_blank' }}>{value}</Linkify> : hint}
+            <span
+              className={cx({ maskHoverTheme: disabled && isMask })}
+              style={browserIsMobile() ? { wordWrap: 'break-word' } : {}}
+              onClick={() => {
+                if (disabled && isMask) this.setState({ maskStatus: false });
+              }}
+            >
+              {this.getShowValue(hint)}
+              {isMask && <Icon icon="eye_off" className={cx('Gray_bd', disabled ? 'mLeft7' : 'maskIcon')} />}
+            </span>
+
             {!disabled && !disabledInput && (
               <input type="text" className="smallInput" onFocus={() => this.setState({ isEditing: true })} />
             )}

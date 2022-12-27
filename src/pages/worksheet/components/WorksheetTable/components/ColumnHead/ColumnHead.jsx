@@ -16,6 +16,7 @@ import { emitter, getSortData, fieldCanSort, getLRUWorksheetConfig, saveLRUWorks
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import './ColumnHead.less';
+import _ from 'lodash';
 
 class ColumnHead extends Component {
   static contextType = SheetContext;
@@ -118,6 +119,7 @@ class ColumnHead extends Component {
       clearHiddenColumn,
       onBatchEdit,
       canBatchEdit = true,
+      onShowFullValue = () => {},
     } = this.props;
     const hideColumnFilter = _.get(this.context, 'config.hideColumnFilter');
     let control = { ...this.props.control };
@@ -133,28 +135,12 @@ class ColumnHead extends Component {
       Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
     );
     let canFilter =
-      _.includes(filterWhiteKeys, itemType) &&
-      !_.includes(disabledFunctions, 'filter') &&
-      !window.hideColumnHeadFilter &&
-      !_.includes(
-        [
-          'wfname',
-          'wfstatus',
-          'wfcuaids',
-          'wfrtime',
-          'wfftime',
-          'wfdtime',
-          'wfcaid',
-          'wfctime',
-          'wfcotime',
-          'uaid',
-          'rowid',
-        ],
-        control.controlId,
-      );
+      _.includes(filterWhiteKeys, itemType) && !_.includes(disabledFunctions, 'filter') && !window.hideColumnHeadFilter;
     if (control.type === 30 && control.strDefault === '10') {
       canFilter = false;
     }
+    const maskData =
+      _.get(control, 'advancedSetting.datamask') === '1' && _.get(control, 'advancedSetting.isdecrypt') === '1';
     control = redefineComplexControl(control);
     return (
       <BaseColumnHead
@@ -226,6 +212,12 @@ class ColumnHead extends Component {
               >
                 <i className="icon icon-worksheet_filter"></i>
                 {_l('筛选')}
+              </MenuItem>
+            )}
+            {maskData && (
+              <MenuItem onClick={onShowFullValue}>
+                <i className="icon icon-eye_off"></i>
+                {_l('解密')}
               </MenuItem>
             )}
             {(canSort || (canFilter && !rowIsSelected) || (canEdit && rowIsSelected)) && <hr />}

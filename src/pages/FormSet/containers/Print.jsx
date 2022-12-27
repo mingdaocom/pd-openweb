@@ -15,6 +15,7 @@ import { PRINT_TYPE } from 'src/pages/Print/config';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { getPrintCardInfoOfTemplate } from 'src/pages/worksheet/common/PrintQrBarCode/enum';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
+import _ from 'lodash';
 class CreatePrintDrawer extends React.Component {
   constructor(props) {
     super(props);

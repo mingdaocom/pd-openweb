@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 用户统计
   * @param {Object} args 请求参数

@@ -11,6 +11,7 @@ import { VariableSizeGrid } from 'react-window';
 
 delete Hammer.defaults.cssProps.userSelect;
 import './style.less';
+import _ from 'lodash';
 
 const FIXED_ROW_HEIGHT = 34;
 const FOOTER_ROW_HEIGHT = 28;

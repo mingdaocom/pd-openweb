@@ -8,11 +8,13 @@ import PositionContent from './components/PositionContent';
 import ImportDeptAndRole from 'src/pages/Admin/components/ImportDeptAndRole';
 import EmptyStatus from './components/EmptyStatus';
 import * as actions from '../../../redux/position/action';
-import { getJobs } from 'src/api/job';
+import jobAjax from 'src/api/job';
 import { getPssId } from 'src/util/pssId';
 import Config from '../../../config';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
+import moment from 'moment';
 
 class PositionInfo extends Component {
   constructor(props) {
@@ -80,7 +82,7 @@ class PositionInfo extends Component {
       return;
     }
     this.props.updateSearchValue(value);
-    this.ajaxObj = getJobs({ projectId, keywords: value, pageIndex, pageSize: 50 });
+    this.ajaxObj = jobAjax.getJobs({ projectId, keywords: value, pageIndex, pageSize: 50 });
     this.ajaxObj.then(res => {
       let currentPosition = (res.list && !_.isEmpty(res.list) && res.list[0]) || {};
       let copyPositionPageInfo = { ...positionPageInfo };

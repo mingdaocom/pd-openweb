@@ -2,7 +2,7 @@ import React, { useState, Fragment, useEffect } from 'react';
 import { string } from 'prop-types';
 import { Modal, Popover } from 'antd';
 import { Icon, Dialog, MenuItem, Button } from 'ming-ui';
-import { resetControlIncrease } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import styled from 'styled-components';
 import { filter, get, isEmpty, pick } from 'lodash';
 
@@ -65,7 +65,7 @@ export default function ResetAutoNumber(props) {
 
   const handleReset = controlId => {
     setIndex(-1);
-    resetControlIncrease({ ...pick(worksheetInfo, ['appId', 'worksheetId']), controlId }).then(res => {
+    worksheetAjax.resetControlIncrease({ ...pick(worksheetInfo, ['appId', 'worksheetId']), controlId }).then(res => {
       alert(res ? _l('重置编号成功') : _l('重置编号失败'));
     });
   };

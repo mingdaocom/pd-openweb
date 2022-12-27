@@ -4,7 +4,7 @@ import { Input } from 'antd';
 import styled from 'styled-components';
 import { encrypt } from 'src/util';
 import captcha from 'src/components/captcha';
-import { checkAccount } from 'src/api/account';
+import accountAjax from 'src/api/account';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { func, number, string } from 'prop-types';
 
@@ -32,7 +32,7 @@ export default function VerifyPasswordConfirm(props) {
       if (res.ret !== 0) {
         return;
       }
-      checkAccount({
+      accountAjax.checkAccount({
         ticket: res.ticket,
         randStr: res.randstr,
         captchaType: md.staticglobal.getCaptchaType(),

@@ -2,6 +2,7 @@ import React, { useState, useEffect, createRef } from 'react';
 import { DynamicValueInputWrap } from '../styled';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import CityPicker from 'ming-ui/components/CityPicker';
+import _ from 'lodash';
 
 const AREA_TYPE = {
   19: 1,

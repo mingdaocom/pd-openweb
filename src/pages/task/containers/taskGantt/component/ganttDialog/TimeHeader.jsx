@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import cx from 'classnames';
 import config from './config';
+import _ from 'lodash';
 const { TYPE_TO_WIDTH } = config;
 
 /**

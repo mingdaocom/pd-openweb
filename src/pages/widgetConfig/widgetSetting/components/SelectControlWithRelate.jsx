@@ -3,6 +3,7 @@ import { useClickAway } from 'react-use';
 import { SelectFieldsWrap } from '../../styled';
 import { getIconByType } from '../../util';
 import { isSingleRelateSheet } from '../../util/setting';
+import _ from 'lodash';
 
 export default function SelectControlWithRelate({
   from = '',
@@ -115,7 +116,7 @@ export default function SelectControlWithRelate({
                     return (
                       <li key={controlId} onClick={() => onClick(obj)}>
                         <i className={`icon-${getIconByType(type)}`}></i>
-                        {controlName}
+                        <span className='overflow_ellipsis flex'>{controlName}</span>
                       </li>
                     );
                   })}

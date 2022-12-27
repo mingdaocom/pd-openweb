@@ -1,19 +1,19 @@
 ﻿import preall from 'src/common/preall';
 import './css/style.less';
-var shareajax = require('src/api/share');
+import shareajax from 'src/api/share';
 import qs from 'query-string';
 import doT from '@mdfe/dot';
 import { downloadFile } from 'src/util';
 import frameTplHtml from './tpl/frame.html';
 import fileItemHtml from './tpl/fileItem.html';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-
 var frameTpl = doT.template(frameTplHtml);
 var fileItemTpl = doT.template(fileItemHtml);
 import MobileSharePreview from '../shareMobile/shareMobile';
-var shareFolderAjax = require('src/api/shareFolder');
+import shareFolderAjax from 'src/api/shareFolder';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
 import { browserIsMobile, getClassNameByExt } from 'src/util';
+import _ from 'lodash';
 
 var ShareFolder = function (options) {
   var SF = this;

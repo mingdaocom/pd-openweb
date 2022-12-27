@@ -5,6 +5,7 @@ import { TYPES, TYPE_GROUP } from '../constants';
 import InboxFilter from './baseComponent/inboxFilter';
 import { Dropdown, Icon } from 'ming-ui';
 import cx from 'classnames';
+import _ from 'lodash';
 
 export default class InboxHeader extends React.Component {
   static propTypes = {

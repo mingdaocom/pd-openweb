@@ -10,6 +10,7 @@ import captcha from 'src/components/captcha';
 import { inputFocusFn, inputBlurFn, warnningTipFn, setWarnningData } from '../util';
 import RegExp from 'src/util/expression';
 import { specialTelVerify } from 'src/pages/account/util.js';
+import _ from 'lodash';
 let sendVerifyCodeTimer = null;
 let hasClick = false;
 // keys =>

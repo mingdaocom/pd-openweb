@@ -12,6 +12,7 @@ import singleFolderComm from '../containers/taskNavigation/tpl/singleFolderComm.
 import { navigateTo } from 'src/router/navigateTo';
 import DeleteReconfirm from 'ming-ui/components/DeleteReconfirm';
 import { htmlEncodeReg } from 'src/util';
+import moment from 'moment';
 
 // 加载loading
 export const listLoadingContent = (pageIndex) => {

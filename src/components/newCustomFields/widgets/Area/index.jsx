@@ -4,6 +4,7 @@ import { CityPicker, Icon, MobileCityPicker } from 'ming-ui';
 import cx from 'classnames';
 import { FROM } from '../../tools/config';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 const HINT_TEXT = {
   19: _l('省'),

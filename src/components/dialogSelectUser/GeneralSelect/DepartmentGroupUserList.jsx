@@ -11,6 +11,7 @@ import cx from 'classnames';
 import NoData from './NoData';
 
 import './css/user.less';
+import _ from 'lodash';
 
 export default class DepartmentGroupUserList extends Component {
   getChecked(user) {

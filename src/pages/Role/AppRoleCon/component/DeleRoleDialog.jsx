@@ -4,6 +4,7 @@ import { Dialog, Dropdown, Radio } from 'ming-ui';
 import { rolePropType } from 'src/pages/Role/config';
 import cx from 'classnames';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   .roleSelect {

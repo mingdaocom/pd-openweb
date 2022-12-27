@@ -13,6 +13,7 @@ import { expireDialogAsync } from 'src/components/common/function';
 import UserHead from 'src/pages/feed/components/userHead';
 import 'src/components/dialogSelectUser/dialogSelectUser';
 import { afterUpdateTaskName, afterUpdateTaskStatus, afterAddTask, afterUpdateTaskCharge } from '../../../utils/taskComm';
+import _ from 'lodash';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 const statusTip = [_l('任务已锁定，无法操作'), _l('标记为未完成'), _l('任务已锁定，但我是创建者或负责人可以操作'), _l('标记完成')];

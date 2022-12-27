@@ -4,6 +4,7 @@ import { Icon, Tooltip } from 'ming-ui';
 import store from 'redux/configureStore';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 let request = null;
 

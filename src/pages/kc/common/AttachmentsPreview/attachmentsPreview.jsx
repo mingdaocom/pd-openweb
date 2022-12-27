@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import DocumentTitle from 'react-document-title';
-import * as postController from 'src/api/post';
+import postController from 'src/api/post';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Button from 'ming-ui/components/Button';
 
@@ -23,6 +23,7 @@ import AttachmentsLoading from './attachmentsLoading';
 import { formatFileSize, getClassNameByExt, addToken } from 'src/util';
 import './attachmentsPreview.less';
 import { getPssId } from 'src/util/pssId';
+import _ from 'lodash';
 
 class AttachmentsPreview extends React.Component {
   static propTypes = {

@@ -3,6 +3,7 @@ import { antNotification, Icon } from 'ming-ui';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import { downloadFile } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
+import _ from 'lodash';
 
 export default function customNotice() {
   const { socket } = window.IM || {};

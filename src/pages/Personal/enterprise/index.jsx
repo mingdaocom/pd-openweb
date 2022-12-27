@@ -10,7 +10,7 @@ import bindAccount from '../bindAccount/bindAccount';
 import './index.less';
 import ReportRelation from './reportRelation';
 import { getRequest } from 'src/util';
-import { checkCreateCompany } from 'src/api/register';
+import registerAjax from 'src/api/register';
 import { upgradeVersionDialog } from 'src/util';
 
 export default class AccountChart extends React.Component {

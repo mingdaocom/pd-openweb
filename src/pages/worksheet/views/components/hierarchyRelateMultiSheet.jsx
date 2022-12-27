@@ -4,8 +4,9 @@ import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import { Menu, Dropdown } from 'antd';
 import { useSetState } from 'react-use';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import VerifyDel from './VerifyDel';
+import _ from 'lodash';
 
 const ControlsWrap = styled.div`
   .grade {
@@ -92,7 +93,7 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
     const { worksheetId } = _.last(viewControls);
     if (controlLoading) return;
     setControls({ controlLoading: true });
-    getWorksheetInfo({ worksheetId, getTemplate: true })
+    worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true })
       .then(data => {
         setControls({
           availableControls: getSelectableControls(data),
@@ -103,7 +104,7 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
       });
   };
   const addViewControl = item => {
-    getWorksheetInfo({ worksheetId: item.dataSource, getTemplate: true }).then(data => {
+    worksheetAjax.getWorksheetInfo({ worksheetId: item.dataSource, getTemplate: true }).then(data => {
       setControls({
         availableControls: getSelectableControls(data),
       });

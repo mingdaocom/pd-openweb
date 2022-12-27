@@ -17,7 +17,8 @@ export default function SavedFilters(props) {
     filters,
     addFilter,
     activeFilter,
-    onChange,
+    filterAddConditionControls,
+    onSortEnd,
     onEditFilter,
     onCopy,
     onToggleFilterType,
@@ -40,8 +41,11 @@ export default function SavedFilters(props) {
               title={'个人'}
               controls={controls}
               filters={personalFilters}
+              filterAddConditionControls={filterAddConditionControls}
               onEditFilter={onEditFilter}
-              onChange={onChange}
+              onSortEnd={sortedIds => {
+                onSortEnd(sortedIds.concat(globalFilters.map(f => f.id)));
+              }}
               onCopy={onCopy}
               onDelete={onDelete}
               onToggleFilterType={onToggleFilterType}
@@ -56,8 +60,11 @@ export default function SavedFilters(props) {
               title={'公共'}
               controls={controls}
               filters={globalFilters}
+              filterAddConditionControls={filterAddConditionControls}
               onEditFilter={onEditFilter}
-              onChange={onChange}
+              onSortEnd={sortedIds => {
+                onSortEnd(personalFilters.map(f => f.id).concat(sortedIds));
+              }}
               onCopy={onCopy}
               onDelete={onDelete}
               onToggleFilterType={onToggleFilterType}

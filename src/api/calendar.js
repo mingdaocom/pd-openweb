@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取指定时间段内的日程
   * @param {Object} args 请求参数

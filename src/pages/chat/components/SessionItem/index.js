@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import Tooltip from 'ming-ui/components/Tooltip';
 import './index.less';
+import _ from 'lodash';
 
 export default class SessionItem extends Component {
   constructor(props) {

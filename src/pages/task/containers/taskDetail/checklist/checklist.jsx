@@ -10,6 +10,7 @@ import config from './common/config';
 import DragPreview from './common/dragPreview';
 import EmptyItem from './common/emptyItem';
 import copy from 'copy-to-clipboard';
+import _ from 'lodash';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class ChecklistOperator extends Component {

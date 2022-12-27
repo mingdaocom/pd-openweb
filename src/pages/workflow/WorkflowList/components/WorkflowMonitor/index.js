@@ -8,6 +8,8 @@ import { START_APP_TYPE } from '../../config';
 import CountDown from './CountDown';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
+import moment from 'moment';
 
 const { Option } = Select;
 

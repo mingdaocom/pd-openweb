@@ -10,6 +10,7 @@ import PeopleAvatar from '../modules/peopleAvatar';
 import UpgradeVersion from '../../components/UpgradeVersion';
 import cx from 'classnames';
 import { getFeatureStatus } from 'src/util';
+import _ from 'lodash';
 let rulesType = ['hiddeRules', 'refuseExternalDepRules', 'refuseUserRules'];
 const FEATURE_ID = 6;
 

@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import { LoadDiv, Modal } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
-import { getSwitchPermit, getWorkItem } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { RECORD_INFO_FROM } from '../../constants/enum';
 import RecordInfo from './RecordInfo';
+import _ from 'lodash';
 
 const AutoSizeRecordInfo = autoSize(RecordInfo);
 
@@ -47,7 +48,7 @@ export default class RecordInfoWrapper extends Component {
     if (this.props.from === RECORD_INFO_FROM.WORKFLOW && (!worksheetId || !recordId)) {
       // 获取记录信息
       try {
-        const res = await getWorkItem({
+        const res = await worksheetAjax.getWorkItem({
           instanceId,
           workId,
         });
@@ -69,7 +70,7 @@ export default class RecordInfoWrapper extends Component {
     if ((!sheetSwitchPermit || _.isEmpty(sheetSwitchPermit)) && worksheetId && md.global.Account.accountId) {
       // 获取权限
       try {
-        sheetSwitchPermit = await getSwitchPermit({ worksheetId });
+        sheetSwitchPermit = await worksheetAjax.getSwitchPermit({ worksheetId });
       } catch (err) {
         sheetSwitchPermit = [];
       }
@@ -91,6 +92,12 @@ export default class RecordInfoWrapper extends Component {
       this.recordinfo.current.handleCancel();
     } else {
       hideRecordInfo();
+    }
+  }
+
+  saveDraftData({ draftType }) {
+    if (this.recordinfo.current) {
+      this.recordinfo.current.saveDraftData({ draftType });
     }
   }
 

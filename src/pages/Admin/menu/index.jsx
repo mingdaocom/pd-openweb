@@ -6,6 +6,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import { getFeatureStatus } from 'src/util';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 @withRouter
 export default class AdminLeftMenu extends Component {

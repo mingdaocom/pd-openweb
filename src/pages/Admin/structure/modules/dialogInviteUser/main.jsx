@@ -10,15 +10,16 @@ import 'src/components/dialogSelectUser/dialogSelectUser';
 import Act from './act';
 import DialogSelectDept from 'src/components/dialogSelectDept';
 import copy from 'copy-to-clipboard';
-var workSiteController = require('src/api/workSite');
-var importUserController = require('src/api/importUser');
+import workSiteController from 'src/api/workSite';
+import importUserController from 'src/api/importUser';
 import departmentController from 'src/api/department';
 import { Icon, Radio } from 'ming-ui';
 import { encrypt } from 'src/util';
 import RegExp from 'src/util/expression';
 import { Tooltip, Select } from 'antd';
-import { getJobs, addJob } from 'src/api/job';
+import jobAjax from 'src/api/job';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const { Option } = Select;
 
@@ -688,7 +689,7 @@ class Main extends Component {
     if (this.ajaxRequest) {
       this.ajaxRequest.abort();
     }
-    this.ajaxRequest = getJobs({
+    this.ajaxRequest = jobAjax.getJobs({
       projectId,
       keywords,
       pageIndex: 1,
@@ -706,7 +707,7 @@ class Main extends Component {
 
   handleAddJob = jobName => {
     const { projectId } = this.props;
-    addJob({
+    jobAjax.addJob({
       projectId,
       jobName,
     }).then(res => {

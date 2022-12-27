@@ -132,3 +132,6 @@ export const NOT_HAVE_WIDTH_CONFIG = [43, 49];
 export const MAX_CONTROLS_COUNT = 2000;
 
 export const HAVE_CONFIG_SUB_LIST = [2, 3, 10, 15, 16, 28, 32, 35, 46];
+
+// 有字段掩码的字段
+export const HAVE_MASK_WIDGET = [3, 5, 7, 8];

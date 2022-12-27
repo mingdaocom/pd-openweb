@@ -1,8 +1,9 @@
 import React, { useRef, Fragment } from 'react';
 import { Button } from 'ming-ui';
 import styled from 'styled-components';
-import { pushInstallClientMsg } from 'src/api/project';
+import projectAjax from 'src/api/project';
 import copy from 'copy-to-clipboard';
+import _ from 'lodash';
 
 const TYPE_CONFIG = {
   desktop: {
@@ -101,7 +102,7 @@ export default function installDialog({ projectId, type, onClose, ...rest }) {
           dataRange: 2, // reference to dataRangeTypes 和 projectId 配合使用
           allowSelectNull: false, // 是否允许选择列表为空
           callback: function(data) {
-            pushInstallClientMsg({
+            projectAjax.pushInstallClientMsg({
               projectId: projectId,
               accountIds: _.map(data, function(user) {
                 return user.accountId;

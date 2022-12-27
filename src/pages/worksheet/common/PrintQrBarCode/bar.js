@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import JsBarcode from 'jsbarcode';
 
 const BAR_FONT_SIZE = 15;

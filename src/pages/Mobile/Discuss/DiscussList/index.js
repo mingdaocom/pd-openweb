@@ -7,6 +7,7 @@ import { Icon } from 'ming-ui';
 import Message from '../Message';
 import AttachmentFiles from '../AttachmentFiles';
 import withoutDisussion from './assets/withoutDisussion.svg';
+import _ from 'lodash';
 
 const Item = List.Item;
 const Brief = Item.Brief;

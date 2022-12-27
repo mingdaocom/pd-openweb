@@ -9,21 +9,16 @@ import PortalBar from '../portalComponent/PortalBar';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import appManagement from 'src/api/appManagement';
-import {
-  removeUsers,
-  getViewShowControls,
-  saveUserDetailForBackgroud,
-  reinviteExAccount,
-} from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import 'src/components/uploadAttachment/uploadAttachment';
 import ChangeRoleDialog from 'src/pages/Role/PortalCon/components/ChangeRoleDialog';
 import AddUserDialog from 'src/pages/Role/PortalCon/components/AddUserDialog';
 import AddUserByTelDialog from 'src/pages/Role/PortalCon/components/AddUserByTelDialog';
-import UserInfoDialog from 'src/pages/Role/PortalCon/components/UserInfoDialog';
+import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { pageSize, renderText } from '../util';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 
 const Wrap = styled.div(
   ({ len }) => `
@@ -267,13 +262,15 @@ function User(props) {
   }, [keyWords, filters, telFilters]);
 
   const getShowControls = () => {
-    getViewShowControls({
-      appId,
-    }).then(res => {
-      const { controls, showControlIds = [] } = res;
-      setHideIds(showControlIds);
-      setControls(controls);
-    });
+    externalPortalAjax
+      .getViewShowControls({
+        appId,
+      })
+      .then(res => {
+        const { controls, showControlIds = [] } = res;
+        setHideIds(showControlIds);
+        setControls(controls);
+      });
   };
   const getUserList = () => {
     setLoading(true);
@@ -342,7 +339,7 @@ function User(props) {
             render: (text, data, index) => {
               let role = '';
               try {
-                let d = JSON.parse(data['portal_role']);
+                let d = safeParseArray(data['portal_role']);
                 role = d[0] || '';
               } catch (error) {
                 role = '';
@@ -354,16 +351,15 @@ function User(props) {
           columns.push({
             ...o,
             id: o.controlId,
-            name: '成员状态',
+            name: '状态',
             renderHeader: () => {
               return (
                 <React.Fragment>
-                  {/* <span className={cx({ isCurmemberType: !!filterStatusNum.current })}>{_l('成员状态')}</span> */}
                   <Dropdown
                     isAppendToBody
                     data={[{ value: '', text: '所有状态' }].concat(userStatusList)}
                     value={filterStatus}
-                    renderValue={_l('成员状态')}
+                    renderValue={_l('状态')}
                     menuClass="Width120"
                     className={cx('InlineBlock topActDrop', { isCurmemberType: !!filterStatusNum.current })}
                     onChange={newValue => {
@@ -383,13 +379,12 @@ function User(props) {
               );
             },
             render: (text, data, index) => {
+              let portal_status = safeParseArray(data.portal_status)[0];
               //正常、未激活（添加用户后用户未注册）停用
-              if (data.portal_status + '' === '5') {
+              if (portal_status === '5') {
                 return <span className="Gray_9e">{_l('未激活')}</span>;
               }
-              return (
-                userStatusList.filter(o => o.value + '' !== '5').find(o => o.value === data.portal_status + '') || {}
-              ).text;
+              return (userStatusList.filter(o => o.value + '' !== '5').find(o => o.value === portal_status) || {}).text;
             },
           });
         } else {
@@ -422,8 +417,9 @@ function User(props) {
           name: '',
           render: (text, data, index) => {
             let dataList = [];
+            let portal_status = safeParseArray(data.portal_status)[0];
             //正常、未激活（添加用户后用户未注册）停用
-            if (data.portal_status + '' === '5') {
+            if (portal_status === '5') {
               dataList = [
                 {
                   value: '6',
@@ -454,51 +450,39 @@ function User(props) {
                     return it;
                   }
                 })
-                .filter(it => it.value + '' !== data.portal_status + '');
+                .filter(it => it.value + '' !== portal_status);
             }
             return (
               <DropOption
                 dataList={dataList}
                 onAction={o => {
-                  if (data.portal_status + '' === '5') {
+                  if (portal_status === '5') {
                     if (o.value === '7') {
-                      removeUsers({
-                        appId,
-                        rowIds: [data.rowid],
-                      }).then(res => {
-                        setSelectedIds([]); //清除选择
-                        getList(); //重新获取当前页面数据
-                      });
+                      externalPortalAjax
+                        .removeUsers({
+                          appId,
+                          rowIds: [data.rowid],
+                        })
+                        .then(res => {
+                          setSelectedIds([]); //清除选择
+                          getList(); //重新获取当前页面数据
+                        });
                     } else {
-                      reinviteExAccount({
-                        appId,
-                        rowIds: [data.rowid],
-                      }).then(res => {
-                        res ? alert(_l('重新邀请成功')) : alert(_l('重新邀请失败，请稍后再试'), 2);
-                      });
+                      externalPortalAjax
+                        .reinviteExAccount({
+                          appId,
+                          rowIds: [data.rowid],
+                        })
+                        .then(res => {
+                          res ? alert(_l('重新邀请成功')) : alert(_l('重新邀请失败，请稍后再试'), 2);
+                        });
                     }
                   } else {
                     if (o.value === '8') {
                       setSelectedIds([data.rowid]);
                       setChangeRoleDialog(true);
                     } else if (o.value === '9') {
-                      setSelectedIds([data.rowid]);
-                      Dialog.confirm({
-                        title: <span className="Red">{_l('注销%0个成员', selectedIds.length || 1)}</span>,
-                        buttonType: 'danger',
-                        okText: _l('注销'),
-                        description: _l('被注销的成员不能通过外部门户的链接登录到此应用内。'),
-                        onOk: () => {
-                          removeUsers({
-                            appId,
-                            rowIds: [data.rowid],
-                          }).then(res => {
-                            setSelectedIds([]); //清除选择
-                            getCount(appId); //重新获取总计数
-                            getList(); //重新获取当前页面数据
-                          });
-                        },
-                      });
+                      delOne(data.rowid);
                     } else {
                       updateListByStatus({
                         newState: o.value,
@@ -520,6 +504,29 @@ function User(props) {
         }),
     );
   }, [columns, showPortalControlIds]);
+
+  const delOne = id => {
+    Dialog.confirm({
+      title: <span className="Red">{_l('注销%0个成员', 1)}</span>,
+      buttonType: 'danger',
+      okText: _l('注销'),
+      description: _l('被注销的成员不能通过外部门户的链接登录到此应用内。'),
+      onOk: () => {
+        externalPortalAjax
+          .removeUsers({
+            appId,
+            rowIds: [id],
+          })
+          .then(res => {
+            setSelectedIds([]); //清除选择
+            getCount(appId); //重新获取总计数
+            getList(); //重新获取当前页面数据
+            setShowUserInfoDialog(false);
+          });
+      },
+    });
+  };
+
   //导出
   const down = isAll => {
     const { worksheetId, appId, projectId } = baseInfo;
@@ -553,14 +560,16 @@ function User(props) {
 
   //批量删除用户
   const deleteRows = () => {
-    removeUsers({
-      appId,
-      rowIds: selectedIds,
-    }).then(res => {
-      setSelectedIds([]); //清除选择
-      getCount(appId); //重新获取总计数
-      getList(); //重新获取当前页面数据
-    });
+    externalPortalAjax
+      .removeUsers({
+        appId,
+        rowIds: selectedIds,
+      })
+      .then(res => {
+        setSelectedIds([]); //清除选择
+        getCount(appId); //重新获取总计数
+        getList(); //重新获取当前页面数据
+      });
   };
   const deleteRowsDialog = () => {
     return Dialog.confirm({
@@ -573,6 +582,15 @@ function User(props) {
       },
     });
   };
+  const portalBaseControl = [
+    'portal_name',
+    'portal_mobile',
+    'portal_email',
+    'partal_regtime',
+    'portal_openid',
+    'portal_status',
+    'portal_role',
+  ];
   return (
     <Wrap className="flex flexColumn overflowHidden" len={showControls.length}>
       <div className="topAct">
@@ -610,7 +628,7 @@ function User(props) {
             <span
               className={cx('download InlineBlock Hand mLeft10')}
               onClick={() => {
-                let NoList = list.filter(o => o.portal_status + '' === '5').map(o => o.rowid);
+                let NoList = list.filter(o => safeParseArray(o.portal_status)[0] === '5').map(o => o.rowid);
                 if (_.intersection(NoList, selectedIds).length > 0) {
                   return alert(_l('未激活的用户不能启用', 2));
                 }
@@ -636,7 +654,7 @@ function User(props) {
             <span
               className={cx('del InlineBlock Hand mLeft10')}
               onClick={() => {
-                let NoList = list.filter(o => o.portal_status + '' === '5').map(o => o.rowid);
+                let NoList = list.filter(o => safeParseArray(o.portal_status)[0] === '5').map(o => o.rowid);
                 if (_.intersection(NoList, selectedIds).length > 0) {
                   return alert(_l('未激活的用户不能停用', 2));
                 }
@@ -748,8 +766,11 @@ function User(props) {
         }}
         loading={props.portal.loading}
         clickRow={(info, id) => {
-          setCurrentData(info);
           setCurrentId(id);
+          let data = controls.map(it => {
+            return { ...it, value: (list.find(item => item.rowid === id) || {})[it.controlId] };
+          });
+          setCurrentData(data);
           setShowUserInfoDialog(true);
         }}
       />
@@ -798,43 +819,69 @@ function User(props) {
         />
       )}
       {showUserInfoDialog && (
-        <UserInfoDialog
+        <UserInfoWrap
           show={showUserInfoDialog}
           appId={appId}
           currentData={currentData
-            .filter(o => !['portal_avatar', 'portal_status', 'portal_role'].includes(o.controlId)) //详情不显示
-            .map(o => {
-              if (
-                ['portal_name', 'portal_mobile', 'portal_email', 'partal_regtime', 'portal_openid'].includes(
-                  o.controlId,
-                )
-              ) {
-                return { ...o, disabled: true };
+            .filter(o => portalBaseControl.includes(o.controlId))
+            .concat(...currentData.filter(o => !portalBaseControl.includes(o.controlId)))
+            .filter(o => !['portal_avatar'].includes(o.controlId)) //详情不显示
+            .map((o, i) => {
+              if (portalBaseControl.includes(o.controlId) && !['portal_status', 'portal_role'].includes(o.controlId)) {
+                return { ...o, row: i, disabled: true, fieldPermission: '' };
+              } else if (['portal_status', 'portal_role'].includes(o.controlId)) {
+                let da = {
+                  ...o,
+                  row: i,
+                  fieldPermission: '',
+                };
+                if ('portal_status' === o.controlId) {
+                  return {
+                    ...da,
+                    options: !safeParseArray(o.value).includes('5')
+                      ? o.options.filter(it => it.key !== '5')
+                      : o.options,
+                    disabled: safeParseArray(o.value).includes('5'),
+                  };
+                } else {
+                  return da;
+                }
               } else {
-                return o;
+                return { ...o, row: i, fieldPermission: '' };
               }
             })}
-          setCurrentData={setCurrentData}
           setShow={setShowUserInfoDialog}
           onOk={(data, ids) => {
+            let newCell = data.filter(o => ids.includes(o.controlId)).map(formatControlToServer);
             ///更新数据 /////
-            saveUserDetailForBackgroud({
-              appId,
-              rowId: currentId,
-              newCell: data.filter(o => ids.includes(o.controlId)).map(formatControlToServer),
-            }).then(res => {
-              setList(
-                list.map(o => {
-                  if (o.rowid === currentId) {
-                    return { ...o, ...res.data };
-                  } else {
-                    return o;
-                  }
-                }),
-              );
-              setCurrentData([]);
-              setCurrentId('');
-            });
+            externalPortalAjax
+              .saveUserDetailForBackgroud({
+                appId,
+                rowId: currentId,
+                newCell,
+              })
+              .then(res => {
+                if (['portal_role']) {
+                  getUserList();
+                  getCount(appId);
+                } else {
+                  setList(
+                    list.map(o => {
+                      if (o.rowid === currentId) {
+                        return { ...o, ...res.data };
+                      } else {
+                        return o;
+                      }
+                    }),
+                  );
+                }
+                setCurrentData([]);
+                setCurrentId('');
+                alert(_l('更新成功'));
+              });
+          }}
+          onDel={() => {
+            delOne(currentId);
           }}
         />
       )}

@@ -11,6 +11,7 @@ import * as utils from '../../utils';
 import Constant from '../../utils/constant';
 import './index.less';
 import { addGroupMembers } from '../../utils/group';
+import _ from 'lodash';
 
 class MessageView extends Component {
   constructor(props) {

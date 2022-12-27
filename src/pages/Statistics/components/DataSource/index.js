@@ -9,10 +9,14 @@ import TimeModal from './components/TimeModal';
 import CalculateControlModal from './components/CalculateControlModal';
 import { formatrChartTimeText, isTimeControl, getAlreadySelectControlId } from 'statistics/common';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'statistics/redux/actions';
 import './index.less';
+import _ from 'lodash';
 
 @connect(
   state => ({
@@ -55,9 +59,18 @@ export default class DataSource extends Component {
     if (!ownerId) {
       return axisControls;
     } else {
+      const { views, switches } = worksheetInfo;
       const { filter = {} } = currentReport;
-      const view = _.find(worksheetInfo.views, { viewId: newViewId || filter.viewId });
+      const view = _.find(views, { viewId: newViewId || filter.viewId });
+      const sysControlSwitch = isOpenPermit(permitList.sysControlSwitch, switches, view.viewId);
       return axisControls.filter(item => {
+        const advancedSetting = item.advancedSetting || {};
+        if (advancedSetting.datamask === '1') {
+          return false;
+        }
+        if (!sysControlSwitch && _.find(WORKFLOW_SYSTEM_CONTROL, { controlId: item.controlId })) {
+          return false;
+        }
         if (view && view.controls.includes(item.controlId)) {
           return false;
         }

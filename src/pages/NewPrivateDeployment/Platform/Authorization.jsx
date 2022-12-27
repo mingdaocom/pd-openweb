@@ -6,6 +6,8 @@ import copy from 'copy-to-clipboard';
 import PrivateKeyDialog from './PrivateKeyDialog';
 import privateGuideApi from 'src/api/privateGuide';
 import { useClientRect } from '../common';
+import moment from 'moment';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   padding: 20px 25px;

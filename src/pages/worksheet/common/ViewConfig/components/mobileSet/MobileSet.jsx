@@ -8,6 +8,7 @@ import DisplayControl from '../DisplayControl';
 import { getAdvanceSetting } from 'src/util';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import _ from 'lodash';
 
 export default class MobileSet extends React.Component {
   constructor(props) {

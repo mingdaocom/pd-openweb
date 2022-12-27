@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 群组通用邀请，搜索
   * @param {Object} args 请求参数

@@ -1,10 +1,4 @@
-import {
-  getTotalMemrber,
-  getOutsourcingMembers,
-  getAppRoleSummary,
-  getMembersByRole,
-  getAppApplyInfo,
-} from 'src/api/appManagement.js';
+import appManagementAjax from 'src/api/appManagement.js';
 //角色列表
 export const setRoleId = data => {
   return (dispatch, getState) => {
@@ -69,7 +63,7 @@ export const getOutList = (props, isOut) => {
     if (ajaxOut) {
       ajaxOut.abort();
     }
-    ajaxOut = getOutsourcingMembers({
+    ajaxOut = appManagementAjax.getOutsourcingMembers({
       appId,
       appRolePagingModel,
     });
@@ -87,7 +81,7 @@ export const getRoleSummary = (appId, cb, loading) => {
       ajaxAppRoleSummary.abort();
     }
     loading && dispatch({ type: 'ROLE_UPDATE_PAGE_LOADING', data: true });
-    ajaxAppRoleSummary = getAppRoleSummary({
+    ajaxAppRoleSummary = appManagementAjax.getAppRoleSummary({
       appId,
     });
     ajaxAppRoleSummary.then(res => {
@@ -106,7 +100,7 @@ export const getApplyList = (props, isApply) => {
     if (ajaxApply) {
       ajaxApply.abort();
     }
-    ajaxApply = getAppApplyInfo({
+    ajaxApply = appManagementAjax.getAppApplyInfo({
       appId,
     });
     ajaxApply.then(res => {
@@ -128,11 +122,11 @@ export const getUserList = (props, isUserList) => {
       ajax.abort();
     }
     ajax = ['all', 'apply', 'outsourcing'].includes(roleId)
-      ? getTotalMemrber({
+      ? appManagementAjax.getTotalMemrber({
         appId,
         appRolePagingModel,
       })
-      : getMembersByRole({
+      : appManagementAjax.getMembersByRole({
         appId,
         roleId,
         appRolePagingModel,
@@ -156,7 +150,7 @@ export const getUserAllCount = (props) => {
       CountAllAjax.abort();
     }
     CountAllAjax =
-      getTotalMemrber({
+    appManagementAjax.getTotalMemrber({
         appId,
         appRolePagingModel: {},
       });

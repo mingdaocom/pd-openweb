@@ -4,7 +4,9 @@ import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
+import { isKeyBoardInputChar } from 'worksheet/util';
 import CascaderDropdown from 'src/components/newCustomFields/widgets/Cascader';
+import _ from 'lodash';
 
 export default class Cascader extends React.Component {
   static propTypes = {
@@ -34,6 +36,22 @@ export default class Cascader extends React.Component {
   cell = React.createRef();
 
   @autobind
+  handleTableKeyDown(e) {
+    const { tableId, recordId, cell, isediting, updateCell, updateEditingStatus } = this.props;
+    switch (e.key) {
+      default:
+        (() => {
+          if (isediting || !e.key || !isKeyBoardInputChar(e.key)) {
+            return;
+          }
+          updateEditingStatus(true, () => {});
+          e.stopPropagation();
+          e.preventDefault();
+        })();
+    }
+  }
+
+  @autobind
   handleChange(value) {
     this.value = value;
     this.setState({
@@ -52,6 +70,7 @@ export default class Cascader extends React.Component {
     const { value } = this.state;
     return (
       <EditableCellCon
+        conRef={this.con}
         onClick={onClick}
         className={cx(className, 'cellControlCascader', { canedit: editable })}
         style={style}

@@ -5,6 +5,7 @@ import moment from 'moment';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import { getDatePickerConfigs, getAdvanceSetting } from '../../../../util/setting';
+import _ from 'lodash';
 
 export default class DateInput extends Component {
   static propTypes = {

@@ -3,6 +3,7 @@ import { func, string } from 'prop-types';
 import cx from 'classnames';
 import { Dialog, Checkbox, Input } from 'ming-ui';
 import './index.less';
+import _ from 'lodash';
 
 export default class VerifyDel extends Component {
   static propTypes = {

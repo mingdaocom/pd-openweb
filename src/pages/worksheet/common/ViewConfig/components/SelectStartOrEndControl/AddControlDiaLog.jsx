@@ -4,11 +4,12 @@ import styled from 'styled-components';
 import WidgetSetting from 'src/pages/widgetConfig/widgetSetting';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
 import { Icon, Dialog } from 'ming-ui';
-import { addWorksheetControls } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import { v4 as uuidv4 } from 'uuid';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
+import _ from 'lodash';
 
 const Wrap = styled.div(
   ({ height }) => `
@@ -64,7 +65,7 @@ export default function AddControlDiaLog(params) {
   const onSave = () => {
     let row = Math.max(...controls.filter(o => !SYS.includes(o.controlId)).map(o => o.row));
     let control = { ...data, row: row + 1 };
-    addWorksheetControls({
+    worksheetAjax.addWorksheetControls({
       worksheetId: worksheetId,
       controls: [_.omit(control, ['controlId'])],
     }).then(({ code, data, msg }) => {

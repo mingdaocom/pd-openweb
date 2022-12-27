@@ -5,7 +5,8 @@ import { Checkbox, DatePicker } from 'ming-ui';
 import cx from 'classnames';
 import moment from 'moment';
 import RegExp from 'src/util/expression';
-import { checkSensitive } from 'src/api/fixedData.js';
+import fixedDataAjax from 'src/api/fixedData.js';
+import _ from 'lodash';
 
 const errorList = {
   name: false,
@@ -44,7 +45,7 @@ export default class AddOrEditItem extends React.Component {
   updateError(key, value, content) {
     const { errorList = {}, errorSentry = {} } = this.state;
     if (['name', 'title'].includes(key) && !!content) {
-      checkSensitive({ content }).then(res => {
+      fixedDataAjax.checkSensitive({ content }).then(res => {
         this.setState({
           errorSentry: {
             ...errorSentry,
@@ -104,7 +105,7 @@ export default class AddOrEditItem extends React.Component {
       this.updateError([key], isError);
     });
     if (!isError && !errorSentry.name && !errorSentry.title) {
-      Promise.all([checkSensitive({ content: baseInfo.name }), checkSensitive({ content: baseInfo.title })]).then(
+      Promise.all([fixedDataAjax.checkSensitive({ content: baseInfo.name }), fixedDataAjax.checkSensitive({ content: baseInfo.title })]).then(
         results => {
           if (!results.find(result => result)) {
             const resParams = { ...baseInfo, isSoFar: baseInfo.isSoFar ? 0 : 1, type: this.props.type };

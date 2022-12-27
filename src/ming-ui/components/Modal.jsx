@@ -6,6 +6,7 @@ import { Button } from 'ming-ui';
 import ErrorWrapper from './ErrorWrapper';
 import './modalbindesc';
 import './less/Modal.less';
+import _ from 'lodash';
 
 const ModalButtonCon = styled.div`
   z-index: 2;

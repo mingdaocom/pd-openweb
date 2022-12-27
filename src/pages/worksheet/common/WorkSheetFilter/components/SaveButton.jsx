@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import { Menu, MenuItem } from 'ming-ui';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

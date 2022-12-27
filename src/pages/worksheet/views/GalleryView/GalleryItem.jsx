@@ -1,9 +1,10 @@
 import React, { createRef } from 'react';
-import { updateWorksheetRow } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import EditableCard from '../components/EditableCard';
 import EditingRecordItem from '../components/EditingRecordItem';
 import RecordPortal from '../components/RecordPortal';
 import sheetAjax from 'src/api/worksheet';
+import _ from 'lodash';
 
 export default class GalleryItem extends React.Component {
   static propTypes = {};
@@ -18,15 +19,17 @@ export default class GalleryItem extends React.Component {
     const { data, onUpdateFn, base, views } = this.props;
     const { viewId } = base;
     const view = views.find(o => o.viewId === viewId) || {};
-    updateWorksheetRow({
-      rowId: data.rowId,
-      ..._.pick(view, ['worksheetId', 'viewId']),
-      newOldControl: [control],
-    }).then(({ data, resultCode }) => {
-      if (data && resultCode === 1) {
-        onUpdateFn([data.rowid], _.omit(data, ['allowedit', 'allowdelete']));
-      }
-    });
+    worksheetAjax
+      .updateWorksheetRow({
+        rowId: data.rowId,
+        ..._.pick(view, ['worksheetId', 'viewId']),
+        newOldControl: [control],
+      })
+      .then(({ data, resultCode }) => {
+        if (data && resultCode === 1) {
+          onUpdateFn([data.rowid], _.omit(data, ['allowedit', 'allowdelete']));
+        }
+      });
   };
   getStyle = () => {
     const $dom = this.$ref.current;
@@ -35,7 +38,7 @@ export default class GalleryItem extends React.Component {
     return { top, left, width };
   };
   render() {
-    const { sheetSwitchPermit, data, worksheetInfo, base, views, sheetButtons = [] } = this.props;
+    const { sheetSwitchPermit, data, worksheetInfo, base, views, sheetButtons = [], isCharge } = this.props;
     const { viewId, appId } = base;
     const view = views.find(o => o.viewId === viewId) || {};
     const { isEditTitle } = this.state;
@@ -51,6 +54,7 @@ export default class GalleryItem extends React.Component {
             appId,
             customButtons: sheetButtons.filter(o => o.isAllView === 1 || o.displayViews.includes(viewId)), //筛选出当前视图的按钮
           }}
+          isCharge={isCharge}
           allowCopy={worksheetInfo.allowAdd}
           sheetSwitchPermit={sheetSwitchPermit}
           editTitle={() => this.setState({ isEditTitle: true })}
@@ -80,6 +84,7 @@ export default class GalleryItem extends React.Component {
               style={{
                 ...this.getStyle(),
               }}
+              isCharge={isCharge}
               closeEdit={() => this.setState({ isEditTitle: false })}
               updateTitleData={this.updateTitleData}
             />

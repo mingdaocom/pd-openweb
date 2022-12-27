@@ -9,6 +9,7 @@ import reportConfig from '../api/reportConfig';
 import { Dropdown, Menu, Divider } from 'antd';
 import reportApi from 'statistics/api/report';
 import sheetApi from 'src/api/worksheet';
+import _ from 'lodash';
 
 const confirm = Dialog.confirm;
 
@@ -56,6 +57,7 @@ export default class MoreOverlay extends Component {
   handleDelete = () => {
     const { report, filter, appId } = this.props;
     const { id, name } = report;
+    this.handleUpdateDropdownVisible(false);
     confirm({
       title: <span className="Red">{_l('您确定要删除表“%0” ?', name)}</span>,
       onOk: () => {
@@ -105,6 +107,16 @@ export default class MoreOverlay extends Component {
         }
       });
   }
+  handleUpdateDropdownVisible = dropdownVisible => {
+    const { report } = this.props;
+    this.setState({ dropdownVisible });
+    const card = document.querySelector(`.statisticsCard-${report.id}`);
+    if (dropdownVisible) {
+      card.classList.add('active');
+    } else {
+      card.classList.remove('active');
+    }
+  }
   renderOverlay() {
     const {
       reportType,
@@ -116,18 +128,22 @@ export default class MoreOverlay extends Component {
       onOpenFilter,
       onOpenSetting,
       onRemove,
-      getPopupContainer,
     } = this.props;
     const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportType);
     return (
       <Menu
         className="chartMenu"
         expandIcon={<Icon icon="arrow-right-tip" />}
-        getPopupContainer={getPopupContainer}
         style={{ width: 180 }}
       >
         {onOpenSetting && (
-          <Menu.Item className="pLeft10" onClick={onOpenSetting}>
+          <Menu.Item
+            className="pLeft10"
+            onClick={() => {
+              onOpenSetting();
+              this.handleUpdateDropdownVisible(false);
+            }}
+          >
             <div className="flexRow valignWrapper">
               <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="settings" />
               <span>{_l('设置')}</span>
@@ -135,7 +151,13 @@ export default class MoreOverlay extends Component {
           </Menu.Item>
         )}
         {onOpenFilter && !!reportStatus && (
-          <Menu.Item className="pLeft10" onClick={onOpenFilter}>
+          <Menu.Item
+            className="pLeft10"
+            onClick={() => {
+              onOpenFilter();
+              this.handleUpdateDropdownVisible(false);
+            }}
+          >
             <div className="flexRow valignWrapper">
               <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="filter" />
               <span>{_l('筛选')}</span>
@@ -147,6 +169,7 @@ export default class MoreOverlay extends Component {
             className="pLeft10"
             onClick={() => {
               this.setState({ shareVisible: true });
+              this.handleUpdateDropdownVisible(false);
             }}
           >
             <div className="flexRow valignWrapper">
@@ -155,32 +178,43 @@ export default class MoreOverlay extends Component {
             </div>
           </Menu.Item>
         )}
-        {reportTypes.NumberChart !== reportType && !!reportStatus && (
-          <Menu.SubMenu
-            popupClassName="chartMenu"
-            title={_l('导出Excel')}
-            icon={<Icon className="Gray_9e Font18 mRight5" icon="file_download" />}
-            popupOffset={[0, 0]}
+        <Menu.SubMenu
+          popupClassName="chartMenu"
+          title={_l('导出Excel')}
+          icon={<Icon className="Gray_9e Font18 mRight5" icon="file_download" />}
+          popupOffset={[0, 0]}
+        >
+          <Menu.Item
+            style={{ width: 180 }}
+            className="pLeft20"
+            onClick={() => {
+              this.handleExportExcel(0);
+            }}
           >
-            <Menu.Item
-              style={{ width: 180 }}
-              className="pLeft20"
-              onClick={() => {
-                this.handleExportExcel(0);
-              }}
-            >
-              <div className="flexRow valignWrapper">{_l('按照原值导出')}</div>
-            </Menu.Item>
-            <Menu.Item
-              style={{ width: 180 }}
-              className="pLeft20"
-              onClick={() => {
-                this.handleExportExcel(1);
-              }}
-            >
-              <div className="flexRow valignWrapper">{_l('按显示单位导出')}</div>
-            </Menu.Item>
-          </Menu.SubMenu>
+            <div className="flexRow valignWrapper">{_l('按照原值导出')}</div>
+          </Menu.Item>
+          <Menu.Item
+            style={{ width: 180 }}
+            className="pLeft20"
+            onClick={() => {
+              this.handleExportExcel(1);
+            }}
+          >
+            <div className="flexRow valignWrapper">{_l('按显示单位导出')}</div>
+          </Menu.Item>
+        </Menu.SubMenu>
+        {[reportTypes.PivotTable].includes(reportType) && (
+          <Menu.Item
+            className="pLeft10"
+            onClick={() => {
+              window.open(`/printPivotTable/${report.id}`);
+            }}
+          >
+            <div className="flexRow valignWrapper">
+              <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="print" />
+              <span>{_l('打印')}</span>
+            </div>
+          </Menu.Item>
         )}
         {isMove && isCharge && (
           <Fragment>
@@ -209,6 +243,7 @@ export default class MoreOverlay extends Component {
                 className="pLeft20"
                 onClick={() => {
                   this.setState({ showPageMove: true });
+                  this.handleUpdateDropdownVisible(false);
                 }}
               >
                 <div className="flexRow valignWrapper">{_l('自定义页面')}</div>
@@ -231,14 +266,15 @@ export default class MoreOverlay extends Component {
     );
   }
   render() {
-    const { shareVisible, showPageMove } = this.state;
-    const { appId, worksheetId, report, className, permissions, isCharge, getPopupContainer } = this.props;
+    const { shareVisible, showPageMove, dropdownVisible } = this.state;
+    const { appId, worksheetId, report, className, permissions, isCharge, sheetVisible } = this.props;
     return (
       <Fragment>
         <Dropdown
           trigger={['click']}
           placement="bottomRight"
-          getPopupContainer={getPopupContainer}
+          visible={dropdownVisible}
+          onVisibleChange={this.handleUpdateDropdownVisible}
           overlay={this.renderOverlay()}
         >
           <Icon className={className} icon="more_horiz" />

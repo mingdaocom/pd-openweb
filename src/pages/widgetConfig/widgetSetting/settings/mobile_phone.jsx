@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 
 const DISPLAY_OPTIONS = [
   {
@@ -16,6 +17,7 @@ const DISPLAY_OPTIONS = [
 export default function Text(props) {
   const { data, onChange } = props;
   const { type, controlId, hint = '' } = data;
+  const { datamask } = getAdvanceSetting(data);
   return (
     <Fragment>
       <SettingItem>
@@ -24,15 +26,17 @@ export default function Text(props) {
           checkedValue={type}
           data={DISPLAY_OPTIONS}
           onChange={value => {
+            let newData = { ...data, type: value };
             if (controlId.includes('-')) {
-              onChange({
-                type: value,
+              newData = Object.assign(newData, {
                 controlName: DISPLAY_OPTIONS.find(item => item.value === value).text,
                 hint: value === 3 ? _l('请填写手机号码') : _l('请填写座机号码'),
               });
-              return;
             }
-            onChange({ type: value });
+            if (value === 4 && datamask === '1') {
+              newData = handleAdvancedSettingChange(newData, { datamask: '0' });
+            }
+            onChange(newData);
           }}
         />
       </SettingItem>

@@ -8,7 +8,8 @@ import styled from 'styled-components';
 import AddControlDiaLog from './AddControlDiaLog';
 import { SYS } from '../../../../../widgetConfig/config/widget';
 import { getStringBytes } from 'src/util';
-import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util.js';
+import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
+import _ from 'lodash';
 
 const WrapFragment = styled.div`
   .addMarkInput,
@@ -149,7 +150,7 @@ export default function SelectStartOrEndGroups(props) {
             <SelectStartOrEnd
               {...props}
               allowClear
-              classNames='groupSelectStartOrEnd'
+              classNames="groupSelectStartOrEnd"
               canAddTimeControl
               i={i}
               begindate={o.begin}

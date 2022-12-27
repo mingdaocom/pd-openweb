@@ -16,4 +16,4 @@ var reportSort = {
     return $.api(controllerName, 'reportSortupdateReportSort', JSON.stringify(args), $.extend(base, options));
   },
 };
-module.exports = reportSort;
+export default reportSort;

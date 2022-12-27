@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { relevanceImageSize } from 'statistics/common';
+import _ from 'lodash';
 
 const SearchControlWrapper = styled.div`
   padding: 8px 5px;

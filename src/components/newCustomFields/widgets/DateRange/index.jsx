@@ -4,6 +4,8 @@ import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import { FROM } from '../../tools/config';
+import _ from 'lodash';
+import moment from 'moment';
 
 export default class Widgets extends Component {
   static propTypes = {

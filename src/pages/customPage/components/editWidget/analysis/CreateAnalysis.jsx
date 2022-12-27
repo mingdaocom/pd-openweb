@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet';
 import { ScrollView } from 'ming-ui';
 import SheetModal from 'statistics/components/DataSource/components/SheetModal';
+import _ from 'lodash';
 
 function CreateAnalysis(props) {
   const {

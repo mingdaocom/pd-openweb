@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { Dialog, Dropdown, RadioGroup, Input, Button, Support } from 'ming-ui';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import sheetAjax from 'src/api/worksheet';
 import { FILTER } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import renderQr from './renderWorksheetRowQrCode';
 import './PrintQrCode.less';
+import _ from 'lodash';
 
 const PRINT_TYPE = {
   A4: 1,

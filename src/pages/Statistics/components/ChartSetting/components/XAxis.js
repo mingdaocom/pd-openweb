@@ -16,6 +16,7 @@ import {
   isOptionControl
 } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
+import _ from 'lodash';
 
 const emptyTypes = [{
   value: 0,
@@ -48,6 +49,15 @@ export default class XAxis extends Component {
     this.state = {
       dialogVisible: false,
     };
+  }
+  getAreaParticleSizeDropdownData(type) {
+    if (type === 19) {
+      return areaParticleSizeDropdownData.filter(a => ![2, 3].includes(a.value));
+    }
+    if (type === 23) {
+      return areaParticleSizeDropdownData.filter(a => ![3].includes(a.value));
+    }
+    return areaParticleSizeDropdownData;
   }
   handleUpdateTimeParticleSizeType = value => {
     const { xaxes, sorts } = this.props.currentReport;
@@ -82,7 +92,6 @@ export default class XAxis extends Component {
   }
   handleAddControl = data => {
     const { reportType, xaxes, displaySetup } = this.props.currentReport;
-
     if (this.handleVerification(data, true)) {
       this.props.addXaxes(data);
     }
@@ -150,6 +159,7 @@ export default class XAxis extends Component {
     const showtype = _.get(axis, 'advancedSetting.showtype');
     const timeDataList = isTime ? filterTimeData(timeDataParticle, { showtype, controlType: xaxes.controlType }) : [];
     const timeGatherParticleList = filterTimeGatherParticle(timeGatherParticle, { showtype, controlType: xaxes.controlType });
+    const areaParticleSizeDropdownData = this.getAreaParticleSizeDropdownData(axis.type);
 
     if (!isLineChart && xaxes.emptyType === 3) {
       xaxes.emptyType = 2;

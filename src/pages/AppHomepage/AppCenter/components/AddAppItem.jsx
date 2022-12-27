@@ -9,6 +9,7 @@ import ImportApp from 'src/pages/Admin/appManagement/modules/ImportApp.jsx';
 import { navigateTo } from 'src/router/navigateTo';
 import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import _ from 'lodash';
 
 const ADD_APP_MODE = [
   { id: 'createFromEmpty', icon: 'plus', text: _l('从空白创建'), href: '/app/lib' },

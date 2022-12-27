@@ -5,6 +5,7 @@ import { CustomScore } from 'ming-ui';
 import { FROM } from './enum';
 import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 function levelSafeParse(value) {
   let levelValue = parseInt(value, 10);
@@ -36,6 +37,39 @@ export default class Level extends React.Component {
     }
   }
 
+  @autobind
+  handleTableKeyDown(e) {
+    const { cell, updateCell } = this.props;
+    const { max } = cell.advancedSetting || {};
+    const minNumber = 0;
+    const maxNumber = levelSafeParse(max);
+    switch (e.key) {
+      default:
+        if (/^[0-9]$/.test(e.key)) {
+          let inputValue = Number(e.key);
+          if (!_.isNaN(inputValue)) {
+            if (this.prevValue) {
+              inputValue = Number(this.prevValue + '' + inputValue);
+            }
+            if (
+              !_.isUndefined(minNumber) &&
+              !_.isUndefined(maxNumber) &&
+              (inputValue < minNumber || inputValue > maxNumber)
+            ) {
+              return;
+            }
+            updateCell({
+              value: inputValue || '',
+            });
+            this.prevValue = inputValue;
+            setTimeout(() => {
+              this.prevValue = undefined;
+            }, 500);
+          }
+        }
+        break;
+    }
+  }
   @autobind
   handleChange(value) {
     const { updateCell } = this.props;

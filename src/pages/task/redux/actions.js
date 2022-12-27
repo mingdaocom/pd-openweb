@@ -4,6 +4,7 @@ import tagController from 'src/api/tag';
 import { errorMessage } from '../utils/utils';
 import { updateTimeError, updateTimeErrorDialog, updateTaskErrorDialog } from '../components/updateTimeError/updateTimeError';
 import { updateStageViewControlsSource } from '../utils/taskComm';
+import _ from 'lodash';
 
 export const addTask = data => (dispatch, getState) => {
   const { taskConfig } = getState().task;

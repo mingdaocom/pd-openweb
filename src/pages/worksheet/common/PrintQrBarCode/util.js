@@ -10,7 +10,7 @@ import {
   QR_LABEL_SIZES,
   SOURCE_TYPE,
 } from './enum';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { QrLabel } from './qr';
 import { BarLabel } from './bar';
 import _ from 'lodash';

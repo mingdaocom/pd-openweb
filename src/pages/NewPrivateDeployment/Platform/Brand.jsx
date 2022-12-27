@@ -5,6 +5,8 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { updateSysSettings } from '../common';
 import 'src/components/uploadAttachment/uploadAttachment';
+import logo from '../images/logo.png';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   .uploadingImageWrap, .uploadingIconWrap {
@@ -156,7 +158,7 @@ const BrandLogo = () => {
             </div>
           </Fragment>
         ) : (
-          <img className="h100" src={require('../images/logo.png')} />
+          <img className="h100" src={logo} />
         )}
       </div>
     </Fragment>

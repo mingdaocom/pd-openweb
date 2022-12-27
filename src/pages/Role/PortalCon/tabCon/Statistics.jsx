@@ -7,7 +7,8 @@ import { Icon, Radio, Dialog, Dropdown } from 'ming-ui';
 import cx from 'classnames';
 import LoginInfoDialog from 'src/pages/Role/PortalCon/components/LoginInfo';
 import { Line, Bar } from '@antv/g2plot';
-import { dateHistogram } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
+import moment from 'moment';
 
 const Wrap = styled.div`
   padding: 16px 32px 40px;
@@ -107,7 +108,7 @@ function Statistics(props) {
   };
   useEffect(() => {
     //查看量
-    dateHistogram({
+    externalPortalAjax.dateHistogram({
       appId,
       type: timeType, //0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
     }).then((res = {}) => {

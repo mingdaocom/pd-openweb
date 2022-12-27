@@ -3,13 +3,14 @@ import { arrayOf, bool, func, shape, string } from 'prop-types';
 import { Modal, Dialog, Checkbox } from 'ming-ui';
 import styled from 'styled-components';
 import update from 'immutability-helper';
-import { getFilterRows, removeWorksheetRows, restoreWorksheetRows } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import WorksheetTable from 'worksheet/components/WorksheetTable';
+import WorksheetTable from 'worksheet/components/WorksheetTable/V2';
 import { RowHead } from 'worksheet/components/WorksheetTable/components/';
 import ColumnHead from './TrashColumnHead';
 import TrashBatchOperate from './TrashBatchOperate';
 import Header from './Header';
+import _ from 'lodash';
 
 const Con = styled.div`
   width: 100%;
@@ -81,27 +82,29 @@ const createActions = (dispatch, state) => ({
       type: 'UPDATE_LOADING',
       loading: true,
     });
-    getFilterRows({
-      appId,
-      worksheetId,
-      searchType,
-      pageSize: pageSize,
-      pageIndex,
-      keyWords: searchText,
-      status: 9,
-      sortControls: sortControls.filter(_.identity),
-      filterControls,
-    }).then(data => {
-      dispatch({
-        type: 'UPDATE_RECORDS',
-        records: data.data,
-        count: data.count,
+    worksheetAjax
+      .getFilterRows({
+        appId,
+        worksheetId,
+        searchType,
+        pageSize: pageSize,
         pageIndex,
-        pageSize,
+        keyWords: searchText,
+        status: 9,
+        sortControls: sortControls.filter(_.identity),
         filterControls,
-        loading: false,
+      })
+      .then(data => {
+        dispatch({
+          type: 'UPDATE_RECORDS',
+          records: data.data,
+          count: data.count,
+          pageIndex,
+          pageSize,
+          filterControls,
+          loading: false,
+        });
       });
-    });
   },
   deleteRecord: ids => {
     dispatch({
@@ -110,15 +113,17 @@ const createActions = (dispatch, state) => ({
     });
   },
   clear: ({ appId, worksheetId }) => {
-    removeWorksheetRows({
-      appId,
-      worksheetId,
-    }).then(() => {
-      dispatch({
-        type: 'CLEAR',
+    worksheetAjax
+      .removeWorksheetRows({
+        appId,
+        worksheetId,
+      })
+      .then(() => {
+        dispatch({
+          type: 'CLEAR',
+        });
+        alert(_l('已清空回收站'));
       });
-      alert(_l('已清空回收站'));
-    });
   },
 });
 
@@ -140,6 +145,7 @@ export default function WorkSheetTrash(props) {
   const [selected, setSelected] = useState([]);
   const [selectRows, setSelectRows] = useState([]);
   const [sortControl, setSortControl] = useState();
+  const [disableMaskDataControls, setDisableMaskDataControls] = useState({});
   const [state, dispatch] = useReducer(trashReducer, { records: [] });
   const {
     loading = true,
@@ -155,7 +161,17 @@ export default function WorkSheetTrash(props) {
   const hasAuthRowIds = hasAuthRows.map(item => item.rowid);
   const actions = createActions(dispatch, state);
   const controlsForShow = controls
-    .filter(column => column.controlId !== 'utime' && controlState(column).visible)
+    .filter(column => !_.includes(['utime', 'uaid'], column.controlId) && controlState(column).visible)
+    .map(c =>
+      disableMaskDataControls[c.controlId]
+        ? {
+            ...c,
+            advancedSetting: Object.assign({}, c.advancedSetting, {
+              datamask: '0',
+            }),
+          }
+        : c,
+    )
     .concat([
       {
         controlId: 'dtime',
@@ -208,7 +224,7 @@ export default function WorkSheetTrash(props) {
                   args.excludeRowIds = records.filter(r => !_.includes(selected, r.rowid)).map(r => r.rowid);
                 }
                 args.restoreRelation = !!needRestoreRelation.current;
-                restoreWorksheetRows(args).then(res => {
+                worksheetAjax.restoreWorksheetRows(args).then(res => {
                   if (!res.isSuccess) {
                     alert(_l('恢复失败'), 3);
                     return;
@@ -275,7 +291,7 @@ export default function WorkSheetTrash(props) {
                     args.isAll = true;
                     args.excludeRowIds = records.filter(r => !_.includes(selected, r.rowid)).map(r => r.rowid);
                   }
-                  removeWorksheetRows(args).then(() => {
+                  worksheetAjax.removeWorksheetRows(args).then(() => {
                     if (selectRows.length === selected.length) {
                       alert(_l('删除成功'));
                     } else {
@@ -325,10 +341,19 @@ export default function WorkSheetTrash(props) {
             renderColumnHead={({ control, ...rest }) => (
               <ColumnHead
                 {...rest}
+                control={
+                  disableMaskDataControls[control.controlId]
+                    ? {
+                        ...control,
+                        advancedSetting: Object.assign({}, control.advancedSetting, {
+                          datamask: '0',
+                        }),
+                      }
+                    : control
+                }
                 worksheetId={worksheetId}
                 type="trash"
                 selected={!!selected.length}
-                control={control}
                 isAsc={control.controlId === (sortControl || {}).controlId ? (sortControl || {}).isAsc : undefined}
                 changeSort={newIsAsc => {
                   const newSortControl = _.isUndefined(newIsAsc)
@@ -348,6 +373,9 @@ export default function WorkSheetTrash(props) {
                           },
                         ],
                   });
+                }}
+                onShowFullValue={() => {
+                  setDisableMaskDataControls({ ...disableMaskDataControls, [control.controlId]: true });
                 }}
               />
             )}

@@ -7,11 +7,14 @@ import {
   NO_VERIFY_WIDGET,
   HAS_DYNAMIC_DEFAULT_VALUE_CONTROL,
   NO_PERMISSION_WIDGET,
+  HAVE_MASK_WIDGET,
 } from '../../../config';
 import { enumWidgetType } from '../../../util';
 import WidgetVerify from '../WidgetVerify';
 import components from '../';
 import ControlSetting from '../ControlSetting';
+import ControlMask from '../ControlMask';
+import _ from 'lodash';
 const { WidgetIntro, WidgetName, WidgetPermission } = components;
 
 const SubControlConfigWrap = styled.div`
@@ -59,7 +62,7 @@ export default function SubControlConfig({
   updateSubQueryConfigs,
   ...rest
 }) {
-  const { controlId, type, advancedSetting = {} } = control || {};
+  const { controlId, type, advancedSetting = {}, enumDefault } = control || {};
   const { controlName, dataSource: subListSheetId } = subListData;
   const SettingModel = Setting[enumWidgetType[type]];
   const handleChange = obj => {
@@ -101,6 +104,9 @@ export default function SubControlConfig({
       {(HAVE_CONFIG_SUB_LIST.includes(type) || (type === 11 && advancedSetting.showtype !== '2')) && (
         <ControlSetting {...subListProps} />
       )}
+      {(HAVE_MASK_WIDGET.includes(type) ||
+        (type === 2 && enumDefault === 2) ||
+        (type === 6 && advancedSetting.showtype !== '2')) && <ControlMask {...subListProps} />}
       {!NO_PERMISSION_WIDGET.includes(type) && <WidgetPermission {...subListProps} />}
       {/* {!_.includes(NO_CONTENT_CONTROL, type) && (
         <div className="widgetCommonConfig">

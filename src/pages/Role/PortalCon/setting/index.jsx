@@ -11,9 +11,10 @@ import BaseSet from './BaseSet';
 import InfoSet from './InfoSet';
 import LoginSet from './LoginSet';
 import TextMessage from './TextMessage';
-import { editPortalSet } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import { getStringBytes } from 'src/util';
-import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util.js';
+import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   position: fixed;
@@ -231,63 +232,65 @@ class PortalSetting extends React.Component {
         saveLoading: true,
       });
     }
-    editPortalSet({
-      appId,
-      portalSet: {
-        ..._.pick(portalSetModel, [
-          'inviteSms',
-          'refusedSms',
-          'approvedSms',
-          'termsAndAgreementEnable',
-          'userAgreement',
-          'privacyTerms',
-          'customizeName',
-          'exAccountDiscussEnum',
-          'allowExAccountDiscuss',
-          'loginMode',
-          'registerMode',
-          'subscribeWXOfficial',
-          'emailSignature',
-        ]),
-        epDiscussWorkFlow,
+    externalPortalAjax
+      .editPortalSet({
         appId,
-        allowUserType,
-        noticeScope,
-        wxAppId: authorizerInfo.appId,
-        pageTitle,
-        logoImageBucket: 4,
-        logoImagePath,
-        pageMode,
-        backGroundType,
-        backColor,
-        backImageBucket: 4,
-        backImagePath,
-        smsSignature,
-      },
-      worksheetControls: {
-        ...controlTemplate,
-        controls: controlTemplate.controls.filter(o => !!o.type),
-        appId,
-      },
-    }).then(
-      res => {
-        if (res.success) {
-          this.props.onChangePortal(res.portalSetModelDTO);
-          this.setState({ hasChange: false, saveLoading: false });
-          if (!noClose) {
-            alert(_l('保存成功'));
-            closeSet();
+        portalSet: {
+          ..._.pick(portalSetModel, [
+            'inviteSms',
+            'refusedSms',
+            'approvedSms',
+            'termsAndAgreementEnable',
+            'userAgreement',
+            'privacyTerms',
+            'customizeName',
+            'exAccountDiscussEnum',
+            'allowExAccountDiscuss',
+            'loginMode',
+            'registerMode',
+            'subscribeWXOfficial',
+            'emailSignature',
+          ]),
+          epDiscussWorkFlow,
+          appId,
+          allowUserType,
+          noticeScope,
+          wxAppId: authorizerInfo.appId,
+          pageTitle,
+          logoImageBucket: 4,
+          logoImagePath,
+          pageMode,
+          backGroundType,
+          backColor,
+          backImageBucket: 4,
+          backImagePath,
+          smsSignature,
+        },
+        worksheetControls: {
+          ...controlTemplate,
+          controls: controlTemplate.controls.filter(o => !!o.type),
+          appId,
+        },
+      })
+      .then(
+        res => {
+          if (res.success) {
+            this.props.onChangePortal(res.portalSetModelDTO);
+            this.setState({ hasChange: false, saveLoading: false });
+            if (!noClose) {
+              alert(_l('保存成功'));
+              closeSet();
+            }
+          } else {
+            alert(_l('保存失败，请稍后再试'), 3);
           }
-        } else {
-          alert(_l('保存失败，请稍后再试'), 3);
-        }
-      },
-      () => {
-        this.setState({
-          saveLoading: false,
-        });
-      },
-    );
+        },
+        () => {
+          this.setState({
+            saveLoading: false,
+          });
+        },
+      );
   };
   render() {
     const { show, closeSet, getControls, appId } = this.props;

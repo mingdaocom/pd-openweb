@@ -18,6 +18,7 @@ import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
 import './index.less';
+import _ from 'lodash';
 
 const TYPE_TO_COMP = {
   web: WebLayout,

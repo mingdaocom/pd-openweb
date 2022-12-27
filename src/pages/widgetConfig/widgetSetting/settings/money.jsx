@@ -8,7 +8,7 @@ export default function Money(props) {
 
   useEffect(() => {
     // 初始化用老数据unit覆盖suffix
-    if (data.unit) {
+    if (data.unit && !(data.advancedSetting || {}).suffix) {
       onChange(handleAdvancedSettingChange({ ...data, unit: '' }, { suffix: data.unit }));
     }
   }, [data.controlId]);

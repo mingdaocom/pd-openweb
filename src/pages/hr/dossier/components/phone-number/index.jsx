@@ -8,6 +8,7 @@ import { checkControlUnique } from '../../util';
 import './style.less';
 
 import { FormError } from '../lib';
+import _ from 'lodash';
 
 class PhoneNumber extends Component {
   constructor(props) {

@@ -13,6 +13,7 @@ import { compareWithTime } from '../../tools/utils';
 import { browserIsMobile } from 'src/util';
 import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import moment from 'moment';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {

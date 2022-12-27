@@ -10,6 +10,7 @@ import PrivateKeyDialog from './PrivateKeyDialog';
 import DetailedDialog from './DetailedDialog';
 import Projects from './Projects';
 import weixinCode from '../../images/weixin.png';
+import moment from 'moment';
 
 const Wrap = styled.div`
   .paidUpgrade {

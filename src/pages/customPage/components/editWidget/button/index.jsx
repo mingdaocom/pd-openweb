@@ -16,6 +16,7 @@ import { Header, EditWidgetContent } from '../../../styled';
 import { DEFAULT_BUTTON_LIST } from './config';
 import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
 import ButtonDisplay from './ButtonDisplay';
+import _ from 'lodash';
 
 const BtnWrap = styled.div`
   background-color: #eee;

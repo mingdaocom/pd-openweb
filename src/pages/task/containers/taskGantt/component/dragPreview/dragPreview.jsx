@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import config from '../../config/config';
 import './dragPreview.less';
+import moment from 'moment';
 
 export default class DragPreview extends Component {
   constructor(props) {

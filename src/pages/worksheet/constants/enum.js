@@ -1,3 +1,4 @@
+import _ from 'lodash';
 export const APP_ROLE_TYPE = {
   CUSTOM_ROLE: 0, // 自定义角色
   READ_ROLE: 10, // 只读角色
@@ -111,6 +112,7 @@ export const RECORD_INFO_FROM = {
   WORKSHEET_ROW_LAND: 2,
   CHAT: 3,
   WORKFLOW: 4,
+  DRAFT: 21,
 };
 export const controlName = {
   2: _l('文本框'),
@@ -249,5 +251,6 @@ export const SHEET_VIEW_HIDDEN_TYPES = [
   10010, // REMARK 备注
   22, // SPLIT_LINE 分段
   43, // OCR
+  45, // EMBED 嵌入
   49, // SEARCH_BTN 查询按钮
 ];

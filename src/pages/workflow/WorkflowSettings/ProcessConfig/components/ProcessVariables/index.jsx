@@ -3,6 +3,7 @@ import { Icon, Dropdown } from 'ming-ui';
 import './index.less';
 import { v4 as uuidv4, validate } from 'uuid';
 import { FIELD_TYPE_LIST } from '../../../enum';
+import _ from 'lodash';
 
 export default class ProcessVariables extends Component {
   addVariables = () => {

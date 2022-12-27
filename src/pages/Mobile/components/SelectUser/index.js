@@ -6,6 +6,7 @@ import userAjax from 'src/api/user';
 import departmentAjax from 'src/api/department';
 import externalPortalAjax from 'src/api/externalPortal';
 import './index.less';
+import _ from 'lodash';
 
 const { CheckboxItem } = Checkbox;
 
@@ -80,7 +81,7 @@ export default class SelectUser extends Component {
     }
 
     const { pageIndex, pageSize, users, searchValue } = this.state;
-    const { projectId, isRangeData, filterWorksheetId, filterWorksheetControlId, userType, appId } = this.props;
+    const { projectId, isRangeData, filterAccountIds = [], filterWorksheetId, filterWorksheetControlId, userType, appId } = this.props;
 
     if (userType === 2) {
       this.request = externalPortalAjax
@@ -118,6 +119,11 @@ export default class SelectUser extends Component {
           includeUndefinedAndMySelf: false,
           pageIndex,
           pageSize,
+          dataRange: 2,
+          filterProjectId: '',
+          includeSystemField: false,
+          filterAccountIds: filterAccountIds,
+          prefixAccountIds: [],
         });
       }
       this.request.then(result => {
@@ -258,7 +264,7 @@ export default class SelectUser extends Component {
   };
   requestGetDepartmentUsers = () => {
     const { department } = this.state;
-    const { projectId } = this.props;
+    const { projectId, filterAccountIds = [] } = this.props;
 
     this.setState({
       departmentUsersLoading: true,
@@ -268,6 +274,7 @@ export default class SelectUser extends Component {
       .getDepartmentUsers({
         departmentId: department.departmentId,
         projectId,
+        filterAccountIds
       })
       .then(result => {
         this.setState({
@@ -389,7 +396,7 @@ export default class SelectUser extends Component {
       onlyJoinDepartmentChecked,
       selectedAllUsers = [],
     } = this.state;
-    const { type, selectDepartmentType } = this.props;
+    const { type, selectDepartmentType, filterAccountIds = [] } = this.props;
     if (departmentVisible) {
       return (
         <List
@@ -629,15 +636,17 @@ export default class SelectUser extends Component {
             </div>
           </List.Item>
         </List>
-        <div
-          className="currentAccount mTop10"
-          onClick={() => {
-            this.selectedAccount(currentAccount);
-          }}
-        >
-          <img src={currentAccount.avatar} className="avatar mRight10" />
-          <span>{_l('我自己')}</span>
-        </div>
+        {!filterAccountIds.includes(currentAccount.accountId) && (
+          <div
+            className="currentAccount mTop10"
+            onClick={() => {
+              this.selectedAccount(currentAccount);
+            }}
+          >
+            <img src={currentAccount.avatar} className="avatar mRight10" />
+            <span>{_l('我自己')}</span>
+          </div>
+        )}
       </Fragment>
     );
   }
@@ -675,21 +684,30 @@ export default class SelectUser extends Component {
               </div>
             ) : (
               <Fragment>
-                {users.map(item => (
-                  <CheckboxItem
-                    key={item.accountId}
-                    checked={isChecked(
-                      item.accountId,
-                      this.state.selectedUsers.map(item => item.accountId),
-                    )}
-                    onChange={() => this.selectedAccount(item)}
-                  >
-                    <Fragment>
-                      <img src={item.avatar} className="avatar" />
-                      {item.fullname}
-                    </Fragment>
-                  </CheckboxItem>
-                ))}
+                {users.map(item => {
+                  let { departmentName } = _.get(item, 'departmentInfo') || {};
+                  let { job } = item;
+                  return (
+                    <CheckboxItem
+                      key={item.accountId}
+                      checked={isChecked(
+                        item.accountId,
+                        this.state.selectedUsers.map(item => item.accountId),
+                      )}
+                      onChange={() => this.selectedAccount(item)}
+                    >
+                      <div className="flexRow w100 alignItemsCenter">
+                        <div className="userInfo">
+                          <img src={item.avatar} className="avatar" />
+                          {item.fullname}
+                        </div>
+                        <span className="Gray_9e mLeft16 Font12 flex ellipsis">
+                          {departmentName && job ? `${departmentName} / ${job}` : departmentName || job}
+                        </span>
+                      </div>
+                    </CheckboxItem>
+                  );
+                })}
                 {loading ? (
                   <div className="pTop10 pBottom10">
                     <LoadDiv size="middle" />

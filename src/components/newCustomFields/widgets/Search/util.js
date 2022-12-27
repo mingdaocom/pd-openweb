@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { isEmptyValue } from 'src/components/newCustomFields/tools/filterFn.js';
+import moment from 'moment';
 
 const getValue = (control = {}, type) => {
   if (!control.value) return '';

@@ -14,6 +14,7 @@ import NoData from './NoData';
 
 import './css/department.less';
 import styled from 'styled-components';
+import _ from 'lodash';
 const Wrap = styled.div`
   .onlySelf {
     display: none;

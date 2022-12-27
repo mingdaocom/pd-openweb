@@ -1,11 +1,11 @@
-.worksheetRocordLog .oldBackground {
+.worksheetRecordLog .oldBackground{
   background: #feeaec;
   text-decoration: line-through;
 }
-.worksheetRocordLog .newBackground {
+.worksheetRecordLog .newBackground {
   background: #dff8ea;
 }
-.worksheetRocordLog .defaultBackground {
+.worksheetRecordLog .defaultBackground {
   background: #f0f0f0;
 }
 .WorksheetRocordLogSelectTags {
@@ -27,6 +27,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     word-wrap: break-word;
+    cursor: pointer;
   }
   .hoverHighline {
     cursor: pointer;
@@ -38,17 +39,17 @@
     text-decoration: none !important;
   }
 }
-.worksheetRocordLog .flexDirectionRever {
+.worksheetRecordLog .flexDirectionRever {
   flex-direction: row-reverse;
 }
-.worksheetRocordLog .oldValue {
+.worksheetRecordLog .oldValue {
   background: #feeaec;
   text-decoration: line-through;
 }
-.worksheetRocordLog .newValue {
+.worksheetRecordLog .newValue {
   background: #dff8ea;
 }
-.worksheetRocordLog .defaultValue {
+.worksheetRecordLog .defaultValue {
   background: rgba(0, 0, 0, 0.06);
 }
 
@@ -233,6 +234,26 @@
     line-height: 17px;
     font-weight: 600;
   }
+ .oldBackground{
+    background: #feeaec;
+    text-decoration: line-through;
+  }
+ .newBackground {
+    background: #dff8ea;
+  }
+ .defaultBackground {
+    background: #f0f0f0;
+  }
+ .oldValue {
+    background: #feeaec;
+    text-decoration: line-through;
+  }
+ .newValue {
+    background: #dff8ea;
+  }
+ .defaultValue {
+    background: rgba(0, 0, 0, 0.06);
+  }
 }
 
 .worksheetRecordLogSubTable {
@@ -246,6 +267,12 @@
   }
   .ant-table-cell {
     min-width: 200px;
+  }
+  .canMask {
+    cursor: pointer;
+    &:hover {
+      color: #1d5786;
+    }
   }
   .worksheetRecordLogSubTableRow > td {
     padding: 10px 7px;

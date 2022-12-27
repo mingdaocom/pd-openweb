@@ -7,6 +7,7 @@ import { isGalleryOrBoard } from 'src/pages/worksheet/constants/common';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import cx from 'classnames';
+import _ from 'lodash';
 const SettingCon = styled.div`
   .ming.Dropdown.isDelete .Dropdown--input .value,
   .dropdownTrigger .Dropdown--input .value {

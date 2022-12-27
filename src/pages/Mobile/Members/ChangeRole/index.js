@@ -17,6 +17,7 @@ import { Icon } from 'ming-ui';
 import { ROLE_TYPES, ROLE_CONFIG } from 'src/pages/Role/config.js';
 import cx from 'classnames';
 import './index.less';
+import _ from 'lodash';
 
 let modal = null;
 class ChangeRole extends React.Component {

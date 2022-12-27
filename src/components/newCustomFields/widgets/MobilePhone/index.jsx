@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
@@ -7,6 +7,34 @@ import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { FROM } from '../../tools/config';
 import { browserIsMobile } from 'src/util';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
+import _ from 'lodash';
+import styled from 'styled-components';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+
+const ClickAwayable = createDecoratedComponent(withClickAway);
+
+const PhoneWrap = styled.div`
+  z-index: 1;
+  visibility: ${props => (props.isEditing || props.showCountry ? 'visible' : 'hidden')};
+  ${props => (props.isCell ? `margin-top: -6px;` : '')};
+  .cellMobileInput {
+    line-height: 30px;
+  }
+  ${props => (props.showCountry && !props.isEditing && props.itiWidth ? `width: ${props.itiWidth};` : '')};
+  input {
+    padding-right: ${props => (props.showCountry && !props.isEditing && props.itiWidth ? '0px !important' : '12px')};
+  }
+`;
+
+const MobilePhoneBox = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+`;
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -25,6 +53,8 @@ export default class Widgets extends Component {
   state = {
     hideCountry: false,
     originValue: '',
+    isEditing: this.props.isCell || false,
+    maskStatus: _.get(this.props, 'advancedSetting.datamask') === '1',
   };
 
   componentDidMount() {
@@ -52,7 +82,7 @@ export default class Widgets extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.value !== this.props.value && (nextProps.value || this.props.value !== undefined) && this.input) {
       this.setValue(nextProps.value);
       if (!nextProps.value && this.iti) {
@@ -107,24 +137,76 @@ export default class Widgets extends Component {
     this.props.value !== value && this.props.onChange(value);
   };
 
+  getShowValue = () => {
+    const value = this.input ? $(this.input).val().replace(/ /g, '') : this.props.value || '';
+    return this.state.maskStatus ? dealMaskValue({ ...this.props, value }) : value;
+  };
+
   render() {
-    const { disabled, hint, inputClassName, onBlur, onInputKeydown, enumDefault, from, value } = this.props;
-    const { hideCountry, originValue } = this.state;
+    const {
+      disabled,
+      hint,
+      inputClassName,
+      onBlur = () => {},
+      onInputKeydown,
+      enumDefault,
+      from,
+      value,
+      maskPermissions,
+      isCell,
+    } = this.props;
+    const { hideCountry, originValue, maskStatus, isEditing } = this.state;
+    const isMask = maskPermissions && value && maskStatus;
+    const hiddenCountry = enumDefault === 1 || hideCountry;
+    const itiWidth = $(this.input).css('padding-left');
 
     return (
-      <div className={cx({ customFormControlTel: enumDefault === 1 || hideCountry })}>
-        <input
-          type="tel"
-          className={cx(inputClassName || 'customFormControlBox', { controlDisabled: disabled })}
-          ref={input => {
-            this.input = input;
+      <div className={cx({ customFormControlTel: hiddenCountry, customFormControlMobileHover: !disabled })}>
+        <MobilePhoneBox
+          showCountry={!hiddenCountry}
+          isEditing={isEditing}
+          className={cx(
+            'customFormControlBox customFormTextareaBox',
+            { Gray_bd: !value },
+            { controlDisabled: disabled },
+            { Hidden: isCell },
+          )}
+          style={{ paddingLeft: hiddenCountry ? '12px' : `${itiWidth}` || '12px' }}
+          onClick={() => {
+            if (!disabled && !isEditing) {
+              this.setState({ isEditing: true }, () => this.input && this.input.focus());
+            }
           }}
-          placeholder={hint}
-          disabled={disabled}
-          onFocus={this.onFocus}
-          onBlur={() => onBlur(originValue)}
-          onKeyDown={onInputKeydown}
-        />
+        >
+          <span
+            className={cx('LineHeight20', { maskHoverTheme: disabled && isMask })}
+            onClick={() => {
+              if (disabled && isMask) this.setState({ maskStatus: false });
+            }}
+          >
+            {this.getShowValue()}
+            {isMask && <Icon icon="eye_off" className={cx('Gray_bd', disabled ? 'mLeft7' : 'maskIcon')} />}
+          </span>
+        </MobilePhoneBox>
+
+        <PhoneWrap isEditing={isEditing} showCountry={!hiddenCountry} itiWidth={itiWidth} isCell={isCell}>
+          <ClickAwayable onClickAway={() => this.setState({ isEditing: false })}>
+            <input
+              type="tel"
+              className={cx(inputClassName || 'customFormControlBox', { controlDisabled: disabled })}
+              ref={input => {
+                this.input = input;
+              }}
+              placeholder={hint}
+              disabled={disabled}
+              onFocus={this.onFocus}
+              onBlur={() => {
+                onBlur(originValue);
+              }}
+              onKeyDown={onInputKeydown}
+            />
+          </ClickAwayable>
+        </PhoneWrap>
 
         {(_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (browserIsMobile() && disabled)) && !!value && (
           <a href={`tel:${value}`} className="Absolute customFormControlTelBtn" style={{ right: 0, top: 10 }}>

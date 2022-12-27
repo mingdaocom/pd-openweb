@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import DocumentTitle from 'react-document-title';
 import { navigateToApp } from 'src/pages/widgetConfig/util/data';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import Header from 'src/components/worksheetConfigHeader';
 import ErrorState from 'src/components/errorPage/errorState';
 import FillEnablePanel from './common/FillEnablePanel';
 import QueryEnablePanel from './common/QueryEnablePanel';
 import './index.less';
+import _ from 'lodash';
 
 export default function PublicWorksheetConfig(props) {
   const { match = { params: {} } } = props;
@@ -16,7 +17,7 @@ export default function PublicWorksheetConfig(props) {
   const [hederVisible, setHederVisible] = useState(!/detail/.test(location.hash));
   const { name, roleType } = worksheetInfo;
   useEffect(() => {
-    getWorksheetInfo({ worksheetId, getTemplate: true, getViews: true }).then(setworksheetInfo);
+    worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true, getViews: true }).then(setworksheetInfo);
   }, []);
   const isloading = _.isEmpty(worksheetInfo);
   return (

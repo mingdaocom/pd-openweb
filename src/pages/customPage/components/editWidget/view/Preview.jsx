@@ -7,6 +7,7 @@ import { Icon, Tooltip, LoadDiv } from 'ming-ui';
 import { browserIsMobile } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
 import homeAppApi from 'src/api/homeApp';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   display: flex;

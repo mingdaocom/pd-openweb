@@ -281,6 +281,7 @@ export default class Condition extends Component {
                   () => {
                     onChange({
                       isDynamicsource: value === 1 ? false : true,
+                      ...(value === 1 ? { dynamicSource: [] } : {}), // 切换固定值时清空字段值
                     });
                   },
                 );

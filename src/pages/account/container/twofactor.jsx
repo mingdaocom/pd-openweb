@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import cx from 'classnames';
 import Config from '../config';
-import { mDTwofactorLogin } from 'src/api/login';
+import loginAjax from 'src/api/login';
 import { inputFocusFn, inputBlurFn } from '../util';
 import { getRequest } from 'src/util';
 import { setPssId } from 'src/util/pssId';
@@ -100,7 +100,7 @@ export default function Twofactor(props) {
   };
 
   const loginFn = () => {
-    mDTwofactorLogin({
+    loginAjax.mDTwofactorLogin({
       state,
       type,
       verifyCode,

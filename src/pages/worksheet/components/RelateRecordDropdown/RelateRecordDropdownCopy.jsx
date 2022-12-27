@@ -12,6 +12,7 @@ import RelateRecordList from './RelateRecordList';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import AutoWidthInput from './AutoWidthInput';
 import './style.less';
+import _ from 'lodash';
 
 const OnlyScanTip = styled.div`
   width: 310px;

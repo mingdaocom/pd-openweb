@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { Linkify } from 'ming-ui';
+import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {

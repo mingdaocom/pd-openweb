@@ -5,6 +5,7 @@ import ProjectController from 'src/api/project';
 import InvitationController from 'src/api/invitation';
 import ClipboardButton from 'react-clipboard.js';
 import { existAccountHint } from 'src/components/common/function';
+import moment from 'moment';
 
 const Tips = {
   1: _l('暂无使用中的邀请链接'),

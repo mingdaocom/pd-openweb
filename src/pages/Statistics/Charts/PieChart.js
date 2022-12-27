@@ -3,6 +3,8 @@ import { getLegendType, formatrChartValue, formatYaxisList, getChartColors, getA
 import { formatSummaryName, getIsAlienationColor, isFormatNumber } from 'statistics/common';
 import { Dropdown, Menu } from 'antd';
 import { browserIsMobile } from 'src/util';
+import { toFixed } from 'src/util';
+import _ from 'lodash';
 
 const formatChartData = data => {
   const result = data
@@ -18,10 +20,11 @@ const formatChartData = data => {
   return result;
 };
 
-const formatChartMap = data => {
+const formatChartMap = (data, yaxisList) => {
   return data.map(data => {
+    const control = _.find(yaxisList, { controlId: data.c_id }) || {};
     return {
-      name: data.key,
+      name: control.rename || control.controlName,
       originalId: data.c_id,
       value: Math.abs(data.value[0].v),
       originalValue: data.value[0].v,
@@ -139,7 +142,7 @@ export default class extends Component {
   }
   getPieConfig(props) {
     const { map, displaySetup, yaxisList, summary, style, xaxes, reportId } = props.reportData;
-    const data = xaxes.controlId ? formatChartData(map[0].value) : formatChartMap(map);
+    const data = xaxes.controlId ? formatChartData(map[0].value) : formatChartMap(map, yaxisList);
     const { position } = getLegendType(displaySetup.legendType);
     const isLabelVisible = displaySetup.showDimension || displaySetup.showNumber || displaySetup.showPercent;
     const newYaxisList = formatYaxisList(data, yaxisList);
@@ -183,8 +186,8 @@ export default class extends Component {
             shared: true,
             showCrosshairs: false,
             showMarkers: true,
-            formatter: ({ value, originalName }) => {
-              const name = findName(originalName);
+            formatter: ({ value, originalId }) => {
+              const name = findName(originalId);
               const { dot } = yaxisList[0] || {};
               return {
                 name,
@@ -226,7 +229,7 @@ export default class extends Component {
                     newYaxisList,
                   )}`
                 : '';
-              const percentText = displaySetup.showPercent ? `(${(item.percent * 100).toFixed(2)}%)` : '';
+              const percentText = displaySetup.showPercent ? `(${toFixed(item.percent * 100, 2)}%)` : '';
               return `${dimensionText} ${numberText} ${percentText}`;
             },
           }

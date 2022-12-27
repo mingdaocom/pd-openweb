@@ -3,6 +3,7 @@ import React from 'react';
 import 'src/pages/PageHeader/components/NetState/index.less';
 import { formatFileSize } from 'src/util';
 import { index as dialog } from 'src/components/mdDialog/dialog';
+import _ from 'lodash';
 
 export const QiniuUpload = {
   Tokens: {

@@ -4,6 +4,7 @@ import cx from 'classnames';
 import BranchItem from './BranchItem';
 import { CreateNode } from '../components';
 import { Tooltip } from 'antd';
+import _ from 'lodash';
 
 export default class Branch extends Component {
   constructor(props) {

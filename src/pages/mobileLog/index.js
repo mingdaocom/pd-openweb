@@ -6,16 +6,16 @@ import preall from 'src/common/preall';
 import { Flex, ActivityIndicator } from 'antd-mobile';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
-import { getWorksheetInfo } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import WorksheetRocordLog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRocordLog';
-import 'src/common/mdcss/inStyle.css';
 import 'src/common/mdcss/basic.css';
 import 'src/common/mdcss/Themes/theme.less';
 import 'src/common/mdcss/iconfont/mdfont.css';
+import _ from 'lodash';
 
 const store = configureStore();
 
-const { appId, worksheetId, rowId } = getRequest();
+const { access_token, appId, worksheetId, rowId, getLogParams } = getRequest();
 
 const LogContent = styled.div`
   width: 100%;
@@ -30,29 +30,48 @@ class MobileLog extends React.Component {
     this.state = {
       loading: true,
       filters: [],
+      filterUniqueIds: [],
     };
+    window.access_token = access_token;
   }
 
   componentDidMount() {
     this.getControls();
+    if (getLogParams === 'true') {
+      mdAppResponse({ type: 'getLogParams' }).then(data => {
+        const { value } = data;
+        this.setState({
+          filterUniqueIds: _.isArray(value) && value.length ? value : [],
+        });
+      });
+    }
   }
 
   getControls = () => {
-    getWorksheetInfo({
-      appId,
-      getTemplate: true,
-      worksheetId,
-    }).then(res => {
-      this.setState({ controls: _.get(res, 'template.controls') });
-    });
+    worksheetAjax
+      .getWorksheetInfo({
+        appId,
+        getTemplate: true,
+        worksheetId,
+      })
+      .then(res => {
+        this.setState({ controls: _.get(res, 'template.controls') });
+      });
   };
 
   render() {
-    const { controls = [] } = this.state;
+    const { controls = [], filterUniqueIds } = this.state;
+    let param = getLogParams === 'true' ? { filterUniqueIds: filterUniqueIds, showFilter: false } : {};
     return (
       <Provider store={store}>
         <LogContent>
-          <WorksheetRocordLog controls={controls} worksheetId={worksheetId} rowId={rowId} />
+          {getLogParams === 'true' ? (
+            !!filterUniqueIds.length && (
+              <WorksheetRocordLog controls={controls} worksheetId={worksheetId} rowId={rowId} {...param} />
+            )
+          ) : (
+            <WorksheetRocordLog controls={controls} worksheetId={worksheetId} rowId={rowId} {...param} />
+          )}
         </LogContent>
       </Provider>
     );

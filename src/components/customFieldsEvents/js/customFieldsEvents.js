@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 var attachments = [];
-var ajaxRequest = require('src/api/form');
+import ajaxRequest from 'src/api/form';
 import RelationControl from 'src/components/relationControl/relationControl';
 import ReactDom from 'react-dom';
 import 'src/components/mdBusinessCard/mdBusinessCard';
@@ -10,8 +10,10 @@ import nzh from 'nzh';
 let nzhCn = nzh.cn;
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/uploadAttachment/uploadAttachment';
-import 'src/components/selectLocation/selectLocation';
+import SelectLocation from 'src/components/selectLocation/selectLocation';
 import { initUserListItem, initGroupListItem, initDatetimeItem, initDatetimeRangeItem, initMultipleDropdownItem } from '../init';
+import _ from 'lodash';
+import moment from 'moment';
 
 const URL_REG = /((?:(https?(?::\/\/)(www\.)?)|(www\.))[a-z0-9-_.]+(?:\.[a-z0-9]{2,})(?:[-a-z0-9:%_+.~#?&//=@]*))/gi;
 const linkify = text => {
@@ -803,7 +805,7 @@ var customEvents = function (settings) {
       $('.locationLayerContainer').css('zIndex', 20);
       validationAfterPost($el, value);
     };
-    $this.selectLocation({
+    SelectLocation($this, {
       level: level,
       hideCallback: hideCallback,
     });

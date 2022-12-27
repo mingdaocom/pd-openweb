@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import { getAppStatusText } from 'src/pages/PageHeader/util';
 import SvgIcon from 'src/components/SvgIcon';
+import _ from 'lodash';
 
 const AppStatus = styled.div`
   border-radius: 10px;

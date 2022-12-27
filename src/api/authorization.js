@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 生成令牌
   * @param {Object} args 请求参数

@@ -2,6 +2,7 @@ import React, { Fragment, Component, createRef } from 'react';
 import styled from 'styled-components';
 import { PERIOD_TYPE } from 'worksheet/views/GunterView/config';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 const AxisLabel = styled.div`
   font-size: 14px;

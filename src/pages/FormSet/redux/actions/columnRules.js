@@ -1,10 +1,10 @@
 import sheetAjax from 'src/api/worksheet';
 import { originRuleItem } from '../../components/columnRules/config';
+import _ from 'lodash';
 import {
   checkConditionCanSave,
   checkConditionError,
   formatValues,
-  formatFilterValue,
   filterDeleteOptions,
 } from '../../components/columnRules/config';
 /**
@@ -32,7 +32,6 @@ export function loadColumnRules({ worksheetId }) {
                   return {
                     ...item,
                     name: item.name || _l('规则%0', index + 1),
-                    filters: (item.filters || []).map(i => formatFilterValue(i)),
                   };
                 })
               : [],
@@ -117,7 +116,7 @@ export function saveControlRules() {
 
     if (!name || !filters.length || !checkConditionCanSave(filters) || !ruleItems.length || !ruleItemError) {
       !name && dispatch(updateNameError(name));
-      filters.length > 0 && filters.map((item, idx) => dispatch(updateFilterError(idx, item)));
+      filters.length > 0 && dispatch(updateFilterError(filters));
       ruleItems.length > 0 && ruleItems.map((item, index) => dispatch(updateActionError(index, item)));
       alert(_l('请完善规则内容'), 3);
       return;
@@ -327,16 +326,17 @@ export function updateAction(ruleItems) {
 }
 
 //更新错误
-export function updateFilterError(idx, value) {
+export function updateFilterError(filters) {
   return (dispatch, getState) => {
     const stateList = getState().formSet;
     let { ruleError = {} } = stateList;
-    let filterError = ruleError.filterError || {};
-    if (value) {
-      filterError[idx] = checkConditionError(value);
-    } else {
-      delete filterError[idx];
-    }
+    let filterError = [];
+    filters.forEach(item => {
+      const errs = (item.groupFilters || []).map(i => {
+        return checkConditionError(i);
+      });
+      filterError.push(errs);
+    });
     dispatch({
       type: 'COLUMN_RULELIST_ERROR',
       data: { ...ruleError, filterError },

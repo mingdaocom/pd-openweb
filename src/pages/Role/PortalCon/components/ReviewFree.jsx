@@ -4,7 +4,7 @@ import { Icon, Dialog, Dropdown, Radio } from 'ming-ui';
 import 'src/components/uploadAttachment/uploadAttachment';
 import cx from 'classnames';
 import noVerifyAjax from 'src/api/noVerify';
-import { getUserCollect } from 'src/api/externalPortal';
+import externalPortalAjax from 'src/api/externalPortal';
 import { SwitchStyle } from 'src/pages/Role/PortalCon/setting/BaseSet.jsx';
 import ReviewFreeByWorksheetWrap from './ReviewFreeByWorksheetWrap';
 import ReviewFreeMap from './ReviewFreeMap';
@@ -161,7 +161,7 @@ export default function ReviewFree(props) {
     });
   };
   const getControls = () => {
-    getUserCollect({
+    externalPortalAjax.getUserCollect({
       appId,
       getSystem: true,
     }).then(res => {

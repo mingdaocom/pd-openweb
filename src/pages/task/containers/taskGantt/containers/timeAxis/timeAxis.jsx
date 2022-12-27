@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import config from '../../config/config';
 import './timeAxis.less';
 import utils from '../../utils/utils';
+import moment from 'moment';
 
 const { GRANULARITY, workingSumHours } = config;
 

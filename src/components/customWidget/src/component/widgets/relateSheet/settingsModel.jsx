@@ -13,6 +13,7 @@ import firstInputSelect from '../../common/firstInputSelect';
 import ColumnVisibleControl from '../../common/ColumnVisibleControl';
 import { createNewWidget } from '../../../utils/util';
 import './addSheetField.less';
+import _ from 'lodash';
 
 const systemControl = [
   {

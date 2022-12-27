@@ -16,7 +16,8 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import worksheetAjax from 'src/api/worksheet';
 import { TextTypes } from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
 import RecordAction from 'mobile/Record/RecordAction';
-import { startProcess } from 'src/pages/workflow/api/process';
+import processAjax from 'src/pages/workflow/api/process';
+import _ from 'lodash';
 
 const BatchOptBtn = styled.div`
   display: flex;
@@ -307,7 +308,7 @@ class SheetView extends Component {
       ];
     }
     this.props.changeBatchOptData([]);
-    startProcess({
+    processAjax.startProcess({
       appId: worksheetId,
       sources: batchOptCheckedData,
       triggerId: btn.btnId,

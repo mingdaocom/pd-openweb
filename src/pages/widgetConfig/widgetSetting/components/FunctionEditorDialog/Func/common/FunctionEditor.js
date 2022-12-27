@@ -7,6 +7,7 @@ import useCloseBrackets from '../lib/closebrackets';
 import setJavascriptMode from '../lib/javascript';
 import { functions } from '../enum';
 import '../lib/show-hint.css';
+import _ from 'lodash';
 
 setJavascriptMode(CodeMirror);
 useCloseBrackets(CodeMirror);

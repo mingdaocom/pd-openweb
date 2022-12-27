@@ -16,6 +16,7 @@ import Abnormal from './Abnormal';
 import RelateRecordTableNav from './RelateRecordTableNav';
 import RelateRecordBlock from './RelateRecordBlock';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 const ShadowCon = styled.div`
   width: 100%;
@@ -99,6 +100,7 @@ export default function RecordForm(props) {
     abnormal,
     isLock,
     recordbase,
+    maskinfo,
     controlProps = {},
     recordinfo = {},
     relateRecordData,
@@ -116,6 +118,7 @@ export default function RecordForm(props) {
     onChange,
     onCancel,
     onSave,
+    saveDraft = () => {},
     onError,
     masterRecordRowId,
     onWidgetChange = () => {},
@@ -312,10 +315,12 @@ export default function RecordForm(props) {
                   view={view}
                   isLock={isLock}
                   recordbase={recordbase}
+                  maskinfo={maskinfo}
                   recordinfo={recordinfo}
                   updateRecordDialogOwner={updateRecordDialogOwner}
                   sheetSwitchPermit={sheetSwitchPermit}
                   viewId={viewId}
+                  from={from}
                 />
               )}
               <div className={cx('recordInfoFormContent', { noAuth: !allowEdit })}>
@@ -323,14 +328,14 @@ export default function RecordForm(props) {
                   ignoreLock={ignoreLock}
                   forceFull={formWidth < 500 ? 1 : undefined}
                   ref={customwidget}
-                  from={recordId ? 3 : isMobile ? 5 : 2}
+                  from={from === 21 ? from : recordId ? 3 : isMobile ? 5 : 2}
                   flag={formFlag}
                   controlProps={controlProps}
                   data={formdata.filter(c => !_.includes(HIDDEN_CONTROL_IDS, c.controlId))}
                   systemControlData={systemControlData}
                   rules={recordinfo.rules}
                   isWorksheetQuery={recordinfo.isWorksheetQuery}
-                  disabled={!allowEdit}
+                  disabled={!allowEdit && from !== 21}
                   projectId={recordinfo.projectId || props.projectId}
                   groupId={recordinfo.groupId}
                   masterRecordRowId={masterRecordRowId}
@@ -340,10 +345,12 @@ export default function RecordForm(props) {
                   showError={showError}
                   onChange={onChange}
                   onSave={onSave}
+                  saveDraft={saveDraft}
                   onError={onError}
                   sheetSwitchPermit={sheetSwitchPermit}
                   viewId={viewId}
                   appId={recordinfo.appId}
+                  isCharge={recordbase.isCharge}
                   onFormDataReady={dataFormat => {
                     setNavVisible();
                     if (!recordId) {
@@ -357,6 +364,7 @@ export default function RecordForm(props) {
             <div className={cx('relateRecordBlockCon', { flex: isSplit })}>
               {!isMobile && !!relateRecordTableControls.length && (
                 <RelateRecordBlock
+                  from={from}
                   formWidth={formWidth}
                   sideVisible={controlProps.sideVisible}
                   isSplit={isSplit}
@@ -449,6 +457,7 @@ RecordForm.propTypes = {
   onChange: PropTypes.func,
   onRelateRecordsChange: PropTypes.func,
   onSave: PropTypes.func,
+  saveDraft: PropTypes.func,
   onCancel: PropTypes.func,
   addRefreshEvents: PropTypes.func,
   reloadRecord: PropTypes.func,

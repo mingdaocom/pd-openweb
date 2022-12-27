@@ -4,6 +4,7 @@ import PropTypes, { string } from 'prop-types';
 import '@mdfe/selectize';
 import { Icon, Tooltip } from 'ming-ui';
 import RelateBox from './RelateBox';
+import _ from 'lodash';
 export default class RelateFilter extends Component {
   static propTypes = {
     disabled: PropTypes.bool,

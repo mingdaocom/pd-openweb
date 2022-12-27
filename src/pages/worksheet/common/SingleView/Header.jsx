@@ -11,6 +11,7 @@ import styled from 'styled-components';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { browserIsMobile } from 'src/util';
+import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;

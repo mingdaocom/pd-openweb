@@ -10,6 +10,8 @@ import API, { removeFriend } from '../api';
 import { config } from '../config';
 import departmentController from 'src/api/department';
 import AddFriendConfirm from 'src/components/addFriendConfirm/addFriendConfirm';
+import _ from 'lodash';
+import moment from 'moment';
 
 const defaultState = {
   data: null,

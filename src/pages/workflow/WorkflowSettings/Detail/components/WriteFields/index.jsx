@@ -1,10 +1,30 @@
-import React, { Component } from 'react';
-import './index.less';
-import cx from 'classnames';
-import { Checkbox, Icon } from 'ming-ui';
+import React, { Component, Fragment } from 'react';
+import { Checkbox, Icon, Dialog, Switch } from 'ming-ui';
 import flowNode from '../../../../api/flowNode';
+import _ from 'lodash';
+import styled from 'styled-components';
 
 const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47];
+
+const Box = styled.ul`
+  > li {
+    align-items: center;
+    height: 40px;
+    border-bottom: 1px solid #e0e0e0;
+    > div.flex {
+      min-width: 0;
+    }
+    > div:not(.flex) {
+      width: 84px;
+    }
+    .tip-bottom-left {
+      &:after {
+        width: 200px;
+        white-space: normal;
+      }
+    }
+  }
+`;
 
 export default class WriteFields extends Component {
   static defaultProps = {
@@ -16,6 +36,13 @@ export default class WriteFields extends Component {
     readonlyControlTypes: [],
     updateSource: () => {},
     showCard: false,
+  };
+
+  state = {
+    showTableControls: false,
+    selectControlId: '',
+    subFormProperties: [],
+    isWorkflow: false,
   };
 
   componentDidMount() {
@@ -66,7 +93,8 @@ export default class WriteFields extends Component {
    */
   updateAllSettings({ key, checked }) {
     const { data, updateSource } = this.props;
-    const formProperties = _.cloneDeep(data);
+    const { showTableControls, subFormProperties } = this.state;
+    const formProperties = _.cloneDeep(showTableControls ? subFormProperties : data);
 
     if (key === 'LOOK') {
       formProperties.forEach(item => {
@@ -102,12 +130,17 @@ export default class WriteFields extends Component {
       });
     }
 
-    updateSource({ formProperties });
+    if (showTableControls) {
+      this.setState({ subFormProperties: formProperties });
+    } else {
+      updateSource({ formProperties });
+    }
   }
 
   onChange(id, property) {
     const { data, updateSource } = this.props;
-    const formProperties = _.cloneDeep(data);
+    const { showTableControls, subFormProperties } = this.state;
+    const formProperties = _.cloneDeep(showTableControls ? subFormProperties : data);
 
     formProperties.forEach(item => {
       if (item.id === id) {
@@ -115,7 +148,11 @@ export default class WriteFields extends Component {
       }
     });
 
-    updateSource({ formProperties });
+    if (showTableControls) {
+      this.setState({ subFormProperties: formProperties });
+    } else {
+      updateSource({ formProperties });
+    }
   }
 
   onChangeCard(id, showCard) {
@@ -136,11 +173,11 @@ export default class WriteFields extends Component {
     updateSource({ formProperties });
   }
 
-  render() {
-    const { data, hideTypes, showCard } = this.props;
+  renderContent(data, showCard) {
+    const { hideTypes } = this.props;
 
     return (
-      <ul className={cx('mTop15', { flowDetailWriteControls: data.length })}>
+      <Box className="mTop15">
         <li className="flexRow" style={{ background: '#f4f4f4' }}>
           <div className="flex" />
           <div className="mLeft16">
@@ -179,24 +216,41 @@ export default class WriteFields extends Component {
               />
             )}
           </div>
-          <div className="mLeft16 mRight16 cursorDefault" style={{ width: 60 }}>
-            {showCard && (
+          {showCard && (
+            <div className="mLeft16 mRight16 cursorDefault" style={{ width: 60 }}>
               <span
                 className="tip-bottom-left"
                 data-tip={_l('指定摘要字段，显示在我的流程列表中，方便快速了解待处理事项的内容。')}
               >
                 {_l('摘要')}
               </span>
-            )}
-          </div>
+            </div>
+          )}
         </li>
         {data.map((item, i) => {
           return (
             <li className="flexRow" key={i}>
-              <div className="flex">
+              <div className="flex flexRow alignItemsCenter">
                 <div className="ellipsis" title={item.name || (item.type === 22 ? _l('分段') : _l('备注'))}>
                   {item.name || (item.type === 22 ? _l('分段') : _l('备注'))}
                 </div>
+                {/* {item.type === 29 && !!item.subFormProperties.length && (
+                  <div
+                    data-tip={_l('设置列权限')}
+                    className="mLeft5 Gray_9e ThemeHoverColor3 pointer"
+                    style={{ display: 'inline-flex' }}
+                    onClick={() =>
+                      this.setState({
+                        showTableControls: true,
+                        selectControlId: item.id,
+                        subFormProperties: item.subFormProperties,
+                        isWorkflow: item.isWorkflow,
+                      })
+                    }
+                  >
+                    <Icon type="settings" className="Font16" />
+                  </div>
+                )} */}
               </div>
               <div className="mLeft16">
                 {!_.includes(hideTypes, item.property) && (
@@ -222,15 +276,62 @@ export default class WriteFields extends Component {
                   />
                 )}
               </div>
-              <div className="mLeft16 mRight16" style={{ width: 60 }}>
-                {showCard && !_.includes([14, 21, 40, 41, 42, 43, 45, 47, 49], item.type) && (
-                  <Checkbox checked={item.showCard} onClick={checked => this.onChangeCard(item.id, checked ? 0 : 1)} />
-                )}
-              </div>
+              {showCard && (
+                <div className="mLeft16 mRight16" style={{ width: 60 }}>
+                  {!_.includes([14, 21, 40, 41, 42, 43, 45, 47, 49], item.type) && (
+                    <Checkbox
+                      checked={item.showCard}
+                      onClick={checked => this.onChangeCard(item.id, checked ? 0 : 1)}
+                    />
+                  )}
+                </div>
+              )}
             </li>
           );
         })}
-      </ul>
+      </Box>
+    );
+  }
+
+  render() {
+    const { data, showCard, updateSource } = this.props;
+    const { showTableControls, selectControlId, subFormProperties, isWorkflow } = this.state;
+
+    return (
+      <Fragment>
+        {this.renderContent(data, showCard)}
+
+        {showTableControls && (
+          <Dialog
+            visible
+            title={_l('设置列权限')}
+            onCancel={() => this.setState({ showTableControls: false })}
+            onOk={() => {
+              updateSource({
+                formProperties: data.map(item => {
+                  if (item.id === selectControlId) {
+                    item.isWorkflow = isWorkflow;
+                    item.subFormProperties = subFormProperties;
+                  }
+
+                  return item;
+                }),
+              });
+
+              this.setState({ showTableControls: false });
+            }}
+          >
+            <div className="Gray_9e">{_l('未开启时按照子表本身权限，开启后可配置审批节点中的列权限')}</div>
+            <Switch
+              className="mTop10"
+              checked={isWorkflow}
+              text={isWorkflow ? _l('开启') : _l('关闭')}
+              onClick={() => this.setState({ isWorkflow: !isWorkflow })}
+            />
+            {isWorkflow && this.renderContent(subFormProperties)}
+          </Dialog>
+        )}
+      </Fragment>
     );
   }
 }

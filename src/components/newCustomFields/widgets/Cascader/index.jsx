@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import sheetAjax from 'src/api/worksheet';
-import { renderCellText } from 'src/pages/worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { LoadDiv, Icon, Radio } from 'ming-ui';
 import cx from 'classnames';
 import { Cascader, TreeSelect } from 'antd';
@@ -142,7 +142,7 @@ export default class Widgets extends Component {
           return {
             value: item.rowid,
             label: control
-              ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }))
+              ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }), { noMask: true })
               : _l('未命名'),
             path: item.childrenids || item.path,
             isLeaf: !item.childrenids,
@@ -195,7 +195,9 @@ export default class Widgets extends Component {
       });
     }
 
-    return control ? renderCellText(Object.assign({}, control, { value: item[control.controlId] })) : _l('未命名');
+    return control
+      ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }), { noMask: true })
+      : _l('未命名');
   }
 
   /**

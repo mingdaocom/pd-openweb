@@ -6,6 +6,7 @@ import { Button, Checkbox, Dropdown, LoadDiv, Dialog, ScrollView, Tooltip, Icon,
 import './index.less';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import DropDownItem from './DropDownItem';
+import _ from 'lodash';
 
 const allowConfigControlTypes = [
   2,

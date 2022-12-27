@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import './modules/calendarControl/css/fullcalendar.less';
 import './modules/css/share.less';
 import './modules/calendarControl/javascript/fullcalendar';
-import $ from 'jquery';
+
 import toolBar from './modules/toolbar/toolbar';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import TaskDetail from 'src/pages/task/containers/taskDetail/taskDetail';
@@ -89,7 +89,7 @@ export default class CalendarEntrypoint extends Component {
           <div id="calendar" />
           <div id="calendarList" />
         </div>
-        <div id="calendarLoading" className="boxSizing relativeContainer">
+        <div id="calendarLoading" className="boxSizing relative">
           <LoadDiv />
         </div>
         <TaskDetail

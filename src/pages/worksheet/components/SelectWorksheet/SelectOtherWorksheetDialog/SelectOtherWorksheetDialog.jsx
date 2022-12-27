@@ -4,6 +4,7 @@ import { Dialog, Button, Dropdown } from 'ming-ui';
 import cx from 'classnames';
 import homeAppAjax from 'src/api/homeApp';
 import './SelectOtherWorksheetDialog.less';
+import _ from 'lodash';
 
 export default class extends Component {
   static propTypes = {

@@ -9,6 +9,7 @@ import * as actions from 'statistics/redux/actions';
 import { bindActionCreators } from 'redux';
 import reportRequestAjax from '../api/report';
 import { version, fillValueMap } from '../common';
+import _ from 'lodash';
 
 const PathWrapper = styled.div`
   font-size: 14px;

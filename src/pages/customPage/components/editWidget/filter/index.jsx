@@ -13,6 +13,7 @@ import Preview from './Preview';
 import Setting from './Setting';
 import './index.less';
 import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter';
+import _ from 'lodash';
 
 const DefaultItem = styled.div`
   display: flex;

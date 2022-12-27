@@ -6,13 +6,14 @@ import { Icon } from 'ming-ui';
 import styled from 'styled-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import RecordOperate from 'worksheet/components/RecordOperate';
-import { renderCellText } from 'worksheet/components/CellControls';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import RecordInfo from 'worksheet/views/GunterView/components/RecordInfo';
 import CellControl from 'worksheet/components/CellControls';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import _ from 'lodash';
 
 export const RecordWrapper = styled.div`
   height: 32px;
@@ -30,7 +31,7 @@ export const RecordWrapper = styled.div`
       border: none;
       height: 30px;
       line-height: 30px;
-      border: 2px solid #2196F3;
+      border: 2px solid #2196f3;
     }
     &:hover {
       .icon-edit {
@@ -61,7 +62,8 @@ export const RecordWrapper = styled.div`
     width: 100%;
     border: none;
   }
-  .startTimeField, .endTimeField {
+  .startTimeField,
+  .endTimeField {
     height: 32px;
     width: 110px;
     margin-right: 5px;
@@ -77,7 +79,8 @@ export const RecordWrapper = styled.div`
   .dayCountField {
     width: 80px;
   }
-  .icon-bellSchedule, .icon-edit {
+  .icon-bellSchedule,
+  .icon-edit {
     display: none;
   }
 `;
@@ -94,8 +97,8 @@ export default class Record extends Component {
     this.state = {
       startTimeEdit: false,
       endTimeEdit: false,
-      recordInfoVisible: false
-    }
+      recordInfoVisible: false,
+    };
     this.debounceUpdateRecordTime = _.debounce(props.updateRecordTime, 500);
   }
   get canedit() {
@@ -109,16 +112,19 @@ export default class Record extends Component {
     if (this.clicktimer) {
       clearTimeout(this.clicktimer);
       this.clicktimer = null;
-      this.canedit && titleControl.type === 2 && !titleDisable && this.props.updateGroupingRow({ isEdit: true }, row.rowid);
+      this.canedit &&
+        titleControl.type === 2 &&
+        !titleDisable &&
+        this.props.updateGroupingRow({ isEdit: true }, row.rowid);
     } else {
       this.clicktimer = setTimeout(() => {
         this.clicktimer = null;
         this.setState({
-          recordInfoVisible: true
+          recordInfoVisible: true,
         });
       }, 260);
     }
-  }
+  };
   handleCreate = (event, title, titleControl) => {
     const { row, addRecord, updateRecordTitle } = this.props;
     const value = event.target.value || _l('未命名');
@@ -146,7 +152,7 @@ export default class Record extends Component {
         updateRecordTitle(cell, row);
       }
     }
-  }
+  };
   renderStartTime() {
     const { startTimeEdit } = this.state;
     const { base, sheetSwitchPermit, worksheetInfo, row, controls, gunterView } = this.props;
@@ -163,7 +169,6 @@ export default class Record extends Component {
             clickEnterEditing={true}
             isSubList={false}
             isediting={true}
-            updateEditingControls={() => {}}
             clearCellError={() => {}}
             cellUniqueValidate={() => {}}
             cell={{ ...startControl, value: row.startTime }}
@@ -219,7 +224,6 @@ export default class Record extends Component {
             clickEnterEditing={true}
             isSubList={false}
             isediting={true}
-            updateEditingControls={() => {}}
             clearCellError={() => {}}
             cellUniqueValidate={() => {}}
             cell={{ ...enndControl, value: row.endTime }}
@@ -284,7 +288,7 @@ export default class Record extends Component {
         onDelete={() => {
           this.props.removeRecord(row.rowid);
         }}
-        onCopySuccess={(data) => {
+        onCopySuccess={data => {
           const { grouping } = gunterView;
           const { rows } = _.find(grouping, { key: groupKey });
           const index = _.findIndex(rows, { rowid: row.rowid });
@@ -327,12 +331,10 @@ export default class Record extends Component {
           />
         ) : (
           <Fragment>
-            <span className="flex pointer overflow_ellipsis">
-              {title || emptyValue}
-            </span>
+            <span className="flex pointer overflow_ellipsis">{title || emptyValue}</span>
             {this.canedit && titleControl.type === 2 && !titleDisable && (
               <Icon
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   this.clicktimer = true;
                   this.handleClick();
@@ -350,7 +352,7 @@ export default class Record extends Component {
     const { row } = this.props;
     return (
       <RecordWrapper className={cx('valignWrapper gunterRecord', `gunterRecord-${row.rowid}`)}>
-        {this.renderMore()}
+        {window.share ? <div style={{ width: 22 }}/> : this.renderMore()}
         {this.renderTitle()}
         {this.renderStartTime()}
         {this.renderEndTime()}

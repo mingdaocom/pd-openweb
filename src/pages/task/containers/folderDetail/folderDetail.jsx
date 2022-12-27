@@ -17,6 +17,7 @@ import UserHead from 'src/pages/feed/components/userHead';
 import RichText from 'ming-ui/components/RichText';
 import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
 import Dialog from 'ming-ui/components/Dialog/Dialog';
+import _ from 'lodash';
 class FolderDetail extends Component {
   constructor(props) {
     super(props);
@@ -726,7 +727,7 @@ class FolderDetail extends Component {
     const projectName =
       $('.networkFolderList[data-projectid=' + projectId + '] .allFolders .overflow_ellipsis').html() || _l('个人');
 
-    editFolder.init({
+    editFolder({
       projectId,
       projectName,
       folderId,

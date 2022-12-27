@@ -3,6 +3,7 @@ import { Input, Tooltip } from 'antd';
 import { Checkbox } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import _ from 'lodash';
 
 export default function WidgetName(props) {
   const { title = _l('字段名称'), data = {}, onChange, isRecycle } = props;

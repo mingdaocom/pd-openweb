@@ -2,12 +2,13 @@ import './selectAllGroup.less';
 import '@mdfe/nanoscroller';
 import 'src/components/mdBusinessCard/mdBusinessCard';
 import { upgradeVersionDialog, htmlEncodeReg } from 'src/util';
-var groupController = require('src/api/group');
+import groupController from 'src/api/group';
 import doT from '@mdfe/dot';
 import selectGroupTpl from './selectAllGroup.html';
 import singleTplHtml from './singleTpl.html';
 import normalGroupHtml from './normalGroup.html';
 import createGroup from 'src/components/group/create/creatGroup';
+import _ from 'lodash';
 
 var tpl = doT.template(selectGroupTpl);
 function SelectGroup(el, setting) {

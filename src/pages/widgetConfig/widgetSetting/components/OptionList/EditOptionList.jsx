@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Dialog } from 'ming-ui';
 import { Input, Switch } from 'antd';
 import { isEmpty } from 'lodash';
-import { saveOptionsCollection } from 'src/api/worksheet';
+import worksheetAjax from 'src/api/worksheet';
 import Options from './Options';
 import { SettingItem } from '../../../styled';
 import { getDefaultOptions } from '../../../util/setting';
@@ -22,7 +22,7 @@ export default function EditOptionList(props) {
       return;
     }
     const nextData = { ...rest, name, colorful, enableScore, options: data };
-    saveOptionsCollection({ appId, ...nextData }).then(({ code, data, msg }) => {
+    worksheetAjax.saveOptionsCollection({ appId, ...nextData }).then(({ code, data, msg }) => {
       if (code === 1) {
         onOk(isEmpty(data) ? nextData : data);
       } else {

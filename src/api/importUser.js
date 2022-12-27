@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 导入用户
   * @param {Object} args 请求参数
