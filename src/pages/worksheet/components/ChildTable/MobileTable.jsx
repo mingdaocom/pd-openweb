@@ -65,7 +65,7 @@ export default function MobileTable(props) {
       {showRows.map((row, i) => (
         <div className="flexRow valignWrapper Font12" key={i}>
           <div className="mobileTableItem tableIndex">
-            {isEdit && !(disabled || (!/^temp/.test(row.rowid) && (!allowadd || !allowcancel))) ? (
+            {isEdit && !disabled && !/^temp/.test(row.rowid) && allowcancel ? (
               <i
                 className="icon icon-task-new-delete Font16 Gray_9e"
                 onClick={() => {

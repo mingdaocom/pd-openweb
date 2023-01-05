@@ -4,6 +4,7 @@ import { Select } from 'antd';
 import privateSysSetting from 'src/api/privateSysSetting';
 import styled from 'styled-components';
 import { Fragment } from 'react';
+import _ from 'lodash';
 
 const Line = styled.div`
   border-bottom: 1px solid #eaeaea;
@@ -56,10 +57,10 @@ export default function AppLibrary(props) {
       });
   };
 
-  const getProjectList = () => {
+  const getProjectList = (keywords = '') => {
     privateSysSetting
       .getProjects({
-        keywords: '',
+        keywords: keywords,
         pageSize: 20,
       })
       .then(res => {
@@ -80,10 +81,9 @@ export default function AppLibrary(props) {
   };
 
   const onChange = value => {
-    const temp = _.find(projectList, it => it.projectId === value);
+    const temp = _.find(projectList, it => it.projectId === value) || {};
     setSelectProject(temp);
   };
-
   return (
     <div className="privateCardWrap flexColumn">
       <div className="Font17 bold mBottom8">{_l('应用库')}</div>
@@ -169,11 +169,14 @@ export default function AppLibrary(props) {
           <div className="Font14 mBottom10">{_l('选择组织')}</div>
           <Select
             style={{ width: '100%' }}
-            value={selectProject.projectId}
             showSearch
             placeholder="请选择"
+            filterOption={false}
+            allowClear
             onChange={onChange}
-            filterOption={(input, option) => (option.label || '').toLowerCase().includes(input.toLowerCase())}
+            onSearch={_.throttle(val => {
+              getProjectList(val);
+            }, 200)}
           >
             {projectList.map(it => {
               return (

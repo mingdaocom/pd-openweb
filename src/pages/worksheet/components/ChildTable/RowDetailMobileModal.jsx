@@ -38,7 +38,7 @@ export default function RowDetailModal(props) {
             ></i>
           </div>
         )}
-        {type === 'edit' && !disabled && allowDelete && (
+        {!props.disabled && allowDelete && (
           <i
             className="headerBtn icon icon-task-new-delete mRight10 Font18"
             onClick={() => {

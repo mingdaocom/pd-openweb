@@ -23,6 +23,7 @@ import { MDCell, NoSearch, NoRecords } from './components';
 
 const StyledFixedTable = styled(FixedTable)`
   font-size: 13px;
+  user-select: text !important;
   .cell {
     background-color: #fff;
     border: 1px solid rgba(0, 0, 0, 0.09) !important;
