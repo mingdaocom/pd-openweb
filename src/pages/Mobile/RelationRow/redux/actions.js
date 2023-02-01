@@ -8,9 +8,11 @@ const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   const { receiveControls, allowEdit } = rowInfo;
   const activeSheetIndex = 0;
   const controlPermission = controlState(activeRelateSheetControl, 3);
-  const { enumDefault2, strDefault, controlPermissions = '111' } = activeRelateSheetControl;
+  const { enumDefault2, strDefault, controlPermissions = '111', advancedSetting } = activeRelateSheetControl;
   const [, , onlyRelateByScanCode] = strDefault.split('').map(b => !!+b);
   const isSubList = activeRelateSheetControl.type === 34;
+  const allowRemoveRelation = typeof advancedSetting.allowcancel === 'undefined' ? true : advancedSetting.allowcancel === '1';
+  const allowLink = advancedSetting.allowlink !== '0';
   const isCreate = isSubList
     ? allowEdit && controlPermission.editable && enumDefault2 !== 1 && enumDefault2 !== 11 && !onlyRelateByScanCode
     : allowEdit &&
@@ -28,6 +30,8 @@ const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   const isScanQR = getIsScanQR();
 
   return {
+    allowRemoveRelation,
+    allowLink,
     isCreate,
     isRelevance,
     hasEdit,

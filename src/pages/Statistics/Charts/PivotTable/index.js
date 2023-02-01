@@ -495,7 +495,7 @@ export default class extends Component {
     }
     if (columnFreeze && parent) {
       const lineHeight = 39;
-      const columnsLength = columns.length + (yaxisList.length === 1 ? 0 : 1);
+      const columnsLength = (columns.length || 1) + (yaxisList.length === 1 ? 0 : 1);
       const headerHeight = columnsLength * lineHeight;
       if (!lineFreeze) {
         config.x = '100%';

@@ -442,12 +442,14 @@ class App extends Component {
     }
     if (type === 1) {
       return (
-        <CustomPage
-          pageTitle={data.workSheetName}
-          now={Date.now()}
-          appNaviStyle={appNaviStyle}
-          appSection={appSection}
-        />
+        <div className="flex">
+          <CustomPage
+            pageTitle={data.workSheetName}
+            now={Date.now()}
+            appNaviStyle={appNaviStyle}
+            appSection={appSection}
+          />
+        </div>
       );
     }
   }
@@ -477,7 +479,7 @@ class App extends Component {
     const isHideNav = detail.permissionType < ROLE_TYPES.ADMIN && sheetList.length === 1 && !!data;
     return (
       <div className="flexColumn h100">
-        <div className={cx('flex overflowHidden', { recordListWrapper: !isHideNav })}>
+        <div className={cx('flex overflowHidden flexColumn', { recordListWrapper: !isHideNav })}>
           {/* 外部门户显示头部导航 */}
           {selectedTab !== 'more' && md.global.Account.isPortal && this.renderAppHeader()}
           {selectedTab === 'more' ? this.renderContent() : this.renderRecordList(data)}

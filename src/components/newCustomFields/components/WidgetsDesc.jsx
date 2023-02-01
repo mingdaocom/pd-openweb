@@ -28,7 +28,7 @@ class WidgetsDesc extends React.Component {
       return null;
     }
 
-    if (_.includes([FROM.NEWRECORD, FROM.PUBLIC, FROM.H5_ADD], from)) {
+    if (_.includes([FROM.NEWRECORD, FROM.PUBLIC, FROM.H5_ADD, FROM.DRAFT], from)) {
       return (
         <Linkify properties={{ target: '_blank' }}>
           <p className="descBox pAll0 mAll0 mBottom0 mTop6 Font12 Gray_9e w100 WordBreak">

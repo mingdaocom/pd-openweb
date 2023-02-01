@@ -407,7 +407,7 @@ export default function RelateSheet(props) {
             relationControls={controls}
             globalSheetControls={globalSheetControls}
             fromCondition={'relateSheet'}
-            allControls={allControls}
+            allControls={allControls.concat(SYSTEM_CONTROL.filter(c => _.includes(['caid', 'ownerid'], c.controlId)))}
             onChange={({ filters }) => {
               onChange(handleAdvancedSettingChange(data, { filters: JSON.stringify(filters) }));
               setState({ filterVisible: false });
@@ -421,7 +421,7 @@ export default function RelateSheet(props) {
             globalSheetControls={globalSheetControls}
             loading={loading}
             controls={controls}
-            allControls={allControls}
+            allControls={allControls.concat(SYSTEM_CONTROL.filter(c => _.includes(['caid', 'ownerid'], c.controlId)))}
             editFn={() => setState({ filterVisible: true })}
           />
         )}

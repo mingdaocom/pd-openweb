@@ -51,6 +51,19 @@ export default class CardToolbar extends Component {
       type: session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER,
     };
   }
+  get toolItems() {
+    const { isGroup } = this.props.session;
+    const forbidSuites = _.uniq(md.global.SysSettings.forbidSuites.split('|')).filter(item => item !== '5');
+    return items.filter(item => {
+      if (item.icon === 'icon-task') {
+        return !forbidSuites.includes('2');
+      }
+      if (item.icon === 'icon-bellSchedule') {
+        return !forbidSuites.includes('3');
+      }
+      return isGroup ? !forbidSuites.includes('1') : false;
+    });
+  }
   handleOpen(item) {
     item.fn && this[item.fn]();
     this.setState({
@@ -118,14 +131,12 @@ export default class CardToolbar extends Component {
     });
   }
   renderToolbar() {
-    const { session } = this.props;
-    const { isGroup } = session;
     return (
       <div className="ChatPanel-addToolbar-menu">
-        {items.map((item, index) => (
+        {this.toolItems.map((item, index) => (
           <div
             key={index}
-            className={cx('menuItem ThemeBGColor3', { hide: (item.icon === 'icon-chat-inputer-post' || item.icon === 'icon-votenobg') && !isGroup })}
+            className={cx('menuItem ThemeBGColor3')}
             onClick={this.handleOpen.bind(this, item)}
           >
             <i className={item.icon} />
@@ -137,6 +148,13 @@ export default class CardToolbar extends Component {
   }
   render() {
     const { visible } = this.state;
+    
+    if (!this.toolItems.length) {
+      return (
+        <div className="ChatPanel-addToolbar noTool" />
+      );
+    }
+
     return (
       <Trigger
         popupVisible={visible}

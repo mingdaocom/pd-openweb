@@ -59,6 +59,7 @@ export class FileItem extends Component {
         fileid: item.fileId,
         name: item.name,
         path: item.url,
+        size: item.size,
         previewAttachmentType: 'QINIU',
       },
     ];

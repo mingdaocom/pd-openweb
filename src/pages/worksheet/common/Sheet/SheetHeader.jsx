@@ -340,7 +340,7 @@ function SheetHeader(props) {
                 </Tooltip>
               )}
             {/* 草稿箱入口 */}
-            {advancedSetting.closedrafts !== '1' && (
+            {canNewRecord && advancedSetting.closedrafts !== '1' && (
               <WorksheetDraft
                 showFillNext={true}
                 appId={appId}
@@ -351,6 +351,7 @@ function SheetHeader(props) {
                 needCache={false}
                 draftDataCount={draftDataCount}
                 addNewRecord={props.addNewRecord}
+                allowAdd={canNewRecord}
               />
             )}
             {/* 显示创建按钮 */}

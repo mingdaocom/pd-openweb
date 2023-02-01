@@ -125,6 +125,7 @@ function WorksheetTable(props, ref) {
     cellPopupContainer,
     sheetSwitchPermit,
     from,
+    allowlink,
   } = props;
   const { emptyIcon, emptyText, sheetIsFiltered, allowAdd, noRecordAllowAdd, showNewRecord } = props; // 空状态
   const { keyWords } = props; // 搜索
@@ -297,6 +298,7 @@ function WorksheetTable(props, ref) {
       return (
         <MDCell
           from={from}
+          allowlink={allowlink}
           isSubList={isSubList}
           fromModule={fromModule}
           appId={appId}

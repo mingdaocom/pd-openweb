@@ -192,6 +192,7 @@ function NewRecord(props) {
     <NewRecordContent
       registerFunc={funcs => (newRecordContent.current = funcs)}
       {...rest}
+      notDialog={notDialog}
       advancedSetting={advancedSetting}
       continueCheck={false}
       showTitle={false}

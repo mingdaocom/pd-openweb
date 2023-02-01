@@ -332,6 +332,7 @@ export default function WorkSheetTrash(props) {
           <WorksheetTable
             loading={loading}
             viewId={viewId}
+            projectId={projectId}
             noRenderEmpty={!searchText}
             lineNumberBegin={lineNumberBegin}
             columns={controlsForShow}

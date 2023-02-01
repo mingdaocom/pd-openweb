@@ -178,16 +178,19 @@ class Record extends Component {
 
     return paramControls.map(it => {
       if (it.type === 42) {
-        let val = JSON.parse(JSON.stringify(it.value));
-        return !_.isObject(val)
-          ? formatControlToServer({
-              ...it,
-              value: JSON.stringify({
-                bucket: 4,
-                key: val.match(/pic\/\d+\/[0-9a-zA-Z]+(.png)/g)[0],
-              }),
-            })
-          : formatControlToServer(it);
+        let val = it.value && JSON.parse(JSON.stringify(it.value));
+        if (val) {
+          return !_.isObject(val)
+            ? formatControlToServer({
+                ...it,
+                value: JSON.stringify({
+                  bucket: 4,
+                  key: val.match(/pic\/\d+\/[0-9a-zA-Z]+(.png)/g)[0],
+                }),
+              })
+            : formatControlToServer(it);
+        }
+        return formatControlToServer(it);
       }
       if (it.type === 34) {
         return formatControlToServer({
@@ -352,20 +355,20 @@ class Record extends Component {
         viewId,
         objectType: 2,
       })
-      .then(shareUrl => {
+      .then(data => {
         Toast.hide();
         if (navigator.share) {
           navigator
             .share({
               title: _l('系统'),
               text: document.title,
-              url: shareUrl,
+              url: data.shareLink,
             })
             .then(() => {
               Toast.info(_l('分享成功'));
             });
         } else {
-          copy(shareUrl);
+          copy(data.shareLink);
           Toast.info(_l('复制成功'));
         }
       });
@@ -657,7 +660,7 @@ class Record extends Component {
         : [];
 
     return (
-      <div className={cx('btnsWrapper', { hide: !allowEdit && _.isEmpty(customBtns) })}>
+      <div className="btnsWrapper">
         <div className="flexRow">
           {isEdit ? (
             <Fragment>
@@ -1062,7 +1065,7 @@ class Record extends Component {
         {abnormal ? this.renderWithoutJurisdiction() : this.renderContent()}
         {this.renderRecordAction()}
         <div
-          className={cx('extraAction', { low: !(sheetRow.allowEdit || editable) && _.isEmpty(customBtns) })}
+          className="extraAction"
           style={{ bottom: currentTab.id == 'approve' ? 13 : undefined }}
         >
           <div className="backContainer">{!isEdit && !isModal && this.renderBack()}</div>

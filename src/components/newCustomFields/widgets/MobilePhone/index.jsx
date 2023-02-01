@@ -171,7 +171,7 @@ export default class Widgets extends Component {
             { controlDisabled: disabled },
             { Hidden: isCell },
           )}
-          style={{ paddingLeft: hiddenCountry ? '12px' : `${itiWidth}` || '12px' }}
+          style={{ paddingLeft: hiddenCountry ? '12px' : `${itiWidth}` || '12px', height: '36px' }}
           onClick={() => {
             if (!disabled && !isEditing) {
               this.setState({ isEditing: true }, () => this.input && this.input.focus());

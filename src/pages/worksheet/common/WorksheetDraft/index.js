@@ -71,10 +71,11 @@ function DraftModal(props) {
     worksheetInfo = {},
     sheetSwitchPermit,
     isCharge,
+    allowAdd,
     sheetViewData = {},
     updateDraftDataCount = () => {},
   } = props;
-  const { worksheetId, projectId, allowAdd, rules = [], isWorksheetQuery, advancedSetting = {} } = worksheetInfo;
+  const { worksheetId, projectId, rules = [], isWorksheetQuery, advancedSetting = {} } = worksheetInfo;
   const { rows } = sheetViewData;
   const [selected, setSelected] = useState([]);
   const [recordInfoVisible, setRecordInfoVisible] = useState(false);
@@ -308,7 +309,7 @@ function DraftModal(props) {
       {recordInfoVisible && (
         <RecordInfo
           ref={recordInfoRef}
-          controls={controls.filter(item => !item.hidden && controlState(item, 2).visible)}
+          controls={controls}
           draftFormControls={controls.filter(
             item =>
               !_.includes(SHEET_VIEW_HIDDEN_TYPES, item.type) &&
@@ -390,7 +391,7 @@ function DraftModal(props) {
 export const openWorkSheetDraft = props => functionWrap(DraftModal, { ...props, closeFnName: 'onCancel' });
 
 function WorksheetDraft(props) {
-  const { appId, viewId, worksheetInfo = {}, sheetSwitchPermit, isCharge, sheetViewData = {}, view } = props;
+  const { appId, viewId, worksheetInfo = {}, sheetSwitchPermit, isCharge, sheetViewData = {}, view, allowAdd } = props;
   const { worksheetId } = worksheetInfo;
   const [draftDataCount, setDraftDataCount] = useState(props.draftDataCount);
 
@@ -412,6 +413,7 @@ function WorksheetDraft(props) {
             sheetViewData,
             view,
             sheetViewData,
+            allowAdd,
             addNewRecord: props.addNewRecord,
             updateDraftDataCount: draftDataCount => {
               setDraftDataCount(draftDataCount);

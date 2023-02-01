@@ -221,6 +221,8 @@ const BaseCard = props => {
   const otherFields = update(fields, { $splice: [[titleIndex, 1]] });
   const titleMasked =
     ((isCharge || _.get(titleField, 'advancedSetting.isdecrypt') === '1') &&
+      _.get(titleField, 'advancedSetting.datamask') === '1' &&
+      !forceShowFullValue &&
       titleField.type === 2 &&
       titleField.enumDefault === 2) ||
     _.includes([6, 8, 3, 5, 7], titleField.type);
@@ -260,7 +262,7 @@ const BaseCard = props => {
           haveOtherField: !isEmpty(otherFields),
           overflow_ellipsis: titleField.type === 2,
           isGalleryView,
-          maskHoverTheme: titleMasked && !forceShowFullValue,
+          maskHoverTheme: titleMasked,
         })}
         title={content}
         onClick={e => {
@@ -270,7 +272,7 @@ const BaseCard = props => {
         }}
       >
         {content}
-        {titleMasked && titleValue && !forceShowFullValue && (
+        {titleMasked && titleValue && (
           <i
             className="icon icon-eye_off Hand maskData Font16 Gray_bd mLeft4 mTop4 hoverShow"
             style={{ verticalAlign: 'middle' }}

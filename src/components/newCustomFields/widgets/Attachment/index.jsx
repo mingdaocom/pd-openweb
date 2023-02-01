@@ -298,8 +298,8 @@ export default class Widgets extends Component {
           this.fileBox = fileBox;
         }}
       >
-        {!disabled && (
-          <div className="flexRow valignWrapper spaceBetween">
+        <div className="flexRow valignWrapper spaceBetween">
+          {!disabled ? (
             <UploadFilesTrigger
               noTotal={!!(md.global.Account.projects && md.global.Account.projects.length)}
               id={this.id}
@@ -347,15 +347,15 @@ export default class Widgets extends Component {
                 )}
               </div>
             </UploadFilesTrigger>
-            {!_.isEmpty(attachmentData) && (
-              <div className="flexRow valignWrapper">
-                <Tooltip title={_l('全部下载')} placement="bottom">
-                  <Icon className="handleBtn Gray_9e Font18 pointer" icon="download" onClick={this.handleDownloadAll} />
-                </Tooltip>
-              </div>
-            )}
-          </div>
-        )}
+          ) : <div/>}
+          {!_.isEmpty(attachmentData) && !hideDownload && (
+            <div className="flexRow valignWrapper">
+              <Tooltip title={_l('全部下载')} placement="bottom">
+                <Icon className="handleBtn Gray_9e Font18 pointer" icon="download" onClick={this.handleDownloadAll} />
+              </Tooltip>
+            </div>
+          )}
+        </div>
 
         <UploadFiles
           controlId={controlId}

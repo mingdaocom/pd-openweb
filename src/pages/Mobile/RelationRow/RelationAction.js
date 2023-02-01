@@ -307,11 +307,11 @@ class RelationAction extends Component {
   }
   renderContent() {
     const { relationRows, permissionInfo } = this.props;
-    const { isCreate, isRelevance, hasEdit, onlyRelateByScanCode, activeRelateSheetControl } = permissionInfo;
+    const { isCreate, isRelevance, allowRemoveRelation, onlyRelateByScanCode, activeRelateSheetControl } = permissionInfo;
     const disabledManualWrite = onlyRelateByScanCode && _.get(activeRelateSheetControl, 'advancedSetting.dismanual') === '1';
     return (
       <Fragment>
-        {hasEdit && (
+        {allowRemoveRelation && (
           <WingBlank size="sm" className="flex">
             <Button
               disabled={!relationRows.length}

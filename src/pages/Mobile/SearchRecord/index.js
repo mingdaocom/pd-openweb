@@ -16,6 +16,7 @@ import './index.less';
 import _ from 'lodash';
 
 const pageSize = 20;
+const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
 
 class Search extends Component {
   constructor(props) {
@@ -66,7 +67,6 @@ class Search extends Component {
     const { loading, isMore, pageIndex, filterControls, sheetInfo } = this.state;
     const controls = _.get(sheetInfo, ['template', 'controls']) || [];
     const { keyWords, searchId } = getRequest();
-    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
 
     this.setState({
       loading: true,
@@ -148,9 +148,12 @@ class Search extends Component {
           controls={worksheetControls}
           allowAdd={sheetInfo.allowAdd}
           onClick={() => {
-            window.mobileNavigateTo(
-              `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${item.rowid}`,
-            );
+            const url = `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${item.rowid}`;
+            if (isMingdao) {
+              location.href = url;
+            } else {
+              window.mobileNavigateTo(url);
+            }
           }}
         />
       </WingBlank>

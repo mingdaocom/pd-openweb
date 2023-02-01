@@ -451,16 +451,19 @@ export default class RecordInfo extends Component {
 
     return paramControls.map(it => {
       if (it.type === 42) {
-        let val = JSON.parse(JSON.stringify(it.value));
-        return !_.isObject(val)
-          ? formatControlToServer({
-              ...it,
-              value: JSON.stringify({
-                bucket: 4,
-                key: val.match(/pic\/\d+\/[0-9a-zA-Z]+(.png)/g)[0],
-              }),
-            })
-          : formatControlToServer(it);
+        let val = it.value && JSON.parse(JSON.stringify(it.value));
+        if (val) {
+          return !_.isObject(val)
+            ? formatControlToServer({
+                ...it,
+                value: JSON.stringify({
+                  bucket: 4,
+                  key: val.match(/pic\/\d+\/[0-9a-zA-Z]+(.png)/g)[0],
+                }),
+              })
+            : formatControlToServer(it);
+        }
+        return formatControlToServer(it);
       }
       if (it.type === 34) {
         return formatControlToServer({
@@ -693,7 +696,7 @@ export default class RecordInfo extends Component {
     if (draftType === 'submit') {
       this.submitType = 'draft';
       this.setState({ submitLoading: true });
-      this.recordform.current.submitFormData({ verifyAllControls: true });
+      this.recordform.current.submitFormData();
       return;
     }
     this.setState({ submitLoading: true });
@@ -818,6 +821,7 @@ export default class RecordInfo extends Component {
   render() {
     const {
       allowEdit,
+      allowAdd,
       header,
       controls,
       workflow,
@@ -891,7 +895,8 @@ export default class RecordInfo extends Component {
       isCharge,
       isSmall,
       recordTitle,
-      allowEdit: _.isUndefined(allowEdit) ? recordinfo.allowEdit : allowEdit,
+      allowEdit:
+        from === RECORD_INFO_FROM.DRAFT ? allowAdd : _.isUndefined(allowEdit) ? recordinfo.allowEdit : allowEdit,
     };
     const maskinfo = {
       forceShowFullValue: showFullValue,

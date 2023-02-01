@@ -7,6 +7,8 @@ import cx from 'classnames';
 const Wrap = styled.div``;
 export default function Con(props) {
   const { onCancel, onChangePortalSet, sign } = props;
+  const { portalSetModel = {} } = props.portalSet;
+  const { defaultApprovedSms, defaultRefusedSms, defaultInviteSms } = portalSetModel;
   const [focusId, setFocusId] = useState(''); //
   const [approvedSms, setapprovedSms] = useState('');
   const [refusedSms, setrefusedSms] = useState('');
@@ -38,15 +40,15 @@ export default function Con(props) {
       onOk={() => {
         let { portalSet = {} } = props;
         let { portalSetModel = {} } = portalSet;
+        const { defaultApprovedSms, defaultRefusedSms, defaultInviteSms } = portalSetModel;
         onChangePortalSet({
           portalSetModel: {
             ...portalSetModel,
-            refusedSms,
-            approvedSms,
-            inviteSms,
+            refusedSms: refusedSms || defaultRefusedSms,
+            approvedSms: approvedSms || defaultApprovedSms,
+            inviteSms: inviteSms || defaultInviteSms,
           },
         });
-        props.onSave()
         onCancel();
       }}
       visible={true}
@@ -67,6 +69,9 @@ export default function Con(props) {
           }}
           onBlur={e => {
             setFocusId(0);
+            if (!e.target.value.trim()) {
+              setapprovedSms(defaultApprovedSms);
+            }
           }}
           onFocus={() => {
             setFocusId(1);
@@ -94,6 +99,9 @@ export default function Con(props) {
           }}
           onBlur={e => {
             setFocusId(0);
+            if (!e.target.value.trim()) {
+              setrefusedSms(defaultRefusedSms);
+            }
           }}
           onFocus={() => {
             setFocusId(2);
@@ -118,6 +126,9 @@ export default function Con(props) {
           }}
           onBlur={e => {
             setFocusId(0);
+            if (!e.target.value.trim()) {
+              setinviteSms(defaultInviteSms);
+            }
           }}
           onFocus={() => {
             setFocusId(3);

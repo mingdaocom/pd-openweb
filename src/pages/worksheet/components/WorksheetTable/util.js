@@ -281,7 +281,7 @@ export function getControlFieldPermissionsAfterRules(row, controls, rules) {
 export function getRulePermissions({ data = [], controls, rules, isSubList, columns } = {}) {
   const result = {};
   data.forEach(row => {
-    const controlFieldPermissions = getControlFieldPermissionsAfterRules(row, isSubList ? columns : controls, rules);
+    const controlFieldPermissions = getControlFieldPermissionsAfterRules(row, controls, rules);
     if (!_.isEmpty(controlFieldPermissions)) {
       Object.keys(controlFieldPermissions).forEach(key => {
         result[key] = controlFieldPermissions[key];

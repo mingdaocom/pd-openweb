@@ -11,17 +11,20 @@ const Wrap = styled.div`
   }
 `;
 export default function Con(props) {
-  const { onCancel, onChangePortalSet, sign } = props;
-  // const [focusId, setFocusId] = useState(''); //
+  const { onCancel, onChangePortalSet } = props;
+  const { portalSetModel = {} } = props.portalSet;
+  const { defaultApprovedEmail, defaultRefusedEmail, defaultInviteEmail } = portalSetModel;
   const [approvedEmail, setapprovedEmail] = useState({});
   const [refusedEmail, setrefusedEmail] = useState({});
   const [inviteEmail, setinviteEmail] = useState({});
+  const [portalSet, setPortalSet] = useState({});
   useEffect(() => {
     let { portalSet = {} } = props;
     let { portalSetModel = {} } = portalSet;
     setapprovedEmail(portalSetModel.approvedEmail);
     setrefusedEmail(portalSetModel.refusedEmail);
     setinviteEmail(portalSetModel.inviteEmail);
+    setPortalSet(portalSet);
   }, [props]);
 
   return (
@@ -35,17 +38,24 @@ export default function Con(props) {
       cancelText={_l('取消')}
       onCancel={onCancel}
       onOk={() => {
-        let { portalSet = {} } = props;
         let { portalSetModel = {} } = portalSet;
         onChangePortalSet({
           portalSetModel: {
             ...portalSetModel,
-            refusedEmail,
-            approvedEmail,
-            inviteEmail,
+            refusedEmail: {
+              content: refusedEmail.content || defaultRefusedEmail.content,
+              title: refusedEmail.title || defaultRefusedEmail.title,
+            },
+            approvedEmail: {
+              content: approvedEmail.content || defaultApprovedEmail.content,
+              title: approvedEmail.title || defaultApprovedEmail.title,
+            },
+            inviteEmail: {
+              content: inviteEmail.content || defaultInviteEmail.content,
+              title: inviteEmail.title || defaultInviteEmail.title,
+            },
           },
         });
-        props.onSave();
         onCancel();
       }}
       visible={true}
@@ -65,12 +75,19 @@ export default function Con(props) {
               title: e.target.value,
             });
           }}
+          onBlur={e => {
+            if (!e.target.value.trim()) {
+              setapprovedEmail({
+                ...approvedEmail,
+                title: defaultApprovedEmail.title,
+              });
+            }
+          }}
         />
         <p className="Bold mBottom0 mTop16">{_l('内容')}</p>
         <TextArea
           id="1"
           autoSize={{ minRows: 3 }}
-          // minHeight={36}
           value={approvedEmail.content}
           onChange={e => {
             setapprovedEmail({
@@ -78,12 +95,14 @@ export default function Con(props) {
               content: e.target.value,
             });
           }}
-          // onBlur={e => {
-          //   setFocusId(0);
-          // }}
-          // onFocus={() => {
-          //   setFocusId(1);
-          // }}
+          onBlur={e => {
+            if (!e.target.value.trim()) {
+              setapprovedEmail({
+                ...approvedEmail,
+                content: defaultApprovedEmail.content,
+              });
+            }
+          }}
           className="Block mTop10"
         />
         <p className="Font16 Bold mBottom0 mTop32">
@@ -99,12 +118,19 @@ export default function Con(props) {
               title: e.target.value,
             });
           }}
+          onBlur={e => {
+            if (!e.target.value.trim()) {
+              setrefusedEmail({
+                ...refusedEmail,
+                title: defaultRefusedEmail.title,
+              });
+            }
+          }}
         />
         <p className="Bold mBottom0 mTop16">{_l('内容')}</p>
         <TextArea
           id="2"
           autoSize={{ minRows: 3 }}
-          // minHeight={36}
           value={refusedEmail.content}
           onChange={e => {
             setrefusedEmail({
@@ -112,12 +138,14 @@ export default function Con(props) {
               content: e.target.value,
             });
           }}
-          // onBlur={e => {
-          //   setFocusId(0);
-          // }}
-          // onFocus={() => {
-          //   setFocusId(2);
-          // }}
+          onBlur={e => {
+            if (!e.target.value.trim()) {
+              setrefusedEmail({
+                ...refusedEmail,
+                content: defaultRefusedEmail.content,
+              });
+            }
+          }}
           className="Block mTop10"
         />
         <p className="Font16 Bold mBottom0 mTop32">
@@ -133,12 +161,19 @@ export default function Con(props) {
               title: e.target.value,
             });
           }}
+          onBlur={e => {
+            if (!e.target.value.trim()) {
+              setinviteEmail({
+                ...inviteEmail,
+                title: defaultInviteEmail.title,
+              });
+            }
+          }}
         />
         <p className="Bold mBottom0 mTop16">{_l('内容')}</p>
         <TextArea
           id="3"
           autoSize={{ minRows: 3 }}
-          // minHeight={36}
           value={inviteEmail.content}
           onChange={e => {
             setinviteEmail({
@@ -146,12 +181,14 @@ export default function Con(props) {
               content: e.target.value,
             });
           }}
-          // onBlur={e => {
-          //   setFocusId(0);
-          // }}
-          // onFocus={() => {
-          //   setFocusId(3);
-          // }}
+          onBlur={e => {
+            if (!e.target.value.trim()) {
+              setinviteEmail({
+                ...inviteEmail,
+                content: defaultInviteEmail.content,
+              });
+            }
+          }}
           className="Block mTop10"
         />
       </Wrap>

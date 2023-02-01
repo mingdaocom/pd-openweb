@@ -161,7 +161,7 @@ export default ({
       (schedule.executeTime.fieldValue ||
         (schedule.executeTime.fieldNodeName || '') + '-' + (schedule.executeTime.fieldControlName || '')) +
       (schedule.type === 1 ? TIME_TYPE_NAME[schedule.unit] : '') +
-      (schedule.dayTime ? _l('的%0', s.dayTime) : '')
+      (schedule.dayTime ? _l('的%0', schedule.dayTime) : '')
     );
   };
   const renderRemindContent = (item, index) => {

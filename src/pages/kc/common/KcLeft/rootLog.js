@@ -30,7 +30,7 @@ function logDesc(log) {
   const childType = log.content.childType === 2 ? '文件 ' : '文件夹 ';
   switch (log.type) {
     case ROOT_LOG_TYPE.CREATE:
-      return '创建了' + log.content.name;
+      return '创建了' + htmlEncodeReg(log.content.name);
     case ROOT_LOG_TYPE.RECYCLED:
       return '将此共享文件夹放入了回收站';
     case ROOT_LOG_TYPE.DELETED:
@@ -89,19 +89,19 @@ function logDesc(log) {
       return msg;
     }
     case ROOT_LOG_TYPE.RENAME:
-      return '重命名了共享文件夹 ' + log.content.oldName + ' 为 ' + log.content.newName;
+      return '重命名了共享文件夹 ' + htmlEncodeReg(log.content.oldName) + ' 为 ' + htmlEncodeReg(log.content.newName);
     case ROOT_LOG_TYPE.EXITMEMBER:
       return '退出了此共享文件夹';
     case ROOT_LOG_TYPE.CHILDADD:
-      return '添加了' + childType + log.content.childName;
+      return '添加了' + childType + htmlEncodeReg(log.content.childName);
     case ROOT_LOG_TYPE.CHILDMOVE:
-      return '移动了' + childType + log.content.childName;
+      return '移动了' + childType + htmlEncodeReg(log.content.childName);
     case ROOT_LOG_TYPE.CHILDRECYCLED:
-      return '将' + childType + log.content.childName + '放入回收站';
+      return '将' + childType + htmlEncodeReg(log.content.childName) + '放入回收站';
     case ROOT_LOG_TYPE.CHILDDELETED:
-      return '彻底删除了' + childType + log.content.childName;
+      return '彻底删除了' + childType + htmlEncodeReg(log.content.childName);
     case ROOT_LOG_TYPE.CHILDRESTORE:
-      return '恢复了' + childType + log.content.childName;
+      return '恢复了' + childType + htmlEncodeReg(log.content.childName);
     default:
       return '';
   }
@@ -118,7 +118,7 @@ export function getRootLog(rootName, rootId) {
     className: 'kcDialogBox',
     width: 410,
     container: {
-      header: _l('%0的日志', rootName),
+      header: _l('%0的日志', htmlEncodeReg(rootName)),
       content: '<div class="rootLogLoading ThemeBorderColor3"></div>',
       noText: '',
       yesText: '',

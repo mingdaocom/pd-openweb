@@ -369,7 +369,7 @@ export const controlState = (data, from) => {
     editable: true,
   };
 
-  if (_.includes([FROM.NEWRECORD, FROM.PUBLIC, FROM.H5_ADD], from)) {
+  if (_.includes([FROM.NEWRECORD, FROM.PUBLIC, FROM.H5_ADD, FROM.DRAFT], from)) {
     state.visible = fieldPermission[0] === '1' && fieldPermission[2] === '1' && controlPermissions[2] === '1';
     state.editable = fieldPermission[1] === '1';
   } else {
