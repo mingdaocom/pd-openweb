@@ -9,6 +9,7 @@ import default_img from 'staticfiles/images/default_user_avatar.jpg';
 import cx from 'classnames';
 import _ from 'lodash';
 import { existAccountHint } from 'src/components/common/function';
+import { encrypt } from 'src/util';
 
 const DISPLAY_OPTIONS = [
   {
@@ -85,6 +86,7 @@ export default class MobileOrEmailInvite extends Component {
 
   invite = (accounts, cb) => {
     const { projectId, onCancel, fromType } = this.props;
+
     InviteController.inviteUser({
       sourceId: projectId || md.global.Account.accountId,
       accounts: accounts,
@@ -117,7 +119,7 @@ export default class MobileOrEmailInvite extends Component {
     if (this.state.loading) return;
     this.setState({ loading: true });
 
-    this.invite({ [this.getValue()]: '' }, () => {
+    this.invite({ [encrypt(this.getValue())]: '' }, () => {
       this.setState({
         searchData: this.state.searchData.map(i => (i.accountId === item.accountId ? { ...i, disabled: true } : i)),
       });
@@ -134,7 +136,7 @@ export default class MobileOrEmailInvite extends Component {
     let accountObj = {};
     for (var i = 0, length = list.length; i < length; i++) {
       if (list[i] && list[i].phone) {
-        accountObj[list[i].phone] = '';
+        accountObj[encrypt(list[i].phone)] = '';
       }
     }
     InviteController.getInviteAccountInfo({

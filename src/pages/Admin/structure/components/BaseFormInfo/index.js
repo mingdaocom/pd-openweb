@@ -51,7 +51,18 @@ export default class BaseFormInfo extends Component {
           ? departmentInfos.map(it => it.departmentId)
           : departmentIds,
       jobIds: typeCursor === 2 || typeCursor === 3 ? jobInfos.map(it => it.id || it.jobId) : jobIds,
+      departmentInfos,
+      jobInfos,
     });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!_.isEqual(nextProps.baseInfo, this.props.baseInfo)) {
+      this.setState({
+        jobList: nextProps.baseInfo.jobList,
+        worksiteList: nextProps.baseInfo.worksiteList,
+      });
+    }
   }
 
   // 添加部门

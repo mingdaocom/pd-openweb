@@ -6,7 +6,12 @@ import _ from 'lodash';
 export default ({ worksheetId, recordId, item, onChange = () => {} }) => {
   const [isRefresh, setRefresh] = useState(false);
 
-  if (!recordId || !_.includes([30, 31, 32, 37, 38], item.type)) return null;
+  if (
+    !recordId ||
+    (item.type === 30 && (item.strDefault || '').split('')[0] === '1') ||
+    !_.includes([30, 31, 32, 37, 38], item.type)
+  )
+    return null;
 
   return (
     <span

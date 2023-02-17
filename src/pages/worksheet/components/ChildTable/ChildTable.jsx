@@ -77,7 +77,7 @@ class ChildTable extends React.Component {
   }
 
   componentDidMount() {
-    const { rows, control, recordId, initRowIsCreate = true } = this.props;
+    const { rows, control, recordId, initRowIsCreate = true, initRows } = this.props;
     this.updateDefsourceOfControl();
     if (recordId) {
       if (
@@ -89,6 +89,13 @@ class ChildTable extends React.Component {
         this.handleClearAndSetRows(
           control.value.rows.map(r => this.newRow(r, { isDefaultValue: true, isQueryWorksheetFill: true })),
         );
+        this.setState({ loading: false });
+      } else if (
+        !rows.length &&
+        _.isObject(control.value) &&
+        (!_.isEmpty(_.get(control, 'value.updated')) || !_.isEmpty(_.get(control, 'value.deleted')))
+      ) {
+        initRows(control.value.rows);
         this.setState({ loading: false });
       } else {
         this.loadRows();
@@ -148,6 +155,10 @@ class ChildTable extends React.Component {
       !_.isEqual(
         (control.relationControls || []).map(a => a.fieldPermission),
         (nextControl.relationControls || []).map(a => a.fieldPermission),
+      ) ||
+      !_.isEqual(
+        (control.relationControls || []).map(a => a.required),
+        (nextControl.relationControls || []).map(a => a.required),
       )
     ) {
       this.setState({ controls: this.getControls(nextProps) });
@@ -219,12 +230,13 @@ class ChildTable extends React.Component {
         if (!_.find(showControls, scid => control.controlId === scid)) {
           control.fieldPermission = '000';
         } else {
-          // control.fieldPermission = isWorkflow ? '111' : replaceByIndex(control.fieldPermission || '111', 2, '1');
           control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 2, '1');
         }
-        // if (!isWorkflow) {
-        control.controlPermissions = '111';
-        // }
+        if (!isWorkflow) {
+          control.controlPermissions = '111';
+        } else {
+          control.controlPermissions = replaceByIndex(control.controlPermissions || '111', 2, '1');
+        }
         return control;
       },
     );
@@ -472,9 +484,12 @@ class ChildTable extends React.Component {
       try {
         this.worksheettable.current.table.refs.setScroll(0, rows.length + 1 > 15 ? 100000 : 0);
         setTimeout(() => {
-          this.worksheettable.current.table.refs.dom.current
-            .querySelector('.cell.row-' + rows.length + '.canedit')
-            .click();
+          const activeCell = this.worksheettable.current.table.refs.dom.current.querySelector(
+            '.cell.row-' + rows.length + '.canedit',
+          );
+          if (activeCell) {
+            activeCell.click();
+          }
         }, 100);
       } catch (err) {}
     }, 100);
@@ -715,11 +730,6 @@ class ChildTable extends React.Component {
     const allowAddByLine =
       (_.isUndefined(_.get(control, 'advancedSetting.allowsingle')) && !addRowFromRelateRecords) || allowsingle;
     const controlPermission = controlState(control, from);
-    // if (isWorkflow && controlPermission.editable) {
-    //   allowadd = true;
-    //   allowedit = true;
-    //   allowcancel = true;
-    // }
     const tableRows = rows.map(row => (!/^temp/.test(row.rowid) ? { ...row, allowedit } : row));
     const disabled = !controlPermission.editable || control.disabled;
     const noColumns = !controls.length;
@@ -924,6 +934,7 @@ class ChildTable extends React.Component {
         )}
         {recordVisible && (
           <RowDetailComponent
+            isWorkflow
             ignoreLock={(tableRows[previewRowIndex] || {}).isEdited}
             visible
             aglinBottom={!!recordId}

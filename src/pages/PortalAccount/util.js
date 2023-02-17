@@ -145,7 +145,7 @@ export const accountResultAction = res => {
       msg = _l('应用维护中');
       break;
     case 15:
-      msg = _l('您不在运营方的邀请范围内');
+      msg = _l('您未被邀请注册');
       break;
     case 16:
       msg = _l('未绑定微信公众号');

@@ -171,7 +171,12 @@ class TableView extends React.Component {
     if (refreshtime && _.includes(['10', '30', '60', '120', '180', '240', '300'], refreshtime)) {
       this.refreshTimer = setInterval(() => {
         const { allWorksheetIsSelected, sheetSelectedRows = [] } = _.get(this, 'props.sheetViewConfig') || {};
-        if (allWorksheetIsSelected || sheetSelectedRows.length) {
+        if (
+          allWorksheetIsSelected ||
+          sheetSelectedRows.length ||
+          document.querySelector('.workSheetNewRecord.mdModal') ||
+          document.querySelector('.workSheetRecordInfo.mdModal')
+        ) {
           return;
         }
         refresh({ noLoading: true });
@@ -629,10 +634,12 @@ class TableView extends React.Component {
         setHighLight={setHighLight}
         refreshWorksheetControls={refreshWorksheetControls}
         onOpenRecord={() => {
-          this.setState({
-            recordInfoVisible: true,
-            recordId: data[rowIndex].rowid,
-          });
+          if (data[rowIndex]) {
+            this.setState({
+              recordInfoVisible: true,
+              recordId: data[rowIndex].rowid,
+            });
+          }
         }}
       />
     );

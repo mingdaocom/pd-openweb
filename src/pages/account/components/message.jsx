@@ -11,6 +11,8 @@ import { inputFocusFn, inputBlurFn, warnningTipFn, setWarnningData } from '../ut
 import RegExp from 'src/util/expression';
 import { specialTelVerify } from 'src/pages/account/util.js';
 import _ from 'lodash';
+import { encrypt } from 'src/util';
+
 let sendVerifyCodeTimer = null;
 let hasClick = false;
 // keys =>
@@ -351,7 +353,7 @@ class Message extends React.Component {
           });
         }
         let param = {
-          account: dialCode + emailOrTel,
+          account: encrypt(dialCode + emailOrTel),
           verifyCodeType: codeType,
           ticket: res.ticket,
           randStr: res.randstr,

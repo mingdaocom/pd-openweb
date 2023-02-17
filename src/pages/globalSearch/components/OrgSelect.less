@@ -1,0 +1,40 @@
+.orgDrowSelectCon {
+  background: #ffffff;
+  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
+  border-radius: 3px;
+  width: 280px;
+  .orgSearchCon {
+    height: 40px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #EAEAEA;
+    input {
+      border: none;
+      font-size: 13px;
+    }
+    input::-webkit-input-placeholder,
+    input::-moz-placeholder,
+    input:-ms-input-placeholder {
+      color: #9d9d9d;
+    }
+  }
+  .orgList {
+    height: 360px;
+    overflow: auto;
+    font-size: 14px;
+    .orgListItem {
+      height: 48px;
+      padding: 0 12px;
+      line-height: 48px;
+    }
+    .orgListItem:hover {
+      background: #f7f7f7;
+    }
+    .orgListItem.active {
+      background: #e4f3fd;
+      color: #2196f3;
+      font-weight: 600;
+    }
+  }
+}

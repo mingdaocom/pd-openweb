@@ -380,9 +380,25 @@ export default class Signature extends Component {
     );
   };
 
+  getValue() {
+    const { value } = this.props;
+    if (value && value.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(value);
+        if (parsed.bucket && parsed.key) {
+          return md.global.FileStoreConfig[parsed.bucket === 4 ? 'pictureHost' : 'pubHost'] + parsed.key;
+        }
+      } catch (err) {
+        console.error(err);
+        return '';
+      }
+    }
+    return /(\.jpeg|\.png|\.jpg)$/.test((value || '').replace(/\?.*/g, '')) ? value : '';
+  }
+
   render() {
     const { disabled, onlySignature } = this.props;
-    const value = /(\.jpeg|\.png|\.jpg)$/.test((this.props.value || '').replace(/\?.*/g, '')) ? this.props.value : '';
+    const value = this.getValue();
     const { signature } = this.state;
 
     // 只读

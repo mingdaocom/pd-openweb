@@ -306,9 +306,13 @@ class RelationAction extends Component {
     );
   }
   renderContent() {
-    const { relationRows, permissionInfo } = this.props;
-    const { isCreate, isRelevance, allowRemoveRelation, onlyRelateByScanCode, activeRelateSheetControl } = permissionInfo;
-    const disabledManualWrite = onlyRelateByScanCode && _.get(activeRelateSheetControl, 'advancedSetting.dismanual') === '1';
+    const { relationRows, permissionInfo, relationRow } = this.props;
+    const { isCreate, isRelevance, allowRemoveRelation, onlyRelateByScanCode, activeRelateSheetControl } =
+      permissionInfo;
+    const disabledManualWrite =
+      onlyRelateByScanCode && _.get(activeRelateSheetControl, 'advancedSetting.dismanual') === '1';
+    const entityName = relationRow.worksheet.entityName || _l('关联');
+
     return (
       <Fragment>
         {allowRemoveRelation && (
@@ -345,7 +349,7 @@ class RelationAction extends Component {
                 >
                   <Fragment>
                     <Icon icon="add" className="Font20" />
-                    {isRelevance ? _l('添加关联') : _l('新建关联')}
+                    {isRelevance ? _l(`添加${entityName}`) : _l(`新建${entityName}`)}
                   </Fragment>
                 </Button>
               </WingBlank>

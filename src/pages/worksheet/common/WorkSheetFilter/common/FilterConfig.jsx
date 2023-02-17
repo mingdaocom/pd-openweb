@@ -93,6 +93,7 @@ export default function SingleFilter(props) {
         isSingleFilter
         from={from}
         base={base}
+        isRules={isRules}
         filter={editingFilter}
         actions={actions}
         controls={columns}

@@ -12,6 +12,7 @@ import _ from 'lodash';
 
 const isMobile = browserIsMobile();
 const isPrintPivotTable = location.href.includes('printPivotTable');
+const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
 
 @errorBoundary
 export default class extends Component {
@@ -686,7 +687,8 @@ export default class extends Component {
             contentAutoHeight: scrollConfig.x && _.isUndefined(scrollConfig.y),
             contentScroll: scrollConfig.y,
             hideHeaderLastTr: columns.length && yaxisList.length === 1,
-            noSelect: dragValue
+            noSelect: dragValue,
+            safariScroll: isSafari && scrollConfig.y
           })
         }
       >

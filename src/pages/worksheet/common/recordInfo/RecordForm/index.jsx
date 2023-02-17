@@ -176,7 +176,7 @@ export default function RecordForm(props) {
       data: formdata,
     })
       .filter(control => isRelateRecordTableControl(control) && controlState(control, recordId ? 3 : 2).visible)
-      .map(c => (isLock ? { ...c, disabled: true } : c)),
+      .map(c => (!ignoreLock && isLock ? { ...c, disabled: true } : c)),
     'row',
   ).filter(c => !c.hidden);
   const scrollRef = useRef();
@@ -335,7 +335,7 @@ export default function RecordForm(props) {
                   systemControlData={systemControlData}
                   rules={recordinfo.rules}
                   isWorksheetQuery={recordinfo.isWorksheetQuery}
-                  disabled={!allowEdit && from !== 21}
+                  disabled={!allowEdit}
                   projectId={recordinfo.projectId || props.projectId}
                   groupId={recordinfo.groupId}
                   masterRecordRowId={masterRecordRowId}
@@ -374,7 +374,7 @@ export default function RecordForm(props) {
                   relateNumOfControl={relateNumOfControl}
                   navScrollLeft={navScrollLeft}
                   activeId={activeRelateRecordControlId || relateRecordTableControls[0].controlId}
-                  recordbase={recordbase}
+                  recordbase={{ ...recordbase, allowEdit: isLock ? false : recordbase.allowEdit }}
                   recordinfo={recordinfo}
                   controls={relateRecordTableControls}
                   relateRecordData={relateRecordData}

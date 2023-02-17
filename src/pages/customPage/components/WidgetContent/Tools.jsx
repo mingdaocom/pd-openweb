@@ -3,6 +3,7 @@ import { string } from 'prop-types';
 import styled from 'styled-components';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
+import { Tooltip } from 'antd';
 import 'rc-trigger/assets/index.css';
 import { useToggle } from 'react-use';
 import { getEnumType } from '../../util';
@@ -220,33 +221,35 @@ export default function Tools({ appId, pageId, widget, layoutType, handleToolCli
               </DelVerify>
             }
           >
-            <li
-              className={cx(type, { highlight: isHighlight(type) })}
-              key={type}
-              data-tip={tip}
-              onClick={e => {
-                toggle(true);
-              }}
-            >
-              <i className={`icon-${icon} Font18`}></i>
-            </li>
+            <Tooltip title={tip} placement="bottom">
+              <li
+                className={cx(type, { highlight: isHighlight(type) })}
+                key={type}
+                onClick={e => {
+                  toggle(true);
+                }}
+              >
+                <i className={`icon-${icon} Font18`}></i>
+              </li>
+            </Tooltip>
           </Trigger>
         ) : (
-          <li
-            className={cx(type, { highlight: isHighlight(type), switchButton: isSwitchButton(type) })}
-            key={type}
-            data-tip={getTip(type, tip)}
-            onClick={e => {
-              if (type === 'move') {
-                setMoveVisible(true);
-              } else {
-                handleToolClick(type);
-              }
-            }}
-          >
-            <i className={`icon-${getIcon(type, icon)} Font18 current`}></i>
-            {isSwitchButton(type) && <i className={`icon-${getIcon(type, icon, true)} Font18 next`}></i>}
-          </li>
+          <Tooltip title={getTip(type, tip)} placement="bottom">
+            <li
+              className={cx(type, { highlight: isHighlight(type), switchButton: isSwitchButton(type) })}
+              key={type}
+              onClick={e => {
+                if (type === 'move') {
+                  setMoveVisible(true);
+                } else {
+                  handleToolClick(type);
+                }
+              }}
+            >
+              <i className={`icon-${getIcon(type, icon)} Font18 current`}></i>
+              {isSwitchButton(type) && <i className={`icon-${getIcon(type, icon, true)} Font18 next`}></i>}
+            </li>
+          </Tooltip>
         )
       )}
       {moveVisible && (

@@ -1,5 +1,6 @@
 import { existAccountHint } from 'src/components/common/function';
 import InviteController from 'src/api/invitation';
+import { encrypt } from 'src/util';
 var Invite = {};
 
 // invite by accountIds
@@ -18,7 +19,7 @@ Invite.inviteByAccounts = function(projectId, users, cb) {
   var param = {};
   // format data
   $.map(users, function(user) {
-    param[user.account] = user.fullname;
+    param[encrypt(user.account)] = user.fullname;
   });
   Invite.inviteToProject(
     {
@@ -54,7 +55,7 @@ Invite.inviteToFriend = function(users, cb) {
   var param = {};
   // format data
   $.map(users, function(user) {
-    param[user.account] = user.fullname;
+    param[encrypt(user.account)] = user.fullname;
   });
   InviteController.inviteUser({
     accounts: param,

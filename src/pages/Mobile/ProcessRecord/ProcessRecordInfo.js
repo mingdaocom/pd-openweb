@@ -35,8 +35,6 @@ import './index.less';
 import _ from 'lodash';
 
 const { operation } = instance;
-const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
 
 class ProcessRecord extends Component {
   constructor(props) {
@@ -104,30 +102,36 @@ class ProcessRecord extends Component {
     const { params } = this.props.match;
     const { viewId, rowId, worksheetId, instance } = this.state;
     Promise.all([
-      worksheetAjax.getRowByID({
+      worksheetAjax.getRowDetail({
         ...params,
         viewId,
         rowId,
         worksheetId,
         getType: 9,
         checkView: true,
+        getTemplate: true,
       }),
       instanceVersion.get({
         id: params.instanceId,
         workId: params.workId,
       }),
     ]).then(([sheetRow, instance]) => {
-      const { receiveControls, view } = sheetRow;
+      const { templateControls, view = {}, rowData } = sheetRow;
       const newReceiveControls = viewId
-        ? receiveControls
-        : receiveControls
+        ? templateControls
+        : templateControls
             .map(c => Object.assign({}, c, { fieldPermission: '111' }))
-            .filter(item => item.type !== 21 && !_.includes(view ? view.controls : [], item.controlId));
-      sheetRow.receiveControls = newReceiveControls;
+            .filter(item => item.type !== 21);
+      const newFormData = newReceiveControls.map(cc => ({
+        ...cc,
+        value: safeParse(rowData)[cc.controlId],
+        hidden: cc.hidden || (view.controls || []).includes(cc.controlId),
+      }));
+      sheetRow.receiveControls = newFormData;
       this.setState(
         {
-          receiveControls: newReceiveControls,
-          originalData: receiveControls,
+          receiveControls: newFormData,
+          originalData: newFormData,
           sheetRow,
           loading: false,
           instance,
@@ -695,23 +699,44 @@ class ProcessRecord extends Component {
     const { viewId, isEdit, random, sheetRow, rowId, worksheetId, instance, otherActionVisible } = this.state;
     const { operationTypeList, flowNode, app } = instance;
     const { type } = flowNode;
+    const { params } = this.props.match;
+    const { instanceId, workId } = params;
 
     return (
       <Fragment>
         <div className="flex" ref={con => (this.con = con)}>
           <CustomFields
+            mobileApprovalRecordInfo={{ instanceId, workId }}
             from={6}
             ignoreLock={true}
             flag={random.toString()}
             appId={app.id}
             ref={this.customwidget}
             projectId={sheetRow.projectId}
+            isWorksheetQuery={true}
             disabled={sheetRow.allowEdit ? !_.isEmpty(viewId) && !isEdit : true}
             recordCreateTime={sheetRow.createTime}
             recordId={rowId}
             worksheetId={worksheetId}
             data={sheetRow.receiveControls}
             registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
+            controlProps={{
+              updateRelationControls: (worksheetIdOfControl, newControls) => {
+                this.setState(oldState => ({
+                  random: Date.now(),
+                  sheetRow: {
+                    ...oldState.sheetRow,
+                    receiveControls: oldState.sheetRow.receiveControls.map(item => {
+                      if (item.type === 34 && item.dataSource === worksheetIdOfControl) {
+                        return { ...item, relationControls: newControls };
+                      } else {
+                        return item;
+                      }
+                    }),
+                  },
+                }));
+              },
+            }}
             onChange={data => {
               this.setState({
                 tempFormData: data.map(c => (c.type === 34 ? { ...c, value: undefined } : c)),
@@ -887,8 +912,7 @@ class ProcessRecord extends Component {
         {_.isEmpty(operationTypeList[0])
           ? viewId && this.renderRecordHandle()
           : _.isEmpty(currentTab.id) && this.renderProcessHandle()}
-        {(isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) || !_.isEmpty(newOperationTypeList)) &&
-          !(isWxWork || isWeLink) && (
+        {(isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) || !_.isEmpty(newOperationTypeList)) && (
             <ChatCount
               className={
                 _.isEmpty(operationTypeList[0]) &&

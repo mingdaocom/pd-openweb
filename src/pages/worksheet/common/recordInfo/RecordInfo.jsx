@@ -281,7 +281,6 @@ export default class RecordInfo extends Component {
         loading: false,
         refreshBtnNeedLoading: false,
       });
-      this.updateLockStatus(data.formData);
     } catch (err) {
       console.error(err);
       if (instanceId && workId && err.errorCode === 10) {
@@ -443,7 +442,7 @@ export default class RecordInfo extends Component {
 
     const formData = data
       .filter(it => it.controlId !== 'ownerid')
-      .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32)
+      .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32 && item.type !== 33)
       .filter(item => !checkCellIsEmpty(item.value));
 
     const formDataIds = formData.map(it => it.controlId);
@@ -466,10 +465,13 @@ export default class RecordInfo extends Component {
         return formatControlToServer(it);
       }
       if (it.type === 34) {
-        return formatControlToServer({
-          ...it,
-          value: _.isObject(it.value) ? { ...it.value, isAdd: true, updated: [] } : it.value,
-        });
+        return formatControlToServer(
+          {
+            ...it,
+            value: _.isObject(it.value) ? { ...it.value, isAdd: true, updated: [] } : it.value,
+          },
+          { isDraft: true },
+        );
       }
       if (it.type === 14) {
         return formatControlToServer(it, { isSubListCopy: true });
@@ -636,6 +638,7 @@ export default class RecordInfo extends Component {
         data,
         updateControlIds,
         updateSuccess,
+        isDraft: from === RECORD_INFO_FROM.DRAFT,
         triggerUniqueError: badData => {
           if (this.recordform.current && _.isFunction(this.recordform.current.uniqueErrorUpdate)) {
             this.recordform.current.uniqueErrorUpdate(badData);
@@ -675,7 +678,6 @@ export default class RecordInfo extends Component {
             recordinfo: { ...recordinfo, formData: newFormData },
             updateControlIds: [],
           });
-          this.updateLockStatus(newFormData);
           if (_.isFunction(this.refreshEvents.loadcustombtns)) {
             this.refreshEvents.loadcustombtns();
           }
@@ -732,13 +734,6 @@ export default class RecordInfo extends Component {
           alert(err || _l('记录添加失败'), 2);
         }
       });
-  }
-
-  updateLockStatus(formData) {
-    const { recordinfo } = this.state;
-    this.setState({
-      isLock: checkRuleLocked(recordinfo.rules, formData || recordinfo.formData),
-    });
   }
 
   @autobind
@@ -850,7 +845,6 @@ export default class RecordInfo extends Component {
     }
     const {
       loading,
-      isLock,
       submitLoading,
       formWidth,
       refreshBtnNeedLoading,
@@ -868,6 +862,7 @@ export default class RecordInfo extends Component {
       exAccountDiscussEnum,
       forceShowFullValue,
     } = this.state;
+    const isLock = checkRuleLocked(recordinfo.rules, recordinfo.formData);
     let { width } = this.props;
     if (width > 1600) {
       width = 1600;
@@ -1032,6 +1027,16 @@ export default class RecordInfo extends Component {
                   refreshRecord: this.handleRefresh,
                   addRefreshEvents: (id, fn) => {
                     this.refreshEvents[id] = fn;
+                  },
+                  updateRelationControls: (worksheetIdOfControl, newControls) => {
+                    this.recordform.current.dataFormat.data = this.recordform.current.dataFormat.data.map(item => {
+                      if (item.type === 34 && item.dataSource === worksheetIdOfControl) {
+                        return { ...item, relationControls: newControls };
+                      } else {
+                        return item;
+                      }
+                    });
+                    this.recordform.current.setState({ renderData: this.recordform.current.getFilterDataByRule() });
                   },
                   sideVisible,
                   formWidth,

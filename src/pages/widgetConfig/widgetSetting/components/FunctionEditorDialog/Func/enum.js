@@ -116,7 +116,7 @@ export const functions = {
   },
   // 为日期加减时间
   DATEADD: function (date, expression, format = 1) {
-    expression = expression.replace(/\+\(undefined\)/g, '');
+    expression = expression.replace(/\+\(undefined\)/g, '').replace(/\((\d+)\)/, ($0, $1) => $1);
     expression = expression.replace(/\w\w:\w\w:\w\w/g, timeStr => {
       const [h, m, s] = dayjs(timeStr, 'HH:mm:ss').format('HH:mm:ss').split(':').map(Number);
       return `${h}h+${m}m+${s}s`;
@@ -177,7 +177,7 @@ export const functions = {
     if (typeof values === 'string' && _.isNumber(+values) && !_.isNaN(+values)) {
       return values;
     }
-    return values.length;
+    return values ? values.length : 0;
   },
   // 条件求和
   // SUMIF: function () {

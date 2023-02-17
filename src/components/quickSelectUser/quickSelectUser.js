@@ -11,6 +11,7 @@ import userController from 'src/api/user';
 import externalPortalCotroller from 'src/api/externalPortal';
 import addressBookController from 'src/api/addressBook';
 import invitation from 'src/api/invitation';
+import { encrypt } from 'src/util';
 
 var SelectUser = function (element, options) {
   this.$element = $(element);
@@ -762,7 +763,7 @@ $.extend(SelectUser.prototype, {
           if (result.isPhone && result.result) {
             accountKey = '+86' + $dialogLayer.$mailInput.val();
           }
-          accounts[accountKey] = $dialogLayer.$nameInput.val();
+          accounts[encrypt(accountKey)] = $dialogLayer.$nameInput.val();
           // send invite
           invitation
             .getInviteAccountInfo({

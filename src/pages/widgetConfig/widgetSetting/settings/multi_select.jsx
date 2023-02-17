@@ -26,7 +26,7 @@ const OPTIONS_DISPLAY = [
   },
 ];
 export default function MultiSelect({ data, onChange, globalSheetInfo, fromPortal, fromExcel }) {
-  const { direction, checktype = '0' } = getAdvanceSetting(data);
+  const { direction = '0', checktype = '0' } = getAdvanceSetting(data);
   return (
     <Fragment>
       <SettingItem>

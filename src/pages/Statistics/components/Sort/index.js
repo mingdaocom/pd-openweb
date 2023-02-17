@@ -181,7 +181,7 @@ export default class Sort extends Component {
       if (currentCustomSort === split.controlId) {
         this.handleChangeYSort(sortListKey, { controlId: split.controlId });
       }
-      if (rightY && rightY.split.controlId) {
+      if (rightY && currentCustomSort === rightY.split.controlId) {
         const ySameList = _.filter(yaxisList, item => _.find(rightY.yaxisList, { controlId: item.controlId })).map(
           item => item.controlId,
         );

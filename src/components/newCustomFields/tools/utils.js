@@ -158,21 +158,14 @@ export const Validator = {
   },
 };
 
-function formatRowToServer(row, controls = []) {
+function formatRowToServer(row, controls = [], { isDraft } = {}) {
   return Object.keys(row)
     .map(key => {
       const c = _.find(controls, c => c.controlId === key);
       if (!c) {
         return undefined;
       } else {
-        if (c.type === 14 && (row[key] || '')[0] === '[') {
-          try {
-            row[key] = JSON.stringify(JSON.parse(row[key]).map(c => c.fileId));
-          } catch (err) {
-            console.log(err);
-          }
-        }
-        return _.pick(formatControlToServer({ ...c, value: row[key] }, { isSubListCopy: row.isCopy }), [
+        return _.pick(formatControlToServer({ ...c, value: row[key] }, { isSubListCopy: row.isCopy, isDraft }), [
           'controlId',
           'value',
           'editType',
@@ -186,7 +179,7 @@ function formatRowToServer(row, controls = []) {
  * 将控件数据格式化成后端需要的数据
  * @param  {} control 控件
  */
-export function formatControlToServer(control, { isSubListCopy } = {}) {
+export function formatControlToServer(control, { isSubListCopy, isDraft } = {}) {
   let result = {
     controlId: control.controlId,
     type: control.type,
@@ -219,8 +212,8 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
       let oldAttachments = [];
       let oldKnowledgeAtts = [];
 
-      if (isSubListCopy && _.isArray(parsed) && !_.isEmpty(parsed)) {
-        result.value = JSON.stringify(parsed.map(a => a.fileID));
+      if ((isSubListCopy || isDraft) && _.isArray(parsed) && !_.isEmpty(parsed)) {
+        result.value = JSON.stringify(parsed.map(a => a.fileID || a.fileId));
         break;
       }
 
@@ -269,7 +262,9 @@ export function formatControlToServer(control, { isSubListCopy } = {}) {
       break;
     case 34: // 子表
       if (result.value.isAdd) {
-        result.value = JSON.stringify(control.value.rows.map(row => formatRowToServer(row, control.relationControls)));
+        result.value = JSON.stringify(
+          control.value.rows.map(row => formatRowToServer(row, control.relationControls, { isDraft })),
+        );
         if (result.value === '[]') {
           result.value = '';
         }
@@ -591,7 +586,9 @@ export const getCurrentValue = (item, data, control) => {
 
 // 特殊手机号验证是否合法
 export const specialTelVerify = value => {
-  return /\+234\d{10}$|\+63\d{10}$|\+852\d{8}$|\+85368\d{6}$|\+861\d{10}$|\+5551\d{8}$/.test(value || '');
+  return /\+234\d{10}$|\+63\d{10}$|\+60\d{8,10}$|\+852\d{8}$|\+85368\d{6}$|\+861[3-9]\d{9}$|\+5551\d{8}$/.test(
+    value || '',
+  );
 };
 
 export const compareWithTime = (start, end, type) => {

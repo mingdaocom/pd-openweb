@@ -173,6 +173,7 @@ export default function ConditionsGroup(props) {
     filterResigned = true,
     filterAddConditionControls = () => {},
     filterError = [],
+    isRules,
   } = props;
   return (
     <Con className={cx({ isSingleFilter })}>
@@ -227,6 +228,7 @@ export default function ConditionsGroup(props) {
               onChange={value => onChange(value, i)}
               conditionError={filterError[i] || ''}
               filterResigned={filterResigned}
+              isRules={isRules}
               {...conditionProps}
             />
           </ConditionCon>

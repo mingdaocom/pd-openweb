@@ -240,7 +240,7 @@ export const findIndex = (res, id) => {
 };
 
 export const checkAccountUploadLimit = (size, params = {}) => {
-  return kcCtrl.getUsage(params).then(function(usage) {
+  return kcCtrl.getUsage(params).then(function (usage) {
     return usage.used + size < usage.total;
   });
 };
@@ -330,14 +330,14 @@ export const checkFileExt = (filetype = '', fileExt = '') => {
   };
 
   if (_.includes(['0', '1', '3', '4'], type)) {
-    verifyExt = FileExts[type].some(i => fileExt.toLowerCase().indexOf(i.toLowerCase()) > -1);
+    verifyExt = FileExts[type].some(i => fileExt.toLowerCase() === i.toLowerCase());
   } else if (_.includes(['2'], type)) {
     const tempFileExts = Object.keys(FileExts).reduce((total, cur) => {
       if (_.includes(['0', '2'], type)) {
         return (total = total.concat(FileExts[cur]));
       }
     }, []);
-    verifyExt = tempFileExts.every(i => !(fileExt.toLowerCase().indexOf(i.toLowerCase()) > -1));
+    verifyExt = tempFileExts.every(i => !(fileExt.toLowerCase() === i.toLowerCase()));
   }
 
   const errorText =

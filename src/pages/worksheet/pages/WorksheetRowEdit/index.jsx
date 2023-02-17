@@ -38,6 +38,7 @@ class WorksheetRowEdit extends Component {
     pageSize: 50,
     controlId: '',
     count: 0,
+    formFlag: undefined,
   };
 
   componentDidMount() {
@@ -46,14 +47,6 @@ class WorksheetRowEdit extends Component {
     window.isPublicWorksheet = true;
     this.getLinkDetail();
     $('body,html').scrollTop(0);
-    $(document).on('scroll', e => {
-      var scrollTop = $(e.target).scrollTop();
-      var clientHeight = $(e.target).innerHeight();
-      if (scrollTop >= clientHeight - 16 - document.documentElement.clientHeight) {
-        console.log('s');
-        this.handleScroll();
-      }
-    });
   }
 
   componentWillUnmount() {
@@ -62,6 +55,17 @@ class WorksheetRowEdit extends Component {
 
   customwidget = React.createRef();
   cellObjs = {};
+
+  bindScroll() {
+    const scrollElement = document.querySelector('.worksheetRowEdit');
+    scrollElement.addEventListener('scroll', e => {
+      var scrollTop = scrollElement.scrollTop;
+      var scrollHeight = scrollElement.scrollHeight;
+      if (scrollTop >= scrollHeight - 16 - scrollElement.clientHeight) {
+        this.handleScroll();
+      }
+    });
+  }
 
   /**
    * 获取记录详情
@@ -73,7 +77,7 @@ class WorksheetRowEdit extends Component {
 
     this.requestLinkDetail()
       .then(data => {
-        this.setState({ loading: false, data });
+        this.setState({ loading: false, data }, this.bindScroll);
       })
       .catch(data => {
         this.setState({ loading: false, data, isError: true });
@@ -296,7 +300,7 @@ class WorksheetRowEdit extends Component {
   }
 
   renderContent() {
-    const { showError, data, submitLoading } = this.state;
+    const { showError, data, submitLoading, formFlag } = this.state;
 
     return (
       <div className="worksheetRowEditBox">
@@ -305,8 +309,26 @@ class WorksheetRowEdit extends Component {
 
         <CustomFields
           ref={this.customwidget}
+          flag={formFlag}
           from={7}
           data={data.receiveControls}
+          controlProps={{
+            updateRelationControls: (worksheetIdOfControl, newControls) => {
+              this.setState(oldState => ({
+                formFlag: Math.random(),
+                data: {
+                  ...oldState.data,
+                  receiveControls: oldState.data.receiveControls.map(item => {
+                    if (item.type === 34 && item.dataSource === worksheetIdOfControl) {
+                      return { ...item, relationControls: newControls };
+                    } else {
+                      return item;
+                    }
+                  }),
+                },
+              }));
+            },
+          }}
           projectId={data.projectId}
           worksheetId={data.worksheetId}
           recordId={data.rowId}
@@ -408,7 +430,7 @@ class WorksheetRowEdit extends Component {
     }
 
     return (
-      <div className="worksheetRowEdit flexColumn">
+      <div className="worksheetRowEdit">
         {isError
           ? this.renderError()
           : isComplete || data.writeCount > 0

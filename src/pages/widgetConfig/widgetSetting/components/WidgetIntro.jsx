@@ -71,6 +71,10 @@ export default function WidgetIntro(props) {
       return;
     }
 
+    if (type === 9) {
+      onChange({ type: newData.type });
+      return;
+    }
     // 多选转单选 需要将默认选中设为一个
     if (type === 10) {
       const defaultChecked = JSON.parse(data.default || '[]');

@@ -79,6 +79,7 @@ function SheetHeader(props) {
     filters,
     quickFilter,
     navGroupFilters,
+    filtersGroup,
     updateRows,
     hideRows,
     updateViewPermission,
@@ -125,6 +126,7 @@ function SheetHeader(props) {
       quickFilter={quickFilter}
       pageSize={pageSize}
       navGroupFilters={navGroupFilters}
+      filtersGroup={filtersGroup}
       worksheetInfo={worksheetInfo}
       permission={(permission || {})[viewId]}
       allWorksheetIsSelected={allWorksheetIsSelected}
@@ -266,18 +268,6 @@ function SheetHeader(props) {
             {(String(view.viewType) === VIEW_DISPLAY_TYPE.structure && _.includes([0, 1], Number(view.childType))) ||
             String(view.viewType) === VIEW_DISPLAY_TYPE.gunter ? null : (
               <Fragment>
-                {/* {!!chartId && (
-                <span className={cx('worksheetFilterBtn ThemeColor3 ThemeBGColor6 active')}>
-                  <i className="icon icon-worksheet_filter" />
-                  <span className="selectedFilterName ellipsis">{_l('来自统计图的筛选')}</span>
-                  <i
-                    className="icon icon-close resetFilterBtn ThemeHoverColor2"
-                    onClick={() => {
-                      location.search = '';
-                    }}
-                  />
-                </span>
-              )} */}
                 <SearchInput
                   viewId={viewId}
                   className="queryInput worksheetQueryInput"
@@ -288,22 +278,35 @@ function SheetHeader(props) {
                     updateFiltersWithView({ keyWords: '' });
                   }}
                 />
-                <WorkSheetFilter
-                  className="mRight16 mTop1"
-                  chartId={chartId}
-                  isCharge={isCharge}
-                  sheetSwitchPermit={sheetSwitchPermit}
-                  appId={appId}
-                  viewId={viewId}
-                  projectId={projectId}
-                  worksheetId={worksheetId}
-                  columns={controls}
-                  filterResigned={false} // 筛选---人员层不显示离职栏
-                  onChange={({ searchType, filterControls }) => {
-                    updateFiltersWithView({ searchType, filterControls });
-                  }}
-                  clearChartId={clearChartId}
-                />
+                {chartId ? (
+                  <span className={cx('worksheetFilterBtn ThemeColor3 ThemeBGColor6 active')}>
+                    <i className="icon icon-worksheet_filter" />
+                    <span className="selectedFilterName ellipsis">{_l('来自统计图的筛选')}</span>
+                    <i
+                      className="icon icon-close resetFilterBtn ThemeHoverColor2"
+                      onClick={() => {
+                        location.search = '';
+                      }}
+                    />
+                  </span>
+                ) : (
+                  <WorkSheetFilter
+                    className="mRight16 mTop1"
+                    chartId={chartId}
+                    isCharge={isCharge}
+                    sheetSwitchPermit={sheetSwitchPermit}
+                    appId={appId}
+                    viewId={viewId}
+                    projectId={projectId}
+                    worksheetId={worksheetId}
+                    columns={controls}
+                    filterResigned={false} // 筛选---人员层不显示离职栏
+                    onChange={({ searchType, filterControls }) => {
+                      updateFiltersWithView({ searchType, filterControls });
+                    }}
+                    clearChartId={clearChartId}
+                  />
+                )}
               </Fragment>
             )}
             {!window.isPublicApp && (

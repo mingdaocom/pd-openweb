@@ -12,7 +12,7 @@ const RelateInfo = styled.div`
     margin: 0 6px;
   }
   .name {
-    max-width: 220px;
+    max-width: 135px;
     &.needLink {
       cursor: pointer;
       color: #2196f3;

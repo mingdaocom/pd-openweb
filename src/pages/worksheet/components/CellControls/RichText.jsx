@@ -74,6 +74,7 @@ export default class Text extends React.Component {
         <RichText
           autoFocus
           data={this.state.value || ''}
+          minHeight={document.documentElement.clientHeight - 180}
           onSave={value => {
             this.setState({
               value,

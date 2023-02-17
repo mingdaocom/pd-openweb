@@ -16,7 +16,7 @@ function runWithParams(control, formData) {
     if (typeof console !== 'undefined') {
       console.log(result.error);
     }
-    return;
+    return '';
   }
 }
 

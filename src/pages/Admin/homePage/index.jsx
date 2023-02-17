@@ -170,7 +170,7 @@ export default function HomePage({ match, location: routerLocation }) {
               {/*<div className="computeMethod">
                 <Support
                   type={3}
-                  href="https://help.mingdao.com/Prices4.html"
+                  href="https://help.mingdao.com/prices4.html"
                   text={<span className="Gray_9e Hover_21">{_l('计算方法')}</span>}
                 />
               </div>*/}

@@ -202,6 +202,7 @@ class FillRecordControls extends React.Component {
 
     if (hasError) {
       alert(_l('请正确填写记录'), 3);
+      this.setState({ submitLoading: false });
       return;
     }
     this.setState({ submitLoading: false });

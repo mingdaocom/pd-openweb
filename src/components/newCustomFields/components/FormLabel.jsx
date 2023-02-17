@@ -120,7 +120,7 @@ export default ({
           {renderCount(item)}
         </div>
 
-        {recordId && <WidgetsDesc item={item} from={from} />}
+        {(recordId || item.isSubList) && <WidgetsDesc item={item} from={from} />}
 
         {from !== FROM.DRAFT && !_.get(window, 'shareState.isPublicView') && (
           <RefreshBtn worksheetId={worksheetId} recordId={recordId} item={item} onChange={handleChange} />
@@ -131,7 +131,7 @@ export default ({
         </div>
       </div>
 
-      {item.type === 34 && !recordId && <WidgetsDesc item={item} from={from} />}
+      {item.type === 34 && !item.isSubList && !recordId && <WidgetsDesc item={item} from={from} />}
     </Fragment>
   );
 };

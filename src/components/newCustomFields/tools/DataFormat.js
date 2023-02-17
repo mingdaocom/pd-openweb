@@ -2012,7 +2012,14 @@ export default class DataFormat {
                                 : item.rowid;
                             return;
                           }
-                          row[cid] = item[subCid] || '';
+                          row[cid] =
+                            controlVal.type === 2
+                              ? getCurrentValue(
+                                  controlVal,
+                                  item[subCid],
+                                  _.find(controls, s => s.controlId === subCid),
+                                )
+                              : item[subCid] || '';
                         }
                       });
                       //映射明细所有字段值不为空

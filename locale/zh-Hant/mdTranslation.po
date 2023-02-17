@@ -42984,3 +42984,131 @@ msgstr "設置列權限"
 msgid "未开启时按照子表本身权限，开启后可配置审批节点中的列权限"
 msgstr "未開啟時按照子表本身權限，開啟後可配置審批節點中的列權限"
 
+#: Disabled references:1
+msgid "超级搜索"
+msgstr "超級搜索"
+
+#: Disabled references:1
+msgid "数据正在初始化，请耐心等待"
+msgstr "數據正在初始化，請耐心等待"
+
+#: Disabled references:1
+msgid "当前版本没有此功能，请升级版本"
+msgstr "當前版本沒有此功能，請升級版本"
+
+#: Disabled references:1
+msgid "只搜索记录标题"
+msgstr "只搜索記錄標題"
+
+#: Disabled references:1
+msgid "搜索到 %0 个结果"
+msgstr "搜索到 %0 個結果"
+
+#: Disabled references:1
+msgid "是否获取系统字段，默认false"
+msgstr "是否獲取系統字段，默認false"
+
+#: Disabled references:1
+msgid "请输入手机或者邮箱"
+msgstr "請輸入手機或者郵箱"
+
+#: Disabled references:1
+msgid "输入关键词搜索"
+msgstr "輸入關鍵詞搜索"
+
+#: Disabled references:1
+msgid "没有搜索到最近更新的记录，前往"
+msgstr "沒有搜索到最近更新的記錄，前往"
+
+#: Disabled references:1
+msgid "更多搜索"
+msgstr "更多搜索"
+
+#: Disabled references:1
+msgid "更新时间："
+msgstr "更新時間："
+
+#: Disabled references:1
+msgid "显示更多"
+msgstr "顯示更多"
+
+#: Disabled references:1
+msgid "记录仅支持单个组织搜索，且不支持外部协作组织"
+msgstr "記錄僅支持單個組織搜索，且不支持外部協作組織"
+
+#: Disabled references:1
+msgid "可搜索的字段类型包含：文本、邮箱、电话、自动编号、证件、文本组合、关联字段、他表字段(仅存储)。"
+msgstr "可搜索的字段類型包含：文本、郵箱、電話、自動編號、證件、文本組合、關聯字段、他表字段(僅存儲)。"
+
+#: Disabled references:1
+msgid "最多可输入32个字符"
+msgstr "最多可輸入32個字符"
+
+#: Disabled references:1
+msgid "超级搜索(F)..."
+msgstr "超級搜索(F)..."
+
+#: Disabled references:1
+msgid "不限时间"
+msgstr "不限時間"
+
+#: Disabled references:1
+msgid "按更新时间"
+msgstr "按更新時間"
+
+#: Disabled references:1
+msgid "按创建时间"
+msgstr "按創建時間"
+
+#: Disabled references:1
+msgid "更新时间"
+msgstr "更新時間"
+
+#: Disabled references:1
+msgid "地址无法访问\n被取消了查看权限或已删除"
+msgstr "地址無法訪問\n被取消了查看權限或已刪除"
+
+#: Disabled references:1
+msgid "启用后，流程触发者可以在“我发起的”待办项中查看、追踪此流程；未启用时，流程触发者将固定为“工作流”"
+msgstr "啟用後，流程觸發者可以在“我發起的”待辦項中查看、追踪此流程；未啟用時，流程觸發者將固定為“工作流”"
+
+#: Disabled references:1
+msgid "自主创建"
+msgstr "自主創建"
+
+#: Disabled references:1
+msgid "手机或邮箱"
+msgstr "手機或郵箱"
+
+#: Disabled references:1
+msgid "需已配置对应服务"
+msgstr "需已配置對應服務"
+
+#: Disabled references:1
+msgid "登录账号"
+msgstr "登錄賬號"
+
+#: Disabled references:1
+msgid "请输入手机号或邮箱"
+msgstr "請輸入手機號或郵箱"
+
+#: Disabled references:1
+msgid "同时获取人员的汇报关系信息"
+msgstr "同時獲取人員的匯報關係信息"
+
+#: Disabled references:1
+msgid "设置子表操作和列权限"
+msgstr "設置子表操作和列權限"
+
+#: Disabled references:1
+msgid "子表操作和列权限"
+msgstr "子表操作和列權限"
+
+#: Disabled references:1
+msgid "未开启时按照子表本身权限，开启后可配置子表的细分操作和列权限"
+msgstr "未開啟時按照子表本身權限，開啟後可配置子表的細分操作和列權限"
+
+#: Disabled references:1
+msgid "列权限"
+msgstr "列權限"
+

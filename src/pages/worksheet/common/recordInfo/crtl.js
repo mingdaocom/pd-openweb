@@ -77,6 +77,7 @@ export function updateRecord(
     workId,
     data,
     updateControlIds,
+    isDraft,
     triggerUniqueError,
     updateSuccess,
   },
@@ -84,7 +85,7 @@ export function updateRecord(
 ) {
   const updatedControls = data
     .filter(control => updateControlIds.indexOf(control.controlId) > -1 && control.type !== 30)
-    .map(formatControlToServer);
+    .map(control => formatControlToServer(control, { isDraft }));
   const apiargs = {
     appId,
     viewId,

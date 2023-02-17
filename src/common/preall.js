@@ -160,6 +160,7 @@ function parseShareId() {
     window.shareState.shareId = (location.pathname.match(/.*\/public\/record\/(\w{24})/) || '')[1];
   }
   if (/\/public\/workflow/.test(location.pathname)) {
+    window.shareState.isPublicWorkflowRecord = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/workflow\/(\w{24})/) || '')[1];
   }
 }

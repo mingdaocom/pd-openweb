@@ -50,37 +50,45 @@ export default class SubList extends React.Component {
   }
 
   loadWorksheetInfo(worksheetId) {
-    const { controlId } = this.props;
+    const { recordId, controlId, value, updateRelationControls = () => {} } = this.props;
     const controlPermission = controlState({ ...this.props }, this.props.from);
     const args = { worksheetId, getTemplate: true, getRules: true };
-    const { instanceId, workId } =  _.get(this, 'context.recordBaseInfo') || {};
+    const { instanceId, workId } = browserIsMobile()
+      ? this.props.mobileApprovalRecordInfo || {}
+      : _.get(this, 'context.recordBaseInfo') || {};
     const linkId = this.publicLinkId;
 
-    const getWorksheetInfoPromise =
-      this.props.from !== FROM.PUBLIC ? sheetAjax.getWorksheetInfo : publicWorksheetAjax.getWorksheetInfo;
-    // let getWorksheetInfoPromise;
-    // if (linkId) {
-    //   args.linkId = linkId;
-    //   args.controlId = controlId;
-    //   getWorksheetInfoPromise = sheetAjax.getWorksheetInfoByWorkItem;
-    // } else if (instanceId && workId) {
-    //   args.instanceId = instanceId;
-    //   args.workId = workId;
-    //   args.controlId = controlId;
-    //   getWorksheetInfoPromise = sheetAjax.getWorksheetInfoByWorkItem;
-    // } else if (this.props.from !== FROM.PUBLIC) {
-    //   getWorksheetInfoPromise = sheetAjax.getWorksheetInfo;
-    // } else {
-    //   getWorksheetInfoPromise = publicWorksheetAjax.getWorksheetInfo;
-    // }
+    let getWorksheetInfoPromise;
+    if (linkId) {
+      args.linkId = linkId;
+      args.controlId = controlId;
+      getWorksheetInfoPromise = sheetAjax.getWorksheetInfoByWorkItem;
+    } else if (recordId && instanceId && workId) {
+      args.instanceId = instanceId;
+      args.workId = workId;
+      args.controlId = controlId;
+      getWorksheetInfoPromise = sheetAjax.getWorksheetInfoByWorkItem;
+    } else if (this.props.from !== FROM.PUBLIC) {
+      getWorksheetInfoPromise = sheetAjax.getWorksheetInfo;
+    } else {
+      getWorksheetInfoPromise = publicWorksheetAjax.getWorksheetInfo;
+    }
     Promise.all([getWorksheetInfoPromise(args), sheetAjax.getQueryBySheetId({ worksheetId })]).then(
       ([info, queryRes]) => {
+        const isWorkflow = ((instanceId && workId) || linkId) && info.workflowChildTableSwitch !== false;
+
+        if (!_.isObject(value) && isWorkflow) {
+          updateRelationControls(
+            worksheetId,
+            info.template.controls.filter(c => c.controlId !== 'rowid'),
+          );
+        }
         this.setState({
           loading: false,
           searchConfig: formatSearchConfigs(queryRes),
           controls: info.template.controls.map(c => ({
             ...c,
-            ...(instanceId || linkId
+            ...(isWorkflow
               ? {}
               : {
                   controlPermissions:
@@ -150,7 +158,9 @@ export default class SubList extends React.Component {
     const { from, registerCell, worksheetId, recordId, formData, disabled, appId, initSource, sheetSwitchPermit } =
       this.props;
     const { controls, projectId, info } = this.state;
-    const { instanceId, workId } = _.get(this, 'context.recordBaseInfo') || {};
+    const { instanceId, workId } = browserIsMobile()
+      ? this.props.mobileApprovalRecordInfo || {}
+      : _.get(this, 'context.recordBaseInfo') || {};
     const control = { ...this.props };
     const { loading, searchConfig } = this.state;
     return (
@@ -160,7 +170,7 @@ export default class SubList extends React.Component {
       >
         {!loading && (
           <ChildTable
-            isWorkflow={(instanceId && workId) || this.publicLinkId}
+            isWorkflow={((instanceId && workId) || this.linkId) && info.workflowChildTableSwitch !== false}
             initSource={initSource}
             entityName={info.entityName}
             rules={info.rules}

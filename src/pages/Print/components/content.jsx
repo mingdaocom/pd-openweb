@@ -144,7 +144,7 @@ export default class Con extends React.Component {
             }
             return (
               <div className={cx('controlDiv', { splitLine: item[0].type === 22, remark: item[0].type === 10010 })}>
-                <div>
+                <div className='controlDivContents'>
                   {/* 备注字段无标题 */}
                   {item[0].type !== 10010 && <span className="title">{item[0].controlName}</span>}
                   {/* 分段不计算value 走特殊显示方式 */}

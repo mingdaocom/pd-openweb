@@ -1,0 +1,70 @@
+.GlobalSearch {
+  padding: 16px 24px 0;
+  height: 100%;
+  background: #fff;
+  .GlobalSearchCard {
+    background-color: #fff;
+    border-radius: 5px;
+    // box-shadow: 0px 1px 4px 1px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 1121px;
+    margin: auto;
+    height: 100%;
+    display: flex;
+    .GlobalSearchContent {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      .nano > .nano-content {
+        padding-right: 10px;
+      }
+      .nano:hover > .nano-pane > .nano-slider {
+        background: rgba(187, 187, 187, 0.7) !important;
+      }
+      .searchResultCon {
+        position: relative;
+      }
+      .userlist .userListItem {
+        padding-left: 14px;
+      }
+      .selectCon {
+        justify-content: space-between;
+        align-items: center;
+      }
+      .globalSearchAllContentItem {
+        border-bottom: 1px solid #eaeaea;
+      }
+      .globalSearchAllContentItem:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+  .upgradeVersion {
+    background-color: rgb(255, 255, 255);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    .payUpgradeBtn {
+      margin-top: 48px;
+      box-sizing: border-box;
+      border-radius: 20px;
+      height: 40px;
+      line-height: 40px;
+      text-align: center;
+      color: rgb(255, 255, 255);
+      font-size: 14px;
+      cursor: pointer;
+      width: 240px !important;
+      background-color: rgb(33, 150, 243) !important;
+    }
+  }
+  .mLeftAuto {
+    margin-left: auto;
+  }
+}

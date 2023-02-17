@@ -198,7 +198,7 @@ export default function RelateRecordTable(props) {
   const worksheetTableRef = useRef();
   const [{ records = [], count, tableVersion, lastAction }, dispatch] = useReducer(tableReducer, {
     records: [],
-    count: 0,
+    count: _.isNumber(Number(control.value)) ? Number(control.value) : 0,
   });
   const tableActions = createTableActions(dispatch);
   const [layoutChanged, setLayoutChanged] = useState();
@@ -327,7 +327,6 @@ export default function RelateRecordTable(props) {
       }
       tableActions.updateRecords(newRecords);
       setPageIndexForHead(pageIndex);
-      tableActions.updateCount(res.count);
       setLoading(false);
       setTableLoading(false);
     } catch (err) {
@@ -345,6 +344,7 @@ export default function RelateRecordTable(props) {
           updateType: from,
         });
         loadRows();
+        tableActions.addCount(-1);
         if (!slient) {
           alert(_l('取消关联成功！'));
         }
@@ -395,6 +395,9 @@ export default function RelateRecordTable(props) {
     if (!isNewRecord) {
       setLoading(true);
       loadRows({ showHideTip: true });
+      if (_.isNumber(Number(control.value)) && !_.isNaN(Number(control.value))) {
+        tableActions.updateCount(Number(control.value));
+      }
     }
   }, [recordId, control.controlId, pageIndex, sortControl, keywordsForSearch, refreshFlag]);
   useEffect(() => {
@@ -707,6 +710,7 @@ export default function RelateRecordTable(props) {
       />
     ),
     [
+      allowEdit,
       tableVersion,
       tableLoading,
       isCharge,

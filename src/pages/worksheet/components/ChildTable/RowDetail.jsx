@@ -116,6 +116,8 @@ export default class RowDetail extends React.Component {
       onRulesLoad,
       searchConfig,
       sheetSwitchPermit,
+      isMobile,
+      isWorkflow,
     } = this.props;
     const { flag } = this.state;
     const formdata = _.isEmpty(data)
@@ -139,7 +141,7 @@ export default class RowDetail extends React.Component {
           searchConfig={searchConfig}
           sheetSwitchPermit={sheetSwitchPermit}
           columnNumber={1}
-          from={2}
+          from={isMobile && isWorkflow ? 3 : 2}
           isCreate={false}
           recordId={data.rowid && data.rowid.startsWith('temp') ? undefined : data.rowid}
           ref={this.customwidget}

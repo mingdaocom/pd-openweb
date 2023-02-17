@@ -59,8 +59,8 @@ function renderContent(data, recordInfo, extendParam) {
       oldList = oldValue ? [moment(oldValue).format('YYYY-MM-DD HH:mm:ss')] : [];
       newList = newValue ? [moment(newValue).format('YYYY-MM-DD HH:mm:ss')] : [];
     } else if (type === 16 || type === 38) {
-      oldList = oldValue ? [renderText({...control, value: oldValue})] : [];
-      newList = newValue ? [renderText({...control, value: newValue})] : [];
+      oldList = oldValue ? [renderText({ ...control, value: oldValue })] : [];
+      newList = newValue ? [renderText({ ...control, value: newValue })] : [];
     } else if (type === 46 || type === 15) {
       oldList = oldValue ? [renderText({ ...control, value: oldValue })] : [];
       newList = newValue ? [renderText({ ...control, value: newValue })] : [];
@@ -224,11 +224,12 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
           return null;
         }
         let widgetInfo = DEFAULT_CONFIG[_.findKey(WIDGETS_TO_API_TYPE_ENUM, l => l === item.type)];
-        const control = _.find(recordInfo.controls, it => item.id === it.controlId) || {};
+        const control = _.find(recordInfo.controls || recordInfo.formdata, it => item.id === it.controlId) || {};
         let _controlPermissions = (control && control.controlPermissions) || '111';
         const visible = _controlPermissions[0] === '1';
         let extendText = '';
         let showDelete = true;
+
         if (!visible) return;
         if (item.type === 29) {
           const { advancedSetting = {} } = control || {};
@@ -255,7 +256,7 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
             extendText += _l('（被动）');
           }
         }
-        if(["transf_task", "del_discussion"].indexOf(item.id) > -1) {
+        if (['transf_task', 'del_discussion'].indexOf(item.id) > -1) {
           showDelete = false;
         }
         if (item.isDeleted && showDelete) {
@@ -268,7 +269,10 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
             key={`worksheet-rocord-log-item-${item.id}`}
           >
             <div className="widgetTitle">
-              {item.isDeleted || isMobile || !showFilter || WORKFLOW_SYSTEM_CONTROL.find(l => l.controlId === item.id) ? (
+              {item.isDeleted ||
+              isMobile ||
+              !showFilter ||
+              WORKFLOW_SYSTEM_CONTROL.find(l => l.controlId === item.id) ? (
                 <span className="selectTriggerChild">
                   <Icon className="Font16 Gray_9e" icon={widgetInfo.icon} />
                   <span>{item.name}</span>
@@ -291,7 +295,7 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
 
               <span className="extendText">{extendText}</span>
             </div>
-            {(!item.isDeleted || ["transf_task", "del_discussion"].indexOf(item.id) > -1) &&
+            {(!item.isDeleted || ['transf_task', 'del_discussion'].indexOf(item.id) > -1) &&
               renderContent(item, recordInfo, {
                 createTime: prop.operatContent.createTime,
                 uniqueId: prop.operatContent.uniqueId,
@@ -444,7 +448,7 @@ const renderTitleText = (data, extendParam) => {
 };
 
 function WorksheetRocordLog(props, ref) {
-  const { controls, worksheetId, formdata, showFilter = true, filterUniqueIds = undefined} = props;
+  const { controls, worksheetId, formdata, showFilter = true, filterUniqueIds = undefined } = props;
   const selectUserRef = useRef();
   const [{ loading, showAddCondition, loadouted, sign, showDivider, lastMark }, setMark] = useSetState({
     loading: false,
@@ -495,6 +499,7 @@ function WorksheetRocordLog(props, ref) {
         .getWorksheetInfo({
           worksheetId: worksheetId,
           getViews: true,
+          getSwitchPermit: true,
           getTemplate: true,
           getRules: true,
         })
@@ -726,7 +731,7 @@ function WorksheetRocordLog(props, ref) {
         },
       });
     }
-  }, 500)
+  }, 500);
 
   const selectUserCallback = value => {
     setMark({ lastMark: undefined });
@@ -872,6 +877,11 @@ function WorksheetRocordLog(props, ref) {
             </Trigger>
           </div>
         )}
+        {!loading && filterUniqueIds && filterUniqueIds.length > 0 && newEditionList.length === 0 && (
+          <div className="Gray_75 pBottom10 noneContent Font13" style={{ paddingTop: '120px', textAlign: 'center' }}>
+            {_l('无数据或无权限查看')}
+          </div>
+        )}
         {newEditionList.length === 0 && (selectUser || selectField || selectDate.range) && (
           <div className="Gray_c pBottom10 noneContent" style={{ paddingTop: '120px', textAlign: 'center' }}>
             {_l('暂无数据')}
@@ -882,7 +892,7 @@ function WorksheetRocordLog(props, ref) {
             <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}-${index}`}>
               <div className={cx('worksheetRocordLogCardTopBox', { mBottom0: item.type === 1 })}>
                 <div className="worksheetRocordLogCardTitle">
-                  {(isMobile || !showFilter) ? (
+                  {isMobile || !showFilter ? (
                     <span className="selectTriggerChildAvatar">
                       <Avatar size={20} className="worksheetRocordLogCardTitleAvatar" src={item.avatar} />
                       {renderTitleName(item)}
@@ -983,16 +993,21 @@ function WorksheetRocordLog(props, ref) {
             </span>
           </p>
         )}
-        {!filterUniqueIds && !selectUser && !selectField && !selectDate.range && showDivider && discussList.length > 0 && (
-          <Divider className="logDivider">
-            {_l('以下是旧版日志')}
-            <Tooltip
-              text={<span>{_l('旧版日志不支持进行筛选。因为新旧版本的升级，可能会产生一段时间重复记录的日志')}</span>}
-            >
-              <Icon className="Font12" icon="Import-failure" />
-            </Tooltip>
-          </Divider>
-        )}
+        {!filterUniqueIds &&
+          !selectUser &&
+          !selectField &&
+          !selectDate.range &&
+          showDivider &&
+          discussList.length > 0 && (
+            <Divider className="logDivider">
+              {_l('以下是旧版日志')}
+              <Tooltip
+                text={<span>{_l('旧版日志不支持进行筛选。因为新旧版本的升级，可能会产生一段时间重复记录的日志')}</span>}
+              >
+                <Icon className="Font12" icon="Import-failure" />
+              </Tooltip>
+            </Divider>
+          )}
         {!selectUser &&
           !selectField &&
           !selectDate.range &&

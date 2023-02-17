@@ -32,6 +32,7 @@ const Content = styled.div`
     height: 100%;
     background: #fff;
     border: none;
+    white-space: break-spaces;
   }
 `;
 

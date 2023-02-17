@@ -361,13 +361,7 @@ export default class extends Component {
         path.pop();
         this.setState({ path });
       } else {
-        this.props.changeCurrentReport({
-          country: {
-            ...country,
-            drillFilterCode: '',
-            drillParticleSizeType: 1,
-          },
-        });
+        this.props.closeCurrentReport();
         this.CountryLayerChart.drillUp('Province');
         this.CountryLayerChart.drillUp('Country');
         this.setState({ path: [] });

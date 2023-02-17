@@ -100,7 +100,7 @@ class RecordList extends Component {
       match,
       currentSheetRows,
       filters,
-      controls,
+      worksheetControls,
       calendarview,
       batchOptVisible,
       appColor,
@@ -111,7 +111,10 @@ class RecordList extends Component {
     const { detail } = appDetail;
     const { appNaviStyle } = detail;
 
-    const { views, name, advancedSetting = {} } = worksheetInfo;
+    const { name, advancedSetting = {} } = worksheetInfo;
+    let views = worksheetInfo.views.filter(
+      v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+    );
     const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
     const { params } = match;
     const viewIndex = viewId ? _.findIndex(views, { viewId }) : 0;
@@ -135,7 +138,7 @@ class RecordList extends Component {
       (!calendarInfo[0].startData || !calendarInfo[0].startData.controlId);
     const isHaveSelectControl = _.includes([1, 2, 4, 5], view.viewType)
       ? viewControl === 'create' ||
-        (viewControl && _.find(controls, item => item.controlId === viewControl)) ||
+        (viewControl && _.find(worksheetControls, item => item.controlId === viewControl)) ||
         !_.isEmpty(viewControls) ||
         !(!calendarcids[0].begin || isDelete)
       : true;
@@ -320,7 +323,7 @@ export default connect(
       'currentSheetRows',
       'workSheetLoading',
       'filters',
-      'controls',
+      'worksheetControls',
       'appColor',
       'batchOptVisible',
       'isCharge',

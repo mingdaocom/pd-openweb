@@ -388,6 +388,7 @@ export default class RecordCardListDialog extends Component {
       coverCid,
       onOk,
       onClose,
+      control,
     } = this.props;
     const {
       loading,
@@ -401,6 +402,7 @@ export default class RecordCardListDialog extends Component {
       worksheetInfo,
       showNewRecord,
     } = this.state;
+    const { advancedSetting = {} } = worksheetInfo || {};
     const { cardControls } = this;
     const formData = this.props.formData.filter(_.identity);
     const titleControl = formData.filter(c => c && c.attribute === 1);
@@ -452,6 +454,9 @@ export default class RecordCardListDialog extends Component {
             value: defaultRelatedSheetValue,
           }}
           visible={showNewRecord}
+          showDraft={advancedSetting.closedrafts !== '1'}
+          showDraftsEntry={true}
+          sheetSwitchPermit={control.sheetSwitchPermit}
           hideNewRecord={() => {
             this.setState({ showNewRecord: false });
           }}

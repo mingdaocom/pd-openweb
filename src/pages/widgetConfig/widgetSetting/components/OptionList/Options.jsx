@@ -236,13 +236,23 @@ const OptionList = SortableContainer(({ options = [], ...rest }) => {
 });
 
 export default function SelectOptions(props) {
-  const { mode = 'add', onAdd, onChange, options, isMulti, data = {}, showAssign = false, fromPortal, enableScore } = props;
+  const {
+    mode = 'add',
+    onAdd,
+    onChange,
+    options,
+    isMulti,
+    data = {},
+    showAssign = false,
+    fromPortal,
+    enableScore,
+  } = props;
   const [focusIndex, setIndex] = useState(-1);
   const checkedValue = parseOptionValue(data.default);
   const { showtype } = getAdvanceSetting(data);
 
   const hasOther = _.find(options, i => i.key === 'other' && !i.isDeleted);
-  const findOther = _.find(options, i => i.key === 'other');
+  const findOther = _.findIndex(options, i => i.key === 'other');
 
   const [{ assignValueVisible, batchAddVisible }, setVisible] = useSetState({
     assignValueVisible: false,
@@ -253,7 +263,7 @@ export default function SelectOptions(props) {
     const colorIndex = _.findIndex(OPTION_COLORS_LIST, item => item === (_.last(options) || {}).color);
     const nextKey = uuidv4();
 
-    const newIndex = findOther ? options.length - 1 : options.length;
+    const newIndex = findOther > -1 ? findOther : options.length;
     const newItem = {
       key: isOther ? 'other' : nextKey,
       value: isOther ? _l('其他') : _l('选项%0', newIndex + 1),
@@ -263,8 +273,8 @@ export default function SelectOptions(props) {
     };
 
     const nextOptions =
-      isOther && findOther
-        ? update(options, { [options.length - 1]: { $apply: item => ({ ...item, isDeleted: false }) } })
+      isOther && findOther > -1
+        ? update(options, { [findOther]: { $apply: item => ({ ...item, isDeleted: false }) } })
         : update(options, { $splice: [[newIndex, 0, newItem]] });
 
     onChange({
@@ -385,7 +395,7 @@ export default function SelectOptions(props) {
               const newOptions = update(options, {
                 $splice: [
                   [
-                    findOther ? options.length - 1 : options.length,
+                    findOther > -1 ? findOther : options.length,
                     0,
                     ...formatOptions(textArr.filter(v => !texts.includes(v))),
                   ],

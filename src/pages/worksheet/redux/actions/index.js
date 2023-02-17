@@ -440,9 +440,6 @@ export function updateGroupFilter(navGroupFilters = [], view) {
 // 获取分组筛选的count
 export function getNavGroupCount() {
   return (dispatch, getState) => {
-    if (_.get(window, 'shareState.isPublicView')) {
-      return;
-    }
     const sheet = getState().sheet;
     const { filters = {}, base = {}, quickFilter = {} } = sheet;
     const { worksheetId, viewId } = base;

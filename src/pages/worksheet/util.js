@@ -285,10 +285,13 @@ export function regexFilterHtmlScript(str) {
  * regexFilter dom 转换方式过滤 html标签
  * 缺点：慢
  */
-export function domFilterHtmlScript(str) {
-  var div = document.createElement('div');
-  div.innerHTML = filterXss(str);
-  return div.innerText;
+export function domFilterHtmlScript(html) {
+  try {
+    let doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || '';
+  } catch (err) {
+    return html;
+  }
 }
 
 /**

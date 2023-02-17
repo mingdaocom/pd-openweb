@@ -89,11 +89,16 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         // 1 卡片 2 列表 3 下拉
         if (item.advancedSetting && item.advancedSetting.showtype === '3') {
           //下拉 显示关联表名称
-          return <div className="relaList">{renderCellText(dataItem)}</div>;
+          if (item.isRelateMultipleSheet && records.length <= 0) {
+            return '';
+          }
+          return (
+            <div className="relaList">{item.isRelateMultipleSheet ? records[0].name : renderCellText(dataItem)}</div>
+          );
         }
         //按文本形式 显示关联表标题字段（卡片，下拉）/数量（列表）
         if (item.isRelateMultipleSheet) {
-          return renderCellText(dataItem);
+          return records.length <= 0 ? '' : renderCellText(dataItem);
         }
         //关联表内除标题字段外的其他字段
         let showControlsList = [];

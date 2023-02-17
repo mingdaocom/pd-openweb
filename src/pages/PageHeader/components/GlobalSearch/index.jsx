@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { func, bool } from 'prop-types';
 import cx from 'classnames';
 import Icon from 'ming-ui/components/Icon';
-import SearchContent from 'src/pages/SmartSearch/components/reactSmartSearch';
+import GlobalSearchAllContent from 'src/pages/globalSearch/containers/GlobalSearchAllContent';
 import { navigateTo } from 'router/navigateTo';
 import './index.less';
 import _ from 'lodash';
@@ -43,6 +43,10 @@ export default class GlobalSearch extends Component {
   };
 
   handleChange = val => {
+    if (val && val.length > 32) {
+      alert(_l('最多可输入32个字符'));
+      return;
+    }
     this.setState({ searchVal: val });
   };
 
@@ -57,10 +61,8 @@ export default class GlobalSearch extends Component {
     e.stopPropagation();
     const { searchVal } = this.state;
     if (!searchVal) return;
-    console.log(searchVal)
     if (e.key === 'Enter') {
-      navigateTo(`/search?search_key=${encodeURIComponent(searchVal)}`);
-      // navigateTo(`/search?search_key=${searchVal}`);
+      navigateTo(`/search?search_key=${encodeURIComponent(searchVal.trim())}`);
     }
   };
 
@@ -76,13 +78,17 @@ export default class GlobalSearch extends Component {
               type="text"
               autoFocus
               onKeyDown={this.handleInputKeyDown}
-              placeholder={_l('智能搜索(F)...')}
+              placeholder={_l('超级搜索(F)...')}
               value={searchVal}
               onChange={e => this.handleChange(e.target.value)}
               autoComplete="off"
             />
           </form>
-          <Icon icon="external_collaboration" className="hrefIcon Font16" onClick={() => navigateTo(`/search?search_key=${searchVal}`)} />
+          <Icon
+            icon="external_collaboration"
+            className="hrefIcon Font16"
+            onClick={() => navigateTo(`/search?search_key=${searchVal}`)}
+          />
           <Icon
             icon="delete"
             className="emptyIcon Font18"
@@ -92,7 +98,9 @@ export default class GlobalSearch extends Component {
             }}
           />
         </div>
-        {searchVal.trim() && <SearchContent searchKeyword={searchVal.trim()} />}
+        <div className={cx('dialogSearchContent', { easeWidth: !!searchVal })}>
+          <GlobalSearchAllContent searchKeyword={searchVal.trim()} onClose={this.props.onClose} />
+        </div>
       </div>
     );
   }

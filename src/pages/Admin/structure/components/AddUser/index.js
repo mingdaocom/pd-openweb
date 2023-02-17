@@ -579,7 +579,7 @@ export default class AddUser extends Component {
                   errors={errors}
                   jobList={jobList}
                   worksiteList={worksiteList}
-                  baseInfo={baseInfo}
+                  baseInfo={{ ...baseInfo, departmentIds: departmentId ? [departmentId] : [] }}
                 />
               </div>
               <DrawerFooterOption

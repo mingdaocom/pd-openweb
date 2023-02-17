@@ -115,7 +115,8 @@ class WorkflowHistory extends Component {
         }
         cancelText={null}
         okText={_l('关闭')}
-        {...rest}>
+        {...rest}
+      >
         <StatusWrap>
           {STATUS.map(item => {
             const { id } = item;
@@ -134,7 +135,9 @@ class WorkflowHistory extends Component {
           ) : (
             data[activeStatus].map(item => (
               <li key={item.instanceId} onClick={() => window.open(`/worksheet/${item.appId}/row/${item.sourceId}`)}>
-                <div className="overflow_ellipsis">{item.title}</div>
+                <div className="overflow_ellipsis" style={{ maxWidth: 300 }}>
+                  {item.title}
+                </div>
                 {_.includes(['success', 'failure'], activeStatus) ? (
                   <div className={cx(activeStatus)}>{STATUS_TEXT[item.status]}</div>
                 ) : (

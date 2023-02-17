@@ -234,7 +234,9 @@ function NewRecordForm(props) {
             getSubListError(
               {
                 ...control.value,
-                rules: _.get(cellObjs.current || {}, `${control.controlId}.cell.worksheettable.current.table.rules`),
+                rules:
+                  _.get(cellObjs.current || {}, `${control.controlId}.cell.worksheettable.current.table.rules`) ||
+                  _.get(cellObjs.current || {}, `${control.controlId}.cell.props.rules`),
               },
               _.get(cellObjs.current, `${control.controlId}.cell.state.controls`) || control.relationControls,
               control.showControls,

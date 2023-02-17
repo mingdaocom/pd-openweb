@@ -205,7 +205,7 @@ function WorksheetTable(props, ref) {
     }
   }
   function renderCell({ columnIndex, rowIndex, style, key, type }) {
-    const control = _.cloneDeep(visibleColumns[columnIndex]);
+    const control = { ...visibleColumns[columnIndex] };
     let row = data[rowIndex] || {};
     if (cachedRows[row.rowid]) {
       row = cachedRows[row.rowid];
@@ -565,6 +565,7 @@ function WorksheetTable(props, ref) {
         })}
         width={width}
         height={tableHeight}
+        hasSubListFooter={isSubList && (_.last(data) || {}).isSubListFooter}
         columnHeadHeight={columnHeadHeight} // 列头高度
         setHeightAsRowCount={setHeightAsRowCount}
         sheetColumnWidths={sheetColumnWidths}

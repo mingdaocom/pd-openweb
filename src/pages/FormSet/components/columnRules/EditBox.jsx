@@ -136,7 +136,7 @@ class EditBox extends React.Component {
                   }
                   // 过滤不符合条件的已选字段
                   if (_.includes([3, 4, 5], type)) {
-                    currentActionData = filterUnAvailable(currentActionData, worksheetControls);
+                    currentActionData = filterUnAvailable(currentActionData, worksheetControls, type);
                   }
                   ruleItems.splice(actionIndex, 1, currentActionData);
                   updateAction(ruleItems);

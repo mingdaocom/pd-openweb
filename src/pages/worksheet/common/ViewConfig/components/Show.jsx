@@ -26,7 +26,23 @@ const SysSortColumn = styled.div`
 `;
 // 显示列
 export default class Show extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { height: document.documentElement.clientHeight - 360 };
+  }
+  componentDidMount() {
+    $(window).on('resize', this.getHeight);
+  }
+  componentWillUnmount() {
+    $(window).off('resize', this.getHeight);
+  }
+  getHeight = () => {
+    this.setState({
+      height: document.documentElement.clientHeight - 360,
+    });
+  };
   render() {
+    const { height } = this.state;
     const { columns, view, sheetSwitchPermit, info = {} } = this.props;
     const { showControls = [], customdisplay = '0', sysids, syssort } = info;
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
@@ -74,7 +90,7 @@ export default class Show extends React.Component {
           <SortColumns
             layout={2}
             noempty={false} //不需要至少显示一列
-            maxHeight={document.documentElement.clientHeight - 370}
+            maxHeight={height}
             showControls={showControlsForSortControl}
             columns={customizeColumns.filter(c => (c.fieldPermission || '111')[0] === '1')}
             controlsSorts={showControlsForSortControl}

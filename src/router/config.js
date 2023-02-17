@@ -160,8 +160,8 @@ export const ROUTE_CONFIG = {
   },
   search: {
     path: '/search',
-    component: () => import('src/pages/SmartSearch'),
-    title: _l('智能搜索'),
+    component: () => import('src/pages/globalSearch'),
+    title: _l('超级搜索'),
   },
   admin: {
     path: '/admin/:routeType/:projectId',

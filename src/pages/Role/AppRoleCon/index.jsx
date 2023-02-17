@@ -12,6 +12,7 @@ import { Checkbox, Tooltip } from 'ming-ui';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import _ from 'lodash';
+import { navigateTo } from 'src/router/navigateTo';
 
 const conList = [
   {
@@ -149,7 +150,15 @@ class Con extends React.Component {
     });
   };
   render() {
-    const { isAdmin, appRole = {}, setQuickTag, isOwner } = this.props;
+    const {
+      isAdmin,
+      appRole = {},
+      setQuickTag,
+      isOwner,
+      match: {
+        params: { appId },
+      },
+    } = this.props;
     const { notify, rolesVisibleConfig } = this.state;
     const { pageLoading } = appRole;
     if (pageLoading) {
@@ -168,6 +177,7 @@ class Con extends React.Component {
                     onClick={() => {
                       this.props.handleChangePage(() => {
                         setQuickTag();
+                        navigateTo(`/app/${appId}/role`);
                         this.setState({
                           tab: o.key,
                         });

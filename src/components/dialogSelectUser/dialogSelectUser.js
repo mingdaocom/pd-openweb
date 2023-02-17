@@ -210,6 +210,8 @@ class DialogSelectUser extends Component {
         title={this.renderHeader()}
         footer={null}
         onCancel={this.props.onCancel}
+        type="scroll"
+        maxHeight={windowHeight - 70}
       >
         <div
           className="dialogSelectUserContainer"

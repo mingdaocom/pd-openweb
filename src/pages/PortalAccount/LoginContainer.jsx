@@ -322,7 +322,7 @@ export default function LoginContainer(props) {
     externalPortalAjax
       .login({
         ...paramLogin,
-        account: dialCode + emailOrTel,
+        account: encrypt(dialCode + emailOrTel),
         verifyCode,
         captchaType: md.staticglobal.getCaptchaType(),
         ticket,
@@ -377,7 +377,7 @@ export default function LoginContainer(props) {
     const { ticket, randstr } = resRet;
     externalPortalAjax
       .pwdLogin({
-        account: dialCode + emailOrTel,
+        account: encrypt(dialCode + emailOrTel),
         password: encrypt(password),
         appId,
         verifyCode, //verifyCode不为空则代表是注册，为空则代表进行密码登录；
@@ -474,7 +474,7 @@ export default function LoginContainer(props) {
             }
           }}
         >
-          {paramForPcWx ? _l('绑定并登录/注册') : allowUserType === 9 ? _l('登录') : _l('登录/注册')}
+          {paramForPcWx ? _l('绑定并登录/注册') : _l('登录/注册')}
           {sending ? '...' : ''}
         </div>
         {termsAndAgreementEnable && (
@@ -501,7 +501,7 @@ export default function LoginContainer(props) {
             </div>
           </div>
         )}
-        <p className="txt mTop30 TxtCenter Gray">{allowUserType === 9 && _l('本应用不开放注册')}</p>
+        <p className="txt mTop30 TxtCenter Gray">{allowUserType === 9 && _l('仅受邀用户可以注册')}</p>
       </React.Fragment>
     );
   };

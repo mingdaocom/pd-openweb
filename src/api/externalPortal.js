@@ -179,7 +179,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.account 手机号/邮箱
   * @param {string} args.appId 应用ID
-  * @param {} args.codeType 验证码类型(不能为0) 1：注销；2：申请修改；3：绑定新账号
+  * @param {} args.codeType 验证码类型(不能为0) 1：注销；2：申请修改；3：绑定新账号;4:更新密码
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）

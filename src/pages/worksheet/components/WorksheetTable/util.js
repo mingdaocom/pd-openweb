@@ -221,7 +221,7 @@ export function handleLifeEffect(
     ) {
       return;
     }
-    if (!e.target.closest(`.cell`)) {
+    if (!e.target.closest(`.sheetViewTable.id-${tableId}-id`)) {
       window.tempCopyForSheetView = undefined;
       removeReadOnlyTip();
       focusCell(-10000);
@@ -281,7 +281,7 @@ export function getControlFieldPermissionsAfterRules(row, controls, rules) {
 export function getRulePermissions({ data = [], controls, rules, isSubList, columns } = {}) {
   const result = {};
   data.forEach(row => {
-    const controlFieldPermissions = getControlFieldPermissionsAfterRules(row, controls, rules);
+    const controlFieldPermissions = getControlFieldPermissionsAfterRules(row, isSubList ? columns : controls, rules);
     if (!_.isEmpty(controlFieldPermissions)) {
       Object.keys(controlFieldPermissions).forEach(key => {
         result[key] = controlFieldPermissions[key];

@@ -27,8 +27,8 @@ const MODULE_TO_TEXT = {
   admin: _l('组织管理'),
   user: _l('个人资料'),
   group: _l('群组信息'),
-  search: _l('智能搜索'),
   systemSetting: _l('系统配置'),
+  search: _l('超级搜索'),
 };
 
 const PAGE_HEADER_ROUTE = {

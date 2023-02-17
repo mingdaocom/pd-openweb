@@ -319,11 +319,7 @@ export default class RelateRecordCards extends Component {
                   allowlink === '0'
                     ? () => {}
                     : () => {
-                        if (from === FROM.SHARE || from === FROM.WORKFLOW) {
-                          openRelateSheet('', record.wsid, record.rowid, viewId);
-                        } else {
-                          this.setState({ previewRecord: { recordId: record.rowid } });
-                        }
+                        this.setState({ previewRecord: { recordId: record.rowid } });
                       }
                 }
                 onDelete={() => this.handleDelete(record.rowid)}

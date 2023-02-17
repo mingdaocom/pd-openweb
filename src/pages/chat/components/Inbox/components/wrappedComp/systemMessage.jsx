@@ -28,7 +28,7 @@ export default class SystemMessage extends PureComponent {
     const that = this;
 
     if (this.msg) {
-      $(this.msg).on('click', 'a', function (evt) {
+      $(this.msg).on('click', 'a', function(evt) {
         const $this = $(this);
         const href = ($(evt.target).attr('href') || '').toLocaleLowerCase();
 
@@ -41,7 +41,7 @@ export default class SystemMessage extends PureComponent {
           TaskCenterController[func]({
             taskID: taskId,
             accountID: opUser,
-          }).done(function (data) {
+          }).done(function(data) {
             if (data.status) {
               alert(_l('操作成功'));
             } else if (data.error) {
@@ -127,9 +127,9 @@ export default class SystemMessage extends PureComponent {
     };
 
     delete xss.whiteList.video;
-    let content = (Message.content || '');
+    let content = Message.content || '';
     if (md.global.Account.isPortal) {
-      content = content.replace(/<a data-accountid=[^>]*/gi, '<a');//外部门户不能点击用户
+      content = content.replace(/<a data-accountid=[^>]*/gi, '<a'); //外部门户不能点击用户
     }
     return (
       <div className="messageItem">
@@ -146,7 +146,23 @@ export default class SystemMessage extends PureComponent {
               <span
                 dangerouslySetInnerHTML={{
                   __html: parse(
-                    xss(linkify((Message.content || '').replace(/[\r\n]/g, '<br />').replace(/，<a href=.*personal\?type=enterprise.*<\/a>/gi, '')), {
+                    xss(
+                      linkify(
+                        content
+                          .replace(/<a/g, '_$a_$')
+                          .replace(/<span/g, '_$span_$')
+                          .replace(/<br/g, '_$br_$')
+                          .replace(/<\//g, '_$/_$')
+                          .replace(/</g, '')
+                          .replace(/_\$a_\$/g, '<a')
+                          .replace(/_\$span_\$/g, '<span')
+                          .replace(/_\$br_\$/g, '<br')
+                          .replace(/_\$\/_\$/g, '</')
+                          .replace(/[\r\n]/g, '<br />')
+                          .replace(/&/g, '&amp;')
+                          .replace(/，<a href=.*personal\?type=enterprise.*<\/a>/gi, ''),
+                      ),
+                      {
                         stripIgnoreTag: true,
                         whiteList: Object.assign({}, xss.whiteList, {
                           a: ['target', 'href', 'title', 'optype', 'opvalue', 'taskid', 'opuser', 't'],

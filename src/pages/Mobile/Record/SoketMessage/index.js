@@ -74,7 +74,7 @@ export default class SoketMessage extends Component {
         total: 1,
         num: 1,
       });
-      loadRow();
+      loadRow({ executionFinished: true });
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         Modal.alert(
@@ -88,6 +88,11 @@ export default class SoketMessage extends Component {
         updateBtnDisabled({});
       }, 1000);
     } else {
+      this.setState({
+        percent: 100,
+        total: 1,
+        num: 1,
+      });
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         Modal.alert(

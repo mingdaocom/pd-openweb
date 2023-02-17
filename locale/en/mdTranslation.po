@@ -46410,3 +46410,131 @@ msgstr "Set column permissions"
 msgid "未开启时按照子表本身权限，开启后可配置审批节点中的列权限"
 msgstr "If not enabled, the permissions of the subform will apply, if enabled, the column permissions in the approval node can be configured"
 
+#: Disabled references:1
+msgid "超级搜索"
+msgstr "Super Search Engine"
+
+#: Disabled references:1
+msgid "数据正在初始化，请耐心等待"
+msgstr "Initializing data... Please wait."
+
+#: Disabled references:1
+msgid "当前版本没有此功能，请升级版本"
+msgstr "No such function available in the current version. Please upgrade it."
+
+#: Disabled references:1
+msgid "只搜索记录标题"
+msgstr "Search for title only"
+
+#: Disabled references:1
+msgid "搜索到 %0 个结果"
+msgstr "%0 result(s) found"
+
+#: Disabled references:1
+msgid "是否获取系统字段，默认false"
+msgstr "Whether to retrieve the system fields: False by default"
+
+#: Disabled references:1
+msgid "请输入手机或者邮箱"
+msgstr "Please enter the phone number or Email address"
+
+#: Disabled references:1
+msgid "输入关键词搜索"
+msgstr "Enter the keyword to search on"
+
+#: Disabled references:1
+msgid "没有搜索到最近更新的记录，前往"
+msgstr "No recently updated records found. Go to"
+
+#: Disabled references:1
+msgid "更多搜索"
+msgstr "Find more"
+
+#: Disabled references:1
+msgid "更新时间："
+msgstr "Updated On:"
+
+#: Disabled references:1
+msgid "显示更多"
+msgstr "Show more"
+
+#: Disabled references:1
+msgid "记录仅支持单个组织搜索，且不支持外部协作组织"
+msgstr "Search for records within a single organization only, not from any external collaborators."
+
+#: Disabled references:1
+msgid "可搜索的字段类型包含：文本、邮箱、电话、自动编号、证件、文本组合、关联字段、他表字段(仅存储)。"
+msgstr "Searchable fields include: Text, Email, Telephone, Autonumber, ID Number, Text Combination, Associated Field, Field from Other Sheet (only for storage)."
+
+#: Disabled references:1
+msgid "最多可输入32个字符"
+msgstr "You can enter up to 32 characters."
+
+#: Disabled references:1
+msgid "超级搜索(F)..."
+msgstr "Super Search Engine (F)..."
+
+#: Disabled references:1
+msgid "不限时间"
+msgstr "Any Time"
+
+#: Disabled references:1
+msgid "按更新时间"
+msgstr "By Updating Time"
+
+#: Disabled references:1
+msgid "按创建时间"
+msgstr "By Creation Time"
+
+#: Disabled references:1
+msgid "更新时间"
+msgstr "Updating Time"
+
+#: Disabled references:1
+msgid "地址无法访问\n被取消了查看权限或已删除"
+msgstr "Address inaccessible, as it has been deleted or has its View permission removed"
+
+#: Disabled references:1
+msgid "启用后，流程触发者可以在“我发起的”待办项中查看、追踪此流程；未启用时，流程触发者将固定为“工作流”"
+msgstr "When enabled, initiators can view and track this workflow in the To-do item; When disabled, the initiator will be always set as \"workflow'"
+
+#: Disabled references:1
+msgid "自主创建"
+msgstr "Create by me"
+
+#: Disabled references:1
+msgid "手机或邮箱"
+msgstr "Phone or Email"
+
+#: Disabled references:1
+msgid "需已配置对应服务"
+msgstr "Relevant services must be configured in advance."
+
+#: Disabled references:1
+msgid "登录账号"
+msgstr "Login Account"
+
+#: Disabled references:1
+msgid "请输入手机号或邮箱"
+msgstr "Please enter the phone number or Email address"
+
+#: Disabled references:1
+msgid "同时获取人员的汇报关系信息"
+msgstr "Retrieve the user's Org Chart as well"
+
+#: Disabled references:1
+msgid "设置子表操作和列权限"
+msgstr "Set the actions and the column permissions on the subform"
+
+#: Disabled references:1
+msgid "子表操作和列权限"
+msgstr "Actions and the column permissions on the subform"
+
+#: Disabled references:1
+msgid "未开启时按照子表本身权限，开启后可配置子表的细分操作和列权限"
+msgstr "When disabled, the permissions set on the subform apply; when enabled, further actions and the column permissions on the subform can be configured."
+
+#: Disabled references:1
+msgid "列权限"
+msgstr "Column permissions"
+

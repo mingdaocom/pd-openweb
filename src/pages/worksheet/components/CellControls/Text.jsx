@@ -119,6 +119,14 @@ export default class Text extends React.Component {
       }
     }
   }
+
+  componentWillUnmount() {
+    const { isSubList, isediting } = this.props;
+    if (isSubList && isediting && !this.hadBlur) {
+      this.handleBlur();
+    }
+  }
+
   get isNumberPercent() {
     const { cell } = this.props;
     return _.includes([6, 31, 37], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1';
@@ -137,7 +145,7 @@ export default class Text extends React.Component {
     return this.controlCanMask && this.state.value && (isCharge || _.get(cell, 'advancedSetting.isdecrypt') === '1');
   }
 
-  get supportShiftEnter() {
+  get isMultipleLine() {
     const { cell } = this.props;
     return cell.type === 2 && cell.enumDefault === 1;
   }
@@ -165,6 +173,7 @@ export default class Text extends React.Component {
 
   @autobind
   handleBlur(target) {
+    this.hadBlur = true;
     const { cell, error, updateCell, updateEditingStatus } = this.props;
     let { oldValue = '' } = this.state;
     let { value = '' } = this.state;
@@ -206,7 +215,7 @@ export default class Text extends React.Component {
   handleChange(value) {
     const { cell, onValidate } = this.props;
     if (cell.type === 6 || cell.type === 8) {
-      value = replaceNotNumber(value);
+      value = replaceNotNumber(String(value));
     }
     onValidate(value);
     this.setState({
@@ -269,17 +278,16 @@ export default class Text extends React.Component {
       });
       e.preventDefault();
     } else if (e.keyCode === 13) {
-      if (this.supportShiftEnter && e.shiftKey) {
+      if (this.isMultipleLine && !(e.ctrlKey || e.metaKey)) {
         return;
+      } else {
+        e.preventDefault();
+        this.handleBlur();
       }
-      e.preventDefault();
-      this.handleBlur();
     } else if (_.includes(['ArrowUp', 'ArrowDown'], e.key) && _.includes([6, 8], cell.type)) {
       const num = Number(this.state.value);
       if (_.isNumber(num) && !_.isNaN(num)) {
-        this.setState({
-          value: num + (e.key === 'ArrowUp' ? 1 : -1),
-        });
+        this.handleChange(num + (e.key === 'ArrowUp' ? 1 : -1));
       }
       e.preventDefault();
     } else if (e.keyCode === 9) {
@@ -378,7 +386,7 @@ export default class Text extends React.Component {
         ) : (
           <Textarea
             className={cx('Ming textControlTextArea cellControlEdittingStatus stopPropagation', {
-              supportShiftEnter: this.supportShiftEnter,
+              isMultipleLine: this.isMultipleLine,
               cellControlErrorStatus: error,
             })}
             {...editProps}
@@ -393,7 +401,11 @@ export default class Text extends React.Component {
           />
         )}
         {error && <CellErrorTips pos={rowIndex === 0 ? 'bottom' : 'top'} error={error} />}
-        {this.supportShiftEnter && <MultipleLineTip>{_l('Shift+Enter 换行')}</MultipleLineTip>}
+        {this.isMultipleLine && (
+          <MultipleLineTip>
+            {navigator.userAgent.indexOf('Mac OS') > 0 ? _l('⌘+Enter结束编辑') : _l('Ctrl+Enter结束编辑')}
+          </MultipleLineTip>
+        )}
       </ClickAwayable>
     );
     return (

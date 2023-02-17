@@ -147,11 +147,7 @@ export default class DropDownItem extends Component {
         {currentArr.map(item => {
           return (
             <span className={cx('valueText', { disabled: item.isDelete })}>
-              <Tooltip
-                disable={!item.isDel}
-                text={<span>{_l('ID: %0', item.controlId)}</span>}
-                popupPlacement="bottom"
-              >
+              <Tooltip disable={!item.isDel} text={<span>{_l('ID: %0', item.controlId)}</span>} popupPlacement="bottom">
                 <span className="ellipsis controlNameBox">{item.name}</span>
               </Tooltip>
               <i
@@ -168,7 +164,7 @@ export default class DropDownItem extends Component {
     );
   }
   render() {
-    const { values = [], actionError } = this.props;
+    const { values = [], actionError, actionType } = this.props;
     const { extendId, keyword, visible, dropDownData } = this.state;
     const menu = (
       <div className="ruleDropDownItemCon">
@@ -192,6 +188,9 @@ export default class DropDownItem extends Component {
 
           {dropDownData.length > 0 ? (
             dropDownData.map(item => {
+              // 关联多条列表必填不能配置
+              const disabled =
+                item.type === 29 && _.get(item.advancedSetting || {}, 'showtype') === '2' && actionType === 5;
               return (
                 <Fragment>
                   <div className="ruleDropDownItem Hand" onClick={() => this.updateExtendId(item)}>
@@ -202,6 +201,7 @@ export default class DropDownItem extends Component {
                           val => val.controlId === item.controlId && val.childControlIds && !val.childControlIds.length,
                         ) > -1
                       }
+                      disabled={disabled}
                       onClick={(checked, value, e) => {
                         e.stopPropagation();
                         this.updateValues(item.controlId);

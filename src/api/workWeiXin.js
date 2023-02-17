@@ -642,6 +642,19 @@ export default {
      return $.api('WorkWeiXin', 'GetFeishuProjectSettingInfo', args, options);
    },
   /**
+  * 获取飞书js-sdk的签名信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.url 调用JS接口页面的完整URL，不包含#及其后面部分
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFeiShuSignatureInfo: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'GetFeiShuSignatureInfo', args, options);
+   },
+  /**
   * 编辑网络的飞书自建应用集成设置
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id

@@ -88,7 +88,7 @@ export default class Container extends React.Component {
           } else {
             RegisterController.checkExistAccount({
               // 已有账号检测
-              account: dialCode + emailOrTel,
+              account: encrypt(dialCode + emailOrTel),
               password: encrypt(password),
               ...params,
             }).then(data => {
@@ -208,7 +208,7 @@ export default class Container extends React.Component {
     const { password, emailOrTel, confirmation, isLink, dialCode } = registerData;
     RegisterController.joinByExistAccount({
       // 如果已有账号加入某个邀请模块(不含加入公司)
-      account: dialCode + emailOrTel,
+      account: encrypt(dialCode + emailOrTel),
       password: encrypt(password),
       confirmation: confirmation,
       isLink: location.href.indexOf('linkInvite') >= 0,
@@ -249,7 +249,7 @@ export default class Container extends React.Component {
     const { password, emailOrTel, verifyCode, confirmation, isLink, inviteFromType, TPParams, loginForAdd, dialCode } =
       registerData;
     RegisterController.createAccount({
-      account: dialCode + emailOrTel,
+      account: encrypt(dialCode + emailOrTel),
       password: encrypt(password),
       fullname: '',
       verifyCode,

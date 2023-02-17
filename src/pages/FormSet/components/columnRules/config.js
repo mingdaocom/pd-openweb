@@ -146,18 +146,29 @@ export function getNewDropDownData(dropDownData = [], actionType) {
 }
 
 // 过滤不符合条件的已选字段
-export const filterUnAvailable = (controlConfig = {}, worksheetControls = []) => {
+export const filterUnAvailable = (controlConfig = {}, worksheetControls = [], type) => {
   const { controls = [] } = controlConfig;
   const dropDownData = getNewDropDownData(worksheetControls, controlConfig.type);
   let newControls = [];
   controls.map(item => {
     let newItem = { ...item };
-    if (_.find(dropDownData, da => da.controlId === item.controlId)) {
+    const curItem = _.find(dropDownData, da => da.controlId === item.controlId);
+    if (curItem) {
       if (item.childControlIds && item.childControlIds.length > 0) {
         const { relationControls = [] } = _.find(dropDownData, i => i.controlId === item.controlId) || {};
         newItem.childControlIds = item.childControlIds.filter(i => _.find(relationControls, re => re.controlId === i));
       }
-      newControls.push(item);
+      // 已选的必填关联多条列表字段过滤
+      if (
+        !(
+          type === 5 &&
+          curItem.type === 29 &&
+          _.get(curItem.advancedSetting || {}, 'showtype') === '2' &&
+          !_.get(item, 'childControlIds.length')
+        )
+      ) {
+        newControls.push(item);
+      }
     }
   });
   return { ...controlConfig, controls: newControls };

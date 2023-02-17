@@ -52,5 +52,9 @@ export function renderMarkdown(src, cb = () => {}) {
 }
 
 export function renderTxt(src, cb = () => {}) {
-  cb(null, `<iframe  class="txt-viewer" src="${src}" />`);
+  fetch(src)
+    .then(res => res.text())
+    .then(text => {
+      cb(null, `<div  class="txt-viewer">${text}</div>`);
+    });
 }

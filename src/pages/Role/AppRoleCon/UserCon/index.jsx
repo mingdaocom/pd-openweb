@@ -21,7 +21,6 @@ import AppAjax from 'src/api/appManagement';
 import { getIcon, getColor, getTxtColor, userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { navigateTo } from 'src/router/navigateTo';
-import DeleRoleDialog from 'src/pages/Role/AppRoleCon/component/DeleRoleDialog';
 
 const WrapL = styled.div`
   .roleSearch {
@@ -141,8 +140,13 @@ const list = [
 class Con extends React.Component {
   constructor(props) {
     super(props);
+    const {
+      match: {
+        params: { editType },
+      },
+    } = props;
     this.state = {
-      roleId: 'all',
+      roleId: editType || 'all',
       navList: list,
       show: false,
       userIds: [],
@@ -153,7 +157,16 @@ class Con extends React.Component {
     };
   }
   componentDidMount() {
-    const { setRoleId, isAdmin, appRole = {} } = this.props;
+    const {
+      setRoleId,
+      isAdmin,
+      appRole = {},
+      match: {
+        params: { editType },
+      },
+      getUserList,
+      appId,
+    } = this.props;
     const { roleInfos = [] } = appRole;
     const { quickTag } = appRole;
     if (!isAdmin) {
@@ -161,10 +174,15 @@ class Con extends React.Component {
       if (quickTag.roleId) {
         this.setState({
           roleId: quickTag.roleId,
+          roleId: editType || quickTag.roleId,
         });
       } else {
-        setRoleId('all');
+        setRoleId(editType || 'all');
       }
+    }
+    if (!!editType && editType !== 'all') {
+      //申请加入等地址，获取全部项计数
+      getUserList({ appId }, true);
     }
     this.setState({
       roleList: roleInfos,
@@ -184,6 +202,12 @@ class Con extends React.Component {
           nextProps.setRoleId(nextProps.appRole.roleId);
         },
       );
+    }
+    const editType = _.get(nextProps, ['match', 'params', 'editType']);
+    if (!!editType && !_.isEqual(editType, _.get(this.props, ['match', 'params', 'editType']))) {
+      this.setState({
+        roleId: editType,
+      });
     }
     if (nextProps.appRole.roleInfos !== this.props.appRole.roleInfos) {
       this.setState({
@@ -232,7 +256,7 @@ class Con extends React.Component {
   };
 
   renderNav = () => {
-    const { setRoleId, appRole = {}, isAdmin, SetAppRolePagingModel, setSelectedIds, isOwner } = this.props;
+    const { setRoleId, appRole = {}, isAdmin, SetAppRolePagingModel, setSelectedIds, isOwner, appId } = this.props;
     const { roleInfos = [], apply = [], outsourcing = {}, total } = appRole;
     const { navList, roleId, roleList = [], keywords } = this.state;
     return (
@@ -250,6 +274,7 @@ class Con extends React.Component {
                         this.setState({
                           roleId: o.roleId,
                         });
+                        navigateTo(`/app/${appId}/role`);
                         setRoleId(o.roleId);
                         SetAppRolePagingModel(null);
                         setSelectedIds([]);
@@ -332,6 +357,7 @@ class Con extends React.Component {
                       this.setState({
                         roleId: o.roleId,
                       });
+                      navigateTo(`/app/${appId}/role`);
                       setRoleId(o.roleId);
                       SetAppRolePagingModel(null);
                       setSelectedIds([]);
@@ -952,7 +978,4 @@ const mapStateToProps = state => ({
 });
 const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Con);
+export default connect(mapStateToProps, mapDispatchToProps)(Con);

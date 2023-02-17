@@ -1,4 +1,4 @@
-import { formatFormulaDate, regexFilterHtmlScript, getSelectedOptions } from '../../util';
+import { formatFormulaDate, domFilterHtmlScript, getSelectedOptions } from '../../util';
 import { RELATION_TYPE_NAME } from './enum';
 import { accMul, toFixed } from 'src/util';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
@@ -119,7 +119,14 @@ export default function renderText(cell, options = {}) {
           value = '';
         }
         if (cell.enumDefault === 2) {
-          value = moment(cell.value).format(cell.unit === '3' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
+          const format =
+            {
+              1: 'YYYY-MM-DD HH:mm',
+              3: 'YYYY-MM-DD',
+              8: 'HH:mm',
+              9: 'HH:mm:ss',
+            }[cell.unit] || 'YYYY-MM-DD HH:mm';
+          value = moment(cell.value, value.indexOf('-') > -1 ? undefined : format).format(format);
         } else {
           if (_.includes(['1', '2'], unit)) {
             if (cell.advancedSetting.autocarry === '1' || cell.enumDefault === 1) {
@@ -132,11 +139,12 @@ export default function renderText(cell, options = {}) {
                   2: _l('小时'),
                 }[unit];
             }
+          } else {
+            value =
+              (suffix ? '' : prefix) +
+              formatFormulaDate({ value: cell.value, unit, hideUnitStr: true, dot: cell.dot }) +
+              suffix;
           }
-          value =
-            (suffix ? '' : prefix) +
-            formatFormulaDate({ value: cell.value, unit, hideUnitStr: suffix || prefix, dot: cell.dot }) +
-            suffix;
         }
         break;
       case 17: // DATE_TIME_RANGE 时间段
@@ -155,7 +163,7 @@ export default function renderText(cell, options = {}) {
         break;
       case 10010: // REMARK 备注
       case 41: // RICH_TEXT 富文本
-        value = regexFilterHtmlScript(cell.value);
+        value = domFilterHtmlScript(cell.value);
         break;
       case 40: // LOCATION 定位
         try {

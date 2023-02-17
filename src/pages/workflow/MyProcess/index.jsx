@@ -915,6 +915,7 @@ export default class MyProcess extends Component {
                   });
                 }
               }
+              this.setState({ selectCard: null });
             }}
           />
         ) : null}

@@ -115,6 +115,50 @@ export default class EditUser extends Component {
     delete errors[field];
     this.setState({ errors });
   };
+  agreeJoin = () => {
+    const { projectId, accountId } = this.props;
+    const { jobIds = [], departmentInfos = [], jobNumber, workSiteId, contactPhone } = this.baseFormInfo.state;
+
+    userController
+      .agreeUserJoin({
+        projectId,
+        accountId,
+        jobIds,
+        departmentIds: departmentInfos.map(it => it.departmentId),
+        workSiteId,
+        jobNumber,
+        contactPhone,
+      })
+      .then(
+        result => {
+          if (result === 1) {
+            alert(_l('批准成功'));
+            onClose();
+          } else if (result === 4) {
+            const licenseType = _.get(
+              _.find(md.global.Account.projects, project => project.projectId === projectId) || {},
+              'licenseType',
+            );
+            let link = '';
+            if (licenseType === 0) {
+              link = `${_l(
+                '当前用户数已超出人数限制，请去购买',
+              )}<a href="/upgrade/choose?projectId=${projectId}" target="_blank">${_l('付费版本')}</a>`;
+            } else {
+              link = `${_l(
+                '当前用户数已超出人数限制，请去购买',
+              )}<a href="/admin/expansionservice/${projectId}" target="_blank">${_l('用户包')}</a>`;
+            }
+            alert(link, 3, false);
+          } else {
+            alert(_l('操作失败'), 2);
+          }
+        },
+        () => {
+          alert(_l('操作失败'), 2);
+        },
+      );
+  };
   saveFn = () => {
     const { projectId, accountId } = this.props;
     const { jobIds = [], departmentInfos = [], jobNumber, workSiteId, contactPhone } = this.baseFormInfo.state;
@@ -353,6 +397,7 @@ export default class EditUser extends Component {
                 departmentId={departmentId}
                 clickSave={this.props.clickSave}
                 saveFn={this.saveFn}
+                agreeJoin={this.agreeJoin}
                 onClose={onClose}
               />
             </Fragment>

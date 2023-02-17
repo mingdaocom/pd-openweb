@@ -557,7 +557,7 @@ export default class ExpansionService extends Component {
                   <span className="Font20 color_b">￥</span>
                   <span className="Font20 color_b Bold">{totalPrince}</span>
                   {isPortalUser ? (
-                    <a target="blank" className="mLeft20" href="https://help.mingdao.com/Prices8.html">
+                    <a target="blank" className="mLeft20" href="https://help.mingdao.com/prices8.html">
                       {_l('计费方式')}
                     </a>
                   ) : (

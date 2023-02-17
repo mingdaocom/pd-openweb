@@ -72,11 +72,15 @@ export default class SelectApprovalProcess extends Component {
    */
   getProcessByApp(appId) {
     processVersion.list({ relationId: appId, processListType: 11 }).then(data => {
-      const processList = data[0].processList.map(({ id, name }) => {
-        return {
-          value: id,
-          text: name,
-        };
+      const processList = [];
+
+      data.forEach(item => {
+        item.processList.forEach(({ id, name }) => {
+          processList.push({
+            value: id,
+            text: name,
+          });
+        });
       });
 
       this.setState({ processList });

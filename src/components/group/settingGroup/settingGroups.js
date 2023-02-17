@@ -2,7 +2,7 @@ import './settingGroups.css';
 import '@mdfe/jquery-plupload';
 import 'src/components/mdBusinessCard/mdBusinessCard';
 import '@mdfe/poshytip';
-import { htmlEncodeReg } from 'src/util';
+import { htmlEncodeReg, encrypt } from 'src/util';
 import groupController from 'src/api/group';
 import invitationController from 'src/api/invitation';
 import doT from '@mdfe/dot';
@@ -658,7 +658,7 @@ $.extend(SettingGroup.prototype, {
           callback: function(data, callbackInviteResult) {
             var accountObj = {};
             $.map(data, function(item) {
-              accountObj[item.account] = item.fullname;
+              accountObj[encrypt(item.account)] = item.fullname;
             });
             _this.inviteMembers(accountObj, callbackInviteResult);
           },

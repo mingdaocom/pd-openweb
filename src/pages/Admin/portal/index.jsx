@@ -189,7 +189,7 @@ export default class Portal extends Component {
             onClick={() => this.handleSelect(item.accountId)}
           />
         </div>
-        <div className="flex name mLeft10 mRight40 flexRow">
+        <div className="flex name mLeft10 mRight40 flexRow minWidth110">
           <UserHead size={28} lazy={'false'} user={{ userHead: item.avatar, accountId: item.accountId }} />
           <div className="mLeft12 ellipsis flex mRight20">{item.name}</div>
         </div>
@@ -435,7 +435,7 @@ export default class Portal extends Component {
               }
             />
           </div>
-          <div className="flex mLeft10">{_l('姓名')}</div>
+          <div className="flex mLeft10 minWidth150">{_l('姓名')}</div>
           <div className="w150 flexRow">{_l('手机号')}</div>
           <div className="w150 flexRow">{_l('邮箱')}</div>
           <div className="columnWidth flexRow">{_l('加入应用')}</div>

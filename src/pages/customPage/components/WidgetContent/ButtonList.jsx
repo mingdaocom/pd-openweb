@@ -18,6 +18,7 @@ import { genUrl } from '../../util';
 import { connect } from 'react-redux';
 import { browserIsMobile, mdAppResponse } from 'src/util';
 import { getRequest } from 'src/util';
+import SoketMessage from 'src/pages/Mobile/Record/SoketMessage';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -50,12 +51,19 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
   const scanQRCodeRef = useRef();
   const [currentScanBtn, setCurrentScanBtn] = useState();
   const [previewRecord, setPreviewRecord] = useState({});
+  const [runInfoVisible, setRunInfoVisible] = useState(false);
+  const [custBtnName, setCustBtnName] = useState('');
   const isPublicShare = location.href.includes('public/page');
   const includeScanQRCode = _.find(button.buttonList, { action: 5 });
   const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
   const projectId = info.projectId || _.get(info, 'apk.projectId');
+  let timeout = null;
 
   async function runStartProcessByPBC(item, scanQRCodeResult) {
+    if(isMobile){
+      setCustBtnName(item.title);
+      setRunInfoVisible(true);
+    }
     const { id, processId, name, config } = item;
     const { inputs = [] } = config;
     const { accountId } = md.global.Account;
@@ -102,8 +110,11 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
         }
       })
     }).then(data => {
-      if (isMobile && data) {
-        Toast.info(_l('操作成功'));
+      if (isMobile) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          setRunInfoVisible(false);
+        }, 1000);
       }
     });
   }
@@ -316,6 +327,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
           setPreviewRecord({});
         }}
       />
+      <SoketMessage runInfoVisible={runInfoVisible} custBtnName={custBtnName} />
     </ButtonListWrap>
   );
 }

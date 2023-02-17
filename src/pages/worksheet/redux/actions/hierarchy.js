@@ -53,7 +53,7 @@ function genKanbanKeyByData(data) {
 
 // 递归获取多级关联的层级视图数据
 function getHierarchyDataRecursion({ worksheet, records, kanbanKey, index, para }) {
-  const { dispatch, viewControls, level, ...rest } = para;
+  const { dispatch, viewControls, level, filters, ...rest } = para;
   if (records.length >= 1000 || index > level || index > viewControls.length) {
     const treeData = dealData(records);
     dispatch({ type: 'INIT_HIERARCHY_VIEW_DATA', data: treeData });
@@ -68,6 +68,7 @@ function getHierarchyDataRecursion({ worksheet, records, kanbanKey, index, para 
   sheetAjax
     .getFilterRows({
       ...rest,
+      ...filters,
       relationWorksheetId,
       controlId,
       kanbanKey,
@@ -89,7 +90,7 @@ function getHierarchyDataRecursion({ worksheet, records, kanbanKey, index, para 
         records: records.concat(data),
         kanbanKey: genKanbanKeyByData(data),
         index: index + 1,
-        para,
+        para: _.omit(para, ['filters']),
       });
     });
 }
@@ -129,6 +130,7 @@ export const expandMultiLevelHierarchyDataOfMultiRelate = level => {
           viewId,
           dispatch,
           worksheetId,
+          filters,
         };
         getHierarchyDataRecursion({
           worksheet: sheet,

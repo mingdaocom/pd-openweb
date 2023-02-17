@@ -42,6 +42,15 @@ export default class ApplyAction extends PureComponent {
     });
   }
 
+  componentWillReceiveProps(nextProps) {
+    console.log(nextProps.roles);
+    if (!_.isEqual(this.props.roles, nextProps.roles)) {
+      this.setState({
+        roles: nextProps.roles,
+      });
+    }
+  }
+
   renderPopup() {
     const { onChange, placeholder } = this.props;
     const { keyWords, roles } = this.state;

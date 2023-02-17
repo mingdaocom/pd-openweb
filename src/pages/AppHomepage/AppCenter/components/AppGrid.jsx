@@ -346,6 +346,7 @@ export default function AppGrid(props) {
         )}
         <div className="flex"></div>
         {allowCreate &&
+          !isExternal &&
           !_.get(
             _.find(md.global.Account.projects, item => item.projectId === projectId),
             'cannotCreateApp',

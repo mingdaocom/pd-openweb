@@ -146,7 +146,7 @@ export default class EditInfo extends React.Component {
         loading: true,
       });
       let params = {
-        account: dialCode + emailOrTel,
+        account: encrypt(dialCode + emailOrTel),
         password: encrypt(password),
         verifyCode: verifyCode,
         fullname: fullName,
@@ -319,7 +319,7 @@ export default class EditInfo extends React.Component {
     return (
       <React.Fragment>
         <div className="messageBox mTop5">
-          {isMustCompanyName && (
+          {/* {isMustCompanyName && (
             <div
               className={cx('mesDiv', {
                 ...setWarnningData(warnningData, ['.companyName', this.companyName], focusDiv, companyName),
@@ -369,7 +369,7 @@ export default class EditInfo extends React.Component {
                 </div>
               )}
             </div>
-          )}
+          )} */}
           {isMustDepartment && (
             <div
               className={cx('mesDiv current', {

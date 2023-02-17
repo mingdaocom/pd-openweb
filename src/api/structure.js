@@ -38,7 +38,7 @@ export default {
   * @param {string} args.keywords 关键词
   * @param {integer} args.pageSize 页大小
   * @param {integer} args.pageIndex 页码
-  * @param {boolean} args.directOnly 是否只查询直系下属
+  * @param {boolean} args.onlyNormalStatus 是否 仅有效用户
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

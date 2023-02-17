@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import { Toast } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
-import weixinAjax from 'src/api/weixin';
-import workWeiXinAjax from 'src/api/workWeiXin';
 import { Modal } from 'antd-mobile';
 import { browserIsMobile } from 'src/util';
+import { bindWeiXin, bindWxWork, bindFeishu } from '../tools/authentication';
 import styled from 'styled-components';
 import _ from 'lodash';
 
@@ -21,76 +20,12 @@ const ErrorWrap = styled.div`
   }
 `;
 
-const bindWeiXin = () => {
-  return new Promise((reslove, reject) => {
-    const entryUrl = sessionStorage.getItem('entryUrl');
-    const url = (entryUrl || location.href).split('#')[0];
-    weixinAjax.getWeiXinConfig({
-      url: encodeURI(url),
-    }).then(({ data, code }) => {
-      if (code === 1) {
-        wx.config({
-          debug: false,
-          appId: data.appId,
-          timestamp: data.timestamp,
-          nonceStr: data.nonceStr,
-          signature: data.signature,
-          jsApiList: ['scanQRCode'],
-        });
-        wx.ready(() => {
-          reslove();
-        });
-        wx.error((res) => {
-          res.mdurl = encodeURI(url);
-          _alert(JSON.stringify(res));
-          reject();
-        });
-      }
-    });
-  });
-}
-
-const bindWxWork = (projectId) => {
-  return new Promise((reslove, reject) => {
-    const url = location.href.split('#')[0];
-    const { IsLocal } = md.global.Config;
-    workWeiXinAjax.getSignatureInfo({
-      projectId,
-      url: encodeURI(url),
-      suiteType: 8,
-      tickettype: 1
-    }).then((data) => {
-      if (!data.corpId) {
-        _alert(IsLocal ? _l('请先集成企业微信') : _l('请使用待开发模式集成企业微信'));
-        reject();
-        return
-      }
-      wx.config({
-        beta: true,
-        debug: false,
-        appId: data.corpId,
-        timestamp: data.timestamp,
-        nonceStr: data.nonceStr,
-        signature: data.signature,
-        jsApiList: ['scanQRCode'],
-      });
-      wx.ready(() => {
-        reslove();
-      });
-      wx.error((res) => {
-        res.mdurl = encodeURI(url);
-        _alert(JSON.stringify(res));
-        reject();
-      });
-    });
-  });
-}
-
 const { IsLocal } = md.global.Config;
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !IsLocal && !isWxWork;
 const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
 const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
+const isFeishu = window.navigator.userAgent.toLowerCase().includes('feishu');
 const isMobile = browserIsMobile();
 
 export const getIsScanQR = () => {
@@ -138,6 +73,10 @@ export default class Widgets extends Component {
       $.getScript('https://res.wx.qq.com/open/js/jweixin-1.2.0.js');
       return;
     }
+    if (isFeishu && !window.h5sdk) {
+      $.getScript('https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.19.js');
+      return;
+    }
     import('html5-qrcode').then(data => {
       this.qrCodeComponent = data;
     });
@@ -176,6 +115,20 @@ export default class Widgets extends Component {
       }
     });
   }
+  handleFeishuScanQRCode = () => {
+    window.tt.scanCode({
+      scanType: ['barCode', 'qrCode'],
+      success: res => {
+        this.props.onScanQRCodeResult(res.result);
+      },
+      fail: res => {
+        if (!res.errMsg.includes('cancel')) {
+          // Toast.fail(res.errMsg);
+          _alert(JSON.stringify(res));
+        }
+      }
+    });
+  }
   handleScanCode = () => {
 
     if (isWx || isWxWork) {
@@ -194,6 +147,27 @@ export default class Widgets extends Component {
             window.configLoading = false;
             window.configSuccess = true;
             this.handleWxScanQRCode();
+          });
+        }
+      }
+      return;
+    }
+
+    if (isFeishu) {
+      const { projectId } = this.props;
+      if (window.currentUrl !== location.href) {
+        window.currentUrl = location.href;
+        window.configSuccess = false;
+        window.configLoading = false;
+      }
+      if (window.configSuccess) {
+        this.handleFeishuScanQRCode();
+      } else {
+        if (!window.configLoading) {
+          bindFeishu(projectId).then(() => {
+            window.configLoading = false;
+            window.configSuccess = true;
+            this.handleFeishuScanQRCode();
           });
         }
       }

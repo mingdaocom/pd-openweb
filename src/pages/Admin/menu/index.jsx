@@ -42,7 +42,7 @@ export default class AdminLeftMenu extends Component {
       },
     } = this.props;
     if (key === 'billinfo' && !md.global.Config.IsPlatformLocal) return;
-    if (key === 'workwxapp' && md.global.Config.IsPlatformLocal) return;
+
     const isActive = () => {
       return _.some(routes, route => pathToRegexp(route.path).test(pathname));
     };

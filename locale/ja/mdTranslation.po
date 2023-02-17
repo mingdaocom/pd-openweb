@@ -46410,3 +46410,131 @@ msgstr "カラムのパーミッションの設定"
 msgid "未开启时按照子表本身权限，开启后可配置审批节点中的列权限"
 msgstr "オンにしない場合はサブテーブル自体に応じたパーミッション、オンにした場合は承認ノードでカラムのパーミッションを設定することができる"
 
+#: Disabled references:1
+msgid "超级搜索"
+msgstr "スーパーサーチ"
+
+#: Disabled references:1
+msgid "数据正在初始化，请耐心等待"
+msgstr "データは初期化中です。"
+
+#: Disabled references:1
+msgid "当前版本没有此功能，请升级版本"
+msgstr "この機能は現在のバージョンでは使用できませんので、バージョンアップをお願いします"
+
+#: Disabled references:1
+msgid "只搜索记录标题"
+msgstr "レコードのタイトルのみを検索"
+
+#: Disabled references:1
+msgid "搜索到 %0 个结果"
+msgstr "検索結果 %0"
+
+#: Disabled references:1
+msgid "是否获取系统字段，默认false"
+msgstr "システムフィールドを取得するかどうか、デフォルトはfalse"
+
+#: Disabled references:1
+msgid "请输入手机或者邮箱"
+msgstr "携帯電話またはメールアドレスを入力してください"
+
+#: Disabled references:1
+msgid "输入关键词搜索"
+msgstr "キーワードを入力して検索する"
+
+#: Disabled references:1
+msgid "没有搜索到最近更新的记录，前往"
+msgstr "最近更新されたレコードの検索はできません。"
+
+#: Disabled references:1
+msgid "更多搜索"
+msgstr "その他の検索"
+
+#: Disabled references:1
+msgid "更新时间："
+msgstr "更新日"
+
+#: Disabled references:1
+msgid "显示更多"
+msgstr "もっと見る"
+
+#: Disabled references:1
+msgid "记录仅支持单个组织搜索，且不支持外部协作组织"
+msgstr "記録は個々の組織の検索にのみ対応し、外部の協力組織には対応していません。"
+
+#: Disabled references:1
+msgid "可搜索的字段类型包含：文本、邮箱、电话、自动编号、证件、文本组合、关联字段、他表字段(仅存储)。"
+msgstr "検索可能なフィールドの種類は、テキスト、メールボックス、電話、自動番号、ID、テキストの組み合わせ、関連フィールド、その他のフォームフィールド（保存のみ）です。"
+
+#: Disabled references:1
+msgid "最多可输入32个字符"
+msgstr "最大32文字まで入力可能"
+
+#: Disabled references:1
+msgid "超级搜索(F)..."
+msgstr "スーパーサーチ(F)..."
+
+#: Disabled references:1
+msgid "不限时间"
+msgstr "時間制限なし"
+
+#: Disabled references:1
+msgid "按更新时间"
+msgstr "更新時間別"
+
+#: Disabled references:1
+msgid "按创建时间"
+msgstr "作成時間別"
+
+#: Disabled references:1
+msgid "更新时间"
+msgstr "更新時間"
+
+#: Disabled references:1
+msgid "地址无法访问\n被取消了查看权限或已删除"
+msgstr "アドレスにアクセスできない\n閲覧不可または削除"
+
+#: Disabled references:1
+msgid "启用后，流程触发者可以在“我发起的”待办项中查看、追踪此流程；未启用时，流程触发者将固定为“工作流”"
+msgstr "有効にすると、プロセストリガーは \"マイイニシエーション\" のToDoリストで表示および追跡が可能になり、有効にしない場合は、プロセストリガーは \"ワークフロー\" に固定されます。"
+
+#: Disabled references:1
+msgid "自主创建"
+msgstr "自作自演"
+
+#: Disabled references:1
+msgid "手机或邮箱"
+msgstr "携帯電話またはEメール"
+
+#: Disabled references:1
+msgid "需已配置对应服务"
+msgstr "対応するサービスを設定する必要があります"
+
+#: Disabled references:1
+msgid "登录账号"
+msgstr "ログイン アカウント"
+
+#: Disabled references:1
+msgid "请输入手机号或邮箱"
+msgstr "携帯電話番号またはメールアドレスを入力してください"
+
+#: Disabled references:1
+msgid "同时获取人员的汇报关系信息"
+msgstr "また、担当者の報告関係についても情報を入手する。"
+
+#: Disabled references:1
+msgid "设置子表操作和列权限"
+msgstr "サブテーブルの操作とカラムの権限設定"
+
+#: Disabled references:1
+msgid "子表操作和列权限"
+msgstr "サブテーブルの操作とカラムのパーミッション"
+
+#: Disabled references:1
+msgid "未开启时按照子表本身权限，开启后可配置子表的细分操作和列权限"
+msgstr "有効でない場合はサブテーブルの権限、有効な場合はサブテーブルの操作とカラムの権限を設定可能"
+
+#: Disabled references:1
+msgid "列权限"
+msgstr "カラムのアクセス権"
+

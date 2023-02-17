@@ -72,6 +72,7 @@ const getFormatMode = (control = {}, currentControl, type) => {
     mode = (getDatePickerConfigs(control) || {}).formatMode;
     curMode = (getDatePickerConfigs(currentControl) || {}).formatMode;
   }
+  if (_.isEmpty(currentControl) && curMode) return mode;
   return TIME_MODE_OPTIONS[mode] <= TIME_MODE_OPTIONS[curMode] ? mode : curMode;
 };
 
@@ -80,126 +81,58 @@ const dateFn = (dateRange, value, isEQ) => {
   switch (dateRange) {
     // { text: _l('本周'), value: 4 },
     case 4:
-      result = moment(value).isSame(
-        moment()
-          .startOf('week')
-          .format('YYYY-MM-DD'),
-        'week',
-      );
+      result = moment(value).isSame(moment().startOf('week').format('YYYY-MM-DD'), 'week');
       break;
     // { text: _l('上周'), value: 5 },
     case 5:
-      result = moment(value).isSame(
-        moment()
-          .startOf('week')
-          .add(-1, 'week')
-          .format('YYYY-MM-DD'),
-        'week',
-      );
+      result = moment(value).isSame(moment().startOf('week').add(-1, 'week').format('YYYY-MM-DD'), 'week');
       break;
     // { text: _l('下周'), value: 6 },
     case 6:
-      result = moment(value).isSame(
-        moment()
-          .startOf('week')
-          .add(1, 'week')
-          .format('YYYY-MM-DD'),
-        'week',
-      );
+      result = moment(value).isSame(moment().startOf('week').add(1, 'week').format('YYYY-MM-DD'), 'week');
       break;
     // { text: _l('本月'), value: 7 },
     case 7:
-      result = moment(value).isSame(
-        moment()
-          .startOf('month')
-          .format('YYYY-MM-DD'),
-        'month',
-      );
+      result = moment(value).isSame(moment().startOf('month').format('YYYY-MM-DD'), 'month');
       break;
     // { text: _l('上个月'), value: 8 },
     case 8:
-      result = moment(value).isSame(
-        moment()
-          .startOf('month')
-          .add(-1, 'month')
-          .format('YYYY-MM-DD'),
-        'month',
-      );
+      result = moment(value).isSame(moment().startOf('month').add(-1, 'month').format('YYYY-MM-DD'), 'month');
       break;
     // { text: _l('下个月'), value: 9 },
     case 9:
-      result = moment(value).isSame(
-        moment()
-          .startOf('month')
-          .add(1, 'month')
-          .format('YYYY-MM-DD'),
-        'month',
-      );
+      result = moment(value).isSame(moment().startOf('month').add(1, 'month').format('YYYY-MM-DD'), 'month');
       break;
     // { text: _l('本季度'), value: 12 },
     case 12:
-      result = moment(value).isSame(
-        moment()
-          .startOf('quarter')
-          .format('YYYY-MM-DD'),
-        'quarter',
-      );
+      result = moment(value).isSame(moment().startOf('quarter').format('YYYY-MM-DD'), 'quarter');
       break;
     // { text: _l('上季度'), value: 13 },
     case 13:
-      result = moment(value).isSame(
-        moment()
-          .startOf('quarter')
-          .add(-1, 'quarter')
-          .format('YYYY-MM-DD'),
-        'quarter',
-      );
+      result = moment(value).isSame(moment().startOf('quarter').add(-1, 'quarter').format('YYYY-MM-DD'), 'quarter');
       break;
     // { text: _l('下季度'), value: 14 },
     case 14:
-      result = moment(value).isSame(
-        moment()
-          .startOf('quarter')
-          .add(-1, 'quarter')
-          .format('YYYY-MM-DD'),
-        'quarter',
-      );
+      result = moment(value).isSame(moment().startOf('quarter').add(-1, 'quarter').format('YYYY-MM-DD'), 'quarter');
       break;
     // { text: _l('今年'), value: 15 },
     case 15:
-      result = moment(value).isSame(
-        moment()
-          .startOf('year')
-          .format('YYYY-MM-DD'),
-        'year',
-      );
+      result = moment(value).isSame(moment().startOf('year').format('YYYY-MM-DD'), 'year');
       break;
     // { text: _l('去年'), value: 16 },
     case 16:
-      result = moment(value).isSame(
-        moment()
-          .startOf('year')
-          .add(-1, 'year')
-          .format('YYYY-MM-DD'),
-        'year',
-      );
+      result = moment(value).isSame(moment().startOf('year').add(-1, 'year').format('YYYY-MM-DD'), 'year');
       break;
     // { text: _l('明年'), value: 17 },
     case 17:
-      result = moment(value).isSame(
-        moment()
-          .startOf('year')
-          .add(1, 'year')
-          .format('YYYY-MM-DD'),
-        'year',
-      );
+      result = moment(value).isSame(moment().startOf('year').add(1, 'year').format('YYYY-MM-DD'), 'year');
       break;
   }
   return isEQ ? result : !result;
 };
 
 const dayFn = (filterData = {}, value, isGT, type) => {
-  let { dateRange, dynamicSource = [] } = filterData;
+  let { dateRange, dynamicSource = [], dataType } = filterData;
   if (dynamicSource.length > 0) {
     dateRange = 0;
   }
@@ -210,52 +143,24 @@ const dayFn = (filterData = {}, value, isGT, type) => {
       return moment().format('YYYY-MM-DD');
     // { text: _l('昨天'), value: 2 },
     case 2:
-      return moment()
-        .subtract(1, 'days')
-        .format('YYYY-MM-DD');
+      return moment().subtract(1, 'days').format('YYYY-MM-DD');
     // { text: _l('明天'), value: 3 },
     case 3:
-      return moment()
-        .add(1, 'days')
-        .format('YYYY-MM-DD');
+      return moment().add(1, 'days').format('YYYY-MM-DD');
     // { text: _l('本周'), value: 4 },
     case 4:
-      return isGT
-        ? moment()
-            .weekday(0)
-            .format('YYYY-MM-DD')
-        : moment()
-            .endOf('isoWeek')
-            .format('YYYY-MM-DD');
+      return isGT ? moment().weekday(0).format('YYYY-MM-DD') : moment().endOf('isoWeek').format('YYYY-MM-DD');
     // { text: _l('上周'), value: 5 },
     case 5:
       return isGT
-        ? moment()
-            .weekday(-7)
-            .format('YYYY-MM-DD')
-        : moment()
-            .weekday(0)
-            .subtract(1, 'days')
-            .format('YYYY-MM-DD');
+        ? moment().weekday(-7).format('YYYY-MM-DD')
+        : moment().weekday(0).subtract(1, 'days').format('YYYY-MM-DD');
     // { text: _l('下周'), value: 6 },
     case 6:
-      return isGT
-        ? moment()
-            .weekday(7)
-            .format('YYYY-MM-DD')
-        : moment()
-            .weekday(7)
-            .add(6, 'days')
-            .format('YYYY-MM-DD');
+      return isGT ? moment().weekday(7).format('YYYY-MM-DD') : moment().weekday(7).add(6, 'days').format('YYYY-MM-DD');
     // { text: _l('本月'), value: 7 },
     case 7:
-      return isGT
-        ? moment()
-            .add('month', 0)
-            .format('YYYY-MM') + '-01'
-        : moment()
-            .endOf('month')
-            .format('YYYY-MM-DD');
+      return isGT ? moment().add('month', 0).format('YYYY-MM') + '-01' : moment().endOf('month').format('YYYY-MM-DD');
     // { text: _l('上个月'), value: 8 },
     case 8:
       return isGT
@@ -280,66 +185,30 @@ const dayFn = (filterData = {}, value, isGT, type) => {
             .format('YYYY-MM-DD');
     // { text: _l('本季度'), value: 12 },
     case 12:
-      return isGT
-        ? moment()
-            .startOf('quarter')
-            .format('YYYY-MM-DD')
-        : moment()
-            .endOf('quarter')
-            .format('YYYY-MM-DD');
+      return isGT ? moment().startOf('quarter').format('YYYY-MM-DD') : moment().endOf('quarter').format('YYYY-MM-DD');
     // { text: _l('上季度'), value: 13 },
     case 13:
       return isGT
-        ? moment()
-            .startOf('quarter')
-            .subtract(3, 'month')
-            .format('YYYY-MM-DD')
-        : moment()
-            .endOf('quarter')
-            .subtract(3, 'month')
-            .format('YYYY-MM-DD');
+        ? moment().startOf('quarter').subtract(3, 'month').format('YYYY-MM-DD')
+        : moment().endOf('quarter').subtract(3, 'month').format('YYYY-MM-DD');
     // { text: _l('下季度'), value: 14 },
     case 14:
       return isGT
-        ? moment()
-            .startOf('quarter')
-            .add(3, 'month')
-            .format('YYYY-MM-DD')
-        : moment()
-            .endOf('quarter')
-            .add(3, 'month')
-            .format('YYYY-MM-DD');
+        ? moment().startOf('quarter').add(3, 'month').format('YYYY-MM-DD')
+        : moment().endOf('quarter').add(3, 'month').format('YYYY-MM-DD');
     // { text: _l('今年'), value: 15 },
     case 15:
-      return isGT
-        ? moment().format('YYYY') + '-01' + '-01'
-        : moment()
-            .endOf('year')
-            .format('YYYY-MM-DD');
+      return isGT ? moment().format('YYYY') + '-01' + '-01' : moment().endOf('year').format('YYYY-MM-DD');
     // { text: _l('去年'), value: 16 },
     case 16:
       return isGT
-        ? moment()
-            .add(-1, 'year')
-            .format('YYYY') +
-            '-01' +
-            '-01'
-        : moment()
-            .add(-1, 'year')
-            .endOf('year')
-            .format('YYYY-MM-DD');
+        ? moment().add(-1, 'year').format('YYYY') + '-01' + '-01'
+        : moment().add(-1, 'year').endOf('year').format('YYYY-MM-DD');
     // { text: _l('明年'), value: 17 },
     case 17:
       return isGT
-        ? moment()
-            .add(1, 'year')
-            .format('YYYY') +
-            '-01' +
-            '-01'
-        : moment()
-            .add(1, 'year')
-            .endOf('year')
-            .format('YYYY-MM-DD');
+        ? moment().add(1, 'year').format('YYYY') + '-01' + '-01'
+        : moment().add(1, 'year').endOf('year').format('YYYY-MM-DD');
     // { text: _l('过去...天'), value: 10 },
     case 10:
     case 21:
@@ -358,7 +227,10 @@ const dayFn = (filterData = {}, value, isGT, type) => {
         .format('YYYY-MM-DD');
     // { text: _l('指定时间'), value: 18 },
     case 18:
-      return moment(value).format('YYYY-MM-DD');
+      const formatMode = (
+        getDatePickerConfigs({ advancedSetting: { showtype: filterData.dataShowType }, type: dataType }) || {}
+      ).formatMode;
+      return moment(value).format(formatMode || 'YYYY-MM-DD');
     default:
       //日期时间
       return type === 16 ? moment(value).format('YYYY-MM-DD HH:mm') : moment(value).format('YYYY-MM-DD');
@@ -379,6 +251,10 @@ export const filterFn = (filterData, originControl, data = []) => {
   let timeLevel = '';
   //条件字段值
   let { value = '', advancedSetting = {} } = control;
+  // 指定时间添加显示格式配置
+  if (filterData.dateRange === 18) {
+    filterData.dataShowType = advancedSetting.showtype;
+  }
   //手机号默认去除区号
   if (control.type === 3) {
     const { dialCode = '' } = JSON.parse(advancedSetting.defaultarea || '{}');
@@ -597,7 +473,7 @@ export const filterFn = (filterData, originControl, data = []) => {
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.TEXT.value:
           var isInValue = false;
-          _.map(compareValues, function(it) {
+          _.map(compareValues, function (it) {
             if (value.endsWith(it)) {
               isInValue = true;
             }
@@ -611,7 +487,7 @@ export const filterFn = (filterData, originControl, data = []) => {
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.TEXT.value:
           var isInValue = true;
-          _.map(compareValues, function(it) {
+          _.map(compareValues, function (it) {
             if (value.endsWith(it)) {
               isInValue = false;
             }
@@ -1211,7 +1087,7 @@ export const filterFn = (filterData, originControl, data = []) => {
                 dynamicSource.length > 0 ? _.get(safeParse(it || '[]')[0], 'sid') : _.get(safeParse(it || '{}'), 'id'),
               )
               .sort(),
-            safeParse(value || '[]')
+            safeParse(value || '[]', 'array')
               .map(item => item.sid)
               .sort(),
           );
@@ -1633,11 +1509,11 @@ export const updateRulesData = ({
       //走错误提示
       filterRules.map(rule => {
         rule.ruleItems.map(({ type, message }) => {
-          const { filterControlIds = [], availableControlIds = [], isAvailable } = checkValueAvailable(
-            rule,
-            formatData,
-            from,
-          );
+          const {
+            filterControlIds = [],
+            availableControlIds = [],
+            isAvailable,
+          } = checkValueAvailable(rule, formatData, from);
           if (_.includes([6], type)) {
             //过滤已经塞进去的错误
             filterControlIds.map(id => checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, '', rule.ruleId));

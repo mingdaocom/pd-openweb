@@ -191,6 +191,7 @@ export default {
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
+  * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -226,7 +227,7 @@ export default {
   * @param {} args.masterRecord 主记录信息
   * @param {string} args.pushUniqueId 推送ID
   * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
-  * @param {integer} args.rowStatus 1：正常 11：草稿箱
+  * @param {integer} args.rowStatus 1：正常 21：草稿箱
   * @param {string} args.draftRowId 草稿ID
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串

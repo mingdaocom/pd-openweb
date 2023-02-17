@@ -40,7 +40,14 @@ export default class Widgets extends Component {
 
       content = hideUnit ? prefix + formatValue + suffix : formatValue;
     } else {
-      content = moment(value).format(unit === '3' ? 'YYYY-MM-DD' : 'YYYY-MM-DD HH:mm');
+      const format =
+        {
+          1: 'YYYY-MM-DD HH:mm',
+          3: 'YYYY-MM-DD',
+          8: 'HH:mm',
+          9: 'HH:mm:ss',
+        }[unit] || 'YYYY-MM-DD HH:mm';
+      content = moment(value, value.indexOf('-') > -1 ? undefined : format).format(format);
     }
 
     return <div className={cx('customFormControlBox customFormReadonly customFormTextareaBox')}>{content}</div>;

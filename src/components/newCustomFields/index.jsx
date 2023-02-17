@@ -447,6 +447,7 @@ export default class CustomFields extends Component {
       popupContainer,
       getMasterFormData,
       isCharge,
+      mobileApprovalRecordInfo = {},
     } = this.props;
 
     // 他表字段
@@ -478,8 +479,7 @@ export default class CustomFields extends Component {
       ((!item.value && item.value !== 0 && !_.includes([28, 47], item.type)) ||
         (_.includes([21, 26, 27, 29, 48], item.type) &&
           _.isArray(JSON.parse(item.value)) &&
-          !JSON.parse(item.value).length)) &&
-      from !== 21
+          !JSON.parse(item.value).length))
     ) {
       return (
         <React.Fragment>
@@ -493,12 +493,13 @@ export default class CustomFields extends Component {
       <React.Fragment>
         <Widgets
           {...item}
+          mobileApprovalRecordInfo={mobileApprovalRecordInfo}
           flag={flag}
           isCharge={isCharge}
           maskPermissions={maskPermissions}
           popupContainer={popupContainer}
           sheetSwitchPermit={sheetSwitchPermit} // 工作表业务模板权限
-          disabled={(item.disabled || !isEditable) && from !== 21}
+          disabled={item.disabled || !isEditable}
           projectId={projectId}
           from={from}
           worksheetId={worksheetId}
@@ -509,13 +510,17 @@ export default class CustomFields extends Component {
           onChange={(value, cid = controlId) => {
             this.handleChange(value, cid, item);
           }}
-          onBlur={originValue => {
-            const newValue = `${item.value}` ? `${item.value}`.trim() : '';
+          onBlur={(originValue, newVal) => {
+            // 由输入法和onCompositionStart结合引起的组件内部未更新value值的情况，主动抛出新值
+            const newValue = newVal || (`${item.value}` ? `${item.value}`.trim() : '');
             if (item.unique && newValue) {
               this.checkControlUnique(controlId, type, newValue);
             }
             if (newValue && newValue !== originValue) {
-              this.dataFormat.updateDataBySearchConfigs({ control: item, searchType: 'onBlur' });
+              this.dataFormat.updateDataBySearchConfigs({
+                control: { ...item, value: newValue },
+                searchType: 'onBlur',
+              });
             }
           }}
           openRelateSheet={openRelateSheet}
@@ -529,7 +534,7 @@ export default class CustomFields extends Component {
             .concat(systemControlData || [])
             .concat(getMasterFormData() || [])}
         />
-        {!recordId && item.type !== 34 && <WidgetsDesc item={item} from={from} />}
+        {!recordId && !item.isSubList && item.type !== 34 && <WidgetsDesc item={item} from={from} />}
       </React.Fragment>
     );
   }

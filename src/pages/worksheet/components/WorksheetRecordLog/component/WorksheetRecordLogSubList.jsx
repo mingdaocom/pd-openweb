@@ -20,7 +20,11 @@ function WorksheetRecordLogSubList(props) {
     remove: [],
   });
   useEffect(() => {
-    setListCount({
+    setListCount(prop.editType===2 ? {
+      add: [],
+      update: [],
+      remove: _.difference(newData, oldData),
+    } :{
       add: _.difference(newData, oldData),
       update: _.intersection(newData, oldData),
       remove: _.difference(oldData, newData),

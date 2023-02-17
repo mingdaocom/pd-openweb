@@ -261,10 +261,11 @@ function Hierarchy(props) {
       });
     }
   };
-  const getNewRecordPara = pathId => {
+  const getNewRecordPara = ({ path, pathId }) => {
     const { viewControls, childType, viewId } = view;
+    // 兼容错误格式{path: [],pathId: ['12123']},顶级记录
     if (pathId.length > 0 && String(childType) === '2' && viewControls.length > 1) {
-      const { worksheetId, worksheetName, controlId } = viewControls[pathId.length];
+      const { worksheetId, worksheetName, controlId } = viewControls[_.isEmpty(path) ? 0 : pathId.length];
       const { worksheetId: masterWorksheetId } = viewControls[pathId.length - 1];
       return {
         worksheetId,
@@ -564,7 +565,7 @@ function Hierarchy(props) {
           hideNewRecord={() => setState({ createRecordVisible: false })}
           defaultFormData={getDefaultValueInCreate()}
           changeWorksheetStatusCode={changeWorksheetStatusCode}
-          {...getNewRecordPara(addRecordPath.pathId)}
+          {...getNewRecordPara(addRecordPath)}
         />
       )}
     </div>

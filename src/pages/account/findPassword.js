@@ -48,7 +48,7 @@ class FindPassword extends React.Component {
     const { emailOrTel, password, verifyCode, dialCode } = loginData;
     let $this = this;
     RegisterController.updatePassword({
-      account: dialCode + emailOrTel,
+      account: encrypt(dialCode + emailOrTel),
       password: encrypt(password),
       verifyCode: verifyCode,
     }).then(data => {

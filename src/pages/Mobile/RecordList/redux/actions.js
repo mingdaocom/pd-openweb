@@ -25,24 +25,8 @@ export const loadWorksheet = () => (dispatch, getState) => {
     localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`) &&
     JSON.parse(localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`));
   if (appNaviStyle === 2 && currentNavWorksheetInfo) {
-    dispatch({
-      type: 'WORKSHEET_INIT',
-      value: {
-        ...currentNavWorksheetInfo,
-        views: currentNavWorksheetInfo.views.filter(
-          v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
-        ),
-      },
-    });
-    dispatch({
-      type: 'MOBILE_WORK_SHEET_INFO',
-      data: {
-        ...currentNavWorksheetInfo,
-        views: currentNavWorksheetInfo.views.filter(
-          v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
-        ),
-      },
-    });
+    dispatch({ type: 'WORKSHEET_INIT', value: currentNavWorksheetInfo });
+    dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: currentNavWorksheetInfo });
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
   } else {
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: true });
@@ -73,24 +57,8 @@ export const loadWorksheet = () => (dispatch, getState) => {
           }
         });
       }
-      dispatch({
-        type: 'WORKSHEET_INIT',
-        value: {
-          ...workSheetInfo,
-          views: workSheetInfo.views.filter(
-            v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
-          ),
-        },
-      });
-      dispatch({
-        type: 'MOBILE_WORK_SHEET_INFO',
-        data: {
-          ...workSheetInfo,
-          views: workSheetInfo.views.filter(
-            v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
-          ),
-        },
-      });
+      dispatch({ type: 'WORKSHEET_INIT', value: workSheetInfo });
+      dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: workSheetInfo });
       dispatch({
         type: 'MOBILE_SHEET_PERMISSION_INIT',
         value: workSheetInfo.switches,

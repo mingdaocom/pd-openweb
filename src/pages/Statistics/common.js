@@ -1005,6 +1005,13 @@ export const fillValueMap = result => {
       });
       return control;
     });
+    result.contrastMap.forEach(control => {
+      control.value.forEach(item => {
+        item.originalX = item.x;
+        item.x = _.isEmpty(xaxisValueMap) ? item.x : xaxisValueMap[item.x] || item.x;
+      });
+      return control;
+    });
   }
 
   if (reportType === reportTypes.CountryLayer) {

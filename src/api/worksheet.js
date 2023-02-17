@@ -888,6 +888,7 @@ export default {
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
+  * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -897,11 +898,12 @@ export default {
      return $.api('Worksheet', 'GetWorksheetInfo', args, options);
    },
   /**
-  * 审批获取子表信息及控件权限
+  * 审批、填写获取子表信息及控件权限
   * @param {Object} args 请求参数
   * @param {string} args.controlId 子表的控件id
   * @param {string} args.instanceId 流程实例id
   * @param {string} args.workId 运行节点id
+  * @param {string} args.linkId 工作流填写链接id
   * @param {string} args.worksheetId 工作表id
   * @param {boolean} args.getTemplate 是否获取Template
   * @param {boolean} args.getViews 是否获取Views
@@ -911,6 +913,7 @@ export default {
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
+  * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -931,6 +934,7 @@ export default {
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
+  * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1016,6 +1020,7 @@ export default {
   * 获取 附件详情
   * @param {Object} args 请求参数
   * @param {string} args.attachmentShareId 附件分享Id
+  * @param {} args.getType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1158,7 +1163,7 @@ export default {
   * @param {} args.masterRecord 主记录信息
   * @param {string} args.pushUniqueId 推送ID
   * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
-  * @param {integer} args.rowStatus 1：正常 11：草稿箱
+  * @param {integer} args.rowStatus 1：正常 21：草稿箱
   * @param {string} args.draftRowId 草稿ID
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
@@ -1186,7 +1191,7 @@ export default {
   * @param {} args.masterRecord 主记录信息
   * @param {string} args.pushUniqueId 推送ID
   * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
-  * @param {integer} args.rowStatus 1：正常 11：草稿箱
+  * @param {integer} args.rowStatus 1：正常 21：草稿箱
   * @param {string} args.draftRowId 草稿ID
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
@@ -1450,6 +1455,7 @@ export default {
   * 工作表查询默认值获取
   * @param {Object} args 请求参数
   * @param {string} args.id 工作表查询id
+  * @param {boolean} args.getAllControls 是否返回所有控件返回值
   * @param {string} args.worksheetId 工作表id
   * @param {} args.getType
   * @param {array} args.filterControls 查询列
@@ -2142,6 +2148,7 @@ export default {
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
+  * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -2162,6 +2169,7 @@ export default {
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
+  * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -2234,6 +2242,7 @@ export default {
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
+  * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -2273,6 +2282,7 @@ export default {
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
+  * @param {boolean} args.getSwitchPermit 是否获取功能开关
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

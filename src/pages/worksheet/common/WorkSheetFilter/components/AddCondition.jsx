@@ -59,6 +59,9 @@ export default class AddCondition extends Component {
     if (from === 'rule') {
       columns = columns.filter(item => !_.includes(SYS, item.controlId));
     }
+    if (md.global.Account.isPortal) {
+      columns = columns.filter(item => !_.includes(['ownerid', 'caid', 'uaid'], item.controlId));
+    }
     if (keyword) {
       columns = columns.filter(c => c.controlName.toLowerCase().indexOf(keyword.toLowerCase()) > -1);
     }

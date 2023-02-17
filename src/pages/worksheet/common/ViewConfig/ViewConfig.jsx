@@ -7,7 +7,6 @@ import { Icon, Tooltip, ScrollView, Menu, MenuItem, CheckBlock, Radio, Dropdown 
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
 import sheetAjax from 'src/api/worksheet';
-import SortColumns from 'src/pages/worksheet/components/SortColumns/';
 import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import FilterConfig from '../../common/WorkSheetFilter/common/FilterConfig';
@@ -21,6 +20,7 @@ import GunterSet from './components/gunterSet/index';
 import FastFilter from './components/fastFilter';
 import NavGroup from './components/navGroup';
 import Show from './components/Show';
+import Controls from './components/Controls';
 import './ViewConfig.less';
 import { getAdvanceSetting } from 'src/util';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -770,29 +770,6 @@ class ViewConfigCon extends Component {
     );
   };
 
-  renderControls = () => {
-    const { columns, view = {} } = this.props;
-    const { controls = [] } = view;
-    const viewcontrols = controls.filter(id => _.find(columns, column => column.controlId === id));
-    return (
-      <div className="commonConfigItem">
-        <div className="Gray_9e mTop8 mBottom4">{_l('设置此视图下的表单中需要对用户隐藏的字段')}</div>
-        <div className="ming Dropdown pointer w100 mBottom10 hideColumns">
-          <SortColumns
-            layout={2}
-            noShowCount={true}
-            noempty={false} //不需要至少显示一列
-            maxHeight={document.documentElement.clientHeight - 320}
-            dragable={false}
-            showControls={columns.filter(item => !viewcontrols.includes(item.controlId)).map(item => item.controlId)}
-            columns={this.formatColumnsListForControls(columns)}
-            onChange={this.columnChange}
-          />
-        </div>
-      </div>
-    );
-  };
-
   renderSort = () => {
     const { moreSort } = this.state;
     const { columns } = this.props;
@@ -892,7 +869,13 @@ class ViewConfigCon extends Component {
       case 'Sort': // 排序
         return this.renderSort();
       case 'Controls': // 字段
-        return this.renderControls();
+        return (
+          <Controls
+            {...this.props}
+            formatColumnsListForControls={this.formatColumnsListForControls}
+            columnChange={this.columnChange}
+          />
+        );
       case 'Color': // 颜色
       case 'MobileSet': // 移动端设置
         return (

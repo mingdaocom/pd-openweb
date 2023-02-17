@@ -111,7 +111,13 @@ export default class ExportSheet extends Component {
     // 选择导出表格显示列字段
     if (exportShowColumns && showTabs) {
       showControls
-        .filter(id => this.checkControlVisible(columns.find(obj => obj.controlId === id)))
+        .filter(id => {
+          const currentObj = columns.find(obj => obj.controlId === id);
+
+          return (
+            this.checkControlVisible(currentObj) && !(isRelateRecordTableControl(currentObj) || currentObj.type === 34)
+          );
+        })
         .forEach(controlId => {
           selected[controlId] = !_.includes(sheetHiddenColumns, controlId);
         });
@@ -217,6 +223,7 @@ export default class ExportSheet extends Component {
         searchArgs: { filterControls, keyWords, searchType },
         quickFilter = [],
         navGroupFilters,
+        filtersGroup = [],
       } = this.props;
       const { columnsSelected, isStatistics, exportShowColumns, exportExtIds, type } = this.state;
 
@@ -241,19 +248,21 @@ export default class ExportSheet extends Component {
         searchType,
         rowIds: selectRowIds,
         isSort: exportShowColumns,
-        fastFilters: (quickFilter || []).map(f =>
-          _.pick(f, [
-            'controlId',
-            'dataType',
-            'spliceType',
-            'filterType',
-            'dateRange',
-            'value',
-            'values',
-            'minValue',
-            'maxValue',
-          ]),
-        ),
+        fastFilters: (quickFilter || [])
+          .concat(filtersGroup)
+          .map(f =>
+            _.pick(f, [
+              'controlId',
+              'dataType',
+              'spliceType',
+              'filterType',
+              'dateRange',
+              'value',
+              'values',
+              'minValue',
+              'maxValue',
+            ]),
+          ),
         navGroupFilters,
 
         // 成员字段，关联表字段
@@ -348,7 +357,7 @@ export default class ExportSheet extends Component {
     }
 
     // 过滤掉不支持导出的字段、无权限字段
-    const notSupportableTtpe = [22, 34, 43, 45, 47, 10010];
+    const notSupportableTtpe = [22, 34, 42, 43, 45, 47, 10010];
     const exportColumns = columns.filter(
       item =>
         !isRelateRecordTableControl(item) &&

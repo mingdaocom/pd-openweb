@@ -445,6 +445,15 @@ export const changeCurrentReport = (data, isRequest) => {
   }
 }
 
+export const closeCurrentReport = () => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: 'CHANGE_STATISTICS_CURRENT_REPORT',
+      data: {}
+    });
+  }
+}
+
 export const changeSheetId = (activeSheetId) => {
   return (dispatch, getState) => {
     const { currentReport, base } = getState().statistics;

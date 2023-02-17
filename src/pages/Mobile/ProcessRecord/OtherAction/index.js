@@ -23,6 +23,7 @@ export default class extends Component {
       backFlowNodes,
       backFlowNode,
       content: '',
+      edit: false,
     };
   }
   handleAction = (backFlowNode = '') => {
@@ -163,32 +164,23 @@ export default class extends Component {
     }
   }
   renderSignature() {
-    const { action, instance } = this.props;
-    const { auth } = (instance || {}).flowNode || {};
-    const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
-    const overruleSignature = action === 'overrule' && _.includes(auth.overruleTypeList, 1);
-
-    if (passSignature || overruleSignature) {
-      return (
-        <Fragment>
-          <div className="title Gray_75 flexRow valignWrapper">
-            {(passSignature || overruleSignature) && (
-              <div className="bold mRight3" style={{ color: '#f44336' }}>
-                *
-              </div>
-            )}
-            {_l('签名')}
+    return (
+      <div>
+        <div className="title Gray_75 flexRow valignWrapper">
+          <div className="bold mRight3" style={{ color: '#f44336' }}>
+            *
           </div>
-          <Flex className="am-textarea-item">
-            <Signature
-              ref={signature => {
-                this.signature = signature;
-              }}
-            />
-          </Flex>
-        </Fragment>
-      );
-    }
+          {_l('签名')}
+        </div>
+        <Flex className="am-textarea-item">
+          <Signature
+            ref={signature => {
+              this.signature = signature;
+            }}
+          />
+        </Flex>
+      </div>
+    );
   }
   renderContent() {
     const { action, onHide, instance } = this.props;
@@ -198,6 +190,10 @@ export default class extends Component {
     const isOverruleBack = action === 'overrule' && isCallBack && backFlowNodes.length;
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
     const overruleContent = action === 'overrule' && _.includes(auth.overruleTypeList, 100);
+    const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
+    const overruleSignature = action === 'overrule' && _.includes(auth.overruleTypeList, 1);
+    const isSignature = passSignature || overruleSignature;
+    const isAndroid = navigator.userAgent.toLowerCase().includes('android');
     return (
       <Fragment>
         <div className="flex flexColumn">
@@ -219,9 +215,19 @@ export default class extends Component {
                 content,
               });
             }}
+            onFocus={() => {
+              if (isAndroid && isSignature) {
+                this.setState({ edit: true });
+              }
+            }}
+            onBlur={() => {
+              if (isAndroid && isSignature) {
+                this.setState({ edit: false });
+              }
+            }}
           />
         </div>
-        {this.renderSignature()}
+        {isSignature && this.renderSignature()}
         {this.renderInfo()}
         <div className="flexRow actionBtnWrapper">
           {isOverruleBack ? (
@@ -257,16 +263,19 @@ export default class extends Component {
     );
   }
   render() {
-    const { backFlowNodesVisible } = this.state;
+    const { backFlowNodesVisible, edit } = this.state;
     const { visible, onHide } = this.props;
     return (
       <Modal
         popup
         visible={visible}
-        onClose={onHide}
+        onClose={() => {
+          if (edit) return;
+          onHide();
+        }}
         animationType="slide-up"
       >
-        <div className="otherActionWrapper flexColumn">
+        <div className="otherActionWrapper flexColumn" style={{ height: edit ? 300 : 'auto' }}>
           {backFlowNodesVisible ? this.renderBackFlowNodes() : this.renderContent()}
         </div>
       </Modal>

@@ -37,23 +37,6 @@ const formatParams = params => {
     viewId: ['null', 'undefined'].includes(viewId) ? '' : viewId,
   };
 };
-
-const draftSubmitFilterData = [
-  'rowid',
-  'ownerid',
-  'caid',
-  'ctime',
-  'utime',
-  'uaid',
-  'wfname',
-  'wfcuaids',
-  'wfcaid',
-  'wfctime',
-  'wfrtime',
-  'wfftime',
-  'wfstatus',
-];
-
 class Record extends Component {
   constructor(props) {
     super(props);
@@ -140,6 +123,10 @@ class Record extends Component {
         advancedSetting: worksheetInfoResult.advancedSetting,
         switchPermit: worksheetInfoResult.switches,
       });
+
+      if (props && props.executionFinished && !rowResult.isViewData) {
+        this.props.onClose();
+      }
     });
   };
   loadCustomBtns = () => {
@@ -171,7 +158,7 @@ class Record extends Component {
 
     const formData = data
       .filter(it => it.controlId !== 'ownerid')
-      .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32)
+      .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32 && item.type !== 33)
       .filter(item => !checkCellIsEmpty(item.value));
     const formDataIds = formData.map(it => it.controlId);
     let paramControls = draftFormControls.filter(it => !_.includes(formDataIds, it.controlId)).concat(formData);

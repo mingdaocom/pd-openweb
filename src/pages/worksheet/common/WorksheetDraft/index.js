@@ -312,7 +312,7 @@ function DraftModal(props) {
           controls={controls}
           draftFormControls={controls.filter(
             item =>
-              !_.includes(SHEET_VIEW_HIDDEN_TYPES, item.type) &&
+              !_.includes([...SHEET_VIEW_HIDDEN_TYPES, 33], item.type) &&
               !_.includes(
                 [
                   'wfname',
@@ -339,7 +339,7 @@ function DraftModal(props) {
           rules={rules}
           isWorksheetQuery={isWorksheetQuery}
           isCharge={isCharge}
-          allowAdd={allowAdd}
+          allowAdd={allowAdd || advancedSetting.closedrafts !== '1'}
           appId={appId}
           from={21}
           visible={recordInfoVisible}

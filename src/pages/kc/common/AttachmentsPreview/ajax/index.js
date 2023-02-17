@@ -6,7 +6,7 @@ import attachmentAjax from 'src/api/attachment';
 const rejectErr = function (ajaxPromise) {
   const promise = $.Deferred();
   ajaxPromise
-    .then((resp) => {
+    .then(resp => {
       if (!resp) {
         resp = {
           error: 'no response',
@@ -33,7 +33,7 @@ export function getPreviewLink(attachment) {
     fileID: attachment.fileID,
     ext: attachment.ext,
     attachmentType: attachment.attachmentType,
-  })
+  });
 }
 
 export function getChatPreviewLink(attachment) {
@@ -44,11 +44,11 @@ export function fetchViewUrl(attachment) {
   const promise = $.Deferred();
   const param = {
     path: attachment.sourceNode.path,
-    id: attachment.sourceNode.fileid,
+    id: attachment.sourceNode.fileid || Math.random().toString(16),
     ext: attachment.ext,
   };
   getChatPreviewLink(param)
-    .then((resp) => {
+    .then(resp => {
       if (!resp) {
         resp = {
           error: true,
@@ -66,7 +66,7 @@ export function fetchViewUrl(attachment) {
         promise.resolve(attachment);
       }
     })
-    .fail((error) => {
+    .fail(error => {
       promise.reject('获取预览链接失败');
     });
   return promise;
@@ -80,7 +80,7 @@ export function renameFile(docVersionID, fileID, newName, ext, sourceID) {
       fileID,
       ext,
       sourceID,
-    })
+    }),
   );
 }
 
@@ -89,7 +89,7 @@ export function renameKcFile(id, name, ext) {
     kcService.updateNode({
       name: name + (ext ? '.' + ext : ''),
       id,
-    })
+    }),
   );
 }
 
@@ -99,7 +99,7 @@ export function saveToKnowledge(fileId, toId, toRootId) {
       fileID: fileId,
       parentID: toId,
       rootID: toRootId,
-    })
+    }),
   );
 }
 
@@ -121,7 +121,7 @@ export function deleteAttachment(docVersionID, fileID, sourceID, commentID, from
       fromType,
       removeFromKC,
       visibleFileName,
-    })
+    }),
   );
 }
 
@@ -130,6 +130,6 @@ export function updateAllowDownload(docVersionID, allowDownload) {
     attachmentAjax.update({
       docVersionID,
       allowDownload,
-    })
+    }),
   );
 }

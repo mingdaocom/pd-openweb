@@ -93,7 +93,7 @@ class CardInfo extends Component {
     const { fullDepartmentInfo = {} } = this.state;
     return (
       <li className="Left LineHeight30 pTop10 pBottom20" key={cardsLists.projectId}>
-        <span className="Left Width300">
+        {/* <span className="Left Width300">
           <span className="Left">{_l('组织')}：&nbsp;</span>
           {cardsLists.companyName ? (
             <span className="companyName overflow_ellipsis Width200 Left" title={cardsLists.companyName}>
@@ -102,36 +102,7 @@ class CardInfo extends Component {
           ) : (
             <span className="companyName overflow_ellipsis Width200 Left">{_l('未填写')}</span>
           )}
-        </span>
-        <span className="Left Width200">
-          <span className="Left">{_l('职位')}：&nbsp;</span>
-          {cardsLists.jobInfos && cardsLists.jobInfos.length > 0 ? (
-            <Tooltip
-              style={{ maxWidth: '400px' }}
-              offset={[-50, 0]}
-              text={<span>{cardsLists.jobInfos.map(it => it.jobName).join(';')}</span>}
-              action={['hover']}
-            >
-              <span className="job overflow_ellipsis Width120 Left">
-                {cardsLists.jobInfos.map(it => it.jobName).join(';')}
-              </span>
-            </Tooltip>
-          ) : (
-            <span className="job overflow_ellipsis Width120 Left">{_l('未填写')}</span>
-          )}
-        </span>
-
-        <span className="Left Width200">
-          <span className="Left">{_l('工作地点')}：&nbsp;</span>
-          {cardsLists.workSite ? (
-            <span className="workSite overflow_ellipsis Width120 Left" title={cardsLists.workSite}>
-              {cardsLists.workSite}
-            </span>
-          ) : (
-            <span className="workSite overflow_ellipsis Width120 Left">{_l('未填写')}</span>
-          )}
-        </span>
-
+        </span> */}
         <span className="Left Width300">
           <span className="Left">{_l('部门')}：&nbsp;</span>
           {cardsLists.departmentInfos && cardsLists.departmentInfos.length > 0 ? (
@@ -169,8 +140,36 @@ class CardInfo extends Component {
             <span className="department overflow_ellipsis Width200 Left">{_l('未填写')}</span>
           )}
         </span>
+        <span className="Left Width200">
+          <span className="Left">{_l('职位')}：&nbsp;</span>
+          {cardsLists.jobInfos && cardsLists.jobInfos.length > 0 ? (
+            <Tooltip
+              style={{ maxWidth: '400px' }}
+              offset={[-50, 0]}
+              text={<span>{cardsLists.jobInfos.map(it => it.jobName).join(';')}</span>}
+              action={['hover']}
+            >
+              <span className="job overflow_ellipsis Width120 Left">
+                {cardsLists.jobInfos.map(it => it.jobName).join(';')}
+              </span>
+            </Tooltip>
+          ) : (
+            <span className="job overflow_ellipsis Width120 Left">{_l('未填写')}</span>
+          )}
+        </span>
 
         <span className="Left Width200">
+          <span className="Left">{_l('工作地点')}：&nbsp;</span>
+          {cardsLists.workSite ? (
+            <span className="workSite overflow_ellipsis Width120 Left" title={cardsLists.workSite}>
+              {cardsLists.workSite}
+            </span>
+          ) : (
+            <span className="workSite overflow_ellipsis Width120 Left">{_l('未填写')}</span>
+          )}
+        </span>
+
+        <span className="Left Width300">
           <span className="Left">{_l('工号')}：&nbsp;</span>
           {cardsLists.jobNumber ? (
             <span className="jobNumber overflow_ellipsis Width120 Left" title={cardsLists.jobNumber}>

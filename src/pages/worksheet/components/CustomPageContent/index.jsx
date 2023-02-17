@@ -143,7 +143,7 @@ function CustomPageContent(props) {
       .getPage({ appId: pageId }, { fireImmediately: true })
       .then(({ components, desc, apk, adjustScreen, name }) => {
         updatePageInfo({
-          components,
+          components: isMobile ? components.filter(item => item.mobile.visible) : components,
           desc,
           adjustScreen,
           pageId,

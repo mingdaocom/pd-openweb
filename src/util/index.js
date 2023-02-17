@@ -786,7 +786,7 @@ export const upgradeVersionDialog = options => {
 
   if (options.dialogType === 'content') {
     return (
-      <div>
+      <div className='w100 h100 flexColumn justifyContentCenter alignItemsCenter'>
         <div className="netStateWrap">
           <div className="imgWrap" />
           <div className="hint">{hint}</div>

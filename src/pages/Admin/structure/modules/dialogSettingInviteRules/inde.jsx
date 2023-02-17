@@ -217,7 +217,7 @@ class DialogSettingInviteRules extends React.Component {
           <div className="listBox borderTopLine">
             <h3>{_l('人员加入组织需要填写的信息')}</h3>
             <p className="Gray_9e Font13 mTop12">{_l('开启后成员加入组织时则需要填写')}</p>
-            <div className="listText">
+            {/* <div className="listText">
               <span className="iconBox">
                 <Tooltip text={<span>{_l('开启后需要填写，关闭后不需要')}</span>} action={['hover']}>
                   <span>
@@ -236,7 +236,7 @@ class DialogSettingInviteRules extends React.Component {
                 <p className="Gray Font13">{_l('组织')}</p>
                 <p className="Gray_9e Font13 mTop13">{_l('填写组织信息，默认为当前组织名称')}</p>
               </span>
-            </div>
+            </div> */}
             <div className="listText">
               <span className="iconBox">
                 <Tooltip text={<span>{_l('开启后成员可自主选择')}</span>} action={['hover']}>

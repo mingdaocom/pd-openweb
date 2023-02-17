@@ -37,7 +37,11 @@ class MobileBoardView extends Component {
     const { viewControl } = view;
     const isHaveSelectControl = viewControl && _.find(controls, item => item.controlId === viewControl);
     const { keyWords } = this.state;
-    const totalRows = _.reduce(boardData, (total, item) => total + item.rows.length, 0);
+    const totalRows = _.reduce(
+      boardData,
+      (total, item) => total + item.rows && _.isArray(item.rows) && item.rows.length,
+      0,
+    );
     // 视图配置错误
     if (!isHaveSelectControl) {
       return <ViewErrorPage icon={'kanban'} viewName={_l('看板视图')} color="#4CAF50" />;

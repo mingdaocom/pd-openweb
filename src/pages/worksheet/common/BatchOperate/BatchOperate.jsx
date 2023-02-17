@@ -377,6 +377,7 @@ class BatchOperate extends React.Component {
       controls,
       filters,
       quickFilter,
+      filtersGroup,
       navGroupFilters,
       worksheetInfo,
       count,
@@ -558,6 +559,7 @@ class BatchOperate extends React.Component {
                       downLoadUrl: downLoadUrl,
                       worksheetSummaryTypes: rowsSummary.types,
                       quickFilter,
+                      filtersGroup,
                       navGroupFilters,
 
                       // 不支持列统计结果

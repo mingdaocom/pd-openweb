@@ -15,7 +15,7 @@ export function urlStackBack(e) {
   }
 }
 
-window.location.goto = function (url, isReplace = false) {
+window.location.goto = function(url, isReplace = false) {
   if (isReplace) {
     window.location.replace(url);
   } else {
@@ -70,6 +70,10 @@ export function clearZombie() {
 }
 
 export function fillUrl(url) {
+  const hash = url.split('#')[1] || '';
+
+  url = url.split('#')[0];
+
   //是外部门户 当前环境以自定义后缀访问
   if (
     md.global.Account.isPortal &&
@@ -91,7 +95,7 @@ export function fillUrl(url) {
   if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
     url = url + '#publicapp' + window.publicAppAuthorization;
   }
-  return url;
+  return url + (hash ? `#${hash}` : '');
 }
 
 /** 跳转到 url */

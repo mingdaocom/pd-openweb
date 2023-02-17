@@ -185,7 +185,7 @@ export default function LoginContainer(props) {
     const { dialCode, emailOrTel, verifyCode, password } = dataLogin;
     const { ticket, randstr } = resRet;
     externalPortalAjax.findPwd({
-      account: dialCode + emailOrTel,
+      account: encrypt(dialCode + emailOrTel),
       password: encrypt(password),
       appId,
       verifyCode,

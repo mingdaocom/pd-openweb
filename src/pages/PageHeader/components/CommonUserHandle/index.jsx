@@ -65,12 +65,12 @@ export default class CommonUserHandle extends Component {
           </Tooltip>
         )}
         {!['appPkg'].includes(type) && (
-          <BtnCon onClick={() => this.setState({ globalSearchVisible: true })} data-tip={_l('搜索')}>
+          <BtnCon onClick={() => this.setState({ globalSearchVisible: true })} data-tip={_l('超级搜索')}>
             <Icon icon="search" />
           </BtnCon>
         )}
         {type === 'appPkg' && (
-          <div className="appPkgHeaderSearch" data-tip={_l('搜索')}>
+          <div className="appPkgHeaderSearch" data-tip={_l('超级搜索')}>
             <Icon icon="search" className="Font20" onClick={() => this.setState({ globalSearchVisible: true })} />
           </div>
         )}

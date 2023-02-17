@@ -144,7 +144,11 @@ export function dealUserId(data, dataType) {
 /**
  * 处理 成员 部门 地区 他表字段 级联 组织角色 这几个类型的字段 values 处理成 [id, id]
  */
-export function handleCondition(condition) {
+export function handleCondition(condition, isRelate) {
+  // 关联记录(动态值只能选择当前记录字段)特殊处理 rcid置空
+  if (isRelate && !isEmpty(condition.dynamicSource)) {
+    condition.dynamicSource.forEach(item => (item.rcid = ''));
+  }
   if (_.includes([19, 23, 24, 26, 27, 29, 35, 48], condition.dataType) && condition.values) {
     return {
       ...condition,
@@ -168,7 +172,7 @@ export function handleCondition(condition) {
 /**
  * 处理关联表叠加筛选条件里的 成员 部门 地区 他表字段 级联 这几个类型的字段 values 处理成 [id, id]
  */
-export function handleFilters(data) {
+export function handleFilters(data, isRelate = false) {
   const filters = getAdvanceSetting(data, 'filters');
   try {
     let filtersValue = [];
@@ -176,11 +180,11 @@ export function handleFilters(data) {
       filtersValue = filters.map(f => {
         return {
           ...f,
-          groupFilters: (f.groupFilters || []).map(handleCondition),
+          groupFilters: (f.groupFilters || []).map(i => handleCondition(i, isRelate)),
         };
       });
     } else {
-      filtersValue = filters.map(handleCondition);
+      filtersValue = filters.map(i => handleCondition(i, isRelate));
     }
 
     return handleAdvancedSettingChange(data, { filters: JSON.stringify(filtersValue) });
@@ -394,7 +398,7 @@ export const formatControlsData = (controls = [], fromSub = false) => {
     if (type === 29) {
       // 处理关联表叠加筛选条件里的 成员 部门 地区 他表字段 这几个类型的字段 values 处理成 [id, id]
       if (!isEmpty(getAdvanceSetting(data, 'filters'))) {
-        data = handleFilters(data);
+        data = handleFilters(data, true);
       }
       // 关联表sid处理
       return fromSub

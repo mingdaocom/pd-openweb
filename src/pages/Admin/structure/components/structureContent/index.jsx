@@ -219,6 +219,7 @@ class StructureContent extends Component {
               this.setState({ openChangeUserInfoDrawer: false });
             }}
             getData={this.props.fetchApproval}
+            departmentId={departmentId}
           />
         )}
       </Fragment>

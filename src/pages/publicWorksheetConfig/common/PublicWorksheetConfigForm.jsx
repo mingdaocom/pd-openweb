@@ -131,6 +131,7 @@ class PublicWorksheetConfigForm extends React.Component {
                   </div>
                   <div className="worksheetName">
                     <EditableText
+                      turnLine
                       mutiLine
                       minHeight={38}
                       emptyTip={_l('未命名表单')}

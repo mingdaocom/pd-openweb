@@ -3,6 +3,7 @@ import { Icon, Switch, Input, Dialog } from 'ming-ui';
 import { Button, Divider } from 'antd';
 import ServerStateDialog from './components/ServerStateDialog';
 import InstallCaptainDialog from './components/InstallCaptainDialog';
+import WorkWXIntegrationDialog from './components/WorkWXIntegrationDialog';
 import { updateSysSettings } from '../common';
 
 const Base = (props) => {
@@ -18,6 +19,8 @@ const Base = (props) => {
   const [enableCreateProject, setEnableCreateProject] = useState(SysSettings.enableCreateProject);
   const [installCaptainUrl, setInstallCaptainUrl] = useState(SysSettings.installCaptainUrl);
   const [installCaptainDialogVisible, setInstallCaptainDialogVisible] = useState(false);
+  const [workWXIntegrationVisible, setWorkWXIntegrationVisible] = useState(false);
+  const [workWxSelfBuildNoticUrl, setWorkWxSelfBuildNoticUrl] = useState(SysSettings.workWxSelfBuildNoticUrl);
 
   const renderHelpTip = () => {
     return (
@@ -217,14 +220,59 @@ const Base = (props) => {
         </div>
         <InstallCaptainDialog
           visible={installCaptainDialogVisible}
-          onSave={(value) => {
+          onSave={value => {
             setInstallCaptainUrl(value);
           }}
           onCancel={() => setInstallCaptainDialogVisible(false)}
         />
       </Fragment>
     );
-  }
+  };
+  const renderWorkWXIntegrationUrl = () => {
+    return (
+      <Fragment>
+        <div className="flexRow">
+          <div className="flex flexColumn">
+            <div className="Font14 bold mBottom7">{_l('申请上架企业微信通知')}</div>
+            <div className="Gray_9e mBottom15">
+              {_l('平台用户申请将应用上架到企业微信工作台，通过接口将平台用户申请通知到平台管理员')}
+            </div>
+            <div className="mBottom15 valignWrapper">
+              <span className="Gray_9e mRight18">{_l('通知地址')}</span>
+              <span>{workWxSelfBuildNoticUrl || _l('未配置')}</span>
+              {workWxSelfBuildNoticUrl && (
+                <Icon
+                  icon="task-new-detail"
+                  className="Font12 Gray_bd mLeft5 mTop3 pointer"
+                  onClick={() => {
+                    window.open(workWxSelfBuildNoticUrl);
+                  }}
+                />
+              )}
+            </div>
+            <div>
+              <Button
+                ghost
+                type="primary"
+                onClick={() => {
+                  setWorkWXIntegrationVisible(true);
+                }}
+              >
+                {_l('设置')}
+              </Button>
+            </div>
+          </div>
+        </div>
+        <WorkWXIntegrationDialog
+          visible={workWXIntegrationVisible}
+          onSave={value => {
+            setWorkWxSelfBuildNoticUrl(value);
+          }}
+          onCancel={() => setWorkWXIntegrationVisible(false)}
+        />
+      </Fragment>
+    );
+  };
 
   return (
     <div className="privateCardWrap flexColumn">
@@ -252,8 +300,14 @@ const Base = (props) => {
           {renderInstallCaptainUrl()}
         </Fragment>
       )}
+      {IsPlatformLocal && (
+        <Fragment>
+          <Divider className="mTop20 mBottom20" />
+          {renderWorkWXIntegrationUrl()}
+        </Fragment>
+      )}
     </div>
   );
-}
+};
 
 export default Base;

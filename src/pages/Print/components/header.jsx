@@ -99,7 +99,7 @@ class Header extends React.Component {
     return (
       <div className="headerBox Gray">
         <React.Fragment>
-          {from === fromType.FORMSET && type !== typeForCon.PREVIEW && (
+          {from === fromType.FORMSET && (
             <Icon
               icon="knowledge-return"
               className="mRight12 Font16"

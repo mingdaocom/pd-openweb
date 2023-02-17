@@ -72,7 +72,13 @@ export default class User extends React.Component {
           />
           <span className="userName flex ellipsis">{user.fullname || user.name}</span>
           {isediting && (
-            <i className="Font14 Gray_9e icon-close Hand mLeft4" onClick={() => this.deleteUser(user.accountId)}></i>
+            <i
+              className="Font14 Gray_9e icon-close Hand mLeft4"
+              onClick={e => {
+                e.stopPropagation();
+                this.deleteUser(user.accountId);
+              }}
+            ></i>
           )}
         </div>
       </div>
@@ -235,7 +241,7 @@ export default class User extends React.Component {
       {
         value: value.filter(account => account.accountId !== accountId),
       },
-      this.handleChange,
+      () => this.handleChange(true),
     );
   }
 

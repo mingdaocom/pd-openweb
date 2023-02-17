@@ -131,6 +131,9 @@ export default function (control, formData, { update, type } = {}) {
       if (_.isNaN(result)) {
         result = undefined;
       }
+      if (type === 'lib' && typeof result === 'undefined') {
+        result = '';
+      }
       return {
         value: result,
         expression,

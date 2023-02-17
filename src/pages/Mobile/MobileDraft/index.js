@@ -207,7 +207,7 @@ function MobileDraftList(props) {
           sheetSwitchPermit={sheetSwitchPermit}
           draftFormControls={controls.filter(
             item =>
-              !_.includes(SHEET_VIEW_HIDDEN_TYPES, item.type) &&
+              !_.includes([...SHEET_VIEW_HIDDEN_TYPES, 33], item.type) &&
               !_.includes(
                 [
                   'wfname',

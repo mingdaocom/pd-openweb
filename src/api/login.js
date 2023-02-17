@@ -22,7 +22,7 @@ export default {
   /**
   * 使用明道云账号自动登录，如果登录失败，需要把本地保存的密码清理掉
   * @param {Object} args 请求参数
-  * @param {string} args.accountId 账号Id
+  * @param {string} args.accountId 账号
   * @param {string} args.encryptPassword 加密密码
   * @param {} args.loginType 登录类型(默认0: AccountId + EncryptPassword、1（LDAP）: AccountId + EncryptPassword + Account + ProjectId)
   * @param {string} args.account 账号

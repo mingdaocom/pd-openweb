@@ -596,7 +596,7 @@ export default class RelateRecordDropdown extends React.Component {
       popupContainer,
       onVisibleChange,
     } = this.props;
-    const { isTop, listvisible, previewRecord, newrecordVisible } = this.state;
+    const { selected, isTop, listvisible, previewRecord, newrecordVisible } = this.state;
     const [, , onlyRelateByScanCode] = (control.strDefault || '').split('').map(b => !!+b);
     const disabledManualWrite = onlyRelateByScanCode && control.advancedSetting.dismanual === '1';
     const popup = this.renderPopup({ disabledManualWrite });
@@ -654,6 +654,17 @@ export default class RelateRecordDropdown extends React.Component {
             }}
             recordId={previewRecord.recordId}
             worksheetId={dataSource}
+            updateRows={(rowIds = [], updatedRow = {}) => {
+              if (rowIds[0]) {
+                this.setState({
+                  selected: selected.map(item =>
+                    _.find(selected, r => r.rowid === rowIds[0])
+                      ? { ...item, ..._.omit(updatedRow, ['allowdelete', 'allowedit']) }
+                      : item,
+                  ),
+                });
+              }
+            }}
           />
         )}
       </div>

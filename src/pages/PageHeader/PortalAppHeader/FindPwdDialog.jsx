@@ -272,7 +272,7 @@ export default function TelDialog(props) {
     const { ticket, randstr } = resRet;
     externalPortalAjax
       .findPwd({
-        account,
+        account: encrypt(account),
         password: encrypt(psd),
         appId,
         verifyCode: code,

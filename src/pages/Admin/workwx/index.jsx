@@ -59,7 +59,7 @@ export default class Workwx extends React.Component {
       fieldRadio: null,
       isSetPassword: false,
       passwordError: false,
-      syncWXLabel: md.global.Config.IsLocal ? 'job' : 'organize',
+      syncWXLabel: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? 'job' : 'organize',
       qwQuickAprData: {},
     };
   }
@@ -75,7 +75,7 @@ export default class Workwx extends React.Component {
           corpId: '',
           agentId: '',
           secret: '',
-          status: md.global.Config.IsLocal ? 1 : '',
+          status: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? 1 : '',
         };
       }
       if (res) {
@@ -471,7 +471,22 @@ export default class Workwx extends React.Component {
         <div className="stepItem">
           <h3 className="stepTitle Font16 Gray">{_l('%0数据同步', intergrationType !== 2 ? '3.' : '2.')}</h3>
           <div className="mTop16 syncBox">
-            <span className="Font14 syncTxt Gray_75">{_l('从企业微信通讯录同步到该系统')}</span>
+            <span className="Font14 syncTxt Gray_75">
+              {_l('从企业微信通讯录同步到该系统')}{' '}
+              {md.global.Config.IsPlatformLocal && (
+                <span
+                  className="ThemeColor Hand"
+                  onClick={() => {
+                    this.setState({
+                      showSyncDiaLog: true,
+                      isBindRelationship: true,
+                    });
+                  }}
+                >
+                  {_l('账号绑定关系列表')}
+                </span>
+              )}
+            </span>
             <Button
               type="primary"
               disabled={loading}
@@ -604,7 +619,9 @@ export default class Workwx extends React.Component {
     }
     return (
       <div className="workwxMainContent">
-        {!this.state.isPassApply && !(!this.state.CorpId && !md.global.Config.IsLocal) && intergrationType !== 2 ? (
+        {!this.state.isPassApply &&
+        !(!this.state.CorpId && (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal)) &&
+        intergrationType !== 2 ? (
           <div className="TxtMiddle">
             <div className="TxtCenter logoBox">
               {this.state.isReject ? (
@@ -677,7 +694,9 @@ export default class Workwx extends React.Component {
             onChange={this.changeTab}
           >
             <Tabs.TabPane tab={_l('企业微信集成')} key="base" className="tabStyles">
-              {!this.state.CorpId && !md.global.Config.IsLocal && (this.state.status === 0 || !this.state.status) ? (
+              {!this.state.CorpId &&
+              (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) &&
+              (this.state.status === 0 || !this.state.status) ? (
                 <BuildAppNewRules
                   editWXProjectSettingStatus={this.editWXProjectSettingStatus}
                   isPassApply={isPassApply}
@@ -717,7 +736,7 @@ export default class Workwx extends React.Component {
                       ) : (
                         <a
                           target="_blank"
-                          href="https://help.mingdao.com/Wecom3.html#%E4%BA%8C%E3%80%81%E5%9C%A8%E6%98%8E%E9%81%93%E4%BA%91%E4%BA%8C%E7%BA%A7%E7%99%BB%E5%BD%95%E9%A1%B5%E9%9D%A2%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%89%AB%E7%A0%81%E7%99%BB%E5%BD%95"
+                          href="https://help.mingdao.com/wecom3.html#%E4%BA%8C%E3%80%81%E5%9C%A8%E6%98%8E%E9%81%93%E4%BA%91%E4%BA%8C%E7%BA%A7%E7%99%BB%E5%BD%95%E9%A1%B5%E9%9D%A2%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%89%AB%E7%A0%81%E7%99%BB%E5%BD%95"
                           className="helpEntry"
                         >
                           {_l('如何实现企业微信扫码登录？')}
@@ -849,7 +868,7 @@ export default class Workwx extends React.Component {
                     {this.state.openQuickApproval && (
                       <Fragment>
                         {quickAprData.map((it, index) => {
-                          
+
                           return (
                             <div
                               className={cx('flexRow alignItemsCenter', { mTop24: index == 0, mTop32: index !== 0 })}

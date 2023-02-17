@@ -101,7 +101,7 @@ export const PAGE_HEADER_ROUTE_CONFIG = {
   },
   search: {
     path: '/search',
-    component: () => import('src/pages/PageHeader/NetManageHeader'),
+    component: () => import('src/pages/PageHeader/GlobalSearchHeader'),
   },
   integration: {
     path: '/integration',

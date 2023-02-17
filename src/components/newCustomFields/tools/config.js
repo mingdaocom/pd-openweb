@@ -159,4 +159,5 @@ export const SYSTEM_ENUM = [
   'caid',
   'ctime',
   'utime',
+  'daid'
 ];

@@ -30,8 +30,8 @@ function getLanIp() {
   var networkInterfaces = require('os').networkInterfaces();
   var matches = [];
 
-  Object.keys(networkInterfaces).forEach(function(item) {
-    networkInterfaces[item].forEach(function(address) {
+  Object.keys(networkInterfaces).forEach(function (item) {
+    networkInterfaces[item].forEach(function (address) {
       if (address.internal === false && address.family === 'IPv4') {
         matches.push(address.address);
       }
@@ -44,12 +44,12 @@ function getLanIp() {
 function checkPort(port) {
   return new Promise((resolve, reject) => {
     var server = net.createServer();
-    server.once('error', function(err) {
+    server.once('error', function (err) {
       if (err.code === 'EADDRINUSE') {
         resolve(false);
       }
     });
-    server.once('listening', function() {
+    server.once('listening', function () {
       resolve(true);
       server.close();
     });
@@ -69,7 +69,7 @@ async function getValuedPort(port) {
 }
 
 const middlewareList = [
-  function(req, res, next) {
+  function (req, res, next) {
     let rewrites = utils.parseNginxRewriteConf([
       path.join(__dirname, '../docker/rewrite.setting'),
       path.join(__dirname, '../docker/portal.rewrite.setting'),
@@ -116,6 +116,8 @@ const middlewareList = [
         res.end('404');
       });
       rs.pipe(res);
+    } else if (req.url && req.url === '/_branch') {
+      res.end(require('child_process').execSync(`git branch | grep ^\*`).toString().trim());
     } else if (_.findIndex(rewrites, rule => new RegExp(rule.match, rule.ignoreCase ? 'i' : '').test(req.url)) > -1) {
       // 根据配置的 nginx rewrite 重定向请求
       const matchedIndex = _.findIndex(rewrites, rule =>
@@ -137,7 +139,7 @@ const middlewareList = [
       res.end('404');
     }
   },
-  function(req, res, next) {
+  function (req, res, next) {
     // 控制页面 TODO
     if (req.url === '/--dashboard') {
       res.end('dashboard-' + statusData.localUrl);
@@ -145,7 +147,7 @@ const middlewareList = [
       next();
     }
   },
-  function(req, res, next) {
+  function (req, res, next) {
     // 跨域处理
     res.setHeader('Access-Control-Allow-Origin', '*');
     // 禁止缓存
@@ -156,7 +158,7 @@ const middlewareList = [
 
 async function serve({ done = () => {}, needOpen = true } = {}) {
   var port = await getValuedPort();
-  var server = http.createServer(function(req, res) {
+  var server = http.createServer(function (req, res) {
     const stack = middlewareList.slice(0);
     function exec(cb = () => {}) {
       if (stack.length) {

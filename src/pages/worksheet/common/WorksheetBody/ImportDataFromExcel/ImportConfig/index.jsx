@@ -170,7 +170,7 @@ export default class ImportConfig extends Component {
         }
         popupPlacement="bottom"
       >
-        <span className="icon-info_outline Font18 Gray_bd" />
+        <span className="icon-error1 Font18" />
       </Tooltip>
     );
   }
