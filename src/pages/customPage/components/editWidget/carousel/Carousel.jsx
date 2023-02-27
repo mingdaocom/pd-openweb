@@ -226,10 +226,10 @@ export default function CarouselPreview(props) {
     const { rowid } = data;
     const { action, openMode } = componentConfig;
 
-    if (editable || window.share) return;
+    if (editable) return;
 
     // 打开记录
-    if (action === 1) {
+    if (action === 1 && !window.share) {
       const { appId } = await homeAppAjax.getAppSimpleInfo({ workSheetId: worksheetId });
 
       if (isMingdao) {

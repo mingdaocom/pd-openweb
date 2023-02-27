@@ -710,7 +710,11 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
         const iti = initIntlTelInput();
         iti.setNumber(value);
         // 香港6262开头不识别特殊处理
-        errorType = !value || iti.isValidNumber() || specialTelVerify(value) ? '' : FORM_ERROR_TYPE.MOBILE_PHONE;
+        // "FIXED_LINE": 0,"MOBILE": 1,
+        errorType =
+          !value || (iti.isValidNumber() && iti.getNumberType() === 1) || specialTelVerify(value)
+            ? ''
+            : FORM_ERROR_TYPE.MOBILE_PHONE;
       }
 
       // 座机

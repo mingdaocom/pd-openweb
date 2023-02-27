@@ -305,6 +305,10 @@ export const filterFn = (filterData, originControl, data = []) => {
     }
   }
 
+  if (_.isArray(compareValues)) {
+    compareValues = compareValues.filter(i => !isEmptyValue(i));
+  }
+
   // 时间类显示类型
   if ((_.includes[(15, 16, 46)], control.type)) {
     formatMode = getFormatMode(control, currentControl, conditionGroupType);
@@ -343,12 +347,11 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.EQ:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.USERS.value: // ???
-          if (!value) {
-            return false;
-          }
+          if (_.isEmpty(value) && _.isEmpty(compareValues)) return true;
+
           let isEQ = false;
           _.map(compareValues, (it = {}) => {
-            let user = JSON.parse(value);
+            let user = JSON.parse(value || '[]');
             _.map(user, its => {
               if (its.accountId === (it.id || it.accountId)) {
                 isEQ = true;
@@ -372,12 +375,11 @@ export const filterFn = (filterData, originControl, data = []) => {
             return parseInt(id) === parseInt(code);
             // 部门
           } else if (dataType === API_ENUM_TO_TYPE.GROUP_PICKER) {
-            if (!value) {
-              return !!value;
-            }
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return true;
+
             let isEQ = false;
             _.map(compareValues, (it = {}) => {
-              let valueN = JSON.parse(value);
+              let valueN = JSON.parse(value || '[]');
               _.map(valueN, item => {
                 if ((it.departmentId || it.id) === item.departmentId) {
                   isEQ = true;
@@ -387,12 +389,11 @@ export const filterFn = (filterData, originControl, data = []) => {
             return isEQ;
             // 组织角色
           } else if (dataType === API_ENUM_TO_TYPE.ORG_ROLE) {
-            if (!value) {
-              return !!value;
-            }
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return true;
+
             let isEQ = false;
             _.map(compareValues, (it = {}) => {
-              let valueN = JSON.parse(value);
+              let valueN = JSON.parse(value || '[]');
               _.map(valueN, item => {
                 if ((it.organizeId || it.id) === item.organizeId) {
                   isEQ = true;
@@ -406,6 +407,8 @@ export const filterFn = (filterData, originControl, data = []) => {
           } else if (
             [API_ENUM_TO_TYPE.OPTIONS_10, API_ENUM_TO_TYPE.OPTIONS_11, API_ENUM_TO_TYPE.OPTIONS_9].includes(dataType)
           ) {
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return true;
+
             if (dataType === API_ENUM_TO_TYPE.OPTIONS_10) {
               // 多选10
               let isEQ = false;
@@ -425,9 +428,10 @@ export const filterFn = (filterData, originControl, data = []) => {
             return _.includes(compareValues, value);
           }
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
+          if (isEmptyValue(value) && isEmptyValue(compareValue)) return true;
           return parseFloat(compareValue) === parseFloat(value);
         case CONTROL_FILTER_WHITELIST.TEXT.value:
+          if (isEmptyValue(value) && isEmptyValue(compareValue)) return true;
           let isInValue = false;
           _.map(compareValues, it => {
             if (it === value) {
@@ -515,12 +519,11 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.NE:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.USERS.value: // ???
-          if (!value) {
-            return true;
-          }
+          if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
+
           let isInValue = true;
           _.map(compareValues, (it = {}) => {
-            let user = JSON.parse(value);
+            let user = JSON.parse(value || '[]');
             _.map(user, its => {
               if (its.accountId === (it.id || it.accountId)) {
                 isInValue = false;
@@ -544,12 +547,11 @@ export const filterFn = (filterData, originControl, data = []) => {
             return parseInt(id) !== parseInt(code);
             // 部门
           } else if (dataType === API_ENUM_TO_TYPE.GROUP_PICKER) {
-            if (!value) {
-              return !value;
-            }
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
+
             let isNE = true;
             _.map(compareValues, (it = {}) => {
-              let valueN = JSON.parse(value);
+              let valueN = JSON.parse(value || '[]');
               _.map(valueN, item => {
                 if ((it.departmentId || it.id) === item.departmentId) {
                   isNE = false;
@@ -559,12 +561,11 @@ export const filterFn = (filterData, originControl, data = []) => {
             return isNE;
             // 等级
           } else if (dataType === API_ENUM_TO_TYPE.ORG_ROLE) {
-            if (!value) {
-              return !value;
-            }
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
+
             let isNE = true;
             _.map(compareValues, (it = {}) => {
-              let valueN = JSON.parse(value);
+              let valueN = JSON.parse(value || '[]');
               _.map(valueN, item => {
                 if ((it.organizeId || it.id) === item.organizeId) {
                   isNE = false;
@@ -578,6 +579,8 @@ export const filterFn = (filterData, originControl, data = []) => {
           } else if (
             [API_ENUM_TO_TYPE.OPTIONS_10, API_ENUM_TO_TYPE.OPTIONS_11, API_ENUM_TO_TYPE.OPTIONS_9].includes(dataType)
           ) {
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
+
             if (dataType === API_ENUM_TO_TYPE.OPTIONS_10) {
               let isEQ = true;
               JSON.parse(value || '[]').forEach(singleValue => {
@@ -596,9 +599,10 @@ export const filterFn = (filterData, originControl, data = []) => {
             return !_.includes(compareValues, value);
           }
         case CONTROL_FILTER_WHITELIST.NUMBER.value:
-          if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
+          if (isEmptyValue(value) && isEmptyValue(compareValue)) return false;
           return parseFloat(compareValue || 0) !== parseFloat(value || 0);
         case CONTROL_FILTER_WHITELIST.TEXT.value:
+          if (isEmptyValue(value) && isEmptyValue(compareValue)) return false;
           let isInValue1 = true;
           _.map(compareValues, it => {
             if (it === value) {
@@ -1040,32 +1044,32 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.ARREQ:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.USERS.value: // ???
-          if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+          if (_.isEmpty(value) && _.isEmpty(compareValues)) return true;
 
           return _.isEqual(
             compareValues.map((it = {}) => it.id || it.accountId).sort(),
-            safeParse(value)
+            safeParse(value || '[]')
               .map(its => its.accountId)
               .sort(),
           );
         case CONTROL_FILTER_WHITELIST.OPTIONS.value:
           // 部门
           if (dataType === API_ENUM_TO_TYPE.GROUP_PICKER) {
-            if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return true;
 
             return _.isEqual(
               compareValues.map((it = {}) => it.id || it.departmentId).sort(),
-              safeParse(value)
+              safeParse(value || '[]')
                 .map(its => its.departmentId)
                 .sort(),
             );
             // 组织角色
           } else if (dataType === API_ENUM_TO_TYPE.ORG_ROLE) {
-            if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return true;
 
             return _.isEqual(
               compareValues.map((it = {}) => it.id || it.organizeId).sort(),
-              safeParse(value)
+              safeParse(value || '[]')
                 .map(its => its.organizeId)
                 .sort(),
             );
@@ -1073,13 +1077,13 @@ export const filterFn = (filterData, originControl, data = []) => {
           } else if (
             [API_ENUM_TO_TYPE.OPTIONS_10, API_ENUM_TO_TYPE.OPTIONS_11, API_ENUM_TO_TYPE.OPTIONS_9].includes(dataType)
           ) {
-            if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return true;
 
-            return _.isEqual(safeParse(value).sort(), compareValues.sort());
+            return _.isEqual(safeParse(value || '[]').sort(), compareValues.sort());
           }
         // 关联记录
         case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
-          if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+          if (_.isEmpty(value) && _.isEmpty(compareValues)) return true;
 
           return _.isEqual(
             compareValues
@@ -1098,32 +1102,32 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.ARRNE:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.USERS.value: // ???
-          if (!value || (dynamicSource.length > 0 && !compareValues)) return true;
+          if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
 
           return !_.isEqual(
             compareValues.map((it = {}) => it.id || it.accountId).sort(),
-            safeParse(value)
+            safeParse(value || '[]', 'array')
               .map(its => its.accountId)
               .sort(),
           );
         case CONTROL_FILTER_WHITELIST.OPTIONS.value:
           // 部门
           if (dataType === API_ENUM_TO_TYPE.GROUP_PICKER) {
-            if (!value || (dynamicSource.length > 0 && !compareValues)) return true;
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
 
             return !_.isEqual(
               compareValues.map((it = {}) => it.id || it.departmentId).sort(),
-              safeParse(value)
+              safeParse(value || '[]', 'array')
                 .map(its => its.departmentId)
                 .sort(),
             );
             // 组织角色
           } else if (dataType === API_ENUM_TO_TYPE.ORG_ROLE) {
-            if (!value || (dynamicSource.length > 0 && !compareValues)) return true;
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
 
             return !_.isEqual(
               compareValues.map((it = {}) => it.id || it.organizeId).sort(),
-              safeParse(value)
+              safeParse(value || '[]', 'array')
                 .map(its => its.organizeId)
                 .sort(),
             );
@@ -1131,13 +1135,13 @@ export const filterFn = (filterData, originControl, data = []) => {
           } else if (
             [API_ENUM_TO_TYPE.OPTIONS_10, API_ENUM_TO_TYPE.OPTIONS_11, API_ENUM_TO_TYPE.OPTIONS_9].includes(dataType)
           ) {
-            if (!value || (dynamicSource.length > 0 && !compareValues)) return true;
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
 
-            return !_.isEqual(safeParse(value).sort(), compareValues.sort());
+            return !_.isEqual(safeParse(value || '[]', 'array').sort(), compareValues.sort());
           }
         // 关联记录
         case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
-          if (!value || (dynamicSource.length > 0 && !compareValues)) return true;
+          if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
 
           return !_.isEqual(
             compareValues
@@ -1145,7 +1149,7 @@ export const filterFn = (filterData, originControl, data = []) => {
                 dynamicSource.length > 0 ? _.get(safeParse(it || '[]')[0], 'sid') : _.get(safeParse(it || '{}'), 'id'),
               )
               .sort(),
-            safeParse(value || '[]')
+            safeParse(value || '[]', 'array')
               .map(item => item.sid)
               .sort(),
           );
@@ -1156,40 +1160,40 @@ export const filterFn = (filterData, originControl, data = []) => {
     case FILTER_CONDITION_TYPE.ALLCONTAIN:
       switch (conditionGroupType) {
         case CONTROL_FILTER_WHITELIST.USERS.value: // ???
-          if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+          if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
 
           const userCompareArr = compareValues.map((it = {}) => it.id || it.accountId);
-          const userArr = safeParse(value).map(it => it.accountId);
+          const userArr = safeParse(value || '[]', 'array').map(it => it.accountId);
           return _.every(userCompareArr, its => _.includes(userArr, its));
         case CONTROL_FILTER_WHITELIST.OPTIONS.value:
           // 部门
           if (dataType === API_ENUM_TO_TYPE.GROUP_PICKER) {
-            if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
 
             const deptCompareArr = compareValues.map((it = {}) => it.id || it.departmentId);
-            const deptArr = safeParse(value).map(it => it.departmentId);
+            const deptArr = safeParse(value || '[]', 'array').map(it => it.departmentId);
             return _.every(deptCompareArr, its => _.includes(deptArr, its));
             // 组织角色
           } else if (dataType === API_ENUM_TO_TYPE.ORG_ROLE) {
-            if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
 
             const orgCompareArr = compareValues.map((it = {}) => it.id || it.organizeId);
-            const orgArr = safeParse(value).map(it => it.organizeId);
+            const orgArr = safeParse(value || '[]', 'array').map(it => it.organizeId);
             return _.every(orgCompareArr, its => _.includes(orgArr, its));
             // 选项
           } else if (dataType === API_ENUM_TO_TYPE.OPTIONS_10) {
-            if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+            if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
 
-            return _.every(compareValues, its => _.includes(safeParse(value), its));
+            return _.every(compareValues, its => _.includes(safeParse(value || '[]', 'array'), its));
           }
         // 关联记录
         case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
-          if (!value || (dynamicSource.length > 0 && !compareValues)) return false;
+          if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
 
           const reCompareArr = compareValues.map(it =>
             dynamicSource.length > 0 ? _.get(safeParse(it || '[]')[0], 'sid') : _.get(safeParse(it || '{}'), 'id'),
           );
-          const reArr = safeParse(value).map(it => it.sid);
+          const reArr = safeParse(value || '[]', 'array').map(it => it.sid);
           return _.every(reCompareArr, its => _.includes(reArr, its));
         default:
           return true;

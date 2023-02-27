@@ -57,24 +57,7 @@ export default class Widgets extends Component {
     this.html5QrCode = null;
   }
   componentDidMount() {
-    if (isDing && !window.dd) {
-      $.getScript('https://g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js');
-      return;
-    }
-    if (isWeLink && !window.HWH5) {
-      $.getScript('https://open-doc.welink.huaweicloud.com/docs/jsapi/2.0.4/hwh5-cloudonline.js');
-      return;
-    }
-    if (isWx && !window.wx) {
-      $.getScript('https://res2.wx.qq.com/open/js/jweixin-1.6.0.js');
-      return;
-    }
-    if (isWxWork && !window.wx) {
-      $.getScript('https://res.wx.qq.com/open/js/jweixin-1.2.0.js');
-      return;
-    }
-    if (isFeishu && !window.h5sdk) {
-      $.getScript('https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.19.js');
+    if (isDing || isWeLink || isWx || isWxWork || isFeishu) {
       return;
     }
     import('html5-qrcode').then(data => {
@@ -122,8 +105,8 @@ export default class Widgets extends Component {
         this.props.onScanQRCodeResult(res.result);
       },
       fail: res => {
-        if (!res.errMsg.includes('cancel')) {
-          // Toast.fail(res.errMsg);
+        const { errMsg } = res;
+        if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
           _alert(JSON.stringify(res));
         }
       }

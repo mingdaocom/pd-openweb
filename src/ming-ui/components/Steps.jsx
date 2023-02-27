@@ -377,7 +377,7 @@ export default function Steps(props) {
       <VerticalCon>
         <Bar ref={barRef}>
           <Content style={{ width: `${width}%`, backgroundColor: currentColor }} />
-          {(!disabled || from === 'recordInfo') && (
+          {(!disabled || from === 'recordInfo') && !_.isUndefined(currentValue) && (
             <Drag
               className={`${tipDirection ? 'tip-' + tipDirection : 'tip-top'}`}
               color={currentColor}

@@ -347,10 +347,10 @@ class RecordAction extends Component {
     }
     worksheetAjax.updateWorksheetRow(args).then(res => {
       if (res && res.data) {
+        this.props.loadRow();
+        this.props.loadCustomBtns();
         if (this.activeBtn.workflowType === 2) {
           alert(_l('修改成功'));
-          this.props.loadRow();
-          this.props.loadCustomBtns();
         } else {
           message.info({
             className: 'flowToastInfo',

@@ -574,6 +574,7 @@ class RecordCalendar extends Component {
         popup={this.renderPopup(item)}
         getPopupContainer={() => document.body}
         onPopupVisibleChange={visible => {
+          if (browserIsMobile()) return;
           if (visible) {
             if (calendarInfo.length <= 1) {
               this.useViewInfoUpdate(calendarInfo[0], item);

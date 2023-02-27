@@ -117,8 +117,8 @@ export default class extends Component {
         const parentWidth = parent.clientWidth - 2;
         const configKeys = Object.keys(config);
         const occupyWidth = configKeys.map(key => config[key]).reduce((count, item) => item + count, 0);
-        const columnCount = (data.data.length + 1) - configKeys.length;
-        const width = (parentWidth - occupyWidth) / columnCount;
+        const columnCount = (data.data.length + 1);
+        const width = parentWidth / columnCount;
         return width < 80 ? 80 : width;
       } else {
         return pivotTableUnilineShow ? 130 : undefined;
@@ -303,7 +303,7 @@ export default class extends Component {
             return (
               <Fragment>
                 {title}
-                {this.renderDrag(index + 1)}
+                {this.renderDrag(startIndex + 1)}
               </Fragment>
             );
           } : title,

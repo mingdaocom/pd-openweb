@@ -74,12 +74,6 @@ export default class Widgets extends Component {
     visible: false,
   };
 
-  componentDidMount() {
-    if (isFeishu && !window.h5sdk) {
-      $.getScript('https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.19.js');
-    }
-  }
-
   handleAuthentication = () => {
     const { projectId } = this.props;
     if (window.currentUrl !== location.href) {
@@ -117,7 +111,10 @@ export default class Widgets extends Component {
           Toast.hide();
         },
         fail(res) {
-          _alert(`getLocation fail: ${JSON.stringify(res)}`);
+          const { errMsg } = res;
+          if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
+            _alert(JSON.stringify(res));
+          }
           Toast.hide();
         }
       });
@@ -130,7 +127,10 @@ export default class Widgets extends Component {
           onChange(JSON.stringify({ x: longitude, y: latitude, address, title: name }));
         },
         fail(res) {
-          _alert(`chooseLocation fail: ${JSON.stringify(res)}`);
+          const { errMsg } = res;
+          if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
+            _alert(JSON.stringify(res));
+          }
         }
       });
     }
@@ -190,7 +190,11 @@ export default class Widgets extends Component {
               if (!isMobile || disabled) {
                 window.open(`https://uri.amap.com/marker?position=${location.x},${location.y}`);
               } else {
-                this.setState({ visible: true });
+                if (isFeishu) {
+                  this.handleAuthentication();
+                } else {
+                  this.setState({ visible: true });
+                }
               }
             }}
           >
@@ -225,7 +229,11 @@ export default class Widgets extends Component {
                         className="Font20 Gray_9e ThemeHoverColor3 pointer"
                         onClick={evt => {
                           evt.stopPropagation();
-                          this.setState({ visible: true });
+                          if (isFeishu) {
+                            this.handleAuthentication();
+                          } else {
+                            this.setState({ visible: true });
+                          }
                         }}
                       />
                     </span>

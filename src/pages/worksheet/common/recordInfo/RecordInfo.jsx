@@ -113,7 +113,7 @@ export default class RecordInfo extends Component {
         props.from !== RECORD_INFO_FROM.DRAFT &&
         (props.from === RECORD_INFO_FROM.WORKFLOW || Boolean(localStorage.getItem('recordInfoSideVisible'))),
       currentIndex: _.findIndex(props.currentSheetRows, item => {
-        return item.rowid === props.recordId;
+        return _.get(item, 'rowid') === props.recordId;
       }),
       allowExAccountDiscuss: false, //允许外部用户讨论
       exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论

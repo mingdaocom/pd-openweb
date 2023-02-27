@@ -7,6 +7,18 @@ import { getItem } from '../../views/util';
 
 const MULTI_RELATE_MAX_PAGE_SIZE = 500;
 
+const getTotalData = (hierarchyViewData = {}, total = 0) => {
+  Object.values(hierarchyViewData).map(item => {
+    if (item) {
+      total += 1;
+    }
+    if (get(item, 'childrenids.length') > 0) {
+      total = getTotalData(item.childrenids, total);
+    }
+  });
+  return total;
+};
+
 // 展开多级数据
 export function expandedMultiLevelHierarchyData(args) {
   return (dispatch, getState) => {
@@ -24,19 +36,31 @@ export function expandedMultiLevelHierarchyData(args) {
       .then(({ data, count, resultCode }) => {
         if (resultCode === 1) {
           const treeData = dealData(data);
+          const totalDataOver = getTotalData(data);
           // 第一次调用少于1000条，加载全量数据
           const needGetOne =
-            ((count < 1000 && pageSize === 50) || (count > 1000 && pageSize === 1000)) &&
+            ((totalDataOver < 1000 && pageSize === 50) || (totalDataOver > 1000 && pageSize === 1000)) &&
             sheet.hierarchyView.hierarchyTopLevelDataCount === 0;
           dispatch({ type: 'INIT_HIERARCHY_VIEW_DATA', data: treeData });
-          dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: needGetOne, pageIndex: 1 } });
+          dispatch({
+            type: 'CHANGE_HIERARCHY_DATA_STATUS',
+            data: {
+              loading: needGetOne,
+              pageIndex: 1,
+              ...(needGetOne ? { pageSize: totalDataOver > 1000 ? 50 : 1000 } : {}),
+            },
+          });
           dispatch({
             type: 'CHANGE_HIERARCHY_TOP_LEVEL_DATA_COUNT',
             count: count,
           });
           dispatch({
             type: 'EXPAND_HIERARCHY_VIEW_STATE',
-            data: { treeData, data, level: +args.layer },
+            data: {
+              treeData,
+              data,
+              level: needGetOne ? (totalDataOver > 1000 ? '1' : '5') : +args.layer,
+            },
           });
 
           if (needGetOne) {
@@ -573,19 +597,24 @@ export function initHierarchyRelateSheetControls(payload) {
 export function getDefaultHierarchyData(view) {
   return (dispatch, getState) => {
     const { sheet } = getState();
-    const count = sheet.hierarchyView.hierarchyTopLevelDataCount || 0;
+    const pageSize =
+      Number(childType) === 2
+        ? 50
+        : _.get(sheet, 'hierarchyView.hierarchyTopLevelDataCount')
+        ? _.get(sheet, 'hierarchyView.hierarchyDataStatus.pageSize')
+        : 1000;
     const { viewId, viewControl, viewControls, childType } = isEmpty(view) ? getCurrentView(sheet) : view;
     if (!viewControl && isEmpty(viewControls)) return;
     // 层级视图刷新(本表小于1000条加载全量数据)
     dispatch({
       type: 'CHANGE_HIERARCHY_DATA_STATUS',
-      data: { loading: true, pageSize: count > 1000 || Number(childType) === 2 ? 50 : 1000 },
+      data: { loading: true, pageSize: pageSize },
     });
     if (_.includes(['1', '0'], String(childType))) {
       const { level } = getItem(`hierarchyConfig-${viewId}`) || {};
       dispatch(
         expandedMultiLevelHierarchyData({
-          layer: level || (count > 1000 ? '1' : '5'),
+          layer: level,
         }),
       );
     } else {

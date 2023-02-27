@@ -92,9 +92,11 @@ const Operate = styled.div`
 
 const ExpandBtn = styled.div(
   ({ showQueryBtn }) => `
-  position: absolute;
-  top: 6px;
-  right: -${showQueryBtn ? 64 : 43}px;
+  // position: absolute;
+  // top: 6px;
+  // right: -${showQueryBtn ? 64 : 43}px;
+  display: inline-block;
+  margin-left: 20px;
   cursor: pointer;
   color: #2196f3;
   font-size: 13px;

@@ -782,10 +782,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
       typeList = [API_ENUM_TO_TYPE.OPTIONS_9, API_ENUM_TO_TYPE.OPTIONS_10, API_ENUM_TO_TYPE.OPTIONS_11];
       return _.filter(
         contorls,
-        items =>
-          _.includes(typeList, items.type) &&
-          items.dataSource === control.dataSource &&
-          (control.containSelf || items.controlId !== control.controlId),
+        items => _.includes(typeList, items.type) && items.dataSource === control.dataSource,
       );
     // 关联单条、级联选择
     case API_ENUM_TO_TYPE.RELATESHEET:

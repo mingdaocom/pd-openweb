@@ -115,7 +115,8 @@ export default function FilterControl(props) {
             });
             const param = { objectControls: newControls };
             if (!index) {
-              const control = _.find(_.get(sheetList[0], 'template.controls'), { controlId: value }) || {};
+              const firstSheet = _.find(sheetList, { worksheetId: _.get(filterObjectControls[0], 'worksheetId') });
+              const control = _.find(_.get(firstSheet, 'template.controls'), { controlId: value }) || {};
               const { type } = control;
               const { controlId, ...data } = getSetDefault(control);
               param.control = control;

@@ -435,13 +435,24 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
         }
         //日期特殊处理
         if (
-          _.includes([15, 16, 46], currentControl.type) ||
+          _.includes([15, 16], currentControl.type) ||
           (currentControl.type === 38 && currentControl.enumDefault === 2)
         ) {
           item.dateRange = 18;
           if (currentControl.value) {
             const valueFormat = getDatePickerConfigs(currentControl).formatMode;
             item.value = moment(currentControl.value).format(valueFormat);
+          }
+          return;
+        }
+        // 时间特殊处理
+        if (_.includes([46], currentControl.type)) {
+          item.dateRange = 18;
+          const mode = currentControl.unit === '6' ? 'HH:mm:ss' : 'HH:mm';
+          if (currentControl.value) {
+            item.value = moment(currentControl.value).year()
+              ? moment(moment(currentControl.value).format(mode), mode).format('HH:mm:ss')
+              : moment(currentControl.value, mode).format('HH:mm:ss');
           }
           return;
         }

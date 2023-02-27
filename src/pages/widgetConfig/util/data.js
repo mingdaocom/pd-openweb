@@ -397,8 +397,9 @@ export const formatControlsData = (controls = [], fromSub = false) => {
 
     if (type === 29) {
       // 处理关联表叠加筛选条件里的 成员 部门 地区 他表字段 这几个类型的字段 values 处理成 [id, id]
+      // 子表里关联筛选，不清配置rcid
       if (!isEmpty(getAdvanceSetting(data, 'filters'))) {
-        data = handleFilters(data, true);
+        data = handleFilters(data, fromSub ? false : true);
       }
       // 关联表sid处理
       return fromSub

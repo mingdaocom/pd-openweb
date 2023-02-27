@@ -41,7 +41,7 @@ export function getDefaultText({ printType, sourceType, sourceControlId, control
   return;
 }
 
-const DPI_MM = 6;
+const DPI_MM = 8;
 
 export function createQrLabeObjectFromConfig(config = {}, url, texts = [], options = {}) {
   let width, height;

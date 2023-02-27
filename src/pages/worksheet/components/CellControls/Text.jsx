@@ -402,7 +402,7 @@ export default class Text extends React.Component {
         )}
         {error && <CellErrorTips pos={rowIndex === 0 ? 'bottom' : 'top'} error={error} />}
         {this.isMultipleLine && (
-          <MultipleLineTip>
+          <MultipleLineTip className="ellipsis">
             {navigator.userAgent.indexOf('Mac OS') > 0 ? _l('⌘+Enter结束编辑') : _l('Ctrl+Enter结束编辑')}
           </MultipleLineTip>
         )}

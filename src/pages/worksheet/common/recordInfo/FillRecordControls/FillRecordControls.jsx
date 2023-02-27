@@ -45,25 +45,32 @@ class FillRecordControls extends React.Component {
     const { projectId } = props;
     const controls = update(props.formData.concat(props.masterFormData || []), {
       $apply: formData => {
-        let hasDefaultControlIs = [];
+        let hasDefaultControls = [];
         const formDataForDataFormat = formData.map(c => {
           const newControl = { ...c };
           const writeControl = _.find(props.writeControls, wc => newControl.controlId === wc.controlId);
           newControl.advancedSetting = { ...(newControl.advancedSetting || {}), defsource: '', defaultfunc: '' };
           if (writeControl && writeControl.defsource && writeControl.defsource !== '[]') {
-            hasDefaultControlIs.push(c.controlId);
             newControl.value = '';
             if (_.includes([9, 10, 11], newControl.type)) {
               newControl.value = newControl.default = safeParse(writeControl.defsource)[0].staticValue;
             } else {
               newControl.advancedSetting = { ...(newControl.advancedSetting || {}), defsource: writeControl.defsource };
             }
+            hasDefaultControls.push(newControl);
           }
           return newControl;
         });
-        const defaultFormData = hasDefaultControlIs.length
+        const defaultFormData = hasDefaultControls.length
           ? new DataFormat({
-              data: formDataForDataFormat.filter(c => _.includes(hasDefaultControlIs, c.controlId)),
+              data: formDataForDataFormat.filter(c => {
+                return _.find(
+                  hasDefaultControls,
+                  dc =>
+                    dc.controlId === c.controlId ||
+                    (_.get(dc, 'advancedSetting.defsource') || '').indexOf(c.controlId) > -1,
+                );
+              }),
               isCreate: true,
               from: 2,
               projectId,

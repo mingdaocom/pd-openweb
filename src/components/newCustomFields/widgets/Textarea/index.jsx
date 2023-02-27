@@ -156,6 +156,7 @@ export default class Widgets extends Component {
               minHeight: enumDefault === 1 ? 90 : 36,
               width: startTextScanCode ? 'calc(100% - 42px)' : '100%',
               lineHeight: 1.5,
+              ...(disabled ? { wordBreak: 'break-all' } : {}),
             }}
             onClick={this.joinTextareaEdit}
           >
