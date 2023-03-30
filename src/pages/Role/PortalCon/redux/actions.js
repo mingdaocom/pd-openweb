@@ -123,7 +123,7 @@ export const updateListByStatus = ({ newState, rowIds, cb }) => {
           setList(
             list.map(o => {
               if (rowIds.includes(o.rowid)) {
-                return { ...o, portal_status: JSON.stringify([newState]) };
+                return { ...o, portal_status: JSON.stringify([`${newState}`]) };
               } else {
                 return o;
               }

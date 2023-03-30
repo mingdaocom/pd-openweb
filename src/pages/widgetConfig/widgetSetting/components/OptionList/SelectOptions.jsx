@@ -149,7 +149,7 @@ export default function SelectOptions(props) {
       description: (
         <span>
           {_l('转为选项集后，可以使选项在其他工作表中共用。此过程不可逆，转换后无法再恢复为自定义选项')}
-          <Support href="https://help.mingdao.com/sheet30.html" type={3} text={_l('帮助')} />
+          <Support href="https://help.mingdao.com/zh/sheet30.html" type={3} text={_l('帮助')} />
         </span>
       ),
       onOk: () => {

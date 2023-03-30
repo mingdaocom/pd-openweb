@@ -280,6 +280,7 @@ class Print extends React.Component {
                 onClick={() => {
                   if (_.includes([PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT], it.type)) {
                     printQrBarCode({
+                      isCharge: true,
                       mode: 'editTemplate',
                       id: it.id,
                       printType: it.printType,
@@ -335,7 +336,7 @@ class Print extends React.Component {
                   <span className="Font13 Gray_9e">
                     {_l('保存系统打印的配置为模板，或上传word模板自由定义记录打印的样式。')}
                   </span>
-                  <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/operation15.html" />
+                  <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/zh/operation15.html" />
                 </p>
               </div>
               <span
@@ -416,6 +417,7 @@ class Print extends React.Component {
             }}
             addCodePrintTemp={type => {
               printQrBarCode({
+                isCharge: true,
                 mode: 'newTemplate',
                 printType: type === PRINT_TYPE.QR_CODE_PRINT ? 1 : 3,
                 projectId: formSet.worksheetInfo.projectId,

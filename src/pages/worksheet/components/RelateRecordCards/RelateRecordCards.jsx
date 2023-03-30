@@ -26,16 +26,20 @@ import _ from 'lodash';
 const MAX_COUNT = 50;
 
 const Button = styled.div`
-  display: inline-block;
-  border-radius: 3px;
   cursor: pointer;
   height: 36px;
-  line-height: 36px;
+  font-weight: 500;
   padding: 0 16px;
-  color: #2196f3;
-  background-color: #f8f8f8;
+  display: flex;
+  align-items: center;
+  color: #333;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  > .icon {
+    color: #9e9e9e;
+  }
   &:hover {
-    background-color: #f0f0f0;
+    background: #f5f5f5;
   }
 `;
 
@@ -255,6 +259,7 @@ export default class RelateRecordCards extends Component {
       viewId,
       from,
       recordId,
+      projectId,
       dataSource,
       disabled,
       enumDefault,
@@ -302,6 +307,7 @@ export default class RelateRecordCards extends Component {
               : records.slice(0, colNum * 3)
             ).map((record, i) => (
               <RecordCoverCard
+                projectId={projectId}
                 viewId={viewId}
                 disabled={disabled}
                 width={cardWidth}
@@ -314,9 +320,9 @@ export default class RelateRecordCards extends Component {
                 parentControl={control}
                 sourceEntityName={sourceEntityName}
                 onClick={
+                  !allowOpenRecord ||
                   (disabled && !recordId) ||
-                  (control.isSubList && _.get(window, 'shareState.shareId')) ||
-                  allowlink === '0'
+                  (control.isSubList && _.get(window, 'shareState.shareId'))
                     ? () => {}
                     : () => {
                         this.setState({ previewRecord: { recordId: record.rowid } });
@@ -471,6 +477,8 @@ export default class RelateRecordCards extends Component {
                     }}
                     recordId={previewRecord && previewRecord.recordId}
                     worksheetId={dataSource}
+                    currentSheetRows={records}
+                    showPrevNext
                   />
                 ))}
               {showAddRecord && (

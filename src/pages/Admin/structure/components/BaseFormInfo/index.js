@@ -5,7 +5,6 @@ import Trigger from 'rc-trigger';
 import departmentController from 'src/api/department';
 import jobAjax from 'src/api/job';
 import workSiteController from 'src/api/workSite';
-import 'src/components/dialogSelectUser/dialogSelectUser';
 import DialogSelectDept from 'src/components/dialogSelectDept';
 import { getEllipsisDep, checkForm } from '../../constant';
 import TextInput from '../TextInput';
@@ -37,19 +36,16 @@ export default class BaseFormInfo extends Component {
       jobList,
       worksiteList,
     } = this.props.baseInfo;
-    this.getDepartmentFullName(departmentIds, 'all');
+    const depIds =
+      typeCursor === 2 || typeCursor === 3 ? departmentInfos.map(it => it.id || it.departmentId) : departmentIds;
+    this.getDepartmentFullName(depIds, 'all');
     this.setState({
       jobNumber,
       contactPhone,
       workSiteId,
       jobList,
       worksiteList,
-      departmentIds:
-        typeCursor === 2
-          ? departmentInfos.map(it => it.id)
-          : typeCursor === 3
-          ? departmentInfos.map(it => it.departmentId)
-          : departmentIds,
+      departmentIds: depIds,
       jobIds: typeCursor === 2 || typeCursor === 3 ? jobInfos.map(it => it.id || it.jobId) : jobIds,
       departmentInfos,
       jobInfos,

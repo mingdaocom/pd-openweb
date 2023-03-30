@@ -113,7 +113,7 @@ function copyWidget(state, payload) {
     newButton = {
       ...button,
       buttonList: buttonList.map(item => {
-        const { config = {} } = item;
+        const config = _.get(item, 'config') || {};
         const btn = {
           ...item,
           btnId: null,

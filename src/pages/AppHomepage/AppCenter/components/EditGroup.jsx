@@ -110,7 +110,7 @@ export default function EditGroup(props) {
       bodyStyle={{ padding: '16px 24px' }}
       onOk={() => {
         if (!(name || '').trim()) {
-          alert(_l('请填写名称', 3));
+          alert(_l('请填写名称'), 3);
           return;
         }
         onChange({

@@ -224,6 +224,7 @@ export default class GetMoreRecord extends Component {
    * 渲染内容
    */
   renderContent() {
+    const { isApproval } = this.props;
     const { data } = this.state;
     const actionTypes = {
       [ACTION_ID.FROM_WORKSHEET]: _l('从工作表获取记录'),
@@ -304,9 +305,10 @@ export default class GetMoreRecord extends Component {
           </Fragment>
         )}
 
-        {_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ADD], data.actionId) && (
-          <FindMode execute={data.execute} onChange={execute => this.updateSource({ execute })} />
-        )}
+        {_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ADD], data.actionId) &&
+          !isApproval && <FindMode execute={data.execute} onChange={execute => this.updateSource({ execute })} />}
+
+        {isApproval && <div className="mTop20 bold">{_l('未获取到数据时：继续执行')}</div>}
       </div>
     );
   }

@@ -1,0 +1,69 @@
+
+.navigationConfig {
+  .title, .content, .ant-tabs-nav {
+    padding: 0 24px;
+  }
+  .firstGroup {
+    border: 1px solid #EAEAEA;
+    margin-bottom: 10px;
+    .name {
+      font-weight: 400;
+    }
+    .operateIcon {
+      margin-right: 16px;
+      &:hover {
+        color: #2196f3 !important;
+      }
+    }
+    .groupHeader {
+      height: 47px;
+      padding: 0 10px 0 5px;
+      background-color: #FAFAFA;
+      &.open {
+        height: 48px;
+        border-bottom: 1px solid #EAEAEA;
+      }
+      .operateIcon {
+        opacity: 0;
+      }
+      &:hover, &.hover {
+        .operateIcon {
+          opacity: 1;
+        }
+        .withoutChildrenHint {
+          display: none;
+        }
+      }
+    }
+    >.childrenGroup {
+      padding: 10px;
+    }
+    .resetName {
+      border: 1px solid #EAEAEA;
+      padding: 1px 3px;
+      border-radius: 2px;
+    }
+  }
+  .groupWrap {
+    height: 38px;
+    .operateIcon {
+      opacity: 0;
+    }
+    &:hover, &.hover {
+      background: #F5F5F5;
+      .operateIcon {
+        opacity: 1;
+      }
+    }
+  }
+  .activeFirst {
+    border-top: 1px solid #2196f3;
+  }
+  .active {
+    border-bottom: 1px solid #2196f3;
+  }
+  .activeGroup {
+    background-color: #2196f324 !important;
+    border-bottom: none;
+  }
+}

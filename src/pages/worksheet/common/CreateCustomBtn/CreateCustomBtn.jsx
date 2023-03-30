@@ -12,7 +12,6 @@ import WorkflowDialog from 'src/pages/workflow/components/WorkflowDialog';
 import DoubleConfirmDialog from './components/DoubleConfirmDialog';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
 import { formatValuesOfCondition } from '../../common/WorkSheetFilter/util';
-import color from 'color';
 import { COLORS, ICONS } from './config';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
@@ -204,6 +203,7 @@ class CreateCustomBtnCon extends React.Component {
       filters = [],
     } = this.state;
     const dataControls = relationControl !== '' ? relationControls : widgetList;
+    const isFillOutNull = writeObject !== 1 && !relationControl && writeType !== 1 && !addRelationControlId;
     return (
       <div className="createBtnBox">
         <h5 className="Gray">{_l('按钮名称')}</h5>
@@ -288,7 +288,7 @@ class CreateCustomBtnCon extends React.Component {
             this.setState({
               clickType: value,
             });
-            if (value === 3 && (writeObject === '' || !writeType === '')) {
+            if (value === 3 && (writeObject === '' || writeType === '' || isFillOutNull)) {
               this.setState({
                 showAppointDialog: true,
               });
@@ -329,7 +329,7 @@ class CreateCustomBtnCon extends React.Component {
           </div>
         )}
         {/* 填写指定内容 */}
-        {clickType === 3 && writeObject !== '' && writeType !== '' && (
+        {clickType === 3 && writeObject !== '' && writeType !== '' && !isFillOutNull && (
           <div className="filterTextCon">
             <div className="txtFilter">
               <span>
@@ -463,7 +463,7 @@ class CreateCustomBtnCon extends React.Component {
             return (
               <li
                 className={cx('colorLi', { current: this.state.color === item })}
-                style={{ backgroundColor: color(item) }}
+                style={{ backgroundColor: item }}
                 onClick={() => {
                   this.setState({
                     color: item,
@@ -494,7 +494,7 @@ class CreateCustomBtnCon extends React.Component {
                   });
                 }}
                 style={{
-                  backgroundColor: item === this.state.icon && !!item ? color(this.state.color) : '',
+                  backgroundColor: item === this.state.icon && !!item ? this.state.color : '',
                 }}
               >
                 {!item ? _l('无') : <Icon icon={item} className="" />}
@@ -546,7 +546,7 @@ class CreateCustomBtnCon extends React.Component {
               return;
             }
             if (this.state.isErrer) {
-              alert(_l('按钮名称重名，请重新修改'));
+              alert(_l('按钮名称重名，请重新修改'), 3);
               return;
             }
             this.setState({
@@ -657,8 +657,14 @@ class CreateCustomBtnCon extends React.Component {
     const { btnId, relationWorksheetInfo } = this.state;
     return (
       <React.Fragment>
-        <div style={{ height: document.documentElement.clientHeight - 166, backgroundColor: '#fff' }}>
-          <ScrollView className="flex">{this.renderCon()}</ScrollView>
+        <div
+          className="flex"
+          style={{
+            overflow: 'auto',
+            backgroundColor: '#fff',
+          }}
+        >
+          {this.renderCon()}
         </div>
         {this.renderActionFooter()}
         {this.state.isShowBtnFilterDialog && (
@@ -772,15 +778,17 @@ class CreateCustomBtn extends React.Component {
     return (
       <div className="createCustomBtnCon">
         {!this.props.isClickAway && <div className="bgCustomBtnCon"></div>}
-        {this.renderTitle()}
-        <CreateCustomBtnCon
-          {...this.props}
-          onChangeEditStatus={isEdit => {
-            this.setState({
-              isEdit,
-            });
-          }}
-        />
+        <div className="flexColumn h100">
+          {this.renderTitle()}
+          <CreateCustomBtnCon
+            {...this.props}
+            onChangeEditStatus={isEdit => {
+              this.setState({
+                isEdit,
+              });
+            }}
+          />
+        </div>
       </div>
     );
   }

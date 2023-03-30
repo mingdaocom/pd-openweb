@@ -11,6 +11,7 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import RecordCard from 'src/components/recordCard';
 import { fieldCanSort } from 'src/pages/worksheet/util';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import Header from './Header';
@@ -462,6 +463,7 @@ export default class RecordCardListDialog extends Component {
                           from={2}
                           coverCid={coverCid}
                           isCharge={isCharge}
+                          projectId={worksheet.projectId}
                           showControls={cardControls.map(c => c.controlId)}
                           controls={controls}
                           data={record}
@@ -590,11 +592,5 @@ export default class RecordCardListDialog extends Component {
 }
 
 export function selectRecord(props) {
-  const div = document.createElement('div');
-  document.body.appendChild(div);
-  function destory() {
-    ReactDOM.unmountComponentAtNode(div);
-    document.body.removeChild(div);
-  }
-  ReactDOM.render(<RecordCardListDialog visible {...props} onClose={destory} />, div);
+  functionWrap(RecordCardListDialog, props);
 }

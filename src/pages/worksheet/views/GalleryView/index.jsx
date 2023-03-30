@@ -10,7 +10,7 @@ import NoRecords from 'src/pages/worksheet/components/WorksheetTable/components/
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import ViewEmpty from '../components/ViewEmpty';
-import { isEmpty } from 'lodash';
+import _, { isEmpty } from 'lodash';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import GalleryItem from './GalleryItem';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -176,7 +176,7 @@ export default class RecordGallery extends Component {
     const { viewId, appId, worksheetId, groupId } = base;
     const currentView = views.find(o => o.viewId === viewId) || {};
     const { gallery = [], galleryViewLoading, galleryLoading, galleryIndex } = galleryview;
-    const { coverCid } = currentView;
+    const coverCid = currentView.coverCid || _.get(worksheetInfo, ['advancedSetting', 'coverid']);
     let { coverposition = '2', abstract = '', clicksearch } = getAdvanceSetting(currentView);
     const isTopCover = coverposition === '2';
     const { recordInfoVisible, recordId } = this.state;

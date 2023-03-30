@@ -191,7 +191,8 @@ export default function HierarchyViewSetting(props) {
     const { worksheetId = '' } = _.last(viewControls) || {};
     if (controlLoading) return;
     setControls({ controlLoading: true });
-    worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true })
+    worksheetAjax
+      .getWorksheetInfo({ worksheetId, getTemplate: true })
       .then(data => {
         setControls({
           availableControls: getSelectableControls(data),
@@ -278,7 +279,7 @@ export default function HierarchyViewSetting(props) {
             <div className={cx('display Hand', { borderBottomNone: visible })} onClick={() => switchActive(index)}>
               <div className="info">
                 <i className="icon-view Font18 Gray_9e"></i>
-                <span className="controlName Font14 Bold">{currentSheetInfo.name}</span>
+                <span className="controlName Font14 Bold overflow_ellipsis">{currentSheetInfo.name}</span>
                 <span className="Gray_9e">{_l(' (本表) ')}</span>
               </div>
               <div className="handle">

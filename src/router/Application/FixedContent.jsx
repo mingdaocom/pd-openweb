@@ -7,10 +7,10 @@ import './index.less';
 export default class FixedContent extends Component {
   render() {
     const { appPkg, showLeftSkeleton = true, isNoPublish } = this.props;
-    const { fixRemark, fixAccount = {} } = appPkg;
+    const { fixRemark, fixAccount = {}, currentPcNaviStyle } = appPkg;
     return (
       <div className="unusualContentWrap">
-        {showLeftSkeleton && (
+        {showLeftSkeleton && currentPcNaviStyle !== 1 && (
           <div className="unusualSkeletonWrap">
             <Skeleton active={false} />
           </div>

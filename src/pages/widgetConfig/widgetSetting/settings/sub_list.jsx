@@ -225,10 +225,6 @@ export default function SubListSetting(props) {
         ),
         okText: _l('确定'),
         onOk: () => {
-          setMode('relate');
-          if (window.subListSheetConfig[controlId]) {
-            window.subListSheetConfig[controlId].mode = 'relate';
-          }
           appManagementAjax
             .changeSheet({
               sourceWorksheetId: currentWorksheetId,
@@ -237,7 +233,13 @@ export default function SubListSetting(props) {
             })
             .then(res => {
               if (res) {
+                setMode('relate');
+                if (window.subListSheetConfig[controlId]) {
+                  window.subListSheetConfig[controlId].mode = 'relate';
+                }
                 alert(_l('转换成功'));
+              } else {
+                alert(_l('转换失败'));
               }
             });
         },
@@ -311,9 +313,11 @@ export default function SubListSetting(props) {
                 <i className="icon-help Gray_9e Font16"></i>
               </span>
             </Tooltip>
-            <div className="transferToSheet" onClick={() => switchType('new')}>
-              {_l('转为工作表')}
-            </div>
+            {dataSource && dataSource.includes('-') ? null : (
+              <div className="transferToSheet" onClick={() => switchType('new')}>
+                {_l('转为工作表')}
+              </div>
+            )}
           </div>
         ) : (
           <div className="title relative">

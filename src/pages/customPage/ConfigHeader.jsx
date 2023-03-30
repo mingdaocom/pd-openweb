@@ -2,6 +2,9 @@ import React, { useState, useRef } from 'react';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import appManagementAjax from 'src/api/appManagement';
+import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
+import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
+import store from 'redux/configureStore';
 import { Button, Dialog } from 'ming-ui';
 import cx from 'classnames';
 import { FlexCenter } from './util';
@@ -89,21 +92,21 @@ const ConfigHeader = styled(FlexCenter)`
     cursor: pointer;
   }
 `;
-export default ({
-  appId,
-  groupId,
-  pageId,
-  pageName,
-  displayType,
-  updateSheetList,
-  saveLoading = false,
-  cancelModified = _.noop,
-  modified,
-  updatePageInfo = _.noop,
-  onBack = _.noop,
-  onSave = _.noop,
-  switchType = _.noop,
-}) => {
+export default (props) => {
+  const {
+    appId,
+    groupId,
+    pageId,
+    pageName,
+    displayType,
+    saveLoading = false,
+    cancelModified = _.noop,
+    modified,
+    updatePageInfo = _.noop,
+    onBack = _.noop,
+    onSave = _.noop,
+    switchType = _.noop,
+  } = props;
   const [isEdit, setEdit] = useState(false);
   const [name, setName] = useState(pageName);
   const { current: originName } = useRef(pageName);
@@ -113,7 +116,15 @@ export default ({
       appManagementAjax.editWorkSheetInfoForApp({ appId, appSectionId: groupId, workSheetId: pageId, workSheetName: name }).then(res => {
         if (res) {
           updatePageInfo({ pageName: name });
-          updateSheetList(pageId, { workSheetName: name });
+          const { currentPcNaviStyle } = store.getState().appPkg;
+          if (currentPcNaviStyle === 1) {
+            const singleRef = getAppSectionRef(groupId);
+            singleRef.dispatch(updateSheetListAppItem(pageId, {
+              workSheetName: name,
+            }));
+          } else {
+            props.updateSheetListAppItem(pageId, { workSheetName: name });
+          }
         }
       });
     }

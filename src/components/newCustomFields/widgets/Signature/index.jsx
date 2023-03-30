@@ -231,7 +231,7 @@ export default class Signature extends Component {
 
   useLastSignature = () => {
     accountSettingAjax.getSign().then(res => {
-      if (!res.url) return alert(_l('暂无签名记录'));
+      if (!res.url) return alert(_l('暂无签名记录'), 3);
       this.setState({ isEdit: true, lastInfo: res });
     });
   };

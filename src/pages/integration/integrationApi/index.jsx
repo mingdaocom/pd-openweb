@@ -15,44 +15,26 @@ const Wrap = styled.div`
 export default class IntegrationApi extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      showCreateCustomBtn: false,
-      loading: true,
-    };
   }
 
   componentDidMount() {
     $('html').addClass('integrationApi');
-    this.getIsSuperAdmin();
   }
 
   componentWillUnmount() {
     $('html').removeClass('integrationApi');
   }
 
-  getIsSuperAdmin = () => {
-    const { match = {} } = this.props;
-    const { params = {} } = match;
-    let projectId = params.projectId;
-    safeLocalStorageSetItem('currentProjectId', projectId);
-    const projectInfo = md.global.Account.projects.find(o => o.projectId === projectId) || {};
-    this.setState({ isSuperAdmin: projectInfo.isSuperAdmin || projectInfo.isProjectAppManager, loading: false });
-  };
-
   render() {
     const { match = {} } = this.props;
     const { params = {} } = match;
     const { apiId } = params;
-    if (this.state.loading) {
-      return <LoadDiv />;
-    }
     return (
       <Wrap className="Con">
         <DocumentTitle title={_l('集成中心')} />
         <APIWrap
           {...this.props}
           data={{}}
-          isSuperAdmin={this.state.isSuperAdmin}
           connectInfo={null}
           onChange={null}
           listId={apiId}

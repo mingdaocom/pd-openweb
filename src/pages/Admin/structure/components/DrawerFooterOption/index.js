@@ -50,10 +50,10 @@ export default function DrawerFooterOption(props) {
       })
       .then(res => {
         if (res) {
-          alert(_l('设置成功', 1));
+          alert(_l('设置成功'));
           clickSave();
         } else {
-          alert(_l('设置失败', 2));
+          alert(_l('设置失败'), 2);
         }
       });
   };

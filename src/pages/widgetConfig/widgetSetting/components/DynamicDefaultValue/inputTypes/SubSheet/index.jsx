@@ -22,7 +22,7 @@ export default class SubSheet extends Component {
       data: { relationControls = [] },
     } = this.props;
     if (!relationControls.length) {
-      alert(_l('请先添加字段'));
+      alert(_l('请先添加字段'), 3);
       return;
     }
     this.setState({ recordListVisible: true });

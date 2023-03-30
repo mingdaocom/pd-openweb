@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import CustomFields from 'src/components/newCustomFields';
 import _ from 'lodash';
 
@@ -55,7 +56,7 @@ export default class RowDetail extends React.Component {
     }
     const submitData = this.customwidget.current.getSubmitData({ silent: true });
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
-    const formdata = submitData.data;
+    const formdata = submitData.fullData;
     const row = [{}, ...formdata].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
     onSave({ ...data, ...row, empty: false }, updateControlIds);
   }
@@ -68,7 +69,7 @@ export default class RowDetail extends React.Component {
     const { data, onSave, onClose } = this.props;
     const submitData = this.customwidget.current.getSubmitData();
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
-    const formdata = submitData.data;
+    const formdata = submitData.fullData;
 
     if (submitData.error) {
       return false;
@@ -132,29 +133,39 @@ export default class RowDetail extends React.Component {
                 : data[c.controlId],
           }));
     return (
-      <div ref={this.formcon}>
-        <CustomFields
-          ignoreLock={ignoreLock}
-          ignoreHideControl
-          worksheetId={worksheetId}
-          disabled={disabled}
-          searchConfig={searchConfig}
-          sheetSwitchPermit={sheetSwitchPermit}
-          columnNumber={1}
-          from={isMobile && isWorkflow ? 3 : 2}
-          isCreate={false}
-          recordId={data.rowid && data.rowid.startsWith('temp') ? undefined : data.rowid}
-          ref={this.customwidget}
-          data={formdata.map(c => ({ ...c, isSubList: true })).filter(c => c.type !== 34)}
-          getMasterFormData={getMasterFormData}
-          flag={flag}
-          projectId={projectId}
-          appId={appId}
-          checkCellUnique={(...args) => handleUniqueValidate(...args, data.rowid)}
-          onChange={this.handleChange}
-          onRulesLoad={onRulesLoad}
-        />
-      </div>
+      <RecordInfoContext.Provider
+        value={{
+          recordBaseInfo: {
+            appId,
+            worksheetId,
+            recordId: data.rowid,
+          },
+        }}
+      >
+        <div ref={this.formcon}>
+          <CustomFields
+            ignoreLock={ignoreLock}
+            ignoreHideControl
+            worksheetId={worksheetId}
+            disabled={disabled}
+            searchConfig={searchConfig}
+            sheetSwitchPermit={sheetSwitchPermit}
+            columnNumber={1}
+            from={isMobile && isWorkflow ? 3 : 2}
+            isCreate={false}
+            recordId={data.rowid && data.rowid.startsWith('temp') ? undefined : data.rowid}
+            ref={this.customwidget}
+            data={formdata.map(c => ({ ...c, isSubList: true })).filter(c => c.type !== 34)}
+            getMasterFormData={getMasterFormData}
+            flag={flag}
+            projectId={projectId}
+            appId={appId}
+            checkCellUnique={(...args) => handleUniqueValidate(...args, data.rowid)}
+            onChange={this.handleChange}
+            onRulesLoad={onRulesLoad}
+          />
+        </div>
+      </RecordInfoContext.Provider>
     );
   }
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import RadioGroup from 'ming-ui/components/RadioGroup2';
-import { Checkbox, Tooltip } from 'ming-ui';
+import { Checkbox, Tooltip, Icon } from 'ming-ui';
 import cx from 'classnames';
 import lookPng from './img/look.png';
 import editPng from './img/edit.png';
@@ -51,11 +51,21 @@ const WrapTip = styled.div`
   }
 `;
 function TipsRender(props) {
-  const { sheet, type = 'operation', onChange, isForPortal } = props;
+  const {
+    sheet,
+    type = 'operation',
+    onChange,
+    isForPortal,
+    extendAttrList,
+    extendAttrValue,
+    onChangeExtendAttr,
+  } = props;
   const { sheetName, userFileds } = sheet;
+
   if (![20, 30].includes(props.value) || props.disable) {
     return '';
   }
+
   return (
     <React.Fragment>
       <WrapTip className="tipCon">
@@ -103,6 +113,55 @@ function TipsRender(props) {
               </Tooltip>
             )}
           </div>
+          {extendAttrList.length !== 0 && (
+            <div className="tipExtendAttr flexRow mTop18">
+              <div className="left">
+                <span className="flexRow alignItemsCenter">
+                  <Checkbox
+                    className="InlineBlock "
+                    checked={extendAttrList.filter(l => extendAttrValue.includes(l.id)).length > 0}
+                    clearselected={
+                      extendAttrValue.length > 0 &&
+                      extendAttrList.filter(l => !extendAttrValue.includes(l.id)).length !== 0
+                    }
+                    text={_l('匹配用户权限标签的记录')}
+                    onClick={value => {
+                      if (value) {
+                        onChangeExtendAttr([]);
+                      } else {
+                        onChangeExtendAttr(extendAttrList.map(l => l.id));
+                      }
+                    }}
+                  />
+                  <Tooltip
+                    text={_l(
+                      '可启用的权限标签字段来自于[用户扩展信息]的标签字段。勾选后，可根据[用户扩展信息-人员表]中配置的字段值，查看工作表被关联的字段所属记录。',
+                    )}
+                  >
+                    <Icon icon="workflow_error" className="Gray_bd" />
+                  </Tooltip>
+                </span>
+              </div>
+              <div className="right mLeft40" style={{ display: 'flex', gap: '10px 46px', flexWrap: 'wrap' }}>
+                {extendAttrList.map(item => (
+                  <span className="flexRow alignItemsCenter">
+                    <Checkbox
+                      className="InlineBlock"
+                      checked={extendAttrValue.indexOf(item.id) > -1}
+                      text={item.name}
+                      onClick={value => {
+                        if (value) {
+                          onChangeExtendAttr(extendAttrValue.filter(l => l !== item.id));
+                        } else {
+                          onChangeExtendAttr(extendAttrValue.concat(item.id));
+                        }
+                      }}
+                    />
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </React.Fragment>
       )}
     </React.Fragment>
@@ -114,7 +173,7 @@ export default function SheetSet(props) {
 
   useEffect(() => {
     const { sheet = {} } = props;
-    const { readLevel, editLevel, removeLevel } = sheet;
+    const { readLevel, editLevel, removeLevel, canEditExtendAttrs, canReadExtendAttrs, canRemoveExtendAttrs } = sheet;
     const { showRead, showEdit, showRemove } = props.formatViews(sheet.views);
     setState([
       {
@@ -125,6 +184,8 @@ export default function SheetSet(props) {
         disable: ![20, 30, 100].includes(readLevel) || !showRead,
         disabled: !showRead,
         value: readLevel,
+        extendAttrValue: canReadExtendAttrs,
+        ek: 'canReadExtendAttrs',
       },
       {
         title: _l('可修改哪些记录？'),
@@ -134,6 +195,8 @@ export default function SheetSet(props) {
         disable: ![20, 30, 100].includes(editLevel) || !showRead || !showEdit,
         disabled: !showRead || !showEdit,
         value: editLevel,
+        extendAttrValue: canEditExtendAttrs,
+        ek: 'canEditExtendAttrs',
       },
       {
         title: _l('可删除哪些记录？'),
@@ -143,6 +206,8 @@ export default function SheetSet(props) {
         disable: ![20, 30, 100].includes(removeLevel) || !showRead || !showRemove,
         disabled: !showRead || !showRemove,
         value: removeLevel,
+        extendAttrValue: canRemoveExtendAttrs,
+        ek: 'canRemoveExtendAttrs',
       },
     ]);
   }, [props]);
@@ -201,6 +266,12 @@ export default function SheetSet(props) {
                     onChange={value =>
                       onChange({
                         [o.k]: value,
+                      })
+                    }
+                    extendAttrValue={o.extendAttrValue}
+                    onChangeExtendAttr={value =>
+                      onChange({
+                        [o.ek]: value,
                       })
                     }
                   />

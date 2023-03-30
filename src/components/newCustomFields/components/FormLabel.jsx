@@ -16,9 +16,12 @@ export default ({
   errorItems,
   uniqueErrorItems,
   loadingItems,
+  widgetStyle = {},
+  disabled,
   updateErrorState = () => {},
   handleChange = () => {},
 }) => {
+  const { titlewidth_pc = '100', align_pc = '1', titlewidth_app = '100', align_app = '1', displayRow } = widgetStyle;
   const currentErrorItem = _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
   const errorText = currentErrorItem.errorText || '';
   const isEditable = controlState(item, from).editable;
@@ -91,43 +94,62 @@ export default ({
 
   return (
     <Fragment>
+      {errorMessage && (
+        <div className="customFormErrorMessage">
+          <span>
+            {errorMessage}
+            <i className="icon-close mLeft6 Bold delIcon" onClick={() => updateErrorState(false, item.controlId)} />
+          </span>
+          <i className="customFormErrorArrow" />
+        </div>
+      )}
       <div
         className={cx(
           'customFormItemLabel',
           item.type === 22 || item.type === 34
             ? `Gray Font15 ${item.type === 34 ? 'mTop20' : 'mTop10'}`
             : 'Gray_75 Font13',
+          {
+            Font13: isMobile,
+            mTop8: displayRow && isMobile && disabled,
+            mTop12: displayRow && isMobile && disabled && !item.value,
+            customFormItemLabelRow: displayRow && !isMobile,
+          },
         )}
       >
-        {item.required && !item.disabled && isEditable && (
-          <div className="Absolute" style={{ margin: '3px 0px 0px -8px', top: 0, color: '#f44336' }}>
-            *
+        {item.required && !item.disabled && isEditable && <div className="requiredBtn">*</div>}
+
+        <div
+          className="flexRow"
+          style={
+            displayRow && (!isMobile || (isMobile && disabled))
+              ? { width: `${isMobile ? titlewidth_app : titlewidth_pc}px`, paddingRight: 10 }
+              : {}
+          }
+        >
+          <div
+            title={item.controlName}
+            className={cx({ hideTitleLabel: !showTitle })}
+            style={
+              displayRow && (!isMobile || (isMobile && disabled))
+                ? (isMobile ? align_app === '1' : align_pc === '1')
+                  ? { textAlign: 'left' }
+                  : { textAlign: 'right', flex: 1 }
+                : {}
+            }
+          >
+            {item.controlName}
+            {renderCount(item)}
           </div>
-        )}
+          {(recordId || item.isSubList) && <WidgetsDesc item={item} from={from} />}
 
-        {errorMessage && (
-          <div className="customFormErrorMessage">
-            <span>
-              {errorMessage}
-              <i className="icon-close mLeft6 Bold delIcon" onClick={() => updateErrorState(false, item.controlId)} />
-            </span>
-            <i className="customFormErrorArrow" />
+          {from !== FROM.DRAFT && !_.get(window, 'shareState.isPublicView') && (
+            <RefreshBtn worksheetId={worksheetId} recordId={recordId} item={item} onChange={handleChange} />
+          )}
+
+          <div className={cx('mLeft6 pTop4', { Hidden: !loadingItems[item.controlId] })}>
+            <i className="icon-loading_button customFormItemLoading Gray_9e" />
           </div>
-        )}
-
-        <div title={item.controlName} className={cx({ hideTitleLabel: !showTitle })}>
-          {item.controlName}
-          {renderCount(item)}
-        </div>
-
-        {(recordId || item.isSubList) && <WidgetsDesc item={item} from={from} />}
-
-        {from !== FROM.DRAFT && !_.get(window, 'shareState.isPublicView') && (
-          <RefreshBtn worksheetId={worksheetId} recordId={recordId} item={item} onChange={handleChange} />
-        )}
-
-        <div className={cx('mLeft6', { Hidden: !loadingItems[item.controlId] })}>
-          <i className="icon-loading_button customFormItemLoading Gray_9e" />
         </div>
       </div>
 

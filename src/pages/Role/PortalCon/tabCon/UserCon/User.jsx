@@ -10,7 +10,6 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import appManagement from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
-import 'src/components/uploadAttachment/uploadAttachment';
 import ChangeRoleDialog from 'src/pages/Role/PortalCon/components/ChangeRoleDialog';
 import AddUserDialog from 'src/pages/Role/PortalCon/components/AddUserDialog';
 import AddUserByTelDialog from 'src/pages/Role/PortalCon/components/AddUserByTelDialog';
@@ -630,7 +629,7 @@ function User(props) {
               onClick={() => {
                 let NoList = list.filter(o => safeParseArray(o.portal_status)[0] === '5').map(o => o.rowid);
                 if (_.intersection(NoList, selectedIds).length > 0) {
-                  return alert(_l('未激活的用户不能启用', 2));
+                  return alert(_l('未激活的用户不能启用'), 2);
                 }
                 Dialog.confirm({
                   title: <span className="">{_l('启用%0个用户', selectedIds.length || 1)}</span>,
@@ -656,7 +655,7 @@ function User(props) {
               onClick={() => {
                 let NoList = list.filter(o => safeParseArray(o.portal_status)[0] === '5').map(o => o.rowid);
                 if (_.intersection(NoList, selectedIds).length > 0) {
-                  return alert(_l('未激活的用户不能停用', 2));
+                  return alert(_l('未激活的用户不能停用'), 2);
                 }
                 Dialog.confirm({
                   title: <span className="Red">{_l('停用%0个用户', selectedIds.length || 1)}</span>,

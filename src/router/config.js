@@ -242,18 +242,23 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/Demos'),
     title: _l('应用'),
   },
+  integrationTask: {
+    path: '/integration/taskCon/:id/:type?',
+    component: () => import('src/pages/integration/containers/TaskCon'),
+    title: _l('集成中心'),
+  },
   integration: {
     path: '/integration/:type?/:listType?',
     component: () => import('src/pages/integration'),
     title: _l('集成中心'),
   },
   integrationConnect: {
-    path: '/integrationConnect/:projectId?/:id?',
-    component: () => import('src/pages/integration/integrationConnect'),
+    path: '/integrationConnect/:id?',
+    component: () => import('src/pages/integration/containers/ConnectWrap'),
     title: _l('集成中心'),
   },
   integrationApi: {
-    path: '/integrationApi/:projectId?/:apiId?',
+    path: '/integrationApi/:apiId?',
     component: () => import('src/pages/integration/integrationApi'),
     title: _l('集成中心'),
   },

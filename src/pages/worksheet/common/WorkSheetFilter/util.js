@@ -3,6 +3,7 @@ import moment from 'moment';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { getFormData, getSelectedOptions } from 'src/pages/worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import {
   CONTROL_FILTER_WHITELIST,
   FILTER_CONDITION_TYPE,
@@ -436,7 +437,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
         FILTER_CONDITION_TYPE.ISNULL,
         FILTER_CONDITION_TYPE.HASVALUE,
       ].concat(
-        _.includes(['caid', 'ownerid'], control.controlId)
+        _.includes(['caid', 'ownerid'], control.controlId) && from !== 'rule'
           ? [FILTER_CONDITION_TYPE.NORMALUSER, FILTER_CONDITION_TYPE.PORTALUSER]
           : [],
       );
@@ -576,10 +577,17 @@ export function redefineComplexControl(contorl) {
     return { ...contorl, ...{ type: contorl.enumDefault2 || 6, originType: contorl.type } };
   }
   if (contorl.type === 30) {
+    let controlType = contorl.sourceControlType;
+    if (controlType === 37) {
+      controlType = contorl.enumDefault2;
+    }
+    if (controlType === 38) {
+      controlType = 6;
+    }
     return {
       ...contorl,
       ...{
-        type: contorl.sourceControltype === 37 ? contorl.enumDefault2 : contorl.sourceControlType,
+        type: controlType,
         originType: contorl.type,
       },
     };
@@ -780,10 +788,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
     case API_ENUM_TO_TYPE.OPTIONS_11:
       // 单选项、多选项(相同选项集的其他字段)
       typeList = [API_ENUM_TO_TYPE.OPTIONS_9, API_ENUM_TO_TYPE.OPTIONS_10, API_ENUM_TO_TYPE.OPTIONS_11];
-      return _.filter(
-        contorls,
-        items => _.includes(typeList, items.type) && items.dataSource === control.dataSource,
-      );
+      return _.filter(contorls, items => _.includes(typeList, items.type) && items.dataSource === control.dataSource);
     // 关联单条、级联选择
     case API_ENUM_TO_TYPE.RELATESHEET:
     case API_ENUM_TO_TYPE.CASCADER:
@@ -838,7 +843,11 @@ export function getFilter({ control, formData = [] }) {
         values: formatValues(condition.dataType, condition.filterType, condition.values),
       });
     } else {
-      condition.dateRange = 0;
+      if (_.includes([WIDGETS_TO_API_TYPE_ENUM.DATE, WIDGETS_TO_API_TYPE_ENUM.DATE_TIME], condition.dataType)) {
+        condition.dateRange = 18;
+      } else {
+        condition.dateRange = 0;
+      }
       return fillConditionValue({ condition, formData, relateControl: control });
     }
   }

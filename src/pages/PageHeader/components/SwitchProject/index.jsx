@@ -97,6 +97,7 @@ function SwitchProject(props) {
     <ProjectsMenu>
       {projects.map((project, i) => (
         <ProjectItem
+          key={i}
           className={cx('ellipsis', { active: currentProject && currentProject.projectId === project.projectId })}
           onClick={() => {
             setPopupVisible(false);

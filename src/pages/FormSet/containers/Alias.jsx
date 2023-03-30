@@ -247,11 +247,11 @@ class Alias extends React.Component {
                             alias: e.target.value.trim(),
                           });
                         } else if (res === 3) {
-                          alert(_l('工作表别名格式不匹配', 3));
+                          alert(_l('工作表别名格式不匹配'), 3);
                         } else if (res === 2) {
-                          alert(_l('工作表别名已存在，请重新输入', 3));
+                          alert(_l('工作表别名已存在，请重新输入'), 3);
                         } else {
-                          alert(_l('别名修改失败', 3));
+                          alert(_l('别名修改失败'), 3);
                         }
                       });
                   }}

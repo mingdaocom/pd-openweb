@@ -1,5 +1,5 @@
 ﻿import './css/batchTask.less';
-import 'src/components/quickSelectUser/quickSelectUser';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import '@mdfe/selectize';
 import 'src/components/mdDialog/dialog';
 import mdAutocomplete from 'src/components/mdAutocomplete/mdAutocomplete';
@@ -12,7 +12,7 @@ import Store from 'redux/configureStore';
 import { errorMessage, checkIsProject, taskStatusDialog } from '../../utils/utils';
 import { afterDeleteTask, afterUpdateTaskDate } from '../../utils/taskComm';
 import tagController from 'src/api/tag';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -118,7 +118,7 @@ BatchTask.initEvent = function () {
       }
     });
     projectId = size === $('.selectTask').length ? projectId : '';
-    $this.dialogSelectUser({
+    dialogSelectUser({
       sourceId: Store.getState().task.taskConfig.folderId,
       fromType: 2,
       showMoreInvite: false,
@@ -158,7 +158,7 @@ BatchTask.initEvent = function () {
     $('.barchTaskContent .members .singleuser').each(function () {
       existsIds.push($(this).attr('data-accountid'));
     });
-    $this.quickSelectUser({
+    quickSelectUser($this[0], {
       sourceId: Store.getState().task.taskConfig.folderId,
       fromType: 2,
       offset: {
@@ -167,7 +167,7 @@ BatchTask.initEvent = function () {
       },
       zIndex: 10001,
       showMoreInvite: false,
-      showQuickInvite: false,
+
       filterAccountIds: existsIds,
       SelectUserSettings: {
         filterAccountIds: existsIds,

@@ -1,9 +1,33 @@
-import React, { Fragment, useState } from 'react';
-import { Textarea, Dropdown } from 'ming-ui';
+import React, { Fragment, useState, useRef } from 'react';
+import { Textarea, Dropdown, Menu, MenuItem } from 'ming-ui';
 import CustomTextarea from '../CustomTextarea';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
 import _ from 'lodash';
+import styled from 'styled-components';
+import cx from 'classnames';
+import { getIcons } from '../../../utils';
+
+const NodeListIcon = styled.div`
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 36px;
+  top: 11px;
+`;
+
+const SelectNodeBox = styled.div`
+  height: 34px;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  left: 12px;
+  right: 70px;
+  top: 11px;
+`;
 
 export default ({
   processId = '',
@@ -22,10 +46,13 @@ export default ({
   updateSource = () => {},
   showType = false,
   onlyFile = false,
+  flowNodeList = [],
 }) => {
   const [fieldsVisible, setFieldsVisible] = useState('');
+  const [selectIndex, setIndex] = useState(-1);
+  const menuBtn = useRef(null);
 
-  const updateKeyValues = (key, value, i) => {
+  const updateKeyValues = ({ key, value, i, nodeId = '' }) => {
     let items = _.cloneDeep(source);
 
     if (!items[i]) items[i] = {};
@@ -35,6 +62,7 @@ export default ({
     }
 
     items[i][key] = value;
+    items[i].nodeId = nodeId;
     updateSource({ [sourceKey]: items });
   };
 
@@ -65,7 +93,10 @@ export default ({
             controlName={controlObj.name || ''}
           />
         </span>
-        <i className="icon-delete actionControlDel ThemeColor3" onClick={() => updateKeyValues('value', '', i)} />
+        <i
+          className="icon-delete actionControlDel ThemeColor3"
+          onClick={() => updateKeyValues({ key: 'value', value: '', i })}
+        />
       </div>
     );
   };
@@ -90,13 +121,82 @@ export default ({
           newFormulaMap[obj.fieldValueId] = { type: obj.fieldValueType, name: obj.fieldValueName };
 
           updateSource({ formulaMap: newFormulaMap }, () => {
-            updateKeyValues('value', `$${obj.nodeId}-${obj.fieldValueId}$`, i);
+            updateKeyValues({ key: 'value', value: `$${obj.nodeId}-${obj.fieldValueId}$`, i });
           });
           setFieldsVisible('');
         }}
         openLayer={() => setFieldsVisible(i)}
         closeLayer={() => setFieldsVisible('')}
       />
+    );
+  };
+
+  const renderNodeList = (selected, i) => {
+    const onHideMenu = () => {
+      setIndex(-1);
+    };
+
+    if (i !== selectIndex) return null;
+
+    return (
+      <Menu className="nodeListMenu" onClickAwayExceptions={[menuBtn.current]} onClickAway={onHideMenu}>
+        {selected && (
+          <MenuItem
+            onClick={() => {
+              updateKeyValues({ key: 'value', i });
+              onHideMenu();
+            }}
+          >
+            {_l('清除选择')}
+          </MenuItem>
+        )}
+        {flowNodeList.map(item => (
+          <MenuItem
+            key={item.nodeId}
+            onClick={() => {
+              updateKeyValues({ key: 'value', value: '', i, nodeId: item.nodeId });
+              onHideMenu();
+            }}
+          >
+            <div className="flexRow" style={{ alignItems: 'center' }}>
+              <span className={cx('Font16 Gray_9e', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
+              <span className={cx('Font14 mLeft5 ellipsis flex', { Gray_9e: !item.appId })}>{item.nodeName}</span>
+              {item.appId && item.appName ? (
+                <Fragment>
+                  <span className="Font14 mLeft5 bold flowDropdownGray">{item.appTypeName}</span>
+                  <span className="Font14 mLeft5 bold flowDropdownGray ellipsis" style={{ maxWidth: 150 }}>{`“${
+                    item.appName
+                  }”`}</span>
+                </Fragment>
+              ) : (
+                <span className="Font14 mLeft5 Gray_75">
+                  <i className="icon-workflow_error Font14 mRight5" />
+                  {_l('设置此节点后才能选择')}
+                </span>
+              )}
+            </div>
+          </MenuItem>
+        ))}
+      </Menu>
+    );
+  };
+
+  const renderNodeListTag = item => {
+    if (!item.nodeId) return null;
+
+    const current = _.find(flowNodeList, o => o.nodeId === item.nodeId) || {};
+
+    return (
+      <SelectNodeBox>
+        <Tag
+          flowNodeType={current.nodeTypeId}
+          appType={current.appType}
+          actionId={current.appId}
+          nodeName={current.appName}
+          controlId={current.nodeId}
+          controlName={current.nodeName}
+        />
+      </SelectNodeBox>
     );
   };
 
@@ -112,7 +212,7 @@ export default ({
                 style={{ width: 140 }}
                 placeholder={keyPlaceholder}
                 value={item.name}
-                onChange={evt => updateKeyValues(keyName, evt.target.value, i)}
+                onChange={evt => updateKeyValues({ key: keyName, value: evt.target.value, i, nodeId: item.nodeId })}
               />
             )}
 
@@ -123,11 +223,11 @@ export default ({
                 data={[{ text: _l('文本'), value: 2 }, { text: _l('附件'), value: 14 }]}
                 value={item.type || 2}
                 border
-                onChange={type => updateKeyValues('type', type, i)}
+                onChange={type => updateKeyValues({ key: 'type', value: type, i })}
               />
             )}
 
-            <div className="flex mRight8" style={{ minWidth: 0 }}>
+            <div className={cx('flex mRight8 relative', { hasNodeList: flowNodeList.length })} style={{ minWidth: 0 }}>
               {pairsOnlyText ? (
                 <Textarea
                   className="mTop10"
@@ -137,7 +237,7 @@ export default ({
                   placeholder={pairsPlaceholder}
                   value={item.value}
                   onChange={value => {
-                    updateKeyValues(pairsName, value, i);
+                    updateKeyValues({ key: pairsName, value, i });
                   }}
                 />
               ) : item.type === 14 ? (
@@ -155,10 +255,19 @@ export default ({
                   height={0}
                   content={item.value}
                   formulaMap={formulaMap}
-                  onChange={(err, value, obj) => updateKeyValues(pairsName, value, i)}
+                  onChange={(err, value, obj) => updateKeyValues({ key: pairsName, value, i })}
                   updateSource={updateSource}
                 />
               )}
+
+              {!!flowNodeList.length && (
+                <NodeListIcon ref={menuBtn} onClick={() => setIndex(i)}>
+                  <i className="icon-arrow-down-border Font16 ThemeHoverColor3 pointer Gray_bd" />
+                </NodeListIcon>
+              )}
+
+              {renderNodeList(!!item.nodeId, i)}
+              {renderNodeListTag(item)}
             </div>
             {!onlyFile && (
               <i

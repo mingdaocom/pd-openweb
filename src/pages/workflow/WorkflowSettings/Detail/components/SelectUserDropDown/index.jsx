@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import './index.less';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import DialogSelectDept from 'src/components/dialogSelectDept';
 import { MenuItem } from 'ming-ui';
 import ActionFields from '../ActionFields';
@@ -150,7 +150,7 @@ export default class SelectUserDropDown extends Component {
     evt.stopPropagation();
     onClose();
 
-    $(evt.target).dialogSelectUser({
+    dialogSelectUser({
       title: _l('选择人员'),
       showMoreInvite: false,
       SelectUserSettings: {

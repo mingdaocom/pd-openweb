@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { DatePicker } from 'antd';
 import zhCN from 'antd/es/date-picker/locale/zh_CN';
 import moment from 'moment';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import UserHead from 'src/pages/feed/components/userHead';
 import UserName from 'src/pages/feed/components/userName';
 import delegationApi from 'src/pages/workflow/api/delegation';
@@ -99,7 +99,7 @@ export default function TodoEntrustModal(props) {
   };
 
   const onAddOrChangeMember = () => {
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       SelectUserSettings: {
         filterAccountIds: [md.global.Account.accountId].concat((formData.trustee || {}).accountId || []),
         projectId: formData.companyId,

@@ -9,7 +9,9 @@ export default function SelectControl({ className, list, searchable = true, onCl
   const ref = useRef(null);
   const inputEl = useRef(null);
   const [keyword, setKeyWord] = useState('');
-  const controls = keyword ? list.filter(c => c.controlName.toLowerCase().indexOf(keyword.toLowerCase()) > -1) : list;
+  const controls = (
+    keyword ? list.filter(c => c.controlName.toLowerCase().indexOf(keyword.toLowerCase()) > -1) : list
+  ).sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1));
   useClickAway(ref, onClickAway);
   useEffect(() => {
     inputEl && inputEl.current && inputEl.current.focus();

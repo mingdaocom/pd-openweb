@@ -32,7 +32,7 @@ const ROLE_OPERATION = {
   ],
 };
 
-const DEFAULT_ROLE_OPERATION = [{ type: 'quit', icon: 'exit', text: _l('退出应用') }];
+const DEFAULT_ROLE_OPERATION = [{ type: 'setGroup' }, { type: 'quit', icon: 'exit', text: _l('退出应用') }];
 
 export default ({
   groupType,

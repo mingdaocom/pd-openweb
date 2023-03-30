@@ -65,7 +65,10 @@ export const VerificationPass = props => {
     <ConfigProvider autoInsertSpaceInButton={false}>
       <VerificationPassWrap className="w100 h100 flexColumn justifyContentCenter WhiteBG">
         <div className="flexColumn alignItemsCenter" style={{ marginTop: -120 }}>
-          <div className="Font13 mBottom18">{_l('请输入密码访问')}</div>
+          <div className="flexRow alignItemsCenter mBottom18">
+            <div className="Font13 mRight5">{_l('请输入密码访问')}</div>
+            <div className="Font12">{_l('(密码区分大小写)')}</div>
+          </div>
           <Form
             form={form}
             autocomplete="off"

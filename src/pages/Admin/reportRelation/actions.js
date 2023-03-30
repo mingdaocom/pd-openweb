@@ -103,7 +103,7 @@ export const addSubordinates =
 
         dispatch(updateCollapse(id));
       } else {
-        alert(_l('操作失败', 2));
+        alert(_l('操作失败'), 2);
       }
     });
   };
@@ -159,7 +159,7 @@ export const replaceStructure =
           },
         });
       } else {
-        alert(_l('操作失败', 2));
+        alert(_l('操作失败'), 2);
       }
     });
   };
@@ -191,7 +191,7 @@ export const removeStructure =
           },
         });
       } else {
-        alert(_l('操作失败', 2));
+        alert(_l('操作失败'), 2);
       }
     });
   };

@@ -64,6 +64,7 @@ rewrite (?i)^/resetPassword /resetPassword.html break;
 rewrite (?i)^/privateImageInstall /privateImageInstall.html break;
 
 # auth
+rewrite (?i)^/tpAuthPortal /account-login-tpAuthPortal.html break;
 rewrite (?i)^/tpAuthApp /account-login-tpAuthApp.html break;
 rewrite (?i)^/tpauth /account-login-tpauth.html break;
 rewrite (?i)^/workwx /account-login-workwxAuth.html break;

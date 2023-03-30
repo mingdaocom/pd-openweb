@@ -74,6 +74,8 @@ function OptionsSteps(props, ref) {
       if (e.key === 'Escape') {
         updateEditingStatus(false);
       } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.stopPropagation();
+        e.preventDefault();
         let nextIndex = selectedIndex + (e.key === 'ArrowUp' ? -1 : 1);
         if (nextIndex < 0) {
           nextIndex = 0;

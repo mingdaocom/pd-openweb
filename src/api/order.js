@@ -245,6 +245,60 @@ export default {
      return $.api('Order', 'AddExternalUserExtensionOrder', args, options);
    },
   /**
+  * 获取增补数据集成运行行数拓展包订单总价
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {integer} args.num 数量
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getDataPipelineOrderPrice: function (args, options = {}) {
+     
+     return $.api('Order', 'GetDataPipelineOrderPrice', args, options);
+   },
+  /**
+  * 添加增补数据集成运行行数拓展包订单
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {integer} args.num 数量
+  * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addDataPipelineOrder: function (args, options = {}) {
+     
+     return $.api('Order', 'AddDataPipelineOrder', args, options);
+   },
+  /**
+  * 获取本月增补数据集成运行行数拓展包订单总价
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {integer} args.num 数量
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMonthlyDataPipelineOrderPrice: function (args, options = {}) {
+     
+     return $.api('Order', 'GetMonthlyDataPipelineOrderPrice', args, options);
+   },
+  /**
+  * 添加本月增补数据集成运行行数拓展包订单
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {integer} args.num 数量
+  * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addMonthlyDataPipelineOrder: function (args, options = {}) {
+     
+     return $.api('Order', 'AddMonthlyDataPipelineOrder', args, options);
+   },
+  /**
   * 其他方式付款（记录用户操作日志）
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id

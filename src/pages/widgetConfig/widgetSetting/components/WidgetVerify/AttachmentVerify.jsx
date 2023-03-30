@@ -5,7 +5,7 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widget
 import AttachmentConfig from '../AttachmentConfig';
 
 export default function AttachmentVerify({ data, onChange }) {
-  const { maxcount, max: originMax } = getAdvanceSetting(data);
+  const { maxcount, max: originMax, alldownload = '1' } = getAdvanceSetting(data);
   const [max, setMax] = useState(originMax);
   const [visible, setVisible] = useState();
 
@@ -16,6 +16,7 @@ export default function AttachmentVerify({ data, onChange }) {
 
   return (
     <Fragment>
+      <div className="settingItemTitle mTop20">{_l('设置')}</div>
       <div className="labelWrap">
         <Checkbox
           size="small"
@@ -78,6 +79,16 @@ export default function AttachmentVerify({ data, onChange }) {
           MB
         </div>
       )}
+
+      <div className="labelWrap">
+        <Checkbox
+          size="small"
+          checked={alldownload === '1'}
+          onClick={checked => onChange(handleAdvancedSettingChange(data, { alldownload: checked ? '0' : '1' }))}
+        >
+          <span>{_l('允许全部下载')}</span>
+        </Checkbox>
+      </div>
     </Fragment>
   );
 }

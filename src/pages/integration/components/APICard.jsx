@@ -43,6 +43,7 @@ const Wrap = styled.div`
   .StatusTxt {
     opacity: 1;
     position: absolute;
+    max-width: 145px;
   }
   &:hover {
     .name {
@@ -106,13 +107,14 @@ function APICard(props) {
         />
       </div>
       <div className="publishStatusCon">
-        <div className="StatusTxt">
-          {props.item.publishStatus === 1 && props.item.enabled && (
-            <span
-              className={cx('mLeft40 Font12', props.item.publishStatus === 1 ? 'ThemeColor3' : 'Gray_9e')}
-            >{`${formatDate(props.item.lastModifiedDate)} ${publishStatus2Text[props.item.publishStatus]}`}</span>
-          )}
-        </div>
+        {props.item.publishStatus === 1 && props.item.enabled && (
+          <span
+            className={cx(
+              'StatusTxt mLeft40 Font12 ellipsis',
+              props.item.publishStatus === 1 ? 'ThemeColor3' : 'Gray_9e',
+            )}
+          >{`${formatDate(props.item.lastModifiedDate)} ${publishStatus2Text[props.item.publishStatus]}`}</span>
+        )}
         <div className="optionCon mLeft40">
           <span data-tip={_l('日志')}>
             <Icon

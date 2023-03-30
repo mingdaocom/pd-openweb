@@ -14,6 +14,9 @@ import reportSort from './api/reportSort';
 import { reportTypes } from 'statistics/Charts/common';
 import './index.less';
 import _ from 'lodash';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
+
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 const exceptions = [
@@ -70,8 +73,11 @@ const SortableList = SortableContainer(({ list, width, ...other }) => {
 export default class Statistics extends Component {
   constructor(props) {
     super();
+    const isPortal = md.global.Account.isPortal;
+    const showPublic = isOpenPermit(permitList.statisticsSwitch, props.sheetSwitchPermit);
+    const showSelf = isOpenPermit(permitList.statisticsSelfSwitch, props.sheetSwitchPermit) && !isPortal; //外部门户只有 公共
     this.state = {
-      ownerId: '',
+      ownerId: !showPublic ? md.global.Account.accountId : '',
       dialogVisible: false,
       loading: true,
       reports: [],
@@ -79,6 +85,8 @@ export default class Statistics extends Component {
       chartWidth: 0,
       pageIndex: 1,
       pageLoading: false,
+      showPublic,
+      showSelf,
     };
   }
   componentDidMount() {
@@ -115,7 +123,7 @@ export default class Statistics extends Component {
     this.request = report.list(
       {
         appId: worksheetId,
-        isOwner: !md.global.Account.isPortal ? !!ownerId : true,
+        isOwner: !!ownerId,
         pageIndex,
         pageSize: 10,
       },
@@ -179,7 +187,7 @@ export default class Statistics extends Component {
     reportSort
       .updateReportSort({
         appId: worksheetId,
-        isOwner: !md.global.Account.isPortal ? !!ownerId : true,
+        isOwner: !!ownerId,
         reportIds: newReports.map(item => item.id),
       })
       .then(
@@ -204,32 +212,31 @@ export default class Statistics extends Component {
     return !target.classList.contains('icon-drag');
   }
   renderHeader() {
-    const { ownerId } = this.state;
+    const { ownerId, showSelf, showPublic } = this.state;
     const { isFullScreen, roleType } = this.props;
-    const isPortal = md.global.Account.isPortal;
     return (
       <div className="StatisticsPanel-header">
-        <div className="title">{_l('统计')}</div>
-        <div className="flexRow Relative">
-          {/* 外部门户只有 个人 */}
-          {!isPortal && (
+        <div className="title">{!showPublic ? _l('个人统计') : !showSelf ? _l('公共统计') : _l('统计')}</div>
+        {/* 功能开关权限影响 */}
+        {showPublic && showSelf && (
+          <div className="flexRow Relative">
             <div
               className={cx('panelTab commonality', { ThemeColor3: !ownerId, active: !ownerId })}
               onClick={this.handleSwitchView.bind(this, '')}
             >
               {_l('公共')}
             </div>
-          )}
-          <div
-            className={cx('panelTab personal', {
-              ThemeColor3: ownerId || isPortal,
-              active: ownerId || isPortal,
-            })}
-            onClick={this.handleSwitchView.bind(this, md.global.Account.accountId)}
-          >
-            {_l('个人')}
+            <div
+              className={cx('panelTab personal', {
+                ThemeColor3: ownerId,
+                active: ownerId,
+              })}
+              onClick={this.handleSwitchView.bind(this, md.global.Account.accountId)}
+            >
+              {_l('个人')}
+            </div>
           </div>
-        </div>
+        )}
         <div className="flexRow btns">
           {(roleType === 1 || roleType === 2 || ownerId) && (
             <Tooltip title={ownerId ? _l('新建个人图表') : _l('新建公共图表')} placement="bottom">

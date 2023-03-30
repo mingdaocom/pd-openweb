@@ -13,7 +13,7 @@ import ajaxRequest from 'src/api/taskCenter';
 import calendarAjaxRequest from 'src/api/calendar';
 import { expireDialogAsync } from 'src/components/common/function';
 import filterXss from 'xss';
-import 'src/components/quickSelectUser/quickSelectUser';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import { htmlEncodeReg } from 'src/util';
 import doT from '@mdfe/dot';
 import taskHtml from './tpl/createTask.html';
@@ -61,7 +61,7 @@ wrap(DateTimeRangePicker, {
   },
 });
 
-var CreateTask = function(opts) {
+var CreateTask = function (opts) {
   var _this = this;
   // 默认参数
   var defaults = {
@@ -123,7 +123,7 @@ var CreateTask = function(opts) {
 
 $.extend(CreateTask.prototype, {
   // 初始化
-  init: function() {
+  init: function () {
     var _this = this;
     var settings = _this.settings;
     var isExsit = false;
@@ -140,7 +140,7 @@ $.extend(CreateTask.prototype, {
     }
 
     // 监测网络是否过期
-    $.map(md.global.Account.projects, function(project, i) {
+    $.map(md.global.Account.projects, function (project, i) {
       if (settings.ProjectID === project.projectId) {
         isExsit = true;
         if (project.licenseType === 0) {
@@ -155,7 +155,7 @@ $.extend(CreateTask.prototype, {
     }
 
     settings.companyName = _l('个人');
-    $.map(md.global.Account.projects, function(project, i) {
+    $.map(md.global.Account.projects, function (project, i) {
       if (project.projectId === settings.ProjectID) {
         settings.companyName = project.companyName;
         return;
@@ -171,17 +171,14 @@ $.extend(CreateTask.prototype, {
         yesText: '',
         noText: '',
       },
-      readyFn: function() {
+      readyFn: function () {
         _this.eventInit();
 
         var txt = $('#txtTaskName').val();
-        $('#txtTaskName')
-          .val('')
-          .focus()
-          .val(txt);
+        $('#txtTaskName').val('').focus().val(txt);
       },
       width: 570,
-      callback: function() {},
+      callback: function () {},
     };
 
     // 创建弹出层
@@ -190,12 +187,12 @@ $.extend(CreateTask.prototype, {
   },
 
   // 事件初始化
-  eventInit: function() {
+  eventInit: function () {
     var _this = this;
     var settings = _this.settings;
 
     // 用户头衔层
-    $('#' + settings.frameid).on('mouseover', '#taskUserBox,.imgMemberBox', function() {
+    $('#' + settings.frameid).on('mouseover', '#taskUserBox,.imgMemberBox', function () {
       var $this = $(this);
       if ($this.data('bind')) {
         return;
@@ -234,7 +231,7 @@ $.extend(CreateTask.prototype, {
     }
 
     // tabs click
-    $('#taskTabs span').on('click', function(event) {
+    $('#taskTabs span').on('click', function (event) {
       var $this = $(this);
       var type = $this.attr('data-type');
 
@@ -263,7 +260,7 @@ $.extend(CreateTask.prototype, {
     _this.deadlineInit();
 
     // 回车创建
-    $('#txtTaskName').on('keypress', function(event) {
+    $('#txtTaskName').on('keypress', function (event) {
       if (event.keyCode === 13) {
         $('#' + settings.frameid)
           .find('#taskSubmitBtn')
@@ -273,7 +270,7 @@ $.extend(CreateTask.prototype, {
 
     // 创建
     $('#taskSubmitBtn').on({
-      mouseover: function() {
+      mouseover: function () {
         // 禁用
         if ($(this).attr('disabled')) {
           return false;
@@ -281,7 +278,7 @@ $.extend(CreateTask.prototype, {
 
         $(this).toggleClass('ThemeBGColor2 ThemeBGColor3');
       },
-      mouseout: function() {
+      mouseout: function () {
         // 禁用
         if ($(this).attr('disabled')) {
           return false;
@@ -289,7 +286,7 @@ $.extend(CreateTask.prototype, {
 
         $(this).toggleClass('ThemeBGColor2 ThemeBGColor3');
       },
-      click: function() {
+      click: function () {
         if ($(this).attr('disabled')) {
           return false;
         }
@@ -298,7 +295,7 @@ $.extend(CreateTask.prototype, {
       },
     });
 
-    $(document).on('click', function(event) {
+    $(document).on('click', function (event) {
       var $target = $(event.target);
 
       // 隐藏所属网络
@@ -314,27 +311,27 @@ $.extend(CreateTask.prototype, {
   },
 
   // 所属网络事件初始化
-  networkInit: function() {
+  networkInit: function () {
     // 所属网络
     var settings = this.settings;
     var $createTaskNetwork = $('#createTaskNetwork');
     var $createTaskNetworkList = $('#createTaskNetworkList');
-    $createTaskNetwork.on('click', function() {
+    $createTaskNetwork.on('click', function () {
       $createTaskNetworkList.toggleClass('Hidden');
     });
 
     // 更改网络
-    $createTaskNetworkList.on('click', 'li', function() {
+    $createTaskNetworkList.on('click', 'li', function () {
       var $this = $(this);
       var projectId = $this.attr('data-id');
       if (projectId !== settings.ProjectID) {
         // 监测网络是否过期
         expireDialogAsync(projectId)
-          .then(function() {
+          .then(function () {
             $createTaskNetwork.find('.createTaskNetworkName').text($this.text());
             settings.ProjectID = projectId;
           })
-          .fail(function() {
+          .fail(function () {
             $createTaskNetwork.find('.createTaskNetworkName').html(_l('个人'));
             settings.ProjectID = '';
           });
@@ -345,12 +342,8 @@ $.extend(CreateTask.prototype, {
           .find('.imgWidth')
           .attr('src', md.global.Account.avatar);
         $('.createTaskAddMemberBox .imgMemberBox').remove(md.global.Account.avatar);
-        $('.createTaskFolderName')
-          .html('...')
-          .removeClass('Hidden');
-        $('#txtTaskFolder')
-          .val('')
-          .addClass('Hidden');
+        $('.createTaskFolderName').html('...').removeClass('Hidden');
+        $('#txtTaskFolder').val('').addClass('Hidden');
         $('#createTaskStage').addClass('Hidden');
         $('#folderStage').val('');
       }
@@ -359,7 +352,7 @@ $.extend(CreateTask.prototype, {
   },
 
   // 关联项目事件初始化
-  taskFolderInit: function() {
+  taskFolderInit: function () {
     var _this = this;
     var settings = _this.settings;
 
@@ -367,20 +360,20 @@ $.extend(CreateTask.prototype, {
     var $txtTaskFolder = $('#txtTaskFolder');
 
     $('.createTaskFolder .createTaskFolderName').on({
-      mouseover: function() {
+      mouseover: function () {
         $(this).toggleClass('Hidden');
         $txtTaskFolder.toggleClass('Hidden');
       },
     });
     $txtTaskFolder.on({
-      mouseout: function() {
+      mouseout: function () {
         // 失去焦点并且离开
         if (!$(this).hasClass('isFocus')) {
           $(this).toggleClass('Hidden');
           $('.createTaskFolder .createTaskFolderName').toggleClass('Hidden');
         }
       },
-      focus: function() {
+      focus: function () {
         $(this).addClass('isFocus');
         if ($.trim($(this).val()) && $('.linkageFolder li').length > 0) {
           $('.linkageFolder .nullFolder').removeClass('Hidden');
@@ -389,7 +382,7 @@ $.extend(CreateTask.prototype, {
           $(this).keyup();
         }
       },
-      keydown: function(event) {
+      keydown: function (event) {
         if (event.keyCode !== 38 && event.keyCode !== 40) {
           // 隐藏阶段
           $('#createTaskStage').addClass('Hidden');
@@ -413,41 +406,23 @@ $.extend(CreateTask.prototype, {
           var index = $linkageFolder.find('li.item.hover').index();
           if (event.keyCode === 38) {
             if (index === 0) {
-              $linkageFolder
-                .find('li:last')
-                .addClass('hover')
-                .siblings()
-                .removeClass('hover');
+              $linkageFolder.find('li:last').addClass('hover').siblings().removeClass('hover');
             } else {
               index--;
-              $linkageFolder
-                .find('li')
-                .eq(index)
-                .addClass('hover')
-                .siblings()
-                .removeClass('hover');
+              $linkageFolder.find('li').eq(index).addClass('hover').siblings().removeClass('hover');
             }
           } else if (event.keyCode === 40) {
             var count = $linkageFolder.find('li.item').length - 1;
             if (index >= count) {
-              $linkageFolder
-                .find('li:first')
-                .addClass('hover')
-                .siblings()
-                .removeClass('hover');
+              $linkageFolder.find('li:first').addClass('hover').siblings().removeClass('hover');
             } else {
               index++;
-              $linkageFolder
-                .find('li')
-                .eq(index)
-                .addClass('hover')
-                .siblings()
-                .removeClass('hover');
+              $linkageFolder.find('li').eq(index).addClass('hover').siblings().removeClass('hover');
             }
           }
         }
       },
-      keyup: function(event) {
+      keyup: function (event) {
         // 上下键
         if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 13) {
           return;
@@ -457,10 +432,8 @@ $.extend(CreateTask.prototype, {
         settings.pageIndex = 1;
         CreateTask.Motheds.searchTaskFolder();
       },
-      blur: function() {
-        $(this)
-          .removeClass('isFocus')
-          .mouseout();
+      blur: function () {
+        $(this).removeClass('isFocus').mouseout();
         var folderName = $.trim($(this).val());
         if (!folderName) {
           $('#folderStage').val('');
@@ -470,7 +443,7 @@ $.extend(CreateTask.prototype, {
       },
     });
 
-    $('.linkageFolder ul').on('scroll', function() {
+    $('.linkageFolder ul').on('scroll', function () {
       if (!settings.isMore) {
         return;
       }
@@ -486,18 +459,14 @@ $.extend(CreateTask.prototype, {
 
     $('.linkageFolder').on(
       {
-        mouseover: function() {
+        mouseover: function () {
           $(this).addClass('hover');
         },
-        mouseout: function() {
+        mouseout: function () {
           $(this).removeClass('hover');
         },
-        click: function() {
-          var folderName = $.trim(
-            $(this)
-              .find('.folderListName')
-              .text(),
-          );
+        click: function () {
+          var folderName = $.trim($(this).find('.folderListName').text());
           settings.FolderID = $(this).data('folderid');
           $('#txtTaskFolder').val(folderName);
           $('.createTaskFolder .createTaskFolderName, .createTaskFolder .nullFolder .folderListName').text(folderName);
@@ -514,15 +483,15 @@ $.extend(CreateTask.prototype, {
   },
 
   // 更改任务负责人事件初始化
-  updateChargeInit: function() {
+  updateChargeInit: function () {
     var settings = this.settings;
     $('#taskUpdateCharge').on({
-      click: function() {
+      click: function () {
         var _this = $(this);
         var $taskUserBox = $('#taskUserBox');
         var oldUid = $taskUserBox.attr('data-id');
 
-        var updateChargeFun = function(users) {
+        var updateChargeFun = function (users) {
           var uid = users[0].accountId;
           // 相同
           if (oldUid === uid) {
@@ -532,15 +501,10 @@ $.extend(CreateTask.prototype, {
           var oldImg = $('#taskUserBox img').attr('src');
 
           // 更改负责人
-          $taskUserBox
-            .attr('data-id', uid)
-            .data('bind', false)
-            .off()
-            .find('img')
-            .attr('src', userImg);
+          $taskUserBox.attr('data-id', uid).data('bind', false).off().find('img').attr('src', userImg);
 
           // 如果是成员移除
-          $('.createTaskAddMemberBox .createTaskMember').each(function() {
+          $('.createTaskAddMemberBox .createTaskMember').each(function () {
             var $this = $(this);
             if ($this.attr('data-id') === uid) {
               $this.parent().remove();
@@ -559,10 +523,10 @@ $.extend(CreateTask.prototype, {
           }
         };
 
-        _this.quickSelectUser({
+        quickSelectUser(_this[0], {
           sourceId: settings.FolderID,
           projectId: settings.ProjectID,
-          showQuickInvite: false,
+
           showMoreInvite: false,
           isTask: true,
           filterAccountIds: [oldUid],
@@ -576,11 +540,11 @@ $.extend(CreateTask.prototype, {
             filterAccountIds: [oldUid],
             unique: true,
             projectId: CreateTask.Motheds.checkIsProject(settings.ProjectID) ? settings.ProjectID : '',
-            callback: function(users) {
+            callback: function (users) {
               updateChargeFun(users);
             },
           },
-          selectCb: function(users) {
+          selectCb: function (users) {
             updateChargeFun(users);
           },
         });
@@ -589,14 +553,14 @@ $.extend(CreateTask.prototype, {
   },
 
   // 成员模块方法初始化
-  membersInit: function() {
+  membersInit: function () {
     var settings = this.settings;
     var memberList = '';
     var newMember = [];
     var memberArr = settings.MemberArray;
     var has;
     var i;
-    var newMemberCheckFun = function(index, item) {
+    var newMemberCheckFun = function (index, item) {
       if (item.accountId === memberArr[i].accountId) {
         has = true;
         return false;
@@ -638,30 +602,28 @@ $.extend(CreateTask.prototype, {
     }
 
     // hover移除成员
-    $('#taskMembersBox').on('click', '.imgMemberBox .removeTaskMember', function() {
-      $(this)
-        .parent()
-        .remove();
+    $('#taskMembersBox').on('click', '.imgMemberBox .removeTaskMember', function () {
+      $(this).parent().remove();
     });
 
     // 添加任务成员
     $('#taskMembersBox .createTaskAddMember').on({
-      click: function() {
+      click: function () {
         var _this = $(this);
         var existsIds = [];
         // 页面上已经存在的成员
-        $('.createTaskAddMemberBox .createTaskMember').each(function() {
+        $('.createTaskAddMemberBox .createTaskMember').each(function () {
           existsIds.push($(this).attr('data-id'));
         });
 
         // 负责人
         existsIds.push($('#taskUserBox').attr('data-id'));
 
-        var updateMemberFun = function(users) {
+        var updateMemberFun = function (users) {
           memberList = '';
           var isExistes;
           var accountId = '';
-          var existsIdsCheckFun = function(index, id) {
+          var existsIdsCheckFun = function (index, id) {
             if (id.split('MD_SpecialAccounts')[0] === accountId.split('MD_SpecialAccounts')[0]) {
               if (!users[i].accountId) {
                 $('.createTaskAddMemberBox .imgMemberBox[data-id=' + id + ']')
@@ -695,7 +657,7 @@ $.extend(CreateTask.prototype, {
           $('.createTaskAddMember').before(memberList);
         };
 
-        _this.quickSelectUser({
+        quickSelectUser(_this[0], {
           sourceId: '',
           projectId: settings.ProjectID,
           zIndex: 20000,
@@ -707,15 +669,15 @@ $.extend(CreateTask.prototype, {
           SelectUserSettings: {
             filterAccountIds: existsIds,
             projectId: CreateTask.Motheds.checkIsProject(settings.ProjectID) ? settings.ProjectID : '',
-            callback: function(users) {
+            callback: function (users) {
               updateMemberFun(users);
             },
           },
-          selectCb: function(users) {
+          selectCb: function (users) {
             updateMemberFun(users);
           },
           ChooseInviteSettings: {
-            callback: function(users, callbackInviteResult) {
+            callback: function (users, callbackInviteResult) {
               if (typeof callbackInviteResult === 'function') {
                 callbackInviteResult({ status: 1 });
               }
@@ -728,7 +690,7 @@ $.extend(CreateTask.prototype, {
   },
 
   // 到期日期初始化
-  deadlineInit: function() {
+  deadlineInit: function () {
     const $txtLastDate = $('#txtLastDate');
 
     // 甘特图视图默认今天
@@ -774,7 +736,7 @@ $.extend(CreateTask.prototype, {
   },
 
   // 初始化附件事件
-  initAttachmentEvent: function() {
+  initAttachmentEvent: function () {
     var settings = this.settings;
     settings.isComplete = true;
 
@@ -807,7 +769,7 @@ $.extend(CreateTask.prototype, {
 
 CreateTask.Motheds = {
   // 获取项目列表
-  searchTaskFolder: function() {
+  searchTaskFolder: function () {
     var keyWords = $.trim($('#txtTaskFolder').val());
     ajaxRequest
       .getFolderListForCreateTask({
@@ -816,12 +778,12 @@ CreateTask.Motheds = {
         pageSize: 20,
         pageIndex: CreateTask.settings.pageIndex,
       })
-      .then(function(source) {
+      .then(function (source) {
         if (source.status) {
           var folderList = '';
           CreateTask.settings.isMore = source.data && source.data.length === 20;
           if (source.data) {
-            $.each(source.data, function(index, item) {
+            $.each(source.data, function (index, item) {
               folderList +=
                 '<li class="item overflow_ellipsis ThemeBGColor3" data-folderid="' +
                 item.folderID +
@@ -863,13 +825,13 @@ CreateTask.Motheds = {
           return $.Deferred().reject();
         }
       })
-      .fail(function() {
+      .fail(function () {
         alert(_l('操作失败，请稍后再试'), 2);
       });
   },
 
   // 获取阶段
-  getFolderStage: function() {
+  getFolderStage: function () {
     var settings = CreateTask.settings;
 
     ajaxRequest
@@ -877,21 +839,19 @@ CreateTask.Motheds = {
         projectID: settings.ProjectID,
         folderID: settings.FolderID,
       })
-      .then(function(source) {
+      .then(function (source) {
         if (source.status) {
           var array = [];
           var folderStages = source.data;
 
-          $.each(folderStages, function() {
+          $.each(folderStages, function () {
             array.push({
               name: this.name,
               id: this.id,
             });
           });
 
-          $('#folderStage')
-            .next()
-            .remove();
+          $('#folderStage').next().remove();
           $('#folderStage').MDSelect({
             showType: 4,
             dataArr: array,
@@ -905,13 +865,13 @@ CreateTask.Motheds = {
           return $.Deferred().reject();
         }
       })
-      .fail(function() {
+      .fail(function () {
         alert(_l('操作失败，请稍后再试'), 2);
       });
   },
 
   // 创建
-  send: function() {
+  send: function () {
     var settings = CreateTask.settings;
     var $submitBtn = $('#taskSubmitBtn');
 
@@ -934,12 +894,7 @@ CreateTask.Motheds = {
 
     var startTime = $('#txtLastDate').data('start');
     var deadline = $('#txtLastDate').data('end');
-    var description = filterXss(
-      $('#txtDescriptionbox')
-        .val()
-        .replace(/\n/g, '<br/>'),
-      { stripIgnoreTag: true },
-    );
+    var description = filterXss($('#txtDescriptionbox').val().replace(/\n/g, '<br/>'), { stripIgnoreTag: true });
     var folderID = settings.FolderID === 1 ? '' : settings.FolderID;
     var folderName = $.trim($('#txtTaskFolder').val());
     var toUserID = $('#taskUserBox').attr('data-id');
@@ -948,7 +903,7 @@ CreateTask.Motheds = {
     var specialAccounts = {};
 
     // 成员
-    $('.createTaskAddMemberBox .createTaskMember').each(function() {
+    $('.createTaskAddMemberBox .createTaskMember').each(function () {
       var accountId = $(this).attr('data-id');
       if (accountId.indexOf('MD_SpecialAccounts') >= 0) {
         accountId = accountId.split('MD_SpecialAccounts');
@@ -1010,7 +965,7 @@ CreateTask.Motheds = {
         knowledgeAtt: JSON.stringify(settings.createTaskAttachments.kcAttachmentData),
         itemId: settings.itemId,
       })
-      .then(function(source) {
+      .then(function (source) {
         if (source.status) {
           safeLocalStorageSetItem('lastProjectId', settings.ProjectID);
 
@@ -1024,10 +979,7 @@ CreateTask.Motheds = {
           source.data.isNotice = false;
 
           if (stageId) {
-            source.data.stageName = $('#folderStage')
-              .next()
-              .find('.spanShow .txtBox')
-              .text();
+            source.data.stageName = $('#folderStage').next().find('.spanShow .txtBox').text();
           } else {
             source.data.stageName = _l('未完成');
           }
@@ -1082,16 +1034,16 @@ CreateTask.Motheds = {
           settings.dialog.closeDialog();
         }
       })
-      .fail(function() {
+      .fail(function () {
         $submitBtn.removeAttr('disabled');
         alert(_l('操作失败，请稍后再试'), 2);
       });
   },
 
   // 验证当前用户是否在该网络
-  checkIsProject: function(projectId) {
+  checkIsProject: function (projectId) {
     var isExist = false;
-    $.map(md.global.Account.projects, function(project) {
+    $.map(md.global.Account.projects, function (project) {
       if (projectId === project.projectId) {
         isExist = true;
       }
@@ -1102,16 +1054,16 @@ CreateTask.Motheds = {
 };
 
 // 导出
-export default function(opts) {
+export default function (opts) {
   return new CreateTask(opts);
 }
 
 // 加载时 执行 绑定 jquery
-(function($) {
+(function ($) {
   // 是否绑定过
   if (!$.CreateTask) {
     // 全局函数
-    $.CreateTask = function(opts) {
+    $.CreateTask = function (opts) {
       return new CreateTask(opts);
     };
   }

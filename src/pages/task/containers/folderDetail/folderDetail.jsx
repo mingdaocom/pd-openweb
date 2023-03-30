@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import { errorMessage, checkIsProject } from '../../utils/utils';
 import { clearFolderTip } from '../../redux/actions';
 import './folderDetail.less';
-import 'src/components/quickSelectUser/quickSelectUser';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import cx from 'classnames';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Icon from 'ming-ui/components/Icon';
@@ -40,7 +40,7 @@ class FolderDetail extends Component {
     this.getFolderDetail();
 
     // tips
-    $('#tasks').on('mouseover', '.folderDetailHead .icon-help', function() {
+    $('#tasks').on('mouseover', '.folderDetailHead .icon-help', function () {
       const _this = $(this);
       if (_this.data('bindtip')) {
         return;
@@ -217,8 +217,8 @@ class FolderDetail extends Component {
     const that = this;
     const { data } = this.state;
 
-    evt.find('.updateFolderCharge').on('click', function() {
-      $(this).dialogSelectUser({
+    evt.find('.updateFolderCharge').on('click', function () {
+      dialogSelectUser({
         sourceId: data.folderID,
         title: _l('选择负责人'),
         showMoreInvite: false,
@@ -441,7 +441,7 @@ class FolderDetail extends Component {
       existsIds = existsIds.concat(data.ordinaryMembers.map(item => item.accountID));
     }
 
-    $(evt.target).quickSelectUser({
+    quickSelectUser(evt.target, {
       sourceId: folderId,
       projectId,
       fromType: 6,

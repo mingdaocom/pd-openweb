@@ -69,12 +69,8 @@ export default function BtnListSort({ buttonList, onSortEnd }) {
   const [visible, setVisible] = useState(false);
   return (
     <Fragment>
-      <SortableBtnIconWrap className="mLeft10" onClick={() => setVisible(true)}>
-        <Tooltip title={_l('按钮排序')}>
-          <Fragment>
-            <Icon className="Font24" type="link" icon="import_export" />
-          </Fragment>
-        </Tooltip>
+      <SortableBtnIconWrap data-tip={_l('按钮排序')} className="mLeft10" onClick={() => setVisible(true)}>
+          <Icon className="Font24" type="link" icon="import_export" />
       </SortableBtnIconWrap>
       <Modal
         title={_l('自定义按钮排序')}

@@ -1,13 +1,15 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { string } from 'prop-types';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon, Tooltip, MdLink } from 'ming-ui';
 import styled from 'styled-components';
 import Avatar from '../Avatar';
 import GlobalSearch from '../GlobalSearch';
 import UserMenu from '../UserMenu';
 import AddMenu from '../AddMenu';
-import MyProcessEntry from 'src/pages/workflow/MyProcess/Entry';
-import MyProcess from 'src/pages/workflow/MyProcess';
+import MyProcessEntry from '../MyProcessEntry';
+import AppExtension from 'src/pages/PageHeader/AppPkgHeader/AppExtension';
+import CreateAppItem from './CreateAppItem';
+import { isCanEdit } from '../../util';
 import './index.less';
 import { getAppFeaturesVisible } from 'src/util';
 import _ from 'lodash';
@@ -29,14 +31,13 @@ const BtnCon = styled.div`
     background: #f5f5f5;
   }
 `;
+
 export default class CommonUserHandle extends Component {
   static propTypes = {
     type: string,
   };
   state = {
     globalSearchVisible: false,
-    myProcessVisible: false,
-    countData: {},
     userVisible: false,
   };
 
@@ -47,7 +48,7 @@ export default class CommonUserHandle extends Component {
   }
 
   render() {
-    const { globalSearchVisible, countData, myProcessVisible, userVisible } = this.state;
+    const { globalSearchVisible, userVisible } = this.state;
     const { type } = this.props;
 
     // 获取url参数
@@ -65,29 +66,19 @@ export default class CommonUserHandle extends Component {
           </Tooltip>
         )}
         {!['appPkg'].includes(type) && (
-          <BtnCon onClick={() => this.setState({ globalSearchVisible: true })} data-tip={_l('超级搜索')}>
+          <BtnCon onClick={() => this.setState({ globalSearchVisible: true })} data-tip={_l('超级搜索(F)')}>
             <Icon icon="search" />
           </BtnCon>
         )}
         {type === 'appPkg' && (
-          <div className="appPkgHeaderSearch" data-tip={_l('超级搜索')}>
+          <div className="appPkgHeaderSearch" data-tip={_l('超级搜索(F)')}>
             <Icon icon="search" className="Font20" onClick={() => this.setState({ globalSearchVisible: true })} />
           </div>
         )}
-        {_.includes(['native', 'appPkg'], type) ? (
-          <MyProcessEntry
-            type={type}
-            countData={countData}
-            className={md.global.SysSettings.hideHelpTip ? 'mRight20' : ''}
-            onClick={() => {
-              this.setState({ myProcessVisible: true });
-            }}
-            updateCountData={countData => {
-              this.setState({ countData });
-            }}
-          />
-        ) : null}
-        {/*type !== 'appPkg' && !md.global.SysSettings.hideHelpTip && (
+        {_.includes(['native'], type) && (
+          <MyProcessEntry type={type} />
+        )}
+        {/* {type !== 'appPkg' && (
           <BtnCon
             className={`mRight16 ${type === 'native' ? 'mLeft10' : ''}`}
             data-tip={_l('帮助')}
@@ -95,16 +86,7 @@ export default class CommonUserHandle extends Component {
           >
             <Icon icon="workflow_help" />
           </BtnCon>
-        )*/}
-        {/*type === 'appPkg' && !md.global.SysSettings.hideHelpTip && (
-          <div
-            className="workflowHelpIconWrap pointer"
-            data-tip={_l('帮助')}
-            onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
-          >
-            <Icon icon="workflow_help" className="helpIcon Font20" />
-          </div>
-        )*/}
+        )} */}
         <Tooltip
           text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
           mouseEnterDelay={0.2}
@@ -127,17 +109,97 @@ export default class CommonUserHandle extends Component {
           </div>
         </Tooltip>
         {globalSearchVisible && <GlobalSearch onClose={() => this.setState({ globalSearchVisible: false })} />}
-        {myProcessVisible && (
-          <MyProcess
-            countData={countData}
-            onCancel={() => {
-              this.setState({ myProcessVisible: false });
-            }}
-            updateCountData={countData => {
-              this.setState({ countData });
-            }}
-          />
+      </div>
+    );
+  }
+}
+
+export class LeftCommonUserHandle extends Component {
+  static propTypes = {
+    type: string,
+  };
+  state = {
+    globalSearchVisible: false,
+    userVisible: false,
+  };
+
+  handleUserVisibleChange(visible) {
+    this.setState({
+      userVisible: visible,
+    });
+  }
+
+  render() {
+    const { globalSearchVisible, userVisible } = this.state;
+    const { isAuthorityApp, type, data, sheet, match } = this.props;
+    const { projectId, id, permissionType, isLock, appStatus, fixed, pcDisplay } = data;
+    // 获取url参数
+    const { tr } = getAppFeaturesVisible();
+    if (window.isPublicApp || !tr) {
+      return null;
+    }
+
+    return (
+      <div className="commonUserHandleWrap leftCommonUserHandleWrap w100">
+        <CreateAppItem
+          isCharge={sheet.isCharge}
+          appId={id}
+          groupId={match.params.groupId}
+          worksheetId={match.params.worksheetId}
+          projectId={projectId}
+        >
+          <div className="headerColorSwitch">
+            <Icon icon="add" className="Font20 pointer" />
+          </div>
+        </CreateAppItem>
+        {_.includes([1, 5], appStatus) && !md.global.Account.isPortal && (
+          <Fragment>
+            {!window.isPublicApp && isCanEdit(permissionType, isLock) && (
+              <MdLink data-tip={_l('工作流')} className="tip-top" to={`/app/${id}/workflow`}>
+                <Icon icon="workflow" className="Font20 headerColorSwitch" />
+              </MdLink>
+            )}
+            {!((pcDisplay || fixed) && !isAuthorityApp) && (
+              <MdLink data-tip={_l('用户')} className="tip-top" to={`/app/${id}/role`}>
+                <Icon icon="group" className="Font20 headerColorSwitch" />
+              </MdLink>
+            )}
+          </Fragment>
         )}
+        {type === 'appPkg' && (
+          <div className="headerColorSwitch tip-top pointer" data-tip={_l('超级搜索(F)')}>
+            <Icon icon="search" className="Font20" onClick={() => this.setState({ globalSearchVisible: true })} />
+          </div>
+        )}
+        <div
+          className="headerColorSwitch tip-top pointer"
+          data-tip={_l('帮助')}
+          onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
+        >
+          <Icon icon="workflow_help" className="Font20" />
+        </div>
+        <Tooltip
+          text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
+          mouseEnterDelay={0.2}
+          action={['click']}
+          themeColor="white"
+          tooltipClass="pageHeadUser"
+          getPopupContainer={() => this.avatar}
+          offset={[0, 0]}
+          popupVisible={userVisible}
+          onPopupVisibleChange={this.handleUserVisibleChange.bind(this)}
+        >
+          <div
+            ref={avatar => {
+              this.avatar = avatar;
+            }}
+          >
+            <span className="tip-top" data-tip={md.global.Account.fullname}>
+              <Avatar src={md.global.Account.avatar.replace(/w\/100\/h\/100/, 'w/90/h/90')} size={30} />
+            </span>
+          </div>
+        </Tooltip>
+        {globalSearchVisible && <GlobalSearch onClose={() => this.setState({ globalSearchVisible: false })} />}
       </div>
     );
   }

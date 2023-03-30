@@ -244,6 +244,7 @@ export default class CardAppearance extends Component {
                       'projectId',
                       'roleType',
                       'worksheetId',
+                      'switches'
                     ]),
                     columns,
                     viewControl,

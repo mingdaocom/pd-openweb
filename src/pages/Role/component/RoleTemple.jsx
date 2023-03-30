@@ -236,13 +236,13 @@ export default class Con extends React.Component {
               </div>
               <div className="Font14 mTop25 bold">{_l('描述')}</div>
               <div className="mTop8">
-                <div className="w100 desC">{_l('应用管理员可以配置应用，管理应用下所有数据和人员')}</div>
+                <div className="w100 desC">{_l('管理员可以配置应用，管理应用下所有数据和人员')}</div>
               </div>
               <div className="Font14 mTop25 bold">{_l('权限')}</div>
               <div className="mTop8">
                 <div className="desRole">
                   {_l('拥有所有权限')}
-                  <span className="Gray_9e">（{_l('应用管理员为系统内置角色，不可修改')}）</span>
+                  <span className="Gray_9e">（{_l('管理员为系统内置角色，不可修改')}）</span>
                 </div>
               </div>
             </WrapSys>

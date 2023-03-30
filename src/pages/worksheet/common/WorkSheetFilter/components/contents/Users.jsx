@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import UserHead from 'src/pages/feed/components/userHead';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FILTER_CONDITION_TYPE } from '../../enum';
@@ -46,7 +47,7 @@ export default class Users extends Component {
     );
   }
   selectUser(title, projectId, options, callback) {
-    $().dialogSelectUser({
+    dialogSelectUser({
       title,
       sourceId: 0,
       fromType: 0,
@@ -69,8 +70,7 @@ export default class Users extends Component {
     if (this.props.disabled) {
       return;
     }
-    $(this.userscon).quickSelectUser({
-      showQuickInvite: false,
+    quickSelectUser(this.userscon, {
       showMoreInvite: false,
       isTask: false,
       includeUndefinedAndMySelf: !_.includes(['rule', 'portal'], from),

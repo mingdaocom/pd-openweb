@@ -30,7 +30,7 @@ const Wrap = styled.div`
   .nativeModuleLogo {
     width: auto !important;
     font-weight: 600;
-    padding-right: 16px;
+    padding-right: 8px;
     padding-left: 0px !important;
   }
   .iconNav {
@@ -41,13 +41,6 @@ const Wrap = styled.div`
     border-radius: 6px;
     color: #fff;
     line-height: 30px;
-  }
-  .line {
-    width: 0px;
-    height: 15px;
-    border: 1px solid #e5e5e5;
-    opacity: 1;
-    margin-right: 12px;
   }
 `;
 export default class HubHeader extends Component {
@@ -76,7 +69,6 @@ export default class HubHeader extends Component {
             </HomeEntry>
             <div className="nativeTitle">{_l('集成中心')}</div>
           </div>
-          <div className="line"></div>
           <SwitchProject />
           <Motion style={{ x: spring(indexSideVisible ? 0 : -352) }}>
             {({ x }) => (

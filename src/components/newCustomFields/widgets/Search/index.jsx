@@ -21,12 +21,12 @@ const SearchBtn = styled.div`
   height: 36px;
   border: 1px solid #ddd;
   border-radius: 3px;
-  font-size: 14px;
   padding: 0 24px;
   background: #fff;
   color: #333;
+  font-size: 13px;
   &:hover {
-    background: ${props => (props.isMobile ? '#fff' : '#f8f8f8')};
+    background: ${props => (props.isMobile ? '#fff' : '#f5f5f5')};
   }
   .successIcon {
     color: #4caf50;

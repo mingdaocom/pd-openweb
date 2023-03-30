@@ -69,17 +69,13 @@ function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
   let urlWithPara = genUrl(url, paras, info);
   const handleSave = () => {
     if (!url) {
-      alert(_l('url不能为空'));
+      alert(_l('url不能为空'), 3);
       return;
     }
     onEdit({ value: url, param: paras, config });
-  }
+  };
   return (
-    <Dialog
-      className="editWidgetDialogWrap"
-      visible
-      onClose={onClose}
-    >
+    <Dialog className="editWidgetDialogWrap" visible onClose={onClose}>
       <ConfigProvider autoInsertSpaceInButton={false}>
         <Header>
           <div className="typeName">{_l('嵌入url')}</div>
@@ -95,12 +91,7 @@ function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
         <ContentWrap>
           <div className="previewWrap">
             {preview ? (
-              <PreviewWraper
-                reload={reload}
-                newTab={newTab}
-                value={urlWithPara}
-                param={widget.param}
-              />
+              <PreviewWraper reload={reload} newTab={newTab} value={urlWithPara} param={widget.param} />
             ) : (
               _l('嵌入网页、视频、图片链接, 你也可以嵌入一个视图、记录的分享链接')
             )}

@@ -72,6 +72,7 @@ export default class DepartmentList extends Component {
     return this.props.checkIncludeChilren && this.getIsIncludesByParent(department);
   };
   render() {
+    const { activeIds = [] } = this.props;
     let departments = this.props.data;
     if (departments && departments.length) {
       return (
@@ -79,6 +80,7 @@ export default class DepartmentList extends Component {
           {departments.map((department, index) => {
             return (
               <Department
+                active={_.includes(activeIds, department.departmentId)}
                 key={department.departmentId + index}
                 department={department}
                 selectedDepartment={this.props.selectedDepartment}
@@ -152,7 +154,7 @@ class Department extends Component {
   }
   render() {
     const { moreIdLoading } = this.state;
-    let { department, checked, keywords, isIncludesByParent, checkIncludeChilren } = this.props;
+    let { active, department, checked, keywords, isIncludesByParent, checkIncludeChilren } = this.props;
     let { haveSubDepartment, subDepartments, disabled, open, departmentName } = department;
     disabled = disabled || isIncludesByParent;
     let name = departmentName;
@@ -175,7 +177,10 @@ class Department extends Component {
     }
     return (
       <div className="GSelect-department">
-        <div className={cx('GSelect-department-row flexRow')} onClick={this.toggleDepartmentList}>
+        <div
+          className={cx('GSelect-department-row flexRow', active ? 'focused' : '')}
+          onClick={this.toggleDepartmentList}
+        >
           <div
             className={cx('GSelect-arrow', {
               'GSelect-arrow--transparent': !haveSubDepartment,

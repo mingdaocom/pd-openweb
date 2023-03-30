@@ -66,8 +66,8 @@ class InvoiceSetting extends Component {
 
   addUserToTransfer() {
     const { projectId, accountId } = this.props;
-    import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
-      $({}).dialogSelectUser({
+    import('src/components/dialogSelectUser/dialogSelectUser').then(dialogSelectUser => {
+      dialogSelectUser.default({
         fromAdmin: true,
         SelectUserSettings: {
           filterAll: true,

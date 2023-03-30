@@ -4,7 +4,8 @@ import cx from 'classnames';
 import Icon from 'ming-ui/components/Icon';
 import UserHead from 'src/pages/feed/components/userHead';
 import Structure from 'src/api/structure';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import './style.less';
 import SelectUser from '../../../approval/components/SelectUser/SelectUser';
 import { FormError } from '../lib';
@@ -112,7 +113,7 @@ class UserPicker extends Component {
     const projectId = window.localStorage.getItem('plus_projectId') || '';
     // open pick modal
     if (this.props.type === 'leader') {
-      $({}).dialogSelectUser({
+      dialogSelectUser({
         title: _l('选择直属上司'),
         showMoreInvite: false,
         SelectUserSettings: {
@@ -130,7 +131,7 @@ class UserPicker extends Component {
               type: 4,
               page: true,
               actions: {
-                getUsers: (args) => {
+                getUsers: args => {
                   args = $.extend({}, args, {
                     accountId: this.props.accountId,
                     projectId,
@@ -141,7 +142,7 @@ class UserPicker extends Component {
               },
             },
           ],
-          callback: (data) => {
+          callback: data => {
             const value = data[0];
             if (this.state.value !== value) {
               this.checkValue(value, true);
@@ -164,14 +165,14 @@ class UserPicker extends Component {
     } else {
       if (this.props.moduleType === 'workflow') {
         const { projectId } = this.props;
-        $({}).dialogSelectUser({
+        dialogSelectUser({
           title: _l('请选择'),
           showMoreInvite: false,
           SelectUserSettings: {
             projectId: projectId || '',
             filterAccountIds: this.state.value ? this.state.value.map(item => item.accountId) : [],
             unique: !this.props.selectType,
-            callback: (data) => {
+            callback: data => {
               const value = this.props.selectType === 1 ? data.concat(this.state.value || []) : data;
               if (!_.isEqual(this.state.value, value)) {
                 this.checkValue(value, true);
@@ -192,8 +193,7 @@ class UserPicker extends Component {
         });
       } else if (this.props.moduleType === 'workSheet') {
         const { projectId } = this.props;
-        $(this.pickuserBtn).quickSelectUser({
-          showQuickInvite: false,
+        quickSelectUser(this.pickuserBtn, {
           showMoreInvite: false,
           isTask: false,
           prefixAccounts: [
@@ -213,9 +213,12 @@ class UserPicker extends Component {
             unique: this.props.selectType === 0,
             projectId: projectId || '',
             filterAccountIds: [],
-            callback: (users) => {
+            callback: users => {
               const oldValue = this.state.value || [];
-              const value = this.props.selectType === 1 ? users.filter(user => !_.find(oldValue, u => u.accountId === user.accountId)).concat(oldValue) : users;
+              const value =
+                this.props.selectType === 1
+                  ? users.filter(user => !_.find(oldValue, u => u.accountId === user.accountId)).concat(oldValue)
+                  : users;
               if (!_.isEqual(this.state.value, value)) {
                 this.checkValue(value, true);
                 // update state.value
@@ -232,9 +235,12 @@ class UserPicker extends Component {
               }
             },
           },
-          selectCb: (users) => {
+          selectCb: users => {
             const oldValue = this.state.value || [];
-            const value = this.props.selectType === 1 ? users.filter(user => !_.find(oldValue, u => u.accountId === user.accountId)).concat(oldValue) : users;
+            const value =
+              this.props.selectType === 1
+                ? users.filter(user => !_.find(oldValue, u => u.accountId === user.accountId)).concat(oldValue)
+                : users;
             if (!_.isEqual(this.state.value, value)) {
               this.checkValue(value, true);
               // update state.value
@@ -255,7 +261,7 @@ class UserPicker extends Component {
         SelectUser(
           _l('请选择'),
           projectId,
-          (data) => {
+          data => {
             const value = data[0];
             if (this.state.value !== value) {
               this.checkValue(value, true);
@@ -276,14 +282,14 @@ class UserPicker extends Component {
           false,
           true,
           this.props.exclude,
-          false
+          false,
         );
       }
     }
   };
   bindCardEvent = function ($mdBusinessCard) {
     const _this = this;
-    $mdBusinessCard.find('.worksheetMultiUserButton .removeMember').on('click', (e) => {
+    $mdBusinessCard.find('.worksheetMultiUserButton .removeMember').on('click', e => {
       const accountId = e.target.parentElement.getAttribute('data-accountid');
       const newValue = _this.state.value.filter(item => item.accountId !== accountId);
       // update state.value
@@ -347,7 +353,9 @@ class UserPicker extends Component {
                   ref={pickuserBtn => (this.pickuserBtn = pickuserBtn)}
                   className={cx(
                     'Icon icon Font24 Gray_9e ThemeHoverColor3',
-                    this.props.selectType === 1 || !this.state.value || !this.state.value.length ? 'icon-task-add-member-circle' : 'icon-task-folder-charge'
+                    this.props.selectType === 1 || !this.state.value || !this.state.value.length
+                      ? 'icon-task-add-member-circle'
+                      : 'icon-task-folder-charge',
                   )}
                   onClick={this.pickUser}
                 />
@@ -357,7 +365,7 @@ class UserPicker extends Component {
         ) : (
           <button type="button" className={buttonClassNames} disabled={this.props.disabled} onClick={this.pickUser}>
             <span className="mui-forminput-label">{this.state.label}</span>
-              <Icon icon="charger" />
+            <Icon icon="charger" />
           </button>
         )}
       </div>
@@ -440,7 +448,7 @@ UserPicker.defaultProps = {
   onChange: (event, value, item) => {
     //
   },
-  onError: (error) => {
+  onError: error => {
     //
   },
   onValid: () => {

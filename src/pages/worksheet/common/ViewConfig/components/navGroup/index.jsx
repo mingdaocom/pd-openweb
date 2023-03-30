@@ -11,6 +11,8 @@ import sheetAjax from 'src/api/worksheet';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util';
 import NavShow from './NavShow';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+
 import _ from 'lodash';
 const Wrap = styled.div`
   .hasData {
@@ -295,8 +297,11 @@ export default function NavGroup(params) {
       <AddCondition
         renderInParent
         className="addControl"
-        columns={filterOnlyShowField(worksheetControls).filter(
-          o => canNavGroup(o, worksheetId), // && !navGroup.controlId === o.controlId,
+        columns={setSysWorkflowTimeControlFormat(
+          filterOnlyShowField(worksheetControls).filter(
+            o => canNavGroup(o, worksheetId), // && !navGroup.controlId === o.controlId,
+          ),
+          currentSheetInfo.switches || [],
         )}
         onAdd={addNavGroups}
         style={{
@@ -363,6 +368,7 @@ export default function NavGroup(params) {
                 'projectId',
                 'roleType',
                 'worksheetId',
+                'switches',
               ]),
               columns,
               viewControl: data.controlId,

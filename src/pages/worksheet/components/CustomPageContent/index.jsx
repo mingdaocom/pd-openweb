@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { Fragment, useEffect, useRef } from 'react';
 import { string } from 'prop-types';
 import cx from 'classnames';
 import { connect } from 'react-redux';
@@ -11,14 +11,16 @@ import WebLayout from 'src/pages/customPage/webLayout';
 import { updatePageInfo, updateLoading, updateEditPageVisible } from 'src/pages/customPage/redux/action';
 import { copyCustomPage } from 'src/pages/worksheet/redux/actions/sheetList';
 import {
-  updateSheetListIsUnfold,
-  updateWorksheetInfo,
   updateSheetList,
   deleteSheet,
+  updateSheetListAppItem
 } from 'src/pages/worksheet/redux/actions/sheetList';
 import customApi from 'statistics/api/custom.js';
 import CustomPageHeader from './CustomPageHeader';
+import CustomPage from 'src/pages/customPage';
+import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import { browserIsMobile } from 'src/util';
+import { findSheet } from 'worksheet/util';
 import DocumentTitle from 'react-document-title';
 import { pick } from 'lodash';
 
@@ -32,7 +34,6 @@ const CustomPageContentWrap = styled.div`
     box-sizing: border-box;
     width: 100%;
     height: 44px;
-    line-height: 44px;
     padding: 0 24px 0 10px;
     border-radius: 3px 3px 0 0;
     background-color: #fff;
@@ -76,6 +77,21 @@ const CustomPageContentWrap = styled.div`
       justify-content: center;
       line-height: initial;
     }
+    .fullRotate {
+      transform: rotate(90deg);
+      display: inline-block;
+    }
+    .hoverGray {
+      width: 24px;
+      height: 24px;
+      display: inline-block;
+      text-align: center;
+      line-height: 24px;
+      border-radius: 3px;
+    }
+    .hoverGray:hover {
+      background: #f5f5f5;
+    }
   }
   .content {
     height: 100%;
@@ -92,42 +108,22 @@ const CustomPageContentWrap = styled.div`
   }
 `;
 
-const FullscreenHeader = styled.div`
-  position: fixed;
-  width: 100%;
-  height: 50px;
-  line-height: 50px;
-  padding: 0 24px;
-  background-color: #fff;
-  z-index: 1;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.24);
-  i {
-    color: #999;
-    cursor: pointer;
-    &:hover {
-      color: #2196f3;
-    }
-  }
-  span {
-    margin-left: 8px;
-  }
-`;
-
 function CustomPageContent(props) {
   const {
+    appPkg,
     loading,
     visible,
-    currentSheet,
     activeSheetId,
     adjustScreen,
     updatePageInfo,
     updateLoading,
     apk,
-    ids,
+    id,
+    groupId,
+    ids = {},
   } = props;
-  const { workSheetId: pageId, workSheetName } = currentSheet;
+  const pageId = id;
   const appName = props.appName || apk.appName || '';
-  const pageName = props.pageName || workSheetName || '';
   const ref = useRef(null);
   const [show, toggle] = useToggle(false);
 
@@ -136,22 +132,27 @@ function CustomPageContent(props) {
   };
   const isFullscreen = useFullscreen(ref, show, { onClose: closeFullscreen });
   const isMobile = browserIsMobile();
+  const sheetList = appPkg.currentPcNaviStyle === 1 ? getAppSectionData(groupId) : props.sheetList;
+  const currentSheet = findSheet(id, sheetList) || {};
+  const pageName = props.pageName || currentSheet.workSheetName || '';
 
   useEffect(() => {
-    updateLoading(true);
-    customApi
-      .getPage({ appId: pageId }, { fireImmediately: true })
-      .then(({ components, desc, apk, adjustScreen, name }) => {
-        updatePageInfo({
-          components: isMobile ? components.filter(item => item.mobile.visible) : components,
-          desc,
-          adjustScreen,
-          pageId,
-          apk: apk || {},
-          pageName: name
-        });
-      })
-      .always(() => updateLoading(false));
+    if (currentSheet.type !== 0) {
+      updateLoading(true);
+      customApi
+        .getPage({ appId: pageId }, { fireImmediately: true })
+        .then(({ components, desc, apk, adjustScreen, name }) => {
+          updatePageInfo({
+            components: isMobile ? components.filter(item => item.mobile.visible) : components,
+            desc,
+            adjustScreen,
+            pageId,
+            apk: apk || {},
+            pageName: name
+          });
+        })
+        .always(() => updateLoading(false));
+    }
   }, [pageId]);
 
   const renderContent = () => {
@@ -180,31 +181,33 @@ function CustomPageContent(props) {
   };
 
   return (
-    <CustomPageContentWrap className="CustomPageContentWrap">
-      {(appName || pageName) && <DocumentTitle title={`${appName} - ${pageName}`} />}
-      <CustomPageHeader {...props} toggle={toggle} />
-      <div ref={ref} className="content">
-        {/* {isFullscreen && !_.isEmpty(ref.current) && (
-          <FullscreenHeader>
-            <i onClick={closeFullscreen} className="icon-backspace Font20"></i>
-            <span className="Font18 pointer" onClick={closeFullscreen}>
-              {name}
-            </span>
-          </FullscreenHeader>
-        )} */}
-        {renderContent()}
-      </div>
-    </CustomPageContentWrap>
+    <Fragment>
+      <CustomPageContentWrap className="CustomPageContentWrap">
+        {(appName || pageName) && <DocumentTitle title={`${appName} - ${pageName}`} />}
+        {!loading && (
+          <CustomPageHeader {...props} currentSheet={currentSheet} toggle={toggle} />
+        )}
+        <div ref={ref} className="content">
+          {renderContent()}
+        </div>
+      </CustomPageContentWrap>
+      {visible && (
+        <CustomPage name={pageName} ids={ids} />
+      )}
+    </Fragment>
   );
 }
 
 export default connect(
-  ({ appPkg, customPage, sheet: { isCharge, base }, sheetList: { isUnfold } }) => ({
+  ({ appPkg, customPage, sheet: { isCharge, base }, sheetList: { data, appSectionDetail } }) => ({
     ...pick(customPage, ['loading', 'visible', 'desc', 'adjustScreen', 'apk', 'pageName']),
     isCharge,
     appName: appPkg.name,
-    sheetListVisible: isUnfold,
-    activeSheetId: base.workSheetId
+    // sheetList: appPkg.currentPcNaviStyle === 1 ? appSectionDetail : data,
+    sheetList: data,
+    appPkg,
+    activeSheetId: base.workSheetId,
+    groupId: base.groupId
   }),
   dispatch =>
     bindActionCreators(
@@ -214,9 +217,8 @@ export default connect(
         copyCustomPage,
         deleteSheet,
         updateSheetList,
+        updateSheetListAppItem,
         updateEditPageVisible,
-        updateSheetListIsUnfold,
-        updateWorksheetInfo,
       },
       dispatch,
     ),

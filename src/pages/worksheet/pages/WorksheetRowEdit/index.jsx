@@ -72,10 +72,11 @@ class WorksheetRowEdit extends Component {
    */
   getLinkDetail() {
     const id = location.pathname.match(/.*\/public\/workflow\/(.*)/)[1];
+    const clientId = sessionStorage.getItem(id);
 
     window.recordShareLinkId = id;
 
-    this.requestLinkDetail()
+    this.requestLinkDetail({ clientId })
       .then(data => {
         this.setState({ loading: false, data }, this.bindScroll);
       })
@@ -97,6 +98,7 @@ class WorksheetRowEdit extends Component {
               item.fieldPermission = '111';
             });
             data.shareAuthor && (window.shareAuthor = data.shareAuthor);
+            data.clientId && sessionStorage.setItem(window.recordShareLinkId, data.clientId);
             return resolve(data);
           } else {
             return reject(data);

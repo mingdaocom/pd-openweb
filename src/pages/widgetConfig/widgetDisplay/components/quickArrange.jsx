@@ -1,80 +1,21 @@
 import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
 import update from 'immutability-helper';
-import { Dropdown, Button } from 'antd';
 import { flatten, last, head, isEmpty } from 'lodash';
 import cx from 'classnames';
-import Icon from 'src/components/Icon';
+import { SettingItem } from '../../styled';
 import { isFullLineControl, isHaveGap } from '../../util/widgets';
 import { WHOLE_SIZE } from '../../config/Drag';
-import { getDefaultSizeByType } from '../../util';
+import { AnimationWrap } from './WidgetStyle';
 
 const ARRANGE_TYPE = [
-  { text: '一列', value: 1, icon: 'one_column' },
-  { text: '二列', value: 2, icon: 'two_column' },
-  { text: '三列', value: 3, icon: 'three_column' },
-  { text: '四列', value: 4, icon: 'four_column' },
+  { text: '一列', value: 1 },
+  { text: '二列', value: 2 },
+  { text: '三列', value: 3 },
+  { text: '四列', value: 4 },
 ];
-
-const ArrangeWrap = styled.div`
-  width: 320px;
-  padding: 24px;
-  background: #ffffff;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.24);
-  ul {
-    display: flex;
-    padding: 16px 0;
-    li {
-      flex: 1;
-      text-align: center;
-      padding-top: 12px;
-      cursor: pointer;
-      border-radius: 4px;
-      i {
-        font-size: 40px;
-      }
-      &:hover {
-        background-color: #f5f5f5;
-      }
-      &.active {
-        color: #2196f3;
-        i {
-          color: #2196f3;
-        }
-      }
-    }
-  }
-  .btns {
-    text-align: right;
-    border: none;
-    .restore {
-      box-shadow: none;
-    }
-    .apply {
-      margin-left: 16px;
-    }
-  }
-`;
-
-const ArrangeText = styled.div`
-  display: flex;
-  align-items: center;
-  color: #757575;
-  cursor: pointer;
-  &:hover {
-    color: #2196f3;
-    i {
-      color: #2196f3;
-    }
-  }
-  .quickArrange {
-    margin-left: 6px;
-  }
-`;
 
 export default function QuickArrange({ widgets, setWidgets }) {
   const $originWidgets = useRef(widgets);
-  const [visible, setVisible] = useState(false);
   const [activeColumn, setActive] = useState(-1);
 
   const quickArrange = columnNumber => {
@@ -129,7 +70,6 @@ export default function QuickArrange({ widgets, setWidgets }) {
   };
 
   const handleClose = () => {
-    setVisible(false);
     setActive(-1);
   };
 
@@ -148,56 +88,37 @@ export default function QuickArrange({ widgets, setWidgets }) {
   };
 
   return (
-    <Dropdown
-      arrow
-      placement="bottomLeft"
-      trigger={['click']}
-      visible={visible}
-      onVisibleChange={value => {
-        if (!value) {
-          restore();
-        }
-        if (!visible && value) {
-          $originWidgets.current = widgets;
-        }
-        setVisible(value);
-      }}
-      overlay={
-        <ArrangeWrap>
-          <div className="title">{_l('快速排列')}</div>
-          <ul>
-            {ARRANGE_TYPE.map(({ text, value, icon }) => (
-              <li key={value} className={cx({ active: value === activeColumn })} onClick={() => quickArrange(value)}>
-                <div>
-                  <Icon icon={icon} />
-                </div>
-                <p>{text}</p>
-              </li>
-            ))}
-          </ul>
-          <div className="btns">
-            {activeColumn > 0 && (
-              <Button className="restoreBtn" onClick={restore}>
-                {_l('还原')}
-              </Button>
-            )}
-            <Button
-              className="apply"
-              disabled={activeColumn < 1}
-              type="primary"
-              onClick={() => {
-                handleClose();
-                $originWidgets.current = widgets;
-              }}>
-              {_l('应用')}
-            </Button>
+    <SettingItem className="settingItem withSplitLine">
+      <div className="settingItemTitle">
+        <span className='Font14'>{_l('快速排列')}</span>
+        <div className="Absolute Right1 flexCenter">
+          {activeColumn > 0 && (
+            <div className="arrangeBtn mRight16" onClick={restore}>
+              {_l('还原')}
+            </div>
+          )}
+          <div
+            className="arrangeBtn"
+            disabled={activeColumn < 1}
+            onClick={() => {
+              handleClose();
+              $originWidgets.current = widgets;
+            }}
+          >
+            {_l('应用')}
           </div>
-        </ArrangeWrap>
-      }>
-      <ArrangeText>
-        <Icon type="clickable" icon="style" />
-        <div className="quickArrange">{_l('快速排列')}</div>
-      </ArrangeText>
-    </Dropdown>
+        </div>
+      </div>
+      <AnimationWrap>
+        {ARRANGE_TYPE.map(item => (
+          <div
+            className={cx('animaItem', { active: activeColumn === item.value })}
+            onClick={() => quickArrange(item.value)}
+          >
+            {item.text}
+          </div>
+        ))}
+      </AnimationWrap>
+    </SettingItem>
   );
 }

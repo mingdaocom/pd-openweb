@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
 import workSiteController from 'src/api/workSite';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import _ from 'lodash';
 
 export default class EditMemberDialog extends Component {
@@ -101,7 +101,7 @@ export default class EditMemberDialog extends Component {
 
   handleAdd() {
     const _this = this;
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       fromAdmin: true,
       SelectUserSettings: {
         showTabs: ['conactUser', 'department', 'group', 'subordinateUser'], // 用户列表子tab 联系人 部门 群组 下属

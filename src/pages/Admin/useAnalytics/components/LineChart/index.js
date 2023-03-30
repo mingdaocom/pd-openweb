@@ -43,6 +43,7 @@ export default class LineChart extends React.Component {
     const { type, total, total1, total2 } = chartInfo;
     const { data = [] } = this.state;
     const { Line, DualAxes } = this.g2plotComponent;
+    if (!this.lineChartEle) return;
 
     if (isDualAxes) {
       let data1 = !_.isEmpty(data)

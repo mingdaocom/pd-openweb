@@ -431,7 +431,7 @@ export const filterFn = (filterData, originControl, data = []) => {
           if (isEmptyValue(value) && isEmptyValue(compareValue)) return true;
           return parseFloat(compareValue) === parseFloat(value);
         case CONTROL_FILTER_WHITELIST.TEXT.value:
-          if (isEmptyValue(value) && isEmptyValue(compareValue)) return true;
+          if (isEmptyValue(value) && _.isEmpty(compareValues)) return true;
           let isInValue = false;
           _.map(compareValues, it => {
             if (it === value) {
@@ -602,7 +602,7 @@ export const filterFn = (filterData, originControl, data = []) => {
           if (isEmptyValue(value) && isEmptyValue(compareValue)) return false;
           return parseFloat(compareValue || 0) !== parseFloat(value || 0);
         case CONTROL_FILTER_WHITELIST.TEXT.value:
-          if (isEmptyValue(value) && isEmptyValue(compareValue)) return false;
+          if (isEmptyValue(value) && _.isEmpty(compareValues)) return false;
           let isInValue1 = true;
           _.map(compareValues, it => {
             if (it === value) {
@@ -1007,7 +1007,7 @@ export const filterFn = (filterData, originControl, data = []) => {
           let isInValue = false;
           _.map(compareValues, it => {
             let itValue = dynamicSource.length > 0 ? JSON.parse(it || '[]')[0] || {} : JSON.parse(it || '{}');
-            let valueN = value ? JSON.parse(value) : [];
+            let valueN = _.isArray(value) ? value : safeParse(value || '[]', 'array');
             _.map(valueN, item => {
               let curId = dynamicSource.length > 0 ? itValue.sid : itValue.id;
               if (curId === item.sid) {
@@ -1028,7 +1028,7 @@ export const filterFn = (filterData, originControl, data = []) => {
           _.map(compareValues, it => {
             let itValue = {};
             itValue = dynamicSource.length > 0 ? JSON.parse(it || '[]')[0] || {} : JSON.parse(it || '{}');
-            let valueN = value ? JSON.parse(value) : [];
+            let valueN = _.isArray(value) ? value : safeParse(value || '[]', 'array');
             _.map(valueN, item => {
               let curId = dynamicSource.length > 0 ? itValue.sid : itValue.id;
               if (curId === item.sid) {

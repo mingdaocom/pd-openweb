@@ -8,7 +8,7 @@ import AddAppDialog from '../../components/AddAppDialog';
 import { Table, ConfigProvider } from 'antd';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion.js';
 import processAjax from 'src/pages/workflow/api/process.js';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import { NODE_TYPE, USER_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
 import Member from 'src/pages/workflow/WorkflowSettings/Detail/components/Member/index.jsx';
 const TRIGGER_TYPE = {
@@ -186,28 +186,32 @@ function AuthorizeToApp(props) {
   });
   const getProcessConfigInfo = () => {
     setState({ loading: true });
-    processAjax.getProcessConfig(
-      {
-        processId: props.processId,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setState({ info: res, loading: false });
-    });
+    processAjax
+      .getProcessConfig(
+        {
+          processId: props.processId,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({ info: res, loading: false });
+      });
   };
   const saveProcessConfigInfo = data => {
-    processAjax.saveProcessConfig(
-      {
-        processId: props.processId,
-        errorNotifiers: data.errorNotifiers,
-        errorInterval: data.errorInterval,
-        triggerType: data.triggerType,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setState({ info: data });
-      props.hasChange();
-    });
+    processAjax
+      .saveProcessConfig(
+        {
+          processId: props.processId,
+          errorNotifiers: data.errorNotifiers,
+          errorInterval: data.errorInterval,
+          triggerType: data.triggerType,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({ info: data });
+        props.hasChange();
+      });
   };
   useEffect(() => {
     getProcessConfigInfo();
@@ -247,7 +251,7 @@ function AuthorizeToApp(props) {
       },
     },
     {
-      title: '操作',
+      title: _l('操作'),
       dataIndex: 'option',
       render: (text, record) => {
         // 安装的不可复制和删除、自定义的可以复制与删除
@@ -308,20 +312,22 @@ function AuthorizeToApp(props) {
     setState({
       optionLoading: true,
     });
-    packageVersionAjax.authorize(
-      {
-        companyId: localStorage.getItem('currentProjectId'),
-        apkIds: apkIds,
-        id: props.processId,
-        type, //: 1, //1添加 2移除
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setState({
-        optionLoading: false,
+    packageVersionAjax
+      .authorize(
+        {
+          companyId: localStorage.getItem('currentProjectId'),
+          apkIds: apkIds,
+          id: props.processId,
+          type, //: 1, //1添加 2移除
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({
+          optionLoading: false,
+        });
+        props.onFresh();
       });
-      props.onFresh();
-    });
   };
   const updateSource = data => {
     saveProcessConfigInfo({ ...info, ...data });
@@ -332,7 +338,7 @@ function AuthorizeToApp(props) {
   const addMembers = evt => {
     evt.stopPropagation();
 
-    $(evt.target).dialogSelectUser({
+    dialogSelectUser({
       title: _l('选择人员'),
       showMoreInvite: false,
       SelectUserSettings: {

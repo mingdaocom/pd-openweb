@@ -138,7 +138,7 @@ export default class ApiPackage extends Component {
                   <Icon
                     icon="task-new-detail"
                     className="mLeft10 Font12 ThemeColor3 ThemeHoverColor2 pointer"
-                    onClick={() => window.open(`/integrationConnect/${companyId}/${data.appId}`)}
+                    onClick={() => window.open(`/integrationConnect/${data.appId}`)}
                   />
                 </div>
                 {(data.app.explain || data.app.describe) && (

@@ -52,7 +52,7 @@ const DataRestriction = props => {
         <div style={style} className="Gray_75">{_l('工作表批量数据操作上限')}</div><div>{_l('%0条', sysSettings.worktableBatchOperateDataLimitCount)}</div>
       </div>
       <div className="flexRow valignWrapper mBottom15">
-        <div style={style} className="Gray_75">{_l('单个附件上传上限')}</div><div>{`${sysSettings.fileUploadLimitSize}M`}</div>
+        <div style={style} className="Gray_75">{_l('单次附件上传上限')}</div><div>{`${sysSettings.fileUploadLimitSize}M`}</div>
       </div>
       <div className="flexRow valignWrapper mBottom15">
         <div style={style} className="Gray_75">{_l('自定义页面统计图刷新时间间隔')}</div><div>{_l('%0秒', sysSettings.refreshReportInterval)}</div>

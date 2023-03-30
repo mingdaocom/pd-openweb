@@ -28,7 +28,7 @@ export default function (callback) {
       if (!canUpload && window.uploadAssistantWindow) {
         window.uploadAssistantWindow.close();
         delete window.uploadAssistantWindow;
-        alert(_l('已达到本月上传流量上限', 3));
+        alert(_l('已达到本月上传流量上限'), 3);
       }
     });
   }

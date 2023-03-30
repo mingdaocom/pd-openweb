@@ -102,9 +102,7 @@ export default function Users(props) {
           type="user"
           userType={getTabTypeBySelectUser(props)}
           appId={appId || ''}
-          isRangeData={!!advancedSetting.userrange}
-          filterWorksheetId={worksheetId}
-          filterWorksheetControlId={controlId}
+          selectRangeOptions={!!_.get(control, 'advancedSetting.userrange')}
           onlyOne={!isMultiple}
           onClose={() => setShowSelectUser(false)}
           onSave={onSave}

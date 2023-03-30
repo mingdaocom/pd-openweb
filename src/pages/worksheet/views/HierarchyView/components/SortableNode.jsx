@@ -138,6 +138,29 @@ export default class SortableRecordItem extends Component {
     }
     return { worksheetId, viewId };
   };
+  getCurrentSheetRows = () => {
+    const { stateTree = [] } = this.props;
+
+    const getLayerRows = (arr = [], rows = []) => {
+      const { data = {}, treeData = {} } = this.props;
+      if (arr.length) {
+        arr.map(item => {
+          if (_.get(item, 'pathId.length') === _.get(data, 'pathId.length')) {
+            rows.push({
+              index: (_.get(item, 'path') || [])[_.get(item, 'pathId.length') - 1],
+              row: treeData[item.rowId],
+            });
+          }
+          if (_.get(item, 'children.length')) {
+            getLayerRows(item.children, rows);
+          }
+        });
+      }
+      return rows;
+    };
+    const newRows = getLayerRows(stateTree);
+    return _.sortBy(newRows, 'index').map(i => i.row);
+  };
   render() {
     const { appId, data, updateHierarchyData, deleteHierarchyRecord, sheetSwitchPermit, view, worksheetInfo } =
       this.props;
@@ -166,8 +189,8 @@ export default class SortableRecordItem extends Component {
             }
           />
         </div>
-        {recordInfoVisible && (
-          isMobile ? (
+        {recordInfoVisible &&
+          (isMobile ? (
             <RecordInfoModal
               className="full"
               visible
@@ -181,12 +204,14 @@ export default class SortableRecordItem extends Component {
             />
           ) : (
             <RecordInfoWrapper
+              showPrevNext
               sheetSwitchPermit={sheetSwitchPermit}
               allowAdd={view.allowAdd}
               from={2}
               visible
               recordId={recordInfoRowId}
               projectId={worksheetInfo.projectId}
+              currentSheetRows={this.getCurrentSheetRows()}
               hideRecordInfo={() => {
                 this.setState({ recordInfoVisible: false });
               }}
@@ -197,8 +222,7 @@ export default class SortableRecordItem extends Component {
               deleteRows={(_, rows) => deleteHierarchyRecord({ rows, path, pathId })}
               {...recordInfoPara}
             />
-          )
-        )}
+          ))}
       </Fragment>
     );
   }

@@ -21,7 +21,7 @@ import AppAjax from 'src/api/appManagement';
 import { getIcon, getColor, getTxtColor, userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { navigateTo } from 'src/router/navigateTo';
-
+import DeleRoleDialog from 'src/pages/Role/AppRoleCon/component/DeleRoleDialog.jsx';
 const WrapL = styled.div`
   .roleSearch {
     background: #fff;
@@ -154,6 +154,7 @@ class Con extends React.Component {
       keywords: '',
       roleList: [],
       showDeleRoleByMoveUser: false,
+      delId: '',
     };
   }
   componentDidMount() {
@@ -218,7 +219,7 @@ class Con extends React.Component {
 
   delDialog = data => {
     if (data.totalCount > 0) {
-      this.setState({ showDeleRoleByMoveUser: true, roleId: data.roleId });
+      this.setState({ showDeleRoleByMoveUser: true, delId: data.roleId });
     } else {
       return Dialog.confirm({
         title: <span className="Red">{_l('你确认删除此角色吗？')}</span>,
@@ -541,7 +542,7 @@ class Con extends React.Component {
     const { outsourcing = {}, userList = [], user = {}, roleInfos = [] } = appRole;
     let { userIds = [] } = this.state;
     if (roleIds.length <= 0) {
-      return alert(_l('请选择角色', 3));
+      return alert(_l('请选择角色'), 3);
     }
     const {
       appId = '',
@@ -696,8 +697,8 @@ class Con extends React.Component {
   addUserToRole = (accountIds = []) => {
     const { projectId } = this.props;
     const { roleId } = this.state;
-    import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
-      $({}).dialogSelectUser({
+    import('src/components/dialogSelectUser/dialogSelectUser').then(dialogSelectUser => {
+      dialogSelectUser.default({
         showMoreInvite: false,
         overlayClosable: false,
         SelectUserSettings: {
@@ -872,7 +873,7 @@ class Con extends React.Component {
   };
 
   render() {
-    const { show, userIds, roleId } = this.state;
+    const { show, userIds, roleId, roleList, showDeleRoleByMoveUser, delId } = this.state;
     const { appRole = {}, projectId } = this.props;
     const { outsourcing = {}, userList = [], roleInfos = [], pageLoading } = appRole;
     const { memberModels = [] } = outsourcing;
@@ -965,6 +966,20 @@ class Con extends React.Component {
               } else {
                 this.changeRole(roleIds);
               }
+            }}
+          />
+        )}
+        {showDeleRoleByMoveUser && (
+          <DeleRoleDialog
+            roleList={roleList.filter(item => item.roleType !== 100 && item.roleId !== delId)}
+            onOk={data => {
+              this.onRemoveRole({ ...roleList.find(o => o.roleId === delId), resultRoleId: data });
+            }}
+            onCancel={() => {
+              this.setState({
+                showDeleRoleByMoveUser: false,
+                delId: '',
+              });
             }}
           />
         )}

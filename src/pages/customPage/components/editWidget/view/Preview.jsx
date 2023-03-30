@@ -106,7 +106,7 @@ const navigateToView = (workSheetId, viewId) => {
 
 export function View(props) {
   const { appId, setting, className, layoutType, filtersGroup = [] } = props;
-  const { value, viewId, config = {} } = setting;
+  const { apkId, value, viewId, config = {} } = setting;
   const singleViewRef = useRef();
   const isMobileLayout = isMobile || layoutType === 'mobile';
 
@@ -133,7 +133,7 @@ export function View(props) {
       <Component
         showHeader
         ref={singleViewRef}
-        appId={appId}
+        appId={apkId || appId}
         worksheetId={value}
         viewId={viewId}
         maxCount={config.maxCount}

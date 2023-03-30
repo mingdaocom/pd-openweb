@@ -19,6 +19,10 @@ export const APP_GROUP_CONFIG = [
   },
 ];
 
+const navigationConfig = {
+  type: 'editNavigation', icon: 'custom_navigation', action: 'navigationConfigVisible', text: _l('导航设置')
+}
+
 export const APP_CONFIG = {
   0: [],
   //  {
@@ -53,9 +57,10 @@ export const APP_CONFIG = {
     {
       type: 'modify',
       icon: 'edit',
-      text: _l('修改名称和图标'),
+      text: _l('名称和外观'),
       action: 'modifyAppIconAndNameVisible',
     },
+    navigationConfig,
     {
       type: 'editIntro',
       icon: 'info',
@@ -70,7 +75,6 @@ export const APP_CONFIG = {
       featureId: 17,
     },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
-    { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
     { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站'), featureId: 16 },
     {
       type: 'appManageMenu',
@@ -103,9 +107,10 @@ export const APP_CONFIG = {
     {
       type: 'modify',
       icon: 'edit',
-      text: _l('修改名称和图标'),
+      text: _l('名称和外观'),
       action: 'modifyAppIconAndNameVisible',
     },
+    navigationConfig,
     {
       type: 'editIntro',
       icon: 'info',
@@ -120,7 +125,6 @@ export const APP_CONFIG = {
       featureId: 17,
     },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
-    { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
     { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站'), featureId: 16 },
     {
       type: 'appManageMenu',
@@ -159,9 +163,10 @@ export const APP_CONFIG = {
     {
       type: 'modify',
       icon: 'edit',
-      text: _l('修改名称和图标'),
+      text: _l('名称和外观'),
       action: 'modifyAppIconAndNameVisible',
     },
+    navigationConfig,
     {
       type: 'editIntro',
       icon: 'info',
@@ -176,7 +181,6 @@ export const APP_CONFIG = {
       featureId: 17,
     },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
-    { type: 'editAppNavStyle', icon: 'mobile_phone', action: 'mobileNavVisible', text: _l('设置移动端导航') },
     { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站'), featureId: 16 },
     {
       type: 'appManageMenu',

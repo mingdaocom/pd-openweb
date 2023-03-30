@@ -7,6 +7,7 @@ import sheetAjax from 'src/api/worksheet';
 import RadioGroup from 'ming-ui/components/RadioGroup';
 import CustomFields from 'src/components/newCustomFields';
 import { SYSTEM_CONTROL_WITH_UAID, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import { CONTROL_EDITABLE_BLACKLIST } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
@@ -93,32 +94,30 @@ export default class EditRecord extends Component {
   selectOwner(e) {
     const _this = this;
     const { appId, projectId } = this.props;
-    $(e.target)
-      .closest('.selectOwner')
-      .quickSelectUser({
+    quickSelectUser($(e.target).closest('.selectOwner')[0], {
+      projectId: projectId,
+
+      showMoreInvite: false,
+      isTask: false,
+      tabType: 3,
+      appId,
+      includeUndefinedAndMySelf: true,
+      offset: {
+        top: 2,
+        left: 0,
+      },
+      zIndex: 10001,
+      SelectUserSettings: {
+        unique: true,
         projectId: projectId,
-        showQuickInvite: false,
-        showMoreInvite: false,
-        isTask: false,
-        tabType: 3,
-        appId,
-        includeUndefinedAndMySelf: true,
-        offset: {
-          top: 2,
-          left: -68,
-        },
-        zIndex: 10001,
-        SelectUserSettings: {
-          unique: true,
-          projectId: projectId,
-          callback(users) {
-            _this.setState({ ownerAccount: users[0], hasError: false });
-          },
-        },
-        selectCb(users) {
+        callback(users) {
           _this.setState({ ownerAccount: users[0], hasError: false });
         },
-      });
+      },
+      selectCb(users) {
+        _this.setState({ ownerAccount: users[0], hasError: false });
+      },
+    });
   }
 
   @autobind

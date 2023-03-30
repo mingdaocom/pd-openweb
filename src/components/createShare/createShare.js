@@ -2,8 +2,8 @@
 import moment from 'moment';
 import { htmlEncodeReg } from 'src/util';
 import copy from 'copy-to-clipboard';
-import animatePopup from 'src/components/animatePopup/animatePopup';
 import 'src/components/mdDialog/dialog';
+import mdNotification from 'ming-ui/functions/notify';
 
 var CreateShare = function (opts) {
   var defaults = {
@@ -55,15 +55,23 @@ $.extend(CreateShare.prototype, {
     var createShareLink = function () {
       window.open(_this.settings.linkURL);
     };
-
-    animatePopup({
+    const btnList = [];
+    if (_this.settings.isCalendar) {
+      btnList.push({
+        text: _l('邀请微信好友'),
+        onClick: inviteFn,
+      });
+    }
+    if (!(window.location.href.search(/\/calendar\/home/i) >= 0 && _this.settings.isCalendar)) {
+      btnList.push({
+        text: _l('前往查看'),
+        onClick: createShareLink,
+      });
+    }
+    mdNotification.success({
       title: _this.settings.content,
-      status: 1,
-      btnL: _this.settings.isCalendar ? _l('邀请微信好友') : '',
-      btnR: !(window.location.href.search(/\/calendar\/home/i) >= 0 && _this.settings.isCalendar) ? _l('前往查看') : '',
-      btnLFn: inviteFn,
-      btnRFn: createShareLink,
-      timeout: 5000,
+      duration: 5,
+      btnList,
     });
   },
   contentDialog: function () {
@@ -121,7 +129,11 @@ $.extend(CreateShare.prototype, {
       htmlEncodeReg(settings.name) +
       '\n' +
       _l('时间：') +
-      _l('%0 至 %1', moment(settings.startTime).format('YYYY-MM-DD HH:mm'), moment(settings.endTime).format('YYYY-MM-DD HH:mm')) +
+      _l(
+        '%0 至 %1',
+        moment(settings.startTime).format('YYYY-MM-DD HH:mm'),
+        moment(settings.endTime).format('YYYY-MM-DD HH:mm'),
+      ) +
       '\n' +
       _l('地点：') +
       htmlEncodeReg(settings.address) +
@@ -134,13 +146,9 @@ $.extend(CreateShare.prototype, {
   editBtnClass: function (keyStatus) {
     if (this.settings.calendarOpt.isAdmin) {
       if (keyStatus) {
-        $('#createShare .shareBtn')
-          .removeClass('cancelStyle')
-          .addClass('ThemeColor3');
+        $('#createShare .shareBtn').removeClass('cancelStyle').addClass('ThemeColor3');
       } else {
-        $('#createShare .shareBtn')
-          .removeClass('ThemeColor3')
-          .addClass('cancelStyle');
+        $('#createShare .shareBtn').removeClass('ThemeColor3').addClass('cancelStyle');
       }
     }
   },
@@ -149,10 +157,10 @@ $.extend(CreateShare.prototype, {
     var settings = this.settings.calendarOpt;
     var getURL = this.getURL(token);
     var copyHtml = this.copyHtml(getURL);
-    var url = md.global.Config.AjaxApiUrl +'code/CreateQrCodeImage?url=' + encodeURIComponent(getURL);
+    var url = md.global.Config.AjaxApiUrl + 'code/CreateQrCodeImage?url=' + encodeURIComponent(getURL);
 
     if (keyStatus) {
-      content += '<div class="qrCode"><img src="'+ url + '"></div>';
+      content += '<div class="qrCode"><img src="' + url + '"></div>';
       content += '<div class="createShareDesc Font16">' + _l('扫扫二维码，发送给微信上的朋友加入日程') + '</div>';
       content +=
         '<div class="createShareCopy Font14 ' +
@@ -163,7 +171,12 @@ $.extend(CreateShare.prototype, {
         _l('复制日程分享链接') +
         '</span></div>';
       if (settings.isAdmin) {
-        content += '<div class="shareOperator"><span class="shareBtn shareBtnClose" data-tip="' + _l('取消分享') + '">' + _l('取消分享') + '</span></div>';
+        content +=
+          '<div class="shareOperator"><span class="shareBtn shareBtnClose" data-tip="' +
+          _l('取消分享') +
+          '">' +
+          _l('取消分享') +
+          '</span></div>';
       }
     } else {
       content += '<div class="noShare"><i></i></div>';
@@ -176,20 +189,23 @@ $.extend(CreateShare.prototype, {
           '</div>';
         content += '<div class="shareOperator"><span class="shareBtn">' + _l('开启分享') + '</span></div>';
       } else {
-        content += '<div class="noShareContent Font16 noShareContentP">' + _l('此日程的分享已经被发起者关闭') + '</div>';
+        content +=
+          '<div class="noShareContent Font16 noShareContentP">' + _l('此日程的分享已经被发起者关闭') + '</div>';
       }
     }
 
     return content;
   },
   createClip: function () {
-    $('.createShareCopy span').off().on('click', function () {
-      copy($('.createShareCopy span').attr('data-clipboard-text'));
-      alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
-    });
+    $('.createShareCopy span')
+      .off()
+      .on('click', function () {
+        copy($('.createShareCopy span').attr('data-clipboard-text'));
+        alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
+      });
   },
 });
 
 export default function (opts) {
   return new CreateShare(opts);
-};
+}

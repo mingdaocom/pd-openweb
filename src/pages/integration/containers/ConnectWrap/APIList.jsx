@@ -8,8 +8,11 @@ import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-ho
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { LoadDiv, Dialog, Icon } from 'ming-ui';
 import processAjax from 'src/pages/workflow/api/process.js';
-import InstallDialog from '../../components/InstallDialog';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import loadScript from 'load-script';
 import _ from 'lodash';
+import moment from 'moment';
+
 const Wrap = styled.div`
   .noData {
     .iconCon {
@@ -65,42 +68,70 @@ const SortableList = SortableContainer(({ items, ...rest }) => {
 // 用户可以上下拖动卡片进行排序，拖动释放后自动保存排序；
 // 点击卡片可以侧拉弹出API详情；
 function APIList(props) {
-  const [
-    { list, keywords, show, showInstall, listId, loading, pageIndex, publishing, showType, change, listSearch },
-    setState,
-  ] = useSetState({
-    list: props.apiList || [],
-    keywords: '',
-    show: false,
-    listId: '',
-    loading: false,
-    pageIndex: 1,
-    publishing: false,
-    showType: 0,
-    showInstall: false,
-    change: 0,
-    listSearch: props.apiList || [],
-  });
+  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary.js' + '?' + moment().format('YYYYMMDD');
+  const featureType = getFeatureStatus(props.companyId, 3);
+  const [{ list, keywords, show, listId, loading, pageIndex, publishing, showType, change, listSearch }, setState] =
+    useSetState({
+      list: props.apiList || [],
+      keywords: '',
+      show: false,
+      listId: '',
+      loading: false,
+      pageIndex: 1,
+      publishing: false,
+      showType: 0,
+      change: 0,
+      listSearch: props.apiList || [],
+    });
   const fetchData = () => {
     setState({ loading: true });
-    packageVersionAjax.getApiList(
-      {
-        companyId: localStorage.getItem('currentProjectId'),
-        // types: [1, 2],
-        pageIndex,
-        pageSize: 10000, //PageSize,
-        keyword: keywords,
-        relationId: props.id,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setState({ loading: false, list: res });
-      props.updateList(res); //更新tab上的计数
-    });
+    packageVersionAjax
+      .getApiList(
+        {
+          companyId: localStorage.getItem('currentProjectId'),
+          // types: [1, 2],
+          pageIndex,
+          pageSize: 10000, //PageSize,
+          keyword: keywords,
+          relationId: props.id,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({ loading: false, list: res });
+        props.updateList(res); //更新tab上的计数
+      });
   };
   useEffect(() => {
     fetchData();
   }, [pageIndex, change]);
+  const showInstallDialog = () => {
+    if (window.MDAPIInstallDialog) {
+      showInstall();
+    } else {
+      loadScript(str, err => {
+        if (!err && window.MDAPIInstallDialog) {
+          showInstall();
+        }
+      });
+    }
+  };
+  const installCallBack = () => {
+    setState({ keywords: '', pageIndex: 1, change: change + 1 });
+  };
+  const showInstall = () => {
+    window.MDAPIInstallDialog({
+      featureType: featureType,
+      installCallBack: installCallBack,
+      info: props,
+      buriedUpgradeVersionDialog: () => {
+        buriedUpgradeVersionDialog(props.companyId, 3);
+      },
+      currentProjectId: props.companyId,
+      getUrl: __api_server__.integration || md.global.Config.IntegrationAPIUrl,
+      installUrl: __api_server__.integration || md.global.Config.IntegrationAPIUrl,
+    });
+  };
   /**
    * 切换流程的启用状态
    */
@@ -225,7 +256,7 @@ function APIList(props) {
             onClick={() => {
               if (props.type === 2) {
                 //安装的连接，添加=>继续安装
-                setState({ showInstall: true });
+                showInstallDialog();
               } else {
                 //自定义的的连接，添加=>创建
                 setState({ show: true, listId: '' });
@@ -248,19 +279,21 @@ function APIList(props) {
       list: listNew,
       listSearch: listNew,
     });
-    packageVersionAjax.sortApis(
-      {
-        apis: listNew.map(o => o.id),
-        id: props.id,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      if (res) {
-        props.updateList(listNew);
-      } else {
-        alert(_l('排序出错，请稍后再试', 3));
-      }
-    });
+    packageVersionAjax
+      .sortApis(
+        {
+          apis: listNew.map(o => o.id),
+          id: props.id,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        if (res) {
+          props.updateList(listNew);
+        } else {
+          alert(_l('排序出错，请稍后再试'), 3);
+        }
+      });
   };
 
   return (
@@ -284,7 +317,7 @@ function APIList(props) {
                 onClick={() => {
                   if (props.type === 2) {
                     //安装的连接，添加=>继续安装
-                    setState({ showInstall: true });
+                    showInstallDialog();
                   } else {
                     //自定义的的连接，添加=>创建
                     setState({ show: true, listId: '' });
@@ -361,17 +394,6 @@ function APIList(props) {
               listSearch: listNew,
             });
             props.updateList(listNew);
-          }}
-        />
-      )}
-      {showInstall && (
-        <InstallDialog
-          info={props}
-          onCancel={() => {
-            setState({ showInstall: false });
-          }}
-          callback={() => {
-            setState({ keywords: '', pageIndex: 1, change: change + 1, showInstall: false });
           }}
         />
       )}

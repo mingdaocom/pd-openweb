@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1670813516594') format('woff2'),
-       url('iconfont.woff?t=1670813516594') format('woff'),
-       url('iconfont.ttf?t=1670813516594') format('truetype');
+  src: url('iconfont.woff2?t=1678673959590') format('woff2'),
+       url('iconfont.woff?t=1678673959590') format('woff'),
+       url('iconfont.ttf?t=1678673959590') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,70 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-ai1:before {
+  content: "\e92d";
+}
+
+.icon-add1:before {
+  content: "\e7fe";
+}
+
+.icon-add:before {
+  content: "\e923";
+}
+
+.icon-stats_bar_chart1:before {
+  content: "\ebba";
+}
+
+.icon-stats_symmetric_graph_chart:before {
+  content: "\ebc0";
+}
+
+.icon-stats_word_cloud_chart:before {
+  content: "\eba7";
+}
+
+.icon-stats_progress_bar_chart:before {
+  content: "\ebaf";
+}
+
+.icon-stats_instrument_panel_chart:before {
+  content: "\eb99";
+}
+
+.icon-stats_ranking_list_chart:before {
+  content: "\eba1";
+}
+
+.icon-custom_navigation:before {
+  content: "\ea96";
+}
+
+.icon-settings_overscan:before {
+  content: "\ea95";
+}
+
+.icon-ai:before {
+  content: "\e918";
+}
+
+.icon-format_color:before {
+  content: "\e65e";
+}
+
+.icon-gourup_default:before {
+  content: "\e6a2";
+}
+
+.icon-save_as_black_24dp:before {
+  content: "\e6a1";
+}
+
+.icon-group_inactive:before {
+  content: "\e6a0";
 }
 
 .icon-card:before {
@@ -755,10 +819,6 @@
 
 .icon-add_circle:before {
   content: "\ebf2";
-}
-
-.icon-add1:before {
-  content: "\ebf3";
 }
 
 .icon-account_circle:before {
@@ -2511,10 +2571,6 @@
 
 .icon-next-02:before {
   content: "\eafd";
-}
-
-.icon-add:before {
-  content: "\e7fe";
 }
 
 .icon-feed:before {

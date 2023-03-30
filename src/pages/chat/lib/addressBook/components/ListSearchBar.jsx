@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import Icon from 'ming-ui/components/Icon';
 import InviteDialog from 'src/components/invite';
 import AddFriends from 'src/components/addFriends/addFriends';
@@ -51,7 +51,7 @@ export default class SearchBar extends React.Component {
         AddFriends({ projectId, fromType: 0 });
         break;
       case 'projectContacts':
-        $({}).dialogSelectUser({
+        dialogSelectUser({
           SelectUserSettings: {
             filterAccountIds: [md.global.Account.accountId],
             filterProjectId: projectId,

@@ -740,6 +740,7 @@ class TableView extends React.Component {
         {recordInfoVisible && (
           <RecordInfo
             tableType={this.tableType}
+            widgetStyle={worksheetInfo.advancedSetting}
             controls={controls}
             sheetSwitchPermit={sheetSwitchPermit}
             projectId={projectId}

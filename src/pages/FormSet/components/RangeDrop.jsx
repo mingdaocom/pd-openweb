@@ -177,9 +177,8 @@ export class RangeDrop extends React.Component {
                     >
                       <input
                         type="checkbox"
-                        className="viewInput"
+                        className="viewInput TxtMiddle"
                         checked={printData.views.map(o => o.viewId).includes(it.viewId)}
-                        className="TxtMiddle"
                       />
                       <span className="TxtMiddle">{it.name}</span>
                     </div>

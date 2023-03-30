@@ -69,7 +69,13 @@ export default class CoverSetting extends React.Component {
       return '';
     }
     let data = !fromRelative ? view : this.props;
-    const { coverCid, viewType, coverType, advancedSetting = {} } = data;
+    const { viewType, coverType, advancedSetting = {} } = data;
+    const coverCid =
+      VIEW_DISPLAY_TYPE.gallery === String(viewType)
+        ? _.isUndefined(data.coverCid)
+          ? _.get(currentSheetInfo, ['advancedSetting', 'coverid']) //默认取表单设置里的封面
+          : data.coverCid
+        : data.coverCid;
     const { coverposition, opencover = '1' } = advancedSetting;
     const coverControls = filterAndFormatterControls({
       controls: coverColumns,

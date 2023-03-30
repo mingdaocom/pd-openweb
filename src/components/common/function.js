@@ -6,7 +6,7 @@ import { index as dialog } from 'src/components/mdDialog/dialog';
 import projectAjax from 'src/api/project';
 import userController from 'src/api/user';
 
-const replaceMessageCustomTag = function(message, tagName, replaceHtmlFunc, filterCustom) {
+const replaceMessageCustomTag = function (message, tagName, replaceHtmlFunc, filterCustom) {
   var startTag, endTag, customReplaceStr;
   if (!message) return message;
   if (typeof tagName === 'string') {
@@ -29,7 +29,7 @@ const replaceMessageCustomTag = function(message, tagName, replaceHtmlFunc, filt
     if (filterCustom) {
       message = message.replace(customRegExp, '');
     } else {
-      message = message.replace(customRegExp, function($0, $1, $2) {
+      message = message.replace(customRegExp, function ($0, $1, $2) {
         var customStr = $2;
         var splitterIndex = customStr.indexOf('|');
         if (splitterIndex === -1) {
@@ -44,7 +44,7 @@ const replaceMessageCustomTag = function(message, tagName, replaceHtmlFunc, filt
   return message;
 };
 
-const getUserStatus = function(user) {
+const getUserStatus = function (user) {
   if (user) {
     switch (user.status) {
       case 2:
@@ -61,10 +61,10 @@ const getUserStatus = function(user) {
   return '';
 };
 
-const inviteNoticeMessage = function(title, accounts) {
+const inviteNoticeMessage = function (title, accounts) {
   if (!accounts.length) return '';
   var noticeMessage = title + '：<br/>';
-  $.each(accounts, function(i, item) {
+  $.each(accounts, function (i, item) {
     var message = '';
     if (item.account) {
       // 不存在的用户
@@ -96,7 +96,7 @@ const inviteNoticeMessage = function(title, accounts) {
  * @param  {boolean} args.filterFace     不显示表情
  * @return {string}                替换后的 html
  */
-export const createLinksForMessage = function(args) {
+export const createLinksForMessage = function (args) {
   var message = args.message.replace(/\n/g, '<br>');
   var rUserList = args.rUserList;
   var rGroupList = args.rGroupList;
@@ -159,8 +159,8 @@ export const createLinksForMessage = function(args) {
     }
   }
 
-  var getReplaceHtmlFunc = function(getLink, getPlain) {
-    return function(customId, customName) {
+  var getReplaceHtmlFunc = function (getLink, getPlain) {
+    return function (customId, customName) {
       if (noLink) {
         return getPlain ? getPlain(customId) : customName;
       }
@@ -170,7 +170,7 @@ export const createLinksForMessage = function(args) {
 
   // TODO: 了解此处各字符串是否已由后台encode
   // 话题
-  var findCategory = function(id) {
+  var findCategory = function (id) {
     if (categories) {
       for (var i = 0, l = categories.length; i < l; i++) {
         if (categories[i].catID === id) {
@@ -183,12 +183,12 @@ export const createLinksForMessage = function(args) {
     message,
     'cid',
     getReplaceHtmlFunc(
-      function(id, name) {
+      function (id, name) {
         var category = findCategory(id);
         name = category ? category.catName : '未知话题';
         return '<a target="_blank" href="/feed?catId=' + id + '">#' + htmlEncodeReg(name) + '#</a>';
       },
-      function(id, name) {
+      function (id, name) {
         var category = findCategory(id);
         name = category ? category.catName : '未知话题';
         return '#' + htmlEncodeReg(name) + '#';
@@ -199,7 +199,7 @@ export const createLinksForMessage = function(args) {
   message = replaceMessageCustomTag(
     message,
     'tid',
-    getReplaceHtmlFunc(function(id, name) {
+    getReplaceHtmlFunc(function (id, name) {
       return '<a target="_blank" href="/apps/task/task_' + id + '">' + htmlEncodeReg(name) + '</a>';
     }),
   );
@@ -207,7 +207,7 @@ export const createLinksForMessage = function(args) {
   message = replaceMessageCustomTag(
     message,
     'fid',
-    getReplaceHtmlFunc(function(id, name) {
+    getReplaceHtmlFunc(function (id, name) {
       return '<a target="_blank" href="/apps/task/folder_' + id + '">' + htmlEncodeReg(name) + '</a>';
     }),
   );
@@ -215,7 +215,7 @@ export const createLinksForMessage = function(args) {
   message = replaceMessageCustomTag(
     message,
     ['[CALENDAR]', '[CALENDAR]'],
-    getReplaceHtmlFunc(function(id, name) {
+    getReplaceHtmlFunc(function (id, name) {
       return '<a target="_blank" href="/apps/calendar/detail_' + id + '">' + htmlEncodeReg(name) + '</a>';
     }),
   );
@@ -223,7 +223,7 @@ export const createLinksForMessage = function(args) {
   message = replaceMessageCustomTag(
     message,
     ['[STARTANSWER]', '[ENDANSWER]'],
-    getReplaceHtmlFunc(function(id, name) {
+    getReplaceHtmlFunc(function (id, name) {
       return '<a target="_blank" href="/feeddetail?itemID=' + id + '">' + htmlEncodeReg(name) + '</a>';
     }),
   );
@@ -231,7 +231,7 @@ export const createLinksForMessage = function(args) {
   message = replaceMessageCustomTag(
     message,
     ['[docversion]', '[docversion]'],
-    getReplaceHtmlFunc(function(id, name) {
+    getReplaceHtmlFunc(function (id, name) {
       return (
         '<a href="/feeddetail?itemID=' +
         id +
@@ -252,7 +252,7 @@ export const createLinksForMessage = function(args) {
     message = message.replace(/\n/g, '<br>');
     var urlReg = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=])?[^ <>\[\]*(){},\u4E00-\u9FA5]+/gi;
 
-    message = message.replace(urlReg, function(m) {
+    message = message.replace(urlReg, function (m) {
       return '<a target="_blank" href="' + m + '">' + m + '</a>';
     });
   }
@@ -266,15 +266,12 @@ export const createLinksForMessage = function(args) {
 };
 
 // 发送提醒通知 未填写手机号码
-export const sendNoticeInvite = function(id, object, projectId, type) {
+export const sendNoticeInvite = function (id, object, projectId, type) {
   if (object) {
-    object
-      .removeAttr('onclick')
-      .css('cursor', 'none')
-      .text(_l('已发送提醒'));
+    object.removeAttr('onclick').css('cursor', 'none').text(_l('已发送提醒'));
   }
   if ($.isArray(id) ? id.length <= 0 : !id) {
-    alert(_l('没有要提醒的人'));
+    alert(_l('没有要提醒的人'), 4);
   }
   if (!$.isArray(id)) {
     id = [id];
@@ -286,12 +283,12 @@ export const sendNoticeInvite = function(id, object, projectId, type) {
       projectId: projectId,
       type: type,
     })
-    .done(function(result) {
+    .done(function (result) {
       alert('已成功发送提醒', 1);
     });
 };
 
-export const showFollowWeixinDialog = function() {
+export const showFollowWeixinDialog = function () {
   var html = `
     <div class='pAll10 mLeft30 pBottom30'>
     <div class='followWeixinQrCode Left'>
@@ -315,7 +312,7 @@ export const showFollowWeixinDialog = function() {
     width: 398,
   });
 
-  weixin.getWeiXinServiceNumberQRCode().then(function(data) {
+  weixin.getWeiXinServiceNumberQRCode().then(function (data) {
     var content = '加载失败';
     if (data) {
       content = "<img src='" + data + "' width='98' height='98'/>";
@@ -325,14 +322,14 @@ export const showFollowWeixinDialog = function() {
 };
 
 // 验证网络是否到期异步
-export const expireDialogAsync = function(projectId, text) {
+export const expireDialogAsync = function (projectId, text) {
   var def = $.Deferred();
   def.resolve();
   return def.promise();
 };
 
 // 提示邀请结果
-export const existAccountHint = function(result, chooseInviteCallback, limitHint, failedHint) {
+export const existAccountHint = function (result, chooseInviteCallback, limitHint, failedHint) {
   var SendMessageResult = {
     Failed: 0,
     Success: 1,
@@ -356,7 +353,7 @@ export const existAccountHint = function(result, chooseInviteCallback, limitHint
   var forbidAccountInfos = []; // 账号来源类型受限
 
   // result type array
-  $.each(result.results, function(index, singleResult) {
+  $.each(result.results, function (index, singleResult) {
     // 成功
     if (singleResult.accountInfos) {
       accountInfos = accountInfos.concat(singleResult.accountInfos);

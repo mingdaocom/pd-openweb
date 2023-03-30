@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import cx from 'classnames';
-import 'src/components/uploadAttachment/uploadAttachment';
 import { browserIsMobile } from 'src/util';
 import Container from './Container';
 import TPAuth from './tpAuth';
@@ -58,6 +57,7 @@ const WrapWx = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0 auto;
     border-radius: 5px;
     div {
       height: 28px;

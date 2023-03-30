@@ -11,7 +11,7 @@ import UserHead from 'src/pages/feed/components/userHead/userHead';
 import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import projectSettingAjaxRequest from 'src/api/projectSetting';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import CustomIcon from './CustomIcon';
 import SvgIcon from 'src/components/SvgIcon';
 import Trigger from 'rc-trigger';
@@ -283,11 +283,12 @@ export default class AppManagement extends Component {
                             total: oldTotal - 1,
                             hiddenIds: _.uniq([...hiddenIds, item.appId]),
                           });
-                          homeAppAjax.deleteApp({
-                            appId: item.appId,
-                            projectId,
-                            isHomePage: false,
-                          })
+                          homeAppAjax
+                            .deleteApp({
+                              appId: item.appId,
+                              projectId,
+                              isHomePage: false,
+                            })
                             .then(res => {
                               if (res.data) {
                                 this.setState({
@@ -375,7 +376,7 @@ export default class AppManagement extends Component {
     };
     ReactDom.render(
       <Dialog {...options}>
-        <ImportApp closeDialog={() => this.closeDialog('importSingleAppDialog')}  />
+        <ImportApp closeDialog={() => this.closeDialog('importSingleAppDialog')} />
       </Dialog>,
       document.createElement('div'),
     );
@@ -448,7 +449,7 @@ export default class AppManagement extends Component {
 
           this.setState({ list });
         } else {
-          alert(_l('操作失败，请稍候重试！', 2));
+          alert(_l('操作失败，请稍候重试！'), 2);
         }
       });
     };
@@ -489,7 +490,7 @@ export default class AppManagement extends Component {
   chargeReadyFn = (evt, appId, accountId) => {
     const that = this;
     evt.on('click', '.updateAppCharge', function () {
-      $(this).dialogSelectUser({
+      dialogSelectUser({
         sourceId: that.props.match.params.projectId,
         fromType: 4,
         fromAdmin: true,

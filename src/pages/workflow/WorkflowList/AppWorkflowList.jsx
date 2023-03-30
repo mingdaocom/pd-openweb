@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import './index.less';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import processVersion from '../api/processVersion';
-import { Icon, Dropdown, ScrollView, LoadDiv, Support, Button, Tooltip } from 'ming-ui';
+import { Icon, Dropdown, ScrollView, LoadDiv, Support, Button, Tooltip, WaterMark } from 'ming-ui';
 import qs from 'query-string';
 import { Link } from 'react-router-dom';
 import { navigateTo } from 'router/navigateTo';
@@ -83,6 +83,7 @@ class AppWorkflowList extends Component {
       iconUrl: '',
       iconColor: '',
       name: '',
+      projectId: '',
     };
   }
 
@@ -119,8 +120,8 @@ class AppWorkflowList extends Component {
   getAppDetail() {
     const appId = this.props.match.params.appId;
 
-    homeApp.getAppDetail({ appId }).then(({ iconUrl, iconColor, name }) => {
-      this.setState({ iconUrl, iconColor, name });
+    homeApp.getAppDetail({ appId }).then(({ iconUrl, iconColor, name, projectId }) => {
+      this.setState({ iconUrl, iconColor, name, projectId });
     });
   }
 
@@ -187,8 +188,27 @@ class AppWorkflowList extends Component {
       <HeaderWrap className="flexRow alignItemsCenter">
         <DocumentTitle title={`${name ? name + ' - ' : ''}${_l('工作流')}`} />
 
-        <Tooltip popupPlacement="bottom" text={<span>{_l('应用：%0', name)}</span>}>
-          <div className="flexRow pointer Gray_bd alignItemsCenter" onClick={() => navigateTo(`/app/${appId}`)}>
+        <Tooltip popupPlacement="bottomLeft" text={<span>{_l('应用：%0', name)}</span>}>
+          <div
+            className="flexRow pointer Gray_bd alignItemsCenter"
+            onClick={() => {
+              window.disabledSideButton = true;
+
+              const storage =
+                JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
+
+              if (storage) {
+                const { lastGroupId, lastWorksheetId, lastViewId } = storage;
+                navigateTo(
+                  `/app/${appId}/${[lastGroupId, lastWorksheetId, lastViewId]
+                    .filter(o => o && !_.includes(['undefined', 'null'], o))
+                    .join('/')}?from=insite`,
+                );
+              } else {
+                navigateTo(`/app/${appId}`);
+              }
+            }}
+          >
             <i className="icon-navigate_before Font20" />
             <div className="applicationIcon" style={{ backgroundColor: iconColor }}>
               <SvgIcon url={iconUrl} fill="#fff" size={18} />
@@ -616,13 +636,14 @@ class AppWorkflowList extends Component {
   createFlow = appId => {
     this.requestPending = true;
 
-    processAjax.addProcess({
-      companyId: '',
-      relationId: appId,
-      relationType: 2,
-      startEventAppType: 17,
-      name: _l('未命名业务流程'),
-    })
+    processAjax
+      .addProcess({
+        companyId: '',
+        relationId: appId,
+        relationType: 2,
+        startEventAppType: 17,
+        name: _l('未命名业务流程'),
+      })
       .then(res => {
         appManagementAjax.addWorkflow({ projectId: res.companyId });
         navigateTo(`/workflowedit/${res.id}`);
@@ -633,8 +654,7 @@ class AppWorkflowList extends Component {
   };
 
   render() {
-    const appId = this.props.match.params.appId;
-    const { type, loading, list, selectFilter } = this.state;
+    const { type, loading, list, selectFilter, projectId } = this.state;
     const filterList = [[{ text: type === FLOW_TYPE.OTHER_APP ? _l('全部应用') : _l('全部'), value: '' }], []];
 
     (list || []).forEach(item => {
@@ -642,69 +662,71 @@ class AppWorkflowList extends Component {
     });
 
     return (
-      <div className="flexColumn h100">
-        {this.renderHeader()}
+      <WaterMark projectId={projectId}>
+        <div className="flexColumn h100">
+          {this.renderHeader()}
 
-        <div className="workflowList flexRow workflowListShadow flex">
-          {this.renderNavigation()}
+          <div className="workflowList flexRow workflowListShadow flex">
+            {this.renderNavigation()}
 
-          <div className="manageListContainer flex">
-            <div className="manageListBox">
-              <div className="manageListBoxContent flexColumn">
-                {loading ? (
-                  <LoadDiv className="mTop10" />
-                ) : !list.length ? (
-                  <div className="flowEmptyWrap flexColumn">
-                    <div className={cx('flowEmptyPic', `flowEmptyPic-${(FLOW_TYPE_NULL[type] || {}).icon}`)} />
-                    <div className="Gray_9e Font14 mTop20">{FLOW_TYPE_NULL[type].text}</div>
-                  </div>
-                ) : (
-                  <Fragment>
-                    <div className="manageListSearch flexRow">
-                      {!_.includes([FLOW_TYPE.OTHER, FLOW_TYPE.PBC], type) && (
-                        <Dropdown
-                          className="w180"
-                          data={filterList}
-                          value={selectFilter}
-                          openSearch
-                          border
-                          onChange={selectFilter => this.setState({ selectFilter })}
-                        />
-                      )}
-
-                      {_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.PBC], type) && (
-                        <div className="Gray_75 flexRow">
-                          {type === FLOW_TYPE.OTHER_APP
-                            ? _l(
-                                '这些其他应用下的流程可以修改本应用中的数据。如果你是这些应用的管理员，你可以在这里查看和编辑流程',
-                              )
-                            : _l('封装应用中可被复用的数据处理能力，接受约定的参数传入，流程执行后输出结果参数')}
-
-                          {FLOW_TYPE.PBC === type && (
-                            <Support
-                              className="pointer Gray_9e mLeft2"
-                              href="https://help.mingdao.com/flow_pbp.html"
-                              type={3}
-                              text={_l('帮助')}
-                            />
-                          )}
-                        </div>
-                      )}
-
-                      <div className="flex" />
-                      <Search
-                        placeholder={_l('搜索流程名称')}
-                        handleChange={keywords => this.setState({ keywords: keywords.trim() })}
-                      />
+            <div className="manageListContainer flex">
+              <div className="manageListBox">
+                <div className="manageListBoxContent flexColumn">
+                  {loading ? (
+                    <LoadDiv className="mTop10" />
+                  ) : !list.length ? (
+                    <div className="flowEmptyWrap flexColumn">
+                      <div className={cx('flowEmptyPic', `flowEmptyPic-${(FLOW_TYPE_NULL[type] || {}).icon}`)} />
+                      <div className="Gray_9e Font14 mTop20">{FLOW_TYPE_NULL[type].text}</div>
                     </div>
-                    {this.renderContent()}
-                  </Fragment>
-                )}
+                  ) : (
+                    <Fragment>
+                      <div className="manageListSearch flexRow">
+                        {!_.includes([FLOW_TYPE.OTHER, FLOW_TYPE.PBC], type) && (
+                          <Dropdown
+                            className="w180"
+                            data={filterList}
+                            value={selectFilter}
+                            openSearch
+                            border
+                            onChange={selectFilter => this.setState({ selectFilter })}
+                          />
+                        )}
+
+                        {_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.PBC], type) && (
+                          <div className="Gray_75 flexRow">
+                            {type === FLOW_TYPE.OTHER_APP
+                              ? _l(
+                                  '这些其他应用下的流程可以修改本应用中的数据。如果你是这些应用的管理员，你可以在这里查看和编辑流程',
+                                )
+                              : _l('封装应用中可被复用的数据处理能力，接受约定的参数传入，流程执行后输出结果参数')}
+
+                            {FLOW_TYPE.PBC === type && (
+                              <Support
+                                className="pointer Gray_9e mLeft2"
+                                href="https://help.mingdao.com/zh/flow_pbp.html"
+                                type={3}
+                                text={_l('帮助')}
+                              />
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex" />
+                        <Search
+                          placeholder={_l('搜索流程名称')}
+                          handleChange={keywords => this.setState({ keywords: keywords.trim() })}
+                        />
+                      </div>
+                      {this.renderContent()}
+                    </Fragment>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </WaterMark>
     );
   }
 }

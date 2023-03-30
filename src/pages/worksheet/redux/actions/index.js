@@ -38,6 +38,8 @@ export const clearChartId = base => {
   };
 };
 
+export const updateIsCharge = isCharge => ({ type: 'WORKSHEET_UPDATE_IS_CHARGE', isCharge });
+
 export const updateWorksheetLoading = loading => ({ type: 'WORKSHEET_UPDATE_LOADING', loading });
 
 let worksheetRequest = null;
@@ -443,7 +445,7 @@ export function getNavGroupCount() {
     const sheet = getState().sheet;
     const { filters = {}, base = {}, quickFilter = {} } = sheet;
     const { worksheetId, viewId } = base;
-    const { filterControls, keyWords, searchType } = filters;
+    const { filterControls, filtersGroup, keyWords, searchType } = filters;
     if (!worksheetId && !viewId) {
       return;
     }
@@ -452,6 +454,7 @@ export function getNavGroupCount() {
         worksheetId,
         viewId,
         filterControls,
+        filtersGroup,
         searchType,
         fastFilters: (_.isArray(quickFilter) ? quickFilter : []).map(f =>
           _.pick(f, [

@@ -1,5 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { Input, Dialog, Icon } from 'ming-ui';
+import { Input, Dialog, Icon, Switch } from 'ming-ui';
+import { formatNumberFromInput } from 'src/util';
 import { Button, Divider } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
@@ -85,6 +86,7 @@ const BrandNameDialog = props => {
 const BrandName = () => {
   const { SysSettings } = md.global;
   const [brandName, setBrandName] = useState(SysSettings.brandName);
+  const [hideBrandName, setHideBrandName] = useState(SysSettings.hideBrandName);
   const [brandNameDialogVisible, setBrandNameDialogVisible] = useState(false);
   return (
     <Fragment>
@@ -93,6 +95,21 @@ const BrandName = () => {
       <div className="flexRow valignWrapper Font13 Gray_9e">
         <span className="mRight10">{brandName}</span>
         <a onClick={() => setBrandNameDialogVisible(true)}>{_l('修改')}</a>
+      </div>
+      <div className="flexRow valignWrapper mTop10">
+        <Switch
+          checked={!hideBrandName}
+          onClick={() => {
+            const value = !hideBrandName;
+            setHideBrandName(value);
+            updateSysSettings({
+              hideBrandName: value
+            }, () => {
+              md.global.SysSettings.hideBrandName = value;
+            });
+          }}
+        />
+        <div className="mLeft8">{_l('在登录界面显示')}</div>
       </div>
       <BrandNameDialog
         visible={brandNameDialogVisible}
@@ -111,6 +128,29 @@ const BrandName = () => {
 const BrandLogo = () => {
   const { SysSettings } = md.global;
   const [brandLogoUrl, setBrandLogoUrl] = useState(SysSettings.brandLogoUrl);
+  const [hideBrandLogo, setHideBrandLogo] = useState(SysSettings.hideBrandLogo);
+  const [brandLogoHeight, setBrandLogoHeight] = useState(SysSettings.brandLogoHeight);
+
+  const handleChangeLogoHeight = value => {
+    let height = parseInt(formatNumberFromInput(value) || 0);
+    setBrandLogoHeight(height);
+  }
+
+  const handleSaveLogoHeight = () => {
+    let value = brandLogoHeight;
+    if (value < 30) {
+      value = 30;
+    }
+    if (value > 100) {
+      value = 100;
+    }
+    setBrandLogoHeight(value);
+    updateSysSettings({
+      brandLogoHeight: value
+    }, () => {
+      md.global.SysSettings.brandLogoHeight = value;
+    });
+  }
 
   useEffect(() => {
     $('#hideUploadBrandLogo').uploadAttachment({
@@ -161,6 +201,38 @@ const BrandLogo = () => {
           <img className="h100" src={logo} />
         )}
       </div>
+      <div className="flexRow valignWrapper mTop10">
+        <Switch
+          checked={!hideBrandLogo}
+          onClick={() => {
+            const value = !hideBrandLogo;
+            setHideBrandLogo(value);
+            updateSysSettings({
+              hideBrandLogo: value
+            }, () => {
+              md.global.SysSettings.hideBrandLogo = value;
+            });
+          }}
+        />
+        <div className="mLeft8">{_l('在登录界面显示')}</div>
+      </div>
+      {!hideBrandLogo && (
+        <div className="flexRow valignWrapper mTop10">
+          {_l('LOGO高度')}
+          <Input
+            className="mLeft10 mRight10"
+            style={{ width: 50 }}
+            value={brandLogoHeight}
+            onBlur={handleSaveLogoHeight}
+            onKeyDown={event => {
+              event.which === 13 && handleSaveLogoHeight(event);
+            }}
+            onChange={handleChangeLogoHeight}
+          />
+          {'px'}
+          <span className="Gray_9e mLeft15">{_l('长方形推荐40px，方形推荐56px')}</span>
+        </div>
+      )}
     </Fragment>
   );
 }

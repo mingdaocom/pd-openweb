@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createRef } from 'react';
 import { useSetState } from 'react-use';
 import { LoadDiv, RadioGroup, Dialog, Tooltip } from 'ming-ui';
 import { Dropdown } from 'antd';
@@ -40,6 +40,8 @@ export default function SheetField(props) {
 
   const showType = strDefault.split('')[0] || '0';
 
+  const $ref = createRef(null);
+
   const parsedDataSource = parseDataSource(dataSource);
   const [searchValue, setSearchValue] = useState('');
   const [{ sheetName, controlName, sheetDel, controlDel, dataSourceDisabled, sheetFieldDisabled }, setInfo] =
@@ -56,7 +58,7 @@ export default function SheetField(props) {
       _.find(allControls, i => i.controlId === controlId),
       'controlId',
     ) || '';
-  const isSaved = controlId && !saveControlId.includes('-');
+  const isSaved = controlId && saveControlId && !saveControlId.includes('-');
   // 取关联单条
   const sheetList = filterControlsFromAll(allControls, item => isSingleRelateSheet(item) || item.type === 35);
 
@@ -203,6 +205,7 @@ export default function SheetField(props) {
         <Dropdown
           trigger={['click']}
           disabled={sheetFieldDisabled}
+          getPopupContainer={() => $ref.current}
           overlay={
             <DropdownOverlay>
               <div className="searchWrap" onClick={e => e.stopPropagation()}>
@@ -242,6 +245,7 @@ export default function SheetField(props) {
           }
         >
           <DropdownPlaceholder
+            ref={$ref}
             className={cx({
               deleted: data.sourceControlId && controlDel,
               disabled: sheetFieldDisabled,

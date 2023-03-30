@@ -736,7 +736,7 @@ export default class Workwx extends React.Component {
                       ) : (
                         <a
                           target="_blank"
-                          href="https://help.mingdao.com/wecom3.html#%E4%BA%8C%E3%80%81%E5%9C%A8%E6%98%8E%E9%81%93%E4%BA%91%E4%BA%8C%E7%BA%A7%E7%99%BB%E5%BD%95%E9%A1%B5%E9%9D%A2%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%89%AB%E7%A0%81%E7%99%BB%E5%BD%95"
+                          href="https://help.mingdao.com/zh/wecom3.html#%E4%BA%8C%E3%80%81%E5%9C%A8%E6%98%8E%E9%81%93%E4%BA%91%E4%BA%8C%E7%BA%A7%E7%99%BB%E5%BD%95%E9%A1%B5%E9%9D%A2%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%89%AB%E7%A0%81%E7%99%BB%E5%BD%95"
                           className="helpEntry"
                         >
                           {_l('如何实现企业微信扫码登录？')}
@@ -891,7 +891,7 @@ export default class Workwx extends React.Component {
                 )} */}
               </Tabs.TabPane>
             )}
-            {intergrationType === 2 && this.state.status === 1 && (
+            {!md.global.Config.IsLocal && intergrationType === 2 && this.state.status === 1 && (
               <Tabs.TabPane tab={_l('接口许可')} key="interfaceLicense">
                 <InterfaceLicense projectId={Config.projectId} />
               </Tabs.TabPane>

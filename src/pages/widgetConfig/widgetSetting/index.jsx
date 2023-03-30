@@ -44,7 +44,6 @@ const SettingWrap = styled.div`
   overflow-x: hidden;
   flex-shrink: 0;
   background-color: #fff;
-  border-left: 1px solid #ddd;
   .emptyStatus {
     margin-top: 240px;
     text-align: center;

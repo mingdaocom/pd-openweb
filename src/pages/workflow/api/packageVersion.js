@@ -59,7 +59,7 @@ var packageVersion = {
    * 删除API管理
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理详情} {id:id(string),}*request
+   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -72,7 +72,7 @@ var packageVersion = {
    * 删除API
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理详情} {id:id(string),}*request
+   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -111,7 +111,7 @@ var packageVersion = {
    * 获取API被引用列表
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理详情} {id:id(string),}*request
+   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -124,7 +124,7 @@ var packageVersion = {
    * 获取API管理详情
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理详情} {id:id(string),}*request
+   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -207,6 +207,19 @@ var packageVersion = {
     return $.api(controllerName, 'v1packagesortApis', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 修改管理
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  update: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/package/update';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1packageupdate', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 公开的排序
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
@@ -249,7 +262,7 @@ var packageVersion = {
    * 验证没有安装的接口
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {获取API管理详情} {id:id(string),}*request
+   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

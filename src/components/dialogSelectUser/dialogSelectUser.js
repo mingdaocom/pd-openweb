@@ -225,40 +225,38 @@ class DialogSelectUser extends Component {
   }
 }
 
-export default (function ($) {
-  $.fn.dialogSelectUser = function (opts) {
-    let DEFAULTS = {
-      SelectUserSettings: {
-        includeUndefinedAndMySelf: false,
-        includeSystemField: false,
-        filterSystemAccountId: [],
-        projectId: '', // 默认取哪个网络的用户 为空则表示默认加载全部
-        filterProjectId: '', // 过滤哪个网络的用户
-        filterAll: false, // 过滤全部
-        filterFriend: false, // 是否过滤好友
-        filterAccountIds: [], // 过滤指定的用户
-        prefixAccountIds: [], // 指定置顶的用户
-        filterOtherProject: false, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
-        dataRange: 0, // reference to dataRangeTypes 和 projectId 配合使用
-        unique: false, // 是否只可以选一个
-        callback: function (data) {},
-      },
-    };
-
-    if (opts.SelectUserSettings) {
-      opts.SelectUserSettings = _.extend(DEFAULTS.SelectUserSettings, opts.SelectUserSettings);
-    }
-
-    const options = _.extend({}, DEFAULTS, opts);
-
-    const dialogProps = {
-      width: 640,
-      oneScreen: false,
-      oneScreenGap: 240,
-      className: browserIsMobile() ? 'mobileSelectUser' : '',
-      overlayClosable: opts.overlayClosable,
-    };
-
-    functionWrap(DialogSelectUser, { ...options, dialogProps });
+export default function dialogSelectUser(opts) {
+  let DEFAULTS = {
+    SelectUserSettings: {
+      includeUndefinedAndMySelf: false,
+      includeSystemField: false,
+      filterSystemAccountId: [],
+      projectId: '', // 默认取哪个网络的用户 为空则表示默认加载全部
+      filterProjectId: '', // 过滤哪个网络的用户
+      filterAll: false, // 过滤全部
+      filterFriend: false, // 是否过滤好友
+      filterAccountIds: [], // 过滤指定的用户
+      prefixAccountIds: [], // 指定置顶的用户
+      filterOtherProject: false, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
+      dataRange: 0, // reference to dataRangeTypes 和 projectId 配合使用
+      unique: false, // 是否只可以选一个
+      callback: function (data) {},
+    },
   };
-})(jQuery);
+
+  if (opts.SelectUserSettings) {
+    opts.SelectUserSettings = _.extend(DEFAULTS.SelectUserSettings, opts.SelectUserSettings);
+  }
+
+  const options = _.extend({}, DEFAULTS, opts);
+
+  const dialogProps = {
+    width: 640,
+    oneScreen: false,
+    oneScreenGap: 240,
+    className: browserIsMobile() ? 'mobileSelectUser' : '',
+    overlayClosable: opts.overlayClosable,
+  };
+
+  functionWrap(DialogSelectUser, { ...options, dialogProps });
+}

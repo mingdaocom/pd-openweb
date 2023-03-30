@@ -1,9 +1,5 @@
-import { notification, NotificationContent } from 'ming-ui/components/Notification';
-import React from 'react';
-import styled from 'styled-components';
-import { LoadDiv } from 'ming-ui';
 import { emitter } from 'worksheet/util';
-import cx from 'classnames';
+import mdNotification from 'ming-ui/functions/notify';
 import './index.less';
 import workflowHistory from './workflowHistory';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
@@ -11,121 +7,32 @@ import process from 'src/pages/workflow/api/process';
 import _ from 'lodash';
 
 const STATUS = {
-  0: { id: 'closed', text: _l('流程未启用'), theme: 'error', icon: 'Import-failure' },
-  1: { id: 'pending', text: _l('正在执行...'), theme: '', icon: 'loading_button' },
-  2: { id: 'success', text: _l('操作成功'), theme: 'success', icon: 'Import-success' },
-  3: { id: 'stop', text: _l('执行失败'), theme: 'error', icon: 'Import-failure' },
-  4: { id: 'failure', text: _l('操作失败'), theme: 'error', icon: 'Import-failure' },
+  0: { id: 'closed', text: _l('流程未启用'), action: 'error', promptType: 2 },
+  1: { id: 'pending', text: _l('正在执行...'), action: 'info', promptType: 5 },
+  2: { id: 'success', text: _l('操作成功'), action: 'success', promptType: 1 },
+  3: { id: 'stop', text: _l('执行失败'), action: 'error', promptType: 3 },
+  4: { id: 'failure', text: _l('操作失败'), action: 'error', promptType: 2 },
 };
 const TYPES = {
   3: _l('填写...'),
   4: _l('审批...'),
 };
 
-const Notice = styled.div`
-  max-width: 100%;
-  display: flex;
-  font-size: 13px;
-  color: #757575;
-  .title {
-    margin-right: 4px;
+const getBatchNoticeDescription = ({ finished, total, failed, executeType }) => {
+  if (finished === total) {
+    return `${_l('执行完成! ')}\n${failed > 0 ? _l('%0条失败', failed) : ''}`;
+  } else {
+    return executeType === 2 && finished === 0
+      ? _l(
+          '您的流程已进入队列，这可能需要一段时间。现在您可以进行其他操作，执行完成后将会通知您... %0/%1',
+          finished,
+          total,
+        )
+      : _l('正在执行... %0/%1', finished, total);
   }
-  .icon {
-    font-size: 20px;
-  }
-  .success {
-    color: #4caf50;
-  }
-  .failure,
-  .closed {
-    color: #f44336;
-  }
-  .person {
-    margin: 0 6px;
-  }
-  .statusText {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0 4px 0 6px;
-    overflow: hidden;
-    color: #333;
-    font-size: 14px;
-    font-weight: bold;
-  }
-  .batchUpdateTitle {
-    max-width: 170px;
-  }
-`;
-
-const NoticeHeader = ({ storeId, type, finished, total, title, status = 1, executeType }) => {
-  const isPending = executeType === 2 && finished === 0;
-
-  if (storeId) {
-    return (
-      <Notice>
-        {!isPending && (
-          <div className={cx('iconWrap')}>
-            {finished === total ? <i className={'icon icon-Import-success'} /> : <LoadDiv size="small" />}
-          </div>
-        )}
-        <div className="statusText">
-          {_l('批量操作 “')}
-          <div className="title batchUpdateTitle  overflow_ellipsis" title={title}>
-            {title}
-          </div>
-          {_l('”')}
-        </div>
-      </Notice>
-    );
-  }
-  const { id, icon } = STATUS[status];
-  const isOperate = _.includes([3, 4], type);
-  return (
-    <Notice>
-      {!isPending && (
-        <div className={cx('iconWrap', { rotate: id === 'pending' && !isOperate })}>
-          <i className={`icon icon-${isOperate ? 'interrupt_button' : icon} ${id}`} />
-        </div>
-      )}
-
-      <div className="statusText">
-        <div className="title overflow_ellipsis" title={title}>
-          {title}
-        </div>
-      </div>
-    </Notice>
-  );
 };
 
-const NoticeContentWrap = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin: 4px 0 0 24px;
-  color: #757575;
-`;
-const BatchNoticeContent = ({ finished, total, failed, executeType }) => {
-  return (
-    <NoticeContentWrap>
-      {finished === total ? (
-        <div>
-          {_l('执行完成! ')}
-          {failed > 0 && <span>{_l('%0条失败', failed)}</span>}
-        </div>
-      ) : (
-        <div>
-          {executeType === 2 && finished === 0
-            ? _l(
-                '您的流程已进入队列，这可能需要一段时间。现在您可以进行其他操作，执行完成后将会通知您... %0/%1',
-                finished,
-                total,
-              )
-            : _l('正在执行... %0/%1', finished, total)}
-        </div>
-      )}
-    </NoticeContentWrap>
-  );
-};
-const SingleNoticeContent = ({ cause, causeMsg, type, status = 1, executeType, finished }) => {
+const getSingleNoticeDescription = ({ cause, causeMsg, type, status = 1, executeType, finished }) => {
   const getHint = () => {
     const { text } = STATUS[status];
     if ([3, 4].includes(status)) {
@@ -136,11 +43,7 @@ const SingleNoticeContent = ({ cause, causeMsg, type, status = 1, executeType, f
       : text;
   };
   const isOperate = _.includes([3, 4], type);
-  return (
-    <NoticeContentWrap>
-      <div>{isOperate ? _l('正在等待%0', TYPES[type]) : getHint()}</div>
-    </NoticeContentWrap>
-  );
+  return isOperate ? _l('正在等待%0', TYPES[type]) : getHint();
 };
 
 export default function initWorksheetSocket() {
@@ -160,7 +63,7 @@ export default function initWorksheetSocket() {
     }
 
     if (close) {
-      notification.close('workflow');
+      destroyAlert('workflow');
       return;
     }
 
@@ -168,42 +71,40 @@ export default function initWorksheetSocket() {
       if (total === finished && !complete[storeId]) {
         complete[storeId] = data;
       }
-      const props = {
-        themeColor: finished > 0 && complete[storeId] ? 'success' : '',
-        header: complete[storeId] ? <NoticeHeader {...complete[storeId]} /> : <NoticeHeader {...data} />,
-        content: complete[storeId] ? <BatchNoticeContent {...complete[storeId]} /> : <BatchNoticeContent {...data} />,
-        footer:
-          executeType === 2 && finished === 0 ? null : (
-            <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => workflowHistory({ title, storeId })}>
-              {_l('查看详情')}
-            </div>
-          ),
-        showClose: true,
-        onClose: () => {
-          notification.close(`batchUpdateWorkflowNotice${storeId}`);
-          process.closeStorePush({ storeId });
-        },
+      const noticeTitle = storeId ? _l('批量操作 ”%0“', title) : title;
+      const description = getBatchNoticeDescription(complete[storeId] || data);
+      let btnList = [];
+      if (!(executeType === 2 && finished === 0)) {
+        btnList = [
+          {
+            text: _l('查看详情'),
+            onClick: () => workflowHistory({ title, storeId }),
+          },
+        ];
+      }
+      const onClose = () => {
+        mdNotification.close(`batchUpdateWorkflowNotice${storeId}`);
+        process.closeStorePush({ storeId });
       };
-      notification.open({
-        content: <NotificationContent className="workflowNoticeContentWrap" {...props} />,
+      mdNotification[finished > 0 && complete[storeId] ? 'success' : 'info']({
+        title: noticeTitle,
+        description,
+        btnList,
+        onClose,
         key: `batchUpdateWorkflowNotice${storeId}`,
         duration: 5,
         maxCount: 3,
       });
     } else {
-      const { id } = STATUS[status];
-      const props = {
-        themeColor: STATUS[String(status)].theme,
-        header: <NoticeHeader {...data} />,
-        content: <SingleNoticeContent {...data} />,
-        showClose: true,
-        onClose: () => notification.close('workflow'),
-      };
-      notification.open({
-        content: <NotificationContent className="workflowNoticeContentWrap" {...props} />,
+      const { id, promptType } = STATUS[status];
+      const description = getSingleNoticeDescription(data);
+      const isOperate = _.includes([3, 4], data.type);
+
+      alert({
+        msg: description,
+        type: isOperate ? 4 : promptType,
+        timeout: (id === 'pending' && !isOperate ? 10 : 3) * 1000,
         key: 'workflow',
-        duration: id === 'pending' ? 10 : 3,
-        maxCount: 3,
       });
     }
   });

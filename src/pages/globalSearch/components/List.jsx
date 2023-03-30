@@ -242,7 +242,7 @@ export default function List(props) {
                         text={
                           settingInfo.descKeys
                             ? settingInfo.descKeys
-                                .map(l => (l === 'position' ? item[l].slice(1) : item[l]))
+                                .map(l => (l === 'position' ? (item[l] ? item[l].slice(1) : '') : item[l]))
                                 .join(' | ') || ''
                             : item[prefix + 'Content'] || ''
                         }

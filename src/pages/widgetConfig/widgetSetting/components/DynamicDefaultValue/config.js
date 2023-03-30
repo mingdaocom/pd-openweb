@@ -25,7 +25,7 @@ export const CAN_AS_TIME_DYNAMIC_FIELD = [15, 16, 46];
 export const CAN_AS_AREA_DYNAMIC_FIELD = [19, 23, 24];
 
 // 可以作为成员动态值的控件
-export const CAN_AS_USER_DYNAMIC_FIELD = [26];
+export const CAN_AS_USER_DYNAMIC_FIELD = [26, 27, 48];
 
 // 可以作为等级动态值的控件
 export const CAN_AS_SCORE_DYNAMIC_FIELD = [6, 8, 28];

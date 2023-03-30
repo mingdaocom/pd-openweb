@@ -158,16 +158,15 @@ export default {
   * @param {string} args.keywords 关键司
   * @param {string} args.projectId 网络Id
   * @param {} args.dataRange 查询范围，是所有协作者还是好友还是同事还是其他协作者
-  * @param {string} args.firstLetter 首字母
-  * @param {boolean} args.filterFriend 是否不包括我的好友
-  * @param {string} args.filterProjectId 需要排除的网络
-  * @param {array} args.filterAccountIds 需要排除的帐号
+  * @param {string} args.firstLetter 过滤的首字母
+  * @param {array} args.filterAccountIds 过滤的需要排除的帐号
   * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
   * @param {boolean} args.includeUndefinedAndMyself 是否在前面插入未指定和我自己
   * @param {boolean} args.includeSystemField 是否包含系统预设账户
 比如当前用户、当前用户的下属、未指定、工作流、公开表单、API等
-  * @param {string} args.filterWorksheetId 工作表ID
-  * @param {string} args.filterWorksheetControlId 工作表控件ID
+  * @param {array} args.appointedAccountIds 指定的账户列表
+  * @param {array} args.appointedDepartmentIds 指定的部门列表
+  * @param {array} args.appointedOrganizeIds 指定的组织角色列表
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -201,16 +200,15 @@ export default {
   * @param {string} args.keywords 关键司
   * @param {string} args.projectId 网络Id
   * @param {} args.dataRange 查询范围，是所有协作者还是好友还是同事还是其他协作者
-  * @param {string} args.firstLetter 首字母
-  * @param {boolean} args.filterFriend 是否不包括我的好友
-  * @param {string} args.filterProjectId 需要排除的网络
-  * @param {array} args.filterAccountIds 需要排除的帐号
+  * @param {string} args.firstLetter 过滤的首字母
+  * @param {array} args.filterAccountIds 过滤的需要排除的帐号
   * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
   * @param {boolean} args.includeUndefinedAndMyself 是否在前面插入未指定和我自己
   * @param {boolean} args.includeSystemField 是否包含系统预设账户
 比如当前用户、当前用户的下属、未指定、工作流、公开表单、API等
-  * @param {string} args.filterWorksheetId 工作表ID
-  * @param {string} args.filterWorksheetControlId 工作表控件ID
+  * @param {array} args.appointedAccountIds 指定的账户列表
+  * @param {array} args.appointedDepartmentIds 指定的部门列表
+  * @param {array} args.appointedOrganizeIds 指定的组织角色列表
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -220,23 +218,23 @@ export default {
      return $.api('User', 'GetProjectContactUserList', args, options);
    },
   /**
-  * 获取工作表人员筛选受限制人员列表
+  * 根据人员筛选条件获取人员列表
+包括：指定部门、指定人员、指定组织角色，或者动态范围
   * @param {Object} args 请求参数
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
   * @param {string} args.keywords 关键司
   * @param {string} args.projectId 网络Id
   * @param {} args.dataRange 查询范围，是所有协作者还是好友还是同事还是其他协作者
-  * @param {string} args.firstLetter 首字母
-  * @param {boolean} args.filterFriend 是否不包括我的好友
-  * @param {string} args.filterProjectId 需要排除的网络
-  * @param {array} args.filterAccountIds 需要排除的帐号
+  * @param {string} args.firstLetter 过滤的首字母
+  * @param {array} args.filterAccountIds 过滤的需要排除的帐号
   * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
   * @param {boolean} args.includeUndefinedAndMyself 是否在前面插入未指定和我自己
   * @param {boolean} args.includeSystemField 是否包含系统预设账户
 比如当前用户、当前用户的下属、未指定、工作流、公开表单、API等
-  * @param {string} args.filterWorksheetId 工作表ID
-  * @param {string} args.filterWorksheetControlId 工作表控件ID
+  * @param {array} args.appointedAccountIds 指定的账户列表
+  * @param {array} args.appointedDepartmentIds 指定的部门列表
+  * @param {array} args.appointedOrganizeIds 指定的组织角色列表
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

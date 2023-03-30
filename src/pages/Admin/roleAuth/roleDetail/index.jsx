@@ -12,7 +12,7 @@ import PermissionsList from './permissionList';
 import EditRoleDialog from '../createEditRole';
 import { Input } from 'antd';
 
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import './style.less';
 import _ from 'lodash';
 const { Search } = Input;
@@ -55,7 +55,7 @@ class RoleDetail extends React.Component {
   addMemberHander = e => {
     const { projectId, roleId } = this.props;
     e.stopPropagation();
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       sourceId: 0,
       fromType: 0,
       fromAdmin: true,
@@ -145,7 +145,7 @@ class RoleDetail extends React.Component {
             </div>
           ) : (
             <div className="Left">
-              {isHrVisible && deleteOpAuth && hasMember === false ? (
+              {!md.global.Config.IsLocal && isHrVisible && deleteOpAuth && hasMember === false ? (
                 <Button
                   type="danger"
                   size="small"
@@ -173,7 +173,7 @@ class RoleDetail extends React.Component {
                   {_l('删除')}
                 </Button>
               ) : null}
-              {isHrVisible && editOpAuth ? (
+              {!md.global.Config.IsLocal && isHrVisible && editOpAuth ? (
                 <Button
                   type="ghost"
                   size="small"

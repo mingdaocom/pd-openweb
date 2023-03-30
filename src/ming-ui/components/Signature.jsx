@@ -110,7 +110,7 @@ export default class Signature extends Component {
 
   getSignature = () => {
     accountSettingAjax.getSign().then(res => {
-      if (!res.url) return alert(_l('暂无签名记录'));
+      if (!res.url) return alert(_l('暂无签名记录'), 3);
       this.setState({ isEdit: false, signature: res.url, key: res.key });
     });
   };

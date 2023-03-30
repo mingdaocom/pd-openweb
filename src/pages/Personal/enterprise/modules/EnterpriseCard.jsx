@@ -217,7 +217,7 @@ export default class EnterpriseCard extends Component {
           if (res) {
             alert(_l('取消成功'));
           } else {
-            alert(_l('取消失败'));
+            alert(_l('取消失败'), 2);
           }
         });
       },

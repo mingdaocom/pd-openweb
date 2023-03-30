@@ -167,7 +167,7 @@ export default class Guidance extends Component {
       );
     }
     if (guide === 5) {
-      const userStyle = this.getElStyle(document.querySelectorAll('.appPkgHeaderWrap .appExtensionWrap .appExtensionItem')[1], 5, -8, 'right');
+      const userStyle = this.getElStyle(document.querySelectorAll('.appPkgHeaderWrap .appExtensionWrap .appExtensionItem')[2], 3, 0, 'right');
       return (
         <Fragment>
           <div className="guidanceCircle dark" style={userStyle}></div>
@@ -176,7 +176,7 @@ export default class Guidance extends Component {
       );
     }
     if (guide === 6) {
-      const workflowStyle = this.getElStyle(document.querySelectorAll('.appPkgHeaderWrap .appExtensionWrap .appExtensionItem')[0], 5, -8, 'right');
+      const workflowStyle = this.getElStyle(document.querySelectorAll('.appPkgHeaderWrap .appExtensionWrap .appExtensionItem')[1], 3, 0, 'right');
       return (
         <Fragment>
           <div className="guidanceCircle dark" style={workflowStyle}></div>

@@ -62,7 +62,7 @@ export const FILTER_FIELD_BY_ATTR = {
 };
 
 export const CIRCLE_TAGS_CONTROL_TYPE = [26, 36, 27, 10, 48, 11, 9];
-export const RECT_TAGS_CONTROL_TYPE = [6, 8, 5, 15, 16, 38, 46, 3, 4, 24, 31, 28, 7, 40, 35, 37, 29, 27, 19, 23, 50, 21];
+export const RECT_TAGS_CONTROL_TYPE = [6, 8, 5, 15, 16, 38, 46, 3, 4, 24, 31, 28, 7, 40, 35, 37, 29, 27, 19, 23, 50, 21, 33, 32];
 export const RETURN_OBJECT_CONTROL_TYPE = [26, 27, 48];
 
 export const UPDATA_ITEM_CLASSNAME_BY_TYPE = {

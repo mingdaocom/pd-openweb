@@ -92,6 +92,7 @@ export default function EditingBar(props) {
             value,
             style,
           )}
+          onClick={e => e.stopPropagation()}
         >
           <Con>
             <span className="flex bold">{title}</span>

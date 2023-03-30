@@ -451,6 +451,22 @@
           }
         }
       }
+      .hasNodeList {
+        .tagInputareaIuput {
+          padding-right: 34px;
+        }
+        .nodeListMenu {
+          right: 36px !important;
+          width: auto !important;
+          .Item-content {
+            &:hover {
+              .Gray_9e {
+                color: #fff !important;
+              }
+            }
+          }
+        }
+      }
     }
     .workflowDetailFooter {
       background: #f4f4f4;
@@ -686,10 +702,14 @@
     }
     .flowBackBox {
       background: #F4F4F4;
-      padding: 8px 12px;
-      margin-left: 32px;
-      margin-top: 10px;
+      padding: 8px 26px 8px 12px;
       border-radius: 4px;
+      position: relative;
+      .icon-edit {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+      }
     }
     .codeTextarea {
       font-family: inherit !important;
@@ -775,6 +795,19 @@
           display: flex;
           justify-content: center;
           align-items: center;
+        }
+      }
+    }
+    .typeList {
+      li {
+        padding: 12px;
+        border-radius: 2px;
+        cursor: pointer;
+        &:hover {
+          background: #f5f5f5;
+        }
+        .Radio-box {
+          background: #fff !important;
         }
       }
     }

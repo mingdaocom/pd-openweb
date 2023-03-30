@@ -20,12 +20,14 @@ const SourceBox = ({ item, isActive, onChangeCheckbox }) => {
       style={{ opacity: isDragging ? 0.4 : 1 }}
       className="axisControlItem flexRow valignWrapper pTop8 pBottom8 pLeft5 Font13 Gray pointer"
     >
-      <Checkbox
-        className="mRight10"
-        checked={isActive}
-        onChange={onChangeCheckbox}
-      >
-      </Checkbox>
+      <div>
+        <Checkbox
+          className="mRight10"
+          checked={isActive}
+          onChange={onChangeCheckbox}
+        >
+        </Checkbox>
+      </div>
       <Icon
         className={cx('Gray_75 Font20 mRight10', {
           active: isActive,

@@ -1,18 +1,19 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Dialog, Dropdown, Menu, MenuItem, Button } from 'ming-ui';
+import { Dialog, Dropdown, Menu, MenuItem, Button, Icon, ScrollView } from 'ming-ui';
+import SvgIcon from 'src/components/SvgIcon';
 import { APP_ROLE_TYPE } from '../../constants/enum';
 import homeApp from 'src/api/homeApp';
 import store from 'redux/configureStore';
 import './SheetMove.less';
 
-const formatApps = function (validProject, projectId, appId) {
+const formatApps = function (validProject, projectId) {
   const appList = [];
   const project = validProject.filter(item => item.projectId === projectId)[0];
   if (project && project.projectApps && project.projectApps.length) {
     project.projectApps.forEach(app => {
       const isCharge = app.permissionType == APP_ROLE_TYPE.ADMIN_ROLE || app.permissionType == APP_ROLE_TYPE.POSSESS_ROLE;
-      if (isCharge && appId !== app.id) {
+      if (isCharge) {
         appList.push({
           text: app.name,
           value: app.id,
@@ -27,12 +28,11 @@ export default class SheetMove extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showSheetMove: false,
-      menu: this.getAppGroups(props),
       appList: [],
       appValue: '',
       grouping: [],
       groupingValue: '',
+      searchValue: ''
     };
   }
   componentDidMount() {
@@ -40,31 +40,13 @@ export default class SheetMove extends Component {
     const { projectId } = store.getState().appPkg;
     homeApp.getAllHomeApp().then(result => {
       const { validProject } = result;
-      const newAppList = formatApps(validProject, projectId, appId);
+      const newAppList = formatApps(validProject, projectId);
       this.setState({
         appList: newAppList,
+        appValue: appId
       });
     });
-  }
-  componentWillReceiveProps(nextProps) {
-    const { visible } = nextProps;
-    if (visible) {
-      this.setState({
-        menu: this.getAppGroups(nextProps),
-      });
-    }
-  }
-  getAppGroups(props) {
-    const { groupId } = props;
-    const { appGroups } = store.getState().appPkg;
-    const newGrouping = appGroups.map(item => {
-      return {
-        value: item.appSectionId,
-        text: item.name || _l('未命名分组'),
-        disabled: item.appSectionId === groupId,
-      };
-    });
-    return newGrouping;
+    this.handleChangeApp(appId);
   }
   handleChangeApp(appId) {
     this.setState({
@@ -76,33 +58,24 @@ export default class SheetMove extends Component {
       })
       .then(result => {
         const { appSectionDetail } = result;
-        const newGrouping = appSectionDetail
-          .map(item => {
-            return {
-              value: item.appSectionId,
-              text: item.name || _l('未命名分组'),
-            };
-          })
-          .filter(item => item.value !== this.props.groupId);
         this.setState({
-          grouping: newGrouping,
-          groupingValue: newGrouping.length ? newGrouping[0].value : '',
+          grouping: appSectionDetail.map(data => {
+            data.subVisible = true;
+            return data;
+          }),
         });
       });
   }
   handleCancel() {
-    this.props.onHide();
-    this.setState({
-      showSheetMove: false,
-    });
+    this.props.onClose();
   }
   handleOk() {
     const { appValue, groupingValue } = this.state;
     this.props.onSave({
       resultAppId: appValue,
-      ResultAppSectionId: groupingValue,
+      ResultAppSectionId: groupingValue === appValue ? undefined : groupingValue,
     });
-    this.props.onHide();
+    this.props.onClose();
   }
   renderFooter() {
     const { groupingValue } = this.state;
@@ -117,22 +90,75 @@ export default class SheetMove extends Component {
       </div>
     );
   }
-  renderDialog() {
-    const { appList, appValue, grouping, groupingValue } = this.state;
-    const { showSheetMove } = this.state;
+  renderGroupingItem(data) {
+    const { appItem } = this.props;
+    const { groupingValue, grouping, searchValue } = this.state;
+    const { subVisible, subName } = data;
+    const isParent = data.type === 2;
+    const id = isParent ? data.workSheetId : data.appSectionId;
+    const name = data.name || data.workSheetName || '';
+
+    if (searchValue && !name.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase())) {
+      return null;
+    }
+
+    return (
+      <div
+        key={id}
+        className={cx('groupingItem flexRow alignItemsCenter pointer', { active: groupingValue === id, pLeft30: isParent })}
+        onClick={() => {
+          this.setState({ groupingValue: id });
+        }}
+      >
+        {!isParent && appItem.type !== 2 && (
+          <Icon
+            icon={subVisible === false ? 'arrow-right-tip' : 'arrow-down'}
+            className="Gray_9e"
+            onClick={(e) => {
+              e.stopPropagation();
+              this.setState({
+                grouping: grouping.map(data => {
+                  if (data.appSectionId === id) {
+                    data.subVisible = !subVisible;
+                  }
+                  return data;
+                })
+              });
+            }}
+          />
+        )}
+        <div className="flex mLeft5">
+          <span className="ellipsis">{name || _l('未命名分组')}</span>
+          {subName && <span className="Gray_9e mLeft5">{subName}</span>}
+        </div>
+        {groupingValue === id && <Icon icon="done" className="Font18 ThemeColor" />}
+      </div>
+    );
+  }
+  render() {
+    const { appItem } = this.props;
+    const { appList, appValue, grouping, groupingValue, searchValue } = this.state;
+    const { workSheetName, iconUrl, type }  = appItem;
     return (
       <Dialog
         className="SheetMove"
-        visible={showSheetMove}
+        visible={true}
         anim={false}
-        title={_l('移动工作表到其他应用')}
-        width={560}
+        title={<span className="bold">{_l('移动到')}</span>}
+        width={640}
         onCancel={this.handleCancel.bind(this)}
         footer={this.renderFooter()}
       >
-        <div className="Gray_75">{_l('工作表下的所有视图、记录和触发的工作流都会移动到目标应用中')}</div>
-        <div className="flexRow valignWrapper mTop25">
-          <span className="Gray_75 mRight10 TxtRight name">{_l('应用')}</span>
+        <div className="flexRow alignItemsCenter Gray_75">
+          {_l('将')}
+          <div className="target flexRow alignItemsCenter">
+            <SvgIcon url={iconUrl} fill="#757575" size={22} />
+            <span className="ellipsis mLeft5" title={workSheetName}>{workSheetName}</span>
+          </div>
+          {_l('移动到')}
+        </div>
+        <div className="flexColumn mTop10">
+          <span className="mBottom8">{_l('应用')}</span>
           <Dropdown
             isAppendToBody
             placeholder={_l('请选择你作为管理员的应用')}
@@ -147,57 +173,41 @@ export default class SheetMove extends Component {
             }}
           />
         </div>
-        <div className="flexRow valignWrapper mTop15">
-          <span className="Gray_75 mRight10 TxtRight name">{_l('分组')}</span>
-          <Dropdown
-            disabled={!appValue}
-            isAppendToBody
-            className={cx('flex', { empty: !groupingValue })}
-            border
-            openSearch
-            value={groupingValue}
-            data={grouping}
-            onChange={value => {
-              this.setState({
-                groupingValue: value,
-              });
-            }}
-          />
+        <div className="flexColumn mTop15 flex">
+          <span className="mBottom8">{_l('选择分组')}</span>
+          <div className="groupingWrap flexColumn">
+            <div className="searchWrap flexRow alignItemsCenter mBottom8 pBottom10">
+              <Icon icon="search" className="Font18 Gray_9e mRight3" />
+              <input
+                className="w100"
+                placeholder="搜索"
+                type="text"
+                value={searchValue}
+                onChange={(e) => {
+                  this.setState({
+                    searchValue: e.target.value
+                  });
+                }}
+              />
+            </div>
+            <ScrollView className="flex">
+              {type === 2 && this.renderGroupingItem({
+                appSectionId: appValue,
+                name: _.get(_.find(appList, { value: appValue }), 'text') || '',
+                subName: _l('(作为一级分组移动)')
+              })}
+              {grouping.map(data => (
+                <Fragment>
+                  {this.renderGroupingItem(data)}
+                  {type !== 2 && data.subVisible && data.workSheetInfo.filter(data => data.type == 2).map(data => (
+                    this.renderGroupingItem(data)
+                  ))}
+                </Fragment>
+              ))}
+            </ScrollView>
+          </div>
         </div>
       </Dialog>
-    );
-  }
-  render() {
-    const { className } = this.props;
-    const { menu } = this.state;
-    return (
-      <Menu className={className}>
-        {menu.map(item => (
-          <MenuItem
-            key={item.value}
-            disabled={item.disabled}
-            onClick={() => {
-              if (item.disabled) return;
-              this.props.onSave({
-                resultAppId: this.props.appId,
-                ResultAppSectionId: item.value,
-              });
-            }}
-          >
-            <span className="text">{item.text}</span>
-          </MenuItem>
-        ))}
-        {menu.length ? <hr className="splitter" /> : undefined}
-        <MenuItem
-          onClick={() => {
-            this.setState({ showSheetMove: true });
-            this.props.onHide();
-          }}
-        >
-          <span className="text">{_l('其他应用')}</span>
-        </MenuItem>
-        {this.state.showSheetMove ? this.renderDialog() : null}
-      </Menu>
     );
   }
 }

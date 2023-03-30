@@ -235,7 +235,7 @@ export default class ResignList extends React.Component {
               this.fetchList();
               alert(_l('恢复成功'));
             } else if (data == 4) {
-              alert(_l('当前用户数已超出人数限制'), 3, false);
+              alert(_l('当前用户数已超出人数限制'), 3);
             } else {
               alert(_l('恢复失败'), 2);
             }

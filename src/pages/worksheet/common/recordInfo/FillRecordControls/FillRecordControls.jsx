@@ -179,7 +179,7 @@ class FillRecordControls extends React.Component {
                 ...control.value,
                 rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.worksheettable.current.table.rules`),
               },
-              _.get(this.cellObjs || {}, `${control.controlId}.cell.controls`) || control.relationControls,
+              _.get(this.cellObjs || {}, `${control.controlId}.cell.state.controls`) || control.relationControls,
               control.showControls,
               3,
             ),
@@ -230,7 +230,7 @@ class FillRecordControls extends React.Component {
   }
 
   render() {
-    const { recordId, visible, className, title, worksheetId, projectId, hideDialog } = this.props;
+    const { widgetStyle, recordId, visible, className, title, worksheetId, projectId, hideDialog } = this.props;
     const { submitLoading, formData, showError, formFlag, isSubmitting } = this.state;
     return (
       <Modal
@@ -253,6 +253,7 @@ class FillRecordControls extends React.Component {
         )}
         <div ref={this.formcon}>
           <CustomFields
+            widgetStyle={widgetStyle}
             isWorksheetQuery
             ignoreLock
             flag={formFlag}

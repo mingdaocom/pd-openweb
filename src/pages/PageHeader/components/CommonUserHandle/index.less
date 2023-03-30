@@ -26,12 +26,14 @@
   .flexCenterHeight;
   position: relative;
   flex-shrink: 0;
-  padding: 0 20px 0 8px;
-  background: rgba(255, 255, 255, 0.1);
+  padding: 0 20px 0 0;
   .appPkgHeaderSearch {
     // .animation;
     z-index: 16;
     cursor: pointer;
+    .icon-search {
+      margin-top: 1px;
+    }
   }
   input.globalSearch {
     box-sizing: border-box;
@@ -77,10 +79,20 @@
     margin-left: 7px;
     color: #9e9e9e;
   }
-
+  .workflowHelpIconWrap, .appPkgHeaderSearch {
+    width: 27px;
+    height: 27px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
   .workflowHelpIconWrap {
     // .animation;
-    margin: 0 20px;
+    margin: 0 15px;
     .icon {
       color: rgba(0, 0, 0, 0.6);
     }
@@ -99,6 +111,20 @@
       .icon {
         color: darken(#1e88e5, 10%);
       }
+    }
+  }
+}
+.leftCommonUserHandleWrap {
+  .headerColorSwitch {
+    width: 27px;
+    height: 27px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-top: 1px;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
     }
   }
 }

@@ -144,7 +144,7 @@ export default function HideItem(props) {
       className={`${item.viewId === currentViewId ? 'active' : ''} drawerWorksheetShowListItem`}
       onClick={clickHandle}
     >
-      <Icon icon="drag_indicator" className="Font16"/>
+      <Icon icon="drag_indicator" className="Font16" style={isCharge ? {} : {opacity: 0}}/>
       <Icon
         style={{ color: viewInfo.color, fontSize: '20px' }}
         icon={viewInfo.icon}
@@ -166,7 +166,7 @@ export default function HideItem(props) {
       ) : (
         <span className="viewName ellipsis">{item.name}</span>
       )}
-      {type === 'drawerWorksheetShowList' &&
+      {isCharge && type === 'drawerWorksheetShowList' &&
         item.advancedSetting.showhide &&
         item.advancedSetting.showhide.search(/hpc|happ/g) > -1 && (
           <Icon

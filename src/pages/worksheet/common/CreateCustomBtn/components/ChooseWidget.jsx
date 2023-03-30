@@ -199,40 +199,42 @@ export default class ChooseWidget extends React.Component {
           </div>
           <div className="listBox mTop10">
             {data.length > 0 ? (
-              data.map((item, index) => {
-                if (
-                  (item.type === 29 && item.enumDefault === 2 && item.advancedSetting.showtype === '2') || //排除关联表多条
-                  ALL_SYS.includes(item.controlId) //排除系统字段
-                ) {
-                  return '';
-                }
-                let isChecked = writeControls.map(o => o.controlId).includes(item.controlId);
-                return (
-                  <div
-                    className="widgetList overflow_ellipsis WordBreak Hand"
-                    key={`widgetList-${index}`}
-                    onClick={() => {
-                      if (!isChecked) {
-                        let Controls = this.props.writeControls.concat({
-                          controlId: item.controlId,
-                          type: this.props.isDisable(item.type) ? 1 : item.required ? 3 : 2, //1：只读 2：填写 3：必填
-                        });
-                        SwitchFn(Controls);
-                      } else {
-                        SwitchFn(writeControls.filter(o => o.controlId !== item.controlId));
-                      }
-                    }}
-                  >
-                    <Switch checked={isChecked} size="small" />
-                    <span className="Gray_75">
-                      <Icon icon={getIconByType(item.type)} className={cx('Font14 Gray_9e widgetIcon')} />
-                      <span className="Font13 Gray">
-                        {item.controlName || (item.type === 22 ? _l('分段') : _l('备注'))}
+              data
+                .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1))
+                .map((item, index) => {
+                  if (
+                    (item.type === 29 && item.enumDefault === 2 && item.advancedSetting.showtype === '2') || //排除关联表多条
+                    ALL_SYS.includes(item.controlId) //排除系统字段
+                  ) {
+                    return '';
+                  }
+                  let isChecked = writeControls.map(o => o.controlId).includes(item.controlId);
+                  return (
+                    <div
+                      className="widgetList overflow_ellipsis WordBreak Hand"
+                      key={`widgetList-${index}`}
+                      onClick={() => {
+                        if (!isChecked) {
+                          let Controls = this.props.writeControls.concat({
+                            controlId: item.controlId,
+                            type: this.props.isDisable(item.type) ? 1 : item.required ? 3 : 2, //1：只读 2：填写 3：必填
+                          });
+                          SwitchFn(Controls);
+                        } else {
+                          SwitchFn(writeControls.filter(o => o.controlId !== item.controlId));
+                        }
+                      }}
+                    >
+                      <Switch checked={isChecked} size="small" />
+                      <span className="Gray_75">
+                        <Icon icon={getIconByType(item.type)} className={cx('Font14 Gray_9e widgetIcon')} />
+                        <span className="Font13 Gray">
+                          {item.controlName || (item.type === 22 ? _l('分段') : _l('备注'))}
+                        </span>
                       </span>
-                    </span>
-                  </div>
-                );
-              })
+                    </div>
+                  );
+                })
             ) : (
               <div className="Gray_75 TxtCenter pTop20 Font14 pBottom20">{_l('无可填写字段')}</div>
             )}

@@ -59,8 +59,9 @@ export default class SelectOtherField extends Component {
     const { advancedSetting = {} } = data;
     const isText = _.includes([1, 2, 45], data.type);
     const isAsync = () => {
-      // 部门选成员 需要异步获取数据 isAsync设为true
-      if ((data.type === 27 || data.type === 48) && type === 26) return true;
+      // 部门选成员 | 成员选部门 需要异步获取数据 isAsync设为true
+      if ((_.includes([27, 48], data.type) && type === 26) || (data.type === 26 && _.includes([27, 48], type)))
+        return true;
       return false;
     };
 
@@ -97,7 +98,7 @@ export default class SelectOtherField extends Component {
           {
             rcid: '',
             cid: '',
-            staticValue: JSON.stringify({ departmentName: _l('当前用户所在部门'), departmentId: 'user-departments' }),
+            staticValue: JSON.stringify({ departmentName: data.text, departmentId: 'user-departments' }),
             isAsync: true,
           },
         ]);
@@ -108,7 +109,7 @@ export default class SelectOtherField extends Component {
           {
             rcid: '',
             cid: '',
-            staticValue: JSON.stringify({ organizeName: _l('当前用户的组织角色'), organizeId: 'user-role' }),
+            staticValue: JSON.stringify({ organizeName: data.text, organizeId: 'user-role' }),
             isAsync: true,
           },
         ]);
@@ -121,7 +122,7 @@ export default class SelectOtherField extends Component {
             cid: '',
             staticValue: JSON.stringify({
               accountId: data.id,
-              name: _l('当前用户'),
+              name: data.text,
             }),
             isAsync: false,
           },

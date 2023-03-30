@@ -23,7 +23,7 @@ export default function WidgetWarning(props) {
       )}
       <Support
         type={3}
-        href="https://help.mingdao.com/sheet43.html"
+        href="https://help.mingdao.com/zh/sheet43.html"
         text={_l('了解更多')}
         style={{ fontSize: '12px' }}
       />

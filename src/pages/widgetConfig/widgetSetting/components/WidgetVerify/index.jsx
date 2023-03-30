@@ -46,6 +46,12 @@ const TYPE_TO_TEXT = {
   10: { title: _l('限定可选项数'), placeholder: [_l('最少'), _l('最多')] },
 };
 
+const SWITCH_TYPE_TO_TEXT = {
+  0: _l('必须选中'),
+  1: _l('必须开启'),
+  2: _l('必须选是'),
+};
+
 const NumberRange = styled.div`
   margin-top: 8px;
   display: flex;
@@ -109,7 +115,7 @@ export default function WidgetVerify(props) {
               key={item}
               checked={data[item] || false}
               onClick={checked => onChange({ [item]: !checked })}
-              text={SETTING_TO_TEXT[item]}
+              text={type === 36 ? SWITCH_TYPE_TO_TEXT[showtype || '0'] : SETTING_TO_TEXT[item]}
             />
           </div>
         ))}

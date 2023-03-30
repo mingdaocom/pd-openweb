@@ -26,7 +26,7 @@ window.count = 0;
 
 function setScrollX(cache, newLeft) {
   ['top-center', 'main-center', 'bottom-center', 'scrollX'].forEach(name => {
-    if (cache[name]) {
+    if (cache[name] && _.isFunction(cache[name].scrollTo)) {
       cache[name].scrollTo({
         scrollLeft: newLeft,
       });
@@ -39,7 +39,7 @@ function setScrollY(cache, newTop) {
     newTop = 0;
   }
   ['main-left', 'main-center', 'main-right', 'scrollY'].forEach(name => {
-    if (cache[name]) {
+    if (cache[name] && _.isFunction(cache[name].scrollTo)) {
       cache[name].scrollTo({ scrollTop: newTop });
     }
   });
@@ -349,7 +349,9 @@ function FixedTable(props, ref) {
     tablehammer.current.on('panend', handlePanEnd);
     // ---
     if (defaultScrollLeft) {
-      conRef.current.querySelector('.scroll-x').scrollLeft = defaultScrollLeft;
+      if (conRef.current.querySelector('.scroll-x')) {
+        conRef.current.querySelector('.scroll-x').scrollLeft = defaultScrollLeft;
+      }
     }
     return () => {
       conRef.current.removeEventListener('wheel', handleMouseWheel);

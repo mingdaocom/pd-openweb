@@ -7,8 +7,9 @@ const isMobile = browserIsMobile();
 
 const Con = styled.div`
   height: 100vh;
-  padding: 29px 0px;
+  background: #f5f5f9;
 `;
+
 const RecordCon = styled.div`
   max-width: 1200px;
   height: 100%;
@@ -38,7 +39,7 @@ const RecordShare = props => {
 
   return (
     <Con>
-      <RecordCon style={{ width: window.innerWidth - 84 }}>
+      <RecordCon style={{ width: window.innerWidth - 84 > 1200 ? window.innerWidth - 84 : window.innerWidth }}>
         <RecordInfoWrapper
           notDialog
           from={2}

@@ -201,18 +201,3 @@ gulp.task('build-md-function', alldone => {
     alldone();
   })();
 });
-
-/** 上传函数库 */
-gulp.task('upload-md-function', done => {
-  const filePath = path.join(__dirname, './build/dist/mdfunction.bundle.js');
-  console.log(gutil.colors.green('开始上传到 JavaScript 库交付 工作表...'));
-  uploadFunctionFileToWorksheet(filePath, err => {
-    if (err) {
-      console.log(gutil.colors.red('上传失败 💀 '));
-      done();
-    } else {
-      console.log(gutil.colors.green('上传成功 🎉🎉🎉 '));
-      done();
-    }
-  });
-});

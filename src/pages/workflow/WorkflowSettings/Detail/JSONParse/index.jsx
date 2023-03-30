@@ -539,7 +539,7 @@ export default class JSONParse extends Component {
           <Support
             type={3}
             className="workflowDialogSupport"
-            href="https://help.mingdao.com/flow75.html"
+            href="https://help.mingdao.com/zh/flow75.html"
             text={_l('了解 JSON Path')}
           />
         </span>

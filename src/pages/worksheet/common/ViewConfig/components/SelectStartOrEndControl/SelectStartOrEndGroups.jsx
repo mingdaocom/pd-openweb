@@ -6,11 +6,10 @@ import SelectStartOrEnd from './SelectStartOrEnd';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import AddControlDiaLog from './AddControlDiaLog';
-import { SYS } from '../../../../../widgetConfig/config/widget';
 import { getStringBytes } from 'src/util';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import _ from 'lodash';
-
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 const WrapFragment = styled.div`
   .addMarkInput,
   .addMark {
@@ -94,7 +93,7 @@ const Wrap = styled.div`
   }
 `;
 export default function SelectStartOrEndGroups(props) {
-  const {
+  let {
     view = {},
     handleChange,
     timeControls = [],
@@ -104,7 +103,9 @@ export default function SelectStartOrEndGroups(props) {
     enddate,
     updateWorksheetControls,
     worksheetId,
+    sheetSwitchPermit = [],
   } = props;
+  timeControls = setSysWorkflowTimeControlFormat(timeControls, sheetSwitchPermit);
   let $ref = useRef(null);
   const { advancedSetting = {} } = view;
   const [calendarcids, setCalendarcids] = useState([]);

@@ -44,7 +44,7 @@ export default class GlobalSearch extends Component {
 
   handleChange = val => {
     if (val && val.length > 32) {
-      alert(_l('最多可输入32个字符'));
+      alert(_l('最多可输入32个字符'), 3);
       return;
     }
     this.setState({ searchVal: val });

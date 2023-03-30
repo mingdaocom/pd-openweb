@@ -180,6 +180,7 @@ export default class Search extends Component {
    * 渲染工作表
    */
   renderWorksheet() {
+    const { isApproval } = this.props;
     const { data, cacheKey } = this.state;
     const singleItem = (data.findFields || []).length ? data.findFields[0] : { fieldId: '' };
     const list = _.filter(
@@ -249,7 +250,7 @@ export default class Search extends Component {
           this.renderFieldAndRule()
         )}
 
-        {data.appId && (
+        {data.appId && !isApproval && (
           <FindResult executeType={data.executeType} allowAdd={true} switchExecuteType={this.switchExecuteType} />
         )}
 
@@ -286,6 +287,8 @@ export default class Search extends Component {
             })}
           </Fragment>
         )}
+
+        {isApproval && <div className="mTop20 bold">{_l('未获取到数据时：继续执行')}</div>}
       </Fragment>
     );
   }

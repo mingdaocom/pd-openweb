@@ -18,7 +18,7 @@ export default class SetFolder extends Component {
       .getFolderConfig({
         folderId: this.props.folderId,
       })
-      .then((source) => {
+      .then(source => {
         this.setState({
           data: source.data,
           stageConfig: source.data.stageConfig,
@@ -36,7 +36,10 @@ export default class SetFolder extends Component {
             return false;
           }
           $(this).MD_UI_Tooltip({
-            text: _l('默认负责人和管理员可编辑看板；%0项目成员只能查看看板内容，创建任务，对看板没有编辑权限', '<br />'),
+            text: _l(
+              '默认负责人和管理员可编辑看板；%0项目成员只能查看看板内容，创建任务，对看板没有编辑权限',
+              '<br />',
+            ),
             arrowLeft: 190,
             offsetLeft: -199,
             offsetTop: -70,
@@ -44,12 +47,10 @@ export default class SetFolder extends Component {
             checkHeight: true,
             width: 430,
           });
-          $(this)
-            .data('tip', true)
-            .mouseenter();
+          $(this).data('tip', true).mouseenter();
         },
       },
-      '.msgTipJs'
+      '.msgTipJs',
     );
   }
 
@@ -90,11 +91,11 @@ export default class SetFolder extends Component {
         folderID: this.props.folderId,
         templateScope,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           alert(_l('修改成功'));
         } else {
-          alert(_l('修改失败'));
+          alert(_l('修改失败'), 2);
           this.setState({ templateScope: !templateScope });
         }
       });
@@ -110,11 +111,11 @@ export default class SetFolder extends Component {
         folderID: this.props.folderId,
         stageConfig,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           alert(_l('修改成功'));
         } else {
-          alert(_l('修改失败'));
+          alert(_l('修改失败'), 2);
           this.setState({ stageConfig: stageConfig === 0 ? 1 : 0 });
         }
       });
@@ -133,7 +134,9 @@ export default class SetFolder extends Component {
         width: 490,
         container: {
           header: _l('注意：'),
-          content: `<span class="Font13">${_l('这将导致成员能看到此项目下其当前不可见的任务，请确认其中的信息可以对成员公开。')}</span>`,
+          content: `<span class="Font13">${_l(
+            '这将导致成员能看到此项目下其当前不可见的任务，请确认其中的信息可以对成员公开。',
+          )}</span>`,
           yesFn: () => {
             this.updateFolderAuthVisible(auth);
           },
@@ -158,11 +161,11 @@ export default class SetFolder extends Component {
         folderID: this.props.folderId,
         folderAuthVisible: auth,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           alert(_l('修改成功'));
         } else {
-          alert(_l('修改失败'));
+          alert(_l('修改失败'), 2);
           this.setState({ folderAuthVisible: originalAuth });
         }
       });
@@ -192,7 +195,7 @@ export default class SetFolder extends Component {
       ],
       checkedValue: this.state.stageConfig,
       vertical: true,
-      onChange: (value) => {
+      onChange: value => {
         this.setState({ stageConfig: value });
         this.updateStageConfig(value);
       },
@@ -211,7 +214,7 @@ export default class SetFolder extends Component {
       ],
       checkedValue: this.state.templateScope,
       vertical: true,
-      onChange: (value) => {
+      onChange: value => {
         this.setState({ templateScope: value });
         this.templateScopeDialog(value);
       },
@@ -234,7 +237,7 @@ export default class SetFolder extends Component {
       ],
       checkedValue: this.state.folderAuthVisible,
       vertical: true,
-      onChange: (value) => {
+      onChange: value => {
         const originalAuth = this.state.folderAuthVisible;
         this.setState({ folderAuthVisible: value });
         this.folderAuthVisibleDialog(value, originalAuth);
@@ -261,7 +264,10 @@ export default class SetFolder extends Component {
             <div className="Font13 mBottom20">
               <div className="mBottom10">
                 <span>{_l('3、成员对项目下任务的可见权限')}</span>
-                <span className="msgTip tip-top" data-tip={_l('仅影响项目成员和在公开范围内人员，管理员固定为对项目下所有任务可见且可查看详情')}>
+                <span
+                  className="msgTip tip-top"
+                  data-tip={_l('仅影响项目成员和在公开范围内人员，管理员固定为对项目下所有任务可见且可查看详情')}
+                >
                   <i className="icon-task-folder-message" />
                 </span>
               </div>

@@ -261,6 +261,7 @@ export default class FillWorkseet extends React.Component {
         <div className="formMain" ref={this.con} style={{ padding: '0 32px' }}>
           {!loading && (
             <CustomFields
+              widgetStyle={publicWorksheetInfo.advancedSetting}
               rules={rules}
               ref={this.customwidget}
               data={formData}

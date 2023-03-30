@@ -12,7 +12,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 
 export default function SheetMoreOperate(props) {
-  const { appId, groupId, viewId, isCharge, worksheetInfo, controls, sheetSwitchPermit } = props;
+  const { appId, groupId, viewId, isCharge, worksheetInfo, sheet, controls, sheetSwitchPermit } = props;
   const { setSheetDescVisible, setEditNameVisible, updateWorksheetInfo, reloadWorksheet, deleteSheet } = props;
   const { name, projectId, worksheetId, allowAdd, entityName, btnName } = worksheetInfo;
   const [menuVisible, setMenuVisible] = useState();
@@ -204,10 +204,12 @@ export default function SheetMoreOperate(props) {
                   data: [{ text: _l('我确认永久删除工作表和所有数据'), value: 1 }],
                   onOk: () => {
                     deleteSheet({
+                      type: sheet.type,
                       appId,
                       groupId,
                       projectId,
                       worksheetId,
+                      parentGroupId: sheet.parentGroupId
                     });
                   },
                 });

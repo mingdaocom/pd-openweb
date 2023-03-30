@@ -4,7 +4,7 @@ import cx from 'classnames';
 import '@mdfe/nanoscroller';
 import './style.less';
 import { FREQUENCY, RECURTYPE, MEMBER_STATUS } from './constant';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import { Config } from './index';
 import * as Common from './common';
 import Comm from '../comm/comm';
@@ -35,7 +35,10 @@ const getStateIsRecurChange = (oldState, state) => {
     return true;
   }
   // 重复日程结束方式改变
-  if (oldState.recurType !== state.recurType || (oldState.recurType === undefined && state.recurType === RECURTYPE.NONE)) {
+  if (
+    oldState.recurType !== state.recurType ||
+    (oldState.recurType === undefined && state.recurType === RECURTYPE.NONE)
+  ) {
     return true;
   } else if (state.recurType === RECURTYPE.COUNT && oldState.recurCount !== state.recurCount) {
     return true;
@@ -74,7 +77,9 @@ export default class CalendarDetail extends Component {
 
   constructor(props) {
     super(props);
-    const { data: { calendar, keyStatus, token, thirdUser } } = this.props;
+    const {
+      data: { calendar, keyStatus, token, thirdUser },
+    } = this.props;
     this.omitKeys = ['keyStatus', 'token', 'isShowUpdateBar'];
     this.EVENT_KEY = +new Date();
     // store calendar data
@@ -96,7 +101,9 @@ export default class CalendarDetail extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { data: { calendar, keyStatus, token, thirdUser } } = nextProps;
+    const {
+      data: { calendar, keyStatus, token, thirdUser },
+    } = nextProps;
     this.setState({
       ...calendar,
       keyStatus,
@@ -153,7 +160,9 @@ export default class CalendarDetail extends Component {
   mapNewState(diff) {
     const oldState = this.state;
     const state = Object.assign({}, oldState, diff);
-    const { data: { calendar } } = this.props;
+    const {
+      data: { calendar },
+    } = this.props;
 
     if (oldState.start !== state.start || oldState.end !== state.end) {
       const { start, end } = state;
@@ -194,10 +203,11 @@ export default class CalendarDetail extends Component {
     }
 
     if (state.recurType !== RECURTYPE.NONE) {
-      if (state.recurType === RECURTYPE.DATE && (state.untilDate === '0' || moment(state.end).isAfter(moment(state.untilDate), 'day'))) {
-        diff.untilDate = moment(state.end)
-          .add(1, 'd')
-          .format('YYYY-MM-DD');
+      if (
+        state.recurType === RECURTYPE.DATE &&
+        (state.untilDate === '0' || moment(state.end).isAfter(moment(state.untilDate), 'day'))
+      ) {
+        diff.untilDate = moment(state.end).add(1, 'd').format('YYYY-MM-DD');
       }
       if (state.recurType === RECURTYPE.COUNT && !state.recurCount) {
         diff.recurCount = 1;
@@ -304,7 +314,11 @@ export default class CalendarDetail extends Component {
     };
     const joinOutLook = () => {
       const { id, recurTime } = this.state;
-      window.open(addToken(`${md.global.Config.AjaxApiUrl}download/exportCalendarByCalendarId?op=OutputFile&calendarID=${id}&RecurTime=${recurTime}`));
+      window.open(
+        addToken(
+          `${md.global.Config.AjaxApiUrl}download/exportCalendarByCalendarId?op=OutputFile&calendarID=${id}&RecurTime=${recurTime}`,
+        ),
+      );
     };
     const postMessage = () => {
       const { members } = this.state;
@@ -334,7 +348,7 @@ export default class CalendarDetail extends Component {
             keyStatus: newKeyStatus,
             token: newToken,
           });
-        }
+        },
       );
     };
     const exitCalendar = () => {
@@ -393,14 +407,16 @@ export default class CalendarDetail extends Component {
     const addCalendarMember = () => {
       const { id, originRecur, isChildCalendar, recurTime, members } = this.state;
       const addMemberCallback = ({ source, isAllCalendar }) => {
-        const { data: { successMember } } = source;
+        const {
+          data: { successMember },
+        } = source;
         this.setState({
           members: members.concat(successMember || []),
           isChildCalendar: !isAllCalendar,
         });
       };
 
-      $({}).dialogSelectUser({
+      dialogSelectUser({
         sourceId: originRecur && isChildCalendar ? id + '|' + recurTime : id,
         fromType: 5,
         SelectUserSettings: {
@@ -416,7 +432,7 @@ export default class CalendarDetail extends Component {
                 originRecur,
                 id,
                 isChildCalendar,
-              }
+              },
             ).then(addMemberCallback);
           },
         },
@@ -432,10 +448,12 @@ export default class CalendarDetail extends Component {
                 originRecur,
                 id,
                 isChildCalendar,
-              }
+              },
             ).then(args => {
               addMemberCallback(args);
-              const { source: { code } } = args;
+              const {
+                source: { code },
+              } = args;
               // 外部用户回调
               callback({
                 status: code,
@@ -509,7 +527,7 @@ export default class CalendarDetail extends Component {
           removeMember,
           removeWxMember,
           reInvite,
-        }
+        },
       );
     };
 

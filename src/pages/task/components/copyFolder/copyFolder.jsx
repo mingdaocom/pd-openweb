@@ -1,6 +1,6 @@
 ﻿import React, { Component } from 'react';
 import DialogLayer from 'src/components/mdDialog/dialog';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import './less/copyFolder.less';
 import ajaxRequest from 'src/api/taskCenter';
 import { expireDialogAsync } from 'src/components/common/function';
@@ -39,9 +39,7 @@ export default class CopyFolder extends Component {
       // 看板信息
       if ($(this).is($('#copyStages'))) {
         className += $(this).hasClass('checked') ? 'checked' : 'noClick';
-        $('#copyAllTask, #copyAllTaskMember, #copyAllTaskDesc, #copyAllTaskAtts')
-          .removeClass()
-          .addClass(className);
+        $('#copyAllTask, #copyAllTaskMember, #copyAllTaskDesc, #copyAllTaskAtts').removeClass().addClass(className);
       }
 
       // 项目下所有任务
@@ -58,7 +56,7 @@ export default class CopyFolder extends Component {
     });
 
     $('#copyFolder_container').on('click', '#chargeUserBtn', function () {
-      $(this).dialogSelectUser({
+      dialogSelectUser({
         sourceId: that.props.taskId,
         title: '选择负责人',
         showMoreInvite: false,
@@ -67,7 +65,7 @@ export default class CopyFolder extends Component {
           filterAccountIds: [that.state.accountId],
           projectId: that.props.projectId,
           unique: true,
-          callback: (users) => {
+          callback: users => {
             that.setState({
               accountId: users[0].accountId,
               avatar: users[0].avatar,
@@ -78,7 +76,7 @@ export default class CopyFolder extends Component {
     });
 
     $('#copyFolder_container').on('click', '#chargeTaskUserBtn', function () {
-      $(this).dialogSelectUser({
+      dialogSelectUser({
         sourceId: that.props.taskId,
         title: '选择负责人',
         showMoreInvite: false,
@@ -87,7 +85,7 @@ export default class CopyFolder extends Component {
           filterAccountIds: [that.state.accountId],
           projectId: that.props.projectId,
           unique: true,
-          callback: (users) => {
+          callback: users => {
             that.setState({
               taskAccountId: users[0].accountId,
               taskAvatar: users[0].avatar,
@@ -122,7 +120,7 @@ export default class CopyFolder extends Component {
         hasTaskAtts: $('#copyAllTaskAtts').hasClass('checked'),
         appID: md.global.APPInfo.taskFolderAppID,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           this.props.callback(source.data);
           alert(_l('复制成功'));
@@ -148,7 +146,7 @@ export default class CopyFolder extends Component {
   getNetWorkName() {
     let name = '个人';
 
-    md.global.Account.projects.forEach((project) => {
+    md.global.Account.projects.forEach(project => {
       if (project.projectId === this.state.projectId) {
         name = project.companyName;
       }
@@ -190,17 +188,27 @@ export default class CopyFolder extends Component {
             <div className="copyNetworkBox">
               <div
                 className="copyNetworkTitle pointer ThemeColor3"
-                onMouseDown={evt => this.checkMouseDownIsLeft(evt) && this.setState({ showNetwork: !this.state.showNetwork })}
+                onMouseDown={evt =>
+                  this.checkMouseDownIsLeft(evt) && this.setState({ showNetwork: !this.state.showNetwork })
+                }
               >
                 <span className="copyNetworkName overflow_ellipsis">{this.getNetWorkName()}</span>
                 <i className="icon-arrow-down-border" />
               </div>
 
               {this.state.showNetwork ? (
-                <ClickAwayable component="ul" className="copyNetworkList boxShadow5 boderRadAll_3" onClickAway={() => this.setState({ showNetwork: false })}>
+                <ClickAwayable
+                  component="ul"
+                  className="copyNetworkList boxShadow5 boderRadAll_3"
+                  onClickAway={() => this.setState({ showNetwork: false })}
+                >
                   {md.global.Account.projects.map((project, i) => {
                     return (
-                      <li key={i} className="overflow_ellipsis ThemeColor3 ThemeBGColor3" onClick={() => this.switchNetwork(project.projectId)}>
+                      <li
+                        key={i}
+                        className="overflow_ellipsis ThemeColor3 ThemeBGColor3"
+                        onClick={() => this.switchNetwork(project.projectId)}
+                      >
                         {project.companyName}
                       </li>
                     );
@@ -209,14 +217,10 @@ export default class CopyFolder extends Component {
                     {_l('个人')}
                   </li>
                 </ClickAwayable>
-              ) : (
-                undefined
-              )}
+              ) : undefined}
             </div>
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
 
         <div className={this.props.isAdmin ? 'copyTitleBox pTop10' : 'copyTitleBox'}>
           <div className="copyTitle">{_l('项目标题')}</div>
@@ -262,7 +266,10 @@ export default class CopyFolder extends Component {
               <div className="checked checkOperation" id="copyFolderCustomContent">
                 <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
                 {_l('全部自定义任务内容')}
-                <span className="mLeft5 copyTip" data-tip={_l('项目的字段设置会被复制，每条任务的具体字段值不会被复制')}>
+                <span
+                  className="mLeft5 copyTip"
+                  data-tip={_l('项目的字段设置会被复制，每条任务的具体字段值不会被复制')}
+                >
                   <i className="icon-knowledge-message" />
                 </span>
               </div>

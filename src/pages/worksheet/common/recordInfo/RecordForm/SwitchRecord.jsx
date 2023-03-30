@@ -17,16 +17,18 @@ export default function SwitchRecord(props) {
                 onSwitch(false);
               }
             : () => {}
-        }>
+        }
+      >
         <Tooltip
           offset={[-18, 0]}
           text={
             <span>
               {navigator.userAgent.indexOf('Mac OS') > 0
-                ? _l('上个记录（Command + ⇧ + ,）')
+                ? _l('上个记录（⌘ + ⇧ + ,）')
                 : _l('上个记录（Ctrl + Shift + ,）')}
             </span>
-          }>
+          }
+        >
           <i className="icon icon-arrow-up-border" />
         </Tooltip>
       </span>
@@ -38,15 +40,17 @@ export default function SwitchRecord(props) {
                 onSwitch(true);
               }
             : () => {}
-        }>
+        }
+      >
         <Tooltip
           text={
             <span>
               {navigator.userAgent.indexOf('Mac OS') > 0
-                ? _l('下个记录（Command + ⇧ + .）')
+                ? _l('下个记录（⌘ + ⇧ + .）')
                 : _l('下个记录（Ctrl + Shift + .）')}
             </span>
-          }>
+          }
+        >
           <i className="icon icon-arrow-down-border" />
         </Tooltip>
       </span>

@@ -10,6 +10,8 @@ const Base = (props) => {
   const { IsPlatformLocal, IsCluster } = md.global.Config;
   const { SysSettings } = md.global;
   const [hideHelpTip, setHideHelpTip] = useState(SysSettings.hideHelpTip);
+  const [hideIntegration, setHideIntegration] = useState(SysSettings.hideIntegration);
+  const [hideIntegrationLibrary, setHideIntegrationLibrary] = useState(SysSettings.hideIntegrationLibrary);
   const [hideDownloadApp, setHideDownloadApp] = useState(SysSettings.hideDownloadApp);
   const [downloadAppRedirectUrl, setDownloadAppRedirectUrl] = useState(SysSettings.downloadAppRedirectUrl);
   const [appDialogVisible, setAppDialogVisible] = useState(false);
@@ -37,6 +39,47 @@ const Base = (props) => {
             }, () => {
               setHideHelpTip(value);
               md.global.SysSettings.hideHelpTip = value;
+            });
+          }}
+        />
+      </div>
+    );
+  }
+
+  const renderIntegration = () => {
+    return (
+      <div className="flexRow valignWrapper">
+        <div className="flex flexColumn">
+          <div className="Font14 bold mBottom8">{_l('集成中心')}</div>
+          <div className="Gray_9e">{_l('平台集成中心入口')}</div>
+          {!hideIntegration && (
+            <div className="flexRow valignWrapper mTop10">
+              <Switch
+                checked={!hideIntegrationLibrary}
+                onClick={value => {
+                  updateSysSettings({
+                    hideIntegrationLibrary: value
+                  }, () => {
+                    setHideIntegrationLibrary(value);
+                    md.global.SysSettings.hideIntegrationLibrary = value;
+                  });
+                }}
+              />
+              <div className="mLeft8">{_l('显示明道云API库')}</div>
+            </div>
+          )}
+        </div>
+        <Switch
+          checked={!hideIntegration}
+          onClick={value => {
+            updateSysSettings({
+              hideIntegration: value,
+              hideIntegrationLibrary: value,
+            }, () => {
+              setHideIntegration(value);
+              setHideIntegrationLibrary(value);
+              md.global.SysSettings.hideIntegration = value;
+              md.global.SysSettings.hideIntegrationLibrary = value;
             });
           }}
         />
@@ -278,6 +321,8 @@ const Base = (props) => {
     <div className="privateCardWrap flexColumn">
       <div className="Font17 bold mBottom25">{_l('通用')}</div>
       {renderHelpTip()}
+      <Divider className="mTop20 mBottom20" />
+      {renderIntegration()}
       <Divider className="mTop20 mBottom20" />
       {IsPlatformLocal && (
         <Fragment>

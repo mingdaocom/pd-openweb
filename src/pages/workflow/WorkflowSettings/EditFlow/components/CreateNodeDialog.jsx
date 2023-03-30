@@ -244,9 +244,9 @@ export default class CreateNodeDialog extends Component {
                 },
                 {
                   type: 9,
-                  name: _l('两个日期间的时长'),
+                  name: _l('时长'),
                   actionId: '104',
-                  describe: _l('计算两个日期间的时长，并精确到年、月、天、小时、分'),
+                  describe: _l('计算两个日期/时间之间的时长，并精确到年、月、天、时、分、秒'),
                 },
                 {
                   type: 9,
@@ -626,7 +626,7 @@ export default class CreateNodeDialog extends Component {
             <div className="Gray_75 mTop10 pLeft10">
               {_l('查看当前代码脚本的')}
               <a
-                href="https://help.mingdao.com/flow34.html#%E4%BB%A3%E7%A0%81%E8%84%9A%E6%9C%AC%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83"
+                href="https://help.mingdao.com/zh/flow34.html#%E4%BB%A3%E7%A0%81%E8%84%9A%E6%9C%AC%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83"
                 className="ThemeColor3 ThemeHoverColor2 mLeft3"
                 target="_blank"
               >
@@ -674,15 +674,15 @@ export default class CreateNodeDialog extends Component {
               </div>
               {!foldFeatures[data.id] && (
                 <ul className="nodeList clearfix">
-                  {data.items.map((item, j) => {
+                  {data.items.filter(data => !(data.type === 25 && md.global.SysSettings.hideIntegration)).map((item, j) => {
                     return (
                       <li key={j} onClick={() => this.createNodeClick(item)}>
                         <span className="nodeListIcon" style={{ backgroundColor: item.iconColor }}>
                           <i className={item.iconName} />
                         </span>
                         <div className="Font14">{item.name}</div>
-                        {item.type === NODE_TYPE.APPROVAL_PROCESS && (
-                          <div className="Font12 nodeListNew">{_l('Beta')}</div>
+                        {item.type === NODE_TYPE.APPROVAL && (
+                          <div className="Font12 nodeListOverdue">{_l('即将下线')}</div>
                         )}
                       </li>
                     );
@@ -938,7 +938,7 @@ export default class CreateNodeDialog extends Component {
                     className="createNodeExplain"
                     type={2}
                     text={_l('了解这些动作')}
-                    href="https://help.mingdao.com/flow51.html"
+                    href="https://help.mingdao.com/zh/flow51.html"
                   />
                 </Fragment>
               )}

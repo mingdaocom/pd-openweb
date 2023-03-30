@@ -12,6 +12,7 @@ export default function widthProvider(GridOutComponent) {
       this.mounted = true;
 
       window.addEventListener('resize', this.onWindowResize);
+      window.customPageWindowResize = this.onWindowResize;
       this.onWindowResize();
     }
     componentWillReceiveProps(nextProps) {
@@ -38,6 +39,7 @@ export default function widthProvider(GridOutComponent) {
 
     componentWillUnmount() {
       this.mounted = false;
+      delete window.customPageWindowResize;
       window.removeEventListener('resize', this.onWindowResize);
     }
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { Checkbox } from 'ming-ui';
 import { CONTROLS_NAME } from '../../../enum';
 
-export default ({ controls, showRequired, updateSource, hideControlType }) => {
+export default ({ data, controls, showRequired, updateSource, hideControlType }) => {
   return (
     <div className="mTop15 webhookBox">
       <div className="webhookHeader flexRow">
@@ -25,9 +25,14 @@ export default ({ controls, showRequired, updateSource, hideControlType }) => {
                   <Checkbox
                     checked={item.required}
                     onClick={checked => {
-                      let newControls = [].concat(controls);
+                      const newControls = [].concat(data);
 
-                      newControls[i].required = !checked;
+                      newControls.forEach(o => {
+                        if (o.controlId === item.controlId) {
+                          o.required = !checked;
+                        }
+                      });
+
                       updateSource({ controls: newControls });
                     }}
                   />

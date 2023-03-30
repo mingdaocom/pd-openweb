@@ -96,7 +96,7 @@ export default class DialogCreateApp extends Component {
               <Support
                 type={2}
                 text={_l('帮助')}
-                href="https://help.mingdao.com/sheet50.html"
+                href="https://help.mingdao.com/zh/sheet50.html"
                 className="Gray_bd mRight30"
               />
               <Button type="link" className="mRight15 stepLast" onClick={this.props.handleLast}>
@@ -136,6 +136,7 @@ export default class DialogCreateApp extends Component {
                 <div className="editIcon Hand Hover_49">
                   <Trigger
                     action={['click']}
+                    zIndex={1000}
                     popupClassName="myAppItemOperatorTriggerWrap"
                     popup={
                       <SelectIcon
@@ -149,7 +150,7 @@ export default class DialogCreateApp extends Component {
                     }
                     popupAlign={{
                       points: ['tl', 'bl'],
-                      offset: [-150, 5],
+                      offset: [-350, 5],
                       overflow: { adjustX: true },
                     }}
                   >

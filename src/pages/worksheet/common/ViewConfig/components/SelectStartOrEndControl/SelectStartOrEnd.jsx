@@ -7,8 +7,10 @@ import { getIconByType } from 'src/pages/widgetConfig/util';
 import { isTimeStyle, isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
 import AddControlDiaLog from './AddControlDiaLog';
 import { SYS } from '../../../../../widgetConfig/config/widget';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+
 export default function SelectStartOrEnd(props) {
-  const {
+  let {
     handleChange,
     timeControls = [],
     canAddTimeControl, //能否添加新的时间控件
@@ -19,16 +21,19 @@ export default function SelectStartOrEnd(props) {
     updateWorksheetControls,
     allowClear,
     i,
+    sheetSwitchPermit = [],
   } = props;
+
   const getData = () => {
+    let timeControlsList = setSysWorkflowTimeControlFormat(timeControls, sheetSwitchPermit);
     let begindate = props.begindate;
     let enddate = props.enddate;
-    let startData = begindate ? timeControls.find((it, i) => it.controlId === begindate) || {} : [];
-    let endData = enddate ? timeControls.find(it => it.controlId === enddate) || {} : {};
+    let startData = begindate ? timeControlsList.find((it, i) => it.controlId === begindate) || {} : [];
+    let endData = enddate ? timeControlsList.find(it => it.controlId === enddate) || {} : {};
     return {
       begindate,
       startData,
-      startControls: timeControls.filter(
+      startControls: timeControlsList.filter(
         it =>
           it.controlId !== enddate &&
           it.controlId !== begindate &&
@@ -36,7 +41,7 @@ export default function SelectStartOrEnd(props) {
       ),
       enddate,
       endData,
-      endControls: timeControls.filter(
+      endControls: timeControlsList.filter(
         it =>
           it.controlId !== begindate &&
           it.controlId !== enddate &&

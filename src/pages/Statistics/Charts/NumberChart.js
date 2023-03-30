@@ -314,7 +314,7 @@ export default class extends Component {
           >
             <Tooltip title={value.toLocaleString() == formatrValue ? null : value.toLocaleString()} overlayInnerStyle={{ textAlign: 'center' }}>
               <div className="contentWrapper textWrap flexColumn tip-top">
-                {name && <div className="Font16 mBottom10 w100 ellipsis name">{name}</div>}
+                {name && <div className="Font15 mBottom10 w100 ellipsis name">{name}</div>}
                 <div className="flexRow">
                   <div
                     className="ellipsis count"
@@ -347,7 +347,7 @@ export default class extends Component {
     const oneNumber = !xaxes.controlId && yaxisList.length === 1;
     const defaultColumnCount = oneNumber ? 1 : (numberChartStyle.columnCount || 4);
     const columnCount = (isMobile && defaultColumnCount > 2) ? 2 : defaultColumnCount;
-    const showTotal = displaySetup.showTotal && !oneNumber;
+    const showTotal = displaySetup.showTotal && xaxes.controlId;
     const count = list.length + (showTotal ? 1 : 0);
     const span = Math.ceil(24 / columnCount);
     return (

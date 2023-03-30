@@ -11,31 +11,44 @@ import widgets from './widgets';
 import RelateRecordMuster from './components/RelateRecordMuster';
 import WidgetsDesc from './components/WidgetsDesc';
 import WidgetsVerifyCode from './components/WidgetsVerifyCode';
-import { convertControl, controlState, halfSwitchSize } from './tools/utils';
+import { convertControl, controlState, halfSwitchSize, loadSDK } from './tools/utils';
 import { FORM_ERROR_TYPE, FROM } from './tools/config';
 import { updateRulesData, checkAllValueAvailable } from './tools/filterFn';
 import DataFormat, { checkRequired } from './tools/DataFormat';
 import { browserIsMobile } from 'src/util';
-import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
+import { formatSearchConfigs, supportDisplayRow } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
 import FormLabel from './components/FormLabel';
 
 export default class CustomFields extends Component {
   static propTypes = {
-    flag: PropTypes.string,
+    flag: PropTypes.any,
     initSource: PropTypes.bool,
     from: PropTypes.number,
     projectId: PropTypes.string,
     worksheetId: PropTypes.string,
     recordId: PropTypes.string,
     appId: PropTypes.string,
+    groupId: PropTypes.string,
+    viewId: PropTypes.string,
     data: PropTypes.array,
     recordCreateTime: PropTypes.string,
     disabled: PropTypes.bool,
     forceFull: PropTypes.bool,
     onChange: PropTypes.func,
     disableRules: PropTypes.bool,
-    rules: PropTypes.arrayOf(PropTypes.shape({})),
+    isCreate: PropTypes.bool, // 是否新建
+    widgetStyle: PropTypes.object, // 表单样式配置
+    ignoreLock: PropTypes.bool, // 是否忽略锁定记录
+    ignoreHideControl: PropTypes.bool, // 忽略隐藏控件
+    verifyAllControls: PropTypes.bool, // 是否校验全部字段
+    isWorksheetQuery: PropTypes.bool, // 是否配置工作表查询
+    masterRecordRowId: PropTypes.string, // 主记录id
+    smsVerificationFiled: PropTypes.string, // 公开表单设置短信验证字段id
+    smsVerification: PropTypes.bool, // 公开表单是否设置短信验证
+    sheetSwitchPermit: PropTypes.array, // 工作表业务板块权限
+    rules: PropTypes.arrayOf(PropTypes.shape({})), // 业务规则
+    searchConfig: PropTypes.arrayOf(PropTypes.shape({})), // 工作表查询配置
     getMasterFormData: PropTypes.func,
     openRelateRecord: PropTypes.func,
     openRelateSheet: PropTypes.func,
@@ -43,6 +56,8 @@ export default class CustomFields extends Component {
     checkCellUnique: PropTypes.func,
     onFormDataReady: PropTypes.func,
     onWidgetChange: PropTypes.func,
+    onRulesLoad: PropTypes.func,
+    onSave: PropTypes.func,
   };
 
   static defaultProps = {
@@ -100,6 +115,7 @@ export default class CustomFields extends Component {
         window.scrollTo(0, 0);
       });
     }
+    loadSDK();
   }
 
   componentWillReceiveProps(nextProps, nextState) {
@@ -250,7 +266,8 @@ export default class CustomFields extends Component {
    * 渲染表单
    */
   renderForm() {
-    const { from, worksheetId, recordId, forceFull, controlProps } = this.props;
+    const { from, worksheetId, recordId, forceFull, controlProps, widgetStyle = {}, disabled } = this.props;
+    const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
     const { errorItems, uniqueErrorItems, loadingItems } = this.state;
     const isMobile = browserIsMobile();
     const formList = [];
@@ -291,13 +308,14 @@ export default class CustomFields extends Component {
         }
 
         const isFull = isMobile || forceFull || item.size === 12;
+        const displayRow = (isMobile ? titlelayout_app === '2' : titlelayout_pc === '2') && supportDisplayRow(item);
 
         formList.push(
           <div
-            className="customFormItem"
+            className={cx('customFormItem', { customFormItemRow: displayRow && ((isMobile && disabled) || !isMobile) })}
             style={{
               width: isFull ? '100%' : `${(item.size / 12) * 100}%`,
-              display: item.type === 49 && this.props.disabled ? 'none' : 'block',
+              display: item.type === 49 && this.props.disabled ? 'none' : 'flex',
             }}
             key={`item-${item.row}-${item.col}`}
           >
@@ -316,6 +334,8 @@ export default class CustomFields extends Component {
                 errorItems={errorItems}
                 uniqueErrorItems={uniqueErrorItems}
                 loadingItems={loadingItems}
+                widgetStyle={{ ...widgetStyle, displayRow }}
+                disabled={disabled}
                 updateErrorState={this.updateErrorState}
                 handleChange={this.handleChange}
               />
@@ -447,6 +467,7 @@ export default class CustomFields extends Component {
       popupContainer,
       getMasterFormData,
       isCharge,
+      widgetStyle = {},
       mobileApprovalRecordInfo = {},
     } = this.props;
 
@@ -477,7 +498,7 @@ export default class CustomFields extends Component {
     if (
       (item.disabled || _.includes([25, 31, 32, 33, 37, 38], item.type) || !isEditable) &&
       ((!item.value && item.value !== 0 && !_.includes([28, 47], item.type)) ||
-        (_.includes([21, 26, 27, 29, 48], item.type) &&
+        (_.includes([21, 26, 27, 29, 48, 35], item.type) &&
           _.isArray(JSON.parse(item.value)) &&
           !JSON.parse(item.value).length))
     ) {
@@ -496,6 +517,7 @@ export default class CustomFields extends Component {
           mobileApprovalRecordInfo={mobileApprovalRecordInfo}
           flag={flag}
           isCharge={isCharge}
+          widgetStyle={widgetStyle}
           maskPermissions={maskPermissions}
           popupContainer={popupContainer}
           sheetSwitchPermit={sheetSwitchPermit} // 工作表业务模板权限
@@ -656,9 +678,10 @@ export default class CustomFields extends Component {
     const { from, recordId, ignoreHideControl } = this.props;
     const { errorItems, uniqueErrorItems, rules = [] } = this.state;
     const updateControlIds = this.dataFormat.getUpdateControlIds();
+    const data = this.dataFormat.getDataSource();
     const list = updateRulesData({
       rules,
-      data: this.dataFormat.getDataSource(),
+      data,
       checkAllUpdate: true,
       ignoreHideControl,
     });
@@ -683,7 +706,7 @@ export default class CustomFields extends Component {
     if (hasError) {
       if (!ignoreAlert && !silent) alert(_l('请正确填写记录'), 3);
       error = true;
-    } else if ($(this.con.current, '.workSheetRecordInfo').find('.Progress--circle').length > 0) {
+    } else if ($(this.con.current, '.workSheetRecordInfo').find('.fileUpdateLoading').length) {
       alert(_l('附件正在上传，请稍后'), 3);
       error = true;
     } else if (hasRuleError) {
@@ -694,7 +717,7 @@ export default class CustomFields extends Component {
       this.errorDialog(errors);
     }
 
-    return { data: list, updateControlIds, hasError, hasRuleError, error };
+    return { data: list, fullData: data, updateControlIds, hasError, hasRuleError, error };
   }
 
   /**

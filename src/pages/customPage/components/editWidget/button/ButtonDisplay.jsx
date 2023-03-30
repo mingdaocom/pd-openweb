@@ -4,7 +4,7 @@ import { Button, Icon } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { computeWidth } from '../../../util';
-import color from 'color';
+import tinycolor from '@ctrl/tinycolor';
 import SvgIcon from 'src/components/SvgIcon';
 import { ButtonListWrap, GraphWrap } from './styled';
 import _ from 'lodash';
@@ -53,9 +53,9 @@ const BtnWrap = styled.div`
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.26);
     &:hover {
       background-color: ${props =>
-        color(props.color)
-          .darken(0.2)
-          .string()};
+        tinycolor(props.color)
+          .darken(20)
+          .toString()};
     }
     .icon {
       font-size: 20px;
@@ -69,9 +69,9 @@ const BtnWrap = styled.div`
     &.active {
       border: 1px solid
         ${props =>
-          color(props.color)
-            .darken(0.2)
-            .string()};
+          tinycolor(props.color)
+            .darken(20)
+            .toString()};
     }
   }
   &.adjustText {
@@ -80,9 +80,9 @@ const BtnWrap = styled.div`
       color: ${props => props.color};
       box-shadow: none;
       &:hover {
-        background-color: ${color('#f8f8f8')
-          .darken(0.03)
-          .string()};
+        background-color: ${tinycolor('#f8f8f8')
+          .darken(3)
+          .toString()};
       }
     }
     .iconWrap {

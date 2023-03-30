@@ -9,6 +9,8 @@ import sheetAjax from 'src/api/worksheet';
 import ScoreInput from './ScoreInput';
 import { formatFilterValues } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils.js';
 import _ from 'lodash';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
 const Wrap = styled.div`
   .Dropdown {
     width: 100%;
@@ -74,11 +76,12 @@ const Wrap = styled.div`
 `;
 export default function NavShow(props) {
   const { params, onChange, value = '0', filterInfo } = props;
-  const [{ filterVisible, filters, relateControls, data }, setState] = useSetState({
+  const [{ filterVisible, filters, relateControls, data, showSysWorkflow }, setState] = useSetState({
     filterVisible: false,
     filters: [],
     relateControls: [],
     data: {},
+    showSysWorkflow: true,
   });
 
   useEffect(() => {
@@ -96,6 +99,11 @@ export default function NavShow(props) {
       setState({ relateControls });
     }
     setState({ data: columns.find(o => o.controlId === viewControl) || {} });
+    if (!isOpenPermit(permitList.sysControlSwitch, _.get(filterInfo, 'globalSheetInfo.switches') || [])) {
+      setState({
+        showSysWorkflow: false,
+      });
+    }
   }, [props]);
 
   useEffect(() => {
@@ -117,8 +125,12 @@ export default function NavShow(props) {
     <Wrap>
       {params.txt && <div className="title mTop30 Gray Bold">{params.txt}</div>}
       <Dropdown
-        data={params.types}
-        value={value || '0'}
+        data={
+          filterInfo.viewControl === 'wfstatus' && !showSysWorkflow
+            ? params.types.filter(o => o.value === '0')
+            : params.types
+        }
+        value={filterInfo.viewControl === 'wfstatus' && !showSysWorkflow ? '0' : value || '0'}
         className="flex settingContent"
         onChange={value => {
           onChange({

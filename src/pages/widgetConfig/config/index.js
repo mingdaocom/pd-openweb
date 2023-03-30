@@ -1,4 +1,4 @@
-export const DEFAULT_INTRO_LINK = 'https://help.mingdao.com/sheet2.html';
+export const DEFAULT_INTRO_LINK = 'https://help.mingdao.com/zh/sheet2.html';
 export const OPTION_COLORS_LIST = [
   '#2196F3',
   '#08C9C9',
@@ -77,12 +77,11 @@ export const NO_CONTENT_CONTROL = [10010, 22];
 
 /**
  * 无引导文字控件
- * 14：附件
  * 33: 自动编号
  * 36: 开关
  */
 
-export const HAS_EXPLAIN_CONTROL = [2, 3, 4, 5, 6, 7, 8, 35, 49, 50];
+export const HAS_EXPLAIN_CONTROL = [2, 3, 4, 5, 6, 7, 8, 14, 35, 49, 50];
 
 /**
  * 没有自定义配置的控件
@@ -122,7 +121,7 @@ export const NEED_SPECIAL_DISPLAY_CONTROLS = [
 
 export const HAVE_CONFIG_CONTROL = [2, 3, 9, 10, 11, 15, 16, 26, 28, 32, 35, 40, 42, 46];
 // 独占一行的控件
-export const FULL_LINE_CONTROL = [14, 21, 22, 34, 41, 10010];
+export const FULL_LINE_CONTROL = [21, 22, 34, 41, 10010];
 
 export const NOT_NEED_DELETE_CONFIRM = [22, 25, 30, 31, 32, 37, 38, 43, 10010];
 

@@ -3,7 +3,7 @@ import { string } from 'prop-types';
 import { Button, Icon } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
-import color from 'color';
+import tinycolor from '@ctrl/tinycolor';
 import SvgIcon from 'src/components/SvgIcon';
 import { ButtonListWrap, GraphWrap } from './styled';
 import _ from 'lodash';
@@ -72,9 +72,9 @@ const BtnWrap = styled.div`
     background-color: ${props => props.color};
     &:hover {
       background-color: ${props =>
-        color(props.color)
-          .darken(0.2)
-          .string()};
+        tinycolor(props.color)
+          .darken(20)
+          .toString()};
     }
     .icon {
       font-size: 20px;

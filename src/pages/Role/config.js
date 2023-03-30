@@ -167,3 +167,5 @@ export const recordActionList = [
     txt: _l('日志'),
   },
 ];
+
+export const USER_EXTEND_INFO_FEATURE_ID = 27;

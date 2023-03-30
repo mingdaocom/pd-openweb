@@ -67,8 +67,8 @@ function getSource() {
   if (queryStart < 0) {
     return;
   }
-  const query = qs.parse(decodeURIComponent(location.href.slice(location.href.indexOf('?') + 1)));
-  return query.source;
+  const query = qs.parse(location.href.slice(location.href.indexOf('?') + 1));
+  return decodeURIComponent(query.source);
 }
 
 export function getInfo() {

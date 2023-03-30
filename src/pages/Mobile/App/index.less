@@ -1,5 +1,4 @@
 .appListMobile {
-
   .guideWrapper {
     width: 100%;
     height: 100%;
@@ -71,18 +70,19 @@
         }
       }
       .active {
-        color: #FFA700 !important;
+        color: #ffa700 !important;
       }
     }
   }
 
   .appNaviStyle2Header {
     padding: 15px 20px;
-    background-color: #FAFAFA;
-    .process, .star {
+    background-color: #fafafa;
+    .process,
+    .star {
       border-right: 1px solid #d0d0d0;
     }
-    >.flex {
+    > .flex {
       font-weight: 500;
       justify-content: center;
     }
@@ -90,7 +90,7 @@
       left: 24px;
     }
     .active {
-      color: #FFA700 !important;
+      color: #ffa700 !important;
     }
   }
 
@@ -109,32 +109,66 @@
   }
 
   .appSectionCon {
-    background-color: #fff;
     overflow-y: auto;
     .am-accordion-header {
       font-size: 14px;
-      font-weight: 700;
-      color: #9E9E9E;
+      font-weight: 400;
       display: flex;
       align-items: center;
+      padding-right: 0;
+      .accordionHeaderWrap {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        line-height: normal;
+        &.appSectionHeader {
+          height: 48px;
+          line-height: 48px;
+        }
+      }
       i {
         position: unset;
-        margin-right: 10px;
+        margin-right: 20px;
       }
       .arrow {
         display: none;
+      }
+      .appSectionIcon {
+        background-image: unset;
+        transform: unset !important;
+        color: #9d9d9d;
+        font-size: 14px;
       }
       .icon-expand_more {
         font-size: 22px;
         width: auto;
         height: auto;
-        margin: 0;
-        transform: rotate(0deg) !important;
         background: none;
       }
     }
-    .am-accordion-item-active .icon-expand_more {
+    .am-accordion .am-accordion-item {
+      border-bottom: 6px solid #f5f5f5;
+    }
+    .am-accordion .am-accordion-item:last-child {
+      border-bottom: none;
+    }
+    .am-accordion .am-accordion-content .am-accordion .am-accordion-item {
+      border-bottom: none;
+    }
+    .am-accordion .am-accordion-item .am-accordion-header i {
+      transform: rotate(0deg) !important;
+    }
+    .am-accordion .am-accordion-item .am-accordion-header[aria-expanded~='true'] i {
       transform: rotate(180deg) !important;
+    }
+    .sudokuSectionWrap {
+      .am-accordion-header {
+        height: 40px;
+        line-height: 40px;
+        margin-bottom: 8px;
+        margin-top: -10px;
+      }
     }
   }
 
@@ -142,6 +176,7 @@
     height: 50px;
     padding-left: 20px;
     .am-list-line {
+      padding-right: 20px !important;
       .am-list-content {
         padding-top: 5px;
         padding-bottom: 5px;
@@ -151,8 +186,11 @@
         flex-basis: 20px;
       }
       .icon-public-folder-hidden {
-        color: #FFA700;
+        color: #ffa700;
       }
+    }
+    .am-list-thumb:first-child {
+      margin-right: 12px;
     }
   }
 
@@ -172,9 +210,8 @@
   .emptyAppSection .am-accordion-header {
     display: none;
   }
-
-  .am-accordion-item {
-    margin-bottom: 6px;
+  .emptyAppSection .am-accordion-content .am-accordion-header {
+    display: flex;
   }
 
   .am-list-body::after,
@@ -199,6 +236,9 @@
     transform-origin: 50% 100%;
     transform: scaleY(0.5);
   }
+  .am-list-body .am-list-line::after {
+    display: none !important;
+  }
 
   .sudokuWrapper {
     padding: 0 10px;
@@ -214,7 +254,7 @@
       position: relative;
     }
     .icon-public-folder-hidden {
-      color: #FFA700;
+      color: #ffa700;
       position: absolute;
       right: 10px;
       top: 10px;
@@ -245,7 +285,7 @@
 
   .isLoadingBox {
     position: fixed;
-    background: rgba(0, 0, 0, .1);
+    background: rgba(0, 0, 0, 0.1);
     top: 0;
     left: 0;
     right: 0;

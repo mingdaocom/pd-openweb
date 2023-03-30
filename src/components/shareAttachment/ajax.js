@@ -67,8 +67,8 @@ export function createNewTask() {
 
 export function createNewChat() {
   var promise = $.Deferred();
-  import('src/components/dialogSelectUser/dialogSelectUser').then(function () {
-    $('body').dialogSelectUser({
+  import('src/components/dialogSelectUser/dialogSelectUser').then(function (dialogSelectUser) {
+    dialogSelectUser.default({
       sourceId: 0,
       fromType: 0,
       showMoreInvite: false,

@@ -276,6 +276,10 @@ class AppHome extends React.Component {
     );
   }
   renderItem(data) {
+    const iconColor = data.iconColor || '#2196f3';
+    const black = '#1b2025' === data.navColor;
+    const light = [data.lightColor, '#ffffff', '#f5f6f7'].includes(data.navColor);
+
     return (
       <div className="myAppItemWrap InlineBlock" key={`${data.id}-${getRandomString()}`}>
         <div
@@ -286,9 +290,12 @@ class AppHome extends React.Component {
             data.onClick ? data.onClick() : window.mobileNavigateTo(`/mobile/app/${data.id}`);
           }}
         >
-          <div className="myAppItemDetail TxtCenter Relative" style={{ backgroundColor: data.iconColor }}>
+          <div
+            className="myAppItemDetail TxtCenter Relative"
+            style={{ backgroundColor: data.navColor || data.iconColor }}
+          >
             {data.iconUrl ? (
-              <SvgIcon url={data.iconUrl} fill="#fff" size={32} addClassName="mTop12" />
+              <SvgIcon url={data.iconUrl} fill={black || light ? iconColor : '#fff'} size={32} addClassName="mTop12" />
             ) : (
               <Icon icon={data.icon} className="Font30" />
             )}

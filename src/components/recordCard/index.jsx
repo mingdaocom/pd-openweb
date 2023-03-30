@@ -28,6 +28,7 @@ export default class RecordCard extends Component {
     disabled: PropTypes.bool,
     selected: PropTypes.bool,
     coverCid: PropTypes.string,
+    projectId: PropTypes.string,
     showControls: PropTypes.arrayOf(PropTypes.string),
     controls: PropTypes.arrayOf(PropTypes.shape({})),
     data: PropTypes.shape({}),
@@ -84,6 +85,7 @@ export default class RecordCard extends Component {
       onDelete,
       onClick,
       coverCid,
+      projectId,
       sourceEntityName,
       viewId,
       isCharge,
@@ -154,6 +156,7 @@ export default class RecordCard extends Component {
                     cell={Object.assign({}, visibleControl, { value: data[visibleControl.controlId] })}
                     from={4}
                     viewId={viewId}
+                    projectId={projectId}
                     isCharge={isCharge}
                   />
                 ) : (

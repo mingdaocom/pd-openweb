@@ -3,24 +3,28 @@ import { oneOf, func } from 'prop-types';
 import { arrayMove } from 'react-sortable-hoc';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
+import { Icon, VCenterIconText } from 'ming-ui';
 import api from 'api/homeApp';
 import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 import AppExtension from '../AppExtension';
 import SortableAppList from './SortableAppList';
 import AppGroupIntro from './AppGroupIntro';
 import DelAppGroup from './DelAppGroup';
+import MyProcessEntry from 'src/pages/PageHeader/components/MyProcessEntry';
 import { navigateTo } from '../../../../router/navigateTo';
 import { getIds, compareProps } from '../../util';
 import { DEFAULT_CREATE, ADVANCE_AUTHORITY } from '../config';
 import { updateAppGroup } from '../../redux/action';
+import { updateIsCharge } from 'worksheet/redux/actions';
 import './index.less';
 import { getAppFeaturesVisible } from 'src/util';
+import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
 import _ from 'lodash';
 
 const mapStateToProps = () => ({});
 const mapDispatchToProps = dispatch => ({
   updateAppGroup: appGroups => dispatch(updateAppGroup(appGroups)),
+  updateIsCharge: value => dispatch(updateIsCharge(value)),
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -53,6 +57,7 @@ export default class extends Component {
   componentDidMount() {
     this.getData();
     this.removeEventBind = this.bindEvent();
+    window.updateAppGroups = this.getData;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -64,6 +69,7 @@ export default class extends Component {
 
   componentWillUnmount() {
     this.removeEventBind && this.removeEventBind();
+    delete window.updateAppGroups;
   }
   // 当前处理的分组id
   handledAppItemId = '';
@@ -76,6 +82,7 @@ export default class extends Component {
     if (!appId) return;
     api.getAppInfo({ appId }).then(({ appRoleType, isLock, appSectionDetail: data = [] }) => {
       const isCharge = isHaveCharge(appRoleType, isLock);
+      this.props.updateIsCharge(isCharge);
       data = isCharge
         ? data
         : data
@@ -241,7 +248,7 @@ export default class extends Component {
         temp.splice(deletedAppIndex, 1);
         this.setState({ data: temp });
         this.props.updateAppGroup(temp);
-        navigateTo(`/app/${appId}`);
+        navigateTo(`/app/${appId}/${sourceAppSectionId || ''}`);
       }
     });
     this.setState({ delAppItemVisible: false });
@@ -327,7 +334,7 @@ export default class extends Component {
       .map(({ appSectionId, name }) => ({ value: appSectionId, text: name }));
 
   render() {
-    const { permissionType, appStatus, isLock } = this.props;
+    const { permissionType, appStatus, isLock, appPkg } = this.props;
     const {
       delAppItemVisible,
       appItemIntroVisible,
@@ -342,7 +349,28 @@ export default class extends Component {
     const { appId } = this.ids;
     const throttledEnsurePointerStatus = this.throttleFunc(this.ensurePointerStatus);
     const isOnlyDefaultGroup = data.length === 1 && !data[0].name;
-    const renderedData = data.filter(({ name }) => !!name);
+    const renderedData =
+      data.length === 1
+        ? data.filter(({ name }) => !!name)
+        : data.map(item => (item.name ? item : { ...item, name: _l('未命名分组') }));
+
+    const renderContent = (count, onClick) => {
+      return (
+        <VCenterIconText
+          onClick={onClick}
+          className="appExtensionItem"
+          icon="task_alt"
+          iconSize={20}
+          textSize={14}
+          text={
+            <div className="flexRow alignItemsCenter">
+              <span>{_l('待办')}</span>
+              {!!count && <div className="count mLeft5">{count}</div>}
+            </div>
+          }
+        />
+      );
+    };
 
     // 获取url参数
     const { tb, tr } = getAppFeaturesVisible();
@@ -353,12 +381,15 @@ export default class extends Component {
             {permissionType >= ADVANCE_AUTHORITY && (
               <Fragment>
                 <div
-                  className={cx('emptyAppItem', { active: appItemIntroVisible })}
+                  className={cx('emptyAppItem active')}
+                  style={
+                    ['light'].includes(appPkg.themeType) ? { backgroundColor: convertColor(appPkg.iconColor) } : null
+                  }
                   onClick={e => {
                     this.switchVisible({ appItemIntroVisible: true });
                   }}
                 >
-                  <Icon className="emptyGroupIcon" icon="app_grouping" />
+                  <Icon className="emptyGroupIcon" icon="group_inactive" />
                 </div>
                 <AppGroupIntro
                   className={cx({ appItemIntroVisible })}
@@ -385,7 +416,11 @@ export default class extends Component {
                   isAppItemOverflow={isAppItemOverflow}
                   onScroll={throttledEnsurePointerStatus}
                   activeAppItemId={activeAppItemId}
-                  onClickAway={() => this.setState({ activeAppItemId: '' })}
+                  onClickAway={() => {
+                    if (activeAppItemId !== '') {
+                      this.setState({ activeAppItemId: '' });
+                    }
+                  }}
                   ensurePointerVisible={this.ensurePointerVisible}
                   onAppItemConfigClick={this.handleAppItemConfigClick}
                   renameAppGroup={this.handleRenameAppGroup}
@@ -407,12 +442,17 @@ export default class extends Component {
               <div className={cx('leftPointer appItemPointer', { disable: disabledPointer === 'left' })} />
               <div className={cx('rightPointer appItemPointer', { disable: disabledPointer === 'right' })} />
             </div>
+            {!md.global.Account.isPortal && !window.isPublicApp && (
+              <div className="appExtensionWrap">
+                <MyProcessEntry type="appPkg" renderContent={renderContent} />
+              </div>
+            )}
             {_.includes([1, 5], appStatus) && !md.global.Account.isPortal && (
               <AppExtension appId={appId} permissionType={permissionType} isLock={isLock} />
             )}
             {delAppItemVisible && (
               <DelAppGroup
-                data={this.formatDataToDropdownItems(data)}
+                data={data.filter(data => data.appSectionId !== this.handledAppItemId)}
                 onOk={id => this.handleDelAppSection(id)}
                 onCancel={() => this.switchVisible({ delAppItemVisible: false })}
               />

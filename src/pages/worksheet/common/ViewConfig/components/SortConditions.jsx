@@ -9,8 +9,8 @@ import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { getSortData } from 'src/pages/worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
-import _, { includes } from 'lodash';
-
+import _ from 'lodash';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
 const ConditionsWrap = styled.div`
   .operateBtn {
     cursor: pointer;
@@ -28,10 +28,113 @@ const ConditionsWrap = styled.div`
     }
   }
   .tipsIcon {
-    left: -20px;
+    left: -38px;
     line-height: 36px;
   }
 `;
+
+const SortHandle = SortableHandle(() => <Icon className="mRight5 Font14 Hand" icon="drag" />);
+const Item = SortableElement(props => {
+  const { sortConditions = [], columns, condition = {}, info = {} } = props;
+  const { index } = info;
+  const canDelete = !(index === 0 && sortConditions.length === 1);
+  const canAdd = sortConditions.length < (columns.length < 5 ? columns.length : 5);
+  const control = _.find(columns, i => i.controlId === condition.controlId);
+  let controlType = control ? (control.type === 30 ? control.sourceControlType : control.type) : '';
+  return (
+    <div className="flexRow alignItemsCenter mBottom10" style={{}}>
+      <SortHandle />
+      <div className="flexRow flex" style={{ position: 'relative' }} key={condition.controlId}>
+        {[9, 10, 11].includes(controlType) && (
+          <Tooltip
+            popupPlacement={'bottom'}
+            text={
+              <span>
+                {_l(
+                  '按照记录当时存储的选项序号进行排序。当每次修改了选项顺序后，需要重新刷新历史数据的选项序号以校准排序。',
+                )}
+                <Support
+                  className="InlineBlock"
+                  type={3}
+                  href="https://help.mingdao.com/zh/sheet43.html"
+                  text={_l('点击了解更多')}
+                />
+              </span>
+            }
+          >
+            <i className="icon-info1 tipsIcon Font16 Absolute Gray_9e" />
+          </Tooltip>
+        )}
+        <Dropdown
+          border
+          openSearch
+          isAppendToBody
+          menuStyle={{ width: 200 }}
+          className="flex mRight10 filterColumns Width120"
+          value={condition.controlId}
+          data={props.getCanSelectColumns(condition.controlId)}
+          searchNull={() => {
+            return <div className="TxtCenter">{_l('暂无搜索结果')}</div>;
+          }}
+          onChange={value => {
+            if (value !== condition.controlId) {
+              props.handleChangeSortControl(index, value);
+            }
+          }}
+          {...(isOtherShowFeild(control)
+            ? { renderError: () => <span className="Red">{_l('%0(无效类型)', control.controlName)}</span> }
+            : {})}
+        />
+        <Dropdown
+          border
+          isAppendToBody
+          className="flex Width120 mRight6"
+          value={condition.isAsc ? 2 : 1}
+          data={props.getSortTypes(condition.controlId)}
+          onChange={value => {
+            if (value !== (condition.isAsc ? 2 : 1)) {
+              props.handleChangeSortType(index, value);
+            }
+          }}
+        />
+        <Icon
+          className={cx('operateBtn', { disabled: !canDelete })}
+          icon="remove_circle_outline"
+          disabled={!canDelete}
+          onClick={() => {
+            if (canDelete) props.handleDeleteCondition(condition.controlId);
+          }}
+        />
+        <Icon
+          className={cx('operateBtn', { disabled: !canAdd })}
+          icon="control_point"
+          onClick={() => {
+            if (canAdd) props.handleAddCondition(index);
+          }}
+        />
+      </div>
+    </div>
+  );
+});
+
+const SortableList = SortableContainer(({ sortConditions, ...objs }) => {
+  return (
+    <div className="mTop24">
+      {_.map(sortConditions, (item, index) => {
+        return (
+          <Item
+            index={index}
+            sortConditions={sortConditions}
+            condition={item}
+            {...objs}
+            key={'item_' + index}
+            info={{ index }}
+          />
+        );
+      })}
+    </div>
+  );
+});
 
 export default class SortConditions extends React.Component {
   static propTypes = {
@@ -121,6 +224,9 @@ export default class SortConditions extends React.Component {
   @autobind
   handleAddCondition(index) {
     const newCondition = this.getCanSelectColumns()[0];
+    if (!newCondition) {
+      return;
+    }
     const { sortConditions } = this.state;
     const newSortConditions = update(sortConditions, {
       $splice: [
@@ -183,95 +289,34 @@ export default class SortConditions extends React.Component {
     return getSortData(control.type, control);
   };
 
+  //拖拽排序
+  handleSortEnd = ({ oldIndex, newIndex }) => {
+    if (oldIndex === newIndex) return;
+    let listNew = arrayMove(this.state.sortConditions, oldIndex, newIndex);
+    this.handleChange(listNew);
+  };
+
   renderCondtions = () => {
-    const { columns } = this.state;
-    const { sortConditions } = this.state;
-    return sortConditions.map((condition, index) => {
-      const canDelete = !(index === 0 && sortConditions.length === 1);
-      const canAdd = sortConditions.length < (columns.length < 5 ? columns.length : 5);
-      const control = _.find(columns, i => i.controlId === condition.controlId);
-      let controlType = control ? (control.type === 30 ? control.sourceControlType : control.type) : '';
-      return (
-        <div className="flexRow mTop5 Relative" key={condition.controlId}>
-          {[9, 10, 11].includes(controlType) && (
-            <Tooltip
-              popupPlacement={'bottom'}
-              text={
-                <span>
-                  {_l(
-                    '按照记录当时存储的选项序号进行排序。当每次修改了选项顺序后，需要重新刷新历史数据的选项序号以校准排序。',
-                  )}
-                  <Support
-                    className="InlineBlock"
-                    type={3}
-                    href="https://help.mingdao.com/sheet43.html"
-                    text={_l('点击了解更多')}
-                  />
-                </span>
-              }
-            >
-              <i className="icon-info1 tipsIcon Font16 Absolute Gray_9e" />
-            </Tooltip>
-          )}
-          <Dropdown
-            border
-            openSearch
-            isAppendToBody
-            menuStyle={{ width: 200 }}
-            className="flex mBottom10 mRight10 filterColumns Width120"
-            value={condition.controlId}
-            data={this.getCanSelectColumns(condition.controlId)}
-            searchNull={() => {
-              return <div className="TxtCenter">{_l('暂无搜索结果')}</div>;
-            }}
-            onChange={value => {
-              if (value !== condition.controlId) {
-                this.handleChangeSortControl(index, value);
-              }
-            }}
-            {...(isOtherShowFeild(control)
-              ? { renderError: () => <span className="Red">{_l('%0(无效类型)', control.controlName)}</span> }
-              : {})}
-          />
-          <Dropdown
-            border
-            isAppendToBody
-            className="flex mBottom10 Width120 mRight6"
-            value={condition.isAsc ? 2 : 1}
-            data={this.getSortTypes(condition.controlId)}
-            onChange={value => {
-              if (value !== (condition.isAsc ? 2 : 1)) {
-                this.handleChangeSortType(index, value);
-              }
-            }}
-          />
-          <Icon
-            className={cx('operateBtn', { disabled: !canDelete })}
-            icon="remove_circle_outline"
-            disabled={!canDelete}
-            onClick={() => {
-              if (canDelete) this.handleDeleteCondition(condition.controlId);
-            }}
-          />
-          <Icon
-            className={cx('operateBtn', { disabled: !canAdd })}
-            icon="control_point"
-            onClick={() => {
-              if (canAdd) this.handleAddCondition(index);
-            }}
-          />
-        </div>
-      );
-    });
+    const { columns, sortConditions } = this.state;
+    return (
+      <SortableList
+        sortConditions={sortConditions}
+        columns={columns}
+        useDragHandle
+        onSortEnd={this.handleSortEnd}
+        helperClass={'sortConditionsViewControl'}
+        handleChangeSortControl={this.handleChangeSortControl}
+        handleChangeSortType={this.handleChangeSortType}
+        handleDeleteCondition={this.handleDeleteCondition}
+        handleAddCondition={this.handleAddCondition}
+        getSortTypes={this.getSortTypes}
+        getCanSelectColumns={this.getCanSelectColumns}
+      />
+    );
   };
 
   render() {
     const { className } = this.props;
-    return (
-      <ConditionsWrap className={cx(className, 'sortConditions')}>
-        <div className="Gray_9e mBottom24">{_l('选择此视图下的记录默认排序方式')}</div>
-        {this.renderCondtions()}
-      </ConditionsWrap>
-    );
+    return <ConditionsWrap className={cx(className, 'sortConditions')}>{this.renderCondtions()}</ConditionsWrap>;
   }
 }

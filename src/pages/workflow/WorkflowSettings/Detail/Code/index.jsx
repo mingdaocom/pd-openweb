@@ -223,6 +223,7 @@ export default class Code extends Component {
                 isIntegration={this.props.isIntegration}
                 source={data.inputDatas}
                 sourceKey="inputDatas"
+                flowNodeList={data.flowNodeList}
                 formulaMap={data.formulaMap}
                 updateSource={this.updateSource}
               />

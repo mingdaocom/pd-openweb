@@ -145,7 +145,7 @@ class CreateIndex extends Component {
       }
     });
     if (isExistTestIndexFileds && hasTestIndex) {
-      return alert(_l('每张工作表只能创建一个文本索引'));
+      return alert(_l('每张工作表只能创建一个文本索引'), 3);
     }
     // 如果同时包含多个数组型字段，保存时 Toast 提示「索引只能包含一个多选类型字段」
     let arrTypeNum = selectedIndexList.filter(item => item.type === 3).length;
@@ -197,7 +197,7 @@ class CreateIndex extends Component {
             (res.rowIndexConfigs || []).filter(item => item.indexConfigId === currentIndexInfo.indexConfigId).length &&
             (res.rowIndexConfigs || []).filter(item => item.indexConfigId === currentIndexInfo.indexConfigId)[0]
               .indexStateId;
-          if (indexStateId === -1) return alert(_l('操作失败', 2));
+          if (indexStateId === -1) return alert(_l('操作失败'), 2);
           alert(_l('操作成功'));
         } else if (res.responseEnum == -1) {
           alert(_l('操作失败'), 2);

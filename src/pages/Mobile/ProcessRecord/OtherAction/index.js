@@ -38,7 +38,7 @@ export default class extends Component {
     const forwardAccountId = _.isArray(selectedUser) ? selectedUser.map(user => user.accountId).join(',') : selectedUser.accountId
 
     if (((passContent || overruleContent) && !content.trim()) || ((passSignature || overruleSignature) && this.signature.checkContentIsEmpty())) {
-      alert(_l('请填写完整内容', 2));
+      alert(_l('请填写完整内容'), 2);
       return;
     }
 

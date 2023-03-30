@@ -62,6 +62,7 @@ export const ITEM_COUNT = [
   { key: 'effectiveWorksheetCount', text: _l('工作表总数'), link: 'app' },
   { key: 'effectiveWorksheetRowCount', text: _l('行记录总数'), link: 'app' },
   { key: 'useProcessCount', text: _l('工作流总数'), link: 'workflows' },
+  { key: 'effectiveDataPipelineJobCount', text: _l('同步任务总数'), link: '' },
 ];
 
 export const UPLOAD_COUNT = [
@@ -80,6 +81,14 @@ export const UPLOAD_COUNT = [
     unit: _l('（月）'),
     link: 'workflows',
     click: 'workflow',
+  },
+  {
+    key: 'effectiveDataPipelineRowCount',
+    limit: 'limitDataPipelineRowCount',
+    text: _l('数据同步任务已用算力'),
+    unit: _l('（月）'),
+    link: 'dataSync',
+    click: 'dataSync',
   },
 ];
 

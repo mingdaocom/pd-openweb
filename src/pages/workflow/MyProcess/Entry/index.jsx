@@ -50,15 +50,12 @@ export default class Entry extends Component {
     const isNative = type === 'native';
     const { iconColor } = store.getState().appPkg;
     if (_.isFunction(renderContent)) {
-      return renderContent(count);
+      return renderContent(count, onClick);
     }
     return type ? (
       <Tooltip text={<span>{_l('流程待办')}</span>}>
-        <div
-          className={`myProcessHeader pointer mLeft10 ${isNative ? 'Gray_75' : 'White'} ${className}`}
-          onClick={onClick}
-        >
-          <Icon icon={cx('knowledge_file', { appIcon: !isNative })} className="mRight5 Font20" />
+        <div className={`myProcessHeader pointer mLeft10 ${isNative ? 'Gray_75' : 'White'} ${className}`} onClick={onClick}>
+          <Icon icon={cx('task_alt', { appIcon: !isNative })} className="mRight5 Font20" />
           {count ? (
             <span className={`count ${isNative ? 'native' : 'app'}`} style={{ color: isNative ? '' : iconColor }}>
               {count}
@@ -69,7 +66,7 @@ export default class Entry extends Component {
     ) : (
       <ul className="mTop10">
         <li className="myProcess" onClick={onClick}>
-          <Icon icon="knowledge_file" />
+          <Icon icon="task_alt" />
           <span className="Gray_75 bold">{_l('流程待办')}</span>
           {count ? <span className="count">{count}</span> : null}
         </li>

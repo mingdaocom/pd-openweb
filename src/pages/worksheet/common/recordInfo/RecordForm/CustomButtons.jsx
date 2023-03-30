@@ -14,6 +14,10 @@ import processAjax from 'src/pages/workflow/api/process';
 import _ from 'lodash';
 
 const MenuItemWrap = styled(MenuItem)`
+  .btnName {
+    max-width: calc(100% - 34px);
+    display: inline-block;
+  }
   &.disabled {
     cursor: not-allowed !important;
     opacity: 0.5;
@@ -144,7 +148,7 @@ export default class CustomButtons extends React.Component {
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
     // 新建记录成功回掉
     if (this.activeBtn.workflowType === 2) {
-      alert(_l('添加成功'));
+      alert(_l('操作成功'));
     }
     loadBtns();
     if (btnTypeStr === '12') {
@@ -207,7 +211,7 @@ export default class CustomButtons extends React.Component {
         loadBtns();
         onUpdateRow(res.data);
         if (this.activeBtn.workflowType === 2) {
-          alert(_l('保存成功'));
+          alert(_l('操作成功'));
         }
         if (targetOptions.recordId === recordId) {
           onUpdate(_.pick(res.data, newControls.map(c => c.controlId).concat('isviewdata')), res.data, newControls);
@@ -258,6 +262,7 @@ export default class CustomButtons extends React.Component {
       });
       rowInfo = {
         formData: worksheetInfo.template.controls,
+        advancedSetting: worksheetInfo.advancedSetting,
       };
     }
     this.setStateFn({ rowInfo });
@@ -272,6 +277,7 @@ export default class CustomButtons extends React.Component {
         this.fillRecordId = recordId;
         this.fillRecordProps = {
           formData: rowInfo.formData,
+          widgetStyle: rowInfo.advancedSetting,
         };
         this.setStateFn({
           fillRecordControlsVisible: true,
@@ -322,6 +328,7 @@ export default class CustomButtons extends React.Component {
             rowId: this.fillRecordId,
             viewId: relationControl.viewId,
             masterFormData: rowInfo.formData,
+            widgetStyle: rowInfo.advancedSetting,
           };
         } catch (err) {
           Dialog.confirm({
@@ -528,7 +535,7 @@ export default class CustomButtons extends React.Component {
           </span>
         );
         return button.desc && type === 'button' ? (
-          <Tooltip popupPlacement="bottom" text={<span>{button.desc}</span>}>
+          <Tooltip popupPlacement="bottom" tooltipStyle={{ maxWidth: 350 }} text={<span>{button.desc}</span>}>
             {buttonComponent}
           </Tooltip>
         ) : (
@@ -571,7 +578,12 @@ export default class CustomButtons extends React.Component {
             this.triggerCustomBtn(button);
           }}
         >
-          <span className="mLeft15">{button.name}</span>
+          <span className="btnName mLeft15 ellipsis">{button.name}</span>
+          {button.desc && (
+            <Tooltip popupPlacement="bottom" tooltipStyle={{ maxWidth: 350 }} text={<span>{button.desc}</span>}>
+              <i className="icon icon-info_outline Font17 mTop9 Right" />
+            </Tooltip>
+          )}
         </MenuItemWrap>
       ));
     }

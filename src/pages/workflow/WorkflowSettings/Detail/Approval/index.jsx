@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, Dropdown, Checkbox, LoadDiv, Radio, Icon, Tooltip } from 'ming-ui';
-import cx from 'classnames';
+import { ScrollView, Dropdown, Checkbox, LoadDiv, Radio, Icon, Tooltip, Dialog } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import _ from 'lodash';
 import {
@@ -12,8 +11,10 @@ import {
   WriteFields,
   ButtonName,
   Schedule,
+  CustomTextarea,
 } from '../components';
 import styled from 'styled-components';
+import moment from 'moment';
 
 const GraduallyMember = styled.div`
   .actionFields {
@@ -25,6 +26,24 @@ const GraduallyMember = styled.div`
   }
 `;
 
+const CustomMessageBox = styled.div`
+  height: 36px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  align-items: center;
+  padding: 0 12px;
+`;
+
+const Preview = styled.div`
+  box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.16);
+  border-radius: 3px;
+  padding: 16px 22px;
+  .circle {
+    width: 32px;
+    height: 32px;
+  }
+`;
+
 export default class Approval extends Component {
   constructor(props) {
     super(props);
@@ -32,6 +51,10 @@ export default class Approval extends Component {
       data: {},
       saveRequest: false,
       showSelectUserDialog: false,
+      selectMsgKey: '',
+      selectMsg: '',
+      showCallbackDialog: false,
+      callbackOptions: {},
     };
   }
 
@@ -102,6 +125,11 @@ export default class Approval extends Component {
       batch,
       schedule,
       passSendMessage,
+      passMessage,
+      overruleSendMessage,
+      overruleMessage,
+      callBackNodeType,
+      callBackNodeIds,
     } = data;
 
     if (!selectNodeId) {
@@ -142,6 +170,11 @@ export default class Approval extends Component {
         batch,
         schedule,
         passSendMessage,
+        passMessage,
+        overruleSendMessage,
+        overruleMessage,
+        callBackNodeType,
+        callBackNodeIds,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -185,7 +218,7 @@ export default class Approval extends Component {
                 onClick={() =>
                   this.updateSource({
                     multipleLevelType: item.value,
-                    callBackType: 0,
+                    callBackMultipleLevel: -1,
                     accounts: [],
                     multipleLevel: -1,
                     schedule: Object.assign({}, data.schedule, { enable: false }),
@@ -403,15 +436,6 @@ export default class Approval extends Component {
    */
   renderApprovalSettings() {
     const { data } = this.state;
-    const CALL_BACK = [
-      { text: _l('重新执行流程'), value: 0 },
-      { text: data.multipleLevelType === 0 ? _l('直接返回审批节点') : _l('返回此节点的第一级'), value: 1 },
-      { text: _l('直接返回退回的层级'), value: 2 },
-    ];
-
-    if (data.multipleLevelType === 0) {
-      _.remove(CALL_BACK, o => o.value === 2);
-    }
 
     return (
       <Fragment>
@@ -454,7 +478,7 @@ export default class Approval extends Component {
         />
         {data.countersignType !== 2 && (
           <Fragment>
-            <div className={cx('flexRow alignItemsCenter', data.isCallBack ? 'mTop10' : 'mTop15')}>
+            <div className="flexRow alignItemsCenter mTop15">
               <Checkbox
                 className="flex flexRow"
                 text={_l('否决后，允许退回')}
@@ -467,37 +491,231 @@ export default class Approval extends Component {
                   }
                 }}
               />
-
-              {data.isCallBack && (
-                <Fragment>
-                  <div className="Gray_75">{_l('处理完成后')}</div>
-                  <Dropdown
-                    menuStyle={{ left: 'inherit', right: 0 }}
-                    style={{ marginTop: -1 }}
-                    data={CALL_BACK}
-                    value={data.callBackType === 1 && data.callBackMultipleLevel === 1 ? 2 : data.callBackType}
-                    onChange={type => {
-                      this.updateSource({
-                        callBackType: type === 2 ? 1 : type,
-                        callBackMultipleLevel: type === 2 ? 1 : -1,
-                      });
-                      if (data.selectNodeId) {
-                        this.getCallBackNodeNames(data.selectNodeId, type === 2 ? 1 : type);
-                      }
-                    }}
-                  />
-                </Fragment>
-              )}
             </div>
             {data.isCallBack && (
-              <div className="flowBackBox">
-                <div className="Font12 Gray_9e">{_l('允许退回的节点')}</div>
-                <div className="mTop4">{data.callBackNodeList.join('、') || _l('无可退回节点')}</div>
+              <div className="flowBackBox Font12 mTop10">
+                <div>
+                  <span className="Gray_9e mRight5">{_l('处理完成后')}</span>
+                  {data.callBackType === 0 && _l('重新执行流程')}
+                  {data.callBackType === 1
+                    ? data.callBackMultipleLevel === 1
+                      ? _l('直接返回退回的层级')
+                      : data.multipleLevelType === 0
+                      ? _l('直接返回审批节点')
+                      : _l('返回此节点的第一级')
+                    : ''}
+                </div>
+                <div className="mTop4">
+                  <span className="Gray_9e mRight5">{_l('允许退回的节点')}</span>
+                  {data.callBackNodeType === 0 && (
+                    <Fragment>
+                      {data.callBackNodes.map(o => Object.values(o)).join('、') || _l('无可退回的节点')}
+                    </Fragment>
+                  )}
+                  {data.callBackNodeType === 1 && _l('仅发起节点')}
+                  {data.callBackNodeType === 2 && _l('仅上一个节点')}
+                  {data.callBackNodeType === 3 &&
+                    data.callBackNodes
+                      .filter(o => _.includes(data.callBackNodeIds, Object.keys(o)[0]))
+                      .map(o => Object.values(o))
+                      .join('、')}
+                </div>
+                <Icon
+                  type="edit"
+                  className="Gray_9e ThemeHoverColor3 Font14 pointer"
+                  onClick={() =>
+                    this.setState({
+                      showCallbackDialog: true,
+                      callbackOptions: {
+                        callBackNodeType: data.callBackNodeType,
+                        callBackType:
+                          data.callBackType === 1 && data.callBackMultipleLevel === 1 ? 2 : data.callBackType,
+                        callBackMultipleLevel: data.callBackMultipleLevel,
+                        callBackNodeIds: data.callBackNodeIds,
+                      },
+                    })
+                  }
+                />
               </div>
             )}
           </Fragment>
         )}
       </Fragment>
+    );
+  }
+
+  /**
+   * 渲染否决退回弹层
+   */
+  renderCallbackDialog() {
+    const { isApproval } = this.props;
+    const { data, callbackOptions } = this.state;
+    const CALL_BACK = [
+      { text: _l('重新执行流程'), value: 0 },
+      { text: data.multipleLevelType === 0 ? _l('直接返回审批节点') : _l('返回此节点的第一级'), value: 1 },
+      { text: _l('直接返回退回的层级'), value: 2 },
+    ];
+    const CALLBACK_NODE_TYPE = [
+      { text: _l('上方所有节点'), value: 0 },
+      { text: _l('指定节点'), value: 3 },
+      { text: _l('仅上一个节点'), value: 2 },
+      { text: _l('仅发起节点'), value: 1 },
+    ];
+
+    if (data.multipleLevelType === 0) {
+      _.remove(CALL_BACK, o => o.value === 2);
+    }
+
+    if (!isApproval) {
+      _.remove(CALLBACK_NODE_TYPE, o => _.includes([2, 3], o.value));
+    }
+
+    return (
+      <Dialog
+        visible
+        width={640}
+        className="workflowDialogBox workflowSettings"
+        style={{ overflow: 'initial' }}
+        overlayClosable={false}
+        type="scroll"
+        title={_l('退回设置')}
+        onOk={() => {
+          if (callbackOptions.callBackNodeType === 3 && !callbackOptions.callBackNodeIds.length) {
+            alert(_l('必须指定节点'), 2);
+            return;
+          }
+
+          this.setState({ showCallbackDialog: false });
+          this.updateSource({
+            callBackType: callbackOptions.callBackType === 2 ? 1 : callbackOptions.callBackType,
+            callBackMultipleLevel: callbackOptions.callBackType === 2 ? 1 : -1,
+            callBackNodeType: callbackOptions.callBackNodeType,
+            callBackNodeIds: callbackOptions.callBackNodeIds,
+          });
+        }}
+        onCancel={() => this.setState({ showCallbackDialog: false })}
+      >
+        <div className="bold">{_l('处理完成后')}</div>
+        <Dropdown
+          className="mTop10 w100"
+          border
+          menuStyle={{ width: '100%' }}
+          data={CALL_BACK}
+          value={
+            callbackOptions.callBackType === 1 && callbackOptions.callBackMultipleLevel === 1
+              ? 2
+              : callbackOptions.callBackType
+          }
+          onChange={type => {
+            this.setState({
+              callbackOptions: Object.assign({}, callbackOptions, {
+                callBackType: type,
+                callBackMultipleLevel: type === 2 ? 1 : -1,
+                callBackNodeIds: [],
+              }),
+            });
+
+            if (data.selectNodeId) {
+              this.getCallBackNodeNames(data.selectNodeId, type === 2 ? 1 : type);
+            }
+          }}
+        />
+
+        <div className="bold mTop20">{_l('允许退回的节点')}</div>
+        <Dropdown
+          className="mTop10 w100"
+          border
+          menuStyle={{ width: '100%' }}
+          data={CALLBACK_NODE_TYPE}
+          value={callbackOptions.callBackNodeType}
+          onChange={type => {
+            this.setState({ callbackOptions: Object.assign({}, callbackOptions, { callBackNodeType: type }) });
+
+            if (data.selectNodeId && type === 3 && !data.callBackNodes.length) {
+              this.getCallBackNodeNames(data.selectNodeId, callbackOptions.callBackType);
+            }
+          }}
+        />
+
+        {callbackOptions.callBackNodeType === 0 && (
+          <div
+            className="mTop10 flexRow alignItemsCenter boderRadAll_4 pLeft12 pRight12 Gray_75"
+            style={{ minHeight: 36, background: '#F4F4F4' }}
+          >
+            {data.callBackNodes.map(o => Object.values(o)).join('、') || _l('无可退回的节点')}
+          </div>
+        )}
+
+        {callbackOptions.callBackNodeType === 3 && (
+          <div className="flowDetailTrigger">
+            <Dropdown
+              className="mTop10 w100 flowDropdown flowDropdownTags"
+              border
+              menuStyle={{ width: '100%' }}
+              data={data.callBackNodes.map(o => {
+                return {
+                  text: Object.values(o),
+                  value: Object.keys(o)[0],
+                  disabled: _.includes(callbackOptions.callBackNodeIds, Object.keys(o)[0]),
+                };
+              })}
+              value=""
+              onChange={nodeId => {
+                const callBackNodeIds = callbackOptions.callBackNodeIds;
+
+                if (_.includes(callBackNodeIds, nodeId)) {
+                  _.remove(callBackNodeIds, o => o === nodeId);
+                } else {
+                  callBackNodeIds.push(nodeId);
+                }
+
+                this.setState({ callbackOptions: Object.assign({}, callbackOptions, { callBackNodeIds }) });
+              }}
+              renderTitle={() => {
+                return (
+                  <div className="flex triggerConditionNum triggerConditionDropdown">
+                    {!callbackOptions.callBackNodeIds.length ? (
+                      <div className="Gray_bd pLeft10 pRight10">{_l('请选择')}</div>
+                    ) : (
+                      <ul className="pLeft6 tagWrap">
+                        {callbackOptions.callBackNodeIds.map((key, index) => {
+                          const currentNode = _.find(data.callBackNodes, o => Object.keys(o)[0] === key);
+
+                          return (
+                            <li key={index} className="tagItem flexRow">
+                              <span className="tag">
+                                {currentNode ? (
+                                  currentNode[key]
+                                ) : (
+                                  <span style={{ color: '#f44336' }}>{_l('节点已删除')}</span>
+                                )}
+                              </span>
+                              <span
+                                className="delTag"
+                                onClick={e => {
+                                  e.stopPropagation();
+
+                                  this.setState({
+                                    callbackOptions: Object.assign({}, callbackOptions, {
+                                      callBackNodeIds: callbackOptions.callBackNodeIds.filter(id => id !== key),
+                                    }),
+                                  });
+                                }}
+                              >
+                                <Icon icon="close" className="pointer" />
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                );
+              }}
+            />
+          </div>
+        )}
+      </Dialog>
     );
   }
 
@@ -524,7 +742,7 @@ export default class Approval extends Component {
     const { processId, selectNodeId } = this.props;
 
     flowNode.getCallBackNodeNames({ processId, nodeId: selectNodeId, selectNodeId: id, callBackType }).then(result => {
-      this.updateSource({ callBackNodeList: result });
+      this.updateSource({ callBackNodes: result });
     });
   }
 
@@ -579,10 +797,116 @@ export default class Approval extends Component {
   };
 
   /**
+   * 节点结果通知发起人
+   */
+  renderMessage() {
+    const { data, selectMsgKey, selectMsg } = this.state;
+    const MESSAGE_TYPE = [
+      { text: _l('通过时通知'), key: 'passSendMessage', msgKey: 'passMessage' },
+      { text: _l('否决时通知'), key: 'overruleSendMessage', msgKey: 'overruleMessage' },
+    ];
+
+    return (
+      <Fragment>
+        {MESSAGE_TYPE.map(item => {
+          return (
+            <div className="flexRow mTop10 alignItemsCenter" key={item.key}>
+              <Checkbox
+                text={item.text}
+                checked={data[item.key]}
+                onClick={checked => this.updateSource({ [item.key]: !checked })}
+              />
+              {data[item.key] && (
+                <CustomMessageBox className="flex mLeft10 flexRow">
+                  <div className="flex mRight20 ellipsis Font12">
+                    {data[item.msgKey] ? _l('自定义') : _l('默认消息内容')}
+                  </div>
+                  <Icon
+                    type="edit"
+                    className="Gray_9e ThemeHoverColor3 Font14 pointer"
+                    onClick={() => this.setState({ selectMsgKey: item.msgKey, selectMsg: data[item.msgKey] })}
+                  />
+                </CustomMessageBox>
+              )}
+            </div>
+          );
+        })}
+
+        {selectMsgKey && (
+          <Dialog
+            visible
+            width={640}
+            className="workflowDialogBox workflowSettings"
+            style={{ overflow: 'initial' }}
+            overlayClosable={false}
+            type="scroll"
+            title={_l('通知设置')}
+            onOk={() => {
+              this.updateSource({ [selectMsgKey]: selectMsg.trim() });
+              this.setState({ selectMsgKey: '' });
+            }}
+            onCancel={() => this.setState({ selectMsgKey: '' })}
+          >
+            <div>{_l('消息内容')}</div>
+            <CustomTextarea
+              processId={this.props.processId}
+              selectNodeId={this.props.selectNodeId}
+              type={2}
+              height={0}
+              content={selectMsg}
+              formulaMap={data.formulaMap}
+              onChange={(err, value, obj) => this.setState({ selectMsg: value })}
+              updateSource={this.updateSource}
+            />
+            <div className="mTop20">{_l('预览')}</div>
+            <Preview className="flexRow mTop15">
+              <div className="circle chat_workflow" />
+              <div className="mLeft15 flex">
+                <div className="mTop6">
+                  <span className="Gray_9e">{_l('工作流')}：</span>
+                  <span>{_l('{记录名称}：{记录标题}，')}</span>
+                  {!selectMsg.trim() && selectMsgKey === 'passMessage' && _l('已通过%0', data.name)}
+                  {!selectMsg.trim() && selectMsgKey === 'overruleMessage' && _l('于%0被否决', data.name)}
+                  {selectMsg.trim() && <span style={{ background: '#FFA340' }}>{this.getNodeText(selectMsg)}</span>}
+                  <span className="ThemeColor3 mLeft5">{_l('查看详情')}</span>
+                </div>
+                <div className="mTop15 Gray_9e">{moment().format('YYYY-MM-DD HH:mm:ss')}</div>
+              </div>
+            </Preview>
+          </Dialog>
+        )}
+      </Fragment>
+    );
+  }
+
+  /**
+   * 获取动态节点的文本
+   */
+  getNodeText(value) {
+    const { data } = this.state;
+    const arr = value.match(/\$[^ \r\n]+?\$/g);
+
+    if (arr) {
+      arr.forEach(obj => {
+        const ids = obj
+          .replace(/\$/g, '')
+          .split(/([a-zA-Z0-9#]{24,32})-/)
+          .filter(item => item);
+
+        value = value.replace(
+          obj,
+          `{${(data.formulaMap[ids[0]] || {}).name || ''}-${(data.formulaMap[ids[1]] || {}).name || ''}}`,
+        );
+      });
+    }
+
+    return value;
+  }
+
+  /**
    * 高级功能设置
    */
   renderSeniorSettings() {
-    const { isApproval } = this.props;
     const { data } = this.state;
 
     return (
@@ -623,21 +947,12 @@ export default class Approval extends Component {
             <Schedule schedule={data.schedule} updateSource={this.updateSource} {...this.props} />
           </Fragment>
         )}
-
-        {isApproval && (
-          <Checkbox
-            className="mTop15 flexRow"
-            text={<span>{_l('此节点通过后，向发起人推送站内通知')}</span>}
-            checked={data.passSendMessage}
-            onClick={checked => this.updateSource({ passSendMessage: !checked })}
-          />
-        )}
       </Fragment>
     );
   }
 
   render() {
-    const { data } = this.state;
+    const { data, showCallbackDialog } = this.state;
     const authTypeListText = {
       1: _l('签名'),
       2: _l('四级：实名'),
@@ -727,6 +1042,9 @@ export default class Approval extends Component {
                 </Fragment>
               )}
 
+              <div className="Font13 bold mTop25">{_l('节点结果通知发起人')}</div>
+              {this.renderMessage()}
+
               <div className="Font13 bold mTop25">{_l('其他')}</div>
               {this.renderSeniorSettings()}
 
@@ -768,6 +1086,8 @@ export default class Approval extends Component {
           }
           onSave={this.onSave}
         />
+
+        {showCallbackDialog && this.renderCallbackDialog()}
       </Fragment>
     );
   }

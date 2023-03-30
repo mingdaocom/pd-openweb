@@ -14,9 +14,10 @@ import CustomPage from 'mobile/CustomPage';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import FixedPage from './FixedPage';
-import PortalAppHeader from 'src/pages/PageHeader/PortalAppHeader/index.jsx';
+import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet/index.jsx';
 import WorksheetUnNormal from 'mobile/RecordList/State';
 import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
+import MoreAction from './MoreAction';
 import _ from 'lodash';
 const Item = List.Item;
 let modal = null;
@@ -27,11 +28,11 @@ class App extends Component {
     const { match, history } = props;
     const { hash } = history.location;
     const isHideTabBar = hash.includes('hideTabBar') || !!sessionStorage.getItem('hideTabBar');
-    const hideSheetVisible = localStorage.getItem(`hideSheetVisible-${match.params.appId}`);
     this.state = {
       isHideTabBar,
-      hideSheetVisible: hideSheetVisible ? false : true,
       selectedTab: match.params.worksheetId || 'more',
+      expandGroupKeys: [],
+      viewHideNavi: false,
     };
     if (isHideTabBar) {
       sessionStorage.setItem('hideTabBar', true);
@@ -42,6 +43,8 @@ class App extends Component {
     const { params } = this.props.match;
     this.props.dispatch(actions.getAppDetail(params.appId, this.detectionUrl));
     $('html').addClass('appListMobile');
+    const { viewHideNavi } = _.get(this.props, 'appDetail.detail') || {};
+    this.setState({ viewHideNavi });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -55,6 +58,11 @@ class App extends Component {
         safeLocalStorageSetItem('currentNavWorksheetId', nextWorksheetId);
       }
     }
+    if (!_.isEqual(this.props.appDetail, nextProps.appDetail)) {
+      const { appSection = [] } = _.get(nextProps, 'appDetail') || {};
+      const { viewHideNavi } = _.get(nextProps, 'appDetail.detail') || {};
+      this.setState({ expandGroupKeys: appSection.map(item => item.appSectionId), viewHideNavi });
+    }
   }
 
   componentWillUnmount() {
@@ -66,6 +74,7 @@ class App extends Component {
       modal = null;
     }
     ActionSheet.close();
+    this.setState({ appMoreActionVisible: false });
   }
 
   navigateTo(url) {
@@ -81,7 +90,8 @@ class App extends Component {
     const { params } = this.props.match;
     if (appNaviStyle === 2 && !params.worksheetId && !sessionStorage.getItem('detectionUrl')) {
       const isCharge = isHaveCharge(appRoleType, isLock);
-      const { appSectionId, workSheetInfo } = appSectionDetail[0];
+      const { appSectionId } = appSectionDetail[0];
+      const workSheetInfo = this.getWorksheetList(appSectionDetail);
       const { workSheetId } = isCharge
         ? workSheetInfo[0]
         : workSheetInfo.filter(o => o.status === 1 && !o.navigateHide)[0];
@@ -111,16 +121,19 @@ class App extends Component {
     safeLocalStorageSetItem('currentNavWorksheetId', item.workSheetId);
   };
 
-  renderList(data) {
-    const { hideSheetVisible } = this.state;
+  renderList(data, level) {
+    const { viewHideNavi } = this.state;
     const { appDetail } = this.props;
     const { detail } = appDetail;
-    return (
-      <List>
-        {data.workSheetInfo
-          .filter(item => (hideSheetVisible ? true : item.status !== 2))
-          .map(item => (
+    const { childSections = [], workSheetInfo = [] } = data;
+
+    return workSheetInfo
+      .filter(item => (viewHideNavi ? true : item.status !== 2))
+      .map(item => {
+        if (item.type !== 2) {
+          return (
             <Item
+              className={cx({ pLeft40: level === 'level2' })}
               multipleLine
               key={item.workSheetId}
               thumb={<SvgIcon url={item.iconUrl} fill={detail.iconColor} size={22} />}
@@ -132,45 +145,97 @@ class App extends Component {
                 this.handleOpenSheet(data, item);
               }}
             >
-              <span className="Font16 Gray Bold LineHeight40">{item.workSheetName}</span>
+              <span className="Font15 Gray LineHeight40">{item.workSheetName}</span>
             </Item>
-          ))}
-      </List>
-    );
+          );
+        }
+        const groupItem = _.assign(item, _.find(childSections, v => v.appSectionId === item.workSheetId) || {});
+
+        return (
+          <Accordion defaultActiveKey={[]}>
+            <Accordion.Panel header={this.renderHeader(groupItem, 'level2')} key={item.worksheetId}>
+              {this.renderList(groupItem, 'level2')}
+            </Accordion.Panel>
+          </Accordion>
+        );
+      });
   }
 
   renderSudoku(data) {
-    const { hideSheetVisible } = this.state;
+    const { viewHideNavi } = this.state;
     const { appDetail } = this.props;
     const { detail } = appDetail;
-    return (
-      <Flex className="sudokuWrapper" wrap="wrap">
-        {data.workSheetInfo
-          .filter(item => (hideSheetVisible ? true : item.status !== 2))
-          .map(item => (
-            <div key={item.workSheetId} className="sudokuItemWrapper">
-              <div
-                className="sudokuItem flexColumn valignWrapper"
-                onClick={() => {
-                  this.handleOpenSheet(data, item);
-                }}
-              >
-                {item.status === 2 && <Icon icon="public-folder-hidden" />}
-                <SvgIcon addClassName="mTop20" url={item.iconUrl} fill={detail.iconColor} size={30} />
-                <div className="name">{item.workSheetName}</div>
-              </div>
-            </div>
-          ))}
-      </Flex>
-    );
+    const { childSections = [], workSheetInfo = [] } = data;
+    const otherData = workSheetInfo.filter(it => it.type !== 2) || [];
+
+    let groupData = workSheetInfo
+      .filter(item => item.type === 2)
+      .map(item => ({ ..._.assign(item, _.find(childSections, v => v.appSectionId === item.workSheetId) || {}) }));
+
+    groupData.push({
+      workSheetId: 'other',
+      name: _.isEmpty(groupData) ? '' : _l('其他'),
+      type: 2,
+      workSheetInfo: otherData,
+    });
+
+    return groupData
+      .filter(item => (viewHideNavi ? true : item.status !== 2))
+      .map(v => {
+        if (v.workSheetId === 'other' && _.isEmpty(v.workSheetInfo)) return;
+        return (
+          <Fragment key={v.workSheetId}>
+            {this.renderHeader(v, 'level2')}
+            <Flex className="sudokuWrapper" wrap="wrap">
+              {v.workSheetInfo
+                .filter(v => (viewHideNavi ? true : v.status !== 2))
+                .map(v => (
+                  <div key={v.workSheetId} className="sudokuItemWrapper">
+                    <div
+                      className="sudokuItem flexColumn valignWrapper"
+                      onClick={() => {
+                        this.handleOpenSheet(data, v);
+                      }}
+                    >
+                      {v.status === 2 && <Icon icon="public-folder-hidden" />}
+                      <SvgIcon addClassName="mTop20" url={v.iconUrl} fill={detail.iconColor} size={30} />
+                      <div className="name">{v.workSheetName}</div>
+                    </div>
+                  </div>
+                ))}
+            </Flex>
+          </Fragment>
+        );
+      });
   }
 
-  renderHeader(data) {
+  renderHeader(data, level) {
+    const { appDetail } = this.props;
+    const { appNaviStyle } = appDetail.detail;
+    const { expandGroupKeys = [] } = this.state;
+    if (level == 'level1') {
+      return (
+        <div className="accordionHeaderWrap appSectionHeader">
+          <div className="Bold flex ellipsis">{data.name}</div>
+          {_.includes(expandGroupKeys, data.appSectionId) ? (
+            <Icon icon="minus" className="appSectionIcon" />
+          ) : (
+            <Icon icon="plus" className="appSectionIcon" />
+          )}
+        </div>
+      );
+    }
+    if (appNaviStyle === 1) {
+      return <div className={cx('Gray_75 Font14 pLeft15 ellipsis mTop8', { mBottom12: data.name })}>{data.name}</div>;
+    }
     return (
-      <Fragment>
-        <Icon icon="expand_more" />
-        <div className="mLeft5">{data.name}</div>
-      </Fragment>
+      <div className="accordionHeaderWrap">
+        <div className="flexRow mLeft5">
+          <SvgIcon url={data.iconUrl} fill={data.iconColor} size={22} className="mRight12" />
+          <div className="flex ellipsis Font15 Bold">{data.name}</div>
+        </div>
+        <Icon icon="expand_more" className="Gray_75" />
+      </div>
     );
   }
 
@@ -183,7 +248,7 @@ class App extends Component {
     const isAuthorityApp = permissionType >= ROLE_TYPES.ADMIN;
     if (md.global.Account.isPortal) {
       return (
-        <PortalAppHeader
+        <PortalUserSet
           appId={params.appId}
           isMobile={true}
           name={appName}
@@ -208,28 +273,17 @@ class App extends Component {
             )}
           </div>
           <div
-            className={cx('flex flexRow valignWrapper Gray_75 star', { hide: window.isPublicApp })}
-            onClick={() => {
-              this.props.dispatch(actions.updateAppMark(params.appId, detail.projectId, !detail.isMarked));
-            }}
+            className={cx('flex flexRow valignWrapper Gray_75 ')}
+            onClick={() => this.setState({ appMoreActionVisible: true })}
           >
-            <Icon className={cx('Font17', { active: detail.isMarked })} icon="star_3" />
-            <div className="mLeft5 Font14">{_l('星标')}</div>
-          </div>
-          <div
-            className="flex flexRow valignWrapper Gray_75"
-            onClick={() => {
-              this.navigateTo(`/mobile/members/${params.appId}`);
-            }}
-          >
-            <Icon className="Font17" icon="group" />
-            <div className="mLeft5 Font14">{_l('人员管理')}</div>
+            <Icon className="Font17" icon="more_horiz" />
+            <div className="mLeft5 Font14">{_l('更多操作')}</div>
           </div>
         </div>
       );
     }
     return (
-      <div className="appName flexColumn pLeft20 pRight20">
+      <div className="appName flexColumn pLeft15 pRight20">
         <div className="content flex White flexRow valignWrapper">
           <div className="Font24 flex WordBreak overflow_ellipsis appNameTxt">
             <span className="Gray">{appName}</span>
@@ -249,18 +303,9 @@ class App extends Component {
                 )}
               </div>
               <Icon
-                icon="star_3"
-                className={cx('mLeft15 Font26 Gray_bd', { active: detail.isMarked, hide: window.isPublicApp })}
-                onClick={() => {
-                  this.props.dispatch(actions.updateAppMark(params.appId, detail.projectId, !detail.isMarked));
-                }}
-              />
-              <Icon
-                icon="group"
-                className="mLeft15 Font26 Gray_bd"
-                onClick={() => {
-                  this.navigateTo(`/mobile/members/${params.appId}`);
-                }}
+                icon="more_horiz"
+                className="mLeft16 Font26 Gray_9e"
+                onClick={() => this.setState({ appMoreActionVisible: true })}
               />
             </React.Fragment>
           )}
@@ -269,13 +314,14 @@ class App extends Component {
     );
   }
 
-  renderSection(data) {
+  renderSection(data, level) {
     const { appDetail } = this.props;
     const { appNaviStyle } = appDetail.detail;
+
     return (
-      <Accordion.Panel header={this.renderHeader(data)} key={data.appSectionId}>
-        {[0, 2].includes(appNaviStyle) && this.renderList(data)}
-        {appNaviStyle === 1 && this.renderSudoku(data)}
+      <Accordion.Panel header={this.renderHeader(data, level)} key={data.appSectionId}>
+        {[0, 2].includes(appNaviStyle) && this.renderList(data, level)}
+        {appNaviStyle === 1 && <div className="sudokuSectionWrap">{this.renderSudoku(data, level)}</div>}
       </Accordion.Panel>
     );
   }
@@ -330,18 +376,16 @@ class App extends Component {
     appSection = isAuthorityApp
       ? appSection
       : appSection
-        .map(item => {
-          return {
-            ...item,
-            workSheetInfo: item.workSheetInfo.filter(o => o.status === 1 && !o.navigateHide),
-          };
-        })
-        .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
-    const { isHideTabBar, hideSheetVisible } = this.state;
+          .map(item => {
+            return {
+              ...item,
+              workSheetInfo: item.workSheetInfo.filter(o => o.status === 1 && !o.navigateHide),
+            };
+          })
+          .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
+    const { isHideTabBar, appMoreActionVisible, viewHideNavi } = this.state;
     const { params } = match;
-    const editHideSheetVisible = _.flatten(appSection.map(item => item.workSheetInfo)).filter(
-      item => item.status === 2,
-    ).length;
+
     const isEmptyAppSection = appSection.length === 1 && !appSection[0].name;
     if (!detail || detail.length <= 0) {
       return <AppPermissionsInfo appStatus={2} appId={params.appId} />;
@@ -362,9 +406,9 @@ class App extends Component {
             ) : (
               <div className="appSectionCon flex">
                 {status === 5 ||
-                  (detail.permissionType === ROLE_TYPES.MEMBER &&
-                    appSection.length <= 1 &&
-                    (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0)) ? (
+                (detail.permissionType === ROLE_TYPES.MEMBER &&
+                  appSection.length <= 1 &&
+                  (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0)) ? (
                   // 应用无权限||成员身份 且 无任何数据
                   <AppPermissionsInfo appStatus={5} appId={params.appId} />
                 ) : appSection.length <= 1 &&
@@ -377,28 +421,12 @@ class App extends Component {
                     <Accordion
                       className={cx({ emptyAppSection: isEmptyAppSection })}
                       defaultActiveKey={appSection.map(item => item.appSectionId)}
+                      onChange={key => {
+                        this.setState({ expandGroupKeys: key });
+                      }}
                     >
-                      {appSection.filter(item => item.workSheetInfo.length).map(item => this.renderSection(item))}
+                      {appSection.map(item => this.renderSection(item, 'level1'))}
                     </Accordion>
-                    {[ROLE_TYPES.OWNER, ROLE_TYPES.ADMIN].includes(detail.permissionType) && !!editHideSheetVisible && (
-                      <div className="pAll20 pLeft16 flexRow valignWrapper">
-                        <Switch
-                          checked={hideSheetVisible}
-                          color="#2196F3"
-                          onChange={checked => {
-                            this.setState({
-                              hideSheetVisible: checked,
-                            });
-                            if (checked) {
-                              localStorage.removeItem(`hideSheetVisible-${params.appId}`);
-                            } else {
-                              safeLocalStorageSetItem(`hideSheetVisible-${params.appId}`, true);
-                            }
-                          }}
-                        />
-                        <span className="Font15 Gray_9e">{_l('查看隐藏项')}</span>
-                      </div>
-                    )}
                   </Fragment>
                 )}
               </div>
@@ -410,21 +438,40 @@ class App extends Component {
             detail.appNaviStyle !== 2 &&
             !fixed) ||
             (fixed && isAuthorityApp)) && (
-              <Back
-                style={{ bottom: detail.appNaviStyle == 2 && location.href.includes('mobile/app') ? '78px' : '20px' }}
-                className="low"
-                onClick={() => {
-                  let currentGroupInfo =
-                    localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
-                  if (_.isEmpty(currentGroupInfo)) {
-                    this.navigateTo('/mobile/appHome');
-                  } else {
-                    history.back();
-                  }
-                }}
-              />
-            )}
+            <Back
+              style={{ bottom: detail.appNaviStyle == 2 && location.href.includes('mobile/app') ? '78px' : '20px' }}
+              className="low"
+              onClick={() => {
+                let currentGroupInfo =
+                  localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
+                if (_.isEmpty(currentGroupInfo)) {
+                  this.navigateTo('/mobile/appHome');
+                } else {
+                  history.back();
+                }
+              }}
+            />
+          )}
           {!this.props.isQuitSuccess && this.renderModal()}
+          {appMoreActionVisible && (
+            <MoreAction
+              visible={appMoreActionVisible}
+              detail={detail}
+              viewHideNavi={viewHideNavi}
+              onClose={() => this.setState({ appMoreActionVisible: false })}
+              dealMarked={isMarked => {
+                this.props.dispatch(actions.updateAppMark(params.appId, detail.projectId, isMarked));
+                this.setState({ appMoreActionVisible: false });
+              }}
+              dealViewHideNavi={val => {
+                this.props.dispatch(
+                  actions.editAppInfo(val, () => {
+                    this.setState({ viewHideNavi: val });
+                  }),
+                );
+              }}
+            />
+          )}
         </Fragment>
       );
     }
@@ -454,8 +501,28 @@ class App extends Component {
     }
   }
 
+  getWorksheetList = (appSection = []) => {
+    let worksheetList = _.flatten(
+      appSection.map(item => {
+        let childData = [];
+        item.workSheetInfo.forEach(sheet => {
+          sheet.appSectionId = item.appSectionId;
+          if (sheet.type === 2) {
+            let temp = (_.find(item.childSections, v => v.appSectionId === sheet.workSheetId) || {}).workSheetInfo;
+            (temp || []).forEach(it => {
+              childData.push(it);
+            });
+          }
+          childData.push(sheet);
+        });
+        return childData;
+      }),
+    );
+    return worksheetList;
+  };
+
   renderBody() {
-    const { appSection, detail } = this.props.appDetail;
+    const { appSection = {}, detail } = this.props.appDetail;
     const { fixed, permissionType, webMobileDisplay } = detail;
     const isAuthorityApp = permissionType >= ROLE_TYPES.ADMIN;
     const { batchOptVisible } = this.props;
@@ -464,17 +531,13 @@ class App extends Component {
       return this.renderContent();
     }
 
-    const { selectedTab, isHideTabBar } = this.state;
-    const sheetList = _.flatten(
-      appSection.map(item => {
-        item.workSheetInfo.forEach(sheet => {
-          sheet.appSectionId = item.appSectionId;
-        });
-        return item.workSheetInfo;
-      }),
-    )
+    const { selectedTab, isHideTabBar, appMoreActionVisible } = this.state;
+
+    const sheetList = this.getWorksheetList(appSection)
+      .filter(v => v.type !== 2)
       .filter(item => (isAuthorityApp ? true : item.status === 1 && !item.navigateHide)) //左侧列表状态为1 且 角色权限没有设置隐藏
       .slice(0, 4);
+
     const data = _.find(sheetList, { workSheetId: selectedTab });
     const isHideNav = detail.permissionType < ROLE_TYPES.ADMIN && sheetList.length === 1 && !!data;
     return (

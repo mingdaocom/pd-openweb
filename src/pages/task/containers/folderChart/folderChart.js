@@ -1,16 +1,12 @@
 ﻿import React, { Component } from 'react';
 import ReactDom from 'react-dom';
-import { Column, Pie } from '@antv/g2plot';
 import './css/folderChart.less';
 import { Icon } from 'ming-ui';
 import { connect } from 'react-redux';
-import { DatePicker } from 'antd';
-import locale from 'antd/es/date-picker/locale/zh_CN';
 import ajaxRequest from 'src/api/taskFolderStatistics';
 import doT from '@mdfe/dot';
 import filterXss from 'xss';
 import { listLoadingContent } from '../../utils/taskComm';
-import { errorMessage } from '../../utils/utils';
 import config from '../../config/config';
 import 'src/components/mdDialog/dialog';
 import folderChart from './tpl/folderChart.html';
@@ -32,7 +28,6 @@ const folderChartSettings = {
   sort: 'desc',
 };
 
-const { RangePicker } = DatePicker;
 const { render, unmountComponentAtNode } = ReactDom;
 
 class FolderChart extends Component {
@@ -41,8 +36,13 @@ class FolderChart extends Component {
   }
 
   componentDidMount() {
-    this.init();
-    this.bindEvents();
+    import('@antv/g2plot').then(data => {
+      this.Column = data.Column;
+      this.Pie = data.Pie;
+
+      this.init();
+      this.bindEvents();
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -233,7 +233,7 @@ class FolderChart extends Component {
       const chargeAccountIDs = [];
       const isDialog = $(this).closest('#folderChartMaxView').length;
       if (!$folderChartChargeList.find('.folderChartSelect.ThemeBGColor3').length) {
-        alert(_l('请选择负责人!'));
+        alert(_l('请选择负责人!'), 3);
         return false;
       }
       $folderChartChargeList.addClass('Hidden');
@@ -462,7 +462,7 @@ class FolderChart extends Component {
         header: '',
         yesText: null,
         noText: null,
-        content
+        content,
       },
       callback: () => {
         unmountComponentAtNode(document.querySelector('#maxViewUpdateTime'));
@@ -527,7 +527,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts2(id = 'folderCharts2', source = folderChartSettings.data) {
@@ -564,7 +564,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts3(id = 'folderCharts3', source = folderChartSettings.data) {
@@ -601,7 +601,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts4(id = 'folderCharts4', source = folderChartSettings.data) {
@@ -638,7 +638,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts5(id = 'folderCharts5', source = folderChartSettings.data) {
@@ -670,7 +670,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts6(id = 'folderCharts6', source = folderChartSettings.data) {
@@ -697,7 +697,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts13(id = 'folderCharts13', source = folderChartSettings.data) {
@@ -724,7 +724,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts14(id = 'folderCharts14', source = folderChartSettings.data) {
@@ -756,7 +756,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts15(id = 'folderCharts15', source = folderChartSettings.data) {
@@ -793,7 +793,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts7(id = 'folderCharts7', source = folderChartSettings.data) {
@@ -827,7 +827,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts8(id = 'folderCharts8', source = folderChartSettings.data) {
@@ -856,7 +856,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts9(id = 'folderCharts9', source = folderChartSettings.data) {
@@ -890,7 +890,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts10(id = 'folderCharts10', source = folderChartSettings.data) {
@@ -924,7 +924,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts11(id = 'folderCharts11', source = folderChartSettings.data) {
@@ -953,7 +953,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderCharts12(id = 'folderCharts12') {
@@ -986,7 +986,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderChartsPie(id, source) {
@@ -1007,7 +1007,7 @@ class FolderChart extends Component {
       radius: 0.9,
     };
     $('#' + id).empty();
-    new Pie($('#' + id)[0], config).render();
+    new this.Pie($('#' + id)[0], config).render();
   }
 
   /**
@@ -1043,7 +1043,7 @@ class FolderChart extends Component {
       seriesField: 'name',
     };
     $('#' + id).empty();
-    new Column($('#' + id)[0], config).render();
+    new this.Column($('#' + id)[0], config).render();
   }
 
   folderChartsCustom() {
@@ -1219,7 +1219,7 @@ class FolderChart extends Component {
   }
 
   renderCustomTime() {
-    render((
+    render(
       <DateFilter
         noClear={true}
         onChange={(startDate, endDate) => {
@@ -1228,13 +1228,16 @@ class FolderChart extends Component {
           this.updateTimeRefreshChart(false, startDate, endDate);
         }}
       >
-        <div className="mTop10 mRight10 pointer"><Icon icon="calander" className="Font16 Gray_9" /></div>
-      </DateFilter>
-    ), document.querySelector('.folderChartTime'));
+        <div className="mTop10 mRight10 pointer">
+          <Icon icon="calander" className="Font16 Gray_9" />
+        </div>
+      </DateFilter>,
+      document.querySelector('.folderChartTime'),
+    );
   }
 
   renderMaxCustomTime() {
-    render((
+    render(
       <DateFilter
         noClear={true}
         onChange={(startDate, endDate) => {
@@ -1243,9 +1246,12 @@ class FolderChart extends Component {
           this.updateTimeRefreshChart(true, startDate, endDate);
         }}
       >
-        <div className="mTop10 mRight10 pointer"><Icon icon="calander" className="Font16 Gray_9" /></div>
-      </DateFilter>
-    ), document.querySelector('#maxViewUpdateTime'));
+        <div className="mTop10 mRight10 pointer">
+          <Icon icon="calander" className="Font16 Gray_9" />
+        </div>
+      </DateFilter>,
+      document.querySelector('#maxViewUpdateTime'),
+    );
   }
 
   /**

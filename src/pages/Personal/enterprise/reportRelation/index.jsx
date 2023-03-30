@@ -8,7 +8,7 @@ import cx from 'classnames';
 import './index.less';
 import { navigateTo } from 'router/navigateTo';
 import { getRequest } from 'src/util';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import _ from 'lodash';
 
 const barList = [
@@ -62,7 +62,7 @@ export default class ReportRelation extends Component {
             subTotalCount,
           });
         } else {
-          alert(_l('获取失败', 2));
+          alert(_l('获取失败'), 2);
         }
       },
     );
@@ -78,7 +78,7 @@ export default class ReportRelation extends Component {
           subTotalCount,
         });
       } else {
-        alert(_l('获取失败', 2));
+        alert(_l('获取失败'), 2);
       }
     });
   }
@@ -113,7 +113,7 @@ export default class ReportRelation extends Component {
     const { projectId } = this.state;
     const _this = this;
     var accountId = md.global.Account.accountId;
-    var dialogSelectUserObj = $({}).dialogSelectUser({
+    dialogSelectUser({
       title: _l('添加下属'),
       showMoreInvite: false,
       SelectUserSettings: {
@@ -153,7 +153,7 @@ export default class ReportRelation extends Component {
               if (res && res.success) {
                 _this.fetchRender(1);
               } else {
-                alert(_l('操作失败', 2));
+                alert(_l('操作失败'), 2);
               }
             });
         },
@@ -179,7 +179,7 @@ export default class ReportRelation extends Component {
               _this.setState({ pageIndex: 1 });
               _this.fetchRender(1);
             } else {
-              alert(_l('操作失败', 2));
+              alert(_l('操作失败'), 2);
             }
           });
       },

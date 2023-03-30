@@ -3,6 +3,7 @@ import { string, arrayOf, shape, func } from 'prop-types';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import update from 'immutability-helper';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
 
@@ -68,13 +69,11 @@ export default class DateInput extends Component {
     };
 
     if (tabType === 2) {
-      $(event.target).quickSelectUser({
-        showQuickInvite: false,
+      quickSelectUser(event.target, {
         showMoreInvite: false,
         isTask: false,
         tabType,
         appId: globalSheetInfo.appId,
-        filterWorksheetId: globalSheetInfo.worksheetId,
         filterAccountIds,
         minHeight: 400,
         offset: {
@@ -99,8 +98,8 @@ export default class DateInput extends Component {
       return;
     }
 
-    import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
-      $({}).dialogSelectUser({
+    import('src/components/dialogSelectUser/dialogSelectUser').then(dialogSelectUser => {
+      dialogSelectUser.default({
         showMoreInvite: false,
         title: _l('设置默认人员'),
         SelectUserSettings: {

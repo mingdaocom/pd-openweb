@@ -85,7 +85,7 @@ export default class Widgets extends Component {
       <React.Fragment>
         {showtype !== RELATE_RECORD_SHOW_TYPE.DROPDOWN || browserIsMobile() ? (
           <RelateRecordCards
-            allowOpenRecord={advancedSetting.allowlink === '1'}
+            allowOpenRecord={advancedSetting.allowlink === '1' && !_.get(window, 'shareState.shareId')}
             editable={controlPermission.editable}
             control={{ ...this.props }}
             records={

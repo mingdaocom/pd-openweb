@@ -3,7 +3,7 @@ import { func, string } from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 import Dialog from 'ming-ui/components/Dialog/Dialog';
 import OtherAction from './OtherAction';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 
 export default class AddApproveWay extends Component {
   static PropTypes = {
@@ -30,7 +30,7 @@ export default class AddApproveWay extends Component {
    */
   selectUserTransfer = way => {
     const { projectId } = this.props;
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       title: _l('选择审批人'),
       showMoreInvite: false,
       SelectUserSettings: {

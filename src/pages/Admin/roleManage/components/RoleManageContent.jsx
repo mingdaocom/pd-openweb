@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import * as actions from '../../redux/roleManage/action';
 import RoleUserList from './RoleUserList';
 import dialogUserBoard from '../../structure/modules/dialogUserBoard';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import organizeAjax from 'src/api/organize.js';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -32,43 +32,45 @@ class RoleManageContent extends Component {
       dataRange: 2,
       callback: accountIds => {
         //添加到职位
-        organizeAjax.addOrganizeUsers({
-          projectId,
-          organizeId: currentRole.organizeId,
-          accountIds: _.map(accountIds, user => user.accountId),
-        }).then(data => {
-          if (data) {
-            this.props.getUserList({ roleId: currentRole.organizeId });
-            alert(_l('添加成功'));
-          } else alert(_l('添加失败'), 2);
-        });
+        organizeAjax
+          .addOrganizeUsers({
+            projectId,
+            organizeId: currentRole.organizeId,
+            accountIds: _.map(accountIds, user => user.accountId),
+          })
+          .then(data => {
+            if (data) {
+              this.props.getUserList({ roleId: currentRole.organizeId });
+              alert(_l('添加成功'));
+            } else alert(_l('添加失败'), 2);
+          });
       },
     };
-    import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
-      $({}).dialogSelectUser({
-        showMoreInvite: false,
-        fromAdmin: true,
-        SelectUserSettings: SelectUserSettingsForAdd,
-      });
+    dialogSelectUser({
+      showMoreInvite: false,
+      fromAdmin: true,
+      SelectUserSettings: SelectUserSettingsForAdd,
     });
   };
   // 移除
   removeUsers = () => {
     const { selectUserIds = [], currentRole = {}, projectId } = this.props;
     if (_.isEmpty(selectUserIds)) return;
-    organizeAjax.deleteOrganizeUsers({
-      projectId,
-      accountIds: selectUserIds,
-      organizeId: currentRole.organizeId,
-    }).then(res => {
-      if (res) {
-        this.props.getUserList({ roleId: currentRole.organizeId });
-        this.props.updateSelectUserIds([]);
-        alert(_l('移出成功'));
-      } else {
-        alert(_l('移除失败'), 2);
-      }
-    });
+    organizeAjax
+      .deleteOrganizeUsers({
+        projectId,
+        accountIds: selectUserIds,
+        organizeId: currentRole.organizeId,
+      })
+      .then(res => {
+        if (res) {
+          this.props.getUserList({ roleId: currentRole.organizeId });
+          this.props.updateSelectUserIds([]);
+          alert(_l('移出成功'));
+        } else {
+          alert(_l('移除失败'), 2);
+        }
+      });
   };
   // 导出
   handleExportUser = () => {

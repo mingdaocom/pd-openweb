@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog } from 'ming-ui';
-import {  browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/util';
 import cx from 'classnames';
 import '../WorksheetRecordLogValue.less';
 import WorksheetRecordLogSubTable from './WorksheetRecordLogSubTable';
 import _ from 'lodash';
 
-
 function WorksheetRecordLogSubList(props) {
-  const {  prop } = props;
+  const { prop } = props;
   const { newValue, oldValue, name } = prop;
   const isMobile = browserIsMobile();
   const newData = safeParse(newValue, 'array');
@@ -19,6 +18,7 @@ function WorksheetRecordLogSubList(props) {
     update: [],
     remove: [],
   });
+
   useEffect(() => {
     setListCount(prop.editType===2 ? {
       add: [],
@@ -30,9 +30,31 @@ function WorksheetRecordLogSubList(props) {
       remove: _.difference(oldData, newData),
     });
   }, []);
+
+  const getSummary = () => {
+    if (prop.editType === 0) {
+      return <p className="worksheetRecordLogSubListItem">{_l('更新了%0条', listCount.add.length)}</p>;
+    }
+
+    return (
+      <React.Fragment>
+        {listCount.add.length !== 0 && (
+          <p className="worksheetRecordLogSubListItem">{_l('新增了%0条', listCount.add.length)}</p>
+        )}
+        {listCount.update.length !== 0 && (
+          <p className="worksheetRecordLogSubListItem">{_l('更新了%0条', listCount.update.length)}</p>
+        )}
+        {listCount.remove.length !== 0 && (
+          <p className="worksheetRecordLogSubListItem">{_l('移除了%0条', listCount.remove.length)}</p>
+        )}
+      </React.Fragment>
+    );
+  };
+
   return (
     <div className="worksheetRecordLogSubList">
-      {listCount.add.length !== 0 && (
+      {getSummary()}
+      {/* {listCount.add.length !== 0 && (
         <p className="worksheetRecordLogSubListItem">{_l('新增了%0条', listCount.add.length)}</p>
       )}
       {listCount.update.length !== 0 && (
@@ -40,7 +62,7 @@ function WorksheetRecordLogSubList(props) {
       )}
       {listCount.remove.length !== 0 && (
         <p className="worksheetRecordLogSubListItem">{_l('移除了%0条', listCount.remove.length)}</p>
-      )}
+      )} */}
       <span className={cx('WorksheetRecordLogOpen', { hideEle: isMobile })} onClick={() => setDialog(true)}>
         {_l('查看详情')}
       </span>

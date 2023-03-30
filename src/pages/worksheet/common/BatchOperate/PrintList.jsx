@@ -70,17 +70,20 @@ const codePrintList = [
 ];
 
 export default function PrintList(props) {
-  const { showCodePrint, appId, projectId, worksheetId, viewId, controls, selectedRows, selectedRowIds } = props;
+  const { isCharge, showCodePrint, appId, projectId, worksheetId, viewId, controls, selectedRows, selectedRowIds } =
+    props;
   const [menuVisible, setMenuVisible] = useState(false);
   const [templateList, setTemplateList] = useState(props.templateList || []);
   const featureType = getFeatureStatus(projectId, 20);
   function loadPrintList() {
-    worksheetAjax.getPrintList({
-      worksheetId,
-      viewId,
-    }).then(data => {
-      setTemplateList(data.filter(d => d.type >= 2).sort((a, b) => a.type - b.type));
-    });
+    worksheetAjax
+      .getPrintList({
+        worksheetId,
+        viewId,
+      })
+      .then(data => {
+        setTemplateList(data.filter(d => d.type >= 2).sort((a, b) => a.type - b.type));
+      });
   }
   useEffect(() => {
     if (!props.templateList) {
@@ -117,6 +120,7 @@ export default function PrintList(props) {
       });
     } else {
       printQrBarCode({
+        isCharge,
         printType,
         appId,
         viewId,

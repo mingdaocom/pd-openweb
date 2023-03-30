@@ -137,7 +137,7 @@ class ChatPanelHeader extends Component {
       isPushNotice,
     }).then((result) => {
       this.props.dispatch(actions.updateGroupPushNotice(session.id, isPushNotice));
-      isPushNotice ? alert(_l('已关闭消息免打扰')) : alert(_l('已开启消息免打扰'));
+      // isPushNotice ? alert(_l('已关闭消息免打扰')) : alert(_l('已开启消息免打扰'));
     });
     this.handleTriggerChange(false);
   }

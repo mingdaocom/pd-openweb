@@ -3,7 +3,7 @@ __webpack_public_path__ = window.__webpack_public_path__;
 import { lang } from 'src/util/enum';
 import { getPssId } from 'src/util/pssId';
 import langConfig from './langConfig';
-import alert from 'src/components/alert/alert';
+import { antAlert, destroyAlert } from 'src/util/antdWrapper';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -87,7 +87,7 @@ window.delCookie = function delCookie(name) {
 /**
  * 多语言翻译
  */
-window._l = function() {
+window._l = function () {
   let args = arguments;
   if (args) {
     let key = args[0];
@@ -169,31 +169,27 @@ md.staticglobal = md.global = {
  * 自定义alert
  */
 window._alert = window.alert;
-window.alert = function() {
-  let dfd = $.Deferred();
-  let args = Array.prototype.slice.call(arguments);
-  if (!document.getElementsByClassName('logoutWrapper').length) {
-    alert.apply(alert, args).then(dfd.resolve, dfd.reject);
-  }
-  return dfd.promise();
-};
+window.alert = antAlert;
+window.destroyAlert = destroyAlert;
+// import mdNotification from 'ming-ui/functions/notify';
+// window.mdNotification = mdNotification; // TODO 测试用
 
 /**
  * 文件方法扩展
  */
 window.File = typeof File === 'undefined' ? {} : File;
 /** 获取后缀名 */
-File.GetExt = function(fileName) {
+File.GetExt = function (fileName) {
   let t = (fileName || '').split('.');
   return t.length > 1 ? t[t.length - 1] : '';
 };
 /* 获取文件名 */
-File.GetName = function(fileName) {
+File.GetName = function (fileName) {
   let t = (fileName || '').split('.');
   t.pop();
   return t.length >= 1 ? t.join('.') : '';
 };
-File.isValid = function(fileExt) {
+File.isValid = function (fileExt) {
   let fileExts = ['.exe', '.vbs', '.bat', '.cmd', '.com', '.url'];
   if (fileExt) {
     fileExt = fileExt.toLowerCase();
@@ -201,7 +197,7 @@ File.isValid = function(fileExt) {
   }
   return true;
 };
-File.isPicture = function(fileExt) {
+File.isPicture = function (fileExt) {
   let fileExts = ['.jpg', '.gif', '.png', '.jpeg', '.bmp', '.webp', '.heic', '.svg', '.tif', '.tiff'];
   if (fileExt) {
     fileExt = fileExt.toLowerCase();
@@ -216,7 +212,7 @@ File.isPicture = function(fileExt) {
  * @deprecated 使用 utils 模块中的方法
  * @param {string} modifier 加载圈圈的大小，big 或 small 或 middle，默认 middle
  */
-window.LoadDiv = function(modifier) {
+window.LoadDiv = function (modifier) {
   let size;
   if (modifier === 'big') {
     size = 36;
@@ -283,14 +279,8 @@ window.createTimeSpan = dateStr => {
   let year = dateTime.getFullYear();
   let month = dateTime.getMonth();
   let day = dateTime.getDate();
-  let hour = dateTime
-    .getHours()
-    .toString()
-    .padStart(2, '0');
-  let minute = dateTime
-    .getMinutes()
-    .toString()
-    .padStart(2, '0');
+  let hour = dateTime.getHours().toString().padStart(2, '0');
+  let minute = dateTime.getMinutes().toString().padStart(2, '0');
 
   let now = new Date();
 
@@ -331,25 +321,25 @@ window.createTimeSpan = dateStr => {
 /**
  * 订阅发布模式，用于Chat和PageHead的数据传递
  */
-(function($) {
+(function ($) {
   if (!$) return;
   let o = $({});
 
-  $.subscribe = function() {
+  $.subscribe = function () {
     o.on.apply(o, arguments);
   };
 
-  $.unsubscribe = function() {
+  $.unsubscribe = function () {
     o.off.apply(o, arguments);
   };
 
-  $.publish = function() {
+  $.publish = function () {
     o.trigger.apply(o, arguments);
   };
 })(jQuery);
 
 /** 通用请求 */
-(function($) {
+(function ($) {
   /**
    * 根据错误码 / HTTP状态码获取错误信息
    * @param  {Number} statusCode 错误码或 HTTP 状态码
@@ -403,7 +393,7 @@ window.createTimeSpan = dateStr => {
       errorMessage = getErrorMessageByCode(jqXHR.status) || '发生未知错误';
       if (errorMessage && textStatus !== 'abort') {
         // 火狐在用户跳走时会弹 “请求服务器失败”
-        if (errorCode !== 0 && !$.browser.mozilla) alert(errorMessage);
+        if (errorCode !== 0 && !$.browser.mozilla) alert(errorMessage, 2);
       }
 
       return $.Deferred().reject({
@@ -440,7 +430,7 @@ window.createTimeSpan = dateStr => {
 
     if (typeof paramObj !== 'string') {
       if ((ajaxOptions.type || '').toUpperCase() === 'GET') {
-        Object.keys(paramObj).forEach(function(key, i) {
+        Object.keys(paramObj).forEach(function (key, i) {
           let val = paramObj[key];
           if (typeof val === 'function') {
             val = val();
@@ -452,7 +442,7 @@ window.createTimeSpan = dateStr => {
         });
       } else {
         // 如果参数值有方法，先执行方法
-        Object.keys(paramObj).forEach(function(key, i) {
+        Object.keys(paramObj).forEach(function (key, i) {
           let val = paramObj[key];
           if (typeof val === 'function') {
             val = val();
@@ -464,8 +454,8 @@ window.createTimeSpan = dateStr => {
     }
 
     let alert = options.silent
-      ? function() {}
-      : function(msg, level) {
+      ? function () {}
+      : function (msg, level) {
           level = level || 3;
           window.alert(msg, level);
         };
@@ -535,7 +525,7 @@ window.createTimeSpan = dateStr => {
                 }
               : null,
             converters: {
-              'text json': function(result) {
+              'text json': function (result) {
                 result = result.replace(/"controlName":"(.*?)"/g, ($1, $2) => `"controlName":"${lang()[$2] || $2}"`);
                 return JSON.parse(result);
               },
@@ -545,7 +535,7 @@ window.createTimeSpan = dateStr => {
         ),
       );
       let ajaxPromise = ajax
-        .then(undefined, function(jqXHR, textStatus) {
+        .then(undefined, function (jqXHR, textStatus) {
           if (!jqXHR.responseText) {
             return alertError(jqXHR, textStatus);
           } else {
@@ -565,9 +555,7 @@ window.createTimeSpan = dateStr => {
               }
             } catch (error) {
               try {
-                let textErrorMessage = $(jqXHR.responseText)
-                  .find('#textErrorMessage')
-                  .val();
+                let textErrorMessage = $(jqXHR.responseText).find('#textErrorMessage').val();
                 if (textErrorMessage) {
                   /* TODO: 处理服务端返回的错误信息*/
                 }
@@ -575,7 +563,7 @@ window.createTimeSpan = dateStr => {
             }
           }
         })
-        .then(function(res) {
+        .then(function (res) {
           let errorCode, errorMessage;
           if (typeof res !== 'object') {
             errorCode = -1;
@@ -586,13 +574,13 @@ window.createTimeSpan = dateStr => {
           } else {
             return res.data;
           }
-          alert(errorMessage || '未知错误');
+          alert(errorMessage || '未知错误', 2);
           return $.Deferred().reject({
             errorCode: errorCode,
             errorMessage: errorMessage,
           });
         })
-        .then(function() {
+        .then(function () {
           try {
             dfd.resolve.apply(this, arguments);
           } catch (err) {
@@ -603,11 +591,11 @@ window.createTimeSpan = dateStr => {
           }
         }, dfd.reject);
       if (fireImmediately) {
-        ajaxPromise.abort = function() {
+        ajaxPromise.abort = function () {
           ajax.abort.apply(ajax, arguments);
         };
       } else {
-        ajaxPromise = ajaxPromise.always(function() {
+        ajaxPromise = ajaxPromise.always(function () {
           if (next) {
             next();
           }
@@ -624,7 +612,7 @@ window.createTimeSpan = dateStr => {
     } else {
       ajaxQueue.queue(queueName, doRequest);
 
-      promise.abort = function(statusText) {
+      promise.abort = function (statusText) {
         // proxy abort to the ajax if it is active
         if (ajax) {
           return ajax.abort(statusText);
@@ -647,7 +635,7 @@ window.createTimeSpan = dateStr => {
     return promise;
   }
 
-  requestApi.abortAll = function() {
+  requestApi.abortAll = function () {
     ajaxQueue.clearQueue();
     requesting = {};
   };
@@ -658,7 +646,7 @@ window.createTimeSpan = dateStr => {
 /**
  * 加载多语言文件
  */
-(function() {
+(function () {
   const lang = getCookie('i18n_langtag') || getNavigatorLang();
   const currentLang = langConfig.find(item => item.key === lang);
 
@@ -676,15 +664,15 @@ window.createTimeSpan = dateStr => {
 /**
  * 兼容企业微信windows客户端低版本没有prepend方法报错的问题
  */
-(function(arr) {
-  arr.forEach(function(item) {
+(function (arr) {
+  arr.forEach(function (item) {
     item.prepend =
       item.prepend ||
-      function() {
+      function () {
         var argArr = Array.prototype.slice.call(arguments),
           docFrag = document.createDocumentFragment();
 
-        argArr.forEach(function(argItem) {
+        argArr.forEach(function (argItem) {
           var isNode = argItem instanceof Node;
           docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
         });
@@ -696,7 +684,7 @@ window.createTimeSpan = dateStr => {
 
 // 兼容钉钉内核63 问题
 if (!Object.fromEntries) {
-  Object.fromEntries = function(entries) {
+  Object.fromEntries = function (entries) {
     let entriesObj = {};
 
     if (Array.isArray(entries)) {

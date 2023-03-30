@@ -5,7 +5,7 @@ import { RichText } from 'ming-ui';
 import { browserIsMobile } from 'src/util';
 import autoSize from 'ming-ui/decorators/autoSize';
 import _ from 'lodash';
-@autoSize
+
 export default class Widgets extends Component {
   static propTypes = {
     disabled: PropTypes.bool,
@@ -34,7 +34,9 @@ export default class Widgets extends Component {
   }, 500);
 
   render() {
-    const { disabled, value, type, flag, richTextControlCount = 0 } = this.props;
+    const { disabled, value, type, flag, richTextControlCount = 0, widgetStyle = {} } = this.props;
+    const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
+    const displayRow = browserIsMobile() ? titlelayout_app === '2' : titlelayout_pc === '2';
 
     return (
       <RichText
@@ -43,13 +45,14 @@ export default class Widgets extends Component {
         id={flag}
         data={value || ''}
         isRemark={type === 10010}
-        className={cx('customFormItemControl', {
+        className={cx({
           richTextForM: browserIsMobile(),
           richTextDisabledControl: disabled,
         })}
         disabled={disabled}
         onActualSave={this.onChange}
         maxHeight={browserIsMobile() ? 500 : undefined}
+        autoSize={{ height: displayRow ? 'auto' : '100%' }}
       />
     );
   }

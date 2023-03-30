@@ -4,10 +4,17 @@ import styled from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
 import { formatFiltersValue } from 'src/components/newCustomFields/tools/utils';
 import { browserIsMobile } from 'src/util';
+import WidgetsDesc from '../../components/WidgetsDesc';
+import cx from 'classnames';
 import _ from 'lodash';
 
 const EmbedWrap = styled.div`
+  width: 100%;
+  display: flex;
+  position: relative;
+  flex-direction: ${props => (props.displayRow ? 'row' : 'column')};
   .embedContainer {
+    ${({ displayRow }) => (displayRow ? 'flex: 1;min-width: 0;' : '')}
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12), 0 0 2px rgba(0, 0, 0, 0.12);
     border-radius: 4px;
     height: ${props => props.height}px;
@@ -17,8 +24,10 @@ const EmbedWrap = styled.div`
   }
   .embedTitle {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    ${({ displayRow, width, textAlign }) =>
+      displayRow
+        ? `width:${width}px;text-align:${textAlign};padding-right: 10px;padding-top:8px;`
+        : 'justify-content: space-between;'}
     margin-bottom: 10px;
     min-height: 18px;
     i {
@@ -26,6 +35,11 @@ const EmbedWrap = styled.div`
       &:hover {
         color: #2196f3;
       }
+    }
+    .descBoxInfo {
+      position: relative !important;
+      left: 0 !important;
+      top: 2px !important;
     }
   }
 `;
@@ -106,9 +120,21 @@ export default class Widgets extends Component {
       recordId,
       from = '',
       projectId,
-      isCharge
+      isCharge,
+      widgetStyle = {},
+      disabled,
     } = this.props;
     const { value, needUpdate, ChartComponents } = this.state;
+    const {
+      titlelayout_pc = '1',
+      titlelayout_app = '1',
+      titlewidth_pc = '100',
+      align_pc = '1',
+      titlewidth_app = '100',
+      align_app = '1',
+    } = widgetStyle;
+    const isMobile = browserIsMobile();
+    const displayRow = isMobile ? (disabled ? titlelayout_app === '2' : false) : titlelayout_pc === '2';
 
     const getContent = () => {
       const isLegal = enumDefault === 1 ? /^https?:\/\/.+$/.test(value) : dataSource;
@@ -140,7 +166,6 @@ export default class Widgets extends Component {
       } else {
         const formatFilters = formatFiltersValue(JSON.parse(advancedSetting.filters || '[]'), formData, recordId);
         const { reportid } = dataSource ? JSON.parse(dataSource) : {};
-        const isMobile = browserIsMobile();
 
         if (!ChartComponents) return null;
 
@@ -167,15 +192,33 @@ export default class Widgets extends Component {
     };
 
     return (
-      <EmbedWrap height={advancedSetting.height || 400}>
+      <EmbedWrap
+        height={advancedSetting.height || 400}
+        displayRow={displayRow}
+        width={isMobile ? titlewidth_app : titlewidth_pc}
+        textAlign={isMobile ? (align_app === '1' ? 'left' : 'right') : align_pc === '1' ? 'left' : 'right'}
+      >
         {from !== 'print' && (
-          <div className="embedTitle">
-            {advancedSetting.hidetitle !== '1' && (
-              <span className="overflow_ellipsis Bold Gray_75 Font13">{controlName}</span>
-            )}
+          <div
+            className="embedTitle"
+            style={
+              isMobile
+                ? { justifyContent: displayRow && align_app !== '1' ? 'flex-end' : 'flex-start' }
+                : { justifyContent: displayRow ? (align_app !== '1' ? 'flex-end' : 'flex-start') : '' }
+            }
+          >
+            <div className="flexRow">
+              {advancedSetting.hidetitle !== '1' && (
+                <div title={controlName} className={cx('Bold Gray_75 Font13', { Font14: isMobile })}>
+                  {controlName}
+                </div>
+              )}
+              {recordId && <WidgetsDesc item={this.props} from={from} />}
+            </div>
+
             {advancedSetting.allowlink === '1' && enumDefault === 1 && (
               <Tooltip text={<span>{_l('新页面打开')}</span>}>
-                <Icon className="Hand Font18" icon="launch" onClick={() => window.open(value)} />
+                <Icon className="Hand Font16 mLeft3 pTop2" icon="launch" onClick={() => window.open(value)} />
               </Tooltip>
             )}
           </div>

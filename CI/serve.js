@@ -1,12 +1,12 @@
-var http = require('http');
-var net = require('net');
-var path = require('path');
-var open = require('open');
+const http = require('http');
+const net = require('net');
+const path = require('path');
+const open = require('open');
 const boxen = require('boxen');
 const handler = require('serve-handler');
-var _ = require('lodash');
-var fs = require('fs');
-var proxy = require('proxy-middleware');
+const _ = require('lodash');
+const fs = require('fs');
+const proxy = require('proxy-middleware');
 const gutil = require('gulp-util');
 const utils = require('./utils');
 const { apiServer } = require('./publishConfig');
@@ -97,6 +97,10 @@ const middlewareList = [
     } else if (req.url && req.url.startsWith('/integration_api/')) {
       // 代理接口请求到 集成 api 服务器
       req.url = req.url.replace('/integration_api/', '/integration/');
+      apiProxyMiddleware(req, res, next);
+    } else if (req.url && req.url.startsWith('/data_pipeline_api/')) {
+      // 代理接口请求到 数据库集成 api 服务器
+      req.url = req.url.replace('/data_pipeline_api/', '/datapipeline/');
       apiProxyMiddleware(req, res, next);
     } else if (req.url && req.url.startsWith('/dist/')) {
       // 访问静态文件

@@ -46538,3 +46538,2287 @@ msgstr "有効でない場合はサブテーブルの権限、有効な場合は
 msgid "列权限"
 msgstr "カラムのアクセス権"
 
+#: Disabled references:1
+msgid "节点名称"
+msgstr "ノード名"
+
+#: Disabled references:1
+msgid "您未被邀请注册"
+msgstr "登録のご案内はしておりません"
+
+#: Disabled references:1
+msgid "仅受邀用户可以注册"
+msgstr "登録は招待制です"
+
+#: Disabled references:1
+msgid "个人统计"
+msgstr "個人統計"
+
+#: Disabled references:1
+msgid "公共统计"
+msgstr "公共統計"
+
+#: Disabled references:1
+msgid "审批明细"
+msgstr "認可の内訳"
+
+#: Disabled references:1
+msgid "审批明细默认为以表格方式逐行向下列出各节点负责人的操作明细，如果某条审批流程执行了多次，则只打印发起时间较近的实例；"
+msgstr "(b) 承認内容のデフォルトは、各ノードリーダーの操作内容を行ごとに下方に一覧表示する表で、承認プロセスが複数回実行された場合は、より新しい開始のインスタンスのみが印刷されます;"
+
+#: Disabled references:1
+msgid "如需以逗号隔开列出各节点负责任的操作明细，可在字段代码或者ID上加上“[S]”，如#{[审批]请假流程.审批意见[S]}；"
+msgstr "各ノードが担当する業務の内訳をカンマ区切りで記載する必要がある場合は、フィールドコードまたはIDの後に「[S]」を追加する（例：#{[审批]请假流程.审批意见[S]}）;"
+
+#: Disabled references:1
+msgid "如果希望各节点负责人的操作明细逐条打印，请将以下代码的插入到模板中，代码下方的内容将识别为明细的基本单位。"
+msgstr "各ノードリーダーの行動の内訳を行単位で表示させたい場合は、以下のコードをテンプレートに挿入してください。コードの下のコンテンツが内訳の基本単位として認識されます。"
+
+#: Disabled references:1
+msgid "审批.整体重复"
+msgstr "审批.整体重复"
+
+#: Disabled references:1
+msgid "[审批]"
+msgstr "[审批]"
+
+#: Disabled references:1
+msgid "创建连接器"
+msgstr "コネクターの作成"
+
+#: Disabled references:1
+msgid "同步任务"
+msgstr "同期タスク"
+
+#: Disabled references:1
+msgid "数据浏览器"
+msgstr "データビューア"
+
+#: Disabled references:1
+msgid "删除选项集 DELETE"
+msgstr "オプションセットの削除 DELETE"
+
+#: Disabled references:1
+msgid "请输入姓名、手机"
+msgstr "お名前と携帯電話を入力してください"
+
+#: Disabled references:1
+msgid "请输入姓名、手机或邮箱"
+msgstr "お名前、携帯電話、またはEメールを入力してください"
+
+#: Disabled references:1
+msgid "同步任务总数"
+msgstr "同期したタスクの総数"
+
+#: Disabled references:1
+msgid "数据同步任务已用算力"
+msgstr "使用した演算能力によるデータ同期タスク"
+
+#: Disabled references:1
+msgid "导航设置"
+msgstr "ナビゲーション設定"
+
+#: Disabled references:1
+msgid "名称和外观"
+msgstr "名前と外観"
+
+#: Disabled references:1
+msgid "应用操作"
+msgstr "アプリケーション操作"
+
+#: Disabled references:1
+msgid "不显示应用隐藏项"
+msgstr "アプリケーションの非表示項目を表示しない"
+
+#: Disabled references:1
+msgid "显示应用隐藏项"
+msgstr "アプリケーションの非表示項目を表示する"
+
+#: Disabled references:1
+msgid "管理员可以配置应用，管理应用下所有数据和人员"
+msgstr "管理者は、アプリケーションの設定と、アプリケーションの下にあるすべてのデータと人を管理することができます"
+
+#: Disabled references:1
+msgid "管理员为系统内置角色，不可修改"
+msgstr "Administratorは、システムに組み込まれた役割であり、変更することはできません"
+
+#: Disabled references:1
+msgid "暂无相关内容"
+msgstr "現在、該当するコンテンツはありません"
+
+#: Disabled references:1
+msgid "API 由第三方平台 %0 提供，调用时可能产生的接口费用也由第三方平台收取。以上服务价格仅是对接服务模板提供方 %1 收取的连接模板技术服务费。"
+msgstr "APIはサードパーティプラットフォーム%0によって提供され、それを呼び出す際に発生する可能性のあるインターフェース料金もサードパーティプラットフォームによって請求されます。上記のサービス価格は、ドッキングサービステンプレートの提供者 %1 によって請求される接続テンプレートの技術サービスのみです。"
+
+#: Disabled references:1
+msgid "数据同步“%0”发布失败"
+msgstr "データ同期 \"%0\" のリリースに失敗しました"
+
+#: Disabled references:1
+msgid "数据集成"
+msgstr "データ統合"
+
+#: Disabled references:1
+msgid "本地数据库"
+msgstr "ローカルデータベース"
+
+#: Disabled references:1
+msgid "云端数据库"
+msgstr "クラウド型データベース"
+
+#: Disabled references:1
+msgid "消息队列"
+msgstr "メッセージキュー"
+
+#: Disabled references:1
+msgid "源"
+msgstr "出典"
+
+#: Disabled references:1
+msgid "目的地"
+msgstr "目的地"
+
+#: Disabled references:1
+msgid "选择已有"
+msgstr "既存のものを選択する"
+
+#: Disabled references:1
+msgid "已停止"
+msgstr "生産終了"
+
+#: Disabled references:1
+msgid "同步错误"
+msgstr "同期エラー"
+
+#: Disabled references:1
+msgid "数据源设置"
+msgstr "データソースの設定"
+
+#: Disabled references:1
+msgid "测试连接"
+msgstr "テストコネクション"
+
+#: Disabled references:1
+msgid "测试中..."
+msgstr "テスト中..."
+
+#: Disabled references:1
+msgid "测试未通过"
+msgstr "試験不合格"
+
+#: Disabled references:1
+msgid "配置数据源"
+msgstr "データソースの設定"
+
+#: Disabled references:1
+msgid "配置目的地"
+msgstr "目的地の設定"
+
+#: Disabled references:1
+msgid "创建同步任务"
+msgstr "同期タスクの作成"
+
+#: Disabled references:1
+msgid "高级"
+msgstr "アドバンスト"
+
+#: Disabled references:1
+msgid "特殊"
+msgstr "スペシャル"
+
+#: Disabled references:1
+msgid "卡片通知"
+msgstr "カード通知"
+
+#: Disabled references:1
+msgid "打开记录创建层"
+msgstr "オープンレコード作成レイヤー"
+
+#: Disabled references:1
+msgid "管理附件"
+msgstr "アクセサリーの管理"
+
+#: Disabled references:1
+msgid "正在获取取经纬度，请稍后"
+msgstr "緯度・経度を取得するまでお待ちください"
+
+#: Disabled references:1
+msgid "赠送 10 人用户包"
+msgstr "10人分のユーザーパックを無料で提供"
+
+#: Disabled references:1
+msgid "赠送 30 人用户包"
+msgstr "30人分のユーザーパックを無料で提供"
+
+#: Disabled references:1
+msgid "赠送 "
+msgstr "プレゼン"
+
+#: Disabled references:1
+msgid " 人用户包"
+msgstr " ヒューマンユーザーパック"
+
+#: Disabled references:1
+msgid "能够一键搜索组织内全部类型的内容"
+msgstr "組織内のあらゆる種類のコンテンツをワンクリックで検索する機能"
+
+#: Disabled references:1
+msgid "数据同步任务数"
+msgstr "データシンクロナイゼーションタスク数"
+
+#: Disabled references:1
+msgid "数据同步功能限制"
+msgstr "データシンクロ機能の制限"
+
+#: Disabled references:1
+msgid "数据同步默认算力"
+msgstr "データ同期 デフォルト演算"
+
+#: Disabled references:1
+msgid "同步任务的目标写入行数"
+msgstr "同期タスクで書き込む目標行数"
+
+#: Disabled references:1
+msgid "数据同步算力升级包"
+msgstr "データシンクロ パワーアップパッケージ"
+
+#: Disabled references:1
+msgid "每月同步任务的算力额度不足时，可购买使用，立即生效"
+msgstr "毎月のシンクタスクを購入することで、演算量が不足したときにすぐに利用することが可能"
+
+#: Disabled references:1
+msgid "数据同步算力单月包"
+msgstr "データシンク計算機 シングルマンスリーパック"
+
+#: Disabled references:1
+msgid "当月同步任务的算力额度不足时，可购买使用，立即生效"
+msgstr "毎月のシンク作業に必要な演算能力が不足している場合、即効で購入し使用することができる"
+
+#: Disabled references:1
+msgid "100 个"
+msgstr "100"
+
+#: Disabled references:1
+msgid "1 万行"
+msgstr "10,000行"
+
+#: Disabled references:1
+msgid "5 万行"
+msgstr "50,000回線"
+
+#: Disabled references:1
+msgid "1000 次/月"
+msgstr "1000回/月"
+
+#: Disabled references:1
+msgid "2G /年"
+msgstr "2G / 年"
+
+#: Disabled references:1
+msgid "5个"
+msgstr "5"
+
+#: Disabled references:1
+msgid "仅同步"
+msgstr "同期のみ"
+
+#: Disabled references:1
+msgid "1 万行/月"
+msgstr "10,000回線/月"
+
+#: Disabled references:1
+msgid "10 万行"
+msgstr "10万回線"
+
+#: Disabled references:1
+msgid "5 万次/月"
+msgstr "50,000アクセス/月"
+
+#: Disabled references:1
+msgid "50G/年"
+msgstr "50G/年"
+
+#: Disabled references:1
+msgid "10 万行/月"
+msgstr "100,000回線/月"
+
+#: Disabled references:1
+msgid "300 元 / 人 / 年"
+msgstr "300 / 人 / 年"
+
+#: Disabled references:1
+msgid "50 元/1 万次*剩余月份"
+msgstr "50 / 10,000アクセス * 残り月数"
+
+#: Disabled references:1
+msgid "100 元/1 万次*本月"
+msgstr "100人民元／10,000回 ※月単位"
+
+#: Disabled references:1
+msgid "50 元/10 万次*剩余月份"
+msgstr "50 / 100,000アクセス * 残り月数"
+
+#: Disabled references:1
+msgid "100 元/10 万次*本月"
+msgstr "100人民元／10万回 *月"
+
+#: Disabled references:1
+msgid "200 元/10G 年"
+msgstr "200/$10G/年"
+
+#: Disabled references:1
+msgid "5 元 / 人 /年"
+msgstr "5 / 人 / 年"
+
+#: Disabled references:1
+msgid "100 万行"
+msgstr "100万回線"
+
+#: Disabled references:1
+msgid "10 万次/月"
+msgstr "10万アクセス/月"
+
+#: Disabled references:1
+msgid "150G /年"
+msgstr "150G / 年"
+
+#: Disabled references:1
+msgid "50 万行/月"
+msgstr "500,000回線/月"
+
+#: Disabled references:1
+msgid "20 万次/月"
+msgstr "200,000訪問/月"
+
+#: Disabled references:1
+msgid "300G /年"
+msgstr "300G / 年"
+
+#: Disabled references:1
+msgid "不限（同步+ETL）"
+msgstr "無制限（シンク＋ETL）"
+
+#: Disabled references:1
+msgid "100 万行/月"
+msgstr "100万回線/月"
+
+#: Disabled references:1
+msgid "每月数据同步算力包"
+msgstr "月次データシンク演算パッケージ"
+
+#: Disabled references:1
+msgid "当月数据同步算力包"
+msgstr "当月データ同期演算パッケージ"
+
+#: Disabled references:1
+msgid "用户自助购买数据同步算力升级包"
+msgstr "データ同期パワーアップパッケージのユーザーセルフ購入について"
+
+#: Disabled references:1
+msgid "购买数据同步算力升级包"
+msgstr "Data Sync Power Upgrade Packを購入する"
+
+#: Disabled references:1
+msgid "%0 万行"
+msgstr "%0万行"
+
+#: Disabled references:1
+msgid "每月同步任务算力行数增加数量"
+msgstr "同期タスク演算の月次回線数の増加"
+
+#: Disabled references:1
+msgid "本月同步任务算力行数增加数量"
+msgstr "当月に増加した同期タスク型演算処理装置数"
+
+#: Disabled references:1
+msgid "每月同步任务数的算力不足时，可购买使用，立即生效。"
+msgstr "月間の同期タスク数が演算能力的に少なくなってきたら、即効で購入して使用することも可能です。"
+
+#: Disabled references:1
+msgid "开启后，当月剩余执行额度不足时，自动购买100元/10万行的单月包，从账户余额中扣款。（开启后可以在数据集成的同步任务中关闭）"
+msgstr "スイッチをオンにすると、毎月100/100,000回線の1パックを自動的に購入し、月の実行残量が不足した場合にアカウント残高から差し引かれます。(オンにした場合、データ統合の同期タスクでオフにすることができます）"
+
+#: Disabled references:1
+msgid "被隐藏的成员 被限制后，不能看到企业所有通讯录"
+msgstr "非表示メンバー すべての企業アドレス帳の閲覧を制限"
+
+#: Disabled references:1
+msgid "不能看到组织所有通讯录"
+msgstr "組織のすべてのアドレス帳にアクセスできない"
+
+#: Disabled references:1
+msgid "白名单"
+msgstr "ホワイトリスト"
+
+#: Disabled references:1
+msgid "深红"
+msgstr "ディープレッド"
+
+#: Disabled references:1
+msgid "赤红"
+msgstr "赤色"
+
+#: Disabled references:1
+msgid "玫红"
+msgstr "ローズ"
+
+#: Disabled references:1
+msgid "橙红"
+msgstr "オレンジとレッド"
+
+#: Disabled references:1
+msgid "赭色"
+msgstr "オークル"
+
+#: Disabled references:1
+msgid "琥珀"
+msgstr "アンバー"
+
+#: Disabled references:1
+msgid "橙黄"
+msgstr "オレンジとイエロー"
+
+#: Disabled references:1
+msgid "深紫"
+msgstr "ディープパープル"
+
+#: Disabled references:1
+msgid "青莲"
+msgstr "グリーンロータス"
+
+#: Disabled references:1
+msgid "酱紫"
+msgstr "ヴァイオレット"
+
+#: Disabled references:1
+msgid "藏蓝"
+msgstr "チベタンブルー"
+
+#: Disabled references:1
+msgid "极客蓝"
+msgstr "ギーク・ブルー"
+
+#: Disabled references:1
+msgid "深天蓝"
+msgstr "ディープスカイブルー"
+
+#: Disabled references:1
+msgid "明青"
+msgstr "明清"
+
+#: Disabled references:1
+msgid "墨绿"
+msgstr "暗緑色"
+
+#: Disabled references:1
+msgid "薄绿"
+msgstr "シン・グリーン"
+
+#: Disabled references:1
+msgid "青柠"
+msgstr "ライム"
+
+#: Disabled references:1
+msgid "苍黑"
+msgstr "ペールブラック"
+
+#: Disabled references:1
+msgid "自定义主题色"
+msgstr "カスタマイズされたテーマカラー"
+
+#: Disabled references:1
+msgid "饱和度建议不低于70"
+msgstr "飽和度は70％以上を推奨"
+
+#: Disabled references:1
+msgid "（现在 %0）"
+msgstr "(今 %0)"
+
+#: Disabled references:1
+msgid "亮度建议不低于70"
+msgstr "輝度70％以上を推奨"
+
+#: Disabled references:1
+msgid "选择颜色"
+msgstr "カラーを選ぶ"
+
+#: Disabled references:1
+msgid "主题色"
+msgstr "テーマカラー"
+
+#: Disabled references:1
+msgid "浅主题色"
+msgstr "ライトテーマカラー"
+
+#: Disabled references:1
+msgid "导航色"
+msgstr "ナビゲーションカラー"
+
+#: Disabled references:1
+msgid "设置导航方式"
+msgstr "ナビゲーション方法の設定"
+
+#: Disabled references:1
+msgid "删除一级分组"
+msgstr "第一階層のグループ化を削除する"
+
+#: Disabled references:1
+msgid "当前一级分组包含内容，必须将他们移到其他一级分组后再进行删除"
+msgstr "現在のグループ化のレベルには、削除する前に別のレベルのグループ化に移動する必要があるコンテンツが含まれています"
+
+#: Disabled references:1
+msgid "从空白创建工作表"
+msgstr "白紙からワークシートを作成する"
+
+#: Disabled references:1
+msgid "从Excel创建工作表"
+msgstr "Excelからワークシートの作成"
+
+#: Disabled references:1
+msgid "子分组"
+msgstr "サブグループ"
+
+#: Disabled references:1
+msgid "超级搜索(F)"
+msgstr "スーパーサーチ(F)"
+
+#: Disabled references:1
+msgid "批量操作 ”%0“"
+msgstr "バッチ・オペレーション \"%0\""
+
+#: Disabled references:1
+msgid "选择组织"
+msgstr "組織を選択する"
+
+#: Disabled references:1
+msgid "无扩展信息表"
+msgstr "拡張情報シートなし"
+
+#: Disabled references:1
+msgid "请选择应用"
+msgstr "アプリケーションを選択してください"
+
+#: Disabled references:1
+msgid "请选择用户映射"
+msgstr "ユーザーマッピングを選択してください"
+
+#: Disabled references:1
+msgid "%0用户扩展信息表"
+msgstr "%0 ユーザー拡張情報テーブル"
+
+#: Disabled references:1
+msgid "通过工作表管理应用成员额外的扩展信息字段，在角色权限、筛选器中可以使用用户的扩展信息字段来作为动态筛选条件"
+msgstr "ワークシート管理によるアプリケーションメンバーの拡張情報フィールドの追加、ユーザーの拡張情報フィールドをロールパーミッション、フィルターの動的なフィルター条件として使用することができる"
+
+#: Disabled references:1
+msgid "选择应用"
+msgstr "アプリケーションを選択"
+
+#: Disabled references:1
+msgid "无应用"
+msgstr "アプリケーションなし"
+
+#: Disabled references:1
+msgid "选择或新建的工作表字段中，必须包含“成员”字段"
+msgstr "選択または新規ワークシートフィールドには、\"Member \"フィールドが含まれている必要があります"
+
+#: Disabled references:1
+msgid "该应用无工作表"
+msgstr "このアプリケーションのためのワークシートはありません"
+
+#: Disabled references:1
+msgid "用户映射"
+msgstr "ユーザーマッピング"
+
+#: Disabled references:1
+msgid "选择一个“成员”字段，用于标识匹配系统登陆的用户，进而读取用户关联的扩展属性"
+msgstr "マッチングシステムにログインしたユーザーを識別するために、\"メンバー \"フィールドを選択し、そのユーザーに関連する拡張属性を読み出す"
+
+#: Disabled references:1
+msgid "选择用户映射"
+msgstr "ユーザーマッピングの選択"
+
+#: Disabled references:1
+msgid "该工作表无\"成员\"字段"
+msgstr "ワークシートに \"member \"フィールドがない"
+
+#: Disabled references:1
+msgid "停用用户扩展信息表"
+msgstr "ユーザー拡張情報フォームの無効化"
+
+#: Disabled references:1
+msgid "删除用户扩展信息表后，用户角色权限中的权限标签都将失效 是否确认取消？"
+msgstr "ユーザー拡張情報フォームを削除すると、User Role Permissions のすべての権限タグが無効になります 解除は確定ですか？"
+
+#: Disabled references:1
+msgid "用户扩展信息表"
+msgstr "ユーザーエクステンション情報フォーム"
+
+#: Disabled references:1
+msgid "选择用户扩展信息字段作为用户权限标签"
+msgstr "ユーザー権限」タブで「ユーザー拡張情報」フィールドを選択する"
+
+#: Disabled references:1
+msgid "选择用户扩展信息表中作为用户权限标签字段（仅支持关联记录字段），可启用的字段上限为3个，每个标签字段的有效值上限为1000个，超过时默认取前1000个，当其他工作表记录也关联了此标签字段时，可以在角色权限、或筛选器中过滤出当前用户对应标签的记录"
+msgstr "選択ユーザー拡張情報テーブルのユーザー権限のタグフィールド（唯一の関連レコードフィールドをサポートしています）、有効にすることができるフィールドの最大数は3、各タグフィールドの最大有効値は1000、それが超過しているときにデフォルトは最初の1000を取る、他のワークシートのレコードもこのタグフィールドに関連している場合は、ロール権限の現在のユーザーのタグに対応してレコードをフィルタアウト、またはフィルタリングすることができます。"
+
+#: Disabled references:1
+msgid "通过工作表管理应用成员额外的扩展信息字段"
+msgstr "ワークシート管理によるアプリケーションメンバーの拡張情報フィールドの追加"
+
+#: Disabled references:1
+msgid "在角色权限、筛选器中可以使用用户的扩展信息字段来作为动态筛选条件"
+msgstr "ユーザーの拡張情報フィールドは、ロールパーミッションの動的フィルタ、フィルタ"
+
+#: Disabled references:1
+msgid "建立用户扩展信息表"
+msgstr "拡張ユーザー情報のテーブルを作成"
+
+#: Disabled references:1
+msgid "匹配用户权限标签的记录"
+msgstr "ユーザー許可タグに一致するレコード"
+
+#: Disabled references:1
+msgid "可启用的权限标签字段来自于[用户扩展信息]的标签字段。勾选后，可根据[用户扩展信息-人员表]中配置的字段值，查看工作表被关联的字段所属记录。"
+msgstr "有効化できる権限タグフィールドは、[ユーザー拡張情報]のタグフィールドに由来しています。チェックすると、[ユーザー拡張情報-人物テーブル]で設定されたフィールドの値に基づいて、ワークシートのフィールドが関連付けられたレコードを表示することができます。"
+
+#: Disabled references:1
+msgid "使用说明"
+msgstr "使用説明書"
+
+#: Disabled references:1
+msgid "数据同步任务"
+msgstr "データ同期タスク"
+
+#: Disabled references:1
+msgid "您暂时无权限查看该同步任务"
+msgstr "現在、このシンクタスクを表示する権限がありません。"
+
+#: Disabled references:1
+msgid "读取数据源"
+msgstr "データソースの読み込み"
+
+#: Disabled references:1
+msgid "写入数据目的地"
+msgstr "データ送信先への書き込み"
+
+#: Disabled references:1
+msgid "失败，请稍后再试"
+msgstr "失敗しました、後でもう一度試してください"
+
+#: Disabled references:1
+msgid "数据源类型"
+msgstr "データソースの種類"
+
+#: Disabled references:1
+msgid "目的地类型"
+msgstr "目的地の種類"
+
+#: Disabled references:1
+msgid "余量已达到最大值"
+msgstr "残高が最大になった"
+
+#: Disabled references:1
+msgid "免费版最多可创建5个同步任务, 请升级版本以创建更多同步任务"
+msgstr "無料版では5つまでシンクタスクを作成できますが、より多くのシンクタスクを作成するにはバージョンをアップしてください"
+
+#: Disabled references:1
+msgid "连接到外部数据源进行数据实时同步"
+msgstr "外部データソースと接続し、リアルタイムにデータ同期が可能"
+
+#: Disabled references:1
+msgid "常用连接器"
+msgstr "よく使われるコネクター"
+
+#: Disabled references:1
+msgid "管理外部数据源和目的地"
+msgstr "外部データソースと外部データ送信先の管理"
+
+#: Disabled references:1
+msgid "滚动播放"
+msgstr "スクロールして再生"
+
+#: Disabled references:1
+msgid "模糊图片"
+msgstr "画像のボケ"
+
+#: Disabled references:1
+msgid "移动Web端"
+msgstr "モバイルウェブ"
+
+#: Disabled references:1
+msgid "顶部对齐"
+msgstr "トップアライメント"
+
+#: Disabled references:1
+msgid "表单样式"
+msgstr "フォームスタイル"
+
+#: Disabled references:1
+msgid "将所选附件字段中的图片作为记录详情封面"
+msgstr "選択した添付ファイルフィールドの画像をレコード詳細の表紙に使用する"
+
+#: Disabled references:1
+msgid "附件字段"
+msgstr "アタッチメントフィールド"
+
+#: Disabled references:1
+msgid "动画效果"
+msgstr "アニメーションの効果"
+
+#: Disabled references:1
+msgid "自动播放"
+msgstr "オートプレイ"
+
+#: Disabled references:1
+msgid "标题宽度"
+msgstr "タイトル幅"
+
+#: Disabled references:1
+msgid "缩略图"
+msgstr "サムネイル"
+
+#: Disabled references:1
+msgid "以缩略图预览图片和文档内容"
+msgstr "画像やドキュメントの内容をサムネイルでプレビュー"
+
+#: Disabled references:1
+msgid "紧凑式文件展示"
+msgstr "コンパクトなドキュメントディスプレイ"
+
+#: Disabled references:1
+msgid "以列表显示附件详细信息"
+msgstr "添付ファイルの詳細を一覧で表示する"
+
+#: Disabled references:1
+msgid "大图平铺显示，只支持图片类型"
+msgstr "大きな画像のタイル表示、対応する画像タイプのみ"
+
+#: Disabled references:1
+msgid "是否结束委托?"
+msgstr "コミッションは閉鎖されているのですか？"
+
+#: Disabled references:1
+msgid "将所选节点的字段值结果立即返回给请求方，支持选择返回格式;请控制请求频率在100次/小时以内，流程执行时间30s以内，私有部署不限直接返回输出参数给请求地址"
+msgstr "選択したノードのフィールド値の結果をすぐに要求側に返す、選択の戻り値の形式をサポートしています。100回/時間内の要求の頻度を制御してください、30秒以内に実行時間を処理、プライベート展開は、要求アドレスに直接出力パラメータを返すように制限されていません。"
+
+#: Disabled references:1
+msgid "自定义响应"
+msgstr "カスタマイズされた回答"
+
+#: Disabled references:1
+msgid "退回到：%0"
+msgstr "戻る： %0"
+
+#: Disabled references:1
+msgid "退回上一节点：%0"
+msgstr "前のノードに戻る: %0"
+
+#: Disabled references:1
+msgid "批量操作\"%0"
+msgstr "バッチ処理「%0"
+
+#: Disabled references:1
+msgid "修改分组名称失败"
+msgstr "グループ名の変更に失敗しました"
+
+#: Disabled references:1
+msgid "选择分组"
+msgstr "グループ選択"
+
+#: Disabled references:1
+msgid "(作为一级分组移动)"
+msgstr "(第一階層のグループ化として移動）。"
+
+#: Disabled references:1
+msgid "确认删除分组 ?"
+msgstr "グループ削除の確認は？"
+
+#: Disabled references:1
+msgid "此操作不会删除分组下的应用项"
+msgstr "この操作では、グループ以下のアプリケーションアイテムは削除されません。"
+
+#: Disabled references:1
+msgid "删除%0"
+msgstr "削除 %0"
+
+#: Disabled references:1
+msgid "相同组不需要移动"
+msgstr "同一グループは移動する必要がない"
+
+#: Disabled references:1
+msgid "收起导航"
+msgstr "ナビゲーションを閉じる"
+
+#: Disabled references:1
+msgid "展开导航"
+msgstr "ナビゲーションを拡大する"
+
+#: Disabled references:1
+msgid "当前分组没有应用项"
+msgstr "現在のグループにはアプリケーションの項目はありません"
+
+#: Disabled references:1
+msgid "没有需要保存的字段"
+msgstr "保存するフィールドがない"
+
+#: Disabled references:1
+msgid "⌘+Enter结束编辑"
+msgstr "⌘+Enter で編集を終了"
+
+#: Disabled references:1
+msgid "Ctrl+Enter结束编辑"
+msgstr "Ctrl+Enterで編集終了"
+
+#: Disabled references:1
+msgid "(密码区分大小写)"
+msgstr "(パスワードは大文字・小文字を区別します）"
+
+#: Disabled references:1
+msgid "触发工作流"
+msgstr "トリガーワークフロー"
+
+#: Disabled references:1
+msgid "(触发工作流)"
+msgstr "(トリガーワークフロー)"
+
+#: Disabled references:1
+msgid "无数据或无权限查看"
+msgstr "データがない、または閲覧権限がない"
+
+#: Disabled references:1
+msgid "地址无法访问\n被取消了查看权限或已删除"
+msgstr "アドレスにアクセスできない\n閲覧不可または削除"
+
+#: Disabled references:1
+msgid "附件编辑"
+msgstr "アタッチメント・エディター"
+
+#: Disabled references:1
+msgid "左侧列表"
+msgstr "左側リスト"
+
+#: Disabled references:1
+msgid "新建子分组"
+msgstr "新しいサブグループを作成する"
+
+#: Disabled references:1
+msgid "没有应用项"
+msgstr "アプリケーション項目なし"
+
+#: Disabled references:1
+msgid "非空导航组不能删除"
+msgstr "空でないナビゲーショングループは削除できません"
+
+#: Disabled references:1
+msgid "一级分组"
+msgstr "レベル1グループ化"
+
+#: Disabled references:1
+msgid "导航方式"
+msgstr "ナビゲーション"
+
+#: Disabled references:1
+msgid "导航管理"
+msgstr "ナビゲーション管理"
+
+#: Disabled references:1
+msgid "勾选时，管理员可以在应用中查看隐藏的应用项。取消勾选时，对管理员也同时隐藏"
+msgstr "チェックを入れると、管理者はアプリケーションの非表示項目を表示できるようになります。チェックを外すと、管理者からも非表示になります"
+
+#: Disabled references:1
+msgid "导航修改实时生效"
+msgstr "ナビゲーションの変更はリアルタイムに反映される"
+
+#: Disabled references:1
+msgid "移动端"
+msgstr "モバイルターミナル"
+
+#: Disabled references:1
+msgid "例：请假单，请假理由这个选项。可以在这边统一编辑一个请假理由和里面的选项。这样这个数据内容可以被复用到不同的请假单中。不需要在每张表单中单独设置修改"
+msgstr "例：休暇申請フォーム、休暇理由のオプション。休暇の理由とその中のオプションを一度に編集することが可能です。こうすることで、このデータ内容を異なる休暇申請で再利用することができます。各フォームで個別に変更を設定する必要がない"
+
+#: Disabled references:1
+msgid "添加拥有者"
+msgstr "オーナー追加"
+
+#: Disabled references:1
+msgid "错误通知"
+msgstr "エラー通知"
+
+#: Disabled references:1
+msgid "同步任务发生错误时发送错误消息通知给拥有者"
+msgstr "同期タスクでエラーが発生した場合、オーナーにエラーメッセージを送信する機能"
+
+#: Disabled references:1
+msgid "同步数据时，是否触发工作表绑定的自动化工作流"
+msgstr "データ同期時にワークシート結合の自動ワークフローを起動させるかどうか"
+
+#: Disabled references:1
+msgid "新增记录时触发"
+msgstr "新しいレコードが追加されたときにトリガーされる"
+
+#: Disabled references:1
+msgid "更新记录时触发"
+msgstr "レコードが更新されたときにトリガーされる"
+
+#: Disabled references:1
+msgid "删除记录时触发"
+msgstr "レコードが削除されたときに発生する"
+
+#: Disabled references:1
+msgid "读取"
+msgstr "読む"
+
+#: Disabled references:1
+msgid "最近1天"
+msgstr "直近1日"
+
+#: Disabled references:1
+msgid "累计运行时长"
+msgstr "累積稼働時間"
+
+#: Disabled references:1
+msgid "%0小时%1分钟"
+msgstr "%0時間 %1分"
+
+#: Disabled references:1
+msgid "累计读取记录数"
+msgstr "読み込んだレコードの累積数"
+
+#: Disabled references:1
+msgid "累计写入记录数"
+msgstr "書き込んだレコードの累積枚数"
+
+#: Disabled references:1
+msgid "仅保留最近6个月的读写历史"
+msgstr "読み書き履歴は過去6ヶ月分のみ保持されます"
+
+#: Disabled references:1
+msgid "仅保留最近6个月的日志"
+msgstr "過去6ヶ月分のログのみ保存"
+
+#: Disabled references:1
+msgid "操作人/来源"
+msgstr "オペレーター/ソース"
+
+#: Disabled references:1
+msgid "云端"
+msgstr "クラウド"
+
+#: Disabled references:1
+msgid "搜索数据源名称、地址"
+msgstr "データソース名、アドレスの検索"
+
+#: Disabled references:1
+msgid "创建于 %0"
+msgstr "%0 で作成されました。"
+
+#: Disabled references:1
+msgid "暂无可选择数据"
+msgstr "現時点で選択可能なデータなし"
+
+#: Disabled references:1
+msgid "数据合并"
+msgstr "データマージ"
+
+#: Disabled references:1
+msgid "多表连接"
+msgstr "複数テーブルの結合"
+
+#: Disabled references:1
+msgid "分类汇总"
+msgstr "カテゴリー概要"
+
+#: Disabled references:1
+msgid "筛选过滤"
+msgstr "スクリーニングとフィルタリング"
+
+#: Disabled references:1
+msgid "内连接"
+msgstr "内部接続"
+
+#: Disabled references:1
+msgid "左右互查，只合并命中条目"
+msgstr "左右のクロスチェック、ヒットした項目のみのマージ"
+
+#: Disabled references:1
+msgid "左连接"
+msgstr "左接続"
+
+#: Disabled references:1
+msgid "左查右，合并全部"
+msgstr "左チェック、右チェック、マージ"
+
+#: Disabled references:1
+msgid "右连接"
+msgstr "右接続"
+
+#: Disabled references:1
+msgid "右查左，合并全部"
+msgstr "右チェック、左チェック、コンバインすべて"
+
+#: Disabled references:1
+msgid "全连接"
+msgstr "完全接続"
+
+#: Disabled references:1
+msgid "左右表按连接字段全部合并"
+msgstr "左右のテーブルはすべてjoinフィールドで結合される"
+
+#: Disabled references:1
+msgid "非"
+msgstr "ない"
+
+#: Disabled references:1
+msgid "失效"
+msgstr "失敗例"
+
+#: Disabled references:1
+msgid "去重计数"
+msgstr "デカウント"
+
+#: Disabled references:1
+msgid "去重合并"
+msgstr "重複排除とマージ"
+
+#: Disabled references:1
+msgid "合并时去掉两个表中重复的行记录，保留唯一记录。"
+msgstr "マージは、両方のテーブルから重複する行を削除し、一意のレコードを保持します。"
+
+#: Disabled references:1
+msgid "全部合并"
+msgstr "すべて合算"
+
+#: Disabled references:1
+msgid "合并时保留两个表中所有的行记录"
+msgstr "マージ時に両方のテーブルのすべての行を保持します。"
+
+#: Disabled references:1
+msgid "相交并去重"
+msgstr "交差・重複排除"
+
+#: Disabled references:1
+msgid "只有在两个表中都存在的记录，才会被保留，并去除重复记录"
+msgstr "両テーブルに存在するレコードのみを保持し、重複するレコードは削除されます"
+
+#: Disabled references:1
+msgid "相交"
+msgstr "交差点"
+
+#: Disabled references:1
+msgid "只有在两个表中都存在的记录，才会被保留，不会去除重复记录"
+msgstr "両方のテーブルに存在するレコードのみが保持され、重複したレコードは削除されない"
+
+#: Disabled references:1
+msgid "排除并去重"
+msgstr "除外と重複排除"
+
+#: Disabled references:1
+msgid "只有在左表中存在，但在右表中不存在的记录会被保留，并去除重复记录"
+msgstr "左のテーブルに存在し、右のテーブルに存在しないレコードのみを保持し、重複するレコードは削除される"
+
+#: Disabled references:1
+msgid "排除"
+msgstr "除外"
+
+#: Disabled references:1
+msgid "只有在左表中存在，但在右表中不存在的记录会被保留，不会去除重复记录"
+msgstr "左のテーブルに存在し、右のテーブルに存在しないレコードのみを保持し、重複するレコードは削除されません"
+
+#: Disabled references:1
+msgid "未发布"
+msgstr "未発表"
+
+#: Disabled references:1
+msgid "停止"
+msgstr "停止"
+
+#: Disabled references:1
+msgid "即将上线"
+msgstr "近日公開予定"
+
+#: Disabled references:1
+msgid "长度"
+msgstr "長さ"
+
+#: Disabled references:1
+msgid "精度"
+msgstr "高精度"
+
+#: Disabled references:1
+msgid "字段注释"
+msgstr "フィールドノート"
+
+#: Disabled references:1
+msgid "字段(源)"
+msgstr "フィールド（ソース）"
+
+#: Disabled references:1
+msgid "主键"
+msgstr "主キー"
+
+#: Disabled references:1
+msgid "不允许null"
+msgstr "nullを許可しない"
+
+#: Disabled references:1
+msgid "字段名称(目标)"
+msgstr "フィールド名（ターゲット）"
+
+#: Disabled references:1
+msgid "设置字段注释"
+msgstr "フィールドコメントの設定"
+
+#: Disabled references:1
+msgid "取消设为标题"
+msgstr "タイトルに設定されたキャンセル"
+
+#: Disabled references:1
+msgid "选择数据源类型"
+msgstr "データソースの種類を選択する"
+
+#: Disabled references:1
+msgid "数据源名称"
+msgstr "データソースの名称"
+
+#: Disabled references:1
+msgid "作为"
+msgstr "として"
+
+#: Disabled references:1
+msgid "数据库地址"
+msgstr "データベースアドレス"
+
+#: Disabled references:1
+msgid "保存密码后将加密存储，不可查看密码原文"
+msgstr "パスワードは暗号化して保存されるため、元のパスワードは閲覧できません"
+
+#: Disabled references:1
+msgid "初始数据库"
+msgstr "初期データベース"
+
+#: Disabled references:1
+msgid "数据库名称"
+msgstr "データベース名"
+
+#: Disabled references:1
+msgid "其他连接串参数"
+msgstr "その他の接続文字列パラメータ"
+
+#: Disabled references:1
+msgid "服务名类型"
+msgstr "サービス名称の種類"
+
+#: Disabled references:1
+msgid "启用 SRV 记录"
+msgstr "SRVロギングを有効にする"
+
+#: Disabled references:1
+msgid "系统将通过 BinLog 实时同步数据库的所有变动"
+msgstr "システムは、BinLogを介してすべての変更をリアルタイムでデータベースに同期させます。"
+
+#: Disabled references:1
+msgid "系统将通过 Change Tracking 实时同步数据库的所有变动"
+msgstr "システムは、Change Trackingを通じて、すべての変更点をリアルタイムでデータベースに同期させます。"
+
+#: Disabled references:1
+msgid "系统将实时同步数据库的所有变动"
+msgstr "システムは、すべての変更をリアルタイムでデータベースに同期させます"
+
+#: Disabled references:1
+msgid "系统将通过 Log Archiving 实时同步数据库的所有变动"
+msgstr "システムは、ログアーカイブを介してリアルタイムでデータベースにすべての変更を同期させます。"
+
+#: Disabled references:1
+msgid "系统将通过 Change Streams 实时同步数据库的所有变动"
+msgstr "システムは、Change Streamsを介して、すべての変更をリアルタイムでデータベースに同期させます。"
+
+#: Disabled references:1
+msgid "系统将实时同步数据到所选工作表"
+msgstr "選択したワークシートにリアルタイムでデータを同期させることができます"
+
+#: Disabled references:1
+msgid "更换数据源类型"
+msgstr "データソースの種類を変更する"
+
+#: Disabled references:1
+msgid "请将以下IP加入数据库服务器的访问白名单"
+msgstr "データベースサーバーのアクセスホワイトリストに以下のIPを追加してください。"
+
+#: Disabled references:1
+msgid "你可以把 MariaDB 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
+msgstr "MariaDBデータベースからワークシートなどのデータ送信先に、システムを通じてリアルタイムにデータを同期させることができます。"
+
+#: Disabled references:1
+msgid "先决条件"
+msgstr "前提条件"
+
+#: Disabled references:1
+msgid "支持MariaDB的版本"
+msgstr "対応するMariaDBのバージョン"
+
+#: Disabled references:1
+msgid "10.3及以上"
+msgstr "10.3以上"
+
+#: Disabled references:1
+msgid "需要开启Binlog"
+msgstr "Binlogをオンにする必要があります"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 MariaDB 服务器的访问白名单 "
+msgstr "MariaDBサーバーのアクセスホワイトリストにシステムIPを追加する。"
+
+#: Disabled references:1
+msgid "授权MariaDB账户对应的权限"
+msgstr "MariaDBアカウントに対応する権限を付与する。"
+
+#: Disabled references:1
+msgid "检查MariaDB版本"
+msgstr "MariaDB のバージョンを確認する"
+
+#: Disabled references:1
+msgid "检查Binlog是否开启"
+msgstr "Binlogがオンになっているかどうか確認する"
+
+#: Disabled references:1
+msgid "如果该语句返回值为1，说明BinLog是激活的。如果返回值为0，这意味着BinLog被禁用。要启用它，请遵循下面的步骤。"
+msgstr "このステートメントが値1を返す場合、これはBinLogが有効であることを意味します。0を返した場合、これはBinLogが無効であることを意味します。有効にするには、以下の手順に従います。"
+
+#: Disabled references:1
+msgid "开启Binlog"
+msgstr "Binlogをオンにする"
+
+#: Disabled references:1
+msgid "登陆到MariaDB服务器"
+msgstr "MariaDBサーバーにログインする"
+
+#: Disabled references:1
+msgid "编辑MariaDB服务器的配置文件"
+msgstr "MariaDBサーバーの設定ファイルを編集する"
+
+#: Disabled references:1
+msgid "在配置文件中检查是否符合以下内容，不符合的需要修改"
+msgstr "コンフィギュレーションファイルで以下を満たしているか、また満たしていないものは修正する必要があるかを確認します。"
+
+#: Disabled references:1
+msgid "保存文件或者退出"
+msgstr "ファイルを保存するか、終了する"
+
+#: Disabled references:1
+msgid "保存所做的修改，按下Ctrl+O。"
+msgstr "変更した内容を保存して、Ctrl+Oを押します。"
+
+#: Disabled references:1
+msgid "退出，按下Ctrl+X。"
+msgstr "終了するには、Ctrl+Xを押します。"
+
+#: Disabled references:1
+msgid "重启MariaDB服务器"
+msgstr "MariaDBサーバーを再起動する"
+
+#: Disabled references:1
+msgid "重启后，再次登陆到MariaDB服务器，检查Binlog状态"
+msgstr "再起動後、MariaDBサーバーに再度ログインし、Binlogの状態を確認します。"
+
+#: Disabled references:1
+msgid "对于某个数据库赋于select权限"
+msgstr "データベースへの選択権限の付与"
+
+#: Disabled references:1
+msgid "或者给予全局权限"
+msgstr "またはグローバルアクセス権を付与する"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到了 MariaDB 服务器的访问白名单"
+msgstr "MariaDBサーバーのアクセスホワイトリストにシステムIPを追加しました。"
+
+#: Disabled references:1
+msgid "找到 [mysqld] 部分，添加下方语句"
+msgstr "[mysqld] セクションを探し、以下の記述を追加します。"
+
+#: Disabled references:1
+msgid "保存所做的修改"
+msgstr "変更した内容を保存する"
+
+#: Disabled references:1
+msgid "按下Ctrl+O"
+msgstr "Ctrl+Oを押す"
+
+#: Disabled references:1
+msgid "创建数据源时，检查数据库服务器的连通性、账户密码等正确性、数据库是否可用、以及检查是否可以作为源或者目的地。只有数据源通过全部测试才能够正常使用数据源。"
+msgstr "データソースを作成する際には、データベースサーバーの接続性、アカウントパスワード等の正しさ、データベースの可用性を確認し、ソースまたはデスティネーションとして使用可能かどうかをチェックします。すべてのテストに合格して初めて、データソースを正しく使用することができます。"
+
+#: Disabled references:1
+msgid "你可以将其它数据源的数据实时同步到 MariaDB"
+msgstr "他のデータソースからMariaDBにリアルタイムでデータを同期させることができる"
+
+#: Disabled references:1
+msgid "检查是否有对应数据库的全部权限"
+msgstr "対応するデータベースへのフルアクセス権を持っているかどうかを確認する"
+
+#: Disabled references:1
+msgid "对于某个数据库赋于全部权限"
+msgstr "データベースへの全権限割り当て"
+
+#: Disabled references:1
+msgid "或者可以赋予全局权限"
+msgstr "または、グローバルな権限を与えることができます"
+
+#: Disabled references:1
+msgid "你可以把 工作表 作为源数据，同步数据到工作表或者其它数据目的地。"
+msgstr "ワークシートをソースデータとして、ワークシートなどのデータ送信先にデータを同期させることができます。"
+
+#: Disabled references:1
+msgid "同步前需要选择要同步到的目标应用，只能从当前用户是应用管理员和开发者的应用中选取。"
+msgstr "同期する対象アプリは、同期前に選択する必要があり、現在のユーザーがアプリ管理者・開発者であるアプリからしか選択できません。"
+
+#: Disabled references:1
+msgid "你可以把工作表或者其它数据源的数据，通过系统实时同步到 工作表"
+msgstr "ワークシートや他のデータソースから、システムを通じてリアルタイムにデータを同期させることができる"
+
+#: Disabled references:1
+msgid "只能从当前用户是应用管理员和开发者的应用中选取。"
+msgstr "現在のユーザーがアプリケーションの管理者、開発者であるアプリケーションからしか選択できません。"
+
+#: Disabled references:1
+msgid "你可以把 MongoDB 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
+msgstr "MongoDBデータベースからワークシートなどのデータ送信先に、システムを通じてリアルタイムでデータを同期させることができます。"
+
+#: Disabled references:1
+msgid "MongoDB 版本 >= 3.6"
+msgstr "MongoDBバージョン >= 3.6"
+
+#: Disabled references:1
+msgid "启用 Change Streams"
+msgstr "チェンジストリームを有効にする"
+
+#: Disabled references:1
+msgid "Change Streams仅支持副本集和分片群集模式，且必须使用副本集协议版本1（pv1）"
+msgstr "Change Streams はレプリカセットとシャードクラスターモードのみをサポートし、レプリカセットプロトコル バージョン 1 (pv1) を使用する必要があります。"
+
+#: Disabled references:1
+msgid "更多条件参考："
+msgstr "詳細な条件については、以下を参照してください。"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 MongoDB 服务器的访问白名单"
+msgstr "システムIPをMongoDBサーバーのアクセスホワイトリストに追加する"
+
+#: Disabled references:1
+msgid "你可以将其它数据源的数据实时同步到 MongoDB"
+msgstr "他のデータソースからMongoDBにリアルタイムでデータを同期させることができる"
+
+#: Disabled references:1
+msgid "具有数据库的写入权限"
+msgstr "データベースへの書き込み権限がある"
+
+#: Disabled references:1
+msgid "创建用户并且赋予写入数据库权限"
+msgstr "ユーザーを作成し、データベースへの書き込み権限を付与する"
+
+#: Disabled references:1
+msgid "权限规则"
+msgstr "パーミッション・ルール"
+
+#: Disabled references:1
+msgid "允许用户读取指定数据库;"
+msgstr "指定されたデータベースの読み込みを許可する;"
+
+#: Disabled references:1
+msgid "允许用户读写指定数据库 "
+msgstr "指定されたデータベースに対するユーザーの読み取りと書き込みを許可する"
+
+#: Disabled references:1
+msgid "允许用户在指定数据库中执行管理函数，如索引创建、删除，查看统计或访问system.profile;"
+msgstr "インデックスの作成、削除、統計情報の表示、system.profileへのアクセスなど、ユーザーが特定のデータベースで管理機能を実行することを許可します。"
+
+#: Disabled references:1
+msgid "允许用户向system.users集合写入，可以找指定数据库里创建、删除和管理用户;"
+msgstr "ユーザーがsystem.usersコレクションに書き込み、指定されたデータベース内のユーザーを作成、削除、管理できるようにします。"
+
+#: Disabled references:1
+msgid "只在admin数据库中可用，赋予用户所有分片和复制集相关函数的管理权限; "
+msgstr "管理者データベースでのみ利用可能で、シャーディングとレプリカセットに関連するすべての機能の管理者権限をユーザーに付与します。"
+
+#: Disabled references:1
+msgid "只在admin数据库中可用，赋予用户所有数据库的读权限; "
+msgstr "管理者データベースでのみ利用可能で、すべてのデータベースへの読み取り権限を付与します。"
+
+#: Disabled references:1
+msgid "只在admin数据库中可用，赋予用户所有数据库的读写权限;"
+msgstr "管理者データベースでのみ利用可能で、すべてのデータベースに対する読み取りと書き込みの権限が付与されます。"
+
+#: Disabled references:1
+msgid "只在admin数据库中可用，赋予用户所有数据库的userAdmin权限; "
+msgstr "adminデータベースでのみ利用可能で、ユーザーuserAdminはすべてのデータベースへのアクセス権を持ちます。"
+
+#: Disabled references:1
+msgid "只在admin数据库中可用，赋予用户所有数据库的dbAdmin权限; "
+msgstr "管理データベースでのみ利用可能で、ユーザーdbAdminはすべてのデータベースへのアクセスが可能です"
+
+#: Disabled references:1
+msgid "只在admin数据库中可用。超级账号，超级权限。"
+msgstr "管理者データベースでのみ利用可能です。スーパー権限を持つスーパーアカウントです。"
+
+#: Disabled references:1
+msgid "你可以把 MySQL 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
+msgstr "MySQLデータベースからワークシートなどのデータ送信先に、システムを通してリアルタイムにデータを同期させることができます。"
+
+#: Disabled references:1
+msgid "支持MySQL的版本"
+msgstr "サポートされるMySQLのバージョン"
+
+#: Disabled references:1
+msgid "需要开启Binlog并设置为ROW"
+msgstr "Binlogをオンにして、ROWに設定する必要があります"
+
+#: Disabled references:1
+msgid "授权MySQL账户对应的权限"
+msgstr "MySQLアカウントへの権限付与"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 MySQL 服务器的访问白名单"
+msgstr "MySQLサーバーのアクセスホワイトリストにシステムIPを追加します"
+
+#: Disabled references:1
+msgid "检查 MySQL 版本"
+msgstr "MySQLのバージョンを確認する"
+
+#: Disabled references:1
+msgid "登陆到MySQL服务器"
+msgstr "MySQLサーバーにログイン"
+
+#: Disabled references:1
+msgid "编辑MySQL服务器的配置文件"
+msgstr "MySQLサーバー設定ファイルの編集"
+
+#: Disabled references:1
+msgid "重启MySQL服务器"
+msgstr "MySQLサーバーの再起動"
+
+#: Disabled references:1
+msgid "重启后，再次登陆到MySQL服务器，检查Binlog状态"
+msgstr "再起動後、再度MySQLサーバーにログインし、Binlogの状態を確認します。"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到了 MySQL 服务器的访问白名单"
+msgstr "MySQLサーバーのアクセスホワイトリストにシステムIPを追加しました。"
+
+#: Disabled references:1
+msgid "bind-address = 0.0.0.0 [这里是系统白名单，在左侧配置信息底部显示]"
+msgstr "bind-address = 0.0.0.0 [ここで、左の設定情報の一番下に表示されているのが、システムのホワイトリストです] 。"
+
+#: Disabled references:1
+msgid "你可以将其它数据源的数据实时同步到 MySQL"
+msgstr "他のデータソースからMySQLにリアルタイムでデータを同期させることができる"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 MySQL 服务器的访问白名单 "
+msgstr "MySQLサーバーのアクセスホワイトリストにシステムIPを追加します"
+
+#: Disabled references:1
+msgid "你可以把 Oracle 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
+msgstr "Oracleデータベースのデータを、システムを通してリアルタイムにワークシートなどに同期させることができます。"
+
+#: Disabled references:1
+msgid "支持Oracle版本： 9i, 10g, 11g，12c"
+msgstr "対応Oracleバージョン：9i、10g、11g、12c"
+
+#: Disabled references:1
+msgid "启用Oracle数据库的日志存档"
+msgstr "Oracleデータベースのログアーカイブを有効にする"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 Oracle 服务器的访问白名单 "
+msgstr "OracleサーバーのアクセスホワイトリストにシステムIPを追加する"
+
+#: Disabled references:1
+msgid "对于非CDB数据库"
+msgstr "CDB以外のデータベースの場合"
+
+#: Disabled references:1
+msgid "以DBA身份连接到数据库"
+msgstr "DBAとしてデータベースに接続する"
+
+#: Disabled references:1
+msgid "启用日志归档"
+msgstr "ログアーカイブを有効にする"
+
+#: Disabled references:1
+msgid "启用日志归档需要重新启动数据库，在尝试这样做时要注意"
+msgstr "ログアーカイブを有効にするには、データベースの再起動が必要であり、これを実行しようとする場合は注意が必要です"
+
+#: Disabled references:1
+msgid "归档的日志会占用大量的磁盘空间，所以考虑定期清理过期的日志。"
+msgstr "アーカイブされたログは、多くのディスクスペースを必要とするため、期限切れのログを定期的にクリーニングすることを検討してください。"
+
+#: Disabled references:1
+msgid "检查是否启用了日志归档功能"
+msgstr "ログアーカイブが有効かどうか確認する"
+
+#: Disabled references:1
+msgid "启用补充日志"
+msgstr "補助的なログを有効にする"
+
+#: Disabled references:1
+msgid "必须为表或数据库启用补充日志，以使数据变化能够捕获变化的数据库行的之前状态。下面说明了如何在表/数据库层面上进行配置。"
+msgstr "データ変更によって変更されたデータベース行の以前の状態を取得できるようにするには、テーブルまたはデータベースに対して補助的なロギングを有効にする必要があります。以下は、これをテーブル/データベースレベルで設定する方法を示しています。"
+
+#: Disabled references:1
+msgid "启用特定表的补充日志记录。"
+msgstr "特定のテーブルの補足ロギングを有効にする。"
+
+#: Disabled references:1
+msgid "启用数据库的补充日志记录。"
+msgstr "データベースの補助的なロギングを有効にします。"
+
+#: Disabled references:1
+msgid "创建一个具有权限的Oracle用户"
+msgstr "特権を持つOracleユーザーを作成する"
+
+#: Disabled references:1
+msgid "创建表空间"
+msgstr "テーブルスペースの作成"
+
+#: Disabled references:1
+msgid "创建一个用户并授予权限"
+msgstr "ユーザーを作成し、権限を付与する"
+
+#: Disabled references:1
+msgid "对于CDB数据库"
+msgstr "CDBデータベースの場合"
+
+#: Disabled references:1
+msgid "另外一种方式启用日志归档"
+msgstr "ログアーカイブを有効にするもう一つの方法"
+
+#: Disabled references:1
+msgid "启用数据库的补充日志记录"
+msgstr "データベースの補助的なロギングを有効にする"
+
+#: Disabled references:1
+msgid "你可以将其它数据源的数据实时同步到 Oracle"
+msgstr "他のデータソースのデータをリアルタイムでオラクルに同期させることができます。"
+
+#: Disabled references:1
+msgid "拥有Oracle数据库的写入权限"
+msgstr "Oracleデータベースへの書き込み権限があること"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 Oracle 服务器的访问白名单 "
+msgstr "OracleサーバーのアクセスホワイトリストにシステムIPを追加する"
+
+#: Disabled references:1
+msgid "当前账号具有读写数据库的权限："
+msgstr "現在のアカウントは、データベースへの読み取りと書き込みの権限を持っています:"
+
+#: Disabled references:1
+msgid "你可以把 PostgreSQL 数据库的数据通过系统实时同步到工作表或者其它数据目的地"
+msgstr "PostgreSQLデータベースからワークシートなどのデータ保存先に、システムを通じてリアルタイムにデータを同期させることができます"
+
+#: Disabled references:1
+msgid "支持PostgreSQL的版本"
+msgstr "PostgreSQLのバージョンに対応"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 PostgreSQL 服务器的访问白名单"
+msgstr "PostgreSQLサーバーのアクセスホワイトリストにシステムIPを追加する。"
+
+#: Disabled references:1
+msgid "检查 PostgreSQL 版本"
+msgstr "PostgreSQLのバージョンを確認する"
+
+#: Disabled references:1
+msgid "查看现有用户权限"
+msgstr "既存のユーザー権限を表示する"
+
+#: Disabled references:1
+msgid "向用户授予所需的权限"
+msgstr "ユーザーに必要な権限を付与する"
+
+#: Disabled references:1
+msgid "修改schema的默认权限，将表上的SELECT权限授予数据库用户"
+msgstr "スキーマのデフォルト権限を変更し、データベースユーザーにテーブルのSELECT権限を付与します。"
+
+#: Disabled references:1
+msgid "你可以将其它数据源的数据实时同步到 PostgreSQL"
+msgstr "他のデータソースからPostgreSQLにリアルタイムでデータを同期させることができます。"
+
+#: Disabled references:1
+msgid "当前账号具有读写数据库的权限"
+msgstr "現在のアカウントには、データベースへの読み取りと書き込みの権限があります"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 PostgreSQL 服务器的访问白名单 "
+msgstr "PostgreSQLサーバーのアクセスホワイトリストにシステムIPを追加する。"
+
+#: Disabled references:1
+msgid "你可以把 SQL Server 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
+msgstr "SQL Serverデータベースから、システムを通じてワークシートなどのデータ送信先にリアルタイムでデータを同期させることができます。"
+
+#: Disabled references:1
+msgid "支持 SQL Server 的版本"
+msgstr "対応するSQL Serverのバージョン"
+
+#: Disabled references:1
+msgid "Change Tracking读取模式支持2008、2012、2014版本的单实例非只读数据库。"
+msgstr "変更追跡の読み取りモードは、バージョン2008、2012、2014のシングルインスタンスの非読み取り専用データベースをサポートします。"
+
+#: Disabled references:1
+msgid "在 SQL Server 数据库上启用CDC"
+msgstr "SQL ServerデータベースでCDCを有効にする"
+
+#: Disabled references:1
+msgid "SQL Server代理任务是启动状态"
+msgstr "SQL Server Agentタスクが稼働している"
+
+#: Disabled references:1
+msgid "当前账号是数据库db_owner固定角色的成员"
+msgstr "現在のアカウントは、データベースdb_owner固定ロールのメンバーである"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 SQL Server 服务器的访问白名单"
+msgstr "システムIPをSQL Serverサーバーのアクセスホワイトリストに追加する"
+
+#: Disabled references:1
+msgid "检查 SQL Server 版本"
+msgstr "SQLサーバーのバージョンの確認"
+
+#: Disabled references:1
+msgid "在 SQL Server 的菜单中找到\"帮助-版本\"，点击查看对应版本信息。"
+msgstr "SQL Serverのメニューから「ヘルプ - バージョン」を探し、クリックすると、対応するバージョン情報が表示されます。"
+
+#: Disabled references:1
+msgid "确保 SQL Server 代理任务是启动状态"
+msgstr "SQL Server Agentタスクが開始されていることを確認します。"
+
+#: Disabled references:1
+msgid "在 SQL Server Management Studio 里面左下角查看"
+msgstr "SQL Server Management Studioの左下にあるビュー"
+
+#: Disabled references:1
+msgid "运行以下 SQL 语句以在表上启用 CDC"
+msgstr "以下のSQL文を実行し、テーブルのCDCを有効にします。"
+
+#: Disabled references:1
+msgid "验证用户是否有权访问 CDC 表"
+msgstr "ユーザーが CDC テーブルへのアクセス権を持っていることを確認します。"
+
+#: Disabled references:1
+msgid "查询返回数据库中为CDC启用并包含调用者有权访问的更改数据的数据库中每个表的配置信息。如果结果为空，请验证用户是否有权同时访问捕获实例和CDC表。"
+msgstr "このクエリは、CDC が有効で、呼び出し元がアクセスできる変更データを含む、データベース内の各テーブルの構成情報を返します。結果がNULLの場合、ユーザーがキャプチャインスタンスとCDCテーブルの両方へのアクセス権を持っていることを確認します。"
+
+#: Disabled references:1
+msgid "你可以将其它数据源的数据实时同步到 SQL Server"
+msgstr "他のデータソースのデータをリアルタイムでSQL Serverに同期させることができる"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 SQL Server 服务器的访问白名单 "
+msgstr "SQL ServerサーバーのアクセスホワイトリストにシステムIPを追加する"
+
+#: Disabled references:1
+msgid "授予用户查询,插入,更新,删除表权限"
+msgstr "ユーザーにテーブルのクエリ、挿入、更新、削除権限を付与する。"
+
+#: Disabled references:1
+msgid "作为数据源"
+msgstr "データソースとして"
+
+#: Disabled references:1
+msgid "作为数据目的地"
+msgstr "データ送信先として"
+
+#: Disabled references:1
+msgid "连接 %0 配置指南"
+msgstr "接続 %0 コンフィギュレーション・ガイド"
+
+#: Disabled references:1
+msgid "如果分解后的任务比较复杂、需要分别指派负责人，或需要在每条任务中分别记录跟进情况的，建议使用子任务。其他情况下，建议使用检查清单来做关键结果追踪，支持将重要检查项一键转为任务"
+msgstr "分解したタスクが複雑で、担当者を分ける必要がある場合や、フォローアップをタスクごとに記録する必要がある場合は、サブタスクの利用をお勧めします。また、重要なチェック項目をワンクリックでタスクに変換できるチェックリストの利用もおすすめです。"
+
+#: Disabled references:1
+msgid "指定组织角色"
+msgstr "指定された組織的な役割"
+
+#: Disabled references:1
+msgid "允许全部下载"
+msgstr "すべてのダウンロードを許可する"
+
+#: Disabled references:1
+msgid "未获取到数据时：继续执行"
+msgstr "データが得られない場合：実行を継続する"
+
+#: Disabled references:1
+msgid "无可退回的节点"
+msgstr "ノーリターナブルノード"
+
+#: Disabled references:1
+msgid "仅发起节点"
+msgstr "起動ノードのみ"
+
+#: Disabled references:1
+msgid "仅上一个节点"
+msgstr "前ノードのみ"
+
+#: Disabled references:1
+msgid "上方所有节点"
+msgstr "上記全ノード"
+
+#: Disabled references:1
+msgid "指定节点"
+msgstr "指定されたノード"
+
+#: Disabled references:1
+msgid "退回设置"
+msgstr "設定に戻る"
+
+#: Disabled references:1
+msgid "必须指定节点"
+msgstr "ノードの指定が必要"
+
+#: Disabled references:1
+msgid "通过时通知"
+msgstr "通過時に通知する"
+
+#: Disabled references:1
+msgid "否决时通知"
+msgstr "不合格の場合の通知"
+
+#: Disabled references:1
+msgid "默认消息内容"
+msgstr "デフォルトのメッセージ内容"
+
+#: Disabled references:1
+msgid "消息内容"
+msgstr "メッセージの内容"
+
+#: Disabled references:1
+msgid "{记录名称}：{记录标题}，"
+msgstr "{记录名称}: {记录标题}."
+
+#: Disabled references:1
+msgid "已通过%0"
+msgstr "採択率 %0"
+
+#: Disabled references:1
+msgid "于%0被否决"
+msgstr "で拒否された %0"
+
+#: Disabled references:1
+msgid "节点结果通知发起人"
+msgstr "ノード結果のオリジネーターへの通知"
+
+#: Disabled references:1
+msgid "计算两个日期/时间之间的时长，并精确到年、月、天、时、分、秒"
+msgstr "2つの日付/時刻の間の継続時間を年、月、日、時、分、秒に計算する"
+
+#: Disabled references:1
+msgid "开始 00:00，结束24:00"
+msgstr "00:00開始、24:00終了"
+
+#: Disabled references:1
+msgid "开始 00:00，结束00:00"
+msgstr "開始時間：00:00、終了時間：00:00"
+
+#: Disabled references:1
+msgid "视图不允许为空"
+msgstr "ビューが空であることは許されない"
+
+#: Disabled references:1
+msgid "标题不允许为空"
+msgstr "空の見出しは不可"
+
+#: Disabled references:1
+msgid "在顶部显示并自动消失。用于一句话的简短提示"
+msgstr "一番上に表示され、自動的に消えます。短い1文のヒントの場合"
+
+#: Disabled references:1
+msgid "在底部显示并可设为不自动消失。可包含标题、描述、按钮，适合较多文字或带有操作的通知"
+msgstr "下部に表示され、自動的に消えないように設定することができます。タイトル、説明、ボタンがあり、テキストを増やしたり、アクションを伴う通知に適しています。"
+
+#: Disabled references:1
+msgid "卡片按钮"
+msgstr "カードボタン"
+
+#: Disabled references:1
+msgid "按钮%0"
+msgstr "ボタン %0"
+
+#: Disabled references:1
+msgid "警告"
+msgstr "警告"
+
+#: Disabled references:1
+msgid "提示类型"
+msgstr "チップタイプ"
+
+#: Disabled references:1
+msgid "指定时间后"
+msgstr "指定時間経過後"
+
+#: Disabled references:1
+msgid "永不，需要手动关闭"
+msgstr "決して、手動でオフにする必要があります"
+
+#: Disabled references:1
+msgid "自动消失"
+msgstr "自動消滅"
+
+#: Disabled references:1
+msgid "从JSON示例生成"
+msgstr "JSONの例から生成された"
+
+#: Disabled references:1
+msgid "从json示例生成"
+msgstr "jsonの例から生成された"
+
+#: Disabled references:1
+msgid "生成Body全文参数"
+msgstr "Bodyフルテキストパラメータの生成"
+
+#: Disabled references:1
+msgid "勾选后，将会生成一个记录Body全文的文本格式参数"
+msgstr "チェックすると、Bodyのフルテキストを記録するためのテキストフォーマットパラメータが生成されます。"
+
+#: Disabled references:1
+msgid "请求"
+msgstr "リクエスト"
+
+#: Disabled references:1
+msgid "某些第三方平台需要设置白名单 IP 才能调用API，以下是系统使用的 IP 地址"
+msgstr "一部のサードパーティプラットフォームでは、APIを呼び出すためにホワイトリストされたIPが必要です。以下は、システムが使用するIPアドレスです。"
+
+#: Disabled references:1
+msgid "节点配置有误"
+msgstr "ノード構成の誤り"
+
+#: Disabled references:1
+msgid "获取记录数据"
+msgstr "記録されたデータへのアクセス"
+
+#: Disabled references:1
+msgid "获取单条"
+msgstr "単一エントリーを取得する"
+
+#: Disabled references:1
+msgid "获取多条"
+msgstr "マルチプル取得"
+
+#: Disabled references:1
+msgid "即将下线"
+msgstr "ライン下り"
+
+#: Disabled references:1
+msgid "暂无图片"
+msgstr "画像はございません"
+
+#: Disabled references:1
+msgid "上个记录（⌘ + ⇧ + ,）"
+msgstr "前回の記録（⌘＋⇧＋、）。"
+
+#: Disabled references:1
+msgid "下个记录（⌘ + ⇧ + .）"
+msgstr "次のレコード（⌘＋⇧＋.）"
+
+#: Disabled references:1
+msgid "上传时间"
+msgstr "アップロード時間"
+
+#: Disabled references:1
+msgid "对源数据进行分类和汇总统计运算后，作为新的数据进入本节点。"
+msgstr "元データは統計演算のためにソート・集計された後、新しいデータとしてこのノードに入力される。"
+
+#: Disabled references:1
+msgid "分类字段"
+msgstr "カテゴリー分野"
+
+#: Disabled references:1
+msgid "汇总统计字段"
+msgstr "集計統計フィールド"
+
+#: Disabled references:1
+msgid "不允许空"
+msgstr "空であってはならない"
+
+#: Disabled references:1
+msgid "合并后字段"
+msgstr "マージされたフィールド"
+
+#: Disabled references:1
+msgid "设置筛选条件后，只有满足条件的数据才能进入本节点。允许添加多个筛选过滤节点分支将数据写入不同的数据目的地。"
+msgstr "フィルタ条件を設定した後、条件を満たしたデータのみがこのノードに入ります。複数のフィルタリングノードの分岐を追加して、異なるデータ宛先にデータを書き込むことができる。"
+
+#: Disabled references:1
+msgid "多表连接后左右两个数据表将按设置的条件进行匹配，并将符合条件的记录进行合并。"
+msgstr "マルチテーブル結合の後、設定された条件に従って左と右のデータテーブルが照合され、一致したレコードがマージされます。"
+
+#: Disabled references:1
+msgid "连接条件"
+msgstr "接続条件"
+
+#: Disabled references:1
+msgid "数据库"
+msgstr "データベース"
+
+#: Disabled references:1
+msgid "schema"
+msgstr "スキーマ"
+
+#: Disabled references:1
+msgid "数据表"
+msgstr "データシート"
+
+#: Disabled references:1
+msgid "将两个数据表的行记录合并到一个数据表。"
+msgstr "2つのデータテーブルの行レコードを1つのデータテーブルにマージします。"
+
+#: Disabled references:1
+msgid "合并方式"
+msgstr "合併方式"
+
+#: Disabled references:1
+msgid "仅预览前100行数据"
+msgstr "最初の100行のデータのみをプレビューする"
+
+#: Disabled references:1
+msgid "预览数据"
+msgstr "プレビューデータ"
+
+#: Disabled references:1
+msgid "工作表数据"
+msgstr "ワークシートデータ"
+
+#: Disabled references:1
+msgid "从当前用户作为管理员的应用工作表实时同步"
+msgstr "アプリケーションのワークシートを管理者として現在のユーザーからライブで同期することが可能"
+
+#: Disabled references:1
+msgid "外部数据源"
+msgstr "外部データソース"
+
+#: Disabled references:1
+msgid "从本地数据库，云数据库或消息队列服务器读取数据并实时同步"
+msgstr "ローカルデータベース、クラウドデータベース、メッセージキューサーバーからデータを読み込み、リアルタイムで同期する"
+
+#: Disabled references:1
+msgid "%0个筛选条件"
+msgstr "%0 フィルタ条件"
+
+#: Disabled references:1
+msgid "分类 %0个字段，汇总 %1个字段"
+msgstr "分類 %0 フィールド、サマリー %1 フィールド"
+
+#: Disabled references:1
+msgid "数据源名称不能为空"
+msgstr "データソース名を空にすることはできません"
+
+#: Disabled references:1
+msgid "请先选择目标数据库"
+msgstr "対象データベースを先に選択してください"
+
+#: Disabled references:1
+msgid "未选择Schema"
+msgstr "スキーマが選択されていない"
+
+#: Disabled references:1
+msgid "未选择或填写数据表"
+msgstr "データシートが選択されていない、または記入されていない"
+
+#: Disabled references:1
+msgid "有同步任务未选择任何字段"
+msgstr "フィールドが選択されていないシンクタスクがある"
+
+#: Disabled references:1
+msgid "已勾选的字段信息未填写完整"
+msgstr "チェックしたフィールドの情報が完全でない"
+
+#: Disabled references:1
+msgid "请填写主键同步字段"
+msgstr "主キー同期フィールドに記入してください"
+
+#: Disabled references:1
+msgid "目标表名称已存在, 需要修改目的地表名称"
+msgstr "対象テーブル名が既に存在するため、対象テーブル名を変更する必要があります。"
+
+#: Disabled references:1
+msgid "字段名不能重复"
+msgstr "フィールド名の繰り返しは不可"
+
+#: Disabled references:1
+msgid "新建表名不能重复"
+msgstr "新しいテーブル名の重複は不可"
+
+#: Disabled references:1
+msgid "新建工作表字段数不能超过200"
+msgstr "新しいワークシートのフィールド数は200を超えることはできません。"
+
+#: Disabled references:1
+msgid "目标工作表未设置标题字段"
+msgstr "対象ワークシートにタイトルフィールドがない"
+
+#: Disabled references:1
+msgid "余量不足"
+msgstr "予備能力不足"
+
+#: Disabled references:1
+msgid "创建%0个同步任务"
+msgstr "%0 個の同期タスクを作成します"
+
+#: Disabled references:1
+msgid "创建同步任务中..."
+msgstr "同期タスクの作成..."
+
+#: Disabled references:1
+msgid "太棒了！同步任务创建成功"
+msgstr "素晴らしい！シンクタスクが正常に作成されました"
+
+#: Disabled references:1
+msgid "可在"
+msgstr "で利用可能です。"
+
+#: Disabled references:1
+msgid "中查看任务的运行状态与同步详情"
+msgstr "でタスクの状況やシンクの詳細を確認できます。"
+
+#: Disabled references:1
+msgid "知道了"
+msgstr "了解です。"
+
+#: Disabled references:1
+msgid "选择创建方式"
+msgstr "作成方法の選択"
+
+#: Disabled references:1
+msgid "仅同步数据"
+msgstr "同期データのみ"
+
+#: Disabled references:1
+msgid "批量创建同步任务，(后续可在任务列表中添加数据处理步骤）"
+msgstr "同期タスクの一括作成（データ処理工程は後からタスクリストに追加可能）"
+
+#: Disabled references:1
+msgid "同步时需要对数据进行处理"
+msgstr "同期に必要なデータ処理"
+
+#: Disabled references:1
+msgid "创建单个同步任务，并立即对其添加数据处理步骤"
+msgstr "1つの同期タスクを作成し、データ処理ステップを即座に追加できる"
+
+#: Disabled references:1
+msgid "源表节点"
+msgstr "ソーステーブルノード"
+
+#: Disabled references:1
+msgid "这是一个源表节点"
+msgstr "これは、ソーステーブルノード"
+
+#: Disabled references:1
+msgid "目的地节点"
+msgstr "デスティネーションノード"
+
+#: Disabled references:1
+msgid "这是一个目的地节点"
+msgstr "これは、デスティネーションノード"
+
+#: Disabled references:1
+msgid "不可选与数据源相同的表"
+msgstr "同じデータソースのテーブルを選択することができない"
+
+#: Disabled references:1
+msgid "该表没有主键，无法同步"
+msgstr "テーブルが主キーを持たないため、同期がとれない"
+
+#: Disabled references:1
+msgid "Schema"
+msgstr "スキーマ"
+
+#: Disabled references:1
+msgid "数据表名称"
+msgstr "データシート名"
+
+#: Disabled references:1
+msgid "设置同步字段"
+msgstr "同期フィールドの設定"
+
+#: Disabled references:1
+msgid "请先从左侧选择数据对象"
+msgstr "最初に左からデータオブジェクトを選択してください"
+
+#: Disabled references:1
+msgid "数据源创建成功"
+msgstr "データソースの作成に成功"
+
+#: Disabled references:1
+msgid "编辑数据源"
+msgstr "データソースを編集する"
+
+#: Disabled references:1
+msgid "创建数据源"
+msgstr "データソースの作成"
+
+#: Disabled references:1
+msgid "修改后，相关的同步任务可能会终止"
+msgstr "変更後、関連する同期タスクは終了することができる"
+
+#: Disabled references:1
+msgid "查看使用详情"
+msgstr "使用方法の詳細を見る"
+
+#: Disabled references:1
+msgid "数据源修改成功"
+msgstr "データソースの変更に成功"
+
+#: Disabled references:1
+msgid "当前账户余额不足100元，该功能可能无法正常运行"
+msgstr "現在の口座残高が100ドル未満の場合、機能が正しく動作しない可能性があります"
+
+#: Disabled references:1
+msgid "开启后，当月剩余额度不足时，自动购买 100元/10万行 的单月包，从账户余额中扣款。"
+msgstr "オンにすると、月間のクレジット残量が不足した際に、100元/10万回線のパックが自動的に購入され、アカウント残高から差し引かれます。"
+
+#: Disabled references:1
+msgid "本月算力 "
+msgstr "今月のパワーをカウントする"
+
+#: Disabled references:1
+msgid " 万行 / "
+msgstr " ワン・シン/Wan Hsing"
+
+#: Disabled references:1
+msgid " 万行"
+msgstr " 万興"
+
+#: Disabled references:1
+msgid "  剩余 "
+msgstr "  残量"
+
+#: Disabled references:1
+msgid "作为源"
+msgstr "ソースとして"
+
+#: Disabled references:1
+msgid "作为目的地"
+msgstr "目的地として"
+
+#: Disabled references:1
+msgid "任务状态"
+msgstr "ミッションの状況"
+
+#: Disabled references:1
+msgid "无同步任务使用此数据源"
+msgstr "このデータソースを使用する同期タスクはありません"
+
+#: Disabled references:1
+msgid "删除数据源"
+msgstr "データソースを削除する"
+
+#: Disabled references:1
+msgid "删除后，相关的同步任务会立即终止"
+msgstr "削除後、関連する同期タスクは直ちに終了する"
+
+#: Disabled references:1
+msgid "查看同步任务"
+msgstr "シンクタスクの表示"
+
+#: Disabled references:1
+msgid "数据源删除成功"
+msgstr "データソースの削除に成功"
+
+#: Disabled references:1
+msgid "源类型"
+msgstr "ソースの種類"
+
+#: Disabled references:1
+msgid "源 / 目的地"
+msgstr "ソース/デスティネーション"
+
+#: Disabled references:1
+msgid "-"
+msgstr "-"
+
+#: Disabled references:1
+msgid "搜索数据源名称 / 地址 / 创建人"
+msgstr "検索データソース名／アドレス／作成者"
+
+#: Disabled references:1
+msgid "今日读取记录行数"
+msgstr "今日読み込んだレコードの行数"
+
+#: Disabled references:1
+msgid "今日写入记录行数"
+msgstr "本日書き込まれたレコードの行数"
+
+#: Disabled references:1
+msgid "名称修改成功"
+msgstr "社名変更に成功"
+
+#: Disabled references:1
+msgid "名称修改失败"
+msgstr "名前変更に失敗"
+
+#: Disabled references:1
+msgid "删除同步任务"
+msgstr "シンクタスクの削除"
+
+#: Disabled references:1
+msgid "删除后，目的地为工作表的会转换成普通工作表，已同步的数据会保留"
+msgstr "削除後、削除先がワークシートの場合、通常のワークシートに変換され、同期されたデータは保持されます"
+
+#: Disabled references:1
+msgid "不能删除运行中的任务"
+msgstr "実行中のタスクが削除できない"
+
+#: Disabled references:1
+msgid "同步任务删除成功"
+msgstr "シンクタスクの削除に成功"
+
+#: Disabled references:1
+msgid "同步任务删除失败"
+msgstr "シンクタスクの削除に失敗しました"
+
+#: Disabled references:1
+msgid "修改任务名称"
+msgstr "タスク名の変更"
+
+#: Disabled references:1
+msgid "查看监控"
+msgstr "モニタリングの表示"
+
+#: Disabled references:1
+msgid "启动同步任务成功"
+msgstr "同期開始タスク成功"
+
+#: Disabled references:1
+msgid "停止同步任务成功"
+msgstr "同期タスクの停止に成功"
+
+#: Disabled references:1
+msgid "停止同步任务失败"
+msgstr "同期タスクの停止に失敗しました"
+
+#: Disabled references:1
+msgid "同步状态"
+msgstr "シンクロの状態"
+
+#: Disabled references:1
+msgid "已读取(行)"
+msgstr "読み出し（列）"
+
+#: Disabled references:1
+msgid "已写入(行)"
+msgstr "書き込み(列)"
+
+#: Disabled references:1
+msgid "工作表数据量大时会按队列分批写入，实际完成写入量略有延迟。"
+msgstr "ワークシートの書き込みは、データ量が多く、実際に書き込みが完了するまでに若干の遅れがある場合に、キュー単位で一括して行われます。"
+
+#: Disabled references:1
+msgid "任务名称 / 创建人"
+msgstr "タスク名 / 作成者"
+
+#: Disabled references:1
+msgid "无搜索结果，换一个关键词试试吧"
+msgstr "検索結果が表示されない場合は、別のキーワードをお試しください"
+

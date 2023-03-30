@@ -118,6 +118,7 @@ export default function MdModal(props) {
       window.closeindex = (window.closeindex || 0) + 1;
       window.closeFns[id] = {
         id,
+        className: props.className,
         index: window.closeindex,
         fn: modalProps.onCancel,
       };

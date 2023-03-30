@@ -212,7 +212,7 @@ export default class AdminWorkflowList extends Component {
             },
             () => {
               if (this.state.autoPurchaseWorkflowExtPack && this.state.balance < 100) {
-                alert('当前账户余额不足100元，该功能可能无法正常运行');
+                alert('当前账户余额不足100元，该功能可能无法正常运行', 3);
               }
             },
           );
@@ -426,6 +426,12 @@ export default class AdminWorkflowList extends Component {
       activeTab,
     } = this.state;
     const { limitExecCount, useExecCount, quantity } = useCount;
+
+    const overage =
+      useExecCount / limitExecCount < 0.01 && useExecCount / limitExecCount > 0
+        ? 99.99
+        : ((limitExecCount - useExecCount) / limitExecCount) * 100;
+
     const enabledList = [
       { label: _l('全部状态'), value: 0 },
       { label: _l('开启'), value: 1 },
@@ -494,7 +500,7 @@ export default class AdminWorkflowList extends Component {
                     className="bold"
                     style={{ color: (limitExecCount - useExecCount) / limitExecCount > 0.1 ? '#333' : '#f44336' }}
                   >
-                    {(((limitExecCount - useExecCount) / limitExecCount) * 100 || 0).toFixed(2)}%
+                    {(overage || 0).toFixed(2)}%
                   </span>
 
                   {/* {licenseType === 1 ? (

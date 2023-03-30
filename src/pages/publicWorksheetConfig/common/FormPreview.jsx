@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
+import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import PublicFormDisplay from '../../widgetConfig/widgetDisplay/publicFormDisplay';
 
 export default class FormPreview extends React.Component {
@@ -30,11 +31,12 @@ export default class FormPreview extends React.Component {
   }
 
   render() {
-    const { controls, onChange } = this.props;
+    const { advancedSetting, controls, onChange } = this.props;
     return (
       <div className="customWidgetForWorksheetWrap publicWorksheetForm">
         <PublicFormDisplay
-          controls={controls}
+          styleInfo={{ info: advancedSetting }}
+          controls={controls.filter(c => !_.includes(SYS_CONTROLS_WORKFLOW.concat(['rowid']), c.controlId))}
           fromType="public"
           onChange={(newControls, hidedControlId) => {
             if (hidedControlId) {

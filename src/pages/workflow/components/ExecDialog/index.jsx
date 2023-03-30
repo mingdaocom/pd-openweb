@@ -7,7 +7,7 @@ import instanceVersion from '../../api/instanceVersion';
 import { STATUS_ERROR_MESSAGE } from './config';
 import './index.less';
 import Header from './Header';
-import StepItem from './StepItem';
+import Steps from './Steps';
 import worksheetAjax from 'src/api/worksheet';
 import _ from 'lodash';
 import StepHeader from './StepHeader';
@@ -62,7 +62,7 @@ export default class ExecDialog extends Component {
 
       onRead();
 
-      if (status) {
+      if (_.includes([20001, 30001, 30002, 30003, 30004, 30006, 40007], status)) {
         if (status === 30006) {
           alert(STATUS_ERROR_MESSAGE[status], 2);
           onClose();
@@ -71,7 +71,7 @@ export default class ExecDialog extends Component {
         this.setState({ errorMsg: STATUS_ERROR_MESSAGE[status] });
       } else {
         this.setState({
-          data: rest,
+          data: Object.assign({}, rest, { status }),
           currentWork,
           currentWorkItem,
           works,
@@ -168,18 +168,14 @@ export default class ExecDialog extends Component {
             />
             <ScrollView className="flex">
               <ul className="pAll20 pTop0">
-                {works.map((item, index) => {
-                  return (
-                    <StepItem
-                      key={index}
-                      data={item}
-                      currentWork={currentWork}
-                      currentType={(currentWorkItem || {}).type}
-                      worksheetId={worksheetId}
-                      rowId={rowId}
-                    />
-                  );
-                })}
+                <Steps
+                  currentWork={currentWork}
+                  rowId={rowId}
+                  currentType={(currentWorkItem || {}).type}
+                  worksheetId={worksheetId}
+                  works={works}
+                  status={data.status}
+                />
               </ul>
             </ScrollView>
           </div>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { ScrollView } from 'ming-ui';
@@ -12,11 +12,32 @@ import { MAX_CONTROLS_COUNT } from '../config';
 
 const DisplayRowListWrap = styled.div`
   flex: 1;
-  .rowsWrap {
-    padding: 12px 20px 80px 20px;
+  display: flex;
+  flex-direction: column;
+  .rowsWidgetContent {
+    flex: 1;
     min-height: 100%;
+    padding: 15px 20px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    background: #f5f5f9;
+  }
+  .rowsWrap {
+    flex: 1;
+    border-radius: 8px;
+    box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 16px 1px;
+    padding: 8px;
+    box-sizing: border-box;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+  }
+  .displayHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
   }
   .displayRow {
     position: relative;
@@ -106,7 +127,7 @@ function RowItem({ row, index, ...rest }) {
           <DisplayItem key={data.controlId} data={data} path={[index, columnIndex]} {...rest} />
         ))}
       </DisplayRowWrap>
-      {isOver && pointerDir && <div className={cx('insertPointer', pointerDir)}></div>}
+      {isOver && pointerDir && <div className={cx('insertPointer', pointerDir)} />}
     </div>
   );
 }
@@ -127,22 +148,24 @@ export default function DisplayRow(props) {
       {fromType === 'public' ? (
         rowsContent
       ) : (
-        <ScrollView id="widgetDisplayWrap">
-          <header>
-            <p>
-              <span>{_l('表单设计')}</span>
-              <span className="controlNum Font12 Gray_9e" data-tip={_l('最多添加%0个字段', MAX_CONTROLS_COUNT)}>
-                {_l('%0/%1', allControls.length, MAX_CONTROLS_COUNT)}
-              </span>
-            </p>
-            {!isEmpty(widgets) && (
-              <div className='flexRow'>
-                <Components.QuickArrange {...props} />
-                <Components.FieldRecycleBin {...props} />
+        <ScrollView id="widgetDisplayWrap" className="flex flexColumn">
+          <div className="rowsWidgetContent">
+            <div className="displayHeader">
+              <div className="pLeft12">
+                <span className="Font17 Bold">{_l('表单设计')}</span>
+                <span className="controlNum Font12 Gray_9e" data-tip={_l('最多添加%0个字段', MAX_CONTROLS_COUNT)}>
+                  {_l('%0/%1', allControls.length, MAX_CONTROLS_COUNT)}
+                </span>
               </div>
-            )}
-          </header>
-          {rowsContent}
+              {!isEmpty(widgets) && (
+                <div className="flexRow">
+                  <Components.WidgetStyle {...props} />
+                  <Components.FieldRecycleBin {...props} />
+                </div>
+              )}
+            </div>
+            {rowsContent}
+          </div>
         </ScrollView>
       )}
     </DisplayRowListWrap>

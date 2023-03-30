@@ -224,8 +224,12 @@ export default class Text extends React.Component {
               {value.map((department, index) => (
                 <Tooltip
                   mouseEnterDelay={0.6}
+                  disable={!projectId}
                   text={() =>
-                    new Promise(resolve =>
+                    new Promise((resolve, reject) => {
+                      if (!projectId) {
+                        return reject();
+                      }
                       departmentAjax
                         .getDepartmentFullNameByIds({
                           projectId,
@@ -233,8 +237,8 @@ export default class Text extends React.Component {
                         })
                         .then(res => {
                           resolve(_.get(res, '0.name'));
-                        }),
-                    )
+                        });
+                    })
                   }
                 >
                   <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>

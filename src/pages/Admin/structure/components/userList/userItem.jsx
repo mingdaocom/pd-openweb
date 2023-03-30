@@ -362,7 +362,7 @@ class UserItem extends Component {
           alert(_l('设置成功', 1));
           refreshData(departmentId, typeCursor, projectId, 1, dispatch);
         } else {
-          alert(_l('设置失败', 2));
+          alert(_l('设置失败'), 2);
         }
       });
   };

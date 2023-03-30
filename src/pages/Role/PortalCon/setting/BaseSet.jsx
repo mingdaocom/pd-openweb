@@ -261,10 +261,10 @@ export default function BaseSet(props) {
                 checked={registerMode[o.key]}
                 onClick={checked => {
                   if (registerMode[o.key]) {
-                    alert(_l('取消手机号/邮箱注册后，外部用户将不能使用原账号登录，请您谨慎配置', 3));
+                    alert(_l('取消手机号/邮箱注册后，外部用户将不能使用原账号登录，请您谨慎配置'), 3);
                   }
                   changeMode(!registerMode[o.key], o.key, 'registerMode', REJISTER_WAY, () => {
-                    alert(_l('至少选择一种注册方式'));
+                    alert(_l('至少选择一种注册方式'), 3);
                   });
                 }}
               />
@@ -284,7 +284,7 @@ export default function BaseSet(props) {
                 checked={loginMode[o.key]}
                 onClick={checked => {
                   changeMode(!loginMode[o.key], o.key, 'loginMode', LOGIN_WAY, () => {
-                    alert(_l('至少选择一种登录方式'));
+                    alert(_l('至少选择一种登录方式'), 3);
                   });
                 }}
               />

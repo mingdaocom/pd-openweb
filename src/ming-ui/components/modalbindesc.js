@@ -7,7 +7,7 @@ if (!window.escbind) {
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       // 弹窗内存在正在编辑单元格时不触发esc关闭弹窗
-      if (e.target.classList.contains('stopPropagation') || window.hasEditingCell) {
+      if (e.target.classList.contains('stopPropagation')) {
         return;
       }
       const activeElement = document.activeElement;
@@ -23,6 +23,13 @@ if (!window.escbind) {
           Object.keys(window.closeFns).map(k => window.closeFns[k]),
           'index',
         );
+        if (
+          fnitem &&
+          /(workSheetNewRecord|workSheetRecordInfo|fillRecordControls)/.test(fnitem.className) &&
+          window.hasEditingCell
+        ) {
+          return;
+        }
         if (fnitem && typeof fnitem.fn === 'function') {
           fnitem.fn(e);
           if (Object.keys(window.closeFns).length === 0) {

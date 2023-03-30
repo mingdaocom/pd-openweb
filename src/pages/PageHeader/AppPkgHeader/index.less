@@ -53,6 +53,135 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
   z-index: 15;
 
+  &.light {
+    .emptyGroupIcon {
+      color: rgba(0, 0, 0, 0.4) !important;
+    }
+    .appConfigIcon>.icon, .appIntroWrap>.icon, .appNameHeaderBoxPortal .icon {
+      color: rgba(0, 0, 0, 0.4) !important;
+      &:hover {
+        color: rgba(0, 0, 0, 0.5) !important;
+      }
+    }
+    .appItemsWrap .topTri {
+      border-top-color: rgba(0, 0, 0, 0.4) !important;
+      &:hover {
+        border-top-color: rgba(0, 0, 0, 0.5) !important;
+      } 
+    }
+    .appItemsWrap {
+      li:hover {
+        background: rgba(0, 0, 0, 0.03);
+      }
+    }
+    .homepageIconWrap {
+      background: rgba(0, 0, 0, 0.03) !important;
+      .homepageIcon .item {
+        background: rgba(0, 0, 0, 0.3);
+      }
+    }
+    .appIconAndName {
+      color: rgba(0, 0, 0, 0.8) !important;
+    }
+    .sortableItem {
+      color: rgba(0, 0, 0, 0.7);
+    }
+    .leftPointer {
+      border-right-color: rgba(0, 0, 0, 0.7);
+      &:not(.disable):hover {
+        border-right-color: rgba(0, 0, 0, 1) !important;
+      }
+      &.disable {
+        border-right-color: rgba(0, 0, 0, 0.4);
+      }
+    }
+    .rightPointer {
+      border-left-color: rgba(0, 0, 0, 0.7);
+      &:not(.disable):hover {
+        border-left-color: rgba(0, 0, 0, 1) !important;
+      }
+      &.disable {
+        border-left-color: rgba(0, 0, 0, 0.4);
+      }
+    }
+    .backlogWrap, .appExtensionWrap .appExtensionItem, .commonUserHandleWrap .icon {
+      color: rgba(0, 0, 0, 0.5) !important;
+      &:hover {
+        color: rgba(0, 0, 0, 0.6) !important;
+      }
+    }
+    .backlogWrap,
+    .leftCommonUserHandleWrap .headerColorSwitch,
+    .appExtensionWrap .appExtensionItem,
+    .appPkgHeaderSearch,
+    .workflowHelpIconWrap {
+      &:hover {
+        background: rgba(0, 0, 0, 0.03) !important;
+      }
+    }
+    .LeftAppGroupWrap {
+      .appGroupWrap::after {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+      .moreIcon, .arrowIcon {
+        color: rgba(0, 0, 0, 0.3) !important;
+      }
+      .appGroup {
+        color: rgba(0, 0, 0, 0.5);
+      }
+    }
+  }
+  &.black {
+    .homepageIconWrap {
+      background: rgba(255, 255, 255, 0.1) !important;
+      .homepageIcon .item {
+        background: rgba(255, 255, 255, 0.85);
+      }
+    }
+    .appItemsWrap {
+      li:hover {
+        background: rgba(255, 255, 255, 0.1);
+        .sortableItem {
+          color: #FFF;
+        }
+      }
+      li.active {
+        background: rgba(255, 255, 255, 0.15);
+        .sortableItem {
+          color: #FFF;
+        }
+      }
+      li .sortableItem {
+        color: rgba(255, 255, 255, 0.85);
+      }
+    }
+    .backlogWrap {
+      color: rgba(255, 255, 255, 0.85) !important;
+    }
+    .appGroup .nameWrap {
+      color: rgba(255, 255, 255, 0.65) !important;
+    }
+    .rightArea:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .workSheetLeft .workSheetItem:hover {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    .emptyAppItemWrap .emptyAppItem:hover,
+    .emptyAppItemWrap .emptyAppItem.active {
+      background-color: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+  .LeftAppGroupWrap {
+    .moreIcon, .arrowIcon {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+  }
+
+  .appNameHeaderBoxPortal .headerCenter {
+    display: none;
+  }
+
   .helpIcon {
     color: #fff;
   }
@@ -86,11 +215,9 @@
   }
 
   .appInfoWrap {
-    .flexCenterHeight;
     box-sizing: border-box;
     min-width: 240px;
     max-width: 420px;
-    padding-right: 12px;
     flex-shrink: 0;
 
     .Item-content {
@@ -100,9 +227,35 @@
     }
 
     .homepageIconWrap {
-      .flexCenterHeight;
-      padding: 0 10px 0 16px;
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      margin: 0 5px 0 10px;
       cursor: pointer;
+      width: max-content;
+    }
+
+    .backlogWrap {
+      padding: 5px 5px;
+      border-radius: 20px;
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .count {
+      color: #fff;
+      border-radius: 20px;
+      min-width: 20px;
+      height: 20px;
+      background-color: #F76D6D;
+      width: auto;
+      padding: 0 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .delApp {
@@ -130,7 +283,7 @@
       position: relative;
       padding-left: 3px;
       color: rgba(255, 255, 255, 0.6);
-      line-height: 50px;
+      margin: 0 8px 0 0;
 
       &:hover {
         color: #fff;
@@ -140,10 +293,11 @@
     .modifyAppInfo {
       top: 45px;
       left: 45px;
+      z-index: 100;
     }
 
     .appIntroWrap {
-      margin-left: 10px;
+      margin: 2px 10px 0 0;
     }
 
     .appIntroIcon {
@@ -256,13 +410,29 @@
   .appExtensionWrap {
     .flexCenterHeight;
     flex-shrink: 0;
-    margin-right: 18px;
     font-weight: bold;
 
     .appExtensionItem {
       .headerColorSwitch;
-      padding: 12px;
+      padding: 5px 10px;
+      margin-right: 5px;
       cursor: pointer;
+      border-radius: 20px;
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+    .count {
+      color: #fff;
+      border-radius: 20px;
+      font-size: 12px;
+      padding: 0 4px;
+      height: 20px;
+      min-width: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #F76D6D;
     }
   }
 
@@ -301,7 +471,7 @@
       }
 
       & > .icon {
-        font-size: 20px;
+        font-size: 23px;
         .headerColorSwitch;
       }
     }
@@ -425,8 +595,6 @@
       .icon {
         color: #fff !important;
       }
-
-      background-color: @delColor !important;
     }
   }
 }
@@ -450,6 +618,17 @@
 
   &.active {
     background-color: rgba(0, 0, 0, 0.15);
+    .sortableItem::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 2px;
+      height: 3px;
+      width: 20px;
+      border-radius: 3px;
+      transform: translateX(-50%);
+      background: currentColor;
+    }
   }
 
   &.isCanConfigAppGroup {
@@ -461,6 +640,7 @@
   .sortableItem {
     .flexCenterHeight;
     padding: 0 20px;
+    position: relative;
     color: #fff;
     a {
       color: #fff;

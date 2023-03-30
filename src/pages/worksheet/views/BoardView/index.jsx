@@ -19,6 +19,7 @@ import { ITEM_TYPE } from './config';
 import { dealBoardViewData } from './util';
 import cx from 'classnames';
 import './index.less';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 
 export const RecordBoardWrap = styled.div`
   height: 100%;
@@ -192,7 +193,7 @@ function BoardView(props) {
             currentValue: value,
           });
         } else {
-          alert(_l('拖拽更新失败!'));
+          alert(_l('拖拽更新失败!'), 2);
         }
       });
       return;
@@ -205,14 +206,18 @@ function BoardView(props) {
 
   const renderContent = () => {
     const { boardViewLoading, boardData } = boardView;
+    const { sheetSwitchPermit } = props;
     const { viewControl } = view;
     const viewData = dealBoardViewData({ view, controls, data: boardData });
     const { navshow, freezenav } = getAdvanceSetting(view);
     // 选择了控件作为看板且控件没有被删除
-    const isHaveSelectControl = viewControl && _.find(controls, item => item.controlId === viewControl);
+    const isHaveSelectControl =
+      viewControl &&
+      _.find(setSysWorkflowTimeControlFormat(controls, sheetSwitchPermit), item => item.controlId === viewControl);
     if (!isHaveSelectControl) {
       return (
         <SelectField
+          sheetSwitchPermit={sheetSwitchPermit}
           isCharge={isCharge}
           fields={filterAndFormatterControls({
             controls: controls,

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Icon, Dialog, Dropdown, Radio } from 'ming-ui';
-import 'src/components/uploadAttachment/uploadAttachment';
 import cx from 'classnames';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { WIDGETS_TO_API_TYPE_ENUM_N } from 'src/pages/Role/PortalCon/setting/InfoSet';

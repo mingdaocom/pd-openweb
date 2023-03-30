@@ -10,6 +10,7 @@ import PopupLinks from './components/PopupLinks';
 import privateSource from 'src/api/privateSource';
 import SvgIcon from 'src/components/SvgIcon';
 import _ from 'lodash';
+import { navigateTo } from 'src/router/navigateTo';
 
 const NATIVE_APP_ITEM = [
   { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#2196f3', href: '/feed', key: 1 },
@@ -175,7 +176,6 @@ const moduleEntries = [
     icon: 'hub',
     name: _l('集成'),
     fullName: _l('集成中心'),
-    href: '/integration',
   },
 ];
 
@@ -262,7 +262,8 @@ export default function SideNav(props) {
             .filter(
               o =>
                 !(o.type === 'cooperation' && !NATIVE_APP_ITEM.length) &&
-                !(o.type === 'lib' && md.global.SysSettings.hideTemplateLibrary),
+                !(o.type === 'lib' && md.global.SysSettings.hideTemplateLibrary) &&
+                !(o.type === 'integration' && md.global.SysSettings.hideIntegration),
             )
             .map((entry, i) => {
               const content = (
@@ -279,6 +280,13 @@ export default function SideNav(props) {
                       ? e => {
                           if (entry.type === 'myProcess') {
                             setMyProcessVisible(true);
+                          } else if (entry.type === 'integration') {
+                            const type = localStorage.getItem('integrationUrl');
+                            if (type) {
+                              navigateTo('/integration/' + type);
+                            } else {
+                              navigateTo('/integration');
+                            }
                           }
                         }
                       : _.noop

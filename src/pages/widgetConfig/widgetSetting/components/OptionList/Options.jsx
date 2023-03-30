@@ -305,7 +305,7 @@ export default function SelectOptions(props) {
   const updateOption = (index, obj) => {
     const nextOptions = update(options, { [index]: { $apply: item => ({ ...item, ...obj }) } });
     if (every(nextOptions, item => item.isDeleted)) {
-      alert(_l('最少保留一个选项'));
+      alert(_l('最少保留一个选项'), 3);
       return;
     }
     onChange({ options: nextOptions });

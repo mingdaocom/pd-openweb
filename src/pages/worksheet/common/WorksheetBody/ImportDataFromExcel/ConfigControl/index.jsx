@@ -109,6 +109,17 @@ export default class ConfigControl extends Component {
           value: 'userId',
         },
       ],
+      // 部门匹配字段
+      departmentControls: [
+        {
+          text: _l('名称'),
+          value: 'name',
+        },
+        {
+          text: _l('部门系统ID'),
+          value: 'depId',
+        },
+      ],
     };
   }
 
@@ -216,7 +227,7 @@ export default class ConfigControl extends Component {
   async disposeInitSource(data) {
     const { isCharge, appId, worksheetId, selectRow } = this.props;
 
-    const { relateSource, userControls } = this.state;
+    const { relateSource, userControls, departmentControls } = this.state;
     const controlMapping = [];
     const relateArr = [];
 
@@ -250,18 +261,20 @@ export default class ConfigControl extends Component {
       const exact = [],
         like = [],
         relations = [];
-      let accountMatchId = type === 26 ? 'name' : '';
+      let matchId = _.includes([26, 27], type) ? 'name' : '';
       for (const cell of selectRow.cells) {
         const { value } = cell;
 
-        // 成员字段默认匹配
-        const isExternal = type == 26 && advancedSetting && advancedSetting.usertype == '2';
-        if (value.indexOf(`${controlName}-`) == 0 && type == 26 && !isExternal && !relations.length) {
+        // 成员、部门字段默认匹配
+        const isExternal = type === 26 && advancedSetting && advancedSetting.usertype == '2';
+        if (value.indexOf(`${controlName}-`) == 0 && _.includes([26, 27], type) && !isExternal && !relations.length) {
           const suffix = value.split(`${controlName}-`)[1];
-          const userControl = userControls.find(item => item.text.toLowerCase() == suffix.toLowerCase());
+          const matchList = userControls
+            .concat(departmentControls)
+            .find(item => item.text.toLowerCase() == suffix.toLowerCase());
 
-          // 成员匹配映射字段，默认为姓名
-          if (userControl) accountMatchId = userControl.value;
+          // 成员、部门匹配映射字段，默认为姓名 or 名称
+          if (matchList) matchId = matchList.value;
           relations.push(cell);
         }
 
@@ -276,8 +289,8 @@ export default class ConfigControl extends Component {
       }
       const sameColumn = relations.length ? relations : exact.length ? exact : like;
 
-      // 成员默认匹配字段
-      controlItem.accountMatchId = accountMatchId;
+      // 成员、部门默认匹配字段
+      controlItem.matchId = matchId;
 
       // 设置表格默认值
       controlItem.columnNum = sameColumn.length > 0 ? sameColumn[0].columnNumber + 1 : '';
@@ -298,8 +311,8 @@ export default class ConfigControl extends Component {
           controlId: '',
         },
 
-        // 成员字段默认匹配字段设为"姓名"
-        accountMatchId,
+        // 成员、部门字段默认匹配字段设为 姓名 or 名称
+        matchId,
 
         // 字段类型
         type,
@@ -314,7 +327,7 @@ export default class ConfigControl extends Component {
     let fieldsList = data.template.controls
       .filter(
         item =>
-          _.includes([2, 3, 4, 5, 6, 7, 33], item.type) ||
+          _.includes([2, 3, 4, 5, 7, 33], item.type) ||
           (item.type === 26 && item.enumDefault === 0 && (item.advancedSetting || {}).usertype !== '2'),
       )
       .map(item => {
@@ -368,12 +381,12 @@ export default class ConfigControl extends Component {
           const control = data.template.controls.find(control => control.controlId == item.ControlId);
           if (control && control.type == 29) control.sourceConfig = editItem.sourceConfig.controlId;
 
-          // 成员字段默认匹配映射字段
+          // 成员、部门字段默认匹配映射字段
           const { type, advancedSetting } = item;
-          const isExternal = advancedSetting && advancedSetting.usertype == '2';
-          if (type == 26 && !isExternal && editItem.sourceConfig.controlId) {
-            item.accountMatchId = editItem.sourceConfig.controlId;
-            if (control && control.type == 26) control.accountMatchId = item.accountMatchId;
+          const isExternal = type === 26 && advancedSetting && advancedSetting.usertype == '2';
+          if (_.includes([26, 27], type) && !isExternal && editItem.sourceConfig.controlId) {
+            item.matchId = editItem.sourceConfig.controlId;
+            if (control && _.includes([26, 27], control.type)) control.matchId = item.matchId;
           }
         }
       });
@@ -472,7 +485,7 @@ export default class ConfigControl extends Component {
       // 判断是否有匹配字段未选择 或 已删除
       for (const relateMapping of controlMappingFilter) {
         // 判断需要匹配的字段
-        const { type, sourceConfig, accountMatchId, ControlId } = relateMapping;
+        const { type, sourceConfig, matchId, ControlId } = relateMapping;
         const { controlName } = worksheetControls.find(item => item.controlId == ControlId) || {};
         // 获取关联表中的字段
         const relationControls = (relateSource[sourceConfig.worksheetId] || {}).controls || [];
@@ -487,7 +500,7 @@ export default class ConfigControl extends Component {
               sourceConfig.controlId !== recordObj.value))
         )
           throw !isCharge && edited ? _l('导入配置存在错误，匹配字段被删除，请联系管理员处理') : message;
-        if (type == 26 && !accountMatchId) throw message;
+        if (type == 26 && !matchId) throw message;
       }
 
       // 处理重复记录
@@ -511,7 +524,7 @@ export default class ConfigControl extends Component {
         if (
           repeatConfig.controlId !== recordObj.value &&
           currentRepeatItem.type === 26 &&
-          currentRepeatItem.accountMatchId !== 'userId'
+          currentRepeatItem.matchId !== 'userId'
         ) {
           throw _l('依据字段“%0“的匹配字段仅限人员ID', repeatConfig.controlName);
         }
@@ -567,11 +580,19 @@ export default class ConfigControl extends Component {
 
   onImport = controlMapping => {
     const { filePath, fileId, fileKey, worksheetId, appId, selectRow, importSheetInfo, onSave, onCancel } = this.props;
-    const { workSheetProjectId, repeatRecord, tigger, repeatConfig, userControls, errorSkip } = this.state;
+    const {
+      workSheetProjectId,
+      repeatRecord,
+      tigger,
+      repeatConfig,
+      userControls,
+      departmentControls,
+      errorSkip,
+    } = this.state;
 
     let cellConfigs = controlMapping.map(item => {
-      if (_.find(userControls, i => i.value === item.accountMatchId)) {
-        item.accountMatchId = item.accountMatchId === 'name' ? '' : item.accountMatchId;
+      if (_.find(userControls.concat(departmentControls), i => i.value === item.matchId)) {
+        item.matchId = item.matchId === 'name' ? '' : item.matchId;
         item.sourceConfig.controlId = '';
       }
       return { ...item, ColumnNum: item.ColumnNum - 1 };
@@ -635,7 +656,7 @@ export default class ConfigControl extends Component {
           </div>
           <Checkbox
             className="mTop20 Gray"
-            text={_l('不允许非管理员修改默认配置')}
+            text={_l('不允许非系统角色修改默认配置')}
             defaultChecked={this.state.edited}
             onClick={checked => this.setState({ edited: checked })}
           />
@@ -655,22 +676,21 @@ export default class ConfigControl extends Component {
         const configsFilter = [];
         for (const controlItem of worksheetControls || []) {
           //新增选项、关联记录匹配字段
-          if (_.includes([9, 10, 11, 26, 29], controlItem.type)) {
+          if (_.includes([9, 10, 11, 26, 27, 29], controlItem.type)) {
             const currentItem = _.find(controlMapping, item => item.ControlId === controlItem.controlId);
             if (!currentItem) continue;
-            const { ControlId, isAddOption = false, sourceConfig, accountMatchId = '' } = currentItem;
+            const { ControlId, isAddOption = false, sourceConfig, matchId = '' } = currentItem;
             configsFilter.push({
               controlId: ControlId,
               isAddOption,
 
-              // 是否为成员字段
-              sourceConfig:
-                controlItem.type == 26
-                  ? {
-                      controlId: accountMatchId,
-                      workSheetId: '',
-                    }
-                  : sourceConfig,
+              // 是否为成员、部门字段
+              sourceConfig: _.includes([26, 27], controlItem.type)
+                ? {
+                    controlId: matchId,
+                    workSheetId: '',
+                  }
+                : sourceConfig,
             });
           }
         }
@@ -791,7 +811,7 @@ export default class ConfigControl extends Component {
                   text={
                     <span>
                       {_l(
-                        '选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、文本拼接、自动编号、记录ID、成员单选',
+                        '选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、自动编号、记录ID、成员单选',
                       )}
                     </span>
                   }
@@ -918,48 +938,51 @@ export default class ConfigControl extends Component {
   }
 
   /**
-   * 渲染关联表 / 成员字段
+   * 渲染成员、部门、关联表字段
    */
   renderRelateWorksheet(controlItem, isHiddenConfig) {
-    const { controlMapping, relateSource, userControls } = this.state;
+    const { controlMapping, relateSource, userControls, departmentControls } = this.state;
     const selectItem = controlMapping.find(item => item.ControlId === controlItem.controlId);
     const worksheetId = selectItem.sourceConfig.worksheetId;
 
-    // 成员字段
-    if (controlItem.type == 26) {
-      const controls = userControls;
+    // 成员、部门字段
+    if (_.includes([26, 27], controlItem.type)) {
+      const controls = controlItem.type === 26 ? userControls : departmentControls;
       return (
         <div className="flexRow relateBox">
-          {/* <div className="Gray_9e">{_l('关联表：')}</div> */}
           <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
           <div className="mLeft10 mRight10 flex ellipsis">{controlItem.controlName}</div>
 
-          {controlItem.controlId !== 'ownerid' && (
-            <Fragment>
-              {/** 提示文字 */}
-              <Tooltip text={<span>{_l('支持的字段类型包括：姓名、手机号、邮箱、工号、人员ID')}</span>}>
-                <i className="icon-workflow_help Gray_9e Font16" />
-              </Tooltip>
-              <div className="Gray_9e mLeft5">{_l('匹配字段：')}</div>
+          {/** 提示文字 */}
+          <Tooltip
+            text={
+              <span>
+                {controlItem.type === 26
+                  ? _l('支持的字段类型包括：姓名、手机号、邮箱、工号、人员ID')
+                  : _l('支持的字段类型包括：名称、部门系统ID')}
+              </span>
+            }
+          >
+            <i className="icon-workflow_help Gray_9e Font16" />
+          </Tooltip>
+          <div className="Gray_9e mLeft5">{_l('匹配字段：')}</div>
 
-              {/** 匹配字段选择下拉框 */}
-              <Dropdown
-                disabled={isHiddenConfig}
-                menuStyle={{ width: 180 }}
-                data={controls}
-                value={controlItem.accountMatchId || null}
-                isAppendToBody
-                onChange={controlId => {
-                  // 修改映射字段
-                  const newControlMapping = [...controlMapping];
-                  const item = newControlMapping.find(item => item.ControlId === controlItem.controlId);
-                  if (item) item.accountMatchId = controlId;
-                  controlItem.accountMatchId = controlId;
-                  this.setState({ controlMapping: newControlMapping });
-                }}
-              />
-            </Fragment>
-          )}
+          {/** 匹配字段选择下拉框 */}
+          <Dropdown
+            disabled={isHiddenConfig}
+            menuStyle={{ width: 180 }}
+            data={controls}
+            value={controlItem.matchId || null}
+            isAppendToBody
+            onChange={controlId => {
+              // 修改映射字段
+              const newControlMapping = [...controlMapping];
+              const item = newControlMapping.find(item => item.ControlId === controlItem.controlId);
+              if (item) item.matchId = controlId;
+              controlItem.matchId = controlId;
+              this.setState({ controlMapping: newControlMapping });
+            }}
+          />
         </div>
       );
     }
@@ -977,7 +1000,6 @@ export default class ConfigControl extends Component {
       else if (currentItem !== '') currentItem = null;
       return (
         <div className="flexRow relateBox">
-          {/* <div className="Gray_9e">{_l('关联表：')}</div> */}
           <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
           <div className="mLeft10 mRight10 flex ellipsis">{controlItem.controlName}</div>
 
@@ -1032,6 +1054,7 @@ export default class ConfigControl extends Component {
       edited,
       showStar,
       userControls,
+      departmentControls,
       relateSource,
     } = this.state;
     const isHiddenConfig = edited && !isCharge;
@@ -1071,8 +1094,8 @@ export default class ConfigControl extends Component {
                     // 外部成员字段
                     const isExternal = type == 26 && advancedSetting && advancedSetting.usertype == '2';
 
-                    // 是否为关联字段 / 内部成员字段
-                    const isMapping = (type == 29 || (type == 26 && !isExternal)) && !notSupport;
+                    // 是否为关联字段 / 内部成员字段 / 部门字段
+                    const isMapping = (type == 29 || (type == 26 && !isExternal) || type === 27) && !notSupport;
                     return (
                       <div className="flexRow mBottom6" key={index}>
                         {/** 左侧 */}
@@ -1100,17 +1123,17 @@ export default class ConfigControl extends Component {
                                 const dataItemArr = dataItem.text.split('-');
                                 const dataItemName = dataItemArr[dataItemArr.length - 1].toLowerCase();
 
-                                // 匹配人员字段
+                                // 匹配人员、部门字段
                                 const isExternal = type == 26 && advancedSetting && advancedSetting.usertype == '2';
-                                if (type == 26 && !isExternal) {
-                                  const userControl = userControls.find(
-                                    item => item.text.toLowerCase() == dataItemName,
-                                  );
-                                  if (userControl) controlItem.accountMatchId = userControl.value;
-                                  // 默认匹配为成员姓名
-                                  else controlItem.accountMatchId = 'name';
+                                if (_.includes([26, 27], type) && !isExternal) {
+                                  const userControl = userControls
+                                    .concat(departmentControls)
+                                    .find(item => item.text.toLowerCase() == dataItemName);
+                                  if (userControl) controlItem.matchId = userControl.value;
+                                  // 默认匹配为成员姓名、部门名称
+                                  else controlItem.matchId = 'name';
 
-                                  control.accountMatchId = controlItem.accountMatchId;
+                                  control.matchId = controlItem.matchId;
                                 }
 
                                 // 匹配关联表字段

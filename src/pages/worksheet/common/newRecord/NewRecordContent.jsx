@@ -190,9 +190,6 @@ function NewRecordForm(props) {
             });
             return;
           }
-          if (_.isFunction(onAdd)) {
-            onAdd([]);
-          }
           onCancel();
         },
         onSubmitEnd: () => {
@@ -448,6 +445,7 @@ function NewRecordForm(props) {
               isCharge,
               allowEdit: true,
             }}
+            widgetStyle={worksheetInfo.advancedSetting}
             masterRecordRowId={masterRecordRowId || (masterRecord || {}).rowId}
             registerCell={({ item, cell }) => (cellObjs.current[item.controlId] = { item, cell })}
             mountRef={ref => (customwidget.current = ref.current)}

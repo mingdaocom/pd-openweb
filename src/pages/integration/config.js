@@ -11,6 +11,30 @@ export const list = [
     icon: 'api',
   },
 ];
+export const dataIntegrationList = [
+  {
+    type: 'dataConnect',
+    txt: _l('创建连接器'),
+    icon: 'add_circle_outline',
+  },
+  {
+    type: 'task',
+    txt: _l('同步任务'),
+    icon: 'synchronization',
+  },
+  {
+    type: 'source',
+    txt: _l('数据源'),
+    icon: 'storage',
+  },
+  // {
+  //   type: 'browser',
+  //   txt: _l('数据浏览器'),
+  //   icon: 'api',
+  // },
+];
+
+export const integrationConfig = [...list, ...dataIntegrationList];
 
 export const PageSize = 30;
 
@@ -20,24 +44,23 @@ export const CARD_TYE_LIST = [
     title: _l('输入参数'),
     des: _l('输入参数用于在工作表或工作流中使用 API 查询时，可以传入动态值'),
     icon: 'input',
-    support: 'https://help.mingdao.com/integration.html#输入参数',
+    support: 'https://help.mingdao.com/zh/integration.html#输入参数',
   },
   {
     typeId: 8,
     title: _l('API 请求参数'),
     des: _l('配置发送 API 请求时需要的 Query Param、Header、Body 等请求参数'),
     icon: 'tune',
-    support: 'https://help.mingdao.com/integration.html#api请求配置',
+    support: 'https://help.mingdao.com/zh/integration.html#api请求配置',
   },
   {
     typeId: 21,
     title: _l('输出参数'),
     des: _l('在 API 查询时，可以将输出参数的值绑定到工作表字段或被工作流节点引用'),
     icon: 'output',
-    support: 'https://help.mingdao.com/integration.html#输出参数',
+    support: 'https://help.mingdao.com/zh/integration.html#输出参数',
   },
 ];
-
 
 export const TYPELIST = [
   { name: _l('Basic Auth 认证'), actionId: '521', appType: 31 },
@@ -101,3 +124,18 @@ export const formatStr = str => {
   }
   return newStr;
 };
+
+export const taskTabList = [
+  {
+    type: 'task',
+    txt: _l('任务'),
+  },
+  {
+    type: 'disposition',
+    txt: _l('配置'),
+  },
+  {
+    type: 'monitor',
+    txt: _l('监控'),
+  },
+];

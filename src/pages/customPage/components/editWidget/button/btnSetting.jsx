@@ -171,7 +171,6 @@ const BtnSettingWrap = styled.div`
     }
   }
   .customPageBtnSelectIcon {
-    width: 312px;
     .inputWrap {
       display: none;
     }

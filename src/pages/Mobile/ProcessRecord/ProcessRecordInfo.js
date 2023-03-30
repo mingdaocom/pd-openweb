@@ -172,7 +172,7 @@ class ProcessRecord extends Component {
         });
       });
   };
-  handleVerify = fn => {
+  handleVerify = (fn, id) => {
     const { viewId, instance } = this.state;
     const { ignoreRequired } = _.get(instance, 'flowNode') || {};
     let result = true;
@@ -242,7 +242,7 @@ class ProcessRecord extends Component {
       }
     }
 
-    if (hasError && !ignoreRequired) {
+    if (hasError && id !== 'stash' && !ignoreRequired) {
       alert(_l('请正确填写记录'), 3);
       result = false;
     }
@@ -262,12 +262,16 @@ class ProcessRecord extends Component {
       cells,
     };
   };
-  handleSave(fn) {
+  handleSave(fn, id) {
     const { worksheetId, rowId, sheetRow } = this.state;
     const { params } = this.props.match;
     const { projectId, receiveControls } = sheetRow;
-    const { result, cells } = this.handleVerify(fn);
+    const { result, cells } = this.handleVerify(fn, id);
 
+    if (_.isEmpty(cells)) {
+      fn && fn();
+      return;
+    }
     if (!result) return;
 
     worksheetAjax
@@ -303,7 +307,7 @@ class ProcessRecord extends Component {
     let { instance } = this.state;
     const { flowNode } = instance;
     const { ignoreRequired } = flowNode;
-    if (hasError && (!ignoreRequired || (ignoreRequired && id !== 'overrule'))) {
+    if (hasError && id !== 'stash' && (!ignoreRequired || (ignoreRequired && id !== 'overrule'))) {
       alert(_l('请正确填写记录'), 3);
       return;
     }
@@ -336,7 +340,7 @@ class ProcessRecord extends Component {
     if (id === 'stash') {
       this.handleSave(() => {
         this.request('operation', { operationType: 13 });
-      });
+      }, id);
       return;
     }
     if (ignoreRequired) {

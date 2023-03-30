@@ -8,7 +8,7 @@ import instance from 'src/pages/workflow/api/instanceVersion';
 import './index.less';
 import SaveDia from './components/saveDia';
 import { fromType, typeForCon, PRINT_TYPE, DEFAULT_FONT_SIZE, FILTER_SYS } from './config';
-import { notification, NotificationContent } from 'ming-ui/components/Notification';
+import mdNotification from 'ming-ui/functions/notify';
 import webCacheAjax from 'src/api/webCache';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
@@ -415,7 +415,12 @@ class PrintForm extends React.Component {
     receiveControls.map(o => {
       if (o.checked) {
         let data = _.pick(o, ['controlId', 'type']);
-        if (o.relationControls && o.relationControls.length > 0) {
+        if (
+          o.relationControls &&
+          o.relationControls.length > 0 &&
+          (o.advancedSetting.showtype === '2' || o.type === 34) //关联表列表||子表
+        ) {
+          //关联表 列表
           let relations = [];
           o.relationControls.map(it => {
             if (it.checked) {
@@ -499,33 +504,16 @@ class PrintForm extends React.Component {
                   type: typeForCon.PREVIEW,
                 },
               });
-              notification.open({
-                content: (
-                  <NotificationContent
-                    className="printNoticeContentWrap"
-                    themeColor="success"
-                    header={
-                      <span>
-                        <Icon icon={'plus-interest'} className="Font20 mRight12" style={{ color: '#4CAF50' }} />
-                        {_l('保存成功，请到打印模板中查看')}
-                      </span>
-                    }
-                    footer={
-                      <div
-                        className="ThemeColor3"
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => {
-                          window.open(`/worksheet/formSet/edit/${worksheetId}/printTemplate`);
-                        }}
-                      >
-                        {_l('前往查看')}
-                      </div>
-                    }
-                  />
-                ),
-                key: 'printNoticeContent',
-                duration: 3,
-                maxCount: 5,
+              mdNotification.success({
+                title: _l('保存成功，请到打印模板中查看'),
+                btnList: [
+                  {
+                    text: _l('前往查看'),
+                    onClick: () => {
+                      window.open(`/worksheet/formSet/edit/${worksheetId}/printTemplate`);
+                    },
+                  },
+                ],
               });
             }
           },
@@ -534,10 +522,10 @@ class PrintForm extends React.Component {
   };
 
   getFiles = () => {
-    let { worksheetName, ajaxUrlStr } = this.state;
+    let { params, ajaxUrlStr } = this.state;
 
     this.setState({
-      pdfUrl: `${md.global.Config.AjaxApiUrl}file/docview?fileName=${worksheetName}.docx&filePath=${ajaxUrlStr.replace(/\?.*/, '')}`,
+      pdfUrl: `${md.global.Config.AjaxApiUrl}file/docview?fileName=${params.name}.docx&filePath=${ajaxUrlStr.replace(/\?.*/, '')}`,
       isLoading: false,
     });
   };

@@ -112,7 +112,7 @@ export default class MobileOrEmailInvite extends Component {
 
   inviteFriend = item => {
     if (item.accountId === md.global.Account.accountId) {
-      alert(_l('不能添加自己为好友'));
+      alert(_l('不能添加自己为好友'), 3);
       return;
     }
 

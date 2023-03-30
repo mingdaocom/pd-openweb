@@ -139,10 +139,11 @@ export const TIME_UNIT = {
   3: 'd',
   4: 'M',
   5: 'y',
+  6: 's',
 };
 
 //非文本类控件
-export const UN_TEXT_TYPE = [9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 35, 36, 45, 47, 48];
+export const UN_TEXT_TYPE = [9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 35, 36, 45, 46, 47, 48];
 
 // 系统字段
 export const SYSTEM_ENUM = [
@@ -159,5 +160,5 @@ export const SYSTEM_ENUM = [
   'caid',
   'ctime',
   'utime',
-  'daid'
+  'daid',
 ];

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { toFixed } from 'src/util';
 import { formatFormulaDate } from 'src/pages/worksheet/util';
+import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -21,7 +22,7 @@ export default class Widgets extends Component {
 
     if (!value || (enumDefault === 3 && advancedSetting.hideneg === '1' && parseInt(value, 10) < 0)) {
       content = '';
-    } else if ((enumDefault === 1 || enumDefault === 3) && _.includes(['1', '2'], unit)) {
+    } else if ((enumDefault === 1 || enumDefault === 3) && _.includes(['1', '2', '6'], unit)) {
       if (advancedSetting.autocarry === '1' || enumDefault === 1) {
         content = formatFormulaDate({ value, unit, dot });
       } else {
@@ -30,6 +31,7 @@ export default class Widgets extends Component {
           {
             1: _l('分钟'),
             2: _l('小时'),
+            6: _l('秒'),
           }[unit];
       }
     } else if (enumDefault === 1 || enumDefault === 3) {
@@ -40,14 +42,8 @@ export default class Widgets extends Component {
 
       content = hideUnit ? prefix + formatValue + suffix : formatValue;
     } else {
-      const format =
-        {
-          1: 'YYYY-MM-DD HH:mm',
-          3: 'YYYY-MM-DD',
-          8: 'HH:mm',
-          9: 'HH:mm:ss',
-        }[unit] || 'YYYY-MM-DD HH:mm';
-      content = moment(value, value.indexOf('-') > -1 ? undefined : format).format(format);
+      const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: unit || '1' } });
+      content = moment(moment(value), showFormat).format(showFormat);
     }
 
     return <div className={cx('customFormControlBox customFormReadonly customFormTextareaBox')}>{content}</div>;

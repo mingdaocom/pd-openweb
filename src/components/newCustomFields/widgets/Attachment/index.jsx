@@ -5,14 +5,20 @@ import { Tooltip } from 'antd';
 import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import cx from 'classnames';
-import AttachmentFiles, { UploadFileWrapper } from 'mobile/Discuss/AttachmentFiles';
+import { UploadFileWrapper } from 'mobile/Discuss/AttachmentFiles';
+import { getRowGetType } from 'worksheet/util';
+import Files from './Files';
+import FileEditModal from './Files/FileEditModal';
 import attachmentApi from 'src/api/attachment';
 import downloadApi from 'src/api/download';
+import worksheetApi from 'src/api/worksheet';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import './index.less';
+
+const isMobile = browserIsMobile();
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -25,7 +31,7 @@ export default class Widgets extends Component {
 
   constructor(props) {
     super(props);
-
+    const showtype = _.get(props, 'advancedSetting.showtype') || '1';
     this.state = {
       value: props.value,
       loading: this.checkFileNeedLoad(props.value),
@@ -33,13 +39,19 @@ export default class Widgets extends Component {
       temporaryKnowledgeAtts: [],
       isComplete: null,
       uploadStart: false,
-      downloadAllLoading: false
+      downloadAllLoading: false,
+      fileEditModalVisible: false,
+      showType: showtype === '0' ? '1' : showtype,
+      filesVisible: true,
     };
   }
 
   componentDidMount() {
     if (this.state.loading) {
       this.loadAttachments();
+    }
+    if (_.get(this.props, 'advancedSetting.showtype') === '3') {
+      this.detectionShowType();
     }
   }
 
@@ -51,6 +63,21 @@ export default class Widgets extends Component {
         this.setState({ value: nextProps.value });
       }
     }
+    if (_.get(nextProps, 'advancedSetting.showtype') === '3' && nextProps.formWidth !== this.props.formWidth) {
+      this.detectionShowType();
+    }
+  }
+
+  detectionShowType = () => {
+    this.setState({ filesVisible: false });
+    setTimeout(() => {
+      if (this.fileBox) {
+        const { clientWidth } = this.fileBox;
+        this.setState({ showType: clientWidth <= 560 ? '2' : '3', filesVisible: true });
+      } else {
+        this.setState({ filesVisible: true });
+      }
+    }, 0);
   }
 
   checkFileNeedLoad(value) {
@@ -103,12 +130,127 @@ export default class Widgets extends Component {
     };
 
     newValue[key] = files;
+
+    // 补充 index
+    if (this.props.enumDefault === 2) {
+      // 旧的在前
+      newValue.attachmentData.forEach((data, index) => {
+        data.index = index;
+      });
+      newValue.attachments.forEach((data, index) => {
+        data.index = newValue.attachmentData.length + index;
+      });
+      newValue.knowledgeAtts.forEach((data, index) => {
+        data.index = newValue.attachmentData.length + newValue.attachments.length + index;
+      });
+    } else {
+      // 新的在前
+      newValue.attachments.forEach((data, index) => {
+        data.index = index;
+      });
+      newValue.knowledgeAtts.forEach((data, index) => {
+        data.index = newValue.attachments.length + index;
+      });
+      newValue.attachmentData.forEach((data, index) => {
+        data.index = newValue.attachments.length + newValue.knowledgeAtts.length + index;
+      });
+    }
+
     this.props.onChange(
       newValue.attachments.length + newValue.knowledgeAtts.length + newValue.attachmentData.length === 0
         ? ''
         : JSON.stringify(newValue),
     );
   };
+
+  filesChangedAll = (files) => {
+    const value = JSON.parse(this.state.value || '[]');
+    const { attachments, knowledgeAtts, attachmentData } = files;
+    const newValue = {};
+
+    newValue.attachments = attachments;
+    newValue.knowledgeAtts = knowledgeAtts;
+    newValue.attachmentData = attachmentData;
+
+    this.props.onChange(
+      newValue.attachments.length + newValue.knowledgeAtts.length + newValue.attachmentData.length === 0
+        ? ''
+        : JSON.stringify(newValue),
+    );
+  };
+
+  /**
+   * 排序明道附件
+   */
+  handleSortAttachment = attachmentData => {
+    const { worksheetId, viewId, recordId, controlId } = this.props;
+    const value = JSON.parse(this.state.value || '[]');
+    worksheetApi.sortAttachment({
+      worksheetId,
+      viewId,
+      rowId: recordId,
+      controlId,
+      fileIds: attachmentData.map(f => f.fileID)
+    }).then(data => {
+      if (data.resultCode === 1) {
+        const newValue = {
+          attachmentData,
+          attachments: value.attachments || [],
+          knowledgeAtts: value.knowledgeAtts || []
+        }
+        this.setState({
+          value: JSON.stringify(newValue)
+        });
+      }
+    });
+  }
+
+  /**
+   * 编辑明道附件名称
+   */
+
+  handleAttachmentName = (id, newName, data) => {
+    const value = JSON.parse(this.state.value || '[]');
+    const isArray = _.isArray(value);
+
+    const newValue = {
+      attachments: isArray ? [] : value.attachments,
+      knowledgeAtts: isArray ? [] : value.knowledgeAtts,
+      attachmentData: isArray ? value : value.attachmentData,
+    };
+
+    const files = newValue.attachmentData.map(item => {
+      if (item.fileID === id) {
+        item.originalFilename = newName;
+      }
+      return item;
+    });
+
+    newValue.attachmentData = files;
+
+    this.setState({
+      value: JSON.stringify(newValue)
+    });
+
+    const { appId, worksheetId, viewId, recordId, controlId, from } = this.props;
+
+    worksheetApi.editAttachmentName({
+      ...data,
+      fileId: id,
+      fileName: newName,
+      appId,
+      worksheetId,
+      viewId,
+      controlId,
+      rowId: recordId,
+      checkView: true,
+      getType: getRowGetType(from)
+    }).then(data => {
+      if (data.resultCode !== 1) {
+        alert(_l('修改失败'), 2);
+      }
+    });
+  }
 
   /**
    * 清空临时存放的上传数据
@@ -181,20 +323,29 @@ export default class Widgets extends Component {
   render() {
     const {
       from,
+      appId,
+      worksheetId,
+      recordId,
       sheetSwitchPermit = [],
       strDefault = '10',
       controlId,
       projectId,
       viewIdForPermit = '',
+      enumDefault,
       enumDefault2,
       advancedSetting,
       isSubList,
+      disabled,
+      hint,
+      flag,
     } = this.props;
-    let { disabled } = this.props;
     const isOnlyAllowMobile = strDefault.split('')[1] === '1';
-    const { loading, value, temporaryAttachments, temporaryKnowledgeAtts, isComplete, uploadStart } = this.state;
+    const { loading, value, showType, temporaryAttachments, temporaryKnowledgeAtts, isComplete, uploadStart, filesVisible, fileEditModalVisible } = this.state;
+    const pcDisabled = disabled || isOnlyAllowMobile;
+    const mobileDisabled = disabled;
+    const addFileName = hint || _l('添加附件');
 
-    if (!value && isOnlyAllowMobile && !browserIsMobile()) {
+    if (!value && isOnlyAllowMobile && !isMobile) {
       return (
         <div className={cx('customFormControlBox Gray_bd')}>
           <div className="Gray_9e" style={{ height: 34, lineHeight: '34px' }}>
@@ -209,37 +360,59 @@ export default class Widgets extends Component {
     }
 
     const $dom = $(`#UploadFilesTriggerPanel${this.id}`);
-    let attachments;
-    let knowledgeAtts;
-    let attachmentData;
+    let attachments = [];
+    let knowledgeAtts = [];
+    let attachmentData = [];
 
     if (value && _.isArray(JSON.parse(value))) {
       attachmentData = JSON.parse(value);
     } else {
       const data = JSON.parse(value || '{}');
-      attachments = data.attachments;
-      knowledgeAtts = data.knowledgeAtts;
-      attachmentData = data.attachmentData;
+      attachments = data.attachments || [];
+      knowledgeAtts = data.knowledgeAtts || [];
+      attachmentData = data.attachmentData || [];
     }
 
     // 已上传附件总数
-    const originCount = (attachments || []).length + (knowledgeAtts || []).length + (attachmentData || []).length;
+    const originCount = attachments.length + knowledgeAtts.length + attachmentData.length;
 
     // 下载附件权限
     const recordAttachmentSwitch =
       !!viewIdForPermit || isSubList
         ? isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewIdForPermit)
         : true;
-    let hideDownload = !recordAttachmentSwitch;
 
-    if (browserIsMobile()) {
+    const coverType = advancedSetting.covertype || '0';
+    const allAownload = advancedSetting.alldownload !== '0' && recordAttachmentSwitch;
+
+    const filesProps = {
+      flag,
+      showType,
+      coverType,
+      controlId,
+      viewMore: !!recordId,
+      allowDownload: recordAttachmentSwitch,
+      allowSort: enumDefault === 3 && (isMobile ? false : !pcDisabled),
+      allowEditName: isMobile ? false : !pcDisabled,
+      attachments,
+      knowledgeAtts,
+      attachmentData,
+      onSortAttachment: this.handleSortAttachment,
+      onAttachmentName: this.handleAttachmentName,
+      onChangedAllFiles: this.filesChangedAll,
+      onChangeAttachments: res => this.filesChanged(res, 'attachments'),
+      onChangeKnowledgeAtts: res => this.filesChanged(res, 'knowledgeAtts'),
+      onChangeAttachmentData: res => this.filesChanged(res, 'attachmentData'),
+    }
+
+    if (isMobile) {
       return (
         <div
-          className={cx('customFormFileBox customFormAttachmentBox', { controlDisabled: disabled })}
+          className={cx('customFormFileBox customFormAttachmentBox', { controlDisabled: mobileDisabled })}
           style={{ height: 'auto' }}
         >
-          {!disabled && (
-            <div className="triggerTraget mobile mBottom0" style={{ height: 34 }}>
+          {!mobileDisabled && (
+            <div className="triggerTraget mobile" style={{ height: 34 }}>
               <UploadFileWrapper
                 from={from}
                 className="Block"
@@ -251,60 +424,56 @@ export default class Widgets extends Component {
                 onChange={(files, isComplete = false) => {
                   this.setState({
                     isComplete,
+                    uploadStart: isComplete ? false : true
                   });
                   this.filesChanged(files, 'attachments');
                 }}
+                ref={mobileFileBox => {
+                  this.mobileFileBox = mobileFileBox;
+                }}
               >
                 <Icon className="Gray_9e" icon="attachment" />
-                <span className="Gray Font13 mLeft5 addFileName">{_l('上传附件')}</span>
+                <span className="Gray Font13 mLeft5 addFileName overflow_ellipsis">{addFileName}</span>
+                {isComplete === false && uploadStart && (
+                  <span className="mLeft5 ThemeColor3 fileUpdateLoading"></span>
+                )}
               </UploadFileWrapper>
             </div>
           )}
-          {!_.isEmpty(attachmentData) && (
-            <AttachmentFiles
-              from={from}
-              width="49%"
-              isRemove={!disabled}
-              hideDownload={hideDownload}
-              attachments={attachmentData || []}
-              onChange={res => {
-                this.filesChanged(res, 'attachmentData');
-              }}
-            />
-          )}
-          {!_.isEmpty(attachments) && (
-            <AttachmentFiles
-              from={from}
-              width="49%"
-              isRemove={true}
-              hideDownload={hideDownload}
-              attachments={attachments || []}
-              onChange={res => {
-                this.filesChanged(res, 'attachments');
-              }}
-            />
-          )}
+          <Files
+            {...filesProps}
+            showType={['3'].includes(showType) ? '2' : !disabled && showType === '4' ? '1' : showType}
+            isDeleteFile={!mobileDisabled}
+            from={from}
+            removeUploadingFile={(data) => {
+              if (this.mobileFileBox) {
+                this.setState({ isComplete: true });
+                this.mobileFileBox.currentFile.removeFile({ id: data.id });
+                this.filesChanged(attachments.filter(item => item.id !== data.id), 'attachments');
+              }
+            }}
+          />
         </div>
       );
     }
 
-    disabled = disabled || isOnlyAllowMobile;
-
     return (
       <div
-        className={cx('customFormControlBox customFormControlScore customFormAttachmentBox', { controlDisabled: disabled })}
+        className={cx('customFormControlBox customFormControlScore customFormAttachmentBox', { controlDisabled: pcDisabled })}
         style={{ height: 'auto' }}
         ref={fileBox => {
           this.fileBox = fileBox;
         }}
       >
         <div className="flexRow valignWrapper spaceBetween">
-          {!disabled ? (
+          {!pcDisabled ? (
             <UploadFilesTrigger
               noTotal={!!(md.global.Account.projects && md.global.Account.projects.length)}
               id={this.id}
               from={from}
               projectId={projectId}
+              appId={appId}
+              worksheetId={worksheetId}
               offset={[0, 2]}
               canAddLink={false}
               minWidth={130}
@@ -334,9 +503,9 @@ export default class Widgets extends Component {
                 style={{ height: 34 }}
               >
                 <Icon icon="attachment" className="Font16" />
-                <span className="mLeft5 Gray addFileName">{_l('添加附件')}</span>
+                <span className="mLeft5 Gray addFileName overflow_ellipsis">{addFileName}</span>
                 {isComplete === false && uploadStart && (
-                  <span className="mLeft5 ThemeColor3">
+                  <span className="mLeft5 ThemeColor3 fileUpdateLoading">
                     {_l(
                       '(%0/%1个附件上传中...)',
                       $dom.find('.UploadFiles-file-wrapper:not(.UploadFiles-fileEmpty)').length -
@@ -347,50 +516,32 @@ export default class Widgets extends Component {
                 )}
               </div>
             </UploadFilesTrigger>
-          ) : <div/>}
-          {!_.isEmpty(attachmentData) && !hideDownload && (
-            <div className="flexRow valignWrapper">
-              <Tooltip title={_l('全部下载')} placement="bottom">
-                <Icon className="handleBtn Gray_9e Font18 pointer" icon="download" onClick={this.handleDownloadAll} />
-              </Tooltip>
-            </div>
-          )}
+          ) : <div className="flex" />}
+          <div className="valignWrapper">
+            {showType === '4' && (
+              <Fragment>
+                <Tooltip title={_l('管理附件')} placement="bottom">
+                  <Icon className="handleBtn Gray_9e Font18 pointer" icon="application_custom" onClick={() => this.setState({ fileEditModalVisible: true })} />
+                </Tooltip>
+                <FileEditModal
+                  visible={fileEditModalVisible}
+                  onCancel={() => this.setState({ fileEditModalVisible: false })}
+                  filesProps={filesProps}
+                  pcDisabled={pcDisabled}
+                  from={from}
+                />
+              </Fragment>
+            )}
+            {allAownload && !_.isEmpty(attachmentData) && (
+              <div className="flexRow valignWrapper">
+                <Tooltip title={_l('全部下载')} placement="bottom">
+                  <Icon className="handleBtn Gray_9e Font18 pointer" icon="download" onClick={this.handleDownloadAll} />
+                </Tooltip>
+              </div>
+            )}
+          </div>
         </div>
-
-        <UploadFiles
-          controlId={controlId}
-          projectId={projectId}
-          from={from}
-          hideDownload={hideDownload}
-          className="UploadFiles-exhibition"
-          canAddLink={false}
-          minWidth={160}
-          maxWidth={220}
-          height={140}
-          showAttInfo={false}
-          attachmentData={[]}
-          onUploadComplete={isComplete => this.setState({ isComplete })}
-          temporaryData={attachments || []}
-          onTemporaryDataUpdate={res => this.filesChanged(res, 'attachments')}
-          kcAttachmentData={knowledgeAtts || []}
-          onKcAttachmentDataUpdate={res => this.filesChanged(res, 'knowledgeAtts')}
-        />
-
-        <UploadFiles
-          controlId={controlId}
-          projectId={projectId}
-          hideDownload={hideDownload}
-          from={from}
-          minWidth={160}
-          maxWidth={220}
-          height={140}
-          isDeleteFile={!disabled}
-          removeDeleteFilesFn={true}
-          showAttInfo={false}
-          isUpload={false}
-          attachmentData={attachmentData || []}
-          onDeleteAttachmentData={res => this.filesChanged(res, 'attachmentData')}
-        />
+        {filesVisible && <Files {...filesProps} isDeleteFile={!pcDisabled} from={from} />}
       </div>
     );
   }

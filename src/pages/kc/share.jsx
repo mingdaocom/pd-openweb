@@ -1,9 +1,6 @@
 ﻿import React, { Component } from 'react';
 import NodeShare from './common/NodeShare';
 import './main.css';
-import alert from 'src/components/alert/alert';
-
-window.alert = alert;
 
 export default class KcShareEntrypoint extends Component {
   componentDidMount() {
@@ -13,8 +10,6 @@ export default class KcShareEntrypoint extends Component {
     $('html').removeClass('AppKc AppKcShare');
   }
   render() {
-    return (
-      <NodeShare />
-    );
+    return <NodeShare />;
   }
 }

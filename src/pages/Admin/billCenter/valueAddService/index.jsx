@@ -20,7 +20,7 @@ export default class ValueAddService extends Component {
       inputValue: _l('其他金额'),
       balance: 0,
       needSalesAssistance: true,
-      isPay: false
+      isPay: false,
     };
   }
 
@@ -48,7 +48,7 @@ export default class ValueAddService extends Component {
   }
 
   handleBack() {
-    this.props.history.go(-1)
+    this.props.history.go(-1);
   }
 
   //自定义金额
@@ -56,7 +56,7 @@ export default class ValueAddService extends Component {
     let tmpPrince = parseInt(e.target.value) || 1;
     if (tmpPrince > 999999) {
       tmpPrince = 999999;
-      alert(_l('最多充值金额 999999 元'));
+      alert(_l('最多充值金额 999999 元'), 3);
     }
     this.setState({
       inputValue: tmpPrince,
@@ -68,28 +68,30 @@ export default class ValueAddService extends Component {
   }
 
   handleCheckBox(e) {
-    this.setState({ needSalesAssistance: e.target.checked })
+    this.setState({ needSalesAssistance: e.target.checked });
   }
 
   handlePay() {
-    const _this = this
-    this.setState({ isPay: true })
-    const { isInput, inputValue, productPrice, needSalesAssistance } = this.state
+    const _this = this;
+    this.setState({ isPay: true });
+    const { isInput, inputValue, productPrice, needSalesAssistance } = this.state;
     const currentPrice = isInput ? inputValue : productPrice;
-    orderController.addRechargeOrder({
-      projectId: Config.projectId,
-      amount: currentPrice,
-      needSalesAssistance
-    }).then(function (data) {
-      if (data) {
-        alert(_l("订单已创建成功，正在转到付款页..."), 1, 2000, function () {
-          window.location.href = '/admin/waitingPay/' + Config.projectId + '/' + data.orderId;
-        });
-      } else {
-        _this.setState({ isPay: false })
-        alert(_l("操作失败"), 2);
-      }
-    });
+    orderController
+      .addRechargeOrder({
+        projectId: Config.projectId,
+        amount: currentPrice,
+        needSalesAssistance,
+      })
+      .then(function (data) {
+        if (data) {
+          alert(_l('订单已创建成功，正在转到付款页...'), 1, 500, function () {
+            window.location.href = '/admin/waitingPay/' + Config.projectId + '/' + data.orderId;
+          });
+        } else {
+          _this.setState({ isPay: false });
+          alert(_l('操作失败'), 2);
+        }
+      });
   }
 
   render() {
@@ -103,7 +105,9 @@ export default class ValueAddService extends Component {
         </div>
         <div className="warpOneStep">
           <div className={cx('stepTitle', { color_bd: step !== 1 })}>
-            <div className="stepNum"><span className="Bold Font12">1</span></div>
+            <div className="stepNum">
+              <span className="Bold Font12">1</span>
+            </div>
             <span>{_l('选择充值金额')}</span>
           </div>
           <div className={cx('Gray_9 Font13 Normal mTop10', { Hidden: step !== 1 })}>
@@ -118,7 +122,8 @@ export default class ValueAddService extends Component {
                       <li
                         key={index}
                         onClick={() => this.handleChange(item)}
-                        className={cx(productPrice === item && !isInput ? 'selectProduct' : '')}>
+                        className={cx(productPrice === item && !isInput ? 'selectProduct' : '')}
+                      >
                         ￥{item}
                       </li>
                     );
@@ -138,7 +143,9 @@ export default class ValueAddService extends Component {
                   <div className="oneStepLeft">{_l('总计')}</div>
                   <span className="Font20 color_b">￥</span>
                   <span className="Font20 color_b Bold">{currentPrice}</span>
-                  <span className="Gray_9 mLeft5">{_l('购买后增值服务账户金额：%0 元', parseFloat(currentPrice) + parseFloat(balance))}</span>
+                  <span className="Gray_9 mLeft5">
+                    {_l('购买后增值服务账户金额：%0 元', parseFloat(currentPrice) + parseFloat(balance))}
+                  </span>
                 </div>
                 <div className="pTop30">
                   <button type="button" className="ming Button Button--primary nextBtn" onClick={() => this.setStep(2)}>
@@ -152,7 +159,11 @@ export default class ValueAddService extends Component {
                   <span className="mRight8">{_l('总计')}</span>
                   <span>￥{currentPrice}</span>
                 </div>
-                <button type="button" className="ming Button Button--link ThemeColor3 pAll0 Hover_49" onClick={() => this.setStep(1)}>
+                <button
+                  type="button"
+                  className="ming Button Button--link ThemeColor3 pAll0 Hover_49"
+                  onClick={() => this.setStep(1)}
+                >
                   {_l('修改')}
                 </button>
               </div>
@@ -161,22 +172,32 @@ export default class ValueAddService extends Component {
         </div>
         <div className="stepDiviceLine"></div>
         <div className="warpTowStep">
-          <div className={cx('stepTitle', {color_bd: step !== 2 })}>
-            <div className="stepNum"><span className="Bold Font12">2</span></div>
+          <div className={cx('stepTitle', { color_bd: step !== 2 })}>
+            <div className="stepNum">
+              <span className="Bold Font12">2</span>
+            </div>
             <span>{_l('生成订单')}</span>
           </div>
-          <div className={cx('stepContent', {Hidden: step !== 2 })}>
+          <div className={cx('stepContent', { Hidden: step !== 2 })}>
             <div className="mTop30">
               <span className="Font13 mRight8 Gray_9">{_l('总计：')}</span>
               <span className="Font24 Bold color_b">￥{currentPrice}</span>
             </div>
             <div className="pTop40">
-              <button type="button" disabled={isPay} className="ming Button Button--primary nextBtn" onClick={() => this.handlePay()}>
+              <button
+                type="button"
+                disabled={isPay}
+                className="ming Button Button--primary nextBtn"
+                onClick={() => this.handlePay()}
+              >
                 {_l('确认下单')}
               </button>
             </div>
             <div className="warpNeedHelp">
-              <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needSalesAssistance}> {_l('我希望得到销售代表的协助')} </Checkbox>
+              <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needSalesAssistance}>
+                {' '}
+                {_l('我希望得到销售代表的协助')}{' '}
+              </Checkbox>
             </div>
           </div>
         </div>

@@ -57,7 +57,7 @@ export default class SingleFilter extends Component {
   @autobind
   addCondition(control) {
     if (!control) {
-      alert(_l('字段不存在'));
+      alert(_l('字段不存在'), 3);
       return;
     }
     const { from = '' } = this.props;

@@ -359,7 +359,12 @@ export default class UploadFiles extends Component {
             tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
           });
 
-          getToken(tokenFiles).then(res => {
+          const { projectId, appId, worksheetId } = _this.props;
+          getToken(tokenFiles, 0, {
+            projectId,
+            appId,
+            worksheetId
+          }).then(res => {
             files.forEach((item, i) => {
               item.token = res[i].uptoken;
               item.key = res[i].key;

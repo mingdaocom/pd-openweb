@@ -12,6 +12,8 @@ import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
 import { JSONAnalysis } from 'src/pages/workflow/WorkflowSettings/Detail/components';
 
+const FIELD_TYPE = FIELD_TYPE_LIST.concat([{ text: _l('对象'), value: 10000006, en: 'object' }]);
+
 const Wrap = styled.div`
   p {
     margin: 0;
@@ -189,7 +191,7 @@ export default function Card(props) {
                     {o.controlName}
                     <span className="Gray_9e mLeft5 WordBreak overflow_ellipsis">{o.alias}</span>
                   </div>
-                  <div className="w180 Gray_75 WordBreak">{FIELD_TYPE_LIST.find(s => s.value === o.type).text}</div>
+                  <div className="w180 Gray_75 WordBreak">{FIELD_TYPE.find(s => s.value === o.type).text}</div>
                   <div className="flex WordBreak overflow_ellipsis">{o.desc}</div>
                 </div>
               );

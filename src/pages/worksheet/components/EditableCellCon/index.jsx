@@ -84,7 +84,6 @@ function EditableCellCon(props) {
             />
           </span>
         )}
-        <span className="ghostAngle"></span>
         {/* {!editable && (
           <ReadOnlyTip className="readOnlyTip" style={{}}>
             {_l('当前字段不可编辑')}

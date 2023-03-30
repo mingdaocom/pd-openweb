@@ -13,6 +13,7 @@ import SheetView from '../View/SheetView';
 import GalleryView from '../View/GalleryView';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { getAdvanceSetting } from 'src/util';
+import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';

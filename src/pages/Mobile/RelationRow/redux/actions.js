@@ -103,8 +103,9 @@ export const loadRowRelationRows = (relationControl, getType) => (dispatch, getS
     params.viewId = viewId;
   }
 
-  if (window.share) {
-    params.shareId = (location.href.match(/\/public\/(record|view)\/(\w{24})/) || '')[2];
+  const shareId = (location.href.match(/\/public\/(record|view|workflow)\/(\w{24})/) || [])[2];
+  if (shareId) {
+    params.shareId = shareId;
   }
 
   sheetAjax.getRowRelationRows({
@@ -130,7 +131,7 @@ export const loadRowRelationRows = (relationControl, getType) => (dispatch, getS
         type: 'MOBILE_RELATION_ACTION_PARAMS',
         data: {
           showControls: control.showControls.filter(item => titleControl.controlId !== item).slice(0, 3),
-          coverCid: fileControls.length ? fileControls[0].controlId : null,
+          coverCid: control.coverCid || null,
         }
       });
     }

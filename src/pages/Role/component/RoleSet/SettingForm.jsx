@@ -125,7 +125,7 @@ export default class extends PureComponent {
     });
   };
 
-  changePermissionWay = permissionWay => {
+  changePermissionWay = (permissionWay, clearExtendAttrs = false) => {
     const { onChange, roleDetail: { description, permissionWay: oldPermissionWay } = {} } = this.props;
     if (oldPermissionWay !== permissionWay) {
       let payload = {
@@ -157,12 +157,22 @@ export default class extends PureComponent {
           ...payload,
         };
       }
+
+      if (clearExtendAttrs) {
+        payload.extendAttrs = [];
+      }
+
       onChange(payload);
     }
   };
 
   renderAuth() {
-    const { roleDetail: { permissionWay } = {}, isForPortal, onChange, roleDetail } = this.props;
+    const {
+      roleDetail: { permissionWay, optionalControls, extendAttrs } = {},
+      isForPortal,
+      onChange,
+      roleDetail,
+    } = this.props;
 
     const list = [
       PERMISSION_WAYS.ManageAllRecord,
@@ -196,7 +206,7 @@ export default class extends PureComponent {
             className="mLeft40"
             checked={isCustom}
             value={PERMISSION_WAYS.CUSTOM}
-            onClick={this.changePermissionWay}
+            onClick={value => this.changePermissionWay(value, true)}
           />
         </div>
         {!isCustom ? (
@@ -212,7 +222,7 @@ export default class extends PureComponent {
                   return TEXTS[permissionWay];
                 }}
                 menuStyle={{ width: '100%' }}
-                onChange={this.changePermissionWay}
+                onChange={value => this.changePermissionWay(value, true)}
               />
             </div>
             {showCheckbox && !isForPortal ? (
@@ -236,6 +246,66 @@ export default class extends PureComponent {
                 <Tooltip text={<span>{_l('汇报关系中，下属拥有的记录')} </span>} popupPlacement="top">
                   <i className="icon-info_outline Font16 Gray_9e mLeft3 TxtMiddle" />
                 </Tooltip>
+              </div>
+            ) : null}
+            {showCheckbox && optionalControls.length > 0 && !isForPortal ? (
+              <div className="mTop15 flexRow">
+                <div className="left">
+                  <span className="flexRow alignItemsCenter">
+                    <Checkbox
+                      className={'subCheckbox InlineBlock'}
+                      checked={optionalControls.filter(l => extendAttrs.includes(l.id)).length > 0}
+                      clearselected={
+                        optionalControls.filter(l => extendAttrs.includes(l.id)).length > 0 &&
+                        optionalControls.filter(l => !extendAttrs.includes(l.id)).length !== 0
+                      }
+                      size="small"
+                      onClick={checked => {
+                        if (checked) {
+                          onChange({ extendAttrs: [] });
+                        } else {
+                          onChange({ extendAttrs: optionalControls.map(l => l.id) });
+                        }
+                      }}
+                    >
+                      {_l('匹配用户权限标签的记录')}
+                    </Checkbox>
+                    <Tooltip
+                      text={
+                        <span>
+                          {_l(
+                            '可启用的权限标签字段来自于[用户扩展信息]的标签字段。勾选后，可根据[用户扩展信息-人员表]中配置的字段值，查看工作表被关联的字段所属记录。',
+                          )}{' '}
+                        </span>
+                      }
+                      popupPlacement="top"
+                    >
+                      <Icon icon="workflow_error" className="Font16 Gray_9e mLeft3 TxtMiddle" />
+                    </Tooltip>
+                  </span>
+                </div>
+                <div className="right mLeft40" style={{ display: 'flex', gap: '10px 46px', flexWrap: 'wrap' }}>
+                  {optionalControls.map(item => (
+                    <span className="flexRow alignItemsCenter">
+                      <Checkbox
+                        className="InlineBlock"
+                        checked={extendAttrs.indexOf(item.id) > -1}
+                        text={item.name}
+                        onClick={value => {
+                          if (value) {
+                            onChange({
+                              extendAttrs: extendAttrs.filter(l => l !== item.id),
+                            });
+                          } else {
+                            onChange({
+                              extendAttrs: extendAttrs.concat(item.id),
+                            });
+                          }
+                        }}
+                      />
+                    </span>
+                  ))}
+                </div>
               </div>
             ) : null}
             {!isCustom && (

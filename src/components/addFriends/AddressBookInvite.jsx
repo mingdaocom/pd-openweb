@@ -3,7 +3,7 @@ import { Icon, Button } from 'ming-ui';
 import Result from 'src/components/dialogSelectUser/GeneralSelect/Result';
 import InviteController from 'src/api/invitation';
 import { existAccountHint } from 'src/components/common/function';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 
 export default class AddressBookInvite extends Component {
   constructor(props) {
@@ -19,7 +19,7 @@ export default class AddressBookInvite extends Component {
     const { selectUsers } = this.state;
     const _this = this;
     const filterAccountIds = [md.global.Account.accountId].concat(selectUsers.map(i => i.accountId));
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       zIndex: 11,
       fromType: _this.props.fromType,
       SelectUserSettings: {

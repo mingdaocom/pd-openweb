@@ -68,7 +68,7 @@ export default class GalleryItem extends React.Component {
                 if (res.isSuccess) {
                   this.props.onDeleteFn(data.rowId);
                 } else {
-                  alert(_l('删除失败请稍后再试'));
+                  alert(_l('删除失败请稍后再试'), 2);
                 }
               });
           }}

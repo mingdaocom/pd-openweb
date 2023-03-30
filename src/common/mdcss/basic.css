@@ -23,6 +23,7 @@ html body {
   background-attachment: fixed;
   -webkit-text-size-adjust: none;
   line-height: 1.5;
+  background-color: transparent;
 }
 img {
   border: 0px;
@@ -2226,483 +2227,268 @@ input[type='checkbox']:disabled:checked:after {
 }
 
 .fileIcon-folder {
-  background: url('newfileIcons/folder.svg') no-repeat;
+  background: url('newfileIcons/folder.png') no-repeat;
   width: 249px;
   height: 205px;
 }
 
 .fileIcon-folderShared {
-  background: url('newfileIcons/folderShared.svg') no-repeat;
+  background: url('newfileIcons/folderShared.png') no-repeat;
   width: 249px;
   height: 205px;
 }
 
 .fileIcon-myfile {
-  background: url('newfileIcons/folder.svg') no-repeat;
+  background: url('newfileIcons/folder.png') no-repeat;
   width: 249px;
   height: 205px;
 }
 
 .fileIcon-7z {
-  background: url('newfileIcons/rar.svg') no-repeat;
+  background: url('newfileIcons/rar.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-ai {
-  background: url('newfileIcons/ai.svg') no-repeat;
+  background: url('newfileIcons/ai.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-doc,
 .fileIcon-docx {
-  background: url('newfileIcons/doc.svg') no-repeat;
+  background: url('newfileIcons/doc.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-excel {
-  background: url('newfileIcons/xls.svg') no-repeat;
+  background: url('newfileIcons/xls.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-img {
-  background: url('newfileIcons/jpg.svg') no-repeat;
+  background: url('newfileIcons/jpg.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-link {
-  background: url('newfileIcons/url.svg') no-repeat;
+  background: url('newfileIcons/url.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-mmap {
-  background: url('newfileIcons/mmap.svg') no-repeat;
+  background: url('newfileIcons/mmap.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-pdf {
-  background: url('newfileIcons/pdf.svg') no-repeat;
+  background: url('newfileIcons/pdf.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-ppt {
-  background: url('newfileIcons/ppt.svg') no-repeat;
+  background: url('newfileIcons/ppt.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-psd {
-  background: url('newfileIcons/psd.svg') no-repeat;
+  background: url('newfileIcons/psd.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-rar {
-  background: url('newfileIcons/rar.svg') no-repeat;
+  background: url('newfileIcons/rar.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-txt {
-  background: url('newfileIcons/txt.svg') no-repeat;
+  background: url('newfileIcons/txt.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-vsd {
-  background: url('newfileIcons/vsd.svg') no-repeat;
+  background: url('newfileIcons/vsd.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-word {
-  background: url('newfileIcons/docx.svg') no-repeat;
+  background: url('newfileIcons/docx.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-mdy {
-  background: url('newfileIcons/mdy.svg') no-repeat;
+  background: url('newfileIcons/mdy.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-xmind {
-  background: url('newfileIcons/xmind.svg') no-repeat;
+  background: url('newfileIcons/xmind.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-zip {
-  background: url('newfileIcons/rar.svg') no-repeat;
+  background: url('newfileIcons/rar.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-aep {
-  background: url('newfileIcons/aep.svg') no-repeat;
+  background: url('newfileIcons/aep.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-apk {
-  background: url('newfileIcons/apk.svg') no-repeat;
+  background: url('newfileIcons/apk.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-ascx {
-  background: url('newfileIcons/ascx.svg') no-repeat;
+  background: url('newfileIcons/ascx.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-db {
-  background: url('newfileIcons/db.svg') no-repeat;
+  background: url('newfileIcons/db.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-dmg {
-  background: url('newfileIcons/dmg.svg') no-repeat;
+  background: url('newfileIcons/dmg.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-dwg {
-  background: url('newfileIcons/dwg.svg') no-repeat;
+  background: url('newfileIcons/dwg.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-eps {
-  background: url('newfileIcons/eps.svg') no-repeat;
+  background: url('newfileIcons/eps.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-exe {
-  background: url('newfileIcons/exe.svg') no-repeat;
+  background: url('newfileIcons/exe.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-html {
-  background: url('newfileIcons/html.svg') no-repeat;
+  background: url('newfileIcons/html.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-indd {
-  background: url('newfileIcons/indd.svg') no-repeat;
+  background: url('newfileIcons/indd.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-iso {
-  background: url('newfileIcons/iso.svg') no-repeat;
+  background: url('newfileIcons/iso.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-key {
-  background: url('newfileIcons/key.svg') no-repeat;
+  background: url('newfileIcons/key.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-ma {
-  background: url('newfileIcons/ma.svg') no-repeat;
+  background: url('newfileIcons/ma.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-max {
-  background: url('newfileIcons/max.svg') no-repeat;
+  background: url('newfileIcons/max.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-mp3 {
-  background: url('newfileIcons/mp3.svg') no-repeat;
+  background: url('newfileIcons/mp3.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-mp4 {
-  background: url('newfileIcons/mp4.svg') no-repeat;
+  background: url('newfileIcons/mp4.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-numbers {
-  background: url('newfileIcons/numbers.svg') no-repeat;
+  background: url('newfileIcons/numbers.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-obj {
-  background: url('newfileIcons/obj.svg') no-repeat;
+  background: url('newfileIcons/obj.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-pages {
-  background: url('newfileIcons/pages.svg') no-repeat;
+  background: url('newfileIcons/pages.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-prt {
-  background: url('newfileIcons/prt.svg') no-repeat;
+  background: url('newfileIcons/prt.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-rp {
-  background: url('newfileIcons/rp.svg') no-repeat;
+  background: url('newfileIcons/rp.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-skp {
-  background: url('newfileIcons/skp.svg') no-repeat;
+  background: url('newfileIcons/skp.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-xd {
-  background: url('newfileIcons/xd.svg') no-repeat;
+  background: url('newfileIcons/xd.png') no-repeat;
   width: 175px;
   height: 200px;
 }
 
 .fileIcon-worksheet {
-  background: url('newfileIcons/ic_file_worksheet.svg') no-repeat;
+  background: url('newfileIcons/ic_file_worksheet.png') no-repeat;
 }
 
-.fileIcon-folder.antiIcon {
-  background: url('antiFileIcons/folder.svg') no-repeat;
-  background-color: #f6f7f9;
-}
-
-.fileIcon-folderShared.antiIcon {
-  background: url('antiFileIcons/folderShared.svg') no-repeat;
-  background-color: #f6f7f9;
-}
-
-.fileIcon-myfile.antiIcon {
-  background: url('antiFileIcons/folder.svg') no-repeat;
-  background-color: #f6f7f9;
-}
-
-.fileIcon-7z.antiIcon {
-  background: url('antiFileIcons/rar.svg') no-repeat;
-  background-color: #fcc930;
-}
-
-.fileIcon-ai.antiIcon {
-  background: url('antiFileIcons/ai.svg') no-repeat;
-  background-color: #f37c22;
-}
-
-.fileIcon-doc.antiIcon,
-.fileIcon-docx.antiIcon {
-  background: url('antiFileIcons/doc.svg') no-repeat;
-  background-color: #acacac;
-}
-
-.fileIcon-excel.antiIcon {
-  background: url('antiFileIcons/xls.svg') no-repeat;
-  background-color: #65b940;
-}
-
-.fileIcon-img.antiIcon {
-  background: url('antiFileIcons/jpg.svg') no-repeat;
-  background-color: #fc5830;
-}
-
-.fileIcon-link.antiIcon {
-  background: url('antiFileIcons/url.svg') no-repeat;
-  background-color: #1eaaf1;
-}
-
-.fileIcon-mmap.antiIcon {
-  background: url('antiFileIcons/mmap.svg') no-repeat;
-  background-color: #d13135;
-}
-
-.fileIcon-pdf.antiIcon {
-  background: url('antiFileIcons/pdf.svg') no-repeat;
-  background-color: #d13135;
-}
-
-.fileIcon-ppt.antiIcon {
-  background: url('antiFileIcons/ppt.svg') no-repeat;
-  background-color: #f57c00;
-}
-
-.fileIcon-psd.antiIcon {
-  background: url('antiFileIcons/psd.svg') no-repeat;
-  background-color: #5465fc;
-}
-
-.fileIcon-rar.antiIcon {
-  background: url('antiFileIcons/rar.svg') no-repeat;
-  background-color: #fdca07;
-}
-
-.fileIcon-txt.antiIcon {
-  background: url('antiFileIcons/txt.svg') no-repeat;
-  background-color: #29d3b2;
-}
-
-.fileIcon-vsd.antiIcon {
-  background: url('antiFileIcons/vsd.svg') no-repeat;
-  background-color: #448aff;
-}
-
-.fileIcon-word.antiIcon {
-  background: url('antiFileIcons/docx.svg') no-repeat;
-  background-color: #448aff;
-}
-
-.fileIcon-mdy.antiIcon {
-  background: url('antiFileIcons/mdy.svg') no-repeat;
-  background-color: #448aff;
-}
-
-.fileIcon-xmind.antiIcon {
-  background: url('antiFileIcons/xmind.svg') no-repeat;
-  background-color: #d32f2f;
-}
-
-.fileIcon-zip.antiIcon {
-  background: url('antiFileIcons/rar.svg') no-repeat;
-  background-color: #fdd745;
-}
-
-.fileIcon-aep.antiIcon {
-  background: url('antiFileIcons/aep.svg') no-repeat;
-  background-color: #7757bc;
-}
-
-.fileIcon-apk.antiIcon {
-  background: url('antiFileIcons/apk.svg') no-repeat;
-  background-color: #62bb37;
-}
-
-.fileIcon-ascx.antiIcon {
-  background: url('antiFileIcons/ascx.svg') no-repeat;
-  background-color: #29d3b2;
-}
-
-.fileIcon-db.antiIcon {
-  background: url('antiFileIcons/db.svg') no-repeat;
-  background-color: #29d3b2;
-}
-
-.fileIcon-dmg.antiIcon {
-  background: url('antiFileIcons/dmg.svg') no-repeat;
-  background-color: #718bc8;
-}
-
-.fileIcon-dwg.antiIcon {
-  background: url('antiFileIcons/dwg.svg') no-repeat;
-  background-color: #d32f2f;
-}
-
-.fileIcon-eps.antiIcon {
-  background: url('antiFileIcons/eps.svg') no-repeat;
-  background-color: #f57c00;
-}
-
-.fileIcon-exe.antiIcon {
-  background: url('antiFileIcons/exe.svg') no-repeat;
-  background-color: #718bc8;
-}
-
-.fileIcon-html.antiIcon {
-  background: url('antiFileIcons/html.svg') no-repeat;
-  background-color: #03a9f4;
-}
-
-.fileIcon-indd.antiIcon {
-  background: url('antiFileIcons/indd.svg') no-repeat;
-  background-color: #c11187;
-}
-
-.fileIcon-iso.antiIcon {
-  background: url('antiFileIcons/iso.svg') no-repeat;
-  background-color: #718bc8;
-}
-
-.fileIcon-key.antiIcon {
-  background: url('antiFileIcons/key.svg') no-repeat;
-  background-color: #448aff;
-}
-
-.fileIcon-ma.antiIcon {
-  background: url('antiFileIcons/ma.svg') no-repeat;
-  background-color: #009497;
-}
-
-.fileIcon-max.antiIcon {
-  background: url('antiFileIcons/max.svg') no-repeat;
-  background-color: #546e7a;
-}
-
-.fileIcon-mp3.antiIcon {
-  background: url('antiFileIcons/mp3.svg') no-repeat;
-  background-color: #ff40b6;
-}
-
-.fileIcon-mp4.antiIcon {
-  background: url('antiFileIcons/mp4.svg') no-repeat;
-  background-color: #7757bc;
-}
-
-.fileIcon-numbers.antiIcon {
-  background: url('antiFileIcons/numbers.svg') no-repeat;
-  background-color: #62bb37;
-}
-
-.fileIcon-obj.antiIcon {
-  background: url('antiFileIcons/obj.svg') no-repeat;
-  background-color: #03a9f4;
-}
-
-.fileIcon-pages.antiIcon {
-  background: url('antiFileIcons/pages.svg') no-repeat;
-  background-color: #f57c00;
-}
-
-.fileIcon-prt.antiIcon {
-  background: url('antiFileIcons/prt.svg') no-repeat;
-  background-color: #009497;
-}
-
-.fileIcon-rp.antiIcon {
-  background: url('antiFileIcons/rp.svg') no-repeat;
-  background-color: #aa00ff;
-}
-
-.fileIcon-skp.antiIcon {
-  background: url('antiFileIcons/skp.svg') no-repeat;
-  background-color: #aa00ff;
-}
-
-.fileIcon-xd.antiIcon {
-  background: url('antiFileIcons/xd.svg') no-repeat;
-  background-color: #c11187;
-}
 
 .fileIcon-folder,
 .fileIcon-folderShared,
@@ -2798,5 +2584,13 @@ input[type='checkbox']:disabled:checked:after {
   position: absolute !important;
 }
 
+html:not(.appHomeMobile) .ant-message {
+  top: 54px;
+}
 
-
+.pcToast.ant-message-notice .ant-message-notice-content {
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 40px;
+  padding: 10px 20px 10px 18px;
+}

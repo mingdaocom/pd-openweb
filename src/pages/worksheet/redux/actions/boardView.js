@@ -229,7 +229,7 @@ export function sortBoardRecord({ srcKey, targetKey, value, ...para }) {
         dispatch(updateBoardViewRecordCount([srcKey, -1]));
         dispatch(updateBoardViewRecordCount([targetKey, 1]));
       } else {
-        alert(_l('拖拽更新失败!'));
+        alert(_l('拖拽更新失败!'), 2);
       }
     });
   };

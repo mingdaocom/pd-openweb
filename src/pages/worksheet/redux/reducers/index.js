@@ -32,7 +32,7 @@ function base(state = {}, action) {
 
 function isCharge(state = false, action) {
   switch (action.type) {
-    case 'SHEET_LIST_UPDATE_IS_CHARGE':
+    case 'WORKSHEET_UPDATE_IS_CHARGE':
       return action.isCharge;
     default:
       return state;

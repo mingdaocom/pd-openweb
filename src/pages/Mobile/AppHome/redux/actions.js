@@ -81,7 +81,7 @@ export const markedGroup =
         });
         isMarked ? alert(_l('星标成功')) : alert(_l('取消星标成功'));
       } else {
-        isMarked ? alert(_l('星标失败')) : alert(_l('取消星标失败'));
+        isMarked ? alert(_l('星标失败'), 2) : alert(_l('取消星标失败'), 2);
       }
     });
   };

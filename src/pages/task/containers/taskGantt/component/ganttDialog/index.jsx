@@ -210,7 +210,7 @@ export default class GanttDialog extends Component {
           })
           .catch(error => {
             console.log(error);
-            alert(_l('保存失败!'));
+            alert(_l('保存失败!'), 2);
           });
       }
     });

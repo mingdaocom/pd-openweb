@@ -163,6 +163,12 @@ export default function AppList(props) {
   }, [appId]);
 
   useEffect(() => {
+    data.list = data.list.map(l => {
+      return {
+        ...l,
+        value: l.value ? l.value.split('|').filter(text => text.includes(searchKeyword)).join(' ') : '',
+      }
+    })
     if (viewAll || needShowMore) {
       setList(_.slice(data.list, 0, 5));
     } else {
@@ -353,7 +359,7 @@ export default function AppList(props) {
                               <TextHeightLine
                                 className=""
                                 heightLineText={searchKeyword}
-                                text={item.value ? item.value.split('|').join(' ') : ''}
+                                text={item.value || ''}
                               />
                             </React.Fragment>
                           ) : null

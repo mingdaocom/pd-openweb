@@ -4,7 +4,6 @@ import autoSize from 'ming-ui/decorators/autoSize';
 import { Support, ScrollView } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
-import ConnectLib from './ConnectLib';
 import ConnectList from './ConnectList';
 import { PageSize } from '../config';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
@@ -13,6 +12,8 @@ import ConnectWrap from './ConnectWrap';
 import bg from 'staticfiles/images/query.png';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import _ from 'lodash';
+import loadScript from 'load-script';
+import moment from 'moment';
 
 const Wrap = styled.div`
   background: #fff;
@@ -98,15 +99,18 @@ const list = [
 ];
 
 function ConnectAndAuthCon(props) {
+  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary.js' + '?' + moment().format('YYYYMMDD');
+  // 是否启用明道云API库，默认开启
+  const hideIntegrationLibrary = md.global.Config.IsLocal && md.global.SysSettings.hideIntegrationLibrary;
   const cache = useRef({ pgIndex: 1 });
   const { match = { params: {} } } = props;
   const { listType = '' } = match.params;
   const initData = {
-    tab: md.global.Config.IsLocal
+    tab: hideIntegrationLibrary
       ? 'connectList'
       : listType ||
         window.localStorage.getItem('integrationTab') ||
-        (!md.global.Config.IsLocal ? 'connectLib' : 'connectList'),
+        (!hideIntegrationLibrary ? 'connectLib' : 'connectList'),
     loading: false,
     pageIndex: 1,
     noMore: false,
@@ -121,7 +125,7 @@ function ConnectAndAuthCon(props) {
   ] = useSetState({ ...initData, listCount: 0 });
   const featureType = getFeatureStatus(props.currentProjectId, 3);
   const fetchData = () => {
-    if (tab === 'connectList' && !props.currentProjectId) {
+    if (tab !== 'connectList' || !props.currentProjectId) {
       return;
     }
     if (ajaxPromise) {
@@ -130,8 +134,8 @@ function ConnectAndAuthCon(props) {
     setState({ loading: true });
     ajaxPromise = packageVersionAjax.getList(
       {
-        companyId: tab !== 'connectList' ? '' : props.currentProjectId,
-        types: tab !== 'connectList' && !md.global.Config.IsLocal ? [3] : [1, 2],
+        companyId: props.currentProjectId,
+        types: [1, 2],
         pageIndex: pageIndex,
         pageSize: PageSize,
         keyword: keywords,
@@ -173,31 +177,43 @@ function ConnectAndAuthCon(props) {
   );
 
   const onScrollEnd = () => {
-    if (loading || noMore) {
+    if (loading || noMore || tab === 'connectLib') {
       return;
     }
     setState({ pageIndex: cache.current.pgIndex + 1 });
   };
 
   useEffect(() => {
+    if (tab === 'connectLib') {
+      if (window.MDAPILibrary) {
+        renderLibCon();
+      } else {
+        loadLib();
+      }
+    }
+  }, [tab]);
+
+  useEffect(() => {
     fetchData();
   }, [props.currentProjectId, pageIndex, keywords, tab, hasChange]);
 
   useEffect(() => {
-    packageVersionAjax.count(
-      {
-        companyId: props.currentProjectId,
-        types: [1, 2],
-        pageIndex: 1,
-        pageSize: 10000000,
-        // keyword: keywords,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setState({
-        listCount: res['1'] + res['2'],
+    packageVersionAjax
+      .count(
+        {
+          companyId: props.currentProjectId,
+          types: [1, 2],
+          pageIndex: 1,
+          pageSize: 10000000,
+          // keyword: keywords,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({
+          listCount: res['1'] + res['2'],
+        });
       });
-    });
   }, [hasChange]);
 
   const listConRender = () => {
@@ -237,6 +253,30 @@ function ConnectAndAuthCon(props) {
       );
   };
 
+  const renderLibCon = () => {
+    window.MDAPILibrary &&
+      window.MDAPILibrary({
+        DomId: 'containerApiLib',
+        featureType: featureType,
+        installCallBack: id => {
+          setState({ showConnect: true, connectData: { id }, hasChange: hasChange + 1 });
+        },
+        buriedUpgradeVersionDialog: () => {
+          buriedUpgradeVersionDialog(props.currentProjectId, 3);
+        },
+        currentProjectId: props.currentProjectId,
+        getUrl: 'https://api.mingdao.com/integration',
+        installUrl: __api_server__.integration || md.global.Config.IntegrationAPIUrl,
+      });
+  };
+  const loadLib = () => {
+    loadScript(str, err => {
+      if (!err && window.MDAPILibrary) {
+        renderLibCon();
+      }
+    });
+  };
+
   const renderCon = () => {
     const param = {
       ...props,
@@ -253,7 +293,7 @@ function ConnectAndAuthCon(props) {
     const onCreate = () => {
       const projectId = props.currentProjectId;
       if (!projectId) {
-        return alert(_l('请创建或申请加入一个组织', 3));
+        return alert(_l('请创建或申请加入一个组织'), 3);
       }
       if (featureType === '2') {
         buriedUpgradeVersionDialog(projectId, 3);
@@ -261,7 +301,7 @@ function ConnectAndAuthCon(props) {
         setState({ showConnect: true, connectData: null });
       }
     };
-    if (md.global.Config.IsLocal) {
+    if (hideIntegrationLibrary) {
       return (
         <React.Fragment>
           {listConRender()}
@@ -273,21 +313,7 @@ function ConnectAndAuthCon(props) {
       case 'connectLib':
         return (
           <WrapLib>
-            <div className="flexRow alignItemsCenter ">
-              <h5 className="Bold Font17 flex mBottom0">{_l('API 库')}</h5>
-              <SearchInput
-                className="searchCon"
-                placeholder={_l('搜索连接/API/厂商')}
-                value={keywords}
-                onChange={handleSearch}
-              />
-            </div>
-            <ConnectLib
-              {...param}
-              onShowConnect={id => {
-                setState({ showConnect: true, connectData: { id }, hasChange: hasChange + 1 });
-              }}
-            />
+            <div id="containerApiLib"></div>
           </WrapLib>
         );
       default:
@@ -309,7 +335,7 @@ function ConnectAndAuthCon(props) {
               {_l('连接第三方 API 并保存鉴权认证，在工作表或工作流中调用')}{' '}
               <Support
                 type={3}
-                href="https://help.mingdao.com/integration.html#第一步、连接与认证"
+                href="https://help.mingdao.com/zh/integration.html#第一步、连接与认证"
                 text={_l('使用帮助')}
               />
             </p>
@@ -317,7 +343,7 @@ function ConnectAndAuthCon(props) {
         </div>
         <div className="listCon">
           <React.Fragment>
-            {!md.global.Config.IsLocal && (
+            {!hideIntegrationLibrary && (
               <div className="navTab">
                 <ul>
                   {list.map((o, i) => {
@@ -342,7 +368,7 @@ function ConnectAndAuthCon(props) {
                 </ul>
               </div>
             )}
-            <div className={cx('Con', { mTop40: md.global.Config.IsLocal })}>{renderCon()}</div>
+            <div className={cx('Con', { mTop40: hideIntegrationLibrary })}>{renderCon()}</div>
           </React.Fragment>
         </div>
         {showConnect && (

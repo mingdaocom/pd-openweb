@@ -263,7 +263,7 @@ export default class FieldRecycleBin extends Component {
               this.setState({ visible: true }, this.getRecycleList);
             }}
           >
-            <Icon icon="recycle" />
+            <Icon icon="trash" />
             <div className="recycle">{_l('回收站')}</div>
             {isFree && <Icon icon="auto_awesome" className="freeIcon" />}
           </div>

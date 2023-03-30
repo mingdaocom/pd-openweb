@@ -127,7 +127,7 @@ export default class Grouping extends Component {
     const { width, viewConfig, group, worksheetInfo, sheetSwitchPermit, withoutArrangementVisible } = this.props;
     const { viewControl } = viewConfig;
     const rows = group.rows.filter(item => (withoutArrangementVisible ? true : item.diff > 0));
-    const allowAdd = isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && worksheetInfo.allowAdd;
+    const allowAdd = isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && worksheetInfo.allowAdd && viewControl !== 'wfstatus';
     return (
       <Fragment>
         {!group.hide && (

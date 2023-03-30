@@ -149,7 +149,10 @@ export default class WeiXin extends Component {
         className: 'weixinFuncInfoDialog',
         overlayClosable: false,
         onCancel: () => {
-          $('.weixinFuncInfoDialog').parents('.mui-dialog-container').parents('div').remove();
+          $('.weixinFuncInfoDialog')
+            .parents('.mui-dialog-container')
+            .parents('div')
+            .remove();
         },
       };
       ReactDom.render(
@@ -178,7 +181,7 @@ export default class WeiXin extends Component {
               alert(_l('成功取消绑定'));
               this.setState({ isBind: false, weixinInfo: [] });
             } else {
-              alert(_l('操作失败，请稍候重试！', 2));
+              alert(_l('操作失败，请稍候重试！'), 2);
             }
           });
         },
@@ -238,7 +241,7 @@ export default class WeiXin extends Component {
     const isPlatformLocal = md.global.Config.IsPlatformLocal;
     return (
       <Fragment>
-        <span className="icon-wechat icon"></span>
+        <span className="icon-wechat icon" />
         <div className="subTitle fontWeight600">{_l('绑定微信公众号')}</div>
         <div className="desTxt">
           {_l(

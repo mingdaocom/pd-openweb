@@ -85,15 +85,21 @@ export default class Widgets extends Component {
           return (
             <Tooltip
               mouseEnterDelay={0.6}
+              disable={!projectId}
               text={() =>
-                new Promise(resolve =>
-                  departmentAjax.getDepartmentFullNameByIds({
-                    projectId,
-                    departmentIds: [item.departmentId],
-                  }).then(res => {
-                    resolve(_.get(res, '0.name'));
-                  }),
-                )
+                new Promise((resolve, reject) => {
+                  if (!projectId) {
+                    return reject();
+                  }
+                  departmentAjax
+                    .getDepartmentFullNameByIds({
+                      projectId,
+                      departmentIds: [item.departmentId],
+                    })
+                    .then(res => {
+                      resolve(_.get(res, '0.name'));
+                    });
+                })
               }
             >
               <div className={cx('customFormControlTags', { selected: browserIsMobile() && !disabled })} key={index}>
@@ -135,9 +141,7 @@ export default class Widgets extends Component {
             onSave={this.onSave}
             appId={appId}
             userType={getTabTypeBySelectUser(this.props)}
-            isRangeData={!!advancedSetting.userrange}
-            filterWorksheetId={worksheetId}
-            filterWorksheetControlId={controlId}
+            selectRangeOptions={!!advancedSetting.userrange}
           />
         )}
       </div>

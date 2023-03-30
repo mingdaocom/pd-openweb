@@ -42,7 +42,7 @@ export const HomePageWrap = styled.div`
         padding-top: 32px !important;
       }
     }
-    @media (max-width: 1919px) {
+    @media screen and (max-width: 1920px) {
       display: block;
       .infoBox {
         width: 100%;
@@ -151,6 +151,12 @@ export const HomePageWrap = styled.div`
         &.useAnalysisHover:hover {
           border-radius: 15px;
           background-color: #f5f5f5;
+        }
+        &.effectiveDataPipelineRowCount {
+          &:hover {
+            cursor: auto;
+            background-color: #fff;
+          }
         }
       }
     }

@@ -267,23 +267,28 @@ export default class Authentication extends Component {
 
           return (
             <Fragment>
-              <div className="flexRow mTop10">
+              <div className="flexRow">
                 <Dropdown
-                  className="flowDropdown mRight10"
+                  className="flowDropdown mRight10 mTop10"
                   style={{ width: 115 }}
                   data={METHODS_TYPE}
                   value={item.method}
                   border
                   onChange={method => this.updateAjaxParameter({ method: method }, i)}
                 />
-                <input
-                  type="text"
-                  className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
-                  placeholder="https://example.com/login/oauth/access_token"
-                  value={item.url}
-                  onChange={evt => this.updateAjaxParameter({ url: evt.target.value }, i)}
-                  onBlur={evt => this.updateAjaxParameter({ url: evt.target.value.trim() }, i)}
-                />
+                <div className="flex">
+                  <CustomTextarea
+                    processId={this.props.processId}
+                    selectNodeId={this.props.selectNodeId}
+                    isIntegration={this.props.isIntegration}
+                    type={2}
+                    height={0}
+                    content={item.url}
+                    formulaMap={data.formulaMap}
+                    onChange={(err, value, obj) => this.updateAjaxParameter({ url: value }, i)}
+                    updateSource={this.updateSource}
+                  />
+                </div>
               </div>
 
               <div className="flexRow mTop10">
@@ -528,7 +533,7 @@ export default class Authentication extends Component {
           });
         } else {
           this.updateAjaxParameter({ testMap }, this.testIndex);
-          alert(result.msg, 2);
+          alert(result.msg || _l('请求异常'), 2);
         }
 
         this.setState({ sendRequest: false });

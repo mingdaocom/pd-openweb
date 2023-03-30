@@ -37,7 +37,7 @@ export default class WidgetsVerifyCode extends Component {
     }
 
     if (!isAvailable) {
-      alert(_l('请正确填写手机号'));
+      alert(_l('请正确填写手机号'), 3);
       return;
     }
 
@@ -49,27 +49,29 @@ export default class WidgetsVerifyCode extends Component {
         return;
       }
 
-      publicWorksheetAjax.sendVerifyCode({
-        account: value,
-        ticket: res.ticket,
-        randStr: res.randstr,
-        worksheetId: worksheetId,
-        captchaType: md.staticglobal.getCaptchaType(),
-      }).then(data => {
-        if (data === 1) {
-          _this.handleSend();
-        } else {
-          alert(
-            {
-              3: _l('图形验证码失败'),
-              8: _l('该手机号发送过于频繁'),
-              22: _l('短信余额不足，请联系表单发布者'),
-            }[data] || _l('发送失败'),
-            2,
-          );
-          _this.setState({ isSubmit: false });
-        }
-      });
+      publicWorksheetAjax
+        .sendVerifyCode({
+          account: value,
+          ticket: res.ticket,
+          randStr: res.randstr,
+          worksheetId: worksheetId,
+          captchaType: md.staticglobal.getCaptchaType(),
+        })
+        .then(data => {
+          if (data === 1) {
+            _this.handleSend();
+          } else {
+            alert(
+              {
+                3: _l('图形验证码失败'),
+                8: _l('该手机号发送过于频繁'),
+                22: _l('短信余额不足，请联系表单发布者'),
+              }[data] || _l('发送失败'),
+              2,
+            );
+            _this.setState({ isSubmit: false });
+          }
+        });
     };
 
     let onCancel = isOk => {

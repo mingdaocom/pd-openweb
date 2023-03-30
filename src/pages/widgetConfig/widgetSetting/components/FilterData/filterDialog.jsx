@@ -17,7 +17,7 @@ export default function FilterDialog(props) {
   const {
     allowEmpty,
     supportGroup,
-    data,
+    data = {},
     onChange,
     onClose,
     allControls, //动态字段值显示的Controls
@@ -30,7 +30,7 @@ export default function FilterDialog(props) {
     globalSheetControls, //主标控件 用于 子表中的关联记录字段筛选选择范围，支持使用主表中的字段
   } = props;
 
-  const { sourceControlId, type } = data;
+  const { sourceControlId = '', type = '' } = data;
   const [filters, setFilters] = useState(props.filters || getAdvanceSetting(data, 'filters'));
 
   const relateSheetList = filterControlsFromAll(
@@ -46,6 +46,7 @@ export default function FilterDialog(props) {
       okText={_l('确定')}
       cancelText={_l('取消')}
       className="filterDialog"
+      width={560}
       overlayClosable={props.overlayClosable}
       onCancel={onClose}
       onOk={() => {
@@ -127,7 +128,7 @@ export default function FilterDialog(props) {
         <Support
           type={3}
           style={{ position: 'absolute', bottom: 27 }}
-          href={helpHref || 'https://help.mingdao.com/sheet14.html'}
+          href={helpHref || 'https://help.mingdao.com/zh/sheet14.html'}
           text={_l('帮助')}
         />
       </Fragment>

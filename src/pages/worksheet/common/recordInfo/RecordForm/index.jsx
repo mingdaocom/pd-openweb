@@ -12,6 +12,7 @@ import DragMask from 'worksheet/common/DragMask';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import FormHeader from './FormHeader';
+import FormCover from './FormCover';
 import Abnormal from './Abnormal';
 import RelateRecordTableNav from './RelateRecordTableNav';
 import RelateRecordBlock from './RelateRecordBlock';
@@ -122,6 +123,7 @@ export default function RecordForm(props) {
     onError,
     masterRecordRowId,
     onWidgetChange = () => {},
+    widgetStyle = {},
   } = props;
   let { formdata = [] } = props;
   formdata.forEach(item => {
@@ -171,11 +173,14 @@ export default function RecordForm(props) {
   }
   const relateRecordTableControls = _.sortBy(
     updateRulesData({
-      from: recordId ? 3 : 2,
+      from: recordId && from !== 21 ? 3 : 2,
       rules: recordinfo.rules,
       data: formdata,
     })
-      .filter(control => isRelateRecordTableControl(control) && controlState(control, recordId ? 3 : 2).visible)
+      .filter(
+        control =>
+          isRelateRecordTableControl(control) && controlState(control, recordId && from !== 21 ? 3 : 2).visible,
+      )
       .map(c => (!ignoreLock && isLock ? { ...c, disabled: true } : c)),
     'row',
   ).filter(c => !c.hidden);
@@ -296,6 +301,9 @@ export default function RecordForm(props) {
               : {})}
           >
             <div className="topCon" style={isSplit ? { height: topHeight || 300 } : {}}>
+              {type === 'edit' && !isSubList && (
+                <FormCover flag={formFlag} formData={formdata} widgetStyle={widgetStyle} />
+              )}
               {type === 'edit' && (
                 <StickyBar
                   className="stickyBar"
@@ -330,6 +338,7 @@ export default function RecordForm(props) {
                   ref={customwidget}
                   from={from === 21 ? from : recordId ? 3 : isMobile ? 5 : 2}
                   flag={formFlag}
+                  widgetStyle={widgetStyle}
                   controlProps={controlProps}
                   data={formdata.filter(c => !_.includes(HIDDEN_CONTROL_IDS, c.controlId))}
                   systemControlData={systemControlData}

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { string, func } from 'prop-types';
 import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain/index.jsx';
 import ConnectCon from './ConnectCon';
 import './index.less'

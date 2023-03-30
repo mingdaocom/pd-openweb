@@ -1,5 +1,5 @@
 import ajax from 'src/pages/hr/approval/api/system';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 
 /**
  * hr 审批用的选人
@@ -12,9 +12,17 @@ import 'src/components/dialogSelectUser/dialogSelectUser';
  * @param superior //是否是需要直属上司的tab
  * @constructor
  */
-const SelectUser = function (title, projectId, callback, role = false, unique = false, filterAccountIds = [], superior = true) {
+const SelectUser = function (
+  title,
+  projectId,
+  callback,
+  role = false,
+  unique = false,
+  filterAccountIds = [],
+  superior = true,
+) {
   if (role) {
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       title,
       zIndex: 11,
       sourceId: '',
@@ -40,9 +48,9 @@ const SelectUser = function (title, projectId, callback, role = false, unique = 
             },
           },
         ],
-        callback: (users) => {
+        callback: users => {
           const newUsers = [];
-          users.forEach((user) => {
+          users.forEach(user => {
             const strs = user.accountId.split('_');
             const newUser = {
               accountId: strs[0],
@@ -64,7 +72,7 @@ const SelectUser = function (title, projectId, callback, role = false, unique = 
       },
     });
   } else {
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       title,
       zIndex: 11,
       sourceId: '',
@@ -79,7 +87,7 @@ const SelectUser = function (title, projectId, callback, role = false, unique = 
         filterAccountIds,
         unique,
         showTabs: ['conactUser', 'department', 'subordinateUser'],
-        callback: (users) => {
+        callback: users => {
           callback(users);
         },
       },

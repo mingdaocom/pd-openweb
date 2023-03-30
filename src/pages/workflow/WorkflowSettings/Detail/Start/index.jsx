@@ -110,6 +110,8 @@ export default class Start extends Component {
       returnJson,
       returns = [],
       processConfig,
+      hooksAll,
+      hooksBody,
     } = data;
     let { time } = data;
     time = isDateField ? '' : time;
@@ -124,7 +126,7 @@ export default class Start extends Component {
         return;
       }
 
-      if (appType === APP_TYPE.WEBHOOK && !data.controls.length) {
+      if (appType === APP_TYPE.WEBHOOK && !data.controls.length && close) {
         alert(_l('请设置有效的参数'), 2);
         return;
       }
@@ -138,7 +140,7 @@ export default class Start extends Component {
         return;
       }
 
-      if (returnJson && !checkJSON(returnJson)) {
+      if (!hooksAll && returnJson && !checkJSON(returnJson)) {
         alert(_l('自定义数据返回JSON格式错误，请修改'), 2);
         return;
       }
@@ -200,6 +202,7 @@ export default class Start extends Component {
           returnJson,
           returns: returns.filter(o => !!o.name),
           processConfig,
+          hooksBody,
         },
         { isIntegration: this.props.isIntegration },
       )

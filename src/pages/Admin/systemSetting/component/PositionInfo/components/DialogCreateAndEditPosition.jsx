@@ -33,7 +33,7 @@ class DialogCreateAndEditPosition extends React.Component {
                   this.props.getPositionList();
                   this.props.onCancel();
                 } else {
-                  alert(_l('职位存在成员，无法删除', 2));
+                  alert(_l('职位存在成员，无法删除'), 2);
                 }
               });
             }}

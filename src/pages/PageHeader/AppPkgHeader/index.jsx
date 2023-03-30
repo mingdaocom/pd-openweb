@@ -8,6 +8,7 @@ import { bindActionCreators } from 'redux';
 import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
 import './index.less';
 import { getAppFeaturesVisible, browserIsMobile } from 'src/util';
+import { getAppId } from 'src/pages/PortalAccount/util';
 
 @connect(
   undefined,
@@ -18,6 +19,7 @@ import { getAppFeaturesVisible, browserIsMobile } from 'src/util';
 export default class AppPkgHeader extends Component {
   constructor(props) {
     super(props);
+    this.isRequest = false;
     if (
       (props.path === '/worksheet/:worksheetId?' || props.path === '/worksheet/:worksheetId/view/:viewId') &&
       location.href.indexOf('/row/') < 0
@@ -25,14 +27,20 @@ export default class AppPkgHeader extends Component {
       this.compatibleWorksheetRoute();
     }
     const { appId, groupId, worksheetId } = getIds(props);
-    if (!worksheetId && !groupId) {
+    if (appId && (!worksheetId && !groupId)) {
       this.completePara({ appId, groupId });
     }
   }
 
   componentWillReceiveProps(nextProps) {
     const { appId, groupId, worksheetId } = getIds(nextProps);
-    if (!worksheetId && !groupId) {
+    if (appId === _.get(window, 'appInfo.id') && _.get(window, 'appInfo.currentPcNaviStyle') === 2) {
+      return;
+    }
+    if (appId !== getIds(this.props).appId || groupId !== getIds(this.props).groupId) {
+      this.isRequest = false;
+    }
+    if (appId && (!worksheetId && !groupId)) {
       this.completePara({ appId, groupId });
     }
   }
@@ -57,10 +65,16 @@ export default class AppPkgHeader extends Component {
   /**
    * 参数补齐
    */
-  completePara = ({ appId, groupId }) => {
-    api.getAppFirstInfo({ appId, appSectionId: groupId }).then(({ appSectionId, workSheetId }) => {
+  completePara = (data) => {
+    if (this.isRequest) return;
+    this.isRequest = true;
+    const appId = md.global.Account.isPortal ? md.global.Account.appId : data.appId;
+    api.getAppFirstInfo({
+      appId,
+      appSectionId: data.groupId
+    }).then(({ appSectionId, workSheetId }) => {
       if (appSectionId) {
-        navigateTo(`/app/${appId}/${appSectionId}/${workSheetId}`, true);
+        navigateTo(`/app/${appId}/${appSectionId}/${workSheetId || ''}?flag=${Date.now()}`, true);
       } else {
         this.props.updateSheetListLoading(false);
       }

@@ -101,7 +101,7 @@ import moment from 'moment';
           $votePicContainer.find('.votePicDesc').show();
           $votePicContainer
             .find('.votePicName')
-            .html(attachment.originalFileName + attachment.fileExt)
+            .text(attachment.originalFileName + attachment.fileExt)
             .attr('title', attachment.originalFileName + attachment.fileExt)
             .show();
           var fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;

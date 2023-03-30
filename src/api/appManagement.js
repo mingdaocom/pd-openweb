@@ -997,6 +997,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.id 分享id
   * @param {string} args.password 密码
+  * @param {string} args.clientId 客户端id
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）

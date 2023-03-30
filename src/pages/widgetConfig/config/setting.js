@@ -45,6 +45,7 @@ export const UNIT_TYPE = [
   { text: _l('天'), value: '3' },
   { text: _l('时'), value: '2' },
   { text: _l('分'), value: '1' },
+  { text: _l('秒'), value: '6' },
 ];
 
 export const DEFAULT_SETTING_OPTIONS = [

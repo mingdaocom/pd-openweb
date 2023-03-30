@@ -17,13 +17,13 @@ export const ROUTE_CONFIG_PORTAL = addSubPathOfRoutes(
       component: () => import('src/pages/NewRecord'),
     },
     // 工作表
-    worksheetDetail: {
-      path: '/(app/)?:appId/:worksheetId/:viewId/row/:rowId',
+    worksheetDetailNoView: {
+      path: '/(app/)?:appId/:worksheetId/row/:rowId',
       component: () => import('src/pages/worksheet/pages/WorksheetRowLand'),
     },
     // 工作表
-    worksheetDetailNoView: {
-      path: '/(app/)?:appId/:worksheetId/row/:rowId',
+    worksheetDetail: {
+      path: '/(app/)?:appId/:worksheetId/:viewId/row/:rowId',
       component: () => import('src/pages/worksheet/pages/WorksheetRowLand'),
     },
     gunterExport: {

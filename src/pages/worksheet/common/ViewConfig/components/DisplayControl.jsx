@@ -4,10 +4,7 @@ import { Icon } from 'ming-ui';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { getAdvanceSetting } from 'src/util';
-import {
-  NORMAL_SYSTEM_FIELDS_SORT,
-  WORKFLOW_SYSTEM_FIELDS_SORT,
-} from 'src/pages/worksheet/common/ViewConfig/util';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
 export const SwitchStyle = styled.div`
   display: inline-block;
   .switchText {
@@ -80,7 +77,7 @@ export default class DisplayControl extends React.Component {
             viewType={view.viewType}
             onChange={({ newControlSorts, newShowControls }) => {
               if (maxCount3 && newShowControls.length > 3) {
-                alert(_l('一行三列布局时，最多只能设置3个显示字段'));
+                alert(_l('一行三列布局时，最多只能设置3个显示字段'), 3);
                 return;
               } else {
                 handleChangeSort({ newControlSorts, newShowControls });

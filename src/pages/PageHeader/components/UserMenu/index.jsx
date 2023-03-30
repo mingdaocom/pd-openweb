@@ -88,7 +88,7 @@ export default function UserMenu(props) {
               popupAlign={{
                 points: ['tr', 'tl'],
                 offset: [-2, -8],
-                overflow: { adjustX: 0, adjustY: 5 },
+                overflow: { adjustX: true, adjustY: true },
               }}
               onPopupVisibleChange={userVisible => {
                 handleChangeVisible(userVisible);

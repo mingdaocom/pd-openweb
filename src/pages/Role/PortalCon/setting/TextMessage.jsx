@@ -120,10 +120,10 @@ export default function TextMessage(props) {
                   smsSignature: preSign,
                 },
               });
-              return alert(_l('请输入签名'));
+              return alert(_l('请输入签名'), 3);
             }
             if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(e.target.value)) {
-              return alert(_l('只支持中英文'));
+              return alert(_l('只支持中英文'), 3);
             }
             if (getStringBytes(e.target.value) > 16) {
               setSign(getStrBytesLength(e.target.value));
@@ -133,7 +133,7 @@ export default function TextMessage(props) {
                   smsSignature: getStrBytesLength(e.target.value),
                 },
               });
-              return alert(_l('最多只能16个字节'));
+              return alert(_l('最多只能16个字节'), 3);
             }
           }}
           onChange={e => {
@@ -184,7 +184,7 @@ export default function TextMessage(props) {
                   emailSignature: preSign,
                 },
               });
-              return alert(_l('请输入发件人名称'));
+              return alert(_l('请输入发件人名称'), 3);
             }
             onChangePortalSet({
               portalSetModel: {

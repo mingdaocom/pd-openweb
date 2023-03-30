@@ -9,7 +9,7 @@ import { ADVANCE_AUTHORITY } from '../../config';
 const Wrap = styled.div`
   .ck-editor__main {
     max-height: ${props => `${props.richTextHeight}px`};
-  };
+  }
 `;
 
 export default class Editor extends Component {
@@ -154,6 +154,8 @@ export default class Editor extends Component {
       title,
       changeSetting,
       toorIsBottom,
+      maxHeight,
+      minHeight,
     } = this.props;
 
     const clientHeight = document.body.clientHeight;
@@ -162,7 +164,11 @@ export default class Editor extends Component {
 
     if (!isEditing) {
       return (
-        <Wrap className={cx('mdEditor', { Alpha8: !auth }, className, { pBottom15: summary })} onClick={joinEditing} richTextHeight={richTextHeight}>
+        <Wrap
+          className={cx('mdEditor', { Alpha8: !auth }, className, { pBottom15: summary })}
+          onClick={joinEditing}
+          richTextHeight={richTextHeight}
+        >
           <header className="appIntroHeader">
             <div className="caption">{title || _l('应用说明')}</div>
             {!isEditing && permissionType >= ADVANCE_AUTHORITY && (
@@ -179,6 +185,8 @@ export default class Editor extends Component {
               className={'mdEditorContent editorContent'}
               disabled={true}
               backGroundColor={'#fff'}
+              minHeight={minHeight}
+              maxHeight={maxHeight}
             />
           ) : null}
         </Wrap>
@@ -195,7 +203,8 @@ export default class Editor extends Component {
             showTool={true}
             onActualSave={this.onChange}
             changeSetting={changeSetting}
-            minHeight={320}
+            minHeight={minHeight}
+            maxHeight={maxHeight}
           />
         )}
         {!toorIsBottom && <button id="editorFiles" />}
@@ -224,7 +233,8 @@ export default class Editor extends Component {
             showTool={true}
             onActualSave={this.onChange}
             changeSetting={changeSetting}
-            minHeight={320}
+            minHeight={minHeight || 320}
+            maxHeight={maxHeight}
           />
         )}
       </Wrap>

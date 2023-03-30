@@ -10,6 +10,8 @@ import { SYS } from 'src/pages/widgetConfig/config/widget';
 import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+
 const Wrap = styled.div`
   width: 100%;
   height: 100%;
@@ -22,13 +24,14 @@ export default class GunterEnter extends Component {
     super(props);
   }
   render() {
-    const { isCharge, view, toCustomWidget, controls = [], updateWorksheetControls } = this.props;
+    const { isCharge, view, toCustomWidget, controls = [], updateWorksheetControls, sheetSwitchPermit } = this.props;
     const { begindate = '', enddate = '' } = getAdvanceSetting(view);
-    const timeControls = controls.filter(
+    let timeControls = controls.filter(
       item =>
         !SYS.includes(item.controlId) &&
         (_.includes([15, 16], item.type) || (item.type === 38 && item.enumDefault === 2)),
     );
+    timeControls = setSysWorkflowTimeControlFormat(timeControls, sheetSwitchPermit);
     const timeControlsIds = timeControls.map(o => o.controlId);
     const isDelete = begindate && !timeControlsIds.includes(begindate); //开始时间字段已删除
     const isDeleteEnd = enddate && !timeControlsIds.includes(enddate); //结束时间字段已删除

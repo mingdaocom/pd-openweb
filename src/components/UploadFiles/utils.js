@@ -320,6 +320,7 @@ export const formatTime = (seconds = 0) => {
 // 文件类型验证
 export const checkFileExt = (filetype = '', fileExt = '') => {
   const { type = '', values = [] } = JSON.parse(filetype || '{}');
+  fileExt = fileExt.replace('.', '');
   let verifyExt = true;
 
   const FileExts = {
@@ -367,7 +368,7 @@ export const checkFileAvailable = (fileSettingInfo = {}, files = [], tempCount =
           itemField.name ? File.GetExt(itemField.name) : itemField.fileExt,
         );
         if (!verifyExt) {
-          alert(errorText);
+          alert(errorText, 2);
           return false;
         }
       }

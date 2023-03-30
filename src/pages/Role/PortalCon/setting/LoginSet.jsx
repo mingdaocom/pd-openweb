@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Icon, LoadDiv, Dialog } from 'ming-ui';
 import cx from 'classnames';
 import 'src/components/uploadAttachment/uploadAttachment';
-import color from 'color';
 import { COLORS, BGTYPE } from 'src/pages/Role/PortalCon/tabCon/util';
 import cbg from './img/center.png';
 import cCbg from './img/centerC.png';
@@ -517,7 +516,7 @@ export default function LoginSet(props) {
                     return (
                       <li
                         className={cx('colorLi InlineBlock Hand', { current: portalSetModel.backColor === item })}
-                        style={{ backgroundColor: color(item) }}
+                        style={{ backgroundColor: item }}
                         onClick={() => {
                           onChangePortalSet({
                             portalSetModel: {

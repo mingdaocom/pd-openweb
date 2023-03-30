@@ -25,6 +25,7 @@ class ResetPassword extends React.Component {
       passwordRegexTip,
       passwordRegex,
       sending: false,
+      loading: !request.type || !request.state,
     };
     this.password = React.createRef();
     this.passwordCopy = React.createRef();
@@ -32,7 +33,11 @@ class ResetPassword extends React.Component {
   componentDidMount() {
     $('html').addClass('loginContainerCon');
     document.title = _l('修改密码');
-    !request.type && this.getResetPasswordTrigerInfo();
+    if (!request.state) {
+      return alert(_l('当前地址错误'), 3);
+    } else {
+      !request.type && this.getResetPasswordTrigerInfo();
+    }
   }
 
   componentWillUnmount() {
@@ -40,13 +45,16 @@ class ResetPassword extends React.Component {
   }
 
   getResetPasswordTrigerInfo = () => {
-    registerAjax.getResetPasswordTrigerInfo({
-      state: request.state,
-    }).then(res => {
-      this.setState({
-        type: res.type,
+    registerAjax
+      .getResetPasswordTrigerInfo({
+        state: request.state,
+      })
+      .then(res => {
+        this.setState({
+          type: res.type,
+          loading: false,
+        });
       });
-    });
   };
 
   inputOnFocus = e => {
@@ -119,27 +127,29 @@ class ResetPassword extends React.Component {
     this.setState({
       sending: true,
     });
-    registerAjax.resetPasswordByState({
-      state: request.state,
-      password: encrypt(password),
-    }).then(res => {
-      this.setState({
-        sending: false,
-      });
-      if (res.actionResult == 1) {
-        alert('密码修改成功，请使用新密码重新登录', 1, 3000, function () {
-          if (request.ReturnUrl) {
-            location.href = '/login?ReturnUrl=' + encodeURIComponent(request.ReturnUrl);
-          } else {
-            location.href = '/login';
-          }
+    registerAjax
+      .resetPasswordByState({
+        state: request.state,
+        password: encrypt(password),
+      })
+      .then(res => {
+        this.setState({
+          sending: false,
         });
-      } else if (res.actionResult == 20) {
-        alert('新密码不可与旧密码一样', 3);
-      } else {
-        alert(_l('密码修改失败，请稍后再试', 2));
-      }
-    });
+        if (res.actionResult == 1) {
+          alert('密码修改成功，请使用新密码重新登录', 1, 3000, function () {
+            if (request.ReturnUrl) {
+              location.href = '/login?ReturnUrl=' + encodeURIComponent(request.ReturnUrl);
+            } else {
+              location.href = '/login';
+            }
+          });
+        } else if (res.actionResult == 20) {
+          alert('新密码不可与旧密码一样', 3);
+        } else {
+          alert(_l('密码修改失败，请稍后再试', 2));
+        }
+      });
   };
 
   renderCon = () => {
@@ -244,12 +254,19 @@ class ResetPassword extends React.Component {
   };
 
   render() {
+    const { loading } = this.state;
+    if (loading) {
+      return null;
+    }
+    const { SysSettings } = md.global;
     return (
       <div className="loginBox">
         <div className="loginContainer">
-          <div className="titleHeader">
-            <img src={md.global.SysSettings.brandLogoUrl} height={40} />
-          </div>
+          {!SysSettings.hideBrandLogo && (
+            <div className="titleHeader">
+              <img src={SysSettings.brandLogoUrl} height={SysSettings.brandLogoHeight || 40} />
+            </div>
+          )}
           {this.renderCon()}
           {this.showLangChang()}
         </div>

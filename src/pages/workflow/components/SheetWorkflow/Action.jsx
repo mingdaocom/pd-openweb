@@ -16,15 +16,16 @@ const WrapCon = styled.div`
   &.hoverBtnWrap .btn {
     &.pass:hover {
       color: #fff;
-      background: #4CAF50;
+      background: #4caf50;
     }
     &.handle:hover {
       color: #fff;
       background: #2196f3;
     }
-    &.overrule:hover, &.revoke:hover {
+    &.overrule:hover,
+    &.revoke:hover {
       color: #fff;
-      background: #F44336;
+      background: #f44336;
     }
   }
   .btn {
@@ -33,7 +34,7 @@ const WrapCon = styled.div`
     height: 32px;
     min-width: 0;
     padding: 0 10px;
-    background: #F7F7F7;
+    background: #f7f7f7;
     border-radius: 6px;
     display: flex;
     align-items: center;
@@ -41,10 +42,11 @@ const WrapCon = styled.div`
     margin-right: 10px;
     transition: 0.2s;
     &.pass {
-      color: #4CAF50;
+      color: #4caf50;
     }
-    &.overrule, &.revoke {
-      color: #F44336;
+    &.overrule,
+    &.revoke {
+      color: #f44336;
     }
     &:last-child {
       margin-right: 0;
@@ -60,14 +62,14 @@ const WrapCon = styled.div`
 const UpdateUserWrap = styled.div`
   .original {
     padding-right: 10px;
-    border-right: 1px solid #DDDDDD;
+    border-right: 1px solid #dddddd;
   }
   .accountWrap {
     padding: 5px;
     margin-bottom: 5px;
     border-radius: 3px;
     &:hover {
-      background-color: #F5F5F5;
+      background-color: #f5f5f5;
     }
   }
 `;
@@ -76,12 +78,14 @@ function UpdateUserDialog(props) {
   const { visible, projectId, data } = props;
   const { onCancel, onOK } = props;
   const currentWorkItems = data.currentWorkItems || [];
-  const [selectAccountIds, setSelectAccountIds] = useState(currentWorkItems.map(data => data.workItemAccount.accountId));
+  const [selectAccountIds, setSelectAccountIds] = useState(
+    currentWorkItems.map(data => data.workItemAccount.accountId),
+  );
   const [newAccounts, setNewAccounts] = useState([]);
 
   const handleAddAccount = () => {
-    import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
-      $({}).dialogSelectUser({
+    import('src/components/dialogSelectUser/dialogSelectUser').then(dialogSelectUser => {
+      dialogSelectUser.default({
         showMoreInvite: false,
         overlayClosable: false,
         SelectUserSettings: {
@@ -93,7 +97,7 @@ function UpdateUserDialog(props) {
         },
       });
     });
-  }
+  };
 
   return (
     <Dialog
@@ -120,11 +124,10 @@ function UpdateUserDialog(props) {
                 }
               }}
             >
-              <Checkbox
-                className="flexRow bold"
-                checked={selectAccountIds.length === currentWorkItems.length}
-              />
-              <div className="bold mLeft15">{`${_l('原负责人')}${selectAccountIds.length ? `(${selectAccountIds.length})` : ''}`}</div>
+              <Checkbox className="flexRow bold" checked={selectAccountIds.length === currentWorkItems.length} />
+              <div className="bold mLeft15">{`${_l('原负责人')}${
+                selectAccountIds.length ? `(${selectAccountIds.length})` : ''
+              }`}</div>
             </div>
           )}
           {currentWorkItems.map(data => (
@@ -139,10 +142,7 @@ function UpdateUserDialog(props) {
                 }
               }}
             >
-              <Checkbox
-                className="flexRow"
-                checked={selectAccountIds.includes(data.workItemAccount.accountId)}
-              />
+              <Checkbox className="flexRow" checked={selectAccountIds.includes(data.workItemAccount.accountId)} />
               <div className="flexRow valignWrapper mLeft15">
                 <UserHead
                   lazy="false"
@@ -155,14 +155,12 @@ function UpdateUserDialog(props) {
           ))}
         </div>
         <div className="flex mLeft15">
-          <div className="bold mBottom5">{`${_l('新增负责人')}${ newAccounts.length ? `(${newAccounts.length})` : '' }`}</div>
+          <div className="bold mBottom5">{`${_l('新增负责人')}${
+            newAccounts.length ? `(${newAccounts.length})` : ''
+          }`}</div>
           {newAccounts.map(data => (
             <div className="accountWrap flexRow valignWrapper" key={data.accountId}>
-              <UserHead
-                lazy="false"
-                size={28}
-                user={{ userHead: data.avatar, accountId: data.accountId }}
-              />
+              <UserHead lazy="false" size={28} user={{ userHead: data.avatar, accountId: data.accountId }} />
               <div className="mLeft10 flex">{data.fullname}</div>
               <Icon
                 icon="close"
@@ -174,7 +172,9 @@ function UpdateUserDialog(props) {
             </div>
           ))}
           <div className="valignWrapper Gray_bd mTop10 pointer pAll5" onClick={handleAddAccount}>
-            <div className="addWrap valignWrapper"><Icon className="Font28" icon="task-add-member-circle" /></div>
+            <div className="addWrap valignWrapper">
+              <Icon className="Font28" icon="task-add-member-circle" />
+            </div>
             <div className="mLeft10">{_l('添加负责人')}</div>
           </div>
         </div>
@@ -192,7 +192,7 @@ const MobileUpdateUserWrap = styled.div`
     padding: 24px 16px 16px;
     background-color: #fff;
     .original {
-      border-bottom: 1px solid #F5F5F5;
+      border-bottom: 1px solid #f5f5f5;
     }
     .flexWrap {
       flex-wrap: wrap;
@@ -204,7 +204,7 @@ const MobileUpdateUserWrap = styled.div`
     .accountWrap {
       border-radius: 16px;
       padding-right: 10px;
-      background-color: #F5F5F5;
+      background-color: #f5f5f5;
       position: relative;
       img {
         width: 32px;
@@ -242,23 +242,21 @@ function MobileUpdateUserDialog(props) {
   const { visible, projectId, data } = props;
   const { onCancel, onOK } = props;
   const currentWorkItems = data.currentWorkItems || [];
-  const [selectAccountIds, setSelectAccountIds] = useState(currentWorkItems.map(data => data.workItemAccount.accountId));
+  const [selectAccountIds, setSelectAccountIds] = useState(
+    currentWorkItems.map(data => data.workItemAccount.accountId),
+  );
   const [newAccounts, setNewAccounts] = useState([]);
   const [selectUserVisible, setSelectUserVisible] = useState(false);
 
   return (
     <Fragment>
-      <Modal
-        popup
-        transitionName="noTransition"
-        className="h100"
-        onClose={onCancel}
-        visible={visible}
-      >
+      <Modal popup transitionName="noTransition" className="h100" onClose={onCancel} visible={visible}>
         <MobileUpdateUserWrap className="flexColumn h100 leftAlign">
           <div className="header">
             <div className="Font17 Gray bold mBottom6">{_l('调整负责人')}</div>
-            <div className="Font12 Gray_9e">{_l('移除尚未进行操作的负责人，将其替换为新的成员；您的操作仅对当前流程的本次运行生效')}</div>
+            <div className="Font12 Gray_9e">
+              {_l('移除尚未进行操作的负责人，将其替换为新的成员；您的操作仅对当前流程的本次运行生效')}
+            </div>
           </div>
           <div className="flex content">
             <div className="original pBottom10">
@@ -297,7 +295,7 @@ function MobileUpdateUserDialog(props) {
                       <Icon className="Font24 Gray_9e" icon="not_checked" />
                     )}
                     <div className="mLeft5 valignWrapper accountWrap">
-                      <img src={data.workItemAccount.avatar}/>
+                      <img src={data.workItemAccount.avatar} />
                       <span className="Font13 breakAll flex ellipsis">{data.workItemAccount.fullName}</span>
                     </div>
                   </div>
@@ -309,7 +307,7 @@ function MobileUpdateUserDialog(props) {
               <div className="flexRow flexWrap">
                 {newAccounts.map(data => (
                   <div className="valignWrapper accountWrap mRight10 mBottom10" key={data.accountId}>
-                    <img src={data.avatar}/>
+                    <img src={data.avatar} />
                     <span className="Font13">{data.fullname}</span>
                     <Icon
                       icon="remove_circle"
@@ -328,7 +326,9 @@ function MobileUpdateUserDialog(props) {
           </div>
           <div className="btnsWrapper flexRow">
             <WingBlank className="flex" size="sm">
-              <Button className="Font13 bold Gray_75" onClick={onCancel}>{_l('取消')}</Button>
+              <Button className="Font13 bold Gray_75" onClick={onCancel}>
+                {_l('取消')}
+              </Button>
             </WingBlank>
             <WingBlank className="flex" size="sm">
               <Button
@@ -362,15 +362,17 @@ function MobileUpdateUserDialog(props) {
 
 export default function WorkflowAction(props) {
   const { className, hasMore, isCharge, projectId, data } = props;
-  const { onAction, onRevoke, onUrge, onSkip, onUpdateWorkAccounts, onEndInstance, onViewFlowStep, onViewExecDialog } = props;
+  const { onAction, onRevoke, onUrge, onSkip, onUpdateWorkAccounts, onEndInstance, onViewFlowStep, onViewExecDialog } =
+    props;
   const { allowRevoke, allowUrge, flowNode, workItem } = data;
-  const { type, batchType, passBatchType, overruleBatchType, btnMap } = flowNode || {};
-  const allowBatch = type === 4 && ![-1, -2].includes(batchType);
+  const { type, batch, btnMap } = flowNode || {};
+  const allowBatch = type === 4 && batch;
   const allowApproval = allowBatch && workItem;
   const [updateUserDialogVisible, setUpdateUserDialogVisible] = useState(false);
 
   const handleSkip = () => {
-    const description = type === 4 ? _l('当前节点未进行操作的成员将设为通过') : _l('当前节点未进行操作的成员将设为提交');
+    const description =
+      type === 4 ? _l('当前节点未进行操作的成员将设为通过') : _l('当前节点未进行操作的成员将设为提交');
     if (isMobile) {
       Modal.alert(_l('确认跳过当前节点 ?'), description, [
         {
@@ -378,8 +380,8 @@ export default function WorkflowAction(props) {
         },
         {
           text: _l('确认'),
-          onPress: onSkip
-        }
+          onPress: onSkip,
+        },
       ]);
     } else {
       Dialog.confirm({
@@ -388,7 +390,7 @@ export default function WorkflowAction(props) {
         onOk: onSkip,
       });
     }
-  }
+  };
 
   const handleEndInstance = () => {
     if (isMobile) {
@@ -400,8 +402,8 @@ export default function WorkflowAction(props) {
         {
           text: _l('确认'),
           style: { color: 'red' },
-          onPress: onEndInstance
-        }
+          onPress: onEndInstance,
+        },
       ]);
     } else {
       Dialog.confirm({
@@ -409,7 +411,7 @@ export default function WorkflowAction(props) {
         onOk: onEndInstance,
       });
     }
-  }
+  };
 
   const renderDropdownOverlay = ({ width }) => {
     return (
@@ -453,7 +455,7 @@ export default function WorkflowAction(props) {
         </MenuItem>
       </Menu>
     );
-  }
+  };
 
   const handleMobileMoreAction = () => {
     const BUTTONS = [
@@ -478,7 +480,7 @@ export default function WorkflowAction(props) {
         </div>
       ),
     });
-  }
+  };
 
   const renderUpdateUserDialog = () => {
     const DialogCon = isMobile ? MobileUpdateUserDialog : UpdateUserDialog;
@@ -486,15 +488,17 @@ export default function WorkflowAction(props) {
       <DialogCon
         data={{
           ...data,
-          currentWorkItems: (data.currentWorkItems || []).filter(c => c.operationType === 0)
+          currentWorkItems: (data.currentWorkItems || []).filter(c => c.operationType === 0),
         }}
         projectId={projectId}
         visible={updateUserDialogVisible}
         onCancel={() => setUpdateUserDialogVisible(false)}
-        onOK={ids => { onUpdateWorkAccounts(ids) }}
+        onOK={ids => {
+          onUpdateWorkAccounts(ids);
+        }}
       />
     );
-  }
+  };
 
   if (!(allowApproval || workItem || allowRevoke || allowUrge)) {
     if (isCharge) {
@@ -513,11 +517,7 @@ export default function WorkflowAction(props) {
           {isMobile ? (
             content
           ) : (
-            <Dropdown
-              trigger={['click']}
-              placement="top"
-              overlay={renderDropdownOverlay({ width: '100%' })}
-            >
+            <Dropdown trigger={['click']} placement="top" overlay={renderDropdownOverlay({ width: '100%' })}>
               {content}
             </Dropdown>
           )}
@@ -563,21 +563,17 @@ export default function WorkflowAction(props) {
           {_l('催办')}
         </div>
       )}
-      {hasMore && isCharge && (
-        isMobile ? (
+      {hasMore &&
+        isCharge &&
+        (isMobile ? (
           <div className="btn mobileMore" onClick={handleMobileMoreAction}>
             <Icon className="Font20 Gray_9e" icon="arrow-up-border" />
           </div>
         ) : (
-          <Dropdown
-            trigger={['click']}
-            placement="topRight"
-            overlay={renderDropdownOverlay({ width: 200 })}
-          >
+          <Dropdown trigger={['click']} placement="topRight" overlay={renderDropdownOverlay({ width: 200 })}>
             <Icon className="Font20 pointer Gray_9e" icon="task-point-more" />
           </Dropdown>
-        )
-      )}
+        ))}
       {renderUpdateUserDialog()}
     </WrapCon>
   );

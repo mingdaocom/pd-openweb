@@ -231,6 +231,7 @@ export function handleLifeEffect(
   $tableElement.on('mouseenter', '.cell:not(.row-head)', handleCellEnter);
   $tableElement.on('mouseleave', '.cell:not(.row-head)', handleCellLeave);
 
+  emitter.addListener('TRIGGER_TABLE_KEYDOWN_' + tableId, handleKeyDown);
   window.addEventListener('keydown', handleKeyDown);
   document.body.addEventListener('click', handleOuterClick);
   return () => {
@@ -238,6 +239,7 @@ export function handleLifeEffect(
     $tableElement.off('mouseenter', '.cell:not(.row-head)', handleCellEnter);
     $tableElement.off('mouseleave', '.cell:not(.row-head)', handleCellLeave);
     window.removeEventListener('keydown', handleKeyDown);
+    emitter.removeListener('TRIGGER_TABLE_KEYDOWN_' + tableId, handleKeyDown);
     document.body.removeEventListener('click', handleOuterClick);
   };
 }

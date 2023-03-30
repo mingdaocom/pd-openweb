@@ -19,6 +19,7 @@ import { Icon } from 'ming-ui';
 const { sheet, gallery } = VIEW_DISPLAY_TYPE;
 import './style.less';
 import _ from 'lodash';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 
 const Con = styled.div`
   flex: 1;
@@ -51,7 +52,7 @@ const Drag = styled.div(
   width: 10px;
   height: 100%;
   cursor: ew-resize;
-  border-left: 1px solid rgba(0,0,0,0.04);
+  border-left: 1px solid #e0e0e0;
   &:hover{
     border-left: 1px solid #2196f3;
   }
@@ -161,7 +162,10 @@ function Sheet(props) {
             <Con id="worksheetRightContentBox">
               {!_.isEmpty(view.fastFilters) && _.includes([sheet, gallery], String(view.viewType)) && !chartId && (
                 <QuickFilterCon>
-                  <QuickFilter {...basePara} filters={view.fastFilters} />
+                  <QuickFilter
+                    {...basePara}
+                    filters={setSysWorkflowTimeControlFormat(view.fastFilters, worksheetInfo.switches)}
+                  />
                 </QuickFilterCon>
               )}
               {hasGroupFilter && !chartId ? (

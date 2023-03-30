@@ -9,6 +9,8 @@ import { getFormulaControls } from '../../util/data';
 import { parseDataSource, handleAdvancedSettingChange } from '../../util/setting';
 const { InputSuffix, SwitchType, ToTodaySetting, WeekdaySetting } = formulaComponents;
 const { DynamicSelectDateControl, SelectControl } = components;
+import { ShowFormat } from 'src/pages/widgetConfig/widgetSetting/components/ControlSetting/DateConfig';
+import _ from 'lodash';
 
 const CALC_TYPE = [
   {
@@ -150,6 +152,12 @@ export default function FormulaDate(props) {
               onChange={value => onChange({ unit: value })}
             />
           </SettingItem>
+          {_.includes(['1', '3'], unit) && (
+            <SettingItem>
+              <div className="settingItemTitle">{_l('设置')}</div>
+              <ShowFormat {...props} />
+            </SettingItem>
+          )}
         </Fragment>
       );
     }
@@ -180,7 +188,12 @@ export default function FormulaDate(props) {
               onChange({ enumDefault: value, dataSource: '', sourceControlId: '', unit: '3' });
               return;
             }
-            onChange({ enumDefault: value, dataSource: '', sourceControlId: '' });
+            onChange({
+              enumDefault: value,
+              dataSource: '',
+              sourceControlId: '',
+              unit: value === 2 && !_.includes(['1', '3', '8', '9'], unit) ? '3' : unit,
+            });
           }}
         />
       </SettingItem>

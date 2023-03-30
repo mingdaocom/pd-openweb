@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Icon, Tooltip, RadioGroup, Input, LoadDiv, Radio } from 'ming-ui';
 import importUserController from 'src/api/importUser';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
@@ -84,7 +84,7 @@ export default class AddUser extends Component {
   dialogSelectUserHandler = () => {
     const { projectId } = this.props;
     const _this = this;
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       fromAdmin: true,
       SelectUserSettings: {
         filterProjectId: projectId,

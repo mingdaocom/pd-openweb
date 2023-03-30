@@ -26,7 +26,7 @@ const IntervalWrap = styled(DropdownContent)`
   }
 `;
 
-function ShowFormat(props) {
+export function ShowFormat(props) {
   const { data, onChange } = props;
   const { showformat = '0' } = getAdvanceSetting(data);
   const showFormatOptions = DATE_SHOW_TYPES.map(item => {

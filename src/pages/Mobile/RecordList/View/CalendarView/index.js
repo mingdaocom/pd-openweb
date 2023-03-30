@@ -13,16 +13,18 @@ import { Icon } from 'ming-ui';
 import './index.less';
 import _ from 'lodash';
 import moment from 'moment';
-
+import { isOpenPermit } from 'src/pages/FormSet/util';
+import { permitList } from 'src/pages/FormSet/config';
+import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 class MobileCalendarView extends Component {
   constructor(props) {
     super(props);
     this.state = {
       scheduleVisible: false,
-      previewRecordId: undefined
+      previewRecordId: undefined,
     };
   }
-  componentDidMount() { }
+  componentDidMount() {}
   showschedule = () => {
     safeLocalStorageSetItem('CalendarShowExternalTypeEvent', 'eventAll');
     this.setState({ scheduleVisible: !this.state.scheduleVisible });
@@ -52,7 +54,7 @@ class MobileCalendarView extends Component {
 
   render() {
     let { scheduleVisible, previewRecordId } = this.state;
-    const { view, currentSheetRows, calendarview = {}, base = {} } = this.props;
+    const { view, currentSheetRows, calendarview = {}, base = {}, sheetSwitchPermit } = this.props;
     const { calendarData = {} } = calendarview;
     const { calendarInfo = [] } = calendarData;
     let { begindate = '', enddate = '', calendarType = '0', calendarcids = '[]' } = getAdvanceSetting(view);
@@ -64,10 +66,16 @@ class MobileCalendarView extends Component {
     if (calendarcids.length <= 0) {
       calendarcids = [{ begin: begindate, end: enddate }]; //兼容老数据
     }
-    const isDelete =
+    let isDelete =
       calendarcids[0].begin &&
       calendarInfo.length > 0 &&
       (!calendarInfo[0].startData || !calendarInfo[0].startData.controlId);
+    if (
+      !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit) &&
+      SYS_CONTROLS_WORKFLOW.includes(_.get(calendarInfo[0], 'startData.controlId'))
+    ) {
+      isDelete = true;
+    }
     let isHaveSelectControl = !calendarcids[0].begin || isDelete; // 是否选中了开始时间 //开始时间字段已删除
     const mobileCalendarSetting = {
       // views: {},
@@ -99,8 +107,8 @@ class MobileCalendarView extends Component {
           this.props.mobileIsShowMoreClick(true);
         }
       },
-      eventMouseEnter: () => { },
-      eventMouseLeave: () => { },
+      eventMouseEnter: () => {},
+      eventMouseLeave: () => {},
     };
     // 视图配置错误
     if (isHaveSelectControl || isIllegalFormat(calendarInfo)) {
@@ -128,7 +136,7 @@ class MobileCalendarView extends Component {
           rowId={previewRecordId}
           onClose={() => {
             this.setState({
-              previewRecordId: undefined
+              previewRecordId: undefined,
             });
           }}
         />

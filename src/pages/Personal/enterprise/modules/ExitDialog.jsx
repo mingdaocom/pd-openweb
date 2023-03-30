@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Dialog } from 'ming-ui';
 import account from 'src/api/account';
 import { htmlEncodeReg } from 'src/util';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import './index.less';
 
 export default class ExitDialog extends Component {
@@ -13,8 +14,7 @@ export default class ExitDialog extends Component {
   }
 
   handleSelct() {
-    var $this = $(this);
-    $this.dialogSelectUser({
+    dialogSelectUser({
       title: _l('指定管理员'),
       zIndex: 100,
       showMoreInvite: false,

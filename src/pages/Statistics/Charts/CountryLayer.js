@@ -222,10 +222,11 @@ export default class extends Component {
       });
     }
     if (!nextProps.loading && this.props.loading) {
-      const { map } = nextProps.reportData;
+      const { map, yaxisList, summary } = nextProps.reportData;
       const data = setColorLavel(map);
       const { CountryLayerChart } = this;
       if (CountryLayerChart && typeof CountryLayerChart.updateData === 'function') {
+        this.setCount(formatYaxisList(data, yaxisList), summary);
         CountryLayerChart.updateData(data);
       }
     }
@@ -403,12 +404,12 @@ export default class extends Component {
     });
   };
   getChartConfig(props) {
-    const { country, displaySetup, map, yaxisList, style } = props.reportData;
+    const { country, displaySetup, map, yaxisList, style, summary } = props.reportData;
     const data = setColorLavel(map);
     const newYaxisList = formatYaxisList(data, yaxisList);
     const { Scene, Mapbox, CountryLayer, ProvinceLayer, CityLayer, DrillDownLayer } = this.asyncComponents;
 
-    this.setCount(newYaxisList);
+    this.setCount(newYaxisList, summary);
 
     if (!mapbox) {
       mapbox = new Mapbox({
@@ -534,9 +535,9 @@ export default class extends Component {
       };
     }
   }
-  setCount(yaxisList) {
-    const { summary } = this.props.reportData;
+  setCount(yaxisList, summary) {
     const value = summary.sum;
+    console.log('summary', summary);
     const count = formatrChartValue(value, false, yaxisList);
     this.setState({
       originalCount: value.toLocaleString() == count ? 0 : value.toLocaleString(),

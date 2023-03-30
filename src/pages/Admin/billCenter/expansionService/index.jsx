@@ -18,6 +18,7 @@ const EXPAND_TYPE = {
   STORAGE: 'storage',
   PORTALUSER: 'portaluser',
   PORTALUPGRADE: 'portalupgrade',
+  DATASYNC: 'dataSync',
 };
 
 const PAGE_TITLE = {
@@ -26,6 +27,7 @@ const PAGE_TITLE = {
   storage: _l('用户自助购买应用附件上传量'),
   portaluser: _l('用户自助购买外部门户用户包'),
   portalupgrade: _l('用户自助购买外部门户用户包'),
+  dataSync: _l('用户自助购买数据同步算力升级包'),
 };
 
 //主操作标题名称
@@ -35,6 +37,7 @@ const HeaderTitle = {
   storage: _l('购买应用附件上传量扩充包'),
   portaluser: _l('购买外部用户人数'),
   portalupgrade: _l('购买外部用户人数'),
+  dataSync: _l('购买数据同步算力升级包'),
 };
 
 //第一步标题名称
@@ -44,26 +47,31 @@ const HeaderSubTitle = {
   storage: _l('选择类型'),
   portaluser: _l('选择增补人数'),
   portalupgrade: _l('选择购买人数和方式'),
+  dataSync: _l('选择类型'),
 };
 
 //总计接口
 const GET_ORDER_PRICE = {
   user: orderController.getPersonOrderPrice,
   workflow: orderController.getWorkflowOrderPrice,
+  dataSync: orderController.getDataPipelineOrderPrice,
   workflowMonthly: orderController.getMonthlyWorkflowOrderPrice,
   storage: orderController.getApkStorageOrderPrice,
   portaluser: orderController.getExternalUserOrderPrice,
   portalupgrade: orderController.getExternalUserExtensionOrderPrice,
+  dataSyncMonthly: orderController.getMonthlyDataPipelineOrderPrice,
 };
 
 //下单接口
 const ADD_ORDER_PRICE = {
   user: orderController.addPersonOrder,
   workflow: orderController.addWorkflowOrder,
+  dataSync: orderController.addDataPipelineOrder,
   workflowMonthly: orderController.addMonthlyWorkflowOrder,
   storage: orderController.addApkStorageOrder,
   portaluser: orderController.addExternalUserOrder,
   portalupgrade: orderController.addExternalUserExtensionOrder,
+  dataSyncMonthly: orderController.addMonthlyDataPipelineOrder,
 };
 
 const expandType = Config.params[3];
@@ -72,6 +80,10 @@ const isPortalUser = _.includes([EXPAND_TYPE.PORTALUSER, EXPAND_TYPE.PORTALUPGRA
 const WORKFLOW_TYPE_LIST = [
   { title: _l('每月额度升级包'), money: 50, count: 1, month: _l('剩余月份'), key: 1 },
   { title: _l('单月包'), money: 100, count: 1, month: _l('本月'), key: 2 },
+];
+const DATASYNC_TYPE_LIST = [
+  { title: _l('每月额度升级包'), money: 50, count: 10, month: _l('剩余月份'), key: 1 },
+  { title: _l('单月包'), money: 100, count: 10, month: _l('本月'), key: 2 },
 ];
 
 const getFormatCount = count => {
@@ -105,6 +117,7 @@ export default class ExpansionService extends Component {
       totalNum: 0,
       isPay: false,
       workflowType: 1,
+      dataSyncType: 1,
       balance: 0,
       showWorkflowExtPack: false,
       autoPurchaseWorkflowExtPack: false,
@@ -129,6 +142,22 @@ export default class ExpansionService extends Component {
             showWorkflowExtPack:
               !_.includes([0, 2], licenseType) && !res.autoPurchaseWorkflowExtPack && !md.global.Config.IsLocal,
             autoPurchaseWorkflowExtPack: res.autoPurchaseWorkflowExtPack,
+            loading: false,
+          },
+          () => this.computePrince(),
+        );
+      });
+    } else if (expandType === EXPAND_TYPE.DATASYNC) {
+      projectSetting.getAutoPurchaseDataPipelineExtPack({ projectId: Config.projectId }).then(res => {
+        this.setState(
+          {
+            addUserCount: 100000,
+            addUserStep: 100000,
+            maxUserCount: 1000000,
+            balance: res.balance,
+            showDataSyncExtPack:
+              !_.includes([0, 2], licenseType) && !res.autoPurchaseDataPipelineExtPack && !md.global.Config.IsLocal,
+            autoPurchaseDataPipelineExtPack: res.autoPurchaseDataPipelineExtPack,
             loading: false,
           },
           () => this.computePrince(),
@@ -212,6 +241,9 @@ export default class ExpansionService extends Component {
     let actionType = expandType;
     if (actionType === 'workflow') {
       actionType = this.state.workflowType === 1 ? 'workflow' : 'workflowMonthly';
+    }
+    if (actionType === 'dataSync') {
+      actionType = this.state.dataSyncType === 1 ? 'dataSync' : 'dataSyncMonthly';
     }
     if (isPortalUser) {
       actionType = this.state.payType;
@@ -302,7 +334,7 @@ export default class ExpansionService extends Component {
         needSalesAssistance,
       }).then(function (data) {
         if (data) {
-          alert(_l('订单已创建成功，正在转到付款页...'), 1, 2000, function () {
+          alert(_l('订单已创建成功，正在转到付款页...'), 1, 500, function () {
             window.location.href = '/admin/waitingPay/' + Config.projectId + '/' + data.orderId;
           });
         } else {
@@ -350,7 +382,9 @@ export default class ExpansionService extends Component {
               <div
                 className={cx('workflowTypeItem', { active: workflowType === item.key })}
                 key={item.key}
-                onClick={() => this.setState({ workflowType: item.key }, () => this.computePrince())}
+                onClick={() =>
+                  this.setState({ workflowType: item.key, dataSyncType: item.key }, () => this.computePrince())
+                }
               >
                 <div className="Font15 Gray Bold">{item.title}</div>
                 <div className="Gray_9e mTop6">
@@ -363,6 +397,36 @@ export default class ExpansionService extends Component {
         <div className="addWorkFlowBox">
           <div className="addUserLabl">
             {workflowType === 1 ? _l('每月工作流执行数增加数量') : _l('本月工作流执行数增加数量')}
+          </div>
+          {this.renderPlusInput()}
+        </div>
+      </Fragment>
+    );
+  }
+
+  renderDataSyncContent() {
+    const { dataSyncType } = this.state;
+    return (
+      <Fragment>
+        <div className="workflowTypeContent">
+          {DATASYNC_TYPE_LIST.map(item => {
+            return (
+              <div
+                className={cx('workflowTypeItem', { active: dataSyncType === item.key })}
+                key={item.key}
+                onClick={() => this.setState({ dataSyncType: item.key }, () => this.computePrince())}
+              >
+                <div className="Font15 Gray Bold">{item.title}</div>
+                <div className="Gray_9e mTop6">
+                  {_l('%0 元', item.money)} / {_l('%0 万行', item.count)}*{item.month}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="addWorkFlowBox">
+          <div className="addUserLabl">
+            {dataSyncType === 1 ? _l('每月同步任务算力行数增加数量') : _l('本月同步任务算力行数增加数量')}
           </div>
           {this.renderPlusInput()}
         </div>
@@ -413,6 +477,8 @@ export default class ExpansionService extends Component {
         );
       case EXPAND_TYPE.WORKFLOW:
         return _l('每月执行数免费额度不足时可购买使用，即时生效。');
+      case EXPAND_TYPE.DATASYNC:
+        return _l('每月同步任务数的算力不足时，可购买使用，立即生效。');
       case EXPAND_TYPE.STORAGE:
       case EXPAND_TYPE.PORTALUSER:
       case EXPAND_TYPE.PORTALUPGRADE:
@@ -427,6 +493,8 @@ export default class ExpansionService extends Component {
         return this.renderPlusInput();
       case EXPAND_TYPE.WORKFLOW:
         return this.renderWorkFlowContent();
+      case EXPAND_TYPE.DATASYNC:
+        return this.renderDataSyncContent();
       case EXPAND_TYPE.STORAGE:
         return this.renderStorageContent();
       case EXPAND_TYPE.PORTALUSER:
@@ -449,7 +517,7 @@ export default class ExpansionService extends Component {
 
   // 第一步禁用时文案异化
   renderInfoShow() {
-    const { addUserCount, totalNum, workflowType } = this.state;
+    const { addUserCount, totalNum, workflowType, dataSyncType } = this.state;
     switch (expandType) {
       case EXPAND_TYPE.USER:
         return (
@@ -461,13 +529,22 @@ export default class ExpansionService extends Component {
         );
       case EXPAND_TYPE.WORKFLOW:
       case EXPAND_TYPE.STORAGE:
+      case EXPAND_TYPE.DATASYNC:
         return (
           <Fragment>
             <span className="mRight8">{_l('已选择')}</span>
             {expandType === EXPAND_TYPE.STORAGE ? (
               <span>{_l('扩展包')}</span>
             ) : (
-              <span>{workflowType === 1 ? _l('每月额度升级包') : _l('本月额度升级包')}</span>
+              <span>
+                {expandType === 'dataSync'
+                  ? dataSyncType === 1
+                    ? _l('每月额度升级包')
+                    : _l('本月额度升级包')
+                  : workflowType === 1
+                  ? _l('每月额度升级包')
+                  : _l('本月额度升级包')}
+              </span>
             )}
           </Fragment>
         );
@@ -484,24 +561,54 @@ export default class ExpansionService extends Component {
 
   //自动订购
   renderAutoOrder() {
+    const { showWorkflowExtPack } = this.state;
     return (
       <div className="flexRow pAll20 autoOrderCon mTop30">
         <span className="Bold">{_l('自动订购')}</span>
         <div className="flexColumn flex mLeft32">
           <Switch
-            checked={this.state.autoPurchaseWorkflowExtPack}
+            checked={
+              showWorkflowExtPack ? this.state.autoPurchaseWorkflowExtPack : this.state.autoPurchaseDataPipelineExtPack
+            }
             onClick={checked => {
+              if (showWorkflowExtPack) {
+                projectSetting
+                  .setAutoPurchaseWorkflowExtPack({
+                    projectId: Config.projectId,
+                    autoPurchaseWorkflowExtPack: !checked,
+                  })
+                  .then(res => {
+                    if (res) {
+                      this.setState(
+                        {
+                          autoPurchaseWorkflowExtPack: !checked,
+                        },
+                        () => {
+                          if (this.state.autoPurchaseWorkflowExtPack && this.state.balance < 100) {
+                            alert('当前账户余额不足100元，该功能可能无法正常运行', 3);
+                          }
+                        },
+                      );
+                    } else {
+                      alert(_l('操作失败'), 2);
+                    }
+                  });
+                return;
+              }
               projectSetting
-                .setAutoPurchaseWorkflowExtPack({ projectId: Config.projectId, autoPurchaseWorkflowExtPack: !checked })
+                .setAutoPurchaseDataPipelineExtPack({
+                  projectId: Config.projectId,
+                  autoPurchaseDataPipelineExtPack: !checked,
+                })
                 .then(res => {
                   if (res) {
                     this.setState(
                       {
-                        autoPurchaseWorkflowExtPack: !checked,
+                        autoPurchaseDataPipelineExtPack: !checked,
                       },
                       () => {
-                        if (this.state.autoPurchaseWorkflowExtPack && this.state.balance < 100) {
-                          alert('当前账户余额不足100元，该功能可能无法正常运行');
+                        if (this.state.autoPurchaseDataPipelineExtPack && this.state.balance < 100) {
+                          alert('当前账户余额不足100元，该功能可能无法正常运行', 3);
                         }
                       },
                     );
@@ -512,9 +619,13 @@ export default class ExpansionService extends Component {
             }}
           />
           <span className="Gray_75 mTop10">
-            {_l(
-              '开启后，当月剩余执行额度为2%时，自动购买100元/1万次的单月包，从账户余额中扣款（开启后仍可以在组织管理后台的工作流处关闭）',
-            )}
+            {showWorkflowExtPack
+              ? _l(
+                  '开启后，当月剩余执行额度为2%时，自动购买100元/1万次的单月包，从账户余额中扣款（开启后仍可以在组织管理后台的工作流处关闭）',
+                )
+              : _l(
+                  '开启后，当月剩余执行额度不足时，自动购买100元/10万行的单月包，从账户余额中扣款。（开启后可以在数据集成的同步任务中关闭）',
+                )}
           </span>
         </div>
       </div>
@@ -522,7 +633,17 @@ export default class ExpansionService extends Component {
   }
 
   render() {
-    const { step, totalPrince, needSalesAssistance, isPay, workflowType, showWorkflowExtPack, loading } = this.state;
+    const {
+      step,
+      totalPrince,
+      needSalesAssistance,
+      isPay,
+      workflowType,
+      showWorkflowExtPack,
+      showDataSyncExtPack,
+      loading,
+      dataSyncType,
+    } = this.state;
 
     if (loading) {
       return (
@@ -557,7 +678,7 @@ export default class ExpansionService extends Component {
                   <span className="Font20 color_b">￥</span>
                   <span className="Font20 color_b Bold">{totalPrince}</span>
                   {isPortalUser ? (
-                    <a target="blank" className="mLeft20" href="https://help.mingdao.com/prices8.html">
+                    <a target="blank" className="mLeft20" href="https://help.mingdao.com/zh/prices8.html">
                       {_l('计费方式')}
                     </a>
                   ) : (
@@ -566,7 +687,7 @@ export default class ExpansionService extends Component {
                     </a>
                   )}
                 </div>
-                {showWorkflowExtPack && this.renderAutoOrder()}
+                {(showWorkflowExtPack || showDataSyncExtPack) && this.renderAutoOrder()}
                 <div className="pTop30">
                   <button type="button" className="ming Button Button--primary nextBtn" onClick={() => this.setStep(2)}>
                     {_l('下一步')}
@@ -600,10 +721,18 @@ export default class ExpansionService extends Component {
             <span>{_l('生成订单')}</span>
           </div>
           <div className={cx('stepContent pTop30', { Hidden: step !== 2 })}>
-            {expandType === EXPAND_TYPE.WORKFLOW ? (
+            {expandType === EXPAND_TYPE.WORKFLOW || expandType === EXPAND_TYPE.DATASYNC ? (
               <div className="mBottom10">
                 <span className="mRight8 Gray_9">{_l('已选择')}</span>
-                <span className="color_b">{workflowType === 1 ? _l('每月额度升级包') : _l('本月额度升级包')}</span>
+                <span className="color_b">
+                  {expandType === 'dataSync'
+                    ? dataSyncType === 1
+                      ? _l('每月额度升级包')
+                      : _l('本月额度升级包')
+                    : workflowType === 1
+                    ? _l('每月额度升级包')
+                    : _l('本月额度升级包')}
+                </span>
               </div>
             ) : null}
             <div>

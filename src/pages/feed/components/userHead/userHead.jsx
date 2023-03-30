@@ -67,6 +67,20 @@ export default class UserHead extends React.Component {
     if (!this.props.bindBusinessCard || window.isPublicApp) {
       return false;
     }
+    // 特殊角色不用hover出名片层
+    if (
+      [
+        'user-self',
+        'user-sub',
+        'user-undefined',
+        'user-workflow',
+        'user-publicform',
+        'user-api',
+        'user-integration',
+      ].includes(this.props.user.accountId)
+    ) {
+      return false;
+    }
     if (!this.props.showOpHtml) {
       opHtml = null;
     } else if (this.props.type === 'manage') {

@@ -39,10 +39,10 @@ export default class Api extends Component {
   }
 
   openApi = evt => {
-    const { item, companyId } = this.props;
+    const { item } = this.props;
 
     evt.stopPropagation();
-    window.open(`/integrationApi/${companyId}/${item.appId}`);
+    window.open(`/integrationApi/${item.appId}`);
   };
 
   render() {

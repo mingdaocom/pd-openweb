@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Icon, Input, LoadDiv } from 'ming-ui';
 import userController from 'src/api/user';
-import 'src/components/dialogSelectUser/dialogSelectUser';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
@@ -116,7 +115,7 @@ export default class EditUser extends Component {
     this.setState({ errors });
   };
   agreeJoin = () => {
-    const { projectId, accountId } = this.props;
+    const { projectId, accountId, onClose = () => {} } = this.props;
     const { jobIds = [], departmentInfos = [], jobNumber, workSiteId, contactPhone } = this.baseFormInfo.state;
 
     userController
@@ -134,6 +133,7 @@ export default class EditUser extends Component {
           if (result === 1) {
             alert(_l('批准成功'));
             onClose();
+            this.props.clickSave();
           } else if (result === 4) {
             const licenseType = _.get(
               _.find(md.global.Account.projects, project => project.projectId === projectId) || {},
@@ -141,15 +141,25 @@ export default class EditUser extends Component {
             );
             let link = '';
             if (licenseType === 0) {
-              link = `${_l(
-                '当前用户数已超出人数限制，请去购买',
-              )}<a href="/upgrade/choose?projectId=${projectId}" target="_blank">${_l('付费版本')}</a>`;
+              link = (
+                <span>
+                  {_l('当前用户数已超出人数限制，请去购买')}
+                  <a href={`/upgrade/choose?projectId=${projectId}`} target="_blank">
+                    {_l('付费版本')}
+                  </a>
+                </span>
+              );
             } else {
-              link = `${_l(
-                '当前用户数已超出人数限制，请去购买',
-              )}<a href="/admin/expansionservice/${projectId}" target="_blank">${_l('用户包')}</a>`;
+              link = (
+                <span>
+                  {_l('当前用户数已超出人数限制，请去购买')}
+                  <a href={`/admin/expansionservice/${projectId}`} target="_blank">
+                    {_l('用户包')}
+                  </a>
+                </span>
+              );
             }
-            alert(link, 3, false);
+            alert(link, 3);
           } else {
             alert(_l('操作失败'), 2);
           }

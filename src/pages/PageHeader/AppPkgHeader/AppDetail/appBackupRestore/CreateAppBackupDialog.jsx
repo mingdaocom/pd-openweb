@@ -108,11 +108,11 @@ export default function CreateBackupModal(props) {
         const { state } = res;
         getList(1);
         if (state === 2) {
-          alert(_l('程序异常', 3));
+          alert(_l('程序异常'), 3);
         } else if (state == 3) {
-          alert(_l('token失效', 3));
+          alert(_l('token失效'), 3);
         } else if (state == 4) {
-          alert(_l('网络版本过低，无法使用高版本功能', 3));
+          alert(_l('网络版本过低，无法使用高版本功能'), 3);
         }
       });
     });
@@ -151,7 +151,7 @@ export default function CreateBackupModal(props) {
           <span>{_l('有效期，超过60天的会自动删除，每个应用最多可备份')}</span>
           <span className="Black FontW">{_l('10个')}</span>
           <span>{_l('文件。')}</span>
-          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/backup.html" />
+          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/zh/backup.html" />
         </div>
 
         <div className="mTop24">

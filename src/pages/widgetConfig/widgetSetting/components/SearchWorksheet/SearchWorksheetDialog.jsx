@@ -150,7 +150,7 @@ export default class SearchWorksheetDialog extends Component {
 
   // 获取子表下拉数据或查询表下拉数据
   getDropData = (controls = [], control = {}, hasRowId) => {
-    let filterControls = getControls({ data: control, controls, isCurrent: true, fromSearch: true });
+    let filterControls = getControls({ data: control, controls, isCurrent: true, needFilter: true });
     filterControls = filterControls.filter(i => !_.includes(['wfftime', 'rowid'], i.controlId));
     // 有记录id选项(同查询表的关联记录或者文本类控件)
     if (hasRowId) {
@@ -426,7 +426,7 @@ export default class SearchWorksheetDialog extends Component {
                     <span
                       onClick={e => {
                         if (!sheetId) {
-                          alert(_l('请选择工作表'));
+                          alert(_l('请选择工作表'), 3);
                           return;
                         }
                       }}
@@ -517,7 +517,7 @@ export default class SearchWorksheetDialog extends Component {
                         <span
                           onClick={() => {
                             if (!sheetId) {
-                              alert(_l('请选择工作表'));
+                              alert(_l('请选择工作表'), 3);
                               return;
                             }
                           }}

@@ -71,7 +71,6 @@
 }
 
 .appConfigItem {
-  &.editAppNavStyle,
   &.backupRestore,
   &.appManageMenu {
     .Item-content {
@@ -236,3 +235,90 @@
     background-image: url(./img/3hover.png);
   }
 }
+
+// 左侧导航样式兼容
+.leftNavigationStyleWrap {
+  #wrapper {
+    flex-direction: row !important;
+  }
+  .appPkgHeaderWrap {
+    height: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    box-shadow: none;
+    .topRadius {
+      position: absolute;
+      right: -16px;
+      top: 0;
+      width: 16px;
+      height: 15px;
+      background-image: radial-gradient(16px at 16px 16px, transparent 16px, currentColor 17px)
+    }
+    .bottomRadius {
+      position: absolute;
+      right: -16px;
+      bottom: 0;
+      width: 16px;
+      height: 15px;
+      background-image: radial-gradient(16px at 16px 0, transparent 16px, currentColor 17px)
+    }
+    .topBorderRadius {
+      position: absolute;
+      right: -13px;
+      top: -1px;
+      z-index: 1;
+    }
+    .bottomBorderRadius {
+      position: absolute;
+      right: -13px;
+      bottom: -1px;
+      z-index: 1;
+    }
+    .borderLine {
+      width: 1px;
+      position: absolute;
+      right: 0;
+      top: 21px;
+      bottom: 21px;
+      background-color: #0000001a;
+      z-index: 1;
+    }
+    .appName {
+      font-size: 18px;
+      margin: 0 2px 0 6px;
+    }
+    .homepageIconWrap {
+      margin-left: 2px !important;
+    }
+    .appInfoWrap, .commonUserHandleWrap {
+      height: auto;
+      width: 100%;
+    }
+    .appItemsOuterWrap, .appItemPointerWrap {
+      display: none;
+    }
+    .commonUserHandleWrap {
+      padding: 10px;
+      justify-content: space-around;
+      background-color: inherit;
+    }
+    .appNameHeaderBoxPortal {
+      padding: 0 15px;
+      display: flex;
+      flex-direction: row-reverse;
+      .Hand {
+        margin-right: 5px !important;
+      }
+    }
+  }
+  .sheetViewTable {
+    border-left: none;
+  }
+  .worksheet .workSheetLeft, .unusualContentWrap .unusualSkeletonWrap {
+    display: none;
+  }
+}
+
+
+

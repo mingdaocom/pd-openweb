@@ -4,7 +4,6 @@ import './style.less';
 import Ajax from 'src/api/workWeiXin';
 import projectAjax from 'src/api/project';
 import Api from 'api/homeApp';
-import color from 'color';
 import { Icon, LoadDiv, Button, Input } from 'ming-ui';
 import cx from 'classnames';
 import html2canvas from 'html2canvas';
@@ -478,7 +477,7 @@ export default class DingSyncCourse extends React.Component {
             <div
               className={cx('appIconForDown', { isWXIcon: this.state.isWX })}
               style={{
-                backgroundColor: color(this.state.iconColor),
+                backgroundColor: this.state.iconColor,
               }}
               ref={el => {
                 this.appIconForDown = el;

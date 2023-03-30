@@ -3,6 +3,30 @@
   .mui-dialog-default-title {
     color: @delColor !important;
   }
+  .groupingWrap {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    height: 400px;
+    .searchWrap {
+      padding: 0 5px;
+      border-bottom: 1px solid #eaeaea;
+      input {
+        border: none;
+      }
+    }
+    .groupingItem {
+      height: 33px;
+      padding: 0 10px 0 8px;
+      &.active {
+        color: #2196f3;
+        background-color: #E5F3FE;
+        .ellipsis {
+          font-weight: 600;
+        }
+      }
+    }
+  }
   .btnBox {
     margin-top: 32px;
     display: flex;

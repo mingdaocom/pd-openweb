@@ -328,8 +328,8 @@ const BaseCard = props => {
        */
       if (window.innerWidth - 208 < right) {
         return {
-          points: ['tr', 'tl'],
-          offset: [-256, -8],
+          points: ['tr', 'tr'],
+          offset: [8, 30],
         };
       }
     }
@@ -363,7 +363,9 @@ const BaseCard = props => {
                     from={4}
                     cell={item}
                     sheetSwitchPermit={sheetSwitchPermit}
+                    worksheetId={worksheetId}
                     viewId={viewId}
+                    row={{ rowid: rowId }}
                     isCharge={isCharge}
                   />
                 );

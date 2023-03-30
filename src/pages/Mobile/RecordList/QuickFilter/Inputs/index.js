@@ -190,6 +190,9 @@ export default function Input(props) {
   if (type === WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL && props.control) {
     type = props.control.enumDefault2 || 6;
   }
+  if (_.isEmpty(props.control.controlName)) {
+    props.control.controlName = _l('未命名');
+  }
   const Condition = Comps[type];
   return Condition ? <Condition {...props} isMultiple={isMultiple} /> : <span />;
 }

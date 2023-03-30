@@ -4,6 +4,7 @@ import _ from 'lodash';
 
 export default function MDCell(props) {
   const {
+    isTrash,
     className,
     style,
     columnIndex,
@@ -55,6 +56,7 @@ export default function MDCell(props) {
   };
   return (
     <CellControl
+      isTrash={isTrash}
       tableId={tableId}
       tableType={tableType}
       cache={cache}

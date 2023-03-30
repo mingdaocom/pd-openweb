@@ -5,6 +5,10 @@ import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { isLightColor } from 'src/util';
 import { OPTION_COLORS_LIST, OPTION_COLORS_LIST_HOVER } from 'src/pages/widgetConfig/config';
 import _ from 'lodash';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
+
 const defaultColor = '#C9E6FC';
 export const eventStr = {
   0: 'eventAll', //全部
@@ -250,4 +254,14 @@ export const isIllegalFormat = (calendarInfo = []) => {
     });
   });
   return isErr;
+};
+
+export const setSysWorkflowTimeControlFormat = (controls = [], sheetSwitchPermit = [], key = 'controlId') => {
+  return controls.filter(o => {
+    if (!isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit)) {
+      return !SYS_CONTROLS_WORKFLOW.includes(o[key]);
+    } else {
+      return true;
+    }
+  });
 };

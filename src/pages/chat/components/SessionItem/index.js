@@ -81,7 +81,7 @@ export default class SessionItem extends Component {
     const isTop = top_info ? top_info.isTop : false;
     return (
       <div
-        className={cx('SessionList-item ThemeHoverBGColor7', { active: isActive, ThemeBGColor8: isActive, ThemeBGColor7: isHover, topBGColor: isTop })}
+        className={cx('SessionList-item', { active: isActive, ThemeBGColor8: isActive, ThemeBGColor7: isHover, topBGColor: isTop })}
         onClick={this.props.onOpenPanel}
         onContextMenu={this.props.onContextMenu}
         data-id={item.value}

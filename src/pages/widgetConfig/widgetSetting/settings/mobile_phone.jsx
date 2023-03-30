@@ -27,7 +27,7 @@ export default function Text(props) {
           data={DISPLAY_OPTIONS}
           onChange={value => {
             let newData = { ...data, type: value };
-            if (controlId.includes('-')) {
+            if (controlId && controlId.includes('-')) {
               newData = Object.assign(newData, {
                 controlName: DISPLAY_OPTIONS.find(item => item.value === value).text,
                 hint: value === 3 ? _l('请填写手机号码') : _l('请填写座机号码'),

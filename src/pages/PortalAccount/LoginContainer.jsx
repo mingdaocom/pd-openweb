@@ -215,7 +215,7 @@ export default function LoginContainer(props) {
           } else if (accountResult === 30) {
             setState({ scan: true });
           } else if (accountResult === 32) {
-            //32用户已经扫码但是未关注公众号 暂时接着轮询 ????
+            //32用户已经扫码但是未关注公众号 暂时接着轮询
             setState({ scan: true });
           } else {
             if (accountResult === 1 || accountResult === 24) {
@@ -391,12 +391,19 @@ export default function LoginContainer(props) {
         const { accountResult, sessionId, accountId, projectId, state } = res;
         switch (accountResult) {
           case -1:
-            //-1代表用户不存在，则需要进入到密码注册流程；
-            setState({
-              isRegister: true,
-              sending: false,
-            });
-            alert(_l('请输入验证码'), 3);
+            if (allowUserType === 9) {
+              setState({
+                sending: false,
+              });
+              alert(_l('您未被邀请注册'), 3);
+            } else {
+              //-1代表用户不存在，则需要进入到密码注册流程；
+              setState({
+                isRegister: true,
+                sending: false,
+              });
+              alert(_l('请输入验证码'), 3);
+            }
             break;
           case -3:
             // -3代表密码不符合格式规范，后端会强行校验；
@@ -425,11 +432,19 @@ export default function LoginContainer(props) {
             });
             break;
           case -4:
-            //-4代表用户未设置密码不能以密码方式登录，需要使用其他模式登录
-            alert(_l('验证码登录后在个人信息页面完成密码设置!'), 2);
-            setState({
-              sending: false,
-            });
+            if (allowUserType === 9) {
+              //邀请注册，输入验证码
+              setState({
+                isRegister: true,
+                sending: false,
+              });
+            } else {
+              //-4代表用户未设置密码不能以密码方式登录，需要使用其他模式登录
+              alert(_l('验证码登录后在个人信息页面完成密码设置!'), 2);
+              setState({
+                sending: false,
+              });
+            }
             break;
           default:
             loginCallback(res);

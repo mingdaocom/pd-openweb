@@ -1,8 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import ReactDom from 'react-dom';
 import preall from 'src/common/preall';
-import { Provider } from 'react-redux';
-import store from 'src/redux/configureStore';
 import { Input } from 'antd';
 import { LoadDiv, Button, Checkbox, RichText } from 'ming-ui';
 import captcha from 'src/components/captcha';
@@ -62,7 +60,8 @@ export default class Cancellation extends Component {
       return;
     }
     this.setState({ loading: true });
-    accountAjax.getApplyLogOffAccount({ state })
+    accountAjax
+      .getApplyLogOffAccount({ state })
       .then(res => {
         if (res === 0 || res === 5) {
           location.href = '/login';
@@ -279,7 +278,12 @@ export default class Cancellation extends Component {
       </Fragment>
     );
   };
-  renderPage() {
+  renderPage() {}
+  render() {
+    const { loading } = this.state;
+    if (loading) {
+      return <LoadDiv />;
+    }
     const { step } = this.state;
     const isMobile = browserIsMobile();
 
@@ -296,10 +300,6 @@ export default class Cancellation extends Component {
         </div>
       </div>
     );
-  }
-  render() {
-    const { loading } = this.state;
-    return <Provider store={store}>{loading ? <LoadDiv /> : this.renderPage()}</Provider>;
   }
 }
 

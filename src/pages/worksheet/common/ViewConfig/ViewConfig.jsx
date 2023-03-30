@@ -31,7 +31,7 @@ import {
   NORMAL_SYSTEM_FIELDS_SORT,
   WORKFLOW_SYSTEM_FIELDS_SORT,
 } from 'src/pages/worksheet/common/ViewConfig/util';
-import { SYS, ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
+import { SYS, ALL_SYS, SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import _ from 'lodash';
 
@@ -336,7 +336,7 @@ class ViewConfigCon extends Component {
 
   renderViewBtns() {
     const { viewSetting } = this.state;
-    const { btnData, view, columns } = this.props;
+    const { btnData, view, columns, currentSheetInfo } = this.props;
     const { filters = [], controls = [], moreSort = [], fastFilters = [], groupFilters } = view;
     const { icon, text } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
@@ -359,6 +359,15 @@ class ViewConfigCon extends Component {
     const getHtml = type => {
       let d = viewTypeConfig.find(o => o.type === type) || {};
       let da = (daConfig.find(o => o.type === type) || {}).data;
+      if (type === 'FastFilter') {
+        da = (da || []).filter(o => {
+          if (!isOpenPermit(permitList.sysControlSwitch, currentSheetInfo.switches || [])) {
+            return !SYS_CONTROLS_WORKFLOW.includes(o.controlId);
+          } else {
+            return true;
+          }
+        });
+      }
       return (
         <span>
           <span className="titleTxt">{d.name}</span>

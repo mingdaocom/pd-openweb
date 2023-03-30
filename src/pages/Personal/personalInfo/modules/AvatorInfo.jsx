@@ -66,7 +66,7 @@ export default class AvatarEditor extends Component {
 
   onBeforeFileLoad(elem) {
     if (elem.target.files[0].size > 1024 * 1024 * 10) {
-      alert(_l('图片过大'));
+      alert(_l('图片过大'), 2);
       elem.target.value = '';
     }
   }
@@ -91,10 +91,12 @@ export default class AvatarEditor extends Component {
               this.props.editAvatar(res[0]);
               this.props.closeDialog();
             } else {
-              accountAjax.editAccountAvatar({ fileName: JSON.parse(xhr.responseText).key.replace('UserAvatar/', '') }).then(() => {
-                this.props.updateAvator();
-                this.props.closeDialog();
-              });
+              accountAjax
+                .editAccountAvatar({ fileName: JSON.parse(xhr.responseText).key.replace('UserAvatar/', '') })
+                .then(() => {
+                  this.props.updateAvator();
+                  this.props.closeDialog();
+                });
             }
           }
         };

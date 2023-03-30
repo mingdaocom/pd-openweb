@@ -644,8 +644,33 @@
 .cellControlEdittingStatus {
   box-shadow: inset 0 0 0 2px #2d7ff9 !important;
 }
+
 .cellControlErrorStatus {
   box-shadow: inset 0 0 0 2px #f44336 !important;
+}
+
+.cell.cellControlErrorStatus:not(.isediting) {
+  box-shadow: none !important;
+  background-color: #fff0f1 !important;
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    border: 4px solid #f44336;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+  }
+  &.row-0:hover {
+    &::before {
+      top: auto;
+      bottom: 0;
+      border-bottom-color: #f44336;
+      border-top-color: transparent;
+    }
+  }
 }
 
 .subList {

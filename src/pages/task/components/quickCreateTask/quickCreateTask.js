@@ -3,8 +3,8 @@ import doT from '@mdfe/dot';
 import ajaxRequest from 'src/api/taskCenter';
 import 'src/components/mdDatePicker/mdDatePicker';
 import 'src/components/mdBusinessCard/mdBusinessCard';
-import 'src/components/quickSelectUser/quickSelectUser';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import { expireDialogAsync } from 'src/components/common/function';
 import quickCreateTask from './tpl/quickCreateTask.html';
 import { errorMessage, checkIsProject } from '../../utils/utils';
@@ -146,10 +146,10 @@ class QuickCreateTask {
         $this.data('hasbusinesscard', false).mdBusinessCard('destroy');
       };
 
-      $this.quickSelectUser({
+      quickSelectUser($this[0], {
         sourceId: _this.settings.folderId,
         showMoreInvite: false,
-        showQuickInvite: false,
+
         fromType: 2,
         filterAccountIds: [$this.attr('data-id')],
         includeUndefinedAndMySelf: true,
@@ -183,7 +183,7 @@ class QuickCreateTask {
                     $this.data('hasbusinesscard', false).mdBusinessCard('destroy');
                   };
 
-                  that.dialogSelectUser({
+                  dialogSelectUser({
                     sourceId: _this.settings.folderId,
                     showMoreInvite: false,
                     fromType: 2,

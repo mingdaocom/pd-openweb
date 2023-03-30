@@ -1,7 +1,7 @@
 import { existAccountHint } from 'src/components/common/function';
 import * as ajax from './ajax';
 import Constant from './constant';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import Invite from 'src/components/common/inviteMember/inviteMember';
 import { encrypt } from 'src/util';
 
@@ -30,7 +30,7 @@ const showInviteBox = options => {
   param = $.extend(param, {
     showMoreInvite: options.showMoreInvite !== false,
   });
-  $('body').dialogSelectUser(param);
+  dialogSelectUser(param);
 };
 
 const inviteFriend = (accounts, cb) => {

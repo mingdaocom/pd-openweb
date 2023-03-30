@@ -214,17 +214,19 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                           okText: _l('确定'),
                           onOk: () => {
                             if (dataSource) {
-                              worksheetAjax.getWorksheetInfo({ worksheetId: dataSource, getTemplate: true }).then(res => {
-                                addControl({
-                                  ...data,
-                                  controlName,
-                                  dataSource,
-                                  relationControls: (res.template || {}).controls || [],
+                              worksheetAjax
+                                .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
+                                .then(res => {
+                                  addControl({
+                                    ...data,
+                                    controlName,
+                                    dataSource,
+                                    relationControls: (res.template || {}).controls || [],
+                                  });
                                 });
-                              });
                               return;
                             }
-                            alert(_l('没有选择工作表'));
+                            alert(_l('没有选择工作表'), 3);
                           },
                         });
                         return;
@@ -270,11 +272,11 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
             const defaultData = DEFAULT_DATA.CASCADER;
             setVisible({ selectCascadeDataSourceVisible: false });
             if (!sheetId) {
-              alert(_l('没有选择工作表'));
+              alert(_l('没有选择工作表'), 3);
               return;
             }
             if (!viewId) {
-              alert(_l('没有选择视图'));
+              alert(_l('没有选择视图'), 3);
               return;
             }
             addControl({

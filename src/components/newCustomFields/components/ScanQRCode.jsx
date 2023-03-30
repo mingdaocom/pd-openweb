@@ -130,6 +130,13 @@ export default class Widgets extends Component {
             window.configLoading = false;
             window.configSuccess = true;
             this.handleWxScanQRCode();
+          }).catch((errType) => {
+            if (errType) {
+              import('html5-qrcode').then(data => {
+                this.qrCodeComponent = data;
+                this.handleScanQRCode();
+              });
+            }
           });
         }
       }
@@ -180,6 +187,9 @@ export default class Widgets extends Component {
       return;
     }
 
+    this.handleScanQRCode();
+  }
+  handleScanQRCode = () => {
     this.setState({
       visible: true
     }, () => {

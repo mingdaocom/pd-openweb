@@ -18,7 +18,7 @@ const DeleteBothWayRelateWrap = styled.div`
 const OperationWrap = styled.div`
   position: absolute;
   right: 12px;
-  top: -4px;
+  top: -6px;
   z-index: 2;
 
   .operationWrap {
@@ -211,7 +211,7 @@ export default function WidgetOperation(props) {
           </Tooltip>
         )}
         {!includes([34], type) && (
-          <Tooltip placement="bottom" trigger={['hover']} title={_l('复制控件')}>
+          <Tooltip placement="bottom" trigger={['hover']} title={_l('复制')}>
             <div
               className="copyControl operationIconWrap"
               onClick={e => {

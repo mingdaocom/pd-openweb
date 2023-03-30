@@ -139,7 +139,7 @@ export default class CreateFlow extends Component {
             />
           </div>
           <div>
-            <Support type={2} text={_l('使用帮助')} href="https://help.mingdao.com/flow51.html" />
+            <Support type={2} text={_l('使用帮助')} href="https://help.mingdao.com/zh/flow51.html" />
           </div>
         </header>
         <div className="createWorkflowBox">

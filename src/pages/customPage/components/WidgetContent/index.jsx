@@ -37,6 +37,21 @@ const LayoutContent = styled.div`
     &.numberChartCardHover {
       cursor: pointer;
       transition: box-shadow 0.2s;
+      .header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1;
+      }
+      .operateIconWrap>span {
+        margin-right: 6px;
+      }
+      .icon {
+        padding: 2px;
+        border-radius: 2px;
+        background-color: #fff;
+      }
       &:hover {
         box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.16);
       }
@@ -338,7 +353,7 @@ function WidgetContent(props) {
                 {editable && (
                   <Tools
                     appId={ids.appId}
-                    pageId={ids.pageId}
+                    pageId={ids.worksheetId}
                     widget={widget}
                     layoutType={layoutType}
                     titleVisible={titleVisible}

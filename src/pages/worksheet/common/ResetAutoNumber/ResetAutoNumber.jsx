@@ -71,17 +71,14 @@ export default function ResetAutoNumber(props) {
   };
 
   return (
-    <Dialog
-      style={{ width: '480px' }}
-      visible={true}
-      title={_l('重置自动编号')}
-      footer={null}
-      onCancel={onHide}>
+    <Dialog style={{ width: '480px' }} visible={true} title={_l('重置自动编号')} footer={null} onCancel={onHide}>
       <ResetWrap>
         <div className="intro">{_l('重置编号后，新增的记录会从初始值开始编号，之前的记录编号不变。')}</div>
         <div className="controls">
           {autoNumberControls.map((item, index) => {
-            const { controlName, controlId } = item;
+            const { controlName, controlId, advancedSetting = {} } = item;
+            const { start, length } =
+              _.find(safeParse(advancedSetting.increase || '[]', 'array'), i => i.type === 1) || {};
             return (
               <div className="controlItem" key={controlId}>
                 <div className="content">
@@ -104,7 +101,8 @@ export default function ResetAutoNumber(props) {
                           size="small"
                           onClick={() => {
                             setIndex(-1);
-                          }}>
+                          }}
+                        >
                           {_l('取消')}
                         </Button>
                         <Button
@@ -112,15 +110,17 @@ export default function ResetAutoNumber(props) {
                           size="small"
                           onClick={() => {
                             handleReset(controlId);
-                          }}>
+                          }}
+                        >
                           {_l('确定')}
                         </Button>
                       </FooterBtn>
-                    }>
+                    }
+                  >
                     <span className="reset">{_l('重置')}</span>
                   </Popover>
                 </div>
-                <div className="hint">{_l('重置后从00001开始编号')}</div>
+                <div className="hint">{_l('重置后从%0开始编号', _.padStart(start, length, '0'))}</div>
               </div>
             );
           })}

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import cx from 'classnames';
-import 'src/components/uploadAttachment/uploadAttachment';
 import { browserIsMobile } from 'src/util';
 import Container from './Container';
 import { LoadDiv, Icon } from 'ming-ui';

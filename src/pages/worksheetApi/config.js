@@ -318,7 +318,7 @@ export const MENU_LIST = [
   },
   {
     id: 'GetRowShareLink',
-    title: _l('获取记录分享链接 GET'),
+    title: _l('获取记录分享链接 POST'),
     apiName: 'worksheet/getRowShareLink',
     data: sameParameters.concat([
       {
@@ -1487,6 +1487,36 @@ export const OPTIONS_FUNCTION_LIST = [
       code: 1,
       msg: 'string',
       data: true,
+    },
+    errorData: {
+      error_msg: _l('具体错误信息'),
+      error_code: 10001,
+      success: false,
+    },
+  },
+  {
+    id: 'delete',
+    title: _l('删除选项集 DELETE'),
+    apiName: 'open/app/deleteOptionSet/{id}',
+    data: [{
+      name: 'appKey',
+      required: _l('是'),
+      type: 'string',
+      desc: '应用key',
+    },
+    {
+      name: 'sign',
+      required: _l('是'),
+      type: 'string',
+      desc: _l('签名'),
+    }],
+    requestData: {
+      appKey: 'appKey',
+      sign: 'sign',
+    },
+    successData: {
+      data: true,
+      code: 1,
     },
     errorData: {
       error_msg: _l('具体错误信息'),

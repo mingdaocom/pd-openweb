@@ -337,7 +337,8 @@ export const browserIsMobile = () => {
   const bIsCE = sUserAgent.match(/windows ce/i) == 'windows ce';
   const bIsWM = sUserAgent.match(/windows mobile/i) == 'windows mobile';
   const bIsApp = sUserAgent.match(/mingdao application/i) == 'mingdao application';
-  const value = bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM || bIsApp;
+  const bIsMiniProgram = sUserAgent.match(/miniprogram/i) == 'miniprogram';
+  const value = bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM || bIsApp || bIsMiniProgram;
 
   if (sUserAgent.includes('dingtalk')) {
     // 钉钉设备针对侧边栏打开判断为 mobile 环境
@@ -577,11 +578,11 @@ export function createElementFromHtml(html) {
 /**
  * 获取上传token
  */
-export const getToken = (files, type = 0) => {
+export const getToken = (files, type = 0, args = {}) => {
   if (!md.global.Account.accountId) {
     return qiniuAjax.getFileUploadToken({ files });
   } else {
-    return qiniuAjax.getUploadToken({ files, type });
+    return qiniuAjax.getUploadToken({ files, type, ...args });
   }
 };
 
@@ -786,7 +787,7 @@ export const upgradeVersionDialog = options => {
 
   if (options.dialogType === 'content') {
     return (
-      <div className='w100 h100 flexColumn justifyContentCenter alignItemsCenter'>
+      <div className="w100 h100 flexColumn justifyContentCenter alignItemsCenter">
         <div className="netStateWrap">
           <div className="imgWrap" />
           <div className="hint">{hint}</div>

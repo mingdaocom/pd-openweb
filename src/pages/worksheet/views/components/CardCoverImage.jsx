@@ -30,6 +30,7 @@ const CoverImageWrap = styled.div`
     background-position: center;
     background-repeat: no-repeat;
     background-clip: content-box;
+    border-radius: 3px 3px 0 0;
 
     &.emptyCoverWrap {
       img {

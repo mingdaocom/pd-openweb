@@ -64,45 +64,6 @@ const DisplayItemWrap = styled.div`
   .drag-right {
     right: -2px;
   }
-
-  .contentWrap {
-    position: relative;
-    border-radius: 3px;
-    .nameAndStatus {
-      display: flex;
-      align-items: center;
-      line-height: 18px;
-      margin-bottom: 8px;
-      .required {
-        position: absolute;
-        top: 4px;
-        left: -8px;
-        color: #f44336;
-        transition: all 0.25s;
-      }
-      .iconWrap {
-      }
-      .typeIcon {
-        color: #9e9e9e;
-        font-size: 16px;
-      }
-      .controlName {
-        margin-left: 6px;
-      }
-      .isSplitLine {
-        font-size: 15px;
-        font-weight: bold;
-      }
-      &.minHeight18 {
-        min-height: 18px;
-      }
-    }
-    .desc {
-      color: #9e9e9e;
-      margin-top: 8px;
-      line-height: 13px;
-    }
-  }
   .verifyInfo {
     margin-top: 8px;
     color: #fb0038;
@@ -288,7 +249,13 @@ export default function DisplayItem(props) {
     };
 
     if (mode === 'copy') {
-      const newWidget = { ...data, attribute: 0, controlId: uuidv4(), alias: '' };
+      const newWidget = {
+        ...data,
+        attribute: 0,
+        controlId: uuidv4(),
+        alias: '',
+        controlName: _l('%0-复制', data.controlName),
+      };
       if (isExceedMaxControlLimit(allControls)) return;
       setActiveWidget(newWidget);
       setWidgets(update(widgets, { $splice: [[row + 1, 0, [newWidget]]] }));
@@ -300,13 +267,13 @@ export default function DisplayItem(props) {
       // 将其他标题控件清空
       const newWidgets = resetWidgets(widgets, { attribute: 0 });
       setWidgets(update(newWidgets, { [row]: { [col]: { $apply: item => ({ ...item, attribute: 1 }) } } }));
-      setActiveWidget({ ...activeWidget, attribute: 1 });
+      setActiveWidget({ ...(_.isEmpty(activeWidget) ? data : activeWidget), attribute: 1 });
       return;
     }
 
     if (mode === 'delete') {
       if (allControls.length < 2) {
-        alert(_l('最少需要保留一个控件'));
+        alert(_l('最少需要保留一个控件'), 3);
         return;
       }
       // 如果是关联本表 则要删除对应的控件

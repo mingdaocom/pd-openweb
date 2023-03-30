@@ -17,6 +17,7 @@ import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import processAjax from 'src/pages/workflow/api/process.js';
 import axios from 'axios';
 import moment from 'moment';
+import { getIsSuperAdmin } from 'src/pages/integration/util.js';
 
 const Wrap = styled.div`
   width: 800px;
@@ -175,7 +176,21 @@ const TABLIST = [_l('API设置'), _l('查看引用'), _l('请求日志')];
 //api详情 侧拉层
 function APISetting(props) {
   const [
-    { data, apkInfo, tab, isFix, showMenu, pending, loading, info, editing, editingName, curId, isConnectOwner },
+    {
+      data,
+      apkInfo,
+      tab,
+      isFix,
+      showMenu,
+      pending,
+      loading,
+      info,
+      editing,
+      editingName,
+      curId,
+      isConnectOwner,
+      isSuperAdmin,
+    },
     setState,
   ] = useSetState({
     apkInfo: props.connectInfo || {},
@@ -190,6 +205,7 @@ function APISetting(props) {
     showMenu: false,
     curId: '',
     isConnectOwner: false,
+    isSuperAdmin: props.isSuperAdmin,
   });
   const headerRef = useRef();
   const WrapRef = useRef();
@@ -226,11 +242,7 @@ function APISetting(props) {
       getInfo(props.listId);
     }
   }, [props.listId]);
-  useEffect(() => {
-    setState({
-      isConnectOwner: props.isSuperAdmin || apkInfo.isOwner,
-    });
-  }, [props.isSuperAdmin, apkInfo]);
+
   useEffect(() => {
     editing &&
       setTimeout(() => {
@@ -274,65 +286,71 @@ function APISetting(props) {
         { isIntegration: true },
       ),
     ]);
+    const isSuperAdmin = getIsSuperAdmin(res[0].companyId);
     setState({
+      isSuperAdmin,
       info: res[0],
       data: { ...data, ...res[1] },
     });
     !props.connectInfo //从连接的api管理进来的 参数上带了connectInfo，不需要重新获取
-      ? packageVersionAjax.getDetail(
-          {
-            isPublic: true,
-            id: res[0].relationId,
-          },
-          { isIntegration: true },
-        ).then(
-          res => {
-            setState({
-              apkInfo: res,
-              loading: false,
-              isConnectOwner: props.isSuperAdmin || res.isOwner,
-            });
-          },
-          () => {
-            //无连接权限的页面兼容
-            setState({
-              apkInfo: {},
-              loading: false,
-              isConnectOwner: false,
-            });
-          },
-        )
+      ? packageVersionAjax
+          .getDetail(
+            {
+              isPublic: true,
+              id: res[0].relationId,
+            },
+            { isIntegration: true },
+          )
+          .then(
+            res => {
+              setState({
+                apkInfo: res,
+                loading: false,
+                isConnectOwner: isSuperAdmin || res.isOwner,
+              });
+            },
+            () => {
+              //无连接权限的页面兼容
+              setState({
+                apkInfo: {},
+                loading: false,
+                isConnectOwner: false,
+              });
+            },
+          )
       : setState({
           loading: false,
-          isConnectOwner: props.isSuperAdmin || props.connectInfo.isOwner,
+          isConnectOwner: isSuperAdmin || props.connectInfo.isOwner,
           apkInfo: props.connectInfo,
         });
   };
   // 更新基本信息
   const updateInfo = data => {
-    processAjax.updateProcess(
-      {
-        companyId: localStorage.getItem('currentProjectId'),
-        processId: data.id,
-        name: data.name,
-        explain: data.explain,
-        iconName: data.iconName,
-        iconColor: data.iconColor,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      let newData = {
-        ...data,
-        ...res,
-        iconName: data.iconName,
-        iconColor: data.iconColor,
-        ownerAccount: data.ownerAccount,
-      };
-      setState({
-        data: newData,
+    processAjax
+      .updateProcess(
+        {
+          companyId: localStorage.getItem('currentProjectId'),
+          processId: data.id,
+          name: data.name,
+          explain: data.explain,
+          iconName: data.iconName,
+          iconColor: data.iconColor,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        let newData = {
+          ...data,
+          ...res,
+          iconName: data.iconName,
+          iconColor: data.iconColor,
+          ownerAccount: data.ownerAccount,
+        };
+        setState({
+          data: newData,
+        });
+        props.onChange && props.onChange(newData);
       });
-      props.onChange && props.onChange(newData);
-    });
   };
   const createApi = async () => {
     const res = await packageVersionAjax.addApi(
@@ -399,6 +417,7 @@ function APISetting(props) {
           <Set
             {...props}
             {...data}
+            isSuperAdmin={isSuperAdmin}
             connectInfo={apkInfo}
             isConnectOwner={isConnectOwner}
             info={info}
@@ -413,7 +432,7 @@ function APISetting(props) {
       case 1:
         return <Cite processId={data.id} connectInfo={apkInfo} />;
       case 2:
-        return <Log isSuperAdmin={props.isSuperAdmin} processId={data.id} connectInfo={apkInfo} />;
+        return <Log isSuperAdmin={isSuperAdmin} processId={data.id} connectInfo={apkInfo} />;
     }
   };
   const renderTabCon = () => {
@@ -484,7 +503,7 @@ function APISetting(props) {
                       <MenuItemWrap
                         icon={<Icon icon="launch" className="Font17 mLeft5" />}
                         onClick={() => {
-                          window.open(`/integrationApi/${localStorage.getItem('currentProjectId')}/${props.listId}`);
+                          window.open(`/integrationApi/${props.listId}`);
                         }}
                       >
                         <span>{_l('新页面打开')}</span>

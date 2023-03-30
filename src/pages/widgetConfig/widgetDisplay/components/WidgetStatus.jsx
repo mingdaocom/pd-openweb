@@ -6,9 +6,9 @@ const StatusWrap = styled.div`
   max-height: 18px;
   i {
     font-size: 18px;
-    margin-left: 6px;
+    margin-left: 3px;
     &:first-child {
-      margin-left: ${props => (props.showTitle ? '6px' : '0px')};
+      margin-left: ${props => (props.showTitle ? '3px' : '0px')};
     }
     &.title {
       color: #2196f3;

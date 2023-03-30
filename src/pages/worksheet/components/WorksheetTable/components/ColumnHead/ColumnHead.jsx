@@ -50,7 +50,14 @@ class ColumnHead extends Component {
 
   getType(control) {
     const { type, sourceControlType } = control;
-    return type === 30 ? sourceControlType : type;
+    let itemType = type;
+    if (type === 30) {
+      itemType = sourceControlType;
+    }
+    if (itemType === 38) {
+      itemType = 6;
+    }
+    return itemType;
   }
 
   changeSortType(controlId, isAsc, type) {

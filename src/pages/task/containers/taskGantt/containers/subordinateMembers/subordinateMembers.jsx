@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import './subordinateMembers.less';
 import cx from 'classnames';
 import config from '../../config/config';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import { removeFollowMembers, updateUserStatus, addFollowMembers } from '../../redux/actions';
 import UserHead from 'src/pages/feed/components/userHead';
 import ajaxRequest from 'src/api/taskCenter';
@@ -143,7 +143,7 @@ class SubordinateMembers extends Component {
   addFollowMembers(evt) {
     const filterAccountIds = this.props.accountTasksKV.map(item => item.account.accountId);
 
-    $(evt.currentTarget).dialogSelectUser({
+    dialogSelectUser({
       sourceId: config.folderId,
       title: _l('添加关注的同事'),
       showMoreInvite: false,
@@ -217,9 +217,7 @@ class SubordinateMembers extends Component {
             <i className="icon-task-new-delete" />
             {_l('移除')}
           </li>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </ul>
     );
   }
@@ -300,9 +298,7 @@ class SubordinateMembers extends Component {
                   );
                 })}
               </ClickAwayable>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
           </div>
 
           <ul
@@ -325,9 +321,7 @@ class SubordinateMembers extends Component {
                   {_l('添加下属')}
                 </div>
               </div>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
 
             {accountTasksKV.map((item, i) => {
               return (
@@ -373,9 +367,7 @@ class SubordinateMembers extends Component {
                         <i className="icon-moreop ThemeColor3 Font16" />
                       </span>
                     </Trigger>
-                  ) : (
-                    undefined
-                  )}
+                  ) : undefined}
                 </li>
               );
             })}

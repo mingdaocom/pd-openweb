@@ -580,9 +580,10 @@ export default class GeneraSelect extends Component {
 
     this.handlePromise(resignedApi).then(data => {
       let newData = {
-        list: (mainData.renderType === RenderTypes.RESIGNED ? (mainData.data || {}).list || [] : []).concat(
-          data.list || [],
-        ),
+        list: (mainData.renderType === RenderTypes.RESIGNED && pageIndex > 1
+          ? (mainData.data || {}).list || []
+          : []
+        ).concat(data.list || []),
         allCount: data.allCount,
       };
       this.setState({

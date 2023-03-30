@@ -43,7 +43,7 @@ export default class RelateRecord extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.isediting !== nextProps.isediting && this.props.cell.value !== nextProps.cell.value) {
+    if (this.props.cell.value !== nextProps.cell.value) {
       this.setState({ records: this.parseValue(nextProps.cell.value) });
     }
   }
@@ -216,7 +216,7 @@ export default class RelateRecord extends React.Component {
             coverCid={cell.coverCid}
             required={cell.required}
             showControls={cell.showControls}
-            allowOpenRecord={allowlink === '1'}
+            allowOpenRecord={allowlink === '1' && !_.get(window, 'shareState.shareId')}
             showCoverAndControls={ddset === '1' || parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.CARD}
             isediting={isediting}
             popupContainer={() => document.body}

@@ -114,7 +114,7 @@ export default class CardMessage extends Component {
           })
           .then(postItem => {
             if (postItem.ban === '1') {
-              alert(_l('暂无权限查看该动态或者该动态已经被删除'));
+              alert(_l('暂无权限查看该动态或者该动态已经被删除'), 2);
               return;
             }
             if (postItem.success !== '1') {
@@ -147,7 +147,7 @@ export default class CardMessage extends Component {
                   yesText: '',
                   noText: '',
                 }}
-                readyFn={function(Comp) {
+                readyFn={function (Comp) {
                   $('#chatFeedDialog_container').on('click', event => {
                     if (!$(event.target).closest('#chatFeedDialog').length) {
                       Comp.closeDialog();
@@ -221,9 +221,7 @@ export default class CardMessage extends Component {
             className="Message-cardSummary Message-cardItem-task"
             dangerouslySetInnerHTML={{ __html: htmlDecodeReg(cardDetails.summary) }}
           />
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     );
   }
@@ -318,9 +316,7 @@ export default class CardMessage extends Component {
             <i className="icon-ic_textsms_black" />
             <span>{commentCount}</span>
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     );
   }

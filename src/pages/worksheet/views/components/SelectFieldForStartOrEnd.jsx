@@ -164,7 +164,7 @@ export default function SelectFieldForStartOrEnd(props) {
           if (begindate) {
             handleChangeFn(view);
           } else {
-            alert(_l('请选择开始和结束时间'));
+            alert(_l('请选择开始和结束时间'), 3);
           }
         }}
       >

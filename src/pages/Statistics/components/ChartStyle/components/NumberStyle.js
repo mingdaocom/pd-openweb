@@ -429,7 +429,7 @@ export function numberSummaryPanelGenerator(props) {
   const { xaxes, yaxisList, summary, displaySetup } = currentReport;
   const switchChecked = displaySetup.showTotal;
 
-  if (yaxisList.length === 1 && !xaxes.controlId) {
+  if (!xaxes.controlId) {
     return null;
   }
 

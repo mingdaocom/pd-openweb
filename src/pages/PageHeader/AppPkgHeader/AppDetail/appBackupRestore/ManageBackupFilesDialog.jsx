@@ -78,7 +78,7 @@ export default function ManageBackupFilesDialog(props) {
             <div className="title">{_l('管理备份文件')}</div>
             <div className="subTitle">
               {_l('每个应用最多创建10个备份文件，每个文件仅保留60天有效期')}
-              <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/backup.html" />
+              <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/zh/backup.html" />
             </div>
             <Icon icon="close" className="Font20 Hand closeIcon Gray_9e" onClick={onClose} />
           </div>

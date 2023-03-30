@@ -143,7 +143,7 @@ export default class Approve extends Component {
       ((passContent || overruleContent) && !content.trim()) ||
       ((passSignature || overruleSignature) && this.signature.checkContentIsEmpty())
     ) {
-      alert(_l('请填写完整内容', 2));
+      alert(_l('请填写完整内容'), 2);
       return;
     }
 
@@ -220,6 +220,7 @@ export default class Approve extends Component {
 
   render() {
     const { action, onCancel } = this.props;
+    const { callBackNodeType } = this.props.data;
     const { isCallBack, auth } = (this.props.data || {}).flowNode || {};
     const { content, backNodeId, showCode, link, resultCode } = this.state;
     const backFlowNodes = ((this.props.data || {}).backFlowNodes || []).map(item => {
@@ -351,14 +352,24 @@ export default class Approve extends Component {
 
         {isCallBack && action === 'overrule' && !!backFlowNodes.length && (
           <Fragment>
-            <div className="Gray_75 mTop20">{_l('退回到')}</div>
-            <Dropdown
-              className="mTop10 approveDialogCallBack"
-              data={backFlowNodes}
-              value={backNodeId}
-              border
-              onChange={backNodeId => this.setState({ backNodeId })}
-            />
+            {_.includes([0, 3], callBackNodeType) ? (
+              <Fragment>
+                <div className="Gray_75 mTop20">{_l('退回到')}</div>
+                <Dropdown
+                  className="mTop10 approveDialogCallBack"
+                  data={backFlowNodes}
+                  value={backNodeId}
+                  border
+                  onChange={backNodeId => this.setState({ backNodeId })}
+                />
+              </Fragment>
+            ) : (
+              <div className="Gray_75 mTop20">
+                {callBackNodeType === 1
+                  ? _l('退回到：%0', backFlowNodes[0].text)
+                  : _l('退回上一节点：%0', backFlowNodes[0].text)}
+              </div>
+            )}
           </Fragment>
         )}
 

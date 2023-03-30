@@ -7,6 +7,7 @@ import ProcessRecordInfo from 'mobile/ProcessRecord';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import Card from './Card';
+import ProcessDelegation from './ProcessDelegation';
 import { getRequest } from 'src/util';
 import './index.less';
 import 'src/pages/worksheet/common/newRecord/NewRecord.less';
@@ -212,22 +213,22 @@ export default class ProcessMatters extends Component {
   }
   hanndleApprove = (type, batchType) => {
     const { approveCards } = this.state;
-    const signatureCard = _.find(approveCards, { flowNode: { [batchType]: 1 } });
+    const signatureCard = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     if (_.isEmpty(approveCards)) {
       Toast.info(_l('请先勾选需要处理的审批'), 2);
     }
-    if (signatureCard) {
+    if (signatureCard.length) {
       this.setState({ approveType: type });
     } else {
       this.handleBatchApprove(null, type);
     }
   }
   handleBatchApprove = (signature, approveType) => {
-    const batchType = approveType === 4 ? 'passBatchType' : 'overruleBatchType';
+    const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
     const { approveCards } = this.state;
     const selects = approveCards.map(({ id, workId, flowNode }) => {
       const data = { id, workId, opinion: _l('批量处理') };
-      if (flowNode[batchType] === 1) {
+      if ((_.get(flowNode, batchType) || []).includes(1)) {
         return {
           ...data,
           signature,
@@ -251,8 +252,8 @@ export default class ProcessMatters extends Component {
   }
   renderSignatureDialog() {
     const { approveCards, approveType } = this.state;
-    const batchType = approveType === 4 ? 'passBatchType' : 'overruleBatchType';
-    const signatureApproveCards = approveCards.filter(item => item.flowNode[batchType] === 1);
+    const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
+    const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     return (
       <Modal
         popup
@@ -265,7 +266,7 @@ export default class ProcessMatters extends Component {
         <div className={cx('otherActionWrapper flexColumn')} style={{ height: 350 }}>
           <div className="flex pAll10">
             <div className="Gray_75 Font14 TxtLeft mBottom10">
-              {_l('包含需要%0个需要签名的审批事项', signatureApproveCards.length)}
+              {_l('包含%0个需要签名的审批事项', signatureApproveCards.length)}
             </div>
             <Signature
               ref={signature => {
@@ -286,7 +287,7 @@ export default class ProcessMatters extends Component {
               className="flex actionBtn ok"
               onClick={() => {
                 if (this.signature.checkContentIsEmpty()) {
-                  alert(_l('请填写签名', 2));
+                  alert(_l('请填写签名'), 2);
                   return;
                 }
                 this.signature.saveSignature(signature => {
@@ -420,7 +421,7 @@ export default class ProcessMatters extends Component {
   render() {
     const { batchApproval, list, countData, bottomTab, topTab, previewRecord, approveCards, approveType } = this.state;
     const currentTabs = bottomTab.tabs;
-    const allowApproveList = list.filter(c => ![-1, -2].includes(_.get(c, 'flowNode.batchType')));
+    const allowApproveList = list.filter(c => _.get(c, 'flowNode.batch'));
     return (
       <div className="processContent flexColumn h100">
         <div className="flex flexColumn">
@@ -473,12 +474,12 @@ export default class ProcessMatters extends Component {
                 </div>
               </div>
               <div className="valignWrapper">
-                <div className="pass mRight30" onClick={() => { this.hanndleApprove(4, 'passBatchType') }}>{_l('通过')}</div>
-                <div className="overrule" onClick={() => { this.hanndleApprove(5, 'overruleBatchType') }}>{_l('否决')}</div>
+                <div className="pass mRight30" onClick={() => { this.hanndleApprove(4, 'auth.passTypeList') }}>{_l('通过')}</div>
+                <div className="overrule" onClick={() => { this.hanndleApprove(5, 'auth.overruleTypeList') }}>{_l('否决')}</div>
               </div>
             </div>
           )}
-          {['processed', 'mySponsor'].includes(bottomTab.id) ? this.renderInput() : null}
+          {this.renderInput()}
           {this.renderContent()}
           <div className="processTabs bottomProcessTabs">
             <Tabs
@@ -500,6 +501,9 @@ export default class ProcessMatters extends Component {
               history.back();
             }}
           />
+        )}
+        {topTab && (topTab.id === 'waitingApproval' || topTab.id === 'waitingWrite') && (
+          <ProcessDelegation topTab={topTab} className={cx({ bottom60: !list.length })} />
         )}
         {topTab && topTab.id === 'waitingApproval' && !batchApproval && !!list.length && (
           <Flex

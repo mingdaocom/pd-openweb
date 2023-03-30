@@ -36,7 +36,7 @@ export default function CopyRoleDialog(props) {
       }}
       onOk={() => {
         if (!roleName.trim()) {
-          return alert(_l('请输入角色名称！', 3));
+          return alert(_l('请输入角色名称！'), 3);
         }
         AppAjax.copyRole({
           appId,

@@ -69,6 +69,9 @@
       cursor: pointer;
       position: relative;
       line-height: 50px;
+      display: flex;
+      align-items: center;
+      font-weight: normal;
       &:before {
         content: '';
         width: 100%;
@@ -91,15 +94,22 @@
         }
       }
     }
-    .count {
+    .processCount {
       color: #757575;
       margin-left: 8px;
     }
     .red {
       color: #F44336;
-      padding: 1px 8px;
       border-radius: 20px;
+      min-width: 20px;
+      height: 20px;
       background-color: #fce4e3;
+      width: auto;
+      padding: 0 6px;
+      display: flex;
+      line-height: normal;
+      align-items: center;
+      justify-content: center;
     }
   }
   .cuttingLine {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import './index.less';
 import { Dropdown, CityPicker, Icon } from 'ming-ui';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import DialogSelectDept from 'src/components/dialogSelectDept';
 import cx from 'classnames';
 import TagInput from '../TagInput';
@@ -961,7 +961,7 @@ export default class TriggerCondition extends Component {
    * 成员选择
    */
   selectUser(evt, users, i, j, unique) {
-    $(evt.target).dialogSelectUser({
+    dialogSelectUser({
       title: _l('选择人员'),
       showMoreInvite: false,
       SelectUserSettings: {
@@ -1038,7 +1038,12 @@ export default class TriggerCondition extends Component {
       filedTypeId === 33 ||
       filedTypeId === 50
     ) {
-      if (_.includes(data[i][j].conditionValues.map(obj => obj.value), value)) {
+      if (
+        _.includes(
+          data[i][j].conditionValues.map(obj => obj.value),
+          value,
+        )
+      ) {
         _.remove(data[i][j].conditionValues, obj => obj.value === value);
       } else {
         data[i][j].conditionValues.push({ value });

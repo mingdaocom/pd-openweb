@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import DialogLayer from 'src/components/mdDialog/dialog';
 import ajaxRequest from 'src/api/taskCenter';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import './less/copyTask.less';
 
 export default class CopyTask extends Component {
@@ -22,14 +22,12 @@ export default class CopyTask extends Component {
       }
 
       if ($(this).is($('#copySubTask'))) {
-        $('#hasSubTasksChargeUser')
-          .toggleClass('noClick')
-          .removeClass('checked');
+        $('#hasSubTasksChargeUser').toggleClass('noClick').removeClass('checked');
       }
     });
 
     $('#copyTask_container').on('click', '#chargeUserBtn', function () {
-      $(this).dialogSelectUser({
+      dialogSelectUser({
         sourceId: that.props.taskId,
         title: '选择负责人',
         showMoreInvite: false,
@@ -39,7 +37,7 @@ export default class CopyTask extends Component {
           filterAccountIds: [that.state.accountId],
           projectId: that.props.projectId,
           unique: true,
-          callback: (users) => {
+          callback: users => {
             that.setState({
               accountId: users[0].accountId,
               avatar: users[0].avatar,
@@ -66,7 +64,7 @@ export default class CopyTask extends Component {
         checklist: $('#copyChecklist').hasClass('checked'),
         hasSubTasksChargeUser: $('#hasSubTasksChargeUser').hasClass('checked'),
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           alert(_l('复制成功'));
         } else {
@@ -99,7 +97,10 @@ export default class CopyTask extends Component {
           <div className="copyTitle">{_l('同步复制')}</div>
           <ul>
             <li>
-              <div className={this.props.folderID ? 'checked checkOperation' : 'noClick checkOperation'} id="copyFolderID">
+              <div
+                className={this.props.folderID ? 'checked checkOperation' : 'noClick checkOperation'}
+                id="copyFolderID"
+              >
                 <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
                 {_l('所属项目')}
               </div>

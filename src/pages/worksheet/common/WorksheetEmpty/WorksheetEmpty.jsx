@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { addWorkSheet, getSheetList } from 'src/pages/worksheet/redux/actions/sheetList.js';
+import { addWorkSheet, getSheetList, createAppItem } from 'src/pages/worksheet/redux/actions/sheetList.js';
 import Trigger from 'rc-trigger';
 import CreateNew from 'src/pages/worksheet/common/WorkSheetLeft/CreateNew';
 import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
@@ -13,7 +13,6 @@ import cx from 'classnames';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import './WorksheetEmpty.less';
 
-const findCache = {};
 const createWorksheetList = [
   { type: 'blank', icon: 'plus', createType: 'worksheet', name: _l('从空白创建') },
   { type: 'importExcel', icon: 'new_excel', createType: 'importExcel', name: _l('从Excel创建') },
@@ -30,70 +29,45 @@ class WorksheetEmpty extends Component {
       flag: true,
     };
   }
-  componentDidMount() {
-    const { appId, groupId, worksheetId, isCharge, getSheetList } = this.props;
-    if (!isCharge && worksheetId && !findCache[worksheetId]) {
-      findCache[worksheetId] = true;
-      getSheetList({
-        appId,
-        appSectionId: groupId,
-      });
-    }
-  }
-  handleCreateSheet() {
-    const { appId, groupId } = this.props;
-    const { flag } = this.state;
-    const { iconColor, projectId } = store.getState().appPkg;
-    const name = this.text.value.trim();
-
-    if (name && flag) {
-      this.setState({
-        flag: false,
-      });
-      this.props.addWorkSheet(
-        {
-          appId,
-          appSectionId: groupId,
-          name: name.slice(0, 25),
-          icon: '1_worksheet',
-          type: 0,
-          iconColor,
-          projectId,
-        },
-        () => {
-          this.setState({
-            flag: true,
-          });
-        },
-      );
-    } else if (!name) {
-      alert(_l('请填写工作表名称'));
-    }
-  }
-
   handleCreate = (type, name) => {
-    const { onCreateItem } = this.props;
+    const { appId, groupId, createAppItem } = this.props;
 
     if (!name) {
-      alert(_l('请填写名称'));
+      alert(_l('请填写名称'), 3);
       return;
     }
-    onCreateItem({ type, name: name.slice(0, 25), icon: type === 0 ? '1_worksheet' : '1_0_home' });
+    createAppItem({
+      appId,
+      groupId,
+      type,
+      name: name.slice(0, 25),
+      icon: type === 0 ? '1_worksheet' : '1_0_home',
+    });
     this.setState({ createType: '' });
   };
 
   renderCreate() {
-    const { sheetCount, appId, groupId } = this.props;
+    const { sheetList, appId, groupId, isCharge } = this.props;
     const { createType, visible, dialogImportExcel } = this.state;
     const { appGroups = [], projectId } = store.getState().appPkg;
+    const sheetCount = sheetList.length;
     const isAdd = !(appGroups.length > 1 && !sheetCount);
+
+    if (!isCharge) {
+      return (
+        <div className="contentBox">
+          <i className="iconBox" />
+          <span className="Block TxtCenter Font20 Black">{_l('当前分组没有应用项')}</span>
+        </div>
+      );
+    }
+
     return (
       <div className="contentBox">
         <i className={cx('iconBox', { add: isAdd })} />
         <span className="Block TxtCenter Font20 Black">
           {isAdd ? _l('创建工作表，开始构建你的应用') : _l('当前分组没有应用项，创建或从其他分组移动应用项')}
         </span>
-
         {isAdd ? (
           <div className="flexRow createOperate">
             <Button
@@ -216,10 +190,10 @@ class WorksheetEmpty extends Component {
     );
   }
   render() {
-    const { isValidAppSectionId, isCharge } = this.props;
+    const { isValidAppSectionId } = this.props;
     return (
       <div className="worksheetEmpty noneData">
-        {isCharge ? (isValidAppSectionId ? this.renderCreate() : this.renderAppSection()) : this.renderUnauthorized()}
+        {isValidAppSectionId ? this.renderCreate() : this.renderAppSection()}
       </div>
     );
   }
@@ -229,9 +203,12 @@ export default connect(
   state => ({
     isValidAppSectionId: state.sheetList.isValidAppSectionId,
     worksheetId: state.sheet.base.worksheetId,
+    sheetList: state.sheetList.data,
+    isCharge: state.sheet.isCharge,
   }),
   dispatch => ({
     addWorkSheet: bindActionCreators(addWorkSheet, dispatch),
     getSheetList: bindActionCreators(getSheetList, dispatch),
+    createAppItem: bindActionCreators(createAppItem, dispatch),
   }),
 )(WorksheetEmpty);

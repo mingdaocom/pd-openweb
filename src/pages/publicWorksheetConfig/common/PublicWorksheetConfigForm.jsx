@@ -87,7 +87,7 @@ class PublicWorksheetConfigForm extends React.Component {
       hideControl,
       changeControls,
     } = this.props;
-    const { themeIndex, coverUrl, logoUrl, submitBtnName } = worksheetInfo;
+    const { themeIndex, coverUrl, logoUrl, submitBtnName, advancedSetting } = worksheetInfo;
     const { appearanceConfigVisible, isEditing } = this.state;
     const disabledControlIds = getDisabledControls(originalControls, worksheetSettings);
     const needHidedControlIds = hidedControlIds.concat(disabledControlIds);
@@ -164,6 +164,7 @@ class PublicWorksheetConfigForm extends React.Component {
                 )}
                 {!loading && (
                   <FormPreview
+                    advancedSetting={advancedSetting}
                     controls={overridePos(originalControls, controls).filter(
                       c => !_.find(needHidedControlIds, hcid => c.controlId === hcid),
                     )}

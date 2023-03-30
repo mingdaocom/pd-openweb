@@ -19,7 +19,7 @@ const WidgetList = styled.div`
   flex-direction: column;
   margin: 0;
   overflow: auto;
-  background-color: #f5f5f9;
+  background-color: #ffffff;
   .groupList {
     padding: 0 20px;
     padding-bottom: 40px;
@@ -46,13 +46,11 @@ const WidgetList = styled.div`
     list-style: none;
     position: relative;
     background-color: #fff;
-    border: 1px solid transparent;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    border: 1px solid #dddddd;
     border-radius: 4px;
     &:hover,
     &.active {
       color: #2196f3;
-      background-color: #f0f8ff;
       .widgetItem i {
         color: #2196f3;
       }
@@ -119,7 +117,7 @@ export default function List(props) {
     }
 
     if (isExceedMaxControlLimit(allControls)) {
-      alert(_l('当前表存在的控件已达到最大值，无法添加继续添加新控件!'));
+      alert(_l('当前表存在的控件已达到最大值，无法添加继续添加新控件!'), 3);
       return;
     }
 
@@ -192,7 +190,7 @@ export default function List(props) {
               <div key={group} className="group">
                 <div className="title">{title}</div>
                 <ul>
-                  {_.keys(widgets).map(key => {
+                  {_.keys(widgets).filter(key => !(key === 'SEARCH_BTN' && md.global.SysSettings.hideIntegration)).map(key => {
                     const featureType = getFeatureStatus(globalSheetInfo.projectId, widgets[key]['featureId']);
                     if (_.includes(['SEARCH_BTN', 'SEARCH'], key) && !featureType) return;
 

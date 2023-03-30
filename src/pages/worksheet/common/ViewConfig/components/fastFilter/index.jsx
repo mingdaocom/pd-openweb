@@ -7,6 +7,8 @@ import { FASTFILTER_CONDITION_TYPE, getSetDefault } from './util';
 import { Checkbox } from 'ming-ui';
 import bgFastFilters from './img/bgFastFilters.png';
 import FastFilterCon from './fastFilterCon';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+
 const Wrap = styled.div`
   .hasData {
     .checkBox {
@@ -54,13 +56,13 @@ const Wrap = styled.div`
 `;
 
 export default function FastFilter(params) {
-  const { worksheetControls = [], setFastFilter, view = {}, updateCurrentView } = params;
+  const { worksheetControls = [], setFastFilter, view = {}, updateCurrentView, currentSheetInfo } = params;
   const { advancedSetting = {} } = view;
   let { enablebtn, clicksearch } = advancedSetting;
   let [fastFilters, setData] = useState(view.fastFilters || []);
   let [showAddCondition, setShowAddCondition] = useState();
   useEffect(() => {
-    const d = view.fastFilters || [];
+    const d = setSysWorkflowTimeControlFormat(view.fastFilters || [], currentSheetInfo.switches || []);
     setData(d);
   }, [view.fastFilters]);
   const handleSortEnd = ({ oldIndex, newIndex }) => {
@@ -123,10 +125,11 @@ export default function FastFilter(params) {
   };
 
   const renderFastFilterCon = () => {
+    //系统字段未开启，相关的审批系统字段隐藏
     return (
       <FastFilterCon
         fastFilters={fastFilters}
-        worksheetControls={worksheetControls}
+        worksheetControls={setSysWorkflowTimeControlFormat(worksheetControls, currentSheetInfo.switches || [])}
         onEdit={onEdit}
         onDelete={onDelete}
         onAdd={addFastFilter}
@@ -161,7 +164,8 @@ export default function FastFilter(params) {
             />
             <Tooltip
               popupPlacement="bottom"
-              text={<span>{_l('启用按钮后，点击查询按钮执行筛选。当筛选字段超过3个时必须启用。')}</span>}>
+              text={<span>{_l('启用按钮后，点击查询按钮执行筛选。当筛选字段超过3个时必须启用。')}</span>}
+            >
               <div className="iconWrap pointer">
                 <Icon icon="workflow_help" className="Gray_9e helpIcon Font18" />
               </div>
@@ -181,7 +185,8 @@ export default function FastFilter(params) {
 
             <Tooltip
               popupPlacement="bottom"
-              text={<span>{_l('勾选后，进入视图初始不显示数据，查询后显示符合筛选条件的数据。')}</span>}>
+              text={<span>{_l('勾选后，进入视图初始不显示数据，查询后显示符合筛选条件的数据。')}</span>}
+            >
               <div className="iconWrap pointer">
                 <Icon icon="workflow_help " className="Gray_9e helpIcon Font18" />
               </div>

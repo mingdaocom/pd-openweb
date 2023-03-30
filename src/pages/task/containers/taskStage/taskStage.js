@@ -10,7 +10,7 @@ import { formatTaskTime, errorMessage, formatStatus, checkIsProject, returnCusto
 import config from '../../config/config';
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/mdDatePicker/mdDatePicker';
-import 'src/components/quickSelectUser/quickSelectUser';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import nodeLiComm from './tpl/nodeLiComm.html';
 import stageList from './tpl/stageList.html';
 import addList from './tpl/addList.html';
@@ -80,7 +80,8 @@ class TaskStage extends Component {
   init() {
     listLoadingContent(1);
 
-    const { filterSettings, folderId, listSort, listStatus, completeTime, viewType, searchKeyWords } = this.props.taskConfig;
+    const { filterSettings, folderId, listSort, listStatus, completeTime, viewType, searchKeyWords } =
+      this.props.taskConfig;
     const currentFolderId = folderId === 1 ? '' : folderId;
 
     let withoutTag = false;
@@ -103,7 +104,7 @@ class TaskStage extends Component {
         filterType: filterSettings.folderSearchRange,
         keywords: searchKeyWords,
       })
-      .then((result) => {
+      .then(result => {
         config.isGetData = false;
 
         if (viewType !== config.folderViewType.stageView) {
@@ -173,7 +174,9 @@ class TaskStage extends Component {
           $ul.scrollLeft(scrollLeft - wheelDelta > 0 ? scrollLeft - wheelDelta : 0);
         } else if (delta < 0) {
           // down
-          $ul.scrollLeft(scrollLeft + wheelDelta + ulWidth > scrollWidth ? scrollWidth - ulWidth : scrollLeft + wheelDelta);
+          $ul.scrollLeft(
+            scrollLeft + wheelDelta + ulWidth > scrollWidth ? scrollWidth - ulWidth : scrollLeft + wheelDelta,
+          );
         }
       }
     });
@@ -194,15 +197,13 @@ class TaskStage extends Component {
         left = -170;
       }
 
-      const chargeId = $(this)
-        .closest('.singleStage')
-        .data('chargeid');
+      const chargeId = $(this).closest('.singleStage').data('chargeid');
 
-      $('#taskList .listStageDownOperator .stageCharge .text').text(chargeId ? _l('取消默认负责人') : _l('设置默认负责人'));
+      $('#taskList .listStageDownOperator .stageCharge .text').text(
+        chargeId ? _l('取消默认负责人') : _l('设置默认负责人'),
+      );
 
-      $('#taskList .listStageDownOperator')
-        .css('left', left)
-        .show();
+      $('#taskList .listStageDownOperator').css('left', left).show();
       event.stopPropagation();
     });
 
@@ -245,7 +246,11 @@ class TaskStage extends Component {
           let isMuil = false;
           let metaKeyType;
 
-          if (_this.hasClass('addNewTask') || $(event.target).hasClass('markTask') || $(event.target).hasClass('taskStar')) {
+          if (
+            _this.hasClass('addNewTask') ||
+            $(event.target).hasClass('markTask') ||
+            $(event.target).hasClass('taskStar')
+          ) {
             return;
           }
 
@@ -267,7 +272,7 @@ class TaskStage extends Component {
               taskId: '',
             });
 
-            import('../batchTask/batchTask').then((batchTask) => {
+            import('../batchTask/batchTask').then(batchTask => {
               batchTask.default.shiftCtrlKey(_this, metaKeyType);
             });
 
@@ -292,14 +297,12 @@ class TaskStage extends Component {
           }
         },
       },
-      '.singleStage .listStageContent li.singleTaskStage'
+      '.singleStage .listStageContent li.singleTaskStage',
     );
 
     // 修改阶段名称
     $taskList.on('click', '.listStageDownOperator li.updateStageName', function () {
-      const $li = $(this)
-        .closest('ul')
-        .closest('li');
+      const $li = $(this).closest('ul').closest('li');
       $li.find('.listStageTaskCount').hide();
 
       const $stageName = $li.find('.listStageName').hide();
@@ -364,7 +367,7 @@ class TaskStage extends Component {
           }
         },
       },
-      '.stageHeader .updateStageName'
+      '.stageHeader .updateStageName',
     );
 
     // 拖拽阶段
@@ -415,26 +418,31 @@ class TaskStage extends Component {
             const $stageName = $listStageName.hide();
             $listStageName.siblings('.icon-arrow-down-border,.listStageTaskCount').hide();
             $listStageName.siblings('.stageChargeAvatar').addClass('Hidden');
-            $listStageName.closest('.stageHeader').append('<input class="updateStageName boderRadAll_3" maxlength="100" />');
             $listStageName
-              .siblings('.updateStageName')
-              .focus()
-              .val($.trim($stageName.text()));
+              .closest('.stageHeader')
+              .append('<input class="updateStageName boderRadAll_3" maxlength="100" />');
+            $listStageName.siblings('.updateStageName').focus().val($.trim($stageName.text()));
             taskStageSettings.isBlur = false;
           }
         },
       },
-      '.singleStage .stageHeader'
+      '.singleStage .stageHeader',
     );
 
     // 页面滚动条
-    $taskList.on('mousedown', '.listStage', (event) => {
+    $taskList.on('mousedown', '.listStage', event => {
       const $listStage = $('#taskList .listStage');
       const listStageWidth = $listStage.width();
-      const listStageContentWidth = $('#taskList .listStage > li').length * $('#taskList .listStage > li:first').width();
+      const listStageContentWidth =
+        $('#taskList .listStage > li').length * $('#taskList .listStage > li:first').width();
 
       // 输入框 右键  无滚动条 新建阶段的时候
-      if ($(event.target).is(':input') || event.button === 2 || listStageWidth > listStageContentWidth || $('.singleStage .txtAddNew').length) {
+      if (
+        $(event.target).is(':input') ||
+        event.button === 2 ||
+        listStageWidth > listStageContentWidth ||
+        $('.singleStage .txtAddNew').length
+      ) {
         return;
       }
 
@@ -473,9 +481,7 @@ class TaskStage extends Component {
           // 如果不输入阶段名称 默认去除创建
           if (!stageName) {
             // 移除
-            $(this)
-              .closest('li.singleStage')
-              .remove();
+            $(this).closest('li.singleStage').remove();
             return;
           }
 
@@ -488,7 +494,7 @@ class TaskStage extends Component {
           }
         },
       },
-      '.singleStage .txtAddNew'
+      '.singleStage .txtAddNew',
     );
 
     // 阶段创建任务
@@ -526,10 +532,10 @@ class TaskStage extends Component {
         _this.attr({ 'data-id': user.accountId, src: user.avatar }).data('id', user.accountId);
       };
 
-      _this.quickSelectUser({
+      quickSelectUser(_this[0], {
         sourceId: that.props.taskConfig.folderId,
         showMoreInvite: false,
-        showQuickInvite: false,
+
         fromType: 2,
         filterAccountIds: [_this.attr('data-id')],
         includeUndefinedAndMySelf: true,
@@ -552,12 +558,7 @@ class TaskStage extends Component {
     $taskList.on('keydown', '.addNewTask .teaStageName', function (event) {
       if (event.keyCode == 13) {
         if ($.trim($(this).val())) {
-          that.addNewTaskEnter(
-            $(this)
-              .closest('li')
-              .find('.btnStagCreateTask'),
-            true
-          );
+          that.addNewTaskEnter($(this).closest('li').find('.btnStagCreateTask'), true);
         }
         return false;
       }
@@ -574,9 +575,9 @@ class TaskStage extends Component {
     $taskList.on(
       'mousedown',
       '.singleStage .txtAddNew,li.addNewTask,.addNewTask .btnStagCreateTask,.addNewTask .stageDate,.addNewTask .chargeHeaderAvatar,.listStageDownOperator li.delStage,.listStageDownOperator li.updateStageName,.listStageDownOperator li.addNewStageToNext',
-      (event) => {
+      event => {
         event.stopPropagation();
-      }
+      },
     );
   }
 
@@ -587,10 +588,10 @@ class TaskStage extends Component {
     const { customFilter } = this.props.taskConfig.filterSettings;
     const customFilters = {};
 
-    Object.keys(customFilter).forEach((item) => {
+    Object.keys(customFilter).forEach(item => {
       let keys = '';
       let arrs = [];
-      customFilter[item].forEach((key) => {
+      customFilter[item].forEach(key => {
         if (!keys) {
           keys = key;
         } else if (keys.length > key.length) {
@@ -652,7 +653,7 @@ class TaskStage extends Component {
             disabled
             count={type === 1 ? 5 : 10}
           />,
-          $(item)[0]
+          $(item)[0],
         );
       }
     });
@@ -702,7 +703,7 @@ class TaskStage extends Component {
           keywords: searchKeyWords,
         });
 
-        taskStageSettings.ajaxPost.then((source) => {
+        taskStageSettings.ajaxPost.then(source => {
           if (source.status) {
             taskStageSettings.ajaxPost = false;
 
@@ -724,16 +725,7 @@ class TaskStage extends Component {
             // 绑定评分控件
             that.customScore();
 
-            if (
-              $this.find('.singleTaskStage').length >=
-              parseInt(
-                $this
-                  .parent()
-                  .find('.taskCount')
-                  .html(),
-                10
-              )
-            ) {
+            if ($this.find('.singleTaskStage').length >= parseInt($this.parent().find('.taskCount').html(), 10)) {
               $this.attr('data-page', 0);
             } else {
               $this.attr('data-page', pageIndex + 1);
@@ -798,7 +790,7 @@ class TaskStage extends Component {
               stageID: stageId,
               newStageID: '',
             })
-            .then((source) => {
+            .then(source => {
               if (source.status) {
                 alert(_l('删除成功'));
 
@@ -847,7 +839,7 @@ class TaskStage extends Component {
           sort: 0,
           stageName,
         })
-        .then((source) => {
+        .then(source => {
           if (source.status) {
             $spanStage.text(stageName);
           } else {
@@ -871,14 +863,18 @@ class TaskStage extends Component {
 
     const $stageContentBox = $el.find('.stageContentBox');
     const singleHeight =
-      $stageContentBox.height() + parseInt($stageContentBox.css('border-top-width'), 10) + parseInt($stageContentBox.css('border-bottom-width'), 10);
+      $stageContentBox.height() +
+      parseInt($stageContentBox.css('border-top-width'), 10) +
+      parseInt($stageContentBox.css('border-bottom-width'), 10);
     const scrollTop = 0;
 
     // 是否存在
     if ($('#insertVirtualStage').length > 0) {
       $el.before($('#insertVirtualStage'));
     } else {
-      $el.before('<li id="insertVirtualStage" class="boderRadAll_3 singleStage" style="height:' + singleHeight + 'px;"></li>');
+      $el.before(
+        '<li id="insertVirtualStage" class="boderRadAll_3 singleStage" style="height:' + singleHeight + 'px;"></li>',
+      );
     }
 
     taskStageSettings.$draggableObjMirror = $el;
@@ -888,7 +884,7 @@ class TaskStage extends Component {
       taskStageSettings.$draggableObjMirror.addClass('draggableElementStage').css({
         left: taskStageSettings.pointInitX,
         top: taskStageSettings.pointInitY,
-      })
+      }),
     );
 
     // 鼠标移动事件
@@ -948,21 +944,15 @@ class TaskStage extends Component {
         Offset = _this.offset();
         $stageContentBox = _this.find('.stageContentBox ');
         singleHeight =
-          $stageContentBox.height() + parseInt($stageContentBox.css('border-top-width'), 10) + parseInt($stageContentBox.css('border-bottom-width'), 10);
+          $stageContentBox.height() +
+          parseInt($stageContentBox.css('border-top-width'), 10) +
+          parseInt($stageContentBox.css('border-bottom-width'), 10);
 
         if (eventX > Offset.left && eventX < Offset.left + _this.width() && eventY < Offset.top + singleHeight) {
           if (_this.offset().left - $(window).scrollLeft() + _this.width() / 2 > eventX) {
-            _this.before(
-              $('#insertVirtualStage')
-                .addClass('mRight5')
-                .removeClass('mLeft5')
-            );
+            _this.before($('#insertVirtualStage').addClass('mRight5').removeClass('mLeft5'));
           } else {
-            _this.after(
-              $('#insertVirtualStage')
-                .addClass('mLeft5')
-                .removeClass('mRight5')
-            );
+            _this.after($('#insertVirtualStage').addClass('mLeft5').removeClass('mRight5'));
           }
           return false;
         }
@@ -1001,7 +991,7 @@ class TaskStage extends Component {
             () => {
               // 如果没到头部 且 还在此滚动条内 循环调用
               that.moveStageScroll();
-            }
+            },
           );
         }
       } else if (taskStageSettings.globalEvent.clientX > $(window).width() - 300) {
@@ -1020,7 +1010,7 @@ class TaskStage extends Component {
               () => {
                 // 回调
                 that.moveStageScroll();
-              }
+              },
             );
           }
         }
@@ -1037,10 +1027,7 @@ class TaskStage extends Component {
     $(document).off('mouseup.draggableStage');
 
     if ($('#insertVirtualStage').hasClass('mLeft5')) {
-      taskStageSettings.$draggableObjMirror
-        .removeClass('draggableElementStage')
-        .removeAttr('style')
-        .addClass('mLeft5');
+      taskStageSettings.$draggableObjMirror.removeClass('draggableElementStage').removeAttr('style').addClass('mLeft5');
     } else {
       taskStageSettings.$draggableObjMirror
         .removeClass('draggableElementStage')
@@ -1079,11 +1066,9 @@ class TaskStage extends Component {
         sort,
         stageName: '',
       })
-      .then((source) => {
+      .then(source => {
         if (!source.status) {
-          $('.listStage .singleStage')
-            .eq(taskStageSettings.oldValue)
-            .before($li);
+          $('.listStage .singleStage').eq(taskStageSettings.oldValue).before($li);
           errorMessage(source.error);
         }
       });
@@ -1129,15 +1114,11 @@ class TaskStage extends Component {
         stageName,
         sort: $li.index() + 1,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           $el.remove();
           // 阶段名称
-          $li
-            .attr('data-stageid', source.data)
-            .find('.stageHeader .listStageName')
-            .text(stageName)
-            .show();
+          $li.attr('data-stageid', source.data).find('.stageHeader .listStageName').text(stageName).show();
           $li.find('.stageHeader .icon-arrow-down-border').show();
           $li.find('.btnBottomNew').removeClass('Hidden');
           if ($('.listStage .singleStage').length === $li.index() + 1) {
@@ -1156,17 +1137,8 @@ class TaskStage extends Component {
   addNewTask($li) {
     if ($li.find('.stageContentBox .addNewTask').length) {
       $li.find('.stageContentBox .addNewTask').show();
-      $li
-        .find('.stageContentBox')
-        .addClass('addNewTask')
-        .scrollTop(100000)
-        .next()
-        .hide();
-      $li
-        .find('.stageContentBox .teaStageName')
-        .height(80)
-        .val('')
-        .focus();
+      $li.find('.stageContentBox').addClass('addNewTask').scrollTop(100000).next().hide();
+      $li.find('.stageContentBox .teaStageName').height(80).val('').focus();
       $li.find('.stageContentBox .btnStagCreateTask').html(_l('确认'));
     } else {
       const chargeId = $li.closest('.singleStage').data('chargeid');
@@ -1176,7 +1148,10 @@ class TaskStage extends Component {
         .addClass('addNewTask')
         .find('ul')
         .append(
-          doT.template(addNewStageTask)({ accountId: chargeId || md.global.Account.accountId, avatar: chargeId ? avatar : md.global.Account.avatar })
+          doT.template(addNewStageTask)({
+            accountId: chargeId || md.global.Account.accountId,
+            avatar: chargeId ? avatar : md.global.Account.avatar,
+          }),
         )
         .end()
         .next()
@@ -1247,7 +1222,7 @@ class TaskStage extends Component {
       taskStageSettings.$draggableObjMirror.addClass('draggableElement').css({
         left: taskStageSettings.pointInitX,
         top: taskStageSettings.pointInitY,
-      })
+      }),
     );
 
     // 鼠标移动事件
@@ -1280,9 +1255,7 @@ class TaskStage extends Component {
         that.draggableTaskMouseUp();
       },
     });
-    $(document)
-      .on('mousemove.draggableTask')
-      .on();
+    $(document).on('mousemove.draggableTask').on();
   }
 
   /**
@@ -1326,7 +1299,9 @@ class TaskStage extends Component {
 
         $stageContentBox = _this.find('.stageContentBox ');
         singleHeight =
-          $stageContentBox.height() + parseInt($stageContentBox.css('border-top-width'), 10) + parseInt($stageContentBox.css('border-bottom-width'), 10);
+          $stageContentBox.height() +
+          parseInt($stageContentBox.css('border-top-width'), 10) +
+          parseInt($stageContentBox.css('border-bottom-width'), 10);
 
         // 阶段内
         if (eventX > Offset.left && eventX < Offset.left + _this.width() && eventY < Offset.top + singleHeight) {
@@ -1338,7 +1313,10 @@ class TaskStage extends Component {
             $singleTask = $(this);
 
             // 放置任务
-            if (eventY > $singleTask.offset().top && eventY < $singleTask.offset().top + $singleTask.height() + taskGap) {
+            if (
+              eventY > $singleTask.offset().top &&
+              eventY < $singleTask.offset().top + $singleTask.height() + taskGap
+            ) {
               $currentElem = $singleTask;
 
               // 如果在虚拟元素上 直接返回
@@ -1377,7 +1355,9 @@ class TaskStage extends Component {
     const $singleStage = $stageContentBox.closest('li.singleStage');
     const Offset = $singleStage.offset();
     const singleHeight =
-      $stageContentBox.height() + parseInt($stageContentBox.css('border-top-width'), 10) + parseInt($stageContentBox.css('border-bottom-width'), 10);
+      $stageContentBox.height() +
+      parseInt($stageContentBox.css('border-top-width'), 10) +
+      parseInt($stageContentBox.css('border-bottom-width'), 10);
     let scrollTop = 0;
 
     if (taskStageSettings.isDragEnd) {
@@ -1402,7 +1382,7 @@ class TaskStage extends Component {
                 () => {
                   // 如果没到头部 且 还在此滚动条内 循环调用
                   that.moveTaskScroll($stageContentBox);
-                }
+                },
               );
             }
           }
@@ -1421,7 +1401,7 @@ class TaskStage extends Component {
                 () => {
                   // 循环调用
                   that.moveTaskScroll($stageContentBox);
-                }
+                },
               );
             }
           }
@@ -1447,7 +1427,7 @@ class TaskStage extends Component {
       taskStageSettings.$draggableObjMirror.css({
         top: '0px',
         left: '0px',
-      })
+      }),
     );
   }
 
@@ -1467,7 +1447,7 @@ class TaskStage extends Component {
         taskID: taskId,
         stageID: stageId,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           // 修改阶段ID
           $(".listStageContent ul li[data-taskid='" + taskId + "']").data('stageid', stageId);
@@ -1495,14 +1475,14 @@ class TaskStage extends Component {
   addStageCharge($li, $el) {
     const chargeId = $li.data('chargeid');
 
-    const callback = (user) => {
+    const callback = user => {
       this.setStageOwner($li, user[0].accountId, user[0].avatar);
     };
 
-    $el.quickSelectUser({
+    quickSelectUser($el[0], {
       sourceId: this.props.taskConfig.folderId,
       showMoreInvite: false,
-      showQuickInvite: false,
+
       fromType: 2,
       filterAccountIds: [chargeId],
       includeUndefinedAndMySelf: true,
@@ -1526,7 +1506,7 @@ class TaskStage extends Component {
         stageID: $li.data('stageid'),
         ownerId,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           $li.data('chargeid', ownerId).data('avatar', avatar);
           $li
@@ -1550,10 +1530,7 @@ class TaskStage extends Component {
     // 验证任务名称
     if (!taskName) {
       alert(_l('请输入任务名称'), 3);
-      $parent
-        .find('.btnStagCreateTask ')
-        .data('create', 0)
-        .text(_l('确认'));
+      $parent.find('.btnStagCreateTask ').data('create', 0).text(_l('确认'));
       return;
     }
     let $listStageContent;
@@ -1586,7 +1563,7 @@ class TaskStage extends Component {
         attachments: null,
         color: 0,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           source.data.taskName = source.data.name;
           source.data.star = isStar;

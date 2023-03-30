@@ -6,7 +6,7 @@ import 'src/components/select/select';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import Act from './act';
 import DialogSelectDept from 'src/components/dialogSelectDept';
 import copy from 'copy-to-clipboard';
@@ -525,7 +525,7 @@ class Main extends Component {
   dialogSelectUserHandler(e) {
     const { projectId } = this.props;
     const _this = this;
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       fromAdmin: true,
       SelectUserSettings: {
         filterProjectId: projectId,
@@ -707,17 +707,19 @@ class Main extends Component {
 
   handleAddJob = jobName => {
     const { projectId } = this.props;
-    jobAjax.addJob({
-      projectId,
-      jobName,
-    }).then(res => {
-      if (res) {
-        alert(_l('创建成功'));
-        this.getJobList(jobName);
-      } else {
-        alert(_l('创建失败'), 2);
-      }
-    });
+    jobAjax
+      .addJob({
+        projectId,
+        jobName,
+      })
+      .then(res => {
+        if (res) {
+          alert(_l('创建成功'));
+          this.getJobList(jobName);
+        } else {
+          alert(_l('创建失败'), 2);
+        }
+      });
   };
 
   getDepartmentFullName = (departmentId = '') => {

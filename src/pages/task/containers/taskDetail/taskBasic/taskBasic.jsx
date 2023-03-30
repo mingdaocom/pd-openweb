@@ -16,8 +16,8 @@ import {
 } from '../../../utils/taskComm';
 import { checkIsProject } from '../../../utils/utils';
 import UserHead from 'src/pages/feed/components/userHead';
-import 'src/components/dialogSelectUser/dialogSelectUser';
-import 'src/components/quickSelectUser/quickSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import 'src/components/tooltip/tooltip';
 import s from '@mdfe/selectize';
 import UploadFiles from 'src/components/UploadFiles';
@@ -311,12 +311,12 @@ class TaskBasic extends Component {
       );
     };
 
-    $(evt.target).quickSelectUser({
+    quickSelectUser(evt.target, {
       sourceId: taskId,
       projectId: data.projectID,
       fromType: 2,
       filterAccountIds: [data.charge.accountID],
-      showQuickInvite: false,
+
       showMoreInvite: false,
       includeUndefinedAndMySelf: true,
       SelectUserSettings: {
@@ -348,7 +348,7 @@ class TaskBasic extends Component {
     const { data } = this.props.taskDetails[taskId];
 
     evt.on('click', '.updateTaskCharge', function () {
-      $(this).dialogSelectUser({
+      dialogSelectUser({
         sourceId: taskId,
         title: _l('选择负责人'),
         showMoreInvite: false,
@@ -548,7 +548,7 @@ class TaskBasic extends Component {
 
     existsIds = existsIds.concat([data.charge.accountID, 'user-undefined']);
 
-    $(evt.target).quickSelectUser({
+    quickSelectUser(evt.target, {
       sourceId: taskId,
       projectId: data.projectID,
       fromType: 2,

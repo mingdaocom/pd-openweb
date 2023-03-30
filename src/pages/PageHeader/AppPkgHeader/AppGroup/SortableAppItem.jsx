@@ -10,7 +10,21 @@ import { Menu, MenuItem, Icon, MdLink } from 'ming-ui';
 import { changeBoardViewData } from 'src/pages/worksheet/redux/actions/boardView';
 import { APP_GROUP_CONFIG, DEFAULT_CREATE, DEFAULT_GROUP_NAME, ADVANCE_AUTHORITY } from '../config';
 import { compareProps, getIds } from '../../util';
+import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
+import styled from 'styled-components';
 import _ from 'lodash';
+
+const LiCon = styled.li`
+  &.active {
+    background-color: ${props => props.lightIconColor} !important;
+    .sortableItem {
+      color: ${props => props.textColor} !important;
+    }
+  }
+  .sortableItem::before {
+    background-color: ${props => props.iconColor} !important;
+  }
+`;
 
 @connect(state => state, dispatch => bindActionCreators({ changeBoardViewData }, dispatch))
 @SortableElement
@@ -91,14 +105,32 @@ export default class SortableAppItem extends Component {
     this.setState({ dbClickedAppGroupId: appSectionId }, ensurePointerVisible);
   };
 
-  getNavigateUrl = appSectionId => {
+  getFirstAppItemId = () => {
+    const { permissionType, value } = this.props;
+    const isCharge = permissionType >= ADVANCE_AUTHORITY;
+    const { workSheetInfo = [], childSections = [] } = value;
+    const firstAppItem = (isCharge ? workSheetInfo : workSheetInfo.filter(item => item.status === 1 && !item.navigateHide))[0] || {};
+    if (firstAppItem.type === 2) {
+      const { workSheetInfo = [] } = _.find(childSections, { appSectionId: firstAppItem.workSheetId });
+      const childrenFirstAppItem = (isCharge ? workSheetInfo : workSheetInfo.filter(item => item.status === 1 && !item.navigateHide))[0] || {};
+      return childrenFirstAppItem.workSheetId;
+    } else {
+      return firstAppItem.workSheetId;
+    }
+  }
+
+  getNavigateUrl = (appSectionId, isCharge) => {
+    const { appPkg } = this.props;
     let { appId } = getIds(this.props);
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
     const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
     const worksheets = _.filter(storage.worksheets || [], item => item.groupId === appSectionId);
-    const { worksheetId, viewId } = worksheets.length ? worksheets[worksheets.length - 1] : {};
+    const { worksheetId, viewId } = worksheets.length ? worksheets[worksheets.length - 1] : { };
+    if (appPkg.pcNaviStyle === 2) {
+      return `/app/${appId}/${appSectionId}?from=insite`;
+    }
     return `/app/${appId}/${appSectionId}/${_.filter([worksheetId, viewId], item => !!item).join('/')}?from=insite`;
   };
 
@@ -111,7 +143,7 @@ export default class SortableAppItem extends Component {
   };
 
   render() {
-    const { value = {}, focusGroupId, permissionType, onAppItemConfigClick, changeBoardViewData } = this.props;
+    const { value = {}, focusGroupId, permissionType, onAppItemConfigClick, changeBoardViewData, appPkg } = this.props;
     const { visible, dbClickedAppGroupId } = this.state;
     const { name, appSectionId } = value;
     const { groupId } = this.ids;
@@ -119,7 +151,12 @@ export default class SortableAppItem extends Component {
     const isShowConfigIcon = appSectionId === groupId && !isFocus && permissionType >= ADVANCE_AUTHORITY;
     const url = this.getNavigateUrl(appSectionId);
     return (
-      <li className={cx({ active: isFocus || groupId === appSectionId, isCanConfigAppGroup: isShowConfigIcon })}>
+      <LiCon
+        className={cx({ active: isFocus || groupId === appSectionId, isCanConfigAppGroup: isShowConfigIcon })}
+        textColor={['light'].includes(appPkg.themeType) ? appPkg.iconColor : ''}
+        iconColor={['light', 'black'].includes(appPkg.themeType) ? appPkg.iconColor : ''}
+        lightIconColor={['light'].includes(appPkg.themeType) ? convertColor(appPkg.iconColor) : ''}
+      >
         {isFocus ? (
           <div className="sortableItem">
             <input
@@ -179,7 +216,7 @@ export default class SortableAppItem extends Component {
             />
           </Trigger>
         )}
-      </li>
+      </LiCon>
     );
   }
 }

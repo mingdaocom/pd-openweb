@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import cx from 'classnames';
 import { LoadDiv } from 'ming-ui';
 import ConnectAvator from '../components/ConnectAvator';
 const Wrap = styled.div`
@@ -30,6 +29,7 @@ const Wrap = styled.div`
   }
   .headTr,
   .conTr {
+    color: #333;
     margin: 0;
     p {
       margin: 0;
@@ -124,20 +124,18 @@ function ConnectList(props) {
               })}
             </div>
             {props.list.map(item => {
+              const isCharge = item.isOwner || props.isSuperAdmin; //只有超级管理员或拥有者可以查看详情 isOwner拥有者
+              const param = isCharge
+                ? {
+                    href: `/integrationConnect/${item.id}`,
+                  }
+                : null;
               return (
-                <div
-                  className="conTr Hand"
-                  onClick={() => {
-                    //只有超级管理员或拥有者可以查看详情 isOwner拥有者
-                    if (item.isOwner || props.isSuperAdmin) {
-                      props.onChange({ showConnect: true, connectData: item });
-                    }
-                  }}
-                >
+                <a className="conTr Hand" {...param}>
                   {keys.map(o => {
                     return <div className={`${o.key}`}>{o.render ? o.render(item) : item[o.key]}</div>;
                   })}
-                </div>
+                </a>
               );
             })}
             {props.loading && props.pageIndex !== 1 && <LoadDiv />}

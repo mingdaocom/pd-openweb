@@ -44,7 +44,7 @@ function ItemCon(props) {
         {...props}
         title={_l('代码块')}
         icon={'worksheet_API'}
-        support={'https://help.mingdao.com/integration.html#输入参数'}
+        support={'https://help.mingdao.com/zh/integration.html#输入参数'}
       />
       <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
     </React.Fragment>
@@ -52,6 +52,7 @@ function ItemCon(props) {
 }
 
 export default function Set(props) {
+  console.log(props)
   const { flowNodeMap, startEventId } = _.get(props, ['info']) || {};
   const canEdit = props.connectInfo.type === 1 && props.isConnectOwner;
   const [newPreId, setNewId] = useState('');
@@ -103,7 +104,7 @@ export default function Set(props) {
             {props.isConnectOwner && (
               <a
                 className="mLeft15 toConnect"
-                href={`/integrationConnect/${localStorage.getItem('currentProjectId')}/${props.connectInfo.id}`}
+                href={`/integrationConnect/${props.connectInfo.id}`}
                 target="_blank"
               >
                 {_l('查看')}

@@ -16,7 +16,9 @@ export default function (Comp, props) {
   document.body.appendChild(div);
   function destory() {
     ReactDOM.unmountComponentAtNode(div);
-    document.body.removeChild(div);
+    if (div.parentElement) {
+      document.body.removeChild(div);
+    }
   }
   ReactDOM.render(
     <Comp

@@ -71,7 +71,7 @@ export default function Btn(props) {
     const lastButton = buttonList[buttonList.length - 1] || {};
     const colorIndex = COLORS.indexOf(lastButton.color);
     const defaultColor = '#2196f3';
-    const color = colorIndex === -1 ? defaultColor : (COLORS[colorIndex + 1] || COLORS[0]);
+    const color = colorIndex === -1 ? defaultColor : COLORS[colorIndex + 1] || COLORS[0];
     const { btnType } = btnSetting.config || {};
     const data = { name: _l('我是按钮'), color, id: uuidv4() };
     if (btnType === 2) {
@@ -80,8 +80,8 @@ export default function Btn(props) {
       data.config = {
         icon,
         iconUrl,
-        isNewBtn: true
-      }
+        isNewBtn: true,
+      };
     }
     setIndex(buttonList.length);
     setSetting(update(btnSetting, { buttonList: { $push: [data] } }));
@@ -89,7 +89,7 @@ export default function Btn(props) {
 
   const handleDel = () => {
     if (buttonList.length <= 1) {
-      alert(_l('仅剩一个按钮了，无法删除'));
+      alert(_l('仅剩一个按钮了，无法删除'), 3);
       return;
     }
     setSetting(update(btnSetting, { buttonList: { $splice: [[activeIndex, 1]] } }));
@@ -121,12 +121,13 @@ export default function Btn(props) {
           key={i}
           className="defaultItem"
           onClick={() => {
-            item.buttonList.forEach((btn) => {
+            item.buttonList.forEach(btn => {
               btn.id = uuidv4();
             });
             setSetting(item);
             setVisible(false);
-          }}>
+          }}
+        >
           <ButtonDisplay displayMode="" {...item} />
         </DefaultItem>
       ))}

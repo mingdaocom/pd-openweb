@@ -11,7 +11,7 @@ const ClickAwayable = createDecoratedComponent(withClickAway);
 import CellErrorTips from './comps/CellErrorTip';
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
-import { isKeyBoardInputChar } from 'worksheet/util';
+import { emitter, isKeyBoardInputChar } from 'worksheet/util';
 import { FROM } from './enum';
 import { browserIsMobile, accMul } from 'src/util';
 import _ from 'lodash';
@@ -239,7 +239,12 @@ export default class Text extends React.Component {
     };
     if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
       if (window.tempCopyForSheetView) {
-        setKeyboardValue(window.tempCopyForSheetView);
+        const data = safeParse(window.tempCopyForSheetView);
+        if (data.type === 'text') {
+          setKeyboardValue(data.value);
+        } else {
+          setKeyboardValue(data.textValue);
+        }
       } else {
         navigator.clipboard.readText().then(setKeyboardValue);
       }
@@ -270,7 +275,7 @@ export default class Text extends React.Component {
 
   @autobind
   handleKeydown(e) {
-    const { cell, updateEditingStatus } = this.props;
+    const { tableId, cell, updateEditingStatus } = this.props;
     if (e.keyCode === 27) {
       updateEditingStatus(false);
       this.setState({
@@ -284,6 +289,17 @@ export default class Text extends React.Component {
         e.preventDefault();
         this.handleBlur();
       }
+      e.preventDefault();
+      this.handleBlur();
+      setTimeout(
+        () =>
+          emitter.emit('TRIGGER_TABLE_KEYDOWN_' + tableId, {
+            keyCode: 40,
+            stopPropagation: () => {},
+            preventDefault: () => {},
+          }),
+        100,
+      );
     } else if (_.includes(['ArrowUp', 'ArrowDown'], e.key) && _.includes([6, 8], cell.type)) {
       const num = Number(this.state.value);
       if (_.isNumber(num) && !_.isNaN(num)) {

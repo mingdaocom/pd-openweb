@@ -135,7 +135,7 @@ function NewRecord(props) {
     className: cx('workSheetNewRecord', className, modalClassName),
     type: 'fixed',
     verticalAlign: 'bottom',
-    width: browserIsMobile() ? window.innerWidth - 20 : 900,
+    width: browserIsMobile() ? window.innerWidth - 20 : 960,
     onCancel: () => {
       hideNewRecord();
       removeFromLocal('tempNewRecord', viewId);

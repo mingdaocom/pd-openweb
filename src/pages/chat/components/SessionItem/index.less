@@ -1,12 +1,12 @@
+div.SessionList-item.topBGColor {
+  background-color: rgba(170, 170, 170, 0.15);
+}
 .SessionList-item {
   position: relative;
   display: flex;
   flex-direction: row;
   padding: 9px 12px 9px 15px;
   cursor: pointer;
-  &.topBGColor {
-    background-color: rgba(170, 170, 170, 0.15) !important;
-  }
   .delete {
     position: absolute;
     top: 50%;
@@ -21,6 +21,7 @@
     transform: scale(0.8);
   }
   &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
     .delete {
       opacity: 1;
     }

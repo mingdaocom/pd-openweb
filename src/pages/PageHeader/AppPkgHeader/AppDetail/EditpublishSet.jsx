@@ -205,7 +205,7 @@ class EditPublishSetDialog extends React.Component {
       if (res.data) {
         onChangePublish(obj);
       } else {
-        alert(_l('修改失败，请稍后再试', 3));
+        alert(_l('修改失败，请稍后再试'), 3);
       }
     });
   };

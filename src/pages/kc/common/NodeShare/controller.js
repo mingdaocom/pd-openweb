@@ -86,7 +86,7 @@ export function getAttachment() {
         })
         .fail(err => {
           console.log(err);
-          alert(_l('获取附件详情失败'));
+          alert(_l('获取附件详情失败'), 2);
         });
     default:
       return;

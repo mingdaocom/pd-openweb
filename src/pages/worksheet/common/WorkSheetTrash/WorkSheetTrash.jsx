@@ -330,6 +330,7 @@ export default function WorkSheetTrash(props) {
         />
         <Body>
           <WorksheetTable
+            isTrash
             loading={loading}
             viewId={viewId}
             projectId={projectId}

@@ -220,19 +220,21 @@ function FormIndexSetting(props) {
   };
   // 重命名
   const editIndex = obj => {
-    worksheetAjax.updateRowIndexCustomeIndexName({
-      appId,
-      worksheetId, // 工作表Id
-      indexConfigId: obj.indexConfigId, // 索引配置Id （系统级索引可为空）
-      customeIndexName: obj.customeIndexName, // 自定义索引名称
-    }).then(res => {
-      if (res === 0) {
-        alert(_l('修改成功'));
-      } else {
-        alert(_l('修改失败'));
-      }
-      getIndexesInfo();
-    });
+    worksheetAjax
+      .updateRowIndexCustomeIndexName({
+        appId,
+        worksheetId, // 工作表Id
+        indexConfigId: obj.indexConfigId, // 索引配置Id （系统级索引可为空）
+        customeIndexName: obj.customeIndexName, // 自定义索引名称
+      })
+      .then(res => {
+        if (res === 0) {
+          alert(_l('修改成功'));
+        } else {
+          alert(_l('修改失败'), 2);
+        }
+        getIndexesInfo();
+      });
   };
 
   // 根据字段id值获取字段信息;
@@ -267,7 +269,7 @@ function FormIndexSetting(props) {
                 <span className="Font13 Gray_9e">
                   {_l('手动为大数据量的工作表建立合适的索引，可以加快工作表检索速度，最多创建%0个。', MAX_COUNT)}
                 </span>
-                <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/sheet34.html" />
+                <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/zh/sheet34.html" />
               </p>
             </div>
             <span
@@ -372,20 +374,22 @@ function FormIndexSetting(props) {
                               setShowMoreOption(false);
                             }}
                             deleteFn={data => {
-                              worksheetAjax.removeRowIndex({
-                                appId,
-                                worksheetId: item.worksheetId,
-                                indexConfigId: item.indexConfigId,
-                                isSystemIndex: item.isSystem,
-                                systemIndexName: item.systemIndexName,
-                              }).then(res => {
-                                if (res.responseEnum === 0) {
-                                  alert(_l('操作成功。为保障性能，系统将在空闲时删除此索引'));
-                                  getIndexesInfo();
-                                } else if (res.responseEnum === -1) {
-                                  alert(_l('删除失败'));
-                                }
-                              });
+                              worksheetAjax
+                                .removeRowIndex({
+                                  appId,
+                                  worksheetId: item.worksheetId,
+                                  indexConfigId: item.indexConfigId,
+                                  isSystemIndex: item.isSystem,
+                                  systemIndexName: item.systemIndexName,
+                                })
+                                .then(res => {
+                                  if (res.responseEnum === 0) {
+                                    alert(_l('操作成功。为保障性能，系统将在空闲时删除此索引'));
+                                    getIndexesInfo();
+                                  } else if (res.responseEnum === -1) {
+                                    alert(_l('删除失败'), 2);
+                                  }
+                                });
                             }}
                           />
                         )}

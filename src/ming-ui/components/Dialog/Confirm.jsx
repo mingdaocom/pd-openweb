@@ -54,10 +54,12 @@ export default function confirm(props) {
     <Dialog
       {...dealProps}
       visible
+      bindEnterTriggerOk
       overlayClosable={props.overlayClosable || false}
       description={props.description}
       footer={footer}
       onOk={handleClose}
+      confirmOnOk={props.onOk}
       onCancel={handleClose}
       confirm={props.type || 'confirm'}
     />,

@@ -43,7 +43,7 @@ export const showClear = (data = {}, dynamicValue) => {
   if (_.includes(CAN_SHOW_CLEAR_FIELD, data.type) && staticValue) return true;
   if (data.type === 26) {
     const transferValue = typeof staticValue === 'string' ? JSON.parse(staticValue || '{}') : staticValue;
-    return (transferValue || {}).accountId === 'user-self';
+    return _.includes(['user-self'], (transferValue || {}).accountId);
   }
   return false;
 };
@@ -163,7 +163,7 @@ export const filterControls = (data = {}, controls = []) => {
   );
 };
 
-export const getControls = ({ data = {}, controls, isCurrent, fromSearch = false }) => {
+export const getControls = ({ data = {}, controls, isCurrent, needFilter = false }) => {
   const { type, enumDefault, dataSource, advancedSetting: { usertype } = {} } = data;
   const filterFn = FILTER[type];
   //文本字段值可选 关联记录自动编号，不能是当前表单
@@ -183,11 +183,13 @@ export const getControls = ({ data = {}, controls, isCurrent, fromSearch = false
   if (_.includes([10], type)) return _.filter(controls, item => item.dataSource && item.dataSource === dataSource);
 
   if (_.includes([26], type)) {
+    // 默认值不支持部门、组织角色，人员选择范围动态值支持
+    controls = needFilter ? controls : _.filter(controls, item => !_.includes([27, 48], item.type));
     return _.filter(controls, item => filterFn(item, enumDefault) && isSameUser(item, usertype));
   }
   // 默认值部门可选成员字段、查询配置中不可选成员字段
   if (_.includes([27], type)) {
-    return fromSearch ? _.filter(controls, item => _.includes([27], item.type)) : _.filter(controls, filterFn);
+    return needFilter ? _.filter(controls, item => _.includes([27], item.type)) : _.filter(controls, filterFn);
   }
   if (_.includes([29], type)) {
     const newControls = filterControls(data, controls);

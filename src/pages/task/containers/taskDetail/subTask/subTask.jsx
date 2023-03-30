@@ -7,16 +7,26 @@ import Textarea from 'ming-ui/components/Textarea';
 import config, { OPEN_TYPE } from '../../../config/config';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import 'src/components/quickSelectUser/quickSelectUser';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import { addSubTask, editTaskStatus, updateTaskName, updateTaskCharge, taskFoldStatus } from '../../../redux/actions';
 import { expireDialogAsync } from 'src/components/common/function';
 import UserHead from 'src/pages/feed/components/userHead';
-import 'src/components/dialogSelectUser/dialogSelectUser';
-import { afterUpdateTaskName, afterUpdateTaskStatus, afterAddTask, afterUpdateTaskCharge } from '../../../utils/taskComm';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import {
+  afterUpdateTaskName,
+  afterUpdateTaskStatus,
+  afterAddTask,
+  afterUpdateTaskCharge,
+} from '../../../utils/taskComm';
 import _ from 'lodash';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
-const statusTip = [_l('任务已锁定，无法操作'), _l('标记为未完成'), _l('任务已锁定，但我是创建者或负责人可以操作'), _l('标记完成')];
+const statusTip = [
+  _l('任务已锁定，无法操作'),
+  _l('标记为未完成'),
+  _l('任务已锁定，但我是创建者或负责人可以操作'),
+  _l('标记完成'),
+];
 
 // 单条子任务
 class SingleItem extends Component {
@@ -31,7 +41,7 @@ class SingleItem extends Component {
   /**
    * 回车失去焦点
    */
-  updateTaskNameKeyDown = (evt) => {
+  updateTaskNameKeyDown = evt => {
     if (evt.keyCode === 13) {
       evt.currentTarget.blur();
       evt.preventDefault();
@@ -51,7 +61,19 @@ class SingleItem extends Component {
 
   render() {
     const { item } = this.props;
-    const { charge, status, startTime, deadline, actualStartTime, completeTime, taskName, auth, locked, taskID, projectID } = item;
+    const {
+      charge,
+      status,
+      startTime,
+      deadline,
+      actualStartTime,
+      completeTime,
+      taskName,
+      auth,
+      locked,
+      taskID,
+      projectID,
+    } = item;
     const hasAuth = auth === config.auth.Charger || auth === config.auth.Member;
     let subTaskStatus = '';
     let tipMessage = '';
@@ -98,8 +120,16 @@ class SingleItem extends Component {
           onBlur={evt => this.props.updateTaskName(evt, taskID, taskName)}
         />
         <div className="subTaskOperator">
-          <span className="subTaskTimer" dangerouslySetInnerHTML={{ __html: formatTaskTime(status, startTime, deadline, actualStartTime, completeTime) }} />
-          <span className="subTaskMembers" onClick={evt => hasAuth && this.props.clickChargeAvatar(evt, charge.accountID, taskID)}>
+          <span
+            className="subTaskTimer"
+            dangerouslySetInnerHTML={{
+              __html: formatTaskTime(status, startTime, deadline, actualStartTime, completeTime),
+            }}
+          />
+          <span
+            className="subTaskMembers"
+            onClick={evt => hasAuth && this.props.clickChargeAvatar(evt, charge.accountID, taskID)}
+          >
             <UserHead
               className={cx({ gray: charge.status !== 1 }, { opacity6: status })}
               user={{
@@ -113,8 +143,16 @@ class SingleItem extends Component {
               readyFn={evt => this.props.readyFn(evt, projectID, taskID, charge.accountID)}
             />
           </span>
-          <span className="subTaskLink tip-bottom-left" data-tip={_l('查看子任务详情和评论')} onClick={() => this.props.switchTaskDetail(taskID)}>
-            {item.totalItemCount || item.topicCount || item.subCount ? <i className="icon-task-signal Font13" /> : <i className="icon-arrow-right-border" />}
+          <span
+            className="subTaskLink tip-bottom-left"
+            data-tip={_l('查看子任务详情和评论')}
+            onClick={() => this.props.switchTaskDetail(taskID)}
+          >
+            {item.totalItemCount || item.topicCount || item.subCount ? (
+              <i className="icon-task-signal Font13" />
+            ) : (
+              <i className="icon-arrow-right-border" />
+            )}
           </span>
         </div>
       </li>
@@ -155,7 +193,7 @@ class Subtask extends Component {
    * 更改任务状态
    */
   editTaskStatus = (taskId, status) => {
-    const callback = (source) => {
+    const callback = source => {
       if (this.props.openType === OPEN_TYPE.slide) {
         afterUpdateTaskStatus(source, status, false);
       } else {
@@ -244,14 +282,14 @@ class Subtask extends Component {
    */
   clickChargeAvatar = (evt, accountId, taskId = '') => {
     const { data } = this.props.taskDetails[this.props.taskId];
-    const updateChargeCallback = (user) => {
+    const updateChargeCallback = user => {
       if (this.props.openType === OPEN_TYPE.slide) {
         afterUpdateTaskCharge(taskId, user.avatar, user.accountId);
       } else {
         this.props.updateCallback({ type: 'UPDATE_CHARGE', user });
       }
     };
-    const callback = (users) => {
+    const callback = users => {
       const user = users[0];
 
       if (taskId) {
@@ -261,12 +299,12 @@ class Subtask extends Component {
       }
     };
 
-    $(evt.target).quickSelectUser({
+    quickSelectUser(evt.target, {
       sourceId: data.taskID,
       projectId: data.projectID,
       fromType: 2,
       filterAccountIds: [accountId],
-      showQuickInvite: false,
+
       showMoreInvite: false,
       includeUndefinedAndMySelf: true,
       SelectUserSettings: {
@@ -281,12 +319,12 @@ class Subtask extends Component {
   /**
    * 新建任务
    */
-  addTask = (evt) => {
+  addTask = evt => {
     const { accountId } = this.state;
     const { taskId, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const value = _.trim(this.state.value);
-    const callback = (source) => {
+    const callback = source => {
       if (openType === OPEN_TYPE.slide) {
         source.stageID = data.stageID;
         source.taskName = source.name;
@@ -300,7 +338,11 @@ class Subtask extends Component {
     }
 
     // 点击外部全部关闭创建
-    if (!$(evt || {}).add(evt.target).closest(".addSubTask").length) {
+    if (
+      !$(evt || {})
+        .add(evt.target)
+        .closest('.addSubTask').length
+    ) {
       this.setState({ addSubTask: false });
     }
 
@@ -310,7 +352,13 @@ class Subtask extends Component {
       return;
     }
 
-    if ((!$(evt || {}).add(evt.target).closest(".addSubTask").length || evt.keyCode === 13) && value) {
+    if (
+      (!$(evt || {})
+        .add(evt.target)
+        .closest('.addSubTask').length ||
+        evt.keyCode === 13) &&
+      value
+    ) {
       this.props.dispatch(addSubTask(data.taskID, value, accountId, data.projectID, callback));
       this.setState({ value: '' });
     }
@@ -330,7 +378,7 @@ class Subtask extends Component {
    */
   readyFn = (evt, projectId, taskId, accountId) => {
     const that = this;
-    const callback = (user) => {
+    const callback = user => {
       if (this.props.openType === OPEN_TYPE.slide) {
         afterUpdateTaskCharge(taskId, user.avatar, user.accountId);
       } else {
@@ -339,7 +387,7 @@ class Subtask extends Component {
     };
 
     evt.on('click', '.updateSubTaskCharge', function () {
-      $(this).dialogSelectUser({
+      dialogSelectUser({
         sourceId: taskId,
         title: _l('选择负责人'),
         showMoreInvite: false,
@@ -388,13 +436,16 @@ class Subtask extends Component {
             <span
               className="subTaskMessage mLeft5"
               data-tip={_l(
-                '如果分解后的任务比较复杂、需要分别指派负责人，或需要在每条任务中分别记录跟进情况的，建议使用子任务。其他情况下，建议使用检查清单来做关键结果追踪，支持将重要检查项一键转为任务'
+                '如果分解后的任务比较复杂、需要分别指派负责人，或需要在每条任务中分别记录跟进情况的，建议使用子任务。其他情况下，建议使用检查清单来做关键结果追踪，支持将重要检查项一键转为任务',
               )}
             >
               <i className="icon-info Font16" />
             </span>
             <span className="Right" data-tip={isHidden ? _l('展开') : _l('收起')}>
-              <i className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')} onClick={this.updateTaskFoldStatus} />
+              <i
+                className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
+                onClick={this.updateTaskFoldStatus}
+              />
             </span>
           </div>
           {!isHidden ? (
@@ -413,13 +464,12 @@ class Subtask extends Component {
                 ))}
                 {addSubTask && this.renderAddTask()}
               </ul>
-              {!addSubTask &&
-                this.getOperatorAuth() && (
-                  <span className="addSubTaskBtn pointer ThemeColor3" onClick={this.showAddSubTaskModule}>
-                    <i className="icon-plus" />
-                    {_l('添加子任务')}
-                  </span>
-                )}
+              {!addSubTask && this.getOperatorAuth() && (
+                <span className="addSubTaskBtn pointer ThemeColor3" onClick={this.showAddSubTaskModule}>
+                  <i className="icon-plus" />
+                  {_l('添加子任务')}
+                </span>
+              )}
             </Fragment>
           ) : null}
         </div>

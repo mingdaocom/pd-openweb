@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import departmentController from 'src/api/department';
-import DialogLayer from 'src/components/mdDialog/dialog';
 import { DepartmentList } from 'src/components/dialogSelectUser/GeneralSelect';
 import NoData from 'src/components/dialogSelectUser/GeneralSelect/NoData';
 import CreateDialog from 'src/pages/Admin/structure/modules/dialogCreateEditDept';
 import roleController from 'src/api/role';
-import { LoadDiv, Radio, Checkbox } from 'ming-ui';
+import { Dialog, LoadDiv, Radio, Checkbox } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import cx from 'classnames';
 import './style.less';
 import _ from 'lodash';
@@ -30,11 +30,20 @@ class DialogSelectDept extends React.Component {
       rootPageAll: false,
       rootLoading: false,
       showProjectAll: false,
+      activeIds: [],
+      activeIndex: 0,
     };
 
     this.search = _.debounce(this.fetchData.bind(this), 500);
+    this.handleKeydown = this.handleKeydown.bind(this);
   }
   promise = null;
+
+  scroll = React.createRef();
+
+  componentDidMount() {
+    document.body.addEventListener('keydown', this.handleKeydown);
+  }
 
   componentWillMount() {
     this.fetchData();
@@ -54,9 +63,51 @@ class DialogSelectDept extends React.Component {
     }
   }
 
-  componentWillUnMount() {
+  componentWillUnmount() {
     if (this.search && this.search.cancel) {
       this.search.cancel();
+    }
+    document.body.removeEventListener('keydown', this.handleKeydown);
+  }
+
+  handleKeydown(e) {
+    if (!_.includes(['ArrowUp', 'ArrowDown', 'Enter'], e.key)) {
+      return;
+    }
+    const { activeIds, activeIndex, list } = this.state;
+    e.stopPropagation();
+    e.preventDefault();
+    if (e.key === 'Enter') {
+      const department = list[activeIndex];
+      if (department) {
+        this.toggle(department);
+      }
+    } else {
+      let newIndex;
+      if (e.key === 'ArrowUp') {
+        newIndex = activeIndex - 1;
+      } else if (e.key === 'ArrowDown') {
+        newIndex = activeIndex + 1;
+      }
+      const newActiveId = _.get(list, `${newIndex}.departmentId`);
+      if (!_.isUndefined(newActiveId)) {
+        this.setState({
+          activeIds: [newActiveId],
+          activeIndex: newIndex,
+        });
+        const itemHeight = 40.39;
+        const $scroll = this.scroll.current;
+        const itemTop = newIndex * itemHeight;
+        if (newIndex > activeIndex) {
+          if (itemTop + itemHeight > $scroll.scrollTop + $scroll.clientHeight) {
+            $scroll.scrollTop = itemTop + 44 - $scroll.offsetHeight;
+          }
+        } else {
+          if (itemTop < $scroll.scrollTop) {
+            $scroll.scrollTop = itemTop;
+          }
+        }
+      }
     }
   }
 
@@ -180,6 +231,7 @@ class DialogSelectDept extends React.Component {
             };
         this.setState({
           list,
+          activeIds: [list[0].departmentId],
           loading: false,
           rootLoading: false,
           rootPageAll: usePageDepartment && (list.length % this.state.pageSize > 0 || data.length <= 0),
@@ -315,6 +367,13 @@ class DialogSelectDept extends React.Component {
   toggle(department, notIncludeChilren) {
     const { selectedDepartment } = this.state;
     const { checkIncludeChilren } = this.props; //是否选择包含子集
+    const departmentIndex = _.findIndex(this.state.list, { departmentId: department.departmentId });
+    if (!_.isUndefined(departmentIndex)) {
+      this.setState({
+        activeIndex: departmentIndex,
+        activeIds: [department.departmentId],
+      });
+    }
     department = checkIncludeChilren
       ? {
           ...department,
@@ -397,6 +456,7 @@ class DialogSelectDept extends React.Component {
   }
 
   renderContent() {
+    const { activeIds } = this.state;
     if (this.state.loading && this.state.rootPageIndex <= 0) {
       return <LoadDiv />;
     } else if (this.state.list && this.state.list.length) {
@@ -418,7 +478,7 @@ class DialogSelectDept extends React.Component {
 
       return (
         <React.Fragment>
-          <DepartmentList {...props} />
+          <DepartmentList {...props} activeIds={activeIds} />
           {usePageDepartment && !this.state.rootPageAll && (
             <span
               className="mLeft24 Hand moreBtn"
@@ -493,16 +553,23 @@ class DialogSelectDept extends React.Component {
   }
 
   render() {
-    const dialogProps = this.props.dialogProps;
+    const { title, width, onClose } = this.props;
     const { showProjectAll } = this.state;
-    dialogProps.container.yesFn = this.selectFn.bind(this);
     return (
-      <DialogLayer
-        {...dialogProps}
+      <Dialog
+        visible
+        type="scroll"
+        title={title}
+        width={width}
         // className={cx({ mobileDepartmentPickerDialog: this.props.displayType === 'mobile' })}
         className={cx('mobileDepartmentPickerDialog')}
         ref={dialog => {
           this.dialog = dialog;
+        }}
+        onCancel={onClose}
+        onOk={() => {
+          this.selectFn();
+          onClose();
         }}
       >
         <div>
@@ -589,7 +656,9 @@ class DialogSelectDept extends React.Component {
                 </div>
               );
             })()}
-            <div className="selectDepartmentContent">{this.renderContent()}</div>
+            <div className="selectDepartmentContent" ref={this.scroll}>
+              {this.renderContent()}
+            </div>
             <div className="GSelect-result-box">{this.renderResult()}</div>
             {this.state.showCreateBtn && (
               <div
@@ -612,7 +681,7 @@ class DialogSelectDept extends React.Component {
             )}
           </div>
         </div>
-      </DialogLayer>
+      </Dialog>
     );
   }
 }
@@ -634,21 +703,10 @@ export default function (opts) {
   };
 
   const options = _.extend({}, DEFAULTS, opts);
-  const dialogProps = {
-    dialogBoxID: options.dialogBoxID,
-    oneScreen: false,
-    oneScreenGap: 240,
-    width: options.displayType === 'mobile' ? '100%' : 480,
-    container: {
-      header: options.title,
-    },
-    callback: function () {
-      if (typeof opts.onClose === 'function') {
-        opts.onClose();
-      }
-    },
-  };
+
   const listProps = {
+    title: options.title,
+    width: options.displayType === 'mobile' ? '100%' : 480,
     unique: options.unique,
     projectId: options.projectId,
     returnCount: options.returnCount,
@@ -661,7 +719,8 @@ export default function (opts) {
     checkIncludeChilren: options.checkIncludeChilren,
     isAnalysis: options.isAnalysis,
     fromAdmin: options.fromAdmin,
+    onClose: options.onClose,
   };
 
-  ReactDOM.render(<DialogSelectDept {...listProps} {...{ dialogProps }} />, document.createElement('div'));
-};
+  functionWrap(DialogSelectDept, { ...listProps });
+}

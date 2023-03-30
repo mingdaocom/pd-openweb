@@ -6,7 +6,7 @@ import Trigger from 'rc-trigger';
 import MobilePhoneEdit from 'src/components/newCustomFields/widgets/MobilePhone';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { isKeyBoardInputChar } from 'worksheet/util';
+import { emitter, isKeyBoardInputChar } from 'worksheet/util';
 import CellErrorTips from './comps/CellErrorTip';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
@@ -184,7 +184,7 @@ export default class MobilePhone extends React.Component {
 
   @autobind
   handleKeydown(e) {
-    const { cell, updateEditingStatus } = this.props;
+    const { tableId, cell, updateEditingStatus } = this.props;
     if (e.keyCode === 27) {
       updateEditingStatus(false);
       this.setState({
@@ -194,6 +194,15 @@ export default class MobilePhone extends React.Component {
     } else if (e.keyCode === 13) {
       e.preventDefault();
       this.handleBlur();
+      setTimeout(
+        () =>
+          emitter.emit('TRIGGER_TABLE_KEYDOWN_' + tableId, {
+            keyCode: 40,
+            stopPropagation: () => {},
+            preventDefault: () => {},
+          }),
+        100,
+      );
     }
   }
 

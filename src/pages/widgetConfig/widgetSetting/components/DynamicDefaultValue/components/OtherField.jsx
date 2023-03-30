@@ -18,6 +18,7 @@ export default function OtherField(props) {
     className,
     globalSheetInfo,
     globalSheetControls = [],
+    needFilter = false,
   } = props;
   const { worksheetId } = globalSheetInfo;
   const originControls = props.controls.concat(globalSheetControls);
@@ -25,7 +26,7 @@ export default function OtherField(props) {
 
   useEffect(() => {
     setControls(originControls);
-  }, [data.controlId]);
+  }, [data.controlId, props.controls]);
 
   const getFieldName = (controls, fieldId) => {
     if (_.includes(['ctime', 'utime', 'ownerid', 'caid', ...SYS_CONTROLS], fieldId))
@@ -69,14 +70,14 @@ export default function OtherField(props) {
   };
   const getFieldNameById = (item, controls) => {
     const { cid, rcid } = item;
-    const filterControls = getControls({ data, controls, isCurrent: true });
+    const filterControls = getControls({ data, controls, isCurrent: true, needFilter });
     if (rcid) {
       // 子表控件中 如果是主记录
       if (rcid === worksheetId) {
         return { fieldName: getFieldName(filterControls, cid) };
       }
       const record = _.find(controls, item => item.controlId === rcid);
-      const reFilterControls = getControls({ data, controls: _.get(record, 'relationControls') });
+      const reFilterControls = getControls({ data, controls: _.get(record, 'relationControls'), needFilter });
       return {
         recordName: _.get(record, 'controlName'),
         fieldName: getFieldName(reFilterControls, cid),

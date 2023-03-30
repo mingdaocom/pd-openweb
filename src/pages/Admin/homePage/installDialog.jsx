@@ -89,8 +89,8 @@ export default function installDialog({ projectId, type, onClose, ...rest }) {
   const $ref = useRef(null);
   const $copy = useRef(null);
   const handleSelectUser = () => {
-    import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
-      $({}).dialogSelectUser({
+    import('src/components/dialogSelectUser/dialogSelectUser').then(dialogSelectUser => {
+      dialogSelectUser.default({
         fromAdmin: true,
         SelectUserSettings: {
           projectId, // 默认取哪个网络的用户 为空则表示默认加载全部
@@ -101,16 +101,18 @@ export default function installDialog({ projectId, type, onClose, ...rest }) {
           filterOtherProject: true, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
           dataRange: 2, // reference to dataRangeTypes 和 projectId 配合使用
           allowSelectNull: false, // 是否允许选择列表为空
-          callback: function(data) {
-            projectAjax.pushInstallClientMsg({
-              projectId: projectId,
-              accountIds: _.map(data, function(user) {
-                return user.accountId;
-              }),
-              clientType: type === 'app' ? 0 : 1,
-            }).done(function() {
-              alert(_l('发送成功'), 1);
-            });
+          callback: function (data) {
+            projectAjax
+              .pushInstallClientMsg({
+                projectId: projectId,
+                accountIds: _.map(data, function (user) {
+                  return user.accountId;
+                }),
+                clientType: type === 'app' ? 0 : 1,
+              })
+              .done(function () {
+                alert(_l('发送成功'), 1);
+              });
           },
         },
       });

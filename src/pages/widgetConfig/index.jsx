@@ -43,6 +43,13 @@ export default function Container(props) {
   const [queryConfigs, setQueryConfigs] = useState([]);
   // 外部门户开启状态
   const [enableState, setEnableState] = useState(false);
+  // 表单样式
+  const [styleInfo, setStyle] = useState({
+    activeStatus: true,
+    info: {},
+  });
+
+  const setStyleInfo = obj => setStyle(Object.assign({}, styleInfo, obj));
 
   const $switchArgs = useRef(null);
 
@@ -52,6 +59,7 @@ export default function Container(props) {
   const [{ getLoading, saveLoading }, setLoading] = useSetState({ getLoading: false, saveLoading: false });
 
   let $originControls = useRef([]);
+  let $originStyle = useRef({});
 
   const {
     data: { info: globalInfo, noAuth },
@@ -120,7 +128,7 @@ export default function Container(props) {
       return;
     }
     // 取第一个控件作为激活控件
-    setActiveWidget(head(head(widgets)));
+    // setActiveWidget(head(head(widgets)));
   };
 
   const getQueryConfigs = (hasSearchQuery = false) => {
@@ -132,6 +140,8 @@ export default function Container(props) {
   };
 
   useEffect(() => {
+    setStyleInfo({ info: _.get(globalInfo, 'advancedSetting') || {} });
+    $originStyle.current = _.get(globalInfo, 'advancedSetting') || {};
     getQueryConfigs(globalInfo && globalInfo.isWorksheetQuery);
     if (globalInfo && globalInfo.appId) {
       externalPortalAjax.getPortalEnableState({ appId: globalInfo.appId }).then(res => {
@@ -143,9 +153,10 @@ export default function Container(props) {
   useEffect(() => {
     window.subListSheetConfig = {};
     setLoading({ getLoading: true });
-    worksheetAjax.getWorksheetControls({
-      worksheetId: sourceId,
-    })
+    worksheetAjax
+      .getWorksheetControls({
+        worksheetId: sourceId,
+      })
       .then(({ code, data }) => {
         if (code === 1) {
           const { version, controls } = data;
@@ -192,11 +203,12 @@ export default function Container(props) {
     let activeWidgetPath = getPathById(widgets, (activeWidget || {}).controlId);
 
     setLoading({ saveLoading: true });
-    worksheetAjax.saveWorksheetControls({
-      version,
-      sourceId,
-      controls: formatControlsData(controls),
-    })
+    worksheetAjax
+      .saveWorksheetControls({
+        version,
+        sourceId,
+        controls: formatControlsData(controls),
+      })
       .then(({ data, code }) => {
         let error = getMsgByCode({ code, data });
         if (error) return;
@@ -232,6 +244,23 @@ export default function Container(props) {
       });
   };
 
+  const saveStyleInfo = () => {
+    if (!isEqual($originStyle.current, styleInfo.info)) {
+      worksheetAjax
+        .editWorksheetSetting({
+          worksheetId: globalInfo.worksheetId,
+          appId: globalInfo.appId,
+          advancedSetting: styleInfo.info,
+        })
+        .then(res => {
+          if (res) {
+            setStyleInfo({ info: styleInfo.info });
+            $originStyle.current = styleInfo.info;
+          }
+        });
+    }
+  };
+
   const deleteWidget = controlId => {
     const [row, col] = getPathById(widgets, controlId);
     setWidgets(update(widgets, { [row]: { $splice: [[col, 1]] } }));
@@ -260,9 +289,16 @@ export default function Container(props) {
     setQueryConfigs(newQueryConfigs);
   };
 
+  const handleActiveSet = newWidgets => {
+    setActiveWidget(newWidgets);
+    if (!_.isEmpty(newWidgets)) {
+      setStyleInfo({ activeStatus: false });
+    }
+  };
+
   const widgetProps = {
     activeWidget,
-    setActiveWidget,
+    setActiveWidget: handleActiveSet,
     widgets,
     setWidgets,
     handleDataChange,
@@ -274,6 +310,8 @@ export default function Container(props) {
     updateQueryConfigs,
     allControls: genControlsByWidgets(widgets),
     enableState,
+    styleInfo,
+    setStyleInfo,
     // 全局表信息
     globalSheetInfo: pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'groupId', 'roleType']),
   };
@@ -302,9 +340,11 @@ export default function Container(props) {
       return;
     }
     if (!activeWidget) {
+      saveStyleInfo();
       saveControls();
       return;
     }
+    saveStyleInfo();
     saveControls();
   };
 

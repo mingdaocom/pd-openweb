@@ -1,7 +1,7 @@
 import sheetAjax from 'src/api/worksheet';
 import update from 'immutability-helper';
 import { dealData, getParaIds, getHierarchyViewIds, getItemByRowId } from './util';
-import { get, filter, flatten, isEmpty, isFunction } from 'lodash';
+import _, { get, filter, flatten, isEmpty, isFunction } from 'lodash';
 import { getCurrentView } from '../util';
 import { getItem } from '../../views/util';
 
@@ -77,7 +77,11 @@ function genKanbanKeyByData(data) {
 
 // 递归获取多级关联的层级视图数据
 function getHierarchyDataRecursion({ worksheet, records, kanbanKey, index, para }) {
-  const { dispatch, viewControls, level, filters, ...rest } = para;
+  const { dispatch, getState, viewControls, level, filters, ...rest } = para;
+  // 筛选条件异步加载，重新获取数据时暂停上一次递归请求
+  const { sheet } = getState();
+  if (!_.isEqual(_.get(filters, 'filtersGroup') || [], _.get(sheet, 'filters.filtersGroup') || [])) return;
+
   if (records.length >= 1000 || index > level || index > viewControls.length) {
     const treeData = dealData(records);
     dispatch({ type: 'INIT_HIERARCHY_VIEW_DATA', data: treeData });
@@ -114,7 +118,7 @@ function getHierarchyDataRecursion({ worksheet, records, kanbanKey, index, para 
         records: records.concat(data),
         kanbanKey: genKanbanKeyByData(data),
         index: index + 1,
-        para: _.omit(para, ['filters']),
+        para,
       });
     });
 }
@@ -153,6 +157,7 @@ export const expandMultiLevelHierarchyDataOfMultiRelate = level => {
           level,
           viewId,
           dispatch,
+          getState,
           worksheetId,
           filters,
         };
@@ -364,7 +369,7 @@ export function moveMultiSheetRecord(args) {
             }),
           );
         } else {
-          alert(_l('调整关联关系失败! 请稍后重试'));
+          alert(_l('调整关联关系失败! 请稍后重试'), 2);
         }
       });
   };
@@ -614,7 +619,7 @@ export function getDefaultHierarchyData(view) {
       const { level } = getItem(`hierarchyConfig-${viewId}`) || {};
       dispatch(
         expandedMultiLevelHierarchyData({
-          layer: level,
+          layer: level || (pageSize === 1000 ? '5' : '1'),
         }),
       );
     } else {

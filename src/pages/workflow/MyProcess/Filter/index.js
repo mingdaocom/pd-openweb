@@ -3,6 +3,7 @@ import { Drawer, Select } from 'antd';
 import { Icon, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import AppFilter from '../AppFilter';
 import { TABS } from '../index';
 import SvgIcon from 'src/components/SvgIcon';
@@ -218,8 +219,7 @@ export default class Filter extends Component {
         this.handleChange,
       );
     };
-    $(this.owner).quickSelectUser({
-      showQuickInvite: false,
+    quickSelectUser(this.owner, {
       showMoreInvite: false,
       isTask: false,
       offset: {

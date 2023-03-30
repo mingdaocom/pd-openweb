@@ -1,3 +1,4 @@
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
@@ -103,6 +104,9 @@ export function updateRecord(
 
   // 处理工作流的暂存直接点击的情况
   if (!updatedControls.length) {
+    if (!(instanceId && workId)) {
+      alert(_l('没有需要保存的字段'), 2);
+    }
     callback('empty');
     return;
   }
@@ -293,10 +297,10 @@ export function updateRecordOwner({ worksheetId, recordId, accountId }) {
 }
 
 export function handleChangeOwner({ recordId, ownerAccountId, appId, projectId, target, changeOwner }) {
-  $(target).quickSelectUser({
+  quickSelectUser(target, {
     sourceId: recordId,
     projectId: projectId,
-    showQuickInvite: false,
+
     showMoreInvite: false,
     isTask: false,
     tabType: 3,
@@ -349,7 +353,7 @@ export async function handleShare({ isCharge, appId, worksheetId, viewId, record
       getCopyContent: (type, url) => `${url} ${row.entityName}：${recordTitle}`,
     });
   } catch (err) {
-    alert(_l('分享失败'));
+    alert(_l('分享失败'), 2);
     console.log(err);
   }
 }
@@ -369,7 +373,7 @@ export async function handleCreateTask({ appId, worksheetId, viewId, recordId })
       ProjectID: row.projectId,
     });
   } catch (err) {
-    alert(_l('创建任务失败'));
+    alert(_l('创建任务失败'), 2);
     console.log(err);
   }
 }

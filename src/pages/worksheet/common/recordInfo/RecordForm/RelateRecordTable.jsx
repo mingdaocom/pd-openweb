@@ -8,7 +8,7 @@ import update from 'immutability-helper';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { replaceByIndex, emitter } from 'worksheet/util';
-import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
+import { WORKSHEETTABLE_FROM_MODULE, RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import Skeleton from 'src/router/Application/Skeleton';
 import { Input } from 'ming-ui';
@@ -279,7 +279,7 @@ export default function RelateRecordTable(props) {
         getRules: pageIndex === 1,
         sortId: (sortControl || {}).controlId,
         isAsc: (sortControl || {}).isAsc,
-        getType: from === 21 ? from : undefined,
+        getType: from === RECORD_INFO_FROM.DRAFT ? from : undefined,
       };
       const isShare = /\/public\/record/.test(location.pathname) || /\/public\/view/.test(location.pathname);
       if (isShare) {
@@ -375,10 +375,10 @@ export default function RelateRecordTable(props) {
     tableActions.updateRecords(relateRecordData[control.controlId] ? relateRecordData[control.controlId].value : []);
   }, [relateRecordData[control.controlId]]);
   useEffect(() => {
-    if (isNewRecord) {
+    if (isNewRecord || from === RECORD_INFO_FROM.DRAFT) {
       loadRows({ showHideTip: true });
     }
-  }, [control.controlId, _.isEmpty(relateRecordData)]);
+  }, [control.controlId]);
   useEffect(() => {
     if (!isNewRecord) {
       setTableControls([]);
@@ -435,7 +435,7 @@ export default function RelateRecordTable(props) {
   }, []);
   useEffect(() => {
     if (_.includes(['ADD_RECORDS', 'DELETE_RECORDS', 'UPDATE_RECORD', 'UPDATE_COUNT'], lastAction)) {
-      if (isNewRecord) {
+      if (isNewRecord || from === RECORD_INFO_FROM.DRAFT) {
         onRelateRecordsChange(records);
       }
     }
@@ -774,9 +774,9 @@ export default function RelateRecordTable(props) {
                 filterRowIds: [recordId].concat(recordId ? [] : records.map(r => r.rowid)),
                 onOk: async selectedRecords => {
                   try {
-                    if (!isNewRecord) {
+                    if (!isNewRecord && from !== RECORD_INFO_FROM.DRAFT) {
                       await updateRelateRecords({
-                        ...recordbase,
+                        ..._.omit(recordbase, 'appId'),
                         controlId: control.controlId,
                         isAdd: true,
                         recordIds: selectedRecords.map(c => c.rowid),

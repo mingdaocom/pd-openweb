@@ -160,7 +160,7 @@ export default class Add extends React.Component {
         {this.renderCon()}
         <Support
           type={3}
-          href="https://help.mingdao.com/zuzhiid.html"
+          href="https://help.mingdao.com/zh/zuzhiid.html"
           text={_l('没有组织门牌号？')}
           className="mTop16 InlineBlock"
         />

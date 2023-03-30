@@ -232,10 +232,10 @@ export function formatControlToServer(control, { isSubListCopy, isDraft } = {}) 
       result.value = JSON.stringify({
         attachmentData: [],
         attachments: (parsed.attachments || [])
-          .map((item, index) => Object.assign({}, item, { isEdit: false, index }))
+          .map(item => Object.assign({}, item, { isEdit: false }))
           .concat(oldAttachments),
         knowledgeAtts: (parsed.knowledgeAtts || [])
-          .map((item, index) => Object.assign({}, item, { isEdit: false, index: parsed.attachments.length + index }))
+          .map(item => Object.assign({}, item, { isEdit: false }))
           .concat(oldKnowledgeAtts),
       });
       break;
@@ -375,7 +375,7 @@ export const controlState = (data, from) => {
   return state;
 };
 
-export const getRangeErrorType = ({ type, value, advancedSetting }) => {
+export const getRangeErrorType = ({ type, value, advancedSetting = {} }) => {
   const formatValue = value => parseFloat(value.replace(/,/g, ''));
   const { min, max, checkrange } = advancedSetting;
 
@@ -746,3 +746,82 @@ export const halfSwitchSize = (item, from) => {
 
   return half ? 6 : 12;
 };
+
+// 人员控件选择范围处理
+export const dealUserRange = (control = {}, data = []) => {
+  if (!JSON.parse(_.get(control, 'advancedSetting.userrange') || '[]').length) return false;
+
+  let ranges = {};
+
+  function getArrKey(item) {
+    let curKey = '';
+    const range_types = {
+      appointedAccountIds: [1, 26], // 用户
+      appointedDepartmentIds: [2, 27], // 部门
+      appointedOrganizeIds: [3, 48], // 组织
+    };
+    Object.keys(range_types).forEach(k => {
+      if (_.includes(range_types[k], item.type)) {
+        curKey = k;
+      }
+    });
+    return curKey;
+  }
+
+  JSON.parse(_.get(control, 'advancedSetting.userrange') || '[]').map(item => {
+    if (item.type === 4) {
+      if (item.rcid) {
+        const parentControl = _.find(data, i => i.controlId === item.rcid) || {};
+        const control = JSON.parse(parentControl.value || '[]')[0];
+        const sourcevalue = control && JSON.parse(control.sourcevalue)[item.cid];
+        const currentItem = _.find(parentControl.relationControls || [], re => re.controlId === item.cid);
+        if (currentItem && _.isArray(sourcevalue)) {
+          const arrKey = getArrKey(currentItem);
+          ranges[arrKey] = _.uniq(
+            (ranges[arrKey] || []).concat(sourcevalue.map(s => s[FILTER_TYPE[currentItem.type]])),
+          );
+        }
+      } else {
+        const currentItem = _.find(data || [], d => d.controlId === item.cid);
+        if (currentItem) {
+          const arrKey = getArrKey(currentItem);
+          ranges[arrKey] = _.uniq(
+            (ranges[arrKey] || []).concat(
+              JSON.parse(currentItem.value || '[]').map(i => i[FILTER_TYPE[currentItem.type]]),
+            ),
+          );
+        }
+      }
+    } else {
+      const arrKey = getArrKey(item);
+      ranges[arrKey] = _.uniq((ranges[arrKey] || []).concat(item.value));
+    }
+  });
+  return ranges;
+};
+
+// 加载第三方集成 SDK
+export function loadSDK() {
+  const { IsLocal } = md.global.Config;
+  const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
+  const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !IsLocal && !isWxWork;
+  const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
+  const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
+  const isFeishu = window.navigator.userAgent.toLowerCase().includes('feishu');
+
+  if (isDing && !window.dd) {
+    $.getScript('https://g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js');
+  }
+  if (isWeLink && !window.HWH5) {
+    $.getScript('https://open-doc.welink.huaweicloud.com/docs/jsapi/2.0.4/hwh5-cloudonline.js');
+  }
+  if (isWx && !window.wx) {
+    $.getScript('https://res2.wx.qq.com/open/js/jweixin-1.6.0.js');
+  }
+  if (isWxWork && !window.wx) {
+    $.getScript('https://res.wx.qq.com/open/js/jweixin-1.2.0.js');
+  }
+  if (isFeishu && !window.h5sdk) {
+    $.getScript('https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.19.js');
+  }
+}

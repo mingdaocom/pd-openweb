@@ -97,24 +97,25 @@ function Header(props, ref) {
   }));
   return (
     <Con>
-      <Title>{title}</Title>
-      <Tip> {_l('%060天后将被自动删除', entityName)} </Tip>
-      {isCharge && (
-        <Clear
-          onClick={() => {
-            Dialog.confirm({
-              title: <span style={{ color: '#f44336' }}>{_l('是否清空回收站')}</span>,
-              buttonType: 'danger',
-              anim: false,
-              description: _l('记录删除后无法恢复，请确认您和工作表成员都不再需要这些记录再行删除。'),
-              onOk: onClear,
-            });
-          }}
-        >
-          {_l('立即清空')}
-        </Clear>
-      )}
-      <div className="flex"></div>
+      <div className="flex flexRow overflow_ellipsis">
+        <Title className="overflow_ellipsis">{title}</Title>
+        <Tip> {_l('%060天后将被自动删除', entityName)} </Tip>
+        {isCharge && (
+          <Clear
+            onClick={() => {
+              Dialog.confirm({
+                title: <span style={{ color: '#f44336' }}>{_l('是否清空回收站')}</span>,
+                buttonType: 'danger',
+                anim: false,
+                description: _l('记录删除后无法恢复，请确认您和工作表成员都不再需要这些记录再行删除。'),
+                onOk: onClear,
+              });
+            }}
+          >
+            {_l('立即清空')}
+          </Clear>
+        )}
+      </div>
       <Operate>
         <SearchInput
           active={searchActive}

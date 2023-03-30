@@ -1,24 +1,41 @@
 
 .SheetMove  {
-  .name {
-    width: 60px;
+  .mui-dialog-body {
+    overflow: hidden;
   }
   .empty .value {
     color: #999;
   }
-  .Dropdown {
-    .Menu {
-      width: 100%;
-    }
+
+  .target {
+    padding: 3px 8px;
+    margin: 0 5px;
+    border-radius: 4px;
+    background: #EAEAEA;
   }
-  .disabled {
-    background-color: #FAFAFA;
-    .value, .icon-arrow-down-border {
-      display: none !important;
+  .groupingWrap {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    height: 400px;
+    .searchWrap {
+      padding: 0 5px;
+      border-bottom: 1px solid #eaeaea;
+      input {
+        border: none;
+      }
+    }
+    .groupingItem {
+      height: 33px;
+      padding: 0 10px 0 8px;
+      &.active {
+        color: #2196f3;
+        background-color: #E5F3FE;
+        .ellipsis {
+          font-weight: 600;
+        }
+      }
     }
   }
 }
 
-.sheetMoveApp .Menu.List{
-  width: 442px !important;
-}

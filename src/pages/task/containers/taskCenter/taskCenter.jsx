@@ -2,7 +2,14 @@
 import './taskCenter.less';
 import TaskNavigation from '../taskNavigation/taskNavigation';
 import { connect } from 'react-redux';
-import { getTaskStorage, getTaskState, getFolderState, checkIsProject, errorMessage, setStateToStorage } from '../../utils/utils';
+import {
+  getTaskStorage,
+  getTaskState,
+  getFolderState,
+  checkIsProject,
+  errorMessage,
+  setStateToStorage,
+} from '../../utils/utils';
 import {
   updateStateConfig,
   taskFirstSetStorage,
@@ -13,11 +20,17 @@ import {
   clearFolderSettings,
 } from '../../redux/actions';
 import config from '../../config/config';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import 'src/components/mdBusinessCard/mdBusinessCard';
 import 'src/components/tooltip/tooltip';
 import 'src/components/createTask/createTask';
-import { checkTaskSubTask, afterUpdateTaskCharge, afterUpdateTaskStar, afterUpdateTaskStatus, joinProjectPrompt } from '../../utils/taskComm';
+import {
+  checkTaskSubTask,
+  afterUpdateTaskCharge,
+  afterUpdateTaskStar,
+  afterUpdateTaskStatus,
+  joinProjectPrompt,
+} from '../../utils/taskComm';
 import TaskToolbar from '../taskToolbar/taskToolbar';
 import Subordinate from '../subordinate/subordinate';
 import TaskList from '../taskList/taskList';
@@ -98,7 +111,9 @@ class TaskCenter extends Component {
           // 状态修改  检查是否有子任务  阶段和列表都在这里触发
           if (isMask) {
             checkTaskSubTask(taskId, ($li, status, isAll) => {
-              that.props.dispatch(editTaskStatus(taskId, status, isAll, '', source => afterUpdateTaskStatus(source, status, isAll, $li)));
+              that.props.dispatch(
+                editTaskStatus(taskId, status, isAll, '', source => afterUpdateTaskStatus(source, status, isAll, $li)),
+              );
             });
           } else {
             alert(_l('您无权操作'), 3);
@@ -106,76 +121,85 @@ class TaskCenter extends Component {
           event.stopPropagation();
         },
       },
-      '#tasks .markTask'
+      '#tasks .markTask',
     );
 
     // 成员头像hover
-    $container.on('mouseover.task', '#tasks .listStageTaskContent .chargeImg, #tasks .listStageContent .chargeImg', function (event) {
-      if ($(event.target).closest('.createNewTask').length) return;
+    $container.on(
+      'mouseover.task',
+      '#tasks .listStageTaskContent .chargeImg, #tasks .listStageContent .chargeImg',
+      function (event) {
+        if ($(event.target).closest('.createNewTask').length) return;
 
-      const $this = $(this);
-      const folderId = that.props.taskConfig.folderId;
-      let projectId = that.props.taskConfig.projectId;
+        const $this = $(this);
+        const folderId = that.props.taskConfig.folderId;
+        let projectId = that.props.taskConfig.projectId;
 
-      if (!$this.data('hasbusinesscard')) {
-        const accountId = $this.data('id');
-        let taskId;
-        if (folderId) {
-          taskId = $this.closest('li').data('taskid');
-        } else {
-          taskId = $this.closest('tr').data('taskid');
-          projectId = $this.closest('tr').data('projectid');
-        }
-        $this.mdBusinessCard({
-          id: 'updateTaskChargeCard_' + taskId,
-          accountId,
-          secretType: 1,
-          opHtml: $this.data('auth') === config.auth.Charger ? "<span class='updateChargeBtn ThemeColor3'>" + _l('将任务托付给他人') + '</span>' : '',
-          readyFn(opts, dialog) {
-            dialog.find('.updateChargeBtn').on('click', function () {
-              $(this).dialogSelectUser({
-                sourceId: folderId,
-                showMoreInvite: false,
-                fromType: 2,
-                SelectUserSettings: {
-                  includeUndefinedAndMySelf: true,
-                  filterAccountIds: [accountId],
-                  projectId: checkIsProject(projectId) ? projectId : '',
-                  unique: true,
-                  callback(users) {
-                    const user = users[0];
+        if (!$this.data('hasbusinesscard')) {
+          const accountId = $this.data('id');
+          let taskId;
+          if (folderId) {
+            taskId = $this.closest('li').data('taskid');
+          } else {
+            taskId = $this.closest('tr').data('taskid');
+            projectId = $this.closest('tr').data('projectid');
+          }
+          $this.mdBusinessCard({
+            id: 'updateTaskChargeCard_' + taskId,
+            accountId,
+            secretType: 1,
+            opHtml:
+              $this.data('auth') === config.auth.Charger
+                ? "<span class='updateChargeBtn ThemeColor3'>" + _l('将任务托付给他人') + '</span>'
+                : '',
+            readyFn(opts, dialog) {
+              dialog.find('.updateChargeBtn').on('click', function () {
+                dialogSelectUser({
+                  sourceId: folderId,
+                  showMoreInvite: false,
+                  fromType: 2,
+                  SelectUserSettings: {
+                    includeUndefinedAndMySelf: true,
+                    filterAccountIds: [accountId],
+                    projectId: checkIsProject(projectId) ? projectId : '',
+                    unique: true,
+                    callback(users) {
+                      const user = users[0];
 
-                    that.props.dispatch(updateTaskCharge(taskId, user, '', () => afterUpdateTaskCharge(taskId, user.avatar, user.accountId)));
-                    $this.data('hasbusinesscard', false).off();
+                      that.props.dispatch(
+                        updateTaskCharge(taskId, user, '', () =>
+                          afterUpdateTaskCharge(taskId, user.avatar, user.accountId),
+                        ),
+                      );
+                      $this.data('hasbusinesscard', false).off();
+                    },
                   },
-                },
+                });
               });
-            });
-          },
-        });
-        $this.data('hasbusinesscard', true).mouseenter();
-      }
-    });
+            },
+          });
+          $this.data('hasbusinesscard', true).mouseenter();
+        }
+      },
+    );
 
     // 星标
-    $container.on('click.task', '#tasks .taskStar:not(.createNewSingle .taskStar, .addNewTask .taskStar)', function (event) {
-      const taskId =
-        $(this)
-          .closest('li')
-          .data('taskid') ||
-        $(this)
-          .closest('tr')
-          .data('taskid');
-      const hasStar = $(this).hasClass('icon-star-hollow');
+    $container.on(
+      'click.task',
+      '#tasks .taskStar:not(.createNewSingle .taskStar, .addNewTask .taskStar)',
+      function (event) {
+        const taskId = $(this).closest('li').data('taskid') || $(this).closest('tr').data('taskid');
+        const hasStar = $(this).hasClass('icon-star-hollow');
 
-      that.props.dispatch(updateTaskMemberStar(taskId, hasStar, () => afterUpdateTaskStar(taskId, hasStar)));
-      event.stopPropagation();
-    });
+        that.props.dispatch(updateTaskMemberStar(taskId, hasStar, () => afterUpdateTaskStar(taskId, hasStar)));
+        event.stopPropagation();
+      },
+    );
 
     // 页面点击
     $(document)
       .off('.task')
-      .on('click.task', (event) => {
+      .on('click.task', event => {
         const $target = $(event.target);
 
         // 批量操作?
@@ -228,7 +252,10 @@ class TaskCenter extends Component {
             return;
           }
           // 选择成员?
-          if ($target.closest('#dialogBoxSelectUser_container').length > 0 || $target.is($('#dialogBoxSelectUser_mask'))) {
+          if (
+            $target.closest('#dialogBoxSelectUser_container').length > 0 ||
+            $target.is($('#dialogBoxSelectUser_mask'))
+          ) {
             return;
           }
           // 头像?
@@ -252,13 +279,7 @@ class TaskCenter extends Component {
           }
 
           $('li.addNewTask').each(function () {
-            if (
-              !$.trim(
-                $(this)
-                  .find('.teaStageName')
-                  .val()
-              )
-            ) {
+            if (!$.trim($(this).find('.teaStageName').val())) {
               const $li = $(this).closest('li.singleStage');
               // 隐藏创建层层
               $li.find('li.addNewTask:last').hide();
@@ -272,7 +293,8 @@ class TaskCenter extends Component {
 
   componentWillReceiveProps(nextProps) {
     const pathname = nextProps.pathname || '';
-    const folderIndex = pathname.indexOf('folder_') > -1 ? pathname.indexOf('folder_') : pathname.indexOf('center_folderId=');
+    const folderIndex =
+      pathname.indexOf('folder_') > -1 ? pathname.indexOf('folder_') : pathname.indexOf('center_folderId=');
 
     if (pathname !== this.props.pathname && folderIndex > 0) {
       const paramSize = pathname.indexOf('folder_') > -1 ? 7 : 16;
@@ -300,9 +322,7 @@ class TaskCenter extends Component {
 
   componentWillUnmount() {
     $('#container').off('.task');
-    $('body')
-      .off('.task')
-      .removeClass('taskDetailOpen');
+    $('body').off('.task').removeClass('taskDetailOpen');
     this.props.dispatch(clearFolderSettings());
   }
 
@@ -312,7 +332,8 @@ class TaskCenter extends Component {
   init(folderId) {
     const storage = getTaskStorage('TaskCenterState');
     const pathname = location.pathname;
-    const folderIndex = pathname.indexOf('folder_') > -1 ? pathname.indexOf('folder_') : pathname.indexOf('center_folderId=');
+    const folderIndex =
+      pathname.indexOf('folder_') > -1 ? pathname.indexOf('folder_') : pathname.indexOf('center_folderId=');
     const paramSize = pathname.indexOf('folder_') > -1 ? 7 : 16;
 
     // 外链直接打开项目
@@ -325,13 +346,19 @@ class TaskCenter extends Component {
         {},
         this.props.taskConfig,
         { taskFilter: storage.Active },
-        storage.Active ? getTaskState(storage.Active) : getFolderState()
+        storage.Active ? getTaskState(storage.Active) : getFolderState(),
       );
       // 设置项目options
-      if (taskConfig.folderId && taskConfig.folderId !== 1 && pathname.indexOf('star') < 0 && pathname.indexOf('subordinate') < 0) {
+      if (
+        taskConfig.folderId &&
+        taskConfig.folderId !== 1 &&
+        pathname.indexOf('star') < 0 &&
+        pathname.indexOf('subordinate') < 0
+      ) {
         this.setFolderOptions(taskConfig.folderId);
       } else {
-        taskConfig.taskFilter = pathname.indexOf('star') >= 0 ? 8 : pathname.indexOf('subordinate') >= 0 ? 9 : storage.Active;
+        taskConfig.taskFilter =
+          pathname.indexOf('star') >= 0 ? 8 : pathname.indexOf('subordinate') >= 0 ? 9 : storage.Active;
         taskConfig.folderId = '';
         this.props.dispatch(updateStateConfig(taskConfig));
       }
@@ -355,7 +382,7 @@ class TaskCenter extends Component {
         projectId: '',
         folderId,
       },
-      config.clearFilterSettings
+      config.clearFilterSettings,
     );
 
     if (location.href.indexOf('#detail') > 0) {
@@ -394,7 +421,9 @@ class TaskCenter extends Component {
               {taskFilter === 9 && <Subordinate />}
               {this.props.folderId && this.props.folderId !== folderId
                 ? null
-                : ((folderId && !_.isEmpty(folderSettings) && folderId === folderSettings.folderID) || folderId === 1) && this.renderFolderContainers()}
+                : ((folderId && !_.isEmpty(folderSettings) && folderId === folderSettings.folderID) ||
+                    folderId === 1) &&
+                  this.renderFolderContainers()}
             </div>
           )}
         </div>

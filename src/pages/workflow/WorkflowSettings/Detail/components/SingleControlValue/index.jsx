@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import { MultipleDropdown, Dropdown, TagTextarea, CityPicker, Icon, QiniuUpload } from 'ming-ui';
 import { DateTime, DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 import DialogSelectDept from 'src/components/dialogSelectDept';
@@ -178,7 +178,7 @@ export default class SingleControlValue extends Component {
    * 成员选择
    */
   selectUser(evt, item, i, unique) {
-    $(evt.target).dialogSelectUser({
+    dialogSelectUser({
       title: _l('选择人员'),
       showMoreInvite: false,
       SelectUserSettings: {
@@ -732,7 +732,11 @@ export default class SingleControlValue extends Component {
 
     // 日期 || 日期时间
     if (item.type === 15 || item.type === 16) {
-      const showType = _.get(_.find(controls, obj => obj.controlId === item.fieldId), 'advancedSetting.showtype');
+      const showType =
+        _.get(
+          _.find(controls, obj => obj.controlId === item.fieldId),
+          'advancedSetting.showtype',
+        ) || 1;
       const mode = { 3: 'date', 4: 'month', 5: 'year' };
       const timeMode = { 1: 'minute', 2: 'hour', 6: 'second' };
 

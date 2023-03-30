@@ -1,4 +1,5 @@
 export { default as WorkSheetLeft } from './WorkSheetLeft';
+export { default as WorkSheetPortal } from './WorkSheetPortal';
 export { default as BatchOperate } from './BatchOperate';
 export { default as ChangeColumn } from './ChangeColumn';
 export { default as WorkSheetFilter } from './WorkSheetFilter';

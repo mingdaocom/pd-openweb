@@ -298,75 +298,77 @@ export const TIME_TYPE_NAME = {
 
 export const SUPPORT_HREF = {
   // worksheet
-  '0-1': 'https://help.mingdao.com/flow7.html',
+  '0-1': 'https://help.mingdao.com/zh/flow7.html',
   // loop
-  '0-5': 'https://help.mingdao.com/flow8.html',
+  '0-5': 'https://help.mingdao.com/zh/flow8.html',
   // date
-  '0-6': 'https://help.mingdao.com/flow9.html',
+  '0-6': 'https://help.mingdao.com/zh/flow9.html',
   // webhook触发
-  '0-7': 'https://help.mingdao.com/flow10.html',
+  '0-7': 'https://help.mingdao.com/zh/flow10.html',
   // 分支
-  1: 'https://help.mingdao.com/flow25.html',
+  1: 'https://help.mingdao.com/zh/flow25.html',
   // 填写节点
-  3: 'https://help.mingdao.com/flow20.html',
+  3: 'https://help.mingdao.com/zh/flow20.html',
   // 审批节点
-  4: 'https://help.mingdao.com/flow19.html',
+  4: 'https://help.mingdao.com/zh/flow19.html',
   // 通知节点
-  5: 'https://help.mingdao.com/flow21.html',
+  5: 'https://help.mingdao.com/zh/flow21.html',
   // 新增记录
-  '6-1-1': 'https://help.mingdao.com/flow11.html',
+  '6-1-1': 'https://help.mingdao.com/zh/flow11.html',
   // 新增任务
-  '6-1-2': 'https://help.mingdao.com/flow31.html',
+  '6-1-2': 'https://help.mingdao.com/zh/flow31.html',
   // 更新记录
-  '6-2': 'https://help.mingdao.com/flow12.html',
+  '6-2': 'https://help.mingdao.com/zh/flow12.html',
   // 更新流程参数
-  '6-2-102': 'https://help.mingdao.com/flow13.html',
+  '6-2-102': 'https://help.mingdao.com/zh/flow13.html',
   // 删除记录
-  '6-3': 'https://help.mingdao.com/flow18.html',
+  '6-3': 'https://help.mingdao.com/zh/flow18.html',
   // 获取关联记录
-  '6-20': 'https://help.mingdao.com/flow49.html',
+  '6-20': 'https://help.mingdao.com/zh/flow49.html',
   // 批量新增
-  '6-21': 'https://help.mingdao.com/flow11.html',
+  '6-21': 'https://help.mingdao.com/zh/flow11.html',
   // 从工作表获取一条指定记录
-  '7-406': 'https://help.mingdao.com/flow49.html',
+  '7-406': 'https://help.mingdao.com/zh/flow49.html',
   // 从多条数据节点获取一条指定记录
-  '7-407': 'https://help.mingdao.com/flow49.html',
+  '7-407': 'https://help.mingdao.com/zh/flow49.html',
   // 发送API请求
-  8: 'https://help.mingdao.com/flow33.html',
+  8: 'https://help.mingdao.com/zh/flow33.html',
   // 公式
-  9: 'https://help.mingdao.com/flow27.html',
+  9: 'https://help.mingdao.com/zh/flow27.html',
   // 短信
-  10: 'https://help.mingdao.com/flow22.html',
+  10: 'https://help.mingdao.com/zh/flow22.html',
   // 邮件
-  11: 'https://help.mingdao.com/flow24.html',
+  11: 'https://help.mingdao.com/zh/flow24.html',
   // 延时
-  12: 'https://help.mingdao.com/flow26.html',
+  12: 'https://help.mingdao.com/zh/flow26.html',
   // 获取多条
-  13: 'https://help.mingdao.com/flow15.html',
+  13: 'https://help.mingdao.com/zh/flow15.html',
   // 代码块
-  14: 'https://help.mingdao.com/flow34.html',
+  14: 'https://help.mingdao.com/zh/flow34.html',
   // 获取链接
-  15: 'https://help.mingdao.com/flow28.html',
+  15: 'https://help.mingdao.com/zh/flow28.html',
   // 子流程
-  16: 'https://help.mingdao.com/flow29.html',
+  16: 'https://help.mingdao.com/zh/flow29.html',
   // 界面推送
-  17: 'https://help.mingdao.com/flow32.html',
+  17: 'https://help.mingdao.com/zh/flow32.html',
   // 获取记录打印文件
-  18: 'https://help.mingdao.com/flow30.html',
+  18: 'https://help.mingdao.com/zh/flow30.html',
   // 发送服务号消息
-  19: 'https://help.mingdao.com/flow_wechat.html',
+  19: 'https://help.mingdao.com/zh/flow_wechat.html',
   // 调用业务流程
-  20: 'https://help.mingdao.com/flow70.html',
+  20: 'https://help.mingdao.com/zh/flow70.html',
   // JSON解析
-  21: 'https://help.mingdao.com/flow75.html',
+  21: 'https://help.mingdao.com/zh/flow75.html',
   // 调用已集成 API
-  25: 'https://help.mingdao.com/flow60.html',
+  25: 'https://help.mingdao.com/zh/flow60.html',
+  // 发起审批
+  26: 'https://help.mingdao.com/zh/flow85.html',
   // 获取单条系统信息
-  1000: 'https://help.mingdao.com/flow44.html',
+  1000: 'https://help.mingdao.com/zh/flow44.html',
   // 获取多条系统信息
-  1001: 'https://help.mingdao.com/flow45.html',
+  1001: 'https://help.mingdao.com/zh/flow45.html',
   // 什么是排队中
-  queue: 'https://help.mingdao.com/flow65.html',
+  queue: 'https://help.mingdao.com/zh/flow65.html',
 };
 
 export const RELATION_TYPE = {
@@ -454,11 +456,13 @@ export const PUSH_TYPE = {
   VIEW: 4,
   PAGE: 5,
   LINK: 6,
+  NOTIFICATION: 7,
 };
 
 export const PUSH_LIST = [
   { text: _l('弹出提示'), value: PUSH_TYPE.ALERT },
-  { text: _l('记录创建层'), value: PUSH_TYPE.CREATE },
+  { text: _l('卡片通知'), value: PUSH_TYPE.NOTIFICATION },
+  { text: _l('打开记录创建层'), value: PUSH_TYPE.CREATE },
   { text: _l('打开记录详情页'), value: PUSH_TYPE.DETAIL },
   { text: _l('打开工作表视图'), value: PUSH_TYPE.VIEW },
   { text: _l('打开自定义页面'), value: PUSH_TYPE.PAGE },

@@ -25,11 +25,12 @@ export const updateSettings = value => (dispatch, getState) => {
       worksheetInfo: { worksheetId, projectId },
     },
   } = getState();
-  publicWorksheetAjax.saveSetting({
-    projectId,
-    worksheetId,
-    ...value,
-  })
+  publicWorksheetAjax
+    .saveSetting({
+      projectId,
+      worksheetId,
+      ...value,
+    })
     .then(data => {
       console.log('save success');
       dispatch({ type: 'PUBLICWORKSHEET_UPDATE_SETTINGS', value });
@@ -49,11 +50,12 @@ function updateBaseConfig(dispatch, getState, value, cb) {
   const params = {
     ...serverValue,
   };
-  publicWorksheetAjax.saveWorksheet({
-    projectId,
-    worksheetId,
-    ...params,
-  })
+  publicWorksheetAjax
+    .saveWorksheet({
+      projectId,
+      worksheetId,
+      ...params,
+    })
     .then(data => {
       if (_.isFunction(cb)) {
         cb(worksheetId);
@@ -90,10 +92,11 @@ export function addWorksheetControl(controlName, cb = () => {}) {
         worksheetInfo: { worksheetId },
       },
     } = state;
-    formAjax.addTextControl({
-      worksheetId,
-      name: controlName,
-    })
+    formAjax
+      .addTextControl({
+        worksheetId,
+        name: controlName,
+      })
       .then(data => {
         dispatch({ type: 'PUBLICWORKSHEET_ADD_CONTROL', control: data });
         dispatch(showControl(data));
@@ -107,7 +110,8 @@ export function addWorksheetControl(controlName, cb = () => {}) {
 
 export function loadPublicWorksheet({ worksheetId }) {
   return (dispatch, getState) => {
-    publicWorksheetAjax.getPublicWorksheetInfo({ worksheetId })
+    publicWorksheetAjax
+      .getPublicWorksheetInfo({ worksheetId })
       .then(data => {
         dispatch({
           type: 'PUBLICWORKSHEET_LOAD_SUCCESS',
@@ -125,6 +129,7 @@ export function loadPublicWorksheet({ worksheetId }) {
             coverUrl: data.cover,
             ..._.pick(data, [
               'worksheetName',
+              'advancedSetting',
               'name',
               'desc',
               'worksheetId',
@@ -218,7 +223,8 @@ export function resetControls() {
         worksheetInfo: { worksheetId },
       },
     } = getState();
-    publicWorksheetAjax.reset({ worksheetId })
+    publicWorksheetAjax
+      .reset({ worksheetId })
       .then(data => {
         if (data && data.success) {
           data = data.info;
@@ -267,7 +273,7 @@ export function resetControls() {
         }
       })
       .fail(() => {
-        alert(_l('重置失败'));
+        alert(_l('重置失败'), 2);
       });
   };
 }

@@ -173,6 +173,7 @@ export default class Record extends Component {
             cellUniqueValidate={() => {}}
             cell={{ ...startControl, value: row.startTime }}
             row={row}
+            rowFormData={() => controls}
             rowIndex={1}
             rowHeight={32}
             from={1}

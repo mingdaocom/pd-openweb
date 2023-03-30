@@ -8,6 +8,8 @@ import OptionSet from './optionSet';
 import ControlSet from './controlSet';
 import SvgIcon from 'src/components/SvgIcon';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
+import worksheetApi from 'src/api/worksheet';
+
 const WrapCon = styled.div`
   .cover {
     position: fixed;
@@ -65,13 +67,23 @@ export default class Con extends PureComponent {
     this.state = {
       showFieldSettingDialog: false,
       tab: 0,
+      extendAttrList: [],
     };
+  }
+
+  componentDidMount() {
+    const { sheet } = this.props;
+    worksheetApi.getExtendAttrOptionalControl({ worksheetId: sheet.sheetId }).then(res => {
+      this.setState({
+        extendAttrList: res
+      })
+    });
   }
 
   renderContent = () => {
     switch (this.state.tab) {
       case 0:
-        return <SheetSet {...this.props} />;
+        return <SheetSet {...this.props} extendAttrList={this.state.extendAttrList} />;
       case 1:
         return <OptionSet {...this.props} />;
       case 2:

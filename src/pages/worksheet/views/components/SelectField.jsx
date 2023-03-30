@@ -5,6 +5,7 @@ import { RadioGroup, Icon, ScrollView } from 'ming-ui';
 import { FlexCenter, Text, Button, RevertButton } from 'worksheet/styled';
 import ConfigureHierarchyView from './configureHierarchyView';
 import _ from 'lodash';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 
 const VIEW_TYPE_INFO = {
   1: {
@@ -149,8 +150,9 @@ export default class SelectField extends Component {
     }
   };
   renderContent = () => {
-    const { fields, viewType, handleSelect, toCustomWidget, ...rest } = this.props;
+    let { fields, viewType, handleSelect, toCustomWidget, sheetSwitchPermit, ...rest } = this.props;
     const { checkedValue } = this.state;
+    fields = setSysWorkflowTimeControlFormat(fields, sheetSwitchPermit, 'value');
     if (viewType === 1) {
       return fields.length > 0 ? (
         <DisplayFieldWrap>

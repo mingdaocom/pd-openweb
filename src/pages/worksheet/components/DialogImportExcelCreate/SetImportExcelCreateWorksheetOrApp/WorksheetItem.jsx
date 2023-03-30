@@ -192,7 +192,7 @@ export default class WorksheetItem extends Component {
                               }
                             } else {
                               if (copySelectedSheetIds.length === 1 && sheetList.some(t => !t.disabled)) {
-                                return alert(_l('至少导入1张Sheet'));
+                                return alert(_l('至少导入1张Sheet'), 3);
                               }
                               copySelectedSheetIds = selectedImportSheetIds.filter(it => it !== item.sheetId);
                               if (
@@ -340,7 +340,7 @@ export default class WorksheetItem extends Component {
                               icon={<Icon icon="file_upload_off" />}
                               onClick={() => {
                                 if (selectedImportSheetIds.length === 1) {
-                                  return alert(_l('至少导入1张Sheet'));
+                                  return alert(_l('至少导入1张Sheet'), 3);
                                 }
                                 let ids = selectedImportSheetIds.filter(v => v !== item.sheetId);
                                 if (ids.length && !_.includes(ids, currentSheetInfo.sheetId)) {

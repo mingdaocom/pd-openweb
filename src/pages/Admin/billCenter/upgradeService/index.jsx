@@ -131,7 +131,7 @@ export default class UpgradeService extends Component {
       })
       .then(data => {
         if (data) {
-          alert(_l('订单已创建成功，正在转到付款页...'), 1, 2000, function() {
+          alert(_l('订单已创建成功，正在转到付款页...'), 1, 500, function() {
             window.location.href = '/admin/waitingPay/' + Config.projectId + '/' + data.orderId;
           });
         } else {

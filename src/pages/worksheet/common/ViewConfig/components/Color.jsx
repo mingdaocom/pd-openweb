@@ -2,6 +2,7 @@ import React from 'react';
 import { Icon } from 'ming-ui';
 import { Select } from 'antd';
 import { getIconByType } from 'src/pages/widgetConfig/util';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import cx from 'classnames';
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -47,9 +48,11 @@ const CalendarColorChoose = styled.div`
 // 颜色
 export default class Color extends React.Component {
   render() {
-    const { worksheetControls = [], view, handleChange, txt, title } = this.props;
+    let { worksheetControls = [], view, handleChange, txt, title, sheetSwitchPermit = [] } = this.props;
     const { advancedSetting = {} } = view;
     const { colorid } = advancedSetting;
+
+    worksheetControls = setSysWorkflowTimeControlFormat(worksheetControls, sheetSwitchPermit);
     let colorControls = worksheetControls.filter(item => _.includes([9, 11], item.type));
     let colorData = worksheetControls.find(it => it.controlId === colorid) || {};
     let isDelete = colorid && !worksheetControls.find(it => it.controlId === colorid);

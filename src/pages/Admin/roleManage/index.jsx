@@ -107,7 +107,7 @@ class RoleManage extends Component {
       } else if (res === 24004) {
         alert(_l('角色存在成员，无法删除'), 3);
       } else {
-        alert(_l('删除失败', 2));
+        alert(_l('删除失败'), 2);
       }
     });
   };

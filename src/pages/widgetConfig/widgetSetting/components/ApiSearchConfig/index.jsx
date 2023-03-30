@@ -105,7 +105,7 @@ function BasicInfo(props) {
                     className="icon-launch Gray_9e mLeft5 ThemeHoverColor3 Hand"
                     onClick={e => {
                       e.stopPropagation();
-                      window.open(`/integrationApi/${globalSheetInfo.projectId}/${data.dataSource}`);
+                      window.open(`/integrationApi/${data.dataSource}`);
                     }}
                   />
                 </span>

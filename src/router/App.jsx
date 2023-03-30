@@ -99,6 +99,7 @@ export default class App extends Component {
             .split(/\/worksheet\/(.*)/)
             .filter(o => o)[0]
             .split(/\/(.*)/)[0],
+          url.split(/\/row\/(.*)/).filter(o => o)[1],
         );
         return;
       }
@@ -132,14 +133,14 @@ export default class App extends Component {
     }
   }
 
-  compatibleWorksheetRoute(worksheetId) {
+  compatibleWorksheetRoute(worksheetId, rowId) {
     //工作表老路由id补齐
     api.getAppSimpleInfo({ workSheetId: worksheetId }).then(({ appId, appSectionId, workSheetId }) => {
-      if (appId && appSectionId) {
+      if (appId) {
         if (getSuffix(location.href) !== md.global.Account.addressSuffix) {
-          navigateTo(`/app/${appId}/${appSectionId}/${workSheetId}`, true);
+          navigateTo(`/app/${appId}/${workSheetId}/row/${rowId}`, true);
         } else {
-          navigateTo(`/${md.global.Account.addressSuffix}/${appSectionId}/${workSheetId}`, true);
+          navigateTo(`/${md.global.Account.addressSuffix}/${workSheetId}/row/${rowId}`, true);
         }
       }
     });
@@ -194,11 +195,19 @@ export default class App extends Component {
       }
     }, 200);
 
-    $(document).on('keypress', function(e) {
+    $(document).on('keypress', function (e) {
       if (e.ctrlKey || e.shiftKey || e.altKey || e.cmdKey || e.metaKey) return;
       var tag = e.target.tagName && e.target.tagName.toLowerCase();
       if (tag === 'input' || tag === 'textarea' || $(e.target).is('[contenteditable]')) return;
       callDialog(e.which);
+    });
+
+    const isMacOs = navigator.userAgent.toLocaleLowerCase().includes('mac os');
+    $(document).on('keydown', function (e) {
+      if((isMacOs ? e.metaKey : e.ctrlKey) && e.keyCode === 69){
+        const fullEl = document.querySelector('.icon.fullRotate');
+        fullEl && fullEl.click();
+      }
     });
   }
 

@@ -23,7 +23,7 @@ class DateTimeRangeDoublePicker extends Component {
     this.setState(this.generateState(nextProps));
   }
 
-  generateState = (props) => {
+  generateState = props => {
     const today = new Date();
     const defaultStartTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9);
     const defaultEndTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 18);
@@ -61,7 +61,7 @@ class DateTimeRangeDoublePicker extends Component {
           second: value[0].getSeconds(),
         },
         props,
-        value[0]
+        value[0],
       ),
       endTime: this.getTimeData(
         {
@@ -70,7 +70,7 @@ class DateTimeRangeDoublePicker extends Component {
           second: value[1].getSeconds(),
         },
         props,
-        value[1]
+        value[1],
       ),
       /**
        * 是否选中开始时间
@@ -146,7 +146,11 @@ class DateTimeRangeDoublePicker extends Component {
     // check is time in range
     if (this.props.type === 'datetime') {
       // check start.min
-      if (startTimeData.min && LibCalender.isSameDate(start, this.props.min) && LibCalender.isTimeEarly(startTime, startTimeData.min)) {
+      if (
+        startTimeData.min &&
+        LibCalender.isSameDate(start, this.props.min) &&
+        LibCalender.isTimeEarly(startTime, startTimeData.min)
+      ) {
         start.setHours(startTimeData.min.hour);
         start.setMinutes(startTimeData.min.minute);
         start.setSeconds(startTimeData.min.second);
@@ -154,7 +158,11 @@ class DateTimeRangeDoublePicker extends Component {
         startTimeData.value = startTimeData.min;
       }
       // check start.max
-      if (startTimeData.max && LibCalender.isSameDate(start, this.props.max) && LibCalender.isTimeLater(startTime, startTimeData.max)) {
+      if (
+        startTimeData.max &&
+        LibCalender.isSameDate(start, this.props.max) &&
+        LibCalender.isTimeLater(startTime, startTimeData.max)
+      ) {
         start.setHours(startTimeData.max.hour);
         start.setMinutes(startTimeData.max.minute);
         start.setSeconds(startTimeData.max.second);
@@ -163,7 +171,11 @@ class DateTimeRangeDoublePicker extends Component {
       }
 
       // check end.min
-      if (endTimeData.min && LibCalender.isSameDate(end, this.props.min) && LibCalender.isTimeEarly(endTime, endTimeData.min)) {
+      if (
+        endTimeData.min &&
+        LibCalender.isSameDate(end, this.props.min) &&
+        LibCalender.isTimeEarly(endTime, endTimeData.min)
+      ) {
         end.setHours(endTimeData.min.hour);
         end.setMinutes(endTimeData.min.minute);
         end.setSeconds(endTimeData.min.second);
@@ -171,7 +183,11 @@ class DateTimeRangeDoublePicker extends Component {
         endTimeData.value = endTimeData.min;
       }
       // check end.max
-      if (endTimeData.max && LibCalender.isSameDate(end, this.props.max) && LibCalender.isTimeLater(endTime, endTimeData.max)) {
+      if (
+        endTimeData.max &&
+        LibCalender.isSameDate(end, this.props.max) &&
+        LibCalender.isTimeLater(endTime, endTimeData.max)
+      ) {
         end.setHours(endTimeData.max.hour);
         end.setMinutes(endTimeData.max.minute);
         end.setSeconds(endTimeData.max.second);
@@ -192,7 +208,7 @@ class DateTimeRangeDoublePicker extends Component {
         if (this.props.onSelect) {
           this.props.onSelect([this.state.partialStart ? moment(start) : '', this.state.partialEnd ? moment(end) : '']);
         }
-      }
+      },
     );
   };
 
@@ -214,10 +230,12 @@ class DateTimeRangeDoublePicker extends Component {
       startTime = this.getTimeData(value, this.props, this.state.value[0]);
     }
 
-    if (this.props.autoFillEndTime && index === 0 && moment(list[0]).format('YYYY-MM-DD') === moment(list[1]).format('YYYY-MM-DD')) {
-      list[1] = moment(list[0])
-        .add(this.props.autoFillEndTime, 'h')
-        .toDate();
+    if (
+      this.props.autoFillEndTime &&
+      index === 0 &&
+      moment(list[0]).format('YYYY-MM-DD') === moment(list[1]).format('YYYY-MM-DD')
+    ) {
+      list[1] = moment(list[0]).add(this.props.autoFillEndTime, 'h').toDate();
       endTime = _.cloneDeep(startTime);
       const newHour = endTime.value.hour + this.props.autoFillEndTime;
       endTime.value.hour = newHour > 23 ? newHour - 23 : newHour;
@@ -234,9 +252,12 @@ class DateTimeRangeDoublePicker extends Component {
       },
       () => {
         if (this.props.onSelect) {
-          this.props.onSelect([this.state.partialStart ? moment(list[0]) : '', this.state.partialEnd ? moment(list[1]) : '']);
+          this.props.onSelect([
+            this.state.partialStart ? moment(list[0]) : '',
+            this.state.partialEnd ? moment(list[1]) : '',
+          ]);
         }
-      }
+      },
     );
   };
 
@@ -247,14 +268,21 @@ class DateTimeRangeDoublePicker extends Component {
       if (action === 'ok' && value) {
         if (value[0] && value[0].getTime && value[1] && value[1].getTime) {
           if (this.props.type === 'half') {
-            if (LibCalender.isSameDate(value[0], value[1]) && this.state.halfData[0] === 'PM' && this.state.halfData[1] === 'AM') {
-              alert(_l('结束时间不能早于开始时间'));
+            if (
+              LibCalender.isSameDate(value[0], value[1]) &&
+              this.state.halfData[0] === 'PM' &&
+              this.state.halfData[1] === 'AM'
+            ) {
+              alert(_l('结束时间不能早于开始时间'), 3);
 
               return;
             }
           }
-          if (value[0].getTime() > value[1].getTime() && ((this.props.partial && this.state.partialStart && this.state.partialEnd) || !this.props.partial)) {
-            alert(_l('结束时间不能早于开始时间'));
+          if (
+            value[0].getTime() > value[1].getTime() &&
+            ((this.props.partial && this.state.partialStart && this.state.partialEnd) || !this.props.partial)
+          ) {
+            alert(_l('结束时间不能早于开始时间'), 3);
 
             return;
           }
@@ -310,7 +338,7 @@ class DateTimeRangeDoublePicker extends Component {
     }
   };
 
-  checkboxOnChange = (target) => {
+  checkboxOnChange = target => {
     const data = {};
     data[target] = !this.state[target];
 
@@ -439,7 +467,7 @@ class DateTimeRangeDoublePicker extends Component {
         <Dropdown
           value={this.state.halfData[0]}
           data={halfOptions}
-          onChange={(value) => {
+          onChange={value => {
             this.halfOnChange(value, 'start');
           }}
         />
@@ -448,7 +476,7 @@ class DateTimeRangeDoublePicker extends Component {
         <Dropdown
           value={this.state.halfData[1]}
           data={halfOptions}
-          onChange={(value) => {
+          onChange={value => {
             this.halfOnChange(value, 'end');
           }}
         />
@@ -461,7 +489,7 @@ class DateTimeRangeDoublePicker extends Component {
         <Button
           type="link"
           size="small"
-          onClick={(event) => {
+          onClick={event => {
             this.buttonOnClick(event, 'clear');
           }}
         >
@@ -513,7 +541,7 @@ class DateTimeRangeDoublePicker extends Component {
             <Button
               type="primary"
               size="small"
-              onClick={(event) => {
+              onClick={event => {
                 this.buttonOnClick(event, 'ok');
               }}
             >
@@ -628,13 +656,13 @@ DateTimeRangeDoublePicker.defaultProps = {
   onChange: (event, time) => {
     //
   },
-  onOk: (time) => {
+  onOk: time => {
     //
   },
   onClear: () => {
     //
   },
-  onSelect: (time) => {
+  onSelect: time => {
     //
   },
 };

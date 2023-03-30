@@ -1,7 +1,7 @@
 import structureController from 'src/api/structure';
 import projectSettingController from 'src/api/projectSetting';
 import Config from '../config';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 
 export function getAuth() {
   return projectSettingController
@@ -13,11 +13,8 @@ export function getAuth() {
         return res;
       },
       () => {
-        return $
-          .Deferred()
-          .resolve(false)
-          .promise();
-      }
+        return $.Deferred().resolve(false).promise();
+      },
     );
 }
 
@@ -33,11 +30,8 @@ export function setStructureForAll(params) {
       },
       () => {
         alert(_l('操作失败'), 2);
-        return $
-          .Deferred()
-          .reject()
-          .promise();
-      }
+        return $.Deferred().reject().promise();
+      },
     );
 }
 
@@ -53,16 +47,13 @@ export function setStructureSelfEdit(params) {
       },
       () => {
         alert(_l('操作失败'), 2);
-        return $
-          .Deferred()
-          .reject()
-          .promise();
-      }
+        return $.Deferred().reject().promise();
+      },
     );
 }
 
 export function selectUser({ title, accountId, unique, isSetParent, callback }) {
-  $({}).dialogSelectUser({
+  dialogSelectUser({
     fromAdmin: true,
     SelectUserSettings: {
       filterAll: true,

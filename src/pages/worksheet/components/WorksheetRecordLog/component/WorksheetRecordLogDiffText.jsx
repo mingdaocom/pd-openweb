@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Dialog } from 'ming-ui';
+import { Dialog, RichText } from 'ming-ui';
 import cx from 'classnames';
-import filterXSS from 'xss';
 import _ from 'lodash';
 import { diffChars } from 'diff';
 import WorksheetRecordLogSelectTags from './WorksheetRecordLogSelectTags';
@@ -45,6 +44,56 @@ function WorksheetRecordLogDiffText(props) {
   }
   const [diff2, setDiff2] = useState(diff);
 
+  useEffect(() => {
+    if(control && control.enumDefault !== 2) {
+      let textComputeStyle = getComputedStyle(textRef.current);
+      let textHeight = Number(textComputeStyle.height.replace('px', ''));
+      let lineHeight = Number(textComputeStyle.lineHeight.replace('px', ''));
+      if (textHeight > lineHeight * 5) {
+        setNeedOpen(true);
+      }
+    }
+  }, []);
+
+  let renderDiff = useMemo(() => {
+    if (!diff2) return null;
+    return diff2.map((item, index) => (
+      <React.Fragment key={`renderDiffText-${item.value}-${index}`}>{renderDiffText(item)}</React.Fragment>
+    ));
+  }, [diff2]);
+
+  const clickHandle = sign => {
+    if (sign === 0) {
+      setOpen(false);
+      return;
+    }
+    if (sign === 1) {
+      if (oldValue.length > diffCount * 500 || newValue.length > diffCount * 500) {
+        let _diff = null;
+        setOpen(true);
+        let preDiffCount = diffCount;
+        setDiffCount(preDiffCount + 1);
+        let _oldValue = oldValue.slice(preDiffCount * 500, (preDiffCount + 1) * 500);
+        let _newValue = newValue.slice(preDiffCount * 500, (preDiffCount + 1) * 500);
+        if (type === 'rich_text') {
+          _diff = diff2.concat(
+            diffChars(
+              _oldValue.replace(/<[^>]+>|&[^>]+;/g, '').trim(),
+              _newValue.replace(/<[^>]+>|&[^>]+;/g, '').trim(),
+            ),
+          );
+        } else {
+          _diff = diff2.concat(diffChars(_oldValue, _newValue));
+        }
+        setDiff2(_diff);
+      } else {
+        setOpen(true);
+      }
+    }
+  };
+
+  const closeDialog = () => setDialog(false);
+
   if (control && control.enumDefault === 2) {
     return (
       <WorksheetRecordLogSelectTags
@@ -56,50 +105,6 @@ function WorksheetRecordLogDiffText(props) {
       />
     );
   }
-
-  useEffect(() => {
-    let textComputeStyle = getComputedStyle(textRef.current);
-    let textHeight = Number(textComputeStyle.height.replace('px', ''));
-    let lineHeight = Number(textComputeStyle.lineHeight.replace('px', ''));
-    if (textHeight > lineHeight * 5) {
-      setNeedOpen(true);
-    }
-  }, []);
-
-  const clickHandle = sign => {
-    if (sign === 0) {
-      setOpen(false);
-      return;
-    }
-    if (sign === 1) {
-      if(oldValue.length > diffCount*500 || newValue.length > diffCount*500) {
-        let _diff = null;
-        setOpen(true);
-        let preDiffCount = diffCount;
-        setDiffCount(preDiffCount + 1);
-        let _oldValue = oldValue.slice(preDiffCount * 500, (preDiffCount + 1) * 500);
-        let _newValue = newValue.slice(preDiffCount * 500, (preDiffCount + 1) * 500);
-        if (type === 'rich_text') {
-          _diff = diff2.concat(
-            diffChars(_oldValue.replace(/<[^>]+>|&[^>]+;/g, '').trim(), _newValue.replace(/<[^>]+>|&[^>]+;/g, '').trim()),
-          );
-        } else {
-          _diff = diff2.concat(diffChars(_oldValue, _newValue));
-        }
-        setDiff2(_diff);
-      } else {
-        setOpen(true);
-      }
-    }
-  };
-  const closeDialog = () => setDialog(false);
-
-  let renderDiff = useMemo(() => {
-    if (!diff2) return null;
-    return diff2.map((item, index) => (
-      <React.Fragment key={`renderDiffText-${item.value}-${index}`}>{renderDiffText(item)}</React.Fragment>
-    ));
-  }, [diff2]);
 
   return (
     <React.Fragment>
@@ -160,10 +165,10 @@ function WorksheetRecordLogDiffText(props) {
         >
           <div className="richTextContent flexRow flex">
             <div className="leftCon">
-              <div className="contentCon" dangerouslySetInnerHTML={{ __html: filterXSS(oldValue) }} />
+              {oldValue ? <RichText data={oldValue} className="richText" disabled={true} /> : null}
             </div>
             <div className="rightCon">
-              <div className="contentCon" dangerouslySetInnerHTML={{ __html: filterXSS(newValue) }} />
+              {newValue ? <RichText data={newValue} className="richText" disabled={true} /> : null}
             </div>
           </div>
         </Dialog>

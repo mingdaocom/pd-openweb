@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import _ from 'lodash';
 import moment from 'moment';
-import { ScrollView, LoadDiv, Checkbox } from 'ming-ui';
+import { ScrollView, LoadDiv, Checkbox, WaterMark } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import GlobalSearchSide from './containers/GlobalSearchSide';
 import GlobalSearchEmpty from './components/GlobalSearchEmpty';
@@ -94,7 +94,7 @@ export default class GlobalSearch extends Component {
       this.state;
     const _searchRange = searchType === 'record' && appId ? 1 : 2;
 
-    if (!searchKey || !searchKey.trim() || searchKey.trim()==='undefined') return;
+    if (!searchKey || !searchKey.trim() || searchKey.trim() === 'undefined') return;
     if (SEARCH_APP_SEARCH_TYPE.hasOwnProperty(searchType) && !projectId) return;
 
     this.setState({ loading: true, otherLoading: true });
@@ -109,7 +109,7 @@ export default class GlobalSearch extends Component {
       appId: _searchRange === 1 ? appId : undefined,
       sort: searchType === 'record' ? sort : 0,
       onlyTitle: onlyTitle,
-      bombLayer:searchType === 'all' ? true : false,
+      bombLayer: searchType === 'all' ? true : false,
     };
 
     const searchParam = {
@@ -322,7 +322,6 @@ export default class GlobalSearch extends Component {
       ((searchType === 'all' &&
         (!data || data.length === 0) &&
         (!appData || ((!appData.apps || appData.apps.total === 0) && (!appData.rows || appData.rows.total === 0)))) ||
-        (['record', 'app'].indexOf(searchType) === -1 && (!data || data.length === 0)) ||
         (searchType === 'record' && (!appData || !appData.rows || appData.rows.total === 0)) ||
         (searchType === 'app' && (!appData || !appData.apps || appData.apps.total === 0)))
     ) {
@@ -529,99 +528,101 @@ export default class GlobalSearch extends Component {
     });
 
     return (
-      <div className="GlobalSearch">
-        <div className="GlobalSearchCard">
-          <GlobalSearchSide
-            current={searchType}
-            onChange={value => {
-              if (value.searchType === searchType) return;
+      <WaterMark projectId={getCurrentProjectId()}>
+        <div className="GlobalSearch">
+          <div className="GlobalSearchCard">
+            <GlobalSearchSide
+              current={searchType}
+              onChange={value => {
+                if (value.searchType === searchType) return;
 
-              this.setState({ data: undefined, appData: undefined });
-              navigateTo(`/search?search_key=${searchKey}&search_type=${value.searchType}`);
-            }}
-          />
-          <div className="GlobalSearchContent">
-            {searchType !== 'all' && (
-              <React.Fragment>
-                <div className="flexRow selectCon mTop20">
-                  <OrgSelect
-                    currentProjectId={projectId || getCurrentProjectId()}
-                    needAll={NEED_ALL_ORG_TAB.includes(searchType)}
-                    onChange={projectId => this.updateSearchParam({ projectId, pageIndex: 1 })}
-                  />
-                  <div className="mRight24 valignWrapper">
-                    {searchType === 'record' && (
-                      <Checkbox
-                        text={_l('只搜索记录标题')}
-                        className="Gray_9e"
-                        checked={onlyTitle}
-                        onClick={value => {
-                          this.updateSearchParam({ onlyTitle: !onlyTitle, pageIndex: 1 });
-                        }}
-                      />
-                    )}
-                    {searchType === 'record' && (
-                      <SelectApp
-                        className="mLeft16"
-                        projectId={projectId}
-                        defaultAppId={appId}
-                        filterIds={_.uniq((appData ? appData.rows.list || [] : []).map(l => l.appId))}
-                        onChange={newAppId => this.updateSearchParam({ appId: newAppId, pageIndex: 1 })}
-                      />
-                    )}
-                    {['record'].indexOf(searchType) > -1 && (
-                      <SelectSort
-                        className="mLeft20"
-                        value={sort}
-                        onChange={value => this.updateSearchParam({ sort: value, pageIndex: 1 })}
-                      />
-                    )}
-                    {['post', 'task', 'kcnode'].indexOf(searchType) > -1 && (
-                      <DateFilter
-                        value={dateRange}
-                        onChange={value => this.updateSearchParam({ dateRange: value, pageIndex: 1 })}
-                      />
-                    )}
+                this.setState({ data: undefined, appData: undefined });
+                navigateTo(`/search?search_key=${searchKey}&search_type=${value.searchType}`);
+              }}
+            />
+            <div className="GlobalSearchContent">
+              {searchType !== 'all' && (
+                <React.Fragment>
+                  <div className="flexRow selectCon mTop20">
+                    <OrgSelect
+                      currentProjectId={projectId || getCurrentProjectId()}
+                      needAll={NEED_ALL_ORG_TAB.includes(searchType)}
+                      onChange={projectId => this.updateSearchParam({ projectId, pageIndex: 1 })}
+                    />
+                    <div className="mRight24 valignWrapper">
+                      {searchType === 'record' && (
+                        <Checkbox
+                          text={_l('只搜索记录标题')}
+                          className="Gray_9e"
+                          checked={onlyTitle}
+                          onClick={value => {
+                            this.updateSearchParam({ onlyTitle: !onlyTitle, pageIndex: 1 });
+                          }}
+                        />
+                      )}
+                      {searchType === 'record' && (
+                        <SelectApp
+                          className="mLeft16"
+                          projectId={projectId}
+                          defaultAppId={appId}
+                          filterIds={_.uniq((appData ? appData.rows.list || [] : []).map(l => l.appId))}
+                          onChange={newAppId => this.updateSearchParam({ appId: newAppId, pageIndex: 1 })}
+                        />
+                      )}
+                      {['record'].indexOf(searchType) > -1 && (
+                        <SelectSort
+                          className="mLeft20"
+                          value={sort}
+                          onChange={value => this.updateSearchParam({ sort: value, pageIndex: 1 })}
+                        />
+                      )}
+                      {['post', 'task', 'kcnode'].indexOf(searchType) > -1 && (
+                        <DateFilter
+                          value={dateRange}
+                          onChange={value => this.updateSearchParam({ dateRange: value, pageIndex: 1 })}
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
-                {searchKey &&
-                  !loading &&
-                  !otherLoading &&
-                  (searchType === 'record'
-                    ? getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) !== '2' && proObj.licenseType !== 2
-                    : true) && (
-                    <p className="allCount mTop16 Gray_9e mLeft10">
-                      {searchAppResCode === 2 && searchType === 'record'
-                        ? _l('数据正在初始化，请耐心等待')
-                        : ['app', 'record'].indexOf(searchType) < 0
-                        ? _l('搜索到 %0 个结果', total)
-                        : null}
-                    </p>
-                  )}
-              </React.Fragment>
-            )}
+                  {searchKey &&
+                    !loading &&
+                    !otherLoading &&
+                    (searchType === 'record'
+                      ? getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) !== '2' && proObj.licenseType !== 2
+                      : true) && (
+                      <p className="allCount mTop16 Gray_9e mLeft10">
+                        {searchAppResCode === 2 && searchType === 'record'
+                          ? _l('数据正在初始化，请耐心等待')
+                          : ['app', 'record'].indexOf(searchType) < 0
+                          ? _l('搜索到 %0 个结果', total)
+                          : null}
+                      </p>
+                    )}
+                </React.Fragment>
+              )}
 
-            {(!searchKey || !searchKey.trim()) &&
-              (searchType === 'record'
-                ? getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) !== '2' && proObj.licenseType !== 2
-                : true) && (
-                <GlobalSearchEmpty
-                  positionStyle={{ top: '97px', transform: 'translate(-50%, 0)' }}
-                  text={_l('请输入搜索关键字')}
-                />
-              )}
-            {searchType === 'record' &&
-              (getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) === '2' || proObj.licenseType === 2) && (
-                <div className="upgradeVersion ">
-                  {buriedUpgradeVersionDialog(proId, GLOBAL_SEARCH_FEATURE_ID, 'content')}
-                </div>
-              )}
-            <ScrollView onScrollEnd={this.handleScrollEnd}>
-              {searchKey && searchKey.trim() && this.renderList()}
-            </ScrollView>
+              {(!searchKey || !searchKey.trim()) &&
+                (searchType === 'record'
+                  ? getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) !== '2' && proObj.licenseType !== 2
+                  : true) && (
+                  <GlobalSearchEmpty
+                    positionStyle={{ top: '97px', transform: 'translate(-50%, 0)' }}
+                    text={_l('请输入搜索关键字')}
+                  />
+                )}
+              {searchType === 'record' &&
+                (getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) === '2' || proObj.licenseType === 2) && (
+                  <div className="upgradeVersion ">
+                    {buriedUpgradeVersionDialog(proId, GLOBAL_SEARCH_FEATURE_ID, 'content')}
+                  </div>
+                )}
+              <ScrollView onScrollEnd={this.handleScrollEnd}>
+                {searchKey && searchKey.trim() && this.renderList()}
+              </ScrollView>
+            </div>
           </div>
         </div>
-      </div>
+      </WaterMark>
     );
   }
 }

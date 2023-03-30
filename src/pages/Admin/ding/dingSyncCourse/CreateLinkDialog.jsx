@@ -16,7 +16,7 @@ const CreateLinkDialog = props => {
       return;
     }
     if (isWX) {
-      const url = `${baseUrl}?p=${projectId}&url=${encodeURIComponent(appLink)}`;
+      const url = `${baseUrl.split('?')[0]}?p=${projectId}&url=${encodeURIComponent(appLink)}`;
       setSsoLink(url);
     } else {
       const { pathname } = new URL(appLink);

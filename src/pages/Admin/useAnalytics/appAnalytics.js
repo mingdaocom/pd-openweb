@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import preall from 'src/common/preall';
-import { Provider } from 'react-redux';
-import store from 'src/redux/configureStore';
 import { LoadDiv } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
 import AppAnalytics from './components/AppAnalytics';
@@ -32,18 +30,21 @@ export default class AppAnalyticsWrap extends Component {
     });
   }
   renderPage = () => {
+    
+  };
+  render() {
+    const { loading } = this.state;
     const { currentAppInfo = {}, projectId } = this.state;
     document.title = currentAppInfo.name + '-' + _l('使用分析');
+    if(loading){
+      return <LoadDiv />
+    }
 
     return (
       <div>
         <AppAnalytics currentAppInfo={currentAppInfo} projectId={projectId} isIndividual={true} />;
       </div>
     );
-  };
-  render() {
-    const { loading } = this.state;
-    return <Provider store={store}>{loading ? <LoadDiv /> : this.renderPage()}</Provider>;
   }
 }
 

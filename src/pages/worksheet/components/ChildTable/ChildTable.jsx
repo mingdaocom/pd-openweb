@@ -122,8 +122,8 @@ class ChildTable extends React.Component {
       control.addRefreshEvents(control.controlId, this.refresh);
     }
     this.rowsCache = {};
-    $(this.childTableCon).on('mouseenter', '.cell .ghostAngle', this.handleMouseEnter);
-    $(this.childTableCon).on('mouseleave', '.cell .ghostAngle', this.handleMouseLeave);
+    $(this.childTableCon).on('mouseenter', '.cell:not(.row-head)', this.handleMouseEnter);
+    $(this.childTableCon).on('mouseleave', '.cell:not(.row-head)', this.handleMouseLeave);
     window.addEventListener('keydown', this.handleKeyDown);
   }
 
@@ -201,8 +201,8 @@ class ChildTable extends React.Component {
     if (_.isFunction(control.addRefreshEvents)) {
       control.addRefreshEvents(control.controlId, undefined);
     }
-    $(this.childTableCon).off('mouseenter', '.cell .ghostAngle', this.handleMouseEnter);
-    $(this.childTableCon).off('mouseleave', '.cell .ghostAngle', this.handleMouseLeave);
+    $(this.childTableCon).off('mouseenter', '.cell:not(.row-head)', this.handleMouseEnter);
+    $(this.childTableCon).off('mouseleave', '.cell:not(.row-head)', this.handleMouseLeave);
     window.removeEventListener('keydown', this.handleKeyDown);
   }
 
@@ -237,13 +237,15 @@ class ChildTable extends React.Component {
         } else {
           control.controlPermissions = replaceByIndex(control.controlPermissions || '111', 2, '1');
         }
+        if (control.controlId === 'ownerid') {
+          control.controlPermissions = '100';
+        }
         return control;
       },
     );
     result = result.filter(
       c =>
         c &&
-        c.controlId !== 'ownerid' &&
         !(
           window.isPublicWorksheet &&
           _.includes([WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT], c.type)
@@ -660,7 +662,7 @@ class ChildTable extends React.Component {
     const cellIsEditing = /iseditting/.test(cell.className);
     const rowIndex = Number(cell.className.match(/ row-([0-9]+) /)[1]);
     const columnIndex = Number(cell.className.match(/ col-([0-9]+) /)[1]);
-    const rowId = (rows[rowIndex - 1] || {}).rowid;
+    const rowId = (rows[rowIndex] || {}).rowid;
     const controlId = (columns[columnIndex - 1] || {}).controlId;
     if (hasError && !cellIsEditing && rowId && controlId) {
       const error = cellErrors[rowId + '-' + controlId];
@@ -674,7 +676,7 @@ class ChildTable extends React.Component {
               height: 26px;
               line-height: 26px;
               white-space: nowrap;
-              background: #ff4646;
+              background: #f44336;
               zIndex: 2;
               color: #fff";
           >
@@ -683,7 +685,7 @@ class ChildTable extends React.Component {
         cell.parentElement.appendChild(errorEle);
         const top =
           cell.offsetTop +
-          (/row-1/.test(cell.getAttribute('class')) ? cell.offsetHeight - 1 : -1 * errorEle.offsetHeight);
+          (/row-0/.test(cell.getAttribute('class')) ? cell.offsetHeight - 1 : -1 * errorEle.offsetHeight);
         const left = cell.offsetLeft;
         errorEle.style.top = top + 'px';
         errorEle.style.left = left + 'px';
@@ -745,7 +747,7 @@ class ChildTable extends React.Component {
       return <div className="Gray_9e">{_l('没有支持填写的字段')}</div>;
     }
     return (
-      <div className="childTableCon" ref={con => (this.childTableCon = con)}>
+      <div className="childTableCon" ref={con => (this.childTableCon = con)} onClick={e => e.stopPropagation()}>
         {this.state.error && <span className="errorTip"> {_l('请正确填写%0', control.controlName)} </span>}
         {!isMobile && !loading && (
           <div style={{ height: tableHeight }}>

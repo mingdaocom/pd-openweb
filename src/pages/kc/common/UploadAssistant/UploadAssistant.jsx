@@ -6,7 +6,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Immutable from 'immutable';
 import Icon from 'ming-ui/components/Icon';
-import { notification, NotificationContent } from 'ming-ui/components/Notification';
+import mdNotification from 'ming-ui/functions/notify';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withHoverState from 'ming-ui/decorators/withHoverState';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
@@ -130,14 +130,9 @@ class UploadAssistant extends React.Component {
             alert(_l('支持每次选择%0个文件，超过的请您分批次选择', MAX_FILE_COUNT));
             break;
           case UPLOAD_ERROR.INVALID_FILES:
-            notification.open({
-              content: (
-                <NotificationContent
-                  header={_l('上传发生错误')}
-                  themeColor="error"
-                  content={_l('%0个文件不被支持，没有加入上传队列', errorFiles.length)}
-                />
-              ),
+            mdNotification.error({
+              title: _l('上传发生错误'),
+              description: _l('%0个文件不被支持，没有加入上传队列', errorFiles.length),
               duration: 3,
             });
             break;
@@ -373,7 +368,7 @@ class UploadAssistant extends React.Component {
       const fileList = this.state.fileList.remove(id);
       this.setState({ fileList });
     } else {
-      alert(_l('取消失败'));
+      alert(_l('取消失败'), 2);
     }
   };
 

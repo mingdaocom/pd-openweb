@@ -37,7 +37,7 @@ const DATA_INFO = [
     key: 'webProxy',
     label: _l('API网络代理'),
     showSetting: true,
-    docLink: 'https://help.mingdao.com/apiproxy.html',
+    docLink: 'https://help.mingdao.com/zh/apiproxy.html',
     description: _l('启用后，您可以在发送API请求时选择通过设置的代理服务器发送'),
     featureId: 22,
   },

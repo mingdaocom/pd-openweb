@@ -36,7 +36,7 @@ const Wrap = styled.div`
 function Setting(props) {
   const { filter = {}, setFilter } = props;
   const { filters = [], setFilters, setActiveId } = props;
-  const { appId, appPkg = {}, ids = {}, components } = props;
+  const { appId, appPkg = {}, pageId, components } = props;
 
   const changeGlobal = (e) => {
     const { checked } = e.target;
@@ -129,7 +129,7 @@ function Setting(props) {
       />
       <Divider className="mTop16 mBottom14" />
       <FilterObject
-        ids={ids}
+        pageId={pageId}
         components={components}
         filter={filter}
         setFilter={setFilter}

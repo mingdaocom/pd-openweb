@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import { withRouter } from 'react-router-dom';
 import { Flex, ActivityIndicator } from 'antd-mobile';
-import { ScrollView } from 'ming-ui';
+import { ScrollView, WaterMark } from 'ming-ui';
 import Back from '../components/Back';
 import styled from 'styled-components';
 import customApi from 'statistics/api/custom';
 import DocumentTitle from 'react-document-title';
 import GridLayout from 'react-grid-layout';
 import { getDefaultLayout } from 'src/pages/customPage/util';
+import { loadSDK } from 'src/components/newCustomFields/tools/utils';
 import WidgetDisplay from './WidgetDisplay';
 import { getEnumType } from 'src/pages/customPage/util';
 import AppPermissions from '../components/AppPermissions';
@@ -85,6 +86,7 @@ export default class CustomPage extends Component {
   }
   componentDidMount() {
     this.getPage(this.props);
+    loadSDK();
   }
   componentWillReceiveProps(nextProps) {
     const { params: newParams } = nextProps.match;
@@ -209,21 +211,23 @@ export default class CustomPage extends Component {
   }
   render() {
     const { pageTitle } = this.props;
-    const { pageComponents, loading, pagName } = this.state;
+    const { pageComponents, loading, pagName, apk } = this.state;
     return (
-      <ScrollView className="h100 w100 GrayBG">
-        <DocumentTitle title={pageTitle || pagName || _l('自定义页面')} />
-        {loading ? this.renderLoading() : pageComponents.length ? this.renderContent() : this.renderWithoutData()}
-        {!(location.href.includes('mobile/app') || isMingdao) && (
-          <Back
-            className="low"
-            onClick={() => {
-              const { params } = this.props.match;
-              window.mobileNavigateTo(`/mobile/app/${params.appId}`);
-            }}
-          />
-        )}
-      </ScrollView>
+      <WaterMark projectId={apk.projectId}>
+        <ScrollView className="h100 w100 GrayBG">
+          <DocumentTitle title={pageTitle || pagName || _l('自定义页面')} />
+          {loading ? this.renderLoading() : pageComponents.length ? this.renderContent() : this.renderWithoutData()}
+          {!(location.href.includes('mobile/app') || isMingdao) && (
+            <Back
+              className="low"
+              onClick={() => {
+                const { params } = this.props.match;
+                window.mobileNavigateTo(`/mobile/app/${params.appId}`);
+              }}
+            />
+          )}
+        </ScrollView>
+      </WaterMark>
     );
   }
 }

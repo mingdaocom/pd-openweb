@@ -31,6 +31,9 @@ const CarouselComponent = styled(Carousel)`
     }
     &.slick-active {
       width: 10px;
+      button {
+        background-color: #fff !important;
+      }
     }
   }
   .slick-dots {

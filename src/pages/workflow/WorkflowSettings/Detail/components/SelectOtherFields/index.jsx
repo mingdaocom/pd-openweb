@@ -96,7 +96,7 @@ export default class SelectOtherFields extends Component {
               field: CONTROLS_NAME[o.type],
               text:
                 obj.appType === APP_TYPE.WEBHOOK
-                  ? `[${o.enumDefault === 0 ? 'Body' : 'Header'}] ${o.controlName}`
+                  ? `[${o.enumDefault === 0 ? 'Body' : o.enumDefault === 1001 ? 'Params' : 'Header'}] ${o.controlName}`
                   : o.controlName,
             };
           }),

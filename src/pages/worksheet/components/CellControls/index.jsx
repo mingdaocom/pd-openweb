@@ -8,7 +8,13 @@ import { Validator, getRangeErrorType } from 'src/components/newCustomFields/too
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 import { onValidator } from 'src/components/newCustomFields/tools/DataFormat';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
-import { checkIsTextControl, handleCopyControlText } from '../../util';
+import {
+  checkIsTextControl,
+  handleCopyControlText,
+  isSameTypeForPaste,
+  handlePasteUpdateCell,
+  getCopyControlText,
+} from '../../util';
 import { accDiv } from 'src/util';
 
 import renderText from './renderText';
@@ -208,13 +214,61 @@ export default class CellControl extends React.Component {
     }
     return !errorType;
   }
-
+  @autobind
+  handleCopy(cell) {
+    handleCopyControlText(cell);
+    if (!_.includes([2, 3, 4, 7, 5, 6, 8], cell.type)) {
+      window.tempCopyForSheetView = JSON.stringify({
+        type: 'origin',
+        value: cell.value,
+        textValue: getCopyControlText(cell),
+        controlId: cell.controlId,
+        controlType: cell.type,
+      });
+    }
+  }
+  @autobind
+  handlePaste(cell) {
+    if (!window.tempCopyForSheetView || !this.editable) {
+      return;
+    }
+    const pasteData = safeParse(window.tempCopyForSheetView);
+    if (_.includes([9, 10, 11, 29, 35], cell.type)) {
+      if (
+        cell.type === 29 &&
+        cell.enumDefault === 2 &&
+        parseInt(cell.advancedSetting.showtype, 10) === RELATE_RECORD_SHOW_TYPE.LIST
+      ) {
+        return;
+      }
+      if (cell.controlId === pasteData.controlId) {
+        handlePasteUpdateCell(cell, pasteData, value => {
+          this.handleUpdateCell({ value: value });
+        });
+      }
+    } else {
+      if (isSameTypeForPaste(cell.type, pasteData.controlType)) {
+        handlePasteUpdateCell(cell, pasteData, value => {
+          this.handleUpdateCell({ value: value });
+        });
+      }
+    }
+  }
   @autobind
   handleTableKeyDown(e, cache) {
     const { tableType, cell, onClick } = this.props;
     const { isediting } = this.state;
     if (e.key === 'c' && (e.metaKey || e.ctrlKey)) {
-      handleCopyControlText(cell);
+      this.handleCopy(cell);
+      return;
+    }
+    if (
+      e.key === 'v' &&
+      (e.metaKey || e.ctrlKey) &&
+      (!_.includes([2, 3, 4, 7, 5, 6, 8], cell.type) ||
+        (cell.type === 6 && cell.advancedSetting && cell.advancedSetting.showtype === '2'))
+    ) {
+      this.handlePaste(cell);
       return;
     }
     if ((e.metaKey || e.ctrlKey) && !(e.key === 'v' && checkIsTextControl(cell.type))) {
@@ -391,6 +445,7 @@ export default class CellControl extends React.Component {
       tableType,
       worksheetId,
       isSubList,
+      isTrash,
       cache,
       style,
       tableFromModule,
@@ -487,6 +542,7 @@ export default class CellControl extends React.Component {
       tableType,
       cache,
       isSubList,
+      isTrash,
       worksheetId,
       className,
       style,

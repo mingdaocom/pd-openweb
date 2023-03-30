@@ -40,10 +40,9 @@ export const bindWxWork = (projectId) => {
       suiteType: 8,
       tickettype: 1
     }).then((data) => {
-      if (!data.corpId) {
-        _alert(IsLocal ? _l('请先集成企业微信') : _l('请使用待开发模式集成企业微信'));
-        reject();
-        return
+      if (!data) {
+        reject(1);
+        return;
       }
       wx.config({
         beta: true,

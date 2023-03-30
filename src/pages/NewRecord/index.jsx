@@ -41,7 +41,7 @@ export default class NewRecordLand extends Component {
           callBack(res.data);
         }
       } else {
-        alert(_l('添加失败,请稍后重试'));
+        alert(_l('添加失败,请稍后重试'), 2);
       }
     });
   }

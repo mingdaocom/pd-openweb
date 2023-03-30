@@ -219,7 +219,8 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
                 updateRule({ controlId: fieldId, rcid: relateSheetControlId, ...rest })
               }
             />
-          }>
+          }
+        >
           <DropdownPlaceholder>
             {getControlInfo()}
             {<Icon icon="expand_more" />}
@@ -240,7 +241,8 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
                 </MenuItem>
               ))}
             </Menu>
-          }>
+          }
+        >
           <DropdownPlaceholder color={format ? '#333' : '#bdbdbd'}>
             {text || 'YYYYMMDD'} <Icon icon="expand_more" />
           </DropdownPlaceholder>
@@ -283,7 +285,7 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
     </RuleInfo>
   );
 });
-const SortableRules = SortableContainer(({ rules, deleteRule, updateRule, addRule, ...rest }) => {
+const SortableRules = SortableContainer(({ rules, deleteRule, updateRule, addRule, fromExcel, ...rest }) => {
   const getTypes = () => {
     return rules.some(item => item.type === 4)
       ? [
@@ -296,6 +298,7 @@ const SortableRules = SortableContainer(({ rules, deleteRule, updateRule, addRul
           { value: 3, text: _l('引用字段') },
         ];
   };
+  const typesData = fromExcel ? getTypes().filter(i => i.value !== 3) : getTypes();
   return (
     <RuleList>
       {rules.map((rule, index) => (
@@ -312,13 +315,14 @@ const SortableRules = SortableContainer(({ rules, deleteRule, updateRule, addRul
         trigger={['click']}
         overlay={
           <Menu style={{ width: '100%' }}>
-            {getTypes().map(({ value, text }) => (
+            {typesData.map(({ value, text }) => (
               <MenuItem key={value} onClick={() => addRule(value)}>
                 {text}
               </MenuItem>
             ))}
           </Menu>
-        }>
+        }
+      >
         <li className="addRule">
           <i className="icon-add Font16"></i>
           {_l('添加规则')}

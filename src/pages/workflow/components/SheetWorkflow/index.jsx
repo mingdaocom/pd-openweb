@@ -6,7 +6,7 @@ import UserHead from 'src/pages/feed/components/userHead/userHead';
 import instance from 'src/pages/workflow/api/instance';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import StepHeader from '../ExecDialog/StepHeader';
-import StepItem from 'src/pages/workflow/components/ExecDialog/StepItem';
+import Steps from 'src/pages/workflow/components/ExecDialog/Steps';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
 import MobileProcessRecord from 'src/pages/Mobile/ProcessRecord';
 import OtherAction from 'src/pages/workflow/components/ExecDialog/OtherAction';
@@ -407,6 +407,7 @@ export default function SheetWorkflow(props) {
       workItem,
       currentWork,
       currentWorkItem,
+      status,
     } = currentWorkflow;
     const { id, workId, completed } = cardData;
     return (
@@ -420,18 +421,14 @@ export default function SheetWorkflow(props) {
           isApproval
         />
         <ScrollView className="flex">
-          {works.map((item, index) => {
-            return (
-              <StepItem
-                key={index}
-                data={item}
-                currentWork={currentWork}
-                currentType={(currentWorkItem || {}).type}
-                worksheetId={worksheetId}
-                rowId={recordId}
-              />
-            );
-          })}
+          <Steps
+            worksheetId={worksheetId}
+            rowId={recordId}
+            currentWork={currentWork}
+            currentType={(currentWorkItem || {}).type}
+            works={works}
+            status={status}
+          />
         </ScrollView>
         {id && !completed && (
           <div className={cx('workflowStepFooter', isMobile ? 'pLeft10 pRight10' : '')}>

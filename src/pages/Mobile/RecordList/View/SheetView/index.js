@@ -308,19 +308,18 @@ class SheetView extends Component {
       ];
     }
     this.props.changeBatchOptData([]);
-    processAjax.startProcess({
-      appId: worksheetId,
-      sources: batchOptCheckedData,
-      triggerId: btn.btnId,
-      ...args,
-    }).then(data => {
-      if (!data) {
-        this.setState({ runInfoVisible: false });
-      } else {
-        this.showRunInfo(true);
-        this.props.fetchSheetRows();
-      }
-    });
+    processAjax
+      .startProcess({
+        appId: worksheetId,
+        sources: batchOptCheckedData,
+        triggerId: btn.btnId,
+        ...args,
+      })
+      .then(data => {
+        if (data) {
+          this.props.fetchSheetRows();
+        }
+      });
   };
   handleBatchOperateCustomBtn = btn => {
     const { allWorksheetIsSelected, batchOptCheckedData } = this.props;
@@ -396,9 +395,6 @@ class SheetView extends Component {
       }
       this.props.fetchSheetRows();
     });
-  };
-  showRunInfo = flag => {
-    this.setState({ runInfoVisible: flag });
   };
 
   render() {
@@ -490,30 +486,30 @@ class SheetView extends Component {
             )}
           </BatchOptBtn>
         )}
-        <RecordAction
-          recordActionVisible={showButtons}
-          appId={appId}
-          worksheetId={worksheetId}
-          viewId={viewId}
-          customBtns={customBtns}
-          worksheetInfo={worksheetInfo}
-          loadRow={() => {}}
-          loadCustomBtns={this.loadCustomBtns}
-          hideRecordActionVisible={() => {
-            this.setState({ showButtons: false });
-          }}
-          isMobileOperate={true}
-          batchOptCheckedData={batchOptCheckedData}
-          fetchSheetRows={this.props.fetchSheetRows}
-          view={view}
-          worksheetControls={this.props.worksheetControls}
-          changeBatchOptData={this.props.changeBatchOptData}
-          handleBatchOperateCustomBtn={this.handleBatchOperateCustomBtn}
-          runInfoVisible={this.state.runInfoVisible}
-          showRunInfo={this.showRunInfo}
-          handleUpdateWorksheetRow={this.handleUpdateWorksheetRow}
-          currentSheetRows={this.props.currentSheetRows}
-        />
+        {showButtons && (
+          <RecordAction
+            recordActionVisible={showButtons}
+            appId={appId}
+            worksheetId={worksheetId}
+            viewId={viewId}
+            customBtns={customBtns}
+            worksheetInfo={worksheetInfo}
+            loadRow={() => {}}
+            loadCustomBtns={this.loadCustomBtns}
+            hideRecordActionVisible={() => {
+              this.setState({ showButtons: false });
+            }}
+            isMobileOperate={true}
+            batchOptCheckedData={batchOptCheckedData}
+            fetchSheetRows={this.props.fetchSheetRows}
+            view={view}
+            worksheetControls={this.props.worksheetControls}
+            changeBatchOptData={this.props.changeBatchOptData}
+            handleBatchOperateCustomBtn={this.handleBatchOperateCustomBtn}
+            handleUpdateWorksheetRow={this.handleUpdateWorksheetRow}
+            currentSheetRows={this.props.currentSheetRows}
+          />
+        )}
       </Fragment>
     );
   }

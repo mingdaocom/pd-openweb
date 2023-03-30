@@ -18,7 +18,7 @@ export default function EditOptionList(props) {
 
   const handleOk = () => {
     if (!name) {
-      alert(_l('选项集标题不能为空'));
+      alert(_l('选项集标题不能为空'), 3);
       return;
     }
     const nextData = { ...rest, name, colorful, enableScore, options: data };
@@ -43,7 +43,8 @@ export default function EditOptionList(props) {
       title={isEmpty(options) ? _l('新建选项集') : _l('编辑选项集')}
       okText={_l('保存')}
       onCancel={onCancel}
-      onOk={handleOk}>
+      onOk={handleOk}
+    >
       <SettingItem style={{ marginTop: '0px' }}>
         <div className="settingItemTitle">{_l('名称')}</div>
         <Input value={name} placeholder={_l('选项集')} onChange={e => setName(e.target.value)} />

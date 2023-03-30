@@ -85,3 +85,30 @@ export const FILTER_SYS = [
   'wfftime',
   'wfstatus',
 ];
+
+export const APPROVAL_SYS = [
+  {
+    name: _l('节点名称'),
+    key: 'nodeName',
+  },
+  {
+    name: _l('负责人'),
+    key: 'operationUser',
+  },
+  {
+    name: _l('操作'),
+    key: 'operation',
+  },
+  {
+    name: _l('操作时间'),
+    key: 'operationTime',
+  },
+  {
+    name: _l('审批意见'),
+    key: 'opinion',
+  },
+  {
+    name: _l('签名'),
+    key: 'signature',
+  },
+]

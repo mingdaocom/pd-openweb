@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Icon, LoadDiv, Support } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
@@ -11,8 +11,28 @@ import UpgradeVersion from '../../components/UpgradeVersion';
 import cx from 'classnames';
 import { getFeatureStatus } from 'src/util';
 import _ from 'lodash';
-let rulesType = ['hiddeRules', 'refuseExternalDepRules', 'refuseUserRules'];
 const FEATURE_ID = 6;
+let rules = [
+  { type: 'hiddeRules', title: _l('隐藏的成员'), description: _l('被隐藏的成员 ，不会显示在通讯录中') },
+  {
+    type: 'refuseExternalDepRules',
+    title: _l('限制查看外部门'),
+    description: _l('被限制后，只能看到本部门的通讯录'),
+    editDescription: _l('规则生效范围包含所选部门的子部门'),
+    limitTxt: _l('只允许查看本部门通讯录'),
+    extraTxt: _l('额外可见的成员'),
+    ruleType: 10,
+  },
+  {
+    type: 'refuseUserRules',
+    title: _l('限制查看所有人'),
+    description: _l('被隐藏的成员 被限制后，不能看到企业所有通讯录'),
+    editDescription: '',
+    limitTxt: _l('不能看到组织所有通讯录'),
+    extraTxt: _l('额外可见的成员'),
+    ruleType: 15,
+  },
+];
 
 class ContactsHidden extends React.Component {
   constructor(props) {
@@ -26,11 +46,10 @@ class ContactsHidden extends React.Component {
     dispatch(getRulesAll(projectId));
   }
 
-  renderList = (/* type*/) => {
-    let type = rulesType[1]; // 暂时只做限制查看外部门
+  renderList = (type, ruleType) => {
     const { data = [], dispatch, projectId } = this.props;
-
-    return _.map(data, (item, i) => {
+    const rulesData = _.filter(data, it => it.ruleType === ruleType);
+    return _.map(rulesData, (item, i) => {
       return (
         <div className="rulesBox" key={item.ruleId}>
           <span className="nameTop">{_l('规则 %0', i + 1)}</span>
@@ -38,9 +57,9 @@ class ContactsHidden extends React.Component {
             {_.map(item.items, user => {
               return (
                 <div className="userItem">
-                  {user.targetType === 20 ? (
+                  {user.targetType === 20 || user.targetType === 30 ? (
                     <React.Fragment>
-                      <span className="depIcon">
+                      <span className={cx('depIcon', { orgRoleIcon: user.targetType === 30 })}>
                         <Icon className="department Hand" icon="department" />
                       </span>
                       <span className="fullname">{user.targetName}</span>
@@ -86,37 +105,26 @@ class ContactsHidden extends React.Component {
   };
 
   renderCon = () => {
-    let type = rulesType[1]; // 暂时只做限制查看外部门
-    const { data = [], dispatch, projectId } = this.props;
-
-    return (
-      <div className="">
-        <h6 className="Gray Font15">
-          {type === rulesType[0]
-            ? _l('隐藏的成员')
-            : type === rulesType[1]
-            ? _l('限制查看外部门')
-            : _l('限制查看所有人')}
-        </h6>
-        <p className={cx('Gray_9e Font13 mTop12', { mBottom10: data.length > 0 })}>
-          {type === rulesType[0]
-            ? _l('被隐藏的成员 ，不会显示在通讯录中')
-            : type === rulesType[1]
-            ? _l('被限制后，只能看到本部门的通讯录')
-            : _l('被限制后，不能看到企业所有通讯录')}
-        </p>
-        {this.renderList(type)}
-        <span
-          className="addBtn Font13 Hand mTop24"
-          onClick={e => {
-            dispatch(showEditFn(true, type));
-          }}
-        >
-          <Icon className="Font16 mRight5" icon="add" />
-          {_l('新建规则')}
-        </span>
-      </div>
-    );
+    const { data = [], dispatch } = this.props;
+    return rules.map(item => {
+      if (item.type === 'hiddeRules') return;
+      return (
+        <div className="ruleItem">
+          <h6 className="Gray Font15">{item.title}</h6>
+          <p className={cx('Gray_9e Font13 mTop12', { mBottom10: data.length > 0 })}>{item.description}</p>
+          {this.renderList(item.type, item.ruleType)}
+          <span
+            className="addBtn Font13 Hand mTop24"
+            onClick={e => {
+              dispatch(showEditFn(true, item.type));
+            }}
+          >
+            <Icon className="Font16 mRight5" icon="add" />
+            {_l('新建规则')}
+          </span>
+        </div>
+      );
+    });
   };
 
   refreshFn = () => {
@@ -164,11 +172,12 @@ class ContactsHidden extends React.Component {
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }
+    const currentEditRule = _.find(rules, it => it.type === editType) || {};
 
     return (
       <div className="contactsHiddenBox">
         {showEdit ? (
-          <div className="editCon">
+          <div className="editCon flexColumn">
             {isEdit && (
               <div>
                 <Prompt when={true} message={_l('你修改的设置尚未保存，确定要离开吗？')} />
@@ -183,47 +192,46 @@ class ContactsHidden extends React.Component {
                     this.refreshFn();
                   }}
                 />
-                {editType === rulesType[0]
-                  ? _l('隐藏的成员')
-                  : editType === rulesType[1]
-                  ? _l('限制查看外部门')
-                  : _l('限制查看所有人')}
+                {currentEditRule.title}
               </h5>
-              {editType === rulesType[1] && (
-                <span className="Right Gray_75 Font13">{_l('规则生效范围包含所选部门的子部门')}</span>
-              )}
+              <span className="Right Gray_75 Font13">{currentEditRule.editDescription}</span>
             </div>
-            <div className="conBox">
-              <EditCon rulesType={rulesType} editType={rulesType[1]} errorIds={this.state.errorIds || []} />
-            </div>
-            <span
-              className={cx('saveBtn', { disable: !isEdit || dataByRuleId.length <= 0 })}
-              onClick={() => {
-                if (isEdit && !isSaveing && dataByRuleId.length > 0) {
-                  let data = [];
-                  dataByRuleId.map(it => {
-                    data.push({
-                      ruleItemType: it.ruleItemType,
-                      targetType: it.targetType,
-                      targetId: it.targetId,
+            <div className="conBox flex">
+              <EditCon
+                rules={rules}
+                editType={editType}
+                currentEditRule={currentEditRule}
+                errorIds={this.state.errorIds || []}
+              />
+              <span
+                className={cx('saveBtn', { disable: !isEdit || dataByRuleId.length <= 0 })}
+                onClick={() => {
+                  if (isEdit && !isSaveing && dataByRuleId.length > 0) {
+                    let data = [];
+                    dataByRuleId.map(it => {
+                      data.push({
+                        ruleItemType: it.ruleItemType,
+                        targetType: it.targetType,
+                        targetId: it.targetId,
+                      });
                     });
-                  });
-                  dispatch(saveFn(projectId, data, ruleId, this.errorCallback));
-                } else {
-                  return;
-                }
-              }}
-            >
-              {_l('保存')}
-            </span>
+                    dispatch(saveFn(projectId, data, ruleId, currentEditRule.ruleType, this.errorCallback));
+                  } else {
+                    return;
+                  }
+                }}
+              >
+                {_l('保存')}
+              </span>
+            </div>
           </div>
         ) : (
-          <div className="con">
+          <div className="con flexColumn">
             <div className="headerCon">
               <h5 className="Font17">{_l('通讯录隔离')}</h5>
-              <Support className="forHelp" type={2} href="https://help.mingdao.com/geli.html" text={_l('帮助')} />
+              <Support className="forHelp" type={2} href="https://help.mingdao.com/zh/geli.html" text={_l('帮助')} />
             </div>
-            <div className="conBox">
+            <div className="conBox flex">
               <div className="">{this.renderCon(2)}</div>
             </div>
           </div>

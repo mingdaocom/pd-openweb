@@ -18,6 +18,7 @@ import externalPortalAjax from 'src/api/externalPortal';
 import AppRoleCon from 'src/pages/Role/AppRoleCon';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { ROLE_TYPES } from 'src/pages/Role/config';
+import _ from 'lodash';
 const EDITTYLE_CONFIG = [_l('常规'), _l('外部门户')];
 const RoleWrapper = styled.div`
   height: 100%;
@@ -234,28 +235,30 @@ class AppRole extends Component {
         params: { appId, editType },
       },
     } = props;
-    externalPortalAjax.getPortalEnableState({
-      appId,
-    }).then((portalBaseSet = {}) => {
-      this.setState(
-        {
-          isOpenPortal: portalBaseSet.isEnable,
-          hasGetIsOpen: true,
-          editType: editType === 'external' ? 1 : 0,
-          loading: true,
-        },
-        () => {
-          this.fetch(props);
-          if (!portalBaseSet.isEnable && editType === 'external') {
-            //无权限进外部门户编辑 跳转到 内部成员
-            navigateTo(`/app/${appId}/role`);
-            this.setState({
-              editType: 0,
-            });
-          }
-        },
-      );
-    });
+    externalPortalAjax
+      .getPortalEnableState({
+        appId,
+      })
+      .then((portalBaseSet = {}) => {
+        this.setState(
+          {
+            isOpenPortal: portalBaseSet.isEnable,
+            hasGetIsOpen: true,
+            editType: editType === 'external' ? 1 : 0,
+            loading: true,
+          },
+          () => {
+            this.fetch(props);
+            if (!portalBaseSet.isEnable && editType === 'external') {
+              //无权限进外部门户编辑 跳转到 内部成员
+              navigateTo(`/app/${appId}/role`);
+              this.setState({
+                editType: 0,
+              });
+            }
+          },
+        );
+      });
   };
 
   handleChangePage = callback => {
@@ -302,7 +305,7 @@ class AppRole extends Component {
     if (loading) {
       return <LoadDiv />;
     }
-    const featureType = getFeatureStatus(projectId, 11);
+    const featureType = isAdmin ? getFeatureStatus(projectId, 11) : false;
 
     return (
       <WaterMark projectId={projectId}>
@@ -311,9 +314,25 @@ class AppRole extends Component {
           <TopBar className={cx('', { mBottom0: editType === 1 })}>
             <div
               className="flexRow pointer Gray_bd mLeft16"
-              onClick={() => navigateTo(`/app/${appId}`)}
+              onClick={() => {
+                window.disabledSideButton = true;
+
+                const storage =
+                  JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
+
+                if (storage) {
+                  const { lastGroupId, lastWorksheetId, lastViewId } = storage;
+                  navigateTo(
+                    `/app/${appId}/${[lastGroupId, lastWorksheetId, lastViewId]
+                      .filter(o => o && !_.includes(['undefined', 'null'], o))
+                      .join('/')}?from=insite`,
+                  );
+                } else {
+                  navigateTo(`/app/${appId}`);
+                }
+              }}
             >
-              <Tooltip popupPlacement="bottom" text={<span>{_l('应用：%0', name)}</span>}>
+              <Tooltip popupPlacement="bottomLeft" text={<span>{_l('应用：%0', name)}</span>}>
                 <div className="flexRow alignItemsCenter">
                   <i className="icon-navigate_before Font20" />
                   <IconWrap style={{ backgroundColor: iconColor }}>
@@ -413,7 +432,7 @@ class AppRole extends Component {
                         {openLoading ? _l('开启中...') : _l('启用外部门户')}
                       </div>
                       <Support
-                        href="https://help.mingdao.com/external.html"
+                        href="https://help.mingdao.com/zh/external.html"
                         type={3}
                         className="helpPortal"
                         text={_l('了解更多')}

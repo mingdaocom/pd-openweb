@@ -249,7 +249,7 @@ export default class WebHook extends Component {
           <Fragment>
             <div className="Font13 bold mTop20">{_l('可信 IP 地址')}</div>
             <div className="mTop10 Gray_9e">
-              {_l('某些第三方平台需要设置可信 IP 才能调用API，以下是系统可能使用的 IP 地址')}
+              {_l('某些第三方平台需要设置白名单 IP 才能调用API，以下是系统使用的 IP 地址')}
             </div>
             <div className="mTop10">{data.realIp}</div>
           </Fragment>
@@ -546,7 +546,7 @@ export default class WebHook extends Component {
           });
         } else {
           this.updateSource({ testMap });
-          alert(result.msg, 2);
+          alert(result.msg || _l('请求异常'), 2);
         }
 
         this.setState({ sendRequest: false });

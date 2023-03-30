@@ -57,7 +57,15 @@ const WrapBar = styled.div`
 `;
 
 function Apply(props) {
-  const { appRole = {}, appId, setSelectedIds, projectId, getApplyList, getAllInfoCount } = props;
+  const {
+    appRole = {},
+    appId,
+    setSelectedIds,
+    projectId,
+    getApplyList,
+    getAllInfoCount,
+    SetAppRolePagingModel,
+  } = props;
   const { selectedIds = [], roleInfos = [] } = appRole;
   const [{ keyWords, userList, loading, show }, setState] = useSetState({
     userList: _.get(props, ['appRole', 'apply']) || [],
@@ -144,7 +152,7 @@ function Apply(props) {
   ];
   const changeApplyStatus = ({ targetRoleIds, userIds }) => {
     if (targetRoleIds.length <= 0) {
-      return alert(_l('请选择角色', 3));
+      return alert(_l('请选择角色'), 3);
     }
     //2=通过，3=拒绝
     appManagementAjax.editAppApplyStatus({ appId, ids: userIds, status: 2, roleId: targetRoleIds[0] }).then(res => {
@@ -156,7 +164,7 @@ function Apply(props) {
         });
         getAllInfoCount();
       } else {
-        alert(_l('操作失败,请稍后再试', 3));
+        alert(_l('操作失败,请稍后再试'), 3);
       }
     });
   };
@@ -196,15 +204,17 @@ function Apply(props) {
       description: <Textarea height={120} id="applyRoleRefuse" placeholder={_l('请填写拒绝原因')} />,
       onOk: () => {
         const remark = document.getElementById('applyRoleRefuse').value.trim();
-        appManagementAjax.editAppApplyStatus({
-          appId,
-          ids: ids,
-          status: 3,
-          remark,
-        }).then(res => {
-          setSelectedIds([]);
-          getApplyList({ appId }, true);
-        });
+        appManagementAjax
+          .editAppApplyStatus({
+            appId,
+            ids: ids,
+            status: 3,
+            remark,
+          })
+          .then(res => {
+            setSelectedIds([]);
+            getApplyList({ appId }, true);
+          });
       },
     });
   };

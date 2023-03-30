@@ -7,7 +7,7 @@ import { ACTION_LIST, OPERATION_LIST, SELECT_USER_TITLE, ACTION_TO_METHOD, OPERA
 import SvgIcon from 'src/components/SvgIcon';
 import OtherAction from './OtherAction';
 import AddApproveWay from './AddApproveWay';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import instance from '../../api/instance';
 import webCacheAjax from 'src/api/webCache';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -75,9 +75,7 @@ export default class Header extends Component {
         appId: app.id,
         workId,
       };
-      let printKey = Math.random()
-        .toString(36)
-        .substring(2);
+      let printKey = Math.random().toString(36).substring(2);
       webCacheAjax.add({
         key: `${printKey}`,
         value: JSON.stringify(printData),
@@ -86,7 +84,7 @@ export default class Header extends Component {
     }
 
     if (action === 'addApprove') {
-      $({}).dialogSelectUser({
+      dialogSelectUser({
         title: SELECT_USER_TITLE[action],
         showMoreInvite: false,
         SelectUserSettings: {
@@ -156,7 +154,7 @@ export default class Header extends Component {
      * 转审 || 转交
      */
     if (_.includes(['transferApprove', 'transfer'], id)) {
-      $({}).dialogSelectUser({
+      dialogSelectUser({
         title: SELECT_USER_TITLE[id],
         showMoreInvite: false,
         SelectUserSettings: {

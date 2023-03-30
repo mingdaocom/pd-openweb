@@ -81,7 +81,7 @@ export default class SelectUser extends Component {
     }
 
     const { pageIndex, pageSize, users, searchValue } = this.state;
-    const { projectId, isRangeData, filterAccountIds = [], filterWorksheetId, filterWorksheetControlId, userType, appId } = this.props;
+    const { projectId, selectRangeOptions, filterAccountIds = [], userType, appId } = this.props;
 
     if (userType === 2) {
       this.request = externalPortalAjax
@@ -102,14 +102,13 @@ export default class SelectUser extends Component {
           });
         });
     } else {
-      if (isRangeData) {
+      if (selectRangeOptions) {
         this.request = userAjax.getProjectContactUserListByApp({
           keywords: searchValue,
           projectId,
           pageIndex,
           pageSize,
-          filterWorksheetId,
-          filterWorksheetControlId,
+          ...(_.isObject(selectRangeOptions) ? selectRangeOptions : {}),
         });
       } else {
         this.request = userAjax.getContactUserList({
@@ -274,7 +273,7 @@ export default class SelectUser extends Component {
       .getDepartmentUsers({
         departmentId: department.departmentId,
         projectId,
-        filterAccountIds
+        filterAccountIds,
       })
       .then(result => {
         this.setState({
@@ -671,12 +670,12 @@ export default class SelectUser extends Component {
     }
   };
   renderUsers() {
-    const { isRangeData, userType } = this.props;
+    const { selectRangeOptions, userType } = this.props;
     const { users, loading, pageIndex } = this.state;
     return (
       <div className="flex">
         <ScrollView onScrollEnd={this.requestContactUserList}>
-          {!isRangeData && (userType === 1 || userType === 3) && this.renderDepartment()}
+          {!selectRangeOptions && (userType === 1 || userType === 3) && this.renderDepartment()}
           <List className="leftAlign" renderHeader={() => 'A-Z'}>
             {loading && pageIndex === 1 ? (
               <div className="pTop30 pBottom30">

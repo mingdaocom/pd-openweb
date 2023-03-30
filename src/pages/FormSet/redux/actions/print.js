@@ -32,10 +32,10 @@ export function editPrintName({ id, name }) {
         name,
       })
       .then(res => {
-        if(res){
+        if (res) {
           // alert(_l('修改成功'))
         } else {
-          alert(_l('修改失败'))
+          alert(_l('修改失败'), 2);
           dispatch(loadPrint({ worksheetId }));
         }
         // dispatch(loadPrint({ worksheetId }));
@@ -55,10 +55,10 @@ export function editPrintRange({ id, range, viewsIds }) {
         viewsIds,
       })
       .then(res => {
-        if(res){
+        if (res) {
           // alert(_l('修改成功'))
         } else {
-          alert(_l('修改失败'))
+          alert(_l('修改失败'), 2);
           dispatch(loadPrint({ worksheetId }));
         }
         // dispatch(loadPrint({ worksheetId }));

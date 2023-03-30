@@ -104,7 +104,7 @@ export default function renderText(cell, options = {}) {
           value = '';
         }
         const showFormat = getShowFormat(cell);
-        value = moment(cell.value).format(
+        value = moment(moment(cell.value), showFormat).format(
           _.includes(['ctime', 'utime', 'dtime'], cell.controlId) ? 'YYYY-MM-DD HH:mm:ss' : showFormat,
         );
         break;
@@ -119,16 +119,10 @@ export default function renderText(cell, options = {}) {
           value = '';
         }
         if (cell.enumDefault === 2) {
-          const format =
-            {
-              1: 'YYYY-MM-DD HH:mm',
-              3: 'YYYY-MM-DD',
-              8: 'HH:mm',
-              9: 'HH:mm:ss',
-            }[cell.unit] || 'YYYY-MM-DD HH:mm';
-          value = moment(cell.value, value.indexOf('-') > -1 ? undefined : format).format(format);
+          const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: cell.unit || '1' } });
+          value = moment(cell.value, value.indexOf('-') > -1 ? undefined : showFormat).format(showFormat);
         } else {
-          if (_.includes(['1', '2'], unit)) {
+          if (_.includes(['1', '2', '6'], unit)) {
             if (cell.advancedSetting.autocarry === '1' || cell.enumDefault === 1) {
               value = formatFormulaDate({ value: cell.value, unit, dot: cell.dot });
             } else {
@@ -137,6 +131,7 @@ export default function renderText(cell, options = {}) {
                 {
                   1: _l('分钟'),
                   2: _l('小时'),
+                  6: _l('秒'),
                 }[unit];
             }
           } else {

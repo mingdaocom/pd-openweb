@@ -10,7 +10,7 @@ import AdminCommon from 'src/pages/Admin/common/common';
 import ExportDialog from '../modules/ExportDialog';
 import Stat from '../../stat';
 import 'src/components/uploadAttachment/uploadAttachment';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import dialogSelectGroups from 'src/components/dialogSelectGroups';
 const { TextArea } = Input;
 
@@ -145,7 +145,7 @@ export default class OtherTools extends Component {
   //选择用户
   selectUser() {
     const _this = this;
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       fromAdmin: true,
       SelectUserSettings: {
         projectId: Config.projectId,

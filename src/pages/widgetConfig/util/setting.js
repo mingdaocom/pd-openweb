@@ -307,6 +307,20 @@ export const getDatePickerConfigs = data => {
         formatMode: 'YYYY-MM-DD HH:mm:ss',
         showSecond: true,
       };
+    // 时分
+    case 8:
+      return {
+        mode: 'time',
+        formatMode: 'HH:mm',
+        showSecond: true,
+      };
+    // 时分秒
+    case 9:
+      return {
+        mode: 'time',
+        formatMode: 'HH:mm:ss',
+        showSecond: true,
+      };
     default:
       return data.type === 16
         ? { mode: 'datetime', formatMode: 'YYYY-MM-DD HH:mm' }

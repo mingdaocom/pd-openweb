@@ -4,7 +4,7 @@ import cx from 'classnames';
 import homeApp from 'src/api/homeApp';
 import './index.less';
 
-const navList = [{
+const mobileNavList = [{
   name: _l('列表'),
   value: 0,
   style: 'list',
@@ -21,42 +21,58 @@ const navList = [{
   activeStyle: 'nav_active',
 }];
 
+const pcNavList = [{
+  name: _l('经典'),
+  value: 0,
+  style: 'classic',
+  activeStyle: 'classic_active',
+}, {
+  name: _l('左侧列表'),
+  value: 1,
+  style: 'left',
+  activeStyle: 'left_active',
+}, {
+  name: _l('卡片'),
+  value: 2,
+  style: 'card',
+  activeStyle: 'card_active',
+}];
+
 export default function AppNavStyle(props) {
-  const { data, onChangeData } = props;
-  const { appNaviStyle, projectId, id } = data;
+  const { type, data, onChangeApp } = props;
+  const { projectId, id } = data;
+  const navList = type === 'pcNaviStyle' ? pcNavList : mobileNavList;
+  const naviStyle = data[type];
 
   const handleEditAppINfo = value => {
-    onChangeData({
-      ...data,
-      appNaviStyle: value
-    });
-    homeApp.editAppInfo({
-      projectId,
-      appId: id,
-      appNaviStyle: value
-    }).then(res => {});
+    onChangeApp({ [type]: value });
+    // homeApp.editAppInfo({
+    //   projectId,
+    //   appId: id,
+    //   [type]: value
+    // }).then(res => {});
   }
 
   return (
     <div className="AppNavStyleWrap">
-      <div className="mBottom20">{_l('设置的导航方式对所有应用成员生效')}</div>
-      <div className="content flexRow valignWrapper">
+      {/*<div className="mBottom20">{_l('设置的导航方式对所有应用成员生效')}</div>*/}
+      <div className="flexRow valignWrapper">
         {
           navList.map(item => (
             <div
               key={item.value}
-              className="flexColumn valignWrapper Relative"
+              className="flexColumn valignWrapper Relative pointer iconWrap"
               onClick={() => {
                 handleEditAppINfo(item.value);
               }}
             >
-              {appNaviStyle === item.value && (
+              {naviStyle === item.value && (
                 <div className="flexRow valignWrapper activeIcon">
-                  <Icon icon="done"/>
+                  <Icon icon="done" />
                 </div>
               )}
-              <div className={cx('img', appNaviStyle === item.value ? item.activeStyle : item.style)}></div>
-              <span>{item.name}</span>
+              <div className={cx('navImg', type, naviStyle === item.value ? item.activeStyle : item.style)}></div>
+              <span className={cx({ ThemeColor: naviStyle === item.value })}>{item.name}</span>
             </div>
           ))
         }

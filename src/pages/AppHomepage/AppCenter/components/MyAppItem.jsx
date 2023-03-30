@@ -61,6 +61,8 @@ export default class MyAppItem extends Component {
         'permissionType',
         'name',
         'iconColor',
+        'navColor',
+        'lightColor',
         'icon',
         'groupIds',
       ]) ||
@@ -79,7 +81,7 @@ export default class MyAppItem extends Component {
   dataCache = _.pick(this.props, ['icon', 'iconColor', 'name']);
 
   handleAppChange = obj => {
-    const para = _.pick(this.props, ['projectId', 'icon', 'iconColor', 'name', 'description']);
+    const para = _.pick(this.props, ['projectId', 'icon', 'iconColor', 'navColor', 'lightColor', 'name', 'description']);
     this.props.onAppChange({ ...para, ...obj, appId: this.props.id });
   };
 
@@ -115,9 +117,13 @@ export default class MyAppItem extends Component {
   };
 
   getNavigateUrl = id => {
+    const { pcNaviStyle }  = this.props;
     const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${id}`));
     if (storage) {
       const { lastGroupId, lastWorksheetId, lastViewId } = storage;
+      if (pcNaviStyle === 2) {
+        return lastGroupId ? `/app/${id}/${lastGroupId}?from=insite` : `/app/${id}`;
+      }
       if (lastGroupId && lastWorksheetId && lastViewId) {
         return `/app/${id}/${[lastGroupId, lastWorksheetId, lastViewId].join('/')}?from=insite`;
       } else if (lastGroupId && lastWorksheetId) {
@@ -144,7 +150,7 @@ export default class MyAppItem extends Component {
       groupType,
       isAdmin,
       type,
-      iconColor,
+      lightColor,
       iconUrl,
       name,
       permissionType,
@@ -164,7 +170,12 @@ export default class MyAppItem extends Component {
     } = this.props;
     const isShowSelectIcon = selectIconVisible || newAppItemId === id;
     const offsetLeft = _.get(this, '$myAppItem.current.offsetLeft');
-    const selectIconLeft = !_.isUndefined(offsetLeft) && offsetLeft < (300 - 132) / 2 && 0;
+    const selectIconLeft = !_.isUndefined(offsetLeft) && offsetLeft < (600 - 132) / 2 && 0;
+    const iconColor = this.props.iconColor || '#2196f3';
+    const navColor = this.props.navColor || iconColor;
+    const black = '#1b2025' === navColor;
+    const light = [lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
+
     return (
       <div
         ref={this.$myAppItem}
@@ -172,8 +183,8 @@ export default class MyAppItem extends Component {
       >
         <div className={cx('myAppItemWrap')}>
           <MdLink className="myAppItem" to={this.getNavigateUrl(id)}>
-            <div className="myAppItemDetail" style={{ backgroundColor: iconColor || '#2196f3' }}>
-              <SvgIcon url={iconUrl} fill="#fff" size={48} />
+            <div className="myAppItemDetail" style={{ backgroundColor: light ? lightColor : (navColor || iconColor) }}>
+              <SvgIcon url={iconUrl} fill={black || light ? iconColor : '#fff'} size={48} />
               <AppStatusComp {..._.pick(this.props, ['isGoodsStatus', 'isNew', 'fixed'])} />
             </div>
             {type === 'external' ? (
@@ -191,7 +202,6 @@ export default class MyAppItem extends Component {
               <LineClampTextBox className="appExplain" text={name} title={name} />
             )}
           </MdLink>
-
           <div
             className="star appItemIcon"
             data-tip={isMarked ? _l('取消标星') : _l('标星')}
@@ -261,18 +271,21 @@ export default class MyAppItem extends Component {
             />
           )}
           {isShowSelectIcon && (
-            <SelectIcon
-              projectId={projectId}
-              className="myAppItemSelectIconWrap"
-              style={{
-                left: selectIconLeft,
-              }}
-              {..._.pick(this.props, ['icon', 'name', 'iconColor'])}
-              onModify={this.handleModify}
-              onChange={this.handleAppChange}
-              onClose={() => this.switchVisible({ selectIconVisible: false })}
-              onClickAway={() => this.switchVisible({ selectIconVisible: false }, clearNewAppItemId)}
-            />
+            <div style={{ height: 400 }}>
+              <SelectIcon
+                projectId={projectId}
+                className="myAppItemSelectIconWrap"
+                style={{
+                  left: selectIconLeft,
+                }}
+                {..._.pick(this.props, ['icon', 'name', 'iconColor', 'navColor', 'lightColor'])}
+                onModify={this.handleModify}
+                onChange={this.handleAppChange}
+                onClose={() => this.switchVisible({ selectIconVisible: false })}
+                onClickAway={() => this.switchVisible({ selectIconVisible: false }, clearNewAppItemId)}
+                onClickAwayExceptions={['.mui-dialog-container']}
+              />
+            </div>
           )}
         </div>
       </div>

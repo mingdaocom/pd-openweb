@@ -12,7 +12,7 @@ import * as utils from '../../utils';
 import ChatPanelHeader from '../ChatPanelHeader';
 import ChatPanelSessionInfo from '../ChatPanelSessionInfo';
 import Constant from '../../utils/constant';
-import { notification, NotificationContent } from 'ming-ui/components/Notification';
+import mdNotification from 'ming-ui/functions/notify';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { setCaretPosition } from 'src/util';
 
@@ -26,7 +26,7 @@ class ChatPanelSession extends Component {
     this.isFocus = true;
     this.state = {
       value: localStorage.getItem(`textareaValue${id}`) || '',
-      infoVisible: isGroup ? (!localStorage.getItem('chatInfoHidden')) : false,
+      infoVisible: isGroup ? !localStorage.getItem('chatInfoHidden') : false,
       searchText: '',
       isOpenFile: false,
       isContact: 'isContact' in session ? session.isContact : true,
@@ -118,7 +118,7 @@ class ChatPanelSession extends Component {
       actions.updateSessionList({
         id,
         sendMsg: value,
-      })
+      }),
     );
     this.updateValue(value);
   }
@@ -165,19 +165,20 @@ class ChatPanelSession extends Component {
       this.handleRemoveReferMessage();
       this.updateValue('');
     } else {
-      if (!notification.is('chat')) {
-        const props = {
-          themeColor: 'error',
-          header: <div>{_l('连接失败，请重新刷新页面')}</div>,
-          footer: <div className="ThemeColor3" style={{ cursor: 'pointer' }} onClick={() => { location.reload() }}>{_l('刷新')}</div>,
-        }
-        notification.open({
-          content: <NotificationContent {...props} />,
-          key: 'connectedError',
-          duration: null,
-        });
-      }
-      alert(_l('消息无法发送，请刷新页面重新连接'));
+      mdNotification.error({
+        title: _l('连接失败，请重新刷新页面'),
+        key: 'connectedError',
+        duration: null,
+        btnList: [
+          {
+            text: _l('刷新'),
+            onClick: () => {
+              location.reload();
+            },
+          },
+        ],
+      });
+      alert(_l('消息无法发送，请刷新页面重新连接'), 2);
     }
   }
   /**
@@ -223,7 +224,7 @@ class ChatPanelSession extends Component {
     const currentMessages = messages[session.id] || [];
     socket.Message.sendShake(Constant.SESSIONTYPE_USER, {
       aid: session.id,
-    }).then((result) => {
+    }).then(result => {
       const sendMsg = {
         waitingid: utils.getUUID(),
         msg: _l('你发送了一个抖动'),
@@ -264,46 +265,55 @@ class ChatPanelSession extends Component {
       actions.updateSessionList({
         id: session.id,
         addMsg: `${_l('我')}: ${sendMsg.msg}`,
-      })
+      }),
     );
-    socket.Message.send(messageType, Object.assign({}, sendMsg)).then((result) => {
-      const { socket: message } = result;
-      this.props.dispatch(actions.updateMessage({
-        to: session.id,
-        referMessage: sendMsg.referMessage,
-        ...result,
-      }));
-      // this.props.dispatch(actions.updateMessage(message));
-      // 包含 at 消息
-      if (atParam) {
-        socket.Message.sendShake(Constant.SESSIONTYPE_GROUP, {
-          ...atParam,
-          messageId: result.id,
-        });
-      }
-    }, (result) => {
-      const { error } = result;
-      if (error === 'not my contract') {
-        this.setState({
-          isContact: false,
-        });
-        this.props.dispatch(actions.updateMessage({
-          to: session.id,
-          waitingid: sendMsg.waitingid,
-          id: sendMsg.waitingid,
-          isContact: false,
-        }));
-        this.props.dispatch(actions.updateSessionList({
-          id: session.id,
-          isContact: false,
-        }));
-      }
-    });
+    socket.Message.send(messageType, Object.assign({}, sendMsg)).then(
+      result => {
+        const { socket: message } = result;
+        this.props.dispatch(
+          actions.updateMessage({
+            to: session.id,
+            referMessage: sendMsg.referMessage,
+            ...result,
+          }),
+        );
+        // this.props.dispatch(actions.updateMessage(message));
+        // 包含 at 消息
+        if (atParam) {
+          socket.Message.sendShake(Constant.SESSIONTYPE_GROUP, {
+            ...atParam,
+            messageId: result.id,
+          });
+        }
+      },
+      result => {
+        const { error } = result;
+        if (error === 'not my contract') {
+          this.setState({
+            isContact: false,
+          });
+          this.props.dispatch(
+            actions.updateMessage({
+              to: session.id,
+              waitingid: sendMsg.waitingid,
+              id: sendMsg.waitingid,
+              isContact: false,
+            }),
+          );
+          this.props.dispatch(
+            actions.updateSessionList({
+              id: session.id,
+              isContact: false,
+            }),
+          );
+        }
+      },
+    );
   }
   getAtParam(id) {
     const textarea = $(`#ChatPanel-${id}`).find('.ChatPanel-textarea textarea');
     let atList = [];
-    textarea.wcMentionsInput('getMentions', (users) => {
+    textarea.wcMentionsInput('getMentions', users => {
       for (let i = 0; i < users.length; i++) {
         if (users[i].id === 'all') {
           atList = 'all';
@@ -367,14 +377,19 @@ class ChatPanelSession extends Component {
               <MessageSendText value={value} onSendMsg={this.handleSendMsg.bind(this)} />
             </div>
           </div>
-          <ChatPanelSessionInfo session={session} searchText={searchText} isOpenFile={isOpenFile} infoVisible={infoVisible} />
+          <ChatPanelSessionInfo
+            session={session}
+            searchText={searchText}
+            isOpenFile={isOpenFile}
+            infoVisible={infoVisible}
+          />
         </div>
       </div>
     );
   }
 }
 
-const ChatPanelSessionConnect = connect((state) => {
+const ChatPanelSessionConnect = connect(state => {
   const { currentSession, messages, referMessage, currentSessionList, isWindow } = state.chat;
 
   return {
@@ -401,7 +416,7 @@ class ChatPanelWrapper extends Component {
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { currentSession } = state.chat;
   return {
     currentSession,

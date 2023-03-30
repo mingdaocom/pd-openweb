@@ -100,7 +100,7 @@ export function getRecordAttachments(coverImageStr) {
       }
     }
   } catch (error) {
-    alert(_l('获取记录封面失败'));
+    alert(_l('获取记录封面失败'), 2);
     console.log(error);
   }
   return { ...res, coverImage, allAttachments };

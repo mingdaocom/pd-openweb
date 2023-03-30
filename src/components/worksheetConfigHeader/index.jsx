@@ -81,9 +81,9 @@ export default class WorksheetConfigHeader extends Component {
             <i className="ming Icon icon icon-knowledge-return" />
           </span>
           <div className="editDetailWrap">
-            <div onClick={onBack}>
+            <div onClick={onBack} className="flexCenter">
               <span className="bold pointer">{_l('正在编辑表单：')}</span>
-              <span className="overflow_ellipsis pointer" style={{ maxWidth: '360px' }}>
+              <span className="overflow_ellipsis pointer InlineBlock" style={{ maxWidth: '360px' }}>
                 {worksheetName}
               </span>
             </div>

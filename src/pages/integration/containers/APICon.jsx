@@ -477,7 +477,7 @@ function APICon(props) {
           <p className="Font15 mBottom4 mTop8 flexRow alignItemsCenter">
             <span className="flex">
               <span className="TxtMiddle">{_l('管理第三方 API ，在工作表或工作流中调用')}</span>
-              <Support type={3} href="https://help.mingdao.com/integration.html#api管理" text={_l('使用帮助')} />
+              <Support type={3} href="https://help.mingdao.com/zh/integration.html#api管理" text={_l('使用帮助')} />
             </span>
             <SearchInput className="searchCon" placeholder={_l('搜索 API')} value={keywords} onChange={handleSearch} />
           </p>

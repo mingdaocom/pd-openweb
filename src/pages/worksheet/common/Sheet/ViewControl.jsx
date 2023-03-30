@@ -98,6 +98,7 @@ function ViewControl(props) {
   return (
     <Con>
       <ViewItems
+        worksheetInfo={worksheetInfo}
         sheetSwitchPermit={sheetSwitchPermit}
         isCharge={isCharge}
         appId={appId}

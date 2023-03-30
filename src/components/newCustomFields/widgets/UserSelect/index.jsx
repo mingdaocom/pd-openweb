@@ -2,11 +2,11 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { FROM } from '../../tools/config';
 import UserHead from 'src/pages/feed/components/userHead';
-import 'src/components/dialogSelectUser/dialogSelectUser';
-import 'src/components/quickSelectUser/quickSelectUser';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import cx from 'classnames';
 import SelectUser from 'mobile/components/SelectUser';
 import { browserIsMobile, getCurrentProject } from 'src/util';
+import { dealUserRange } from '../../tools/utils';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
 
@@ -31,7 +31,15 @@ export default class Widgets extends Component {
    * 选择用户
    */
   pickUser = event => {
-    const { projectId = '', enumDefault, advancedSetting = {}, worksheetId, controlId, appId } = this.props;
+    const {
+      projectId = '',
+      enumDefault,
+      advancedSetting = {},
+      worksheetId,
+      controlId,
+      appId,
+      formData = [],
+    } = this.props;
     const value = this.getUserValue();
     const filterAccountIds = value.map(item => item.accountId);
     const that = this;
@@ -49,42 +57,36 @@ export default class Widgets extends Component {
     if (browserIsMobile()) {
       this.setState({ showSelectUser: true });
     } else {
-      $(event.target)
-        .closest('.addBtn')
-        .quickSelectUser({
-          showQuickInvite: false,
-          showMoreInvite: false,
-          isTask: false,
-          isRangeData: !!advancedSetting.userrange,
-          tabType,
-          appId,
-          filterWorksheetId: worksheetId,
-          filterWorksheetControlId: controlId,
-          prefixAccounts: !_.includes(filterAccountIds, md.global.Account.accountId)
-            ? [
-                {
-                  accountId: md.global.Account.accountId,
-                  fullname: _l('我自己'),
-                  avatar: md.global.Account.avatar,
-                },
-              ]
-            : [],
+      quickSelectUser($(event.target).closest('.addBtn')[0], {
+        showMoreInvite: false,
+        selectRangeOptions: dealUserRange(this.props, formData),
+        tabType,
+        appId,
+        prefixAccounts: !_.includes(filterAccountIds, md.global.Account.accountId)
+          ? [
+              {
+                accountId: md.global.Account.accountId,
+                fullname: _l('我自己'),
+                avatar: md.global.Account.avatar,
+              },
+            ]
+          : [],
+        filterAccountIds,
+        minHeight: 400,
+        offset: {
+          top: 16,
+          left: -16,
+        },
+        zIndex: 10001,
+        isDynamic: enumDefault === 1,
+        SelectUserSettings: {
+          unique: enumDefault === 0,
+          projectId: projectId,
           filterAccountIds,
-          minHeight: 400,
-          offset: {
-            top: 16,
-            left: 0,
-          },
-          zIndex: 10001,
-          isDynamic: enumDefault === 1,
-          SelectUserSettings: {
-            unique: enumDefault === 0,
-            projectId: projectId,
-            filterAccountIds,
-            callback: that.onSave,
-          },
-          selectCb: that.onSave,
-        });
+          callback: that.onSave,
+        },
+        selectCb: that.onSave,
+      });
     }
   };
 
@@ -117,7 +119,7 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { projectId, disabled, enumDefault, from, advancedSetting = {}, worksheetId, controlId, appId } = this.props;
+    const { projectId, disabled, enumDefault, from, formData = [], worksheetId, controlId, appId } = this.props;
     const { showSelectUser } = this.state;
     const value = this.getUserValue();
     const isMobile = browserIsMobile();
@@ -183,9 +185,7 @@ export default class Widgets extends Component {
             type="user"
             userType={getTabTypeBySelectUser(this.props)}
             appId={appId || ''}
-            isRangeData={!!advancedSetting.userrange}
-            filterWorksheetId={worksheetId}
-            filterWorksheetControlId={controlId}
+            selectRangeOptions={dealUserRange(this.props, formData)}
             onlyOne={enumDefault === 0}
             onClose={() => this.setState({ showSelectUser: false })}
             onSave={this.onSave}

@@ -2,12 +2,80 @@ import React, { Component, Fragment } from 'react';
 import { ScrollView, Dropdown, LoadDiv, Radio } from 'ming-ui';
 import cx from 'classnames';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, CustomTextarea, SelectNodeObject } from '../components';
+import { DetailHeader, DetailFooter, CustomTextarea, SpecificFieldsValue } from '../components';
 import { PUSH_TYPE, PUSH_LIST, APP_TYPE } from '../../enum';
-import worksheet from 'src/api/worksheet';
 import homeApp from 'src/api/homeApp';
-import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import _ from 'lodash';
+import styled from 'styled-components';
+import OpenActionContent from './OpenActionContent';
+
+const MsgTypeBtn = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  border: 1px solid #ddd;
+  opacity: 1;
+  border-radius: 3px;
+  padding: 0 20px 0 15px;
+  margin-right: 10px;
+  cursor: pointer;
+  &.active {
+    position: relative;
+    border-color: #2196f3;
+    &::before {
+      position: absolute;
+      right: -8px;
+      top: -8px;
+      border-style: solid;
+      border-width: 8px;
+      border-color: #2196f3 transparent transparent transparent;
+      content: '';
+      transform: rotateZ(-135deg);
+    }
+  }
+  i {
+    font-size: 20px;
+    margin-right: 5px;
+  }
+`;
+
+const BtnContent = styled.div`
+  margin-top: 30px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 20px;
+  position: relative;
+  .workflowMessageTitle {
+    position: absolute;
+    top: -10px;
+    left: 18px;
+    background: #fff;
+    padding: 0 3px;
+  }
+  .workflowMessageDelete {
+    position: absolute;
+    top: -9px;
+    right: 18px;
+    background: #fff;
+    padding: 0 3px;
+    font-size: 16px;
+    color: #bdbdbd;
+    cursor: pointer;
+    &:hover {
+      color: #2196f3;
+    }
+  }
+  .Font13.bold {
+    font-weight: normal;
+  }
+  .workflowOpenModeBox {
+    display: flex;
+    > div {
+      margin-right: 50px;
+    }
+  }
+`;
 
 export default class Push extends Component {
   constructor(props) {
@@ -16,9 +84,6 @@ export default class Push extends Component {
       data: {},
       saveRequest: false,
       currentAppList: [],
-      otherAppName: '',
-      worksheetInfo: null,
-      showOtherWorksheet: false,
     };
   }
 
@@ -49,15 +114,7 @@ export default class Push extends Component {
 
     flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
       this.setState({ data: result });
-
-      // 获取工作表详情
-      if (result.appId) {
-        this.getWorksheetInfo(result.appId);
-      }
-
-      if (_.includes([PUSH_TYPE.CREATE, PUSH_TYPE.VIEW, PUSH_TYPE.PAGE], result.pushType)) {
-        this.getWorksheetsByAppId();
-      }
+      this.getWorksheetsByAppId();
     });
   }
 
@@ -70,24 +127,76 @@ export default class Push extends Component {
   };
 
   /**
-   * 保存
+   * 更新按钮数据
    */
-  onSave = () => {
-    const { data, saveRequest } = this.state;
-    const { name, pushType, openMode, selectNodeId, viewId, content, appId } = data;
+  updateButtonSource(obj, index, callback = () => {}) {
+    const { data } = this.state;
+    const buttons = data.buttons;
 
+    buttons[index] = Object.assign({}, buttons[index], obj);
+    this.updateSource(buttons, callback);
+  }
+
+  /**
+   * 检查是否报错
+   */
+  checkHasError({ pushType, content, appId, selectNodeId, title, viewId }) {
     if (_.includes([PUSH_TYPE.ALERT, PUSH_TYPE.LINK], pushType) && !content.trim()) {
       alert(pushType === PUSH_TYPE.ALERT ? _l('提示内容不允许为空') : _l('链接不允许为空'), 2);
-      return;
+      return true;
     }
 
     if (_.includes([PUSH_TYPE.CREATE, PUSH_TYPE.VIEW, PUSH_TYPE.PAGE], pushType) && !appId) {
       alert(pushType === PUSH_TYPE.PAGE ? _l('自定义页面不允许为空') : _l('工作表不允许为空'), 2);
-      return;
+      return true;
+    }
+
+    if (pushType === PUSH_TYPE.VIEW && !viewId) {
+      alert(_l('视图不允许为空'), 2);
+      return true;
     }
 
     if (pushType === PUSH_TYPE.DETAIL && !selectNodeId) {
       alert(_l('记录不允许为空'), 2);
+      return true;
+    }
+
+    if (pushType === PUSH_TYPE.NOTIFICATION && !title.trim()) {
+      alert(_l('标题不允许为空'), 2);
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * 保存
+   */
+  onSave = () => {
+    const { data, saveRequest } = this.state;
+    const {
+      name,
+      promptType,
+      pushType,
+      openMode,
+      selectNodeId,
+      viewId,
+      content,
+      appId,
+      duration,
+      title,
+      buttons,
+    } = data;
+
+    let hasError = false;
+
+    (buttons || []).forEach(button => {
+      if (this.checkHasError(button)) {
+        hasError = true;
+      }
+    });
+
+    if (this.checkHasError(data) || hasError) {
       return;
     }
 
@@ -101,12 +210,16 @@ export default class Push extends Component {
         nodeId: this.props.selectNodeId,
         flowNodeType: this.props.selectNodeType,
         name: name.trim(),
+        promptType,
         pushType,
         openMode,
         appId,
         selectNodeId,
         viewId,
         content,
+        duration,
+        title,
+        buttons,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -134,231 +247,321 @@ export default class Push extends Component {
   }
 
   /**
-   * 获取应用详情
+   * 渲染空内容
    */
-  getAppDetail(appId) {
-    homeApp.getAppDetail({ appId }).then(result => {
-      this.setState({ otherAppName: result.name });
-    });
-  }
-
-  /**
-   * 获取工作表详情
-   */
-  getWorksheetInfo(worksheetId) {
-    const { relationId } = this.props;
-    const { data, otherAppName } = this.state;
-    let ajax;
-
-    if (data.pushType === PUSH_TYPE.PAGE) {
-      ajax = homeApp.getPageInfo({ id: worksheetId });
-    } else {
-      ajax = worksheet.getWorksheetInfo({ worksheetId, getViews: true });
-    }
-
-    ajax.then(data => {
-      if (data.resultCode === 1) {
-        this.setState({ worksheetInfo: data });
-        if (data.appId !== relationId && otherAppName === '') {
-          this.getAppDetail(data.appId);
-        }
-      } else {
-        this.setState({ worksheetInfo: {} });
-      }
-    });
-  }
-
-  /**
-   * 渲染文本内容
-   */
-  renderTextContent() {
-    const { data } = this.state;
-    const isAlert = data.pushType === PUSH_TYPE.ALERT;
-
-    return (
-      <Fragment>
-        <div className="Font13 bold mTop20">
-          {isAlert ? _l('提示内容') : _l('链接')}
-          <span className="mLeft5 red">*</span>
-        </div>
-        <CustomTextarea
-          className="minH100"
-          processId={this.props.processId}
-          selectNodeId={this.props.selectNodeId}
-          type={2}
-          content={data.content}
-          formulaMap={data.formulaMap}
-          onChange={(err, value, obj) => this.updateSource({ content: value })}
-          updateSource={this.updateSource}
-        />
-      </Fragment>
-    );
-  }
-
-  /**
-   * 渲染选择表
-   */
-  renderSelectSheet() {
-    const { data, currentAppList, worksheetInfo, otherAppName } = this.state;
-    const isCustomPage = data.pushType === PUSH_TYPE.PAGE;
-    const otherWorksheet = [
+  renderNullContent() {
+    const noticeList = [
+      { text: _l('弹出提示'), value: PUSH_TYPE.ALERT, desc: _l('在顶部显示并自动消失。用于一句话的简短提示') },
       {
-        text: isCustomPage ? _l('其它应用下的自定义页面') : _l('其它应用下的工作表'),
-        value: 'other',
-        className: 'Gray_75',
+        text: _l('卡片通知'),
+        value: PUSH_TYPE.NOTIFICATION,
+        desc: _l('在底部显示并可设为不自动消失。可包含标题、描述、按钮，适合较多文字或带有操作的通知'),
       },
     ];
 
     return (
       <Fragment>
-        <div className="Font13 bold mTop20">
-          {isCustomPage ? _l('自定义页面') : _l('工作表')}
-          <span className="mLeft5 red">*</span>
-        </div>
-        <Dropdown
-          className={cx('flowDropdown mTop10', {
-            'errorBorder errorBG': data.appId && worksheetInfo !== null && _.isEmpty(worksheetInfo),
+        <div className="Font13 bold">{_l('通知')}</div>
+        <ul className="typeList mTop10">
+          {noticeList.map((item, i) => {
+            return (
+              <li key={i} onClick={() => this.updateSource({ pushType: item.value })}>
+                <Radio className="Font16" text={item.text} />
+                <div className="Gray_75 Font13 mLeft30 mTop5">{item.desc}</div>
+              </li>
+            );
           })}
-          data={[currentAppList.filter(item => item.type === (isCustomPage ? 1 : 0)), otherWorksheet]}
-          value={data.appId}
-          renderTitle={
-            !data.appId || worksheetInfo === null
-              ? () => <span className="Gray_9e">{_l('请选择')}</span>
-              : data.appId && _.isEmpty(worksheetInfo)
-              ? () => (
-                  <span className="errorColor">
-                    {isCustomPage ? _l('自定义页面无效或已删除') : _l('工作表无效或已删除')}
-                  </span>
-                )
-              : () => (
-                  <Fragment>
-                    <span>{worksheetInfo.name}</span>
-                    {otherAppName && <span className="Gray_9e">（{otherAppName}）</span>}
-                  </Fragment>
-                )
-          }
-          border
-          openSearch
-          onChange={appId => {
-            if (appId === 'other') {
-              this.setState({ showOtherWorksheet: true });
-            } else {
-              this.switchWorksheet(appId);
-            }
-          }}
+        </ul>
+
+        <div className="Font13 bold mTop20">{_l('事件')}</div>
+        <ul className="typeList">
+          {PUSH_LIST.filter(o => !_.includes([PUSH_TYPE.ALERT, PUSH_TYPE.NOTIFICATION], o.value)).map((item, i) => {
+            return (
+              <li
+                key={i}
+                className="pTop4 pBottom4"
+                onClick={() => this.updateSource({ pushType: item.value, openMode: 2 })}
+              >
+                <Radio className="Font16" text={item.text} />
+              </li>
+            );
+          })}
+        </ul>
+      </Fragment>
+    );
+  }
+
+  /**
+   * 渲染内容
+   */
+  renderContent() {
+    const { flowInfo } = this.props;
+    const { data, currentAppList } = this.state;
+
+    return (
+      <Fragment>
+        <div className="Font14 Gray_75 workflowDetailDesc">
+          {flowInfo.startAppType === APP_TYPE.PBC &&
+            !flowInfo.child &&
+            _l('仅通过自定义页面上的按钮调用的PBP支持界面推送功能（通过API和工作流调用时此节点无法生效）。')}
+          {data.pushType === PUSH_TYPE.ALERT
+            ? _l('在顶部显示并自动消失。用于一句话的简短提示')
+            : data.pushType === PUSH_TYPE.NOTIFICATION
+            ? _l('在底部显示并可设为不自动消失。可包含标题、描述、按钮，适合较多文字或带有操作的通知')
+            : _l(
+                '触发按钮后，直接推送指定内容给按钮操作者。不能是一个延时反馈（该节点与触发器之间不能有延时、人工和子流程节点）如果流程执行中触发了多个界面推送节点，只生效第一个',
+              )}
+        </div>
+
+        <div className="Font13 bold mTop20">{_l('推送内容')}</div>
+        {this.renderEventList(data.pushType)}
+
+        {data.pushType === PUSH_TYPE.ALERT && (
+          <Fragment>
+            {this.renderMessageType()}
+            <div className="Font13 bold mTop20">
+              {_l('描述')}
+              <span className="mLeft5 red">*</span>
+            </div>
+            {this.renderTextContent()}
+            {this.renderDurationContent()}
+          </Fragment>
+        )}
+
+        {data.pushType === PUSH_TYPE.NOTIFICATION && (
+          <Fragment>
+            {this.renderMessageType()}
+            <div className="Font13 bold mTop20">
+              {_l('标题')}
+              <span className="mLeft5 red">*</span>
+            </div>
+            {this.renderTextContent('title')}
+
+            <div className="Font13 bold mTop20">{_l('描述')}</div>
+            {this.renderTextContent()}
+
+            {this.renderDurationContent()}
+
+            <div className="Font13 bold mTop20">{_l('卡片按钮')}</div>
+
+            {(data.buttons || []).map((button, index) => {
+              return (
+                <BtnContent>
+                  <div className="workflowMessageTitle">{_l('按钮%0', index + 1)}</div>
+                  <i
+                    className="icon-delete2 workflowMessageDelete"
+                    onClick={() => {
+                      this.updateSource({ buttons: data.buttons.filter((o, i) => i !== index) });
+                    }}
+                  />
+
+                  <div>{_l('名称')}</div>
+                  <div className="mTop10 flexRow">
+                    <input
+                      type="text"
+                      className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                      value={button.name}
+                      onChange={evt => this.updateButtonSource({ name: evt.target.value }, index)}
+                      onBlur={evt => this.updateButtonSource({ name: evt.target.value.trim() || _l('按钮') }, index)}
+                    />
+                  </div>
+
+                  <div className="mTop20">{_l('事件')}</div>
+                  {this.renderEventList(button.pushType, index)}
+
+                  <OpenActionContent
+                    {...this.props}
+                    data={button}
+                    currentAppList={currentAppList}
+                    flowNodeList={data.flowNodeList}
+                    formulaMap={data.formulaMap}
+                    switchWorksheet={obj => this.switchWorksheet(obj, index)}
+                    updateSource={(obj, callback) => this.updateButtonSource(obj, index, callback)}
+                    updateRootSource={this.updateSource}
+                  />
+                </BtnContent>
+              );
+            })}
+
+            {(data.buttons || []).length < 2 && (
+              <div className="addActionBtn mTop25">
+                <span
+                  className="ThemeBorderColor3"
+                  onClick={() =>
+                    this.updateSource({
+                      buttons: (data.buttons || []).concat({
+                        name: _l('按钮'),
+                        pushType: 3,
+                        openMode: 2,
+                        appId: '',
+                        selectNodeId: '',
+                        viewId: '',
+                        content: '',
+                      }),
+                    })
+                  }
+                >
+                  <i className="icon-add Font16" />
+                  {_l('添加按钮')}
+                </span>
+              </div>
+            )}
+          </Fragment>
+        )}
+
+        <OpenActionContent
+          {...this.props}
+          data={data}
+          currentAppList={currentAppList}
+          flowNodeList={data.flowNodeList}
+          formulaMap={data.formulaMap}
+          switchWorksheet={this.switchWorksheet}
+          updateSource={this.updateSource}
+          updateRootSource={this.updateSource}
         />
       </Fragment>
     );
   }
 
   /**
-   * 渲染视图
+   * 渲染事件列表
    */
-  renderView() {
-    const { data, worksheetInfo } = this.state;
+  renderEventList(pushType, buttonIndex) {
+    const pushList = _.cloneDeep(PUSH_LIST);
 
-    if (!worksheetInfo || _.isEmpty(worksheetInfo) || worksheetInfo.worksheetId !== data.appId) {
-      return null;
+    if (buttonIndex !== undefined) {
+      _.remove(pushList, o => _.includes([1, 7], o.value));
     }
 
-    const views = worksheetInfo.views.map(o => ({
-      text: o.name,
-      value: o.viewId,
-      className: data.viewId === o.viewId ? 'ThemeColor3' : '',
-    }));
-    const selectView = _.find(views, o => o.value === data.viewId);
-
-    return (
-      <Fragment>
-        <div className="Font13 bold mTop20">{_l('视图')}</div>
-        <div className="Font13 Gray_9e mTop5">
-          {_l('按照所选视图配置的显示字段发送，如果操作者被分发了此视图，可以直接按权限编辑记录、执行自定义动作')}
-        </div>
-        <Dropdown
-          className={cx('flowDropdown mTop10', {
-            'errorBorder errorBG': data.viewId && !selectView,
-          })}
-          data={views}
-          value={data.viewId}
-          renderTitle={
-            !data.viewId
-              ? () => <span className="Gray_9e">{_l('请选择')}</span>
-              : data.viewId && !selectView
-              ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
-              : () => <span>{selectView.text}</span>
-          }
-          border
-          onChange={viewId => this.updateSource({ viewId })}
-        />
-      </Fragment>
-    );
-  }
-
-  /**
-   * 渲染打开详情页面
-   */
-  renderOpenDetail() {
-    const { data } = this.state;
-
-    return (
-      <Fragment>
-        <div className="Font13 bold mTop20">
-          {_l('记录')}
-          <span className="mLeft5 red">*</span>
-        </div>
-        <SelectNodeObject
-          smallBorder={true}
-          appList={data.appList}
-          selectNodeId={data.selectNodeId}
-          selectNodeObj={data.selectNodeObj}
-          onChange={selectNodeId => {
-            const selectNodeObj = _.find(data.appList, item => item.nodeId === selectNodeId);
-            this.updateSource({ selectNodeId, selectNodeObj }, () => this.switchWorksheet(selectNodeObj.appId));
-          }}
-        />
-      </Fragment>
-    );
-  }
-
-  /**
-   * 渲染打开方式
-   */
-  renderOpenType() {
-    const { data } = this.state;
-    const type = [
-      { text: _l('刷新当前页面'), value: 1 },
-      { text: _l('弹层'), value: 3 },
-      { text: _l('打开新页面'), value: 2 },
-      { text: _l('推送模态窗口'), value: 4 },
-    ];
-    const isRemove = value => {
-      switch (data.pushType) {
-        case PUSH_TYPE.DETAIL:
-          return _.includes([1, 4], value);
-        case PUSH_TYPE.VIEW:
-        case PUSH_TYPE.PAGE:
-          return _.includes([3, 4], value);
-        case PUSH_TYPE.LINK:
-          return _.includes([3], value);
+    pushList.forEach(item => {
+      if (item.value === pushType) {
+        item.className = 'ThemeColor3';
       }
-    };
+    });
 
-    _.remove(type, item => isRemove(item.value));
+    return (
+      <Dropdown
+        className="flowDropdown mTop10"
+        data={pushList}
+        value={pushType}
+        border
+        onChange={pushType => {
+          const obj = { pushType, openMode: 2, appId: '', content: '', viewId: '', selectNodeId: '' };
+
+          if (buttonIndex === undefined) {
+            this.updateSource(Object.assign(obj, { promptType: 1, buttons: [] }));
+          } else {
+            this.updateButtonSource(obj, buttonIndex);
+          }
+        }}
+      />
+    );
+  }
+
+  /**
+   * 渲染提示类型
+   */
+  renderMessageType() {
+    const { data } = this.state;
+    const list = [
+      { text: _l('成功'), value: 1, color: '#4CAF50', icon: 'icon-plus-interest' },
+      { text: _l('失败'), value: 2, color: '#F44336', icon: 'icon-delete_out' },
+      { text: _l('警告'), value: 3, color: '#FFBA00', icon: 'icon-error1' },
+      { text: _l('通知'), value: 4, color: '#2196F3', icon: 'icon-info' },
+    ];
 
     return (
       <Fragment>
-        <div className="Font13 bold mTop20">{_l('打开方式')}</div>
-        {type.map(item => {
-          return (
-            <div className="mTop15" key={item.value}>
-              <Radio
-                text={item.text}
-                checked={item.value === data.openMode}
-                onClick={() => this.updateSource({ openMode: item.value })}
+        <div className="Font13 bold mTop20">{_l('提示类型')}</div>
+        <div className="flexRow mTop15">
+          {list.map(item => {
+            return (
+              <MsgTypeBtn
+                key={item.value}
+                className={cx({ active: data.promptType === item.value })}
+                onClick={() => this.updateSource({ promptType: item.value })}
+              >
+                <i className={item.icon} style={{ color: item.color }} />
+                {item.text}
+              </MsgTypeBtn>
+            );
+          })}
+        </div>
+      </Fragment>
+    );
+  }
+
+  /**
+   * 渲染文本内容
+   */
+  renderTextContent(key = 'content') {
+    const { data } = this.state;
+    const height = key === 'title' ? { height: 0 } : {};
+
+    return (
+      <CustomTextarea
+        className={cx({ minH100: key !== 'title' })}
+        processId={this.props.processId}
+        selectNodeId={this.props.selectNodeId}
+        type={2}
+        {...height}
+        content={data[key]}
+        formulaMap={data.formulaMap}
+        onChange={(err, value, obj) => this.updateSource({ [key]: value })}
+        updateSource={this.updateSource}
+      />
+    );
+  }
+
+  /**
+   * 渲染消失时间
+   */
+  renderDurationContent() {
+    const { data } = this.state;
+    const list = [{ text: _l('指定时间后'), value: 1 }, { text: _l('永不，需要手动关闭'), value: 2 }];
+
+    return (
+      <Fragment>
+        <div className="Font13 bold mTop20">{_l('自动消失')}</div>
+
+        {data.pushType === PUSH_TYPE.NOTIFICATION && (
+          <div className="flexRow mTop10">
+            {list.map(item => {
+              return (
+                <Radio
+                  key={item.value}
+                  className={cx({ mLeft50: item.value === 2 })}
+                  checked={(data.duration > 0 && item.value === 1) || (data.duration === 0 && item.value === 2)}
+                  text={item.text}
+                  onClick={() => {
+                    if (item.value === 2) {
+                      this.updateSource({ duration: 0 });
+                    } else if (item.value === 1 && data.duration === 0) {
+                      this.updateSource({ duration: 5 });
+                    }
+                  }}
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {data.duration !== 0 && (
+          <div className="flexRow mTop10 alignItemsCenter">
+            <div className="flex">
+              <SpecificFieldsValue
+                updateSource={({ fieldValue }) => this.updateSource({ duration: fieldValue })}
+                type="number"
+                min={1}
+                max={10}
+                allowedEmpty
+                hasOtherField={false}
+                data={{ fieldValue: data.duration }}
               />
             </div>
-          );
-        })}
+            <div className="mLeft10">{_l('秒')}</div>
+          </div>
+        )}
       </Fragment>
     );
   }
@@ -366,25 +569,20 @@ export default class Push extends Component {
   /**
    * 切换工作表
    */
-  switchWorksheet = (appId, name, otherApkId = '', otherApkName = '') => {
-    this.setState({ otherAppName: otherApkId ? otherApkName : null });
-    this.updateSource({ appId, viewId: '' }, () => this.getWorksheetInfo(appId));
+  switchWorksheet = (appId, index) => {
+    if (index === undefined) {
+      this.updateSource({ appId, viewId: '' });
+    } else {
+      this.updateButtonSource({ appId, viewId: '' }, index);
+    }
   };
 
   render() {
-    const { flowInfo } = this.props;
-    const { data, showOtherWorksheet, currentAppList } = this.state;
+    const { data } = this.state;
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
     }
-
-    const pushList = _.cloneDeep(PUSH_LIST);
-    pushList.forEach(item => {
-      if (item.value === data.pushType) {
-        item.className = 'ThemeColor3';
-      }
-    });
 
     return (
       <Fragment>
@@ -397,44 +595,7 @@ export default class Push extends Component {
         />
         <div className="flex mTop20">
           <ScrollView>
-            <div className="workflowDetailBox">
-              <div className="Font14 Gray_75 workflowDetailDesc">
-                {flowInfo.startAppType === APP_TYPE.PBC &&
-                  !flowInfo.child &&
-                  _l('仅通过自定义页面上的按钮调用的PBP支持界面推送功能（通过API和工作流调用时此节点无法生效）。')}
-                {_l(
-                  '触发按钮后，直接推送指定内容给按钮操作者。不能是一个延时反馈（该节点与触发器之间不能有延时、人工和子流程节点）如果流程执行中触发了多个界面推送节点，只生效第一个',
-                )}
-              </div>
-              <div className="Font13 bold mTop20">{_l('推送内容')}</div>
-              <Dropdown
-                className="flowDropdown mTop10"
-                data={pushList}
-                value={data.pushType}
-                border
-                onChange={pushType => {
-                  this.setState({ worksheetInfo: null });
-                  this.updateSource({ pushType, openMode: 2, appId: '', content: '', viewId: '' });
-                  if (
-                    (pushType === PUSH_TYPE.CREATE || pushType === PUSH_TYPE.VIEW || pushType === PUSH_TYPE.PAGE) &&
-                    !currentAppList.length
-                  ) {
-                    this.getWorksheetsByAppId();
-                  }
-                }}
-              />
-
-              {_.includes([PUSH_TYPE.ALERT, PUSH_TYPE.LINK], data.pushType) && this.renderTextContent()}
-
-              {_.includes([PUSH_TYPE.CREATE, PUSH_TYPE.VIEW, PUSH_TYPE.PAGE], data.pushType) &&
-                this.renderSelectSheet()}
-
-              {data.pushType === PUSH_TYPE.DETAIL && this.renderOpenDetail()}
-
-              {_.includes([PUSH_TYPE.VIEW, PUSH_TYPE.DETAIL], data.pushType) && this.renderView()}
-
-              {!_.includes([PUSH_TYPE.ALERT, PUSH_TYPE.CREATE], data.pushType) && this.renderOpenType()}
-            </div>
+            <div className="workflowDetailBox">{data.pushType ? this.renderContent() : this.renderNullContent()}</div>
           </ScrollView>
         </div>
         <DetailFooter
@@ -442,30 +603,11 @@ export default class Push extends Component {
           isCorrect={
             (_.includes([PUSH_TYPE.ALERT, PUSH_TYPE.LINK], data.pushType) && data.content.trim()) ||
             (_.includes([PUSH_TYPE.CREATE, PUSH_TYPE.VIEW, PUSH_TYPE.PAGE], data.pushType) && data.appId) ||
-            (data.pushType === PUSH_TYPE.DETAIL && data.selectNodeId)
+            (data.pushType === PUSH_TYPE.DETAIL && data.selectNodeId) ||
+            (data.pushType === PUSH_TYPE.NOTIFICATION && (data.title || '').trim())
           }
           onSave={this.onSave}
         />
-
-        {showOtherWorksheet && (
-          <SelectOtherWorksheetDialog
-            projectId={this.props.companyId}
-            worksheetType={data.pushType === PUSH_TYPE.PAGE ? 1 : 0}
-            selectedAppId={this.props.relationId}
-            selectedWrorkesheetId={data.appId}
-            visible
-            onOk={(selectedAppId, selectedWrorkesheetId, obj) => {
-              const isCurrentApp = this.props.relationId === selectedAppId;
-              this.switchWorksheet(
-                selectedWrorkesheetId,
-                obj.workSheetName,
-                !isCurrentApp && selectedAppId,
-                !isCurrentApp && obj.appName,
-              );
-            }}
-            onHide={() => this.setState({ showOtherWorksheet: false })}
-          />
-        )}
       </Fragment>
     );
   }

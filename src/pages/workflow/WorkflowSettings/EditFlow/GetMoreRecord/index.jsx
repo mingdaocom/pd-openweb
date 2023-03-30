@@ -67,7 +67,7 @@ export default class GetMoreRecord extends Component {
   }
 
   render() {
-    const { processId, item, disabled, selectNodeId, openDetail } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail, approvalSelectNodeId } = this.props;
 
     return (
       <div className="flexColumn">
@@ -79,7 +79,7 @@ export default class GetMoreRecord extends Component {
               { errorShadow: (item.appId || item.selectNodeId) && item.isException },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId, approvalSelectNodeId)}
           >
             <div className="workflowAvatars flexRow">
               <i

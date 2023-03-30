@@ -30,26 +30,29 @@ export default function customNotice() {
         }
         if (href.indexOf('excelerrorpage') > -1) {
           const id = href.slice(href.indexOf('excelbatcherrorpage') + 15).split('/');
-          new ErrorDialog({ fileKey: id[1], isBatch: true});
+          new ErrorDialog({ fileKey: id[1], isBatch: true });
         }
 
-        if (href.indexOf('backup') > -1) {
+        if (href.indexOf('backup') > -1 || href.indexOf('restore') > -1) {
           const currentAppId = location.href.slice(
             location.href.indexOf('/app/') + 5,
             location.href.indexOf('/app/') + 41,
           );
           const appId = href.slice(href.indexOf('/app/') + 5, href.indexOf('/app/') + 41);
 
-          if (currentAppId === appId) {
-            navigateTo(`${location.pathname}?backup`);
+          if (href.indexOf('backup') > -1) {
+            if (currentAppId === appId) {
+              navigateTo(`${location.pathname}?backup`);
+            } else {
+              navigateTo(`/app/${appId}/?backup`);
+            }
           } else {
-            navigateTo(`/app/${appId}/?backup`);
+            if (currentAppId === appId) {
+              location.href = `/app/${appId}`;
+            } else {
+              navigateTo(`/app/${appId}`);
+            }
           }
-        }
-
-        if (href.indexOf('restore') > -1) {
-          const url = location.href.slice(0, location.href.indexOf('/app/') + 41);
-          location.assign(url);
         }
       }
     });

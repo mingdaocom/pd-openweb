@@ -654,6 +654,8 @@ export default class RelateRecordDropdown extends React.Component {
             }}
             recordId={previewRecord.recordId}
             worksheetId={dataSource}
+            currentSheetRows={selected}
+            showPrevNext
             updateRows={(rowIds = [], updatedRow = {}) => {
               if (rowIds[0]) {
                 this.setState({

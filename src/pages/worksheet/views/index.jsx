@@ -79,12 +79,17 @@ function View(props) {
     'openNewRecord',
     'setViewConfigVisible',
     'groupFilterWidth',
+    'sheetSwitchPermit',
   ]);
 
   if (_.isEmpty(view) && !props.chartId && !_.get(window, 'shareState.isPublicView')) {
     // 图表引用视图允许不存在 viewId
     if (window.redirected && viewProps.appId && viewProps.groupId && viewProps.worksheetId) {
-      navigateTo(`/app/${viewProps.appId}/${viewProps.groupId}/${viewProps.worksheetId}`, true);
+      if (/^\/app\/[0-9a-z-]{36}(\/[0-9a-z-]{24}){2}$/.test(location.pathname)) {
+        navigateTo(`/app/${viewProps.appId}/`, true);
+      } else {
+        navigateTo(`/app/${viewProps.appId}/${viewProps.groupId}/${viewProps.worksheetId}`, true);
+      }
     }
     activeViewStatus = -10000;
   }

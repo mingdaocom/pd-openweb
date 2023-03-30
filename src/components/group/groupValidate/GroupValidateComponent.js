@@ -84,7 +84,7 @@ export default class GroupValidate extends React.Component {
             result: Object.assign(this.state.result, { isMember: true }),
           });
         } else if (result.isApply) {
-          alert(_l('已经申请加入该群组，请等待群组管理员的审批'));
+          alert(_l('已经申请加入该群组，请等待群组管理员的审批'), 4);
         }
         if (result.isApply) {
           this.setState({

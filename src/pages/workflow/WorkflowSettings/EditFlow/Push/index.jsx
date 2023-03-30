@@ -18,6 +18,15 @@ export default class Push extends Component {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
     }
 
+    if (item.pushType && item.isException) {
+      return (
+        <div className="pLeft8 pRight8 red">
+          <i className="icon-workflow_info Font18 mRight5" />
+          {_l('节点配置有误')}
+        </div>
+      );
+    }
+
     return (
       <Fragment>
         <div className="pLeft8 pRight8 ellipsis">{PUSH_LIST.find(o => o.value === item.pushType).text}</div>
@@ -36,7 +45,7 @@ export default class Push extends Component {
               'workflowItem',
               { workflowItemDisabled: disabled },
               { active: selectNodeId === item.id },
-              { errorShadow: item.selectNodeId && item.isException },
+              { errorShadow: item.pushType && item.isException },
             )}
             onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >

@@ -6,8 +6,8 @@ import htmlTpl from './tpl/createRoot.html';
 import addMemberTpl from './tpl/addMember.html';
 import { index as mdDialog } from 'src/components/mdDialog/dialog';
 import { expireDialogAsync, existAccountHint } from 'src/components/common/function';
-import 'src/components/quickSelectUser/quickSelectUser';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import quickSelectUser from 'ming-ui/functions/quickSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import 'src/components/mdBusinessCard/mdBusinessCard';
 import kcAjax from 'src/api/kc';
 import _ from 'lodash';
@@ -48,7 +48,7 @@ function RootSettings(settings) {
   this.init();
 }
 $.extend(RootSettings.prototype, {
-  init: function() {
+  init: function () {
     var _this = this,
       rootSettingsDf = _this.settings.deferred,
       isEdit = _this.settings.isEdit,
@@ -66,14 +66,14 @@ $.extend(RootSettings.prototype, {
         permission: 1,
       });
     }
-    rootPromise.then(function(root) {
+    rootPromise.then(function (root) {
       if (!root) {
         alert('共享文件夹不存在或已被删除', 3);
         return rootSettingsDf.reject();
       }
 
       // 成员排序 ：  待审核、拥有者、管理员、可编辑、只读
-      root.members.sort(function(a, b) {
+      root.members.sort(function (a, b) {
         return a.permission - b.permission;
       });
       // 把待审核提前
@@ -100,7 +100,7 @@ $.extend(RootSettings.prototype, {
           };
         } else if (window.localStorage.getItem('createRoot.projectId')) {
           var usedProjectId = window.localStorage.getItem('createRoot.projectId');
-          var usedProject = md.global.Account.projects.filter(function(project) {
+          var usedProject = md.global.Account.projects.filter(function (project) {
             return project.projectId === usedProjectId && project.licenseType !== 0;
           });
           if (usedProject && usedProject.length) {
@@ -117,7 +117,7 @@ $.extend(RootSettings.prototype, {
           content: doT.template(htmlTpl)($.extend({}, root, defaultProject ? { project: defaultProject } : null)),
           yesText: isEdit ? '' : _l('创建'),
           noText: isEdit ? '' : _l('取消'),
-          yesFn: function() {
+          yesFn: function () {
             var $createFolderBox = $('#createFolderBox'),
               $txtFolderName = $createFolderBox.find('.txtFolderName'),
               name = $txtFolderName.val().trim();
@@ -131,7 +131,7 @@ $.extend(RootSettings.prototype, {
               $createFolderBox
                 .find('.folderMemberBox .memberItem')
                 .toArray()
-                .forEach(function(el) {
+                .forEach(function (el) {
                   var $el = $(el);
                   var accountId = $el.data('accountId');
                   if (accountId) {
@@ -161,7 +161,7 @@ $.extend(RootSettings.prototype, {
                   invitedMembers: inviteMembers,
                   appId: _this.settings.appId,
                 })
-                .then(function(res) {
+                .then(function (res) {
                   if (res) {
                     if (projectId) {
                       safeLocalStorageSetItem('createRoot.projectId', projectId);
@@ -175,7 +175,7 @@ $.extend(RootSettings.prototype, {
             }
           },
         },
-        readyFn: function() {
+        readyFn: function () {
           var $createFolderBox = $('#createFolderBox'),
             $folderMemberBox = $createFolderBox.find('.folderMembers .folderMemberBox'),
             $updatePermission = $('#updatePermission'),
@@ -203,10 +203,7 @@ $.extend(RootSettings.prototype, {
               });
           }
           if (isEdit) {
-            $folderMemberBox
-              .css('margin-bottom', '46px')
-              .find('.permissionDesc')
-              .css('margin-top', '14px');
+            $folderMemberBox.css('margin-bottom', '46px').find('.permissionDesc').css('margin-top', '14px');
             $createFolderBox
               .find('.attribute .dropBox')
               .css('border', 0)
@@ -223,7 +220,7 @@ $.extend(RootSettings.prototype, {
           $folderMemberBox.find('.permissionDesc').show();
           $createFolderBox
             .find('.txtFolderName')
-            .on('keydown', function(evt) {
+            .on('keydown', function (evt) {
               if (evt.which === 13) {
                 $createFolderBox.find('.footer .yesText').click();
               }
@@ -233,7 +230,7 @@ $.extend(RootSettings.prototype, {
           if (myPermis === PERMISSION_TYPE.READONLY) {
             $folderMemberBox.find('.addUser').hide();
           }
-          $('body').on('click', function() {
+          $('body').on('click', function () {
             $updatePermission.fadeOut();
             $('#checkInviter').fadeOut();
             $('#folderAttributeList').fadeOut();
@@ -242,7 +239,7 @@ $.extend(RootSettings.prototype, {
       });
     });
   },
-  bindInitEvent: function(root) {
+  bindInitEvent: function (root) {
     var _this = this,
       isEdit = _this.settings.isEdit,
       rootId = _this.settings.id;
@@ -255,36 +252,36 @@ $.extend(RootSettings.prototype, {
     $folderMemberBox
       .find('.addMember')
       .off()
-      .on('click', 'span.addFriends', function() {
+      .on('click', 'span.addFriends', function () {
         var $this = $(this);
         var selectProjectId = isEdit
           ? root.project && root.project.projectId
           : $createFolderBox.find('.attribute .dropBox .seleted').data('projectId');
-        $this.quickSelectUser({
+        quickSelectUser($this[0], {
           //title: _l('请选择同事'),
           sourceId: isEdit ? rootId : '',
           fromType: 'KC',
           showMoreInvite: true,
           projectId: (root.project && root.project.projectId) || '',
           zIndex: 10001,
-          selectCb: function(users) {
+          selectCb: function (users) {
             _this.addRootMemers(users, root);
           },
           SelectUserSettings: {
             projectId: selectProjectId || '',
             filterAccountIds: root.members
-              .filter(function(m) {
+              .filter(function (m) {
                 return m.accountId;
               })
-              .map(function(member) {
+              .map(function (member) {
                 return member.accountId || '';
               }),
-            callback: function(users) {
+            callback: function (users) {
               _this.addRootMemers(users, root);
             },
           },
           ChooseInviteSettings: {
-            callback: function(users, callbackInviteResult) {
+            callback: function (users, callbackInviteResult) {
               _this.addRootMemers(users, root, true, callbackInviteResult);
             },
           },
@@ -294,7 +291,7 @@ $.extend(RootSettings.prototype, {
     // 更改权限的事件绑定
     $createFolderBox.find('.folderMemberBox  ul').on(
       {
-        click: function(event) {
+        click: function (event) {
           event.stopPropagation();
 
           if (root.permission !== PERMISSION_TYPE.ADMIN && root.permission !== PERMISSION_TYPE.OWNER) {
@@ -354,14 +351,14 @@ $.extend(RootSettings.prototype, {
               .show();
           }
         },
-        mouseover: function() {
+        mouseover: function () {
           var $this = $(this),
             isApproved = $this.find('i.icon-approved').length;
           if (root.permission == PERMISSION_TYPE.ADMIN || (root.permission == PERMISSION_TYPE.OWNER && !isApproved)) {
             $this.addClass('ThemeColor3');
           }
         },
-        mouseout: function() {
+        mouseout: function () {
           $(this).removeClass('ThemeColor3');
         },
       },
@@ -373,19 +370,15 @@ $.extend(RootSettings.prototype, {
       .off()
       .on(
         {
-          mouseover: function() {
-            if (
-              !$(this)
-                .find('.itemText')
-                .hasClass('ThemeColor3')
-            ) {
+          mouseover: function () {
+            if (!$(this).find('.itemText').hasClass('ThemeColor3')) {
               $(this).addClass('ThemeBGColor3');
             }
           },
-          mouseout: function() {
+          mouseout: function () {
             $(this).removeClass('ThemeBGColor3');
           },
-          click: function() {
+          click: function () {
             var $this = $(this);
             var changePermision = parseInt($this.data('value'));
             var accountId = $this.closest('ul').data('accountId');
@@ -415,7 +408,7 @@ $.extend(RootSettings.prototype, {
                   memberId: accountId,
                   permission: changePermision,
                 })
-                .then(function(result) {
+                .then(function (result) {
                   if (!result) {
                     return $.Deferred().reject();
                   }
@@ -444,7 +437,7 @@ $.extend(RootSettings.prototype, {
                     _this.settings.dialog.closeDialog();
                   }
                 })
-                .fail(function() {
+                .fail(function () {
                   alert('操作失败，请稍后重试!', 3);
                 });
             }
@@ -454,7 +447,7 @@ $.extend(RootSettings.prototype, {
       )
       .on(
         {
-          click: function(evt) {
+          click: function (evt) {
             evt.stopPropagation();
           },
         },
@@ -462,7 +455,7 @@ $.extend(RootSettings.prototype, {
       );
 
     //审批邀请账户
-    $checkInviter.find('li').on('click', function() {
+    $checkInviter.find('li').on('click', function () {
       var $this = $(this);
       var memberId = $this.closest('#checkInviter').data('accountId');
       var $checkMemberLi = $folderMemberBox.find('li.memberItem[data-account-id="' + memberId + '"]');
@@ -473,7 +466,7 @@ $.extend(RootSettings.prototype, {
             memberId: memberId,
             memberStatus: MEMBER_STATUS.NORMAL,
           })
-          .then(function(result) {
+          .then(function (result) {
             if (!result) {
               return $.Deferred().reject();
             }
@@ -492,7 +485,7 @@ $.extend(RootSettings.prototype, {
               .find('i')
               .data('memberStatus', MEMBER_STATUS.NORMAL);
           })
-          .fail(function() {
+          .fail(function () {
             alert('操作失败，请稍后重试!', 3);
           });
       } else {
@@ -501,16 +494,16 @@ $.extend(RootSettings.prototype, {
           container: {
             header: _l('操作提示'),
             content: '<div class="Font14">拒绝后将移除该用户</div>',
-            yesFn: function() {
+            yesFn: function () {
               kcAjax
                 .removeRootMember({ id: rootId, memberId: memberId })
-                .then(function(data) {
+                .then(function (data) {
                   if (data && data.result) {
-                    $checkMemberLi.slideUp(function() {
+                    $checkMemberLi.slideUp(function () {
                       $(this).remove();
                       _this.nanoScroller();
                     });
-                    var newMembers = root.members.filter(function(m) {
+                    var newMembers = root.members.filter(function (m) {
                       return m.accountId !== memberId.toLowerCase();
                     });
                     _this.settings.deferred.notify(
@@ -522,11 +515,11 @@ $.extend(RootSettings.prototype, {
                     return $.Deferred().reject(data.message);
                   }
                 })
-                .fail(function(err) {
+                .fail(function (err) {
                   alert(err || _l('操作失败, 请稍后重试'), 3);
                 });
             },
-            noFn: function() {},
+            noFn: function () {},
           },
         });
       }
@@ -534,13 +527,13 @@ $.extend(RootSettings.prototype, {
 
     //标星
     $createFolderBox
-      .on('click', '.addFolderStar', function() {
+      .on('click', '.addFolderStar', function () {
         var $this = $(this),
           star = $this.hasClass('icon-task-star') ? false : true;
         if (isEdit) {
           kcAjax
             .starRoot({ id: root.id, star: star })
-            .then(function(res) {
+            .then(function (res) {
               if (!res) {
                 return $.Deferred().reject();
               }
@@ -560,27 +553,27 @@ $.extend(RootSettings.prototype, {
               );
               _this.settings.deferred.notify(newRoot);
             })
-            .fail(function() {
+            .fail(function () {
               alert('操作失败,请稍后重试', 3);
             });
         } else {
           $this.removeClass('icon-task-star icon-star-hollow').addClass(star ? 'icon-task-star' : 'icon-star-hollow');
         }
       })
-      .on('click', function() {
+      .on('click', function () {
         $updatePermission.hide();
       });
     //更改名称
     if (isEdit) {
       $createFolderBox.find('.folderName .txtFolderName').on({
-        blur: function() {
+        blur: function () {
           var $this = $(this),
             name = $.trim($this.val());
           if (name == root.name) {
             return;
           }
           if (!_this.verifyName(name, root.name)) {
-            setTimeout(function() {
+            setTimeout(function () {
               $this.select();
             }, 300);
             return;
@@ -588,7 +581,7 @@ $.extend(RootSettings.prototype, {
 
           kcAjax
             .updateRootName({ id: root.id, name: name })
-            .then(function(result) {
+            .then(function (result) {
               if (!result) {
                 return $.Deferred().reject();
               }
@@ -601,11 +594,11 @@ $.extend(RootSettings.prototype, {
                 }),
               );
             })
-            .fail(function() {
+            .fail(function () {
               alert('操作失败，请稍后重试', 3);
             });
         },
-        keydown: function(evt) {
+        keydown: function (evt) {
           if (evt.keyCode == 13) {
             $(this).blur();
           }
@@ -617,11 +610,9 @@ $.extend(RootSettings.prototype, {
     var $attributeList = $('#folderAttributeList');
     if (!_this.settings.isEdit && !_this.settings.projectId) {
       $createFolderBox.find('.folderContent .dropBox').on({
-        click: function(evt) {
+        click: function (evt) {
           if ($('.addFriends').data('md.quickSelectUser')) {
-            $('.addFriends')
-              .data('md.quickSelectUser')
-              .closePane();
+            $('.addFriends').data('md.quickSelectUser').closePane();
           }
           evt.stopPropagation();
           if (!$attributeList.is(':visible')) {
@@ -633,7 +624,7 @@ $.extend(RootSettings.prototype, {
               itemList = '',
               friendsShare = currentProjectId ? tplHtml({ projectId: '', companyName: _l('个人') }) : '';
 
-            md.global.Account.projects.forEach(function(pjt) {
+            md.global.Account.projects.forEach(function (pjt) {
               if (pjt.projectId != currentProjectId) {
                 itemList += tplHtml(pjt);
               }
@@ -648,19 +639,16 @@ $.extend(RootSettings.prototype, {
           }
         },
       });
-      $attributeList.on('click', '.projectItem', function() {
+      $attributeList.on('click', '.projectItem', function () {
         var $this = $(this),
           selectId = $this.data('projectId'),
           selectName = $this.html().trim();
         //判断付费版是否到期
         expireDialogAsync(selectId)
-          .then(function() {
-            $createFolderBox
-              .find('.folderContent .dropBox .seleted')
-              .html(selectName)
-              .data('projectId', selectId);
+          .then(function () {
+            $createFolderBox.find('.folderContent .dropBox .seleted').html(selectName).data('projectId', selectId);
             $attributeList.fadeOut();
-            var membersLi = $createFolderBox.find('.folderMembers .memberList .memberItem').filter(function(index) {
+            var membersLi = $createFolderBox.find('.folderMembers .memberList .memberItem').filter(function (index) {
               return ($(this).data('accountId') || $(this).data('account')) !== md.global.Account.accountId;
             });
 
@@ -670,20 +658,20 @@ $.extend(RootSettings.prototype, {
                   header: '归属变更',
                   content: '<div class="Font14">您变更了文件夹的归属,要清空成员列表吗?</div>',
                   yesText: '清空成员',
-                  yesFn: function() {
-                    membersLi.slideUp(function() {
+                  yesFn: function () {
+                    membersLi.slideUp(function () {
                       $(this).remove();
                       _this.nanoScroller();
                     });
                   },
                   noText: '保留',
-                  noFn: function() {},
+                  noFn: function () {},
                 },
                 zIndex: 1003,
               });
             }
           })
-          .fail(function() {
+          .fail(function () {
             return false;
           });
       });
@@ -694,7 +682,7 @@ $.extend(RootSettings.prototype, {
     //成员名片层
     $createFolderBox.find('.folderMemberBox  ul').on(
       {
-        mouseover: function() {
+        mouseover: function () {
           var $this = $(this);
           var aid = $this.data('account-id');
           var account = _.find(root.members, m => m.accountId === aid);
@@ -724,32 +712,20 @@ $.extend(RootSettings.prototype, {
       .find('.folderMemberBox  ul')
       .on(
         {
-          mouseover: function() {
-            if (
-              !$(this)
-                .find('.remove')
-                .hasClass('exit')
-            ) {
-              $(this)
-                .find('.toInvite, .remove')
-                .show();
+          mouseover: function () {
+            if (!$(this).find('.remove').hasClass('exit')) {
+              $(this).find('.toInvite, .remove').show();
             }
           },
-          mouseout: function() {
-            if (
-              !$(this)
-                .find('.remove')
-                .hasClass('exit')
-            ) {
-              $(this)
-                .find('.toInvite, .remove')
-                .hide();
+          mouseout: function () {
+            if (!$(this).find('.remove').hasClass('exit')) {
+              $(this).find('.toInvite, .remove').hide();
             }
           },
         },
         '.memberItem',
       )
-      .on('click', '.memberItem .remove', function() {
+      .on('click', '.memberItem .remove', function () {
         var $this = $(this),
           isExit = $this.hasClass('exit'),
           removeMemberId = $this.closest('.memberItem').data('accountId'),
@@ -760,20 +736,20 @@ $.extend(RootSettings.prototype, {
             container: {
               header: _l('操作提示'),
               content: '<div class="Font14">' + conFirmStr + '</div>',
-              yesFn: function() {
+              yesFn: function () {
                 kcAjax
                   .removeRootMember({ id: rootId, memberID: removeMemberId })
-                  .then(function(data) {
+                  .then(function (data) {
                     if (data && data.result) {
                       // 成员自己退出root
-                      var newMembers = root.members.filter(function(m) {
+                      var newMembers = root.members.filter(function (m) {
                         return m.accountId !== removeMemberId.toLowerCase();
                       });
                       if (isExit) {
                         _this.settings.deferred.resolve(null);
                         _this.settings.dialog.closeDialog();
                       } else {
-                        $this.closest('.memberItem').slideUp(function() {
+                        $this.closest('.memberItem').slideUp(function () {
                           _this.nanoScroller();
                           $(this).remove();
                         });
@@ -788,31 +764,31 @@ $.extend(RootSettings.prototype, {
                       return $.Deferred().reject(data.message);
                     }
                   })
-                  .fail(function(err) {
+                  .fail(function (err) {
                     alert(err || _l('操作失败, 请稍后重试'), 3);
                   });
               },
-              noFn: function() {},
+              noFn: function () {},
             },
             zIndex: 1003,
           });
         } else {
-          $this.closest('.memberItem').slideUp(function() {
+          $this.closest('.memberItem').slideUp(function () {
             _this.nanoScroller();
             $(this).remove();
           });
         }
       })
-      .on('click', '.memberItem .rootTrust', function() {
+      .on('click', '.memberItem .rootTrust', function () {
         var $this = $(this);
-        $(this).dialogSelectUser({
+        dialogSelectUser({
           title: _l('请选择同事'),
           showMoreInvite: false,
           SelectUserSettings: {
             unique: true,
             projectId: (root.project && root.project.projectId) || '',
             filterAccountIds: [md.global.Account.accountId],
-            callback: function(users) {
+            callback: function (users) {
               if (!users && users.length <= 0) {
                 alert('请选择托付用户', 2);
                 return;
@@ -820,7 +796,7 @@ $.extend(RootSettings.prototype, {
               var newOwner = users[0];
               kcAjax
                 .updateRootOwner({ id: root.id, memberId: newOwner.accountId })
-                .then(function(result) {
+                .then(function (result) {
                   if (!result) {
                     return $.Deferred().reject();
                   }
@@ -850,15 +826,11 @@ $.extend(RootSettings.prototype, {
                       ),
                     );
                   var newOwnerHtml = doT.template(addMemberTpl)({ members: members, myPermis: root.permission });
-                  $folderMemberBox
-                    .find('ul')
-                    .html(newOwnerHtml)
-                    .find('>li.Hidden')
-                    .removeClass('Hidden');
+                  $folderMemberBox.find('ul').html(newOwnerHtml).find('>li.Hidden').removeClass('Hidden');
                   root.members = members;
                   _this.settings.deferred.notify(root);
                 })
-                .fail(function() {
+                .fail(function () {
                   if (root.project && root.project.projectId) {
                     alert('操作失败, 只能托付给本组织的成员', 2);
                   } else {
@@ -869,23 +841,23 @@ $.extend(RootSettings.prototype, {
           },
         });
       })
-      .on('click', '.memberItem .toInvite', function() {
+      .on('click', '.memberItem .toInvite', function () {
         var $this = $(this);
         var inviterId = $this.closest('.memberItem').data('accountId');
         kcAjax
           .resendInvite({ id: rootId, memberId: inviterId })
-          .then(function(result) {
+          .then(function (result) {
             if (!result) {
               return $.Deferred().reject();
             }
             alert('邀请成功');
           })
-          .fail(function() {
+          .fail(function () {
             alert('邀请失败, 请勿多次发送邀请', 3);
           });
       });
   },
-  addRootMemers: function(users, root, isInvite, callbackInviteResult) {
+  addRootMemers: function (users, root, isInvite, callbackInviteResult) {
     var createRoot = this;
     var uidCount = users.length;
     var user,
@@ -898,7 +870,7 @@ $.extend(RootSettings.prototype, {
     var _this = this;
     existsIds = $('.folderMemberBox li.memberItem')
       .toArray()
-      .map(function(el) {
+      .map(function (el) {
         return $(el).data('accountId') || $(el).data('account');
       });
 
@@ -907,7 +879,7 @@ $.extend(RootSettings.prototype, {
       isExistes = false;
       var itemAccount = user.accountId || user.account;
       if (user) {
-        $.each(existsIds, function(i) {
+        $.each(existsIds, function (i) {
           if (existsIds[i] === itemAccount) {
             isExistes = true;
             existingUsers.push(user);
@@ -922,7 +894,7 @@ $.extend(RootSettings.prototype, {
     }
     if ((newMemberIds && newMemberIds.length) || Object.keys(inviteAccount).length) {
       if (!createRoot.settings.isEdit) {
-        var newMembers = canAddUsers.map(function(user) {
+        var newMembers = canAddUsers.map(function (user) {
           user.accountStatus = isInvite ? ACCOUNT_STATUS.INACTIVE : ACCOUNT_STATUS.NORMAL;
           user.memberStatus =
             root.permission == PERMISSION_TYPE.ADMIN || root.permission == PERMISSION_TYPE.OWNER
@@ -941,7 +913,7 @@ $.extend(RootSettings.prototype, {
         }
         if (existingUsers && existingUsers.length) {
           alert(
-            existingUsers.map(function(u) {
+            existingUsers.map(function (u) {
               return u.fullname || u.account || '';
             }) + '已存在列表中',
           );
@@ -955,7 +927,7 @@ $.extend(RootSettings.prototype, {
           memberIds: newMemberIds,
           inviteAccount: inviteAccount,
         })
-        .then(function(res) {
+        .then(function (res) {
           if (!res) {
             return $.Deferred().reject();
           }
@@ -979,7 +951,7 @@ $.extend(RootSettings.prototype, {
           if (successMembers && successMembers.length) {
             //添加到Root成员列表中
             root.members.concat(successMembers);
-            var newMembers = successMembers.filter(function(m) {
+            var newMembers = successMembers.filter(function (m) {
               return existsIds.indexOf(m.accountId.toLowerCase()) < 0;
             });
 
@@ -1007,7 +979,7 @@ $.extend(RootSettings.prototype, {
             ],
           });
         })
-        .fail(function() {
+        .fail(function () {
           alert('邀请失败，请稍后重试', 2);
           if (callbackInviteResult && $.isFunction(callbackInviteResult)) {
             callbackInviteResult({ status: 1 });
@@ -1020,12 +992,12 @@ $.extend(RootSettings.prototype, {
       alert('您邀请的用户已在共享文件夹中', 3);
     }
   },
-  verifyName: function(name, originalName) {
+  verifyName: function (name, originalName) {
     var $txtFolderName = $('#createFolderBox .folderName .txtFolderName');
     //名称为null时
     if (!name) {
       var num = 0;
-      var setTime = setInterval(function() {
+      var setTime = setInterval(function () {
         $txtFolderName.toggleClass('nullDataHintBox');
         if (num++ > 3) {
           $txtFolderName.removeClass('nullDataHintBox').focus();
@@ -1051,27 +1023,19 @@ $.extend(RootSettings.prototype, {
 
     return true;
   },
-  nanoScroller: function() {
+  nanoScroller: function () {
     var $folderMemberBox = $('.folderMembers .folderMemberBox');
     var $memberListItem = $folderMemberBox.find('.memberList .memberItem');
     if ($memberListItem.height() * $memberListItem.length >= 300) {
-      $folderMemberBox
-        .find('.nanoCon')
-        .addClass('nano')
-        .find('.memberList')
-        .addClass('nano-content');
+      $folderMemberBox.find('.nanoCon').addClass('nano').find('.memberList').addClass('nano-content');
       $folderMemberBox.find('.nanoCon').nanoScroller();
     } else {
-      $folderMemberBox
-        .find('.nanoCon')
-        .removeClass('nano')
-        .find('.memberList')
-        .removeClass('nano-content');
+      $folderMemberBox.find('.nanoCon').removeClass('nano').find('.memberList').removeClass('nano-content');
     }
   },
 });
 
-export default function(param) {
+export default function (param) {
   var deferred = $.Deferred();
   param = $.extend({ deferred: deferred }, param);
   /**

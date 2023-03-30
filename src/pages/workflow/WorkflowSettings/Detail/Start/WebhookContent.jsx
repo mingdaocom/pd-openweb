@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Radio, Textarea } from 'ming-ui';
+import { Radio, Textarea, Checkbox } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { checkJSON } from '../../utils';
 import { ParameterList, CustomTextarea, KeyPairs } from '../components';
@@ -165,7 +165,7 @@ export default class WebhookContent extends Component {
 
           {type === STATUS.POST && (
             <Fragment>
-              <div className="mTop20 bold">{_l('从请求范例生成参数列表')}</div>
+              <div className="mTop20 bold">{_l('从请求范例生成')}</div>
               <div className="Gray_75 mTop5">{_l('请在3分钟内向URL发送一条GET或POST请求')}</div>
               <div
                 className="mTop15 workflowDetailDesc"
@@ -173,7 +173,7 @@ export default class WebhookContent extends Component {
               >
                 {overtime ? _l('当前URL并没有收到任何有效请求，是否重试?') : _l('正在接收请求…')}
               </div>
-              <div className="mTop15 flexRow">
+              <div className="mTop15 flexRow alignItemsCenter">
                 <div className="webhookBtn mRight10" onClick={() => this.setState({ type: STATUS.NULL })}>
                   {_l('返回')}
                 </div>
@@ -187,6 +187,22 @@ export default class WebhookContent extends Component {
                   >
                     {_l('重试')}
                   </div>
+                )}
+                {data.hooksAll && (
+                  <Fragment>
+                    <Checkbox
+                      className="mLeft10"
+                      checked={data.hooksBody}
+                      text={_l('生成Body全文参数')}
+                      onClick={checked => updateSource({ hooksBody: !checked }, onSave)}
+                    />
+                    <span
+                      className="workflowDetailTipsWidth mLeft5 Gray_9e tip-top"
+                      data-tip={_l('勾选后，将会生成一个记录Body全文的文本格式参数')}
+                    >
+                      <i className="Font14 icon-workflow_help" />
+                    </span>
+                  </Fragment>
                 )}
               </div>
             </Fragment>
@@ -250,65 +266,88 @@ export default class WebhookContent extends Component {
                 )}
               </div>
 
-              <ParameterList controls={data.controls} showRequired updateSource={updateSource} />
+              <div className="mTop20 bold">{_l('请求')} Body</div>
+              <ParameterList
+                data={data.controls}
+                controls={data.controls.filter(o => o.enumDefault === 0)}
+                showRequired
+                updateSource={updateSource}
+              />
+
+              {data.hooksAll && (
+                <Fragment>
+                  <div className="mTop20 bold">{_l('请求')} Params</div>
+                  <ParameterList
+                    data={data.controls}
+                    controls={data.controls.filter(o => o.enumDefault === 1001)}
+                    showRequired
+                    updateSource={updateSource}
+                  />
+                  <div className="mTop20 bold">{_l('请求')} Header</div>
+                  <ParameterList controls={data.controls.filter(o => o.enumDefault === 1000)} />
+                </Fragment>
+              )}
 
               <div className="mTop15 flexRow">
                 <div
                   className="webhookBtn"
                   onClick={() => {
                     this.setState({ type: STATUS.NULL });
-                    updateSource({ controls: [] });
-                    onSave();
+                    updateSource({ controls: [] }, onSave);
                   }}
                 >
                   {_l('修改')}
                 </div>
               </div>
 
-              <div className="mTop20 bold">{_l('自定义返回数据')}</div>
-              <div className="Gray_75 mTop5">
-                {_l('系统默认接受数据后返回')}
-                {'{"status": 1, "data": {"sourceId": "xx", "instanceId": "xx"}, "msg": "成功"}'}
-              </div>
-              <div className="flexRow mTop15">
-                {contentTypes.map((item, i) => {
-                  return (
-                    <div className="flex" key={i}>
-                      <Radio
-                        text={item.text}
-                        checked={contentType === item.value}
-                        onClick={() => {
-                          this.setState({ contentType: item.value });
-                          updateSource({ returns: [{ name: '', value: '' }], returnJson: '' });
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-              {contentType === 1 ? (
-                <KeyPairs
-                  key={this.props.selectNodeId}
-                  processId={this.props.processId}
-                  selectNodeId={this.props.selectNodeId}
-                  appId={data.appId}
-                  source={data.returns.length ? data.returns : [{ name: '', value: '' }]}
-                  sourceKey="returns"
-                  formulaMap={data.formulaMap}
-                  updateSource={updateSource}
-                />
-              ) : (
-                <CustomTextarea
-                  className="minH100"
-                  processId={this.props.processId}
-                  selectNodeId={this.props.selectNodeId}
-                  sourceAppId={data.appId}
-                  type={2}
-                  content={data.returnJson}
-                  formulaMap={data.formulaMap}
-                  onChange={(err, value, obj) => updateSource({ returnJson: value })}
-                  updateSource={updateSource}
-                />
+              {!data.hooksAll && (
+                <Fragment>
+                  <div className="mTop20 bold">{_l('自定义返回数据')}</div>
+                  <div className="Gray_75 mTop5">
+                    {_l('系统默认接受数据后返回')}
+                    {'{"status": 1, "data": {"sourceId": "xx", "instanceId": "xx"}, "msg": "成功"}'}
+                  </div>
+                  <div className="flexRow mTop15">
+                    {contentTypes.map((item, i) => {
+                      return (
+                        <div className="flex" key={i}>
+                          <Radio
+                            text={item.text}
+                            checked={contentType === item.value}
+                            onClick={() => {
+                              this.setState({ contentType: item.value });
+                              updateSource({ returns: [{ name: '', value: '' }], returnJson: '' });
+                            }}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {contentType === 1 ? (
+                    <KeyPairs
+                      key={this.props.selectNodeId}
+                      processId={this.props.processId}
+                      selectNodeId={this.props.selectNodeId}
+                      appId={data.appId}
+                      source={data.returns.length ? data.returns : [{ name: '', value: '' }]}
+                      sourceKey="returns"
+                      formulaMap={data.formulaMap}
+                      updateSource={updateSource}
+                    />
+                  ) : (
+                    <CustomTextarea
+                      className="minH100"
+                      processId={this.props.processId}
+                      selectNodeId={this.props.selectNodeId}
+                      sourceAppId={data.appId}
+                      type={2}
+                      content={data.returnJson}
+                      formulaMap={data.formulaMap}
+                      onChange={(err, value, obj) => updateSource({ returnJson: value })}
+                      updateSource={updateSource}
+                    />
+                  )}
+                </Fragment>
               )}
             </Fragment>
           )}

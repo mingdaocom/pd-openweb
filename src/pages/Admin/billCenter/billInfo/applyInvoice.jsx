@@ -71,10 +71,11 @@ export default function InvoiceSetting(props) {
             'taxRegContactPhone',
           ])
         : _.pick(data, ['companyName', 'price', 'address', 'recipientName', 'taxNumber', 'contactPhone']);
-    orderAjax.applyInvoice({ projectId, orderId, ...para, invoiceType: data.invoiceType || 1 })
+    orderAjax
+      .applyInvoice({ projectId, orderId, ...para, invoiceType: data.invoiceType || 1 })
       .then(res => {
         if (!res) {
-          alert(_l('申请失败'));
+          alert(_l('申请失败'), 2);
           return;
         }
         alert(_l('申请成功'));
@@ -96,7 +97,8 @@ export default function InvoiceSetting(props) {
             {_l('保存')}
           </Button>
         </SaveInvoice>
-      }>
+      }
+    >
       <InvoiceContentWrap>
         <ApplyInvoiceWrap>
           {applyInvoiceConfig.map(item => {

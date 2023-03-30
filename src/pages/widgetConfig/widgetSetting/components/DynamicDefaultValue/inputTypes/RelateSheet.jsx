@@ -20,7 +20,7 @@ export default class RelateSheet extends Component {
   handleClick = () => {
     const { data } = this.props;
     if (!data.dataSource) {
-      alert(_l('请先配置关联表'));
+      alert(_l('请先配置关联表'), 3);
       return;
     }
     this.setState({ recordListVisible: true });

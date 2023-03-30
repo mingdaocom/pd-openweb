@@ -72,7 +72,8 @@ export default function InfoHeader(props) {
   const isPublicRecordLand = isPublicShare && notDialog;
   const showSideBar =
     (!isPublicShare && !md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
-    (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible);
+    (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible) ||
+    from === RECORD_INFO_FROM.WORKFLOW;
   function loadDiscussionsCount() {
     if (sideVisible || !discussVisible || portalNotHasDiscuss) {
       return;

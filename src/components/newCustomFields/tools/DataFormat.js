@@ -618,7 +618,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
       return parseFloat(formatColumnToText(matchedColumn, true, true), 10);
     });
 
-    formulaResult = hasUndefinedColumn ? {} : calcDate(date, expression);
+    formulaResult = hasUndefinedColumn ? {} : calcDate(moment(date, 'YYYY-MM-DD HH:mm:ss'), expression);
     value = formulaResult.error || hasUndefinedColumn ? '' : formulaResult.result.format('YYYY-MM-DD HH:mm:ss');
   } else if (currentItem.enumDefault === 3) {
     const unit = TIME_UNIT[currentItem.unit] || 'd';
@@ -710,9 +710,13 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
         const iti = initIntlTelInput();
         iti.setNumber(value);
         // 香港6262开头不识别特殊处理
-        // "FIXED_LINE": 0,"MOBILE": 1,
+        // 中国电话特殊处理
         errorType =
-          !value || (iti.isValidNumber() && iti.getNumberType() === 1) || specialTelVerify(value)
+          !value ||
+          (iti.isValidNumber() && _.get(iti.getSelectedCountryData(), 'dialCode') === '86'
+            ? specialTelVerify(_.startsWith(value, '+86') ? value : '+86' + value)
+            : iti.isValidNumber()) ||
+          specialTelVerify(value)
             ? ''
             : FORM_ERROR_TYPE.MOBILE_PHONE;
       }
@@ -744,7 +748,7 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
 
       // 文本
       if (item.type === 2) {
-        if (item.advancedSetting.regex) {
+        if (item.advancedSetting && item.advancedSetting.regex) {
           errorType =
             !value || new RegExp(JSON.parse(item.advancedSetting.regex).regex).test(value)
               ? ''
@@ -824,7 +828,7 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
       // 其他选项必填
       if (_.includes([9, 10, 11], item.type) && !ignoreRequired) {
         const hasOtherOption = _.find(item.options, i => i.key === 'other' && !i.isDeleted);
-        const selectOther = _.find(JSON.parse(item.value || '[]'), i => i.includes('other'));
+        const selectOther = _.find(JSON.parse(item.value || '[]'), i => (i || '').includes('other'));
         if (hasOtherOption && _.get(item.advancedSetting, 'otherrequired') === '1' && selectOther) {
           if (selectOther === 'other' || !_.replace(selectOther, 'other:', '')) {
             errorType = FORM_ERROR_TYPE.OTHER_REQUIRED;
@@ -1196,7 +1200,8 @@ export default class DataFormat {
               this.data,
               currentItem.dataSource,
               currentItem.dot,
-              currentItem.advancedSetting.nullzero,
+              // 求和、平均值、乘积字段值为空按0处理，兼容赋分值选项等操作
+              _.includes([2, 3, 6], currentItem.enumDefault) ? '1' : currentItem.advancedSetting.nullzero,
               currentItem.advancedSetting.numshow === '1',
             );
             value = formulaResult.error || formulaResult.columnIsUndefined ? '' : formulaResult.result;
@@ -1218,7 +1223,7 @@ export default class DataFormat {
                   this.data,
                   singleControl.dataSource,
                   singleControl.dot,
-                  singleControl.advancedSetting.nullzero,
+                  _.includes([2, 3, 6], singleControl.enumDefault) ? '1' : singleControl.advancedSetting.nullzero,
                   currentItem.advancedSetting.numshow === '1',
                 );
                 if (formulaResult.columnIsUndefined) {
@@ -2019,9 +2024,9 @@ export default class DataFormat {
                           row[cid] =
                             controlVal.type === 2
                               ? getCurrentValue(
-                                  controlVal,
-                                  item[subCid],
                                   _.find(controls, s => s.controlId === subCid),
+                                  item[subCid],
+                                  controlVal,
                                 )
                               : item[subCid] || '';
                         }

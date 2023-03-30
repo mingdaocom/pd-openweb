@@ -32,7 +32,7 @@ export function formatForSave(filter, options = {}) {
                 ...formatConditionForSave(condition, conditionsGroup.conditionSpliceType, options),
               })),
           }))
-          .filter(conditionsGroup => !_.isEmpty(conditionsGroup.groupFilters)),
+          .filter(conditionsGroup => options.noCheck || !_.isEmpty(conditionsGroup.groupFilters)),
     });
   } else {
     const conditions = _.get(filter, 'conditionsGroups.0.conditions');

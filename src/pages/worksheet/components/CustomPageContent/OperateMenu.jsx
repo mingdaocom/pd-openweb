@@ -48,17 +48,17 @@ const CONFIG = [
     text: _l('显示设置'),
     icon: 'desktop',
   },
-  { type: 'divider' },
-  {
-    type: 'copy',
-    text: _l('复制'),
-    icon: 'content-copy',
-  },
-  {
-    type: 'move',
-    text: _l('移动到'),
-    icon: 'swap_horiz',
-  },
+  // { type: 'divider' },
+  // {
+  //   type: 'copy',
+  //   text: _l('复制'),
+  //   icon: 'content-copy',
+  // },
+  // {
+  //   type: 'move',
+  //   text: _l('移动到'),
+  //   icon: 'swap_horiz',
+  // },
   { type: 'divider' },
   {
     type: 'delete',

@@ -3,10 +3,9 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../redux/actions';
-import { Icon, Radio, Dialog, Dropdown } from 'ming-ui';
+import { Dialog, Dropdown } from 'ming-ui';
 import cx from 'classnames';
 import LoginInfoDialog from 'src/pages/Role/PortalCon/components/LoginInfo';
-import { Line, Bar } from '@antv/g2plot';
 import externalPortalAjax from 'src/api/externalPortal';
 import moment from 'moment';
 
@@ -54,6 +53,7 @@ const Wrap = styled.div`
     margin-top: 24px;
   }
 `;
+let g2plotComponent = null;
 const TIME = [
   {
     value: 0,
@@ -107,41 +107,55 @@ function Statistics(props) {
     interactions: [{ type: 'marker-active' }],
   };
   useEffect(() => {
-    //查看量
-    externalPortalAjax.dateHistogram({
-      appId,
-      type: timeType, //0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
-    }).then((res = {}) => {
-      const { visitsData = {}, registerData = {} } = res;
-      let dataVisits = [];
-      for (var key in visitsData) {
-        dataVisits.push({
-          date: key,
-          value: visitsData[key],
-        });
-      }
-      dataVisits = dataVisits.sort((a, b) => {
-        return a.date > b.date ? 1 : -1;
-      });
-      setData(dataVisits);
-      let dataRegister = [];
-      for (var key in registerData) {
-        dataRegister.push({
-          date: key,
-          value: registerData[key],
-        });
-      }
-      dataRegister = dataRegister.sort((a, b) => {
-        return a.date > b.date ? 1 : -1;
-      });
-      setDataLogin(dataRegister);
+    import('@antv/g2plot').then(data => {
+      g2plotComponent = data;
     });
+    () => {
+      g2plotComponent = null;
+    };
+  }, []);
+  useEffect(() => {
+    //查看量
+    externalPortalAjax
+      .dateHistogram({
+        appId,
+        type: timeType, //0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
+      })
+      .then((res = {}) => {
+        const { visitsData = {}, registerData = {} } = res;
+        let dataVisits = [];
+        for (var key in visitsData) {
+          dataVisits.push({
+            date: key,
+            value: visitsData[key],
+          });
+        }
+        dataVisits = dataVisits.sort((a, b) => {
+          return a.date > b.date ? 1 : -1;
+        });
+        setData(dataVisits);
+        let dataRegister = [];
+        for (var key in registerData) {
+          dataRegister.push({
+            date: key,
+            value: registerData[key],
+          });
+        }
+        dataRegister = dataRegister.sort((a, b) => {
+          return a.date > b.date ? 1 : -1;
+        });
+        setDataLogin(dataRegister);
+      });
   }, [timeType]);
   useEffect(() => {
     const $iframe = loginEl.current;
     if (!$iframe) return;
     LineChartLoginEl && LineChartLoginEl.destroy();
     LineChartLoginEl = null;
+    if (!g2plotComponent) {
+      return;
+    }
+    const { Line } = g2plotComponent;
     LineChartLoginEl = new Line(loginEl.current, {
       ...prarm,
       data: dataRegister,
@@ -154,6 +168,10 @@ function Statistics(props) {
     if (!$iframe) return;
     LineChartRegisterEl && LineChartRegisterEl.destroy();
     LineChartRegisterEl = null;
+    if (!g2plotComponent) {
+      return;
+    }
+    const { Line } = g2plotComponent;
     LineChartRegisterEl = new Line(registerEl.current, {
       ...prarm,
       data: dataVisits,

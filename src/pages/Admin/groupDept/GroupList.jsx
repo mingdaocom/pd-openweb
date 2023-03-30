@@ -258,9 +258,9 @@ export default class GroupsList extends Component {
 
   handleSetDept(record) {
     const _this = this;
-    $('body').dialogSelectMapGroupDepart({
+    DialogSelectMapGroupDepart({
       projectId: Config.projectId,
-      callback: function(data) {
+      callback: function (data) {
         _this.updateDeptMappingGroup(record.groupId, true, data.departmentId);
       },
     });
@@ -277,7 +277,7 @@ export default class GroupsList extends Component {
       alert(_l('请选择关联部门'), 3);
       return;
     }
-    alert(_l('操作中，请稍候...'), 3, false);
+    alert(_l('操作中，请稍候...'), 3);
     groupController.updateGroupVerified(reqData).then(data => {
       if (data) {
         alert(_l('操作成功'), 1);

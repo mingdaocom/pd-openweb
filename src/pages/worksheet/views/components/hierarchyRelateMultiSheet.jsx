@@ -93,7 +93,8 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
     const { worksheetId } = _.last(viewControls);
     if (controlLoading) return;
     setControls({ controlLoading: true });
-    worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true })
+    worksheetAjax
+      .getWorksheetInfo({ worksheetId, getTemplate: true })
       .then(data => {
         setControls({
           availableControls: getSelectableControls(data),
@@ -130,7 +131,8 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
               key={controlId}
               onClick={() => {
                 addViewControl(item);
-              }}>
+              }}
+            >
               <i className="icon-link2 Gray_9e Font15"></i>
               <span style={{ marginLeft: '6px' }} className="controlName Bold">
                 {controlName}
@@ -186,7 +188,9 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
                     } else {
                       updateViewControls(viewControls.slice(0, index));
                     }
-                  }}>
+                    setIndex(-1);
+                  }}
+                >
                   <div className="deleteWrap" onClick={() => setIndex(index)}>
                     <i className="icon-delete_12"></i>
                   </div>
@@ -200,7 +204,8 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
         overlayClassName="addHierarchyRelate"
         trigger={['click']}
         overlay={renderRelate()}
-        placement="bottomLeft">
+        placement="bottomLeft"
+      >
         <div className={'addRelate'} onClick={getAvailableControls}>
           <i className="icon-add"></i>
           <span>{_l('下一级关联')}</span>

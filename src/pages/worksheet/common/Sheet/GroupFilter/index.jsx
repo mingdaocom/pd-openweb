@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -10,7 +10,8 @@ import { updateGroupFilter, getNavGroupCount } from 'worksheet/redux/actions';
 import { getAdvanceSetting } from 'src/util';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import _ from 'lodash';
-
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
 const Con = styled.div(
   ({ width }) => `
   width: ${width}px;
@@ -135,8 +136,6 @@ const Con = styled.div(
   }
 `,
 );
-let ajaxFn = null;
-let ajaxCount = null;
 function GroupFilter(props) {
   const {
     views = [],
@@ -150,6 +149,7 @@ function GroupFilter(props) {
     quickFilter,
     navGroupCounts,
     getNavGroupCount,
+    sheetSwitchPermit = [],
   } = props;
   const { appId, worksheetId, viewId } = base;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
@@ -181,6 +181,14 @@ function GroupFilter(props) {
   useEffect(() => {
     fetch();
   }, [keywords]);
+  const handleSearch = useCallback(
+    _.throttle(value => {
+      let keyWords = value.trim();
+      setKeywords(keyWords);
+      updateFilter('');
+    }, 300),
+    [],
+  );
   useEffect(() => {
     if (!navGroup.controlId || !rowIdForFilter) {
       updateGroupFilter([], view);
@@ -220,6 +228,9 @@ function GroupFilter(props) {
   const fetch = () => {
     const { controlId } = navGroup;
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
+    if (controlId === 'wfstatus' && !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit)) {
+      navshow = '0';
+    }
     setOpenKeys([]);
     if (!controlId) {
       setGroupFilterData([]);
@@ -302,7 +313,6 @@ function GroupFilter(props) {
     if (!isOpenGroup) {
       return;
     }
-    ajaxFn && ajaxFn.abort();
     let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
     let param =
       soucre.type === 35
@@ -326,42 +336,42 @@ function GroupFilter(props) {
       let filterControls = navfilters.map(handleCondition);
       param = { ...param, filterControls };
     }
-    ajaxFn = sheetAjax.getFilterRows({
-      worksheetId,
-      viewId,
-      keywords,
-      pageIndex: 1,
-      pageSize: 10000,
-      isGetWorksheet: true,
-      kanbanKey: rowId,
-      ...param,
-    });
-    ajaxFn.then(result => {
-      if (result.resultCode === 4) {
-        //视图删除的情况下，显示成为选中视图的状态
-        fetchData({ worksheetId, viewId: '', rowId, cb });
-      } else {
-        let { data = [] } = result;
-        if (soucre.type !== 35 && navfilters.length > 0 && navshow === '2') {
-          data = data.filter(o => navfilters.map(value => safeParse(value).id).includes(o.rowid));
+    sheetAjax
+      .getFilterRows({
+        worksheetId,
+        viewId,
+        keywords,
+        pageIndex: 1,
+        pageSize: 10000,
+        isGetWorksheet: true,
+        kanbanKey: rowId,
+        ...param,
+      })
+      .then(result => {
+        if (result.resultCode === 4) {
+          //视图删除的情况下，显示成为选中视图的状态
+          fetchData({ worksheetId, viewId: '', rowId, cb });
+        } else {
+          let { data = [] } = result;
+          if (soucre.type !== 35 && navfilters.length > 0 && navshow === '2') {
+            data = data.filter(o => navfilters.map(value => safeParse(value).id).includes(o.rowid));
+          }
+          const controls = _.get(result, ['template', 'controls']) || [];
+          const control = controls.find(item => item.attribute === 1);
+          dataUpdate({
+            filterData: navGroupData,
+            data: data.map(item => {
+              return {
+                value: item.rowid,
+                txt: renderTxt(item, control, viewId),
+                isLeaf: !item.childrenids,
+              };
+            }),
+            rowId,
+            cb,
+          });
         }
-        const controls = _.get(result, ['template', 'controls']) || [];
-        const control = controls.find(item => item.attribute === 1);
-        ajaxFn = '';
-        dataUpdate({
-          filterData: navGroupData,
-          data: data.map(item => {
-            return {
-              value: item.rowid,
-              txt: renderTxt(item, control, viewId),
-              isLeaf: !item.childrenids,
-            };
-          }),
-          rowId,
-          cb,
-        });
-      }
-    });
+      });
   };
 
   const loadData = obj => {
@@ -454,9 +464,7 @@ function GroupFilter(props) {
           onClick={() => {
             props.changeGroupStatus(!isOpenGroup);
           }}
-        >
-          {/* {(controls.find(o => o.controlId === navGroup.controlId) || {}).controlName || _l('未命名')} */}
-        </span>
+        ></span>
       );
     }
     if (loading) {
@@ -481,6 +489,10 @@ function GroupFilter(props) {
       navfilters = JSON.parse(navfilters);
     } catch (error) {
       navfilters = [];
+    }
+    //系统字段关闭，且为状态时，默认显示成 全部
+    if (navGroup.controlId === 'wfstatus' && !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit)) {
+      navshow = '0';
     }
     if (isOption && navfilters.length > 0 && navshow === '2') {
       // 显示 指定项
@@ -553,11 +565,7 @@ function GroupFilter(props) {
               value={keywords}
               placeholder={_l('搜索')}
               className={cx('flex', { placeholderColor: !keywords })}
-              onChange={value => {
-                let keyWords = value.trim();
-                setKeywords(keyWords);
-                updateFilter('');
-              }}
+              onChange={handleSearch}
             />
           </React.Fragment>
         )}

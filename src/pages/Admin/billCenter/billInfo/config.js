@@ -25,6 +25,8 @@ export const orderRecordType = enumObj({
   APKSTORAGE: 19, //应用上传量
   OCR: 20, //文字识别
   EXTERNALUSER: 21, // 外部用户增补包
+  DataPipelinePackage: 22,
+  MonthlyDataPipelinePackage: 23,
 });
 
 export const orderTypeText = {
@@ -49,6 +51,8 @@ export const orderTypeText = {
   APKSTORAGE: _l('应用附件上传量扩充包'), //应用上传量
   OCR: _l('文字识别'), //文字识别
   EXTERNALUSER: _l('外部用户增补包'), // 外部用户增补包
+  DataPipelinePackage: _l('每月数据同步算力包'),
+  MonthlyDataPipelinePackage: _l('当月数据同步算力包'),
 };
 
 export const enumInvoiceStatus = enumObj({
@@ -89,7 +93,7 @@ export const orderRecordStatusDropdownData = [{ value: 0, text: _l('全部') }].
 
 export const enumOrderRecordStatus = enumObj(orderRecordStatus);
 
-export const PAID_RECORD_TYPE = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 21];
+export const PAID_RECORD_TYPE = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23];
 export const RECHARGE_RECORD_TYPE = [1, 15, 20];
 
 export const invoiceConfig = [

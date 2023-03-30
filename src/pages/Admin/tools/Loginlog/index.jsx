@@ -4,7 +4,7 @@ import { Icon, LoadDiv, DatePicker } from 'ming-ui';
 import Config from '../../config';
 import actionLogAjax from 'src/api/actionLog';
 import downloadAjax from 'src/api/download';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import moment from 'moment';
 import './index.less';
 import _ from 'lodash';
@@ -147,7 +147,7 @@ export default class LoginLog extends Component {
   };
   // 筛选登录人
   handleLoginUser = () => {
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       fromAdmin: true,
       SelectUserSettings: {
         projectId: Config.projectId,
@@ -319,10 +319,7 @@ export default class LoginLog extends Component {
           <div className="optInfo">
             <span className="tipInfo">
               {_l('保留最近6个月的登录日志')}
-              <Tooltip
-                title={_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}
-                placement="bottom"
-              >
+              <Tooltip title={_l('导出上限10万条，超出限制可以先筛选，再分次导出。')} placement="bottom">
                 <Icon icon="info" className="Font14 mLeft5 infoIcon" />
               </Tooltip>
             </span>

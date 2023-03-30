@@ -328,6 +328,7 @@ function HoverPreviewPanel(props, cb = () => {}) {
 
 function Attachment(props) {
   const {
+    isTrash,
     isSubList,
     editable,
     index,
@@ -385,17 +386,26 @@ function Attachment(props) {
         className="AttachmentCon"
         style={{ maxWidth: cellWidth }}
         onClick={e => {
-          previewAttachment(attachments, index, sheetSwitchPermit, viewId, cellInfo.disableDownload, fileId => {
-            openControlAttachmentInNewTab({
-              appId,
-              recordId,
-              viewId,
-              worksheetId,
-              controlId: cell.controlId,
-              fileId,
-              getType: from === 21 ? from : undefined,
-            });
-          });
+          previewAttachment(
+            attachments,
+            index,
+            sheetSwitchPermit,
+            viewId,
+            cellInfo.disableDownload,
+            isTrash
+              ? undefined
+              : fileId => {
+                  openControlAttachmentInNewTab({
+                    appId,
+                    recordId,
+                    viewId,
+                    worksheetId,
+                    controlId: cell.controlId,
+                    fileId,
+                    getType: from === 21 ? from : undefined,
+                  });
+                },
+          );
           e.stopPropagation();
         }}
       >
@@ -423,6 +433,7 @@ function Attachment(props) {
 
 function cellAttachments(props, sourceRef) {
   const {
+    isTrash,
     isSubList,
     from = 1,
     className,
@@ -526,6 +537,7 @@ function cellAttachments(props, sourceRef) {
   }
   const attachmentsComp = attachments.map((attachment, index) => (
     <Attachment
+      isTrash={isTrash}
       isSubList={isSubList}
       editable={editable}
       cell={cell}

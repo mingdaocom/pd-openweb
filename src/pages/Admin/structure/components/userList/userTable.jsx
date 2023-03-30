@@ -330,7 +330,16 @@ class UserTable extends React.Component {
           dateNow={Date.now()}
           editCurrentUser={this.state.editCurrentUser}
           clickRow={() => {
-            this.setState({ openChangeUserInfoDrawer: true, editCurrentUser: user });
+            this.setState({
+              openChangeUserInfoDrawer: true,
+              editCurrentUser: {
+                ...user,
+                departmentInfos: (user.departmentInfos || user.departments).map(v => ({
+                  departmentId: v.departmentId || v.id,
+                  departmentName: v.departmentName || v.name,
+                })),
+              },
+            });
           }}
         />
       );

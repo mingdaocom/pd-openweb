@@ -25,11 +25,12 @@ const Con = styled.div`
     white-space: normal !important;
     .Checkbox-box {
       flex-shrink: 0;
+      ${props => (props.displayRow ? 'margin-top: 6px;' : '')};
     }
   }
 `;
 
-export default function Switch({ data }) {
+export default function Switch({ data, displayRow }) {
   const defaultValue = getAdvanceSetting(data, 'defsource');
   const isChecked = get(head(defaultValue), 'staticValue') === '1';
   const { showtype } = getAdvanceSetting(data);
@@ -66,7 +67,7 @@ export default function Switch({ data }) {
   }
 
   return (
-    <Con>
+    <Con displayRow={displayRow}>
       <Checkbox checked={isChecked}>{data.hint || ''}</Checkbox>
     </Con>
   );

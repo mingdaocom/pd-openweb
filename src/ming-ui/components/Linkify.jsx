@@ -5,6 +5,9 @@ import { element } from 'prop-types';
 
 export default function MdLinkify(props) {
   const { properties, ...rest } = props;
+  if (typeof props.children === 'string' && props.children.length > 1000) {
+    return props.children;
+  }
   return (
     <Linkify
       {...rest}

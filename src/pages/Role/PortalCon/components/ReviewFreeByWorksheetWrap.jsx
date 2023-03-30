@@ -217,7 +217,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
               <span
                 onClick={e => {
                   if (!sheetId) {
-                    alert(_l('请选择工作表'));
+                    alert(_l('请选择工作表'), 3);
                     return;
                   }
                 }}

@@ -171,7 +171,7 @@ export default function ConfigRelate(props) {
       <AddRelate>
         <div className="intro">
           {_l('在表单中显示关联的记录。如：订单关联客户')}
-          <Support type={3} href="https://help.mingdao.com/sheet2.html" text={_l('帮助')} />
+          <Support type={3} href="https://help.mingdao.com/zh/sheet2.html" text={_l('帮助')} />
         </div>
         <div className="relateWrap">
           <ul className="relateTypeTab">

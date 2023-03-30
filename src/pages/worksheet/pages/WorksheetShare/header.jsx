@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { navigateTo } from 'router/navigateTo';
 import { Icon } from 'ming-ui';
-import color from 'color';
 import mingdaoImg from './img/mingdao.png';
 import SvgIcon from 'src/components/SvgIcon';
 import { SHARE_TYPE } from './config';
@@ -188,7 +187,7 @@ class WorksheetShareHeader extends React.Component {
                   <span
                     className="appIconWrapIcon"
                     style={{
-                      backgroundColor: color(iconColor),
+                      backgroundColor: iconColor,
                     }}
                   >
                     <SvgIcon url={iconUrl} fill="#fff" size={20} addClassName="mTop3" />

@@ -100,6 +100,30 @@ export const SettingItem = styled.div`
   .Calendar-column-header {
     flex: 1;
   }
+  .attachmentDisplayType {
+    width: 310px !important;
+    .ming.Item {
+      height: auto !important;
+      line-height: normal !important;
+    }
+    .ming.Item .Item-content .Icon {
+      line-height: normal !important;
+      position: relative;
+      left: 0px !important;
+    }
+  }
+  .arrangeBtn {
+    cursor: pointer;
+    font-weight: bold;
+    color: #9e9e9e;
+    &:hover {
+      color: #2196f3;
+    }
+    &.disabled {
+      cursor: not-allowed;
+      color: #bdbdbd !important;
+    }
+  }
 `;
 export const RelateInfo = styled.div`
   margin-top: 12px;
@@ -271,6 +295,9 @@ export const SelectFieldsWrap = styled.div`
       line-height: 36px;
       padding: 0 16px;
       cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       &:hover {
         background-color: #2196f3;
         color: #fff;
@@ -340,7 +367,7 @@ export const CircleAdd = styled.div`
   height: ${props => props.size || 24}px;
   border-radius: 50%;
   border: 1px solid #ddd;
-  margin-top: 12px;
+  margin-top: ${props => (props.displayRow ? '5px' : '12px')};
   i {
     font-size: 14px;
   }
@@ -588,6 +615,56 @@ export const DialogFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+`;
+
+export const TitleContentWrap = styled.div`
+  position: relative;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: ${props => (props.displayRow ? 'row' : 'column')};
+  .nameAndStatus {
+    display: flex;
+    line-height: 18px;
+    margin-right: ${props => (props.displayRow ? '1px' : '0px')};
+    margin-bottom: ${props => (props.displayRow ? '0px' : '8px')};
+    padding-top: ${props => (props.displayRow ? '7px' : '0px')};
+    .required {
+      position: absolute;
+      top: ${props => (props.displayRow ? '8px' : '4px')};
+      left: -8px;
+      color: #f44336;
+      transition: all 0.25s;
+    }
+    .titleContent {
+      display: flex;
+      position: relative;
+      margin-right: 10px;
+      ${({ displayRow, titleWidth }) => (displayRow && titleWidth ? `width:${titleWidth}px` : '')}
+    }
+    .iconWrap {
+    }
+    .typeIcon {
+      color: #9e9e9e;
+      font-size: 16px;
+    }
+    .controlName {
+      margin-left: 6px;
+      text-align: ${props => (props.textAlign === '1' ? 'left' : 'right')};
+    }
+    .isSplitLine {
+      font-size: 15px;
+      font-weight: bold;
+    }
+    &.minHeight18 {
+      min-height: 18px;
+    }
+  }
+
+  .desc {
+    color: #9e9e9e;
+    margin-top: 8px;
+    line-height: 13px;
+  }
 `;
 
 export { Button, DropdownOverlay } from './common';

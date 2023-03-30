@@ -181,7 +181,13 @@ export default class Member extends Component {
       <ul className="flowDetailMembers">
         {(accounts || []).map((item, i) => {
           return (
-            <li key={i} className={isSingle ? 'inlineFlexRow' : 'flexRow'} style={{ zIndex: accounts.length - i }}>
+            <li
+              key={i}
+              className={cx(isSingle ? 'inlineFlexRow' : 'flexRow', {
+                noDel: from === 'integration' && accounts.length <= 1,
+              })}
+              style={{ zIndex: accounts.length - i }}
+            >
               {item.type === USER_TYPE.USER && this.renderUser(item)}
               {item.type === USER_TYPE.ROLE && this.renderRole(item)}
               {item.type === USER_TYPE.CONTROL && this.renderControl(item, i)}

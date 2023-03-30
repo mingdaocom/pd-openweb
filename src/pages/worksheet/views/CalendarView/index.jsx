@@ -30,12 +30,12 @@ import {
 import { isLightColor } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config';
+import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import CurrentDateInfo from 'mobile/RecordList/View/CalendarView/components/CurrentDateInfo';
 import Trigger from 'rc-trigger';
 import autoSize from 'ming-ui/decorators/autoSize';
 import styled from 'styled-components';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-
 const Wrap = styled.div`
   width: 100%;
   height: 100%;
@@ -533,6 +533,9 @@ class RecordCalendar extends Component {
             [o.begin]: startT,
           };
       this.addRecordInfo(data);
+      this.setState({
+        selectTimeInfo: {},
+      });
     }
   };
 
@@ -649,10 +652,16 @@ class RecordCalendar extends Component {
     const eventData = calenderEventList[`${typeEvent}Dt`] || [];
     const { startFormat, endFormat, calendarInfo = [], unweekday = '', btnList, initialView } = calendarData;
     const { height, calendarFormatData } = this.state;
-    const isDelete =
+    let isDelete =
       calendarcids[0].begin &&
       calendarInfo.length > 0 &&
       (!calendarInfo[0].startData || !calendarInfo[0].startData.controlId);
+    if (
+      !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit) &&
+      SYS_CONTROLS_WORKFLOW.includes(_.get(calendarInfo[0], 'startData.controlId'))
+    ) {
+      isDelete = true;
+    }
     let isHaveSelectControl = !calendarcids[0].begin || isDelete; // 是否选中了开始时间 //开始时间字段已删除
     let mobileInitialView =
       calendarType === '0'
@@ -1002,7 +1011,7 @@ class RecordCalendar extends Component {
               eventResize={info => {
                 let endData = _.get(info, ['event', 'extendedProps', 'endData']) || {};
                 if (!endData.controlId) {
-                  alert(_l('请配置结束控件'));
+                  alert(_l('请配置结束控件'), 3);
                   this.getEventsFn();
                   return;
                 }

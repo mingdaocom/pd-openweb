@@ -74,7 +74,7 @@ export class FeesItem extends Component {
     const { postID } = item;
 
     let feedDialog;
-    const removeFn = function() {
+    const removeFn = function () {
       feedDialog.closeDialog();
     };
 
@@ -93,7 +93,7 @@ export class FeesItem extends Component {
                 yesText: '',
                 noText: '',
               }}
-              readyFn={function(Comp) {
+              readyFn={function (Comp) {
                 $('#chatFeedDialog_container').on('click', event => {
                   if (!$(event.target).closest('#chatFeedDialog').length) {
                     Comp.closeDialog();
@@ -106,7 +106,7 @@ export class FeesItem extends Component {
             document.createElement('div'),
           );
         } else {
-          return alert(_l('您的权限不足或此动态已被删除，无法查看'));
+          return alert(_l('您的权限不足或此动态已被删除，无法查看'), 2);
         }
       });
   }
@@ -220,9 +220,7 @@ export default class Feeds extends Component {
               {_l('所有动态')}
               <i className="icon-sidebar-more" />
             </span>
-          ) : (
-            undefined
-          )}
+          ) : undefined}
         </div>
         <div className="ChatPanel-Feeds-body">
           {postList.map(item => (

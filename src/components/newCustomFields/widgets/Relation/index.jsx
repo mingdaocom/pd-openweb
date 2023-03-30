@@ -51,12 +51,10 @@ export default class Widgets extends Component {
     const text = getRelationText(enumDefault);
 
     return (
-      <div className={cx('customFormControlBox', { controlDisabled: disabled })} style={{ height: 'auto' }}>
-        <List data={JSON.parse(value || '[]')} from={from} disabled={disabled} onDelete={this.itemOnDelete} />
-
+      <div className={cx({ controlDisabled: disabled })} style={{ height: 'auto' }}>
         {!disabled && (
           <button
-            className="customFormRelationBtn Gray_75 ThemeHoverColor3 pointer w100 TxtLeft"
+            className="customFormRelationBtn pointer"
             onClick={() => {
               if (md.global.Account.isPortal) {
                 alert('您不是该组织成员，请联系管理员！', 3);
@@ -65,10 +63,12 @@ export default class Widgets extends Component {
               this.setState({ dialogVisible: true });
             }}
           >
-            <Icon icon="plus" className="mRight5" />
-            <span>{_l('%0...', text)}</span>
+            <Icon icon="plus" className="mRight5 Gray_9e Font16" />
+            <span>{_l('%0', text)}</span>
           </button>
         )}
+
+        <List data={JSON.parse(value || '[]')} from={from} disabled={disabled} onDelete={this.itemOnDelete} />
 
         {dialogVisible && (
           <DialogRelationControl

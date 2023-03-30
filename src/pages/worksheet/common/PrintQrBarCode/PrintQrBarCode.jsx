@@ -94,6 +94,7 @@ function getDefaultConfig(printType) {
 
 export default function PrintQrBarCode(props) {
   const {
+    isCharge,
     mode,
     printType = 1,
     appId,
@@ -282,57 +283,59 @@ export default function PrintQrBarCode(props) {
           )}
         </TemplateName>
         <div className="spacer"></div>
-        <Button
-          size="mdnormal"
-          type={mode === 'editTemplate' || mode === 'newTemplate' ? 'primary' : 'ghostgray'}
-          onClick={() => {
-            let args = {
-              id: id || '',
-              projectId,
-              worksheetId,
-              type: printType === PRINT_TYPE.BAR ? 4 : 3,
-              config: {
-                ...config,
-                sourceControlId: config.sourceControlId || '',
-              },
-            };
-            function update(cb = () => {}) {
-              worksheetAjax.saveRecordCodePrintConfig(args).then(data => {
-                alert(_l('保存成功'));
-                setChanged(false);
-                if (!id) {
-                  setBase({ ...base, id: data });
-                }
-                cb();
-              });
-            }
-            if (id) {
-              args = Object.assign(args, base);
-              update();
-            } else {
-              saveTemplateConfirm({
-                className: 'doNotTriggerClickAway',
+        {isCharge && (
+          <Button
+            size="mdnormal"
+            type={mode === 'editTemplate' || mode === 'newTemplate' ? 'primary' : 'ghostgray'}
+            onClick={() => {
+              let args = {
+                id: id || '',
+                projectId,
                 worksheetId,
-                viewId,
-                printData: {
-                  name: base.name,
-                  range: 1,
-                  views: [],
+                type: printType === PRINT_TYPE.BAR ? 4 : 3,
+                config: {
+                  ...config,
+                  sourceControlId: config.sourceControlId || '',
                 },
-                setValue: data => {
-                  args = Object.assign(args, {
-                    name: data.name,
-                    range: data.range,
-                    views: data.views.map(v => v.viewId),
-                  });
-                  update(onClose);
-                },
-              });
-            }
-          }}
-        >
-          {mode === 'editTemplate' || mode === 'newTemplate' ? _l('保存') : _l('保存为打印模板')}
-        </Button>
+              };
+              function update(cb = () => {}) {
+                worksheetAjax.saveRecordCodePrintConfig(args).then(data => {
+                  alert(_l('保存成功'));
+                  setChanged(false);
+                  if (!id) {
+                    setBase({ ...base, id: data });
+                  }
+                  cb();
+                });
+              }
+              if (id) {
+                args = Object.assign(args, base);
+                update();
+              } else {
+                saveTemplateConfirm({
+                  className: 'doNotTriggerClickAway',
+                  worksheetId,
+                  viewId,
+                  printData: {
+                    name: base.name,
+                    range: 1,
+                    views: [],
+                  },
+                  setValue: data => {
+                    args = Object.assign(args, {
+                      name: data.name,
+                      range: data.range,
+                      views: data.views.map(v => v.viewId),
+                    });
+                    update(onClose);
+                  },
+                });
+              }
+            }}
+          >
+            {mode === 'editTemplate' || mode === 'newTemplate' ? _l('保存') : _l('保存为打印模板')}
+          </Button>
+        )}
         {!_.isEmpty(selectedRows) && (
           <Button size="mdnormal" type="primary" className="mLeft10" onClick={handlePrint}>
             {_l('打印')}

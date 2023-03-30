@@ -163,7 +163,7 @@ function Hierarchy(props) {
         document.querySelector('body').removeChild(copyDom);
       });
     } catch (error) {
-      alert(_l('生成失败'));
+      alert(_l('生成失败'), 2);
       document.querySelector('body').removeChild(copyDom);
     }
   };

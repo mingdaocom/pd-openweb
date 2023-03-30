@@ -89,10 +89,15 @@ export default class NumberSlider extends React.Component {
     const { min, max, numinterval } = cell.advancedSetting || {};
     const minNumber = levelSafeParse(min);
     const maxNumber = levelSafeParse(max);
-    if (isediting && (e.key === 'Escape' || (e.key === 'Enter' && String(this.state.value) !== cell.value))) {
+    if (
+      isediting &&
+      (e.key === 'Escape' || (e.key === 'Enter' && String(this.state.value) !== cell.value && this.state.changed))
+    ) {
       updateEditingStatus(false);
       this.handleExit();
     } else if (isediting && _.includes(['ArrowUp', 'ArrowDown'], e.key)) {
+      e.stopPropagation();
+      e.preventDefault();
       const step = levelSafeParse(numinterval);
       const value = levelSafeParse(this.state.value || min);
       const newValue = value + step * (e.key === 'ArrowUp' ? 1 : -1);
@@ -100,7 +105,7 @@ export default class NumberSlider extends React.Component {
         return;
       }
       if (_.isNumber(newValue) && !_.isNaN(newValue)) {
-        this.setState({ value: newValue });
+        this.setState({ value: newValue, changed: true });
       }
     } else if (/^[0-9]$/.test(e.key)) {
       let inputValue = Number(e.key);
@@ -142,6 +147,7 @@ export default class NumberSlider extends React.Component {
     const { updateEditingStatus, updateCell } = this.props;
     const { value } = this.state;
     updateEditingStatus(false);
+    this.setState({ changed: false });
     if (value !== this.props.cell.value) {
       updateCell({ value: this.state.value });
     }
@@ -217,7 +223,13 @@ export default class NumberSlider extends React.Component {
         <div className="flex">{sliderComp}</div>
         {editable && (
           <OperateIcon className="OperateIcon editIcon">
-            <i className="ThemeHoverColor3 icon icon-edit" onClick={() => updateEditingStatus(true)} />
+            <i
+              className="ThemeHoverColor3 icon icon-edit"
+              onClick={e => {
+                e.stopPropagation();
+                updateEditingStatus(true);
+              }}
+            />
           </OperateIcon>
         )}
       </Con>

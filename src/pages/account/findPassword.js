@@ -185,12 +185,15 @@ class FindPassword extends React.Component {
   };
 
   render() {
+    const { SysSettings } = md.global;
     return (
       <div className="loginBox">
         <div className="loginContainer">
-          <div className="titleHeader">
-            <img src={md.global.SysSettings.brandLogoUrl} height={40} />
-          </div>
+          {!SysSettings.hideBrandLogo && (
+            <div className="titleHeader">
+              <img src={SysSettings.brandLogoUrl} height={SysSettings.brandLogoHeight || 40} />
+            </div>
+          )}
           {this.renderCon()}
         </div>
         <ChangeLang />

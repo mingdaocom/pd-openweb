@@ -43,7 +43,10 @@ export default class Date extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.cell.value !== this.props.cell.value) {
       const value = _.isObject(nextProps.cell.value) ? nextProps.cell.value.text : nextProps.cell.value;
-      this.setState({ value, ...(value === '{"code":"","name":""}' ? { tempValue: undefined } : {}) });
+      this.setState({
+        value,
+        ...(value === '{"code":"","name":""}' ? { tempValue: undefined } : { tempValue: value }),
+      });
     }
   }
 

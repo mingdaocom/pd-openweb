@@ -25,13 +25,13 @@ export default class WaitingPay extends Component {
       currRecordObj: {},
       needEmail: false,
       password: '',
-      loading: true
+      loading: true,
     };
   }
 
   componentDidMount() {
     if (!orderId) {
-      alert(_l('传入参数无效'));
+      alert(_l('传入参数无效'), 3);
       return false;
     }
     const _this = this;
@@ -43,7 +43,7 @@ export default class WaitingPay extends Component {
         projectId: Config.projectId,
         orderId: orderId,
       }),
-    ).done(function(balance, data) {
+    ).done(function (balance, data) {
       _this.setState(
         {
           balance: parseFloat(balance) || 0,
@@ -104,7 +104,7 @@ export default class WaitingPay extends Component {
         payStyleArr: _payStyleArr,
         balanceNotEnough,
         payStyle: firstItem,
-        loading: false
+        loading: false,
       });
     }
   }
@@ -174,7 +174,9 @@ export default class WaitingPay extends Component {
                 });
               }}
             >
-              <span className={cx('Font12 mRight8', item.icon, item.id === 'bankPay' ? 'bankPayColor' : 'otherPayColor')}></span>
+              <span
+                className={cx('Font12 mRight8', item.icon, item.id === 'bankPay' ? 'bankPayColor' : 'otherPayColor')}
+              ></span>
               <span>{item.name}</span>
             </div>
           );
@@ -217,8 +219,8 @@ export default class WaitingPay extends Component {
           '&orderId=' +
           orderId +
           '&sendEmail=' +
-          this.state.needEmail
-      )
+          this.state.needEmail,
+      ),
     );
   }
 
@@ -230,7 +232,7 @@ export default class WaitingPay extends Component {
     }
     if (confirm(_l('确定以【余额付款】方式进行本次付款？'))) {
       this.setState({ isPay: true });
-      alert(_l('正在提交，请稍候...'), 1, false);
+      alert({ msg: _l('正在提交，请稍候...'), type: 1, timeout: false, key: 'pay' });
       orderController
         .balancePayOrder({
           projectId: Config.projectId,
@@ -239,17 +241,23 @@ export default class WaitingPay extends Component {
         })
         .then(data => {
           if (data.isSuccess) {
-            alert(_l('付款成功'), 1, 1000, function() {
-              window.location.href = '/admin/billinfo/' + Config.projectId;
+            alert({
+              msg: _l('付款成功'),
+              type: 1,
+              key: 'pay',
+              timeout: 1000,
+              callback: () => {
+                window.location.href = '/admin/billinfo/' + Config.projectId;
+              },
             });
           } else {
             this.setState({ isPay: false });
             if (data.validateResult == 2) {
-              alert(_l('密码错误'), 3);
+              alert({ msg: _l('密码错误'), type: 3, key: 'pay' });
             } else if (data.validateResult == 3) {
-              alert(_l('余额不足'), 3);
+              alert({ msg: _l('余额不足'), type: 3, key: 'pay' });
             } else {
-              alert(_l('操作失败'), 2);
+              alert({ msg: _l('操作失败'), type: 2, key: 'pay' });
             }
           }
         });
@@ -259,7 +267,9 @@ export default class WaitingPay extends Component {
   //支付宝
   aliPay() {
     if (confirm(_l('确定以【支付宝付款】方式进行本次付款？'))) {
-      window.open(addToken(md.global.Config.AjaxApiUrl + 'pay/alipay?projectId=' + Config.projectId + '&orderNumber=' + orderId));
+      window.open(
+        addToken(md.global.Config.AjaxApiUrl + 'pay/alipay?projectId=' + Config.projectId + '&orderNumber=' + orderId),
+      );
       const setting = {
         url: '/admin/billinfo/' + Config.projectId,
       };
@@ -274,8 +284,8 @@ export default class WaitingPay extends Component {
 
   render() {
     const { payStyle, balanceNotEnough, currRecordObj, needEmail, isPay, loading } = this.state;
-    if(loading) {
-      return <LoadDiv />
+    if (loading) {
+      return <LoadDiv />;
     }
     return (
       <div className="warpCenter waitingPay">
@@ -322,7 +332,11 @@ export default class WaitingPay extends Component {
               ) : (
                 <Fragment>
                   <span className="Block mTop25 color_b Font13">{_l('请输入您的登录密码')}</span>
-                  <Input.Password className="waitingPayInput mTop10" onChange={this.handleInput.bind(this)} autocomplete="new-password" />
+                  <Input.Password
+                    className="waitingPayInput mTop10"
+                    onChange={this.handleInput.bind(this)}
+                    autocomplete="new-password"
+                  />
                   <div className="warpSendBankInfoEmail mTop16">
                     <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needEmail}>
                       {_l('同时邮件给我')}
@@ -338,7 +352,7 @@ export default class WaitingPay extends Component {
           </div>
           <button
             type="button"
-            disabled={(payStyle === 'balancePay'&&balanceNotEnough) || isPay}
+            disabled={(payStyle === 'balancePay' && balanceNotEnough) || isPay}
             className="ming Button Button--primary nextBtn mTop40"
             onClick={() => this.handlePay()}
           >

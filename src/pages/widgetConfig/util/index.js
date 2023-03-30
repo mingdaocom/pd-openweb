@@ -1,4 +1,16 @@
-import _, { get, keys, flatten, sortBy, omit, isEmpty, upperFirst, findIndex, isArray, isObject } from 'lodash';
+import _, {
+  get,
+  keys,
+  flatten,
+  sortBy,
+  omit,
+  isEmpty,
+  upperFirst,
+  findIndex,
+  isArray,
+  isObject,
+  includes,
+} from 'lodash';
 import update from 'immutability-helper';
 import { navigateTo } from 'src/router/navigateTo';
 import { WHOLE_SIZE } from '../config/Drag';
@@ -7,6 +19,7 @@ import { RELATION_OPTIONS, DEFAULT_TEXT } from '../config/setting';
 import { compose } from 'redux';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../config/widget';
 import { getCurrentRowSize } from './widgets';
+import { browserIsMobile } from 'src/util';
 
 const FORMULA_FN_LIST = [
   'SUM',
@@ -194,7 +207,7 @@ export const canSetAsTitle = data => {
       return false;
     }
   }
-  return !_.includes(NOT_AS_TITLE_CONTROL, type);
+  return !includes(NOT_AS_TITLE_CONTROL, type);
 };
 
 function genWidgetRowAndCol(widgets) {
@@ -367,4 +380,19 @@ export const getRgbaByColor = (color, alpha) => {
     sColorChange.push(parseInt(`0x${color.slice(i, i + 2)}`));
   }
   return `rgba(${sColorChange.join(',')},${alpha})`;
+};
+
+// 支持左右布局的控件
+export const supportDisplayRow = item => {
+  // 附件、单条关联记录、多条关联记录（列表、卡片）、子表、分段、备注
+  if (browserIsMobile()) {
+    return (
+      !includes([14, 29, 34, 22], item.type) ||
+      (item.type === 29 && _.get(item, 'advancedSetting.showtype') === '3')
+    );
+  }
+  // 多条关联记录（列表）、子表、分段、备注
+  return (
+    (item.type === 29 && _.get(item, 'advancedSetting.showtype') !== '2') || !includes([29, 34, 22], item.type)
+  );
 };

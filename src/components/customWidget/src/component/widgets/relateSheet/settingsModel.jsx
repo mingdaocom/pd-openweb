@@ -176,7 +176,7 @@ class SettingsModel extends Component {
             <Support
               className="moreHelp"
               type={3}
-              href="https://help.mingdao.com/sheet13.html"
+              href="https://help.mingdao.com/zh/sheet13.html"
               text={_l('更多帮助')}
             />
           </div>

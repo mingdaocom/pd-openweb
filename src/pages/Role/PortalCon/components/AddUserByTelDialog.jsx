@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../redux/actions';
 import { Icon, Dialog, Checkbox, Radio, Dropdown } from 'ming-ui';
-import 'src/components/uploadAttachment/uploadAttachment';
 import cx from 'classnames';
 import externalPortalAjax from 'src/api/externalPortal';
 import Tel from './Tel';

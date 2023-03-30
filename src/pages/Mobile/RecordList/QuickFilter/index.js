@@ -65,7 +65,7 @@ function QuickFilter(props) {
     const quickFilter = items
       .map((filter, i) => ({
         ...filter,
-        filterType: filter.filterType || 1,
+        filterType: filter.filterType || (filter.dataType === 29 ? 24 : 2),
         spliceType: filter.spliceType || 1,
         ...valuesToUpdate[i],
       }))

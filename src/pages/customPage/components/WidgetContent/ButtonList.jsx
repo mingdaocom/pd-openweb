@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
@@ -18,7 +18,8 @@ import { genUrl } from '../../util';
 import { connect } from 'react-redux';
 import { browserIsMobile, mdAppResponse } from 'src/util';
 import { getRequest } from 'src/util';
-import SoketMessage from 'src/pages/Mobile/Record/SoketMessage';
+import customBtnWorkflow from 'mobile/Record/socket/customBtnWorkflow';
+import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -51,19 +52,18 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
   const scanQRCodeRef = useRef();
   const [currentScanBtn, setCurrentScanBtn] = useState();
   const [previewRecord, setPreviewRecord] = useState({});
-  const [runInfoVisible, setRunInfoVisible] = useState(false);
-  const [custBtnName, setCustBtnName] = useState('');
   const isPublicShare = location.href.includes('public/page');
   const includeScanQRCode = _.find(button.buttonList, { action: 5 });
   const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
   const projectId = info.projectId || _.get(info, 'apk.projectId');
-  let timeout = null;
+
+  useEffect(() => {
+    if (isMobile) {
+      customBtnWorkflow();
+    }
+  });
 
   async function runStartProcessByPBC(item, scanQRCodeResult) {
-    if(isMobile){
-      setCustBtnName(item.title);
-      setRunInfoVisible(true);
-    }
     const { id, processId, name, config } = item;
     const { inputs = [] } = config;
     const { accountId } = md.global.Account;
@@ -110,19 +110,13 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
         }
       })
     }).then(data => {
-      if (isMobile) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          setRunInfoVisible(false);
-        }, 1000);
-      }
+      
     });
   }
 
   async function handleClick(item) {
     if (editable) return;
     const { param, action, value, viewId, openMode = 1, name } = item;
-    const isOpenNewWindow = isMingdao ? false : openMode === 2;
 
     if (isPublicShare && action !== 4) {
       alert(_l('无权操作'), 3);
@@ -164,10 +158,12 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
         return url;
       };
       const url = getUrl();
-      if (isOpenNewWindow) {
+      if (openMode === 2) {
         window.open(url);
-      } else {
+      } else if (isMingdao) {
         window.location.href = url;
+      } else {
+        navigateTo(url);
       }
     }
     if (action === 4 && value) {
@@ -327,7 +323,6 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
           setPreviewRecord({});
         }}
       />
-      <SoketMessage runInfoVisible={runInfoVisible} custBtnName={custBtnName} />
     </ButtonListWrap>
   );
 }

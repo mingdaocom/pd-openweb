@@ -31,6 +31,9 @@ const StyledFixedTable = styled(FixedTable)`
     border-top: none !important;
     padding: 7px 6px;
     overflow: hidden;
+    .ghostAngle {
+      display: none;
+    }
     &.highlight,
     &.highlightFromProps {
       background-color: #f5fbff !important;
@@ -38,7 +41,7 @@ const StyledFixedTable = styled(FixedTable)`
     &.grayHover:not(.cellControlErrorStatus) {
       box-shadow: inset 0 0 0 1px #e0e0e0 !important;
     }
-    &.focus:not(.cellControlErrorStatus) {
+    &.focus:not(.cellControlErrorStatus):not(.control-10.isediting):not(.control-11.isediting) {
       box-shadow: inset 0 0 0 2px #2d7ff9 !important;
       z-index: 2;
     }
@@ -64,7 +67,7 @@ const StyledFixedTable = styled(FixedTable)`
   }
   &.showAsZebra {
     .cell.oddRow {
-      background-color: #fafafa !important;
+      background-color: #fafafa;
     }
   }
   &:not(.classic) {
@@ -125,6 +128,7 @@ function WorksheetTable(props, ref) {
     cellPopupContainer,
     sheetSwitchPermit,
     from,
+    isTrash,
     allowlink,
   } = props;
   const { emptyIcon, emptyText, sheetIsFiltered, allowAdd, noRecordAllowAdd, showNewRecord } = props; // 空状态
@@ -297,6 +301,7 @@ function WorksheetTable(props, ref) {
     } else {
       return (
         <MDCell
+          isTrash={isTrash}
           from={from}
           allowlink={allowlink}
           isSubList={isSubList}

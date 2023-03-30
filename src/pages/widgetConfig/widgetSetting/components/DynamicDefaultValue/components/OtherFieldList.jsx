@@ -65,14 +65,14 @@ export default ({ dynamicValue = [], onClick, data, removeItem, removeRelateShee
                 if (type === 'user') {
                   const { accountId, fullname, avatar, name } = value;
 
-                  if (accountId === 'user-self') {
+                  if (_.includes(['user-self'], accountId)) {
                     return (
                       <OtherField
                         className="timeField"
                         dynamicValue={dynamicValue}
                         data={data}
                         item={item}
-                        text={_l('当前用户')}
+                        text={value.name}
                         {...rest}
                       />
                     );

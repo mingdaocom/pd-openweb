@@ -16,7 +16,7 @@ import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import processAjax from 'src/pages/workflow/api/process';
 import _ from 'lodash';
 import ConnectAvator from '../../components/ConnectAvator';
-
+import { getIsSuperAdmin } from 'src/pages/integration/util.js';
 const Wrap = styled.div`
   .scrollDiv {
     height: 0px;
@@ -30,7 +30,6 @@ const Wrap = styled.div`
     }
   }
   height: 100%;
-  background: #f7f7f7;
   position: relative;
   .head {
     transition: height 0.2s;
@@ -175,6 +174,8 @@ function ConnectCon(props) {
       apiList,
       isChange,
       isConnectOwner,
+      introduce,
+      isSuperAdmin,
     },
     setState,
   ] = useSetState({
@@ -190,6 +191,8 @@ function ConnectCon(props) {
     showMenu: false,
     isChange: false,
     isConnectOwner: false,
+    introduce: '',
+    isSuperAdmin: props.isSuperAdmin,
   });
   const cache = useRef({
     isFix: false,
@@ -219,9 +222,9 @@ function ConnectCon(props) {
 
   useEffect(() => {
     setState({
-      isConnectOwner: props.isSuperAdmin || connectData.isOwner,
+      isConnectOwner: isSuperAdmin || connectData.isOwner,
     });
-  }, [props.isSuperAdmin, connectData]);
+  }, [isSuperAdmin, connectData]);
 
   const HandleScroll = e => {
     e.stopPropagation();
@@ -234,152 +237,190 @@ function ConnectCon(props) {
       cache.current.isFix = toFix;
     }
   };
+
   // 获取基本详情
   const getDetailInfo = id => {
-    packageVersionAjax.getDetail(
-      {
-        isPublic: true,
-        id: id,
-      },
-      { isIntegration: true },
-    ).then(
-      res => {
-        const { apks = [] } = res;
-        let newData = { ...connectData, ...res, apks };
-        if (props.isSuperAdmin || newData.isOwner) {
+    packageVersionAjax
+      .getDetail(
+        {
+          isPublic: true,
+          id: id,
+        },
+        { isIntegration: true },
+      )
+      .then(
+        res => {
+          const { apks = [], companyId } = res;
+          const isSuperAdmin = getIsSuperAdmin(companyId);
           setState({
-            connectData: newData,
-            isConnectOwner: true,
+            isSuperAdmin,
           });
-        } else {
+          let newData = { ...connectData, ...res, apks };
+          if (isSuperAdmin || newData.isOwner) {
+            setState({
+              connectData: newData,
+              isConnectOwner: true,
+              introduce: res.introduce,
+            });
+          } else {
+            setTimeout(() => {
+              location.href = '/integration';
+            }, 500);
+            alert(_l('你暂时没有权限查看该连接！'), 3);
+          }
+        },
+        () => {
           setTimeout(() => {
             location.href = '/integration';
           }, 500);
-          alert(_l('你暂时没有权限查看该连接！', 3));
-        }
-      },
-      () => {
-        setTimeout(() => {
-          location.href = '/integration';
-        }, 500);
-        alert(_l('你暂时没有权限查看该连接！', 3));
-      },
-    );
+          alert(_l('你暂时没有权限查看该连接！'), 3);
+        },
+      );
   };
   //创建api管理
   const addConnet = () => {
-    packageVersionAjax.add(
-      {
-        companyId: localStorage.getItem('currentProjectId'),
-        defaultFlowNode: {
-          actionId: TYPELIST.find(o => o.appType === authType).actionId,
-          appType: authType,
+    packageVersionAjax
+      .add(
+        {
+          companyId: localStorage.getItem('currentProjectId'),
+          defaultFlowNode: {
+            actionId: TYPELIST.find(o => o.appType === authType).actionId,
+            appType: authType,
+          },
+          explain: '',
+          iconColor: '',
+          iconName: '',
+          name: _l('未命名连接'),
+          relationId: '',
+          relationType: 4,
+          startEventAppType: 0,
         },
-        explain: '',
-        iconColor: '',
-        iconName: '',
-        name: _l('未命名连接'),
-        relationId: '',
-        relationType: 4,
-        startEventAppType: 0,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      getInfo(res.id);
-      let newData = {
-        ...connectData,
-        ...res,
-        isOwner: true,
-        authType: authType,
-        type: 1,
-        ownerAccount: {
-          ...res.ownerAccount,
-          accountId: md.global.Account.accountId,
-          fullName: md.global.Account.fullname,
-        },
-      };
-      setState({
-        connectData: newData,
-        isChange: true,
-        isConnectOwner: props.isSuperAdmin || newData.isOwner,
+        { isIntegration: true },
+      )
+      .then(res => {
+        getInfo(res.id);
+        let newData = {
+          ...connectData,
+          ...res,
+          isOwner: true,
+          authType: authType,
+          type: 1,
+          ownerAccount: {
+            ...res.ownerAccount,
+            accountId: md.global.Account.accountId,
+            fullName: md.global.Account.fullname,
+          },
+        };
+        setState({
+          connectData: newData,
+          isChange: true,
+          isConnectOwner: isSuperAdmin || newData.isOwner,
+        });
       });
-    });
   };
   // 获取连接详情
   const getInfo = processId => {
     if (!processId) {
       return;
     }
-    flowNodeAjax.get(
-      {
-        processId,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setState({
-        nodeInfo: res,
-        loading: false,
+    flowNodeAjax
+      .get(
+        {
+          processId,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({
+          nodeInfo: res,
+          loading: false,
+        });
+        getApiListFetch(res.id);
       });
-      getApiListFetch(res.id);
-    });
   };
   const getApiListFetch = id => {
-    packageVersionAjax.getApiList(
-      {
-        companyId: localStorage.getItem('currentProjectId'),
-        pageIndex: 1,
-        pageSize: 100000, //PageSize,
-        keyword: '',
-        relationId: id,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setState({ apiCount: res.length, apiList: res });
-    });
+    packageVersionAjax
+      .getApiList(
+        {
+          companyId: localStorage.getItem('currentProjectId'),
+          pageIndex: 1,
+          pageSize: 100000, //PageSize,
+          keyword: '',
+          relationId: id,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({ apiCount: res.length, apiList: res });
+      });
   };
   // 更新基本信息
   const updateInfo = info => {
-    processAjax.updateProcess(
-      {
-        companyId: localStorage.getItem('currentProjectId'),
-        processId: connectData.id,
-        name: info.name,
-        explain: info.explain,
-        iconName: (info.iconName || '').split('?e=')[0],
-      },
-      { isIntegration: true },
-    ).then(res => {
-      //新建的会丢ownerAccount
-      let newData = {
-        ...connectData,
-        ...res,
-        ownerAccount: !res.ownerAccount.accountId ? connectData.ownerAccount : res.ownerAccount,
-        isOwner: connectData.isOwner,
-        iconName: info.iconName,
-        isChange: true,
-      };
-      setState({
-        connectData: newData,
-        isConnectOwner: props.isSuperAdmin || newData.isOwner,
+    processAjax
+      .updateProcess(
+        {
+          companyId: localStorage.getItem('currentProjectId'),
+          processId: connectData.id,
+          name: info.name,
+          explain: info.explain,
+          iconName: (info.iconName || '').split('?e=')[0],
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        //新建的会丢ownerAccount
+        let newData = {
+          ...connectData,
+          ...res,
+          ownerAccount: !res.ownerAccount.accountId ? connectData.ownerAccount : res.ownerAccount,
+          isOwner: connectData.isOwner,
+          iconName: info.iconName,
+          isChange: true,
+        };
+        setState({
+          connectData: newData,
+          isConnectOwner: isSuperAdmin || newData.isOwner,
+        });
       });
-    });
   };
   const upperConnect = info => {
-    packageVersionAjax.upper(
-      {
-        id: connectData.id,
-        ...info,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      if (res) {
-        setState({ show: false });
-        getDetailInfo(connectData.id); //上架成功，重新获取一次详情
-        alert(_l('已申请上架，请等待审核'));
-      } else {
-        alert(_l('申请失败，请稍后再试', 2));
-      }
-    });
+    packageVersionAjax
+      .upper(
+        {
+          id: connectData.id,
+          ...info,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        if (res) {
+          setState({ show: false });
+          getDetailInfo(connectData.id); //上架成功，重新获取一次详情
+          alert(_l('已申请上架，请等待审核'));
+        } else {
+          alert(_l('申请失败，请稍后再试'), 2);
+        }
+      });
+  };
+  //修改使用说明
+  const updateIntroduce = introduce => {
+    packageVersionAjax
+      .update(
+        {
+          id: connectData.id,
+          introduce,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        if (res) {
+          setState({
+            introduce,
+          });
+        } else {
+          alert(_l('修改失败，请稍后再试'), 2);
+        }
+      });
   };
   const renderCon = () => {
     switch (tab) {
@@ -392,6 +433,8 @@ function ConnectCon(props) {
               })
             }
             {...nodeInfo}
+            updateIntroduce={value => updateIntroduce(value)}
+            introduce={introduce}
             connectId={connectData.id}
             connectType={connectData.type}
             isConnectOwner={isConnectOwner}
@@ -421,7 +464,7 @@ function ConnectCon(props) {
           <AuthorizeToApp
             {...nodeInfo}
             isConnectOwner={isConnectOwner}
-            isSuperAdmin={props.isSuperAdmin}
+            isSuperAdmin={isSuperAdmin}
             processId={connectData.id}
             list={connectData.apks || []}
             hasChange={() =>
@@ -440,25 +483,27 @@ function ConnectCon(props) {
     }
   };
   const openNewPage = () => {
-    window.open(`/integrationConnect/${localStorage.getItem('currentProjectId')}/${connectData.id}`);
+    window.open(`/integrationConnect/${connectData.id}`);
   };
 
   const onDel = () => {
-    packageVersionAjax.delete(
-      {
-        id: connectData.id,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      if (res) {
-        alert(_l('删除成功'));
-        setTimeout(() => {
-          location.href = '/integration';
-        }, 1000);
-      } else {
-        alert(_l('有API被引用，请删除引用后重试'), 3);
-      }
-    });
+    packageVersionAjax
+      .delete(
+        {
+          id: connectData.id,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        if (res) {
+          alert(_l('删除成功'));
+          setTimeout(() => {
+            location.href = '/integration';
+          }, 1000);
+        } else {
+          alert(_l('有API被引用，请删除引用后重试'), 3);
+        }
+      });
   };
   if (loading) {
     return <LoadDiv />;
@@ -477,11 +522,7 @@ function ConnectCon(props) {
                 if (location.href.indexOf('integrationConnect') < 0) {
                   props.onClose(isChange);
                 } else {
-                  if (history.length === 1) {
-                    location.href = '/integration';
-                  } else {
-                    history.back();
-                  }
+                  location.href = '/integration';
                 }
               }}
             >
@@ -710,7 +751,7 @@ function ConnectCon(props) {
             onCancel={() => {
               setState({ show: false });
             }}
-            isSuperAdmin={props.isSuperAdmin}
+            isSuperAdmin={isSuperAdmin}
             connectInfo={connectData}
             info={connectData.info}
             status={connectData.status}

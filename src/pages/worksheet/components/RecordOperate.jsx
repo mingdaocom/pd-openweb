@@ -43,7 +43,7 @@ const MenuWrap = styled(Menu)`
   position: relative !important;
   overflow: auto;
   padding: 6px 0 !important;
-  width: 200px !important;
+  width: 240px !important;
 `;
 
 const MenuItemWrap = styled(MenuItem)`
@@ -333,6 +333,7 @@ export default function RecordOperate(props) {
           )}
           {showPrint && (
             <PrintList
+              isCharge={isCharge}
               controls={formdata || []}
               {...{ appId, viewId, worksheetId, projectId, workId, instanceId }}
               sheetSwitchPermit={sheetSwitchPermit}

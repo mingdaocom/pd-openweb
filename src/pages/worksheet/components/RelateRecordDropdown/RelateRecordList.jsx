@@ -68,8 +68,12 @@ export default class RelateRecordList extends React.PureComponent {
 
   @autobind
   handleEnter() {
-    const { onItemClick } = this.props;
+    const { onItemClick, onNewRecord } = this.props;
     const { activeId, records } = this.state;
+    if (activeId === 'newRecord') {
+      onNewRecord();
+      return;
+    }
     const newActiveRecord = _.find(records, { rowid: activeId });
     if (newActiveRecord) {
       onItemClick(newActiveRecord);
@@ -106,6 +110,9 @@ export default class RelateRecordList extends React.PureComponent {
     const newActiveRecord = records[currentIndex + offset];
     this.handleUpdateScroll(currentIndex + offset);
     if (!newActiveRecord) {
+      this.setState({
+        activeId: 'newRecord',
+      });
       return;
     }
     const newActiveId = newActiveRecord.rowid;
@@ -187,13 +194,6 @@ export default class RelateRecordList extends React.PureComponent {
           controls: res.template ? res.template.controls : [],
           worksheet: res.worksheet || {},
         });
-        if (pageIndex === 1) {
-          if (newRecords[0]) {
-            this.setState({
-              activeId: newRecords[0].rowid,
-            });
-          }
-        }
       } else {
         this.setState({
           loading: false,
@@ -262,7 +262,7 @@ export default class RelateRecordList extends React.PureComponent {
             height: recordListHeight > 323 ? 323 : recordListHeight,
           }}
         >
-          <div className="flex flexColumn listCon">
+          <div className="flex flexColumn listCon" onClick={e => e.stopPropagation()}>
             <ScrollView
               className="flex"
               onScrollEnd={() => {
@@ -317,7 +317,7 @@ export default class RelateRecordList extends React.PureComponent {
         <div style={{ borderTop: '1px solid #ddd' }} />
         {allowNewRecord && allowAdd && !window.isPublicWorksheet && (!error || error === 'notCorrectCondition') && (
           <div
-            className="RelateRecordList-create"
+            className={'RelateRecordList-create ' + (activeId === 'newRecord' ? 'active' : '')}
             onClick={e => {
               e.stopPropagation();
               this.setState({ activeId: undefined });

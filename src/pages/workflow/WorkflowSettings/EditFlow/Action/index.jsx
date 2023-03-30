@@ -251,7 +251,7 @@ export default class Action extends Component {
   }
 
   render() {
-    const { processId, item, disabled, selectNodeId, openDetail } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail, approvalSelectNodeId } = this.props;
     const bgClassName = item.appType === APP_TYPE.TASK ? 'BGGreen' : 'BGYellow';
 
     return (
@@ -269,7 +269,7 @@ export default class Action extends Component {
               },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId, approvalSelectNodeId)}
           >
             <div className="workflowAvatars flexRow">
               <i

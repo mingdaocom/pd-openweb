@@ -200,7 +200,8 @@ export default function AllOptionList(props) {
   useEffect(() => {
     if (!visible) return;
     setLoading(true);
-    worksheetAjax.getCollectionsByAppId({ appId })
+    worksheetAjax
+      .getCollectionsByAppId({ appId })
       .then(({ data }) => {
         setItems(data);
         waterfallList(data);
@@ -217,7 +218,7 @@ export default function AllOptionList(props) {
         setItems(nextItems);
         waterfallList(nextItems);
       } else {
-        alert(_l('删除失败'));
+        alert(_l('删除失败'), 2);
       }
     });
   };
@@ -241,7 +242,7 @@ export default function AllOptionList(props) {
               setItems(nextItems);
               waterfallList(nextItems);
             } else {
-              alert(_l('删除失败'));
+              alert(_l('删除失败'), 2);
             }
           });
         },

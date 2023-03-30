@@ -23,11 +23,19 @@ const ImportLoadingWrap = styled.div`
   background: rgba(255, 255, 255, 0.5);
 `;
 
+const getWorksheetList = (list = [], total = []) => {
+  list.map(item => {
+    total = total.concat((item.workSheetInfo || []).filter(i => i.type === 0));
+    if (item.childSections && item.childSections.length > 0) {
+      total = total.concat(getWorksheetList(item.childSections, total));
+    }
+  });
+  return total;
+};
+
 const { Option } = Select;
 @connect(({ appPkg }) => ({
-  worksheetList: (appPkg.appGroups || []).reduce((total, cur) => {
-    return total.concat((cur.workSheetInfo || []).filter(i => i.type === 0));
-  }, []),
+  worksheetList: getWorksheetList(appPkg.appGroups || []),
 }))
 export default class SetImportExcelCreateWorksheetOrApp extends Component {
   constructor(props) {
@@ -393,7 +401,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                 <Support
                   type={2}
                   text={_l('帮助')}
-                  href="https://help.mingdao.com/sheet50.html"
+                  href="https://help.mingdao.com/zh/sheet50.html"
                   className="Gray_bd mRight30"
                 />
                 <Button type="link" className="mRight15 cancelBtn" onClick={this.props.onCancel}>

@@ -290,7 +290,8 @@ class PreviewHeader extends React.Component {
             showDownload &&
             ((attachment.originNode || attachment.sourceNode || {}).fileID ||
               (attachment.originNode || attachment.sourceNode || {}).fileId) &&
-              !window.share && (
+            !window.share &&
+            !_.get(window, 'shareState.isPublicQuery') && (
               <div className="openNewPage">
                 <span className="normal" data-tip={_l('新页面打开')}>
                   <i

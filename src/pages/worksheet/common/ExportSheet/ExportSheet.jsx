@@ -38,21 +38,23 @@ export default class ExportSheet extends Component {
     props.columns.unshift({ type: 2, controlId: 'rowid', controlName: _l('记录ID') });
     if (!isShowWorkflowSys) {
       _.remove(props.columns, o =>
-        _.includes(['uaid', 'wfname', 'wfstatus', 'wfcuaids', 'wfrtime', 'wfftime', 'wfcaid', 'wfctime'], o.controlId),
+        _.includes(['wfname', 'wfstatus', 'wfcuaids', 'wfrtime', 'wfftime', 'wfcaid', 'wfctime'], o.controlId),
       );
     }
 
-    // 成员字段和关联表字段支持映射
+    // 成员、部门、关联表支持映射
     props.columns
-      .filter(column => column.type == 26 || column.type == 29)
+      .filter(column => _.includes([26, 27, 29], column.type))
       .map(column => {
         const { controlId } = column;
         const userId = false;
         const jobId = false;
+        const depId = false;
         const relaRowId = false;
         exportExtIds[controlId] = {
           userId,
           jobId,
+          depId,
           relaRowId,
         };
       });
@@ -149,6 +151,7 @@ export default class ExportSheet extends Component {
     for (const key in exportExtIds) {
       exportExtIds[key].userId = false;
       exportExtIds[key].jobId = false;
+      exportExtIds[key].depId = false;
       exportExtIds[key].relaRowId = false;
     }
 
@@ -197,6 +200,7 @@ export default class ExportSheet extends Component {
     for (const key in exportExtIds) {
       exportExtIds[key].userId = false;
       exportExtIds[key].jobId = false;
+      exportExtIds[key].depId = false;
       exportExtIds[key].relaRowId = false;
     }
 
@@ -265,14 +269,14 @@ export default class ExportSheet extends Component {
           ),
         navGroupFilters,
 
-        // 成员字段，关联表字段
+        // 成员字段、部门字段、关联表字段
         exportExtIds: columns
           .filter(column => {
-            return (column.type == 26 || column.type == 29) && columnsSelected[column.controlId];
+            return _.includes([26, 27, 29], column.type) && columnsSelected[column.controlId];
           })
           .map(column => {
             const { controlId } = column;
-            const { userId, jobId, relaRowId } = exportExtIds[controlId];
+            const { userId, jobId, depId, relaRowId } = exportExtIds[controlId];
             const extIds = [];
 
             // 成员ID
@@ -280,6 +284,9 @@ export default class ExportSheet extends Component {
 
             // 工号
             if (jobId) extIds.push('jobId');
+
+            // 部门系统ID
+            if (depId) extIds.push('depId');
 
             // 关联表记录ID
             if (relaRowId) extIds.push('relaRowId');
@@ -512,6 +519,28 @@ export default class ExportSheet extends Component {
                       />
                     </Fragment>
                   )}
+
+                {/** 部门字段 */}
+                {column.type == 27 && !!columnsSelected[column.controlId] && (
+                  <Fragment>
+                    {/** 名称 */}
+                    <Checkbox disabled={true} style={{ left: '40px' }} size="small" checked={true} onClick={() => {}}>
+                      <span style={{ color: '#333333' }}>{_l('名称')}</span>
+                    </Checkbox>
+
+                    {/** 部门系统ID */}
+                    <Checkbox
+                      style={{ left: '40px' }}
+                      size="small"
+                      checked={exportExtIds[column.controlId].depId}
+                      text={_l('部门系统ID')}
+                      onClick={() => {
+                        exportExtIds[column.controlId].depId = !exportExtIds[column.controlId].depId;
+                        this.setState({ exportExtIds });
+                      }}
+                    />
+                  </Fragment>
+                )}
               </Fragment>
             ))}
           </Fragment>

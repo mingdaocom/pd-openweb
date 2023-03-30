@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import './members.less';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import config from '../../config/config';
 import { addMembers } from '../../redux/actions';
 import UserHead from 'src/pages/feed/components/userHead';
@@ -34,7 +34,7 @@ class Members extends Component {
   addMembers(evt) {
     const filterAccountIds = this.props.accountTasksKV.map(item => item.account.accountId);
 
-    $(evt.currentTarget).dialogSelectUser({
+    dialogSelectUser({
       sourceId: config.folderId,
       title: _l('添加负责人'),
       showMoreInvite: false,
@@ -43,7 +43,7 @@ class Members extends Component {
         includeUndefinedAndMySelf: true,
         filterAccountIds,
         projectId: config.projectId,
-        callback: (users) => {
+        callback: users => {
           this.props.dispatch(addMembers(users));
           this.addMembersJoinFolder(users);
           $(this.ganttMembersList).scrollTop(0);
@@ -62,7 +62,7 @@ class Members extends Component {
         folderId: config.folderId,
         accountIds: _.map(users, user => user.accountId),
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           if (source.data.length > 0) {
             this.addFolderMembers(source.data);
@@ -85,7 +85,7 @@ class Members extends Component {
     const content = `<div style="color: #999;">
                     ${_l(
                       '您添加的%0不是项目成员也不在项目当前公开范围内，是否要将他们加入项目？',
-                      members.join('、') + (users.length > 3 ? _l(' 等%0人', users.length) : '')
+                      members.join('、') + (users.length > 3 ? _l(' 等%0人', users.length) : ''),
                     )}
                    </div>`;
 
@@ -113,7 +113,7 @@ class Members extends Component {
    */
   getTaskCount(taskTimeBars) {
     let count = 0;
-    taskTimeBars.forEach((item) => {
+    taskTimeBars.forEach(item => {
       count += item.length;
     });
 
@@ -131,7 +131,7 @@ class Members extends Component {
           </header>
           <ul
             className="ganttMembersList flex"
-            ref={(ganttMembersList) => {
+            ref={ganttMembersList => {
               this.ganttMembersList = ganttMembersList;
             }}
           >
@@ -147,8 +147,8 @@ class Members extends Component {
                     lazy={'false'}
                     size={24}
                   />
-                  <span className="overflow_ellipsis">{item.account.fullname}</span>
-                  ({this.getTaskCount(item.taskTimeBars)})
+                  <span className="overflow_ellipsis">{item.account.fullname}</span>(
+                  {this.getTaskCount(item.taskTimeBars)})
                 </li>
               );
             })}
@@ -159,7 +159,7 @@ class Members extends Component {
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { accountTasksKV } = state.task;
 
   return {

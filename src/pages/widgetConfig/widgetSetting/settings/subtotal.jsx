@@ -326,7 +326,7 @@ export default function Subtotal(props) {
                 {...props}
                 relationControls={availableControls}
                 fromCondition={'subTotal'}
-                helpHref="https://help.mingdao.com/sheet19.html"
+                helpHref="https://help.mingdao.com/zh/sheet19.html"
                 onChange={({ filters }) => {
                   filtersCache.current = filters;
                   onChange(handleAdvancedSettingChange(data, { filters: JSON.stringify(filters) }));

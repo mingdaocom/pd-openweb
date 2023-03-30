@@ -1,0 +1,36 @@
+.processDelegation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #fff;
+  position: fixed;
+  right: 20px;
+  bottom: 60px;
+  z-index: 100;
+  &.bottom122 {
+    bottom: 122px;
+  }
+  &.bottom60 {
+    bottom: 60px;
+  }
+  .redDot {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 100%;
+    background-color: red;
+  }
+}
+
+.organizationList {
+  .am-action-sheet-button-list {
+    max-height: 280px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}

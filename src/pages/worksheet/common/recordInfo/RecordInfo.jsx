@@ -14,6 +14,8 @@ import {
   replaceByIndex,
   filterHidedSubList,
   checkCellIsEmpty,
+  getRowGetType,
+  formatRecordToRelateRecord,
 } from 'worksheet/util';
 import { checkRuleLocked } from 'src/components/newCustomFields/tools/filterFn';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
@@ -118,6 +120,8 @@ export default class RecordInfo extends Component {
       allowExAccountDiscuss: false, //允许外部用户讨论
       exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
       forceShowFullValue: null,
+      widgetStyle: props.widgetStyle,
+      relateRecordData: {},
     };
     this.hadWaterMark = window.hadWaterMark;
     this.debounceRefresh = _.debounce(this.refreshEvent, 1000);
@@ -186,21 +190,6 @@ export default class RecordInfo extends Component {
     return formWidth;
   }
 
-  getRowGetType(from) {
-    if (from == 21) {
-      return 21;
-    } else if (
-      from === RECORD_INFO_FROM.CHAT ||
-      (from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND && location.search && location.search.indexOf('share') > -1) ||
-      _.get(window, 'shareState.isPublicView') ||
-      _.get(window, 'shareState.isPublicRecord')
-    ) {
-      return 3;
-    } else {
-      return 1;
-    }
-  }
-
   async loadRecord({ recordId, props, closeWhenNotViewData, needUpdateControlIds }) {
     const {
       from,
@@ -230,7 +219,7 @@ export default class RecordInfo extends Component {
         instanceId,
         workId,
         recordId,
-        getType: this.getRowGetType(from),
+        getType: getRowGetType(from),
         getRules: !rules,
         controls,
       });
@@ -280,6 +269,7 @@ export default class RecordInfo extends Component {
         formFlag: Math.random().toString(),
         loading: false,
         refreshBtnNeedLoading: false,
+        widgetStyle: data.advancedSetting || this.state.widgetStyle,
       });
     } catch (err) {
       console.error(err);
@@ -336,7 +326,7 @@ export default class RecordInfo extends Component {
     $('.mdEditorSave').click();
     const { currentSheetRows } = this.props;
     const index = _.findIndex(currentSheetRows, record => {
-      return record.rowid === recordId;
+      return record && record.rowid === recordId;
     });
     const newIndex = isNext ? index + 1 : index - 1;
     if (!currentSheetRows[newIndex]) {
@@ -416,11 +406,19 @@ export default class RecordInfo extends Component {
 
   @autobind
   handleFormChange(data, ids = []) {
-    const { updateControlIds } = this.state;
-    const isDraftChildTableDefault = data.filter(t => t.type === 34).some(it => _.get(it, 'value.isDefault'));
+    const { from, allowAdd } = this.props;
+    const { recordinfo, updateControlIds } = this.state;
+    const allowEdit =
+      from === RECORD_INFO_FROM.DRAFT
+        ? allowAdd
+        : _.isUndefined(this.props.allowEdit)
+        ? recordinfo.allowEdit
+        : this.props.allowEdit;
+    const isDraftChildTableDefault =
+      from === RECORD_INFO_FROM.DRAFT && data.filter(t => t.type === 34).some(it => _.get(it, 'value.isDefault'));
     this.setState({
       tempFormData: data.map(c => (c.type === 34 ? { ...c, value: undefined } : c)),
-      iseditting: isDraftChildTableDefault ? false : true,
+      iseditting: !isDraftChildTableDefault && allowEdit,
       updateControlIds: _.uniqBy(updateControlIds.concat(ids)),
     });
   }
@@ -438,7 +436,32 @@ export default class RecordInfo extends Component {
 
   @autobind
   getDraftParams(data) {
-    const { draftFormControls = [] } = this.props;
+    data = _.filter(
+      data,
+      it =>
+        !_.includes(
+          [
+            'wfname',
+            'wfstatus',
+            'wfcuaids',
+            'wfrtime',
+            'wfftime',
+            'wfdtime',
+            'wfcaid',
+            'wfctime',
+            'wfcotime',
+            'rowid',
+            'uaid',
+            'ownerid',
+            'caid',
+            'utime',
+            'ctime',
+          ],
+          it.controlId,
+        ),
+    );
+    const { relateRecordData } = this.state;
+    const { draftFormControls = [], controls = [] } = this.props;
 
     const formData = data
       .filter(it => it.controlId !== 'ownerid')
@@ -446,7 +469,19 @@ export default class RecordInfo extends Component {
       .filter(item => !checkCellIsEmpty(item.value));
 
     const formDataIds = formData.map(it => it.controlId);
-    let paramControls = draftFormControls.filter(it => !_.includes(formDataIds, it.controlId)).concat(formData);
+
+    let paramControls = draftFormControls
+      .filter(it => !_.includes(formDataIds, it.controlId))
+      .concat(formData)
+      .filter(v => !isRelateRecordTableControl(v))
+      .concat(
+        _.keys(relateRecordData)
+          .map(key => ({
+            ...relateRecordData[key],
+            value: JSON.stringify(formatRecordToRelateRecord(controls, relateRecordData[key].value)),
+          }))
+          .filter(_.identity),
+      );
 
     return paramControls.map(it => {
       if (it.type === 42) {
@@ -629,7 +664,7 @@ export default class RecordInfo extends Component {
       {
         appId,
         viewId,
-        getType: this.getRowGetType(from),
+        getType: getRowGetType(from),
         worksheetId,
         recordId,
         projectId,
@@ -861,6 +896,8 @@ export default class RecordInfo extends Component {
       allowExAccountDiscuss,
       exAccountDiscussEnum,
       forceShowFullValue,
+      widgetStyle,
+      relateRecordData,
     } = this.state;
     const isLock = checkRuleLocked(recordinfo.rules, recordinfo.formData);
     let { width } = this.props;
@@ -1016,6 +1053,7 @@ export default class RecordInfo extends Component {
                 loading={loading}
                 recordbase={recordbase}
                 maskinfo={maskinfo}
+                widgetStyle={widgetStyle}
                 mountRef={recordform => (this.recordform = recordform)}
                 registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
                 formFlag={formFlag}
@@ -1111,6 +1149,16 @@ export default class RecordInfo extends Component {
                   this.setState({ submitLoading: false });
                 }}
                 currentIndex={currentIndex}
+                onRelateRecordsChange={(control, records) => {
+                  if (!this.recordform.current || from !== RECORD_INFO_FROM.DRAFT) {
+                    return;
+                  }
+                  const newRelateRecordData = {
+                    ...relateRecordData,
+                    [control.controlId]: { ...control, value: records },
+                  };
+                  this.setState({ relateRecordData: newRelateRecordData });
+                }}
               />
               {sideVisible && <Drag left={formWidth} onMouseDown={() => this.setState({ dragMaskVisible: true })} />}
               {!abnormal && sideVisible && (

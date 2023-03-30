@@ -410,7 +410,7 @@ ShareAttachment.prototype = {
         if (SA.options.shareRange === WORKSHEET_VISIBLE_TYPE.CLOSE && SA.options.canChangeSharable) {
           SA.options.node.visibleType = WORKSHEET_VISIBLE_TYPE.ALL;
           SA.updateShareType(WORKSHEET_VISIBLE_TYPE.ALL, () => {
-            alert(_l('开启分享'));
+            alert(_l('开启分享'), 4);
             SA.updateWorkshhetShareUrl(1, callback);
           });
         } else {
@@ -425,7 +425,7 @@ ShareAttachment.prototype = {
         if (SA.options.visibleType === WORKSHEET_VISIBLE_TYPE.CLOSE) {
           SA.options.node.visibleType = WORKSHEET_VISIBLE_TYPE.ALL;
           SA.updateShareType(WORKSHEET_VISIBLE_TYPE.ALL, () => {
-            alert(_l('开启分享'));
+            alert(_l('开启分享'), 4);
             SA.updateWorkshhetShareUrl(2, callback);
           });
         } else {
@@ -718,7 +718,7 @@ ShareAttachment.prototype = {
       case SEND_TO_TYPE.CHAT: {
         SA.dialogEle.$canDownloadSwitch.attr('disabled', true);
         if (SA.dialogEle.$canDownloadSwitch.prop('checked') === false) {
-          alert(_l('分享到消息文件不可设为不允许下载，已更改为允许下载'));
+          alert(_l('分享到消息文件不可设为不允许下载，已更改为允许下载'), 4);
           SA.dialogEle.$canDownloadSwitch.prop('checked', true);
         }
         SA.showFooter();
@@ -898,7 +898,7 @@ ShareAttachment.prototype = {
             id: options.node.id,
             visibleType: NODE_VISIBLE_TYPE.PUBLIC,
           }).then(function (data) {
-            alert(_l('已将链接设为“任何人可预览”，可直接打开'));
+            alert(_l('已将链接设为“任何人可预览”，可直接打开'), 4);
             SA.options.node.visibleType = NODE_VISIBLE_TYPE.PUBLIC;
             SA.$dialog
               .find('#selectSharePermission')
@@ -1105,7 +1105,7 @@ ShareAttachment.prototype = {
         DiscussionController.addDiscussion(params)
           .then(function (data) {
             if (data.error) {
-              alert(_l('分享失败'));
+              alert(_l('分享失败'), 2);
               return;
             }
             alert(_l('分享成功'));

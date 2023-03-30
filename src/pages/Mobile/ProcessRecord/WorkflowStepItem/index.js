@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import StepItem from 'src/pages/workflow/components/ExecDialog/StepItem';
+import Steps from 'src/pages/workflow/components/ExecDialog/Steps';
 
 const Wrap = styled.ul`
   padding: 0 17px 50px;
@@ -13,22 +13,18 @@ class WorkflowStepItem extends Component {
   }
   render() {
     const { instance, worksheetId, recordId } = this.props;
-    const { works, currentWork, currentWorkItem } = instance;
+    const { works, currentWork, currentWorkItem, status } = instance;
     return (
       <Wrap className="stepList">
         <div className="pTop20 Font17 bold">{_l('流程进度')}</div>
-        {works.map((item, index) => {
-          return (
-            <StepItem
-              key={index}
-              data={item}
-              currentWork={currentWork}
-              currentType={(currentWorkItem || {}).type}
-              worksheetId={worksheetId}
-              rowId={recordId}
-            />
-          );
-        })}
+        <Steps
+          worksheetId={worksheetId}
+          rowId={recordId}
+          currentWork={currentWork}
+          currentType={(currentWorkItem || {}).type}
+          works={works}
+          status={status}
+        />
       </Wrap>
     );
   }

@@ -10,7 +10,7 @@ export default class Avatar extends Component {
     shape: PropTypes.string,
   };
   static defaultProps = {
-    src: 'http://tuku-image.oss-cn-beijing.aliyuncs.com/18-5-28/13392370.jpg',
+    src: `${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/default.gif`,
     size: 36,
     shape: 'circle',
   };

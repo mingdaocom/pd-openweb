@@ -19,7 +19,8 @@ const Entry = props => {
   }
 
   useEffect(() => {
-    getShareInfoByShareId().then(data => {
+    const clientId = sessionStorage.getItem(shareId);
+    getShareInfoByShareId({ clientId }).then(data => {
       setLoading(false);
     });
   }, []);
@@ -28,7 +29,9 @@ const Entry = props => {
     return new Promise(async (resolve, reject) => {
       const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
       const shareAuthor = _.get(result, 'data.shareAuthor');
+      const clientId = _.get(result, 'data.clientId');
       window.share = shareAuthor;
+      clientId && sessionStorage.setItem(shareId, clientId);
       setShare(result);
       resolve(result);
     });

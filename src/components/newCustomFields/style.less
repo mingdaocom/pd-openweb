@@ -42,6 +42,7 @@
 
     .customFormItemControl {
       .customFormControlBox {
+        font-size: 13px;
         &.customFormControlOCR {
           border-color: #e0e0e0 !important;
           max-width: 100%;
@@ -59,7 +60,9 @@
       &:not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(.customFormControlScore) {
         padding-right: 12px !important;
       }
-      &:not([type='tel']):not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(.customFormControlScore) {
+      &:not([type='tel']):not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(
+          .customFormControlScore
+        ) {
         padding-left: 12px !important;
       }
       &.controlDisabled {
@@ -117,17 +120,18 @@
     float: left;
     width: 100%;
     position: relative;
+    flex-direction: column;
     padding: 6px 12px;
     box-sizing: border-box;
 
-    .RefreshBtn {
-      display: none;
-      i {
-        display: block;
-        &.isLoading {
-          animation: rotate 2s linear infinite;
-          color: #2196f3;
-        }
+    &.customFormItemRow {
+      flex-direction: row;
+      .customFormItemLabel {
+        width: auto;
+        align-items: flex-start;
+      }
+      &::after {
+        display: none;
       }
     }
 
@@ -164,12 +168,38 @@
       }
     }
 
+    &.customFormItemLabelRow {
+      padding-top: 8px;
+      .requiredBtn {
+        top: 10px;
+      }
+    }
+
+    .requiredBtn {
+      position: absolute;
+      left: -8px;
+      top: 3px;
+      color: #f44336;
+    }
+
+    .RefreshBtn {
+      display: none;
+      padding-top: 4px;
+      i {
+        display: block;
+        &.isLoading {
+          animation: rotate 2s linear infinite;
+          color: #2196f3;
+        }
+      }
+    }
+
     .hideTitleLabel {
       display: none;
     }
 
     .descBoxInfo {
-      margin-left: 8px;
+      padding-top: 2px;
     }
 
     .customFormItemLoading {
@@ -188,6 +218,8 @@
     width: 100%;
     box-sizing: border-box;
     position: relative;
+    flex: 1;
+    min-width: 0;
 
     .maskIcon {
       position: absolute;
@@ -615,6 +647,7 @@
       background: #fff !important;
       padding-left: 0 !important;
       padding-right: 0 !important;
+      line-height: 20px;
       &.spacing {
         letter-spacing: 2px;
       }
@@ -634,12 +667,19 @@
 
     .customFormRelationBtn {
       background: transparent;
-      border: none;
-      padding: 0;
       height: 34px;
-      outline: none;
       display: flex;
       align-items: center;
+      outline: none;
+      width: max-content;
+      padding: 0 16px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      font-weight: 500;
+      font-size: 13px;
+      &:hover {
+        background-color: #f5f5f5;
+      }
     }
 
     > .ming.Dropdown {
@@ -964,6 +1004,7 @@
   white-space: nowrap;
   background: #f44336;
   font-size: 12px;
+  margin: 0 12px;
 
   span {
     white-space: normal;

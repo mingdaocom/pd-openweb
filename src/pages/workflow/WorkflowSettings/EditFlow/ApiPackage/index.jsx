@@ -39,10 +39,10 @@ export default class ApiPackage extends Component {
   }
 
   openApiPackage = evt => {
-    const { item, companyId } = this.props;
+    const { item } = this.props;
 
     evt.stopPropagation();
-    window.open(`/integrationConnect/${companyId}/${item.appId}`);
+    window.open(`/integrationConnect/${item.appId}`);
   };
 
   render() {

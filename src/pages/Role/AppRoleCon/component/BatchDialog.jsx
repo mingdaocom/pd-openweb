@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
-import 'src/components/uploadAttachment/uploadAttachment';
 import cx from 'classnames';
 import { Select } from 'antd';
 const { Option } = Select;

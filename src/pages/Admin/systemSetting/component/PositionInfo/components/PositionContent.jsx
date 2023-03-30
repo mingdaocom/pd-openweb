@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import * as actions from '../../../../redux/position/action';
 import RoleUserList from './RoleUserList';
 import dialogUserBoard from 'src/pages/Admin/components/dialogUserBoard';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import jobAjax from 'src/api/job';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -32,42 +32,44 @@ class PositionContent extends Component {
       dataRange: 2,
       callback: accountIds => {
         //添加到职位
-        jobAjax.addJobUser({
-          projectId,
-          jobId: currentPosition.jobId,
-          accountIds: _.map(accountIds, user => user.accountId),
-        }).then(data => {
-          if (data) {
-            this.props.getUserList({ jobId: currentPosition.jobId });
-            alert(_l('添加成功'));
-          } else alert(_l('添加失败'), 2);
-        });
+        jobAjax
+          .addJobUser({
+            projectId,
+            jobId: currentPosition.jobId,
+            accountIds: _.map(accountIds, user => user.accountId),
+          })
+          .then(data => {
+            if (data) {
+              this.props.getUserList({ jobId: currentPosition.jobId });
+              alert(_l('添加成功'));
+            } else alert(_l('添加失败'), 2);
+          });
       },
     };
-    import('src/components/dialogSelectUser/dialogSelectUser').then(() => {
-      $({}).dialogSelectUser({
-        fromAdmin: true,
-        SelectUserSettings: SelectUserSettingsForAdd,
-      });
+    dialogSelectUser({
+      fromAdmin: true,
+      SelectUserSettings: SelectUserSettingsForAdd,
     });
   };
   // 移除
   removeUsers = () => {
     const { selectUserIds = [], currentPosition = {}, projectId } = this.props;
     if (_.isEmpty(selectUserIds)) return;
-    jobAjax.deleteJobUsers({
-      projectId,
-      accountIds: selectUserIds,
-      jobId: currentPosition.jobId,
-    }).then(res => {
-      if (res) {
-        this.props.getUserList({ jobId: currentPosition.jobId });
-        this.props.updateSelectUserIds([]);
-        alert(_l('移出成功'));
-      } else {
-        alert(_l('移除失败'), 2);
-      }
-    });
+    jobAjax
+      .deleteJobUsers({
+        projectId,
+        accountIds: selectUserIds,
+        jobId: currentPosition.jobId,
+      })
+      .then(res => {
+        if (res) {
+          this.props.getUserList({ jobId: currentPosition.jobId });
+          this.props.updateSelectUserIds([]);
+          alert(_l('移出成功'));
+        } else {
+          alert(_l('移除失败'), 2);
+        }
+      });
   };
   // 导出
   handleExportUser = () => {

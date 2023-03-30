@@ -302,7 +302,7 @@ export default class XAxis extends Component {
             </Tooltip>
           )
         )}
-        <Dropdown overlay={this.renderOverlay(axis)} trigger={['click']} placement="bottomRight">
+        <Dropdown overlay={this.renderOverlay(axis || {})} trigger={['click']} placement="bottomRight">
           <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
         <Icon className="Gray_9e Font18 pointer mLeft10" icon="close" onClick={this.props.removeXaxes} />

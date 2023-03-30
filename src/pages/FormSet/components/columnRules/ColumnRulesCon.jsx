@@ -272,7 +272,7 @@ class ColumnRulesCon extends React.Component {
                 <span className="Font13">
                   {_l('添加业务规则可以规范化表单数据录入。当满足条件时，显示、隐藏、更改字段属性或提示错误。')}
                 </span>
-                <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/sheet6.html" />
+                <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/zh/sheet6.html" />
               </p>
             </div>
             <div className="saveRules" onClick={() => addColumnRules()}>

@@ -119,6 +119,10 @@ export default class Options extends React.Component {
   handleTableKeyDown(e) {
     const { updateEditingStatus } = this.props;
     switch (e.key) {
+      case 'Tab':
+      case 'Escape':
+        this.handleExit();
+        break;
       default:
         if (!isKeyBoardInputChar(e.key)) {
           return;
@@ -205,6 +209,15 @@ export default class Options extends React.Component {
               autoFocus: true,
               defaultOpen: true,
               getPopupContainer,
+              onInputKeyDown: e => {
+                if (e.key === 'Escape') {
+                  this.handleExit();
+                } else if (e.key === 'Tab') {
+                  setTimeout(() => {
+                    document.activeElement.blur();
+                  }, 100);
+                }
+              },
               onDropdownVisibleChange: visible => {
                 if (!visible && !this.isChanging) {
                   this.handleExit();
@@ -230,6 +243,15 @@ export default class Options extends React.Component {
                   this.handleExit();
                 }
                 this.isChanging = false;
+              },
+              onInputKeyDown: e => {
+                if (e.key === 'Escape') {
+                  this.handleExit();
+                } else if (e.key === 'Tab') {
+                  setTimeout(() => {
+                    document.activeElement.blur();
+                  }, 100);
+                }
               },
               onChange: value => {
                 if (_.isObject(value)) {

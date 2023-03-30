@@ -229,7 +229,7 @@ class DialogImportExcelCreate extends Component {
       0,
     );
     if (licenseType === 0 && totalRows + freeRowCount > 50000 && createType !== 'app') {
-      alert(_l('超过导入上限(上限 50000 行)，请调整导入数据'));
+      alert(_l('超过导入上限(上限 50000 行)，请调整导入数据'), 3);
       return;
     }
     // 最多20个Sheet，单个Sheet最多20000行，最多200列、免费版本总行数不得超过5w行
@@ -243,7 +243,7 @@ class DialogImportExcelCreate extends Component {
       alert(_l('当前版本单个sheet最多支持200列'), 3);
       return;
     } else if (noRowNum || hasEmptyRows || hasEmptyCells) {
-      return alert(_l('表头第一列不得为空'));
+      return alert(_l('表头第一列不得为空'), 3);
     }
     const sheetList = importSheets.map(item => {
       return {

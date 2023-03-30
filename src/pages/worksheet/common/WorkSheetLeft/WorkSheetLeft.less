@@ -1,71 +1,4 @@
 @import '/src/common/mdcss/Themes/themeVariables.less';
-.workSheetItem() {
-  color: inherit;
-  height: 46px;
-  cursor: pointer;
-  align-items: center;
-  user-select: none;
-  &:first-child {
-    margin-top: 6px;
-  }
-  .nameWrap {
-    width: 100%;
-    .iconWrap {
-      min-width: 22px;
-    }
-  }
-  .name {
-    display: inline-block;
-    color: inherit;
-  }
-  &:hover,
-  &.hover {
-    background-color: rgba(0, 0, 0, 0.04);
-    .rightArea {
-      .moreBtn {
-        display: inline-block !important;
-      }
-      .count {
-        display: none !important;
-      }
-    }
-  }
-  .name:hover {
-    text-decoration: none;
-  }
-  .rightArea {
-    position: absolute;
-    width: 10%;
-    right: 15px;
-    height: 20px;
-    .Menu {
-      position: fixed;
-    }
-    .moreBtn {
-      display: none;
-    }
-    &.menuIsVisible {
-      .moreBtn {
-        display: inline-block;
-      }
-      .count {
-        display: none;
-      }
-    }
-    .icon {
-      color: rgba(0, 0, 0, 0.3);
-      &:hover {
-        color: rgba(0, 0, 0, 0.5);
-      }
-    }
-  }
-  .setSheetInfo {
-    position: absolute;
-    right: 0px;
-    width: 1px;
-    height: 1px;
-  }
-}
 
 .workSheetLeft {
   width: 240px;
@@ -76,82 +9,84 @@
   transition: width 0.2s;
   border-right: 1px solid #e0e0e0;
   &.workSheetLeftHide {
-    width: 64px;
+    width: 56px;
     .rightArea,
     .workSheetItem .name,
     .newWorkSheet .text,
     .workSheetItem .icon-visibility_off {
-      display: none;
+      display: none !important;
     }
   }
-  .searchCon {
+  .nano-content>div:first-child {
     margin-top: 6px;
-    padding: 0 15px;
-    margin-bottom: 6px;
-    .search {
-      padding: 0 6px;
-      border-radius: 4px;
-      border-bottom: 1px solid;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      .icon {
-        font-size: 17px;
-        color: #cacaca;
-      }
-      input.Input {
-        height: 37px;
-        border: none;
-        color: #666;
-        font-size: 13px;
-        padding: 0 8px;
-        background: transparent;
-      }
-    }
-    .searchList {
-      position: absolute;
-      left: 0;
-      top: 41px;
-      width: 360px;
-      background: #fff;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      border-radius: 4px;
-      z-index: 2;
-      max-height: 450px;
-      height: auto;
-      overflow-y: auto;
-      padding: 6px 0;
-      .empty {
-        font-size: 14px;
-        padding: 0 15px;
-        line-height: 45px;
-      }
-    }
-  }
-  .topFixed {
-    border-bottom: 1px solid #eee;
-  }
-  .workSheetList {
-    position: relative;
-    flex-direction: column;
-    overflow-y: auto;
-    .title {
-      padding: 0 15px;
-      line-height: 40px;
-      .clipLoader {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-      }
-    }
-    .sheetList {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-    }
   }
   .workSheetItem {
-    .workSheetItem;
+    color: inherit;
+    cursor: pointer;
+    align-items: center;
+    user-select: none;
+    padding: 0 16px;
+    .nameWrap {
+      color: rgba(0, 0, 0, 0.9);
+      flex: 1;
+      min-width: 0;
+      height: 44px;
+    }
+    .name {
+      display: inline-block;
+      color: inherit;
+    }
+
+    &:hover,
+    &.hover {
+      background-color: rgba(0, 0, 0, 0.04);
+      .rightArea {
+        display: flex;
+      }
+    }
+    .name:hover {
+      text-decoration: none;
+    }
+    &.active .name::before {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 50%;
+      height: 16px;
+      width: 3px;
+      border-radius: 3px;
+      transform: translateY(-50%);
+      background: currentColor;
+    }
+    .rightArea {
+      width: 23px;
+      height: 23px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      &:hover {
+        background: #0000000d;
+      }
+      .Menu {
+        position: fixed;
+      }
+    }
+    .moreIcon, .arrowIcon {
+      color: rgba(0, 0, 0, 0.3);
+      &:hover {
+        color: rgba(0, 0, 0, 0.5);
+      }
+    }
+    .setSheetInfo {
+      position: absolute;
+      right: 0px;
+      width: 1px;
+      height: 1px;
+    }
+  }
+  .groupItems {
+    transition: height 0.2s;
   }
   .newWorkSheet {
     padding: 12px;
@@ -175,11 +110,20 @@
     width: 0;
     display: none;
   }
-}
-
-.sortableWorkSheetItem {
-  z-index: 9999;
-  .workSheetItem;
+  .unfoldWrap {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+  }
+  .unfoldIcon {
+    padding: 8px;
+    border-radius: 50%;
+    margin-right: 12px;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  }
 }
 
 .worksheetItemOperate {
@@ -225,11 +169,12 @@
     &.delete {
       .Icon,
       .text {
-        color: #f44338;
+        color: #f44338 !important;
       }
       &:hover {
+        .Icon,
         .text {
-          color: #fff;
+          color: #fff !important;
         }
       }
     }
@@ -238,12 +183,21 @@
 
 .createNewMenu {
   border-radius: 3px;
-  box-shadow: 0 3px 9px 1px rgba(0, 0, 0, 0.17);
   background-color: #fff;
   .Menu {
-    width: 240px;
-    position: unset;
-    box-shadow: unset;
+    width: 240px !important;
+    position: unset !important;
+  }
+  .subMenu {
+    width: 180px;
+    max-height: 300px;
+    overflow: auto;
+    .Item-content {
+      padding-left: 16px;
+      &:hover .icon {
+        color: #fff !important;
+      }
+    }
   }
   .MenuItem {
     height: 36px;
@@ -251,6 +205,7 @@
     font-size: 14px;
     .Item-content {
       color: #000;
+      overflow: inherit !important;
       .icon {
         color: #9e9e9e;
       }
@@ -260,6 +215,10 @@
           color: #fff;
         }
       }
+    }
+    .icon-arrow-right-tip {
+      left: auto !important;
+      right: 10px;
     }
   }
   .spaceLine {

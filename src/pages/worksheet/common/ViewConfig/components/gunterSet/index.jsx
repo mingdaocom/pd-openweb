@@ -20,6 +20,8 @@ import { getAdvanceSetting } from 'src/util';
 import { getGunterViewType } from 'src/pages/worksheet/views/GunterView/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+
 const GunterTypeChoose = styled.div`
   ul > li {
     margin-top: 10px;
@@ -191,8 +193,11 @@ export default function GunterSet(props) {
           });
         }}
         setDataId={viewControl}
-        controlList={worksheetControls.filter(
-          item => _.includes([9, 11], item.type) || (item.type === 29 && item.enumDefault === 1),
+        controlList={setSysWorkflowTimeControlFormat(
+          worksheetControls.filter(
+            item => _.includes([9, 11], item.type) || (item.type === 29 && item.enumDefault === 1),
+          ),
+          currentSheetInfo.switches || [],
         )}
         key="viewControl"
         title={_l('分组')}
@@ -230,6 +235,7 @@ export default function GunterSet(props) {
             'projectId',
             'roleType',
             'worksheetId',
+            'switches',
           ]),
           columns,
           viewControl,

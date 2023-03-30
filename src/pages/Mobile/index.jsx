@@ -20,12 +20,7 @@ const isIphonex = () => {
 };
 
 const isMiniprogram = window.navigator.userAgent.toLowerCase().includes('miniprogram');
-const { IsLocal } = md.global.Config;
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
-const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !IsLocal && !isWxWork;
-const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
-const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
-const isFeishu = window.navigator.userAgent.toLowerCase().includes('feishu');
 
 @preall
 @withRouter
@@ -46,22 +41,6 @@ class App extends Component {
     this.genRouteComponent = genRouteComponent();
     if (isIphonex() && (isMiniprogram || isWxWork)) {
       document.body.classList.add('iphoneBody');
-    }
-
-    if (isDing) {
-      $.getScript('https://g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js');
-    }
-    if (isWeLink) {
-      $.getScript('https://open-doc.welink.huaweicloud.com/docs/jsapi/2.0.4/hwh5-cloudonline.js');
-    }
-    if (isWx) {
-      $.getScript('https://res2.wx.qq.com/open/js/jweixin-1.6.0.js');
-    }
-    if (isWxWork) {
-      $.getScript('https://res.wx.qq.com/open/js/jweixin-1.2.0.js');
-    }
-    if (isFeishu) {
-      $.getScript('https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.19.js');
     }
   }
   componentDidMount() {

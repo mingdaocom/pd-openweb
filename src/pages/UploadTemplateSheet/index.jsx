@@ -5,7 +5,9 @@ import { Icon, Support, Dialog } from 'ming-ui';
 import copy from 'copy-to-clipboard';
 import './index.less';
 import _ from 'lodash';
-import { FILTER_SYS } from 'src/pages/Print/config';
+import { FILTER_SYS, APPROVAL_SYS } from 'src/pages/Print/config';
+import processVersionAjax from 'src/pages/workflow/api/processVersion';
+
 let controlNo = [22, 10010, 43, 45, 47]; //分段、备注、OCR、嵌入字段,条码/
 export default class UploadTemplateSheet extends React.Component {
   constructor(props) {
@@ -46,6 +48,7 @@ export default class UploadTemplateSheet extends React.Component {
 
       // 页面是否支持滑动
       scroll: true,
+      approvalList: [],
     };
   }
 
@@ -117,6 +120,12 @@ export default class UploadTemplateSheet extends React.Component {
         else commonControls.push(controls[i]);
       }
 
+      // 流程列表
+      const approval = await processVersionAjax.list({
+        relationId: res.appId,
+        processListType: 11,
+      });
+
       this.setState({
         appId: res.appId,
         worksheetName: res.name,
@@ -132,6 +141,10 @@ export default class UploadTemplateSheet extends React.Component {
         // 关联表、子表字段
         cardControls,
         downLoadUrl: res.downLoadUrl,
+
+        approvalList: (approval.find(l => l.groupId === worksheetId) || { processList: [] }).processList.map(l => {
+          return { ...l, expandControls: false };
+        }),
       });
 
       // 剪切板功能
@@ -386,7 +399,7 @@ export default class UploadTemplateSheet extends React.Component {
                   '关联记录（列表）、子表字段默认为以表格方式逐行向下列出所有记录的字段值，如需以逗号隔开列出所有记录字段的值，可在字段代码或字段ID加上“[S]”，如#{客户.客户名称}加[S]写法为#{客户.客户名称[S]}。如果希望记录逐条打印，请将以下代码插入到模板中，代码下方的内容将识别为记录的基本单元。',
                 )}
               </span>
-              <Support type={3} href="https://help.mingdao.com/operation18.html" text={_l('帮助')} />
+              <Support type={3} href="https://help.mingdao.com/zh/operation18.html" text={_l('帮助')} />
             </p>
 
             {/** 字段列表 */}
@@ -476,6 +489,79 @@ export default class UploadTemplateSheet extends React.Component {
             ))}
           </React.Fragment>
         )}
+
+        {/* 审批明细 */}
+        <p className="line" />
+        <div className="title">{_l('审批明细')}</div>
+        <p className="mTop12 Gray_75">
+          {_l(
+            '审批明细默认为以表格方式逐行向下列出各节点负责人的操作明细，如果某条审批流程执行了多次，则只打印发起时间较近的实例；',
+          )}
+        </p>
+        <p className="Gray_75">
+          {_l(
+            '如需以逗号隔开列出各节点负责任的操作明细，可在字段代码或者ID上加上“[S]”，如#{[审批]请假流程.审批意见[S]}；',
+          )}
+        </p>
+        <p className="Gray_75">
+          {_l(
+            '如果希望各节点负责人的操作明细逐条打印，请将以下代码的插入到模板中，代码下方的内容将识别为明细的基本单位。',
+          )}
+          <Support type={3} href="https://help.mingdao.com/zh/operation17.html" text={_l('帮助')} />
+        </p>
+      </div>
+    );
+  };
+
+  renderApprovalList = () => {
+    const { approvalList } = this.state;
+
+    return (
+      <div className="listCon">
+        <div className="bgCon mTop18">
+          <ul>
+            <li>
+              <span>#{_l('审批.整体重复')}#</span>
+              <span>
+                ——
+                {_l('单独一行放置在模板中，表示下方的明细记录需要一条条单独列出。')}
+              </span>
+            </li>
+          </ul>
+        </div>
+        {approvalList.map((item, i) => (
+          <React.Fragment>
+            <p
+              className="mTop20 Bold Font13 pointer"
+              style={{ left: '-1em', position: 'relative' }}
+              onClick={() => {
+                item.expandControls = !item.expandControls;
+                this.setState({ approvalList });
+              }}
+            >
+              <Icon icon={!item.expandControls ? 'arrow-right-tip' : 'arrow-down'} className="copy Font13" />
+              <span>{item.name}</span>
+            </p>
+
+            {item.expandControls && (
+              <React.Fragment>
+                {APPROVAL_SYS.map(l => (
+                  <div className="list">
+                    <span className="textIndent">{`${l.name}`}</span>
+                    <span className="copySpan">
+                      {`#{${_l('[审批]')}${item.name}.${l.name}}`}
+                      {this.renderIcon()}
+                    </span>
+                    <span className="copySpan">
+                      {`#{${_l('[审批]')}${item.id}.${l.key}}`}
+                      {this.renderIcon()}
+                    </span>
+                  </div>
+                ))}
+              </React.Fragment>
+            )}
+          </React.Fragment>
+        ))}
       </div>
     );
   };
@@ -549,7 +635,7 @@ export default class UploadTemplateSheet extends React.Component {
                   '5. 批量打印时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页，设置方法可参考',
                 )}
               </span>
-              <Support type={3} href="https://help.mingdao.com/operation20.html" text={_l('这里')} />
+              <Support type={3} href="https://help.mingdao.com/zh/operation20.html" text={_l('这里')} />
             </p>
             <p className="Gray_75">
               <span>
@@ -576,12 +662,13 @@ export default class UploadTemplateSheet extends React.Component {
               9. <span className="urlForTel">{_l('下载系统模板')}</span>
               <span>
                 {_l('作为参考范例、查看了解具体如何制作打印模板。')}
-                <Support type={3} href="https://help.mingdao.com/operation17.html" text={_l('帮助')} />
+                <Support type={3} href="https://help.mingdao.com/zh/operation17.html" text={_l('帮助')} />
               </span>
             </p>
           </div>
           <h5 className="mTop50 Font20 Gray">{_l('字段代码对照表')}</h5>
           {this.renderList()}
+          {this.renderApprovalList()}
         </div>
       </React.Fragment>
     );

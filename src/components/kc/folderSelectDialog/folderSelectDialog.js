@@ -423,7 +423,7 @@ $.extend(FolderSelect.prototype, {
                 var visibleId = parseInt($this.attr('visible'));
 
                 if (!nodeData.canChangeSharable) {
-                  alert(_l('您无权限修改该文件的分享权限'));
+                  alert(_l('您无权限修改该文件的分享权限'), 3);
                   return false;
                 }
                 if ($this.hasClass('ThemeColor3')) {
@@ -1173,7 +1173,7 @@ $.extend(FolderSelect.prototype, {
         $this.remove();
       })
       .fail(function () {
-        alert(_l('创建失败'));
+        alert(_l('创建失败'), 2);
         $this.closest('li.addNewFolder').fadeOut();
       });
   }, 1000),

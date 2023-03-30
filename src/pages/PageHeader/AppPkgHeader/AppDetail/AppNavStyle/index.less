@@ -1,25 +1,25 @@
 
 .AppNavStyleWrap {
-  color: #333;
-  width: 320px;
   line-height: normal;
-  padding: 20px 22px;
-  border-radius: 3px;
-  box-shadow: 0 4px 20px #00000021, 0 2px 6px #0000001a;
-  background-color: white;
-
-  .content {
-    justify-content: space-between;
-  }
-  .img {
-    width: 63px;
-    height: 70px;
+  .navImg {
     margin-bottom: 10px;
     background-size: cover !important;
     transition: box-shadow 0.3s;
+    border-radius: 6px;
+    &.pcNaviStyle {
+      width: 90px;
+      height: 60px;
+    }
+    &.appNaviStyle {
+      width: 63px;
+      height: 70px;
+    }
     &:hover {
       box-shadow: 0 4px 20px #00000021, 0 2px 6px #0000001a;
     }
+  }
+  .iconWrap {
+    margin-right: 48px;
   }
   .activeIcon {
     color: #fff;
@@ -32,28 +32,40 @@
     border: 2px solid #FFFFFF;
     background-color: #2196F3;
   }
+  .classic {
+    background: url('./pcImg/classic.png') center center no-repeat;
+  }
+  .classic_active {
+    background: url('./pcImg/classic_active.png') center center no-repeat;
+  }
+  .left {
+    background: url('./pcImg/left.png') center center no-repeat;
+  }
+  .left_active {
+    background: url('./pcImg/left_active.png') center center no-repeat;
+  }
+  .card {
+    background: url('./pcImg/card.png') center center no-repeat;
+  }
+  .card_active {
+    background: url('./pcImg/card_active.png') center center no-repeat;
+  }
   .list {
-    border-radius: 6px 6px 0 0;
-    background: url('./img/list.png') center center no-repeat;
+    background: url('./mobileImg/list.png') center center no-repeat;
   }
   .list_active {
-    border-radius: 6px 6px 0 0;
-    background: url('./img/list_active.png') center center no-repeat;
+    background: url('./mobileImg/list_active.png') center center no-repeat;
   }
   .sudoku {
-    border-radius: 6px 6px 0 0;
-    background: url('./img/sudoku.png') center center no-repeat;
+    background: url('./mobileImg/sudoku.png') center center no-repeat;
   }
   .sudoku_active {
-    border-radius: 6px 6px 0 0;
-    background: url('./img/sudoku_active.png') center center no-repeat;
+    background: url('./mobileImg/sudoku_active.png') center center no-repeat;
   }
   .nav {
-    border-radius: 0 0 6px 6px;
-    background: url('./img/nav.png') center center no-repeat;
+    background: url('./mobileImg/nav.png') center center no-repeat;
   }
   .nav_active {
-    border-radius: 0 0 6px 6px;
-    background: url('./img/nav_active.png') center center no-repeat;
+    background: url('./mobileImg/nav_active.png') center center no-repeat;
   }
 }

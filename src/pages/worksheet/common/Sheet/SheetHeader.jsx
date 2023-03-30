@@ -25,14 +25,17 @@ import {
   clearChartId,
   loadDraftDataCount,
 } from 'worksheet/redux/actions';
-import { updateSheetList, deleteSheet, updateSheetListIsUnfold } from 'worksheet/redux/actions/sheetList';
+import { updateSheetList, deleteSheet, updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import SheetMoreOperate from './SheetMoreOperate';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { getAppFeaturesVisible } from 'src/util';
 import { BatchOperate } from 'worksheet/common';
 import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
+import { findSheet } from 'worksheet/util';
+import { getAppSectionData, getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
+import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
 
 const Con = styled.div`
@@ -60,19 +63,20 @@ const VerticalCenter = styled.div`
 `;
 
 function SheetHeader(props) {
-  const { appPkg, isUnfold, sheetList, worksheetInfo, controls, sheetSwitchPermit, draftDataCount } = props;
+  const { appPkg, worksheetInfo, controls, sheetSwitchPermit, draftDataCount } = props;
+  const showPublic = isOpenPermit(permitList.statisticsSwitch, sheetSwitchPermit);
+  const showSelf = isOpenPermit(permitList.statisticsSelfSwitch, sheetSwitchPermit);
   const { type, appId, groupId, view, viewId, isCharge } = props;
   // functions
   const {
     onlyBatchOperate,
     chartId,
     updateSheetList,
-    updateSheetListIsUnfold,
     updateFilters,
     updateWorksheetInfo,
     refreshSheet,
     openNewRecord,
-    deleteSheet,
+    updateSheetListAppItem,
     sheetViewData = {},
     sheetFetchParams = {},
     sheetViewConfig = {},
@@ -101,16 +105,21 @@ function SheetHeader(props) {
   const [discussionVisible, setDiscussionVisible] = useState();
   const [editNameVisible, setEditNameVisible] = useState();
   const [descIsEditing, setDescIsEditing] = useState(false);
-  const sheet = _.find(sheetList.filter(_.identity), s => s.workSheetId === worksheetId) || {};
+  const [inFull, setInFull] = useState(false);
+  const sheetList = appPkg.currentPcNaviStyle === 1 ? getAppSectionData(groupId) : props.sheetList;
+  const sheet = findSheet(worksheetId, sheetList) || {};
   const canNewRecord = isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd;
   const { rows, count, permission, rowsSummary } = sheetViewData;
   const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetViewConfig;
 
-  useEffect(() => {
-    if (advancedSetting.closedrafts !== '1') {
-      loadDraftDataCount({ appId, worksheetId });
-    }
-  }, [worksheetId]);
+  useEffect(
+    () => {
+      if (advancedSetting.closedrafts !== '1') {
+        loadDraftDataCount({ appId, worksheetId });
+      }
+    },
+    [worksheetId],
+  );
 
   const batchOperateComp = (
     <BatchOperate
@@ -168,19 +177,51 @@ function SheetHeader(props) {
         <div className="flex">
           {!ln && <span className="mLeft10" />}
           <span className={cx('fixed pointer', { hide: !ln })}>
-            <Tooltip popupPlacement="bottom" text={<span>{isUnfold ? _l('隐藏侧边栏') : _l('展开侧边栏')}</span>}>
-              <i
-                className={cx('icon Font12', isUnfold ? 'icon-back-02' : 'icon-next-02')}
-                onClick={() => {
-                  safeLocalStorageSetItem('sheetListIsUnfold', !isUnfold);
-                  if (isUnfold) {
-                    updateSheetListIsUnfold(false);
-                  } else {
-                    updateSheetListIsUnfold(true);
-                  }
-                }}
-              />
-            </Tooltip>
+            {appPkg.currentPcNaviStyle === 2 ? (
+              <Tooltip
+                text={
+                  <span>
+                    {_l('退出')}{' '}
+                    ({navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Ctrl + E'})
+                  </span>
+                }
+                popupPlacement="bottom"
+              >
+                <Icon
+                  className="fullRotate hoverGray Font20"
+                  icon="close_fullscreen"
+                  onClick={() => {
+                    window.disabledSideButton = true;
+                    navigateTo(`/app/${appId}/${groupId}`);
+                  }}
+                />
+              </Tooltip>
+            ) : (
+              <Tooltip
+                text={
+                  <span>
+                    {inFull ? _l('退出') : _l('展开')}{' '}
+                    ({navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Ctrl + E'})
+                  </span>
+                }
+                popupPlacement="bottom"
+              >
+                <Icon
+                  className={cx('fullRotate hoverGray', inFull ? 'Font20' : 'Font17')}
+                  icon={inFull ? 'close_fullscreen' : 'open_in_full'}
+                  onClick={() => {
+                    if (inFull) {
+                      window.disabledSideButton = true;
+                      setInFull(false);
+                      document.querySelector('#wrapper').classList.remove('fullWrapper');
+                    } else {
+                      setInFull(true);
+                      document.querySelector('#wrapper').classList.add('fullWrapper');
+                    }
+                  }}
+                />
+              </Tooltip>
+            )}
           </span>
           <span className="title ellipsis Font17 Gray Bold" title={name || ''}>
             {name || ''}
@@ -225,6 +266,7 @@ function SheetHeader(props) {
             }}
           />
           <SheetMoreOperate
+            sheet={sheet}
             isCharge={isCharge}
             appId={appId}
             groupId={groupId}
@@ -240,7 +282,14 @@ function SheetHeader(props) {
             setEditNameVisible={setEditNameVisible}
             updateWorksheetInfo={updateWorksheetInfo}
             reloadWorksheet={() => refreshSheet(view)}
-            deleteSheet={deleteSheet}
+            deleteSheet={(data) => {
+              if (appPkg.currentPcNaviStyle === 1) {
+                const singleRef = getAppSectionRef(data.groupId);
+                singleRef.dispatch(deleteSheet(data));
+              } else {
+                props.deleteSheet(data);
+              }
+            }}
           />
           {editNameVisible && (
             <SelectIcon
@@ -248,14 +297,15 @@ function SheetHeader(props) {
               className="sheetSelectIconWrap"
               isActive={true}
               name={name}
+              appItem={sheet}
               icon={sheet.icon}
-              iconColor={sheet.iconColor}
               appId={appId}
               groupId={groupId}
               workSheetId={worksheetId}
               updateWorksheetInfo={(id, data) => {
                 updateWorksheetInfo(data);
               }}
+              updateSheetListAppItem={updateSheetListAppItem}
               updateSheetList={updateSheetList}
               onCancel={() => {
                 setEditNameVisible(false);
@@ -309,7 +359,7 @@ function SheetHeader(props) {
                 )}
               </Fragment>
             )}
-            {!window.isPublicApp && (
+            {!window.isPublicApp && (showPublic || (showSelf && !md.global.Account.isPortal)) && (
               <Tooltip popupPlacement="bottom" text={<span>{_l('统计')}</span>}>
                 <span className="mRight16 mTop4">
                   <Icon
@@ -396,6 +446,7 @@ function SheetHeader(props) {
             roleType={roleType}
             isCharge={isCharge}
             onClose={() => setStatisticsVisible(false)}
+            sheetSwitchPermit={sheetSwitchPermit}
           />
         )}
       </CSSTransitionGroup>
@@ -408,10 +459,8 @@ SheetHeader.propTypes = {
   controls: PropTypes.arrayOf(PropTypes.shape({})),
   groupId: PropTypes.string,
   isCharge: PropTypes.bool,
-  isUnfold: PropTypes.bool,
   sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),
   updateFilters: PropTypes.func,
-  updateSheetListIsUnfold: PropTypes.func,
   view: PropTypes.shape({}),
   viewId: PropTypes.string,
   worksheetInfo: PropTypes.shape({}),
@@ -420,7 +469,6 @@ SheetHeader.propTypes = {
 export default connect(
   state => ({
     appPkg: state.appPkg,
-    isUnfold: state.sheetList.isUnfold,
     sheetList: state.sheetList.data,
     app: state.sheet.app,
     worksheetInfo: state.sheet.worksheetInfo,
@@ -461,8 +509,8 @@ export default connect(
         ]),
         updateSheetList,
         updateWorksheetInfo,
+        updateSheetListAppItem,
         updateFilters,
-        updateSheetListIsUnfold,
         addNewRecord,
         refreshSheet,
         deleteSheet,

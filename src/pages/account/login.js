@@ -390,6 +390,7 @@ class LoginContainer extends React.Component {
   };
 
   render() {
+    const { SysSettings } = md.global;
     if (this.state.loading) {
       return <LoadDiv className="" style={{ margin: '50px auto' }} />;
     } else {
@@ -403,8 +404,8 @@ class LoginContainer extends React.Component {
         <div className="loginBox">
           <div className="loginContainer">
             <div className="titleHeader">
-              {this.state.isNetwork && this.state.logo && <img src={this.state.logo} height={30} />}
-              {this.state.isNetwork && <p className="Font17 Gray mAll0 mTop8">{this.state.text}</p>}
+              {this.state.isNetwork && !SysSettings.hideBrandLogo && this.state.logo && <img src={this.state.logo} height={SysSettings.brandLogoHeight || 30} />}
+              {this.state.isNetwork && !SysSettings.hideBrandName && <p className="Font17 Gray mAll0 mTop8">{this.state.text}</p>}
             </div>
             {this.renderCon()}
             {this.renderFooter()}

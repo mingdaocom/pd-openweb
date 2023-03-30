@@ -9,7 +9,7 @@ import UserHead from 'src/pages/feed/components/userHead';
 import MdBusinessCard from 'src/components/mdBusinessCard/reactMdBusinessCard';
 import Empty from '../../common/TableEmpty';
 import { htmlEncodeReg } from 'src/util';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import _ from 'lodash';
 
 const TYPES = {
@@ -64,7 +64,7 @@ const defaultWorksheetState = {
 
 export const callDialogSelectUser = function (projectId) {
   var dfd = $.Deferred();
-  $({}).dialogSelectUser({
+  dialogSelectUser({
     fromAdmin: true,
     SelectUserSettings: {
       projectId: projectId,

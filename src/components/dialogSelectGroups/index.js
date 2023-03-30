@@ -99,7 +99,7 @@ GroupDialog.prototype.init = function () {
     status: false,
     callback: function () {
       // unbind all Event
-      Event.cancel();
+      event.cancel();
     },
     readyFn: function () {
       console.log('Base view init complete.');

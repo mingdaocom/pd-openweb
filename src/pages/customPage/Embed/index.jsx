@@ -44,7 +44,7 @@ export default class EmbedPage extends Component {
     if (status !== 1) {
       return <UnusualContent status={status} appId={this.appId} />;
     }
-    return <CustomPageContent ids={ids} currentSheet={{ workSheetId: this.pageId }} />;
+    return <CustomPageContent ids={ids} id={this.pageId} />;
   }
   render() {
     const { loading } = this.state;

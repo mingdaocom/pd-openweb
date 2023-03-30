@@ -455,12 +455,15 @@ class RegisterContainer extends React.Component {
     if (this.state.loading) {
       return <LoadDiv className="" style={{ margin: '50px auto' }} />;
     }
+    const { SysSettings } = md.global;
     return (
       <div className="registerBox">
         <div className="registerContainer">
-          <div className="titleHeader">
-            <img src={md.global.SysSettings.brandLogoUrl} height={40} />
-          </div>
+          {!SysSettings.hideBrandLogo && (
+            <div className="titleHeader">
+              <img src={SysSettings.brandLogoUrl} height={SysSettings.brandLogoHeight || 40} />
+            </div>
+          )}
           {this.renderCon()}
         </div>
         <ChangeLang />

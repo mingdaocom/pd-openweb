@@ -53,7 +53,7 @@ function groupMatch(text, matchText) {
   const lines = text.split('\n');
   lines.forEach((line, lineNum) => {
     var match = regexp.exec(line);
-    while (match != null) {
+    while (match) {
       result.push({
         str: match,
         start: match.index,

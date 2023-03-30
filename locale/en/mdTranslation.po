@@ -46538,3 +46538,2287 @@ msgstr "When disabled, the permissions set on the subform apply; when enabled, f
 msgid "列权限"
 msgstr "Column permissions"
 
+#: Disabled references:1
+msgid "节点名称"
+msgstr "Node Name"
+
+#: Disabled references:1
+msgid "您未被邀请注册"
+msgstr "You are not invited for registration"
+
+#: Disabled references:1
+msgid "仅受邀用户可以注册"
+msgstr "Only invited users can register"
+
+#: Disabled references:1
+msgid "个人统计"
+msgstr "Personal stats"
+
+#: Disabled references:1
+msgid "公共统计"
+msgstr "Public stats"
+
+#: Disabled references:1
+msgid "审批明细"
+msgstr "Approval Summary"
+
+#: Disabled references:1
+msgid "审批明细默认为以表格方式逐行向下列出各节点负责人的操作明细，如果某条审批流程执行了多次，则只打印发起时间较近的实例；"
+msgstr "By default, Approval Summary provides a list of actions by node owners row by row in a table. If an approval process is run multiple times, only the instance that was initiated more recently is printed;"
+
+#: Disabled references:1
+msgid "如需以逗号隔开列出各节点负责任的操作明细，可在字段代码或者ID上加上“[S]”，如#{[审批]请假流程.审批意见[S]}；"
+msgstr "To list the actions by node owners with comma as separators, append \"[S]\" to the field code or ID, like #{[审批]请假流程.审批意见[S]};"
+
+#: Disabled references:1
+msgid "如果希望各节点负责人的操作明细逐条打印，请将以下代码的插入到模板中，代码下方的内容将识别为明细的基本单位。"
+msgstr "To print the actions by node owners one by one, insert the following code into the template. Any contents below the code will be recognized as the basic units in the summary."
+
+#: Disabled references:1
+msgid "审批.整体重复"
+msgstr "审批.整体重复"
+
+#: Disabled references:1
+msgid "[审批]"
+msgstr "[审批]"
+
+#: Disabled references:1
+msgid "创建连接器"
+msgstr "Create linkers"
+
+#: Disabled references:1
+msgid "同步任务"
+msgstr "Sync tasks"
+
+#: Disabled references:1
+msgid "数据浏览器"
+msgstr "Data browser"
+
+#: Disabled references:1
+msgid "删除选项集 DELETE"
+msgstr "Delete options DELETE"
+
+#: Disabled references:1
+msgid "请输入姓名、手机"
+msgstr "Enter the name or phone number"
+
+#: Disabled references:1
+msgid "请输入姓名、手机或邮箱"
+msgstr "Enter the name, phone number, or Email"
+
+#: Disabled references:1
+msgid "同步任务总数"
+msgstr "Total sync tasks"
+
+#: Disabled references:1
+msgid "数据同步任务已用算力"
+msgstr "Computing power consumed by data sync tasks"
+
+#: Disabled references:1
+msgid "导航设置"
+msgstr "Navigation Settings"
+
+#: Disabled references:1
+msgid "名称和外观"
+msgstr "Name and Look"
+
+#: Disabled references:1
+msgid "应用操作"
+msgstr "Actions in app"
+
+#: Disabled references:1
+msgid "不显示应用隐藏项"
+msgstr "Do not show hidden options in app"
+
+#: Disabled references:1
+msgid "显示应用隐藏项"
+msgstr "Show hidden options in app"
+
+#: Disabled references:1
+msgid "管理员可以配置应用，管理应用下所有数据和人员"
+msgstr "The Admin can configure the app and manage all data and users in it"
+
+#: Disabled references:1
+msgid "管理员为系统内置角色，不可修改"
+msgstr "The Admin is a system-defined role and cannot be modified"
+
+#: Disabled references:1
+msgid "暂无相关内容"
+msgstr "No relevant data available"
+
+#: Disabled references:1
+msgid "API 由第三方平台 %0 提供，调用时可能产生的接口费用也由第三方平台收取。以上服务价格仅是对接服务模板提供方 %1 收取的连接模板技术服务费。"
+msgstr "The API is provided by the third-party platform %0, and when invoked, will be charged by such platform for its connection. The above service fee is only the technical service fee for connecting to the template, which will be charged by the connected service template provider %1."
+
+#: Disabled references:1
+msgid "数据同步“%0”发布失败"
+msgstr "Failed to publish the data synchronization “%0”"
+
+#: Disabled references:1
+msgid "数据集成"
+msgstr "Data integration"
+
+#: Disabled references:1
+msgid "本地数据库"
+msgstr "Local database"
+
+#: Disabled references:1
+msgid "云端数据库"
+msgstr "Cloud database"
+
+#: Disabled references:1
+msgid "消息队列"
+msgstr "Message queue"
+
+#: Disabled references:1
+msgid "源"
+msgstr "Source"
+
+#: Disabled references:1
+msgid "目的地"
+msgstr "Destination"
+
+#: Disabled references:1
+msgid "选择已有"
+msgstr "Select existing"
+
+#: Disabled references:1
+msgid "已停止"
+msgstr "Stopped"
+
+#: Disabled references:1
+msgid "同步错误"
+msgstr "Sync error"
+
+#: Disabled references:1
+msgid "数据源设置"
+msgstr "Data source settings"
+
+#: Disabled references:1
+msgid "测试连接"
+msgstr "Test connection"
+
+#: Disabled references:1
+msgid "测试中..."
+msgstr "Testing..."
+
+#: Disabled references:1
+msgid "测试未通过"
+msgstr "Failed to pass the test"
+
+#: Disabled references:1
+msgid "配置数据源"
+msgstr "Configure data source"
+
+#: Disabled references:1
+msgid "配置目的地"
+msgstr "Configure destination"
+
+#: Disabled references:1
+msgid "创建同步任务"
+msgstr "Create sync tasks"
+
+#: Disabled references:1
+msgid "高级"
+msgstr "Advanced"
+
+#: Disabled references:1
+msgid "特殊"
+msgstr "Special"
+
+#: Disabled references:1
+msgid "卡片通知"
+msgstr "Card-like notification"
+
+#: Disabled references:1
+msgid "打开记录创建层"
+msgstr "Open record creating layer"
+
+#: Disabled references:1
+msgid "管理附件"
+msgstr "Manage attachments"
+
+#: Disabled references:1
+msgid "正在获取取经纬度，请稍后"
+msgstr "Retrieving the latitude and longitude. Please wait."
+
+#: Disabled references:1
+msgid "赠送 10 人用户包"
+msgstr "Provide 10-user package for free"
+
+#: Disabled references:1
+msgid "赠送 30 人用户包"
+msgstr "Provide 30-user package for free"
+
+#: Disabled references:1
+msgid "赠送 "
+msgstr "Provide"
+
+#: Disabled references:1
+msgid " 人用户包"
+msgstr " -user package at no cost"
+
+#: Disabled references:1
+msgid "能够一键搜索组织内全部类型的内容"
+msgstr "Search for all types of contents within an organization with one click"
+
+#: Disabled references:1
+msgid "数据同步任务数"
+msgstr "Data sync tasks"
+
+#: Disabled references:1
+msgid "数据同步功能限制"
+msgstr "Limitation in data sync"
+
+#: Disabled references:1
+msgid "数据同步默认算力"
+msgstr "Built-in computing power in data sync"
+
+#: Disabled references:1
+msgid "同步任务的目标写入行数"
+msgstr "Rows to be written into the target in data sync"
+
+#: Disabled references:1
+msgid "数据同步算力升级包"
+msgstr "Upgraded computing power package in data sync"
+
+#: Disabled references:1
+msgid "每月同步任务的算力额度不足时，可购买使用，立即生效"
+msgstr "Purchase and use instantly when computing power for the monthly data sync tasks is not enough."
+
+#: Disabled references:1
+msgid "数据同步算力单月包"
+msgstr "Single-month computing power package in data sync"
+
+#: Disabled references:1
+msgid "当月同步任务的算力额度不足时，可购买使用，立即生效"
+msgstr "Purchase and use instantly when computing power for the current-month data sync tasks is not enough."
+
+#: Disabled references:1
+msgid "100 个"
+msgstr "100"
+
+#: Disabled references:1
+msgid "1 万行"
+msgstr "10K Rows"
+
+#: Disabled references:1
+msgid "5 万行"
+msgstr "50K Rows"
+
+#: Disabled references:1
+msgid "1000 次/月"
+msgstr "1K Times/Month"
+
+#: Disabled references:1
+msgid "2G /年"
+msgstr "2G/Year"
+
+#: Disabled references:1
+msgid "5个"
+msgstr "5"
+
+#: Disabled references:1
+msgid "仅同步"
+msgstr "Only sync"
+
+#: Disabled references:1
+msgid "1 万行/月"
+msgstr "10K Rows/Month"
+
+#: Disabled references:1
+msgid "10 万行"
+msgstr "100K Rows"
+
+#: Disabled references:1
+msgid "5 万次/月"
+msgstr "50K Times/Month"
+
+#: Disabled references:1
+msgid "50G/年"
+msgstr "50G/Year"
+
+#: Disabled references:1
+msgid "10 万行/月"
+msgstr "100K Rows/Month"
+
+#: Disabled references:1
+msgid "300 元 / 人 / 年"
+msgstr "CNY 300/User/Year"
+
+#: Disabled references:1
+msgid "50 元/1 万次*剩余月份"
+msgstr "CNY 50/10K Times*Remaining Months"
+
+#: Disabled references:1
+msgid "100 元/1 万次*本月"
+msgstr "CNY 100/10K Times*Current Month"
+
+#: Disabled references:1
+msgid "50 元/10 万次*剩余月份"
+msgstr "CNY 50/100K Times*Remaining Months"
+
+#: Disabled references:1
+msgid "100 元/10 万次*本月"
+msgstr "CNY 100/100K Times*Current Month"
+
+#: Disabled references:1
+msgid "200 元/10G 年"
+msgstr "CNY 200/10G/Year"
+
+#: Disabled references:1
+msgid "5 元 / 人 /年"
+msgstr "CNY 5/User/Year"
+
+#: Disabled references:1
+msgid "100 万行"
+msgstr "1000K Rows"
+
+#: Disabled references:1
+msgid "10 万次/月"
+msgstr "100K Times/Month"
+
+#: Disabled references:1
+msgid "150G /年"
+msgstr "150G/Year"
+
+#: Disabled references:1
+msgid "50 万行/月"
+msgstr "500K Rows/Month"
+
+#: Disabled references:1
+msgid "20 万次/月"
+msgstr "200K Times/Month"
+
+#: Disabled references:1
+msgid "300G /年"
+msgstr "300G/Year"
+
+#: Disabled references:1
+msgid "不限（同步+ETL）"
+msgstr "Unlimited (Sync+ETL)"
+
+#: Disabled references:1
+msgid "100 万行/月"
+msgstr "1000K Rows/Month"
+
+#: Disabled references:1
+msgid "每月数据同步算力包"
+msgstr "Monthly computing power pack in data sync"
+
+#: Disabled references:1
+msgid "当月数据同步算力包"
+msgstr "Current-month computing power pack in data sync"
+
+#: Disabled references:1
+msgid "用户自助购买数据同步算力升级包"
+msgstr "User-purchased computing power update pack in data sync"
+
+#: Disabled references:1
+msgid "购买数据同步算力升级包"
+msgstr "Purchased computing power update pack in data sync"
+
+#: Disabled references:1
+msgid "%0 万行"
+msgstr "%0 0K Rows"
+
+#: Disabled references:1
+msgid "每月同步任务算力行数增加数量"
+msgstr "Incremental rows in the monthly computing power in sync tasks"
+
+#: Disabled references:1
+msgid "本月同步任务算力行数增加数量"
+msgstr "Incremental rows in the current-month computing power in sync tasks"
+
+#: Disabled references:1
+msgid "每月同步任务数的算力不足时，可购买使用，立即生效。"
+msgstr "Purchase and use instantly when the computing power for the monthly data sync tasks becomes insufficient."
+
+#: Disabled references:1
+msgid "开启后，当月剩余执行额度不足时，自动购买100元/10万行的单月包，从账户余额中扣款。（开启后可以在数据集成的同步任务中关闭）"
+msgstr "If enabled, the single-month pack (100k rows for CNY 100) will be purchased automatically and billed to the account balance when the remaining quota for the current month becomes insufficient. You can disable it in Data Integration-> Sync Task"
+
+#: Disabled references:1
+msgid "被隐藏的成员 被限制后，不能看到企业所有通讯录"
+msgstr "Hidden members, when restricted, cannot see all contacts in the organization"
+
+#: Disabled references:1
+msgid "不能看到组织所有通讯录"
+msgstr "All contacts in the organization cannot be seen"
+
+#: Disabled references:1
+msgid "白名单"
+msgstr "Whitelist"
+
+#: Disabled references:1
+msgid "深红"
+msgstr "Dark red"
+
+#: Disabled references:1
+msgid "赤红"
+msgstr "Bright red"
+
+#: Disabled references:1
+msgid "玫红"
+msgstr "Rose red"
+
+#: Disabled references:1
+msgid "橙红"
+msgstr "Orange red"
+
+#: Disabled references:1
+msgid "赭色"
+msgstr "Reddish brown"
+
+#: Disabled references:1
+msgid "琥珀"
+msgstr "Amber"
+
+#: Disabled references:1
+msgid "橙黄"
+msgstr "Orange"
+
+#: Disabled references:1
+msgid "深紫"
+msgstr "Dark purple"
+
+#: Disabled references:1
+msgid "青莲"
+msgstr "Pale blue violet"
+
+#: Disabled references:1
+msgid "酱紫"
+msgstr "Dark reddish purple"
+
+#: Disabled references:1
+msgid "藏蓝"
+msgstr "Purplish blue"
+
+#: Disabled references:1
+msgid "极客蓝"
+msgstr "Geek blue"
+
+#: Disabled references:1
+msgid "深天蓝"
+msgstr "Deep sky blue"
+
+#: Disabled references:1
+msgid "明青"
+msgstr "Light blue"
+
+#: Disabled references:1
+msgid "墨绿"
+msgstr "Blackish green"
+
+#: Disabled references:1
+msgid "薄绿"
+msgstr "Mint green"
+
+#: Disabled references:1
+msgid "青柠"
+msgstr "Lime green"
+
+#: Disabled references:1
+msgid "苍黑"
+msgstr "Green black"
+
+#: Disabled references:1
+msgid "自定义主题色"
+msgstr "Custom theme color"
+
+#: Disabled references:1
+msgid "饱和度建议不低于70"
+msgstr "Saturation 70 or more is recommended"
+
+#: Disabled references:1
+msgid "（现在 %0）"
+msgstr "(Now %0)"
+
+#: Disabled references:1
+msgid "亮度建议不低于70"
+msgstr "Brightness 70 or more is recommended"
+
+#: Disabled references:1
+msgid "选择颜色"
+msgstr "Select color"
+
+#: Disabled references:1
+msgid "主题色"
+msgstr "Theme color"
+
+#: Disabled references:1
+msgid "浅主题色"
+msgstr "Light theme color"
+
+#: Disabled references:1
+msgid "导航色"
+msgstr "Navigation Color"
+
+#: Disabled references:1
+msgid "设置导航方式"
+msgstr "Set Navigation Mode"
+
+#: Disabled references:1
+msgid "删除一级分组"
+msgstr "Delete Level-1 Group"
+
+#: Disabled references:1
+msgid "当前一级分组包含内容，必须将他们移到其他一级分组后再进行删除"
+msgstr "Data exists in the current Level-1 group, and must be moved to another Level-1 group prior to deletion"
+
+#: Disabled references:1
+msgid "从空白创建工作表"
+msgstr "Create worksheet from scratch"
+
+#: Disabled references:1
+msgid "从Excel创建工作表"
+msgstr "Create worksheet from Excel"
+
+#: Disabled references:1
+msgid "子分组"
+msgstr "Subgroup"
+
+#: Disabled references:1
+msgid "超级搜索(F)"
+msgstr "Super Search Engine (F)"
+
+#: Disabled references:1
+msgid "批量操作 ”%0“"
+msgstr "Batch Actions “%0”"
+
+#: Disabled references:1
+msgid "选择组织"
+msgstr "Select organization"
+
+#: Disabled references:1
+msgid "无扩展信息表"
+msgstr "No extended information table"
+
+#: Disabled references:1
+msgid "请选择应用"
+msgstr "Select app"
+
+#: Disabled references:1
+msgid "请选择用户映射"
+msgstr "Select user mapping"
+
+#: Disabled references:1
+msgid "%0用户扩展信息表"
+msgstr "%0 extended information table(s)"
+
+#: Disabled references:1
+msgid "通过工作表管理应用成员额外的扩展信息字段，在角色权限、筛选器中可以使用用户的扩展信息字段来作为动态筛选条件"
+msgstr "Manage any additional extended fields for app members through worksheet. The user’s extended fields can be used as dynamic criteria in the role permissions or filters"
+
+#: Disabled references:1
+msgid "选择应用"
+msgstr "Select app"
+
+#: Disabled references:1
+msgid "无应用"
+msgstr "No apps available"
+
+#: Disabled references:1
+msgid "选择或新建的工作表字段中，必须包含“成员”字段"
+msgstr "Member fields must be among the fields selected or created in the worksheet"
+
+#: Disabled references:1
+msgid "该应用无工作表"
+msgstr "No worksheet found for this application"
+
+#: Disabled references:1
+msgid "用户映射"
+msgstr "User mapping"
+
+#: Disabled references:1
+msgid "选择一个“成员”字段，用于标识匹配系统登陆的用户，进而读取用户关联的扩展属性"
+msgstr "Select a \"Member\" field to identify the user that matches the system login, then retrieve the extended attributes associated with the user"
+
+#: Disabled references:1
+msgid "选择用户映射"
+msgstr "Select user mapping"
+
+#: Disabled references:1
+msgid "该工作表无\"成员\"字段"
+msgstr "No Member fields found in this worksheet"
+
+#: Disabled references:1
+msgid "停用用户扩展信息表"
+msgstr "Deactivate the user’s extended information table"
+
+#: Disabled references:1
+msgid "删除用户扩展信息表后，用户角色权限中的权限标签都将失效 是否确认取消？"
+msgstr "When the user’s extended information table is deleted, all permission labels in the user’s role permissions will be invalidated. Ok to cancel?"
+
+#: Disabled references:1
+msgid "用户扩展信息表"
+msgstr "User’s Extended Information Table"
+
+#: Disabled references:1
+msgid "选择用户扩展信息字段作为用户权限标签"
+msgstr "Select any of the user’s extended fields as the user’s permission label"
+
+#: Disabled references:1
+msgid "选择用户扩展信息表中作为用户权限标签字段（仅支持关联记录字段），可启用的字段上限为3个，每个标签字段的有效值上限为1000个，超过时默认取前1000个，当其他工作表记录也关联了此标签字段时，可以在角色权限、或筛选器中过滤出当前用户对应标签的记录"
+msgstr "Select any fields in the user’s extended information table as the user’s permission labels. (Only those fields for the associated records can be selected.). Only up to 3 fields can be enabled. Each field used as the label can include up to 1,000 valid values. When this limit is reached, only the first 1,000 values applies by default. If the fields are also associated with other records in the worksheet, you can filter those records for the current user’s label in the role permissions or filters."
+
+#: Disabled references:1
+msgid "通过工作表管理应用成员额外的扩展信息字段"
+msgstr "Manage any additional extended fields for app members through worksheet."
+
+#: Disabled references:1
+msgid "在角色权限、筛选器中可以使用用户的扩展信息字段来作为动态筛选条件"
+msgstr "The user’s extended fields can be used as dynamic criteria in the role permissions or filters"
+
+#: Disabled references:1
+msgid "建立用户扩展信息表"
+msgstr "Create User’s Extended Information Table"
+
+#: Disabled references:1
+msgid "匹配用户权限标签的记录"
+msgstr "Records matching the user’s permission labels"
+
+#: Disabled references:1
+msgid "可启用的权限标签字段来自于[用户扩展信息]的标签字段。勾选后，可根据[用户扩展信息-人员表]中配置的字段值，查看工作表被关联的字段所属记录。"
+msgstr "The fields which can be used as permission labels and are available to enable find their origin in [User’s Extended Information]. When checked, you can view the relevant records containing the associated fields in the worksheet, according to the field values configured in [User’s Extended Information - Personnel]."
+
+#: Disabled references:1
+msgid "使用说明"
+msgstr "Instruction"
+
+#: Disabled references:1
+msgid "数据同步任务"
+msgstr "Data sync tasks"
+
+#: Disabled references:1
+msgid "您暂时无权限查看该同步任务"
+msgstr "You have no permission to view the sync task for the moment"
+
+#: Disabled references:1
+msgid "读取数据源"
+msgstr "Read from data source"
+
+#: Disabled references:1
+msgid "写入数据目的地"
+msgstr "Write to destination"
+
+#: Disabled references:1
+msgid "失败，请稍后再试"
+msgstr "Failed. Please try again later."
+
+#: Disabled references:1
+msgid "数据源类型"
+msgstr "Data source type"
+
+#: Disabled references:1
+msgid "目的地类型"
+msgstr "Destination type"
+
+#: Disabled references:1
+msgid "余量已达到最大值"
+msgstr "Remaining capacity left has reached the upper limit"
+
+#: Disabled references:1
+msgid "免费版最多可创建5个同步任务, 请升级版本以创建更多同步任务"
+msgstr "Up to 5 sync tasks can be created in Free edition. Please upgrade to create more"
+
+#: Disabled references:1
+msgid "连接到外部数据源进行数据实时同步"
+msgstr "Connect to external data sources for live data sync"
+
+#: Disabled references:1
+msgid "常用连接器"
+msgstr "Common linkers"
+
+#: Disabled references:1
+msgid "管理外部数据源和目的地"
+msgstr "Manage external data sources and destinations"
+
+#: Disabled references:1
+msgid "滚动播放"
+msgstr "Rolling play"
+
+#: Disabled references:1
+msgid "模糊图片"
+msgstr "Blurred image"
+
+#: Disabled references:1
+msgid "移动Web端"
+msgstr "Mobile Web client"
+
+#: Disabled references:1
+msgid "顶部对齐"
+msgstr "Top-aligned"
+
+#: Disabled references:1
+msgid "表单样式"
+msgstr "Form Style"
+
+#: Disabled references:1
+msgid "将所选附件字段中的图片作为记录详情封面"
+msgstr "Use the image in the attachment field selected as the cover of the record details page"
+
+#: Disabled references:1
+msgid "附件字段"
+msgstr "Attachment Field"
+
+#: Disabled references:1
+msgid "动画效果"
+msgstr "Animation Effect"
+
+#: Disabled references:1
+msgid "自动播放"
+msgstr "Auto Play"
+
+#: Disabled references:1
+msgid "标题宽度"
+msgstr "Caption Width"
+
+#: Disabled references:1
+msgid "缩略图"
+msgstr "Thumbnail"
+
+#: Disabled references:1
+msgid "以缩略图预览图片和文档内容"
+msgstr "Preview images and documents in thumbnails"
+
+#: Disabled references:1
+msgid "紧凑式文件展示"
+msgstr "Compact layout"
+
+#: Disabled references:1
+msgid "以列表显示附件详细信息"
+msgstr "List attachments"
+
+#: Disabled references:1
+msgid "大图平铺显示，只支持图片类型"
+msgstr "Show in tiled large images. Only images can be viewed"
+
+#: Disabled references:1
+msgid "是否结束委托?"
+msgstr "End the delegation?"
+
+#: Disabled references:1
+msgid "将所选节点的字段值结果立即返回给请求方，支持选择返回格式;请控制请求频率在100次/小时以内，流程执行时间30s以内，私有部署不限直接返回输出参数给请求地址"
+msgstr "Return the resulting field values for the selected node to the requesting party instantly, in the format chosen. Limit the number of requests within 100 per hour, and the process execution time within 30 seconds. No limits apply for the Private Deployment Edition, where the output parameters will be returned directly to the requesting address"
+
+#: Disabled references:1
+msgid "自定义响应"
+msgstr "Custom Response"
+
+#: Disabled references:1
+msgid "退回到：%0"
+msgstr "Return to: %0"
+
+#: Disabled references:1
+msgid "退回上一节点：%0"
+msgstr "Return to previous node: %0"
+
+#: Disabled references:1
+msgid "批量操作\"%0"
+msgstr "Batch Action “%0"
+
+#: Disabled references:1
+msgid "修改分组名称失败"
+msgstr "Failed to modify the group name"
+
+#: Disabled references:1
+msgid "选择分组"
+msgstr "Select group"
+
+#: Disabled references:1
+msgid "(作为一级分组移动)"
+msgstr "(Move as Level-1 group)"
+
+#: Disabled references:1
+msgid "确认删除分组 ?"
+msgstr "Ok to delete the group?"
+
+#: Disabled references:1
+msgid "此操作不会删除分组下的应用项"
+msgstr "This will not delete the application entries within the group"
+
+#: Disabled references:1
+msgid "删除%0"
+msgstr "Delete %0"
+
+#: Disabled references:1
+msgid "相同组不需要移动"
+msgstr "Same group does not need to be moved"
+
+#: Disabled references:1
+msgid "收起导航"
+msgstr "Collapse Navigation"
+
+#: Disabled references:1
+msgid "展开导航"
+msgstr "Expand Navigation"
+
+#: Disabled references:1
+msgid "当前分组没有应用项"
+msgstr "No application entries within the current group"
+
+#: Disabled references:1
+msgid "没有需要保存的字段"
+msgstr "No fields to be saved"
+
+#: Disabled references:1
+msgid "⌘+Enter结束编辑"
+msgstr "Press ⌘+Enter to end editing"
+
+#: Disabled references:1
+msgid "Ctrl+Enter结束编辑"
+msgstr "Press Ctrl+Enter to end editing"
+
+#: Disabled references:1
+msgid "(密码区分大小写)"
+msgstr "(Password is case-sensitive)"
+
+#: Disabled references:1
+msgid "触发工作流"
+msgstr "Trigger workflow"
+
+#: Disabled references:1
+msgid "(触发工作流)"
+msgstr "(Trigger workflow)"
+
+#: Disabled references:1
+msgid "无数据或无权限查看"
+msgstr "No data found, or no permission to view the data"
+
+#: Disabled references:1
+msgid "地址无法访问\n被取消了查看权限或已删除"
+msgstr "Address inaccessible, as it has been deleted or has its View permission removed"
+
+#: Disabled references:1
+msgid "附件编辑"
+msgstr "Edit attachment"
+
+#: Disabled references:1
+msgid "左侧列表"
+msgstr "Left list"
+
+#: Disabled references:1
+msgid "新建子分组"
+msgstr "Create subgroup"
+
+#: Disabled references:1
+msgid "没有应用项"
+msgstr "No app entries found"
+
+#: Disabled references:1
+msgid "非空导航组不能删除"
+msgstr "Non-empty Navigation group cannot be deleted"
+
+#: Disabled references:1
+msgid "一级分组"
+msgstr "Level-1 Group"
+
+#: Disabled references:1
+msgid "导航方式"
+msgstr "Navigation Mode"
+
+#: Disabled references:1
+msgid "导航管理"
+msgstr "Navigation Management"
+
+#: Disabled references:1
+msgid "勾选时，管理员可以在应用中查看隐藏的应用项。取消勾选时，对管理员也同时隐藏"
+msgstr "When checked, administrators can view the hidden entries in the application. When unchecked, those entries is invisible to administrators as well."
+
+#: Disabled references:1
+msgid "导航修改实时生效"
+msgstr "Any changes to  Navigation will take effect immediately"
+
+#: Disabled references:1
+msgid "移动端"
+msgstr "Mobile"
+
+#: Disabled references:1
+msgid "例：请假单，请假理由这个选项。可以在这边统一编辑一个请假理由和里面的选项。这样这个数据内容可以被复用到不同的请假单中。不需要在每张表单中单独设置修改"
+msgstr "Example: Take the reason for leave in the Ask for Leave Form as example. The reason and other options in this form can be pre-configured, so that they can be reused in other forms. This will save your efforts to fill in them in each form."
+
+#: Disabled references:1
+msgid "添加拥有者"
+msgstr "Add owner"
+
+#: Disabled references:1
+msgid "错误通知"
+msgstr "Error message"
+
+#: Disabled references:1
+msgid "同步任务发生错误时发送错误消息通知给拥有者"
+msgstr "Send an error message to the owner when the sync task fails"
+
+#: Disabled references:1
+msgid "同步数据时，是否触发工作表绑定的自动化工作流"
+msgstr "Whether to trigger the automated workflow tied to the worksheet during data synchronization"
+
+#: Disabled references:1
+msgid "新增记录时触发"
+msgstr "Trigger when new record is added"
+
+#: Disabled references:1
+msgid "更新记录时触发"
+msgstr "Trigger when record is updated"
+
+#: Disabled references:1
+msgid "删除记录时触发"
+msgstr "Trigger when record is deleted"
+
+#: Disabled references:1
+msgid "读取"
+msgstr "Read"
+
+#: Disabled references:1
+msgid "最近1天"
+msgstr "Last 1 day"
+
+#: Disabled references:1
+msgid "累计运行时长"
+msgstr "Cumulative running time"
+
+#: Disabled references:1
+msgid "%0小时%1分钟"
+msgstr "%0 hour(s) %1 min(s)"
+
+#: Disabled references:1
+msgid "累计读取记录数"
+msgstr "Records cumulatively read"
+
+#: Disabled references:1
+msgid "累计写入记录数"
+msgstr "Records cumulatively written"
+
+#: Disabled references:1
+msgid "仅保留最近6个月的读写历史"
+msgstr "Keep the records read and written in last 6 months only"
+
+#: Disabled references:1
+msgid "仅保留最近6个月的日志"
+msgstr "Keep the log entries in last 6 months only"
+
+#: Disabled references:1
+msgid "操作人/来源"
+msgstr "Operator/source"
+
+#: Disabled references:1
+msgid "云端"
+msgstr "Cloud"
+
+#: Disabled references:1
+msgid "搜索数据源名称、地址"
+msgstr "Search for data source name and address"
+
+#: Disabled references:1
+msgid "创建于 %0"
+msgstr "Created at %0"
+
+#: Disabled references:1
+msgid "暂无可选择数据"
+msgstr "No data available to select for now"
+
+#: Disabled references:1
+msgid "数据合并"
+msgstr "Merge data"
+
+#: Disabled references:1
+msgid "多表连接"
+msgstr "Join multiple tables"
+
+#: Disabled references:1
+msgid "分类汇总"
+msgstr "Categorize and Aggregate"
+
+#: Disabled references:1
+msgid "筛选过滤"
+msgstr "Filter"
+
+#: Disabled references:1
+msgid "内连接"
+msgstr "Inner join"
+
+#: Disabled references:1
+msgid "左右互查，只合并命中条目"
+msgstr "Match the data in the left and right sheets mutually, then merge the matching entries only"
+
+#: Disabled references:1
+msgid "左连接"
+msgstr "Left join"
+
+#: Disabled references:1
+msgid "左查右，合并全部"
+msgstr "Match the data in the left sheet to the ones on the right, and merge all"
+
+#: Disabled references:1
+msgid "右连接"
+msgstr "Right join"
+
+#: Disabled references:1
+msgid "右查左，合并全部"
+msgstr "Match the data in the right sheet to the ones on the left, and merge all"
+
+#: Disabled references:1
+msgid "全连接"
+msgstr "Full join"
+
+#: Disabled references:1
+msgid "左右表按连接字段全部合并"
+msgstr "Merge all data in the left and right sheets by connecting fields"
+
+#: Disabled references:1
+msgid "非"
+msgstr "Not"
+
+#: Disabled references:1
+msgid "失效"
+msgstr "Invalidated"
+
+#: Disabled references:1
+msgid "去重计数"
+msgstr "Deduplicate and count"
+
+#: Disabled references:1
+msgid "去重合并"
+msgstr "Deduplicate and merge"
+
+#: Disabled references:1
+msgid "合并时去掉两个表中重复的行记录，保留唯一记录。"
+msgstr "Remove any duplicate rows in the two data sheets, leaving all unique rows, before merging."
+
+#: Disabled references:1
+msgid "全部合并"
+msgstr "Merge all"
+
+#: Disabled references:1
+msgid "合并时保留两个表中所有的行记录"
+msgstr "Merge all rows in the two data sheets."
+
+#: Disabled references:1
+msgid "相交并去重"
+msgstr "Keep shared and deduplicate"
+
+#: Disabled references:1
+msgid "只有在两个表中都存在的记录，才会被保留，并去除重复记录"
+msgstr "Keep the records shared between the two data sheets only, and deduplicate them."
+
+#: Disabled references:1
+msgid "相交"
+msgstr "Keep shared"
+
+#: Disabled references:1
+msgid "只有在两个表中都存在的记录，才会被保留，不会去除重复记录"
+msgstr "Keep the records shared between the two data sheets only, without deduplication."
+
+#: Disabled references:1
+msgid "排除并去重"
+msgstr "Exclude and deduplicate"
+
+#: Disabled references:1
+msgid "只有在左表中存在，但在右表中不存在的记录会被保留，并去除重复记录"
+msgstr "Keep the records included in the left data sheet, but not in the right data sheet, and deduplicate them."
+
+#: Disabled references:1
+msgid "排除"
+msgstr "Exclude"
+
+#: Disabled references:1
+msgid "只有在左表中存在，但在右表中不存在的记录会被保留，不会去除重复记录"
+msgstr "Keep the records included in the left data sheet, but not in the right data sheet, without deduplication."
+
+#: Disabled references:1
+msgid "未发布"
+msgstr "Unpublished"
+
+#: Disabled references:1
+msgid "停止"
+msgstr "Stopped"
+
+#: Disabled references:1
+msgid "即将上线"
+msgstr "Coming soon"
+
+#: Disabled references:1
+msgid "长度"
+msgstr "Length"
+
+#: Disabled references:1
+msgid "精度"
+msgstr "Precision"
+
+#: Disabled references:1
+msgid "字段注释"
+msgstr "Field comment"
+
+#: Disabled references:1
+msgid "字段(源)"
+msgstr "Field (source)"
+
+#: Disabled references:1
+msgid "主键"
+msgstr "Primary key"
+
+#: Disabled references:1
+msgid "不允许null"
+msgstr "Null is not allowed"
+
+#: Disabled references:1
+msgid "字段名称(目标)"
+msgstr "Field name (target)"
+
+#: Disabled references:1
+msgid "设置字段注释"
+msgstr "Set field comment"
+
+#: Disabled references:1
+msgid "取消设为标题"
+msgstr "Remove as header"
+
+#: Disabled references:1
+msgid "选择数据源类型"
+msgstr "Select data source type"
+
+#: Disabled references:1
+msgid "数据源名称"
+msgstr "Data source name"
+
+#: Disabled references:1
+msgid "作为"
+msgstr "As"
+
+#: Disabled references:1
+msgid "数据库地址"
+msgstr "Database address"
+
+#: Disabled references:1
+msgid "保存密码后将加密存储，不可查看密码原文"
+msgstr "Password saved will be encrypted. No clear text is visible."
+
+#: Disabled references:1
+msgid "初始数据库"
+msgstr "Original database"
+
+#: Disabled references:1
+msgid "数据库名称"
+msgstr "Database name"
+
+#: Disabled references:1
+msgid "其他连接串参数"
+msgstr "Other connecting string parameters"
+
+#: Disabled references:1
+msgid "服务名类型"
+msgstr "Service name type"
+
+#: Disabled references:1
+msgid "启用 SRV 记录"
+msgstr "Enable SRV records"
+
+#: Disabled references:1
+msgid "系统将通过 BinLog 实时同步数据库的所有变动"
+msgstr "All changes to the database will be synchronized through BinLog in real time."
+
+#: Disabled references:1
+msgid "系统将通过 Change Tracking 实时同步数据库的所有变动"
+msgstr "All changes to the database will be synchronized through Change Tracking in real time."
+
+#: Disabled references:1
+msgid "系统将实时同步数据库的所有变动"
+msgstr "All changes to the database will be synchronized in real time."
+
+#: Disabled references:1
+msgid "系统将通过 Log Archiving 实时同步数据库的所有变动"
+msgstr "All changes to the database will be synchronized through Log Archiving in real time."
+
+#: Disabled references:1
+msgid "系统将通过 Change Streams 实时同步数据库的所有变动"
+msgstr "All changes to the database will be synchronized through Change Streams in real time."
+
+#: Disabled references:1
+msgid "系统将实时同步数据到所选工作表"
+msgstr "The system will synchronize data to the selected worksheet in real time"
+
+#: Disabled references:1
+msgid "更换数据源类型"
+msgstr "Change data source type"
+
+#: Disabled references:1
+msgid "请将以下IP加入数据库服务器的访问白名单"
+msgstr "Please add the following IP(s) to the whitelist of the database server"
+
+#: Disabled references:1
+msgid "你可以把 MariaDB 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
+msgstr "You can synchronize the data from the MariaDB database to the worksheet or other destinations in real time through the system."
+
+#: Disabled references:1
+msgid "先决条件"
+msgstr "Prerequisites"
+
+#: Disabled references:1
+msgid "支持MariaDB的版本"
+msgstr "MariaDB versions supported"
+
+#: Disabled references:1
+msgid "10.3及以上"
+msgstr "10.3 and above"
+
+#: Disabled references:1
+msgid "需要开启Binlog"
+msgstr "Binlog must be enabled"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 MariaDB 服务器的访问白名单 "
+msgstr "Add the system IP to the whitelist of the MariaDB server"
+
+#: Disabled references:1
+msgid "授权MariaDB账户对应的权限"
+msgstr "Grant appropriate permissions to the MariaDB account"
+
+#: Disabled references:1
+msgid "检查MariaDB版本"
+msgstr "Check the MariaDB version"
+
+#: Disabled references:1
+msgid "检查Binlog是否开启"
+msgstr "Check if Binlog is enabled"
+
+#: Disabled references:1
+msgid "如果该语句返回值为1，说明BinLog是激活的。如果返回值为0，这意味着BinLog被禁用。要启用它，请遵循下面的步骤。"
+msgstr "If this statement returns 1, BinLog is enabled. If it returns 0, it is disabled. To enable it, follow the steps below."
+
+#: Disabled references:1
+msgid "开启Binlog"
+msgstr "Enable Binlog"
+
+#: Disabled references:1
+msgid "登陆到MariaDB服务器"
+msgstr "Log in to the MariaDB server"
+
+#: Disabled references:1
+msgid "编辑MariaDB服务器的配置文件"
+msgstr "Edit the MariaDB server configuration file"
+
+#: Disabled references:1
+msgid "在配置文件中检查是否符合以下内容，不符合的需要修改"
+msgstr "Check for the contents in the configuration file. Modify them if they do not meet the following requirements."
+
+#: Disabled references:1
+msgid "保存文件或者退出"
+msgstr "Save the file or exit"
+
+#: Disabled references:1
+msgid "保存所做的修改，按下Ctrl+O。"
+msgstr "To save your modifications, press Ctrl+O."
+
+#: Disabled references:1
+msgid "退出，按下Ctrl+X。"
+msgstr "To exit, press Ctrl+X."
+
+#: Disabled references:1
+msgid "重启MariaDB服务器"
+msgstr "Restart the MariaDB server"
+
+#: Disabled references:1
+msgid "重启后，再次登陆到MariaDB服务器，检查Binlog状态"
+msgstr "Upon restarting, log in to the MariaDB server again and check the status of Binlog"
+
+#: Disabled references:1
+msgid "对于某个数据库赋于select权限"
+msgstr "Grant the select permission to a database"
+
+#: Disabled references:1
+msgid "或者给予全局权限"
+msgstr "or grant global permissions"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到了 MariaDB 服务器的访问白名单"
+msgstr "Added the system IP to the whitelist of the MariaDB server"
+
+#: Disabled references:1
+msgid "找到 [mysqld] 部分，添加下方语句"
+msgstr "Find the [mysqld] section and add the following statement"
+
+#: Disabled references:1
+msgid "保存所做的修改"
+msgstr "Save your modifications"
+
+#: Disabled references:1
+msgid "按下Ctrl+O"
+msgstr "Press Ctrl+O"
+
+#: Disabled references:1
+msgid "创建数据源时，检查数据库服务器的连通性、账户密码等正确性、数据库是否可用、以及检查是否可以作为源或者目的地。只有数据源通过全部测试才能够正常使用数据源。"
+msgstr "When creating a data source, check the connectivity of the database server, the correctness of the account password, the availability of the database, and if it can be used as the source or destination. Only if the data source passes all tests can it be used normally."
+
+#: Disabled references:1
+msgid "你可以将其它数据源的数据实时同步到 MariaDB"
+msgstr "You can synchronize data from other data sources to MariaDB in real time"
+
+#: Disabled references:1
+msgid "检查是否有对应数据库的全部权限"
+msgstr "Check if you have all permissions on the database involved"
+
+#: Disabled references:1
+msgid "对于某个数据库赋于全部权限"
+msgstr "Grant all permissions on a database"
+
+#: Disabled references:1
+msgid "或者可以赋予全局权限"
+msgstr "or grant global permissions"
+
+#: Disabled references:1
+msgid "你可以把 工作表 作为源数据，同步数据到工作表或者其它数据目的地。"
+msgstr "You can use a worksheet as the source and synchronize its data to another worksheet or other destinations."
+
+#: Disabled references:1
+msgid "同步前需要选择要同步到的目标应用，只能从当前用户是应用管理员和开发者的应用中选取。"
+msgstr "Select the target application to synchronize to beforehand. Only those applications where the current user plays the role of administrator or developer are available for selection."
+
+#: Disabled references:1
+msgid "你可以把工作表或者其它数据源的数据，通过系统实时同步到 工作表"
+msgstr "You can synchronize the data from a worksheet or other data sources to another worksheet in real time through the system"
+
+#: Disabled references:1
+msgid "只能从当前用户是应用管理员和开发者的应用中选取。"
+msgstr "Only those applications where the current user plays the role of administrator or developer are available for selection."
+
+#: Disabled references:1
+msgid "你可以把 MongoDB 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
+msgstr "You can synchronize the data from a MongoDB database to a worksheet or other destinations in real time through the system."
+
+#: Disabled references:1
+msgid "MongoDB 版本 >= 3.6"
+msgstr "MongoDB version >= 3.6"
+
+#: Disabled references:1
+msgid "启用 Change Streams"
+msgstr "Enable Change Streams"
+
+#: Disabled references:1
+msgid "Change Streams仅支持副本集和分片群集模式，且必须使用副本集协议版本1（pv1）"
+msgstr "Only replica set and sharded cluster modes are supported for Change Streams, which requires replica set protocol version 1 (pv1)."
+
+#: Disabled references:1
+msgid "更多条件参考："
+msgstr "For more conditions, refer to:"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 MongoDB 服务器的访问白名单"
+msgstr "Add the system IP to the whitelist of the MongoDB server"
+
+#: Disabled references:1
+msgid "你可以将其它数据源的数据实时同步到 MongoDB"
+msgstr "You can synchronize data from other data sources to MongoDB in real time."
+
+#: Disabled references:1
+msgid "具有数据库的写入权限"
+msgstr "Permission to write to the database"
+
+#: Disabled references:1
+msgid "创建用户并且赋予写入数据库权限"
+msgstr "Create a user and grant the permission to write to the database"
+
+#: Disabled references:1
+msgid "权限规则"
+msgstr "Permissions rules"
+
+#: Disabled references:1
+msgid "允许用户读取指定数据库;"
+msgstr "Allows the user to read from the specified database;"
+
+#: Disabled references:1
+msgid "允许用户读写指定数据库 "
+msgstr "Allow the user to read from and write to the specified database"
+
+#: Disabled references:1
+msgid "允许用户在指定数据库中执行管理函数，如索引创建、删除，查看统计或访问system.profile;"
+msgstr "Allows the user to run the administrative functions on the specified database, such as creating index, deleting data, viewing statistics or accessing system.profile;"
+
+#: Disabled references:1
+msgid "允许用户向system.users集合写入，可以找指定数据库里创建、删除和管理用户;"
+msgstr "Allows the user to write to the system.users collection and create, delete and manage users in the specified database;"
+
+#: Disabled references:1
+msgid "只在admin数据库中可用，赋予用户所有分片和复制集相关函数的管理权限; "
+msgstr "Only available in the admin database. The user will be granted the administrative permissions on all functions related to the sharding and replica set;"
+
+#: Disabled references:1
+msgid "只在admin数据库中可用，赋予用户所有数据库的读权限; "
+msgstr "Only available in the admin database. The user will be granted the permission to read from all databases;"
+
+#: Disabled references:1
+msgid "只在admin数据库中可用，赋予用户所有数据库的读写权限;"
+msgstr "Only available in the admin database. The user will be granted the permission to read from and write to all databases;"
+
+#: Disabled references:1
+msgid "只在admin数据库中可用，赋予用户所有数据库的userAdmin权限; "
+msgstr "Only available in the admin database. The user will be granted the userAdmin permission on all databases;"
+
+#: Disabled references:1
+msgid "只在admin数据库中可用，赋予用户所有数据库的dbAdmin权限; "
+msgstr "Only available in the admin database. The user will be granted the dbAdmin permission on all databases;"
+
+#: Disabled references:1
+msgid "只在admin数据库中可用。超级账号，超级权限。"
+msgstr "Only available in admin database. Super user with unlimited access."
+
+#: Disabled references:1
+msgid "你可以把 MySQL 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
+msgstr "You can synchronize the data from a MySQL database to a worksheet or other destinations in real time through the system."
+
+#: Disabled references:1
+msgid "支持MySQL的版本"
+msgstr "MySQL versions supported"
+
+#: Disabled references:1
+msgid "需要开启Binlog并设置为ROW"
+msgstr "Binlog must be enabled and set to ROW"
+
+#: Disabled references:1
+msgid "授权MySQL账户对应的权限"
+msgstr "Grant relevant permissions to the MySQL account"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 MySQL 服务器的访问白名单"
+msgstr "Add the system IP to the whitelist of the MySQL server"
+
+#: Disabled references:1
+msgid "检查 MySQL 版本"
+msgstr "Check MySQL Version(s)"
+
+#: Disabled references:1
+msgid "登陆到MySQL服务器"
+msgstr "Log in to the MySQL server"
+
+#: Disabled references:1
+msgid "编辑MySQL服务器的配置文件"
+msgstr "Edit the config file of the MySQL server"
+
+#: Disabled references:1
+msgid "重启MySQL服务器"
+msgstr "Restart the MySQL Server"
+
+#: Disabled references:1
+msgid "重启后，再次登陆到MySQL服务器，检查Binlog状态"
+msgstr "Upon restarting, log in to the MySQL server again and check the status of Binlog"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到了 MySQL 服务器的访问白名单"
+msgstr "Added the system IP to the whitelist of the MySQL server"
+
+#: Disabled references:1
+msgid "bind-address = 0.0.0.0 [这里是系统白名单，在左侧配置信息底部显示]"
+msgstr "bind-address = 0.0.0.0 [This is the whitelist of the system, which is shown under the configuration section on the left]"
+
+#: Disabled references:1
+msgid "你可以将其它数据源的数据实时同步到 MySQL"
+msgstr "You can synchronize the data from other data sources to MySQL in real time"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 MySQL 服务器的访问白名单 "
+msgstr "Add the system IP to the whitelist of the MySQL server"
+
+#: Disabled references:1
+msgid "你可以把 Oracle 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
+msgstr "You can synchronize the data from an Oracle database to a worksheet or other destinations in real time through the system."
+
+#: Disabled references:1
+msgid "支持Oracle版本： 9i, 10g, 11g，12c"
+msgstr "Oracle versions supported: 9i, 10g, 11g, 12c"
+
+#: Disabled references:1
+msgid "启用Oracle数据库的日志存档"
+msgstr "Enable Log Archiving for Oracle Database"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 Oracle 服务器的访问白名单 "
+msgstr "Add the system IP to the whitelist of the Oracle server"
+
+#: Disabled references:1
+msgid "对于非CDB数据库"
+msgstr "For non-CDB databases"
+
+#: Disabled references:1
+msgid "以DBA身份连接到数据库"
+msgstr "Connect to the database as DBA"
+
+#: Disabled references:1
+msgid "启用日志归档"
+msgstr "Enable log archiving"
+
+#: Disabled references:1
+msgid "启用日志归档需要重新启动数据库，在尝试这样做时要注意"
+msgstr "The database must be restarted to enable log archiving. Keep this in mind when you are trying to do so."
+
+#: Disabled references:1
+msgid "归档的日志会占用大量的磁盘空间，所以考虑定期清理过期的日志。"
+msgstr "Archived logs can take up a lot of disk space, so consider cleaning up expired logs periodically."
+
+#: Disabled references:1
+msgid "检查是否启用了日志归档功能"
+msgstr "Check if log archiving is enabled"
+
+#: Disabled references:1
+msgid "启用补充日志"
+msgstr "Enable supplemental logging"
+
+#: Disabled references:1
+msgid "必须为表或数据库启用补充日志，以使数据变化能够捕获变化的数据库行的之前状态。下面说明了如何在表/数据库层面上进行配置。"
+msgstr "Supplemental logging must be enabled for the table or database to capture the previous statuses of the rows changed in the database as data changes. The following section illustrates how to configure this at the table/database level."
+
+#: Disabled references:1
+msgid "启用特定表的补充日志记录。"
+msgstr "Enable supplementary logging for a specific table."
+
+#: Disabled references:1
+msgid "启用数据库的补充日志记录。"
+msgstr "Enable supplemental logging for the database."
+
+#: Disabled references:1
+msgid "创建一个具有权限的Oracle用户"
+msgstr "Create an authorized Oracle user"
+
+#: Disabled references:1
+msgid "创建表空间"
+msgstr "Create a tablespace"
+
+#: Disabled references:1
+msgid "创建一个用户并授予权限"
+msgstr "Create a user and grant permissions"
+
+#: Disabled references:1
+msgid "对于CDB数据库"
+msgstr "For CDB databases"
+
+#: Disabled references:1
+msgid "另外一种方式启用日志归档"
+msgstr "Another way to enable log archiving"
+
+#: Disabled references:1
+msgid "启用数据库的补充日志记录"
+msgstr "Enable supplemental logging for the database"
+
+#: Disabled references:1
+msgid "你可以将其它数据源的数据实时同步到 Oracle"
+msgstr "You can synchronize the data from other data sources to Oracle in real time"
+
+#: Disabled references:1
+msgid "拥有Oracle数据库的写入权限"
+msgstr "Write access to Oracle database"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 Oracle 服务器的访问白名单 "
+msgstr "Add the system IP to the whitelist of the Oracle server"
+
+#: Disabled references:1
+msgid "当前账号具有读写数据库的权限："
+msgstr "The current account has permissions to read from and write to the database:"
+
+#: Disabled references:1
+msgid "你可以把 PostgreSQL 数据库的数据通过系统实时同步到工作表或者其它数据目的地"
+msgstr "You can synchronize the data from a PostgreSQL database to a worksheet or other destinations in real time through the system."
+
+#: Disabled references:1
+msgid "支持PostgreSQL的版本"
+msgstr "PostgreSQL version(s) supported"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 PostgreSQL 服务器的访问白名单"
+msgstr "Add the system IP to the whitelist of the PostgreSQL server"
+
+#: Disabled references:1
+msgid "检查 PostgreSQL 版本"
+msgstr "Check PostgreSQL Version(s)"
+
+#: Disabled references:1
+msgid "查看现有用户权限"
+msgstr "Check permissions for current users"
+
+#: Disabled references:1
+msgid "向用户授予所需的权限"
+msgstr "Grant the user permissions required"
+
+#: Disabled references:1
+msgid "修改schema的默认权限，将表上的SELECT权限授予数据库用户"
+msgstr "Modify the default permissions on schema to grant the SELECT permission on tables to database users"
+
+#: Disabled references:1
+msgid "你可以将其它数据源的数据实时同步到 PostgreSQL"
+msgstr "You can synchronize the data from other data sources to PostgreSQL in real time"
+
+#: Disabled references:1
+msgid "当前账号具有读写数据库的权限"
+msgstr "The current account has permissions to read from and write to the database"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 PostgreSQL 服务器的访问白名单 "
+msgstr "Add the system IP to the whitelist of the PostgreSQL server"
+
+#: Disabled references:1
+msgid "你可以把 SQL Server 数据库的数据通过系统实时同步到工作表或者其它数据目的地。"
+msgstr "You can synchronize the data from a SQL Server database to a worksheet or other destinations in real time through the system."
+
+#: Disabled references:1
+msgid "支持 SQL Server 的版本"
+msgstr "SQL Server Version(s) supported"
+
+#: Disabled references:1
+msgid "Change Tracking读取模式支持2008、2012、2014版本的单实例非只读数据库。"
+msgstr "Change Tracking can read from the non-read-only, single-instance databases of versions 2008, 2012, or 2014."
+
+#: Disabled references:1
+msgid "在 SQL Server 数据库上启用CDC"
+msgstr "Enable CDC on a SQL Server database"
+
+#: Disabled references:1
+msgid "SQL Server代理任务是启动状态"
+msgstr "SQL Server Agent task is started"
+
+#: Disabled references:1
+msgid "当前账号是数据库db_owner固定角色的成员"
+msgstr "The current account is one of the members with the fixed db_owner role of the database."
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 SQL Server 服务器的访问白名单"
+msgstr "Add the system IP to the whitelist of the SQL Server"
+
+#: Disabled references:1
+msgid "检查 SQL Server 版本"
+msgstr "Check SQL Server Version(s)"
+
+#: Disabled references:1
+msgid "在 SQL Server 的菜单中找到\"帮助-版本\"，点击查看对应版本信息。"
+msgstr "Click Help menu - Version in SQL Server to view the version info."
+
+#: Disabled references:1
+msgid "确保 SQL Server 代理任务是启动状态"
+msgstr "Ensure that the SQL Server Agent task is started"
+
+#: Disabled references:1
+msgid "在 SQL Server Management Studio 里面左下角查看"
+msgstr "View in the lower left corner of SQL Server Management Studio"
+
+#: Disabled references:1
+msgid "运行以下 SQL 语句以在表上启用 CDC"
+msgstr "Run the following SQL statement to enable CDC on the table"
+
+#: Disabled references:1
+msgid "验证用户是否有权访问 CDC 表"
+msgstr "Verify that the user has access to the CDC table"
+
+#: Disabled references:1
+msgid "查询返回数据库中为CDC启用并包含调用者有权访问的更改数据的数据库中每个表的配置信息。如果结果为空，请验证用户是否有权同时访问捕获实例和CDC表。"
+msgstr "Retrieve the configuration information for each table in the database that has been enabled for CDC and contains changed data that the caller is authorized to access. If the result is empty, verify that the user has permissions to access both the captured instance and the CDC table."
+
+#: Disabled references:1
+msgid "你可以将其它数据源的数据实时同步到 SQL Server"
+msgstr "You can synchronize the data from other data sources to SQL Server in real time"
+
+#: Disabled references:1
+msgid "将系统 IP 添加到 SQL Server 服务器的访问白名单 "
+msgstr "Add the system IP to the whitelist of the SQL Server"
+
+#: Disabled references:1
+msgid "授予用户查询,插入,更新,删除表权限"
+msgstr "Authorize the user to query, insert, update, and delete the table"
+
+#: Disabled references:1
+msgid "作为数据源"
+msgstr "As data source"
+
+#: Disabled references:1
+msgid "作为数据目的地"
+msgstr "As destination"
+
+#: Disabled references:1
+msgid "连接 %0 配置指南"
+msgstr "Guide to connect to %0"
+
+#: Disabled references:1
+msgid "如果分解后的任务比较复杂、需要分别指派负责人，或需要在每条任务中分别记录跟进情况的，建议使用子任务。其他情况下，建议使用检查清单来做关键结果追踪，支持将重要检查项一键转为任务"
+msgstr "If the decomposed tasks are complex and require separate owners, or each task needs to be tracked for follow-up actions, sub-tasks are recommended. Otherwise, it is recommended to use checklists for tracking key results, where the important check items can be converted to tasks with one click."
+
+#: Disabled references:1
+msgid "指定组织角色"
+msgstr "Assign organizational roles"
+
+#: Disabled references:1
+msgid "允许全部下载"
+msgstr "Allow to download all"
+
+#: Disabled references:1
+msgid "未获取到数据时：继续执行"
+msgstr "If no data is retrieved: continue"
+
+#: Disabled references:1
+msgid "无可退回的节点"
+msgstr "No nodes available to roll back to"
+
+#: Disabled references:1
+msgid "仅发起节点"
+msgstr "Initiating node only"
+
+#: Disabled references:1
+msgid "仅上一个节点"
+msgstr "Previous node only"
+
+#: Disabled references:1
+msgid "上方所有节点"
+msgstr "All nodes above"
+
+#: Disabled references:1
+msgid "指定节点"
+msgstr "Specified node"
+
+#: Disabled references:1
+msgid "退回设置"
+msgstr "Rollback settings"
+
+#: Disabled references:1
+msgid "必须指定节点"
+msgstr "Must specify nodes"
+
+#: Disabled references:1
+msgid "通过时通知"
+msgstr "Notify when approved"
+
+#: Disabled references:1
+msgid "否决时通知"
+msgstr "Notify when rejected"
+
+#: Disabled references:1
+msgid "默认消息内容"
+msgstr "Default message content"
+
+#: Disabled references:1
+msgid "消息内容"
+msgstr "Message content"
+
+#: Disabled references:1
+msgid "{记录名称}：{记录标题}，"
+msgstr "{Record Name}: {Record Title},"
+
+#: Disabled references:1
+msgid "已通过%0"
+msgstr "%0 approved"
+
+#: Disabled references:1
+msgid "于%0被否决"
+msgstr "Rejected on %0"
+
+#: Disabled references:1
+msgid "节点结果通知发起人"
+msgstr "Notify the initiator of the node result"
+
+#: Disabled references:1
+msgid "计算两个日期/时间之间的时长，并精确到年、月、天、时、分、秒"
+msgstr "Calculate the length of time between two dates/time points with the precision of year, month, day, hour, minute and second"
+
+#: Disabled references:1
+msgid "开始 00:00，结束24:00"
+msgstr "Start 00:00, End 24:00"
+
+#: Disabled references:1
+msgid "开始 00:00，结束00:00"
+msgstr "Start 00:00, End 00:00"
+
+#: Disabled references:1
+msgid "视图不允许为空"
+msgstr "View cannot be empty"
+
+#: Disabled references:1
+msgid "标题不允许为空"
+msgstr "Title cannot be empty"
+
+#: Disabled references:1
+msgid "在顶部显示并自动消失。用于一句话的简短提示"
+msgstr "Displayed at the top and cleared automatically. Used as short notice"
+
+#: Disabled references:1
+msgid "在底部显示并可设为不自动消失。可包含标题、描述、按钮，适合较多文字或带有操作的通知"
+msgstr "Displayed at the bottom and optionally set not to be cleared automatically. Title, description, and buttons can be included, which can be used as notices with more texts or requiring actions"
+
+#: Disabled references:1
+msgid "卡片按钮"
+msgstr "Card button"
+
+#: Disabled references:1
+msgid "按钮%0"
+msgstr "Button%0"
+
+#: Disabled references:1
+msgid "警告"
+msgstr "Warning"
+
+#: Disabled references:1
+msgid "提示类型"
+msgstr "Hint type"
+
+#: Disabled references:1
+msgid "指定时间后"
+msgstr "After the period of time specified"
+
+#: Disabled references:1
+msgid "永不，需要手动关闭"
+msgstr "Never, must be manually turned off"
+
+#: Disabled references:1
+msgid "自动消失"
+msgstr "Clear automatically"
+
+#: Disabled references:1
+msgid "从JSON示例生成"
+msgstr "Generate from JSON sample"
+
+#: Disabled references:1
+msgid "从json示例生成"
+msgstr "Generate from json sample"
+
+#: Disabled references:1
+msgid "生成Body全文参数"
+msgstr "Generate parameter for full text in Body"
+
+#: Disabled references:1
+msgid "勾选后，将会生成一个记录Body全文的文本格式参数"
+msgstr "When selected, a text format parameter will be generated to record the full text of the Body"
+
+#: Disabled references:1
+msgid "请求"
+msgstr "Request"
+
+#: Disabled references:1
+msgid "某些第三方平台需要设置白名单 IP 才能调用API，以下是系统使用的 IP 地址"
+msgstr "For some third-party platforms, the whitelisted IP is required to call the API. Below are the IP addresses used by the system."
+
+#: Disabled references:1
+msgid "节点配置有误"
+msgstr "Error in node configuration"
+
+#: Disabled references:1
+msgid "获取记录数据"
+msgstr "Get record data"
+
+#: Disabled references:1
+msgid "获取单条"
+msgstr "Get a single piece of data"
+
+#: Disabled references:1
+msgid "获取多条"
+msgstr "Get multiple pieces of data"
+
+#: Disabled references:1
+msgid "即将下线"
+msgstr "To be deprecated soon"
+
+#: Disabled references:1
+msgid "暂无图片"
+msgstr "No image available for now"
+
+#: Disabled references:1
+msgid "上个记录（⌘ + ⇧ + ,）"
+msgstr "Previous Record (⌘ + ⇧ + ,)"
+
+#: Disabled references:1
+msgid "下个记录（⌘ + ⇧ + .）"
+msgstr "Next Record (⌘ + ⇧ + .)"
+
+#: Disabled references:1
+msgid "上传时间"
+msgstr "Uploading time"
+
+#: Disabled references:1
+msgid "对源数据进行分类和汇总统计运算后，作为新的数据进入本节点。"
+msgstr "Categorize and aggregate the source data, then include its result in the node as new data"
+
+#: Disabled references:1
+msgid "分类字段"
+msgstr "Categorized field"
+
+#: Disabled references:1
+msgid "汇总统计字段"
+msgstr "Aggregated field"
+
+#: Disabled references:1
+msgid "不允许空"
+msgstr "Can't be empty"
+
+#: Disabled references:1
+msgid "合并后字段"
+msgstr "Merged field"
+
+#: Disabled references:1
+msgid "设置筛选条件后，只有满足条件的数据才能进入本节点。允许添加多个筛选过滤节点分支将数据写入不同的数据目的地。"
+msgstr "Only the data filtered by criteria set can be included in the node. Multiple filtering branches can be added to write the data into separate destinations."
+
+#: Disabled references:1
+msgid "多表连接后左右两个数据表将按设置的条件进行匹配，并将符合条件的记录进行合并。"
+msgstr "When multiple tables are joined, the left data sheets will be matched to the right ones based on the set conditions, and the matching records will be merged."
+
+#: Disabled references:1
+msgid "连接条件"
+msgstr "Joining condition"
+
+#: Disabled references:1
+msgid "数据库"
+msgstr "Database"
+
+#: Disabled references:1
+msgid "schema"
+msgstr "schema"
+
+#: Disabled references:1
+msgid "数据表"
+msgstr "Data sheet"
+
+#: Disabled references:1
+msgid "将两个数据表的行记录合并到一个数据表。"
+msgstr "Merge the rows from two data sheets into one data sheet."
+
+#: Disabled references:1
+msgid "合并方式"
+msgstr "Merge method"
+
+#: Disabled references:1
+msgid "仅预览前100行数据"
+msgstr "Preview the first 100 rows of data only"
+
+#: Disabled references:1
+msgid "预览数据"
+msgstr "Preview data"
+
+#: Disabled references:1
+msgid "工作表数据"
+msgstr "Data in Worksheet"
+
+#: Disabled references:1
+msgid "从当前用户作为管理员的应用工作表实时同步"
+msgstr "Synchronize from the worksheet where the current user plays the role of Administrator in real time"
+
+#: Disabled references:1
+msgid "外部数据源"
+msgstr "External data source"
+
+#: Disabled references:1
+msgid "从本地数据库，云数据库或消息队列服务器读取数据并实时同步"
+msgstr "Retrieve data from local databases, cloud databases or message queue servers and synchronize it in real time"
+
+#: Disabled references:1
+msgid "%0个筛选条件"
+msgstr "%0 filters"
+
+#: Disabled references:1
+msgid "分类 %0个字段，汇总 %1个字段"
+msgstr "%0 fields categorized, %1 fields aggregated"
+
+#: Disabled references:1
+msgid "数据源名称不能为空"
+msgstr "Data source name cannot be empty"
+
+#: Disabled references:1
+msgid "请先选择目标数据库"
+msgstr "Please select the target database first"
+
+#: Disabled references:1
+msgid "未选择Schema"
+msgstr "No Schema selected"
+
+#: Disabled references:1
+msgid "未选择或填写数据表"
+msgstr "No data sheet selected or completed"
+
+#: Disabled references:1
+msgid "有同步任务未选择任何字段"
+msgstr "No fields selected for some sync tasks"
+
+#: Disabled references:1
+msgid "已勾选的字段信息未填写完整"
+msgstr "Missing information in the fields selected"
+
+#: Disabled references:1
+msgid "请填写主键同步字段"
+msgstr "Please complete the fields to synchronize for the primary key"
+
+#: Disabled references:1
+msgid "目标表名称已存在, 需要修改目的地表名称"
+msgstr "Target table name already exists, please use another one"
+
+#: Disabled references:1
+msgid "字段名不能重复"
+msgstr "Field names cannot be duplicated"
+
+#: Disabled references:1
+msgid "新建表名不能重复"
+msgstr "New table names cannot be duplicated"
+
+#: Disabled references:1
+msgid "新建工作表字段数不能超过200"
+msgstr "The new worksheet cannot include more than 200 fields"
+
+#: Disabled references:1
+msgid "目标工作表未设置标题字段"
+msgstr "No header fields set in the target worksheet"
+
+#: Disabled references:1
+msgid "余量不足"
+msgstr "Insufficient capacity left"
+
+#: Disabled references:1
+msgid "创建%0个同步任务"
+msgstr "Create %0 sync tasks"
+
+#: Disabled references:1
+msgid "创建同步任务中..."
+msgstr "Creating sync tasks..."
+
+#: Disabled references:1
+msgid "太棒了！同步任务创建成功"
+msgstr "Great! Sync tasks have been created successfully"
+
+#: Disabled references:1
+msgid "可在"
+msgstr "You can"
+
+#: Disabled references:1
+msgid "中查看任务的运行状态与同步详情"
+msgstr "view the statuses of the tasks, as well as their sync summary in"
+
+#: Disabled references:1
+msgid "知道了"
+msgstr "Got it"
+
+#: Disabled references:1
+msgid "选择创建方式"
+msgstr "Choose your method to create"
+
+#: Disabled references:1
+msgid "仅同步数据"
+msgstr "Synchronize data only"
+
+#: Disabled references:1
+msgid "批量创建同步任务，(后续可在任务列表中添加数据处理步骤）"
+msgstr "Create sync tasks in batch. You can add the steps to process their data in the task list later"
+
+#: Disabled references:1
+msgid "同步时需要对数据进行处理"
+msgstr "Require data processing while synchronizing"
+
+#: Disabled references:1
+msgid "创建单个同步任务，并立即对其添加数据处理步骤"
+msgstr "Create a sync task and add the step to process its data immediately"
+
+#: Disabled references:1
+msgid "源表节点"
+msgstr "Source table node"
+
+#: Disabled references:1
+msgid "这是一个源表节点"
+msgstr "This is a source table node"
+
+#: Disabled references:1
+msgid "目的地节点"
+msgstr "Destination node"
+
+#: Disabled references:1
+msgid "这是一个目的地节点"
+msgstr "This is a destination node"
+
+#: Disabled references:1
+msgid "不可选与数据源相同的表"
+msgstr "You cannot select the same table as the data source"
+
+#: Disabled references:1
+msgid "该表没有主键，无法同步"
+msgstr "The table does not include any primary key, so cannot be synchronized"
+
+#: Disabled references:1
+msgid "Schema"
+msgstr "Schema"
+
+#: Disabled references:1
+msgid "数据表名称"
+msgstr "Data sheet name"
+
+#: Disabled references:1
+msgid "设置同步字段"
+msgstr "Set any fields to synchronize"
+
+#: Disabled references:1
+msgid "请先从左侧选择数据对象"
+msgstr "First select the data object from the left side"
+
+#: Disabled references:1
+msgid "数据源创建成功"
+msgstr "Data source created successfully"
+
+#: Disabled references:1
+msgid "编辑数据源"
+msgstr "Edit data source"
+
+#: Disabled references:1
+msgid "创建数据源"
+msgstr "Create data source"
+
+#: Disabled references:1
+msgid "修改后，相关的同步任务可能会终止"
+msgstr "Once modified, any relevant sync tasks may be terminated"
+
+#: Disabled references:1
+msgid "查看使用详情"
+msgstr "View usage details"
+
+#: Disabled references:1
+msgid "数据源修改成功"
+msgstr "Data source modified successfully"
+
+#: Disabled references:1
+msgid "当前账户余额不足100元，该功能可能无法正常运行"
+msgstr "Less than CNY 100 is left in the current account balance. This function may not work as expected"
+
+#: Disabled references:1
+msgid "开启后，当月剩余额度不足时，自动购买 100元/10万行 的单月包，从账户余额中扣款。"
+msgstr "If enabled, the single-month pack (100k rows for CNY 100) will be purchased automatically and billed to the account balance when the remaining quota for the current month becomes insufficient."
+
+#: Disabled references:1
+msgid "本月算力 "
+msgstr "Computing power for the current month"
+
+#: Disabled references:1
+msgid " 万行 / "
+msgstr " 0,000 rows / "
+
+#: Disabled references:1
+msgid " 万行"
+msgstr " 0,000"
+
+#: Disabled references:1
+msgid "  剩余 "
+msgstr "  Remaining "
+
+#: Disabled references:1
+msgid "作为源"
+msgstr "As source"
+
+#: Disabled references:1
+msgid "作为目的地"
+msgstr "As destination"
+
+#: Disabled references:1
+msgid "任务状态"
+msgstr "Task status"
+
+#: Disabled references:1
+msgid "无同步任务使用此数据源"
+msgstr "No sync tasks use this data source"
+
+#: Disabled references:1
+msgid "删除数据源"
+msgstr "Delete data source"
+
+#: Disabled references:1
+msgid "删除后，相关的同步任务会立即终止"
+msgstr "Once deleted, any relevant sync tasks will be terminated immediately"
+
+#: Disabled references:1
+msgid "查看同步任务"
+msgstr "View sync tasks"
+
+#: Disabled references:1
+msgid "数据源删除成功"
+msgstr "Data source deleted successfully"
+
+#: Disabled references:1
+msgid "源类型"
+msgstr "Source type"
+
+#: Disabled references:1
+msgid "源 / 目的地"
+msgstr "Source/destination"
+
+#: Disabled references:1
+msgid "-"
+msgstr "-"
+
+#: Disabled references:1
+msgid "搜索数据源名称 / 地址 / 创建人"
+msgstr "Search for data source name/address/creator"
+
+#: Disabled references:1
+msgid "今日读取记录行数"
+msgstr "Rows read today"
+
+#: Disabled references:1
+msgid "今日写入记录行数"
+msgstr "Rows written today"
+
+#: Disabled references:1
+msgid "名称修改成功"
+msgstr "Name modified successfully"
+
+#: Disabled references:1
+msgid "名称修改失败"
+msgstr "Failed to modify the name"
+
+#: Disabled references:1
+msgid "删除同步任务"
+msgstr "Delete sync tasks"
+
+#: Disabled references:1
+msgid "删除后，目的地为工作表的会转换成普通工作表，已同步的数据会保留"
+msgstr "Once deleted, any worksheets used as destinations in the tasks will be converted to regular worksheets, and the data synchronized will be kept"
+
+#: Disabled references:1
+msgid "不能删除运行中的任务"
+msgstr "Running tasks cannot be deleted"
+
+#: Disabled references:1
+msgid "同步任务删除成功"
+msgstr "Sync task deleted successfully"
+
+#: Disabled references:1
+msgid "同步任务删除失败"
+msgstr "Failed to delete the sync task"
+
+#: Disabled references:1
+msgid "修改任务名称"
+msgstr "Modify task name"
+
+#: Disabled references:1
+msgid "查看监控"
+msgstr "View monitored data"
+
+#: Disabled references:1
+msgid "启动同步任务成功"
+msgstr "Sync task started successfully"
+
+#: Disabled references:1
+msgid "停止同步任务成功"
+msgstr "Sync task stopped successfully"
+
+#: Disabled references:1
+msgid "停止同步任务失败"
+msgstr "Failed to stop the sync task"
+
+#: Disabled references:1
+msgid "同步状态"
+msgstr "Sync status"
+
+#: Disabled references:1
+msgid "已读取(行)"
+msgstr "Read (rows)"
+
+#: Disabled references:1
+msgid "已写入(行)"
+msgstr "Written (rows)"
+
+#: Disabled references:1
+msgid "工作表数据量大时会按队列分批写入，实际完成写入量略有延迟。"
+msgstr "A large amount of data in the worksheet will be lined up in queues and written in batches. There may be any delay to show the amount actually written."
+
+#: Disabled references:1
+msgid "任务名称 / 创建人"
+msgstr "Task name/creator"
+
+#: Disabled references:1
+msgid "无搜索结果，换一个关键词试试吧"
+msgstr "No results found. Try another keyword"
+

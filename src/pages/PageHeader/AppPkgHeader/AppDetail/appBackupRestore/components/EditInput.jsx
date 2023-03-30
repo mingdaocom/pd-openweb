@@ -55,22 +55,24 @@ export default function EditInput(props) {
             setCanEdit(false);
             if (!value) return setValue(actCurrentFileInfo.backupFileName);
             if (value === actCurrentFileInfo.backupFileName) return;
-            appManagementAjax.renameBackupFileName({
-              projectId,
-              appId,
-              id: actCurrentFileInfo.id,
-              fileName: value,
-              fileOldName: actCurrentFileInfo.backupFileName,
-            }).then(res => {
-              if (res) {
-                alert(_l('修改成功'));
-                setValue(value);
-                props.updateFileList({ ...actCurrentFileInfo, backupFileName: value });
-              } else {
-                alert(_l('修改失败'));
-                setValue(actCurrentFileInfo.backupFileName);
-              }
-            });
+            appManagementAjax
+              .renameBackupFileName({
+                projectId,
+                appId,
+                id: actCurrentFileInfo.id,
+                fileName: value,
+                fileOldName: actCurrentFileInfo.backupFileName,
+              })
+              .then(res => {
+                if (res) {
+                  alert(_l('修改成功'));
+                  setValue(value);
+                  props.updateFileList({ ...actCurrentFileInfo, backupFileName: value });
+                } else {
+                  alert(_l('修改失败'), 2);
+                  setValue(actCurrentFileInfo.backupFileName);
+                }
+              });
           }}
           onFocus={() => {
             $('.editIcon').addClass('hidden');

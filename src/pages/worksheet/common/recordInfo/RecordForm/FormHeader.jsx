@@ -98,7 +98,7 @@ export default function FormHeader(props) {
                             updateRecordDialogOwner(account, record);
                             alert(_l('修改成功'));
                           } catch (err) {
-                            alert(_l('修改失败'));
+                            alert(_l('修改失败'), 2);
                           }
                         },
                       });

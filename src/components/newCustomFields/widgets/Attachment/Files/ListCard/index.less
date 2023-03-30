@@ -1,0 +1,95 @@
+
+.attachmentListCard {
+  height: 52px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #F0F0F0;
+  position: relative;
+  &:hover, &.hover {
+    background: #FAFAFA;
+    .fileName {
+      color: #2196f3;
+    }
+    .operateBtns {
+      display: flex;
+    }
+    .fileDrag {
+      display: block;
+    }
+  }
+  &.header {
+    height: 40px;
+    font-weight: bold;
+    &:hover {
+      background: inherit;
+    }
+  }
+  &:last-child {
+    border-bottom: 0;
+  }
+  .fileDrag {
+    display: none;
+    cursor: pointer;
+    padding: 5px;
+    position: absolute;
+    top: 50%;
+    left: 0px;
+    transform: translateY(-50%);
+  }
+  .fileImageWrap {
+    width: 100px;
+    height: 100%;
+    padding: 5px;
+    margin-left: 15px;
+    .fileIcon {
+      width: 30px;
+      height: 45px;
+      background-position: 50%;
+      background-size: contain !important;
+    }
+    .fileImage {
+      width: 100%;
+      height: 100%;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: center;
+    }
+  }
+  .fileName {
+    font-weight: bold;
+    padding: 0 5% 0 0;
+    min-width: 0;
+  }
+  .fileSize, .fileCreateTime, .fileCreateUserName {
+    color: #757575;
+    width: 15%;
+  }
+  .operateBtns {
+    display: none;
+    justify-content: flex-end;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 30%;
+    padding-right: 3%;
+    background: #FAFAFA;
+    .cancelBtn, .deleteBtn {
+      padding: 5px 16px;
+    }
+    &.deleteConfirmWrap {
+      padding-right: 6%;
+    }
+  }
+  .btnWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    &:hover .icon {
+      color: #2196f3 !important;
+    }
+    &.delete:hover .icon {
+      color: red !important;
+    }
+  }
+}

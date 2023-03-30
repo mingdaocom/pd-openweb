@@ -11,6 +11,7 @@ export default function (Comp, { onlyWidth } = {}) {
         id: (Math.random() * Math.random()).toString(32),
         size,
       };
+      this.clientWidth = 0;
     }
 
     componentDidMount() {
@@ -36,8 +37,8 @@ export default function (Comp, { onlyWidth } = {}) {
         this.resizeOb = new ResizeObserver(() => {
           if (
             this.con &&
-            (this.con.clientWidth !== this.clientWidth ||
-              (this.props.watchHeight && this.con.clientHeight !== this.clientHeight))
+            (Math.abs(this.con.clientWidth - this.clientWidth) > 10 ||
+              (this.props.watchHeight && Math.abs(this.con.clientHeight - this.clientHeight) > 10))
           ) {
             this.updateWidth();
           }
@@ -87,8 +88,8 @@ export default function (Comp, { onlyWidth } = {}) {
       this.sizeWatcher = setInterval(() => {
         if (
           this.con &&
-          (this.con.clientWidth !== this.clientWidth ||
-            (this.props.watchHeight && this.con.clientHeight !== this.clientHeight))
+          (Math.abs(this.con.clientWidth - this.clientWidth) > 10 ||
+            (this.props.watchHeight && Math.abs(this.con.clientHeight - this.clientHeight) > 10))
         ) {
           this.updateWidth();
         }
@@ -104,7 +105,7 @@ export default function (Comp, { onlyWidth } = {}) {
           },
         });
       }
-    }
+    };
 
     render() {
       const { height, ...rest } = this.props;

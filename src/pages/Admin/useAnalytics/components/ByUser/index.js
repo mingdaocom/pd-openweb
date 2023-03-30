@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Icon, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import TableCom from '../TableCom';
-import 'src/components/dialogSelectUser/dialogSelectUser';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import appManagementAjax from 'src/api/appManagement';
 import departmentAjax from 'src/api/department';
 import UserHead from 'src/pages/feed/components/userHead';
@@ -173,22 +173,24 @@ export default class ByUser extends Component {
     if (_.isEmpty(departmentIds)) {
       return;
     }
-    departmentAjax.getDepartmentFullNameByIds({
-      projectId,
-      departmentIds,
-    }).then(res => {
-      res.forEach(it => {
-        fullDepartmentInfo[it.id] = it.name;
+    departmentAjax
+      .getDepartmentFullNameByIds({
+        projectId,
+        departmentIds,
+      })
+      .then(res => {
+        res.forEach(it => {
+          fullDepartmentInfo[it.id] = it.name;
+        });
+        this.setState({ fullDepartmentInfo: fullDepartmentInfo });
       });
-      this.setState({ fullDepartmentInfo: fullDepartmentInfo });
-    });
   };
 
   updateState = () => {};
   // 筛选登录人
   handleSleelctUser = () => {
     const { projectId } = this.props;
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       fromAdmin: true,
       SelectUserSettings: {
         projectId,

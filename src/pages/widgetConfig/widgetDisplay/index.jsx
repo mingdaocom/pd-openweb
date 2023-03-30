@@ -7,7 +7,7 @@ const DisplayWrap = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  background: #fff;
+  background: #f5f5f9;
   overflow: auto;
   header {
     display: flex;
