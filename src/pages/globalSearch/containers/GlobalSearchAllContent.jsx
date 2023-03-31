@@ -20,7 +20,7 @@ import { GLOBAL_SEARCH_FEATURE_ID } from '../enum';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
-@withRouter
+// @withRouter
 export default class GlobalSearchAllContent extends Component {
   constructor(props) {
     super(props);

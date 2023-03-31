@@ -489,8 +489,8 @@ class MessageView extends Component {
           }}
         >
           {isMore ? this.renderLoading() : this.renderTopInfo()}
-          {messageList.map(item => (
-            <Message key={item.id || item.waitingId} message={item} session={session} onGotoMessage={this.handleGotoMessage.bind(this)} />
+          {messageList.map((item, index) => (
+            <Message key={item.id || item.waitingId} message={item} nextMessage={messageList[index - 1] || {}} session={session} onGotoMessage={this.handleGotoMessage.bind(this)} />
           ))}
           {isMore && isDownLoadingMessage ? this.renderLoading() : undefined}
         </ScrollView>

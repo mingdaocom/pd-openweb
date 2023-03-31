@@ -406,7 +406,7 @@ export default class Widgets extends Component {
               {uploadFile && (
                 <QrInputWrap className="valignWrapper justifyContentCenter Relative">
                   {_l('上传图片进行识别')}
-                  <input type="file" accept="image/*" capture onChange={this.handleScanFile}/>
+                  <input type="file" accept="image/*" onChange={this.handleScanFile}/>
                 </QrInputWrap>
               )}
             </div>

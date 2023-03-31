@@ -24,7 +24,7 @@ export default class OtherInput extends Component {
   };
 
   render() {
-    const { advancedSetting = {}, value, options, isSelect, className, disabled, fromFilter } = this.props;
+    const { isSubList, advancedSetting = {}, value, options, isSelect, className, disabled, fromFilter } = this.props;
 
     const { checkIds, otherValue } = getCheckAndOther(value);
     if (fromFilter || (disabled && !otherValue)) return null;
@@ -46,7 +46,7 @@ export default class OtherInput extends Component {
       },
     };
 
-    if (checkIds.includes('other') && noDelOptions.find(i => i.key === 'other')) {
+    if (checkIds.includes('other') && noDelOptions.find(i => i.key === 'other') && !isSubList) {
       return (
         <div className={className} style={isSelect || disabled ? {} : { paddingLeft: '26px' }}>
           <TextArea

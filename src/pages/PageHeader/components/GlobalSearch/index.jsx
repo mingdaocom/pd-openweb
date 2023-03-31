@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { func, bool } from 'prop-types';
+import ReactDOM from 'react-dom';
+import { func } from 'prop-types';
 import cx from 'classnames';
 import Icon from 'ming-ui/components/Icon';
 import GlobalSearchAllContent from 'src/pages/globalSearch/containers/GlobalSearchAllContent';
@@ -7,7 +8,7 @@ import { navigateTo } from 'router/navigateTo';
 import './index.less';
 import _ from 'lodash';
 
-export default class GlobalSearch extends Component {
+class GlobalSearch extends Component {
   static propTypes = {
     onClose: func,
   };
@@ -99,9 +100,32 @@ export default class GlobalSearch extends Component {
           />
         </div>
         <div className={cx('dialogSearchContent', { easeWidth: !!searchVal })}>
-          <GlobalSearchAllContent searchKeyword={searchVal.trim()} onClose={this.props.onClose} />
+          <GlobalSearchAllContent searchKeyword={searchVal.trim()} onClose={this.props.onClose} {...this.props} />
         </div>
       </div>
     );
   }
+}
+
+export default function (props) {
+  const div = document.createElement('div');
+  document.body.appendChild(div);
+
+  function destory() {
+    ReactDOM.unmountComponentAtNode(div);
+    if (div.parentElement) {
+      document.body.removeChild(div);
+    }
+  }
+
+  ReactDOM.render(
+    <GlobalSearch
+      {...props}
+      onClose={() => {
+        props.onClose();
+        destory();
+      }}
+    />,
+    div,
+  );
 }

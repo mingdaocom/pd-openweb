@@ -829,7 +829,7 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
       if (_.includes([9, 10, 11], item.type) && !ignoreRequired) {
         const hasOtherOption = _.find(item.options, i => i.key === 'other' && !i.isDeleted);
         const selectOther = _.find(JSON.parse(item.value || '[]'), i => (i || '').includes('other'));
-        if (hasOtherOption && _.get(item.advancedSetting, 'otherrequired') === '1' && selectOther) {
+        if (hasOtherOption && _.get(item.advancedSetting, 'otherrequired') === '1' && selectOther && !item.isSubList) {
           if (selectOther === 'other' || !_.replace(selectOther, 'other:', '')) {
             errorType = FORM_ERROR_TYPE.OTHER_REQUIRED;
           }

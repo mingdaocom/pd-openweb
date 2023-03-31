@@ -154,8 +154,9 @@ class Message extends Component {
   }
   renderUserMessage() {
     const { moreVisible } = this.state;
-    const { message, session } = this.props;
-    const { fromAccount = {}, isDuplicated, timestamp, isMine, unreadLine, isMineMessage } = message;
+    const { message, nextMessage, session } = this.props;
+    const { fromAccount = {}, timestamp, isMine, unreadLine, isMineMessage } = message;
+    const isDuplicated = message.isDuplicated && message.from === nextMessage.from;
     return (
       <div data-isminemessage={isMineMessage || false}>
         {unreadLine ? (

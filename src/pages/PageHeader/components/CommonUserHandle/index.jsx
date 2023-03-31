@@ -3,7 +3,6 @@ import { string } from 'prop-types';
 import { Icon, Tooltip, MdLink } from 'ming-ui';
 import styled from 'styled-components';
 import Avatar from '../Avatar';
-import GlobalSearch from '../GlobalSearch';
 import UserMenu from '../UserMenu';
 import AddMenu from '../AddMenu';
 import MyProcessEntry from '../MyProcessEntry';
@@ -13,6 +12,8 @@ import { isCanEdit } from '../../util';
 import './index.less';
 import { getAppFeaturesVisible } from 'src/util';
 import _ from 'lodash';
+import GlobalSearch from '../GlobalSearch/index';
+import { withRouter } from 'react-router-dom';
 
 const BtnCon = styled.div`
   cursor: pointer;
@@ -32,6 +33,7 @@ const BtnCon = styled.div`
   }
 `;
 
+@withRouter
 export default class CommonUserHandle extends Component {
   static propTypes = {
     type: string,
@@ -47,6 +49,14 @@ export default class CommonUserHandle extends Component {
     });
   }
 
+  openGlobalSearch() {
+    this.setState({ globalSearchVisible: true });
+    GlobalSearch({
+      match: this.props.match,
+      onClose: () => this.setState({ globalSearchVisible: false }),
+    });
+  }
+
   render() {
     const { globalSearchVisible, userVisible } = this.state;
     const { type } = this.props;
@@ -56,6 +66,7 @@ export default class CommonUserHandle extends Component {
     if (window.isPublicApp || !tr) {
       return null;
     }
+
     return (
       <div className="commonUserHandleWrap">
         {type === 'native' && (
@@ -66,13 +77,20 @@ export default class CommonUserHandle extends Component {
           </Tooltip>
         )}
         {!['appPkg'].includes(type) && (
-          <BtnCon onClick={() => this.setState({ globalSearchVisible: true })} data-tip={_l('超级搜索(F)')}>
+          <BtnCon
+            onClick={this.openGlobalSearch.bind(this)}
+            data-tip={_l('超级搜索(F)')}
+          >
             <Icon icon="search" />
           </BtnCon>
         )}
         {type === 'appPkg' && (
           <div className="appPkgHeaderSearch" data-tip={_l('超级搜索(F)')}>
-            <Icon icon="search" className="Font20" onClick={() => this.setState({ globalSearchVisible: true })} />
+            <Icon
+              icon="search"
+              className="Font20"
+              onClick={this.openGlobalSearch.bind(this)}
+            />
           </div>
         )}
         {_.includes(['native'], type) && (
@@ -108,12 +126,12 @@ export default class CommonUserHandle extends Component {
             </span>
           </div>
         </Tooltip>
-        {globalSearchVisible && <GlobalSearch onClose={() => this.setState({ globalSearchVisible: false })} />}
       </div>
     );
   }
 }
 
+@withRouter
 export class LeftCommonUserHandle extends Component {
   static propTypes = {
     type: string,
@@ -126,6 +144,14 @@ export class LeftCommonUserHandle extends Component {
   handleUserVisibleChange(visible) {
     this.setState({
       userVisible: visible,
+    });
+  }
+
+  openGlobalSearch() {
+    this.setState({ globalSearchVisible: true });
+    GlobalSearch({
+      match: this.props.match,
+      onClose: () => this.setState({ globalSearchVisible: false }),
     });
   }
 
@@ -168,7 +194,11 @@ export class LeftCommonUserHandle extends Component {
         )}
         {type === 'appPkg' && (
           <div className="headerColorSwitch tip-top pointer" data-tip={_l('超级搜索(F)')}>
-            <Icon icon="search" className="Font20" onClick={() => this.setState({ globalSearchVisible: true })} />
+            <Icon
+              icon="search"
+              className="Font20"
+              onClick={this.openGlobalSearch.bind(this)}
+            />
           </div>
         )}
         <div
@@ -199,7 +229,6 @@ export class LeftCommonUserHandle extends Component {
             </span>
           </div>
         </Tooltip>
-        {globalSearchVisible && <GlobalSearch onClose={() => this.setState({ globalSearchVisible: false })} />}
       </div>
     );
   }

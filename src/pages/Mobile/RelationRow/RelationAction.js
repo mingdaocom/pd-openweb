@@ -363,9 +363,9 @@ class RelationAction extends Component {
     const { title } = this.state;
     const { actionParams, permissionInfo } = this.props;
     const { isEdit } = actionParams;
-    const { isRelevance, hasEdit } = permissionInfo;
+    const { isRelevance, hasEdit, allowRemoveRelation } = permissionInfo;
 
-    if (!isRelevance && !hasEdit) {
+    if (!isRelevance && !hasEdit && !allowRemoveRelation) {
       return null;
     }
 

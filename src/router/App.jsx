@@ -19,6 +19,7 @@ import { Dialog, Icon } from 'ming-ui';
 import { getAppFeaturesVisible } from 'src/util';
 import api from 'src/api/homeApp';
 import { getSuffix } from 'src/pages/PortalAccount/util';
+import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
 import privateGuide from 'src/api/privateGuide';
 import Trigger from 'rc-trigger';
 import weixinCode from 'src/pages/privateDeployment/images/weixin.png';
@@ -187,8 +188,16 @@ export default class App extends Component {
           store.dispatch(actions.setShowAddressBook(true));
           break;
         case 102:
-          $('.commonUserHandleWrap .icon-search').click();
-          $('.globalSearch').focus();
+          let path = location.pathname.split('/');
+          GlobalSearch({
+            match: {
+              params: {
+                appId:
+                  location.pathname.startsWith('/app/') && path.length > 2 && path[2].length > 20 ? path[2] : undefined,
+              },
+            },
+            onClose: () => {},
+          });
           break;
         default:
           break;
@@ -204,7 +213,7 @@ export default class App extends Component {
 
     const isMacOs = navigator.userAgent.toLocaleLowerCase().includes('mac os');
     $(document).on('keydown', function (e) {
-      if((isMacOs ? e.metaKey : e.ctrlKey) && e.keyCode === 69){
+      if ((isMacOs ? e.metaKey : e.ctrlKey) && e.keyCode === 69) {
         const fullEl = document.querySelector('.icon.fullRotate');
         fullEl && fullEl.click();
       }
