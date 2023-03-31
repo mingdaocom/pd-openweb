@@ -20,6 +20,25 @@ const ErrorWrap = styled.div`
   }
 `;
 
+const QrInputWrap = styled.div`
+  color: #fff;
+  width: auto;
+  height: 36px;
+  padding: 0 24px;
+  border-radius: 24px;
+  margin: 0 auto;
+  background-color: #0099f6;
+  input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 1;
+  }
+`;
+
 const { IsLocal } = md.global.Config;
 const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
 const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !IsLocal && !isWxWork;
@@ -39,6 +58,7 @@ const formatScanQRCodeResult = (resultStr) => {
 export default class Widgets extends Component {
   static propTypes = {
     projectId: PropTypes.string,
+    disablePhoto: PropTypes.bool,
     onChange: PropTypes.func,
     onScanQRCodeResult: PropTypes.func,
     children: PropTypes.element,
@@ -51,7 +71,8 @@ export default class Widgets extends Component {
       devices: [],
       cameraId: null,
       resetCameraLoading: false,
-      scanShape: 'square'
+      scanShape: 'square',
+      uploadFile: false,
     }
     this.id = Date.now();
     this.html5QrCode = null;
@@ -219,9 +240,15 @@ export default class Widgets extends Component {
     }
   }
   handleChangeCamera = () => {
-    const { cameraId, devices, resetCameraLoading } = this.state;
+    const { cameraId, devices, resetCameraLoading, uploadFile } = this.state;
     const index = _.findIndex(devices, { id: cameraId });
     const nextCameraId = index === -1 ? _.get(devices[0], 'id') : (devices[index + 1] || devices[0]).id;
+
+    if (uploadFile) {
+      this.startQrcode();
+      this.setState({ uploadFile: false });
+      return;
+    }
 
     if (resetCameraLoading || !this.html5QrCode) return;
 
@@ -240,9 +267,9 @@ export default class Widgets extends Component {
     });
   }
   handleChangeSize = () => {
-    const { scanShape, resetCameraLoading } = this.state;
+    const { scanShape, resetCameraLoading, uploadFile } = this.state;
 
-    if (resetCameraLoading || !this.html5QrCode) return;
+    if (resetCameraLoading || !this.html5QrCode || uploadFile) return;
 
     this.setState({ resetCameraLoading: true });
     this.setState({
@@ -252,6 +279,23 @@ export default class Widgets extends Component {
         this.startQrcode();
         this.setState({ resetCameraLoading: false });
       });
+    });
+  }
+  handleOpenUploadFile = () => {
+    this.html5QrCode.stop().then((ignore) => {
+      this.html5QrCode.clear();
+      this.setState({ uploadFile: true });
+    }).catch((err) => {});
+  }
+  handleScanFile = (e) => {
+    if (e.target.files.length == 0) {
+      return;
+    }
+    const imageFile = e.target.files[0];
+    this.html5QrCode.scanFile(imageFile, true)
+    .then(this.handleScanSuccess)
+    .catch(err => {
+      alert(_l('未解析到二维码'), 3);
     });
   }
   getCameras() {
@@ -314,11 +358,11 @@ export default class Widgets extends Component {
       }
       this.setState({ cameraId: null });
     }
-    this.setState({ isError: false });
+    this.setState({ isError: false, uploadFile: false });
   }
   render() {
-    const { visible, isError, devices, scanShape } = this.state;
-    const { className, children } = this.props;
+    const { visible, isError, devices, scanShape, uploadFile } = this.state;
+    const { className, disablePhoto, children } = this.props;
     return (
       <Fragment>
         <div className={className} onClick={this.handleScanCode}>{children}</div>
@@ -339,7 +383,7 @@ export default class Widgets extends Component {
                   <div className="Font16 bold Gray">{_l('无法识别您的摄像头')}</div>
                 </ErrorWrap>
               ) : (
-                <div id={`qrcodeWrapper-${this.id}`} className="qrcodeWrapper flex"></div>
+                <div id={`qrcodeWrapper-${this.id}`} className={cx('qrcodeWrapper flex', { hide: uploadFile })}></div>
               )}
               {!isError && (
                 <Fragment>
@@ -347,13 +391,24 @@ export default class Widgets extends Component {
                     <Icon className="Font28 White" icon="switch_camera" />
                   </div>
                   <div className="Absolute" style={{ left: '15%', top: '5%' }} onClick={this.handleChangeSize}>
-                    <Icon className="Font28 White" icon={scanShape === 'square' ? 'get_bigger' : 'put_away'} />
+                    <Icon className={cx('Font28', uploadFile ? 'Gray_9e' : 'White')} icon={scanShape === 'square' ? 'get_bigger' : 'put_away'} />
                   </div>
+                  {!disablePhoto && (
+                    <div className="Absolute" style={{ left: '25%', top: '5.5%' }} onClick={this.handleOpenUploadFile}>
+                      <Icon className="Font26 White" icon="insert_photo_21" />
+                    </div>
+                  )}
                 </Fragment>
               )}
               <div className="Absolute" style={{ right: '5%', top: '5%' }} onClick={this.handleClose}>
                 <Icon className={cx('Font28', isError ? 'Gray_9e' : 'White')} icon="closeelement-bg-circle" />
               </div>
+              {uploadFile && (
+                <QrInputWrap className="valignWrapper justifyContentCenter Relative">
+                  {_l('上传图片进行识别')}
+                  <input type="file" accept="image/*" capture onChange={this.handleScanFile}/>
+                </QrInputWrap>
+              )}
             </div>
           </div>
         </Modal>

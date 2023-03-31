@@ -175,7 +175,7 @@ export default class DataRestrictionDialog extends Component {
             className="Width120 mRight10"
             value={exportAppWorksheetLimitCount}
             onChange={value => {
-              this.setState({ exportAppWorksheetLimitCount: formattingValue(value, 200) });
+              this.setState({ exportAppWorksheetLimitCount: formattingValue(value, 500) });
             }}
           />
           <span>{_l('个')}</span>

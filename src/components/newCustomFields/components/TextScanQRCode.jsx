@@ -20,12 +20,13 @@ const Box = styled(ScanQRCode)`
 export default class Widgets extends Component {
   static propTypes = {
     projectId: PropTypes.string,
+    disablePhoto: PropTypes.bool,
     onChange: PropTypes.func,
   };
   render() {
-    const { projectId, onChange } = this.props;
+    const { projectId, disablePhoto, onChange } = this.props;
     return (
-      <Box projectId={projectId} onScanQRCodeResult={onChange}>
+      <Box projectId={projectId} disablePhoto={disablePhoto} onScanQRCodeResult={onChange}>
         <Icon icon="qr_code_19" className="Font20 Gray_75"/>
       </Box>
     );

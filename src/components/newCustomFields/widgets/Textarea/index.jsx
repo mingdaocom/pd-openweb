@@ -229,7 +229,7 @@ export default class Widgets extends Component {
           />
         )}
 
-        {startTextScanCode && <TextScanQRCode projectId={projectId} onChange={this.onChange} />}
+        {startTextScanCode && <TextScanQRCode projectId={projectId} disablePhoto={strDefault.split('')[0] === '1'} onChange={this.onChange} />}
       </Fragment>
     );
   }

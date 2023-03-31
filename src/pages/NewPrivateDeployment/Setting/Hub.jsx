@@ -48,7 +48,7 @@ const Email = props => {
         <a
           className="pointer"
           target="_blank"
-          href='https://docs.pd.mingdao.com/faq/email.html'
+          href='https://docs.pd.mingdao.com/faq/email'
         >
           {_l('帮助')}
         </a>
@@ -180,7 +180,7 @@ const Message = props => {
         <a
           className="pointer"
           target="_blank"
-          href='https://docs.pd.mingdao.com/faq/sms.html'
+          href='https://docs.pd.mingdao.com/faq/sms'
         >
           {_l('帮助')}
         </a>

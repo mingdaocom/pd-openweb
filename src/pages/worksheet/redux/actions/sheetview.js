@@ -376,8 +376,11 @@ export function saveSheetLayout({ closePopup = () => {} }) {
       } else {
         updates.advancedSetting = { ...view.advancedSetting, customdisplay: '1' };
         updates.showControls = controls
+          .filter(
+            c =>
+              /^\w{24}$/.test(c.controlId) || _.includes(safeParse(view.advancedSetting.sysids, 'array'), c.controlId),
+          )
           .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1))
-          .concat(SYSTEM_CONTROL)
           .filter(c => !_.find(sheetHiddenColumns, hcid => hcid === c.controlId))
           .map(c => c.controlId);
       }

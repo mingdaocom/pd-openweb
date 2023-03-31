@@ -146,7 +146,8 @@ class RecordCalendar extends Component {
     }
     if (viewId !== this.props.base.viewId || !_.isEqual(currentView, preView)) {
       nextProps.getCalendarData();
-      this.calendarComponentRef.current && this.calendarComponentRef.current.getApi().changeView(initialView); // 更改视图类型
+      this.calendarComponentRef.current &&
+        this.calendarComponentRef.current.getApi().changeView(browserIsMobile() ? 'dayGridMonth' : initialView); // 更改视图类型
       nextProps.fetchExternal();
       this.getEventsFn();
     }
@@ -164,6 +165,7 @@ class RecordCalendar extends Component {
       });
     }
     if (
+      !browserIsMobile() &&
       !_.isEqual(initialView, this.props.calendarview.calendarData.initialView) &&
       this.calendarComponentRef.current
     ) {
@@ -663,18 +665,6 @@ class RecordCalendar extends Component {
       isDelete = true;
     }
     let isHaveSelectControl = !calendarcids[0].begin || isDelete; // 是否选中了开始时间 //开始时间字段已删除
-    let mobileInitialView =
-      calendarType === '0'
-        ? 'dayGridMonth'
-        : calendarType === '1'
-        ? !_.isEmpty(calendarInfo) && isTimeStyle(calendarInfo[0].startData)
-          ? 'timeGridWeek'
-          : 'dayGridWeek'
-        : calendarType === '2'
-        ? !_.isEmpty(calendarInfo) && isTimeStyle(calendarInfo[0].startData)
-          ? 'timeGridDay'
-          : 'dayGridDay'
-        : '';
 
     if (isHaveSelectControl || isIllegalFormat(calendarInfo)) {
       return (
@@ -776,7 +766,7 @@ class RecordCalendar extends Component {
               themeSystem="bootstrap"
               height={height}
               ref={this.calendarComponentRef}
-              initialView={!this.browserIsMobile() ? initialView : mobileInitialView} // 选中的日历模式
+              initialView={!this.browserIsMobile() ? initialView : 'dayGridMonth'} // 选中的日历模式
               headerToolbar={{
                 right: this.browserIsMobile() ? 'today' : btnList,
                 center: this.browserIsMobile() ? 'prev,title next' : 'title',
