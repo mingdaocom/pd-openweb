@@ -508,7 +508,15 @@ function WorksheetTable(props, ref) {
   }, [showSummary, getColumnWidth, controls]);
   useEffect(() => {
     let updatedRows = [];
-    if (props.data.length !== data.length && props.data.length > data.length) {
+    if (
+      cache.prevColumns &&
+      !_.isEqual(
+        cache.prevColumns.map(c => c.fieldPermission),
+        columns.map(c => c.fieldPermission),
+      )
+    ) {
+      updatedRows = props.data;
+    } else if (props.data.length !== data.length && props.data.length > data.length) {
       updatedRows = props.data.filter(row => !_.find(data, r => r.rowid === row.rowid));
     } else {
       props.data.forEach(row => {
@@ -540,6 +548,9 @@ function WorksheetTable(props, ref) {
       });
     }
   }, [props.data]);
+  useEffect(() => {
+    setCache('prevColumns', columns);
+  }, [columns]);
   useEffect(
     handleLifeEffect.bind(null, tableId, {
       cache,
