@@ -52,8 +52,8 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
     const ua = window.navigator.userAgent.toLowerCase();
     if (
       ua.match(/MicroMessenger/i) == 'micromessenger' &&
-      (((window.subPath || location.href.indexOf('theportal.cn') > -1) && !data['md.global'].Account.isPortal) ||
-        (!window.subPath && location.href.indexOf('theportal.cn') === -1 && data['md.global'].Account.isPortal))
+      ((window.subPath && !data['md.global'].Account.isPortal) ||
+        (!window.subPath && data['md.global'].Account.isPortal))
     ) {
       location.href = `${
         data['md.global'].Account.isPortal ? '' : window.subPath || ''
