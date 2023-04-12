@@ -4,6 +4,7 @@ import cx from 'classnames';
 import RegisterController from 'src/api/register';
 import captcha from 'src/components/captcha';
 import { inputFocusFn, inputBlurFn } from '../util';
+import { Support } from 'ming-ui';
 export default class Add extends React.Component {
   constructor(props) {
     super(props);

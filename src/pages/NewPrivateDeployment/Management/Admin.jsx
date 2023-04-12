@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import privatePlatformAdminApi from 'src/api/privatePlatformAdmin';
 import UserHead from 'src/pages/feed/components/userHead';
 import { useClientRect } from '../common';
-import 'src/components/dialogSelectUser/dialogSelectUser.js';
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import _ from 'lodash';
 
 const Wrap = styled.div`
@@ -80,7 +80,7 @@ const Admin = props => {
   const tableHeight = _.get(rect, 'height');
 
   const handleAddUser = () => {
-    $({}).dialogSelectUser({
+    dialogSelectUser({
       fromType: 0,
       sourceId: md.global.Account.accountId,
       showMoreInvite: false,
