@@ -356,7 +356,7 @@ const PrivateKey = props => {
           <div className="Bold Gray_75">{_l('版本')}</div>
           <div className="Bold Gray_75">{_l('开始时间')}</div>
           <div className="Bold Gray_75">{_l('到期时间')}</div>
-          <div className="Bold Gray_75">{_l('技术服务到期')}</div>
+          <div className="Bold Gray_75">{_l('升级服务到期')}</div>
           <div className="Bold Gray_75">{_l('组织')}</div>
           <div className="Bold Gray_75">{_l('用户')}</div>
           <div className="Bold Gray_75">{_l('外部用户')}</div>

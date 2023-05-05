@@ -42,7 +42,7 @@ function getIcon(type = 'success') {
 }
 
 export function antAlert(msg, type = 1, timeout = 3000, callback, key) {
-  if (msg !== null && typeof msg === 'object') {
+  if (msg !== null && typeof msg === 'object' && !msg.props) {
     type = msg.type || 1;
     timeout = msg.timeout || 3000;
     callback = msg.callback;
@@ -56,7 +56,7 @@ export function antAlert(msg, type = 1, timeout = 3000, callback, key) {
     icon: getIcon(func),
     content: (
       <span className="ellipsis" style={{ maxWidth: window.innerWidth * 0.5, display: 'inline-block' }}>
-        {String(msg || '').replace(/(<([^>]+)>)/gi, '')}
+        {msg.props ? msg : String(msg || '').replace(/(<([^>]+)>)/gi, '')}
       </span>
     ),
     duration: timeout / 1000,

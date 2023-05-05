@@ -24,7 +24,7 @@ export function getProject(projectId) {
       return project;
     }
   }
-  return projects[0];
+  return projects[0] || {};
 }
 
 // 判断选项颜色是否为浅色系

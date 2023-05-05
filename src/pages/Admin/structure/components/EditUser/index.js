@@ -141,23 +141,9 @@ export default class EditUser extends Component {
             );
             let link = '';
             if (licenseType === 0) {
-              link = (
-                <span>
-                  {_l('当前用户数已超出人数限制，请去购买')}
-                  <a href={`/upgrade/choose?projectId=${projectId}`} target="_blank">
-                    {_l('付费版本')}
-                  </a>
-                </span>
-              );
+              link = <span>{_l('当前用户数已超出人数限制')}</span>;
             } else {
-              link = (
-                <span>
-                  {_l('当前用户数已超出人数限制，请去购买')}
-                  <a href={`/admin/expansionservice/${projectId}`} target="_blank">
-                    {_l('用户包')}
-                  </a>
-                </span>
-              );
+              link = <span>{_l('当前用户数已超出人数限制')}</span>;
             }
             alert(link, 3);
           } else {
