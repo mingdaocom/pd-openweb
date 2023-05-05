@@ -178,8 +178,8 @@ export function UserList(props) {
 }
 
 export function Search(props) {
-  const { type, keywords, setKeywords, parentProps, onClose, isHidAddUser, onKeyDown = () => {} } = props;
-  const SelectUserSettings = parentProps.SelectUserSettings || {};
+  const { type, keywords, setKeywords, parentProps, onSelect, onClose, isHidAddUser, onKeyDown = () => {} } = props;
+  const SelectUserSettings = parentProps.SelectUserSettings || { ...parentProps };
   const inputRef = useRef();
   useEffect(() => {
     if (inputRef.current) {
@@ -194,11 +194,11 @@ export function Search(props) {
         type="text"
         value={keywords}
         placeholder={type === 'external' ? _l('请输入姓名、手机') : _l('请输入姓名、手机或邮箱')}
-        onChange={e => setKeywords(e.target.value.trim())}
+        onChange={e => setKeywords(e.target.value)}
         onKeyDown={onKeyDown}
       />
       {keywords && <i className="icon icon-closeelement-bg-circle close" onClick={() => setKeywords('')} />}
-      {!_.isEmpty(SelectUserSettings) && !isHidAddUser && type !== 'external' && type !== 'range' && (
+      {!isHidAddUser && type !== 'external' && type !== 'range' && (
         <Tooltip zIndex={10002} destroyPopupOnHide popupPlacement="bottom" text={_l('从通讯录中选择')}>
           <i
             className="icon icon-topbar-addressList openAddress"
@@ -207,8 +207,13 @@ export function Search(props) {
               SelectUserSettings.includeUndefinedAndMySelf = parentProps.includeUndefinedAndMySelf;
               SelectUserSettings.includeSystemField = parentProps.includeSystemField;
               SelectUserSettings.prefixAccountIds = parentProps.prefixAccountIds;
+
+              if (!SelectUserSettings.callback) {
+                SelectUserSettings.callback = onSelect;
+              }
+
               dialogSelectUser({
-                SelectUserSettings: parentProps.SelectUserSettings,
+                SelectUserSettings,
                 onCancel: onClose,
               });
               onClose(true);

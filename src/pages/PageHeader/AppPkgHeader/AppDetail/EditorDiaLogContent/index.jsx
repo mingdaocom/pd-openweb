@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { Icon, RichText } from 'ming-ui';
 import styled from 'styled-components';
 import './index.less';
-import { ADVANCE_AUTHORITY } from '../../config';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
 
 const Wrap = styled.div`
   .ck-editor__main {
@@ -171,7 +171,7 @@ export default class Editor extends Component {
         >
           <header className="appIntroHeader">
             <div className="caption">{title || _l('应用说明')}</div>
-            {!isEditing && permissionType >= ADVANCE_AUTHORITY && (
+            {!isEditing && canEditApp(permissionType) && (
               <div className="editAppIntro" onClick={() => this.props.changeEditState(true)}>
                 <Icon icon="edit" />
                 <span className="Font13 ">{_l('编辑')}</span>

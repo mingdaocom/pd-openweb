@@ -12,7 +12,7 @@ export default ({
   testMap = {},
 }) => {
   const [cacheTestMap, setTestMap] = useState(testMap);
-  const [isUploading, setUploading] = useState(false);
+  const [isUploadingIndex, setUploadingIndex] = useState('');
   const renderList = (source, isFile) => {
     return source.map((key, index) => {
       const [nodeId, controlId] = key
@@ -35,17 +35,17 @@ export default ({
               onBlur={e => setTestMap(Object.assign({}, cacheTestMap, { [key]: e.target.value.trim() }))}
             />
           ) : (
-            renderFile(key)
+            renderFile(key, index)
           )}
         </div>
       );
     });
   };
-  const renderFile = key => {
+  const renderFile = (key, index) => {
     key = key + '14';
 
     return (
-      <div className="flexRow alignItemsCenter">
+      <div className="flexRow alignItemsCenter" style={{ height: 20 }}>
         {cacheTestMap[key] ? (
           <Fragment>
             <Icon icon="attachment" className="Font16 mRight10 Gray_9e" />
@@ -66,25 +66,26 @@ export default ({
           <QiniuUpload
             options={{ max_file_count: 1, max_file_size: '10m' }}
             onUploaded={(up, file, response) => {
-              setUploading(false);
               up.disableBrowse(false);
-              setTestMap(
+
+              setTestMap(cacheTestMap =>
                 Object.assign({}, cacheTestMap, {
                   [key]: JSON.stringify(formatResponseData(file, decodeURIComponent(JSON.stringify(response)))),
                 }),
               );
+              setUploadingIndex('');
             }}
             onAdd={(up, files) => {
-              setUploading(true);
+              setUploadingIndex(index);
               up.disableBrowse();
             }}
             onError={(up, err, errTip) => {
               alert(errTip, 2);
             }}
           >
-            <div className="Gray_9e ThemeHoverColor3 pointer">
-              <Icon icon="attachment" className="Font16 mRight10" style={{ minHeight: 20, lineHeight: '20px' }} />
-              {isUploading ? _l('上传中...') : _l('添加附件')}
+            <div className="Gray_9e ThemeHoverColor3 pointer flexRow alignItemsCenter" style={{ height: 20 }}>
+              <Icon icon="attachment" className="Font16 mRight10" />
+              {isUploadingIndex === index ? _l('上传中...') : _l('添加附件')}
             </div>
           </QiniuUpload>
         )}

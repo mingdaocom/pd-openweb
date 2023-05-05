@@ -47,7 +47,8 @@ export default function BillInfo({ match }) {
   const [displayRecordType, setType] = useState('paid');
   const { balance, list = [], allCount, invoiceType } = data;
   const { pageIndex, status, pageSize, startDate, endDate } = paras;
-  const isPaid = data.licenseType === 1;
+  const isPaid =
+    _.get(_.find(md.global.Account.projects, project => project.projectId === projectId) || {}, 'licenseType') === 1;
   const isRechargeType = displayRecordType === 'recharge';
   const { companyName } = getCurrentProject(projectId);
   const refreshData = () => {
@@ -187,12 +188,18 @@ export default function BillInfo({ match }) {
                 invoiceStatus,
                 createAccountInfo,
                 payAccountInfo,
+                recordTypeTitle,
               },
               index,
             ) => (
               <li key={orderId || recordId} className="recordItem">
                 <div className="time overflow_ellipsis item Font14 Gray_75">{createTime}</div>
-                <div className="type overflow_ellipsis item">{orderTypeText[orderRecordType[recordType]]}</div>
+                <div className={cx('type overflow_ellipsis item', { rechargeType: displayRecordType === 'recharge' })}>
+                  {isRechargeType
+                    ? orderTypeText[orderRecordType[recordType]] +
+                      (recordTypeTitle ? '（' + recordTypeTitle + '）' : '')
+                    : orderTypeText[orderRecordType[recordType]]}
+                </div>
                 <div className={cx('amount item', { isPositive: price > 0 })}>{price}</div>
                 {isRechargeType ? (
                   <Fragment>
@@ -312,9 +319,11 @@ export default function BillInfo({ match }) {
             <span>{_l('账户余额')}</span>
             <span className="moneySymbol Gray_75">(￥)</span>
             <span className="balance Font24">{getValue((balance || 0).toLocaleString())}</span>
-            {/* <span className="recharge pointer adminHoverColor" onClick={() => handleClick('recharge')}>
-              {_l('充值')}
-            </span> */}
+            {/* isPaid && (
+              <span className="recharge pointer adminHoverColor" onClick={() => handleClick('recharge')}>
+                {_l('充值')}
+              </span>
+            )*/}
           </div>
         </div>
         <div className="listHeader">
@@ -389,7 +398,7 @@ export default function BillInfo({ match }) {
         </div>
         <div className="listTitle">
           <div className="time item">{_l('时间')}</div>
-          <div className="type item">{_l('类型')}</div>
+          <div className={cx('type item', { rechargeType: isRechargeType })}>{_l('类型')}</div>
           <div className="amount item Gray_75">{_l('金额')}</div>
           {isRechargeType ? (
             <Fragment>

@@ -238,7 +238,7 @@ const ProcessDefaultConfig = {
 let sheetRequest = null;
 
 function BtnSetting(props) {
-  const { activeIndex, appPkg = {}, ids = {}, btnSetting, btnConfig, explain, setBtnSetting, setSetting, onDel } = props;
+  const { activeIndex, appPkg = {}, ids = {}, btnSetting, btnConfig, explain, setBtnSetting, setSetting, onDel, onCopy } = props;
   const { appId, pageId } = ids;
   const [displayType, setDisplayType] = useState('setting');
   const [paras, setParas] = useState(btnSetting.param || []);
@@ -781,6 +781,9 @@ function BtnSetting(props) {
       </ul>
       {displayType === 'setting' && (
         <div className="delBtn">
+          <div className="iconWrap mRight8" data-tip={_l('复制')} onClick={onCopy}>
+            <i className="icon-copy_custom Font20"></i>
+          </div>
           <div className="iconWrap" data-tip={_l('删除')} onClick={onDel}>
             <i className="icon-delete_12 Font18"></i>
           </div>

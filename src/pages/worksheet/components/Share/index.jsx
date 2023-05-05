@@ -34,17 +34,18 @@ function genCard(from, type = 'public', params = {}) {
 }
 
 export default function Share(props) {
-  const { from, title, isCharge, card, params = {}, onUpdate = () => {}, onClose, getCopyContent } = props;
+  const { from, title, isCharge, card, params = {}, onUpdate = () => {}, onClose, getCopyContent, canEditForm } = props;
   const [url, setUrl] = useState();
   const [isPublic, setIsPublic] = useState(props.isPublic);
   const [publicUrl, setPublicUrl] = useState(isPublic && props.publicUrl);
-  const [shareData, setShareData] = useState();
+  const [shareData, setShareData] = useState({});
   const privateVisible = !_.includes(['report'], from);
   const isEmbed = _.includes(['view', 'customPage'], from);
   const privateTitle = isEmbed ? _l('嵌入链接') : _l('内部成员访问');
   let disabledTip;
   if (!isCharge) {
-    disabledTip = from === 'recordInfo' ? _l('记录拥有者才能操作') : _l('应用管理员才能操作');
+    disabledTip =
+      from === 'recordInfo' ? _l('记录拥有者才能操作') : _l('系统角色（包含管理员、运营者、开发者）才能操作');
   }
   async function updatePublicShare(active) {
     const result = await updatePublicShareStatus({
@@ -73,7 +74,7 @@ export default function Share(props) {
       isPublic: true,
       ...params,
       ...shareData,
-      ...data
+      ...data,
     });
     setShareData(result.appEntityShare);
   }
@@ -148,11 +149,15 @@ export default function Share(props) {
             url={publicUrl}
             {...(_.isFunction(getCopyContent)
               ? {
-                  getCopyContent: urlForCopy => getCopyContent('public', shareData.password ? `${urlForCopy} ${_l('密码')}: ${shareData.password}` : urlForCopy),
+                  getCopyContent: urlForCopy =>
+                    getCopyContent(
+                      'public',
+                      shareData.password ? `${urlForCopy}? ${_l('密码')}: ${shareData.password}` : urlForCopy + '?',
+                    ),
                 }
               : {})}
           />
-          {from === 'newRecord' && (
+          {from === 'newRecord' && canEditForm && (
             <a
               href={`/worksheet/form/edit/${params.worksheetId}?#detail`}
               target="_blank"
@@ -164,16 +169,16 @@ export default function Share(props) {
           {_.includes(['view', 'recordInfo', 'customPage'], from) && (
             <Validity
               data={shareData}
-              onChange={(data) => {
+              onChange={data => {
                 setShareData({
                   ...shareData,
-                  ...data
+                  ...data,
                 });
                 if (_.includes(['view', 'recordInfo'], from)) {
                   getPublicShareInfo({
                     isEdit: true,
                     ...shareData,
-                    ...data
+                    ...data,
                   });
                 }
                 if (_.includes(['customPage'], from)) {

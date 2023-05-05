@@ -1,14 +1,17 @@
 import React from 'react';
 import { CAN_NOT_AS_TEXT_GROUP } from '../config';
+import { DRAG_MODE, WHOLE_SIZE } from '../config/Drag';
 import { navigateTo } from 'src/router/navigateTo';
 import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
-import { formatValuesOfCondition } from 'worksheet/common/WorkSheetFilter/util';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import update from 'immutability-helper';
-import _, { includes, get, isEmpty, omit, findIndex, filter, find } from 'lodash';
-import { getAdvanceSetting, handleAdvancedSettingChange } from './setting';
-import { getControlByControlId } from '.';
+import _, { includes, get, isEmpty, omit, findIndex, filter, find, head } from 'lodash';
+import { getAdvanceSetting, handleAdvancedSettingChange, isExceedMaxControlLimit } from './setting';
+import { insertControlInSameLine } from './drag';
+import { getControlByControlId, adjustControlSize } from '.';
+import { getPathById, isHaveGap } from './widgets';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { ControlTag } from '../styled';
 import { Tooltip } from 'ming-ui';
 
@@ -123,7 +126,7 @@ export function dealUserId(data, dataType) {
           const { staticValue } = item;
           if (staticValue && typeof staticValue === 'string') {
             const accountId = safeParse(staticValue || '{}')[dataType];
-            return { ...item, staticValue: accountId };
+            return { ...item, staticValue: accountId || staticValue };
           }
           if (staticValue[dataType]) return { ...item, staticValue: staticValue[dataType] };
           return item;
@@ -172,8 +175,9 @@ export function handleCondition(condition, isRelate) {
 /**
  * 处理关联表叠加筛选条件里的 成员 部门 地区 他表字段 级联 这几个类型的字段 values 处理成 [id, id]
  */
-export function handleFilters(data, isRelate = false) {
-  const filters = getAdvanceSetting(data, 'filters');
+export function handleFilters(data, isRelate = false, filterKey) {
+  const keyName = filterKey ? filterKey : 'filters';
+  const filters = getAdvanceSetting(data, [keyName]);
   try {
     let filtersValue = [];
     if (filters.some(item => item.groupFilters)) {
@@ -187,7 +191,7 @@ export function handleFilters(data, isRelate = false) {
       filtersValue = filters.map(i => handleCondition(i, isRelate));
     }
 
-    return handleAdvancedSettingChange(data, { filters: JSON.stringify(filtersValue) });
+    return handleAdvancedSettingChange(data, { [keyName]: JSON.stringify(filtersValue) });
   } catch (err) {
     return data;
   }
@@ -401,6 +405,9 @@ export const formatControlsData = (controls = [], fromSub = false) => {
       if (!isEmpty(getAdvanceSetting(data, 'filters'))) {
         data = handleFilters(data, fromSub ? false : true);
       }
+      if (!isEmpty(getAdvanceSetting(data, 'resultfilters'))) {
+        data = handleFilters(data, true, 'resultfilters');
+      }
       // 关联表sid处理
       return fromSub
         ? omit(dealRelateSheetDefaultValue(data), 'relationControls', 'controls', 'sourceControl')
@@ -499,4 +506,137 @@ export const dealRequestControls = (controls, needChild) => {
   }
 
   return needChild ? newControls : filterControls;
+};
+
+// 如果新增控件在可视区外则滚动至可视区内
+const scrollToVisibleRange = (data, widgetProps) => {
+  const { activeWidget } = widgetProps;
+  const $contentWrap = document.getElementById('widgetDisplayWrap');
+  const $activeWidget = document.getElementById(`widget-${(activeWidget || {}).controlId}`);
+  if (!$contentWrap || !$activeWidget) return;
+  const rect = $activeWidget.getBoundingClientRect();
+  // 如果在可视区外
+  if (rect.top < 0 || rect.top > $contentWrap.offsetHeight) {
+    const $scrollWrap = $contentWrap.querySelector('.nano-content');
+    if ($scrollWrap) {
+      setTimeout(() => {
+        const $widget = document.getElementById(`widget-${data.controlId}`);
+        if (!$widget) return;
+        const { top, height } = $widget.getBoundingClientRect();
+        $scrollWrap.scrollTop = $scrollWrap.scrollTop + top - height;
+      }, 0);
+    }
+  }
+};
+
+// 批量添加
+export const handleAddWidgets = (data, widgetProps, callback) => {
+  const { widgets, activeWidget, allControls, setWidgets, setActiveWidget } = widgetProps;
+  if (isExceedMaxControlLimit(allControls, data.length)) {
+    alert(_l('当前表存在的控件已达到最大值，无法添加继续添加新控件!'), 3);
+    return;
+  }
+  let newWidgets = widgets;
+
+  data.map((item, index) => {
+    let currentRowIndex = 0;
+
+    // 没有激活控件或者激活的控件不存在 则直接添加在最后一行
+    if (isEmpty(activeWidget) || allControls.findIndex(item => item.controlId === activeWidget.controlId) < 0) {
+      currentRowIndex = newWidgets.length - 1;
+    } else {
+      currentRowIndex = head(getPathById(newWidgets, activeWidget.controlId));
+    }
+
+    // 如果当前激活控件所在行没有空位则另起下一行，否则放到当前行后面
+    if (isHaveGap(newWidgets[currentRowIndex], item)) {
+      newWidgets = update(newWidgets, { [currentRowIndex]: { $push: [item] } });
+    } else {
+      newWidgets = update(newWidgets, { $splice: [[currentRowIndex + 1, 0, [item]]] });
+    }
+
+    if (index === data.length - 1) {
+      setWidgets(newWidgets);
+      setActiveWidget(item);
+      setTimeout(() => {
+        scrollToVisibleRange(item, { ...widgetProps, activeWidget: item });
+      }, 50);
+    }
+  });
+
+  if (_.isFunction(callback)) {
+    callback();
+  }
+};
+
+export const handleAddWidget = (data, para = {}, widgetProps) => {
+  const { widgets, activeWidget, allControls, setWidgets, setActiveWidget, globalSheetInfo = {} } = widgetProps;
+  const { mode, path, location, rowIndex } = para;
+  const featureType = getFeatureStatus(globalSheetInfo.projectId, data.featureId);
+  if (_.includes([49, 50], data.type) && featureType === '2') {
+    buriedUpgradeVersionDialog(globalSheetInfo.projectId, data.featureId);
+    return;
+  }
+
+  if (isExceedMaxControlLimit(allControls)) {
+    alert(_l('当前表存在的控件已达到最大值，无法添加继续添加新控件!'), 3);
+    return;
+  }
+
+  // 如果当前控件列表为空 直接添加
+  if (isEmpty(widgets)) {
+    setWidgets(update(widgets, { $push: [[data]] }));
+    setActiveWidget(data);
+    return;
+  }
+
+  // 拖拽添加的情况
+  if (mode) {
+    // 拖到单独的行
+    if (mode === DRAG_MODE.INSERT_NEW_LINE) {
+      setWidgets(update(widgets, { $splice: [[rowIndex, 0, [data]]] }));
+      setActiveWidget(data);
+      return;
+    }
+    // 拖到行的末尾
+    if (mode === DRAG_MODE.INSERT_TO_ROW_END) {
+      setWidgets(
+        update(widgets, {
+          [rowIndex]: {
+            $apply: item => {
+              const nextRow = item.concat(data);
+              return nextRow.map(value => ({ ...value, size: WHOLE_SIZE / nextRow.length }));
+            },
+          },
+        }),
+      );
+      setActiveWidget(adjustControlSize(widgets[rowIndex], data));
+      return;
+    }
+
+    if (mode === DRAG_MODE.INSERT_TO_COL) {
+      setWidgets(insertControlInSameLine({ widgets, location, dropPath: path, srcItem: data }));
+      setActiveWidget(adjustControlSize(widgets[path[0]], data));
+      return;
+    }
+  }
+
+  let currentRowIndex = 0;
+
+  // 没有激活控件或者激活的控件不存在 则直接添加在最后一行
+  if (isEmpty(activeWidget) || allControls.findIndex(item => item.controlId === activeWidget.controlId) < 0) {
+    currentRowIndex = widgets.length - 1;
+  } else {
+    currentRowIndex = head(getPathById(widgets, activeWidget.controlId));
+  }
+
+  // 如果当前激活控件所在行没有空位则另起下一行，否则放到当前行后面
+  if (isHaveGap(widgets[currentRowIndex], data)) {
+    setWidgets(update(widgets, { [currentRowIndex]: { $push: [data] } }));
+  } else {
+    setWidgets(update(widgets, { $splice: [[currentRowIndex + 1, 0, [data]]] }));
+  }
+
+  setActiveWidget(data);
+  scrollToVisibleRange(data, widgetProps);
 };

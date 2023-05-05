@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown } from 'ming-ui';
+import { ScrollView, LoadDiv, Dropdown, Checkbox } from 'ming-ui';
 import cx from 'classnames';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
-import Number from 'src/components/customWidget/src/component/common/number';
 import { Tooltip } from 'antd';
 import flowNode from '../../../api/flowNode';
 import {
@@ -14,12 +13,22 @@ import {
   CustomTextarea,
   SelectNodeObject,
   FindMode,
+  SpecificFieldsValue,
 } from '../components';
 import { ACTION_ID } from '../../enum';
 import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
 import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog';
 import _ from 'lodash';
 import moment from 'moment';
+import styled from 'styled-components';
+
+const DotBox = styled.div`
+  input {
+    width: 28px;
+    min-width: 28px !important;
+    text-align: center;
+  }
+`;
 
 export default class Formula extends Component {
   constructor(props) {
@@ -92,6 +101,7 @@ export default class Formula extends Component {
       startTime,
       endTime,
       outUnit,
+      nullZero,
       selectNodeId,
       execute,
       unit,
@@ -150,6 +160,7 @@ export default class Formula extends Component {
         startTime,
         endTime,
         outUnit,
+        nullZero,
         selectNodeId,
         execute,
         unit,
@@ -249,8 +260,26 @@ export default class Formula extends Component {
 
         <div className="mTop15 flexRow flowDetailNumber">
           <div className="mRight12">{_l('结果小数点后保留')}</div>
-          <Number number={data.number} toggleNumber={number => this.updateSource({ number })} />
+          <DotBox>
+            <SpecificFieldsValue
+              updateSource={({ fieldValue }) => this.updateSource({ number: fieldValue })}
+              type="number"
+              min={0}
+              max={9}
+              hasOtherField={false}
+              data={{ fieldValue: data.number }}
+            />
+          </DotBox>
           <div className="mLeft12">{_l('位')}</div>
+        </div>
+
+        <div className="mTop20 flexRow">
+          <Checkbox
+            className="InlineFlex"
+            text={_l('参与计算的字段值为空时，视为0')}
+            checked={data.nullZero}
+            onClick={checked => this.updateSource({ nullZero: !checked })}
+          />
         </div>
       </Fragment>
     );

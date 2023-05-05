@@ -41,20 +41,22 @@ export default function AppTrash(props) {
     if (args.pageIndex) {
       setPageIndex(args.pageIndex);
     }
-    homeAppAjax.getAppRecoveryRecordList({
-      pageIndex: args.pageIndex || pageIndex,
-      pageSize: 20,
-      projectId,
-      isHomePage,
-      keyword: _.isUndefined(args.keyword) ? keyword : args.keyword,
-    }).then(data => {
-      if (data.length) {
-        setApps(oldData => oldData.concat(data));
-      } else {
-        setLoadOuted(true);
-      }
-      setLoading(false);
-    });
+    homeAppAjax
+      .getAppRecoveryRecordList({
+        pageIndex: args.pageIndex || pageIndex,
+        pageSize: 20,
+        projectId,
+        isHomePage,
+        keyword: _.isUndefined(args.keyword) ? keyword : args.keyword,
+      })
+      .then(data => {
+        if (data.length) {
+          setApps(oldData => oldData.concat(data));
+        } else {
+          setLoadOuted(true);
+        }
+        setLoading(false);
+      });
   }
   useEffect(load, []);
   return (
@@ -63,7 +65,7 @@ export default function AppTrash(props) {
         loading={loading}
         title={_l('回收站（应用）')}
         searchPlaceholder={_l('应用名称')}
-        desc={_l('可恢复7天内删除的应用')}
+        desc={_l('可恢复%0天内删除的应用', md.global.SysSettings.appRecycleDays)}
         columns={[
           {
             name: _l('应用名称'),
@@ -90,7 +92,7 @@ export default function AppTrash(props) {
                 url={
                   app.iconUrl.startsWith('http')
                     ? app.iconUrl
-                    : `https://fp1.mingdaoyun.cn/customIcon/${app.iconUrl}.svg`
+                    : `${md.global.FileStoreConfig.pubHost.replace(/\/$/, '')}/customIcon/${app.iconUrl}.svg`
                 }
                 fill="#fff"
                 size={24}
@@ -132,11 +134,12 @@ export default function AppTrash(props) {
           } else {
             setPendingCache(app.id, true);
           }
-          homeAppAjax.restoreApp({
-            id: app.id,
-            projectId,
-            isHomePage,
-          })
+          homeAppAjax
+            .restoreApp({
+              id: app.id,
+              projectId,
+              isHomePage,
+            })
             .then(isSuccess => {
               if (isSuccess) {
                 setApps(oldApps => oldApps.filter(a => a.id !== app.id));
@@ -166,13 +169,15 @@ export default function AppTrash(props) {
                 {_l('应用为极其重要的数据，彻底删除应用数据时需要验证身份。彻底删除该数据后，将无法恢复。')}
               </div>
             ),
+            confirmType: 'danger',
             passwordPlaceHolder: _l('请输入密码确认删除'),
             onOk: () => {
-              homeAppAjax.appRecycleBinDelete({
-                id: app.id,
-                projectId,
-                isHomePage,
-              })
+              homeAppAjax
+                .appRecycleBinDelete({
+                  id: app.id,
+                  projectId,
+                  isHomePage,
+                })
                 .then(res => {
                   if (res.data) {
                     setApps(oldApps => oldApps.filter(a => a.id !== app.id));

@@ -173,6 +173,9 @@ export default {
   * @param {Object} args 请求参数
   * @param {array} args.fileNames 自定义图标名称
   * @param {string} args.projectId 网络id
+  * @param {boolean} args.isLine 线性图标或者面性图标 true表示线性，false表示面性，默认值为true
+  * @param {boolean} args.iconType 图标类型 true-表示系统图标 false-自定义图标
+  * @param {array} args.categories 分类数组
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -13,23 +13,23 @@ import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import _ from 'lodash';
 
 const ADD_APP_MODE = [
-  { id: 'createFromEmpty', icon: 'plus', text: _l('从空白创建'), href: '/app/lib' },
+  { id: 'createFromEmpty', icon: 'plus', text: _l('从空白创建%01003'), href: '/app/lib' },
   {
     id: 'installFromLib',
     icon: 'sidebar_application_library',
-    text: _l('从应用库中安装'),
+    text: _l('从应用库中安装%01004'),
     href: '/app/lib',
   },
   {
     id: 'importExcelCreateApp',
     icon: 'new_excel',
-    text: _l('从Excel创建'),
+    text: _l('从Excel创建%01005'),
     href: '#',
   },
   {
     id: 'installLoacal',
     icon: 'file_upload',
-    text: _l('导入应用'),
+    text: _l('导入%01006'),
     featureId: 2,
     href: '#',
   },

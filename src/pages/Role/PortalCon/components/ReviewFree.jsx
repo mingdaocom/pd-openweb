@@ -120,7 +120,7 @@ const Wrap = styled.div`
 `;
 const list = ['导入Excel数据', '从工作表获取数据'];
 export default function ReviewFree(props) {
-  const { appId, projectId, onCancel, show, data, onChangePortalVersion } = props;
+  const { appId, projectId, onCancel, show, data, onChangePortalVersion, canChooseOtherApp } = props;
   const [cellConfigs, setCellConfigs] = useState([]); //免审名单
   const [controls, setControls] = useState([]);
   const [cells, setCells] = useState([]); //免审文件内容信息
@@ -293,6 +293,7 @@ export default function ReviewFree(props) {
               <ReviewFreeByWorksheetWrap
                 query={query}
                 appId={appId}
+                canChooseOtherApp={canChooseOtherApp}
                 projectId={projectId}
                 onChange={query => {
                   setQuery(query);

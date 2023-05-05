@@ -5,21 +5,12 @@ export const getMembersList = (appId, roleId) => (dispatch, getState) => {
   dispatch({
     type: 'MOBILE_ROLE_LIST_FETCH_START',
   });
-  Promise.all([
-    // homeAppAjax.getAppDetail({
-    //   appId,
-    // }).then(),
-    ajaxRequest.getRolesWithUsers({ appId }).then(),
-  ]).then(res => {
-    const [
-      // detail,
-      list,
-    ] = res;
+  ajaxRequest.getAppRoleSummary({ appId }).then(res => {
+    const { roleInfos = [] } = res;
     dispatch({
       type: 'UPDATE_ROLE_LIST',
       data: {
-        // detail,
-        list,
+        list: roleInfos,
       },
     });
     dispatch({

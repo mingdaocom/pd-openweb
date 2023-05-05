@@ -26,11 +26,44 @@ export const getHierarchyViewIds = (worksheet, path = []) => {
   }
   return { appId, worksheetId, viewId };
 };
-
+//当前角色是否具有管理员权限
 export const isHaveCharge = (type, isLock) => {
-  if (type === APP_ROLE_TYPE.MAP_OWNER) return true;
-  if (!isLock && type >= 100) return true;
-  return false;
+  const { isAdmin, isOwner } = getUserRole(type, isLock);
+  return !!isAdmin || !!isOwner;
+};
+//获取当前用户对应角色
+export const getUserRole = (type, isLock) => {
+  let data = {};
+  if (type === APP_ROLE_TYPE.POSSESS_ROLE) {
+    data.isOwner = !isLock;
+  }
+  if (type === APP_ROLE_TYPE.MAP_OWNER) {
+    data.isOwner = true;
+  }
+  if (type === APP_ROLE_TYPE.ADMIN_ROLE) {
+    data.isAdmin = !isLock;
+  }
+  if (type === APP_ROLE_TYPE.DEVELOPERS_ROLE) {
+    data.isDeveloper = !isLock;
+  }
+  if (type === APP_ROLE_TYPE.RUNNER_ROLE) {
+    data.isRunner = !isLock;
+  }
+  if (type === APP_ROLE_TYPE.RUNNER_DEVELOPERS_ROLE) {//即是开发者又是运营者
+    data.isRunner = !isLock;
+    data.isDeveloper = !isLock;
+  }
+  return data;
+};
+//可以编辑应用、拥有应用搭建权限(管理员，拥有者，开发者)
+export const canEditApp = (type, isLock) => {
+  const { isAdmin, isOwner, isDeveloper } = getUserRole(type, isLock);
+  return !!isAdmin || !!isOwner || !!isDeveloper;
+};
+//可以管理应用下所有数据权限(管理员，拥有者，运营者)
+export const canEditData = (type) => {
+  const { isAdmin, isOwner, isRunner } = getUserRole(type);
+  return !!isAdmin || !!isOwner || !!isRunner;
 };
 
 export function wrapAjax(func) {

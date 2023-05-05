@@ -6,7 +6,7 @@ import cx from 'classnames';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import APITable from './APITable';
 import SvgIcon from 'src/components/SvgIcon';
-import { WrapFooter } from '../containers/style';
+import { WrapFooter } from '../apiIntegration/style';
 import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
 const WrapHeader = styled.div`
@@ -58,9 +58,7 @@ export default function AddAppDialog(props) {
   useEffect(() => {
     if (!!keywords && !props.isSuperAdmin) {
       setState({
-        list: allList.filter(
-          o => o.appName.indexOf(keywords) >= 0 || (o.createAccountInfo || {}).fullName.indexOf(keywords) >= 0,
-        ),
+        list: allList.filter(o => (o.appName || _.get(o, 'createAccountInfo.fullName')).indexOf(keywords) >= 0),
       });
     } else {
       getAppList();
@@ -164,8 +162,10 @@ export default function AddAppDialog(props) {
       render: (item, selectedList, handleSelect) => {
         return (
           <div className="flexRow pLeft5 alignItemsCenter">
-            <img src={item.createAccountInfo.avatar} className="circle" width={28} srcset="" />
-            <span className="owner flex mLeft8 overflow_ellipsis breakAll">{item.createAccountInfo.fullName}</span>
+            <img src={_.get(item, 'createAccountInfo.avatar')} className="circle" width={28} srcset="" />
+            <span className="owner flex mLeft8 overflow_ellipsis breakAll">
+              {_.get(item, 'createAccountInfo.fullName')}
+            </span>
           </div>
         );
       },

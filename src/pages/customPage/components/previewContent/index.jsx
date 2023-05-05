@@ -160,7 +160,7 @@ function PreviewWraper(props) {
           ''
         )}
       </div>
-      <div className="flex">
+      <div className="flex overflowHidden">
         <PreviewContent {..._.pick(props, ['value', 'info'])} param={param.concat(data).concat(source)} />
       </div>
     </PreviewContentWrapper>

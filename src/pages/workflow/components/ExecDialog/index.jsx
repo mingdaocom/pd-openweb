@@ -139,7 +139,7 @@ export default class ExecDialog extends Component {
     return (
       <RecordInfoWrapperComp
         notDialog={isLand}
-        from={_.get(currentWork, 'flowNode.type') === 5 ? 3 : 4}
+        from={_.get(data, 'flowNode.type') === 5 ? 3 : 4}
         sheetSwitchPermit={sheetSwitchPermit}
         viewId={viewId}
         recordId={rowId}

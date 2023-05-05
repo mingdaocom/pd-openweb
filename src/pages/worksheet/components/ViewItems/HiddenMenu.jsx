@@ -3,15 +3,18 @@ import { Icon } from 'ming-ui';
 import { Menu } from 'antd';
 const HIDDEN_MENU = [
   {
-    text: '全',
+    text: _l('全隐藏%05011'),
+    textShow: _l('全显示%05008'),
     key: ['hide', 'show'],
   },
   {
-    text: '仅在PC端',
+    text: _l('仅在PC端隐藏%05010'),
+    textShow: _l('仅在PC端显示%05007'),
     key: ['hpc&sapp', 'spc&happ'],
   },
   {
-    text: '仅在移动端',
+    text: _l('仅在移动端隐藏%05009'),
+    textShow: _l('仅在移动端显示%05006'),
     key: ['spc&happ', 'hpc&sapp'],
   },
 ];
@@ -29,7 +32,7 @@ export default function HiddenMenu(props) {
             className={`hiddenMenuItem ${showhide === HIDDEN_MENU[index].key[type] ? 'current' : ''}`}
             onClick={() => onClick(HIDDEN_MENU[index].key[type])}
           >
-            {_l('%0', `${item.text}${showhide !== 'hide' ? '隐藏' : '显示'}`)}
+            {item[showhide !== 'hide' ? 'text' : 'textShow']}
             {showhide === HIDDEN_MENU[index].key[type] && <Icon icon="done" />}
           </Menu.Item>
         );

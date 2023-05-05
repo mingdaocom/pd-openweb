@@ -9,6 +9,7 @@ import * as actions from 'statistics/redux/actions';
 import { bindActionCreators } from 'redux';
 import reportRequestAjax from '../api/report';
 import { version, fillValueMap } from '../common';
+import Hammer from 'l7hammerjs';
 import _ from 'lodash';
 
 const PathWrapper = styled.div`
@@ -253,13 +254,16 @@ export default class extends Component {
     }
 
     this.setState({
-      dropdownVisible: true,
       offset: {
         x,
         y,
       },
       match: param,
     });
+
+    setTimeout(() => {
+      this.setState({ dropdownVisible: true });
+    }, 0);
   };
   handleRequestOriginalData = () => {
     const { isThumbnail, reportData } = this.props;
@@ -537,7 +541,6 @@ export default class extends Component {
   }
   setCount(yaxisList, summary) {
     const value = summary.sum;
-    console.log('summary', summary);
     const count = formatrChartValue(value, false, yaxisList);
     this.setState({
       originalCount: value.toLocaleString() == count ? 0 : value.toLocaleString(),

@@ -1,14 +1,15 @@
 import React from 'react';
 import { getPrintContent } from '../util';
-import cx from 'classnames';
-import { Table } from 'antd';
 import { Resizable } from 'react-resizable';
 import { DEFAULT_FONT_SIZE } from '../config';
 import _ from 'lodash';
+import STYLE_PRINT from './exportWordPrintTemCssString';
+
 let minPictureW = 169;
 let minW = 33;
 const ResizeableTitle = props => {
-  const { onResize, width, ...restProps } = props;
+  const { onResize, width, index, ...restProps } = props;
+  let borderLeftNone = index === 0 ? { borderLeft: 'none' } : {};
   // if (!width) {
   //   return <th {...restProps}/>;
   // }
@@ -38,7 +39,14 @@ const ResizeableTitle = props => {
         $(`.${id}`).addClass('borderLine');
       }}
     >
-      <th {...restProps} />
+      <th
+        {...restProps}
+        style={{
+          width: `${width}px`,
+          ...STYLE_PRINT.relationPrintTable_Tr_Th,
+          ...borderLeftNone,
+        }}
+      />
     </Resizable>
   );
 };
@@ -132,7 +140,7 @@ export default class TableRelation extends React.Component {
           : isPicture
           ? minPictureW
           : w;
-        //不显示分段
+        //不显示分割线
         list.push({
           title: [6, 8, 20, 31, 37].includes(it.type)
             ? `${it.controlName || _l('未命名')}`
@@ -324,7 +332,7 @@ export default class TableRelation extends React.Component {
   };
 
   render() {
-    const { printData, dataSource, controls, orderNumberCheck, id, showData } = this.props;
+    const { printData, dataSource, controls, orderNumberCheck, id, showData, style = {} } = this.props;
     const { list } = this.state;
     if (list.length <= 0 && !orderNumberCheck) {
       return '';
@@ -336,20 +344,55 @@ export default class TableRelation extends React.Component {
         onResize: this.handleResize(col),
       }),
     }));
+
     return (
-      <Table
-        className={cx('relationsTable', { noData: dataSource.length <= 0 })}
-        bordered
-        pagination={false}
-        components={{
-          header: {
-            cell: ResizeableTitle,
-          },
+      <table
+        style={{
+          ...STYLE_PRINT.relationPrintTable,
+          ...style,
         }}
-        // tableLayout="fiexd" // 内容不会影响列的布局
-        columns={columns}
-        dataSource={dataSource}
-      />
+        cellPadding="0"
+        cellSpacing="0"
+      >
+        <thead>
+          <tr>
+            {columns.map((item, index) => {
+              return ResizeableTitle({
+                ...item,
+                ...item.onHeaderCell(item),
+                children: [undefined, item.title],
+                className: `ant-table-cell ${item.className}`,
+                index: index,
+              });
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {dataSource.map((item, i) => {
+            return (
+              <tr>
+                {columns.map((column, index) => {
+                  let borderLeftNone = index === 0 ? { borderLeft: 'none' } : {};
+
+                  return (
+                    <td
+                      style={{
+                        width: column.width,
+                        ...STYLE_PRINT.relationPrintTable_Tr_Td,
+                        ...borderLeftNone,
+                        borderBottomColor: index + 1 === column.length ? '#000' : '#ddd',
+                      }}
+                      className="WordBreak"
+                    >
+                      {column.render(item[column.dataIndex], item, i)}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     );
   }
 }

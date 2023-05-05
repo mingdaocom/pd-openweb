@@ -71,3 +71,12 @@ export const checkForm = {
     return !mobilePhone ? _l('请输入手机号') : iti && !iti.isValidNumber() ? _l('手机号格式错误') : '';
   },
 };
+
+export const feedbackTypes = {
+  2: _l('用户已存在当前组织'),
+  3: _l('用户未激活'),
+  4: _l('用户待审核'),
+  5: _l('用户已离职'),
+  6: _l('已存在当前部门'),
+  7: _l('用户待审核'),
+};

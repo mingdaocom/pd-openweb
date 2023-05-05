@@ -70,8 +70,22 @@ const codePrintList = [
 ];
 
 export default function PrintList(props) {
-  const { isCharge, showCodePrint, appId, projectId, worksheetId, viewId, controls, selectedRows, selectedRowIds } =
-    props;
+  const {
+    isCharge,
+    showCodePrint,
+    appId,
+    projectId,
+    worksheetId,
+    viewId,
+    controls,
+    selectedRows,
+    selectedRowIds,
+    allowLoadMore,
+    count,
+    filterControls,
+    fastFilters,
+    navGroupFilters,
+  } = props;
   const [menuVisible, setMenuVisible] = useState(false);
   const [templateList, setTemplateList] = useState(props.templateList || []);
   const featureType = getFeatureStatus(projectId, 20);
@@ -85,6 +99,9 @@ export default function PrintList(props) {
         setTemplateList(data.filter(d => d.type >= 2).sort((a, b) => a.type - b.type));
       });
   }
+  useEffect(() => {
+    setTemplateList(props.templateList);
+  }, [props.templateList]);
   useEffect(() => {
     if (!props.templateList) {
       loadPrintList();
@@ -117,6 +134,11 @@ export default function PrintList(props) {
         projectId,
         selectedRows,
         controls,
+        count,
+        allowLoadMore,
+        filterControls,
+        fastFilters,
+        navGroupFilters,
       });
     } else {
       printQrBarCode({
@@ -129,7 +151,16 @@ export default function PrintList(props) {
         worksheetName: name,
         controls,
         selectedRows,
-        onClose: loadPrintList,
+        count,
+        allowLoadMore,
+        filterControls,
+        fastFilters,
+        navGroupFilters,
+        onClose: () => {
+          if (!props.templateList) {
+            loadPrintList();
+          }
+        },
       });
     }
   }

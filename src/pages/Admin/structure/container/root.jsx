@@ -23,7 +23,7 @@ class Root extends React.Component {
     if (location.href.indexOf('importusers') > -1) {
       this.props.updateShowExport(true);
     }
-    if (location.href.indexOf('isShowSeting') > -1) {
+    if (location.href.indexOf('isShowSetting') > -1) {
       this.setState({ showDialogSettingInviteRules: true });
     }
   }

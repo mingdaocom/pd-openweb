@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import { Icon, VCenterIconText } from 'ming-ui';
 import api from 'api/homeApp';
-import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import AppExtension from '../AppExtension';
 import SortableAppList from './SortableAppList';
 import AppGroupIntro from './AppGroupIntro';
@@ -13,9 +13,9 @@ import DelAppGroup from './DelAppGroup';
 import MyProcessEntry from 'src/pages/PageHeader/components/MyProcessEntry';
 import { navigateTo } from '../../../../router/navigateTo';
 import { getIds, compareProps } from '../../util';
-import { DEFAULT_CREATE, ADVANCE_AUTHORITY } from '../config';
+import { DEFAULT_CREATE } from '../config';
 import { updateAppGroup } from '../../redux/action';
-import { updateIsCharge } from 'worksheet/redux/actions';
+import { updateIsCharge, updateAppPkgData } from 'worksheet/redux/actions';
 import './index.less';
 import { getAppFeaturesVisible } from 'src/util';
 import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
@@ -25,12 +25,13 @@ const mapStateToProps = () => ({});
 const mapDispatchToProps = dispatch => ({
   updateAppGroup: appGroups => dispatch(updateAppGroup(appGroups)),
   updateIsCharge: value => dispatch(updateIsCharge(value)),
+  updateAppPkgData: value => dispatch(updateAppPkgData(value)),
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class extends Component {
   static propTypes = {
-    permissionType: oneOf([0, 50, 100, 200, 300]),
+    permissionType: oneOf([0, 1, 2, 3, 100, 200, 300]),
     appStatus: oneOf([0, 1, 2, 3, 4, 5]),
     updateAppGroup: func,
   };
@@ -81,8 +82,9 @@ export default class extends Component {
     }
     if (!appId) return;
     api.getAppInfo({ appId }).then(({ appRoleType, isLock, appSectionDetail: data = [] }) => {
-      const isCharge = isHaveCharge(appRoleType, isLock);
+      const isCharge = canEditApp(appRoleType, isLock);
       this.props.updateIsCharge(isCharge);
+      this.props.updateAppPkgData({ appRoleType, isLock });
       data = isCharge
         ? data
         : data
@@ -378,7 +380,7 @@ export default class extends Component {
       <Fragment>
         {isOnlyDefaultGroup && tb ? (
           <div className="emptyAppItemWrap">
-            {permissionType >= ADVANCE_AUTHORITY && (
+            {canEditApp(permissionType, isLock) && (
               <Fragment>
                 <div
                   className={cx('emptyAppItem active')}

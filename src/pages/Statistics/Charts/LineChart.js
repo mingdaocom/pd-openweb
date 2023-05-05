@@ -243,7 +243,7 @@ export default class extends Component {
     };
     this.setCount(newYaxisList);
     const baseConfig = {
-      appendPadding: [15, 0, 5, 0],
+      appendPadding: [15, 15, 5, 0],
       seriesField: 'groupName',
       xField: 'originalId',
       yField: 'value',

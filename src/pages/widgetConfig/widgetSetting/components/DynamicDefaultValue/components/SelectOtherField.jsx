@@ -17,6 +17,8 @@ import {
   CAN_AS_FX_DYNAMIC_FIELD,
   CAN_NOT_AS_FIELD_DYNAMIC_FIELD,
   DYNAMIC_FROM_MODE,
+  CUR_OCR_TYPES,
+  CUR_OCR_URL_TYPES,
 } from '../config';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -141,6 +143,10 @@ export default class SelectOtherField extends Component {
         onDynamicValueChange([{ rcid: '', cid: `${data.id}`, staticValue: '' }]);
         this.setState({ isDynamic: false });
         break;
+      case OTHER_FIELD_TYPE.OCR:
+        onDynamicValueChange([{ rcid: '', cid: `${data.id}`, staticValue: '' }]);
+        this.setState({ isDynamic: false });
+        break;
     }
   };
 
@@ -166,12 +172,16 @@ export default class SelectOtherField extends Component {
     ) {
       types = types.filter(item => item.key !== OTHER_FIELD_TYPE.FIELD);
     }
-    // 有其他字段的控件
+    // 有其他字段的控件 ｜ api查询其他字段
     if (
       _.includes(CAN_AS_OTHER_DYNAMIC_FIELD, data.type) ||
       (_.includes([2, 6], data.type) && DYNAMIC_FROM_MODE.SEARCH_PARAMS === this.props.from && data.isSearch)
     ) {
       types = (CURRENT_TYPES[data.type] || []).concat(types);
+    }
+    // ocr其他字段控件
+    if (_.includes([2, 14], data.type) && DYNAMIC_FROM_MODE.OCR_PARAMS === this.props.from) {
+      types = (data.type === 2 ? CUR_OCR_URL_TYPES : CUR_OCR_TYPES).concat(types);
     }
     //子表里的字段默认值没有查询和函数配置
     if (this.props.hideSearchAndFun) {

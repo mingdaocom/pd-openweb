@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import * as actions from 'src/pages/Role/PortalCon/redux/actions';
 import _ from 'lodash';
 import externalPortalAjax from 'src/api/externalPortal';
-import RoleTem from 'src/pages/Role/component/RoleTemple';
+import RoleTem from 'src/pages/Role/component/RolePermissions';
 import { LoadDiv, Dialog } from 'ming-ui';
 import CopyRoleDialog from 'src/pages/Role/PortalCon/components/CopyRoleDialog';
 import appManagementAjax from 'src/api/appManagement';
@@ -20,13 +20,21 @@ class Con extends React.Component {
     };
   }
   componentDidMount() {
-    const { portal = {} } = this.props;
+    const { portal = {}, canEditUser } = this.props;
     const { roleList = [], quickTag } = portal;
     this.setState({
-      roleId: quickTag.roleId ? quickTag.roleId : (roleList[0] || {}).roleId,
+      roleId: portal.roleId
+        ? ['all', 'pendingReview', 'apply', 'outsourcing'].includes(portal.roleId)
+          ? (roleList[0] || {}).roleId
+          : portal.roleId
+        : (roleList[0] || {}).roleId,
       roleList: roleList,
       defaultRoleId: (roleList.find(o => o.isDefault) || {}).roleId,
       dataList: [
+        {
+          text: _l('查看用户'),
+          key: 10,
+        },
         {
           text: _l('复制角色'),
           key: 0,
@@ -43,7 +51,7 @@ class Con extends React.Component {
           text: _l('删除'),
           key: 3,
         },
-      ],
+      ].filter(o => (canEditUser ? true : o.key !== 10)),
     });
   }
 
@@ -65,39 +73,70 @@ class Con extends React.Component {
       buttonType: 'danger',
       description: '',
       onOk: () => {
-        externalPortalAjax.removeExRole({
-          appId: this.props.appId,
-          roleId: data.roleId,
-        }).then(res => {
-          if (res) {
-            let list = roleList.filter(o => o.roleId !== data.roleId);
-            this.setState({
-              roleList: list,
-              roleId: (list[0] || {}).roleId,
-            });
-            this.props.setPortalRoleList(list);
-            alert(_l('删除成功'));
-          } else {
-            alert(_l('删除失败，请稍后重试'), 2);
-          }
-        });
+        externalPortalAjax
+          .removeExRole({
+            appId: this.props.appId,
+            roleId: data.roleId,
+          })
+          .then(res => {
+            if (res) {
+              let list = roleList.filter(o => o.roleId !== data.roleId);
+              this.setState({
+                roleList: list,
+                roleId: (list[0] || {}).roleId,
+              });
+              this.props.setPortalRoleList(list);
+              alert(_l('删除成功'));
+            } else {
+              alert(_l('删除失败，请稍后重试'), 2);
+            }
+          });
       },
     });
   };
   // 复制外部门户角色到内部
   copyRoleToInternal = ({ roleId, roleName }) => {
     const { appId } = this.props;
-    appManagementAjax.copyExternalRolesToInternal({
-      roleId,
-      roleName,
-      appId,
-    }).then(res => {
-      alert(_l('复制成功'));
-    });
+    appManagementAjax
+      .copyExternalRolesToInternal({
+        roleId,
+        roleName,
+        appId,
+      })
+      .then(res => {
+        alert(_l('复制成功'));
+      });
+  };
+  quickTag = data => {
+    const { setQuickTag, setFastFilters, setFastFiltersData } = this.props;
+    setQuickTag(data);
+    if (!!data.roleId) {
+      if (data.tab !== 'user') {
+        setFastFiltersData({
+          controlId: 'portal_role',
+          values: [data.roleId],
+          dataType: 44,
+          spliceType: 1,
+          filterType: 2, //等于
+          DateRange: 0,
+          DateRangeType: 1,
+        });
+      } else {
+        setFastFilters({
+          controlId: 'portal_role',
+          values: [data.roleId],
+          dataType: 44,
+          spliceType: 1,
+          filterType: 2, //等于
+          DateRange: 0,
+          DateRangeType: 1,
+        });
+      }
+      this.setState({ roleId: data.roleId });
+    }
   };
   render() {
-    const { getPortalRoleList, setPortalRoleList, portal, showRoleSet, appId, projectId, setQuickTag, setFastFilters } =
-      this.props;
+    const { getPortalRoleList, setPortalRoleList, portal, showRoleSet, appId, projectId } = this.props;
     const { loading } = portal;
     const { roleList = [], dataList = [], roleId, copyData } = this.state;
     if (loading) {
@@ -126,17 +165,7 @@ class Con extends React.Component {
         <RoleTem
           {...this.props}
           setQuickTag={data => {
-            setQuickTag(data);
-            !!data.roleId &&
-              setFastFilters({
-                controlId: 'portal_role',
-                values: [data.roleId],
-                dataType: 44,
-                spliceType: 1,
-                filterType: 2, //等于
-                DateRange: 0,
-                DateRangeType: 1,
-              });
+            this.quickTag(data);
           }}
           projectId={projectId}
           showRoleSet={showRoleSet}
@@ -154,18 +183,26 @@ class Con extends React.Component {
             this.delDialog(data);
           }}
           handleMoveApp={list => {
-            appManagementAjax.sortRoles({
-              appId,
-              roleIds: list.map(item => item.roleId),
-            }).then(() => {
-              getPortalRoleList(appId);
-              this.setState({
-                roleId,
+            appManagementAjax
+              .sortRoles({
+                appId,
+                roleIds: list.map(item => item.roleId),
+              })
+              .then(() => {
+                getPortalRoleList(appId);
+                this.setState({
+                  roleId,
+                });
               });
-            });
+          }}
+          onSelect={roleId => {
+            this.quickTag({ roleId: roleId, tab: 'roleSet' });
           }}
           onAction={(o, data) => {
             switch (o.key) {
+              case 10:
+                this.quickTag({ roleId: data.roleId, tab: 'user' });
+                break;
               case 0:
                 this.setState({
                   copyData: data,

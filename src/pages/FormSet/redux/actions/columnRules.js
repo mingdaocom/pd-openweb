@@ -7,6 +7,7 @@ import {
   formatValues,
   filterDeleteOptions,
 } from '../../components/columnRules/config';
+import { getUnUniqName } from 'src/util';
 /**
  * 获取规则列表
  */
@@ -31,7 +32,7 @@ export function loadColumnRules({ worksheetId }) {
               ? data.map((item, index) => {
                   return {
                     ...item,
-                    name: item.name || _l('规则%0', index + 1),
+                    name: item.name || getUnUniqName(data, _l('规则%0', index + 1)),
                   };
                 })
               : [],
@@ -64,10 +65,10 @@ export function updateEditState(data) {
 export function addColumnRules() {
   return (dispatch, getState) => {
     const stateList = getState().formSet;
-    let { dispalyRulesNum } = stateList;
+    let { dispalyRulesNum, columnRulesListData = [] } = stateList;
     let selectRulesNew = { ...originRuleItem };
     selectRulesNew.ruleId = `new_${dispalyRulesNum + 1}`;
-    selectRulesNew.name = _l(`规则${dispalyRulesNum + 1}`);
+    selectRulesNew.name = getUnUniqName(columnRulesListData, _l(`规则${dispalyRulesNum + 1}`));
     dispatch(selectColumnRules(selectRulesNew));
   };
 }

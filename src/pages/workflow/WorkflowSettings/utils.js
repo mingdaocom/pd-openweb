@@ -464,3 +464,24 @@ export const getFilterText = (item, conditionId) => {
 
   return CONDITION_TYPE[conditionId];
 };
+
+/**
+ * 切换筛选条件到条件组
+ */
+export const switchFilterConditions = conditions => {
+  if (conditions.length > 1) {
+    return conditions.map(item => {
+      return {
+        conditions: [item],
+        spliceType: 2,
+      };
+    });
+  }
+
+  return [
+    {
+      conditions,
+      spliceType: 1,
+    },
+  ];
+};

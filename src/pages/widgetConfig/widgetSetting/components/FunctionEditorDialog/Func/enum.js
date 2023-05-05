@@ -4,7 +4,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 dayjs.extend(isBetween);
 import _ from 'lodash';
-import { calcDate } from 'worksheet/util-purejs';
+import { calcDate, countChar } from 'worksheet/util-purejs';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 
 function newDate(dateStr) {
@@ -15,11 +15,11 @@ function isDateStr(str) {
   return newDate(str).toString() !== 'Invalid Date';
 }
 function checkIsTime(str) {
-  return /^\w\w:\w\w:\w\w$/.test(str);
+  return /^\w\w:\w\w(:\w\w)?$/.test(str);
 }
 
 function completeTime(str) {
-  return checkIsTime(str) ? dayjs(str, 'HH:mm:ss').format() : str;
+  return checkIsTime(str) ? dayjs(str, countChar(str, ':') === 2 ? 'HH:mm:ss' : 'HH:mm').format() : str;
 }
 
 function endTimeIsBeforeStartTime(start, end) {

@@ -160,6 +160,33 @@ export const SHOW_RELATE_TYPE = {
   ],
   txt: '显示方式',
 };
+
+//显示项
+export const NAV_SHOW_TYPE = {
+  //选项
+  key: 'navShow',
+  // default: 2, //下拉框
+  keys: [
+    29, // 关联表
+    11, // 选项
+    10, // 多选
+    9, // 单选 平铺
+    26 //成员
+  ],
+  txt: '显示项',
+};
+// //显示项 为空设置
+// export const NAVSHOW_NULL_TYPE = {
+//   key: 'shownullitem',
+//   default: 1, //显示
+//   keys: [
+//     29, // 关联表
+//     11, // 选项
+//     10, // 多选
+//     9, // 单选 平铺
+//     26 //成员
+//   ],
+// };
 const list = _.flattenDeep(DATE_TYPE)
   .map(o => o.value)
   .filter(o => o !== 'all');
@@ -252,7 +279,7 @@ export const FASTFILTER_CONDITION_TYPE = [
   23, // 地区 19'省23'省-市'24'省-市-县'
   24, // 地区 19'省23'省-市'24'省-市-县'
   // 21, // 自由连接
-  // 22, // 分段
+  // 22, // 分割线
   // 25, // 大写金额
   26, // 成员
   27, // 部门

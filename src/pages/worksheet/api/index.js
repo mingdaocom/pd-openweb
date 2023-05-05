@@ -8,7 +8,8 @@ export function getRowDetail(params, controls, options = {}) {
     if (!controls) {
       params.getTemplate = true;
     }
-    worksheetAjax.getRowDetail(params, options)
+    worksheetAjax
+      .getRowDetail(params, options)
       .then(data => {
         const rowData = safeParse(data.rowData);
         let controlPermissions = safeParse(rowData.controlpermissions);
@@ -18,6 +19,7 @@ export function getRowDetail(params, controls, options = {}) {
           dataSource: c.dataSource || '',
           value: rowData[c.controlId],
           hidden: _.includes(FORM_HIDDEN_CONTROL_IDS, c.controlId),
+          count: rowData['rq' + c.controlId],
         }));
         resolve(data);
       })
@@ -36,27 +38,28 @@ export function deleteAttachmentOfControl(
     },
   ];
 
-  worksheetAjax.updateWorksheetRow({
-    appId,
-    viewId,
-    worksheetId,
-    rowId: recordId,
-    newOldControl: [
-      {
-        controlId,
-        editType: 2,
-        value: JSON.stringify(
-          attachment.refId
-            ? {
-                knowledgeAtts: deleteObj,
-              }
-            : {
-                attachments: deleteObj,
-              },
-        ),
-      },
-    ],
-  })
+  worksheetAjax
+    .updateWorksheetRow({
+      appId,
+      viewId,
+      worksheetId,
+      rowId: recordId,
+      newOldControl: [
+        {
+          controlId,
+          editType: 2,
+          value: JSON.stringify(
+            attachment.refId
+              ? {
+                  knowledgeAtts: deleteObj,
+                }
+              : {
+                  attachments: deleteObj,
+                },
+          ),
+        },
+      ],
+    })
     .then(data => (data.resultCode === 1 ? cb(null, data.data) : cb(data.resultCode)))
     .fail(cb);
 }

@@ -3,6 +3,7 @@ import { Icon } from 'ming-ui';
 import { Menu, Dropdown, Tooltip } from 'antd';
 import _ from 'lodash';
 import WithoutFidldItem from './WithoutFidldItem';
+import { reportTypes } from 'statistics/Charts/common';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import {
   areaParticleSizeDropdownData,
@@ -24,13 +25,17 @@ export default class GroupingAxis extends Component {
     super(props);
   }
   handleVerification = (data, isAlert = false) => {
+    const { reportType } = this.props;
+    if (reportType === reportTypes.ScatterChart) {
+      return true;
+    }
     if (isNumberControl(data.type)) {
       isAlert && alert('数值和公式字段不能分组', 2);
       return false;
     } else {
       return true;
     }
-  };
+  }
   handleAddControl = data => {
     if (this.handleVerification(data, true)) {
       const { split, disableParticleSizeTypes } = this.props;
@@ -47,20 +52,33 @@ export default class GroupingAxis extends Component {
         ...data,
       });
     }
-  };
+  }
   handleClear = () => {
     const { split } = this.props;
     this.props.onChangeCurrentReport({
       controlId: null,
       particleSizeType: 0,
     });
-  };
+  }
   handleUpdateTimeParticleSizeType = value => {
     const { split } = this.props;
     this.props.onChangeCurrentReport({
       particleSizeType: value,
     });
-  };
+  }
+  getName = () => {
+    const { reportType } = this.props;
+    if (reportType === reportTypes.DualAxes) {
+      return _l('分组(Y轴)');
+    }
+    if (reportType === reportTypes.BidirectionalBarChart) {
+      return _l('分组(数值1)');
+    }
+    if (reportType === reportTypes.ScatterChart) {
+      return _l('颜色(维度/数值)');
+    }
+    return _l('分组');
+  }
   renderTimeOverlay(axis) {
     const { split, disableParticleSizeTypes } = this.props;
     const showtype = _.get(axis, 'advancedSetting.showtype');
@@ -143,10 +161,11 @@ export default class GroupingAxis extends Component {
     );
   }
   render() {
-    const { name, split, yaxisList } = this.props;
-    return yaxisList.length === 1 ? (
+    const { name, split, yaxisList, reportType } = this.props;
+    const visible = reportType === reportTypes.ScatterChart ? true : yaxisList.length === 1;
+    return visible ? (
       <div className="fieldWrapper mBottom20">
-        <div className="Bold mBottom12">{name}</div>
+        <div className="Bold mBottom12">{name || this.getName()}</div>
         {split.controlId ? (
           this.renderAxis()
         ) : (

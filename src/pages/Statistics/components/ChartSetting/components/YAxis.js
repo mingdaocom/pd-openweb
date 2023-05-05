@@ -28,8 +28,10 @@ const SortableItemContent = styled.div`
   }
 `;
 
-const renderOverlay = ({ controlId, controlType, normType, emptyShowType }, { onNormType, onEmptyShowType, onChangeControlId, reportType }) => {
-  const isNumber = isNumberControl(controlType, false);
+const renderOverlay = (props) => {
+  const { item, onNormType, onEmptyShowType, onChangeControlId, onChangeCurrentReport, currentReport, sortIndex } = props;
+  const { reportType, sorts } = currentReport;
+  const { controlId, controlType, normType, emptyShowType } = item;
   return (
     <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />}>
       <Menu.Item
@@ -39,7 +41,7 @@ const renderOverlay = ({ controlId, controlType, normType, emptyShowType }, { on
       >
         {_l('重命名')}
       </Menu.Item>
-      {isNumber && (
+      {isNumberControl(controlType, false) && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
           {normTypes.map(item => (
             <Menu.Item
@@ -54,7 +56,31 @@ const renderOverlay = ({ controlId, controlType, normType, emptyShowType }, { on
           ))}
         </Menu.SubMenu>
       )}
-      {[reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart].includes(reportType) && (
+      {!isNumberControl(controlType) && (
+        <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
+          {[
+            {
+              text: _l('计数'),
+              value: 5,
+            },
+            {
+              text: _l('去重计数'),
+              value: 6,
+            }
+          ].map(item => (
+            <Menu.Item
+              style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
+              key={item.value}
+              onClick={() => {
+                onNormType(controlId, item.value);
+              }}
+            >
+              {item.text}
+            </Menu.Item>
+          ))}
+        </Menu.SubMenu>
+      )}
+      {[reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart, reportTypes.BidirectionalBarChart].includes(reportType) && (
         <Menu.SubMenu
           popupClassName="chartMenu"
           title={(
@@ -83,11 +109,12 @@ const renderOverlay = ({ controlId, controlType, normType, emptyShowType }, { on
 }
 
 const SortableItem = SortableElement(props => {
-  const { item, onClear, onNormType, onEmptyShowType, onChangeControlId, axisControls, allControls, reportType } = props;
+  const { item, sortIndex, onClear, axisControls, allControls } = props;
   const tip = item.rename && item.rename !== item.controlName ? item.controlName : null;
   const isNumber = isNumberControl(item.controlType, false);
   const axis = _.find(axisControls, { controlId: item.controlId });
   const control = _.find(allControls, { controlId: item.controlId }) || {};
+  const normType = _.find(normTypes, { value: item.normType });
   return (
     <SortableItemContent>
       <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag_indicator" />
@@ -95,7 +122,7 @@ const SortableItem = SortableElement(props => {
         {axis ? (
           <Tooltip title={tip}>
             <span className="Gray flex ellipsis">
-              {isNumber && `${_.find(normTypes, { value: item.normType }).text}: `}
+              {isNumber && normType && `${normType.text}: `}
               {item.rename || item.controlName}
             </span>
           </Tooltip>
@@ -112,7 +139,7 @@ const SortableItem = SortableElement(props => {
             </Tooltip>
           )
         )}
-        <Dropdown overlay={renderOverlay(item, { onNormType, onEmptyShowType, onChangeControlId, reportType })} trigger={['click']} placement="bottomRight">
+        <Dropdown overlay={renderOverlay(props)} trigger={['click']} placement="bottomRight">
           <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
         <Icon
@@ -145,17 +172,23 @@ export default class YAxis extends Component {
     };
   }
   handleVerification = (data, isAlert = false) => {
-    const { yaxisList } = this.props;
+    const { currentReport, yaxisList } = this.props;
+    const { reportType } = currentReport;
 
     if (_.find(yaxisList, { controlId: data.controlId })) {
       isAlert && alert(_l('不允许添加重复字段'), 2);
       return false;
     }
-    if (isNumberControl(data.type) || data.type === WIDGETS_TO_API_TYPE_ENUM.SCORE) {
-      return true;
+
+    if ([reportTypes.ProgressChart, reportTypes.GaugeChart].includes(reportType)) {
+      if (isNumberControl(data.type) || data.type === WIDGETS_TO_API_TYPE_ENUM.SCORE) {
+        return true;
+      } else {
+        isAlert && alert(_l('只允许添加数值和公式字段'), 2);
+        return false;
+      }
     } else {
-      isAlert && alert(_l('只允许添加数值和公式字段'), 2);
-      return false;
+      return true;
     }
   }
   handleAddControl = data => {
@@ -206,11 +239,18 @@ export default class YAxis extends Component {
   }
   handleSortEnd = ({ oldIndex, newIndex }) => {
     if (oldIndex === newIndex) return;
-    const { yaxisList, onChangeCurrentReport } = this.props;
+    const { currentReport, yaxisList, onChangeCurrentReport } = this.props;
+    const { reportType, config } = currentReport;
     const newYaxisList = arrayMove(yaxisList, oldIndex, newIndex);
-    onChangeCurrentReport({
-      yaxisList: newYaxisList,
-    });
+    const data = { yaxisList: newYaxisList };
+    if (reportType === reportTypes.ProgressChart) {
+      const targetList = config.targetList || [];
+      data.config = {
+        ...config,
+        targetList: arrayMove(targetList, oldIndex, newIndex)
+      }
+    }
+    onChangeCurrentReport(data);
   }
   renderModal() {
     const { yaxisList } = this.props;
@@ -240,14 +280,14 @@ export default class YAxis extends Component {
       )
     }
 
-    if ([reportTypes.CountryLayer].includes(reportType)) {
+    if ([reportTypes.CountryLayer, reportTypes.WordCloudChart, reportTypes.GaugeChart, reportTypes.ScatterChart, reportTypes.BidirectionalBarChart].includes(reportType)) {
       return _.isEmpty(yaxisList) && Content;
     }
 
     return _.isEmpty(split.controlId) && Content;
   }
   render() {
-    const { name, currentReport, axisControls, allControls, yaxisList, split } = this.props;
+    const { name, currentReport, axisControls, allControls, yaxisList } = this.props;
     const { reportType } = currentReport;
     return (
       <div className="fieldWrapper mBottom20">
@@ -258,12 +298,13 @@ export default class YAxis extends Component {
           list={yaxisList}
           allControls={allControls}
           axisControls={axisControls}
-          reportType={reportType}
+          currentReport={currentReport}
           shouldCancelStart={({ target }) => !target.classList.contains('icon-drag_indicator')}
           onClear={this.props.onRemoveAxis}
           onNormType={this.handleNormType}
           onEmptyShowType={this.handleEmptyShowType}
           onChangeControlId={this.handleChangeControlId}
+          onChangeCurrentReport={this.props.onChangeCurrentReport}
           onSortEnd={this.handleSortEnd}
         />
         {this.renderWithoutFidldItem()}

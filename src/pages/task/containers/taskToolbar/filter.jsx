@@ -53,7 +53,7 @@ class Filter extends Component {
           fromType: !folderId ? 0 : folderId === 1 ? 2 : 1,
           other: !!filterUserId,
         })
-        .then((result) => {
+        .then(result => {
           if (result.status) {
             if (result.data.length) {
               result.data.push({ tagID: 'null', tagName: _l('未关联标签') });
@@ -67,7 +67,7 @@ class Filter extends Component {
     }
 
     if (folderId && folderId !== 1) {
-      ajaxRequest.getTaskOptionsInFolder({ folderId }).then((result) => {
+      ajaxRequest.getTaskOptionsInFolder({ folderId }).then(result => {
         if (result.status) {
           this.setState({ customs: result.data });
         } else {
@@ -75,7 +75,7 @@ class Filter extends Component {
         }
       });
 
-      ajaxRequest.getFolderTaskCharges({ folderId }).then((result) => {
+      ajaxRequest.getFolderTaskCharges({ folderId }).then(result => {
         if (result.status) {
           this.setState({ members: result.data });
         } else {
@@ -95,27 +95,6 @@ class Filter extends Component {
     if (this.props.taskConfig.searchKeyWords) {
       this.search.value = this.props.taskConfig.searchKeyWords;
     }
-
-    // tips
-    $('.taskFilterBox').on('mouseover', '.filterMemberItem img', function () {
-      const $this = $(this);
-      const text = $this.parent().attr('data-tips');
-
-      if ($this.data('bindtip') || !text) {
-        return;
-      }
-
-      $this.MD_UI_Tooltip({
-        text,
-        arrowLeft: 0,
-        offsetLeft: 0,
-        offsetTop: -65,
-        location: 'up',
-        checkWidth: true,
-        width: 200,
-      });
-      $this.data('bindtip', true).mouseenter();
-    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -147,7 +126,7 @@ class Filter extends Component {
         fromType: !folderId ? 0 : folderId === 1 ? 2 : 1,
         isStar: taskFilter === 8,
       })
-      .then((result) => {
+      .then(result => {
         if (result.status) {
           if (this.mounted) {
             this.setState({
@@ -191,7 +170,7 @@ class Filter extends Component {
    */
   renderNetworkList() {
     const { lastMyProjectId, filterUserId } = this.props.taskConfig;
-    const data = md.global.Account.projects.map((item) => {
+    const data = md.global.Account.projects.map(item => {
       return {
         text: item.companyName,
         value: item.projectId,
@@ -211,7 +190,7 @@ class Filter extends Component {
   /**
    * 切换网络
    */
-  switchNetwork = (lastMyProjectId) => {
+  switchNetwork = lastMyProjectId => {
     const { taskFilter } = this.props.taskConfig;
 
     setStateToStorage(taskFilter, Object.assign({}, this.props.taskConfig, { lastMyProjectId }));
@@ -238,7 +217,7 @@ class Filter extends Component {
   /**
    * 切换任务状态
    */
-  switchTaskStatus = (listStatus) => {
+  switchTaskStatus = listStatus => {
     let { listSort, folderId, taskFilter, filterUserId } = this.props.taskConfig;
 
     // 非进行中且现在排序是优先级 或 截止日期
@@ -297,7 +276,7 @@ class Filter extends Component {
   /**
    * 切换完成时间
    */
-  switchCompleteTime = (completeTime) => {
+  switchCompleteTime = completeTime => {
     const { folderId, taskFilter, filterUserId } = this.props.taskConfig;
 
     if (!filterUserId) {
@@ -344,7 +323,12 @@ class Filter extends Component {
 
     return (
       <div className="mTop10">
-        <Dropdown data={data} value={listSort} renderValue={`${_l('按%0排序', '{{value}}')}`} onChange={this.switchListSort} />
+        <Dropdown
+          data={data}
+          value={listSort}
+          renderValue={`${_l('按%0排序', '{{value}}')}`}
+          onChange={this.switchListSort}
+        />
       </div>
     );
   }
@@ -352,7 +336,7 @@ class Filter extends Component {
   /**
    * 切换任务排序
    */
-  switchListSort = (listSort) => {
+  switchListSort = listSort => {
     const { folderId, taskFilter, filterUserId } = this.props.taskConfig;
 
     if (!filterUserId) {
@@ -381,7 +365,7 @@ class Filter extends Component {
   /**
    * 切换任务归属
    */
-  switchTaskAscription = (taskFilter) => {
+  switchTaskAscription = taskFilter => {
     setStateToStorage(taskFilter, Object.assign({}, this.props.taskConfig, { taskFilter }));
     this.props.dispatch(updateTaskAscription(taskFilter));
   };
@@ -428,12 +412,16 @@ class Filter extends Component {
     return (
       <span
         key={item.accountID}
-        data-tips={isMoreBtn ? '' : item.fullName}
-        className={cx('filterMemberItem relative', { ThemeBorderColor3: _.includes(filterSettings.selectChargeIds, item.accountID) })}
+        data-tip={isMoreBtn ? '' : item.fullName}
+        className={cx('filterMemberItem relative tip-top', {
+          ThemeBorderColor3: _.includes(filterSettings.selectChargeIds, item.accountID),
+        })}
         onClick={onClickFun}
       >
         <img src={item.avatar} />
-        {isMoreBtn && <span className="filterMemberItemMore">+{members.length - 12 > 99 ? 99 : members.length - 12}</span>}
+        {isMoreBtn && (
+          <span className="filterMemberItemMore">+{members.length - 12 > 99 ? 99 : members.length - 12}</span>
+        )}
       </span>
     );
   }
@@ -468,7 +456,7 @@ class Filter extends Component {
     const { getTagsComplete, tags } = this.state;
     const { filterSettings } = this.props.taskConfig;
     const label = filterSettings.tags.length ? _l('已选择%0个标签', filterSettings.tags.length) : _l('请选择标签');
-    const options = tags.map((tag) => {
+    const options = tags.map(tag => {
       return {
         label: this.getTagsIcons(tag.tagName, tag.color),
         value: tag.tagID,
@@ -489,7 +477,7 @@ class Filter extends Component {
           />
           <div className="mTop10">
             {filterSettings.tags.map(tagId =>
-              tags.map((item) => {
+              tags.map(item => {
                 if (item.tagID === tagId) {
                   return (
                     <span key={tagId} className="filterOptions">
@@ -504,7 +492,7 @@ class Filter extends Component {
                   );
                 }
                 return undefined;
-              })
+              }),
             )}
           </div>
         </div>
@@ -540,7 +528,7 @@ class Filter extends Component {
   /**
    * 清除标签
    */
-  clearTags = (id) => {
+  clearTags = id => {
     const tags = _.cloneDeep(this.props.taskConfig.filterSettings.tags);
     _.remove(tags, tagId => tagId === id);
     this.props.dispatch(updateTaskTags(tags));
@@ -560,7 +548,7 @@ class Filter extends Component {
     const { filterSettings } = this.props.taskConfig;
     const customs = filterSettings.customFilter[item.controlId] || [];
     const label = customs.length ? _l('已选择%0项', customs.length) : _l('按%0筛选', item.controlName);
-    const options = item.options.map((option) => {
+    const options = item.options.map(option => {
       return {
         label: option.value,
         value: option.key,
@@ -582,19 +570,22 @@ class Filter extends Component {
           />
           <div className="mTop10">
             {customs.map((key, i) =>
-              options.map((option) => {
+              options.map(option => {
                 if (option.value === key) {
                   return (
                     <span key={i + option.value} className="filterOptions">
                       <span className="filterOptionsBtn ThemeBorderColor3">{option.label}</span>
-                      <span className="filterOptionsDel ThemeBGColor3" onClick={() => this.clearCustoms(item.controlId, option.value)}>
+                      <span
+                        className="filterOptionsDel ThemeBGColor3"
+                        onClick={() => this.clearCustoms(item.controlId, option.value)}
+                      >
                         <i className="icon-close" />
                       </span>
                     </span>
                   );
                 }
                 return undefined;
-              })
+              }),
             )}
           </div>
         </div>
@@ -636,7 +627,7 @@ class Filter extends Component {
   /**
    * 清除自定义字段
    */
-  clearAllCustoms = (controlId) => {
+  clearAllCustoms = controlId => {
     const customFilter = _.cloneDeep(this.props.taskConfig.filterSettings.customFilter);
     delete customFilter[controlId];
     this.props.dispatch(updateCustomFilter(customFilter));
@@ -647,7 +638,8 @@ class Filter extends Component {
    */
   reset = () => {
     const { folderId, taskFilter, filterUserId } = this.props.taskConfig;
-    const newTaskFilter = !filterUserId && (taskFilter === 6 || taskFilter === 1 || taskFilter === 2 || taskFilter === 3) ? 6 : taskFilter;
+    const newTaskFilter =
+      !filterUserId && (taskFilter === 6 || taskFilter === 1 || taskFilter === 2 || taskFilter === 3) ? 6 : taskFilter;
     const newTaskConfig = Object.assign({}, this.props.taskConfig, config.clearFilterSettings, {
       lastMyProjectId: 'all',
       listStatus: 0,
@@ -682,13 +674,20 @@ class Filter extends Component {
     ];
 
     return (
-      <ClickAwayable className="taskFilterBox" onClickAwayExceptions={[$('.taskFilterBtn')]} onClickAway={this.clickAway}>
+      <ClickAwayable
+        className="taskFilterBox"
+        onClickAwayExceptions={[$('.taskFilterBtn')]}
+        onClickAway={this.clickAway}
+      >
         <div className="filterHead relative flexRow">
           <span className={cx('Font16', { Hidden: this.props.showReset })}>{_l('筛选与排序')}</span>
           <span
-            className={cx('filterHeadReset pointer Font13 ThemeColor3 ThemeBorderColor3 ThemeHoverColor2 ThemeHoverBorderColor2', {
-              Hidden: !this.props.showReset,
-            })}
+            className={cx(
+              'filterHeadReset pointer Font13 ThemeColor3 ThemeBorderColor3 ThemeHoverColor2 ThemeHoverBorderColor2',
+              {
+                Hidden: !this.props.showReset,
+              },
+            )}
             onClick={this.reset}
           >
             {_l('重置选择')}
@@ -703,7 +702,7 @@ class Filter extends Component {
             <div className={cx('relative mTop5', { Hidden: !folderId })}>
               <i className="icon-search filterSearchIcon" />
               <input
-                ref={(search) => {
+                ref={search => {
                   this.search = search;
                 }}
                 type="text"
@@ -712,12 +711,20 @@ class Filter extends Component {
                 onBlur={evt => this.updateKeyWords(evt.currentTarget.value)}
                 onKeyDown={evt => evt.keyCode === 13 && this.updateKeyWords(evt.currentTarget.value)}
               />
-              {searchKeyWords && <i className="icon-closeelement-bg-circle filterSearchClear ThemeColor8" onClick={() => this.updateKeyWords('')} />}
+              {searchKeyWords && (
+                <i
+                  className="icon-closeelement-bg-circle filterSearchClear ThemeColor8"
+                  onClick={() => this.updateKeyWords('')}
+                />
+              )}
             </div>
 
             {folderId && folderId !== 1 ? (
               <div className="filterFolderSearch">
-                <Checkbox checked={folderSearchRange === 7} onClick={checked => this.switchFolderRange(checked ? 6 : 7)}>
+                <Checkbox
+                  checked={folderSearchRange === 7}
+                  onClick={checked => this.switchFolderRange(checked ? 6 : 7)}
+                >
                   {_l('仅看与我有关的任务')}
                 </Checkbox>
               </div>
@@ -728,42 +735,66 @@ class Filter extends Component {
             {this.renderLabel(_l('状态'))}
             <div className="mTop10">
               <div className="flexRow">
-                <div className={cx('taskDelayAndOverdue flexColumn taskDelay', { active: listStatus === 4 })} onClick={() => this.switchTaskStatus(4)}>
+                <div
+                  className={cx('taskDelayAndOverdue flexColumn taskDelay', { active: listStatus === 4 })}
+                  onClick={() => this.switchTaskStatus(4)}
+                >
                   <div className="Font20">{overNotStarted}</div>
                   <div>{_l('延期未开始')}</div>
                 </div>
                 <div className="flex" />
-                <div className={cx('taskDelayAndOverdue flexColumn taskOverdue', { active: listStatus === 5 })} onClick={() => this.switchTaskStatus(5)}>
+                <div
+                  className={cx('taskDelayAndOverdue flexColumn taskOverdue', { active: listStatus === 5 })}
+                  onClick={() => this.switchTaskStatus(5)}
+                >
                   <div className="Font20">{expiredUnfinished}</div>
                   <div>{_l('逾期未完成')}</div>
                 </div>
               </div>
               <div className="flexRow">
-                <div className={cx('taskStatusNoComplete', { ThemeBGColor3: listStatus === 0 })} onClick={() => this.switchTaskStatus(0)}>
+                <div
+                  className={cx('taskStatusNoComplete', { ThemeBGColor3: listStatus === 0 })}
+                  onClick={() => this.switchTaskStatus(0)}
+                >
                   {_l('未完成任务')}
                 </div>
                 <div className="flex" />
-                <div className={cx('taskStatusAll', { ThemeBGColor3: listStatus === -1 })} onClick={() => this.switchTaskStatus(-1)}>
+                <div
+                  className={cx('taskStatusAll', { ThemeBGColor3: listStatus === -1 })}
+                  onClick={() => this.switchTaskStatus(-1)}
+                >
                   {_l('所有任务')}
                 </div>
               </div>
               <div className="flexRow taskStatusBtns">
                 <div
-                  className={cx('taskStatusBtn', { active: listStatus === -1 || listStatus === 0 }, { 'ThemeBGColor3 ThemeBorderColor3': listStatus === 2 })}
+                  className={cx(
+                    'taskStatusBtn',
+                    { active: listStatus === -1 || listStatus === 0 },
+                    { 'ThemeBGColor3 ThemeBorderColor3': listStatus === 2 },
+                  )}
                   onClick={() => this.switchTaskStatus(2)}
                 >
                   {_l('未开始')}
                 </div>
                 <div className={cx('flex taskStatusLine', { active: listStatus === -1 || listStatus === 0 })} />
                 <div
-                  className={cx('taskStatusBtn', { active: listStatus === -1 || listStatus === 0 }, { 'ThemeBGColor3 ThemeBorderColor3': listStatus === 3 })}
+                  className={cx(
+                    'taskStatusBtn',
+                    { active: listStatus === -1 || listStatus === 0 },
+                    { 'ThemeBGColor3 ThemeBorderColor3': listStatus === 3 },
+                  )}
                   onClick={() => this.switchTaskStatus(3)}
                 >
                   {_l('进行中')}
                 </div>
                 <div className={cx('flex taskStatusLine', { active: listStatus === -1 })} />
                 <div
-                  className={cx('taskStatusBtn', { active: listStatus === -1 }, { 'ThemeBGColor3 ThemeBorderColor3': listStatus === 1 })}
+                  className={cx(
+                    'taskStatusBtn',
+                    { active: listStatus === -1 },
+                    { 'ThemeBGColor3 ThemeBorderColor3': listStatus === 1 },
+                  )}
                   onClick={() => this.switchTaskStatus(1)}
                 >
                   {_l('已完成')}
@@ -776,20 +807,25 @@ class Filter extends Component {
             {taskFilter !== 8 && this.renderListSort()}
 
             {!folderId && taskFilter !== 8 && !filterUserId && this.renderLabel(_l('相关性'))}
-            {!folderId &&
-              taskFilter !== 8 &&
-              !filterUserId && <div className="mTop10">{taskAscription.map((item, i) => this.renderTaskAscription(item, i))}</div>}
+            {!folderId && taskFilter !== 8 && !filterUserId && (
+              <div className="mTop10">{taskAscription.map((item, i) => this.renderTaskAscription(item, i))}</div>
+            )}
 
             <div className="filterLine" />
 
-            {folderId && folderId !== 1 && this.renderLabel(_l('按任务负责人筛选'), filterSettings.selectChargeIds.length > 0 ? this.clearAllCharges : false)}
+            {folderId &&
+              folderId !== 1 &&
+              this.renderLabel(
+                _l('按任务负责人筛选'),
+                filterSettings.selectChargeIds.length > 0 ? this.clearAllCharges : false,
+              )}
             {folderId && folderId !== 1 && this.renderCharges()}
 
             {taskFilter !== 8 &&
               this.renderLabel(
                 _l('按标签筛选'),
                 filterSettings.tags.length > 0 ? this.clearAllTags : false,
-                _l('你可以为任务添加标签属性，通过标签筛选出任务')
+                _l('你可以为任务添加标签属性，通过标签筛选出任务'),
               )}
             {taskFilter !== 8 && this.renderTags()}
 

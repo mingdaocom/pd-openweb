@@ -164,7 +164,7 @@ export default class PublicLink extends Component {
         {isProject && (
           <div className="footContainer">
             <div className="addBox Gray_9e">
-              <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}/isShowSeting`)}>
+              <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}/isShowSetting`)}>
                 <Icon icon="settings1" />
                 {_l('邀请设置')}
               </span>

@@ -147,8 +147,8 @@ export default function CreateBackupModal(props) {
         <div>
           <span>{_l('此操作仅备份')}</span>
           <span>{_l('当前应用的结构和配置，该应用下的数据不会备份。每个备份文件仅保留')}</span>
-          <span className="Black FontW">{_l('60天')}</span>
-          <span>{_l('有效期，超过60天的会自动删除，每个应用最多可备份')}</span>
+          <span className="Black FontW">{_l('%0天', md.global.SysSettings.appBackupRecycleDays)}</span>
+          <span>{_l('有效期，超过%0天的会自动删除，每个应用最多可备份', md.global.SysSettings.appBackupRecycleDays)}</span>
           <span className="Black FontW">{_l('10个')}</span>
           <span>{_l('文件。')}</span>
           <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/zh/backup.html" />

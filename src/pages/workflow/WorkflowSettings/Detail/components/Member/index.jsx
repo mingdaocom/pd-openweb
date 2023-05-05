@@ -97,6 +97,8 @@ export default class Member extends Component {
               className={cx('flowDetailOrganize', { organizeTransform: item.roleTypeId })}
               data={list}
               value={item.roleTypeId}
+              isAppendToBody
+              menuStyle={{ width: 'auto !important' }}
               border
               renderTitle={() => this.renderOrganize(item.controlType, item.roleTypeId)}
               onChange={roleTypeId => this.onChange(roleTypeId, index)}

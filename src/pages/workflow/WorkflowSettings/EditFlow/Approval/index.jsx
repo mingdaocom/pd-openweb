@@ -57,6 +57,8 @@ export default class Approval extends Component {
               ? _l('需全员通过')
               : item.countersignType === 2
               ? _l('只需一人通过，需全员否决')
+              : item.countersignType === 4
+              ? _l('按比例投票通过')
               : _l('一人通过或否决即可')}
           </div>
         )}

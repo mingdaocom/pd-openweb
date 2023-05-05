@@ -12,7 +12,7 @@ import dataConnectorApi from '../../api/dataConnector';
 import dataSourceApi from '../../api/datasource';
 import syncTaskApi from '../../api/syncTask';
 import _ from 'lodash';
-import { DATABASE_TYPE } from '../constant';
+import { ROLE_TYPE } from '../constant';
 import './style.less';
 import { upgradeVersionDialog, getCurrentProject } from 'src/util';
 
@@ -213,12 +213,7 @@ function Connector(props) {
         onlyCreated: false,
       })
       .then(res => {
-        if (res) {
-          const options = res.filter(item =>
-            [DATABASE_TYPE.MYSQL, DATABASE_TYPE.APPLICATION_WORKSHEET].includes(item.type),
-          );
-          setSourceOptionsData(options);
-        }
+        res && setSourceOptionsData(res);
       });
   }, []);
 
@@ -262,11 +257,7 @@ function Connector(props) {
             <h3 className="Bold Font24">{_l('创建连接器')}</h3>
             <p className="Font15 flexRow alignItemsCenter">
               {_l('连接到外部数据源进行数据实时同步')}{' '}
-              <Support
-                type={3}
-                href="https://help.mingdao.com/zh/integration.html#第一步、连接与认证"
-                text={_l('使用帮助')}
-              />
+              <Support type={3} href="https://help.mingdao.com/zh/integration2.html" text={_l('使用帮助')} />
             </p>
           </div>
         </div>
@@ -285,22 +276,24 @@ function Connector(props) {
                         notFoundContent={_l('暂无数据')}
                         getPopupContainer={() => selectOptionListRef.current}
                         showSearch={true}
-                        options={sourceOptionsData.map(item => {
-                          return {
-                            ...item,
-                            label: (
-                              <div className="flexRow alignItemsCenter optionItem">
-                                <div className="dsTypeIcon" style={{ background: item.iconBgColor }}>
-                                  <svg className="icon svg-icon" aria-hidden="true">
-                                    <use xlinkHref={`#icon${item.className}`} />
-                                  </svg>
+                        options={sourceOptionsData
+                          .filter(t => _.includes([ROLE_TYPE.ALL, item.key.toUpperCase()], t.roleType))
+                          .map(item => {
+                            return {
+                              ...item,
+                              label: (
+                                <div className="flexRow alignItemsCenter optionItem">
+                                  <div className="dsTypeIcon" style={{ background: item.iconBgColor }}>
+                                    <svg className="icon svg-icon" aria-hidden="true">
+                                      <use xlinkHref={`#icon${item.className}`} />
+                                    </svg>
+                                  </div>
+                                  <span className="nameText">{item.name}</span>
                                 </div>
-                                <span className="nameText">{item.name}</span>
-                              </div>
-                            ),
-                            value: item.type,
-                          };
-                        })}
+                              ),
+                              value: item.type,
+                            };
+                          })}
                         value={_.get(connectorConfigData, [item.key, 'type'])}
                         filterOption={(inputValue, option) => {
                           return option.name.toLowerCase().includes(inputValue.toLowerCase());

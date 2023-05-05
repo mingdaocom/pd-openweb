@@ -177,7 +177,7 @@ export function submitNewRecord(props) {
   } = props;
   const receiveControls = formdata
     .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32)
-    .map(formatControlToServer)
+    .map(c => formatControlToServer(c, { isNewRecord: true }))
     .filter(item => !checkCellIsEmpty(item.value));
   const args = {
     silent: true,

@@ -64,6 +64,7 @@ class GlobalSearch extends Component {
     if (!searchVal) return;
     if (e.key === 'Enter') {
       navigateTo(`/search?search_key=${encodeURIComponent(searchVal.trim())}`);
+      this.props.onClose();
     }
   };
 

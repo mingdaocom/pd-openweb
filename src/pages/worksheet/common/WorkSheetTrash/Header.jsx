@@ -99,7 +99,7 @@ function Header(props, ref) {
     <Con>
       <div className="flex flexRow overflow_ellipsis">
         <Title className="overflow_ellipsis">{title}</Title>
-        <Tip> {_l('%060天后将被自动删除', entityName)} </Tip>
+        <Tip> {_l('%0%1天后将被自动删除', entityName, md.global.SysSettings.worksheetRowRecycleDays)} </Tip>
         {isCharge && (
           <Clear
             onClick={() => {

@@ -513,7 +513,7 @@ export default class extends PureComponent {
 
   render() {
     const {
-      roleDetail: { name, description, roleId } = {},
+      roleDetail: { name, description, roleId, hideAppForMembers } = {},
       loading,
       onChange,
       onSave,
@@ -521,6 +521,7 @@ export default class extends PureComponent {
       onDel,
       saveLoading,
       roleDetailCache,
+      isForPortal,
     } = this.props;
 
     if (loading) return <LoadDiv className="mTop10" />;
@@ -537,16 +538,31 @@ export default class extends PureComponent {
             >
               <div className="flexRow alignItemsCenter">
                 <div className="Font14 bold flex">{_l('角色名称')}</div>
-                {!!roleId && (
-                  <span
-                    className="Font14 toUser Hand flexRow alignItemsCenter"
-                    onClick={() => {
-                      this.props.handleChangePage(() => {
-                        setQuickTag({ roleId, tab: 'user' });
-                      });
-                    }}
-                  >
-                    <Icon type={'supervisor_account'} className="mRight6 Font16" /> {_l('查看用户')}
+                {!!roleId && !isForPortal && (
+                  <span className="Font14 toUser Hand flexRow alignItemsCenter">
+                    <Checkbox
+                      className="Gray"
+                      size="small"
+                      checked={hideAppForMembers}
+                      onClick={() => {
+                        onChange({
+                          hideAppForMembers: !hideAppForMembers,
+                        });
+                      }}
+                      text={_l('隐藏应用')}
+                    />
+                    <Tooltip
+                      text={
+                        <span>
+                          {_l(
+                            '对当前角色下的用户仅授予权限，但不显示应用入口。通常用于跨应用关联数据或引用视图时，只需要用户从另一个应用中进行操作的场景。',
+                          )}
+                        </span>
+                      }
+                      popupPlacement="top"
+                    >
+                      <i className="icon-info_outline Font16 Gray_bd mLeft7" />
+                    </Tooltip>
                   </span>
                 )}
               </div>

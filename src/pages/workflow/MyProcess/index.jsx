@@ -11,6 +11,8 @@ import FilterConTent from './Filter';
 import './index.less';
 import _ from 'lodash';
 import TodoEntrust from './TodoEntrust';
+import { verifyPassword } from 'src/util';
+import VerifyPassword from '../components/ExecDialog/components/VerifyPassword';
 
 const dateScope = getDateScope();
 
@@ -195,6 +197,7 @@ export default class MyProcess extends Component {
       isResetFilter: false,
       countData: {},
       approveType: null,
+      encryptType: null,
       rejectVisible: false,
       passVisible: false,
     };
@@ -354,8 +357,14 @@ export default class MyProcess extends Component {
   hanndleApprove = (type, batchType) => {
     const { approveCards } = this.state;
     const signatureCard = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
-    if (signatureCard.length) {
-      this.setState({ approveType: type });
+    const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
+    if (signatureCard.length || encryptCard.length) {
+      if (signatureCard.length) {
+        this.setState({ approveType: type });
+      }
+      if (encryptCard.length) {
+        this.setState({ encryptType: type });
+      }
     } else {
       this.handleBatchApprove(null, type);
     }
@@ -751,37 +760,64 @@ export default class MyProcess extends Component {
     }
   }
   renderSignatureDialog() {
-    const { approveCards, approveType } = this.state;
+    const { approveCards, approveType, encryptType } = this.state;
     const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
     const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
+    const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
     return (
       <Dialog
         visible
         width={650}
-        title={_l('输入签名')}
+        title={_l('通过审批')}
         onOk={() => {
-          if (this.signature.checkContentIsEmpty()) {
+          if (signatureApproveCards.length && this.signature.checkContentIsEmpty()) {
             alert(_l('请填写签名'), 2);
             return;
           }
-          this.signature.saveSignature(signature => {
-            this.handleBatchApprove(signature, this.state.approveType);
-            this.setState({ approveType: null });
-          });
+          const submitFun = () => {
+            if (signatureApproveCards.length) {
+              this.signature.saveSignature(signature => {
+                this.handleBatchApprove(signature, this.state.approveType);
+                this.setState({ approveType: null, encryptType: null });
+              });
+            } else {
+              this.handleBatchApprove(null, this.state.encryptType);
+              this.setState({ approveType: null, encryptType: null });
+            }
+          }
+          if (encryptCard.length) {
+            verifyPassword(this.password, submitFun);
+          } else {
+            submitFun();
+          }
         }}
         onCancel={() => {
-          this.setState({ approveType: null });
+          this.setState({ approveType: null, encryptType: null });
+          this.password = undefined;
         }}
       >
         <div className="Gray_75 Font14 mBottom10">
-          {_l('包含%0个需要签名的审批事项', signatureApproveCards.length)}
+          {_l('其中')}
+          {!!signatureApproveCards.length && _l('%0个事项需要签名', signatureApproveCards.length)}
+          {!!(signatureApproveCards.length && encryptCard.length) && '，'}
+          {!!encryptCard.length && _l('%0个事项需要验证登录密码', encryptCard.length)}
         </div>
-        <Signature
-          ref={signature => {
-            this.signature = signature;
-          }}
-        />
-        <div className="mTop20 BorderBottom borderColor_ef"></div>
+        {!!signatureApproveCards.length && (
+          <Fragment>
+            <div className="mBottom5">{_l('签名')}</div>
+            <Signature
+              ref={signature => {
+                this.signature = signature;
+              }}
+            />
+            <div className="mTop20 BorderBottom borderColor_ef"></div>
+          </Fragment>
+        )}
+        {encryptType && (
+          <div className="mTop20">
+            <VerifyPassword onChange={value => (this.password = value)} />
+          </div>
+        )}
       </Dialog>
     );
   }
@@ -832,7 +868,7 @@ export default class MyProcess extends Component {
     );
   }
   render() {
-    const { stateTab, selectCard, param, visible, filter, isLoading, isResetFilter, approveType } = this.state;
+    const { stateTab, selectCard, param, visible, filter, isLoading, isResetFilter, approveType, encryptType } = this.state;
 
     return (
       <div className="myProcessWrapper">
@@ -919,7 +955,7 @@ export default class MyProcess extends Component {
             }}
           />
         ) : null}
-        {approveType && this.renderSignatureDialog()}
+        {(approveType || encryptType) && this.renderSignatureDialog()}
       </div>
     );
   }

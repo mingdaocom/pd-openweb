@@ -43,7 +43,7 @@ const ButtonWrap = styled.div`
 export default function BtnName(props) {
   const { pageId, projectId, btnSetting, btnConfig, setBtnSetting } = props;
   const { name, color, config } = btnSetting;
-  const { btnType } = btnConfig || {};
+  const { btnType = 1  } = btnConfig || {};
   const defaultConfig = btnType === 2 ? { iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` } : {};
   const { icon, iconUrl } = config || defaultConfig;
 
@@ -68,7 +68,7 @@ export default function BtnName(props) {
         <Trigger
           action={['click']}
           zIndex={1000}
-          popupAlign={{ points: ['tl', 'bl'], offset: [-550, 5], overflow: { adjustX: true, adjustY: true } }}
+          popupAlign={{ points: ['tl', 'bl'], offset: [-570, 5], overflow: { adjustX: true, adjustY: true } }}
           popup={(
             <SelectIcon
               hideInput={true}

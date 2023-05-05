@@ -99,6 +99,7 @@ export default class RelationFields extends Component {
               companyId={this.props.companyId}
               processId={this.props.processId}
               selectNodeId={this.props.selectNodeId}
+              openNewFilter={!data.conditions.length}
               data={Object.assign({}, data, { controls: data.relationControls })}
               updateSource={updateSource}
               showRandom={true}

@@ -2,9 +2,7 @@ import React, { Fragment, useState } from 'react';
 import appManagementAjax from 'src/api/appManagement';
 import { Dialog, Checkbox, Switch } from 'ming-ui';
 import { Input } from 'antd';
-import account from 'src/api/account';
-import captcha from 'src/components/captcha';
-import { encrypt } from 'src/util';
+import { verifyPassword } from 'src/util';
 import RadioGroup from 'ming-ui/components/RadioGroup2';
 
 export default ({
@@ -42,12 +40,7 @@ export default ({
       title={appKey ? _l('编辑授权密钥') : _l('新建授权密钥')}
       width={500}
       onOk={() => {
-        if (!password.toString().trim()) {
-          alert(_l('请输入密码'), 2);
-          return;
-        }
-
-        const addOrEditAuthorize = () => {
+        verifyPassword(password, () => {
           appManagementAjax[appKey ? 'editAuthorizeStatus' : 'addAuthorize']({
             appId,
             appKey,
@@ -58,37 +51,7 @@ export default ({
             onClose();
             getAuthorizes();
           });
-        };
-        const checkPasswordFun = res => {
-          if (res.ret !== 0) {
-            return;
-          }
-
-          account
-            .checkAccount({
-              password: encrypt(password),
-              ticket: res.ticket,
-              randStr: res.randstr,
-              captchaType: md.staticglobal.getCaptchaType(),
-            })
-            .then(data => {
-              if (data === 1) {
-                addOrEditAuthorize();
-              } else if (data === 6) {
-                alert(_l('密码错误'), 2);
-              } else if (data === 8) {
-                alert(_l('验证码错误'), 2);
-              } else {
-                alert(_l('操作失败'), 2);
-              }
-            });
-        };
-
-        if (md.staticglobal.getCaptchaType() === 1) {
-          new captcha(checkPasswordFun);
-        } else {
-          new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), checkPasswordFun).show();
-        }
+        });
       }}
       onCancel={onClose}
     >

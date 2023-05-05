@@ -6,8 +6,15 @@ import { getStringBytes } from 'src/util';
 import { Icon } from 'ming-ui';
 import MailSettingsDialog from 'src/pages/Role/PortalCon/components/MailSettingsDialog';
 import SMSSettingsDialog from 'src/pages/Role/PortalCon/components/SMSSettingsDialog';
+import { getCurrentProject } from 'src/util';
 
 const Wrap = styled.div`
+  .warnTxt {
+    background: #fdf9dc;
+    border-radius: 3px;
+    padding: 12px;
+    margin-bottom: 24px;
+  }
   position: relative;
   height: calc(100% - 100px);
   overflow: hidden;
@@ -72,7 +79,8 @@ const Wrap = styled.div`
 
 let preSign = '';
 export default function TextMessage(props) {
-  let { portalSet = {}, onChangePortalSet } = props;
+  let { projectId, onChangePortalSet } = props;
+  const hasWarn = getCurrentProject(projectId).licenseType !== 1; //非付费版需要提示
   const [sign, setSign] = useState(''); //签名
   const [emailSignature, setEmailSignature] = useState('');
   const [portalSetModel, setPortalSetModel] = useState({});
@@ -91,6 +99,13 @@ export default function TextMessage(props) {
   return (
     <Wrap>
       <div className="content">
+        {!md.global.Config.IsLocal && hasWarn && (
+          <div className="warnTxt">
+            {_l(
+              '因为平台安全措施需要，自定义的短信签名和通知内容暂时只对付费组织生效。免费和试用组织只能按默认内容发送',
+            )}
+          </div>
+        )}
         <h6 className="Font16 Gray Bold mBottom0">{_l('短信通知')}</h6>
         <div className="mTop6 Gray_9e">
           {_l(

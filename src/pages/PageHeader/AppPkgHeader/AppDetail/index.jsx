@@ -23,10 +23,10 @@ import IndexSide from '../../components/IndexSide';
 import CommonUserHandle, { LeftCommonUserHandle } from '../../components/CommonUserHandle';
 import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet';
 import MyProcessEntry from '../../components/MyProcessEntry';
-import { APP_CONFIG, ADVANCE_AUTHORITY } from '../config';
+import { APP_CONFIG } from '../config';
 import ExportApp from 'src/pages/Admin/appManagement/modules/ExportApp';
 import AppItemTrash from 'src/pages/worksheet/common/Trash/AppItemTrash';
-import { getIds, compareProps, getItem, setItem, isCanEdit } from '../../util';
+import { getIds, compareProps, getItem, setItem } from '../../util';
 import EditAppIntro from './EditIntro';
 import AppGroup from '../AppGroup';
 import LeftAppGroup from '../LeftAppGroup';
@@ -41,8 +41,10 @@ import Skeleton from 'src/router/Application/Skeleton';
 import CreateAppBackupDialog from './appBackupRestore/CreateAppBackupDialog';
 import ManageBackupFilesDialog from './appBackupRestore/ManageBackupFilesDialog';
 import AppAnalytics from 'src/pages/Admin/useAnalytics/components/AppAnalytics';
+import { unlockAppLockPassword, lockAppFunc } from './AppLockPasswordDialog';
 import _ from 'lodash';
-
+import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 const mapStateToProps = ({ sheet, sheetList, appPkg: { appStatus } }) => ({ sheet, sheetList, appStatus });
 const mapDispatchToProps = dispatch => ({
   syncAppDetail: detail => dispatch(syncAppDetail(detail)),
@@ -54,10 +56,7 @@ const mapDispatchToProps = dispatch => ({
 const rowInfoReg = /\/app\/(.*)\/(.*)(\/(.*))?\/row\/(.*)/;
 
 let mousePosition = { x: 139, y: 23 };
-@connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)
+@connect(mapStateToProps, mapDispatchToProps)
 export default class AppInfo extends Component {
   static propTypes = {
     appStatus: oneOf([0, 1, 2, 3, 4, 5]),
@@ -96,6 +95,8 @@ export default class AppInfo extends Component {
       manageBackupFilesVisible: false,
       noUseBackupRestore: false,
       appAnalyticsVisible: false,
+      modifyAppLockPasswordVisible: false,
+      lockAppVisisble: false,
     };
   }
 
@@ -114,7 +115,10 @@ export default class AppInfo extends Component {
     if (compareProps(nextProps.match.params, this.props.match.params, ['appId'])) {
       this.getData();
     }
-    if (this.ids.appId === getIds(this.props).appId && rowInfoReg.test(nextProps.location.pathname) || rowInfoReg.test(this.props.location.pathname)) {
+    if (
+      (this.ids.appId === getIds(this.props).appId && rowInfoReg.test(nextProps.location.pathname)) ||
+      rowInfoReg.test(this.props.location.pathname)
+    ) {
       const { data } = this.state;
       const isRowInfo = rowInfoReg.test(nextProps.location.pathname);
       const currentPcNaviStyle = isRowInfo ? 0 : data.pcNaviStyle;
@@ -123,13 +127,16 @@ export default class AppInfo extends Component {
         data: {
           ...data,
           currentPcNaviStyle,
-        }
+        },
       });
       this.props.syncAppDetail({ currentPcNaviStyle });
       this.props.setAppStatus(appStatus);
       this.checkNavigationStyle(currentPcNaviStyle);
     }
-    if (this.ids.appId === getIds(this.props).appId && compareProps(nextProps.match.params, this.props.match.params, ['worksheetId'])) {
+    if (
+      this.ids.appId === getIds(this.props).appId &&
+      compareProps(nextProps.match.params, this.props.match.params, ['worksheetId'])
+    ) {
       const { currentPcNaviStyle } = this.state.data;
       currentPcNaviStyle === 2 && this.checkIsFull(nextProps.match.params.worksheetId);
     }
@@ -146,21 +153,21 @@ export default class AppInfo extends Component {
     document.querySelector('body').classList.remove('leftNavigationStyleWrap');
   }
 
-  checkIsFull = (worksheetId) => {
+  checkIsFull = worksheetId => {
     if (worksheetId) {
       document.querySelector('#wrapper').classList.add('fullWrapper');
     } else {
       document.querySelector('#wrapper').classList.remove('fullWrapper');
     }
-  }
+  };
 
-  checkNavigationStyle = (currentPcNaviStyle) => {
+  checkNavigationStyle = currentPcNaviStyle => {
     if (currentPcNaviStyle === 1) {
       document.querySelector('body').classList.add('leftNavigationStyleWrap');
     } else {
       document.querySelector('body').classList.remove('leftNavigationStyleWrap');
     }
-  }
+  };
 
   getThemeType = (iconColor = '#616161', navColor) => {
     const lightColor = generate(iconColor)[0];
@@ -187,6 +194,8 @@ export default class AppInfo extends Component {
       .then(data => {
         data.currentPcNaviStyle = rowInfoReg.test(location.pathname) ? 0 : data.pcNaviStyle;
         data.themeType = this.getThemeType(data.iconColor, data.navColor);
+
+        this.setState({ data });
         // 同步应用信息至工作表
         const appDetail = _.pick(data, [
           'navColor',
@@ -198,6 +207,7 @@ export default class AppInfo extends Component {
           'fixed',
           'fixRemark',
           'fixAccount',
+          'isLock',
           'permissionType',
           'appDisplay',
           'webMobileDisplay',
@@ -216,7 +226,7 @@ export default class AppInfo extends Component {
         }
         const { tb } = getAppFeaturesVisible();
         const isNormalApp = _.includes([1, 5], data.appStatus);
-        if (location.href.indexOf('backup') > -1 && isNormalApp && isCanEdit(data.permissionType, data.isLock) && tb) {
+        if (location.href.indexOf('backup') > -1 && isNormalApp && canEditApp(data.permissionType, data.isLock) && tb) {
           if (this.state.manageBackupFilesVisible) {
             this.setState({ manageBackupFilesKey: Date.now() });
           } else {
@@ -226,7 +236,6 @@ export default class AppInfo extends Component {
           }
         }
 
-        this.setState({ data });
         window.appInfo = data;
         this.dataCache = _.pick(data, ['icon', 'iconColor', 'name']);
         this.buildFavicon(data);
@@ -323,7 +332,10 @@ export default class AppInfo extends Component {
     const { base, views, isCharge } = sheet;
     const { data, appSectionDetail } = sheetList;
     const { worksheetId, viewId, appId, groupId = '' } = base;
-    const firstSheetId = currentPcNaviStyle === 2 ? '' : (getSheetListFirstId(currentPcNaviStyle === 1 ? appSectionDetail : data, isCharge) || '');
+    const firstSheetId =
+      currentPcNaviStyle === 2
+        ? ''
+        : getSheetListFirstId(currentPcNaviStyle === 1 ? appSectionDetail : data, isCharge) || '';
 
     if (appId && worksheetId !== firstSheetId) {
       navigateTo(`/app/${appId}/${groupId}/${firstSheetId}`);
@@ -337,7 +349,22 @@ export default class AppInfo extends Component {
 
   renderMenu = ({ type, icon, text, action, ...rest }) => {
     const { data } = this.state;
+    const isNormalApp = data.sourceType === 1;
+    const isOwner = data.permissionType === APP_ROLE_TYPE.POSSESS_ROLE; // 拥有者
+    const canLock = _.includes(
+      [
+        APP_ROLE_TYPE.ADMIN_ROLE,
+        APP_ROLE_TYPE.DEVELOPERS_ROLE,
+        APP_ROLE_TYPE.RUNNER_DEVELOPERS_ROLE,
+        APP_ROLE_TYPE.POSSESS_ROLE,
+      ],
+      data.permissionType,
+    );
+
     const { projectId } = this.state.data;
+    if (type === 'lockApp' && !(isOwner && isNormalApp && !data.isLock && !data.isPassword)) return;
+    if (type === 'unlockApp' && !(canLock && data.isPassword)) return;
+
     if (rest.featureId) {
       const featureType = getFeatureStatus(projectId, rest.featureId);
       if (!featureType) return;
@@ -350,7 +377,20 @@ export default class AppInfo extends Component {
     if (!projectId && _.includes(['ding', 'weixin', 'worksheetapi'], type)) {
       return '';
     } else {
-      if (_.includes(['del', 'export', 'createBackup'], type)) {
+      if (
+        _.includes(
+          [
+            'del',
+            isOwner && isNormalApp && !data.isLock && !data.isPassword
+              ? 'lockApp'
+              : canLock && data.isPassword
+              ? 'unlockApp'
+              : 'export',
+            'createBackup',
+          ],
+          type,
+        )
+      ) {
         return (
           <React.Fragment>
             <div style={{ width: '100%', margin: '6px 0', borderTop: '1px solid #EAEAEA' }} />
@@ -408,8 +448,9 @@ export default class AppInfo extends Component {
 
   renderMenuHtml = ({ type, icon, text, action, subMenuList = [], ...rest }) => {
     const { appId } = this.ids;
-    const { projectId } = this.state.data;
+    const { projectId, sourceType, permissionType, isPassword, isLock } = this.state.data;
     const featureType = getFeatureStatus(projectId, rest.featureId);
+    const isOwner = permissionType === APP_ROLE_TYPE.POSSESS_ROLE;
 
     return (
       <MenuItem
@@ -453,6 +494,44 @@ export default class AppInfo extends Component {
             this.setState({ appItemTrashVisible: true, appConfigVisible: false });
           }
 
+          if (type === 'modifyAppLockPassword') {
+            unlockAppLockPassword({
+              appId,
+              sourceType,
+              isPassword,
+              isOwner,
+              isLock,
+              refreshPage: () => {
+                location.reload();
+              },
+            });
+            return;
+          }
+          // 锁定应用
+          if (type === 'lockApp') {
+            lockAppFunc({
+              appId,
+              refreshPage: () => {
+                location.reload();
+              },
+            });
+            return;
+          }
+          // 解锁应用
+          if (type === 'unlockApp') {
+            unlockAppLockPassword({
+              appId,
+              sourceType,
+              isPassword,
+              isOwner,
+              isLock,
+              refreshPage: () => {
+                location.reload();
+              },
+            });
+            return;
+          }
+
           this.handleAppConfigClick(action);
         }}
         {...rest}
@@ -492,18 +571,38 @@ export default class AppInfo extends Component {
       description,
       permissionType,
       isLock,
+      isPassword,
       projectId,
       fixed,
       pcDisplay,
       currentPcNaviStyle,
       themeType,
+      sourceType,
     } = data;
     const isNormalApp = _.includes([1, 5], appStatus);
     const { s, tb } = getAppFeaturesVisible();
-    const list = APP_CONFIG[permissionType] || [];
-    const isAuthorityApp = permissionType >= ADVANCE_AUTHORITY;
+    let list = APP_CONFIG[permissionType] || [];
+    const isAuthorityApp = canEditApp(permissionType, isLock);
+    const canLock = _.includes(
+      [
+        APP_ROLE_TYPE.ADMIN_ROLE,
+        APP_ROLE_TYPE.DEVELOPERS_ROLE,
+        APP_ROLE_TYPE.RUNNER_DEVELOPERS_ROLE,
+        APP_ROLE_TYPE.POSSESS_ROLE,
+      ],
+      permissionType,
+    );
+
     if ((_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).cannotCreateApp) {
       _.remove(list, o => o.type === 'copy');
+    }
+    // 加锁应用不限制 修改应用名称和外观、编辑应用说明、使用说明、日志（8.2）
+    if (isLock && isPassword && canLock) {
+      list = _.filter(list, it =>
+        _.includes(['modify', 'editIntro', 'appAnalytics', 'modifyAppLockPassword'], it.type),
+      );
+    } else {
+      list = _.filter(list, it => !_.includes(['modifyAppLockPassword'], it.type));
     }
 
     const renderHomepageIconWrap = () => {
@@ -533,7 +632,7 @@ export default class AppInfo extends Component {
               className={cx('appDetailWrap pointer overflowHidden')}
               onDoubleClick={e => {
                 e.stopPropagation();
-                if (isCanEdit(permissionType, isLock) && isNormalApp) {
+                if (canEditApp(permissionType, isLock) && isNormalApp) {
                   this.setState({ modifyAppIconAndNameVisible: true });
                 }
               }}
@@ -551,7 +650,8 @@ export default class AppInfo extends Component {
             </div>
           )}
           {!(pcDisplay && !isAuthorityApp) && fixed && <div className="appFixed">{_l('维护中')}</div>}
-          {isNormalApp && isCanEdit(permissionType, isLock) && tb && (
+          {((isNormalApp && (canEditApp(permissionType, isLock) || canEditData(permissionType)) && tb) ||
+            (isLock && canLock)) && (
             <div
               className="appConfigIcon pointer"
               onClick={() => {
@@ -559,17 +659,17 @@ export default class AppInfo extends Component {
               }}
             >
               <Icon icon="expand_more" className="Font18" style={{ lineHeight: 'inherit' }} />
+              {appConfigVisible && (
+                <Menu
+                  style={{ top: '45px', width: '220px', padding: '6px 0' }}
+                  onClickAway={() => this.setState({ appConfigVisible: false })}
+                >
+                  {list.map(({ type, icon, text, action, ...rest }) => {
+                    return this.renderMenu({ type, icon, text, action, ...rest });
+                  })}
+                </Menu>
+              )}
             </div>
-          )}
-          {appConfigVisible && (
-            <Menu
-              style={{ top: '45px', width: '220px', left: '30px', padding: '6px 0' }}
-              onClickAway={() => this.setState({ appConfigVisible: false })}
-            >
-              {list.map(({ type, icon, text, action, ...rest }) => {
-                return this.renderMenu({ type, icon, text, action, ...rest });
-              })}
-            </Menu>
           )}
           {description && isNormalApp && (
             <div
@@ -594,9 +694,13 @@ export default class AppInfo extends Component {
               onClose={() => this.switchVisible({ selectIconVisible: false })}
               onClickAway={() => this.switchVisible({ modifyAppIconAndNameVisible: false })}
               onClickAwayExceptions={['.mui-dialog-container']}
-              onShowNavigationConfig={() => {
-                this.setState({ navigationConfigVisible: true });
-              }}
+              onShowNavigationConfig={
+                canEditApp(permissionType, isLock)
+                  ? () => {
+                      this.setState({ navigationConfigVisible: true });
+                    }
+                  : null
+              }
             />
           )}
         </Fragment>
@@ -667,6 +771,7 @@ export default class AppInfo extends Component {
       iconUrl,
       description,
       permissionType,
+      isLock,
       projectId,
       fixed,
       pcDisplay,
@@ -674,7 +779,8 @@ export default class AppInfo extends Component {
       themeType,
     } = data;
     const isNormalApp = _.includes([1, 5], appStatus);
-    const isAuthorityApp = permissionType >= ADVANCE_AUTHORITY;
+    const isAuthorityApp = canEditApp(permissionType, isLock);
+    const hasCharge = canEditApp(permissionType) || canEditData(permissionType);
     const AppGroupComponent = currentPcNaviStyle === 1 ? LeftAppGroup : AppGroup;
 
     // loading 不展示导航
@@ -691,7 +797,7 @@ export default class AppInfo extends Component {
       >
         <DocumentTitle title={name} />
         {this.renderAppInfoWrap()}
-        {!(fixed && !isAuthorityApp) && !(pcDisplay && !isAuthorityApp) && (
+        {!(fixed && !hasCharge) && !(pcDisplay && !hasCharge) && (
           <AppGroupComponent
             appStatus={appStatus}
             projectId={projectId}
@@ -713,13 +819,20 @@ export default class AppInfo extends Component {
               <Fragment>
                 <svg className="topBorderRadius" width="14px" height="22px" viewBox="0 0 14 22" version="1.1">
                   <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <path d="M0.5,22 L0.5,13.9851088 C0.503434088,13.8199063 0.5,13.6531791 0.5,13.4856816 C0.5,6.59003004 6.32029825,1 13.5,1" stroke="#0000001a"></path>
+                    <path
+                      d="M0.5,22 L0.5,13.9851088 C0.503434088,13.8199063 0.5,13.6531791 0.5,13.4856816 C0.5,6.59003004 6.32029825,1 13.5,1"
+                      stroke="#0000001a"
+                    ></path>
                   </g>
                 </svg>
                 <div className="borderLine" />
                 <svg className="bottomBorderRadius" width="14px" height="22px" viewBox="0 0 14 22" version="1.1">
                   <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <path d="M0.5,21 L0.5,12.9851088 C0.503434088,12.8199063 0.5,12.6531791 0.5,12.4856816 C0.5,5.59003004 6.32029825,0 13.5,0" stroke="#0000001a" transform="translate(7.000000, 10.500000) scale(1, -1) translate(-7.000000, -10.500000) "></path>
+                    <path
+                      d="M0.5,21 L0.5,12.9851088 C0.503434088,12.8199063 0.5,12.6531791 0.5,12.4856816 C0.5,5.59003004 6.32029825,0 13.5,0"
+                      stroke="#0000001a"
+                      transform="translate(7.000000, 10.500000) scale(1, -1) translate(-7.000000, -10.500000) "
+                    ></path>
                   </g>
                 </svg>
               </Fragment>
@@ -906,6 +1019,7 @@ export default class AppInfo extends Component {
             projectId={projectId}
             appId={appId}
             appName={name}
+            permissionType={data.permissionType}
             manageBackupFilesKey={this.state.manageBackupFilesKey}
             onClose={() => {
               this.setState({

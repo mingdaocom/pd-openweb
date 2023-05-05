@@ -13,7 +13,8 @@ export default function WorkSheetGroup(props) {
   const { workSheetId, workSheetName, icon, iconUrl, status, layerIndex, items = [] } = appItem;
   const { iconColor, viewHideNavi, currentPcNaviStyle, themeType } = appPkg;
   const childrenOpenKey = `${workSheetId}-open`;
-  const childrenItems = isCharge && viewHideNavi ? items : items.filter(item => item.status === 1 && !item.navigateHide);
+  const isOperation = appPkg.permissionType === 2;
+  const childrenItems = (isCharge || isOperation) && viewHideNavi ? items : items.filter(item => item.status === 1 && !item.navigateHide);
   const isCurrentChildren = !!_.find(childrenItems, { workSheetId: activeSheetId });
   const darkColor = currentPcNaviStyle === 1 && !['light'].includes(themeType);
   const [childrenVisible, setChildrenVisible] = useState(localStorage.getItem(childrenOpenKey) ? true : isCurrentChildren);
@@ -116,7 +117,7 @@ export default function WorkSheetGroup(props) {
               {workSheetName}
             </span>
             {status === 2 && (
-              <Tooltip popupPlacement="bottom" text={<span>{_l('仅管理员可见')}</span>}>
+              <Tooltip popupPlacement="bottom" text={<span>{_l('仅系统角色可见（包含管理员、运营者、开发者）')}</span>}>
                 <Icon className="Font16 mRight10" icon="visibility_off" style={{ color: currentPcNaviStyle === 1 && themeType === 'theme' ? '#FCD8D3' : '#ee6f09' }} />
               </Tooltip>
             )}

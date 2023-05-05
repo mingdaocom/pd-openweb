@@ -21,7 +21,7 @@ const SortableItem = SortableElement(({ index, selected, column, handleItemClick
         className="switchIcon Font30 mRight12"
       />
       <i className={cx('icon Gray_9e mRight6 Font16', 'icon-' + getIconByType(column.type))}></i>
-      <span>{column.controlName || (column.type === 22 ? _l('分段') : _l('备注'))}</span>
+      <span>{column.controlName || (column.type === 22 ? _l('分割线') : _l('备注'))}</span>
     </div>
     <SortHandle />
   </div>

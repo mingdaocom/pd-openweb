@@ -89,7 +89,7 @@ export default function TodoEntrustModal(props) {
     if (date && moment(date).isSame(moment(), 'd')) {
       return {
         disabledHours: () => Array.from(Array(hours), (_, k) => k),
-        disabledMinutes: () => Array.from(Array(minutes), (_, k) => k),
+        disabledMinutes: () => (moment(date).isSame(moment(), 'h') ? Array.from(Array(minutes), (_, k) => k) : []),
       };
     }
     return {
@@ -214,7 +214,7 @@ export default function TodoEntrustModal(props) {
                 format="YYYY-MM-DD HH:mm"
                 locale={zhCN}
                 defaultValue={formData.startDate}
-                allowClear={false}
+                allowClear={true}
                 onChange={startDate => updateDataSource({ startDate })}
               />
             </div>
@@ -230,7 +230,7 @@ export default function TodoEntrustModal(props) {
                 disabledTime={disabledDateTime}
                 format="YYYY-MM-DD HH:mm"
                 defaultValue={formData.endDate}
-                allowClear={false}
+                allowClear={true}
                 locale={zhCN}
                 onChange={endDate => updateDataSource({ endDate })}
               />

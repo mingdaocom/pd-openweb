@@ -22,7 +22,6 @@ import {
 import config from '../../config/config';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import 'src/components/mdBusinessCard/mdBusinessCard';
-import 'src/components/tooltip/tooltip';
 import 'src/components/createTask/createTask';
 import {
   checkTaskSubTask,
@@ -66,21 +65,6 @@ class TaskCenter extends Component {
     // 标记状态
     $container.on(
       {
-        'mouseover.task': function () {
-          const _this = $(this);
-          if (_this.data('bindtip')) {
-            return;
-          }
-          _this.MD_UI_Tooltip({
-            arrowLeft: 0, // tip箭头的左位移，可以负数
-            offsetLeft: -8, // tip的左位移，可以负数
-            offsetTop: 0, // tip的上位移，可以负数
-            location: 'down', // tip在上面还是下面 选项："up","down"
-            checkHeight: true,
-            width: 200, // tip的宽度
-          });
-          _this.data('bindtip', true).mouseenter();
-        },
         'click.task': function (event) {
           const _this = $(this);
           const $tr = that.props.taskConfig.folderId ? _this.closest('li') : _this.closest('tr');

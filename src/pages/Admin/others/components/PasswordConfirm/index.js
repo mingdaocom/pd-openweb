@@ -2,14 +2,10 @@ import React, { Component } from 'react';
 import { Dialog } from 'ming-ui';
 import { Input } from 'antd';
 import styled from 'styled-components';
-import AccountController from 'src/api/account';
-import { encrypt } from 'src/util';
+import { verifyPassword } from 'src/util';
 
 const PasswordConfirmWWrap = styled.div``;
-const errorMsg = {
-  6: _l('密码不正确'),
-  8: _l('验证码错误'),
-};
+
 
 export default class PasswordConfirm extends Component {
   constructor(props) {
@@ -22,30 +18,11 @@ export default class PasswordConfirm extends Component {
   onOk = () => {
     let { password } = this.state;
     if (!password) return;
-    let throttled = function (res) {
-      if (res.ret !== 0) {
-        return;
-      }
-      AccountController.checkAccount({
-        ticket: res.ticket,
-        randStr: res.randstr,
-        captchaType: md.staticglobal.getCaptchaType(),
-        password: encrypt(password),
-      }).then(result => {
-        console.log(result, 'result');
-        if (result === 1) {
-          this.props.cancelPasswordComfirm();
-        } else {
-          alert(errorMsg[res] || _l('操作失败'), 2);
-        }
-      });
-    };
 
-    if (md.staticglobal.getCaptchaType() === 1) {
-      new captcha(throttled);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
-    }
+    const _this = this;
+    verifyPassword(password, () => {
+      _this.props.cancelPasswordComfirm();
+    });
   };
   render() {
     const { actType, visible } = this.props;

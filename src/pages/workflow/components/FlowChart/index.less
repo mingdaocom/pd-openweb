@@ -3,11 +3,35 @@
     border-bottom: 1px solid #EAEAEA !important;
     padding: 15px 24px !important;
   }
-  .ant-modal-body {
+  .ant-modal-body, .am-modal-body {
     background-color: #f5f5f9;
     display: flex;
-    padding-left: 0;
-    padding-right: 0;
-    padding-bottom: 0;
+    padding: 0;
+    .workflowItem {
+      cursor: default !important;
+      pointer-events: none;
+      .workflowNodeDel {
+        display: none;
+      }
+    }
+    .workflowEditContent {
+      margin-top: 48px;
+      &:first-child {
+        > :first-child {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+  .am-modal-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+  }
+  .mobileClose {
+    position: absolute;
+    right: 10px;
+    top: 11px;
+    z-index: 1;
   }
 }

@@ -12,9 +12,14 @@ import { Dropdown, Menu } from 'antd';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import _ from 'lodash';
 
-const formatChartData = (data, yaxisList, splitControlId) => {
+const formatChartData = (data, yaxisList, splitControlId, minValue, maxValue) => {
   const result = [];
   const { value } = data[0];
+  const formatValue = value => {
+    if (_.isNumber(minValue) && value < minValue) return minValue;
+    if (_.isNumber(maxValue) && value > maxValue) return maxValue;
+    return value;
+  }
   value.forEach(item => {
     const name = item.x;
     data.forEach((element, index) => {
@@ -23,10 +28,12 @@ const formatChartData = (data, yaxisList, splitControlId) => {
         const { rename, emptyShowType } = element.c_id ? (_.find(yaxisList, { controlId: element.c_id }) || {}) : yaxisList[0];
         const hideEmptyValue = !emptyShowType && !target[0].v;
         if (!hideEmptyValue) {
+          const value = target[0].v;
           result.push({
             groupName: `${splitControlId ? element.key : (rename || element.key)}-md-${reportTypes.RadarChart}-chart-${element.c_id || index}`,
             groupKey: element.originalKey,
-            value: target[0].v,
+            value: formatValue(value),
+            originalValue: value,
             name,
             originalId: item.originalX || name
         });
@@ -67,7 +74,9 @@ export default class extends Component {
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
       displaySetup.legendType !== oldDisplaySetup.legendType ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
-      displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag
+      displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
+      displaySetup.ydisplay.minValue !== oldDisplaySetup.ydisplay.minValue ||
+      displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue
     ) {
       const config = this.getComponentConfig(nextProps);
       this.RadarChart.update(config);
@@ -121,26 +130,30 @@ export default class extends Component {
   }
   getComponentConfig(props) {
     const { map, displaySetup, yaxisList, style, split } = props.reportData;
-    const data = formatChartData(map, yaxisList, split.controlId);
     const { position } = getLegendType(displaySetup.legendType);
+    const { ydisplay } = displaySetup;
+    const data = formatChartData(map, yaxisList, split.controlId, ydisplay.minValue, ydisplay.maxValue);
     const newYaxisList = formatYaxisList(data, yaxisList);
     const colors = getChartColors(style);
     const baseConfig = {
       data,
       appendPadding: [5, 0, 5, 0],
-      xField: 'name',
+      xField: 'originalId',
       yField: 'value',
       seriesField: 'groupName',
       meta: {
-        name: {
+        originalId: {
           type: 'cat',
-          formatter: value => value || _l('空')
+          formatter: value => {
+            const item = _.find(data, { originalId: value });
+            return item ? item.name || _l('空') : value;
+          }
         },
         groupName: {
           formatter: value => formatControlInfo(value).name,
         },
         value: {
-          min: 0,
+          min: 0
         },
       },
       xAxis: {
@@ -177,6 +190,8 @@ export default class extends Component {
             return formatrChartAxisValue(Number(value), false, newYaxisList);
           },
         },
+        min: ydisplay.minValue || null,
+        max: ydisplay.maxValue || null
       },
       limitInPlot: true,
       area: {},
@@ -185,12 +200,13 @@ export default class extends Component {
         shared: true,
         showCrosshairs: false,
         showMarkers: true,
-        formatter: ({ value, groupName }) => {
+        formatter: ({ originalId, groupName }) => {
           const { name, id } = formatControlInfo(groupName);
           const { dot } = _.find(yaxisList, { controlId: id }) || {};
+          const { originalValue } = _.find(data, { originalId, groupName }) || {};
           return {
             name,
-            value: _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
+            value: _.isNumber(originalValue) ? originalValue.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
           };
         },
       },
@@ -210,9 +226,9 @@ export default class extends Component {
         : false,
       label: displaySetup.showNumber
         ? {
-            content: ({ value, controlId }) => {
+            content: ({ originalValue, controlId }) => {
               const id = split.controlId ? newYaxisList[0].controlId : controlId;
-              return formatrChartValue(value, false, newYaxisList, value ? undefined : id);
+              return formatrChartValue(originalValue, false, newYaxisList, originalValue ? undefined : id);
             },
           }
         : false,

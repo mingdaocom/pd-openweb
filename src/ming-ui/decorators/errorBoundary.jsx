@@ -9,13 +9,11 @@ import * as Sentry from '@sentry/react';
  */
 const errorBoundary = (Component, isSeriousError) => {
   class ErrorBoundary extends React.Component {
-    componentDidCatch(error, extra) {
-      console.error(extra);
-    }
-
     render() {
       return (
-        <Sentry.ErrorBoundary fallback={<ErrorPage isSeriousError={isSeriousError} />}>
+        <Sentry.ErrorBoundary
+          fallback={errorData => <ErrorPage isSeriousError={isSeriousError} errorData={errorData} />}
+        >
           <Component {...this.props} />
         </Sentry.ErrorBoundary>
       );

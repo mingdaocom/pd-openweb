@@ -181,7 +181,16 @@ export const quickTag = (state = { tab: '', roleId: '' }, action) => {
       return state;
   }
 };
+export const roleId = (state = '', action) => {
+  switch (action.type) {
+    case 'UPDATE_DEFAULT_ROLEID':
+      return action.data || '';
+    default:
+      return state;
+  }
+};
 export default combineReducers({
+  roleId,
   controls,
   roleList,
   list,

@@ -5,6 +5,8 @@ import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/compon
 import { getStringBytes, accMul, browserIsMobile } from 'src/util';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
+import { getRelateRecordCountFromValue } from 'worksheet/util';
+import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import _ from 'lodash';
 import moment from 'moment';
 import renderText from 'src/pages/worksheet/components/CellControls/renderText';
@@ -128,7 +130,8 @@ const Reg = {
   // 邮箱地址
   emailAddress: /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i,
   // 身份证号码
-  idCardNumber: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,
+  idCardNumber:
+    /(^\d{8}(0\d|10|11|12)([0-2]\d|30|31)\d{3}$)|(^\d{6}(18|19|20)\d{2}(0\d|10|11|12)([0-2]\d|30|31)\d{3}(\d|X|x)$)/,
   // 护照
   passportNumber: /^[a-zA-Z0-9]{5,17}$/,
   // 港澳通行证
@@ -165,11 +168,13 @@ function formatRowToServer(row, controls = [], { isDraft } = {}) {
       if (!c) {
         return undefined;
       } else {
-        return _.pick(formatControlToServer({ ...c, value: row[key] }, { isSubListCopy: row.isCopy, isDraft }), [
-          'controlId',
-          'value',
-          'editType',
-        ]);
+        return _.pick(
+          formatControlToServer(
+            { ...c, value: row[key] },
+            { isSubListCopy: row.isCopy, isDraft, isNewRecord: row.rowid && row.rowid.startsWith('temp') },
+          ),
+          ['controlId', 'value', 'editType'],
+        );
       }
     })
     .filter(c => c && c.controlId && !_.isUndefined(c.value));
@@ -179,7 +184,7 @@ function formatRowToServer(row, controls = [], { isDraft } = {}) {
  * 将控件数据格式化成后端需要的数据
  * @param  {} control 控件
  */
-export function formatControlToServer(control, { isSubListCopy, isDraft } = {}) {
+export function formatControlToServer(control, { isSubListCopy, isDraft, isNewRecord, needFullUpdate } = {}) {
   let result = {
     controlId: control.controlId,
     type: control.type,
@@ -191,6 +196,10 @@ export function formatControlToServer(control, { isSubListCopy, isDraft } = {}) 
     return result;
   }
   let parsedValue;
+  const isRelateRecordDropdown =
+    control.type === 29 &&
+    String(_.get(control, 'advancedSetting.showtype')) === String(RELATE_RECORD_SHOW_TYPE.DROPDOWN);
+  const isSingleRelateRecord = control.type === 29 && control.enumDefault === 1;
   switch (control.type) {
     case 10:
     case 11:
@@ -248,17 +257,42 @@ export function formatControlToServer(control, { isSubListCopy, isDraft } = {}) 
       } catch (err) {}
       break;
     case 29:
-      parsedValue = JSON.parse(control.value);
-      result.value = _.isArray(parsedValue)
-        ? JSON.stringify(
-            parsedValue
-              .map(item => ({
-                name: item.name,
-                sid: item.sid,
-              }))
-              .filter(item => !_.isEmpty(item.sid)),
-          )
-        : '';
+      parsedValue = safeParse(control.value);
+      if (_.isArray(parsedValue)) {
+        if (isNewRecord || needFullUpdate || isRelateRecordDropdown || isSingleRelateRecord) {
+          result.value = _.isArray(parsedValue)
+            ? JSON.stringify(
+                parsedValue
+                  .map(item => ({
+                    name: item.name,
+                    sid: item.sid,
+                    sourcevalue: item.sourcevalue,
+                  }))
+                  .filter(item => !_.isEmpty(item.sid)),
+              )
+            : '';
+        } else {
+          result.editType = 9;
+          const addedIds = parsedValue.filter(r => r.isNew).map(r => r.sid);
+          const deletedIds = (_.get(parsedValue, '0.deletedIds') || []).filter(
+            id => !_.find(parsedValue, r => r.sid === id),
+          );
+          result.value = JSON.stringify(
+            addedIds.map(id => ({ editType: 1, rowid: id })).concat(deletedIds.map(id => ({ editType: 2, rowid: id }))),
+          );
+        }
+      } else if (typeof control.value === 'string' && control.value.startsWith('deleteRowIds')) {
+        let deletedIds = [];
+        try {
+          deletedIds = control.value.replace('deleteRowIds: ', '').split(',').filter(_.identity);
+        } catch (err) {
+          result.value = undefined;
+        }
+        result.editType = 9;
+        result.value = JSON.stringify(deletedIds.map(id => ({ editType: 2, rowid: id })));
+      } else {
+        result.value = undefined;
+      }
       break;
     case 34: // 子表
       if (result.value.isAdd) {
@@ -467,8 +501,10 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
           return;
         }
         if (_.includes([29], currentControl.type)) {
-          if (_.isArray(JSON.parse(currentControl.value || '[]'))) {
-            item.values = JSON.parse(currentControl.value || '[]').map(ac => ac[FILTER_TYPE[currentControl.type]]);
+          if (typeof currentControl.value === 'string') {
+            item.values = safeParse(currentControl.value || '[]').map(ac => ac[FILTER_TYPE[currentControl.type]]);
+          } else if (_.isObject(currentControl.value)) {
+            item.values = (_.get(currentControl, 'value.records') || []).map(ac => ac.rowid);
           } else {
             item.values = (currentControl.data || []).map(ac => ac.rowid);
           }
@@ -558,7 +594,7 @@ export const getCurrentValue = (item, data, control) => {
           return data ? moment(data).format(showFormat) : '';
         //关联记录单条
         case 29:
-          const formatData = JSON.parse(data || '[]')[0] || {};
+          const formatData = safeParse(data || '[]', 'array')[0] || {};
           let titleControl;
           if (_.get(item, 'relationControls.length')) {
             titleControl = _.find(item.relationControls, r => r.attribute === 1) || {};
@@ -707,7 +743,8 @@ export const renderCount = item => {
     (_.includes([26, 27], type) && enumDefault === 1) ||
     (type === 29 && enumDefault === 2 && advancedSetting.showtype === '1')
   ) {
-    count = JSON.parse(value || '[]').length;
+    const recordsCount = getRelateRecordCountFromValue(value);
+    count = _.isUndefined(recordsCount) ? item.count : recordsCount;
   }
 
   // 附件
@@ -772,14 +809,13 @@ export const dealUserRange = (control = {}, data = []) => {
     if (item.type === 4) {
       if (item.rcid) {
         const parentControl = _.find(data, i => i.controlId === item.rcid) || {};
-        const control = JSON.parse(parentControl.value || '[]')[0];
+        const control = safeParse(parentControl.value || '[]', 'array')[0];
         const sourcevalue = control && JSON.parse(control.sourcevalue)[item.cid];
         const currentItem = _.find(parentControl.relationControls || [], re => re.controlId === item.cid);
-        if (currentItem && _.isArray(sourcevalue)) {
+        const sourceVal = sourcevalue && safeParse(sourcevalue);
+        if (currentItem && _.isArray(sourceVal)) {
           const arrKey = getArrKey(currentItem);
-          ranges[arrKey] = _.uniq(
-            (ranges[arrKey] || []).concat(sourcevalue.map(s => s[FILTER_TYPE[currentItem.type]])),
-          );
+          ranges[arrKey] = _.uniq((ranges[arrKey] || []).concat(sourceVal.map(s => s[FILTER_TYPE[currentItem.type]])));
         }
       } else {
         const currentItem = _.find(data || [], d => d.controlId === item.cid);

@@ -274,7 +274,10 @@ function ContainerCon(props) {
             ) : (
               <span className={cx('logoImageUrlIcon')} style={{ backgroundColor: baseSetInfo.appColor || '#00bcd4' }}>
                 <SvgIcon
-                  url={baseSetInfo.appLogoUrl || 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg'}
+                  url={
+                    baseSetInfo.appLogoUrl ||
+                    md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg'
+                  }
                   fill={'#fff'}
                   size={28}
                 />

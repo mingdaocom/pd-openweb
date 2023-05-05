@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Dialog, Radio, ScrollView, Support, Icon } from 'ming-ui';
+import { Dialog, Radio, ScrollView, Support, Icon, Tooltip } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { NODE_TYPE, ACTION_ID, APP_TYPE, TRIGGER_ID } from '../../enum';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
@@ -219,7 +219,7 @@ export default class CreateNodeDialog extends Component {
                   type: 12,
                   name: _l('延时一段时间'),
                   actionId: '301',
-                  describe: _l('在上一个节点完成后，延时一段时间再继续执行流程'),
+                  describe: _l('上一节点完成后，延时一段时间再继续执行流程'),
                 },
               ],
             },
@@ -682,7 +682,14 @@ export default class CreateNodeDialog extends Component {
                         </span>
                         <div className="Font14">{item.name}</div>
                         {item.type === NODE_TYPE.APPROVAL && (
-                          <div className="Font12 nodeListOverdue">{_l('即将下线')}</div>
+                          <Tooltip
+                            popupPlacement="bottom"
+                            text={_l(
+                              '使用「发起审批流程」节点可提供更完整的审批能力，旧「审批」节点即将被下线。流程中已添加的审批节点不受影响，仍可以继续使用。',
+                            )}
+                          >
+                            <div className="Font12 nodeListOverdue">{_l('即将下线')}</div>
+                          </Tooltip>
                         )}
                       </li>
                     );

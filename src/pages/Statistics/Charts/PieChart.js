@@ -151,12 +151,19 @@ export default class extends Component {
     const isNewChart = _.isUndefined(reportId) && _.isEmpty(style);
     const isAlienationColor = getIsAlienationColor(props.reportData);
     const isOptionsColor = isNewChart ? isAlienationColor : style ? style.colorType === 0 && isAlienationColor : false;
+    const { clientWidth, clientHeight } = this.chartEl;
+    const height = clientHeight / 2;
     this.setCount(newYaxisList);
 
     const findName = value => {
       const item = _.find(data, { originalId: value });
       return item ? item.name || _l('空') : value;
     };
+
+    const titleSize = height / 150;
+    const titleScale = titleSize > 1 ? 1 : titleSize;
+    const contentSize = height / 180;
+    const contentScale = contentSize > 1 ? 1 : contentSize;
 
     const baseConfig = {
       data,
@@ -198,10 +205,11 @@ export default class extends Component {
       statistic: displaySetup.showTotal
         ? {
             title: {
-              offsetY: -20,
+              offsetY: titleScale > 0.65 ? -10 : titleScale * 5,
               style: {
                 fontSize: 14,
                 fontWeight: 300,
+                transform: `translate(-50%, -100%) scale(${titleScale})`,
               },
               formatter: datum => (datum ? datum.name || datum.originalId : formatSummaryName(summary)),
             },
@@ -209,6 +217,8 @@ export default class extends Component {
               style: {
                 fontSize: 22,
                 fontWeight: 500,
+                transform: `translate(-50%, 0px) scale(${contentScale})`,
+                width: `${_.min([clientWidth, clientHeight]) / 3}px`
               },
               formatter: datum => {
                 const value = datum ? datum.originalValue : summary.sum;
@@ -298,7 +308,7 @@ export default class extends Component {
             </span>
           </div>
         ) : null}
-        <div className={showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>
+        <div className={showTotal && showChartType === 2 ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>
       </div>
     );
   }

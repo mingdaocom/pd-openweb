@@ -72,7 +72,10 @@ class TaskList extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!nextProps.taskConfig.folderId && (!_.isEqual(nextProps.taskConfig, this.props.taskConfig) || config.isGetData)) {
+    if (
+      !nextProps.taskConfig.folderId &&
+      (!_.isEqual(nextProps.taskConfig, this.props.taskConfig) || config.isGetData)
+    ) {
       // 解决props未更新问题
       setTimeout(() => {
         taskListSettings.taskListPost.abort();
@@ -102,7 +105,11 @@ class TaskList extends Component {
     taskListSettings.typeNum = {};
 
     const { taskFilter, filterUserId, listSort, listStatus, filterSettings } = this.props.taskConfig;
-    config.isMyTask = !filterUserId && listSort === 0 && (taskFilter === 6 || taskFilter === 1 || taskFilter === 2 || taskFilter === 3) && listStatus === 0;
+    config.isMyTask =
+      !filterUserId &&
+      listSort === 0 &&
+      (taskFilter === 6 || taskFilter === 1 || taskFilter === 2 || taskFilter === 3) &&
+      listStatus === 0;
     config.FilterMeTaskClassify = [3];
     config.FilterTaskID = [];
 
@@ -119,7 +126,7 @@ class TaskList extends Component {
     const that = this;
 
     // 点击出详情
-    $taskList.on('click', '.listStageTaskContent tr', function (event) {
+    $taskList.on('click', '.listStageTaskContent tr', function(event) {
       const _this = $(this);
       let isMuil = false;
       let metaKeyType;
@@ -160,13 +167,16 @@ class TaskList extends Component {
           openTaskDetail: false,
           taskId: '',
         });
-        import('../batchTask/batchTask').then((batchTask) => {
+        import('../batchTask/batchTask').then(batchTask => {
           batchTask.default.shiftCtrlKey(_this, metaKeyType);
         });
       }
 
       if ($('#taskList')[0]) {
-        $('.floatingHeader').css('right', 660 - $('#taskList')[0].scrollWidth + $('#taskList')[0].offsetWidth + $('#chat').width());
+        $('.floatingHeader').css(
+          'right',
+          660 - $('#taskList')[0].scrollWidth + $('#taskList')[0].offsetWidth + $('#chat').width(),
+        );
       }
 
       $.publish('CLOSE_PAGEHEAD_POSHYTIPS');
@@ -208,47 +218,11 @@ class TaskList extends Component {
             .toggleClass('ThemeBorderColor3', isAdd);
         },
       },
-      '.taskListFolderName'
+      '.taskListFolderName',
     );
 
-    // tips
-    $taskList.on('mouseover', '#taskList .icon-task-card, #taskList .icon-task-list', function () {
-      const $this = $(this);
-      const options = {
-        arrowLeft: 0, // tip箭头的左位移，可以负数
-        offsetLeft: -8, // tip的左位移，可以负数
-        offsetTop: 0, // tip的上位移，可以负数
-        location: 'down', // tip在上面还是下面 选项："up","down"
-        checkHeight: true,
-        width: 200, // tip的宽度
-      };
-      if ($this.data('bindtip')) {
-        return;
-      }
-      $this.MD_UI_Tooltip(options);
-      $this.data('bindtip', true).mouseenter();
-    });
-
-    // 分类标题tips
-    $taskList.on('mouseover', '.myTaskTip', function () {
-      const $this = $(this);
-      if ($this.data('bindtip')) {
-        return;
-      }
-      $this.MD_UI_Tooltip({
-        arrowLeft: 45, // tip箭头的左位移，可以负数
-        offsetLeft: -52, // tip的左位移，可以负数
-        offsetTop: -55, // tip的上位移，可以负数
-        location: 'up', // tip在上面还是下面 选项："up","down"
-        checkHeight: true,
-        width: 300,
-      });
-
-      $this.data('bindtip', true).mouseenter();
-    });
-
     // 页面滚动加载更多
-    $taskList.on('scroll', function () {
+    $taskList.on('scroll', function() {
       const { folderId, taskFilter, listSort } = that.props.taskConfig;
       // 阶段视图不分页
       if (folderId || taskFilter === 9) {
@@ -283,7 +257,7 @@ class TaskList extends Component {
     });
 
     // 我的任务 菜单弹层
-    $taskList.on('click', '.myTaskTag', function (event) {
+    $taskList.on('click', '.myTaskTag', function(event) {
       // 防止出详情
       event.stopPropagation();
       const projectId = $(this)
@@ -331,7 +305,7 @@ class TaskList extends Component {
       }
     });
 
-    $('.myTaskSettingList li').on('click', function () {
+    $('.myTaskSettingList li').on('click', function() {
       const $this = $(this);
       const taskId = $this.closest('ul').data('taskid');
       const type = $this.data('type');
@@ -342,7 +316,7 @@ class TaskList extends Component {
       that.updateMyTaskClassify(taskId, type);
     });
 
-    $taskList.on('mousedown', 'table', (e) => {
+    $taskList.on('mousedown', 'table', e => {
       if (e.ctrlKey) {
         e.preventDefault();
       }
@@ -354,10 +328,14 @@ class TaskList extends Component {
     });
 
     // document事件
-    $(document).on('click', (event) => {
+    $(document).on('click', event => {
       const $target = $(event.target);
       // `我的任务`
-      if ($target.closest('.myTaskSettingList').length <= 0 && $target.closest('.myTaskTag').length <= 0 && !$target.is('.myTaskIcon')) {
+      if (
+        $target.closest('.myTaskSettingList').length <= 0 &&
+        $target.closest('.myTaskTag').length <= 0 &&
+        !$target.is('.myTaskIcon')
+      ) {
         that.hideTaskSetting();
       }
     });
@@ -371,7 +349,15 @@ class TaskList extends Component {
     // 加载动画
     listLoadingContent(taskListSettings.pageIndex);
 
-    const { lastMyProjectId, taskFilter, listSort, listStatus, filterUserId, completeTime, filterSettings } = this.props.taskConfig;
+    const {
+      lastMyProjectId,
+      taskFilter,
+      listSort,
+      listStatus,
+      filterUserId,
+      completeTime,
+      filterSettings,
+    } = this.props.taskConfig;
     const tagIDs = _.filter(filterSettings.tags, tagId => tagId !== 'null');
     let withoutTag = false;
     const keyWords = this.props.taskConfig.searchKeyWords;
@@ -409,12 +395,14 @@ class TaskList extends Component {
       });
     }
 
-    taskListSettings.taskListPost.then((source) => {
+    taskListSettings.taskListPost.then(source => {
       taskListSettings.isLoading = false;
       config.isGetData = false;
 
       if (source.status) {
-        taskListSettings.pageIndex === 1 && !filterUserId && this.props.dispatch(updateMyTaskDataSource(_.cloneDeep(source.data))); // 首屏缓存数据
+        taskListSettings.pageIndex === 1 &&
+          !filterUserId &&
+          this.props.dispatch(updateMyTaskDataSource(_.cloneDeep(source.data))); // 首屏缓存数据
         // 没有动画就延迟渲染数据
         if (taskListSettings.isAnimated) {
           this.renderTask(source.data);
@@ -461,7 +449,7 @@ class TaskList extends Component {
           const existsFolderIdArray = [];
 
           // 获取页面存在的folderId
-          $('#taskList .taskListFolderName').each(function () {
+          $('#taskList .taskListFolderName').each(function() {
             const folderId = $(this).data('folderid');
             if (existsFolderIdArray.indexOf(folderId) < 0) {
               existsFolderIdArray.push(folderId);
@@ -549,7 +537,7 @@ class TaskList extends Component {
     let flag = false;
 
     // 没有关闭的`我的任务`分类
-    const classify = $.grep([0, 1, 2, 3], (i) => {
+    const classify = $.grep([0, 1, 2, 3], i => {
       return $.inArray(i, config.FilterMeTaskClassify) == -1;
     });
 
@@ -570,7 +558,15 @@ class TaskList extends Component {
       return false;
     }
 
-    const { listStatus, listSort, filterUserId, taskFilter, completeTime, lastMyProjectId, filterSettings } = this.props.taskConfig;
+    const {
+      listStatus,
+      listSort,
+      filterUserId,
+      taskFilter,
+      completeTime,
+      lastMyProjectId,
+      filterSettings,
+    } = this.props.taskConfig;
     const tagIDs = _.filter(filterSettings.tags, tagId => tagId !== 'null');
 
     taskListSettings.taskListPost = ajaxRequest.getTaskList({
@@ -592,12 +588,14 @@ class TaskList extends Component {
       keyWords: '',
     });
 
-    taskListSettings.taskListPost.then((source) => {
+    taskListSettings.taskListPost.then(source => {
       taskListSettings.isLoading = false;
       config.isGetData = false;
 
       if (source.status) {
-        taskListSettings.pageIndex === 1 && !filterUserId && this.props.dispatch(updateMyTaskDataSource(_.cloneDeep(source.data))); // 首屏缓存数据
+        taskListSettings.pageIndex === 1 &&
+          !filterUserId &&
+          this.props.dispatch(updateMyTaskDataSource(_.cloneDeep(source.data))); // 首屏缓存数据
         // 没有动画就延迟渲染数据
         if (taskListSettings.isAnimated) {
           this.renderMyTask(source.data);
@@ -638,7 +636,7 @@ class TaskList extends Component {
       this.renderMyTaskNum(data);
     } else {
       const nodeTrTpl = nodeTr.replace('#include.nodeCommTr', nodeCommTr);
-      Object.keys(data.data).forEach((key) => {
+      Object.keys(data.data).forEach(key => {
         key = key.substring(key.indexOf('num_') + 4);
         if (key in data.TYPES) {
           data.type = parseInt(key, 10);
@@ -689,7 +687,7 @@ class TaskList extends Component {
    * 判断`我的任务` 分类 isMore
    */
   updateMyTaskIsMore(data) {
-    const classify = $.grep([0, 1, 2, 3], (i) => {
+    const classify = $.grep([0, 1, 2, 3], i => {
       return $.inArray(i, config.FilterMeTaskClassify) == -1;
     });
     let sumList = 0;
@@ -739,12 +737,12 @@ class TaskList extends Component {
    */
   fixTitle() {
     if ($('#taskList').find('.floatingHeader').length <= 0) {
-      $('.persist-area').each(function () {
+      $('.persist-area').each(function() {
         const clonedHeaderRow = $('.persist-header', this);
         clonedHeaderRow.before(clonedHeaderRow.clone()).addClass('floatingHeader');
       });
       $('#taskList').on('scroll', () => {
-        $('.persist-area').each(function () {
+        $('.persist-area').each(function() {
           const el = $(this);
           const offset = el.offset();
           const top = offset.top - 152;
@@ -753,7 +751,12 @@ class TaskList extends Component {
           $('.floatingHeader').css({
             visibility: 'hidden',
             right:
-              $('.taskDetail').width() + 20 - $('#taskList')[0].scrollWidth + $('#taskList')[0].offsetWidth + $('#chat').width() + $('.taskFilterBox').width(),
+              $('.taskDetail').width() +
+              20 -
+              $('#taskList')[0].scrollWidth +
+              $('#taskList')[0].offsetWidth +
+              $('#chat').width() +
+              $('.taskFilterBox').width(),
           });
           if (scrollTop > 0 && top + el.height() > 0) {
             floatingHeader.css({
@@ -781,7 +784,7 @@ class TaskList extends Component {
     config.FilterTaskID = [];
     // 重置pageIndex
     taskListSettings.pageIndex = 0;
-    $types.each(function (i, e) {
+    $types.each(function(i, e) {
       const $this = $(this);
       const $tasks = $this.siblings('.listStageTaskContent').find('tr');
       const isClosed = $this.find('.downArrow').length > 0;
@@ -791,7 +794,7 @@ class TaskList extends Component {
         $('.listStageTaskContent')
           .filter(':visible')
           .find('tr')
-          .each(function () {
+          .each(function() {
             const $task = $(this);
             const taskId = $task.data('taskid');
             if (config.FilterTaskID.indexOf(taskId) < 0) {
@@ -799,7 +802,7 @@ class TaskList extends Component {
             }
           });
       } else {
-        $tasks.each(function () {
+        $tasks.each(function() {
           const $task = $(this);
           const taskId = $task.data('taskid');
           config.FilterTaskID.push(taskId);
@@ -841,23 +844,23 @@ class TaskList extends Component {
     const $animatedFarFast = $('#taskList tr.animatedFarFast td.animatedFarFast');
     const $trs = $('#taskList tr');
 
-    $animatedFarFast.each(function (i) {
+    $animatedFarFast.each(function(i) {
       $(this)
         .animate(
           {
             height: '0px',
           },
-          300
+          300,
         )
         .delay((i + 1) * 30);
     });
 
-    $trs.each(function (i) {
+    $trs.each(function(i) {
       $(this).animate(
         {
           opacity: 1,
         },
-        300
+        300,
       );
     });
 
@@ -876,7 +879,7 @@ class TaskList extends Component {
         taskIDstr: taskIDs,
         classify: type,
       })
-      .then((source) => {
+      .then(source => {
         if (source.status) {
           if (listSort === 0) {
             this.afterUpdateClassify(taskIDs.split(','), type);
@@ -924,7 +927,7 @@ class TaskList extends Component {
   /**
    * 快速创建任务回调
    */
-  quickCreateTaskCallback = (result) => {
+  quickCreateTaskCallback = result => {
     alert(_l('创建成功'));
     const { lastMyProjectId, projectId, listSort, filterUserId } = this.props.taskConfig;
 
@@ -952,9 +955,9 @@ class TaskList extends Component {
         $tr
           .find('.taskListDate')
           .prepend(
-            '<i class="icon-task-card" tip="' +
+            '<i class="icon-task-card" data-tip="' +
               _l('子任务') +
-              '"></i><span class="subCounts"><span class="completedNum">0</span>/<span class="subCount">1</span></span> '
+              '"></i><span class="subCounts"><span class="completedNum">0</span>/<span class="subCount">1</span></span> ',
           );
       }
     }
@@ -996,7 +999,7 @@ class TaskList extends Component {
             _l('未关联项目') +
             '">' +
             _l('未关联项目') +
-            '</span> <span class="folderTaskCount">1</span> </div>'
+            '</span> <span class="folderTaskCount">1</span> </div>',
         );
         $('#taskList')
           .append($html)
@@ -1028,7 +1031,7 @@ class TaskList extends Component {
     const $newTopic = $el.find('.newTopic');
     const $newTaskTip = $el.find('.newTaskTip');
     // 处理小红点
-    const removeTipFun = function () {
+    const removeTipFun = function() {
       if ($el.data('isnotice')) {
         const $leftNewTip = $('#taskNavigator .myTask .newTip');
         if ($leftNewTip.length) {
@@ -1049,9 +1052,9 @@ class TaskList extends Component {
           width: '0px',
         },
         150,
-        function () {
+        function() {
           $(this).remove();
-        }
+        },
       );
 
       $el.find('.spanName').animate(
@@ -1059,9 +1062,9 @@ class TaskList extends Component {
           'border-left-width': '0px',
         },
         150,
-        function () {
+        function() {
           $(this).removeClass('newTaskTipName');
-        }
+        },
       );
     }
 
@@ -1071,7 +1074,7 @@ class TaskList extends Component {
         {
           'margin-top': '5px',
         },
-        150
+        150,
       );
       $newTopic.fadeOut(() => {
         $newTopic.remove();

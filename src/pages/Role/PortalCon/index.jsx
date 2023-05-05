@@ -14,6 +14,7 @@ import UserCon from './tabCon/UserCon';
 import RoleCon from './tabCon/RoleCon';
 import { navigateTo } from 'router/navigateTo';
 import _ from 'lodash';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 
 const Wrap = styled.div`
   width: 60%;
@@ -46,9 +47,9 @@ const conList = [
   {
     url: '/user',
     key: 'user',
-    txt: _l('用户'),
+    txt: _l('管理用户'),
   },
-  { url: '/roleSet', key: 'roleSet', txt: _l('角色权限') },
+  { url: '/roleSet', key: 'roleSet', txt: _l('编辑角色权限') },
   {
     url: '/statistics',
     key: 'statistics',
@@ -58,8 +59,10 @@ const conList = [
 class PortalCon extends React.Component {
   constructor(props) {
     super(props);
+    const { canEditApp, canEditUser } = props;
+    const tab = canEditUser ? 'user' : canEditApp ? 'roleSet' : '';
     this.state = {
-      tab: 'user',
+      tab: tab,
       showEditUrl: false,
       portalSet: {},
       baseSetResult: {},
@@ -78,35 +81,39 @@ class PortalCon extends React.Component {
   }
 
   componentWillReceiveProps(nextProps, nextState) {
+    const { canEditApp, canEditUser } = nextProps;
+    const tab = canEditUser ? 'user' : canEditApp ? 'roleSet' : '';
     if (!_.isEqual(this.props.portal.quickTag, nextProps.portal.quickTag) && !!nextProps.portal.quickTag.tab) {
       this.setState({
-        tab: nextProps.portal.quickTag.tab || 'user',
+        tab: nextProps.portal.quickTag.tab || tab,
       });
     }
     const listType = _.get(nextProps, ['match', 'params', 'listType']);
     if (listType === 'pending' && !_.isEqual(listType, _.get(this.props, ['match', 'params', 'listType']))) {
       this.setState({
-        tab: 'user',
+        tab: tab,
       });
     }
   }
 
   fetchPorBaseInfo = () => {
     const { portal = {}, appId, setBaseInfo } = this.props;
-    externalPortalAjax.getPortalSet({
-      appId,
-    }).then(portalSet => {
-      const { baseInfo = {} } = portal;
-      const { portalSetModel = {}, controlTemplate = {} } = portalSet;
-      const { baseSetResult = {} } = this.state;
-      const { isSendMsgs } = baseSetResult;
-      this.setState({
-        portalSet,
-        baseSetResult: portalSetModel,
-        version: controlTemplate.version,
+    externalPortalAjax
+      .getPortalSet({
+        appId,
+      })
+      .then(portalSet => {
+        const { baseInfo = {} } = portal;
+        const { portalSetModel = {}, controlTemplate = {} } = portalSet;
+        const { baseSetResult = {} } = this.state;
+        const { isSendMsgs } = baseSetResult;
+        this.setState({
+          portalSet,
+          baseSetResult: portalSetModel,
+          version: controlTemplate.version,
+        });
+        setBaseInfo({ ...baseInfo, appId, isSendMsgs });
       });
-      setBaseInfo({ ...baseInfo, appId, isSendMsgs });
-    });
   };
   renderCon = () => {
     const { tab, baseSetResult, version } = this.state;
@@ -131,13 +138,20 @@ class PortalCon extends React.Component {
     }
   };
   render() {
-    const { appDetail, appId, closePortal, getPortalRoleList, setQuickTag, setFastFilters } = this.props;
+    const { appDetail, appId, closePortal, isAdmin, canEditApp, canEditUser } = this.props;
     const { baseSetResult = {}, showEditUrl, portalSet, showPortalSetting, tab } = this.state;
+    let tablist = conList;
+    if (!canEditApp) {
+      tablist = tablist.filter(o => !['roleSet'].includes(o.key));
+    }
+    if (!canEditUser) {
+      tablist = tablist.filter(o => !['user', 'statistics'].includes(o.key));
+    }
     return (
       <WrapCon className="flexColumn overflowHidden">
         <WrapHeader className="">
           <div className="tabCon flex InlineBlock pLeft26">
-            {conList.map(o => {
+            {tablist.map(o => {
               return (
                 <span
                   className={cx('tab Hand Font14 Bold', { cur: this.state.tab === o.key })}
@@ -145,8 +159,6 @@ class PortalCon extends React.Component {
                     const listType = _.get(this.props, ['match', 'params', 'listType']);
                     listType === 'pending' && navigateTo(`/app/${appId}/role/external`);
                     this.props.handleChangePage(() => {
-                      setQuickTag();
-                      setFastFilters();
                       this.setState({
                         tab: o.key,
                       });
@@ -165,24 +177,30 @@ class PortalCon extends React.Component {
                 copyShowText
                 theme="light"
                 url={_.get(portalSet, ['portalSetModel', 'portalUrl'])}
-                editUrl={() => {
-                  this.setState({
-                    showEditUrl: true,
-                  });
-                }}
+                editUrl={
+                  canEditApp
+                    ? () => {
+                        this.setState({
+                          showEditUrl: true,
+                        });
+                      }
+                    : null
+                }
                 editTip={_l('自定义域名')}
                 copyTip={_l('可以将链接放在微信公众号的自定义菜单与自动回复内，方便微信用户关注公众号后随时打开此链接')}
               />
-              <span
-                className="setBtn Hand"
-                onClick={() =>
-                  this.setState({
-                    showPortalSetting: true,
-                  })
-                }
-              >
-                {_l('门户设置')}
-              </span>
+              {canEditApp && (
+                <span
+                  className="setBtn Hand"
+                  onClick={() =>
+                    this.setState({
+                      showPortalSetting: true,
+                    })
+                  }
+                >
+                  {_l('门户设置')}
+                </span>
+              )}
             </div>
           </Wrap>
         </WrapHeader>

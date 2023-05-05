@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   /**
   * 获取平台管理员列表
   * @param {Object} args 请求参数

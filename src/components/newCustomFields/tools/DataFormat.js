@@ -96,13 +96,13 @@ const parseStaticValue = (item, staticValue) => {
 
   // 关联表
   if (item.type === 29) {
-    staticValue = JSON.parse(staticValue)[0];
+    staticValue = safeParse(staticValue)[0];
     return JSON.stringify([
       {
         sourcevalue: staticValue,
         type: 8,
-        sid: JSON.parse(staticValue).rowid,
-        name: JSON.parse(staticValue).name,
+        sid: safeParse(staticValue).rowid,
+        name: safeParse(staticValue).name,
       },
     ]);
   }
@@ -110,7 +110,7 @@ const parseStaticValue = (item, staticValue) => {
   if (item.type === 34) {
     let parsedValue;
     try {
-      parsedValue = JSON.parse(staticValue);
+      parsedValue = safeParse(staticValue);
       return JSON.stringify(parsedValue.map(r => ({ ...r, initRowIsCreate: false })));
     } catch (err) {}
   }
@@ -120,7 +120,7 @@ const parseStaticValue = (item, staticValue) => {
 
 // 获取动态默认值
 export const getDynamicValue = (data, currentItem, masterData, embedData) => {
-  let value = JSON.parse(currentItem.advancedSetting.defsource).map(item => {
+  let value = safeParse(currentItem.advancedSetting.defsource).map(item => {
     if (item.isAsync) return '';
 
     // 关联他表字段
@@ -150,8 +150,8 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
           return getControlValue(masterData.formData, currentItem, item.cid);
         }
         const parentControl = _.find(data, c => c.controlId === item.rcid);
-        const control = JSON.parse(parentControl.value || '[]')[0];
-        const sourcevalue = control && JSON.parse(control.sourcevalue)[item.cid];
+        const control = safeParse(parentControl.value || '[]')[0];
+        const sourcevalue = control && safeParse(control.sourcevalue)[item.cid];
 
         if (_.includes([15, 16], currentItem.type) && _.includes(['ctime', 'utime'], item.cid)) {
           return (sourcevalue ? moment(sourcevalue) : moment()).format(
@@ -166,7 +166,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
         // 关联表
         if (_.includes([29, 35], currentItem.type)) {
           try {
-            return JSON.stringify(JSON.parse(sourcevalue).filter(r => r.sid));
+            return JSON.stringify(safeParse(sourcevalue).filter(r => r.sid));
           } catch (err) {
             return '';
           }
@@ -181,7 +181,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
             let cValue = 0;
             const { options } = _.find(parentControl.relationControls, o => o.controlId === item.cid);
 
-            JSON.parse(sourcevalue).forEach(key => {
+            safeParse(sourcevalue).forEach(key => {
               cValue += options.find(o => o.key === key).score;
             });
 
@@ -239,7 +239,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
             _.find(data, i => i.controlId === item.cid),
             'value',
           );
-          return JSON.parse(userValue || '[]')[0] || '';
+          return safeParse(userValue || '[]')[0] || '';
         }
         const obj = _.pick(_.get(md, ['global', 'Account']), ['accountId', 'fullname', 'avatarMiddle']);
         if (_.isEmpty(obj)) return '';
@@ -284,10 +284,10 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
     // 合并成新的一维数组
     value.forEach(obj => {
       if (typeof obj === 'string' && /[\{|\[]/.test(obj)) {
-        if (_.isArray(JSON.parse(obj))) {
-          source = source.concat(JSON.parse(obj));
+        if (_.isArray(safeParse(obj))) {
+          source = source.concat(safeParse(obj));
         } else {
-          source.push(JSON.parse(obj));
+          source.push(safeParse(obj));
         }
       } else {
         source.push(obj);
@@ -313,16 +313,16 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
 const getOtherWorksheetFieldValue = ({ data, dataSource, sourceControlId }) => {
   try {
     const parentControl = _.find(data, c => c.controlId === dataSource.slice(1, -1));
-    const record = JSON.parse(parentControl.value)[0];
+    const record = safeParse(parentControl.value)[0];
     const sourceControl = parentControl && _.find(parentControl.relationControls, c => c.controlId === sourceControlId);
     if (sourceControl && _.includes([29, 35], sourceControl.type)) {
-      const sourceControlValue = JSON.parse(record.sourcevalue)[sourceControlId];
-      const sourceControlValueRecord = JSON.parse(sourceControlValue)[0];
+      const sourceControlValue = safeParse(record.sourcevalue)[sourceControlId];
+      const sourceControlValueRecord = safeParse(sourceControlValue)[0];
       if (sourceControlValueRecord) {
         return sourceControlValueRecord.name;
       }
     } else {
-      return JSON.parse(record.sourcevalue)[sourceControlId];
+      return safeParse(record.sourcevalue)[sourceControlId];
     }
   } catch (err) {
     return '';
@@ -653,10 +653,10 @@ const getControlValue = (data, currentItem, controlId) => {
     _.includes([9, 10, 11], obj.type) &&
     (_.includes([6, 8, 28, 31], currentItem.type) || (currentItem.type === 38 && currentItem.enumDefault === 2))
   ) {
-    if (!JSON.parse(obj.value || '[]').length) return '';
+    if (!safeParse(obj.value || '[]').length) return '';
 
     let cValue = 0;
-    JSON.parse(obj.value || '[]').forEach(key => {
+    safeParse(obj.value || '[]').forEach(key => {
       // 新增的项默认0
       cValue += key.indexOf('add_') > -1 ? 0 : obj.options.find(o => o.key === key).score;
     });
@@ -675,16 +675,17 @@ export const checkRequired = item => {
     item.required &&
     ((item.type !== 6 ? !item.value : isNaN(parseFloat(item.value))) ||
       (_.isString(item.value) && !item.value.trim()) ||
-      (_.includes([9, 10, 11], item.type) && !JSON.parse(item.value).length) ||
+      (_.includes([9, 10, 11], item.type) && !safeParse(item.value).length) ||
       (item.type === 14 &&
-        ((_.isArray(JSON.parse(item.value)) && !JSON.parse(item.value).length) ||
-          (!_.isArray(JSON.parse(item.value)) &&
-            !JSON.parse(item.value).attachments.length &&
-            !JSON.parse(item.value).knowledgeAtts.length &&
-            !JSON.parse(item.value).attachmentData.length))) ||
+        ((_.isArray(safeParse(item.value)) && !safeParse(item.value).length) ||
+          (!_.isArray(safeParse(item.value)) &&
+            !safeParse(item.value).attachments.length &&
+            !safeParse(item.value).knowledgeAtts.length &&
+            !safeParse(item.value).attachmentData.length))) ||
       (_.includes([21, 26, 27, 29, 35, 48], item.type) &&
         _.isArray(safeParse(item.value)) &&
-        !JSON.parse(item.value).length) ||
+        !safeParse(item.value).length) ||
+      (item.type === 29 && typeof item.value === 'string' && item.value.startsWith('deleteRowIds')) ||
       (item.type === 34 && ((item.value.rows && !item.value.rows.length) || item.value === '0')) ||
       (item.type === 36 && item.value === '0'))
   ) {
@@ -750,9 +751,7 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
       if (item.type === 2) {
         if (item.advancedSetting && item.advancedSetting.regex) {
           errorType =
-            !value || new RegExp(JSON.parse(item.advancedSetting.regex).regex).test(value)
-              ? ''
-              : FORM_ERROR_TYPE.CUSTOM;
+            !value || new RegExp(safeParse(item.advancedSetting.regex).regex).test(value) ? '' : FORM_ERROR_TYPE.CUSTOM;
         }
         if (!errorType) {
           errorType = getRangeErrorType(item);
@@ -828,7 +827,7 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
       // 其他选项必填
       if (_.includes([9, 10, 11], item.type) && !ignoreRequired) {
         const hasOtherOption = _.find(item.options, i => i.key === 'other' && !i.isDeleted);
-        const selectOther = _.find(JSON.parse(item.value || '[]'), i => (i || '').includes('other'));
+        const selectOther = _.find(safeParse(item.value || '[]'), i => (i || '').includes('other'));
         if (hasOtherOption && _.get(item.advancedSetting, 'otherrequired') === '1' && selectOther && !item.isSubList) {
           if (selectOther === 'other' || !_.replace(selectOther, 'other:', '')) {
             errorType = FORM_ERROR_TYPE.OTHER_REQUIRED;
@@ -1315,7 +1314,7 @@ export default class DataFormat {
                   records = sourceSheetControl.data;
                 } else {
                   try {
-                    let parsedValue = JSON.parse(sourceSheetControl.value);
+                    let parsedValue = safeParse(sourceSheetControl.value);
                     if (_.isArray(parsedValue)) {
                       records = parsedValue;
                     }
@@ -1435,7 +1434,7 @@ export default class DataFormat {
             (item.type === 38 && item.sourceControlId.indexOf(controlId) > -1) ||
             (item.advancedSetting &&
               item.advancedSetting.defsource &&
-              JSON.parse(item.advancedSetting.defsource).filter(
+              safeParse(item.advancedSetting.defsource).filter(
                 obj => ((!obj.rcid && obj.cid === controlId) || (obj.rcid === controlId && obj.cid)) && !obj.isAsync,
               ).length) ||
             ((item.advancedSetting && _.get(safeParse(item.advancedSetting.defaultfunc), 'expression')) || '').indexOf(
@@ -1451,7 +1450,7 @@ export default class DataFormat {
             item =>
               item.advancedSetting &&
               item.advancedSetting.defsource &&
-              JSON.parse(item.advancedSetting.defsource).filter(
+              safeParse(item.advancedSetting.defsource).filter(
                 obj => ((!obj.rcid && obj.cid === controlId) || (obj.rcid === controlId && obj.cid)) && obj.isAsync,
               ).length,
           );
@@ -1714,11 +1713,11 @@ export default class DataFormat {
    * 获取当前关联记录数据
    */
   getCurrentRelateData({ controlId, dataSource: worksheetId, value }) {
-    const control = _.isArray(value) ? value[0] : JSON.parse(value || '[]')[0];
+    const control = _.isArray(value) ? value[0] : safeParse(value || '[]')[0];
     const { isGet, sid } = control || {};
     const hasRelate = _.find(this.data, ({ advancedSetting: { defsource } = {}, dataSource, type }) => {
       return (
-        (JSON.parse(defsource || '[]').some(i => controlId === i.rcid) ||
+        (safeParse(defsource || '[]').some(i => controlId === i.rcid) ||
           (type === 30 && dataSource.slice(1, -1) === controlId)) &&
         sid !== this.masterRecordRowId
       );
@@ -1750,7 +1749,7 @@ export default class DataFormat {
           if (result.resultCode === 7) return;
 
           const formatValue = JSON.stringify(
-            JSON.parse(value || '[]').map((i, index) =>
+            safeParse(value || '[]').map((i, index) =>
               index === 0 ? Object.assign(i, { sourcevalue: result.rowData, isGet: true }) : i,
             ),
           );

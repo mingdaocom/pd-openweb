@@ -22,7 +22,8 @@ import { getSuffix } from 'src/pages/PortalAccount/util';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
 import privateGuide from 'src/api/privateGuide';
 import Trigger from 'rc-trigger';
-import weixinCode from 'src/pages/privateDeployment/images/weixin.png';
+import weixinCode from 'src/pages/NewPrivateDeployment/images/weixin.png';
+import { compatibleWorksheetRoute } from 'src/pages/Portal/util.js';
 import _ from 'lodash';
 
 @preall
@@ -95,7 +96,7 @@ export default class App extends Component {
       let url = `${pathname}${search}${hash}`;
       //外部门户 worksheet老地址兼容处理
       if (md.global.Account.isPortal && url.startsWith('/worksheet/')) {
-        that.compatibleWorksheetRoute(
+        compatibleWorksheetRoute(
           url
             .split(/\/worksheet\/(.*)/)
             .filter(o => o)[0]
@@ -132,19 +133,6 @@ export default class App extends Component {
     if (nextProps.location !== this.props.location) {
       this.setState({ prevPath: this.props.location });
     }
-  }
-
-  compatibleWorksheetRoute(worksheetId, rowId) {
-    //工作表老路由id补齐
-    api.getAppSimpleInfo({ workSheetId: worksheetId }).then(({ appId, appSectionId, workSheetId }) => {
-      if (appId) {
-        if (getSuffix(location.href) !== md.global.Account.addressSuffix) {
-          navigateTo(`/app/${appId}/${workSheetId}/row/${rowId}`, true);
-        } else {
-          navigateTo(`/${md.global.Account.addressSuffix}/${workSheetId}/row/${rowId}`, true);
-        }
-      }
-    });
   }
 
   parseUrl(url) {
@@ -333,7 +321,6 @@ export default class App extends Component {
                 path="*"
                 render={({ location }) => {
                   if (
-                    location.pathname === '/form/edit' ||
                     /(\/upgrade\/choose|\/admin\/expansionservice|\/admin\/upgradeservice|\/upgrade\/upgrade|\/upgrade\/temp).*/.test(
                       location.pathname,
                     )

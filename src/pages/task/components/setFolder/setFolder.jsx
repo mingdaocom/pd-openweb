@@ -1,9 +1,9 @@
-﻿import React, { Component } from 'react';
+﻿import React, { Component, Fragment } from 'react';
 import DialogLayer from 'src/components/mdDialog/dialog';
 import './less/setFolder.less';
 import ajaxRequest from 'src/api/taskCenter';
 import RadioGroup from 'ming-ui/components/RadioGroup';
-import 'src/components/tooltip/tooltip';
+import { Tooltip } from 'antd';
 
 export default class SetFolder extends Component {
   constructor(props) {
@@ -26,32 +26,6 @@ export default class SetFolder extends Component {
           folderAuthVisible: source.data.folderAuthVisible,
         });
       });
-  }
-
-  componentDidMount() {
-    $('#setFolder_container').on(
-      {
-        mouseover() {
-          if ($(this).data('tip')) {
-            return false;
-          }
-          $(this).MD_UI_Tooltip({
-            text: _l(
-              '默认负责人和管理员可编辑看板；%0项目成员只能查看看板内容，创建任务，对看板没有编辑权限',
-              '<br />',
-            ),
-            arrowLeft: 190,
-            offsetLeft: -199,
-            offsetTop: -70,
-            location: 'up',
-            checkHeight: true,
-            width: 430,
-          });
-          $(this).data('tip', true).mouseenter();
-        },
-      },
-      '.msgTipJs',
-    );
   }
 
   /**
@@ -251,9 +225,20 @@ export default class SetFolder extends Component {
             <div className="Font13 mBottom20">
               <div className="mBottom10">
                 <span>{_l('1、项目看板的编辑权限')}</span>
-                <span className="msgTip msgTipJs">
-                  <i className="icon-task-folder-message" />
-                </span>
+                <Tooltip
+                  title={() => {
+                    return (
+                      <Fragment>
+                        <div>{_l('默认负责人和管理员可编辑看板；')}</div>
+                        <div>{_l('项目成员只能查看看板内容，创建任务，对看板没有编辑权限')}</div>
+                      </Fragment>
+                    );
+                  }}
+                >
+                  <span className="msgTip">
+                    <i className="icon-task-folder-message" />
+                  </span>
+                </Tooltip>
               </div>
               <RadioGroup {...stageAuthSetting} />
             </div>

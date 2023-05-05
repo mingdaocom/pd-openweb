@@ -19,7 +19,8 @@ const WorkSheetPortal = (props) => {
   const { sheetListActions } = props;
   const [editId, setEditId] = useState('');
   const [wrapWidth, setWrapWidth] = useState(0);
-  const data = isCharge && appPkg.viewHideNavi ? props.data : props.data.filter(item => item.status === 1 && !item.navigateHide);
+  const filterEmptyAppItem = isCharge ? item => true : item => !(item.type === 2 && _.isEmpty(item.items));
+  const data = isCharge && appPkg.viewHideNavi ? props.data : props.data.filter(item => item.status === 1 && !item.navigateHide).filter(filterEmptyAppItem);
   const ref = useRef(null);
 
   useEffect(() => {
@@ -78,7 +79,7 @@ const WorkSheetPortal = (props) => {
           onlyIconDrag={!item.notMore}
         >
           <div className={cx('flexRow alignItemsCenter mBottom20 groupHeader', `workSheetItem-${item.workSheetId}`, { editWrap: isEdit })}>
-            {!item.notMore && (
+            {isCharge && !item.notMore && (
               <Icon icon="drag" className="Gray_9e pointer Font16 dragIcon" />
             )}
             {isEdit ? (
@@ -99,7 +100,7 @@ const WorkSheetPortal = (props) => {
               <Fragment>
                 <div className="Font16 bold">{item.workSheetName}</div>
                 {item.status === 2 && (
-                  <Tooltip popupPlacement="bottom" text={<span>{_l('仅管理员可见')}</span>}>
+                  <Tooltip popupPlacement="bottom" text={<span>{_l('仅系统角色可见（包含管理员、运营者、开发者）')}</span>}>
                     <Icon className="Font16 mLeft10 pointer visibilityIcon" icon="visibility_off" style={{ color: '#ee6f09' }} />
                   </Tooltip>
                 )}

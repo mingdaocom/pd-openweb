@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon, Support, LoadDiv } from 'ming-ui';
 import { useSetState } from 'react-use';
-import { CardTopWrap } from '../containers/style';
+import { CardTopWrap } from '../apiIntegration/style';
 import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { TYPELIST } from 'src/pages/integration/config';
@@ -217,28 +217,6 @@ function ConnectAuth(props) {
         </div>
       </div>
     );
-  };
-  const getWebHookTestRequest = () => {
-    const { webHookNodes = [{}] } = node;
-    const { method, url, params, testMap, body, headers, formControls, contentType } = webHookNodes[0] || {};
-    flowNodeAjax.webHookTestRequest(
-      {
-        processId: props.id,
-        nodeId: node.id,
-        method,
-        url,
-        params: !params ? [] : JSON.parse(formatParameters(JSON.stringify(params.filter(item => item.name)), testMap)),
-        headers: !headers
-          ? []
-          : JSON.parse(formatParameters(JSON.stringify(headers.filter(item => item.name)), testMap)),
-        body: formatParameters(body, testMap),
-        formControls: formControls.filter(item => item.name),
-        contentType,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      console.log(res);
-    });
   };
   if (loading) {
     return <LoadDiv />;

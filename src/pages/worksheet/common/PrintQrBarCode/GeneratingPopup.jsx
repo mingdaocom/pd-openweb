@@ -22,6 +22,7 @@ const Header = styled.div`
   justify-content: space-between;
   box-shadow: 0px 1px 3px #00000029;
   z-index: 2;
+  align-items: center;
   .name {
     font-size: 17px;
     line-height: 50px;
@@ -37,6 +38,32 @@ const Header = styled.div`
     color: #444;
     &:hover {
       color: #222;
+    }
+  }
+`;
+
+const Pagination = styled.div`
+  display: flex;
+  font-size: 13px;
+  color #333;
+  align-items: center;
+  .info {
+    margin-right: 8px;
+  }
+  .switchBtn {
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-right: 8px;
+    &:not(.disabled):hover {
+      color: #2196F3;
+      background: #F5F5F5;
+    }
+    &.disabled {
+      cursor: not-allowed;
+      color: #BDBDBD;
     }
   }
 `;
@@ -67,7 +94,20 @@ const Embed = styled.div`
 `;
 
 export default function GeneratingPopup(props) {
-  const { name = _l('打印'), loading, embedUrl, onClose = () => {} } = props;
+  const {
+    name = _l('打印'),
+    loading,
+    embedUrl,
+    allowLoadMore,
+    pageIndex = 1,
+    pageSize = 200,
+    count = 0,
+    onPrev = () => {},
+    onNext = () => {},
+    onClose = () => {},
+  } = props;
+  const disabledPrev = loading || pageIndex <= 1;
+  const disabledNext = loading || pageIndex >= Math.ceil(count / pageSize);
   const embedRef = useRef();
   useEffect(() => {
     if (embedUrl) {
@@ -90,6 +130,30 @@ export default function GeneratingPopup(props) {
     <Con className="doNotTriggerClickAway" style={props.zIndex ? { zIndex: props.zIndex } : {}}>
       <Header>
         <span className="name ellipsis">{name}</span>
+        {allowLoadMore && (
+          <Pagination>
+            <span className="info">
+              {_l(
+                '第 %0-%1 个，共 %2 个',
+                (pageIndex - 1) * pageSize + 1,
+                pageIndex * pageSize > count ? count : pageIndex * pageSize,
+                count,
+              )}
+            </span>
+            <FlexCenter
+              className={`switchBtn prev ${disabledPrev ? 'disabled' : ''}`}
+              onClick={() => !disabledPrev && onPrev()}
+            >
+              <i className="icon icon-arrow-left-border"></i>
+            </FlexCenter>
+            <FlexCenter
+              className={`switchBtn next ${disabledNext ? 'disabled' : ''}`}
+              onClick={() => !disabledNext && onNext()}
+            >
+              <i className="icon icon-arrow-right-border"></i>
+            </FlexCenter>
+          </Pagination>
+        )}
         <i className="icon icon-close close" onClick={onClose}></i>
       </Header>
       <Body>

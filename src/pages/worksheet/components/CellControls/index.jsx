@@ -265,7 +265,7 @@ export default class CellControl extends React.Component {
     if (
       e.key === 'v' &&
       (e.metaKey || e.ctrlKey) &&
-      (!_.includes([2, 3, 4, 7, 5, 6, 8], cell.type) ||
+      (!_.includes([2, 4, 7, 5, 6, 8], cell.type) ||
         (cell.type === 6 && cell.advancedSetting && cell.advancedSetting.showtype === '2'))
     ) {
       this.handlePaste(cell);
@@ -294,7 +294,7 @@ export default class CellControl extends React.Component {
           }
         }
         if (
-          _.includes([26, 27, 36, 42], cell.type) ||
+          _.includes([26, 27, 29, 36, 42], cell.type) ||
           (cell.type === 6 && cell.advancedSetting && cell.advancedSetting.showtype === '2')
         ) {
           if (_.isFunction(_.get(this, 'cell.current.handleTableKeyDown'))) {
@@ -459,6 +459,7 @@ export default class CellControl extends React.Component {
       from,
       mode,
       rowHeight,
+      rowHeightEnum,
       popupContainer,
       projectId,
       canedit,
@@ -552,6 +553,8 @@ export default class CellControl extends React.Component {
       editable,
       recordId: row && row.rowid,
       rowHeight,
+      rowHeightEnum,
+      count: row && row[`rq${cell.controlId}`],
       singleLine,
       tableScrollTop,
       gridHeight,

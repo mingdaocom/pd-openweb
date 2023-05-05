@@ -6,13 +6,14 @@ import { APP_ROLE_TYPE } from '../../constants/enum';
 import homeApp from 'src/api/homeApp';
 import store from 'redux/configureStore';
 import './SheetMove.less';
+import { canEditApp } from 'worksheet/redux/actions/util';
 
 const formatApps = function (validProject, projectId) {
   const appList = [];
   const project = validProject.filter(item => item.projectId === projectId)[0];
   if (project && project.projectApps && project.projectApps.length) {
     project.projectApps.forEach(app => {
-      const isCharge = app.permissionType == APP_ROLE_TYPE.ADMIN_ROLE || app.permissionType == APP_ROLE_TYPE.POSSESS_ROLE;
+      const isCharge = canEditApp(app.permissionType, app.isLock);
       if (isCharge) {
         appList.push({
           text: app.name,
@@ -32,7 +33,7 @@ export default class SheetMove extends Component {
       appValue: '',
       grouping: [],
       groupingValue: '',
-      searchValue: ''
+      searchValue: '',
     };
   }
   componentDidMount() {
@@ -43,7 +44,7 @@ export default class SheetMove extends Component {
       const newAppList = formatApps(validProject, projectId);
       this.setState({
         appList: newAppList,
-        appValue: appId
+        appValue: appId,
       });
     });
     this.handleChangeApp(appId);
@@ -84,7 +85,12 @@ export default class SheetMove extends Component {
         <Button type="link" onClick={this.handleCancel.bind(this)}>
           {_l('取消')}
         </Button>
-        <Button type="primary" onClick={this.handleOk.bind(this)} disabled={!groupingValue} className={cx({ 'Button--disabled': !groupingValue })}>
+        <Button
+          type="primary"
+          onClick={this.handleOk.bind(this)}
+          disabled={!groupingValue}
+          className={cx({ 'Button--disabled': !groupingValue })}
+        >
           {_l('确认')}
         </Button>
       </div>
@@ -105,7 +111,10 @@ export default class SheetMove extends Component {
     return (
       <div
         key={id}
-        className={cx('groupingItem flexRow alignItemsCenter pointer', { active: groupingValue === id, pLeft30: isParent })}
+        className={cx('groupingItem flexRow alignItemsCenter pointer', {
+          active: groupingValue === id,
+          pLeft30: isParent,
+        })}
         onClick={() => {
           this.setState({ groupingValue: id });
         }}
@@ -114,7 +123,7 @@ export default class SheetMove extends Component {
           <Icon
             icon={subVisible === false ? 'arrow-right-tip' : 'arrow-down'}
             className="Gray_9e"
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               this.setState({
                 grouping: grouping.map(data => {
@@ -122,7 +131,7 @@ export default class SheetMove extends Component {
                     data.subVisible = !subVisible;
                   }
                   return data;
-                })
+                }),
               });
             }}
           />
@@ -138,7 +147,7 @@ export default class SheetMove extends Component {
   render() {
     const { appItem } = this.props;
     const { appList, appValue, grouping, groupingValue, searchValue } = this.state;
-    const { workSheetName, iconUrl, type }  = appItem;
+    const { workSheetName, iconUrl, type } = appItem;
     return (
       <Dialog
         className="SheetMove"
@@ -153,7 +162,9 @@ export default class SheetMove extends Component {
           {_l('将')}
           <div className="target flexRow alignItemsCenter">
             <SvgIcon url={iconUrl} fill="#757575" size={22} />
-            <span className="ellipsis mLeft5" title={workSheetName}>{workSheetName}</span>
+            <span className="ellipsis mLeft5" title={workSheetName}>
+              {workSheetName}
+            </span>
           </div>
           {_l('移动到')}
         </div>
@@ -161,7 +172,7 @@ export default class SheetMove extends Component {
           <span className="mBottom8">{_l('应用')}</span>
           <Dropdown
             isAppendToBody
-            placeholder={_l('请选择你作为管理员的应用')}
+            placeholder={_l('请选择你作为管理员或开发者的应用')}
             menuClass="sheetMoveApp"
             className={cx('flex', { empty: !appValue })}
             border
@@ -183,25 +194,26 @@ export default class SheetMove extends Component {
                 placeholder="搜索"
                 type="text"
                 value={searchValue}
-                onChange={(e) => {
+                onChange={e => {
                   this.setState({
-                    searchValue: e.target.value
+                    searchValue: e.target.value,
                   });
                 }}
               />
             </div>
             <ScrollView className="flex">
-              {type === 2 && this.renderGroupingItem({
-                appSectionId: appValue,
-                name: _.get(_.find(appList, { value: appValue }), 'text') || '',
-                subName: _l('(作为一级分组移动)')
-              })}
+              {type === 2 &&
+                this.renderGroupingItem({
+                  appSectionId: appValue,
+                  name: _.get(_.find(appList, { value: appValue }), 'text') || '',
+                  subName: _l('(作为一级分组移动)'),
+                })}
               {grouping.map(data => (
                 <Fragment>
                   {this.renderGroupingItem(data)}
-                  {type !== 2 && data.subVisible && data.workSheetInfo.filter(data => data.type == 2).map(data => (
-                    this.renderGroupingItem(data)
-                  ))}
+                  {type !== 2 &&
+                    data.subVisible &&
+                    data.workSheetInfo.filter(data => data.type == 2).map(data => this.renderGroupingItem(data))}
                 </Fragment>
               ))}
             </ScrollView>

@@ -270,6 +270,20 @@ export default {
      return $.api('WorkWeiXin', 'EditDDProjectClientWorkingPattern', args, options);
    },
   /**
+  * 编辑钉钉消息链接可配置打开方式
+1 侧边栏打开（默认），2 浏览器打开
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {integer} args.status 1代表开通；2代表关闭
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editDDMessagUrlPcSlide: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'EditDDMessagUrlPcSlide', args, options);
+   },
+  /**
   * 编辑钉钉消息是否进入待办任务
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id

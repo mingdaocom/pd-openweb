@@ -14,7 +14,7 @@ export default function WidgetDisplay(props) {
   const { prefix, suffix, hidetitle } = getAdvanceSetting(data);
   const { titlelayout_pc = '1', titlewidth_pc = '100', align_pc = '1' } = info;
 
-  // 分段字段
+  // 分割线字段
   const isSplitLine = type === 22;
   const isSpecialControl = includes([22, 10010], type);
   const isActive = data.controlId === (activeWidget || {}).controlId;
@@ -29,7 +29,7 @@ export default function WidgetDisplay(props) {
   const isInvalid = !isValid && !isActive;
   const controlName = isSpecialControl ? data.controlName : data.controlName || _l('字段名称');
   const showTitle = isSpecialControl ? hidetitle !== '1' && controlName : hidetitle !== '1';
-  // 左右布局(不支持 多条关联记录（列表）、子表、分段、备注)
+  // 左右布局(不支持 多条关联记录（列表）、子表、分割线、备注)
   const displayRow = titlelayout_pc === '2' && supportDisplayRow(data);
 
   const getTitleContent = () => {

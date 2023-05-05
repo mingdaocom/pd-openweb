@@ -3,19 +3,13 @@ import ReactDom from 'react-dom';
 import preall from 'src/common/preall';
 import { Input } from 'antd';
 import { LoadDiv, Button, Checkbox, RichText } from 'ming-ui';
-import captcha from 'src/components/captcha';
-import { encrypt, browserIsMobile, mdAppResponse } from 'src/util';
-import accountController from 'src/api/account';
+import { browserIsMobile, mdAppResponse, verifyPassword } from 'src/util';
 import cx from 'classnames';
 import './cancellation.less';
 import moment from 'moment';
 import privateDeclareAjax from 'src/api/privateDeclare';
 import accountAjax from 'src/api/account';
 
-const errorMsg = {
-  6: _l('密码错误'),
-  8: _l('验证码错误'),
-};
 const actionMsg = {
   0: _l('操作失败'),
   1: _l('操作成功'),
@@ -90,30 +84,11 @@ export default class Cancellation extends Component {
       alert(_l('请输入登录密码'), 3);
       return;
     }
-    let throttled = res => {
-      if (res.ret === 0) {
-        accountController
-          .checkAccount({
-            ticket: res.ticket,
-            randStr: res.randstr,
-            captchaType: md.staticglobal.getCaptchaType(),
-            password: encrypt(password.trim()),
-          })
-          .then(result => {
-            if (result === 1) {
-              this.setState({ step: 2 });
-              this.getCountDown();
-            } else {
-              alert(errorMsg[result] || _l('操作失败'), 2);
-            }
-          });
-      }
-    };
-    if (md.staticglobal.getCaptchaType() === 1) {
-      new captcha(throttled);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
-    }
+    const _this = this;
+    verifyPassword(password.trim(), () => {
+      _this.setState({ step: 2 });
+      _this.getCountDown();
+    });
   };
   renderInputPassword = () => {
     return (

@@ -119,6 +119,7 @@ export default class SpecificFieldsValue extends Component {
       numberFieldValue: _l('填写天数'),
       hourFieldValue: _l('填写小时数'),
       minuteFieldValue: _l('填写分钟数'),
+      secondFieldValue: _l('填写秒钟数'),
       number: '',
     };
 
@@ -159,6 +160,7 @@ export default class SpecificFieldsValue extends Component {
       case 'hourFieldValue':
         return Math.max(0, Math.min(value, 23));
       case 'minuteFieldValue':
+      case 'secondFieldValue':
         return Math.max(0, Math.min(value, 59));
       case 'number':
         return value;

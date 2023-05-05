@@ -1,3 +1,4 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 
 export const PERMISSION_WAYS = {
@@ -29,13 +30,6 @@ export const REJISTER_WAY = [
   { key: 'phone', txt: _l('手机') },
   { key: 'email', txt: _l('邮箱') },
 ];
-
-export const ROLE_TYPES = {
-  OWNER: 200,
-  ADMIN: 100,
-  MEMBER: 50,
-  READONLY: 10,
-};
 
 /**
  * propTypes
@@ -140,9 +134,8 @@ export const sheetActionList = [
   {
     key: 'worksheetBatchOperation',
     txt: _l('批量操作'),
-    tips: _l('批量操作是指工作表的批量勾选记录功能，开启后用户可以批量执行拥有权限的操作。')
+    tips: _l('批量操作是指工作表的批量勾选记录功能，开启后用户可以批量执行拥有权限的操作。'),
   },
-
 ];
 
 export const recordActionList = [
@@ -169,3 +162,58 @@ export const recordActionList = [
 ];
 
 export const USER_EXTEND_INFO_FEATURE_ID = 27;
+
+export const sysRoleType = [100, 1, 2];
+export const adminType = [100];
+
+export const sysRoleList = [
+  {
+    roleType: 100,
+    name: _l('管理员'),
+    des: _l('管理员可以配置应用，管理应用下所有数据和人员'),
+    info: () => {
+      return (
+        <div>
+          {_l('拥有所有权限')}
+          <span className="Gray_9e">（{_l('管理员为系统内置角色，不可修改')}）</span>
+        </div>
+      );
+    },
+  },
+  {
+    roleType: 2,
+    name: _l('运营者'),
+    des: _l('管理所有数据和普通角色下的成员，不可配置应用'),
+    info: () => {
+      return (
+        <div>
+          <div>{_l('运营者能管理普通角色下的成员，主要包含：')}</div>
+          <div>1、{_l('管理普通角色下的角色负责人')}</div>
+          <div>2、{_l('管理所有普通角色下的成员')}</div>
+          <div>3、{_l('可查看、编辑、删除所有记录')}</div>
+          <div>{_l('注：运营者不可复制、删除、导出应用')}</div>
+        </div>
+      );
+    },
+  },
+  {
+    roleType: 1,
+    name: _l('开发者'),
+    des: _l('开发者只能配置应用'),
+    info: () => {
+      return (
+        <div>
+          <div>{_l('开发者能配置应用，主要包含：')}</div>
+          <div>
+            1、
+            {_l(
+              '可配置应用导航/分组、工作流、工作表、自定义页面、用户角色新增/编辑/删除（包含外部门户角色）、外部门户设置（ 包含外部门户域名配置）',
+            )}
+          </div>
+          <div>2、{_l('工作表跨应用关联，被关联的工作表所属应用必须是应用“开发者”或“管理员”')}</div>
+          <div>3、{_l('可查看加入的，只能编辑、删除自己拥有的记录 注：开发者不可复制、删除、导出应用')}</div>
+        </div>
+      );
+    },
+  },
+];

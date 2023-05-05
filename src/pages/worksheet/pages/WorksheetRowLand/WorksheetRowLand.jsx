@@ -8,8 +8,8 @@ import { navigateTo } from 'src/router/navigateTo';
 import RecordInfoWrapper from '../../common/recordInfo/RecordInfoWrapper';
 import FixedContent from 'src/router/Application/FixedContent';
 import { connect } from 'react-redux';
-import { ADVANCE_AUTHORITY } from 'src/pages/PageHeader/AppPkgHeader/config';
 import './WorksheetRowLand.less';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 
 class WorksheetRowLand extends Component {
   constructor(props) {
@@ -73,8 +73,8 @@ class WorksheetRowLand extends Component {
   render() {
     const { loading, worksheetId, rowId, appId, viewId, loadingSwitchPermit } = this.state;
     const { appPkg } = this.props;
-    const { fixed, permissionType, appDisplay, webMobileDisplay, pcDisplay } = appPkg;
-    const isAuthorityApp = permissionType >= ADVANCE_AUTHORITY;
+    const { fixed, permissionType, pcDisplay } = appPkg;
+    const isAuthorityApp = canEditApp(permissionType);
     return (
       <div className="worksheetRowLand">
         {loading || loadingSwitchPermit ? (

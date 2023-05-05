@@ -11,6 +11,7 @@ import Embed from 'src/components/newCustomFields/widgets/Embed';
 import BarCode from 'src/components/newCustomFields/widgets/BarCode';
 import { getBarCodeValue } from 'src/components/newCustomFields/tools/utils';
 import { parseDataSource } from 'src/pages/widgetConfig/util/setting.js';
+import STYLE_PRINT from './components/exportWordPrintTemCssString';
 /*
   获取控件呈现内容
   sourceControlType: 他表字段type
@@ -44,10 +45,10 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         );
       }
       return (
-        <div>
-          <div className="InlineBlock mRight3">{value === '1' ? '☑' : '☐'}</div>
+        <React.Fragment>
+          <span style={{ fontSize: 10 }}>{value === '1' ? '☑ ' : '☐ '}</span>
           {item.hint}
-        </div>
+        </React.Fragment>
       );
     //☑和☐
     case 6:
@@ -93,12 +94,17 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
             return '';
           }
           return (
-            <div className="relaList">{item.isRelateMultipleSheet ? records[0].name : renderCellText(dataItem)}</div>
+            <span className="relaList">{item.isRelateMultipleSheet ? records[0].name : renderCellText(dataItem)}</span>
           );
         }
         //按文本形式 显示关联表标题字段（卡片，下拉）/数量（列表）
         if (item.isRelateMultipleSheet) {
-          return records.length <= 0 ? '' : renderCellText(dataItem);
+          if (records.length <= 0) return '';
+          if (dataItem.enumDefault === 2) {
+            let valueParse = safeParse(dataItem.value, []);
+            return Array.isArray(valueParse) ? valueParse.map(l => l.name || _l('未命名')).join('、') : valueParse;
+          }
+          return renderCellText(dataItem);
         }
         //关联表内除标题字段外的其他字段
         let showControlsList = [];
@@ -115,19 +121,18 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         //平铺的关联表多条显示除了附件外的前三个
         showControlsList = showControlsList.filter(o => o.type !== 14).splice(0, 3);
         // 1 卡片 显示关联表名称
-        return (
-          <div className="relaList">
-            {_.isArray(records) &&
-              records.map((da, i) => {
+        return _.isArray(records) && records.length > 0 ? (
+          <table className="relaList" style={STYLE_PRINT.table} border="0" cellPadding="0" cellSpacing="0">
+            <tbody>
+              {records.map((da, i) => {
                 let data = JSON.parse(da.sourcevalue || '[]');
                 let coverCid = coverCidData.length > 0 ? coverCidData[0].controlId || '' : '';
                 let cover = coverCid ? JSON.parse(data[coverCid] || '[]') : [];
                 let coverData = cover.length > 0 ? cover[0] : '';
                 let list = (item.relationControls || []).find(o => o.attribute === 1) || [];
                 return (
-                  <div className={cx('list', { borderTop: i >= 1 })}>
-                    <div className="listText">
-                      {/* 关联表卡片标题显示 */}
+                  <tr>
+                    <td className="listTextDiv">
                       {list.type === 38
                         ? renderCellText(item.controls.find(it => it.attribute === 1))
                         : renderCellText({
@@ -140,16 +145,6 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                           }) || _l('未命名')}
                       {showControlsList.map(it => {
                         if (it.type === 41 || it.type === 22) {
-                          //富文本|分段
-                          //   let location;
-                          //   try {
-                          //     location = JSON.parse(data[it.controlId]);
-                          //   } catch (err) {
-                          //     return <div>{it.controlName} :</div>;
-                          //   }
-                          //   if (location.indexOf('<img ') >= 0) {
-                          //     return <div>{it.controlName} :</div>;
-                          //   }
                           return '';
                         }
                         // 若设置不显示无内容字段=>计算内容
@@ -178,28 +173,36 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                           </div>
                         );
                       })}
-                    </div>
+                    </td>
                     {coverData && coverData.previewUrl && (
-                      <img
-                        className="cover thumbnail"
-                        role="presentation"
-                        src={
-                          File.isPicture(coverData.ext)
-                            ? coverData.previewUrl.indexOf('imageView2') > -1
-                              ? coverData.previewUrl.replace(
-                                  /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                                  'imageView2/1/w/76/h/76/q/90',
-                                )
-                              : `${coverData.previewUrl}&imageView2/1/w/76/h/76/q/90`
-                            : coverData.previewUrl
-                        }
-                      />
+                      <td width="100px">
+                        <img
+                          style={{
+                            width: 100,
+                            height: 100,
+                            verticalAlign: 'middle',
+                          }}
+                          className="cover thumbnail"
+                          role="presentation"
+                          src={
+                            File.isPicture(coverData.ext)
+                              ? coverData.previewUrl.indexOf('imageView2') > -1
+                                ? coverData.previewUrl.replace(
+                                    /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+                                    'imageView2/1/w/76/h/76/q/90',
+                                  )
+                                : `${coverData.previewUrl}&imageView2/1/w/76/h/76/q/90`
+                              : coverData.previewUrl
+                          }
+                        />
+                      </td>
                     )}
-                  </div>
+                  </tr>
                 );
               })}
-          </div>
-        );
+            </tbody>
+          </table>
+        ) : null;
       } else {
         // 关联表列表 显示表数量
         return value;
@@ -279,35 +282,102 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
   }
   const pictureAttachments = attachments.filter(attachment => File.isPicture(attachment.ext));
   const otherAttachments = attachments.filter(attachment => !File.isPicture(attachment.ext));
+
   return (
-    <div className={cx('recordAttachments', { isMultiple: isRelateMultipleSheet })}>
-      {!!pictureAttachments.length && (
-        <div className={cx('recordAttachmentPictures', { bottomNoLine: !otherAttachments.length })}>
-          {[
-            ...new Array(
-              isRelateMultipleSheet ? pictureAttachments.length : Math.ceil(pictureAttachments.length / 2) * 2,
-            ),
-          ].map((a, index) => (
-            <div className="pictureAttachment">
-              {pictureAttachments[index] && (
-                <div className="imgCon">
-                  <img
-                    src={
-                      pictureAttachments[index].previewUrl.indexOf('imageView2') > -1
-                        ? pictureAttachments[index].previewUrl.replace(
-                            /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                            'imageView2/2/w/1200/q/90',
-                          )
-                        : `${pictureAttachments[index].previewUrl}&imageView2/2/w/1200/q/90`
-                    }
-                    alt=""
-                  />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+    <React.Fragment>
+      {!!pictureAttachments.length &&
+        (isRelateMultipleSheet ? (
+          <div className={cx('recordAttachmentPictures', { bottomNoLine: !otherAttachments.length })}>
+            {[
+              ...new Array(
+                isRelateMultipleSheet ? pictureAttachments.length : Math.ceil(pictureAttachments.length / 2) * 2,
+              ),
+            ].map((a, index) => (
+              <div>
+                {pictureAttachments[index] && (
+                  <div
+                    className="imgCon"
+                    style={{
+                      textAlign: 'center',
+                      marginTop: index === 0 ? 0 : 5,
+                    }}
+                  >
+                    <img
+                      className="relationAttachmentPictures"
+                      onLoad={e => {
+                        let width = e.target.width;
+                        let height = e.target.height;
+                        if (width > height) {
+                          $(e.target).attr({
+                            width: width,
+                          });
+                        } else {
+                          $(e.target).attr({
+                            height: height,
+                          });
+                        }
+                      }}
+                      style={{
+                        maxWidth: 140,
+                        maxHeight: 158,
+                      }}
+                      src={
+                        pictureAttachments[index].previewUrl.indexOf('imageView2') > -1
+                          ? pictureAttachments[index].previewUrl.replace(
+                              /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+                              'imageView2/2/w/1200/q/90',
+                            )
+                          : `${pictureAttachments[index].previewUrl}&imageView2/2/w/1200/q/90`
+                      }
+                      alt=""
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <table
+            style={{
+              ...STYLE_PRINT.table,
+            }}
+            className={cx('recordAttachments', { isMultiple: isRelateMultipleSheet })}
+          >
+            <tbody
+              style={{
+                marginTop: -4,
+                overflow: 'hidden',
+                marginBottom: !otherAttachments.length ? -9 : 0,
+                width: '100%',
+              }}
+            >
+              {[...new Array(Math.ceil(pictureAttachments.length / 2))].map((a, index) => (
+                <tr>
+                  {[0, 1].map(i => (
+                    <td width="50%" style={{ textAlign: 'center', border: 'none' }}>
+                      {pictureAttachments[index * 2 + i] && (
+                        <img
+                          style={{
+                            border: 'none',
+                            height: 158,
+                          }}
+                          src={
+                            pictureAttachments[index * 2 + i].previewUrl.indexOf('imageView2') > -1
+                              ? pictureAttachments[index * 2 + i].previewUrl.replace(
+                                  /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+                                  'imageView2/2/w/1200/q/90',
+                                )
+                              : `${pictureAttachments[index * 2 + i].previewUrl}&imageView2/2/w/1200/q/90`
+                          }
+                        />
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ))}
       {isRelateMultipleSheet ? (
         <div className="recordAttachmentPictures">
           {otherAttachments.map(item => (
@@ -317,13 +387,11 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
           ))}
         </div>
       ) : (
-        <div className="otherAttachments mTop4">
-          <div className="pictureAttachment">
-            {otherAttachments.map(item => item.originalFilename + item.ext).join(', ')}
-          </div>
-        </div>
+        <p style={{ ...STYLE_PRINT.tag, marginTop: 4, marginBottom: 0 }}>
+          {otherAttachments.map(item => item.originalFilename + item.ext).join(', ')}
+        </p>
       )}
-    </div>
+    </React.Fragment>
   );
 };
 

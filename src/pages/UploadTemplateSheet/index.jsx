@@ -8,7 +8,9 @@ import _ from 'lodash';
 import { FILTER_SYS, APPROVAL_SYS } from 'src/pages/Print/config';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
 
-let controlNo = [22, 10010, 43, 45, 47]; //分段、备注、OCR、嵌入字段,条码/
+// let controlNo = [22, 10010, 43, 45, 47]; //分割线、备注、OCR、嵌入字段,条码/
+let controlNo = [22, 10010, 43, 45]; //分割线、备注、OCR、嵌入字段/
+const qrcodeField = ['sharelink', 'privatelink', 'recordid'];
 export default class UploadTemplateSheet extends React.Component {
   constructor(props) {
     super(props);
@@ -38,10 +40,28 @@ export default class UploadTemplateSheet extends React.Component {
           controlName: _l('最近修改时间'),
           type: 16,
         },
+        // {
+        //   controlId: 'qrCode',
+        //   controlName: _l('二维码'),
+        //   type: 16,
+        // },
         {
-          controlId: 'qrCode',
-          controlName: _l('二维码'),
+          controlId: 'sharelink',
+          controlName: _l('二维码（公开分享链接）'),
           type: 16,
+          size: '20*20',
+        },
+        {
+          controlId: 'privatelink',
+          controlName: _l('二维码（内部访问链接）'),
+          type: 16,
+          size: '20*20',
+        },
+        {
+          controlId: 'recordid',
+          controlName: _l('条形码（记录ID）'),
+          type: 16,
+          size: '40*10',
         },
       ],
       cardControls: [],
@@ -141,7 +161,6 @@ export default class UploadTemplateSheet extends React.Component {
         // 关联表、子表字段
         cardControls,
         downLoadUrl: res.downLoadUrl,
-
         approvalList: (approval.find(l => l.groupId === worksheetId) || { processList: [] }).processList.map(l => {
           return { ...l, expandControls: false };
         }),
@@ -200,6 +219,24 @@ export default class UploadTemplateSheet extends React.Component {
     );
   };
 
+  strQrcodeField = (it, alias = false) => {
+    const { controls } = this.state;
+    const { enumDefault, dataSource } = it;
+    let ISBN = 'ISBN号';
+    if (it.enumDefault2 === 1) {
+      ISBN = 'privatelink';
+    } else if (alias) {
+      ISBN = it.dataSource.slice(1, -1);
+    } else {
+      let control = controls.find(l => l.controlId === it.dataSource.slice(1, -1));
+      control && (ISBN = control.controlName);
+    }
+
+    return `[${enumDefault === 1 ? 'barcode' : 'qrcode'}]${dataSource === '$rowid$' ? 'recordid' : ISBN}${
+      enumDefault === 1 ? '$[40*10]$' : '$[20*20]$'
+    }`;
+  };
+
   renderItem = it => {
     const that = this;
 
@@ -244,14 +281,24 @@ export default class UploadTemplateSheet extends React.Component {
 
           {/** 点击复制图标 */}
           <span className="copySpan">
-            {`#{${it.controlName}${it.type === 29 ? '[S]' : ''}${this.strForFile(it)}}`}
+            {`#{${
+              qrcodeField.indexOf(it.controlId) > -1
+                ? `[${it.controlId === 'recordid' ? 'barcode' : 'qrcode'}]${it.controlId}`
+                : it.type === 47
+                ? this.strQrcodeField(it)
+                : it.controlName
+            }${it.type === 29 ? '[S]' : ''}${this.strForFile(it)}}`}
             {this.renderIcon()}
           </span>
 
           {/** 点击复制二维码图标 */}
           <span className="copySpan">
-            {`#{${it.alias || it.controlId}${it.type === 29 ? '[S]' : ''}${this.strForFile(it)}}`}
-            {it.controlId !== 'qrCode' && this.renderIcon()}
+            {`#{${
+              qrcodeField.indexOf(it.controlId) > -1 ? (it.controlId === 'recordid' ? '[barcode]' : '[qrcode]') : ''
+            }${it.type === 47 ? this.strQrcodeField(it, true) : it.alias || it.controlId}${
+              it.type === 29 ? '[S]' : ''
+            }${this.strForFile(it)}}`}
+            {[qrcodeField].indexOf(it.controlId) < 0 && this.renderIcon()}
           </span>
         </div>
 
@@ -269,7 +316,7 @@ export default class UploadTemplateSheet extends React.Component {
               // 过滤掉关联字段列表类型
               const isRealtionList =
                 control.type === 29 && control.advancedSetting && control.advancedSetting.showtype === '2';
-              // 是否为子表。分段。备注
+              // 是否为子表。分割线。备注
               const isNotSupport = [21, 34].concat(controlNo).includes(control.type);
               return isRealtionList || isNotSupport ? '' : this.renderRelaItem(it, control, true);
             })}
@@ -312,7 +359,7 @@ export default class UploadTemplateSheet extends React.Component {
                 // 过滤掉关联字段列表类型
                 const isRealtionList = type == 29 && advancedSetting && advancedSetting.showtype === '2';
 
-                // 是否为子表、分段、备注
+                // 是否为子表、分割线、备注
                 const isNotSupport = [21, 34].concat(controlNo).includes(type);
                 return !isRealtionList && !isNotSupport ? this.renderRelaItem(it, o, true) : '';
               })}
@@ -328,6 +375,9 @@ export default class UploadTemplateSheet extends React.Component {
    */
   strForFile = data => {
     let o = data.type === 30 ? { ...data, type: !data.sourceControlType ? data.type : data.sourceControlType } : data;
+    if (qrcodeField.indexOf(o.controlId) > -1) {
+      return o.size ? `$[${o.size}]$` : '';
+    }
     return o.type === 42 || o.type === 14 || o.controlId === 'qrCode'
       ? `$[${o.type === 42 ? '48*20' : o.type === 14 ? '90*auto' : '20*20'}]$`
       : '';
@@ -478,7 +528,7 @@ export default class UploadTemplateSheet extends React.Component {
                         // 过滤掉关联字段列表类型
                         const isRealtionList = type == 29 && advancedSetting && advancedSetting.showtype === '2';
 
-                        // 是否为子表。分段。备注
+                        // 是否为子表。分割线。备注
                         const isNotSupport = controlNo.includes(type) || type == 34;
                         return !isRealtionList && !isNotSupport ? this.renderRelaItem(it, o, false) : '';
                       })}
@@ -549,7 +599,7 @@ export default class UploadTemplateSheet extends React.Component {
                   <div className="list">
                     <span className="textIndent">{`${l.name}`}</span>
                     <span className="copySpan">
-                      {`#{${_l('[审批]')}${item.name}.${l.name}}`}
+                      {`#{${_l('[审批]')}${item.name}.${l.name}${l.key === 'signature' ? '$[48*20]$' : ''}}`}
                       {this.renderIcon()}
                     </span>
                     <span className="copySpan">
@@ -647,7 +697,7 @@ export default class UploadTemplateSheet extends React.Component {
             <p className="Gray_75">
               <span>
                 {_l(
-                  '7. 打印的二维码默认所有人可扫码查看，若需控制仅限应用内部成员查看，可将二维码字段代码设置为“#{二维码$[20*20]$_Private}”，用户扫码后需登录并且根据权限才能访问。',
+                  '7.可通过代码 #{[qrcode]字段名$[20*20]$} 或 #{[barcode]字段名$[40*10]$} 获取任意字段的二维码 或 条形码。二维码编码方式：QR-code，最大包含150个字（支持汉字）；条形码编码方式：code128，最大包含30个字符（仅支持数字、字母、符号）。',
                 )}
               </span>
             </p>

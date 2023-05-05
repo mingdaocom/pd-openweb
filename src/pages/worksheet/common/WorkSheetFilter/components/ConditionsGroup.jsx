@@ -192,7 +192,7 @@ export default function ConditionsGroup(props) {
                   disabled={!canEdit}
                   defaultValue={conditionSpliceType}
                   isAppendToBody
-                  menuStyle={{ width: 46 }}
+                  menuStyle={{ width: 'auto' }}
                   data={[
                     { text: _l('且'), value: FILTER_RELATION_TYPE.AND },
                     { text: _l('或'), value: FILTER_RELATION_TYPE.OR },

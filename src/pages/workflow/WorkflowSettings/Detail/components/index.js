@@ -30,4 +30,5 @@ export { default as TestParameter } from './TestParameter';
 export { default as TimeSelect } from './TimeSelect';
 export { default as TriggerCondition } from './TriggerCondition';
 export { default as UpdateFields } from './UpdateFields';
+export { default as UserRange } from './UserRange';
 export { default as WriteFields } from './WriteFields';

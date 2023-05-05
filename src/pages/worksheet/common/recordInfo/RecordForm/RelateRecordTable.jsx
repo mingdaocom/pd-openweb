@@ -38,7 +38,11 @@ function tableReducer(state, action) {
     }
   }
   state.lastAction = action.type;
+  state.changed = action.type !== 'RESET_CHANGED';
   switch (action.type) {
+    case 'UPDATE_VERSION':
+      updateVersion();
+      return state;
     case 'UPDATE_RECORDS':
       updateVersion();
       return update(state, { records: { $set: action.records } });
@@ -82,6 +86,11 @@ function tableReducer(state, action) {
 
 function createTableActions(dispatch) {
   return {
+    updateVersion: () => {
+      dispatch({
+        type: 'UPDATE_VERSION',
+      });
+    },
     updateRecords: (records, noUpdate) => {
       dispatch({
         type: 'UPDATE_RECORDS',
@@ -196,7 +205,7 @@ export default function RelateRecordTable(props) {
   const searchRef = useRef();
   const conRef = useRef();
   const worksheetTableRef = useRef();
-  const [{ records = [], count, tableVersion, lastAction }, dispatch] = useReducer(tableReducer, {
+  const [{ records = [], count, tableVersion, changed, lastAction }, dispatch] = useReducer(tableReducer, {
     records: [],
     count: _.isNumber(Number(control.value)) ? Number(control.value) : 0,
   });
@@ -220,6 +229,7 @@ export default function RelateRecordTable(props) {
   const [refreshFlag, setRefreshFlag] = useState();
   const [highlightRows, setHighlightRows] = useState({});
   const [disableMaskDataControls, setDisableMaskDataControls] = useState({});
+  const [defaultScrollLeft, setDefaultScrollLeft] = useState(0);
   const isNewRecord = !recordId;
   const relateNum = useRef();
   relateNum.current = control.value;
@@ -258,9 +268,7 @@ export default function RelateRecordTable(props) {
           .filter(c => c && controlState(c).visible);
         setWorksheetOfControl(worksheetInfo);
         setTableControls(newTableControls);
-        tableActions.updateRecords(
-          relateRecordData[control.controlId] ? relateRecordData[control.controlId].value : [],
-        );
+        tableActions.updateVersion();
         setLoading(false);
         return;
       }
@@ -372,13 +380,15 @@ export default function RelateRecordTable(props) {
     }
   }
   useEffect(() => {
-    tableActions.updateRecords(relateRecordData[control.controlId] ? relateRecordData[control.controlId].value : []);
-  }, [relateRecordData[control.controlId]]);
-  useEffect(() => {
     if (isNewRecord || from === RECORD_INFO_FROM.DRAFT) {
       loadRows({ showHideTip: true });
     }
+    setFixedColumnCount(Number(control.advancedSetting.fixedcolumncount || 0));
+    setDefaultScrollLeft(0);
   }, [control.controlId]);
+  useEffect(() => {
+    tableActions.updateRecords(relateRecordData[control.controlId] ? relateRecordData[control.controlId].value : []);
+  }, [relateRecordData[control.controlId]]);
   useEffect(() => {
     if (!isNewRecord) {
       setTableControls([]);
@@ -387,6 +397,7 @@ export default function RelateRecordTable(props) {
       setKeywords('');
       setKeywordsForSearch('');
       setSortControl();
+      dispatch({ type: 'RESET_CHANGED' });
     }
     loadSheetSwitchPermition();
     loadSheetSearchConfig();
@@ -395,11 +406,13 @@ export default function RelateRecordTable(props) {
     if (!isNewRecord) {
       setLoading(true);
       loadRows({ showHideTip: true });
-      if (_.isNumber(Number(control.value)) && !_.isNaN(Number(control.value))) {
-        tableActions.updateCount(Number(control.value));
-      }
     }
   }, [recordId, control.controlId, pageIndex, sortControl, keywordsForSearch, refreshFlag]);
+  useEffect(() => {
+    if (_.isNumber(Number(control.value)) && !_.isNaN(Number(control.value))) {
+      tableActions.updateCount(Number(control.value));
+    }
+  }, [control.value]);
   useEffect(() => {
     try {
       setTimeout(() => {
@@ -435,13 +448,20 @@ export default function RelateRecordTable(props) {
   }, []);
   useEffect(() => {
     if (_.includes(['ADD_RECORDS', 'DELETE_RECORDS', 'UPDATE_RECORD', 'UPDATE_COUNT'], lastAction)) {
-      if (isNewRecord || from === RECORD_INFO_FROM.DRAFT) {
+      if (isNewRecord) {
         onRelateRecordsChange(records);
       }
     }
   }, [records, lastAction]);
+
   useEffect(() => {
-    if (!isNewRecord) {
+    if (from === RECORD_INFO_FROM.DRAFT) {
+      onRelateRecordsChange(records);
+    }
+  }, [records]);
+
+  useEffect(() => {
+    if (!isNewRecord && changed) {
       setRelateNumOfControl(count);
     }
   }, [count]);
@@ -483,7 +503,17 @@ export default function RelateRecordTable(props) {
     sid: recordId,
     type: 8,
     sourcevalue: JSON.stringify({
-      ..._.assign(...formdata.map(c => ({ [c.controlId]: c.value }))),
+      ..._.assign(
+        ...formdata.map(c => ({
+          [c.controlId]:
+            c.type === 29 && _.isObject(c.value) && c.value.records
+              ? JSON.stringify(
+                  // 子表使用双向关联字段作为默认值 RELATERECORD_OBJECT
+                  c.value.records.map(r => ({ sid: r.rowid, sourcevalue: JSON.stringify(r) })),
+                )
+              : c.value,
+        })),
+      ),
       [titleControl.controlId]: titleControl.value,
       rowid: recordId,
     }),
@@ -496,7 +526,10 @@ export default function RelateRecordTable(props) {
       defaultRelatedSheetValue.name = '';
     }
   }
-  const rowCount = records.length > 3 ? records.length : 3;
+  let rowCount = records.length > 3 ? records.length : 3;
+  if (!isNewRecord && rowCount > PAGE_SIZE) {
+    rowCount = PAGE_SIZE;
+  }
   const numberWidth = String(isNewRecord ? records.length * 10 : pageIndex * PAGE_SIZE).length * 8;
   let rowHeadWidth = (numberWidth > 24 ? numberWidth : 24) + 32;
   function handleUpdateCell({ cell, cells, updateRecordId }, options = {}) {
@@ -522,6 +555,7 @@ export default function RelateRecordTable(props) {
         loading={tableLoading}
         fromModule={WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD}
         fixedColumnCount={fixedColumnCount}
+        defaultScrollLeft={defaultScrollLeft}
         rowCount={rowCount}
         allowlink={allowlink}
         viewId={control.viewId}
@@ -641,6 +675,14 @@ export default function RelateRecordTable(props) {
                         isAsc: newIsAsc,
                       },
                 );
+                try {
+                  const scrollX = worksheetTableRef.current.con.querySelector(`.sheetViewTable .scroll-x`);
+                  if (scrollX) {
+                    setDefaultScrollLeft(scrollX.scrollLeft);
+                  }
+                } catch (err) {
+                  console.error(err);
+                }
               }}
               hideColumn={controlId => {
                 setLayoutChanged(true);
@@ -903,7 +945,7 @@ export default function RelateRecordTable(props) {
             from={2}
             visible
             appId={worksheetOfControl.appId}
-            viewId={control.viewId}
+            viewId={_.get(control, 'advancedSetting.openview') || control.viewId}
             recordId={activeRecord && activeRecord.id}
             activeRelateTableControlId={activeRecord && activeRecord.activeRelateTableControlIdOfRecord}
             worksheetId={worksheetOfControl.worksheetId}

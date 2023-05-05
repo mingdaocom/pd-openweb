@@ -110,6 +110,7 @@ class ChildTable extends React.Component {
               this.newRow(r, {
                 isDefaultValue: true,
                 isCreate: _.isUndefined(r.initRowIsCreate) ? initRowIsCreate : r.initRowIsCreate,
+                isQueryWorksheetFill: true,
               }),
             ),
           );
@@ -299,7 +300,15 @@ class ChildTable extends React.Component {
                     JSON.stringify({
                       rowid: recordId,
                       ...[{}, ...masterData.formData.filter(c => c.type !== 34)].reduce((a = {}, b = {}) =>
-                        Object.assign(a, { [b.controlId]: b.value }),
+                        Object.assign(a, {
+                          [b.controlId]:
+                            b.type === 29 && _.isObject(b.value) && b.value.records
+                              ? JSON.stringify(
+                                  // 子表使用双向关联字段作为默认值 RELATERECORD_OBJECT
+                                  b.value.records.map(r => ({ sid: r.rowid, sourcevalue: JSON.stringify(r) })),
+                                )
+                              : b.value,
+                        }),
                       ),
                     }),
                   ]),
@@ -402,9 +411,6 @@ class ChildTable extends React.Component {
   rowUpdate({ row, controlId, value, rowId } = {}, { isCreate = false, isQueryWorksheetFill = false } = {}) {
     const { masterData, projectId, recordId, searchConfig, rules = [] } = this.props;
     const asyncUpdateCell = (cid, newValue) => {
-      if (isQueryWorksheetFill && row[cid]) {
-        return;
-      }
       this.handleUpdateCell(
         {
           control: this.getControl(cid),

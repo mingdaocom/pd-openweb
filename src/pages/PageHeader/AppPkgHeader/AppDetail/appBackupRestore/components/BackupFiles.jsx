@@ -8,10 +8,10 @@ import CreateAppBackupDialog from '../CreateAppBackupDialog';
 import HomeApiController from 'api/homeApp';
 import appManagementAjax from 'src/api/appManagement';
 import styled from 'styled-components';
-import { downloadFile } from 'src/util';
+import { downloadFile, getCurrentProject } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
-
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 const EmptyStatusWrap = styled.div`
   width: 100%;
   height: 100%;
@@ -48,7 +48,18 @@ const EmptyStatusWrap = styled.div`
   }
 `;
 export default function BackupFiles(props) {
-  const { fixed, appId, projectId, getList = () => {}, pageIndex, isMore, currentValid, validLimit, appName } = props;
+  const {
+    fixed,
+    appId,
+    projectId,
+    getList = () => {},
+    pageIndex,
+    isMore,
+    currentValid,
+    validLimit,
+    appName,
+    permissionType,
+  } = props;
   const [actCurrentFileInfo, setActCurrentFileInfo] = useState({});
   const [restoreAppVisible, setRestoreAppVisible] = useState(false);
   const [appDetail, setAppDetail] = useState({});
@@ -111,7 +122,7 @@ export default function BackupFiles(props) {
   const downloadBackup = item => {
     window.open(
       downloadFile(
-        `${md.global.Config.AjaxApiUrl}Download/DownloadBackupFile?id=${item.id}&projectId=${projectId}&appId=${appId}`
+        `${md.global.Config.AjaxApiUrl}Download/DownloadBackupFile?id=${item.id}&projectId=${projectId}&appId=${appId}`,
       ),
     );
   };
@@ -156,6 +167,9 @@ export default function BackupFiles(props) {
     });
     setFileList(temp);
   };
+
+  const canCreateApp = !Object.assign({ cannotCreateApp: true }, getCurrentProject(projectId)).cannotCreateApp
+
   return (
     <Fragment>
       {_.isEmpty(fileList) ? (
@@ -194,14 +208,21 @@ export default function BackupFiles(props) {
                           <Icon icon="update" className="mRight13" />
                           <span>{_l('还原应用')}</span>
                         </Menu.Item>
-                        <Menu.Item onClick={() => restoreNewApp(item)}>
-                          <Icon icon="update" className="mRight13" />
-                          <span>{_l('还原为新应用')}</span>
-                        </Menu.Item>
-                        <Menu.Item onClick={() => downloadBackup(item)}>
-                          <Icon icon="file_download" className="mRight13" />
-                          <span>{_l('下载备份')}</span>
-                        </Menu.Item>
+                        {/* 备份文件列表中，开发者无“下载备份和还原为新应用”权限 */}
+                        {permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE && (
+                          <React.Fragment>
+                            {canCreateApp && (
+                              <Menu.Item onClick={() => restoreNewApp(item)}>
+                                <Icon icon="update" className="mRight13" />
+                                <span>{_l('还原为新应用')}</span>
+                              </Menu.Item>
+                            )}
+                            <Menu.Item onClick={() => downloadBackup(item)}>
+                              <Icon icon="file_download" className="mRight13" />
+                              <span>{_l('下载备份')}</span>
+                            </Menu.Item>
+                          </React.Fragment>
+                        )}
                         <Menu.Item onClick={() => deleteBackup(item)}>
                           <Icon icon="delete2" className="mRight13" />
                           <span>{_l('删除备份')}</span>

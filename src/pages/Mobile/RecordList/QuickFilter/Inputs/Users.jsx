@@ -63,7 +63,16 @@ export default function Users(props) {
     controlId,
     worksheetId,
   } = props;
+  const { shownullitem, nullitemname, navshow, navfilters = '[]' } = advancedSetting;
   const [showSelectUser, setShowSelectUser] = useState(false);
+  const staticAccounts = safeParse(navfilters)
+    .map(safeParse)
+    .map(v => ({
+      accountId: v.id,
+      fullname: v.name,
+      avatar: v.avatar,
+    }));
+
   const pickUser = () => {
     setShowSelectUser(true);
   };
@@ -104,8 +113,24 @@ export default function Users(props) {
           appId={appId || ''}
           selectRangeOptions={!!_.get(control, 'advancedSetting.userrange')}
           onlyOne={!isMultiple}
+          advancedSetting={advancedSetting}
           onClose={() => setShowSelectUser(false)}
           onSave={onSave}
+          staticAccounts={
+            shownullitem === '1'
+              ? [
+                  {
+                    avatar:
+                      md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+                      '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
+                    fullname: nullitemname || _l('为空'),
+                    accountId: 'isEmpty',
+                  },
+                ].concat(staticAccounts)
+              : navshow === '2'
+              ? staticAccounts
+              : []
+          }
         />
       )}
     </div>

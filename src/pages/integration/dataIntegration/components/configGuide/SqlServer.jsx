@@ -10,7 +10,7 @@ export default function SqlServerGuide(props) {
       <ul>
         <li>
           {_l('支持 SQL Server 的版本')}
-          <li>{_l('Change Tracking读取模式支持2008、2012、2014版本的单实例非只读数据库。')}</li>
+          <li>{_l('2012, 2014, 2016, 2017, 2019')}</li>
         </li>
         <li>{_l('在 SQL Server 数据库上启用CDC')}</li>
         <li>{_l('SQL Server代理任务是启动状态')}</li>

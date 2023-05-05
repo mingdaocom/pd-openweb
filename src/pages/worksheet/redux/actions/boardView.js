@@ -1,4 +1,5 @@
 import sheetAjax from 'src/api/worksheet';
+import { formatQuickFilter } from 'worksheet/util';
 import { getCurrentView, getBoardItemKey } from '../util';
 import { getParaIds } from './util';
 import update from 'immutability-helper';
@@ -66,7 +67,7 @@ export function updateBoardViewRecord(data) {
 }
 
 const getBoardViewPara = (sheet = {}, view) => {
-  const { base, controls } = sheet;
+  const { base, controls, navGroupFilters = [], quickFilter = [] } = sheet;
   const { viewId, appId, chartId, type } = base;
   view = view || getCurrentView(sheet);
   const { worksheetId, viewControl, advancedSetting } = view;
@@ -87,7 +88,9 @@ const getBoardViewPara = (sheet = {}, view) => {
     reportId: chartId || undefined,
     kanbanSize: 20,
     kanbanIndex: 1,
+    navGroupFilters,
     ...sheet.filters,
+    fastFilters: formatQuickFilter(quickFilter),
   };
   if (relationWorksheetId) {
     para = { ...para, relationWorksheetId, kanbanSize: advancedSetting && advancedSetting.navshow === '1' ? 50 : 20 };

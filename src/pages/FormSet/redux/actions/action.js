@@ -21,7 +21,8 @@ export function getWorksheetInfo(worksheetId) {
         getSwitchPermit: true,
       })
       .then(data => {
-        if (data.roleType !== 2) {
+        //0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者
+        if (![2, 4].includes(data.roleType)) {
           dispatch({
             type: 'NORIGHT',
           });

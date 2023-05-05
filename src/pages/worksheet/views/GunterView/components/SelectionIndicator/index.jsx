@@ -46,8 +46,8 @@ export default class SelectionIndicator extends React.Component {
   componentDidMount() {
     const { chartScroll, groupingScroll, base } = this.props;
     this.gunterViewEl = document.querySelector(`.gunterView-${base.viewId}`);
-    this.gunterViewEl.addEventListener('mousemove', this.handleMouseMove);
-    this.gunterViewEl.addEventListener('mouseleave', this.handleMouseLeave);
+    this.gunterViewEl && this.gunterViewEl.addEventListener('mousemove', this.handleMouseMove);
+    this.gunterViewEl && this.gunterViewEl.addEventListener('mouseleave', this.handleMouseLeave);
     this.appEl = document.querySelector('#app');
     this.appEl.addEventListener('click', this.handleClick);
     chartScroll.on('scrollStart', this.handleMouseLeave);
@@ -55,8 +55,8 @@ export default class SelectionIndicator extends React.Component {
   }
   componentWillUnmount() {
     const { chartScroll, groupingScroll } = this.props;
-    this.gunterViewEl.removeEventListener('mousemove', this.handleMouseMove);
-    this.gunterViewEl.removeEventListener('mouseleave', this.handleMouseLeave);
+    this.gunterViewEl && this.gunterViewEl.removeEventListener('mousemove', this.handleMouseMove);
+    this.gunterViewEl && this.gunterViewEl.removeEventListener('mouseleave', this.handleMouseLeave);
     this.appEl.removeEventListener('click', this.handleClick);
     chartScroll.off('scrollStart', this.handleMouseLeave);
     groupingScroll && groupingScroll.off('scrollStart', this.handleMouseLeave);

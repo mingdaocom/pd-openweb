@@ -52,8 +52,3 @@ export const getAppStatusText = ({ isGoodsStatus, isNew, fixed }) => {
   return null;
 };
 
-export const isCanEdit = (type, isLock) => {
-  if (type === 300) return true;
-  if (!isLock && type >= 100) return true;
-  return false;
-};

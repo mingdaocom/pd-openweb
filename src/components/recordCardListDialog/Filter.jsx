@@ -106,7 +106,7 @@ export default function Header(props) {
           onClickAwayExceptions={['.ant-cascader-menus', '.ant-tree-select-dropdown']}
           onClickAway={() => setPopupVisible(false)}
         >
-          <Popup>
+          <Popup onClick={e => e.stopPropagation()}>
             <Conditions
               from="selectRecordDialog"
               className="selectRecordConditions"

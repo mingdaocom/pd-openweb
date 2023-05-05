@@ -121,6 +121,13 @@
           background: #fff;
         }
       }
+      &.active {
+        background: #f8f8f8;
+        .listBtn {
+          visibility: visible;
+          color: #2196f3 !important;
+        }
+      }
       .flexRow {
         align-items: center;
       }
@@ -234,6 +241,26 @@
       }
       &-approval {
         background-position: -650px 0;
+      }
+    }
+  }
+  .workflowListMenu {
+    a {
+      display: block;
+      color: #333 !important;
+    }
+    .ming.MenuItem {
+      .Item-content {
+        font-size: 14px;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        &:hover {
+          background: #f8f8f8 !important;
+          color: #333 !important;
+        }
+        > span {
+          display: block;
+        }
       }
     }
   }

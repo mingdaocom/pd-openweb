@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { Dialog } from 'ming-ui';
 import { Input } from 'antd';
-import AccountController from 'src/api/account';
-import { encrypt } from 'src/util';
+import { verifyPassword } from 'src/util';
 import styled from 'styled-components';
 import captcha from 'src/components/captcha';
 import appManagementAjax from 'src/api/appManagement.js';
@@ -52,11 +51,6 @@ const Footer = styled.div`
 `;
 
 const PasswordValidateCon = styled.div``;
-const errorMsg = {
-  6: _l('密码不正确'),
-  8: _l('验证码错误'),
-};
-
 export default class PasswordValidate extends Component {
   constructor(props) {
     super(props);
@@ -79,46 +73,26 @@ export default class PasswordValidate extends Component {
     let { password } = this.state;
     if (!password) return;
     let _this = this;
-    let throttled = function (res) {
-      if (res.ret !== 0) {
-        return;
-      }
-      AccountController.checkAccount({
-        ticket: res.ticket,
-        randStr: res.randstr,
-        captchaType: md.staticglobal.getCaptchaType(),
-        password: encrypt(password),
-      }).then(res => {
-        if (res === 1) {
-          _this.props.setShowInputPassword(false);
-          let params = {
-            projectId,
-            appId,
-            id: actCurrentFileInfo.id,
-            autoEndMaintain: isEndFixed,
-            backupCurrentVersion: isBackupCurrentVersion,
-            isRestoreNew: false,
-          };
+    verifyPassword(password, () => {
+      _this.props.setShowInputPassword(false);
+      let params = {
+        projectId,
+        appId,
+        id: actCurrentFileInfo.id,
+        autoEndMaintain: isEndFixed,
+        backupCurrentVersion: isBackupCurrentVersion,
+        isRestoreNew: false,
+      };
 
-          appManagementAjax.restore(params).then(res => {
-            if (res) {
-              getBackupCount();
-              getList(1);
-              setIsEndFixed(false);
-              setIsBackupCurrentVersion(false);
-            }
-          });
-        } else {
-          alert(errorMsg[res] || _l('操作失败'), 2);
+      appManagementAjax.restore(params).then(res => {
+        if (res) {
+          getBackupCount();
+          getList(1);
+          setIsEndFixed(false);
+          setIsBackupCurrentVersion(false);
         }
       });
-    };
-
-    if (md.staticglobal.getCaptchaType() === 1) {
-      new captcha(throttled);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
-    }
+    });
   };
 
   inputPassword = e => {

@@ -12,6 +12,7 @@ import externalPortalAjax from 'src/api/externalPortal';
 import ReviewFree from 'src/pages/Role/PortalCon/components/ReviewFree';
 import { pageSize, renderText } from '../util';
 import noVerifyAjax from 'src/api/noVerify';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 
 const Wrap = styled.div`
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
@@ -88,6 +89,7 @@ function PendingReview(props) {
     setSortControls,
     handleChangeSort,
     setTelFilters,
+    appDetail,
   } = props;
   const { roleList = [], controls = [], unApproveCount, pageIndex, keyWords, filters = [], telFilters } = portal;
   const [show, setShow] = useState(false);
@@ -219,13 +221,15 @@ function PendingReview(props) {
 
   //拒绝
   const editAppApplyStatus = rowIds => {
-    externalPortalAjax.refusePassExAccount({
-      appId,
-      rowIds: rowIds,
-    }).then(res => {
-      getCount(appId); //重新获取总计数
-      fetch();
-    });
+    externalPortalAjax
+      .refusePassExAccount({
+        appId,
+        rowIds: rowIds,
+      })
+      .then(res => {
+        getCount(appId); //重新获取总计数
+        fetch();
+      });
   };
 
   const rejectDialog = rowIds => {
@@ -336,18 +340,20 @@ function PendingReview(props) {
           setChangeRoleDialog={setShowPassDrop}
           changeRoleDialog={showPassDrop}
           onOk={roleId => {
-            externalPortalAjax.auditPassExAccountToNewRole({
-              appId,
-              roleId,
-              rowIds: selectedIds,
-            }).then(res => {
-              if (res.success) {
-                fetch();
-                getCount(appId); //重新获取总计数
-              } else {
-                alert(_l('操作失败,请稍后再试'), 3);
-              }
-            });
+            externalPortalAjax
+              .auditPassExAccountToNewRole({
+                appId,
+                roleId,
+                rowIds: selectedIds,
+              })
+              .then(res => {
+                if (res.success) {
+                  fetch();
+                  getCount(appId); //重新获取总计数
+                } else {
+                  alert(_l('操作失败,请稍后再试'), 3);
+                }
+              });
           }}
         />
       )}
@@ -356,6 +362,7 @@ function PendingReview(props) {
           onChangePortalVersion={onChangePortalVersion}
           data={data}
           show={show}
+          canChooseOtherApp={true}
           setData={setData}
           getInfo={() => {
             getInfo();

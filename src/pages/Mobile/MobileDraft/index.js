@@ -130,7 +130,7 @@ function MobileDraftList(props) {
         }}
       >
         <div className="flexRow valignWrapper mBottom5">
-          <div className="Gray Blod Font16 ellipsis">{titleText}</div>
+          <div className="Gray Blod Font14 ellipsis">{titleText}</div>
         </div>
         {showControls.map(control => {
           return (
@@ -240,7 +240,7 @@ function MobileDraftList(props) {
 }
 
 export default function MobileDraft(props) {
-  const { appId, controls = [], worksheetInfo, showDraft, sheetSwitchPermit } = props;
+  const { appId, controls = [], worksheetInfo,  sheetSwitchPermit } = props;
   const [visible, setVisible] = useState(false);
   const [draftData, setDraftData] = useState([]);
 
@@ -279,7 +279,6 @@ export default function MobileDraft(props) {
         controls={controls}
         draftData={draftData}
         worksheetInfo={worksheetInfo}
-        showDraft={showDraft}
         getDraftData={getDraftData}
         onCancel={() => setVisible(false)}
         sheetSwitchPermit={sheetSwitchPermit}

@@ -77,7 +77,7 @@ function NewRecord(props) {
         )}
       </span>
       <div className="flex" />
-      {advancedSetting.draftVisible && (
+      {advancedSetting.closedrafts !== '1' && (
         <button
           type="button"
           className="ming Button--medium Button saveAndContinueBtn ellipsis mRight12"

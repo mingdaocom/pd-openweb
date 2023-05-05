@@ -4,6 +4,7 @@
 
   .memberListCon {
     background-color: #F5F5F5;
+    overflow: auto;
     .moreAction {
       text-align: right;
       margin-right: -5px;
@@ -11,18 +12,14 @@
     .pendingApply {
       font-weight: 500;
     }
-    .cardBorder {
-      box-sizing: border-box;
-
-      .myRole {
-        background: #1e88e5;
-        color: #fff;
-        line-height: 24px;
-        display: inline-block;
-        padding: 0 12px;
-        border-radius: 12px;
-        font-size: 11px;
-      }
+    .isMyRole {
+      width: 4px;
+      height: 10px;
+      background: #2196f3;
+      border-radius: 2px;
+      position: absolute;
+      left: 4px;
+      top: 23px;
     }
 
     .iconBG {
@@ -36,6 +33,11 @@
       display: inline-block;
       margin-left: -10px;
       vertical-align: top;
+    }
+    .roleTypeTitle {
+      font-size: 14px;
+      color: #757575;
+      padding: 24px 0 5px 14px;
     }
   }
   

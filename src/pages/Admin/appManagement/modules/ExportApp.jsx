@@ -1,11 +1,23 @@
 import React, { Fragment } from 'react';
 import './index.less';
 import AppSettings from './AppSettings';
-import { Checkbox, Tooltip, Support, Dialog } from 'ming-ui';
+import { Checkbox, Tooltip, Support, Dialog, Icon } from 'ming-ui';
 import ClipboardButton from 'react-clipboard.js';
 import ajaxRequest from 'src/api/appManagement';
 import { getRandomString } from 'src/util';
+import RegExp from 'src/util/expression';
 import cx from 'classnames';
+
+const configs = [
+  { key: 'importKey', checkFiled: 'isNeed', checkName: _l('导入时需要密码'), password: 'password' },
+  {
+    key: 'appKey',
+    checkFiled: 'locked',
+    checkName: _l('开启应用锁'),
+    password: 'lockPassword',
+    description: _l('开启应用锁后，应用导入后将不能查看、修改应用的配置。用户验证密码后将会解锁其在应用下的操作权限。'),
+  },
+];
 
 export default class ExportApp extends React.Component {
   constructor(props) {
@@ -13,9 +25,12 @@ export default class ExportApp extends React.Component {
     this.state = {
       isNeed: false, //导入是否需要密码
       password: '',
+      locked: false, // 是否开启应用锁
+      lockPassword: '',
       exportList: [], //导出列表
       relation: false, //是否有关联关系
       token: '',
+      errors: {},
     };
   }
 
@@ -39,13 +54,16 @@ export default class ExportApp extends React.Component {
 
   //立即导出
   handleExportApp() {
-    const { disabledExportBtn = false } = this.state;
+    const { disabledExportBtn = false, lockPassword, locked, errors = {} } = this.state;
+    if (Object.keys(errors).length) return;
     if (disabledExportBtn) return;
     const { list = [] } = this.settings.state;
     const params = {
       token: this.state.token,
       accountId: md.global.Account.accountId,
       password: this.state.password,
+      locked,
+      lockPassword,
       appConfig: list.map(item => {
         const { entities = [] } = item;
         const sheetConfig = entities.map(entity => {
@@ -68,56 +86,108 @@ export default class ExportApp extends React.Component {
     });
   }
 
+  // 密码校验
+  checkedPassword = (checkFiled, password) => {
+    let reason;
+    let copyErrors = { ...this.state.errors };
+
+    if (!password) {
+      reason = _l('请输入字母或数字');
+    } else if (password.length < 8 || password.length > 20) {
+      reason = _l('请输入8-20个字');
+    } else if (!RegExp.isPasswordRule(password, /^[0-9A-Za-z]{8,20}$/)) {
+      reason = _l('请输入字母数字');
+    }
+    if (!reason) {
+      delete copyErrors[checkFiled];
+    }
+    let errors = reason ? { ...copyErrors, [checkFiled]: reason } : copyErrors;
+
+    return errors;
+  };
+
   //密码设置
   renderPassword() {
-    const { isNeed, password } = this.state;
-    return (
-      <Fragment>
-        <div className="flexRow TxtMiddle mTop50">
-          <Checkbox
-            checked={isNeed}
-            onClick={checked => {
-              this.setState({
-                isNeed: !checked,
-                password: !checked
-                  ? getRandomString(16, '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz!@#$%&*')
-                  : '',
-              });
-            }}
-            className="TxtMiddle mRight13"
-          >
-            <span>{_l('导入时需要密码')}</span>
-          </Checkbox>
-        </div>
-        {isNeed && (
-          <Fragment>
+    const { errors = {} } = this.state;
+    return configs.map((it, index) => {
+      const { checkName, checkFiled, password, description, key } = it;
+      const canEdit = this.state[`${key}Edit`];
+      const inputExtra = canEdit ? {} : { readonly: 'readonly' };
+      return (
+        <Fragment key={key}>
+          <div className={cx('flexRow TxtMiddle alignItemsCenter', { mTop50: index === 0, mTop30: index !== 0 })}>
+            <Checkbox
+              checked={this.state[checkFiled]}
+              onClick={checked => {
+                this.setState({
+                  [checkFiled]: !checked,
+                  [password]: !checked
+                    ? getRandomString(16, '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz')
+                    : '',
+                });
+              }}
+              className="TxtMiddle mRight13"
+            >
+              <span>{checkName}</span>
+            </Checkbox>
+            {description && (
+              <Tooltip
+                text={<span>{description}</span>}
+                popupAlign={{
+                  points: ['bl', 'tl'],
+                  offset: [-5, 0],
+                  overflow: { adjustX: true, adjustY: true },
+                }}
+              >
+                <Icon icon="workflow_help" className="Gray_9e" />
+              </Tooltip>
+            )}
+          </div>
+          {this.state[checkFiled] && (
             <div className="passwordInputBox">
-              <input
-                type="text"
-                className="inputBox"
-                value={password}
-                readonly="readonly"
-                ref={input => (this.input = input)}
-                onFocus={() => this.input.select()}
-              />
-              <Tooltip offset={[5, 0]} text={<span>{_l('复制密码')}</span>} popupPlacement="top">
-                <div>
-                  <ClipboardButton
-                    className="adminHoverColor Hand Gray_9e"
-                    component="span"
-                    data-clipboard-text={password}
-                    onSuccess={() => alert(_l('复制成功'))}
-                  >
-                    <span className="icon-content-copy mLeft15" />
-                  </ClipboardButton>
-                </div>
+              <div className="flexColumn">
+                <input
+                  type="text"
+                  className={cx('inputBox', { editInput: canEdit })}
+                  value={this.state[password]}
+                  ref={input => (this[`${key}Input`] = input)}
+                  onChange={e => this.setState({ [password]: e.target.value })}
+                  onBlur={e => {
+                    this.setState({
+                      [`${key}Edit`]: false,
+                      errors: this.checkedPassword(checkFiled, e.target.value),
+                    });
+                  }}
+                  {...inputExtra}
+                />
+                {errors[checkFiled] && <div className="error">{errors[checkFiled]}</div>}
+              </div>
+              <Tooltip text={<span>{_l('编辑')}</span>} popupPlacement="bottom">
+                <span
+                  className="icon-edit Gray_9e Hand LineHeight36"
+                  onClick={() => {
+                    this.setState({
+                      [`${key}Edit`]: true,
+                    });
+                    this[`${key}Input`] && this[`${key}Input`].focus();
+                  }}
+                ></span>
+              </Tooltip>
+              <Tooltip offset={[5, 0]} text={<span>{_l('复制')}</span>} popupPlacement="bottom">
+                <ClipboardButton
+                  className="adminHoverColor Hand Gray_9e"
+                  component="span"
+                  data-clipboard-text={this.state[password]}
+                  onSuccess={() => alert(_l('复制成功'))}
+                >
+                  <span className="icon-content-copy mLeft15 Hand" />
+                </ClipboardButton>
               </Tooltip>
             </div>
-            <div className="mTop10 Gray_75">{_l('请保存密码，或导出后在导出记录中查看')}</div>
-          </Fragment>
-        )}
-      </Fragment>
-    );
+          )}
+        </Fragment>
+      );
+    });
   }
 
   // 选择导出数量
@@ -183,6 +253,9 @@ export default class ExportApp extends React.Component {
           {this.renderAppSettingContent()}
           {this.renderPassword()}
           <div className="mTop32 mBottom20 clearfix selectAppOptionBtns">
+            {(this.state.isNeed || this.state.locked) && (
+              <div className="LineHeight36 Gray_75 Left">{_l('请保存密码，或导出后在导出记录中查看')}</div>
+            )}
             <button
               type="button"
               className={cx('ming Button Right Button--primary nextBtn Bold', {

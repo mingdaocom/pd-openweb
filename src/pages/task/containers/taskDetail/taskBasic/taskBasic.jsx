@@ -18,7 +18,6 @@ import { checkIsProject } from '../../../utils/utils';
 import UserHead from 'src/pages/feed/components/userHead';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
-import 'src/components/tooltip/tooltip';
 import s from '@mdfe/selectize';
 import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
@@ -39,6 +38,7 @@ import {
   updateTaskStageId,
   updateTaskSummary,
 } from '../../../redux/actions';
+import { Tooltip } from 'antd';
 
 let selectizeLib;
 const FROM_TYPE = {
@@ -72,30 +72,10 @@ class TaskBasic extends Component {
   }
 
   componentDidMount() {
-    const that = this;
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
 
     this.bindTags(data.tags, taskId);
-
-    $('.detailFolder').on('mouseover', '.taskDeatilFolderName', function () {
-      const _this = $(this);
-      if (_this.data('bindtip')) {
-        return;
-      }
-      _this.MD_UI_Tooltip({
-        text: _l(
-          '所属组织：%0',
-          (that.props.taskDetails[that.props.taskId] || { data: {} }).data.projectName || _l('个人'),
-        ),
-        arrowLeft: 0, // tip箭头的左位移，可以负数
-        offsetLeft: -8, // tip的左位移，可以负数
-        offsetTop: 0, // tip的上位移，可以负数
-        location: 'down', // tip在上面还是下面 选项："up","down"
-        width: 200, // tip的宽度
-      });
-      _this.data('bindtip', true).mouseenter();
-    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -122,7 +102,6 @@ class TaskBasic extends Component {
         attachmentData: [],
         kcAttachmentData: [],
       });
-      $('.detailFolder .taskDeatilFolderName').data('bindtip', false);
     }
 
     if (nextProps.addTags) {
@@ -186,12 +165,19 @@ class TaskBasic extends Component {
           </Fragment>
         ) : (
           <Fragment>
-            <div
-              className="taskDeatilFolderName pointer ThemeColor3 overflow_ellipsis"
-              onClick={() => this.openFolder(data.folderID, data.folderCanLook)}
+            <Tooltip
+              title={_l(
+                '所属组织：%0',
+                (this.props.taskDetails[this.props.taskId] || { data: {} }).data.projectName || _l('个人'),
+              )}
             >
-              {htmlDecodeReg(data.folderName)}
-            </div>
+              <div
+                className="taskDeatilFolderName pointer ThemeColor3 overflow_ellipsis"
+                onClick={() => this.openFolder(data.folderID, data.folderCanLook)}
+              >
+                {htmlDecodeReg(data.folderName)}
+              </div>
+            </Tooltip>
             <div className="taskDeatilFolderStage">
               <Dropdown
                 className={cx('mLeft15', { ThemeBGColor3: hasAuth && !data.parentID })}
@@ -347,7 +333,7 @@ class TaskBasic extends Component {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
 
-    evt.on('click', '.updateTaskCharge', function () {
+    evt.on('click', '.updateTaskCharge', function() {
       dialogSelectUser({
         sourceId: taskId,
         title: _l('选择负责人'),
@@ -563,7 +549,7 @@ class TaskBasic extends Component {
       ChooseInviteSettings: {
         callback(users, callbackInviteResult) {
           if (!callbackInviteResult) {
-            callbackInviteResult = function () {};
+            callbackInviteResult = function() {};
           }
           callback(users, callbackInviteResult);
         },

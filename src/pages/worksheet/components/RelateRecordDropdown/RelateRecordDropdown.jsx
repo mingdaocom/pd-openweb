@@ -13,6 +13,7 @@ import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import AutoWidthInput from './AutoWidthInput';
 import './style.less';
 import _ from 'lodash';
+import { checkIsTextControl } from 'worksheet/util';
 
 const OnlyScanTip = styled.div`
   width: 310px;
@@ -35,8 +36,11 @@ const OnlyScanTip = styled.div`
 const PlaceHolder = styled.div`
   position: absolute;
   left: 10px;
-  top: 8px;
+  top: 50%;
+  margin-top: -6px;
   color: #bdbdbd;
+  line-height: 1em;
+  width: calc(100% - 10px);
 `;
 
 const MAX_COUNT = 50;
@@ -56,6 +60,8 @@ export default class RelateRecordDropdown extends React.Component {
     selectedClassName: PropTypes.string,
     selectedStyle: PropTypes.shape({}),
     popupContainer: PropTypes.func,
+    prefixRecords: PropTypes.arrayOf(PropTypes.shape({})),
+    staticRecords: PropTypes.arrayOf(PropTypes.shape({})),
     onChange: PropTypes.func,
     onClick: PropTypes.func,
     onVisibleChange: PropTypes.func,
@@ -77,6 +83,8 @@ export default class RelateRecordDropdown extends React.Component {
       selected: props.selected || [],
       keywords: '',
       activeIndex: undefined,
+      deletedIds: [],
+      addedIds: [],
     };
     this.initSearchControl(props);
   }
@@ -103,6 +111,9 @@ export default class RelateRecordDropdown extends React.Component {
       this.setState({
         selected: nextProps.selected,
       });
+    }
+    if (nextProps.flag !== this.props.flag) {
+      this.setState({ addedIds: [], deletedIds: [] });
     }
   }
 
@@ -205,7 +216,7 @@ export default class RelateRecordDropdown extends React.Component {
   @autobind
   handleAdd(record, cb = () => {}) {
     const { multiple } = this.props;
-    const { selected } = this.state;
+    const { selected, addedIds = [] } = this.state;
     if (multiple && selected.length >= MAX_COUNT) {
       alert(_l('最多关联%0条', MAX_COUNT), 3);
       return;
@@ -214,6 +225,7 @@ export default class RelateRecordDropdown extends React.Component {
       this.setState(
         {
           selected: multiple ? selected.concat(record) : [record],
+          addedIds: addedIds.concat(record.rowid),
         },
         () => {
           this.handleChange();
@@ -240,10 +252,11 @@ export default class RelateRecordDropdown extends React.Component {
 
   @autobind
   handleDelete(record) {
-    const { selected } = this.state;
+    const { selected, deletedIds = [] } = this.state;
     this.setState(
       {
         selected: selected.filter(r => r.rowid !== record.rowid),
+        deletedIds: _.uniq(deletedIds.concat(record.rowid)),
       },
       this.handleChange,
     );
@@ -253,7 +266,7 @@ export default class RelateRecordDropdown extends React.Component {
   handleItemClick(record) {
     const { multiple, onVisibleChange } = this.props;
     const { selected } = this.state;
-    if (multiple) {
+    if (multiple && record.rowid !== 'isEmpty') {
       if (_.find(selected, r => record.rowid === r.rowid)) {
         this.handleDelete(record);
       } else {
@@ -289,14 +302,17 @@ export default class RelateRecordDropdown extends React.Component {
 
   handleChange() {
     const { multiple, doNotClearKeywordsWhenChange, onChange } = this.props;
-    const { selected } = this.state;
+    let { selected, addedIds, deletedIds } = this.state;
+    if (selected.length > 1 && _.find(selected, { rowid: 'isEmpty' })) {
+      selected = selected.filter(r => r.rowid !== 'isEmpty');
+    }
     if (multiple && this.inputRef && this.inputRef.current) {
       this.inputRef.current.focus();
     }
     if (!doNotClearKeywordsWhenChange) {
       this.setState({ keywords: '' });
     }
-    onChange(selected);
+    onChange(selected, { addedIds, deletedIds });
   }
 
   @autobind
@@ -316,7 +332,7 @@ export default class RelateRecordDropdown extends React.Component {
   }
 
   renderSingle() {
-    const { insheet, isediting, control, allowOpenRecord, entityName } = this.props;
+    const { insheet, isediting, isQuickFilter, control, allowOpenRecord, entityName, staticRecords } = this.props;
     const { selected, keywords } = this.state;
     const { canSelect, active } = this;
     return (
@@ -335,7 +351,7 @@ export default class RelateRecordDropdown extends React.Component {
             {selected[0].rowid ? getTitleTextFromRelateControl(control, selected[0]) : _l('关联当前%0', entityName)}
           </span>
         )}
-        {canSelect && active && (
+        {((_.isEmpty(staticRecords) && canSelect && active) || isQuickFilter) && (
           <AutoWidthInput
             mountRef={ref => (this.inputRef = ref)}
             value={keywords}
@@ -343,8 +359,11 @@ export default class RelateRecordDropdown extends React.Component {
             onKeyDown={this.handleInputKeyDown}
           />
         )}
-        {canSelect && !selected.length && active && !keywords && this.searchControl && (
-          <PlaceHolder>{_l('搜索%0', this.searchControl.controlName)}</PlaceHolder>
+        {!active && _.isEmpty(selected) && !insheet && control.hint && (
+          <PlaceHolder className="ellipsis">{control.hint}</PlaceHolder>
+        )}
+        {_.isEmpty(staticRecords) && canSelect && !selected.length && active && !keywords && this.searchControl && (
+          <PlaceHolder className="ellipsis">{_l('搜索%0', this.searchControl.controlName)}</PlaceHolder>
         )}
         {insheet && isediting && !canSelect && selected.length === 0 && (
           <span
@@ -366,17 +385,34 @@ export default class RelateRecordDropdown extends React.Component {
   }
 
   renderMultipe() {
-    const { insheet, isediting, control, allowOpenRecord, entityName, cellFrom } = this.props;
+    const {
+      insheet,
+      isQuickFilter,
+      selectedStyle,
+      isediting,
+      control,
+      worksheetId,
+      allowOpenRecord,
+      entityName,
+      cellFrom,
+      recordId,
+      viewId,
+      isCharge,
+    } = this.props;
     const { selected, keywords, activeIndex } = this.state;
+    const allowRemove = control.advancedSetting.allowcancel !== '0';
     const { active } = this;
     const length = selected.length;
     return (
       <React.Fragment>
+        {!active && _.isEmpty(selected) && !insheet && control.hint && (
+          <PlaceHolder className="ellipsis">{control.hint}</PlaceHolder>
+        )}
         {selected.map((record, i) =>
           active || insheet ? (
             <div
               key={i}
-              className={cx('activeSelectedItem', { active })}
+              className={cx('activeSelectedItem', { active, allowRemove })}
               style={_.assign({}, i === 0 ? (cellFrom === 4 ? { margin: 0 } : { marginTop: 6 }) : {})}
               onClick={e => {
                 if (!allowOpenRecord || active) {
@@ -389,7 +425,7 @@ export default class RelateRecordDropdown extends React.Component {
               <span className="name InlineBlock ellipsis">
                 {record.rowid ? getTitleTextFromRelateControl(control, record) : _l('关联当前%0', entityName)}
               </span>
-              {active && (
+              {active && allowRemove && (
                 <i
                   className="icon icon-close"
                   onClick={e => {
@@ -418,7 +454,7 @@ export default class RelateRecordDropdown extends React.Component {
             ]
           ),
         )}
-        {this.canSelect && active && (
+        {((this.canSelect && active) || isQuickFilter) && (
           <AutoWidthInput
             mountRef={ref => (this.inputRef = ref)}
             value={keywords}
@@ -446,7 +482,8 @@ export default class RelateRecordDropdown extends React.Component {
   }
 
   renderPopup({ disabledManualWrite }) {
-    const { multiple, control, formData, insheet, disableNewRecord, onVisibleChange } = this.props;
+    const { multiple, control, formData, insheet, disableNewRecord, prefixRecords, staticRecords, onVisibleChange } =
+      this.props;
     const formDataArray = typeof formData === 'function' ? formData() : formData;
     const { keywords, selected, listvisible, newrecordVisible, renderToTop, cellToTop, activeIndex } = this.state;
     const xOffset = this.isMobile ? 0 : this.getXOffset();
@@ -478,6 +515,8 @@ export default class RelateRecordDropdown extends React.Component {
             keyWords={keywords}
             control={control}
             formData={formDataArray}
+            prefixRecords={prefixRecords}
+            staticRecords={staticRecords}
             maxHeight={renderToTop && cellToTop}
             style={{
               ...(renderToTop
@@ -596,7 +635,7 @@ export default class RelateRecordDropdown extends React.Component {
       popupContainer,
       onVisibleChange,
     } = this.props;
-    const { selected, isTop, listvisible, previewRecord, newrecordVisible } = this.state;
+    const { keywords, selected, isTop, listvisible, previewRecord, newrecordVisible } = this.state;
     const [, , onlyRelateByScanCode] = (control.strDefault || '').split('').map(b => !!+b);
     const disabledManualWrite = onlyRelateByScanCode && control.advancedSetting.dismanual === '1';
     const popup = this.renderPopup({ disabledManualWrite });
@@ -636,6 +675,14 @@ export default class RelateRecordDropdown extends React.Component {
             className="worksheetRelateNewRecord"
             worksheetId={dataSource}
             addType={2}
+            defaultFormDataEditable
+            defaultFormData={
+              checkIsTextControl(this.searchControl.type) && keywords
+                ? {
+                    [this.searchControl.controlId]: keywords,
+                  }
+                : {}
+            }
             defaultRelatedSheet={this.getDefaultRelateSheetValue()}
             visible={newrecordVisible}
             hideNewRecord={() => {
@@ -647,7 +694,7 @@ export default class RelateRecordDropdown extends React.Component {
         {previewRecord && (
           <RecordInfoWrapper
             visible
-            viewId={this.props.viewId}
+            viewId={_.get(control, 'advancedSetting.openview') || control.viewId}
             from={1}
             hideRecordInfo={() => {
               this.setState({ previewRecord: undefined });
@@ -660,9 +707,7 @@ export default class RelateRecordDropdown extends React.Component {
               if (rowIds[0]) {
                 this.setState({
                   selected: selected.map(item =>
-                    _.find(selected, r => r.rowid === rowIds[0])
-                      ? { ...item, ..._.omit(updatedRow, ['allowdelete', 'allowedit']) }
-                      : item,
+                    item.rowid === rowIds[0] ? { ...item, ..._.omit(updatedRow, ['allowdelete', 'allowedit']) } : item,
                   ),
                 });
               }

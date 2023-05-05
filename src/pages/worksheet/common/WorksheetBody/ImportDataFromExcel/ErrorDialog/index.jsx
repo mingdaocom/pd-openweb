@@ -153,6 +153,7 @@ class ErrorDialog extends Component {
             href={`${md.global.Config.WorksheetDownUrl}/ExportExcel/LoadErrorLog?randomKey=${fileKey}${
               isBatch ? '&worksheetId=' + currentSheetInfo.sheetId : ''
             }`}
+            target="_blank"
           >
             {_l('下载错误报告')}
           </a>

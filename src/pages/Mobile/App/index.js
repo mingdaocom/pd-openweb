@@ -4,7 +4,7 @@ import { List, Flex, ActionSheet, Modal, ActivityIndicator, Accordion, Switch, T
 import { Icon, WaterMark } from 'ming-ui';
 import cx from 'classnames';
 import * as actions from './redux/actions';
-import { ROLE_TYPES } from 'src/pages/Role/config.js';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 import Back from '../components/Back';
 import guideImg from './img/guide.png';
 import DocumentTitle from 'react-document-title';
@@ -16,7 +16,7 @@ import SvgIcon from 'src/components/SvgIcon';
 import FixedPage from './FixedPage';
 import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet/index.jsx';
 import WorksheetUnNormal from 'mobile/RecordList/State';
-import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import MoreAction from './MoreAction';
 import _ from 'lodash';
 const Item = List.Item;
@@ -89,7 +89,7 @@ class App extends Component {
   detectionUrl = ({ appRoleType, isLock, appNaviStyle, appSectionDetail }) => {
     const { params } = this.props.match;
     if (appNaviStyle === 2 && !params.worksheetId && !sessionStorage.getItem('detectionUrl')) {
-      const isCharge = isHaveCharge(appRoleType, isLock);
+      const isCharge = canEditApp(appRoleType, isLock);
       const { appSectionId } = appSectionDetail[0];
       const workSheetInfo = this.getWorksheetList(appSectionDetail);
       const { workSheetId } = isCharge
@@ -245,7 +245,7 @@ class App extends Component {
     const { appName, detail, processCount } = appDetail;
     const { params } = match;
     const { fixed, permissionType, webMobileDisplay } = detail;
-    const isAuthorityApp = permissionType >= ROLE_TYPES.ADMIN;
+    const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
     if (md.global.Account.isPortal) {
       return (
         <PortalUserSet
@@ -372,7 +372,7 @@ class App extends Component {
     const { appDetail, match } = this.props;
     let { appName, detail, appSection, status } = appDetail;
     const { fixed, webMobileDisplay, fixAccount, fixRemark, permissionType } = detail;
-    const isAuthorityApp = permissionType >= ROLE_TYPES.ADMIN;
+    const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
     appSection = isAuthorityApp
       ? appSection
       : appSection
@@ -398,7 +398,9 @@ class App extends Component {
           {params.isNewApp && this.renderGuide()}
           <div
             className="flexColumn h100"
-            style={(fixed && permissionType !== ROLE_TYPES.ADMIN) || webMobileDisplay ? { background: '#fff' } : {}}
+            style={
+              (fixed && permissionType !== APP_ROLE_TYPE.ADMIN_ROLE) || webMobileDisplay ? { background: '#fff' } : {}
+            }
           >
             {this.renderAppHeader()}
             {(fixed && !isAuthorityApp) || webMobileDisplay ? (
@@ -406,14 +408,12 @@ class App extends Component {
             ) : (
               <div className="appSectionCon flex">
                 {status === 5 ||
-                (detail.permissionType === ROLE_TYPES.MEMBER &&
-                  appSection.length <= 1 &&
-                  (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0)) ? (
+                (appSection.length <= 1 && (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0)) ? (
                   // 应用无权限||成员身份 且 无任何数据
                   <AppPermissionsInfo appStatus={5} appId={params.appId} />
                 ) : appSection.length <= 1 &&
                   (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0) &&
-                  [ROLE_TYPES.OWNER, ROLE_TYPES.ADMIN].includes(detail.permissionType) ? (
+                  [APP_ROLE_TYPE.POSSESS_ROLE, APP_ROLE_TYPE.ADMIN_ROLE].includes(detail.permissionType) ? (
                   // 管理员身份 且 无任何数据
                   <AppPermissionsInfo appStatus={1} appId={params.appId} />
                 ) : (
@@ -524,7 +524,7 @@ class App extends Component {
   renderBody() {
     const { appSection = {}, detail } = this.props.appDetail;
     const { fixed, permissionType, webMobileDisplay } = detail;
-    const isAuthorityApp = permissionType >= ROLE_TYPES.ADMIN;
+    const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
     const { batchOptVisible } = this.props;
 
     if ([0, 1].includes(detail.appNaviStyle) || (fixed && !isAuthorityApp) || webMobileDisplay) {
@@ -539,7 +539,7 @@ class App extends Component {
       .slice(0, 4);
 
     const data = _.find(sheetList, { workSheetId: selectedTab });
-    const isHideNav = detail.permissionType < ROLE_TYPES.ADMIN && sheetList.length === 1 && !!data;
+    const isHideNav = detail.permissionType < APP_ROLE_TYPE.ADMIN_ROLE && sheetList.length === 1 && !!data;
     return (
       <div className="flexColumn h100">
         <div className={cx('flex overflowHidden flexColumn', { recordListWrapper: !isHideNav })}>

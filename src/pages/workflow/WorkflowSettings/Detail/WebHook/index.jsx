@@ -597,20 +597,26 @@ export default class WebHook extends Component {
                   processId={this.props.processId}
                   selectNodeId={this.props.selectNodeId}
                   updateSource={({ fieldValue }) =>
-                    this.updateSource({ settings: Object.assign({}, data.settings, { timeout: parseInt(fieldValue) }) })
+                    this.updateSource({
+                      settings: Object.assign({}, data.settings, {
+                        timeout: parseInt(fieldValue),
+                        maxRetries: fieldValue > 30 ? 0 : data.settings.maxRetries,
+                      }),
+                    })
                   }
                   type="number"
                   min={5}
-                  max={30}
+                  max={90}
                   hasOtherField={false}
                   data={{ fieldValue: data.settings.timeout }}
                 />
               </div>
-              <div className="mLeft10">{_l('秒')}（5 ~ 30）</div>
+              <div className="mLeft10">{_l('秒')}（5 ~ 90）</div>
 
               <Checkbox
                 style={{ marginLeft: 80 }}
                 text={_l('超时自动重试（最多重试2次）')}
+                disabled={data.settings.timeout > 30}
                 checked={data.settings.maxRetries > 0}
                 onClick={checked =>
                   this.updateSource({ settings: Object.assign({}, data.settings, { maxRetries: checked ? 0 : 2 }) })

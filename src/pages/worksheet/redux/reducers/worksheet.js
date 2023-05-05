@@ -17,8 +17,10 @@ export function error(state = false, action) {
   switch (action.type) {
     case 'WORKSHEET_INIT_FAIL':
       return true;
-    default:
+    case 'WORKSHEET_FETCH_START':
       return false;
+    default:
+      return state;
   }
 }
 

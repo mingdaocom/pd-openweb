@@ -203,7 +203,7 @@ class HomePostFilter extends React.Component {
               A+
             </a>
           </div>
-          <div className="mLeft10 InlineBlock searchFilterKeyword" data-titletip={_l('搜索动态')}>
+          <div className="mLeft10 InlineBlock searchFilterKeyword" data-tip={_l('搜索动态')}>
             <input
               ref={searchInput => {
                 this.searchInput = searchInput;
@@ -231,7 +231,7 @@ class HomePostFilter extends React.Component {
               className={cx('mLeft10 InlineBlock Hand', {
                 hide: this.props.options.listType === postEnum.LIST_TYPE.ireply,
               })}
-              data-titletip={
+              data-tip={
                 this.props.options.startDate
                   ? this.props.options.startDate + ' 至 ' + this.props.options.endDate
                   : _l('通过时间筛选')

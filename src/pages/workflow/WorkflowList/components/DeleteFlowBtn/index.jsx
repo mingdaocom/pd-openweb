@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, DeleteReconfirm } from 'ming-ui';
+import { DeleteReconfirm } from 'ming-ui';
 import process from '../../../api/process';
 
 export default class DeleteFlowBtn extends Component {
@@ -25,9 +25,10 @@ export default class DeleteFlowBtn extends Component {
 
   render() {
     return (
-      <span data-tip={_l('删除')} onClick={this.delFlow}>
-        <Icon icon={'hr_delete'} className="listBtn ThemeHoverColor3 Gray_9e" />
-      </span>
+      <div onClick={this.delFlow} style={{ color: '#f44336' }}>
+        <span className="icon-delete2 Font16 pLeft12 mRight10" />
+        {_l('删除')}
+      </div>
     );
   }
 }

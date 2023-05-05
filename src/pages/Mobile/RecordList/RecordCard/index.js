@@ -242,7 +242,7 @@ export default class RecordCard extends Component {
               }}
             />
           )}
-          <div className="Gray bold Font16 ellipsis">{titleText}</div>
+          <div className="Gray bold Font14 ellipsis">{titleText}</div>
         </div>
         {advancedSetting.abstract && (
           <div className="Gray_9e Font12 mBottom8 abstract">{this.renderControl(advancedSetting.abstract)}</div>

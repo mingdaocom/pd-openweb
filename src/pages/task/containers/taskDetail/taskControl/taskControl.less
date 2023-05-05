@@ -29,14 +29,21 @@
     }
 
   }
-  .UploadFiles-attachmentProgress {
-    display: none;
-  }
-  .mui-formcontainer {
-    margin-top: -1px!important;
-    border-top-left-radius: 0!important;
-    border-top-right-radius: 0!important;
-    border-bottom-left-radius: 5px!important;
-    border-bottom-right-radius: 5px!important;
+  .taskCustomFields {
+    border-radius: 0 0 5px 5px;
+    border-width: 0 1px 1px 1px;
+    border-style: solid;
+    border-color: #e0e0e0;
+    .customFieldsContainer {
+      border-radius: 0 0 5px 5px;
+      .customFormItemLabel {
+        font-weight: normal;
+      }
+      .customFormAttachmentBox {
+        .handleBtn {
+          display: none;
+        }
+      }
+    }
   }
 }

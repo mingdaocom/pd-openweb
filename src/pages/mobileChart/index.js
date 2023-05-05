@@ -73,6 +73,6 @@ class MobileChart extends React.Component {
   }
 }
 
-const Comp = preall(MobileChart, { allownotlogin: true });
+const Comp = preall(MobileChart, { allownotlogin: false });
 
 ReactDOM.render(<Comp />, document.querySelector('#mobileChart'));

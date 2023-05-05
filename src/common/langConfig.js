@@ -1,5 +1,12 @@
 const config = [
   {
+    key: 'zh-Hans',
+    value: '简体中文',
+    languageTeam: 'Chinese Simplified',
+    language: 'zh_CN',
+    path: '/staticfiles/lang/zh-Hans/mdTranslation.js',
+  },
+  {
     key: 'zh-Hant',
     value: '繁體中文',
     languageTeam: 'Chinese Traditional',

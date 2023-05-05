@@ -4,7 +4,7 @@
 <div class="persist-area {{=it.data['num_' + i] === 0 ? 'Hidden' : ''}}">
     <div class="taskListFolderName persist-header" data-type="{{= key }}">
         <i class="arrow-down {{= isCollapsed ? 'downArrow':''}}"></i>
-        <span class="listFolderNameTextList myTaskTip" tip="{{=it.TIPS[key] }}">{{=it.TYPES[key] }}</span>
+        <span class="listFolderNameTextList myTaskTip" data-tip="{{=it.TIPS[key] }}">{{=it.TYPES[key] }}</span>
         <span class="stageTaskCount"></span>
     </div>
     <div class="listStageTaskContent" style="{{= isCollapsed ? 'display:none':'display:block'}}">

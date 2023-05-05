@@ -37,6 +37,34 @@ class ProcessConfig extends Component {
     });
   }
 
+  componentDidUpdate() {
+    const { data } = this.state;
+    const $box = $('.workflowHistoryWrap');
+
+    if (!_.isEmpty(data) && !$box.data('bind')) {
+      if (window.ResizeObserver) {
+        const observer = new ResizeObserver(this.updateBoxMargin);
+        observer.observe($box[0]);
+      }
+
+      this.updateBoxMargin();
+      $box.data('bind', true);
+    }
+  }
+
+  /**
+   * 更新边距
+   */
+  updateBoxMargin = () => {
+    let marginLeft = ($('.workflowHistoryWrap').width() - 800) / 2;
+
+    if (marginLeft < 220) {
+      marginLeft = 220;
+    }
+
+    $('.workflowHistoryWrap .processConfig').css('margin-left', `${marginLeft}px`);
+  };
+
   /**
    * 更新data数据
    */
@@ -237,7 +265,7 @@ class ProcessConfig extends Component {
             <div className="processConfigLine" />
             <div className="bold Font16 mTop20">{_l('触发者查看')}</div>
             <div className="Gray_75 mTop5 mBottom8">
-              {_l('启用后，流程触发者可以在“我发起的”待办项中查看、追踪此流程；未启用时，流程触发者将固定为“工作流”')}
+              {_l('启用后，流程触发者可以在“我发起的”待办项中查看、追踪此流程')}
             </div>
             <div className="mTop10">
               <Switch

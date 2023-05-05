@@ -237,19 +237,34 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
 
     // 链接
     if (hrefReg.test(result)) {
-      if (config.recordLink && (result.includes('worksheetshare') || result.includes('public/record'))) {
-        const shareId = (result.match(/\/worksheetshare\/(.*)/) || result.match(/\/public\/record\/(.*)/))[1];
-        Toast.loading(_l('加载中，请稍后'));
-        const shareData = await worksheetAjax.getShareInfoByShareId({ shareId }).data || {};
-        Toast.hide();
-        if (shareData.rowId) {
-          if (isMingdao) {
-            window.location.href = `/mobile/record/${shareData.appId}/${shareData.worksheetId}/${shareData.viewId}/${shareData.rowId}`;
+      if (config.recordLink) {
+        const run = (shareData = {}) => {
+          if (shareData.rowId) {
+            if (isMingdao) {
+              window.location.href = `/mobile/record/${shareData.appId}/${shareData.worksheetId}/${shareData.viewId}/${shareData.rowId}`;
+            } else {
+              setPreviewRecord(shareData);
+            }
           } else {
-            setPreviewRecord(shareData);
+            window.open(result);
           }
+        }
+        if (result.includes('worksheetshare') || result.includes('public/record')) {
+          const shareId = (result.match(/\/worksheetshare\/(.*)/) || result.match(/\/public\/record\/(.*)/))[1];
+          Toast.loading(_l('加载中，请稍后'));
+          const { data } = await worksheetAjax.getShareInfoByShareId({ shareId });
+          Toast.hide();
+          run(data);
         } else {
-          window.open(result);
+          const data = result.match(/app\/(.*)\/(.*)\/(.*)\/row\/(.*)/) || [];
+          const [url, appId, worksheetId, viewId, rowId] = data;
+          if (appId && worksheetId && viewId && rowId) {
+            run({
+              appId, worksheetId, viewId, rowId
+            });
+          } else {
+            run();
+          }
         }
         return;
       }

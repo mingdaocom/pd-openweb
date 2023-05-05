@@ -6,6 +6,7 @@ import appManagement from 'src/api/appManagement';
 import { navigateTo } from 'src/router/navigateTo';
 import { START_APP_TYPE } from '../../config';
 import CountDown from './CountDown';
+import PauseTimeList from '../PauseTimeList';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
@@ -31,9 +32,11 @@ const dateList = [
 ];
 
 const justifyInfoData = [
-  { type: 'difference', name: _l('当前累计排队'), tableHeaderName: _l('当前排队') },
   { type: 'producer', name: _l('新增'), tableHeaderName: _l('本月新增') },
   { type: 'consumer', name: _l('消费'), tableHeaderName: _l('本月消费') },
+  { type: 'difference', name: _l('当前累计排队'), tableHeaderName: _l('当前排队') },
+  { type: 'routerIndex', name: '', tableHeaderName: _l('通道') },
+  { type: 'waiting', name: '', tableHeaderName: _l('状态') },
 ];
 
 export default class WorkflowMonitor extends Component {
@@ -58,6 +61,7 @@ export default class WorkflowMonitor extends Component {
         title: '',
         workflowId: '',
       },
+      routerList: {},
     };
     this.lineChart = null;
   }
@@ -69,6 +73,7 @@ export default class WorkflowMonitor extends Component {
     this.getChartData();
     this.getRealTimeData();
     this.getFlowList();
+    this.getRouterList();
   }
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.dateNow, nextProps.dateNow)) {
@@ -335,7 +340,7 @@ export default class WorkflowMonitor extends Component {
   };
 
   // 点击暂停消费
-  clickWaitConsume = item => {
+  clickRecover = item => {
     flowMonitor
       .updateWaiting({
         processId: item.id,
@@ -370,34 +375,8 @@ export default class WorkflowMonitor extends Component {
     }
   }, 200);
 
-  renderChangeDate = (item, fields) => {
-    return (
-      <Dropdown
-        trigger={['click']}
-        placement="bottomLeft"
-        overlay={
-          <div className="runoOperateBox">
-            {runDateList.map(v => (
-              <div
-                className="runDateItem Font13"
-                key={v.value}
-                onClick={() => {
-                  this.changeOperation(item, v.value);
-                }}
-              >
-                {v.label}
-              </div>
-            ))}
-          </div>
-        }
-      >
-        {fields === 'changeDate' ? <Icon icon="access_time" className="timeIcon" /> : <a>{_l('暂停消费')}</a>}
-      </Dropdown>
-    );
-  };
-
   renderListContent = () => {
-    let { detailList, loading, pageIndex, checkedIds = [] } = this.state;
+    let { detailList, loading, pageIndex, checkedIds = [], routerList = {} } = this.state;
     if (loading && pageIndex === 1 && _.isEmpty(detailList)) {
       return <LoadDiv className="mTop15" size="small" />;
     }
@@ -428,6 +407,8 @@ export default class WorkflowMonitor extends Component {
             enabled,
             dueDate,
             app,
+            routerIndex,
+            routerName,
           } = item;
           return (
             <div className={cx('row flexRow', { checked: _.includes(checkedIds, item.id) })} key={`${id}-${index}`}>
@@ -452,13 +433,15 @@ export default class WorkflowMonitor extends Component {
                   }}
                 />
                 <div className="flexColumn flowInfo">
-                  <div className="flowName Hand" onClick={() => this.checkIsAppAdmin(app.id, item.id, item.name)}>
+                  <div
+                    className="flowName Hand ellipsis"
+                    onClick={() => this.checkIsAppAdmin(app.id, item.id, item.name)}
+                  >
                     {name}
                   </div>
-                  <div className="Gray_9e Font12">{app.name}</div>
+                  <div className="Gray_9e Font12 ellipsis">{app.name}</div>
                 </div>
               </div>
-              <div className="cloumnItem columnWidth170 textalignR pRight25">{formatter(difference)}</div>
               <div className="cloumnItem columnWidth170 textalignR pRight25">{formatter(producer)}</div>
               <div className="cloumnItem columnWidth170 textalignR pRight25">
                 {waiting ? (
@@ -467,31 +450,63 @@ export default class WorkflowMonitor extends Component {
                   <span className="waitText textalignR pRight25">{formatter(consumer)}</span>
                 )}
               </div>
-              <div className="cloumnItem flex">
+              <div className="cloumnItem columnWidth170 textalignR pRight25">{formatter(difference)}</div>
+              {md.global.Config.IsLocal && (
+                <div className="cloumnItem columnWidth170 textalignR pRight25">
+                  <span
+                    className="dot"
+                    style={!routerIndex ? {} : { background: routerIndex === -1 ? '#2196F3' : '#FFC37C' }}
+                  ></span>
+                  <span className="mLeft5">{routerName || ''}</span>
+                  {routerIndex && Object.keys(routerList).length > 1 ? (
+                    <div
+                      className="flexColumn manageListOrder Right mLeft6"
+                      onClick={() => {
+                        this.updateRouterIndex(item);
+                      }}
+                    >
+                      <Icon icon="arrow-up" />
+                      <Icon icon="arrow-down" />
+                    </div>
+                  ) : (
+                    ''
+                  )}
+                </div>
+              )}
+              <div className="cloumnItem columnWidth170 textalignR">
+                <span style={{ color: waiting ? '#F44336' : '#333' }}>{!waiting ? _l('正常') : _l('暂停')}</span>
+                <PauseTimeList
+                  item={item}
+                  changeOperation={this.changeOperation}
+                  clickRecover={this.clickRecover}
+                  getPopupContainer={() => this.monitorContainer}
+                >
+                  <Icon icon="arrow-down" className="Gray_9e mLeft5 Hand" />
+                </PauseTimeList>
+              </div>
+              <div className="cloumnItem columnWidth150 textalignR">
                 {waiting && (
                   <div>
-                    {(hours && (
+                    {hours ? (
+                      <PauseTimeList
+                        item={item}
+                        changeOperation={this.changeOperation}
+                        clickRecover={this.clickRecover}
+                      >
+                        <Icon icon="access_time" className="timeIcon" />
+                      </PauseTimeList>
+                    ) : (
+                      ''
+                    )}
+                    {hours ? (
                       <span className="runWaitInfo">
-                        <CountDown endDate={dueDate} />{' '}
+                        <CountDown endDate={dueDate} />
                       </span>
-                    )) ||
-                      ''}
-                    {(hours && this.renderChangeDate(item, 'changeDate')) || ''}
+                    ) : (
+                      ''
+                    )}
                   </div>
                 )}
-              </div>
-              <div className="cloumnItem columnWidth80">
-                {waiting && !_.includes(checkedIds, item.id) && (
-                  <a
-                    onClick={() => {
-                      this.clickWaitConsume(item);
-                    }}
-                    style={{ color: '#43bd34' }}
-                  >
-                    {_l('恢复')}
-                  </a>
-                )}
-                {!waiting && !_.includes(checkedIds, item.id) && this.renderChangeDate(item)}
               </div>
             </div>
           );
@@ -539,15 +554,45 @@ export default class WorkflowMonitor extends Component {
     const { fields, isDesc } = sorter;
     return (
       <div
-        className="headerItem columnWidth170 flexRow Hand orderTitleHover flexDirection"
+        className={cx('headerItem columnWidth170 flexRow Hand orderTitleHover flexDirection', {
+          pRight16: type === 'waiting',
+        })}
         onClick={() => {
           this.changeSorter(type);
         }}
       >
-        <div className="flexColumn manageListOrder">
-          <Icon icon="arrow-up" className={cx({ ThemeColor3: fields === type && !isDesc })} />
-          <Icon icon="arrow-down" className={cx({ ThemeColor3: fields === type && isDesc })} />
-        </div>
+        {type !== 'waiting' && (
+          <div className="flexColumn manageListOrder">
+            <Icon icon="arrow-up" className={cx({ ThemeColor3: fields === type && !isDesc })} />
+            <Icon icon="arrow-down" className={cx({ ThemeColor3: fields === type && isDesc })} />
+          </div>
+        )}
+        {type === 'routerIndex' && (
+          <Tooltip
+            popupClassName="passageTooltip Tooltip-black"
+            popupAlign={{
+              points: ['tc', 'bc'],
+              offset: [0, -20],
+            }}
+            text={
+              <div>
+                <div>{_l('主要：用于处理需要及时响应的流程。')}</div>
+                <div>
+                  {_l(
+                    '备用：限流通道。用于临时处理主要通道中发生堆积的流程执行。或处理响应时效要求低的流程，使用此通道更稳定。',
+                  )}
+                </div>
+                <div>
+                  {_l(
+                    '说明：当主要通道的流程排队数超出阈值（默认3000，私有部署可配置）时，此流程的超出部分和继续新增的执行会进入备用通道并优先于备用通道流程开始消费。',
+                  )}
+                </div>
+              </div>
+            }
+          >
+            <Icon icon="info_outline" className="Gray_9e mLeft6 LineHeight54 " />
+          </Tooltip>
+        )}
         {tableHeaderName}
       </div>
     );
@@ -653,8 +698,54 @@ export default class WorkflowMonitor extends Component {
         }
       });
   };
+  // 获取已有通道
+  getRouterList = () => {
+    const { projectId } = this.props.match.params;
+    flowMonitor.getRouterList({ companyId: projectId }).then(res => {
+      this.setState({ routerList: res });
+    });
+  };
+  // 修改选择的通道
+  updateRouterIndex = item => {
+    const { routerList = {}, checkedIds } = this.state;
+    const isSingle = typeof item === 'object';
+    let params = {};
+    if (isSingle) {
+      const temp = Object.keys(routerList)
+        .map(t => Number(t))
+        .filter(v => v !== item.routerIndex);
+      params = {
+        hours: item.hours,
+        processIds: [item.id],
+        routerIndex: temp.length ? Number(temp[0]) : item.routerIndex,
+        waiting: item.waiting,
+      };
+    } else {
+      params = {
+        processIds: this.state.checkedIds,
+        routerIndex: Number(item),
+      };
+    }
+    flowMonitor.updateRouterIndex(params).then(res => {
+      if (res) {
+        let copyDetailList = this.state.detailList.map((it, i) => {
+          if ((isSingle && item.id === it.id) || (!isSingle && _.includes(checkedIds, item.id))) {
+            return {
+              ...it,
+              routerList: temp.length ? temp[0] : item.routerIndex,
+            };
+          } else {
+            return it;
+          }
+        });
+        this.setState({ detailList: copyDetailList });
+      } else {
+        alert(_l('修改失败'), 2);
+      }
+    });
+  };
   render() {
-    let { showDate, checkedIds = [], loading, checkAdmin } = this.state;
+    let { showDate, checkedIds = [], loading, checkAdmin, routerList = {} } = this.state;
     return (
       <div
         className="monitorContainer flex Relative"
@@ -662,7 +753,11 @@ export default class WorkflowMonitor extends Component {
         onScroll={this.scrollLoadData}
       >
         <div className="subTitle">{_l('实时')}</div>
-        <div className="justifyInfo flexRow">{justifyInfoData.map(item => this.renderJustifyInfo(item))}</div>
+        <div className="justifyInfo flexRow">
+          {justifyInfoData
+            .filter(it => !_.includes(['routerIndex', 'waiting'], it.type))
+            .map(item => this.renderJustifyInfo(item))}
+        </div>
         <div className="flexRow spaceBetween pBottom25">
           <div className="subTitle">{_l('历史')}</div>
           <Select className="selectDate" placeholder={_l('自定义')} value={showDate} onChange={this.changeSelectDate}>
@@ -683,6 +778,7 @@ export default class WorkflowMonitor extends Component {
               <Dropdown
                 trigger={['click']}
                 placement="bottomLeft"
+                getPopupContainer={() => this.monitorContainer}
                 overlay={
                   <div className="runoOperateBox">
                     {runDateList.map(v => (
@@ -704,7 +800,7 @@ export default class WorkflowMonitor extends Component {
               <Button type="ghostgray" className="mRight10" onClick={() => this.batchPauseRecover(false)}>
                 {_l('恢复')}
               </Button>
-              <Button type="ghostgray" onClick={this.resetQueue}>
+              <Button type="ghostgray" className="mRight10" onClick={this.resetQueue}>
                 {_l('重置排队计数')}
                 <Tooltip
                   text={
@@ -716,23 +812,32 @@ export default class WorkflowMonitor extends Component {
                   <Icon icon="info_outline" className="mLeft8 Gray_9d" />
                 </Tooltip>
               </Button>
+              {md.global.Config.IsLocal &&
+                Object.keys(routerList).map(v => (
+                  <Button type="ghostgray" className="mRight10" onClick={() => this.updateRouterIndex(v)}>
+                    {_l(`通道：${routerList[v]}`)}
+                  </Button>
+                ))}
             </div>
           )}
-          <Input
-            allowClear
-            placeholder={_l('流程名称')}
-            className="searchFlow"
-            prefix={<Icon icon="search" className="searchIcon" />}
-            onPressEnter={this.changeFlowName}
-            onChange={this.changeFlowName}
-          />
+          <div>
+            <Input
+              allowClear
+              placeholder={_l('流程名称')}
+              className="searchFlow"
+              prefix={<Icon icon="search" className="searchIcon" />}
+              onPressEnter={this.changeFlowName}
+              onChange={this.changeFlowName}
+            />
+          </div>
         </div>
         <div className="listContent flex">
           <div className="detailListHeader flexRow">
             <div className="headerItem flex">{_l('流程')}</div>
-            {justifyInfoData.map(item => this.renderTableSorterHeader(item))}
-            <div className="headerItem flex"></div>
-            <div className="headerItem columnWidth80" />
+            {justifyInfoData
+              .filter(it => (md.global.Config.IsLocal ? true : it.type !== 'routerIndex'))
+              .map(item => this.renderTableSorterHeader(item))}
+            <div className="headerItem columnWidth150"></div>
           </div>
           <div className="detailListBody">{this.renderListContent()}</div>
         </div>

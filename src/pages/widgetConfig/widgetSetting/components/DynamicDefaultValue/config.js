@@ -84,7 +84,7 @@ export const SYSTEM_FIELD_TO_TEXT = {
 
 // 控件规则匹配规则 未保存的控件正则 匹配uuid 已保存的控件正则 形如 $5e047c2ab2bfdd0001e9b8f9$
 export const FIELD_REG_EXP =
-  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid)?))?\$/g;
+  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid)?))?\$/g;
 
 export const TIME_TYPES = [
   {
@@ -120,6 +120,22 @@ export const CUR_SEARCH_TYPES = [
     key: 'keyword',
     id: 'search-keyword',
     text: _l('搜索内容'),
+  },
+];
+
+export const CUR_OCR_TYPES = [
+  {
+    key: 'ocr',
+    id: 'ocr-file',
+    text: _l('识别文件'),
+  },
+];
+
+export const CUR_OCR_URL_TYPES = [
+  {
+    key: 'ocr',
+    id: 'ocr-file-url',
+    text: _l('识别文件(url)'),
   },
 ];
 
@@ -183,6 +199,7 @@ export const OTHER_FIELD_TYPE = {
   TIME: 'time',
   ROLE: 'role',
   KEYWORD: 'keyword',
+  OCR: 'ocr',
 };
 
 export const CURRENT_TYPES = {
@@ -267,4 +284,5 @@ export const EMEBD_FIELDS = [
 export const DYNAMIC_FROM_MODE = {
   CREATE_CUSTOM: 1, // 自定义
   SEARCH_PARAMS: 2, // 查询输入参数
+  OCR_PARAMS: 3, // OCR集成参数
 };

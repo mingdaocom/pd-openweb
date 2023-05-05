@@ -72,10 +72,21 @@ function QuickFilter(props) {
       .filter(validate)
       .map(conditionAdapter);
     if (quickFilter.length) {
+      const quickFilterDataFormat = quickFilter.map(it => {
+        let { values } = it;
+        if (
+          (_.isArray(values) && (values[0] === 'isEmpty' || values[0].accountId === 'isEmpty')) ||
+          values[0].rowid === 'isEmpty'
+        ) {
+          it.filterType = 7;
+          values = [];
+        }
+        return { ...it, values };
+      });
       if (_.includes(NumberTypes, store.current.activeType)) {
-        debounceUpdateQuickFilter.current(formatQuickFilter(quickFilter));
+        debounceUpdateQuickFilter.current(formatQuickFilter(quickFilterDataFormat));
       } else {
-        updateQuickFilter(formatQuickFilter(quickFilter));
+        updateQuickFilter(formatQuickFilter(quickFilterDataFormat));
       }
     } else {
       updateQuickFilter([]);
@@ -93,7 +104,7 @@ function QuickFilter(props) {
   useEffect(() => {
     setValues({});
   }, [view.viewId]);
-  // console.log('filters', filters);
+
   return (
     <Con className="flexColumn h100 overflowHidden" style={{ width }}>
       <div className="header flexRow valignWrapper">

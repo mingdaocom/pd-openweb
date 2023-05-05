@@ -56,8 +56,18 @@ const SetConfig = styled.div`
   }
 `;
 
+// 是普通数组
+const isNormalArray = (controls = [], value) => {
+  return (
+    _.get(
+      _.find(controls, i => i.controlId === value),
+      'type',
+    ) === 10000007
+  );
+};
+
 export default function SearchMapping(props) {
-  const { data = {}, responseControls = [], onChange } = props;
+  const { data = {}, responseControls = [], originResponseControls = [], onChange } = props;
   const { itemsource = '', itemtitle = '' } = getAdvanceSetting(data);
   const itemdesc = getAdvanceSetting(data, 'itemdesc') || [];
   const responsemap = getAdvanceSetting(data, 'responsemap') || [];
@@ -98,6 +108,15 @@ export default function SearchMapping(props) {
         handleAdvancedSettingChange(data, {
           [item.key]: value,
           ...(value !== itemsource ? { itemtitle: '', itemdesc: '' } : {}),
+          ...(isNormalArray(responseControls, value)
+            ? {
+                itemtitle:
+                  _.get(
+                    _.find(originResponseControls, o => o.dataSource === value),
+                    'controlId',
+                  ) || '',
+              }
+            : {}),
         }),
       );
       return;
@@ -117,7 +136,7 @@ export default function SearchMapping(props) {
           {SELECT_OPTIONS.map((item, index) => {
             const { dropData = [], dropValue = '' } = getMapData(item.type);
             const id = `${item.key}_${index}`;
-            return index === 0 || itemsource ? (
+            return index === 0 || (itemsource && !isNormalArray(responseControls, itemsource)) ? (
               <MappingWrap id={id}>
                 <div className="controlLabel ellipsis">
                   {item.required && <span className="requireIcon">*</span>}

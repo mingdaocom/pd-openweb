@@ -7,11 +7,12 @@ import SvgIcon from 'src/components/SvgIcon';
 import Drag from './Drag';
 import styled from 'styled-components';
 import _ from 'lodash';
+import { canEditData, canEditApp } from 'src/pages/worksheet/redux/actions/util';
 
 const Wrap = styled.div`
   &.active .name::before {
     background-color: ${props => props.iconColor} !important;
- }
+  }
 `;
 
 export function convertColor(colorStr) {
@@ -21,7 +22,7 @@ export function convertColor(colorStr) {
 export default class WorkSheetItem extends Component {
   constructor(props) {
     super(props);
-    this.state = {}
+    this.state = {};
   }
   svgColor(isActive) {
     const { iconColor, currentPcNaviStyle, themeType } = this.props.appPkg;
@@ -37,7 +38,7 @@ export default class WorkSheetItem extends Component {
   textColor(isActive) {
     const { iconColor, currentPcNaviStyle, themeType } = this.props.appPkg;
     const darkColor = currentPcNaviStyle === 1 && !['light'].includes(themeType);
-    return darkColor ? `rgba(255, 255, 255, ${isActive ? 1 : 0.9})` : (isActive ? iconColor : undefined);
+    return darkColor ? `rgba(255, 255, 255, ${isActive ? 1 : 0.9})` : isActive ? iconColor : undefined;
   }
   bgColor() {
     const { iconColor, currentPcNaviStyle, themeType } = this.props.appPkg;
@@ -61,7 +62,8 @@ export default class WorkSheetItem extends Component {
     return url;
   }
   render() {
-    const { appId, groupId, appItem, activeSheetId, className, isCharge, appPkg, sheetListVisible, disableTooltip } = this.props;
+    const { appId, groupId, appItem, activeSheetId, className, isCharge, appPkg, sheetListVisible, disableTooltip } =
+      this.props;
     const { workSheetId, workSheetName, icon, iconUrl, status, parentStatus, type } = appItem;
     const isActive = activeSheetId === workSheetId;
     const { iconColor, currentPcNaviStyle, themeType } = appPkg;
@@ -75,10 +77,12 @@ export default class WorkSheetItem extends Component {
         >
           <Wrap
             style={{
-              backgroundColor: isActive && this.bgColor()
+              backgroundColor: isActive && this.bgColor(),
             }}
             iconColor={['black'].includes(appPkg.themeType) ? appPkg.iconColor : ''}
-            className={cx('workSheetItem flexRow Relative', className, `workSheetItem-${workSheetId}`, { active: isActive })}
+            className={cx('workSheetItem flexRow Relative', className, `workSheetItem-${workSheetId}`, {
+              active: isActive,
+            })}
             data-id={workSheetId}
           >
             <MdLink className="NoUnderline valignWrapper h100 nameWrap" to={this.getNavigateUrl(isActive)}>
@@ -94,13 +98,20 @@ export default class WorkSheetItem extends Component {
                   {workSheetName}
                 </span>
                 {(status === 2 || parentStatus === 2) && (
-                  <Tooltip popupPlacement="bottom" text={<span>{_l('仅管理员可见')}</span>}>
-                    <Icon className="Font16 mRight10" icon="visibility_off" style={{ color: currentPcNaviStyle === 1 && themeType === 'theme' ? '#FCD8D3' : '#ee6f09' }} />
+                  <Tooltip
+                    popupPlacement="bottom"
+                    text={<span>{_l('仅系统角色可见（包含管理员、运营者、开发者）')}</span>}
+                  >
+                    <Icon
+                      className="Font16 mRight10"
+                      icon="visibility_off"
+                      style={{ color: currentPcNaviStyle === 1 && themeType === 'theme' ? '#FCD8D3' : '#ee6f09' }}
+                    />
                   </Tooltip>
                 )}
               </Fragment>
             </MdLink>
-            {isCharge && (
+            {(canEditApp(_.get(appPkg, ['permissionType'])) || canEditData(_.get(appPkg, ['permissionType']))) && (
               <MoreOperation {...this.props}>
                 <div className="rightArea moreBtn">
                   <Icon icon="more_horiz" className="Font18 moreIcon" />

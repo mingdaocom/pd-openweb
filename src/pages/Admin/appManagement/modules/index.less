@@ -16,20 +16,32 @@
   }
   .passwordInputBox {
     display: flex;
-    align-items: center;
     margin-top: 14px;
-    background: #f5f5f5;
-    width: 230px;
-    height: 36px;
     line-height: 34px;
-    padding: 0 12px;
     box-sizing: border-box;
-    justify-content: space-between;
-    font-size: 15px;
+    font-size: 12px;
     border-radius: 2px;
     .inputBox {
       border: none;
       background: #f5f5f5;
+      padding-left: 16px;
+      width: 166px;
+      height: 36px;
+      margin-right: 16px;
+      &.editInput {
+        background: #fff;
+        border: 1px solid #2196f3;
+      }
+    }
+    .icon-edit,
+    .icon-content-copy {
+      &:hover {
+        color: #2196f3 !important;
+      }
+    }
+    .error {
+      font-size: 12px;
+      color: #f44336;
     }
   }
 }
@@ -225,7 +237,6 @@
 
     .passwordInputBox {
       width: 250px;
-      height: 36px;
       line-height: 34px;
       border: 1px solid #2196f3;
       border-radius: 3px;
@@ -402,12 +413,6 @@
     display: flex;
     flex-direction: column;
     margin-right: -20px;
-    .scrollExportListContainer {
-      &.nano {
-        width: 470px;
-        margin-left: -18px;
-      }
-    }
     .nano > .nano-content {
       padding-right: 20px;
     }
@@ -438,9 +443,7 @@
 
     .searchBarContainer {
       width: 432px;
-      height: 62px;
-      padding-top: 16px;
-      padding-bottom: 10px;
+      height: 32px;
       box-sizing: border-box;
       position: relative;
       display: flex;

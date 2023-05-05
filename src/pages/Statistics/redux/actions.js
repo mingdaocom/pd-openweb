@@ -70,8 +70,11 @@ export const getReportConfigDetail = (data, callBack) => {
     reportConfigDetailRequest = reportConfigAjax.getReportConfigDetail(data);
     reportConfigDetailRequest.then(result => {
       const { currentReport, axisControls } = initConfigDetail(reportId, result, oldReport);
-      if (viewId && !_.get(currentReport, ['filter', 'viewId'])) {
+      if (viewId && !reportId && !_.get(currentReport, ['filter', 'viewId'])) {
         currentReport.filter.viewId = viewId;
+      }
+      if (currentReport.reportType === reportTypes.BarChart) {
+        currentReport.displaySetup.showChartType = _.get(oldReport, 'displaySetup.showChartType') || currentReport.displaySetup.showChartType;
       }
       dispatch({
         type: 'CHANGE_STATISTICS_CURRENT_REPORT',
@@ -480,7 +483,8 @@ export const changeSheetId = (activeSheetId) => {
 export const changeControlCheckbox = (event, item) => {
   return (dispatch, getState) => {
     const { currentReport, base } = getState().statistics;
-    const { reportType, xaxes, yaxisList, rightY, split, pivotTable } = currentReport;
+    const { reportType, xaxes, yaxisList, rightY, split, pivotTable, config } = currentReport;
+    const targetList = _.get(config, 'targetList') || [];
     const rightYaxisList = _.get(rightY, ['yaxisList']) || [];
     const rightSplit = _.get(rightY, ['split']);
     const lines = _.get(pivotTable, ['lines']) || [];
@@ -564,8 +568,12 @@ export const changeControlCheckbox = (event, item) => {
         }));
         return
       }
-      if ([reportTypes.PieChart, reportTypes.FunnelChart]) {
-        if ((yaxisList.length && xaxes.controlId) || yaxisList.length > 1) {
+      if ([reportTypes.PieChart, reportTypes.FunnelChart, reportTypes.WordCloudChart]) {
+        if (_.isEmpty(xaxes.controlId) && !isNumber) {
+          dispatch(addXaxes(item));
+          return;
+        }
+        if ((yaxisList.length && xaxes.controlId) || yaxisList.length >= 1) {
           dispatch(getReportConfigDetail({
             reportId: base.report.id,
             appId: base.sheetId,
@@ -667,6 +675,16 @@ export const changeControlCheckbox = (event, item) => {
       if (rightSplit && item.controlId === rightSplit.controlId) {
         dispatch(changeRightSplit({ controlId: null, particleSizeType: 0 }));
       }
+      if (item.controlId === _.get(config, 'min.controlId')) {
+        dispatch(changeConfig({ min: null }));
+      }
+      if (item.controlId === _.get(config, 'max.controlId')) {
+        dispatch(changeConfig({ max: null }));
+      }
+      if (_.find(targetList, { controlId: item.controlId })) {
+        const index = _.findIndex(targetList, { controlId: item.controlId });
+        dispatch(removeTargetValueAxis(index));
+      }
       const lineItem = _.find(lines, { controlId: item.controlId });
       const columnItem = _.find(columns, { controlId: item.controlId });
       if (lineItem) {
@@ -709,7 +727,7 @@ export const removeXaxes = () => {
 export const addXaxes = (control, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { xaxes, displaySetup } = currentReport;
+    const { xaxes, displaySetup, reportType } = currentReport;
     const isTime = isTimeControl(control.type);
     const isArea = isAreaControl(control.type);
     const showtype = _.get(control, 'advancedSetting.showtype');
@@ -728,7 +746,7 @@ export const addXaxes = (control, isRequest = true) => {
         ...displaySetup,
         xdisplay: {
           ...displaySetup.xdisplay,
-          title: control.controlName,
+          title: reportType === reportTypes.ScatterChart ? displaySetup.xdisplay.title : control.controlName,
         }
       }
     }
@@ -753,13 +771,92 @@ export const addXaxes = (control, isRequest = true) => {
   }
 }
 
+export const addValueAxis = (key, control, isRequest = true) => {
+  return (dispatch, getState) => {
+    const { currentReport } = getState().statistics;
+    const { advancedSetting = {} } = control;
+    const isPercent = advancedSetting.numshow === '1';
+    const isNumber = isNumberControl(control.type, false);
+    const { config } = currentReport;
+    const data = {
+      config: {
+        ...config,
+        [key]: {
+          controlId: control.controlId,
+          controlName: control.controlName,
+          controlType: control.type,
+          magnitude: isPercent ? 7 : 0,
+          suffix: isPercent ? '%' : '',
+          ydot: isPercent ? 0 : 2,
+          normType: isNumber ? 1 : 5,
+          emptyShowType: 0,
+          dot: control.dot,
+          rename: '',
+          value: undefined
+        }
+      }
+    }
+    dispatch(changeCurrentReport(data, isRequest));
+  }
+}
+
+
+export const addTargetValueAxis = (index, control) => {
+  return (dispatch, getState) => {
+    const { currentReport } = getState().statistics;
+    const { advancedSetting = {} } = control;
+    const isPercent = advancedSetting.numshow === '1';
+    const isNumber = isNumberControl(control.type, false);
+    const { config } = currentReport;
+    const targetList = config.targetList || [];
+    const data = {
+      controlId: control.controlId,
+      controlName: control.controlName,
+      controlType: control.type,
+      magnitude: isPercent ? 7 : 0,
+      suffix: isPercent ? '%' : '',
+      ydot: isPercent ? 0 : 2,
+      normType: isNumber ? 1 : 5,
+      emptyShowType: 0,
+      dot: control.dot,
+      rename: '',
+    }
+    targetList[index] = data;
+    dispatch(changeConfig({
+      targetList
+    }));
+  }
+}
+
+export const removeTargetValueAxis = (index, control) => {
+  return (dispatch, getState) => {
+    const { currentReport } = getState().statistics;
+    const { targetList } = currentReport.config;
+    targetList[index] = null;
+    dispatch(changeConfig({
+      targetList
+    }));
+  }
+}
+
+export const changeConfig = (data, isRequest = true) => {
+  return (dispatch, getState) => {
+    const { currentReport } = getState().statistics;
+    const config = {
+      ...currentReport.config,
+      ...data,
+    }
+    dispatch(changeCurrentReport({ config }, isRequest));
+  }
+}
+
 export const addYaxisList = (data, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
     const { yaxisList, reportType, pivotTable } = currentReport;
     const { advancedSetting = {} } = data;
     const isPercent = advancedSetting.numshow === '1';
-
+    const isNumber = isNumberControl(data.type, false);
     const axis = {
       controlId: data.controlId,
       controlName: data.controlName,
@@ -767,7 +864,7 @@ export const addYaxisList = (data, isRequest = true) => {
       magnitude: isPercent ? 7 : 0,
       suffix: isPercent ? '%' : '',
       ydot: isPercent ? 0 : 2,
-      normType: 1,
+      normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: data.dot,
       rename: '',
@@ -803,19 +900,57 @@ export const addYaxisList = (data, isRequest = true) => {
   }
 }
 
+export const addIndexYaxisList = (data, index, isRequest = true) => {
+  return (dispatch, getState) => {
+    const { currentReport } = getState().statistics;
+    const { yaxisList, displaySetup } = currentReport;
+    const { advancedSetting = {} } = data;
+    const isPercent = advancedSetting.numshow === '1';
+    const isNumber = isNumberControl(data.type, false);
+    const axis = {
+      controlId: data.controlId,
+      controlName: data.controlName,
+      controlType: data.type,
+      magnitude: isPercent ? 7 : 0,
+      suffix: isPercent ? '%' : '',
+      ydot: isPercent ? 0 : 2,
+      normType: isNumber ? 1 : 5,
+      emptyShowType: 0,
+      dot: data.dot,
+      rename: '',
+    }
+    if (index === 0) {
+      displaySetup.xdisplay.title = data.controlName;
+    }
+    if (index === 1) {
+      displaySetup.ydisplay.title = data.controlName;
+    }
+    yaxisList[index] = axis;
+    dispatch(changeYaxisList({
+      yaxisList,
+      displaySetup
+    }, isRequest));
+  }
+}
+
+
 export const changeYaxisList = (data, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { displaySetup } = currentReport;
-    const { yaxisList } = data;
-    const title = yaxisList.length ? yaxisList[0].controlName : null;
+    const { reportType, displaySetup } = currentReport;
+    const { yaxisList = [], sorts = [] } = data;
+    const title = yaxisList.length ? _.get(yaxisList[0], 'controlName') : null;
+    if (reportType === reportTypes.TopChart) {
+      const defaultSorts = yaxisList.length ? [{ [yaxisList[0].controlId]: 2 }] : [];
+      data.sorts = sorts.length ? sorts : defaultSorts;
+    }
     dispatch(changeCurrentReport({
       ...data,
       displaySetup: {
         ...displaySetup,
         ydisplay: {
           ...displaySetup.ydisplay,
-          title
+          title: reportType === reportTypes.ScatterChart ? displaySetup.ydisplay.title : title,
         },
         isPerPile: yaxisList.length <= 1 ? false : displaySetup.isPerPile,
         isPile: yaxisList.length <= 1 ? false : displaySetup.isPile
@@ -827,7 +962,7 @@ export const changeYaxisList = (data, isRequest = true) => {
 export const removeYaxisList = (id) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { yaxisList, split, sorts, reportType, pivotTable } = currentReport;
+    const { yaxisList, split, sorts, reportType, pivotTable, summary, config } = currentReport;
     const newYaxisList = yaxisList.filter(item => item.controlId !== id);
     const data = {
       yaxisList: newYaxisList,
@@ -851,6 +986,20 @@ export const removeYaxisList = (id) => {
           ...lineSummary,
           controlList: lineControlList.filter(item => item.controlId !== id)
         }
+      }
+    }
+    if (id === summary.controlId) {
+      data.summary = {
+        ...summary,
+        controlId: ''
+      }
+    }
+    if (reportType === reportTypes.ProgressChart) {
+      const targetList = config.targetList || [];
+      const index = _.findIndex(yaxisList, { controlId: id });
+      data.config = {
+        ...config,
+        targetList: targetList.filter((_, i) => i !== index)
       }
     }
     dispatch(changeYaxisList(data));
@@ -899,6 +1048,7 @@ export const addRightYaxisList = (data, isRequest = true) => {
     const { currentReport } = getState().statistics;
     const { rightY } = currentReport;
     const { yaxisList } = rightY;
+    const isNumber = isNumberControl(data.type, false);
     const axis = {
       controlId: data.controlId,
       controlName: data.controlName,
@@ -906,7 +1056,7 @@ export const addRightYaxisList = (data, isRequest = true) => {
       magnitude: 0,
       suffix: '',
       ydot: 2,
-      normType: 1,
+      normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: data.dot,
       rename: '',

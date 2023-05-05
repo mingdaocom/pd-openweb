@@ -3,6 +3,7 @@ import { withRouter } from 'react-router';
 import _ from 'lodash';
 import moment from 'moment';
 import { ScrollView, LoadDiv, Checkbox, WaterMark } from 'ming-ui';
+import { Skeleton } from 'antd';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import GlobalSearchSide from './containers/GlobalSearchSide';
 import GlobalSearchEmpty from './components/GlobalSearchEmpty';
@@ -159,7 +160,7 @@ export default class GlobalSearch extends Component {
 
       if (
         searchType === 'record' &&
-        (getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) === '2' || proObj.licenseType === 2)
+        (getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) !== '1' || proObj.licenseType === 2)
       ) {
         this.setState({
           loading: false,
@@ -299,6 +300,7 @@ export default class GlobalSearch extends Component {
       otherLoading,
       sort,
       onlyTitle,
+      resultCode,
     } = this.state;
 
     let content = null;
@@ -312,7 +314,7 @@ export default class GlobalSearch extends Component {
 
     if (
       searchType === 'record' &&
-      (getFeatureStatus(currentProject.projectId, GLOBAL_SEARCH_FEATURE_ID) === '2' || currentProject.licenseType === 2)
+      (getFeatureStatus(currentProject.projectId, GLOBAL_SEARCH_FEATURE_ID) !== '1' || currentProject.licenseType === 2)
     )
       return null;
 
@@ -379,18 +381,10 @@ export default class GlobalSearch extends Component {
     } else if (searchType === 'all') {
       const { appProjectId, highlightType } = this.state;
 
-      if (loading || otherLoading) {
-        return (
-          <div className="searchContent loading">
-            <LoadDiv size="middle" />
-          </div>
-        );
-      }
-
       return (
         <React.Fragment>
           {['apps', 'rows'].map(item => {
-            if (!appData || !appData[item] || appData[item].total === 0) return null;
+            if (!appData) return null;
 
             let buttons = [
               <OrgSelect
@@ -424,7 +418,7 @@ export default class GlobalSearch extends Component {
             return (
               <AppList
                 key={`global-search-appList-${item}`}
-                data={appData[item]}
+                data={appData[item] || {}}
                 dataKey={type}
                 searchKeyword={searchKey}
                 currentProjectName={currentProject.companyName}
@@ -436,6 +430,7 @@ export default class GlobalSearch extends Component {
                 start={highlightType ? highlightType === type : this.getStart(type)}
                 explore={item === 'rows' && searchAppResCode === 4}
                 onStartBetween={() => this.onStartBetween(type)}
+                resultCode={item === 'rows' ? (currentProject.licenseType === 2 ? 3 : resultCode) : null}
               />
             );
           })}
@@ -517,6 +512,7 @@ export default class GlobalSearch extends Component {
       dateRange,
       otherLoading,
       onlyTitle,
+      pageIndex,
     } = this.state;
 
     if (!searchType) return null;
@@ -584,26 +580,38 @@ export default class GlobalSearch extends Component {
                       )}
                     </div>
                   </div>
+
                   {searchKey &&
-                    !loading &&
-                    !otherLoading &&
                     (searchType === 'record'
                       ? getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) !== '2' && proObj.licenseType !== 2
                       : true) && (
-                      <p className="allCount mTop16 Gray_9e mLeft10">
-                        {searchAppResCode === 2 && searchType === 'record'
-                          ? _l('数据正在初始化，请耐心等待')
-                          : ['app', 'record'].indexOf(searchType) < 0
-                          ? _l('搜索到 %0 个结果', total)
-                          : null}
-                      </p>
+                      <Skeleton
+                        round={true}
+                        paragraph={false}
+                        loading={
+                          (loading || otherLoading) &&
+                          pageIndex === 1 &&
+                          (['app', 'record'].indexOf(searchType) < 0 ||
+                            (searchAppResCode === 2 && searchType === 'record'))
+                        }
+                        title={{ width: '250px' }}
+                        active={true}
+                      >
+                        <p className="allCount mTop16 Gray_9e mLeft10">
+                          {searchAppResCode === 2 && searchType === 'record'
+                            ? _l('数据正在初始化，请耐心等待')
+                            : ['app', 'record'].indexOf(searchType) < 0
+                            ? _l('搜索到 %0 个结果', total)
+                            : null}
+                        </p>
+                      </Skeleton>
                     )}
                 </React.Fragment>
               )}
 
               {(!searchKey || !searchKey.trim()) &&
                 (searchType === 'record'
-                  ? getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) !== '2' && proObj.licenseType !== 2
+                  ? getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) === '1' && proObj.licenseType !== 2
                   : true) && (
                   <GlobalSearchEmpty
                     positionStyle={{ top: '97px', transform: 'translate(-50%, 0)' }}
@@ -611,13 +619,30 @@ export default class GlobalSearch extends Component {
                   />
                 )}
               {searchType === 'record' &&
-                (getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) === '2' || proObj.licenseType === 2) && (
+                !loading &&
+                (getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) !== '1' || proObj.licenseType === 2) && (
                   <div className="upgradeVersion ">
                     {buriedUpgradeVersionDialog(proId, GLOBAL_SEARCH_FEATURE_ID, 'content')}
                   </div>
                 )}
               <ScrollView onScrollEnd={this.handleScrollEnd}>
-                {searchKey && searchKey.trim() && this.renderList()}
+                {searchKey && searchKey.trim() && (
+                  <React.Fragment>
+                    {[...new Array(5)].map((item, index) => (
+                      <Skeleton
+                        className="mBottom20 scrollListskeleton"
+                        active={true}
+                        round={true}
+                        loading={loading && otherLoading && pageIndex === 1}
+                        title={false}
+                        avatar={{ size: 32 }}
+                        paragraph={{ rows: 2, width: ['253px', '100%'] }}
+                      >
+                        {index === 0 ? this.renderList() : null}
+                      </Skeleton>
+                    ))}
+                  </React.Fragment>
+                )}
               </ScrollView>
             </div>
           </div>

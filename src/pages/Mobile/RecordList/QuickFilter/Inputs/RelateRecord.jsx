@@ -20,10 +20,28 @@ export default function RelateRecord(props) {
     formData,
     viewId,
   } = control;
-  const { showtype, allowlink, ddset, allowitem, direction } = advancedSetting;
+  const { showtype, allowlink, ddset, allowitem, direction, nullitemname, shownullitem, navshow, navfilters } =
+    advancedSetting;
   const isMultiple = String(allowitem) === '2';
   const [moreVisible, setMoreVisible] = useState(false);
-
+  let staticRecords;
+  if (navshow === '3') {
+    control.advancedSetting.filters = navfilters;
+  }
+  if (navshow === '2') {
+    staticRecords = JSON.parse(navfilters)
+      .map(safeParse)
+      .map(r => ({ rowid: r.id, ...r }));
+  }
+  const prefixRecords =
+    shownullitem === '1'
+      ? [
+          {
+            rowid: 'isEmpty',
+            name: nullitemname || _l('为空'),
+          },
+        ]
+      : [];
   const handleSetMoreVisible = () => {
     setMoreVisible(!moreVisible);
   };
@@ -64,6 +82,7 @@ export default function RelateRecord(props) {
       return;
     }
   };
+
   return (
     <div className="controlWrapper">
       <div className="flexRow valignWrapper mBottom15">
@@ -72,6 +91,8 @@ export default function RelateRecord(props) {
           <div className="selected ellipsis">
             {isMultiple
               ? _l('选择%0项', values.length)
+              : values[0].rowid === 'isEmpty'
+              ? values[0].name
               : _.get(values[0], 'name') || getTitleTextFromControls(control.relationControls, values[0])}
           </div>
         )}
@@ -80,6 +101,9 @@ export default function RelateRecord(props) {
         multiple={isMultiple}
         selected={values}
         control={control}
+        advancedSetting={advancedSetting}
+        prefixRecords={prefixRecords}
+        staticRecords={staticRecords}
         onSetMoreVisible={handleSetMoreVisible}
         onChange={newRecords => {
           handleChange({ values: newRecords });
@@ -101,6 +125,7 @@ export default function RelateRecord(props) {
           relateSheetId={dataSource}
           parentWorksheetId={worksheetId}
           filterRelatesheetControlIds={[controlId]}
+          staticRecords={staticRecords}
           defaultRelatedSheet={getDefaultRelateSheetValue()}
           controlId={controlId}
           visible={moreVisible}

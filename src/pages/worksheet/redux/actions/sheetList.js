@@ -6,8 +6,8 @@ import webCache from 'src/api/webCache';
 import update from 'immutability-helper';
 import { pick } from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
-import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
-import { updateIsCharge } from 'worksheet/redux/actions';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { updateIsCharge, updateAppPkgData } from 'worksheet/redux/actions';
 import { updateAppGroup } from 'src/pages/PageHeader/redux/action';
 import { updateWorksheetInfo } from 'src/pages/worksheet/redux/actions/index';
 import { updatePageInfo, updateEditPageVisible } from 'src/pages/customPage/redux/action';
@@ -51,7 +51,7 @@ export function getSheetList(args) {
     if (getAppSectionDetailRequest) {
       try {
         getAppSectionDetailRequest.abort();
-      } catch (err) {}
+      } catch (err) { }
     }
     getAppSectionDetailRequest = homeAppApi.getAppSectionDetail(args);
     getAppSectionDetailRequest.then(data => {
@@ -60,7 +60,7 @@ export function getSheetList(args) {
         dispatch({ type: 'WORKSHEET_APP_SECTION_FAILURE' });
         return;
       }
-      const isCharge = isHaveCharge(data.appRoleType, data.isLock);
+      const isCharge = canEditApp(data.appRoleType, data.isLock);
       const list = formatLeftSectionDetail(data);
       if (data.workSheetInfo.length) {
         dispatch({
@@ -118,9 +118,10 @@ export function getAllAppSectionDetail(appId, callBack) {
   return function (dispatch, getState) {
     homeAppApi.getAppInfo({ appId }).then(result => {
       const { appRoleType, isLock, appSectionDetail = [] } = result;
-      const isCharge = isHaveCharge(appRoleType, isLock);
+      const isCharge = canEditApp(appRoleType, isLock);
       dispatch(updateIsCharge(isCharge));
       dispatch(updateAppGroup(appSectionDetail));
+      dispatch(updateAppPkgData({appRoleType, isLock}))
       dispatch(
         updateALLSheetList(
           appSectionDetail.map(data => {
@@ -420,7 +421,7 @@ export function sortSheetList(appId, appSectionId, sheetList) {
         appSectionId,
         workSheetIds: sheetList.filter(_.identity).map(item => item.workSheetId),
       })
-      .then(result => {});
+      .then(result => { });
   };
 }
 
@@ -436,7 +437,7 @@ export function updateGuidanceVisible(visible) {
           },
           { silent: true },
         )
-        .then(result => {});
+        .then(result => { });
       dispatch({
         type: 'GUIDANCE_VISIBLE',
         value: visible,

@@ -133,6 +133,10 @@ export const BillInfoWrap = styled.div`
       width: 9%;
       text-align: center;
     }
+    .rechargeType {
+      flex: 1;
+      padding-right: 10px;
+    }
   }
   .recordList {
     flex: 1;
@@ -170,6 +174,10 @@ export const BillInfoWrap = styled.div`
         .ming.Menu {
           width: 100px;
         }
+      }
+      .rechargeType {
+        flex: 1;
+        padding-right: 10px;
       }
     }
   }

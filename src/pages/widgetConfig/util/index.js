@@ -384,14 +384,14 @@ export const getRgbaByColor = (color, alpha) => {
 
 // 支持左右布局的控件
 export const supportDisplayRow = item => {
-  // 附件、单条关联记录、多条关联记录（列表、卡片）、子表、分段、备注
+  // 附件、单条关联记录、多条关联记录（列表、卡片）、子表、分割线、备注
   if (browserIsMobile()) {
     return (
       !includes([14, 29, 34, 22], item.type) ||
       (item.type === 29 && _.get(item, 'advancedSetting.showtype') === '3')
     );
   }
-  // 多条关联记录（列表）、子表、分段、备注
+  // 多条关联记录（列表）、子表、分割线、备注
   return (
     (item.type === 29 && _.get(item, 'advancedSetting.showtype') !== '2') || !includes([29, 34, 22], item.type)
   );

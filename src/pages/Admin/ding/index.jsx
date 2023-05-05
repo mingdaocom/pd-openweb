@@ -17,6 +17,10 @@ const optionTypes = [
   { label: _l('新开浏览器打开'), key: 1 },
   { label: _l('钉钉内打开'), key: 2 },
 ];
+const messageLinkTypes = [
+  { label: _l('独立窗口'), key: 2 },
+  { label: _l('侧边栏打开'), key: 1 },
+];
 const FEATURE_ID = 10;
 
 export default class Ding extends React.Component {
@@ -78,6 +82,7 @@ export default class Ding extends React.Component {
           show2: !(res.corpId && res.agentId && res.appKey && res.appSecret && res.status != 2),
           intergrationClientWorkingPattern: res.intergrationClientWorkingPattern,
           intergrationTodoMessageEnabled: res.intergrationTodoMessageEnabled,
+          ddMessagUrlPcSlide: res.ddMessagUrlPcSlide,
           status: res.status,
         });
       }
@@ -487,6 +492,21 @@ export default class Ding extends React.Component {
     });
   }
 
+  handleChangeMessageLinkWay = value => {
+    Ajax.editDDMessagUrlPcSlide({
+      projectId: Config.projectId,
+      status: value,
+    }).then(res => {
+      if (res) {
+        this.setState({
+          ddMessagUrlPcSlide: value,
+        });
+      } else {
+        alert('失败');
+      }
+    });
+  };
+
   // 获取初始密码值
   getInitialPassword = () => {
     Ajax.getIntergrationAccountInitializeInfo({
@@ -531,6 +551,20 @@ export default class Ding extends React.Component {
                       checked={this.state.intergrationClientWorkingPattern === item.key}
                       text={item.label}
                       onClick={e => this.handleChangePattern(item.key)}
+                    />
+                  );
+                })}
+              </div>
+              <div className="stepItem">
+                <h3 className="stepTitle Font16 Gray pBottom5">{_l('消息链接')}</h3>
+                {messageLinkTypes.map(item => {
+                  return (
+                    <Radio
+                      className="Block mTop20"
+                      disabled={this.state.isCloseDing}
+                      checked={this.state.ddMessagUrlPcSlide === item.key}
+                      text={item.label}
+                      onClick={e => this.handleChangeMessageLinkWay(item.key)}
                     />
                   );
                 })}

@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Icon, Tooltip, RadioGroup, Input, LoadDiv, Radio } from 'ming-ui';
 import importUserController from 'src/api/importUser';
+import userAjax from 'src/api/user';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
@@ -11,6 +12,8 @@ import { encrypt } from 'src/util';
 import BaseFormInfo from '../BaseFormInfo';
 import TextInput from '../TextInput';
 import { checkForm, RESULTS } from '../../constant';
+import { addUserFeedbackFunc } from '../AddUserFeedback';
+import EditUser from '../EditUser';
 import cx from 'classnames';
 import './index.less';
 
@@ -153,6 +156,64 @@ export default class AddUser extends Component {
     delete errors[field];
     this.setState({ errors });
   };
+  // check当前组织是否存在该人员
+  checkedUser = (e, type) => {
+    const { projectId, typeCursor, departmentId } = this.props;
+    const { mobile, email, inviteType, invite, autonomously } = this.state;
+    let val = e.target.value;
+    if (
+      (type === 'mobile' && !!checkForm['mobile'](val, this.iti)) ||
+      (type === 'email' && !!checkForm['email'](val))
+    ) {
+      this.setState({ showMask: false });
+      return;
+    }
+
+    userAjax
+      .getUserOrgState({
+        projectId,
+        userContact: !md.global.Config.IsLocal
+          ? inviteType === 'mobile'
+            ? mobile
+            : email
+          : inviteType === 'invite'
+          ? invite
+          : autonomously,
+        departmentId,
+      })
+      .then(res => {
+        // {0: 用户不存在，1:用户存在但不在组织内，2:用户存在且在组织内，3:未激活，4:未审核，5:已离职，6:在当前部门下}
+        if (res.userState === 0 || res.userState === 1) {
+          this.setState({ showMask: false });
+          return;
+        }
+        let user = {
+          accountId: res.accountId,
+          fullname: res.name,
+          mobile: res.phone,
+          email: res.email,
+          avatar: res.avatar,
+        };
+        const data = _.get(res, 'userCardModel.user') || {};
+        user = {
+          ...user,
+          ...data,
+          departmentIds: (data.departmentInfos || []).map(it => it.departmentId),
+        };
+        addUserFeedbackFunc({
+          projectId,
+          typeCursor: res.userState === 3 ? 2 : res.userState === 4 ? 3 : typeCursor,
+          departmentId,
+          actionResult: res.userState,
+          closeDrawer: this.props.onClose,
+          currentUser: user,
+          refreshData: this.props.refreshData,
+          reviewUserInfo: this.reviewUserInfo,
+          hideMask: () => this.setState({ showMask: false }),
+        });
+        this.setState({ currentUser: user });
+      });
+  };
   handleSubmit = isClear => {
     const _this = this;
     const {
@@ -177,8 +238,8 @@ export default class AddUser extends Component {
     const errors = {
       ...this.state.errors,
       userName: !!checkForm['userName'](userName),
-      mobile: mobile && !!checkForm['mobile'](mobile, this.iti),
-      email: email && !!checkForm['email'](email),
+      mobile: inviteType === 'mobile' && !!checkForm['mobile'](mobile, this.iti),
+      email: inviteType === 'email' && !!checkForm['email'](email),
       contactPhone: !!checkForm['contactPhone'](contactPhone),
       invite: this.itiInvite && !!checkForm['invite'](invite, this.itiInvite),
       autonomously: this.itiAutonomously && !!checkForm['autonomously'](autonomously, this.itiAutonomously),
@@ -378,6 +439,10 @@ export default class AddUser extends Component {
               onFocus={() => {
                 this.clearError('invite');
               }}
+              onBlur={e => {
+                this.setState({ showMask: true });
+                this.checkedUser(e, 'mobileOrEmail');
+              }}
             />
             {errors['invite'] && !!checkForm['invite'](invite, this.itiInvite) && (
               <div className="Block Red LineHeight25 Hidden">{checkForm['invite'](invite, this.itiInvite)}</div>
@@ -481,6 +546,9 @@ export default class AddUser extends Component {
                   { text: _l('邮箱'), value: 'email' },
                 ]}
                 onChange={val => {
+                  setTimeout(() => {
+                    this.itiFn();
+                  }, 200);
                   this.clearError('mobile');
                   this.clearError('email');
                   this.setState({ inviteType: val, mobile: '', email: '' });
@@ -505,6 +573,10 @@ export default class AddUser extends Component {
               onFocus={() => {
                 this.clearError('mobile');
               }}
+              onBlur={e => {
+                this.setState({ showMask: true });
+                this.checkedUser(e, 'mobile');
+              }}
             />
             {errors['mobile'] && !!checkForm['mobile'](mobile, this.iti) && (
               <div className="Block Red LineHeight25 Hidden">{checkForm['mobile'](mobile, this.iti)}</div>
@@ -525,6 +597,10 @@ export default class AddUser extends Component {
               onFocus={() => {
                 this.clearError('email');
               }}
+              onBlur={e => {
+                this.setState({ showMask: true });
+                this.checkedUser(e, 'email');
+              }}
             />
             {errors['email'] && checkForm['email'](email) && (
               <div className="Block Red LineHeight25 Hidden">{checkForm['email'](email)}</div>
@@ -535,74 +611,117 @@ export default class AddUser extends Component {
     );
   };
 
+  reviewUserInfo = () => {
+    this.setState({ openChangeUserInfoDrawer: !this.state.openChangeUserInfoDrawer });
+  };
+
   render() {
     const { onClose = () => {}, actType, typeCursor, editCurrentUser, projectId, departmentId } = this.props;
-    const { isUploading, errors, jobList, worksiteList, baseInfo } = this.state;
-    return (
-      <CSSTransitionGroup
-        component={'div'}
-        transitionAppearTimeout={500}
-        transitionEnterTimeout={500}
-        transitionLeaveTimeout={500}
-      >
-        <div className="addEditUserInfoWrap" key="addEditUserInfo">
-          <div className="headerInfo">
-            <div className="Font17 Bold flex">{_l('添加人员')}</div>
-            <span
-              className="close Hand"
-              onClick={() => {
-                onClose();
-              }}
-            >
-              <Icon icon="close" className="Font24 Gray_9e LineHeight36" />
-            </span>
-          </div>
+    const {
+      isUploading,
+      errors,
+      jobList,
+      worksiteList,
+      baseInfo,
+      openChangeUserInfoDrawer,
+      currentUser = {},
+      showMask,
+    } = this.state;
 
-          {(!md.global.Config.IsLocal || (md.global.Config.IsLocal && md.global.Config.IsPlatformLocal)) && (
-            <div className="Gray_9e mLeft24">{_l('姓名、手机和邮箱为个人账户信息，组织中无法修改')}</div>
-          )}
-          {isUploading ? (
-            <div className="flex flexRow justifyContentCenter alignItemsCenter">
-              <LoadDiv />
+    return (
+      <Fragment>
+        <CSSTransitionGroup
+          component={'div'}
+          transitionAppearTimeout={500}
+          transitionEnterTimeout={500}
+          transitionLeaveTimeout={500}
+        >
+          <div className="addEditUserInfoWrap" key="addEditUserInfo">
+            <div className="headerInfo">
+              <div className="Font17 Bold flex">{_l('添加人员')}</div>
+              <span
+                className="close Hand"
+                onClick={() => {
+                  onClose();
+                }}
+              >
+                <Icon icon="close" className="Font24 Gray_9e LineHeight36" />
+              </span>
             </div>
-          ) : (
-            <Fragment>
-              <div className="formInfoWrap flex">
-                {md.global.Config.IsLocal ? this.renderPrivate() : this.renderBase()}
-                <BaseFormInfo
-                  ref={ele => (this.baseFormInfo = ele)}
+
+            {(!md.global.Config.IsLocal || (md.global.Config.IsLocal && md.global.Config.IsPlatformLocal)) && (
+              <div className="Gray_9e mLeft24">{_l('姓名、手机和邮箱为个人账户信息，组织中无法修改')}</div>
+            )}
+            {isUploading ? (
+              <div className="flex flexRow justifyContentCenter alignItemsCenter">
+                <LoadDiv />
+              </div>
+            ) : (
+              <Fragment>
+                <div className="formInfoWrap flex">
+                  {md.global.Config.IsLocal ? this.renderPrivate() : this.renderBase()}
+                  <BaseFormInfo
+                    ref={ele => (this.baseFormInfo = ele)}
+                    typeCursor={typeCursor}
+                    actType={actType}
+                    isUploading={isUploading}
+                    editCurrentUser={editCurrentUser}
+                    projectId={projectId}
+                    errors={errors}
+                    jobList={jobList}
+                    worksiteList={worksiteList}
+                    baseInfo={{ ...baseInfo, departmentIds: departmentId ? [departmentId] : [] }}
+                  />
+                </div>
+                <DrawerFooterOption
                   typeCursor={typeCursor}
                   actType={actType}
                   isUploading={isUploading}
                   editCurrentUser={editCurrentUser}
                   projectId={projectId}
+                  departmentId={departmentId}
+                  clickSave={this.props.clickSave}
+                  handleSubmit={this.handleSubmit}
+                  onClose={onClose}
                   errors={errors}
                   jobList={jobList}
                   worksiteList={worksiteList}
                   baseInfo={{ ...baseInfo, departmentIds: departmentId ? [departmentId] : [] }}
                 />
-              </div>
-              <DrawerFooterOption
-                typeCursor={typeCursor}
-                actType={actType}
-                isUploading={isUploading}
-                editCurrentUser={editCurrentUser}
-                projectId={projectId}
-                departmentId={departmentId}
-                clickSave={this.props.clickSave}
-                handleSubmit={this.handleSubmit}
-                onClose={onClose}
-              />
-            </Fragment>
-          )}
-          <div
-            className="cover"
-            onClick={() => {
+              </Fragment>
+            )}
+            {!showMask && (
+              <div
+                className="cover"
+                onClick={() => {
+                  onClose();
+                }}
+              ></div>
+            )}
+            {showMask && <div className="mask"></div>}
+          </div>
+        </CSSTransitionGroup>
+        {openChangeUserInfoDrawer && (
+          <EditUser
+            projectId={projectId}
+            typeCursor={typeCursor}
+            actType={'edit'}
+            key={`editUserInfo_${currentUser.accountId}`}
+            accountId={currentUser.accountId}
+            editCurrentUser={currentUser}
+            departmentId={departmentId}
+            clickSave={() => {
+              this.reviewUserInfo();
+              this.props.refreshData();
               onClose();
             }}
-          ></div>
-        </div>
-      </CSSTransitionGroup>
+            onClose={() => {
+              this.reviewUserInfo();
+            }}
+            cancelInviteRemove={this.props.cancelInviteRemove}
+          />
+        )}
+      </Fragment>
     );
   }
 }

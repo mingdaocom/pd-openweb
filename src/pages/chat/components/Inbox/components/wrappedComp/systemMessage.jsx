@@ -9,6 +9,7 @@ import settingGroups from 'src/components/group/settingGroup/settingGroups';
 import AddressBookDialog from 'src/pages/chat/lib/addressBook';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
 import linkify from 'linkifyjs/html';
+import { navigateTo } from 'src/router/navigateTo';
 import xss from 'xss';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import TaskCenterController from 'src/api/taskCenter';
@@ -28,7 +29,7 @@ export default class SystemMessage extends PureComponent {
     const that = this;
 
     if (this.msg) {
-      $(this.msg).on('click', 'a', function(evt) {
+      $(this.msg).on('click', 'a', function (evt) {
         const $this = $(this);
         const href = ($(evt.target).attr('href') || '').toLocaleLowerCase();
 
@@ -41,7 +42,7 @@ export default class SystemMessage extends PureComponent {
           TaskCenterController[func]({
             taskID: taskId,
             accountID: opUser,
-          }).done(function(data) {
+          }).done(function (data) {
             if (data.status) {
               alert(_l('操作成功'));
             } else if (data.error) {
@@ -110,6 +111,13 @@ export default class SystemMessage extends PureComponent {
           evt.preventDefault();
           window.open(href);
           return;
+        }
+
+        const matchedAppPath = (location.pathname.match(/\/app\/([\w-]{36})/) || '')[0];
+        // 应用首页
+        if (matchedAppPath && matchedAppPath === (href.match(/\/app\/([\w-]{36})/) || '')[0]) {
+          evt.preventDefault();
+          navigateTo(href + '?from=system');
         }
       });
     }

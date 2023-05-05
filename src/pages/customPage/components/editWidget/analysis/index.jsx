@@ -43,11 +43,11 @@ export default function Analysis(props) {
           worksheetId={worksheetId}
           viewId={viewId}
           report={report}
-          updateDialogVisible={({ dialogVisible, isRequest = false, reportId, reportName, reportDesc, worksheetId }) => {
+          updateDialogVisible={({ dialogVisible, isRequest = false, reportId, reportName, reportType, reportDesc, worksheetId }) => {
             const { config = {} } = widget;
             const newConfig = config.objectId ? config : { ...config, objectId: uuidv4() }
             if (reportId) {
-              onEdit({ value: reportId, config: newConfig, worksheetId, name: reportName });
+              onEdit({ value: reportId, config: newConfig, worksheetId, name: reportName, reportType });
               onClose();
               return;
             }

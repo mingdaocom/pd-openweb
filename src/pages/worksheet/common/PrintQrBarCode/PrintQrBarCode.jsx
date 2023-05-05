@@ -104,6 +104,11 @@ export default function PrintQrBarCode(props) {
     worksheetName,
     selectedRows = [],
     controls,
+    count,
+    allowLoadMore,
+    filterControls,
+    fastFilters,
+    navGroupFilters,
     onClose = () => {},
   } = props;
   const [base, setBase] = useState({
@@ -201,6 +206,11 @@ export default function PrintQrBarCode(props) {
       projectId,
       selectedRows,
       controls,
+      count,
+      allowLoadMore,
+      filterControls,
+      fastFilters,
+      navGroupFilters,
     });
   }
   function handleKeyDown(e) {
@@ -336,7 +346,7 @@ export default function PrintQrBarCode(props) {
             {mode === 'editTemplate' || mode === 'newTemplate' ? _l('保存') : _l('保存为打印模板')}
           </Button>
         )}
-        {!_.isEmpty(selectedRows) && (
+        {!_.includes(['newTemplate', 'editTemplate', 'preview'], mode) && (
           <Button size="mdnormal" type="primary" className="mLeft10" onClick={handlePrint}>
             {_l('打印')}
           </Button>

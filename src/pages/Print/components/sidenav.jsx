@@ -196,7 +196,7 @@ class Sidenav extends React.Component {
         }
       });
     }
-    //关联表富文本不不显示 分段 ,OCR ,条码不显示
+    //关联表富文本不不显示 分割线 ,OCR ,条码不显示
     controls = controls.filter(
       it => ![...UNPRINTCONTROL, 41, 22, 47].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
     );

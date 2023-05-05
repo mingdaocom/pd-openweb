@@ -207,6 +207,19 @@ var process = {
     return $.api(controllerName, 'processgoBack', args, $.extend(base, options));
   },
   /**
+   * 流程移到到其他应用下
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {MoveProcessRequest} {processId:流程id(string),relationId:移动到的应用id(string),}*moveProcessRequest
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  move: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/process/move';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'processmove', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 发布工作流
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
@@ -237,7 +250,7 @@ var process = {
    * 工作表按钮触发流程
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {RequestStartProcess} {appId:表id(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}*startProcess
+   * @param {RequestStartProcess} {appId:表id(string),dataLog:扩展触发值(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}*startProcess
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -250,7 +263,7 @@ var process = {
    * 根据流程id手动触发流程
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {RequestStartProcessByProcessId} {processId:流程id(string),sourceId:行记录id(string),}*startProcess
+   * @param {RequestStartProcessByProcessId} {dataLog:扩展触发值(string),processId:流程id(string),sourceId:行记录id(string),}*startProcess
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

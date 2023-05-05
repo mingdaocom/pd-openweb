@@ -18,17 +18,14 @@ const Wrapper = styled.div`
     padding: 8px 0px 8px 8px;
     border-bottom: 1px solid #e0e0e0;
 
-    .name {
-      div {
-        width: 120px;
-        padding-right: 8px;
-      }
-      .pkTip {
-        width: fit-content;
-      }
+    .name,
+    .dataType {
+      width: 0;
+      padding-right: 8px;
     }
     .name_dest,
     .dataType_dest {
+      width: 0;
       padding-right: 20px;
       position: relative;
     }
@@ -151,7 +148,9 @@ export default function FieldMappingList(props) {
             {!destData.isDbType && (
               <Icon icon={getIconByType(o.mdType, false)} className={cx('Font18 Gray_bd customIcon')} />
             )}
-            <span className="Gray mLeft8">{o.typeName.toLowerCase()}</span>
+            <span title={o.typeName.toLowerCase()} className="Gray mLeft8 w100 overflow_ellipsis">
+              {o.typeName.toLowerCase()}
+            </span>
           </div>
         ),
         value: destData.isDbType ? o.typeName.toLowerCase() : o.mdType,
@@ -211,12 +210,12 @@ export default function FieldMappingList(props) {
     const sourceField = data.sourceField || {};
     if (!matchedTypes) return;
     const matchedTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.dataType));
-    const matchedmdTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.mdType));
+    const matchedMdTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.mdType));
 
     const filterOptions = destData.isDbType
-      ? (destData.destFields || []).filter(o => o.isPk === sourceField.isPk && _.includes(matchedTypeIds, o.jdbcTypeId))
+      ? (destData.destFields || []).filter(o => !!o.isPk === !!sourceField.isPk && _.includes(matchedTypeIds, o.jdbcTypeId))
       : (destData.destFields || []).filter(
-          o => (!sourceData.isDbType ? o.isPk === sourceField.isPk : true) && _.includes(matchedmdTypeIds, o.mdType),
+          o => (!sourceData.isDbType ? !!o.isPk === !!sourceField.isPk : true) && _.includes(matchedMdTypeIds, o.mdType),
         );
 
     const options = filterOptions.map(item => {
@@ -235,7 +234,7 @@ export default function FieldMappingList(props) {
                 className={isExist && item.id !== destField.id ? 'Gray_c Font18' : 'Gray_9e Font18'}
               />
             )}
-            <span className={isExist && item.id !== destField.id ? 'Gray_c mLeft8' : 'Gray mLeft8'}>{item.name}</span>
+            <span title={item.name} className={`mLeft8 overflow_ellipsis ${isExist && item.id !== destField.id ? 'Gray_c' : 'Gray'}`}>{item.name}</span>
           </div>
         ),
         value: item.id,
@@ -309,7 +308,7 @@ export default function FieldMappingList(props) {
                   {item.name}
                 </span>
                 {item.isPk && (
-                  <div data-tip={_l('主键')} className="tip-top pkTip">
+                  <div data-tip={_l('主键')} className="tip-top">
                     <Icon icon="key1" className="Gray_bd mLeft5" />
                   </div>
                 )}
@@ -324,7 +323,7 @@ export default function FieldMappingList(props) {
           render: data => {
             const item = data.sourceField;
             return (
-              <div>
+              <div title={item.dataType} className="overflow_ellipsis">
                 <span>{item.dataType}</span>
               </div>
             );
@@ -355,7 +354,7 @@ export default function FieldMappingList(props) {
                   {item.name}
                 </span>
                 {item.isPk && (
-                  <div data-tip={_l('主键')} className="tip-top pkTip">
+                  <div data-tip={_l('主键')} className="tip-top">
                     <Icon icon="key1" className="Gray_bd mLeft5" />
                   </div>
                 )}

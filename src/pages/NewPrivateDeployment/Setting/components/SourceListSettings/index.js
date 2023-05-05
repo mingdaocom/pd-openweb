@@ -56,12 +56,15 @@ export default class SourceListSettings extends Component {
   }
   componentDidMount() {
     this.getSources();
-    appManagement.getIcon().then(({ systemIcon }) => {
+    appManagement.getIcon({
+      iconType: true,
+      isLine: false,
+    }).then(({ general }) => {
       this.setState({
-        systemIcon,
+        systemIcon: general,
         creatreItem: {
           color: COLORS[0],
-          icon: systemIcon[0].fileName
+          icon: general[0].fileName
         }
       });
     });

@@ -125,7 +125,7 @@ const PivotTableContent = styled.div`
     }
   }
   th, td {
-    min-width: 100px;
+    min-width: ${props => props.isMobile ? '60px' : '100px'};
   }
   .ant-table-cell-scrollbar {
     display: none;

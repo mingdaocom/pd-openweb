@@ -32,7 +32,8 @@ export default class RecordInfo extends Component {
     return rows;
   }
   render() {
-    const { row, isCharge, base, controls, worksheetInfo, sheetSwitchPermit, viewConfig, onClose } = this.props;
+    const { row, isCharge, base, controls, worksheetInfo, sheetSwitchPermit, viewConfig, hideRecord, onClose } =
+      this.props;
     if (isMobile) {
       return (
         <RecordInfoModal
@@ -58,7 +59,7 @@ export default class RecordInfo extends Component {
           rules={worksheetInfo.rules}
           currentSheetRows={this.getCurrentSheetRows()}
           hideRecordInfo={onClose}
-          hideRows={onClose}
+          hideRows={rowIds => hideRecord(rowIds[0])}
           updateRows={(ids, newItem, updateControls) => {
             this.props.updateRecord(row, updateControls, newItem);
           }}

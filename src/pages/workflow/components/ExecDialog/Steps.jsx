@@ -24,7 +24,11 @@ export default ({ worksheetId, rowId, currentWork, currentType, works, status })
           status={status}
         />
       ))}
-      {_.includes([2, 3, 4], status) && <div className="TxtCenter Gray_75 mTop5">{_l('流程结束')}</div>}
+      {_.includes([2, 3, 4], status) && (
+        <div className="TxtCenter Gray_75 mTop5" style={{ marginLeft: 34 }}>
+          {_l('流程结束')}
+        </div>
+      )}
     </Fragment>
   );
 };

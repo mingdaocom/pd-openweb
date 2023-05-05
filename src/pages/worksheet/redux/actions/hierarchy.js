@@ -92,6 +92,7 @@ function getHierarchyDataRecursion({ worksheet, records, kanbanKey, index, para 
     dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: false } });
     return;
   }
+
   const { worksheetId: relationWorksheetId, controlId } = viewControls[index - 1];
   sheetAjax
     .getFilterRows({
@@ -245,6 +246,32 @@ export function deleteHierarchyRecord({ rows, path, pathId, ...rest }) {
     });
   };
 }
+
+export const hideHierarchyRecord = (id, path, pathId) => (dispatch, getState) => {
+  const { sheet } = getState();
+  const { hierarchyView } = sheet;
+  let { hierarchyViewData } = hierarchyView;
+  const pathLen = pathId.length;
+  if (pathLen === 1) {
+    dispatch(expandedMultiLevelHierarchyData({ layer: 3 }));
+  } else {
+    dispatch(
+      getAssignChildren(
+        {
+          path: path.slice(0, -1),
+          pathId: pathId.slice(0, -1),
+          kanbanKey: pathId[pathLen - 2],
+        },
+        true,
+      ),
+    );
+  }
+  dispatch({
+    type: 'CHANGE_HIERARCHY_VIEW_DATA',
+    data: update(hierarchyViewData, { $unset: [id] }),
+  });
+};
+
 // 判断是否是祖先元素
 const isAncestor = (src, target) => {
   for (let i = 0; i < target.length; i++) {

@@ -60,7 +60,9 @@ export default function ApiSearchConfig(props) {
   const { data, onChange, onClose, controls = [] } = props;
   const [visible, setVisible] = useState(false);
 
-  const searchableControls = formatControlsToDropdown(controls.filter(item => TEXT_TYPE_CONTROL.includes(item.type)));
+  const searchableControls = formatControlsToDropdown(
+    controls.filter(item => TEXT_TYPE_CONTROL.includes(item.type) && /^\w{24}$/.test(item.controlId)),
+  );
   const defaultSearchControl =
     get(
       controls.find(item => item.attribute === 1 && TEXT_TYPE_CONTROL.includes(item.type)),

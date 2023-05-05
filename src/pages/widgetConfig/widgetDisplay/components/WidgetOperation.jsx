@@ -176,7 +176,7 @@ export default function WidgetOperation(props) {
         visible={deleteConfirmVisible}
         onVisibleChange={visible => setVisible({ deleteConfirmVisible: visible })}
         // getPopupContainer={() => parentRef.current}
-        hint={isFree ? _l('删除后可在字段回收站保留60天（免费版删除后无法恢复）') : _l('删除后可在字段回收站保留60天')}
+        hint={isFree ? _l('删除后可在字段回收站保留%0天（免费版删除后无法恢复）', md.global.SysSettings.worksheetRowRecycleDays) : _l('删除后可在字段回收站保留%0天', md.global.SysSettings.worksheetRowRecycleDays)}
         onCancel={() => setVisible({ deleteConfirmVisible: false })}
         onOk={handleDelete}
       >

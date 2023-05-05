@@ -43,6 +43,19 @@ var packageVersion = {
     return $.api(controllerName, 'v1packageauthorize', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 复制
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {操作API管理} {accountId:个人身份(string),apiCount:API数量(integer),apis:选择安装的apis(array),company:API服务厂商(string),companyId:企业身份(string),companyName:企业身份名称(string),createDate:上架时间(string),createdBy:个人身份头像名字(ref),docUrl:API文档地址(string),explain:说明(string),id:上架或者安装的id(string),installCount:安装数量(integer),name:连接名称(string),relationCount:引用数量(integer),status:状态 0已删除 1正常 2审核中 3已发布(integer),type:类型 1自定义 2已安装 3公开的(integer),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  copy: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/package/copy';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1packagecopy', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 获取API管理数量
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
@@ -231,6 +244,19 @@ var packageVersion = {
     base.ajaxOptions.url = base.server(options) + '/v1/package/updateIndex';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'v1packageupdateIndex', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 公开的修改安装量
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {API管理排序} {id:id(string),index:排序(integer),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  updateInstallCount: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/package/updateInstallCount';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1packageupdateInstallCount', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 公开的修改状态

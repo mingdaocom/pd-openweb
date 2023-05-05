@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon, Support, Checkbox, Tooltip } from 'ming-ui';
 import { useSetState } from 'react-use';
-import { CardTopWrap } from '../containers/style';
+import { CardTopWrap } from '../apiIntegration/style';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { v4 as uuidv4, validate } from 'uuid';
 import { formatStr } from 'src/pages/integration/config.js';
@@ -148,24 +148,28 @@ function ConnectParam(props) {
     node: props.node,
     isEdit: false,
     isErr: false,
-    controls: [],
+    controls: props.controls || [],
   });
+
   useEffect(() => {
     getParam();
   }, []);
+
   const getParam = () => {
-    flowNodeAjax.getNodeDetail(
-      {
-        processId: props.id,
-        nodeId: node.id,
-        flowNodeType: node.typeId,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setState({
-        controls: res.controls || [],
+    flowNodeAjax
+      .getNodeDetail(
+        {
+          processId: props.id,
+          nodeId: node.id,
+          flowNodeType: node.typeId,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({
+          controls: res.controls || [],
+        });
       });
-    });
   };
   //保存参数
   const update = () => {
@@ -174,22 +178,24 @@ function ConnectParam(props) {
       .map(o => {
         return { ...o, alias: o.controlName };
       });
-      flowNodeAjax.saveNode(
-      {
-        processId: props.id,
-        nodeId: node.id,
-        flowNodeType: node.typeId,
-        controls: controlData,
-        appType: node.appType,
-        name: node.name,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setState({
-        isEdit: false,
+    flowNodeAjax
+      .saveNode(
+        {
+          processId: props.id,
+          nodeId: node.id,
+          flowNodeType: node.typeId,
+          controls: controlData,
+          appType: node.appType,
+          name: node.name,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({
+          isEdit: false,
+        });
+        getParam();
       });
-      getParam();
-    });
   };
 
   const inputRender = (o, key) => {

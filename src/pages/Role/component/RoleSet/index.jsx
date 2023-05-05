@@ -99,11 +99,10 @@ const Wrap = styled.div`
               opacity: 0;
               transition: all 0.4s ease;
               width: 32px;
-              height: 32px;
               text-align: center;
               i {
                 color: #bdbdbd;
-                line-height: 32px;
+                line-height: 1;
               }
               &.canShow:hover {
                 background-color: #f7f7f7;

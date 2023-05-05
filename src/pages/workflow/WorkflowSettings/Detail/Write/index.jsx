@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, Checkbox, LoadDiv } from 'ming-ui';
+import { ScrollView, Checkbox, LoadDiv, Tooltip, Icon } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import _ from 'lodash';
 import {
@@ -11,6 +11,7 @@ import {
   WriteFields,
   ButtonName,
   Schedule,
+  UserRange,
 } from '../components';
 
 export default class Write extends Component {
@@ -80,7 +81,17 @@ export default class Write extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { selectNodeId, name, accounts, formProperties, submitBtnName, schedule, operationTypeList } = data;
+    const {
+      selectNodeId,
+      name,
+      accounts,
+      formProperties,
+      submitBtnName,
+      schedule,
+      operationTypeList,
+      encrypt,
+      operationUserRange,
+    } = data;
 
     if (!selectNodeId) {
       alert(_l('必须先选择一个对象'), 2);
@@ -103,6 +114,8 @@ export default class Write extends Component {
         submitBtnName: submitBtnName.trim() || _l('提交'),
         schedule,
         operationTypeList,
+        encrypt,
+        operationUserRange,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -187,12 +200,40 @@ export default class Write extends Component {
                 checked={_.includes(data.operationTypeList, 10)}
                 onClick={checked => this.switchWriteSettings(!checked, 10)}
               />
+              {_.includes(data.operationTypeList, 10) && (
+                <UserRange
+                  {...this.props}
+                  operationUserRange={data.operationUserRange}
+                  operationType="10"
+                  title={_l('可转交给：')}
+                  btnText={_l('添加候选人')}
+                  updateSource={({ accounts }) => this.updateSource({ operationUserRange: { [10]: accounts } })}
+                />
+              )}
+
               <Checkbox
                 className="mTop15 flexRow"
                 text={_l('允许填写人暂存')}
                 checked={_.includes(data.operationTypeList, 13)}
                 onClick={checked => this.switchWriteSettings(!checked, 13)}
               />
+
+              <div className="Font13 mTop25 bold">{_l('安全')}</div>
+              <Checkbox
+                className="mTop15 flexRow"
+                text={
+                  <span>
+                    {_l('登录密码验证')}
+                    <Tooltip popupPlacement="bottom" text={<span>{_l('启用后，用户输入登录密码后才可进行提交')}</span>}>
+                      <Icon className="Font16 Gray_9e mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
+                    </Tooltip>
+                  </span>
+                }
+                checked={data.encrypt}
+                onClick={checked => this.updateSource({ encrypt: !checked })}
+              />
+
+              <div className="Font13 mTop25 bold">{_l('其他')}</div>
               <Checkbox
                 className="mTop15 flexRow"
                 text={<span>{_l('开启限时处理')}</span>}

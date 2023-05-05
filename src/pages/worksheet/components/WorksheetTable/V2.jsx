@@ -73,6 +73,9 @@ const StyledFixedTable = styled(FixedTable)`
   &:not(.classic) {
     .cell.hover:not(.isediting):not(.highlight) {
       background-color: #fafafa !important;
+      .editIcon {
+        background-color: #fafafa !important;
+      }
     }
   }
   &.classic {
@@ -84,7 +87,16 @@ const StyledFixedTable = styled(FixedTable)`
         padding-right: 6px !important;
       }
     }
-    .cell.canedit:not(.isediting):is(.control-2, .control-3, , .control-5, .control-7, .control-6, .control-8) {
+    .cell.canedit:not(.isediting):is(
+        .control-2,
+        .control-3,
+        ,
+        .control-5,
+        .control-7,
+        .control-6,
+        .control-8,
+        .control-29
+      ) {
       .editIcon {
         display: none !important;
       }
@@ -117,6 +129,7 @@ function WorksheetTable(props, ref) {
     setHeightAsRowCount,
     rowCount,
     rowHeight,
+    rowHeightEnum,
     showRowHead = true,
     defaultScrollLeft,
     sheetViewHighlightRows = {},
@@ -135,7 +148,7 @@ function WorksheetTable(props, ref) {
   const { keyWords } = props; // 搜索
   const { showSummary = false, showVerticalLine = true, showAsZebra = true, wrapControlName = false } = props; // 显示
   const { rowHeadWidth = 70, renderRowHead } = props;
-  const { onColumnWidthChange, onCellClick } = props;
+  const { onColumnWidthChange = () => {}, onCellClick } = props;
   const { masterFormData = () => [], masterData = () => {}, getRowsCache } = props; // 获取子表所在记录表单数据
   const { updateCell } = props;
   const [state, setState] = useSetState({
@@ -322,6 +335,7 @@ function WorksheetTable(props, ref) {
           error={error}
           clearCellError={clearCellError}
           rowHeight={rowHeight}
+          rowHeightEnum={rowHeightEnum}
           rowFormData={() =>
             (controls || columns)
               .map(c => ({ ...c, value: row[c.controlId] }))

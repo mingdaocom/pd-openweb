@@ -17,6 +17,7 @@ export const DATABASE_TYPE = {
   TENCENT_MARIADB: 'TENCENT_MARIADB',
   TENCENT_MONGODB: 'TENCENT_MONGODB',
   KAFKA: 'KAFKA',
+  DB2: 'DB2',
 };
 
 export const SOURCE_FROM_TYPE = {
@@ -53,8 +54,8 @@ export const TASK_STATUS_TYPE = {
 
 export const SOURCE_FROM_TYPE_TAB_LIST = [
   { key: SOURCE_FROM_TYPE.COMMON, text: _l('常用') },
-  // { key: SOURCE_FROM_TYPE.LOCAL, text: _l('本地数据库') },
-  // { key: SOURCE_FROM_TYPE.CLOUD, text: _l('云端数据库') },
+  { key: SOURCE_FROM_TYPE.LOCAL, text: _l('本地数据库') },
+  { key: SOURCE_FROM_TYPE.CLOUD, text: _l('云端数据库') },
   // { key: SOURCE_FROM_TYPE.MESSAGE_QUEUE, text: _l('消息队列') },
 ];
 
@@ -67,7 +68,7 @@ export const ROLE_TYPE_TAB_LIST = [
 export const FROM_TYPE_TAB_LIST = [
   { key: SOURCE_FROM_TYPE.ALL, text: _l('全部') },
   { key: SOURCE_FROM_TYPE.LOCAL, text: _l('本地数据库') },
-  // { key: SOURCE_FROM_TYPE.CLOUD, text: _l('云端数据库') },
+  { key: SOURCE_FROM_TYPE.CLOUD, text: _l('云端数据库') },
   // { key: SOURCE_FROM_TYPE.MESSAGE_QUEUE, text: _l('消息队列') },
 ];
 
@@ -142,3 +143,8 @@ export const SYSTEM_FIELD_IDS = [
 ];
 
 export const namePattern = /[^a-zA-Z0-9\u4E00-\u9FA5_]/g;
+
+export const SORT_TYPE = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+};

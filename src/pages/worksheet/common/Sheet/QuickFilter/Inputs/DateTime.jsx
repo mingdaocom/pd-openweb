@@ -23,6 +23,12 @@ const Con = styled.div`
   line-height: 32px;
   border: 1px solid #dddddd;
   border-radius: 4px;
+  .backIcon {
+    display: none;
+    position: absolute;
+    right: 0px;
+    padding-right: 2px;
+  }
   .customAntPicker {
     box-shadow: none;
     border: none;
@@ -44,6 +50,14 @@ const Con = styled.div`
   &:hover {
     .clearIcon {
       display: inline-block;
+    }
+    .backIcon {
+      cursor: pointer;
+      display: inline-block;
+      background: #fff;
+      &:hover {
+        color: #777;
+      }
     }
   }
 `;
@@ -175,6 +189,14 @@ export default function DateTime(props) {
           className={cx('icon', minValue || maxValue ? 'icon-cancel' : 'icon-event')}
           onClick={() => {
             onChange({ dateRange: 0, minValue: undefined, maxValue: undefined });
+          }}
+        />
+      )}
+      {isEmpty && dateRange === 18 && (
+        <Icon
+          className="icon icon-arrow-down-border backIcon"
+          onClick={() => {
+            onChange({ dateRange: 0, minValue: undefined, maxValue: undefined, filterType: 0 });
           }}
         />
       )}

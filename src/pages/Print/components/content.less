@@ -6,102 +6,10 @@
     margin: 20px auto;
     background: #fff;
     padding: 18px 36px;
-    .companyName {
-      text-align: center;
-      font-size: 13px;
-      font-weight: normal;
-      color: #000;
-    }
-    .titleContent {
-      display: flex;
-      vertical-align: middle;
-      height: 80px;
-      .logo {
-        flex: 1;
-        padding-top: 10px;
-      }
-      .reqTitle {
-        width: 280px;
-        vertical-align: middle;
-        text-align: center;
-        font-size: 22px;
-        font-weight: bold;
-        margin: 8px 0;
-        line-height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 64px;
-        white-space: break-spaces;
-      }
-      .qrCode {
-        flex: 1;
-        text-align: right;
-      }
-    }
-    .createBy {
-      h6 {
-        font-weight: bold;
-        margin: 0;
-        word-break: break-word;
-      }
-      .sysBox {
-        span {
-          display: inline-block;
-          // width: 33.33%;
-          width: 50%;
-          vertical-align: top;
-        }
-      }
-      .sysBox1 {
-        span {
-          display: block;
-          text-align: left;
-        }
-      }
-      .sysBox2 {
-        span {
-          display: inline-block;
-          width: 50%;
-          text-align: left;
-        }
-      }
-      .sysBox3 {
-        span {
-          display: inline-block;
-          width: 33.33%;
-          text-align: center;
-          &:first-child {
-            text-align: left;
-          }
-          &:last-child {
-            text-align: right;
-          }
-        }
-      }
-    }
     .listControls {
-      overflow: hidden;
-      width: 100%;
-      border-top: 1px solid #dddddd;
       .controlDiv {
-        width: 100%;
-        border-bottom: 1px solid #dddddd;
-        box-sizing: border-box;
-        overflow-x: hidden;
-        display: table;
         .embedContainer {
           box-shadow: none;
-        }
-        &.splitLine {
-          border-bottom: 1px solid #757575;
-          .title {
-            padding-top: 24px;
-            font-size: 15px;
-            font-weight: bold;
-            padding-left: 0;
-            width: 100%;
-          }
         }
         &.remark {
           //备注字段无标题
@@ -133,9 +41,6 @@
           }
         }
         span {
-          padding: 5px 0;
-          line-height: 1.5;
-          vertical-align: top;
           b {
             font-style: normal;
             font-weight: normal;
@@ -145,27 +50,6 @@
               font-weight: normal;
               transform: scale(1.3);
             }
-          }
-          &.title {
-            padding-left: 5px;
-            display: inline-block;
-            width: 78px;
-            box-sizing: border-box;
-            // font-weight: bold;
-            vertical-align: top;
-            word-break: break-word;
-          }
-          &.value {
-            display: inline-block;
-            padding-left: 24px;
-            padding-right: 5px;
-            box-sizing: border-box;
-            width: calc(~'100% - 78px');
-            word-break: break-word;
-            white-space: pre-wrap;
-          }
-          &.value2 {
-            word-break: break-word;
           }
         }
         .half {
@@ -178,10 +62,6 @@
       }
     }
     .signatureContentWrapper {
-      justify-content: flex-end;
-      flex-wrap: wrap;
-      width: 700px;
-      margin-left: auto;
       > div {
         width: 168px;
         height: 100px;
@@ -202,6 +82,7 @@
             .listRight {
               display: inline-block;
               vertical-align: top;
+              overflow-wrap: break-word;
             }
           }
           .tit {
@@ -223,35 +104,7 @@
       }
     }
     .relationsTitle {
-      margin-top: 24px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 10px;
-      line-height: 24px;
-      font-weight: bold;
-      &.tableP {
-        border-bottom: 0px;
-        margin-bottom: 0px;
-      }
-      ul {
-        float: right;
-      }
       ul > li {
-        border: 1px solid #bdbdbd;
-        height: 24px;
-        padding: 0 14px;
-        line-height: 24px;
-        display: inline-block;
-        color: #bdbdbd;
-        cursor: pointer;
-        font-weight: normal;
-        margin-left: -1px;
-        z-index: 0;
-        position: relative;
-        &.current {
-          border: 1px solid #2196f3;
-          color: #2196f3;
-          z-index: 1;
-        }
         &:hover {
           color: #2196f3;
         }
@@ -271,41 +124,41 @@
       }
     }
     .relationsList {
-      margin-bottom: 24px;
-      .listCon {
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 5px;
-        h5 {
-          margin-top: 5px;
-          padding-left: 5px;
-          font-weight: normal;
-          color: #000;
-        }
-      }
       .relationsListLi {
-        margin-top: 5px;
-        .title {
-          padding-left: 5px;
-          display: inline-block;
-          width: 78px;
-          box-sizing: border-box;
-          // font-weight: bold;
-          vertical-align: top;
-          word-break: break-word;
-        }
         .value {
-          display: inline-block;
-          padding-left: 24px;
-          padding-right: 5px;
-          box-sizing: border-box;
-          width: calc(~'100% - 78px');
-          word-break: break-word;
-          white-space: pre-wrap;
           .richText {
             img {
               max-width: 100%;
             }
           }
+        }
+      }
+    }
+    .relaList {
+      .listTextDiv {
+        word-break: break-word;
+        .listRight {
+          display: inline-block;
+          vertical-align: top;
+          overflow-wrap: break-word;
+        }
+      }
+    }
+    .previewNone {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .statisticsCard {
+      font-variant: normal;
+      .printStatisticSign {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        height: 34px;
+        > div:nth-child(2) {
+          height: 34px;
+          display: flex;
+          align-items: center;
         }
       }
     }
@@ -485,30 +338,9 @@
     }
   }
   .worksTable {
-    margin-top: 24px;
     .workDetail {
       .workPersons {
-        margin-top: 10px;
         table {
-          width: 100%;
-          border-spacing: 0;
-          tr:first-child {
-            th {
-              border-top: 1px solid #333;
-              background-color: #fafafa;
-            }
-          }
-          th {
-            height: 26px;
-            border: 1px solid #ddd;
-            border-right: 0;
-            text-align: left;
-            padding: 5px;
-            font-weight: normal;
-          }
-          th:first-child {
-            border-left: 0;
-          }
           .person {
             width: 25%;
           }
@@ -521,25 +353,6 @@
           .opinion {
             width: 300px;
             white-space: pre-wrap;
-          }
-          td {
-            border: 1px solid #ddd;
-            border-right: 0;
-            border-top: 0;
-            height: 26px;
-            word-wrap: break-word;
-            word-break: break-word;
-            padding: 5px;
-            box-sizing: border-box;
-            text-align: left;
-          }
-          td:first-child {
-            border-left: 0;
-          }
-          tr:last-child {
-            td {
-              border-bottom: 1px solid #333;
-            }
           }
           tr.countersign {
             td {

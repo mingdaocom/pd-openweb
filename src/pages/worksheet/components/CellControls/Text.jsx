@@ -336,7 +336,8 @@ export default class Text extends React.Component {
     } = this.props;
     let { value, forceShowFullValue } = this.state;
     const isMobile = browserIsMobile();
-    const canedit =
+    const disabledInput = cell.advancedSetting.dismanual === '1';
+    let canedit =
       cell.type === 2 ||
       cell.type === 6 ||
       cell.type === 8 ||
@@ -344,6 +345,7 @@ export default class Text extends React.Component {
       cell.type === 7 ||
       cell.type === 3 ||
       cell.type === 4;
+    canedit = !disabledInput && canedit;
     const isediting = canedit && this.props.isediting;
     if (cell.type === 7) {
       value = (value || '').toUpperCase();

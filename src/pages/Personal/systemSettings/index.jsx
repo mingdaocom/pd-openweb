@@ -1,5 +1,4 @@
 import React from 'react';
-import { Switch } from 'antd';
 import { LoadDiv, Tooltip, Checkbox } from 'ming-ui';
 import accountSetting from 'src/api/accountSetting';
 import cx from 'classnames';
@@ -20,7 +19,6 @@ const configs = [
   },
 ];
 
-const languagueList = [{ key: 'zh-Hans', value: '简体中文' }].concat(langConfig);
 export default class AccountChart extends React.Component {
   constructor(props) {
     super(props);
@@ -77,7 +75,7 @@ export default class AccountChart extends React.Component {
   languague = () => {
     return (
       <div className="languagueSetting">
-        {languagueList.map(item => {
+        {langConfig.map(item => {
           return (
             <div
               className={cx('languagueItem', {

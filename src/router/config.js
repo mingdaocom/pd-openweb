@@ -33,10 +33,6 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/task/detail'),
     title: _l('任务详情'),
   },
-  taskCustomTemplate: {
-    path: '/apps/task/customTemplate/:tempId?',
-    component: () => import('src/pages/task/customTemplate'),
-  },
   task: {
     path: '/apps/(task|taskcenter)',
     component: () => import('src/pages/task'),
@@ -244,7 +240,7 @@ export const ROUTE_CONFIG = {
   },
   integrationTask: {
     path: '/integration/taskCon/:id/:type?',
-    component: () => import('src/pages/integration/containers/TaskCon'),
+    component: () => import('src/pages/integration/dataIntegration/TaskCon'),
     title: _l('集成中心'),
   },
   integration: {
@@ -254,7 +250,7 @@ export const ROUTE_CONFIG = {
   },
   integrationConnect: {
     path: '/integrationConnect/:id?',
-    component: () => import('src/pages/integration/containers/ConnectWrap'),
+    component: () => import('src/pages/integration/apiIntegration/ConnectWrap'),
     title: _l('集成中心'),
   },
   integrationApi: {
@@ -274,7 +270,6 @@ const withoutHeaderPathList = [
   'apps/kcupload',
   'apps/kcshare',
   'apps/kc/shareFolder',
-  'apps/task/customTemplate',
   'apps/task/print',
   'apps/kc/shareFolder',
   'worksheet/worksheetshare',
@@ -300,7 +295,6 @@ const withoutChatPathList = [
   'apps/kcupload',
   'apps/kcshare',
   'apps/kc/shareFolder',
-  'apps/task/customTemplate',
   'apps/task/print',
   'apps/kc/shareFolder',
   'worksheet/form/preview',

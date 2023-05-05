@@ -39,7 +39,7 @@ class VideoPlayer extends Component {
       this.setState({
         showMask: true,
       });
-      videoContent.addEventListener('error', (err) => {
+      videoContent.addEventListener('error', err => {
         console.log('play video error ->', err);
         this.loadInOther();
       });
@@ -50,7 +50,7 @@ class VideoPlayer extends Component {
   loadInOther() {
     const newAttachment = this.props.attachment;
     newAttachment.previewType = PREVIEW_TYPE.OTHER;
-    newAttachment.msg = _l('浏览器不支持播放，请下载查看');
+    newAttachment.msg = _l('此文件格式不支持在线播放，您可以下载后使用其他应用打开');
     this.props.changeStateOfAttachment();
   }
   render() {

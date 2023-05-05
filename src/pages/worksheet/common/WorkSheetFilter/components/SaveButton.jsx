@@ -99,7 +99,7 @@ export default function SaveButton(props) {
           },
         }}
         popup={
-          <Menu className="Relative" style={{ width: 140 }}>
+          <Menu className="Relative" style={{ width: 'auto' }}>
             {downList.map((item, i) => (
               <MenuItem
                 key={i}

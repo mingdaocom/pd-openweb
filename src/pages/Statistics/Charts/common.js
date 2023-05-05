@@ -14,6 +14,12 @@ export const reportTypes = {
   DualAxes: 7,
   PivotTable: 8,
   CountryLayer: 9,
+  BidirectionalBarChart: 11,
+  ScatterChart: 12,
+  WordCloudChart: 13,
+  GaugeChart: 14,
+  ProgressChart: 15,
+  TopChart: 16
 };
 
 /**
@@ -229,7 +235,7 @@ export const abbreviateNumber = (value, dot) => {
   if (value >= 1000000000) {
     return `${toFixed(value / 1000000000, dot)}B`;
   } else if (value >= 100000000) {
-    return `${toFixed(dot, value / 100000000)}${_l('亿')}`;
+    return `${toFixed(value / 100000000, dot)}${_l('亿')}`;
   } else if (value >= 1000000) {
     return `${toFixed(value / 1000000, dot)}M`;
   } else if (value >= 10000) {
@@ -366,7 +372,7 @@ export const formatrChartValue = (value, isPerPile, yaxisList, id, isHideEmptyVa
     if (emptyShowType === 0) {
       return '';
     } else if (emptyShowType === 1) {
-      return 0;
+      return formatControlValueDot(0, id ? _.find(yaxisList, { controlId: id }) : yaxisList[0]);
     } else if (emptyShowType === 2) {
       return '--';
     } else {

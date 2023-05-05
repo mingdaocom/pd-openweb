@@ -55,6 +55,13 @@ const Con = styled.div`
         padding: 0px !important;
       }
     }
+    .isEmpty {
+      margin-left: 0px !important;
+      padding-left: 0px !important;
+      .icon-close {
+        display: none;
+      }
+    }
     &.ant-select-multiple {
       .ant-select-selector .ant-select-selection-overflow {
         ${({ isMultiple }) => (isMultiple ? '.ant-select-selection-search { margin: 0px; }' : 'display: none;')}
@@ -83,10 +90,30 @@ const Selected = styled.div`
   pointer-events: none;
 `;
 
+function pickOptions(options, navfilters) {
+  try {
+    const pickIds = JSON.parse(navfilters);
+    return options.filter(o => _.includes(pickIds, o.key));
+  } catch (err) {
+    return options;
+  }
+}
 export default function Options(props) {
   const { isMultiple, values = [], control, advancedSetting = {}, onChange = () => {} } = props;
-  const { allowitem, direction } = advancedSetting;
-  const { options } = control;
+  const { allowitem, direction, navshow, navfilters, shownullitem, nullitemname } = advancedSetting;
+  let { options } = control;
+  if (String(navshow) === '2') {
+    options = pickOptions(options, navfilters);
+  }
+  if (shownullitem === '1') {
+    options = [
+      {
+        key: 'isEmpty',
+        color: 'transparent',
+        value: nullitemname || _l('为空'),
+      },
+    ].concat(options);
+  }
   const multiple = String(allowitem) === '2';
   function handleChange(value) {
     onChange({
@@ -104,10 +131,14 @@ export default function Options(props) {
               title={o.value}
               key={i}
               onClick={() => {
-                if (_.includes(values, o.key)) {
-                  handleChange({ values: values.filter(v => v !== o.key) });
+                if (o.key === 'isEmpty') {
+                  handleChange({ values: values.length === 1 && values[0] === 'isEmpty' ? [] : ['isEmpty'] });
+                } else if (_.includes(values, o.key)) {
+                  handleChange({ values: values.filter(v => v !== o.key && v !== 'isEmpty') });
                 } else {
-                  handleChange({ values: multiple ? _.uniqBy(values.concat(o.key)) : [o.key] });
+                  handleChange({
+                    values: multiple ? _.uniqBy(values.concat(o.key)).filter(v => v !== 'isEmpty') : [o.key],
+                  });
                 }
               }}
             >
@@ -121,9 +152,9 @@ export default function Options(props) {
       <Con>
         <Dropdown
           fromFilter
-          {...{ ...control, advancedSetting: { ...control.advancedSetting, allowadd: '0', showtype: '1' } }}
+          {...{ ...control, options, advancedSetting: { ...control.advancedSetting, allowadd: '0', showtype: '1' } }}
           default={undefined}
-          dropdownClassName="scrollInTable"
+          dropdownClassName="scrollInTable withIsEmpty"
           value={JSON.stringify(values)}
           selectProps={{
             onChange: newValue => {
@@ -140,11 +171,11 @@ export default function Options(props) {
     return (
       <Con isMultiple>
         <Checkbox
-          {...{ ...control, advancedSetting: { ...control.advancedSetting, checktype: '1' } }}
+          {...{ ...control, options, advancedSetting: { ...control.advancedSetting, checktype: '1' } }}
           default={undefined}
           fromFilter
           isFocus
-          dropdownClassName="scrollInTable"
+          dropdownClassName="scrollInTable withIsEmpty"
           value={JSON.stringify(values)}
           onChange={newValue => {
             handleChange({ values: JSON.parse(newValue) });

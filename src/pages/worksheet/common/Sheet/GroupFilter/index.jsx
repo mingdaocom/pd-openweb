@@ -12,6 +12,7 @@ import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import _ from 'lodash';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 const Con = styled.div(
   ({ width }) => `
   width: ${width}px;
@@ -174,6 +175,10 @@ function GroupFilter(props) {
     isOpenGroup,
     getAdvanceSetting(view).navfilters,
     getAdvanceSetting(view).navshow,
+    getAdvanceSetting(view).showallitem,
+    getAdvanceSetting(view).allitemname,
+    getAdvanceSetting(view).shownullitem,
+    getAdvanceSetting(view).nullitemname,
   ]);
   useEffect(() => {
     isOpenGroup && getNavGroupCount();
@@ -204,11 +209,15 @@ function GroupFilter(props) {
           filterType = navGroup.filterType === 11 ? navGroup.filterType : 24; //筛选方式 24是 | 11包含 老数据是0 按照24走
         }
       }
+      if (rowIdForFilter === 'null') {
+        //为空
+        filterType = FILTER_CONDITION_TYPE.ISNULL;
+      }
       updateGroupFilter(
         [
           {
             ...obj,
-            values: [rowIdForFilter],
+            values: rowIdForFilter === 'null' ? [] : [rowIdForFilter],
             navNames: [navName],
             dataType: soucre.type,
             filterType,
@@ -457,6 +466,7 @@ function GroupFilter(props) {
   };
 
   const conRender = () => {
+    let { showallitem, allitemname = '', shownullitem, nullitemname = '' } = getAdvanceSetting(view);
     if (!isOpenGroup) {
       return (
         <span
@@ -473,16 +483,39 @@ function GroupFilter(props) {
     if (navGroupData && navGroupData.length <= 0 && keywords) {
       return <div className="noData mTop35 TxtCenter Gray_9e">{_l('没有搜索结果')}</div>;
     }
-    let navData = !keywords
-      ? [
+    let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
+    let navData = navGroupData;
+    if (!keywords) {
+      if ((soucre.type === 29 && !!navGroup.viewId) || [35].includes(soucre.type)) {
+        //关联记录以层级视图时|| 级联没有显示项
+        navData = [
           {
             txt: _l('全部'),
             value: '',
             isLeaf: true,
           },
-        ].concat(navGroupData)
-      : navGroupData;
-    let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
+        ].concat(navData);
+      } else {
+        navData =
+          showallitem !== '1'
+            ? [
+                {
+                  txt: allitemname || _l('全部'),
+                  value: '',
+                  isLeaf: true,
+                },
+              ].concat(navData)
+            : navData;
+        navData =
+          shownullitem === '1'
+            ? navData.concat({
+                txt: nullitemname || _l('为空'),
+                value: 'null',
+                isLeaf: true,
+              })
+            : navData;
+      }
+    }
     let isOption = [9, 10, 11].includes(soucre.type); //是否选项
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
     try {
@@ -495,8 +528,8 @@ function GroupFilter(props) {
       navshow = '0';
     }
     if (isOption && navfilters.length > 0 && navshow === '2') {
-      // 显示 指定项
-      navData = navData.filter(o => navfilters.includes(o.value) || !o.value);
+      // 显示 指定项 //加上全部和空
+      navData = navData.filter(o => navfilters.includes(o.value) || ['null', ''].includes(o.value));
     }
     return (
       <ScrollView className="flex">
@@ -513,8 +546,8 @@ function GroupFilter(props) {
                       }
                     : {};
                 let count = Number((navGroupCounts.find(d => d.key === (!o.value ? 'all' : o.value)) || {}).count || 0);
-                // 显示有数据的项
-                if (navshow === '1' && count <= 0) {
+                // 显示有数据的项 //排除全部和空
+                if (navshow === '1' && count <= 0 && !['null', ''].includes(o.value)) {
                   return;
                 }
                 return (

@@ -82,6 +82,7 @@ function click(func) {
 export default function RecordCoverCard(props) {
   const {
     disabled,
+    style = {},
     width,
     controls,
     data,
@@ -111,7 +112,7 @@ export default function RecordCoverCard(props) {
   return (
     <Con
       onClick={onClick}
-      style={width ? { width } : {}}
+      style={{ ...style, ...(width ? { width } : {}) }}
       className={!disabled && allowlink !== '0' && 'Hand'}
       canView={allowlink !== '0'}
     >

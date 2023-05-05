@@ -10,15 +10,21 @@ import './DialogMapping.less';
 import _ from 'lodash';
 
 export default function DialogMapping(props) {
-  const { data = {}, responseControls = [], allControls = [], onClose, onChange } = props;
+  const { data = {}, responseControls = [], originResponseControls = [], allControls = [], onClose, onChange } = props;
   const { itemsource = '' } = getAdvanceSetting(data);
   const responsemap = getAdvanceSetting(data, 'responsemap') || [];
   const [mappingData, setMappingData] = useState(responsemap);
   const dealData = dealRequestControls(responseControls, true);
-  const isBtn = data.type === 49;
+  const isBtn = data.type === 49 || data.type === 43;
   const noData = !data.dataSource || (data.dataSource && !responseControls.length);
-  const selectOptions = ((_.find(dealData, i => i.controlId === itemsource) || {}).child || []).map(i => i.controlId);
-  const selectData = responseControls
+  const selectOptions =
+    _.get(
+      _.find(originResponseControls, o => o.controlId === itemsource),
+      'type',
+    ) === 10000007
+      ? _.filter(originResponseControls, o => o.dataSource === itemsource).map(i => i.controlId)
+      : ((_.find(dealData, i => i.controlId === itemsource) || {}).child || []).map(i => i.controlId);
+  const selectData = originResponseControls
     .filter(i => _.includes(selectOptions, i.controlId))
     .map(item => ({ ...item, dataSource: '' }));
 

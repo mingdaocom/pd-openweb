@@ -20,9 +20,10 @@ import { navigateTo } from 'src/router/navigateTo';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import { deleteSheet } from 'worksheet/redux/actions/sheetList';
 import moment from 'moment';
+import { canEditData } from 'worksheet/redux/actions/util';
 
 export default function CustomPageHeader(props) {
-  const {
+  let {
     isCharge,
     currentSheet,
     updateEditPageVisible,
@@ -37,7 +38,8 @@ export default function CustomPageHeader(props) {
     appPkg,
     ...rest
   } = props;
-
+  //运营者|开发者 均可分享
+  isCharge = isCharge || canEditData(_.get(appPkg, ['permissionType']));
   const isSafari = () => {
     var ua = window.navigator.userAgent;
     return ua.indexOf('Safari') != -1 && ua.indexOf('Version') != -1;
@@ -59,6 +61,7 @@ export default function CustomPageHeader(props) {
   const saveImage = () => {
     const imageName = `${appName ? `${appName}_` : ''}${name}_${moment().format('_YYYYMMDDHHmmSS')}.png`;
     setExportLoading(true);
+    window.customPageWindowResize();
     createFontLink()
       .then(exportImage)
       .then(blob => {
@@ -126,7 +129,7 @@ export default function CustomPageHeader(props) {
               groupId,
               worksheetId: pageId,
               parentGroupId: currentSheet.parentGroupId,
-            }
+            };
             if (currentPcNaviStyle === 1) {
               const singleRef = getAppSectionRef(groupId);
               singleRef.dispatch(deleteSheet(data));
@@ -199,7 +202,10 @@ export default function CustomPageHeader(props) {
                     }
                   }}
                 >
-                  <Icon icon={inFull ? 'close_fullscreen' : 'open_in_full'} className={cx('hoverGray fullRotate', inFull ? 'Font20' : 'Font17')} />
+                  <Icon
+                    icon={inFull ? 'close_fullscreen' : 'open_in_full'}
+                    className={cx('hoverGray fullRotate', inFull ? 'Font20' : 'Font17')}
+                  />
                 </div>
               </Tooltip>
             ))}
@@ -245,7 +251,12 @@ export default function CustomPageHeader(props) {
               popupVisible={popupVisible}
               action={['click']}
               popupAlign={{ points: ['tl', 'bl'] }}
-              popup={<OperateMenu {...pick(props, ['adjustScreen', 'ids', 'currentSheet'])} onClick={handleClick} />}
+              popup={
+                <OperateMenu
+                  {...pick(props, ['adjustScreen', 'ids', 'currentSheet', 'appPkg'])}
+                  onClick={handleClick}
+                />
+              }
             >
               <i className="icon-more_horiz Font18 moreOperateIcon"></i>
             </Trigger>

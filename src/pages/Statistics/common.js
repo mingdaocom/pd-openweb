@@ -4,6 +4,20 @@ import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/C
 import _ from 'lodash';
 import moment from 'moment';
 
+import standard from './assets/gaugeChart/standard.png';
+import standardColor from './assets/gaugeChart/standard_color.png';
+import fanShaped from './assets/gaugeChart/fan_shaped.png';
+import fanShapedColor from './assets/gaugeChart/fan_shaped_color.png';
+import scale from './assets/gaugeChart/scale.png';
+import scaleColor from './assets/gaugeChart/scale_color.png';
+
+import progressBar from './assets/progressChart/progress_bar.png';
+import progressBarColor from './assets/progressChart/progress_bar_color.png';
+import annular from './assets/progressChart/annular.png';
+import annularColor from './assets/progressChart/annular_color.png';
+import rippleChart from './assets/progressChart/ripple_chart.png';
+import rippleChartColor from './assets/progressChart/ripple_chart_color.png';
+
 /**
  * 图表类型数据
  */
@@ -14,6 +28,11 @@ export const chartNav = [
     icon: 'stats_bar_chart',
   },
   {
+    name: _l('对称条形图'),
+    type: reportTypes.BidirectionalBarChart,
+    icon: 'stats_symmetric_graph_chart',
+  },
+  {
     name: _l('折线图'),
     type: reportTypes.LineChart,
     icon: 'stats_line_chart',
@@ -22,6 +41,11 @@ export const chartNav = [
     name: _l('双轴图'),
     type: reportTypes.DualAxes,
     icon: 'stats_biaxial_chart',
+  },
+  {
+    name: _l('散点图'),
+    type: reportTypes.ScatterChart,
+    icon: 'stats_bubble_chart',
   },
   {
     name: _l('雷达图'),
@@ -39,6 +63,11 @@ export const chartNav = [
     icon: 'stats_funnel_chart',
   },
   {
+    name: _l('词云'),
+    type: reportTypes.WordCloudChart,
+    icon: 'stats_word_cloud_chart',
+  },
+  {
     name: _l('透视表'),
     type: reportTypes.PivotTable,
     icon: 'table',
@@ -49,10 +78,25 @@ export const chartNav = [
     icon: 'stats_numerical_chart',
   },
   {
+    name: _l('仪表盘'),
+    type: reportTypes.GaugeChart,
+    icon: 'stats_instrument_panel_chart',
+  },
+  {
+    name: _l('进度条'),
+    type: reportTypes.ProgressChart,
+    icon: 'stats_progress_bar_chart',
+  },
+  {
+    name: _l('排行榜'),
+    type: reportTypes.TopChart,
+    icon: 'stats_ranking_list_chart',
+  },
+  {
     name: _l('行政区划'),
     type: reportTypes.CountryLayer,
     icon: 'map',
-  },
+  }
 ];
 
 /**
@@ -175,7 +219,12 @@ export function initConfigDetail(id, data, currentReport) {
 
     result.xaxes = currentReport.xaxes;
     result.split = currentReport.split;
+    currentReport.yaxisList = _.uniqBy(currentReport.yaxisList.filter(item => item.controlId), 'controlId');
 
+    if (reportTypes.ScatterChart === currentReport.reportType) {
+      currentReport.split = {};
+      result.split = {};
+    }
     if (reportTypes.DualAxes === reportType) {
       result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
       rightY.yaxisList = currentReport.yaxisList.length > 1 ? [currentReport.yaxisList[1]] : [];
@@ -212,10 +261,19 @@ export function initConfigDetail(id, data, currentReport) {
       }
       result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
     }
+    if (reportTypes.TopChart === reportType) {
+      const { yaxisList } = currentReport;
+      result.sorts = yaxisList.length ? [{ [yaxisList[0].controlId]: 2 }] : [];
+      result.style = {
+        topStyle: 'crown',
+        valueProgressVisible: true
+      }
+    }
 
     if (result.displaySetup) {
       result.displaySetup.xdisplay.title = result.xaxes ? result.xaxes.controlName : null;
       result.displaySetup.ydisplay.title = result.yaxisList.length ? result.yaxisList[0].controlName : '';
+      result.displaySetup.showChartType = 1;
     }
   }
 
@@ -818,7 +876,7 @@ export const getAxisText = (reportType, showChartType) => {
       reportTypes.FunnelChart,
       reportTypes.PieChart,
       reportTypes.NumberChart,
-      reportTypes.CountryLayer,
+      reportTypes.ProgressChart,
     ].includes(reportType)
   ) {
     return {
@@ -826,15 +884,56 @@ export const getAxisText = (reportType, showChartType) => {
       y: _l('数值'),
     };
   }
+  if (reportTypes.DualAxes === reportType) {
+    return {
+      x: _l('X轴(维度)'),
+      y: _l('Y轴(数值)'),
+    };
+  }
+  if (reportTypes.WordCloudChart === reportType) {
+    return {
+      x: _l('词标签(维度)'),
+      y: _l('词大小(数值)'),
+    };
+  }
+  if (reportTypes.BidirectionalBarChart === reportType) {
+    return {
+      x: _l('X轴(维度)'),
+      y: _l('方向1(数值)'),
+    };
+  }
+  if (reportTypes.ScatterChart === reportType) {
+    return {
+      x: _l('点(维度)'),
+    }
+  }
+  if (reportTypes.GaugeChart === reportType) {
+    return {
+      x: _l('维度'),
+      y: _l('进度指示(数值)')
+    }
+  }
+  if (reportTypes.CountryLayer === reportType) {
+    return {
+      x: _l('地理区域(维度)'),
+      y: _l('数值')
+    }
+  }
+  if (reportTypes.TopChart === reportType) {
+    return {
+      x: _l('维度'),
+      y: _l('进度指示(数值)')
+    }
+  }
   if ([reportTypes.PivotTable].includes(reportType)) {
     return {
-      x: _l('维度(行)'),
-      y: _l('维度(列)'),
+      x: _l('行(维度)'),
+      y: _l('列(维度)'),
     };
   }
   return {
-    x: isBarChart ? _l('维度(Y轴)') : _l('维度(X轴)'),
-    y: isBarChart ? _l('数值(X轴)') : _l('数值(Y轴)'),
+    x: isBarChart ? _l('Y轴(维度)') : _l('X轴(维度)'),
+    y: isBarChart ? _l('X轴(数值)') : _l('Y轴(数值)'),
   };
 };
 
@@ -855,19 +954,6 @@ export const chartType = {
       },
       {
         name: _l('面积'),
-        value: 2,
-      },
-    ],
-  },
-  [reportTypes.BarChart]: {
-    title: _l('方向'),
-    items: [
-      {
-        name: _l('竖向'),
-        value: 1,
-      },
-      {
-        name: _l('横向'),
         value: 2,
       },
     ],
@@ -911,6 +997,78 @@ export const chartType = {
       },
     ],
   },
+  [reportTypes.BidirectionalBarChart]: {
+    title: _l('方向'),
+    items: [
+      {
+        name: _l('竖向'),
+        value: 1,
+      },
+      {
+        name: _l('横向'),
+        value: 2,
+      },
+    ],
+  },
+  [reportTypes.WordCloudChart]: {
+    title: _l('图形'),
+    items: [
+      {
+        name: _l('矩形'),
+        value: 1,
+      },
+      {
+        name: _l('椭圆'),
+        value: 2,
+      }
+    ],
+  },
+  [reportTypes.GaugeChart]: {
+    title: _l('图形'),
+    items: [
+      {
+        name: _l('标准'),
+        value: 1,
+        icon: standard,
+        activeIcon: standardColor
+      },
+      {
+        name: _l('扇形'),
+        value: 2,
+        icon: fanShaped,
+        activeIcon: fanShapedColor,
+      },
+      {
+        name: _l('刻度'),
+        value: 3,
+        icon: scale,
+        activeIcon: scaleColor,
+      }
+    ],
+  },
+  [reportTypes.ProgressChart]: {
+    title: _l('图形'),
+    items: [
+      {
+        name: _l('进度条'),
+        value: 1,
+        icon: progressBar,
+        activeIcon: progressBarColor
+      },
+      {
+        name: _l('环形'),
+        value: 2,
+        icon: annular,
+        activeIcon: annularColor,
+      },
+      {
+        name: _l('水波图'),
+        value: 3,
+        icon: rippleChart,
+        activeIcon: rippleChartColor,
+      }
+    ],
+  }
 };
 
 /**
@@ -951,7 +1109,7 @@ export const fillMapKey = result => {
  * 把 valueMap 的 key 填充到 map 和 contrastMap
  */
 export const fillValueMap = result => {
-  const { map, valueMap, reportType, xaxes, split, rightY, status } = result;
+  const { map, valueMap = {}, reportType, xaxes, split, rightY, status } = result;
   const splitId = split ? split.controlId : '';
 
   if (!status) {
@@ -1022,7 +1180,7 @@ export const fillValueMap = result => {
     return result;
   }
 
-  if (reportType === reportTypes.DualAxes) {
+  if ([reportTypes.DualAxes, reportTypes.BidirectionalBarChart].includes(reportType)) {
     const rightSplitIdValueMap = valueMap[rightY.split.controlId];
     result.contrastMap.forEach(control => {
       control.originalKey = control.key;
@@ -1033,6 +1191,10 @@ export const fillValueMap = result => {
       });
       return control;
     });
+  }
+
+  if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType)) {
+    return result;
   }
 
   result.map.forEach(control => {
@@ -1089,7 +1251,7 @@ export const mergeReportData = (currentReport, result, id) => {
     } else {
       param.xaxes = result.xaxes;
       param.summary = result.summary;
-      if (result.reportType === reportTypes.DualAxes) {
+      if ([reportTypes.DualAxes, reportTypes.BidirectionalBarChart].includes(result.reportType)) {
         param.rightY = {
           ...currentReport.rightY,
           summary: result.rightY.summary,
@@ -1111,16 +1273,31 @@ export const mergeReportData = (currentReport, result, id) => {
  * 根据配置信息获取已经选择的控件id
  */
 export const getAlreadySelectControlId = (currentReport) => {
-  const { xaxes = {}, yaxisList = [], split = {}, pivotTable, rightY, formulas } = currentReport;
+  const { reportType, xaxes = {}, yaxisList = [], split = {}, config, pivotTable, rightY, formulas } = currentReport;
   const rightYaxisList = rightY ? rightY.yaxisList.map(item => item.controlId) : [];
   const rightSplitId = rightY ? rightY.split.controlId : null;
-  const alreadySelectControlId = pivotTable
-    ? [
-        ...pivotTable.lines.map(item => item.controlId),
-        ...pivotTable.columns.map(item => item.controlId),
-        ...yaxisList.map(item => item.controlId),
-      ]
-    : [xaxes.controlId, split.controlId, ...yaxisList.map(item => item.controlId), ...rightYaxisList, rightSplitId];
+  let alreadySelectControlId = yaxisList.map(item => item.controlId);
+
+  if (reportType === reportTypes.PivotTable) {
+    alreadySelectControlId.push(
+      ...pivotTable.lines.map(item => item.controlId),
+      ...pivotTable.columns.map(item => item.controlId)
+    );
+  } else if ([reportTypes.ProgressChart, reportTypes.GaugeChart].includes(reportType)) {
+    const { max, min, targetList } = config;
+    alreadySelectControlId.push(
+      _.get(max, 'controlId'),
+      _.get(min, 'controlId'),
+      ...targetList.map(item => item && item.controlId)
+    );
+  } else {
+    alreadySelectControlId.push(
+      xaxes.controlId,
+      split.controlId,
+      ...rightYaxisList,
+      rightSplitId
+    );
+  }
   return alreadySelectControlId.filter(_ => _);
 }
 

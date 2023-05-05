@@ -203,7 +203,6 @@ export default function DelegationConfigModal(props) {
   };
 
   const disabled = !orgInfo.projectId || !user.accountId || !dateInfo.endDate;
-  const now = moment().format('YYYY-MM-DD HH:mm');
 
   return (
     <ModalWrap
@@ -282,8 +281,8 @@ export default function DelegationConfigModal(props) {
                     customHeader={_l('开始时间')}
                     precision="minite"
                     isOpen={startDateVisible}
-                    value={dateInfo.startDate ? dateInfo.startDate : new Date(now)}
-                    min={new Date(now)}
+                    value={dateInfo.startDate ? dateInfo.startDate : new Date()}
+                    min={new Date()}
                     onSelect={date => {
                       setDateInfo({ ...dateInfo, startDate: date });
                       setStartDateVisible(false);
@@ -320,8 +319,8 @@ export default function DelegationConfigModal(props) {
                     customHeader={_l('结束时间')}
                     precision="minite"
                     isOpen={endDateVisible}
-                    value={dateInfo.endDate || new Date(now)}
-                    min={dateInfo.startDate || new Date(now)}
+                    value={dateInfo.endDate || new Date()}
+                    min={dateInfo.startDate || new Date()}
                     onSelect={date => {
                       setDateInfo({ ...dateInfo, endDate: date });
                       setEndDateVisible(false);

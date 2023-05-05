@@ -3,6 +3,8 @@ import { ScrollView, LoadDiv } from 'ming-ui';
 import './index.less';
 import cx from 'classnames';
 import { RENDER_RECORD_NECESSARY_ATTR, getRecordAttachments } from '../util';
+import { emitter } from 'worksheet/util';
+import worksheetAjax from 'src/api/worksheet';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
 import { getAdvanceSetting, browserIsMobile } from 'src/util';
@@ -21,6 +23,7 @@ import autoSize from 'ming-ui/decorators/autoSize';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { autobind } from 'core-decorators';
 
 const isMobile = browserIsMobile();
 
@@ -43,6 +46,7 @@ export default class RecordGallery extends Component {
     let hasGroupFilter = this.props.hasGroupFilter ? this.props.hasGroupFilter : false; // mobile画廊视图是否有分组列表，若有在mobile进行数据更新
     !hasGroupFilter && this.getFetch(this.props);
     window.addEventListener('resize', this.resizeBind);
+    emitter.addListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -79,6 +83,36 @@ export default class RecordGallery extends Component {
       this.resizeBind(nextProps);
     }
     this.setState({ clicksearch });
+  }
+
+  componentWillUnmount() {
+    emitter.removeListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
+    window.removeEventListener('resize', this.resizeBind);
+  }
+
+  @autobind
+  updateRecordEvent({ worksheetId, recordId }) {
+    const { base, galleryview } = this.props;
+    const { gallery = [] } = galleryview;
+    const { viewId } = base;
+    if (worksheetId === this.props.worksheetId && _.find(gallery, r => r.rowid === recordId)) {
+      worksheetAjax
+        .getRowDetail({
+          checkView: true,
+          getType: 1,
+          rowId: recordId,
+          viewId,
+          worksheetId,
+        })
+        .then(res => {
+          const row = JSON.parse(res.rowData);
+          if (res.resultCode === 1 && res.isViewData) {
+            this.props.updateRow(row);
+          } else {
+            this.props.deleteRow(row.rowid);
+          }
+        });
+    }
   }
 
   getFetch = nextProps => {
@@ -182,21 +216,6 @@ export default class RecordGallery extends Component {
     const { recordInfoVisible, recordId } = this.state;
     if (galleryViewLoading) {
       return <LoadDiv size="big" className="mTop32" />;
-    }
-    if (clicksearch === '1' && (galleryIndex <= 0 || quickFilter.length <= 0)) {
-      return (
-        <div
-          className="Gray_9e Font14 fastFilterNoClick"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)',
-          }}
-        >
-          {_l('执行查询后显示结果')}
-        </div>
-      );
     }
     if (gallery.length <= 0) {
       if (filters.keyWords || !isEmpty(filters.filterControls) || isMobile) {
@@ -342,14 +361,19 @@ export default class RecordGallery extends Component {
                 updateSuccess={(ids, updated, data) => {
                   this.props.updateRow(data);
                 }}
-                onDeleteSuccess={data => {
+                onDeleteSuccess={() => {
                   // 删除行数据后重新加载页面
-                  this.props.deleteRow();
+                  this.props.deleteRow(recordId);
                   this.setState({ recordInfoVisible: false });
                 }}
                 handleAddSheetRow={data => {
                   this.props.updateRow(data);
                   this.setState({ recordInfoVisible: false });
+                }}
+                hideRows={recordIds => {
+                  setTimeout(() => {
+                    recordIds.forEach(this.props.deleteRow);
+                  }, 100);
                 }}
               />
             ))}

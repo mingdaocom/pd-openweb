@@ -205,12 +205,13 @@ export default class AppManagement extends Component {
         <div className={cx('iconWrap mLeft10', { unable: !item.status })} style={{ backgroundColor: item.iconColor }}>
           <SvgIcon url={item.iconUrl} fill="#fff" size={24} />
         </div>
-        <div className="flex name mLeft10 mRight40">
+        <div className="flex name mLeft10 mRight40 overflowHidden">
           <div
-            className={cx('flexColumn nameBox ThemeColor3', { unable: !item.status })}
+            className={cx('flexRow nameBox ThemeColor3', { unable: !item.status })}
             onClick={() => this.checkIsAppAdmin(item.appId, item.appName)}
           >
             <div className="ellipsis Font14">{item.appName}</div>
+            {item.isLock && <Icon icon="lock" className="Gray_bd mLeft20 Font16" />}
           </div>
         </div>
         <div className="columnWidth">{item.sheetCount.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,')}</div>
@@ -254,7 +255,7 @@ export default class AppManagement extends Component {
             popup={() => {
               return (
                 <ul className="optionPanelTrigger">
-                  {item.isGoods || !featureType ? null : (
+                  {item.isLock || item.isGoods || !featureType ? null : (
                     <li
                       onClick={() => {
                         if (featureType === '2') {
@@ -833,13 +834,13 @@ export default class AppManagement extends Component {
           className="appLogDrawerContainer"
           width={480}
           title={
-            <div>
+            <div className="flexRow">
+              <span className="flex">{_l('日志')}</span>
               <Icon
                 icon="close"
-                className="mRight16 Font20 Gray_9e Hand"
+                className=" Font20 Gray_9e Hand"
                 onClick={() => this.setState({ drawerVisible: false })}
               />
-              <span>{_l('日志')}</span>
             </div>
           }
           placement="right"

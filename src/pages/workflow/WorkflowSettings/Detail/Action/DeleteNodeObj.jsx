@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { SelectNodeObject } from '../components';
-import { Dialog } from 'ming-ui';
+import { Dialog, Checkbox } from 'ming-ui';
 import _ from 'lodash';
 
 /**
@@ -28,7 +28,7 @@ export default class DeleteNodeObj extends Component {
   };
 
   render() {
-    const { data } = this.props;
+    const { data, updateSource } = this.props;
 
     return (
       <Fragment>
@@ -40,6 +40,18 @@ export default class DeleteNodeObj extends Component {
           selectNodeObj={data.selectNodeObj}
           onChange={this.onChange}
         />
+
+        <div className="mTop20 flexRow">
+          <Checkbox
+            className="InlineFlex"
+            text={_l('彻底删除记录，不放入回收站')}
+            checked={data.destroy}
+            onClick={checked => updateSource({ destroy: !checked })}
+          />
+        </div>
+        <div className="Gray_9e mTop5" style={{ marginLeft: 26 }}>
+          {_l('彻底删除后数据不可恢复，请谨慎操作')}
+        </div>
       </Fragment>
     );
   }

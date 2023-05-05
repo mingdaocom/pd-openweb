@@ -5,7 +5,7 @@ import { Icon } from 'ming-ui';
 import { publishStatus2Text, formatDate } from 'src/pages/integration/config';
 import { Switch } from 'antd';
 import SvgIcon from 'src/components/SvgIcon';
-import { LogoWrap } from 'src/pages/integration/containers/style';
+import { LogoWrap } from 'src/pages/integration/apiIntegration/style';
 const Wrap = styled.div`
   z-index: 11111;
   p {
@@ -46,6 +46,7 @@ const Wrap = styled.div`
     max-width: 145px;
   }
   &:hover {
+    border: 1px solid #e8e8e8;
     .name {
       color: #2196f3;
     }

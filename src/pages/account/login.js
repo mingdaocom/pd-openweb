@@ -94,11 +94,11 @@ class LoginContainer extends React.Component {
         this.setState({ loading: false });
       }
     } else {
-      let param = { loginType, accountId, encryptPassword };
+      let param = { loginType, accountId, encryptPassword, };
       if (loginType === 1) {
         param = { ...param, account, projectId };
       }
-      loginController.mDAccountAutoLogin({ ...param }).then(data => this.loginCallback(data, true));
+      loginController.mDAccountAutoLogin({ ...param, regFrom: request.s }).then(data => this.loginCallback(data, true));
     }
 
     // 记录登录用户名

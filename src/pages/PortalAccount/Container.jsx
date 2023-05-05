@@ -143,7 +143,7 @@ export default function Container(props) {
     pageTitle = '',
     status,
     appColor = '#00bcd4',
-    appLogoUrl = 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg',
+    appLogoUrl = md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg',
     isErrUrl,
     noticeScope = {},
     fixInfo = {},

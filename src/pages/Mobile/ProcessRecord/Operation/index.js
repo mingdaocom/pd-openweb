@@ -18,21 +18,21 @@ class Operation extends Component {
     ActionSheet.close();
   }
   handleOperation = (buttonIndex) => {
-    const { instance, onClose } = this.props;
+    const { instance } = this.props;
     const { operationTypeList } = instance;
-    const baseActionList = [4, 5, 9];
-    const newOperationTypeList = operationTypeList[1].filter(item => item !== 12).concat(operationTypeList[0].filter(n => !baseActionList.includes(n)));;
+    const baseActionList = [3, 4, 5, 9, 18];
+    const newOperationTypeList = operationTypeList[1]
+      .concat(operationTypeList[0].filter(n => !baseActionList.includes(n)))
+      .filter(item => ![12, 13].includes(item));
     if (newOperationTypeList[buttonIndex]) {
       const { id } = MOBILE_OPERATION_LIST[newOperationTypeList[buttonIndex]];
       if (id === 'sign') {
-        onClose();
         const BUTTONS = [_l('通过申请后增加一位审批人'), _l('在我审批前增加一位审批人'), _l('取消')];
         const run = action => {
           this.setState({
             action,
             selectUserVisible: true,
           });
-          onClose();
         }
         ActionSheet.showActionSheetWithOptions(
           {
@@ -54,64 +54,40 @@ class Operation extends Component {
           action: id,
           selectUserVisible: true
         });
-        onClose();
       }
       if (id === 'addApprove') {
         this.setState({
           action: id,
           selectUserVisible: true
         });
-        onClose();
+      }
+      if (id === 'return') {
+        this.props.onUpdateAction({
+          action: id,
+          otherActionVisible: true,
+        });
       }
     }
   }
   render() {
     const { action, selectUserVisible } = this.state;
-    const { visible, instance, rowId, worksheetId, sheetRow, onClose } = this.props;
-    const { operationTypeList, app } = instance;
-    const newOperationTypeList = operationTypeList[1].filter(item => item !== 12);
-    const buttons = newOperationTypeList.map(item => {
-      return MOBILE_OPERATION_LIST[item].text;
-    });
-
+    const { instance, sheetRow } = this.props;
+    const { operationUserRange } = instance;
+    const TYPES = {
+      transferApprove: 6,
+      addApprove: 16,
+      after: 7,
+      before: 7,
+      transfer: 10,
+    };
+    const appointedAccountIds = operationUserRange ? operationUserRange[TYPES[action]] : '';
     return (
       <Fragment>
-        <Modal
-          popup
-          animationType="slide-up"
-          className="actionSheetModal"
-          visible={visible}
-          onClose={onClose}
-        >
-          <List className="mobileActionSheetList">
-            <div className="actionHandleList">
-              {isWeLink ? null : (
-                <List.Item
-                  onClick={() => {
-                    this.props.history.push(
-                      `/mobile/discuss/${app.id}/${worksheetId}/null/${rowId}?processRecord`,
-                    );
-                  }}
-                >
-                  {_l('查看讨论')}
-                </List.Item>
-              )}
-              {
-                buttons.map((item, index) => (
-                  <List.Item key={index} onClick={() => { this.handleOperation(index) }}>{item}</List.Item>
-                ))
-              }
-            </div>
-            <WhiteSpace size="sm" />
-            <List.Item onClick={onClose}>
-              {_l('取消')}
-            </List.Item>
-          </List>
-        </Modal>
         {selectUserVisible && (
           <SelectUser
             projectId={sheetRow.projectId}
             visible={selectUserVisible}
+            selectRangeOptions={appointedAccountIds ? { appointedAccountIds } : ''}
             type="user"
             onlyOne={action === 'addApprove' ? false : true}
             onClose={() => {

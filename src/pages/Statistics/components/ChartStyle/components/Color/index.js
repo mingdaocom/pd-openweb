@@ -30,11 +30,11 @@ export default class ColorEntrance extends Component {
     }
   }
   getColorName() {
-    const { style, reportType, split } = this.props.currentReport;
+    const { style = {}, reportType, split } = this.props.currentReport;
     const isBarChart = reportType === reportTypes.BarChart;
     const defaultColorName = `${colorGroup[0].name}${_l('配色')}`;
     const isAlienationColor = getIsAlienationColor(this.props.currentReport) || (isBarChart && _.get(split, 'options.length'));
-    if (_.isEmpty(style)) {
+    if (_.isUndefined(style.colorType)) {
       return defaultColorName;
     } else {
       const { colorType, colorGroupIndex } = style;

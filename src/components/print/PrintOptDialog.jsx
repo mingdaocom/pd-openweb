@@ -290,7 +290,7 @@ export default class PrintOptDialog extends Component {
                     <div
                       className="controlOptionItem mBottom15 InlineBlock pointer"
                       key={index}
-                      title={item.type === 22 ? _l('分段符') : item.controlName}
+                      title={item.type === 22 ? _l('分割线') : item.controlName}
                       onClick={() => {
                         this.toggleCheckItem(item.controlId);
                       }}
@@ -302,7 +302,7 @@ export default class PrintOptDialog extends Component {
                         className="TxtMiddle"
                       />
                       <span className="TxtMiddle">
-                        {item.type === 22 ? (item.controlName ? item.controlName : _l('分段符')) : item.controlName}
+                        {item.type === 22 ? (item.controlName ? item.controlName : _l('分割线')) : item.controlName}
                       </span>
                     </div>
                   ),

@@ -179,6 +179,7 @@ const Wrapper = styled.div(
       border: 0 !important;
       background: none !important;
       padding: 0 !important;
+      min-height: auto !important;
     }
   }
 `,

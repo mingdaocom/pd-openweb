@@ -43,6 +43,29 @@
     padding: 10px 15px 16px;
   }
 
+  &.hideChartHeader {
+    .header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1;
+    }
+    .operateIconWrap>span {
+      margin-right: 6px;
+    }
+    .header .icon {
+      padding: 2px;
+      border-radius: 2px;
+      background-color: #fff;
+    }
+  }
+  &.hideNumberChartName {
+    .reportName, .reportDesc {
+      display: none;
+    }
+  }
+
   .content {
     flex: 1;
     box-sizing: border-box;
@@ -121,6 +144,11 @@
 
 .statisticsCard {
   .statisticsCard;
+}
+.statisticsCard-1, .statisticsCard-2, .statisticsCard-7 {
+  .content {
+    overflow: initial;
+  }
 }
 
 .sortableCard {

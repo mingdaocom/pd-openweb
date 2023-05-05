@@ -22,7 +22,7 @@
   }
 
   .recordCardCover {
-    width: 90px;
+    width: 100px;
     .cover {
       width: 100%;
       height: 100%;
@@ -64,7 +64,7 @@
       justify-content: center;
     }
     &.appshowtype1.fill {
-      width: 40%;
+      width: 100px;
     }
     .withoutImg > img{
       width: 36px;
@@ -82,7 +82,8 @@
       display: flex;
       align-items: center;
       .controlWrapper {
-        width: calc(~'33% - 8px');
+        flex: 1;
+        min-width: 0;
         display: flex;
         flex-direction: column;
       }

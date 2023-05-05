@@ -20,6 +20,7 @@ export default function PublicWorksheetConfig(props) {
     worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true, getViews: true }).then(setworksheetInfo);
   }, []);
   const isloading = _.isEmpty(worksheetInfo);
+  const hasCharge = [2, 4].includes(roleType);//0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者
   return (
     <div className="publicWorksheetConfig flexColumn">
       {hederVisible && (
@@ -33,7 +34,7 @@ export default function PublicWorksheetConfig(props) {
         />
       )}
       <DocumentTitle title={_l('设置公开表单 - %0', name || '')} />
-      {!isloading && roleType !== 2 && (
+      {!isloading && !hasCharge && (
         <div className="w100 WhiteBG Absolute" style={{ top: 0, bottom: 0 }}>
           <ErrorState
             text={_l('权限不足，无法编辑')}
@@ -43,7 +44,7 @@ export default function PublicWorksheetConfig(props) {
           />
         </div>
       )}
-      {!isloading && roleType === 2 && (
+      {!isloading && hasCharge && (
         <div className="flex">
           <FillEnablePanel worksheetId={worksheetId} setHederVisible={setHederVisible} />
           <QueryEnablePanel worksheetId={worksheetId} worksheetInfo={worksheetInfo} />

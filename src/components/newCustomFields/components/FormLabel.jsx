@@ -139,7 +139,7 @@ export default ({
             }
           >
             {item.controlName}
-            {renderCount(item)}
+            {_.get(item, 'advancedSetting.showcount') !== '1' && renderCount(item)}
           </div>
           {(recordId || item.isSubList) && <WidgetsDesc item={item} from={from} />}
 

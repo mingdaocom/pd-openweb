@@ -595,16 +595,6 @@ function User(props) {
       <div className="topAct">
         <div className={cx('title flexRow alignItemsCenter', { flex: selectedIds.length > 0 })}>
           <span className={cx('Font17 Bold pLeft20 mLeft20')}>{props.title}</span>
-          {props.roleId !== 'all' && (
-            <Tooltip text={<span>{_l('设置角色权限')} </span>} popupPlacement="top">
-              <i
-                className="icon-settings1 Font16 toRole mLeft4 Hand"
-                onClick={() => {
-                  setQuickTag({ roleId: props.roleId, tab: 'roleSet' });
-                }}
-              />
-            </Tooltip>
-          )}
         </div>
         {selectedIds.length > 0 && (
           <div>

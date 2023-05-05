@@ -350,7 +350,7 @@ export default class extends Component {
           : null,
       label: ydisplay.showDial
         ? {
-            formatter: (value, obj) => {
+            formatter: (value) => {
               return value ? formatrChartAxisValue(Number(value), isPerPile, yaxisList) : null;
             },
           }

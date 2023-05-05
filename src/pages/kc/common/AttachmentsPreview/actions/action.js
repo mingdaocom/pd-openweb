@@ -100,8 +100,8 @@ function loadAttachment(attachment, options = {}) {
       previewAttachmentType = newAttachment.previewAttachmentType;
       previewType = newAttachment.previewType;
       if (previewAttachmentType === 'COMMON') {
-        if (previewType === PREVIEW_TYPE.IFRAME || previewType === PREVIEW_TYPE.VIDEO) {
-          newAttachment.viewUrl = attachment.sourceNode.viewUrl || newAttachment.viewUrl;
+        if (attachment.sourceNode.viewUrl) {
+          newAttachment.viewUrl = attachment.sourceNode.viewUrl;
           promise.resolve(newAttachment);
         } else {
           promise.resolve(newAttachment);

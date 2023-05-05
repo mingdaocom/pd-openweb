@@ -5,7 +5,7 @@ import cx from 'classnames';
 import { Modal, Icon, ScrollView, LoadDiv } from 'ming-ui';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import _ from 'lodash';
-import { SOURCE_FROM_TYPE, CREATE_TYPE } from '../../constant';
+import { SOURCE_FROM_TYPE, CREATE_TYPE, ROLE_TYPE } from '../../constant';
 import dataSourceApi from '../../../api/datasource';
 import { formatDate } from '../../../config';
 
@@ -155,7 +155,7 @@ const NoDataWrapper = styled.div`
 
 let listAjaxPromise = null;
 export default function ExistSourceModal(props) {
-  const { connectorConfigData, roleType, setConnectorConfigData, onClose } = props;
+  const { connectorConfigData = {}, roleType, setConnectorConfigData, onClose } = props;
   const [searchKeyWords, setSearchKeyWords] = useState('');
   const [currentTab, setCurrentTab] = useState(SOURCE_FROM_TYPE.ALL);
   const [dsTypeList, setDsTypeList] = useState([]);
@@ -170,22 +170,23 @@ export default function ExistSourceModal(props) {
     };
     dataSourceApi.getTypes(fetchTypeParams).then(res => {
       if (res) {
+        const filterRes = res.filter(item => _.includes([ROLE_TYPE.ALL, roleType.toUpperCase()], item.roleType));
         const dataList = [
           {
             key: SOURCE_FROM_TYPE.LOCAL,
             text: _l('本地'),
-            list: res.filter(item => item.fromType === SOURCE_FROM_TYPE.LOCAL),
+            list: filterRes.filter(item => item.fromType === SOURCE_FROM_TYPE.LOCAL),
           },
           {
             key: SOURCE_FROM_TYPE.CLOUD,
             text: _l('云端'),
-            list: res.filter(item => item.fromType === SOURCE_FROM_TYPE.CLOUD),
+            list: filterRes.filter(item => item.fromType === SOURCE_FROM_TYPE.CLOUD),
           },
           //第一版暂不支持消息队列
           // {
           //   key: SOURCE_FROM_TYPE.MESSAGE_QUEUE,
           //   text: _l('消息队列'),
-          //   list: res.filter(item => item.fromType === SOURCE_FROM_TYPE.MESSAGE_QUEUE),
+          //   list: filterRes.filter(item => item.fromType === SOURCE_FROM_TYPE.MESSAGE_QUEUE),
           // },
         ];
         let isExist = false;
@@ -236,7 +237,7 @@ export default function ExistSourceModal(props) {
       listAjaxPromise = null;
       if (res) {
         const list = res.content
-          .filter(item => item.id !== connectorConfigData[roleType].id)
+          .filter(item => item.id !== (connectorConfigData[roleType] || {}).id)
           .map(item => {
             return {
               ...item,

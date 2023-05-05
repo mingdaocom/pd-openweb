@@ -218,7 +218,7 @@ function previewAttachment(
       index: index || 0,
       fromType: 4,
       attachments: attachments.map(attachment => {
-        if (attachment.fileID.slice(0, 2) === 'o_') {
+        if (attachment.fileID && attachment.fileID.slice(0, 2) === 'o_') {
           return Object.assign({}, attachment, {
             previewAttachmentType: 'QINIU',
             path: attachment.origin.url || attachment.previewUrl,

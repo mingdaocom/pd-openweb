@@ -137,7 +137,7 @@ export default ({ data, updateSource, isIntegration }) => {
               type="text"
               className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
               style={{ width: 180 }}
-              placeholder={_l('参数名')}
+              placeholder={_l('参数名（必填）')}
               value={item.controlName}
               maxLength={64}
               onChange={e => updateControls('controlName', e.target.value, item)}
@@ -164,7 +164,7 @@ export default ({ data, updateSource, isIntegration }) => {
             <input
               type="text"
               className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex mLeft10"
-              placeholder={_l('别名')}
+              placeholder={item.dataSource ? _l('别名（必填）') : _l('别名')}
               value={item.alias}
               onChange={e => updateControls('alias', e.target.value.replace(/[^a-z\d-_]/gi, ''), item)}
               onBlur={e => {
@@ -194,7 +194,7 @@ export default ({ data, updateSource, isIntegration }) => {
               }}
             />
             <i
-              className="icon-add Font20 pointer Gray_9e ThemeHoverColor3 mLeft10 pointer"
+              className="icon-add Font16 pointer Gray_9e ThemeHoverColor3 mLeft10 pointer"
               onClick={() => addParameters(item)}
             />
           </div>

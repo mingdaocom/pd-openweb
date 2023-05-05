@@ -9,6 +9,8 @@ import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import Card from './Card';
 import ProcessDelegation from './ProcessDelegation';
 import { getRequest } from 'src/util';
+import { verifyPassword } from 'src/util';
+import VerifyPassword from 'src/pages/workflow/components/ExecDialog/components/VerifyPassword';
 import './index.less';
 import 'src/pages/worksheet/common/newRecord/NewRecord.less';
 import 'mobile/ProcessRecord/OtherAction/index.less';
@@ -80,7 +82,8 @@ export default class ProcessMatters extends Component {
       previewRecord: {},
       batchApproval: false,
       approveCards: [],
-      approveType: null
+      approveType: null,
+      encryptType: null
     }
   }
   componentDidMount() {
@@ -214,11 +217,17 @@ export default class ProcessMatters extends Component {
   hanndleApprove = (type, batchType) => {
     const { approveCards } = this.state;
     const signatureCard = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
+    const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
     if (_.isEmpty(approveCards)) {
       Toast.info(_l('请先勾选需要处理的审批'), 2);
     }
-    if (signatureCard.length) {
-      this.setState({ approveType: type });
+    if (signatureCard.length || encryptCard.length) {
+      if (signatureCard.length) {
+        this.setState({ approveType: type });
+      }
+      if (encryptCard.length) {
+        this.setState({ encryptType: type });
+      }
     } else {
       this.handleBatchApprove(null, type);
     }
@@ -251,34 +260,45 @@ export default class ProcessMatters extends Component {
     });
   }
   renderSignatureDialog() {
-    const { approveCards, approveType } = this.state;
+    const { approveCards, approveType, encryptType } = this.state;
     const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
     const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
+    const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
     return (
       <Modal
         popup
         visible={true}
         onClose={() => {
-          this.setState({ approveType: null });
+          this.setState({ approveType: null, encryptType: null });
         }}
         animationType="slide-up"
       >
-        <div className={cx('otherActionWrapper flexColumn')} style={{ height: 350 }}>
+        <div className={cx('otherActionWrapper flexColumn')}>
           <div className="flex pAll10">
             <div className="Gray_75 Font14 TxtLeft mBottom10">
-              {_l('包含%0个需要签名的审批事项', signatureApproveCards.length)}
+              {_l('其中')}
+              {!!signatureApproveCards.length && _l('%0个事项需要签名', signatureApproveCards.length)}
+              {!!(signatureApproveCards.length && encryptCard.length) && '，'}
+              {!!encryptCard.length && _l('%0个事项需要验证登录密码', encryptCard.length)}
             </div>
-            <Signature
-              ref={signature => {
-                this.signature = signature;
-              }}
-            />
+            {!!signatureApproveCards.length && (
+              <Signature
+                ref={signature => {
+                  this.signature = signature;
+                }}
+              />
+            )}
+            {encryptType && (
+              <div className="mTop20 TxtLeft">
+                <VerifyPassword onChange={value => (this.password = value)} />
+              </div>
+            )}
           </div>
           <div className="flexRow actionBtnWrapper">
             <div
               className="flex actionBtn"
               onClick={() => {
-                this.setState({ approveType: null });
+                this.setState({ approveType: null, encryptType: null });
               }}
             >
               {_l('取消')}
@@ -286,14 +306,26 @@ export default class ProcessMatters extends Component {
             <div
               className="flex actionBtn ok"
               onClick={() => {
-                if (this.signature.checkContentIsEmpty()) {
+                if (signatureApproveCards.length && this.signature.checkContentIsEmpty()) {
                   alert(_l('请填写签名'), 2);
                   return;
                 }
-                this.signature.saveSignature(signature => {
-                  this.handleBatchApprove(signature, this.state.approveType);
-                  this.setState({ approveType: null });
-                });
+                const submitFun = () => {
+                  if (signatureApproveCards.length) {
+                    this.signature.saveSignature(signature => {
+                      this.handleBatchApprove(signature, this.state.approveType);
+                      this.setState({ approveType: null, encryptType: null });
+                    });
+                  } else {
+                    this.handleBatchApprove(null, this.state.encryptType);
+                    this.setState({ approveType: null, encryptType: null });
+                  }
+                }
+                if (encryptCard.length) {
+                  verifyPassword(this.password, submitFun);
+                } else {
+                  submitFun();
+                }
               }}
             >
               {_l('通过')}
@@ -419,7 +451,7 @@ export default class ProcessMatters extends Component {
     );
   }
   render() {
-    const { batchApproval, list, countData, bottomTab, topTab, previewRecord, approveCards, approveType } = this.state;
+    const { batchApproval, list, countData, bottomTab, topTab, previewRecord, approveCards, approveType, encryptType } = this.state;
     const currentTabs = bottomTab.tabs;
     const allowApproveList = list.filter(c => _.get(c, 'flowNode.batch'));
     return (
@@ -532,7 +564,7 @@ export default class ProcessMatters extends Component {
             });
           }}
         />
-        {approveType && this.renderSignatureDialog()}
+        {(approveType || encryptType) && this.renderSignatureDialog()}
       </div>
     );
   }

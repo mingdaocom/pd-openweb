@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { Select } from 'antd';
 import { LoadDiv, Icon } from 'ming-ui';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, upgradeVersionDialog } from 'src/util';
 import MobileSearch from './MobileSearch';
 import { getParamsByConfigs, getShowValue, clearValue } from './util';
 import worksheetAjax from 'src/api/worksheet';
@@ -21,7 +21,7 @@ const SearchBtn = styled.div`
   height: 36px;
   border: 1px solid #ddd;
   border-radius: 3px;
-  padding: 0 24px;
+  padding: 0 16px;
   background: #fff;
   color: #333;
   font-size: 13px;
@@ -116,6 +116,20 @@ export default class Widgets extends Component {
     this.postList = worksheetAjax.excuteApiQuery(params);
 
     this.postList.then(res => {
+      if (res.code === 20008) {
+        this.setState({ isSuccess: false, loading: false, data: null });
+        upgradeVersionDialog({
+          projectId,
+          okText: _l('立即充值'),
+          hint: _l('余额不足，请联系管理员充值'),
+          explainText: <div></div>,
+          onOk: () => {
+            location.href = `/admin/valueaddservice/${projectId}`;
+          },
+        });
+        return;
+      }
+
       if (res.message) {
         alert(res.message, 3);
         this.setState({ isSuccess: false, loading: false, data: null });
@@ -154,7 +168,12 @@ export default class Widgets extends Component {
             control.controlId,
           );
         } else if (!item.subid) {
-          this.props.onChange(itemData[item.cid], control.controlId);
+          // 普通数组特殊处理
+          const itemVal =
+            item.type === 10000007 && itemData[item.cid] && _.isArray(safeParse(itemData[item.cid]))
+              ? safeParse(itemData[item.cid]).join(',')
+              : itemData[item.cid];
+          this.props.onChange(itemVal, control.controlId);
         }
         this.setState({ data: null, open: false, keywords: '' });
       }
@@ -276,7 +295,7 @@ export default class Widgets extends Component {
           ) : (
             <span className="TxtCenter flex overflow_ellipsis">
               {isSuccess && <i className="icon-done successIcon"></i>}
-              <span style={{ fontWeight: '500' }}> {hint || _l('查询')}</span>
+              <span className='Bold'> {hint || _l('查询')}</span>
             </span>
           )}
         </SearchBtn>

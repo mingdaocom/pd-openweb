@@ -67,7 +67,13 @@ export default class WebhookContent extends Component {
     const { data } = this.props;
 
     if (checkJSON(data.jsonParam)) {
-      fetch(data.hookUrl, { method: 'POST', body: data.jsonParam }).then(() => {
+      fetch(data.hookUrl, {
+        method: 'POST',
+        body: data.jsonParam,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then(() => {
         this.getAppTemplateControls();
       });
     } else {

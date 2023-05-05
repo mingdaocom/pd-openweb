@@ -6,6 +6,7 @@ import { getWidgetInfo } from '../../util';
 import { isExceedMaxControlLimit } from '../../util/setting';
 import WidgetDeatail from 'src/pages/widgetConfig/widgetSetting';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { handleAddWidget } from 'src/pages/widgetConfig/util/data';
 import SearchInput from 'worksheet/components/SearchInput';
 import cx from 'classnames';
 import './FieldRecycleBin.less';
@@ -31,19 +32,21 @@ export default class FieldRecycleBin extends Component {
 
     this.setState({ loading: true });
 
-    worksheetAjax.getWorksheetControls({
-      worksheetId: globalSheetInfo.worksheetId,
-      getControlType: 9,
-    }).then(({ data = [] }) => {
-      const tempList = _.get(data, 'controls') || [];
-      this.setState({
-        originList: tempList,
-        filterList: tempList,
-        activeWidget: tempList[0],
-        isAdmin: globalSheetInfo.roleType === 2,
-        loading: false,
+    worksheetAjax
+      .getWorksheetControls({
+        worksheetId: globalSheetInfo.worksheetId,
+        getControlType: 9,
+      })
+      .then(({ data = [] }) => {
+        const tempList = _.get(data, 'controls') || [];
+        this.setState({
+          originList: tempList,
+          filterList: tempList,
+          activeWidget: tempList[0],
+          isAdmin: [2, 4].includes(globalSheetInfo.roleType),//开发者和管理员
+          loading: false,
+        });
       });
-    });
   }
 
   searchList = () => {
@@ -66,7 +69,7 @@ export default class FieldRecycleBin extends Component {
       <Fragment>
         <span>
           <span className="Font17">{_l('回收站（字段）')}</span>
-          <span className="Font13 Gray_9e">{_l('可恢复60天内删除的字段')}</span>
+          <span className="Font13 Gray_9e">{_l('可恢复%0天内删除的字段', md.global.SysSettings.worksheetRowRecycleDays)}</span>
         </span>
         <SearchInput
           className="searchContainer"
@@ -105,10 +108,10 @@ export default class FieldRecycleBin extends Component {
 
   updateStatus = (item, status) => {
     const { filterList, activeWidget = {}, isComplete } = this.state;
-    const { globalSheetInfo = {}, handleRecover = () => {}, allControls } = this.props;
+    const { globalSheetInfo = {}, allControls } = this.props;
 
     if (status === 'recover' && isExceedMaxControlLimit(allControls)) {
-      alert('恢复失败，表单控件数量已达到上限');
+      alert(_l('恢复失败，表单控件数量已达到上限'), 3);
       return;
     }
 
@@ -116,27 +119,29 @@ export default class FieldRecycleBin extends Component {
 
     this.setState({ isComplete: true });
 
-    worksheetAjax.editControlsStatus({
-      worksheetId: globalSheetInfo.worksheetId,
-      controlIds: [item.controlId],
-      status: status === 'delete' ? 999 : 1,
-    }).then(res => {
-      if (res.data) {
-        if (status === 'recover') {
-          handleRecover({ ...item, attribute: 0 }, {});
-        }
+    worksheetAjax
+      .editControlsStatus({
+        worksheetId: globalSheetInfo.worksheetId,
+        controlIds: [item.controlId],
+        status: status === 'delete' ? 999 : 1,
+      })
+      .then(res => {
+        if (res.data) {
+          if (status === 'recover') {
+            handleAddWidget({ ...item, attribute: 0 }, {}, this.props);
+          }
 
-        const newFilterList = filterList.filter(i => i.controlId !== item.controlId);
-        this.setState({
-          filterList: newFilterList,
-          activeWidget: item.controlId === activeWidget.controlId ? newFilterList[0] : activeWidget,
-          isComplete: false,
-        });
-        alert(status === 'recover' ? _l('恢复成功') : _l('彻底删除成功'));
-      } else {
-        if (res.msg) alert(res.msg);
-      }
-    });
+          const newFilterList = filterList.filter(i => i.controlId !== item.controlId);
+          this.setState({
+            filterList: newFilterList,
+            activeWidget: item.controlId === activeWidget.controlId ? newFilterList[0] : activeWidget,
+            isComplete: false,
+          });
+          alert(status === 'recover' ? _l('恢复成功') : _l('彻底删除成功'));
+        } else {
+          if (res.msg) alert(res.msg);
+        }
+      });
   };
 
   renderListItem = item => {

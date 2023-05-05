@@ -129,7 +129,7 @@ export default function DisplayItem(props) {
       // 插入新行
       if (mode === DRAG_MODE.INSERT_NEW_LINE) {
         setWidgets(insertNewLine({ widgets, srcItem: data, srcPath: path, targetIndex: rowIndex }));
-        setActiveWidget({ ...data, size: getDefaultSizeByData(data) });
+        setActiveWidget(data);
       }
 
       // 拖到行的末尾

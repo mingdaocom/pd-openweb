@@ -8,6 +8,7 @@ export default {
   * @param {string} args.unionId 第三方账号id标识
   * @param {string} args.state 第三方账号随机码
   * @param {} args.tpType 第三方账号类型
+  * @param {string} args.regFrom 登录广告来源
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）
@@ -27,6 +28,7 @@ export default {
   * @param {} args.loginType 登录类型(默认0: AccountId + EncryptPassword、1（LDAP）: AccountId + EncryptPassword + Account + ProjectId)
   * @param {string} args.account 账号
   * @param {string} args.projectId 网络Id
+  * @param {string} args.regFrom 登录广告来源
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -36,12 +38,13 @@ export default {
      return $.api('Login', 'MDAccountAutoLogin', args, options);
    },
   /**
-  * 两步验证登陆
+  * 两步验证登录
   * @param {Object} args 请求参数
   * @param {string} args.state 状态位
   * @param {integer} args.type 登陆类型
 1为手机号；2为邮箱
   * @param {string} args.verifyCode 验证码
+  * @param {string} args.regFrom 登录广告来源
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -52,7 +55,7 @@ export default {
    },
   /**
   * 检查登陆状态
-登陆返回true，未登陆则返回false
+登录返回true，未登录则返回false
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -97,6 +100,7 @@ export default {
   * @param {string} args.password LDAP 密码
   * @param {string} args.projectId 网络id
   * @param {boolean} args.isCookie 是否记住用户名密码
+  * @param {string} args.regFrom 登录广告来源
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）
@@ -107,19 +111,6 @@ export default {
    lDAPLogin: function (args, options = {}) {
      
      return $.api('Login', 'LDAPLogin', args, options);
-   },
-  /**
-  * 第三方使用明道云账号SSO登录
-  * @param {Object} args 请求参数
-  * @param {string} args.account 账号
-  * @param {string} args.password 密码
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   tPMDAccountLogin: function (args, options = {}) {
-     
-     return $.api('Login', 'TPMDAccountLogin', args, options);
    },
   /**
   * 第三方账号登录

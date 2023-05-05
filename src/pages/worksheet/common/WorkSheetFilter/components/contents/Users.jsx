@@ -75,6 +75,19 @@ export default class Users extends Component {
       isTask: false,
       includeUndefinedAndMySelf: !_.includes(['rule', 'portal'], from),
       includeSystemField: !_.includes(['rule', 'portal', 'subTotal'], from),
+      ...(_.includes(['rule'], from)
+        ? {
+            prefixAccounts: [
+              {
+                accountId: 'user-self',
+                fullname: _l('当前用户'),
+                avatar:
+                  md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+                  '/UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90',
+              },
+            ],
+          }
+        : {}),
       isHidAddUser: md.global.Account.isPortal,
       tabType,
       offset: {

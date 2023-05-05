@@ -511,7 +511,7 @@ export default class RecordInfo extends Component {
       if (it.type === 14) {
         return formatControlToServer(it, { isSubListCopy: true });
       }
-      return formatControlToServer(it);
+      return formatControlToServer(it, { isNewRecord: true, isDraft: true });
     });
   }
 
@@ -682,7 +682,9 @@ export default class RecordInfo extends Component {
       },
       (err, resdata, logId) => {
         if (!err) {
-          let newFormData = recordinfo.formData.map(c => _.assign({}, c, { value: resdata[c.controlId] }));
+          let newFormData = recordinfo.formData.map(c =>
+            _.assign({}, c, { value: resdata[c.controlId], count: resdata[`rq${c.controlId}`] }),
+          );
           updateRows([recordId], _.omit(resdata, ['allowedit', 'allowdelete']), _.pick(resdata, updateControlIds));
           this.refreshSubList();
           if (viewId && !resdata.isviewdata) {
@@ -933,7 +935,10 @@ export default class RecordInfo extends Component {
     const maskinfo = {
       forceShowFullValue: showFullValue,
       maskPermissions:
-        (isCharge || _.get(titleControl, 'advancedSetting.isdecrypt') === '1') && titleControl.value && !showFullValue,
+        (isCharge || _.get(titleControl, 'advancedSetting.isdecrypt') === '1') &&
+        titleControl.value &&
+        !showFullValue &&
+        !window.shareState.shareId,
       handleUnMask: this.handleUnMask,
     };
     const useWaterMark = !this.hadWaterMark && recordinfo.projectId;
@@ -1150,7 +1155,7 @@ export default class RecordInfo extends Component {
                 }}
                 currentIndex={currentIndex}
                 onRelateRecordsChange={(control, records) => {
-                  if (!this.recordform.current || from !== RECORD_INFO_FROM.DRAFT) {
+                  if (!this.recordform || !this.recordform.current || from !== RECORD_INFO_FROM.DRAFT) {
                     return;
                   }
                   const newRelateRecordData = {

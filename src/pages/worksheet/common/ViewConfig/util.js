@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import update from 'immutability-helper';
+import { handleCondition } from 'src/pages/widgetConfig/util/data';
 
 export const COVER_DISPLAY_MODE = [
   { value: 0, text: _l('填满') },
@@ -15,8 +16,50 @@ export const COVER_DISPLAY_POSITION = [
 ];
 
 export const updateViewAdvancedSetting = (view, obj) => {
+  const { navfilters } = obj;
+  const { advancedSetting = {} } = view;
+  const { navshow } = advancedSetting;
+  if (!!navfilters || !['2', '3'].includes(navshow)) {
+    return updateAdvancedSetting(view, obj);
+  }
+  return formatAdvancedSettingByNavfilters(view, obj);
+};
+
+export const updateAdvancedSetting = (view, obj) => {
   const { advancedSetting = {} } = view;
   return update(advancedSetting, { $apply: item => ({ ...item, ...obj }) });
+};
+
+//格式化advancedSetting的navfilters
+export const formatAdvancedSettingByNavfilters = (view, newValue) => {
+  const { navfilters } = newValue;
+  const { advancedSetting = {} } = view;
+  const { navshow } = advancedSetting;
+  if (!!navfilters || !['2', '3'].includes(navshow)) {
+    return updateAdvancedSetting(view, newValue);
+  } else {
+    //显示制定项，人员部门等字段处理
+    return updateAdvancedSetting(view, {
+      ...newValue,
+      navfilters:
+        navshow === '3'
+          ? JSON.stringify(safeParse(_.get(advancedSetting, 'navfilters')).map(handleCondition))
+          : JSON.stringify(
+            safeParse(_.get(advancedSetting, 'navfilters')).map(info => {
+              let id = info;
+              let data = null;
+              try {
+                data = JSON.parse(info);
+                id = data.id || data;
+              } catch (error) {
+                id = info;
+              }
+              return id
+
+            }),
+          ),
+    });
+  }
 };
 
 // 不能作为视图排序的控件

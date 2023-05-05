@@ -117,6 +117,7 @@ export default class Widgets extends Component {
       enumDefault,
       dataSource,
       formData,
+      appId,
       recordId,
       from = '',
       projectId,
@@ -180,6 +181,7 @@ export default class Widgets extends Component {
                 className="embedContainer chartPadding"
                 report={{ id: reportid }}
                 projectId={projectId}
+                appId={appId}
                 sourceType={1}
                 filters={formatFilters}
                 needUpdate={needUpdate}

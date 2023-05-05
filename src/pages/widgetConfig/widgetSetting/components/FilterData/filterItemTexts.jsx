@@ -11,7 +11,7 @@ const FilterTextWrap = styled.div`
   width: 100%;
   border: 1px solid #dddddd;
   border-radius: 3px;
-  padding: 0 12px 6px 12px;
+  padding: 2px 12px 8px;
   box-sizing: border-box;
   color: #333;
   margin: 10px 0;
@@ -105,7 +105,7 @@ export default class FilterItemTexts extends React.Component {
     );
   }
   render() {
-    let { data, allControls, controls, editFn, loading = true, globalSheetControls = [] } = this.props;
+    let { data, allControls, controls, editFn, loading = true, globalSheetControls = [], className } = this.props;
     const filters = this.props.filters || getAdvanceSetting(data, 'filters');
     let filterItemTexts;
     if (this.props.filterItemTexts) {
@@ -122,6 +122,7 @@ export default class FilterItemTexts extends React.Component {
     }
     return (
       <FilterTextWrap
+        className={className}
         onClick={() => {
           editFn();
         }}

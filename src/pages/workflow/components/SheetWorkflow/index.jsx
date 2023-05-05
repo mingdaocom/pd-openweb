@@ -9,7 +9,7 @@ import StepHeader from '../ExecDialog/StepHeader';
 import Steps from 'src/pages/workflow/components/ExecDialog/Steps';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
 import MobileProcessRecord from 'src/pages/Mobile/ProcessRecord';
-import OtherAction from 'src/pages/workflow/components/ExecDialog/OtherAction';
+import OtherAction from 'src/pages/workflow/components/ExecDialog/components/OtherAction';
 import MobileOtherAction from 'mobile/ProcessRecord/OtherAction';
 import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
 import { covertTime, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
@@ -257,8 +257,8 @@ export default function SheetWorkflow(props) {
   };
 
   const handleAction = ({ action, content, userId, backNodeId, signature }) => {
-    if (_.includes(['pass', 'overrule'], action)) {
-      handleRequest(ACTION_TO_METHOD[action], { opinion: content, backNodeId, signature }).then(() => {
+    if (_.includes(['pass', 'overrule', 'return'], action)) {
+      handleRequest(ACTION_TO_METHOD[action === 'return' ? 'overrule' : action], { opinion: content, backNodeId, signature }).then(() => {
         setActionVisible(false);
         handleCloseDrawer();
         getList().then(list => {

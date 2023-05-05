@@ -4,6 +4,7 @@ import './GlobalSearchAllContent.less';
 import _ from 'lodash';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import { Skeleton } from 'antd';
 import { Checkbox, ScrollView, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import smartSearchCtrl from 'src/api/smartSearch';
@@ -25,8 +26,8 @@ export default class GlobalSearchAllContent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      leftLoading: false,
-      rightLoading: false,
+      leftLoading: true,
+      rightLoading: true,
       searchKeyword: '',
       result: false,
       rightResult: false,
@@ -178,13 +179,17 @@ export default class GlobalSearchAllContent extends Component {
       type === 8 &&
       (getFeatureStatus(recordProjectId, GLOBAL_SEARCH_FEATURE_ID) === '2' || proObj.licenseType === 2)
     ) {
-      this.setState({ loadAppData: false, recordData: undefined });
+      this.setState({ loadAppData: false, recordData: { list: [], resultCode: 3 } });
       return;
     }
 
     smartSearchCtrl.searchApp(param).then(res => {
       if (!type) {
-        this.setState({ appData: res.apps || {}, recordData: res.rows || {}, loadAppData: false });
+        this.setState({
+          appData: res.apps || {},
+          recordData: { ...res.rows, resultCode: proObj.licenseType === 2 ? 3 : res.resultCode },
+          loadAppData: false,
+        });
       } else if (type === 7) {
         this.setState({ appData: res.apps, loadAppData: false });
       } else {
@@ -249,8 +254,26 @@ export default class GlobalSearchAllContent extends Component {
 
     if (rightLoading) {
       return (
-        <div className={`searchContent loading ${isApp ? 'mTop40' : 'mTop10'}`}>
-          <LoadDiv size="middle" />
+        <div className="searchContent loading pLeft20 pRight20 mTop20">
+          <Skeleton
+            className="mBottom13 userListSkeleton"
+            loading={true}
+            active={true}
+            round={true}
+            title={{ width: '78px' }}
+            paragraph={false}
+          />
+          {[0, 1, 2, 3].map(l => (
+            <Skeleton
+              className="mBottom14"
+              loading={true}
+              active={true}
+              round={true}
+              avatar={{ size: 32 }}
+              title={false}
+              paragraph={{ rows: 1, width: '100%' }}
+            />
+          ))}
         </div>
       );
     }
@@ -302,23 +325,43 @@ export default class GlobalSearchAllContent extends Component {
 
     if (leftLoading || loadAppData) {
       return (
-        <div className="searchContent loading">
-          <LoadDiv size="middle" />
+        <div className="searchContent loading searchContentText">
+          <Skeleton
+            className="mBottom18 userListSkeleton mTop20"
+            active={true}
+            loading={true}
+            round={true}
+            title={{ width: '78px' }}
+            paragraph={false}
+          />
+          {[0, 1, 2, 3].map(l => (
+            <Skeleton
+              className="mBottom20"
+              loading={true}
+              active={true}
+              round={true}
+              avatar={{ size: 32 }}
+              title={false}
+              paragraph={{ rows: 2, width: ['253px', '100%'] }}
+            />
+          ))}
         </div>
       );
     }
+
+    let content = null;
 
     if (
       (!appData || appData.total === 0) &&
       (!recordData || recordData.total === 0) &&
       (searchScope === 'record' || !result || result.length === 0)
     ) {
-      return <GlobalSearchEmpty />;
+      content = <GlobalSearchEmpty />;
     }
 
     return (
       <React.Fragment>
-        {appData && appData.total !== 0 && (
+        {appData && (
           <AppList
             title={searchScope === 'record' ? _l('应用项') : undefined}
             isApp={isApp}
@@ -348,7 +391,7 @@ export default class GlobalSearchAllContent extends Component {
             }
           />
         )}
-        {recordData && (recordData.total !== 0 || [2, 3, 4].indexOf(recordData.resultCode) > -1) && (
+        {
           <AppList
             data={recordData}
             dataKey={'record'}
@@ -356,12 +399,13 @@ export default class GlobalSearchAllContent extends Component {
             currentProjectName={_.find(md.global.Account.projects, { projectId: recordProjectId }).companyName}
             needTitle={true}
             viewAll={true}
-            explore={recordData.resultCode === 4}
-            resultCode={recordData.resultCode}
+            explore={recordData && recordData.resultCode === 4}
+            resultCode={recordData && recordData.resultCode}
             start={highlightType ? highlightType === 'record' : this.getStart('record')}
             onStartBetween={() => this.onStartBetween('record')}
             appId={searchScope === 'record' ? this.props.match.params.appId : ''}
             viewName={searchScope !== 'record'}
+            closeDialog={this.props.onClose}
             extendButtons={
               searchScope === 'all'
                 ? [
@@ -396,7 +440,8 @@ export default class GlobalSearchAllContent extends Component {
                   ]
             }
           />
-        )}
+        }
+        {content}
       </React.Fragment>
     );
   }

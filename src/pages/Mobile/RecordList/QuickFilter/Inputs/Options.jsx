@@ -32,18 +32,38 @@ export const Option = styled.div`
   }
 `;
 
+function pickOptions(options, navfilters) {
+  try {
+    const pickIds = JSON.parse(navfilters);
+    return options.filter(o => _.includes(pickIds, o.key));
+  } catch (err) {
+    return options;
+  }
+}
 export default function Options(props) {
   const { values = [], control, advancedSetting = {}, onChange = () => {} } = props;
-  const { allowitem, direction } = advancedSetting;
-  const { options } = control;
+  const { allowitem, direction, navshow, navfilters, shownullitem, nullitemname } = advancedSetting;
+  let { options } = control;
   const multiple = String(allowitem) === '2';
   const [moreVisible, setMoreVisible] = useState(false);
+  if (String(navshow) === '2') {
+    options = pickOptions(options, navfilters);
+  }
+  if (shownullitem === '1') {
+    options = [
+      {
+        key: 'isEmpty',
+        color: 'transparent',
+        value: nullitemname || _l('为空'),
+      },
+    ].concat(options);
+  }
   const newOptions = options.filter(o => !o.isDeleted).slice(0, 10);
   const isMore = options.length > newOptions.length;
 
   const handleSetMoreVisible = () => {
     setMoreVisible(!moreVisible);
-  }
+  };
 
   function handleChange(value) {
     onChange({
@@ -65,7 +85,9 @@ export default function Options(props) {
             key={i}
             className={('ellipsis', cx({ checked: _.includes(values, o.key) }))}
             onClick={() => {
-              if (_.includes(values, o.key)) {
+              if (o.key === 'isEmpty') {
+                handleChange({ values: values.length === 1 && values[0] === 'isEmpty' ? [] : ['isEmpty'] });
+              } else if (_.includes(values, o.key)) {
                 handleChange({ values: values.filter(v => v !== o.key) });
               } else {
                 handleChange({ values: multiple ? _.uniqBy(values.concat(o.key)) : [o.key] });

@@ -70,7 +70,7 @@ const Item = SortableElement(props => {
           openSearch
           isAppendToBody
           menuStyle={{ width: 200 }}
-          className="flex mRight10 filterColumns Width120"
+          className="flex mRight10 filterColumns"
           value={condition.controlId}
           data={props.getCanSelectColumns(condition.controlId)}
           searchNull={() => {
@@ -83,12 +83,14 @@ const Item = SortableElement(props => {
           }}
           {...(isOtherShowFeild(control)
             ? { renderError: () => <span className="Red">{_l('%0(无效类型)', control.controlName)}</span> }
+            : !control
+            ? { renderError: () => <span className="Red">{_l('字段已删除')}</span> }
             : {})}
         />
         <Dropdown
           border
           isAppendToBody
-          className="flex Width120 mRight6"
+          className="flex mRight6"
           value={condition.isAsc ? 2 : 1}
           data={props.getSortTypes(condition.controlId)}
           onChange={value => {
@@ -174,19 +176,8 @@ export default class SortConditions extends React.Component {
     }
     return {
       columns,
-      sortConditions:
-        sortConditions && sortConditions.length
-          ? this.getValideSortConditions(columns, sortConditions)
-          : [{ controlId: 'ctime', isAsc: true }],
+      sortConditions: sortConditions && sortConditions.length ? sortConditions : [{ controlId: 'ctime', isAsc: true }],
     };
-  };
-
-  getValideSortConditions = (columns, moreSort) => {
-    let valideSortConditions = moreSort.filter(sc => _.find(columns, c => c.controlId === sc.controlId));
-    if (!valideSortConditions.length) {
-      valideSortConditions = [{ controlId: 'ctime', isAsc: false }];
-    }
-    return valideSortConditions;
   };
 
   handleChange = newSortConditions => {

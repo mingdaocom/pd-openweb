@@ -109,7 +109,7 @@ class PostUsernameGroup extends React.Component {
         break;
     }
     if (icon) {
-      children.push(<i key="icon" className={'mLeft5 Font16 ThemeColor3 icon-' + icon} data-titletip={postTypeName} />);
+      children.push(<i key="icon" className={'mLeft5 Font16 ThemeColor3 icon-' + icon} data-tip={postTypeName} />);
     }
     return <div {...props}>{children}</div>;
   }

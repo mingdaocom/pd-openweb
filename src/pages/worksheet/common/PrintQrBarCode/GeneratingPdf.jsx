@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import worksheetAjax from 'src/api/worksheet';
 import GeneratingPopup from './GeneratingPopup';
 import { getCodeTexts, getCodeContent } from './util';
@@ -6,82 +6,150 @@ import { SOURCE_TYPE, SOURCE_URL_TYPE } from './enum';
 import { QrPdf } from './print';
 import _ from 'lodash';
 
+const PAGE_SIZE = 200;
+
 export default function GeneratingPdf(props) {
-  const { config, appId, worksheetId, viewId, templateId, projectId, selectedRows, controls, zIndex, onClose } = props;
+  const {
+    config,
+    appId,
+    worksheetId,
+    viewId,
+    templateId,
+    projectId,
+    controls,
+    zIndex,
+    selectedRows,
+    count,
+    allowLoadMore,
+    filterControls,
+    fastFilters,
+    navGroupFilters,
+    onClose,
+  } = props;
+  const [printConfig, setPrintConfig] = useState(config && { ...config });
   const [loading, setLoading] = useState(true);
+  const rows = useRef(selectedRows);
+  const [pageIndex, setPageIndex] = useState(1);
   const [embedUrl, setEmbedUrl] = useState();
   const [name, setName] = useState(props.name);
+  function loadData(pageIndex = 1, cb = () => {}) {
+    setLoading(true);
+    worksheetAjax
+      .getFilterRows({
+        worksheetId,
+        viewId,
+        pageSize: PAGE_SIZE,
+        pageIndex,
+        status: 1,
+        appId,
+        filterControls,
+        fastFilters,
+        navGroupFilters,
+      })
+      .then(res => {
+        rows.current = res.data;
+        cb();
+      });
+  }
+  async function handlePrint(config) {
+    async function execute(urls) {
+      const printData = rows.current.map((row, i) => ({
+        value: getCodeContent({
+          printType: config.printType,
+          sourceType: config.sourceType,
+          sourceControlId: config.sourceControlId,
+          row,
+          urls,
+          index: i,
+          controls,
+        }),
+        texts: getCodeTexts(
+          {
+            showTexts: config.showTexts,
+            showControlName: config.showControlName,
+            controls,
+            firstIsBold: config.firstIsBold,
+          },
+          row,
+        ),
+      }));
+
+      const pdf = new QrPdf({
+        printType: config.printType,
+        layout: config.layout,
+        printData,
+        correctLevel: config.codeFaultTolerance || 1,
+        config: config,
+      });
+      await pdf.render();
+      setEmbedUrl(pdf.doc.output('bloburl'));
+      setLoading(false);
+    }
+    if (config.sourceType === SOURCE_TYPE.URL && config.sourceUrlType === SOURCE_URL_TYPE.PUBLIC) {
+      worksheetAjax
+        .getRowsShortUrl({
+          appId,
+          viewId,
+          worksheetId,
+          rowIds: rows.current.map(data => data.rowid),
+        })
+        .then(data => {
+          if (data && _.isObject(data)) {
+            execute(data);
+          }
+        });
+    } else if (config.sourceType === SOURCE_TYPE.URL && config.sourceUrlType === SOURCE_URL_TYPE.MEMBER) {
+      execute(rows.current.map(r => `${location.origin}/app/${appId}/${worksheetId}/${viewId}/row/${r.rowid}`));
+    } else if (config.sourceType === SOURCE_TYPE.CONTROL) {
+      if (config.sourceControlId) {
+        execute();
+      } else {
+        alert(_l('请选择数据来源字段'), 3);
+      }
+    }
+  }
   useEffect(() => {
     function print(config) {
-      async function handlePrint() {
-        async function execute(urls) {
-          const printData = selectedRows.map((row, i) => ({
-            value: getCodeContent({
-              printType: config.printType,
-              sourceType: config.sourceType,
-              sourceControlId: config.sourceControlId,
-              row,
-              urls,
-              index: i,
-              controls,
-            }),
-            texts: getCodeTexts(
-              {
-                showTexts: config.showTexts,
-                showControlName: config.showControlName,
-                controls,
-                firstIsBold: config.firstIsBold,
-              },
-              row,
-            ),
-          }));
-
-          const pdf = new QrPdf({
-            printType: config.printType,
-            layout: config.layout,
-            printData,
-            correctLevel: config.codeFaultTolerance || 1,
-            config,
-          });
-          await pdf.render();
-          setEmbedUrl(pdf.doc.output('bloburl'));
-          setLoading(false);
-        }
-        if (config.sourceType === SOURCE_TYPE.URL && config.sourceUrlType === SOURCE_URL_TYPE.PUBLIC) {
-          worksheetAjax.getRowsShortUrl({
-            appId,
-            viewId,
-            worksheetId,
-            rowIds: selectedRows.map(data => data.rowid),
-          }).then(data => {
-            if (data && _.isObject(data)) {
-              execute(data);
-            }
-          });
-        } else if (config.sourceType === SOURCE_TYPE.URL && config.sourceUrlType === SOURCE_URL_TYPE.MEMBER) {
-          execute(selectedRows.map(r => `${location.origin}/app/${appId}/${worksheetId}/${viewId}/row/${r.rowid}`));
-        } else if (config.sourceType === SOURCE_TYPE.CONTROL) {
-          if (config.sourceControlId) {
-            execute();
-          } else {
-            alert(_l('请选择数据来源字段'), 3);
-          }
-        }
+      if (allowLoadMore) {
+        loadData(1, () => handlePrint(config));
+      } else {
+        handlePrint(config);
       }
-      handlePrint();
     }
-    if (config) {
-      print(config);
+    if (printConfig) {
+      print(printConfig);
     } else {
-      worksheetAjax.getCodePrint({
-        id: templateId,
-        projectId,
-      }).then(async data => {
-        const config = data.config;
-        setName(data.name);
-        print(config);
-      });
+      worksheetAjax
+        .getCodePrint({
+          id: templateId,
+          projectId,
+        })
+        .then(async data => {
+          setPrintConfig(data.config);
+          setName(data.name);
+          print(data.config);
+        });
     }
   }, []);
-  return <GeneratingPopup zIndex={zIndex} loading={loading} name={name} embedUrl={embedUrl} onClose={onClose} />;
+  return (
+    <GeneratingPopup
+      allowLoadMore={allowLoadMore}
+      pageIndex={pageIndex}
+      pageSize={PAGE_SIZE}
+      count={count}
+      zIndex={zIndex}
+      loading={loading}
+      name={name}
+      embedUrl={embedUrl}
+      onPrev={() => {
+        setPageIndex(pageIndex - 1);
+        loadData(pageIndex - 1, () => handlePrint(printConfig));
+      }}
+      onNext={() => {
+        setPageIndex(pageIndex + 1);
+        loadData(pageIndex + 1, () => handlePrint(printConfig));
+      }}
+      onClose={onClose}
+    />
+  );
 }

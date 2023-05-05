@@ -4,7 +4,7 @@ import cx from 'classnames';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
 import SelectCount from 'src/pages/customPage/components/editWidget/button/SelectCount';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { Dropdown, Icon, LoadDiv } from 'ming-ui';
+import { Dropdown, Icon, LoadDiv, Radio } from 'ming-ui';
 import { Select, Divider } from 'antd';
 import { connect } from 'react-redux';
 import sheetApi from 'src/api/worksheet';
@@ -44,7 +44,7 @@ const Wrap = styled.div`
   }
   .selectCountWrapper {
     width: 100px;
-    >div {
+    > div {
       border: 1px solid #d9d9d9;
       border-radius: 4px;
     }
@@ -65,50 +65,65 @@ const FillColor = styled.div`
   width: 18px;
   height: 18px;
   border-radius: 2px;
-  box-shadow: 0px 3px 6px rgba(0,0,0,0.16);
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   background-color: ${props => props.color};
 `;
 
-const fillType = [{
-  name: _l('填满'),
-  value: 1,
-}, {
-  name: _l('完整显示'),
-  value: 2,
-}];
+const fillType = [
+  {
+    name: _l('填满'),
+    value: 1,
+  },
+  {
+    name: _l('完整显示'),
+    value: 2,
+  },
+];
 
-const fillColorType = [{
-  name: _l('白色'),
-  value: '#FFFFFF',
-}, {
-  name: _l('灰色'),
-  value: '#F5F5F5',
-}, {
-  name: _l('黑色'),
-  value: '#333333',
-}];
+const fillColorType = [
+  {
+    name: _l('白色'),
+    value: '#FFFFFF',
+  },
+  {
+    name: _l('灰色'),
+    value: '#F5F5F5',
+  },
+  {
+    name: _l('黑色'),
+    value: '#333333',
+  },
+];
 
-const actionType = [{
-  name: _l('打开记录'),
-  value: 1,
-}, {
-  name: _l('打开链接'),
-  value: 2,
-}, {
-  name: _l('预览图片'),
-  value: 3,
-}];
+const actionType = [
+  {
+    name: _l('打开记录'),
+    value: 1,
+  },
+  {
+    name: _l('打开链接'),
+    value: 2,
+  },
+  {
+    name: _l('预览图片'),
+    value: 3,
+  },
+];
 
-const openModeType = [{
-  name: _l('弹窗'),
-  value: 1,
-}, {
-  name: _l('当前页面'),
-  value: 2,
-}, {
-  name: _l('新页面'),
-  value: 3,
-}];
+const openModeType = [
+  {
+    name: _l('弹窗'),
+    value: 1,
+  },
+  {
+    name: _l('当前页面'),
+    value: 2,
+  },
+  {
+    name: _l('新页面'),
+    value: 3,
+  },
+];
 
 function Setting(props) {
   const { appPkg = {}, ids = {} } = props;
@@ -124,21 +139,23 @@ function Setting(props) {
 
   useEffect(() => {
     if (worksheetId) {
-      sheetApi.getWorksheetInfo({
-        worksheetId,
-        getTemplate: true,
-        getViews: true,
-        appId,
-      }).then(res => {
-        const { resultCode, views = [], template } = res;
-        if (resultCode === 1) {
-          setDataSource({
-            views: views,
-            controls: template.controls
-          });
-        }
-        setLoading(false);
-      });
+      sheetApi
+        .getWorksheetInfo({
+          worksheetId,
+          getTemplate: true,
+          getViews: true,
+          appId,
+        })
+        .then(res => {
+          const { resultCode, views = [], template } = res;
+          if (resultCode === 1) {
+            setDataSource({
+              views: views,
+              controls: template.controls,
+            });
+          }
+          setLoading(false);
+        });
     } else {
       setLoading(false);
     }
@@ -171,7 +188,7 @@ function Setting(props) {
                 image: undefined,
                 title: undefined,
                 subTitle: undefined,
-                url: undefined
+                url: undefined,
               });
             }
           }}
@@ -180,22 +197,24 @@ function Setting(props) {
       <div className="mBottom16">
         <div className="mBottom12">{_l('视图')}</div>
         <Select
+          showSearch
           className={cx('customPageSelect w100', { Red: viewId && !_.find(views, { viewId }) })}
           value={viewId ? (_.find(views, { viewId }) ? viewId : _l('视图已删除')) : undefined}
           suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
           placeholder={_l('请选择视图')}
           notFoundContent={<div className="valignWrapper">{_l('请先选择工作表')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
+          filterOption={(searchValue, option) => {
+            const { value } = option;
+            const { name } = _.find(views, { viewId: value }) || {};
+            return searchValue && name ? name.toLowerCase().includes(searchValue.toLowerCase()) : true;
+          }}
           onChange={value => {
             setComponentConfig({ viewId: value });
           }}
         >
           {views.map(view => (
-            <Select.Option
-              className="selectOptionWrapper"
-              key={view.viewId}
-              value={view.viewId}
-            >
+            <Select.Option className="selectOptionWrapper" key={view.viewId} value={view.viewId}>
               <div className="valignWrapper h100">
                 <span className="Font13 ellipsis">{view.name}</span>
               </div>
@@ -204,8 +223,7 @@ function Setting(props) {
         </Select>
       </div>
       <div className="mBottom16">
-        <div className="mBottom5">{_l('图片')}</div>
-        <div className="Font12 Gray_75 mBottom8">{_l('选择附件字段，轮播展示每条记录中的附件图片')}</div>
+        <div className="mBottom12">{_l('附件字段')}</div>
         <Select
           className={cx('customPageSelect w100', { Red: image && !_.find(controls, { controlId: image }) })}
           value={image ? (_.find(controls, { controlId: image }) ? image : _l('字段已删除')) : undefined}
@@ -217,19 +235,38 @@ function Setting(props) {
             setComponentConfig({ image: value });
           }}
         >
-          {controls.filter(c => c.type === 14).map(c => (
-            <Select.Option
-              className="selectOptionWrapper"
-              key={c.controlId}
-              value={c.controlId}
-            >
-              <div className="valignWrapper h100">
-                <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
-                <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
-              </div>
-            </Select.Option>
-          ))}
+          {controls
+            .filter(c => c.type === 14)
+            .map(c => (
+              <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
+                <div className="valignWrapper h100">
+                  <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
+                  <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
+                </div>
+              </Select.Option>
+            ))}
         </Select>
+      </div>
+      <div className="mBottom16">
+        <div className="mBottom12">{_l('展示图片')}</div>
+        <div className="mBottom8">
+          <Radio
+            text={_l('全部')}
+            checked={!config.displayMode || config.displayMode === 0}
+            onClick={() => {
+              setConfig({ displayMode: 0 });
+            }}
+          />
+        </div>
+        <div>
+          <Radio
+            text={_l('每条记录第一张')}
+            checked={config.displayMode === 1}
+            onClick={() => {
+              setConfig({ displayMode: 1 });
+            }}
+          />
+        </div>
       </div>
       <div>
         <div className="mBottom10">{_l('最多显示图片数量')}</div>
@@ -260,11 +297,7 @@ function Setting(props) {
               }}
             >
               {fillType.map(data => (
-                <Select.Option
-                  className="selectOptionWrapper"
-                  key={data.value}
-                  value={data.value}
-                >
+                <Select.Option className="selectOptionWrapper" key={data.value} value={data.value}>
                   <div className="valignWrapper h100">
                     <span className="Font13 ellipsis">{data.name}</span>
                   </div>
@@ -285,11 +318,7 @@ function Setting(props) {
                 }}
               >
                 {fillColorType.map(data => (
-                  <Select.Option
-                    className="selectOptionWrapper"
-                    key={data.value}
-                    value={data.value}
-                  >
+                  <Select.Option className="selectOptionWrapper" key={data.value} value={data.value}>
                     <div className="valignWrapper h100">
                       <FillColor color={data.value} />
                       <span className="mLeft5 Font13 ellipsis">{data.name}</span>
@@ -316,18 +345,16 @@ function Setting(props) {
             setComponentConfig({ title: value });
           }}
         >
-          {controls.filter(c => c.type === 2).map(c => (
-            <Select.Option
-              className="selectOptionWrapper"
-              key={c.controlId}
-              value={c.controlId}
-            >
-              <div className="valignWrapper h100">
-                <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
-                <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
-              </div>
-            </Select.Option>
-          ))}
+          {controls
+            .filter(c => c.type === 2)
+            .map(c => (
+              <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
+                <div className="valignWrapper h100">
+                  <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
+                  <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
+                </div>
+              </Select.Option>
+            ))}
         </Select>
       </div>
       <div className="mBottom16">
@@ -345,18 +372,16 @@ function Setting(props) {
             setComponentConfig({ subTitle: value });
           }}
         >
-          {controls.filter(c => c.type === 2).map(c => (
-            <Select.Option
-              className="selectOptionWrapper"
-              key={c.controlId}
-              value={c.controlId}
-            >
-              <div className="valignWrapper h100">
-                <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
-                <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
-              </div>
-            </Select.Option>
-          ))}
+          {controls
+            .filter(c => c.type === 2)
+            .map(c => (
+              <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
+                <div className="valignWrapper h100">
+                  <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
+                  <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
+                </div>
+              </Select.Option>
+            ))}
         </Select>
       </div>
       <div className="mBottom16">
@@ -375,11 +400,7 @@ function Setting(props) {
           }}
         >
           {actionType.map(c => (
-            <Select.Option
-              className="selectOptionWrapper"
-              key={c.value}
-              value={c.value}
-            >
+            <Select.Option className="selectOptionWrapper" key={c.value} value={c.value}>
               <div className="valignWrapper h100">
                 <span className="Font13 ellipsis">{c.name}</span>
               </div>
@@ -399,35 +420,35 @@ function Setting(props) {
             setComponentConfig({ url: value });
           }}
         >
-          {controls.filter(c => c.type === 2).map(c => (
-            <Select.Option
-              className="selectOptionWrapper"
-              key={c.controlId}
-              value={c.controlId}
-            >
-              <div className="valignWrapper h100">
-                <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
-                <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
-              </div>
-            </Select.Option>
-          ))}
+          {controls
+            .filter(c => c.type === 2)
+            .map(c => (
+              <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
+                <div className="valignWrapper h100">
+                  <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
+                  <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
+                </div>
+              </Select.Option>
+            ))}
         </Select>
       )}
       {action !== 3 && (
         <div className="mBottom16">
           <div className="mBottom8">{_l('打开方式')}</div>
           <div className="btnStyle">
-            {openModeType.filter(data => action === 2 ? [1, 2].includes(data.value) : true).map(({ value, name }) => (
-              <div
-                className={cx('item flex', { active: value === openMode })}
-                key={value}
-                onClick={() => {
-                  setComponentConfig({ openMode: value });
-                }}
-              >
-                <div className="Font14">{name}</div>
-              </div>
-            ))}
+            {openModeType
+              .filter(data => (action === 2 ? [1, 2].includes(data.value) : true))
+              .map(({ value, name }) => (
+                <div
+                  className={cx('item flex', { active: value === openMode })}
+                  key={value}
+                  onClick={() => {
+                    setComponentConfig({ openMode: value });
+                  }}
+                >
+                  <div className="Font14">{name}</div>
+                </div>
+              ))}
           </div>
         </div>
       )}
@@ -436,5 +457,5 @@ function Setting(props) {
 }
 
 export default connect(state => ({
-  appPkg: state.appPkg
+  appPkg: state.appPkg,
 }))(Setting);

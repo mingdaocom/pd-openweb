@@ -40,7 +40,7 @@ export default function AdvancedSettingHandler(Comp) {
             ['true', '1'],
             _.isUndefined(advancedSettingData.showcontinue) ? '1' : advancedSettingData.showcontinue,
           ), // 是否显示保留数据继续提交选项
-          draftVisible: advancedSettingData.closedrafts !== '1',
+          closedrafts: advancedSettingData.closedrafts,
         }
       : undefined;
     return <Comp {...props} loading={loading} worksheetInfo={worksheetInfo} advancedSetting={advancedSetting} />;

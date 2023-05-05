@@ -41,7 +41,7 @@ export default class Widgets extends Component {
         key={item.key}
         className={cx(
           'ellipsis mTop5 mBottom5 mRight5 Font13',
-          { White: enumDefault2 === 1 && !isLightColor(item.color) },
+          { White: enumDefault2 === 1 && !isLightColor(item.color), isEmpty: item.key === 'isEmpty' },
           enumDefault2 === 1 ? 'customAntDropdownTitleWithBG' : 'customAntDropdownTitle',
         )}
         style={{ background: enumDefault2 === 1 ? item.color : '' }}
@@ -194,7 +194,10 @@ export default class Widgets extends Component {
               <Select.Option
                 value={item.key}
                 key={i}
-                className={cx({ 'ant-select-item-option-selected': _.includes(checkIds, item.key) })}
+                className={cx({
+                  'ant-select-item-option-selected': _.includes(checkIds, item.key),
+                  isEmpty: item.key === 'isEmpty',
+                })}
               >
                 {this.renderList(item)}
               </Select.Option>

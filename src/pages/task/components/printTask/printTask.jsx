@@ -293,7 +293,7 @@ export default class PrintTask extends Component {
                       );
                     }
 
-                    // 分段
+                    // 分割线
                     if (this.returnControlsColumns(items[0].type) === 3) {
                       return (
                         <tr key={index}>

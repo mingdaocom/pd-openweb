@@ -1,7 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import { Dialog, Switch, Icon } from 'ming-ui';
 import { Button, Select, Tooltip, Input, Divider } from 'antd';
-import DataRestrictionDialog from './components/DataRestrictionDialog';
 import PasswordRuleDialog from './components/PasswordRuleDialog';
 import { formatNumberFromInput } from 'src/util';
 import { updateSysSettings } from '../common';

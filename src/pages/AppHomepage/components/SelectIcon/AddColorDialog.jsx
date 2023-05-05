@@ -30,7 +30,7 @@ const WrapCon = styled(Dialog)`
 
 export default (props) => {
   const { onSave, onCancel } = props;
-  const [color, setColor] = useState(props.color || '#000');
+  const [color, setColor] = useState(props.color || '#000000');
   const colorData = tinycolor(color);
   const hsv = colorData.toHsv();
   const s = Number((hsv.s * 100).toFixed(2));

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import _ from 'lodash';
 import { ExecNumber, Statistic, TaskList } from './components';
+import { navigateTo } from 'router/navigateTo';
 
 const SyncTaskWrapper = styled.div`
   background: #fff;

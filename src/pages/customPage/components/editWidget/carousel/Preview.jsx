@@ -22,14 +22,13 @@ const Wrap = styled.div`
 const ANIMATION_TYPE = [
   {
     value: 'scrollx',
-    text: _l('滚动')
+    text: _l('滚动'),
   },
   {
     value: 'fade',
-    text: _l('淡入淡出')
-  }
+    text: _l('淡入淡出'),
+  },
 ];
-
 
 export default function Preview(props) {
   const { componentConfig, config, setConfig } = props;
@@ -55,11 +54,13 @@ export default function Preview(props) {
           maxCount={8}
           minCount={1}
           count={config.autoplaySpeed}
+          needCloseSelect={true}
+          suffix={_l('秒')}
+          mode="select"
           onChange={value => {
             setConfig({ autoplaySpeed: value });
           }}
         />
-        <div>{_l('秒')}</div>
       </div>
       <Divider className="mTop16 mBottom24" />
       <div className="body flex mBottom72">

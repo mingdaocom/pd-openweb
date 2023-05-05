@@ -13,6 +13,7 @@ import SheetView from '../View/SheetView';
 import GalleryView from '../View/GalleryView';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { getAdvanceSetting } from 'src/util';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import cx from 'classnames';
 import './index.less';
@@ -62,6 +63,8 @@ const GroupFilter = props => {
   };
   const canDelete = isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId);
   const showCusTomBtn = isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId);
+  const { advancedSetting = {} } = view;
+  const { showallitem, allitemname, shownullitem, nullitemname } = advancedSetting;
   useEffect(() => {
     let height = breadNavBar.current ? breadNavBar.current.clientHeight : 0;
     setBreadMavHeight(height);
@@ -222,7 +225,7 @@ const GroupFilter = props => {
                 <Breadcrumb.Item
                   key={item.value}
                   onClick={e => {
-                    if (!item.value && item.txt === _l('全部')) {
+                    if (!item.value && (item.txt === _l('全部') || item.txt === allitemname)) {
                       fetchData({ worksheetId: item.wsid, appId, viewId: navGroup.viewId });
                     } else {
                       fetchData({
@@ -252,9 +255,14 @@ const GroupFilter = props => {
     let navGroupFilters = [
       {
         ...obj,
-        values: [item.value],
+        values: item.value === 'null' ? [] : [item.value],
         dataType: soucre.type,
-        filterType: soucre.type === 29 || soucre.type === 35 ? 24 : 2,
+        filterType:
+          item.value === 'null'
+            ? FILTER_CONDITION_TYPE.ISNULL
+            : soucre.type === 29 || soucre.type === 35
+            ? FILTER_CONDITION_TYPE.RCEQ
+            : FILTER_CONDITION_TYPE.EQ,
         navNames: [item.txt],
       },
     ];
@@ -374,7 +382,25 @@ const GroupFilter = props => {
       ? renderData
       : !keywords && navGroupData && currentNodeId
       ? renderData
-      : [{ txt: _l('全部'), value: '', isLeaf: true }].concat(renderData);
+      : (soucre.type === 29 && !!navGroup.viewId) || [35].includes(soucre.type)
+      ? [
+          {
+            txt: _l('全部'),
+            value: '',
+            isLeaf: true,
+          },
+        ].concat(renderData)
+      : showallitem !== '1'
+      ? [{ txt: allitemname || _l('全部'), value: '', isLeaf: true }].concat(renderData)
+      : renderData;
+    tempData =
+      shownullitem === '1'
+        ? tempData.concat({
+            txt: nullitemname || _l('为空'),
+            value: 'null',
+            isLeaf: true,
+          })
+        : tempData;
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
     try {
       navfilters = JSON.parse(navfilters);

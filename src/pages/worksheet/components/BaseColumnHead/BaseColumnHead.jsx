@@ -13,6 +13,7 @@ import _ from 'lodash';
 export default class BaseColumnHead extends React.Component {
   static propTypes = {
     disabled: PropTypes.bool,
+    canDrag: PropTypes.bool,
     className: PropTypes.string,
     style: PropTypes.shape({}),
     columnIndex: PropTypes.number,
@@ -137,8 +138,17 @@ export default class BaseColumnHead extends React.Component {
   }
 
   render() {
-    const { disabled, className, style, showDropdown, isAsc, showRequired, renderPopup, getPopupContainer } =
-      this.props;
+    const {
+      disabled,
+      canDrag = true,
+      className,
+      style,
+      showDropdown,
+      isAsc,
+      showRequired,
+      renderPopup,
+      getPopupContainer,
+    } = this.props;
     const { listVisible } = this.state;
     const control = redefineComplexControl(this.props.control);
     const controlType = control.sourceControlType || control.type;
@@ -191,7 +201,7 @@ export default class BaseColumnHead extends React.Component {
             </span>
           )}
         </div>
-        {!disabled && <span ref={drag => (this.drag = drag)} className="resizeDrag Hand"></span>}
+        {!disabled && canDrag && <span ref={drag => (this.drag = drag)} className="resizeDrag Hand"></span>}
       </div>
     );
     return showDropdown && !disabled ? (

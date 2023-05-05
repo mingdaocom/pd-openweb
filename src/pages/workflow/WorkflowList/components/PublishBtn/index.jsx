@@ -55,10 +55,16 @@ export default class PublishBtn extends Component {
    */
   switchEnabled = () => {
     const { item } = this.props;
+    if (item.isLock) {
+      return alert(_l('应用锁定，权限不足', 3));
+    }
     const list = _.cloneDeep(this.props.list);
 
     if (this.state.publishing) {
       return;
+    }
+    if (item.isLock) {
+      return alert(_l('应用锁定，权限不足', 3));
     }
 
     this.setState({ publishing: true });

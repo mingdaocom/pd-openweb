@@ -6,6 +6,7 @@ import sheetApi from 'src/api/worksheet';
 import SvgIcon from 'src/components/SvgIcon';
 import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
 import ViewSahre from './ViewSahre';
+import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
 import _ from 'lodash';
 
@@ -118,6 +119,7 @@ const Entry = props => {
         )}
         <div className="flex ellipsis">
           {appName && `${appName}-${worksheetName}-${viewName}`}
+          {appName && <DocumentTitle title={`${appName}-${worksheetName}-${viewName}`} />}
         </div>
       </div>
     );

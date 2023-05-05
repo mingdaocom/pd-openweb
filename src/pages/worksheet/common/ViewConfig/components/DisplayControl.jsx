@@ -76,11 +76,12 @@ export default class DisplayControl extends React.Component {
             columns={allCanDisplayControls}
             viewType={view.viewType}
             onChange={({ newControlSorts, newShowControls }) => {
-              if (maxCount3 && newShowControls.length > 3) {
+              let showList = newShowControls.filter(c => allCanDisplayControls.map(o => o.controlId).includes(c));
+              if (maxCount3 && showList.length > 3) {
                 alert(_l('一行三列布局时，最多只能设置3个显示字段'), 3);
                 return;
               } else {
-                handleChangeSort({ newControlSorts, newShowControls });
+                handleChangeSort({ newControlSorts, newShowControls: showList });
               }
             }}
           />

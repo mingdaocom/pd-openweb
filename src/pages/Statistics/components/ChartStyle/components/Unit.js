@@ -105,7 +105,7 @@ class Unit extends Component {
   render() {
     const { data, isPivotTable } = this.props;
     const { magnitude, ydot, dot, suffix, fixType, controlType } = data;
-    const sheetDot = magnitude === 1 && controlType !== 10000001 && ydot == dot;
+    const sheetDot = magnitude === 1 && controlType !== 10000001 && ydot === dot;
     return (
       <Fragment>
         <div className="mBottom15">
@@ -176,7 +176,7 @@ class Unit extends Component {
               value={suffix}
               disabled={[0].includes(magnitude)}
               onChange={event => {
-                this.handleChangeSuffix(event.target.value, data);
+                this.handleChangeSuffix(event.target.value.slice(0, 10), data);
               }}
             />
           </FixTypeWrapper>
@@ -242,7 +242,7 @@ export default function unitPanelGenerator(props) {
           )}
           {firstRightYaxis && (
             <Fragment>
-              <div className="mBottom12 Bold Gray_75">{_l('辅助Y轴')}</div>
+              <div className="mBottom12 Bold Gray_75">{isDualAxes ? _l('辅助Y轴') : _l('数值(2)')}</div>
               <Unit
                 data={firstRightYaxis}
                 yaxisList={rightYaxisList}

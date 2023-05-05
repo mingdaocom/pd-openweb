@@ -21,6 +21,25 @@
       border: 1px dashed #BDBDBDFF;
       padding: 0 12px;
       background-color: #fff;
+      &.disable {
+        pointer-events: none;
+        background-color: #f1eff2;
+      }
+    }
+    .withoutValueItem {
+      border: none;
+      padding: 0;
+      input {
+        color: #333;
+        width: 100%;
+        height: 100%;
+        border: 1px solid #BDBDBDFF;
+        border-radius: 4px;
+        padding: 0 10px;
+        &:focus {
+          border-color: #2196F3;
+        }
+      }
     }
     .succeeFidldItem {
       color: #2196f3;
@@ -32,6 +51,10 @@
       border-color: red;
       background-color: #ff00001a;
     }
+  }
+  .targetValueAxis .title {
+    color: #757575;
+    font-weight: inherit !important;
   }
   .SingleFilterWrapper {
     border: 1px dashed #BDBDBDFF;

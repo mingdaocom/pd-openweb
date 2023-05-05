@@ -71,7 +71,7 @@ export default class GetMoreRecord extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, actionId, appId, conditions, selectNodeId, fields, sorts, numberFieldValue, execute } = data;
+    const { name, actionId, appId, conditions, selectNodeId, fields, sorts, numberFieldValue, execute, filters } = data;
 
     if (actionId === ACTION_ID.FROM_WORKSHEET && !appId) {
       alert(_l('必须选择工作表'), 2);
@@ -116,6 +116,21 @@ export default class GetMoreRecord extends Component {
       return;
     }
 
+    if (filters.length) {
+      let hasError = false;
+
+      filters.forEach(item => {
+        if (checkConditionsIsNull(item.conditions)) {
+          hasError = true;
+        }
+      });
+
+      if (hasError) {
+        alert(_l('筛选条件的判断值不能为空'), 2);
+        return;
+      }
+    }
+
     if (saveRequest) {
       return;
     }
@@ -134,6 +149,7 @@ export default class GetMoreRecord extends Component {
         sorts,
         numberFieldValue,
         execute,
+        filters,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -362,6 +378,13 @@ export default class GetMoreRecord extends Component {
         companyId={this.props.companyId}
         processId={this.props.processId}
         selectNodeId={this.props.selectNodeId}
+        openNewFilter={
+          !data.conditions.length &&
+          _.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ADD], data.actionId)
+        }
+        disabledNewFilter={
+          !_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ADD], data.actionId)
+        }
         data={data}
         updateSource={this.updateSource}
         filterText={_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获得所有来自对象的数据')}

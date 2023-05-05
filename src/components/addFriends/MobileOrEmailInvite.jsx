@@ -280,7 +280,7 @@ export default class MobileOrEmailInvite extends Component {
           <div className="flexRow flexCenter">
             {fromType !== FROM_TYPE.GROUPS && (
               <div className="addBox Gray_9e">
-                <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}`)}>
+                <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}/isShowSetting`)}>
                   <Icon icon="settings1" />
                   {_l('邀请设置')}
                 </span>
@@ -288,7 +288,7 @@ export default class MobileOrEmailInvite extends Component {
             )}
             {fromType !== FROM_TYPE.GROUPS && (
               <div className="addBox Gray_9e mLeft16">
-                <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}`)}>
+                <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}/importusers`)}>
                   <Icon icon="add_software" />
                   {_l('批量导入')}
                 </span>

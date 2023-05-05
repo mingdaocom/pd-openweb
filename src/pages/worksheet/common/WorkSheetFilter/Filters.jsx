@@ -74,6 +74,7 @@ function Filters(props, ref) {
     onHideFilterPopup = () => {},
     onChange = () => {},
     filterResigned = true,
+    appPkg,
   } = props;
   const conRef = useRef();
   const cache = useRef({});

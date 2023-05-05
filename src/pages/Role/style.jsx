@@ -121,7 +121,6 @@ export const WrapNav = styled.div`
         }
         &.cur {
           color: #2196f3 !important;
-          .icon,
           .icon-drag_indicator {
             color: #9e9e9e !important;
             &:hover {

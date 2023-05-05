@@ -34,21 +34,6 @@ import {
 import { SYS, ALL_SYS, SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import _ from 'lodash';
-
-const SysSortColumn = styled.div`
-  .workSheetChangeColumn {
-    .searchBar,
-    .quickOperate {
-      display: none;
-    }
-  }
-  .showControlsColumnCheckItem {
-    &:hover {
-      background-color: initial;
-    }
-    padding: 0 0;
-  }
-`;
 const SwitchStyle = styled.div`
   .switchText {
     margin-right: 6px;
@@ -398,11 +383,15 @@ class ViewConfigCon extends Component {
             <div className="viewBtnsLi">
               {it.list.map((o, n) => {
                 let item = viewTypeConfig.find(d => d.type === o);
+                //只有表格和画廊、看板视图、日历视图、甘特图有快速筛选
+                const hasFastFilter = ['sheet', 'gallery', 'board', 'calendar', 'gunter'].includes(viewTypeText);
+                const hasNavGroup = ['sheet', 'gallery'].includes(viewTypeText);
+                const hasCustomAction = ['sheet', 'gallery', 'board', 'calendar', 'gunter'].includes(viewTypeText);
                 if (
                   // 暂时不做颜色
                   item.type === 'Color' ||
-                  //只有表格和画廊有快速筛选
-                  (!['sheet', 'gallery'].includes(viewTypeText) && ['FastFilter', 'NavGroup'].includes(item.type)) ||
+                  (!hasFastFilter && ['FastFilter'].includes(item.type)) ||
+                  (!hasNavGroup && ['NavGroup'].includes(item.type)) ||
                   (!['sheet'].includes(viewTypeText) && o === 'Show') //只有表格有显示列
                 ) {
                   return '';
@@ -410,14 +399,15 @@ class ViewConfigCon extends Component {
                 return (
                   <React.Fragment>
                     {(item.type === 'MobileSet' ||
-                      (['sheet', 'gallery'].includes(viewTypeText) && ['FastFilter', 'NavGroup'].includes(item.type)) ||
-                      (!['sheet', 'gallery'].includes(viewTypeText) && item.type === 'CustomAction') ||
+                      (hasFastFilter && ['FastFilter'].includes(item.type)) ||
+                      (hasNavGroup && ['NavGroup'].includes(item.type)) ||
+                      (!hasCustomAction && item.type === 'CustomAction') ||
                       item.type === 'Filter') && (
                       <React.Fragment>
                         {item.type === 'Filter' ? (
                           <p className="titileP"> {_l('数据设置')}</p>
-                        ) : (['sheet', 'gallery'].includes(viewTypeText) && item.type === 'FastFilter') ||
-                          (!['sheet', 'gallery'].includes(viewTypeText) && item.type === 'CustomAction') ? (
+                        ) : (hasFastFilter && item.type === 'FastFilter') ||
+                          (!hasCustomAction && item.type === 'CustomAction') ? (
                           <p className="titileP">{_l('用户操作')}</p>
                         ) : (
                           ''
@@ -425,7 +415,7 @@ class ViewConfigCon extends Component {
                       </React.Fragment>
                     )}
                     <div
-                      className={cx('viewBtn', { active: viewSetting === item.type })}
+                      className={cx('viewBtn flexRow alignItemsCenter', { active: viewSetting === item.type })}
                       onClick={() => {
                         this.setState({ viewSetting: item.type });
                       }}
@@ -980,7 +970,7 @@ class ViewConfigCon extends Component {
   };
 
   render() {
-    const { viewSetting } = this.state;
+    const { viewSetting, customdisplay } = this.state;
     const { view } = this.props;
     const { text } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
     const data = viewTypeConfig.find((item, i) => item.type === viewSetting) || {};
@@ -990,7 +980,9 @@ class ViewConfigCon extends Component {
         <ScrollView className="viewContent flex">
           <div className="viewContentCon">
             {!['MobileSet', 'FastFilter', 'NavGroup'].includes(data.type) && (
-              <div className="viewSetTitle">{data.type === 'Setting' ? _l('%0设置', text) : data.name}</div>
+              <div className="viewSetTitle">
+                {data.type === 'Setting' ? _l('%0设置', text) : data.name}
+              </div>
             )}
             {this.renderSetting()}
           </div>

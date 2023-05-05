@@ -10,6 +10,7 @@ import ExistSourceModal from '../ExistSourceModal';
 import dataSourceApi from '../../../api/datasource';
 import appManagementApi from 'src/api/appManagement';
 import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 const Wrapper = styled.div`
   .selectItem {
@@ -19,12 +20,6 @@ const Wrapper = styled.div`
       height: 36px !important;
       padding: 2px 11px !important;
       border-radius: 3px !important;
-    }
-  }
-  .customFormItemControl {
-    .descBoxInfo {
-      left: 26px !important;
-      top: -22px !important;
     }
   }
 `;
@@ -347,6 +342,7 @@ export default function ConfigForm(props) {
       </SelectCard>
       {selectModalVisible && (
         <SourceSelectModal
+          projectId={props.currentProjectId}
           onChange={value => {
             setConnectorConfigData({
               [roleType]: Object.assign({}, value, { createType: CREATE_TYPE.NEW, sourceName: '', formData: {} }),
@@ -355,6 +351,7 @@ export default function ConfigForm(props) {
           }}
           onClose={() => setSelectModalVisible(false)}
           isCreateConnector={isCreateConnector}
+          roleType={roleType}
         />
       )}
 
@@ -411,6 +408,8 @@ export default function ConfigForm(props) {
         <CustomFields
           ref={fieldRef}
           flag={flag}
+          from={3}
+          recordId={uuidv4()}
           data={customFormData(
             connectorConfigData[roleType].type,
             connectorConfigData[roleType].roleType,

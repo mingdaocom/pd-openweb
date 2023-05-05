@@ -36,6 +36,7 @@ export default class CustomFields extends Component {
     disabled: PropTypes.bool,
     forceFull: PropTypes.bool,
     onChange: PropTypes.func,
+    onBlur: PropTypes.func,
     disableRules: PropTypes.bool,
     isCreate: PropTypes.bool, // 是否新建
     widgetStyle: PropTypes.object, // 表单样式配置
@@ -64,6 +65,7 @@ export default class CustomFields extends Component {
     initSource: false,
     getMasterFormData: () => {},
     onChange: () => {},
+    onBlur: () => {},
     openRelateRecord: () => {},
     openRelateSheet: () => {},
     registerCell: () => {},
@@ -441,7 +443,7 @@ export default class CustomFields extends Component {
 
       const ids = this.dataFormat.getUpdateControlIds();
       if (ids.length) {
-        this.props.onChange(this.dataFormat.getDataSource(), ids);
+        this.props.onChange(this.dataFormat.getDataSource(), ids, { controlId: cid });
         this.changeStatus = true;
       }
     }
@@ -492,13 +494,17 @@ export default class CustomFields extends Component {
     }
 
     const isEditable = controlState(item, from).editable;
-    const maskPermissions = isCharge || _.get(item, 'advancedSetting.isdecrypt[0]') === '1';
+    const maskPermissions =
+      (isCharge || _.get(item, 'advancedSetting.isdecrypt[0]') === '1') && !window.shareState.shareId;
 
     // (禁用或只读) 且 内容不存在
     if (
       (item.disabled || _.includes([25, 31, 32, 33, 37, 38], item.type) || !isEditable) &&
       ((!item.value && item.value !== 0 && !_.includes([28, 47], item.type)) ||
-        (_.includes([21, 26, 27, 29, 48, 35], item.type) &&
+        (item.type === 29 &&
+          (safeParse(item.value).length <= 0 ||
+            (typeof item.value === 'string' && item.value.startsWith('deleteRowIds')))) ||
+        (_.includes([21, 26, 27, 48, 35], item.type) &&
           _.isArray(JSON.parse(item.value)) &&
           !JSON.parse(item.value).length))
     ) {
@@ -544,6 +550,7 @@ export default class CustomFields extends Component {
                 searchType: 'onBlur',
               });
             }
+            this.props.onBlur(controlId);
           }}
           openRelateSheet={openRelateSheet}
           registerCell={cell => {

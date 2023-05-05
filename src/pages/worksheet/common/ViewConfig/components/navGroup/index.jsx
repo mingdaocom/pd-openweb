@@ -345,6 +345,8 @@ export default function NavGroup(params) {
       if (o.key === 'navshow') {
         return (
           <NavShow
+            canShowAll
+            canShowNull
             params={o}
             value={navshow}
             onChange={newValue => {
@@ -357,6 +359,7 @@ export default function NavGroup(params) {
                 }),
               );
             }}
+            advancedSetting={view.advancedSetting}
             navfilters={navfilters}
             filterInfo={{
               relateControls: relateControls,
@@ -392,6 +395,7 @@ export default function NavGroup(params) {
                   : null,
               );
             }}
+            border
             cancelAble={[29, 35].includes(data.type)}
             renderError={() => {
               if (data.type === 29 && relateSheetInfo.length > 0 && o.key === 'viewId') {

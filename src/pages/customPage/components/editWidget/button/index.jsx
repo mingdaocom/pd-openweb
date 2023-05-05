@@ -95,6 +95,17 @@ export default function Btn(props) {
     setSetting(update(btnSetting, { buttonList: { $splice: [[activeIndex, 1]] } }));
     setIndex(Math.max(activeIndex - 1, 0));
   };
+  const handleCopy = () => {
+    const data = _.cloneDeep(buttonList[activeIndex]);
+    const config = _.get(data, 'config') || {};
+    data.id = uuidv4();
+    data.btnId = null;
+    data.filterId = null;
+    if (config.isFilter) {
+      data.config = { ...config, isFilter: undefined }
+    }
+    setSetting(update(btnSetting, { buttonList: { $splice: [[activeIndex + 1, 0, data]] } }));
+  };
   const handleSave = () => {
     // 验证业务流程是否有必填项
     const { buttonList } = btnSetting;
@@ -175,6 +186,7 @@ export default function Btn(props) {
             setBtnSetting={setBtnSetting}
             setSetting={setSetting}
             onDel={handleDel}
+            onCopy={handleCopy}
           />
         </BtnWrap>
       </EditWidgetContent>

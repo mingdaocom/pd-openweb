@@ -11,7 +11,15 @@ import { formatFilterValues } from 'src/pages/worksheet/common/Sheet/QuickFilter
 import _ from 'lodash';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 const Wrap = styled.div`
+  .icon-rename_input {
+    color: #9e9e9e;
+    padding-right: 10px;
+    &:hover {
+      color: #2196f3;
+    }
+  }
   .Dropdown {
     width: 100%;
     display: flex;
@@ -72,18 +80,50 @@ const Wrap = styled.div`
   .customAntDropdownTitleWithBG {
     height: 26px;
     line-height: 26px;
+    .icon-close {
+      line-height: 26px !important;
+    }
+  }
+  .ant-select:hover {
+    border-color: #dddddd !important;
+  }
+  .ant-select-arrow {
+    color: #9e9e9e !important;
+  }
+  .RelateRecordDropdown-selected:not(.active) {
+    border-color: #ddd !important;
+  }
+`;
+const SwitchStyle = styled.div`
+  .switchText {
+    margin-right: 6px;
+    line-height: 24px;
+  }
+  .icon {
+    vertical-align: middle;
+    &-ic_toggle_on {
+      color: #00c345;
+    }
+    &-ic_toggle_off {
+      color: #bdbdbd;
+    }
   }
 `;
 export default function NavShow(props) {
-  const { params, onChange, value = '0', filterInfo } = props;
-  const [{ filterVisible, filters, relateControls, data, showSysWorkflow }, setState] = useSetState({
+  const { params, onChange, value = '0', filterInfo = {}, advancedSetting = {}, canShowNull, canShowAll } = props;
+  const [
+    { filterVisible, filters, relateControls, data, showSysWorkflow, showChangeName, showName, loading },
+    setState,
+  ] = useSetState({
     filterVisible: false,
     filters: [],
-    relateControls: [],
+    relateControls,
     data: {},
     showSysWorkflow: true,
+    showChangeName: false,
+    showName: '',
+    loading: false,
   });
-
   useEffect(() => {
     let navfilters = [];
     try {
@@ -116,11 +156,35 @@ export default function NavShow(props) {
         setState({ relateControls });
       } else {
         sheetAjax.getWorksheetInfo({ worksheetId: data.dataSource, getViews: true, getTemplate: true }).then(res => {
-          setState({ relateControls: _.get(res, ['template', 'controls']) || [] });
+          setState({ relateControls: _.get(res, ['template', 'controls']) || [], loading: false });
         });
       }
     }
-  }, [value, filterInfo]);
+  }, [value, filterInfo, data]);
+
+  const onFormatChange = newValue => {
+    const { navfilters } = newValue;
+    if (!!navfilters) {
+      onChange(newValue);
+    } else {
+      //显示制定项，人员部门等字段处理
+      onChange({
+        ...newValue,
+        navfilters:
+          value === '3'
+            ? JSON.stringify(filters.map(handleCondition))
+            : JSON.stringify(
+                filters.map(info => {
+                  if ([19, 23, 24, 26, 27, 29, 35, 48].includes(data.type) && value === '2') {
+                    return safeParse(info).id;
+                  } else {
+                    return info;
+                  }
+                }),
+              ),
+      });
+    }
+  };
   return (
     <Wrap>
       {params.txt && <div className="title mTop30 Gray Bold">{params.txt}</div>}
@@ -131,9 +195,9 @@ export default function NavShow(props) {
             : params.types
         }
         value={filterInfo.viewControl === 'wfstatus' && !showSysWorkflow ? '0' : value || '0'}
-        className="flex settingContent"
+        className="flex settingContent mBottom0"
         onChange={value => {
-          onChange({
+          onFormatChange({
             navshow: value,
             navfilters: JSON.stringify([]),
           });
@@ -149,13 +213,14 @@ export default function NavShow(props) {
           }, 500);
         }}
       />
+      {(value === '2' || (filters.length > 0 && value === '3' && !loading)) && <div className="mTop12"></div>}
       {value === '2' &&
         (data.type === 28 ? (
           <ScoreInput
             control={data}
             values={filters}
             onChange={values => {
-              onChange({
+              onFormatChange({
                 navfilters: JSON.stringify(values),
               });
             }}
@@ -183,38 +248,111 @@ export default function NavShow(props) {
                   values = info.values;
                   break;
               }
-              onChange({
+              onFormatChange({
                 navfilters: JSON.stringify(values),
               });
             }}
           />
         ))}
-      {filterVisible && value === '3' && (
+      {filterVisible && value === '3' && !loading && (
         <FilterDialog
-          allowEmpty
+          // allowEmpty
           data={data}
           overlayClosable={false}
-          relationControls={relateControls}
+          relationControls={relateControls || []}
           title={'筛选'}
           filters={filters}
           allControls={filterInfo.allControls}
           globalSheetInfo={filterInfo.globalSheetInfo}
           onChange={({ filters }) => {
-            onChange({ navfilters: JSON.stringify(filters.map(handleCondition)) });
+            onFormatChange({ navfilters: JSON.stringify(filters.map(handleCondition)) });
             setState({ filterVisible: false });
           }}
           onClose={() => setState({ filterVisible: false })}
         />
       )}
-      {filters.length > 0 && value === '3' && (
+      {filters.length > 0 && value === '3' && !loading && (
         <FilterItemTexts
+          className={'mBottom0'}
           data={data}
           filters={filters}
           loading={false}
           globalSheetInfo={filterInfo.globalSheetInfo}
-          controls={relateControls}
+          controls={relateControls || []}
           allControls={filterInfo.allControls}
           editFn={() => setState({ filterVisible: true })}
+        />
+      )}
+      {/* showallitem, //是否显示全部
+      allitemname, //全部的重命名
+      shownullitem, //是否显示为空
+      nullitemname, //为空的重命名 */}
+      {canShowAll && (
+        <div className="flexRow alignItemsCenter">
+          <SwitchStyle className="flex">
+            <Icon
+              icon={advancedSetting.showallitem !== '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font30 Hand"
+              onClick={() => {
+                onFormatChange({
+                  showallitem: advancedSetting.showallitem === '1' ? '' : '1',
+                });
+              }}
+            />
+            <div className="switchText InlineBlock Normal mLeft12 mTop8">{_l('显示“全部”项')}</div>
+          </SwitchStyle>
+          <Tooltip text={<span>{_l('重命名')}</span>} popupPlacement="top">
+            <i
+              className="icon-rename_input Font18 mLeft3 TxtMiddle Hand"
+              onClick={() => {
+                setState({ showChangeName: true, showName: 'showallitem' });
+              }}
+            />
+          </Tooltip>
+        </div>
+      )}
+      {canShowNull && (
+        <div className="flexRow alignItemsCenter">
+          <SwitchStyle className="flex">
+            <Icon
+              icon={advancedSetting.shownullitem === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font30 Hand"
+              onClick={() => {
+                onFormatChange({
+                  shownullitem: advancedSetting.shownullitem === '1' ? '' : '1',
+                });
+              }}
+            />
+            <div className="switchText InlineBlock Normal mLeft12 mTop8">{_l('显示“空”项')}</div>
+          </SwitchStyle>
+          <Tooltip text={<span>{_l('重命名')}</span>} popupPlacement="top">
+            <i
+              className="icon-rename_input Font18 mLeft3 TxtMiddle Hand"
+              onClick={() => {
+                setState({ showChangeName: true, showName: 'shownullitem' });
+              }}
+            />
+          </Tooltip>
+        </div>
+      )}
+      {showChangeName && (
+        <ChangeName
+          onChange={value => {
+            if (showName !== 'shownullitem') {
+              onFormatChange({
+                allitemname: value.trim(),
+              });
+            } else {
+              onFormatChange({
+                nullitemname: value.trim(),
+              });
+            }
+            setState({ showChangeName: false, showName: '' });
+          }}
+          name={showName !== 'shownullitem' ? advancedSetting.allitemname : advancedSetting.nullitemname}
+          onCancel={() => {
+            setState({ showChangeName: false, showName: '' });
+          }}
         />
       )}
     </Wrap>

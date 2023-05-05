@@ -10,6 +10,7 @@ import { VerticalMiddle, FlexSpacer } from 'worksheet/components/Basics';
 import _ from 'lodash';
 
 const GroupItemLink = styled(MdLink)`
+  display: block;
   &.draggingItem > div {
     background: #f1f1f1;
   }
@@ -169,7 +170,11 @@ export default function GroupItem(props) {
         {fontIcon ? (
           <i className={`fontIcon icon icon-${fontIcon} Font16 Gray_75 mRight8`} />
         ) : (
-          <GroupItemIcon size={18} url={iconUrl || `https://fp1.mingdaoyun.cn/customIcon/${icon}.svg`} fill="#757575" />
+          <GroupItemIcon
+            size={18}
+            url={iconUrl || `${md.global.FileStoreConfig.pubHost.replace(/\/$/, '')}/customIcon/${icon}.svg`}
+            fill="#757575"
+          />
         )}
         <span className="name ellipsis">{name}</span>
         {!_.includes(['static'], itemType) && (

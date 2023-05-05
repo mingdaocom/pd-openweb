@@ -80,7 +80,7 @@ var report = {
    * 获取图表列表
    * @param {Object} args 请求参数
    * @param {string} [args.appId] *工作表ID
-   * @param {string} [args.appType] 默认1：工作表 
+   * @param {string} [args.appType] 默认1：工作表
    * @param {string} [args.isOwner] 个人：true,公共：false
    * @param {string} [args.pageIndex] 页数
    * @param {string} [args.pageSize] 条数
@@ -95,7 +95,7 @@ var report = {
   /**
    * 获取自定义页面的统计图列表
    * @param {Object} args 请求参数
-   * @param {string} [args.appId] appId 
+   * @param {string} [args.appId] appId
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

@@ -3,17 +3,32 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import worksheetAjax from 'src/api/worksheet';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import { Option } from './Options';
 import _ from 'lodash';
 
 export default function RelateRecordOptions(props) {
-  const { selected, control, multiple, onChange, onSetMoreVisible } = props;
-  const [records, setRecords] = useState([]);
+  const {
+    selected,
+    control,
+    multiple,
+    onChange,
+    onSetMoreVisible,
+    advancedSetting,
+    prefixRecords = [],
+    staticRecords = [],
+  } = props;
+  const { navshow } = advancedSetting;
+  const [records, setRecords] = useState(staticRecords);
   const [loading, setLoading] = useState(true);
   const newRecords = records.slice(0, 10);
   const isMore = records.length > newRecords.length;
+
   async function load() {
+    if (!_.isEmpty(staticRecords)) {
+      return;
+    }
     setLoading(true);
     const args = {
       worksheetId: control.dataSource,
@@ -25,6 +40,9 @@ export default function RelateRecordOptions(props) {
       isGetWorksheet: true,
       getType: 7,
     };
+    if (navshow === '3') {
+      args.filterControls = getFilter({ control });
+    }
     const res = await worksheetAjax.getFilterRows(args);
     setLoading(false);
     setRecords(res.data);
@@ -34,8 +52,11 @@ export default function RelateRecordOptions(props) {
   }, []);
   return (
     <div>
-      {newRecords.map((record, i) => {
-        const title = getTitleTextFromControls(control.relationControls, record);
+      {prefixRecords.concat(newRecords).map((record, i) => {
+        const title =
+          record.rowid === 'isEmpty' || navshow === '2'
+            ? record.name
+            : getTitleTextFromControls(control.relationControls, record);
         return (
           <Option
             key={i}
@@ -52,7 +73,11 @@ export default function RelateRecordOptions(props) {
           </Option>
         );
       })}
-      {isMore && <Option className="more" onClick={onSetMoreVisible}>{_l('更多...')}</Option>}
+      {isMore && (
+        <Option className="more" onClick={onSetMoreVisible}>
+          {_l('更多...')}
+        </Option>
+      )}
     </div>
   );
 }
@@ -62,5 +87,5 @@ RelateRecordOptions.propTypes = {
   control: shape({}),
   selected: arrayOf(shape({})),
   onChange: func,
-  onSetMoreVisible: func
+  onSetMoreVisible: func,
 };

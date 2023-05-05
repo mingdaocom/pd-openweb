@@ -11,8 +11,7 @@ import importUser from 'src/api/importUser';
 import captcha from 'src/components/captcha';
 import UploadFile from './UploadFile';
 import ImportResulFailtDetail from './ImportResulFailtDetail';
-import AccountController from 'src/api/account';
-import { encrypt } from 'src/util';
+import { verifyPassword } from 'src/util';
 import { getPssId } from 'src/util/pssId';
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -29,11 +28,6 @@ const ImportBtn = styled.div`
   width: 193px;
   cursor: ${props => (props.notAllowed ? 'not-allowed' : 'pointer')};
 `;
-
-const errorMsg = {
-  6: _l('密码错误'),
-  8: _l('验证码错误'),
-};
 class ImportAndExport extends Component {
   constructor(props) {
     super(props);
@@ -112,33 +106,13 @@ class ImportAndExport extends Component {
       alert(_l('请输入登录密码'), 3);
       return;
     }
-    let throttled = function (res) {
-      if (res.ret !== 0) {
-        return;
-      }
-      AccountController.checkAccount({
-        ticket: res.ticket,
-        randStr: res.randstr,
-        captchaType: md.staticglobal.getCaptchaType(),
-        password: encrypt(password),
-      }).then(res => {
-        if (res === 1) {
-          _this.exportUsers(
-            projectId,
-            orgnazation.map(item => item.departmentId),
-          );
-          _this.setState({ showInputPassword: false, password: undefined });
-        } else {
-          alert(errorMsg[res] || _l('操作失败'), 2);
-        }
-      });
-    };
-
-    if (md.staticglobal.getCaptchaType() === 1) {
-      new captcha(throttled);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
-    }
+    verifyPassword(password, () => {
+      _this.exportUsers(
+        projectId,
+        orgnazation.map(item => item.departmentId),
+      );
+      _this.setState({ showInputPassword: false, password: undefined });
+    });
   };
   exportUsers = (projectId, departmentIds = []) => {
     let projectName = (md.global.Account.projects || []).filter(item => item.projectId === projectId).length

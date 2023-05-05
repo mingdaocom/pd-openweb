@@ -43,7 +43,7 @@ const Wrap = styled.div`
   }
   .navRoleLi {
     &:hover {
-      .optionNs {
+      .hasOption {
         .num {
           opacity: 0;
           z-index: 0;
@@ -90,7 +90,14 @@ class Con extends React.Component {
 
     this.setState({
       navList: roleList,
-      roleId: listType === 'pending' ? 'pendingReview' : quickTag.roleId ? quickTag.roleId : 'all',
+      roleId:
+        listType === 'pending'
+          ? 'pendingReview'
+          : quickTag.roleId
+          ? quickTag.roleId
+          : portal.roleId
+          ? portal.roleId
+          : 'all',
     });
   }
 
@@ -162,7 +169,7 @@ class Con extends React.Component {
   };
   renderNav = () => {
     const { navList = [], roleId, keywords = '' } = this.state;
-    const { portal = {}, appId } = this.props;
+    const { portal = {}, appId, canEditApp } = this.props;
     const { commonCount = 0, unApproveCount = 0, roleCountList = [], roleList = [] } = portal;
     return (
       <React.Fragment>
@@ -218,14 +225,14 @@ class Con extends React.Component {
                   ...optList,
                   {
                     value: 1,
-                    text: _l('编辑角色'),
+                    text: _l('编辑角色权限'),
                   },
                   {
                     value: 2,
                     type: 'err',
                     text: _l('删除'),
                   },
-                ];
+                ].filter(o => canEditApp);
                 if (o.isDefault) {
                   optList = optList.filter(it => it.value !== 2);
                 }
@@ -234,6 +241,7 @@ class Con extends React.Component {
                   <li
                     className={cx('flexRow alignItemsCenter navRoleLi', { cur: roleId === o.roleId })}
                     onClick={() => {
+                      this.props.setQuickTag({ roleId: o.roleId, tab: 'user' });
                       this.setState(
                         {
                           roleId: o.roleId,
@@ -258,18 +266,19 @@ class Con extends React.Component {
                       {o.name}
                     </span>
 
-                    <div className="optionNs Relative">
-                      <DropOption
-                        iconType={'more_horiz'}
-                        dataList={optList}
-                        onAction={it => {
-                          if (it.value === 1) {
-                            this.props.setQuickTag({ roleId: o.roleId, tab: 'roleSet' });
-                          } else if (it.value === 2) {
-                            this.delDialog(o);
-                          }
-                        }}
-                      />
+                    <div className={cx('optionNs Relative', { hasOption: optList.length > 0 })}>
+                      {optList.length > 0 && (
+                        <DropOption
+                          dataList={optList}
+                          onAction={it => {
+                            if (it.value === 1) {
+                              this.props.setQuickTag({ roleId: o.roleId, tab: 'roleSet' });
+                            } else if (it.value === 2) {
+                              this.delDialog(o);
+                            }
+                          }}
+                        />
+                      )}
                       {num > 0 && <span className="num">{num}</span>}
                     </div>
                     {!!o.description && (

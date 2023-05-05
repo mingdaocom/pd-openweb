@@ -69,7 +69,11 @@ function renderContent(data, recordInfo, extendParam) {
       newList = newValue ? [renderText({ ...control, value: newValue })] : [];
     } else if (type === 29) {
       const { advancedSetting = {} } = control || {};
-      if (requestType === 8 || advancedSetting.showtype === '2') {
+      if (
+        ([8, 2].includes(requestType) || advancedSetting.showtype === '2') &&
+        !oldValue &&
+        [1, 2].includes(editType)
+      ) {
         let _data = safeParse(safeParse(newValue).rows, 'array');
         oldList = editType === 2 ? _data : [];
         newList = editType === 1 ? _data : [];
@@ -213,15 +217,30 @@ function renderContent(data, recordInfo, extendParam) {
 
 const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
   const { selectField, moreList = [], setMoreList, lastMark, showFilter } = extendParam;
+  const { operatContent } = prop;
   const isMobile = browserIsMobile();
-  let logData = prop.operatContent.logData;
-  let uniqueId = moreList.find(l => l === prop.operatContent.uniqueId);
+
+  let logData = operatContent.logData;
+  let remarkContent = null;
+
+  let btnRemarkName = operatContent.extendParams.find(l => _.startsWith(l, 'btnRemarkName:'));
+  let btnremark = (operatContent.extendParams.find(l => _.startsWith(l, 'btnremark:')) || '').replace('btnremark:', '');
+  if (btnremark) {
+    remarkContent = (
+      <div>
+        {(btnRemarkName || '').replace('btnRemarkName:', '')}：{btnremark}
+      </div>
+    );
+  }
+
+  let uniqueId = moreList.find(l => l === operatContent.uniqueId);
   if (selectField && !uniqueId) {
     logData = logData.filter(l => l.id === selectField.controlId);
   }
 
   return (
     <React.Fragment>
+      {remarkContent}
       {logData.map(item => {
         if (item.newValue === '' && item.oldValue === '') {
           return null;
@@ -236,7 +255,7 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
         if (!visible) return;
         if (item.type === 29) {
           const { advancedSetting = {} } = control || {};
-          if (prop.operatContent.requestType === 8 || advancedSetting.showtype === '2') {
+          if (operatContent.requestType === 8 || advancedSetting.showtype === '2') {
             let object = item.newValue
               ? safeParse(item.newValue)
               : item.oldValue
@@ -255,7 +274,7 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
               )}关联记录`;
             }
           }
-          if (prop.operatContent.requestType === 8) {
+          if (operatContent.requestType === 8) {
             extendText += _l('（被动）');
           }
         }
@@ -300,23 +319,23 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
             </div>
             {(!item.isDeleted || ['transf_task', 'del_discussion'].indexOf(item.id) > -1) &&
               renderContent(item, recordInfo, {
-                createTime: prop.operatContent.createTime,
-                uniqueId: prop.operatContent.uniqueId,
+                createTime: operatContent.createTime,
+                uniqueId: operatContent.uniqueId,
                 lastMark: lastMark,
-                requestType: prop.operatContent.requestType,
-                objectType: prop.operatContent.objectType,
+                requestType: operatContent.requestType,
+                objectType: operatContent.objectType,
               })}
           </div>
         );
       })}
-      {selectField && logData.length !== prop.operatContent.logData.length && !uniqueId && (
+      {selectField && logData.length !== operatContent.logData.length && !uniqueId && (
         <span
           onClick={() => {
-            setMoreList(moreList.concat(prop.operatContent.uniqueId));
+            setMoreList(moreList.concat(operatContent.uniqueId));
           }}
           className="moreLogData Gray_9e"
         >
-          {_l('查看其他字段')} {prop.operatContent.logData.length - logData.length}
+          {_l('查看其他字段')} {operatContent.logData.length - logData.length}
         </span>
       )}
     </React.Fragment>
@@ -342,9 +361,11 @@ const renderTitleName = data => {
   }
 };
 const renderTitleAvatar = data => {
-  const { accountId, child, fullname } = data;
+  const { accountId, child, type } = data;
   const isMobile = browserIsMobile();
-
+  if (type === 7) {
+    return null;
+  }
   if (accountId === 'user-workflow') {
     let _fullname = '';
     if (child[0].operatContent.extendParams.find(l => _.startsWith(l, 'workflow:'))) {
@@ -433,6 +454,10 @@ const renderTitleText = (data, extendParam) => {
         break;
       case 6:
         content = <span className="mLeft2">{_l('恢复了记录')}</span>;
+        break;
+      case 7:
+        let btn = data.child[0].operatContent.extendParams.find(l => _.startsWith(l, 'btn:'));
+        content = <span className="mLeft2">{_l('操作按钮 %0', btn ? btn.replace('btn:', '') : '')}</span>;
         break;
       default:
         content = <span className="mLeft2">{_l('更新了记录')}</span>;
@@ -601,7 +626,7 @@ function WorksheetRocordLog(props, ref) {
             sign: {
               ...sign,
               newDataEnd: true,
-              showLodOldButton: !data.find(l => l.operatContent.type===1 || l.operatContent.type===4),
+              showLodOldButton: !data.find(l => l.operatContent.type === 1 || l.operatContent.type === 4),
             },
           });
         } else {
@@ -933,6 +958,7 @@ function WorksheetRocordLog(props, ref) {
                   {createTimeSpan(moment(item.time).format('YYYY-MM-DD HH:mm:ss'))}
                 </div>
               </div>
+
               {item.child.map((childData, index) => {
                 let extendParam = {
                   selectField: selectField,

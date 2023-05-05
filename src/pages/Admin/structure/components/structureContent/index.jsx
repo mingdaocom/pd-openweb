@@ -217,7 +217,9 @@ class StructureContent extends Component {
               this.setState({ openChangeUserInfoDrawer: false });
             }}
             getData={this.props.fetchApproval}
+            cancelInviteRemove={() => this.props.loadInactiveUsers(projectId, pageIndex)}
             departmentId={departmentId}
+            refreshData={this.loadData}
           />
         )}
       </Fragment>

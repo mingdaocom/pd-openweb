@@ -25,7 +25,9 @@ export default class Delay extends Component {
       !!timerNode.hourFieldValue.fieldValue ||
       !!timerNode.hourFieldValue.fieldControlId ||
       !!timerNode.minuteFieldValue.fieldValue ||
-      !!timerNode.minuteFieldValue.fieldControlId
+      !!timerNode.minuteFieldValue.fieldControlId ||
+      !!timerNode.secondFieldValue.fieldValue ||
+      !!timerNode.secondFieldValue.fieldControlId
     );
   }
 
@@ -51,7 +53,7 @@ export default class Delay extends Component {
   }
 
   renderDelayTimeText(timerNode) {
-    const { numberFieldValue, hourFieldValue, minuteFieldValue } = timerNode;
+    const { numberFieldValue, hourFieldValue, minuteFieldValue, secondFieldValue } = timerNode;
     const getDesc = ({ fieldValue, fieldControlId, fieldControlName }, label) => {
       if (!fieldValue && !fieldControlId) {
         return '';
@@ -72,6 +74,7 @@ export default class Delay extends Component {
         {getDesc(numberFieldValue, _l('天'))}
         {getDesc(hourFieldValue, _l('小时'))}
         {getDesc(minuteFieldValue, _l('分钟'))}
+        {getDesc(secondFieldValue, _l('秒钟'))}
       </Fragment>
     );
   }

@@ -133,7 +133,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       type: 2,
       row: 6,
       col: 0,
-      required: pg_sql.indexOf(databaseType) !== -1 ? true : false,
+      required: [...pg_sql, DATABASE_TYPE.DB2].indexOf(databaseType) !== -1 ? true : false,
       size: 12,
       value: _.get(formData, 'initDb') || '',
     },
@@ -245,6 +245,7 @@ export const getCardDescription = databaseType => {
     case DATABASE_TYPE.POSTGRESQL:
     case DATABASE_TYPE.ALIYUN_POSTGRES:
     case DATABASE_TYPE.TENCENT_POSTGRES:
+    case DATABASE_TYPE.DB2:
       return _l('系统将实时同步数据库的所有变动');
     case DATABASE_TYPE.ORACLE:
       return _l('系统将通过 Log Archiving 实时同步数据库的所有变动');

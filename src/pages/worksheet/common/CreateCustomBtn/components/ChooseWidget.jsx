@@ -229,7 +229,7 @@ export default class ChooseWidget extends React.Component {
                       <span className="Gray_75">
                         <Icon icon={getIconByType(item.type)} className={cx('Font14 Gray_9e widgetIcon')} />
                         <span className="Font13 Gray">
-                          {item.controlName || (item.type === 22 ? _l('分段') : _l('备注'))}
+                          {item.controlName || (item.type === 22 ? _l('分割线') : _l('备注'))}
                         </span>
                       </span>
                     </div>

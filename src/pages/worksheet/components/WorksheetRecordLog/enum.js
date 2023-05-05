@@ -40,17 +40,22 @@ export const TEXT_FIELD_SHOWTEXT_TYPE = {
 export const SYSTEM_USER = {
   'user-workflow': {
     accountId: 'user-workflow',
-    avatar: 'https://p1.mingdaoyun.cn/UserAvatar/workflow.png?imageView2/1/w/48/h/48/q/90',
+    avatar:
+      md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') + '/UserAvatar/workflow.png?imageView2/1/w/48/h/48/q/90',
     fullname: '工作流',
   },
   'user-publicform': {
     accountId: 'user-publicform',
-    avatar: 'https://p1.mingdaoyun.cn/UserAvatar/publicform.png?imageView2/1/w/100/h/100/q/90',
+    avatar:
+      md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+      '/UserAvatar/publicform.png?imageView2/1/w/100/h/100/q/90',
     fullname: '公开表单',
   },
   'user-api': {
     accountId: 'user-api',
-    avatar: 'https://p1.mingdaoyun.cn/UserAvatar/worksheetapi.png?imageView2/1/w/100/h/100/q/90',
+    avatar:
+      md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+      '/UserAvatar/worksheetapi.png?imageView2/1/w/100/h/100/q/90',
     fullname: 'API',
   },
 };
@@ -62,17 +67,19 @@ export const FILTER_FIELD_BY_ATTR = {
 };
 
 export const CIRCLE_TAGS_CONTROL_TYPE = [26, 36, 27, 10, 48, 11, 9];
-export const RECT_TAGS_CONTROL_TYPE = [6, 8, 5, 15, 16, 38, 46, 3, 4, 24, 31, 28, 7, 40, 35, 37, 29, 27, 19, 23, 50, 21, 33, 32];
+export const RECT_TAGS_CONTROL_TYPE = [
+  6, 8, 5, 15, 16, 38, 46, 3, 4, 24, 31, 28, 7, 40, 35, 37, 29, 27, 19, 23, 50, 21, 33, 32,
+];
 export const RETURN_OBJECT_CONTROL_TYPE = [26, 27, 48];
 
 export const UPDATA_ITEM_CLASSNAME_BY_TYPE = {
   remove: 'oldBackground',
   add: 'newBackground',
-  update: 'defaultBackground'
-}
+  update: 'defaultBackground',
+};
 
 export const WF_STATUS = {
-  '通过': _l('通过'),
-  '否决': _l('否决'),
-  '中止': _l('中止'),
-}
+  通过: _l('通过'),
+  否决: _l('否决'),
+  中止: _l('中止'),
+};

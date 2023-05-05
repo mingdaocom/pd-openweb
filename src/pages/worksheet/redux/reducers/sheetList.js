@@ -49,6 +49,15 @@ function isCharge(state = false, action) {
   }
 }
 
+function appPkgData(state = false, action) {
+  switch (action.type) {
+    case 'WORKSHEET_UPDATE_APPPKGDATA':
+      return action.appPkgData;
+    default:
+      return state;
+  }
+}
+
 function isUnfold(state = !(localStorage.getItem('sheetListIsUnfold') === 'false'), action) {
   switch (action.type) {
     case 'SHEET_LIST_UPDATE_IS_UNFOLD':
@@ -86,4 +95,5 @@ export default combineReducers({
   isUnfold,
   guidanceVisible,
   isValidAppSectionId,
+  appPkgData
 });

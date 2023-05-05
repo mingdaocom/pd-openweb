@@ -291,12 +291,9 @@ export default function Embed(props) {
           allControls={formatControls}
           globalSheetInfo={globalSheetInfo}
           onOk={conditions => {
-            const newConditions = conditions.map(item => {
-              return item.isDynamicsource ? { ...item, values: [], value: '' } : { ...item, dynamicSource: [] };
-            });
             onChange(
               handleAdvancedSettingChange(data, {
-                filters: JSON.stringify(newConditions),
+                filters: JSON.stringify(conditions),
               }),
             );
             setCommonState({ filterVisible: false });

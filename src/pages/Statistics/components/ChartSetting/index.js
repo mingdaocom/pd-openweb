@@ -2,11 +2,13 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import XAxis from './components/XAxis';
 import YAxis from './components/YAxis';
+import ValueAxis from './components/ValueAxis';
 import GroupingAxis from './components/GroupingAxis';
 import PivotTableAxis from './components/PivotTableAxis';
 import Filter from './components/Filter';
 import AreaScope from './components/AreaScope';
 import Accumulate from './components/Accumulate';
+import WithoutFidldItem from './components/WithoutFidldItem';
 import { chartType, getAxisText, isTimeControl, filterDisableParticleSizeTypes, funnelShapeList, funnelCurvatureList } from '../../common';
 import { reportTypes } from '../../Charts/common';
 import { connect } from 'react-redux';
@@ -41,6 +43,17 @@ export default class ChartSetting extends Component {
   renderChartType() {
     const { reportType, displaySetup } = this.props.currentReport;
     const isFunnelChart = reportType == reportTypes.FunnelChart;
+    const handleClick = (item) => {
+      if (displaySetup.showChartType !== item.value) {
+        this.props.changeCurrentReport({
+          displaySetup: {
+            ...displaySetup,
+            showChartType: item.value,
+            isPerPile: [reportTypes.LineChart].includes(reportType) ? false : displaySetup.isPerPile,
+          }
+        });
+      }
+    }
     return (
       <div className={isFunnelChart ? 'mBottom15' : 'mBottom20'}>
         {isFunnelChart && <div className="mBottom15 Bold Font13">{_l('图形')}</div>}
@@ -49,29 +62,36 @@ export default class ChartSetting extends Component {
         >
           {chartType[reportType].title}
         </div>
-        <div className="chartTypeSelect flexRow valignWrapper">
-          {
-            chartType[reportType].items.map(item => (
+        {[reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType) ? (
+          <div className="chartTypeImageSelect flexRow valignWrapper mBottom16">
+            {chartType[reportType].items.map(item => (
               <div
                 key={item.value}
-                className={cx('flex centerAlign pointer Gray_75', { active: displaySetup.showChartType == item.value })}
-                onClick={() => {
-                  if (displaySetup.showChartType !== item.value) {
-                    this.props.changeCurrentReport({
-                      displaySetup: {
-                        ...displaySetup,
-                        showChartType: item.value,
-                        isPerPile: [reportTypes.LineChart].includes(reportType) ? false : displaySetup.isPerPile,
-                      }
-                    });
-                  }
-                }}
+                className={cx('flex styleItem centerAlign pointer Gray_75', { active: displaySetup.showChartType == item.value })}
+                onClick={() => handleClick(item)}
               >
+                <div className="iconWrap">
+                  <img src={displaySetup.showChartType == item.value ? item.activeIcon : item.icon} />
+                </div>
                 {item.name}
               </div>
-            ))
-          }
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="chartTypeSelect flexRow valignWrapper">
+            {
+              chartType[reportType].items.map(item => (
+                <div
+                  key={item.value}
+                  className={cx('flex centerAlign pointer Gray_75', { active: displaySetup.showChartType == item.value })}
+                  onClick={() => handleClick(item)}
+                >
+                  {item.name}
+                </div>
+              ))
+            }
+          </div>
+        )}
       </div>
     );
   }
@@ -208,13 +228,16 @@ export default class ChartSetting extends Component {
   }
   renderChartAxis(x, y) {
     const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
-    const { reportType, displaySetup, xaxes, split, rightY, formulas = [] } = currentReport;
-    const isDualAxes = reportType === reportTypes.DualAxes;
+    const { reportType, displaySetup, xaxes, yaxisList, split, rightY, formulas = [] } = currentReport;
+    const isMultiaxis = [reportTypes.DualAxes, reportTypes.BidirectionalBarChart].includes(reportType);
+    const isDualAxes = reportTypes.DualAxes === reportType;
+    const xAxisVisible = reportType && ![reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType);
     const disableParticleSizeTypes = [xaxes, split, rightY ? rightY.split : {}].filter(item => item.particleSizeType).map(item => `${item.controlId}-${item.particleSizeType}`);
+
     return (
       <Fragment>
         {
-          reportType && (
+          xAxisVisible && (
             <XAxis
               name={x}
               disableParticleSizeTypes={filterDisableParticleSizeTypes(xaxes.controlId, disableParticleSizeTypes)}
@@ -227,21 +250,95 @@ export default class ChartSetting extends Component {
             />
           )
         }
-        <YAxis
-          name={isDualAxes ? _l('数值(Y轴)') : y}
-          split={currentReport.split}
-          yaxisList={currentReport.yaxisList}
-          currentReport={currentReport}
-          axisControls={axisControls.concat(formulas)}
-          allControls={worksheetInfo.columns}
-          onChangeCurrentReport={this.props.changeYaxisList}
-          onRemoveAxis={this.props.removeYaxisList}
-          onAddAxis={this.props.addYaxisList}
-        />
-        {
-          isDualAxes && (
+        {reportTypes.ScatterChart === reportType ? (
+          <Fragment>
             <YAxis
-              name={_l('数值(辅助Y轴)')}
+              name={_l('X轴(数值)')}
+              yaxisList={_.isEmpty(yaxisList[0]) ? [] : [yaxisList[0]]}
+              currentReport={currentReport}
+              axisControls={axisControls.concat(formulas)}
+              allControls={worksheetInfo.columns}
+              onChangeCurrentReport={(data) => {
+                yaxisList[0] = data.yaxisList[0];
+                this.props.changeYaxisList({
+                  ...data,
+                  yaxisList
+                });
+              }}
+              onRemoveAxis={() => {
+                yaxisList[0] = {};
+                this.props.changeYaxisList({
+                  yaxisList
+                });
+              }}
+              onAddAxis={(data) => {
+                this.props.addIndexYaxisList(data, 0);
+              }}
+            />
+            <YAxis
+              name={_l('Y轴(数值)')}
+              yaxisList={_.isEmpty(yaxisList[1]) ? [] : [yaxisList[1]]}
+              currentReport={currentReport}
+              axisControls={axisControls.concat(formulas)}
+              allControls={worksheetInfo.columns}
+              onChangeCurrentReport={(data) => {
+                yaxisList[1] = data.yaxisList[0];
+                this.props.changeYaxisList({
+                  ...data,
+                  yaxisList
+                });
+              }}
+              onRemoveAxis={() => {
+                yaxisList[1] = {};
+                this.props.changeYaxisList({
+                  yaxisList
+                });
+              }}
+              onAddAxis={(data) => {
+                this.props.addIndexYaxisList(data, 1);
+              }}
+            />
+            <YAxis
+              name={_l('点大小')}
+              yaxisList={_.isEmpty(yaxisList[2]) ? [] : [yaxisList[2]]}
+              currentReport={currentReport}
+              axisControls={axisControls.concat(formulas)}
+              allControls={worksheetInfo.columns}
+              onChangeCurrentReport={(data) => {
+                yaxisList[2] = data.yaxisList[0];
+                this.props.changeYaxisList({
+                  ...data,
+                  yaxisList
+                });
+              }}
+              onRemoveAxis={() => {
+                yaxisList[2] = null;
+                this.props.changeYaxisList({
+                  yaxisList: yaxisList.filter(_ => _)
+                });
+              }}
+              onAddAxis={(data) => {
+                this.props.addIndexYaxisList(data, 2);
+              }}
+            />
+          </Fragment>
+        ) : (
+          <YAxis
+            name={y}
+            split={split}
+            yaxisList={yaxisList}
+            currentReport={currentReport}
+            axisControls={axisControls.concat(formulas)}
+            allControls={worksheetInfo.columns}
+            onChangeCurrentReport={this.props.changeYaxisList}
+            onRemoveAxis={this.props.removeYaxisList}
+            onAddAxis={this.props.addYaxisList}
+          />
+        )}
+        {
+          isMultiaxis && (
+            <YAxis
+              name={isDualAxes ? _l('辅助Y轴(数值)') : _l('方向2(数值)')}
               split={rightY.split}
               yaxisList={rightY.yaxisList}
               currentReport={currentReport}
@@ -254,9 +351,9 @@ export default class ChartSetting extends Component {
           )
         }
         {
-          [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart].includes(reportType) && (
+          [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart, reportTypes.ScatterChart].includes(reportType) && (
             <GroupingAxis
-              name={isDualAxes ? _l('分组(Y轴)') : _l('分组')}
+              reportType={reportType}
               split={currentReport.split}
               yaxisList={currentReport.yaxisList}
               disableParticleSizeTypes={disableParticleSizeTypes}
@@ -269,7 +366,7 @@ export default class ChartSetting extends Component {
         {
           isDualAxes && (
             <GroupingAxis
-              name={_l('分组(辅助Y轴)')}
+              name={_l('分组(%0)', isDualAxes ? _l('辅助Y轴') : _l('数值2'))}
               split={currentReport.rightY.split}
               yaxisList={currentReport.rightY.yaxisList}
               disableParticleSizeTypes={disableParticleSizeTypes}
@@ -293,6 +390,106 @@ export default class ChartSetting extends Component {
       </Fragment>
     );
   }
+  renderChartValueAxis() {
+    const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
+    const { config, formulas = [] } = currentReport;
+    return (
+      <Fragment>
+        <ValueAxis
+          name={_l('最小值')}
+          valueAxis={config.min || {}}
+          currentReport={currentReport}
+          onChangeCurrentReport={changeCurrentReport}
+          allControls={worksheetInfo.columns}
+          axisControls={axisControls.concat(formulas)}
+          addValueAxis={(data) => {
+            this.props.addValueAxis('min', data);
+          }}
+          changeValueAxis={(data, isRequest) => {
+            this.props.changeConfig({
+              min: {
+                ...config.min,
+                ...data
+              }
+            }, isRequest);
+          }}
+          removeValueAxis={() => {
+            this.props.changeConfig({
+              min: null
+            });
+          }}
+        />
+        <ValueAxis
+          name={_l('最大值')}
+          valueAxis={config.max || {}}
+          currentReport={currentReport}
+          onChangeCurrentReport={changeCurrentReport}
+          allControls={worksheetInfo.columns}
+          axisControls={axisControls.concat(formulas)}
+          addValueAxis={(data) => {
+            this.props.addValueAxis('max', data);
+          }}
+          changeValueAxis={(data, isRequest) => {
+            this.props.changeConfig({
+              max: {
+                ...config.max,
+                ...data
+              }
+            }, isRequest);
+          }}
+          removeValueAxis={() => {
+            this.props.changeConfig({
+              max: null
+            });
+          }}
+        />
+      </Fragment>
+    );
+  }
+  renderTargetValueAxis() {
+    const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
+    const { yaxisList, config } = currentReport;
+    const targetList = config.targetList || [];
+    return (
+      <div className="fieldWrapper targetValueAxis mBottom20">
+        <div className="Bold mBottom12">{_l('目标值')}</div>
+        {!yaxisList.length && (
+          <Fragment>
+            <div className="mBottom12 Gray_75">{_l('请先配置数值')}</div>
+            <WithoutFidldItem
+              disable={true}
+              allowInput={true}
+            />
+          </Fragment>
+        )}
+        {yaxisList.map((data, index) => (
+          <ValueAxis
+            key={data.controlId}
+            name={data.controlName}
+            valueAxis={targetList[index] || {}}
+            currentReport={currentReport}
+            onChangeCurrentReport={changeCurrentReport}
+            allControls={worksheetInfo.columns}
+            axisControls={axisControls}
+            addValueAxis={(data) => {
+              this.props.addTargetValueAxis(index, data);
+            }}
+            changeValueAxis={(data, isRequest) => {
+              const current = targetList[index] || {};
+              targetList[index] = {
+                ...current,
+                ...data,
+              }
+              this.props.changeConfig({ targetList }, isRequest);
+            }}
+            removeValueAxis={() => {
+              this.props.removeTargetValueAxis(index);
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
   render() {
     const { currentReport, axisControls, projectId, worksheetInfo, filterItem } = this.props;
     const { reportType, displaySetup } = currentReport;
@@ -307,6 +504,12 @@ export default class ChartSetting extends Component {
             this.renderChartAxis(x, y)
           )
         }
+        {[reportTypes.GaugeChart].includes(reportType) && (
+          this.renderChartValueAxis()
+        )}
+        {[reportTypes.ProgressChart].includes(reportType) && (
+          this.renderTargetValueAxis()
+        )}
         {(chartType[reportType] && displaySetup) && this.renderChartType()}
         {reportType === reportTypes.FunnelChart && this.renderShape()}
         {reportType === reportTypes.FunnelChart && this.renderCurvature()}

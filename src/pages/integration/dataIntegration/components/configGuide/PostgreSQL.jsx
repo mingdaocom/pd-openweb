@@ -14,29 +14,35 @@ export default function PostgreSQLGuide(props) {
         </li>
         <li>{_l('将系统 IP 添加到 PostgreSQL 服务器的访问白名单')}</li>
       </ul>
-
       <h5>{_l('检查 PostgreSQL 版本')}</h5>
       <div className="sqlText">
         <div>postgres --version</div>
       </div>
-
       <h5>{_l('查看现有用户权限')}</h5>
       <div className="sqlText">
         <div>psql -U postgres \\du</div>
       </div>
-
       <h5>{_l('向用户授予所需的权限')}</h5>
       <div className="sqlText">
         <div>{`GRANT CONNECT ON DATABASE <database_name> TO <database_username>;`}</div>
         <div>{`GRANT USAGE ON SCHEMA <schema_name> TO <database_username>;`}</div>
       </div>
-
       <h5>{_l('修改schema的默认权限，将表上的SELECT权限授予数据库用户')}</h5>
       <div className="sqlText">
         <div>{`ALTER DEFAULT PRIVILEGES IN SCHEMA <schema_name> GRANT SELECT ON TABLE`}</div>
         <div>{`S TO <database_username>;`}</div>
       </div>
 
+      {/* 数据集成1.2 */}
+      {/* <h5>{_l('对需要同步的表执行')}</h5>
+      <div className="sqlText">
+        <div>{`ALTER TABLE <schema>.<table> REPLICA IDENTITY FULL`}</div>
+      </div>
+
+      <h5>{_l('修改schema的配置项')}</h5>
+      <div className="sqlText">
+        <div>{_l('在postgresql.conf文件中修改或添加 wal_level 配置项为：wal_level = logical')}</div>
+      </div> */}
       <h5>{_l('测试连接')}</h5>
       <p>
         {_l(

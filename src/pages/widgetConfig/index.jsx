@@ -52,6 +52,7 @@ export default function Container(props) {
   const setStyleInfo = obj => setStyle(Object.assign({}, styleInfo, obj));
 
   const $switchArgs = useRef(null);
+  const $contentRef = useRef(null);
 
   const [status, setStatus] = useSetState({ saved: false, saveIndex: 0, modify: false, noTitleControl: false });
 
@@ -362,6 +363,7 @@ export default function Container(props) {
       ) : (
         <WidgetConfig>
           <Header
+            {...widgetProps}
             {...globalInfo}
             worksheetId={sourceId}
             showSaveButton={!getLoading}
@@ -370,7 +372,7 @@ export default function Container(props) {
             onBack={handleClose}
             onSave={handleSave}
           />
-          <Content {...widgetProps} />
+          <Content {...widgetProps} onRef={$contentRef} />
           {status.noTitleControl && (
             <Components.NoTitleControlDialog onClose={() => setStatus({ noTitleControl: false })} />
           )}

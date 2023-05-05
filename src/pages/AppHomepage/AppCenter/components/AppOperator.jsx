@@ -9,30 +9,31 @@ import _ from 'lodash';
 const ROLE_OPERATION = {
   // 无权限
   0: [{ type: 'setGroup' }],
+  1: [{ type: 'edit', icon: 'edit', text: _l('修改名称和图标%01007') }, { type: 'setGroup' }],
+  2: [{ type: 'edit', icon: 'edit', text: _l('修改名称和图标%01007') }, { type: 'setGroup' }],
+  3: [{ type: 'edit', icon: 'edit', text: _l('修改名称和图标%01007') }, { type: 'setGroup' }],
   // 拥有者
   200: [
-    { type: 'edit', icon: 'edit', text: _l('修改名称和图标') },
-    { type: 'copy', icon: 'content-copy', text: _l('复制应用') },
+    { type: 'edit', icon: 'edit', text: _l('修改名称和图标%01007') },
+    { type: 'copy', icon: 'content-copy', text: _l('复制应用%01008') },
     { type: 'setGroup' },
-    { type: 'del', icon: 'delete2', text: _l('删除应用'), className: 'delApp' },
+    { type: 'del', icon: 'delete2', text: _l('删除应用%01009'), className: 'delApp' },
   ],
   // 管理员
   100: [
-    { type: 'edit', icon: 'edit', text: _l('修改名称和图标') },
-    { type: 'copy', icon: 'content-copy', text: _l('复制应用') },
+    { type: 'edit', icon: 'edit', text: _l('修改名称和图标%01007') },
+    { type: 'copy', icon: 'content-copy', text: _l('复制应用%01008') },
     { type: 'setGroup' },
-    { type: 'quit', icon: 'exit', text: _l('退出应用') },
   ],
   // map管理员
   300: [
-    { type: 'edit', icon: 'edit', text: _l('修改名称和图标') },
-    { type: 'copy', icon: 'content-copy', text: _l('复制应用') },
+    { type: 'edit', icon: 'edit', text: _l('修改名称和图标%01007') },
+    { type: 'copy', icon: 'content-copy', text: _l('复制应用%01008') },
     { type: 'setGroup' },
-    { type: 'quit', icon: 'exit', text: _l('退出应用') },
   ],
 };
 
-const DEFAULT_ROLE_OPERATION = [{ type: 'setGroup' }, { type: 'quit', icon: 'exit', text: _l('退出应用') }];
+const DEFAULT_ROLE_OPERATION = [{ type: 'setGroup' }];
 
 export default ({
   groupType,
@@ -42,6 +43,7 @@ export default ({
   role,
   onClickAway,
   onUpdateAppBelongGroups,
+  isLock,
   ...propsRest
 }) => {
   let list = [...(ROLE_OPERATION[role] || DEFAULT_ROLE_OPERATION)];
@@ -56,6 +58,10 @@ export default ({
 
   if (_.includes(['external', 'star', 'personal'], groupType)) {
     _.remove(list, o => o.type === 'setGroup');
+  }
+
+  if (isLock) {
+    list = _.filter(list, it => _.includes(['setGroup', 'edit'], it.type));
   }
 
   return (

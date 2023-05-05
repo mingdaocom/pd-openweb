@@ -127,20 +127,21 @@ class RecordCalendar extends Component {
     this.props.getCalendarData();
     this.props.fetchExternal();
     this.getEventsFn();
-    window.addEventListener('resize', () => {
-      this.setState({
-        height: this.props.height,
-      });
-    });
   }
 
   componentWillReceiveProps(nextProps) {
-    const { sheetListVisible, chatVisible, base, calendarview = {}, height } = nextProps;
+    const { base, calendarview = {}, height } = nextProps;
     const { calendarData = {}, calendarFormatData } = calendarview;
     const { viewId } = base;
     const currentView = this.getCurrentView(nextProps);
     const preView = this.getCurrentView(this.props);
     const { initialView } = calendarData;
+    if (nextProps.height !== this.props.height) {
+      $('.boxCalendar,.calendarCon,.fc-daygrid-body,.fc-scrollgrid-sync-table,.fc-col-header ').width('100%');
+      this.setState({
+        height: height,
+      });
+    }
     if (!_.isEqual(calendarFormatData, (this.props.calendarview || {}).calendarFormatData)) {
       this.getFormatData(nextProps);
     }
@@ -170,17 +171,6 @@ class RecordCalendar extends Component {
       this.calendarComponentRef.current
     ) {
       this.calendarComponentRef.current.getApi().changeView(initialView); // 更改视图类型
-    }
-    if (
-      (chatVisible !== this.props.chatVisible || sheetListVisible !== this.props.sheetListVisible) &&
-      this.calendarComponentRef.current
-    ) {
-      setTimeout(() => {
-        $('.boxCalendar,.calendarCon,.fc-daygrid-body,.fc-scrollgrid-sync-table,.fc-col-header ').width('100%');
-        this.setState({
-          height: height,
-        });
-      }, 500);
     }
   }
 
@@ -1200,6 +1190,15 @@ class RecordCalendar extends Component {
               });
               this.setState({ recordInfoVisible: false });
             }}
+            hideRows={() => {
+              this.getEventsFn();
+              this.props.refreshEventList();
+              this.props.fetchExternal();
+              this.setState({
+                rows: [],
+                showPrevNext: false,
+              });
+            }}
             handleAddSheetRow={data => {
               this.getEventsFn();
               this.props.refreshEventList();
@@ -1217,8 +1216,6 @@ class RecordCalendar extends Component {
 export default connect(
   state => ({
     ...state.sheet,
-    chatVisible: state.chat.visible,
-    sheetListVisible: state.sheetList.isUnfold,
     sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
     worksheetInfo: state.sheet.worksheetInfo,
     mobileMoreClickVisible: state.sheet.calendarview.mobileMoreClickVisible,

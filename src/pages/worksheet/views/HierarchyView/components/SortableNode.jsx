@@ -62,7 +62,7 @@ export default class SortableRecordItem extends Component {
   };
 
   // 获取连接线位置
-  getConnectLinePos = ({ stateTree, pid, data, scale }) => {
+  getConnectLinePos = ({ stateTree, pid, data, scale, view = {} }) => {
     const { path = [], rowId } = data;
     const $ele = _.get(this.$itemWrap, ['current']);
     if ($ele && pid) {
@@ -70,7 +70,7 @@ export default class SortableRecordItem extends Component {
       if (!getParent || _.isEmpty(getParent)) return {};
       const childrenCount = (_.get(getParent, 'children') || {}).length;
       if (!childrenCount) return {};
-      const $parent = document.getElementById(`${getParent.pathId.join('-')}`);
+      const $parent = $(`#${view.viewId}`).find(`#${getParent.pathId.join('-')}`)[0];
       if ($parent === $ele) return {};
       const currentIndex =
         _.findIndex(getParent.children, item => item === rowId || item.rowId === rowId || item.rowid === rowId) || 0;
@@ -87,9 +87,9 @@ export default class SortableRecordItem extends Component {
 
   // 绘制连接线
   drawConnector = () => {
-    const { data } = this.props;
+    const { data, view = {} } = this.props;
     const { pathId } = data;
-    const $svgWrap = document.getElementById(`svg-${pathId.join('-')}`);
+    const $svgWrap = document.getElementById(`svg-${view.viewId}${pathId.join('-')}`);
 
     const position = this.getConnectLinePos(this.props);
 
@@ -103,7 +103,7 @@ export default class SortableRecordItem extends Component {
     if ($svgWrap.childElementCount > 0) {
       $svgWrap.childNodes.forEach(child => $svgWrap.removeChild(child));
     }
-    const draw = SVG(`svg-${pathId.join('-')}`).size('100%', '100%');
+    const draw = SVG(`svg-${view.viewId}${pathId.join('-')}`).size('100%', '100%');
     const linePath = ['M', ...start, 'Q', ...controlPoint, ...end].join(' ');
     draw.path(linePath).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
   };
@@ -162,8 +162,16 @@ export default class SortableRecordItem extends Component {
     return _.sortBy(newRows, 'index').map(i => i.row);
   };
   render() {
-    const { appId, data, updateHierarchyData, deleteHierarchyRecord, sheetSwitchPermit, view, worksheetInfo } =
-      this.props;
+    const {
+      appId,
+      data,
+      updateHierarchyData,
+      deleteHierarchyRecord,
+      hideHierarchyRecord,
+      sheetSwitchPermit,
+      view,
+      worksheetInfo,
+    } = this.props;
     const { recordInfoRowId, recordInfoVisible } = this.state;
     const { rowId, path = [], pathId = [] } = data;
     const { rowId: draggingId } = getItem('draggingHierarchyItem') || '';
@@ -179,7 +187,7 @@ export default class SortableRecordItem extends Component {
           ref={this.$itemWrap}
           onClick={() => this.handleRecordVisible(rowId)}
         >
-          <div id={`svg-${pathId.join('-')}`} className="svgWrap" />
+          <div id={`svg-${view.viewId}${pathId.join('-')}`} className="svgWrap" />
           <DraggableRecord
             {...this.props}
             viewParaOfRecord={recordInfoPara}
@@ -215,11 +223,15 @@ export default class SortableRecordItem extends Component {
               hideRecordInfo={() => {
                 this.setState({ recordInfoVisible: false });
               }}
-              updateSuccess={(recordIds, value, relateSheet) =>
-                updateHierarchyData({ path, pathId, recordId: recordIds[0], value, relateSheet })
-              }
+              updateSuccess={(recordIds, value, relateSheet) => {
+                if (!relateSheet.isviewdata) {
+                  return;
+                }
+                updateHierarchyData({ path, pathId, recordId: recordIds[0], value, relateSheet });
+              }}
               appId={appId}
               deleteRows={(_, rows) => deleteHierarchyRecord({ rows, path, pathId })}
+              hideRows={rowIds => hideHierarchyRecord(rowIds[0], path, pathId)}
               {...recordInfoPara}
             />
           ))}

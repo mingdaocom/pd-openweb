@@ -407,7 +407,6 @@ class TaskDetail extends Component {
             '.persist-area',
             '.listStageTaskContent',
             '.listStageContent',
-            '.rc-notification',
             '.dialogScroll',
             '.attachmentsPreview',
             '.selectUserBox',
@@ -420,7 +419,9 @@ class TaskDetail extends Component {
             '#chat',
             '#chatPanel',
             '.warpDatePicker',
-            '.ck'
+            '.ck',
+            '.ant-select-dropdown',
+            '.ant-picker-dropdown',
           ]}
           onClickAway={this.closeDetail}
         >

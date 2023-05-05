@@ -49,6 +49,7 @@ export default class SelectApp extends React.Component {
       pageSize: 30,
       keyword,
       sourceType: 2,
+      filterType: 1, // 1:过滤加锁应用 0 or null 默认
     });
     this.postList.then(({ apps }) => {
       this.setState({

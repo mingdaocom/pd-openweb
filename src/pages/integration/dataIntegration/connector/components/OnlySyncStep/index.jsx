@@ -44,7 +44,20 @@ const OnlySyncWrapper = styled.div`
     }
   }
   .sheetName {
-    width: 643px;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+
+    .sheetNameWidth {
+      width: 643px;
+    }
+    .writeModeTip {
+      position: absolute;
+      right: 0;
+      top: 44px;
+      padding: 8px 16px;
+      background: rgba(254, 249, 233, 1);
+    }
   }
 `;
 
@@ -208,13 +221,13 @@ export default function OnlySyncStep(props) {
 
   const getMatchedFieldsOptions = (types, sourceField, destFields) => {
     const matchedTypeIds = _.uniq(types[sourceField.id].map(type => type.dataType));
-    const matchedmdTypeIds = _.uniq(types[sourceField.id].map(type => type.mdType));
+    const matchedMdTypeIds = _.uniq(types[sourceField.id].map(type => type.mdType));
 
     const matchedFieldsOptions = isDestAppType
       ? destFields.filter(
-          o => (isSourceAppType ? o.isPk === sourceField.isPk : true) && _.includes(matchedmdTypeIds, o.mdType),
+          o => (isSourceAppType ? !!o.isPk === !!sourceField.isPk : true) && _.includes(matchedMdTypeIds, o.mdType),
         )
-      : destFields.filter(o => o.isPk === sourceField.isPk && _.includes(matchedTypeIds, o.jdbcTypeId));
+      : destFields.filter(o => !!o.isPk === !!sourceField.isPk && _.includes(matchedTypeIds, o.jdbcTypeId));
     return matchedFieldsOptions;
   };
 
@@ -254,7 +267,13 @@ export default function OnlySyncStep(props) {
       )[0];
 
       const ENUM_TYPE = enumWidgetType[itemOptions[0].mdType];
-      const settingData = { type: itemOptions[0].mdType, ..._.omit(DEFAULT_DATA[ENUM_TYPE], ['controlName']) };
+      const settingData =
+        ENUM_TYPE === 'DATE_TIME'
+          ? { type: itemOptions[0].mdType, advancedSetting: { showtype: '6' } }
+          : {
+              type: itemOptions[0].mdType,
+              ..._.omit(DEFAULT_DATA[ENUM_TYPE], ['controlName']),
+            };
 
       return {
         ...item,
@@ -409,6 +428,12 @@ export default function OnlySyncStep(props) {
                 appId: isDestAppType ? dest.id : undefined,
                 workSheetId: isDestAppType ? _.get(sheetData, [db, table, 'sheetNameValue']) : undefined,
                 fieldsMapping: destFieldsMapping,
+                writeMode:
+                  !isSourceAppType &&
+                  isDestAppType &&
+                  _.get(sheetData, [db, table, 'sheetCreateType']) === CREATE_TYPE.SELECT_EXIST
+                    ? _.get(sheetData, [db, table, 'writeMode'])
+                    : undefined,
               },
             },
             tableList: _.get(optionList, [currentTab.db, currentTab.table, 'sheetOptionList']) || [],
@@ -527,7 +552,7 @@ export default function OnlySyncStep(props) {
         .then(res => {
           if (res) {
             const sheetOptionList = res.map(item => {
-              const itemDisabled = currentTab.db === db.value && currentTab.tableName === item;
+              const itemDisabled = source.id === dest.id && currentTab.db === db.value && currentTab.tableName === item;
               return {
                 label: itemDisabled ? (
                   <div className="flexRow alignItemsCenter">
@@ -572,19 +597,20 @@ export default function OnlySyncStep(props) {
       });
   };
 
-  const onChangeSheetCreateType = sheetCreateType => {
+  const onChangeSheetCreateType = async sheetCreateType => {
     const initSheetData = {};
-    const cacheSheetNameValue = _.get(sheetData, [currentTab.db, currentTab.table, 'sheetNameValue']);
+    const { sheetNameValue, writeNode } = _.get(sheetData, [currentTab.db, currentTab.table]);
 
     if (sheetCreateType === CREATE_TYPE.NEW) {
       initSheetData.sheetName = currentTab.tableName;
     } else {
-      if (!cacheSheetNameValue) {
-        initSheetData.sheetName = '';
+      initSheetData.sheetName = sheetNameValue || '';
+      if (!writeNode) {
+        initSheetData.writeMode = 'SKIP';
       }
       // 获取下拉列表选项
       if (isDestAppType) {
-        homeAppApi.getWorksheetsByAppId({ appId: dest.id }).then(res => {
+        await homeAppApi.getWorksheetsByAppId({ appId: dest.id }).then(res => {
           if (res) {
             const sheetOptionList = res
               .filter(o => o.type === 0) //只能是工作表
@@ -606,6 +632,9 @@ export default function OnlySyncStep(props) {
                   workSheetName: item.workSheetName,
                 };
               });
+            if (sheetNameValue) {
+              initSheetData.sheetName = sheetOptionList.filter(item => item.value === sheetNameValue)[0].workSheetName;
+            }
             onChangeStateData(optionList, setOptionList, { sheetOptionList });
           }
         });
@@ -782,24 +811,50 @@ export default function OnlySyncStep(props) {
                   <div className="sheetName">
                     {_.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) ===
                     CREATE_TYPE.SELECT_EXIST ? (
-                      <Select
-                        className="selectItem mBottom20"
-                        showSearch={true}
-                        labelInValue={true}
-                        placeholder={_l('请选择')}
-                        notFoundContent={_l('暂无数据')}
-                        value={_.get(sheetData, [currentTab.db, currentTab.table, 'sheetNameValue'])}
-                        options={_.get(optionList, [currentTab.db, currentTab.table, 'sheetOptionList'])}
-                        filterOption={(inputValue, option) => {
-                          return (isDestAppType ? option.workSheetName : option.label)
-                            .toLowerCase()
-                            .includes(inputValue.toLowerCase());
-                        }}
-                        onChange={sheet => onChangeSheet(sheet)}
-                      />
+                      <React.Fragment>
+                        <div className="sheetNameWidth">
+                          <Select
+                            className="selectItem mBottom20"
+                            showSearch={true}
+                            labelInValue={true}
+                            placeholder={_l('请选择')}
+                            notFoundContent={_l('暂无数据')}
+                            value={_.get(sheetData, [currentTab.db, currentTab.table, 'sheetNameValue'])}
+                            options={_.get(optionList, [currentTab.db, currentTab.table, 'sheetOptionList'])}
+                            filterOption={(inputValue, option) => {
+                              return (isDestAppType ? option.workSheetName : option.value)
+                                .toLowerCase()
+                                .includes(inputValue.toLowerCase());
+                            }}
+                            onChange={sheet => onChangeSheet(sheet)}
+                          />
+                        </div>
+
+                        {!isSourceAppType && isDestAppType && (
+                          <div className="mBottom20 flexRow alignItemsCenter">
+                            <span className="mLeft5 nowrap">{_l('根据主键识别重复，并')}</span>
+                            <div className="Width70 mLeft10">
+                              <Select
+                                className="selectItem"
+                                options={[
+                                  { label: _l('跳过'), value: 'SKIP' },
+                                  { label: _l('覆盖'), value: 'OVERWRITE' },
+                                ]}
+                                value={_.get(sheetData, [currentTab.db, currentTab.table, 'writeMode'])}
+                                onChange={writeMode => onChangeStateData(sheetData, setSheetData, { writeMode })}
+                              />
+                            </div>
+                            {_.get(sheetData, [currentTab.db, currentTab.table, 'writeMode']) === 'OVERWRITE' && (
+                              <div className="writeModeTip">
+                                {_l('根据主键判断已有数据的重复，"覆盖"会导致数据变慢。')}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </React.Fragment>
                     ) : (
                       <Input
-                        className="mBottom20 w100"
+                        className="mBottom20 sheetNameWidth"
                         value={_.get(sheetData, [currentTab.db, currentTab.table, 'sheetName'])}
                         onBlur={event =>
                           onChangeStateData(sheetData, setSheetData, {

@@ -4,6 +4,7 @@ import renderCellText from 'src/pages/worksheet/components/CellControls/renderTe
 import { getFormData, getSelectedOptions } from 'src/pages/worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import {
   CONTROL_FILTER_WHITELIST,
   FILTER_CONDITION_TYPE,
@@ -317,7 +318,7 @@ export function compareControlType(widget, type) {
 
 export function getFilterTypes(control = {}, conditionType, from) {
   let typeEnums = [];
-  const { type } = control;
+  const { type, advancedSetting = {} } = control;
   const typeKey = getTypeKey(type);
   switch (type) {
     // 文本类型
@@ -468,8 +469,10 @@ export function getFilterTypes(control = {}, conditionType, from) {
       break;
     case 29: // 关联
       typeEnums =
-        conditionType &&
-        (conditionType === FILTER_CONDITION_TYPE.LIKE || conditionType === FILTER_CONDITION_TYPE.NCONTAIN) // 兼容老数据
+        advancedSetting.showtype === '2' && from === 'rule'
+          ? [FILTER_CONDITION_TYPE.ISNULL, FILTER_CONDITION_TYPE.HASVALUE]
+          : conditionType &&
+            (conditionType === FILTER_CONDITION_TYPE.LIKE || conditionType === FILTER_CONDITION_TYPE.NCONTAIN) // 兼容老数据
           ? [
               FILTER_CONDITION_TYPE.ARREQ,
               FILTER_CONDITION_TYPE.ARRNE,
@@ -622,7 +625,7 @@ export function redefineComplexControl(contorl) {
 //   AREA_INPUT_19: 19, // 地区 19'省23'省-市'24'省-市-县'
 //   AREA_INPUT_23: 23, // 地区 19'省23'省-市'24'省-市-县'
 //   RELATION: 21, // 自由连接
-//   SPLIT_LINE: 22, // 分段
+//   SPLIT_LINE: 22, // 分割线
 //   MONEY_CN: 25, // 大写金额
 //   USER_PICKER: 26, // 成员
 //   GROUP_PICKER: 27, // 部门
@@ -669,7 +672,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
     case API_ENUM_TO_TYPE.CONCATENATE:
     case API_ENUM_TO_TYPE.AUTOID:
       // 除了检查框、自由连接、等级、他表字段以外所有能取到文本值的字段类型
-      // 除分段、备注、富文本、单选项、多选项、地区、人员、部门、检查框、附件、自由连接、签名、表关联、他表字段、汇总、子表外
+      // 除分割线、备注、富文本、单选项、多选项、地区、人员、部门、检查框、附件、自由连接、签名、表关联、他表字段、汇总、子表外
       typeList = [
         API_ENUM_TO_TYPE.SWITCH,
         API_ENUM_TO_TYPE.RELATION,
@@ -956,7 +959,17 @@ export function fillConditionValue({ condition, formData, relateControl }) {
     // || dataType === 38 // 公式日期
     // TODO 汇总日期类
   ) {
-    condition.value = value;
+    try {
+      condition.value = moment(value).format(
+        getDatePickerConfigs({
+          ...dynamicControl,
+          value,
+        }).formatMode,
+      );
+    } catch (err) {
+      condition.value = value;
+      console.error(err);
+    }
   } else if (dataType === 9 || dataType === 11 || dataType === 10) {
     if (type === 9 || type === 11) {
       // 单选
@@ -997,8 +1010,8 @@ export function fillConditionValue({ condition, formData, relateControl }) {
     }
   } else if (dataType === 29 || dataType === 35) {
     try {
-      condition.values = JSON.parse(value)
-        .map(r => r.sid)
+      condition.values = (_.isObject(value) ? value.records : JSON.parse(value))
+        .map(r => r.sid || r.rowid)
         .filter(_.identity);
     } catch (err) {
       condition.values = [];

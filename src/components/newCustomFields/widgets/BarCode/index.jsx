@@ -15,7 +15,7 @@ const QRErrorCorrectLevel = {
   '30%': 2,
 };
 
-const BarCodeWrap = styled.div`
+const BarCodeWrap = styled.span`
   cursor: pointer;
   display: inline-block;
   ${({ isRecord }) => isRecord && 'border: 1px solid #e6e6e6;'}

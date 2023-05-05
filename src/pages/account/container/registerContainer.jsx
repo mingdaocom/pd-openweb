@@ -105,7 +105,7 @@ export default class Container extends React.Component {
                 } else {
                   changeStep('editInfo');
                 }
-              } else if (data.actionResult == actionResult.accountFrequentLoginError) {
+              } else if (data.actionResult == actionResult.isLock) {
                 alert(_l('账号已被锁定，请稍后再试'), 3);
               } else if (data.actionResult == actionResult.firstLoginResetPassword || data.actionResult == actionResult.passwordOverdue) {
                 alert(_l('密码已过期，请重置后重新操作'), 3);
@@ -221,7 +221,7 @@ export default class Container extends React.Component {
       if (data.actionResult == actionResult.success) {
         setPssId(data.sessionId);
         loginSuc(data.user.encrypeAccount, data.user.encrypePassword);
-      } else if (data.actionResult == actionResult.accountFrequentLoginError) {
+      } else if (data.actionResult == actionResult.isLock) {
         alert(_l('账号已被锁定，请稍后再试'), 3);
       } else if (data.actionResult == actionResult.firstLoginResetPassword || data.actionResult == actionResult.passwordOverdue) {
         alert(_l('密码已过期，请重置后重新操作'), 3);

@@ -83,12 +83,15 @@ export const mergeColumnsCell = (data, yaxisList) => {
   data.forEach(item => {
     const { t_id, data } = item;
     item.data = data.map(n => {
+      return formatrChartValue(n, false, yaxisList, t_id);
+      /*
       if (_.isNumber(n)) {
         const current = _.find(yaxisList, { controlId: t_id });
-        return formatrChartValue(n, false, yaxisList, t_id, false);
+        return formatrChartValue(n, false, yaxisList, t_id);
       } else {
         return n;
       }
+      */
     });
   });
 

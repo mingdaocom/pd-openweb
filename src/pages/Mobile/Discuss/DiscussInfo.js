@@ -130,9 +130,13 @@ class Discuss extends Component {
 
     return (
       <div className="discussTabs">
-        {isModal && <Icon icon="closeelement-bg-circle" className="close Font22 Gray_9e" onClick={onClose} />}
+        {isModal && (
+          <div className="closeDiscuss" onClick={onClose}>
+            {_l('查看记录')}
+          </div>
+        )}
         <Tabs
-          tabs={isOpenPermit(permitList.logSwitch, switchPermit) ? tabs : tabs.filter(item => item.type !== 3)}
+          tabs={isOpenPermit(permitList.recordLogSwitch, switchPermit) ? tabs : tabs.filter(item => item.type !== 3)}
           tabBarInactiveTextColor="#9e9e9e"
           renderTabBar={props => <Tabs.DefaultTabBar {...props} />}
         >

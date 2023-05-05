@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import { Checkbox, LoadDiv, Icon } from 'ming-ui';
 import _ from 'lodash';
-import url from 'src/pages/worksheet/assets/record.png'
+import url from 'src/pages/worksheet/assets/record.png';
 const Wrap = styled.div`
   .opacity0 {
     opacity: 0 !important;
@@ -194,11 +194,11 @@ export default function PorTalTable(props) {
     setColumns(props.columns || []);
   }, [props.list, props.columns]);
 
-  const onScroll = () => {
+  const onScroll = _.debounce(() => {
     if (window.innerHeight + 40 > $(bottomRef.current).offset().top) {
       !props.loading && props.total > listCell.length && props.onScrollEnd();
     }
-  };
+  }, 500);
 
   // const setMinW = () => {
   //   let minW = 0;

@@ -450,7 +450,7 @@ function Hierarchy(props) {
               updateLayersName={names => saveView(viewId, { layersName: names })}
             />
           )}
-          <SortableTreeWrap scale={scale}>
+          <SortableTreeWrap scale={scale} id={viewId}>
             {_.isEmpty(hierarchyViewState) ? (
               <EmptyHierarchy
                 layersName={layersName}
@@ -471,6 +471,7 @@ function Hierarchy(props) {
                     {..._.pick(props, [
                       'hierarchyRelateSheetControls',
                       'deleteHierarchyRecord',
+                      'hideHierarchyRecord',
                       'updateHierarchyData',
                       'appId',
                       'worksheetInfo',

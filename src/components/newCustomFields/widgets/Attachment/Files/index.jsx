@@ -111,7 +111,7 @@ const Files = props => {
   const [viewMoreVisible, setViewMoreVisible] = useState(false);
   const [viewMore, setViewMore] = useState(props.viewMore);
   const [smallSize, setSmallSize] = useState(false);
-  const { recordBaseInfo } = useContext(RecordInfoContext) || {};
+  const { recordBaseInfo = {} } = useContext(RecordInfoContext) || {};
   const ref = useRef(null);
 
   const { showType, allowSort } = props;
@@ -122,12 +122,9 @@ const Files = props => {
   useEffect(() => {
     const allAttachments = attachments.concat(knowledgeAtts).concat(attachmentData);
     setSortAllAttachments(sortFiles(allAttachments));
-    if (!props.viewMore) {
-      return;
-    }
     if (isLargeImageCard) {
       const imageAttachments = sortAllAttachments.filter(filterImageAttachments);
-      if (imageAttachments.length > showLineCount) {
+      if (props.viewMore && imageAttachments.length > showLineCount) {
         setViewMoreVisible(true);
       }
     } else {
@@ -135,8 +132,10 @@ const Files = props => {
       if (_.isFunction(current.getContainer) && current.getContainer()) {
         const el = current.getContainer();
         const { clientHeight, clientWidth } = el.querySelector('.attachmentFilesWrap');
-        setViewMore(true);
-        setViewMoreVisible(clientHeight > el.clientHeight);
+        if (props.viewMore) {
+          setViewMore(true);
+          setViewMoreVisible(clientHeight > el.clientHeight);
+        }
         if (!isMobile && ['1'].includes(showType)) {
           setSmallSize(clientWidth <= 160);
         }
@@ -144,7 +143,7 @@ const Files = props => {
           setSmallSize(clientWidth <= 300);
         }
       } else {
-        setViewMore(false);
+        props.viewMore && setViewMore(false);
       }
     }
   }, [attachments, knowledgeAtts, flag]);

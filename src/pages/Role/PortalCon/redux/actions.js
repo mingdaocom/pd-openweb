@@ -148,10 +148,12 @@ export const changePageIndex = index => {
 
 export const getPortalRoleList = appId => {
   return (dispatch, getState) => {
+    dispatch({ type: 'UPDATE_LOADING', data: true });
     externalPortalAjax.getExRoles({
       appId,
     }).then(res => {
       dispatch({ type: 'UPDATE_ROLELIST', data: res });
+      dispatch({ type: 'UPDATE_LOADING', data: false });
     });
   };
 };
@@ -181,6 +183,14 @@ export const setFilter = data => {
 };
 //快速筛选
 export const setFastFilters = data => {
+  return (dispatch, getState) => {
+    dispatch(setFastFiltersData(data))
+    dispatch(changePageIndex(1));
+    dispatch(getList());
+  };
+};
+//快速筛选参数
+export const setFastFiltersData = data => {
   return (dispatch, getState) => {
     if (!data) {
       dispatch({
@@ -212,8 +222,6 @@ export const setFastFilters = data => {
         data: newData,
       });
     }
-    dispatch(changePageIndex(1));
-    dispatch(getList());
   };
 };
 export const setDefaultFastFilters = () => {
@@ -336,8 +344,15 @@ export const getList = (PotralStatus = 0, cb) => {
   };
 };
 
-export const setQuickTag = data => {
+export const setQuickTag = (data = {}) => {
   return (dispatch, getState) => {
     dispatch({ type: 'UPDATE_QUICKTAG', data });
+    dispatch(setRoleId(data.roleId || 'all'));
+  };
+};
+
+export const setRoleId = data => {
+  return (dispatch, getState) => {
+    dispatch({ type: 'UPDATE_DEFAULT_ROLEID', data });
   };
 };

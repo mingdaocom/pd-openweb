@@ -131,7 +131,9 @@ export default class RowDetail extends React.Component {
               _.includes([19, 23, 24], c.type) && _.isObject(data[c.controlId])
                 ? data[c.controlId].text
                 : data[c.controlId],
+            count: data[`rq${c.controlId}`],
           }));
+    console.log(formdata);
     return (
       <RecordInfoContext.Provider
         value={{

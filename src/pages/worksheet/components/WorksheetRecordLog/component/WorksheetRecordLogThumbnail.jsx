@@ -27,7 +27,7 @@ function WorksheetRecordLogThumbnail(props) {
   const isMobile = browserIsMobile();
   const [open, setOpen] = useState(false);
   let count = oldList.length + newList.length + defaultList.length;
-  if (md.global.Config.isLocal) {
+  if (md.global.Config.IsLocal) {
     return (
       <React.Fragment>
         <WorksheetRecordLogSelectTags

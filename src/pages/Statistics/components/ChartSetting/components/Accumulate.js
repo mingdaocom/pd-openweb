@@ -50,7 +50,7 @@ export default class Accumulate extends Component {
   handleSaveShowOptionIds = () => {
     const { showOptionIds } = this.state;
     if (_.isEmpty(showOptionIds)) {
-      alert(_l('请选择显示项'));
+      alert(_l('请选择显示项'), 2);
       return;
     }
     this.handleChangeDisplaySetup({

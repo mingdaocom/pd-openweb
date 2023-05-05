@@ -205,7 +205,7 @@ class Header extends Component {
     // const customArray = _.map(taskControls, (item) => {
     //   return {
     //     key: item.controlId,
-    //     name: item.controlName || _l('分段'),
+    //     name: item.controlName || _l('分割线'),
     //   };
     // });
 

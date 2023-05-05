@@ -1,12 +1,40 @@
-import React from 'react';
+import React, { useState } from 'react';
+import copy from 'copy-to-clipboard';
 import './errorPage.less';
 
-export default ({ isSeriousError }) => {
+function getErrorStr(errorData) {
+  try {
+    return `error occurred:${errorData.componentStack}
+${errorData.error.message}
+${errorData.error.stack}`;
+  } catch (err) {
+    return 'parse error fail!';
+  }
+}
+
+export default ({ isSeriousError, errorData = {} }) => {
+  const [errorVisible, setErrorVisible] = useState();
   if (isSeriousError === false) {
     return (
       <div className="programErrorMinBox flexColumn ThemeBGColor9 flex">
         <i className="icon-task-setting_promet Font56" />
         <div className="Font14 mTop20">{_l('程序错误，请刷新页面重试')}</div>
+        {errorVisible && (
+          <div className="errorPageErrorLog">
+            <span
+              className="copy"
+              onClick={() => {
+                copy(getErrorStr(errorData));
+                alert(_l('程序错误信息复制成功'));
+              }}
+            >
+              {_l('复制')}
+            </span>
+            <br />
+            {getErrorStr(errorData)}
+          </div>
+        )}
+        <div className="errorPageShowError" onClick={() => setErrorVisible(true)}></div>
       </div>
     );
   }
@@ -23,6 +51,22 @@ export default ({ isSeriousError }) => {
         >
           {_l('刷新')}
         </div>
+        {errorVisible && (
+          <div className="errorPageErrorLog">
+            <span
+              className="copy"
+              onClick={() => {
+                copy(getErrorStr(errorData));
+                alert(_l('程序错误信息复制成功'));
+              }}
+            >
+              {_l('复制')}
+            </span>
+            <br />
+            {getErrorStr(errorData)}
+          </div>
+        )}
+        <div className="errorPageShowError" onClick={() => setErrorVisible(true)}></div>
       </div>
     </div>
   );

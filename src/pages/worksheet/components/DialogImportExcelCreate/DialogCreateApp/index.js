@@ -127,7 +127,7 @@ export default class DialogCreateApp extends Component {
               style={{ backgroundColor: appInfo.iconColor }}
             >
               <SvgIcon
-                url={appInfo.iconUrl || 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg'}
+                url={appInfo.iconUrl || md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg'}
                 fill="#fff"
                 size={48}
               />

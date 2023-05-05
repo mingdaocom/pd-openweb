@@ -1,7 +1,6 @@
 import React from 'react';
 import * as actions from '../redux/actions';
-import { notification } from 'ming-ui/components/Notification';
-import { ChatNotificationContent } from '../components/Notification';
+import mdNotification from 'ming-ui/functions/notify';
 import renderLogout from '../components/Logout';
 import { getPssId } from 'src/util/pssId';
 import newMsgAudio from 'src/pages/chat/lib/mp3player/newMsgAudio.html';
@@ -141,16 +140,54 @@ export const stateInit = function() {
   let isOpen = true;
   let reconnectCount = 1;
 
+  const reconnectFn = () => {
+    mdNotification.close(key);
+    mdNotification.success({
+      key,
+      title: _l('网络已连接'),
+      duration: 2
+    });
+    IM.socket.off('reconnect', reconnectFn);
+    IM.socket.off('reconnect_failed', reconnectFailedFn);
+  };
+  const reconnectFailedFn = () => {
+    mdNotification.close(key);
+    mdNotification.error({
+      key,
+      title: _l('网络连接已断开'),
+      duration: null,
+      description: <div className="Gray_9e">{_l('重连失败，请重新刷新页面')}</div>,
+      btnList: [
+        {
+          text: _l('刷新'),
+          onClick: () => {
+            location.reload();
+          },
+        },
+      ],
+    });
+    IM.socket.off('reconnect', reconnectFn);
+    IM.socket.off('reconnect_failed', reconnectFailedFn);
+  };
+  const notificationInit = () => {
+    mdNotification.error({
+      key,
+      title: _l('网络连接已断开'),
+      loading: true,
+      className: 'closable',
+      duration: null,
+      description: <div className="ThemeColor TxtRight">{_l('正在重新连接')}</div>,
+    });
+    IM.socket.on('reconnect', reconnectFn);
+    IM.socket.on('reconnect_failed', reconnectFailedFn);
+  };
+
   const open = () => {
     // Firefox 刷新页面是，会触发网络断开的回调，避免这个问题加个延迟
     setTimeout(
       () => {
-        notification.close('connectedError');
-        notification.open({
-          content: <ChatNotificationContent />,
-          key,
-          duration: null,
-        });
+        mdNotification.close('connectedError');
+        notificationInit();
       },
       isFirefox ? 2000 : 0,
     );
@@ -188,8 +225,8 @@ export const stateInit = function() {
     if (reconnectCount > 1) {
       isOpen = true;
       setTimeout(() => {
-        notification.close(key);
-        notification.close('connectedError');
+        mdNotification.close(key);
+        mdNotification.close('connectedError');
       }, 3000);
       this.props.dispatch(actions.refresh());
     }

@@ -32,6 +32,7 @@ export default function ColumnHead(props) {
     _.get(control, 'advancedSetting.datamask') === '1' && _.get(control, 'advancedSetting.isdecrypt') === '1';
   return (
     <BaseColumnHead
+      canDrag={false}
       className={className}
       style={style}
       control={control}

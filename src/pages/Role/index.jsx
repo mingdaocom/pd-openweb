@@ -11,13 +11,12 @@ import HomeAjax from 'src/api/homeApp';
 import { getIds } from '../PageHeader/util';
 import { navigateTo } from 'router/navigateTo';
 import * as actionsPortal from 'src/pages/Role/PortalCon/redux/actions.js';
-import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
+import { getUserRole, canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util';
 import Portal from 'src/pages/Role/PortalCon/index';
 import openImg from './img/open.gif';
 import externalPortalAjax from 'src/api/externalPortal';
 import AppRoleCon from 'src/pages/Role/AppRoleCon';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
-import { ROLE_TYPES } from 'src/pages/Role/config';
 import _ from 'lodash';
 const EDITTYLE_CONFIG = [_l('常规'), _l('外部门户')];
 const RoleWrapper = styled.div`
@@ -223,8 +222,14 @@ class AppRole extends Component {
           params: { appId, editType },
         },
       } = this.props;
-      const isAdmin = isHaveCharge(appDetail.permissionType, appDetail.isLock);
-      if (editType === 'external' && !isAdmin) {
+
+      if (
+        editType === 'external' &&
+        !(
+          (canEditApp(appDetail.permissionType, appDetail.isLock) || canEditData(appDetail.permissionType)) &&
+          this.state.isOpenPortal
+        )
+      ) {
         navigateTo(`/app/${appId}/role`);
       }
     });
@@ -298,14 +303,16 @@ class AppRole extends Component {
         params: { appId },
       },
     } = this.props;
-    const isAdmin = isHaveCharge(appDetail.permissionType, appDetail.isLock);
-    const isOwner = appDetail.permissionType === ROLE_TYPES.OWNER;
-
+    let { isOwner, isAdmin } = getUserRole(appDetail.permissionType);
+    isAdmin = isOwner || isAdmin;
+    const editApp = canEditApp(appDetail.permissionType, appDetail.isLock);
+    const editUser = canEditData(appDetail.permissionType);
+    const canEndterPortal = editApp || editUser;
     const { iconColor, name, iconUrl } = appDetail;
     if (loading) {
       return <LoadDiv />;
     }
-    const featureType = isAdmin ? getFeatureStatus(projectId, 11) : false;
+    const featureType = canEndterPortal ? getFeatureStatus(projectId, 11) : false;
 
     return (
       <WaterMark projectId={projectId}>
@@ -343,19 +350,19 @@ class AppRole extends Component {
             </div>
             <div
               className={cx('nativeTitle Font17 bold mLeft16 overflow_ellipsis', {
-                flex: !isAdmin || (isAdmin && !isOpenPortal && featureType),
+                flex: !canEndterPortal || (canEndterPortal && !isOpenPortal && featureType),
               })}
               style={{
-                maxWidth: !isAdmin || (isAdmin && !isOpenPortal && featureType) ? '100%' : 200,
+                maxWidth: !canEndterPortal || (canEndterPortal && !isOpenPortal && featureType) ? '100%' : 200,
               }}
             >
               {/* {name} */}
               {_l('用户')}
             </div>
-            {isAdmin && isOpenPortal && (
+            {canEndterPortal && isOpenPortal && (
               <Wrap className="editTypeTab">
                 {[0, 1]
-                  .filter(o => (isAdmin ? true : o !== 1))
+                  .filter(o => (canEndterPortal ? true : o !== 1))
                   .map(o => {
                     if (o === 1 && !featureType) return;
                     return (
@@ -388,7 +395,7 @@ class AppRole extends Component {
                   })}
               </Wrap>
             )}
-            {isAdmin && !isOpenPortal && featureType && (
+            {editApp && !isOpenPortal && featureType && (
               <Trigger
                 action={['click']}
                 popup={
@@ -458,11 +465,14 @@ class AppRole extends Component {
               appId={appId}
               isAdmin={isAdmin}
               isOwner={isOwner}
+              canEditApp={editApp}
+              canEditUser={editUser}
               projectId={projectId}
               isOpenPortal={isOpenPortal}
               onRef={ref => {
                 this.child = ref;
               }}
+              appDetail={appDetail}
               handleChangePage={this.handleChangePage}
             />
           ) : (
@@ -474,9 +484,10 @@ class AppRole extends Component {
               isOwner={isOwner}
               handleChangePage={this.handleChangePage}
               isAdmin={isAdmin}
-              appDetail={this.state.appDetail}
+              canEditApp={editApp}
+              canEditUser={editUser}
+              appDetail={appDetail}
               projectId={projectId}
-              portalName={appDetail.name}
               appId={appId}
               closePortal={() => {
                 externalPortalAjax.editExPortalEnable({ appId, isEnable: false }).then(res => {

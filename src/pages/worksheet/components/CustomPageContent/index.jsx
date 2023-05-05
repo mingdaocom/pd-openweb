@@ -95,6 +95,7 @@ const CustomPageContentWrap = styled.div`
   }
   .content {
     height: 100%;
+    width: 100%;
   }
   .customPageContent {
     padding: 50px 8px 0px 8px;

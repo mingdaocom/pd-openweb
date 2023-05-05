@@ -316,7 +316,8 @@ function ContainerCon(props) {
   }
   if (isWXauth) {
     let appColor = baseSetInfo.appColor || '#00bcd4';
-    let appLogoUrl = baseSetInfo.appLogoUrl || 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg';
+    let appLogoUrl =
+      baseSetInfo.appLogoUrl || md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg';
     const { loginMode = {} } = baseSetInfo;
     return (
       <WrapWx className="flexColumn">

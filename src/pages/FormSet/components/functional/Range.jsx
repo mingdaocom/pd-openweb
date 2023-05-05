@@ -1,6 +1,6 @@
 import React from 'react';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Icon, Radio } from 'ming-ui';
+import { Icon, Radio, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
 import _ from 'lodash';
 
@@ -135,7 +135,15 @@ class Range extends React.Component {
             }
           </p>
           <Radio
-            text={_l('仅管理员')}
+            title={_l('仅系统角色')}
+            text={
+              <span className="TxtMiddle">
+                {_l('仅系统角色')}
+                <Tooltip popupPlacement="bottom" text={<span>{_l('包含管理员、运营者、开发者')}</span>}>
+                  <Icon icon="info_outline" className="Gray_9e Font16 TxtTop mLeft5" />
+                </Tooltip>
+              </span>
+            }
             checked={this.props.roleType === 100}
             onClick={() => {
               this.props.change(100);
@@ -195,11 +203,7 @@ class Range extends React.Component {
                         }
                       }}
                     >
-                      <input
-                        type="checkbox"
-                        className="viewInput TxtMiddle"
-                        checked={viewIds.includes(it.viewId)}
-                      />
+                      <input type="checkbox" className="viewInput TxtMiddle" checked={viewIds.includes(it.viewId)} />
                       <span className="TxtMiddle">{it.name}</span>
                     </div>
                   );

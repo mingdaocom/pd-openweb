@@ -79,6 +79,7 @@ export default class RecordCard extends Component {
     const {
       from = 1,
       disabled,
+      focused,
       selected,
       controls,
       data,
@@ -111,6 +112,7 @@ export default class RecordCard extends Component {
       <div
         className={cx('worksheetRecordCard', getKeyOfFrom(from).toLowerCase(), {
           selected,
+          focused,
           noControls: !cardControls.length,
           withoutCover: !coverCid,
         })}

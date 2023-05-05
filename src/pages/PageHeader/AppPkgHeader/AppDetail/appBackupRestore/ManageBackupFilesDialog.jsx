@@ -16,7 +16,7 @@ const tabInfos = [
 ];
 
 export default function ManageBackupFilesDialog(props) {
-  const { onClose, visible, fixed, appId, projectId, appName, manageBackupFilesKey } = props;
+  const { onClose, visible, fixed, appId, projectId, appName, manageBackupFilesKey, permissionType } = props;
   const [currentTab, setCurrentTab] = useState('backupFiles');
   const [fileList, setFileList] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
@@ -77,7 +77,7 @@ export default function ManageBackupFilesDialog(props) {
           <div className="headerInfo">
             <div className="title">{_l('管理备份文件')}</div>
             <div className="subTitle">
-              {_l('每个应用最多创建10个备份文件，每个文件仅保留60天有效期')}
+              {_l('每个应用最多创建10个备份文件，每个文件仅保留%0天有效期', md.global.SysSettings.appBackupRecycleDays)}
               <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/zh/backup.html" />
             </div>
             <Icon icon="close" className="Font20 Hand closeIcon Gray_9e" onClick={onClose} />
@@ -116,6 +116,7 @@ export default function ManageBackupFilesDialog(props) {
           {!isLoading && currentTab === 'backupFiles' && (
             <BackupFiles
               fixed={fixed}
+              permissionType={permissionType}
               onChangeFixStatus={props.onChangeFixStatus}
               projectId={projectId}
               appId={appId}

@@ -130,7 +130,12 @@ export default class RecordItem extends React.PureComponent {
     }
     return (
       <div
-        className={cx(baseCle, 'flexRow', { selected, big: size === SIZE.BIG, hover: active })}
+        className={cx(baseCle, 'flexRow', {
+          selected,
+          big: size === SIZE.BIG,
+          hover: active,
+          isEmpty: data.rowid === 'isEmpty',
+        })}
         onClick={onClick}
         style={{ ...style, minHeight: height }}
       >

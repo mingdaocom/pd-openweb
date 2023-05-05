@@ -136,8 +136,16 @@ export default function HomePage({ match, location: routerLocation }) {
     }
   };
   const getCountProcess = (key, limit) => {
-    const value = key === 'useExecCount' ? data[key] : data[key] / (1000 * 1000 * 1000);
-    return (value * 100) / data[limit];
+    let percent = 0;
+    if (key === 'useExecCount' || key === 'effectiveDataPipelineRowCount') {
+      percent =
+        data[key] / data[limit] > 0 && (data[key] / data[limit]) * 10000 <= 1
+          ? 0.01
+          : ((data[key] / data[limit]) * 100).toFixed(2);
+    } else {
+      percent = ((data[key] / (getValue(data[limit]) * Math.pow(1024, 3))) * 100).toFixed(2);
+    }
+    return percent;
   };
   const getOperation = () => {
     return null;
@@ -317,7 +325,7 @@ export default function HomePage({ match, location: routerLocation }) {
                   <span className="balance">{getValue(data.balance || 0).toLocaleString()}</span>
                 </div>
               )}
-              {/* {!isFree && (
+              {/* {!isFree && !isTrial && (
                 <div className="recharge" onClick={() => handleClick('recharge')}>
                   {_l('充值')}
                 </div>

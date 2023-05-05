@@ -21,6 +21,6 @@ class MobileGunter extends React.Component {
   }
 }
 
-const Comp = preall(MobileGunter, { allownotlogin: true });
+const Comp = preall(MobileGunter, { allownotlogin: false });
 
 ReactDOM.render(<Comp />, document.querySelector('#mobileGunter'));

@@ -64,12 +64,14 @@ export default class Delay extends Component {
 
     if (
       data.actionId === '301' &&
-      !data.numberFieldValue.fieldValue &&
+      (!data.numberFieldValue.fieldValue || data.numberFieldValue.fieldValue === '0') &&
       !data.numberFieldValue.fieldNodeId &&
-      !data.hourFieldValue.fieldValue &&
+      (!data.hourFieldValue.fieldValue || data.hourFieldValue.fieldValue === '0') &&
       !data.hourFieldValue.fieldNodeId &&
-      !data.minuteFieldValue.fieldValue &&
-      !data.minuteFieldValue.fieldNodeId
+      (!data.minuteFieldValue.fieldValue || data.minuteFieldValue.fieldValue === '0') &&
+      !data.minuteFieldValue.fieldNodeId &&
+      (!data.secondFieldValue.fieldValue || data.secondFieldValue.fieldValue === '0') &&
+      !data.secondFieldValue.fieldNodeId
     ) {
       alert(_l('时间不能为空'), 2);
       return;
@@ -137,24 +139,28 @@ export default class Delay extends Component {
       { key: 'numberFieldValue', text: _l('天') },
       { key: 'hourFieldValue', text: _l('小时') },
       { key: 'minuteFieldValue', text: _l('分钟') },
+      { key: 'secondFieldValue', text: _l('秒钟') },
     ];
 
     return (
       <Fragment>
-        <div className="Font14 Gray_75 workflowDetailDesc">{_l('在上一个节点完成后，延时一段时间再继续执行流程')}</div>
+        <div className="Font14 Gray_75 workflowDetailDesc">{_l('上一节点完成后，延时一段时间再继续执行流程')}</div>
         <div className="mTop25 bold">{_l('时间')}</div>
 
         {TYPES.map(({ key, text }) => {
           return (
             <Fragment key={key}>
               <div className="mTop15">{text}</div>
+              {key === 'secondFieldValue' && (
+                <div className="mTop5 Gray_9e">{_l('实际运行时停留的秒钟数可能比设置的时间略长')}</div>
+              )}
               <div className="mTop10">
                 <SpecificFieldsValue
                   processId={this.props.processId}
                   selectNodeId={this.props.selectNodeId}
                   updateSource={obj => this.updateSource({ [key]: obj })}
                   type={key}
-                  data={data[key]}
+                  data={data[key] || {}}
                 />
               </div>
             </Fragment>
@@ -193,12 +199,14 @@ export default class Delay extends Component {
             !(
               (data.actionId === '300' && !data.fieldValue && !data.fieldNodeId) ||
               (data.actionId === '301' &&
-                !data.numberFieldValue.fieldValue &&
+                (!data.numberFieldValue.fieldValue || data.numberFieldValue.fieldValue === '0') &&
                 !data.numberFieldValue.fieldNodeId &&
-                !data.hourFieldValue.fieldValue &&
+                (!data.hourFieldValue.fieldValue || data.hourFieldValue.fieldValue === '0') &&
                 !data.hourFieldValue.fieldNodeId &&
-                !data.minuteFieldValue.fieldValue &&
-                !data.minuteFieldValue.fieldNodeId)
+                (!data.minuteFieldValue.fieldValue || data.minuteFieldValue.fieldValue === '0') &&
+                !data.minuteFieldValue.fieldNodeId &&
+                (!data.secondFieldValue.fieldValue || data.secondFieldValue.fieldValue === '0') &&
+                !data.secondFieldValue.fieldNodeId)
             )
           }
           onSave={this.onSave}

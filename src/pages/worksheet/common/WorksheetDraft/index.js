@@ -382,7 +382,6 @@ function DraftModal(props) {
           loadDraftList={loadRows}
           currentSheetRows={records}
           addNewRecord={props.addNewRecord}
-          view={_.get(worksheetInfo, 'views[0]')}
         />
       )}
     </Modal>
@@ -391,7 +390,7 @@ function DraftModal(props) {
 export const openWorkSheetDraft = props => functionWrap(DraftModal, { ...props, closeFnName: 'onCancel' });
 
 function WorksheetDraft(props) {
-  const { appId, viewId, worksheetInfo = {}, sheetSwitchPermit, isCharge, sheetViewData = {}, view, allowAdd } = props;
+  const { appId, viewId, worksheetInfo = {}, sheetSwitchPermit, isCharge, sheetViewData = {},  allowAdd } = props;
   const { worksheetId } = worksheetInfo;
   const [draftDataCount, setDraftDataCount] = useState(props.draftDataCount);
 
@@ -411,7 +410,6 @@ function WorksheetDraft(props) {
             sheetSwitchPermit,
             isCharge,
             sheetViewData,
-            view,
             sheetViewData,
             allowAdd,
             addNewRecord: props.addNewRecord,

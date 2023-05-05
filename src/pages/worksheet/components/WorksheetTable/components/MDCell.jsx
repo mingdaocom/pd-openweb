@@ -26,6 +26,7 @@ export default function MDCell(props) {
     masterData,
     isSubList,
     rowHeight,
+    rowHeightEnum,
     updateCell = () => {},
     onCellClick = () => {},
     onFocusCell = () => {},
@@ -106,6 +107,7 @@ export default function MDCell(props) {
       rowFormData={rowFormData}
       masterData={masterData}
       rowHeight={rowHeight}
+      rowHeightEnum={rowHeightEnum}
       from={from === 21 ? from : 1}
       popupContainer={() => getPopupContainer(columnIndex <= fixedColumnCount)}
       projectId={projectId}

@@ -430,7 +430,6 @@ export default class CustomPage extends Component {
           this.removeFiltersGroup();
           this.$originComponents = components;
           updatePageInfo({ components, pageId, version, modified: false });
-          this.handleBack();
           alert(_l('保存成功'), 1);
         } else {
           alert(_l('保存失败'), 2);

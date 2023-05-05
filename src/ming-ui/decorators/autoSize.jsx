@@ -79,6 +79,7 @@ export default function (Comp, { onlyWidth } = {}) {
     updateWidth() {
       if (this.con) {
         this.clientWidth = this.con.clientWidth;
+        this.clientHeight = this.con.clientHeight;
         this.debounceHandleUpdate();
       }
     }

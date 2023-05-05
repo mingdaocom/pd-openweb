@@ -1,11 +1,9 @@
 import React from 'react';
 import sheetAjax from 'src/api/worksheet';
-import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import './content.less';
-import cx from 'classnames';
 import { getPrintContent, sortByShowControls, getVisibleControls, isRelation } from '../util';
 import TableRelation from './relationTable';
-import { ScrollView } from 'ming-ui';
+import { ScrollView, Qr } from 'ming-ui';
 import {
   TYPE_ACTION,
   TRIGGER_ACTION,
@@ -22,6 +20,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import _ from 'lodash';
 import moment from 'moment';
+import STYLE_PRINT from './exportWordPrintTemCssString';
 
 export default class Con extends React.Component {
   constructor(props) {
@@ -31,28 +30,22 @@ export default class Con extends React.Component {
       shareUrl: '',
     };
   }
+
   componentDidMount() {
     this.loadWorksheetShortUrl();
-    const { printData } = this.props;
-    $('.ant-table').css({
-      fontSize: printData.font || DEFAULT_FONT_SIZE,
-    });
   }
-  componentDidUpdate() {
-    const { printData } = this.props;
-    $('.ant-table').css({
-      fontSize: printData.font || DEFAULT_FONT_SIZE,
-    });
-  }
+
   componentWillReceiveProps(nextProps, nextState) {
     if (_.get(this.props, ['printData', 'shareType']) !== _.get(nextProps, ['printData', 'shareType'])) {
       this.loadWorksheetShortUrl(nextProps);
     }
   }
+
   loadWorksheetShortUrl = props => {
     let { appId, worksheetId, viewId, rowId, printId, type, from, printType, isDefault, projectId } = this.props.params;
     const { printData } = props || this.props;
     const { shareType = 0, rowIdForQr } = printData;
+
     // shareType 0 普通=>记录分享 1 对内=>记录详情
     if (shareType === 0) {
       sheetAjax
@@ -76,21 +69,22 @@ export default class Con extends React.Component {
             url = `${url}&&${printId}&&${projectId}`;
           }
           this.setState({
-            shareUrl: `${__api_server__.main}code/CreateQrCodeImage?url=${encodeURIComponent(url)}`,
+            shareUrl: url,
           });
         });
     } else {
       viewId = !viewId ? undefined : viewId;
-      let url = `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${rowId ||
-        rowIdForQr}`;
+      let url = `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${
+        rowId || rowIdForQr
+      }`;
       this.setState({
-        shareUrl: `${__api_server__.main}code/CreateQrCodeImage?url=${encodeURIComponent(url)}`,
+        shareUrl: url,
       });
     }
   };
 
   renderControls() {
-    const { params, printData, controls = [] } = this.props;
+    const { printData, controls = [] } = this.props;
     let { appId, worksheetId, viewId, rowId, type, from } = this.props.params;
     const { showData, printOption, rowIdForQr } = printData;
     let dataInfo = {
@@ -104,18 +98,38 @@ export default class Con extends React.Component {
       replaceHalfWithSizeControls(getVisibleControls(controls).filter(o => !UNPRINTCONTROL.includes(o.type))),
     );
     let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
+    const tableList = [];
+    let preRelationControls = false;
+    let colNum = 1;
+    Object.keys(controlData).map(key => {
+      const item = controlData[key];
+
+      let isRelationControls = item.length === 1 && isRelation(item[0]);
+
+      if (item.length > colNum) {
+        colNum = item.length;
+      }
+
+      if (isRelationControls || item[0].type === 22) {
+        tableList.push([item]);
+        preRelationControls = true;
+      } else if (tableList.length === 0 || preRelationControls) {
+        tableList[tableList.length] = [item];
+        preRelationControls = false;
+      } else {
+        tableList[tableList.length - 1].push(item);
+        preRelationControls = false;
+      }
+    });
+
     return (
-      <div className="listControls mTop18" style={{ fontSize: printData.font || DEFAULT_FONT_SIZE }}>
-        {Object.keys(controlData).map(key => {
-          const item = controlData[key];
-          //一行一个控件的显示
-          if (item.length === 1) {
-            //是否空值隐藏
+      <React.Fragment>
+        {tableList.map((tableData, tableIndex) => {
+          let isRelationControls = tableData.length === 1 && isRelation(tableData[0][0]);
+          //关联表多行列表/子表打印
+          if (isRelationControls) {
+            const item = tableData[0];
             if (isHideNull) {
-              if ([41, 10010, 14, 42].includes(item[0].type) && !item[0].value) {
-                //富文本、备注、附件、签名，是否空值隐藏
-                return '';
-              }
               if ([29, 34].includes(item[0].type)) {
                 //关联表,子表，是否空值隐藏
                 let records = [];
@@ -123,7 +137,7 @@ export default class Con extends React.Component {
                   records = JSON.parse(item[0].value);
                 } catch (err) {}
                 if (records.length <= 0) {
-                  return '';
+                  return null;
                 }
               }
             }
@@ -135,70 +149,177 @@ export default class Con extends React.Component {
                 item[0].type !== 22) ||
               (item[0].type === 22 && !item[0].checked)
             ) {
-              return '';
+              return null;
             }
-            let isRelationControls = isRelation(item[0]);
-            //关联表多行列表/子表打印
-            if (isRelationControls) {
-              return this.renderRelations(item[0]);
-            }
-            return (
-              <div className={cx('controlDiv', { splitLine: item[0].type === 22, remark: item[0].type === 10010 })}>
-                <div className='controlDivContents'>
-                  {/* 备注字段无标题 */}
-                  {item[0].type !== 10010 && <span className="title">{item[0].controlName}</span>}
-                  {/* 分段不计算value 走特殊显示方式 */}
-                  {item[0].type !== 22 && (
-                    <span className={cx('value', { value2: item[0].type === 2 })}>
-                      {getPrintContent({ ...item[0], showUnit: true, showData: isHideNull, printOption, ...dataInfo })}
-                    </span>
-                  )}
-                </div>
-              </div>
-            );
-          } else {
-            //一行多个控件的显示
-            let data = item.filter(it =>
-              this.isShow(getPrintContent({ ...it, showData: isHideNull, noUnit: true, ...dataInfo }), it.checked),
-            );
-            if (data.length > 0) {
-              return (
-                <div className="controlDiv">
-                  {data.map((it, i) => {
-                    return (
-                      <div
-                        className={cx('half', {
-                          // borderR: i == 0
-                        })}
-                        style={{ width: `${(it.size / 12) * 100}%` }}
-                      >
-                        <span className="title">{it.controlName || _l('未命名')}</span>
-                        <span className={cx('value', { value2: it.type === 2 })}>
-                          {getPrintContent({ ...it, showUnit: true, printOption, ...dataInfo })}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            }
+            return this.renderRelations(item[0]);
           }
+          let hideNum = 0;
+          if (tableData[0][0].type === 22) {
+            return tableData[0][0].checked ? (
+              <p
+                style={{
+                  lineHeight: 1.5,
+                  verticalAlign: top,
+                  width: '100%',
+                  borderBottom: '0.1px solid rgb(117, 117, 117)',
+                  fontSize: 15,
+                  fontWeight: 'bold',
+                  margin: '24px 0 5px',
+                }}
+              >
+                {tableData[0][0].controlName || ''}
+              </p>
+            ) : null;
+          }
+          return (
+            <table
+              style={{
+                ...STYLE_PRINT.table,
+                fontSize: printData.font || DEFAULT_FONT_SIZE,
+                marginTop: tableIndex === 0 ? 18 : 0,
+              }}
+              border="0"
+              cellPadding="0"
+              cellSpacing="0"
+            >
+              {Object.keys(tableData).map((key, itemIndex) => {
+                const item = tableData[key];
+                //一行一个控件的显示
+                if (item.length === 1) {
+                  if (isHideNull) {
+                    if ([41, 10010, 14, 42].includes(item[0].type) && !item[0].value) {
+                      //富文本、备注、附件、签名，是否空值隐藏0
+                      hideNum++;
+                      return '';
+                    }
+                    if ([29, 34].includes(item[0].type)) {
+                      //关联表,子表，是否空值隐藏
+                      let records = [];
+                      try {
+                        records = JSON.parse(item[0].value);
+                      } catch (err) {}
+                      if (records.length <= 0) {
+                        hideNum++;
+                        return '';
+                      }
+                    }
+                  }
+                  if (
+                    (!this.isShow(
+                      getPrintContent({ ...item[0], showData: isHideNull, noUnit: true, ...dataInfo }),
+                      item[0].checked,
+                    ) &&
+                      item[0].type !== 22) ||
+                    (item[0].type === 22 && !item[0].checked)
+                  ) {
+                    hideNum++;
+                    return '';
+                  }
+                  let expStyle = {
+                    borderBottom: '0.1px solid #ddd',
+                    borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
+                  };
+
+                  return item[0].type !== 10010 || item[0].value ? (
+                    <tr style={STYLE_PRINT.controlDiv}>
+                      {/* 备注字段无标题 */}
+                      {item[0].type !== 10010 && (
+                        <td
+                          width="78"
+                          style={{
+                            ...STYLE_PRINT.controlDiv_span,
+                            ...STYLE_PRINT.controlDiv_span_title,
+                            ...expStyle,
+                          }}
+                        >
+                          {item[0].controlName}
+                        </td>
+                      )}
+                      {/* 分割线不计算value 走特殊显示方式 */}
+                      <td
+                        style={{
+                          ...STYLE_PRINT.controlDiv_span,
+                          ...STYLE_PRINT.controlDiv_span_value,
+                          ...expStyle,
+                        }}
+                        width={item[0].type !== 10010 ? '650' : '100%'}
+                        colSpan={item[0].type !== 10010 ? colNum * 2 - 1 : colNum * 2}
+                      >
+                        {getPrintContent({
+                          ...item[0],
+                          showUnit: true,
+                          showData: isHideNull,
+                          printOption,
+                          ...dataInfo,
+                        })}
+                      </td>
+                    </tr>
+                  ) : null;
+                } else {
+                  //一行多个控件的显示
+                  let data = item.filter(it =>
+                    this.isShow(
+                      getPrintContent({ ...it, showData: isHideNull, noUnit: true, ...dataInfo }),
+                      it.checked,
+                    ),
+                  );
+
+                  let allCountSize = _.sum(data.map(item => item.size));
+
+                  if (data.length > 0) {
+                    return (
+                      <tr style={STYLE_PRINT.controlDiv}>
+                        {data.map((it, i) => {
+                          return (
+                            <React.Fragment>
+                              <td
+                                style={{
+                                  ...STYLE_PRINT.controlDiv_span,
+                                  ...STYLE_PRINT.controlDiv_span_title,
+                                  borderLeft: i === 0 ? 'none' : '0.1px solid rgb(221, 221, 221)',
+                                  width: '78px',
+                                  borderBottom: '0.1px solid #ddd',
+                                  borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
+                                }}
+                              >
+                                {it.controlName || _l('未命名')}
+                              </td>
+                              <td
+                                style={{
+                                  ...STYLE_PRINT.controlDiv_span,
+                                  ...STYLE_PRINT.controlDiv_span_value,
+                                  overflow: 'hidden',
+                                  width: data.length !== 1 ? `${728 * (it.size / allCountSize) - 78}px` : 'calc(100% - 78px)',
+                                  borderBottom: '0.1px solid #ddd',
+                                  borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
+                                }}
+                                width={data.length !== 1 ? `${728 * (it.size / allCountSize) - 78}` : '650'}
+                                colSpan={Math.round((colNum * 2 - data.length) * (it.size / allCountSize))}
+                              >
+                                {getPrintContent({ ...it, showUnit: true, printOption, ...dataInfo })}
+                              </td>
+                            </React.Fragment>
+                          );
+                        })}
+                      </tr>
+                    );
+                  } else {
+                    hideNum++;
+                    return null;
+                  }
+                }
+              })}
+            </table>
+          );
         })}
-      </div>
+      </React.Fragment>
     );
   }
 
   renderRelations = tableList => {
     const { printData, handChange, params } = this.props;
-    const { printId, type, from, printType, isDefault, worksheetId } = params;
-    const {
-      showData,
-      receiveControls = [],
-      relations = [],
-      controlStyles = [],
-      relationStyle = [],
-      orderNumber = [],
-    } = printData;
+    const { type, from } = params;
+    const { showData, relationStyle = [], orderNumber = [] } = printData;
     let orderNumberCheck = (orderNumber.find(o => o.receiveControlId === tableList.controlId) || []).checked;
     let relationControls = tableList.relationControls || [];
     let relationsList = tableList.relationsData || {};
@@ -235,7 +356,7 @@ export default class Con extends React.Component {
         }
       });
     }
-    //关联表富文本不不显示 分段 嵌入不显示 扫码47暂不支持关联表显示(表单配置处隐藏了)
+    //关联表富文本不不显示 分割线 嵌入不显示 扫码47暂不支持关联表显示(表单配置处隐藏了)
     controls = controls.filter(
       it => ![41, 22, 45, 47].includes(it.type) && !(it.type === 30 && it.sourceControlType === 41),
     );
@@ -273,14 +394,29 @@ export default class Con extends React.Component {
     //   viewIdForPermit: viewId,
     //   controls,
     // };
+    let sign = !relationStyleNum.type || relationStyleNum.type === 1;
     return (
       <React.Fragment>
-        <p className={cx('relationsTitle Font15', { tableP: !relationStyleNum.type || relationStyleNum.type === 1 })}>
+        <p
+          style={_.assign(STYLE_PRINT.relationsTitle, STYLE_PRINT.Font15, sign ? STYLE_PRINT.pRelations : {})}
+          className="relationsTitle"
+        >
           {tableList.controlName || _l('未命名')}
           {type !== typeForCon.PREVIEW && (
-            <ul>
+            <ul
+              className="noPrint"
+              style={{
+                ...STYLE_PRINT.tag,
+                float: 'right',
+              }}
+            >
               <li
-                className={cx({ current: !relationStyleNum.type || relationStyleNum.type === 1 })}
+                style={{
+                  ...STYLE_PRINT.relations_Ul_Li,
+                  border: sign ? '0.1px solid #2196f3' : '0.1px solid #bdbdbd',
+                  color: sign ? '#2196f3' : '#bdbdbd',
+                  zIndex: sign ? 1 : 0,
+                }}
                 onClick={() => {
                   setStyle(1);
                 }}
@@ -288,7 +424,12 @@ export default class Con extends React.Component {
                 {_l('表格')}
               </li>
               <li
-                className={cx({ current: !(!relationStyleNum.type || relationStyleNum.type === 1) })}
+                style={{
+                  ...STYLE_PRINT.relations_Ul_Li,
+                  border: !sign ? '0.1px solid #2196f3' : '0.1px solid #bdbdbd',
+                  color: !sign ? '#2196f3' : '#bdbdbd',
+                  zIndex: !sign ? 1 : 0,
+                }}
                 onClick={() => {
                   setStyle(2);
                 }}
@@ -309,68 +450,97 @@ export default class Con extends React.Component {
             handChange={handChange}
             isShowFn={this.isShow}
             showData={isHideNull}
+            style={{
+              fontSize: printData.font || DEFAULT_FONT_SIZE,
+            }}
           />
         ) : (
           // 平铺
           <React.Fragment>
-            <div className="relationsList">
+            <div style={{ marginBottom: 24 }}>
               {list.map((o, i) => {
                 if (controls.length <= 0) {
                   return '';
                 }
+                let controlList = controls.filter(it => {
+                  let data = {
+                    ...it,
+                    value: o[it.controlId],
+                    isRelateMultipleSheet: true,
+                    showUnit: true,
+                  };
+                  return this.isShow(
+                    getPrintContent({
+                      ...data,
+                      showData: isHideNull,
+                      noUnit: true,
+                    }),
+                    true,
+                  );
+                });
+
                 return (
-                  <div className="listCon" style={{ fontSize: printData.font || DEFAULT_FONT_SIZE }}>
+                  <React.Fragment>
                     {orderNumberCheck && (
-                      <h5 style={{ fontSize: printData.font || DEFAULT_FONT_SIZE }}>
+                      <h5
+                        style={{
+                          ...STYLE_PRINT.relationsList_listCon_h5,
+                          fontSize: printData.font || DEFAULT_FONT_SIZE,
+                        }}
+                      >
                         {tableList.sourceEntityName || _l('记录')} {i + 1}
                       </h5>
                     )}
-                    {controls.map(it => {
-                      let data = {
-                        ...it,
-                        value: o[it.controlId],
-                        isRelateMultipleSheet: true,
-                        showUnit: true,
-                      };
-                      if ([29].includes(it.type)) {
-                        let list = (it.relationControls || []).find(o => o.attribute === 1) || {};
-                        if (list.type && ![29, 30].includes(list.type)) {
-                          data = { ...data, sourceControlType: list.type, advancedSetting: list.advancedSetting };
-                        }
-                      }
-                      if (
-                        !this.isShow(
-                          getPrintContent({
-                            ...data,
-                            showData: isHideNull,
-                            noUnit: true,
-                          }),
-                          true,
-                        )
-                      ) {
-                        return;
-                      }
-                      return (
-                        <div className={cx('relationsListLi', {})}>
-                          <span className="title">{it.controlName || _l('未命名')}</span>
-                          <span className="value">
-                            {getPrintContent({
-                              ...data,
-                              // ...{
-                              //   controls: relationControls.map(it => {
-                              //     return { ...it, value: o[it.controlId] };
-                              //   }),
-                              //   recordId: it.rowid,
-                              //   worksheetId: it.wsid,
-
-                              //   // viewIdForPermit: viewId,
-                              // },
-                            })}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                    {controlList.length > 0 && (
+                      <table
+                        width="100%"
+                        style={{
+                          ...STYLE_PRINT.table,
+                          fontSize: printData.font || DEFAULT_FONT_SIZE,
+                        }}
+                        border="0"
+                        cellPadding="0"
+                        cellSpacing="0"
+                      >
+                        {controlList.map((it, index) => {
+                          let data = {
+                            ...it,
+                            value: o[it.controlId],
+                            isRelateMultipleSheet: true,
+                            showUnit: true,
+                          };
+                          if ([29].includes(it.type)) {
+                            let list = (it.relationControls || []).find(o => o.attribute === 1) || {};
+                            if (list.type && ![29, 30].includes(list.type)) {
+                              data = { ...data, sourceControlType: list.type, advancedSetting: list.advancedSetting };
+                            }
+                          }
+                          let expStyle =
+                            index + 1 === controlList.length
+                              ? {
+                                  borderBottom: '0.1px solid #ddd',
+                                  paddingBottom: 10,
+                                }
+                              : {
+                                  paddingTop: 5,
+                                };
+                          return (
+                            <tr>
+                              <td
+                                style={{
+                                  ...STYLE_PRINT.controlDiv_span_title,
+                                  ...expStyle,
+                                }}
+                              >
+                                {it.controlName || _l('未命名')}
+                              </td>
+                              <td style={expStyle}>{getPrintContent(data)}</td>
+                            </tr>
+                          );
+                        })}
+                      </table>
+                    )}
+                  </React.Fragment>
                 );
               })}
             </div>
@@ -387,49 +557,130 @@ export default class Con extends React.Component {
     const visibleItemLength = works.filter(item => item.checked).length;
     let name = _works ? _name : processName;
     return (
-      <div className="worksTable">
-        {visibleItemLength ? <div className="Font15 bold mBottom12">{name}</div> : null}
+      <div style={{ marginTop: 24 }}>
+        {visibleItemLength ? <div style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 12 }}>{name}</div> : null}
         {works.map((item, index) => (
           <div
-            className="workDetail clearfix "
+            className="clearfix"
             key={index}
             style={{ display: item.checked ? 'block' : 'none', fontSize: printData.font || DEFAULT_FONT_SIZE }}
           >
-            <div className="workName mTop0">{item.flowNode.name}</div>
-            <div className="workPersons">
-              <table className="mBottom16">
+            <div style={{ marginTop: 0 }}>{item.flowNode.name}</div>
+            <div style={{ marginTop: 10 }}>
+              <table
+                style={{
+                  ...STYLE_PRINT.table,
+                  marginBottom: 16,
+                  width: '100%',
+                  borderSpacing: 0,
+                  fontSize: 12,
+                }}
+              >
                 <tbody>
                   <tr>
-                    <th style={{ width: '25%' }}>{TYPE_ACTION[item.workItems[0].type]}</th>
-                    <th style={{ width: '22%' }}>{_l('操作')}</th>
-                    <th style={{ width: '19%' }}>{_l('操作时间')}</th>
-                    <th>{_l('备注')}</th>
+                    <th
+                      style={{
+                        ...STYLE_PRINT.worksTable_workPersons_th,
+                        width: '25%',
+                        borderTop: '0.1px solid #333',
+                        backgroundColor: '#fafafa',
+                        borderLeft: 0,
+                      }}
+                    >
+                      {TYPE_ACTION[item.workItems[0].type]}
+                    </th>
+                    <th
+                      style={{
+                        ...STYLE_PRINT.worksTable_workPersons_th,
+                        width: '22%',
+                        borderTop: '0.1px solid #333',
+                        backgroundColor: '#fafafa',
+                      }}
+                    >
+                      {_l('操作')}
+                    </th>
+                    <th
+                      style={{
+                        ...STYLE_PRINT.worksTable_workPersons_th,
+                        width: '19%',
+                        borderTop: '0.1px solid #333',
+                        backgroundColor: '#fafafa',
+                      }}
+                    >
+                      {_l('操作时间')}
+                    </th>
+                    <th
+                      style={{
+                        ...STYLE_PRINT.worksTable_workPersons_th,
+                        borderTop: '0.1px solid #333',
+                        backgroundColor: '#fafafa',
+                      }}
+                    >
+                      {_l('备注')}
+                    </th>
                   </tr>
                   {item.workItems.map((workItem, workItemIndex) => {
                     const { workItemLog, signature } = workItem;
                     return (
                       <tr key={workItemIndex}>
-                        <td>
-                          <span className="controlName TxtMiddle">{workItem.workItemAccount.fullName}</span>
-                        </td>
-                        <td>
-                          <span className="controlName TxtMiddle">
-                            {workItem.type === 0
-                              ? TRIGGER_ACTION[Number(item.flowNode.triggerId)]
-                              : workItem.workItemLog && OPERATION_LOG_ACTION[workItem.workItemLog.action]}
+                        <td
+                          style={{
+                            ...STYLE_PRINT.worksTable_workPersons_td,
+                            width: '25%',
+                            borderLeft: 0,
+                            borderBottom:
+                              workItemIndex + 1 === item.workItems.length ? '0.1px solid #333' : '0.1px solid #ddd',
+                          }}
+                        >
+                          <span style={{ verticalAlign: 'middle' }} className="controlName">
+                            {workItem.workItemAccount.fullName}
                           </span>
                         </td>
-                        <td>
-                          <span className="controlName TxtMiddle">{workItem.operationTime}</span>
+                        <td
+                          style={{
+                            ...STYLE_PRINT.worksTable_workPersons_td,
+                            width: '22%',
+                            borderBottom:
+                              workItemIndex + 1 === item.workItems.length ? '0.1px solid #333' : '0.1px solid #ddd',
+                          }}
+                        >
+                          <span style={{ verticalAlign: 'middle' }} className="controlName">
+                            {workItem.type === 0
+                              ? TRIGGER_ACTION[Number(item.flowNode.triggerId)]
+                              : workItem.workItemLog &&
+                                (workItem.workItemLog.action === 5 && workItem.workItemLog.actionTargetName
+                                  ? _l('退回到%0', workItem.workItemLog.actionTargetName)
+                                  : OPERATION_LOG_ACTION[workItem.workItemLog.action])}
+                          </span>
                         </td>
-                        <td>
-                          <span className="controlName TxtMiddle">{workItem.opinion}</span>
+                        <td
+                          style={{
+                            ...STYLE_PRINT.worksTable_workPersons_td,
+                            width: '19%',
+                            borderBottom:
+                              workItemIndex + 1 === item.workItems.length ? '0.1px solid #333' : '0.1px solid #ddd',
+                          }}
+                        >
+                          <span style={{ verticalAlign: 'middle' }} className="controlName">
+                            {workItem.operationTime}
+                          </span>
+                        </td>
+                        <td
+                          style={{
+                            ...STYLE_PRINT.worksTable_workPersons_td,
+                            borderBottom:
+                              workItemIndex + 1 === item.workItems.length ? '0.1px solid #333' : '0.1px solid #ddd',
+                          }}
+                        >
+                          <span style={{ verticalAlign: 'middle' }} className="controlName">
+                            {workItem.opinion}
+                          </span>
                           {workItemLog &&
                             workItemLog.fields &&
                             workItemLog.fields.map(({ name, toValue }) => <span>{_l('%0: %1', name, toValue)}</span>)}
                           <br />
                           {signature ? (
-                            <div className="infoSignature">
+                            <div style={STYLE_PRINT.worksTable_workPersons_infoSignature} className="infoSignature">
                               {signature.server && <img src={`${signature.server}`} alt="" srcset="" height="100" />}
                             </div>
                           ) : null}
@@ -521,11 +772,70 @@ export default class Con extends React.Component {
     return false;
   };
 
+  renderSysTable = () => {
+    const { printData } = this.props;
+    let sysFeild = ['ownerAccount', 'createAccount', 'createTime', 'updateAccount', 'updateTime'].filter(o =>
+      this.isShow(printData[o], printData[o + 'Checked']),
+    );
+    let hasCreateGroup = sysFeild.includes('createAccount') && sysFeild.includes('createTime');
+    let hasUpdateGroup = sysFeild.includes('updateAccount') && sysFeild.includes('updateTime');
+    let trGroup = _.chunk(
+      _.flatMap(sysFeild, (item, index) => {
+        if (
+          index === 0 &&
+          ((sysFeild[index + 1] === 'createAccount' && hasCreateGroup) ||
+            (sysFeild[index + 1] === 'updateAccount' && hasUpdateGroup))
+        ) {
+          return [item, undefined];
+        } else {
+          return item;
+        }
+      }),
+      2,
+    );
+
+    return (
+      <table
+        style={{
+          ...STYLE_PRINT.table,
+          marginTop: 10,
+          fontSize: 13,
+        }}
+        border="0"
+        cellPadding="0"
+        cellSpacing="0"
+      >
+        {trGroup.map(trList => {
+          return (
+            <tr>
+              {trList.map(it => {
+                return (
+                  <td style={{ width: '50%' }}>
+                    {it ? (
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          paddingBottom: '10px',
+                        }}
+                      >
+                        {SYSTOPRINTTXT[it]}
+                        {printData[it]}
+                      </span>
+                    ) : null}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })}
+      </table>
+    );
+  };
+
   render() {
     const { loading, shareUrl } = this.state;
-    const { params, printData, controls, signature } = this.props;
-    const { receiveControls = [], workflow = [], showData, approval = [], attributeName } = printData;
-    let wrap = false;
+    const { printData, controls, signature } = this.props;
+    const { workflow = [], approval = [], attributeName } = printData;
     return (
       <div className="flex">
         {loading ? (
@@ -534,104 +844,138 @@ export default class Con extends React.Component {
           <ScrollView>
             <div className="printContent flex clearfix pTop20" id="printContent">
               {this.isShow(printData.companyName, printData.companyNameChecked) && (
-                <h5 className="companyName">
+                <p style={STYLE_PRINT.companyName}>
                   {
                     printData.companyName // 公司名称
                   }
-                </h5>
+                </p>
               )}
               {(printData.logoChecked || printData.formNameChecked || printData.qrCode) && (
-                <div className="titleContent clearfix mBottom25">
-                  <span className="logo">
-                    {this.isShow(printData.projectLogo, printData.logoChecked) && (
-                      <img src={printData.projectLogo} alt="" height={60} />
-                    )}
-                  </span>
-                  <span className="font22 reqTitle">
-                    {this.isShow(printData.formName, printData.formNameChecked) ? printData.formName : ''}
-                  </span>
-                  <span className="qrCode">
-                    {this.isShow(shareUrl, printData.qrCode) && <img src={shareUrl} alt="" height={80} />}
-                  </span>
-                </div>
+                <table style={STYLE_PRINT.table} border="0" cellPadding="0" cellSpacing="0">
+                  <tr>
+                    <td
+                      style={{
+                        width: '33.3%',
+                      }}
+                    >
+                      <span style={{ flex: 1, paddingTop: 10 }}>
+                        {this.isShow(printData.projectLogo, printData.logoChecked) && (
+                          <img src={printData.projectLogo} alt="" height={60} style={STYLE_PRINT.img} />
+                        )}
+                      </span>
+                    </td>
+                    <td style={{ width: '33.3%', textAlign: 'center' }}>
+                      <span style={STYLE_PRINT.reqTitle}>
+                        {this.isShow(printData.formName, printData.formNameChecked) ? printData.formName : ''}
+                      </span>
+                    </td>
+                    <td style={{ width: '33.3%', textAlign: 'right' }}>
+                      <span style={{ flex: 1, textAlign: 'right' }}>
+                        {this.isShow(shareUrl, printData.qrCode) && <Qr content={shareUrl} width={80} height={80} />}
+                      </span>
+                    </td>
+                  </tr>
+                </table>
               )}
-              <div className="createBy">
-                {/* 标题 */}
-                <h6 className="Font18">{printData.titleChecked && attributeName}</h6>
-                {this.getNumSys() > 0 && (
-                  <div className="mTop10 sysBox">
-                    {this.getNumSys() >= 5 ? (
-                      <React.Fragment>
-                        <span className="mBottom10 TxtLeft">
-                          {_l('拥有者：')}
-                          {printData.ownerAccount}
-                        </span>
-                        <div className="clear" />
-                        <span className="TxtLeft mBottom10">
-                          {_l('创建者：')}
-                          {printData.createAccount}
-                        </span>
-                        <span className="TxtLeft mBottom10">
-                          {_l('创建时间：')}
-                          {printData.createTime}
-                        </span>
-                        <span className="TxtLeft mBottom10">
-                          {_l('最近修改人：')}
-                          {printData.updateAccount}
-                        </span>
-                        <span className="TxtLeft mBottom10">
-                          {_l('最近修改时间：')}
-                          {printData.updateTime}
-                        </span>
-                      </React.Fragment>
-                    ) : (
-                      <div className={`sysBox${this.getNumSys() === 1 ? '' : 2}`}>
-                        {['ownerAccount', 'createAccount', 'createTime', 'updateAccount', 'updateTime'].map(o => {
-                          if (this.isShow(printData[o], printData[o + 'Checked'])) {
-                            let _wrap = wrap;
-                            if (!wrap) {
-                              wrap = true;
-                            }
-                            return (
-                              <React.Fragment>
-                                <span className="mBottom10">
-                                  {SYSTOPRINTTXT[o]}
-                                  {printData[o]}
-                                </span>
-                                {this.createByNeedWrap() && !_wrap && <div className="clear" />}
-                              </React.Fragment>
-                            );
-                          }
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+              {/* 标题 */}
+              <p style={STYLE_PRINT.createBy_h6}>{printData.titleChecked && attributeName}</p>
+              {this.getNumSys() > 0 && this.renderSysTable()}
               {_.isEmpty(controls) ? undefined : this.renderControls()}
               {/* 工作流 */}
               {workflow.length > 0 && this.renderWorks()}
               {approval.length > 0 && this.renderApproval()}
               {/* 签名字段 */}
               {signature.length > 0 && signature.filter(item => item.checked).length > 0 ? (
-                <div className="flexRow mTop50 pBottom30 signatureContentWrapper">
-                  {signature
-                    .filter(item => this.isShow(item.value, item.checked))
-                    .map(item => (
-                      <div key={item.controlId}>
-                        <div className="bold">{item.controlName}</div>
-                        <img className="mTop10" src={item.value} />
-                      </div>
-                    ))}
-                </div>
+                <table
+                  style={{
+                    ...STYLE_PRINT.table,
+                    marginTop: 50,
+                    marginBottom: 30,
+                    width: 'auto',
+                    marginLeft: 56,
+                  }}
+                  border="0"
+                  cellPadding="0"
+                  cellSpacing="0"
+                >
+                  {_.chunk(
+                    signature.filter(item => this.isShow(item.value, item.checked)),
+                    4,
+                  ).map((tdList, index) => {
+                    return (
+                      <tr key={`signature-tr-${index}`} style={{ verticalAlign: 'top' }}>
+                        <td
+                          width={168}
+                          style={{
+                            width: 168,
+                            height: 100,
+                          }}
+                        >
+                          {tdList[3] ? (
+                            <React.Fragment>
+                              <div style={{ fontWeight: 'bold' }}>{tdList[3].controlName}</div>
+                              <img style={{ marginTop: 10, width: '168px' }} src={tdList[3].value} />
+                            </React.Fragment>
+                          ) : null}
+                        </td>
+                        <td
+                          width={168}
+                          style={{
+                            width: 168,
+                            height: 100,
+                          }}
+                        >
+                          {tdList[2] ? (
+                            <React.Fragment>
+                              <div style={{ fontWeight: 'bold' }}>{tdList[2].controlName}</div>
+                              <img style={{ marginTop: 10, width: '168px' }} src={tdList[2].value} />
+                            </React.Fragment>
+                          ) : null}
+                        </td>
+                        <td
+                          width={168}
+                          style={{
+                            width: 168,
+                            height: 100,
+                          }}
+                        >
+                          {tdList[1] ? (
+                            <React.Fragment>
+                              <div style={{ fontWeight: 'bold' }}>{tdList[1].controlName}</div>
+                              <img style={{ marginTop: 10, width: '168px' }} src={tdList[1].value} />
+                            </React.Fragment>
+                          ) : null}
+                        </td>
+                        <td
+                          width={168}
+                          style={{
+                            width: 168,
+                            height: 100,
+                          }}
+                        >
+                          {tdList[0] ? (
+                            <React.Fragment>
+                              <div style={{ fontWeight: 'bold' }}>{tdList[0].controlName}</div>
+                              <img style={{ marginTop: 10, width: '168px' }} src={tdList[0].value} />
+                            </React.Fragment>
+                          ) : null}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </table>
               ) : null}
               {printData.printTime && (
-                <div className="clearfix createBy  mTop15">
-                  <span className="Right">
-                    {_l('打印时间：')}
-                    {moment().format('YYYY-MM-DD HH:mm:ss')}
-                  </span>
-                </div>
+                <p
+                  style={{
+                    marginTop: 15,
+                    textAlign: 'right',
+                    width: '100%',
+                  }}
+                >
+                  {_l('打印时间：')}
+                  {moment().format('YYYY-MM-DD HH:mm:ss')}
+                </p>
               )}
             </div>
           </ScrollView>

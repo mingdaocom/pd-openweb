@@ -225,6 +225,7 @@ export default function GunterSet(props) {
             editAttrs: ['advancedSetting'],
           });
         }}
+        advancedSetting={view.advancedSetting}
         navfilters={navfilters}
         filterInfo={{
           allControls: worksheetControls,

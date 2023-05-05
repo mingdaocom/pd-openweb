@@ -31,20 +31,22 @@ export default function AppItemTrash(props) {
     if (args.pageIndex) {
       setPageIndex(args.pageIndex);
     }
-    appManagementAjax.getAppItemRecoveryList({
-      keyword: _.isUndefined(args.keyword) ? keyword : args.keyword,
-      pageIndex: args.pageIndex || pageIndex,
-      pageSize: 14,
-      projectId,
-      appId,
-    }).then(data => {
-      if (data.length) {
-        setAppItems(oldData => oldData.concat(data));
-      } else {
-        setLoadOuted(true);
-      }
-      setLoading(false);
-    });
+    appManagementAjax
+      .getAppItemRecoveryList({
+        keyword: _.isUndefined(args.keyword) ? keyword : args.keyword,
+        pageIndex: args.pageIndex || pageIndex,
+        pageSize: 14,
+        projectId,
+        appId,
+      })
+      .then(data => {
+        if (data.length) {
+          setAppItems(oldData => oldData.concat(data));
+        } else {
+          setLoadOuted(true);
+        }
+        setLoading(false);
+      });
   }
   useEffect(load, []);
   return (
@@ -53,7 +55,7 @@ export default function AppItemTrash(props) {
         loading={loading}
         title={_l('回收站（应用项）')}
         searchPlaceholder={_l('应用项名称')}
-        desc={_l('可恢复60天内删除的应用项')}
+        desc={_l('可恢复%0天内删除的应用项', md.global.SysSettings.appItemRecycleDays)}
         columns={[
           {
             name: _l('应用项名称'),
@@ -79,7 +81,7 @@ export default function AppItemTrash(props) {
               url={
                 appItem.iconUrl.startsWith('http')
                   ? appItem.iconUrl
-                  : `https://fp1.mingdaoyun.cn/customIcon/${appItem.iconUrl}.svg`
+                  : `${md.global.FileStoreConfig.pubHost.replace(/\/$/, '')}/customIcon/${appItem.iconUrl}.svg`
               }
               fill="#2196f3"
               size={34}
@@ -120,11 +122,12 @@ export default function AppItemTrash(props) {
           } else {
             setPendingCache(appItem.id, true);
           }
-          appManagementAjax.appItemRecovery({
-            id: appItem.id,
-            projectId,
-            appId,
-          })
+          appManagementAjax
+            .appItemRecovery({
+              id: appItem.id,
+              projectId,
+              appId,
+            })
             .then(isSuccess => {
               if (isSuccess) {
                 setAppItems(items => items.filter(t => t.id !== appItem.id));
@@ -150,14 +153,15 @@ export default function AppItemTrash(props) {
             description: _l('彻底删除该数据后，将无法恢复。'),
             okText: _l('彻底删除'),
             onOk: () => {
-              appManagementAjax.removeWorkSheetForApp({
-                appId,
-                projectId,
-                appSectionId: needDeleteItem.appSectionId,
-                workSheetId: needDeleteItem.id,
-                type: needDeleteItem.type,
-                isPermanentlyDelete: true,
-              })
+              appManagementAjax
+                .removeWorkSheetForApp({
+                  appId,
+                  projectId,
+                  appSectionId: needDeleteItem.appSectionId,
+                  workSheetId: needDeleteItem.id,
+                  type: needDeleteItem.type,
+                  isPermanentlyDelete: true,
+                })
                 .then(isSuccess => {
                   if (isSuccess) {
                     setAppItems(items => items.filter(t => t.id !== appItems[itemIndex].id));

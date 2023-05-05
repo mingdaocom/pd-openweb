@@ -164,7 +164,7 @@ export const DEFAULT_CONFIG = {
   },
   SPLIT_LINE: {
     icon: 'menu',
-    widgetName: _l('分段'),
+    widgetName: _l('分割线'),
     intro: _l('对表单进行分段'),
     minSize: WHOLE_SIZE,
   },
@@ -486,6 +486,7 @@ export const DEFAULT_DATA = {
     controlName: _l('关联记录'),
     advancedSetting: {
       allowlink: '1',
+      searchrange: '1',
     },
     size: 12,
     strDefault: '000',
@@ -781,3 +782,6 @@ export const SYS_CONTROLS = [
 ];
 //审批相关系统字段
 export const SYS_CONTROLS_WORKFLOW = ['wfname', 'wfcuaids', 'wfcaid', 'wfctime', 'wfrtime', 'wfftime', 'wfstatus'];
+
+// 所有控件
+export const ALL_WIDGETS_TYPE = { ...COMMON_USE_WIDGETS, ...ADVANCE_WIDGETS, ...RELATE_WIDGETS, ...SPECIAL_WIDGETS };

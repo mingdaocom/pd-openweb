@@ -1,6 +1,6 @@
 import React from 'react';
 import DocumentTitle from 'react-document-title';
-import APIWrap from 'src/pages/integration/containers/APIWrap/index.jsx';
+import APIWrap from 'src/pages/integration/apiIntegration/APIWrap/index.jsx';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 const Wrap = styled.div`

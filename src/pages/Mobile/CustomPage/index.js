@@ -13,6 +13,7 @@ import { loadSDK } from 'src/components/newCustomFields/tools/utils';
 import WidgetDisplay from './WidgetDisplay';
 import { getEnumType } from 'src/pages/customPage/util';
 import AppPermissions from '../components/AppPermissions';
+import workflowPushSoket from 'mobile/Record/socket/workflowPushSoket';
 import 'react-grid-layout/css/styles.css';
 import _ from 'lodash';
 
@@ -86,6 +87,9 @@ export default class CustomPage extends Component {
   }
   componentDidMount() {
     this.getPage(this.props);
+    if (!isMingdao) {
+      workflowPushSoket();
+    }
     loadSDK();
   }
   componentWillReceiveProps(nextProps) {
@@ -94,6 +98,12 @@ export default class CustomPage extends Component {
     if (newParams.worksheetId !== params.worksheetId) {
       this.getPage(nextProps);
     }
+  }
+  componentWillUnmount() {
+    $(window).off('orientationchange');
+    if (!window.IM) return;
+    IM.socket.off('workflow_push');
+    IM.socket.off('workflow');
   }
   getPage(props) {
     const { params } = props.match;
@@ -144,9 +154,6 @@ export default class CustomPage extends Component {
     $(window).bind('orientationchange', () => {
       location.reload();
     });
-  }
-  componentWillUnmount() {
-    $(window).off('orientationchange');
   }
   renderLoading() {
     return (

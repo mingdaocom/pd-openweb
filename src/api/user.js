@@ -1,5 +1,19 @@
 export default {
   /**
+  * 获取联系人在组织中的状态
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织Id
+  * @param {string} args.userContact 用户的联系方式
+  * @param {string} args.departmentId 部门Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getUserOrgState: function (args, options = {}) {
+     
+     return $.api('User', 'GetUserOrgState', args, options);
+   },
+  /**
   * 分页 获取一般用户列表
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id

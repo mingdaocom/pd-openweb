@@ -8,7 +8,7 @@ import _ from 'lodash';
 
 function FilterDefaultValue(props) {
   const { appPkg, filter, setFilter, firstControlData } = props;
-  const { filterType, advancedSetting } = filter;
+  const { filterType, advancedSetting = {} } = filter;
   const { projectId, id } = appPkg;
   const { direction } = advancedSetting;
   const defsource = _.pick(filter, 'dateRange', 'value', 'values', 'minValue', 'maxValue');
@@ -30,7 +30,7 @@ function FilterDefaultValue(props) {
               ...change,
             };
             setFilter({
-              ..._.pick(data, 'dateRange', 'filterType', 'value', 'values', 'minValue', 'maxValue')
+              ..._.pick(data, 'dateRange', 'filterType', 'value', 'values', 'minValue', 'maxValue'),
             });
           }}
         />
@@ -40,6 +40,5 @@ function FilterDefaultValue(props) {
 }
 
 export default connect(state => ({
-  appPkg: state.appPkg
+  appPkg: state.appPkg,
 }))(FilterDefaultValue);
-

@@ -2,26 +2,18 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
 import cx from 'classnames';
-import {
-  WingBlank,
-  WhiteSpace,
-  Card,
-  List,
-  Flex,
-  ActionSheet,
-  Modal,
-  ActivityIndicator,
-  Button,
-  Switch,
-} from 'antd-mobile';
+import { List, Flex, ActionSheet, Modal, ActivityIndicator, Button } from 'antd-mobile';
 import { Icon, Dialog } from 'ming-ui';
-import DialogSelectDept from 'src/components/dialogSelectDept';
-import { ROLE_TYPES, ROLE_CONFIG } from 'src/pages/Role/config.js';
+import { sysRoleType } from 'src/pages/Role/config.js';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
 import noMmberImg from '../img/noMember.png';
 import Back from '../../components/Back';
 import SelectUser from '../../components/SelectUser';
 import SelectJob from '../../components/SelectJob';
 import SelectOrgRole from '../../components/SelectOrgRole';
+import AppManagement from 'src/api/appManagement.js';
+import { getUserRole } from 'src/pages/worksheet/redux/actions/util';
 import './index.less';
 import '../index.less';
 import _ from 'lodash';
@@ -197,36 +189,38 @@ class MemberList extends Component {
     departmentTreeId = undefined,
     projectOrganizeId = undefined,
     jobId = undefined,
+    isRoleCharger,
+    roleType,
+    roleId,
+    memberCategory,
+    isOwner,
+    memberId,
   }) => {
     const { detail } = this.props.memberList;
     const { params } = this.props.match;
-    const changeRole = { name: _l('更换角色'), icon: 'refresh', iconClass: 'Gray_9e Font18' };
-    const exit = { name: _l('退出'), icon: 'exit_to_app2', iconClass: 'Font20' };
+    const isSysRole = sysRoleType.includes(roleType); // 系统角色
+    const isMe = accountId === md.global.Account.accountId; // 当前用户本人
+    const isAdmin = detail.permissionType === APP_ROLE_TYPE.ADMIN_ROLE;
+    let BUTTONS = [
+      isRoleCharger
+        ? { name: _l('取消角色负责人'), icon: 'people_5', iconClass: 'Gray_9e Font18' }
+        : { name: _l('设为角色负责人'), icon: 'people_5', iconClass: 'Gray_9e Font18' },
+      { name: _l('移到其他角色'), icon: 'sync', iconClass: 'Gray_9e Font18' },
+      isSysRole && isAdmin && isMe
+        ? { name: _l('退出'), icon: 'exit_to_app2', iconClass: 'Font20' }
+        : { name: _l('移除'), icon: 'task-new-delete', iconClass: 'Font18' },
+    ];
     const BUTTONS_Owers = [{ name: _l('将应用托付给他人'), icon: 'forward2', iconClass: 'Gray_9e' }];
-    const BUTTONS_Admins_Other = [changeRole, { name: _l('移除'), icon: 'task-new-delete', iconClass: 'Font18' }];
-    const BUTTONS_Admins_Me = [changeRole, exit];
-    const BUTTONS_Members = [exit];
-    let BUTTONS = '';
-    // 管理员
-    const isAdmin = detail.permissionType === ROLE_TYPES.ADMIN;
-    // 拥有者
-    const isOwer = detail.permissionType === ROLE_TYPES.OWNER;
-    // 成员
-    const isMember = detail.permissionType === ROLE_TYPES.MEMBER;
-    // 当前用户本人
-    const isMe = accountId === md.global.Account.accountId;
-    if (isAdmin) {
-      // 管理员=》对自己_l('更换角色'), _l('退出')/其他_l('更换角色'), _l('移除')
-      BUTTONS = isMe ? BUTTONS_Admins_Me : BUTTONS_Admins_Other;
-    } else if (isOwer) {
-      // 拥有者  对自己=》将应用托付给他人/对他人_l('更换角色'), _l('移除')
-      BUTTONS = isMe ? BUTTONS_Owers : BUTTONS_Admins_Other;
-    } else if (isMember) {
-      // 成员=》退出
-      BUTTONS = BUTTONS_Members;
-    } else {
-      BUTTONS = BUTTONS_Members;
+    const isAllOrganization = departmentId && departmentId.includes('org'); // 全组织不支持设为角色负责人
+
+    if ((isSysRole && !(isOwner && isMe)) || isAllOrganization || (!isSysRole && !accountId)) {
+      // 普通角色非人员||系统角色
+      BUTTONS = BUTTONS.filter((it, index) => index !== 0);
+    } else if (isSysRole && isOwner && isMe) {
+      // 系统角色&当前用户为拥有者
+      BUTTONS = BUTTONS_Owers;
     }
+
     ActionSheet.showActionSheetWithOptions(
       {
         options: BUTTONS.map(item => (
@@ -235,7 +229,7 @@ class MemberList extends Component {
             <span className="Bold">{item.name}</span>
           </Fragment>
         )),
-        destructiveButtonIndex: isOwer && isMe ? null : BUTTONS.length - 1,
+        destructiveButtonIndex: isSysRole && isOwner && isMe ? null : BUTTONS.length - 1,
         maskClosable: true,
         'data-seed': 'logId',
         message: (
@@ -255,47 +249,89 @@ class MemberList extends Component {
       },
       buttonIndex => {
         if (buttonIndex === -1) return;
-        if (buttonIndex === 0 && (isAdmin || (accountId != md.global.Account.accountId && isOwer))) {
-          // 更换角色
-          this.props.history.push(
-            `/mobile/changeRole/${!detail.projectId ? 'individual' : detail.projectId}/${params.appId}/${
-              params.roleId
-            }/${accountId}/${departmentId}/${departmentTreeId}/${projectOrganizeId}/${jobId}`,
-          );
-        } else if (buttonIndex === 0 && isMe && isOwer) {
+        if (!isSysRole && buttonIndex === 0 && !isAllOrganization && !!accountId) {
+          const param = {
+            appId: params.appId,
+            memberCategory,
+            memberId,
+            roleId,
+          };
+          if (isRoleCharger) {
+            AppManagement.cancelRoleCharger(param).then(res => {
+              if (res) {
+                this.props.dispatch(actions.getMembersList(params.appId, params.roleId));
+                alert(_l('设置成功'));
+              } else {
+                alert(_l('设置失败'), 2);
+              }
+            });
+          } else {
+            modal = Modal.alert(
+              <span className="Font16 Gray bold">{_l('确认设置为角色负责人？')}</span>,
+              <div className="Font13 Gray pLeft15 pRight15">{_l('角色负责人可添加、移出当前角色下的成员')}</div>,
+              [
+                { text: _l('取消'), onPress: () => {}, style: 'default' },
+                {
+                  text: _l('确认'),
+                  onPress: () => {
+                    AppManagement.setRoleCharger(param).then(res => {
+                      if (res) {
+                        this.props.dispatch(actions.getMembersList(params.appId, params.roleId));
+                        alert(_l('设置成功'));
+                      } else {
+                        alert(_l('设置失败'), 2);
+                      }
+                    });
+                  },
+                },
+              ],
+            );
+          }
+        } else if (isSysRole && isOwner && isMe && buttonIndex === 0) {
           // 将应用托付给他人
           this.setState({
             transferAppVisible: true,
           });
         } else if (
-          (buttonIndex === 0 && isMember) ||
-          (buttonIndex === 1 && isMe && isAdmin) ||
-          (buttonIndex === 0 && isMe)
+          (!isSysRole && buttonIndex === 1 && !isAllOrganization && !!accountId) ||
+          (((isSysRole && !(isOwner && isMe)) || isAllOrganization || (!isSysRole && !accountId)) && buttonIndex === 0)
         ) {
-          // 退出
-          modal = Modal.alert(_l('确认退出此角色吗 ?'), '', [
-            {
-              text: _l('取消'),
-              style: { color: '#2196F3' },
-              onPress: () => {},
-            },
-            {
-              text: _l('退出'),
-              style: { color: 'red' },
-              onPress: () => {
-                this.props.dispatch(
-                  actions.exitRole({
-                    roleId: params.roleId,
-                    appId: params.appId,
-                    callback: () => {
-                      this.props.history.push(`/mobile/appHome`);
-                    },
-                  }),
-                );
+          // 移到其他角色
+          this.props.history.push(
+            `/mobile/changeRole/${!detail.projectId ? 'individual' : detail.projectId}/${params.appId}/${
+              params.roleId
+            }/${accountId}/${departmentId}/${departmentTreeId}/${projectOrganizeId}/${jobId}`,
+          );
+        } else if (
+          (!isSysRole && buttonIndex === 2) ||
+          (((isSysRole && !(isOwner && isMe)) || isAllOrganization || (!isSysRole && !accountId)) && buttonIndex === 1)
+        ) {
+          if (isSysRole && isAdmin && isMe) {
+            // 退出
+            modal = Modal.alert(_l('确认退出此角色吗 ?'), '', [
+              {
+                text: _l('取消'),
+                style: { color: '#2196F3' },
+                onPress: () => {},
               },
-            },
-          ]);
-        } else if (buttonIndex === 1 && !isMe && (isAdmin || isOwer)) {
+              {
+                text: _l('退出'),
+                style: { color: 'red' },
+                onPress: () => {
+                  this.props.dispatch(
+                    actions.exitRole({
+                      roleId: params.roleId,
+                      appId: params.appId,
+                      callback: () => {
+                        this.props.history.push(`/mobile/appHome`);
+                      },
+                    }),
+                  );
+                },
+              },
+            ]);
+            return;
+          }
           // 移除
           modal = Modal.alert(_l('是否移除该成员？'), '', [
             {
@@ -325,24 +361,6 @@ class MemberList extends Component {
         }
       },
     );
-  };
-
-  isCanDo = item => {
-    const { detail } = this.props.memberList;
-    if (detail.permissionType === ROLE_TYPES.OWNER) {
-      // 拥有者可操作所有
-      return true;
-    } else {
-      if (detail.permissionType === ROLE_TYPES.ADMIN) {
-        // 管理员非拥有者，不可操作拥有者departmentId
-        return !item.isOwner;
-      } else if (item.accountId === md.global.Account.accountId) {
-        // 普通成员只能操作自己
-        return true;
-      } else {
-        return false;
-      }
-    }
   };
 
   renderUserTag = (roleType, isOwner) => {
@@ -430,9 +448,12 @@ class MemberList extends Component {
     );
   };
 
-  renderNull = data => {
+  renderNull = (data = {}) => {
     const { detail } = this.props.memberList;
-    const isAdmin = detail.permissionType === ROLE_TYPES.OWNER || detail.permissionType === ROLE_TYPES.ADMIN;
+    let { isOwner, isAdmin } = getUserRole(detail.permissionType);
+    isAdmin = isAdmin || isOwner;
+    const canEditUser = data.canSetMembers || isAdmin;
+
     return (
       <div className="memberListWrapper h100">
         {this.renderBase()}
@@ -441,7 +462,7 @@ class MemberList extends Component {
             <img src={noMmberImg} alt={_l('暂无成员')} width="110" />
             <br />
             <p className="mTop0 Gray_bd Font17">{_l('暂无成员')}</p>
-            {isAdmin && (
+            {canEditUser && (
               <Button
                 className="addUserButton"
                 type="primary"
@@ -458,116 +479,107 @@ class MemberList extends Component {
     );
   };
 
+  renderItem = data => {
+    const { detail } = this.props.memberList;
+    let { isOwner, isAdmin } = getUserRole(detail.permissionType);
+    isAdmin = isAdmin || isOwner;
+    const {
+      users = [],
+      departmentTreesInfos = [],
+      departmentsInfos = [],
+      projectOrganizeInfos = [],
+      jobInfos = [],
+    } = data;
+    const canEditUser = data.canSetMembers || isAdmin;
+    let list = [];
+    list = list.concat(users.filter(it => it.isOwner));
+    list = list.concat(jobInfos);
+    list = list.concat(projectOrganizeInfos);
+    list = list.concat(departmentsInfos);
+    list = list.concat(departmentTreesInfos);
+    list = list.concat(users.filter(it => !it.isOwner));
+    list = list.sort((a, b) => b.isRoleCharger - a.isRoleCharger);
+
+    return list.map(item => {
+      const key = item.accountId || item.departmentId || item.departmentTreeId || item.projectOrganizeId || item.jobId;
+      const name =
+        item.fullName || item.departmentTreeName || item.departmentName || item.projectOrganizeName || item.jobName;
+      const tag = item.departmentTreeId
+        ? _l('部门')
+        : item.departmentId
+        ? _l('仅当前部门')
+        : item.projectOrganizeId
+        ? _l('组织角色')
+        : item.jobId
+        ? _l('职位')
+        : '';
+      const memberCategoryValue = item.accountId
+        ? 5
+        : item.departmentTreeId
+        ? 1
+        : item.departmentId
+        ? 2
+        : item.projectOrganizeId
+        ? 3
+        : item.jobId
+        ? 4
+        : 5;
+
+      return (
+        <List.Item
+          key={key}
+          className="listCon"
+          arrow={
+            canEditUser && (item.isOwner ? item.accountId === md.global.Account.accountId : true)
+              ? 'horizontal'
+              : 'empty'
+          }
+          onClick={() => {
+            canEditUser &&
+              (item.isOwner ? item.accountId === md.global.Account.accountId : true) &&
+              this.showActionUserSheet({
+                ...item,
+                ...data,
+                canEditUser,
+                memberCategory: (userStatusList.find(o => o.value === memberCategoryValue) || {}).key,
+                memberId: key,
+              });
+          }}
+        >
+          <span className="Font16 Gray bold">{name}</span>
+          {!item.accountId && <span className="tag Font14">{tag}</span>}
+          {item.isRoleCharger && <Icon icon="people_5" className="Font14 mLeft10" style={{ color: '#FBBB44' }} />}
+          {item.accountId && this.renderUserTag(data.roleType, item.isOwner)}
+        </List.Item>
+      );
+    });
+  };
+
   renderList = data => {
     const { detail } = this.props.memberList;
     const text =
       data.description || (data.permissionWay === 80 ? _l('可以配置应用，管理应用下所有数据和人员') : _l('自定义权限'));
-    const isAdmin = detail.permissionType === ROLE_TYPES.OWNER || detail.permissionType === ROLE_TYPES.ADMIN;
-    const isOwner = detail.permissionType === ROLE_TYPES.OWNER;
+    let { isOwner, isAdmin } = getUserRole(detail.permissionType);
+    isAdmin = isAdmin || isOwner;
+
     return (
       <div className="memberListWrapper h100">
         {this.renderBase()}
-        <List className="ListSection">
-          {data.users
-            .filter(it => it.isOwner)
-            .map(item => (
-              <List.Item
-                key={item.accountId}
-                className="listCon"
-                arrow={this.isCanDo(item) ? 'horizontal' : 'empty'}
-                onClick={() => {
-                  this.isCanDo(item) &&
-                    this.showActionUserSheet({ accountId: item.accountId, departmentId: item.departmentId });
-                }}
-              >
-                <span className="Font16 Gray bold">{item.fullName}</span>
-                {this.renderUserTag(data.roleType, item.isOwner)}
-              </List.Item>
-            ))}
 
-          {data.departmentTreesInfos.map((item, i) => (
+        <List className="ListSection">{this.renderItem(data)}</List>
+        {(data.canSetMembers || isAdmin) &&
+          !(
+            detail.permissionType === APP_ROLE_TYPE.RUNNER_ROLE && ['all', 'apply', 'outsourcing'].includes(data.roleId)
+          ) && (
             <List.Item
-              key={item.departmentTreeId}
-              className="listCon"
-              arrow={this.isCanDo(item) ? 'horizontal' : 'empty'}
+              className="mTop30"
               onClick={() => {
-                this.isCanDo(item) &&
-                  this.showActionUserSheet({ accountId: item.accountId, departmentTreeId: item.departmentTreeId });
+                this.showActionSheet(data.roleId, data.userIds, data.roleType, data);
               }}
             >
-              <span className="Font16 Gray bold">{item.departmentTreeName}</span>
-              <span className="tag Font14">{_l('部门')}</span>
+              <div className="TxtCenter addUser bold">{_l('添加人员')}</div>
             </List.Item>
-          ))}
-          {data.departmentsInfos.map((item, i) => (
-            <List.Item
-              key={item.departmentId}
-              className="listCon"
-              arrow={this.isCanDo(item) ? 'horizontal' : 'empty'}
-              onClick={() => {
-                this.isCanDo(item) &&
-                  this.showActionUserSheet({ accountId: item.accountId, departmentId: item.departmentId });
-              }}
-            >
-              <span className="Font16 Gray bold">{item.departmentName}</span>
-              <span className="tag Font14">{_l('仅当前部门')}</span>
-            </List.Item>
-          ))}
-
-          {data.projectOrganizeInfos.map(item => (
-            <List.Item
-              key={item.projectOrganizeId}
-              className="listCon"
-              arrow={this.isCanDo(item) ? 'horizontal' : 'empty'}
-              onClick={() => {
-                this.isCanDo(item) && this.showActionUserSheet({ projectOrganizeId: item.projectOrganizeId });
-              }}
-            >
-              <span className="Font16 Gray bold">{item.projectOrganizeName}</span>
-              <span className="tag Font14">{_l('组织角色')}</span>
-            </List.Item>
-          ))}
-          {data.jobInfos.map(item => (
-            <List.Item
-              key={item.jobId}
-              className="listCon"
-              arrow={this.isCanDo(item) ? 'horizontal' : 'empty'}
-              onClick={() => {
-                this.isCanDo(item) && this.showActionUserSheet({ jobId: item.jobId });
-              }}
-            >
-              <span className="Font16 Gray bold">{item.jobName}</span>
-              <span className="tag Font14">{_l('职位')}</span>
-            </List.Item>
-          ))}
-
-          {data.users
-            .filter(it => !it.isOwner)
-            .map((item, i) => (
-              <List.Item
-                key={item.accountId}
-                className="listCon"
-                arrow={this.isCanDo(item) ? 'horizontal' : 'empty'}
-                onClick={() => {
-                  this.isCanDo(item) &&
-                    this.showActionUserSheet({ accountId: item.accountId, departmentId: item.departmentId });
-                }}
-              >
-                <span className="Font16 Gray bold">{item.fullName}</span>
-                {this.renderUserTag(data.roleType, item.isOwner)}
-              </List.Item>
-            ))}
-        </List>
-        {isAdmin && (
-          <List.Item
-            className="mTop30"
-            onClick={() => {
-              this.showActionSheet(data.roleId, data.userIds, data.roleType, data);
-            }}
-          >
-            <div className="TxtCenter addUser bold">{_l('添加人员')}</div>
-          </List.Item>
-        )}
+          )}
       </div>
     );
   };

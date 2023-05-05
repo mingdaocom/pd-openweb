@@ -365,9 +365,10 @@ export default function WorkflowAction(props) {
   const { onAction, onRevoke, onUrge, onSkip, onUpdateWorkAccounts, onEndInstance, onViewFlowStep, onViewExecDialog } =
     props;
   const { allowRevoke, allowUrge, flowNode, workItem } = data;
-  const { type, batch, btnMap } = flowNode || {};
+  const { type, batch, btnMap, callBackType } = flowNode || {};
   const allowBatch = type === 4 && batch;
   const allowApproval = allowBatch && workItem;
+  const allowCallBack = callBackType !== -1 && workItem;
   const [updateUserDialogVisible, setUpdateUserDialogVisible] = useState(false);
 
   const handleSkip = () => {
@@ -543,6 +544,11 @@ export default function WorkflowAction(props) {
           </div>
         )}
       </Fragment>
+      {/*allowCallBack && (
+        <div className="btn handle" onClick={() => onAction('return')}>
+          <span className="ellipsis">{_l('退回')}</span>
+        </div>
+      )*/}
       {workItem && type === 3 && (
         <div className="btn handle" onClick={() => onViewExecDialog()}>
           <span className="ellipsis">{_l('前往填写')}</span>

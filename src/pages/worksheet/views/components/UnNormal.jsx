@@ -24,6 +24,8 @@ const UnNormalWrap = styled.div`
     margin: 15px 0 20px;
     font-size: 17px;
     color: #333;
+    white-space: pre-wrap;
+    text-align: center;
   }
   img {
     width: 110px;
@@ -33,7 +35,7 @@ const UnNormalWrap = styled.div`
 const CODE_TYPE = {
   '-10000': {
     src: abnormal,
-    text: _l('地址无法访问\n被取消了查看权限或已删除'),
+    text: `${_l('地址无法访问')}\n${_l('被取消了查看权限或已删除')}`,
   },
   4: {
     src: alreadyDelete,

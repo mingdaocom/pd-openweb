@@ -14,7 +14,6 @@ import {
   Switch,
 } from 'antd-mobile';
 import { Icon } from 'ming-ui';
-import { ROLE_TYPES, ROLE_CONFIG } from 'src/pages/Role/config.js';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
@@ -23,8 +22,10 @@ let modal = null;
 class ChangeRole extends React.Component {
   constructor(props) {
     super(props);
+    const { params } = props.match;
+
     this.state = {
-      checkId: '',
+      checkId: params.roleId,
       departmentsInfos: [],
       users: [],
     };
@@ -66,27 +67,31 @@ class ChangeRole extends React.Component {
         </Flex>
       );
     }
+
     return (
       <React.Fragment>
         <List style={{ overflow: 'scroll', background: '#fff' }}>
-          {roleList.list.map((item, i) => {
-            return (
-              <List.Item
-                key={item.roleId}
-                extra={this.state.checkId === item.roleId ? <Icon icon="ok" className="Font28 isCheck" /> : ''}
-                onClick={() => {
-                  if (params.roleId === item.roleId) return;
-                  this.setState({
-                    checkId: item.roleId,
-                    users: item.users,
-                    departmentsInfos: item.departmentsInfos,
-                  });
-                }}
-              >
-                <span className={cx('Gray Font16', { Gray_9e: params.roleId === item.roleId })}>{item.name}</span>
-              </List.Item>
-            );
-          })}
+          {roleList.list
+            .filter(it => !_.includes([100, 2, 1], it.roleType))
+            .map((item, i) => {
+              if (!item.canSetMembers) return;
+              return (
+                <List.Item
+                  key={item.roleId}
+                  extra={this.state.checkId === item.roleId ? <Icon icon="ok" className="Font28 isCheck" /> : ''}
+                  onClick={() => {
+                    if (params.roleId === item.roleId) return;
+                    this.setState({
+                      checkId: item.roleId,
+                      users: item.users,
+                      departmentsInfos: item.departmentsInfos,
+                    });
+                  }}
+                >
+                  <span className={cx('Gray Font16')}>{item.name}</span>
+                </List.Item>
+              );
+            })}
         </List>
         <WingBlank size="md">
           <Button

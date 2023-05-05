@@ -1,21 +1,20 @@
 import React, { Fragment, Component, createRef } from 'react';
 import { string, number, arrayOf, func, bool, shape } from 'prop-types';
 import cx from 'classnames';
-import { ScrollView, Icon } from 'ming-ui';
-import { Tabs, Tooltip } from 'antd';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'antd';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import AddColorDialog from './AddColorDialog';
-import SvgIcon from 'src/components/SvgIcon';
 import { COLORS, COLORS_TEST } from './config';
 import './index.less';
-import ajaxRequest from 'src/api/appManagement';
 import { generate } from '@ant-design/colors';
-import { isEmpty } from 'lodash';
+import _ from 'lodash';
+import IconTabs from './IconTabs';
 
 const DEFAULT_COLOR = '#2196f3';
 
 @withClickAway
-export default class extends Component {
+class SelectIcon extends Component {
   static propTypes = {
     projectId: string,
     className: string,
@@ -49,17 +48,18 @@ export default class extends Component {
 
   constructor(props) {
     super(props);
-    const { icon, iconColor, navColor } = props;
+    const { icon, iconColor, navColor, colorList, index } = props;
     this.$nameRef = createRef();
     this.state = {
       icon: icon,
-      iconColor: iconColor,
+      iconColor: iconColor || colorList[index % colorList.length] ,
       navColor,
-      customIcon: [],
-      systemIcon: [],
       customColors: (localStorage.getItem('customColors') || '').split(',').filter(_ => _),
-      addColorDialogVisible: false
+      addColorDialogVisible: false,
+      loading: false,
+      currentKey: 'general',
     };
+    this.colorIndex = navColor ? (this.getNavColorList(iconColor).indexOf(navColor) || 0) : 0;
   }
 
   componentDidMount() {
@@ -67,18 +67,24 @@ export default class extends Component {
       this.$nameRef.current.focus();
       this.$nameRef.current.select();
     }
-    this.getIcon();
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!_.isEqual(this.state, nextState)) {
+      return true;
+    }
+    if(this.state.icon !== nextProps.icon || this.state.iconColor !== nextProps.iconColor) {
+      this.setState({
+        icon: nextProps.icon,
+        iconColor: nextProps.iconColor,
+      })
+      return true;
+    }
+    return false;
   }
 
   componentWillUnmount() {
     this.dataChange();
-  }
-
-  getIcon() {
-    const { projectId } = this.props;
-    ajaxRequest.getIcon({ projectId }).then(({ customIcon, systemIcon }) => {
-      this.setState({ customIcon, systemIcon });
-    });
   }
 
   getNavColorList(iconColor) {
@@ -96,32 +102,29 @@ export default class extends Component {
     }
   };
 
-  handleSelectColor = (color) => {
-    const { iconColor, navColor } = this.props;
-    const colors = this.getNavColorList(iconColor);
-    const index = colors.indexOf(navColor);
+  handleSelectColor = color => {
+    const { navColor } = this.state;
+    const currentColors = this.getNavColorList(color);
+
     this.handleClick({
       iconColor: color,
-      navColor: navColor ? this.getNavColorList(color)[index] : undefined,
-      lightColor: this.getNavColorList(color)[1]
-    })
-  }
-
-  handleClick = obj => {
-    this.setState(obj, () => {
-      this.props.onModify(obj);
+      navColor: navColor ? currentColors[this.colorIndex] : undefined,
+      lightColor: currentColors[1],
     });
   };
 
-  handleInput = e => {
-    const { onModify } = this.props;
-    let { value } = e.target;
-    const normalizedValue = value.slice(0, 50);
-    if (normalizedValue !== value) {
-      this.$nameRef.current.value = value.slice(0, 50);
-    }
-    onModify({ name: value });
+  handleClick = obj => {
+    this.setState(obj, () => {
+      setTimeout(() => {
+        this.props.onModify(obj)
+      }, 200)
+    });
   };
+
+  handleInput = _.debounce(value => {
+    const { onModify } = this.props;
+    onModify({ name: value || '' });
+  }, 500);
 
   handleFocus = () => {
     this.$nameRef.current.select();
@@ -133,68 +136,10 @@ export default class extends Component {
       this.props.onClose();
     }
   };
-  renderIcons = () => {
-    const { colorList, index, iconColor = colorList[index % colorList.length], hideCustom } = this.props;
-    const { icon, systemIcon, customIcon } = this.state;
 
-    const renderSystemIcon = () => {
-      return (
-        <ScrollView className="iconsScrollViewWrap">
-          <div className="systemIcon">
-            <ul className="iconsWrap">
-              {systemIcon.map(({ fileName, iconUrl }) => {
-                let isCurrent = icon === fileName;
-                return (
-                  <li
-                    key={fileName}
-                    className={cx({ isCurrentIcon: isCurrent })}
-                    style={{ backgroundColor: isCurrent ? iconColor : '#fff' }}
-                    onClick={() => this.handleClick({ icon: fileName, iconUrl })}
-                  >
-                    <SvgIcon url={iconUrl} fill={isCurrent ? '#fff' : '#9e9e9e'} />
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </ScrollView>
-      );
-    }
-
-    return (
-      <Tabs defaultActiveKey="system">
-        <Tabs.TabPane tab={_l('图标')} key="system">
-          {renderSystemIcon()}
-        </Tabs.TabPane>
-        {!hideCustom && !isEmpty(customIcon) && (
-          <Tabs.TabPane tab={_l('自定义')} key="custom">
-            <ScrollView className="iconsScrollViewWrap">
-              <div className="customIcon">
-                {/* <div className="title">{_l('自定义图标')}</div> */}
-                <ul className="iconsWrap">
-                  {customIcon.map(({ iconUrl, fileName }) => {
-                    let isCurrent = icon === fileName;
-                    return (
-                      <li
-                        key={fileName}
-                        className={cx({ isCurrentIcon: isCurrent })}
-                        style={{ backgroundColor: isCurrent ? iconColor : '#fff' }}
-                        onClick={() => this.handleClick({ icon: fileName, iconUrl })}
-                      >
-                        <SvgIcon url={iconUrl} fill={isCurrent ? '#fff' : '#9e9e9e'} />
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            </ScrollView>
-          </Tabs.TabPane>
-        )}
-      </Tabs>
-    );
-  };
   renderNavigationColor(iconColor) {
-    const { navColor, onShowNavigationConfig } = this.props;
+    const { navColor } = this.state;
+    const { onShowNavigationConfig } = this.props;
     const colors = this.getNavColorList(iconColor);
     const colorsText = [_l('主题色'), _l('浅主题色'), _l('白色'), _l('灰色'), _l('黑色')];
     return (
@@ -202,7 +147,9 @@ export default class extends Component {
         <div className="flexRow alignItemsCenter">
           <div className="bold flex">{_l('导航色')}</div>
           {onShowNavigationConfig && (
-            <div className="ThemeColor pointer mRight30" onClick={onShowNavigationConfig}>{_l('设置导航方式')}</div>
+            <div className="ThemeColor pointer mRight30" onClick={onShowNavigationConfig}>
+              {_l('设置导航方式')}
+            </div>
           )}
         </div>
         <div className="navigationColor flexRow mTop10">
@@ -211,9 +158,12 @@ export default class extends Component {
               <div
                 className="colorItem flexRow alignItemsCenter justifyContentCenter pointer"
                 style={{ backgroundColor: data }}
-                onClick={() => this.handleClick({ navColor: data, iconColor, lightColor: colors[1] })}
+                onClick={() => {
+                  this.colorIndex = index;
+                  this.handleClick({ navColor: data, iconColor, lightColor: colors[1] });
+                }}
               >
-                {data === navColor && <Icon icon="hr_ok" className={cx('Font17', { White: [0, 4].includes(index) }) } />}
+                {data === navColor && <Icon icon="hr_ok" className={cx('Font17', { White: [0, 4].includes(index) })} />}
               </div>
             </Tooltip>
           ))}
@@ -228,7 +178,11 @@ export default class extends Component {
         <div className="Gray_9e">{_l('自定义')}</div>
         <ul className="colorsWrap">
           <li className="isCurrentColor">
-            <Icon icon="task-add-member-circle" className="Gray_bd Font24 pointer" onClick={() => this.setState({ addColorDialogVisible: true })}/>
+            <Icon
+              icon="task-add-member-circle"
+              className="Gray_bd Font24 pointer"
+              onClick={() => this.setState({ addColorDialogVisible: true })}
+            />
           </li>
           {customColors.map((item, index) => (
             <Tooltip key={index} title={item} color="#000" placement="bottom">
@@ -244,7 +198,7 @@ export default class extends Component {
         </ul>
         {addColorDialogVisible && (
           <AddColorDialog
-            onSave={(color) => {
+            onSave={color => {
               const colors = [color].concat(customColors).slice(0, 5);
               this.setState({ customColors: colors });
               localStorage.setItem('customColors', colors);
@@ -261,16 +215,22 @@ export default class extends Component {
       className,
       style = {},
       colorList,
-      index,
-      iconColor = colorList[index % colorList.length],
-      navColor,
       name,
       hideInput,
       hideColor,
       onClearIcon,
     } = this.props;
+
+    const { iconColor, navColor } = this.state;
+
     return (
-      <div className={cx('selectIconWrap', className, { pTop10: hideInput })} style={style}>
+      <div
+        className={cx('selectIconWrap', className, { pTop10: hideInput })}
+        style={{
+          ...style,
+          width: hideColor || !colorList.length ? 409 : 720,
+        }}
+      >
         {!hideInput && (
           <div className="inputWrap">
             <input
@@ -278,13 +238,14 @@ export default class extends Component {
               ref={this.$nameRef}
               defaultValue={name}
               onFocus={this.handleFocus}
-              onChange={this.handleInput}
+              onChange={e => this.handleInput(e.target.value)}
               onKeyDown={this.handleKeydown}
+              maxLength={50}
             />
           </div>
         )}
-        <div className="flexRow">
-          <div className="flexColumn mTop10">
+        <div className={cx('flexRow', { noColorColumn: hideColor || !colorList.length })}>
+          <div className="flexColumn mTop24" style={{ width: '36%' }}>
             {!hideColor && !!colorList.length && (
               <Fragment>
                 <div className="bold">{_l('主题色')}</div>
@@ -306,12 +267,17 @@ export default class extends Component {
             )}
             {navColor && this.renderNavigationColor(iconColor)}
           </div>
-          <div className="flex" style={{ minWidth: 375 }}>
-            {this.renderIcons()}
-            {onClearIcon && (
+          <div className="flex mTop18 relative" style={{ width: '60%' }}>
+            <IconTabs
+              handleClick={this.handleClick}
+              {..._.pick(this.state, ['iconColor', 'icon'])}
+              {..._.pick(this.props, ['hideCustom', 'projectId'])}
+            />
+            {onClearIcon && this.state.icon && (
               <div
                 className="clearBtn pointer Gray_75"
                 onClick={() => {
+                  this.setState({icon: ''})
                   onClearIcon();
                 }}
               >
@@ -324,3 +290,4 @@ export default class extends Component {
     );
   }
 }
+export default SelectIcon;

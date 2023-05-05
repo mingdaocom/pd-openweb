@@ -64,6 +64,7 @@ class TwofactorContainer extends React.Component {
       state,
       type, //1为手机号，2为邮箱,
       ...info,
+      regFrom: request.s,
     }).then(data => {
       this.setState({
         needTicket: true, //除了第一次 都需要图形验证码

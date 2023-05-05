@@ -69,6 +69,9 @@ const ExplainCon = styled.div`
     border-radius: 3px;
     font-weight: 600;
   }
+  .explain-button:hover {
+    background: #1565c0;
+  }
 `;
 
 function OthersCon(props) {

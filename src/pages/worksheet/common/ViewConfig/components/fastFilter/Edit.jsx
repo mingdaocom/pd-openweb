@@ -17,6 +17,7 @@ import {
   APP_ALLOWSCAN,
   ADVANCEDSETTING_KEYS,
   FASTFILTER_CONDITION_TYPE,
+  NAV_SHOW_TYPE,
   getSetDefault,
   getControlFormatType,
 } from './util';
@@ -26,7 +27,10 @@ import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/
 import cx from 'classnames';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import _ from 'lodash';
-
+import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
+import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { formatAdvancedSettingByNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
 const Wrap = styled.div`
   width: 400px;
   .boxEditFastFilterCover {
@@ -57,6 +61,7 @@ const Wrap = styled.div`
     }
     .topHeader {
       height: 56px;
+      min-height: 56px;
       padding: 0 24px;
       display: flex;
       align-items: center;
@@ -75,9 +80,11 @@ const Wrap = styled.div`
       }
     }
     .con {
+      overflow: auto;
       padding: 0 24px;
       .title {
         padding-top: 24px;
+        margin-top: 0!important;
         font-weight: bold;
         font-size: 13px;
         font-size: 13px;
@@ -99,7 +106,7 @@ const Wrap = styled.div`
         background: #ffffff;
         border: 1px solid #dddddd;
         border-radius: 4px;
-        padding: 0 8px 0 12px;
+        padding: 0 12px 0 12px;
         .icon {
           line-height: 35px;
         }
@@ -144,6 +151,9 @@ const Wrap = styled.div`
             line-height: 36px;
             font-size: 18px;
           }
+          .icon-arrow-down-border{
+            font-size: 14px;
+          }
           .List {
             width: 100%;
             top: 104% !important;
@@ -160,6 +170,7 @@ const Wrap = styled.div`
           width: 50%;
           display: inline-block;
           margin: 0;
+          vertical-align: top;
         }
       }
     }
@@ -184,6 +195,11 @@ const Wrap = styled.div`
       }
     }
   }
+  .filterDefaultValue{
+    div:first-child {
+      font-weight: bold;
+    }
+  }
 `;
 
 function Edit(params) {
@@ -194,6 +210,7 @@ function Edit(params) {
     activeFastFilterId,
     setActiveFastFilterId,
     onClose,
+    currentSheetInfo,
   } = params;
   let [fastFilters, setData] = useState();
   let [control, setControl] = useState();
@@ -251,10 +268,7 @@ function Edit(params) {
             } else {
               filters = {
                 ...filters,
-                advancedSetting: {
-                  ...advancedSetting,
-                  ...data,
-                },
+                advancedSetting: formatAdvancedSettingByNavfilters(filters, data),
               };
             }
             return filters;
@@ -278,6 +292,7 @@ function Edit(params) {
           onChange={newValue => {
             updateViewSet({ [data.key]: newValue });
           }}
+          isAppendToBody
         />
       </React.Fragment>
     );
@@ -423,12 +438,12 @@ function Edit(params) {
   };
   return (
     <React.Fragment>
-      <div className="con">
+      <div className="con flex">
         <div className="title">{_l('筛选字段')}</div>
         <AddCondition
           renderInParent
           className="addControl"
-          columns={worksheetControls.filter(
+          columns={setSysWorkflowTimeControlFormat(worksheetControls, currentSheetInfo.switches || []).filter(
             o =>
               (FASTFILTER_CONDITION_TYPE.includes(o.type) ||
                 (o.type === 30 && FASTFILTER_CONDITION_TYPE.includes(getControlFormatType(o)))) &&
@@ -450,7 +465,7 @@ function Edit(params) {
           style={{
             width: '352px',
           }}
-          offset={[0, -5]}
+          offset={[0, 1]}
           classNamePopup="addControlDrop"
           comp={() => {
             const iconName = getIconByType(
@@ -461,7 +476,7 @@ function Edit(params) {
               <div className="inputBox mTop6" ref={boxConT}>
                 {iconName ? <Icon icon={iconName} className="mRight12 Font18 Gray_75" /> : null}
                 <div className="itemText">{control.controlName}</div>
-                <Icon icon={'arrow-down-border'} className="mLeft12 Font18 Gray_9e" />
+                <Icon icon={'arrow-down-border'} className="mLeft12 Font14 Gray_9e" />
               </div>
             );
           }}
@@ -469,6 +484,51 @@ function Edit(params) {
         {[TEXT_FILTER_TYPE, RELA_FILTER_TYPE, GROUP_FILTER_TYPE, NUMBER_FILTER_TYPE].map(o => {
           if (o.keys.includes(dataType)) {
             return renderDrop(o);
+          }
+        })}
+        {[NAV_SHOW_TYPE].map(o => {
+          if (o.keys.includes(dataType)) {
+            const { advancedSetting = {}, controlId } = control; //快速筛选
+            const info = worksheetControls.find(it => it.controlId === controlId) || {};
+            const { navshow, navfilters = [] } = advancedSetting;
+            return (
+              <NavShow
+                canShowNull
+                params={{
+                  types: NAVSHOW_TYPE.filter(o => o.value !== '1').filter(o => {
+                    //选项作为分组，分组没有筛选
+                    if ([9, 10, 11, 26].includes(info.type)) {
+                      return o.value !== '3';
+                    } else {
+                      return true;
+                    }
+                  }),
+                  txt: _l('显示项'),
+                }}
+                value={navshow}
+                onChange={newValue => {
+                  updateViewSet({
+                    advancedSetting: { ...advancedSetting, ...newValue },
+                  });
+                }}
+                advancedSetting={advancedSetting}
+                navfilters={navfilters}
+                filterInfo={{
+                  allControls: info.relationControls,
+                  globalSheetInfo: _.pick(currentSheetInfo, [
+                    'appId',
+                    'groupId',
+                    'name',
+                    'projectId',
+                    'roleType',
+                    'worksheetId',
+                    'switches',
+                  ]),
+                  columns: worksheetControls,
+                  viewControl: controlId,
+                }}
+              />
+            );
           }
         })}
         {[OPTIONS_ALLOWITEM].map(o => {
@@ -495,6 +555,16 @@ function Edit(params) {
         })}
         {DATE_RANGE.keys.includes(dataType) && renderTimeType()}
         {APP_ALLOWSCAN.keys.includes(dataType) && renderAppScan()}
+        {/* <div className="mTop24 filterDefaultValue">
+          <FilterDefaultValue
+            firstControlData={_.cloneDeep(dataControls)}
+            dataType={dataType}
+            filter={control}//带默认值的内容 ？？？
+            setFilter={data => {
+              console.log(data);
+            }}
+          />
+        </div> */}
       </div>
     </React.Fragment>
   );
@@ -520,7 +590,7 @@ export default class EditFastFilter extends React.Component {
             this.props.onClose();
           }}
         ></div>
-        <div className="boxEditFastFilter">
+        <div className="boxEditFastFilter flexColumn">
           <div className="topHeader">
             <span className="">{_l('筛选设置')}</span>
             <i

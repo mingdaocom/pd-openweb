@@ -68,6 +68,7 @@ function EditWidget(props) {
     <RcDialog
       className="appIntroDialog editWidgetDialogWrap"
       wrapClassName="appIntroDialogWrapCenter"
+      maskClosable={false}
       visible={show}
       onClose={onClose}
       animation="zoom"

@@ -152,7 +152,7 @@ export default class ActionFields extends Component {
                       className="Gray_9e"
                     />
                     <div className="flex mLeft10 ellipsis">{item.isSourceApp ? _l('选择映射字段') : item.text}</div>
-                    {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION], item.appType) && (
+                    {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION, APP_TYPE.WORKSHEET_LOG], item.appType) && (
                       <div className="mLeft15 mRight10 Gray_9e ellipsis" style={{ maxWidth: 150 }}>{`${
                         item.appTypeName
                       }“${item.appName}”`}</div>

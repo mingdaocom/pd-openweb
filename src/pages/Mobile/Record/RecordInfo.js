@@ -60,6 +60,7 @@ class Record extends Component {
       btnDisable: {},
       advancedSetting: {},
       formStyleImggeData: [], // 表单样式封面字段值
+      rulesLocked: false
     };
     this.refreshEvents = {};
     this.cellObjs = {};
@@ -108,6 +109,7 @@ class Record extends Component {
         dataSource: c.dataSource || '',
         value: rowData[c.controlId],
         hidden: _.includes(FORM_HIDDEN_CONTROL_IDS, c.controlId) || viewControls.includes(c.controlId),
+        count: rowData['rq' + c.controlId],
       }));
       this.formData = receiveControls;
       rowResult.receiveControls = receiveControls;
@@ -133,6 +135,7 @@ class Record extends Component {
         advancedSetting: worksheetInfoResult.advancedSetting,
         switchPermit: worksheetInfoResult.switches,
         formStyleImggeData,
+        rulesLocked: checkRuleLocked(worksheetInfoResult.rules, rowResult.receiveControls)
       });
 
       if (props && props.executionFinished && !rowResult.isViewData) {
@@ -199,7 +202,7 @@ class Record extends Component {
       if (it.type === 14) {
         return formatControlToServer(it, { isSubListCopy: true });
       }
-      return formatControlToServer(it);
+      return formatControlToServer(it, { isNewRecord: true, isDraft: true });
     });
   };
   saveDraftData = ({ draftType }) => {
@@ -651,11 +654,10 @@ class Record extends Component {
 
   renderRecordBtns() {
     const { isSubList, editable, getDataType } = this.props;
-    const { isEdit, sheetRow, customBtns, advancedSetting, rules, switchPermit } = this.state;
+    const { isEdit, sheetRow, customBtns, advancedSetting, rules, switchPermit, rulesLocked } = this.state;
     const baseIds = this.getBaseIds();
     const allowEdit = sheetRow.allowEdit || editable;
     const allowDelete = sheetRow.allowDelete || (isSubList && editable);
-    const rulesLocked = checkRuleLocked(rules, sheetRow.receiveControls);
     const allowShare =
       isOpenPermit(permitList.recordShareSwitch, switchPermit, baseIds.viewId) && !md.global.Account.isPortal;
     let copyCustomBtns = _.cloneDeep(customBtns);
@@ -838,8 +840,11 @@ class Record extends Component {
     );
   }
   renderAction() {
-    const { currentTab } = this.state;
+    const { currentTab, rulesLocked } = this.state;
     if (currentTab.id) {
+      if (rulesLocked) {
+        return undefined;
+      }
       return currentTab.id === 'approve' ? undefined : (
         <RelationAction controlId={currentTab.id} getDataType={this.props.getDataType} />
       );

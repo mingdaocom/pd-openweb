@@ -1,21 +1,19 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
 import './taskControl.less';
 import { connect } from 'react-redux';
 import config from '../../../config/config';
-import FormAdapter from 'src/pages/hr/dossier/components/lib/data-adapter/form';
-import FormControl from 'src/pages/hr/dossier/components/lib/data-adapter/form-control';
-import FormContainer from 'src/pages/hr/dossier/components/form-container';
+import CustomFields from 'src/components/newCustomFields';
 import { taskFoldStatus, updateControlValue, updateTaskControlFiles } from '../../../redux/actions';
 import _ from 'lodash';
-import moment from 'moment';
+import { deleteAttachment } from 'src/pages/kc/common/AttachmentsPreview/ajax';
 
 class TaskControl extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      flag: +new Date(),
       controlData: [],
-      hasError: false,
     };
   }
 
@@ -33,37 +31,44 @@ class TaskControl extends Component {
    * 格式化数据
    */
   formatData(data) {
-    const { controlData } = this.state;
     const { taskId } = this.props;
-    const hasAuth = this.props.taskDetails[taskId].data.auth === config.auth.Charger || this.props.taskDetails[taskId].data.auth === config.auth.Member;
+    const hasAuth =
+      this.props.taskDetails[taskId].data.auth === config.auth.Charger ||
+      this.props.taskDetails[taskId].data.auth === config.auth.Member;
 
     data = _.cloneDeep(data);
-    data.forEach((item) => {
-      // 下拉
-      if (item.type === 11) {
-        // 下拉框允许清空
-        if (item.value !== '0') {
-          item.options.unshift({
-            index: 0,
-            isDeleted: false,
-            key: '0',
-            value: _l('清除选择'),
-          });
+    data.forEach(item => {
+      // 单选
+      if (_.includes([9, 11], item.type)) {
+        item.value = JSON.stringify([item.value]);
+      }
+
+      // 多选
+      if (item.type === 10) {
+        const key = [];
+        for (let i = 0; i < item.value.length; i++) {
+          if (item.value.substr(i, 1) !== '0') {
+            key.push('1' + item.value.slice(i + 1).replace(/1/g, 0));
+          }
         }
+
+        item.value = JSON.stringify(key);
       }
 
       // 附件
       if (item.type === 14) {
         item.value = {
           attachmentData: JSON.parse(item.value),
+          attachments: [],
+          knowledgeAtts: [],
         };
 
-        controlData.forEach((control) => {
-          if (control.id === item.controlId && _.isEqual(item.value.attachmentData, control.value.attachmentData)) {
-            item.value.attachments = control.value.attachments || [];
-            item.value.knowledgeAtts = control.value.knowledgeAtts || [];
-          }
-        });
+        item.value = JSON.stringify(item.value);
+      }
+
+      // 地区
+      if (_.includes([19, 23, 24], item.type)) {
+        item.value = JSON.stringify({ code: '', name: item.value });
       }
 
       // 关联控件
@@ -72,151 +77,117 @@ class TaskControl extends Component {
         item.value.forEach((obj, i) => {
           obj.suffix = i;
         });
+
+        item.value = JSON.stringify(item.value);
       }
 
+      item.advancedSetting = {};
       item.disabled = !hasAuth;
     });
 
-    this.setState({ controlData: FormAdapter.convert(FormControl.flatten(data, [])) });
+    this.setState({ flag: +new Date(), controlData: data });
   }
 
   /**
-   * 值更新
+   * 更新字段数据
    */
-  onChange = (event, id, values, data) => {
+  updateFieldsData = ({ value, controlId, isBlur }) => {
+    const errorItems = this.fields.state.errorItems;
+    const { data } = this.fields.getSubmitData({ silent: true });
+    const currentData = data.find(item => item.controlId === controlId);
     const controls = this.props.taskControls[this.props.taskId];
-    const type = _.find(controls, item => item.controlId === id).type;
+    const oldCurrentData = _.find(controls, item => item.controlId === controlId);
 
-    switch (type) {
-      case 9:
-        this.updateRadioValue(id, values[id]);
-        break;
-      case 11:
-      case 28:
-        this.updateControlValue(id, values[id]);
-        break;
-      case 10:
-        this.updateCheckboxValue(id, values);
-        break;
-      case 15:
-      case 16:
-        this.updateControlValue(id, values[id] ? moment(values[id]).format('YYYY-MM-DD HH:mm:ss') : '');
-        break;
-      case 21:
-        this.updateRelationValue(id, values[id]);
-        break;
-      case 2:
-      case 4:
-      case 5:
-      case 6:
-      case 7:
-      case 8:
-      case 14:
-      case 19:
-      case 23:
-      case 24:
-        this.updateControlData(id, data);
-        break;
+    if (!controlId) return;
+
+    if (isBlur) {
+      if (!errorItems.find(item => item.controlId === controlId) && currentData.value !== oldCurrentData.value) {
+        this.updateControlValue(controlId, currentData.value);
+      }
+    } else {
+      if (_.includes([9, 11], currentData.type)) {
+        const value = JSON.parse(currentData.value)[0] || '';
+
+        this.updateControlValue(controlId, currentData.type === 9 && value === oldCurrentData.value ? '' : value);
+      }
+
+      if (currentData.type === 10) {
+        let newValue = '';
+        let list = [];
+
+        JSON.parse(currentData.value).forEach(key => {
+          if (!newValue) {
+            newValue = key;
+          } else if (newValue.length > key.length) {
+            list = newValue.split('');
+            list.splice(newValue.length - key.length, 1, '1');
+            newValue = list.join('');
+          } else {
+            newValue = key.substr(0, key.length - newValue.length) + newValue;
+          }
+        });
+
+        this.updateControlValue(controlId, newValue);
+      }
+
+      if (currentData.type === 14) {
+        const { attachments, knowledgeAtts, attachmentData } = JSON.parse(currentData.value);
+        const oldValue = JSON.parse(oldCurrentData.value);
+
+        if (attachmentData.length !== oldValue.length) {
+          let deleteFile;
+          oldValue.forEach(o => {
+            if (attachmentData.find(att => att.fileID !== o.fileID)) {
+              deleteFile = o;
+            }
+          });
+
+          this.deleteFile(controlId, deleteFile, attachmentData);
+        } else if (attachments.length + knowledgeAtts.length) {
+          this.updateControlValue(controlId, JSON.stringify(attachments), JSON.stringify(knowledgeAtts), true);
+        }
+      }
+
+      if (_.includes([15, 16, 28], currentData.type)) {
+        this.updateControlValue(controlId, currentData.value);
+      }
+
+      if (_.includes([19, 23, 24], currentData.type)) {
+        const { code, name } = JSON.parse(currentData.value);
+
+        if (name !== oldCurrentData.value) {
+          this.updateControlValue(controlId, code, name);
+        }
+      }
+
+      if (currentData.type === 21) {
+        this.updateRelationValue(controlId, JSON.parse(currentData.value));
+      }
     }
   };
 
   /**
-   * 更新state控件的值
+   * 删除附件
    */
-  updateControlData(id, data) {
-    const { controlData } = this.state;
+  deleteFile(controlId, delFile, newFiles) {
     const { taskId } = this.props;
-    const controls = this.props.taskControls[taskId];
-    const { type, value } = _.find(controls, item => item.controlId === id);
 
-    controlData.forEach((item) => {
-      if (item.id === id) {
-        item.value = data[id].value;
-        item.config = Object.assign({}, item.config, { label: data[id].configLabel });
-        item.valueText = data[id].valueText;
-
-        // 删除附件更新数据
-        if (type === 14 && !_.isEqual(JSON.parse(value, data[id].value.attachmentData))) {
-          this.props.dispatch(updateTaskControlFiles(taskId, id, data[id].value.attachmentData));
-        }
-      }
-    });
-  }
-
-  /**
-   * 类似文本框 附件这一类的值更新保存
-   */
-  onSave = (id, data) => {
-    const controls = this.props.taskControls[this.props.taskId];
-    const { type, value } = _.find(controls, item => item.controlId === id);
-
-    switch (type) {
-      case 2:
-      case 3:
-      case 4:
-      case 5:
-      case 6:
-      case 7:
-      case 8:
-        data !== value && this.updateControlValue(id, data);
-        break;
-      case 14:
-        this.updateControlValue(id, JSON.stringify(data.attachments), JSON.stringify(data.knowledgeAtts), true);
-        break;
-      case 19:
-      case 23:
-      case 24:
-        this.updateAreaValue(id, data);
-        break;
-    }
-  };
-
-  /**
-   * 更新地区的值
-   */
-  updateAreaValue(id, value) {
-    if (typeof value === 'string') {
-      return;
-    }
-
-    const lastAreaId = value[value.length - 1].id;
-    const text = value.map(item => item.name).join(' / ');
-
-    this.updateControlValue(id, lastAreaId, text);
-  }
-
-  /**
-   * 更新单选控件的值
-   */
-  updateRadioValue(id, value) {
-    const controls = this.props.taskControls[this.props.taskId];
-    const control = _.find(controls, item => item.controlId === id);
-
-    this.updateControlValue(id, control.value === value ? '' : value);
-  }
-
-  /**
-   * 更新多选控件的值
-   */
-  updateCheckboxValue(id, values) {
-    let value = '';
-    let arrs = [];
-
-    Object.keys(values[id]).forEach((key) => {
-      if (values[id][key]) {
-        if (!value) {
-          value = key;
-        } else if (value.length > key.length) {
-          arrs = value.split('');
-          arrs.splice(value.length - key.length, 1, '1');
-          value = arrs.join('');
-        } else {
-          value = key.substr(0, key.length - value.length) + value;
-        }
-      }
-    });
-
-    this.updateControlValue(id, value);
+    deleteAttachment(
+      delFile.docVersionID,
+      delFile.fileID,
+      delFile.sourceID,
+      '',
+      3,
+      undefined,
+      delFile.originalFilename + delFile.ext,
+    )
+      .then(result => {
+        alert(_l('删除成功'));
+        this.props.dispatch(updateTaskControlFiles(taskId, controlId, newFiles));
+      })
+      .fail(() => {
+        alert(_l('删除文件失败'), 3);
+      });
   }
 
   /**
@@ -258,15 +229,6 @@ class TaskControl extends Component {
   }
 
   /**
-   * 值错误
-   */
-  onDataChange(errorData) {
-    this.setState({
-      hasError: !!Object.values(errorData).filter(item => !!item).length,
-    });
-  }
-
-  /**
    * 更改任务详情的收起展开
    */
   updateTaskFoldStatus = () => {
@@ -274,8 +236,8 @@ class TaskControl extends Component {
   };
 
   render() {
-    const { controlData, hasError } = this.state;
-    const isHidden = _.includes((this.props.taskFoldStatus[this.props.taskId] || []), 'control');
+    const { flag, controlData } = this.state;
+    const isHidden = _.includes(this.props.taskFoldStatus[this.props.taskId] || [], 'control');
 
     if (!controlData.length) {
       return null;
@@ -288,20 +250,24 @@ class TaskControl extends Component {
           {_l('自定义内容')}
           <div className="flex" />
           <span className="taskDetailFold" data-tip={isHidden ? _l('展开') : _l('收起')}>
-            <i className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')} onClick={this.updateTaskFoldStatus} />
+            <i
+              className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
+              onClick={this.updateTaskFoldStatus}
+            />
           </span>
         </div>
-        {!isHidden ? (
-          <FormContainer
-            data={controlData}
-            moduleType="task"
-            showError={hasError}
-            onChange={this.onChange}
-            onValid={(id, errorData) => this.onDataChange(errorData)}
-            onError={(error, id, errorData) => this.onDataChange(errorData)}
-            onSave={this.onSave}
-          />
-        ) : null}
+        {!isHidden && (
+          <div className="pLeft12 pRight12 taskCustomFields">
+            <CustomFields
+              flag={flag}
+              ref={fields => (this.fields = fields)}
+              data={controlData}
+              widgetStyle={{ align_pc: '1', titlelayout_pc: '2', titlewidth_pc: '84' }}
+              onChange={(values, ids, { controlId }) => this.updateFieldsData({ controlId })}
+              onBlur={controlId => this.updateFieldsData({ isBlur: true, controlId })}
+            />
+          </div>
+        )}
       </div>
     );
   }

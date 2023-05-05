@@ -12,6 +12,7 @@ import {
   ButtonName,
   Schedule,
   CustomTextarea,
+  UserRange,
 } from '../components';
 import styled from 'styled-components';
 import moment from 'moment';
@@ -130,6 +131,9 @@ export default class Approval extends Component {
       overruleMessage,
       callBackNodeType,
       callBackNodeIds,
+      encrypt,
+      operationUserRange,
+      returnBtnName,
     } = data;
 
     if (!selectNodeId) {
@@ -166,6 +170,7 @@ export default class Approval extends Component {
         formProperties,
         passBtnName: passBtnName.trim() || _l('通过'),
         overruleBtnName: overruleBtnName.trim() || _l('否决'),
+        returnBtnName: returnBtnName.trim() || _l('退回'),
         auth,
         batch,
         schedule,
@@ -175,6 +180,8 @@ export default class Approval extends Component {
         overruleMessage,
         callBackNodeType,
         callBackNodeIds,
+        encrypt,
+        operationUserRange,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -439,49 +446,98 @@ export default class Approval extends Component {
 
     return (
       <Fragment>
-        <div className="Font13 bold mTop25">{_l('审批设置')}</div>
+        <div className="Font13 bold mTop25">{_l('审批人操作')}</div>
+
         {data.countersignType !== 2 && (
-          <Checkbox
-            className="mTop15 flexRow"
-            text={_l('允许审批人转审')}
-            checked={_.includes(data.operationTypeList, 6)}
-            onClick={checked => this.switchApprovalSettings(!checked, 6)}
-          />
+          <Fragment>
+            <div className="mTop15">
+              <Checkbox
+                className="InlineFlex"
+                text={_l('转审')}
+                checked={_.includes(data.operationTypeList, 6)}
+                onClick={checked => this.switchApprovalSettings(!checked, 6)}
+              />
+            </div>
+            {_.includes(data.operationTypeList, 6) && (
+              <UserRange
+                {...this.props}
+                operationUserRange={data.operationUserRange}
+                operationType="6"
+                title={_l('可转审给：')}
+                btnText={_l('添加转审候选人')}
+                updateSource={({ accounts }) =>
+                  this.updateSource({
+                    operationUserRange: Object.assign({}, data.operationUserRange, { [6]: accounts }),
+                  })
+                }
+              />
+            )}
+          </Fragment>
         )}
         {_.includes([1, 2, 4], data.countersignType) && (
-          <Checkbox
-            className="mTop15 flexRow"
-            text={_l('允许添加审批人')}
-            checked={_.includes(data.operationTypeList, 16)}
-            onClick={checked => this.switchApprovalSettings(!checked, 16)}
-          />
+          <Fragment>
+            <div className="mTop15">
+              <Checkbox
+                className="InlineFlex"
+                text={_l('添加审批人')}
+                checked={_.includes(data.operationTypeList, 16)}
+                onClick={checked => this.switchApprovalSettings(!checked, 16)}
+              />
+            </div>
+            {_.includes(data.operationTypeList, 16) && (
+              <UserRange
+                {...this.props}
+                operationUserRange={data.operationUserRange}
+                operationType="16"
+                title={_l('可添加：')}
+                btnText={_l('添加候选人')}
+                updateSource={({ accounts }) =>
+                  this.updateSource({
+                    operationUserRange: Object.assign({}, data.operationUserRange, { [16]: accounts }),
+                  })
+                }
+              />
+            )}
+          </Fragment>
         )}
         {!_.includes([1, 2, 4], data.countersignType) && (
-          <Checkbox
-            className="mTop15 flexRow"
-            text={_l('允许审批人加签')}
-            checked={_.includes(data.operationTypeList, 7)}
-            onClick={checked => this.switchApprovalSettings(!checked, 7)}
-          />
+          <Fragment>
+            <div className="mTop15">
+              <Checkbox
+                className="InlineFlex"
+                text={_l('加签')}
+                checked={_.includes(data.operationTypeList, 7)}
+                onClick={checked => this.switchApprovalSettings(!checked, 7)}
+              />
+            </div>
+            {_.includes(data.operationTypeList, 7) && (
+              <UserRange
+                {...this.props}
+                operationUserRange={data.operationUserRange}
+                operationType="7"
+                title={_l('可加签给：')}
+                btnText={_l('添加加签候选人')}
+                updateSource={({ accounts }) =>
+                  this.updateSource({
+                    operationUserRange: Object.assign({}, data.operationUserRange, { [7]: accounts }),
+                  })
+                }
+              />
+            )}
+          </Fragment>
         )}
         <Checkbox
           className="mTop15 flexRow"
-          text={_l('允许审批人暂存')}
+          text={_l('暂存')}
           checked={_.includes(data.operationTypeList, 13)}
           onClick={checked => this.switchApprovalSettings(!checked, 13)}
-        />
-        <Checkbox
-          className="mTop15 flexRow"
-          text={_l('否决时，无需填写表单字段')}
-          checked={data.ignoreRequired}
-          onClick={checked => this.updateSource({ ignoreRequired: !checked })}
         />
         {data.countersignType !== 2 && (
           <Fragment>
             <div className="flexRow alignItemsCenter mTop15">
               <Checkbox
                 className="flex flexRow"
-                text={_l('否决后，允许退回')}
+                text={_l('退回')}
                 disabled={data.countersignType === 2}
                 checked={data.isCallBack}
                 onClick={checked => {
@@ -913,6 +969,13 @@ export default class Approval extends Component {
       <Fragment>
         <Checkbox
           className="mTop15 flexRow"
+          text={_l('否决/退回时，无需填写表单字段')}
+          checked={data.ignoreRequired}
+          onClick={checked => this.updateSource({ ignoreRequired: !checked })}
+        />
+
+        <Checkbox
+          className="mTop15 flexRow"
           text={
             <span>
               {_l('允许批量 / 快速审批')}
@@ -990,6 +1053,9 @@ export default class Approval extends Component {
               {this.renderApprovalMode()}
               {this.renderApprovalSettings()}
 
+              <div className="Font13 bold mTop25">{_l('节点结果通知发起人')}</div>
+              {this.renderMessage()}
+
               <div className="Font13 bold mTop25">{_l('审批意见')}</div>
               <div className="flexRow mTop15">
                 <Checkbox
@@ -1000,7 +1066,7 @@ export default class Approval extends Component {
                 />
                 <Checkbox
                   className="InlineFlex flex"
-                  text={_l('否决时必填')}
+                  text={_l('否决/退回时必填')}
                   checked={_.includes(data.auth.overruleTypeList, 100)}
                   onClick={checked => this.opinionRequiredChange(!checked, 'overruleTypeList')}
                 />
@@ -1018,7 +1084,7 @@ export default class Approval extends Component {
                 />
                 <Checkbox
                   className="InlineFlex flex"
-                  text={_l('否决时必须认证')}
+                  text={_l('否决/退回时必须认证')}
                   checked={!!data.auth.overruleTypeList.filter(i => i !== 100).length}
                   onClick={checked => this.authRequiredChange(!checked, 'overruleTypeList')}
                 />
@@ -1042,8 +1108,23 @@ export default class Approval extends Component {
                 </Fragment>
               )}
 
-              <div className="Font13 bold mTop25">{_l('节点结果通知发起人')}</div>
-              {this.renderMessage()}
+              <div className="Font13 mTop25 bold">{_l('安全')}</div>
+              <Checkbox
+                className="mTop15 flexRow"
+                text={
+                  <span>
+                    {_l('登录密码验证')}
+                    <Tooltip
+                      popupPlacement="bottom"
+                      text={<span>{_l('启用后，用户输入登录密码后才可进行通过/否决')}</span>}
+                    >
+                      <Icon className="Font16 Gray_9e mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
+                    </Tooltip>
+                  </span>
+                }
+                checked={data.encrypt}
+                onClick={checked => this.updateSource({ encrypt: !checked })}
+              />
 
               <div className="Font13 bold mTop25">{_l('其他')}</div>
               {this.renderSeniorSettings()}
@@ -1075,6 +1156,14 @@ export default class Approval extends Component {
                 buttonName={_l('否决按钮')}
                 onChange={this.updateSource}
               />
+              {data.isCallBack && (
+                <ButtonName
+                  dataKey="returnBtnName"
+                  name={data.returnBtnName}
+                  buttonName={_l('退回按钮')}
+                  onChange={this.updateSource}
+                />
+              )}
             </div>
           </ScrollView>
         </div>

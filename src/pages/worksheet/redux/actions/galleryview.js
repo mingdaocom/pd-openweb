@@ -1,5 +1,6 @@
 import worksheetAjax from 'src/api/worksheet';
 import { getNavGroupCount } from './index';
+import { formatQuickFilter } from 'worksheet/util';
 import _ from 'lodash';
 export const fetch = index => {
   return (dispatch, getState) => {
@@ -20,19 +21,7 @@ export const fetch = index => {
       viewId,
       reportId: chartId || undefined,
       ...filters,
-      fastFilters: quickFilter.map(f =>
-        _.pick(f, [
-          'controlId',
-          'dataType',
-          'spliceType',
-          'filterType',
-          'dateRange',
-          'value',
-          'values',
-          'minValue',
-          'maxValue',
-        ]),
-      ),
+      fastFilters: formatQuickFilter(quickFilter),
       navGroupFilters,
     };
     if (maxCount) {

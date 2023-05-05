@@ -29,13 +29,6 @@ class Header extends Component {
   static defaultProps = {
     tabIndex: 1,
     switchTabs: () => {},
-    onBack: () => {
-      if (history.length === 1) {
-        location.href = '/app/my';
-      } else {
-        history.back();
-      }
-    },
   };
 
   constructor(props) {
@@ -158,12 +151,19 @@ class Header extends Component {
    * 返回
    */
   back = () => {
-    const { workflowDetail, onBack, flowInfo } = this.props;
+    const { workflowDetail, flowInfo } = this.props;
+    let { onBack } = this.props;
     const { startEventId, flowNodeMap } = workflowDetail;
     const noSelectWorksheet =
       startEventId &&
       (flowNodeMap[startEventId].appType === APP_TYPE.SHEET || flowNodeMap[startEventId].appType === APP_TYPE.DATE) &&
       !flowNodeMap[startEventId].appId;
+
+    if (!onBack) {
+      onBack = () => {
+        location.href = `/app/${flowInfo.relationId}/workflow`;
+      };
+    }
 
     if (noSelectWorksheet) {
       Confirm({

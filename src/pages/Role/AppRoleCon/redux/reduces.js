@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
-import { pageSize } from '../UserCon/config';
+import { pageSize, initData } from '../UserCon/config';
+
 export const loading = (state = false, action) => {
   switch (action.type) {
     case 'UPDATE_ROLE_LOADING':
@@ -103,32 +104,11 @@ export const selectedIds = (state = [], action) => {
       return state;
   }
 };
-let ints = {
-  number: 1,
-  size: pageSize,
-  // ascendingByType: true, //类型递增
-  // ascendingByTime: true, //时间递增
-  filterBy: {
-    filterByName: '',
-    filterByMemberType: -1,
-  },
-  sortBy: {
-    ascendingByType: {
-      enable: false,
-      state: true,
-    },
-    ascendingByTime: {
-      enable: true,
-      state: true,
-    },
-  },
-  // name: '', //根据名称过滤
-  // memberType: 0, //成员类型过滤
-};
-export const appRolePagingModel = (state = ints, action) => {
+
+export const appRolePagingModel = (state = initData, action) => {
   switch (action.type) {
     case 'UPDATE_APPROLEPAGINGMODEL':
-      return action.data || ints;
+      return action.data || initData;
     default:
       return state;
   }

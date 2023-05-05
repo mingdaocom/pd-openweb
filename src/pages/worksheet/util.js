@@ -451,7 +451,7 @@ export function getControlValueSortType(control) {
  * @param  {} records
  */
 
-export function formatRecordToRelateRecord(controls, records = []) {
+export function formatRecordToRelateRecord(controls, records = [], { addedIds = [], deletedIds = [], count = 0 } = {}) {
   if (!_.isArray(records)) {
     records = [];
   }
@@ -476,6 +476,9 @@ export function formatRecordToRelateRecord(controls, records = []) {
       type: 8,
       sourcevalue: JSON.stringify(record),
       row: record,
+      isNew: _.includes(addedIds, record.rowid),
+      deletedIds,
+      count,
     };
   });
   return value;
@@ -1073,6 +1076,7 @@ export function handlePasteUpdateCell(cell, pasteData, update = () => {}) {
   if (
     _.includes(
       [
+        WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE,
         WIDGETS_TO_API_TYPE_ENUM.NUMBER,
         WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU,
         WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT,
@@ -1169,4 +1173,36 @@ export function getSheetListFirstId(sheetList = [], isCharge = true) {
     }
   }
   return result;
+}
+
+export function formatQuickFilter(items = []) {
+  return items.map(item =>
+    _.pick(item, [
+      'controlId',
+      'dataType',
+      'spliceType',
+      'filterType',
+      'dateRange',
+      'value',
+      'values',
+      'minValue',
+      'maxValue',
+    ]),
+  );
+}
+
+export function getRelateRecordCountFromValue(value) {
+  let count;
+  try {
+    const savedCount = safeParse(value, 'array')[0].count;
+    if (!_.isUndefined(savedCount) && !_.isNaN(Number(savedCount))) {
+      count = Number(savedCount);
+    }
+  } catch (err) {
+    // console.log(err);
+  }
+  if (String(value).startsWith('deleteRowIds')) {
+    return 0;
+  }
+  return count;
 }

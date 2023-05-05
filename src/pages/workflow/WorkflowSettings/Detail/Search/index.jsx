@@ -84,7 +84,19 @@ export default class Search extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, appId, findFields, executeType, fields, selectNodeId, conditions, sorts, random, link } = data;
+    const {
+      name,
+      appId,
+      findFields,
+      executeType,
+      fields,
+      selectNodeId,
+      conditions,
+      sorts,
+      random,
+      link,
+      filters,
+    } = data;
 
     if (data.actionId === ACTION_ID.WORKSHEET_FIND && !appId) {
       alert(_l('必须先选择一个工作表'), 2);
@@ -111,6 +123,21 @@ export default class Search extends Component {
       return;
     }
 
+    if (filters.length) {
+      let hasError = false;
+
+      filters.forEach(item => {
+        if (checkConditionsIsNull(item.conditions)) {
+          hasError = true;
+        }
+      });
+
+      if (hasError) {
+        alert(_l('筛选条件的判断值不能为空'), 2);
+        return;
+      }
+    }
+
     if (saveRequest) {
       return;
     }
@@ -130,6 +157,7 @@ export default class Search extends Component {
         sorts,
         random,
         link,
+        filters,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -446,9 +474,10 @@ export default class Search extends Component {
         companyId={this.props.companyId}
         processId={this.props.processId}
         selectNodeId={this.props.selectNodeId}
+        openNewFilter={!data.conditions.length}
         data={data}
         updateSource={this.updateSource}
-        showRandom={true}
+        showRandom
         filterText={_l(
           '设置筛选条件，查找满足条件的数据。如果未添加筛选条件则表示只通过排序规则从所有记录中获得唯一数据',
         )}

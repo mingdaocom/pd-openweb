@@ -105,7 +105,6 @@ function NewRecord(props) {
     hideNewRecord = _.noop,
     notDialog,
     advancedSetting = {},
-    showDraft,
     showDraftsEntry,
     sheetSwitchPermit,
     ...rest
@@ -168,13 +167,12 @@ function NewRecord(props) {
       <div className="title Font18 Gray flex bold leftAlign ellipsis">
         {advancedSetting.title || props.title || (props.entityName && _l('创建%0', props.entityName))}
       </div>
-      {visible && showDraft && showDraftsEntry && (
+      {visible && advancedSetting.closedrafts !== '1' && showDraftsEntry && (
         <MobileDraft
           appId={appId}
           worksheetId={worksheetInfo.worksheetId}
           controls={_.get(worksheetInfo, 'template.controls')}
           worksheetInfo={worksheetInfo}
-          showDraft={advancedSetting.closedrafts !== '1'}
           sheetSwitchPermit={sheetSwitchPermit}
         />
       )}
@@ -206,7 +204,7 @@ function NewRecord(props) {
 
   const footer = (
     <BtnsWrap className="footerBox valignWrapper flexRow">
-      {showDraft && (
+      {advancedSetting.closedrafts !== '1' && (
         <WingBlank className="flexColumn TxtCenter" size="sm">
           <div
             onClick={() => {

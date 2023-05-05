@@ -51,7 +51,7 @@
       .name {
         max-width: 100%;
       }
-      &.active {
+      &.active.allowRemove {
         padding-right: 24px !important;
       }
     }
@@ -121,6 +121,13 @@
         .icon-close {
           top: 2px;
         }
+        &.showMoreBtn {
+          padding: 0 6px;
+          i {
+            transform: translateY(2px);
+            display: inline-block;
+          }
+        }
       }
       &.allowOpenRecord {
         &:not(.active) .normalSelectedItem,
@@ -173,7 +180,7 @@
   border-radius: 3px;
   background-color: #fff;
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
-  > div.listCon {
+  div.listCon {
     padding: 6px 0;
   }
   &-search {
@@ -218,6 +225,18 @@
   position: relative;
   cursor: pointer;
   padding: 0 12px;
+  &.isEmpty {
+    margin-bottom: 12px;
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0px;
+      right: 0px;
+      height: 0px;
+      bottom: -7px;
+      border-bottom: 1px solid #ddd;
+    }
+  }
   &.big {
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   }

@@ -7,12 +7,13 @@ import { Switch } from 'antd';
 import _ from 'lodash';
 import cx from 'classnames';
 import OptionColumn from './OptionColumn';
-import { TASK_STATUS_TYPE, TASK_STATUS_TAB_LIST, DATABASE_TYPE } from '../../../constant';
+import { TASK_STATUS_TYPE, TASK_STATUS_TAB_LIST, SORT_TYPE } from '../../../constant';
 import syncTaskApi from '../../../../api/syncTask';
 import { formatDate } from '../../../../config';
 import { Link } from 'react-router-dom';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import dataSourceApi from '../../../../api/datasource';
+import ToolTip from 'ming-ui/components/Tooltip';
 
 const TaskListBox = styled.div`
   .headTr {
@@ -96,6 +97,10 @@ const TaskListBox = styled.div`
     .ant-switch-disabled {
       background: #dedede !important;
       opacity: 1;
+      &.ant-switch-checked {
+        background: #80e4c1 !important;
+        opacity: 1;
+      }
     }
   }
 
@@ -109,6 +114,9 @@ const TaskListBox = styled.div`
   .readRecord,
   .writeRecord {
     flex: 2;
+    .hrHeight {
+      height: 19.5px;
+    }
     .h16 {
       height: 16px;
     }
@@ -261,7 +269,8 @@ const FilterItem = styled.div`
 `;
 
 let ajaxPromise;
-let stausAjaxPromise;
+let statusAjaxPromise;
+let sortFlag = 0;
 
 export default function TaskList({ projectId, onRefreshComponents }) {
   const [taskList, setTaskList] = useState([]);
@@ -274,22 +283,26 @@ export default function TaskList({ projectId, onRefreshComponents }) {
     pageNo: 0,
     loading: true,
     noMore: false,
+    sort: { fieldName: '', sortDirection: null },
   });
   const [isFilterExpand, setIsFilterExpand] = useSetState({ sourceType: false, destType: false });
   const [showFilter, setShowFilter] = useState(false);
   const [sourceTypeTabList, setSourceTypeTabList] = useState([]);
+  const [switchLoading, setSwitchLoading] = useState({});
+
   const FILTER_TYPES = [
     { title: _l('任务状态'), data: TASK_STATUS_TAB_LIST, key: 'taskStatus', hasExpand: false },
     { title: _l('源类型'), data: sourceTypeTabList, key: 'sourceType', hasExpand: false },
     { title: _l('目的地类型'), data: sourceTypeTabList, key: 'destType', hasExpand: false },
   ];
+  const sortTypes = [null, SORT_TYPE.ASC, SORT_TYPE.DESC];
+
   const onSearch = useCallback(
     _.debounce(value => {
       setFetchState({ keyWords: value, loading: true });
     }, 500),
     [],
   );
-  // const [switchSort, setSwitchSort] = useSetState({ syncTaskSort: undefined, createTimeSort: undefined });
 
   useEffect(() => {
     //获取数据源类型列表
@@ -301,11 +314,9 @@ export default function TaskList({ projectId, onRefreshComponents }) {
 
     dataSourceApi.getTypes(getTypeParams, { fireImmediately: true }).then(res => {
       if (res) {
-        const list = res
-          .filter(item => [DATABASE_TYPE.MYSQL, DATABASE_TYPE.APPLICATION_WORKSHEET].includes(item.type))
-          .map(item => {
-            return { key: item.type, text: item.name };
-          });
+        const list = res.map(item => {
+          return { key: item.type, text: item.name };
+        });
         setSourceTypeTabList([{ key: 'ALL', text: _l('全部') }, ...list]);
       }
     });
@@ -324,6 +335,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
       status: fetchState.taskStatus === 'ALL' ? null : fetchState.taskStatus,
       sourceType: fetchState.sourceType === 'ALL' ? null : fetchState.sourceType,
       destType: fetchState.destType === 'ALL' ? null : fetchState.destType,
+      sort: fetchState.sort,
     };
     //获取同步任务列表;
     ajaxPromise = syncTaskApi.list(fetchListParams, { fireImmediately: true });
@@ -340,17 +352,20 @@ export default function TaskList({ projectId, onRefreshComponents }) {
     fetchState.keyWords,
     fetchState.pageNo,
     fetchState.loading,
+    fetchState.sort,
   ]);
 
   const switchTaskStatus = (checked, record) => {
-    if (stausAjaxPromise) return;
-    stausAjaxPromise = syncTaskApi[checked ? 'startTask' : 'stopTask']({
+    if (statusAjaxPromise) return;
+    setSwitchLoading({ [record.id]: true });
+    statusAjaxPromise = syncTaskApi[checked ? 'startTask' : 'stopTask']({
       projectId,
       taskId: record.id,
     });
-    stausAjaxPromise
+    statusAjaxPromise
       .then(res => {
-        stausAjaxPromise = null;
+        statusAjaxPromise = null;
+        setSwitchLoading({ [record.id]: false });
         if (checked ? res.isSucceeded : res) {
           alert(checked ? _l('启动同步任务成功') : _l('停止同步任务成功'));
 
@@ -366,7 +381,10 @@ export default function TaskList({ projectId, onRefreshComponents }) {
           alert(checked ? res.errorMsg : _l('停止同步任务失败'), 2);
         }
       })
-      .fail(() => (stausAjaxPromise = null));
+      .fail(() => {
+        statusAjaxPromise = null;
+        setSwitchLoading({ [record.id]: false });
+      });
   };
 
   const onScrollEnd = () => {
@@ -383,18 +401,22 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         return (
           <Link className="flexRow alignItemsCenter pRight8 pointer" to={`/integration/taskCon/${item.flowId}`}>
             <div className="flexRow alignItemsCenter pLeft8 titleColumn">
-              <TaskIcon data-tip={item.sourceTypeName}>
-                <svg className="icon svg-icon" aria-hidden="true">
-                  <use xlinkHref={`#icon${item.sourceClassName}`} />
-                </svg>
-                {item.sourceNum > 1 && <div className="sourceNum">{item.sourceNum}</div>}
-              </TaskIcon>
+              <ToolTip text={item.sourceTypeName}>
+                <TaskIcon>
+                  <svg className="icon svg-icon" aria-hidden="true">
+                    <use xlinkHref={`#icon${item.sourceClassName}`} />
+                  </svg>
+                  {item.sourceNum > 1 && <div className="sourceNum">{item.sourceNum}</div>}
+                </TaskIcon>
+              </ToolTip>
               <Icon icon="arrow_down" className="arrowIcon" />
-              <TaskIcon data-tip={item.destTypeName}>
-                <svg className="icon svg-icon" aria-hidden="true">
-                  <use xlinkHref={`#icon${item.destClassName}`} />
-                </svg>
-              </TaskIcon>
+              <ToolTip text={item.destTypeName}>
+                <TaskIcon>
+                  <svg className="icon svg-icon" aria-hidden="true">
+                    <use xlinkHref={`#icon${item.destClassName}`} />
+                  </svg>
+                </TaskIcon>
+              </ToolTip>
             </div>
 
             <span title={item.name} className="titleText overflow_ellipsis">
@@ -415,6 +437,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
             })}
           >
             <Switch
+              loading={switchLoading[item.id]}
               checkedChildren={_l('开启')}
               unCheckedChildren={_l('关闭')}
               checked={item.taskStatus === TASK_STATUS_TYPE.RUNNING}
@@ -452,13 +475,36 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         return (
           <div
             className="flexRow pointer"
-            // onClick={() => setSwitchSort({ syncTaskSort: !switchSort.syncTaskSort })}
+            onClick={() => {
+              if (fetchState.sort.fieldName !== 'readRecord') {
+                sortFlag = 1;
+              } else {
+                sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
+              }
+              setFetchState({
+                loading: true,
+                pageNo: 0,
+                sort: { fieldName: sortFlag === 0 ? '' : 'readRecord', sortDirection: sortTypes[sortFlag] },
+              });
+            }}
           >
             <span>{_l('已读取(行)')}</span>
-            {/* <div className="flexColumn mLeft6">
-              <Icon icon="arrow-up" className={cx('sortIcon', { selected: switchSort.syncTaskSort === true })} />
-              <Icon icon="arrow-down" className={cx('sortIcon', { selected: switchSort.syncTaskSort === false })} />
-            </div> */}
+            <div className="flexColumn mLeft6">
+              <Icon
+                icon="arrow-up"
+                className={cx('sortIcon', {
+                  selected:
+                    fetchState.sort.fieldName === 'readRecord' && fetchState.sort.sortDirection === SORT_TYPE.ASC,
+                })}
+              />
+              <Icon
+                icon="arrow-down"
+                className={cx('sortIcon', {
+                  selected:
+                    fetchState.sort.fieldName === 'readRecord' && fetchState.sort.sortDirection === SORT_TYPE.DESC,
+                })}
+              />
+            </div>
           </div>
         );
       },
@@ -470,19 +516,40 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         return (
           <div
             className="flexRow pointer alignItemsCenter"
-            // onClick={() => setSwitchSort({ syncTaskSort: !switchSort.syncTaskSort })}
+            onClick={() => {
+              if (fetchState.sort.fieldName !== 'writeRecord') {
+                sortFlag = 1;
+              } else {
+                sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
+              }
+              setFetchState({
+                loading: true,
+                pageNo: 0,
+                sort: { fieldName: sortFlag === 0 ? '' : 'writeRecord', sortDirection: sortTypes[sortFlag] },
+              });
+            }}
           >
             <span>{_l('已写入(行)')}</span>
-            <div
-              data-tip={_l('工作表数据量大时会按队列分批写入，实际完成写入量略有延迟。')}
-              className="tip-top mLeft5 h16"
-            >
-              <Icon icon="info_outline" className="Gray_9e Font16" />
+            <div className="flexColumn mLeft6 hrHeight">
+              <Icon
+                icon="arrow-up"
+                className={cx('sortIcon', {
+                  selected:
+                    fetchState.sort.fieldName === 'writeRecord' && fetchState.sort.sortDirection === SORT_TYPE.ASC,
+                })}
+              />
+              <Icon
+                icon="arrow-down"
+                className={cx('sortIcon', {
+                  selected:
+                    fetchState.sort.fieldName === 'writeRecord' && fetchState.sort.sortDirection === SORT_TYPE.DESC,
+                })}
+              />
             </div>
-            {/* <div className="flexColumn mLeft6">
-              <Icon icon="arrow-up" className={cx('sortIcon', { selected: switchSort.syncTaskSort === true })} />
-              <Icon icon="arrow-down" className={cx('sortIcon', { selected: switchSort.syncTaskSort === false })} />
-            </div> */}
+
+            <ToolTip className="mLeft5 h16" text={_l('工作表数据量大时会按队列分批写入，实际完成写入量略有延迟。')}>
+              <Icon icon="info_outline" className="Gray_9e Font16" />
+            </ToolTip>
           </div>
         );
       },
@@ -501,13 +568,36 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         return (
           <div
             className="flexRow pointer pRight8"
-            //  onClick={() => setSwitchSort({ syncTaskSort: !switchSort.syncTaskSort })}
+            onClick={() => {
+              if (fetchState.sort.fieldName !== 'createTime') {
+                sortFlag = 1;
+              } else {
+                sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
+              }
+              setFetchState({
+                loading: true,
+                pageNo: 0,
+                sort: { fieldName: sortFlag === 0 ? '' : 'createTime', sortDirection: sortTypes[sortFlag] },
+              });
+            }}
           >
             <span>{_l('创建人')}</span>
-            {/* <div className="flexColumn mLeft6">
-              <Icon icon="arrow-up" className={cx('sortIcon', { selected: switchSort.syncTaskSort === true })} />
-              <Icon icon="arrow-down" className={cx('sortIcon', { selected: switchSort.syncTaskSort === false })} />
-            </div> */}
+            <div className="flexColumn mLeft6">
+              <Icon
+                icon="arrow-up"
+                className={cx('sortIcon', {
+                  selected:
+                    fetchState.sort.fieldName === 'createTime' && fetchState.sort.sortDirection === SORT_TYPE.ASC,
+                })}
+              />
+              <Icon
+                icon="arrow-down"
+                className={cx('sortIcon', {
+                  selected:
+                    fetchState.sort.fieldName === 'createTime' && fetchState.sort.sortDirection === SORT_TYPE.DESC,
+                })}
+              />
+            </div>
           </div>
         );
       },

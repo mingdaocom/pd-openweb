@@ -47,7 +47,7 @@ class CardInfo extends Component {
     const { userInfo } = this.props;
     this.setState({
       cadrIndex: index,
-      cardList: userInfo.userCards[index],
+      cardList: userInfo.userCards.filter(item => item.companyName)[index],
     });
     this.showCardList(userInfo, userInfo.userCards[index]);
   };

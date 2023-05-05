@@ -7,6 +7,8 @@ import Trigger from 'rc-trigger';
 import homeAppApi from 'src/api/homeApp';
 import sheetApi from 'src/api/worksheet';
 import CreateNew from './CreateNew';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { canEditApp } from 'worksheet/redux/actions/util';
 
 const CopySheetConfirmDescription = props => {
   const { workSheetId, type } = props;
@@ -269,98 +271,102 @@ export default function MoreOperation(props) {
             setPopupVisible(false);
           }}
         >
-          <span className="text">{onChangeEdit ? _l('修改名称') : _l('修改名称和图标')}</span>
+          <span className="text">{onChangeEdit ? _l('修改名称') : _l('修改名称和图标%02023')}</span>
         </MenuItem>
-        {!isGroup && (
-          <MenuItem
-            icon={<Icon icon="content-copy" className="Font16" />}
-            onClick={() => {
-              handleCopyWorkSheet(props);
-              setPopupVisible(false);
-            }}
-          >
-            <span className="text">{_l('复制')}</span>
-          </MenuItem>
-        )}
-        <MenuItem
-          icon={<Icon icon="swap_horiz" className="Font18" />}
-          onClick={() => {
-            setSheetMoveVisible(true);
-            setPopupVisible(false);
-          }}
-        >
-          <span className="text">{_l('移动到')}</span>
-        </MenuItem>
-        <MenuItem
-          icon={<Icon icon="visibility_off" className="Font16" />}
-          onClick={() => {
-            setPopupVisible(false);
-            if (appItem.parentStatus === 2) {
-              return;
-            }
-            handleUpdateWorksheetStatus(props);
-          }}
-        >
-          <span className="text flexRow">
-            <span className="flex">{appItem.status === 1 ? _l('从导航中隐藏') : _l('取消隐藏')}</span>
-            <Tooltip
-              popupPlacement="right"
-              text={
-                <span>
-                  {isWorksheet
-                    ? _l('通常用于不需要用户直接访问的仅作为配置用途的表。如：关联的明细表、参数表等。')
-                    : _l('隐藏后，普通用户在导航中将看不到此页面入口。')}
-                </span>
-              }
+        {canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock'])) && (
+          <React.Fragment>
+            {!isGroup && (
+              <MenuItem
+                icon={<Icon icon="content-copy" className="Font16" />}
+                onClick={() => {
+                  handleCopyWorkSheet(props);
+                  setPopupVisible(false);
+                }}
+              >
+                <span className="text">{_l('复制%02022')}</span>
+              </MenuItem>
+            )}
+            <MenuItem
+              icon={<Icon icon="swap_horiz" className="Font18" />}
+              onClick={() => {
+                setSheetMoveVisible(true);
+                setPopupVisible(false);
+              }}
             >
-              <Icon className="Font14" icon={'help'} style={{ position: 'relative', left: 5 }} />
-            </Tooltip>
-          </span>
-        </MenuItem>
-        {isGroup && (
-          <Fragment>
+              <span className="text">{_l('移动到%02021')}</span>
+            </MenuItem>
+            <MenuItem
+              icon={<Icon icon="visibility_off" className="Font16" />}
+              onClick={() => {
+                setPopupVisible(false);
+                if (appItem.parentStatus === 2) {
+                  return;
+                }
+                handleUpdateWorksheetStatus(props);
+              }}
+            >
+              <span className="text flexRow">
+                <span className="flex">{appItem.status === 1 ? _l('从导航中隐藏%02020') : _l('取消隐藏')}</span>
+                <Tooltip
+                  popupPlacement="right"
+                  text={
+                    <span>
+                      {isWorksheet
+                        ? _l('通常用于不需要用户直接访问的仅作为配置用途的表。如：关联的明细表、参数表等。')
+                        : _l('隐藏后，普通用户在导航中将看不到此页面入口。')}
+                    </span>
+                  }
+                >
+                  <Icon className="Font14" icon={'help'} style={{ position: 'relative', left: 5 }} />
+                </Tooltip>
+              </span>
+            </MenuItem>
+            {isGroup && (
+              <Fragment>
+                <hr className="splitter" />
+                <div className="Gray_9e pLeft12 mTop10">{_l('新建')}</div>
+                <MenuItem
+                  onClick={() => {
+                    setCreateType('worksheet');
+                    setPopupVisible(false);
+                  }}
+                >
+                  <Icon icon="plus" className="Font18" />
+                  <span className="text">{_l('从空白创建工作表%02015')}</span>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    setCreateType('importExcel');
+                    setPopupVisible(false);
+                  }}
+                >
+                  <Icon icon="new_excel" className="Font18" />
+                  <span className="text">{_l('从Excel创建工作表%02014')}</span>
+                </MenuItem>
+                <MenuItem
+                  icon={<Icon icon="dashboard" className="Font18" />}
+                  onClick={() => {
+                    setCreateType('customPage');
+                    setPopupVisible(false);
+                  }}
+                >
+                  <span className="text">{_l('自定义页面%02013')}</span>
+                </MenuItem>
+              </Fragment>
+            )}
             <hr className="splitter" />
-            <div className="Gray_9e pLeft12 mTop10">{_l('新建')}</div>
             <MenuItem
+              icon={<Icon icon="delete2" className="Font16" />}
+              className="delete"
               onClick={() => {
-                setCreateType('worksheet');
+                isGroup ? handleDeleteGroup(props) : handleDeleteWorkSheet(props);
                 setPopupVisible(false);
               }}
             >
-              <Icon icon="plus" className="Font18" />
-              <span className="text">{_l('从空白创建工作表')}</span>
+              <span className="text">{_l('删除%0', deleteText[appItem.type])}</span>
             </MenuItem>
-            <MenuItem
-              onClick={() => {
-                setCreateType('importExcel');
-                setPopupVisible(false);
-              }}
-            >
-              <Icon icon="new_excel" className="Font18" />
-              <span className="text">{_l('从Excel创建工作表')}</span>
-            </MenuItem>
-            <MenuItem
-              icon={<Icon icon="dashboard" className="Font18" />}
-              onClick={() => {
-                setCreateType('customPage');
-                setPopupVisible(false);
-              }}
-            >
-              <span className="text">{_l('自定义页面')}</span>
-            </MenuItem>
-          </Fragment>
+          </React.Fragment>
         )}
-        <hr className="splitter" />
-        <MenuItem
-          icon={<Icon icon="delete2" className="Font16" />}
-          className="delete"
-          onClick={() => {
-            isGroup ? handleDeleteGroup(props) : handleDeleteWorkSheet(props);
-            setPopupVisible(false);
-          }}
-        >
-          <span className="text">{_l('删除%0', deleteText[appItem.type])}</span>
-        </MenuItem>
       </Menu>
     );
   };

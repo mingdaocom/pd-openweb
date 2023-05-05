@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Dialog } from 'ming-ui';
+import { Dialog } from 'ming-ui';
 import process from '../../../api/process';
 
 export default class CopyFlowBtn extends Component {
@@ -25,9 +25,10 @@ export default class CopyFlowBtn extends Component {
 
   render() {
     return (
-      <span data-tip={_l('复制')} onClick={this.copyFlow}>
-        <Icon icon={'content-copy'} className="listBtn ThemeHoverColor3 Gray_9e Font16" />
-      </span>
+      <div onClick={this.copyFlow}>
+        <span className="icon-content-copy Gray_9e Font16 pLeft12 mRight10" />
+        {_l('复制')}
+      </div>
     );
   }
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import './CreateCustomBtn.less';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import cx from 'classnames';
-import { Icon, ScrollView, RadioGroup } from 'ming-ui';
+import { Icon, Checkbox, Tooltip, RadioGroup } from 'ming-ui';
 import AppointDialog from './components/AppointDialog';
 import ShowBtnFilterDialog from './components/ShowBtnFilterDialog';
 import sheetAjax from 'src/api/worksheet';
@@ -17,7 +17,6 @@ import { SYS } from 'src/pages/widgetConfig/config/widget';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import _ from 'lodash';
-
 @errorBoundary
 class CreateCustomBtnCon extends React.Component {
   constructor(props) {
@@ -35,6 +34,10 @@ class CreateCustomBtnCon extends React.Component {
       flowName: '',
       flowEnabled: false,
       relationWorksheetInfo: {},
+      enableConfirm: false, //启用二次确认
+      verifyPwd: false, //校验密码
+      advancedSetting: {}, //高级配置
+      cloneInfo: {}, //缓存上次保存的数据，用来显示
     };
   }
   ajaxRequest = null;
@@ -67,12 +70,16 @@ class CreateCustomBtnCon extends React.Component {
       addRelationControl = '',
       writeControls = [],
       desc = '',
+      enableConfirm,
+      verifyPwd,
+      advancedSetting = {},
     } = btnDataInfo;
     //isAllView===1 所有记录
     if (displayViews.length <= 0 && isAllView !== 1 && props.from !== 'formset' && viewId) {
       //视图配置=>编辑按钮 displayViews为空时 默认为当前视图
       displayViews = [viewId];
     }
+
     this.setState(
       {
         name,
@@ -80,6 +87,12 @@ class CreateCustomBtnCon extends React.Component {
         clickType,
         workflowType,
         filters,
+        enableConfirm,
+        verifyPwd,
+        advancedSetting: {
+          ...advancedSetting,
+          remarkname: advancedSetting.remarkname || '备注',
+        },
         doubleConfirm: {
           confirmMsg: btnDataInfo.confirmMsg || '你确认对记录执行此操作吗？',
           cancelName: btnDataInfo.cancelName || '取消',
@@ -98,6 +111,17 @@ class CreateCustomBtnCon extends React.Component {
         desc,
         isAllView: isAllView ? isAllView : !props.btnId && props.from === 'formset' ? 1 : 0,
         displayViews,
+        cloneInfo: {
+          advancedSetting: {
+            ...advancedSetting,
+            remarkname: advancedSetting.remarkname || '备注',
+          },
+          doubleConfirm: {
+            confirmMsg: btnDataInfo.confirmMsg || '你确认对记录执行此操作吗？',
+            cancelName: btnDataInfo.cancelName || '取消',
+            sureName: btnDataInfo.sureName || '确认',
+          },
+        },
       },
       () => {
         if (!props.btnId) {
@@ -184,7 +208,37 @@ class CreateCustomBtnCon extends React.Component {
       filterItemTexts: filterData(columns, filters),
     });
   };
-
+  renderFlowText = () => {
+    const { workflowType } = this.state;
+    if (workflowType === 2) {
+      return '';
+    }
+    if (this.state.isEdit && !!this.state.flowName) {
+      return (
+        <div className="filterTextCon">
+          <div className="txtFilter">
+            {this.state.flowName}
+            {!this.state.flowEnabled && <span className="Font13 mLeft5 redCon">{_l('未启用')}</span>}
+          </div>
+          <div
+            className="editWorkflow Hand"
+            onClick={() => {
+              this.setState({
+                showWorkflowDialog: true,
+              });
+            }}
+          >
+            {_l('编辑工作流')}
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="filterTextCon">
+        <div className="txtFilter Gray_75">{_l('添加按钮后自动创建流程')}</div>
+      </div>
+    );
+  };
   renderCon = () => {
     const {
       name,
@@ -199,13 +253,15 @@ class CreateCustomBtnCon extends React.Component {
       writeType,
       filterItemTexts,
       workflowType,
-      btnId,
       filters = [],
+      enableConfirm,
+      verifyPwd,
     } = this.state;
     const dataControls = relationControl !== '' ? relationControls : widgetList;
     const isFillOutNull = writeObject !== 1 && !relationControl && writeType !== 1 && !addRelationControlId;
+
     return (
-      <div className="createBtnBox">
+      <div className="createBtnBox mTop25">
         <h5 className="Gray">{_l('按钮名称')}</h5>
         <input
           value={name}
@@ -227,7 +283,202 @@ class CreateCustomBtnCon extends React.Component {
           className={cx('nameInput Font14', { errer: this.state.isErrer })}
         />
         {this.state.isErrer && <p className="errorMessage mTop6 Font12">{_l('按钮名称重名，请重新修改')}</p>}
-        <h5 className="Gray mTop6">{_l('启用按钮')}</h5>
+        {this.renderDesc()}
+        <div className="line"></div>
+        <h5 className="Gray">{_l('动作')}</h5>
+        <RadioGroup
+          data={[
+            {
+              value: 1,
+              text: _l('执行工作流'),
+            },
+            {
+              value: 3,
+              text: _l('填写表单字段'),
+            },
+          ]}
+          size="small"
+          onChange={value => {
+            // 'clickType', //1：立即执行  3：填写 'workflowType', // 1:执行 2：不执行
+            if (value === 1) {
+              this.setState({
+                workflowType: 1,
+                clickType: 1,
+              });
+            } else {
+              this.setState(
+                {
+                  clickType: 3,
+                  workflowType: 2,
+                },
+                () => {
+                  if (writeObject === '' || writeType === '' || isFillOutNull) {
+                    this.setState({
+                      showAppointDialog: true,
+                    });
+                  }
+                },
+              );
+            }
+          }}
+          checkedValue={clickType}
+        />
+        {clickType === 1 && this.renderFlowText()}
+        {clickType === 3 && writeObject !== '' && writeType !== '' && !isFillOutNull && (
+          <div className="filterTextCon">
+            <div className="txtFilter">
+              <span>
+                {writeObject === 1 ? (
+                  <span className="mRight10">{_l('在当前记录中')}</span>
+                ) : (
+                  <React.Fragment>
+                    <span className="mRight10">{_l('在关联记录')}</span>
+                    <span className="Bold mRight10">
+                      “
+                      {widgetList.filter(item => relationControl === item.controlId).length > 0 ? (
+                        widgetList.filter(item => relationControl === item.controlId)[0].controlName
+                      ) : (
+                        <span className="Gray_9e">{_l('关联记录已删除')}</span>
+                      )}
+                      ”
+                    </span>
+                    <span className="">{_l('中')}</span>
+                  </React.Fragment>
+                )}
+              </span>
+              <span>
+                {writeType === 1 ? (
+                  <React.Fragment>
+                    <br />
+                    <span className="mRight10">{_l('填写')}</span>
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    <span className="mRight10">{_l('新建')}</span>
+                    {dataControls.length > 0 && addRelationControlId !== '' && (
+                      <span className="Bold">
+                        {_.find(dataControls, item => item.controlId === addRelationControlId)
+                          ? _.find(dataControls, item => item.controlId === addRelationControlId).controlName
+                          : ''}
+                      </span>
+                    )}
+                  </React.Fragment>
+                )}
+              </span>
+              {writeType === 1 &&
+                dataControls.length > 0 &&
+                writeControls.map((item, i) => {
+                  const writeControlsData = _.find(dataControls, items => items.controlId === item.controlId);
+                  if (!writeControlsData) {
+                    return '';
+                  } else {
+                    const controlName = writeControlsData && writeControlsData.controlName;
+                    return (
+                      <React.Fragment>
+                        <span className="Bold">
+                          {controlName || (writeControlsData.type === 22 ? _l('分割线') : _l('备注'))}
+                        </span>
+                        {writeControls.length > i + 1 ? '、' : ''}
+                      </React.Fragment>
+                    );
+                  }
+                })}
+            </div>
+            <Icon
+              icon="hr_edit"
+              className="Gray_9d Font18 editFilter Hand"
+              onClick={() => {
+                this.setState({
+                  showAppointDialog: true,
+                });
+              }}
+            />
+          </div>
+        )}
+        <h5 className="Gray mTop32">{clickType === 1 ? _l('点击按钮时') : _l('提交时')}</h5>
+        <Checkbox
+          className="checkBox InlineBlock"
+          text={_l('需要二次确认')}
+          checked={enableConfirm || clickType === 2}
+          onClick={() => {
+            this.setState({
+              enableConfirm: !(enableConfirm || clickType === 2),
+              showDoubleConfirmDialog: !(enableConfirm || clickType === 2),
+            });
+          }}
+        />
+        <br />
+        {(enableConfirm || clickType === 2) && (
+          <div className="filterTextCon">
+            <div className="txtFilter">
+              <p>
+                <span className="titleTxt Gray">{_l('提示文字')}</span>
+                <span className="txt Gray breakAll">{this.state.doubleConfirm.confirmMsg}</span>
+              </p>
+              {!!(_.get(this.state.advancedSetting, 'confirmcontent') || '').trim() && (
+                <p className="mTop5">
+                  <span className="titleTxt Gray">{_l('详细内容')}</span>
+                  <span className="txt Gray breakAll">{this.state.advancedSetting.confirmcontent}</span>
+                </p>
+              )}
+              {_.get(this.state.advancedSetting, 'enableremark') === '1' && (
+                <p className="mTop5">
+                  <span className="titleTxt Gray">{_l('填写备注')}</span>
+                  <span className="txt Gray breakAll">
+                    {_.get(this.state.advancedSetting, 'remarkrequired') === '1' ? _l('必填') : _l('启用')}
+                  </span>
+                </p>
+              )}
+            </div>
+            <Icon
+              icon="hr_edit"
+              className="Gray_9d Font18 editFilter Hand"
+              onClick={() => {
+                this.setState({
+                  showDoubleConfirmDialog: true,
+                });
+              }}
+            />
+          </div>
+        )}
+        <Checkbox
+          className="checkBox InlineBlock"
+          text={
+            <span>
+              {_l('登录密码验证')}
+              <Tooltip
+                popupPlacement="bottom"
+                text={<span>{_l('启用后，用户需要输入登录密码通过校验后才可执行自定义按钮')}</span>}
+              >
+                <Icon icon="help_center" className="Gray_9e mLeft5 Font16 TxtMiddle" />
+              </Tooltip>
+            </span>
+          }
+          checked={verifyPwd}
+          onClick={() => {
+            this.setState({
+              verifyPwd: !verifyPwd,
+            });
+          }}
+        />
+        {clickType === 3 && (
+          <React.Fragment>
+            <h5 className="Gray mTop32">{_l('提交后')}</h5>
+            <Checkbox
+              className="checkBox InlineBlock"
+              text={_l('继续执行工作流')}
+              checked={workflowType === 1}
+              onClick={() => {
+                this.setState({
+                  workflowType: workflowType === 1 ? 2 : 1,
+                });
+              }}
+            />
+            {this.renderFlowText()}
+          </React.Fragment>
+        )}
+        <div className="line"></div>
+        <h5 className="Gray">{_l('启用按钮')}</h5>
         <RadioGroup
           data={[
             {
@@ -267,189 +518,9 @@ class CreateCustomBtnCon extends React.Component {
             }
           />
         )}
-        <h5 className="Gray mTop6">{_l('点击后')}</h5>
-        <RadioGroup
-          data={[
-            {
-              value: 1,
-              text: _l('立即执行'),
-            },
-            {
-              value: 2,
-              text: _l('需要二次确认'),
-            },
-            {
-              value: 3,
-              text: _l('填写指定内容'),
-            },
-          ]}
-          size="small"
-          onChange={value => {
-            this.setState({
-              clickType: value,
-            });
-            if (value === 3 && (writeObject === '' || writeType === '' || isFillOutNull)) {
-              this.setState({
-                showAppointDialog: true,
-              });
-            }
-            if (value === 3 && !btnId) {
-              this.setState({
-                workflowType: 2,
-              });
-            }
-          }}
-          checkedValue={clickType}
-        />
-        {clickType === 2 && (
-          <div className="filterTextCon">
-            <div className="txtFilter">
-              <p>
-                <span className="titleTxt Gray">{_l('提示文字')}</span>
-                <span className="txt Gray breakAll">{this.state.doubleConfirm.confirmMsg}</span>
-              </p>
-              <p className="mTop5">
-                <span className="titleTxt Gray">{_l('确认按钮文字')}</span>
-                <span className="txt Gray breakAll">{this.state.doubleConfirm.sureName}</span>
-              </p>
-              <p className="mTop5">
-                <span className="titleTxt Gray">{_l('取消按钮文字')}</span>
-                <span className="txt Gray breakAll">{this.state.doubleConfirm.cancelName}</span>
-              </p>
-            </div>
-            <Icon
-              icon="hr_edit"
-              className="Gray_9d Font18 editFilter Hand"
-              onClick={() => {
-                this.setState({
-                  showDoubleConfirmDialog: true,
-                });
-              }}
-            />
-          </div>
-        )}
-        {/* 填写指定内容 */}
-        {clickType === 3 && writeObject !== '' && writeType !== '' && !isFillOutNull && (
-          <div className="filterTextCon">
-            <div className="txtFilter">
-              <span>
-                {writeObject === 1 ? (
-                  <span className="mRight10">{_l('在当前记录中')}</span>
-                ) : (
-                  <React.Fragment>
-                    <span className="mRight10">{_l('在关联记录')}</span>
-                    <span className="Bold mRight10">
-                      “
-                      {widgetList.filter(item => relationControl === item.controlId).length > 0 ? (
-                        widgetList.filter(item => relationControl === item.controlId)[0].controlName
-                      ) : (
-                        <span className="Gray_9e">{_l('关联记录已删除')}</span>
-                      )}
-                      ”
-                    </span>
-                    <span className="">{_l('中')}</span>
-                  </React.Fragment>
-                )}
-              </span>
-              <span>
-                {writeType === 1 ? (
-                  <React.Fragment>
-                    {' '}
-                    <br />
-                    <span className="mRight10">{_l('填写')}</span>
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    <span className="mRight10">{_l('新建')}</span>
-                    {dataControls.length > 0 && addRelationControlId !== '' && (
-                      <span className="Bold">
-                        {_.find(dataControls, item => item.controlId === addRelationControlId)
-                          ? _.find(dataControls, item => item.controlId === addRelationControlId).controlName
-                          : ''}
-                      </span>
-                    )}
-                  </React.Fragment>
-                )}
-              </span>
-              {writeType === 1 &&
-                dataControls.length > 0 &&
-                writeControls.map((item, i) => {
-                  const writeControlsData = _.find(dataControls, items => items.controlId === item.controlId);
-                  if (!writeControlsData) {
-                    return '';
-                  } else {
-                    const controlName = writeControlsData && writeControlsData.controlName;
-                    return (
-                      <React.Fragment>
-                        <span className="Bold">
-                          {controlName || (writeControlsData.type === 22 ? _l('分段') : _l('备注'))}
-                        </span>
-                        {writeControls.length > i + 1 ? '、' : ''}
-                      </React.Fragment>
-                    );
-                  }
-                })}
-            </div>
-            <Icon
-              icon="hr_edit"
-              className="Gray_9d Font18 editFilter Hand"
-              onClick={() => {
-                this.setState({
-                  showAppointDialog: true,
-                });
-              }}
-            />
-          </div>
-        )}
-        <h5 className="Gray mTop6">{_l('执行工作流')}</h5>
-        {clickType === 3 && (
-          <RadioGroup
-            data={[
-              {
-                value: 2,
-                text: _l('不执行'),
-              },
-              {
-                value: 1,
-                text: _l('执行工作流'),
-              },
-            ]}
-            size="small"
-            onChange={value => {
-              this.setState({
-                workflowType: value,
-              });
-            }}
-            checkedValue={workflowType}
-          />
-        )}
-        {workflowType === 2 && clickType === 3 ? (
-          ''
-        ) : this.state.isEdit && !!this.state.flowName ? (
-          <div className="filterTextCon">
-            <div className="txtFilter">
-              {this.state.flowName}
-              {!this.state.flowEnabled && <span className="Font13 mLeft5 redCon">{_l('未启用')}</span>}
-            </div>
-            <div
-              className="editWorkflow Hand"
-              onClick={() => {
-                this.setState({
-                  showWorkflowDialog: true,
-                });
-              }}
-            >
-              {_l('编辑工作流')}
-            </div>
-          </div>
-        ) : (
-          <div className="filterTextCon">
-            <div className="txtFilter Gray_75">{_l('添加按钮后自动创建流程')}</div>
-          </div>
-        )}
+        <div className="line"></div>
         {this.renderColors()}
         {this.renderIcons()}
-        {this.renderDesc()}
       </div>
     );
   };
@@ -457,7 +528,7 @@ class CreateCustomBtnCon extends React.Component {
   renderColors = () => {
     return (
       <div className="mTop32 customBtnColorBox">
-        <h5 className="Gray mTop6">{_l('按钮颜色')}</h5>
+        <h5 className="Gray">{_l('按钮颜色')}</h5>
         <ul className="mTop16">
           {COLORS.map(item => {
             return (
@@ -481,8 +552,8 @@ class CreateCustomBtnCon extends React.Component {
 
   renderIcons = () => {
     return (
-      <div className="customBtnIconBox">
-        <h5 className="Gray mTop6">{_l('按钮图标')}</h5>
+      <div className="customBtnIconBox mTop25">
+        <h5 className="Gray">{_l('按钮图标')}</h5>
         <ul className="mTop16">
           {ICONS.map(item => {
             return (
@@ -514,15 +585,11 @@ class CreateCustomBtnCon extends React.Component {
           <input
             value={this.state.desc}
             placeholder={_l('请输入按钮说明')}
-            // ref={inputEl => {
-            //   this.inputEl = inputEl;
-            // }}
             onChange={event => {
               this.setState({
                 desc: event.target.value,
               });
             }}
-            // maxLength="50"
             className={cx('descInput Font14')}
           />
         </div>
@@ -576,7 +643,6 @@ class CreateCustomBtnCon extends React.Component {
               confirmMsg: this.state.doubleConfirm.confirmMsg, //确认信息
               sureName: this.state.doubleConfirm.sureName, //确认按钮
               cancelName: this.state.doubleConfirm.cancelName, //取消按钮
-              workflowType: this.state.clickType !== 3 ? 1 : this.state.workflowType, // 1:执行 2：不执行
               workflowId: this.state.workflowId || '', //工作流ID
               desc: this.state.desc.trim(),
               appId,
@@ -592,11 +658,16 @@ class CreateCustomBtnCon extends React.Component {
                 'writeObject', //1：本记录 2：关联记录
                 'clickType', //1：立即执行 2：二次确认 3：填写
                 'showType', //1: 一直 2：满足筛选条件
+                'advancedSetting', //高级配置
+                'enableConfirm', //启用二次确认
+                'verifyPwd', //校验密码
+                'workflowType', // 1:执行 2：不执行
               ]),
             };
             sheetAjax.saveWorksheetBtn({ ...params, writeControls: writeControlsFormat }).then(data => {
               this.setState({
                 saveLoading: false,
+                cloneInfo: { advancedSetting: this.state.advancedSetting, doubleConfirm: this.state.doubleConfirm },
               });
               params = {
                 ...params,
@@ -654,7 +725,8 @@ class CreateCustomBtnCon extends React.Component {
 
   render() {
     const { appId, worksheetId, rowId, projectId, columns, isClickAway } = this.props;
-    const { btnId, relationWorksheetInfo } = this.state;
+    const { btnId, relationWorksheetInfo, doubleConfirm, showDoubleConfirmDialog, advancedSetting, cloneInfo } =
+      this.state;
     return (
       <React.Fragment>
         <div
@@ -689,16 +761,22 @@ class CreateCustomBtnCon extends React.Component {
             }}
           />
         )}
-        {this.state.showDoubleConfirmDialog && (
+        {showDoubleConfirmDialog && (
           <DoubleConfirmDialog
-            doubleConfirm={this.state.doubleConfirm}
-            setValue={value => {
+            visible={showDoubleConfirmDialog}
+            cloneInfo={cloneInfo}
+            info={{ advancedSetting, doubleConfirm }}
+            onChange={data => {
               this.setState({
-                doubleConfirm: value.doubleConfirm,
-                showDoubleConfirmDialog: value.showDoubleConfirmDialog,
+                showDoubleConfirmDialog: false,
+                ...data,
               });
             }}
-            showDoubleConfirmDialog={this.state.showDoubleConfirmDialog}
+            onCancel={() => {
+              this.setState({
+                showDoubleConfirmDialog: false,
+              });
+            }}
           />
         )}
         {this.state.showAppointDialog && (

@@ -215,7 +215,7 @@ export default class PBC extends Component {
               type="text"
               className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mTop8"
               style={{ width: 150 }}
-              placeholder={_l('参数名')}
+              placeholder={_l('参数名（必填）')}
               value={item.fieldName}
               maxLength={64}
               onChange={e => this.updateExportFields('fieldName', e.target.value, item)}
@@ -269,7 +269,7 @@ export default class PBC extends Component {
               }}
             />
             <i
-              className="icon-add Font20 pointer Gray_9e ThemeHoverColor3 mLeft10 pointer mTop8"
+              className="icon-add Font16 pointer Gray_9e ThemeHoverColor3 mLeft10 pointer mTop8"
               style={{ visibility: item.type === 10000008 && item.fieldValueId ? 'hidden' : 'visible' }}
               onClick={() => this.addParameters(item)}
             />

@@ -130,7 +130,6 @@ const Item = SortableElement(props => {
         </span>
       ) : (
         <Dropdown
-          data={[]}
           isAppendToBody
           data={WIDGETS_TO_API_TYPE.map(o => {
             return { text: DEFAULT_CONFIG[o].widgetName, value: o };

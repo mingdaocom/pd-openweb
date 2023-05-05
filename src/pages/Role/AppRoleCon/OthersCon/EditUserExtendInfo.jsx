@@ -67,6 +67,7 @@ export default function EditUserExtendInfo(props) {
   const [loading, setLoading] = useState(false);
   const [worksheetList, setWorksheetList] = useState([]);
   const [controls, setControls] = useState([]);
+  const [appName, setAppName] = useState('');
   const [data, setData] = useState({
     worksheetId: value.worksheetId || undefined,
     controlId: value.controlId || undefined,
@@ -76,6 +77,7 @@ export default function EditUserExtendInfo(props) {
 
   useEffect(() => {
     setLoading(true);
+    appId && homeAppAjax.getApiInfo({ appId: appId }).then(res => setAppName(res.apiResponse.name));
     appManagement
       .getAppForManager({
         projectId: appProjectId || localStorage.getItem('currentProjectId') || md.global.Account.projects[0].projectId,
@@ -167,7 +169,7 @@ export default function EditUserExtendInfo(props) {
             ? result.appNameOfWorksheet
             : appList.length === 0
             ? undefined
-            : appId
+            : appName || appId
         }
         onSelect={value => setData({ ...data, appId: value, worksheetId: '', controlId: '' })}
         notFoundContent={<span>{_l('无应用')}</span>}

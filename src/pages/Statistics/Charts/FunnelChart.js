@@ -83,7 +83,7 @@ const fillMapValue = map => {
   return [data[0]];
 }
 
-const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { controlId, xaxisEmpty }) => {
+const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { controlId, xaxisEmpty }, yaxisList) => {
   const result = [];
   const cloneData = formatEmptyDataPosition(controlId ? data : fillMapValue(data), isAccumulate, xaxisEmpty);
   const { value } = cloneData[0] || { value: [] };
@@ -104,12 +104,13 @@ const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { controlId
     cloneData.forEach(element => {
       const target = element.value.filter(n => n.x === name);
       if (target.length && target[0].v) {
+        const { rename } = _.find(yaxisList, { controlId: target[0].originalX }) || {};
         result.push({
           id: target[0].originalX,
           groupName: element.key,
           index: value.length - index,
           value: target[0].v,
-          name: name || _l('空'),
+          name: rename || name || _l('空'),
         });
       }
     });
@@ -216,7 +217,7 @@ export default class extends Component {
   }
   getComponentConfig(props) {
     const { map, contrastMap, displaySetup, yaxisList, xaxes, style } = props.reportData;
-    const data = formatChartData(map, displaySetup, xaxes);
+    const data = formatChartData(map, displaySetup, xaxes, yaxisList);
     const { position } = getLegendType(displaySetup.legendType);
     const newYaxisList = formatYaxisList(data, yaxisList);
     const colors = getChartColors(style);
@@ -280,7 +281,7 @@ export default class extends Component {
       this.contrastData = null;
       baseConfig.data = data;
     } else {
-      const contrastData = formatChartData(contrastMap, displaySetup, xaxes);
+      const contrastData = formatChartData(contrastMap, displaySetup, xaxes, yaxisList);
       const newData = mergeDataTime(data, contrastData);
       this.contrastData = newData;
       baseConfig.compareField = 'groupName';

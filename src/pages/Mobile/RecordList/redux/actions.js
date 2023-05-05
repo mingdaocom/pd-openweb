@@ -1,6 +1,6 @@
 import sheetAjax from 'src/api/worksheet';
 import homeAppAjax from 'src/api/homeApp';
-import { isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { getRequest } from 'src/util';
 import _ from 'lodash';
 
@@ -81,7 +81,7 @@ export const loadWorksheet = () => (dispatch, getState) => {
           },
         },
       });
-      const isCharge = isHaveCharge(data.permissionType, data.isLock);
+      const isCharge = canEditApp(data.permissionType, data.isLock);
       dispatch({
         type: 'MOBILE_UPDATE_IS_CHARGE',
         value: isCharge,

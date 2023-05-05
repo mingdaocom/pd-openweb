@@ -101,6 +101,8 @@ export default class Action extends Component {
       sorts,
       executeType,
       random,
+      destroy,
+      filters = [],
     } = data;
     let hasError = false;
 
@@ -114,10 +116,6 @@ export default class Action extends Component {
 
     if (checkConditionsIsNull(conditions)) {
       alert(_l('筛选条件的判断值不能为空'), 2);
-      return;
-    }
-
-    if (saveRequest) {
       return;
     }
 
@@ -139,6 +137,23 @@ export default class Action extends Component {
       }
     }
 
+    if (filters.length) {
+      filters.forEach(item => {
+        if (checkConditionsIsNull(item.conditions)) {
+          hasError = true;
+        }
+      });
+
+      if (hasError) {
+        alert(_l('筛选条件的判断值不能为空'), 2);
+        return;
+      }
+    }
+
+    if (saveRequest) {
+      return;
+    }
+
     flowNode
       .saveNode({
         processId: this.props.processId,
@@ -156,6 +171,8 @@ export default class Action extends Component {
         sorts,
         executeType,
         random,
+        destroy,
+        filters,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -215,7 +232,13 @@ export default class Action extends Component {
      * 删除节点对象
      */
     if (data.actionId === ACTION_ID.DELETE) {
-      return <DeleteNodeObj data={data} SelectNodeObjectChange={this.SelectNodeObjectChange} />;
+      return (
+        <DeleteNodeObj
+          data={data}
+          SelectNodeObjectChange={this.SelectNodeObjectChange}
+          updateSource={this.updateSource}
+        />
+      );
     }
   }
   /**

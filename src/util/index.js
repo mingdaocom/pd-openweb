@@ -10,6 +10,8 @@ import { getPssId } from 'src/util/pssId';
 import qs from 'query-string';
 import qiniuAjax from 'src/api/qiniu';
 import projectAjax from 'src/api/project';
+import captcha from 'src/components/captcha';
+import accountAjax from 'src/api/account';
 
 export const emitter = new EventEmitter();
 
@@ -397,15 +399,35 @@ export const getIconNameByExt = ext => {
       break;
     case 'mov':
     case 'mp4':
+    case 'mpg':
     case 'flv':
+    case 'f4v':
     case 'rm':
     case 'rmvb':
     case 'avi':
     case 'mkv':
+    case 'wmv':
     case '3gp':
     case '3g2':
+    case 'swf':
     case 'm4v':
       extType = 'mp4';
+      break;
+    case 'mp3':
+    case 'wav':
+    case 'flac':
+    case 'ape':
+    case 'alac':
+    case 'wavpack':
+    case 'm4a':
+    case 'aac':
+    case 'ogg':
+    case 'vorbis':
+    case 'opus':
+    case 'au':
+    case 'mmf':
+    case 'aif':
+      extType = 'mp3';
       break;
     case 'mmap':
     case 'xmind':
@@ -432,7 +454,6 @@ export const getIconNameByExt = ext => {
     case 'key':
     case 'ma':
     case 'max':
-    case 'mp3':
     case 'numbers':
     case 'obj':
     case 'pages':
@@ -782,7 +803,7 @@ export const parseSearchParams = searchParamsString => {
  */
 export const upgradeVersionDialog = options => {
   const hint = options.hint || _l('当前版本无法使用此功能');
-  const explainText = options.explainText || _l('请升级至专业版或旗舰版解锁开启');
+  const explainText = options.explainText;
   const versionType = options.versionType ? options.versionType : undefined;
 
   if (options.dialogType === 'content') {
@@ -921,3 +942,61 @@ export function toFixed(num, dot = 0) {
     return (isNegative ? '-' : '') + Math.floor(data / Math.pow(10, dot)) + '.' + data.slice(-1 * dot);
   }
 }
+
+/**
+ * 验证登录密码
+ */
+export function verifyPassword(password = '', successCallback = () => {}, failCallback = () => {}) {
+  if (!password.trim()) {
+    alert(_l('请输入密码'), 3);
+    failCallback();
+    return;
+  }
+  let cb = function (res) {
+    if (res.ret !== 0) {
+      return;
+    }
+    accountAjax
+      .checkAccount({
+        ticket: res.ticket,
+        randStr: res.randstr,
+        captchaType: md.staticglobal.getCaptchaType(),
+        password: encrypt(password),
+      })
+      .then(statusCode => {
+        if (statusCode === 1) {
+          successCallback();
+        } else {
+          alert(
+            {
+              6: _l('密码不正确'),
+              8: _l('验证码错误'),
+            }[statusCode] || _l('操作失败'),
+            2,
+          );
+          failCallback();
+        }
+      });
+  };
+
+  if (md.staticglobal.getCaptchaType() === 1) {
+    new captcha(cb);
+  } else {
+    new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();
+  }
+}
+
+// 根据索引获取不重复名称
+export const getUnUniqName = (data, name = '') => {
+  for (var i = 0; i < data.length; i++) {
+    const item = data[i];
+    if (item.name === name) {
+      const num = (String(name).match(/\d+$/) || [])[0];
+      if (num) {
+        name = getUnUniqName(data, String(name).replace(num, parseFloat(num) + 1));
+      }
+    }
+  }
+
+  return name;
+};

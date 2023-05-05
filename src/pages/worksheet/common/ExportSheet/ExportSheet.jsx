@@ -1,6 +1,6 @@
 ﻿import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Dialog, Checkbox, Radio } from 'ming-ui';
+import { Dialog, Checkbox, Radio, Icon } from 'ming-ui';
 import appManagement from 'src/api/appManagement';
 import './ExportSheet.less';
 import { isRelateRecordTableControl } from 'worksheet/util';
@@ -25,7 +25,7 @@ export default class ExportSheet extends Component {
     worksheetSummaryTypes: PropTypes.shape({}),
     quickFilter: PropTypes.object,
     navGroupFilters: PropTypes.object,
-
+    isCharge: PropTypes.bool,
     hideStatistics: PropTypes.bool,
   };
 
@@ -107,7 +107,7 @@ export default class ExportSheet extends Component {
 
   getDefaultColumnsSelected(exportShowColumns, showTabs) {
     const selected = {};
-    const { sheetHiddenColumns, exportView, columns, sheetSwitchPermit } = this.props;
+    const { sheetHiddenColumns, exportView, columns, isCharge } = this.props;
     const { showControls } = exportView;
 
     // 选择导出表格显示列字段
@@ -129,10 +129,14 @@ export default class ExportSheet extends Component {
     else {
       this.sortControls(
         columns
-          .filter(item => this.checkControlVisible(item))
+          .filter(item => isCharge || this.checkControlVisible(item))
           .filter(item => !(isRelateRecordTableControl(item) || item.type === 34 || item.type === 43)),
       ).forEach(column => {
-        selected[column.controlId] = true;
+        if (isCharge && !this.checkControlVisible(column)) {
+          selected[column.controlId] = false;
+        } else {
+          selected[column.controlId] = true;
+        }
       });
 
       // 增加记录id
@@ -339,7 +343,7 @@ export default class ExportSheet extends Component {
   }
 
   render() {
-    const { onHide, allWorksheetIsSelected, selectRowIds, exportView, hideStatistics } = this.props;
+    const { onHide, allWorksheetIsSelected, selectRowIds, exportView, hideStatistics, isCharge } = this.props;
     let columns = [].concat(this.props.columns);
     const { advancedSetting, showControls } = exportView;
     const {
@@ -369,7 +373,7 @@ export default class ExportSheet extends Component {
       item =>
         !isRelateRecordTableControl(item) &&
         !notSupportableTtpe.includes(item.type) &&
-        this.checkControlVisible(item) &&
+        (isCharge || this.checkControlVisible(item)) &&
         item.controlName.indexOf(columnSearchWord) >= 0,
     );
 
@@ -456,7 +460,14 @@ export default class ExportSheet extends Component {
                   style={{ left: '20px' }}
                   key={column.controlId}
                   size="small"
-                  text={column.controlName || ''}
+                  text={
+                    <Fragment>
+                      {column.controlName || ''}
+                      {isCharge && !this.checkControlVisible(column) && (
+                        <Icon type="workflow_hide" className="Font14 Gray_9e mLeft5" />
+                      )}
+                    </Fragment>
+                  }
                   checked={!!columnsSelected[column.controlId]}
                   onClick={() => this.chooseColumnId(column)}
                 />
@@ -487,7 +498,7 @@ export default class ExportSheet extends Component {
                 {column.type == 26 &&
                   (!column.advancedSetting || column.advancedSetting.usertype != '2') &&
                   !!columnsSelected[column.controlId] &&
-                  !['caid', 'ownerid', 'uaid', 'wfcuaids', 'wfcaid'].includes(column.controlId) && (
+                  !['wfcuaids', 'wfcaid'].includes(column.controlId) && (
                     <Fragment>
                       {/** 姓名 */}
                       <Checkbox disabled={true} style={{ left: '40px' }} size="small" checked={true} onClick={() => {}}>

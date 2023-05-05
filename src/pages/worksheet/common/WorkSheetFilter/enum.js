@@ -159,7 +159,7 @@ export const API_ENUM_TO_TYPE = {
   AREA_INPUT_23: 23, // 地区 19'省23'省-市'24'省-市-县'
   AREA_INPUT_24: 24, // 地区 19'省23'省-市'24'省-市-县'
   RELATION: 21, // 自由连接
-  SPLIT_LINE: 22, // 分段
+  SPLIT_LINE: 22, // 分割线
   MONEY_CN: 25, // 大写金额
   USER_PICKER: 26, // 成员
   GROUP_PICKER: 27, // 部门

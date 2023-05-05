@@ -1,19 +1,20 @@
 import React, { Component, Fragment } from 'react';
 import { number, string, arrayOf, shape } from 'prop-types';
 import cx from 'classnames';
-import { Icon, Button, Menu, MenuItem } from 'ming-ui';
+import { Icon, Button, Menu, MenuItem, Dialog } from 'ming-ui';
 import { FLOW_NODE_TYPE_STATUS } from 'src/pages/workflow/MyProcess/config';
-import { ACTION_LIST, OPERATION_LIST, SELECT_USER_TITLE, ACTION_TO_METHOD, OPERATION_TYPE } from './config';
+import { ACTION_LIST, OPERATION_LIST, ACTION_TO_METHOD } from './config';
 import SvgIcon from 'src/components/SvgIcon';
-import OtherAction from './OtherAction';
-import AddApproveWay from './AddApproveWay';
-import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import OtherAction from './components/OtherAction';
+import AddApproveWay from './components/AddApproveWay';
 import instance from '../../api/instance';
 import webCacheAjax from 'src/api/webCache';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import moment from 'moment';
+import { verifyPassword } from 'src/util';
+import VerifyPassword from './components/VerifyPassword';
 
 export default class Header extends Component {
   static propTypes = {
@@ -38,19 +39,10 @@ export default class Header extends Component {
     moreOperationVisible: false,
     addApproveWayVisible: false,
     otherActionVisible: false,
-    selectedUser: {},
-    selectedUsers: [],
     isRequest: false,
   };
 
-  /**
-   * 切换状态
-   */
-  switchStatus = (field, status) => {
-    this.setState({
-      [field]: status !== undefined ? status : !this.state[field],
-    });
-  };
+  password = '';
 
   /**
    * 头部更多操作的处理逻辑
@@ -75,7 +67,9 @@ export default class Header extends Component {
         appId: app.id,
         workId,
       };
-      let printKey = Math.random().toString(36).substring(2);
+      let printKey = Math.random()
+        .toString(36)
+        .substring(2);
       webCacheAjax.add({
         key: `${printKey}`,
         value: JSON.stringify(printData),
@@ -84,36 +78,23 @@ export default class Header extends Component {
     }
 
     if (action === 'addApprove') {
-      dialogSelectUser({
-        title: SELECT_USER_TITLE[action],
-        showMoreInvite: false,
-        SelectUserSettings: {
-          projectId,
-          filterAll: true,
-          filterFriend: true,
-          filterOthers: true,
-          filterOtherProject: true,
-          filterAccountIds: [md.global.Account.accountId],
-          callback: selectedUsers => {
-            this.setState({
-              action,
-              selectedUsers,
-              otherActionVisible: true,
-            });
-          },
-        },
-      });
+      this.setState({ action, otherActionVisible: true });
     }
   };
 
   handleClick = id => {
-    const { projectId, onSubmit, data } = this.props;
-    const { ignoreRequired } = (data || {}).flowNode || {};
+    const { onSubmit, data } = this.props;
+    const { ignoreRequired, encrypt } = (data || {}).flowNode || {};
     /**
      * 填写
      */
     if (id === 'submit') {
-      this.request('submit');
+      // 验证密码
+      if (encrypt) {
+        this.writeVerifyPassword();
+      } else {
+        this.request('submit');
+      }
       return;
     }
 
@@ -137,8 +118,7 @@ export default class Header extends Component {
      * 加签
      */
     if (id === 'sign') {
-      this.setState({ action: id });
-      this.switchStatus('addApproveWayVisible', true);
+      this.setState({ action: id, addApproveWayVisible: true });
       return;
     }
 
@@ -150,36 +130,7 @@ export default class Header extends Component {
       return;
     }
 
-    /**
-     * 转审 || 转交
-     */
-    if (_.includes(['transferApprove', 'transfer'], id)) {
-      dialogSelectUser({
-        title: SELECT_USER_TITLE[id],
-        showMoreInvite: false,
-        SelectUserSettings: {
-          projectId,
-          filterAll: true,
-          filterFriend: true,
-          filterOthers: true,
-          filterOtherProject: true,
-          filterAccountIds: [md.global.Account.accountId],
-          unique: true,
-          callback: user => {
-            const selectedUser = user[0];
-            this.setState({
-              action: id,
-              selectedUser,
-              otherActionVisible: true,
-            });
-          },
-        },
-      });
-
-      return;
-    }
-
-    if (ignoreRequired) {
+    if (ignoreRequired || _.includes(['transferApprove', 'transfer'], id)) {
       this.setState({ action: id, otherActionVisible: true });
     } else {
       onSubmit({
@@ -209,20 +160,20 @@ export default class Header extends Component {
     }
 
     /**
-     * 转审或转交
+     * 转审、转交
      */
     if (_.includes(['transferApprove', 'transfer'], action)) {
       this.request(ACTION_TO_METHOD[action], { opinion: content, forwardAccountId: userId }, true);
     }
 
     /**
-     * 通过或拒绝审批
+     * 通过、否决、退回
      */
-    if (_.includes(['pass', 'overrule'], action)) {
+    if (_.includes(['pass', 'overrule', 'return'], action)) {
       this.request(
         ACTION_TO_METHOD[action],
         { opinion: content, backNodeId, signature },
-        action === 'overrule' && ignoreRequired,
+        _.includes(['overrule', 'return'], action) && ignoreRequired,
       );
     }
 
@@ -230,11 +181,7 @@ export default class Header extends Component {
      * 添加审批人
      */
     if (_.includes(['addApprove'], action)) {
-      this.request(
-        'operation',
-        { opinion: content, forwardAccountId: userId, operationType: OPERATION_TYPE[action] },
-        true,
-      );
+      this.request('operation', { opinion: content, forwardAccountId: userId, operationType: 16 }, true);
     }
   };
 
@@ -249,7 +196,12 @@ export default class Header extends Component {
       if (error && error !== 'empty') {
         this.setState({ isRequest: false });
       } else {
-        instance[action]({ id, workId: restPara.operationType === 18 ? '' : workId, logId, ...restPara }).then(() => {
+        instance[action === 'return' ? 'overrule' : action]({
+          id,
+          workId: restPara.operationType === 18 ? '' : workId,
+          logId,
+          ...restPara,
+        }).then(() => {
           onSave(isStash);
           onClose();
         });
@@ -269,6 +221,36 @@ export default class Header extends Component {
     }
   };
 
+  /**
+   * 填写验证码
+   */
+  writeVerifyPassword() {
+    Dialog.confirm({
+      title: _l('提交记录'),
+      description: (
+        <VerifyPassword
+          onChange={value => {
+            this.password = value;
+          }}
+        />
+      ),
+      onOk: () => {
+        return new Promise((resolve, reject) => {
+          verifyPassword(
+            this.password,
+            () => {
+              this.request('submit');
+              resolve();
+            },
+            () => {
+              reject(true);
+            },
+          );
+        });
+      },
+    });
+  }
+
   render() {
     const {
       projectId,
@@ -283,15 +265,7 @@ export default class Header extends Component {
       works,
     } = this.props;
     const { flowNode, operationTypeList, btnMap = {}, app, processName } = data;
-    const {
-      moreOperationVisible,
-      addApproveWayVisible,
-      otherActionVisible,
-      selectedUser,
-      selectedUsers,
-      action,
-      isRequest,
-    } = this.state;
+    const { moreOperationVisible, addApproveWayVisible, otherActionVisible, action, isRequest } = this.state;
 
     if (errorMsg) {
       return (
@@ -402,23 +376,19 @@ export default class Header extends Component {
 
           {addApproveWayVisible && (
             <AddApproveWay
-              projectId={projectId}
-              data={data}
-              onOk={this.handleAction}
-              onCancel={() => this.switchStatus('addApproveWayVisible', false)}
+              onOk={action => this.setState({ action, addApproveWayVisible: false, otherActionVisible: true })}
+              onCancel={() => this.setState({ addApproveWayVisible: false })}
               onSubmit={onSubmit}
             />
           )}
 
           {otherActionVisible && (
             <OtherAction
-              selectedUser={selectedUser}
-              selectedUsers={selectedUsers}
-              workId={workId}
+              projectId={projectId}
               data={data}
               action={action}
               onOk={this.handleAction}
-              onCancel={() => this.switchStatus('otherActionVisible', false)}
+              onCancel={() => this.setState({ otherActionVisible: false })}
             />
           )}
         </Fragment>

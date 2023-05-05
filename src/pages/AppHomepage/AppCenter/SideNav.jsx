@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { Tooltip } from 'ming-ui';
+import { Tooltip, ScrollView } from 'ming-ui';
 import ThirdApp from './components/ThirdApp';
 import MyProcess from 'src/pages/workflow/MyProcess';
 import MyProcessEntry from 'src/pages/workflow/MyProcess/Entry';
@@ -21,8 +21,7 @@ const NATIVE_APP_ITEM = [
 ];
 
 const Con = styled.div`
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   background: #f7f8fc;
   transition: width 0.2s;
   width: 68px;
@@ -163,18 +162,18 @@ const moduleEntries = [
   {
     type: 'lib',
     icon: 'custom_store',
-    name: _l('应用库'),
+    name: _l('应用库%01000'),
     href: '/app/lib',
   },
   {
     type: 'cooperation',
     icon: 'cooperation',
-    name: _l('协作'),
+    name: _l('协作%01001'),
   },
   {
     type: 'integration',
     icon: 'hub',
-    name: _l('集成'),
+    name: _l('集成%01002'),
     fullName: _l('集成中心'),
   },
 ];
@@ -252,160 +251,166 @@ export default function SideNav(props) {
 
   return (
     <Con className={cx({ isExpanded })}>
-      <Content>
-        {myProcessVisible && (
-          <MyProcess countData={countData} onCancel={() => setMyProcessVisible(false)} updateCountData={setCountData} />
-        )}
-        {thirdPartyAppVisible && <ThirdApp onCancel={() => setThirdPartyAppVisible(false)} />}
-        <ModuleEntries>
-          {(!cooperationItems.length ? moduleEntries.filter(m => m.type !== 'cooperation') : moduleEntries)
-            .filter(
-              o =>
-                !(o.type === 'cooperation' && !NATIVE_APP_ITEM.length) &&
-                !(o.type === 'lib' && md.global.SysSettings.hideTemplateLibrary) &&
-                !(o.type === 'integration' && md.global.SysSettings.hideIntegration),
-            )
-            .map((entry, i) => {
-              const content = (
-                <ModuleEntry
-                  key={i}
-                  className={cx('moduleEntry', {
-                    active: active === entry.type,
-                    libraryEntry: 'lib' === entry.type,
-                    isExpanded,
-                  })}
-                  href={'lib' === entry.type ? `${entry.href}?projectId=${projectId}` : entry.href}
-                  onClick={
-                    !entry.href
-                      ? e => {
-                          if (entry.type === 'myProcess') {
-                            setMyProcessVisible(true);
-                          } else if (entry.type === 'integration') {
-                            const type = localStorage.getItem('integrationUrl');
-                            if (type) {
-                              navigateTo('/integration/' + type);
-                            } else {
-                              navigateTo('/integration');
+      <ScrollView>
+        <Content>
+          {myProcessVisible && (
+            <MyProcess
+              countData={countData}
+              onCancel={() => setMyProcessVisible(false)}
+              updateCountData={setCountData}
+            />
+          )}
+          {thirdPartyAppVisible && <ThirdApp onCancel={() => setThirdPartyAppVisible(false)} />}
+          <ModuleEntries>
+            {(!cooperationItems.length ? moduleEntries.filter(m => m.type !== 'cooperation') : moduleEntries)
+              .filter(
+                o =>
+                  !(o.type === 'cooperation' && !NATIVE_APP_ITEM.length) &&
+                  !(o.type === 'lib' && md.global.SysSettings.hideTemplateLibrary) &&
+                  !(o.type === 'integration' && md.global.SysSettings.hideIntegration),
+              )
+              .map((entry, i) => {
+                const content = (
+                  <ModuleEntry
+                    key={i}
+                    className={cx('moduleEntry', {
+                      active: active === entry.type,
+                      libraryEntry: 'lib' === entry.type,
+                      isExpanded,
+                    })}
+                    href={'lib' === entry.type ? `${entry.href}?projectId=${projectId}` : entry.href}
+                    onClick={
+                      !entry.href
+                        ? e => {
+                            if (entry.type === 'myProcess') {
+                              setMyProcessVisible(true);
+                            } else if (entry.type === 'integration') {
+                              const type = localStorage.getItem('integrationUrl');
+                              if (type) {
+                                navigateTo('/integration/' + type);
+                              } else {
+                                navigateTo('/integration');
+                              }
                             }
                           }
-                        }
-                      : _.noop
-                  }
-                >
-                  <i className={`entryIcon icon icon-${entry.icon}`} />
-                  <span className="name">{entry.name}</span>
-                  <span className="fullName ellipsis">{entry.fullName || entry.name}</span>
-                </ModuleEntry>
-              );
-              if (entry.type === 'myProcess') {
-                return (
-                  <MyProcessEntry
-                    countData={countData}
-                    updateCountData={setCountData}
-                    renderContent={count => (
-                      <ProcessEntry isExpanded={isExpanded}>
-                        {content}
-                        {!!count && (
-                          <span
-                            className={cx('count', { isExpanded, outed: String(count) === '99+' })}
-                            onClick={() => {
-                              setMyProcessVisible(true);
-                            }}
-                          >
-                            {count}
-                          </span>
-                        )}
-                      </ProcessEntry>
-                    )}
-                  />
+                        : _.noop
+                    }
+                  >
+                    <i className={`entryIcon icon icon-${entry.icon}`} />
+                    <span className="name">{entry.name}</span>
+                    <span className="fullName ellipsis">{entry.fullName || entry.name}</span>
+                  </ModuleEntry>
                 );
-              }
-              if (entry.type === 'cooperation') {
+                if (entry.type === 'myProcess') {
+                  return (
+                    <MyProcessEntry
+                      countData={countData}
+                      updateCountData={setCountData}
+                      renderContent={count => (
+                        <ProcessEntry isExpanded={isExpanded}>
+                          {content}
+                          {!!count && (
+                            <span
+                              className={cx('count', { isExpanded, outed: String(count) === '99+' })}
+                              onClick={() => {
+                                setMyProcessVisible(true);
+                              }}
+                            >
+                              {count}
+                            </span>
+                          )}
+                        </ProcessEntry>
+                      )}
+                    />
+                  );
+                }
+                if (entry.type === 'cooperation') {
+                  return (
+                    <Trigger
+                      action={['hover']}
+                      popupAlign={{
+                        points: ['tl', 'tr'],
+                        offset: [12, -4],
+                      }}
+                      popup={
+                        <PopupLinks
+                          items={NATIVE_APP_ITEM.filter(
+                            item =>
+                              !_.includes(_.get(md, 'global.Config.ForbidSuites') || [], item.key) &&
+                              (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
+                          )}
+                        />
+                      }
+                    >
+                      {content}
+                    </Trigger>
+                  );
+                }
+                return content;
+              })}
+          </ModuleEntries>
+          <Spacer />
+          <ResourceEntries>
+            {sourcesList.map((entry, index) => {
+              const content = (
+                <ResourceEntry
+                  {...(entry.href ? { target: '_blank' } : {})}
+                  className="resourceEntry"
+                  key={index}
+                  href={entry.href}
+                  onClick={() => {
+                    if (!entry.href) {
+                      if (entry.id === 'thirdPartyApp') {
+                        setThirdPartyAppVisible(true);
+                      }
+                    }
+                  }}
+                >
+                  {entry.icon && <i className={`entryIcon icon icon-${entry.icon}`} style={{ color: entry.color }} />}
+                  {entry.iconUrl && <SvgIcon size="18" fill={entry.color} url={entry.iconUrl} />}
+                  <span className="fullName ellipsis">{entry.name}</span>
+                </ResourceEntry>
+              );
+              if (entry.id === 'educate') {
                 return (
                   <Trigger
                     action={['hover']}
                     popupAlign={{
                       points: ['tl', 'tr'],
-                      offset: [12, -4],
+                      offset: [16, -108],
+                      overflow: { adjustY: true },
                     }}
-                    popup={
-                      <PopupLinks
-                        items={NATIVE_APP_ITEM.filter(
-                          item =>
-                            !_.includes(_.get(md, 'global.Config.ForbidSuites') || [], item.key) &&
-                            (item.id !== 'hr' || _.get(currentProject, 'isHrVisible')),
-                        )}
-                      />
-                    }
+                    popup={<PopupLinks openInNew items={educateEntries} />}
+                    mouseLeaveDelay={0.2}
                   >
                     {content}
                   </Trigger>
                 );
               }
+              if (!isExpanded && _.includes(['recommend', 'thirdPartyApp', 'integration'], entry.id)) {
+                return (
+                  <Tooltip popupPlacement="right" text={<span>{entry.name}</span>}>
+                    {content}
+                  </Tooltip>
+                );
+              }
               return content;
             })}
-        </ModuleEntries>
-        <Spacer />
-        <ResourceEntries>
-          {sourcesList.map((entry, index) => {
-            const content = (
-              <ResourceEntry
-                {...(entry.href ? { target: '_blank' } : {})}
-                className="resourceEntry"
-                key={index}
-                href={entry.href}
-                onClick={() => {
-                  if (!entry.href) {
-                    if (entry.id === 'thirdPartyApp') {
-                      setThirdPartyAppVisible(true);
-                    }
-                  }
-                }}
-              >
-                {entry.icon && <i className={`entryIcon icon icon-${entry.icon}`} style={{ color: entry.color }} />}
-                {entry.iconUrl && <SvgIcon size="18" fill={entry.color} url={entry.iconUrl} />}
-                <span className="fullName ellipsis">{entry.name}</span>
-              </ResourceEntry>
-            );
-            if (entry.id === 'educate') {
-              return (
-                <Trigger
-                  action={['hover']}
-                  popupAlign={{
-                    points: ['tl', 'tr'],
-                    offset: [16, -108],
-                    overflow: { adjustY: true },
-                  }}
-                  popup={<PopupLinks openInNew items={educateEntries} />}
-                  mouseLeaveDelay={0.2}
-                >
-                  {content}
-                </Trigger>
-              );
-            }
-            if (!isExpanded && _.includes(['recommend', 'thirdPartyApp', 'integration'], entry.id)) {
-              return (
-                <Tooltip popupPlacement="right" text={<span>{entry.name}</span>}>
-                  {content}
-                </Tooltip>
-              );
-            }
-            return content;
-          })}
-          <ResourceEntry
-            className="resourceEntry expandBtn"
-            onClick={() => {
-              setIsExpanded(!isExpanded);
-              safeLocalStorageSetItem('homeNavIsExpanded', !isExpanded ? '1' : '');
-            }}
-          >
-            <span className="fullName Font12 Gray_9e flex" style={{ marginLeft: '25px' }}>
-              {_l('v%0', md.global.Config.Version)}
-            </span>
-            <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`} />
-          </ResourceEntry>
-        </ResourceEntries>
-      </Content>
+            <ResourceEntry
+              className="resourceEntry expandBtn"
+              onClick={() => {
+                setIsExpanded(!isExpanded);
+                safeLocalStorageSetItem('homeNavIsExpanded', !isExpanded ? '1' : '');
+              }}
+            >
+              <span className="fullName Font12 Gray_9e flex" style={{ marginLeft: '25px' }}>
+                {_l('v%0', md.global.Config.Version)}
+              </span>
+              <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`} />
+            </ResourceEntry>
+          </ResourceEntries>
+        </Content>
+      </ScrollView>
     </Con>
   );
 }

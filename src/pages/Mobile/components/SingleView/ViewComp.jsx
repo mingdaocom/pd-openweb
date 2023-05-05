@@ -99,7 +99,6 @@ function ViewComp(props) {
                       addType: 2,
                       entityName: worksheetInfo.entityName,
                       onAdd: addRecord,
-                      showDraft: advancedSetting.closedrafts !== '1',
                       showDraftsEntry: true,
                       sheetSwitchPermit,
                     });

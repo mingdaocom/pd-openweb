@@ -51,6 +51,8 @@ export default class DataRestrictionDialog extends Component {
       worktableBatchOperateDataLimitCount &&
       fileUploadLimitSize &&
       refreshReportInterval &&
+      workflowSubProcessDataLimitCount &&
+      worksheetExcelImportDataLimitCount &&
       exportAppWorksheetLimitCount
     ) {
       privateSysSetting
@@ -80,7 +82,7 @@ export default class DataRestrictionDialog extends Component {
           }
         });
     } else {
-      alert(_l('请输入数值'), 2);
+      alert(_l('请输入0以上的整数'), 2);
     }
   };
   render() {

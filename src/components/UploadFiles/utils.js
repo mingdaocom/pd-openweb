@@ -326,7 +326,7 @@ export const checkFileExt = (filetype = '', fileExt = '') => {
   const FileExts = {
     0: values,
     1: ['JPG', 'JPEG', 'PNG', 'Gif', 'WebP', 'Tiff', 'bmp'],
-    3: ['WAV', 'FLAC', 'APE', 'ALAC', 'WavPack', 'MP3', 'AAC', 'Ogg Vorbis', 'Opus', 'Au', 'MMF', 'AIF'],
+    3: ['WAV', 'FLAC', 'APE', 'ALAC', 'WavPack', 'MP3', 'M4a', 'AAC', 'Ogg Vorbis', 'Opus', 'Au', 'MMF', 'AIF'],
     4: ['MP4', 'AVI', 'MOV', 'WMV', 'MKV', 'FLV', 'F4V', 'SWF', 'RMVB', 'MPG'],
   };
 

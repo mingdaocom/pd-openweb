@@ -2,10 +2,8 @@ import React, { Component } from 'react';
 import { string } from 'prop-types';
 import { Icon } from 'ming-ui';
 import { Menu } from 'antd';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import { VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
 
-@withClickAway
 export default class ViewDisplayMenu extends Component {
   static propTypes = {};
   static defaultProps = {};

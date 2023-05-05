@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import Components from './inputTypes';
 import SubSheet from './inputTypes/SubSheet';
-import { getControlType } from './util';
+import { getControlType, dealIds } from './util';
 import { SettingItem } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import { DEFAULT_TYPES } from './config';
@@ -60,7 +60,7 @@ export default function DynamicDefaultValue(props) {
 
   const Comp = TYPE_TO_COMP[type];
 
-  const dynamicValue = getAdvanceSetting(data, 'defsource') || [];
+  const dynamicValue = dealIds(data.type, getAdvanceSetting(data, 'defsource') || []);
   //工作表或函数
   const { defaulttype = '' } = getAdvanceSetting(data);
   let defaultType = DEFAULT_TYPES[defaulttype] || '';

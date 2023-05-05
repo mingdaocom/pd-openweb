@@ -18,7 +18,7 @@ import _ from 'lodash';
 const typeList = _.keys(WIDGETS_TO_API_TYPE_ENUM_N);
 
 export default function ReviewFreeByWorksheetWrap(props) {
-  const { appId, projectId, onChange, query } = props;
+  const { appId, projectId, onChange, query, canChooseOtherApp } = props;
   const [showMenu, setShowMenu] = useState(false);
   const [visible, setvisible] = useState(false);
   const [sheetList, setSheetList] = useState([]);
@@ -148,15 +148,17 @@ export default function ReviewFreeByWorksheetWrap(props) {
                       <MenuItem className="Gray_9">{_l('暂无搜索结果')}</MenuItem>
                     )}
                   </Menu>
-                  <div
-                    className="otherWorksheet"
-                    onClick={() => {
-                      setShowMenu(false);
-                      setvisible(true);
-                    }}
-                  >
-                    {_l('其他应用下的工作表')}
-                  </div>
+                  {canChooseOtherApp && (
+                    <div
+                      className="otherWorksheet"
+                      onClick={() => {
+                        setShowMenu(false);
+                        setvisible(true);
+                      }}
+                    >
+                      {_l('其他应用下的工作表')}
+                    </div>
+                  )}
                 </WorksheetListWrap>
               );
             }}

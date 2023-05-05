@@ -31,6 +31,9 @@ import EditFastFilter from 'src/pages/worksheet/common/ViewConfig/components/fas
 import { openShareDialog } from 'src/pages/worksheet/components/Share';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { filterHidedControls } from 'worksheet/util';
+import { canEditData } from 'worksheet/redux/actions/util';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 
 const Con = styled.div`
   display: flex;
@@ -79,6 +82,7 @@ function ViewControl(props) {
     addMultiRelateHierarchyControls,
     updateWorksheetControls,
     updateSearchRecord,
+    appPkg,
   } = props;
   const { worksheetId, projectId } = worksheetInfo;
   const { count, pageCountAbnormal, rowsSummary } = sheetViewData;
@@ -106,6 +110,7 @@ function ViewControl(props) {
         worksheetControls={controls}
         currentViewId={viewId}
         worksheetId={worksheetId}
+        isLock={_.get(appPkg, 'isLock')}
         updateCurrentView={data => {
           saveView(viewId, _.pick(data, data.editAttrs || []));
         }}
@@ -123,9 +128,13 @@ function ViewControl(props) {
           navigateTo(`/app/${appId}/${groupId}/${worksheetId}/${newView.viewId}`);
         }}
         onShare={() => {
+          const hasCharge =
+            isCharge ||
+            canEditData(_.get(appPkg, 'permissionType')) ||
+            _.get(appPkg, 'permissionType') === APP_ROLE_TYPE.DEVELOPERS_ROLE; //开发者|管理员|运营者
           openShareDialog({
             from: 'view',
-            isCharge,
+            isCharge: hasCharge,
             title: _l('分享视图'),
             isPublic: view.shareRange === 2,
             params: {
@@ -141,6 +150,7 @@ function ViewControl(props) {
           });
         }}
         onExport={() => {
+          const hasCharge = isCharge || canEditData(_.get(appPkg, 'permissionType'));
           exportSheet({
             sheetHiddenColumns,
             allCount: count,
@@ -152,19 +162,14 @@ function ViewControl(props) {
             searchArgs: filters,
             selectRowIds: sheetSelectedRows.map(item => item.rowid),
             sheetSwitchPermit,
-            columns: controls.filter(item => {
-              return (
-                !_.find(view.controls, hideId => item.controlId === hideId) &&
-                item.controlPermissions &&
-                item.controlPermissions[0] === '1' &&
-                item.controlId !== 'rowid'
-              );
+            columns: (hasCharge ? controls : filterHidedControls(controls, view.controls)).filter(item => {
+              return item.controlPermissions && item.controlPermissions[0] === '1' && item.controlId !== 'rowid';
             }),
             downLoadUrl: worksheetInfo.downLoadUrl,
             worksheetSummaryTypes: rowsSummary.types,
             quickFilter,
             navGroupFilters,
-
+            isCharge: hasCharge,
             // 支持列统计结果
             hideStatistics: false,
           });
@@ -367,9 +372,18 @@ function ViewControl(props) {
       )}
       {showFastFilter && (
         <EditFastFilter
+          currentSheetInfo={worksheetInfo}
           view={view}
           worksheetControls={controls}
-          onClickAwayExceptions={['.addControlDrop']}
+          onClickAwayExceptions={[
+            '.addControlDrop',
+            '.nano',
+            '.mui-dialog-container',
+            '.ant-select-dropdown',
+            '.rc-trigger-popup',
+            '.selectize-dropdown',
+            '.selectUserBox',
+          ]}
           showFastFilter={showFastFilter}
           onClickAway={() => setShowFastFilter(false)}
           activeFastFilterId={activeFastFilterId}
@@ -423,6 +437,7 @@ export default connect(
     buttons: state.sheet.buttons,
     sheetButtons: state.sheet.sheetButtons,
     searchData: getSearchData(state.sheet),
+    appPkg: state.appPkg,
   }),
   dispatch =>
     bindActionCreators(

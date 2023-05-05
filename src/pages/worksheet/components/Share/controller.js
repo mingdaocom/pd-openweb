@@ -137,6 +137,7 @@ export async function updatePublicShareStatus(args) {
     case 'customPage':
     case 'report':
       res = await appManagementAjax.editEntityShareStatus({
+        appId: args.appId,
         sourceId: args.sourceId,
         sourceType: from === 'report' ? 31 : 21,
         status: isPublic ? 1 : 0,

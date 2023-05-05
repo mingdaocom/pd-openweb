@@ -12,7 +12,7 @@ export default {
      return $.api('ProjectSetting', 'GetProjectIdentity', args, options);
    },
   /**
-  * 界面定制（人事审批打印功能有调用这个接口，所以不能限制管理员权限）
+  * 界面定制
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数

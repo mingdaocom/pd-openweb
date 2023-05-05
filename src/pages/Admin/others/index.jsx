@@ -47,6 +47,12 @@ const DATA_INFO = [
     showSetting: true,
     description: _l('您可以通过组织的二级域名，以SSO登录方式登录到平台'),
   },
+  // {
+  //   key: 'integrationAuthority',
+  //   label: _l('只允许管理员访问集成中心'),
+  //   showSetting: false,
+  //   description: _l('启用后，只有组织的应用管理员可以访问集成中心。关闭时，所有人都可以访问'),
+  // },
 ];
 const ipRegExp = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)+([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$/;
 const portRegExp = new RegExp(

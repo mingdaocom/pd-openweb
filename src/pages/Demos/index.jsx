@@ -3,6 +3,7 @@ import { Switch, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import Notification from './pages/Notification';
 import SelectUser from './pages/SelectUser';
+import CardList from './pages/CardList';
 const Con = styled.div`
   background: #fff;
   min-height: 100%;
@@ -16,6 +17,7 @@ export default function Demo(props) {
       <Switch>
         <Route path="/demo/notification" component={Notification} />
         <Route path="/demo/selectuser" component={SelectUser} />
+        <Route path="/demo/cardlist" component={CardList} />
         <Route path="*" component={() => <span>hello</span>} />
       </Switch>
     </Con>

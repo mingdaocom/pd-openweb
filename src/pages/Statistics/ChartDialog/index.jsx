@@ -124,6 +124,7 @@ export default class ChartDialog extends Component {
         isRequest: true,
         reportId: result.reportId,
         reportName: data.name,
+        reportType: data.reportType,
         worksheetId: data.appId
       });
     });
@@ -202,7 +203,7 @@ export default class ChartDialog extends Component {
     this.getReportConfigDetail(type);
   }
   renderHeader() {
-    const { report, permissions, isCharge, sourceType, currentReport, reportData, worksheetInfo, base, onRemove, ownerId } = this.props;
+    const { report, permissions, isCharge, isLock, permissionType, sourceType, currentReport, reportData, worksheetInfo, base, onRemove, ownerId } = this.props;
     const { saveLoading, settingVisible } = this.state;
     const isPublicShareChart = location.href.includes('public/chart');
     const isPublicSharePage = location.href.includes('public/page') || window.shareAuthor;
@@ -249,6 +250,8 @@ export default class ChartDialog extends Component {
               reportStatus={reportData.reportType}
               permissions={sourceType ? null : permissions}
               isCharge={isCharge}
+              isLock={isLock}
+              permissionType={permissionType}
               isMove={sourceType ? false : true}
               report={report}
               filter={currentReport.filter}
@@ -278,20 +281,48 @@ export default class ChartDialog extends Component {
   }
   renderCharts() {
     const { currentReport } = this.props;
-    const { reportType } = currentReport;
+    const { reportType, displaySetup } = currentReport;
     return (
       <div className="charts flexRow pLeft20 pRight20">
         {chartNav.map((item, index) => (
-          <div
-            key={index}
-            data-tip={item.name}
-            onClick={() => {
-              this.handleUpdateReportType(item.type);
-            }}
-            className={cx('chartItem', { active: reportType === item.type })}
-          >
-            <Icon icon={item.icon} />
-          </div>
+          <Fragment key={index}>
+            <div
+              data-tip={item.name}
+              onClick={() => {
+                if (item.type === reportTypes.BarChart) {
+                  this.props.changeCurrentReport({
+                    displaySetup: {
+                      ...displaySetup,
+                      showChartType: 1,
+                    }
+                  });
+                }
+                this.handleUpdateReportType(item.type);
+              }}
+              className={cx('chartItem', { active: item.type === reportTypes.BarChart ? (reportType === reportTypes.BarChart && displaySetup.showChartType === 1) : reportType === item.type })}
+            >
+              <Icon icon={item.icon} />
+            </div>
+            {item.type === reportTypes.BarChart && (
+              <div
+                data-tip={_l('横向柱图')}
+                onClick={() => {
+                  this.props.changeCurrentReport({
+                    displaySetup: {
+                      ...displaySetup,
+                      showChartType: 2,
+                    }
+                  });
+                  if (reportType !== reportTypes.BarChart) {
+                    this.handleUpdateReportType(item.type);
+                  }
+                }}
+                className={cx('chartItem', { active: reportType === reportTypes.BarChart && displaySetup.showChartType === 2 })}
+              >
+                <Icon icon="stats_bar_chart1" />
+              </div>
+            )}
+          </Fragment>
         ))}
       </div>
     );
@@ -312,7 +343,7 @@ export default class ChartDialog extends Component {
     );
   }
   renderSetting() {
-    const { projectId, reportData } = this.props;
+    const { projectId, reportData, currentReport } = this.props;
     const { chartIsUnfold } = this.state;
 
     if (!chartIsUnfold) {
@@ -356,9 +387,11 @@ export default class ChartDialog extends Component {
               <Tabs.TabPane tab={_l('样式')} key="style" disabled={!reportData.status}>
                 <ChartStyle projectId={projectId} />
               </Tabs.TabPane>
-              <Tabs.TabPane tab={_l('分析')} key="analyse" disabled={!reportData.status}>
-                <ChartAnalyse />
-              </Tabs.TabPane>
+              {![reportTypes.GaugeChart, reportTypes.ProgressChart].includes(currentReport.reportType) && (
+                <Tabs.TabPane tab={_l('分析')} key="analyse" disabled={!reportData.status}>
+                  <ChartAnalyse />
+                </Tabs.TabPane>
+              )}
             </Tabs>
           </ScrollView>
         </div>

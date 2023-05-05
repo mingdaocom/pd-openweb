@@ -1,6 +1,12 @@
 import userController from 'src/api/user';
 import externalPortalCotroller from 'src/api/externalPortal';
 import addressBookController from 'src/api/addressBook';
+import { wrapAjax } from 'worksheet/redux/actions/util';
+
+const getUsersByApp = wrapAjax(externalPortalCotroller.getUsersByApp);
+const getProjectContactUserListByApp = wrapAjax(userController.getProjectContactUserListByApp);
+const getUserAddressbookByKeywords = wrapAjax(addressBookController.getUserAddressbookByKeywords);
+const getOftenMetionedUser = wrapAjax(userController.getOftenMetionedUser);
 
 export function getAccounts({
   list,
@@ -50,66 +56,60 @@ export function getAccounts({
 
 export function getUsers(args) {
   if (args.type === 'external') {
-    return externalPortalCotroller
-      .getUsersByApp({
-        projectId: args.projectId,
-        appId: args.appId,
-        pageIndex: args.pageIndex || 1,
-        pageSize: 25,
-        keywords: args.keywords || '',
-        filterAccountIds: args.filterAccountIds || [],
-      })
-      .then(res => {
-        let result = res.map(user => ({
-          accountId: user.accountId,
-          avatar: user.avatar,
-          fullname: user.name,
-          phone: user.mobilePhone,
-        }));
-        const currentAccount = result.find(item => item.accountId === md.global.Account.accountId);
-        if (
-          !args.hidePortalCurrentUser &&
-          (args.includeSystemField || args.includeUndefinedAndMySelf) &&
-          md.global.Account.isPortal
-        ) {
-          result = [
-            {
-              accountId: 'user-self',
-              avatar: 'https://p1.mingdaoyun.cn/UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90',
-              fullname: '当前用户',
-            },
-          ].concat(result);
-        } else if (currentAccount) {
-          result = [
-            {
-              ...currentAccount,
-              fullname: _l('我自己'),
-            },
-          ].concat(result);
-        }
-        return result;
-      });
+    return getUsersByApp({
+      projectId: args.projectId,
+      appId: args.appId,
+      pageIndex: args.pageIndex || 1,
+      pageSize: 25,
+      keywords: args.keywords || '',
+      filterAccountIds: args.filterAccountIds || [],
+    }).then(res => {
+      let result = res.map(user => ({
+        accountId: user.accountId,
+        avatar: user.avatar,
+        fullname: user.name,
+        phone: user.mobilePhone,
+      }));
+      const currentAccount = result.find(item => item.accountId === md.global.Account.accountId);
+      if (!args.hidePortalCurrentUser && (args.includeSystemField || args.includeUndefinedAndMySelf)) {
+        result = [
+          {
+            accountId: 'user-self',
+            avatar:
+              md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+              '/UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90',
+            fullname: _l('当前用户'),
+          },
+        ].concat(result);
+      } else if (!args.keywords && currentAccount) {
+        result = [
+          {
+            ...currentAccount,
+            fullname: _l('我自己'),
+          },
+        ].concat(result);
+      }
+      return result;
+    });
   } else if (args.type === 'range') {
-    return userController
-      .getProjectContactUserListByApp({
-        pageIndex: 1,
-        pageSize: 100,
-        projectId: args.projectId,
-        keywords: args.keywords,
-        filterAccountIds: args.filterAccountIds || [],
-        ...(_.isObject(args.selectRangeOptions) ? args.selectRangeOptions : {}),
-      })
-      .then(res => _.get(res, 'users.list') || []);
+    return getProjectContactUserListByApp({
+      pageIndex: 1,
+      pageSize: 100,
+      projectId: args.projectId,
+      keywords: args.keywords,
+      filterAccountIds: args.filterAccountIds || [],
+      ...(_.isObject(args.selectRangeOptions) ? args.selectRangeOptions : {}),
+    }).then(res => _.get(res, 'users.list') || []);
   } else if (args.keywords) {
-    return addressBookController
-      .getUserAddressbookByKeywords({
-        keywords: args.keywords || '',
-        filterAccountIds: args.filterAccountIds || [],
-        currentProjectId: args.projectId,
-      })
-      .then(res => res.list);
+    const otherOptions = args.filterOtherProject ? { projectId: args.projectId } : { currentProjectId: args.projectId };
+
+    return getUserAddressbookByKeywords({
+      keywords: args.keywords || '',
+      filterAccountIds: args.filterAccountIds || [],
+      ...otherOptions,
+    }).then(res => res.list);
   } else {
-    return userController.getOftenMetionedUser({
+    return getOftenMetionedUser({
       count: args.mentionedCount,
       filterAccountIds: args.filterAccountIds || [],
       includeUndefinedAndMySelf: args.includeUndefinedAndMySelf || false,

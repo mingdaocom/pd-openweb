@@ -1,11 +1,11 @@
 import React from 'react';
 import { MdLink, VCenterIconText } from 'ming-ui';
-import { isCanEdit } from '../../util';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
 
 export default ({ appId, permissionType, isLock }) => (
   <div className="appExtensionWrap">
-    {!window.isPublicApp && isCanEdit(permissionType, isLock) && (
-      <MdLink to={`/app/${appId}/workflow`}>
+    {!window.isPublicApp && canEditApp(permissionType, isLock) && (
+      <MdLink to={`/app/${appId}/workflow/${isLock}`}>
         <VCenterIconText
           className="appExtensionItem"
           icon={'workflow'}

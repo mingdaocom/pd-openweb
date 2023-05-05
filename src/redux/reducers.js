@@ -19,11 +19,6 @@ import orgManagePage from 'src/pages/Admin/redux';
 
 export function makeRootReducer() {
   return (state = {}, action) => {
-    if (action && action.type.match('WINDOW_POPSTATE_') && action.state) {
-      if (!action.type.match(/\/hr\/dossier\/Recoder/i) && !action.type.match(/\/hr\/dossier\/RelationManage/i)) {
-        return action.state;
-      }
-    }
     return combineReducers({
       post: combineReducers(postReducers),
       postDetail: combineReducers(postDetailReducers),

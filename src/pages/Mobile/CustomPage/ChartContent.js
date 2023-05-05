@@ -69,6 +69,7 @@ const HorizontalChartContent = styled.div`
 function ChartContent(props) {
   const { widget, reportId, name, accessToken, filters = [], pageComponents } = props;
   const objectId = _.get(widget, 'config.objectId');
+  const mobileCount = _.get(widget, 'config.mobileCount');
   const [loading, setLoading] = useState(true);
   const [filterVisible, setFilterVisible] = useState(false);
   const [zoomVisible, setZoomVisible] = useState(false);
@@ -216,6 +217,7 @@ function ChartContent(props) {
       <Chart
         data={data}
         loading={loading}
+        mobileCount={mobileCount}
         onOpenFilterModal={handleOpenFilterModal}
         onOpenZoomModal={handleOpenZoomModal}
       />
@@ -257,6 +259,7 @@ function ChartContent(props) {
               pageComponents={pageComponents}
               data={zoomData}
               loading={loading}
+              mobileCount={mobileCount}
               onOpenFilterModal={handleOpenFilterModal}
               onOpenZoomModal={handleOpenZoomModal}
               onLoadBeforeData={(index) => {

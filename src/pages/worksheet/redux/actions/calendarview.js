@@ -1,4 +1,5 @@
 import sheetAjax from 'src/api/worksheet';
+import { formatQuickFilter } from 'worksheet/util';
 import { getAdvanceSetting, browserIsMobile } from 'src/util';
 import { setDataFormat, getShowExternalData } from 'src/pages/worksheet/views/CalendarView/util';
 import { getCalendarViewType } from 'src/pages/worksheet/views/CalendarView/util';
@@ -9,7 +10,7 @@ let getRows;
 let getRowsIds = [];
 export const fetch = searchArgs => {
   return (dispatch, getState) => {
-    const { base, filters } = getState().sheet;
+    const { base, filters, quickFilter = [] } = getState().sheet;
     const { worksheetId, viewId, appId, chartId } = base;
     if (getRows && getRowsIds.includes(viewId)) {
       getRows.abort();
@@ -35,6 +36,7 @@ export const fetch = searchArgs => {
         'beginTime', //用于日历视图的开始时间和结束时间
         'endTime',
       ]),
+      fastFilters: formatQuickFilter(quickFilter),
     });
     getRows.then(res => {
       getRowsIds = getFilterRowsIds.filter(o => o !== viewId);

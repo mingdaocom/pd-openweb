@@ -40,7 +40,7 @@ export default class Widgets extends Component {
       if (this.props.enumDefault !== 2) {
         this.joinTextareaEdit(e);
       } else {
-        e.target.value = this.props.value;
+        e.target.value = this.props.value || '';
       }
     }
     this.setState({ originValue: e.target.value.trim() });

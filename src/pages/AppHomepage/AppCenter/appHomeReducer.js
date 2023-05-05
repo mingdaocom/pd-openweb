@@ -87,9 +87,9 @@ export function reducer(state, action = {}) {
         activeGroupApps: action.apps,
         apps: state.apps.length
           ? state.apps.map(app => ({
-            ...app,
-            ...(_.find(action.apps, { id: app.id }) || {}),
-          }))
+              ...app,
+              ...(_.find(action.apps, { id: app.id }) || {}),
+            }))
           : action.apps,
       };
     case 'UPDATE_APP':
@@ -310,8 +310,9 @@ export class CreateActions {
       });
     });
   }
-  addGroup({ projectId, name, icon, groupType, cb = () => { } }) {
-    homeAppAjax.addGroup({ projectId, name, icon, groupType })
+  addGroup({ projectId, name, icon, groupType, cb = () => {} }) {
+    homeAppAjax
+      .addGroup({ projectId, name, icon, groupType })
       .then(({ id, status }) => {
         if (status === 1) {
           cb();
@@ -331,8 +332,9 @@ export class CreateActions {
       })
       .fail(cb);
   }
-  editGroup({ id, projectId, name, icon, groupType, cb = () => { } }) {
-    homeAppAjax.editGroup({ id, projectId, name, icon, groupType })
+  editGroup({ id, projectId, name, icon, groupType, cb = () => {} }) {
+    homeAppAjax
+      .editGroup({ id, projectId, name, icon, groupType })
       .then(status => {
         cb(status);
         if (status === 1) {
@@ -342,7 +344,7 @@ export class CreateActions {
             value: {
               name,
               icon,
-              iconUrl: `https://fp1.mingdaoyun.cn/customIcon/${icon}.svg`,
+              iconUrl: `${md.global.FileStoreConfig.pubHost.replace(/\/$/, '')}/customIcon/${icon}.svg`,
               groupType,
             },
           });
@@ -350,8 +352,9 @@ export class CreateActions {
       })
       .fail(cb);
   }
-  deleteGroup({ id, projectId, groupType, cb = () => { } }) {
-    homeAppAjax.deleteGroup({ id, projectId, groupType })
+  deleteGroup({ id, projectId, groupType, cb = () => {} }) {
+    homeAppAjax
+      .deleteGroup({ id, projectId, groupType })
       .then(() => {
         cb();
         this.dispatch({
@@ -361,13 +364,14 @@ export class CreateActions {
       })
       .fail(cb);
   }
-  markGroup({ id, isMarked, groupType, projectId, cb = () => { } }) {
-    homeAppAjax.markedGroup({
-      id,
-      isMarked,
-      groupType,
-      projectId,
-    })
+  markGroup({ id, isMarked, groupType, projectId, cb = () => {} }) {
+    homeAppAjax
+      .markedGroup({
+        id,
+        isMarked,
+        groupType,
+        projectId,
+      })
       .then(() => {
         cb();
         this.dispatch({
@@ -408,7 +412,8 @@ export class CreateActions {
     });
   }
   saveApp(app) {
-    homeAppAjax.editAppInfo(app)
+    homeAppAjax
+      .editAppInfo(app)
       .then()
       .fail(() => {
         alert(_l('更新应用失败！'), 2);
@@ -420,10 +425,11 @@ export class CreateActions {
       type: 'DELETE_APP',
       appId: para.appId,
     });
-    homeAppAjax.deleteApp({
-      ...para,
-      isHomePage: true,
-    })
+    homeAppAjax
+      .deleteApp({
+        ...para,
+        isHomePage: true,
+      })
       .then(res => {
         if (!res.data) {
           return $.Deferred().reject();
@@ -460,10 +466,11 @@ export class CreateActions {
     });
   }
   markApp(para) {
-    homeAppAjax.markApp({
-      ...para,
-      isHomePage: true,
-    })
+    homeAppAjax
+      .markApp({
+        ...para,
+        isHomePage: true,
+      })
       .then(() => {
         this.dispatch({
           type: 'MARK_APP',
@@ -485,7 +492,8 @@ export class CreateActions {
     });
   }
   createAppFromEmpty(para, cb = _.noop) {
-    homeAppAjax.createApp(para)
+    homeAppAjax
+      .createApp(para)
       .then(data => {
         this.dispatch({
           type: 'ADD_APP',
@@ -512,7 +520,8 @@ export class CreateActions {
         sortType = 7;
       }
     }
-    homeAppAjax.updateAppSort({ sortType, appIds, projectId, groupId })
+    homeAppAjax
+      .updateAppSort({ sortType, appIds, projectId, groupId })
       .then(res => {
         if (!res.data) {
           return $.Deferred().reject();
@@ -528,7 +537,8 @@ export class CreateActions {
       type: 'UPDATE_SETTING',
       value: { displayType, exDisplay, markedAppDisplay },
     });
-    homeAppAjax.editHomeSetting({ projectId, displayType, exDisplay, markedAppDisplay })
+    homeAppAjax
+      .editHomeSetting({ projectId, displayType, exDisplay, markedAppDisplay })
       .then(data => {
         if (data) {
           if (editingKey === 'markedAppDisplay') {

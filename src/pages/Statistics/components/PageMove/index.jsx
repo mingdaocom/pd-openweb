@@ -4,16 +4,15 @@ import { Dialog, Dropdown, Button } from 'ming-ui';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import homeApp from 'src/api/homeApp';
 import store from 'redux/configureStore';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import reportConfig from '../../api/reportConfig';
 
-const formatApps = function(validProject, projectId, appId) {
+const formatApps = function (validProject, projectId, appId) {
   const appList = [];
   const project = validProject.filter(item => item.projectId === projectId)[0];
   if (project && project.projectApps && project.projectApps.length) {
     project.projectApps.forEach(app => {
-      const isCharge =
-        app.permissionType == APP_ROLE_TYPE.ADMIN_ROLE || app.permissionType == APP_ROLE_TYPE.POSSESS_ROLE;
-      if (isCharge) {
+      if (canEditApp(app.permissionType) && !app.isLock) {
         appList.push({
           text: appId === app.id ? `${app.name} (${_l('本应用')})` : app.name,
           value: app.id,
@@ -56,16 +55,18 @@ export default class SheetMove extends Component {
       onCancel();
       return;
     }
-    reportConfig.copyReport({
-      reportId,
-      sourceType: 1,
-      pageId: pageValue,
-      move: pageId ? true : false,
-      sourcePageId: pageId ? pageId : undefined
-    }).then(result => {
-      alert(_l('操作成功'));
-      onSucceed && onSucceed(result.version);
-    });
+    reportConfig
+      .copyReport({
+        reportId,
+        sourceType: 1,
+        pageId: pageValue,
+        move: pageId ? true : false,
+        sourcePageId: pageId ? pageId : undefined,
+      })
+      .then(result => {
+        alert(_l('操作成功'));
+        onSucceed && onSucceed(result.version);
+      });
     onCancel();
   }
   handleChangeApp(value) {
@@ -85,7 +86,7 @@ export default class SheetMove extends Component {
         });
         this.setState({
           pages: res,
-          pageValue: res.length ? (pageId || res[0].value) : '',
+          pageValue: res.length ? pageId || res[0].value : '',
         });
       });
   }

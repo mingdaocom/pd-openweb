@@ -10,6 +10,7 @@ import Trigger from 'rc-trigger';
 import formControl from 'ming-ui/decorators/formControl';
 import './less/Dropdown.less';
 import _ from 'lodash';
+import LoadDiv from './LoadDiv';
 
 const builtinPlacements = {
   left: {
@@ -177,6 +178,10 @@ class Dropdown extends Component {
      * 菜单展开状态变更回调
      */
     onVisibleChange: PropTypes.func,
+    /**
+     * 通过onVisibleChange异步获取下拉列表 loading状态
+     */
+    itemLoading: PropTypes.bool,
     /**
      * render title
      */
@@ -371,8 +376,18 @@ class Dropdown extends Component {
 
   displayMenu = () => {
     const { showMenu, keywords } = this.state;
-    const { data, maxHeight, menuStyle, menuClass, noData, children, isAppendToBody, openSearch, searchNull } =
-      this.props;
+    const {
+      data,
+      maxHeight,
+      menuStyle,
+      menuClass,
+      noData,
+      children,
+      isAppendToBody,
+      openSearch,
+      searchNull,
+      itemLoading,
+    } = this.props;
 
     const searchData = [];
 
@@ -435,6 +450,8 @@ class Dropdown extends Component {
       >
         {searchData && !this.checkIsNull(searchData) ? (
           this.renderListItem(searchData)
+        ) : itemLoading ? (
+          <LoadDiv />
         ) : (
           <MenuItem disabled>
             <div>{keywords ? (searchNull ? searchNull() : _l('暂无搜索结果')) : noData}</div>

@@ -9,6 +9,7 @@ import OracleGuide from './Oracle';
 import MingDaoYunGuide from './MingDaoYun';
 import MongoDBGuide from './MongoDB';
 import MariaDBGuide from './MariaDB';
+import DB2Guide from './DB2';
 
 const TabList = styled.div`
   box-sizing: border-box;
@@ -45,10 +46,13 @@ export default function ConfigGuide(props) {
     setCurrentTab(current);
   }, [current]);
 
-  const tabList = [
-    { key: 'source', text: _l('作为数据源') },
-    { key: 'dest', text: _l('作为数据目的地') },
-  ];
+  const tabList =
+    source.roleType === 'ALL'
+      ? [
+          { key: 'source', text: _l('作为数据源') },
+          { key: 'dest', text: _l('作为数据目的地') },
+        ]
+      : [{ key: 'source', text: _l('作为数据源') }];
 
   const renderGuideContent = () => {
     switch (source.type) {
@@ -76,6 +80,8 @@ export default function ConfigGuide(props) {
         return <MariaDBGuide type={currentTab} />;
       case DATABASE_TYPE.APPLICATION_WORKSHEET:
         return <MingDaoYunGuide type={currentTab} />;
+      case DATABASE_TYPE.DB2:
+        return <DB2Guide type={currentTab} />;
       default:
         <div />;
     }

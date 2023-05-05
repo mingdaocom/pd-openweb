@@ -72,7 +72,7 @@ export default function SplitDropdown(props) {
               dropIcon="task_custom_btn_unfold"
               defaultValue={type}
               isAppendToBody
-              menuStyle={{ width: 46 }}
+              menuStyle={{ width: 'auto' }}
               data={[
                 { text: _l('且'), value: FILTER_RELATION_TYPE.AND },
                 { text: _l('或'), value: FILTER_RELATION_TYPE.OR },

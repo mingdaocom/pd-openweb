@@ -62,6 +62,12 @@ function EditPanel(props) {
   } = props;
   const [selectedIds, setSelectedIds] = useState(selectedGroupIds);
   const [keywords, setKeywords] = useState();
+  const filteredPersonalGroups = personalGroups.filter(
+    g => !keywords || new RegExp(keywords.toLowerCase()).test((g.name || '').toLowerCase()),
+  );
+  const filteredProjectGroups = projectGroups.filter(
+    g => !keywords || new RegExp(keywords.toLowerCase()).test((g.name || '').toLowerCase()),
+  );
   function renderGroups(group, i) {
     const checked = _.includes(selectedIds, group.id);
     return (
@@ -99,17 +105,20 @@ function EditPanel(props) {
         <input type="text" placeholder={'搜索分组'} value={keywords} onChange={e => setKeywords(e.target.value)} />
       </Header>
       <div className="groups">
-        {!!personalGroups.length && (
+        {!!filteredPersonalGroups.length && (
           <React.Fragment>
             <div className="title">{_l('个人')}</div>
-            {personalGroups.map(renderGroups)}
+            {filteredPersonalGroups.map(renderGroups)}
           </React.Fragment>
         )}
-        {isAdmin && !!projectGroups.length && (
+        {isAdmin && !!filteredProjectGroups.length && (
           <React.Fragment>
             <div className="title">{_l('组织')}</div>
-            {projectGroups.map(renderGroups)}
+            {filteredProjectGroups.map(renderGroups)}
           </React.Fragment>
+        )}
+        {!filteredPersonalGroups.length && !filteredProjectGroups.length && (
+          <div className="Font13 Gray_bd TxtCenter mTop20 mBottom10">{_l('没有搜索结果')}</div>
         )}
       </div>
     </EditPanelCon>
@@ -140,7 +149,7 @@ export default function EditGroupMenuItem(props) {
     >
       <div ref={itemRef}>
         <Con icon={<Icon className="operationIcon" icon={'addto-folder'} />}>
-          {_l('设置分组')}
+          {_l('设置分组%01010')}
           <i className="icon icon-arrow-right-tip Right mTop11"></i>
         </Con>
       </div>

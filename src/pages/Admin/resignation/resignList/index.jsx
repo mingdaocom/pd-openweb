@@ -7,7 +7,6 @@ import userController from 'src/api/user';
 import UserHead from 'src/pages/feed/components/userHead';
 import { LoadDiv, Checkbox, Dialog } from 'ming-ui';
 import { Input } from 'antd';
-import captcha from 'src/components/captcha';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAwayable = createDecoratedComponent(withClickAway);
@@ -15,16 +14,10 @@ const ClickAwayable = createDecoratedComponent(withClickAway);
 import 'src/components/pager/pager';
 import './style.less';
 import Empty from '../../common/TableEmpty';
-import AccountController from 'src/api/account';
-import { encrypt } from 'src/util';
+import { verifyPassword } from 'src/util';
 import { getPssId } from 'src/util/pssId';
 import _ from 'lodash';
 import moment from 'moment';
-
-const errorMsg = {
-  6: _l('密码错误'),
-  8: _l('验证码错误'),
-};
 
 export default class ResignList extends React.Component {
   static propTypes = {
@@ -164,30 +157,10 @@ export default class ResignList extends React.Component {
       alert(_l('请输入登录密码'), 3);
       return;
     }
-    let throttled = function (res) {
-      if (res.ret !== 0) {
-        return;
-      }
-      AccountController.checkAccount({
-        ticket: res.ticket,
-        randStr: res.randstr,
-        captchaType: md.staticglobal.getCaptchaType(),
-        password: encrypt(password),
-      }).then(res => {
-        if (res === 1) {
-          _this.exportList();
-          _this.setState({ showInputPassword: false });
-        } else {
-          alert(errorMsg[res] || _l('操作失败'), 2);
-        }
-      });
-    };
-
-    if (md.staticglobal.getCaptchaType() === 1) {
-      new captcha(throttled);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
-    }
+    verifyPassword(password, () => {
+      _this.exportList();
+      _this.setState({ showInputPassword: false });
+    });
   };
   dialogInputPassword = () => {
     let { showInputPassword, password } = this.state;

@@ -13,6 +13,7 @@ import { getUsers, getAccounts } from './util';
 export function UserSelector(props) {
   const {
     projectId,
+    staticAccounts = [], // 静态显示用户，传值时不在走接口取数据
     includeUndefinedAndMySelf = false,
     includeSystemField = false, // 是否显示系统字段
     prefixOnlySystemField = false,
@@ -21,6 +22,7 @@ export function UserSelector(props) {
     prefixAccounts = [], // 指定置顶的用户对象
     isHidAddUser = false, // 隐藏选择通讯录入口
     selectRangeOptions = undefined, // 限制选择范围
+    filterOtherProject = false, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
     appId, // 外部门户需要
     minHeight = 328,
     tabType = 1, // 1: 常规 2: 外部门户 3: 常规和外部门户
@@ -44,6 +46,7 @@ export function UserSelector(props) {
   const [list, setList] = useState([]);
   const [hadShowMore, setHadShowMore] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const isStatic = !_.isEmpty(staticAccounts);
   const baseArgs = {
     filterAccountIds: filterAccountIds.filter(_.identity),
     prefixAccountIds,
@@ -54,13 +57,17 @@ export function UserSelector(props) {
     includeSystemField,
     mentionedCount: count,
     hidePortalCurrentUser,
+    filterOtherProject,
   };
   function loadList({ keywords, pageIndex = 1, clear = true, type } = {}) {
+    if (isStatic) {
+      return;
+    }
     if (clear) {
       setList([]);
     }
     setLoading(true);
-    getUsers({ ...baseArgs, type, keywords, pageIndex }).then(data => {
+    getUsers({ ...baseArgs, type, keywords: (keywords || '').trim(), pageIndex }).then(data => {
       setList(l => l.concat(data));
       setLoading(false);
     });
@@ -68,7 +75,7 @@ export function UserSelector(props) {
   const debounceLoadList = useCallback(_.debounce(loadList, 200), []);
   let prefixUsers = prefixAccounts;
   let users = [];
-  if (!keywords && !selectRangeOptions && activeTab !== 1) {
+  if (!isStatic && !keywords && !selectRangeOptions && activeTab !== 1) {
     const result = getAccounts({
       list: _.cloneDeep(list),
       includeUndefinedAndMySelf,
@@ -82,6 +89,11 @@ export function UserSelector(props) {
     users = result.users;
   } else {
     users = list;
+  }
+  if (type === 'external' || keywords) {
+    prefixUsers = [];
+  } else {
+    users = staticAccounts.concat(users);
   }
   function handleSelect(user) {
     const res = [_.pick(user, ['accountId', 'avatar', 'fullname', 'job'])];
@@ -118,7 +130,7 @@ export function UserSelector(props) {
         />
       )}
       <Search
-        isHidAddUser={isHidAddUser}
+        isHidAddUser={isHidAddUser || isStatic}
         type={type}
         keywords={keywords}
         parentProps={props}
@@ -178,6 +190,7 @@ export function UserSelector(props) {
             }
           }
         }}
+        onSelect={onSelect}
         onClose={onClose}
       />
       <Content
@@ -216,7 +229,9 @@ export function UserSelector(props) {
             <hr />
           </Fragment>
         )}
-        {type === 'normal' && !keywords && activeTab !== 1 && <div className="moduleName">{_l('最常协作')}</div>}
+        {!isStatic && type === 'normal' && !keywords && activeTab !== 1 && (
+          <div className="moduleName">{_l('最常协作')}</div>
+        )}
         {
           <UserList
             keywords={keywords}
@@ -225,11 +240,15 @@ export function UserSelector(props) {
               activeIndex - (hadShowMore ? prefixUsers.length : prefixUsers.length < 2 ? prefixUsers.length : 2)
             }
             type={type}
-            list={users}
+            list={
+              isStatic && keywords
+                ? users.filter(u => u.fullname.toLowerCase().indexOf(keywords.toLowerCase()) > -1)
+                : users
+            }
             onSelect={handleSelect}
           />
         }
-        {loading && <LoadDiv />}
+        {!isStatic && loading && <LoadDiv />}
       </Content>
     </Con>
   );

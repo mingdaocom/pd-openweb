@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Menu } from 'antd';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { OPERATION_TYPE_DATA } from 'src/pages/integration/containers/TaskCon/TaskCanvas/config.js';
+import { OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
 @withClickAway
 export default class GroupType extends Component {
   static propTypes = {};

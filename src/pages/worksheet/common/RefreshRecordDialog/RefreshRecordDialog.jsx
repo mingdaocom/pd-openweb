@@ -219,7 +219,7 @@ export default function RefreshRecordDialog(props) {
       title={_l('校准数据')}
       description={
         <div>
-          {_l('此操作仅管理员可以执行。单次最多刷新10w行数据，后台异步完成后会发送通知。')}
+          {_l('此操作仅系统角色可以执行。单次最多刷新10w行数据，后台异步完成后会发送通知。')}
           <Support className="moreHelp" type={3} href="https://help.mingdao.com/zh/sheet43.html" text={_l('使用帮助')} />
         </div>
       }

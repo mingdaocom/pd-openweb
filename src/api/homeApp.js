@@ -6,6 +6,8 @@ export default {
   * @param {string} args.name 名称
   * @param {string} args.icon 图标
   * @param {string} args.iconColor 图标颜色
+  * @param {string} args.navColor 导航颜色
+  * @param {string} args.lightColor 背景色
   * @param {string} args.groupId 分组id
   * @param {} args.groupType 分组类型 0 = 个人，1= 网络
   * @param {Object} options 配置参数
@@ -252,6 +254,7 @@ export default {
   * @param {string} args.viewId 视图id
   * @param {string} args.attachementControlId 控件id
   * @param {integer} args.imageLimitCount 图片上限数量
+  * @param {integer} args.displayMode 展示方式（默认值为0） 0-all 1-每条记录第一张
   * @param {array} args.filedIds 工作表字段控件id数组
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -289,6 +292,12 @@ export default {
   * 获取应用详细信息
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

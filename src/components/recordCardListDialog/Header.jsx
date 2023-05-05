@@ -53,7 +53,17 @@ function enrichFilters(filters) {
 }
 
 export default function Header(props) {
-  const { entityName, projectId, control = {}, controls, quickFilters, searchConfig, onFilter, onSearch } = props;
+  const {
+    entityName,
+    projectId,
+    control = {},
+    controls,
+    quickFilters,
+    searchConfig,
+    onFilter,
+    onSearch,
+    onKeyDown,
+  } = props;
   const inputRef = createRef();
   const { searchFilters } = searchConfig;
   const searchControl = searchConfig.searchControl || _.find(controls, { attribute: 1 }) || {};
@@ -70,7 +80,13 @@ export default function Header(props) {
           <Icon>
             <i className="icon icon-search"></i>
           </Icon>
-          <Input placeholder={_l('搜索%0', searchControl.controlName || '')} manualRef={inputRef} onChange={onSearch} />
+          <Input
+            className="recordListKeyword"
+            placeholder={_l('搜索%0', searchControl.controlName || '')}
+            manualRef={inputRef}
+            onChange={onSearch}
+            onKeyDown={onKeyDown}
+          />
         </QueryCon>
         {searchFilters && !!searchFilters.length && (
           <FilterCon>

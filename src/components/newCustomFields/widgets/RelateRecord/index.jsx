@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-import { formatRecordToRelateRecord } from 'worksheet/util';
+import { formatRecordToRelateRecord, getRelateRecordCountFromValue } from 'worksheet/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
@@ -33,6 +33,13 @@ export default class Widgets extends Component {
     this.state = {};
   }
 
+  get count() {
+    const { value } = this.props;
+    let { count } = this.props;
+    const recordsCount = getRelateRecordCountFromValue(value);
+    return _.isUndefined(recordsCount) ? count : recordsCount;
+  }
+
   parseValue(value) {
     if (!value) return [];
     let data = [];
@@ -54,13 +61,25 @@ export default class Widgets extends Component {
   }
 
   @autobind
-  handleChange(records) {
+  handleChange(args, type) {
     const { relationControls, onChange } = this.props;
-    onChange(JSON.stringify(formatRecordToRelateRecord(relationControls, records)));
+    if (type === 'array') {
+      onChange(JSON.stringify(formatRecordToRelateRecord(relationControls, args)));
+    } else {
+      const { count, records, deletedIds, addedIds } = args;
+      if (records.length) {
+        onChange(
+          JSON.stringify(formatRecordToRelateRecord(relationControls, records, { addedIds, deletedIds, count })),
+        );
+      } else {
+        onChange(`deleteRowIds: ${deletedIds.join(',')}`);
+      }
+    }
   }
 
   render() {
     const {
+      flag,
       viewId,
       worksheetId,
       from,
@@ -85,14 +104,19 @@ export default class Widgets extends Component {
       <React.Fragment>
         {showtype !== RELATE_RECORD_SHOW_TYPE.DROPDOWN || browserIsMobile() ? (
           <RelateRecordCards
-            allowOpenRecord={advancedSetting.allowlink === '1' && !_.get(window, 'shareState.shareId')}
+            flag={flag}
+            recordId={recordId}
+            allowOpenRecord={advancedSetting.allowlink === '1'}
             editable={controlPermission.editable}
             control={{ ...this.props }}
+            count={this.count || 0}
             records={
               enumDefault === 1 && browserIsMobile() && showtype === RELATE_RECORD_SHOW_TYPE.DROPDOWN
                 ? records.filter((_, index) => !index)
                 : records
             }
+            // addedIds={deletedIds}
+            // deletedIds={deletedIds}
             multiple={enumDefault === 2}
             onChange={this.handleChange}
           />
@@ -114,9 +138,9 @@ export default class Widgets extends Component {
             multiple={enumDefault === 2}
             coverCid={coverCid}
             showControls={showControls}
-            allowOpenRecord={advancedSetting.allowlink === '1' && !_.get(window, 'shareState.shareId')}
+            allowOpenRecord={advancedSetting.allowlink === '1'}
             showCoverAndControls={advancedSetting.ddset === '1'}
-            onChange={this.handleChange}
+            onChange={records => this.handleChange(records, 'array')}
           />
         )}
       </React.Fragment>

@@ -101,7 +101,7 @@ export default function Info(props) {
     state = '',
     setStatus,
     appColor = '#00bcd4',
-    appLogoUrl = 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg',
+    appLogoUrl = md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg',
     isAutoLogin,
     registerMode = {},
   } = props;
@@ -109,28 +109,30 @@ export default function Info(props) {
   const [cells, setCells] = useState([]);
   const customwidget = useRef(null);
   useEffect(() => {
-    externalPortalAjax.getUserCollect({
-      appId,
-      exAccountId: accountId,
-    }).then(res => {
-      res = res.map(o => {
-        if (o.type === 36) {
-          //检查框默认值处理
-          let defsource = _.get(o, ['advancedSetting', 'defsource']);
-          try {
-            defsource = JSON.parse(defsource)[0];
-          } catch (error) {
-            defsource = {};
+    externalPortalAjax
+      .getUserCollect({
+        appId,
+        exAccountId: accountId,
+      })
+      .then(res => {
+        res = res.map(o => {
+          if (o.type === 36) {
+            //检查框默认值处理
+            let defsource = _.get(o, ['advancedSetting', 'defsource']);
+            try {
+              defsource = JSON.parse(defsource)[0];
+            } catch (error) {
+              defsource = {};
+            }
+            let { staticValue = '' } = defsource;
+            return { ...o, value: staticValue || o.value };
+          } else {
+            return o;
           }
-          let { staticValue = '' } = defsource;
-          return { ...o, value: staticValue || o.value };
-        } else {
-          return o;
-        }
+        });
+        setCells(res);
+        setLoading(false);
       });
-      setCells(res);
-      setLoading(false);
-    });
   }, []);
   return (
     <Wrap
@@ -167,29 +169,31 @@ export default function Info(props) {
               if (hasError) {
                 return;
               }
-              externalPortalAjax.infoLogin({
-                state,
-                receiveControls: data.map(formatControlToServer),
-                autoLogin: isAutoLogin,
-              }).then(res => {
-                setAutoLoginKey({ ...res, appId });
-                // accountResult 为1则代表正常登录，会返回sessoinId，accountId，appId，projectId，正常进行登录转跳即可；accountResult 为3代表待审核
-                const { accountResult, sessionId, accountId, projectId } = res;
-                if (statusList.includes(accountResult)) {
-                  setStatus(accountResult);
-                } else if ([20].includes(accountResult)) {
-                  return alert(
-                    registerMode.email && registerMode.phone
-                      ? _l('手机号/邮箱或者验证码错误！')
-                      : registerMode.phone
-                      ? _l('手机号或者验证码错误')
-                      : _l('邮箱或者验证码错误'),
-                    3,
-                  );
-                } else {
-                  accountResultAction(res);
-                }
-              });
+              externalPortalAjax
+                .infoLogin({
+                  state,
+                  receiveControls: data.map(formatControlToServer),
+                  autoLogin: isAutoLogin,
+                })
+                .then(res => {
+                  setAutoLoginKey({ ...res, appId });
+                  // accountResult 为1则代表正常登录，会返回sessoinId，accountId，appId，projectId，正常进行登录转跳即可；accountResult 为3代表待审核
+                  const { accountResult, sessionId, accountId, projectId } = res;
+                  if (statusList.includes(accountResult)) {
+                    setStatus(accountResult);
+                  } else if ([20].includes(accountResult)) {
+                    return alert(
+                      registerMode.email && registerMode.phone
+                        ? _l('手机号/邮箱或者验证码错误！')
+                        : registerMode.phone
+                        ? _l('手机号或者验证码错误')
+                        : _l('邮箱或者验证码错误'),
+                      3,
+                    );
+                  } else {
+                    accountResultAction(res);
+                  }
+                });
             }}
           >
             {_l('提交')}

@@ -7,7 +7,6 @@ import { getPssId } from 'src/util/pssId';
 import './style.less';
 import userTabletTpl from './tpl/userTable.html';
 import { Dialog } from 'ming-ui';
-import 'src/components/tooltip/tooltip';
 import SelectDept from 'src/components/dialogSelectDept';
 import 'src/components/pager/pager';
 import 'src/components/mdBusinessCard/mdBusinessCard';

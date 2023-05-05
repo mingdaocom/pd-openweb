@@ -54,9 +54,27 @@ export default function RelateRecord(props) {
     },
   });
   const { relationControls = [] } = control;
-  const { showtype, allowlink, ddset, allowitem, direction } = advancedSetting || {};
+  const { showtype, navshow, allowlink, ddset, allowitem, navfilters, direction, shownullitem, nullitemname } =
+    advancedSetting || {};
+  let staticRecords;
+  if (navshow === '3') {
+    control.advancedSetting.filters = navfilters;
+  } else if (navshow === '2') {
+    staticRecords = JSON.parse(navfilters)
+      .map(safeParse)
+      .map(r => ({ rowid: r.id, ...r }));
+  }
   const [active, setActive] = useState();
   const isMultiple = String(allowitem) === '2';
+  const prefixRecords =
+    shownullitem === '1'
+      ? [
+          {
+            rowid: 'isEmpty',
+            name: nullitemname || _l('为空'),
+          },
+        ]
+      : [];
   let renderSelected;
   function handleChange(value) {
     onChange({
@@ -70,11 +88,19 @@ export default function RelateRecord(props) {
       </span>
     );
   } else if (isMultiple) {
-    renderSelected = selected => (
-      <span className="normalSelectedItem" style={{ fontSize: 13 }}>
-        {!selected.length || _l('选中 %0 个', selected.length)}
-      </span>
-    );
+    renderSelected = (selected = []) => {
+      let text;
+      if ((selected[0] || {}).rowid === 'isEmpty') {
+        text = nullitemname || _l('为空');
+      } else {
+        text = !selected.length || _l('选中 %0 个', selected.length);
+      }
+      return (
+        <span className="normalSelectedItem" style={{ fontSize: 13 }}>
+          {text}
+        </span>
+      );
+    };
   }
   if (String(direction) === '1') {
     return (
@@ -82,6 +108,8 @@ export default function RelateRecord(props) {
         multiple={isMultiple}
         selected={values}
         control={control}
+        prefixRecords={prefixRecords}
+        staticRecords={staticRecords}
         onChange={newRecords => {
           handleChange({ values: newRecords });
         }}
@@ -104,6 +132,8 @@ export default function RelateRecord(props) {
         popupContainer={() => document.body}
         multiple={isMultiple}
         renderSelected={active ? undefined : renderSelected}
+        prefixRecords={prefixRecords}
+        staticRecords={staticRecords}
         onChange={newRecords => {
           handleChange({ values: newRecords });
         }}

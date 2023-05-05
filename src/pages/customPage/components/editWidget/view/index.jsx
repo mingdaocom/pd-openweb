@@ -63,18 +63,14 @@ export default function View(props) {
       </Header>
       <EditWidgetContent>
         <Wrap>
-          <Preview
-            {...props}
-            loading={loading}
-            setting={setting}
-          />
+          <Preview {...props} loading={loading} setting={setting} />
           <Setting
             {...props}
             setting={setting}
-            setSetting={(data) => {
+            setSetting={data => {
               setSetting({
                 ...setting,
-                ...data
+                ...data,
               });
             }}
             setLoading={setLoading}

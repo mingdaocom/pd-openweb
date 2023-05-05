@@ -161,11 +161,11 @@ export default function RecordOperate(props) {
   const [customButtonLoading, setCustomButtonLoading] = useState();
   const [popupVisible, setPopupVisible] = useState(false);
   const DeleteItemWrap = isRelateRecordTable ? MenuItemWrap : RedMenuItemWrap;
-  function changePopupVisible(vallue) {
+  function changePopupVisible(value) {
     if (customButtonActive.current) {
       return;
     }
-    setPopupVisible(vallue);
+    setPopupVisible(value);
   }
   async function loadButtons() {
     try {
@@ -195,7 +195,9 @@ export default function RecordOperate(props) {
       popupVisible={popupVisible}
       onPopupVisibleChange={value => {
         onPopupVisibleChange(value);
-        changePopupVisible(value);
+        if (value) {
+          changePopupVisible(value);
+        }
       }}
       popupAlign={Object.assign(
         {},
@@ -212,7 +214,11 @@ export default function RecordOperate(props) {
       zIndex={1000}
       destroyPopupOnHide
       popup={
-        <MenuWrap style={{ maxHeight: `${maxHeight || 508}px` }}>
+        <MenuWrap
+          style={{ maxHeight: `${maxHeight || 508}px` }}
+          onClickAwayExceptions={['.customButtonConfirm', '.verifyPasswordConfirm', '.DropdownPrintTrigger', '#t_mask']}
+          onClickAway={() => changePopupVisible(false)}
+        >
           {showRemoveRelation && (
             <React.Fragment>
               <MenuItemWrap
@@ -293,7 +299,7 @@ export default function RecordOperate(props) {
                 changePopupVisible(false);
               }}
             >
-              {_l('分享')}
+              {_l('分享%02004')}
             </MenuItemWrap>
           )}
           {showCopy && (
@@ -328,7 +334,7 @@ export default function RecordOperate(props) {
                 }
               }}
             >
-              {_l('复制')}
+              {_l('复制%02003')}
             </MenuItemWrap>
           )}
           {showPrint && (
@@ -370,7 +376,7 @@ export default function RecordOperate(props) {
                 changePopupVisible(false);
               }}
             >
-              {_l('新页面打开')}
+              {_l('新页面打开%02001')}
             </MenuItemWrap>
           )}
           {allowDelete && (!isRelateRecordTable || allowAdd) && from !== RECORD_INFO_FROM.WORKFLOW && (
@@ -422,7 +428,7 @@ export default function RecordOperate(props) {
                 }
               }}
             >
-              {_l('删除')}
+              {_l('删除%02000')}
             </DeleteItemWrap>
           )}
           {showHr && showEditForm && <Hr />}

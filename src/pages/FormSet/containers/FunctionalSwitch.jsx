@@ -55,13 +55,20 @@ function FunctionalSwitch(props) {
   }, [info.worksheetId]);
 
   useEffect(() => {
+    const { formSet } = props;
+    const { worksheetInfo } = formSet;
+    setCloseAutoID(!!worksheetInfo.closeAutoID);
+  }, [props]);
+
+  useEffect(() => {
     sethideBatch(localStorage.getItem('batchIsOpen') === '1');
     sethideStatistics(localStorage.getItem('statisticsIsOpen') === '1');
   }, []);
   const setFormatData = data => {
-    const listC = data.filter(o => [50, 51].includes(o.type)) || [];
+    const listC = data.filter(o => statistics.includes(o.type)) || [];
     let list = _.groupBy(
-      data.filter(o => ![50, 51].includes(o.type)),
+      //统计=>包含个人|公共
+      data.filter(o => ![...statistics, statisticsConst].includes(o.type)),
       item => Math.floor(item.type / 10),
     );
     list[1] = [
@@ -69,7 +76,7 @@ function FunctionalSwitch(props) {
       {
         view: [],
         state: listC.filter(o => o.state).length > 0,
-        type: statisticsConst,
+        type: statisticsConst, //统计
         roleType: 0,
         viewIds: [],
       },
@@ -80,18 +87,6 @@ function FunctionalSwitch(props) {
   const getSwitchData = () => {
     sheetAjax.getSwitch({ worksheetId: info.worksheetId }).then(res => {
       let data = res;
-      // //测试
-      // data.push(
-      //   ...[50].map(o => {
-      //     return {
-      //       view: [],
-      //       state: true,
-      //       type: o,
-      //       roleType: 0,
-      //       viewIds: [],
-      //     };
-      //   }),
-      // );
       setInfo({
         ...info,
         loading: false,
@@ -295,8 +290,8 @@ function FunctionalSwitch(props) {
                         }
                         return (
                           <li className={cx({ current: (info.showData.type || '') === o.type, isOpen: o.state })}>
-                            {/* 12, 13, 34不能关闭  batch,statistics内的操作左侧没有开关*/}
-                            {![12, 13, 34, ...batch, ...statistics].includes(o.type) ? (
+                            {/* batch,statistics内的操作左侧没有开关*/}
+                            {![...batch, ...statistics].includes(o.type) ? (
                               renderSwitch(o)
                             ) : (
                               <div className="InlineBlock mRight18 nullBox"></div>
@@ -352,7 +347,10 @@ function FunctionalSwitch(props) {
                                 </Tooltip>
                               )}
                               {o.roleType === 100 && o.state && (
-                                <Tooltip popupPlacement="bottom" text={<span>{_l('仅管理员可见')}</span>}>
+                                <Tooltip
+                                  popupPlacement="bottom"
+                                  text={<span>{_l('仅系统角色可见（包含管理员、运营者、开发者）')}</span>}
+                                >
                                   <Icon icon="visibility_off" className="" />
                                 </Tooltip>
                               )}
@@ -383,12 +381,12 @@ function FunctionalSwitch(props) {
                               {hasRangeList.includes(o.type) && o.state && (
                                 <Icon icon="navigate_next" className="Gray_c Right Hand Font20" />
                               )}
-                              {/* 10, 11, 25没有范围的操作 */}
+                              {/* 25没有范围的操作 */}
                               {o.state && !noRangeList.includes(o.type) && (
                                 <span className="Gray_bd Right text">
                                   {key === '1'
                                     ? o.roleType === 100
-                                      ? _l('仅管理员')
+                                      ? _l('仅系统角色')
                                       : _l('所有用户')
                                     : strRight(key, o)}
                                 </span>
@@ -406,7 +404,7 @@ function FunctionalSwitch(props) {
             {info.showDialog && !noRangeList.includes(info.showData.type || '') && (
               <Range
                 showDialog={info.showDialog}
-                hasViewRange={![...statistics, 12, 13].includes(info.showData.type || '')} //是否可选视图范围
+                hasViewRange={![...statistics, 10, 11, 12, 13].includes(info.showData.type || '')} //是否可选视图范围
                 text={{
                   allview: info.showData.type / 10 >= 4 ? _l('所有记录') : '',
                   assignview: info.showData.type / 10 >= 4 ? _l('应用于指定的视图下的记录') : '',

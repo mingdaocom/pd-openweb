@@ -175,7 +175,7 @@ export const getVerifyInfo = (data, { controls }) => {
   }
   if (type === 43) {
     const ocrMap = getAdvanceSetting(data, 'ocrmap') || [];
-    if (ocrMap.length < 1) {
+    if (ocrMap.length < 1 && advancedSetting.ocrapitype !== '1') {
       return { isValid: false, text: _l('没有配置映射字段') };
     }
   }
@@ -207,10 +207,10 @@ export const isAutoNumberSelectableControl = item => {
  * 控件数量200以内
  * @param {*} controls
  */
-export const isExceedMaxControlLimit = (controls = []) => {
+export const isExceedMaxControlLimit = (controls = [], addCount = 0) => {
   const existedControls = controls.filter(item => !NO_CONTENT_CONTROL.includes(item.type)) || [];
-  if (existedControls.length >= MAX_CONTROLS_COUNT) {
-    alert(_l('表单中添加字段数量已达上限（%0个)', MAX_CONTROLS_COUNT));
+  if (existedControls.length + addCount >= MAX_CONTROLS_COUNT) {
+    alert(_l('表单中添加字段数量已达上限（%0个)', MAX_CONTROLS_COUNT), 3);
     return true;
   }
   return false;

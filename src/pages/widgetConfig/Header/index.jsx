@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
+import React from 'react';
 import Header from 'src/components/worksheetConfigHeader';
 
 export default function WidgetConfigHeader({ name: worksheetName, ...rest }) {
-  return <Header {...rest} worksheetName={worksheetName} />;
+  const widgetProps = { ...rest, worksheetName, showAiBtn: !md.global.Config.IsLocal };
+  return <Header {...widgetProps} />;
 }

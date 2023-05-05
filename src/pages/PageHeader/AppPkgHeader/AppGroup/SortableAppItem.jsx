@@ -8,12 +8,12 @@ import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import { Menu, MenuItem, Icon, MdLink } from 'ming-ui';
 import { changeBoardViewData } from 'src/pages/worksheet/redux/actions/boardView';
-import { APP_GROUP_CONFIG, DEFAULT_CREATE, DEFAULT_GROUP_NAME, ADVANCE_AUTHORITY } from '../config';
+import { APP_GROUP_CONFIG, DEFAULT_CREATE, DEFAULT_GROUP_NAME } from '../config';
 import { compareProps, getIds } from '../../util';
 import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
 import styled from 'styled-components';
 import _ from 'lodash';
-
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 const LiCon = styled.li`
   &.active {
     background-color: ${props => props.lightIconColor} !important;
@@ -100,14 +100,14 @@ export default class SortableAppItem extends Component {
 
   handleDbClick = appSectionId => {
     const { ensurePointerVisible, permissionType } = this.props;
-    if (permissionType < ADVANCE_AUTHORITY) return;
+    if (canEditApp(permissionType)) return;
     clearTimeout(this.clickTimer);
     this.setState({ dbClickedAppGroupId: appSectionId }, ensurePointerVisible);
   };
 
   getFirstAppItemId = () => {
     const { permissionType, value } = this.props;
-    const isCharge = permissionType >= ADVANCE_AUTHORITY;
+    const isCharge = canEditApp(permissionType);
     const { workSheetInfo = [], childSections = [] } = value;
     const firstAppItem = (isCharge ? workSheetInfo : workSheetInfo.filter(item => item.status === 1 && !item.navigateHide))[0] || {};
     if (firstAppItem.type === 2) {
@@ -117,7 +117,7 @@ export default class SortableAppItem extends Component {
     } else {
       return firstAppItem.workSheetId;
     }
-  }
+  };
 
   getNavigateUrl = (appSectionId, isCharge) => {
     const { appPkg } = this.props;
@@ -127,7 +127,7 @@ export default class SortableAppItem extends Component {
     }
     const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
     const worksheets = _.filter(storage.worksheets || [], item => item.groupId === appSectionId);
-    const { worksheetId, viewId } = worksheets.length ? worksheets[worksheets.length - 1] : { };
+    const { worksheetId, viewId } = worksheets.length ? worksheets[worksheets.length - 1] : {};
     if (appPkg.pcNaviStyle === 2) {
       return `/app/${appId}/${appSectionId}?from=insite`;
     }
@@ -143,12 +143,20 @@ export default class SortableAppItem extends Component {
   };
 
   render() {
-    const { value = {}, focusGroupId, permissionType, onAppItemConfigClick, changeBoardViewData, appPkg } = this.props;
+    const {
+      value = {},
+      focusGroupId,
+      permissionType,
+      onAppItemConfigClick,
+      changeBoardViewData,
+      appPkg,
+      isLock,
+    } = this.props;
     const { visible, dbClickedAppGroupId } = this.state;
     const { name, appSectionId } = value;
     const { groupId } = this.ids;
     const isFocus = appSectionId === focusGroupId || appSectionId === dbClickedAppGroupId;
-    const isShowConfigIcon = appSectionId === groupId && !isFocus && permissionType >= ADVANCE_AUTHORITY;
+    const isShowConfigIcon = appSectionId === groupId && !isFocus && canEditApp(permissionType);
     const url = this.getNavigateUrl(appSectionId);
     return (
       <LiCon
@@ -172,7 +180,7 @@ export default class SortableAppItem extends Component {
           <MdLink
             className="sortableItem"
             to={url}
-            onClick={(event) => {
+            onClick={event => {
               if (this.ids.groupId !== appSectionId) {
                 changeBoardViewData([]);
               }
@@ -183,7 +191,7 @@ export default class SortableAppItem extends Component {
             </span>
           </MdLink>
         )}
-        {permissionType >= ADVANCE_AUTHORITY && (
+        {canEditApp(permissionType) && (
           <Trigger
             action={['click']}
             popupVisible={visible}
@@ -194,18 +202,21 @@ export default class SortableAppItem extends Component {
             }}
             popup={
               <Menu className="appGroupConfigWrap" onClickAway={() => this.switchVisible({ visible: false })}>
-                {APP_GROUP_CONFIG.map(({ type, icon, text, ...rest }) => (
-                  <MenuItem
-                    key={type}
-                    icon={<Icon icon={icon} />}
-                    onClick={() =>
-                      this.switchVisible({ visible: false }, () => onAppItemConfigClick({ id: type, appSectionId }))
-                    }
-                    {...rest}
-                  >
-                    <span>{text}</span>
-                  </MenuItem>
-                ))}
+                {APP_GROUP_CONFIG.map(({ type, icon, text, ...rest }) => {
+                  if (isLock && type !== 'rename') return '';
+                  return (
+                    <MenuItem
+                      key={type}
+                      icon={<Icon icon={icon} />}
+                      onClick={() =>
+                        this.switchVisible({ visible: false }, () => onAppItemConfigClick({ id: type, appSectionId }))
+                      }
+                      {...rest}
+                    >
+                      <span>{text}</span>
+                    </MenuItem>
+                  );
+                })}
               </Menu>
             }
           >

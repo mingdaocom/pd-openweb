@@ -29,7 +29,7 @@ export const insertNewLine = ({ widgets, srcPath, srcItem, targetIndex }) => {
   const removedSrcItem = removeSrcItem(widgets, srcPath);
   return removeEmptyRow(
     update(removedSrcItem, {
-      $splice: [[targetIndex, 0, [{ ...srcItem, size: getDefaultSizeByData(srcItem) }]]],
+      $splice: [[targetIndex, 0, [srcItem]]],
     }),
   );
 };

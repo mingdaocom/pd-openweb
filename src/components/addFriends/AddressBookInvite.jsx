@@ -53,7 +53,7 @@ export default class AddressBookInvite extends Component {
         this.setState({ loading: false });
       })
       .fail(() => {
-        alert('邀请失败', 2);
+        alert(_l('邀请失败'), 2);
         this.setState({ loading: false });
       });
   };
@@ -85,7 +85,7 @@ export default class AddressBookInvite extends Component {
 
         <div className="footContainer">
           <div className="addBox Gray_9e">
-            <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}`)}>
+            <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}/isShowSetting`)}>
               <Icon icon="settings1" />
               {_l('邀请设置')}
             </span>

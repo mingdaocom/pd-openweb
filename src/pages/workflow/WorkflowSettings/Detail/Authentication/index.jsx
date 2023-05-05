@@ -82,7 +82,10 @@ export default class Authentication extends Component {
             {
               method: 1,
               url: '',
-              params: [{ name: 'app_id', value: '' }, { name: 'app_secret', value: '' }],
+              params: [
+                { name: 'app_id', value: '' },
+                { name: 'app_secret', value: '' },
+              ],
               headers: [],
               contentType: 1,
               formControls: [],
@@ -475,9 +478,9 @@ export default class Authentication extends Component {
    */
   test = () => {
     const { data } = this.state;
-    const { params, headers, formControls, body } = data.webHookNodes[this.testIndex];
+    const { url, params, headers, formControls, body } = data.webHookNodes[this.testIndex];
     const testArray = _.uniq(
-      (JSON.stringify(params) + JSON.stringify(headers) + JSON.stringify(formControls) + body).match(
+      (url + JSON.stringify(params) + JSON.stringify(headers) + JSON.stringify(formControls) + body).match(
         /\$[^ \r\n]+?\$/g,
       ) || [],
     );
@@ -517,7 +520,7 @@ export default class Authentication extends Component {
           processId,
           nodeId: selectNodeId,
           method,
-          url,
+          url: this.formatParameters(url, testMap),
           params: JSON.parse(this.formatParameters(JSON.stringify(params.filter(item => item.name)), testMap)),
           headers: JSON.parse(this.formatParameters(JSON.stringify(headers.filter(item => item.name)), testMap)),
           body: this.formatParameters(body, testMap),

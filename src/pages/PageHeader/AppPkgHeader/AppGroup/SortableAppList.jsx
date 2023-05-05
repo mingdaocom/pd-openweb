@@ -3,8 +3,8 @@ import cx from 'classnames';
 import { sortableContainer } from 'react-sortable-hoc';
 import SortableAppItem from './SortableAppItem';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { ADVANCE_AUTHORITY } from '../config';
 import _ from 'lodash';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 
 export default withClickAway(
   sortableContainer(({ items, onScroll, permissionType, ...rest }) => (
@@ -13,12 +13,12 @@ export default withClickAway(
         <SortableAppItem
           key={`item-${index}`}
           index={index}
-          disabled={permissionType < ADVANCE_AUTHORITY}
+          disabled={!canEditApp(permissionType)}
           value={value}
           permissionType={permissionType}
           {...rest}
         />
       ))}
     </ul>
-  ))
+  )),
 );

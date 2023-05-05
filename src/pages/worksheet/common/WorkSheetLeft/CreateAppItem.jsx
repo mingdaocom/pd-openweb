@@ -6,15 +6,15 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 
 const subList = [
-  { icon: 'plus', text: _l('从空白创建'), createType: 'worksheet' },
-  { icon: 'new_excel', text: _l('从Excel创建'), createType: 'importExcel' },
+  { icon: 'plus', text: _l('从空白创建%02008'), createType: 'worksheet' },
+  { icon: 'new_excel', text: _l('从Excel创建%02007'), createType: 'importExcel' },
 ];
 const CREATE_ITEM_LIST = [
   // { icon: 'table', text: _l('工作表'), createType: 'selectWorksheet', subList },
-  { icon: 'plus', text: _l('从空白创建'), createType: 'worksheet' },
-  { icon: 'new_excel', text: _l('从Excel创建'), createType: 'importExcel' },
-  { icon: 'dashboard', text: _l('创建自定义页面'), createType: 'customPage' },
-  { icon: 'add-files', text: _l('分组'), createType: 'group' },
+  { icon: 'plus', text: _l('从空白创建%02008'), createType: 'worksheet' },
+  { icon: 'new_excel', text: _l('从Excel创建%02007'), createType: 'importExcel' },
+  { icon: 'dashboard', text: _l('创建自定义页面%02006'), createType: 'customPage' },
+  { icon: 'add-files', text: _l('分组%02005'), createType: 'group' },
 ];
 
 export default function CreateAppItem(props) {

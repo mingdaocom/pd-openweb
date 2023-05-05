@@ -72,7 +72,8 @@ class WorkSheetLeft extends Component {
   }
   get data() {
     const { data, isCharge, appPkg } = this.props;
-    return isCharge && appPkg.viewHideNavi ? data : data.filter(item => item.status === 1 && !item.navigateHide);
+    const filterEmptyAppItem = isCharge ? item => true : item => !(item.type === 2 && _.isEmpty(item.items));
+    return isCharge && appPkg.viewHideNavi ? data : data.filter(item => item.status === 1 && !item.navigateHide).filter(filterEmptyAppItem);
   }
   renderSheetAppItem(item, workSheetItemProps, index) {
     const { groupId } = this.props;

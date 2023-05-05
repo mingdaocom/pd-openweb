@@ -88,16 +88,21 @@ export default function SelectDataObjForm(props) {
 
   const onChangeSchema = schema => {
     setSelectedTables([]);
-    datasourceApi
-      .getTables({ projectId: props.currentProjectId, datasourceId: source.id, schema, dbName: dataObj.db })
-      .then(res => {
-        if (res) {
-          const tableOptionList = res.map(item => {
-            return { label: item, value: item, disabled: getAddedTables().indexOf(item) !== -1 };
-          });
-          setDataObj({ schema, tables: [], tableOptionList });
-        }
-      });
+
+    if (!schema) {
+      setDataObj({ schema: null, tables: [], tableOptionList: [] });
+    } else {
+      datasourceApi
+        .getTables({ projectId: props.currentProjectId, datasourceId: source.id, schema, dbName: dataObj.db })
+        .then(res => {
+          if (res) {
+            const tableOptionList = res.map(item => {
+              return { label: item, value: item, disabled: getAddedTables().indexOf(item) !== -1 };
+            });
+            setDataObj({ schema, tables: [], tableOptionList });
+          }
+        });
+    }
   };
 
   const onChangeTable = data => {

@@ -166,8 +166,9 @@ export class UploadFileWrapper extends Component {
         const { inputType, disabledGallery, advancedSetting = {} } = self.props;
         const { filetype } = advancedSetting;
         let type = filetype && JSON.parse(filetype).type;
-        const accept = { 1: 'image/*', 2: 'video/*', 0: 'image/*,video/*,audio/*,application/*' };
-        const fileTypeObj = { 1: 'image/*', 2: 'application/*', 3: 'audio/*', 4: 'video/*' };
+        const accept = { 1: 'image/*', 2: 'video/*', 0: !isAndroid ? '' : 'image/*,video/*,audio/*,application/*' };
+        const fileTypeObj = { 1: 'image/*', 2: !isAndroid ? '' : 'application/*', 3: 'audio/*', 4: 'video/*' };
+
         const ua = window.navigator.userAgent.toLowerCase();
         const isAndroid = ua.includes('android');
         const isMiniprogram = ua.includes('miniprogram');

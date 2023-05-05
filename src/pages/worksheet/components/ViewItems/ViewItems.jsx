@@ -312,7 +312,8 @@ export default class ViewItems extends Component {
   render() {
     const { directionVisible, hideDirection, addMenuVisible, setWorksheetHidden, searchWorksheetListValue } =
       this.state;
-    const { viewList, currentViewId, isCharge, changeViewDisplayType, sheetSwitchPermit, getNavigateUrl } = this.props;
+    const { viewList, currentViewId, isCharge, changeViewDisplayType, sheetSwitchPermit, getNavigateUrl, isLock } =
+      this.props;
     const isEmpty =
       searchWorksheetListValue &&
       _.isEmpty(
@@ -331,7 +332,7 @@ export default class ViewItems extends Component {
     return (
       <div className="valignWrapper flex">
         <div>
-          <Tooltip popupPlacement="bottom" text={<span>{_l('全部视图')}</span>}>
+          <Tooltip popupPlacement="bottom" text={<span>{_l('全部视图%05005')}</span>}>
             <Icon
               icon="menu-02"
               className="Font14 mLeft10 pointer allVieListwIcon hoverGray"
@@ -468,7 +469,7 @@ export default class ViewItems extends Component {
             )}
           </Drawer>
         </div>
-        {isCharge ? (
+        {isCharge && !isLock ? (
           <Trigger
             popupAlign={{ points: ['tl', 'bl'], offset: [-10, 8] }}
             popupVisible={addMenuVisible}
@@ -513,6 +514,7 @@ export default class ViewItems extends Component {
             isCharge={isCharge}
             sheetSwitchPermit={sheetSwitchPermit}
             updateAdvancedSetting={this.updateAdvancedSetting}
+            isLock={this.props.isLock}
           />
         </div>
         {directionVisible ? (

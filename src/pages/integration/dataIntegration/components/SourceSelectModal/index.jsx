@@ -4,7 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Modal, ScrollView, LoadDiv } from 'ming-ui';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import { DATABASE_TYPE, SOURCE_FROM_TYPE, SOURCE_FROM_TYPE_TAB_LIST } from '../../constant';
+import { DATABASE_TYPE, ROLE_TYPE, SOURCE_FROM_TYPE, SOURCE_FROM_TYPE_TAB_LIST } from '../../constant';
 import dataSourceApi from '../../../api/datasource';
 
 const Wrapper = styled.div`
@@ -93,7 +93,7 @@ const NoDataWrapper = styled.div`
   justify-content: center;
 `;
 
-export default function SourceSelectModal({ projectId, isCreateConnector, onChange, onClose }) {
+export default function SourceSelectModal({ projectId, isCreateConnector, onChange, onClose, roleType }) {
   const [currentTab, setCurrentTab] = useState(SOURCE_FROM_TYPE.COMMON);
   const [searchKeyWords, setSearchKeyWords] = useState('');
   const [dataSourceList, setDataSourceList] = useState([]);
@@ -107,24 +107,24 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
     dataSourceApi.getTypes(params).then(res => {
       if (res) {
         const list = isCreateConnector
-          ? res.filter(item => [DATABASE_TYPE.MYSQL, DATABASE_TYPE.APPLICATION_WORKSHEET].includes(item.type))
-          : res.filter(item => item.type === DATABASE_TYPE.MYSQL);
+          ? res.filter(item => _.includes([ROLE_TYPE.ALL, roleType.toUpperCase()], item.roleType))
+          : res.filter(item => item.type !== DATABASE_TYPE.APPLICATION_WORKSHEET);
         const sourceList = [
           {
             key: SOURCE_FROM_TYPE.COMMON,
             text: _l('常用'),
             list: list.filter(item => item.isCommon),
           },
-          // {
-          //   key: SOURCE_FROM_TYPE.LOCAL,
-          //   text: _l('本地'),
-          //   list: list.filter(item => item.fromType === SOURCE_FROM_TYPE.LOCAL),
-          // },
-          // {
-          //   key: SOURCE_FROM_TYPE.CLOUD,
-          //   text: _l('云端'),
-          //   list: list.filter(item => item.fromType === SOURCE_FROM_TYPE.CLOUD),
-          // },
+          {
+            key: SOURCE_FROM_TYPE.LOCAL,
+            text: _l('本地'),
+            list: list.filter(item => item.fromType === SOURCE_FROM_TYPE.LOCAL),
+          },
+          {
+            key: SOURCE_FROM_TYPE.CLOUD,
+            text: _l('云端'),
+            list: list.filter(item => item.fromType === SOURCE_FROM_TYPE.CLOUD),
+          },
           //第一版不支持消息队列
           // {
           //   key: SOURCE_FROM_TYPE.MESSAGE_QUEUE,

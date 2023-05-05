@@ -4,7 +4,7 @@ import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-ho
 import AddAppItem from './AddAppItem';
 import MyAppItem from './MyAppItem';
 import _, { find, get, isEmpty } from 'lodash';
-import { ADVANCE_AUTHORITY } from 'src/pages/PageHeader/AppPkgHeader/config';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
 const SORT_TYPE = {
   star: 1,
   project: 2,
@@ -41,7 +41,7 @@ const SortableList = SortableContainer(
     return (
       <div className="sortableAppItemList myAppGroupDetail">
         {items
-          .filter(o => !o.pcDisplay || o.permissionType >= ADVANCE_AUTHORITY) // 排除pc端未发布的
+          .filter(o => !o.pcDisplay || canEditApp(o.permissionType)) // 排除pc端未发布的
           .map((value, index) => (
             <SortableItem key={value.id || index} index={index} type={type} {...value} {...props} />
           ))}

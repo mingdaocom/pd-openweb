@@ -113,7 +113,8 @@ function WidgetSetting(props) {
               {canAdjustWidth(widgets, data) && <WidgetWidth {...allProps} handleClick={handleAdjustWidthClick} />}
               {(HAS_EXPLAIN_CONTROL.includes(type) ||
                 (type === 11 && advancedSetting.showtype !== '2') ||
-                (type === 10 && advancedSetting.checktype === '1')) && <WidgetExplain {...allProps} />}
+                (type === 10 && advancedSetting.checktype === '1') ||
+                (type === 29 && advancedSetting.showtype === '3')) && <WidgetExplain {...allProps} />}
               {includes([9, 10, 11], type) && _.find(options, i => i.key === 'other' && !i.isDeleted) && (
                 <WidgetOtherExplain {...allProps} />
               )}

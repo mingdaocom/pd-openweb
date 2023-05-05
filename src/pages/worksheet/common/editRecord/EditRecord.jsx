@@ -196,7 +196,7 @@ export default class EditRecord extends Component {
     if (!selectedControl) {
       return;
     }
-    const needUpdateControl = formatControlToServer(selectedControl);
+    const needUpdateControl = formatControlToServer(selectedControl, { needFullUpdate: true });
     if ((needUpdateControl.type === 29 || needUpdateControl.type === 35) && needUpdateControl.value) {
       try {
         needUpdateControl.relationValues = JSON.parse(needUpdateControl.value);

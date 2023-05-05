@@ -6,9 +6,8 @@ import Avatar from '../Avatar';
 import UserMenu from '../UserMenu';
 import AddMenu from '../AddMenu';
 import MyProcessEntry from '../MyProcessEntry';
-import AppExtension from 'src/pages/PageHeader/AppPkgHeader/AppExtension';
 import CreateAppItem from './CreateAppItem';
-import { isCanEdit } from '../../util';
+import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 import './index.less';
 import { getAppFeaturesVisible } from 'src/util';
 import _ from 'lodash';
@@ -180,12 +179,15 @@ export class LeftCommonUserHandle extends Component {
         </CreateAppItem>
         {_.includes([1, 5], appStatus) && !md.global.Account.isPortal && (
           <Fragment>
-            {!window.isPublicApp && isCanEdit(permissionType, isLock) && (
-              <MdLink data-tip={_l('工作流')} className="tip-top" to={`/app/${id}/workflow`}>
+            {!window.isPublicApp && canEditApp(permissionType, isLock) && (
+              <MdLink data-tip={_l('工作流')} className="tip-top" to={`/app/${id}/workflow/${isLock}`}>
                 <Icon icon="workflow" className="Font20 headerColorSwitch" />
               </MdLink>
             )}
-            {!((pcDisplay || fixed) && !isAuthorityApp) && (
+            {!(
+              (pcDisplay || fixed) &&
+              !(canEditApp(permissionType, isLock) || canEditData(permissionType))
+            ) && (
               <MdLink data-tip={_l('用户')} className="tip-top" to={`/app/${id}/role`}>
                 <Icon icon="group" className="Font20 headerColorSwitch" />
               </MdLink>

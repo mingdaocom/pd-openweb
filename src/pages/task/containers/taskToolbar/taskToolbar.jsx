@@ -201,10 +201,6 @@ class TaskToolbar extends Component {
                   <i className="icon-settings" />
                   {_l('项目配置')}
                 </li>
-                <li className="ThemeBGColor3" onClick={this.openCustomFields}>
-                  <i className="icon-task-extension" />
-                  {_l('自定义任务内容')}
-                </li>
                 <li className="dividerLine" />
                 <li
                   className="ThemeBGColor3"
@@ -342,34 +338,6 @@ class TaskToolbar extends Component {
     $('.taskFilterBox').addClass('reverse');
     $('#tasks').removeClass('showTaskFilter');
     setTimeout(() => this.setState({ showFilter: false }), 250);
-  };
-
-  /**
-   * 打开自定义任务内容
-   */
-  openCustomFields = () => {
-    const { folderID, templateId, projectID, folderName } = this.props.folderSettings;
-    const fromURL = encodeURIComponent(location.href);
-    const sourceName = encodeURIComponent(folderName);
-    const parameter = `/form/edit?fromURL=${fromURL}&sourceId=${folderID}&projectId=${projectID}&sourceType=2&sourceName=${sourceName}&templateId=`;
-
-    this.setState({ showOperator: false });
-
-    if (templateId) {
-      navigateTo(`${parameter}${templateId}`);
-    } else {
-      ajaxRequest
-        .getTemplateIdByFolderId({
-          folderId: folderID,
-        })
-        .then((source) => {
-          if (source.status) {
-            location.href = parameter + source.data;
-          } else {
-            errorMessage(source.error);
-          }
-        });
-    }
   };
 
   /**

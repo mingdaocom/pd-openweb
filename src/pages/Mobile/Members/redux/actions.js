@@ -1,53 +1,72 @@
 import homeAppAjax from 'src/api/homeApp';
 import ajaxRequest from 'src/api/appManagement';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 
-export const getMembers = (
-  appId,
-) => (dispatch, getState) => {
+// 申请状况
+const getAppApplyInfo = appId => (dispatch, getState) => {
+  const { memberData } = getState().mobile;
+  ajaxRequest.getAppApplyInfo({ appId }).then(res => {
+    dispatch({
+      type: 'UPDATE_MEMBER_DATA',
+      data: {
+        ...memberData,
+        applyList: res,
+      },
+    });
+    dispatch({ type: 'MOBILE_FETCH_MEMBER_SUCCESS' });
+  });
+};
+
+export const getMembers = appId => (dispatch, getState) => {
   dispatch({ type: 'MOBILE_FETCH_MEMBER_START' });
   Promise.all([
     homeAppAjax.getAppDetail({ appId }).then(),
     // 根据应用获取角色
     ajaxRequest.getRolesWithUsers({ appId }).then(),
-    // 申请状况
-    ajaxRequest.getAppApplyInfo({ appId }).then(),
     // 获取成员是否可角色见列表状态
     window.isPublicApp ? undefined : ajaxRequest.getAppRoleSetting({ appId }).then(),
-  ]).then(
-    result => {
-      const [detail, list, applyList, rolesVisibleConfig] = result;
-      const listData = list.map(({
+  ]).then(result => {
+    const [detail, list, rolesVisibleConfig] = result;
+    const isAdmin =
+      detail.permissionType === APP_ROLE_TYPE.POSSESS_ROLE || detail.permissionType === APP_ROLE_TYPE.ADMIN_ROLE;
+    const listData = list.map(
+      ({
         roleType,
         roleId,
         name,
         users,
         description,
         permissionWay,
-        departmentsInfos,
+        departmentTreesInfos = [],
+        jobInfos = [],
+        projectOrganizeInfos = [],
       }) => {
         return {
-          departmentsInfos,
           users,
           roleId,
           roleType,
           label: name,
           description,
           permissionWay,
-          count: users.length + departmentsInfos.length,
+          count: users.length + departmentTreesInfos.length + jobInfos.length + projectOrganizeInfos.length,
         };
-      });
-      dispatch({
-        type: 'UPDATE_MEMBER_DATA',
-        data: {
-          detail,
-          listData,
-          applyList,
-          rolesVisibleConfig: rolesVisibleConfig.appSettingsEnum,
-        },
-      });
-      dispatch({ type: 'MOBILE_FETCH_MEMBER_SUCCESS' });
+      },
+    );
+
+    dispatch({
+      type: 'UPDATE_MEMBER_DATA',
+      data: {
+        detail,
+        listData,
+        rolesVisibleConfig: rolesVisibleConfig.appSettingsEnum,
+      },
+    });
+    if (isAdmin) {
+      dispatch(getAppApplyInfo(appId));
+      return;
     }
-  );
+    dispatch({ type: 'MOBILE_FETCH_MEMBER_SUCCESS' });
+  });
 };
 
 // 删除应用

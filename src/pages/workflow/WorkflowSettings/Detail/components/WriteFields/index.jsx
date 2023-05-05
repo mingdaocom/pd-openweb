@@ -241,8 +241,8 @@ export default class WriteFields extends Component {
           return (
             <li className="flexRow" key={i}>
               <div className="flex flexRow alignItemsCenter">
-                <div className="ellipsis" title={item.name || (item.type === 22 ? _l('分段') : _l('备注'))}>
-                  {item.name || (item.type === 22 ? _l('分段') : _l('备注'))}
+                <div className="ellipsis" title={item.name || (item.type === 22 ? _l('分割线') : _l('备注'))}>
+                  {item.name || (item.type === 22 ? _l('分割线') : _l('备注'))}
                 </div>
                 {item.type === 29 && !!(item.subFormProperties || []).length && (
                   <div

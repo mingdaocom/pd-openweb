@@ -76,7 +76,7 @@ export const menuList = [
         key: 'structure',
         routes: [
           {
-            path: '/admin/structure/(.*)/(create|uncursor|importusers|isShowSeting)?',
+            path: '/admin/structure/(.*)/(create|uncursor|importusers|isShowSetting)?',
             component: () => import('./structure'),
           },
           {

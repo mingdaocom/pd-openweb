@@ -2,6 +2,7 @@ import React, { Fragment, useState } from 'react';
 import { Switch } from 'ming-ui';
 import { Button } from 'antd';
 import DataRestrictionDialog from './components/DataRestrictionDialog';
+import RecycleBinDialog from './components/RecycleBinDialog';
 import { updateSysSettings } from '../common';
 
 const AppCreate = props => {
@@ -69,15 +70,62 @@ const DataRestriction = props => {
           {_l('设置')}
         </Button>
       </div>
-      <DataRestrictionDialog
-        visible={dataRestrictionVisible}
-        onCancel={() => {
-          setDataRestrictionVisible(false);
-        }}
-        onChange={(data) => {
-          setSysSettings(data);
-        }}
-      />
+      {dataRestrictionVisible && (
+        <DataRestrictionDialog
+          visible={dataRestrictionVisible}
+          onCancel={() => {
+            setDataRestrictionVisible(false);
+          }}
+          onChange={(data) => {
+            setSysSettings(data);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+const RecycleBin = props => {
+  const { SysSettings } = md.global;
+  const [recycleBinVisible, setRecycleBinVisible] = useState(false);
+  const [sysSettings, setSysSettings] = useState(md.global.SysSettings);
+  const style = { width: 120 }
+  return (
+    <div className="privateCardWrap flexColumn">
+      <div className="Font17 bold mBottom8">{_l('数据/文件回收站')}</div>
+      <div className="Gray_9e mBottom18">{_l('配置应用、应用项、工作表数据删除后、在回收站中的保留时长，以及应用备份文件保留时长')}</div>
+      <div className="flexRow valignWrapper mBottom15">
+        <div style={style} className="Gray_75">{_l('应用')}</div><div>{_l('%0天', sysSettings.appRecycleDays)}</div>
+      </div>
+      <div className="flexRow valignWrapper mBottom15">
+        <div style={style} className="Gray_75">{_l('应用项')}</div><div>{_l('%0天', sysSettings.appItemRecycleDays)}</div>
+      </div>
+      <div className="flexRow valignWrapper mBottom15">
+        <div style={style} className="Gray_75">{_l('工作表数据')}</div><div>{_l('%0天', sysSettings.worksheetRowRecycleDays)}</div>
+      </div>
+      <div className="flexRow valignWrapper mBottom15">
+        <div style={style} className="Gray_75">{_l('应用备份文件')}</div><div>{_l('%0天', sysSettings.appBackupRecycleDays)}</div>
+      </div>
+      <div className="mTop5">
+        <Button
+          ghost
+          type="primary"
+          onClick={() => { setRecycleBinVisible(true) }}
+        >
+          {_l('设置')}
+        </Button>
+      </div>
+      {recycleBinVisible && (
+        <RecycleBinDialog
+          visible={recycleBinVisible}
+          onCancel={() => {
+            setRecycleBinVisible(false);
+          }}
+          onChange={(data) => {
+            setSysSettings(data);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -88,6 +136,7 @@ export default props => {
     <Fragment>
       {!IsPlatformLocal && <AppCreate {...props} />}
       <DataRestriction {...props} />
+      <RecycleBin {...props} />
     </Fragment>
   );
 }

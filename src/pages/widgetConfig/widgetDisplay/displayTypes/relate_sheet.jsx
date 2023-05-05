@@ -5,7 +5,7 @@ import { getAdvanceSetting, getShowControls } from '../../util/setting';
 import { SYSTEM_CONTROL } from '../../config/widget';
 
 export default function RelateSheet({ data }) {
-  const { enumDefault, relationControls } = data;
+  const { enumDefault, hint = '', relationControls } = data;
   const { showtype = String(enumDefault) } = getAdvanceSetting(data);
 
   const showControls = getShowControls(relationControls, data.showControls);
@@ -36,7 +36,7 @@ export default function RelateSheet({ data }) {
     if (showtype === '3') {
       return (
         <CommonDisplay>
-          <div></div>
+          <div>{hint}</div>
           <i className="icon-expand_more"></i>
         </CommonDisplay>
       );

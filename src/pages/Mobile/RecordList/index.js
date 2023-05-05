@@ -252,7 +252,6 @@ class RecordList extends Component {
                         this.props.unshiftSheetRow(data);
                       }
                     },
-                    showDraft: advancedSetting.closedrafts !== '1',
                     showDraftsEntry: true,
                     sheetSwitchPermit,
                   });

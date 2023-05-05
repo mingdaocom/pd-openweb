@@ -70,21 +70,23 @@ export function getPublicWorksheet(shareId, cb = (err, data) => {}) {
       }
       data.shareAuthor && (window.shareAuthor = data.shareAuthor);
       const controls = getVisibleControls(data);
-      worksheetAjax.getControlRules({
-        worksheetId: data.worksheetId,
-        type: 1, // 1字段显隐
-      }).then(rules => {
-        cb(false, {
-          publicWorksheetInfo: {
-            ...data,
-            logoUrl: data.logo,
-            themeIndex: data.themeColor,
-            coverUrl: data.cover,
-          },
-          formData: controls,
-          rules,
+      worksheetAjax
+        .getControlRules({
+          worksheetId: data.worksheetId,
+          type: 1, // 1字段显隐
+        })
+        .then(rules => {
+          cb(false, {
+            publicWorksheetInfo: {
+              ...data,
+              logoUrl: data.logo,
+              themeIndex: data.themeColor,
+              coverUrl: data.cover,
+            },
+            formData: controls,
+            rules,
+          });
         });
-      });
     })
     .fail(err => {
       cb(true);
@@ -174,7 +176,7 @@ export function addWorksheetRow(
     .addRow({
       shareId,
       worksheetId,
-      receiveControls: receiveControls.map(formatControlToServer),
+      receiveControls: receiveControls.map(c => formatControlToServer(c, { needFullUpdate: true })),
       ...params,
     })
     .then(data => {

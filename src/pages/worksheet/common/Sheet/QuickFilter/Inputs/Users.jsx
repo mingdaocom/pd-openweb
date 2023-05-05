@@ -75,10 +75,21 @@ const Empty = styled.span`
   color: #bdbdbd;
 `;
 export default function Users(props) {
-  const { values = [], projectId, isMultiple, onChange = () => {}, appId, from } = props;
+  const { values = [], projectId, isMultiple, advancedSetting = {}, onChange = () => {}, appId, from } = props;
+  const { shownullitem, nullitemname, navshow, navfilters } = advancedSetting;
   const [active, setActive] = useState();
   const conRef = useRef();
   const tabType = getTabTypeBySelectUser(props.control);
+  let staticAccounts = [];
+  if (navshow === '2') {
+    staticAccounts = safeParse(navfilters)
+      .map(safeParse)
+      .map(u => ({
+        accountId: u.id,
+        fullname: u.name,
+        avatar: u.avatar,
+      }));
+  }
   return (
     <Con
       className={props.className}
@@ -119,6 +130,18 @@ export default function Users(props) {
             },
             zIndex: 10001,
             filterAccountIds: [md.global.Account.accountId],
+            staticAccounts: (shownullitem === '1'
+              ? [
+                  {
+                    avatar:
+                      md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+                      '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
+                    fullname: nullitemname || _l('为空'),
+                    accountId: 'isEmpty',
+                  },
+                ]
+              : []
+            ).concat(staticAccounts),
             SelectUserSettings: {
               projectId,
               unique: !isMultiple,

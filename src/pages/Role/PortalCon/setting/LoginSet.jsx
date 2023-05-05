@@ -291,7 +291,10 @@ const WrapCon = styled.div`
 export default function LoginSet(props) {
   const { appId, appPkg, onChangePortalSet } = props;
   const [portalSetModel, setPortalSetModel] = useState({});
-  const { iconColor = '#00bcd4', iconUrl = 'https://fp1.mingdaoyun.cn/customIcon/0_lego.svg' } = appPkg;
+  const {
+    iconColor = '#00bcd4',
+    iconUrl = md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg',
+  } = appPkg;
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadBgLoading, setUploadBgLoading] = useState(false);
 

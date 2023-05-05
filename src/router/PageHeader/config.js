@@ -51,14 +51,6 @@ export const PAGE_HEADER_ROUTE_CONFIG = {
     path: '/apps/kc',
     component: () => import('src/pages/PageHeader/NativeHeader'),
   },
-  hr: {
-    path: '/src/pages/hr',
-    component: () => import('src/pages/PageHeader/NativeHeader'),
-  },
-  hrPage: {
-    path: '/hr',
-    component: () => import('src/pages/PageHeader/NativeHeader'),
-  },
   personal: {
     path: '/personal',
     component: () => import('src/pages/PageHeader/NetManageHeader'),

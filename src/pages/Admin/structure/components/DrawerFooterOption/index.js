@@ -131,7 +131,7 @@ export default function DrawerFooterOption(props) {
 
   return (
     <Fragment>
-      {typeCursor === 0 && actType === 'add' && (
+      {(typeCursor === 0 || typeCursor === 1) && actType === 'add' && (
         <div className="btnGroups">
           <a
             className="btnBootstrap addBtn"
@@ -274,9 +274,9 @@ export default function DrawerFooterOption(props) {
           projectId={projectId}
           setValue={({ isOk = false }) => {
             if (isOk) {
-              setShowRefuseUserJoin(false);
               clickSave();
             }
+            setShowRefuseUserJoin(false);
           }}
         />
       )}

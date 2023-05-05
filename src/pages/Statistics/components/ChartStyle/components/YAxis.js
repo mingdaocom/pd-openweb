@@ -9,7 +9,7 @@ class YAxis extends Component {
     super(props);
   }
   render() {
-    const { ydisplay, onChangeDisplayValue, onChangeCurrentReport, isRight, yreportType, isDualAxes } = this.props;
+    const { ydisplay, onChangeDisplayValue, onChangeCurrentReport, isRight, reportType, yreportType, isDualAxes } = this.props;
     return (
       <Fragment>
         {isDualAxes && !isRight && (
@@ -61,7 +61,7 @@ class YAxis extends Component {
             {_l('显示刻度标签')}
           </Checkbox>
         </div>
-        {ydisplay.showDial && !isRight && (
+        {reportType !== reportTypes.ScatterChart && ydisplay.showDial && !isRight && (
           <div className="mBottom16">
             <div className="mBottom8">{_l('线条样式')}</div>
             <Select
@@ -84,31 +84,35 @@ class YAxis extends Component {
             </Select>
           </div>
         )}
-        <div className="flexRow valignWrapper">
-          <Checkbox
-            className="mLeft0 mBottom16"
-            checked={ydisplay.showTitle}
-            onChange={checked => {
-              onChangeDisplayValue({
-                ...ydisplay,
-                showTitle: !ydisplay.showTitle,
-              });
-            }}
-          >
-            {_l('显示标题')}
-          </Checkbox>
-        </div>
-        {ydisplay.showTitle && (
-          <Input
-            className="chartInput mBottom16"
-            defaultValue={ydisplay.title}
-            onBlur={event => {
-              onChangeDisplayValue({
-                ...ydisplay,
-                title: event.target.value,
-              });
-            }}
-          />
+        {reportType !== reportTypes.BidirectionalBarChart && (
+          <Fragment>
+            <div className="flexRow valignWrapper">
+              <Checkbox
+                className="mLeft0 mBottom16"
+                checked={ydisplay.showTitle}
+                onChange={checked => {
+                  onChangeDisplayValue({
+                    ...ydisplay,
+                    showTitle: !ydisplay.showTitle,
+                  });
+                }}
+              >
+                {_l('显示标题')}
+              </Checkbox>
+            </div>
+            {ydisplay.showTitle && (
+              <Input
+                className="chartInput mBottom16"
+                defaultValue={ydisplay.title}
+                onBlur={event => {
+                  onChangeDisplayValue({
+                    ...ydisplay,
+                    title: event.target.value,
+                  });
+                }}
+              />
+            )}
+          </Fragment>
         )}
         <Fragment>
           <div className="mBottom16 minWrapper">
@@ -152,18 +156,23 @@ class YAxis extends Component {
 export default function yAxisPanelGenerator(props) {
   const { currentReport, changeCurrentReport, ...collapseProps } = props;
   const { displaySetup, rightY, reportType, yreportType } = currentReport;
+  const isMultiaxis = [reportTypes.DualAxes, reportTypes.BidirectionalBarChart].includes(reportType);
   const isDualAxes = reportType === reportTypes.DualAxes;
   const isBarChart = reportType === reportTypes.BarChart;
   const isVertical = isBarChart && displaySetup.showChartType === 2;
   const switchChecked = displaySetup.ydisplay.showDial || displaySetup.ydisplay.showTitle;
-  const rightYSwitchChecked = isDualAxes
+  const rightYSwitchChecked = isMultiaxis
     ? rightY.display.ydisplay.showDial || rightY.display.ydisplay.showTitle
     : false;
   return (
     <Fragment>
       <Collapse.Panel
         key="yAxis"
-        header={isDualAxes ? _l('Y轴') : isVertical ? _l('X轴') : _l('Y轴')}
+        header={isMultiaxis ? (
+          isDualAxes ? _l('Y轴') : _l('数值(1)')
+        ) : (
+          isVertical ? _l('X轴') : _l('Y轴')
+        )}
         className={cx({ yAxisCollapsible: !switchChecked })}
         {...collapseProps}
         extra={
@@ -190,6 +199,7 @@ export default function yAxisPanelGenerator(props) {
       >
         <YAxis
           yreportType={yreportType}
+          reportType={reportType}
           isDualAxes={isDualAxes}
           ydisplay={displaySetup.ydisplay}
           onChangeCurrentReport={changeCurrentReport}
@@ -203,10 +213,10 @@ export default function yAxisPanelGenerator(props) {
           }}
         />
       </Collapse.Panel>
-      {isDualAxes && (
+      {isMultiaxis && (
         <Collapse.Panel
           key="rightyAxis"
-          header={_l('辅助Y轴')}
+          header={isDualAxes ? _l('辅助Y轴') : _l('数值(2)')}
           className={cx({ yAxisCollapsible: !rightYSwitchChecked })}
           {...collapseProps}
           extra={
@@ -236,6 +246,7 @@ export default function yAxisPanelGenerator(props) {
         >
           <YAxis
             isRight={true}
+            reportType={reportType}
             ydisplay={rightY.display.ydisplay}
             onChangeDisplayValue={data => {
               changeCurrentReport({

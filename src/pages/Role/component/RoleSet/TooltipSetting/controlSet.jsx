@@ -167,7 +167,7 @@ export default class extends React.PureComponent {
                 <div className={'filedName flexRow alignItemsCenter'}>
                   {<i className={cx('icon Gray_9e mRight6 Font16', 'icon-' + getIconByType(type))}></i>}
                   <span className="flex">
-                    {fieldName || (type === 22 ? _l('分段') : _l('备注'))}
+                    {fieldName || (type === 22 ? _l('分割线') : _l('备注'))}
                     {isDecryptField && <span className="isDecrypt mLeft3">{_l('脱敏')}</span>}
                   </span>
                 </div>

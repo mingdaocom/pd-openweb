@@ -479,6 +479,10 @@ export default function AddConnector(props) {
               </a>
               {_l('中查看任务的运行状态与同步详情')}
             </div>
+            {/* <div className="flexRow alignItemsCenter mTop20">
+              <Icon icon="info_outline" className="Gray_9e Font16" />
+              <span className="Gray_9e mLeft8">{_l('连续60天无数据同步，会自动停止')}</span>
+            </div> */}
             <Button type="primary" className="mTop36" onClick={onClose}>
               {_l('知道了')}
             </Button>

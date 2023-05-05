@@ -42,7 +42,7 @@ export const SettingItem = styled.div`
   }
   .labelWrap {
     display: flex;
-    margin-top: 4px;
+    margin-top: 10px;
     .icon-help {
       margin-left: 4px;
     }
@@ -152,13 +152,23 @@ export const EditInfo = styled(InfoWrap)`
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  .edit {
+  .edit,
+  .clearBtn {
     font-size: 15px;
     color: #9e9e9e;
+  }
+  .clearBtn {
+    visibility: hidden;
   }
   &:hover {
     background-color: #fafafa;
     border: 1px solid #d8d8d8;
+    .clearBtn {
+      visibility: visible;
+      &:hover {
+        color: #2196f3;
+      }
+    }
     .edit {
       color: #2196f3;
     }

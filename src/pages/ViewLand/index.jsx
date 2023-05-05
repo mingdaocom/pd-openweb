@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import worksheet from 'src/api/worksheet';
+import homeApp from 'src/api/homeApp';
+import { LoadDiv } from 'ming-ui';
 import SingleView from 'worksheet/common/SingleView';
 import _ from 'lodash';
+import { browserIsMobile } from 'src/util';
 
 const Con = styled.div`
   height: 100%;
@@ -23,8 +26,17 @@ const Con = styled.div`
 
 export default function ViewLand(props) {
   const { appId, worksheetId, viewId } = _.get(props, 'match.params') || {};
+  const [loading, setLoading] = useState(false);
   const [worksheetInfo, setWorksheetInfo] = useState();
   useEffect(() => {
+    if (browserIsMobile()) {
+      setLoading(true);
+      homeApp.getAppSimpleInfo({ workSheetId: worksheetId }).then(data => {
+        const { appSectionId } = data;
+        location.href = `/mobile/recordList/${appId}/${appSectionId}/${worksheetId}/${viewId}`;
+      });
+      return;
+    }
     window.hideColumnHeadFilter = true;
     worksheet.getWorksheetInfo({ worksheetId, getViews: true }).then(worksheetInfo => {
       setWorksheetInfo({
@@ -36,6 +48,13 @@ export default function ViewLand(props) {
       window.hideColumnHeadFilter = false;
     };
   }, []);
+
+  if (loading) {
+    return (
+      <LoadDiv />
+    );
+  }
+
   return (
     <Con>
       <SingleView

@@ -37,28 +37,8 @@ const LayoutContent = styled.div`
     &.numberChartCardHover {
       cursor: pointer;
       transition: box-shadow 0.2s;
-      .header {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 1;
-      }
-      .operateIconWrap>span {
-        margin-right: 6px;
-      }
-      .icon {
-        padding: 2px;
-        border-radius: 2px;
-        background-color: #fff;
-      }
       &:hover {
         box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.16);
-      }
-    }
-    &.hideNumberChartName {
-      .reportName {
-        display: none;
       }
     }
     &.richText {
@@ -169,7 +149,8 @@ function WidgetContent(props) {
     isFullscreen = false,
     adjustScreen,
     apk,
-    isCharge
+    isCharge,
+    appPkg
   } = props;
   const [loading, setLoading] = useState(false);
   const [isEdit, setEdit] = useState(false);
@@ -241,22 +222,35 @@ function WidgetContent(props) {
         updateWidgetVisible({ widget, layoutType });
         break;
       case 'switchButtonDisplay':
-        const { btnType, direction } = widget.button.config || {};
-        updateWidget({
-          widget,
-          button: update(widget.button, {
-            mobileCount: {
-              $apply: item => {
-                // 图形按钮，上下结构
-                if (btnType === 2 && direction === 1) {
-                  return item === 4 ? 1 : (item + 1);
-                } else {
+        if (widget.type === 1) {
+          updateWidget({
+            widget,
+            config: update(widget.config, {
+              mobileCount: {
+                $apply: (item = 1) => {
                   return item === 1 ? 2 : 1;
                 }
               }
-            }
-          }),
-        });
+            })
+          });
+        } else {
+          const { btnType, direction } = widget.button.config || {};
+          updateWidget({
+            widget,
+            button: update(widget.button, {
+              mobileCount: {
+                $apply: item => {
+                  // 图形按钮，上下结构
+                  if (btnType === 2 && direction === 1) {
+                    return item === 4 ? 1 : (item + 1);
+                  } else {
+                    return item === 1 ? 2 : 1;
+                  }
+                }
+              }
+            }),
+          });
+        }
         break;
       default:
         break;
@@ -298,10 +292,7 @@ function WidgetContent(props) {
           const index = _.findIndex(layout, { i: oldItem.i });
           const getData = _.get(displayRefs[index], ['getData']);
           if (getData && typeof getData === 'function') {
-            const reportId = _.get(displayRefs[index], ['props', 'report', 'id']);
-            if (reportId) {
-              getData(reportId);
-            }
+            getData();
           }
         }}
         // draggableHandle=".customPageDraggableHandle"
@@ -341,6 +332,8 @@ function WidgetContent(props) {
                   editingWidget={editingWidget}
                   ids={ids}
                   isCharge={isCharge}
+                  permissionType={appPkg.permissionType}
+                  isLock={appPkg.isLock}
                   projectId={apk.projectId}
                   ref={el => {
                     displayRefs[index] = el;
@@ -375,7 +368,8 @@ export default errorBoundary(
     state => ({
       chatVisible: state.chat.visible,
       sheetListVisible: state.sheetList.isUnfold,
-      isCharge: state.sheet.isCharge
+      isCharge: state.sheet.isCharge || state.appPkg.permissionType === 2,
+      appPkg: state.appPkg,
     }),
     dispatch => bindActionCreators(actions, dispatch),
   )(WidgetContent),

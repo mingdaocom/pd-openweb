@@ -110,7 +110,7 @@ const Box = styled.div`
 
 export default function AppList(props) {
   const {
-    data,
+    data = {},
     needShowMore = false,
     dataKey = '',
     viewAll = false,
@@ -163,12 +163,18 @@ export default function AppList(props) {
   }, [appId]);
 
   useEffect(() => {
+    if (!data.list) return;
     data.list = data.list.map(l => {
       return {
         ...l,
-        value: l.value ? l.value.split('|').filter(text => text.includes(searchKeyword)).join(' ') : '',
-      }
-    })
+        value: l.value
+          ? l.value
+              .split('|')
+              .filter(text => text.includes(searchKeyword))
+              .join(' ')
+          : '',
+      };
+    });
     if (viewAll || needShowMore) {
       setList(_.slice(data.list, 0, 5));
     } else {
@@ -281,6 +287,18 @@ export default function AppList(props) {
     window.open(url);
   };
 
+  const renderEmpty = () => {
+    if (list && list.length > 0) return null;
+    if (resultCode && [3, 2].indexOf(resultCode) > -1) {
+      return <div className="noData">{getAppResultCodeText(resultCode, currentProjectName)}</div>;
+    }
+    return (
+      <div className="noData">{`${
+        dataKey === 'app' ? _l('没有搜索到相关应用和应用像') : _l('没有搜索到相关记录')
+      }，${_l('可尝试更换关键字搜索')}`}</div>
+    );
+  };
+
   return (
     <Box className={`globalSearchAllList ${className}`}>
       {needTitle && (
@@ -289,16 +307,7 @@ export default function AppList(props) {
           {buttons && buttons.map(item => item)}
         </div>
       )}
-      {resultCode && [3, 2].indexOf(resultCode) > -1 && (
-        <div className="noData">{getAppResultCodeText(resultCode, currentProjectName)}</div>
-      )}
-      {explore && (
-        <div className="noData">
-          {_l('没有搜索到最近更新的记录，前往')}
-          <a href={`/search?search_key=${searchKeyword}&search_type=record`}>{_l('更多搜索')}</a>
-          <Icon icon="navigate_next" className="Font16" />
-        </div>
-      )}
+      {renderEmpty()}
       <ul className="list">
         {list &&
           list.map((item, index) => {
@@ -356,11 +365,7 @@ export default function AppList(props) {
                           item.value ? (
                             <React.Fragment>
                               <span className="splitVertical" />
-                              <TextHeightLine
-                                className=""
-                                heightLineText={searchKeyword}
-                                text={item.value || ''}
-                              />
+                              <TextHeightLine className="" heightLineText={searchKeyword} text={item.value || ''} />
                             </React.Fragment>
                           ) : null
                         ) : null}

@@ -19,6 +19,7 @@ rewrite (?i)^/browserupgrade /staticfiles/html/browserupgrade.html break;
 # 主站 独立入口
 rewrite (?i)^(/|/portal/)mobileChart /mobileChart.html break;
 rewrite (?i)^(/|/portal/)mobileGunter /mobileGunter.html break;
+rewrite (?i)^(/|/portal/)mobileFlowChart /mobileFlowChart.html break;
 rewrite (?i)^(/|/portal/)mobile /mobile.html break;
 rewrite (?i)^(/|/portal/)worksheetshare /worksheetshare.html break;
 rewrite (?i)^(/|/portal/)public/view /viewshare.html break;

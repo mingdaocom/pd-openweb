@@ -105,13 +105,14 @@ class AppointDialog extends React.Component {
     return (
       [
         20, // 20: _l('公式'),
-        22, // 分段
+        22, // 分割线
         25, // _l('大写金额'),
         30, // _l('他表字段'),
         31, // 31: _l('公式'),
         32, // 32: _l('文本组合'),
         33, // 33: _l('自动编号'),
         37, // 37: _l('汇总'),
+        38, // 38: _l('日前公式'),
         10010, // 备注
         45, // 嵌入
         47, //条码
@@ -270,7 +271,7 @@ class AppointDialog extends React.Component {
                     })}
                   >
                     <Icon icon={getIconByType(type)} className={cx('Font14 Gray_9e mRight15')} />
-                    <span className="">{controlName || (type === 22 ? _l('分段') : _l('备注'))}</span>
+                    <span className="">{controlName || (type === 22 ? _l('分割线') : _l('备注'))}</span>
                     {isList && (
                       <Tooltip
                         tooltipClass="pointTooltip"

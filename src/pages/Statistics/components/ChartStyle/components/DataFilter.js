@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Input } from 'antd';
 import { reportTypes } from 'statistics/Charts/common';
 import cx from 'classnames';
+import { formatNumberFromInput } from 'src/util';
 
 export default class DataFilter extends Component {
   constructor(props) {
@@ -28,6 +29,7 @@ export default class DataFilter extends Component {
     if (reportType === reportTypes.PivotTable) {
       return name;
     }
+    return _l('行数据');
   }
   handleSaveCount = () => {
     const { showXAxisCount } = this.props;
@@ -53,7 +55,7 @@ export default class DataFilter extends Component {
               event.which === 13 && this.handleSaveCount();
             }}
             onChange={event => {
-              let value = event.target.value;
+              let value = formatNumberFromInput(event.target.value);
               let count = parseInt(value || 0);
               count = count > 1000 ? 1000 : count;
               this.setState({

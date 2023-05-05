@@ -4,11 +4,14 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import _ from 'lodash';
-import RoleTem from 'src/pages/Role/component/RoleTemple';
+import RoleTem from 'src/pages/Role/component/RolePermissions';
 import { LoadDiv, Dialog } from 'ming-ui';
 import CopyRoleDialog from 'src/pages/Role/PortalCon/components/CopyRoleDialog';
 import appManagementAjax from 'src/api/appManagement';
 import DeleRoleDialog from './component/DeleRoleDialog';
+import { sysRoleType } from 'src/pages/Role/config.js';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+
 class Con extends React.Component {
   constructor(props) {
     super(props);
@@ -21,13 +24,21 @@ class Con extends React.Component {
     };
   }
   componentDidMount() {
-    const { appRole = {} } = this.props;
+    const { appRole = {}, canEditUser } = this.props;
     const { roleInfos = [], quickTag = {} } = appRole;
-    const { roleId } = quickTag;
+    // const { roleId } = quickTag;
     this.setState({
-      roleId: roleId ? roleId : (roleInfos[0] || {}).roleId,
+      roleId: appRole.roleId
+        ? ['all', 'pendingReview', 'apply', 'outsourcing'].includes(appRole.roleId)
+          ? (roleInfos[0] || {}).roleId
+          : appRole.roleId
+        : (roleInfos[0] || {}).roleId,
       roleList: roleInfos,
       dataList: [
+        {
+          text: _l('查看用户'),
+          key: 10,
+        },
         {
           text: _l('复制角色'),
           key: 0,
@@ -40,7 +51,7 @@ class Con extends React.Component {
           text: _l('删除'),
           key: 3,
         },
-      ],
+      ].filter(o => (canEditUser ? true : o.key !== 10)),
       loading: false,
     });
   }
@@ -59,17 +70,22 @@ class Con extends React.Component {
   //复制角色到外部门户
   copyRoleToPortal = ({ roleId, roleName }) => {
     const { appId } = this.props;
-    appManagementAjax.copyRoleToExternalPortal({
-      roleId,
-      roleName,
-      appId,
-    }).then(res => {
-      alert(_l('复制成功'));
-    });
+    appManagementAjax
+      .copyRoleToExternalPortal({
+        roleId,
+        roleName,
+        appId,
+      })
+      .then(res => {
+        alert(_l('复制成功'));
+      });
   };
 
   delDialog = data => {
     if (data.totalCount > 0) {
+      if ([APP_ROLE_TYPE.DEVELOPERS_ROLE].includes(_.get(this.props, 'appDetail.permissionType'))) {
+        return alert(_l('当前角色已有成员，请移出所有成员后再删除'), 3);
+      }
       this.setState({ showDeleRoleByMoveUser: true, roleId: data.roleId });
     } else {
       return Dialog.confirm({
@@ -86,25 +102,27 @@ class Con extends React.Component {
   onRemoveRole = data => {
     const { appId, projectId, getRoleSummary } = this.props;
     const { resultRoleId = '' } = data;
-    appManagementAjax.removeRole({
-      appId,
-      roleId: data.roleId,
-      resultRoleId,
-      projectId,
-    }).then(res => {
-      if (res) {
-        let list = this.state.roleList.filter(o => o.roleId !== data.roleId);
-        this.setState({
-          showDeleRoleByMoveUser: false,
-          roleId: (list[0] || {}).roleId,
-          roleList: list,
-        });
-        getRoleSummary(appId);
-        alert(_l('删除成功'));
-      } else {
-        alert(_l('删除失败，请稍后重试'), 2);
-      }
-    });
+    appManagementAjax
+      .removeRole({
+        appId,
+        roleId: data.roleId,
+        resultRoleId,
+        projectId,
+      })
+      .then(res => {
+        if (res) {
+          let list = this.state.roleList.filter(o => o.roleId !== data.roleId);
+          this.setState({
+            showDeleRoleByMoveUser: false,
+            roleId: (list[0] || {}).roleId,
+            roleList: list,
+          });
+          getRoleSummary(appId);
+          alert(_l('删除成功'));
+        } else {
+          alert(_l('操作失败，请刷新页面重试'), 2);
+        }
+      });
   };
 
   render() {
@@ -154,19 +172,27 @@ class Con extends React.Component {
             let data = roleList.find(o => roleId === o.roleId);
             this.delDialog(data);
           }}
+          onSelect={roleId => {
+            setQuickTag({ roleId: roleId, tab: 'roleSet' });
+          }}
           handleMoveApp={list => {
-            appManagementAjax.sortRoles({
-              appId,
-              roleIds: list.map(item => item.roleId),
-            }).then(() => {
-              getRoleSummary(appId);
-              this.setState({
-                roleId,
+            appManagementAjax
+              .sortRoles({
+                appId,
+                roleIds: list.map(item => item.roleId),
+              })
+              .then(() => {
+                getRoleSummary(appId);
+                this.setState({
+                  roleId,
+                });
               });
-            });
           }}
           onAction={(o, data) => {
             switch (o.key) {
+              case 10:
+                setQuickTag({ roleId: data.roleId, tab: 'user' });
+                break;
               case 0:
                 this.setState({
                   copyData: data,
@@ -186,7 +212,7 @@ class Con extends React.Component {
         />
         {showDeleRoleByMoveUser && (
           <DeleRoleDialog
-            roleList={roleList.filter(item => item.roleType !== 100 && item.roleId !== roleId)}
+            roleList={roleList.filter(item => !sysRoleType.includes(item.roleType) && item.roleId !== roleId)}
             onOk={data => {
               this.onRemoveRole({ ...roleList.find(o => o.roleId === roleId), resultRoleId: data });
             }}

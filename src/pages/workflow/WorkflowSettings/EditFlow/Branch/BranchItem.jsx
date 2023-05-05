@@ -19,10 +19,14 @@ export default class BranchItem extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { item, prveId, processId } = this.props;
+    const { item, prveId, processId, disabled } = this.props;
 
     return (
-      <div className="workflowName workflowBranchItem">
+      <div
+        className={cx('workflowName workflowBranchItem', {
+          pBottom10: !_.includes([1, 2, 3, 4], item.resultTypeId) && disabled,
+        })}
+      >
         <div className="flexRow mBottom4" style={{ alignItems: 'center' }}>
           <NodeOperate
             copyBranchNode={() =>
@@ -230,9 +234,11 @@ export default class BranchItem extends Component {
             ) : (
               <Fragment>
                 {this.renderContent()}
-                <div className="workflowContent">
-                  <div className="pLeft8 pRight8 blue">{_l('配置筛选条件')}</div>
-                </div>
+                {!disabled && (
+                  <div className="workflowContent">
+                    <div className="pLeft8 pRight8 blue">{_l('配置筛选条件')}</div>
+                  </div>
+                )}
               </Fragment>
             )}
           </div>

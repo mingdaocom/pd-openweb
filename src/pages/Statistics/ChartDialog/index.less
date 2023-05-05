@@ -105,6 +105,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    .icon:hover {
+      color: #2196F3 !important;
+    }
   }
   .count {
     font-weight: 500;
@@ -226,6 +229,9 @@
       justify-content: center;
       margin: 0;
     }
+    .ant-tabs-nav-operations {
+      display: none;
+    }
     .ant-tabs-nav .ant-tabs-ink-bar-animated {
       height: 3px;
     }
@@ -248,6 +254,40 @@
       padding: 3px 0;
       font-weight: bold;
       background-color: #fff;
+    }
+  }
+  .chartTypeImageSelect {
+    .styleItem {
+      font-size: 13px;
+      margin-right: 10px;
+      .iconWrap {
+        border-radius: 6px;
+      }
+      &:hover {
+        .iconWrap {
+          background: #ededed;
+          border-color: #ededed;
+        }
+      }
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+    .active {
+      font-weight: bold;
+      color: #2196F3 !important;
+      .iconWrap {
+        border-color: #2196F3 !important;
+        background: #fff !important;
+      }
+    }
+    .iconWrap {
+      padding: 5px 0;
+      margin-bottom: 5px;
+      border: 1px solid transparent;
+      img {
+        width: 30px;
+      }
     }
   }
   .dataSourceCollapse .icon-arrow-down-border {
@@ -406,6 +446,14 @@
     &:hover, &:focus {
       color: #2196F3;
       border-color: #d9d9d9 !important;
+    }
+  }
+  .columnCountInput {
+    .disabled {
+      color: #ddd;
+    }
+    .ant-input-suffix {
+      width: 38px !important;
     }
   }
 }

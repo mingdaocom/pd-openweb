@@ -168,6 +168,9 @@ export default {
   * @param {string} args.linkId 填写链接id
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）
@@ -222,6 +225,7 @@ export default {
   * @param {string} args.viewId 视图Id
   * @param {string} args.appId 应用Id
   * @param {string} args.btnId 自定义按钮ID
+  * @param {string} args.btnRemark 按钮备注
   * @param {string} args.btnWorksheetId 点击按钮对应的工作表ID
   * @param {string} args.btnRowId 点击按钮对应的行记录ID
   * @param {} args.masterRecord 主记录信息
@@ -253,7 +257,7 @@ export default {
      return $.api('PublicWorksheet', 'GetPublicQueryById', args, options);
    },
   /**
-  * 公开查询搜索
+  * 公开查询
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
   * @param {} args.getType
@@ -284,6 +288,9 @@ export default {
   * @param {string} args.linkId 填写链接id
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）

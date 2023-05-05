@@ -141,8 +141,8 @@ export default function BtnList({
               <div key={i} className={cx('chunkListWrap', { center: !isFullWidth })}>
                 {list.map((item, index) => {
                   const { color, name, icon, config } = item;
-                  const defaultConfig = btnType === 2 ? { iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` } : {};
-                  const { iconUrl } = config || defaultConfig;
+                  const defaultIconUrl = btnType === 2 ? `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` : null;
+                  const iconUrl = _.get(config, 'iconUrl') || defaultIconUrl;
                   const actualIndex = i * count + index;
                   return (
                     <BtnWrap

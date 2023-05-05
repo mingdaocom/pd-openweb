@@ -541,6 +541,9 @@ export default {
   * @param {string} args.linkId 填写链接id
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）
@@ -648,12 +651,14 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
   * @param {string} args.name 名称
+  * @param {boolean} args.hideAppForMembers 该角色成员不可见当前应用
   * @param {string} args.description 描述
   * @param {integer} args.permissionWay 角色类型（0:自定义、10:只读、50::成员、100:管理员）
   * @param {string} args.projectId 网络id
   * @param {array} args.sheets 工作表权限集合
   * @param {array} args.userIds 角色成员id集合
   * @param {array} args.pages 自定义页面
+  * @param {array} args.extendAttrs 用户扩展权限字段
   * @param {} args.generalAdd 是否启用 通用新增
   * @param {} args.gneralShare 是否启用 通用分享
   * @param {} args.generalImport 是否启用 通用导入
@@ -779,6 +784,20 @@ export default {
    pwdLogin: function (args, options = {}) {
      
      return $.api('ExternalPortal', 'PwdLogin', args, options);
+   },
+  /**
+  * 外部门户单点登录
+  * @param {Object} args 请求参数
+  * @param {string} args.unionId 第三方Id
+  * @param {string} args.appId 外部门户所属应用Id
+  * @param {string} args.state 第三方状态
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exportalSSO: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'ExportalSSO', args, options);
    },
   /**
   * 收集信息与登录

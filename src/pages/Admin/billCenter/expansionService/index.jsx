@@ -137,7 +137,7 @@ export default class ExpansionService extends Component {
           {
             addUserCount: 10000,
             addUserStep: 10000,
-            maxUserCount: 1000000,
+            maxUserCount: 5000000,
             balance: res.balance,
             showWorkflowExtPack:
               !_.includes([0, 2], licenseType) && !res.autoPurchaseWorkflowExtPack && !md.global.Config.IsLocal,
@@ -619,13 +619,9 @@ export default class ExpansionService extends Component {
             }}
           />
           <span className="Gray_75 mTop10">
-            {showWorkflowExtPack
-              ? _l(
-                  '开启后，当月剩余执行额度为2%时，自动购买100元/1万次的单月包，从账户余额中扣款（开启后仍可以在组织管理后台的工作流处关闭）',
-                )
-              : _l(
-                  '开启后，当月剩余执行额度不足时，自动购买100元/10万行的单月包，从账户余额中扣款。（开启后可以在数据集成的同步任务中关闭）',
-                )}
+            {_l(
+              '开启后，当月剩余执行额度为2%时，自动购买 100元/10万行 的单月包，从账户余额中扣款。（开启后可以在数据集成的同步任务中关闭）',
+            )}
           </span>
         </div>
       </div>

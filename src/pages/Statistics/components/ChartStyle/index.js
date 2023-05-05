@@ -1,17 +1,19 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Collapse, Checkbox, Switch, Input } from 'antd';
+import { Collapse, Checkbox, Switch, Input, Tooltip } from 'antd';
 import { Count, Location } from './components/Count';
 import DataFilter from './components/DataFilter';
 import Label from './components/Label';
 import XAxis from './components/XAxis';
 import yAxisPanelGenerator from './components/YAxis';
+import MeasureAxis from './components/MeasureAxis';
 import unitPanelGenerator from './components/Unit';
 import numberStylePanelGenerator, { numberSummaryPanelGenerator } from './components/NumberStyle';
 import Color from './components/Color/index';
 import PreinstallStyle from './components/PreinstallStyle';
 import TitleStyle from './components/TitleStyle';
+import topChartPanelGenerator from './components/TopChartPanel';
 import { reportTypes, LegendTypeData } from 'statistics/Charts/common';
 import { isTimeControl } from 'statistics/common';
 import { connect } from 'react-redux';
@@ -60,8 +62,9 @@ export default class ChartStyle extends Component {
   renderCount() {
     const { reportType, displaySetup, summary, yaxisList, rightY, pivotTable = {} } = this.props.currentReport;
     const isDualAxes = reportType === reportTypes.DualAxes;
+    const isMultiaxis = [reportTypes.DualAxes, reportTypes.BidirectionalBarChart].includes(reportType);
     const dualAxesSwitchChecked = summary.showTotal || (rightY ? rightY.summary.showTotal : null);
-    const switchChecked = isDualAxes ? dualAxesSwitchChecked : displaySetup.showTotal;
+    const switchChecked = isMultiaxis ? dualAxesSwitchChecked : displaySetup.showTotal;
     return (
       <Collapse.Panel
         key="count"
@@ -75,7 +78,7 @@ export default class ChartStyle extends Component {
               event.stopPropagation();
             }}
             onChange={checked => {
-              if (isDualAxes) {
+              if (isMultiaxis) {
                 this.props.changeCurrentReport(
                   {
                     displaySetup: {
@@ -106,7 +109,7 @@ export default class ChartStyle extends Component {
         <Fragment>
           <Count
             smallTitle={
-              isDualAxes ? (
+              isMultiaxis ? (
                 <Checkbox
                   className="mLeft0 mBottom15"
                   checked={summary.showTotal}
@@ -126,7 +129,7 @@ export default class ChartStyle extends Component {
                     );
                   }}
                 >
-                  {_l('Y轴')}
+                  {isDualAxes ? _l('Y轴') : _l('数值(1)')}
                 </Checkbox>
               ) : null
             }
@@ -144,10 +147,10 @@ export default class ChartStyle extends Component {
               );
             }}
           />
-          {isDualAxes && (
+          {isMultiaxis && (
             <Count
               smallTitle={
-                isDualAxes ? (
+                isMultiaxis ? (
                   <Checkbox
                     className="mLeft0 mBottom15"
                     checked={rightY.summary.showTotal}
@@ -170,7 +173,7 @@ export default class ChartStyle extends Component {
                       );
                     }}
                   >
-                    {_l('辅助Y轴')}
+                    {isDualAxes ? _l('辅助Y轴') : _l('数值(2)')}
                   </Checkbox>
                 ) : null
               }
@@ -655,7 +658,146 @@ export default class ChartStyle extends Component {
           currentReport={currentReport}
           onChangeDisplayValue={this.handleChangeDisplayValue}
           onUpdateDisplaySetup={this.handleChangeDisplaySetup}
+          onChangeStyle={this.handleChangeStyle}
         />
+      </Collapse.Panel>
+    );
+  }
+  renderScale() {
+    const { currentReport } = this.props;
+    const { style } = currentReport;
+    const scaleType = _.isUndefined(style.scaleType) ? 1 : style.scaleType;
+    return (
+      <Collapse.Panel
+        key="scale"
+        header={_l('刻度')}
+        className={cx({ collapsible: !scaleType })}
+        extra={
+          <Switch
+            size="small"
+            checked={!!scaleType}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+            }}
+            onChange={checked => {
+              this.handleChangeStyle({ scaleType: checked ? 1 : null });
+            }}
+          />
+        }
+      >
+        <div className="chartTypeSelect flexRow valignWrapper mBottom16 mLeft25">
+          <div
+            className={cx('flex centerAlign pointer Gray_75', { active: scaleType === 1 || _.isNull(style.scaleType) })}
+            onClick={() => {
+              this.handleChangeStyle({ scaleType: 1 });
+            }}
+          >
+            {_l('数值')}
+          </div>
+          <div
+            className={cx('flex centerAlign pointer Gray_75', { active: scaleType === 2 })}
+            onClick={() => {
+              this.handleChangeStyle({ scaleType: 2 });
+            }}
+          >
+            {_l('百分比')}
+          </div>
+        </div>
+      </Collapse.Panel>
+    );
+  }
+  renderIndicator() {
+    const { currentReport } = this.props;
+    const { style } = currentReport;
+    const indicatorVisible = _.isUndefined(style.indicatorVisible) ? true : style.indicatorVisible;
+    return (
+      <Collapse.Panel
+        key="indicator"
+        header={_l('指针')}
+        className="hideArrowIcon"
+        extra={
+          <Switch
+            size="small"
+            checked={indicatorVisible}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+            }}
+            onChange={checked => {
+              this.handleChangeStyle({ indicatorVisible: checked });
+            }}
+          />
+        }
+      >
+      </Collapse.Panel>
+    );
+  }
+  renderLayout() {
+    const { currentReport } = this.props;
+    const { style } = currentReport;
+    const columnCount = style.columnCount || 1;
+
+    const changeColumnCount = value => {
+      if (value) {
+        value = parseInt(value);
+        value = isNaN(value) ? 0 : value;
+        value = value > 4 ? 4 : value;
+      } else {
+        value = 1;
+      }
+      this.handleChangeStyle({ columnCount: value });
+    }
+
+    return (
+      <Collapse.Panel
+        key="layout"
+        header={ _l('布局')}
+      >
+        <div>
+          <div className="flexRow valignWrapper mBottom12">
+            <div style={{ width: 90 }}>{_l('每行显示个数')}</div>
+            <Input
+              className="chartInput columnCountInput"
+              style={{ width: 78 }}
+              value={columnCount}
+              onChange={event => {
+                changeColumnCount(event.target.value);
+              }}
+              suffix={
+                <div className="flexColumn">
+                  <Icon
+                    icon="expand_less"
+                    className={cx('Font20 pointer mBottom2', columnCount === 4 ? 'disabled' : 'Gray_9e')}
+                    onClick={() => {
+                      let value = Number(columnCount);
+                      changeColumnCount(value + 1);
+                    }}
+                  />
+                  <Icon
+                    icon="expand_more"
+                    className={cx('Font20 pointer mBottom2', columnCount === 1 ? 'disabled' : 'Gray_9e')}
+                    onClick={() => {
+                      let value = Number(columnCount);
+                      changeColumnCount(value - 1);
+                    }}
+                  />
+                </div>
+              }
+            />
+          </div>
+          <div className="flexRow valignWrapper mTop16 mBottom16">
+            <Checkbox
+              checked={style.allowScroll}
+              onChange={(e) => {
+                this.handleChangeStyle({ allowScroll: e.target.checked });
+              }}
+            >
+              {_l('允许容器内滚动')}
+            </Checkbox>
+            <Tooltip title={_l('当统计项较多时，勾选此配置可以在容器内滚动查看')} placement="bottom" arrowPointAtCenter>
+              <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+            </Tooltip>
+          </div>
+        </div>
       </Collapse.Panel>
     );
   }
@@ -697,6 +839,31 @@ export default class ChartStyle extends Component {
   }
   renderYAxis() {
     return yAxisPanelGenerator(this.props);
+  }
+  renderMeasureAxis() {
+    const { currentReport } = this.props;
+    return (
+      <Collapse.Panel
+        key="measureAxis"
+        header={_l('测量轴')}
+      >
+        <MeasureAxis currentReport={currentReport} onChangeDisplayValue={this.handleChangeDisplayValue} />
+      </Collapse.Panel>
+    );
+  }
+  renderTopChart() {
+    return topChartPanelGenerator({ ...this.props, onChangeStyle: this.handleChangeStyle });
+  }
+  renderWordCloudFontSize() {
+    const { currentReport } = this.props;
+    return (
+      <Collapse.Panel
+        key="wordCloudFontSize"
+        header={_l('词大小范围')}
+      >
+        <MeasureAxis currentReport={currentReport} onChangeDisplayValue={this.handleChangeDisplayValue} />
+      </Collapse.Panel>
+    );
   }
   renderDataFilter() {
     const { currentReport } = this.props;
@@ -791,22 +958,36 @@ export default class ChartStyle extends Component {
               {this.renderPivotTableColumnCount()}
             </Fragment>
           ) : (
-            reportTypes.NumberChart === reportType ? this.renderNumberCount() : this.renderCount()
+            reportTypes.NumberChart === reportType ? (
+              this.renderNumberCount()
+            ) : (
+              ![reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType) && this.renderCount()
+            )
           )}
           {reportTypes.NumberChart === reportType && this.renderNumberStyle()}
           {[reportTypes.PivotTable].includes(reportType) && this.renderLineHeight()}
-          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable].includes(reportType) &&
+          {[reportTypes.WordCloudChart].includes(reportType) && this.renderWordCloudFontSize()}
+          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable, reportTypes.WordCloudChart, reportTypes.TopChart, reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType) &&
             this.renderLegend()}
-          {[reportTypes.LineChart, reportTypes.BarChart, reportTypes.DualAxes].includes(reportType) &&
+          {[reportTypes.LineChart, reportTypes.BarChart, reportTypes.DualAxes, reportTypes.BidirectionalBarChart, reportTypes.ScatterChart].includes(reportType) &&
             this.renderXAxis()}
-          {[reportTypes.LineChart, reportTypes.BarChart, reportTypes.DualAxes].includes(reportType) &&
+          {[reportTypes.LineChart, reportTypes.BarChart, reportTypes.DualAxes, reportTypes.BidirectionalBarChart, reportTypes.ScatterChart].includes(reportType) &&
             this.renderYAxis()}
-          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable].includes(reportType) &&
+          {[reportTypes.RadarChart].includes(reportType) &&
+            this.renderMeasureAxis()}
+          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable, reportTypes.WordCloudChart, reportTypes.TopChart].includes(reportType) &&
             this.renderLabel()}
-          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.DualAxes].includes(reportType) &&
+          {reportTypes.GaugeChart === reportType && this.renderScale()}
+          {reportTypes.GaugeChart === reportType && this.renderIndicator()}
+          {[reportTypes.ProgressChart].includes(reportType) && (
+            this.renderLayout()
+          )}
+          {[reportTypes.TopChart].includes(reportType) &&
+            this.renderTopChart()}
+          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.DualAxes, reportTypes.BidirectionalBarChart, reportTypes.WordCloudChart, reportTypes.GaugeChart, reportTypes.ProgressChart, reportTypes.ScatterChart].includes(reportType) &&
             this.renderDataFilter()}
-          {this.renderUnit()}
-          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable].includes(reportType) &&
+          {![reportTypes.WordCloudChart].includes(reportType) && this.renderUnit()}
+          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable, reportTypes.WordCloudChart, reportTypes.GaugeChart, reportTypes.ProgressChart, reportTypes.ScatterChart, reportTypes.BidirectionalBarChart].includes(reportType) &&
             this.renderColor()}
         </Collapse>
       </div>

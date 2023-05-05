@@ -42,7 +42,7 @@ const SelectCountWrap = styled.div`
     }
   }
   .disabled {
-    color: #DDDDDD !important;
+    color: #dddddd !important;
     &:hover {
     }
   }
@@ -72,10 +72,25 @@ const CountList = styled.ul`
     }
   }
 `;
-export default function SelectCount({ count = 5, maxCount = 10, minCount = 0, onChange }) {
+const CLOSE_SECTION = {
+  label: _l('关闭'),
+  value: false,
+};
+export default function SelectCount({
+  count = 5,
+  maxCount = 10,
+  minCount = 0,
+  onChange,
+  needCloseSelect = false,
+  suffix = '',
+  mode = 'default',
+}) {
   const $ref = useRef(null);
   const [visible, setVisible] = useState(false);
-  const getList = () => Array.from({ length: maxCount - minCount + 1 }).map((v, i) => i + minCount);
+  const getList = () =>
+    (needCloseSelect ? [CLOSE_SECTION.value] : []).concat(
+      Array.from({ length: maxCount - minCount + 1 }).map((v, i) => i + minCount),
+    );
   return (
     <SelectCountWrap ref={$ref}>
       <Trigger
@@ -98,22 +113,36 @@ export default function SelectCount({ count = 5, maxCount = 10, minCount = 0, on
                   setVisible(false);
                 }}
               >
-                {item}
+                {CLOSE_SECTION.value === item ? CLOSE_SECTION.label : `${item}${suffix}`}
               </li>
             ))}
           </CountList>
         }
       >
-        <div className="countWrap">{count}</div>
+        <div className="countWrap">{CLOSE_SECTION.value === count ? CLOSE_SECTION.label : `${count}${suffix}`}</div>
       </Trigger>
-      <div className="operateWrap">
-        <div className={cx('add item', { disabled: count === maxCount })} onClick={() => onChange(Math.min(maxCount, count + 1))}>
-          <i className="icon-arrow-up-border"></i>
+      {mode === 'default' ? (
+        <div className="operateWrap">
+          <div
+            className={cx('add item', { disabled: count === maxCount })}
+            onClick={() => onChange(Math.min(maxCount, count + 1))}
+          >
+            <i className="icon-arrow-up-border"></i>
+          </div>
+          <div
+            className={cx('sub item', { disabled: count === minCount })}
+            onClick={() => onChange(Math.max(minCount, count - 1))}
+          >
+            <i className="icon-arrow-down-border"></i>
+          </div>
         </div>
-        <div className={cx('sub item', { disabled: count === minCount })} onClick={() => onChange(Math.max(minCount, count - 1))}>
-          <i className="icon-arrow-down-border"></i>
+      ) : (
+        <div className="operateWrap h100 flexColumn justifyContentCenter">
+          <div className="item" onClick={() => setVisible(true)}>
+            <i className="icon-arrow-down-border"></i>
+          </div>
         </div>
-      </div>
+      )}
     </SelectCountWrap>
   );
 }

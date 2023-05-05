@@ -71,7 +71,7 @@ function IconInput(props) {
             iconColor="#757575"
             onModify={newIcon => {
               setIcon(newIcon.icon);
-              setSelectVisible(false);
+              if (newIcon.closeTrigger !== false) setSelectVisible(false);
             }}
           />
         }
@@ -81,7 +81,7 @@ function IconInput(props) {
           <SvgIcon
             className="changeIconBtn"
             size={18}
-            url={`https://fp1.mingdaoyun.cn/customIcon/${icon}.svg`}
+            url={`${md.global.FileStoreConfig.pubHost.replace(/\/$/, '')}/customIcon/${icon}.svg`}
             fill="#757575"
           />
         </span>

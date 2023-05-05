@@ -11,7 +11,7 @@ export const socketInit = () => {
       query: {
         pss_id: getPssId(),
       },
-      transports: ['websocket'],
+      transports: window.config.SocketPolling ? ['polling', 'websocket'] : ['websocket'],
     });
     window.IM.socket = socket;
   }

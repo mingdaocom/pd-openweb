@@ -16,7 +16,7 @@ class Logout extends Component {
 						<Button type="link" onClick={() => { unmountLogout(); }}>
 							{_l('已登录')}
 						</Button>
-						<Button type="primary" onClick={() => { location.href = `/login.htm?ReturnUrl=${ encodeURIComponent(location.href) }` }}>
+						<Button type="primary" onClick={() => { location.href = `${window.subPath || ''}/login.htm?ReturnUrl=${ encodeURIComponent(location.href) }` }}>
 							{_l('重新登录')}
 						</Button>
 					</div>

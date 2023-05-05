@@ -1,8 +1,9 @@
 import React, { useEffect, Fragment } from 'react';
 import { useSetState } from 'react-use';
 import { get, isEmpty } from 'lodash';
-import { RadioGroup, Checkbox, Dropdown } from 'ming-ui';
+import { RadioGroup, Checkbox, Dropdown, RadioGroup2 } from 'ming-ui';
 import { Tooltip } from 'antd';
+import Trigger from 'rc-trigger';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
 import update from 'immutability-helper';
 import styled from 'styled-components';
@@ -14,7 +15,9 @@ import {
   updateConfig,
   getAdvanceSetting,
 } from '../../util/setting';
-import { EditInfo, InfoWrap, SettingItem } from '../../styled';
+import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
+import { getSortData } from 'src/pages/worksheet/util';
+import { EditInfo, SettingItem } from '../../styled';
 import { useSheetInfo } from '../../hooks';
 import components from '../components';
 import { formatViewToDropdown } from '../../util';
@@ -24,9 +27,21 @@ import { FilterItemTexts, FilterDialog } from '../components/FilterData';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import { WHOLE_SIZE } from '../../config/Drag';
 import WidgetVerify from '../components/WidgetVerify';
+import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 
 const { ConfigRelate, BothWayRelate, SearchConfig } = sheetComponents;
 const { SheetDealDataType, RelateSheetInfo } = components;
+
+const FILL_TYPES = [
+  {
+    text: _l('填满'),
+    value: '0',
+  },
+  {
+    text: _l('完整显示'),
+    value: '1',
+  },
+];
 
 const RelateSheetWrap = styled.div`
   .filterBtn {
@@ -37,8 +52,105 @@ const RelateSheetWrap = styled.div`
   }
 `;
 
+const RelateSheetCover = styled.div`
+  display: flex;
+  .sortColumnWrap {
+    flex: 1;
+    .Dropdown--input {
+      border-right: none;
+      border-radius: 3px 0px 0px 3px;
+    }
+  }
+  .relateCoverSetting {
+    width: 36px;
+    height: 36px;
+    border-radius: 0px 3px 3px 0px;
+    border: 1px solid #ccc;
+    text-align: center;
+    &:hover {
+      background: #f5f5f5;
+    }
+    .coverIcon {
+      color: #9e9e9e;
+      line-height: 34px;
+      &.active {
+        color: #2196f3;
+      }
+    }
+  }
+`;
+
+const CoverWrap = styled.div`
+  width: 308px;
+  max-height: 350px;
+  overflow-x: hidden;
+  background: #ffffff;
+  box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.1608);
+  padding: 16px;
+  .coverTitle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .coverType {
+    display: Inline-block;
+    border-radius: 3px 0px 0px 3px;
+    border: 1px solid #ddd;
+    padding: 6px 18px;
+    color: #757575;
+    &.active {
+      color: #2196f3;
+      border-color: #2196f3;
+    }
+    &:last-child {
+      border-radius: 0px 3px 3px 0px;
+    }
+  }
+`;
+
+const SheetViewWrap = styled.div`
+  display: flex;
+  border-radius: 3px;
+  border: 1px solid #dddddd;
+  margin-top: 8px;
+  .Dropdown--input {
+    border: none !important;
+  }
+  .ming.Dropdown.disabled {
+    background-color: #fff !important;
+  }
+  .viewCon {
+    padding: 0 16px;
+    background: #fafafa;
+    line-height: 34px;
+    text-align: center;
+    color: #757575;
+  }
+  .filterEditIcon {
+    width: 36px;
+    text-align: center;
+    cursor: pointer;
+    border-left: 1px solid #dddddd;
+    color: #989898;
+    &:hover {
+      background: #f5f5f5;
+      color: #2196f3;
+    }
+  }
+`;
+
 export default function RelateSheet(props) {
-  let { from, data, deleteWidget, onChange, globalSheetInfo, saveControls, allControls, globalSheetControls } = props;
+  let {
+    from,
+    data,
+    deleteWidget,
+    onChange,
+    globalSheetInfo,
+    saveControls,
+    allControls,
+    globalSheetControls,
+    status: { saveIndex = 0 } = {},
+  } = props;
   const { worksheetId: sourceId, appId: defaultAppId } = globalSheetInfo;
   const {
     controlId,
@@ -51,11 +163,6 @@ export default function RelateSheet(props) {
     viewId,
     coverCid,
   } = data;
-  const [{ isRelateView, searchVisible, filterVisible }, setState] = useSetState({
-    isRelateView: Boolean(viewId),
-    filterVisible: false,
-    searchVisible: false,
-  });
   let {
     showtype = String(enumDefault),
     allowlink,
@@ -64,17 +171,33 @@ export default function RelateSheet(props) {
     ddset,
     searchcontrol = '',
     dismanual = 0,
+    covertype = '0',
+    showcount = '0',
+    openview = '',
+    searchrange = '1',
   } = getAdvanceSetting(data);
   const filters = getAdvanceSetting(data, 'filters');
   const searchfilters = getAdvanceSetting(data, 'searchfilters');
+  const resultfilters = getAdvanceSetting(data, 'resultfilters');
   const strDefault = data.strDefault || '000';
+  const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
 
   const [isHiddenOtherViewRecord, disableAlbum, onlyRelateByScanCode] = strDefault.split('');
+
+  const [{ isRelateView, searchVisible, filterVisible, resultFilterVisible, sortVisible, resultVisible }, setState] =
+    useSetState({
+      isRelateView: Boolean(viewId),
+      filterVisible: false,
+      searchVisible: false,
+      resultFilterVisible: false,
+      sortVisible: false,
+      resultVisible: (resultfilters && resultfilters.length > 0) || !!+isHiddenOtherViewRecord,
+    });
 
   const {
     loading,
     data: { info: worksheetInfo = {}, views = [], controls = [] },
-  } = useSheetInfo({ worksheetId: dataSource });
+  } = useSheetInfo({ worksheetId: dataSource, saveIndex });
 
   useEffect(() => {
     //  切换控件手动更新
@@ -86,11 +209,13 @@ export default function RelateSheet(props) {
     }
   }, [dataSource, loading, data.controlId, enumDefault]);
 
-  const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.value === viewId);
+  const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.viewId === viewId);
+  const selectedOpenViewIsDelete = !loading && openview && !_.find(views, sheet => sheet.viewId === openview);
 
   const isListDisplay = String(showtype) === '2';
   const filterControls = _.filter(relationControls, item => !_.includes([22, 43, 45, 47, 49], item.type));
   const titleControl = _.find(filterControls, item => item.attribute === 1);
+  const disableOpenViewDrop = !openview && viewId && !selectedViewIsDeleted;
 
   useEffect(() => {
     setState({ isRelateView: Boolean(viewId) });
@@ -121,24 +246,96 @@ export default function RelateSheet(props) {
     onChange({ showControls: getShowControls() });
   }
 
-  const deleteDeletedControls = () => {
-    try {
-      if (!filters) {
-        return;
-      }
-      const newFilters = JSON.parse(filters).filter(filter =>
-        _.includes(
-          relationControls.map(rc => rc.controlId),
-          filter.controlId,
-        ),
-      );
-      onChange(handleAdvancedSettingChange(data, { filters: JSON.stringify(newFilters) }));
-    } catch (err) {}
-  };
-
   const getGhostControlId = () => {
     if (isSheetDisplay() || !titleControl) return [];
     return [titleControl.controlId];
+  };
+
+  const renderCover = () => {
+    return (
+      <CoverWrap>
+        <div className="coverTitle">
+          <span className="Bold">{_l('封面')}</span>
+          {coverCid && (
+            <span
+              className="Gray_9e Hover_21 Hand"
+              onClick={() => onChange({ ...handleAdvancedSettingChange(data, { covertype: '0' }), coverCid: '' })}
+            >
+              {_l('清除')}
+            </span>
+          )}
+        </div>
+        <div className="Gray_9e mTop10">{_l('选择作为封面图片的附件字段')}</div>
+        <RadioGroup2
+          radioItemClassName="mTop10"
+          disabled={!dataSource}
+          data={filterControls
+            .filter(c => c.type === 14 || (c.type === 30 && c.sourceControl && c.sourceControl.type === 14))
+            .map(c => ({
+              text: c.controlName,
+              value: c.controlId,
+              checked: c.controlId === coverCid,
+            }))}
+          vertical={true}
+          onChange={value => onChange({ coverCid: value })}
+        />
+        <div className="flexCenter mTop20">
+          <span className="Gray_75 mRight20">{_l('填充方式')}</span>
+          {FILL_TYPES.map(item => {
+            return (
+              <span
+                className={cx('coverType Hand', { active: item.value === covertype })}
+                onClick={() => onChange(handleAdvancedSettingChange(data, { covertype: item.value }))}
+              >
+                {item.text}
+              </span>
+            );
+          })}
+        </div>
+      </CoverWrap>
+    );
+  };
+
+  const renderFilters = ({ filterKey, isVisible, visibleKey, title }) => {
+    const filterData = getAdvanceSetting(data, [filterKey]);
+    return (
+      <Fragment>
+        {isVisible && (
+          <FilterDialog
+            {...props}
+            title={title}
+            filters={filterData}
+            supportGroup
+            relationControls={controls}
+            globalSheetControls={globalSheetControls}
+            fromCondition={filterKey !== 'resultfilters' ? 'relateSheet' : ''}
+            allControls={allControls.concat(SYSTEM_CONTROL.filter(c => _.includes(['caid', 'ownerid'], c.controlId)))}
+            onChange={({ filters }) => {
+              onChange(handleAdvancedSettingChange(data, { [filterKey]: JSON.stringify(filters) }));
+              setState({ [visibleKey]: false });
+
+              if (filterKey === 'resultfilters') {
+                setState({
+                  resultVisible: (filters && filters.length > 0) || !!+isHiddenOtherViewRecord,
+                });
+              }
+            }}
+            onClose={() => setState({ [visibleKey]: false })}
+          />
+        )}
+        {!isEmpty(filterData) && (
+          <FilterItemTexts
+            {...props}
+            filters={filterData}
+            globalSheetControls={globalSheetControls}
+            loading={loading}
+            controls={controls}
+            allControls={allControls.concat(SYSTEM_CONTROL.filter(c => _.includes(['caid', 'ownerid'], c.controlId)))}
+            editFn={() => setState({ [visibleKey]: true })}
+          />
+        )}
+      </Fragment>
+    );
   };
 
   return (
@@ -175,7 +372,6 @@ export default function RelateSheet(props) {
       <SettingItem>
         <div className="settingItemTitle">{_l('关联记录数量')}</div>
         <RadioGroup
-          size="middle"
           data={[
             { text: _l('单条'), value: 1 },
             { text: _l('多条'), value: 2 },
@@ -188,6 +384,8 @@ export default function RelateSheet(props) {
               if (showtype === '2') {
                 nextData = handleAdvancedSettingChange(nextData, { showtype: '1' });
               }
+              // 关联单条不支持一下操作
+              nextData = handleAdvancedSettingChange(nextData, { sorts: '', allowcancel: '0' });
               onChange(nextData);
               return;
             }
@@ -217,6 +415,8 @@ export default function RelateSheet(props) {
                 required: false,
                 advancedSetting: Object.assign(nextData.advancedSetting, { defsource: '', hidetitle: '0' }),
               };
+            } else {
+              nextData = handleAdvancedSettingChange(nextData, { sorts: '' });
             }
             onChange(nextData);
           }}
@@ -248,24 +448,24 @@ export default function RelateSheet(props) {
         )}
       </SettingItem>
       {ddset !== '1' && showtype === '3' ? null : (
-        <Fragment>
-          <SettingItem>
-            <div className="settingItemTitle mBottom8">
-              <span style={{ fontWeight: 'normal' }}>{_l('显示字段')}</span>
-              {enumDefault === 1 && (
-                <Tooltip
-                  className="hoverTip"
-                  title={
-                    <span>
-                      {_l('在卡片中，最多可显示9个所选字段。在选择已有记录进行关联时，可以查看所有选择的字段。')}
-                    </span>
-                  }
-                  popupPlacement="bottom"
-                >
-                  <i className="icon icon-help pointer Gray_bd Font15" />
-                </Tooltip>
-              )}
-            </div>
+        <SettingItem>
+          <div className="settingItemTitle mBottom8">
+            <span style={{ fontWeight: 'normal' }}>{_l('显示字段')}</span>
+            {enumDefault === 1 && (
+              <Tooltip
+                className="hoverTip"
+                title={
+                  <span>
+                    {_l('在卡片中，最多可显示9个所选字段。在选择已有记录进行关联时，可以查看所有选择的字段。')}
+                  </span>
+                }
+                popupPlacement="bottom"
+              >
+                <i className="icon icon-help pointer Gray_bd Font15" />
+              </Tooltip>
+            )}
+          </div>
+          <RelateSheetCover>
             <SortColumns
               empty={<div />}
               min1msg={_l('至少显示一列')}
@@ -288,95 +488,119 @@ export default function RelateSheet(props) {
                 );
               }}
             />
-          </SettingItem>
-          <SettingItem className="selectPicOfRecord">
-            <div className="settingItemTitle mBottom8">
-              <span style={{ fontWeight: 'normal' }}>
-                {enumDefault === 1 ? _l('封面图片') : _l('封面图片（移动端和分享时）')}
-              </span>
-              <Tooltip
-                className="hoverTip"
-                title={
-                  <span>
-                    {enumDefault === 1
-                      ? _l('在卡片中显示所选附件字段中最新上传的一张可预览文件。')
-                      : _l(
-                          '在移动端和分享记录时，列表将以卡片形式进行呈现。在卡片中显示所选附件字段中最新上传的一张可预览文件',
-                        )}
-                  </span>
-                }
-                popupPlacement="bottom"
-              >
-                <i className="icon pointer icon-help Gray_bd Font15" />
-              </Tooltip>
-            </div>
-            <Dropdown
-              border
-              disabled={!dataSource}
-              loading={loading}
-              renderTitle={item => (!item || item.value === 'none' ? '' : item.text)}
-              data={[
-                {
-                  text: _l('清除'),
-                  value: 'none',
-                  className: 'Gray_9e ThemeHoverColor3',
-                },
-              ].concat(
-                filterControls
-                  .filter(c => c.type === 14 || (c.type === 30 && c.sourceControl && c.sourceControl.type === 14))
-                  .map(c => ({
-                    text: c.controlName,
-                    value: c.controlId,
-                  })),
-              )}
-              value={coverCid || 'none'}
-              onChange={value => {
-                onChange({
-                  coverCid: value === 'none' ? undefined : value,
-                });
+            <Trigger
+              popup={renderCover}
+              action={['click']}
+              popupAlign={{
+                points: ['tr', 'br'],
+                offset: [0, 2],
+                overflow: { adjustX: true, adjustY: true },
               }}
+              getPopupContainer={() => document.body}
+            >
+              <div className="relateCoverSetting tip-bottom" data-tip={_l('设置封面')}>
+                <span className={cx('icon-picture coverIcon Font22 Hand', { active: !!coverCid })}></span>
+              </div>
+            </Trigger>
+          </RelateSheetCover>
+        </SettingItem>
+      )}
+      {showtype === '2' && (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('排序')}</div>
+          <EditInfo className="pointer subListSortInput" onClick={() => setState({ sortVisible: true })}>
+            <div className="overflow_ellipsis Gray">
+              {sorts.length > 0 ? (
+                sorts.reduce((p, item) => {
+                  const sortsRelationControls = relationControls
+                    .filter(column => !_.find(SYSTEM_CONTROLS, c => c.controlId === column.controlId))
+                    .concat(SYSTEM_CONTROLS);
+                  const control = sortsRelationControls.find(({ controlId }) => item.controlId === controlId) || {};
+                  const flag = item.isAsc === true ? 2 : 1;
+                  const { text } = getSortData(control.type, control).find(item => item.value === flag);
+                  const value = control.controlId ? _l('%0: %1', control.controlName, text) : '';
+                  return p ? `${p}；${value}` : value;
+                }, '')
+              ) : (
+                <span className="Gray_75">{isRelateView ? _l('按关联视图配置') : _l('未设置（按添加顺序）')}</span>
+              )}
+            </div>
+            {sorts.length > 0 && (
+              <div className="flexCenter">
+                <div
+                  className="clearBtn mRight10"
+                  onClick={e => {
+                    e.stopPropagation();
+                    onChange(handleAdvancedSettingChange(data, { sorts: '' }));
+                  }}
+                >
+                  <i className="icon-closeelement-bg-circle"></i>
+                </div>
+                <div className="edit">
+                  <i className="icon-edit"></i>
+                </div>
+              </div>
+            )}
+          </EditInfo>
+          {sortVisible && (
+            <Sort
+              {...props}
+              fromRelate={true}
+              controls={relationControls}
+              onClose={() => setState({ sortVisible: false })}
             />
-          </SettingItem>
-        </Fragment>
+          )}
+        </SettingItem>
       )}
       <DynamicDefaultValue {...props} titleControl={titleControl} />
       {showtype !== '2' && <WidgetVerify {...props} />}
       <SettingItem>
         <div className="settingItemTitle">{_l('操作')}</div>
-        <div className="labelWrap" style={{ justifyContent: 'space-between' }}>
+        <div className="labelWrap">
           <Checkbox
             className="allowSelectRecords InlineBlock Gray"
             size="small"
             text={_l('允许选择已有记录')}
-            disabled={showtype === '3'}
             checked={_.includes([0, 1], enumDefault2)}
             onClick={checked => {
               // enumDefault2使用两位数代表两个字段的布尔值 所以此处有恶心判断
               if (checked) {
                 onChange({
+                  ...handleAdvancedSettingChange(data, { searchrange: '', filters: '' }),
                   enumDefault2: enumDefault2 === 0 ? 10 : 11,
                 });
               } else {
                 onChange({
+                  ...handleAdvancedSettingChange(data, { searchrange: '1' }),
                   enumDefault2: enumDefault2 === 10 ? 0 : 1,
                 });
               }
             }}
           />
-          {_.includes([0, 1], enumDefault2) && (
-            <Tooltip
-              title={
-                <span>
-                  {!filters || !filters.length || filters.length <= 0
-                    ? _l('过滤允许选择的记录')
-                    : _l('点击取消过滤条件')}
-                </span>
-              }
-              placement="bottomRight"
-              arrowPointAtCenter={true}
-            >
-              <span
-                className="InlineBlock LineHeight20 TxtTop mLeft10 filterBtn Hand"
+        </div>
+        {_.includes([0, 1], enumDefault2) && (
+          <Fragment>
+            <SheetViewWrap>
+              <div className="viewCon">{_l('权限')}</div>
+              <Dropdown
+                border
+                className="flex"
+                data={[
+                  { text: _l('所有记录'), value: '1' },
+                  { text: _l('有查看权限的记录'), value: '0' },
+                ]}
+                value={searchrange}
+                onChange={value => {
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      searchrange: value,
+                    }),
+                  );
+                }}
+              />
+              <div
+                className="filterEditIcon tip-bottom"
+                data-tip={_l('过滤选择范围')}
                 onClick={() => {
                   if (!filters || !filters.length || filters.length <= 0) {
                     if (!dataSource) {
@@ -395,42 +619,22 @@ export default function RelateSheet(props) {
                   }
                 }}
               >
-                <i className={cx('icon-worksheet_filter Font16', { ThemeColor3: filters && filters.length })}></i>
-              </span>
-            </Tooltip>
-          )}
-        </div>
-        {filterVisible && (
-          <FilterDialog
-            {...props}
-            supportGroup
-            relationControls={controls}
-            globalSheetControls={globalSheetControls}
-            fromCondition={'relateSheet'}
-            allControls={allControls.concat(SYSTEM_CONTROL.filter(c => _.includes(['caid', 'ownerid'], c.controlId)))}
-            onChange={({ filters }) => {
-              onChange(handleAdvancedSettingChange(data, { filters: JSON.stringify(filters) }));
-              setState({ filterVisible: false });
-            }}
-            onClose={() => setState({ filterVisible: false })}
-          />
-        )}
-        {!isEmpty(getAdvanceSetting(data, 'filters')) && (
-          <FilterItemTexts
-            {...props}
-            globalSheetControls={globalSheetControls}
-            loading={loading}
-            controls={controls}
-            allControls={allControls.concat(SYSTEM_CONTROL.filter(c => _.includes(['caid', 'ownerid'], c.controlId)))}
-            editFn={() => setState({ filterVisible: true })}
-          />
+                <i
+                  className={cx('icon-filter Font22 LineHeight34', {
+                    ThemeColor3: filters && filters.length,
+                  })}
+                ></i>
+              </div>
+            </SheetViewWrap>
+            {renderFilters({ filterKey: 'filters', isVisible: filterVisible, visibleKey: 'filterVisible' })}
+          </Fragment>
         )}
 
         <div className="labelWrap">
           <Checkbox
             className="allowSelectRecords "
             size="small"
-            text={_l('允许新增关联记录')}
+            text={_l('允许新增记录')}
             checked={_.includes([0, 10], enumDefault2)}
             onClick={checked => {
               // enumDefault2使用两位数代表两个字段的布尔值 所以此处有恶心判断
@@ -446,11 +650,11 @@ export default function RelateSheet(props) {
             }}
           />
         </div>
-        {enumDefault === 2 && isListDisplay && (
+        {enumDefault === 2 && (
           <div className="labelWrap">
             <Checkbox
               size="small"
-              text={_l('允许取消现有关联')}
+              text={_l('允许取消关联')}
               checked={allowcancel !== '0'}
               onClick={checked => onChange(handleAdvancedSettingChange(data, { allowcancel: checked ? '0' : '1' }))}
             />
@@ -459,11 +663,38 @@ export default function RelateSheet(props) {
         <div className="labelWrap">
           <Checkbox
             size="small"
-            text={_l('允许查看记录')}
+            text={_l('允许打开记录')}
             checked={+allowlink}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowlink: +!checked }))}
+            onClick={checked =>
+              onChange(handleAdvancedSettingChange(data, { allowlink: +!checked, openview: checked ? '' : openview }))
+            }
           />
         </div>
+        {+allowlink ? (
+          <SheetViewWrap>
+            <div className="viewCon">{_l('视图')}</div>
+            <Dropdown
+              border
+              className="flex"
+              cancelAble
+              loading={loading}
+              placeholder={
+                selectedOpenViewIsDelete || selectedViewIsDeleted ? (
+                  <span className="Red">{_l('已删除')}</span>
+                ) : viewId && !selectedViewIsDeleted ? (
+                  _l('按关联视图配置')
+                ) : (
+                  _l('未设置')
+                )
+              }
+              data={formatViewToDropdown(views)}
+              value={openview && !selectedOpenViewIsDelete ? openview : undefined}
+              onChange={value => {
+                onChange(handleAdvancedSettingChange(data, { openview: value }));
+              }}
+            />
+          </SheetViewWrap>
+        ) : null}
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('设置')}</div>
@@ -484,8 +715,16 @@ export default function RelateSheet(props) {
               }
               setState({ searchVisible: !searchcontrol });
             }}
-            text={_l('查询设置')}
-          />
+          >
+            <span style={{ marginRight: '6px' }}>{_l('查询设置')}</span>
+            <Tooltip
+              className="hoverTip"
+              title={<span>{_l('设置用户选择关联记录时可以搜索和筛选的字段')}</span>}
+              popupPlacement="bottom"
+            >
+              <i className="icon pointer icon-help Gray_bd Font15" />
+            </Tooltip>
+          </Checkbox>
         </div>
         {searchcontrol && (
           <EditInfo style={{ margin: '12px 0' }} onClick={() => setState({ searchVisible: true })}>
@@ -527,7 +766,7 @@ export default function RelateSheet(props) {
               title={
                 <span>
                   {_l(
-                    '设置关联视图，根据视图来控制用户的选择范围和对关联记录的查看、操作权限。以及列表显示时的默认显示排序规则',
+                    '设置关联视图，统一控制关联记录的排序方式、选择范围、和打开记录时的视图。字段本身设置的排序和打开记录视图优先级高于此配置；过滤选择范围的效果为叠加。',
                   )}
                 </span>
               }
@@ -541,47 +780,134 @@ export default function RelateSheet(props) {
             border
             style={{ marginTop: '10px' }}
             loading={loading}
-            hint={_l('选择视图')}
             noneContent={_l('请先选择关联表')}
-            selectName={selectedViewIsDeleted ? _l('视图已删除，请重新选择') : ''}
+            placeholder={
+              selectedViewIsDeleted ? <span className="Red">{_l('视图已删除，请重新选择')}</span> : _l('选择视图')
+            }
             data={dataSource ? formatViewToDropdown(views) : []}
-            value={viewId === '' ? undefined : viewId}
+            value={viewId && !selectedViewIsDeleted ? viewId : undefined}
             onChange={value => {
               onChange({ viewId: value });
             }}
           />
         )}
         {showtype === '2' && (
-          <div className="labelWrap">
-            <Checkbox
-              className="allowSelectRecords"
-              size="small"
-              text={_l('按用户权限查看')}
-              checked={!!+isHiddenOtherViewRecord}
-              onClick={checked =>
-                onChange({
-                  strDefault: updateConfig({
-                    config: strDefault,
-                    value: +!checked,
-                    index: 0,
-                  }),
-                })
-              }
-            >
-              <Tooltip
-                popupPlacement="bottom"
-                title={
-                  <span>
-                    {_l(
-                      '未勾选时，用户在关联列表中可以查看所有关联数据。勾选后，按照用户对关联的工作表/视图的权限查看，隐藏无权限的数据或字段',
-                    )}
-                  </span>
+          <Fragment>
+            <div className="labelWrap">
+              <Checkbox
+                size="small"
+                checked={resultVisible}
+                onClick={checked => {
+                  if (checked) {
+                    onChange({
+                      ...handleAdvancedSettingChange(data, { resultfilters: '' }),
+                      strDefault: updateConfig({
+                        config: strDefault,
+                        value: +!checked,
+                        index: 0,
+                      }),
+                    });
+                    setState({ resultVisible: false });
+                  } else {
+                    setState({ resultVisible: true });
+                  }
+                }}
+              >
+                <span style={{ marginRight: '6px' }}>{_l('过滤显示结果')}</span>
+              </Checkbox>
+            </div>
+            {resultVisible && (
+              <div className="mLeft25">
+                <div className="labelWrap">
+                  <Checkbox
+                    size="small"
+                    checked={resultfilters && resultfilters.length > 0}
+                    onClick={checked => {
+                      if (checked) {
+                        onChange(handleAdvancedSettingChange(data, { resultfilters: '' }));
+                        setState({ resultVisible: !!+isHiddenOtherViewRecord });
+                      } else {
+                        setState({ resultFilterVisible: true });
+                      }
+                    }}
+                  >
+                    <span style={{ marginRight: '6px' }}>{_l('按条件过滤')}</span>
+                    <Tooltip
+                      popupPlacement="bottom"
+                      title={<span>{_l('设置筛选条件，只显示满足条件的关联记录')}</span>}
+                    >
+                      <i className="icon-help Gray_bd Font16 pointer"></i>
+                    </Tooltip>
+                  </Checkbox>
+                </div>
+                {renderFilters({
+                  filterKey: 'resultfilters',
+                  isVisible: resultFilterVisible,
+                  visibleKey: 'resultFilterVisible',
+                  title: _l('设置筛选条件'),
+                })}
+                <div className="labelWrap">
+                  <Checkbox
+                    className="allowSelectRecords"
+                    size="small"
+                    checked={!!+isHiddenOtherViewRecord}
+                    onClick={checked => {
+                      onChange({
+                        strDefault: updateConfig({
+                          config: strDefault,
+                          value: +!checked,
+                          index: 0,
+                        }),
+                      });
+                      setState({ resultVisible: (resultfilters && resultfilters.length > 0) || !!+!checked });
+                    }}
+                  >
+                    <span style={{ marginRight: '6px' }}>{_l('按用户权限过滤')}</span>
+                    <Tooltip
+                      popupPlacement="bottom"
+                      title={
+                        <span>
+                          {_l(
+                            '未勾选时，用户在关联列表中可以查看所有关联数据。勾选后，按照用户对关联的工作表/视图的权限查看，隐藏无权限的数据或字段',
+                          )}
+                        </span>
+                      }
+                    >
+                      <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
+                    </Tooltip>
+                  </Checkbox>
+                </div>
+              </div>
+            )}
+            <div className="labelWrap">
+              <Checkbox
+                className="allowSelectRecords"
+                size="small"
+                text={_l('显示计数')}
+                checked={showcount !== '1'}
+                onClick={checked =>
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      showcount: checked ? '1' : '0',
+                    }),
+                  )
                 }
               >
-                <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
-              </Tooltip>
-            </Checkbox>
-          </div>
+                <Tooltip
+                  popupPlacement="bottom"
+                  title={
+                    <span>
+                      {_l(
+                        '在表单中显示关联记录的数量。当设置了[过滤关联结果]、[按用户权限查看]后可见数量会少于计数，建议关闭此配置。',
+                      )}
+                    </span>
+                  }
+                >
+                  <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
+                </Tooltip>
+              </Checkbox>
+            </div>
+          </Fragment>
         )}
       </SettingItem>
       {dataSource !== sourceId && from !== 'subList' && (

@@ -154,7 +154,7 @@ class Detail extends React.Component {
             });
           }
         })
-        .fail(() => alert('操作失败，请稍后重试！', 2));
+        .fail(() => alert(_l('操作失败，请稍后重试！'), 2));
     } else {
       let folderCount = 0;
       let fileSize = 0;
@@ -184,7 +184,7 @@ class Detail extends React.Component {
           item = _.assign({}, item, { isDownloadable });
           this.props.performUpdateItem(item);
         })
-        .fail(() => alert('修改失败', 2));
+        .fail(() => alert(_l('修改失败'), 2));
     }
   };
 
@@ -205,7 +205,7 @@ class Detail extends React.Component {
           item = _.assign({}, item, { isEditable });
           this.props.performUpdateItem(item);
         })
-        .fail(() => alert('修改失败', 2));
+        .fail(() => alert(_l('修改失败'), 2));
     }
   };
 
@@ -229,7 +229,7 @@ class Detail extends React.Component {
             this.props.performUpdateItem(node);
           });
         })
-        .fail(() => alert('修改失败', 2));
+        .fail(() => alert(_l('修改失败'), 2));
     }
   };
 
@@ -287,7 +287,7 @@ class Detail extends React.Component {
           item = _.assign({}, item, { visibleType });
           this.props.performUpdateItem(item);
         })
-        .fail(() => alert('修改失败', 2));
+        .fail(() => alert(_l('修改失败'), 2));
     }
   };
 

@@ -58,7 +58,10 @@ export default function SelectType(props) {
     //对应类型的可选配置
     if (destField.mdType) {
       const ENUM_TYPE = enumWidgetType[destField.mdType];
-      const data = { type: destField.mdType, ..._.omit(DEFAULT_DATA[ENUM_TYPE], ['controlName']) };
+      const data =
+        ENUM_TYPE === 'DATE_TIME'
+          ? { type: destField.mdType, advancedSetting: { showtype: '6' } }
+          : { type: destField.mdType, ..._.omit(DEFAULT_DATA[ENUM_TYPE], ['controlName']) };
       setSettingComponent({
         component: Settings[ENUM_TYPE],
         data,
@@ -128,7 +131,7 @@ export default function SelectType(props) {
                         dataType: value,
                         jdbcTypeId: option.dataType,
                         precision: option.maxLength,
-                        scale: option.maximumScale,
+                        scale: option.defaultScale,
                       },
                     });
                 }}

@@ -167,6 +167,10 @@ class AttachmentsPreview extends React.Component {
       previewType = PREVIEW_TYPE.TXT;
     }
 
+    if (!currentAttachment.msg && getClassNameByExt(ext) === 'fileIcon-mp3') {
+      previewType = PREVIEW_TYPE.VIDEO;
+    }
+
     const isFullScreen = this.props.fullscreen; // ***** TODO 全屏
 
     return (
@@ -333,7 +337,12 @@ class AttachmentsPreview extends React.Component {
                       </div>
                     );
                   case PREVIEW_TYPE.VIDEO:
-                    return <VideoPlayer src={currentAttachment.viewUrl} attachment={currentAttachment} />;
+                    return (
+                      <VideoPlayer
+                        src={currentAttachment.viewUrl || _.get(currentAttachment, 'sourceNode.path')}
+                        attachment={currentAttachment}
+                      />
+                    );
                   case PREVIEW_TYPE.NEW_PAGE:
                   case PREVIEW_TYPE.OTHER:
                   default:

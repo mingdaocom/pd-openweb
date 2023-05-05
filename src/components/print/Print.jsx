@@ -15,7 +15,7 @@ import { formatFormulaDate } from 'src/pages/worksheet/util';
 import model from './model';
 import nzh from 'nzh';
 import './Print.less';
-import { langFormat, htmlDecodeReg, accAdd, accDiv, accMul } from 'src/util';
+import { htmlDecodeReg, accAdd, accDiv, accMul } from 'src/util';
 import _ from 'lodash';
 
 const nzhCn = nzh.cn;
@@ -103,10 +103,103 @@ export default class Print extends Component {
   }
   componentWillMount = () => {
     const { params } = this.props.match;
-    if (params.printType === 'task') {
+    if (params.printType === 'worksheet') {
+      this.initWorksheet();
+    } else if (params.printType === 'task') {
       this.initTask();
     }
   };
+  initWorksheet() {
+    document.title = _l('记录打印') + ' - ' + _l('工作表');
+    const sheetArgs = {
+      worksheetId: this.state.worksheetId,
+      getTemplate: false,
+    };
+    const rowInfoArgs = {
+      rowId: this.state.reqId,
+      appId: this.state.appId,
+      viewId: this.state.viewId,
+      worksheetId: this.state.worksheetId,
+      getType: this.state.workSheetGetType,
+    };
+    const logoAjax =
+      this.state.projectId && !!_.find(md.global.Account.projects, item => item.projectId === this.state.projectId)
+        ? projectAjax.getSysColor({ projectId: this.state.projectId })
+        : $.Deferred().resolve({ logo: md.global.Config.Logo }).promise();
+    $.when(sheetAjax.getWorksheetInfo(sheetArgs), sheetAjax.getRowByID(rowInfoArgs), logoAjax).then(
+      (sheetInfo, rowInfo, logo) => {
+        const signatureControls = rowInfo.receiveControls.filter(item => item.type === 42);
+        rowInfo.receiveControls = rowInfo.receiveControls.filter(item => item.type !== 42);
+        const controlData = _.groupBy(rowInfo.receiveControls, item => item.row);
+        const titleControl = _.find(rowInfo.receiveControls, control => control.attribute === 1);
+        const relateRecordControls = rowInfo.receiveControls.filter(
+          control => control.type === 29 && control.enumDefault === 2,
+        );
+        relateRecordControls.forEach(control =>
+          this.loadRowRelationRows({
+            appId: this.state.appId,
+            worksheetId: this.state.worksheetId,
+            rowId: this.state.reqId,
+            control,
+          }),
+        );
+        this.setState({
+          logo: logo.logo,
+          rowInfo: { controls: rowInfo.receiveControls, shortUrl: rowInfo.shortUrl },
+          printTitle: titleControl ? renderCellText(titleControl) || _l('未命名') : _l('未命名'),
+          controls: controlData,
+          signatureControls,
+          sheetInfo: {
+            name: sheetInfo.name,
+            ownerAccount: rowInfo.ownerAccount,
+            updateTime: rowInfo.updateTime,
+          },
+          reqInfo: {
+            title: rowInfo.titleName,
+          },
+          relateRecords: {},
+        });
+        this.loadWorksheetShortUrl(this.state.appId, rowInfoArgs.worksheetId, this.state.viewId, rowInfoArgs.rowId);
+      },
+    );
+  }
+  @autobind
+  loadRowRelationRows(args) {
+    const { appId, worksheetId, rowId, control } = args;
+    sheetAjax
+      .getRowRelationRows({
+        appId,
+        worksheetId,
+        rowId,
+        controlId: control.controlId,
+        pageIndex: 1,
+        pageSize: 100000,
+        getWorksheet: true,
+      })
+      .then(data => {
+        const newRelateRecords = Object.assign({}, this.state.relateRecords);
+        newRelateRecords[control.controlId] = data;
+        this.setState({
+          relateRecords: newRelateRecords,
+        });
+      })
+      .fail(err => {});
+  }
+  loadWorksheetShortUrl(appId, worksheetId, viewId, rowId) {
+    sheetAjax
+      .getWorksheetShareUrl({
+        worksheetId,
+        appId,
+        viewId,
+        rowId,
+        objectType: 2,
+      })
+      .then(shareUrl => {
+        this.setState({
+          rowInfo: Object.assign({}, this.state.rowInfo, { shortUrl: shareUrl }),
+        });
+      });
+  }
   initTask() {
     document.title = _l('任务打印');
     postAjax

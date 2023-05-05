@@ -5,6 +5,7 @@ import { Icon, ScrollView, LoadDiv } from 'ming-ui';
 import { TASK_STATUS_TYPE } from '../../../constant';
 import { formatDate } from '../../../../config';
 import syncTaskApi from '../../../../api/syncTask';
+import ToolTip from 'ming-ui/components/Tooltip';
 
 const UsageDetailWrapper = styled.div`
   background: #fff;
@@ -155,18 +156,22 @@ export default function UsageDetail({ projectId, sourceId }) {
         return (
           <div className="flexRow alignItemsCenter pRight8">
             <div className="flexRow alignItemsCenter pLeft8 titleColumn">
-              <TaskIcon data-tip={item.sourceTypeName}>
-                <svg className="icon svg-icon" aria-hidden="true">
-                  <use xlinkHref={`#icon${item.sourceClassName}`} />
-                </svg>
-                {item.sourceNum > 1 && <div className="sourceNum">{item.sourceNum}</div>}
-              </TaskIcon>
+              <ToolTip text={item.sourceTypeName}>
+                <TaskIcon>
+                  <svg className="icon svg-icon" aria-hidden="true">
+                    <use xlinkHref={`#icon${item.sourceClassName}`} />
+                  </svg>
+                  {item.sourceNum > 1 && <div className="sourceNum">{item.sourceNum}</div>}
+                </TaskIcon>
+              </ToolTip>
               <Icon icon="arrow_down" className="arrowIcon" />
-              <TaskIcon data-tip={item.destTypeName}>
-                <svg className="icon svg-icon" aria-hidden="true">
-                  <use xlinkHref={`#icon${item.destClassName}`} />
-                </svg>
-              </TaskIcon>
+              <ToolTip text={item.destTypeName}>
+                <TaskIcon>
+                  <svg className="icon svg-icon" aria-hidden="true">
+                    <use xlinkHref={`#icon${item.destClassName}`} />
+                  </svg>
+                </TaskIcon>
+              </ToolTip>
             </div>
             <span title={item.taskName} className="Font14 Gray overflow_ellipsis">
               {item.taskName}

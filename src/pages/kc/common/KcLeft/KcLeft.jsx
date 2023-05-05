@@ -14,6 +14,7 @@ import List from 'ming-ui/components/List';
 import Item from 'ming-ui/components/Item';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
+import Input from 'ming-ui/components/Input';
 import Icon from 'ming-ui/components/Icon';
 import Splitter from 'ming-ui/components/Splitter';
 import ScrollView from 'ming-ui/components/ScrollView';
@@ -64,6 +65,7 @@ class KcLeft extends Component {
     }
     this.state = {
       keywords: props.keywords || '',
+      projectRootKeywords: {},
       noneProjects,
       foldedProjects,
       loadingProjects,
@@ -414,9 +416,11 @@ class KcLeft extends Component {
   @autobind
   renderProjectRoots(projectId, index, filterRoots) {
     projectId = projectId || '';
+    const { projectRootKeywords = {} } = this.state;
     const isFolded = this.state.foldedProjects.includes(projectId);
     const isLoading = this.state.loadingProjects.includes(projectId);
     const project = _.find(md.global.Account.projects, p => p.projectId === projectId);
+    const keywords = projectRootKeywords[projectId || 'my'];
     let projectRoots;
     if (projectId) {
       projectRoots = filterRoots.filter(root => ((root.project && root.project.projectId) || '') === projectId);
@@ -425,6 +429,9 @@ class KcLeft extends Component {
       projectRoots = filterRoots.filter(
         root => projectIds.indexOf((root.project && root.project.projectId) || '') === -1,
       );
+    }
+    if (keywords) {
+      projectRoots = projectRoots.filter(root => root.name.toLowerCase().indexOf(keywords.toLowerCase()) > -1);
     }
     projectRoots = projectRoots
       .toArray()
@@ -569,6 +576,26 @@ class KcLeft extends Component {
     return (
       <div className="folderProjectItem" key={projectId}>
         {companyNameComp}
+        {!isFolded && (projectRoots.length > 10 || keywords) && (
+          <div className="rootSearch">
+            <i className="icon-search" />
+            <Input
+              placeholder={_l('搜索文件夹名称')}
+              value={keywords}
+              onChange={value => {
+                this.setState({
+                  projectRootKeywords: {
+                    ...projectRootKeywords,
+                    [projectId || 'my']: value.trim(),
+                  },
+                });
+              }}
+            />
+          </div>
+        )}
+        {!isFolded && keywords && !projectRoots.length && (
+          <div className="Gray_9e TxtCenter mTop20 mBottom10">{_l('没有搜索结果')}</div>
+        )}
         {rootListComp}
       </div>
     );

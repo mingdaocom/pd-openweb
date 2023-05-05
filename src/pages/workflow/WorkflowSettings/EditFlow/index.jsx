@@ -416,6 +416,22 @@ class EditFlow extends Component {
     }
   }
 
+  /**
+   * 完整显示
+   */
+  fullDisplay = () => {
+    const $content = $('.workflowEdit')[0];
+
+    if ($content.clientHeight < $content.scrollHeight) {
+      let scale = Math.floor((($content.clientHeight / $content.scrollHeight) * this.state.scale) / 10) * 10;
+
+      if (scale <= 50) scale = 50;
+      if (scale >= 100) scale = 100;
+
+      this.setState({ scale, refreshThumbnail: +new Date() });
+    }
+  };
+
   render() {
     const { flowInfo, workflowDetail } = this.props;
     const {
@@ -455,7 +471,7 @@ class EditFlow extends Component {
       <Fragment>
         <div
           className={cx(
-            'workflowEdit flex mTop20 flexRow',
+            'workflowEdit flex flexRow',
             { addTop: startNodeError },
             { workflowEditRelease: flowInfo.parentId },
           )}
@@ -463,7 +479,7 @@ class EditFlow extends Component {
         >
           <div
             className="workflowEditContent"
-            style={{ transform: `scale(${scale / 100})`, transformOrigin: 'center top' }}
+            style={{ transform: `scale(${scale / 100})`, transformOrigin: 'center 48px' }}
           >
             {this.renderNode({ processId: flowInfo.id, data: flowNodeMap, firstId: startEventId })}
             <End />
@@ -482,7 +498,7 @@ class EditFlow extends Component {
           selectAddNodeId={this.selectAddNodeId}
         />
 
-        <div className={cx('workflowEditBtns', { addTop: startNodeError })}>
+        <div className={cx('workflowEditBtn', { addTop: startNodeError })}>
           <span data-tip={_l('画布概览')}>
             <i
               className={cx('icon-map ThemeHoverColor3', { ThemeColor3: showThumbnail })}
@@ -496,19 +512,27 @@ class EditFlow extends Component {
               }}
             />
           </span>
+          <span className="workflowEditBtnLine" />
+
+          <span data-tip={_l('缩小')}>
+            <i
+              className={cx('icon-minus ThemeHoverColor3', { disabled: scale === 50 })}
+              onClick={() => scale > 50 && this.setState({ scale: scale - 10, refreshThumbnail: +new Date() })}
+            />
+          </span>
+          <span className="Font14 mRight8 TxtCenter" style={{ width: 40 }}>
+            {scale}%
+          </span>
           <span data-tip={_l('放大')}>
             <i
               className={cx('icon-add ThemeHoverColor3', { disabled: scale === 100 })}
               onClick={() => scale < 100 && this.setState({ scale: scale + 10, refreshThumbnail: +new Date() })}
             />
           </span>
-          <span data-tip={_l('缩小')}>
-            <i
-              className={cx('icon-maximizing_a2 ThemeHoverColor3', { disabled: scale === 50 })}
-              onClick={() => scale > 50 && this.setState({ scale: scale - 10, refreshThumbnail: +new Date() })}
-            />
+
+          <span data-tip={_l('适应高度')}>
+            <i className="icon-settings_overscan ThemeHoverColor3" onClick={this.fullDisplay} />
           </span>
-          <span className="Font14 mLeft10">{scale}%</span>
         </div>
 
         {startNodeError && (

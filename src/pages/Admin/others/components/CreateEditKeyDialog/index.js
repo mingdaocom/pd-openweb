@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import AccountController from 'src/api/account';
-import { encrypt } from 'src/util';
+import { verifyPassword } from 'src/util';
 import { Dialog, CheckboxGroup, Input } from 'ming-ui';
 // import { Input } from 'antd';
 import styled from 'styled-components';
@@ -26,10 +25,6 @@ const interfacePermission = [
   { value: 3, text: _l('应用管理接口') },
   { value: 4, text: _l('审批接口（协作套件-人事）') },
 ];
-const errorMsg = {
-  6: _l('密码不正确'),
-  8: _l('验证码错误'),
-};
 
 export default class CreateEditKeyDialog extends Component {
   constructor(props) {
@@ -53,29 +48,10 @@ export default class CreateEditKeyDialog extends Component {
   onOk = () => {
     let { password } = this.state;
     if (!password) return;
-    let throttled = function (res) {
-      if (res.ret !== 0) {
-        return;
-      }
-      AccountController.checkAccount({
-        ticket: res.ticket,
-        randStr: res.randstr,
-        captchaType: md.staticglobal.getCaptchaType(),
-        password: encrypt(password),
-      }).then(res => {
-        if (res === 1) {
-          this.props.showCreateKeyDialog();
-        } else {
-          alert(errorMsg[res] || _l('操作失败'), 2);
-        }
-      });
-    };
-
-    if (md.staticglobal.getCaptchaType() === 1) {
-      new captcha(throttled);
-    } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
-    }
+    const _this = this;
+    verifyPassword(password, () => {
+      _this.props.showCreateKeyDialog();
+    });
   };
   render() {
     let { checkedValues, password } = this.state;

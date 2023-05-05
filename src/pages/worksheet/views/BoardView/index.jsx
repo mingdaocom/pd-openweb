@@ -1,4 +1,4 @@
-﻿import React, { useRef, useEffect, Fragment } from 'react';
+﻿import React, { useRef, useEffect, Fragment, useCallback } from 'react';
 import styled from 'styled-components';
 import { LoadDiv, Icon } from 'ming-ui';
 import { every, isEmpty } from 'lodash';
@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { DndProvider, useDrop } from 'react-dnd-latest';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
+import { emitter } from 'worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import worksheetAjax from 'src/api/worksheet';
 import * as boardActions from 'src/pages/worksheet/redux/actions/boardView';
@@ -65,6 +66,7 @@ function BoardView(props) {
     filters,
     addRecord,
     updateMultiSelectBoard,
+    refreshSheet,
     ...rest
   } = props;
 
@@ -123,6 +125,11 @@ function BoardView(props) {
       $listWrap.scrollLeft = e.deltaY * 10 + $listWrap.scrollLeft;
     }
   };
+  const refresh = useCallback(({ worksheetId }) => {
+    if (worksheetId === props.worksheetId && !document.querySelector('.workSheetRecordInfo')) {
+      refreshSheet(view);
+    }
+  });
   const bindEvent = () => {
     const scrollEvent = _.throttle(scrollHorizontal);
     const scrollLoadEvent = _.throttle(scrollLoad);
@@ -132,8 +139,10 @@ function BoardView(props) {
     if ($listWrap) {
       $listWrap.addEventListener('scroll', scrollLoadEvent);
     }
+    emitter.addListener('RELOAD_RECORD_INFO', refresh);
     return () => {
       document.body.removeEventListener('mousewheel', scrollEvent);
+      emitter.removeListener('RELOAD_RECORD_INFO', refresh);
       window.removeEventListener('resize', scrollEvent);
       if ($listWrap) {
         $listWrap.removeEventListener('scroll', scrollLoadEvent);
@@ -155,6 +164,8 @@ function BoardView(props) {
     view.advancedSetting.navfilters,
     view.advancedSetting.freezenav,
     view.advancedSetting.navempty,
+    view.advancedSetting.navshow,
+    props.navGroupFilters,
   ]);
 
   const handleSelectField = obj => {
@@ -298,7 +309,15 @@ function BoardView(props) {
 
 const ConnectedBoardView = connect(
   state =>
-    _.pick(state.sheet, ['boardView', 'worksheetInfo', 'filters', 'controls', 'sheetSwitchPermit', 'sheetButtons']),
+    _.pick(state.sheet, [
+      'boardView',
+      'worksheetInfo',
+      'filters',
+      'controls',
+      'sheetSwitchPermit',
+      'sheetButtons',
+      'navGroupFilters',
+    ]),
   dispatch => bindActionCreators({ ...boardActions, ...baseAction }, dispatch),
 )(BoardView);
 

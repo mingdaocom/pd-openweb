@@ -1,8 +1,9 @@
 import _ from 'lodash';
 export const APP_ROLE_TYPE = {
   CUSTOM_ROLE: 0, // 自定义角色
-  READ_ROLE: 10, // 只读角色
-  GENERAL_ROLE: 50, // 一般（普通成员）
+  DEVELOPERS_ROLE: 1, // 开发者
+  RUNNER_ROLE: 2, // 运营者
+  RUNNER_DEVELOPERS_ROLE: 3, // 运营者+开发者
   ADMIN_ROLE: 100, // 管理员角色
   POSSESS_ROLE: 200, // 应用拥有者
   MAP_OWNER: 300,
@@ -166,12 +167,12 @@ export const VIEW_DISPLAY_TYPE = enumType({
 });
 
 export const VIEW_TYPE_ICON = [
-  { icon: 'view', color: '#ffa515', text: _l('表格'), id: 'sheet' },
-  { icon: 'kanban', color: '#4CAF50', text: _l('看板'), id: 'board' },
-  { icon: 'event', color: '#F64082', text: _l('日历'), id: 'calendar' },
-  { icon: 'gallery_view', color: '#3949ab', text: _l('画廊'), id: 'gallery' },
-  { icon: 'hierarchy', color: '#9C27AF', text: _l('层级'), id: 'structure' },
-  { icon: 'gantt', color: '#01BCD5', text: _l('甘特图'), id: 'gunter' },
+  { icon: 'view', color: '#ffa515', text: _l('表格%05017'), id: 'sheet' },
+  { icon: 'kanban', color: '#4CAF50', text: _l('看板%05016'), id: 'board' },
+  { icon: 'event', color: '#F64082', text: _l('日历%05015'), id: 'calendar' },
+  { icon: 'gallery_view', color: '#3949ab', text: _l('画廊%05014'), id: 'gallery' },
+  { icon: 'hierarchy', color: '#9C27AF', text: _l('层级%05013'), id: 'structure' },
+  { icon: 'gantt', color: '#01BCD5', text: _l('甘特图%05012'), id: 'gunter' },
 ];
 
 export const WORKSHEET_VIEW_PAGE_SIZE = {
@@ -190,7 +191,7 @@ export const CUSTOM_BUTTOM_CLICK_TYPE = {
 };
 
 /** 表格行高 */
-export const ROW_HEIGHT = [34, 58, 84, 137];
+export const ROW_HEIGHT = [34, 62, 88, 142];
 
 /** 单元格渲染类型 */
 export const CELL_RENDER_TYPE = {
@@ -249,7 +250,7 @@ export const CONTROL_EDITABLE_BLACKLIST = [22, 25, 30, 31, 32, 33, 34, 37, 42, 4
 
 export const SHEET_VIEW_HIDDEN_TYPES = [
   10010, // REMARK 备注
-  22, // SPLIT_LINE 分段
+  22, // SPLIT_LINE 分割线
   43, // OCR
   45, // EMBED 嵌入
   49, // SEARCH_BTN 查询按钮

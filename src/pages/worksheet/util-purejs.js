@@ -1,6 +1,17 @@
 import dayjs from 'dayjs';
 import _ from 'lodash';
 
+export function countChar(str = '', char) {
+  if (!str || !char) {
+    return 0;
+  }
+  try {
+    return str.match(new RegExp(char, 'g')).length;
+  } catch (err) {
+    return 0;
+  }
+}
+
 /**
  *  日期公式计算
  * */
@@ -124,6 +135,13 @@ export function formatControlValue(cell) {
             type: cell.sourceControlType || 2,
             advancedSetting: _.get(cell, 'sourceControl.advancedSetting') || {},
           }),
+        );
+      case 46: // TIME 时间
+        if (_.isEmpty(value)) {
+          value = '';
+        }
+        return dayjs(value, countChar(value, ':') === 2 ? 'HH:mm:ss' : 'HH:mm').format(
+          cell.unit === '6' || cell.unit === '9' ? 'HH:mm:ss' : 'HH:mm',
         );
       default:
         return value;

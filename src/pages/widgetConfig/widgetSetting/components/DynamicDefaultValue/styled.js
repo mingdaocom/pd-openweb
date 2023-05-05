@@ -160,6 +160,7 @@ export const SelectOtherFieldWrap = styled(FlexCenter)`
   }
   i {
     font-size: 22px;
+    color: #9e9e9e;
   }
 `;
 

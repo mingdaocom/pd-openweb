@@ -7,9 +7,17 @@ import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import OptionColumn from './OptionColumn';
 import AddOrEditSource from '../AddOrEditSource';
-import { ROLE_TYPE, DETAIL_TYPE, ROLE_TYPE_TAB_LIST, FROM_TYPE_TAB_LIST, DATABASE_TYPE } from '../../../constant';
+import {
+  ROLE_TYPE,
+  DETAIL_TYPE,
+  ROLE_TYPE_TAB_LIST,
+  FROM_TYPE_TAB_LIST,
+  DATABASE_TYPE,
+  SORT_TYPE,
+} from '../../../constant';
 import { formatDate } from '../../../../config';
 import dataSourceApi from '../../../../api/datasource';
+import ToolTip from 'ming-ui/components/Tooltip';
 
 const FilterContent = styled.div`
   margin-top: 16px;
@@ -233,6 +241,7 @@ const NoDataWrapper = styled.div`
 `;
 
 let ajaxPromise;
+let sortFlag = 0;
 
 export default function SourceList(props) {
   const { flag } = props;
@@ -244,19 +253,20 @@ export default function SourceList(props) {
     fromType: 'ALL',
     dsType: 'ALL',
     keyWords: '',
+    sort: { fieldName: '', sortDirection: null },
   });
   const [sourceList, setSourceList] = useState([]);
   const [isFilterExpand, setIsFilterExpand] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [sourceRecord, setSourceRecord] = useState({});
-  // const [switchSort, setSwitchSort] = useSetState({ syncTaskSort: undefined, createTimeSort: undefined });
   const [dsTabList, setDsTabList] = useState([]);
   const FILTER_TYPES = [
     { title: _l('作为'), data: ROLE_TYPE_TAB_LIST, key: 'roleType', hasExpand: false },
     { title: _l('来源'), data: FROM_TYPE_TAB_LIST, key: 'fromType', hasExpand: false },
     { title: _l('源类型'), data: dsTabList, key: 'dsType', hasExpand: false },
   ];
+  const sortTypes = [null, SORT_TYPE.ASC, SORT_TYPE.DESC];
 
   useEffect(() => {
     //获取数据源类型列表
@@ -268,7 +278,7 @@ export default function SourceList(props) {
     dataSourceApi.getTypes(getTypeParams).then(res => {
       if (res) {
         const list = res
-          .filter(item => item.type === DATABASE_TYPE.MYSQL)
+          .filter(item => item.type !== DATABASE_TYPE.APPLICATION_WORKSHEET)
           .map(item => {
             return { key: item.type, text: item.name };
           });
@@ -289,6 +299,7 @@ export default function SourceList(props) {
       roleType: fetchState.roleType,
       fromType: fetchState.fromType === 'ALL' ? null : fetchState.fromType,
       dsType: fetchState.dsType === 'ALL' ? null : fetchState.dsType,
+      sort: fetchState.sort,
     };
 
     ajaxPromise = dataSourceApi.list(params);
@@ -320,6 +331,7 @@ export default function SourceList(props) {
     fetchState.fromType,
     fetchState.dsType,
     fetchState.keyWords,
+    fetchState.sort,
   ]);
 
   const onScrollEnd = () => {
@@ -345,15 +357,13 @@ export default function SourceList(props) {
               setEditModalVisible(true);
             }}
           >
-            <div
-              className="titleIcon"
-              style={{ background: _.get(item, 'dsTypeInfo.iconBgColor') }}
-              data-tip={_.get(item, 'dsTypeInfo.name')}
-            >
-              <svg className="icon svg-icon" aria-hidden="true">
-                <use xlinkHref={`#icon${_.get(item, 'dsTypeInfo.className')}`} />
-              </svg>
-            </div>
+            <ToolTip text={_.get(item, 'dsTypeInfo.name')}>
+              <div className="titleIcon" style={{ background: _.get(item, 'dsTypeInfo.iconBgColor') }}>
+                <svg className="icon svg-icon" aria-hidden="true">
+                  <use xlinkHref={`#icon${_.get(item, 'dsTypeInfo.className')}`} />
+                </svg>
+              </div>
+            </ToolTip>
             <span title={item.name} className="titleText overflow_ellipsis">
               {item.name}
             </span>
@@ -391,14 +401,37 @@ export default function SourceList(props) {
       dataIndex: 'taskNum',
       renderTitle: () => {
         return (
-          // <div className="flexRow pointer" onClick={() => setSwitchSort({ syncTaskSort: !switchSort.syncTaskSort })}>
-          //   <span>{_l('同步任务')}</span>
-          //   <div className="flexColumn mLeft6">
-          //     <Icon icon="arrow-up" className={cx('sortIcon', { selected: switchSort.syncTaskSort === true })} />
-          //     <Icon icon="arrow-down" className={cx('sortIcon', { selected: switchSort.syncTaskSort === false })} />
-          //   </div>
-          // </div>
-          <span>{_l('同步任务')}</span>
+          <div
+            className="flexRow pointer"
+            onClick={() => {
+              if (fetchState.sort.fieldName !== 'taskNum') {
+                sortFlag = 1;
+              } else {
+                sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
+              }
+              setFetchState({
+                loading: true,
+                pageNo: 0,
+                sort: { fieldName: sortFlag === 0 ? '' : 'taskNum', sortDirection: sortTypes[sortFlag] },
+              });
+            }}
+          >
+            <span>{_l('同步任务')}</span>
+            <div className="flexColumn mLeft6">
+              <Icon
+                icon="arrow-up"
+                className={cx('sortIcon', {
+                  selected: fetchState.sort.fieldName === 'taskNum' && fetchState.sort.sortDirection === SORT_TYPE.ASC,
+                })}
+              />
+              <Icon
+                icon="arrow-down"
+                className={cx('sortIcon', {
+                  selected: fetchState.sort.fieldName === 'taskNum' && fetchState.sort.sortDirection === SORT_TYPE.DESC,
+                })}
+              />
+            </div>
+          </div>
         );
       },
     },
@@ -406,17 +439,39 @@ export default function SourceList(props) {
       dataIndex: 'createTime',
       renderTitle: () => {
         return (
-          // <div
-          //   className="flexRow pointer"
-          //   onClick={() => setSwitchSort({ createTimeSort: !switchSort.createTimeSort })}
-          // >
-          //   <span>{_l('创建时间')}</span>
-          //   <div className="flexColumn mLeft6">
-          //     <Icon icon="arrow-up" className={cx('sortIcon', { selected: switchSort.createTimeSort === true })} />
-          //     <Icon icon="arrow-down" className={cx('sortIcon', { selected: switchSort.createTimeSort === false })} />
-          //   </div>
-          // </div>
-          <span>{_l('创建时间')}</span>
+          <div
+            className="flexRow pointer"
+            onClick={() => {
+              if (fetchState.sort.fieldName !== 'createTime') {
+                sortFlag = 1;
+              } else {
+                sortFlag = sortFlag === 2 ? 0 : sortFlag + 1;
+              }
+              setFetchState({
+                loading: true,
+                pageNo: 0,
+                sort: { fieldName: sortFlag === 0 ? '' : 'createTime', sortDirection: sortTypes[sortFlag] },
+              });
+            }}
+          >
+            <span>{_l('创建时间')}</span>
+            <div className="flexColumn mLeft6">
+              <Icon
+                icon="arrow-up"
+                className={cx('sortIcon', {
+                  selected:
+                    fetchState.sort.fieldName === 'createTime' && fetchState.sort.sortDirection === SORT_TYPE.ASC,
+                })}
+              />
+              <Icon
+                icon="arrow-down"
+                className={cx('sortIcon', {
+                  selected:
+                    fetchState.sort.fieldName === 'createTime' && fetchState.sort.sortDirection === SORT_TYPE.DESC,
+                })}
+              />
+            </div>
+          </div>
         );
       },
       render: item => {

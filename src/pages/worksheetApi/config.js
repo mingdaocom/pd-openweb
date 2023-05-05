@@ -837,7 +837,7 @@ export const MENU_LIST_APPENDIX = [
       },
       {
         name: 22,
-        type: _l('分段'),
+        type: _l('分割线'),
         desc: '',
       },
       {

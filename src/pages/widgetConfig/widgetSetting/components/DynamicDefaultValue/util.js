@@ -21,9 +21,35 @@ import {
   CHECKBOX_TYPES,
   EMEBD_FIELDS,
   CUR_TIME_TYPES,
+  CURRENT_TYPES,
 } from './config';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
+
+// 新建子表并配置成员、部门等默认值，后端relationControls不处理，没有补全配置返回
+export const dealIds = (type, dynamicValue) => {
+  if (_.isEmpty(dynamicValue)) return dynamicValue;
+  return dynamicValue.map(item => {
+    if (
+      _.includes([26, 27, 48], type) &&
+      _.includes(['user-self', 'user-departments', 'user-role'], item.staticValue)
+    ) {
+      const name = _.get(
+        _.find(CURRENT_TYPES, i => i.id === item.staticValue),
+        'text',
+      );
+      const id =
+        item.staticValue === 'user-self'
+          ? 'accountId'
+          : item.staticValue === 'user-departments'
+          ? 'departmentId'
+          : 'organizeId';
+      return { ...item, staticValue: JSON.stringify({ [id]: item.staticValue, name }) };
+    } else {
+      return item;
+    }
+  });
+};
 
 const filterSys = (list = []) => {
   return list.filter(item => !_.includes(SYS, item.controlId));

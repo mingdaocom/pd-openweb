@@ -109,6 +109,7 @@ export const APP_TYPE = {
   SYSTEM: 100,
   VARIABLE: 101,
   PROCESS: 102,
+  WORKSHEET_LOG: 103,
 };
 
 export const CONTROLS_NAME = {

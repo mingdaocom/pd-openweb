@@ -89,27 +89,25 @@ window.delCookie = function delCookie(name) {
  */
 window._l = function () {
   let args = arguments;
-  if (args) {
-    let key = args[0];
-    let content = key;
+  let key = args[0];
+  let content = key;
 
-    let translation = {};
-    // 翻译文件内存在这个key
-    if (typeof mdTranslation !== 'undefined') translation = mdTranslation;
-    else if (typeof mdSPTranslation !== 'undefined') translation = mdSPTranslation;
-
-    if (translation[key]) content = translation[key];
-
-    // 含0% 1% 的内容参数替换
-    if (args.length > 1) {
-      for (let i = 1; i < args.length; i++) {
-        content = content.replace(new RegExp('%' + (i - 1), 'g'), args[i]);
-      }
-    }
-
-    return content || '';
+  // 翻译文件内存在这个key
+  if (typeof mdTranslation !== 'undefined' && mdTranslation[key]) {
+    content = mdTranslation[key];
   }
-  return '';
+
+  // 含0% 1% 的内容参数替换
+  if (args.length > 1) {
+    for (let i = 1; i < args.length; i++) {
+      content = content.replace(new RegExp('%' + (i - 1), 'g'), args[i]);
+    }
+  } else if (/.*%\d{5}/.test(content)) {
+    // 处理特殊多语境单词问题
+    content = content.replace(/%\d{5}$/, '');
+  }
+
+  return content;
 };
 
 /**
@@ -249,7 +247,9 @@ window.safeParse = (str, type) => {
     return JSON.parse(str);
   } catch (err) {
     if (!(_.isUndefined(str) || str === '')) {
-      console.error(err);
+      if (!(typeof str === 'string' && str.startsWith('deleteRowIds'))) {
+        console.error(err);
+      }
     }
     return type === 'array' ? [] : {};
   }
@@ -457,7 +457,11 @@ window.createTimeSpan = dateStr => {
       ? function () {}
       : function (msg, level) {
           level = level || 3;
-          window.alert(msg, level);
+          window.alert({
+            type: level,
+            msg,
+            key: 'server',
+          });
         };
 
     let ajax;

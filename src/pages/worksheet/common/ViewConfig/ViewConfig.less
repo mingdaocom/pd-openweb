@@ -13,7 +13,11 @@
   background-color: #fff;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
   z-index: 12;
-
+  .Dropdown {
+    .Menu.List {
+      margin-top: 3px;
+    }
+  }
   .ming.Dropdown,
   .dropdownTrigger {
     &.disabled {
@@ -158,10 +162,11 @@
       }
     }
   }
-
-  .icon-close {
-    &:hover {
-      color: @blue !important;
+  .viewTitle {
+    .icon-close {
+      &:hover {
+        color: @blue !important;
+      }
     }
   }
 
@@ -192,9 +197,12 @@
   .viewSetBox {
     display: flex;
     height: 100%;
+    overflow: hidden;
   }
 
   .viewBtns {
+    height: auto;
+    overflow: auto;
     width: 200px;
     font-size: 13px;
     // display: flex;
@@ -246,7 +254,7 @@
       word-break: break-all;
       white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
+      // text-overflow: ellipsis;
 
       .icon {
         color: #757575;

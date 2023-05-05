@@ -45,7 +45,7 @@ const Wrap = styled.div`
 const defaultComponentConfig = {
   count: 20,
   action: 1,
-  openMode: 1
+  openMode: 1,
 };
 
 const defaultConfig = {
@@ -53,7 +53,8 @@ const defaultConfig = {
   autoplaySpeed: 3,
   fill: 1,
   fillColor: '#333333',
-}
+  displayMode: 0,
+};
 
 export default function Carousel(props) {
   const { ids, widget, onEdit, onClose } = props;
@@ -64,9 +65,9 @@ export default function Carousel(props) {
   const handleSave = () => {
     onEdit({
       config,
-      componentConfig
+      componentConfig,
     });
-  }
+  };
 
   return (
     <Dialog
@@ -95,7 +96,7 @@ export default function Carousel(props) {
             {...props}
             config={config}
             componentConfig={componentConfig}
-            setConfig={(data) => {
+            setConfig={data => {
               setConfig({
                 ...config,
                 ...data,
@@ -105,14 +106,14 @@ export default function Carousel(props) {
           <Setting
             {...props}
             componentConfig={componentConfig}
-            setComponentConfig={(data) => {
+            setComponentConfig={data => {
               setComponentConfig({
                 ...componentConfig,
-                ...data
+                ...data,
               });
             }}
             config={config}
-            setConfig={(data) => {
+            setConfig={data => {
               setConfig({
                 ...config,
                 ...data,

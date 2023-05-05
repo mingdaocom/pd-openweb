@@ -146,7 +146,13 @@ export default function Set(props) {
                       });
                     }}
                   >
-                    {o.name}
+                    {o.description ? (
+                      <Tooltip text={<span>{o.description}</span>} popupPlacement="top">
+                        <span>{o.name}</span>
+                      </Tooltip>
+                    ) : (
+                      o.name
+                    )}
                   </Checkbox>
                   {o.tips && (
                     <Tooltip text={<span>{o.tips} </span>} popupPlacement="top">
@@ -162,7 +168,7 @@ export default function Set(props) {
     );
   };
   if (loading) {
-    return <LoadDiv className='mTop80' />;
+    return <LoadDiv className="mTop80" />;
   }
   return (
     <Wrap className="TxtLeft">

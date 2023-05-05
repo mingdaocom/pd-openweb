@@ -37,7 +37,7 @@ const FILE_TYPE = [
   {
     value: '3',
     text: _l('音频'),
-    desc: _l('支持WAV、FLAC、APE、ALAC、WavPack、MP3、AAC、Ogg Vorbis、Opus、Au、MMF、AIF格式的文件'),
+    desc: _l('支持WAV、FLAC、APE、ALAC、WavPack、MP3、M4a、AAC、Ogg Vorbis、Opus、Au、MMF、AIF格式的文件'),
   },
   { value: '4', text: _l('视频'), desc: _l('支持MP4、AVI、MOV、WMV、MKV、FLV、F4V、SWF、RMVB、MPG格式的文件') },
   {

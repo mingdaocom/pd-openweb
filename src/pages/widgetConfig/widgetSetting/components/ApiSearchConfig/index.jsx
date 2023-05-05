@@ -135,6 +135,7 @@ export default function ApiSearchConfig(props) {
   const [apiInfo, setApiInfo] = useState({});
   const [requestControls, setRequestControls] = useState([]);
   const [responseControls, setResponseControls] = useState([]);
+  const [originResponseControls, setOriginResponseControls] = useState([]);
 
   useEffect(() => {
     if (!data.dataSource) return;
@@ -144,6 +145,7 @@ export default function ApiSearchConfig(props) {
       const { basicInfo = {}, requestControls = [], responseControls = [] } = res || {};
       setApiInfo(basicInfo);
       dealResult(requestControls, responseControls);
+      setOriginResponseControls(responseControls);
 
       setLoading(false);
     });
@@ -220,7 +222,7 @@ export default function ApiSearchConfig(props) {
       )}
 
       {/** 返回数据映射 */}
-      <SearchMapping responseControls={responseControls} {...props} />
+      <SearchMapping responseControls={responseControls} originResponseControls={originResponseControls} {...props} />
 
       {/**集成API弹层 */}
       {visible && (

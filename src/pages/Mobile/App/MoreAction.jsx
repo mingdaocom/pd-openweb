@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal } from 'antd-mobile';
 import { Icon } from 'ming-ui';
-import { ROLE_TYPES } from 'src/pages/Role/config';
+import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 import styled from 'styled-components';
 import cx from 'classnames';
 
@@ -10,7 +10,6 @@ const ModalWrap = styled(Modal)`
   border-top-right-radius: 15px;
   border-top-left-radius: 15px;
   &.appMoreActionWrap {
-    height: 230px;
     .header {
       line-height: 24px;
       margin-bottom: 20px;
@@ -33,6 +32,7 @@ const ModalWrap = styled(Modal)`
       line-height: 50px;
       text-align: left;
       font-weight: 600;
+      padding-bottom: 15px;
     }
     .active {
       color: #ffd800 !important;
@@ -78,18 +78,20 @@ export default function MoreAction(props) {
           <Icon icon="group" className="Gray_9e mRight24 Font20 TxtMiddle" />
           <span>{_l('人员管理')}</span>
         </div>
-        <div
-          onClick={() => {
-            dealViewHideNavi(viewHideNavi ? false : true);
-            onClose();
-          }}
-        >
-          <Icon
-            icon={viewHideNavi ? 'public-folder-hidden' : 'visibility'}
-            className={'Gray_9e mRight24 Font20 TxtMiddle'}
-          />
-          <span>{viewHideNavi ? _l('不显示应用隐藏项') : _l('显示应用隐藏项')}</span>
-        </div>
+        {(canEditApp(detail.permissionType, detail.isLock) || canEditData(detail.permissionType)) && (
+          <div
+            onClick={() => {
+              dealViewHideNavi(viewHideNavi ? false : true);
+              onClose();
+            }}
+          >
+            <Icon
+              icon={viewHideNavi ? 'public-folder-hidden' : 'visibility'}
+              className={'Gray_9e mRight24 Font20 TxtMiddle'}
+            />
+            <span>{viewHideNavi ? _l('不显示应用隐藏项') : _l('显示应用隐藏项')}</span>
+          </div>
+        )}
       </div>
     </ModalWrap>
   );

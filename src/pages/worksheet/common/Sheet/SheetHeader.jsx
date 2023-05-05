@@ -112,19 +112,18 @@ function SheetHeader(props) {
   const { rows, count, permission, rowsSummary } = sheetViewData;
   const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetViewConfig;
 
-  useEffect(
-    () => {
-      if (advancedSetting.closedrafts !== '1') {
-        loadDraftDataCount({ appId, worksheetId });
-      }
-    },
-    [worksheetId],
-  );
+  useEffect(() => {
+    if (advancedSetting.closedrafts !== '1') {
+      loadDraftDataCount({ appId, worksheetId });
+    }
+  }, [worksheetId]);
 
   const batchOperateComp = (
     <BatchOperate
       type={type}
       isCharge={isCharge}
+      permissionType={_.get(appPkg, 'permissionType')}
+      isLock={_.get(appPkg, 'isLock')}
       appId={appId}
       worksheetId={worksheetId}
       viewId={viewId}
@@ -181,8 +180,7 @@ function SheetHeader(props) {
               <Tooltip
                 text={
                   <span>
-                    {_l('退出')}{' '}
-                    ({navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Ctrl + E'})
+                    {_l('退出')} ({navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Ctrl + E'})
                   </span>
                 }
                 popupPlacement="bottom"
@@ -200,8 +198,8 @@ function SheetHeader(props) {
               <Tooltip
                 text={
                   <span>
-                    {inFull ? _l('退出') : _l('展开')}{' '}
-                    ({navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Ctrl + E'})
+                    {inFull ? _l('退出') : _l('展开')} (
+                    {navigator.userAgent.toLocaleLowerCase().includes('mac os') ? '⌘ + E' : 'Ctrl + E'})
                   </span>
                 }
                 popupPlacement="bottom"
@@ -282,7 +280,9 @@ function SheetHeader(props) {
             setEditNameVisible={setEditNameVisible}
             updateWorksheetInfo={updateWorksheetInfo}
             reloadWorksheet={() => refreshSheet(view)}
-            deleteSheet={(data) => {
+            isLock={_.get(appPkg, 'isLock')}
+            permissionType={_.get(appPkg, 'permissionType')}
+            deleteSheet={data => {
               if (appPkg.currentPcNaviStyle === 1) {
                 const singleRef = getAppSectionRef(data.groupId);
                 singleRef.dispatch(deleteSheet(data));
@@ -344,6 +344,7 @@ function SheetHeader(props) {
                     className="mRight16 mTop1"
                     chartId={chartId}
                     isCharge={isCharge}
+                    appPkg={appPkg}
                     sheetSwitchPermit={sheetSwitchPermit}
                     appId={appId}
                     viewId={viewId}
@@ -445,6 +446,8 @@ function SheetHeader(props) {
             projectId={projectId}
             roleType={roleType}
             isCharge={isCharge}
+            isLock={_.get(appPkg, 'isLock')}
+            permissionType={_.get(appPkg, 'permissionType')}
             onClose={() => setStatisticsVisible(false)}
             sheetSwitchPermit={sheetSwitchPermit}
           />

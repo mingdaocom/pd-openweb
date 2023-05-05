@@ -6,7 +6,6 @@ const AssetsPlugin = require('assets-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const InjectPlugin = require('webpack-inject-plugin').default;
 const webpackConfig = require('./webpack.config');
-const { singleEntryList } = require('./webpack.common.config');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = function (entryType) {
@@ -25,7 +24,6 @@ module.exports = function (entryType) {
         'src/library/plupload/plupload.full.min',
       ],
       globals: ['src/common/global'],
-      ...singleEntryList,
     },
     optimization: {
       minimizer: [

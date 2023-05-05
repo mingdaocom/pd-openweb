@@ -47,7 +47,7 @@ export default function SearchParams(props) {
     const filterAllControls = (item.type === 27 ? allControls.filter(i => i.type === 27) : allControls).filter(
       i => i.controlId !== data.controlId,
     );
-    const isSearch = data.type === 50 && data.enumDefault === 2;
+    const isSearch = (data.type === 50 && data.enumDefault === 2) || data.type === 43;
     return (
       <div className={cx('childWrap', { isChild })}>
         <div className="controlLabel ellipsis">
@@ -62,7 +62,7 @@ export default function SearchParams(props) {
           {item.controlName}
         </div>
         <DynamicDefaultValue
-          from={2}
+          from={data.type === 43 ? 3 : 2} // 为了异化默认值其他字段配置
           {..._.pick(props, ['globalSheetInfo', 'titleControl'])}
           allControls={filterAllControls}
           data={{

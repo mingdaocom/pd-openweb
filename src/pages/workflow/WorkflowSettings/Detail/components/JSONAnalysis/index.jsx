@@ -4,7 +4,7 @@ import jp from 'jsonpath';
 import { CONTROLS_NAME } from '../../../enum';
 import _ from 'lodash';
 
-export default ({ list, showControlType = false, json }) => {
+export default ({ list, isIntegration = false, json }) => {
   const renderList = source => {
     return source.map((item, i) => {
       if (item.dataSource && _.find(list, o => o.controlId === item.dataSource).type === 10000007) {
@@ -15,9 +15,9 @@ export default ({ list, showControlType = false, json }) => {
         <Fragment>
           <li className="flexRow" key={i}>
             <div className={cx('w180 ellipsis', { pLeft20: item.dataSource })}>{item.controlName || ''}</div>
-            {showControlType && <div className="w120 ellipsis">{CONTROLS_NAME[item.type]}</div>}
-            <div className="mLeft15 flex ellipsis" style={{ minWidth: 0 }}>
-              {renderParameters(item)}
+            {isIntegration && <div className="w120 ellipsis">{CONTROLS_NAME[item.type]}</div>}
+            <div className={cx('mLeft15 flex', { ellipsis: !isIntegration })} style={{ minWidth: 0 }}>
+              {isIntegration ? item.desc : renderParameters(item)}
             </div>
           </li>
           {renderList(list.filter(o => o.dataSource === item.controlId))}

@@ -4,5 +4,7 @@ COPY ./docker/rewrite.setting /etc/nginx/
 COPY ./docker/portal.rewrite.setting /etc/nginx/
 COPY ./build/files/ /usr/share/nginx/html/
 COPY ./build/dist/ /usr/share/nginx/html/dist/
+RUN rm /usr/share/nginx/html/dist/single/manifest.json
+RUN rm /usr/share/nginx/html/dist/manifest.json
 
 EXPOSE 80

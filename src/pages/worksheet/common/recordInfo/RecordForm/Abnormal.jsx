@@ -13,7 +13,7 @@ export default function Abnormal(props) {
           } else if (resultCode === 1 && empty) {
             return _l('当前子表中的字段为空');
           } else {
-            return _l('%0已被删除或分享已关闭', entityName || _l('记录'));
+            return _l('%0无法查看', entityName || _l('记录'));
           }
         })()}
       </p>

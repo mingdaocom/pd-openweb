@@ -9,31 +9,7 @@ import DropDownItem from './DropDownItem';
 import _ from 'lodash';
 
 const allowConfigControlTypes = [
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  10,
-  11,
-  14,
-  15,
-  16,
-  19,
-  23,
-  24,
-  26,
-  27,
-  28,
-  29,
-  33,
-  36,
-  41,
-  46,
-  48,
+  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 33, 36, 41, 46, 48,
 ];
 const recordObj = {
   text: '记录ID',
@@ -472,15 +448,8 @@ export default class ConfigControl extends Component {
   beginImport = controlMappingFilter => {
     (async () => {
       const { isCharge } = this.props;
-      const {
-        tigger,
-        repeatConfig,
-        repeatRecord,
-        worksheetControls,
-        edited,
-        controlMapping,
-        relateSource,
-      } = this.state;
+      const { tigger, repeatConfig, repeatRecord, worksheetControls, edited, controlMapping, relateSource } =
+        this.state;
 
       // 判断是否有匹配字段未选择 或 已删除
       for (const relateMapping of controlMappingFilter) {
@@ -724,16 +693,8 @@ export default class ConfigControl extends Component {
    */
   renderFooter() {
     const { onPrevious, isCharge } = this.props;
-    const {
-      repeatRecord,
-      tigger,
-      repeatConfig,
-      fieldsList,
-      controlMapping,
-      edited,
-      errorSkip,
-      showErrorSkip,
-    } = this.state;
+    const { repeatRecord, tigger, repeatConfig, fieldsList, controlMapping, edited, errorSkip, showErrorSkip } =
+      this.state;
     const controlMappingFilter = controlMapping.filter(item => item.ColumnNum) || [];
     const skipSize = errorSkip.filter(item => item.value).length;
     const list = [

@@ -112,7 +112,7 @@ export default function QuickArrange({ widgets, setWidgets }) {
       <AnimationWrap>
         {ARRANGE_TYPE.map(item => (
           <div
-            className={cx('animaItem', { active: activeColumn === item.value })}
+            className={cx('animaItem overflow_ellipsis', { active: activeColumn === item.value })}
             onClick={() => quickArrange(item.value)}
           >
             {item.text}

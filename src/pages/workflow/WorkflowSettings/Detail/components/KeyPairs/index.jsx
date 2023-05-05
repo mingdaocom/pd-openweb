@@ -29,6 +29,14 @@ const SelectNodeBox = styled.div`
   top: 11px;
 `;
 
+const TextareaBox = styled(Textarea)`
+  padding-top: 9px !important;
+  padding-bottom: 9px !important;
+  &:not(:hover):not(:focus) {
+    border-color: #ddd !important;
+  }
+`;
+
 export default ({
   processId = '',
   selectNodeId = '',
@@ -229,11 +237,10 @@ export default ({
 
             <div className={cx('flex mRight8 relative', { hasNodeList: flowNodeList.length })} style={{ minWidth: 0 }}>
               {pairsOnlyText ? (
-                <Textarea
-                  className="mTop10"
+                <TextareaBox
+                  className="mTop10 ThemeBorderColor3"
                   maxHeight={250}
                   minHeight={0}
-                  style={{ paddingTop: 6, paddingBottom: 6 }}
                   placeholder={pairsPlaceholder}
                   value={item.value}
                   onChange={value => {

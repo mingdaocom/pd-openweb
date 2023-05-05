@@ -24,7 +24,7 @@ const ButtonDisplayWrap = styled.div`
 
 const BtnWrap = styled.div`
   margin: 4px 0;
-  padding: 0 18px;
+  padding: 0 8px;
   cursor: pointer;
   transition: border 0.25s;
   border: 1px solid transparent;
@@ -122,8 +122,8 @@ export default function ButtonDisplay({
             <div className={cx('chunkListWrap', { center: isMobile ? false : !isFullWidth })} key={index}>
               {list.map((item, i) => {
                 const { icon, color, name, config } = item;
-                const defaultConfig = btnType === 2 ? { iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` } : {};
-                const { iconUrl } = config || defaultConfig;
+                const defaultIconUrl = btnType === 2 ? `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` : null;
+                const iconUrl = _.get(config, 'iconUrl') || defaultIconUrl;
                 return (
                   <BtnWrap
                     key={i}

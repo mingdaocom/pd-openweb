@@ -347,7 +347,7 @@ export const buildMyTaskIcon = (type, isBatch) => {
   if (isBatch) {
     return '<span class="myTaskIcon myTaskTip" data-tip="' + tip + '"><i class="icon-task-soon"></i></span>';
   }
-  return '<span class="myTaskIcon ' + className + iconName + ' myTaskTip" tip="' + tip + '"></span>';
+  return '<span class="myTaskIcon ' + className + iconName + ' myTaskTip" data-tip="' + tip + '"></span>';
 };
 
 // 修改任务状态为未完成时出现弹层

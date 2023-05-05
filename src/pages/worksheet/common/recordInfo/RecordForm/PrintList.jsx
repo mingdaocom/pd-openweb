@@ -123,7 +123,7 @@ export default class PrintList extends Component {
             this.menuPrint();
           }}
         >
-          <span className="mLeft15">{_l('打印')}</span>
+          <span className="mLeft15">{_l('打印%02002')}</span>
         </MenuItemWrap>
       ) : (
         ''
@@ -241,7 +241,7 @@ export default class PrintList extends Component {
             icon={<Icon icon="print" className="Font17 mLeft5" />}
           >
             <span className="mLeft15">
-              {tempList.filter(o => o.type !== 0).length > 0 ? _l('打印/导出') : _l('打印')}
+              {tempList.filter(o => o.type !== 0).length > 0 ? _l('打印/导出') : _l('打印%02002')}
             </span>
             <Icon icon="arrow-right-tip" style={{ left: 'auto', right: 15 }} className="Font14 mLeft5" />
           </MenuItemWrap>

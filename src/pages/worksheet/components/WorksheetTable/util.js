@@ -260,7 +260,7 @@ export function columnWidthFactory({
     averageWidth = (width - _.sum(widths)) / (visibleColumns.length - widths.length);
   }
   return (index, noAverage) => {
-    const control = visibleColumns[index];
+    const control = visibleColumns[index] || {};
     return control.width || sheetColumnWidths[control.controlId] || (!noAverage && averageWidth) || 200;
   };
 }

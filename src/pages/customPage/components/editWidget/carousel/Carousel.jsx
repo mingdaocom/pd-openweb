@@ -152,7 +152,7 @@ function Explain(props) {
   return (
     <div
       className="explain White"
-      onClick={(e) => {
+      onClick={e => {
         const { target } = e;
         if (target.classList.contains('explain') || target.classList.contains('content')) {
           onClick();
@@ -184,40 +184,38 @@ export default function CarouselPreview(props) {
 
   const { worksheetId, viewId, image, count, title, subTitle, url } = componentConfig;
 
-  useEffect(
-    () => {
-      if (worksheetId && viewId && image) {
-        homeAppApi
-          .getAttachementImages({
-            workSheetId: worksheetId,
-            viewId,
-            attachementControlId: image,
-            imageLimitCount: count,
-            filedIds: [title, subTitle, url].filter(_ => _),
-          })
-          .then(data => {
-            const { code, imageData = [], rowData = [], controls = [] } = data;
-            setImageData(
-              imageData.map(data => {
-                return {
-                  ...JSON.parse(data.image),
-                  rowId: data.rowId,
-                };
-              }),
-            );
-            setRowData(rowData.map(data => JSON.parse(data)));
-            setControls(controls);
-            setCode(code);
-            setLoading(false);
-          });
-      } else {
-        setImageData([]);
-        setRowData([]);
-        setLoading(false);
-      }
-    },
-    [worksheetId, viewId, image, title, subTitle, url],
-  );
+  useEffect(() => {
+    if (worksheetId && viewId && image) {
+      homeAppApi
+        .getAttachementImages({
+          workSheetId: worksheetId,
+          viewId,
+          attachementControlId: image,
+          imageLimitCount: count,
+          filedIds: [title, subTitle, url].filter(_ => _),
+          displayMode: config.displayMode,
+        })
+        .then(data => {
+          const { code, imageData = [], rowData = [], controls = [] } = data;
+          setImageData(
+            imageData.map(data => {
+              return {
+                ...JSON.parse(data.image),
+                rowId: data.rowId,
+              };
+            }),
+          );
+          setRowData(rowData.map(data => JSON.parse(data)));
+          setControls(controls);
+          setCode(code);
+          setLoading(false);
+        });
+    } else {
+      setImageData([]);
+      setRowData([]);
+      setLoading(false);
+    }
+  }, [worksheetId, viewId, image, title, subTitle, url, config.displayMode]);
 
   const style = {
     position: 'relative',
@@ -312,7 +310,7 @@ export default function CarouselPreview(props) {
           <div
             onClick={() => handleTriggerAction(record)}
             className={cx('image pointer', { fill: config.fill === 1, full: config.fill === 2 })}
-            style={{ backgroundImage: `url(${data.viewUrl})` }}
+            style={{ backgroundImage: `url(${data.viewUrl}|imageView2/1/q/100)` }}
           />
           <div className="mask" />
           {(record[title] || record[subTitle]) && (
@@ -331,7 +329,7 @@ export default function CarouselPreview(props) {
     return (
       <Fragment>
         <CarouselComponent
-          autoplay={previewRecord.rowId ? false : true}
+          autoplay={previewRecord.rowId ? false : config.autoplaySpeed!==false}
           arrows={true}
           prevArrow={
             <div>

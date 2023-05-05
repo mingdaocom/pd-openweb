@@ -9,13 +9,21 @@ export default class QiniuUpload extends React.Component {
     bucket: PropTypes.number,
     options: PropTypes.shape({}),
     children: PropTypes.element,
+    onInit: PropTypes.func,
     onAdd: PropTypes.func,
     onUploaded: PropTypes.func,
     onError: PropTypes.func,
   };
 
   componentDidMount() {
-    const { options, onAdd = () => {}, onUploaded = () => {}, onError = () => {}, bucket } = this.props;
+    const {
+      options,
+      onInit = () => {},
+      onAdd = () => {},
+      onUploaded = () => {},
+      onError = () => {},
+      bucket,
+    } = this.props;
 
     if (this.upload) {
       this.uploader = createUploader(
@@ -62,6 +70,7 @@ export default class QiniuUpload extends React.Component {
               Error: (...args) => {
                 onError(...args);
               },
+              Init: onInit,
             },
           },
           options,

@@ -5,13 +5,14 @@ import { useSetState } from 'react-use';
 import _ from 'lodash';
 
 // 获取表信息
-export const useSheetInfo = ({ worksheetId, ...rest }) => {
+export const useSheetInfo = ({ worksheetId, saveIndex = 0, ...rest }) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useSetState({});
   useEffect(() => {
     if (!worksheetId || loading) return;
     setLoading(true);
-    worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true, getViews: true, ...rest })
+    worksheetAjax
+      .getWorksheetInfo({ worksheetId, getTemplate: true, getViews: true, ...rest })
       .then(res => {
         const { views, template } = res;
         setData({
@@ -24,7 +25,7 @@ export const useSheetInfo = ({ worksheetId, ...rest }) => {
       .always(() => {
         setLoading(false);
       });
-  }, [worksheetId]);
+  }, [worksheetId, saveIndex]);
   return { loading, data };
 };
 

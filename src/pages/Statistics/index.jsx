@@ -213,7 +213,7 @@ export default class Statistics extends Component {
   }
   renderHeader() {
     const { ownerId, showSelf, showPublic } = this.state;
-    const { isFullScreen, roleType } = this.props;
+    const { isFullScreen, roleType, isCharge } = this.props;
     return (
       <div className="StatisticsPanel-header">
         <div className="title">{!showPublic ? _l('个人统计') : !showSelf ? _l('公共统计') : _l('统计')}</div>
@@ -238,7 +238,7 @@ export default class Statistics extends Component {
           </div>
         )}
         <div className="flexRow btns">
-          {(roleType === 1 || roleType === 2 || ownerId) && (
+          {(isCharge || ownerId) && (
             <Tooltip title={ownerId ? _l('新建个人图表') : _l('新建公共图表')} placement="bottom">
               <Icon
                 onClick={() => {

@@ -186,8 +186,16 @@ export default class Widgets extends Component {
           onDropdownVisibleChange={open => {
             this.setState({ keywords: '', isFocus: open });
             !open && this.select.blur();
+            if (open && checkIds.indexOf('isEmpty') > -1) {
+              onChange(JSON.stringify([]));
+            }
           }}
           onChange={value => {
+            if (value.indexOf('isEmpty') > -1) {
+              onChange(JSON.stringify(['isEmpty']));
+              this.select.blur();
+              return;
+            }
             onChange(JSON.stringify(value));
             this.setState({ keywords: '' });
           }}
@@ -201,7 +209,7 @@ export default class Widgets extends Component {
 
           {noDelOptions.map((item, i) => {
             return (
-              <Select.Option value={item.key} key={i}>
+              <Select.Option value={item.key} key={i} className={cx({ isEmpty: item.key === 'isEmpty' })}>
                 {this.renderList(item, true)}
               </Select.Option>
             );
@@ -235,7 +243,7 @@ export default class Widgets extends Component {
         key={value}
         className={cx(
           'mTop5 mBottom5 mRight5',
-          { White: enumDefault2 === 1 && !isLightColor(currentItem.color) },
+          { White: enumDefault2 === 1 && !isLightColor(currentItem.color), isEmpty: value === 'isEmpty' },
           enumDefault2 === 1 || isFocus ? 'customAntDropdownTitleWithBG' : 'customAntDropdownTitle',
         )}
         style={{ background: enumDefault2 === 1 ? currentItem.color : isFocus ? '#eaeaea' : '' }}

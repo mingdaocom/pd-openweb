@@ -442,6 +442,11 @@ class PublicConfig extends React.Component {
               onChange={value => this.handleChange('extendSourceId', value === 'clear' ? '' : value)}
             />
             <H3>{_l('生成地址')}</H3>
+            <Tip75 className="mBottom10">
+              {_l(
+                '可以在下方输入生成带扩展值的链接。或自己拼接扩展值，拼接方法https://......?source=微博。https://...为公开表单链接，微博为设置的扩展值',
+              )}
+            </Tip75>
             <input
               className="ming Input"
               id="publicConfig_extendInput"

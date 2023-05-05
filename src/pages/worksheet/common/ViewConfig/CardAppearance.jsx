@@ -6,13 +6,15 @@ import { getAdvanceSetting } from 'src/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
 import { hierarchyViewCanSelectFields } from 'src/pages/worksheet/views/HierarchyView/util';
-import { COVER_DISPLAY_MODE, updateViewAdvancedSetting, ViewSettingWrap } from './util';
+import { updateViewAdvancedSetting, ViewSettingWrap } from './util';
 import Abstract from './components/Abstract';
 import CoverSetting from './components/CoverSettingCon';
 import DisplayControl from './components/DisplayControl';
 import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
 import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 import _ from 'lodash';
+import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
+
 const DisplayControlOption = styled(FlexCenter)`
   .icon {
     font-size: 16px;
@@ -82,6 +84,7 @@ export default class CardAppearance extends Component {
     this.state = {
       relateControls: [],
       emptyname: '',
+      showChangeName: false,
     };
   }
 
@@ -104,6 +107,7 @@ export default class CardAppearance extends Component {
   }
 
   render() {
+    const { showChangeName } = this.state;
     const { worksheetControls, currentSheetInfo, updateCurrentView, view, appId, columns } = this.props;
     const allCanSelectFieldsInBoardControls = filterAndFormatterControls({
       controls: worksheetControls,
@@ -155,23 +159,6 @@ export default class CardAppearance extends Component {
           <Fragment>
             <div className="title withSwitchConfig" style={{ marginTop: '0px', height: '24px' }}>
               {isHierarchyView ? _l('关联本表字段') : _l('分组字段')}
-              {/* {isBoardView && isShowDisplayConfig() && (
-                <div className="configSwitch">
-                  <div className="switchText InlineBlock Normal Gray_9e">{_l('隐藏无数据看板')}</div>
-                  <Icon
-                    icon={hidenone === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                    className="Font24 Hand"
-                    onClick={() => {
-                      updateCurrentView({
-                        ...view,
-                        appId,
-                        advancedSetting: updateViewAdvancedSetting(view, { hidenone: hidenone === '1' ? '0' : '1' }),
-                        editAttrs: ['advancedSetting'],
-                      });
-                    }}
-                  />
-                </div>
-              )} */}
             </div>
             <div className="settingContent">
               <Dropdown
@@ -233,6 +220,7 @@ export default class CardAppearance extends Component {
                       editAttrs: ['advancedSetting'],
                     });
                   }}
+                  advancedSetting={advancedSetting}
                   navfilters={navfilters}
                   filterInfo={{
                     relateControls: worksheetControls,
@@ -244,7 +232,7 @@ export default class CardAppearance extends Component {
                       'projectId',
                       'roleType',
                       'worksheetId',
-                      'switches'
+                      'switches',
                     ]),
                     columns,
                     viewControl,
@@ -254,61 +242,51 @@ export default class CardAppearance extends Component {
             )}
             {isBoardView && (
               <WrapBoard>
-                <SwitchStyle>
-                  <Icon
-                    icon={navempty === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                    className="Font30 Hand"
-                    onClick={() => {
-                      updateCurrentView({
-                        ...view,
-                        appId,
-                        advancedSetting: updateViewAdvancedSetting(view, { navempty: navempty === '0' ? '1' : '0' }),
-                        editAttrs: ['advancedSetting'],
-                      });
-                    }}
-                  />
-                  <div className="switchText InlineBlock Normal mLeft12 mTop8">
-                    {_l('启用“未指定”看板')}
-                    <Tooltip
-                      text={
-                        <span>
-                          {_l(
-                            '开启后，第1个看板显示“未指定”。将所有未设置分组的记录显示在“未指定”看板中。当没有未分组数据时，自动隐藏此看板',
-                          )}
-                        </span>
-                      }
-                      popupPlacement="top"
-                    >
-                      <i className="icon-help Font16 Gray_9e mLeft3 TxtMiddle" />
+                <div className="flexRow alignItemsCenter">
+                  <div className="flex">
+                    <SwitchStyle>
+                      <Icon
+                        icon={navempty === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
+                        className="Font30 Hand"
+                        onClick={() => {
+                          updateCurrentView({
+                            ...view,
+                            appId,
+                            advancedSetting: updateViewAdvancedSetting(view, {
+                              navempty: navempty === '0' ? '1' : '0',
+                            }),
+                            editAttrs: ['advancedSetting'],
+                          });
+                        }}
+                      />
+                      <div className="switchText InlineBlock Normal mLeft12 mTop8">
+                        {_l('启用“未指定”看板')}
+                        <Tooltip
+                          text={
+                            <span>
+                              {_l(
+                                '开启后，第1个看板显示“未指定”。将所有未设置分组的记录显示在“未指定”看板中。当没有未分组数据时，自动隐藏此看板',
+                              )}
+                            </span>
+                          }
+                          popupPlacement="top"
+                        >
+                          <i className="icon-help Font16 Gray_9e mLeft3 TxtMiddle" />
+                        </Tooltip>
+                      </div>
+                    </SwitchStyle>
+                  </div>
+                  {navempty === '1' && (
+                    <Tooltip text={<span>{_l('重命名')}</span>} popupPlacement="top">
+                      <i
+                        className="icon-rename_input Font18 Gray_9e mLeft3 TxtMiddle Hand pRight5"
+                        onClick={() => {
+                          this.setState({ showChangeName: true });
+                        }}
+                      />
                     </Tooltip>
-                  </div>
-                </SwitchStyle>
-
-                {navempty === '1' && (
-                  <div className="inputCon mTop6 flexRow alignItemsCenter">
-                    <span className="name Gray_9e">{_l('看板名称')}</span>
-                    <input
-                      type="text"
-                      className="flex"
-                      placeholder={_l('未指定')}
-                      value={this.state.emptyname}
-                      onChange={e => {
-                        this.setState({
-                          emptyname: e.target.value,
-                        });
-                      }}
-                      onBlur={e => {
-                        updateCurrentView({
-                          ...view,
-                          appId,
-                          advancedSetting: updateViewAdvancedSetting(view, { emptyname: e.target.value.trim() }),
-                          editAttrs: ['advancedSetting'],
-                        });
-                      }}
-                    />
-                  </div>
-                )}
-
+                  )}
+                </div>
                 <div className="mTop10" />
                 <SwitchStyle>
                   <Icon
@@ -413,6 +391,23 @@ export default class CardAppearance extends Component {
             });
           }}
         />
+        {showChangeName && (
+          <ChangeName
+            onChange={value => {
+              updateCurrentView({
+                ...view,
+                appId,
+                advancedSetting: updateViewAdvancedSetting(view, { emptyname: value.trim() }),
+                editAttrs: ['advancedSetting'],
+              });
+              this.setState({ showChangeName: false });
+            }}
+            name={advancedSetting.emptyname}
+            onCancel={() => {
+              this.setState({ showChangeName: false });
+            }}
+          />
+        )}
       </ViewSettingWrap>
     );
   }
