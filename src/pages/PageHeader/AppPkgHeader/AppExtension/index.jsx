@@ -5,7 +5,7 @@ import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
 export default ({ appId, permissionType, isLock }) => (
   <div className="appExtensionWrap">
     {!window.isPublicApp && canEditApp(permissionType, isLock) && (
-      <MdLink to={`/app/${appId}/workflow/${isLock}`}>
+      <MdLink to={`/app/${appId}/workflow`}>
         <VCenterIconText
           className="appExtensionItem"
           icon={'workflow'}

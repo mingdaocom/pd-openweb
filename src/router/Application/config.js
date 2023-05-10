@@ -4,7 +4,7 @@ export default addSubPathOfRoutes(
   {
     // 工作流
     workflow: {
-      path: '/app/:appId/workflow/:isLock?',
+      path: '/app/:appId/workflow',
       component: () => import('pages/workflow/WorkflowList/AppWorkflowList'),
       sensitive: true,
     },

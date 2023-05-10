@@ -158,10 +158,10 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
         return url;
       };
       const url = getUrl();
-      if (openMode === 2) {
-        window.open(url);
-      } else if (isMingdao) {
+      if (isMingdao) {
         window.location.href = url;
+      } else if (openMode === 2) {
+        window.open(url);
       } else {
         navigateTo(url);
       }
