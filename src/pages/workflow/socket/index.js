@@ -57,7 +57,7 @@ export default () => {
         getWorksheetInfo(worksheetId).then(appId => {
           if (appId) {
             if (openMode === 2) {
-              window.open(`/app/${appId}/${worksheetId}/${viewId || 'undefined'}/row/${rowId}`);
+              window.open(`${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId || 'undefined'}/row/${rowId}`);
             } else {
               openRecordInfo({
                 appId: appId,
@@ -73,7 +73,7 @@ export default () => {
       if (_.includes([PUSH_TYPE.VIEW, PUSH_TYPE.PAGE], pushType)) {
         getAppSimpleInfo(worksheetId).then(({ appId, appSectionId }) => {
           if (appId && appSectionId) {
-            const url = `/app/${appId}/${appSectionId}/${worksheetId}/${viewId}`;
+            const url = `${window.subPath || ''}/app/${appId}/${appSectionId}/${worksheetId}/${viewId}`;
 
             if (openMode === 1) {
               location.href = url;

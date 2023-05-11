@@ -252,17 +252,26 @@ const GroupFilter = props => {
     setDrawerVisible(true);
     setCurrentGroup(item);
     let obj = _.omit(navGroup, ['isAsc']);
+    let filterType = 2; //选项的选中
+    if ([29, 35].includes(soucre.type)) {
+      if (soucre.type === 29 && !navGroup.viewId) {
+        //未选择了层级视图 按是筛选
+        filterType = 24;
+      } else {
+        filterType = navGroup.filterType === 11 ? navGroup.filterType : 24; //筛选方式 24是 | 11包含 老数据是0 按照24走
+      }
+    }
+    if (item.value === 'null') {
+      //为空
+      filterType = FILTER_CONDITION_TYPE.ISNULL;
+    }
+
     let navGroupFilters = [
       {
         ...obj,
         values: item.value === 'null' ? [] : [item.value],
         dataType: soucre.type,
-        filterType:
-          item.value === 'null'
-            ? FILTER_CONDITION_TYPE.ISNULL
-            : soucre.type === 29 || soucre.type === 35
-            ? FILTER_CONDITION_TYPE.RCEQ
-            : FILTER_CONDITION_TYPE.EQ,
+        filterType,
         navNames: [item.txt],
       },
     ];

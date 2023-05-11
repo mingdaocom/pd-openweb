@@ -19,9 +19,10 @@ export default class MobileSearch extends Component {
     }
   }
   render() {
-    const { enumDefault, controlName, value, loading, optionData, advancedSetting = {}, disabled, hint } = this.props;
+    const { enumDefault, controlName, value, loading, advancedSetting = {}, disabled, hint } = this.props;
     const { keywords, currentChecked = '', visible, mobileSearchResult = [] } = this.state;
     const { itemtitle = '', clicksearch, searchfirst, min = '0' } = advancedSetting;
+    let optionData = (this.props.optionData || []).map((it, index) => ({ ...it, index }));
     let mobileOptionData = keywords && enumDefault === 1 ? mobileSearchResult : optionData;
     if (disabled) {
       return <div className="customFormControlBox customFormButton flexRow controlDisabled">{value}</div>;
@@ -144,7 +145,11 @@ export default class MobileSearch extends Component {
                         onClick={() => {
                           this.setState({ visible: false, currentChecked: item[itemtitle] });
                           this.props.onChange(item[itemtitle]);
-                          this.props.handleSelect({ key: String(i), value: item[itemtitle], label: item[itemtitle] });
+                          this.props.handleSelect({
+                            key: String(item.index),
+                            value: item[itemtitle],
+                            label: item[itemtitle],
+                          });
                         }}
                       >
                         <Radio checked={item[itemtitle] === currentChecked} />

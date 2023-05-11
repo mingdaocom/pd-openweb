@@ -25,24 +25,28 @@ export default props => {
       }
       if (pushType === PUSH_TYPE.CREATE) {
         getAppSimpleInfo(worksheetId).then(({ appId }) => {
-          location.href = `/mobile/addRecord/${appId}/${worksheetId}/${viewId ? viewId : props.viewId}`;
+          location.href = `${window.subPath || ''}/mobile/addRecord/${appId}/${worksheetId}/${
+            viewId ? viewId : props.viewId
+          }`;
         });
       }
       if (pushType === PUSH_TYPE.DETAIL) {
         getAppSimpleInfo(worksheetId).then(({ appId }) => {
           if (viewId) {
-            location.href = `/mobile/record/${appId}/${worksheetId}${viewId ? `/${viewId}` : ''}/${rowId}`;
+            location.href = `${window.subPath || ''}/mobile/record/${appId}/${worksheetId}${
+              viewId ? `/${viewId}` : ''
+            }/${rowId}`;
           }
         });
       }
       if (pushType === PUSH_TYPE.VIEW) {
         getAppSimpleInfo(worksheetId).then(({ appId, appSectionId }) => {
-          location.href = `/mobile/recordList/${appId}/${appSectionId}/${worksheetId}/${viewId}`;
+          location.href = `${window.subPath || ''}/mobile/recordList/${appId}/${appSectionId}/${worksheetId}/${viewId}`;
         });
       }
       if (pushType === PUSH_TYPE.PAGE) {
         getAppSimpleInfo(worksheetId).then(({ appId, appSectionId }) => {
-          location.href = `/mobile/customPage/${appId}/${appSectionId}/${worksheetId}`;
+          location.href = `${window.subPath || ''}/mobile/customPage/${appId}/${appSectionId}/${worksheetId}`;
         });
       }
       if (pushType === PUSH_TYPE.LINK) {

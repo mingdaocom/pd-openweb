@@ -180,7 +180,7 @@ export class LeftCommonUserHandle extends Component {
         {_.includes([1, 5], appStatus) && !md.global.Account.isPortal && (
           <Fragment>
             {!window.isPublicApp && canEditApp(permissionType, isLock) && (
-              <MdLink data-tip={_l('工作流')} className="tip-top" to={`/app/${id}/workflow/${isLock}`}>
+              <MdLink data-tip={_l('工作流')} className="tip-top" to={`/app/${id}/workflow`}>
                 <Icon icon="workflow" className="Font20 headerColorSwitch" />
               </MdLink>
             )}
