@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { getAppFeaturesPath } from 'src/util';
 import reportApi from 'statistics/api/report';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import homeAppApi from 'src/api/homeApp';
 import './index.less';
 import _ from 'lodash';
 
@@ -42,11 +43,15 @@ function Chart({ data, mobileCount }) {
       reportId: data.reportId
     }).then(result => {
       if (result.id) {
-        const url = `/worksheet/${data.appId}/view/${filter.viewId}?chartId=${result.id}&${getAppFeaturesPath()}`;
-        if (isMingdao || isWeixin || isSafari) {
+        const workSheetId = data.appId;
+        if (isMingdao) {
+          const url = `/worksheet/${workSheetId}/view/${filter.viewId}?chartId=${result.id}&${getAppFeaturesPath()}`;
           window.location.href = url;
         } else {
-          window.open(url);
+          homeAppApi.getAppSimpleInfo({ workSheetId }).then(data => {
+            const url = `/mobile/recordList/${data.appId}/${data.appSectionId}/${workSheetId}/${filter.viewId}?chartId=${result.id}`;
+            window.mobileNavigateTo(url);
+          });
         }
       }
     });

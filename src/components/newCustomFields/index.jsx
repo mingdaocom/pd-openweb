@@ -129,6 +129,19 @@ export default class CustomFields extends Component {
         },
       });
     }
+    // 关联多条列表变更，重新更新业务规则错误提示
+    if (
+      _.differenceBy(
+        this.state.renderData.filter(i => isRelateRecordTableControl(i)),
+        (nextState.renderData || []).filter(n => isRelateRecordTableControl(n)),
+        'value',
+      ).length &&
+      this.dataFormat
+    ) {
+      this.setState({
+        errorItems: this.dataFormat.getErrorControls(),
+      });
+    }
     if (this.props.worksheetId !== nextProps.worksheetId) {
       this.getRules(nextProps);
     }

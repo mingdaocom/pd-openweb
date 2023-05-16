@@ -452,13 +452,13 @@ export default class WorkflowMonitor extends Component {
               </div>
               <div className="cloumnItem columnWidth170 textalignR pRight25">{formatter(difference)}</div>
               {md.global.Config.IsLocal && (
-                <div className="cloumnItem columnWidth170 textalignR pRight25">
+                <div className="cloumnItem columnWidth170 textalignR pRight20">
                   <span
                     className="dot"
-                    style={!routerIndex ? {} : { background: routerIndex === -1 ? '#2196F3' : '#FFC37C' }}
+                    style={_.isUndefined(routerIndex) ? {} : { background: routerIndex === -1 ? '#2196F3' : '#FFC37C' }}
                   ></span>
                   <span className="mLeft5">{routerName || ''}</span>
-                  {routerIndex && Object.keys(routerList).length > 1 ? (
+                  {!_.isUndefined(routerIndex) && Object.keys(routerList).length > 1 ? (
                     <div
                       className="flexColumn manageListOrder Right mLeft6"
                       onClick={() => {
@@ -710,29 +710,31 @@ export default class WorkflowMonitor extends Component {
     const { routerList = {}, checkedIds } = this.state;
     const isSingle = typeof item === 'object';
     let params = {};
+    const temp = Object.keys(routerList)
+      .map(t => Number(t))
+      .filter(v => v !== item.routerIndex);
+    const routerIndex = isSingle ? (temp.length ? Number(temp[0]) : item.routerIndex) : Number(item);
     if (isSingle) {
-      const temp = Object.keys(routerList)
-        .map(t => Number(t))
-        .filter(v => v !== item.routerIndex);
       params = {
         hours: item.hours,
         processIds: [item.id],
-        routerIndex: temp.length ? Number(temp[0]) : item.routerIndex,
+        routerIndex,
         waiting: item.waiting,
       };
     } else {
       params = {
         processIds: this.state.checkedIds,
-        routerIndex: Number(item),
+        routerIndex,
       };
     }
     flowMonitor.updateRouterIndex(params).then(res => {
       if (res) {
         let copyDetailList = this.state.detailList.map((it, i) => {
-          if ((isSingle && item.id === it.id) || (!isSingle && _.includes(checkedIds, item.id))) {
+          if ((isSingle && item.id === it.id) || (!isSingle && _.includes(checkedIds, it.id))) {
             return {
               ...it,
-              routerList: temp.length ? temp[0] : item.routerIndex,
+              routerIndex,
+              routerName: routerList[routerIndex],
             };
           } else {
             return it;

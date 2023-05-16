@@ -977,7 +977,7 @@ export function fillConditionValue({ condition, formData, relateControl }) {
       if (!selectedOption) {
         condition.values = [];
       } else {
-        const matchedOptions = filterControl.options.filter(option => option.value === selectedOption.value);
+        const matchedOptions = filterControl.options.filter(option => option.key === selectedOption.key);
         if (matchedOptions.length) {
           condition.values = matchedOptions.map(option => option.key);
         } else {

@@ -175,12 +175,17 @@ export class UploadFileWrapper extends Component {
         const isFeishu = ua.includes('feishu');
         const equipment = type === 3 ? 'microphone' : type === 4 ? 'camcorder' : 'camera';
         if (ele) {
-          if (isAndroid && isMiniprogram) {
-            ele.removeAttribute('multiple');
+          if (isAndroid) {
+            if (isMiniprogram) {
+              ele.removeAttribute('multiple');
+            }
+            if (isFeishu) return;
             if (disabledGallery) {
               ele.setAttribute('accept', accept[inputType]);
               ele.setAttribute('capture', 'camera');
-            } else if (type || inputType) {
+            } else if (type) {
+              ele.setAttribute('accept', fileTypeObj[type]);
+            } else if (inputType) {
               ele.setAttribute('accept', accept[inputType]);
               ele.setAttribute('capture', equipment);
             } else {
@@ -193,7 +198,7 @@ export class UploadFileWrapper extends Component {
             ele.setAttribute('capture', 'camera');
           } else if (type) {
             ele.setAttribute('accept', fileTypeObj[type]);
-          } else if (!(isFeishu && isAndroid)) {
+          } else {
             ele.setAttribute('accept', accept[inputType]);
           }
         }
