@@ -37,25 +37,6 @@ const WrapEdit = styled.div`
   right: 0;
   z-index: 10;
 `;
-
-const initData = {
-  '070b9e3fd75544eb92e06b4f4687a198': {
-    nodeId: '070b9e3fd75544eb92e06b4f4687a198',
-    nodeType: 'SOURCE_TABLE',
-    name: '读取数据源',
-    nextIds: ['070b9e3fd75544eb92e06b4f4687a199'],
-    prevIds: [],
-    config: {},
-  },
-  '070b9e3fd75544eb92e06b4f4687a199': {
-    nodeId: '070b9e3fd75544eb92e06b4f4687a199',
-    nodeType: 'DEST_TABLE',
-    name: '写入数据目的地',
-    nextIds: [],
-    prevIds: [],
-    config: {},
-  },
-};
 class TaskCanvas extends Component {
   constructor(props) {
     super(props);
@@ -91,6 +72,14 @@ class TaskCanvas extends Component {
         currentId: nextProps.curId,
       });
     }
+    if (!_.isEqual(nextProps.flowData.flowNodes, this.props.flowData.flowNodes)) {
+      const { flowData = {} } = nextProps;
+      const { flowNodes, firstNodeId } = flowData;
+      this.setState({
+        flowNodes,
+        list: formatDataWithLine(formatTaskNodeData(_.values(flowNodes), firstNodeId)),
+      });
+    }
   }
 
   //删除节点
@@ -111,9 +100,8 @@ class TaskCanvas extends Component {
     const { firstNodeId, flowNodes } = this.state;
     const { toAdd = [], toUpdate = [], toDeleteIds = [] } = data;
     let a = _.cloneDeep(formatTaskNodeData(_.values(flowNodes), firstNodeId));
-    const updateIds = toUpdate.map(o => o.nodeId);
+    const updateIds = (toUpdate || []).map(o => o.nodeId);
     a = a.filter(o => ![...updateIds, ...toDeleteIds].includes(o.nodeId)).concat([...toAdd, ...toUpdate]);
-    console.log(a);
     let map = {};
     a.forEach(row => {
       map[row.nodeId] = row;
@@ -122,14 +110,14 @@ class TaskCanvas extends Component {
     this.setState(
       {
         list: formatDataWithLine(formatTaskNodeData(a, firstNodeId)),
-        loading: true,
+        // loading: true,
         flowNodes: map,
       },
-      () => {
-        this.setState({
-          loading: false,
-        });
-      },
+      // () => {
+      //   this.setState({
+      //     loading: false,
+      //   });
+      // },
     );
   };
 
@@ -138,26 +126,22 @@ class TaskCanvas extends Component {
     const { currentProjectId: projectId, onUpdate } = this.props;
     const { flowId = '', list = [] } = this.state;
     const { nodeId, name, nodeType, nodeConfig } = node;
-    // TaskFlow.updateNode({
-    //   projectId,
-    //   flowId,
-    //   nodeId,
-    //   name,
-    //   nodeType,
-    //   // status: 'NORMAL',
-    //   // description: 'm52di3',
-    //   nodeConfig,
-    // }).then(res => {
-    //   this.onCompute(res);
-    // });
-    this.setState({
-      list: list.map(o => {
-        if (o.nodeId === node.nodeId) {
-          return node;
-        } else {
-          return o;
-        }
-      }),
+    TaskFlow.updateNode({
+      projectId,
+      flowId,
+      nodeId,
+      name,
+      nodeType,
+      // status: 'NORMAL',
+      // description: 'm52di3',
+      nodeConfig,
+    }).then(res => {
+      const { errorMsg, isSucceeded, toAdd, toDeleteIds, toUpdate } = res;
+      this.onCompute({
+        toUpdate: !!toUpdate ? toUpdate : [node],
+        toAdd: !!toAdd ? toAdd : [],
+        toDeleteIds: !!toDeleteIds ? toDeleteIds : [],
+      });
     });
   };
   genScreenshot = () => {
@@ -207,7 +191,6 @@ class TaskCanvas extends Component {
     if (loading) {
       return <LoadDiv />;
     }
-    console.log(this.state.list);
     return (
       <Wrap className="taskContainer Relative flex">
         <div
@@ -240,8 +223,12 @@ class TaskCanvas extends Component {
                     this.deleteNode(o.nodeId);
                   }}
                   onUpdate={node => {
-                    this.updateNode(node);
+                    this.updateNode({
+                      ...node,
+                      status: 'NORMAL',
+                    });
                   }}
+                  key={o.nodeId}
                   onAddNodes={data => {
                     this.onCompute(data);
                   }}
@@ -269,7 +256,10 @@ class TaskCanvas extends Component {
                     currentId: node.nodeId,
                   });
                 }
-                this.updateNode(node);
+                this.updateNode({
+                  ...node,
+                  status: 'NORMAL',
+                });
               }}
             />
           </WrapEdit>

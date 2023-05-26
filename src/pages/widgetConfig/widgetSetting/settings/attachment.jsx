@@ -57,7 +57,7 @@ const WATERMARK_TYPE = [
 export default function Attachment({ from, data, onChange }) {
   const { enumDefault, enumDefault2, strDefault, advancedSetting = {} } = data;
   const [disableAlbum, onlyAllowMobileInput] = (strDefault || '00').split('');
-  const { covertype = '0', showtype = '1' } = getAdvanceSetting(data);
+  const { covertype = '0', showtype = '1', webcompress = '1' } = getAdvanceSetting(data);
   const { type = '', values = [] } = JSON.parse(advancedSetting.filetype || '{}');
   const originWatermark = JSON.parse(advancedSetting.watermark || '[]');
   const [visible, setVisible] = useState(false);
@@ -76,7 +76,6 @@ export default function Attachment({ from, data, onChange }) {
       onChange({
         ...handleAdvancedSettingChange(data, {
           watermark: '',
-          compress: '0',
           getsave: '0',
           getinput: '0',
         }),
@@ -178,7 +177,8 @@ export default function Attachment({ from, data, onChange }) {
       </SettingItem>
       {from !== 'subList' && (_.includes(['1', '4'], type) || !type) && (
         <SettingItem className="settingItem withSplitLine">
-          <div className="settingItemTitle">{_l('限制移动端输入')}</div>
+          <div className="settingItemTitle">{_l('移动端设置')}</div>
+          <div className="settingItemTitle Normal mTop16">{_l('限制移动端输入')}</div>
           <div className="labelWrap">
             <Checkbox
               size="small"
@@ -253,7 +253,7 @@ export default function Attachment({ from, data, onChange }) {
                       }
                     }}
                   >
-                    <span style={{ marginRight: '4px' }}>{_l('为照片添加水印（仅APP支持）')}</span>
+                    <span style={{ marginRight: '4px' }}>{_l('为照片添加水印（仅手机App支持）')}</span>
                     <Tooltip
                       placement="bottom"
                       title={_l('添加水印设置只对App有效，勾选后 不支持在App拍摄照片时修改水印')}
@@ -271,36 +271,52 @@ export default function Attachment({ from, data, onChange }) {
                   )}
                 </div>
               </Fragment>
-              {enumDefault2 !== 2 && (
-                <div className="labelWrap labelBetween">
-                  <Checkbox
-                    size="small"
-                    checked={advancedSetting.compress === '1'}
-                    onClick={checked => {
-                      onChange({
-                        ...handleAdvancedSettingChange(data, {
-                          compress: checked ? '0' : '1',
-                        }),
-                      });
-                    }}
-                  >
-                    <span style={{ marginRight: '4px' }}>{_l('压缩照片')}</span>
-                    <Tooltip
-                      placement="bottom"
-                      title={
-                        <span className="WordBreak">
-                          {_l('压缩照片只对App有效，勾选后在App拍摄照片时不上传原图')}
-                        </span>
-                      }
-                    >
-                      <i className="icon-help Gray_9e Font16 Hand"></i>
-                    </Tooltip>
-                  </Checkbox>
-                </div>
-              )}
               <Components.SheetDealDataType data={data} onChange={onChange} />
             </SettingItem>
           )}
+          <div className="settingItemTitle Normal mBottom0 mTop16">{_l('自动压缩图片')}</div>
+          <div className="flexRow">
+            <div className="labelWrap flex">
+              <Checkbox
+                size="small"
+                checked={advancedSetting.compress === '1'}
+                onClick={checked => onChange(handleAdvancedSettingChange(data, { compress: checked ? '0' : '1' }))}
+              >
+                <span style={{ marginRight: '4px' }}>{_l('手机App')}</span>
+                <Tooltip
+                  placement="bottom"
+                  title={
+                    <span className="WordBreak">
+                      {_l('勾选后，将对图片压缩后再进行上传。未勾选时，用户可自行选择是否上传原图。')}
+                    </span>
+                  }
+                >
+                  <i className="icon-help Gray_9e Font16 Hand"></i>
+                </Tooltip>
+              </Checkbox>
+            </div>
+            <div className="labelWrap flex">
+              <Checkbox
+                size="small"
+                checked={webcompress === '1'}
+                onClick={checked => onChange(handleAdvancedSettingChange(data, { webcompress: checked ? '0' : '1' }))}
+              >
+                <span style={{ marginRight: '4px' }}>{_l('Web移动端（H5）')}</span>
+                <Tooltip
+                  placement="bottom"
+                  title={
+                    <span className="WordBreak">
+                      {_l(
+                        'Web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将始终按照原图上传。（此配置影响：原生H5、公开表单、外部门户，以及钉钉、企业微信等第三方平台的移动App）',
+                      )}
+                    </span>
+                  }
+                >
+                  <i className="icon-help Gray_9e Font16 Hand"></i>
+                </Tooltip>
+              </Checkbox>
+            </div>
+          </div>
         </SettingItem>
       )}
       <Dialog

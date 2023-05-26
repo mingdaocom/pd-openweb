@@ -1,81 +1,72 @@
-/* eslint-disable */
-/* eslint-disable */
-/* eslint-disable */
-/* eslint-disable */
 import PropTypes from 'prop-types';
-
 import React, { Component } from 'react';
-import classNames from 'classnames';
-import withChildren from 'ming-ui/decorators/withChildren';
-import formControl from 'ming-ui/decorators/formControl';
+import cx from 'classnames';
 import { default as Radio, SIZE_LIST } from './Radio';
 
 export { Radio, SIZE_LIST };
 
-@formControl
-@withChildren
+const formatData = (value, data) => {
+  if (value === null || value === undefined || value === '') {
+    return data;
+  } else {
+    return (data || []).map(item => {
+      item.checked = item.value === value;
+      return item;
+    });
+  }
+};
+
 class RadioGroup extends Component {
-  /* eslint-disable */
   static propTypes = {
     data: PropTypes.arrayOf(
       PropTypes.shape({
-        text: PropTypes.any, // Radio显示的名称
-        value: PropTypes.any, // 在回调中作为第二个参数返回
-        icon: PropTypes.any,
-      })
+        text: PropTypes.any, // Raio显示的名称
+        value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.object]),
+      }),
     ), // 数据
-    defaultCheckedValue: PropTypes.any, // 默认选中
-    checkedValue: PropTypes.any, // 传入checkedValue之后，将只根据checkId来判断选中
+    checked: PropTypes.string, // 选中
+    defaultCheckedValue: PropTypes.string, // 默认选中
+    checkedValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), // 传入checkedValue之后，将只根据checkId来判断选中
     onChange: PropTypes.func, // 回调， onClick(value)
     size: PropTypes.oneOf(SIZE_LIST), // 大小 默认default
     children: PropTypes.node, // 子元素
     disabled: PropTypes.bool, // 是否禁用
     name: PropTypes.string, // 表单item名字
-    $formDataChange: PropTypes.func, // 给withChildren用
     className: PropTypes.string,
-    /**
-     * 是否垂直排列，默认为false
-     */
-    vertical: PropTypes.bool,
-  };
-  /* eslint-enable */
-  static defaultProps = {
-    vertical: false,
-  };
-  static defaultProps = {
-    vertical: false,
+    vertical: PropTypes.bool, // 是否垂直展示
+    radioItemClassName: PropTypes.string,
   };
 
   constructor(props) {
     super(props);
-    const data = this.props.data || [];
+
     // const checkedValue = this.props.defaultCheckedValue || this.props.checkedValue || null;
     const checkedValue =
-      this.props.defaultCheckedValue !== undefined ? this.props.defaultCheckedValue : this.props.checkedValue !== undefined ? this.props.checkedValue : null;
+      this.props.defaultCheckedValue !== undefined
+        ? this.props.defaultCheckedValue
+        : this.props.checkedValue !== undefined
+        ? this.props.checkedValue
+        : null;
 
-    const list = data.map(item => {
-      item.checked = item.value === checkedValue;
-      return item;
-    });
     this.state = {
-      data: list,
+      data: formatData(checkedValue, this.props.data),
     };
-    this.props.$formDataChange(checkedValue);
   }
 
-  state = {
-    data: this.props.data,
-  };
+  componentDidMount() {
+    if (this.props.needDefaultUpdate && typeof this.props.checkedValue !== 'undefined') {
+      this.handleClick(this.props.checkedValue);
+    }
+  }
 
   componentWillReceiveProps(nextProps) {
     this.refreshId(nextProps.checkedValue, nextProps.data);
   }
 
   handleClick(value) {
-    const { onChange, checkedValue } = this.props;
+    const { onChange } = this.props;
 
     this.refreshId(value, this.state.data);
-    this.props.$formDataChange(value);
 
     if (onChange) {
       onChange(value);
@@ -83,20 +74,14 @@ class RadioGroup extends Component {
   }
 
   refreshId(value, data) {
-    data = data.map(item => {
-      item.checked = item.value === value;
-
-      return item;
-    });
-
     this.setState({
-      data,
+      data: formatData(value, data),
     });
   }
 
   render() {
-    const { className, vertical, style } = this.props;
-    const cls = classNames('ming RadioGroup', {
+    const { className, vertical, style, radioItemClassName } = this.props;
+    const cls = cx('ming RadioGroup', {
       [className]: !!className,
       'RadioGroup--vertical': vertical,
     });
@@ -105,6 +90,7 @@ class RadioGroup extends Component {
         {this.state.data.map((props, index) => (
           <Radio
             {...props}
+            className={radioItemClassName}
             onClick={(...arg) => this.handleClick(...arg)}
             key={index}
             size={this.props.size}

@@ -216,7 +216,7 @@ export default (props) => {
           <ProgressChart
             key={data.controlId}
             {...props}
-            color={color[index]}
+            color={color[index % color.length]}
             data={map[data.controlId] || {}}
             yAxis={data}
           />

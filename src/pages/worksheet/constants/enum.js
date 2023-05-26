@@ -246,7 +246,7 @@ export const SYSTEM_CONTROLS = [
   },
 ];
 
-export const CONTROL_EDITABLE_BLACKLIST = [22, 25, 30, 31, 32, 33, 34, 37, 42, 45, 47];
+export const CONTROL_EDITABLE_BLACKLIST = [22, 25, 30, 31, 32, 33, 34, 37, 38, 42, 45, 47];
 
 export const SHEET_VIEW_HIDDEN_TYPES = [
   10010, // REMARK 备注

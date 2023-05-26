@@ -1,11 +1,12 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
-import { getRequest } from 'src/util';
+import { getRequest, verifyPassword } from 'src/util';
 import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
 import { Modal, Progress, WingBlank } from 'antd-mobile';
 import { message } from 'antd';
 import { Icon } from 'ming-ui';
+import MobileVertifyPassword from 'src/ming-ui/components/VertifyPasswordMoibile';
 import FillRecordControls from 'src/pages/worksheet/common/recordInfo/FillRecordControls/MobileFillRecordControls';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { doubleConfirmFunc } from './DoubleConfirm';
@@ -68,7 +69,7 @@ class RecordAction extends Component {
       return;
     }
 
-    const needConform = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM || btn.verifyPwd;
+    const needConform = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM;
 
     const run = ({ remark } = {}) => {
       const trigger = btn => {
@@ -114,8 +115,28 @@ class RecordAction extends Component {
       }
     };
 
+    const verifyAndRun = () => {
+      if (btn.verifyPwd) {
+        verifyPassword({
+          checkNeedAuth: true,
+          closeImageValidation: true,
+          success: run,
+          fail: () => {
+            MobileVertifyPassword.confirm({
+              title: _l('安全认证'),
+              inputName: _l('登录密码验证'),
+              passwordPlaceHolder: _l('输入当前用户（%0）的登录密码', md.global.Account.fullname),
+              onOk: run,
+            });
+          },
+        });
+      } else {
+        run();
+      }
+    };
+
     if (needConform) {
-      const { confirmcontent, enableremark, remarkname, remarkhint, remarkrequired } =
+      const { confirmcontent, enableremark, remarkname, remarkhint, remarkrequired, remarktype, remarkoptions } =
         _.get(btn, 'advancedSetting') || {};
 
       doubleConfirmFunc({
@@ -125,6 +146,8 @@ class RecordAction extends Component {
         remarkName: remarkname,
         remarkHint: remarkhint,
         remarkRequired: remarkrequired,
+        remarktype,
+        remarkoptions,
         verifyPwd: btn.verifyPwd,
         enableConfirm: btn.enableConfirm,
         okText: btn.sureName,
@@ -132,6 +155,8 @@ class RecordAction extends Component {
         btn,
         onOk: btnInfo => run(btnInfo),
       });
+    } else if (btn.verifyPwd) {
+      verifyAndRun();
     } else {
       run();
     }
@@ -550,7 +575,7 @@ class RecordAction extends Component {
               {isOpenPermit(permitList.recordShareSwitch, switchPermit, viewId) && (
                 <div className="flexRow extraBtnItem">
                   <Icon icon="share" className="Font18 delIcon" style={{ color: '#757575' }} />
-                  <div className="flex delTxt Font13 Gray" onClick={this.props.onShare}>
+                  <div className="flex delTxt Font15 Gray" onClick={this.props.onShare}>
                     {_l('分享')}
                   </div>
                 </div>
@@ -558,7 +583,7 @@ class RecordAction extends Component {
               {(sheetRow.allowDelete || (this.isSubList && this.editable)) && (
                 <div className="flexRow extraBtnItem">
                   <Icon icon="delete_12" className="Font18 delIcon" />
-                  <div className="flex delTxt Font13" onClick={this.handleDeleteAlert}>
+                  <div className="flex delTxt Font15" onClick={this.handleDeleteAlert}>
                     {_l('删除')}
                   </div>
                 </div>

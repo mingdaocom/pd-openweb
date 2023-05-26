@@ -30,6 +30,7 @@ const workflowDetail = (state = {}, action) => {
     case 'GO_BACK_UPDATE_SOURCE':
     case 'UPDATE_FLOW_NODE_NAME':
     case 'UPDATE_NODE_GATEWAY':
+    case 'UPDATE_BRANCH_SORT':
       return action.data;
     case 'CLEAR_SOURCE':
       return {};

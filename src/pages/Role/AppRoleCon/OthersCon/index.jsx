@@ -15,30 +15,6 @@ const Con = styled.div`
   .userExtendInfo-desc .help {
     vertical-align: unset !important;
   }
-  .upgradeVersion {
-    background-color: rgb(255, 255, 255);
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    -webkit-box-align: center;
-    align-items: center;
-    -webkit-box-pack: center;
-    justify-content: center;
-  }
-  .upgradeVersion .payUpgradeBtn {
-    margin-top: 48px;
-    box-sizing: border-box;
-    border-radius: 20px;
-    height: 40px;
-    line-height: 40px;
-    text-align: center;
-    color: rgb(255, 255, 255);
-    font-size: 14px;
-    cursor: pointer;
-    width: 240px !important;
-    background-color: rgb(33, 150, 243) !important;
-  }
 `;
 
 const ExplainCon = styled.div`
@@ -153,11 +129,7 @@ function OthersCon(props) {
 
   const renderCon = () => {
     if (FEATURE_STATUS === '2') {
-      return (
-        <div className="upgradeVersion ">
-          {buriedUpgradeVersionDialog(currentProjectId, USER_EXTEND_INFO_FEATURE_ID, 'content')}
-        </div>
-      );
+      return buriedUpgradeVersionDialog(currentProjectId, USER_EXTEND_INFO_FEATURE_ID, 'content');
     }
 
     if (loading) return <LoadDiv />;

@@ -197,6 +197,7 @@ function SubmitFormSetting(props) {
         closedrafts = '',
       } = advancedSetting;
       const data = {
+        ...advancedSetting,
         title,
         subview, //提交按钮 打开刚刚创建的记录对应的视图id
         sub, //创建按钮文案

@@ -54,6 +54,7 @@ class EditBox extends React.Component {
       ruleError = {},
       updateFilterError,
       appId,
+      sheetSwitchPermit,
     } = this.props;
     const filterControls = worksheetControls
       .filter(i => !_.includes(['wfname', 'wfcuaids', 'wfcaid', 'wfctime', 'wfrtime', 'wfftime', 'rowid'], i.controlId))
@@ -70,6 +71,7 @@ class EditBox extends React.Component {
           appId={appId}
           from={'rule'}
           columns={filterControls}
+          sheetSwitchPermit={sheetSwitchPermit}
           currentColumns={filterControls}
           conditions={selectRules.filters}
           filterError={ruleError.filterError || []}
@@ -259,6 +261,7 @@ const mapStateToProps = state => ({
   appId: state.formSet.worksheetInfo.appId,
   ruleError: state.formSet.ruleError,
   editingId: state.formSet.editingId,
+  sheetSwitchPermit: state.formSet.worksheetInfo.switches,
 });
 const mapDispatchToProps = dispatch => bindActionCreators({ ...actions, ...columnRules }, dispatch);
 

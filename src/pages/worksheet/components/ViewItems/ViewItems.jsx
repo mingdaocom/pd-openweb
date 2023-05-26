@@ -469,23 +469,24 @@ export default class ViewItems extends Component {
             )}
           </Drawer>
         </div>
-        {isCharge && !isLock ? (
+        {isCharge && !isLock && (
           <Trigger
+            action={['click']}
             popupAlign={{ points: ['tl', 'bl'], offset: [-10, 8] }}
             popupVisible={addMenuVisible}
+            onPopupVisibleChange={visible => this.setState({ addMenuVisible: visible })}
             popup={
-              <ViewDisplayMenu onClickAway={() => this.setState({ addMenuVisible: false })} onClick={this.handleAdd} />
+              <ViewDisplayMenu onClick={this.handleAdd} />
             }
           >
             <Tooltip popupPlacement="bottom" text={<span>{_l('添加视图')}</span>}>
               <Icon
                 icon="add"
                 className="Font20 Gray_75 pointer addViewIcon mLeft8 hoverGray"
-                onClick={() => this.setState(({ addMenuVisible }) => ({ addMenuVisible: !addMenuVisible }))}
               />
             </Tooltip>
           </Trigger>
-        ) : null}
+        )}
         <div
           className="valignWrapper flex workSheetViewsWrapper"
           ref={scrollWraperEl => {
@@ -509,12 +510,16 @@ export default class ViewItems extends Component {
             onCopyView={this.handleCopyView}
             onShare={this.props.onShare}
             onExport={this.props.onExport}
+            onExportAttachment={this.props.onExportAttachment}
             onScroll={this.updateScrollBtnState}
             updateViewName={this.updateViewName}
             isCharge={isCharge}
             sheetSwitchPermit={sheetSwitchPermit}
             updateAdvancedSetting={this.updateAdvancedSetting}
             isLock={this.props.isLock}
+            appId={this.props.appId}
+            controls={this.props.worksheetControls}
+            projectId={_.get(this.props, 'worksheetInfo.projectId')}
           />
         </div>
         {directionVisible ? (

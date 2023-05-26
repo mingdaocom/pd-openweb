@@ -146,7 +146,9 @@ export default function RecordOperate(props) {
     isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) &&
     !md.global.Account.isPortal;
   const showCopy =
-    _.includes(shows, 'copy') && allowCopy && isOpenPermit(permitList.recordCopySwitch, sheetSwitchPermit, viewId);
+    _.includes(shows, 'copy') &&
+    allowCopy &&
+    (isOpenPermit(permitList.recordCopySwitch, sheetSwitchPermit, viewId) || isSubList);
   const showPrint = _.includes(shows, 'print');
   const showTask = _.includes(shows, 'task') && !md.global.Account.isPortal;
   const showRemoveRelation = _.includes(shows, 'removeRelation');
@@ -216,7 +218,13 @@ export default function RecordOperate(props) {
       popup={
         <MenuWrap
           style={{ maxHeight: `${maxHeight || 508}px` }}
-          onClickAwayExceptions={['.customButtonConfirm', '.verifyPasswordConfirm', '.DropdownPrintTrigger', '#t_mask']}
+          onClickAwayExceptions={[
+            '.customButtonConfirm',
+            '.verifyPasswordConfirm',
+            '.DropdownPrintTrigger',
+            '#t_mask',
+            '.templateListSelect',
+          ]}
           onClickAway={() => changePopupVisible(false)}
         >
           {showRemoveRelation && (

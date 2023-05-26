@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Radio, Input } from 'antd';
+import { ConfigProvider, Modal, Button, Radio, Input } from 'antd';
 import { Icon } from 'ming-ui';
 import { colorGroup, reportTypes } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common';
@@ -56,6 +56,24 @@ export default class BaseColor extends Component {
       type: value,
       colorIndex: 0,
     });
+  }
+  renderBaseColorFooter() {
+    const { onCancel } = this.props;
+    return (
+      <div className="mTop20 mBottom10 pRight8">
+        <ConfigProvider autoInsertSpaceInButton={false}>
+          <Button
+            type="link"
+            onClick={onCancel}
+          >
+            {_l('取消')}
+          </Button>
+          <Button type="primary" onClick={this.handleSave}>
+            {_l('确认')}
+          </Button>
+        </ConfigProvider>
+      </div>
+    );
   }
   renderColorGroup({ name, value }, index) {
     const { colorGroupIndex } = this.state;
@@ -129,11 +147,22 @@ export default class BaseColor extends Component {
     );
   }
   render() {
+    const { visible, onCancel } = this.props;
     const { type, colorGroupIndex, customColors, controlColors } = this.state;
     const length = Array.from({ length: Object.keys(colorGroup).length });
     const isOptionColor = !_.isEmpty(controlColors);
     return (
-      <Fragment>
+      <Modal
+        title={_l('图形颜色')}
+        width={480}
+        className="chartModal chartBaseColorModal"
+        visible={visible}
+        centered={true}
+        destroyOnClose={true}
+        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+        footer={this.renderBaseColorFooter()}
+        onCancel={onCancel}
+      >
         <div className="mBottom16">{_l('配色方案')}</div>
         <Radio.Group onChange={this.handleChangeType} value={type}>
           {isOptionColor && <Radio value={0}>{_l('选项色')}</Radio>}
@@ -169,7 +198,7 @@ export default class BaseColor extends Component {
             </div>
           )
         }
-      </Fragment>
+      </Modal>
     );
   }
 }

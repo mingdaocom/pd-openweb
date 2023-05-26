@@ -33,7 +33,7 @@ var process = {
    * 复制工作流
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {CopyProcessRequest} {name:流程名称增加的部分(string),processId:流程ID(string),}*copyProcessRequest
+   * @param {CopyProcessRequest} {name:流程名称增加的部分(string),processId:流程ID(string),subProcess:转为子流程(boolean),}*copyProcessRequest
    * @param {string} [args.name] *复制出来的流程名称后缀
    * @param {string} [args.processId] *流程ID
    * @param {Object} options 配置参数

@@ -57,7 +57,7 @@ export default class WorkSheetItem extends Component {
         .viewId || '';
     let url = `/app/${appId}/${groupId}/${workSheetId}${viewId ? `/${viewId}` : ''}`;
     if (isActive) {
-      url += `?flag=${new Date().getTime()}`;
+      url += `?flag=${this.state.flag || Date.now()}`;
     }
     return url;
   }
@@ -85,7 +85,7 @@ export default class WorkSheetItem extends Component {
             })}
             data-id={workSheetId}
           >
-            <MdLink className="NoUnderline valignWrapper h100 nameWrap" to={this.getNavigateUrl(isActive)}>
+            <MdLink className="NoUnderline valignWrapper h100 nameWrap" to={this.getNavigateUrl(isActive)} onClick={() => this.setState({ flag: Date.now() })}>
               <Fragment>
                 <div className="iconWrap">
                   <SvgIcon url={iconUrl} fill={this.svgColor(isActive)} size={22} />

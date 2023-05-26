@@ -138,7 +138,7 @@ class PortalCon extends React.Component {
     }
   };
   render() {
-    const { appDetail, appId, closePortal, isAdmin, canEditApp, canEditUser } = this.props;
+    const { appDetail, appId, closePortal, isAdmin, canEditApp, canEditUser, portal, setQuickTag } = this.props;
     const { baseSetResult = {}, showEditUrl, portalSet, showPortalSetting, tab } = this.state;
     let tablist = conList;
     if (!canEditApp) {
@@ -159,6 +159,7 @@ class PortalCon extends React.Component {
                     const listType = _.get(this.props, ['match', 'params', 'listType']);
                     listType === 'pending' && navigateTo(`/app/${appId}/role/external`);
                     this.props.handleChangePage(() => {
+                      setQuickTag({ ...portal.quickTag, tab: o.key });
                       this.setState({
                         tab: o.key,
                       });

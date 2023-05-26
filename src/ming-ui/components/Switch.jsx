@@ -1,10 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import formControl from 'ming-ui/decorators/formControl';
 import './less/Switch.less';
 
-@formControl
 class Switch extends Component {
   static propTypes = {
     /**
@@ -32,10 +30,6 @@ class Switch extends Component {
      */
     name: PropTypes.string,
     /**
-     * fromControl方法,给withChildren用
-     */
-    $formDataChange: PropTypes.func,
-    /**
      * 类名
      */
     className: PropTypes.string,
@@ -58,7 +52,6 @@ class Switch extends Component {
     this.state = {
       checked,
     };
-    this.props.$formDataChange(checked);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -66,7 +59,6 @@ class Switch extends Component {
       this.setState({
         checked: nextProps.checked,
       });
-      this.props.$formDataChange(nextProps.checked);
     }
   }
 
@@ -79,7 +71,6 @@ class Switch extends Component {
       this.setState({
         checked,
       });
-      this.props.$formDataChange(checked);
       this.props.onClick(checked, this.props.value);
     }
   }

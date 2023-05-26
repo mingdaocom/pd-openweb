@@ -1,8 +1,8 @@
 
-.chartRuleColorModal {
+.palette() {
   .palette {
     border: 1px solid #d9d9d9;
-    padding: 7px 1px 7px 10px;
+    padding: 7px 5px 7px 10px;
     border-radius: 4px;
     background-color: #fff;
     position: relative;
@@ -19,6 +19,28 @@
       height: 100%;
     }
   }
+}
+
+.scopeRulesWrap() {
+  margin: 0 -24px;
+  .scopeRule {
+    padding: 5px 24px;
+    .icon-drag {
+      position: absolute;
+      left: 4px;
+      display: none;
+    }
+    &:hover {
+      .icon-drag {
+        display: block;
+      }
+      background-color: #f6f6f6;
+    }
+  }
+}
+
+.chartRuleColorModal {
+  .palette();
   .ant-radio-input, .ant-checkbox-input {
     position: absolute !important;
   }
@@ -26,6 +48,18 @@
     height: 36px;
     width: 100%;
     border-radius: 4px;
+  }
+  .scopeRulesWrap {
+    .scopeRulesWrap;
+  }
+}
+
+.sortableScopeRuleWrap {
+  background-color: #f6f6f6;
+  z-index: 1000;
+  .palette();
+  &.scopeRulesWrap {
+    .scopeRulesWrap;
   }
 }
 

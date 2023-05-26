@@ -46,7 +46,6 @@ class Discuss extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      height: document.documentElement.clientHeight - tabsHeight - bottomHeight,
       groupId: null,
       switchPermit: {},
       allowExAccountDiscuss: false, //允许外部用户讨论
@@ -54,6 +53,7 @@ class Discuss extends Component {
       loading: true,
       replyVisible: false,
       discussionInfo: {},
+      pageType: undefined
     };
   }
   componentDidMount() {
@@ -72,10 +72,6 @@ class Discuss extends Component {
           switchPermit: res,
         });
       });
-  }
-  componentWillUnmount() {
-    this.props.dispatch(actions.emptySheetDiscussion());
-    this.props.dispatch(actions.emptySheetLogs());
   }
 
   getPortalDiscussSet = () => {
@@ -112,34 +108,45 @@ class Discuss extends Component {
     const { params } = this.props.match;
     const { worksheetId, rowId } = params;
     const { replyVisible, discussionInfo } = this.state;
-    const style = { height: this.state.height };
     const {
       switchPermit,
-      allowExAccountDiscuss, //允许外部用户讨论
+      allowExAccountDiscuss, // 允许外部用户讨论
       exAccountDiscussEnum,
       loading,
     } = this.state;
-    let entityType = 0;
-    //外部用户且未开启讨论 不能内部讨论
-    if (md.global.Account.isPortal && allowExAccountDiscuss && exAccountDiscussEnum === 1) {
-      entityType = 2;
-    }
-    if (md.global.Account.isPortal && loading) {
+    const recordDiscussSwitch = isOpenPermit(permitList.recordDiscussSwitch, switchPermit);
+    const recordLogSwitch = isOpenPermit(permitList.recordLogSwitch, switchPermit);
+    // 外部用户且未开启讨论 不能内部讨论
+    const entityType = md.global.Account.isPortal && allowExAccountDiscuss && exAccountDiscussEnum === 1 ? 2 : 0;
+    if (md.global.Account.isPortal && loading || _.isEmpty(switchPermit)) {
       return <LoadDiv />;
     }
-
+    const newTabs = tabs.filter(item => {
+      if (item.type === 1) return recordDiscussSwitch;
+      if (item.type === 3) return recordLogSwitch;
+    });
+    const pageType = this.state.pageType ? this.state.pageType : newTabs[0].type;
+    const style = { height: document.documentElement.clientHeight - tabsHeight - (recordDiscussSwitch ? bottomHeight : 0) };
     return (
-      <div className="discussTabs">
+      <div className="discussTabs h100 flexColumn">
         {isModal && (
           <div className="closeDiscuss" onClick={onClose}>
             {_l('查看记录')}
           </div>
         )}
         <Tabs
-          tabs={isOpenPermit(permitList.recordLogSwitch, switchPermit) ? tabs : tabs.filter(item => item.type !== 3)}
+          tabs={newTabs}
+          page={_.findIndex(newTabs, { type: pageType })}
+          onTabClick={(data) => {
+            this.setState({
+              pageType: data.type
+            });
+          }}
           tabBarInactiveTextColor="#9e9e9e"
           renderTabBar={props => <Tabs.DefaultTabBar {...props} />}
         >
+        </Tabs>
+        {recordDiscussSwitch && pageType === 1 && (
           <div style={style}>
             <DiscussList
               worksheetId={worksheetId}
@@ -151,38 +158,33 @@ class Discuss extends Component {
                   replyVisible: true,
                   discussionInfo: { replyId, replyName },
                 });
-                // window.mobileNavigateTo(
-                //   `/mobile/addDiscuss/${params.appId}/${params.worksheetId}/${params.viewId}/${
-                //     params.rowId || null
-                //   }/${discussionId}|${name}`,
-                // );
               }}
             />
           </div>
+        )}
+        {recordLogSwitch && pageType === 3 && (
           <div style={style}>
             <Logs
               worksheetId={params.worksheetId}
               rowId={rowId || ''}
-              height={style.height}
               originalData={originalData}
             />
           </div>
-        </Tabs>
-        <Flex
-          className="participation"
-          onClick={() => {
-            if (window.isPublicApp) {
-              alert(_l('预览模式下，不能操作'), 3);
-              return;
-            }
-            this.setState({ replyVisible: true });
-            // window.mobileNavigateTo(
-            //   `/mobile/addDiscuss/${params.appId}/${params.worksheetId}/${params.viewId}/${params.rowId || ''}`,
-            // );
-          }}
-        >
-          <div className="text">{_l('参与讨论...')}</div>
-        </Flex>
+        )}
+        {recordDiscussSwitch && (
+          <Flex
+            className="participation"
+            onClick={() => {
+              if (window.isPublicApp) {
+                alert(_l('预览模式下，不能操作'), 3);
+                return;
+              }
+              this.setState({ replyVisible: true });
+            }}
+          >
+            <div className="text">{_l('参与讨论...')}</div>
+          </Flex>
+        )}
         {!isModal && (
           <Back
             onClick={() => {

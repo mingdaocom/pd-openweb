@@ -264,7 +264,7 @@ export default {
      return $.api('Account', 'SendVerifyCode', args, options);
    },
   /**
-  * 验证登陆密码
+  * 验证登录密码
   * @param {Object} args 请求参数
   * @param {string} args.password 密码
   * @param {string} args.ticket 验证码返票据
@@ -277,6 +277,23 @@ export default {
    checkAccount: function (args, options = {}) {
      
      return $.api('Account', 'CheckAccount', args, options);
+   },
+  /**
+  * 验证登录密码
+根据设备（勾选之后1小时内免验证）
+  * @param {Object} args 请求参数
+  * @param {boolean} args.isNoneVerification 是否1小时内该设备免验证
+  * @param {string} args.password 密码
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkAccountIdentity: function (args, options = {}) {
+     
+     return $.api('Account', 'CheckAccountIdentity', args, options);
    },
   /**
   * 修改账号

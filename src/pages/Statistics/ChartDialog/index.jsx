@@ -144,11 +144,7 @@ export default class ChartDialog extends Component {
       return;
     }
     if (reportType == reportTypes.PivotTable) {
-      if (_.isEmpty(yaxisList)) {
-        alert(_l('请配置数值后再保存图表'), 2);
-      } else {
-        this.handleSaveFilter();
-      }
+      this.handleSaveFilter();
       return;
     } else {
       if (_.isEmpty(yaxisList)) {
@@ -343,7 +339,7 @@ export default class ChartDialog extends Component {
     );
   }
   renderSetting() {
-    const { projectId, reportData, currentReport } = this.props;
+    const { projectId, reportData, currentReport, sourceType } = this.props;
     const { chartIsUnfold } = this.state;
 
     if (!chartIsUnfold) {
@@ -385,7 +381,7 @@ export default class ChartDialog extends Component {
                 <ChartSetting projectId={projectId} />
               </Tabs.TabPane>
               <Tabs.TabPane tab={_l('样式')} key="style" disabled={!reportData.status}>
-                <ChartStyle projectId={projectId} />
+                <ChartStyle projectId={projectId} sourceType={sourceType} />
               </Tabs.TabPane>
               {![reportTypes.GaugeChart, reportTypes.ProgressChart].includes(currentReport.reportType) && (
                 <Tabs.TabPane tab={_l('分析')} key="analyse" disabled={!reportData.status}>

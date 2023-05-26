@@ -238,6 +238,15 @@ const NotSaveSmallCard = props => {
           </Tooltip>
         </div>
       )}
+      {isMobile && (
+        <Icon
+          onClick={() => {
+            isKc ? onDeleteKCFile(data) : onDeleteFile(data);
+          }}
+          className="deleteIcon Gray_9e Font19"
+          icon="closeelement-bg-circle"
+        />
+      )}
     </div>
   );
 }

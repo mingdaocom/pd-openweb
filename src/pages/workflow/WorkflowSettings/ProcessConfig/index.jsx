@@ -270,7 +270,7 @@ class ProcessConfig extends Component {
             <div className="mTop10">
               <Switch
                 checked={data.triggerView}
-                text={data.triggerView ? _l('开启') : _l('关闭')}
+                text={data.triggerView ? _l('开启') : _l('关闭%03087')}
                 onClick={() => this.updateSource({ triggerView: !data.triggerView })}
               />
             </div>
@@ -465,7 +465,10 @@ class ProcessConfig extends Component {
     const { flowInfo } = this.props;
     const { data, errorItems } = this.state;
     const importData = data.processVariables.filter(item => item.processVariableType === 1);
-    const AUTH_TYPE = [{ text: _l('使用应用授权'), value: 1 }, { text: _l('无需授权'), value: 0 }];
+    const AUTH_TYPE = [
+      { text: _l('使用应用授权'), value: 1 },
+      { text: _l('无需授权'), value: 0 },
+    ];
 
     return (
       <Fragment>
@@ -755,7 +758,7 @@ class ProcessConfig extends Component {
       _.remove(settings, item => item.value === 4);
     }
 
-    if (!isWebhook || !data.pbcConfig) {
+    if (!isWebhook || !data.pbcConfig || (isWebhook && !getFeatureStatus(flowInfo.companyId, 23))) {
       _.remove(settings, item => item.value === 5);
     }
 

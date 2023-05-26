@@ -14,10 +14,11 @@ export const initialState = {
   aloneApps: [],
   markedApps: [],
   markedGroup: [],
+  recentApps: [],
 };
 
 function updateAppOfState(state, appId, update = data => data) {
-  ['apps', 'markedApps', 'externalApps', 'aloneApps', 'activeGroupApps'].forEach(key => {
+  ['apps', 'markedApps', 'externalApps', 'aloneApps', 'activeGroupApps', 'recentApps'].forEach(key => {
     if (state[key]) {
       state[key] = state[key].map(app => (app.id === appId ? update(app) : app));
     }
@@ -25,7 +26,7 @@ function updateAppOfState(state, appId, update = data => data) {
   return state;
 }
 function deleteAppOfState(state, appId) {
-  ['apps', 'markedApps', 'externalApps', 'aloneApps', 'activeGroupApps'].forEach(key => {
+  ['apps', 'markedApps', 'externalApps', 'aloneApps', 'activeGroupApps', 'recentApps'].forEach(key => {
     if (state[key]) {
       state[key] = state[key].filter(app => app.id !== appId);
     }
@@ -71,13 +72,14 @@ export function reducer(state, action = {}) {
         activeGroupApps: [],
         groups: [],
         noApps: true,
+        recentApps: [],
       };
     case 'UPDATE_SETTING':
       return { ...state, origin: { ...state.origin, homeSetting: action.value } };
     case 'UPDATE_GROUPS_LOADING':
       return { ...state, groupsLoading: action.value, appsLoading: action.value === false ? false : state.appsLoading };
     case 'UPDATE_APPS_LOADING':
-      return { ...state, loading: action.value === false ? false : state.loading, appsLoading: action.value };
+      return { ...state, appsLoading: action.value };
     case 'UPDATE_KEYWORDS':
       return { ...state, keywords: action.value };
     case 'UPDATE_GROUP_APPS':
@@ -151,10 +153,24 @@ export function reducer(state, action = {}) {
     case 'ADD_GROUP':
       return { ...state, groups: state.groups.concat(action.value) };
     case 'UPDATE_GROUP':
-      newState = updateGroupOfState(newState, action.groupId, group => ({
-        ...group,
-        ...action.value,
-      }));
+      newState = updateGroupOfState(
+        {
+          ...state,
+          ...(state.activeGroup && action.groupId === state.activeGroup.id
+            ? {
+                activeGroup: {
+                  ...state.activeGroup,
+                  ...action.value,
+                },
+              }
+            : {}),
+        },
+        action.groupId,
+        group => ({
+          ...group,
+          ...action.value,
+        }),
+      );
       return newState;
     case 'MARK_GROUP':
       return updateGroupOfState(
@@ -226,9 +242,16 @@ export class CreateActions {
       delete window.homeGetMyAppAjax;
       if (
         _.every(
-          ['markedApps', 'externalApps', 'aloneApps', 'markedGroupIds', 'apps', 'personalGroups', 'projectGroups'].map(
-            key => _.isEmpty((data || {})[key]),
-          ),
+          [
+            'markedApps',
+            'externalApps',
+            'aloneApps',
+            'markedGroupIds',
+            'apps',
+            'personalGroups',
+            'projectGroups',
+            'recentAppIds',
+          ].map(key => _.isEmpty((data || {})[key])),
         )
       ) {
         this.dispatch({
@@ -247,6 +270,11 @@ export class CreateActions {
       let groups = [...(data.projectGroups || []), ...(data.personalGroups || [])];
       const markedGroup = (data.markedGroupIds || []).map(id => _.find(groups, { id })).filter(_.identity);
       groups = groups.map(g => ({ ...g, isMarked: !!_.find(markedGroup, { id: g.id }) }));
+      const recentApps = (data.recentAppIds || [])
+        .map(item => {
+          return (data.apps || []).filter(app => app.id === item)[0];
+        })
+        .filter(item => !!item);
       this.dispatch({
         type: 'UPDATE_GROUPS',
         value: groups,
@@ -263,6 +291,8 @@ export class CreateActions {
           activeGroup: undefined,
           activeGroupApps: [],
           noApps: false,
+          recentApps,
+          groups,
         },
       });
       this.dispatch({
@@ -298,6 +328,13 @@ export class CreateActions {
       type: 'UPDATE_APPS_LOADING',
       value: true,
     });
+
+    this.dispatch({
+      type: 'UPDATE_GROUP_APPS',
+      apps: [],
+      activeGroup: {},
+    });
+
     homeAppAjax.getGroup({ id: activeGroupId, groupType: activeGroupType, projectId }).then(data => {
       this.dispatch({
         type: 'UPDATE_GROUP_APPS',
@@ -494,18 +531,32 @@ export class CreateActions {
   createAppFromEmpty(para, cb = _.noop) {
     homeAppAjax
       .createApp(para)
-      .then(data => {
-        this.dispatch({
-          type: 'ADD_APP',
-          app: data,
-          groupId: para.groupId,
-        });
-        this.dispatch({
-          type: 'UPDATE_GROUP_OF_APP',
-          appId: data.id,
-          groupId: para.groupId,
-        });
-        cb(data.id);
+      .then(res => {
+        switch (res.state) {
+          case 1:
+            const data = res.data || {};
+            this.dispatch({
+              type: 'ADD_APP',
+              app: data,
+              groupId: para.groupId,
+            });
+            this.dispatch({
+              type: 'UPDATE_GROUP_OF_APP',
+              appId: data.id,
+              groupId: para.groupId,
+            });
+            cb(data.id);
+            break;
+          case 3:
+            alert(_l('目标分组不存在！'), 2);
+            break;
+          case 4:
+            alert(_l('没有创建权限！'), 2);
+            break;
+          default:
+            alert(_l('新建应用失败！'), 2);
+            break;
+        }
       })
       .fail(err => {
         !md.global.Config.IsLocal && alert(_l('新建应用失败！'), 2);
@@ -531,14 +582,31 @@ export class CreateActions {
         alert(_l('更新应用排序失败！'), 2);
       });
   }
-  editHomeSetting({ projectId, displayType, exDisplay, markedAppDisplay, editingKey }) {
+  editHomeSetting({
+    projectId,
+    displayType,
+    exDisplay,
+    markedAppDisplay,
+    editingKey,
+    displayCommonApp,
+    isAllAndProject,
+    displayMark,
+  }) {
     const oldValue = _.get(this.state, 'origin.homeSetting');
     this.dispatch({
       type: 'UPDATE_SETTING',
-      value: { displayType, exDisplay, markedAppDisplay },
+      value: { displayType, exDisplay, markedAppDisplay, displayCommonApp, isAllAndProject, displayMark },
     });
     homeAppAjax
-      .editHomeSetting({ projectId, displayType, exDisplay, markedAppDisplay })
+      .editHomeSetting({
+        projectId,
+        displayType,
+        exDisplay,
+        markedAppDisplay,
+        displayCommonApp,
+        isAllAndProject,
+        displayMark,
+      })
       .then(data => {
         if (data) {
           if (editingKey === 'markedAppDisplay') {
@@ -556,12 +624,15 @@ export class CreateActions {
         alert(_l('更新首页配置失败！'), 2);
       });
   }
-  updateGroupSorts(sortedGroups) {
+  updateGroupSorts(sortedGroups, type) {
     this.dispatch({
       type: 'UPDATE_VALUES',
-      values: {
-        markedGroup: sortedGroups,
-      },
+      values:
+        type === 'star'
+          ? {
+              markedGroup: sortedGroups,
+            }
+          : { groups: this.state.groups.filter(g => g.groupType === 0).concat(sortedGroups) },
     });
   }
 }

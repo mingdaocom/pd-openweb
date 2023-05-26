@@ -60,11 +60,11 @@ const TemplateList = styled.div`
 
 const codePrintList = [
   {
-    name: _l('打印二维码'),
+    name: _l('打印二维码%02056'),
     printType: 1,
   },
   {
-    name: _l('打印条形码'),
+    name: _l('打印条形码%02057'),
     printType: 3,
   },
 ];

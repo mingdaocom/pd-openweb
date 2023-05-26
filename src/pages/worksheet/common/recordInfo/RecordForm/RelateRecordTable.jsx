@@ -334,6 +334,7 @@ export default function RelateRecordTable(props) {
         });
       }
       tableActions.updateRecords(newRecords);
+      tableActions.updateCount(res.count);
       setPageIndexForHead(pageIndex);
       setLoading(false);
       setTableLoading(false);
@@ -447,7 +448,7 @@ export default function RelateRecordTable(props) {
     };
   }, []);
   useEffect(() => {
-    if (_.includes(['ADD_RECORDS', 'DELETE_RECORDS', 'UPDATE_RECORD', 'UPDATE_COUNT'], lastAction)) {
+    if (_.includes(['ADD_RECORDS', 'DELETE_RECORDS', 'UPDATE_RECORD'], lastAction)) {
       if (isNewRecord) {
         onRelateRecordsChange(records);
       }
@@ -461,7 +462,7 @@ export default function RelateRecordTable(props) {
   }, [records]);
 
   useEffect(() => {
-    if (!isNewRecord && changed) {
+    if (!isNewRecord && changed && !keywords) {
       setRelateNumOfControl(count);
     }
   }, [count]);
@@ -711,7 +712,7 @@ export default function RelateRecordTable(props) {
         }}
         updateCell={({ cell, row }, options = {}) => {
           const dataFormat = new DataFormat({
-            data: tableControls
+            data: (_.get(worksheetOfControl, 'template.controls') || tableControls)
               .filter(c => c.advancedSetting)
               .map(c => ({ ...c, value: (row || {})[c.controlId] || c.value })),
             projectId: worksheetOfControl.projectId,

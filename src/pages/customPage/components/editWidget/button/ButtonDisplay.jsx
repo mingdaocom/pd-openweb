@@ -13,7 +13,7 @@ const ButtonDisplayWrap = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 24px 0;
+  padding: 20px 0;
   text-align: center;
   background-color: #fff;
   .explain {

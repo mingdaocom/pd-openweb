@@ -29,17 +29,19 @@ export default function confirm(props) {
           onClose={() => handleClose(!props.onlyClose)}
           type={props.cancelType || 'link'}
         >
-          {props.cancelText || '取消'}
+          {props.cancelText || _l('取消')}
         </ConfirmButton>
       )}
-      <ConfirmButton
-        disabled={props.okDisabled}
-        action={props.onOk}
-        onClose={() => handleClose(!props.onlyClose, true)}
-        type={props.buttonType || 'primary'}
-      >
-        {props.okText || '确认'}
-      </ConfirmButton>
+      {!props.removeOkBtn && (
+        <ConfirmButton
+          disabled={props.okDisabled}
+          action={props.onOk}
+          onClose={() => handleClose(!props.onlyClose, true)}
+          type={props.buttonType || 'primary'}
+        >
+          {props.okText || _l('确认')}
+        </ConfirmButton>
+      )}
     </div>
   );
   if (props.noFooter) {

@@ -13,7 +13,7 @@ import arrowLeftImg from './img/arrowLeft.png';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import AppGroupSkeleton from './AppGroupSkeleton';
-import { getRandomString, getProject } from 'src/util';
+import { getRandomString, getCurrentProject } from 'src/util';
 import styled from 'styled-components';
 import _ from 'lodash';
 import moment from 'moment';
@@ -58,10 +58,11 @@ class AppHome extends React.Component {
     };
   }
   componentDidMount() {
-    const currentProject = getProject(localStorage.getItem('currentProjectId'));
-    const maturityTime = moment(md.global.Account.createTime)
-      .add(7, 'day')
-      .format('YYYY-MM-DD');
+    const currentProject = getCurrentProject(
+      localStorage.getItem('currentProjectId') ||
+        (md.global.Account.projects[0] || { projectId: 'external' }).projectId,
+    );
+    const maturityTime = moment(md.global.Account.createTime).add(7, 'day').format('YYYY-MM-DD');
     const isAdmin = md.global.Account.projects[0]
       ? md.global.Account.projects[0].createAccountId === md.global.Account.accountId
       : false;
@@ -310,75 +311,48 @@ class AppHome extends React.Component {
       </div>
     );
   }
-  forTitle(data, type) {
-    switch (type) {
-      case 'markedApps':
-        return (
-          <span>
-            <Icon icon="star" className="Gray_9e TxtMiddle mRight10 Font20" />
-            <span className="Gray Font17 Bold TxtMiddle">{_l('星标应用')}</span>
-          </span>
-        );
-      case 'validProject':
-        return <span className="Gray Font16 Bold">{data.projectName}</span>;
-      case 'apps':
-        return (
-          <span>
-            <Icon icon="workbench" className="mRight10 TxtMiddle Gray_9e Font20" />
-            <span className="Gray Font17 Bold TxtMiddle">{_l('全部应用')}</span>
-          </span>
-        );
-      case 'externalApps':
-        return (
-          <span>
-            <Icon icon="h5_external" className=" mRight10 TxtMiddle Gray_9e Font20" />
-            <span className="Gray Font17 Bold TxtMiddle">{_l('外部协作')}</span>
-          </span>
-        );
-      case 'expireProject':
-        return (
-          <div>
-            <span className="Gray Font16 Bold TxtMiddle">{data.projectName}</span>
-            <div className="appBelongInfo">
-              <span>{_l('已到期')}</span>
-            </div>
-          </div>
-        );
-      case 'aloneApps':
-        return (
-          <span>
-            <Icon icon="people_5" className=" mRight10 TxtMiddle Gray_9e Font20" />
-            <span className="Gray Font17 Bold TxtMiddle">{_l('个人')}</span>
-          </span>
-        );
-      default:
-        return (
-          <GroupTitle>
-            {data.iconUrl ? (
-              <GroupIcon url={data.iconUrl} fill="#9e9e9e" size={20} />
+  forTitle({ data, type, name, icon }) {
+    if (type) {
+      return (
+        <span>
+          {icon &&
+            (type === 'groupApps' || type === 'markedGroup' ? (
+              <SvgIcon url={icon} size={18} fill="#9e9e9e" className="InlineBlock mRight10" />
             ) : (
-              <Icon icon={data.icon} className="mRight10 TxtMiddle Gray_9e Font20" />
-            )}
-            <span className="Gray Font17 Bold TxtTop">{data.name}</span>
-          </GroupTitle>
-        );
+              <Icon icon={icon} className="Gray_9e TxtMiddle mRight10 Font20" />
+            ))}
+          <span className={cx('Gray Font17 Bold', { TxtMiddle: type !== 'groupApps' })}>{name}</span>
+        </span>
+      );
     }
+    return (
+      <GroupTitle>
+        {data.iconUrl ? (
+          <GroupIcon url={data.iconUrl} fill="#9e9e9e" size={20} />
+        ) : (
+          <Icon icon={data.icon} className="mRight10 TxtMiddle Gray_9e Font20" />
+        )}
+        <span className="Gray Font17 Bold TxtTop">{data.name}</span>
+      </GroupTitle>
+    );
   }
-  renderList(data, type) {
+  renderList({ data, type, name, icon }) {
     const { myAppData = {} } = this.props;
     const { homeSetting } = myAppData;
-    const currentProject = getProject(localStorage.getItem('currentProjectId')) || {};
+    const currentProject = getCurrentProject(localStorage.getItem('currentProjectId')) || {};
     if (data.length <= 0 && type !== 'apps') {
       return;
     } else {
       let list = type === 'markedGroup' ? data.apps : data;
-      list = list.filter(o => !o.webMobileDisplay); //排除webMobileDisplay h5未发布
+      list = list.filter(o => o && !o.webMobileDisplay); //排除webMobileDisplay h5未发布
       const distance = ((this.state.width - 12) / 4 - 56) / 2;
       return (
         <div className="groupDetail" key={`${type}-${getRandomString()}`}>
           <div className="pTop16 flexRow" style={{ paddingLeft: `${distance}px`, paddingRight: `${distance}px` }}>
-            {this.forTitle(data, type)}
-            <span className="mLeft10 Gray_9e Font17 TxtMiddle">{!_.isEmpty(list) && list.length}</span>
+            {this.forTitle({ data, type, name, icon })}
+            {type !== 'recentApps' && (
+              <span className="mLeft10 Gray_9e Font17 TxtMiddle">{!_.isEmpty(list) && list.length}</span>
+            )}
             {type === 'markedApps' && homeSetting.markedAppDisplay ? (
               <span className="allOrg mLeft12 Gray_9e Font13 TxtMiddle InlineBlock Bold">{_l('所有组织')}</span>
             ) : (
@@ -403,12 +377,12 @@ class AppHome extends React.Component {
       );
     }
   }
-  renderExternalList = (data, type) => {
+  renderExternalList = ({ data, type, name, icon }) => {
     const distance = ((this.state.width - 12) / 4 - 56) / 2;
     return (
       <div className="groupDetail" key={`${type}-${getRandomString()}`}>
         <div className="pTop26 flexRow" style={{ paddingLeft: `${distance}px`, paddingRight: `${distance}px` }}>
-          {this.forTitle(data, type)}
+          {this.forTitle({ data, type, name, icon })}
           <span className="mLeft10 Gray_9e Font17 TxtMiddle">{!_.isEmpty(data) && data.length}</span>
         </div>
         {type === 'externalApps' && _.isEmpty(data) && (
@@ -427,7 +401,7 @@ class AppHome extends React.Component {
     const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
     const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
     const isApp = isWxWork || isWeLink || isDing;
-    const currentProject = getProject(localStorage.getItem('currentProjectId')) || {};
+    const currentProject = getCurrentProject(localStorage.getItem('currentProjectId')) || {};
     const cannotCreateApp = isApp ? currentProject.cannotCreateApp : true;
 
     const projects = _.get(md, ['global', 'Account', 'projects']);
@@ -519,18 +493,29 @@ class AppHome extends React.Component {
       projectGroups = [],
       aloneApps = [],
       homeSetting = {},
+      recentAppIds = [],
     } = myAppData;
-    const currentProject = getProject(localStorage.getItem('currentProjectId')) || { projectId: 'external' };
+    const recentApps = recentAppIds.slice(0, 8).map(item => _.filter(apps, it => item === it.id)[0]);
+    const currentProject = getCurrentProject(
+      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
+    );
     const distance = ((this.state.width - 12) / 4 - 56) / 2;
+
     if (isHomeLoading) {
       return <AppGroupSkeleton />;
     }
     if (currentProject.projectId === 'external') {
       return (
         <div className="content">
-          {this.renderExternalList(externalApps, 'externalApps')}
+          {this.renderExternalList({
+            data: externalApps,
+            type: 'externalApps',
+            name: _l('外部协作'),
+            icon: 'h5_external',
+          })}
           {!_.isEmpty(aloneApps) && <div className="spaceBottom" />}
-          {!_.isEmpty(aloneApps) && this.renderExternalList(aloneApps, 'aloneApps')}
+          {!_.isEmpty(aloneApps) &&
+            this.renderExternalList({ data: aloneApps, type: 'aloneApps', name: _l('个人'), icon: 'people_5' })}
         </div>
       );
     }
@@ -542,26 +527,49 @@ class AppHome extends React.Component {
       _.isEmpty(aloneApps)
     ) {
       return this.renderErr();
-    } else if (!currentProject && !_.isEmpty(externalApps)) {
+    } else if (_.isEmpty(currentProject) && !_.isEmpty(externalApps)) {
       return (
         <div className="content">
           {this.renderErr(true)}
           {!_.isEmpty(externalApps) && <div className="spaceBottom" />}
-          {!_.isEmpty(externalApps) && this.renderList(externalApps, 'externalApps')}
+          {!_.isEmpty(externalApps) &&
+            this.renderList({ data: externalApps, type: 'externalApps', name: _l('外部协作'), icon: 'h5_external' })}
         </div>
       );
     } else {
       return (
         <div className="content">
-          {!_.isEmpty(markedApps) && this.renderList(markedApps, 'markedApps')}
+          {homeSetting.displayCommonApp &&
+            !_.isEmpty(recentApps) &&
+            this.renderList({
+              data: recentApps,
+              type: 'recentApps',
+              name: _l('最近使用'),
+              icon: 'access_time_filled',
+            })}
+          {homeSetting.displayCommonApp && !_.isEmpty(recentApps) && <div className="spaceBottom" />}
+          {!_.isEmpty(markedApps) &&
+            this.renderList({ data: markedApps, type: 'markedApps', name: _l('星标应用'), icon: 'star' })}
           {!_.isEmpty(markedApps) && <div className="spaceBottom" />}
           {!_.isEmpty(markedGroup) &&
             markedGroup.map(item => {
               if (!item || !item.apps || _.isEmpty(item.apps)) return;
               return (
                 <Fragment>
-                  {this.renderList(item, 'markedGroup')}
+                  {this.renderList({ data: item, type: 'markedGroup', name: item.name, icon: item.iconUrl })}
                   <div className="spaceBottom" />
+                </Fragment>
+              );
+            })}
+          {homeSetting.isAllAndProject &&
+            !_.isEmpty(projectGroups) &&
+            projectGroups.map(it => {
+              const { appIds = [] } = it;
+              const groupData = _.filter(apps, v => _.includes(appIds, v.id));
+              return (
+                <Fragment>
+                  {this.renderList({ data: groupData, type: 'groupApps', name: it.name, icon: it.iconUrl })}
+                  {!_.isEmpty(groupData) && <div className="spaceBottom" />}
                 </Fragment>
               );
             })}
@@ -583,9 +591,11 @@ class AppHome extends React.Component {
           {(!_.isEmpty(markedGroup) || !_.isEmpty(personalGroups) || !_.isEmpty(projectGroups)) && (
             <div className="spaceBottom" />
           )}
-          {currentProject && this.renderList(apps, 'apps')}
+          {currentProject && this.renderList({ data: apps, type: 'apps', name: _l('全部应用'), icon: 'workbench' })}
           {!_.isEmpty(externalApps) && homeSetting.exDisplay ? <div className="spaceBottom" /> : ''}
-          {!_.isEmpty(externalApps) && homeSetting.exDisplay ? this.renderList(externalApps, 'externalApps') : ''}
+          {!_.isEmpty(externalApps) && homeSetting.exDisplay
+            ? this.renderList({ data: externalApps, type: 'externalApps', name: _l('外部协作'), icon: 'h5_external' })
+            : ''}
         </div>
       );
     }

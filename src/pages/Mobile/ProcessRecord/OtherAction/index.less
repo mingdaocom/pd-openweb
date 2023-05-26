@@ -4,24 +4,54 @@
 @passColor: #4CAF50;
 @submitColor: #1e88e5;
 
+.otherActionModal {
+  max-height: 95%;
+  overflow-y: auto;
+  width: 100%;
+  background: #fff;
+}
 .otherActionWrapper {
   overflow-y: auto;
-  .am-textarea-item {
+  .am-textarea-item, .itemWrap {
     padding: 10px 16px;
+    overflow: initial;
   }
   .title {
-    text-align: left;
-    padding: 10px 16px 0;
+    padding: 16px 16px 0;
+  }
+  .itemWrap {
+    .selectedUser {
+      width: 30px;
+      height: 30px;
+    }
+    .icon-lift {
+      color: #ffa340;
+    }
+    .flexEnd {
+      justify-content: flex-end;
+    }
+  }
+  .am-textarea-disabled {
+    textarea:disabled, .am-textarea-control {
+      color: #333;
+    }
   }
   .am-textarea-control {
-    height: 150px;
     border: 1px solid #e3e3e3;
     padding: 6px;
     border-radius: 4px;
+    overflow-y: auto;
     >textarea {
       font-size: 14px;
       height: 100%;
     }
+  }
+  .selectTemplate {
+    min-height: 35px;
+    border-radius: 4px;
+    padding: 5px;
+    margin: 10px 15px;
+    border: 1px solid #e3e3e3;
   }
   .actionBtnWrapper {
     height: 50px;

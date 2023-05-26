@@ -73,25 +73,28 @@ export default class PasswordValidate extends Component {
     let { password } = this.state;
     if (!password) return;
     let _this = this;
-    verifyPassword(password, () => {
-      _this.props.setShowInputPassword(false);
-      let params = {
-        projectId,
-        appId,
-        id: actCurrentFileInfo.id,
-        autoEndMaintain: isEndFixed,
-        backupCurrentVersion: isBackupCurrentVersion,
-        isRestoreNew: false,
-      };
+    verifyPassword({
+      password,
+      success: () => {
+        _this.props.setShowInputPassword(false);
+        let params = {
+          projectId,
+          appId,
+          id: actCurrentFileInfo.id,
+          autoEndMaintain: isEndFixed,
+          backupCurrentVersion: isBackupCurrentVersion,
+          isRestoreNew: false,
+        };
 
-      appManagementAjax.restore(params).then(res => {
-        if (res) {
-          getBackupCount();
-          getList(1);
-          setIsEndFixed(false);
-          setIsBackupCurrentVersion(false);
-        }
-      });
+        appManagementAjax.restore(params).then(res => {
+          if (res) {
+            getBackupCount();
+            getList(1);
+            setIsEndFixed(false);
+            setIsBackupCurrentVersion(false);
+          }
+        });
+      },
     });
   };
 

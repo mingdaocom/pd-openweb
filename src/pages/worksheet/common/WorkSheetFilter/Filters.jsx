@@ -18,7 +18,7 @@ const Con = styled.div`
   border-radius: 4px;
   background: #ffffff;
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
-  padding: 16px 0 24px;
+  padding: 16px 0 0;
 `;
 
 const SwitchTab = styled.div`
@@ -61,6 +61,7 @@ const tabs = [
 
 function Filters(props, ref) {
   const {
+    maxHeight = 543,
     supportGroup = true,
     projectId,
     appId,
@@ -100,9 +101,22 @@ function Filters(props, ref) {
     setActiveFilter,
     sortFilters,
   } = actions;
-  const [activeTab, setActiveTab] = useState(1);
+  const [activeTab, setActiveTab] = useState(
+    (() => {
+      const newType = localStorage.getItem('worksheetFilters_activeTab');
+      return newType === '2' ? 2 : 1;
+    })(),
+  );
   const isSavedEditing = !!editingFilter && !/^new/.test(editingFilter.id);
   const isNewEditing = !!editingFilter && /^new/.test(editingFilter.id);
+  const conditionsIsEmpty =
+    editingFilter &&
+    _.isEmpty(editingFilter.conditions) &&
+    !_.some(editingFilter.conditionsGroups.map(g => g.conditions.length));
+  function updateActiveTab(newType) {
+    setActiveTab(newType);
+    localStorage.setItem('worksheetFilters_activeTab', newType);
+  }
   function filterAddConditionControls(controls) {
     return filterOnlyShowField(
       showWorkflowControl
@@ -133,7 +147,7 @@ function Filters(props, ref) {
   useEffect(() => {
     loadFilters(worksheetId, data => {
       if (!_.isEmpty(data) && !cache.current.callFromColumn) {
-        setActiveTab(2);
+        updateActiveTab(2);
       }
     });
   }, []);
@@ -145,7 +159,7 @@ function Filters(props, ref) {
   useImperativeHandle(ref, () => ({
     addFilterByControl: control => {
       cache.current.callFromColumn = true;
-      setActiveTab(1);
+      updateActiveTab(1);
       if (isNewEditing) {
         addCondition(control, editingFilter.conditionsGroups.length - 1);
       } else {
@@ -161,7 +175,7 @@ function Filters(props, ref) {
             <span
               className={activeTab === tab.type ? 'active' : ''}
               onClick={() => {
-                setActiveTab(tab.type);
+                updateActiveTab(tab.type);
               }}
             >
               {tab.name}
@@ -183,8 +197,9 @@ function Filters(props, ref) {
         <Fragment>
           {activeTab === 1 && (
             <Fragment>
-              {isNewEditing && (
+              {isNewEditing && !conditionsIsEmpty && (
                 <FilterDetail
+                  maxHeight={maxHeight}
                   canEdit
                   supportGroup
                   hideSave={!formatForSave(editingFilter).length}
@@ -192,7 +207,7 @@ function Filters(props, ref) {
                   filter={editingFilter}
                   actions={actions}
                   controls={controls}
-                  setActiveTab={setActiveTab}
+                  setActiveTab={updateActiveTab}
                   onBack={() => editFilter(undefined)}
                   onAddCondition={() => {
                     setActiveFilter(editingFilter);
@@ -202,13 +217,23 @@ function Filters(props, ref) {
                   filterAddConditionControls={filterAddConditionControls}
                 />
               )}
-              {!editingFilter && <Empty isNew onAdd={handleAddNewFilter} />}
+              {(!editingFilter || conditionsIsEmpty) && (
+                <Empty
+                  isNew
+                  maxHeight={maxHeight}
+                  controls={filterAddConditionControls(controls)}
+                  onAdd={selectedControl => {
+                    addFilter({ defaultCondition: getDefaultCondition(selectedControl) });
+                  }}
+                />
+              )}
             </Fragment>
           )}
           {activeTab === 2 && (
             <Fragment>
               {!isSavedEditing && (
                 <SavedFilters
+                  maxHeight={maxHeight}
                   isCharge={isCharge}
                   controls={controls}
                   filters={filters}
@@ -219,7 +244,7 @@ function Filters(props, ref) {
                     handleTriggerFilter(f);
                   }}
                   addFilter={() => {
-                    setActiveTab(1);
+                    updateActiveTab(1);
                     handleAddNewFilter();
                   }}
                   onEditFilter={filter => {
@@ -237,6 +262,7 @@ function Filters(props, ref) {
               )}
               {isSavedEditing && (
                 <FilterDetail
+                  maxHeight={maxHeight}
                   supportGroup
                   nameIsUpdated={nameIsUpdated}
                   needSave={needSave}
@@ -244,7 +270,7 @@ function Filters(props, ref) {
                   filter={editingFilter}
                   actions={actions}
                   controls={controls}
-                  setActiveTab={setActiveTab}
+                  setActiveTab={updateActiveTab}
                   onBack={needSetOriginFilter => {
                     if (needSetOriginFilter) {
                       const originFilter = _.find(filters, f => f.id === editingFilter.id);

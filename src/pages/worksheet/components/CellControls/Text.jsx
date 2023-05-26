@@ -13,7 +13,7 @@ import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
 import { emitter, isKeyBoardInputChar } from 'worksheet/util';
 import { FROM } from './enum';
-import { browserIsMobile, accMul } from 'src/util';
+import { browserIsMobile, accMul, formatStrZero, formatNumberFromInput } from 'src/util';
 import _ from 'lodash';
 
 const InputCon = styled.div`
@@ -47,19 +47,6 @@ const MultipleLineTip = styled.div`
   color: #bdbdbd;
   background: #fff;
 `;
-
-function replaceNotNumber(value) {
-  return value
-    .replace(/[^-\d.]/g, '')
-    .replace(/^\./g, '')
-    .replace(/^-/, '$#$')
-    .replace(/-/g, '')
-    .replace('$#$', '-')
-    .replace(/^-\./, '-')
-    .replace('.', '$#$')
-    .replace(/\./g, '')
-    .replace('$#$', '.');
-}
 
 const Input = React.forwardRef((props, ref) => {
   const { className, onChange, ...rest } = props;
@@ -106,6 +93,14 @@ export default class Text extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.cell.value !== this.props.cell.value) {
       this.setState({ value: nextProps.cell.value });
+    }
+    // 数值类小数点自动配置，聚焦时去零
+    if (
+      nextProps.isediting !== this.props.isediting &&
+      nextProps.isediting &&
+      _.get(nextProps, 'cell.advancedSetting.dotformat') === '1'
+    ) {
+      this.setState({ value: formatStrZero(nextProps.cell.value) });
     }
   }
 
@@ -166,7 +161,7 @@ export default class Text extends React.Component {
 
   @autobind
   handleEdit(e) {
-    const { updateEditingStatus } = this.props;
+    const { updateEditingStatus, cell } = this.props;
     e.stopPropagation();
     updateEditingStatus(true, this.focus);
   }
@@ -215,7 +210,7 @@ export default class Text extends React.Component {
   handleChange(value) {
     const { cell, onValidate } = this.props;
     if (cell.type === 6 || cell.type === 8) {
-      value = replaceNotNumber(String(value));
+      value = formatNumberFromInput(String(value), false);
     }
     onValidate(value);
     this.setState({
@@ -245,7 +240,7 @@ export default class Text extends React.Component {
         } else {
           setKeyboardValue(data.textValue);
         }
-      } else {
+      } else if (_.isFunction(navigator.clipboard.readText)) {
         navigator.clipboard.readText().then(setKeyboardValue);
       }
       return;
@@ -253,7 +248,7 @@ export default class Text extends React.Component {
     switch (e.key) {
       default:
         (() => {
-          const value = cell.type === 6 || cell.type === 8 ? replaceNotNumber(e.key) : e.key;
+          const value = cell.type === 6 || cell.type === 8 ? formatNumberFromInput(e.key, false) : e.key;
           if (!value || !isKeyBoardInputChar(e.key)) {
             return;
           }
@@ -367,7 +362,10 @@ export default class Text extends React.Component {
     const isSafari = /^((?!chrome).)*safari.*$/.test(navigator.userAgent.toLowerCase());
     const isMacWxWork =
       /wxwork/.test(navigator.userAgent.toLowerCase()) && /applewebkit/.test(navigator.userAgent.toLowerCase());
-    const text = renderText({ ...cell, value }, { noMask: forceShowFullValue });
+    let text = renderText({ ...cell, value }, { noMask: forceShowFullValue });
+    if (text.length > 3000) {
+      text = text.slice(0, 3000);
+    }
     const editcontent = (
       <ClickAwayable
         onClickAwayExceptions={[this.editIcon && this.editIcon.current]}

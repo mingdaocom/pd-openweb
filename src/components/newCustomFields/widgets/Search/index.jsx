@@ -173,7 +173,7 @@ export default class Widgets extends Component {
             item.type === 10000007 && itemData[item.cid] && _.isArray(safeParse(itemData[item.cid]))
               ? safeParse(itemData[item.cid]).join(',')
               : itemData[item.cid];
-          this.props.onChange(itemVal, control.controlId);
+          this.props.onChange(itemVal, control.controlId, false);
         }
         this.setState({ data: null, open: false, keywords: '' });
       }
@@ -249,7 +249,7 @@ export default class Widgets extends Component {
           className={cx('searchIconBox', { disabled: disabled || !canClick })}
           onClick={e => {
             e.stopPropagation();
-            if (!canClick) return alert(_l('最少输入%0个关键字', min));
+            if (!canClick) return alert(_l('最少输入%0个关键字', min), 3);
             this.handleSearch();
           }}
         >
@@ -295,7 +295,7 @@ export default class Widgets extends Component {
           ) : (
             <span className="TxtCenter flex overflow_ellipsis">
               {isSuccess && <i className="icon-done successIcon"></i>}
-              <span className='Bold'> {hint || _l('查询')}</span>
+              <span className="Bold"> {hint || _l('查询')}</span>
             </span>
           )}
         </SearchBtn>
@@ -397,10 +397,10 @@ export default class Widgets extends Component {
             ) : null
           }
           onSelect={(value, option) => this.handleSelect(option)}
-          onChange={value => {
+          onChange={(value, option) => {
             // keywords判断是为了直接点击删除
-            if (value || !keywords.length) {
-              this.props.onChange(value);
+            if (option.label || !keywords.length) {
+              this.props.onChange(option.label);
             }
           }}
           onFocus={() => this.setState({ open: true })}
@@ -412,7 +412,7 @@ export default class Widgets extends Component {
           {optionData.map((item, index) => {
             const label = getShowValue(this.getMappingItem(itemtitle), item[itemtitle]);
             return (
-              <Select.Option key={index} value={label} label={label}>
+              <Select.Option key={index} value={index} label={label}>
                 {this.renderList(item)}
               </Select.Option>
             );

@@ -20,6 +20,11 @@ export default class ChartDesc extends Component {
       desc,
     }
   }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.desc !== this.props.desc) {
+      this.setState({ desc: nextProps.desc });
+    }
+  }
   handleSave = () => {
     const newDesc = this.state.desc.trim();
     const { desc, reportId, onSave, onClose } = this.props;

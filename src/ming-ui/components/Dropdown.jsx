@@ -7,7 +7,6 @@ import Menu from './Menu';
 import MenuItem from './MenuItem';
 import Icon from './Icon';
 import Trigger from 'rc-trigger';
-import formControl from 'ming-ui/decorators/formControl';
 import './less/Dropdown.less';
 import _ from 'lodash';
 import LoadDiv from './LoadDiv';
@@ -39,7 +38,6 @@ const builtinPlacements = {
   },
 };
 
-@formControl
 class Dropdown extends Component {
   /* eslint-disable */
   static propTypes = {
@@ -74,10 +72,6 @@ class Dropdown extends Component {
      * 下拉列表最高高度
      */
     maxHeight: PropTypes.number,
-    /**
-     * 给withChildren用
-     */
-    $formDataChange: PropTypes.func,
     className: PropTypes.string,
     hoverTheme: PropTypes.bool, // hover变成主题色
     /**
@@ -221,7 +215,6 @@ class Dropdown extends Component {
       showMenu: false,
       keywords: '111',
     };
-    this.props.$formDataChange(value);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -230,7 +223,6 @@ class Dropdown extends Component {
       this.setState({
         value: nextProps.value,
       });
-      this.props.$formDataChange(nextProps.value);
     }
     if (_.isBoolean(nextProps.popupVisible)) {
       this.setState({ showMenu: nextProps.popupVisible });
@@ -286,7 +278,6 @@ class Dropdown extends Component {
       this.setState({
         value: item.value,
       });
-      this.props.$formDataChange(item.value);
     }
 
     if (this.props.selectClose) {
@@ -511,7 +502,6 @@ class Dropdown extends Component {
                   this.setState({
                     value: undefined,
                   });
-                  this.props.$formDataChange(undefined);
                 }
                 if (this.props.selectClose) {
                   this.setState({

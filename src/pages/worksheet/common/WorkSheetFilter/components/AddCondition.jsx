@@ -2,11 +2,10 @@ import React, { Component } from 'react';
 import Trigger from 'rc-trigger';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Menu, MenuItem, Input } from 'ming-ui';
-import { VerticalMiddle } from 'worksheet/components/Basics';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import _ from 'lodash';
+import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import SelectControls from './SelectControls';
+
 export default class AddCondition extends Component {
   static propTypes = {
     defaultVisible: PropTypes.bool,
@@ -17,7 +16,6 @@ export default class AddCondition extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      keyword: '',
       columnListVisible: _.isUndefined(props.defaultVisible) ? false : props.defaultVisible,
     };
   }
@@ -55,15 +53,12 @@ export default class AddCondition extends Component {
       filterColumnClassName,
       popupContainer,
     } = this.props;
-    const { keyword, columnListVisible } = this.state;
+    const { columnListVisible } = this.state;
     if (from === 'rule') {
       columns = columns.filter(item => !_.includes(SYS, item.controlId));
     }
     if (md.global.Account.isPortal) {
       columns = columns.filter(item => !_.includes(['ownerid', 'caid', 'uaid'], item.controlId));
-    }
-    if (keyword) {
-      columns = columns.filter(c => c.controlName.toLowerCase().indexOf(keyword.toLowerCase()) > -1);
     }
     return (
       <div className={cx('Hand addFilterCondition', { nodata: !conditionCount, active: columnListVisible })}>
@@ -71,49 +66,21 @@ export default class AddCondition extends Component {
           action={['click']}
           popupVisible={columnListVisible}
           popup={
-            <div className={cx('addFilterPopup', this.props.classNamePopup)} style={this.props.style}>
-              <div className="columnsFilter">
-                <i className="icon-search"></i>
-                <Input
-                  placeholder={_l('搜索')}
-                  manualRef={this.inputRef}
-                  value={keyword}
-                  onChange={e => {
-                    this.setState({ keyword: this.inputRef.current.value });
-                  }}
-                />
-              </div>
-              <Menu
-                className={cx('worksheetFilterColumnOptionList', filterColumnClassName)}
-                onClickAwayExceptions={['.columnsFilter']}
-                onClickAway={() => {
-                  this.setState({ columnListVisible: false, keyword: '' });
-                }}
-                style={this.props.style}
-              >
-                {columns.length ? (
-                  columns.map((c, i) => (
-                    <MenuItem
-                      className={cx({ segmentationLine: 'segmentation' in c })}
-                      onClick={() => {
-                        onAdd(c);
-                        from !== 'fastFilter' && this.setState({ columnListVisible: false, keyword: '' });
-                      }}
-                      key={i}
-                    >
-                      <VerticalMiddle>
-                        <i
-                          className={cx('Font16 icon', `icon-${getIconByType(c.originType === 37 ? 37 : c.type)}`)}
-                        ></i>
-                        <span className="ellipsis">{c.controlName}</span>
-                      </VerticalMiddle>
-                    </MenuItem>
-                  ))
-                ) : (
-                  <div className="tip TxtCenter">{keyword ? _l('没有搜索结果') : _l('没有更多字段')}</div>
-                )}
-              </Menu>
-            </div>
+            <SelectControls
+              style={this.props.style}
+              controls={columns}
+              className={this.props.classNamePopup}
+              filterColumnClassName={filterColumnClassName}
+              onAdd={control => {
+                onAdd(control);
+                if (from !== 'fastFilter') {
+                  this.setState({ columnListVisible: false });
+                }
+              }}
+              onClose={() => {
+                this.setState({ columnListVisible: false });
+              }}
+            />
           }
           getPopupContainer={() => (renderInParent && !isAppendToBody ? this.box : document.body)}
           popupAlign={{

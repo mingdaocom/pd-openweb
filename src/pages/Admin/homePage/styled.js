@@ -201,6 +201,8 @@ export const HomePageWrap = styled.div`
     width: calc(100% - 48px);
     .inviteUserBox {
       width: 25%;
+      display: flex;
+      justify-content: center;
       .inviteUser {
         position: unset;
         background-color: rgb(76, 175, 80, 0.1);

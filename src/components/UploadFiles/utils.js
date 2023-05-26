@@ -355,7 +355,7 @@ export const checkFileAvailable = (fileSettingInfo = {}, files = [], tempCount =
 
   // 附件数量
   if (maxcount && count > Number(maxcount)) {
-    alert(_l('最多上传%0个文件', maxcount));
+    alert(_l('最多上传%0个文件', maxcount), 2);
     isAvailable = false;
   }
 
@@ -373,7 +373,7 @@ export const checkFileAvailable = (fileSettingInfo = {}, files = [], tempCount =
         }
       }
       if (max && (itemField.size || itemField.fileSize) > parseFloat(max) * 1024 * 1024) {
-        alert(_l('上传失败，无法上传大于%0MB的文件', max));
+        alert(_l('上传失败，无法上传大于%0MB的文件', max), 2);
         return false;
       }
       return true;

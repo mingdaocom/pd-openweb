@@ -6,7 +6,8 @@ import DiscussInfo from 'mobile/Discuss';
 import _ from 'lodash';
 
 const ChartCountWrap = styled.div`
-  width: 60px;
+  padding: 0 10px;
+  width: auto;
   height: 32px;
   color: #757575;
   text-align: center;
@@ -68,6 +69,7 @@ export default class ChatCount extends Component {
       autoOpenDiscuss,
       originalData,
       className,
+      recordDiscussSwitch
     } = this.props;
     const { discussionCount, visible } = this.state;
     return (
@@ -79,8 +81,10 @@ export default class ChatCount extends Component {
             onClick();
           }}
         >
-          <Icon icon="chat" className="mRight5 TxtMiddle Font20" />
-          <span>{discussionCount}</span>
+          <Icon icon={recordDiscussSwitch ? 'chat' : 'assignment'} className="TxtMiddle Font20" />
+          {recordDiscussSwitch && (
+            <span className="mLeft5">{discussionCount}</span>
+          )}
         </ChartCountWrap>
         <DiscussInfo
           isModal

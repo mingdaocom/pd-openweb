@@ -7,7 +7,7 @@ import qs from 'query-string';
 import _ from 'lodash';
 
 function login() {
-  window._alert(_l('请先登录'));
+  window.nativeAlert(_l('请先登录'));
   location.href =
     md.global.Config.WebUrl +
     'login?ReturnUrl=' +

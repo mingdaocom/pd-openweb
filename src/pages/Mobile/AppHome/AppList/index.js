@@ -4,7 +4,7 @@ import { Icon, LoadDiv } from 'ming-ui';
 import SvgIcon from 'src/components/SvgIcon';
 import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
 import homeAppAjax from 'src/api/homeApp';
-import { getRandomString, getProject } from 'src/util';
+import { getRandomString, getCurrentProject } from 'src/util';
 import Back from '../../components/Back';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
@@ -28,7 +28,10 @@ class AppList extends Component {
   getAppListInfo = () => {
     const { params = {} } = this.props.match;
     const { groupId, groupType } = params;
-    const projectId = getProject(localStorage.getItem('currentProjectId')).projectId;
+    const { projectId } = getCurrentProject(
+      localStorage.getItem('currentProjectId') ||
+        (md.global.Account.projects[0] || { projectId: 'external' }).projectId,
+    );
     homeAppAjax.getGroup({ projectId, id: groupId, groupType }).then(res => {
       this.setState({ currentGroupList: res.apps || [], loading: false, groupInfo: res });
     });

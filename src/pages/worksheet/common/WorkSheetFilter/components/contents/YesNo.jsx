@@ -31,8 +31,8 @@ export default class YesNo extends Component {
       ];
     }
     return [
-      { text: _l('有'), value: 1 },
-      { text: _l('无'), value: 0 },
+      { text: _l('有%25026'), value: 1 },
+      { text: _l('无%25027'), value: 0 },
     ];
   }
   @autobind

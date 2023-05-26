@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { func, oneOf } from 'prop-types';
-import { Dialog, Textarea, Dropdown, Signature } from 'ming-ui';
+import { Dialog, Textarea, Dropdown, Signature, Menu, MenuItem, Icon } from 'ming-ui';
 import { ACTION_TO_TEXT } from '../../config';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -9,6 +9,9 @@ import VerifyPassword from '../VerifyPassword';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import styled from 'styled-components';
 import codeAuth from 'src/api/codeAuth';
+import { Select, Tooltip } from 'antd';
+import './index.less';
+import delegationAJAX from '../../../../api/delegation';
 
 const Member = styled.span`
   align-items: center;
@@ -16,32 +19,82 @@ const Member = styled.span`
   height: 26px;
   vertical-align: top;
   margin-top: 10px;
+  margin-right: 10px;
+  background: #f7f7f7;
+  border-radius: 26px;
+  padding-right: 10px;
   position: relative;
-  padding-right: 20px;
-  .workflowExecMember {
-    background: #f7f7f7;
-    border-radius: 26px;
-    padding-right: 10px;
-    display: inline-flex;
-    align-items: center;
-  }
   img {
     width: 26px;
     height: 26px;
     border-radius: 50%;
   }
-  &:hover {
-    .icon-close {
-      display: inline-block;
-    }
-  }
   .icon-close {
-    display: none;
-    position: absolute;
-    right: 0;
     &:hover {
       color: #f44336 !important;
     }
+  }
+  .icon-info {
+    color: #ffa340;
+    position: absolute;
+    left: -5px;
+    top: -5px;
+    &:before {
+      z-index: 1;
+      position: relative;
+    }
+    &:after {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      right: 3px;
+      bottom: 3px;
+      content: '';
+      background: #fff;
+    }
+  }
+`;
+
+const MenuBox = styled(Menu)`
+  right: 0 !important;
+  width: auto !important;
+  margin-top: -1px;
+  max-height: 250px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  .ming.Item {
+    min-height: 36px !important;
+    height: auto !important;
+  }
+  .Item-content {
+    overflow: inherit !important;
+    word-break: break-all !important;
+    white-space: inherit !important;
+    line-height: 20px !important;
+    min-height: 36px;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    white-space: break-spaces !important;
+  }
+`;
+
+const SelectBox = styled(Select)`
+  width: 100%;
+  &.ant-select-focused {
+    .ant-select-selector {
+      border-color: #1e88e5 !important;
+      box-shadow: none !important;
+    }
+  }
+  .ant-select-selector {
+    height: 36px !important;
+    border-color: #ccc !important;
+    border-radius: 4px !important;
+    padding: 3px 10px !important;
+    transition: none !important;
+  }
+  input {
+    height: 34px !important;
   }
 `;
 
@@ -62,24 +115,55 @@ export default class Approve extends Component {
 
     const { isCallBack } = (props.data || {}).flowNode || {};
     let backNodeId = '';
+    let content = '';
 
     if (props.action === 'return' && isCallBack) {
       backNodeId = _.get(props.data, 'backFlowNodes[0].id') || '';
     }
 
+    if (_.includes(['pass', 'overrule', 'return', 'after'], props.action)) {
+      let list = (
+        (_.includes(['pass', 'after'], props.action)
+          ? props.data.opinionTemplate.opinions[4]
+          : props.data.opinionTemplate.opinions[5]) || []
+      ).filter(item => item.selected);
+
+      if (list.length) {
+        content = list[0].value;
+      }
+    }
+
     this.state = {
-      content: '',
+      content,
       backNodeId,
       selectedUsers: [],
       showCode: false,
       link: '',
       code: '',
       resultCode: '',
+      showTemplateList: false,
+      entrustList: {},
+      showPassword: false,
     };
   }
 
   isComplete = true;
   password = '';
+  isNoneVerification = false;
+
+  componentDidMount() {
+    const { action } = this.props;
+    const { encrypt } = (this.props.data || {}).flowNode || {};
+
+    if (_.includes(['pass', 'overrule', 'return'], action) && encrypt) {
+      verifyPassword({
+        checkNeedAuth: true,
+        fail: () => {
+          this.setState({ showPassword: true });
+        },
+      });
+    }
+  }
 
   /**
    * 根据操作类型渲染头部
@@ -96,7 +180,7 @@ export default class Approve extends Component {
 
   onOk = (backNodeId = '') => {
     const { action, workId, onOk, onCancel } = this.props;
-    const { content, selectedUsers } = this.state;
+    const { content, selectedUsers, entrustList, showPassword } = this.state;
     const { auth, encrypt } = (this.props.data || {}).flowNode || {};
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
     const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
@@ -104,7 +188,14 @@ export default class Approve extends Component {
     const overruleSignature = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 1);
 
     const submitFun = () => {
-      const userId = selectedUsers.map(user => user.accountId).join(',');
+      const userId = selectedUsers
+        .map(user => {
+          if (entrustList[user.accountId]) {
+            return entrustList[user.accountId].trustee.accountId;
+          }
+          return user.accountId;
+        })
+        .join(',');
 
       if (!this.isComplete) return;
 
@@ -157,7 +248,16 @@ export default class Approve extends Component {
     } else {
       // 验证密码
       if (_.includes(['pass', 'overrule', 'return'], action) && encrypt) {
-        verifyPassword(this.password, submitFun);
+        verifyPassword({
+          password: this.password,
+          closeImageValidation: true,
+          isNoneVerification: this.isNoneVerification,
+          checkNeedAuth: !showPassword,
+          success: submitFun,
+          fail: () => {
+            this.setState({ showPassword: true });
+          },
+        });
       } else {
         submitFun();
       }
@@ -169,7 +269,7 @@ export default class Approve extends Component {
    */
   renderMember() {
     const { action } = this.props;
-    const { selectedUsers } = this.state;
+    const { selectedUsers, entrustList } = this.state;
 
     return (
       <div className="mBottom20">
@@ -182,16 +282,14 @@ export default class Approve extends Component {
           {action === 'addApprove' && !!selectedUsers.length && `(${selectedUsers.length})`}
         </div>
 
-        {selectedUsers.map((user, index) => {
-          return (
-            <div className="flexRow">
+        <div>
+          {selectedUsers.map((user, index) => {
+            return (
               <Member key={index}>
-                <div className="workflowExecMember">
-                  <img src={user.avatar} />
-                  <span className="ellipsis mLeft8" style={{ maxWidth: 300 }}>
-                    {user.fullname}
-                  </span>
-                </div>
+                <img src={user.avatar} />
+                <span className="ellipsis mLeft8" style={{ maxWidth: 300 }}>
+                  {user.fullname}
+                </span>
                 {action === 'addApprove' && (
                   <i
                     className="icon-close Font14 mLeft5 Gray_9e pointer"
@@ -200,29 +298,57 @@ export default class Approve extends Component {
                     }
                   />
                 )}
-              </Member>
-              {action !== 'addApprove' && (
-                <i
-                  className="icon-task-folder-charge Font26 Gray_9e ThemeHoverColor3 pointer mTop10"
-                  style={{ marginLeft: -10 }}
-                  onClick={this.selectUser}
-                />
-              )}
-            </div>
-          );
-        })}
 
-        {(action === 'addApprove' || !selectedUsers.length) && (
-          <div class="mTop10">
-            <span
-              className="inlineFlexRow ThemeHoverColor3 Gray_9e alignItemsCenter pointer TxtTop"
+                {!!entrustList[user.accountId] && (
+                  <Tooltip
+                    placement="bottomLeft"
+                    color="#fff"
+                    overlayInnerStyle={{ padding: '12px 16px', width: 240 }}
+                    align={{ offset: [5, 15] }}
+                    title={() => (
+                      <Fragment>
+                        <div className="Font15 bold Gray">
+                          {_l('%0发起了委托', entrustList[user.accountId].principal.fullName)}
+                        </div>
+                        <div className="mTop10 flexRow alignItemsCenter">
+                          <div className="Gray_9e Font13">{_l('将委托给')}</div>
+                          <div className="mLeft15">
+                            <Member style={{ marginTop: 0 }}>
+                              <img src={entrustList[user.accountId].trustee.avatar} />
+                              <span className="ellipsis mLeft8 Gray" style={{ maxWidth: 300 }}>
+                                {entrustList[user.accountId].trustee.fullName}
+                              </span>
+                            </Member>
+                          </div>
+                        </div>
+                        <div className="mTop10 flexRow Font13 alignItemsCenter">
+                          <div className="Gray_9e">{_l('委托截止')}</div>
+                          <div className="mLeft15 Gray">{entrustList[user.accountId].endDate}</div>
+                        </div>
+                      </Fragment>
+                    )}
+                  >
+                    <i className="icon-info Font16" />
+                  </Tooltip>
+                )}
+              </Member>
+            );
+          })}
+
+          {(action === 'addApprove' ||
+            !selectedUsers.length ||
+            (action !== 'addApprove' && !!selectedUsers.length)) && (
+            <i
+              className={cx(
+                'Font26 Gray_9e ThemeHoverColor3 pointer mTop10 InlineBlock relative',
+                action !== 'addApprove' && !!selectedUsers.length
+                  ? 'icon-task-folder-charge'
+                  : 'icon-task-add-member-circle',
+              )}
               onClick={this.selectUser}
-            >
-              <i class="Font26 icon-task-add-member-circle mRight10" />
-              {action === 'transfer' ? _l('设置填写人') : action === 'addApprove' ? _l('添加审批人') : _l('设置审批人')}
-            </span>
-          </div>
-        )}
+            />
+          )}
+        </div>
       </div>
     );
   }
@@ -261,9 +387,10 @@ export default class Approve extends Component {
       filterAccountIds: [md.global.Account.accountId],
       isDynamic: !unique,
       onSelect: users => {
-        this.setState({
-          selectedUsers: unique ? users : _.uniqBy(this.state.selectedUsers.concat(users), user => user.accountId),
-        });
+        const selectedUsers = unique ? users : _.uniqBy(this.state.selectedUsers.concat(users), user => user.accountId);
+
+        this.setState({ selectedUsers });
+        this.checkEntrust(selectedUsers);
       },
     });
   };
@@ -304,11 +431,88 @@ export default class Approve extends Component {
     });
   }
 
+  /**
+   * 检测是否委托
+   */
+  checkEntrust(users) {
+    const { projectId } = this.props;
+
+    delegationAJAX
+      .getListByPrincipals({
+        companyId: projectId,
+        principals: users.map(item => item.accountId),
+      })
+      .then(entrustList => {
+        this.setState({ entrustList });
+      });
+  }
+
+  /**
+   * 渲染审批意见列表
+   */
+  renderTemplateList() {
+    const { action, data } = this.props;
+    const { showTemplateList, content } = this.state;
+    const { opinionTemplate } = data;
+    let list = (
+      (_.includes(['pass', 'after'], action) ? opinionTemplate.opinions[4] : opinionTemplate.opinions[5]) || []
+    ).filter(item => item.value.indexOf(content) > -1);
+
+    if (!showTemplateList || !list.length) {
+      return null;
+    }
+
+    return (
+      <MenuBox
+        onClickAwayExceptions={['.approveDialog .Textarea']}
+        onClickAway={() => this.setState({ showTemplateList: false })}
+      >
+        {list.map((item, index) => (
+          <MenuItem key={index} onClick={() => this.setState({ content: item.value, showTemplateList: false })}>
+            {item.value}
+          </MenuItem>
+        ))}
+      </MenuBox>
+    );
+  }
+
+  /**
+   * 渲染审批意见只能选择模板
+   */
+  renderSelectTemplate() {
+    const { action, data } = this.props;
+    const { content } = this.state;
+    const { opinionTemplate } = data;
+    const options = (
+      (_.includes(['pass', 'after'], action) ? opinionTemplate.opinions[4] : opinionTemplate.opinions[5]) || []
+    ).map(item => {
+      return {
+        value: item.value,
+        label: item.value,
+      };
+    });
+
+    return (
+      <SelectBox
+        showSearch
+        allowClear
+        defaultValue={content}
+        suffixIcon={<Icon icon="arrow-down-border Font14" />}
+        notFoundContent={<span className="Gray_9e">{_l('无匹配结果')}</span>}
+        dropdownClassName="workflowTemplateListSelect"
+        placeholder={_l('请选择')}
+        onChange={value => this.setState({ content: value || '' })}
+        filterOption={(input, option) => option.label.toLowerCase().includes(input.toLowerCase())}
+        options={options}
+      />
+    );
+  }
+
   render() {
     const { action, onCancel } = this.props;
-    const { callBackNodeType } = this.props.data;
+    const { callBackNodeType, opinionTemplate } = this.props.data;
     const { isCallBack, auth, encrypt } = (this.props.data || {}).flowNode || {};
-    const { content, backNodeId, showCode, link, resultCode } = this.state;
+    const { content, backNodeId, showCode, link, resultCode, showPassword } = this.state;
     const backFlowNodes = ((this.props.data || {}).backFlowNodes || []).map(item => {
       return {
         text: item.name,
@@ -416,14 +620,28 @@ export default class Approve extends Component {
           )}
           {_l('审批意见')}
         </div>
-        <Textarea
-          className="mTop10"
-          height={120}
-          maxHeight={240}
-          value={content}
-          onChange={content => this.setState({ content })}
-          placeholder={(ACTION_TO_TEXT[action] || {}).placeholder}
-        />
+
+        <div className="mTop10 relative">
+          {opinionTemplate.inputType === 2 && _.includes(['pass', 'overrule', 'return', 'after'], action) ? (
+            this.renderSelectTemplate()
+          ) : (
+            <Textarea
+              className="Font13"
+              minHeight={0}
+              style={{ paddingTop: 9, paddingBottom: 9 }}
+              maxHeight={240}
+              value={content}
+              onChange={content => this.setState({ content })}
+              onFocus={() => this.setState({ showTemplateList: true })}
+              onBlue={() => this.setState({ showTemplateList: false })}
+              placeholder={(ACTION_TO_TEXT[action] || {}).placeholder}
+            />
+          )}
+
+          {opinionTemplate.inputType === 1 &&
+            _.includes(['pass', 'overrule', 'return', 'after'], action) &&
+            this.renderTemplateList()}
+        </div>
 
         {isCallBack && action === 'return' && !!backFlowNodes.length && (
           <Fragment>
@@ -464,9 +682,14 @@ export default class Approve extends Component {
           </Fragment>
         )}
 
-        {_.includes(['pass', 'overrule', 'return'], action) && encrypt && (
+        {_.includes(['pass', 'overrule', 'return'], action) && encrypt && showPassword && (
           <div className="mTop20">
-            <VerifyPassword onChange={value => (this.password = value)} />
+            <VerifyPassword
+              onChange={({ password, isNoneVerification }) => {
+                if (password !== undefined) this.password = password;
+                if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
+              }}
+            />
           </div>
         )}
       </Dialog>

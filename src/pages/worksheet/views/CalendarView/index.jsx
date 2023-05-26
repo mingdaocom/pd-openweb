@@ -123,6 +123,10 @@ class RecordCalendar extends Component {
     };
   }
   componentDidMount() {
+    const { allowAdd } = this.props.worksheetInfo;
+    this.setState({
+      canNew: isOpenPermit(permitList.createButtonSwitch, this.props.sheetSwitchPermit) && allowAdd,
+    });
     this.getFormatData(this.props);
     this.props.getCalendarData();
     this.props.fetchExternal();
@@ -130,7 +134,17 @@ class RecordCalendar extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { base, calendarview = {}, height } = nextProps;
+    const { base, calendarview = {}, height, sheetSwitchPermit } = nextProps;
+    if (
+      !_.isEqual(sheetSwitchPermit, this.props.sheetSwitchPermit) ||
+      _.get(nextProps, 'worksheetInfo.allowAdd') !== _.get(this.props, 'worksheetInfo.allowAdd')
+    ) {
+      this.setState({
+        canNew:
+          isOpenPermit(permitList.createButtonSwitch, nextProps.sheetSwitchPermit) &&
+          _.get(nextProps, 'worksheetInfo.allowAdd'),
+      });
+    }
     const { calendarData = {}, calendarFormatData } = calendarview;
     const { viewId } = base;
     const currentView = this.getCurrentView(nextProps);
@@ -601,7 +615,10 @@ class RecordCalendar extends Component {
   };
 
   showChooseTrigger = (data, type) => {
-    const { random } = this.state;
+    const { random, canNew } = this.state;
+    if (!canNew) {
+      return;
+    }
     let date = moment(data).format('YYYY-MM-DD');
     $(`span[data-date=${date}-${random}]`)[0].click();
   };

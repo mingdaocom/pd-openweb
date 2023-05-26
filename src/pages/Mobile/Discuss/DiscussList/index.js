@@ -30,6 +30,7 @@ class DiscussList extends Component {
   }
   componentWillUnmount() {
     ActionSheet.close();
+    this.props.dispatch(actions.emptySheetDiscussion());
   }
   getSheetDiscussion(pageIndex) {
     const { worksheetId, rowId, entityType } = this.props;

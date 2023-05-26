@@ -218,12 +218,12 @@ export default function SheetMoreOperate(props) {
                   description: (
                     <div>
                       <span style={{ color: '#333', fontWeight: 'bold' }}>
-                        {_l('注意：工作表下所有配置和数据将被永久删除，不可恢复。')}
+                        {_l('注意：工作表下所有配置和数据将被删除。')}
                       </span>
                       {_l('请务必确认所有应用成员都不再需要此工作表后，再执行此操作。')}
                     </div>
                   ),
-                  data: [{ text: _l('我确认永久删除工作表和所有数据'), value: 1 }],
+                  data: [{ text: _l('我确认删除工作表和所有数据'), value: 1 }],
                   onOk: () => {
                     deleteSheet({
                       type: sheet.type,

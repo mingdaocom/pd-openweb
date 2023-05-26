@@ -269,3 +269,35 @@ export const updateBranchGatewayType = (processId, nodeId, gatewayType) => (disp
       });
     });
 };
+
+/**
+ * 调整分支顺序
+ */
+export const updateBranchSort = (processId, nodeId, flowIds) => (dispatch, getState) => {
+  flowNode
+    .saveNode({
+      nodeId,
+      processId,
+      flowIds,
+    })
+    .then(result => {
+      const { workflowDetail } = _.cloneDeep(getState().workflow);
+
+      if (workflowDetail.id !== processId) {
+        const approvalNodeId = getApprovalProcessNodeId(workflowDetail.flowNodeMap, processId);
+        workflowDetail.flowNodeMap[approvalNodeId].processNode.flowNodeMap[nodeId].flowIds = flowIds;
+      } else {
+        workflowDetail.flowNodeMap[nodeId].flowIds = flowIds;
+      }
+
+      dispatch({
+        type: 'UPDATE_BRANCH_SORT',
+        data: workflowDetail,
+      });
+
+      dispatch({
+        type: 'UPDATE_PUBLISH_STATUS',
+        publishStatus: 1,
+      });
+    });
+};

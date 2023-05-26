@@ -220,11 +220,17 @@ class Card extends Component {
   }
   render() {
     const { dialogVisible, reportData, settingVisible, scopeVisible, sheetVisible, activeData } = this.state;
+    const { showTitle = true } = reportData.displaySetup || {};
     const { report, appId, ownerId, roleType, sourceType, needEnlarge, needRefresh = true, worksheetId, filters, filtersGroup, className, onRemove, isCharge, permissionType, isLock } = this.props;
     const permissions = sourceType ? false : ownerId || isCharge;
     const isSheetView = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(reportData.reportType);
     return (
-      <div className={cx(`statisticsCard statisticsCard-${report.id} statisticsCard-${reportData.reportType}`, className)}>
+      <div
+        className={cx(`statisticsCard statisticsCard-${report.id} statisticsCard-${reportData.reportType}`, className, {
+          hideChartHeader: !showTitle,
+          hideNumberChartName: !showTitle,
+        })}
+      >
         <div className="header">
           {permissions && (
             <span data-tip={_l('拖拽')} className="iconItem dragWrap Gray_9e">

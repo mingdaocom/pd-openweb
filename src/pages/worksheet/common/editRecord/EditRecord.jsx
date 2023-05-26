@@ -127,6 +127,7 @@ export default class EditRecord extends Component {
       appId,
       viewId,
       worksheetId,
+      recordId,
       selectedRows,
       worksheetInfo,
       searchArgs,
@@ -196,7 +197,7 @@ export default class EditRecord extends Component {
     if (!selectedControl) {
       return;
     }
-    const needUpdateControl = formatControlToServer(selectedControl, { needFullUpdate: true });
+    const needUpdateControl = formatControlToServer(selectedControl, { needFullUpdate: !recordId });
     if ((needUpdateControl.type === 29 || needUpdateControl.type === 35) && needUpdateControl.value) {
       try {
         needUpdateControl.relationValues = JSON.parse(needUpdateControl.value);

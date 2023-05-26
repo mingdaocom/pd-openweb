@@ -155,8 +155,18 @@ export default class SubList extends React.Component {
   }
 
   render() {
-    const { from, registerCell, worksheetId, recordId, formData, disabled, appId, initSource, sheetSwitchPermit } =
-      this.props;
+    const {
+      from,
+      registerCell,
+      worksheetId,
+      recordId,
+      formData,
+      disabled,
+      appId,
+      initSource,
+      viewIdForPermit,
+      sheetSwitchPermit,
+    } = this.props;
     const { controls, projectId, info } = this.state;
     const { instanceId, workId } = browserIsMobile()
       ? this.props.mobileApprovalRecordInfo || {}
@@ -166,7 +176,7 @@ export default class SubList extends React.Component {
     return (
       <div
         className="mdsubList"
-        style={{ minHeight: 74, margin: '10px 0 12px', background: loading ? '#f7f7f7' : 'transparent' }}
+        style={{ minHeight: 74, margin: '2px 0 12px', background: loading ? '#f7f7f7' : 'transparent' }}
       >
         {!loading && (
           <ChildTable
@@ -176,6 +186,7 @@ export default class SubList extends React.Component {
             rules={info.rules}
             registerCell={registerCell}
             appId={info.appId || appId}
+            viewId={viewIdForPermit}
             from={from}
             control={control}
             controls={controls}

@@ -15,6 +15,7 @@ import {
   updateFlowNodeName,
   updateNodeDesc,
   updateBranchGatewayType,
+  updateBranchSort,
 } from '../../redux/actions';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import _ from 'lodash';
@@ -251,6 +252,13 @@ class EditFlow extends Component {
   };
 
   /**
+   * 调整分支顺序
+   */
+  updateBranchSort = (processId, nodeId, flowIds) => {
+    this.props.dispatch(updateBranchSort(processId, nodeId, flowIds));
+  };
+
+  /**
    * render节点
    */
   renderNode = ({ processId, data, firstId, excludeFirstId = false, isApproval, approvalSelectNodeId = '' }) => {
@@ -294,6 +302,7 @@ class EditFlow extends Component {
         updateNodeName: this.updateNodeName,
         updateNodeDesc: this.updateNodeDesc,
         updateBranchGatewayType: this.updateBranchGatewayType,
+        updateBranchSort: this.updateBranchSort,
         updateHideNodes: hideNodes => this.setState({ hideNodes }),
         updateRefreshThumbnail: () => this.setState({ refreshThumbnail: +new Date(), refreshPosition: +new Date() }),
       };

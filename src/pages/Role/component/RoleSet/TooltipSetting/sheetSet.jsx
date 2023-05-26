@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import RadioGroup from 'ming-ui/components/RadioGroup2';
-import { Checkbox, Tooltip, Icon } from 'ming-ui';
-import cx from 'classnames';
+import { Checkbox, Tooltip, Icon, RadioGroup } from 'ming-ui';
 import lookPng from './img/look.png';
 import editPng from './img/edit.png';
 import delPng from './img/del.png';
@@ -171,46 +169,49 @@ export default function SheetSet(props) {
   const [list, setState] = useState([]);
   const { onChange } = props;
 
-  useEffect(() => {
-    const { sheet = {} } = props;
-    const { readLevel, editLevel, removeLevel, canEditExtendAttrs, canReadExtendAttrs, canRemoveExtendAttrs } = sheet;
-    const { showRead, showEdit, showRemove } = props.formatViews(sheet.views);
-    setState([
-      {
-        title: _l('可查看哪些记录？'),
-        img: lookPng,
-        k: 'readLevel',
-        type: 'look',
-        disable: ![20, 30, 100].includes(readLevel) || !showRead,
-        disabled: !showRead,
-        value: readLevel,
-        extendAttrValue: canReadExtendAttrs,
-        ek: 'canReadExtendAttrs',
-      },
-      {
-        title: _l('可修改哪些记录？'),
-        img: editPng,
-        k: 'editLevel',
-        type: 'edit',
-        disable: ![20, 30, 100].includes(editLevel) || !showRead || !showEdit,
-        disabled: !showRead || !showEdit,
-        value: editLevel,
-        extendAttrValue: canEditExtendAttrs,
-        ek: 'canEditExtendAttrs',
-      },
-      {
-        title: _l('可删除哪些记录？'),
-        img: delPng,
-        k: 'removeLevel',
-        type: undefined,
-        disable: ![20, 30, 100].includes(removeLevel) || !showRead || !showRemove,
-        disabled: !showRead || !showRemove,
-        value: removeLevel,
-        extendAttrValue: canRemoveExtendAttrs,
-        ek: 'canRemoveExtendAttrs',
-      },
-    ]);
-  }, [props]);
+  useEffect(
+    () => {
+      const { sheet = {} } = props;
+      const { readLevel, editLevel, removeLevel, canEditExtendAttrs, canReadExtendAttrs, canRemoveExtendAttrs } = sheet;
+      const { showRead, showEdit, showRemove } = props.formatViews(sheet.views);
+      setState([
+        {
+          title: _l('可查看哪些记录？'),
+          img: lookPng,
+          k: 'readLevel',
+          type: 'look',
+          disable: ![20, 30, 100].includes(readLevel) || !showRead,
+          disabled: !showRead,
+          value: readLevel,
+          extendAttrValue: canReadExtendAttrs,
+          ek: 'canReadExtendAttrs',
+        },
+        {
+          title: _l('可修改哪些记录？'),
+          img: editPng,
+          k: 'editLevel',
+          type: 'edit',
+          disable: ![20, 30, 100].includes(editLevel) || !showRead || !showEdit,
+          disabled: !showRead || !showEdit,
+          value: editLevel,
+          extendAttrValue: canEditExtendAttrs,
+          ek: 'canEditExtendAttrs',
+        },
+        {
+          title: _l('可删除哪些记录？'),
+          img: delPng,
+          k: 'removeLevel',
+          type: undefined,
+          disable: ![20, 30, 100].includes(removeLevel) || !showRead || !showRemove,
+          disabled: !showRead || !showRemove,
+          value: removeLevel,
+          extendAttrValue: canRemoveExtendAttrs,
+          ek: 'canRemoveExtendAttrs',
+        },
+      ]);
+    },
+    [props],
+  );
 
   const getData = data => {
     const { value, type = 'operation', disable } = data;

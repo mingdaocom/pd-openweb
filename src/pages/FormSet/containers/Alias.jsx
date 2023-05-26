@@ -194,14 +194,14 @@ class Alias extends React.Component {
                 />
                 <div className="preview mTop18">
                   <div className="btn">
-                    <span className="title">{_l('按钮预览')}</span>
-                    <span className="btnCon">
+                    <span className="title WordBreak">{_l('按钮预览')}</span>
+                    <span className="btnCon TxtTop">
                       <Icon icon="plus" className="mRight8" />
                       <span className="Bold">{name}</span>
                     </span>
                   </div>
                   <div className="notice mTop18">
-                    <span className="title">{_l('通知预览')}</span>
+                    <span className="title WordBreak">{_l('通知预览')}</span>
                     <span className="noticeCon">
                       <span className="appIcon">
                         <Icon icon="workbench" className="Font18" />

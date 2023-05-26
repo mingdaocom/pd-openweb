@@ -117,7 +117,7 @@ export default class Signature extends React.Component {
   }
 
   render() {
-    const { from, cell, tableFromModule, className, style, popupContainer, editable, isediting, updateEditingStatus } =
+    const { projectId, appId, worksheetId, from, cell, tableFromModule, className, style, popupContainer, editable, isediting, updateEditingStatus } =
       this.props;
     const { value } = this.state;
     if (from === FROM.CARD || (from === FROM.DRAFT && browserIsMobile())) {
@@ -125,6 +125,9 @@ export default class Signature extends React.Component {
     }
     return (
       <SignatureComp
+        projectId={projectId}
+        appId={appId}
+        worksheetId={worksheetId}
         ref={this.editRef}
         onlySignature
         isEdit

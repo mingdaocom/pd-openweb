@@ -17,8 +17,6 @@ import socketInit from '../socket';
 import './index.less';
 import { Dialog, Icon } from 'ming-ui';
 import { getAppFeaturesVisible } from 'src/util';
-import api from 'src/api/homeApp';
-import { getSuffix } from 'src/pages/PortalAccount/util';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
 import privateGuide from 'src/api/privateGuide';
 import Trigger from 'rc-trigger';
@@ -65,13 +63,9 @@ export default class App extends Component {
       if (e.ctrlKey || e.shiftKey || e.metaKey) return;
       if (e.originalEvent && e.originalEvent.defaultPrevented) return;
       if ($(e.target).closest('.mdEditorContent').length) return;
+      if ($(e.target).closest('.stopPropagation').length) return;
       const $a = $(this);
-      if (
-        $a.hasClass('DisableInterceptClick') ||
-        $a.attr('download') ||
-        $a.attr('rel') === 'external' ||
-        (!isMDClient && $a.attr('target'))
-      ) {
+      if ($a.attr('download') || $a.attr('rel') === 'external' || (!isMDClient && $a.attr('target'))) {
         return;
       }
       const link = $a.attr('href');
@@ -192,19 +186,11 @@ export default class App extends Component {
       }
     }, 200);
 
-    $(document).on('keypress', function (e) {
+    $(document).on('keypress', function(e) {
       if (e.ctrlKey || e.shiftKey || e.altKey || e.cmdKey || e.metaKey) return;
       var tag = e.target.tagName && e.target.tagName.toLowerCase();
       if (tag === 'input' || tag === 'textarea' || $(e.target).is('[contenteditable]')) return;
       callDialog(e.which);
-    });
-
-    const isMacOs = navigator.userAgent.toLocaleLowerCase().includes('mac os');
-    $(document).on('keydown', function (e) {
-      if ((isMacOs ? e.metaKey : e.ctrlKey) && e.keyCode === 69) {
-        const fullEl = document.querySelector('.icon.fullRotate');
-        fullEl && fullEl.click();
-      }
     });
   }
 

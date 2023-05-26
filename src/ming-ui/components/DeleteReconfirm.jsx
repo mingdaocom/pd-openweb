@@ -1,9 +1,6 @@
 import React, { Fragment } from 'react';
 import ReactDOM from 'react-dom';
-import Dialog from 'ming-ui/components/Dialog';
-import RadioGroup from 'ming-ui/components/RadioGroup2';
-import Checkbox from 'ming-ui/components/Checkbox';
-import Button from 'ming-ui/components/Button';
+import { RadioGroup, Dialog, Checkbox, Button } from 'ming-ui';
 import './less/DeleteReconfirm.less';
 import _ from 'lodash';
 
@@ -80,7 +77,13 @@ export default ({
       footer={_.isUndefined(footer) ? renderFooter() : footer}
     >
       {data.length > 1 ? (
-        <RadioGroup data={data} vertical radioItemClassName="deleteReconfirmRadioItem" onChange={onChange} />
+        <RadioGroup
+          needDefaultUpdate
+          data={data}
+          vertical
+          radioItemClassName="deleteReconfirmRadioItem"
+          onChange={onChange}
+        />
       ) : (
         <div>
           {data.map(({ text, value }) =>

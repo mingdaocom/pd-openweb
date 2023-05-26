@@ -150,6 +150,7 @@ export default function AddOrEditSource(props) {
       password: formData.password,
       initDb: formData.initDb,
       connectOptions: formData.connectOptions,
+      cdcParams: formData.cdcParams,
       type: dataSource.type,
       fromType: dataSource.fromType,
       roleType: roleTypeArr.length > 1 ? 'ALL' : roleTypeArr[0],

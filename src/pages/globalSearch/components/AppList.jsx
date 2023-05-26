@@ -294,7 +294,7 @@ export default function AppList(props) {
     }
     return (
       <div className="noData">{`${
-        dataKey === 'app' ? _l('没有搜索到相关应用和应用像') : _l('没有搜索到相关记录')
+        dataKey === 'app' ? _l('没有搜索到相关应用和应用项') : _l('没有搜索到相关记录')
       }，${_l('可尝试更换关键字搜索')}`}</div>
     );
   };

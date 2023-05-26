@@ -61,10 +61,11 @@ export default class Grouping extends Component {
     this.props.updateGroupSubVisible(id);
   }
   handleCreateRecord = (groupId, isMilepost) => {
-    const { grouping, controls, viewConfig } = this.props;
+    const { base, grouping, controls, viewConfig, sheetSwitchPermit } = this.props;
     const { viewControl, milepost } = viewConfig;
     const titleControl = _.find(controls, { attribute: 1 });
-    if (titleControl.type === 2) {
+    const allowedit = isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, base.viewId);
+    if (titleControl.type === 2 && allowedit) {
       this.props.createRecord(groupId, isMilepost);
     } else {
       const defaultFormData = {};

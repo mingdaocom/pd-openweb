@@ -340,7 +340,8 @@ export const formatControlValueDot = (value, data) => {
     return value;
   }
 
-  const { magnitude, suffix, dot, controlId, fixType } = data;
+  const { magnitude, suffix, dot, controlId, fixType, advancedSetting } = data;
+  const dotformat = _.get(advancedSetting, 'dotformat') || '0';
   const isRecordCount = controlId === 'record_count';
   const ydot = Number(data.ydot);
 
@@ -349,8 +350,12 @@ export const formatControlValueDot = (value, data) => {
     return format(value, ydot);
   } else if (magnitude === 1) {
     let newValue = 0;
-    if (ydot === '') {
-      newValue = Number(toFixed(value, dot)).toLocaleString('zh', { minimumFractionDigits: dot });
+    if (data.ydot === '') {
+      if (dotformat === '0') {
+        newValue = Number(toFixed(value, dot)).toLocaleString('zh', { minimumFractionDigits: dot });
+      } else {
+        newValue = value;
+      }
     } else {
       const dot = isRecordCount ? 0 : ydot;
       newValue = Number(toFixed(value, dot)).toLocaleString('zh', { minimumFractionDigits: dot });

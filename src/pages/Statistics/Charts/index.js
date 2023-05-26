@@ -29,7 +29,7 @@ const charts = {
   [reportTypes.CountryLayer]: CountryLayer,
   [reportTypes.BidirectionalBarChart]: BidirectionalBarChart,
   [reportTypes.ScatterChart]: ScatterChart,
-  [reportTypes.WordCloudChart]: WordCloudChart,
+  [reportTypes.WordCloudChart]: VerificationDataLength(WordCloudChart),
   [reportTypes.GaugeChart]: GaugeChart,
   [reportTypes.ProgressChart]: ProgressChart,
   [reportTypes.TopChart]: TopChart,

@@ -85,7 +85,7 @@ export default class SecuritySetting extends Component {
   renderTips = key => {
     return (
       <Tooltip popupPlacement="top" text={<span>{tipsConfig[key]}</span>}>
-        <span className="icon-novice-circle Gray_bd Hand mLeft5 Font15"></span>
+        <span className="icon-novice-circle Gray_bd Hand mLeft5 Font15" />
       </Tooltip>
     );
   };
@@ -106,10 +106,13 @@ export default class SecuritySetting extends Component {
 
   confirmOpenVerify = password => {
     const _this = this;
-    verifyPassword(password, () => {
-      _this.sureSettings('isTwoauthentication', true, () => {
-        _this.setState({ isTwoauthentication: true, visible: false });
-      });
+    verifyPassword({
+      password,
+      success: () => {
+        _this.sureSettings('isTwoauthentication', true, () => {
+          _this.setState({ isTwoauthentication: true, visible: false });
+        });
+      },
     });
   };
 
@@ -225,7 +228,7 @@ export default class SecuritySetting extends Component {
             </div>
           </Tooltip>
         ) : (
-          <div className="iconWrap bgWhite"></div>
+          <div className="iconWrap bgWhite" />
         )}
       </div>
     );

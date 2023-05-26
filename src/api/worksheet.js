@@ -857,6 +857,38 @@ export default {
      return $.api('Worksheet', 'EditAttachmentName', args, options);
    },
   /**
+  * 获取导出excel配置
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId
+  * @param {string} args.viewId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getExportConfig: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'GetExportConfig', args, options);
+   },
+  /**
+  * 保存导出配置
+  * @param {Object} args 请求参数
+  * @param {array} args.exportExtIds 导出特殊列配置
+  * @param {array} args.controlIds 需要导出的控件ids
+  * @param {} args.type 导出类型，0 = excel,1= csv
+  * @param {} args.exportFieldType 导出字段类型，0=全部字段，1 =  导出当前表格显示列
+  * @param {boolean} args.getColumnRpt 是否导出列统计
+  * @param {boolean} args.edited 是否允许修改
+  * @param {string} args.worksheetId
+  * @param {string} args.viewId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   saveExportConfig: function (args, options = {}) {
+     
+     return $.api('Worksheet', 'SaveExportConfig', args, options);
+   },
+  /**
   * 获取视图字段查看编辑权限
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id

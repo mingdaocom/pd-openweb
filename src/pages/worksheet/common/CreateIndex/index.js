@@ -12,8 +12,8 @@ const { Option } = Select;
 
 const RULES = {
   0: [
-    { value: 1, txt: _l('A → Z') },
-    { value: -1, txt: _l('Z → A') },
+    { value: 1, txt: _l('A → Z%02058') },
+    { value: -1, txt: _l('Z → A%02059') },
     { value: 'text', txt: _l('文本索引') },
   ],
   1: [

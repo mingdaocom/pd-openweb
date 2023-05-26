@@ -351,7 +351,7 @@ export default class RelateRecordDropdown extends React.Component {
             {selected[0].rowid ? getTitleTextFromRelateControl(control, selected[0]) : _l('关联当前%0', entityName)}
           </span>
         )}
-        {((_.isEmpty(staticRecords) && canSelect && active) || isQuickFilter) && (
+        {((_.isEmpty(staticRecords) && canSelect) || isQuickFilter) && active && (
           <AutoWidthInput
             mountRef={ref => (this.inputRef = ref)}
             value={keywords}
@@ -454,7 +454,7 @@ export default class RelateRecordDropdown extends React.Component {
             ]
           ),
         )}
-        {((this.canSelect && active) || isQuickFilter) && (
+        {(this.canSelect || isQuickFilter) && active && (
           <AutoWidthInput
             mountRef={ref => (this.inputRef = ref)}
             value={keywords}
@@ -707,9 +707,7 @@ export default class RelateRecordDropdown extends React.Component {
               if (rowIds[0]) {
                 this.setState({
                   selected: selected.map(item =>
-                    _.find(selected, r => r.rowid === rowIds[0])
-                      ? { ...item, ..._.omit(updatedRow, ['allowdelete', 'allowedit']) }
-                      : item,
+                    item.rowid === rowIds[0] ? { ...item, ..._.omit(updatedRow, ['allowdelete', 'allowedit']) } : item,
                   ),
                 });
               }

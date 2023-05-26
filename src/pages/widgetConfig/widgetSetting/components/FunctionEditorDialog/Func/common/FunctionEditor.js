@@ -66,7 +66,10 @@ function groupMatch(text, matchText) {
   return result;
 }
 export default class Function {
-  constructor(dom, { value, options = {}, type = 'mdfunction', getControlName = () => {}, renderTag } = {}) {
+  constructor(
+    dom,
+    { value, options = {}, type = 'mdfunction', getControlName = () => {}, renderTag, onChange = () => {} } = {},
+  ) {
     if (!dom) {
       console.log('target is not a dom element');
       return;
@@ -93,6 +96,7 @@ export default class Function {
     this.type = type;
     this.getControlName = getControlName;
     this.renderTag = renderTag;
+    this.onChange = onChange;
     if (value) {
       this.init(value);
     }
@@ -108,6 +112,9 @@ export default class Function {
   }
   bindEvent() {
     const editor = this.editor;
+    editor.on('blur', () => {
+      window.emitter.emit('FUNCTIONEDITOR_CLEAR');
+    });
 
     editor.on('cursorActivity', (cm, event) => {
       const cursor = cm.getCursor();
@@ -129,6 +136,9 @@ export default class Function {
       }
     });
     editor.on('change', (cm, event) => {
+      if (_.isFunction(this.onChange)) {
+        this.onChange();
+      }
       if (event.origin === 'complete' && functions[event.text[0]]) {
         this.insertBrackets();
       } else if (event.origin === '+input') {

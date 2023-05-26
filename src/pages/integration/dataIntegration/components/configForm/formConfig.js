@@ -16,7 +16,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       size: 6,
       value: _.get(formData, 'name') || '',
       advancedSetting: {
-        regex: '{"type":"custom","regex":"^[a-zA-Z0-9\\\\u4E00-\\\\u9FA5_]+$","err":"名称只能包含中文, 英文, 数字和_"}',
+        regex: '{"type":"custom","regex":"^[^\\\\r\\\\n\\\\s-]+$","err":"名称不能包含换行符、空格或-"}',
       },
     },
     {
@@ -122,6 +122,16 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       size: 12,
       value: _.get(formData, 'connectOptions') || '',
     },
+    {
+      controlId: 'cdcParams',
+      controlName: _l('其他连接器选项'),
+      type: 2,
+      row: 8,
+      col: 0,
+      required: false,
+      size: 12,
+      value: _.get(formData, 'cdcParams') || '',
+    },
   ];
 
   const basicFormData = [
@@ -166,8 +176,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
         },
       ],
       required: true,
-      value: '["ServiceName"]',
-      value: _.get(formData, ['extraParams', 'SID']) ? '["SID"]' : `["ServiceName"]`,
+      value: _.get(formData, ['extraParams', 'SID']) !== undefined ? '["SID"]' : `["ServiceName"]`,
       size: 12,
     },
     {

@@ -5,7 +5,7 @@ import { Icon, Radio } from 'ming-ui';
 import Back from '../components/Back';
 import account from 'src/api/account';
 import common from 'src/pages/Personal/common';
-import { getProject } from 'src/util';
+import { getCurrentProject } from 'src/util';
 import styled from 'styled-components';
 import _ from 'lodash';
 import moment from 'moment';
@@ -132,12 +132,12 @@ class ProjectCard extends Component {
     const { item, index, checkedProjectId } = this.props;
     const { visible, loading } = this.state;
     return (
-      <div className={cx('projectWrapper WhiteBG pTop20 pBottom20 pLeft16 pRight16 mBottom20', { mTop20: !index })}>
+      <div className="projectWrapper WhiteBG pTop15 pBottom20 pLeft16 pRight16 mBottom10">
         <div className="flexRow">
           <div
             className="flex"
             onClick={() =>
-              item.userStatus === common.USER_STATUS.UNAUDITED ? () => { } : this.props.checkCurrentProject(item)
+              item.userStatus === common.USER_STATUS.UNAUDITED ? () => {} : this.props.checkCurrentProject(item)
             }
           >
             <div className="Font18">
@@ -148,7 +148,7 @@ class ProjectCard extends Component {
                 {item.companyName}
               </Radio>
             </div>
-            <div className="Font12 Gray_75 mTop15 mBottom20">
+            <div className="Font12 Gray_75 mTop15 mBottom16">
               {_l('组织门牌号 %0', item.projectCode)} {_l('(可用于邀请其他人加入该网络)')}
             </div>
             {item.userStatus !== common.USER_STATUS.UNAUDITED && (
@@ -188,9 +188,10 @@ class Enterprise extends Component {
       projectList: [],
       checkedProjectId:
         localStorage.getItem('currentProjectId') ||
-        (getProject(localStorage.getItem('currentProjectId')) &&
-          getProject(localStorage.getItem('currentProjectId')).projectId) ||
-        'external',
+        getCurrentProject(
+          localStorage.getItem('currentProjectId') ||
+            (md.global.Account.projects[0] || { projectId: 'external' }).projectId,
+        ).projectId,
     };
   }
   componentDidMount() {
@@ -244,14 +245,17 @@ class Enterprise extends Component {
   };
   render() {
     const { loading, projectList = [], checkedProjectId } = this.state;
-    const currentProject = getProject(localStorage.getItem('currentProjectId'));
+    const currentProject = getCurrentProject(
+      localStorage.getItem('currentProjectId') ||
+        (md.global.Account.projects[0] || { projectId: 'external' }).projectId,
+    );
     return (
-      <div className="h100">
+      <div className="h100" style={{ background: '#f5f5f5', paddingTop: 10, overflowY: 'auto' }}>
         {loading ? (
           <Flex justify="center" align="center" className="h100">
             <ActivityIndicator size="large" />
           </Flex>
-        ) : currentProject ? (
+        ) : currentProject && !_.isEmpty(projectList) ? (
           <Fragment>
             {projectList.map((item, index) => (
               <ProjectCard

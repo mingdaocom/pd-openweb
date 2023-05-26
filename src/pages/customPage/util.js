@@ -68,7 +68,7 @@ export const getIconByType = type => {
 
 const htmlReg = /<.+?>/g;
 export const getComponentTitleText = component => {
-  const { value, type, name, button, config = {} } = component;
+  const { value = '', type, name, button, config = {} } = component;
   const enumType = getEnumType(type);
   if (enumType === 'analysis') return name || _l('未命名图表');
   if (enumType === 'richText') return value.replace(htmlReg, '');

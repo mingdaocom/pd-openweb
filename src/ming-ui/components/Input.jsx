@@ -1,13 +1,11 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import formControl from 'ming-ui/decorators/formControl';
 import { formatNumberFromInput } from 'src/util';
 import './less/Input.less';
 
 const SIZE_LIST = ['small', 'default'];
 
-@formControl
 class Input extends Component {
   static propTypes = {
     type: PropTypes.string,
@@ -20,7 +18,6 @@ class Input extends Component {
     size: PropTypes.oneOf(SIZE_LIST),
     name: PropTypes.string, // 表单item名字
     manualRef: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
-    $formDataChange: PropTypes.func,
   };
   static defaultProps = {
     type: 'text',
@@ -37,14 +34,12 @@ class Input extends Component {
     this.state = {
       value,
     };
-    this.props.$formDataChange(value);
   }
   componentWillReceiveProps(nextProps) {
     if ('value' in nextProps) {
       this.setState({
         value: nextProps.value,
       });
-      this.props.$formDataChange(nextProps.value);
     }
   }
   onChange(event) {
@@ -56,7 +51,6 @@ class Input extends Component {
       this.setState({
         value,
       });
-      this.props.$formDataChange(value);
     }
     if (this.props.onChange) {
       this.props.onChange(value);
@@ -67,7 +61,7 @@ class Input extends Component {
   }
 
   render() {
-    const { size, type, $formDataChange, defaultValue, value, manualRef, ...others } = this.props;
+    const { size, type, defaultValue, value, manualRef, ...others } = this.props;
     return (
       <input
         {...others}

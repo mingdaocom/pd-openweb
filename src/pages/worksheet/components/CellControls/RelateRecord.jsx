@@ -206,7 +206,7 @@ export default class RelateRecord extends React.Component {
         value: newValue,
       });
     } else {
-      const data = formatControlToServer({ ...cell, value: newValue });
+      const data = formatControlToServer({ ...cell, value: newValue }, { needSourceValue: true });
       updateCell({
         editType: data.editType,
         value: data.value,

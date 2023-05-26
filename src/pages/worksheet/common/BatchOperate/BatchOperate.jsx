@@ -13,11 +13,11 @@ import { copyRow } from 'worksheet/controllers/record';
 import { editRecord } from 'worksheet/common/editRecord';
 import { refreshRecord } from 'worksheet/common/RefreshRecordDialog';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
-import { exportSheet } from 'worksheet/common/ExportSheet';
 import IconText from 'worksheet/components/IconText';
 import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
-import { filterHidedControls, checkCellIsEmpty } from 'worksheet/util';
+import { checkCellIsEmpty } from 'worksheet/util';
 import PrintList from './PrintList';
+import ExportList from './ExportList';
 import SubButton from './SubButton';
 import Buttons from './Buttons';
 import './BatchOperate.less';
@@ -352,7 +352,6 @@ class BatchOperate extends React.Component {
       controls,
       filters,
       quickFilter,
-      filtersGroup,
       navGroupFilters,
       worksheetInfo,
       count,
@@ -360,7 +359,6 @@ class BatchOperate extends React.Component {
       selectedLength,
       allWorksheetIsSelected,
       permission,
-      rowsSummary,
       clearSelect,
       sheetSwitchPermit,
       refresh,
@@ -371,7 +369,7 @@ class BatchOperate extends React.Component {
     } = this.props;
     // funcs
     const { reload, updateRows, hideRows, getWorksheetSheetViewSummary } = this.props;
-    const { projectId, entityName, downLoadUrl } = worksheetInfo;
+    const { projectId, entityName } = worksheetInfo;
     const { loading, select1000, customButtonLoading, templateList } = this.state;
     let { customButtons } = this.state;
     customButtons = customButtons.filter(b => !b.disabled);
@@ -510,43 +508,7 @@ class BatchOperate extends React.Component {
                   {...this.getFilterArgs()}
                 />
               )}
-              {showExport && (
-                <IconText
-                  icon="file_download"
-                  text={_l('导出')}
-                  onClick={() => {
-                    if (window.isPublicApp) {
-                      alert(_l('预览模式下，不能操作'), 3);
-                      return;
-                    }
-                    const hasCharge = isCharge || canEditData(permissionType);
-                    exportSheet({
-                      allCount: count,
-                      allWorksheetIsSelected: allWorksheetIsSelected,
-                      appId: appId,
-                      exportView: view,
-                      worksheetId,
-                      projectId: projectId,
-                      searchArgs: filters,
-                      sheetSwitchPermit,
-                      selectRowIds: selectedRows.map(item => item.rowid),
-                      columns: (hasCharge ? controls : filterHidedControls(controls, view.controls)).filter(item => {
-                        return (
-                          item.controlPermissions && item.controlPermissions[0] === '1' && item.controlId !== 'rowid'
-                        );
-                      }),
-                      downLoadUrl: downLoadUrl,
-                      worksheetSummaryTypes: rowsSummary.types,
-                      quickFilter,
-                      filtersGroup,
-                      navGroupFilters,
-                      isCharge: hasCharge,
-                      // 不支持列统计结果
-                      hideStatistics: true,
-                    });
-                  }}
-                />
-              )}
+              {showExport && <ExportList {...this.props} />}
               {canDelete && (
                 <IconText
                   className="delete"

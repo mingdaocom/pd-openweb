@@ -6,7 +6,7 @@ import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import update from 'immutability-helper';
-import _, { includes, get, isEmpty, omit, findIndex, filter, find, head } from 'lodash';
+import _, { includes, get, isEmpty, omit, findIndex, filter, find, head, last } from 'lodash';
 import { getAdvanceSetting, handleAdvancedSettingChange, isExceedMaxControlLimit } from './setting';
 import { insertControlInSameLine } from './drag';
 import { getControlByControlId, adjustControlSize } from '.';
@@ -51,7 +51,7 @@ export const getMsgByCode = ({ code, data }) => {
     default:
       break;
   }
-  alert(errorText);
+  alert(errorText, 2);
   return errorText;
 };
 
@@ -530,12 +530,58 @@ const scrollToVisibleRange = (data, widgetProps) => {
 };
 
 // 批量添加
-export const handleAddWidgets = (data, widgetProps, callback) => {
-  const { widgets, activeWidget, allControls, setWidgets, setActiveWidget } = widgetProps;
+export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
+  const { widgets, activeWidget, allControls, setWidgets, setActiveWidget, globalSheetInfo = {} } = widgetProps;
+  const { mode, path, location, rowIndex } = para;
+  const featureType = getFeatureStatus(globalSheetInfo.projectId, data.featureId);
+  if (_.includes([49, 50], data.type) && featureType === '2') {
+    buriedUpgradeVersionDialog(globalSheetInfo.projectId, data.featureId);
+    return;
+  }
+
   if (isExceedMaxControlLimit(allControls, data.length)) {
     alert(_l('当前表存在的控件已达到最大值，无法添加继续添加新控件!'), 3);
     return;
   }
+
+  // 如果当前控件列表为空 直接添加
+  if (isEmpty(widgets)) {
+    setWidgets(update(widgets, { $push: [data] }));
+    setActiveWidget(newActiveData);
+    return;
+  }
+
+  // 拖拽添加的情况
+  if (mode) {
+    // 拖到单独的行
+    if (mode === DRAG_MODE.INSERT_NEW_LINE) {
+      setWidgets(update(widgets, { $splice: [[rowIndex, 0, data]] }));
+      setActiveWidget(data[0]);
+      return;
+    }
+    // 拖到行的末尾
+    if (mode === DRAG_MODE.INSERT_TO_ROW_END) {
+      setWidgets(
+        update(widgets, {
+          [rowIndex]: {
+            $apply: item => {
+              const nextRow = item.concat(data);
+              return nextRow.map(value => ({ ...value, size: WHOLE_SIZE / nextRow.length }));
+            },
+          },
+        }),
+      );
+      setActiveWidget(adjustControlSize(widgets[rowIndex], data[0]));
+      return;
+    }
+
+    if (mode === DRAG_MODE.INSERT_TO_COL) {
+      setWidgets(insertControlInSameLine({ widgets, location, dropPath: path, srcItem: data[0] }));
+      setActiveWidget(adjustControlSize(widgets[path[0]], data[0]));
+      return;
+    }
+  }
+
   let newWidgets = widgets;
 
   data.map((item, index) => {
@@ -545,7 +591,9 @@ export const handleAddWidgets = (data, widgetProps, callback) => {
     if (isEmpty(activeWidget) || allControls.findIndex(item => item.controlId === activeWidget.controlId) < 0) {
       currentRowIndex = newWidgets.length - 1;
     } else {
-      currentRowIndex = head(getPathById(newWidgets, activeWidget.controlId));
+      currentRowIndex = head(
+        getPathById(newWidgets, index ? _.get(data[index - 1], 'controlId') : activeWidget.controlId),
+      );
     }
 
     // 如果当前激活控件所在行没有空位则另起下一行，否则放到当前行后面
@@ -567,76 +615,4 @@ export const handleAddWidgets = (data, widgetProps, callback) => {
   if (_.isFunction(callback)) {
     callback();
   }
-};
-
-export const handleAddWidget = (data, para = {}, widgetProps) => {
-  const { widgets, activeWidget, allControls, setWidgets, setActiveWidget, globalSheetInfo = {} } = widgetProps;
-  const { mode, path, location, rowIndex } = para;
-  const featureType = getFeatureStatus(globalSheetInfo.projectId, data.featureId);
-  if (_.includes([49, 50], data.type) && featureType === '2') {
-    buriedUpgradeVersionDialog(globalSheetInfo.projectId, data.featureId);
-    return;
-  }
-
-  if (isExceedMaxControlLimit(allControls)) {
-    alert(_l('当前表存在的控件已达到最大值，无法添加继续添加新控件!'), 3);
-    return;
-  }
-
-  // 如果当前控件列表为空 直接添加
-  if (isEmpty(widgets)) {
-    setWidgets(update(widgets, { $push: [[data]] }));
-    setActiveWidget(data);
-    return;
-  }
-
-  // 拖拽添加的情况
-  if (mode) {
-    // 拖到单独的行
-    if (mode === DRAG_MODE.INSERT_NEW_LINE) {
-      setWidgets(update(widgets, { $splice: [[rowIndex, 0, [data]]] }));
-      setActiveWidget(data);
-      return;
-    }
-    // 拖到行的末尾
-    if (mode === DRAG_MODE.INSERT_TO_ROW_END) {
-      setWidgets(
-        update(widgets, {
-          [rowIndex]: {
-            $apply: item => {
-              const nextRow = item.concat(data);
-              return nextRow.map(value => ({ ...value, size: WHOLE_SIZE / nextRow.length }));
-            },
-          },
-        }),
-      );
-      setActiveWidget(adjustControlSize(widgets[rowIndex], data));
-      return;
-    }
-
-    if (mode === DRAG_MODE.INSERT_TO_COL) {
-      setWidgets(insertControlInSameLine({ widgets, location, dropPath: path, srcItem: data }));
-      setActiveWidget(adjustControlSize(widgets[path[0]], data));
-      return;
-    }
-  }
-
-  let currentRowIndex = 0;
-
-  // 没有激活控件或者激活的控件不存在 则直接添加在最后一行
-  if (isEmpty(activeWidget) || allControls.findIndex(item => item.controlId === activeWidget.controlId) < 0) {
-    currentRowIndex = widgets.length - 1;
-  } else {
-    currentRowIndex = head(getPathById(widgets, activeWidget.controlId));
-  }
-
-  // 如果当前激活控件所在行没有空位则另起下一行，否则放到当前行后面
-  if (isHaveGap(widgets[currentRowIndex], data)) {
-    setWidgets(update(widgets, { [currentRowIndex]: { $push: [data] } }));
-  } else {
-    setWidgets(update(widgets, { $splice: [[currentRowIndex + 1, 0, [data]]] }));
-  }
-
-  setActiveWidget(data);
-  scrollToVisibleRange(data, widgetProps);
 };

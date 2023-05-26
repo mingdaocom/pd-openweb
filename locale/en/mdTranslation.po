@@ -1,15 +1,18 @@
+# 1 <1>, 2023.
 msgid ""
 msgstr ""
-"Project-Id-Version: POT-Creation-Date: 2023/3/2 14:42:32+08:00MIME-Version: 1.0\n"
+"Project-Id-Version: POT-Creation-Date: 2023/3/2 14:42:32+08:00MIME-Version: "
+"1.0\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"PO-Revision-Date: 2023-04-27 10:10+0800\n"
+"Last-Translator: 1 <1>\n"
+"Language-Team: 官网-英语\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.2.2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Virtaal 0.7.1\n"
 
 #: Disabled references:1
 msgid "刚刚"
@@ -441,7 +444,7 @@ msgstr "More"
 
 #: Disabled references:1
 msgid "新页面打开"
-msgstr "View in full page"
+msgstr "View in Full page"
 
 #: Disabled references:1
 msgid "分享"
@@ -5869,7 +5872,7 @@ msgstr "Obtain app info"
 
 #: Disabled references:1
 msgid "字段别名"
-msgstr "field alias"
+msgstr "Field Alias"
 
 #: Disabled references:1
 msgid "选项名称1"
@@ -6901,11 +6904,11 @@ msgstr "Not a valid passport number"
 
 #: Disabled references:1
 msgid "不是有效的港澳通行证号码"
-msgstr "Not a valid Hong Kong / Macau Transport Pass Number"
+msgstr "Not a valid Hong Kong and Macau Pass Number"
 
 #: Disabled references:1
 msgid "不是有效的台湾通行证号码"
-msgstr "Not a valid Taiwan Transport Pass Number"
+msgstr "Not a valid Taiwan Pass Number"
 
 #: Disabled references:1
 msgid "请填写其他"
@@ -13925,7 +13928,7 @@ msgstr "Subflow"
 
 #: Disabled references:1
 msgid "获取记录打印文件"
-msgstr "Get record printing file"
+msgstr "Get Record Printing File"
 
 #: Disabled references:1
 msgid "审批流"
@@ -24141,11 +24144,11 @@ msgstr "Passport"
 
 #: Disabled references:1
 msgid "港澳通行证"
-msgstr "Hong Kong-Macau laissez-passer"
+msgstr "Hong Kong and Macau Pass"
 
 #: Disabled references:1
 msgid "台湾通行证"
-msgstr "Mainland Travel Permit for Taiwan Residents"
+msgstr "Taiwan Travel Permit"
 
 #: Disabled references:1
 msgid "填写%0"
@@ -34197,19 +34200,19 @@ msgstr "No view selected"
 
 #: Disabled references:1
 msgid "当工作表中新增记录或已有记录发生变更时触发"
-msgstr "Trigger when creating or updating records at the Worksheet"
+msgstr "This trigger will fire when a record is created or updated."
 
 #: Disabled references:1
 msgid "按照设定的时间周期循环触发流程"
-msgstr "Trigger on a given time period"
+msgstr "Trigger the process on a recurring basis based on the set time period."
 
 #: Disabled references:1
 msgid "指定一个日期字段，将字段的日期作为时间表来触发流程。如：指定工作表中的员工生日或客户注册日期来发送短信通知"
-msgstr "Specify a date field to trigger the process. For example: specify Employee's Birthday or Customer Registration Date to send short message."
+msgstr "This trigger will fire when a time field in the selected worksheet is matched. For example: Specify the time in the Employee's Birthday field to send short message."
 
 #: Disabled references:1
 msgid "当组织中有人员入职/离职时触发"
-msgstr "Trigger when someone joins your org or resigns"
+msgstr "This trigger will fire when someone joins or leaves your org."
 
 #: Disabled references:1
 msgid "当组织中有部门创建/解散时触发"
@@ -34217,11 +34220,11 @@ msgstr "Trigger when some department is created/dismissed in your org"
 
 #: Disabled references:1
 msgid "当外部用户注册、登录或被删除时触发"
-msgstr "Trigger when an external user registers, logs in, or is deleted"
+msgstr "This trigger will fire when external user account changes occur."
 
 #: Disabled references:1
 msgid "在指定的URL，接收到Webhook时触发"
-msgstr "Trigger when Webhook is received at specified URL"
+msgstr "This trigger will fire when webhook is received at specified URL."
 
 #: Disabled references:1
 msgid "请输入流程名称"
@@ -39889,11 +39892,11 @@ msgstr "Fill in passport number"
 
 #: Disabled references:1
 msgid "填写港澳通行证"
-msgstr "Fill in Hong Kong / Macau ID number"
+msgstr "Fill in Hong Kong and Macau Pass number"
 
 #: Disabled references:1
 msgid "填写台湾通行证"
-msgstr "Fill in Taiwan Travel Document number"
+msgstr "Fill in Taiwan Travel Permit number"
 
 #: Disabled references:1
 msgid "填写数字"
@@ -41133,11 +41136,11 @@ msgstr "Integrate"
 
 #: Disabled references:1
 msgid "无法退出非“人员”类型成员加入的角色"
-msgstr "Unable to exit a role that has been joined by a non-"personnel" type member"
+msgstr "Unable to exit a role that has been joined by a non-\"personnel\" type member"
 
 #: Disabled references:1
 msgid "非“人员”类型的成员，只能由管理员或运营者操作"
-msgstr "Only administrators or operators can operate non-"personnel" type members"
+msgstr "Only administrators or operators can operate non-\"personnel\" type members"
 
 #: Disabled references:1
 msgid "不允许添加计算字段"
@@ -41229,7 +41232,7 @@ msgstr "Copy"
 
 #: Disabled references:1
 msgid "新页面打开%02001"
-msgstr "View in full Page"
+msgstr "View in Full Page"
 
 #: Disabled references:1
 msgid "删除%02000"
@@ -41521,7 +41524,7 @@ msgstr "Enabling is mandatory"
 
 #: Disabled references:1
 msgid "必须选是"
-msgstr "Choosing "Yes" is mandatory"
+msgstr "Choosing \"Yes\" is mandatory"
 
 #: Disabled references:1
 msgid "%0无法查看"
@@ -41534,4 +41537,1544 @@ msgstr "Sync task count"
 #: Disabled references:1
 msgid "支持的字段类型包括：名称、部门系统ID"
 msgstr "Field types supported: name, department system ID"
+
+#: Disabled references:1
+msgid "注销此账户"
+msgstr "Cancel this account"
+
+#: Disabled references:1
+msgid "平铺显示"
+msgstr "Tile display"
+
+#: Disabled references:1
+msgid "选项卡显示"
+msgstr "Tab display"
+
+#: Disabled references:1
+msgid "全部和组织分组"
+msgstr "Group all and organization"
+
+#: Disabled references:1
+msgid "将委托给"
+msgstr "Delegate to"
+
+#: Disabled references:1
+msgid "委托截止"
+msgstr "Delegate deadline"
+
+#: Disabled references:1
+msgid "%0发起了委托"
+msgstr "%0 initiated delegation"
+
+#: Disabled references:1
+msgid "使用模板"
+msgstr "Use template"
+
+#: Disabled references:1
+msgid "手动输入"
+msgstr "Manual input"
+
+#: Disabled references:1
+msgid "自由输入"
+msgstr "Free input"
+
+#: Disabled references:1
+msgid "辅助Y轴(数值)"
+msgstr "Auxiliary Y-axis (numeric)"
+
+#: Disabled references:1
+msgid "方向2(数值)"
+msgstr "Direction 2 (numeric)"
+
+#: Disabled references:1
+msgid "添加图表标题"
+msgstr "Add chart title"
+
+#: Disabled references:1
+msgid "显示说明"
+msgstr "Show instructions"
+
+#: Disabled references:1
+msgid "最多添加%0个统计"
+msgstr "Add up to %0 statistics"
+
+#: Disabled references:1
+msgid "显示完整位数"
+msgstr "Show complete digits"
+
+#: Disabled references:1
+msgid "小数位数"
+msgstr "Decimal places"
+
+#: Disabled references:1
+msgid "立即执行%03000"
+msgstr "Execute"
+
+#: Disabled references:1
+msgid "自动压缩图片"
+msgstr "Automatically compress images"
+
+#: Disabled references:1
+msgid "app"
+msgstr "app"
+
+#: Disabled references:1
+msgid "勾选后，将对图片压缩后再进行上传。未勾选时，用户可自行选择是否上传原图。"
+msgstr "If checked, the image will be compressed before uploading. If unchecked, the user can choose whether to upload the original image."
+
+#: Disabled references:1
+msgid "web移动端"
+msgstr "Web mobile"
+
+#: Disabled references:1
+msgid "web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将会始终按照原图上传。（此配置影响：公开表单、外部门户，以及钉钉、企业微信等第三方平台的移动app）"
+msgstr "It is usually recommended to check this configuration for web mobile, which can speed up image uploading and save traffic. If unchecked, the original image will always be uploaded. (This configuration affects: public forms, external portal, and third-party platforms such as DingTalk and Enterprise WeChat)"
+
+#: Disabled references:1
+msgid "运行中%03001"
+msgstr "On"
+
+#: Disabled references:1
+msgid "已关闭%03002"
+msgstr "Off"
+
+#: Disabled references:1
+msgid "导出为Excel"
+msgstr "Export to Excel"
+
+#: Disabled references:1
+msgid "导出附件"
+msgstr "Export attachments"
+
+#: Disabled references:1
+msgid "无附件下载权限，无法导出"
+msgstr "No attachment download permission, cannot export"
+
+#: Disabled references:1
+msgid "保存导出配置"
+msgstr "Save export configuration"
+
+#: Disabled references:1
+msgid "将当前导出配置保存为默认导出方式供所有用户使用，会保存已选字段（导出所有字段）、其他、以及导出格式"
+msgstr "Save the current export configuration as the default export method for all users, which will save the selected fields (export all fields), others, and export formats"
+
+#: Disabled references:1
+msgid "不允许用户修改默认配置"
+msgstr "Do not allow users to modify the default configuration"
+
+#: Disabled references:1
+msgid "空格"
+msgstr "Space"
+
+#: Disabled references:1
+msgid "破折号"
+msgstr "Dash"
+
+#: Disabled references:1
+msgid "下划线"
+msgstr "Underscore"
+
+#: Disabled references:1
+msgid "张三"
+msgstr "San Zhang"
+
+#: Disabled references:1
+msgid "字段名"
+msgstr "Field name"
+
+#: Disabled references:1
+msgid "身份证照片"
+msgstr "ID card photo"
+
+#: Disabled references:1
+msgid "文件原始名"
+msgstr "Original file name"
+
+#: Disabled references:1
+msgid "身份证人像面.jpg"
+msgstr "ID card portrait.jpg"
+
+#: Disabled references:1
+msgid "选择需要导出的附件字段，导出附件总数不超过1000个，总大小不超过1GB"
+msgstr "Select the attachment fields to be exported. The total number of exported attachments cannot exceed 1000, and the total size cannot exceed 1GB."
+
+#: Disabled references:1
+msgid "选择导出的附件字段"
+msgstr "Select the attachment fields to be exported"
+
+#: Disabled references:1
+msgid "命名方式"
+msgstr "Naming method"
+
+#: Disabled references:1
+msgid "连字符"
+msgstr "Hyphen"
+
+#: Disabled references:1
+msgid "示例："
+msgstr "Example:"
+
+#: Disabled references:1
+msgid "为每行记录生成一个文件夹"
+msgstr "Generate a folder for each record"
+
+#: Disabled references:1
+msgid "其它"
+msgstr "Other"
+
+#: Disabled references:1
+msgid "显示模式"
+msgstr "Display mode"
+
+#: Disabled references:1
+msgid "十六宫格"
+msgstr "Sixteen squares"
+
+#: Disabled references:1
+msgid "分组默认展开方式"
+msgstr "Default expansion method for grouping"
+
+#: Disabled references:1
+msgid "全展开"
+msgstr "Expand all"
+
+#: Disabled references:1
+msgid "全收起"
+msgstr "Collapse all"
+
+#: Disabled references:1
+msgid "只展开一个分组"
+msgstr "Only expand one group"
+
+#: Disabled references:1
+msgid "具体值"
+msgstr "Specific value"
+
+#: Disabled references:1
+msgid "仅显示一个"
+msgstr "Only show one"
+
+#: Disabled references:1
+msgid "设为默认值"
+msgstr "Set as default value"
+
+#: Disabled references:1
+msgid "用户自由输入"
+msgstr "User input"
+
+#: Disabled references:1
+msgid "模板"
+msgstr "Template"
+
+#: Disabled references:1
+msgid "审批设置"
+msgstr "Approval settings"
+
+#: Disabled references:1
+msgid "字段权限"
+msgstr "Field permissions"
+
+#: Disabled references:1
+msgid "数据更新"
+msgstr "Data update"
+
+#: Disabled references:1
+msgid "启用邮件审批"
+msgstr "Enable email approval"
+
+#: Disabled references:1
+msgid "启用后，待办消息同时会以邮件的形式发送给相关负责人，并且可以直接通过点击邮件内的按钮进行通过、否决"
+msgstr "After enabling, the to-do message will be sent to the relevant person in the form of an email, and can be approved or rejected by clicking the button in the email."
+
+#: Disabled references:1
+msgid "用户自由输入；"
+msgstr "User input;"
+
+#: Disabled references:1
+msgid "仅支持选择指定模板；"
+msgstr "Only support selecting specified templates;"
+
+#: Disabled references:1
+msgid "已设置通过、否决/退回时的意见模板"
+msgstr "Opinion template has been set for approval, rejection/return"
+
+#: Disabled references:1
+msgid "已设置通过时的意见模板"
+msgstr "Opinion template has been set for approval"
+
+#: Disabled references:1
+msgid "已设置否决/退回时的意见模板"
+msgstr "Opinion template has been set for rejection/return"
+
+#: Disabled references:1
+msgid "未设置意见模版"
+msgstr "Opinion template not set"
+
+#: Disabled references:1
+msgid "必须先选择一个对象后，才能设置字段权限"
+msgstr "You must select an object before setting field permissions"
+
+#: Disabled references:1
+msgid "意见模板"
+msgstr "Opinion template"
+
+#: Disabled references:1
+msgid "预置常用的意见作为模板，帮助审批人快捷填写"
+msgstr "Pre-set commonly used opinions as templates to help approvers fill them in quickly"
+
+#: Disabled references:1
+msgid "通过时的模板"
+msgstr "Template for approval"
+
+#: Disabled references:1
+msgid "否决/退回时的模板"
+msgstr "Template for rejection/return"
+
+#: Disabled references:1
+msgid "指定人"
+msgstr "Designated person"
+
+#: Disabled references:1
+msgid "启用邮件通知"
+msgstr "Enable email notification"
+
+#: Disabled references:1
+msgid "启用后，待办消息同时会以邮件的形式发送给相关负责人"
+msgstr "After enabling, the to-do message will be sent to the relevant person in the form of an email"
+
+#: Disabled references:1
+msgid "将“%0”转为子流程"
+msgstr "Convert '%0' to subflow"
+
+#: Disabled references:1
+msgid "如果您需要复用本流程，通过此操作将为本流程创建一个副本，触发器类型为子流程"
+msgstr "If you need to reuse this process, use this operation to create a copy of this process, with the trigger type as a subflow"
+
+#: Disabled references:1
+msgid "-子流程"
+msgstr "-subflow"
+
+#: Disabled references:1
+msgid "转为子流程"
+msgstr "Convert to subflow"
+
+#: Disabled references:1
+msgid "工作表事件触发%03011"
+msgstr "Trigger by Worksheet"
+
+#: Disabled references:1
+msgid "定时触发%03012"
+msgstr "Trigger by Scheduled"
+
+#: Disabled references:1
+msgid "按日期字段触发%03013"
+msgstr "Trigger by Date Field"
+
+#: Disabled references:1
+msgid "组织人员事件触发%03014"
+msgstr "Trigger by Personnel"
+
+#: Disabled references:1
+msgid "外部用户事件触发%03015"
+msgstr "Trigger by External User"
+
+#: Disabled references:1
+msgid "Webhook触发%03016"
+msgstr "Trigger by Webhook"
+
+#: Disabled references:1
+msgid "如何开始你的流程%03010"
+msgstr "How to start your flow"
+
+#: Disabled references:1
+msgid "关闭%03055"
+msgstr "Off"
+
+#: Disabled references:1
+msgid "数据处理%03017"
+msgstr "Data Processing"
+
+#: Disabled references:1
+msgid "新增记录%03018"
+msgstr "Add Record"
+
+#: Disabled references:1
+msgid "更新记录%03019"
+msgstr "Update Record"
+
+#: Disabled references:1
+msgid "删除记录%03020"
+msgstr "Delete Record"
+
+#: Disabled references:1
+msgid "获取单条数据%03021"
+msgstr "Get Single Data"
+
+#: Disabled references:1
+msgid "获取多条数据%03022"
+msgstr "Get Multiple Data"
+
+#: Disabled references:1
+msgid "更新流程参数%03023"
+msgstr "Update Parameters"
+
+#: Disabled references:1
+msgid "发起审批流程%03024"
+msgstr "Initiate Approval Flow"
+
+#: Disabled references:1
+msgid "填写%03025"
+msgstr "Fill-In"
+
+#: Disabled references:1
+msgid "抄送%03026"
+msgstr "CC"
+
+#: Disabled references:1
+msgid "通知%03027"
+msgstr "Notification"
+
+#: Disabled references:1
+msgid "发送站内通知%03028"
+msgstr "Station Notice"
+
+#: Disabled references:1
+msgid "发送短信%03029"
+msgstr "SMS"
+
+#: Disabled references:1
+msgid "发送邮件%03030"
+msgstr "E-mail"
+
+#: Disabled references:1
+msgid "发送服务号信息%03031"
+msgstr "Wechat Official Account"
+
+#: Disabled references:1
+msgid "构件%03032"
+msgstr "Component"
+
+#: Disabled references:1
+msgid "分支%03033"
+msgstr "Branch"
+
+#: Disabled references:1
+msgid "延时%03034"
+msgstr "Delay"
+
+#: Disabled references:1
+msgid "运算%03035"
+msgstr "Calculation"
+
+#: Disabled references:1
+msgid "获取链接%03036"
+msgstr "Get Link"
+
+#: Disabled references:1
+msgid "获取记录打印文件%03037"
+msgstr "Print Record"
+
+#: Disabled references:1
+msgid "子流程%03038"
+msgstr "Subflow"
+
+#: Disabled references:1
+msgid "调用业务流程%03039"
+msgstr "Call PBP"
+
+#: Disabled references:1
+msgid "调用已集成 API%03040"
+msgstr "Call Integrated API"
+
+#: Disabled references:1
+msgid "开发者%03041"
+msgstr "Developer"
+
+#: Disabled references:1
+msgid "API 连接与认证%03042"
+msgstr "API Connectivity and Authentication"
+
+#: Disabled references:1
+msgid "发送 API 请求%03043"
+msgstr "Send API Request"
+
+#: Disabled references:1
+msgid "代码块%03044"
+msgstr "Code Block"
+
+#: Disabled references:1
+msgid "JSON 解析%03045"
+msgstr "JSON Parsing"
+
+#: Disabled references:1
+msgid "组织/部门/协作%03046"
+msgstr "Org/Department/Collaboration"
+
+#: Disabled references:1
+msgid "获取单条人员/部门/组织角色数据%03047"
+msgstr "Get Single Data from User/Department/O-Roles"
+
+#: Disabled references:1
+msgid "获取多条人员/部门/组织角色数据%03048"
+msgstr "Get Multiple Data from User/Department/O-Roles"
+
+#: Disabled references:1
+msgid "创建任务%03049"
+msgstr "New Task"
+
+#: Disabled references:1
+msgid "外部用户%03050"
+msgstr "External User"
+
+#: Disabled references:1
+msgid "更新外部用户信息%03051"
+msgstr "Update Exernal User Info"
+
+#: Disabled references:1
+msgid "邀请外部用户%03052"
+msgstr "Invite External User"
+
+#: Disabled references:1
+msgid "获取单条外部人员数据%03053"
+msgstr "Get Single External User"
+
+#: Disabled references:1
+msgid "获取多条外部人员数据%03054"
+msgstr "Get Multiple External User"
+
+#: Disabled references:1
+msgid "最左"
+msgstr "Leftmost"
+
+#: Disabled references:1
+msgid "左移一位"
+msgstr "Move left one position"
+
+#: Disabled references:1
+msgid "右移一位"
+msgstr "Move right one position"
+
+#: Disabled references:1
+msgid "最右"
+msgstr "Rightmost"
+
+#: Disabled references:1
+msgid "备注模版"
+msgstr "Note template"
+
+#: Disabled references:1
+msgid "允许用户修改"
+msgstr "Allow user to modify"
+
+#: Disabled references:1
+msgid "导出失败！请稍候重试"
+msgstr "Export failed! Please try again later"
+
+#: Disabled references:1
+msgid "如果值"
+msgstr "If value"
+
+#: Disabled references:1
+msgid "则为"
+msgstr "Then it is"
+
+#: Disabled references:1
+msgid "选择依据的字段"
+msgstr "Select the field to base on"
+
+#: Disabled references:1
+msgid "应用内容"
+msgstr "Application content"
+
+#: Disabled references:1
+msgid "仅值"
+msgstr "Only value"
+
+#: Disabled references:1
+msgid "值和总计"
+msgstr "Value and total"
+
+#: Disabled references:1
+msgid "仅总计"
+msgstr "Only total"
+
+#: Disabled references:1
+msgid "中间"
+msgstr "Middle"
+
+#: Disabled references:1
+msgid "规则"
+msgstr "Rule"
+
+#: Disabled references:1
+msgid "色阶"
+msgstr "Color scale"
+
+#: Disabled references:1
+msgid "正值条形图"
+msgstr "Positive bar chart"
+
+#: Disabled references:1
+msgid "负值条形图"
+msgstr "Negative bar chart"
+
+#: Disabled references:1
+msgid "仅显示条形图"
+msgstr "Only show bar chart"
+
+#: Disabled references:1
+msgid "条形图方向"
+msgstr "Bar chart direction"
+
+#: Disabled references:1
+msgid "从左到右"
+msgstr "From left to right"
+
+#: Disabled references:1
+msgid "从右到左"
+msgstr "From right to left"
+
+#: Disabled references:1
+msgid "轴"
+msgstr "Axis"
+
+#: Disabled references:1
+msgid "字体色"
+msgstr "Font color"
+
+#: Disabled references:1
+msgid "取选项分值"
+msgstr "Get option score"
+
+#: Disabled references:1
+msgid "取所有选择项的分值求和"
+msgstr "Sum the scores of all selected options"
+
+#: Disabled references:1
+msgid "按指定倍数向上舍入"
+msgstr "Round up to specified multiple"
+
+#: Disabled references:1
+msgid "以绝对值增大的方向按指定倍数舍入数字"
+msgstr "Round the number to the specified multiple in the direction of increasing absolute value"
+
+#: Disabled references:1
+msgid "按指定倍数向下舍入"
+msgstr "Round down to specified multiple"
+
+#: Disabled references:1
+msgid "以绝对值减小的方向按指定倍数舍入数字"
+msgstr "Round the number to the specified multiple in the direction of decreasing absolute value"
+
+#: Disabled references:1
+msgid "一小时内免验证"
+msgstr "Free verification within one hour"
+
+#: Disabled references:1
+msgid "邮件内进行通过、否决"
+msgstr "Pass or reject in email"
+
+#: Disabled references:1
+msgid "设置附件(总大小不超过50M)"
+msgstr "Set attachment (total size not exceeding 50M)"
+
+#: Disabled references:1
+msgid "1小时内免验证"
+msgstr "Free verification within one hour"
+
+#: Disabled references:1
+msgid "X轴(维度)"
+msgstr "X-axis (dimension)"
+
+#: Disabled references:1
+msgid "Y轴(数值)"
+msgstr "Y-axis (value)"
+
+#: Disabled references:1
+msgid "词标签(维度)"
+msgstr "Word label (dimension)"
+
+#: Disabled references:1
+msgid "词大小(数值)"
+msgstr "Word size (value)"
+
+#: Disabled references:1
+msgid "方向1(数值)"
+msgstr "Direction 1 (value)"
+
+#: Disabled references:1
+msgid "点(维度)"
+msgstr "Point (dimension)"
+
+#: Disabled references:1
+msgid "进度指示(数值)"
+msgstr "Progress indicator (value)"
+
+#: Disabled references:1
+msgid "地理区域(维度)"
+msgstr "Geographic area (dimension)"
+
+#: Disabled references:1
+msgid "行(维度)"
+msgstr "Row (dimension)"
+
+#: Disabled references:1
+msgid "列(维度)"
+msgstr "Column (dimension)"
+
+#: Disabled references:1
+msgid "Y轴(维度)"
+msgstr "Y-axis (dimension)"
+
+#: Disabled references:1
+msgid "X轴(数值)"
+msgstr "X-axis (value)"
+
+#: Disabled references:1
+msgid "未解析到二维码"
+msgstr "QR code not resolved"
+
+#: Disabled references:1
+msgid "上传图片进行识别"
+msgstr "Upload image for recognition"
+
+#: Disabled references:1
+msgid "可以在下方输入生成带扩展值的链接。或自己拼接扩展值，拼接方法https://......?source=微博。https://...为公开表单链接，微博为设置的扩展值"
+msgstr "You can input below to generate a link with extension value, or splice the extension value yourself. The splicing reference to https://......?source=weibo. https://... is the public form link, weibo is the extension value"
+
+#: Disabled references:1
+msgid "工作表事件%03003"
+msgstr "Worksheet"
+
+#: Disabled references:1
+msgid "时间%03004"
+msgstr "Time"
+
+#: Disabled references:1
+msgid "人员事件%03005"
+msgstr "Personnel"
+
+#: Disabled references:1
+msgid "子流程%03006"
+msgstr "Subflow"
+
+#: Disabled references:1
+msgid "审批流程%03007"
+msgstr "Approval Flow"
+
+#: Disabled references:1
+msgid "外部流程修改本应用%03008"
+msgstr "External Workflow"
+
+#: Disabled references:1
+msgid "封装业务流程%03009"
+msgstr "PBP"
+
+#: Disabled references:1
+msgid "删除分组%02012"
+msgstr "Delete Group"
+
+#: Disabled references:1
+msgid "删除自定义页面"
+msgstr "Delete custome page"
+
+#: Disabled references:1
+msgid "此后1小时内在当前设备上应用和审批操作无需再次验证"
+msgstr "No further verification is needed for application and approval operations on the current device within 1 hour after this"
+
+#: Disabled references:1
+msgid "数据集成服务未部署，暂不可用"
+msgstr "Data integration service is not deployed and is temporarily unavailable"
+
+#: Disabled references:1
+msgid "数据集成服务未部署，请参考"
+msgstr "Data integration service is not deployed. Please refer to the documentation"
+
+#: Disabled references:1
+msgid "流程待办%01011"
+msgstr "Process To-do"
+
+#: Disabled references:1
+msgid "应用库%01012"
+msgstr "App Library"
+
+#: Disabled references:1
+msgid "协作%01013"
+msgstr "Collaboration"
+
+#: Disabled references:1
+msgid "集成中心%01014"
+msgstr "Integration"
+
+#: Disabled references:1
+msgid "学习资源%01015"
+msgstr "Learning"
+
+#: Disabled references:1
+msgid "推广奖励%01016"
+msgstr "Promotion"
+
+#: Disabled references:1
+msgid "第三方应用%01017"
+msgstr "Integration"
+
+#: Disabled references:1
+msgid "管理用户"
+msgstr "Manage Users"
+
+#: Disabled references:1
+msgid "导出Excel%06002"
+msgstr "Export as excel"
+
+#: Disabled references:1
+msgid "按照原值导出%06000"
+msgstr "with field configuration"
+
+#: Disabled references:1
+msgid "按显示单位导出%06001"
+msgstr "with stats configuration"
+
+#: Disabled references:1
+msgid "开启后，当月剩余执行额度为2%时，自动购买 100元/10万行 的单月包，从账户余额中扣款。（开启后可以在数据集成的同步任务中关闭）"
+msgstr "After enabling, when the remaining execution limit for the month reaches 2%, an automatic purchase of a single monthly package of 100 yuan/100,000 rows will be made and deducted from the account balance. (This can be disabled in the synchronization task of data integration after enabling.)"
+
+#: Disabled references:1
+msgid "组织分组"
+msgstr "Organizational Groups"
+
+#: Disabled references:1
+msgid "允许导出"
+msgstr "Allow Export"
+
+#: Disabled references:1
+msgid "发送邮件，"
+msgstr "Send email,"
+
+#: Disabled references:1
+msgid "打印二维码%02056"
+msgstr "Print QR code"
+
+#: Disabled references:1
+msgid "打印条形码%02057"
+msgstr "Print barcode"
+
+#: Disabled references:1
+msgid "至少选择一种命名方式"
+msgstr "Please select at least one naming method"
+
+#: Disabled references:1
+msgid "文件夹名和附件名的最大长度为90个汉字。超限的文件不会被导出。"
+msgstr "The maximum length of folder and attachment names is 90 Chinese characters. Files that exceed the limit will not be exported."
+
+#: Disabled references:1
+msgid "下级包含%25024"
+msgstr "‘s subordinate contain"
+
+#: Disabled references:1
+msgid "包含%25003"
+msgstr "contain"
+
+#: Disabled references:1
+msgid "是其中一个%25017"
+msgstr "is one of"
+
+#: Disabled references:1
+msgid "包含其中一个%25021"
+msgstr "is any of"
+
+#: Disabled references:1
+msgid "等于%25001"
+msgstr "equal"
+
+#: Disabled references:1
+msgid "开头是%25005"
+msgstr "start with"
+
+#: Disabled references:1
+msgid "结尾是%25007"
+msgstr "end with"
+
+#: Disabled references:1
+msgid "开头不是%25006"
+msgstr "not start with"
+
+#: Disabled references:1
+msgid "结尾不是%25008"
+msgstr "not end with"
+
+#: Disabled references:1
+msgid "下级不包含%25025"
+msgstr "‘s subordinate not contain"
+
+#: Disabled references:1
+msgid "不包含%25004"
+msgstr "not contain"
+
+#: Disabled references:1
+msgid "不是任何一个%25018"
+msgstr "not any of"
+
+#: Disabled references:1
+msgid "不包含任何一个%25022"
+msgstr "is none of"
+
+#: Disabled references:1
+msgid "不等于%25002"
+msgstr "not equal"
+
+#: Disabled references:1
+msgid "为空%25009"
+msgstr "is empty"
+
+#: Disabled references:1
+msgid "不为空%25010"
+msgstr "is not empty"
+
+#: Disabled references:1
+msgid "属于%25019"
+msgstr "belong to"
+
+#: Disabled references:1
+msgid "在范围内%25011"
+msgstr "within the range of"
+
+#: Disabled references:1
+msgid "不属于%25020"
+msgstr "not belong to"
+
+#: Disabled references:1
+msgid "不在范围内%25012"
+msgstr "out of the range of"
+
+#: Disabled references:1
+msgid "晚于%25014"
+msgstr "is after"
+
+#: Disabled references:1
+msgid "早于%25013"
+msgstr "is before"
+
+#: Disabled references:1
+msgid "早于等于%25015"
+msgstr "is on or before"
+
+#: Disabled references:1
+msgid "晚于等于%25016"
+msgstr "is on or after"
+
+#: Disabled references:1
+msgid "同时包含%25023"
+msgstr "contain all of"
+
+#: Disabled references:1
+msgid "请填写补充信息"
+msgstr "Please fill in additional information"
+
+#: Disabled references:1
+msgid "分组展开方式"
+msgstr "Group expansion method"
+
+#: Disabled references:1
+msgid "默认展开一级分组"
+msgstr "Expand the first level group by default"
+
+#: Disabled references:1
+msgid "默认全收起"
+msgstr "Fully collapse by default"
+
+#: Disabled references:1
+msgid "每次展开一个分组"
+msgstr "Expand one group at a time"
+
+#: Disabled references:1
+msgid "你可以把 IBM DB2 数据库作为源数据，同步数据到工作表或者其它数据目的地。"
+msgstr "You can use IBM DB2 database as the source data and synchronize data to worksheets or other data destinations."
+
+#: Disabled references:1
+msgid "数据库版本：11.5x"
+msgstr "Database version: 11.5x"
+
+#: Disabled references:1
+msgid "不支持 DB2 上的 布尔类型"
+msgstr "Boolean type is not supported on DB2"
+
+#: Disabled references:1
+msgid "DB2作为源增量读取时，对于数据表需要执行"
+msgstr "When reading the incremental source on DB2, execute for the data table"
+
+#: Disabled references:1
+msgid "ALTER TABLE <模型名称>.<表名称> DATA CAPTURE CHANGES"
+msgstr "ALTER TABLE <model_name>.<table_name> DATA CAPTURE CHANGES"
+
+#: Disabled references:1
+msgid "DB2数据库在DDL事件后，需要执行存储过程"
+msgstr "DB2 databases need to execute stored procedures after DDL events"
+
+#: Disabled references:1
+msgid "CALL SYSPROC.ADMIN_CMD('REORG TABLE <模型名称>.<表名称>"
+msgstr "CALL SYSPROC.ADMIN_CMD('REORG TABLE <model_name>.<table_name>"
+
+#: Disabled references:1
+msgid "目前，Db2上的SQL Replication不支持BOOLEAN，所以Debezium不能在这些表中执行CDC。考虑使用其他类型来代替BOOLEAN类型"
+msgstr "Currently, SQL Replication on DB2 does not support BOOLEAN, so Debezium cannot perform CDC on these tables. Consider using other types to replace BOOLEAN type."
+
+#: Disabled references:1
+msgid "对需要同步的表执行"
+msgstr "Execute on the table that needs to be synchronized"
+
+#: Disabled references:1
+msgid "修改schema的配置项"
+msgstr "Modify the configuration item of the schema"
+
+#: Disabled references:1
+msgid "在postgresql.conf文件中修改或添加 wal_level 配置项为：wal_level = logical"
+msgstr "Modify or add the wal_level configuration item in the postgresql.conf file to: wal_level = logical"
+
+#: Disabled references:1
+msgid "使用「发起审批流程」节点可提供更完整的审批能力，旧「审批」节点即将被下线。流程中已添加的审批节点不受影响，仍可以继续使用。"
+msgstr "Using the 'Initiate Approval Process' node can provide more complete approval capabilities, and the old 'Approval' node will be deprecated. The added approval nodes in the process are not affected and can still be used."
+
+#: Disabled references:1
+msgid "移至最左"
+msgstr "Move to the far left"
+
+#: Disabled references:1
+msgid "移至最右"
+msgstr "Move to the far right"
+
+#: Disabled references:1
+msgid "且%25000"
+msgstr "and"
+
+#: Disabled references:1
+msgid "选择本页记录%02053"
+msgstr "Select all on this page"
+
+#: Disabled references:1
+msgid "选择所有记录%02054"
+msgstr "Select all in all pages"
+
+#: Disabled references:1
+msgid "反选%02055"
+msgstr "Invert Selection"
+
+#: Disabled references:1
+msgid "连续60天无数据同步，会自动停止"
+msgstr "If there is no data synchronization for 60 consecutive days, it will stop automatically"
+
+#: Disabled references:1
+msgid "根据主键识别重复，并"
+msgstr "Identify duplicates based on the primary key, and"
+
+#: Disabled references:1
+msgid "根据主键判断已有数据的重复，"覆盖"会导致数据变慢。"
+msgstr "Judging duplicates based on the primary key of existing data,"overwrite"will slow down data"
+
+#: Disabled references:1
+msgid "开启后，当月剩余执行额度为2%时，自动购买 100元/10万行 的单月包，从账户余额中扣款。"
+msgstr "After opening, when the remaining execution limit for the month is 2%, it will automatically purchase a monthly package of 100 yuan/100,000 rows and deduct it from the account balance."
+
+#: Disabled references:1
+msgid "该应用暂未在此平台发布"
+msgstr "This application isn't published on this platform"
+
+#: Disabled references:1
+msgid "自由连接%04008"
+msgstr "Free Link"
+
+#: Disabled references:1
+msgid "分割线%04006"
+msgstr "Line"
+
+#: Disabled references:1
+msgid "大写金额%04009"
+msgstr "Uppercase"
+
+#: Disabled references:1
+msgid "关联记录%04001"
+msgstr "Relationship"
+
+#: Disabled references:1
+msgid "他表字段%04004"
+msgstr "Foreign"
+
+#: Disabled references:1
+msgid "文本组合%04000"
+msgstr "Concat"
+
+#: Disabled references:1
+msgid "子表%04002"
+msgstr "Subform"
+
+#: Disabled references:1
+msgid "汇总%04005"
+msgstr "Rollup"
+
+#: Disabled references:1
+msgid "级联选择%04003"
+msgstr "Cascading"
+
+#: Disabled references:1
+msgid "备注%04007"
+msgstr "Remarks"
+
+#: Disabled references:1
+msgid "嵌入%04010"
+msgstr "Embedded"
+
+#: Disabled references:1
+msgid "等于%03056"
+msgstr "equal"
+
+#: Disabled references:1
+msgid "是其中一个%03079"
+msgstr "is one of"
+
+#: Disabled references:1
+msgid "不等于%03057"
+msgstr "not equal"
+
+#: Disabled references:1
+msgid "不是任何一个%03077"
+msgstr "not any of"
+
+#: Disabled references:1
+msgid "下级包含%03076"
+msgstr "'s subordinate contain"
+
+#: Disabled references:1
+msgid "标题包含%03085"
+msgstr "'s title contain"
+
+#: Disabled references:1
+msgid "包含其中一个%03082"
+msgstr "is none of"
+
+#: Disabled references:1
+msgid "包含%03058"
+msgstr "contain"
+
+#: Disabled references:1
+msgid "下级不包含%03081"
+msgstr "'s subordinate not contain"
+
+#: Disabled references:1
+msgid "标题不包含%03086"
+msgstr "'s title doesn’t contain"
+
+#: Disabled references:1
+msgid "不包含任何一个%03083"
+msgstr "is any of"
+
+#: Disabled references:1
+msgid "不包含%03059"
+msgstr "not contain"
+
+#: Disabled references:1
+msgid "开头是%03060"
+msgstr "start with"
+
+#: Disabled references:1
+msgid "结尾是%03062"
+msgstr "end with"
+
+#: Disabled references:1
+msgid "不为空%03065"
+msgstr "is not empty"
+
+#: Disabled references:1
+msgid "为空%03065"
+msgstr "is empty"
+
+#: Disabled references:1
+msgid "小于%03067"
+msgstr "<"
+
+#: Disabled references:1
+msgid "大于%03066"
+msgstr ">"
+
+#: Disabled references:1
+msgid "小于等于%03069"
+msgstr "≤"
+
+#: Disabled references:1
+msgid "大于等于%03068"
+msgstr "≥"
+
+#: Disabled references:1
+msgid "在范围内%03070"
+msgstr "within the range of"
+
+#: Disabled references:1
+msgid "不在范围内%03071"
+msgstr "out of the range of"
+
+#: Disabled references:1
+msgid "早于%03072"
+msgstr "is before"
+
+#: Disabled references:1
+msgid "晚于%03073"
+msgstr "is after"
+
+#: Disabled references:1
+msgid "属于%03080"
+msgstr "belong to"
+
+#: Disabled references:1
+msgid "不属于%03078"
+msgstr "not belong to"
+
+#: Disabled references:1
+msgid "晚于等于%03075"
+msgstr "is on or after"
+
+#: Disabled references:1
+msgid "早于等于%03074"
+msgstr "is on or before"
+
+#: Disabled references:1
+msgid "同时包含%03084"
+msgstr "contain all of"
+
+#: Disabled references:1
+msgid "开头不是%03061"
+msgstr "not start with"
+
+#: Disabled references:1
+msgid "结尾不是%03063"
+msgstr "not end with"
+
+#: Disabled references:1
+msgid "启用后，待办消息同时会以邮件的形式发送给相关负责人，并且可以直接通过点击邮件内的按钮进行通过、否决；邮件0.03元/封，自动从账务中心扣费"
+msgstr "After activation, the pending messages will be sent to the relevant responsible person via email, and they can directly approve or reject it by clicking the button in the email; the cost of each email is 0.03 yuan, and it will be automatically deducted from the account center."
+
+#: Disabled references:1
+msgid "启用后，待办消息同时会以邮件的形式发送给相关负责人；邮件0.03元/封，自动从账务中心扣费"
+msgstr "After activation, the pending messages will be sent to the relevant responsible person via email; the cost of each email is 0.03 yuan, and it will be automatically deducted from the account center."
+
+#: Disabled references:1
+msgid "有%25026"
+msgstr "is empty"
+
+#: Disabled references:1
+msgid "无%25027"
+msgstr "is not empty"
+
+#: disabled references:1
+msgid "目标分组不存在！"
+msgstr "Target group does not exist!"
+
+#: disabled references:1
+msgid "没有创建权限！"
+msgstr "No creation permission!"
+
+#: disabled references:1
+msgid "自定义首页"
+msgstr "Custom home"
+
+#: disabled references:1
+msgid "显示最近使用"
+msgstr "Show recently used"
+
+#: disabled references:1
+msgid "显示组织分组"
+msgstr "Show organization groups"
+
+#: Disabled references:1
+msgid "在\"我的应用\"分类中以选项卡显示所有组织分组"
+msgstr "Display all organizational groups in the \"my applications\" tab."
+
+#: Disabled references:1
+msgid "我以外协身份加入的其他组织的应用"
+msgstr "Applications of other organizations I joined as a guest"
+
+#: disabled references:1
+msgid "省略末尾的0"
+msgstr "Omit trailing zeros"
+
+#: disabled references:1
+msgid "勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8"
+msgstr "When selected, trailing zeros will be omitted for decimal places that are less than the set precision. For example, if 4 decimal places are set, the default display is the complete precision 2.800, and after selection, it will be displayed as 2.8."
+
+#: disabled references:1
+msgid "连接符"
+msgstr "Connector"
+
+#: disabled references:1
+msgid "宫格"
+msgstr "Matrix"
+
+#: disabled references:1
+msgid "类型："
+msgstr "Type:"
+
+#: disabled references:1
+msgid "营销"
+msgstr "Marketing"
+
+#: disabled references:1
+msgid "金融"
+msgstr "Financial"
+
+#: disabled references:1
+msgid "一般性通知。如验证码短信、通知短信、物流快递短信、订单短信"
+msgstr "General notification. Such as verification code SMS, notification SMS, logistics express SMS, order SMS."
+
+#: disabled references:1
+msgid "如：促销、优惠、活动报名等产品推广和品牌宣传类短信"
+msgstr "Such as promotion, discount, event registration and other product promotion and brand publicity sms."
+
+#: disabled references:1
+msgid "金融（暂不支持）"
+msgstr "Financial (not supported at present)"
+
+#: disabled references:1
+msgid "如：资金到账提示、支付验证码、交易提醒等金融机构向客户发送的短信"
+msgstr "For example, funds received prompt, payment verification code, transaction reminder and other sms messages that financial institutions send to customers."
+
+#: disabled references:1
+msgid "短信类型"
+msgstr "SMS type"
+
+#: Disabled references:1
+msgid "请谨慎选择您的短信类型，后续如果在发送时出现实际类型不符合预设类型的，可能面临模版被停用的风险"
+msgstr "Please choose your SMS type carefully. If the actual type does not match the preset type during sending, there may be a risk of the template being disabled."
+
+#: Disabled references:1
+msgid "设置参考值"
+msgstr "Set reference value"
+
+#: Disabled references:1
+msgid "这些是您短信模板中使用到的动态值，请给出范例数据用于人工审核时验证您的短信类型"
+msgstr "These are the dynamic values used in your SMS template. Please provide example data to verify your SMS type during manual review."
+
+#: Disabled references:1
+msgid "日前公式"
+msgstr "Previous formula"
+
+#: Disabled references:1
+msgid "参数值不允许为空"
+msgstr "Parameter value cannot be empty"
+
+#: Disabled references:1
+msgid "40 万次/月"
+msgstr "40,000 times/m"
+
+#: Disabled references:1
+msgid "因为平台安全措施需要，自定义的短信签名和通知内容暂时只对付费组织生效。免费和试用组织只能按默认内容发送"
+msgstr "Due to platform security measures, custom SMS signatures and notification content are currently only available to paid organizations. Free and trial organizations can only send default content."
+
+#: Disabled references:1
+msgid "搜索文件夹名称"
+msgstr "Search for folder names"
+
+#: Disabled references:1
+msgid "默认全展开"
+msgstr "Default fully expanded"
+
+#: Disabled references:1
+msgid "每次展开一个分组（其他自动收起）"
+msgstr "Expand one group at a time (others automatically collapse)"
+
+#: Disabled references:1
+msgid "如：促销、优惠、活动报名等产品推广和品牌宣传类短信；系统将自动为此类短信末尾附加【退订】字样"
+msgstr "For example, promotional SMS messages such as product promotion and brand promotion, including activities and discounts, will have the word "[Unsubscribe]" automatically added to the end of the message."
+
+#: Disabled references:1
+msgid "如：资金到账提示、支付验证码、交易提醒、催缴通知等"
+msgstr "For example, financial reminders such as funds arrival notifications, payment verification codes, transaction reminders, and collection notices."
+
+#: Disabled references:1
+msgid "证件类型"
+msgstr "Certificate Type"
+
+#: Disabled references:1
+msgid "没有搜索到相关应用和应用项"
+msgstr "No relevant applications or items were found"
+
+#: Disabled references:1
+msgid "没有搜索到相关记录"
+msgstr "No relevant records were found"
+
+#: Disabled references:1
+msgid "可尝试更换关键字搜索"
+msgstr "Try searching with different keywords"
+
+#: Disabled references:1
+msgid "至少选择一个附件字段"
+msgstr "Please select at least one attachment field"
+
+#: Disabled references:1
+msgid "应用项被移走了"
+msgstr "The application item has been removed"
+
+#: Disabled references:1
+msgid "应用项已删除"
+msgstr "The application item has been deleted"
+
+#: Disabled references:1
+msgid "应用项无权限"
+msgstr "No permission for the application item"
+
+#: Disabled references:1
+msgid "邮件内快速审批"
+msgstr "Quick approval in email"
+
+#: Disabled references:1
+msgid "邮件内附带通过、否决按钮，此种快速审批方式不校验必填的签名、意见和字段"
+msgstr "Emails contain pass and reject buttons, this quick approval method does not verify required signatures, opinions and fields"
+
+#: Disabled references:1
+msgid "为照片添加水印（仅手机App支持）"
+msgstr "Add watermark to photos (mobile app only)"
+
+#: Disabled references:1
+msgid "手机App"
+msgstr "Mobile App"
+
+#: Disabled references:1
+msgid "Web移动端（H5）"
+msgstr "Mobile Web (H5)"
+
+#: Disabled references:1
+msgid "Web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将会始终按照原图上传。（此配置影响：公开表单、外部门户，以及钉钉、企业微信等第三方平台的移动app）"
+msgstr "For mobile web, it is recommended to check this configuration to speed up image uploading and save data usage. If not check, images will always be uploaded in their original size.(This configuration affects:public form, external portal, as well as third-party platforms such as DingTalk and WeCom)"
+
+#: Disabled references:1
+msgid "关闭%03087"
+msgstr "Off"
+
+#: Disabled references:1
+msgid "报错信息"
+msgstr "Error Message"
+
+#: Disabled references:1
+msgid "Web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将始终按照原图上传。（此配置影响：原生H5、公开表单、外部门户，以及钉钉、企业微信等第三方平台的移动App）"
+msgstr "For mobile web, it is recommended to check this configuration to speed up image uploading and save data usage. If not check, images will always be uploaded in their original size.(This configuration affects:public form, external portal, as well as third-party platforms such as DingTalk and WeCom)"
+
+#: Disabled references:1
+msgid "名称包含特殊字符，无法同步"
+msgstr "Synchronization failed because the name contains special characters."
+
+#: Disabled references:1
+msgid "其他连接器选项"
+msgstr "Other connector options"
+
+#: Disabled references:1
+msgid "如果数据源的连接器选项配置和数据库服务器配置不一致时，可能会出现同步错误或者创建同步任务失败的情况。此时可尝试添加额外的连接器选项参数配置。"
+msgstr "If the connector option configuration of the data source is inconsistent with that of the database server, synchronization errors or failures to create synchronization tasks may occur. In this case, try adding additional connector option parameter configurations."
+
+#: Disabled references:1
+msgid "查看连接器选项"
+msgstr "View connector options"
+
+#: Disabled references:1
+msgid "指定当前MariaDB服务器的时区"
+msgstr "Specify the time zone for the current MariaDB server"
+
+#: Disabled references:1
+msgid "指定当前MySQL服务器的时区"
+msgstr "Specify the time zone for the current MySQL server"
+
+#: Disabled references:1
+msgid "检查 max_replication_slots 和  max_wal_senders 的默认值"
+msgstr "Check the default values of max_replication_slots and max_wal_senders"
+
+#: Disabled references:1
+msgid "建议调整到500以上"
+msgstr "It is recommended to adjust it to above 500"
+
+#: Disabled references:1
+msgid "PostgreSQL数据库的逻辑解码插件名称，10+版本自带pgoutput，可不指定"
+msgstr "The name of the logical decoding plugin for the PostgreSQL database. Version 10 and above come with pgoutput by default, so it may not need to be specified."
+
+#: Disabled references:1
+msgid "另外可选："
+msgstr "Other optional:"
+
+#: Disabled references:1
+msgid "常见问题"
+msgstr "Common issues"
+
+#: Disabled references:1
+msgid "创建连接过程出现SSL验证报错，可尝试在 其他连接串参数 增加如下配置"
+msgstr "If an SSL verification error occurs during the connection creation process, try adding the following configuration to other connection string parameters."
+
+#: Disabled references:1
+msgid "新建表名称"
+msgstr "New table name"
+
+#: Disabled references:1
+msgid "未设置相关映射字段"
+msgstr "Related mapping fields are not set"
+
+#: Disabled references:1
+msgid "新建表未设置表名称"
+msgstr "Table name not set for new table"
+
+#: Disabled references:1
+msgid "目标工作表未设置主键 "
+msgstr "Primary key not set for target worksheet"
+
+#: Disabled references:1
+msgid "主键未设置相关映射"
+msgstr "Related mapping not set for primary key"
+
+#: Disabled references:1
+msgid "新建数据表"
+msgstr "New data table"
+
+#: Disabled references:1
+msgid "请选择相应的表或库"
+msgstr "Please select the corresponding table or database"
+
+#: Disabled references:1
+msgid "将选项等复杂字段作为文本使用时请使用STRING函数，比如"
+msgstr "When using complex fields like options as text, please use the STRING function, for example:"
+
+#: Disabled references:1
+msgid "STRING($单选$)"
+msgstr "STRING($Single Choice$)"
+
+#: Disabled references:1
+msgid "设置填写内容%02060"
+msgstr "Form fill-in settings"
+
+#: Disabled references:1
+msgid "填写对象%02061"
+msgstr "Fill-in Object"
+
+#: Disabled references:1
+msgid "关联记录（单条）%02062"
+msgstr "Related record(single)"
+
+#: Disabled references:1
+msgid "填写内容%02063"
+msgstr "Fill-in Content"
+
+#: Disabled references:1
+msgid "新建关联记录%02064"
+msgstr "Create related record"
+
+#: Disabled references:1
+msgid "A → Z%02058"
+msgstr "A → Z"
+
+#: Disabled references:1
+msgid "Z → A%02059"
+msgstr "Z → A"
+
+#: Disabled references:1
+msgid "维护中%01018"
+msgstr "Fixing"
+
+#: Disabled references:1
+msgid "表格视图可以单元格直接编辑；看板、层级、甘特图在标题字段为文本类型时可以只填写标题字段快速创建记录；可以在看板、层级和画廊视图的卡片上直接修改文本类标题和检查框"
+msgstr "The table view allows editing of cells directly. Board, Org, and Gantt views allow for quick record creation by only filling in the title field when it is a text type. Text type titles and checkboxes can be edited directly on the card in the Board, Org, and Gallery views"
+
+#: Disabled references:1
+msgid "是否保存对函数的更改"
+msgstr "Save changes to the function?"
 

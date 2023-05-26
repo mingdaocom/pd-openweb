@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1677752294581') format('woff2'),
-       url('iconfont.woff?t=1677752294581') format('woff'),
-       url('iconfont.ttf?t=1677752294581') format('truetype');
+  src: url('iconfont.woff2?t=1684115414210') format('woff2'),
+       url('iconfont.woff?t=1684115414210') format('woff'),
+       url('iconfont.ttf?t=1684115414210') format('truetype');
 }
 
 .MD_Icon {
@@ -13,16 +13,84 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-horizontal:before {
+  content: "\e63e";
+}
+
+.icon-mix:before {
+  content: "\e63f";
+}
+
+.icon-vertically:before {
+  content: "\e640";
+}
+
+.icon-add_link:before {
+  content: "\ebf6";
+}
+
+.icon-folder_special_black_24dp:before {
+  content: "\e93a";
+}
+
+.icon-view_agenda:before {
+  content: "\e935";
+}
+
+.icon-wysiwyg:before {
+  content: "\e932";
+}
+
+.icon-add:before {
+  content: "\e923";
+}
+
+.icon-trending:before {
+  content: "\ea98";
+}
+
+.icon-sync1:before {
+  content: "\ea99";
+}
+
+.icon-Worksheet_query:before {
+  content: "\ea9d";
+}
+
+.icon-leftmost:before {
+  content: "\ebd2";
+}
+
+.icon-rightmost:before {
+  content: "\ebe3";
+}
+
+.icon-left:before {
+  content: "\ebed";
+}
+
+.icon-right:before {
+  content: "\ebf3";
+}
+
+.icon-background_color:before {
+  content: "\eb9c";
+}
+
+.icon-data_bar:before {
+  content: "\ebcd";
+}
+
+.icon-switch_access_shortcut_black_24dp:before {
+  content: "\e931";
+}
+
 .icon-ai1:before {
   content: "\e92d";
 }
 
 .icon-add1:before {
   content: "\e7fe";
-}
-
-.icon-add:before {
-  content: "\e923";
 }
 
 .icon-stats_bar_chart1:before {

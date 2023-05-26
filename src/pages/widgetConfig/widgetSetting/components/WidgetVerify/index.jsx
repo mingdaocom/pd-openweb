@@ -119,7 +119,7 @@ export default function WidgetVerify(props) {
             />
           </div>
         ))}
-        {(_.includes([2, 8, 10], type) || (type === 6 && showtype !== '1')) && (
+        {(_.includes([2, 8, 10], type) || (type === 6 && !_.includes(['1', '2'], showtype))) && (
           <div className="labelWrap">
             <Checkbox
               size="small"

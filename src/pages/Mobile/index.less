@@ -17,6 +17,62 @@ input {
 input::placeholder {
   color: #bdbdbd;
 }
+.btnsWrapper() {
+  .btnsWrapper {
+    padding: 7px 10px;
+    background-color: #fff;
+    font-weight: 500;
+    a {
+      text-decoration: none;
+    }
+    .edit {
+      color: #2196f3;
+    }
+    .delete {
+      color: #f44336;
+    }
+    .moreOperation {
+      width: 30px;
+      height: 34px;
+      line-height: 34px;
+      text-align: center;
+      font-weight: 500;
+      color: #2196f3;
+      background-color: rgba(33, 150, 243, 0.08);
+      border-radius: 11px;
+      & > i {
+        line-height: 34px;
+      }
+    }
+    .am-button {
+      height: 36px;
+      line-height: 36px;
+      padding: 0 10px;
+    }
+    .am-button-primary:hover {
+      color: #fff;
+    }
+    .am-button,
+    .am-button::before,
+    .am-button-active::before {
+      border-radius: 50px;
+    }
+    .flexShink {
+      flex-shrink: 0;
+      font-weight: 500;
+    }
+    .opcIcon {
+      color: rgba(255, 255, 255, 0.8);
+    }
+    .disabled {
+      background-color: rgba(0, 0, 0, 0.05);
+      color: #757575;
+    }
+    .letterSpacing {
+      letter-spacing: -2px;
+    }
+  }
+}
 
 .am-action-sheet {
   .header {
@@ -74,16 +130,20 @@ input::placeholder {
   }
 }
 
+.mobileSheetRowRecord {
+  .btnsWrapper;
+}
+
 .am-action-sheet-cancel-button {
   overflow: hidden;
 }
-
 .am-modal-content {
   padding-bottom: 0 !important;
 }
 .am-modal-wrap-popup {
   overflow: hidden;
   transform: none !important;
+  .btnsWrapper;
 }
 .appListMobile {
   .am-modal-mask,

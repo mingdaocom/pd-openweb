@@ -5,7 +5,7 @@ import DraggableItem from './draggableItem';
 import { WIDGET_GROUP_TYPE } from '../config/widget';
 import ListItemLayer from './ListItemLayer';
 import { getFeatureStatus } from 'src/util';
-import { handleAddWidget } from 'src/pages/widgetConfig/util/data';
+import { handleAddWidgets } from 'src/pages/widgetConfig/util/data';
 
 const WidgetList = styled.div`
   width: 300px;
@@ -77,7 +77,7 @@ export default function List(props) {
   const { globalSheetInfo = {} } = props;
 
   const handleAdd = (data, para) => {
-    handleAddWidget(data, para, props);
+    handleAddWidgets([data], para, props);
   };
 
   return (

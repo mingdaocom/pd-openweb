@@ -1,7 +1,7 @@
 import React, { useEffect, Fragment } from 'react';
 import { useSetState } from 'react-use';
 import { get, isEmpty } from 'lodash';
-import { RadioGroup, Checkbox, Dropdown, RadioGroup2 } from 'ming-ui';
+import { RadioGroup, Checkbox, Dropdown } from 'ming-ui';
 import { Tooltip } from 'antd';
 import Trigger from 'rc-trigger';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
@@ -201,8 +201,12 @@ export default function RelateSheet(props) {
 
   useEffect(() => {
     //  切换控件手动更新
-    if (!loading && !isEmpty(controls)) {
-      onChange({ relationControls: controls, sourceEntityName: worksheetInfo.name });
+    if (!loading && !isEmpty(controls) && worksheetInfo.worksheetId === dataSource) {
+      onChange({
+        relationControls: controls,
+        sourceEntityName: worksheetInfo.name,
+        showControls: getShowControls(controls),
+      });
     }
     if (!getAdvanceSetting(data, 'showtype')) {
       onChange(handleAdvancedSettingChange(data, { showtype: '1' }));
@@ -219,9 +223,6 @@ export default function RelateSheet(props) {
 
   useEffect(() => {
     setState({ isRelateView: Boolean(viewId) });
-    if (!showControls) {
-      onChange({ showControls: filterControls.slice(0, 4).map(item => item.controlId) });
-    }
     if (_.isUndefined(allowlink)) {
       onChange(handleAdvancedSettingChange(data, { allowlink: '1' }));
     }
@@ -230,21 +231,14 @@ export default function RelateSheet(props) {
     return showtype === '2';
   };
 
-  const getShowControls = () => {
-    if (!showControls) return filterControls.slice(0, 4).map(item => item.controlId);
+  const getShowControls = controls => {
+    if (ddset !== '1' && showtype === '3') return [];
+    const feControls = _.filter(controls, item => !_.includes([22, 43, 45, 47, 49], item.type));
+    if (isEmpty(showControls)) return feControls.slice(0, 4).map(item => item.controlId);
     // 删除掉showControls 中已经被删掉的控件
     const allControlId = controls.map(item => item.controlId);
-    return showControls
-      .map(id => {
-        if (!allControlId.includes(id)) return '';
-        return id;
-      })
-      .filter(item => !isEmpty(item));
+    return showControls.filter(i => allControlId.includes(i));
   };
-
-  if (!showControls && !isEmpty(filterControls)) {
-    onChange({ showControls: getShowControls() });
-  }
 
   const getGhostControlId = () => {
     if (isSheetDisplay() || !titleControl) return [];
@@ -266,15 +260,15 @@ export default function RelateSheet(props) {
           )}
         </div>
         <div className="Gray_9e mTop10">{_l('选择作为封面图片的附件字段')}</div>
-        <RadioGroup2
+        <RadioGroup
           radioItemClassName="mTop10"
           disabled={!dataSource}
+          checkedValue={coverCid}
           data={filterControls
             .filter(c => c.type === 14 || (c.type === 30 && c.sourceControl && c.sourceControl.type === 14))
             .map(c => ({
               text: c.controlName,
               value: c.controlId,
-              checked: c.controlId === coverCid,
             }))}
           vertical={true}
           onChange={value => onChange({ coverCid: value })}
@@ -404,9 +398,10 @@ export default function RelateSheet(props) {
             let nextData = handleAdvancedSettingChange(data, { showtype: value });
             // 非卡片 铺满整行
             if (value !== '3') {
-              nextData = { ...nextData };
+              nextData = { ...nextData, showControls: getShowControls(nextData.relationControls) };
             } else {
-              nextData = handleAdvancedSettingChange(nextData, { searchfilters: '' });
+              // 下拉框清空
+              nextData = { ...handleAdvancedSettingChange(nextData, { searchfilters: '' }), showControls: [] };
             }
             // 切换为列表 必填置为false, 默认值清空
             if (value === '2') {

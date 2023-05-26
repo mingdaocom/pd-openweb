@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { formatrChartValue, formatYaxisList } from './common';
 import { formatSummaryName } from 'statistics/common';
-import { Dropdown, Menu } from 'antd';
-import { LoadDiv } from 'ming-ui';
+import { Dropdown, Menu, Tooltip } from 'antd';
+import { LoadDiv, Icon } from 'ming-ui';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import * as actions from 'statistics/redux/actions';
@@ -30,6 +30,21 @@ const PathWrapper = styled.div`
     }
   }
 `;
+
+const ZoomWrapper = styled.div`
+  width: 40px;
+  height: 90px;
+  border-radius: 4px;
+  background-color: #fff;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
+  .icon:hover {
+    color: #2196f3 !important;
+  }
+`;
+
 
 const colors = ['#E3F2FD', '#BBDEFB', '#90CAF9', '#2196F3', '#1565C0', '#0D47A1'];
 
@@ -628,6 +643,17 @@ export default class extends Component {
                 ))}
               </PathWrapper>
             )}
+            <ZoomWrapper className="flexColumn alignItemsCenter justifyContentCenter card">
+              <Tooltip title={_l('放大')}>
+                <Icon className="pointer Font20 Gray_75 mTop2" icon="add" onClick={() => this.scene.map.zoomIn()} />
+              </Tooltip>
+              <Tooltip title={_l('完整显示')}>
+                <Icon className="pointer Font17 Gray_75 mTop10 mBottom10" icon="gps_fixed" onClick={() => this.scene.map.zoomTo(2)} />
+              </Tooltip>
+              <Tooltip title={_l('缩小')}>
+                <Icon className="pointer Font20 Gray_75" icon="minus" onClick={() => this.scene.map.zoomOut()} />
+              </Tooltip>
+            </ZoomWrapper>
           </Fragment>
         )}
       </div>

@@ -271,15 +271,15 @@ class AppWorkflowList extends Component {
     const { type, count } = this.state;
 
     const TYPES = [
-      { text: _l('工作表事件'), value: FLOW_TYPE.APP, icon: 'icon-table' },
-      { text: _l('时间'), value: FLOW_TYPE.TIME, icon: 'icon-hr_time' },
-      { text: _l('人员事件'), value: FLOW_TYPE.USER, icon: 'icon-hr_structure' },
+      { text: _l('工作表事件%03003'), value: FLOW_TYPE.APP, icon: 'icon-table' },
+      { text: _l('时间%03004'), value: FLOW_TYPE.TIME, icon: 'icon-hr_time' },
+      { text: _l('人员事件%03005'), value: FLOW_TYPE.USER, icon: 'icon-hr_structure' },
       { text: _l('Webhook'), value: FLOW_TYPE.OTHER, icon: 'icon-workflow_webhook' },
-      { text: _l('子流程'), value: FLOW_TYPE.SUB_PROCESS, icon: 'icon-subprocess' },
+      { text: _l('子流程%03006'), value: FLOW_TYPE.SUB_PROCESS, icon: 'icon-subprocess' },
       { text: _l('自定义动作'), value: FLOW_TYPE.CUSTOM_ACTION, icon: 'icon-custom_actions' },
-      { text: _l('审批流程'), value: FLOW_TYPE.APPROVAL, icon: 'icon-approval' },
-      { text: _l('外部流程修改本应用'), value: FLOW_TYPE.OTHER_APP, icon: 'icon-public' },
-      { text: _l('封装业务流程'), value: FLOW_TYPE.PBC, icon: 'icon-pbc' },
+      { text: _l('审批流程%03007'), value: FLOW_TYPE.APPROVAL, icon: 'icon-approval' },
+      { text: _l('外部流程修改本应用%03008'), value: FLOW_TYPE.OTHER_APP, icon: 'icon-public' },
+      { text: _l('封装业务流程%03009'), value: FLOW_TYPE.PBC, icon: 'icon-pbc' },
     ];
 
     return (
@@ -342,7 +342,7 @@ class AppWorkflowList extends Component {
           </div>
           <div className="w270">{type === FLOW_TYPE.OTHER_APP ? _l('执行动作') : _l('状态')}</div>
           <div className="w120">{_l('创建者')}</div>
-          {type !== FLOW_TYPE.CUSTOM_ACTION && <div className="w20 mRight20" />}
+          <div className="w20 mRight20" />
         </div>
         <ScrollView className="flex">
           {!list.length && (
@@ -413,16 +413,14 @@ class AppWorkflowList extends Component {
               />
               <div className="mLeft12 ellipsis flex mRight20">{data.ownerAccount.fullName}</div>
             </div>
-            {type !== FLOW_TYPE.CUSTOM_ACTION && (
-              <div className="w20 mRight20 TxtCenter relative">
-                <Icon
-                  type="more_horiz"
-                  className="Gray_9e ThemeHoverColor3 pointer Font16 listBtn"
-                  onClick={() => this.setState({ selectFlowId: data.id })}
-                />
-                {selectFlowId === data.id && this.renderMoreOptions(data)}
-              </div>
-            )}
+            <div className="w20 mRight20 TxtCenter relative">
+              <Icon
+                type="more_horiz"
+                className="Gray_9e ThemeHoverColor3 pointer Font16 listBtn"
+                onClick={() => this.setState({ selectFlowId: data.id })}
+              />
+              {selectFlowId === data.id && this.renderMoreOptions(data)}
+            </div>
           </div>
         ))}
       </Fragment>
@@ -631,9 +629,28 @@ class AppWorkflowList extends Component {
           </Link>
         </MenuItem>
 
-        {!_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.APPROVAL], type) && (
+        {!_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.APPROVAL, FLOW_TYPE.CUSTOM_ACTION], type) && (
           <MenuItem>
-            <CopyFlowBtn item={data} updateList={() => this.getList(type)} />
+            <CopyFlowBtn
+              item={data}
+              updateList={() => {
+                this.getList(type);
+                this.getCount();
+              }}
+            />
+          </MenuItem>
+        )}
+
+        {_.includes([FLOW_TYPE.APP, FLOW_TYPE.CUSTOM_ACTION], type) && (
+          <MenuItem>
+            <CopyFlowBtn
+              isConvert
+              item={data}
+              updateList={() => {
+                this.getList(type);
+                this.getCount();
+              }}
+            />
           </MenuItem>
         )}
 
@@ -645,7 +662,9 @@ class AppWorkflowList extends Component {
             </MenuItem>
           )}
 
-        {type === FLOW_TYPE.OTHER_APP || (type === FLOW_TYPE.APPROVAL && data.triggerId) ? null : (
+        {type === FLOW_TYPE.OTHER_APP ||
+        (type === FLOW_TYPE.APPROVAL && data.triggerId) ||
+        type === FLOW_TYPE.CUSTOM_ACTION ? null : (
           <MenuItem>
             <DeleteFlowBtn
               item={data}

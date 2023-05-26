@@ -41536,3 +41536,1549 @@ msgstr "データシンクロナイゼーションタスク数"
 msgid "支持的字段类型包括：名称、部门系统ID"
 msgstr "サポートされるフィールドタイプは、名前、部門システムIDです。"
 
+#: Disabled references:1
+msgid "注销此账户"
+msgstr "アカウントをログアウトする"
+
+#: Disabled references:1
+msgid "平铺显示"
+msgstr "フラット表示"
+
+#: Disabled references:1
+msgid "选项卡显示"
+msgstr "タブ表示"
+
+#: Disabled references:1
+msgid "全部和组织分组"
+msgstr "すべてと組織をグループ化"
+
+#: Disabled references:1
+msgid "将委托给"
+msgstr "委任する"
+
+#: Disabled references:1
+msgid "委托截止"
+msgstr "委任期限"
+
+#: Disabled references:1
+msgid "%0发起了委托"
+msgstr "%0が委任を開始しました"
+
+#: Disabled references:1
+msgid "使用模板"
+msgstr "テンプレートを使用する"
+
+#: Disabled references:1
+msgid "手动输入"
+msgstr "手動で入力する"
+
+#: Disabled references:1
+msgid "自由输入"
+msgstr "自由に入力する"
+
+#: Disabled references:1
+msgid "辅助Y轴(数值)"
+msgstr "補助Y軸（数値）"
+
+#: Disabled references:1
+msgid "方向2(数值)"
+msgstr "方向2（数値）"
+
+#: Disabled references:1
+msgid "添加图表标题"
+msgstr "グラフタイトルを追加する"
+
+#: Disabled references:1
+msgid "显示说明"
+msgstr "説明を表示する"
+
+#: Disabled references:1
+msgid "最多添加%0个统计"
+msgstr "最大%0個の統計を追加できます"
+
+#: Disabled references:1
+msgid "显示完整位数"
+msgstr "完全な桁数を表示する"
+
+#: Disabled references:1
+msgid "小数位数"
+msgstr "小数点以下の桁数"
+
+#: Disabled references:1
+msgid "立即执行%03000"
+msgstr "実行する"
+
+#: Disabled references:1
+msgid "自动压缩图片"
+msgstr "画像を自動圧縮する"
+
+#: Disabled references:1
+msgid "app"
+msgstr "アプリ"
+
+#: Disabled references:1
+msgid "勾选后，将对图片压缩后再进行上传。未勾选时，用户可自行选择是否上传原图。"
+msgstr "選択すると、画像を圧縮してからアップロードします。選択しない場合、ユーザーは自分で元の画像をアップロードするかどうかを選択できます。"
+
+#: Disabled references:1
+msgid "web移动端"
+msgstr "Webモバイル"
+
+#: Disabled references:1
+msgid "web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将会始终按照原图上传。（此配置影响：公开表单、外部门户，以及钉钉、企业微信等第三方平台的移动app）"
+msgstr "通常、Webモバイルではこの設定を選択することをお勧めします。これにより、画像のアップロード速度が向上し、トラフィックが節約できます。選択しない場合、常に元の画像がアップロードされます。（この設定は、公開フォーム、外部ポータル、およびDingTalk、企業微信などのサードパーティプラットフォームのモバイルアプリに影響します）"
+
+#: Disabled references:1
+msgid "运行中%03001"
+msgstr "実行中"
+
+#: Disabled references:1
+msgid "已关闭%03002"
+msgstr "閉じられました"
+
+#: Disabled references:1
+msgid "导出为Excel"
+msgstr "Excelにエクスポート"
+
+#: Disabled references:1
+msgid "导出附件"
+msgstr "添付ファイルをエクスポート"
+
+#: Disabled references:1
+msgid "无附件下载权限，无法导出"
+msgstr "添付ファイルのダウンロード権限がありません。エクスポートできません。"
+
+#: Disabled references:1
+msgid "保存导出配置"
+msgstr "エクスポート設定を保存する"
+
+#: Disabled references:1
+msgid "将当前导出配置保存为默认导出方式供所有用户使用，会保存已选字段（导出所有字段）、其他、以及导出格式"
+msgstr "現在のエクスポート設定をデフォルトのエクスポート方法として保存し、すべてのユーザーが使用できるようにします。選択されたフィールド（すべてのフィールドをエクスポート）、その他、およびエクスポート形式が保存されます。"
+
+#: Disabled references:1
+msgid "不允许用户修改默认配置"
+msgstr "ユーザーがデフォルト設定を変更することはできません"
+
+#: Disabled references:1
+msgid "空格"
+msgstr "スペース"
+
+#: Disabled references:1
+msgid "破折号"
+msgstr "ダッシュ"
+
+#: Disabled references:1
+msgid "下划线"
+msgstr "アンダースコア"
+
+#: Disabled references:1
+msgid "张三"
+msgstr "山田太郎"
+
+#: Disabled references:1
+msgid "字段名"
+msgstr "フィールド名"
+
+#: Disabled references:1
+msgid "身份证照片"
+msgstr "身分証の写真"
+
+#: Disabled references:1
+msgid "文件原始名"
+msgstr "ファイルの元の名前"
+
+#: Disabled references:1
+msgid "身份证人像面.jpg"
+msgstr "身分証の顔写真.jpg"
+
+#: Disabled references:1
+msgid "选择需要导出的附件字段，导出附件总数不超过1000个，总大小不超过1GB"
+msgstr "エクスポートする添付ファイルのフィールドを選択し、エクスポートする添付ファイルの総数は1000個を超えず、総サイズは1GBを超えないようにしてください"
+
+#: Disabled references:1
+msgid "选择导出的附件字段"
+msgstr "エクスポートする添付ファイルのフィールドを選択してください"
+
+#: Disabled references:1
+msgid "命名方式"
+msgstr "命名方法"
+
+#: Disabled references:1
+msgid "连字符"
+msgstr "ハイフン"
+
+#: Disabled references:1
+msgid "示例："
+msgstr "例："
+
+#: Disabled references:1
+msgid "为每行记录生成一个文件夹"
+msgstr "各行のレコードにフォルダを生成する"
+
+#: Disabled references:1
+msgid "其它"
+msgstr "その他"
+
+#: Disabled references:1
+msgid "显示模式"
+msgstr "表示モード"
+
+#: Disabled references:1
+msgid "十六宫格"
+msgstr "16マス"
+
+#: Disabled references:1
+msgid "分组默认展开方式"
+msgstr "グループのデフォルト展開方法"
+
+#: Disabled references:1
+msgid "全展开"
+msgstr "すべて展開"
+
+#: Disabled references:1
+msgid "全收起"
+msgstr "すべて折りたたむ"
+
+#: Disabled references:1
+msgid "只展开一个分组"
+msgstr "1つのグループのみ展開"
+
+#: Disabled references:1
+msgid "具体值"
+msgstr "具体的な値"
+
+#: Disabled references:1
+msgid "仅显示一个"
+msgstr "1つだけ表示"
+
+#: Disabled references:1
+msgid "设为默认值"
+msgstr "デフォルト値に設定"
+
+#: Disabled references:1
+msgid "用户自由输入"
+msgstr "ユーザーが自由に入力"
+
+#: Disabled references:1
+msgid "模板"
+msgstr "テンプレート"
+
+#: Disabled references:1
+msgid "审批设置"
+msgstr "承認設定"
+
+#: Disabled references:1
+msgid "字段权限"
+msgstr "フィールド権限"
+
+#: Disabled references:1
+msgid "数据更新"
+msgstr "データ更新"
+
+#: Disabled references:1
+msgid "启用邮件审批"
+msgstr "メール承認を有効にする"
+
+#: Disabled references:1
+msgid "启用后，待办消息同时会以邮件的形式发送给相关负责人，并且可以直接通过点击邮件内的按钮进行通过、否决"
+msgstr "有効にすると、未処理のメッセージは関係者にメールで送信され、メール内のボタンをクリックして承認または拒否できます"
+
+#: Disabled references:1
+msgid "用户自由输入；"
+msgstr "ユーザーが自由に入力；"
+
+#: Disabled references:1
+msgid "仅支持选择指定模板；"
+msgstr "指定されたテンプレートのみを選択できます；"
+
+#: Disabled references:1
+msgid "已设置通过、否决/退回时的意见模板"
+msgstr "承認、拒否/返品時の意見テンプレートが設定されています"
+
+#: Disabled references:1
+msgid "已设置通过时的意见模板"
+msgstr "承認時の意見テンプレートが設定されています"
+
+#: Disabled references:1
+msgid "已设置否决/退回时的意见模板"
+msgstr "拒否/返品時の意見テンプレートが設定されています"
+
+#: Disabled references:1
+msgid "未设置意见模版"
+msgstr "意見テンプレートが設定されていません"
+
+#: Disabled references:1
+msgid "必须先选择一个对象后，才能设置字段权限"
+msgstr "フィールド権限を設定するには、まずオブジェクトを1つ選択する必要があります"
+
+#: Disabled references:1
+msgid "意见模板"
+msgstr "意見テンプレート"
+
+#: Disabled references:1
+msgid "预置常用的意见作为模板，帮助审批人快捷填写"
+msgstr "よく使用される意見をテンプレートとして事前に設定し、承認者が迅速に入力できるようにします"
+
+#: Disabled references:1
+msgid "通过时的模板"
+msgstr "承認時のテンプレート"
+
+#: Disabled references:1
+msgid "否决/退回时的模板"
+msgstr "拒否/返品時のテンプレート"
+
+#: Disabled references:1
+msgid "指定人"
+msgstr "指定された人"
+
+#: Disabled references:1
+msgid "启用邮件通知"
+msgstr "メール通知を有効にする"
+
+#: Disabled references:1
+msgid "启用后，待办消息同时会以邮件的形式发送给相关负责人"
+msgstr "有効にすると、未処理のメッセージは関係者にメールで送信されます"
+
+#: Disabled references:1
+msgid "将“%0”转为子流程"
+msgstr "%0をサブプロセスに変換する"
+
+#: Disabled references:1
+msgid "如果您需要复用本流程，通过此操作将为本流程创建一个副本，触发器类型为子流程"
+msgstr "本フローを再利用する必要がある場合、この操作を使用してフローのコピーを作成し、トリガータイプをサブフローに設定します。"
+
+#: Disabled references:1
+msgid "-子流程"
+msgstr "－サブフロー"
+
+#: Disabled references:1
+msgid "转为子流程"
+msgstr "サブフローに変換"
+
+#: Disabled references:1
+msgid "工作表事件触发%03011"
+msgstr "ワークシートトリガー"
+
+#: Disabled references:1
+msgid "定时触发%03012"
+msgstr "スケジュールトリガー"
+
+#: Disabled references:1
+msgid "按日期字段触发%03013"
+msgstr "日付フィールドトリガー"
+
+#: Disabled references:1
+msgid "组织人员事件触发%03014"
+msgstr "組織・人員トリガー"
+
+#: Disabled references:1
+msgid "外部用户事件触发%03015"
+msgstr "外部ユーザートリガー"
+
+#: Disabled references:1
+msgid "Webhook触发%03016"
+msgstr "Webhookトリガー"
+
+#: Disabled references:1
+msgid "如何开始你的流程%03010"
+msgstr "フローの開始方法"
+
+#: Disabled references:1
+msgid "关闭%03055"
+msgstr "オフ"
+
+#: Disabled references:1
+msgid "数据处理%03017"
+msgstr "データ処理"
+
+#: Disabled references:1
+msgid "新增记录%03018"
+msgstr "レコードの追加"
+
+#: Disabled references:1
+msgid "更新记录%03019"
+msgstr "レコードの更新"
+
+#: Disabled references:1
+msgid "删除记录%03020"
+msgstr "レコードの削除"
+
+#: Disabled references:1
+msgid "获取单条数据%03021"
+msgstr "単一のレコードの取得"
+
+#: Disabled references:1
+msgid "获取多条数据%03022"
+msgstr "複数のレコードの取得"
+
+#: Disabled references:1
+msgid "更新流程参数%03023"
+msgstr "フローパラメータの更新"
+
+#: Disabled references:1
+msgid "发起审批流程%03024"
+msgstr "承認フローの開始"
+
+#: Disabled references:1
+msgid "填写%03025"
+msgstr "入力"
+
+#: Disabled references:1
+msgid "抄送%03026"
+msgstr "CC"
+
+#: Disabled references:1
+msgid "通知%03027"
+msgstr "通知"
+
+#: Disabled references:1
+msgid "发送站内通知%03028"
+msgstr "送信内通知"
+
+#: Disabled references:1
+msgid "发送短信%03029"
+msgstr "SMS"
+
+#: Disabled references:1
+msgid "发送邮件%03030"
+msgstr "Eメール"
+
+#: Disabled references:1
+msgid "发送服务号信息%03031"
+msgstr "WeChat公式アカウント"
+
+#: Disabled references:1
+msgid "构件%03032"
+msgstr "コンポーネント"
+
+#: Disabled references:1
+msgid "分支%03033"
+msgstr "ブランチ"
+
+#: Disabled references:1
+msgid "延时%03034"
+msgstr "遅延"
+
+#: Disabled references:1
+msgid "运算%03035"
+msgstr "演算"
+
+#: Disabled references:1
+msgid "获取链接%03036"
+msgstr "リンクの取得"
+
+#: Disabled references:1
+msgid "获取记录打印文件%03037"
+msgstr "レコード印刷ファイルの取得"
+
+#: Disabled references:1
+msgid "子流程%03038"
+msgstr "サブフロー"
+
+#: Disabled references:1
+msgid "调用业务流程%03039"
+msgstr "PBPの呼び出し"
+
+#: Disabled references:1
+msgid "调用已集成 API%03040"
+msgstr "統合APIの呼び出し"
+
+#: Disabled references:1
+msgid "开发者%03041"
+msgstr "開発者"
+
+#: Disabled references:1
+msgid "API 连接与认证%03042"
+msgstr "API接続と認証"
+
+#: Disabled references:1
+msgid "发送 API 请求%03043"
+msgstr "APIリクエストの送信"
+
+#: Disabled references:1
+msgid "代码块%03044"
+msgstr "コードブロック"
+
+#: Disabled references:1
+msgid "JSON 解析%03045"
+msgstr "JSON解析"
+
+#: Disabled references:1
+msgid "组织/部门/协作%03046"
+msgstr "組織/部門/協業"
+
+#: Disabled references:1
+msgid "获取单条人员/部门/组织角色数据%03047"
+msgstr "単一のユーザー/部門/組織ロールデータの取得"
+
+#: Disabled references:1
+msgid "获取多条人员/部门/组织角色数据%03048"
+msgstr "複数のユーザー/部門/組織ロールデータの取得"
+
+#: Disabled references:1
+msgid "创建任务%03049"
+msgstr "タスクの作成"
+
+#: Disabled references:1
+msgid "外部用户%03050"
+msgstr "外部ユーザー"
+
+#: Disabled references:1
+msgid "更新外部用户信息%03051"
+msgstr "外部ユーザー情報の更新"
+
+#: Disabled references:1
+msgid "邀请外部用户%03052"
+msgstr "外部ユーザーを招待する"
+
+#: Disabled references:1
+msgid "获取单条外部人员数据%03053"
+msgstr "外部人員データを1件取得する"
+
+#: Disabled references:1
+msgid "获取多条外部人员数据%03054"
+msgstr "外部人員データを複数取得する"
+
+#: Disabled references:1
+msgid "最左"
+msgstr "左端"
+
+#: Disabled references:1
+msgid "左移一位"
+msgstr "左に1つずれる"
+
+#: Disabled references:1
+msgid "右移一位"
+msgstr "右に1箇所ずらす"
+
+#: Disabled references:1
+msgid "最右"
+msgstr "はるか右"
+
+#: Disabled references:1
+msgid "备注模版"
+msgstr "ノートテンプレート"
+
+#: Disabled references:1
+msgid "允许用户修改"
+msgstr "ユーザーが修正できるようにする"
+
+#: Disabled references:1
+msgid "导出失败！请稍候重试"
+msgstr "エクスポートに失敗しました！しばらく待ってから再度お試しください"
+
+#: Disabled references:1
+msgid "如果值"
+msgstr "もし、その値が"
+
+#: Disabled references:1
+msgid "则为"
+msgstr "では"
+
+#: Disabled references:1
+msgid "选择依据的字段"
+msgstr "ベースとなるフィールドを選択する"
+
+#: Disabled references:1
+msgid "应用内容"
+msgstr "アプリケーションの内容"
+
+#: Disabled references:1
+msgid "仅值"
+msgstr "バリューのみ"
+
+#: Disabled references:1
+msgid "值和总计"
+msgstr "数値と合計"
+
+#: Disabled references:1
+msgid "仅总计"
+msgstr "合計のみ"
+
+#: Disabled references:1
+#, fuzzy
+msgid "中间"
+msgstr "中間からの取り出し"
+
+#: Disabled references:1
+msgid "规则"
+msgstr "ルール"
+
+#: Disabled references:1
+#, fuzzy
+msgid "色阶"
+msgstr "カラーグラデーションによる"
+
+#: Disabled references:1
+msgid "正值条形图"
+msgstr "ポジティブバーチャート"
+
+#: Disabled references:1
+msgid "负值条形图"
+msgstr "ネガティブバーチャート"
+
+#: Disabled references:1
+msgid "仅显示条形图"
+msgstr "棒グラフのみの表示"
+
+#: Disabled references:1
+msgid "条形图方向"
+msgstr "棒グラフの指示"
+
+#: Disabled references:1
+#, fuzzy
+msgid "从左到右"
+msgstr "指定された間隔のテキストの内容を、左から右にすべて検索し、結果を配列として返す"
+
+#: Disabled references:1
+msgid "从右到左"
+msgstr "右から左へ"
+
+#: Disabled references:1
+#, fuzzy
+msgid "轴"
+msgstr "二軸図"
+
+#: Disabled references:1
+msgid "字体色"
+msgstr "フォントカラー"
+
+#: Disabled references:1
+msgid "取选项分值"
+msgstr "オプションマークを取る"
+
+#: Disabled references:1
+msgid "取所有选择项的分值求和"
+msgstr "すべての選択肢のスコアを合計する"
+
+#: Disabled references:1
+msgid "按指定倍数向上舍入"
+msgstr "指定した倍数で切り上げる"
+
+#: Disabled references:1
+msgid "以绝对值增大的方向按指定倍数舍入数字"
+msgstr "絶対値が大きくなる方向に、指定した倍数で数値を丸める。"
+
+#: Disabled references:1
+msgid "按指定倍数向下舍入"
+msgstr "指定した倍数で切り捨て"
+
+#: Disabled references:1
+msgid "以绝对值减小的方向按指定倍数舍入数字"
+msgstr "絶対値が小さくなる方向に指定した倍数で数値を丸めること"
+
+#: Disabled references:1
+msgid "一小时内免验证"
+msgstr "1時間以内に確認できない"
+
+#: Disabled references:1
+msgid "邮件内进行通过、否决"
+msgstr "メールでの合否"
+
+#: Disabled references:1
+msgid "设置附件(总大小不超过50M)"
+msgstr "添付ファイルを設定する（総容量50M以内）"
+
+#: Disabled references:1
+msgid "1小时内免验证"
+msgstr "1時間以内に確認できない"
+
+#: Disabled references:1
+#, fuzzy
+msgid "X轴(维度)"
+msgstr "行政区域地図は、X軸の寸法として区域フィールドのみをサポートします。"
+
+#: Disabled references:1
+msgid "Y轴(数值)"
+msgstr "Y軸（値）"
+
+#: Disabled references:1
+msgid "词标签(维度)"
+msgstr "ワードタグ（寸法）"
+
+#: Disabled references:1
+msgid "词大小(数值)"
+msgstr "ワードサイズ（値）"
+
+#: Disabled references:1
+msgid "方向1(数值)"
+msgstr "ディレクション1（数値）"
+
+#: Disabled references:1
+msgid "点(维度)"
+msgstr "ポイント（寸法）"
+
+#: Disabled references:1
+msgid "进度指示(数值)"
+msgstr "進捗状況表示（数値）"
+
+#: Disabled references:1
+msgid "地理区域(维度)"
+msgstr "地理的領域（次元）"
+
+#: Disabled references:1
+msgid "行(维度)"
+msgstr "行数（寸法）"
+
+#: Disabled references:1
+msgid "列(维度)"
+msgstr "カラム（寸法）"
+
+#: Disabled references:1
+msgid "Y轴(维度)"
+msgstr "Y軸(ディメンション)"
+
+#: Disabled references:1
+msgid "X轴(数值)"
+msgstr "X軸（数値）"
+
+#: Disabled references:1
+msgid "未解析到二维码"
+msgstr "QRコードに解決していない"
+
+#: Disabled references:1
+msgid "上传图片进行识别"
+msgstr "本人確認用画像のアップロード"
+
+#: Disabled references:1
+msgid "可以在下方输入生成带扩展值的链接。或自己拼接扩展值，拼接方法https://......?source=微博。https://...为公开表单链接，微博为设置的扩展值"
+msgstr "下のリンクを入力すると、拡張された値を持つリンクが生成されます。または、独自の拡張値をスプライスしてください。https:// ....?source=blog. https://...。は公開フォームへのリンクで、Weiboは設定された拡張値です"
+
+#: Disabled references:1
+msgid "工作表事件%03003"
+msgstr "シートイベント"
+
+#: Disabled references:1
+msgid "时间%03004"
+msgstr "時間"
+
+#: Disabled references:1
+msgid "人员事件%03005"
+msgstr "人員イベント"
+
+#: Disabled references:1
+msgid "子流程%03006"
+msgstr "サブプロセス"
+
+#: Disabled references:1
+msgid "审批流程%03007"
+msgstr "承認プロセス"
+
+#: Disabled references:1
+msgid "外部流程修改本应用%03008"
+msgstr "外部プロセスがこのアプリを変更する"
+
+#: Disabled references:1
+msgid "封装业务流程%03009"
+msgstr "ビジネスプロセスをカプセル化する"
+
+#: Disabled references:1
+msgid "删除分组%02012"
+msgstr "グループを削除する"
+
+#: Disabled references:1
+#, fuzzy
+msgid "删除自定义页面"
+msgstr "カスタムページとすべてのデータの削除を確認する"
+
+#: Disabled references:1
+msgid "此后1小时内在当前设备上应用和审批操作无需再次验证"
+msgstr "この後、1時間以内に、現在のデバイスでアプリケーションおよび承認操作を行う場合、再度認証する必要はありません"
+
+#: Disabled references:1
+msgid "数据集成服务未部署，暂不可用"
+msgstr "データ統合サービスが展開されていないため、現在は利用できません"
+
+#: Disabled references:1
+msgid "数据集成服务未部署，请参考"
+msgstr "データ統合サービスが展開されていないため、参照してください"
+
+#: Disabled references:1
+msgid "流程待办%01011"
+msgstr "プロセスタスク"
+
+#: Disabled references:1
+msgid "应用库%01012"
+msgstr "アプリライブラリ"
+
+#: Disabled references:1
+msgid "协作%01013"
+msgstr "コラボレーション"
+
+#: Disabled references:1
+msgid "集成中心%01014"
+msgstr "統合センター"
+
+#: Disabled references:1
+msgid "学习资源%01015"
+msgstr "学習リソース"
+
+#: Disabled references:1
+msgid "推广奖励%01016"
+msgstr "プロモーション報酬"
+
+#: Disabled references:1
+msgid "第三方应用%01017"
+msgstr "サードパーティのアプリケーション"
+
+#: Disabled references:1
+msgid "管理用户"
+msgstr "ユーザーを管理"
+
+#: Disabled references:1
+msgid "导出Excel%06002"
+msgstr "Excel をエクスポート"
+
+#: Disabled references:1
+msgid "按照原值导出%06000"
+msgstr "元の値に従ってエクスポート"
+
+#: Disabled references:1
+msgid "按显示单位导出%06001"
+msgstr "表示単位に従ってエクスポート"
+
+#: Disabled references:1
+msgid "开启后，当月剩余执行额度为2%时，自动购买 100元/10万行 的单月包，从账户余额中扣款。（开启后可以在数据集成的同步任务中关闭）"
+msgstr "オンにすると、当月の残りの実行枠が2%になった場合、100元/10万行の単月パッケージを自動購入し、アカウントの残高から差し引かれます。（オンにした後、データ統合の同期タスクで閉じることができます）"
+
+#: Disabled references:1
+msgid "组织分组"
+msgstr "組織のグループ化"
+
+#: Disabled references:1
+msgid "允许导出"
+msgstr "エクスポートを許可する"
+
+#: Disabled references:1
+msgid "发送邮件，"
+msgstr "メールを送信する,"
+
+#: Disabled references:1
+msgid "打印二维码%02056"
+msgstr "二次元コードを印刷"
+
+#: Disabled references:1
+msgid "打印条形码%02057"
+msgstr "バーコードを印刷"
+
+#: Disabled references:1
+msgid "至少选择一种命名方式"
+msgstr "少なくとも1つの命名方式を選択してください"
+
+#: Disabled references:1
+msgid "文件夹名和附件名的最大长度为90个汉字。超限的文件不会被导出。"
+msgstr "フォルダ名と添付ファイル名の最大長は90文字です。長さが超過した場合、エクスポートされません。"
+
+#: Disabled references:1
+msgid "下级包含%25024"
+msgstr "下位レベルに含まれる"
+
+#: Disabled references:1
+msgid "包含%25003"
+msgstr "含む"
+
+#: Disabled references:1
+msgid "是其中一个%25017"
+msgstr "いずれか一つである"
+
+#: Disabled references:1
+msgid "包含其中一个%25021"
+msgstr "いずれかを含む"
+
+#: Disabled references:1
+msgid "等于%25001"
+msgstr "等しい"
+
+#: Disabled references:1
+msgid "开头是%25005"
+msgstr "先頭が"
+
+#: Disabled references:1
+msgid "结尾是%25007"
+msgstr "末尾が"
+
+#: Disabled references:1
+msgid "开头不是%25006"
+msgstr "先頭が違う"
+
+#: Disabled references:1
+msgid "结尾不是%25008"
+msgstr "末尾が違う"
+
+#: Disabled references:1
+msgid "下级不包含%25025"
+msgstr "下位レベルに含まれない"
+
+#: Disabled references:1
+msgid "不包含%25004"
+msgstr "含まない"
+
+#: Disabled references:1
+msgid "不是任何一个%25018"
+msgstr "いずれでもない"
+
+#: Disabled references:1
+msgid "不包含任何一个%25022"
+msgstr "どれも含まない"
+
+#: Disabled references:1
+msgid "不等于%25002"
+msgstr "異なる"
+
+#: Disabled references:1
+msgid "为空%25009"
+msgstr "空である"
+
+#: Disabled references:1
+msgid "不为空%25010"
+msgstr "空でない"
+
+#: Disabled references:1
+msgid "属于%25019"
+msgstr "所属する"
+
+#: Disabled references:1
+msgid "在范围内%25011"
+msgstr "範囲内である"
+
+#: Disabled references:1
+msgid "不属于%25020"
+msgstr "に属さない"
+
+#: Disabled references:1
+msgid "不在范围内%25012"
+msgstr "の範囲外"
+
+#: Disabled references:1
+msgid "晚于%25014"
+msgstr "より遅い"
+
+#: Disabled references:1
+msgid "早于%25013"
+msgstr "より早い"
+
+#: Disabled references:1
+msgid "早于等于%25015"
+msgstr "以下"
+
+#: Disabled references:1
+msgid "晚于等于%25016"
+msgstr "以上"
+
+#: Disabled references:1
+msgid "同时包含%25023"
+msgstr "を同時に含む"
+
+#: Disabled references:1
+msgid "请填写补充信息"
+msgstr "補足情報を入力してください"
+
+#: Disabled references:1
+msgid "分组展开方式"
+msgstr "グループ展開方式"
+
+#: Disabled references:1
+msgid "默认展开一级分组"
+msgstr "1レベルのグループを展開する"
+
+#: Disabled references:1
+msgid "默认全收起"
+msgstr "全て収納する"
+
+#: Disabled references:1
+msgid "每次展开一个分组"
+msgstr "1つのグループを展開する"
+
+#: Disabled references:1
+msgid "你可以把 IBM DB2 数据库作为源数据，同步数据到工作表或者其它数据目的地。"
+msgstr "IBM DB2データベースをソースデータとして使用し、データをスプレッドシートやその他のデータターゲットに同期することができます。"
+
+#: Disabled references:1
+msgid "数据库版本：11.5x"
+msgstr "データベースバージョン：11.5x"
+
+#: Disabled references:1
+msgid "不支持 DB2 上的 布尔类型"
+msgstr "DB2上のブール型はサポートされていません"
+
+#: Disabled references:1
+msgid "DB2作为源增量读取时，对于数据表需要执行"
+msgstr "DB2をソースとしてインクリメンタルリーディングする場合、データテーブルに対して実行する必要があります"
+
+#: Disabled references:1
+msgid "ALTER TABLE <模型名称>.<表名称> DATA CAPTURE CHANGES"
+msgstr "ALTER TABLE <モデル名>.<テーブル名> DATA CAPTURE CHANGES"
+
+#: Disabled references:1
+msgid "DB2数据库在DDL事件后，需要执行存储过程"
+msgstr "DB2データベースでは、DDLイベントの後にストアドプロシージャを実行する必要があります"
+
+#: Disabled references:1
+msgid "CALL SYSPROC.ADMIN_CMD('REORG TABLE <模型名称>.<表名称>"
+msgstr "CALL SYSPROC.ADMIN_CMD('REORG TABLE <モデル名>.<テーブル名>"
+
+#: Disabled references:1
+msgid "目前，Db2上的SQL Replication不支持BOOLEAN，所以Debezium不能在这些表中执行CDC。考虑使用其他类型来代替BOOLEAN类型"
+msgstr "現在、Db2上のSQL ReplicationはBOOLEANをサポートしていないため、これらのテーブルでCDCを実行できません。BOOLEAN型の代わりに他のタイプを使用することを検討してください。"
+
+#: Disabled references:1
+msgid "对需要同步的表执行"
+msgstr "同期が必要なテーブルに対して実行する"
+
+#: Disabled references:1
+msgid "修改schema的配置项"
+msgstr "スキーマの設定項目を変更する"
+
+#: Disabled references:1
+msgid "在postgresql.conf文件中修改或添加 wal_level 配置项为：wal_level = logical"
+msgstr "postgresql.confファイルで、wal_level構成項目を変更または追加します：wal_level = logical"
+
+#: Disabled references:1
+msgid "使用「发起审批流程」节点可提供更完整的审批能力，旧「审批」节点即将被下线。流程中已添加的审批节点不受影响，仍可以继续使用。"
+msgstr "「承認プロセスを開始する」ノードを使用すると、より完全な承認機能が提供されます。旧式の「承認」ノードは近日中に廃止されます。既にプロセスに追加された承認ノードは影響を受けずに引き続き使用できます。"
+
+#: Disabled references:1
+msgid "移至最左"
+msgstr "最左に移動"
+
+#: Disabled references:1
+msgid "移至最右"
+msgstr "最右に移動"
+
+#: Disabled references:1
+msgid "且%25000"
+msgstr "そして"
+
+#: Disabled references:1
+msgid "选择本页记录%02053"
+msgstr "本ページを選択"
+
+#: Disabled references:1
+msgid "选择所有记录%02054"
+msgstr "すべてのレコードを選択"
+
+#: Disabled references:1
+msgid "反选%02055"
+msgstr "選択を反転"
+
+#: Disabled references:1
+msgid "连续60天无数据同步，会自动停止"
+msgstr "データ同期が連続で60日以上ない場合、同期は自動停止されます"
+
+#: Disabled references:1
+msgid "根据主键识别重复，并"
+msgstr "プライマリキーに基づいて重複を識別し、"
+
+#: Disabled references:1
+msgid "根据主键判断已有数据的重复，"覆盖"会导致数据变慢。"
+msgstr "プライマリキーによって既存のデータの重複を判断し、「オーバーライト」はデータの処理速度低下を引き起こす可能性があります"
+
+#: Disabled references:1
+msgid "开启后，当月剩余执行额度为2%时，自动购买 100元/10万行 的单月包，从账户余额中扣款。"
+msgstr "有効にすると、残りの実行クオータが2%の場合、アカウントから100元/10万行の単月パッケージが自動的に購入され、アカウント残高から引き落とされます。"
+
+#: Disabled references:1
+msgid "该应用暂未在此平台发布"
+msgstr "このアプリは、このプラットフォームでまだ公開されていません"
+
+#: Disabled references:1
+msgid "自由连接%04008"
+msgstr "自由結合"
+
+#: Disabled references:1
+msgid "分割线%04006"
+msgstr "区切り線"
+
+#: Disabled references:1
+msgid "大写金额%04009"
+msgstr "大文字金額"
+
+#: Disabled references:1
+msgid "关联记录%04001"
+msgstr "関連レコード"
+
+#: Disabled references:1
+msgid "他表字段%04004"
+msgstr "他のテーブルのフィールド"
+
+#: Disabled references:1
+msgid "文本组合%04000"
+msgstr "テキスト結合"
+
+#: Disabled references:1
+msgid "子表%04002"
+msgstr "子テーブル"
+
+#: Disabled references:1
+msgid "汇总%04005"
+msgstr "集計"
+
+#: Disabled references:1
+msgid "级联选择%04003"
+msgstr "カスケード選択"
+
+#: Disabled references:1
+msgid "备注%04007"
+msgstr "注釈"
+
+#: Disabled references:1
+msgid "嵌入%04010"
+msgstr "埋め込み"
+
+#: Disabled references:1
+msgid "等于%03056"
+msgstr "等しい"
+
+#: Disabled references:1
+msgid "是其中一个%03079"
+msgstr "いずれかに等しい"
+
+#: Disabled references:1
+msgid "不等于%03057"
+msgstr "等しくない"
+
+#: Disabled references:1
+msgid "不是任何一个%03077"
+msgstr "いずれでもない"
+
+#: Disabled references:1
+msgid "下级包含%03076"
+msgstr "下位レベルを含む"
+
+#: Disabled references:1
+msgid "标题包含%03085"
+msgstr "タイトルを含む"
+
+#: Disabled references:1
+msgid "包含其中一个%03082"
+msgstr "いずれかを含む"
+
+#: Disabled references:1
+msgid "包含%03058"
+msgstr "含む"
+
+#: Disabled references:1
+msgid "下级不包含%03081"
+msgstr "下位レベルを含まない"
+
+#: Disabled references:1
+msgid "标题不包含%03086"
+msgstr "タイトルを含まない"
+
+#: Disabled references:1
+msgid "不包含任何一个%03083"
+msgstr "どれも含まない"
+
+#: Disabled references:1
+msgid "不包含%03059"
+msgstr "含まない"
+
+#: Disabled references:1
+msgid "开头是%03060"
+msgstr "先頭が"
+
+#: Disabled references:1
+msgid "结尾是%03062"
+msgstr "末尾が"
+
+#: Disabled references:1
+msgid "不为空%03065"
+msgstr "空でない"
+
+#: Disabled references:1
+msgid "为空%03065"
+msgstr "空"
+
+#: Disabled references:1
+msgid "小于%03067"
+msgstr "未満"
+
+#: Disabled references:1
+msgid "大于%03066"
+msgstr "大きい"
+
+#: Disabled references:1
+msgid "小于等于%03069"
+msgstr "小さいか等しい"
+
+#: Disabled references:1
+msgid "大于等于%03068"
+msgstr "大きいか等しい"
+
+#: Disabled references:1
+msgid "在范围内%03070"
+msgstr "範囲内"
+
+#: Disabled references:1
+msgid "不在范围内%03071"
+msgstr "範囲外"
+
+#: Disabled references:1
+msgid "早于%03072"
+msgstr "より前"
+
+#: Disabled references:1
+msgid "晚于%03073"
+msgstr "より後"
+
+#: Disabled references:1
+msgid "属于%03080"
+msgstr "含む"
+
+#: Disabled references:1
+msgid "不属于%03078"
+msgstr "含まない"
+
+#: Disabled references:1
+msgid "晚于等于%03075"
+msgstr "より後か等しい"
+
+#: Disabled references:1
+msgid "早于等于%03074"
+msgstr "より前か等しい"
+
+#: Disabled references:1
+msgid "同时包含%03084"
+msgstr "同時に含む"
+
+#: Disabled references:1
+msgid "开头不是%03061"
+msgstr "先頭が違う"
+
+#: Disabled references:1
+msgid "结尾不是%03063"
+msgstr "末尾が違う"
+
+#: Disabled references:1
+msgid "启用后，待办消息同时会以邮件的形式发送给相关负责人，并且可以直接通过点击邮件内的按钮进行通过、否决；邮件0.03元/封，自动从账务中心扣费"
+msgstr "有効にすると、未完了メッセージは関連する担当者にメールで送信され、メール内のボタンをクリックして承認または拒否できます。メールの費用は0.03元/封で、自動的にアカウントセンターから請求されます。"
+
+#: Disabled references:1
+msgid "启用后，待办消息同时会以邮件的形式发送给相关负责人；邮件0.03元/封，自动从账务中心扣费"
+msgstr "有効にすると、未完了メッセージは関連する担当者にメールで送信されます。メールの費用は0.03元/封で、自動的にアカウントセンターから請求されます。"
+
+#: Disabled references:1
+msgid "有%25026"
+msgstr "あり"
+
+#: Disabled references:1
+msgid "无%25027"
+msgstr "なし"
+
+#: Disabled references:1
+msgid "目标分组不存在！"
+msgstr "対象グループが存在しません！"
+
+#: Disabled references:1
+msgid "没有创建权限！"
+msgstr "作成権限がありません！"
+
+#: Disabled references:1
+msgid "自定义首页"
+msgstr "カスタムホームページ"
+
+#: Disabled references:1
+msgid "显示最近使用"
+msgstr "最近使用履歴を表示"
+
+#: Disabled references:1
+msgid "显示组织分组"
+msgstr "組織グループを表示"
+
+#: Disabled references:1
+msgid "在\"我的应用\"分类中以选项卡显示所有组织分组"
+msgstr "「私のアプリ」の分類にすべての組織グループをタブ形式で表示"
+
+#: Disabled references:1
+msgid "我以外协身份加入的其他组织的应用"
+msgstr "私が参加している他の組織のアプリ"
+
+#: Disabled references:1
+msgid "省略末尾的0"
+msgstr "末尾の0を省略"
+
+#: Disabled references:1
+msgid "勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8"
+msgstr "チェックを入れた場合、小数点以下が指定桁数に満たない場合に末尾の0を省略します。例えば、4桁の小数点を設定した場合、標準表示で2.800と表示されますが、チェックを入れた場合、2.8と表示されます。"
+
+#: Disabled references:1
+msgid "连接符"
+msgstr "接続文字"
+
+#: Disabled references:1
+msgid "宫格"
+msgstr "グリッド"
+
+#: Disabled references:1
+msgid "类型："
+msgstr "タイプ："
+
+#: Disabled references:1
+msgid "营销"
+msgstr "マーケティング"
+
+#: Disabled references:1
+msgid "金融"
+msgstr "金融"
+
+#: Disabled references:1
+msgid "一般性通知。如验证码短信、通知短信、物流快递短信、订单短信"
+msgstr "一般的な通知。例えば、認証コード、通知メッセージ、物流配送メッセージ、注文メッセージなど"
+
+#: Disabled references:1
+msgid "如：促销、优惠、活动报名等产品推广和品牌宣传类短信"
+msgstr "例えば、プロモーション、割引、イベント参加申込などの製品プロモーションやブランド宣伝のような短信"
+
+#: Disabled references:1
+msgid "金融（暂不支持）"
+msgstr "金融（現在はサポートされていません）"
+
+#: Disabled references:1
+msgid "如：资金到账提示、支付验证码、交易提醒等金融机构向客户发送的短信"
+msgstr "例：入金通知、支払い認証コード、取引通知など、金融機関が顧客に送信するSMS"
+
+#: Disabled references:1
+msgid "短信类型"
+msgstr "SMSタイプ"
+
+#: Disabled references:1
+msgid "请谨慎选择您的短信类型，后续如果在发送时出现实际类型不符合预设类型的，可能面临模版被停用的风险"
+msgstr "SMSタイプを慎重に選択し、実際のタイプが設定されたものと一致しない場合、テンプレートが停止される可能性があるためご注意ください"
+
+#: Disabled references:1
+msgid "设置参考值"
+msgstr "設定の参照値"
+
+#: Disabled references:1
+msgid "这些是您短信模板中使用到的动态值，请给出范例数据用于人工审核时验证您的短信类型"
+msgstr "これらは、SMSテンプレートで使用される動的値です。人工審査であなたのSMSタイプを検証するためのサンプルデータを提供してください。"
+
+#: Disabled references:1
+msgid "日前公式"
+msgstr "日付の数式"
+
+#: Disabled references:1
+msgid "参数值不允许为空"
+msgstr "パラメーター値は空にできません"
+
+#: Disabled references:1
+msgid "40 万次/月"
+msgstr "40,000回/月"
+
+#: Disabled references:1
+msgid "因为平台安全措施需要，自定义的短信签名和通知内容暂时只对付费组织生效。免费和试用组织只能按默认内容发送"
+msgstr "プラットフォームのセキュリティ対策により、カスタムSMS署名と通知内容は現在有料組織のみが利用できます。無料およびトライアル組織はデフォルトのコンテンツのみ送信できます。"
+
+#: Disabled references:1
+msgid "搜索文件夹名称"
+msgstr "フォルダ名を検索します。"
+
+#: Disabled references:1
+msgid "默认全展开"
+msgstr "デフォルトで全て展開されます。"
+
+#: Disabled references:1
+msgid "每次展开一个分组（其他自动收起）"
+msgstr "1つのグループを展開する度に他は自動的に収束します。"
+
+#: Disabled references:1
+msgid "如：促销、优惠、活动报名等产品推广和品牌宣传类短信；系统将自动为此类短信末尾附加【退订】字样"
+msgstr "例えば、製品のプロモーションやブランド宣伝、活動や割引などのプロモーションSMSの末尾に【解約】という単語が自動的に追加されます。"
+
+#: Disabled references:1
+msgid "如：资金到账提示、支付验证码、交易提醒、催缴通知等"
+msgstr "資金振込のメッセージ、決済確認コード、取引のリマインダー、催促通知などの金融関連のメッセージも同様です。"
+
+#: Disabled references:1
+msgid "证件类型"
+msgstr "証明書タイプ"
+
+#: Disabled references:1
+msgid "没有搜索到相关应用和应用项"
+msgstr "関連するアプリまたはアイテムが見つかりませんでした"
+
+#: Disabled references:1
+msgid "没有搜索到相关记录"
+msgstr "関連する記録が見つかりませんでした"
+
+#: Disabled references:1
+msgid "可尝试更换关键字搜索"
+msgstr "キーワードを変更して検索してみてください"
+
+#: Disabled references:1
+msgid "至少选择一个附件字段"
+msgstr "少なくとも1つの添付ファイルフィールドを選択してください"
+
+#: Disabled references:1
+msgid "应用项被移走了"
+msgstr "アプリ項目が移動されました"
+
+#: Disabled references:1
+msgid "应用项已删除"
+msgstr "アプリ項目が削除されました"
+
+#: Disabled references:1
+msgid "应用项无权限"
+msgstr "アプリ項目に権限がありません"
+
+#: Disabled references:1
+msgid "邮件内快速审批"
+msgstr "メール内のスピーディ承認"
+
+#: Disabled references:1
+msgid "邮件内附带通过、否决按钮，此种快速审批方式不校验必填的签名、意见和字段"
+msgstr "メールには承認/却下ボタンが添付されます。これにより、署名、意見、およびフィールドの必須項目が確認されません。"
+
+#: Disabled references:1
+msgid "为照片添加水印（仅手机App支持）"
+msgstr "写真に透かしを追加する（モバイルアプリのみ対応）"
+
+#: Disabled references:1
+msgid "手机App"
+msgstr "モバイルアプリ"
+
+#: Disabled references:1
+msgid "Web移动端（H5）"
+msgstr "モバイルWeb（H5）"
+
+#: Disabled references:1
+msgid "Web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将会始终按照原图上传。（此配置影响：公开表单、外部门户，以及钉钉、企业微信等第三方平台的移动app）"
+msgstr "モバイルWebでは通常、この構成を選択することをお勧めします。これにより、画像のアップロードが高速化され、データ使用量が節約できます。選択しない場合、常に元の画像がアップロードされます。（この設定は、公開フォーム、外部ポータル、DingTalk、企業向けWeChatなどの第三者プラットフォームに影響を与えます）"
+
+#: Disabled references:1
+msgid "关闭%03087"
+msgstr "オフ"
+
+#: Disabled references:1
+msgid "报错信息"
+msgstr "エラーメッセージ"
+
+#: Disabled references:1
+msgid "Web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将始终按照原图上传。（此配置影响：原生H5、公开表单、外部门户，以及钉钉、企业微信等第三方平台的移动App）"
+msgstr "Webおよびモバイルアプリの場合、通常この設定をオンにすることをお勧めします。これにより、画像のアップロード速度が向上し、トラフィックが節約されます。オフにした場合、常に元の画像がアップロードされます。（この設定は、ネイティブH5、パブリックフォーム、外部ポータル、およびDingTalk、企業WeChatなどの第三者プラットフォームのモバイルアプリに影響します。）"
+
+#: Disabled references:1
+msgid "名称包含特殊字符，无法同步"
+msgstr "特殊文字が含まれているため同期できません"
+
+#: Disabled references:1
+msgid "其他连接器选项"
+msgstr "その他のコネクタオプション"
+
+#: Disabled references:1
+msgid "如果数据源的连接器选项配置和数据库服务器配置不一致时，可能会出现同步错误或者创建同步任务失败的情况。此时可尝试添加额外的连接器选项参数配置。"
+msgstr "データソースのコネクタオプション設定とデータベースサーバー設定が一致しない場合、同期エラーや同期タスクの作成に失敗する可能性があります。この場合は、追加のコネクタオプションパラメーター設定を試してみることができます。"
+
+#: Disabled references:1
+msgid "查看连接器选项"
+msgstr "コネクタオプションを表示"
+
+#: Disabled references:1
+msgid "指定当前MariaDB服务器的时区"
+msgstr "現在のMariaDBサーバーのタイムゾーンを指定"
+
+#: Disabled references:1
+msgid "指定当前MySQL服务器的时区"
+msgstr "現在のMySQLサーバーのタイムゾーンを指定"
+
+#: Disabled references:1
+msgid "检查 max_replication_slots 和  max_wal_senders 的默认值"
+msgstr "max_replication_slotsおよびmax_wal_sendersのデフォルト値を確認してください"
+
+#: Disabled references:1
+msgid "建议调整到500以上"
+msgstr "500以上に調整することをお勧めします"
+
+#: Disabled references:1
+msgid "PostgreSQL数据库的逻辑解码插件名称，10+版本自带pgoutput，可不指定"
+msgstr "PostgreSQLデータベースの論理復号化プラグイン名。バージョン10以上では、pgoutputが標準で付属しており、指定する必要はありません。"
+
+#: Disabled references:1
+msgid "另外可选："
+msgstr "他にも選択肢があります："
+
+#: Disabled references:1
+msgid "常见问题"
+msgstr "よくある問題"
+
+#: Disabled references:1
+msgid "创建连接过程出现SSL验证报错，可尝试在 其他连接串参数 增加如下配置"
+msgstr "接続の作成中にSSL認証エラーが発生した場合は、他の接続パラメータに以下の設定を追加してみてください。"
+
+#: Disabled references:1
+msgid "新建表名称"
+msgstr "新しいテーブル名"
+
+#: Disabled references:1
+msgid "未设置相关映射字段"
+msgstr "関連マッピングフィールドが設定されていません"
+
+#: Disabled references:1
+msgid "新建表未设置表名称"
+msgstr "新しいテーブルの名前が設定されていません"
+
+#: Disabled references:1
+msgid "目标工作表未设置主键 "
+msgstr "ターゲット作業テーブルに主キーが設定されていません"
+
+#: Disabled references:1
+msgid "主键未设置相关映射"
+msgstr "主キーの関連マッピングが設定されていません"
+
+#: Disabled references:1
+msgid "新建数据表"
+msgstr "新しいデータテーブル"
+
+#: Disabled references:1
+msgid "请选择相应的表或库"
+msgstr "該当のテーブルまたはライブラリを選択してください"
+
+#: Disabled references:1
+msgid "将选项等复杂字段作为文本使用时请使用STRING函数，比如"
+msgstr "オプションなど、複雑なフィールドをテキストとして使用する場合はSTRING関数を使用してください。例："
+
+#: Disabled references:1
+msgid "STRING($单选$)"
+msgstr "STRING($オプション$)"
+
+#: Disabled references:1
+msgid "设置填写内容%02060"
+msgstr "入力内容の設定"
+
+#: Disabled references:1
+msgid "填写对象%02061"
+msgstr "入力対象"
+
+#: Disabled references:1
+msgid "关联记录（单条）%02062"
+msgstr "関連レコード（単一）"
+
+#: Disabled references:1
+msgid "填写内容%02063"
+msgstr "入力内容"
+
+#: Disabled references:1
+msgid "新建关联记录%02064"
+msgstr "新しい関連レコードの作成"
+
+#: Disabled references:1
+msgid "A → Z%02058"
+msgstr "A → Z"
+
+#: Disabled references:1
+msgid "Z → A%02059"
+msgstr "Z → A"
+
+#: Disabled references:1
+msgid "维护中%01018"
+msgstr "メンテナンス中"
+
+#: Disabled references:1
+msgid "表格视图可以单元格直接编辑；看板、层级、甘特图在标题字段为文本类型时可以只填写标题字段快速创建记录；可以在看板、层级和画廊视图的卡片上直接修改文本类标题和检查框"
+msgstr "テーブルビューではセルを直接編集できます。カンバンビュー、カレンダービュー、ガントチャートビューでは、タイトルフィールドがテキストタイプの場合、タイトルフィールドのみを記入して、レコードを素早く作成できます。カンバンビュー、カレンダービュー、ギャラリービューのカード上で、テキストタイプのタイトルとチェックボックスを直接編集できます"
+
+#: Disabled references:1
+msgid "是否保存对函数的更改"
+msgstr "関数の変更を保存しますか？"
+

@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
+import cx from 'classnames';
 
 const SkeletonWrap = styled.div`
   flex: 1;
-  padding: 24px 80px;
+  padding: 18px 80px;
+  &.isIndexPage {
+    padding: 14px 80px;
+  }
   .title {
     width: 220px;
     height: 32px;
@@ -16,7 +20,7 @@ const SkeletonWrap = styled.div`
     border-radius: 50%;
   }
   .appList {
-    margin-top: 40px;
+    margin: 0 -30px;
     display: flex;
     flex-wrap: wrap;
   }
@@ -46,11 +50,10 @@ const SkeletonWrap = styled.div`
   }
 `;
 
-export default function AppGroupSkeleton() {
+export default function AppGroupSkeleton({ isIndexPage }) {
   return (
-    <SkeletonWrap>
+    <SkeletonWrap className={cx({ isIndexPage })}>
       <div className="wrap">
-        <div className="title skeletonItem"></div>
         <div className="appList">
           {Array.from({ length: 8 }).map((_, index) => {
             return (

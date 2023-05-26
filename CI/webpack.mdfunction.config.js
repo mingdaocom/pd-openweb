@@ -4,7 +4,7 @@ const config = require('./webpack.common.config');
 
 module.exports = {
   resolve: Object.assign({}, config.resolve, {
-    alias: Object.assign({}, config.resolve.alias, { uuid: 'src/common/uuid' }),
+    alias: Object.assign({}, config.resolve.alias, { uuid: 'src/util/uuid' }),
   }),
   plugins: [
     new webpack.DefinePlugin({

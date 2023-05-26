@@ -711,7 +711,7 @@ export default class RelateRecordCards extends Component {
                 </div>
               </RelateScanQRCodeWrap>
             )}
-          {!disabled && multiple && isCard && recordId && (
+          {!disabled && multiple && isCard && recordId && !isMobile && (
             <SearchRecordsButton
               icon="search"
               onClick={() => {

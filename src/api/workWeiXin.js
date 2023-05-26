@@ -337,6 +337,19 @@ export default {
      return $.api('WorkWeiXin', 'GetDDJsapiConfig', args, options);
    },
   /**
+  * 获取钉钉 js-sdk的签名信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.url 调用JS接口页面的完整URL，不包含#及其后面部分
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getDDSignatureInfo: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'GetDDSignatureInfo', args, options);
+   },
+  /**
   * 获取网络的企业微信自建应用集成设置
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -642,6 +655,19 @@ export default {
    getWelinkSsoUrlInfo: function (args, options = {}) {
      
      return $.api('WorkWeiXin', 'GetWelinkSsoUrlInfo', args, options);
+   },
+  /**
+  * 获取welink js-sdk的签名信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.url 调用JS接口页面的完整URL，不包含#及其后面部分
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWeLinkSignatureInfo: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'GetWeLinkSignatureInfo', args, options);
    },
   /**
   * 获取网络的飞书设置

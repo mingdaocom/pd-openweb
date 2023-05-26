@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Icon, RadioGroup, Input } from 'ming-ui';
+import { Icon, RadioGroup, Input, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,6 +13,7 @@ import {
   INVALID_MD_TYPE_SHEET,
   SYSTEM_FIELD_IDS,
   namePattern,
+  isValidName,
 } from '../../../constant';
 import FieldMappingList from '../../../components/FieldsMappingList/index';
 import LeftTableList from './LeftTableList';
@@ -124,6 +125,7 @@ export default function OnlySyncStep(props) {
 
   const getInitFieldsMapping = sourceFields => {
     let pkFieldMapping = {};
+    const needReplace = !isSourceAppType || !isDestAppType;
     const mapping = sourceFields.map(item => {
       return {
         sourceField: item,
@@ -132,8 +134,12 @@ export default function OnlySyncStep(props) {
           isCheck: item.isPk,
           isNotNull: item.isPk,
           isPk: item.isPk,
-          name: item.alias.replace(namePattern, '') || item.name.replace(namePattern, ''),
-          alias: item.alias.replace(namePattern, '') || item.name.replace(namePattern, ''),
+          name: needReplace
+            ? item.alias.replace(namePattern, '') || item.name.replace(namePattern, '')
+            : item.alias || item.name,
+          alias: needReplace
+            ? item.alias.replace(namePattern, '') || item.name.replace(namePattern, '')
+            : item.alias || item.name,
 
           dataType: null,
           jdbcTypeId: null,
@@ -234,6 +240,7 @@ export default function OnlySyncStep(props) {
   const setDefaultData = (mapping, types, isSetDefaultFields, destFields) => {
     let hasSetFields = {};
     const newFieldsMapping = (mapping || []).map(item => {
+      const isValidField = isValidName(item.sourceField.name) || isSourceAppType;
       //设置默认选中字段--仅对于选择已有表情况
       if (isSetDefaultFields) {
         const matchedFields = getMatchedFieldsOptions(types, item.sourceField, destFields);
@@ -241,20 +248,23 @@ export default function OnlySyncStep(props) {
         if (!item.destField.id && sameNameFields.length > 0 && !hasSetFields[sameNameFields[0].name]) {
           hasSetFields[sameNameFields[0].name] = 1;
           return {
-            sourceField: { ...item.sourceField, isCheck: true },
-            destField: {
-              ...item.destField,
-              isCheck: true,
-              id: sameNameFields[0].id,
-              name: sameNameFields[0].name,
-              alias: sameNameFields[0].alias,
-              dataType: sameNameFields[0].dataType,
-              jdbcTypeId: sameNameFields[0].jdbcTypeId,
-              precision: sameNameFields[0].precision,
-              scale: sameNameFields[0].scale,
-              mdType: sameNameFields[0].mdType,
-              controlSetting: sameNameFields[0].controlSetting,
-            },
+            sourceField: { ...item.sourceField, isCheck: isValidField },
+            destField: isValidField
+              ? {
+                  ...item.destField,
+                  isCheck: true,
+                  isNotNull: sameNameFields[0].isNotNull,
+                  id: sameNameFields[0].id,
+                  name: sameNameFields[0].name,
+                  alias: sameNameFields[0].alias,
+                  dataType: sameNameFields[0].dataType,
+                  jdbcTypeId: sameNameFields[0].jdbcTypeId,
+                  precision: sameNameFields[0].precision,
+                  scale: sameNameFields[0].scale,
+                  mdType: sameNameFields[0].mdType,
+                  controlSetting: sameNameFields[0].controlSetting,
+                }
+              : item.destField,
           };
         }
       }
@@ -276,7 +286,7 @@ export default function OnlySyncStep(props) {
             };
 
       return {
-        ...item,
+        sourceField: { ...item.sourceField, disabled: !isValidField },
         destField: {
           ...item.destField,
           dataType: (initOption || itemOptions[0]).typeName.toLowerCase(),
@@ -552,20 +562,22 @@ export default function OnlySyncStep(props) {
         .then(res => {
           if (res) {
             const sheetOptionList = res.map(item => {
-              const itemDisabled = source.id === dest.id && currentTab.db === db.value && currentTab.tableName === item;
+              const isSameTable = source.id === dest.id && currentTab.db === db.value && currentTab.tableName === item;
+              const isValidTable = isValidName(item);
               return {
-                label: itemDisabled ? (
-                  <div className="flexRow alignItemsCenter">
-                    <span className="Gray_9e">{item}</span>
-                    <div data-tip={_l('不可选与数据源相同的表')} className="pointer tip-right mTop2">
-                      <Icon icon="info1" className="Gray_bd mLeft24" />
+                label:
+                  isSameTable || !isValidTable ? (
+                    <div className="flexRow alignItemsCenter">
+                      <span className="Gray_9e">{item}</span>
+                      <Tooltip text={isSameTable ? _l('不可选与数据源相同的表') : _l('名称包含特殊字符，无法同步')}>
+                        <Icon icon="info1" className="Gray_bd mLeft24 pointer" />
+                      </Tooltip>
                     </div>
-                  </div>
-                ) : (
-                  item
-                ),
+                  ) : (
+                    item
+                  ),
                 value: item,
-                disabled: itemDisabled,
+                disabled: isSameTable || !isValidTable,
               };
             });
             onChangeStateData(sheetData, setSheetData, { dbName: db.value, sheetNameValue: null });
@@ -589,7 +601,21 @@ export default function OnlySyncStep(props) {
       .then(res => {
         if (res) {
           const sheetOptionList = res.map(item => {
-            return { label: item, value: item };
+            const isValidTable = isValidName(item);
+            return {
+              label: !isValidTable ? (
+                <div className="flexRow alignItemsCenter">
+                  <span className="Gray_9e">{item}</span>
+                  <Tooltip text={_l('名称包含特殊字符，无法同步')}>
+                    <Icon icon="info1" className="Gray_bd mLeft24 pointer" />
+                  </Tooltip>
+                </div>
+              ) : (
+                item
+              ),
+              value: item,
+              disabled: !isValidTable,
+            };
           });
           onChangeStateData(sheetData, setSheetData, { schemaName: schema.value });
           onChangeStateData(optionList, setOptionList, { sheetOptionList });
@@ -615,20 +641,22 @@ export default function OnlySyncStep(props) {
             const sheetOptionList = res
               .filter(o => o.type === 0) //只能是工作表
               .map(item => {
-                const itemDisabled = source.id === dest.id && currentTab.table === item.workSheetId;
+                const isSameTable = source.id === dest.id && currentTab.table === item.workSheetId;
+                const isValidTable = isValidName(item.workSheetName);
                 return {
-                  label: itemDisabled ? (
-                    <div className="flexRow alignItemsCenter">
-                      <span className="Gray_9e">{item.workSheetName}</span>
-                      <div data-tip={_l('不可选与数据源相同的表')} className="pointer tip-right mTop2">
-                        <Icon icon="info1" className="Gray_bd mLeft24" />
+                  label:
+                    isSameTable || !isValidTable ? (
+                      <div className="flexRow alignItemsCenter">
+                        <span className="Gray_9e">{item.workSheetName}</span>
+                        <Tooltip text={isSameTable ? _l('不可选与数据源相同的表') : _l('名称包含特殊字符，无法同步')}>
+                          <Icon icon="info1" className="Gray_bd mLeft24 pointer" />
+                        </Tooltip>
                       </div>
-                    </div>
-                  ) : (
-                    item.workSheetName
-                  ),
+                    ) : (
+                      item.workSheetName
+                    ),
                   value: item.workSheetId,
-                  disabled: itemDisabled,
+                  disabled: isSameTable || !isValidTable,
                   workSheetName: item.workSheetName,
                 };
               });

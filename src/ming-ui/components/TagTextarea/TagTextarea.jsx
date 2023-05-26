@@ -74,11 +74,10 @@ export default class TagTextarea extends React.Component {
         }
         // 事件内，mode只能从每次this.props取，不然取不到最新
         if (
-          this.props.readonly ||
-          (this.props.mode === MODE.ONLYTAG &&
-            obj.origin !== '+delete' &&
-            obj.origin !== 'inserttag' &&
-            obj.origin !== 'setValue')
+          this.props.mode === MODE.ONLYTAG &&
+          obj.origin !== '+delete' &&
+          obj.origin !== 'inserttag' &&
+          obj.origin !== 'setValue'
         ) {
           obj.cancel();
         }

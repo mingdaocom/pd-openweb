@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { ConfigProvider, Modal, Button, Input } from 'antd';
 import { Icon, Tooltip } from 'ming-ui';
 import { colorGroup, reportTypes } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common';
@@ -48,107 +47,41 @@ export default class ColorEntrance extends Component {
       }
     }
   }
-  renderBaseColorFooter() {
-    return (
-      <div className="mTop20 mBottom10 pRight8">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button
-            type="link"
-            onClick={() => {
-              this.setState({
-                baseColorModalVisible: false,
-              });
-            }}
-          >
-            {_l('取消')}
-          </Button>
-          <Button type="primary" onClick={() => { this.baseColorEl.handleSave(); }}>
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
-      </div>
-    );
-  }
   renderBaseColorModal() {
     const { columns, currentReport, onChangeCurrentReport } = this.props;
     const { baseColorModalVisible } = this.state;
     return (
-      <Modal
-        title={_l('图形颜色')}
-        width={480}
-        className="chartModal chartBaseColorModal"
+      <BaseColor
         visible={baseColorModalVisible}
-        centered={true}
-        destroyOnClose={true}
-        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
-        footer={this.renderBaseColorFooter()}
+        columns={columns}
+        currentReport={currentReport}
+        onChange={(data) => {
+          onChangeCurrentReport(data, true);
+          this.setState({
+            baseColorModalVisible: false
+          });
+        }}
         onCancel={() => {
           this.setState({
             baseColorModalVisible: false,
           });
         }}
-      >
-        <BaseColor
-          ref={el => {
-            this.baseColorEl = el;
-          }}
-          columns={columns}
-          currentReport={currentReport}
-          onChange={(data) => {
-            onChangeCurrentReport(data, true);
-            this.setState({
-              baseColorModalVisible: false
-            });
-          }}
-        />
-      </Modal>
-    );
-  }
-  renderRuleColorFooter() {
-    return (
-      <div className="mTop20 mBottom10 pRight8">
-        <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button
-            type="link"
-            onClick={() => {
-              this.setState({
-                ruleColorModalVisible: false,
-              });
-            }}
-          >
-            {_l('取消')}
-          </Button>
-          <Button type="primary" onClick={() => { this.ruleColorEl.handleSave(); }}>
-            {_l('确认')}
-          </Button>
-        </ConfigProvider>
-      </div>
+      />
     );
   }
   renderRuleColorModal() {
+    const { currentReport } = this.props;
     const { ruleColorModalVisible } = this.state;
     return (
-      <Modal
-        title={_l('颜色规则')}
-        width={580}
-        className="chartModal chartRuleColorModal"
+      <RuleColor
         visible={ruleColorModalVisible}
-        centered={true}
-        destroyOnClose={true}
-        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
-        footer={this.renderRuleColorFooter()}
+        yaxisList={currentReport.yaxisList}
         onCancel={() => {
           this.setState({
             ruleColorModalVisible: false,
           });
         }}
-      >
-        <RuleColor
-          ref={el => {
-            this.ruleColorEl = el;
-          }}
-        />
-      </Modal>
+      />
     );
   }
   render() {

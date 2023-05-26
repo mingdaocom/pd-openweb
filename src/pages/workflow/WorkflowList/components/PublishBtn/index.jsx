@@ -11,7 +11,7 @@ const publishStatus2Text = {
   0: _l('创建'),
   1: _l('更新未发布'),
   2: _l('发布'),
-  3: _l('关闭'),
+  3: _l('关闭%03055'),
 };
 
 export default class PublishBtn extends Component {

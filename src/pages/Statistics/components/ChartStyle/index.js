@@ -11,6 +11,7 @@ import MeasureAxis from './components/MeasureAxis';
 import unitPanelGenerator from './components/Unit';
 import numberStylePanelGenerator, { numberSummaryPanelGenerator } from './components/NumberStyle';
 import Color from './components/Color/index';
+import PivotTableFieldColor from './components/PivotTableFieldColor/index';
 import PreinstallStyle from './components/PreinstallStyle';
 import TitleStyle from './components/TitleStyle';
 import topChartPanelGenerator from './components/TopChartPanel';
@@ -736,7 +737,7 @@ export default class ChartStyle extends Component {
     const { style } = currentReport;
     const columnCount = style.columnCount || 1;
 
-    const changeColumnCount = value => {
+    const changeColumnCount = _.debounce(value => {
       if (value) {
         value = parseInt(value);
         value = isNaN(value) ? 0 : value;
@@ -745,7 +746,7 @@ export default class ChartStyle extends Component {
         value = 1;
       }
       this.handleChangeStyle({ columnCount: value });
-    }
+    }, 100);
 
     return (
       <Collapse.Panel
@@ -921,6 +922,57 @@ export default class ChartStyle extends Component {
   renderUnit() {
     return unitPanelGenerator(this.props);
   }
+  renderTitle() {
+    const { currentReport, changeCurrentReport } = this.props;
+    const { name, desc, displaySetup } = currentReport;
+    const { showTitle = true } = displaySetup;
+    return (
+      <Collapse.Panel
+        key="title"
+        header={_l('标题')}
+        className={cx({ collapsible: !showTitle })}
+        extra={
+          <Switch
+            size="small"
+            checked={showTitle}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+            }}
+            onChange={checked => {
+              this.handleChangeDisplayValue('showTitle', checked);
+            }}
+          />
+        }
+      >
+        <div className="mBottom12">
+          <div className="mBottom8">{_l('显示标题')}</div>
+          <Input
+            value={name}
+            className="chartInput w100 mBottom12"
+            placeholder={_l('添加图表标题')}
+            onChange={event => {
+              changeCurrentReport({
+                name: event.target.value
+              }, false);
+            }}
+          />
+          <div className="mBottom8">{_l('显示说明')}</div>
+          <Input.TextArea
+            rows={4}
+            className="chartInput w100"
+            autoSize={{ minRows: 4, maxRows: 6 }}
+            placeholder={_l('添加图表描述')}
+            value={desc}
+            onChange={event => {
+              changeCurrentReport({
+                desc: event.target.value
+              }, false);
+            }}
+          />
+        </div>
+      </Collapse.Panel>
+    );
+  }
   renderColor() {
     const { currentReport, changeCurrentReport, worksheetInfo } = this.props;
     return (
@@ -929,6 +981,18 @@ export default class ChartStyle extends Component {
           columns={worksheetInfo.columns}
           currentReport={currentReport}
           onChangeCurrentReport={changeCurrentReport}
+        />
+      </Collapse.Panel>
+    );
+  }
+  renderPivotTableFieldColor() {
+    const { currentReport, changeCurrentReport } = this.props;
+    return (
+      <Collapse.Panel header={_l('颜色')} key="pivotTableFieldColor">
+        <PivotTableFieldColor
+          currentReport={currentReport}
+          onChangeCurrentReport={changeCurrentReport}
+          onChangeStyle={this.handleChangeStyle}
         />
       </Collapse.Panel>
     );
@@ -942,7 +1006,7 @@ export default class ChartStyle extends Component {
     );
   }
   render() {
-    const { currentReport } = this.props;
+    const { currentReport, sourceType } = this.props;
     const { reportType, xaxes } = currentReport;
     const xAxisisTime = isTimeControl(xaxes.controlType);
     return (
@@ -965,6 +1029,7 @@ export default class ChartStyle extends Component {
             )
           )}
           {reportTypes.NumberChart === reportType && this.renderNumberStyle()}
+          {sourceType && this.renderTitle()}
           {[reportTypes.PivotTable].includes(reportType) && this.renderLineHeight()}
           {[reportTypes.WordCloudChart].includes(reportType) && this.renderWordCloudFontSize()}
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable, reportTypes.WordCloudChart, reportTypes.TopChart, reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType) &&
@@ -989,6 +1054,7 @@ export default class ChartStyle extends Component {
           {![reportTypes.WordCloudChart].includes(reportType) && this.renderUnit()}
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable, reportTypes.WordCloudChart, reportTypes.GaugeChart, reportTypes.ProgressChart, reportTypes.ScatterChart, reportTypes.BidirectionalBarChart].includes(reportType) &&
             this.renderColor()}
+          {/*reportTypes.PivotTable === reportType && this.renderPivotTableFieldColor()*/}
         </Collapse>
       </div>
     );

@@ -39,6 +39,17 @@ const dateaddData = {
   formData: [],
 };
 
+const dateifTimeData = {
+  control: {
+    type: 2,
+    expression: "DATEIF($646c73339447b23a08da2526$,$646c73339447b23a08da2527$,'2','m')",
+  },
+  formData: [
+    { controlId: '646c73339447b23a08da2526', type: 46, value: '07:00' },
+    { controlId: '646c73339447b23a08da2527', type: 46, value: '22:00' },
+  ],
+};
+
 const sumData = {
   control: {
     type: 2,
@@ -73,6 +84,7 @@ async function test(prefix, data) {
   await test('部门人员拼接', concatDepartmentAndUserData);
   await test('日期计算 DATEADD(DATENOW(), "+1Y")', dateaddData);
   await test('求和', sumData);
+  await test('dateif时间字段', dateifTimeData);
   await test('countArray', countArrayData);
   await test('javascript', jsData);
 })();

@@ -413,7 +413,7 @@ BusinessCard.prototype.formatData = function (result) {
   return data;
 };
 
-BusinessCard.prototype.render = function () {
+BusinessCard.prototype.render = function (refresh = false) {
   var self = this;
   var options = this.options;
   var $div = this.dialog();
@@ -453,6 +453,7 @@ BusinessCard.prototype.render = function () {
             accountId: options.sourceId,
             onProjectId: options.projectId,
             withSameProjectId: true,
+            refresh,
           })
         : groupController.getGroupCardInfo({
             groupId: options.sourceId,
@@ -467,6 +468,12 @@ BusinessCard.prototype.render = function () {
       if (result) {
         options.data = self.formatData(result);
         self.setContent(doT.template(cardTpl)(options));
+
+        $div.find('.refreshCardBtn').on('click', (event) => {
+          event.stopPropagation();
+
+          self.render(true)
+        });
       } else {
         var text = options.type === TYPES.USER ? _l('用户') : self.isChatGroup(result) ? _l('聊天') : _l('群组');
         self.setContent('<div class="pLeft15 pRight15 Gray_c">' + _l('未找到此%0', text) + '</div>');

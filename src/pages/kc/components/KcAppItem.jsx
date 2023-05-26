@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import moment from 'moment';
-import Link from 'src/router/Link';
+import { Link } from 'react-router-dom';
 import createReactClass from 'create-react-class';
 import cx from 'classnames';
 import lazyRenderMixin from 'react-lazyrender/mixin';

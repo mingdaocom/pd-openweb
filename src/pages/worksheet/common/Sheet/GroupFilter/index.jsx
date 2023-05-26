@@ -406,7 +406,9 @@ function GroupFilter(props) {
     return data.map(d => {
       let hasChildren = !d.isLeaf;
       let isClose = hasChildren && !openKeys.includes(d.value);
-      let count = Number((navGroupCounts.find(o => o.key === (!d.value ? 'all' : d.value)) || {}).count || 0);
+      let count = Number(
+        (navGroupCounts.find(o => o.key === (!d.value ? 'all' : d.value === 'null' ? '' : d.value)) || {}).count || 0,
+      );
       const soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
       const { advancedSetting, type } = soucre;
       const { allpath = '0' } = advancedSetting;
@@ -545,7 +547,10 @@ function GroupFilter(props) {
                         backgroundColor: o.color,
                       }
                     : {};
-                let count = Number((navGroupCounts.find(d => d.key === (!o.value ? 'all' : o.value)) || {}).count || 0);
+                let count = Number(
+                  (navGroupCounts.find(d => d.key === (!o.value ? 'all' : o.value === 'null' ? '' : o.value)) || {})
+                    .count || 0,
+                );
                 // 显示有数据的项 //排除全部和空
                 if (navshow === '1' && count <= 0 && !['null', ''].includes(o.value)) {
                   return;

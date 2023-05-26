@@ -16,54 +16,64 @@ import 'src/pages/worksheet/common/newRecord/NewRecord.less';
 import 'mobile/ProcessRecord/OtherAction/index.less';
 import _ from 'lodash';
 
-const tabs = [{
-  name: _l('待办'),
-  id: 'untreated',
-  icon: 'access_time',
-  className: 'Font18',
-  tabs: [{
-    name: _l('待审批'),
-    id: 'waitingApproval',
-    param: {
-      type: 4
-    }
-  }, {
-    name: _l('待填写'),
-    id: 'waitingWrite',
-    param: {
-      type: 3
-    }
-  }]
-}, {
-  name: _l('我发起的'),
-  id: 'mySponsor',
-  icon: 'send',
-  className: 'Font18',
-  tabs: [],
-  param: {
-    type: 0
-  }
-}, {
-  name: _l('已完成'),
-  id: 'processed',
-  icon: 'succeed-one-o',
-  className: 'Font15',
-  tabs: [{
-    name: _l('已处理'),
-    id: 'completeDispose',
-    param: {
-      type: -1,
-      complete: true
-    }
-  }, {
+const tabs = [
+  {
+    name: _l('待办'),
+    id: 'untreated',
+    icon: 'access_time',
+    className: 'Font18',
+    tabs: [
+      {
+        name: _l('待审批'),
+        id: 'waitingApproval',
+        param: {
+          type: 4,
+        },
+      },
+      {
+        name: _l('待填写'),
+        id: 'waitingWrite',
+        param: {
+          type: 3,
+        },
+      },
+    ],
+  },
+  {
     name: _l('我发起的'),
-    id: 'completeMySponsor',
+    id: 'mySponsor',
+    icon: 'send',
+    className: 'Font18',
+    tabs: [],
     param: {
       type: 0,
-      complete: true
-    }
-  }]
-}];
+    },
+  },
+  {
+    name: _l('已完成'),
+    id: 'processed',
+    icon: 'succeed-one-o',
+    className: 'Font15',
+    tabs: [
+      {
+        name: _l('已处理'),
+        id: 'completeDispose',
+        param: {
+          type: -1,
+          complete: true,
+        },
+      },
+      {
+        name: _l('我发起的'),
+        id: 'completeMySponsor',
+        param: {
+          type: 0,
+          complete: true,
+        },
+      },
+    ],
+  },
+];
 
 export default class ProcessMatters extends Component {
   constructor(props) {
@@ -83,12 +93,19 @@ export default class ProcessMatters extends Component {
       batchApproval: false,
       approveCards: [],
       approveType: null,
-      encryptType: null
-    }
+      encryptType: null,
+      showPassword: false
+    };
   }
   componentDidMount() {
     this.getTodoList();
     this.getTodoCount();
+    verifyPassword({
+      checkNeedAuth: true,
+      fail: () => {
+        this.setState({ showPassword: true });
+      },
+    });
   }
   getTodoList() {
     const param = {};
@@ -118,7 +135,7 @@ export default class ProcessMatters extends Component {
       pageSize,
       pageIndex,
       ...param,
-      ...topTab ? topTab.param : bottomTab.param
+      ...(topTab ? topTab.param : bottomTab.param),
     });
 
     this.request.then(result => {
@@ -135,7 +152,7 @@ export default class ProcessMatters extends Component {
     if (appId) {
       Promise.all([
         instanceVersion.getTodoListFilter({ type: 4 }).then(),
-        instanceVersion.getTodoListFilter({ type: 3 }).then()
+        instanceVersion.getTodoListFilter({ type: 3 }).then(),
       ]).then(result => {
         const [approveList, writeList] = result;
         const approve = _.find(approveList, { app: { id: appId } });
@@ -143,8 +160,8 @@ export default class ProcessMatters extends Component {
         this.setState({
           appCount: {
             approveCount: approve ? approve.count : 0,
-            writeCount: write ? write.count : 0
-          }
+            writeCount: write ? write.count : 0,
+          },
         });
       });
     } else {
@@ -155,39 +172,45 @@ export default class ProcessMatters extends Component {
       });
     }
   }
-  handleChangeCompleteTab = (tab) => {
-    this.setState({
-      loading: false,
-      pageIndex: 1,
-      isMore: true,
-      list: [],
-      bottomTab: tab,
-      topTab: tab.tabs[0]
-    }, () => {
-      this.getTodoList();
-    });
-  }
+  handleChangeCompleteTab = tab => {
+    this.setState(
+      {
+        loading: false,
+        pageIndex: 1,
+        isMore: true,
+        list: [],
+        bottomTab: tab,
+        topTab: tab.tabs[0],
+      },
+      () => {
+        this.getTodoList();
+      },
+    );
+  };
   handleChangeTopTab = tab => {
-    this.setState({
-      loading: false,
-      pageIndex: 1,
-      isMore: true,
-      list: [],
-      topTab: tab,
-    }, () => {
-      this.getTodoList();
-    });
-  }
+    this.setState(
+      {
+        loading: false,
+        pageIndex: 1,
+        isMore: true,
+        list: [],
+        topTab: tab,
+      },
+      () => {
+        this.getTodoList();
+      },
+    );
+  };
   handleScrollEnd = tab => {
     this.getTodoList();
-  }
+  };
   handleApproveDone = ({ id }) => {
     const { list, countData, appCount, topTab = {} } = this.state;
     const { appId } = getRequest();
     if (appId) {
       const countDataState = {
-        ...appCount
-      }
+        ...appCount,
+      };
       if (topTab.id === 'waitingApproval') {
         countDataState.approveCount = appCount.approveCount - 1;
       }
@@ -196,12 +219,12 @@ export default class ProcessMatters extends Component {
       }
       this.setState({
         list: list.filter(item => item.id !== id),
-        appCount: countDataState
+        appCount: countDataState,
       });
     } else {
       const countDataState = {
-        ...countData
-      }
+        ...countData,
+      };
       if (topTab.id === 'waitingApproval') {
         countDataState.waitingApproval = countData.waitingApproval - 1;
       }
@@ -210,28 +233,28 @@ export default class ProcessMatters extends Component {
       }
       this.setState({
         list: list.filter(item => item.id !== id),
-        countData: countDataState
+        countData: countDataState,
       });
     }
-  }
+  };
   hanndleApprove = (type, batchType) => {
-    const { approveCards } = this.state;
+    const { approveCards, showPassword } = this.state;
     const signatureCard = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
     if (_.isEmpty(approveCards)) {
       Toast.info(_l('请先勾选需要处理的审批'), 2);
     }
-    if (signatureCard.length || encryptCard.length) {
+    if (signatureCard.length || (encryptCard.length && showPassword)) {
       if (signatureCard.length) {
         this.setState({ approveType: type });
       }
-      if (encryptCard.length) {
+      if (encryptCard.length && showPassword) {
         this.setState({ encryptType: type });
       }
     } else {
       this.handleBatchApprove(null, type);
     }
-  }
+  };
   handleBatchApprove = (signature, approveType) => {
     const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
     const { approveCards } = this.state;
@@ -246,21 +269,23 @@ export default class ProcessMatters extends Component {
         return data;
       }
     });
-    instanceVersion.batch({
-      type: 4,
-      batchOperationType: approveType,
-      selects,
-    }).then(result => {
-      if (result) {
-        Toast.info(_l('操作成功'), 2);
-        this.setState({ batchApproval: false, approveCards: [] });
-        this.getTodoList();
-        this.getTodoCount();
-      }
-    });
-  }
+    instanceVersion
+      .batch({
+        type: 4,
+        batchOperationType: approveType,
+        selects,
+      })
+      .then(result => {
+        if (result) {
+          Toast.info(_l('操作成功'), 2);
+          this.setState({ batchApproval: false, approveCards: [] });
+          this.getTodoList();
+          this.getTodoCount();
+        }
+      });
+  };
   renderSignatureDialog() {
-    const { approveCards, approveType, encryptType } = this.state;
+    const { approveCards, approveType, encryptType, showPassword } = this.state;
     const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
     const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
@@ -290,7 +315,12 @@ export default class ProcessMatters extends Component {
             )}
             {encryptType && (
               <div className="mTop20 TxtLeft">
-                <VerifyPassword onChange={value => (this.password = value)} />
+                <VerifyPassword
+                  onChange={({ password, isNoneVerification }) => {
+                    if (password !== undefined) this.password = password;
+                    if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
+                  }}
+                />
               </div>
             )}
           </div>
@@ -320,9 +350,21 @@ export default class ProcessMatters extends Component {
                     this.handleBatchApprove(null, this.state.encryptType);
                     this.setState({ approveType: null, encryptType: null });
                   }
-                }
+                  if (this.isNoneVerification) {
+                    this.setState({ showPassword: false });
+                  }
+                };
                 if (encryptCard.length) {
-                  verifyPassword(this.password, submitFun);
+                  verifyPassword({
+                    password: this.password,
+                    closeImageValidation: true,
+                    isNoneVerification: this.isNoneVerification,
+                    checkNeedAuth: !showPassword,
+                    success: submitFun,
+                    fail: () => {
+                      this.setState({ showPassword: true });
+                    }
+                  });
                 } else {
                   submitFun();
                 }
@@ -359,12 +401,12 @@ export default class ProcessMatters extends Component {
     const { searchValue } = this.state;
     return (
       <div className="searchWrapper valignWrapper">
-        <Icon icon="search" className="Gray_75 Font20 pointer"/>
+        <Icon icon="search" className="Gray_75 Font20 pointer" />
         <input
           value={searchValue}
           type="text"
           placeholder={_l('搜索记录名称')}
-          onChange={(e) => {
+          onChange={e => {
             this.setState({
               searchValue: e.target.value,
             });
@@ -383,16 +425,19 @@ export default class ProcessMatters extends Component {
             icon="close"
             className="Gray_75 Font20 pointer"
             onClick={() => {
-              this.setState({
-                searchValue: '',
-              }, () => {
-                const { bottomTab, topTab } = this.state;
-                if (topTab) {
-                  this.handleChangeTopTab(topTab);
-                } else {
-                  this.handleChangeCompleteTab(bottomTab);
-                }
-              });
+              this.setState(
+                {
+                  searchValue: '',
+                },
+                () => {
+                  const { bottomTab, topTab } = this.state;
+                  if (topTab) {
+                    this.handleChangeTopTab(topTab);
+                  } else {
+                    this.handleChangeCompleteTab(bottomTab);
+                  }
+                },
+              );
             }}
           />
         ) : null}
@@ -402,7 +447,9 @@ export default class ProcessMatters extends Component {
   renderWithoutData() {
     return (
       <div className="withoutData">
-        <div className="icnoWrapper"><Icon icon="ic-line"/></div>
+        <div className="icnoWrapper">
+          <Icon icon="ic-line" />
+        </div>
         <span>{_l('暂无内容')}</span>
       </div>
     );
@@ -425,16 +472,16 @@ export default class ProcessMatters extends Component {
               }}
               onClick={() => {
                 this.setState({
-                  previewRecord: { instanceId: item.id, workId: item.workId }
+                  previewRecord: { instanceId: item.id, workId: item.workId },
                 });
                 // console.log(`/mobile/processRecord/${item.id}/${item.workId}`);
               }}
               onApproveDone={this.handleApproveDone}
-              onChangeApproveCards={(e) => {
+              onChangeApproveCards={e => {
                 const { checked } = e.target;
                 if (checked) {
                   this.setState({
-                    approveCards: approveCards.concat(item)
+                    approveCards: approveCards.concat(item),
                   });
                 } else {
                   this.setState({
@@ -445,13 +492,27 @@ export default class ProcessMatters extends Component {
             />
           </div>
         ))}
-        {loading ? <div className={cx({withoutData: pageIndex == 1})}><LoadDiv size="middle"/></div> : null}
+        {loading ? (
+          <div className={cx({ withoutData: pageIndex == 1 })}>
+            <LoadDiv size="middle" />
+          </div>
+        ) : null}
         {!loading && _.isEmpty(list) ? this.renderWithoutData() : null}
       </ScrollView>
     );
   }
   render() {
-    const { batchApproval, list, countData, bottomTab, topTab, previewRecord, approveCards, approveType, encryptType } = this.state;
+    const {
+      batchApproval,
+      list,
+      countData,
+      bottomTab,
+      topTab,
+      previewRecord,
+      approveCards,
+      approveType,
+      encryptType,
+    } = this.state;
     const currentTabs = bottomTab.tabs;
     const allowApproveList = list.filter(c => _.get(c, 'flowNode.batch'));
     return (
@@ -464,16 +525,24 @@ export default class ProcessMatters extends Component {
               page={topTab ? _.findIndex(currentTabs, { id: topTab.id }) : -1}
               onTabClick={this.handleChangeTopTab}
               renderTab={tab => (
-                <span>{tab.name} {this.renderCount(tab)}</span>
-              )}>
-            </Tabs>
+                <span>
+                  {tab.name} {this.renderCount(tab)}
+                </span>
+              )}
+            />
             {batchApproval && (
               <div className="batchApprovalHeader valignWrapper Font16">
                 <div className="bold">
                   {_l('待审批')}
                   {countData.waitingApproval && `(${countData.waitingApproval})`}
                 </div>
-                <a onClick={() => { this.setState({ batchApproval: false, approveCards: [] }) }}>{_l('完成')}</a>
+                <a
+                  onClick={() => {
+                    this.setState({ batchApproval: false, approveCards: [] });
+                  }}
+                >
+                  {_l('完成')}
+                </a>
               </div>
             )}
           </div>
@@ -483,7 +552,7 @@ export default class ProcessMatters extends Component {
                 <Checkbox
                   checked={allowApproveList.length && allowApproveList.length === approveCards.length}
                   onChange={e => {
-                    const { checked } =  e.target;
+                    const { checked } = e.target;
                     if (checked) {
                       if (allowApproveList.length) {
                         Toast.info(_l('全选%0条可批量审批的记录', allowApproveList.length), 2);
@@ -498,16 +567,28 @@ export default class ProcessMatters extends Component {
                 />
                 <div className="mLeft5">
                   {_l('全选')}
-                  {approveCards.length ? (
-                    _l('（已选择%0/%1条）', approveCards.length, list.length)
-                  ) : (
-                    list.length !== countData.waitingApproval && _l('（已加载%0条）', list.length)
-                  )}
+                  {approveCards.length
+                    ? _l('（已选择%0/%1条）', approveCards.length, list.length)
+                    : list.length !== countData.waitingApproval && _l('（已加载%0条）', list.length)}
                 </div>
               </div>
               <div className="valignWrapper">
-                <div className="pass mRight30" onClick={() => { this.hanndleApprove(4, 'auth.passTypeList') }}>{_l('通过')}</div>
-                <div className="overrule" onClick={() => { this.hanndleApprove(5, 'auth.overruleTypeList') }}>{_l('否决')}</div>
+                <div
+                  className="pass mRight30"
+                  onClick={() => {
+                    this.hanndleApprove(4, 'auth.passTypeList');
+                  }}
+                >
+                  {_l('通过')}
+                </div>
+                <div
+                  className="overrule"
+                  onClick={() => {
+                    this.hanndleApprove(5, 'auth.overruleTypeList');
+                  }}
+                >
+                  {_l('否决')}
+                </div>
               </div>
             </div>
           )}
@@ -523,8 +604,8 @@ export default class ProcessMatters extends Component {
                   <Icon className={tab.className} icon={tab.icon} />
                   <span className="Font12 mTop2">{tab.name}</span>
                 </div>
-              )}>
-            </Tabs>
+              )}
+            />
           </div>
         </div>
         {!batchApproval && (
@@ -555,12 +636,12 @@ export default class ProcessMatters extends Component {
           visible={!_.isEmpty(previewRecord)}
           instanceId={previewRecord.instanceId}
           workId={previewRecord.workId}
-          onClose={(data) => {
+          onClose={data => {
             if (data.id && !data.isStash) {
               this.handleApproveDone(data);
             }
             this.setState({
-              previewRecord: {}
+              previewRecord: {},
             });
           }}
         />
@@ -569,4 +650,3 @@ export default class ProcessMatters extends Component {
     );
   }
 }
-

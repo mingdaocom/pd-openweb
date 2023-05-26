@@ -156,6 +156,28 @@ export default function DisplayItem(props) {
       const { x: clientX, y: clientY } = monitor.getClientOffset();
       let nextLocation = '';
 
+      const $contentWrap = document.getElementById('widgetDisplayWrap');
+      const $scrollWrap = $contentWrap && $contentWrap.querySelector('.nano-content');
+
+      if ($scrollWrap) {
+        if (clientY - height <= 0) {
+          if ($scrollWrap.scrollTop <= height / 2) return;
+          $scrollWrap.scrollTo({
+            top: clientY - height <= -30 ? 0 : $scrollWrap.scrollTop - 5 * height,
+            behavior: 'smooth',
+          });
+        } else if (clientY >= $scrollWrap.clientHeight - DRAG_DISTANCE.VERTICAL) {
+          if ($scrollWrap.scrollHeight - $scrollWrap.scrollTop - $scrollWrap.clientHeight <= height / 2) return;
+          $scrollWrap.scrollTo({
+            top:
+              clientY - $scrollWrap.clientHeight > 30
+                ? $scrollWrap.scrollHeight - $scrollWrap.clientHeight
+                : $scrollWrap.scrollTop + 6 * height,
+            behavior: 'smooth',
+          });
+        }
+      }
+
       // 整行控件 或者同级无位置可放的 只能放在当前行的前后
       if (!isCanDragSameRow(item) || isFullLineDragItem(item)) {
         if (clientY - top < height / 2) nextLocation = 'top';

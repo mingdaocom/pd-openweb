@@ -5,8 +5,13 @@ import { SYSTEM_FIELD_TO_TEXT } from 'src/pages/widgetConfig/widgetSetting/compo
 import { isEmpty } from 'lodash';
 
 export default function SubList({ data }) {
-  const { relationControls, desc = '' } = data;
-  const showControls = getShowControls(relationControls, data.showControls);
+  const { relationControls = [], desc = '' } = data;
+  const showControls = getShowControls(
+    relationControls.concat(
+      Object.keys(SYSTEM_FIELD_TO_TEXT).map(item => ({ controlId: item, controlName: SYSTEM_FIELD_TO_TEXT[item] })),
+    ),
+    data.showControls,
+  );
 
   const getWidths = () => {
     const widths = getAdvanceSetting(data, 'widths') || [];

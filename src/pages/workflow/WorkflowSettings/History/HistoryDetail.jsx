@@ -63,7 +63,17 @@ export default class HistoryDetail extends Component {
 
   renderOperationInfo = item => {
     const { cause, causeMsg } = this.state.data.instanceLog;
-    const { flowNode, workItems, countersign, countersignType, status, log = {}, sourceId, scheduleActions } = item;
+    const {
+      flowNode,
+      workItems,
+      countersign,
+      countersignType,
+      status,
+      log = {},
+      sourceId,
+      scheduleActions,
+      updateLogs,
+    } = item;
 
     if (!sourceId && log.executeType === 2) {
       return <div className="Gray_75">{_l('跳过')}</div>;
@@ -81,13 +91,23 @@ export default class HistoryDetail extends Component {
     });
 
     const isApproval = appType === 9 && type === 0;
+    const ERROR_LABELS = {
+      102: _l('发送邮件，'),
+    };
 
     return (
       <Fragment>
+        {updateLogs &&
+          Object.keys(updateLogs).map(key => (
+            <div key={key} className="overrule mBottom12">
+              {ERROR_LABELS[key]}
+              {FLOW_FAIL_REASON[updateLogs[key].cause] || updateLogs[key].causeMsg}
+            </div>
+          ))}
         <div className="personDetail flex Gray_75 flexRow">
           {(_.includes([0, 3, 4, 5], type) || isApproval) && (
             <Fragment>
-              <div className="personInfo">
+              <div className="personInfo inlineFlexRow">
                 <span>
                   {isApproval ? _l('发起人：') : type === 0 ? _l('触发者：') : _l('%0人：', NODE_TYPE[type].text)}
                 </span>
@@ -242,7 +262,8 @@ export default class HistoryDetail extends Component {
             <HistoryStatus statusCode={data.status} size={44} color={color} textSize={18} />
             <div className="title flex mRight15">
               <div className="overflow_ellipsis Font18">
-                {_l('数据：') + (works.length && works[0].flowNode.appType === 17 ? _l('输入参数') : (title || ''))}
+                {_l('数据：') +
+                  (works.length && works[0].flowNode.appType === 17 ? title || _l('输入参数') : title || '')}
               </div>
               <div style={{ color }}>
                 {cause
@@ -299,7 +320,7 @@ export default class HistoryDetail extends Component {
                     <div className="originNode">
                       <NodeIcon type={type} appType={flowNode.appType} actionId={flowNode.actionId} />
                       <div className="nodeName Font15 overflow_ellipsis flexColumn">
-                        <div>
+                        <div title={name}>
                           {name}
                           {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
                         </div>

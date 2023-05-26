@@ -1,9 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import appManagementAjax from 'src/api/appManagement';
-import { Dialog, Checkbox, Switch } from 'ming-ui';
+import { Dialog, Checkbox, Switch, RadioGroup } from 'ming-ui';
 import { Input } from 'antd';
 import { verifyPassword } from 'src/util';
-import RadioGroup from 'ming-ui/components/RadioGroup2';
 
 export default ({
   appId = '',
@@ -40,17 +39,20 @@ export default ({
       title={appKey ? _l('编辑授权密钥') : _l('新建授权密钥')}
       width={500}
       onOk={() => {
-        verifyPassword(password, () => {
-          appManagementAjax[appKey ? 'editAuthorizeStatus' : 'addAuthorize']({
-            appId,
-            appKey,
-            status: displayStatus,
-            type: displayType,
-            viewNull: displayViewNull,
-          }).then(res => {
-            onClose();
-            getAuthorizes();
-          });
+        verifyPassword({
+          password,
+          success: () => {
+            appManagementAjax[appKey ? 'editAuthorizeStatus' : 'addAuthorize']({
+              appId,
+              appKey,
+              status: displayStatus,
+              type: displayType,
+              viewNull: displayViewNull,
+            }).then(res => {
+              onClose();
+              getAuthorizes();
+            });
+          },
         });
       }}
       onCancel={onClose}

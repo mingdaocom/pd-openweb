@@ -12,7 +12,7 @@ import { updateAppGroup } from 'src/pages/PageHeader/redux/action';
 import { updateWorksheetInfo } from 'src/pages/worksheet/redux/actions/index';
 import { updatePageInfo, updateEditPageVisible } from 'src/pages/customPage/redux/action';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
-import { getSheetListFirstId } from 'worksheet/util';
+import { getSheetListFirstId, moveSheetCache } from 'worksheet/util';
 import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import moment from 'moment';
 
@@ -29,18 +29,6 @@ export const formatLeftSectionDetail = data => {
     return result;
   });
 };
-
-const moveSheetCache = (appId, groupId) => {
-  const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
-  const worksheets = storage.worksheets.map(data => {
-    if (data.groupId === groupId) {
-      data.worksheetId = '';
-    }
-    return data;
-  });
-  storage.worksheets = worksheets;
-  safeLocalStorageSetItem(`mdAppCache_${md.global.Account.accountId}_${appId}`, JSON.stringify(storage));
-}
 
 let getAppSectionDetailRequest;
 

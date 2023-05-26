@@ -123,7 +123,7 @@ export const createLinksForMessage = function (args) {
             // 外部门户
             replaceStr += ' <a>@' + name + '</a> ';
           } else {
-            replaceStr += ' <a data-accountid="' + aid + '" href="/user_' + aid + '">@' + name + '</a> ';
+            replaceStr += ' <a data-accountid="' + aid + '" target="_blank" href="/user_' + aid + '">@' + name + '</a> ';
           }
         }
       }
@@ -144,7 +144,7 @@ export const createLinksForMessage = function (args) {
               ' <span class="DisabledColor" title="群组已删除">@' + htmlEncodeReg(rGroup.groupName) + '</span> ';
           } else {
             replaceStr +=
-              ' <a data-groupid="' +
+              ' <a target="_blank" data-groupid="' +
               rGroup.groupID +
               '" href="/group/groupValidate?gID=' +
               rGroup.groupID +

@@ -35,10 +35,10 @@ export default function customNotice() {
 
         if (href.indexOf('backup') > -1 || href.indexOf('restore') > -1) {
           const currentAppId = location.href.slice(
-            location.href.indexOf('/app/') + 5,
-            location.href.indexOf('/app/') + 41,
+            location.href.indexOf('app/') + 4,
+            location.href.indexOf('app/') + 40,
           );
-          const appId = href.slice(href.indexOf('/app/') + 5, href.indexOf('/app/') + 41);
+          const appId = href.slice(href.indexOf('app/') + 4, href.indexOf('app/') + 40);
 
           if (href.indexOf('backup') > -1) {
             if (currentAppId === appId) {
@@ -65,6 +65,8 @@ export default function customNotice() {
         action = 'info';
       } else if (status === 2) {
         action = 'success';
+      } else if(status === 3) {
+        action = 'warning';
       } else {
         action = 'error';
       }

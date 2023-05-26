@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Trigger from 'rc-trigger';
+import { useMeasure } from 'react-use';
 import styled from 'styled-components';
 import { emitter } from 'worksheet/util';
 import { FlexCenter } from 'worksheet/components/Basics';
@@ -9,6 +10,10 @@ const ClickAway = createDecoratedComponent(withClickAway);
 import { formatForSave } from './model';
 import Filters from './Filters';
 import _ from 'lodash';
+
+const FilterBtn = styled.span`
+  line-height: 27px;
+`;
 
 const SelectedFilter = styled(FlexCenter)`
   display: inline-flex;
@@ -41,6 +46,7 @@ export default function FiltersPopup(props) {
   const { zIndex, actions, state, onChange, ...rest } = props;
   const { worksheetId = '', type = '', className } = rest;
   const filtersRef = useRef();
+  const btnRef = useRef();
   const [popupVisible, setPopupVisible] = useState();
   const { needSave, editingFilter, activeFilter } = state;
   function handleWorksheetHeadAddFilter(control) {
@@ -101,6 +107,9 @@ export default function FiltersPopup(props) {
             state={state}
             onHideFilterPopup={() => setPopupVisible(false)}
             onChange={onChange}
+            maxHeight={
+              btnRef.current ? window.innerHeight - btnRef.current.getBoundingClientRect().y - 120 - 29 - 6 : undefined
+            }
             {...rest}
           />
         </ClickAway>
@@ -122,11 +131,11 @@ export default function FiltersPopup(props) {
         }
       }}
     >
-      <div className="mTop4">
+      <div ref={btnRef} className="mTop4">
         {!filteredText && (
-          <span data-tip={_l('筛选')} className={`mRight10 mTop2 ${className}`}>
+          <FilterBtn data-tip={_l('筛选')} className={`mRight10 mTop2 ${className}`}>
             <i className="icon icon-worksheet_filter Gray_9e Hand Font18 ThemeHoverColor3"></i>
-          </span>
+          </FilterBtn>
         )}
         {filteredText && (
           <SelectedFilter>

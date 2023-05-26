@@ -1,4 +1,7 @@
 import styled from 'styled-components';
+import { Modal } from 'antd-mobile';
+import { MenuItem } from 'ming-ui';
+
 export const WrapHeader = styled.div`
   .cover {
     position: fixed;
@@ -175,31 +178,32 @@ export const Wrap = styled.div`
   .logoutBox {
     display: flex;
   }
-  .del {
-    flex: 4;
+  .opt {
     height: 36px;
-    background: rgba(243, 33, 33, 0.1);
-    color: #f44336;
-    border-radius: 36px;
-    line-height: 36px;
-    text-align: center;
-    margin: 16px 16px 16px 8px;
-    .icon:before {
-      vertical-align: middle;
+    width: 36px;
+    margin: 16px 16px 16px 10px;
+    background: #f5f5f5;
+    border-radius: 3px;
+    .icon {
+      margin: 0 auto;
+      color: #9d9d9d;
+      line-height: 36px;
     }
     &:hover {
-      // background: #ebf6fe;
+      .icon {
+        color: #2196f3;
+      }
     }
   }
   .logout {
-    flex: 6;
+    flex: 1;
     height: 36px;
     background: rgba(33, 150, 243, 0.1);
     color: #2196f3;
-    border-radius: 36px;
+    border-radius: 3px;
     line-height: 36px;
     text-align: center;
-    margin: 16px 8px 16px 16px;
+    margin: 16px 0px 16px 16px;
     .icon:before {
       vertical-align: middle;
     }
@@ -235,6 +239,54 @@ export const Wrap = styled.div`
     &:hover {
       .hoverAvatar {
         display: block;
+      }
+    }
+  }
+`;
+
+export const ModalWrap = styled(Modal)`
+  overflow: hidden;
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+  &.appMoreActionWrap {
+    .header {
+      line-height: 24px;
+      margin-bottom: 20px;
+      text-align: left;
+      padding: 20px 15px 0;
+      .closeIcon {
+        width: 24px;
+        height: 24px;
+        text-align: center;
+        border-radius: 50%;
+        background-color: #e6e6e6;
+        .icon {
+          line-height: 24px;
+        }
+      }
+    }
+    .actionContent {
+      padding-left: 20px;
+      color: #000;
+      line-height: 50px;
+      text-align: left;
+      font-weight: 600;
+      padding-bottom: 15px;
+    }
+    .RedMenuItem {
+      color: #f44336 !important;
+    }
+  }
+`;
+export const RedMenuItemWrap = styled(MenuItem)`
+  &.RedMenuItem {
+    .Item-content {
+      color: #f44336 !important;
+      .Icon {
+        color: #f44336 !important;
+      }
+      &:not(.disabled):hover {
+        background-color: #f44336 !important;
       }
     }
   }

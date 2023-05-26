@@ -7,6 +7,7 @@ import EmailInput from 'src/pages/Role/PortalCon/components/Email';
 import { FROM_TYPE, DETAIL_MODE } from './addFriends';
 import default_img from 'staticfiles/images/default_user_avatar.jpg';
 import cx from 'classnames';
+import captcha from 'src/components/captcha';
 import _ from 'lodash';
 import { existAccountHint } from 'src/components/common/function';
 import { encrypt } from 'src/util';
@@ -52,17 +53,31 @@ export default class MobileOrEmailInvite extends Component {
       return;
     }
 
-    Requests.getAccountByAccount({
-      account: this.getValue(),
-    })
-      .done(res => {
-        this.setState({ searchData: res.list });
-      })
-      .fail(err => {
-        if (err) {
-          alert(_l('请输入手机号/邮箱地址'), 3);
-        }
-      });
+    const _this = this;
+    var throttled = function (res) {
+      if (res.ret === 0) {
+        Requests.getAccountByAccount({
+          account: _this.getValue(),
+          ticket: res.ticket,
+          randStr: res.randstr,
+          captchaType: md.staticglobal.getCaptchaType(),
+        })
+          .done(res => {
+            _this.setState({ searchData: res.list });
+          })
+          .fail(err => {
+            if (err) {
+              alert(_l('请输入手机号/邮箱地址'), 3);
+            }
+          });
+      }
+    };
+
+    if (md.staticglobal.getCaptchaType() === 1) {
+      new captcha(throttled);
+    } else {
+      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), throttled).show();
+    }
   };
 
   handleAdd = () => {

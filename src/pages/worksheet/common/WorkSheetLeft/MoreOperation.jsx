@@ -237,9 +237,9 @@ export default function MoreOperation(props) {
   const isWorksheet = appItem.type === 0;
   const isActive = activeSheetId === appItem.workSheetId;
   const deleteText = {
-    0: _l('工作表'),
-    1: _l('自定义页面'),
-    2: _('分组'),
+    0: _l('删除工作表%02029'),
+    1: _l('删除自定义页面'),
+    2: _l('删除分组%02012'),
   };
 
   const handleCreateAppItem = (type, name) => {
@@ -363,7 +363,7 @@ export default function MoreOperation(props) {
                 setPopupVisible(false);
               }}
             >
-              <span className="text">{_l('删除%0', deleteText[appItem.type])}</span>
+              <span className="text">{deleteText[appItem.type]}</span>
             </MenuItem>
           </React.Fragment>
         )}

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
 import { NODE_TYPE_LIST, ACTION_LIST, JOIN_TYPE, UNION_TYPE_LIST } from '../config';
 import CellEdit from './CellEdit';
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
@@ -15,6 +15,12 @@ import _ from 'lodash';
 import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Des';
 import EditFeildsName from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/EditFeildsName';
 import 'src/pages/integration/svgIcon.js';
+import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
+import sheetAjax from 'src/api/worksheet';
+import axios from 'axios';
+import CellControl from 'worksheet/components/CellControls';
+import 'src/pages/worksheet/components/CellControls/CellControls.less';
+
 const Wrap = styled.div`
   height: 100%;
   .nodeInfo {
@@ -109,6 +115,15 @@ const WrapR = styled.div`
     .icon:hover {
       color: #fff;
     }
+    &.disable {
+      border: 1px solid #bdbdbd;
+      color: #bdbdbd;
+      background: #fff;
+      .icon,
+      .icon:hover {
+        color: #bdbdbd;
+      }
+    }
   }
   .previewData {
     padding: 6px 16px;
@@ -117,6 +132,9 @@ const WrapR = styled.div`
     border: 1px solid #2196f3;
     color: #2196f3;
     font-weight: 400;
+    .icon {
+      color: #2196f3;
+    }
   }
   .tableCon {
     overflow: auto;
@@ -159,31 +177,19 @@ export default class EditorCon extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      node: props.node,
-      isAddSheet: false,
       maxTable: false,
       fieldNames: [],
       rows: [],
       showEditControl: false,
+      loading: false,
     };
-  }
-  componentDidMount() {
-    const { node } = this.props;
-    const fieldNames = (_.get(node, ['nodeConfig', 'fields']) || []).map(o => o.name);
-    this.setState({
-      node,
-      fieldNames,//暂时不开放 暂时处理
-    });
-    // this.getNodeDataPreview();
   }
   componentWillReceiveProps(nextProps, nextState) {
     if (!_.isEqual(this.props.node, nextProps.node)) {
       this.setState({
-        node: nextProps.node,
         fieldNames: [],
         rows: [],
       });
-      // this.getNodeDataPreview();
     }
   }
 
@@ -191,17 +197,47 @@ export default class EditorCon extends Component {
   getNodeDataPreview = () => {
     const { currentProjectId: projectId, flowId, node } = this.props;
     const { nodeId } = node;
-    TaskFlow.nodeDataPreview({
-      projectId,
-      flowId,
-      nodeId,
-    }).then(res => {
-      const { fieldNames = [], rows = [] } = res || {};
-      this.setState({
-        fieldNames,
-        rows,
+    this.setState({ loading: true });
+    if (
+      _.get(node, ['nodeType']) === 'SOURCE_TABLE' &&
+      _.get(node, ['nodeConfig', 'config', 'dsType']) === DATABASE_TYPE.APPLICATION_WORKSHEET
+    ) {
+      axios
+        .all([
+          sheetAjax.getWorksheetInfo({
+            worksheetId: _.get(node, 'nodeConfig.config.workSheetId'),
+            getTemplate: true,
+          }),
+          sheetAjax.getFilterRows({
+            appId: _.get(node, 'nodeConfig.config.appId'),
+            worksheetId: _.get(node, 'nodeConfig.config.workSheetId'),
+            pageSize: 100,
+            pageIndex: 1,
+          }),
+        ])
+        .then(res => {
+          this.setState({
+            fieldNames: (_.get(res[0], 'template.controls') || []).filter(o =>
+              (_.get(node, 'nodeConfig.fields') || []).map(it => it.id).includes(o.controlId),
+            ),
+            rows: _.get(res[1], 'data'),
+            loading: false,
+          });
+        });
+    } else {
+      TaskFlow.nodeDataPreview({
+        projectId,
+        flowId,
+        nodeId,
+      }).then(res => {
+        const { fieldNames = [], rows = [] } = res || {};
+        this.setState({
+          fieldNames,
+          rows,
+          loading: false,
+        });
       });
-    });
+    }
   };
 
   renderCard = nodeData => {
@@ -262,7 +298,6 @@ export default class EditorCon extends Component {
   renderLCon = () => {
     const { node = {}, list } = this.props;
     const { nodeType = '' } = node;
-    const { isAddSheet } = this.state;
     const info = {
       ...this.props,
       list,
@@ -273,10 +308,8 @@ export default class EditorCon extends Component {
         return (
           <SourceDest
             {...info}
-            isAddSheet={isAddSheet}
-            addSheet={() => {
+            showEdit={() => {
               this.setState({
-                isAddSheet: true,
                 showEditControl: true,
               });
             }}
@@ -299,17 +332,18 @@ export default class EditorCon extends Component {
   renderRCon = () => {
     const { node = {} } = this.props;
     const { nodeType = '' } = node;
-    const { rows = [], fieldNames = [], maxTable } = this.state;
+    const { rows = [], fieldNames = [], maxTable, loading } = this.state;
     let canEditControl = false; //能否编辑字段
+    const showMDCell =
+      _.get(node, ['nodeType']) === 'SOURCE_TABLE' &&
+      _.get(node, ['nodeConfig', 'config', 'dsType']) === DATABASE_TYPE.APPLICATION_WORKSHEET;
     switch (nodeType) {
       case 'UNION':
       case 'JOIN':
       case 'DEST_TABLE':
-      case 'SOURCE_TABLE':
-        if ((_.get(node, ['nodeConfig', 'fields']) || []).length > 0 || fieldNames.length > 0) {
-          // canEditControl = true; 暂时不开放
-        }
+        canEditControl = true;
         break;
+      case 'SOURCE_TABLE':
       case 'FILTER':
       case 'AGGREGATE':
         canEditControl = false;
@@ -323,14 +357,25 @@ export default class EditorCon extends Component {
       case 'FILTER':
       case 'AGGREGATE':
       case 'DEST_TABLE':
+        let disable = false;
+        if (nodeType === 'DEST_TABLE') {
+          let { dsType, tableName, workSheetId, createTable, fieldsMapping } =
+            _.get(node, ['nodeConfig', 'config']) || {};
+          disable =
+            ((dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? !workSheetId : !tableName) && !createTable) || //选择已已有，未配置表
+            (createTable && (fieldsMapping.length <= 0 || !tableName)); //选择新建，未设置名称或映射
+        }
         return (
           <WrapR className={cx('flexColumn')}>
             <div className="headCon flexRow alignItemsCenter">
-              <span className="Gray_9e flex">{_l('仅预览前100行数据')}</span>
-              {rows.length > 0 && canEditControl && (
+              <span className="Gray_9e flex">{nodeType !== 'DEST_TABLE' && _l('仅预览前100行数据')}</span>
+              {(rows.length > 0 || fieldNames.length > 0) && canEditControl && (
                 <span
-                  className="editControl Hand flexRow alignItemsCenter"
+                  className={cx('editControl flexRow alignItemsCenter mRight10', { disable, Hand: !disable })}
                   onClick={() => {
+                    if (disable) {
+                      return;
+                    }
                     this.setState({
                       showEditControl: true,
                     });
@@ -340,19 +385,25 @@ export default class EditorCon extends Component {
                   {_l('字段配置')}
                 </span>
               )}
-              {/* 暂时不开放 */}
-              {/* <i
-                className="icon icon-refresh1  Hand Font20 mLeft15"
-                onClick={() => {
-                  this.refresh();
-                }}
-              ></i>
-              <i
-                className={`icon  Hand Font20 mLeft10 ${maxTable ? 'icon-close_fullscreen' : 'icon-open_in_full'}`}
-                onClick={() => {
-                  this.setState({ maxTable: !maxTable });
-                }}
-              ></i> */}
+              {nodeType !== 'DEST_TABLE' && (rows.length > 0 || fieldNames.length > 0) && (
+                <span
+                  className="previewData Hand flexRow alignItemsCenter"
+                  onClick={() => {
+                    this.refresh();
+                  }}
+                >
+                  <i className="icon icon-refresh1 Hand Font16 mRight5"></i>
+                  {_l('预览数据')}
+                </span>
+              )}
+              {nodeType !== 'DEST_TABLE' && (
+                <i
+                  className={`icon  Hand Font20 mLeft10 ${maxTable ? 'icon-close_fullscreen' : 'icon-open_in_full'}`}
+                  onClick={() => {
+                    this.setState({ maxTable: !maxTable });
+                  }}
+                ></i>
+              )}
               <i
                 className="icon icon-close  Hand Font20 mLeft10"
                 onClick={() => {
@@ -369,8 +420,8 @@ export default class EditorCon extends Component {
                       return (
                         <div className="itemCon flexRow alignItemsCenter InlineBlock">
                           <EditFeildsName
-                            title={o}
-                            // canEdit 暂时不开放
+                            title={showMDCell ? o.controlName : o}
+                            // canEdit
                             onChangeName={name => {
                               this.setState({
                                 fieldNames: fieldNames.map(it => {
@@ -391,14 +442,20 @@ export default class EditorCon extends Component {
                     })}
                   </div>
                 )}
-                {rows.length <= 0 ? (
+                {loading ? (
+                  <LoadDiv />
+                ) : rows.length <= 0 && fieldNames.length <= 0 ? (
                   <div className="flexRow justifyContentCenter mTop80">
-                    <p className="TxtCenter Gray_9e Font17">{_l('即将上线')}</p>
-                    {/* 暂时不开放 */}
-                    {/* {canEditControl && (
+                    {canEditControl && (
                       <span
-                        className="editControl Hand flexRow alignItemsCenter mRight12"
+                        className={cx('editControl flexRow alignItemsCenter mRight12', {
+                          disable,
+                          Hand: !disable,
+                        })}
                         onClick={() => {
+                          if (disable) {
+                            return;
+                          }
                           this.setState({
                             showEditControl: true,
                           });
@@ -408,14 +465,17 @@ export default class EditorCon extends Component {
                         {_l('字段配置')}
                       </span>
                     )}
-                    <span
-                      className="previewData Hand flexRow alignItemsCenter"
-                      onClick={() => {
-                        this.refresh();
-                      }}
-                    >
-                      {_l('预览数据')}
-                    </span> */}
+                    {nodeType !== 'DEST_TABLE' && (
+                      <span
+                        className="previewData Hand flexRow alignItemsCenter"
+                        onClick={() => {
+                          this.refresh();
+                        }}
+                      >
+                        <i className="icon icon-refresh1 Hand Font16 mRight5"></i>
+                        {_l('预览数据')}
+                      </span>
+                    )}
                   </div>
                 ) : (
                   <React.Fragment>
@@ -424,7 +484,25 @@ export default class EditorCon extends Component {
                         <div className="rowCon flexRow">
                           <div className="tag flexRow alignItemsCenter itemCon InlineBlock">{i + 1}</div>
                           {fieldNames.map(item => {
-                            return <div className="itemCon flexRow alignItemsCenter InlineBlock">{o[item]}</div>;
+                            if (showMDCell) {
+                              return (
+                                <div className="itemCon">
+                                  <CellControl
+                                    cell={{ ...item, value: o[item.controlId] }}
+                                    worksheetId={_.get(node, 'nodeConfig.config.workSheetId')}
+                                    row={{ rowid: o.rowid }}
+                                    isCharge={false}
+                                  />
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <div
+                                  className="itemCon flexRow alignItemsCenter InlineBlock"
+                                  dangerouslySetInnerHTML={{ __html: o[item] }}
+                                ></div>
+                              );
+                            }
                           })}
                         </div>
                       );
@@ -439,7 +517,7 @@ export default class EditorCon extends Component {
   };
   render() {
     const { onUpdate } = this.props;
-    const { maxTable, showEditControl, isAddSheet } = this.state;
+    const { maxTable, showEditControl } = this.state;
     return (
       <Wrap className="flexRow">
         <div className="nodeL">{this.renderLCon()}</div>
@@ -447,23 +525,20 @@ export default class EditorCon extends Component {
         {showEditControl && (
           <CellEdit
             {...this.props}
-            isAddSheet={isAddSheet}
             onClose={() => {
               this.setState({
                 showEditControl: false,
               });
             }}
             onSave={node => {
-              if (isAddSheet) {
-                this.setState({
+              this.setState(
+                {
                   showEditControl: false,
-                });
-              } else {
-                onUpdate(node);
-                this.setState({
-                  showEditControl: false,
-                });
-              }
+                },
+                () => {
+                  onUpdate(node);
+                },
+              );
             }}
           />
         )}

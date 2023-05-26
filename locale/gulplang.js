@@ -4,6 +4,7 @@ const path = require('path');
 const each = require('gulp-each');
 const gettextToI18next = require('i18next-conv').gettextToI18next;
 const UglifyJS = require('uglify-js');
+const _ = require('lodash');
 const langs = eval(
   fs
     .readFileSync(path.join(__dirname, '../src/common/langConfig.js'))
@@ -59,7 +60,7 @@ const buildDPPot = function(done) {
   let cnContent = '';
   let otherContent = '';
 
-  langKeys.map(function(key) {
+  _.uniq(langKeys).map(function(key) {
     let isExist = langPackage[key];
 
     if (!isExist) {

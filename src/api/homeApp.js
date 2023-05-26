@@ -104,6 +104,8 @@ export default {
   * @param {boolean} args.viewHideNavi 查看影藏导航项
   * @param {string} args.navColor 导航栏颜色
   * @param {string} args.lightColor 淡色色值
+  * @param {integer} args.gridDisplayMode 宫格显示模式
+  * @param {integer} args.appNavDisplayType 导航列表显示类型
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -619,6 +621,9 @@ export default {
   * @param {} args.displayType 显示方式  0 = 平铺，1= 选项卡
   * @param {} args.markedAppDisplay 标星应用显示 0 =当前网络，1= 全部
   * @param {boolean} args.exDisplay 是否显示外部应用
+  * @param {boolean} args.displayCommonApp 是否显示常用应用
+  * @param {boolean} args.isAllAndProject 是否开启全部和组织分组
+  * @param {boolean} args.displayMark 是否显示星标应用
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

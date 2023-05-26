@@ -31,9 +31,9 @@ const WithoutFidldItem = (props) => {
       value = parseInt(value);
       value = isNaN(value) ? 0 : value;
     } else {
-      value = undefined;
+      value = '';
     }
-    onChnageInputValue(value, inputValue == value ? false : true);
+    onChnageInputValue(value, inputValue === value ? false : true);
     setInputVisible(_.isNumber(value) ? true : false);
   }
 
@@ -53,7 +53,7 @@ const WithoutFidldItem = (props) => {
     >
       {inputVisible ? (
         <input
-          autoFocus={true}
+          // autoFocus={true}
           defaultValue={inputValue}
           // onChange={(e) => {
           //   const { value } = e.target;

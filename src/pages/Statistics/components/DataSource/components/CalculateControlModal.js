@@ -36,6 +36,7 @@ class CalculateControl extends Component {
     this.state = {
       controlName: editCalculateControl ? editCalculateControl.controlName : '',
       formulaStr: editCalculateControl ? editCalculateControl.dataSource : '',
+      dot: editCalculateControl ? editCalculateControl.dot : 8,
       fnmatch: '',
       showInSideFormulaSelect: false,
       dropdownVisible: false
@@ -44,7 +45,7 @@ class CalculateControl extends Component {
   handleSave = () => {
     const { currentReport, editCalculateControl } = this.props;
     const { formulas, yaxisList } = currentReport;
-    const { controlName, formulaStr } = this.state;
+    const { controlName, formulaStr, dot } = this.state;
     if (_.isEmpty(controlName)) {
       alert(_l('字段名称不能为空'), 2);
       return;
@@ -60,6 +61,7 @@ class CalculateControl extends Component {
             ...item,
             controlName,
             dataSource: formulaStr,
+            dot,
           };
         } else {
           return item;
@@ -74,6 +76,7 @@ class CalculateControl extends Component {
             return {
               ...item,
               controlName,
+              dot
             };
           } else {
             return item;
@@ -82,13 +85,13 @@ class CalculateControl extends Component {
       }
       this.props.onChangeCurrentReport(param, true);
     } else {
-      const data = { controlId: uuidv4(), controlName: controlName, type: 10000001, dataSource: formulaStr, dot: 8 };
+      const data = { controlId: uuidv4(), controlName: controlName, type: 10000001, dataSource: formulaStr, dot };
       this.props.onChangeCurrentReport({
         formulas: formulas.concat(data),
       });
     }
     this.props.onChangeDialogVisible(false);
-  };
+  }
   handleChange = (err, value, obj) => {
     if (err) {
       // this.handleError(err);
@@ -110,7 +113,18 @@ class CalculateControl extends Component {
       showInSideFormulaSelect: newFnmatch,
       fnmatchPos: newFnmatch ? this.tagtextarea.cmObj.getCursor() : undefined,
     });
-  };
+  }
+  handleChangeDot = (value) => {
+    let count = '';
+    if (value) {
+      count = parseInt(value);
+      count = isNaN(count) ? 0 : count;
+      count = count > 8 ? 8 : count;
+    } else {
+      count = 0;
+    }
+    this.setState({ dot: count });
+  }
   renderControlTypeOverlay(controlId, norm) {
     return (
       <Menu className="chartMenu" style={{ width: 140 }}>
@@ -177,7 +191,7 @@ class CalculateControl extends Component {
   };
   render() {
     const { axisControls } = this.props;
-    const { controlName, showInSideFormulaSelect, formulaStr, dropdownVisible } = this.state;
+    const { controlName, showInSideFormulaSelect, formulaStr, dot, dropdownVisible } = this.state;
     return (
       <div>
         <div className="mBottom10">{_l('名称')}</div>
@@ -221,6 +235,35 @@ class CalculateControl extends Component {
         <div className="mTop8 Font12 Gray_75">
           {_l('英文输入+、-、*、/、( ) 进行运算，支持输入数值或全数值的计算，不支持公式')}
         </div>
+        <div className="mTop16 mBottom10">{_l('保留小数位数')}</div>
+        <Input
+          style={{ width: 100 }}
+          className="chartInput"
+          value={dot}
+          onChange={event => {
+            this.handleChangeDot(event.target.value);
+          }}
+          suffix={
+            <div className="flexColumn">
+              <Icon
+                icon="expand_less"
+                className="Gray_9e Font20 pointer mBottom2"
+                onClick={() => {
+                  let newYdot = Number(dot);
+                  this.handleChangeDot(newYdot + 1);
+                }}
+              />
+              <Icon
+                icon="expand_more"
+                className="Gray_9e Font20 pointer mTop2"
+                onClick={() => {
+                  let newYdot = Number(dot);
+                  this.handleChangeDot(newYdot ? newYdot - 1 : 0);
+                }}
+              />
+            </div>
+          }
+        />
       </div>
     );
   }

@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import ExistSourceModal from 'src/pages/integration/dataIntegration/components/ExistSourceModal';
 import autoSize from 'ming-ui/decorators/autoSize';
 import _ from 'lodash';
+import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 const Wrap = styled.div`
   .addSource {
     background: #ffffff;
@@ -84,16 +85,16 @@ function AddSourceOrDest(props) {
           onClick={() => {
             onUpdate({
               ...node,
-              name: '表格',
+              name: '应用工作表',
               nodeConfig: {
                 ...(node.nodeConfig || {}),
                 config: {
                   ...(_.get(node, 'nodeConfig.config') || {}),
-                  dsType: 'MING_DAO_YUN',
+                  dsType: DATABASE_TYPE.APPLICATION_WORKSHEET,
                   dbName: '',
                   tableName: '',
                   schema: '',
-                  className: 'mingdaoyun',
+                  className: 'table',
                   iconBgColor: '#E8F4FE',
                   workSheetId: '',
                   appId: '',
@@ -133,7 +134,7 @@ function AddSourceOrDest(props) {
         popup={renderPopup()}
         getPopupContainer={() => document.body}
         onPopupVisibleChange={visible => {
-          // setState({ visible }); 暂时不开放
+          props.canEdit && setState({ visible });
         }}
         popupAlign={{
           points: ['tl', 'bl'],
@@ -161,7 +162,7 @@ function AddSourceOrDest(props) {
               {/* 明道云工作表显示表名称  dsType === 'MING_DAO_YUN' ? tableName : ？？？？？？ */}
               <div className="des Gray_9e">{tableName}</div>
             </div>
-            <i className="icon icon-expand_more Font20 Hand" />
+            {props.canEdit && <i className="icon icon-expand_more Font20 Hand Block" />}
           </div>
         )}
       </Trigger>
@@ -177,6 +178,16 @@ function AddSourceOrDest(props) {
           setConnectorConfigData={data => {
             const infoTxt = nodeType === 'SOURCE_TABLE' ? 'source' : 'dest';
             const { className, id, iconBgColor, type, name } = data[infoTxt];
+            let param = {};
+            if (nodeType !== 'SOURCE_TABLE') {
+              param = {
+                dataDestId: id,
+              };
+            } else {
+              param = {
+                datasourceId: id,
+              };
+            }
             onUpdate({
               ...node,
               name,
@@ -184,16 +195,18 @@ function AddSourceOrDest(props) {
                 ...(node.nodeConfig || {}),
                 config: {
                   ...(_.get(node, 'nodeConfig.config') || {}),
-                  datasourceId: id,
+                  ...param,
                   dsType: type,
                   dbName: '',
                   tableName: '',
                   schema: '',
                   className,
                   iconBgColor,
-                  worksheetId: '',
+                  workSheetId: '',
                   appId: '',
+                  fieldsMapping: [],
                 },
+                fields: [],
               },
             });
           }}

@@ -1,8 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect, useRef, useState } from 'react';
+import PropTypes, { bool, func, shape, string } from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
+import styled from 'styled-components';
 import Trigger from 'rc-trigger';
+import { useClickAway } from 'react-use';
+import { Textarea } from 'ming-ui';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { isLightColor } from 'src/util';
 import { getSelectedOptions, isKeyBoardInputChar } from 'worksheet/util';
@@ -12,8 +15,161 @@ import { formatControlToServer } from 'src/components/newCustomFields/tools/util
 import CellErrorTips from './comps/CellErrorTip';
 import { FROM } from './enum';
 import EditableCellCon from '../EditableCellCon';
-import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+
+const OtherOptionCon = styled.div`
+  background: #fff;
+  height: 100%;
+  padding: 7px 8px;
+  .icon {
+    float: right;
+    font-size: 14px;
+    color: #9e9e9e;
+    line-height: 20px;
+  }
+`;
+
+const OtherOptionTextInputCon = styled.div`
+  width: 280px;
+  position: relative;
+  background: #fff;
+  z-index: 2;
+  padding: 8px 12px;
+  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.16);
+  border-radius: 3px 3px 3px 3px;
+  .header {
+    margin-bottom: 8px;
+    display: flex;
+  }
+  .usage {
+    color: #9e9e9e;
+  }
+  .reSelect {
+    cursor: pointer;
+  }
+  textarea {
+    padding: 6px 8px 24px !important;
+    line-height: 1.5em;
+  }
+  &.error {
+    textarea {
+      border-color: #f44336;
+    }
+  }
+`;
+
+const MultipleLineTip = styled.div`
+  position: absolute;
+  padding: 4px;
+  bottom: 14px;
+  left: 14px;
+  right: 30px;
+  font-size: 12px;
+  color: #bdbdbd;
+  background: #fff;
+`;
+
+function OtherOptionTextInput(props) {
+  const { className, value = '', onChange, handleSave, onSave } = props;
+  const textRef = useRef();
+  useEffect(() => {
+    try {
+      textRef.current.textarea.focus();
+      textRef.current.textarea.selectionStart = textRef.current.textarea.selectionEnd =
+        textRef.current.textarea.value.length;
+    } catch (err) {}
+  }, []);
+  return (
+    <OtherOptionTextInputCon className={className}>
+      <div className="header">
+        <span className="usage">{`${value.length}/200`}</span>
+        <div className="flex"></div>
+        <span className="reSelect ThemeColor3 ThemeHoverColor2" onClick={() => onSave('')}>
+          {_l('重新选择')}
+        </span>
+      </div>
+      <Textarea
+        ref={textRef}
+        value={value}
+        minHeight={122}
+        maxHeight={122}
+        onChange={onChange}
+        onKeyDown={e => {
+          if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            handleSave();
+            return;
+          }
+        }}
+      />
+      <MultipleLineTip className="ellipsis">
+        {navigator.userAgent.indexOf('Mac OS') > 0 ? _l('⌘+Enter结束编辑') : _l('Ctrl+Enter结束编辑')}
+      </MultipleLineTip>
+    </OtherOptionTextInputCon>
+  );
+}
+
+OtherOptionTextInput.propTypes = {
+  className: string,
+  value: string,
+  onSave: func,
+  onChange: func,
+};
+
+function OtherOption(props) {
+  const { style, otherRequired, otherValue = '', getPopupContainer, onSave = () => {} } = props;
+  const [value, setValue] = useState(otherValue);
+  const [error, setError] = useState();
+  const conRef = useRef();
+  function handleSave() {
+    if (otherRequired && !value.trim()) {
+      setError(true);
+      alert(_l('请填写补充信息'), 3);
+      return;
+    }
+    onSave(value ? 'other:' + value.trim() : 'other');
+  }
+  useClickAway(conRef, handleSave);
+  return (
+    <Trigger
+      getPopupContainer={getPopupContainer}
+      popupVisible
+      popup={
+        <div ref={conRef}>
+          <OtherOptionTextInput
+            className={cx({ error })}
+            value={value}
+            onChange={v => {
+              if (v) {
+                setError(false);
+              }
+              setValue(v.slice(0, 200));
+            }}
+            onSave={onSave}
+            handleSave={handleSave}
+          />
+        </div>
+      }
+      destroyPopupOnHide
+      popupAlign={{
+        points: ['tl', 'bl'],
+        overflow: { adjustY: true },
+      }}
+    >
+      <OtherOptionCon className="cellControlEdittingStatus" style={style}>
+        {_l('其他')}
+        <span className="icon icon-arrow-down-border"></span>
+      </OtherOptionCon>
+    </Trigger>
+  );
+}
+
+OtherOption.propTypes = {
+  style: shape({}),
+  otherRequired: bool,
+  otherValue: string,
+  onSave: func,
+  getPopupContainer: func,
+};
 
 function getOptionStyle(option, cell) {
   return (cell.enumDefault2 === 1 && option.color) || cell.controlId === 'wfstatus'
@@ -79,8 +235,10 @@ export default class Options extends React.Component {
   cell = React.createRef();
 
   @autobind
-  handleChange(value, forceUpdate) {
+  handleChange(value, { forceUpdate, needUpdateCell, noUpdateCell } = {}) {
     const { cell, updateCell, onValidate } = this.props;
+    const isOther =
+      (typeof value === 'string' && value.startsWith('other')) || (value && value[0] && value[0].startsWith('other'));
     const isMultiple = cell.type === 10;
     this.isChanging = true;
     if (!forceUpdate) {
@@ -97,11 +255,16 @@ export default class Options extends React.Component {
       value,
       ...(error ? {} : { oldValue: value }),
     });
-    if (error) {
+    if (!isMultiple && isOther && !needUpdateCell) {
+      return;
+    }
+    if (!isMultiple && noUpdateCell) {
+      return;
+    }
+    if (error && !this.isSubList) {
       return;
     }
     if (isMultiple && this.isSubList) {
-      console.log(value);
       this.setState({
         value,
       });
@@ -152,10 +315,13 @@ export default class Options extends React.Component {
     }
   }
 
-  getShowValue(option) {
-    const { cell } = this.props;
+  getShowValue(option, { defaultEmpty = false } = {}) {
+    const { value } = this.state;
     if (option.key === 'other') {
-      const otherValue = _.find(JSON.parse(cell.value || '[]'), i => i.includes(option.key));
+      const otherValue = _.find(JSON.parse(value || '[]'), i => i.includes(option.key));
+      if (defaultEmpty && otherValue === 'other') {
+        return;
+      }
       return otherValue === 'other' ? _l('其他') : _.replace(otherValue, 'other:', '') || _l('其他');
     }
     return option.value;
@@ -181,91 +347,110 @@ export default class Options extends React.Component {
     const { value, verticalPlace } = this.state;
     const selectedOptions = value ? getSelectedOptions(cell.options, value) : [];
     const isMultiple = cell.type === 10;
-    const getPopupContainer =
+    const isOther = selectedOptions[0] && selectedOptions[0].key === 'other';
+    let getPopupContainer =
       this.isSubList || this.isRelateRecord
         ? () => $(this.cell.current).parents('.recordInfoForm')[0] || document.body
         : popupContainer;
+    if (this.isSubList && isOther) {
+      getPopupContainer = () => document.body;
+    }
     const showErrorAsPopup = (this.isSubList || this.isRelateRecord) && rowIndex === 0;
-    const editcontent = (
-      <div
-        className={cx(
-          'cellControlOptionsPopup',
-          {
-            error: error,
-          },
-          verticalPlace,
-        )}
-        ref={this.con}
-        style={style}
-      >
-        {isMultiple ? (
-          <Checkbox
-            {...{ ...cell, advancedSetting: { ...cell.advancedSetting, checktype: '1' } }}
-            isFocus
-            dropdownClassName="scrollInTable"
-            value={value}
-            selectProps={{
-              open: true,
-              autoFocus: true,
-              defaultOpen: true,
-              getPopupContainer,
-              onInputKeyDown: e => {
-                if (e.key === 'Escape') {
-                  this.handleExit();
-                } else if (e.key === 'Tab') {
-                  setTimeout(() => {
-                    document.activeElement.blur();
-                  }, 100);
-                }
-              },
-              onDropdownVisibleChange: visible => {
-                if (!visible && !this.isChanging) {
-                  this.handleExit();
-                }
-                this.isChanging = false;
-              },
-            }}
-            onChange={value => this.handleChange(value, true)}
-          />
-        ) : (
-          <Dropdown
-            {...cell}
-            dropdownClassName="scrollInTable"
-            value={value}
-            selectProps={{
-              open: true,
-              noPushAdd_: true,
-              autoFocus: true,
-              defaultOpen: true,
-              getPopupContainer,
-              onDropdownVisibleChange: visible => {
-                if (!error && !visible && !this.isChanging) {
-                  this.handleExit();
-                }
-                this.isChanging = false;
-              },
-              onInputKeyDown: e => {
-                if (e.key === 'Escape') {
-                  this.handleExit();
-                } else if (e.key === 'Tab') {
-                  setTimeout(() => {
-                    document.activeElement.blur();
-                  }, 100);
-                }
-              },
-              onChange: value => {
-                if (_.isObject(value)) {
-                  value = value.value;
-                }
-                this.handleChange(value);
-              },
-            }}
-          />
-        )}
-        {error && !showErrorAsPopup && <CellErrorTips error={error} pos={rowIndex === 0 ? 'bottom' : 'top'} />}
-      </div>
-    );
-    const isMobile = browserIsMobile();
+    let editcontent;
+    if (!isMultiple && isOther) {
+      editcontent = (
+        <OtherOption
+          style={style}
+          otherRequired={_.get(cell, 'advancedSetting.otherrequired') === '1'}
+          otherValue={this.getShowValue(selectedOptions[0], { defaultEmpty: true })}
+          selected={selectedOptions[0]}
+          getPopupContainer={getPopupContainer}
+          onSave={newValue => {
+            this.handleChange(newValue, newValue === '' ? { noUpdateCell: true } : { needUpdateCell: true });
+          }}
+        />
+      );
+    } else {
+      editcontent = (
+        <div
+          className={cx(
+            'cellControlOptionsPopup',
+            {
+              error: error,
+            },
+            verticalPlace,
+          )}
+          ref={this.con}
+          style={style}
+        >
+          {isMultiple ? (
+            <Checkbox
+              {...{ ...cell, advancedSetting: { ...cell.advancedSetting, checktype: '1' } }}
+              isFocus
+              dropdownClassName="scrollInTable"
+              value={value}
+              selectProps={{
+                open: true,
+                autoFocus: true,
+                defaultOpen: true,
+                getPopupContainer,
+                onInputKeyDown: e => {
+                  if (e.key === 'Escape') {
+                    this.handleExit();
+                  } else if (e.key === 'Tab') {
+                    setTimeout(() => {
+                      document.activeElement.blur();
+                    }, 100);
+                  }
+                },
+                onDropdownVisibleChange: visible => {
+                  if (!visible && !this.isChanging) {
+                    this.handleExit();
+                  }
+                  this.isChanging = false;
+                },
+              }}
+              onChange={value => this.handleChange(value, { forceUpdate: true })}
+            />
+          ) : (
+            <Dropdown
+              {...cell}
+              dropdownClassName="scrollInTable"
+              value={value}
+              selectProps={{
+                open: true,
+                noPushAdd_: true,
+                autoFocus: true,
+                defaultOpen: true,
+                getPopupContainer,
+                onDropdownVisibleChange: visible => {
+                  if (!error && !visible && !this.isChanging) {
+                    this.handleExit();
+                  }
+                  this.isChanging = false;
+                },
+                onInputKeyDown: e => {
+                  if (e.key === 'Escape') {
+                    this.handleExit();
+                  } else if (e.key === 'Tab') {
+                    setTimeout(() => {
+                      document.activeElement.blur();
+                    }, 100);
+                  }
+                },
+                onChange: value => {
+                  if (_.isObject(value)) {
+                    value = value.value;
+                  }
+                  this.handleChange(value);
+                },
+              }}
+            />
+          )}
+          {error && !showErrorAsPopup && <CellErrorTips error={error} pos={rowIndex === 0 ? 'bottom' : 'top'} />}
+        </div>
+      );
+    }
 
     return (
       <React.Fragment>
@@ -282,7 +467,6 @@ export default class Options extends React.Component {
           {!!value && (
             <div className={cx('cellOptions cellControl', { singleLine })}>
               {selectedOptions.map((option, index) => {
-                const otherValue = _.find(JSON.parse(cell.value || '[]'), i => i.includes(option.key));
                 return (
                   <span
                     className="cellOption ellipsis"

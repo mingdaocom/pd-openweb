@@ -5,7 +5,7 @@ import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import { Modal } from 'antd-mobile';
 import { browserIsMobile } from 'src/util';
-import { bindWeiXin, bindWxWork, bindFeishu } from '../tools/authentication';
+import { bindWeiXin, bindWxWork, bindFeishu, handleTriggerEvent } from '../tools/authentication';
 import styled from 'styled-components';
 import _ from 'lodash';
 
@@ -106,7 +106,7 @@ export default class Widgets extends Component {
     ];
   }
   handleWxScanQRCode = () => {
-    wx.scanQRCode({
+    window.wx.scanQRCode({
       needResult: 1,
       scanType: ['qrCode', 'barCode'],
       success: res => {
@@ -128,65 +128,38 @@ export default class Widgets extends Component {
       fail: res => {
         const { errMsg } = res;
         if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
-          _alert(JSON.stringify(res));
+          window.nativeAlert(JSON.stringify(res));
         }
       }
     });
   }
   handleScanCode = () => {
+    const { projectId } = this.props;
 
-    if (isWx || isWxWork) {
-      const { projectId } = this.props;
-      if (window.currentUrl !== location.href) {
-        window.currentUrl = location.href;
-        window.configSuccess = false;
-        window.configLoading = false;
-      }
-      if (window.configSuccess) {
-        this.handleWxScanQRCode();
-      } else {
-        if (!window.configLoading) {
-          const bindFunction = isWx ? bindWeiXin() : bindWxWork(projectId);
-          bindFunction.then(() => {
-            window.configLoading = false;
-            window.configSuccess = true;
-            this.handleWxScanQRCode();
-          }).catch((errType) => {
-            if (errType) {
-              import('html5-qrcode').then(data => {
-                this.qrCodeComponent = data;
-                this.handleScanQRCode();
-              });
-            }
+    if (isWx) {
+      handleTriggerEvent(this.handleWxScanQRCode, bindWeiXin());
+      return;
+    }
+
+    if (isWxWork) {
+      handleTriggerEvent(this.handleWxScanQRCode, bindWxWork(projectId), (errType) => {
+        if (errType) {
+          import('html5-qrcode').then(data => {
+            this.qrCodeComponent = data;
+            this.handleScanQRCode();
           });
         }
-      }
+      });
       return;
     }
 
     if (isFeishu) {
-      const { projectId } = this.props;
-      if (window.currentUrl !== location.href) {
-        window.currentUrl = location.href;
-        window.configSuccess = false;
-        window.configLoading = false;
-      }
-      if (window.configSuccess) {
-        this.handleFeishuScanQRCode();
-      } else {
-        if (!window.configLoading) {
-          bindFeishu(projectId).then(() => {
-            window.configLoading = false;
-            window.configSuccess = true;
-            this.handleFeishuScanQRCode();
-          });
-        }
-      }
+      handleTriggerEvent(this.handleFeishuScanQRCode, bindFeishu(projectId));
       return;
     }
 
-    if (isWeLink && HWH5) {
-      HWH5.scanCode({ needResult: 1 }).then(data => {
+    if (isWeLink && window.HWH5) {
+      window.HWH5.scanCode({ needResult: 1 }).then(data => {
         const { content } = data;
         this.props.onScanQRCodeResult(content);
       }).catch(error => {

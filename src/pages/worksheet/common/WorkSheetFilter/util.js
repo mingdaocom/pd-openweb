@@ -33,7 +33,9 @@ export function formatConditionForSave(condition, relationType, options = {}) {
     dynamicSource: condition.dynamicSource || [],
     value: condition.value,
     values:
-      returnFullValues && _.includes([26, 27, 29, 19, 23, 24, 35, 48], controlType) ? condition.fullValues : values,
+      returnFullValues && _.includes([26, 27, 29, 19, 23, 24, 35, 48], controlType) && !_.isEmpty(values)
+        ? condition.fullValues
+        : values,
   };
 }
 

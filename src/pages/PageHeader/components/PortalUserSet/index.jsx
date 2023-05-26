@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import DialogLayer from 'src/components/mdDialog/dialog';
 import ReactDom from 'react-dom';
 import 'src/pages/PageHeader/AppNameHeader/index.less';
-import { Icon } from 'ming-ui';
+import { Icon, Menu } from 'ming-ui';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -26,7 +26,8 @@ import FindPwdDialog from './FindPwdDialog';
 import PortalMessage from './PortalMessage';
 import { getAppId } from 'src/pages/PortalAccount/util.js';
 import _ from 'lodash';
-import { WrapHeader, Wrap } from './style';
+import { WrapHeader, Wrap, ModalWrap, RedMenuItemWrap } from './style';
+import Trigger from 'rc-trigger';
 
 export default class PortalUserSet extends Component {
   constructor(props) {
@@ -53,6 +54,8 @@ export default class PortalUserSet extends Component {
       type: '',
       showChangePwd: false,
       hasPassword: false,
+      showMenu: false,
+      showModel: false,
     };
   }
 
@@ -183,6 +186,8 @@ export default class PortalUserSet extends Component {
       baseInfo,
       type,
       showChangePwd,
+      showMenu,
+      showModel,
     } = this.state;
     const { isMobile, match = {}, appStatus, noAvatar, currentPcNaviStyle } = this.props;
     const info = currentData.filter(
@@ -238,7 +243,7 @@ export default class PortalUserSet extends Component {
             onClickAway={() => this.setState({ showUserInfo: false })}
             // 知识文件选择层 点击时不收起
             onClickAwayExceptions={[
-              '#uploadAvatorDialogId,.mui-dialog-container,.rc-trigger-popup,#uploadAvatorDialogId_mask',
+              '#uploadAvatorDialogId,.mui-dialog-container,.rc-trigger-popup,#uploadAvatorDialogId_mask,.am-modal-mask,.am-modal-wrap',
             ]}
           >
             <CSSTransitionGroup
@@ -376,24 +381,109 @@ export default class PortalUserSet extends Component {
                       }}
                     >
                       <Icon icon="exit_to_app" className="mRight5 Font18" />
-                      {_l('安全退出')}
+                      {_l('退出登录')}
                     </div>
-
-                    <div
-                      className="del Hand Font14 Bold"
-                      onClick={() => {
-                        this.setState({
-                          showDelDialog: true,
-                        });
-                      }}
-                    >
-                      {_l('注销账户')}
-                    </div>
+                    {browserIsMobile() ? (
+                      <div
+                        className="opt Hand TxtCenter"
+                        onClick={() => {
+                          this.setState({
+                            showModel: true,
+                          });
+                        }}
+                      >
+                        <Icon icon="more_horiz" className="Font18" />
+                      </div>
+                    ) : (
+                      <Trigger
+                        action={['click']}
+                        popupVisible={showMenu}
+                        onPopupVisibleChange={visible => {
+                          this.setState({
+                            showMenu: visible,
+                          });
+                        }}
+                        popup={
+                          <Menu>
+                            <RedMenuItemWrap
+                              className="RedMenuItem"
+                              onClick={() => {
+                                this.setState({
+                                  showDelDialog: true,
+                                  showMenu: false,
+                                });
+                              }}
+                            >
+                              <span>{_l('注销此账户')}</span>
+                            </RedMenuItemWrap>
+                          </Menu>
+                        }
+                        popupClassName={cx('dropdownTrigger')}
+                        popupAlign={{
+                          points: ['tl', 'bl'],
+                          overflow: {
+                            adjustX: true,
+                            adjustY: true,
+                          },
+                        }}
+                      >
+                        <div
+                          className="opt Hand TxtCenter"
+                          onClick={() => {
+                            this.setState({
+                              showMenu: true,
+                            });
+                          }}
+                        >
+                          <Icon icon="more_horiz" className="Font18" />
+                        </div>
+                      </Trigger>
+                    )}
                   </div>
                 </Wrap>
               }
             </CSSTransitionGroup>
           </ClickAwayable>
+        )}
+        {showModel && (
+          <ModalWrap
+            popup
+            animationType="slide-up"
+            visible={showModel}
+            className="appMoreActionWrap"
+            onClose={() => {
+              this.setState({
+                showModel: false,
+              });
+            }}
+          >
+            <div className="flexRow header">
+              <div className="Font13 Gray_9e flex">{_l('更多')}</div>
+              <div
+                className="closeIcon"
+                onClick={() => {
+                  this.setState({
+                    showModel: false,
+                  });
+                }}
+              >
+                <Icon icon="close" className="Font17 Gray_9e bold" />
+              </div>
+            </div>
+            <div className="actionContent">
+              <div
+                className="RedMenuItem"
+                onClick={() => {
+                  this.setState({
+                    showModel: false,
+                    showDelDialog: true,
+                  });
+                }}
+              >
+                <span>{_l('注销此账户')}</span>
+              </div>
+            </div>
+          </ModalWrap>
         )}
         {showUserInfoDialog && (
           <UserInfoDialog

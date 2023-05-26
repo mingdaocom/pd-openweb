@@ -42,6 +42,21 @@ const SortableItemContent = styled.div`
   }
 `;
 
+const textNormTypes = [
+  {
+    text: _l('具体值'),
+    value: 7,
+  },
+  {
+    text: _l('计数'),
+    value: 5,
+  },
+  {
+    text: _l('去重计数'),
+    value: 6,
+  }
+];
+
 const renderOverlay = ({
   axis,
   type,
@@ -87,28 +102,30 @@ const renderOverlay = ({
           {xaxisEmpty && <Icon icon="done" className="Font17"/>}
         </Menu.Item>
       ) : (
-        <Menu.SubMenu
-          popupClassName="chartMenu"
-          title={(
-            <div className="flexRow valignWrapper w100">
-              <div className="flex">{_l('空值显示')}</div>
-              <div className="Font12 Gray_75 emptyTypeName">{_.find(emptyShowTypes, { value: emptyShowType }).text}</div>
-            </div>
-          )}
-          popupOffset={[0, -15]}
-        >
-          {emptyShowTypes.map(item => (
-            <Menu.Item
-              style={{ width: 120, color: item.value === emptyShowType ? '#1e88e5' : null }}
-              key={item.value}
-              onClick={() => {
-                onUpdateEmptyShowType(axis.controlId, item.value);
-              }}
-            >
-              {item.text}
-            </Menu.Item>
-          ))}
-        </Menu.SubMenu>
+        isNumber && (
+          <Menu.SubMenu
+            popupClassName="chartMenu"
+            title={(
+              <div className="flexRow valignWrapper w100">
+                <div className="flex">{_l('空值显示')}</div>
+                <div className="Font12 Gray_75 emptyTypeName">{_.find(emptyShowTypes, { value: emptyShowType }).text}</div>
+              </div>
+            )}
+            popupOffset={[0, -15]}
+          >
+            {emptyShowTypes.map(item => (
+              <Menu.Item
+                style={{ width: 120, color: item.value === emptyShowType ? '#1e88e5' : null }}
+                key={item.value}
+                onClick={() => {
+                  onUpdateEmptyShowType(axis.controlId, item.value);
+                }}
+              >
+                {item.text}
+              </Menu.Item>
+            ))}
+          </Menu.SubMenu>
+        )
       )}
       {isNumber && verifyNumber && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
@@ -127,29 +144,26 @@ const renderOverlay = ({
       )}
       {!isNumberControl(axis.type) && verifyNumber && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-          {[
-            {
-              text: _l('计数'),
-              value: 5,
-            },
-            {
-              text: _l('去重计数'),
-              value: 6,
-            }
-          ].map(item => (
+          {textNormTypes.map(item => (
             <Menu.Item
+              className="valignWrapper"
               style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
               key={item.value}
               onClick={() => {
                 onNormType(axis.controlId, item.value);
               }}
             >
-              {item.text}
+              <div className="flex">{item.text}</div>
+              {item.value === 7 && (
+                <Tooltip title={_l('仅显示一个')}>
+                  <Icon icon="info" className="Font16 pointer Gray_9e" />
+                </Tooltip>
+              )}
             </Menu.Item>
           ))}
         </Menu.SubMenu>
       )}
-      {isTime && (
+      {type && isTime && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('归组')} popupOffset={[0, -15]}>
           <Menu.ItemGroup title={_l('时间')}>
             {timeDataList.map(item => (
@@ -196,7 +210,7 @@ const renderOverlay = ({
           )}
         </Menu.SubMenu>
       )}
-      {isArea && (
+      {type && isArea && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('归组')} popupOffset={[0, -15]}>
           {areaParticleSizeDropdownData.map(item => (
             <Menu.Item
@@ -229,7 +243,6 @@ const SortableItem = SortableElement(props => {
   const { type, item, axisControls, allControls, onClear, onNormType, verifyNumber, disableParticleSizeTypes, onUpdateParticleSizeType, onUpdateXaxisEmpty, onUpdateEmptyShowType, onShowControl, onSelectReNameId } = props;
   const axis = _.find(axisControls, { controlId: item.controlId }) || {};
   const control = _.find(allControls, { controlId: item.controlId }) || {};
-  const isNumber = isNumberControl(axis.type, false);
   const isTime = isTimeControl(axis.type);
   const isArea = isAreaControl(axis.type);
   const overlayProps = {
@@ -256,7 +269,7 @@ const SortableItem = SortableElement(props => {
         {axis.controlId ? (
           <Tooltip title={tip}>
             <span className="Gray flex ellipsis">
-              {(isNumber && verifyNumber) && `${_.find(normTypes, { value: item.normType }).text}: `}
+              {(verifyNumber && ![10000000, 10000001].includes(axis.type)) && `${_.find(normTypes.concat(textNormTypes), { value: item.normType }).text}: `}
               {item.rename || axis.controlName}
               {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
               {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}

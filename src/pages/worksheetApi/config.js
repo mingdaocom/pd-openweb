@@ -338,7 +338,6 @@ export const MENU_LIST = [
         required: _l('否'),
         type: 'number',
         desc: _l('单位s,为空表示永久有效'),
-
       },
       {
         name: 'password',
@@ -556,7 +555,7 @@ const appRoleSuccessData = {
           jobName: _l('职位名称'),
         },
       ],
-      projectOrganizes: ["组织角色ID"]
+      projectOrganizes: ['组织角色ID'],
     },
   ],
   error_code: 1,
@@ -938,6 +937,36 @@ export const MENU_LIST_APPENDIX = [
       {
         name: 45,
         type: _l('嵌入'),
+        desc: '',
+      },
+      {
+        name: 46,
+        type: _l('时间'),
+        desc: '',
+      },
+      {
+        name: 47,
+        type: _l('条码'),
+        desc: '',
+      },
+      {
+        name: 48,
+        type: _l('组织角色'),
+        desc: '',
+      },
+      {
+        name: 49,
+        type: _l('API查询'),
+        desc: '',
+      },
+      {
+        name: 50,
+        type: _l('API查询'),
+        desc: '',
+      },
+      {
+        name: 51,
+        type: _l('关联查询'),
         desc: '',
       },
       {
@@ -1498,18 +1527,20 @@ export const OPTIONS_FUNCTION_LIST = [
     id: 'delete',
     title: _l('删除选项集 DELETE'),
     apiName: 'open/app/deleteOptionSet/{id}',
-    data: [{
-      name: 'appKey',
-      required: _l('是'),
-      type: 'string',
-      desc: '应用key',
-    },
-    {
-      name: 'sign',
-      required: _l('是'),
-      type: 'string',
-      desc: _l('签名'),
-    }],
+    data: [
+      {
+        name: 'appKey',
+        required: _l('是'),
+        type: 'string',
+        desc: '应用key',
+      },
+      {
+        name: 'sign',
+        required: _l('是'),
+        type: 'string',
+        desc: _l('签名'),
+      },
+    ],
     requestData: {
       appKey: 'appKey',
       sign: 'sign',

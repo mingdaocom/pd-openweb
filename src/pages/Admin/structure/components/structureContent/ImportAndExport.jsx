@@ -106,12 +106,12 @@ class ImportAndExport extends Component {
       alert(_l('请输入登录密码'), 3);
       return;
     }
-    verifyPassword(password, () => {
-      _this.exportUsers(
-        projectId,
-        orgnazation.map(item => item.departmentId),
-      );
-      _this.setState({ showInputPassword: false, password: undefined });
+    verifyPassword({
+      password,
+      success: () => {
+        _this.exportUsers(projectId, orgnazation.map(item => item.departmentId));
+        _this.setState({ showInputPassword: false, password: undefined });
+      },
     });
   };
   exportUsers = (projectId, departmentIds = []) => {

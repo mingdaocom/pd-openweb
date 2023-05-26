@@ -222,7 +222,7 @@ class ViewConfigCon extends Component {
     const data = getSortData(select.controltype);
     return data[0].value;
   }
-  //字段的columns 排除系统字段 (拥有者除外,且拥有者排在第一个)
+  //字段的columns 排除系统字段 (拥有者除外,且拥有者排在第一个) 排除不显示的字段
   formatColumnsListForControls = columns => {
     let data = columns.filter(
       column => !ALL_SYS.includes(column.controlId) && (column.fieldPermission || '111')[0] === '1',
@@ -230,10 +230,18 @@ class ViewConfigCon extends Component {
     data = columns.filter(o => o.controlId === 'ownerid').concat(data.filter(o => o.controlId !== 'ownerid'));
     return data;
   };
-  columnChange = ({ newShowControls, newControlSorts }) => {
+  //字段的columns 排除系统字段 (拥有者除外,且拥有者排在第一个)
+  formatColumnsListForControlsWithoutHide = columns => {
+    let data = columns.filter(column => !ALL_SYS.includes(column.controlId));
+    data = columns.filter(o => o.controlId === 'ownerid').concat(data.filter(o => o.controlId !== 'ownerid'));
+    return data;
+  };
+  columnChange = ({ newShowControls, newControlSorts }, withoutHide) => {
     const { displayControls = [], showControls = [], sysids = [], syssort = [] } = this.state;
     let { columns } = this.props;
-    columns = this.formatColumnsListForControls(columns);
+    columns = withoutHide
+      ? this.formatColumnsListForControlsWithoutHide(columns)
+      : this.formatColumnsListForControls(columns);
     const newColumns = columns.filter(item => !newShowControls.includes(item.controlId));
     const controls = newColumns.map(item => item.controlId);
     let data = {};
@@ -325,8 +333,8 @@ class ViewConfigCon extends Component {
     const { filters = [], controls = [], moreSort = [], fastFilters = [], groupFilters } = view;
     const { icon, text } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
     const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
-    const columnsList = this.formatColumnsListForControls(columns);
-    const controlsList = this.formatColumnsListForControls(controls);
+    const columnsList = this.formatColumnsListForControlsWithoutHide(columns);
+    const controlsList = this.formatColumnsListForControlsWithoutHide(controls);
     let daConfig = [
       {
         type: 'CustomAction',
@@ -339,6 +347,10 @@ class ViewConfigCon extends Component {
       {
         type: 'FastFilter',
         data: fastFilters,
+      },
+      {
+        type: 'Sort',
+        data: moreSort,
       },
     ];
     const getHtml = type => {
@@ -353,10 +365,25 @@ class ViewConfigCon extends Component {
           }
         });
       }
+      if (type === 'Filter') {
+        let data = [];
+        da = (da || []).map(o => {
+          if (!!o.isGroup) {
+            data = [...data, ...o.groupFilters];
+          } else {
+            data = [...data, o];
+          }
+        });
+        da = data.filter(o => !!o);
+      }
       return (
         <span>
           <span className="titleTxt">{d.name}</span>
-          {da.length > 0 && <span className="Gray_9e InlineBlock mLeft5 numText">{da.length}</span>}
+          {(da.length > 0 || type === 'Sort') && (
+            <span className="Gray_9e InlineBlock mLeft5 numText">
+              {type === 'Sort' && da.length < 1 ? 1 : da.length}
+            </span>
+          )}
         </span>
       );
     };
@@ -424,7 +451,7 @@ class ViewConfigCon extends Component {
                       <span className="fontText">
                         {it.name === 'base' && o === 'Setting'
                           ? _l('%0设置', text)
-                          : ['CustomAction', 'Filter', 'FastFilter'].includes(item.type)
+                          : ['CustomAction', 'Filter', 'FastFilter', 'Sort'].includes(item.type)
                           ? getHtml(item.type)
                           : item.type === 'Controls'
                           ? hideLengthStr
@@ -871,8 +898,8 @@ class ViewConfigCon extends Component {
         return (
           <Controls
             {...this.props}
-            formatColumnsListForControls={this.formatColumnsListForControls}
-            columnChange={this.columnChange}
+            formatColumnsListForControls={this.formatColumnsListForControlsWithoutHide}
+            columnChange={data => this.columnChange(data, true)}
           />
         );
       case 'Color': // 颜色
@@ -935,11 +962,7 @@ class ViewConfigCon extends Component {
               if (customdisplay === '1') {
                 this.setState(
                   {
-                    showControls: _.uniqBy(
-                      newShowControls.concat(
-                        customizeColumns.filter(c => (c.fieldPermission || '111')[0] === '0').map(c => c.controlId),
-                      ),
-                    ),
+                    showControls: newShowControls,
                     customdisplay: '1',
                   },
                   () => {
@@ -980,9 +1003,7 @@ class ViewConfigCon extends Component {
         <ScrollView className="viewContent flex">
           <div className="viewContentCon">
             {!['MobileSet', 'FastFilter', 'NavGroup'].includes(data.type) && (
-              <div className="viewSetTitle">
-                {data.type === 'Setting' ? _l('%0设置', text) : data.name}
-              </div>
+              <div className="viewSetTitle">{data.type === 'Setting' ? _l('%0设置', text) : data.name}</div>
             )}
             {this.renderSetting()}
           </div>

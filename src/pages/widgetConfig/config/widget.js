@@ -152,7 +152,7 @@ export const DEFAULT_CONFIG = {
   },
   RELATION: {
     icon: 'device_hub',
-    widgetName: _l('自由连接'),
+    widgetName: _l('自由连接%04008'),
     intro: _l(
       '引用项目、任务、日程、审批单等。例：一个“产品更新”记录可以添加多个“需求”任务，由于只是引用，不会影响被引用的对象本身',
     ),
@@ -164,7 +164,7 @@ export const DEFAULT_CONFIG = {
   },
   SPLIT_LINE: {
     icon: 'menu',
-    widgetName: _l('分割线'),
+    widgetName: _l('分割线%04006'),
     intro: _l('对表单进行分段'),
     minSize: WHOLE_SIZE,
   },
@@ -182,7 +182,7 @@ export const DEFAULT_CONFIG = {
   },
   MONEY_CN: {
     icon: 'amount_capital',
-    widgetName: _l('大写金额'),
+    widgetName: _l('大写金额%04009'),
     intro: _l('关联金额控件后可以自动将填写的金额显示成大写金额'),
     moreIntroLink: 'https://help.mingdao.com/zh/sheet2.html',
   },
@@ -196,7 +196,7 @@ export const DEFAULT_CONFIG = {
   SCORE: { icon: 'star', widgetName: _l('等级'), intro: _l('可输入1～10的数值') },
   RELATE_SHEET: {
     icon: 'link_record',
-    widgetName: _l('关联记录'),
+    widgetName: _l('关联记录%04001'),
     intro: _l('关联相关工作表，可以从中引用或创建记录，如：订单关联商品'),
     moreIntroLink: 'https://help.mingdao.com/zh/sheet11.html',
     tip: _l(
@@ -205,13 +205,13 @@ export const DEFAULT_CONFIG = {
   },
   SHEET_FIELD: {
     icon: 'lookup',
-    widgetName: _l('他表字段'),
+    widgetName: _l('他表字段%04004'),
     intro: _l('从关联的记录中选择字段显示在当前表中'),
     moreIntroLink: 'https://help.mingdao.com/zh/sheet17.html',
   },
   CONCATENATE: {
     icon: 'category',
-    widgetName: _l('文本组合'),
+    widgetName: _l('文本组合%04000'),
     intro: _l('将当前记录中的字段进行组合'),
     moreIntroLink: 'https://help.mingdao.com/zh/sheet10.html',
   },
@@ -223,7 +223,7 @@ export const DEFAULT_CONFIG = {
   },
   SUB_LIST: {
     icon: 'table',
-    widgetName: _l('子表'),
+    widgetName: _l('子表%04002'),
     intro: _l('支持在表单中一次填入多条信息、比如一次填写多条费用明细'),
     minSize: WHOLE_SIZE,
     moreIntroLink: 'https://help.mingdao.com/zh/sheet22.html',
@@ -231,7 +231,7 @@ export const DEFAULT_CONFIG = {
   SWITCH: { icon: 'checkbox_01', widgetName: _l('检查项'), intro: _l('可以选中或取消选中') },
   SUBTOTAL: {
     icon: 'sigma',
-    widgetName: _l('汇总'),
+    widgetName: _l('汇总%04005'),
     intro: _l('汇总关联记录或子表中的数据，如：汇总订单明细中的商品总价，最大支持汇总1000行数据。'),
     moreIntroLink: 'https://help.mingdao.com/zh/sheet19.html',
   },
@@ -271,7 +271,7 @@ export const DEFAULT_CONFIG = {
   },
   CASCADER: {
     icon: 'cascade_selection',
-    widgetName: _l('级联选择'),
+    widgetName: _l('级联选择%04003'),
     intro: _l('以层级视图作为数据源来选择目标表的记录,仅支持本表关联'),
     moreIntroLink: 'https://help.mingdao.com/zh/sheet26.html',
   },
@@ -282,7 +282,7 @@ export const DEFAULT_CONFIG = {
     moreIntroLink: 'https://help.mingdao.com/zh/ocr.html',
   },
   REMARK: {
-    widgetName: _l('备注'),
+    widgetName: _l('备注%04007'),
     icon: 'info',
     defaultHint: _l('在此添加 注意事项 或 填写要求 等，来指导使用者(或填写者)正确地操作'),
     tip: _l('把注意事项或填写要求作为“备注”加入，来指导使用者(或填写者)正确使用'),
@@ -290,7 +290,7 @@ export const DEFAULT_CONFIG = {
     minSize: WHOLE_SIZE,
   },
   EMBED: {
-    widgetName: _l('嵌入'),
+    widgetName: _l('嵌入%04010'),
     icon: 'code',
     intro: _l('在表单中嵌入URL，支持使用其他字段值传参'),
   },
@@ -416,6 +416,7 @@ export const DEFAULT_DATA = {
       showtype: '1',
       covertype: '0',
       alldownload: '1',
+      webcompress: '1',
     },
   },
   DATE: {
@@ -427,7 +428,7 @@ export const DEFAULT_DATA = {
     },
   },
   DATE_TIME: {
-    controlName: _l('日期'),
+    controlName: _l('日期时间'),
     size: 6,
     hint: _l('请选择日期'),
     advancedSetting: {
@@ -439,12 +440,12 @@ export const DEFAULT_DATA = {
     size: 6,
   },
   RELATION: {
-    controlName: _l('自由连接'),
+    controlName: _l('自由连接%04008'),
     size: 12,
     enumDefault: 0,
   },
   SPLIT_LINE: {
-    controlName: _l('分割线'),
+    controlName: _l('分割线%04006'),
     size: 12,
     advancedSetting: {
       hidetitle: '1',
@@ -459,7 +460,7 @@ export const DEFAULT_DATA = {
     size: 6,
   },
   MONEY_CN: {
-    controlName: _l('大写金额'),
+    controlName: _l('大写金额%04009'),
     size: 6,
   },
   USER_PICKER: {
@@ -483,7 +484,7 @@ export const DEFAULT_DATA = {
     advancedSetting: NUM_5_SETTINGS,
   },
   RELATE_SHEET: {
-    controlName: _l('关联记录'),
+    controlName: _l('关联记录%04001'),
     advancedSetting: {
       allowlink: '1',
       searchrange: '1',
@@ -494,7 +495,7 @@ export const DEFAULT_DATA = {
     enumDefault2: 0,
   },
   SHEET_FIELD: {
-    controlName: _l('他表字段'),
+    controlName: _l('他表字段%04004'),
     size: 6,
     enumDefault: 1,
     strDefault: '10',
@@ -502,7 +503,7 @@ export const DEFAULT_DATA = {
     sourceControlId: '', // 字段id
   },
   CONCATENATE: {
-    controlName: _l('文本组合'),
+    controlName: _l('文本组合%04000'),
     size: 12,
     advancedSetting: {
       analysislink: '1',
@@ -517,7 +518,7 @@ export const DEFAULT_DATA = {
     enumDefault: 0,
   },
   SUB_LIST: {
-    controlName: _l('子表'),
+    controlName: _l('子表%04002'),
     size: 12,
     enumDefault: 2,
     advancedSetting: {
@@ -525,6 +526,7 @@ export const DEFAULT_DATA = {
       allowcancel: '1',
       allowedit: '1',
       allowsingle: '1',
+      allowexport: '1',
     },
   },
   SWITCH: {
@@ -536,7 +538,7 @@ export const DEFAULT_DATA = {
     },
   },
   SUBTOTAL: {
-    controlName: _l('汇总'),
+    controlName: _l('汇总%04005'),
     size: 6,
     enumDefault: 6,
     enumDefault2: 6,
@@ -571,12 +573,12 @@ export const DEFAULT_DATA = {
     },
   },
   CASCADER: {
-    controlName: _l('级联选择'),
+    controlName: _l('级联选择%04003'),
     size: 6,
   },
   REMARK: {
     size: 12,
-    controlName: _l('备注'),
+    controlName: _l('备注%04007'),
     advancedSetting: {
       hidetitle: '1',
     },

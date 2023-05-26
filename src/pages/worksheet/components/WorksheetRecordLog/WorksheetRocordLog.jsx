@@ -245,7 +245,7 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
         if (item.newValue === '' && item.oldValue === '') {
           return null;
         }
-        let widgetInfo = DEFAULT_CONFIG[_.findKey(WIDGETS_TO_API_TYPE_ENUM, l => l === item.type)];
+        let widgetInfo = DEFAULT_CONFIG[_.findKey(WIDGETS_TO_API_TYPE_ENUM, l => l === item.type)] || {};
         const control = _.find(recordInfo.controls || recordInfo.formdata, it => item.id === it.controlId) || {};
         let _controlPermissions = (control && control.controlPermissions) || '111';
         const visible = _controlPermissions[0] === '1';

@@ -1,4 +1,4 @@
-import React, { useMemo, useReducer, useEffect, useRef } from 'react';
+import React, { useMemo, useReducer, useEffect, useRef, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { string, shape } from 'prop-types';
 import styled from 'styled-components';
@@ -29,6 +29,7 @@ function filter(apps, keywords) {
 function AppGroups(props) {
   const activeGroupId = _.get(props, 'match.params.groupId');
   const activeGroupType = _.get(props, 'match.params.groupType');
+  const isAllActive = _.get(props, 'match.params.0') === 'all';
   const { currentProject, projectId } = props;
   const cache = useRef({});
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -46,6 +47,7 @@ function AppGroups(props) {
     externalApps = [],
     aloneApps = [],
     activeGroupApps = [],
+    recentApps = [],
     activeGroup,
   } = state;
   const isAdmin = currentProject && (currentProject.isSuperAdmin || currentProject.isProjectAppManager);
@@ -88,6 +90,7 @@ function AppGroups(props) {
           markedGroup={markedGroup}
           groups={groups}
           actions={actions}
+          isAllActive={isAllActive}
         />
       )}
       <AppGrid
@@ -105,7 +108,9 @@ function AppGroups(props) {
         externalApps={filter(externalApps, keywords)}
         aloneApps={filter(aloneApps, keywords)}
         activeGroupApps={filter(activeGroupApps, keywords)}
+        recentApps={filter(recentApps, keywords)}
         groups={groups}
+        isAllActive={isAllActive}
       />
     </Con>
   );

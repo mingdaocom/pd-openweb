@@ -1,50 +1,17 @@
 ﻿import ReactDOM from 'react-dom';
 import redirect from 'src/common/redirect';
-
 import { getAppFeaturesPath } from 'src/util';
 import { getSuffix } from 'src/pages/PortalAccount/util';
-export const urlStack = [];
-export function urlStackBack(e) {
-  if (urlStack.length > 1) {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    history.back(); // TODO: test
-    return false;
-  }
-}
 
-window.location.goto = function(url, isReplace = false) {
+const urlStack = [];
+
+window.location.goto = function (url, isReplace = false) {
   if (isReplace) {
     window.location.replace(url);
   } else {
     window.location.assign(url);
   }
 };
-
-const xhrs = [];
-/** 终止掉记录下的 ajax 请求 */
-export function abortAjax() {
-  // TODO: clear $.api queque, and abort xhr without causing error alert
-  xhrs.forEach(xhr => xhr.abort());
-  xhrs.splice(0);
-}
-
-export function logAjax() {
-  // 记录下所有 ajax 请求，切换模块时终止掉
-  $(document).ajaxSend(function logAjaxSent(e, jqXHR, options) {
-    xhrs.push(jqXHR);
-  });
-  $(document).ajaxComplete(function logAjaxComplete(e, jqXHR, options) {
-    let index = -1;
-    while (xhrs.length && index >= 0) {
-      index = xhrs.indexOf(jqXHR);
-      xhrs.splice(index, 1);
-    }
-    // xhrs = xhrs.filter(xhr => xhr !== jqXHR);
-  });
-}
 
 let historyObj;
 export function setHistoryObject(history) {
@@ -94,6 +61,7 @@ export function fillUrl(url) {
   }
   if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
     url = url + '#publicapp' + window.publicAppAuthorization;
+    return url;
   }
   return url + (hash ? `#${hash}` : '');
 }

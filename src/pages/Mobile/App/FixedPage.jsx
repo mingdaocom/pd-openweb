@@ -50,7 +50,7 @@ export default class FixedPage extends Component {
           <div className="iconInfo mBottom18" style={{ 'marginTop': document.body.clientHeight / 4 }}>
             <Icon className="Font56 Gray_75" icon="send" />
           </div>
-          <div className="Font18 mBottom20 fixeding">{_l('应用暂未发布')}</div>
+          <div className="Font18 mBottom20 fixeding">{_l('该应用暂未在此平台发布')}</div>
         </FixedContent>
       );
     }

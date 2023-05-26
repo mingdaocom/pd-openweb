@@ -225,7 +225,8 @@ export default class extends Component {
       if (next) {
         column.children = [get(next)];
       } else {
-        column.children = linesChildren.length ? linesChildren : [{ title: null, width: undefined }];
+        const defaultChildren = yaxisList.length ? [{ title: null, width: undefined }] : [];
+        column.children = linesChildren.length ? linesChildren : defaultChildren;
       }
     }
 
@@ -352,7 +353,7 @@ export default class extends Component {
       dataList.push(...getYaxisList(0));
     }
 
-    const columnTotal = this.getColumnTotal(result);
+    const columnTotal = yaxisList.length && this.getColumnTotal(result);
 
     if (columnSummary.location === 3 && columnTotal) {
       dataList.unshift(columnTotal);
@@ -433,7 +434,7 @@ export default class extends Component {
   }
   getDataSource(result, linesData) {
     const { reportData } = this.props;
-    const { yaxisList, pivotTable } = reportData;
+    const { yaxisList, pivotTable, valueMap } = reportData;
     const { lineSummary, columnSummary, showLineTotal } = pivotTable || reportData;
     const tableLentghData = Array.from({ length: linesData[0] ? linesData[0].data.length : 1 });
 
@@ -444,7 +445,16 @@ export default class extends Component {
       });
       result.forEach((item, i) => {
         const value = item.data[index];
-        obj[`${item.t_id}-${i}`] = value;
+        const yaxis = _.find(yaxisList, { controlId: item.t_id }) || {};
+        const showConcreteValue = yaxis.normType === 7;
+        const valueKey = showConcreteValue ? valueMap[item.t_id] : null;
+        if (_.isArray(value)) {
+          obj[`${item.t_id}-${i}`] = value.map(data => {
+            return valueKey ? valueKey[data] || data : data;
+          }).join(', ');
+        } else {
+          obj[`${item.t_id}-${i}`] = valueKey ? valueKey[value] || value : value;
+        }
       });
       return obj;
     });
@@ -694,6 +704,7 @@ export default class extends Component {
             contentAutoHeight: scrollConfig.x && _.isUndefined(scrollConfig.y),
             contentScroll: scrollConfig.y,
             hideHeaderLastTr: columns.length && yaxisList.length === 1,
+            hideBody: _.isEmpty(lines) && _.isEmpty(yaxisList),
             noSelect: dragValue,
             safariScroll: isSafari && scrollConfig.y
           })

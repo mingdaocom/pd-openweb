@@ -764,7 +764,7 @@ class Record extends Component {
                   </WingBlank>
                 );
               })}
-              {(!getDataType || getDataType !== 21) && (allowDelete || allowShare) && customBtns.length < 2 && (
+              {(!getDataType || getDataType !== 21) && (allowDelete || allowShare) && !customBtns.length && (
                 <WingBlank className="flex mLeft6 mRight6" size="sm">
                   <Button
                     className="Font13"
@@ -777,18 +777,18 @@ class Record extends Component {
                   </Button>
                 </WingBlank>
               )}
-              {(customBtns.length >= 2 || allowShare || sheetRow.allowDelete) &&
-                baseIds.appId &&
-                !this.props.isMobileOperate && (
-                  <div
-                    className="moreOperation"
-                    onClick={() => {
-                      this.setState({ recordActionVisible: true });
-                    }}
-                  >
-                    <Icon icon="expand_less" className="Font20" />
-                  </div>
-                )}
+              {customBtns.length && baseIds.appId && !this.props.isMobileOperate ? (
+                <div
+                  className="moreOperation"
+                  onClick={() => {
+                    this.setState({ recordActionVisible: true });
+                  }}
+                >
+                  <Icon icon="expand_less" className="Font20" />
+                </div>
+              ) : (
+                ''
+              )}
             </Fragment>
           )}
         </div>
@@ -1107,13 +1107,15 @@ class Record extends Component {
           {(((!getDataType || getDataType !== 21) &&
             !this.isSharePage &&
             !isPortal &&
-            isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId)) ||
+            (isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) || isOpenPermit(permitList.recordLogSwitch, switchPermit, viewId))) ||
             (isPortal && allowExAccountDiscuss)) && ( //外部门户开启讨论的
             <div className="chatMessageContainer">
               {!isEdit && appId && !isSubList && !abnormal && (
                 <ChatCount
                   allowExAccountDiscuss={allowExAccountDiscuss}
                   exAccountDiscussEnum={exAccountDiscussEnum}
+                  recordDiscussSwitch={isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId)}
+                  recordLogSwitch={isOpenPermit(permitList.recordLogSwitch, switchPermit, viewId)}
                   worksheetId={worksheetId}
                   rowId={rowId}
                   viewId={viewId}

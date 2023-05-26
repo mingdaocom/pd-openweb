@@ -9,7 +9,7 @@ const EditShowNameCon = styled.div`
   }
 `;
 export default function PublishFail(props) {
-  const { name, onCancel, toNode, errInfo = [] } = props;
+  const { name, onCancel, toNode, errorMsgList = [] } = props;
   return (
     <Dialog
       visible
@@ -22,7 +22,7 @@ export default function PublishFail(props) {
       }}
     >
       <EditShowNameCon>
-        {errInfo.map(o => {
+        {errorMsgList.map(o => {
           return (
             <div className='mTop16'>
               <i className="icon-report Font18 Red TxtMiddle"></i> <span className="TxtMiddle Gray_75 mLeft8 Font14">{o}</span>

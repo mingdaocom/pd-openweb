@@ -1,6 +1,6 @@
 import { formatFormulaDate, domFilterHtmlScript, getSelectedOptions } from '../../util';
 import { RELATION_TYPE_NAME } from './enum';
-import { accMul, toFixed } from 'src/util';
+import { accMul, formatStrZero, toFixed } from 'src/util';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
@@ -122,7 +122,7 @@ export default function renderText(cell, options = {}) {
           const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: cell.unit || '1' } });
           value = moment(cell.value, value.indexOf('-') > -1 ? undefined : showFormat).format(showFormat);
         } else {
-          if (_.includes(['1', '2', '6'], unit)) {
+          if (_.includes(['1', '2', '4'], unit)) {
             if (cell.advancedSetting.autocarry === '1' || cell.enumDefault === 1) {
               value = formatFormulaDate({ value: cell.value, unit, dot: cell.dot });
             } else {
@@ -131,7 +131,7 @@ export default function renderText(cell, options = {}) {
                 {
                   1: _l('分钟'),
                   2: _l('小时'),
-                  6: _l('秒'),
+                  4: _l('月'),
                 }[unit];
             }
           } else {
@@ -177,7 +177,7 @@ export default function renderText(cell, options = {}) {
           .map((option, index) => {
             if (option.key === 'other') {
               const otherValue = _.find(JSON.parse(cell.value || '[]'), i => i.includes(option.key));
-              value = otherValue === 'other' ? _l('其他') : _.replace(otherValue, 'other:', '') || _l('其他');
+              return otherValue === 'other' ? _l('其他') : _.replace(otherValue, 'other:', '') || _l('其他');
             }
             return option.value;
           })
@@ -313,6 +313,10 @@ export default function renderText(cell, options = {}) {
         break;
       default:
         value = '';
+    }
+    // 小数点不补零
+    if (_.get(cell, 'advancedSetting.dotformat') === '1') {
+      value = formatStrZero(value);
     }
     // 走掩码 单行文本、数值、金额、手机、邮箱、证件
     if (

@@ -165,6 +165,10 @@ class Dialog extends Component {
      * 滚动事件
      */
     onScroll: PropTypes.func,
+    /**
+     * 底部左侧内容自定义
+     */
+    footerLeftElement: PropTypes.element,
   };
 
   static defaultProps = {
@@ -274,6 +278,7 @@ class Dialog extends Component {
               confirm={props.confirm}
               showCancel={props.showCancel}
               buttonType={props.buttonType}
+              footerLeftElement={props.footerLeftElement}
             />
           )}
         </DialogBase>

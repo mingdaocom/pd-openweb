@@ -125,10 +125,15 @@ function CustomPageContent(props) {
   } = props;
   const pageId = id;
   const appName = props.appName || apk.appName || '';
-  const ref = useRef(null);
+  const ref = useRef(document.body);
   const [show, toggle] = useToggle(false);
 
+  const showFullscreen = () => {
+    document.body.classList.add('customPageFullscreen');
+    toggle(true);
+  };
   const closeFullscreen = () => {
+    document.body.classList.remove('customPageFullscreen');
     toggle(false);
   };
   const isFullscreen = useFullscreen(ref, show, { onClose: closeFullscreen });
@@ -186,9 +191,9 @@ function CustomPageContent(props) {
       <CustomPageContentWrap className="CustomPageContentWrap">
         {(appName || pageName) && <DocumentTitle title={`${appName} - ${pageName}`} />}
         {!loading && (
-          <CustomPageHeader {...props} currentSheet={currentSheet} toggle={toggle} />
+          <CustomPageHeader {...props} currentSheet={currentSheet} toggle={showFullscreen} />
         )}
-        <div ref={ref} className="content">
+        <div className="content">
           {renderContent()}
         </div>
       </CustomPageContentWrap>

@@ -35,7 +35,7 @@ export default (props) => {
             rows={4}
             style={{ resize: 'none' }}
             onChange={(event) => {
-              setFileName(event.target.value);
+              setFileName(event.target.value.trim());
             }}
           />
           <div className="flexRow alignItemsCenter mTop10 btns">
@@ -48,6 +48,10 @@ export default (props) => {
             <Button
               type="primary"
               onClick={() => {
+                if (_.isEmpty(fileName)) {
+                  alert(_l('名称不能为空'), 2);
+                  return;
+                } 
                 onSave(fileName);
                 setIsEdit(false)
               }}

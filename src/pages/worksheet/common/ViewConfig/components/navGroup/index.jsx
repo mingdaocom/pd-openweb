@@ -257,7 +257,7 @@ export default function NavGroup(params) {
   const addNavGroups = data => {
     const d = getSetDefault(data);
     updateView(d, {
-      navshow: '0',
+      navshow: !['0', '1'].includes(navshow + '') ? '0' : navshow, //新配置需要前端把这个值设为1
       navfilters: JSON.stringify([]),
       usenav: '1', //新配置需要前端把这个值设为1
     });

@@ -1,7 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Radio, Icon, Checkbox } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, SelectNodeObject, CustomTextarea, WriteFields, Deadline } from '../components';
+import {
+  DetailHeader,
+  DetailFooter,
+  SelectNodeObject,
+  CustomTextarea,
+  WriteFields,
+  Deadline,
+  ButtonName,
+} from '../components';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -57,7 +65,7 @@ export default class Link extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, selectNodeId, linkType, linkName, formProperties, time, password } = data;
+    const { name, selectNodeId, linkType, linkName, formProperties, time, password, submitButtonName } = data;
     const newPassword = password.trim();
 
     if (!selectNodeId) {
@@ -98,6 +106,7 @@ export default class Link extends Component {
         formProperties,
         time,
         password: newPassword,
+        submitButtonName: submitButtonName.trim() || _l('提交'),
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -248,6 +257,18 @@ export default class Link extends Component {
               hideTypes={data.linkType === 1 ? [2, 3] : []}
               readonlyControlTypes={[21, 26, 27]}
               updateSource={this.updateSource}
+            />
+          </Fragment>
+        )}
+
+        {data.linkType === 2 && (
+          <Fragment>
+            <div className="Font13 bold mTop25">{_l('按钮名称')}</div>
+            <ButtonName
+              dataKey="submitButtonName"
+              name={data.submitButtonName || _l('提交')}
+              buttonName={_l('提交按钮')}
+              onChange={this.updateSource}
             />
           </Fragment>
         )}

@@ -209,35 +209,5 @@ var processVersion = {
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'v1processupdateWaiting', JSON.stringify(args), $.extend(base, options));
   },
-  /**
-   * 获取已有通道
-   * @param {Object} args 请求参数
-   * @param {string} [args.access_token] 令牌
-   * @param {String} companyId 网络id
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   */
-  getRouterList: function(args, options) {
-    base.ajaxOptions.url = base.server(options) + '/v1/process/getRouterList';
-    base.ajaxOptions.type = 'GET';
-    return $.api(controllerName, 'v1processgetRouterList', args, $.extend(base, options));
-  },
-  /**
-   * 修改选择的通道
-   * @param {Object} args 请求参数
-   * @param {string} [args.access_token] 令牌
-   * @param {Number} hours 暂停多少小时
-   * @param {String} processId 流程id
-   * @param {Array} processIds 批量操作流程ids
-   * @param {Number} routerIndex 选择的通道序号
-   * @param {String} waiting 开启还是关闭 默认true开启暂停
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   */
-   updateRouterIndex: function (args, options) {
-    base.ajaxOptions.url = base.server(options) + '/v1/process/updateRouterIndex';
-    base.ajaxOptions.type = 'POST';
-    return $.api(controllerName, 'v1processupdateRouterIndex', JSON.stringify(args), $.extend(base, options));
-  },
 };
 export default processVersion;

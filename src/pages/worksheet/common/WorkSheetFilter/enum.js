@@ -210,67 +210,67 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
     isOptionsSingle || isUserSingleSingle || isDepartmentSingle || isOrgRoleSingle || isRelateRecordSingle;
   switch (type) {
     case FILTER_CONDITION_TYPE.LIKE:
-      if (isDepartment || isArea) return _l('下级包含');
-      return _l('包含');
+      if (isDepartment || isArea) return _l('下级包含%25024');
+      return _l('包含%25003');
     case FILTER_CONDITION_TYPE.EQ:
       if (isNumber) return '=';
       if (isSingle || isArea) {
-        return _l('是其中一个');
+        return _l('是其中一个%25017');
       }
       if (isMultiple) {
-        return _l('包含其中一个');
+        return _l('包含其中一个%25021');
       }
-      return _l('等于');
+      return _l('等于%25001');
     case FILTER_CONDITION_TYPE.START:
-      return _l('开头是');
+      return _l('开头是%25005');
     case FILTER_CONDITION_TYPE.END:
-      return _l('结尾是');
+      return _l('结尾是%25007');
     case FILTER_CONDITION_TYPE.N_START:
-      return _l('开头不是');
+      return _l('开头不是%25006');
     case FILTER_CONDITION_TYPE.N_END:
-      return _l('结尾不是');
+      return _l('结尾不是%25008');
     case FILTER_CONDITION_TYPE.NCONTAIN:
-      if (isDepartment || isArea) return _l('下级不包含');
-      return _l('不包含');
+      if (isDepartment || isArea) return _l('下级不包含%25025');
+      return _l('不包含%25004');
     case FILTER_CONDITION_TYPE.NE:
       if (isNumber) return '≠';
       if (isSingle || isArea) {
-        return _l('不是任何一个');
+        return _l('不是任何一个%25018');
       }
       if (isMultiple) {
-        return _l('不包含任何一个');
+        return _l('不包含任何一个%25022');
       }
-      return _l('不等于');
+      return _l('不等于%25002');
     case FILTER_CONDITION_TYPE.ISNULL:
-      return _l('为空');
+      return _l('为空%25009');
     case FILTER_CONDITION_TYPE.HASVALUE:
-      return _l('不为空');
+      return _l('不为空%25010');
     case FILTER_CONDITION_TYPE.BETWEEN:
-      if (isCascader || isDepartment || isArea) return _l('属于');
-      return _l('在范围内');
+      if (isCascader || isDepartment || isArea) return _l('属于%25019');
+      return _l('在范围内%25011');
     case FILTER_CONDITION_TYPE.NBETWEEN:
-      if (isCascader || isDepartment || isArea) return _l('不属于');
-      return _l('不在范围内');
+      if (isCascader || isDepartment || isArea) return _l('不属于%25020');
+      return _l('不在范围内%25012');
     case FILTER_CONDITION_TYPE.GT:
-      if (isDate) return _l('晚于');
+      if (isDate) return _l('晚于%25014');
       return '>';
     case FILTER_CONDITION_TYPE.GTE:
       return '≥';
     case FILTER_CONDITION_TYPE.LT:
-      if (isDate) return _l('早于');
+      if (isDate) return _l('早于%25013');
       return '<';
     case FILTER_CONDITION_TYPE.LTE:
       return '≤';
     case FILTER_CONDITION_TYPE.DATE_LTE:
-      return _l('早于等于');
+      return _l('早于等于%25015');
     case FILTER_CONDITION_TYPE.DATE_GTE:
-      return _l('晚于等于');
+      return _l('晚于等于%25016');
     case FILTER_CONDITION_TYPE.DATEENUM:
     case FILTER_CONDITION_TYPE.DATE_EQ:
-      return _l('等于'); // TIME日期时间
+      return _l('等于%25001'); // TIME日期时间
     case FILTER_CONDITION_TYPE.NDATEENUM:
     case FILTER_CONDITION_TYPE.DATE_NE:
-      return _l('不等于'); // TIME日期时间
+      return _l('不等于%25002'); // TIME日期时间
     case FILTER_CONDITION_TYPE.SELF:
       return _l('本人');
     case FILTER_CONDITION_TYPE.SELFANDSUB:
@@ -278,29 +278,29 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
     case FILTER_CONDITION_TYPE.SUB:
       return _l('下属');
     case FILTER_CONDITION_TYPE.RCEQ:
-      if (isRelateRecordMultiple) return _l('包含其中一个');
-      return _l('是其中一个');
+      if (isRelateRecordMultiple) return _l('包含其中一个%25021');
+      return _l('是其中一个%25017');
     case FILTER_CONDITION_TYPE.RCNE:
-      if (isRelateRecordMultiple) return _l('不包含任何一个');
-      return _l('不是任何一个');
+      if (isRelateRecordMultiple) return _l('不包含任何一个%25022');
+      return _l('不是任何一个%25018');
     case FILTER_CONDITION_TYPE.DATE_BETWEEN:
-      return _l('在范围内');
+      return _l('在范围内%25011');
     case FILTER_CONDITION_TYPE.DATE_NBETWEEN:
-      return _l('不在范围内');
+      return _l('不在范围内%25012');
     case FILTER_CONDITION_TYPE.DATE_GT:
-      return _l('晚于');
+      return _l('晚于%25014');
     case FILTER_CONDITION_TYPE.DATE_LT:
-      return _l('早于');
+      return _l('早于%25013');
     case FILTER_CONDITION_TYPE.NORMALUSER:
       return _l('是常规用户');
     case FILTER_CONDITION_TYPE.PORTALUSER:
       return _l('是外部门户用户');
     case FILTER_CONDITION_TYPE.ARREQ: // 数组等于
-      return _l('等于');
+      return _l('等于%25001');
     case FILTER_CONDITION_TYPE.ARRNE: // 数组不等于
-      return _l('不等于');
+      return _l('不等于%25002');
     case FILTER_CONDITION_TYPE.ALLCONTAIN: // 数组同时包含
-      return _l('同时包含');
+      return _l('同时包含%25023');
     default:
       return '';
   }

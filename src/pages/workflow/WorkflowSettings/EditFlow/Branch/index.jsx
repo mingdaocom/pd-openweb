@@ -11,6 +11,10 @@ export default class Branch extends Component {
     super(props);
   }
 
+  state = {
+    showTips: true,
+  };
+
   renderTips = () => {
     const { processId, item, isCopy, hideNodes, isApproval } = this.props;
     const isHide = _.includes(hideNodes, item.id);
@@ -55,6 +59,7 @@ export default class Branch extends Component {
             data-tip={_l('添加分支')}
             onClick={() => {
               this.props.addFlowNode(processId, { prveId: item.id, name: '', typeId: 2 });
+              this.handleTipsPosition();
             }}
           >
             <i className="icon-add" />
@@ -80,6 +85,7 @@ export default class Branch extends Component {
     updateHideNodes(workflowHideNodes);
     safeLocalStorageSetItem('workflowHideNodes', JSON.stringify(workflowHideNodes));
     updateRefreshThumbnail();
+    this.handleTipsPosition();
   };
 
   /**
@@ -91,15 +97,27 @@ export default class Branch extends Component {
     updateBranchGatewayType(item.id, item.gatewayType === 1 ? 2 : 1);
   };
 
+  /**
+   * 处理tips位置问题
+   */
+  handleTipsPosition() {
+    this.setState({ showTips: false });
+
+    setTimeout(() => {
+      this.setState({ showTips: true });
+    }, 50);
+  }
+
   render() {
     const { data, item, hideNodes, disabled } = this.props;
+    const { showTips } = this.state;
     const showAddBtn = !item.resultTypeId && !disabled;
     const isHide = _.includes(hideNodes, item.id);
 
     return (
       <div className={cx('flexColumn', { workflowBranchHide: isHide })}>
         <div className={cx('workflowBranch', { pTop0: !showAddBtn })} data-id={item.id}>
-          {showAddBtn && (
+          {showAddBtn && showTips && (
             <Tooltip title={this.renderTips} overlayClassName="workflowBranchTips" align={{ offset: [0, 34] }}>
               <i
                 className={cx(
@@ -117,9 +135,11 @@ export default class Branch extends Component {
                 <BranchItem
                   key={id}
                   {...this.props}
+                  index={i}
                   prveId={item.id}
                   item={data[id]}
                   clearBorderType={i === 0 ? -1 : i === item.flowIds.length - 1 ? 1 : 0}
+                  flowIds={item.flowIds}
                 />
               );
             })}

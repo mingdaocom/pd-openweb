@@ -409,8 +409,9 @@ class Commenter extends React.Component {
   }
 
   render() {
-    const { canAddLink, projectId, placeholder, activePlaceholder } = this.props;
+    const { canAddLink, appId, projectId, sourceId, placeholder, activePlaceholder } = this.props;
     const { isEditing, attachmentData, kcAttachmentData } = this.state;
+    const [worksheetId, recordId] = sourceId.split('|');
     const hasAttachment = attachmentData.length || kcAttachmentData.length;
     const style = !isEditing && !hasAttachment ? { display: 'none' } : {};
     const onFocus = e => {
@@ -496,6 +497,8 @@ class Commenter extends React.Component {
         <div className={cx('commentAttachmentsBox', { Hidden: !this.state.showAttachment || !isEditing })}>
           <UploadFiles
             projectId={projectId}
+            appId={appId}
+            worksheetId={worksheetId}
             rowDisplay={true}
             canAddLink={canAddLink}
             arrowLeft={9}

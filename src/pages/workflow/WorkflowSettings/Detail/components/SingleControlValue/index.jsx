@@ -684,7 +684,7 @@ export default class SingleControlValue extends Component {
                     >
                       {File.isPicture('.' + ext) ? (
                         <img
-                          src={o.serverName + o.key}
+                          src={o.previewUrl ? o.previewUrl : o.serverName + o.key}
                           style={{ height: 28 }}
                           // onClick={() => this.previewAttachments(o)}
                         />
@@ -732,11 +732,7 @@ export default class SingleControlValue extends Component {
 
     // 日期 || 日期时间
     if (item.type === 15 || item.type === 16) {
-      const showType =
-        _.get(
-          _.find(controls, obj => obj.controlId === item.fieldId),
-          'advancedSetting.showtype',
-        ) || 1;
+      const showType = _.get(_.find(controls, obj => obj.controlId === item.fieldId), 'advancedSetting.showtype') || 1;
       const mode = { 3: 'date', 4: 'month', 5: 'year' };
       const timeMode = { 1: 'minute', 2: 'hour', 6: 'second' };
 

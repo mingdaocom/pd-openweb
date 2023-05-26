@@ -18,7 +18,7 @@ class ShowBtnFilterDialog extends React.Component {
   };
 
   render() {
-    const { setValue, isShowBtnFilterDialog, projectId, columns, appId } = this.props;
+    const { setValue, isShowBtnFilterDialog, projectId, columns, sheetSwitchPermit, appId } = this.props;
     return (
       <Dialog
         title={_l('筛选')}
@@ -44,6 +44,7 @@ class ShowBtnFilterDialog extends React.Component {
         visible={isShowBtnFilterDialog}
       >
         <FilterConfig
+          sheetSwitchPermit={sheetSwitchPermit}
           from="custombutton"
           canEdit
           feOnly

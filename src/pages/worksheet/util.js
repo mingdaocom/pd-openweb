@@ -2,7 +2,9 @@ import EventEmitter from 'events';
 import moment from 'moment';
 import filterXss from 'xss';
 import copy from 'copy-to-clipboard';
+import axios from 'axios';
 import { toFixed } from 'src/util';
+import appManagementAjax from 'src/api/appManagement';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
@@ -270,6 +272,13 @@ export function formatFormulaDate({ value, unit, hideUnitStr, dot = 0 }) {
           (value % dayHour >= 0 ? toFixed(value % dayHour, dot) + unitStr : '');
       }
       break;
+    case '4':
+      if (+value < 12) {
+        content = value + unitStr;
+      } else {
+        content = Math.floor(value / 12) + units[4] + (value % 12 >= 0 ? toFixed(value % 12, dot) + unitStr : '');
+      }
+      break;
     default:
       content = _.isNumber(parseFloat(value)) && !_.isNaN(parseFloat(value)) ? value + unitStr : '';
   }
@@ -505,9 +514,8 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
         c => _.find(showControls, id => id === c.controlId) && controlState(c).visible && controlState(c).editable,
       );
       const formdata = new DataFormat({
-        data: controldata,
+        data: controldata.map(c => ({ ...c, isSubList: true })),
         from: FROM.NEWRECORD,
-        ignoreRequired: true,
       });
       let errorItems = formdata.getErrorControls();
       rulesErrors.forEach(errorItem => {
@@ -661,9 +669,15 @@ export function copySublistControlValue(control, value) {
     case WIDGETS_TO_API_TYPE_ENUM.AREA_CITY: // 地区
     case WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY: // 地区
     case WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD: // 他表字段
+    case WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE: // 组织角色
+    case WIDGETS_TO_API_TYPE_ENUM.TIME: // 时间
       return value;
     case WIDGETS_TO_API_TYPE_ENUM.SIGNATURE: // 签名
-      return;
+      try {
+        return value.startsWith('http') ? JSON.stringify({ bucket: 4, key: new URL(value).pathname.slice(1) }) : value;
+      } catch (err) {
+        return;
+      }
     default:
       return;
   }
@@ -1206,3 +1220,45 @@ export function getRelateRecordCountFromValue(value) {
   }
   return count;
 }
+
+export async function postWithToken(url, tokenArgs = {}, body = {}, axiosConfig = {}) {
+  const token = await appManagementAjax.getToken(tokenArgs);
+  if (!token) {
+    return Promise.reject('获取token失败');
+  }
+  return axios.post(
+    url,
+    Object.assign({}, body, {
+      token,
+      accountId: md.global.Account.accountId,
+    }),
+    axiosConfig,
+  );
+}
+
+export function download(blob = '', name) {
+  name = name || blob.name || 'file';
+  function down(href) {
+    const downButton = document.createElement('a');
+    downButton.href = href;
+    downButton.download = name;
+    downButton.click();
+  }
+  if (typeof blob === 'string') {
+    down(blob);
+  } else {
+    down(URL.createObjectURL(blob));
+  }
+}
+
+export const moveSheetCache = (appId, groupId) => {
+  const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
+  const worksheets = storage.worksheets.map(data => {
+    if (data.groupId === groupId) {
+      data.worksheetId = '';
+    }
+    return data;
+  });
+  storage.worksheets = worksheets;
+  safeLocalStorageSetItem(`mdAppCache_${md.global.Account.accountId}_${appId}`, JSON.stringify(storage));
+};

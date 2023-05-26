@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
+import { v4 as uuidv4 } from 'uuid';
 import UploadFiles from 'src/components/UploadFiles';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import cx from 'classnames';
@@ -78,7 +79,7 @@ export default class Widgets extends Component {
         this.setState({ filesVisible: true });
       }
     }, 0);
-  }
+  };
 
   checkFileNeedLoad(value) {
     if (!value) {
@@ -108,7 +109,8 @@ export default class Widgets extends Component {
       args.shareId = window.shareState.shareId;
       args.type = window.shareState.isRecordShare ? 3 : window.shareState.isPublicQuery ? 11 : 14;
     }
-    attachmentApi.getAttachmentToList(args)
+    attachmentApi
+      .getAttachmentToList(args)
       .then(data => {
         this.setState({ loading: false, value: JSON.stringify(data) });
       })
@@ -117,7 +119,7 @@ export default class Widgets extends Component {
       });
   }
 
-  id = +new Date();
+  id = uuidv4();
 
   filesChanged = (files, key) => {
     const value = JSON.parse(this.state.value || '[]');
@@ -132,7 +134,7 @@ export default class Widgets extends Component {
     newValue[key] = files;
 
     // 补充 index
-    if (this.props.enumDefault === 2) {
+    if ([2, 3].includes(this.props.enumDefault)) {
       // 旧的在前
       newValue.attachmentData.forEach((data, index) => {
         data.index = index;
@@ -163,7 +165,7 @@ export default class Widgets extends Component {
     );
   };
 
-  filesChangedAll = (files) => {
+  filesChangedAll = files => {
     const value = JSON.parse(this.state.value || '[]');
     const { attachments, knowledgeAtts, attachmentData } = files;
     const newValue = {};
@@ -185,25 +187,27 @@ export default class Widgets extends Component {
   handleSortAttachment = attachmentData => {
     const { worksheetId, viewId, recordId, controlId } = this.props;
     const value = JSON.parse(this.state.value || '[]');
-    worksheetApi.sortAttachment({
-      worksheetId,
-      viewId,
-      rowId: recordId,
-      controlId,
-      fileIds: attachmentData.map(f => f.fileID)
-    }).then(data => {
-      if (data.resultCode === 1) {
-        const newValue = {
-          attachmentData,
-          attachments: value.attachments || [],
-          knowledgeAtts: value.knowledgeAtts || []
+    worksheetApi
+      .sortAttachment({
+        worksheetId,
+        viewId,
+        rowId: recordId,
+        controlId,
+        fileIds: attachmentData.map(f => f.fileID),
+      })
+      .then(data => {
+        if (data.resultCode === 1) {
+          const newValue = {
+            attachmentData,
+            attachments: value.attachments || [],
+            knowledgeAtts: value.knowledgeAtts || [],
+          };
+          this.setState({
+            value: JSON.stringify(newValue),
+          });
         }
-        this.setState({
-          value: JSON.stringify(newValue)
-        });
-      }
-    });
-  }
+      });
+  };
 
   /**
    * 编辑明道附件名称
@@ -229,28 +233,30 @@ export default class Widgets extends Component {
     newValue.attachmentData = files;
 
     this.setState({
-      value: JSON.stringify(newValue)
+      value: JSON.stringify(newValue),
     });
 
     const { appId, worksheetId, viewId, recordId, controlId, from } = this.props;
 
-    worksheetApi.editAttachmentName({
-      ...data,
-      fileId: id,
-      fileName: newName,
-      appId,
-      worksheetId,
-      viewId,
-      controlId,
-      rowId: recordId,
-      checkView: true,
-      getType: getRowGetType(from)
-    }).then(data => {
-      if (data.resultCode !== 1) {
-        alert(_l('修改失败'), 2);
-      }
-    });
-  }
+    worksheetApi
+      .editAttachmentName({
+        ...data,
+        fileId: id,
+        fileName: newName,
+        appId,
+        worksheetId,
+        viewId,
+        controlId,
+        rowId: recordId,
+        checkView: true,
+        getType: getRowGetType(from),
+      })
+      .then(data => {
+        if (data.resultCode !== 1) {
+          alert(_l('修改失败'), 2);
+        }
+      });
+  };
 
   /**
    * 清空临时存放的上传数据
@@ -340,7 +346,17 @@ export default class Widgets extends Component {
       flag,
     } = this.props;
     const isOnlyAllowMobile = strDefault.split('')[1] === '1';
-    const { loading, value, showType, temporaryAttachments, temporaryKnowledgeAtts, isComplete, uploadStart, filesVisible, fileEditModalVisible } = this.state;
+    const {
+      loading,
+      value,
+      showType,
+      temporaryAttachments,
+      temporaryKnowledgeAtts,
+      isComplete,
+      uploadStart,
+      filesVisible,
+      fileEditModalVisible,
+    } = this.state;
     const pcDisabled = disabled || isOnlyAllowMobile;
     const mobileDisabled = disabled;
     const addFileName = hint || _l('添加附件');
@@ -377,10 +393,7 @@ export default class Widgets extends Component {
     const originCount = attachments.length + knowledgeAtts.length + attachmentData.length;
 
     // 下载附件权限
-    const recordAttachmentSwitch =
-      !!viewIdForPermit || isSubList
-        ? isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewIdForPermit)
-        : true;
+    const recordAttachmentSwitch = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewIdForPermit);
 
     const coverType = advancedSetting.covertype || '0';
     const allAownload = advancedSetting.alldownload !== '0' && recordAttachmentSwitch;
@@ -391,7 +404,7 @@ export default class Widgets extends Component {
       coverType,
       controlId,
       viewMore: !!recordId,
-      allowDownload: recordAttachmentSwitch,
+      allowDownload: !!_.get(window, 'shareState.shareId') || recordAttachmentSwitch,
       allowSort: enumDefault === 3 && (isMobile ? false : !pcDisabled),
       allowEditName: isMobile ? false : !pcDisabled,
       attachments,
@@ -403,7 +416,7 @@ export default class Widgets extends Component {
       onChangeAttachments: res => this.filesChanged(res, 'attachments'),
       onChangeKnowledgeAtts: res => this.filesChanged(res, 'knowledgeAtts'),
       onChangeAttachmentData: res => this.filesChanged(res, 'attachmentData'),
-    }
+    };
 
     if (isMobile) {
       return (
@@ -424,7 +437,7 @@ export default class Widgets extends Component {
                 onChange={(files, isComplete = false) => {
                   this.setState({
                     isComplete,
-                    uploadStart: isComplete ? false : true
+                    uploadStart: isComplete ? false : true,
                   });
                   this.filesChanged(files, 'attachments');
                 }}
@@ -434,9 +447,7 @@ export default class Widgets extends Component {
               >
                 <Icon className="Gray_9e" icon="attachment" />
                 <span className="Gray Font13 mLeft5 addFileName overflow_ellipsis">{addFileName}</span>
-                {isComplete === false && uploadStart && (
-                  <span className="mLeft5 ThemeColor3 fileUpdateLoading"></span>
-                )}
+                {isComplete === false && uploadStart && <span className="mLeft5 ThemeColor3 fileUpdateLoading"></span>}
               </UploadFileWrapper>
             </div>
           )}
@@ -445,11 +456,14 @@ export default class Widgets extends Component {
             showType={['3'].includes(showType) ? '2' : !disabled && showType === '4' ? '1' : showType}
             isDeleteFile={!mobileDisabled}
             from={from}
-            removeUploadingFile={(data) => {
+            removeUploadingFile={data => {
               if (this.mobileFileBox) {
                 this.setState({ isComplete: true });
                 this.mobileFileBox.currentFile.removeFile({ id: data.id });
-                this.filesChanged(attachments.filter(item => item.id !== data.id), 'attachments');
+                this.filesChanged(
+                  attachments.filter(item => item.id !== data.id),
+                  'attachments',
+                );
               }
             }}
           />
@@ -459,7 +473,9 @@ export default class Widgets extends Component {
 
     return (
       <div
-        className={cx('customFormControlBox customFormControlScore customFormAttachmentBox', { controlDisabled: pcDisabled })}
+        className={cx('customFormControlBox customFormControlScore customFormAttachmentBox', {
+          controlDisabled: pcDisabled,
+        })}
         style={{ height: 'auto' }}
         ref={fileBox => {
           this.fileBox = fileBox;
@@ -498,10 +514,7 @@ export default class Widgets extends Component {
               onCancel={this.onCancelTemporary}
               onOk={this.onSaveTemporary}
             >
-              <div
-                className="pointer flexRow Font13 Gray_9e alignItemsCenter"
-                style={{ height: 34 }}
-              >
+              <div className="pointer flexRow Font13 Gray_9e alignItemsCenter" style={{ height: 34 }}>
                 <Icon icon="attachment" className="Font16" />
                 <span className="mLeft5 Gray addFileName overflow_ellipsis">{addFileName}</span>
                 {isComplete === false && uploadStart && (
@@ -516,12 +529,18 @@ export default class Widgets extends Component {
                 )}
               </div>
             </UploadFilesTrigger>
-          ) : <div className="flex" />}
+          ) : (
+            <div className="flex" />
+          )}
           <div className="valignWrapper">
             {showType === '4' && (
               <Fragment>
                 <Tooltip title={_l('管理附件')} placement="bottom">
-                  <Icon className="handleBtn Gray_9e Font18 pointer" icon="application_custom" onClick={() => this.setState({ fileEditModalVisible: true })} />
+                  <Icon
+                    className="handleBtn Gray_9e Font18 pointer"
+                    icon="application_custom"
+                    onClick={() => this.setState({ fileEditModalVisible: true })}
+                  />
                 </Tooltip>
                 <FileEditModal
                   visible={fileEditModalVisible}

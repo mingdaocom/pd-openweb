@@ -325,9 +325,9 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
                         pictureAttachments[index].previewUrl.indexOf('imageView2') > -1
                           ? pictureAttachments[index].previewUrl.replace(
                               /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                              'imageView2/2/w/1200/q/90',
+                              'imageView2/2/w/600/q/90',
                             )
-                          : `${pictureAttachments[index].previewUrl}&imageView2/2/w/1200/q/90`
+                          : `${pictureAttachments[index].previewUrl}&imageView2/2/w/600/q/90`
                       }
                       alt=""
                     />
@@ -340,6 +340,8 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
           <table
             style={{
               ...STYLE_PRINT.table,
+              width: 620,
+              tableLayout: 'fixed',
             }}
             className={cx('recordAttachments', { isMultiple: isRelateMultipleSheet })}
           >
@@ -359,15 +361,16 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
                         <img
                           style={{
                             border: 'none',
-                            height: 158,
+                            maxHeight: 158,
+                            maxWidth: '100%',
                           }}
                           src={
                             pictureAttachments[index * 2 + i].previewUrl.indexOf('imageView2') > -1
                               ? pictureAttachments[index * 2 + i].previewUrl.replace(
                                   /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                                  'imageView2/2/w/1200/q/90',
+                                  'imageView2/2/w/600/q/90',
                                 )
-                              : `${pictureAttachments[index * 2 + i].previewUrl}&imageView2/2/w/1200/q/90`
+                              : `${pictureAttachments[index * 2 + i].previewUrl}&imageView2/2/w/600/q/90`
                           }
                         />
                       )}

@@ -108,6 +108,19 @@ var packageVersion = {
     return $.api(controllerName, 'v1packageexecuteApi', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 获取API详情
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {获取API管理详情} {id:id(string),introduce:介绍(string),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getApiDetail: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/package/getApiDetail';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'v1packagegetApiDetail', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 获取API列表
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
@@ -236,7 +249,7 @@ var packageVersion = {
    * 公开的排序
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {API管理排序} {id:id(string),index:排序(integer),}*request
+   * @param {API管理排序} {id:id(string),index:排序(integer),price:api价格 传apiId(number),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -249,7 +262,7 @@ var packageVersion = {
    * 公开的修改安装量
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {API管理排序} {id:id(string),index:排序(integer),}*request
+   * @param {API管理排序} {id:id(string),index:排序(integer),price:api价格 传apiId(number),}*request
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

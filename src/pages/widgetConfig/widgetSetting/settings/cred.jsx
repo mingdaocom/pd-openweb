@@ -1,6 +1,5 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { string } from 'prop-types';
-import { RadioGroup } from 'ming-ui';
+import React from 'react';
+import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../styled';
 
 const CRED_TYPES = [
@@ -24,19 +23,18 @@ const CRED_TYPES = [
 
 export default function Cred({ data, onChange }) {
   return (
-    <Fragment>
-      <SettingItem style={{ marginTop: '8px' }}>
-        <RadioGroup
-          size="middle"
-          className="credTypesWrap"
-          checkedValue={data.enumDefault}
-          data={CRED_TYPES}
-          onChange={type => {
-            const { value, text } = CRED_TYPES.find(item => item.value === type);
-            onChange({ enumDefault: value, controlName: text, hint: _l('填写%0', text) });
-          }}
-        />
-      </SettingItem>
-    </Fragment>
+    <SettingItem>
+      <div className="settingItemTitle">{_l('证件类型')}</div>
+      <Dropdown
+        border
+        isAppendToBody
+        data={CRED_TYPES}
+        value={data.enumDefault}
+        onChange={type => {
+          const { value, text } = CRED_TYPES.find(item => item.value === type);
+          onChange({ enumDefault: value, controlName: text, hint: _l('填写%0', text) });
+        }}
+      />
+    </SettingItem>
   );
 }

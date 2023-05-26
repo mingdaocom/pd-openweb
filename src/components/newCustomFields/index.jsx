@@ -129,19 +129,6 @@ export default class CustomFields extends Component {
         },
       });
     }
-    // 关联多条列表变更，重新更新业务规则错误提示
-    if (
-      _.differenceBy(
-        this.state.renderData.filter(i => isRelateRecordTableControl(i)),
-        (nextState.renderData || []).filter(n => isRelateRecordTableControl(n)),
-        'value',
-      ).length &&
-      this.dataFormat
-    ) {
-      this.setState({
-        errorItems: this.dataFormat.getErrorControls(),
-      });
-    }
     if (this.props.worksheetId !== nextProps.worksheetId) {
       this.getRules(nextProps);
     }
@@ -433,8 +420,9 @@ export default class CustomFields extends Component {
 
   /**
    * 组件onChange方法
+   * searchByChange: api查询被动赋值引起的工作表查询，文本类按失焦处理
    */
-  handleChange = (value, cid, item) => {
+  handleChange = (value, cid, item, searchByChange = true) => {
     const { onWidgetChange = () => {} } = this.props;
     const { uniqueErrorItems } = this.state;
 
@@ -448,7 +436,7 @@ export default class CustomFields extends Component {
         removeUniqueItem: id => {
           _.remove(uniqueErrorItems, o => o.controlId === id && o.errorType === FORM_ERROR_TYPE.UNIQUE);
         },
-        searchByChange: true,
+        searchByChange: searchByChange,
       });
       this.setState({ renderData: this.getFilterDataByRule() }, () =>
         this.setErrorItemsByRule(cid, { ...item, value }),
@@ -548,8 +536,8 @@ export default class CustomFields extends Component {
           appId={appId}
           viewIdForPermit={viewId}
           initSource={initSource}
-          onChange={(value, cid = controlId) => {
-            this.handleChange(value, cid, item);
+          onChange={(value, cid = controlId, searchByChange) => {
+            this.handleChange(value, cid, item, searchByChange);
           }}
           onBlur={(originValue, newVal) => {
             // 由输入法和onCompositionStart结合引起的组件内部未更新value值的情况，主动抛出新值

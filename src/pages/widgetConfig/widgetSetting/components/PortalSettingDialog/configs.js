@@ -14,7 +14,7 @@ export const HAS_AREA_CONTROL = [19, 23, 24];
 export const HAS_PHONE_CONTROL = [3, 4];
 
 // 验证
-export const HAS_VERITY_CONTROL = [2, 3, 4, 5, 6, 7, 9, 10, 11, 15, 16, 17, 18, 19, 23, 24, 36];
+export const HAS_VERITY_CONTROL = [2, 3, 4, 5, 7, 9, 10, 11, 15, 16, 17, 18, 19, 23, 24, 36];
 
 // 有引导文字的控件
 export const HAS_EXPLAIN_CONTROL = [2, 3, 4, 5, 6, 7, 15, 16, 17, 18];

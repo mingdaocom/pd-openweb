@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { Linkify } from 'ming-ui';
+import { formatStrZero } from 'src/util';
 import _ from 'lodash';
 
 export default class Widgets extends Component {
@@ -27,6 +28,10 @@ export default class Widgets extends Component {
       }
 
       content = _.isUndefined(dot) ? content : _.round(content, dot).toFixed(dot);
+
+      if (advancedSetting.dotformat === '1') {
+        content = formatStrZero(content);
+      }
 
       if (advancedSetting.thousandth !== '1') {
         content = content.replace(

@@ -165,6 +165,11 @@ const Files = props => {
   }
   // 重命名未保存的七牛云附件
   const handleResetNameFile = (id, newName) => {
+    newName = newName.trim();
+    if (_.isEmpty(newName)) {
+      alert(_l('名称不能为空'), 2);
+      return;
+    } 
     const files = attachments.map(item => {
       if (item.fileID === id) {
         item.originalFileName = newName;
@@ -308,6 +313,11 @@ const Files = props => {
         onDeleteFile={handleDeleteFile}
         onResetNameFile={handleResetNameFile}
         onAttachmentName={(id, name) => {
+          name = name.trim();
+          if (_.isEmpty(name)) {
+            alert(_l('名称不能为空'), 2);
+            return;
+          } 
           onAttachmentName(id, name, {
             instanceId: recordBaseInfo.instanceId,
             workId: recordBaseInfo.workId,

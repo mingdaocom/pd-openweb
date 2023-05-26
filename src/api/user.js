@@ -108,6 +108,8 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.onProjectId 页面所在组织Id（可空）
   * @param {string} args.accountId 账号Id
+  * @param {boolean} args.refresh 是否刷新读取
+为true则不走缓存
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

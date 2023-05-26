@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect } from 'react';
 import { Icon } from 'ming-ui';
 import { Radio } from 'antd';
 import styled from 'styled-components';
-import DoubleConfirmDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/DoubleConfirmDialog';
+import DoubleConfirmDialog from './DoubleConfirmDialog';
 import _ from 'lodash';
 
 const FilterTextCon = styled.div`
@@ -67,13 +67,13 @@ export default function ClickConfirm(props) {
         <div className="settingTitle">{_l('点击后')}</div>
         <Radio.Group
           value={clickType}
-          onChange={(e) => {
+          onChange={e => {
             setBtnSetting({
               ...btnSetting,
               config: {
                 ...config,
                 clickType: e.target.value,
-              }
+              },
             });
           }}
         >
@@ -113,18 +113,18 @@ export default function ClickConfirm(props) {
           doubleConfirm={{
             confirmMsg,
             sureName,
-            cancelName
+            cancelName,
           }}
           setValue={data => {
-            const { doubleConfirm, showDoubleConfirmDialog } = data;
+            const { doubleConfirm = {}, showDoubleConfirmDialog } = data;
             setBtnSetting({
               ...btnSetting,
               config: {
                 ...config,
                 confirmMsg: doubleConfirm.confirmMsg,
                 sureName: doubleConfirm.sureName,
-                cancelName: doubleConfirm.cancelName
-              }
+                cancelName: doubleConfirm.cancelName,
+              },
             });
             setVisible(showDoubleConfirmDialog);
           }}
@@ -134,4 +134,3 @@ export default function ClickConfirm(props) {
     </Fragment>
   );
 }
-

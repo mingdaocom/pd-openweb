@@ -110,15 +110,31 @@ export default function NoProjectsStatus(props) {
                     return;
                   }
                   if (type === 'create') {
-                    homeAppAjax.createApp({
-                      projectId,
-                      name: _l('未命名应用'),
-                      icon: '0_lego',
-                      iconColor: COLORS[_.random(0, COLORS.length - 1)],
-                      permissionType: 200,
-                    }).then(res => {
-                      navigateTo(`/app/${res.id}`);
-                    });
+                    homeAppAjax
+                      .createApp({
+                        projectId,
+                        name: _l('未命名应用'),
+                        icon: '0_lego',
+                        iconColor: COLORS[_.random(0, COLORS.length - 1)],
+                        permissionType: 200,
+                      })
+                      .then(res => {
+                        switch (res.state) {
+                          case 1:
+                            const data = res.data || {};
+                            navigateTo(`/app/${data.id}`);
+                            break;
+                          case 3:
+                            alert(_l('目标分组不存在！'), 2);
+                            break;
+                          case 4:
+                            alert(_l('没有创建权限！'), 2);
+                            break;
+                          default:
+                            alert(_l('新建应用失败！'), 2);
+                            break;
+                        }
+                      });
                     return;
                   }
                   if (type === 'solution') {

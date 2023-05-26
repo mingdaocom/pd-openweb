@@ -7,7 +7,7 @@ import _ from 'lodash';
 import { getIconByType, canSetAsTitle } from 'src/pages/widgetConfig/util';
 import SelectType from './SelectType';
 import SetComment from './SetComment';
-import { namePattern } from '../../constant';
+import { isValidName, namePattern } from '../../constant';
 
 const Wrapper = styled.div`
   .headTr,
@@ -74,8 +74,11 @@ const Wrapper = styled.div`
 
 export default function FieldMappingList(props) {
   const { sourceData = {}, destData = {}, isCreate, fieldsMapping, setFieldsMapping, matchedTypes } = props;
-  const checkAll = fieldsMapping.filter(item => !item.destField.isCheck).length === 0;
-  const selectedFieldIds = fieldsMapping.map(item => item.destField.id).filter(o => o);
+  const checkAll =
+    fieldsMapping.filter(
+      item => !_.get(item, 'destField.isCheck') && (isValidName(item.sourceField.name) || !sourceData.isDbType),
+    ).length === 0;
+  const selectedFieldIds = fieldsMapping.map(item => _.get(item, 'destField.id')).filter(o => o);
   const selectNameRef = useRef();
 
   let leftColumns = [];
@@ -113,12 +116,13 @@ export default function FieldMappingList(props) {
               },
             });
           } else {
+            const needReplace = sourceData.isDbType || destData.isDbType;
             updateFieldsMapping({
               ...data,
               destField: {
                 ...destField,
-                name: event.target.value.replace(namePattern, ''),
-                alias: event.target.value.replace(namePattern, ''),
+                name: needReplace ? event.target.value.replace(namePattern, '') : event.target.value,
+                alias: needReplace ? event.target.value.replace(namePattern, '') : event.target.value,
               },
             });
           }
@@ -173,11 +177,15 @@ export default function FieldMappingList(props) {
         checked={checkAll}
         onClick={checked => {
           const newFieldsMapping = fieldsMapping.map(item => {
+            const isValidField = isValidName(item.sourceField.name) || !sourceData.isDbType;
             return {
-              sourceField: { ...item.sourceField, isCheck: item.sourceField.isPk ? true : !checked },
+              sourceField: {
+                ...item.sourceField,
+                isCheck: item.sourceField.isPk ? true : isValidField ? !checked : false,
+              },
               destField: {
                 ...item.destField,
-                isCheck: item.destField.isPk ? true : !checked,
+                isCheck: item.destField.isPk ? true : isValidField ? !checked : false,
               },
             };
           });
@@ -195,7 +203,7 @@ export default function FieldMappingList(props) {
         size="small"
         className={cx({ customDisabled: sourceField.isPk })}
         checked={!!destField[key]}
-        disabled={sourceField.isPk}
+        disabled={sourceField.isPk || (key !== 'isNotNull' && sourceField.disabled)}
         onClick={() => {
           updateFieldsMapping({
             sourceField: key === 'isCheck' ? { ...sourceField, isCheck: !sourceField.isCheck } : sourceField,
@@ -208,14 +216,18 @@ export default function FieldMappingList(props) {
   const renderSelectName = data => {
     const destField = data.destField || {};
     const sourceField = data.sourceField || {};
+    const isValidField = isValidName(sourceField.name) || !sourceData.isDbType;
     if (!matchedTypes) return;
     const matchedTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.dataType));
     const matchedMdTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.mdType));
 
     const filterOptions = destData.isDbType
-      ? (destData.destFields || []).filter(o => !!o.isPk === !!sourceField.isPk && _.includes(matchedTypeIds, o.jdbcTypeId))
+      ? (destData.destFields || []).filter(
+          o => !!o.isPk === !!sourceField.isPk && _.includes(matchedTypeIds, o.jdbcTypeId),
+        )
       : (destData.destFields || []).filter(
-          o => (!sourceData.isDbType ? !!o.isPk === !!sourceField.isPk : true) && _.includes(matchedMdTypeIds, o.mdType),
+          o =>
+            (!sourceData.isDbType ? !!o.isPk === !!sourceField.isPk : true) && _.includes(matchedMdTypeIds, o.mdType),
         );
 
     const options = filterOptions.map(item => {
@@ -234,59 +246,74 @@ export default function FieldMappingList(props) {
                 className={isExist && item.id !== destField.id ? 'Gray_c Font18' : 'Gray_9e Font18'}
               />
             )}
-            <span title={item.name} className={`mLeft8 overflow_ellipsis ${isExist && item.id !== destField.id ? 'Gray_c' : 'Gray'}`}>{item.name}</span>
+            <span
+              title={item.name}
+              className={`mLeft8 overflow_ellipsis ${isExist && item.id !== destField.id ? 'Gray_c' : 'Gray'}`}
+            >
+              {item.name}
+            </span>
           </div>
         ),
         value: item.id,
       };
     });
 
+    const getValue = () => {
+      //如果目的地表是通过我们同步任务创建的表时，id忽略大小写匹配
+      if (destData.isOurCreateTable && options.length && destField.id) {
+        return (options.filter(o => o.value.toLowerCase() === destField.id.toLowerCase())[0] || {}).value;
+      }
+      return destField.id;
+    };
+
     return (
       <div ref={selectNameRef}>
         <Select
+          disabled={!isValidField}
           className="selectItem w100"
           placeholder={_l('无')}
           notFoundContent={_l('暂无数据')}
           getPopupContainer={() => selectNameRef.current}
           allowClear={true}
-          value={destField.id}
+          value={getValue()}
           options={options}
-          onClear={() => {
-            updateFieldsMapping({
-              sourceField: { ...sourceField, isCheck: sourceField.isPk },
-              destField: {
-                ...destField,
-                id: null,
-                name: null,
-                alias: null,
-                dataType: null,
-                jdbcTypeId: null,
-                precision: null,
-                scale: null,
-                isCheck: destField.isPk,
-                isNotNull: destField.isPk,
-                mdType: null,
-                controlSetting: null,
-              },
-            });
-          }}
-          onChange={(value, option) => {
-            updateFieldsMapping({
-              sourceField: { ...sourceField, isCheck: true },
-              destField: {
-                ...destField,
-                id: value,
-                name: option.name,
-                alias: option.name,
-                dataType: option.dataType,
-                jdbcTypeId: option.jdbcTypeId,
-                precision: option.precision,
-                scale: option.scale,
-                isCheck: true,
-                mdType: option.mdType,
-                controlSetting: option.controlSetting,
-              },
-            });
+          onChange={(value, option = {}) => {
+            const updatedMapping = value
+              ? {
+                  sourceField: { ...sourceField, isCheck: true },
+                  destField: {
+                    ...destField,
+                    id: value,
+                    name: option.name,
+                    alias: option.name,
+                    dataType: option.dataType,
+                    jdbcTypeId: option.jdbcTypeId,
+                    precision: option.precision,
+                    scale: option.scale,
+                    isCheck: true,
+                    isNotNull: option.isNotNull,
+                    mdType: option.mdType,
+                    controlSetting: option.controlSetting,
+                  },
+                }
+              : {
+                  sourceField: { ...sourceField, isCheck: sourceField.isPk },
+                  destField: {
+                    ...destField,
+                    id: null,
+                    name: null,
+                    alias: null,
+                    dataType: null,
+                    jdbcTypeId: null,
+                    precision: null,
+                    scale: null,
+                    isCheck: destField.isPk,
+                    isNotNull: destField.isPk,
+                    mdType: null,
+                    controlSetting: null,
+                  },
+                };
+            updateFieldsMapping(updatedMapping);
           }}
         />
       </div>
@@ -311,6 +338,13 @@ export default function FieldMappingList(props) {
                   <div data-tip={_l('主键')} className="tip-top">
                     <Icon icon="key1" className="Gray_bd mLeft5" />
                   </div>
+                )}
+                {item.disabled && (
+                  <a href="https://help.mingdao.com/zh/integration2.html" target="_blank">
+                    <div data-tip={_l('名称包含特殊字符，无法同步')} className="tip-top">
+                      <Icon icon="help" className="Gray_bd mLeft5" />
+                    </div>
+                  </a>
                 )}
               </div>
             );
@@ -357,6 +391,13 @@ export default function FieldMappingList(props) {
                   <div data-tip={_l('主键')} className="tip-top">
                     <Icon icon="key1" className="Gray_bd mLeft5" />
                   </div>
+                )}
+                {item.disabled && (
+                  <a href="https://help.mingdao.com/zh/integration2.html" target="_blank">
+                    <div data-tip={_l('名称包含特殊字符，无法同步')} className="tip-top">
+                      <Icon icon="help" className="Gray_bd mLeft5" />
+                    </div>
+                  </a>
                 )}
               </div>
             );
@@ -521,7 +562,7 @@ export default function FieldMappingList(props) {
             title: _l('不允许null'),
             flex: 3,
             render: item => {
-              return item.destField.isNotNull ? <span className="Gray_9e">{_l('是')}</span> : '';
+              return _.get(item, 'destField.isNotNull') ? <span className="Gray_9e">{_l('是')}</span> : '';
             },
           },
         ];

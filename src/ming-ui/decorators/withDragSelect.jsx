@@ -15,11 +15,15 @@
  * 部分代码来自 https://github.com/unclecheese/react-selectable
  */
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import ReactDom from 'react-dom';
 import { assign } from 'lodash';
-import execFunc from 'ming-ui/utils/Utils';
+
+function execFunc(func, ...args) {
+  if (typeof func === 'function') {
+    return func.call(this, ...args);
+  }
+}
 
 /**
  * Given offsets, widths, and heights of two objects, determine if they collide (overlap).

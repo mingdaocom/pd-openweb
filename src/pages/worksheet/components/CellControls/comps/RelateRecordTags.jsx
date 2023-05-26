@@ -72,6 +72,7 @@ const Tag = styled.div`
   border-radius: 3px;
   padding: 0 10px;
   margin: 6px 0 0 6px;
+  max-width: calc(100% - 13px);
   &.isediting.allowRemove {
     padding-right: 24px;
   }
@@ -274,35 +275,39 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       }
     >
       {(!maxShowNum || maxShowNum >= count || isediting ? records : records.slice(0, maxShowNum - 1)).map(
-        (record, i) => (
-          <Tag
-            className={cx({ isediting, allowOpenRecord, allowRemove })}
-            key={i}
-            onClick={e => {
-              e.stopPropagation();
-              if (allowOpenRecord) {
-                handleOpenRecord({
-                  viewId: _.get(control, 'advancedSetting.openview'),
-                  worksheetId: control.dataSource,
-                  recordId: record.rowid,
-                });
-              }
-            }}
-          >
-            {getTitleTextFromRelateControl(control, record)}
-            {isediting && allowRemove && (
-              <i
-                className="icon-close"
-                onClick={e => {
-                  e.stopPropagation();
-                  setRecords(records.filter(r => r.rowid !== record.rowid));
-                  setDeletedIds([...deletedIds, record.rowid]);
-                  setCount(count - 1);
-                }}
-              ></i>
-            )}
-          </Tag>
-        ),
+        (record, i) => {
+          const text = getTitleTextFromRelateControl(control, record);
+          return (
+            <Tag
+              className={cx('ellipsis', { isediting, allowOpenRecord, allowRemove })}
+              key={i}
+              title={text}
+              onClick={e => {
+                e.stopPropagation();
+                if (allowOpenRecord) {
+                  handleOpenRecord({
+                    viewId: _.get(control, 'advancedSetting.openview'),
+                    worksheetId: control.dataSource,
+                    recordId: record.rowid,
+                  });
+                }
+              }}
+            >
+              {text}
+              {isediting && allowRemove && (
+                <i
+                  className="icon-close"
+                  onClick={e => {
+                    e.stopPropagation();
+                    setRecords(records.filter(r => r.rowid !== record.rowid));
+                    setDeletedIds([...deletedIds, record.rowid]);
+                    setCount(count - 1);
+                  }}
+                ></i>
+              )}
+            </Tag>
+          );
+        },
       )}
       <Fragment>
         {records.length < count && (

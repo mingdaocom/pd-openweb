@@ -83,14 +83,20 @@ export default function Tip(props) {
   function handleClick(fnKey) {
     setActiveFn(fnKey);
   }
+  function clear() {
+    setHoverFn(undefined);
+    setActiveFn(undefined);
+  }
   useEffect(() => {
     window.emitter.addListener('FUNCTIONEDITOR_FOCUS_FN', handleEnter);
     window.emitter.addListener('FUNCTIONEDITOR_BLUR_FN', handleLeave);
     window.emitter.addListener('FUNCTIONEDITOR_ACTIVE_FN', handleClick);
+    window.emitter.addListener('FUNCTIONEDITOR_CLEAR', clear);
     return () => {
       window.emitter.removeListener('FUNCTIONEDITOR_FOCUS_FN', handleEnter);
       window.emitter.removeListener('FUNCTIONEDITOR_BLUR_FN', handleLeave);
       window.emitter.removeListener('FUNCTIONEDITOR_ACTIVE_FN', handleClick);
+      window.emitter.removeListener('FUNCTIONEDITOR_CLEAR', clear);
     };
   }, []);
   return (
@@ -111,6 +117,14 @@ export default function Tip(props) {
                 <span
                   dangerouslySetInnerHTML={{
                     __html: beautify(_l('公式编辑示例：NETWORKDAYS($开始时间$, $结束$)')),
+                  }}
+                />
+              </li>
+              <li>
+                {_l('将选项等复杂字段作为文本使用时请使用STRING函数，比如')}
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: beautify(_l('STRING($单选$)')),
                   }}
                 />
               </li>

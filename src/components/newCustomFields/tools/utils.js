@@ -2,7 +2,7 @@ import renderCellText from 'src/pages/worksheet/components/CellControls/renderTe
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FROM, FORM_ERROR_TYPE, UN_TEXT_TYPE } from './config';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getStringBytes, accMul, browserIsMobile } from 'src/util';
+import { getStringBytes, accMul, browserIsMobile, formatStrZero } from 'src/util';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import { getRelateRecordCountFromValue } from 'worksheet/util';
@@ -184,7 +184,10 @@ function formatRowToServer(row, controls = [], { isDraft } = {}) {
  * 将控件数据格式化成后端需要的数据
  * @param  {} control 控件
  */
-export function formatControlToServer(control, { isSubListCopy, isDraft, isNewRecord, needFullUpdate } = {}) {
+export function formatControlToServer(
+  control,
+  { isSubListCopy, isDraft, isNewRecord, needSourceValue, needFullUpdate } = {},
+) {
   let result = {
     controlId: control.controlId,
     type: control.type,
@@ -266,7 +269,7 @@ export function formatControlToServer(control, { isSubListCopy, isDraft, isNewRe
                   .map(item => ({
                     name: item.name,
                     sid: item.sid,
-                    sourcevalue: item.sourcevalue,
+                    sourcevalue: needSourceValue && item.sourcevalue,
                   }))
                   .filter(item => !_.isEmpty(item.sid)),
               )
@@ -382,6 +385,16 @@ export function getTitleTextFromControls(controls, data, titleSourceControlType,
 export function getTitleTextFromRelateControl(control = {}, data, options = {}) {
   if (data.name) {
     return data.name;
+  }
+  // relationControls返回的选项没有options，在这里赋进去
+  if (_.includes([9, 10, 11], control.sourceControlType)) {
+    if (!_.isEmpty(control.options)) {
+      control.relationControls.forEach(c => {
+        if (c.attribute === 1) {
+          c.options = control.options;
+        }
+      });
+    }
   }
   return getTitleTextFromControls(control.relationControls, data, control.sourceControlType, options);
 }
@@ -500,14 +513,21 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
           item.values = JSON.parse(currentControl.value || '[]').map(ac => ac[FILTER_TYPE[currentControl.type]]);
           return;
         }
-        if (_.includes([29], currentControl.type)) {
-          if (typeof currentControl.value === 'string') {
-            item.values = safeParse(currentControl.value || '[]').map(ac => ac[FILTER_TYPE[currentControl.type]]);
-          } else if (_.isObject(currentControl.value)) {
-            item.values = (_.get(currentControl, 'value.records') || []).map(ac => ac.rowid);
-          } else {
-            item.values = (currentControl.data || []).map(ac => ac.rowid);
-          }
+        if (
+          _.includes([29], currentControl.type) &&
+          _.get(currentControl, 'advancedSetting.showtype') !== String(RELATE_RECORD_SHOW_TYPE.LIST)
+        ) {
+          try {
+            if (typeof currentControl.value === 'string') {
+              item.values = currentControl.value.startsWith('deleteRowIds')
+                ? []
+                : safeParse(currentControl.value || '[]').map(ac => ac[FILTER_TYPE[currentControl.type]]);
+            } else if (_.isObject(currentControl.value)) {
+              item.values = (_.get(currentControl, 'value.records') || []).map(ac => ac.rowid);
+            } else {
+              item.values = (currentControl.data || []).map(ac => ac.rowid);
+            }
+          } catch (err) {}
           return;
         }
       }
@@ -606,7 +626,8 @@ export const getCurrentValue = (item, data, control) => {
         //公式
         case 31:
           const dot = item.dot || 0;
-          return Number(data || 0).toFixed(dot);
+          const val = Number(data || 0).toFixed(dot);
+          return _.get(item, 'advancedSetting.dotformat') === '1' ? formatStrZero(val) : val;
         case 46:
           return data ? moment(data, 'HH:mm:ss').format(item.unit === '6' ? 'HH:mm:ss' : 'HH:mm') : '';
         default:
@@ -633,7 +654,7 @@ export const getCurrentValue = (item, data, control) => {
 
 // 特殊手机号验证是否合法
 export const specialTelVerify = value => {
-  return /\+234\d{10}$|\+63\d{10}$|\+60\d{8,10}$|\+852\d{8}$|\+85368\d{6}$|\+861[3-9]\d{9}$|\+5551\d{8}$/.test(
+  return /\+234\d{10}$|\+63\d{10}$|\+61\d{9}$|\+60\d{8,10}$|\+852\d{8}$|\+85368\d{6}$|\+861[3-9]\d{9}$|\+5551\d{8}$/.test(
     value || '',
   );
 };
@@ -760,10 +781,14 @@ export const renderCount = item => {
 
   // 子表
   if (type === 34) {
-    if (typeof value === 'object') {
-      count = value.num || (value.rows || []).length;
-    } else if (!_.isNaN(parseInt(item.value, 10))) {
-      count = parseInt(item.value, 10);
+    try {
+      if (typeof value === 'object') {
+        count = value.num || (value.rows || []).length;
+      } else if (!_.isNaN(parseInt(item.value, 10))) {
+        count = parseInt(item.value, 10);
+      }
+    } catch (err) {
+      console.log(err);
     }
   }
 

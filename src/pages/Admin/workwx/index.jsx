@@ -133,7 +133,7 @@ export default class Workwx extends React.Component {
             canEditInfo: false,
           });
         } else {
-          alert(res.item2);
+          alert(res.item2, 2);
         }
       }
     });
@@ -321,7 +321,7 @@ export default class Workwx extends React.Component {
     }).then(res => {
       const { item1, item2, item3 = {} } = res;
       if (!item1) {
-        alert(_l('同步失败'));
+        alert(_l('同步失败'), 2);
         this.setState({ loading: false });
         return;
       }
@@ -525,7 +525,7 @@ export default class Workwx extends React.Component {
       if (res) {
         callback();
       } else {
-        alert('失败');
+        alert('失败', 2);
       }
     });
   };
@@ -554,7 +554,7 @@ export default class Workwx extends React.Component {
       if (res) {
         this.setState({ syncWXLabel: value });
       } else {
-        alert(_l('操作失败'));
+        alert(_l('操作失败'), 2);
       }
     });
   };
@@ -566,7 +566,7 @@ export default class Workwx extends React.Component {
       if (res) {
         this.setState({ syncWXLabelChecked: !checked });
       } else {
-        alert(_l('操作失败'));
+        alert(_l('操作失败'), 2);
       }
     });
   };
@@ -592,7 +592,7 @@ export default class Workwx extends React.Component {
           });
         }
       } else {
-        alert(_l('操作失败'));
+        alert(_l('操作失败'), 2);
       }
     });
   };

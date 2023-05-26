@@ -9,6 +9,7 @@ import { bindActionCreators } from 'redux';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import * as actions from 'src/pages/customPage/redux/action.js';
 import { formatFilterValues, formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
+import { validate } from 'worksheet/common/Sheet/QuickFilter/Inputs';
 import { formatFilters } from './util';
 
 const Wrap = styled.div`
@@ -113,7 +114,7 @@ function FiltersGroupPreview(props) {
             });
             updateFiltersGroup({
               value,
-              filters: filters.map(c => ({ ...c, values: formatFilterValuesToServer(c.dataType, c.values) }))
+              filters: filters.map(c => ({ ...c, values: formatFilterValuesToServer(c.dataType, c.values) })).filter(validate)
             });
             setFiltersGroup({
               ...filtersGroup,

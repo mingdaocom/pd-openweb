@@ -319,6 +319,7 @@ function SheetHeader(props) {
             String(view.viewType) === VIEW_DISPLAY_TYPE.gunter ? null : (
               <Fragment>
                 <SearchInput
+                  keyWords={filters.keyWords}
                   viewId={viewId}
                   className="queryInput worksheetQueryInput"
                   onOk={value => {
@@ -398,7 +399,6 @@ function SheetHeader(props) {
               <WorksheetDraft
                 showFillNext={true}
                 appId={appId}
-                viewId={viewId}
                 worksheetInfo={worksheetInfo}
                 sheetSwitchPermit={sheetSwitchPermit}
                 isCharge={isCharge}

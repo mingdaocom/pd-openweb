@@ -1,8 +1,21 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { Input } from 'antd';
+import { Input, Tooltip } from 'antd';
+import { Checkbox } from 'ming-ui';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import { SettingItem } from '../../styled';
 import _ from 'lodash';
+
+const POINTER_TYPES = [
+  {
+    value: '0',
+    text: _l('显示完整位数'),
+  },
+  {
+    value: '1',
+    text: _l('自动'),
+  },
+];
 
 const PointerConfigWrap = styled(SettingItem)`
   input {
@@ -31,7 +44,7 @@ const PointerConfigWrap = styled(SettingItem)`
 
 export default function PointConfig({ data = {}, onChange }) {
   const { dot = 2 } = data;
-  const numshow = (data.advancedSetting || {}).numshow;
+  const { numshow, dotformat = '0' } = getAdvanceSetting(data);
   const maxDot = _.includes([6, 31, 37], data.type) && numshow === '1' ? 12 : 14;
 
   // 百分比配置小数点最大12
@@ -67,17 +80,34 @@ export default function PointConfig({ data = {}, onChange }) {
 
   return (
     <PointerConfigWrap>
-      <div className="settingItemTitle">{_l('保留小数位数')}</div>
-      <div className="settingContent">
-        <Input value={dot} onChange={handleChange} />
-        <div className="numberControlBox">
-          <div className="iconWrap addIcon" onClick={addNumber}>
-            <i className="icon-arrow-up-border pointer" />
-          </div>
-          <div className="iconWrap subIcon" onClick={reduceNumber}>
-            <i className="icon-arrow-down-border pointer" />
+      <div className="settingItemTitle">{_l('小数位数')}</div>
+      <div className="flexCenter">
+        <div className="settingContent">
+          <Input value={dot} onChange={handleChange} />
+          <div className="numberControlBox">
+            <div className="iconWrap addIcon" onClick={addNumber}>
+              <i className="icon-arrow-up-border pointer" />
+            </div>
+            <div className="iconWrap subIcon" onClick={reduceNumber}>
+              <i className="icon-arrow-down-border pointer" />
+            </div>
           </div>
         </div>
+        {dot ? (
+          <Checkbox
+            size="small"
+            className="mLeft20"
+            checked={dotformat === '1'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { dotformat: checked ? '0' : '1' }))}
+          >
+            <span style={{ marginRight: '4px' }}>{_l('省略末尾的0')}</span>
+            <Tooltip
+              title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')}
+            >
+              <i className="icon-help Gray_bd Font15"></i>
+            </Tooltip>
+          </Checkbox>
+        ) : null}
       </div>
     </PointerConfigWrap>
   );

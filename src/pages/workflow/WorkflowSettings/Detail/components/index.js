@@ -5,6 +5,7 @@ export { default as CustomTextarea } from './CustomTextarea';
 export { default as Deadline } from './Deadline';
 export { default as DetailFooter } from './DetailFooter';
 export { default as DetailHeader } from './DetailHeader';
+export { default as EmailApproval } from './EmailApproval';
 export { default as FilterAndSort } from './FilterAndSort';
 export { default as FindMode } from './FindMode';
 export { default as FindResult } from './FindResult';

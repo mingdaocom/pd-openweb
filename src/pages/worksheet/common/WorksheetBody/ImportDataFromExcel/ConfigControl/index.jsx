@@ -167,17 +167,21 @@ export default class ConfigControl extends Component {
         const mapping = controlMapping.find(item => item.ControlId == control.controlId);
         if (!mapping) continue;
 
-        // 模糊匹配映射字段
-        const arr = (mapping.ColumnName || '').split('-');
-        const suffix = arr[arr.length - 1].toLowerCase();
-        const item = controls.find(item => item.text.toLowerCase() == suffix);
-        if (item) {
-          control.sourceConfig = item.value;
-          mapping.sourceConfig.controlId = item.value;
-        } else if (title) {
-          // 如果没有，默认选择标题字段作为映射
-          control.sourceConfig = title.value;
-          mapping.sourceConfig.controlId = title.value;
+        if (mapping.sourceConfig.controlId) {
+          control.sourceConfig = mapping.sourceConfig.controlId;
+        } else {
+          // 模糊匹配映射字段
+          const arr = (mapping.ColumnName || '').split('-');
+          const suffix = arr[arr.length - 1].toLowerCase();
+          const item = controls.find(item => item.text.toLowerCase() == suffix);
+          if (item) {
+            control.sourceConfig = item.value;
+            mapping.sourceConfig.controlId = item.value;
+          } else if (title) {
+            // 如果没有，默认选择标题字段作为映射
+            control.sourceConfig = title.value;
+            mapping.sourceConfig.controlId = title.value;
+          }
         }
       }
 
@@ -260,8 +264,8 @@ export default class ConfigControl extends Component {
         }
 
         // 模糊匹配
-        else if (value == controlName) exact.push(cell);
-        else if (value.indexOf(controlName) > -1) like.push(cell);
+        else if (value.trim() == controlName.trim()) exact.push(cell);
+        else if (value.indexOf(controlName.trim()) > -1) like.push(cell);
       }
       const sameColumn = relations.length ? relations : exact.length ? exact : like;
 
@@ -549,15 +553,8 @@ export default class ConfigControl extends Component {
 
   onImport = controlMapping => {
     const { filePath, fileId, fileKey, worksheetId, appId, selectRow, importSheetInfo, onSave, onCancel } = this.props;
-    const {
-      workSheetProjectId,
-      repeatRecord,
-      tigger,
-      repeatConfig,
-      userControls,
-      departmentControls,
-      errorSkip,
-    } = this.state;
+    const { workSheetProjectId, repeatRecord, tigger, repeatConfig, userControls, departmentControls, errorSkip } =
+      this.state;
 
     let cellConfigs = controlMapping.map(item => {
       if (_.find(userControls.concat(departmentControls), i => i.value === item.matchId)) {
@@ -625,7 +622,7 @@ export default class ConfigControl extends Component {
           </div>
           <Checkbox
             className="mTop20 Gray"
-            text={_l('不允许非系统角色修改默认配置')}
+            text={_l('不允许用户修改默认配置')}
             defaultChecked={this.state.edited}
             onClick={checked => this.setState({ edited: checked })}
           />

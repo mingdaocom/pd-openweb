@@ -171,6 +171,7 @@ export default function AppTrash(props) {
             ),
             confirmType: 'danger',
             passwordPlaceHolder: _l('请输入密码确认删除'),
+            allowNoVerify: false,
             onOk: () => {
               homeAppAjax
                 .appRecycleBinDelete({

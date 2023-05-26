@@ -151,6 +151,7 @@ export default class EditDetail extends React.Component {
         <input
           type="text"
           className="mTop6 formControl"
+          maxLength={50}
           value={baseInfo.companyName}
           onChange={e => {
             this.updateValue('companyName', e.target.value);
@@ -165,6 +166,7 @@ export default class EditDetail extends React.Component {
         <input
           type="text"
           className="mTop6 formControl"
+          maxLength={50}
           value={baseInfo.profession}
           onChange={e => {
             this.updateValue('profession', e.target.value);

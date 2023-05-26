@@ -6,7 +6,7 @@ import { LoadDiv, Icon, Menu, MenuItem, Dialog } from 'ming-ui';
 import ConnectAvator from '../components/ConnectAvator';
 import PublishDialog from 'src/pages/integration/components/PublishDialog.jsx';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import Link from 'src/router/Link.jsx';
+import { Link } from 'react-router-dom';
 const Wrap = styled.div`
   padding: 0 32px 32px;
   .noData {
@@ -358,7 +358,7 @@ function ConnectList(props) {
                 );
               } else {
                 return (
-                  <Link className="conTr Hand" to={`/integrationConnect/${item.id}`}>
+                  <Link className="conTr Hand stopPropagation" to={`/integrationConnect/${item.id}`}>
                     {keys.map(o => {
                       return <div className={`${o.key}`}>{o.render ? o.render(item, props) : item[o.key]}</div>;
                     })}

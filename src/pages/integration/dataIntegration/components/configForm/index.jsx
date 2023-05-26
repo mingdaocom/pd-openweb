@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Icon, LoadDiv, RadioGroup, Input } from 'ming-ui';
 import { Select } from 'antd';
-import { DATABASE_TYPE, TEST_STATUS, CREATE_TYPE_RADIO_LIST, CREATE_TYPE, namePattern } from '../../constant';
+import { DATABASE_TYPE, TEST_STATUS, CREATE_TYPE_RADIO_LIST, CREATE_TYPE, sourceNamePattern } from '../../constant';
 import CustomFields from 'src/components/newCustomFields';
 import { customFormData, getCardDescription } from './formConfig';
 import SourceSelectModal from '../SourceSelectModal';
@@ -175,6 +175,18 @@ export default function ConfigForm(props) {
   const [testStatus, setTestStatus] = useState(TEST_STATUS.DEFAULT);
   const fieldRef = useRef(null);
 
+  const getExtraParams = formData => {
+    const extraParams =
+      connectorConfigData[roleType].type === DATABASE_TYPE.ORACLE
+        ? {
+            [JSON.parse(formData.serviceType)[0] === 'ServiceName' ? 'serviceName' : 'SID']: formData.serviceName,
+          }
+        : connectorConfigData[roleType].type === DATABASE_TYPE.MONGO_DB
+        ? { isSrvProtocol: !!parseInt(formData.isSrvProtocol) }
+        : {};
+    return extraParams;
+  };
+
   // 获取白名单
   useEffect(() => {
     dataSourceApi.whitelistIp().then(res => res && setWhitelistIp(res));
@@ -220,13 +232,9 @@ export default function ConfigForm(props) {
       password: formData.password,
       initDb: formData.initDb,
       connectOptions: formData.connectOptions,
+      cdcParams: formData.cdcParams,
       type: connectorConfigData[roleType].type,
-      extraParams:
-        connectorConfigData[roleType].type === DATABASE_TYPE.ORACLE
-          ? { [JSON.parse(formData.serviceType)[0] === 'ServiceName' ? 'serviceName' : 'SID']: formData.serviceName }
-          : connectorConfigData[roleType].type === DATABASE_TYPE.MONGO_DB
-          ? { isSrvProtocol: !!parseInt(formData.isSrvProtocol) }
-          : {},
+      extraParams: getExtraParams(formData),
     };
 
     setTestStatus(TEST_STATUS.TESTING);
@@ -242,19 +250,12 @@ export default function ConfigForm(props) {
       if (result.isSucceeded) {
         setSaveDisabled(false);
 
-        const extraParams =
-          connectorConfigData[roleType].type === DATABASE_TYPE.ORACLE
-            ? { [JSON.parse(formData.serviceType)[0] === 'ServiceName' ? 'serviceName' : 'SID']: formData.serviceName }
-            : connectorConfigData[roleType].type === DATABASE_TYPE.MONGO_DB
-            ? { isSrvProtocol: !!parseInt(formData.isSrvProtocol) }
-            : {};
-
         setConnectorConfigData({
           [roleType]: Object.assign({}, connectorConfigData[roleType], {
             formData: {
               ...formData,
               id: connectorConfigData[roleType].formData.id,
-              extraParams,
+              extraParams: getExtraParams(formData),
             },
           }),
         });
@@ -300,7 +301,7 @@ export default function ConfigForm(props) {
               onBlur={event =>
                 setConnectorConfigData({
                   [roleType]: Object.assign({}, connectorConfigData[roleType], {
-                    sourceName: event.target.value.replace(namePattern, ''),
+                    sourceName: event.target.value.replace(sourceNamePattern, ''),
                   }),
                 })
               }
@@ -428,6 +429,7 @@ export default function ConfigForm(props) {
                 formData: {
                   ...formData,
                   id: (connectorConfigData[roleType].formData || {}).id,
+                  extraParams: getExtraParams(formData),
                 },
               }),
             });

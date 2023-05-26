@@ -351,7 +351,7 @@ export default class RelateRecordDropdown extends React.Component {
             {selected[0].rowid ? getTitleTextFromRelateControl(control, selected[0]) : _l('关联当前%0', entityName)}
           </span>
         )}
-        {((_.isEmpty(staticRecords) && canSelect && active) || isQuickFilter) && (
+        {((_.isEmpty(staticRecords) && canSelect) || isQuickFilter) && active && (
           <AutoWidthInput
             mountRef={ref => (this.inputRef = ref)}
             value={keywords}
@@ -454,7 +454,7 @@ export default class RelateRecordDropdown extends React.Component {
             ]
           ),
         )}
-        {((this.canSelect && active) || isQuickFilter) && (
+        {(this.canSelect || isQuickFilter) && active && (
           <AutoWidthInput
             mountRef={ref => (this.inputRef = ref)}
             value={keywords}
@@ -623,6 +623,7 @@ export default class RelateRecordDropdown extends React.Component {
 
   render() {
     const {
+      from,
       insheet,
       zIndex,
       isediting,
@@ -691,7 +692,7 @@ export default class RelateRecordDropdown extends React.Component {
             onAdd={record => this.handleItemClick(record)}
           />
         )}
-        {previewRecord && (
+        {from !== FROM.PUBLIC && previewRecord && (
           <RecordInfoWrapper
             visible
             viewId={_.get(control, 'advancedSetting.openview') || control.viewId}

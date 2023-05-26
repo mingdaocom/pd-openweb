@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Icon } from 'ming-ui';
+import { ScrollView, LoadDiv, Dropdown, Icon, RadioGroup } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import {
   DetailHeader,
@@ -13,7 +13,6 @@ import {
 import { APP_TYPE, METHODS_TYPE } from '../../enum';
 import cx from 'classnames';
 import styled from 'styled-components';
-import RadioGroup from 'ming-ui/components/RadioGroup2';
 import _ from 'lodash';
 
 const Tabs = styled.ul`
@@ -82,10 +81,7 @@ export default class Authentication extends Component {
             {
               method: 1,
               url: '',
-              params: [
-                { name: 'app_id', value: '' },
-                { name: 'app_secret', value: '' },
-              ],
+              params: [{ name: 'app_id', value: '' }, { name: 'app_secret', value: '' }],
               headers: [],
               contentType: 1,
               formControls: [],

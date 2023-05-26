@@ -87,26 +87,29 @@ export default class CloseNet extends Component {
 
     this.setState({ disabled: true });
     const _this = this;
-    verifyPassword(password, () => {
-      if (_.includes([0, 1], licenseType)) {
-        //付费、免费
-        this.setState({
-          step: 2,
-          disabled: false,
-        });
-      } else if (licenseType == 2) {
-        //试用
-        this.removeProjectTrialLicense(data => {
-          if (data) {
-            alert(_l('退出付费版试用成功'), 1, 2000, function () {
-              window.location.href = '/personal?type=enterprise';
-            });
-          } else {
-            this.setState({ disabled: false });
-            alert(_l('退出付费版试用失败'), 3);
-          }
-        });
-      }
+    verifyPassword({
+      password,
+      success: () => {
+        if (_.includes([0, 1], licenseType)) {
+          //付费、免费
+          this.setState({
+            step: 2,
+            disabled: false,
+          });
+        } else if (licenseType == 2) {
+          //试用
+          this.removeProjectTrialLicense(data => {
+            if (data) {
+              alert(_l('退出付费版试用成功'), 1, 2000, function() {
+                window.location.href = '/personal?type=enterprise';
+              });
+            } else {
+              this.setState({ disabled: false });
+              alert(_l('退出付费版试用失败'), 3);
+            }
+          });
+        }
+      },
     });
   }
 
@@ -116,7 +119,7 @@ export default class CloseNet extends Component {
       .removeProjectTrialLicense({
         projectId: Config.projectId,
       })
-      .then(function (data) {
+      .then(function(data) {
         callback(data);
       });
   };
@@ -216,7 +219,7 @@ export default class CloseNet extends Component {
                     step: this.state.step - 1,
                   });
             }}
-          ></Icon>
+          />
           <span className="Font17">{_l('注销组织')}</span>
         </div>
         <div className="system-set-content">
@@ -226,7 +229,7 @@ export default class CloseNet extends Component {
             <div className="closeNet">
               <div id="stepOne" className={`${step === 1 ? '' : 'Hidden'}`}>
                 <div className="Bold Font24 title">
-                  <i className="icon-error error Font28 mRight8"></i>
+                  <i className="icon-error error Font28 mRight8" />
                   {licenseType === 2 ? _l('退出付费版试用') : _l('申请注销')}
                 </div>
                 <div className="mTop16 Font13 subTitle">
@@ -255,7 +258,7 @@ export default class CloseNet extends Component {
               </div>
               <div id="stepTwo" className={`${step === 2 ? '' : 'Hidden'}`}>
                 <div className="Bold Font24 title">
-                  <i className="icon-error error Font28 mRight8"></i>
+                  <i className="icon-error error Font28 mRight8" />
                   {_l('申请注销')}
                 </div>
                 <div className="mTop16 Font13 subTitle">{_l('提交申请后部署顾问将尽快与您联系办理注销手续')}</div>
@@ -320,7 +323,7 @@ export default class CloseNet extends Component {
                 <div className="mTop20 ThemeColor3">
                   <span className="Hand" onClick={this.showList.bind(this)}>
                     {_l('申请记录')}
-                    <i className={`${isShow ? 'icon-arrow-down' : 'icon-arrow-up'} font8`}></i>
+                    <i className={`${isShow ? 'icon-arrow-down' : 'icon-arrow-up'} font8`} />
                   </span>
                 </div>
                 <div className={`tableViewContent mTop10 ${isShow ? '' : 'hidden'}`}>

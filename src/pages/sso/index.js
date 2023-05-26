@@ -33,7 +33,7 @@ function start() {
               location.href = isMobile ? `/mobile` : `/app`;
             }
           } else {
-            _alert('登录失败');
+            window.nativeAlert('登录失败');
             login();
           }
         },
@@ -81,10 +81,10 @@ function start() {
       const hosts = location.host.split('.');
       const projectId = p || hosts[0];
       function onFail(err) {
-        _alert(JSON.stringify(err));
+        window.nativeAlert(JSON.stringify(err));
       }
       // if (!dd.ios && !dd.android && !dd.pc) {
-      //   _alert('请在钉钉客户端内打开');
+      //   window.nativeAlert('请在钉钉客户端内打开');
       //   location.href = 'https://www.mingdao.com';
       // }
 

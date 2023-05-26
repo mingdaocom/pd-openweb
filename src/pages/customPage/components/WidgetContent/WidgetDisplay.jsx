@@ -10,6 +10,7 @@ import { RichText } from 'ming-ui';
 import FiltersGroupPreview from '../editWidget/filter/FiltersGroupPreview';
 import CarouselPreview from '../editWidget/carousel/Carousel';
 import MobileFilter from 'src/pages/Mobile/CustomPage/FilterContent';
+import { reportTypes } from 'statistics/Charts/common';
 
 const WidgetContent = styled.div`
   flex: 1;
@@ -75,6 +76,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
           needEnlarge={!(isFullscreen || editable || layoutType === 'mobile')}
           needRefresh={!editable}
           isCharge={isCharge}
+          className={cx({ disableChart: editable && widget.reportType === reportTypes.NumberChart })}
           permissionType={rest.permissionType}
           isLock={rest.isLock}
           appId={ids.appId}

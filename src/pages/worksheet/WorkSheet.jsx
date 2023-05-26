@@ -14,14 +14,14 @@ import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetL
 import CustomPageContent from 'worksheet/components/CustomPageContent';
 import homeAppApi from 'src/api/homeApp';
 import UnNormal from 'worksheet/views/components/UnNormal';
-import { getSheetListFirstId, findSheet } from './util';
+import { getSheetListFirstId, findSheet, moveSheetCache } from './util';
 import './worksheet.less';
 import _ from 'lodash';
 
 let request = null;
 
 const WorkSheetContainer = (props) => {
-  const { appId, id, type, params, sheetListLoading, sheetList } = props;
+  const { appId, id, type, params, sheetListLoading, isCharge, sheetList, appGroups } = props;
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -38,8 +38,11 @@ const WorkSheetContainer = (props) => {
           sectionId: params.groupId
         });
         request.then(data => {
-          if (data.resultCode === 4 && appId && new URL(location.href).searchParams.get('from') === 'insite') {
-            navigateTo(`/app/${appId}${params.groupId ? '/' + params.groupId : ''}`);
+          if (![1, 4].includes(data.resultCode) && appId) {
+            moveSheetCache(appId, params.groupId);
+            homeAppApi.getAppFirstInfo({ appId }).then(data => {
+              navigateTo(`/app/${appId}/${data.appSectionId}/${data.workSheetId || ''}`);
+            });
             return;
           }
           setData(data);
@@ -50,11 +53,11 @@ const WorkSheetContainer = (props) => {
       setData({ wsType: type, resultCode: 1 });
       setLoading(false);
     }
-  }, [id]);
+  }, [id, params.groupId]);
 
   useEffect(() => {
     if (!id && params.groupId) {
-      const firstSheetId = getSheetListFirstId(sheetList);
+      const firstSheetId = getSheetListFirstId(sheetList, isCharge);
       firstSheetId && navigateTo(`/app/${appId}/${params.groupId}/${firstSheetId}`);
     }
   }, [sheetList]);
@@ -74,16 +77,37 @@ const WorkSheetContainer = (props) => {
   }
 
   if (data.resultCode !== 1) {
-    return (
-      data.resultCode === -20000 ? (
+    if (data.resultCode === -20000) {
+      return (
         <WorksheetEmpty
           appId={appId}
           groupId={params.groupId}
         />
-      ) : (
-        <UnNormal resultCode={-10000} />
-      )
-    );
+      );
+    } else {
+      const res = appGroups.map(data => {
+        const { appSectionId, workSheetInfo, childSections } = data;
+        const child = childSections.map(data => {
+          const { parentId } = data;
+          return data.workSheetInfo.map(data => {
+            return {
+              ...data,
+              appSectionId: parentId
+            }
+          });
+        });
+        return workSheetInfo.map(data => {
+          return {
+            ...data,
+            appSectionId
+          }
+        }).concat(_.flatten(child));
+      });
+      const appItem = _.find(_.flatten(res), { workSheetId: id });
+      return (
+        <UnNormal type="sheet" resultCode={appItem && appItem.appSectionId !== params.groupId ? -20000 : (data.resultCode || -10000)} />
+      );
+    }
   }
 
   if (data.wsType) {
@@ -126,6 +150,7 @@ class WorkSheet extends Component {
     this.setCache(this.props.match.params);
     // 禁止浏览器触摸板触发的前进后退
     document.body.style.overscrollBehaviorX = 'none';
+    document.addEventListener('keydown', this.changeFull);
   }
   componentWillReceiveProps(nextProps) {
     const { updateBase, worksheetId, updateWorksheetLoading, updateSheetListLoading } = nextProps;
@@ -167,6 +192,14 @@ class WorkSheet extends Component {
     $(document.body).removeClass('fixedScreen');
     // 取消禁止浏览器触摸板触发的前进后退
     document.body.style.overscrollBehaviorX = null;
+    document.removeEventListener('keydown', this.changeFull);
+  }
+  changeFull(e) {
+    const isMacOs = navigator.userAgent.toLocaleLowerCase().includes('mac os');
+    if ((isMacOs ? e.metaKey : e.ctrlKey) && e.keyCode === 69) {
+      const fullEl = document.querySelector('.icon.fullRotate');
+      fullEl && fullEl.click();
+    }
   }
   /**
    * 设置缓存
@@ -219,7 +252,7 @@ class WorkSheet extends Component {
   }
   render() {
     let { visible, sheetList = [], pageId, match, appPkg, isCharge, sheetListLoading } = this.props;
-    const { projectId, currentPcNaviStyle } = appPkg;
+    const { projectId, currentPcNaviStyle, appGroups = [] } = appPkg;
     let { appId, groupId, worksheetId } = match.params;
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
@@ -246,7 +279,9 @@ class WorkSheet extends Component {
                 type={currentSheet.type}
                 params={match.params}
                 sheetListLoading={sheetListLoading}
+                isCharge={isCharge}
                 sheetList={sheetList}
+                appGroups={appGroups}
               />
             ) : (
               <WorkSheetPortal
@@ -264,7 +299,9 @@ class WorkSheet extends Component {
               type={currentSheet.type}
               params={match.params}
               sheetListLoading={sheetListLoading}
+              isCharge={isCharge}
               sheetList={sheetList}
+              appGroups={appGroups}
             />
           )}
         </div>

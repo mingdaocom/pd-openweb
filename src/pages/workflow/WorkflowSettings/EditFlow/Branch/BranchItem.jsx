@@ -15,11 +15,31 @@ export default class BranchItem extends Component {
     clearBorderType: 0,
   };
 
+  state = {
+    isMove: false,
+  };
+
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillReceiveProps(nextProps, nextState) {
+    if (nextProps.index !== this.props.index && this.state.isMove) {
+      setTimeout(() => {
+        this.mounted && this.setState({ isMove: false });
+      }, 200);
+    }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
   /**
    * 渲染内容
    */
   renderContent() {
-    const { item, prveId, processId, disabled } = this.props;
+    const { item, prveId, processId, disabled, updateBranchSort } = this.props;
 
     return (
       <div
@@ -29,6 +49,11 @@ export default class BranchItem extends Component {
       >
         <div className="flexRow mBottom4" style={{ alignItems: 'center' }}>
           <NodeOperate
+            {...this.props}
+            updateBranchSort={(processId, nodeId, flowIds) => {
+              this.setState({ isMove: true });
+              updateBranchSort(processId, nodeId, flowIds);
+            }}
             copyBranchNode={() =>
               this.props.dispatch(
                 addFlowNode(processId, {
@@ -38,7 +63,6 @@ export default class BranchItem extends Component {
                 }),
               )
             }
-            {...this.props}
           />
         </div>
 
@@ -189,6 +213,7 @@ export default class BranchItem extends Component {
       isApproval,
       approvalSelectNodeId,
     } = this.props;
+    const { isMove } = this.state;
     const resultTypeText = {
       1: _l('通过'),
       2: _l('否决'),
@@ -197,7 +222,7 @@ export default class BranchItem extends Component {
     };
 
     return (
-      <div className="flexColumn">
+      <div className={cx('flexColumn', { Alpha2: isMove })}>
         {clearBorderType === -1 && <div className="clearLeftBorder" />}
         {clearBorderType === 1 && <div className="clearRightBorder" />}
 

@@ -868,6 +868,7 @@ export const addYaxisList = (data, isRequest = true) => {
       emptyShowType: 0,
       dot: data.dot,
       rename: '',
+      advancedSetting
     }
     const newYaxisList = yaxisList.concat(axis);
     if (reportType === reportTypes.PivotTable) {
@@ -918,6 +919,7 @@ export const addIndexYaxisList = (data, index, isRequest = true) => {
       emptyShowType: 0,
       dot: data.dot,
       rename: '',
+      advancedSetting,
     }
     if (index === 0) {
       displaySetup.xdisplay.title = data.controlName;
@@ -1060,6 +1062,7 @@ export const addRightYaxisList = (data, isRequest = true) => {
       emptyShowType: 0,
       dot: data.dot,
       rename: '',
+      advancedSetting: data.advancedSetting
     }
     const newYaxisList = yaxisList.concat(axis);
     dispatch(changeRightYaxisList({ yaxisList: newYaxisList }, isRequest));

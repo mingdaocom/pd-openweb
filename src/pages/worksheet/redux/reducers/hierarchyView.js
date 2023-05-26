@@ -36,6 +36,7 @@ const genTree = (
     const node = treeData[rowId] || {};
     const currentPath = path.concat([i]);
     const currentPathId = pathId.concat([rowId]);
+    const sortChildIds = Object.values(treeData).filter(i => i.pid === rowId);
     children.push({
       rowId,
       path: currentPath,
@@ -43,7 +44,7 @@ const genTree = (
       display: true,
       visible: level > 0,
       children: genTree({
-        data: dealChildren(node.childrenids),
+        data: _.isEmpty(sortChildIds) ? dealChildren(node.childrenids) : sortChildIds,
         treeData,
         path: currentPath,
         pathId: currentPathId,

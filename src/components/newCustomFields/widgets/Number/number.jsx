@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { accMul, accDiv, toFixed } from 'src/util';
+import { accMul, accDiv, toFixed, formatStrZero } from 'src/util';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
@@ -84,6 +84,13 @@ export default class Widgets extends Component {
     }
   };
 
+  getAutoValue = val => {
+    if (_.get(this.props, 'advancedSetting.dotformat') === '1') {
+      return formatStrZero(val);
+    }
+    return val;
+  };
+
   render() {
     let { value } = this.props;
     const { type, disabled, hint, dot, unit, enumDefault, advancedSetting = {}, maskPermissions } = this.props;
@@ -93,8 +100,11 @@ export default class Widgets extends Component {
       value = accMul(value, 100);
     }
 
+    value = this.getAutoValue(value);
+
     if (!isEditing) {
-      value = value || value === 0 ? toFixed(parseFloat(value), dot) : '';
+      value = value || value === 0 ? this.getAutoValue(toFixed(parseFloat(value), dot)) : '';
+
       // 数值、金额字段掩码时，不显示千分位
       if (maskStatus && value) {
         value = dealMaskValue({ ...this.props, value });

@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import { getCheckAndOther } from '../../tools/utils';
-import { Input } from 'antd';
+import { Textarea } from 'ming-ui';
 import { browserIsMobile } from 'src/util';
 import cx from 'classnames';
-
-const { TextArea } = Input;
 
 export default class OtherInput extends Component {
   isOnComposition = false;
@@ -24,7 +22,17 @@ export default class OtherInput extends Component {
   };
 
   render() {
-    const { isSubList, advancedSetting = {}, value, options, isSelect, className, disabled, fromFilter } = this.props;
+    const {
+      isSubList,
+      type,
+      advancedSetting = {},
+      value,
+      options,
+      isSelect,
+      className,
+      disabled,
+      fromFilter,
+    } = this.props;
 
     const { checkIds, otherValue } = getCheckAndOther(value);
     if (fromFilter || (disabled && !otherValue)) return null;
@@ -46,21 +54,23 @@ export default class OtherInput extends Component {
       },
     };
 
-    if (checkIds.includes('other') && noDelOptions.find(i => i.key === 'other') && !isSubList) {
+    if (checkIds.includes('other') && noDelOptions.find(i => i.key === 'other') && (!isSubList || type !== 10)) {
       return (
         <div className={className} style={isSelect || disabled ? {} : { paddingLeft: '26px' }}>
-          <TextArea
+          <Textarea
             maxLength={200}
-            className={cx('customFormControlBox customFormTextareaBox', {
+            disabled={disabled}
+            className={cx('customFormControlBox customFormTextareaBox escclose', {
               mTop10: isSelect,
               mobileCustomFormTextareaBox: browserIsMobile(),
               controlDisabled: disabled,
             })}
-            style={{ padding: disabled ? '0px' : '7px 12px 6px' }}
             manualRef={text => {
               this.text = text;
             }}
-            autoSize={true}
+            minHeight={36}
+            maxHeight={400}
+            spellCheck={false}
             defaultValue={otherValue || ''}
             placeholder={advancedSetting.otherhint}
             onChange={e => {

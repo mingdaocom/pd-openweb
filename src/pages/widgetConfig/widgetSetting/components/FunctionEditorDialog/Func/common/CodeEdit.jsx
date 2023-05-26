@@ -50,7 +50,7 @@ const Editor = styled.div`
 `;
 
 function CodeEdit(props, ref) {
-  const { mode, type, value, title, placeholder, controls, renderTag, onClick = () => {} } = props;
+  const { mode, type, value, title, placeholder, controls, renderTag, onClick = () => {}, onChange = () => {} } = props;
   const readOnly = mode === 'read';
   const editorDomRef = useRef();
   const editorRef = useRef();
@@ -62,6 +62,7 @@ function CodeEdit(props, ref) {
         getControlName: controlId => (_.find(controls, { controlId }) || {}).controlName,
         renderTag,
         type,
+        onChange,
       });
       editorRef.current = window.functionEditor = functionEditor;
     }
@@ -101,4 +102,5 @@ CodeEdit.propTypes = {
   controls: arrayOf(shape({})),
   renderTag: func,
   onClick: func,
+  onChange: func,
 };

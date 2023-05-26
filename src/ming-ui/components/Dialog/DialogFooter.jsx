@@ -5,19 +5,33 @@ import Button from 'ming-ui/components/Button';
 
 class DialogFooter extends Component {
   render() {
-    const { onCancel, cancelText, footer, onOk, okDisabled, okText, action, buttonType, confirm, showCancel } =
-      this.props;
+    const {
+      onCancel,
+      cancelText,
+      footer,
+      onOk,
+      okDisabled,
+      okText,
+      action,
+      buttonType,
+      confirm,
+      showCancel,
+      footerLeftElement,
+    } = this.props;
     // 默认尾部
     const defaultFooter = (
-      <div className="mui-dialog-footer">
-        {showCancel && (
-          <Button type="link" onClick={onCancel}>
-            {cancelText}
+      <div className="mui-dialog-footer flexRow">
+        {footerLeftElement && footerLeftElement()}
+        <div className="flex">
+          {showCancel && (
+            <Button type="link" onClick={onCancel}>
+              {cancelText}
+            </Button>
+          )}
+          <Button disabled={okDisabled} type={buttonType || confirm || 'primary'} onClick={onOk} action={action}>
+            {okText}
           </Button>
-        )}
-        <Button disabled={okDisabled} type={buttonType || confirm || 'primary'} onClick={onOk} action={action}>
-          {okText}
-        </Button>
+        </div>
       </div>
     );
     // 如果未定义footer使用默认的footer

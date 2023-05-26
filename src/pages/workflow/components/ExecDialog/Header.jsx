@@ -91,7 +91,15 @@ export default class Header extends Component {
     if (id === 'submit') {
       // 验证密码
       if (encrypt) {
-        this.writeVerifyPassword();
+        verifyPassword({
+          checkNeedAuth: true,
+          success: () => {
+            this.request('submit');
+          },
+          fail: () => {
+            this.writeVerifyPassword();
+          },
+        });
       } else {
         this.request('submit');
       }
@@ -229,23 +237,27 @@ export default class Header extends Component {
       title: _l('提交记录'),
       description: (
         <VerifyPassword
-          onChange={value => {
-            this.password = value;
+          autoFocus={true}
+          onChange={({ password, isNoneVerification }) => {
+            if (password !== undefined) this.password = password;
+            if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
           }}
         />
       ),
       onOk: () => {
         return new Promise((resolve, reject) => {
-          verifyPassword(
-            this.password,
-            () => {
+          verifyPassword({
+            password: this.password,
+            closeImageValidation: true,
+            isNoneVerification: this.isNoneVerification,
+            success: () => {
               this.request('submit');
               resolve();
             },
-            () => {
+            fail: () => {
               reject(true);
             },
-          );
+          });
         });
       },
     });

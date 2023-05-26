@@ -75,6 +75,7 @@ export default class MsgTemplate extends Component {
             <ul>
               <li className="header">
                 <div className="content flex">{_l('短信内容')}</div>
+                <div className="type">{_l('类型')}</div>
                 <div className="status">{_l('审核状态')}</div>
                 <div
                   className={cx('msgTemplateCreateTime', { theneColor: !_.isUndefined(isAsc) })}
@@ -97,7 +98,7 @@ export default class MsgTemplate extends Component {
               </li>
               <ScrollView className="workflowMsgTemplateScrollView" updateEvent={handleScroll}>
                 {data.map((template, index) => {
-                  const { companySignature, messageContent, status, createDate } = template;
+                  const { companySignature, messageContent, status, createDate, type } = template;
                   return (
                     <li key={index} className="templates">
                       <Checkbox
@@ -116,6 +117,7 @@ export default class MsgTemplate extends Component {
                       <div className="content flex">
                         [{companySignature}] {messageContent}
                       </div>
+                      <div className="type">{type === 2 ? _l('营销') : type === 3 ? _l('金融') : _l('常规')}</div>
                       <div className="status">
                         <StatusIcon status={status} />
                       </div>

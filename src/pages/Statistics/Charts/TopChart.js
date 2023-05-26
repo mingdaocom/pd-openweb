@@ -168,7 +168,6 @@ export default class extends Component {
     const { reportData, isViewOriginalData } = this.props;
     const { style = {}, yaxisList, displaySetup, sorts } = reportData;
     const sortId = sorts[0] ? Object.keys(sorts[0])[0] : null;
-    const { newYaxisList } = this.state;
     const { valueProgressVisible } = style;
     return (
       <div
@@ -189,7 +188,7 @@ export default class extends Component {
         )}
         {yaxisList.map(item => (
           <div key={item.controlId} className="value ellipsis">
-            {formatrChartValue(data[item.controlId], false, newYaxisList)}
+            {formatrChartValue(data[item.controlId], false, yaxisList, item.controlId)}
           </div>
         ))}
       </div>

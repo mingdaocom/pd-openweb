@@ -1,11 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { emitter, getProject } from 'src/util';
+import { emitter, getCurrentProject } from 'src/util';
 import { ScrollView, Menu, MenuItem, MdLink } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import CommonUserHandle from '../components/CommonUserHandle';
 import _ from 'lodash';
@@ -118,8 +117,16 @@ function AppCenterHeader(props) {
   const projects = md.global.Account.projects;
   const createRef = useRef();
   const [currentProject, setCurrentProject] = useState(
-    getProject(projectId || localStorage.getItem('currentProjectId')),
+    getCurrentProject(projectId || localStorage.getItem('currentProjectId')),
   );
+  useEffect(() => {
+    const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
+    if (_.isEmpty(project) && projects.length) {
+      if (!projects[0].projectId) return;
+      setCurrentProject(projects[0]);
+      safeLocalStorageSetItem('currentProjectId', projects[0].projectId);
+    }
+  }, []);
   const [popupVisible, setPopupVisible] = useState();
   let menuContent = (
     <ProjectsMenu>

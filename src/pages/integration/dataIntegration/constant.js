@@ -142,9 +142,14 @@ export const SYSTEM_FIELD_IDS = [
   'wfstatus',
 ];
 
-export const namePattern = /[^a-zA-Z0-9\u4E00-\u9FA5_]/g;
+export const sourceNamePattern = /[\r\n\s-]/g;
+export const namePattern = /[`~!@#$%^&*()\-+=<>?:"{}|,./;'\[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]/g;
 
 export const SORT_TYPE = {
   ASC: 'ASC',
   DESC: 'DESC',
+};
+
+export const isValidName = name => {
+  return /^[^`~!@#$%^&*()\-+=<>?:"{}|,./;'\[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]+$/.test(name);
 };

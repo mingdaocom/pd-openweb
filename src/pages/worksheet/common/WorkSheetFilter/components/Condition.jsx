@@ -126,7 +126,7 @@ export default class Condition extends Component {
             isAppendToBody
             menuStyle={{ width: 'auto' }}
             data={[
-              { text: _l('且'), value: FILTER_RELATION_TYPE.AND },
+              { text: _l('且%25000'), value: FILTER_RELATION_TYPE.AND },
               { text: _l('或'), value: FILTER_RELATION_TYPE.OR },
             ]}
             onChange={value => {
@@ -134,7 +134,7 @@ export default class Condition extends Component {
             }}
           />
         ) : (
-          <span className="relationType">{[_l('且'), _l('或')][relationType - 1]}</span>
+          <span className="relationType">{[_l('且%25000'), _l('或')][relationType - 1]}</span>
         )}
       </React.Fragment>
     );

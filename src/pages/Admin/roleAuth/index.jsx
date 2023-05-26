@@ -2,7 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { Route } from 'react-router-dom';
 import { Button, Icon, Checkbox } from 'ming-ui';
-import Link from 'src/router/Link.jsx';
+import { Link } from 'react-router-dom';
 import RoleAuthCommon from './common/common';
 import RoleList from './roleList';
 import RoleDetail from './roleDetail';

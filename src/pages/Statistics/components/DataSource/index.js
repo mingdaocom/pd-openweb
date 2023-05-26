@@ -61,7 +61,7 @@ export default class DataSource extends Component {
     } else {
       const { views, switches } = worksheetInfo;
       const { filter = {} } = currentReport;
-      const view = _.find(views, { viewId: newViewId || filter.viewId });
+      const view = _.find(views, { viewId: newViewId || filter.viewId }) || {};
       const sysControlSwitch = isOpenPermit(permitList.sysControlSwitch, switches, view.viewId);
       return axisControls.filter(item => {
         const advancedSetting = item.advancedSetting || {};

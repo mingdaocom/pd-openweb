@@ -30,6 +30,7 @@ const BtnsWrapper = styled(Flex)`
       color: #fff;
       font-size: 14px;
       border-radius: 50px !important;
+      padding: 0 5px 0 10px;
     }
   }
 `;

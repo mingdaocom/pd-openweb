@@ -7,7 +7,7 @@ import Amap from 'ming-ui/components/amap/Amap';
 import MDMap from 'ming-ui/components/amap/MDMap';
 import { FROM } from '../../tools/config';
 import { browserIsMobile } from 'src/util';
-import { bindFeishu } from '../../tools/authentication';
+import { bindWeiXin, bindWxWork, bindFeishu, bindDing, bindWeLink, handleTriggerEvent } from '../../tools/authentication';
 import _ from 'lodash';
 
 const LocationWrap = styled.div`
@@ -57,7 +57,15 @@ const LocationWrap = styled.div`
   }
 `;
 
+const { IsLocal } = md.global.Config;
+const isWxWork = window.navigator.userAgent.toLowerCase().includes('wxwork');
+const isWx = window.navigator.userAgent.toLowerCase().includes('micromessenger') && !IsLocal && !isWxWork;
+const isWeLink = window.navigator.userAgent.toLowerCase().includes('huawei-anyoffice');
+const isDing = window.navigator.userAgent.toLowerCase().includes('dingtalk');
 const isFeishu = window.navigator.userAgent.toLowerCase().includes('feishu');
+const isMobile = browserIsMobile();
+const isApp = (isWxWork || isWx || isWeLink || isDing || isFeishu) && isMobile;
+const isHttps = location.protocol.includes('https');
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -75,26 +83,88 @@ export default class Widgets extends Component {
   };
 
   handleAuthentication = () => {
-    const { projectId } = this.props;
-    if (window.currentUrl !== location.href) {
-      window.currentUrl = location.href;
-      window.configSuccess = false;
-      window.configLoading = false;
-    }
-    if (window.configSuccess) {
-      this.handleSelectLocation();
-    } else {
-      if (!window.configLoading) {
-        bindFeishu(projectId).then(() => {
-          window.configLoading = false;
-          window.configSuccess = true;
-          this.handleSelectLocation();
-        });
+    const { strDefault, projectId } = this.props;
+    const geolocation = (typeof strDefault === 'string' ? strDefault : '00')[0] === '1';
+
+    if (isWx) {
+      if (!geolocation && isHttps) {
+        this.setState({ visible: true });
+      } else {
+        handleTriggerEvent(this.handleWxSelectLocation, bindWeiXin());
       }
+      return;
+    }
+
+    if (isWxWork) {
+      if (!geolocation && isHttps) {
+        this.setState({ visible: true });
+      } else {
+        handleTriggerEvent(this.handleWxSelectLocation, bindWxWork(projectId));
+      }
+      return;
+    }
+
+    if (isFeishu) {
+      handleTriggerEvent(this.handleFeishuSelectLocation, bindFeishu(projectId));
+      return;
+    }
+
+    if (isDing) {
+      if (!geolocation && isHttps) {
+        this.setState({ visible: true });
+      } else {
+        handleTriggerEvent(this.handleDingSelectLocation, bindDing(projectId));
+      }
+      return;
+    }
+
+    if (isWeLink) {
+      if (!geolocation && isHttps) {
+        this.setState({ visible: true });
+      } else {
+        handleTriggerEvent(this.handleWeLinkSelectLocation, bindWeLink(projectId));
+      }
+      return;
     }
   }
 
-  handleSelectLocation = () => {
+  handleDingSelectLocation = () => {
+    const { onChange } = this.props;
+    Toast.loading(_l('正在获取取经纬度，请稍后'));
+    window.dd.device.geolocation.get({
+      targetAccuracy : 200,
+      coordinate : 1,
+      withReGeocode : false,
+      useCache: true,
+      onSuccess: (result) => {
+        const { longitude, latitude } = result;
+        onChange(JSON.stringify({ x: longitude, y: latitude }));
+        Toast.hide();
+      },
+      onFail: (err) => {
+        window.nativeAlert(JSON.stringify(err));
+        Toast.hide();
+      }
+    });
+  }
+
+  handleWeLinkSelectLocation = () => {
+    const { onChange } = this.props;
+    Toast.loading(_l('正在获取取经纬度，请稍后'));
+    window.HWH5.getLocation({ 
+      type: 0,
+      mode: 'gps'
+    }).then(result => {
+      const { longitude, latitude } = result;
+      onChange(JSON.stringify({ x: longitude, y: latitude }));
+      Toast.hide();
+    }).catch(err => {
+      window.nativeAlert(JSON.stringify(err));
+      Toast.hide();
+    });
+  }
+
+  handleFeishuSelectLocation = () => {
     const { strDefault, onChange } = this.props;
 
     if ((typeof strDefault === 'string' ? strDefault : '00')[0] === '1') {
@@ -113,7 +183,7 @@ export default class Widgets extends Component {
         fail(res) {
           const { errMsg } = res;
           if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
-            _alert(JSON.stringify(res));
+            window.nativeAlert(JSON.stringify(res));
           }
           Toast.hide();
         }
@@ -129,18 +199,34 @@ export default class Widgets extends Component {
         fail(res) {
           const { errMsg } = res;
           if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
-            _alert(JSON.stringify(res));
+            window.nativeAlert(JSON.stringify(res));
           }
         }
       });
     }
   }
 
+  handleWxSelectLocation = () => {
+    const { onChange } = this.props;
+    Toast.loading(_l('正在获取取经纬度，请稍后'));
+    window.wx.getLocation({
+      type: 'wgs84',
+      success(res) {
+        const { longitude, latitude, address, name } = res;
+        onChange(JSON.stringify({ x: longitude, y: latitude, address, title: name }));
+        Toast.hide();
+      },
+      error(res) {
+        window.nativeAlert(JSON.stringify(res));
+        Toast.hide();
+      }
+    });
+  }
+
   render() {
     const { disabled, value, enumDefault, enumDefault2, advancedSetting, onChange, from, strDefault } = this.props;
     const { visible } = this.state;
-    const isMobile = browserIsMobile();
-    const onlyCanAppUse = (typeof strDefault === 'string' ? strDefault : '00')[0] === '1' && !isFeishu;
+    const onlyCanAppUse = (typeof strDefault === 'string' ? strDefault : '00')[0] === '1' && !isApp;
     let location = null;
 
     if (value) {
@@ -169,7 +255,7 @@ export default class Widgets extends Component {
           <div
             className="customFormControlBox customFormButton flexRow"
             onClick={() => {
-              if (isFeishu) {
+              if (isApp) {
                 this.handleAuthentication();
               } else {
                 this.setState({ visible: true });
@@ -190,7 +276,7 @@ export default class Widgets extends Component {
               if (!isMobile || disabled) {
                 window.open(`https://uri.amap.com/marker?position=${location.x},${location.y}`);
               } else {
-                if (isFeishu) {
+                if (isApp) {
                   this.handleAuthentication();
                 } else {
                   this.setState({ visible: true });
@@ -229,7 +315,7 @@ export default class Widgets extends Component {
                         className="Font20 Gray_9e ThemeHoverColor3 pointer"
                         onClick={evt => {
                           evt.stopPropagation();
-                          if (isFeishu) {
+                          if (isApp) {
                             this.handleAuthentication();
                           } else {
                             this.setState({ visible: true });

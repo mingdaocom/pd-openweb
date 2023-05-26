@@ -52,6 +52,7 @@ const Content = styled.div`
 `;
 
 const Footer = styled(VerticalMiddle)`
+  margin-bottom: 24px;
   font-size: 0px;
   margin-top: 19px;
   padding: ${({ isSingleFilter }) => (isSingleFilter ? '0px 4px' : '0 24px')};
@@ -68,6 +69,7 @@ const AddButton = styled(VCenterIconText)`
 
 export default function FilterDetail(props) {
   const {
+    maxHeight,
     supportGroup,
     isSingleFilter,
     from,
@@ -184,7 +186,11 @@ export default function FilterDetail(props) {
           />
         </Header>
       )}
-      <Content className={cx({ isSingleFilter })} ref={scrollRef}>
+      <Content
+        className={cx({ isSingleFilter })}
+        ref={scrollRef}
+        style={maxHeight ? { maxHeight: maxHeight - 120 } : {}}
+      >
         {conditionsGroups.map((conditionsGroup, groupIndex) => (
           <Fragment>
             <ConditionsGroup
@@ -208,7 +214,6 @@ export default function FilterDetail(props) {
               conditionsGroupsLength={conditionsGroups.length}
               onAdd={control => {
                 actions.addCondition(control, groupIndex);
-                scrollToEnd();
               }}
               onChange={(value = {}, conditionIndex) => {
                 actions.updateCondition(value, groupIndex, conditionIndex);

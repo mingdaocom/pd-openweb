@@ -261,6 +261,10 @@ export const filterFn = (filterData, originControl, data = []) => {
       const { dialCode = '' } = safeParse(advancedSetting.defaultarea || '{}');
       value = (value || '').replace(dialCode, '');
     }
+    if (_.includes([9, 10, 11], control.type) && value && value.indexOf('other')) {
+      const optionsFormatVal = safeParse(value, 'array').map(i => (i.startsWith('other:') ? 'other' : i));
+      value = JSON.stringify(optionsFormatVal);
+    }
 
     value = value === null ? '' : value;
     if (control.type === API_ENUM_TO_TYPE.MONEY_CN) {

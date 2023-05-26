@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import datasourceApi from '../../../../api/datasource';
+import { isValidName } from '../../../constant';
 
 const Wrapper = styled.div`
   .selectItem {
@@ -77,7 +79,21 @@ export default function SelectDataObjForm(props) {
           .then(res => {
             if (res) {
               const tableOptionList = res.map(item => {
-                return { label: item, value: item, disabled: getAddedTables().indexOf(item) !== -1 };
+                const isValidTable = isValidName(item);
+                return {
+                  label: !isValidTable ? (
+                    <React.Fragment>
+                      {item}
+                      <Tooltip text={_l('名称包含特殊字符，无法同步')}>
+                        <Icon icon="info1" className="Gray_bd mLeft5 pointer" />
+                      </Tooltip>
+                    </React.Fragment>
+                  ) : (
+                    item
+                  ),
+                  value: item,
+                  disabled: getAddedTables().indexOf(item) !== -1 || !isValidTable,
+                };
               });
               setDataObj({ db, tables: [], tableOptionList });
             }
@@ -97,7 +113,21 @@ export default function SelectDataObjForm(props) {
         .then(res => {
           if (res) {
             const tableOptionList = res.map(item => {
-              return { label: item, value: item, disabled: getAddedTables().indexOf(item) !== -1 };
+              const isValidTable = isValidName(item);
+              return {
+                label: !isValidTable ? (
+                  <React.Fragment>
+                    {item}
+                    <Tooltip text={_l('名称包含特殊字符，无法同步')}>
+                      <Icon icon="info1" className="Gray_bd mLeft5 pointer" />
+                    </Tooltip>
+                  </React.Fragment>
+                ) : (
+                  item
+                ),
+                value: item,
+                disabled: getAddedTables().indexOf(item) !== -1 || !isValidTable,
+              };
             });
             setDataObj({ schema, tables: [], tableOptionList });
           }

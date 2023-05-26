@@ -219,7 +219,7 @@ export const ROUTE_CONFIG = {
     title: _l('正在导出，请稍候...'),
   },
   my: {
-    path: '/app/my/(group)?/:projectId?/:groupType?/:groupId?',
+    path: '/app/my/(group|all)?/:projectId?/:groupType?/:groupId?',
     component: () => import('src/pages/AppHomepage/AppCenter'),
     title: _l('我的应用'),
   },

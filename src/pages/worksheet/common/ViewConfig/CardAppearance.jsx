@@ -179,16 +179,23 @@ export default class CardAppearance extends Component {
                   if (viewControl === value) {
                     return;
                   }
-                  const viewControlData = worksheetControls.find(o => o.controlId === value) || {};
+                  let data = null;
+                  if (!['0', '1'].includes(navshow)) {
+                    const viewControlData = worksheetControls.find(o => o.controlId === value) || {};
+                    //显示指定项和全部 不重置显示项设置
+                    data = {
+                      advancedSetting: updateViewAdvancedSetting(view, {
+                        navshow: [26].includes(viewControlData.type) ? '1' : '0',
+                        navfilters: JSON.stringify([]),
+                      }),
+                    };
+                  }
                   updateCurrentView({
                     ...view,
                     appId,
                     viewControl: value,
-                    advancedSetting: updateViewAdvancedSetting(view, {
-                      navshow: [26].includes(viewControlData.type) ? '1' : '0',
-                      navfilters: JSON.stringify([]),
-                    }),
-                    editAttrs: ['viewControl', 'advancedSetting'],
+                    ...data,
+                    editAttrs: ['viewControl', !!data ? 'advancedSetting' : ''],
                   });
                 }}
                 border

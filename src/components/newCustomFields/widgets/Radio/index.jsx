@@ -70,6 +70,7 @@ export default class Widgets extends Component {
                 return browserIsMobile() && disabled && item.key === 'other' ? (
                   <div className="flexColumn">
                     <Radio
+                      needDefaultUpdate
                       key={index}
                       disabled={disabled}
                       text={this.renderList(item, checkIds)}
@@ -82,6 +83,7 @@ export default class Widgets extends Component {
                 ) : (
                   <div className="flexColumn">
                     <Radio
+                      needDefaultUpdate
                       key={index}
                       disabled={disabled}
                       text={this.renderList(item, checkIds)}

@@ -86,7 +86,7 @@ const LeftListWrapper = styled.div`
     cursor: pointer;
 
     &:hover {
-      color: #2196f3 !important ;
+      span,
       i {
         color: #2196f3 !important ;
       }
@@ -338,15 +338,10 @@ export default function ExistSourceModal(props) {
                   })}
                 </ul>
 
-                <div
-                  className="leftFooter"
-                  onClick={() => {
-                    window.location.href = '/integration/source';
-                  }}
-                >
-                  <span className="bold">{_l('去集成中心添加')}</span>
-                  <Icon icon="launch" className="Gray_9e mLeft5" />
-                </div>
+                <a className="leftFooter" href="/integration/source" target="_blank">
+                  <span className="bold Gray">{_l('去集成中心添加')}</span>
+                  <Icon icon="launch" className="Gray_9e mLeft5 mTop2" />
+                </a>
               </div>
             </LeftListWrapper>
             <RightListWrapper>

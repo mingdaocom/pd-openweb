@@ -1,7 +1,7 @@
 import React, { Fragment, useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import { arrayOf, number, shape, string, bool, func } from 'prop-types';
 import styled from 'styled-components';
-import { browserIsMobile, replaceNotNumber } from 'src/util';
+import { browserIsMobile, formatNumberFromInput } from 'src/util';
 import _ from 'lodash';
 
 const isMobile = browserIsMobile();
@@ -404,7 +404,7 @@ export default function Slider(props) {
               setValueForInput(value);
             }}
             onChange={e => {
-              const changedValue = replaceNotNumber(e.target.value);
+              const changedValue = formatNumberFromInput(e.target.value, false);
               setValueForInput(changedValue);
               if (changedValue.trim() === '') {
                 setValue(undefined);

@@ -723,7 +723,7 @@ export default class AppInfo extends Component {
             <div className="flex">
               {!(window.isPublicApp || !s || md.global.Account.isPortal) && renderHomepageIconWrap()}
             </div>
-            {!md.global.Account.isPortal && <MyProcessEntry type="appPkg" renderContent={renderContent} />}
+            {!(md.global.Account.isPortal || window.isPublicApp) && <MyProcessEntry type="appPkg" renderContent={renderContent} />}
           </div>
           <div className="flexRow alignItemsCenter pTop10 Relative">{renderAppDetailWrap()}</div>
         </div>

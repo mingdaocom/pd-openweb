@@ -50,7 +50,7 @@ export default class Show extends React.Component {
       c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49], c.type),
     );
     const showControlsForSortControl = showControls.filter(id =>
-      _.find(filteredColumns, column => column.controlId === id && (column.fieldPermission || '111')[0] === '1'),
+      _.find(filteredColumns, column => column.controlId === id),
     );
     const sysControlsColumnsForSort = isShowWorkflowSys
       ? columns.filter(c => _.includes(_.uniq([...syssort, ...WORKFLOW_SYSTEM_FIELDS_SORT]), c.controlId))
@@ -92,7 +92,7 @@ export default class Show extends React.Component {
             noempty={false} //不需要至少显示一列
             maxHeight={height}
             showControls={showControlsForSortControl}
-            columns={customizeColumns.filter(c => (c.fieldPermission || '111')[0] === '1')}
+            columns={customizeColumns}
             controlsSorts={showControlsForSortControl}
             onChange={({ newShowControls, newControlSorts }) => {
               this.props.onChangeColumns({ newShowControls, newControlSorts });

@@ -158,8 +158,17 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId }, options 
     const control = _.find(controls, { controlId });
     const newOldControl = cells
       .map(cell => {
-        const { controlId, value, editType } = cell;
+        const { controlId, editType } = cell;
+        let { value } = cell;
         const control = _.find(controls, { controlId });
+        if (control.type === 29) {
+          try {
+            const parsedValue = JSON.parse(value);
+            if (_.isArray(parsedValue) && !_.isEmpty(parsedValue) && parsedValue[0].sourcevalue) {
+              value = JSON.stringify(parsedValue.map(v => _.omit(v, 'sourcevalue')));
+            }
+          } catch (err) {}
+        }
         return (
           control && {
             ..._.pick(control, ['controlId', 'type', 'controlName', 'dot']),

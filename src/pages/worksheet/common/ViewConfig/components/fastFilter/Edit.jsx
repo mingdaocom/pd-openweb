@@ -268,7 +268,8 @@ function Edit(params) {
             } else {
               filters = {
                 ...filters,
-                advancedSetting: formatAdvancedSettingByNavfilters(filters, data),
+                advancedSetting: formatAdvancedSettingByNavfilters(filters, _.pick(data, ADVANCEDSETTING_KEYS)),
+                ..._.omit(data, ADVANCEDSETTING_KEYS),
               };
             }
             return filters;

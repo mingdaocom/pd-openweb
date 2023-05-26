@@ -190,8 +190,8 @@ export default class extends Component {
             return formatrChartAxisValue(Number(value), false, newYaxisList);
           },
         },
-        min: ydisplay.minValue || null,
-        max: ydisplay.maxValue || null
+        minLimit: ydisplay.minValue || null,
+        maxLimit: ydisplay.maxValue || null
       },
       limitInPlot: true,
       area: {},

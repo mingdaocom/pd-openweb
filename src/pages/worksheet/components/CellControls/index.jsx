@@ -44,6 +44,15 @@ import Search from './Search';
 import './CellControls.less';
 import _ from 'lodash';
 
+function mergeControlAdvancedSetting(control = {}, advancedSetting = {}) {
+  return {
+    ...control,
+    advancedSetting: {
+      ...(control.advancedSetting || {}),
+      ...advancedSetting,
+    },
+  };
+}
 export default class CellControl extends React.Component {
   static propTypes = {
     isSubList: PropTypes.bool,
@@ -162,7 +171,7 @@ export default class CellControl extends React.Component {
 
   validate(cell, row) {
     const { tableFromModule, cellUniqueValidate, clearCellError, rowFormData } = this.props;
-    let { errorType } = onValidator({ item: cell, data: rowFormData(), ignoreRequired: true });
+    let { errorType } = onValidator({ item: cell, data: rowFormData() });
     if (!errorType && cell.unique && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
       errorType = cellUniqueValidate(cell.controlId, cell.value, row.rowid) ? '' : 'UNIQUE';
     }
@@ -187,7 +196,10 @@ export default class CellControl extends React.Component {
     if (_.includes([6], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
       value = accDiv(value, 100);
     }
-    const errorType = this.validate({ ...cell, value }, row);
+    const errorType = this.validate(
+      { ...(cell.type === 10 ? mergeControlAdvancedSetting(cell, { otherrequired: '0' }) : { ...cell }), value },
+      row,
+    );
     let errorText;
     if (_.includes([15, 16], cell.type) && errorType && errorType !== 'REQUIRED') {
       errorText = onValidator(cell, _.isFunction(rowFormData) ? rowFormData() : rowFormData, undefined, true).errorText;

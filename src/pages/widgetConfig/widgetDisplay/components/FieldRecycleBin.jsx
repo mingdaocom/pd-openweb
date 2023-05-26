@@ -6,7 +6,7 @@ import { getWidgetInfo } from '../../util';
 import { isExceedMaxControlLimit } from '../../util/setting';
 import WidgetDeatail from 'src/pages/widgetConfig/widgetSetting';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
-import { handleAddWidget } from 'src/pages/widgetConfig/util/data';
+import { handleAddWidgets } from 'src/pages/widgetConfig/util/data';
 import SearchInput from 'worksheet/components/SearchInput';
 import cx from 'classnames';
 import './FieldRecycleBin.less';
@@ -43,7 +43,7 @@ export default class FieldRecycleBin extends Component {
           originList: tempList,
           filterList: tempList,
           activeWidget: tempList[0],
-          isAdmin: [2, 4].includes(globalSheetInfo.roleType),//开发者和管理员
+          isAdmin: [2, 4].includes(globalSheetInfo.roleType), //开发者和管理员
           loading: false,
         });
       });
@@ -128,7 +128,7 @@ export default class FieldRecycleBin extends Component {
       .then(res => {
         if (res.data) {
           if (status === 'recover') {
-            handleAddWidget({ ...item, attribute: 0 }, {}, this.props);
+            handleAddWidgets([{ ...item, attribute: 0 }], {}, this.props);
           }
 
           const newFilterList = filterList.filter(i => i.controlId !== item.controlId);

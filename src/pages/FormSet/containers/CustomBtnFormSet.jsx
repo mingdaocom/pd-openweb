@@ -63,13 +63,10 @@ function CustomBtnFormSet(props) {
   const [isEdit, setIsEdit] = useState();
   const [showMoreOption, setShowMoreOption] = useState();
   const [showDropOption, setShowDropOption] = useState();
-  useEffect(
-    () => {
-      if (!worksheetId) return;
-      getdata();
-    },
-    [worksheetId],
-  );
+  useEffect(() => {
+    if (!worksheetId) return;
+    getdata();
+  }, [worksheetId]);
   let ajaxFn = null;
   const getdata = () => {
     if (ajaxFn) {
@@ -87,14 +84,11 @@ function CustomBtnFormSet(props) {
     setBtnList(refreshBtnData(_.cloneDeep(btnList), btns, isAdd));
   };
 
-  useEffect(
-    () => {
-      if (isRename) {
-        input.current.focus();
-      }
-    },
-    [isRename],
-  );
+  useEffect(() => {
+    if (isRename) {
+      input.current.focus();
+    }
+  }, [isRename]);
   const optionWorksheetBtn = ({ btnId, appId, viewId, optionType, callback }) => {
     sheetAjax
       .optionWorksheetBtn({
@@ -404,6 +398,7 @@ function CustomBtnFormSet(props) {
               viewId={''}
               appId={worksheetInfo.appId}
               worksheetId={worksheetId}
+              sheetSwitchPermit={worksheetInfo.switches}
               workflowId={''}
               refreshFn={(worksheetId, appId, viewId, rowId) => {
                 getdata();
@@ -419,7 +414,4 @@ function CustomBtnFormSet(props) {
 const mapStateToProps = state => state.formSet;
 const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(CustomBtnFormSet);
+export default connect(mapStateToProps, mapDispatchToProps)(CustomBtnFormSet);

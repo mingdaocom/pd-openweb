@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Input } from 'antd';
-import { Button, MenuItem, Icon, Tooltip, Textarea, Dialog, VerifyPasswordConfirm } from 'ming-ui';
+import { Button, MenuItem, Icon, Tooltip, Dialog, VerifyPasswordConfirm } from 'ming-ui';
+import { verifyPassword } from 'src/util';
 import IconText from 'worksheet/components/IconText';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
-import { verifyPassword } from 'src/util';
 import FillRecordControls from '../FillRecordControls';
 import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
 import worksheetAjax from 'src/api/worksheet';
@@ -15,17 +14,7 @@ import { getRowDetail } from 'worksheet/api';
 import processAjax from 'src/pages/workflow/api/process';
 import _ from 'lodash';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
-
-const Password = styled(Input.Password)`
-  box-shadow: none !important;
-  line-height: 28px !important;
-  border-radius: 3px !important;
-  border: 1px solid #ccc !important;
-  margin-bottom: 10px;
-  &.ant-input-affix-wrapper-focused {
-    border-color: #2196f3;
-  }
-`;
+import CustomButtonConfirm from './CustomButtonConfirm';
 
 const MenuItemWrap = styled(MenuItem)`
   .btnName {
@@ -43,96 +32,7 @@ const MenuItemWrap = styled(MenuItem)`
   }
 `;
 
-const SectionName = styled.div`
-  font-size: 13px;
-  color: #333;
-  font-weight: 500;
-  margin: 18px 0 8px;
-  position: relative;
-  &.required {
-    &:before {
-      position: absolute;
-      left: -10px;
-      top: 3px;
-      color: red;
-      content: '*';
-    }
-  }
-`;
-
-const RemarkTextArea = styled(Textarea)`
-  &::placeholder {
-    color: #bfbfbf;
-  }
-`;
-
-function confirm(props) {
-  const {
-    title,
-    description,
-    okText,
-    cancelText,
-    enableRemark,
-    remarkName,
-    remarkHint,
-    remarkRequired,
-    verifyPwd,
-    onOk,
-    onClose,
-  } = props;
-  const passwordRef = useRef();
-  const remarkRef = useRef();
-  return (
-    <Dialog
-      visible
-      className="customButtonConfirm"
-      title={<b>{title}</b>}
-      okText={okText}
-      cancelText={cancelText}
-      onOk={() => {
-        const remark = _.get(remarkRef, 'current.value') || '';
-        if (remarkRequired && !remark.trim()) {
-          alert(_l('%0不能为空', remarkName), 3);
-          return;
-        }
-        if (verifyPwd) {
-          verifyPassword(passwordRef.current.input.value, () => {
-            onOk({ remark });
-            onClose();
-          });
-        } else {
-          onOk({ remark });
-          onClose();
-        }
-      }}
-      onCancel={onClose}
-    >
-      {description && <div className="Font14 Gray_75">{description}</div>}
-      {enableRemark && (
-        <Fragment>
-          <SectionName className={cx({ required: remarkRequired })}>{remarkName || _l('备注')}</SectionName>
-          <RemarkTextArea manualRef={ref => (remarkRef.current = ref)} placeholder={remarkHint} />
-        </Fragment>
-      )}
-      {verifyPwd && (
-        <Fragment>
-          <SectionName className={cx({ required: true })}>{_l('登录密码验证')}</SectionName>
-          <div style={{ height: '0px', overflow: 'hidden' }}>
-            // 用来避免浏览器将用户名塞到其它input里
-            <input type="text" />
-          </div>
-          <Password
-            ref={passwordRef}
-            autoComplete="new-password"
-            placeholder={_l('输入当前用户（%0）的登录密码', md.global.Account.fullname)}
-          />
-        </Fragment>
-      )}
-    </Dialog>
-  );
-}
-
-const confirmClick = props => FunctionWrap(confirm, props);
+const confirmClick = props => FunctionWrap(CustomButtonConfirm, props);
 export default class CustomButtons extends React.Component {
   static propTypes = {
     iseditting: PropTypes.bool,
@@ -182,35 +82,22 @@ export default class CustomButtons extends React.Component {
       alert(_l('正在编辑记录，无法触发自定义按钮'), 3);
       return;
     }
-    function handleTrigger() {
-      const needConform = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM;
-      function run({ remark } = {}) {
-        function trigger(btn) {
-          if (handleTriggerCustomBtn) {
-            handleTriggerCustomBtn(btn);
-            return;
-          }
-          _this.triggerImmediately(btn.btnId);
-          triggerCallback();
+    function run({ remark } = {}) {
+      function trigger(btn) {
+        if (handleTriggerCustomBtn) {
+          handleTriggerCustomBtn(btn);
+          return;
         }
-        if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
-          // 填写字段
-          _this.remark = remark;
-          _this.fillRecord(btn);
-        } else if (_.get(btn, 'advancedSetting.enableremark') && remark) {
-          if (_.isFunction(handleUpdateWorksheetRow)) {
-            handleUpdateWorksheetRow({
-              worksheetId,
-              rowId: recordId,
-              newOldControl: [],
-              btnRemark: remark,
-              btnId: btn.btnId,
-              btnWorksheetId: worksheetId,
-              btnRowId: recordId,
-            });
-            return;
-          }
-          worksheetAjax.updateWorksheetRow({
+        _this.triggerImmediately(btn.btnId);
+        triggerCallback();
+      }
+      if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
+        // 填写字段
+        _this.remark = remark;
+        _this.fillRecord(btn);
+      } else if (_.get(btn, 'advancedSetting.enableremark') && remark) {
+        if (_.isFunction(handleUpdateWorksheetRow)) {
+          handleUpdateWorksheetRow({
             worksheetId,
             rowId: recordId,
             newOldControl: [],
@@ -219,17 +106,38 @@ export default class CustomButtons extends React.Component {
             btnWorksheetId: worksheetId,
             btnRowId: recordId,
           });
-        } else {
-          trigger(btn);
+          return;
         }
+        worksheetAjax.updateWorksheetRow({
+          worksheetId,
+          rowId: recordId,
+          newOldControl: [],
+          btnRemark: remark,
+          btnId: btn.btnId,
+          btnWorksheetId: worksheetId,
+          btnRowId: recordId,
+        });
+      } else {
+        trigger(btn);
       }
+    }
+    function verifyConform() {
+      VerifyPasswordConfirm.confirm({
+        title: _l('安全认证'),
+        inputName: _l('登录密码验证'),
+        passwordPlaceHolder: _l('输入当前用户（%0）的登录密码', md.global.Account.fullname),
+        allowNoVerify: true,
+        onOk: run,
+      });
+    }
+    function handleTrigger() {
+      const needConform = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM;
       function verifyAndRun() {
         if (btn.verifyPwd) {
-          VerifyPasswordConfirm.confirm({
-            title: _l('安全认证'),
-            inputName: _l('登录密码验证'),
-            passwordPlaceHolder: _l('输入当前用户（%0）的密码', md.global.Account.fullname),
-            onOk: run,
+          verifyPassword({
+            checkNeedAuth: true,
+            success: run,
+            fail: () => verifyConform(),
           });
         } else {
           run();
@@ -244,6 +152,8 @@ export default class CustomButtons extends React.Component {
           remarkName: _.get(btn, 'advancedSetting.remarkname'),
           remarkHint: _.get(btn, 'advancedSetting.remarkhint'),
           remarkRequired: _.get(btn, 'advancedSetting.remarkrequired'),
+          remarkoptions: _.get(btn, 'advancedSetting.remarkoptions'),
+          remarktype: _.get(btn, 'advancedSetting.remarktype'),
           verifyPwd: btn.verifyPwd,
           okText: btn.sureName,
           cancelText: btn.cancelName,
@@ -678,7 +588,7 @@ export default class CustomButtons extends React.Component {
               }}
             >
               <div className="content ellipsis">
-                {button.icon && <i className={`icon icon-${button.icon}`}></i>}
+                {button.icon && <i className={`icon icon-${button.icon}`} />}
                 <span className="breakAll overflow_ellipsis">{button.name}</span>
               </div>
             </Button>

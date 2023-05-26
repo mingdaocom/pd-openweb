@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { withRouter } from 'react-router-dom';
-import { emitter, getProject } from 'src/util';
+import { emitter, getCurrentProject } from 'src/util';
 import AppGroups from './AppGroups';
 import SideNav from './SideNav';
 import AppLib from 'src/pages/AppHomepage/AppLib';
@@ -21,7 +21,7 @@ const AppLibCon = styled.div`
 function AppCenter(props) {
   const projectId = _.get(props, 'match.params.projectId');
   const [currentProject, setCurrentProject] = useState(
-    getProject(projectId || localStorage.getItem('currentProjectId')),
+    getCurrentProject(projectId || localStorage.getItem('currentProjectId')),
   );
   function changeProject(project) {
     navigateTo('/app/my', false, true);

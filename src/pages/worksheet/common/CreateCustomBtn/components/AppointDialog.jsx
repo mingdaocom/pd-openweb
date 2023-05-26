@@ -299,7 +299,7 @@ class AppointDialog extends React.Component {
                         disabled:
                           (this.isDisable(type) && i > 0) ||
                           (type === 29 && writeControlsData.advancedSetting.showtype === '2') ||
-                          ([43].includes(type) && [3].includes(i + 1)), //OCR 只读 编辑
+                          ([49, 21, 43].includes(type) && i > 1), //api查询,自由连接,文本识别 屏蔽必填
                       };
                     })}
                     onChange={newValue => {
@@ -355,7 +355,7 @@ class AppointDialog extends React.Component {
     return (
       <React.Fragment>
         <Dialog
-          title={_l('设置填写内容')}
+          title={_l('设置填写内容%02060')}
           okText={_l('确定')}
           cancelText={_l('取消')}
           width={630}
@@ -409,7 +409,7 @@ class AppointDialog extends React.Component {
         >
           <div className="appointCon">
             <p className="Gray_9e Font14">{_l('用户点击按钮后，立即弹出对话框并填写指定的内容')}</p>
-            <p className="Gray Font13 mTop32 Bold500">{_l('填写对象')}</p>
+            <p className="Gray Font13 mTop32 Bold500">{_l('填写对象%02061')}</p>
             <RadioGroup
               className="mTop10"
               data={[
@@ -419,7 +419,7 @@ class AppointDialog extends React.Component {
                 },
                 {
                   value: 2,
-                  text: _l('关联记录（单条）'),
+                  text: _l('关联记录（单条）%02062'),
                 },
               ]}
               size="small"
@@ -472,7 +472,7 @@ class AppointDialog extends React.Component {
                 />
               </div>
             )}
-            <p className="Gray Font13 mTop32 Bold500">{_l('填写内容')}</p>
+            <p className="Gray Font13 mTop32 Bold500">{_l('填写内容%02063')}</p>
             <RadioGroup
               className="mTop10"
               data={[
@@ -482,7 +482,7 @@ class AppointDialog extends React.Component {
                 },
                 {
                   value: 2,
-                  text: _l('新建关联记录'),
+                  text: _l('新建关联记录%02064'),
                 },
               ]}
               size="small"

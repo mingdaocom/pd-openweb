@@ -117,7 +117,7 @@ export default class SystemMessage extends PureComponent {
         // 应用首页
         if (matchedAppPath && matchedAppPath === (href.match(/\/app\/([\w-]{36})/) || '')[0]) {
           evt.preventDefault();
-          navigateTo(href + '?from=system');
+          navigateTo(new URL(href.startsWith('http') ? href : location.origin + href).pathname + '?from=system');
         }
       });
     }

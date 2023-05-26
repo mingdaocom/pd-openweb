@@ -1,10 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react';
+import PropTypes, { func } from 'prop-types';
 import { autobind } from 'core-decorators';
 import { v4 as uuidv4 } from 'uuid';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import styled from 'styled-components';
+import moment from 'moment';
 import { browserIsMobile, createElementFromHtml } from 'src/util';
+import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import worksheetAjax from 'src/api/worksheet';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import Skeleton from 'src/router/Application/Skeleton';
@@ -34,8 +37,58 @@ import RowDetailMobile from './RowDetailMobileModal';
 import * as actions from './redux/actions';
 import _ from 'lodash';
 
+const IconBtn = styled.span`
+  color: #9e9e9e;
+  display: inline-block;
+  height: 28px;
+  font-size: 20px;
+  line-height: 28px;
+  padding: 0 4px;
+  border-radius: 5px;
+  &:hover {
+    background: #f7f7f7;
+  }
+`;
 const isMobile = browserIsMobile();
 const systemControls = SYSTEM_CONTROLS.map(c => ({ ...c, fieldPermission: '111' }));
+
+function ExportButton(props) {
+  const { exportSheet = () => {} } = props;
+  const [loading, setLoading] = useState(false);
+  return (
+    <span
+      data-tip={_l('导出Excel')}
+      onClick={() => {
+        if (loading) {
+          return;
+        }
+        setLoading(true);
+        exportSheet(() => setLoading(false));
+      }}
+    >
+      {loading ? (
+        <i
+          className="icon icon-loading_button ThemeColor3"
+          style={{
+            fontSize: 16,
+            margin: 5,
+            display: 'inline-block',
+            animation: 'rotate 0.6s infinite linear',
+          }}
+        ></i>
+      ) : (
+        <IconBtn className="Hand ThemeHoverColor3">
+          <i className="icon icon-file_download" />
+        </IconBtn>
+      )}
+    </span>
+  );
+}
+
+ExportButton.propTypes = {
+  exportSheet: func,
+};
+
 class ChildTable extends React.Component {
   static contextType = RecordInfoContext;
   static propTypes = {
@@ -367,6 +420,7 @@ class ChildTable extends React.Component {
           .filter(
             c =>
               _.find(control.showControls, scid => scid === c.controlId) &&
+              c.type !== 34 &&
               controlState(c).visible &&
               !isRelateRecordTableControl(c) &&
               !_.includes(hiddenTypes.concat(SHEET_VIEW_HIDDEN_TYPES), c.type),
@@ -519,7 +573,7 @@ class ChildTable extends React.Component {
       canSelectAll: true,
       multiple: true,
       control: relateRecordControl,
-      controlId: control.controlId,
+      controlId: relateRecordControl.controlId,
       parentWorksheetId: control.dataSource,
       allowNewRecord: false,
       viewId: relateRecordControl.viewId,
@@ -711,10 +765,12 @@ class ChildTable extends React.Component {
       from,
       recordId,
       projectId,
+      viewId,
       control,
       rows,
       deleteRow,
       sortRows,
+      exportSheet,
       mobileIsEdit,
       entityName,
       rules,
@@ -737,6 +793,8 @@ class ChildTable extends React.Component {
     const addRowFromRelateRecords = !!batchAddControls.length;
     const allowAddByLine =
       (_.isUndefined(_.get(control, 'advancedSetting.allowsingle')) && !addRowFromRelateRecords) || allowsingle;
+    let allowExport = _.get(control, 'advancedSetting.allowexport');
+    allowExport = _.isUndefined(allowExport) || allowExport === '1';
     const controlPermission = controlState(control, from);
     const tableRows = rows.map(row => (!/^temp/.test(row.rowid) ? { ...row, allowedit } : row));
     const disabled = !controlPermission.editable || control.disabled;
@@ -755,6 +813,28 @@ class ChildTable extends React.Component {
     return (
       <div className="childTableCon" ref={con => (this.childTableCon = con)} onClick={e => e.stopPropagation()}>
         {this.state.error && <span className="errorTip"> {_l('请正确填写%0', control.controlName)} </span>}
+        <div className="operates">
+          {allowExport &&
+            recordId &&
+            from !== RECORD_INFO_FROM.DRAFT &&
+            !control.isCustomButtonFillRecord &&
+            !_.get(window, 'shareState.shareId') && (
+              <ExportButton
+                exportSheet={cb =>
+                  exportSheet({
+                    worksheetId: this.props.masterData.worksheetId,
+                    rowId: recordId,
+                    controlId: control.controlId,
+                    fileName: `${((_.last([...document.querySelectorAll('.recordTitle')]) || {}).innerText || '').slice(
+                      0,
+                      200,
+                    )} ${control.controlName}${moment().format('YYYYMMDD HHmmss')}`.trim(),
+                    onDownload: cb,
+                  })
+                }
+              />
+            )}
+        </div>
         {!isMobile && !loading && (
           <div style={{ height: tableHeight }}>
             <WorksheetTable
@@ -763,7 +843,7 @@ class ChildTable extends React.Component {
               rules={rules}
               height={tableHeight}
               fromModule={WORKSHEETTABLE_FROM_MODULE.SUBLIST}
-              viewId={control.viewId}
+              viewId={viewId}
               scrollBarHoverShow
               ref={this.worksheettable}
               setHeightAsRowCount={fullShowTable}
@@ -901,7 +981,7 @@ class ChildTable extends React.Component {
           </div>
         )}
         {isMobile ? (
-          <div className="operate valignWrapper">
+          <div className="operate valignWrapper" style={{ width: 'max-content' }}>
             {isMobile && !disabledNew && addRowFromRelateRecords && (
               <span
                 className="addRowByDialog h5 flex ellipsis"
@@ -994,6 +1074,7 @@ const mapDispatchToProps = dispatch => ({
   deleteRow: bindActionCreators(actions.deleteRow, dispatch),
   sortRows: bindActionCreators(actions.sortRows, dispatch),
   clearAndSetRows: bindActionCreators(actions.clearAndSetRows, dispatch),
+  exportSheet: bindActionCreators(actions.exportSheet, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChildTable);

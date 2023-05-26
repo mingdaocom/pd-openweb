@@ -299,7 +299,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
 
   const onSearch = useCallback(
     _.debounce(value => {
-      setFetchState({ keyWords: value, loading: true });
+      setFetchState({ keyWords: value, loading: true, pageNo: 0 });
     }, 500),
     [],
   );

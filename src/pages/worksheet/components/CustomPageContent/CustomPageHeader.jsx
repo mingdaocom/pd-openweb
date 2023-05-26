@@ -115,11 +115,13 @@ export default function CustomPageHeader(props) {
           title: <span className="Bold">{_l('删除自定义页面 “%0”', name)}</span>,
           description: (
             <div>
-              <span style={{ color: '#f44336' }}>{_l('注意：自定义页面下所有配置和数据将被删除。')}</span>
+              <span style={{ color: '#333', fontWeight: 'bold' }}>
+                {_l('注意：自定义页面下所有配置和数据将被删除。')}
+              </span>
               {_l('请务必确认所有应用成员都不再需要此自定义页面后，再执行此操作。')}
             </div>
           ),
-          data: [{ text: _l('我确认删除页面和所有数据'), value: 1 }],
+          data: [{ text: _l('我确认删除自定义页面和所有数据'), value: 1 }],
           onOk: () => {
             const { currentPcNaviStyle } = appPkg;
             const data = {

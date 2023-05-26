@@ -63,7 +63,7 @@ const getProps = (props, type = 'success') => {
       </div>
     ),
     description: description && (
-      <div className="antNotificationDescription" title={description}>
+      <div className="antNotificationDescription" title={typeof description === 'string' ? description : ''}>
         {description}
       </div>
     ),

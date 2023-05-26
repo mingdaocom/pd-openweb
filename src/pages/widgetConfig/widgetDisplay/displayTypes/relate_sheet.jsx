@@ -2,13 +2,19 @@ import React, { useState, useEffect, Fragment } from 'react';
 import { isEmpty } from 'lodash';
 import { CommonDisplay, EditModelWrap, EmptySheetPlaceHolder } from '../../styled';
 import { getAdvanceSetting, getShowControls } from '../../util/setting';
+import { SYSTEM_FIELD_TO_TEXT } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import { SYSTEM_CONTROL } from '../../config/widget';
 
 export default function RelateSheet({ data }) {
-  const { enumDefault, hint = '', relationControls } = data;
+  const { enumDefault, hint = '', relationControls = [] } = data;
   const { showtype = String(enumDefault) } = getAdvanceSetting(data);
 
-  const showControls = getShowControls(relationControls, data.showControls);
+  const showControls = getShowControls(
+    relationControls.concat(
+      Object.keys(SYSTEM_FIELD_TO_TEXT).map(item => ({ controlId: item, controlName: SYSTEM_FIELD_TO_TEXT[item] })),
+    ),
+    data.showControls,
+  );
 
   const getWidths = () => {
     const widths = getAdvanceSetting(data, 'widths') || [];
@@ -56,7 +62,7 @@ export default function RelateSheet({ data }) {
                       return (
                         <th key={controlId} className="overflow_ellipsis" style={{ width: `${widths[index]}px` }}>
                           {required && <span>{_l('*')}</span>}
-                          {controlName}
+                          {controlName || SYSTEM_FIELD_TO_TEXT[controlId]}
                         </th>
                       );
                     })}

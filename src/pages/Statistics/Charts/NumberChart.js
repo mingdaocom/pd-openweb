@@ -134,6 +134,7 @@ const NumberChartContent = styled.div`
     min-width: 0;
   }
   &.numberChartAlign-center {
+    max-width: 100%;
     .name {
       text-align: center;
     }
@@ -223,7 +224,7 @@ export default class extends Component {
   }
   componentDidMount() {
     const { sourceType, isThumbnail } = this.props;
-    const { reportId, xaxes, yaxisList, style } = this.props.reportData;
+    const { reportId, xaxes, yaxisList, style, displaySetup } = this.props.reportData;
     const el = document.querySelector(`.statisticsCard-${reportId}`);
     const parentElement = _.get(el, 'parentElement.parentElement');
     if (yaxisList.length === 1 && !xaxes.controlId && sourceType && isThumbnail) {
@@ -233,7 +234,7 @@ export default class extends Component {
         parentElement.classList.add('numberChartCardHover');
       }
     } else {
-      if (parentElement) {
+      if (parentElement && displaySetup.showTitle) {
         el.classList.remove('hideNumberChartName');
         el.classList.remove('hideChartHeader');
         parentElement.classList.remove('numberChartCardHover');

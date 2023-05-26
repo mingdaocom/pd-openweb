@@ -15,31 +15,16 @@ import accountAjax from 'src/api/account';
 
 export const emitter = new EventEmitter();
 
-export function getProject(projectId) {
-  if (projectId === 'external' && browserIsMobile()) {
-    return { projectId, companyName: _l('外部协作') };
-  }
-  const projects = md.global.Account.projects;
-  if (projectId) {
-    const project = _.find(projects, { projectId });
-    if (project) {
-      return project;
-    }
-  }
-  return projects[0] || {};
-}
-
 // 判断选项颜色是否为浅色系
 export const isLightColor = (color = '') => _.includes(LIGHT_COLOR, color.toUpperCase());
 
 export const getCurrentProject = id => {
+  if (id === 'external' && browserIsMobile()) {
+    return { projectId: id, companyName: _l('外部协作') };
+  }
+
   const projects = _.get(md, ['global', 'Account', 'projects']) || [];
   return _.find(projects, item => item.projectId === id) || {};
-};
-
-export const enumObj = obj => {
-  _.keys(obj).forEach(key => (obj[obj[key]] = key));
-  return obj;
 };
 
 export const encrypt = text => {
@@ -100,7 +85,7 @@ export const getItem = key => {
   }
 };
 
-export const formatNumberFromInput = value => {
+export const formatNumberFromInput = (value, pointReturnEmpty = true) => {
   value = value
     .replace(/[^-\d.]/g, '')
     .replace(/^\./g, '')
@@ -112,7 +97,7 @@ export const formatNumberFromInput = value => {
     .replace(/\./g, '')
     .replace('$#$', '.');
 
-  if (value === '.') {
+  if (pointReturnEmpty && value === '.') {
     value = '';
   }
   return value;
@@ -208,36 +193,6 @@ export const cutStringWithHtml = (self, len, rows) => {
     }
   }
   return str;
-};
-
-/**
- * 翻译中替换{0} {1} 方法
- * @param  {string} str 要替换的字符串
- * @param  {object} args 如果只有第二个参数，并且是对象，根据对象的 key 替换 str 中相应的{key}
- * @return {string}
- */
-export const langFormat = (str, ...args) => {
-  let result = str;
-  let reg;
-  if (!result || !args.length) {
-    return result;
-  }
-  if (args.length === 1 && typeof args[0] === 'object') {
-    for (let key in args[0]) {
-      if ({}.hasOwnProperty.call(args[0], key) && args[0][key] !== undefined) {
-        reg = new RegExp('({)' + key + '(})', 'g');
-        result = result.replace(reg, args[0][key]);
-      }
-    }
-  } else {
-    for (let i = 0; i < args.length; i++) {
-      if (args[i] !== undefined) {
-        reg = new RegExp('({)' + i + '(})', 'g');
-        result = result.replace(reg, args[i]);
-      }
-    }
-  }
-  return result;
 };
 
 /**
@@ -601,25 +556,11 @@ export function createElementFromHtml(html) {
  */
 export const getToken = (files, type = 0, args = {}) => {
   if (!md.global.Account.accountId) {
-    return qiniuAjax.getFileUploadToken({ files });
+    return qiniuAjax.getFileUploadToken({ files, type, ...args });
   } else {
     return qiniuAjax.getUploadToken({ files, type, ...args });
   }
 };
-
-/**
- * jQuery Promise 转为标准 Promise
- */
-export function jP2Promise(jPFunction) {
-  return (...args) => {
-    return new Promise((resolve, reject) => {
-      jPFunction(...args)
-        .then(resolve)
-        .fail(reject)
-        .always(Promise.finally);
-    });
-  };
-}
 
 /**
  * 路由添加子路径
@@ -750,19 +691,6 @@ export function getColorCountByBg(backgroundColor) {
   return RgbValueArry[0] * 0.299 + RgbValueArry[1] * 0.587 + RgbValueArry[2] * 0.114;
 }
 
-export function replaceNotNumber(value) {
-  return value
-    .replace(/[^-\d.]/g, '')
-    .replace(/^\./g, '')
-    .replace(/^-/, '$#$')
-    .replace(/-/g, '')
-    .replace('$#$', '-')
-    .replace(/^-\./, '-')
-    .replace('.', '$#$')
-    .replace(/\./g, '')
-    .replace('$#$', '.');
-}
-
 /**
  * 调用 app 内的方式
  */
@@ -787,32 +715,21 @@ export function mdAppResponse(param) {
 }
 
 /**
- * 获取路由参数
- */
-export const parseSearchParams = searchParamsString => {
-  return searchParamsString.split('?').reduce((searchParams, curKV) => {
-    const [k, v] = curKV.split('=').map(decodeURIComponent);
-    searchParams[k] = v;
-
-    return searchParams;
-  }, {});
-};
-
-/**
  * 升级版本dialog
  */
 export const upgradeVersionDialog = options => {
   const hint = options.hint || _l('当前版本无法使用此功能');
   const explainText = options.explainText;
   const versionType = options.versionType ? options.versionType : undefined;
+  const isExternal = _.isEmpty(getCurrentProject(options.projectId)); // 是否为外协人员
 
   if (options.dialogType === 'content') {
     return (
-      <div className="w100 h100 flexColumn justifyContentCenter alignItemsCenter">
+      <div className="upgradeWrap">
         <div className="netStateWrap">
           <div className="imgWrap" />
           <div className="hint">{hint}</div>
-          {(!md.global.Config.IsLocal || !md.global.Account.isPortal || options.explainText) && (
+          {!md.global.Config.IsLocal && !md.global.Account.isPortal && !isExternal && options.explainText && (
             <div className="explain">{explainText}</div>
           )}
         </div>
@@ -826,7 +743,7 @@ export const upgradeVersionDialog = options => {
       <div className="netStateWrap">
         <div className="imgWrap" />
         <div className="hint">{hint}</div>
-        {(!md.global.Config.IsLocal || !md.global.Account.isPortal || options.explainText) && (
+        {!md.global.Config.IsLocal && !md.global.Account.isPortal && !isExternal && options.explainText && (
           <div className="explain">{explainText}</div>
         )}
       </div>
@@ -946,44 +863,77 @@ export function toFixed(num, dot = 0) {
 /**
  * 验证登录密码
  */
-export function verifyPassword(password = '', successCallback = () => {}, failCallback = () => {}) {
-  if (!password.trim()) {
+export function verifyPassword({
+  password = '',
+  closeImageValidation = false, // 是否前3次关闭图像验证
+  isNoneVerification = false, // 是否一小时内免验证
+  checkNeedAuth = false, // 检测是否免验证
+  success = () => {},
+  fail = () => {},
+}) {
+  if (!password.trim() && !checkNeedAuth) {
     alert(_l('请输入密码'), 3);
-    failCallback();
+    fail();
     return;
   }
-  let cb = function (res) {
+  const cb = function (res) {
     if (res.ret !== 0) {
       return;
     }
-    accountAjax
-      .checkAccount({
-        ticket: res.ticket,
-        randStr: res.randstr,
-        captchaType: md.staticglobal.getCaptchaType(),
-        password: encrypt(password),
-      })
-      .then(statusCode => {
-        if (statusCode === 1) {
-          successCallback();
-        } else {
-          alert(
-            {
-              6: _l('密码不正确'),
-              8: _l('验证码错误'),
-            }[statusCode] || _l('操作失败'),
-            2,
-          );
-          failCallback();
-        }
-      });
+
+    accountAjax[checkNeedAuth || closeImageValidation ? 'checkAccountIdentity' : 'checkAccount'](
+      checkNeedAuth
+        ? {}
+        : {
+            isNoneVerification,
+            ticket: res.ticket,
+            randStr: res.randstr,
+            captchaType: md.staticglobal.getCaptchaType(),
+            password: encrypt(password),
+          },
+    ).then(statusCode => {
+      if (statusCode === 1) {
+        success();
+      } else if (statusCode === 10) {
+        captchaFuc();
+      } else if (checkNeedAuth && statusCode === 6) {
+        fail('password');
+      } else {
+        alert(
+          {
+            6: _l('密码不正确'),
+            8: _l('验证码错误'),
+          }[statusCode] || _l('操作失败'),
+          2,
+        );
+        fail();
+      }
+    });
+  };
+  const captchaFuc = () => {
+    if (md.staticglobal.getCaptchaType() === 1) {
+      new captcha(cb);
+    } else {
+      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();
+    }
   };
 
-  if (md.staticglobal.getCaptchaType() === 1) {
-    new captcha(cb);
+  // 前3次关闭图像验证
+  if (closeImageValidation || checkNeedAuth) {
+    cb({ ret: 0 });
   } else {
-    new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();
+    captchaFuc();
   }
+}
+
+// 去除无效0
+export function formatStrZero(str = '') {
+  const numStr = (String(str).match(/[,\.\d]+/) || [])[0];
+  if (!numStr) {
+    return str;
+  }
+  const num = numStr.replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
+  return String(str).replace(numStr, num);
 }
 
 // 根据索引获取不重复名称

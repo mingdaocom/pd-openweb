@@ -239,7 +239,7 @@ function APISetting(props) {
         curId: props.listId,
         isFix: false,
       });
-      getInfo(props.listId);
+      getInfo(props.listId, props.data);
     }
   }, [props.listId]);
 
@@ -255,6 +255,16 @@ function APISetting(props) {
         $(InputRef.current).focus();
       }, 300);
   }, [editingName]);
+  //获取这个api的相关信息
+  const getAPIDetail = async id => {
+    const r = await packageVersionAjax.getApiDetail(
+      {
+        id,
+      },
+      { isIntegration: true },
+    );
+    return r;
+  };
   const HandleScroll = e => {
     e.stopPropagation();
     if (!WrapRef.current) return;
@@ -267,7 +277,7 @@ function APISetting(props) {
     }
   };
   // 获取API详情
-  const getInfo = async processId => {
+  const getInfo = async (processId, data) => {
     setState({ loading: true });
     if (!processId) {
       return;
@@ -287,10 +297,12 @@ function APISetting(props) {
       ),
     ]);
     const isSuperAdmin = getIsSuperAdmin(res[0].companyId);
+    //后端——>列表上的数据可能不对，需要重新获取
+    const apiData = await getAPIDetail(processId);
     setState({
       isSuperAdmin,
       info: res[0],
-      data: { ...data, ...res[1] },
+      data: { ...apiData, ...res[1] },
     });
     !props.connectInfo //从连接的api管理进来的 参数上带了connectInfo，不需要重新获取
       ? packageVersionAjax
@@ -372,10 +384,14 @@ function APISetting(props) {
       iconName: md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/10_13_rocket.svg',
       name: '未命名 API',
       type: 1,
-      ownerAccount: { ...res.ownerAccount, accountId: md.global.Account.accountId },
+      ownerAccount: {
+        ...res.ownerAccount,
+        accountId: md.global.Account.accountId,
+        fullName: md.global.Account.fullname,
+      },
     };
     setState({ data: newRes, curId: newRes.id });
-    getInfo(newRes.id);
+    getInfo(newRes.id, newRes);
     props.onChange && props.onChange(newRes);
   };
   /**
@@ -422,10 +438,14 @@ function APISetting(props) {
             isConnectOwner={isConnectOwner}
             info={info}
             hasChange={() => {
-              let newData = { ...data, publishStatus: 1, lastModifiedDate: moment().format('YYYY-MM-DD HH:mm:ss') };
+              let newData = {
+                ...data,
+                publishStatus: 1,
+                lastModifiedDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+              };
               setState({ data: newData, isFix: false });
               props.onChange && props.onChange(newData);
-              getInfo(data.id);
+              getInfo(data.id, newData);
             }}
           />
         );
@@ -483,14 +503,14 @@ function APISetting(props) {
   const renderOption = () => {
     return (
       <React.Fragment>
-        {apkInfo.ownerAccount && apkInfo.ownerAccount.accountId && (
+        {data.ownerAccount && data.ownerAccount.accountId && (
           <div className="Gray_75 node TxtMiddle mLeft10 flexRow alignItemsCenter">
             {(!isFix || props.forPage) && (
               <React.Fragment>
-                <span className="Gray mRight8">{apkInfo.ownerAccount.fullName}</span>
+                <span className="Gray mRight8">{data.ownerAccount.fullName}</span>
                 <span className="" style={{ color: '#999' }}>
-                  {apkInfo.type === 2 ? _l('安装于') : _l('创建于')}
-                  {apkInfo.createdDate}
+                  {apkInfo.type === 2 ? _l('安装于') : data.lastModifiedDate ? _l('更新于') : _l('创建于')}
+                  {apkInfo.type === 2 ? data.createdDate : data.lastModifiedDate || data.createdDate}
                 </span>
               </React.Fragment>
             )}

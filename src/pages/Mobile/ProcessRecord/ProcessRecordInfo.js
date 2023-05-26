@@ -13,7 +13,6 @@ import RelationAction from 'mobile/RelationRow/RelationAction';
 import * as actions from 'mobile/RelationRow/redux/actions';
 import WorkflowStepItem from './WorkflowStepItem';
 import OtherAction from './OtherAction';
-import Operation from './Operation';
 import {
   formatControlToServer,
   controlState,
@@ -51,7 +50,6 @@ class ProcessRecord extends Component {
       isEdit: false,
       otherActionVisible: false,
       action: '',
-      selectedUser: {},
       viewId: '',
       rowId: '',
       worksheetId: '',
@@ -98,6 +96,9 @@ class ProcessRecord extends Component {
         this.setState({ isError: true, loading: false });
       });
   }
+  componentWillUnmount() {
+    ActionSheet.close();
+  }
   loadRow = () => {
     const { params } = this.props.match;
     const { viewId, rowId, worksheetId, instance } = this.state;
@@ -117,9 +118,7 @@ class ProcessRecord extends Component {
       }),
     ]).then(([sheetRow, instance]) => {
       const { templateControls, view = {}, rowData } = sheetRow;
-      const newReceiveControls = viewId
-        ? templateControls
-        : templateControls.map(c => Object.assign({}, c, { fieldPermission: '111' })).filter(item => item.type !== 21);
+      const newReceiveControls = viewId ? templateControls : templateControls.filter(item => item.type !== 21);
       const newFormData = newReceiveControls.map(cc => ({
         ...cc,
         value: safeParse(rowData)[cc.controlId],
@@ -300,7 +299,7 @@ class ProcessRecord extends Component {
         alert(_l('操作失败，请稍后重试'), 2);
       });
   }
-  handleSelectOperation = (buttons) => {
+  handleSelectOperation = buttons => {
     const { instance } = this.state;
     const { btnMap = {} } = instance;
     ActionSheet.showActionSheetWithOptions(
@@ -327,12 +326,58 @@ class ProcessRecord extends Component {
       },
       buttonIndex => {
         if (buttonIndex === -1) return;
-        if (this.operrationRef.current) {
-          this.operrationRef.current.handleOperation(buttonIndex);
-        }
+        this.handleOperation(buttons[buttonIndex].id);
       },
     );
-  }
+  };
+  writeVerifyPassword = () => {
+    ActionSheet.showActionSheetWithOptions(
+      {
+        options: [],
+        message: (
+          <div className="TxtLeft sheetProcessRowRecord">
+            <div className="Font17 Bold Gray mBottom10">{_l('提交记录')}</div>
+            <VerifyPassword
+              autoFocus={true}
+              onChange={({ password, isNoneVerification }) => {
+                if (password !== undefined) this.password = password;
+                if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
+              }}
+            />
+            <div className="flexRow btnsWrapper mTop20 pAll0 Border0 ">
+              <Button
+                className="Font13 flex bold Gray_75 mRight10"
+                onClick={() => {
+                  ActionSheet.close();
+                }}
+              >
+                <span>{_l('取消')}</span>
+              </Button>
+              <Button
+                className="Font13 flex bold"
+                type="primary"
+                onClick={() => {
+                  verifyPassword({
+                    password: this.password,
+                    closeImageValidation: true,
+                    isNoneVerification: this.isNoneVerification,
+                    success: () => {
+                      this.handleSave(() => {
+                        this.request('submit');
+                      });
+                    },
+                  });
+                }}
+              >
+                {_l('保存')}
+              </Button>
+            </div>
+          </div>
+        ),
+      },
+      buttonIndex => {},
+    );
+  };
   handleFooterBtnClick = id => {
     const { hasError, hasRuleError } = this.customwidget.current.getSubmitData({ ignoreAlert: true });
     let { instance } = this.state;
@@ -354,45 +399,17 @@ class ProcessRecord extends Component {
 
     if (id === 'submit') {
       if (encrypt) {
-        ActionSheet.showActionSheetWithOptions({
-          options: [],
-          message: (
-            <div className="TxtLeft sheetProcessRowRecord">
-              <div className="Font17 Bold Gray mBottom10">{_l('提交记录')}</div>
-              <VerifyPassword
-                onChange={value => {
-                  this.password = value;
-                }}
-              />
-              <div className="flexRow btnsWrapper mTop20 pAll0 Border0 ">
-                <Button
-                  className="Font13 flex bold Gray_75 mRight10"
-                  onClick={() => {
-                    ActionSheet.close();
-                  }}
-                >
-                  <span>{_l('取消')}</span>
-                </Button>
-                <Button
-                  className="Font13 flex bold"
-                  type="primary"
-                  onClick={() => {
-                    verifyPassword(
-                      this.password,
-                      () => {
-                        this.handleSave(() => {
-                          this.request('submit');
-                        });
-                      }
-                    );
-                  }}
-                >
-                  {_l('保存')}
-                </Button>
-              </div>
-            </div>
-          )
-        }, buttonIndex => {});
+        verifyPassword({
+          checkNeedAuth: true,
+          success: () => {
+            this.handleSave(() => {
+              this.request('submit');
+            });
+          },
+          fail: () => {
+            this.writeVerifyPassword();
+          },
+        });
       } else {
         this.handleSave(() => {
           this.request('submit');
@@ -430,6 +447,45 @@ class ProcessRecord extends Component {
         });
       }
     }
+  };
+  handleOperation = id => {
+    if (id === 'sign') {
+      const run = action => {
+        this.setState({
+          action,
+          otherActionVisible: true,
+        });
+      };
+      ActionSheet.showActionSheetWithOptions(
+        {
+          options: [
+            <div className="Gray bold">{_l('通过申请后增加一位审批人')}</div>,
+            <div className="Gray bold">{_l('在我审批前增加一位审批人')}</div>,
+          ],
+          message: (
+            <div className="flexRow header">
+              <span className="Font13">{_l('加签')}</span>
+              <div className="closeIcon" onClick={() => ActionSheet.close()}>
+                <Icon icon="close" />
+              </div>
+            </div>
+          ),
+        },
+        buttonIndex => {
+          if (buttonIndex === 0) {
+            run('after');
+          }
+          if (buttonIndex === 1) {
+            run('before');
+          }
+        },
+      );
+      return;
+    }
+    this.setState({
+      action: id,
+      otherActionVisible: true,
+    });
   };
   handleAction = (action, content, forwardAccountId, backNodeId, signature) => {
     content = content.trim();
@@ -514,23 +570,6 @@ class ProcessRecord extends Component {
       fixedTabsEl && fixedTabsEl.classList.add('hide');
     }
   };
-  renderActionSheet() {
-    const { params } = this.props.match;
-    const { instance, rowId, worksheetId, sheetRow } = this.state;
-
-    return (
-      <Operation
-        rowId={rowId}
-        worksheetId={worksheetId}
-        instance={instance}
-        sheetRow={sheetRow}
-        onUpdateAction={info => {
-          this.setState(info);
-        }}
-        ref={this.operrationRef}
-      />
-    );
-  }
   renderProcessHandle() {
     const { instance, submitLoading, submitAction, isHasten } = this.state;
     const { operationTypeList, btnMap = {}, works } = instance;
@@ -542,7 +581,7 @@ class ProcessRecord extends Component {
     const buttons = newOperationTypeList.map(item => {
       return {
         ...MOBILE_OPERATION_LIST[item],
-        type: item
+        type: item,
       };
     });
     const allowUrgeWork = _.find(works, { allowUrge: true }) || {};
@@ -595,8 +634,8 @@ class ProcessRecord extends Component {
             );
           })}
         </div>
-        {!!buttons.length && (
-          buttons.length > 1 ? (
+        {!!buttons.length &&
+          (buttons.length > 1 ? (
             <div
               className="flexColumn optionBtn optionArrowBtn bold"
               onClick={() => {
@@ -606,25 +645,22 @@ class ProcessRecord extends Component {
               <Icon icon="arrow-up-border" />
             </div>
           ) : (
-          buttons.map((item, index) => (
-            <div
-              key={index}
-              className="flexColumn optionBtn bold"
-              style={{ maxWidth: 100 }}
-              onClick={() => {
-                if (this.operrationRef.current) {
-                  this.operrationRef.current.handleOperation(index);
-                }
-              }}
-            >
-              <div>
-                <Icon icon={item.icon} className="Font20" />
+            buttons.map((item, index) => (
+              <div
+                key={index}
+                className="flexColumn optionBtn bold"
+                style={{ maxWidth: 100 }}
+                onClick={() => {
+                  this.handleOperation(item.id);
+                }}
+              >
+                <div>
+                  <Icon icon={item.icon} className="Font20" />
+                </div>
+                <div className="Font12 ellipsis">{btnMap[item.type] || item.text}</div>
               </div>
-              <div className="Font12 ellipsis">{btnMap[item.type] || item.text}</div>
-            </div>
-          ))
-          )
-        )}
+            ))
+          ))}
       </div>
     );
   }
@@ -838,7 +874,7 @@ class ProcessRecord extends Component {
           <OtherAction
             visible={otherActionVisible}
             action={this.state.action}
-            selectedUser={this.state.selectedUser}
+            projectId={sheetRow.projectId}
             instance={instance}
             onAction={this.handleAction}
             onHide={() => {
@@ -1004,22 +1040,25 @@ class ProcessRecord extends Component {
         {_.isEmpty(operationTypeList[0])
           ? viewId && this.renderRecordHandle()
           : _.isEmpty(currentTab.id) && this.renderProcessHandle()}
-        {(isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) || !_.isEmpty(newOperationTypeList)) && (
-            <ChatCount
-              className={
-                _.isEmpty(operationTypeList[0]) &&
-                (_.isEmpty(viewId) || (!sheetRow.allowEdit && _.isEmpty(customBtns))) &&
-                'low'
-              }
-              worksheetId={worksheetId}
-              rowId={rowId}
-              appId={app.id}
-              viewId={viewId}
-              originalData={originalData}
-              projectId={sheetRow.projectId}
-            />
-          )}
-        {this.renderActionSheet()}
+        {(isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) ||
+          isOpenPermit(permitList.recordLogSwitch, switchPermit, viewId) ||
+          !_.isEmpty(newOperationTypeList)) && (
+          <ChatCount
+            className={
+              _.isEmpty(operationTypeList[0]) &&
+              (_.isEmpty(viewId) || (!sheetRow.allowEdit && _.isEmpty(customBtns))) &&
+              'low'
+            }
+            recordDiscussSwitch={isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId)}
+            recordLogSwitch={isOpenPermit(permitList.recordLogSwitch, switchPermit, viewId)}
+            worksheetId={worksheetId}
+            rowId={rowId}
+            appId={app.id}
+            viewId={viewId}
+            originalData={originalData}
+            projectId={sheetRow.projectId}
+          />
+        )}
       </div>
     );
   }

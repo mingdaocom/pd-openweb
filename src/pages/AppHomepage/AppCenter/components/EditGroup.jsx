@@ -61,7 +61,6 @@ function IconInput(props) {
         }}
         popup={
           <SelectIcon
-            hideCustom
             className="Relative"
             colorList={[]}
             hideInput

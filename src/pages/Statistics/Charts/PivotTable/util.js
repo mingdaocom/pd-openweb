@@ -83,6 +83,9 @@ export const mergeColumnsCell = (data, yaxisList) => {
   data.forEach(item => {
     const { t_id, data } = item;
     item.data = data.map(n => {
+      if (_.isArray(n) || _.isString(n)) {
+        return n;
+      }
       return formatrChartValue(n, false, yaxisList, t_id);
       /*
       if (_.isNumber(n)) {

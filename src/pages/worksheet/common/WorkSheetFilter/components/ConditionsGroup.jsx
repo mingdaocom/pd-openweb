@@ -194,7 +194,7 @@ export default function ConditionsGroup(props) {
                   isAppendToBody
                   menuStyle={{ width: 'auto' }}
                   data={[
-                    { text: _l('且'), value: FILTER_RELATION_TYPE.AND },
+                    { text: _l('且%25000'), value: FILTER_RELATION_TYPE.AND },
                     { text: _l('或'), value: FILTER_RELATION_TYPE.OR },
                   ]}
                   onChange={value => {
@@ -206,7 +206,7 @@ export default function ConditionsGroup(props) {
                 <span className="text">
                   {
                     {
-                      [FILTER_RELATION_TYPE.AND]: _l('且'),
+                      [FILTER_RELATION_TYPE.AND]: _l('且%25000'),
                       [FILTER_RELATION_TYPE.OR]: _l('或'),
                     }[conditionSpliceType]
                   }

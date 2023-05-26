@@ -49,8 +49,11 @@ export default class CreateEditKeyDialog extends Component {
     let { password } = this.state;
     if (!password) return;
     const _this = this;
-    verifyPassword(password, () => {
-      _this.props.showCreateKeyDialog();
+    verifyPassword({
+      password,
+      success: () => {
+        _this.props.showCreateKeyDialog();
+      },
     });
   };
   render() {

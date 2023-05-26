@@ -115,6 +115,7 @@ window._l = function () {
  */
 window.isDingTalk = window.navigator.userAgent.toLowerCase().includes('dingtalk');
 
+
 /**
  * 全局变量
  */
@@ -166,7 +167,7 @@ md.staticglobal = md.global = {
 /**
  * 自定义alert
  */
-window._alert = window.alert;
+window.nativeAlert = window.alert;
 window.alert = antAlert;
 window.destroyAlert = destroyAlert;
 // import mdNotification from 'ming-ui/functions/notify';

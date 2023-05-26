@@ -190,13 +190,9 @@ export default function Number(props) {
       {fromExcel ? null : (
         <Fragment>
           <DynamicDefaultValue {...props} />
+          <WidgetVerify {...props} />
 
-          {isNumber && (
-            <Fragment>
-              <WidgetVerify {...props} />
-              <NumberConfig {...props} />
-            </Fragment>
-          )}
+          {isNumber && <NumberConfig {...props} />}
 
           {numshow !== '1' && isNumber && (
             <SettingItem>

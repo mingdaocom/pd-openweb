@@ -12,23 +12,44 @@
     {{?}}
 
     <div class="cardContent-wrapper">
-        {{?data.status === 3}}
-        <span class="name overflow_ellipsis ThemeColor3">
-            {{! data.fullname }}
-            {{? !data.isPortal}}
-            <span class="icon-folder-public smallEarth"></span>
+        <div class="flexRow alignItemsCenter">
+            {{?data.status === 3}}
+            <span class="name overflow_ellipsis ThemeColor3 flex">
+                {{! data.fullname }}
+                {{? !data.isPortal}}
+                <span class="icon-folder-public smallEarth"></span>
+                {{?}}
+            </span>
+            {{??}}
+            <a
+                class="name overflow_ellipsis ThemeHoverColor3 flex {{=it.inviterAccount ? 'clearTop' : ''}}"
+                target="_blank"
+                href="/user_{{=data.accountId}}"
+                title="{{!data.fullname}}"
+            >
+                {{! data.fullname }} {{=data.status === 2 ? _l('帐号已注销') : ''}}
+            </a>
             {{?}}
-        </span>
-        {{??}}
-        <a
-            class="name overflow_ellipsis ThemeHoverColor3 {{=it.inviterAccount ? 'clearTop' : ''}}"
-            target="_blank"
-            href="/user_{{=data.accountId}}"
-            title="{{!data.fullname}}"
-        >
-            {{! data.fullname }} {{=data.status === 2 ? _l('帐号已注销') : ''}}
-        </a>
-        {{?}}
+
+            <div class="mLeft10">
+                <span data-tip="{{= _l('刷新')}}">
+                    <span class="startChat refreshCardBtn icon-task-later ThemeHoverColor3 Gray_9e"></span>
+                </span>
+            </div>
+
+            {{?data.status==1 && md.global.Account && data.accountId != md.global.Account.accountId && data.accountId !=
+            'user-workflow'}}
+            <div class="mLeft10">
+                <span data-tip="{{= _l('发消息')}}">
+                    <span
+                        class="startChat icon-chat-session ThemeColor3"
+                        data-bssp="usersetting.businessCardChat"
+                        data-isContact="{{= data.isContact  }}"
+                    ></span>
+                </span>
+            </div>
+            {{?}}
+        </div>
 
         {{? data.isPortal}}
         <div class="cardContentDesc userCard">
@@ -37,7 +58,7 @@
         {{?? isUser }}
         <div class="cardContentDesc userCard">
             {{?data.currentProjectName}} {{?(data.orgName || data.profession)}}
-            <span class="overflow_ellipsis contentItem ">
+            <span class="overflow_ellipsis contentItem">
                 {{?data.orgName}}
                 <span class="orgName">{{!data.orgName}}</span>
                 {{?}}
@@ -80,30 +101,6 @@
         </div>
         {{?}}
     </div>
-
-    {{?data.status==1 && md.global.Account && data.accountId != md.global.Account.accountId && data.accountId !=
-    'user-workflow'}}
-    <div class="pRight15">
-        <span data-tip="{{= _l('发消息')}}">
-            <span
-                class="startChat icon-chat-session ThemeColor3"
-                data-bssp="usersetting.businessCardChat"
-                data-isContact="{{= data.isContact  }}"
-            ></span>
-        </span>
-    </div>
-    {{?}} {{?it.inviterAccount}}
-    <div class="inviterName">
-        <a
-            class="overflow_ellipsis ThemeColor3"
-            target="_blank"
-            href="/user_{{=it.inviterAccount.accountId}}"
-            title="{{!it.inviterAccount.fullName}}"
-            >{{!it.inviterAccount.fullName }}
-        </a>
-        {{= _l('邀请')}}
-    </div>
-    {{?}}
 </div>
 
 {{?? isGroup }}

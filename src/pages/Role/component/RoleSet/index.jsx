@@ -6,6 +6,8 @@ import SettingForm from './SettingForm';
 import { PERMISSION_WAYS } from 'src/pages/Role/config.js';
 import styled from 'styled-components';
 import _ from 'lodash';
+import { sysRoleType, sysRoleList } from 'src/pages/Role/config.js';
+
 const Wrap = styled.div`
    {
     flex: 1;
@@ -213,8 +215,12 @@ export default class RoleSet extends PureComponent {
   }
 
   fetchRoleDetail(props = this.props) {
-    const { roleId, appId } = props;
+    const { roleId, appId, roleList } = props;
+    const data = roleList.find(o => o.roleId === roleId) || {};
 
+    if (sysRoleType.includes(data.roleType)) {
+      return;
+    }
     this.abortRequest();
     this.setState({ loading: true });
 

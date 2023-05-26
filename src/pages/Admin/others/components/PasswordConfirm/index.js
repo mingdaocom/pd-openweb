@@ -6,7 +6,6 @@ import { verifyPassword } from 'src/util';
 
 const PasswordConfirmWWrap = styled.div``;
 
-
 export default class PasswordConfirm extends Component {
   constructor(props) {
     super(props);
@@ -20,8 +19,11 @@ export default class PasswordConfirm extends Component {
     if (!password) return;
 
     const _this = this;
-    verifyPassword(password, () => {
-      _this.props.cancelPasswordComfirm();
+    verifyPassword({
+      password,
+      success: () => {
+        _this.props.cancelPasswordComfirm();
+      },
     });
   };
   render() {

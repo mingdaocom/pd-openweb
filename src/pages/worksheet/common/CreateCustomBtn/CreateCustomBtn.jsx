@@ -413,7 +413,7 @@ class CreateCustomBtnCon extends React.Component {
             <div className="txtFilter">
               <p>
                 <span className="titleTxt Gray">{_l('提示文字')}</span>
-                <span className="txt Gray breakAll">{this.state.doubleConfirm.confirmMsg}</span>
+                <span className="txt Gray breakAll">{_.get(this.state, 'doubleConfirm.confirmMsg')}</span>
               </p>
               {!!(_.get(this.state.advancedSetting, 'confirmcontent') || '').trim() && (
                 <p className="mTop5">
@@ -640,9 +640,9 @@ class CreateCustomBtnCon extends React.Component {
               name: this.state.name.replace(/(^\s*)|(\s*$)/g, ''),
               worksheetId,
               filters: this.state.filters.map(formatValuesOfCondition), //筛选条件
-              confirmMsg: this.state.doubleConfirm.confirmMsg, //确认信息
-              sureName: this.state.doubleConfirm.sureName, //确认按钮
-              cancelName: this.state.doubleConfirm.cancelName, //取消按钮
+              confirmMsg: _.get(this.state, 'doubleConfirm.confirmMsg'), //确认信息
+              sureName: _.get(this.state, 'doubleConfirm.sureName'), //确认按钮
+              cancelName: _.get(this.state, 'doubleConfirm.cancelName'), //取消按钮
               workflowId: this.state.workflowId || '', //工作流ID
               desc: this.state.desc.trim(),
               appId,
@@ -724,9 +724,15 @@ class CreateCustomBtnCon extends React.Component {
   };
 
   render() {
-    const { appId, worksheetId, rowId, projectId, columns, isClickAway } = this.props;
-    const { btnId, relationWorksheetInfo, doubleConfirm, showDoubleConfirmDialog, advancedSetting, cloneInfo } =
-      this.state;
+    const { appId, worksheetId, rowId, projectId, columns, sheetSwitchPermit, isClickAway } = this.props;
+    const {
+      btnId,
+      relationWorksheetInfo,
+      doubleConfirm = {},
+      showDoubleConfirmDialog,
+      advancedSetting,
+      cloneInfo,
+    } = this.state;
     return (
       <React.Fragment>
         <div
@@ -741,6 +747,7 @@ class CreateCustomBtnCon extends React.Component {
         {this.renderActionFooter()}
         {this.state.isShowBtnFilterDialog && (
           <ShowBtnFilterDialog
+            sheetSwitchPermit={sheetSwitchPermit}
             projectId={projectId}
             appId={appId}
             columns={columns}

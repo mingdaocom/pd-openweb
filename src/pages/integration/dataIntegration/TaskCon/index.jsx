@@ -11,6 +11,8 @@ import { v4 as uuidv4 } from 'uuid';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import PublishFail from 'src/pages/integration/components/PublishFail';
 import { navigateTo } from 'src/router/navigateTo';
+import { Dialog } from 'ming-ui';
+import 'src/pages/integration/dataIntegration/connector/style.less';
 const Wrap = styled.div`
   height: 100%;
 `;
@@ -31,6 +33,7 @@ class Task extends Component {
       jobId: props.jobId,
       updating: false,
       currentProjectId: '',
+      errorMsgList: [],
     };
   }
 
@@ -102,12 +105,20 @@ class Task extends Component {
     });
   };
   //获取流信息
-  getSynsTask = () => {
+  getSynsTask = errIds => {
     const { flowId = '' } = this.state;
     TaskFlow.getTaskFlow({
       flowId,
     }).then(res => {
       let flowData = res || {};
+      if (errIds) {
+        errIds.map(o => {
+          flowData = {
+            ...flowData,
+            flowNodes: { ...flowData.flowNodes, [o]: { ...flowData.flowNodes[o], status: 'ERR' } },
+          };
+        });
+      }
       this.setProJectInfo(flowData.projectId);
       this.setState({
         flowData,
@@ -116,7 +127,7 @@ class Task extends Component {
         taskId: flowData.taskId || '',
         jobId: flowData.jobId || '',
         currentProjectId: flowData.projectId,
-        isUpdate: res.taskStatus === 'ERROR',
+        isUpdate: res.taskStatus === 'ERROR' || res.status === 'EDITING', //PUBLISHED：已发布
       });
     });
   };
@@ -211,20 +222,51 @@ class Task extends Component {
         this.setState({
           updating: false,
         });
-        if (res) {
+        const { jobId, errorMsgList = [], isSucceeded, errorNodeIds = [], errorType } = res;
+        if (isSucceeded) {
           this.setState({
             isNew: false,
             isUpdate: false,
-            jobId: res,
+            jobId,
             flowData: {
               ...flowData,
               taskStatus: 'RUNNING',
-              // showPublishFail: true, //有错误 ?????
             },
+            errorMsgList: [],
           });
         } else {
-          alert(_l('失败，请稍后再试'), 2);
+          this.setState(
+            {
+              isNew: false,
+              isUpdate: false,
+              jobId,
+              showPublishFail: errorType === 0, //有错误
+              errorMsgList,
+            },
+            () => {
+              if (errorType === 1 && errorMsgList.length > 0) {
+                return Dialog.confirm({
+                  title: _l('报错信息'),
+                  className: 'connectorErrorDialog',
+                  description: (
+                    <div className="errorInfo" style={{ marginBottom: -30 }}>
+                      {errorMsgList.map((error, index) => {
+                        return (
+                          <div key={index} className="mTop5">
+                            {error}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ),
+                  removeCancelBtn: true,
+                  okText: _l('关闭'),
+                });
+              }
+            },
+          );
         }
+        this.getSynsTask(errorNodeIds);
       },
       () => {
         this.setState({
@@ -280,7 +322,7 @@ class Task extends Component {
     }
   };
   render() {
-    const { flowData = {}, loading, isNew, isUpdate, showPublishFail, updating } = this.state;
+    const { flowData = {}, loading, isNew, isUpdate, showPublishFail, updating, errorMsgList = [] } = this.state;
     if (loading) {
       return <LoadDiv />;
     }
@@ -325,7 +367,7 @@ class Task extends Component {
               });
             }}
             name={flowData.taskName || _l('数据同步任务')}
-            errInfo={['sadsa', 'sad']}
+            errorMsgList={errorMsgList}
             onCancel={() => {
               this.setState({
                 showPublishFail: false,

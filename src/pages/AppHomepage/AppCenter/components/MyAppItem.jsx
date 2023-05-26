@@ -15,6 +15,7 @@ import AppStatusComp from './AppStatus';
 import SvgIcon from 'src/components/SvgIcon';
 import _ from 'lodash';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
+import { getAppNavigateUrl } from '../utils';
 
 @withClickAway
 export default class MyAppItem extends Component {
@@ -119,35 +120,13 @@ export default class MyAppItem extends Component {
     }
   };
 
-  getNavigateUrl = id => {
-    const { pcNaviStyle } = this.props;
-    const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${id}`));
-    if (storage) {
-      const { lastGroupId, lastWorksheetId, lastViewId } = storage;
-      if (pcNaviStyle === 2) {
-        return lastGroupId ? `/app/${id}/${lastGroupId}?from=insite` : `/app/${id}`;
-      }
-      if (lastGroupId && lastWorksheetId && lastViewId) {
-        return `/app/${id}/${[lastGroupId, lastWorksheetId, lastViewId].join('/')}?from=insite`;
-      } else if (lastGroupId && lastWorksheetId) {
-        return `/app/${id}/${[lastGroupId, lastWorksheetId].join('/')}?from=insite`;
-      } else if (lastGroupId) {
-        return `/app/${id}/${lastGroupId}?from=insite`;
-      } else {
-        return `/app/${id}`;
-      }
-    } else {
-      return `/app/${id}`;
-    }
-  };
   handleApp = mode => {
     const { id: appId, projectId } = this.props;
     this.props.handleApp({ appId, projectId, mode });
   };
 
   render() {
-    const { editAppVisible, selectIconVisible, delAppConfirmVisible, copyAppVisible } =
-      this.state;
+    const { editAppVisible, selectIconVisible, delAppConfirmVisible, copyAppVisible } = this.state;
     const {
       groupId,
       groupType,
@@ -170,6 +149,7 @@ export default class MyAppItem extends Component {
       clearNewAppItemId,
       onCopy,
       onUpdateAppBelongGroups,
+      pcNaviStyle,
     } = this.props;
     const isShowSelectIcon = selectIconVisible || newAppItemId === id;
     const offsetLeft = _.get(this, '$myAppItem.current.offsetLeft');
@@ -185,7 +165,7 @@ export default class MyAppItem extends Component {
         className={cx('sortableMyAppItemWrap', { active: editAppVisible, isSelectingIcon: isShowSelectIcon })}
       >
         <div className={cx('myAppItemWrap')}>
-          <MdLink className="myAppItem" to={this.getNavigateUrl(id)}>
+          <MdLink className="myAppItem" to={getAppNavigateUrl(id, pcNaviStyle)}>
             <div className="myAppItemDetail" style={{ backgroundColor: light ? lightColor : navColor || iconColor }}>
               <SvgIcon url={iconUrl} fill={black || light ? iconColor : '#fff'} size={48} />
               <AppStatusComp {..._.pick(this.props, ['isGoodsStatus', 'isNew', 'fixed'])} />

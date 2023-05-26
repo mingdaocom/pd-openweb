@@ -614,6 +614,11 @@ export default class UploadFiles extends Component {
     );
   }
   resetFileName(id, newName) {
+    newName = newName.trim();
+    if (_.isEmpty(newName)) {
+      alert(_l('名称不能为空'), 2);
+      return;
+    } 
     const newTemporaryData = this.state.temporaryData.map(item => {
       if (item.fileID === id) {
         item.originalFileName = newName;

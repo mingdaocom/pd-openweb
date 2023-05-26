@@ -1,4 +1,4 @@
-import { handleSortRows } from 'worksheet/util';
+import { handleSortRows, postWithToken, download } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
 
 const PAGE_SIZE = 200;
@@ -88,5 +88,30 @@ export const sortRows = ({ control, isAsc }) => {
   return (dispatch, getState) => {
     const { rows } = getState();
     dispatch({ type: 'INIT_ROWS', rows: handleSortRows(rows, control, isAsc) });
+  };
+};
+
+export const exportSheet = ({ worksheetId, rowId, controlId, fileName, onDownload = () => {} } = {}) => {
+  return async () => {
+    try {
+      const res = await postWithToken(
+        `${md.global.Config.WorksheetDownUrl}/ExportExcel/DetailTable`,
+        { worksheetId, tokenType: 8 },
+        {
+          worksheetId,
+          rowId,
+          controlId,
+          pageIndex: 1,
+          pageSize: 200,
+        },
+        {
+          responseType: 'blob',
+        },
+      );
+      onDownload();
+      download(res.data, fileName);
+    } catch (err) {
+      alert(_l('导出失败！请稍候重试'), 2);
+    }
   };
 };

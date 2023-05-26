@@ -469,7 +469,7 @@ const parseDateFormula = (data, currentItem, recordCreateTime) => {
             });
           }
         } else if (column.type === 46) {
-          timestr = moment('2000-1-1 ' + timestr);
+          timestr = moment('2000/1/1 ' + timestr);
         }
         return timestr;
       }
@@ -828,7 +828,12 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
       if (_.includes([9, 10, 11], item.type) && !ignoreRequired) {
         const hasOtherOption = _.find(item.options, i => i.key === 'other' && !i.isDeleted);
         const selectOther = _.find(safeParse(item.value || '[]'), i => (i || '').includes('other'));
-        if (hasOtherOption && _.get(item.advancedSetting, 'otherrequired') === '1' && selectOther && !item.isSubList) {
+        if (
+          hasOtherOption &&
+          _.get(item.advancedSetting, 'otherrequired') === '1' &&
+          selectOther &&
+          !(item.isSubList && item.type === 10)
+        ) {
           if (selectOther === 'other' || !_.replace(selectOther, 'other:', '')) {
             errorType = FORM_ERROR_TYPE.OTHER_REQUIRED;
           }
@@ -1236,7 +1241,7 @@ export default class DataFormat {
                 ) {
                   formulaResult.result = parseFloat(formulaResult.result) * 100;
                 }
-                return formulaResult.error
+                return formulaResult.error || _.isNull(formulaResult.result)
                   ? ''
                   : `${formulaResult.result.toFixed(singleControl.dot)}${singleControl.unit}`;
               }
@@ -1897,9 +1902,26 @@ export default class DataFormat {
   getFilterConfigs = (control = {}, searchType) => {
     switch (searchType) {
       case 'init':
-        return this.searchConfig.filter(({ items = [] }) =>
-          _.every(items, item => (item.dynamicSource || []).length === 0),
-        );
+        return this.searchConfig.filter(({ items = [], controlId, controlType, configs = [] }) => {
+          let isNull = true;
+          const curValue = _.get(
+            _.find(this.data, d => d.controlId === controlId),
+            'value',
+          );
+          if (controlType === 29) {
+            isNull = _.isEmpty(safeParse(curValue));
+          } else {
+            isNull =
+              controlType === 34
+                ? !curValue
+                : !_.get(
+                    _.find(this.data, d => d.controlId === _.get(configs, '0.subCid')),
+                    'value',
+                  );
+          }
+
+          return _.every(items, item => (item.dynamicSource || []).length === 0) && isNull;
+        });
       case 'onBlur':
         return this.searchConfig
           .filter(({ controlId }) => controlId !== control.controlId)

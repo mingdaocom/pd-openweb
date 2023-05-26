@@ -107,7 +107,7 @@ const handleRequest = (requestName, requestParams, props) => {
 
 // 图形验证
 const graphicVertify = (callback = () => {}) => {
-  let cb = function (res) {
+  let cb = function(res) {
     if (res.ret !== 0) {
       return;
     }
@@ -176,8 +176,11 @@ function LockApp(props) {
           return;
         }
 
-        verifyPassword(userPassword, () => {
-          handleRequest('addLock', { appId, password }, props);
+        verifyPassword({
+          password: userPassword,
+          success: () => {
+            handleRequest('addLock', { appId, password }, props);
+          },
         });
       }}
     >
@@ -212,7 +215,7 @@ function LockApp(props) {
                   sstCanEdit(true);
                   passwordInputRef.current.focus();
                 }}
-              ></span>
+              />
             </Tooltip>
             <Tooltip offset={[5, 0]} text={<span>{_l('复制')}</span>} popupPlacement="bottom">
               <ClipboardButton
@@ -404,8 +407,11 @@ function CloseLock(props) {
           return;
         }
 
-        verifyPassword(userPassword, () => {
-          handleRequest('closeLock', { appId }, props);
+        verifyPassword({
+          password: userPassword,
+          success: () => {
+            handleRequest('closeLock', { appId }, props);
+          },
         });
       }}
     >

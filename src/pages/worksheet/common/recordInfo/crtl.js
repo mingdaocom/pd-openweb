@@ -53,10 +53,6 @@ export function loadRecord({
     promise
       .then(([row, rules]) => {
         if (row.resultCode === 1) {
-          if (instanceId && workId && !viewId) {
-            // 工作流调用
-            row.formData = row.formData.map(c => Object.assign({}, c, { fieldPermission: '111' }));
-          }
           resolve(rules ? { ...row, rules } : row);
         } else {
           reject(row);

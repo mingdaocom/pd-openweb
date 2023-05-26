@@ -5,7 +5,7 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 import ConnectAndAuth from './apiIntegration/ConnectAndAuth';
 import APICon from './apiIntegration/APICon';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
-import { emitter, getProject, upgradeVersionDialog } from 'src/util';
+import { emitter, getCurrentProject, upgradeVersionDialog } from 'src/util';
 import Connector from './dataIntegration/connector';
 import DataSource from './dataIntegration/source';
 import SyncTask from './dataIntegration/task';
@@ -18,7 +18,7 @@ export default class HubContainer extends React.Component {
   constructor(props) {
     super(props);
 
-    const projectInfo = getProject(localStorage.getItem('currentProjectId')) || {};
+    const projectInfo = getCurrentProject(localStorage.getItem('currentProjectId')) || {};
     const { projectId = '', isSuperAdmin = false, isProjectAppManager = false } = projectInfo;
 
     this.state = {
@@ -39,7 +39,7 @@ export default class HubContainer extends React.Component {
   }
 
   reload = () => {
-    const projectInfo = getProject(localStorage.getItem('currentProjectId')) || {};
+    const projectInfo = getCurrentProject(localStorage.getItem('currentProjectId')) || {};
     const { projectId = '', isSuperAdmin = false, isProjectAppManager = false } = projectInfo;
 
     safeLocalStorageSetItem('currentProjectId', projectId);

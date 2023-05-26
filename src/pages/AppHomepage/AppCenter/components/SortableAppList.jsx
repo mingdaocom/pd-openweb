@@ -15,41 +15,39 @@ const SORT_TYPE = {
 };
 const SortableItem = SortableElement(props => <MyAppItem {...props} />);
 
-const SortableList = SortableContainer(
-  ({ items, type, projectId, createAppFromEmpty, allowCreate, ...props }) => {
-    const renderContent = () => {
-      const canCreate =
-        allowCreate &&
-        !get(
-          find(md.global.Account.projects, item => item.projectId === projectId),
-          'cannotCreateApp',
-        );
-      if (canCreate) {
-        return (
-          <AddAppItem
-            groupId={props.groupId}
-            groupType={props.groupType}
-            type={type}
-            projectId={projectId}
-            createAppFromEmpty={createAppFromEmpty}
-          />
-        );
-      }
-      if (isEmpty(items)) return <span />;
-      return null;
-    };
-    return (
-      <div className="sortableAppItemList myAppGroupDetail">
-        {items
-          .filter(o => !o.pcDisplay || canEditApp(o.permissionType)) // 排除pc端未发布的
-          .map((value, index) => (
-            <SortableItem key={value.id || index} index={index} type={type} {...value} {...props} />
-          ))}
-        {renderContent()}
-      </div>
-    );
-  },
-);
+const SortableList = SortableContainer(({ items, type, projectId, createAppFromEmpty, allowCreate, ...props }) => {
+  const renderContent = () => {
+    const canCreate =
+      allowCreate &&
+      !get(
+        find(md.global.Account.projects, item => item.projectId === projectId),
+        'cannotCreateApp',
+      );
+    if (canCreate) {
+      return (
+        <AddAppItem
+          groupId={props.groupId}
+          groupType={props.groupType}
+          type={type}
+          projectId={projectId}
+          createAppFromEmpty={createAppFromEmpty}
+        />
+      );
+    }
+    if (isEmpty(items)) return <span />;
+    return null;
+  };
+  return (
+    <div className="sortableAppItemList myAppGroupDetail">
+      {items
+        .filter(o => !o.pcDisplay || canEditApp(o.permissionType)) // 排除pc端未发布的
+        .map((value, index) => (
+          <SortableItem key={value.id || index} index={index} type={type} {...value} {...props} />
+        ))}
+      {renderContent()}
+    </div>
+  );
+});
 
 export default class SortableComponent extends Component {
   static propTypes = {
@@ -75,6 +73,12 @@ export default class SortableComponent extends Component {
     this.state = {
       sortedIds: props.items.map(item => item.id),
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.items.length !== this.props.items.length) {
+      this.setState({ sortedIds: this.props.items.map(item => item.id) });
+    }
   }
 
   onSortEnd = ({ oldIndex, newIndex }) => {

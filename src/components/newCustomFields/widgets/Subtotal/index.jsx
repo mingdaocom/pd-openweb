@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Tooltip, Support } from 'ming-ui';
 import styled from 'styled-components';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, formatStrZero } from 'src/util';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import moment from 'moment';
 import _ from 'lodash';
@@ -89,6 +89,10 @@ export default class Widgets extends Component {
         content = parseFloat(value) * 100;
       }
       content = _.isUndefined(dot) ? content : _.round(content, dot).toFixed(dot);
+
+      if (advancedSetting.dotformat === '1') {
+        content = formatStrZero(content);
+      }
 
       if (advancedSetting.thousandth !== '1') {
         content = content.replace(

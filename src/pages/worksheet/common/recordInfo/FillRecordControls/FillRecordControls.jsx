@@ -227,7 +227,9 @@ class FillRecordControls extends React.Component {
     this.setState({ isSubmitting: true, submitLoading: false });
     updateControlIds = _.uniq(updateControlIds.concat(writeControls.filter(c => c.defsource).map(c => c.controlId)));
     onSubmit(
-      newData.filter(c => _.find(updateControlIds, controlId => controlId === c.controlId)).map(formatControlToServer),
+      newData
+        .filter(c => _.find(updateControlIds, controlId => controlId === c.controlId))
+        .map(c => formatControlToServer(c, { needFullUpdate: true })),
       {
         ..._.pick(this.props, ['appId', 'projectId', 'worksheetId', 'viewId', 'recordId']),
       },

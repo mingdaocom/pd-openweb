@@ -78,7 +78,7 @@ const BaseEntry = styled.a`
 const ModuleEntries = styled.div``;
 
 const ModuleEntry = styled(BaseEntry)`
-  margin: 12px 0;
+  margin: 8px 0;
   height: 48px;
   .entryIcon {
     font-size: 24px;
@@ -157,24 +157,26 @@ const moduleEntries = [
     type: 'myProcess',
     icon: 'task_alt',
     name: _l('待办'),
-    fullName: _l('流程待办'),
+    fullName: _l('流程待办%01011'),
   },
   {
     type: 'lib',
     icon: 'custom_store',
     name: _l('应用库%01000'),
+    fullName: _l('应用库%01012'),
     href: '/app/lib',
   },
   {
     type: 'cooperation',
     icon: 'cooperation',
     name: _l('协作%01001'),
+    fullName: _l('协作%01013'),
   },
   {
     type: 'integration',
     icon: 'hub',
     name: _l('集成%01002'),
-    fullName: _l('集成中心'),
+    fullName: _l('集成中心%01014'),
   },
 ];
 

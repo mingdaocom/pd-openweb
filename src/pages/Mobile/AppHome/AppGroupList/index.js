@@ -4,7 +4,7 @@ import * as actions from '../redux/actions';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import SvgIcon from 'src/components/SvgIcon';
-import { getProject } from 'src/util';
+import { getCurrentProject } from 'src/util';
 import Back from '../../components/Back';
 
 import './index.less';
@@ -21,7 +21,10 @@ class AppGroupList extends Component {
     this.state = {};
   }
   componentDidMount() {
-    const currentProject = getProject(localStorage.getItem('currentProjectId'));
+    const currentProject = getCurrentProject(
+      localStorage.getItem('currentProjectId') ||
+        (md.global.Account.projects[0] || { projectId: 'external' }).projectId,
+    );
     this.setState({ projectId: currentProject.projectId });
     this.props.dispatch(actions.getMyApp(currentProject.projectId));
   }

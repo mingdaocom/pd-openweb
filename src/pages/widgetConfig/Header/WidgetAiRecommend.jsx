@@ -9,9 +9,21 @@ import { Checkbox, ScrollView, Dropdown } from 'ming-ui';
 import { v4 as uuidv4 } from 'uuid';
 import worksheetAjax from 'src/api/worksheet';
 import AiLoading from './AiLoading';
+import { OPTION_COLORS_LIST } from '../config';
+import { enumWidgetType } from '../util';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
 import { handleAddWidgets } from 'src/pages/widgetConfig/util/data';
-import { DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM, ALL_WIDGETS_TYPE } from 'src/pages/widgetConfig/config/widget.js';
+import { DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
+import _ from 'lodash';
+
+const RECOMMEND_TYPES = [2, 3, 5, 6, 7, 8, 10, 11, 14, 15, 16, 26, 27, 33, 36];
+
+const dropData = Object.keys(DEFAULT_DATA).map(i => {
+  return {
+    value: WIDGETS_TO_API_TYPE_ENUM[i],
+    text: _.get(DEFAULT_DATA[i], 'controlName'),
+  };
+});
 
 const enumLangType = {
   'zh-Hans': 0,
@@ -121,6 +133,9 @@ const AiWidgetWrap = styled.div`
     .column137 {
       width: 137px;
     }
+    .ant-dropdown-trigger {
+      margin-top: 0px !important;
+    }
     input {
       width: 100%;
       height: 36px;
@@ -192,7 +207,7 @@ export default function WidgetAiRecommend({ worksheetName, ...rest }) {
       .then(({ code, data = {} }) => {
         if (code === 1 && _.get(data, 'controls.length') > 0) {
           setStatus(2);
-          setControlData((data.controls || []).map(i => ({ ...i, controlId: uuidv4() })));
+          setControlData(data.controls || []);
           setResultData('');
         } else {
           setStatus(-1);
@@ -211,15 +226,52 @@ export default function WidgetAiRecommend({ worksheetName, ...rest }) {
     setResultData('');
   };
 
+  const getDefaultData = (curControl = {}) => {
+    const type = enumWidgetType[curControl.type];
+
+    let defaultDetail = {
+      ...DEFAULT_DATA[type],
+      ..._.pick(curControl, ['controlId', 'controlName', 'type']),
+      hint: curControl.desc || '',
+      alias: curControl.code || '',
+    };
+    // 选项
+    if (_.includes([9, 10, 11], curControl.type)) {
+      if (_.get(curControl, 'options.length')) {
+        defaultDetail.options = (curControl.options || []).map((i, index) => ({
+          key: uuidv4(),
+          value: i,
+          isDeleted: false,
+          index,
+          checked: index === 0,
+          color: OPTION_COLORS_LIST[(index + 1) % OPTION_COLORS_LIST.length],
+        }));
+      }
+    }
+    // 公式
+    if (curControl.type === 31) {
+      defaultDetail.advancedSetting = { nullzero: '1' };
+      defaultDetail.enumDefault = 1;
+      defaultDetail.dataSource = curControl.formula;
+    }
+
+    // 子表
+    if (curControl.type === 34) {
+      defaultDetail.relationControls = (curControl.subform || []).map(i => getDefaultData(i));
+      defaultDetail.showControls = (curControl.subform || []).map(i => i.controlId);
+      defaultDetail.dataSource = uuidv4();
+    }
+    return defaultDetail;
+  };
+
   const handleAdd = () => {
     const newData = selectIds.map(item => {
       const curControl = _.find(controlData, i => i.controlId === item);
       if (curControl) {
-        const defaultType = _.find(Object.keys(DEFAULT_DATA), i => WIDGETS_TO_API_TYPE_ENUM[i] === curControl.type);
-        return { ...DEFAULT_DATA[defaultType], ...curControl };
+        return getDefaultData(curControl);
       }
     });
-    handleAddWidgets(newData, rest, () => {
+    handleAddWidgets(newData, {}, rest, () => {
       setVisible(false);
       handleClear();
     });
@@ -296,13 +348,15 @@ export default function WidgetAiRecommend({ worksheetName, ...rest }) {
                         <Dropdown
                           border
                           isAppendToBody
-                          data={Object.keys(ALL_WIDGETS_TYPE).map(i => {
-                            return {
-                              value: WIDGETS_TO_API_TYPE_ENUM[i],
-                              text: _.get(ALL_WIDGETS_TYPE[i], 'widgetName'),
-                            };
-                          })}
+                          data={dropData.filter(i => _.includes(RECOMMEND_TYPES, i.value))}
                           value={control.type}
+                          disabled={_.includes([31, 34], control.type)}
+                          renderTitle={() =>
+                            _.get(
+                              _.find(dropData, i => i.value === control.type),
+                              'text',
+                            )
+                          }
                           onChange={value => setData(control.controlId, { type: value })}
                         />
                       </div>

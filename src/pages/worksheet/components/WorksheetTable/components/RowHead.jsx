@@ -292,7 +292,7 @@ export default function RowHead(props) {
                             setSelectAllPanelVisible(false);
                           }}
                         >
-                          {_l('选择本页记录')}
+                          {_l('选择本页记录%02053')}
                         </MenuItem>
                         <MenuItem
                           onClick={e => {
@@ -301,7 +301,7 @@ export default function RowHead(props) {
                             onSelectAllWorksheet(true);
                           }}
                         >
-                          {_l('选择所有记录')}
+                          {_l('选择所有记录%02054')}
                         </MenuItem>
                         {(selectedIds.length || allWorksheetIsSelected) && (
                           <MenuItem
@@ -311,7 +311,7 @@ export default function RowHead(props) {
                               onReverseSelect();
                             }}
                           >
-                            {_l('反选')}
+                            {_l('反选%02055')}
                           </MenuItem>
                         )}
                       </Menu>

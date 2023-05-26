@@ -35,6 +35,7 @@ export default function SubListSort(props) {
         columns={controls.filter(o => ![43].includes(o.type))}
         sortConditions={sorts}
         onChange={setSorts}
+        isSubList={true}
       />
     </Dialog>
   );

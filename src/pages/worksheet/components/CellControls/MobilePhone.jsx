@@ -7,24 +7,13 @@ import MobilePhoneEdit from 'src/components/newCustomFields/widgets/MobilePhone'
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { emitter, isKeyBoardInputChar } from 'worksheet/util';
+import { formatNumberFromInput } from 'src/util';
 import CellErrorTips from './comps/CellErrorTip';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
 import { FROM } from './enum';
 
-function replaceNotNumber(value) {
-  return value
-    .replace(/[^-\d.]/g, '')
-    .replace(/^\./g, '')
-    .replace(/^-/, '$#$')
-    .replace(/-/g, '')
-    .replace('$#$', '-')
-    .replace(/^-\./, '-')
-    .replace('.', '$#$')
-    .replace(/\./g, '')
-    .replace('$#$', '.');
-}
 export default class MobilePhone extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -162,7 +151,7 @@ export default class MobilePhone extends React.Component {
     switch (e.key) {
       default:
         (() => {
-          const value = cell.type === 6 || cell.type === 8 ? replaceNotNumber(e.key) : e.key;
+          const value = cell.type === 6 || cell.type === 8 ? formatNumberFromInput(e.key, false) : e.key;
           if (!value || !isKeyBoardInputChar(e.key)) {
             return;
           }

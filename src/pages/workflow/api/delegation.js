@@ -29,6 +29,19 @@ var delegation = {
     return $.api(controllerName, 'delegationgetList', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 根据委托人获取委托列表
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {获取委托列表} {companyId:公司ID(string),principals:多个委托人(array),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getListByPrincipals: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/delegation/getListByPrincipals';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'delegationgetListByPrincipals', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 编辑委托
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌

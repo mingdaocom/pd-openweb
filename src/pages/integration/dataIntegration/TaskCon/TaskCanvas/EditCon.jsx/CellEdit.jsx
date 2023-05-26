@@ -2,10 +2,26 @@ import React, { Component } from 'react';
 import styled, { css } from 'styled-components';
 import { Input, Checkbox, Dropdown } from 'ming-ui';
 import cx from 'classnames';
-// import { getNodeData } from '../util';
 import FieldMappingList from 'src/pages/integration/dataIntegration/components/FieldsMappingList';
-import { CREATE_TYPE } from 'src/pages/integration/dataIntegration/constant';
+import {
+  DATABASE_TYPE,
+  INVALID_MD_TYPE_SHEET,
+  INVALID_MD_TYPE,
+  SYSTEM_FIELD_IDS,
+} from 'src/pages/integration/dataIntegration/constant.js';
+import dataSourceApi from '../../../../api/datasource';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import {
+  setFieldsMappingDefaultData,
+  getInitFieldsMapping,
+  getFields,
+} from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
+import _ from 'lodash';
 const Wrap = styled.div`
+  .selectItem {
+    font-size: 13px;
+    width: 100% !important;
+  }
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   position: fixed;
@@ -52,6 +68,10 @@ const Wrap = styled.div`
         &.cancleBtn {
           background: #fff;
           color: #2196f3;
+        }
+        &.disabled {
+          border: 1px solid #bdbdbd;
+          background: #bdbdbd;
         }
       }
     }
@@ -141,105 +161,107 @@ export default class CellEdit extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      node: {
-        ...props.node,
-        nodeConfig: {
-          ...props.node.nodeConfig,
-          config: {
-            ..._.get(props.node, ['nodeConfig', 'config']),
-            fields: [
-              {
-                resultField: {
-                  id: '27',
-                  dependFieldIds: ['nwmzrh'],
-                  name: 'corrine.kuhic',
-                  dataType: 'xl53yp',
-                  jdbcTypeId: 904,
-                  precision: 325,
-                  scale: 393,
-                  isPk: true,
-                  isNotNull: true,
-                  alias: 'ehsz8s',
-                  isCheck: true,
-                  orderNo: 695,
-                  status: 'NORMAL',
-                },
-                leftField: {
-                  id: '27',
-                  dependFieldIds: ['sy2dum'],
-                  name: 'corrine.kuhic',
-                  dataType: 'feg9c2',
-                  jdbcTypeId: 925,
-                  precision: 147,
-                  scale: 180,
-                  isPk: true,
-                  isNotNull: true,
-                  alias: 'kvt20q',
-                  isCheck: true,
-                  orderNo: 395,
-                  status: 'NORMAL',
-                },
-                rightField: {
-                  id: '27',
-                  dependFieldIds: ['ufusam'],
-                  name: 'corrine.kuhic',
-                  dataType: 'gntoiz',
-                  jdbcTypeId: 903,
-                  precision: 645,
-                  scale: 51,
-                  isPk: true,
-                  isNotNull: true,
-                  alias: '62si67',
-                  isCheck: true,
-                  orderNo: 422,
-                  status: 'NORMAL',
-                },
-              },
-            ],
-          },
-          fields: [
-            {
-              id: '27',
-              dependFieldIds: ['uwmnnu'],
-              name: 'corrine.kuhic',
-              dataType: 'w6o0rj',
-              jdbcTypeId: 305,
-              precision: 937,
-              scale: 660,
-              isPk: true,
-              isNotNull: true,
-              alias: '6wtk2u',
-              isCheck: true,
-              orderNo: 702,
-              status: 'NORMAL',
-            },
-            {
-              id: '28',
-              dependFieldIds: ['uwmnnu'],
-              name: 'corrine.kuhic',
-              dataType: 'w6o0rj',
-              jdbcTypeId: 305,
-              precision: 937,
-              scale: 660,
-              isPk: true,
-              isNotNull: true,
-              alias: '6wtk2u',
-              isCheck: true,
-              orderNo: 702,
-              status: 'NORMAL',
-            },
-          ],
-        },
-      },
-      sheetName: '', //新建工作表的名称
+      node: props.node || {},
+      sheetName: _.get(props.node, ['nodeConfig', 'config', 'tableName']), //新建工作表的名称
+      matchedTypes: {},
+      loading: true,
+      fileList: [],
     };
   }
+  componentDidMount() {
+    const { node = {} } = this.props;
+    const { nodeType = '' } = node;
+    if (nodeType === 'DEST_TABLE') {
+      this.getFieldsDataTypeMatch(this.props);
+    } else {
+      this.setState({
+        loading: false,
+      });
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    if (!_.isEqual(this.props.node, nextProps.node) || !_.isEqual(this.props, nextProps)) {
+      this.setState(
+        {
+          node: nextProps.node || {},
+        },
+        () => {
+          const { nodeType = '' } = nextProps.node;
+          if (nodeType === 'DEST_TABLE') {
+            this.getFieldsDataTypeMatch(nextProps);
+          }
+        },
+      );
+    }
+  }
+
+  getFieldsDataTypeMatch = async nextProps => {
+    const { list, node = {} } = nextProps || this.props;
+    const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
+    this.setState({
+      loading: true,
+    });
+    const data = _.get(node, ['nodeConfig', 'config', 'createTable'])
+      ? []
+      : await getFields(preNode, node, this.props.currentProjectId);
+    this.setState({
+      fileList: data,
+    });
+    if (!_.get(node, 'nodeConfig.config.fieldsMapping') || _.get(node, 'nodeConfig.config.fieldsMapping').length <= 0) {
+      const mapping = getInitFieldsMapping(
+        _.get(preNode, ['nodeConfig', 'fields']).filter(o => {
+          if (_.get(preNode, ['nodeConfig', 'config', 'dsType']) === DATABASE_TYPE.APPLICATION_WORKSHEET) {
+            if (_.get(node, ['nodeConfig', 'config', 'dsType']) !== DATABASE_TYPE.APPLICATION_WORKSHEET) {
+              return !_.includes(INVALID_MD_TYPE, o.mdType);
+            } else {
+              return !_.includes(INVALID_MD_TYPE_SHEET, o.mdType) && !_.includes(SYSTEM_FIELD_IDS, o.id);
+            }
+          } else {
+            return true;
+          }
+        }),
+        _.get(preNode, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET,
+        _.get(node, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET,
+      );
+      const mapDt = await setFieldsMappingDefaultData({
+        initMapping: mapping.filter(o => !!o.sourceField),
+        destFields: data,
+        isSetDefaultFields: !_.get(node, ['nodeConfig', 'config', 'createTable']),
+        sourceFields: _.get(preNode, ['nodeConfig', 'fields']),
+        isCreate: _.get(node, ['nodeConfig', 'config', 'createTable']),
+        dataDestType: _.get(node, ['nodeConfig', 'config', 'dsType']),
+        isSourceAppType: _.get(preNode, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET,
+        isDestAppType: _.get(node, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET,
+      });
+      this.setState({
+        matchedTypes: mapDt.matchedTypes,
+        loading: false,
+        node: {
+          ...node,
+          nodeConfig: {
+            ...node.nodeConfig,
+            config: { ..._.get(node, 'nodeConfig.config'), fieldsMapping: mapDt.fieldsMapping },
+          },
+        },
+      });
+    } else {
+      const res = await dataSourceApi.fieldsDataTypeMatch({
+        dataDestType: _.get(node, ['nodeConfig', 'config', 'dsType']),
+        sourceFields: _.get(preNode, ['nodeConfig', 'fields']),
+        isCreate: _.get(node, ['nodeConfig', 'config', 'createTable']),
+      });
+      this.setState({
+        matchedTypes: res.matchedTypes,
+        loading: false,
+      });
+    }
+  };
   onChangeNodeConfig = (options, cb) => {
     const { node = {} } = this.state;
     let nodeData = {
       ...node,
       nodeConfig: {
-        ...(node.nodeConfig || {}),
+        ..._.get(node, 'nodeConfig'),
         ...options,
       },
     };
@@ -408,7 +430,7 @@ export default class CellEdit extends Component {
               <div className={cx('itemBox Gray', { isNull: !leftField.id })}>{leftField.name}</div>
               <div className={cx('itemBox secondD', { isNull: !rightField.id })}>
                 <Dropdown
-                  placeholder=''
+                  placeholder=""
                   value={!rightField.id ? undefined : rightField.id}
                   className=" "
                   onChange={value => {
@@ -510,8 +532,8 @@ export default class CellEdit extends Component {
     );
   };
   renderCon = () => {
-    const { isAddSheet, list } = this.props;
-    const { node = {} } = this.state;
+    const { list } = this.props;
+    const { node = {}, matchedTypes = {} } = this.state;
     const { nodeType = '' } = node;
     const { sheetName } = this.state;
     //筛选|分类汇总 => 没有字段配置
@@ -526,12 +548,13 @@ export default class CellEdit extends Component {
       case 'UNION':
         return <WrapCon className={cx('flexColumn')}>{this.renderTemplateByUnion(node)}</WrapCon>;
       case 'DEST_TABLE':
-        const d = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
+        //上一个节点的数据
+        const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
         return (
           <WrapCon className={cx('flexColumn')}>
-            {isAddSheet && (
+            {_.get(node, ['nodeConfig', 'config', 'createTable']) && (
               <React.Fragment>
-                <div className="name Bold pBottom12">{_l('工作表名称')}</div>
+                <div className="name Bold pBottom12">{_l('新建表名称')}</div>
                 <Input
                   className="setSheetName"
                   placeholder={_l('请输入')}
@@ -539,21 +562,50 @@ export default class CellEdit extends Component {
                   onChange={sheetName => {
                     this.setState({
                       sheetName,
+                      node: {
+                        ...node,
+                        nodeConfig: {
+                          ..._.get(node, ['nodeConfig']),
+                          config: {
+                            ..._.get(node, ['nodeConfig', 'config']),
+                            tableName: sheetName,
+                          },
+                        },
+                      },
                     });
                   }}
                 />
+                <div className="mTop45"></div>
               </React.Fragment>
             )}
             <FieldMappingList
-              isCreate={isAddSheet}
-              sourceData={{ ...d, sourceFields: _.get(d, ['nodeConfig', 'fields']), isDbType: true }}
+              isCreate={_.get(node, ['nodeConfig', 'config', 'createTable'])}
+              sourceData={{
+                ...preNode,
+                sourceFields: _.get(preNode, ['nodeConfig', 'fields']),
+                isDbType: _.get(preNode, ['nodeConfig', 'config', 'dsType']) !== DATABASE_TYPE.APPLICATION_WORKSHEET,
+              }}
               destData={{
-                destFields: _.get(node, ['nodeConfig', 'fields']),
-                isDbType: _.get(node, ['nodeConfig', 'config', 'dsType']) !== 'MING_DAO_YUN',
+                destFields: this.state.fileList,
+                isDbType: _.get(node, ['nodeConfig', 'config', 'dsType']) !== DATABASE_TYPE.APPLICATION_WORKSHEET,
                 dsType: _.get(node, ['nodeConfig', 'config', 'dsType']),
+                isOurCreateTable: _.get(node, ['nodeConfig', 'config', 'isOurCreateTable']),
               }}
               fieldsMapping={_.get(node, ['nodeConfig', 'config', 'fieldsMapping'])}
               setFieldsMapping={mapping => {
+                const data = mapping.map(o => {
+                  if (!_.get(node, ['nodeConfig', 'config', 'createTable'])) {
+                    return {
+                      ...o,
+                      destField: {
+                        ...o.destField,
+                        isCheck: !!_.get(o, 'destField.id'),
+                      },
+                    };
+                  } else {
+                    return o;
+                  }
+                });
                 this.setState({
                   node: {
                     ...node,
@@ -561,12 +613,13 @@ export default class CellEdit extends Component {
                       ..._.get(node, ['nodeConfig']),
                       config: {
                         ..._.get(node, ['nodeConfig', 'config']),
-                        fieldsMapping: mapping,
+                        fieldsMapping: data,
                       },
                     },
                   },
                 });
               }}
+              matchedTypes={matchedTypes}
             />
           </WrapCon>
         );
@@ -589,9 +642,62 @@ export default class CellEdit extends Component {
   };
   render() {
     const { onClose, onSave } = this.props;
-    const { node = {} } = this.state;
+    const { node = {}, loading, sheetName } = this.state;
     const { nodeType = '' } = node;
-
+    let disable = false;
+    let txt = '';
+    // 保存的限制。
+    // 1. 最少一个勾选字段 【新建 和 已有】，新建判断勾选，已有判断是否有映射关系，因为已有没有勾选按钮
+    // 2. 工作表的话要设置标题 数据库要有主键 【这个就是新建了】
+    // 如果来源表没有主键 这个页面也不能保存
+    //目的地表
+    const fieldsMapping = _.get(node, ['nodeConfig', 'config', 'fieldsMapping']) || [];
+    if (nodeType === 'DEST_TABLE') {
+      if (fieldsMapping.filter(o => _.get(o, 'destField.isCheck')).length <= 0) {
+        disable = true;
+        txt = _l('未设置相关映射字段');
+      }
+      //新建
+      if (_.get(node, ['nodeConfig', 'config', 'createTable'])) {
+        if (!sheetName) {
+          disable = true;
+          txt = _l('新建表未设置表名称');
+        }
+        if (
+          fieldsMapping.filter(o => _.get(o, 'destField.isCheck') && !!(_.get(o, 'destField.name') || '').trim())
+            .length < fieldsMapping.filter(o => _.get(o, 'destField.isCheck')).length
+        ) {
+          disable = true;
+          txt = _l('未设置相关映射字段');
+        }
+        //目的地为工作表
+        if (_.get(node, ['nodeConfig', 'config', 'dsType']) === DATABASE_TYPE.APPLICATION_WORKSHEET) {
+          //标题字段
+          if (fieldsMapping.filter(o => _.get(o, 'destField.isTitle') && !!_.get(o, 'destField.isCheck')).length <= 0) {
+            disable = true;
+            txt = _l('目标工作表未设置标题字段');
+          }
+        } else if (_.get(node, ['nodeConfig', 'config', 'dsType']) !== DATABASE_TYPE.APPLICATION_WORKSHEET) {
+          //标题字段
+          if (fieldsMapping.filter(o => _.get(o, 'destField.isPk')).length <= 0) {
+            disable = true;
+            txt = _l('目标工作表未设置主键 ');
+          }
+        }
+      } else {
+        if (fieldsMapping.filter(o => !!_.get(o, 'sourceField.isPk')).length > 0) {
+          //主键未设置相关映射
+          if (
+            fieldsMapping.filter(
+              o => !!_.get(o, 'sourceField.isPk') && !!_.get(o, 'destField.isCheck') && !!_.get(o, 'destField.id'),
+            ).length <= 0
+          ) {
+            disable = true;
+            txt = _l('主键未设置相关映射');
+          }
+        }
+      }
+    }
     return (
       <Wrap className="">
         <div className={cx('conEdit flexColumn', { isMaxC: ['UNION', 'DEST_TABLE'].includes(nodeType) })}>
@@ -604,27 +710,65 @@ export default class CellEdit extends Component {
               }}
             ></i>
           </div>
-          <div className="conC flex">
-            <div className="listCon">{this.renderCon()}</div>
-          </div>
-          <div className="footerCon">
-            <span
-              className="btnCon Hand InlineBlock saveBtn"
-              onClick={() => {
-                onSave(node);
-              }}
-            >
-              {_l('保存')}
-            </span>
-            <span
-              className="btnCon Hand InlineBlock cancleBtn mLeft20"
-              onClick={() => {
-                onClose();
-              }}
-            >
-              {_l('取消')}
-            </span>
-          </div>
+          {loading ? (
+            <LoadDiv />
+          ) : (
+            <React.Fragment>
+              <div className="conC flex">
+                <div className="listCon">{this.renderCon()}</div>
+              </div>
+              <div className="footerCon">
+                <span
+                  className={cx('btnCon Hand InlineBlock saveBtn', {
+                    disabled: loading || disable,
+                  })}
+                  onClick={() => {
+                    if (loading) {
+                      return;
+                    }
+                    if (disable) {
+                      alert(txt, 3);
+                      return;
+                    }
+                    if (nodeType === 'DEST_TABLE') {
+                      const mapping = _.get(node, ['nodeConfig', 'config', 'fieldsMapping']) || [];
+                      const data = mapping.map(o => {
+                        if (!_.get(o, 'destField.isCheck')) {
+                          return {
+                            ...o,
+                            destField: null,
+                          };
+                        } else {
+                          return o;
+                        }
+                      });
+                      onSave({
+                        ...node,
+                        nodeConfig: {
+                          ..._.get(node, ['nodeConfig']),
+                          config: {
+                            ..._.get(node, ['nodeConfig', 'config']),
+                            fieldsMapping: data,
+                          },
+                          fields: data.map(o => o.destField).filter(o => !!o),
+                        },
+                      });
+                    }
+                  }}
+                >
+                  {_l('保存')}
+                </span>
+                <span
+                  className="btnCon Hand InlineBlock cancleBtn mLeft20"
+                  onClick={() => {
+                    onClose();
+                  }}
+                >
+                  {_l('取消')}
+                </span>
+              </div>
+            </React.Fragment>
+          )}
         </div>
       </Wrap>
     );

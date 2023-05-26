@@ -157,9 +157,12 @@ export default class ResignList extends React.Component {
       alert(_l('请输入登录密码'), 3);
       return;
     }
-    verifyPassword(password, () => {
-      _this.exportList();
-      _this.setState({ showInputPassword: false });
+    verifyPassword({
+      password,
+      success: () => {
+        _this.exportList();
+        _this.setState({ showInputPassword: false });
+      },
     });
   };
   dialogInputPassword = () => {

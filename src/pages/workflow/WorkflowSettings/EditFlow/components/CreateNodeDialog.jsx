@@ -17,11 +17,11 @@ export default class CreateNodeDialog extends Component {
       list: [
         {
           id: 'data',
-          name: _l('数据处理'),
+          name: _l('数据处理%03017'),
           items: [
             {
               type: 6,
-              name: _l('新增记录'),
+              name: _l('新增记录%03018'),
               appType: 1,
               actionId: '1',
               iconColor: '#FFA340',
@@ -29,7 +29,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 6,
-              name: _l('更新记录'),
+              name: _l('更新记录%03019'),
               appType: 1,
               actionId: '2',
               iconColor: '#FFA340',
@@ -37,7 +37,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 6,
-              name: _l('删除记录'),
+              name: _l('删除记录%03020'),
               appType: 1,
               actionId: '3',
               iconColor: '#FFA340',
@@ -45,7 +45,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 7,
-              name: _l('获取单条数据'),
+              name: _l('获取单条数据%03021'),
               iconColor: '#FFA340',
               iconName: 'icon-search',
               typeText: _l('获取方式'),
@@ -82,7 +82,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 13,
-              name: _l('获取多条数据'),
+              name: _l('获取多条数据%03022'),
               iconColor: '#FFA340',
               iconName: 'icon-transport',
               typeText: _l('获取方式'),
@@ -125,7 +125,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 6,
-              name: _l('更新流程参数'),
+              name: _l('更新流程参数%03023'),
               appType: 102,
               actionId: '2',
               iconColor: '#FFA340',
@@ -139,7 +139,7 @@ export default class CreateNodeDialog extends Component {
           items: [
             {
               type: 26,
-              name: _l('发起审批流程'),
+              name: _l('发起审批流程%03024'),
               iconColor: '#4158DB',
               iconName: 'icon-approval',
               typeText: _l('执行流程'),
@@ -162,19 +162,19 @@ export default class CreateNodeDialog extends Component {
               ],
             },
             { type: 4, name: _l('审批'), iconColor: '#7E57C2', iconName: 'icon-workflow_ea' },
-            { type: 3, name: _l('填写'), iconColor: '#00BCD4', iconName: 'icon-workflow_write' },
-            { type: 5, name: _l('抄送'), iconColor: '#2196f3', iconName: 'icon-workflow_notice' },
+            { type: 3, name: _l('填写%03025'), iconColor: '#00BCD4', iconName: 'icon-workflow_write' },
+            { type: 5, name: _l('抄送%03026'), iconColor: '#2196f3', iconName: 'icon-workflow_notice' },
           ],
         },
         {
           id: 'notice',
-          name: _l('通知'),
+          name: _l('通知%03027'),
           items: [
-            { type: 27, name: _l('发送站内通知'), iconColor: '#2196f3', iconName: 'icon-hr_message_reminder' },
-            { type: 10, name: _l('发送短信'), iconColor: '#2196f3', iconName: 'icon-workflow_sms' },
+            { type: 27, name: _l('发送站内通知%03028'), iconColor: '#2196f3', iconName: 'icon-hr_message_reminder' },
+            { type: 10, name: _l('发送短信%03029'), iconColor: '#2196f3', iconName: 'icon-workflow_sms' },
             {
               type: 11,
-              name: _l('发送邮件'),
+              name: _l('发送邮件%03030'),
               appType: 3,
               actionId: '202',
               iconColor: '#2196f3',
@@ -189,7 +189,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 19,
-              name: _l('发送服务号消息'),
+              name: _l('发送服务号信息%03031'),
               appType: 22,
               actionId: '203',
               iconColor: '#2196f3',
@@ -199,12 +199,12 @@ export default class CreateNodeDialog extends Component {
         },
         {
           id: 'component',
-          name: _l('构件'),
+          name: _l('构件%03032'),
           items: [
-            { type: 1, name: _l('分支'), iconColor: '#4C7D9E', iconName: 'icon-workflow_branch' },
+            { type: 1, name: _l('分支%03033'), iconColor: '#4C7D9E', iconName: 'icon-workflow_branch' },
             {
               type: 12,
-              name: _l('延时'),
+              name: _l('延时%03034'),
               iconColor: '#4C7D9E',
               iconName: 'icon-workflow_delayed',
               typeText: _l('延时方式'),
@@ -225,7 +225,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 9,
-              name: _l('运算'),
+              name: _l('运算%03035'),
               iconColor: '#4C7D9E',
               iconName: 'icon-workflow_function',
               typeText: _l('运算对象'),
@@ -264,7 +264,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 15,
-              name: _l('获取链接'),
+              name: _l('获取链接%03036'),
               appType: 13,
               iconColor: '#4C7D9E',
               iconName: 'icon-link2',
@@ -272,20 +272,20 @@ export default class CreateNodeDialog extends Component {
             {
               type: 18,
               featureId: 13,
-              name: _l('获取记录打印文件'),
+              name: _l('获取记录打印文件%03037'),
               appType: 14,
               iconColor: '#4C7D9E',
               iconName: 'icon-print',
             },
             {
               type: 16,
-              name: _l('子流程'),
+              name: _l('子流程%03038'),
               iconColor: '#4C7D9E',
               iconName: 'icon-subprocess',
             },
             {
               type: 20,
-              name: _l('调用业务流程'),
+              name: _l('调用业务流程%03039'),
               appType: 17,
               actionId: '500',
               iconColor: '#4C7D9E',
@@ -294,7 +294,7 @@ export default class CreateNodeDialog extends Component {
             {
               type: 25,
               featureId: 4,
-              name: _l('调用已集成 API'),
+              name: _l('调用已集成 API%03040'),
               appType: 42,
               iconColor: '#4C7D9E',
               iconName: 'icon-api',
@@ -303,19 +303,19 @@ export default class CreateNodeDialog extends Component {
         },
         {
           id: 'developer',
-          name: '开发者',
+          name: _l('开发者%03041'),
           items: [
             {
               type: 24,
               featureId: 4,
-              name: _l('API 连接与认证'),
+              name: _l('API 连接与认证%03042'),
               appType: 41,
               iconColor: '#4C7D9E',
               iconName: 'icon-connect',
             },
             {
               type: 8,
-              name: _l('发送 API 请求'),
+              name: _l('发送 API 请求%03043'),
               iconColor: '#4C7D9E',
               iconName: 'icon-workflow_webhook',
               typeText: _l('发送对象'),
@@ -337,7 +337,7 @@ export default class CreateNodeDialog extends Component {
             {
               type: 14,
               featureId: 8,
-              name: _l('代码块'),
+              name: _l('代码块%03044'),
               iconColor: '#4C7D9E',
               iconName: 'icon-url',
               typeText: _l('选择代码块语言'),
@@ -358,7 +358,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 21,
-              name: _l('JSON 解析'),
+              name: _l('JSON 解析%03045'),
               appType: 18,
               actionId: '510',
               iconColor: '#4C7D9E',
@@ -368,11 +368,11 @@ export default class CreateNodeDialog extends Component {
         },
         {
           id: 'message',
-          name: _l('组织/部门/协作'),
+          name: _l('组织/部门/协作%03046'),
           items: [
             {
               type: 1000,
-              name: _l('获取单条人员/部门/组织角色数据'),
+              name: _l('获取单条人员/部门/组织角色数据%03047'),
               iconColor: '#2196f3',
               iconName: 'icon-person_search',
               typeText: _l('获取方式'),
@@ -423,7 +423,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 1001,
-              name: _l('获取多条人员/部门/组织角色数据'),
+              name: _l('获取多条人员/部门/组织角色数据%03048'),
               iconColor: '#2196f3',
               iconName: 'icon-group-members',
               typeText: _l('获取方式'),
@@ -474,7 +474,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 6,
-              name: _l('创建任务'),
+              name: _l('创建任务%03049'),
               appType: 2,
               actionId: '1',
               iconColor: '#01CA83',
@@ -484,11 +484,11 @@ export default class CreateNodeDialog extends Component {
         },
         {
           id: 'external',
-          name: _l('外部用户'),
+          name: _l('外部用户%03050'),
           items: [
             {
               type: 6,
-              name: _l('更新外部用户信息'),
+              name: _l('更新外部用户信息%03051'),
               appType: 23,
               actionId: '2',
               iconColor: '#FFA340',
@@ -496,7 +496,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 6,
-              name: _l('邀请外部用户'),
+              name: _l('邀请外部用户%03052'),
               appType: 23,
               actionId: '1',
               iconColor: '#FFA340',
@@ -504,7 +504,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 1000,
-              name: _l('获取单条外部人员数据'),
+              name: _l('获取单条外部人员数据%03053'),
               iconColor: '#2196f3',
               iconName: 'icon-external_users',
               typeText: _l('获取方式'),
@@ -527,7 +527,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 1001,
-              name: _l('获取多条外部人员数据'),
+              name: _l('获取多条外部人员数据%03054'),
               iconColor: '#2196f3',
               iconName: 'icon-folder-public',
               typeText: _l('获取方式'),
@@ -668,7 +668,7 @@ export default class CreateNodeDialog extends Component {
               >
                 <Icon
                   icon={foldFeatures[data.id] ? 'arrow-right-tip' : 'arrow-down'}
-                  className="mRight13 Gray_9e Font13 nodeFoldIcon"
+                  className="mRight13 Gray_9e Font13"
                 />
                 {data.name}
               </div>
@@ -762,7 +762,10 @@ export default class CreateNodeDialog extends Component {
     const { isOrdinary, moveType } = this.state;
     const MOVE_TYPE = () => {
       if (isOrdinary) {
-        return [{ text: _l('左侧'), value: 1 }, { text: _l('不移动'), value: 0 }];
+        return [
+          { text: _l('左侧'), value: 1 },
+          { text: _l('不移动'), value: 0 },
+        ];
       }
 
       if (nodeType === NODE_TYPE.APPROVAL) {

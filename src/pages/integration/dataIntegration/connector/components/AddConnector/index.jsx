@@ -145,7 +145,7 @@ export default function AddConnector(props) {
   const [currentStep, setCurrentStep] = useState(0);
   const [nextOrSaveDisabled, setNextOrSaveDisabled] = useState(true);
   const [submitData, setSubmitData] = useState([]);
-  const [resDialogVisible, setResDialogVisible] = useState(false);
+  const [resDialog, setResDialog] = useState({ visible: false });
   const [isCreating, setIsCreating] = useState(false);
   const isSourceAppType = connectorConfigData.source.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
   const isDestAppType = connectorConfigData.dest.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
@@ -180,6 +180,7 @@ export default function AddConnector(props) {
         password: formData.password,
         initDb: formData.initDb,
         connectOptions: formData.connectOptions,
+        cdcParams: formData.cdcParams,
         type: currentData.type,
         fromType: currentData.fromType,
         roleType: currentStep === 0 ? ROLE_TYPE.SOURCE : ROLE_TYPE.DEST,
@@ -271,7 +272,7 @@ export default function AddConnector(props) {
               break;
           }
         } else {
-          if (!field.id) {
+          if (field.isPk && !field.id) {
             isComplete_exist = false;
           }
         }
@@ -368,9 +369,11 @@ export default function AddConnector(props) {
           taskFlowApi
             .createSyncTasks(submitParams)
             .then(res => {
-              if (res) {
-                setResDialogVisible(true);
-              }
+              setResDialog({
+                visible: true,
+                type: res.isSucceeded ? 'success' : 'error',
+                errorMsgList: res.errorMsgList,
+              });
             })
             .fail(() => {
               setNextOrSaveDisabled(false);
@@ -462,33 +465,61 @@ export default function AddConnector(props) {
         </ContentWrapper>
       )}
 
-      {resDialogVisible && (
-        <Dialog visible width={480} className="connectorResultDialog" showFooter={false} closable={false}>
-          <div className="flexColumn alignItemsCenter">
-            <img src="/staticfiles/images/trophy.png" width={190} height={170} />
-            <div className="Font20 bold mTop20">{_l('太棒了！同步任务创建成功')}</div>
-            <div className="Font14 Gray_75 mTop20">
-              {_l('可在')}
-              <a
-                className="mLeft5 mRight5"
-                onClick={() => {
-                  window.location.href = '/integration/task';
-                }}
-              >
-                {_l('数据同步任务')}
-              </a>
-              {_l('中查看任务的运行状态与同步详情')}
+      {resDialog.visible &&
+        (resDialog.type === 'success' ? (
+          <Dialog visible width={480} className="connectorResultDialog" showFooter={false} closable={false}>
+            <div className="flexColumn alignItemsCenter">
+              <img src="/staticfiles/images/trophy.png" width={190} height={170} />
+              <div className="Font20 bold mTop20">{_l('太棒了！同步任务创建成功')}</div>
+              <div className="Font14 Gray_75 mTop20">
+                {_l('可在')}
+                <a
+                  className="mLeft5 mRight5"
+                  onClick={() => {
+                    window.location.href = '/integration/task';
+                  }}
+                >
+                  {_l('数据同步任务')}
+                </a>
+                {_l('中查看任务的运行状态与同步详情')}
+              </div>
+              <div className="flexRow alignItemsCenter mTop20">
+                <Icon icon="info_outline" className="Gray_9e Font16" />
+                <span className="Gray_9e mLeft8">{_l('连续60天无数据同步，会自动停止')}</span>
+              </div>
+              <Button type="primary" className="mTop36" onClick={onClose}>
+                {_l('知道了')}
+              </Button>
             </div>
-            {/* <div className="flexRow alignItemsCenter mTop20">
-              <Icon icon="info_outline" className="Gray_9e Font16" />
-              <span className="Gray_9e mLeft8">{_l('连续60天无数据同步，会自动停止')}</span>
-            </div> */}
-            <Button type="primary" className="mTop36" onClick={onClose}>
-              {_l('知道了')}
-            </Button>
-          </div>
-        </Dialog>
-      )}
+          </Dialog>
+        ) : (
+          <Dialog
+            visible
+            title={_l('报错信息')}
+            width={480}
+            className="connectorErrorDialog"
+            showCancel={false}
+            okText={_l('关闭')}
+            onOk={() => {
+              setResDialog({ visible: false });
+              setNextOrSaveDisabled(false);
+              setIsCreating(false);
+            }}
+            onCancel={() => {
+              setResDialog({ visible: false });
+              setNextOrSaveDisabled(false);
+              setIsCreating(false);
+            }}
+          >
+            {resDialog.errorMsgList && resDialog.errorMsgList.length > 0 && (
+              <div className="errorInfo">
+                {resDialog.errorMsgList.map((error, index) => {
+                  return <div key={index} className="mTop5">{`${index + 1}. ${error}`}</div>;
+                })}
+              </div>
+            )}
+          </Dialog>
+        ))}
     </ConnectorAddWrapper>
   );
 }

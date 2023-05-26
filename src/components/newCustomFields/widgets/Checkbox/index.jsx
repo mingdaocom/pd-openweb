@@ -64,7 +64,7 @@ export default class Widgets extends Component {
     const checkIds = JSON.parse(value || '[]');
 
     if (checked) {
-      _.remove(checkIds, item => item === key);
+      _.remove(checkIds, item => (key === 'other' ? item.startsWith(key) : item === key));
     } else {
       checkIds.push(key);
     }

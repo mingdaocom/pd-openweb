@@ -65,7 +65,9 @@ export default class Cancellation extends Component {
               step: 3,
               createTime: res.createTime,
               createStateTime,
-              overdueDiff: moment(createStateTime).add(5, 'm').diff(moment(), 's'),
+              overdueDiff: moment(createStateTime)
+                .add(5, 'm')
+                .diff(moment(), 's'),
               loading: false,
             },
             () => {
@@ -85,9 +87,12 @@ export default class Cancellation extends Component {
       return;
     }
     const _this = this;
-    verifyPassword(password.trim(), () => {
-      _this.setState({ step: 2 });
-      _this.getCountDown();
+    verifyPassword({
+      password: password.trim(),
+      success: () => {
+        _this.setState({ step: 2 });
+        _this.getCountDown();
+      },
     });
   };
   renderInputPassword = () => {
@@ -144,7 +149,7 @@ export default class Cancellation extends Component {
           </div>
         </div>
         <div className="protocol TxtLeft flexRow alignItemsCenter mTop24">
-          <Checkbox checked={checkedAgree} onClick={checked => this.setState({ checkedAgree: !checked })}></Checkbox>
+          <Checkbox checked={checkedAgree} onClick={checked => this.setState({ checkedAgree: !checked })} />
           <div>
             <spam className="Font20">{_l('同意（注销后15天内可撤销操作）')}</spam>
           </div>

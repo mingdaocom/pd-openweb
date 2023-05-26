@@ -29,7 +29,7 @@ const verificationDataLength = (Component) => {
         const contrastMapLength = contrastMap.length * (_.get(contrastMap[0], ['value', 'length']) || 1);
         return mapLength > max || contrastMapLength > max;
       }
-      if ([reportTypes.PieChart].includes(reportData.reportType)) {
+      if ([reportTypes.PieChart, reportTypes.WordCloudChart].includes(reportData.reportType)) {
         const max = 500;
         const length = _.get(map[0], 'value.length') || 0;
         return length > max;

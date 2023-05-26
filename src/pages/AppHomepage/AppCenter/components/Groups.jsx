@@ -142,6 +142,7 @@ export default function Groups(props) {
     activeGroup,
     groups = [],
     actions,
+    isAllActive,
   } = props;
   const [isDragging, setIsDragging] = useState();
   const [sorts, setSorts] = useState({});
@@ -218,13 +219,24 @@ export default function Groups(props) {
             <GroupItem
               itemType="static"
               className="mTop10"
-              fontIcon="grid_view"
+              fontIcon="home_page"
               to="/app/my"
-              active={!activeGroupId}
+              active={!activeGroupId && !isAllActive}
               name={_l('首页')}
               onClick={() => {
                 actions.loadAppAndGroups({ projectId, noGroupsLoading: true });
                 navigateTo('/app/my');
+              }}
+            />
+            <GroupItem
+              itemType="static"
+              fontIcon="grid_view"
+              to="/app/my/all"
+              active={isAllActive}
+              name={_l('全部')}
+              onClick={() => {
+                actions.loadAppAndGroups({ projectId, noGroupsLoading: true });
+                navigateTo('/app/my/all');
               }}
             />
             {featureType && (
@@ -255,7 +267,7 @@ export default function Groups(props) {
           </PaddingCon>
           <GroupsCon>
             <ScrollView>
-              <PaddingCon>
+              <PaddingCon className="pBottom25">
                 {list
                   .filter(item => item.groups && item.groups.length)
                   .map((item, i) => (
@@ -288,8 +300,8 @@ export default function Groups(props) {
                               ids: sortedGroups.map(g => g.id),
                               sortType: getSortType(item.type),
                             });
-                            if (item.type === 'star') {
-                              actions.updateGroupSorts(sortedGroups);
+                            if (item.type !== 'personal') {
+                              actions.updateGroupSorts(sortedGroups, item.type);
                             }
                           }}
                         />

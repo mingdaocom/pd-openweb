@@ -1,7 +1,6 @@
 import './style.less';
 import React, { Component } from 'react';
 import CalendarDetail from '../modules/calendarDetail';
-import { urlStackBack } from 'src/router/navigateTo';
 import { connect } from 'react-redux';
 
 class CalendarDetailEntrypoint extends Component {

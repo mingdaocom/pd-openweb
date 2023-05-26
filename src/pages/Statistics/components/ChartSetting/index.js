@@ -206,7 +206,7 @@ export default class ChartSetting extends Component {
           onRemove={this.props.removeColumns}
         />
         <PivotTableAxis
-          name={_l('数值')}
+          name={_l('值')}
           verifyNumber={true}
           disableParticleSizeTypes={[]}
           axisControls={axisControls.concat(currentReport.formulas)}

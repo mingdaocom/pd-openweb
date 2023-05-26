@@ -216,6 +216,14 @@ class TaskNode extends Component {
   componentDidMount() {
     this.drawConnector();
   }
+  componentWillReceiveProps(nextProps) {
+    if (
+      !_.isEqual(_.get(nextProps, 'nodeData.pathIds'), _.get(this.props, 'nodeData.pathIds')) &&
+      _.isEqual(_.get(nextProps, 'nodeData.nodeId'), _.get(this.props, 'nodeData.nodeId'))
+    ) {
+      this.drawConnector(nextProps);
+    }
+  }
 
   //新增节点
   onAddNode = info => {
@@ -243,88 +251,84 @@ class TaskNode extends Component {
     const { fromDt = {}, toDt = {} } = pathIds[0];
     return (
       <WrapAct>
-        <ul>
         {/* 暂时不开放 */}
-          <div className="Gray_bd Font12 pLeft16" style={{ height: 32 }}>
-            <Coding className="Font12 isCoding Bold InlineBlock">
-              <Icon icon={'auto_awesome'} className="mRight5 Font14 TxtMiddle" />
-              {_l('即将上线')}
-            </Coding>
-          </div>
+        <div className="Gray_bd Font12 pLeft16" style={{ height: 32 }}>
+          <Coding className="Font12 isCoding Bold InlineBlock">
+            <Icon icon={'auto_awesome'} className="mRight5 Font14 TxtMiddle" />
+            {_l('即将上线')}
+          </Coding>
+        </div>
+        <ul>
           {ACTION_LIST.map(o => {
             return (
               <React.Fragment>
-                {o.type === 'FILTER' && ACTION_LIST.length > 1 && <div className="line"></div>}
                 <li
-                  className="flexRow alignItemsCenter Hand Gray_9e"
-                  // 暂时不开放
-                  // onClick={() => {
-                  //   let nodeId = uuidv4();
-                  //   let addNodes = [];
-                  //   let updateNodes = [];
-                  //   //添加出两个节点（源+本身）
-                  //   if (['JOIN', 'UNION'].includes(o.type)) {
-                  //     let sourceNodeId = uuidv4();
-                  //     const newNode = {
-                  //       nodeId,
-                  //       name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
-                  //       nodeType: o.type,
-                  //       prevIds: nodeData.y === 0 ? [sourceNodeId] : [nodeData.nodeId, sourceNodeId],
-                  //       nextIds: nodeData.y === 0 ? [toDt.nodeId] : [],
-                  //     };
-                  //     const sourceNode = {
-                  //       nodeId: sourceNodeId,
-                  //       nodeType: 'SOURCE_TABLE',
-                  //       name: NODE_TYPE_LIST.find(a => a.nodeType === 'SOURCE_TABLE').name,
-                  //       prevIds: [],
-                  //       nextIds: [],
-                  //     };
-                  //     addNodes = [newNode, sourceNode];
-                  //   } else {
-                  //     const newNode = {
-                  //       nodeId,
-                  //       nodeType: o.type,
-                  //       name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
-                  //       nextIds: nodeData.y === 0 ? [toDt.nodeId] : [],
-                  //       prevIds: nodeData.y === 0 ? [] : [fromDt.nodeId],
-                  //     };
-                  //     addNodes = [newNode];
-                  //   }
-                  //   if (nodeData.y === 0) {
-                  //     let from = {
-                  //       ..._.omit(
-                  //         this.props.list.find(a => a.nodeId === fromDt.nodeId),
-                  //         ['x', 'y', 'pathIds'],
-                  //       ),
-                  //       nextIds: [nodeId],
-                  //     };
-                  //     updateNodes = [from];
-                  //   } else {
-                  //     let to = {
-                  //       ..._.omit(
-                  //         this.props.list.find(a => a.nodeId === toDt.nodeId),
-                  //         ['x', 'y', 'pathIds'],
-                  //       ),
-                  //       prevIds: [...toDt.prevIds.filter(o => o !== nodeData.nodeId), nodeId],
-                  //     };
-                  //     updateNodes = [to];
-                  //   }
-                  //   onAddNodes({ toAdd: addNodes, toUpdate: updateNodes, toDeleteIds: [] });
-                  //   // this.onAddNode({
-                  //   //   name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
-                  //   //   nodeType: o.type,
-                  //   //   upstreamId: nodeId,
-                  //   //   isOnTrunk: y <= 0,
-                  //   // });
-                  // }}
+                  className={cx('flexRow alignItemsCenter Hand Alpha3', { Alpha3: o.type !== 'FILTER' })}
+                  onClick={() => {
+                    return;
+                    if (o.type !== 'FILTER') {
+                      return;
+                    }
+                    let nodeId = uuidv4();
+                    let addNodes = [];
+                    let updateNodes = [];
+                    //添加出两个节点（源+本身）
+                    if (['JOIN', 'UNION'].includes(o.type)) {
+                      let sourceNodeId = uuidv4();
+                      const newNode = {
+                        nodeId,
+                        name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
+                        nodeType: o.type,
+                        prevIds: nodeData.y === 0 ? [sourceNodeId] : [nodeData.nodeId, sourceNodeId],
+                        nextIds: nodeData.y === 0 ? [toDt.nodeId] : [],
+                      };
+                      const sourceNode = {
+                        nodeId: sourceNodeId,
+                        nodeType: 'SOURCE_TABLE',
+                        name: NODE_TYPE_LIST.find(a => a.nodeType === 'SOURCE_TABLE').name,
+                        prevIds: [],
+                        nextIds: [],
+                      };
+                      addNodes = [newNode, sourceNode];
+                    } else {
+                      const newNode = {
+                        nodeId,
+                        nodeType: o.type,
+                        name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
+                        nextIds: nodeData.y === 0 ? [toDt.nodeId] : [],
+                        prevIds: nodeData.y === 0 ? [] : [fromDt.nodeId],
+                      };
+                      addNodes = [newNode];
+                    }
+                    if (nodeData.y === 0) {
+                      let from = {
+                        ..._.omit(
+                          this.props.list.find(a => a.nodeId === fromDt.nodeId),
+                          ['x', 'y', 'pathIds'],
+                        ),
+                        nextIds: [nodeId],
+                      };
+                      updateNodes = [from];
+                    } else {
+                      let to = {
+                        ..._.omit(
+                          this.props.list.find(a => a.nodeId === toDt.nodeId),
+                          ['x', 'y', 'pathIds'],
+                        ),
+                        prevIds: [...toDt.prevIds.filter(o => o !== nodeData.nodeId), nodeId],
+                      };
+                      updateNodes = [to];
+                    }
+                    onAddNodes({ toAdd: addNodes, toUpdate: updateNodes, toDeleteIds: [] });
+                    // this.onAddNode({
+                    //   name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
+                    //   nodeType: o.type,
+                    //   upstreamId: nodeId,
+                    //   isOnTrunk: y <= 0,
+                    // });
+                  }}
                 >
-                  <Icon
-                    type={o.icon}
-                    style={{
-                      color: '#9e9e9e', // o.color 暂时不开放
-                    }}
-                    className="Font17"
-                  />
+                  <Icon type={o.icon} style={{ color: o.color }} className="Font17" />
                   <span className="Font14">{o.txt}</span>
                 </li>
               </React.Fragment>
@@ -344,6 +348,9 @@ class TaskNode extends Component {
       yN = pathIds[0].fromDt.y - pathIds[0].toDt.y;
       const id = `svg-${pathIds[0].fromDt.nodeId}-${pathIds[0].toDt.nodeId}`;
       const $svgWrap = document.getElementById(id);
+      if ($svgWrap.childElementCount > 0) {
+        $svgWrap.childNodes.forEach(child => $svgWrap.removeChild(child));
+      }
       const draw = SVG(id).size('100%', '100%');
       let linePath = [];
       if (yN === 0) {

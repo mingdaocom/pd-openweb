@@ -24,9 +24,12 @@ export default class PasswordVerification extends Component {
       return;
     }
 
-    verifyPassword(password, () => {
-      _this.props.exportUsers();
-      _this.props.isShowInputPassword();
+    verifyPassword({
+      password,
+      success: () => {
+        _this.props.exportUsers();
+        _this.props.isShowInputPassword();
+      },
     });
   };
   render() {

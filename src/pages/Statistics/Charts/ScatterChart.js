@@ -133,13 +133,16 @@ export default class extends Component {
     const data = formatChartData(map, split.controlId);
     const { position } = getLegendType(displaySetup.legendType);
     const colors = getChartColors();
+    const xField = _.get(yaxisList[0], 'controlId');
+    const yField = _.get(yaxisList[1], 'controlId');
+    const sizeField = _.get(yaxisList[2], 'controlId');
     const base = {
       appendPadding: [20, 20, 0, 0],
       data,
       shapeField: 'originalId',
-      xField: _.get(yaxisList[0], 'controlId'),
-      yField: _.get(yaxisList[1], 'controlId'),
-      sizeField: _.get(yaxisList[2], 'controlId'),
+      xField,
+      yField,
+      sizeField,
       colorField: split.controlId,
       size: [5, 20],
       colors,
@@ -161,13 +164,13 @@ export default class extends Component {
             return item ? item.name || _l('空') : value;
           }
         },
-        [_.get(yaxisList[0], 'controlId')]: {
+        [xField]: {
           alias: _.get(yaxisList[0], 'rename') || _.get(yaxisList[0], 'controlName')
         },
-        [_.get(yaxisList[1], 'controlId')]: {
+        [yField]: {
           alias: _.get(yaxisList[1], 'rename') || _.get(yaxisList[1], 'controlName')
         },
-        [_.get(yaxisList[2], 'controlId')]: {
+        [sizeField]: {
           alias: _.get(yaxisList[2], 'rename') || _.get(yaxisList[2], 'controlName')
         },
         [split.controlId]: {
@@ -214,7 +217,8 @@ export default class extends Component {
         },
       },
       xAxis: {
-        min: -10,
+        min: _.isNumber(xdisplay.minValue) ? xdisplay.minValue : null,
+        max: _.isNumber(xdisplay.maxValue) ? xdisplay.maxValue : null,
         title: xdisplay.showTitle && xdisplay.title ? { text: xdisplay.title } : null,
         label: xdisplay.showDial ? {
           autoHide: true,

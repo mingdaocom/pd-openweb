@@ -46,10 +46,10 @@ var MobileSharePreview = function (options) {
         MSP.init();
       } else {
         if (data.actionResult === 2) {
-          window._alert(_l('请先登录'));
+          window.nativeAlert(_l('请先登录'));
           location.href = md.global.Config.WebUrl + 'login?ReturnUrl=' + location.href;
         } else {
-          window._alert(_l('当前文件不存在或您没有查看权限'));
+          window.nativeAlert(_l('当前文件不存在或您没有查看权限'));
         }
       }
     });
@@ -61,7 +61,7 @@ var MobileSharePreview = function (options) {
         MSP.nodeData.isValid = data.isValid;
         MSP.init();
       } else {
-        _alert(_l('当前文件不存在或您没有查看权限'));
+        window.nativeAlert(_l('当前文件不存在或您没有查看权限'));
       }
     });
   } else {

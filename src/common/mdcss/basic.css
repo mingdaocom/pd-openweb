@@ -703,6 +703,9 @@ body .Hidden {
 .pAll2 {
   padding: 2px !important;
 }
+.pAll3 {
+  padding: 3px !important;
+}
 .pAll5 {
   padding: 5px !important;
 }
@@ -1832,6 +1835,10 @@ body > object {
 
 .zIndex99 {
   z-index: 99;
+}
+
+.zIndex99999 {
+  z-index: 99999;
 }
 
 .followWeixinQrCode {

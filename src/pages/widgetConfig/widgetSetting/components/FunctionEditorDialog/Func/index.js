@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import { Switch } from 'ming-ui';
@@ -71,7 +71,7 @@ const ActiveJsSwitchCon = styled.div`
   }
 `;
 
-export default function Func(props) {
+function Func(props, ref) {
   const {
     supportJavaScript,
     value,
@@ -82,6 +82,7 @@ export default function Func(props) {
     controlGroups,
     onSave,
     className,
+    onChange,
   } = props;
   const [type, setType] = useState(value.type || 'mdfunction');
   const [codeEditorLoading, setCodeEditorLoading] = useState(false);
@@ -125,6 +126,10 @@ export default function Func(props) {
       onClose();
     }
   }
+  useImperativeHandle(ref, () => ({
+    codeEditor: codeEditor.current,
+    handleSave,
+  }));
   return (
     <Con className={cx('functionEditor', className)}>
       <Header>
@@ -136,12 +141,13 @@ export default function Func(props) {
               checked={type === 'javascript'}
               onClick={checked => {
                 setType(checked ? 'mdfunction' : 'javascript');
+                const tempValue = codeEditor.current.getValue();
                 setCodeEditorLoading(true);
                 setTimeout(() => {
                   setCodeEditorLoading(false);
                 }, 10);
                 setTimeout(() => {
-                  codeEditor.current.setValue('');
+                  codeEditor.current.setValue(tempValue);
                 }, 20);
               }}
             />
@@ -169,6 +175,7 @@ export default function Func(props) {
                 controls={controls}
                 ref={codeEditor}
                 renderTag={renderTag}
+                onChange={onChange}
               />
             )}
           </CodeEditCon>
@@ -182,6 +189,8 @@ export default function Func(props) {
   );
 }
 
+export default forwardRef(Func);
+
 Func.propTypes = {
   supportJavaScript: bool,
   value: shape({}),
@@ -191,4 +200,5 @@ Func.propTypes = {
   renderTag: func,
   onClose: func,
   onSave: func,
+  onChange: func,
 };

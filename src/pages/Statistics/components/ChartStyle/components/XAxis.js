@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import { Checkbox, Tooltip, Input } from 'antd';
 import cx from 'classnames';
+import { formatNumberFromInput } from 'src/util';
 import { reportTypes } from 'statistics/Charts/common';
 
 export default class XAxis extends Component {
@@ -76,6 +77,42 @@ export default class XAxis extends Component {
               });
             }}
           />
+        )}
+        {reportTypes.ScatterChart === reportType && (
+          <Fragment>
+            <div className="mBottom16 minWrapper">
+              <div className="mBottom8">{_l('最小值')}</div>
+              <Input
+                className="chartInput"
+                placeholder={_l('自动')}
+                defaultValue={xdisplay.minValue}
+                onBlur={event => {
+                  let value = event.target.value;
+                  let count = Number(formatNumberFromInput(value));
+                  onChangeDisplayValue('xdisplay', {
+                    ...xdisplay,
+                    minValue: value ? count : value,
+                  });
+                }}
+              />
+            </div>
+            <div className="mBottom16 maxWrapper">
+              <div className="mBottom8">{_l('最大值')}</div>
+              <Input
+                className="chartInput"
+                placeholder={_l('自动')}
+                defaultValue={xdisplay.maxValue}
+                onBlur={event => {
+                  let value = event.target.value;
+                  let count = Number(formatNumberFromInput(value));
+                  onChangeDisplayValue('xdisplay', {
+                    ...xdisplay,
+                    maxValue: value ? count : value,
+                  });
+                }}
+              />
+            </div>
+          </Fragment>
         )}
       </Fragment>
     );

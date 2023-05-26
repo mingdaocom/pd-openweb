@@ -1,10 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import formControl from 'ming-ui/decorators/formControl';
 import './less/Textarea.less';
 
-@formControl
 class Textarea extends Component {
   static propTypes = {
     minHeight: PropTypes.number,
@@ -20,7 +18,6 @@ class Textarea extends Component {
     onBlur: PropTypes.func,
     resizeAfterBlur: PropTypes.bool,
     name: PropTypes.string, // 表单item名字
-    $formDataChange: PropTypes.func, // 给withChildren��
     manualRef: PropTypes.func,
     chat: PropTypes.bool,
   };
@@ -35,7 +32,6 @@ class Textarea extends Component {
   };
 
   componentDidMount() {
-    this.props.$formDataChange(this.props.defaultValue);
     const $textarea = $(this.textarea);
     const diff = parseInt($textarea.css('paddingBottom'), 10) + parseInt($textarea.css('paddingTop'), 10) || 0;
     const events = this.props.resizeAfterBlur ? 'input keyup blur' : 'input keyup';
@@ -72,9 +68,11 @@ class Textarea extends Component {
       },
       () => {
         $(this.textarea).trigger('input');
+        const $textarea = $(this.textarea);
+        const diff = parseInt($textarea.css('paddingBottom'), 10) + parseInt($textarea.css('paddingTop'), 10) || 0;
+        $textarea.height(0).height(this.textarea.scrollHeight - diff);
       },
     );
-    this.props.$formDataChange(nextProps.defaultValue);
   }
 
   moveCaretToEnd(el) {
@@ -89,8 +87,6 @@ class Textarea extends Component {
   }
 
   onChange(event) {
-    this.props.$formDataChange(event.target.value);
-
     if (this.props.onChange) {
       this.props.onChange(event.target.value, event);
     }
@@ -106,7 +102,6 @@ class Textarea extends Component {
       isFocus,
       resizeAfterBlur,
       name,
-      $formDataChange,
       value,
       defaultValue,
       manualRef,

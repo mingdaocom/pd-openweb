@@ -12,7 +12,7 @@ const defaultOpts = {
   callback: () => {},
 };
 
-export default function (opt) {
+export default function(opt) {
   var dialogId = 'validatePasswordDialog';
   if ($('#' + dialogId).length) return;
 
@@ -31,21 +31,21 @@ export default function (opt) {
       yesText: '',
     },
     drag: false,
-    callback: function () {
+    callback: function() {
       if (ajax && ajax.state() === 'pending' && ajax.abort) {
         ajax.abort();
       }
     },
-    readyFn: function () {
+    readyFn: function() {
       var $dialog = $('#' + dialogId);
       var $passWInput = $dialog.find('.inputBox');
       var $unBindBtn = $dialog.find('.btnUnBind');
-      $passWInput.focus().on('keyup', function (event) {
+      $passWInput.focus().on('keyup', function(event) {
         if (event.keyCode === 13) {
           $unBindBtn.click();
         }
       });
-      $unBindBtn.on('click', function () {
+      $unBindBtn.on('click', function() {
         var password = $passWInput.val();
         if (!password) {
           alert(_l('请输入登录密码'), 3);
@@ -53,8 +53,11 @@ export default function (opt) {
           return;
         }
 
-        verifyPassword(password, () => {
-          options.callback(password);
+        verifyPassword({
+          password,
+          success: () => {
+            options.callback(password);
+          },
         });
       });
     },

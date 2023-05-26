@@ -179,6 +179,19 @@ export const functions = {
     }
     return values ? values.length : 0;
   },
+  // 计算赋分值
+  // SCORE: function (values) {
+  //   return _.sum(
+  //     values.map(item => {
+  //       let value = 0;
+  //       const num = Number(item.score || 0);
+  //       if (!_.isNaN(num)) {
+  //         value = num;
+  //       }
+  //       return value;
+  //     }),
+  //   );
+  // },
   // 条件求和
   // SUMIF: function () {
   //   // TODO 待定
@@ -234,6 +247,36 @@ export const functions = {
       throw new Error(_l('参数不是数字'));
     }
     return _.round(number, precision);
+  },
+  // 按指定倍数向上舍入
+  CEILING: function (number, significance) {
+    number = Number(number);
+    significance = Number(significance);
+    if (!_.isNumber(number) || _.isNaN(number)) {
+      throw new Error(_l('参数不是数字'));
+    }
+    if (!_.isNumber(significance) || _.isNaN(significance)) {
+      throw new Error(_l('参数不是数字'));
+    }
+    if (number > 0 && significance < 0) {
+      throw new Error('#NUM!');
+    }
+    return Math.ceil(number / significance) * significance;
+  },
+  // 按指定倍数向下舍入
+  FLOOR: function (number, significance) {
+    number = Number(number);
+    significance = Number(significance);
+    if (!_.isNumber(number) || _.isNaN(number)) {
+      throw new Error(_l('参数不是数字'));
+    }
+    if (!_.isNumber(significance) || _.isNaN(significance)) {
+      throw new Error(_l('参数不是数字'));
+    }
+    if (number > 0 && significance < 0) {
+      throw new Error('#NUM!');
+    }
+    return Math.floor(number / significance) * significance;
   },
   // 求余
   MOD: function (number, divisor) {
@@ -403,6 +446,21 @@ export const functions = {
   },
   // 强制转文本
   STRING: function (value) {
+    if (_.isArray(value)) {
+      return value
+        .map(item => {
+          let str = '';
+          try {
+            if (typeof item === 'string') {
+              str = item;
+            } else if (typeof item === 'object') {
+              str = item.text || '';
+            }
+          } catch (err) {}
+          return str;
+        })
+        .join(',');
+    }
     return String(typeof value === 'undefined' ? '' : value);
   },
   // 删除空格
@@ -659,6 +717,14 @@ const functionDetailsMap = {
           <b>示例：=COUNTARRAY(工序) ，结果：7</b></br>
           计算名称为“工序”的子表数量（实际有7道工序）`),
   },
+  // SCORE: {
+  //   name: _l('取选项分值'),
+  //   type: 'math',
+  //   title: _l('取所有选择项的分值求和'),
+  //   des: _l(`<bb>SCORE(选项)</bb></br>
+  //         <b>示例：=SCORE($多选题1$)，结果：2</b></br>
+  //         获取一道多选题（实际是一个多选字段）的得分结果`),
+  // },
   RANDBETWEEN: {
     name: _l('返回随机数'),
     type: 'math',
@@ -675,6 +741,24 @@ const functionDetailsMap = {
     des: _l(`<bb>ROUNDDOWN(数值,位数)</bb></br>
       <b>示例：=ROUNDDOWN(3.14159265,4) ，结果：3.1415</b></br>
       保留 3.14159265 的四位小数`),
+  },
+  CEILING: {
+    name: _l('按指定倍数向上舍入'),
+    type: 'math',
+    title: _l('以绝对值增大的方向按指定倍数舍入数字'),
+    des: _l(`
+    <bb>CEILING(数值,基数)    </bb></br>
+    <b>示例：=CEILING(7,3)，结果：9</b></br>
+    取最接近7且大于7的3的倍数`),
+  },
+  FLOOR: {
+    name: _l('按指定倍数向下舍入'),
+    type: 'math',
+    title: _l('以绝对值减小的方向按指定倍数舍入数字'),
+    des: _l(`
+    <bb>FLOOR(数值,基数)</bb></br>
+    <b>示例：=FLOOR(7,3)，结果：6</b></br>
+    取最接近7且小于7的3的倍数`),
   },
   ROUNDUP: {
     name: _l('向上舍入'),
@@ -1111,12 +1195,15 @@ export const functionDetails = _.pick(
       'ROUND',
       'ROUNDUP',
       'ROUNDDOWN',
+      'CEILING',
+      'FLOOR',
       'POWER',
       'LOG',
       'COUNTIF',
       'SUMIF',
       'COUNTBLANK',
       'COUNTARRAY',
+      'SCORE',
       'COUNTCHAR',
       'RANDBETWEEN',
       'NUMBER',

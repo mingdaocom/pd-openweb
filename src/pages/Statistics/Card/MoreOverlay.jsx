@@ -181,7 +181,7 @@ export default class MoreOverlay extends Component {
         )}
         <Menu.SubMenu
           popupClassName="chartMenu"
-          title={_l('导出Excel')}
+          title={_l('导出Excel%06002')}
           icon={<Icon className="Gray_9e Font18 mRight5" icon="file_download" />}
           popupOffset={[0, 0]}
         >
@@ -192,7 +192,7 @@ export default class MoreOverlay extends Component {
               this.handleExportExcel(0);
             }}
           >
-            <div className="flexRow valignWrapper">{_l('按照原值导出')}</div>
+            <div className="flexRow valignWrapper">{_l('按照原值导出%06000')}</div>
           </Menu.Item>
           <Menu.Item
             style={{ width: 180 }}
@@ -201,7 +201,7 @@ export default class MoreOverlay extends Component {
               this.handleExportExcel(1);
             }}
           >
-            <div className="flexRow valignWrapper">{_l('按显示单位导出')}</div>
+            <div className="flexRow valignWrapper">{_l('按显示单位导出%06001')}</div>
           </Menu.Item>
         </Menu.SubMenu>
         {[reportTypes.PivotTable].includes(reportType) && (

@@ -222,7 +222,7 @@ export default class Widgets extends Component {
               if (current && minDate) {
                 for (let i = 0; i < 60; i++) {
                   if (
-                    moment(current).hour() === this.formatValueToMoment(minDate).hour() &&
+                    selectHours === this.formatValueToMoment(minDate).hour() &&
                     i < this.formatValueToMoment(minDate).minute()
                   ) {
                     result.push(i);
@@ -233,7 +233,7 @@ export default class Widgets extends Component {
               if (current && maxDate) {
                 for (let i = 0; i < 60; i++) {
                   if (
-                    moment(current).hour() === this.formatValueToMoment(maxDate).hour() &&
+                    selectHours === this.formatValueToMoment(maxDate).hour() &&
                     i > this.formatValueToMoment(maxDate).minute()
                   ) {
                     result.push(i);

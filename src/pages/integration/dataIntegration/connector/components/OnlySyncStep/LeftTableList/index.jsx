@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Icon, Modal } from 'ming-ui';
+import { Icon, Modal, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { DATABASE_TYPE } from '../../../../constant';
+import { DATABASE_TYPE, isValidName } from '../../../../constant';
 import SelectDataObjForm from '../../SelectDataObjForm';
 import homeAppApi from 'src/api/homeApp';
 
@@ -120,9 +120,20 @@ export default function LeftTableList(props) {
           const tableOptionList = res
             .filter(o => o.type == 0)
             .map(item => {
+              const isValidTable = isValidName(item.workSheetName);
               return {
-                label: item.workSheetName,
+                label: !isValidTable ? (
+                  <React.Fragment>
+                    {item.workSheetName}
+                    <Tooltip text={_l('名称包含特殊字符，无法同步')}>
+                      <Icon icon="info1" className="Gray_bd mLeft5 pointer" />
+                    </Tooltip>
+                  </React.Fragment>
+                ) : (
+                  item.workSheetName
+                ),
                 value: item.workSheetId,
+                workSheetName: item.workSheetName,
               };
             });
           setDataObj({ tableOptionList });
@@ -165,7 +176,8 @@ export default function LeftTableList(props) {
 
     if (dataObj.tableOptionList) {
       return dataObj.tableOptionList.map(item => {
-        return { ...item, disabled: addedTables.indexOf(item.value) !== -1 };
+        const isValidTable = isValidName(item.workSheetName);
+        return { ...item, disabled: addedTables.indexOf(item.value) !== -1 || !isValidTable };
       });
     }
 
@@ -293,7 +305,7 @@ export default function LeftTableList(props) {
                 options={getList()}
                 value={dataObj.tables}
                 filterOption={(inputValue, option) => {
-                  return option.label.toLowerCase().includes(inputValue.toLowerCase());
+                  return option.workSheetName.toLowerCase().includes(inputValue.toLowerCase());
                 }}
                 onChange={tables => setDataObj({ tables })}
               />

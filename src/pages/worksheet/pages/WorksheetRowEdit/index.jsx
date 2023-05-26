@@ -344,7 +344,7 @@ class WorksheetRowEdit extends Component {
         {data.type === 2 && (
           <div className="mTop50 TxtCenter">
             <Button style={{ height: '36px', lineHeight: '36px' }} loading={submitLoading} onClick={this.onSubmit}>
-              <span className="InlineBlock">{_l('提交')}</span>
+              <span className="InlineBlock">{data.submitBtnName || _l('提交')}</span>
             </Button>
           </div>
         )}
@@ -377,13 +377,9 @@ class WorksheetRowEdit extends Component {
               className="Font18 ThemeHoverColor3 Gray pointer"
               onClick={() => this.setState({ rowRelationRowsData: null, pageIndex: 1, controlId: '', count: 0 })}
             />
-            <div className='Font16 ellipsis WordBreak mLeft5'>
-              {controlName}
-            </div>
-            <div className='Font16 Gray_75 mLeft5 mRight30'>
-              ({rowRelationRowsData.data.length})
-            </div>
-            <div className='flex' />
+            <div className="Font16 ellipsis WordBreak mLeft5">{controlName}</div>
+            <div className="Font16 Gray_75 mLeft5 mRight30">({rowRelationRowsData.data.length})</div>
+            <div className="flex" />
           </div>
         </div>
 

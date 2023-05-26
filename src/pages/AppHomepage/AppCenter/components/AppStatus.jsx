@@ -27,18 +27,23 @@ const AppStatus = styled.div`
   &.mobilePadding {
     padding: 0 8px;
   }
+  &.isRecent {
+    left: unset;
+    bottom: -10px;
+    padding: 0 6px;
+  }
 `;
 export default class AppStatusComp extends Component {
   static propTypes = {};
   static defaultProps = {};
   state = {};
   render() {
-    const { isGoodsStatus, isNew, fixed } = this.props;
+    const { isGoodsStatus, isNew, fixed, isRecent } = this.props;
     const isMobile = browserIsMobile();
     const text = getAppStatusText({ isGoodsStatus, isNew, fixed });
     if (!text) return null;
     return (
-      <AppStatus className={cx({ isOverdue: !isGoodsStatus, fixed, mobilePadding: fixed && isMobile })}>
+      <AppStatus className={cx({ isOverdue: !isGoodsStatus, fixed, mobilePadding: fixed && isMobile, isRecent })}>
         {text}
       </AppStatus>
     );

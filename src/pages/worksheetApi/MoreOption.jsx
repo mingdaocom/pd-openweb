@@ -114,7 +114,7 @@ export default class MoreOption extends Component {
         }
         width={500}
         onOk={() => {
-          verifyPassword(password, this.editAuthorizeStatus);
+          verifyPassword({ password, success: this.editAuthorizeStatus });
         }}
         onCancel={() => {
           this.setState({ showConfirm: false });

@@ -252,10 +252,12 @@ export default function RecordForm(props) {
       formElement.clientHeight + formElement.offsetTop + 58 + 26 + 1;
     nav.current.style.zIndex = visible ? 1 : -1;
   }
-  function setStickyBarVisible() {
-    const scrollContentElement = recordForm.current.querySelector('.recordInfoFormScroll > .nano-content');
-    const stickyBar = recordForm.current.querySelector('.recordInfoFormScroll .stickyBar');
-    const recordTitle = recordForm.current.querySelector('.recordInfoFormScroll .recordTitle');
+  function setStickyBarVisible({ isSplit } = {}) {
+    const scrollContentElement = recordForm.current.querySelector(
+      isSplit ? '.topCon' : '.recordInfoFormScroll > .nano-content',
+    );
+    const stickyBar = recordForm.current.querySelector('.topCon .stickyBar');
+    const recordTitle = recordForm.current.querySelector('.topCon .recordTitle');
     const visible = scrollContentElement.scrollTop > recordTitle.offsetTop + recordTitle.offsetHeight;
     stickyBar.id = visible ? 'stickyBarActive' : '';
   }
@@ -300,7 +302,17 @@ export default function RecordForm(props) {
                 }
               : {})}
           >
-            <div className="topCon" style={isSplit ? { height: topHeight || 300 } : {}}>
+            <div
+              className="topCon"
+              style={isSplit ? { height: topHeight || 300 } : {}}
+              onScroll={
+                isSplit
+                  ? () => {
+                      setStickyBarVisible({ isSplit: true });
+                    }
+                  : () => {}
+              }
+            >
               {type === 'edit' && !isSubList && (
                 <FormCover flag={formFlag} formData={formdata} widgetStyle={widgetStyle} />
               )}

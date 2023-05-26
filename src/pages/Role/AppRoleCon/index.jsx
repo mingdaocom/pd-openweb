@@ -171,6 +171,7 @@ class Con extends React.Component {
       match: {
         params: { appId },
       },
+      setQuickTag,
     } = this.props;
     const { notify, rolesVisibleConfig } = this.state;
     const { pageLoading } = appRole;
@@ -189,7 +190,7 @@ class Con extends React.Component {
                     className={cx('tab Hand Font14 Bold', { cur: this.state.tab === o.key })}
                     onClick={() => {
                       this.props.handleChangePage(() => {
-                        // setQuickTag();
+                        setQuickTag({ ...appRole.quickTag, tab: o.key });
                         navigateTo(`/app/${appId}/role`);
                         this.setState({
                           tab: o.key,

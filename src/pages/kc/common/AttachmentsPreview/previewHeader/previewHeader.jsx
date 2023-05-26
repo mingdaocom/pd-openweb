@@ -318,7 +318,7 @@ class PreviewHeader extends React.Component {
               </span>
             </div>
           )}
-          {!deleted && showDownload && (
+          {!deleted && showDownload && !window.navigator.userAgent.toLowerCase().includes('miniprogram') && (
             <div className="download relative Hand" onClick={this.downloadAttachment} data-tip={_l('下载')}>
               <Icon icon="download" className="valignWrapper mTop1" />
             </div>

@@ -120,6 +120,8 @@ export default class FilterItemTexts extends React.Component {
         data.sourceControlId,
       );
     }
+
+    filterItemTexts = filterItemTexts.filter(o => (o.isGroup ? (o.groupFilters || []).length > 0 : true));
     return (
       <FilterTextWrap
         className={className}

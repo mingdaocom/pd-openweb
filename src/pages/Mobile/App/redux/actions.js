@@ -18,8 +18,18 @@ export const getAppDetail = (appId, cb) => (dispatch, getState) => {
     window.isPublicApp ? undefined : instanceVersion.getTodoListFilter({ type: -1 }).then(),
   ]).then(
     result => {
-      const [detail, info, status, processTodoList] = result;
+      let [detail, info, status, processTodoList] = result;
       const processData = _.find(processTodoList, { app: { id: appId } });
+      const appExpandGroupInfo =
+        (localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
+          JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`))) ||
+        {};
+      if (
+        detail.appNaviDisplayType !== appExpandGroupInfo.appNaviDisplayType ||
+        detail.appNaviStyle !== appExpandGroupInfo.appNaviStyle
+      ) {
+        localStorage.removeItem(`appExpandGroupInfo-${detail.id}`);
+      }
       dispatch({
         type: 'UPDATE_APP_DETAIL',
         data: {

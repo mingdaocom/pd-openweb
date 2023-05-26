@@ -31,6 +31,10 @@ const ConditionsWrap = styled.div`
     left: -38px;
     line-height: 36px;
   }
+  .ming.Dropdown,
+  .dropdownTrigger {
+    overflow: hidden;
+  }
 `;
 
 const SortHandle = SortableHandle(() => <Icon className="mRight5 Font14 Hand" icon="drag" />);
@@ -167,7 +171,7 @@ export default class SortConditions extends React.Component {
 
   getNewState = props => {
     props = props || this.props;
-    const { showSystemControls, sortConditions } = props;
+    const { showSystemControls, sortConditions, isSubList } = props;
     let { columns } = props;
     if (showSystemControls) {
       columns = columns
@@ -176,7 +180,8 @@ export default class SortConditions extends React.Component {
     }
     return {
       columns,
-      sortConditions: sortConditions && sortConditions.length ? sortConditions : [{ controlId: 'ctime', isAsc: true }],
+      sortConditions:
+        sortConditions && sortConditions.length ? sortConditions : [{ controlId: 'ctime', isAsc: !!isSubList }], //子表默认旧的在前，视图默认新的在前
     };
   };
 

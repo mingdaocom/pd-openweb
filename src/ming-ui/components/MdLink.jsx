@@ -1,6 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import propTypes from 'prop-types';
-import { fillUrl, navigateTo } from 'src/router/navigateTo';
+import { fillUrl } from 'src/router/navigateTo';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
 

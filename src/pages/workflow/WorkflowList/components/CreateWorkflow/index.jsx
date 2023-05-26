@@ -14,7 +14,7 @@ const WORKFLOW_TRIGGER_MODE = [
     text: _l('工作表'),
     subClass: [
       {
-        title: _l('工作表事件触发'),
+        title: _l('工作表事件触发%03011'),
         explain: _l('当工作表中新增记录或已有记录发生变更时触发'),
         startEventAppType: 1,
       },
@@ -24,12 +24,12 @@ const WORKFLOW_TRIGGER_MODE = [
     text: _l('时间'),
     subClass: [
       {
-        title: _l('定时触发'),
+        title: _l('定时触发%03012'),
         explain: _l('按照设定的时间周期循环触发流程'),
         startEventAppType: 5,
       },
       {
-        title: _l('按日期字段触发'),
+        title: _l('按日期字段触发%03013'),
         explain: _l(
           '指定一个日期字段，将字段的日期作为时间表来触发流程。如：指定工作表中的员工生日或客户注册日期来发送短信通知',
         ),
@@ -41,7 +41,7 @@ const WORKFLOW_TRIGGER_MODE = [
     text: _l('人员'),
     subClass: [
       {
-        title: _l('组织人员事件触发'),
+        title: _l('组织人员事件触发%03014'),
         explain: _l('当组织中有人员入职/离职时触发'),
         startEventAppType: 20,
       },
@@ -51,7 +51,7 @@ const WORKFLOW_TRIGGER_MODE = [
       //   startEventAppType: 21,
       // },
       {
-        title: _l('外部用户事件触发'),
+        title: _l('外部用户事件触发%03015'),
         explain: _l('当外部用户注册、登录或被删除时触发'),
         startEventAppType: 23,
       },
@@ -61,7 +61,7 @@ const WORKFLOW_TRIGGER_MODE = [
     text: _l('其他'),
     subClass: [
       {
-        title: _l('Webhook触发'),
+        title: _l('Webhook触发%03016'),
         explain: _l('在指定的URL，接收到Webhook时触发'),
         startEventAppType: 7,
       },
@@ -143,7 +143,7 @@ export default class CreateFlow extends Component {
           </div>
         </header>
         <div className="createWorkflowBox">
-          <h2 className="Font22">{_l('如何开始你的流程')}</h2>
+          <h2 className="Font22">{_l('如何开始你的流程%03010')}</h2>
           {WORKFLOW_TRIGGER_MODE.map(({ text, subClass }, index) => {
             return (
               <div key={index} className="triggerWorkflowMode">

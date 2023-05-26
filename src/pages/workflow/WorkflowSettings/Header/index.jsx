@@ -223,7 +223,7 @@ class Header extends Component {
           data-tip={btnText.tip}
           onClick={this.action}
         >
-          {isProgressing ? _l('执行中...') : _l('立即执行')}
+          {isProgressing ? _l('执行中...') : _l('立即执行%03000')}
         </span>
       );
     }

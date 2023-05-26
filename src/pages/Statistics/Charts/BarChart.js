@@ -20,6 +20,7 @@ import _ from 'lodash';
 
 export const formatDataCount = (data, isVertical, newYaxisList) => {
   const result = _.toArray(_.groupBy(data, 'originalId'));
+  const emptyShow = newYaxisList.length === newYaxisList.map(data => data.emptyShowType).filter(n => n === 2).length;
   return result.map(item => {
     const { originalId, name } = item[0];
     const count = item.reduce((count, item) => count + item.value, 0);
@@ -31,7 +32,7 @@ export const formatDataCount = (data, isVertical, newYaxisList) => {
         name,
         value: count,
       },
-      content: value,
+      content: emptyShow && !value ? '--' : value,
       style: {
         textAlign: 'center',
       },

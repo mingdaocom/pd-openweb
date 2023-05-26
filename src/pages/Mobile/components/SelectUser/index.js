@@ -24,6 +24,7 @@ const isChecked = (id, ids) => {
 export default class SelectUser extends Component {
   constructor(props) {
     super(props);
+    const { selectedUsers } = props;
     this.state = {
       searchValue: '',
       departmentVisible: false,
@@ -37,7 +38,7 @@ export default class SelectUser extends Component {
       pageIndex: 1,
       pageSize: 20,
       users: [],
-      selectedUsers: [],
+      selectedUsers: selectedUsers || [],
       onlyJoinDepartmentChecked: false,
       depPageIndex: 1,
       isMoreDep: true,

@@ -1,14 +1,11 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
-import formControl from 'ming-ui/decorators/formControl';
-
 import Icon from './Icon';
 import './less/Checkbox.less';
 
 export const SIZE_LIST = ['small', 'default'];
 
-@formControl
 class Checkbox extends React.Component {
   static propTypes = {
     /**
@@ -48,10 +45,6 @@ class Checkbox extends React.Component {
      */
     name: PropTypes.string,
     /**
-     * 给withChildren用
-     */
-    $formDataChange: PropTypes.func,
-    /**
      * 是否为复选框组
      */
     isGroup: PropTypes.bool,
@@ -84,7 +77,6 @@ class Checkbox extends React.Component {
     this.state = {
       checked: !!checked,
     };
-    this.updataForm(checked === undefined ? false : checked);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -92,13 +84,6 @@ class Checkbox extends React.Component {
       this.setState({
         checked: nextProps.checked,
       });
-      this.updataForm(nextProps.checked);
-    }
-  }
-
-  updataForm(value) {
-    if (!this.props.isGroup) {
-      this.props.$formDataChange(value);
     }
   }
 
@@ -111,7 +96,6 @@ class Checkbox extends React.Component {
       this.setState({
         checked,
       });
-      this.updataForm(checked);
       this.props.onClick(checked, this.props.value, event);
     }
   }

@@ -13,6 +13,7 @@ import WebLayout from './webLayout';
 import * as actions from './redux/action';
 import { updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
 import { enumWidgetType, reorderComponents, fillObjectId } from './util';
+import { reportTypes } from 'statistics/Charts/common';
 import MobileLayout from './mobileLayout';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
@@ -403,6 +404,24 @@ export default class CustomPage extends Component {
     return components.map(item => _.omit(item, 'uuid'));
   };
 
+  // 找到透视表，保存管理员列宽的配置
+  savePivotTableColumnWidthConfig = components => {
+    return components.map(item => {
+      if (item.type === enumWidgetType.analysis && item.reportType === reportTypes.PivotTable) {
+        const columnWidthConfig = sessionStorage.getItem(`pivotTableColumnWidthConfig-${item.value}`) || undefined;
+        return {
+          ...item,
+          config: {
+            ...item.config,
+            columnWidthConfig
+          }
+        }
+      } else {
+        return item;
+      }
+    });
+  }
+
   @autobind
   async handleSave() {
     const { version, ids, components, updatePageInfo, updateSaveLoading } = this.props;
@@ -415,6 +434,7 @@ export default class CustomPage extends Component {
     newComponents = await this.fillBtnData(newComponents);
     newComponents = await this.fillFilterData(newComponents);
     newComponents = await this.fillFilterComponent(newComponents);
+    newComponents = this.savePivotTableColumnWidthConfig(newComponents);
     newComponents = this.dealComponentUUId(newComponents);
 
     customApi

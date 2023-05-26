@@ -11,7 +11,7 @@ import store from 'redux/configureStore';
 import worksheetApi from 'src/api/worksheet';
 import { controlIsNumber, checkRulesErrorOfRowControl, getScrollBarWidth } from 'worksheet/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { ROW_HEIGHT, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
+import { ROW_HEIGHT, WORKSHEETTABLE_FROM_MODULE, SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import {
   handleLifeEffect,
   columnWidthFactory,
@@ -33,6 +33,9 @@ const StyledFixedTable = styled(FixedTable)`
     overflow: hidden;
     .ghostAngle {
       display: none;
+    }
+    &.lastFixedColumn {
+      border-right-width: 2px !important;
     }
     &.highlight,
     &.highlightFromProps {
@@ -61,7 +64,7 @@ const StyledFixedTable = styled(FixedTable)`
     overflow: hidden;
   }
   &.hideVerticalLine {
-    .cell {
+    .cell:not(.lastFixedColumn) {
       border-right: none !important;
     }
   }
@@ -106,7 +109,6 @@ const StyledFixedTable = styled(FixedTable)`
     }
   }
 `;
-const sheetHiddenTypes = [WIDGETS_TO_API_TYPE_ENUM.EMBED];
 
 function WorksheetTable(props, ref) {
   const {
@@ -191,7 +193,7 @@ function WorksheetTable(props, ref) {
       (showRowHead ? [{ type: 'rowHead', width: rowHeadWidth }] : [])
         .concat(columns)
         .concat({ type: 'emptyForResize', width: 60 })
-        .filter(c => !_.includes(sheetHiddenTypes, c.type)),
+        .filter(c => !_.includes(SHEET_VIEW_HIDDEN_TYPES, c.type)),
     [columns, rowHeadWidth],
   );
   const tableRowCount = rowCount || data.length;
@@ -248,6 +250,7 @@ function WorksheetTable(props, ref) {
           control.fieldPermission &&
           (control.fieldPermission[1] === '0' || control.fieldPermission[0] === '0'),
         fixedRow: rowIndex === 0,
+        lastFixedColumn: columnIndex === fixedColumnCount,
         alignRight: controlIsNumber(control),
         focus: !_.isUndefined(cache.focusIndex) && cellIndex === cache.focusIndex,
         highlight:

@@ -117,7 +117,7 @@ export default class ValueAxis extends Component {
         ) : (
           <WithoutFidldItem
             allowInput={true}
-            inputValue={valueAxis.value ? Number(valueAxis.value) : undefined}
+            inputValue={valueAxis.value ? Number(valueAxis.value) : valueAxis.value}
             onChnageInputValue={(value, isRequest) => {
               this.props.changeValueAxis({ value }, isRequest);
             }}

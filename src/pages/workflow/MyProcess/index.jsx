@@ -200,6 +200,7 @@ export default class MyProcess extends Component {
       encryptType: null,
       rejectVisible: false,
       passVisible: false,
+      showPassword: false
     };
   }
   componentDidMount() {
@@ -208,6 +209,12 @@ export default class MyProcess extends Component {
       this.updateCountData(countData);
     });
     this.removeEscEvent = this.bindEscEvent();
+    verifyPassword({
+      checkNeedAuth: true,
+      fail: () => {
+        this.setState({ showPassword: true });
+      },
+    });
   }
   componentWillUnmount() {
     this.removeEscEvent();
@@ -355,14 +362,14 @@ export default class MyProcess extends Component {
     });
   };
   hanndleApprove = (type, batchType) => {
-    const { approveCards } = this.state;
+    const { approveCards, showPassword } = this.state;
     const signatureCard = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
-    if (signatureCard.length || encryptCard.length) {
+    if (signatureCard.length || (encryptCard.length && showPassword)) {
       if (signatureCard.length) {
         this.setState({ approveType: type });
       }
-      if (encryptCard.length) {
+      if (encryptCard.length && showPassword) {
         this.setState({ encryptType: type });
       }
     } else {
@@ -480,7 +487,7 @@ export default class MyProcess extends Component {
             <span>{_l('我发起的')}</span>
             {mySponsor > 0 ? <span className="processCount">{mySponsor}</span> : null}
           </div>
-          <div className="cuttingLine"></div>
+          <div className="cuttingLine" />
           <div
             className={cx('item', { active: stateTab === TABS.COMPLETE })}
             onClick={() => {
@@ -760,7 +767,7 @@ export default class MyProcess extends Component {
     }
   }
   renderSignatureDialog() {
-    const { approveCards, approveType, encryptType } = this.state;
+    const { approveCards, approveType, encryptType, showPassword } = this.state;
     const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
     const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
@@ -784,9 +791,18 @@ export default class MyProcess extends Component {
               this.handleBatchApprove(null, this.state.encryptType);
               this.setState({ approveType: null, encryptType: null });
             }
-          }
+          };
           if (encryptCard.length) {
-            verifyPassword(this.password, submitFun);
+            verifyPassword({
+              password: this.password,
+              closeImageValidation: true,
+              isNoneVerification: this.isNoneVerification,
+              checkNeedAuth: !showPassword,
+              success: submitFun,
+              fail: () => {
+                this.setState({ showPassword: true });
+              }
+            });
           } else {
             submitFun();
           }
@@ -810,12 +826,17 @@ export default class MyProcess extends Component {
                 this.signature = signature;
               }}
             />
-            <div className="mTop20 BorderBottom borderColor_ef"></div>
+            <div className="mTop20 BorderBottom borderColor_ef" />
           </Fragment>
         )}
         {encryptType && (
           <div className="mTop20">
-            <VerifyPassword onChange={value => (this.password = value)} />
+            <VerifyPassword
+              onChange={({ password, isNoneVerification }) => {
+                if (password !== undefined) this.password = password;
+                if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
+              }}
+            />
           </div>
         )}
       </Dialog>
@@ -868,7 +889,17 @@ export default class MyProcess extends Component {
     );
   }
   render() {
-    const { stateTab, selectCard, param, visible, filter, isLoading, isResetFilter, approveType, encryptType } = this.state;
+    const {
+      stateTab,
+      selectCard,
+      param,
+      visible,
+      filter,
+      isLoading,
+      isResetFilter,
+      approveType,
+      encryptType,
+    } = this.state;
 
     return (
       <div className="myProcessWrapper">
@@ -923,7 +954,7 @@ export default class MyProcess extends Component {
                 this.handleRead(this.state.selectCard);
               }
             }}
-            onSave={(isStash) => {
+            onSave={isStash => {
               if (isStash) return;
               if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
                 this.handleSave(this.state.selectCard);

@@ -209,6 +209,10 @@ export class UploadFileWrapper extends Component {
       file_data_name: 'file',
       multi_selection: true,
       method,
+      resize: _.get(advancedSetting, 'webcompress') !== '0' ? {
+        quality: 60,
+        preserve_headers: false
+      } : {},
       autoUpload: false,
     });
   }

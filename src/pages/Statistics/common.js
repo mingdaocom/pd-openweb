@@ -219,7 +219,12 @@ export function initConfigDetail(id, data, currentReport) {
 
     result.xaxes = currentReport.xaxes;
     result.split = currentReport.split;
-    currentReport.yaxisList = _.uniqBy(currentReport.yaxisList.filter(item => item.controlId), 'controlId');
+    currentReport.yaxisList = _.uniqBy(currentReport.yaxisList.filter(item => item.controlId), 'controlId').map(data => {
+      return {
+        ...data,
+        normType: isNumberControl(data.controlType) ? 1 : 5
+      }
+    });;
 
     if (reportTypes.ScatterChart === currentReport.reportType) {
       currentReport.split = {};
@@ -243,7 +248,6 @@ export function initConfigDetail(id, data, currentReport) {
       result.split = {};
     }
     if (reportTypes.PivotTable === reportType) {
-      result.yaxisList = currentReport.yaxisList;
       result.pivotTable.lines = currentReport.xaxes.controlId ? [currentReport.xaxes] : [];
       result.pivotTable.columns = currentReport.split.controlId ? [currentReport.split] : [];
     }
@@ -269,7 +273,16 @@ export function initConfigDetail(id, data, currentReport) {
         valueProgressVisible: true
       }
     }
-
+    if (reportTypes.WordCloudChart === reportType) {
+      result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
+    }
+    if (reportTypes.ProgressChart === reportType) {
+      result.yaxisList = currentReport.yaxisList.filter(data => isNumberControl(data.controlType));
+    }
+    if (reportTypes.GaugeChart === reportType) {
+      const yaxisList = currentReport.yaxisList.filter(data => isNumberControl(data.controlType));
+      result.yaxisList = yaxisList.length ? [yaxisList[0]] : [];
+    }
     if (result.displaySetup) {
       result.displaySetup.xdisplay.title = result.xaxes ? result.xaxes.controlName : null;
       result.displaySetup.ydisplay.title = result.yaxisList.length ? result.yaxisList[0].controlName : '';
@@ -378,7 +391,6 @@ export function getSortData(type) {
   if (
     type === WIDGETS_TO_API_TYPE_ENUM.NUMBER ||
     type === WIDGETS_TO_API_TYPE_ENUM.MONEY ||
-    type === WIDGETS_TO_API_TYPE_ENUM.AUTO_ID ||
     type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST ||
     type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER ||
     type === 10000000 ||

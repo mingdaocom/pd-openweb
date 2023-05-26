@@ -4,7 +4,7 @@ import { List } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import TabBar from '../components/TabBar';
 import login from 'src/api/login';
-import { getProject } from 'src/util';
+import { getCurrentProject } from 'src/util';
 // import './index.less';
 
 const { Item } = List;
@@ -26,7 +26,10 @@ class MyHome extends Component {
     });
   };
   render() {
-    let currentProject = getProject(localStorage.getItem('currentProjectId')) || {};
+    let currentProject = getCurrentProject(
+      localStorage.getItem('currentProjectId') ||
+        (md.global.Account.projects[0] || { projectId: 'external' }).projectId,
+    );
     return (
       <div className="MyHome flexColumn h100">
         <div className="flex flexColumn WhiteBG">

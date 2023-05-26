@@ -35,6 +35,7 @@ const ModalContent = styled.div`
   }
   .scrollView {
     overflow: auto;
+    max-height: 400px;
   }
 `;
 

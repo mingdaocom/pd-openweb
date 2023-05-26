@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Radio } from 'antd';
-import { Tooltip, Checkbox, RadioGroup2, Dropdown, Input } from 'ming-ui';
+import { Tooltip, Checkbox, RadioGroup, Dropdown, Input } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import ControlSelect from 'worksheet/components/ControlSelect';
@@ -150,9 +150,12 @@ function LabeSizeConfig(props) {
     width,
     height,
   });
-  useEffect(() => {
-    setSize({ width, height });
-  }, [width, height]);
+  useEffect(
+    () => {
+      setSize({ width, height });
+    },
+    [width, height],
+  );
   function handleWidthChange(e) {
     let newValue = Number(numberFilter(e.target.value) || 0);
     if (newValue < LABEL_MIN_WIDTH) {
@@ -271,7 +274,7 @@ export default function Sider(props) {
       <TypeLabel className="mTop20">{printType === PRINT_TYPE.BAR ? _l('条形码数据源') : _l('数据源')}</TypeLabel>
       <Spacer top="15" />
       {printType !== PRINT_TYPE.BAR && (
-        <RadioGroup2
+        <RadioGroup
           checkedValue={sourceType}
           data={SOURCE_TYPE_LIST}
           onChange={value => {
@@ -343,7 +346,7 @@ export default function Sider(props) {
         <Fragment>
           <TypeLabel>{_l('打印方式')}</TypeLabel>
           <Spacer top="12" />
-          <RadioGroup2
+          <RadioGroup
             checkedValue={printType}
             data={PRINT_TYPE_LIST.filter(t => t.value !== PRINT_TYPE.BAR)}
             onChange={value => {

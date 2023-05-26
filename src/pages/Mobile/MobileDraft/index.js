@@ -85,8 +85,6 @@ function MobileDraftList(props) {
     worksheetId,
     controls = [],
     draftData = [],
-    viewId,
-    worksheetInfo = {},
     getDraftData = () => {},
     sheetSwitchPermit,
   } = props;
@@ -141,6 +139,7 @@ function MobileDraftList(props) {
                   <CellControl
                     rowHeight={34}
                     cell={Object.assign({}, control, { value: data[control.controlId] })}
+                    sheetSwitchPermit={sheetSwitchPermit}
                     from={21}
                     className={'w100'}
                   />
@@ -202,7 +201,6 @@ function MobileDraftList(props) {
           visible={!!currentRowId}
           appId={appId}
           worksheetId={worksheetId}
-          viewId={viewId}
           rowId={currentRowId}
           sheetSwitchPermit={sheetSwitchPermit}
           draftFormControls={controls.filter(

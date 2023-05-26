@@ -47,6 +47,7 @@ const Wrap = styled.div`
       .editorContent {
         overflow: hidden !important;
         .ck-content {
+          padding: 12px 24px;
           box-sizing: border-box;
           border-radius: 0 0 10px 10px!important;
         }

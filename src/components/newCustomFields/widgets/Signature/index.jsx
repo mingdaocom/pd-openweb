@@ -196,8 +196,13 @@ export default class Signature extends Component {
     }
 
     const data = this.signaturePad.toDataURL('image/png');
+    const { projectId, appId, worksheetId } = this.props;
     this.setState({ popupVisible: false, signature: data });
-    getToken([{ bucket: 4, ext: '.png' }]).then(res => {
+    getToken([{ bucket: 4, ext: '.png' }], 10, {
+      projectId,
+      appId,
+      worksheetId,
+    }).then(res => {
       if (res.error) {
         alert(res.error);
       } else {

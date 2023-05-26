@@ -145,10 +145,10 @@ export default class RelateRecordList extends React.PureComponent {
       return;
     }
     let filterControls;
+    if (!_.isEmpty(_.get(worksheetInfo, 'template.controls'))) {
+      control.relationControls = worksheetInfo.template.controls;
+    }
     if (control && control.advancedSetting.filters) {
-      if (worksheetInfo && worksheetInfo.template) {
-        control.relationControls = worksheetInfo.template.controls;
-      }
       filterControls = getFilter({ control, formData });
     }
     // 存在不符合条件值的条件

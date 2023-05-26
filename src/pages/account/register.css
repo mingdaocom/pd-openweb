@@ -16,12 +16,16 @@
   max-width: 420px;
   padding: 48px 48px 23px;
   box-sizing: border-box;
-  margin: 80px auto 0;
+  margin: 0 auto;
   background: #ffffff;
   border-radius: 4px;
   margin-bottom: 15px;
   min-height: 578px;
   position: relative;
+}
+
+.registerBox {
+  padding-top: 80px;
 }
 
 @media screen and (max-width: 414px) {
@@ -72,7 +76,8 @@
     margin: 0;
   }
 }
-.registerBox .registerContainer .titleHeader{
+
+.registerBox .registerContainer .titleHeader {
   line-height: 1;
 }
 
@@ -113,6 +118,7 @@
   margin-top: 32px;
   text-align: center;
 }
+
 .registerBox .registerContainer .btnSendVerifyCode {
   background: #2296f3;
 }
@@ -147,16 +153,20 @@
   margin: 20px auto 0;
   text-align: center;
 }
+
 .registerBox .registerContainer .btnUseOldAccount .textG,
 .registerBox .registerContainer .btnUseOldAccount .textG:hover {
   color: #757575;
 }
+
 .registerBox .registerContainer .btnUseOldAccount .textB {
   color: #2196f3;
 }
+
 .registerBox .registerContainer .btnUseOldAccount .textB:hover {
   color: #1182dd;
 }
+
 .registerBox .registerContainer .termsText .terms:hover {
   color: #1182dd;
 }

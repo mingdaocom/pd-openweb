@@ -334,7 +334,11 @@ export default class extends PureComponent {
                         <Checkbox
                           className={'subCheckbox InlineBlock TxtMiddle'}
                           disabled={o.key === 'generalAdd' && PERMISSION_WAYS.OnlyViewAllRecord === permissionWay} //对所有记录只有查看权限 同时 操作权限 不可新增
-                          checked={roleDetail[o.key].enable}
+                          checked={
+                            o.key === 'generalAdd' && PERMISSION_WAYS.OnlyViewAllRecord === permissionWay
+                              ? false
+                              : roleDetail[o.key].enable
+                          }
                           size="small"
                           onClick={checked => {
                             onChange({

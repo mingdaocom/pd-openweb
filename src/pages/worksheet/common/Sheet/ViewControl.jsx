@@ -9,6 +9,7 @@ import { Tooltip } from 'ming-ui';
 import ViewConfig from 'worksheet/common/ViewConfig';
 import CreateCustomBtn from 'worksheet/common/CreateCustomBtn';
 import { exportSheet } from 'worksheet/common/ExportSheet';
+import { exportAttachment } from 'src/pages/worksheet/common/ExportAttachment';
 import ViewItems from 'worksheet/components/ViewItems';
 import Pagination from 'worksheet/components/Pagination';
 import SearchRecord from 'worksheet/views/components/SearchRecord';
@@ -172,6 +173,24 @@ function ViewControl(props) {
             isCharge: hasCharge,
             // 支持列统计结果
             hideStatistics: false,
+          });
+        }}
+        onExportAttachment={() => {
+          const hasCharge = isCharge || canEditData(_.get(appPkg, 'permissionType'));
+          exportAttachment({
+            appId,
+            worksheetId,
+            viewId,
+            attachmentControls: hasCharge
+              ? controls.filter(item => item.type === 14)
+              : filterHidedControls(controls, view.controls).filter(
+                  item => item.controlPermissions && item.controlPermissions[0] === '1' && item.type === 14,
+                ),
+            quickFilter,
+            searchArgs: filters,
+            navGroupFilters,
+            selectRowIds: sheetSelectedRows.map(item => item.rowid),
+            isCharge: hasCharge,
           });
         }}
         onRemoveView={(newViewList, newViewId) => {
@@ -346,6 +365,7 @@ function ViewControl(props) {
             '.Tooltip',
           ]}
           onClickAway={() => setCreateCustomBtnVisible(false)}
+          sheetSwitchPermit={sheetSwitchPermit}
           isEdit={createBtnIsEdit}
           onClose={() => setCreateCustomBtnVisible(false)}
           columns={controls

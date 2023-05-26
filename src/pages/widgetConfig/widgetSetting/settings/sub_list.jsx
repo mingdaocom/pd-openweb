@@ -52,7 +52,7 @@ export default function SubListSetting(props) {
   const { widgetName, icon, intro, moreIntroLink } = info;
   const { worksheetId: currentWorksheetId } = globalSheetInfo;
   const { controlId, dataSource, relationControls = [], showControls = [], advancedSetting = {} } = data;
-  const { allowadd, allowsingle } = advancedSetting;
+  const { allowadd, allowsingle, allowexport = '1' } = advancedSetting;
   const batchcids = getAdvanceSetting(data, 'batchcids') || [];
   const [sheetInfo, setInfo] = useState({});
   const [subQueryConfigs, setSubQueryConfigs] = useState([]);
@@ -209,9 +209,7 @@ export default function SubListSetting(props) {
         description: _l('将子表字段转为关联记录字段'),
         okText: _l('确定'),
         onOk: () => {
-          onChange({
-            type: 29,
-          });
+          onChange({ ...handleAdvancedSettingChange(data, { searchrange: '1' }), type: 29 });
         },
       });
       return;
@@ -466,6 +464,23 @@ export default function SubListSetting(props) {
           )}
         </SettingItem>
       )}
+      <SettingItem>
+        <div className="settingItemTitle">{_l('设置')}</div>
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={allowexport === '1'}
+            text={_l('允许导出')}
+            onClick={checked => {
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  allowexport: checked ? '0' : '1',
+                }),
+              );
+            }}
+          />
+        </div>
+      </SettingItem>
       {subListMode !== 'new' && dataSource !== currentWorksheetId && (
         <SheetComponents.BothWayRelate
           worksheetInfo={sheetInfo}

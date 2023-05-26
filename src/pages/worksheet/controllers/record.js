@@ -45,9 +45,6 @@ export function getFormDataForNewRecord({
         controls = controls
           .filter(c => !_.includes(FORM_HIDDEN_CONTROL_IDS, c.controlId))
           .map(control => {
-            if (isCustomButton && _.get(control, 'controlPermissions.2') === '0') {
-              control.controlPermissions = control.controlPermissions.slice(0, 2) + '1';
-            }
             if (
               control.type === 29 &&
               Number(control.advancedSetting.showtype) !== RELATE_RECORD_SHOW_TYPE.LIST &&

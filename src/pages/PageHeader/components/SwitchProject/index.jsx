@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { emitter, getProject } from 'src/util';
+import { emitter, getCurrentProject } from 'src/util';
 import { ScrollView, Menu, MenuItem } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import _ from 'lodash';
@@ -85,7 +85,7 @@ function SwitchProject(props) {
   const createRef = useRef();
   const [currentProject, setCurrentProject] = useState({});
   useEffect(() => {
-    const project = getProject(projectId || localStorage.getItem('currentProjectId'));
+    const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
     if (!project || !project.projectId) {
       return;
     }

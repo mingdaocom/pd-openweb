@@ -26,15 +26,17 @@ const AddButton = styled.div`
 const SortColumnsWrap = styled.div`
   width: 300px;
   box-shadow: 0 4px 20px #00000021, 0 2px 6px #0000001a;
+  border-radius: 3px;
   .sortColumnWrap {
-    padding: 10px;
-    border-radius: 4px;
+    margin-top: 2px !important;
+    padding: 6px 0;
+    border-radius: 3px;
   }
   .quickOperate {
     display: none;
   }
   .columnCheckList {
-    max-height: 200px !important;
+    max-height: 360px !important;
   }
 `;
 

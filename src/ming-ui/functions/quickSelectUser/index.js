@@ -42,6 +42,7 @@ export function UserSelector(props) {
   const [type, setType] = useState(selectRangeOptions ? 'range' : activeTab === 1 ? 'external' : 'normal');
   const [keywords, setKeywords] = useState();
   const [pageIndex, setPageIndex] = useState(1);
+  const [loadOuted, setLoadOuted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [list, setList] = useState([]);
   const [hadShowMore, setHadShowMore] = useState(false);
@@ -70,6 +71,9 @@ export function UserSelector(props) {
     getUsers({ ...baseArgs, type, keywords: (keywords || '').trim(), pageIndex }).then(data => {
       setList(l => l.concat(data));
       setLoading(false);
+      if (_.isEmpty(data)) {
+        setLoadOuted(true);
+      }
     });
   }
   const debounceLoadList = useCallback(_.debounce(loadList, 200), []);
@@ -197,7 +201,7 @@ export function UserSelector(props) {
         ref={scrollRef}
         style={{ minHeight }}
         onWheel={e => {
-          if (loading || type !== 'external') {
+          if (loading || type !== 'external' || loadOuted) {
             return;
           }
           const isDown = e.deltaY > 0;

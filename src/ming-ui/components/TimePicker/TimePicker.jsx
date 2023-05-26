@@ -4,9 +4,12 @@ import classNames from 'classnames';
 import moment from 'moment';
 import Panel from './Panel';
 import PositionContainer from 'ming-ui/components/PositionContainer';
-import { getComputedStyle } from 'ming-ui/utils/DomUtils';
 import { isDescendant } from 'ming-ui/utils/DomHelpers';
 import '../less/TimePicker.less';
+
+const getComputedStyle = (element, attr) => {
+  return window.getComputedStyle(element, null).getPropertyValue(attr);
+};
 
 class TimePicker extends Component {
   static propTypes = {

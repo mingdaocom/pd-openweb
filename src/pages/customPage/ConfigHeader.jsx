@@ -112,18 +112,19 @@ export default (props) => {
   const { current: originName } = useRef(pageName);
   const save = () => {
     onSave();
-    if (originName !== name) {
-      appManagementAjax.editWorkSheetInfoForApp({ appId, appSectionId: groupId, workSheetId: pageId, workSheetName: name }).then(res => {
+    const newName = name.trim();
+    if (originName !== newName) {
+      appManagementAjax.editWorkSheetInfoForApp({ appId, appSectionId: groupId, workSheetId: pageId, workSheetName: newName }).then(res => {
         if (res) {
-          updatePageInfo({ pageName: name });
+          updatePageInfo({ pageName: newName });
           const { currentPcNaviStyle } = store.getState().appPkg;
           if (currentPcNaviStyle === 1) {
             const singleRef = getAppSectionRef(groupId);
             singleRef.dispatch(updateSheetListAppItem(pageId, {
-              workSheetName: name,
+              workSheetName: newName,
             }));
           } else {
-            props.updateSheetListAppItem(pageId, { workSheetName: name });
+            props.updateSheetListAppItem(pageId, { workSheetName: newName });
           }
         }
       });
@@ -158,8 +159,9 @@ export default (props) => {
             autoFocus
             value={name}
             onChange={e => {
-              const newName = e.target.value.trim();
+              const newName = e.target.value;
               setName(newName);
+              updatePageInfo({ modified: true });
             }}
             onBlur={() => {
               if (!name) {

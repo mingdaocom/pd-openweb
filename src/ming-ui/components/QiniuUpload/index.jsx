@@ -43,6 +43,8 @@ export default class QiniuUpload extends React.Component {
                   response.filePath = file.key.replace(new RegExp(file.fileName), '');
                   response.originalFileName = File.GetName(file.name);
                   response.serverName = file.serverName;
+                } else {
+                  response.originalFileName = decodeURIComponent(response.originalFileName);
                 }
 
                 onUploaded(up, file, response);
@@ -55,12 +57,7 @@ export default class QiniuUpload extends React.Component {
                 up.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
                 up.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
                 up.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-                  file.name.indexOf('.') > -1
-                    ? file.name
-                        .split('.')
-                        .slice(0, -1)
-                        .join('.')
-                    : file.name,
+                  file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
                 );
                 up.settings.multipart_params['x:fileExt'] = fileExt;
               },

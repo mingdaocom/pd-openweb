@@ -1,12 +1,10 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import PositionContainer from 'ming-ui/components/PositionContainer';
 import Trigger from 'rc-trigger';
 import Panel from './Panel';
 import '../less/CityPicker.less';
 import 'rc-trigger/assets/index.css';
-// import { getComputedStyle } from '../../utils/DomUtils';
 
 class CityPicker extends Component {
   static propTypes = {

@@ -159,7 +159,7 @@ export const isDisabledCreate = permit => {
   return !isOpenPermit(permitList.createButtonSwitch, permit);
 };
 
-export const isAllowQuickSwitch = permit => isOpenPermit(permitList.quickSwitch, permit);
+export const isAllowQuickSwitch = (permit, viewId) => isOpenPermit(permitList.quickSwitch, permit, viewId);
 
 export const getSearchData = sheet => {
   const {

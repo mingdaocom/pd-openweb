@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Button } from 'ming-ui';
 import emptyPng from './empty.png';
+import SelectControls from './SelectControls';
 
 const Con = styled.div`
   text-align: center;
@@ -24,17 +25,21 @@ const Con = styled.div`
 `;
 
 export default function Empty(props) {
-  const { isNew, onAdd = () => {} } = props;
-  return (
+  const { isNew, maxHeight, controls, onAdd = () => {} } = props;
+  return isNew ? (
+    <SelectControls
+      maxHeight={maxHeight}
+      style={{
+        boxShadow: 'none',
+      }}
+      className="inEmpty"
+      controls={controls}
+      onAdd={onAdd}
+    />
+  ) : (
     <Con>
       <img src={emptyPng} />
-      <div className="tip">{isNew ? _l('添加筛选条件，查询工作表数据') : _l('没有保存的筛选器')}</div>
-      {isNew && (
-        <Button className="addFilter mTop20" onClick={onAdd}>
-          <i className="icon icon-plus Font13 mRight5 White"></i>
-          {_l('添加筛选条件')}
-        </Button>
-      )}
+      <div className="tip">{_l('没有保存的筛选器')}</div>
     </Con>
   );
 }

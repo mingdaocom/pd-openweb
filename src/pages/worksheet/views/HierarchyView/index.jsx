@@ -250,7 +250,7 @@ function Hierarchy(props) {
 
   const handleAddRecord = obj => {
     const { isTextTitle, value = '', pid, visible, ...rest } = obj;
-    if (isTextTitle && isAllowQuickSwitch(sheetSwitchPermit)) {
+    if (isTextTitle && isAllowQuickSwitch(sheetSwitchPermit, viewId)) {
       createTextTitleTempRecord({ ...rest, visible, pid });
       setState({ addRecordDefaultValue: value, addRecordPath: rest });
     } else {

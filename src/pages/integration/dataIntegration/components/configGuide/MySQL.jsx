@@ -99,6 +99,25 @@ export default function MySQLGuide(props) {
           '创建数据源时，检查数据库服务器的连通性、账户密码等正确性、数据库是否可用、以及检查是否可以作为源或者目的地。只有数据源通过全部测试才能够正常使用数据源。',
         )}
       </p>
+
+      <h5>{_l('其他连接器选项')}</h5>
+      <p>
+        {_l(
+          '如果数据源的连接器选项配置和数据库服务器配置不一致时，可能会出现同步错误或者创建同步任务失败的情况。此时可尝试添加额外的连接器选项参数配置。',
+        )}
+        <a
+          href="https://ververica.github.io/flink-cdc-connectors/master/content/connectors/mysql-cdc%28ZH%29.html#id6"
+          className="mLeft8"
+        >
+          {_l('查看连接器选项')}
+        </a>
+      </p>
+
+      <h5>server-time-zone</h5>
+      <div>{_l('指定当前MySQL服务器的时区')}</div>
+      <div className="sqlText">
+        <div>server-time-zone=Asia/Shanghai</div>
+      </div>
     </div>
   ) : (
     <div className="guideContent">

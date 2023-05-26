@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Icon, Menu, MenuItem, Button, Tooltip } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import WorksheetDraftOperate from './WorksheetDraftOperate';
@@ -8,12 +8,8 @@ import { RowHead } from 'worksheet/components/WorksheetTable/components/';
 import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import worksheetAjax from 'src/api/worksheet';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { emitter, fieldCanSort, getSortData } from 'worksheet/util';
-import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
-import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import styled from 'styled-components';
-import cx from 'classnames';
 
 const Con = styled.div`
   width: 100%;
@@ -67,7 +63,6 @@ function DraftModal(props) {
   const {
     onCancel = () => {},
     appId,
-    viewId,
     worksheetInfo = {},
     sheetSwitchPermit,
     isCharge,
@@ -255,7 +250,6 @@ function DraftModal(props) {
         <Body>
           <WorksheetTable
             loading={loading}
-            viewId={viewId || _.get(worksheetInfo, 'views[0].viewId')}
             worksheetId={worksheetId}
             appId={appId}
             lineNumberBegin={0}
@@ -269,6 +263,7 @@ function DraftModal(props) {
             controls={controls}
             from={21}
             renderColumnHead={renderColumnHead}
+            sheetSwitchPermit={sheetSwitchPermit}
             renderRowHead={({ className, style, rowIndex }) => (
               <RowHead
                 isDraft
@@ -390,8 +385,7 @@ function DraftModal(props) {
 export const openWorkSheetDraft = props => functionWrap(DraftModal, { ...props, closeFnName: 'onCancel' });
 
 function WorksheetDraft(props) {
-  const { appId, viewId, worksheetInfo = {}, sheetSwitchPermit, isCharge, sheetViewData = {},  allowAdd } = props;
-  const { worksheetId } = worksheetInfo;
+  const { appId, worksheetInfo = {}, sheetSwitchPermit, isCharge, sheetViewData = {}, allowAdd } = props;
   const [draftDataCount, setDraftDataCount] = useState(props.draftDataCount);
 
   useEffect(() => {
@@ -405,7 +399,6 @@ function WorksheetDraft(props) {
         onClick={() => {
           openWorkSheetDraft({
             appId,
-            viewId,
             worksheetInfo,
             sheetSwitchPermit,
             isCharge,

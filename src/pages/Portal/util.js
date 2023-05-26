@@ -1,25 +1,26 @@
 import { getSuffix } from 'src/pages/PortalAccount/util';
 import api from 'src/api/homeApp';
-import { navigateTo } from 'router/navigateTo';
 import { browserIsMobile } from 'src/util';
 
 export const compatibleWorksheetRoute = (worksheetId, rowId) => {
   //工作表老路由id补齐
   api.getAppSimpleInfo({ workSheetId: worksheetId }).then(({ appId, appSectionId, workSheetId }) => {
     if (appId) {
+      let url = '';
       if (rowId) {
         if (getSuffix(location.href) !== md.global.Account.addressSuffix) {
-          navigateTo(`/app/${appId}/${workSheetId}/row/${rowId}`, true);
+          url = `/app/${appId}/${workSheetId}/row/${rowId}`;
         } else {
-          navigateTo(`/${md.global.Account.addressSuffix}/${workSheetId}/row/${rowId}`, true);
+          url = `/${md.global.Account.addressSuffix}/${workSheetId}/row/${rowId}`;
         }
       } else if (appSectionId) {
         if (getSuffix(location.href) !== md.global.Account.addressSuffix) {
-          navigateTo(`/app/${appId}/${appSectionId}/${workSheetId}`, true);
+          url = `/app/${appId}/${appSectionId}/${workSheetId}`;
         } else {
-          navigateTo(`/${md.global.Account.addressSuffix}/${appSectionId}/${workSheetId}`, true);
+          url = `/${md.global.Account.addressSuffix}/${appSectionId}/${workSheetId}`;
         }
       }
+      location.href = `${window.subPath || ''}${url}`;
     }
   });
 };
