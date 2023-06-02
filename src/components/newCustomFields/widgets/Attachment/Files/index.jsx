@@ -82,23 +82,18 @@ const SortableItem = SortableElement(props => {
 const SortableList = SortableContainer(props => {
   const { list, className, smallSize, style, ref, ...otherProps } = props;
   const { showType } = props;
-
-  if (list.length) {
-    return (
-      <div style={style} ref={ref} className={cx('overflowHidden', { mTop8: !['3'].includes(showType) })}>
-        <div className={cx(className, 'attachmentFilesWrap', showTypes[showType], { mobile: isMobile, smallSize })}>
-          {list.map((data, index) => (
-            <SortableItem key={data.fileID} index={index} sortIndex={index} data={data} {...otherProps} />
-          ))}
-          {['1', '2'].includes(showType) && (
-            Array.from({ length: 10 }).map((_, index) => <i key={index} className={cx('fileEmpty', showType === '1' ? 'attachmentImageCard' : 'attachmentSmallCard', { mobile: isMobile })} />)
-          )}
-        </div>
+  return (
+    <div style={style} ref={ref} className={cx('overflowHidden', { mTop8: !['3'].includes(showType), hide: !list.length })}>
+      <div className={cx(className, 'attachmentFilesWrap', showTypes[showType], { mobile: isMobile, smallSize })}>
+        {list.map((data, index) => (
+          <SortableItem key={data.fileID} index={index} sortIndex={index} data={data} {...otherProps} />
+        ))}
+        {['1', '2'].includes(showType) && (
+          Array.from({ length: 10 }).map((_, index) => <i key={index} className={cx('fileEmpty', showType === '1' ? 'attachmentImageCard' : 'attachmentSmallCard', { mobile: isMobile })} />)
+        )}
       </div>
-    );
-  } else {
-    return null;
-  }
+    </div>
+  );
 });
 
 const Files = props => {

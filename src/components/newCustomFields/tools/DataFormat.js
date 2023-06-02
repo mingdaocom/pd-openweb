@@ -1990,13 +1990,18 @@ export default class DataFormat {
               if (res.resultCode === 1) {
                 const newValue = (res.data || []).map(item => {
                   return {
+                    isWorksheetQueryFill: _.get(currentControl.advancedSetting || {}, 'showtype') === '1',
                     sourcevalue: JSON.stringify(item),
                     row: item,
                     type: 8,
                     sid: item.rowid,
                   };
                 });
-                updateData(JSON.stringify(newValue));
+                if (_.isEmpty(newValue)) {
+                  updateData('deleteRowIds: all');
+                } else {
+                  updateData(JSON.stringify(newValue));
+                }
               }
             });
           } else {

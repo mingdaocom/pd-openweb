@@ -144,14 +144,16 @@ export default class extends Component {
     const { xaxes, split } = this.props.reportData;
     const event = data.gEvent;
     const currentData = data.data;
-    const isNumber = isFormatNumber(xaxes.controlType);
     const param = {};
     if (xaxes.cid) {
-      param[xaxes.cid] = isNumber ? Number(currentData.data.originalId) : currentData.data.originalId;
+      const isNumber = isFormatNumber(xaxes.controlType);
+      const value = currentData.data.originalId;
+      param[xaxes.cid] = isNumber && value ? Number(value) : value;
     }
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
-      param[split.cid] = isNumber ? Number(currentData.data.groupKey) : currentData.data.groupKey;
+      const value = currentData.data.groupKey;
+      param[split.cid] = isNumber && value ? Number(value) : value;
     }
     this.setState({
       dropdownVisible: true,

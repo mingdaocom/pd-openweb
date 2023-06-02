@@ -95,14 +95,16 @@ export default class extends Component {
   handleClick = ({ data, gEvent }) => {
     const { xaxes, split } = this.props.reportData;
     const currentData = data.data;
-    const isNumber = isFormatNumber(xaxes.controlType);
     const param = {};
     if (xaxes.cid) {
-      param[xaxes.cid] = isNumber ? Number(currentData.originalId) : currentData.originalId;
+      const isNumber = isFormatNumber(xaxes.controlType);
+      const value = currentData.originalId;
+      param[xaxes.cid] = isNumber && value ? Number(value) : value;
     }
     if (split.controlId) {
       const isNumber = isFormatNumber(split.controlType);
-      param[split.cid] = isNumber ? Number(currentData.groupKey) : currentData.groupKey;
+      const value = currentData.groupKey;
+      param[split.cid] = isNumber && value ? Number(value) : value;
     }
     this.setState({
       dropdownVisible: true,

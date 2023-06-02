@@ -168,17 +168,23 @@ export default class AddUser extends Component {
       this.setState({ showMask: false });
       return;
     }
+    const userContact = !md.global.Config.IsLocal
+      ? inviteType === 'mobile'
+        ? mobile
+        : email
+      : inviteType === 'invite'
+      ? invite
+      : autonomously;
+
+    if (!userContact) {
+      this.setState({ showMask: false });
+      return;
+    }
 
     userAjax
       .getUserOrgState({
         projectId,
-        userContact: !md.global.Config.IsLocal
-          ? inviteType === 'mobile'
-            ? mobile
-            : email
-          : inviteType === 'invite'
-          ? invite
-          : autonomously,
+        userContact,
         departmentId,
       })
       .then(res => {

@@ -69,7 +69,7 @@ export default class Widgets extends Component {
     }
   }
 
-  realTimeSearch = _.throttle(mobileKeywords => this.handleSearch(mobileKeywords), 300);
+  realTimeSearch = _.debounce(mobileKeywords => this.handleSearch(mobileKeywords), 500);
 
   handleSearch = (mobileKeywords = '') => {
     const {

@@ -48,8 +48,8 @@ export default class EmailDialog extends Component {
       alert(_l('请输入服务器地址'), 3);
       return;
     }
-    
-    if (_.isEmpty(port)) {
+
+    if (!port) {
       alert(_l('请输入端口'), 3);
       return;
     }

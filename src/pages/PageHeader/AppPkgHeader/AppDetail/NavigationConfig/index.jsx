@@ -12,7 +12,7 @@ export default function NavigationConfig(props) {
   const [loading, setLoading] = useState(false);
   const [isChange, setIsChange] = useState(false);
   const [gridDisplayMode, setGridDisplayMode] = useState(app.gridDisplayMode || 0);
-  const [appNaviDisplayType, setAppNavDisplayType] = useState(app.appNaviDisplayType || 0);
+  const [appNavDisplayType, setAppNavDisplayType] = useState(app.appNavDisplayType || 0);
 
   useEffect(() => {
     if (!visible) return;
@@ -113,7 +113,7 @@ export default function NavigationConfig(props) {
               value: 2,
             },
           ]}
-          checkedValue={appNaviDisplayType}
+          checkedValue={appNavDisplayType}
           onChange={value => {
             setIsChange(true);
             setAppNavDisplayType(value);

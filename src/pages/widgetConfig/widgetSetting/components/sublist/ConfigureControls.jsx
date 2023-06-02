@@ -143,6 +143,7 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
   const { appId } = globalSheetInfo;
   const $ref = useRef(null);
   const [activeWidgetIndex, setWidgetIndex] = useState(-1);
+  const [visible, setValue] = useState(false);
   const [{ selectCascadeDataSourceVisible }, setVisible] = useSetState({ selectCascadeDataSourceVisible: false });
   let dataSource = '';
   let controlName = '';
@@ -315,7 +316,13 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
               });
             }}
           />
-          <Dropdown trigger={['click']} overlay={SelectWidgetMenu} getPopupContainer={() => $ref.current}>
+          <Dropdown
+            trigger={['click']}
+            visible={visible}
+            overlay={SelectWidgetMenu}
+            onVisibleChange={value => setValue(value)}
+            getPopupContainer={() => $ref.current}
+          >
             <ControlsWrap>
               <div className="addControl" ref={$ref}>
                 <i className="icon-plus Font16" />

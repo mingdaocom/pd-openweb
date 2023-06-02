@@ -943,7 +943,7 @@ class Record extends Component {
     const allowApprove =
       isOpenPermit(permitList.approveDetailsSwitch, switchPermit, baseIds.viewId) &&
       !this.isSharePage &&
-      getDataType !== 21;
+      getDataType !== 21 && !md.global.Account.isPortal;
     const recordMuster = _.sortBy(
       updateRulesData({ rules: rules, data: sheetRow.receiveControls }).filter(
         control =>

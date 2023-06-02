@@ -209,7 +209,7 @@ export default class RelateRecordCards extends Component {
     if (nextProps.flag !== this.props.flag) {
       this.setState({ records: nextProps.records, count: nextProps.count, addedIds: [], deletedIds: [] });
     }
-    if (nextProps.records !== this.props.records) {
+    if (!_.isEqual(nextProps.records, this.props.records)) {
       this.setState({ records: nextProps.records, count: nextProps.count });
     }
   }
@@ -307,6 +307,39 @@ export default class RelateRecordCards extends Component {
       },
       this.handleChange,
     );
+  }
+
+  @autobind
+  deleteAllRecord(cb) {
+    const { records, addedIds, deletedIds } = this.state;
+    const recordIds = records.map(r => r.rowid);
+    const changes = {
+      deletedIds: _.uniq(deletedIds.concat(recordIds)),
+      records: [],
+      addedIds: addedIds.filter(r => !_.includes(recordIds, r.rowid)),
+      count: 0,
+    };
+    if (_.isFunction(cb)) {
+      cb(changes);
+    } else {
+      this.setState(changes, this.handleChange);
+    }
+  }
+
+  @autobind
+  clearAndAdd(newRecords) {
+    this.deleteAllRecord(changes => {
+      const { count, addedIds = [] } = changes;
+      this.setState(
+        {
+          ...changes,
+          records: newRecords,
+          count: count + newRecords.length,
+          addedIds: addedIds.concat(newRecords.map(r => r.rowid)),
+        },
+        this.handleChange,
+      );
+    });
   }
 
   @autobind
@@ -513,7 +546,7 @@ export default class RelateRecordCards extends Component {
   }
 
   render() {
-    const { control, editable, allowOpenRecord } = this.props;
+    const { control, editable, allowOpenRecord, showCoverAndControls } = this.props;
     const {
       appId,
       viewId,
@@ -656,6 +689,9 @@ export default class RelateRecordCards extends Component {
                   onClose={() => this.setState({ showAddRecord: false, mobileRecordkeyWords: '' })}
                   onOk={this.handleAdd}
                   formData={formData}
+                  {...(isMobile && !isCard && !showCoverAndControls
+                    ? { showControls: [], control: { ...control, showControls: [] } }
+                    : {})}
                 />
               )}
               {showNewRecord && (

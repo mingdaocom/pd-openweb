@@ -179,20 +179,23 @@ export default class User extends React.Component {
       }
       this.isPicking = false;
     };
+    const selectRangeOptions = dealUserRange(cell, rowFormData());
+    const hasUserRange = Object.values(selectRangeOptions).some(i => !_.isEmpty(i));
     quickSelectUser(target, {
-      selectRangeOptions: dealUserRange(cell, rowFormData()),
+      selectRangeOptions,
       tabType,
       appId,
       showMoreInvite: false,
-      prefixAccounts: !_.includes(filterAccountIds, md.global.Account.accountId)
-        ? [
-            {
-              accountId: md.global.Account.accountId,
-              fullname: _l('我自己'),
-              avatar: md.global.Account.avatar,
-            },
-          ]
-        : [],
+      prefixAccounts:
+        !_.includes(filterAccountIds, md.global.Account.accountId) && !hasUserRange
+          ? [
+              {
+                accountId: md.global.Account.accountId,
+                fullname: _l('我自己'),
+                avatar: md.global.Account.avatar,
+              },
+            ]
+          : [],
       filterAccountIds,
       zIndex: 10001,
       isDynamic: cell.enumDefault === 1,

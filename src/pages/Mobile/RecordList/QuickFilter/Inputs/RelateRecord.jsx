@@ -9,7 +9,13 @@ import MobileRecordCardListDialog from 'src/components/recordCardListDialog/mobi
 import _ from 'lodash';
 
 export default function RelateRecord(props) {
-  const { values = [], control, advancedSetting, onChange = () => {}, appId, worksheetId } = props;
+  const { values = [], advancedSetting, onChange = () => {}, appId, worksheetId } = props;
+  const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
+  const control = _.assign({}, props.control, {
+    advancedSetting: {
+      searchcontrol: controlAdvancedSetting.searchcontrol,
+    },
+  });
   const {
     enumDefault,
     relationControls = [],

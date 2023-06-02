@@ -185,10 +185,11 @@ export default class extends Component {
     const { xaxes, split, displaySetup } = this.props.reportData;
     const { contrastType } = displaySetup;
     const currentData = data.data;
-    const isNumber = isFormatNumber(xaxes.controlType);
     const param = {}
     if (xaxes.cid) {
-      param[xaxes.cid] = isNumber ? Number(currentData.id) : currentData.id;
+      const isNumber = isFormatNumber(xaxes.controlType);
+      const value = currentData.id;
+      param[xaxes.cid] = isNumber && value ? Number(value) : value;
     }
     this.setState({
       dropdownVisible: true,

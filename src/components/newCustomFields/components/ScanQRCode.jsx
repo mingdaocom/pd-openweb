@@ -184,6 +184,12 @@ export default class Widgets extends Component {
     this.handleScanQRCode();
   }
   handleScanQRCode = () => {
+    if (location.protocol === 'http:' && location.hostname !== 'localhost') {
+      Modal.alert(_l('浏览器平台仅https环境支持调用摄像头api'), '', [
+        { text: _l('确定') }
+      ]);
+      return;
+    }
     this.setState({
       visible: true
     }, () => {

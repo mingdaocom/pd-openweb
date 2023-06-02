@@ -19,7 +19,7 @@ export const getSuffix = url => {
   let addressSuffix = decodeURIComponent(url)
     .replace(/http(s)?:\/\/([^/]+)\//i, '')
     .split(/portal\/(.*)/)
-    .filter(o => o)[0].split(/\/(.*)/)[0];
+    .filter(o => o)[0].split(/\/(.*)/)[0].split('?')[0];
   return addressSuffix;
 };
 

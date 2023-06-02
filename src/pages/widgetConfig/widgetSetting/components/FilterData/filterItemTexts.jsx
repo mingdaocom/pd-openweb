@@ -80,9 +80,9 @@ const FilterTextWrap = styled.div`
 `;
 
 export default class FilterItemTexts extends React.Component {
-  renderFilterItem({ item, index, spliceText }) {
+  renderFilterItem({ item, index, key, spliceText }) {
     return (
-      <div key={item.id} className="pRight10 mTop6 flexBox renderFilterItem">
+      <div key={`${item.id}--${key || index}`} className="pRight10 mTop6 flexBox renderFilterItem">
         {index ? <span className="mRight10 Gray_75 Font13">{spliceText}</span> : null}
         <span className="mRight10">{item.name}</span>
         {item.type ? <span className="Bold LineHeight19 mRight10 Gray Font13">{item.type.text}</span> : null}
@@ -141,6 +141,7 @@ export default class FilterItemTexts extends React.Component {
                       this.renderFilterItem({
                         item: childItem,
                         index: childIndex,
+                        key: `${index}--${childIndex}`,
                         spliceText:
                           item.groupFilters[childIndex - 1] && item.groupFilters[childIndex - 1].spliceType == 1
                             ? _l('且')

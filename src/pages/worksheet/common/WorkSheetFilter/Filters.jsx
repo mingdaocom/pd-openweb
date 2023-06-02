@@ -88,7 +88,8 @@ function Filters(props, ref) {
     .filter(c => (c.controlPermissions || '111')[0] === '1')
     .map(redefineComplexControl)
     .filter(c => _.includes(filterWhiteKeys, c.type))
-    .filter(c => !(c.type === 38 && c.enumDefault === 3));
+    .filter(c => !(c.type === 38 && c.enumDefault === 3))
+    .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1));
   const { loading, filters, editingFilter, activeFilter, needSave, nameIsUpdated } = state;
   const {
     editFilter,

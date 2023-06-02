@@ -75,8 +75,8 @@ function QuickFilter(props) {
       const quickFilterDataFormat = quickFilter.map(it => {
         let { values } = it;
         if (
-          (_.isArray(values) && (values[0] === 'isEmpty' || values[0].accountId === 'isEmpty')) ||
-          values[0].rowid === 'isEmpty'
+          (_.isArray(values) && (values[0] === 'isEmpty' || _.get(values[0], 'accountId') === 'isEmpty')) ||
+          _.get(values[0], 'rowid') === 'isEmpty'
         ) {
           it.filterType = 7;
           values = [];

@@ -142,17 +142,34 @@ export default class MDMap extends Component {
   }
 
   handleChange = event => {
-    new AMap.PlaceSearch().search(event.currentTarget.value.trim(), (status, result) => {
-      this.setState({
-        list:
-          status === 'complete'
-            ? (_.get(result, 'poiList.pois') || []).filter(
-                item =>
-                  item.location && item.location.lng && this.compareDistance(item.location.lng, item.location.lat),
-              )
-            : [],
+    const { distance } = this.props;
+    const { lat, lng } = this._maphHandler.map && this._maphHandler.map.getCenter();
+
+    if (!distance) {
+      new AMap.PlaceSearch().search(event.currentTarget.value.trim(), (status, result) => {
+        this.setState({
+          list:
+            status === 'complete'
+              ? (_.get(result, 'poiList.pois') || []).filter(item => item.location && item.location.lng)
+              : [],
+        });
       });
-    });
+      return;
+    }
+
+    new AMap.PlaceSearch({ citylimit: true, pageSize: 50 }).searchNearBy(
+      event.currentTarget.value.trim(),
+      [lng, lat],
+      distance,
+      (status, result) => {
+        this.setState({
+          list:
+            status === 'complete'
+              ? (_.get(result, 'poiList.pois') || []).filter(item => item.location && item.location.lng)
+              : [],
+        });
+      },
+    );
   };
 
   handleClearAndSet = location => {

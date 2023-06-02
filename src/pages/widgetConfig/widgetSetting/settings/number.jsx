@@ -108,7 +108,7 @@ export default function Number(props) {
               newOptions.numinterval = '1';
               newOptions.min = '0';
               newOptions.max = '100';
-              newOptions.itemcolor = JSON.stringify(defaultItemColor);
+              newOptions.itemcolor = JSON.stringify(_.isEmpty(itemcolor) ? defaultItemColor : itemcolor);
               newOptions.showinput = '1';
               newOptions.datamask = '';
               setNumValue(newOptions.numinterval);

@@ -64,6 +64,7 @@ export default class RecordCardListDialog extends Component {
     onOk: PropTypes.func, // 确定回掉
     onText: PropTypes.string,
     formData: PropTypes.arrayOf(PropTypes.shape({})),
+    pageSize: PropTypes.number,
   };
   static defaultProps = {
     allowNewRecord: true,
@@ -74,6 +75,7 @@ export default class RecordCardListDialog extends Component {
     onOk: () => {},
     formData: [],
     singleConfirm: false,
+    pageSize: 50,
   };
   conRef = React.createRef();
   listRef = React.createRef();
@@ -188,7 +190,7 @@ export default class RecordCardListDialog extends Component {
       controlId,
       control,
       formData,
-      multiple,
+      pageSize,
     } = this.props;
     const {
       pageIndex,
@@ -200,7 +202,6 @@ export default class RecordCardListDialog extends Component {
       worksheetInfo,
     } = this.state;
     let getFilterRowsPromise, args;
-    const pageSize = 50;
     let filterControls;
     if (control && control.advancedSetting.filters) {
       if (worksheetInfo) {

@@ -102,10 +102,11 @@ export default class extends Component {
   }
   handleClick = (event, data) => {
     const { xaxes, split } = this.props.reportData;
-    const isNumber = isFormatNumber(xaxes.controlType);
     const param = {};
     if (xaxes.cid) {
-      param[xaxes.cid] = isNumber ? Number(data.originalX) : data.originalX;
+      const isNumber = isFormatNumber(xaxes.controlType);
+      const value = data.originalX;
+      param[xaxes.cid] = isNumber && value ? Number(value) : value;
     }
     const { left, top } = this.chartWrapEl.getBoundingClientRect();
     this.setState({

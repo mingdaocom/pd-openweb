@@ -242,7 +242,7 @@ export default class RecordInfo extends Component {
       if ((isWorksheetRowLand && (!viewId || (viewId && !data.isViewData))) || isPublicShare) {
         data.allowEdit = false;
       }
-      if (_.isBoolean(closeWhenNotViewData) && closeWhenNotViewData && !data.isViewData) {
+      if (_.isBoolean(closeWhenNotViewData) && closeWhenNotViewData && viewId && !data.isViewData) {
         hideRows([recordId]);
         if (from !== RECORD_INFO_FROM.WORKSHEET_ROW_LAND) {
           hideRecordInfo(recordId);

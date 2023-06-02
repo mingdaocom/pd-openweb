@@ -250,10 +250,10 @@ export default class extends Component {
     const { reportData, isViewOriginalData, isThumbnail } = this.props;
     const { xaxes, displaySetup } = reportData;
     if (displaySetup.showRowList && isViewOriginalData) {
-      const isNumber = isFormatNumber(xaxes.controlType);
       const param = {};
       if (xaxes.cid) {
-        param[xaxes.cid] = isNumber ? Number(originalId) : originalId;
+        const isNumber = isFormatNumber(xaxes.controlType);
+        param[xaxes.cid] = isNumber && originalId ? Number(originalId) : originalId;
       }
       const data = {
         isPersonal: false,

@@ -258,6 +258,7 @@ class Header extends Component {
     if (_.includes([APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION], flowInfo.startAppType)) {
       selectRecord({
         canSelectAll: false,
+        pageSize: 25,
         multiple: false,
         singleConfirm: true,
         relateSheetId: flowInfo.startAppId,

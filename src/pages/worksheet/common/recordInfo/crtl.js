@@ -31,7 +31,7 @@ export function loadRecord({
       getType,
       appId,
       viewId,
-      checkView: true,
+      checkView: !!viewId,
     };
     if (instanceId && workId) {
       apiargs.getType = 9;

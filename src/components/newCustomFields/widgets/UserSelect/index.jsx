@@ -57,20 +57,23 @@ export default class Widgets extends Component {
     if (browserIsMobile()) {
       this.setState({ showSelectUser: true });
     } else {
+      const selectRangeOptions = dealUserRange(this.props, formData);
+      const hasUserRange = Object.values(selectRangeOptions).some(i => !_.isEmpty(i));
       quickSelectUser($(event.target).closest('.addBtn')[0], {
         showMoreInvite: false,
-        selectRangeOptions: dealUserRange(this.props, formData),
+        selectRangeOptions,
         tabType,
         appId,
-        prefixAccounts: !_.includes(filterAccountIds, md.global.Account.accountId)
-          ? [
-              {
-                accountId: md.global.Account.accountId,
-                fullname: _l('我自己'),
-                avatar: md.global.Account.avatar,
-              },
-            ]
-          : [],
+        prefixAccounts:
+          !_.includes(filterAccountIds, md.global.Account.accountId) && !hasUserRange
+            ? [
+                {
+                  accountId: md.global.Account.accountId,
+                  fullname: _l('我自己'),
+                  avatar: md.global.Account.avatar,
+                },
+              ]
+            : [],
         filterAccountIds,
         minHeight: 400,
         offset: {

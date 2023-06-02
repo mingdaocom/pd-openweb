@@ -294,6 +294,7 @@ export default ({ data, updateSource, isIntegration }) => {
                   required: item.required,
                   desc: '',
                   workflowDefaultValue: '',
+                  attribute: 0,
                 };
               };
 

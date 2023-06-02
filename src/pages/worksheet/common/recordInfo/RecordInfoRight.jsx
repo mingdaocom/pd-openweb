@@ -30,7 +30,7 @@ export default function RecordInfoRight(props) {
     hiddenTabs.push('logs');
   }
   // 审批权限 || 流程详情不需要显示表审批
-  if (!isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId) || workflow) {
+  if (!isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId) || workflow || md.global.Account.isPortal) {
     hiddenTabs.push('approval');
   }
   if (!workflow) {

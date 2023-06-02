@@ -59,7 +59,7 @@ export default (props) => {
 
   if (isMdFile) {
     const { browse, onMDPreview } = props;
-    const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1`);
+    const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/0`);
     return (
       <LargeImageCard
         {...otherProps}
@@ -71,7 +71,7 @@ export default (props) => {
     );
   } else {
     const { url, onKCPreview, onPreview } = props;
-    const previewImageUrl = isKc ? data.viewUrl : (url.indexOf('imageView2') > -1 ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1') : url + '&imageView2/1');
+    const previewImageUrl = isKc ? data.viewUrl : (url.indexOf('imageView2') > -1 ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0') : url + '&imageView2/0');
     return (
       <LargeImageCard
         {...otherProps}

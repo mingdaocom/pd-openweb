@@ -81,7 +81,7 @@ export default class EditUser extends Component {
           companyName: user.companyName || '',
           mobile: user.mobilePhone,
           email: user.email,
-          mobilePhone: user.mobilePhone || editCurrentUser.mobilePhone,
+          mobilePhone: md.global.Config.IsLocal ? user.contactPhone : user.mobilePhone || editCurrentUser.mobilePhone,
           baseInfo: {
             jobNumber: user.jobNumber || '',
             contactPhone: user.contactPhone || '',

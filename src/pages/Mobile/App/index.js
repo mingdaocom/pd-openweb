@@ -63,22 +63,22 @@ class App extends Component {
       const { appSection = [], detail = {} } = _.get(nextProps, 'appDetail') || {};
       const { viewHideNavi } = _.get(nextProps, 'appDetail.detail') || {};
       const appExpandGroupInfo =
-        localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
-        JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`));
+        (localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
+          JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`))) ||
+        {};
 
-      const expandGroupKeys =
-        appExpandGroupInfo && appExpandGroupInfo.expandGroupKeys
-          ? appExpandGroupInfo.expandGroupKeys
-          : detail.appNaviDisplayType === 1
-          ? []
-          : detail.appNaviDisplayType === 2
-          ? [appSection[0].appSectionId]
-          : appSection.map(item => item.appSectionId);
+      const expandGroupKeys = appExpandGroupInfo.expandGroupKeys
+        ? appExpandGroupInfo.expandGroupKeys
+        : detail.appNaviDisplayType === 1
+        ? []
+        : detail.appNaviDisplayType === 2
+        ? [appSection[0].appSectionId]
+        : appSection.map(item => item.appSectionId);
 
       this.setState({
         expandGroupKeys,
         viewHideNavi,
-        level2ExpandKeys: (appExpandGroupInfo && appExpandGroupInfo.level2ExpandKeys) || [],
+        level2ExpandKeys: appExpandGroupInfo.level2ExpandKeys || [],
       });
     }
   }
@@ -169,8 +169,9 @@ class App extends Component {
         }
         const groupItem = _.assign(item, _.find(childSections, v => v.appSectionId === item.workSheetId) || {});
         const appExpandGroupInfo =
-          localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
-          JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`));
+          (localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
+            JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`))) ||
+          {};
 
         return (
           <Accordion
@@ -433,18 +434,18 @@ class App extends Component {
     const { isHideTabBar, appMoreActionVisible, viewHideNavi, expandGroupKeys } = this.state;
     const { params } = match;
     const appExpandGroupInfo =
-      localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
-      JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`));
+      (localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
+        JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`))) ||
+      {};
     const accordionExtraParam =
       appNaviDisplayType === 2
         ? { activeKey: expandGroupKeys }
         : {
-            defaultActiveKey:
-              appExpandGroupInfo && appExpandGroupInfo.expandGroupKeys
-                ? appExpandGroupInfo.expandGroupKeys
-                : appNaviDisplayType === 1 && (appSection.length > 1 || appSection[0].name)
-                ? []
-                : appSection.map(item => item.appSectionId),
+            defaultActiveKey: appExpandGroupInfo.expandGroupKeys
+              ? appExpandGroupInfo.expandGroupKeys
+              : appNaviDisplayType === 1 && (appSection.length > 1 || appSection[0].name)
+              ? []
+              : appSection.map(item => item.appSectionId),
           };
     const isEmptyAppSection = appSection.length === 1 && !appSection[0].name;
     if (!detail || detail.length <= 0) {

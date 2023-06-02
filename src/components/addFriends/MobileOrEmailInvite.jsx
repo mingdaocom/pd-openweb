@@ -43,7 +43,10 @@ export default class MobileOrEmailInvite extends Component {
   }
 
   getValue = () => {
-    return this.state.keywords.indexOf('@') > -1 ? this.state.keywords : `+86${this.state.keywords}`;
+    // 邮箱或者国际号码带+
+    return this.state.keywords.indexOf('@') > -1 || (this.state.keywords || '').startsWith('+')
+      ? this.state.keywords
+      : `+86${this.state.keywords}`;
   };
 
   handleSearch = () => {

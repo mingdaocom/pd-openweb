@@ -286,7 +286,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
                 e.stopPropagation();
                 if (allowOpenRecord) {
                   handleOpenRecord({
-                    viewId: _.get(control, 'advancedSetting.openview'),
+                    viewId: _.get(control, 'advancedSetting.openview') || control.viewId,
                     worksheetId: control.dataSource,
                     recordId: record.rowid,
                   });

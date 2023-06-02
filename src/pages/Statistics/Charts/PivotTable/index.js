@@ -281,12 +281,12 @@ export default class extends Component {
                   const { controlType } = _.find(lines, { controlId: key }) || {};
                   const isNumber = isFormatNumber(controlType);
                   const value = item[key][record.key];
-                  param[key] = isNumber ? Number(value) : value;
+                  param[key] = isNumber && value ? Number(value) : value;
                 });
                 columns.forEach((item, i) => {
                   const isNumber = isFormatNumber(item.controlType);
                   const value = data.data[index].y[i];
-                  param[item.cid] = isNumber ? Number(value) : value;
+                  param[item.cid] = isNumber && value ? Number(value) : value;
                 });
                 this.handleOpenSheet(param);
               }

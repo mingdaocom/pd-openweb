@@ -33,11 +33,32 @@ export default class Widgets extends Component {
     this.state = {};
   }
 
+  cardsComp = React.createRef();
+
   get count() {
     const { value } = this.props;
     let { count } = this.props;
     const recordsCount = getRelateRecordCountFromValue(value);
     return _.isUndefined(recordsCount) ? count : recordsCount;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    try {
+      if (nextProps.value === 'deleteRowIds: all') {
+        this.cardsComp.current.table.deleteAllRecord();
+        return;
+      }
+      const nextData = this.parseValue(nextProps.value);
+      if (_.get(nextData, '0.isWorksheetQueryFill')) {
+        const newRecords = nextData.map(item => JSON.parse(item.sourcevalue));
+        this.cardsComp.current.table.clearAndAdd(newRecords);
+      }
+    } catch (err) {}
+  }
+
+  shouldComponentUpdate(nextProps) {
+    const nextData = this.parseValue(nextProps.value);
+    return nextProps.value !== 'deleteRowIds: all' && !_.get(nextData, '0.isWorksheetQueryFill');
   }
 
   parseValue(value) {
@@ -104,6 +125,7 @@ export default class Widgets extends Component {
       <React.Fragment>
         {showtype !== RELATE_RECORD_SHOW_TYPE.DROPDOWN || browserIsMobile() ? (
           <RelateRecordCards
+            ref={this.cardsComp}
             flag={flag}
             recordId={recordId}
             allowOpenRecord={advancedSetting.allowlink === '1'}
@@ -118,6 +140,7 @@ export default class Widgets extends Component {
             // addedIds={deletedIds}
             // deletedIds={deletedIds}
             multiple={enumDefault === 2}
+            showCoverAndControls={advancedSetting.ddset === '1'}
             onChange={this.handleChange}
           />
         ) : (

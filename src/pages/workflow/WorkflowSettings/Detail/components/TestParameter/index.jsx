@@ -38,7 +38,10 @@ export default ({
 
       return (
         <div key={index} className="flexRow alignItemsCenter Height36 mTop10">
-          <div className="Width190 mRight10 ellipsis bold">
+          <div
+            className="Width190 mRight10 ellipsis bold"
+            title={`${formulaMap[nodeId].name}.${formulaMap[controlId].name}`}
+          >
             {`${formulaMap[nodeId].name}.${formulaMap[controlId].name}`}
           </div>
           {!isFile ? (
