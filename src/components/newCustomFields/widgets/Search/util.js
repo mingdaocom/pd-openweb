@@ -91,7 +91,7 @@ const getDynamicValue = (item, formData, keywords) => {
       const isOcr = _.includes(['ocr-file', 'ocr-file-url'], source.cid);
 
       if (source.cid === 'ocr-file-url' && item.type === 2) {
-        return keywords ? `${_.get(keywords, 'serverName')}${_.get(keywords, 'key')}` : '';
+        return keywords ? `${_.get(keywords, 'serverName')}${_.get(keywords, 'key')}?imageView2/2/w/1920/q/90` : '';
       }
       if (source.cid === 'ocr-file' && item.type === 14) {
         const fileId = _.get(keywords, 'fileId');

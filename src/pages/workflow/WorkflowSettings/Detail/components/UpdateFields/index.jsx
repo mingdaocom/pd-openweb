@@ -27,7 +27,7 @@ export default class UpdateFields extends Component {
     if (item.type === 29) {
       return (
         <div className="flexRow">
-          <div className="flex ellipsis">
+          <div>
             <span className="Gray_9e mRight5">[{CONTROLS_NAME[item.type]}]</span>
             <span>{item.controlName}</span>
           </div>
@@ -98,7 +98,11 @@ export default class UpdateFields extends Component {
    */
   renderOperatorType(item, i) {
     const { type } = this.props;
-    const TYPES = [{ text: _l('设为'), value: 0 }, { text: _l('增加'), value: 1 }, { text: _l('减少'), value: 2 }];
+    const TYPES = [
+      { text: _l('设为'), value: 0 },
+      { text: _l('增加'), value: 1 },
+      { text: _l('减少'), value: 2 },
+    ];
 
     // 附件没有减少
     if (item.type === 14) {

@@ -818,6 +818,7 @@ $.extend(CreateCalendar.prototype, {
           fromType: 5,
           zIndex: 1111,
           filterAccountIds: existsIds,
+          isDynamic: true,
           SelectUserSettings: {
             filterAccountIds: existsIds,
             projectId: settings.ProjectID,

@@ -127,7 +127,8 @@ function Filters(props, ref) {
   }
   function filterWorksheet(filter) {
     const filterControls = formatForSave(filter);
-    if (filterControls && _.isArray(filterControls)) {
+    const isClear = _.isEmpty(filter.conditionsGroups.filter(g => g.conditions.length));
+    if ((filterControls && !_.isEmpty(filterControls)) || isClear) {
       onChange({
         filterControls,
       });

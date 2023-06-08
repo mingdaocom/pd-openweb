@@ -98,12 +98,13 @@ const AuthorizationInfo = props => {
   const [platformLicenseInfo, setPlatformLicenseInfo] = useState({});
 
   const formatDate = (date) => {
+    const current = moment().format('YYYY-MM-DD');
     const year = moment(date).format('YYYY');
-    const diff = moment(date).diff(moment(), 'd');
+    const diff = moment(date).diff(moment(current), 'd');
     if (year == 9999) {
       return <span style={{ color: '#4CAF50' }}>{_l('永久有效')}</span>;
     }
-    if (diff < 0) {
+    if (diff <= 0) {
       return <span style={{ color: '#F44336' }}>{_l('已到期')}</span>;
     }
     return _l('剩余%0天', diff);

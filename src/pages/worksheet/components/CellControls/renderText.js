@@ -322,8 +322,7 @@ export default function renderText(cell, options = {}) {
     if (
       !options.noMask &&
       ((type === 2 && cell.enumDefault === 2) || _.includes([3, 5, 7], type)) &&
-      _.get(cell, 'advancedSetting.datamask') === '1' &&
-      !window.shareState.shareId
+      _.get(cell, 'advancedSetting.datamask') === '1'
     ) {
       return dealMaskValue({ ...cell, value }) || value;
     }

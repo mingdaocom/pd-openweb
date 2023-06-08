@@ -93,6 +93,10 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           if (item.isRelateMultipleSheet && records.length <= 0) {
             return '';
           }
+          if(!item.isRelateMultipleSheet && dataItem.sourceControlType===11 && dataItem.enumDefault === 2) {
+            dataItem = { ...dataItem, enumDefault: 1 };
+          }
+
           return (
             <span className="relaList">{item.isRelateMultipleSheet ? records[0].name : renderCellText(dataItem)}</span>
           );

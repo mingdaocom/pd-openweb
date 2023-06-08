@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.3.1\n"
 
 #: Disabled references:1
 msgid "刚刚"
@@ -43087,1537 +43087,1536 @@ msgstr "二次確認"
 
 #: Disabled references:1
 msgid "系统配置"
-msgstr ""
+msgstr "系統配置"
 
 #: Disabled references:1
 msgid "App下载与设置"
-msgstr ""
+msgstr "App下載與設置"
 
 #: Disabled references:1
 msgid "升级受限提醒"
-msgstr ""
+msgstr "升級受限提醒"
 
 #: Disabled references:1
 msgid "我已知晓"
-msgstr ""
+msgstr "我已知曉"
 
 #: Disabled references:1
 msgid "由于当前系统绑定的密钥技术支持时间已到期（%0 到期），无法升级到 %1 版本（发布时间早于到期时间的版本可升级），现已自动降为免费版，"
-msgstr ""
+msgstr "由於當前系統綁定的密鑰技術支持時間已到期（%0 到期），無法升級到 %1 版本（發佈時間早於到期時間的版本可升級），現已自動降為免費版，"
 
 #: Disabled references:1
 msgid "您可以"
-msgstr ""
+msgstr "您可以"
 
 #: Disabled references:1
 msgid "咨询并延长技术支持或查看 "
-msgstr ""
+msgstr "諮詢並延長技術支持或查看 "
 
 #: Disabled references:1
 msgid "其他可升级的版本"
-msgstr ""
+msgstr "其他可升級的版本"
 
 #: Disabled references:1
 msgid "请尽快联系系统管理员"
-msgstr ""
+msgstr "請盡快聯繫系統管理員"
 
 #: Disabled references:1
 msgid "安装预集成的API，或自定义添加"
-msgstr ""
+msgstr "安裝預集成的API，或自定義添加"
 
 #: Disabled references:1
 msgid "鉴权失败"
-msgstr ""
+msgstr "鑑權失敗"
 
 #: Disabled references:1
 msgid "非法的文件类型"
-msgstr ""
+msgstr "非法的文件類型"
 
 #: Disabled references:1
 msgid "bucket 不存在"
-msgstr ""
+msgstr "bucket 不存在"
 
 #: Disabled references:1
 msgid "文件大小错误"
-msgstr ""
+msgstr "文件大小錯誤"
 
 #: Disabled references:1
 msgid "系统错误 metadata error"
-msgstr ""
+msgstr "系統錯誤 metadata error"
 
 #: Disabled references:1
 msgid "系统错误 hash error"
-msgstr ""
+msgstr "系統錯誤 hash error"
 
 #: Disabled references:1
 msgid "系统错误"
-msgstr ""
+msgstr "系統錯誤"
 
 #: Disabled references:1
 msgid "至多本地,链接各20个"
-msgstr ""
+msgstr "至多本地,鏈接各20個"
 
 #: Disabled references:1
 msgid "至多本地文件各20个"
-msgstr ""
+msgstr "至多本地文件各20個"
 
 #: Disabled references:1
 msgid "关注服务号"
-msgstr ""
+msgstr "關注服務號"
 
 #: Disabled references:1
 msgid "服务协议"
-msgstr ""
+msgstr "服務協議"
 
 #: Disabled references:1
 msgid "通用"
-msgstr ""
+msgstr "通用"
 
 #: Disabled references:1
 msgid "密钥管理"
-msgstr ""
+msgstr "密鑰管理"
 
 #: Disabled references:1
 msgid "品牌"
-msgstr ""
+msgstr "品牌"
 
 #: Disabled references:1
 msgid "授权"
-msgstr ""
+msgstr "授權"
 
 #: Disabled references:1
 msgid "管理"
-msgstr ""
+msgstr "管理"
 
 #: Disabled references:1
 msgid "平台"
-msgstr ""
+msgstr "平台"
 
 #: Disabled references:1
 msgid "直接用浏览器打印"
-msgstr ""
+msgstr "直接用瀏覽器打印"
 
 #: Disabled references:1
 msgid "正在生成..."
-msgstr ""
+msgstr "正在生成..."
 
 #: Disabled references:1
 msgid "App 初次启动需要填写的配置信息"
-msgstr ""
+msgstr "App 初次啟動需要填寫的配置信息"
 
 #: Disabled references:1
 msgid "扫描二维码填写"
-msgstr ""
+msgstr "掃描二維碼填寫"
 
 #: Disabled references:1
 msgid "下载客户端"
-msgstr ""
+msgstr "下載客戶端"
 
 #: Disabled references:1
 msgid "工作信息时刻保持连接"
-msgstr ""
+msgstr "工作信息時刻保持連接"
 
 #: Disabled references:1
 msgid "不管是在电脑前，还是出门在外，都能让你与工作信息时刻保持连接"
-msgstr ""
+msgstr "不管是在電腦前，還是出門在外，都能讓你與工作信息時刻保持連接"
 
 #: Disabled references:1
 msgid "PC桌面端"
-msgstr ""
+msgstr "PC桌面端"
 
 #: Disabled references:1
 msgid "Mac 下载"
-msgstr ""
+msgstr "Mac 下載"
 
 #: Disabled references:1
 msgid "敬请期待"
-msgstr ""
+msgstr "敬請期待"
 
 #: Disabled references:1
 msgid "Windows 下载"
-msgstr ""
+msgstr "Windows 下載"
 
 #: Disabled references:1
 msgid "扫码下载"
-msgstr ""
+msgstr "掃碼下載"
 
 #: Disabled references:1
 msgid "账号被禁用，请联系系统管理员进行恢复"
-msgstr ""
+msgstr "賬號被禁用，請聯繫系統管理員進行恢復"
 
 #: Disabled references:1
 msgid "基于明道云应用平台内核"
-msgstr ""
+msgstr "基於明道云應用平台內核"
 
 #: Disabled references:1
 msgid "当前地址错误"
-msgstr ""
+msgstr "當前地址錯誤"
 
 #: Disabled references:1
 msgid "请输入确认密码"
-msgstr ""
+msgstr "請輸入確認密碼"
 
 #: Disabled references:1
 msgid "请确保确认密码与密码一致"
-msgstr ""
+msgstr "請確保確認密碼與密碼一致"
 
 #: Disabled references:1
 msgid "密码修改失败，请稍后再试"
-msgstr ""
+msgstr "密碼修改失敗，請稍後再試"
 
 #: Disabled references:1
 msgid "旧密码已过期，请重新设置密码"
-msgstr ""
+msgstr "舊密碼已過期，請重新設置密碼"
 
 #: Disabled references:1
 msgid "首次登录需设置密码"
-msgstr ""
+msgstr "首次登錄需設置密碼"
 
 #: Disabled references:1
 msgid "请设置密码"
-msgstr ""
+msgstr "請設置密碼"
 
 #: Disabled references:1
 msgid "请确认密码"
-msgstr ""
+msgstr "請確認密碼"
 
 #: Disabled references:1
 msgid "两次输入的密码不一致"
-msgstr ""
+msgstr "兩次輸入的密碼不一致"
 
 #: Disabled references:1
 msgid "请输入密钥"
-msgstr ""
+msgstr "請輸入密鑰"
 
 #: Disabled references:1
 msgid "请输入姓名"
-msgstr ""
+msgstr "請輸入姓名"
 
 #: Disabled references:1
 msgid "密码不一致，请重新输入"
-msgstr ""
+msgstr "密碼不一致，請重新輸入"
 
 #: Disabled references:1
 msgid "请输入企业名称"
-msgstr ""
+msgstr "請輸入企業名稱"
 
 #: Disabled references:1
 msgid "请输入您的密钥"
-msgstr ""
+msgstr "請輸入您的密鑰"
 
 #: Disabled references:1
 msgid "注册并申请密钥"
-msgstr ""
+msgstr "註冊併申請密鑰"
 
 #: Disabled references:1
 msgid "登录并申请密钥"
-msgstr ""
+msgstr "登錄併申請密鑰"
 
 #: Disabled references:1
 msgid "正在验证您的产品密钥"
-msgstr ""
+msgstr "正在驗證您的產品密鑰"
 
 #: Disabled references:1
 msgid "密钥验证失败, 请重新填写"
-msgstr ""
+msgstr "密鑰驗證失敗, 請重新填寫"
 
 #: Disabled references:1
 msgid "设置管理员账户"
-msgstr ""
+msgstr "設置管理員賬戶"
 
 #: Disabled references:1
 msgid "请输入管理员账户信息"
-msgstr ""
+msgstr "請輸入管理員賬戶信息"
 
 #: Disabled references:1
 msgid "邮箱地址（邮箱作为登录账户）"
-msgstr ""
+msgstr "郵箱地址（郵箱作為登錄賬戶）"
 
 #: Disabled references:1
 msgid "确认密码"
-msgstr ""
+msgstr "確認密碼"
 
 #: Disabled references:1
 msgid "企业名称"
-msgstr ""
+msgstr "企業名稱"
 
 #: Disabled references:1
 msgid "创建组织后可以邀请团队成员加入"
-msgstr ""
+msgstr "創建組織後可以邀請團隊成員加入"
 
 #: Disabled references:1
 msgid "太棒了！ 您完成了安装"
-msgstr ""
+msgstr "太棒了！您完成了安裝"
 
 #: Disabled references:1
 msgid "私有部署版"
-msgstr ""
+msgstr "私有部署版"
 
 #: Disabled references:1
 msgid "还未绑定帐号"
-msgstr ""
+msgstr "還未綁定帳號"
 
 #: Disabled references:1
 msgid "该%0 API提供了一个简单的方法来整合您的%0与任何外部系统的数据。API严格遵循REST语义，使用JSON编码对象，并依赖标准HTTP代码来指示操作结果。"
-msgstr ""
+msgstr "該%0 API提供了一個簡單的方法來整合您的%0與任何外部系統的數據。 API嚴格遵循REST語義，使用JSON編碼對象，並依賴標準HTTP代碼來指示操作結果。"
 
 #: Disabled references:1
 msgid "v%0"
-msgstr ""
+msgstr "v%0"
 
 #: Disabled references:1
 msgid "确定移除%0 ?"
-msgstr ""
+msgstr "確定移除%0 ?"
 
 #: Disabled references:1
 msgid "平台管理员账号管理，可从管理员所属组织中直接添加管理员成员，也可移除成员"
-msgstr ""
+msgstr "平台管理員賬號管理，可從管理員所屬組織中直接添加管理員成員，也可移除成員"
 
 #: Disabled references:1
 msgid "服务名"
-msgstr ""
+msgstr "服務名"
 
 #: Disabled references:1
 msgid "输入完整的服务名"
-msgstr ""
+msgstr "輸入完整的服務名"
 
 #: Disabled references:1
 msgid "日志内容"
-msgstr ""
+msgstr "日誌內容"
 
 #: Disabled references:1
 msgid "输入日志内容"
-msgstr ""
+msgstr "輸入日誌內容"
 
 #: Disabled references:1
 msgid "导出前500条日志"
-msgstr ""
+msgstr "導出前500條日誌"
 
 #: Disabled references:1
 msgid "未查询到相关内容"
-msgstr ""
+msgstr "未查詢到相關內容"
 
 #: Disabled references:1
 msgid "更新密钥时间"
-msgstr ""
+msgstr "更新密鑰時間"
 
 #: Disabled references:1
 msgid "密钥生效时间"
-msgstr ""
+msgstr "密鑰生效時間"
 
 #: Disabled references:1
 msgid "密钥到期时间"
-msgstr ""
+msgstr "密鑰到期時間"
 
 #: Disabled references:1
 msgid "升级服务到期时间"
-msgstr ""
+msgstr "升級服務到期時間"
 
 #: Disabled references:1
 msgid "内部用户配额"
-msgstr ""
+msgstr "內部用戶配額"
 
 #: Disabled references:1
 msgid "外部用户配额"
-msgstr ""
+msgstr "外部用戶配額"
 
 #: Disabled references:1
 msgid "剩余%0天"
-msgstr ""
+msgstr "剩餘%0天"
 
 #: Disabled references:1
 msgid "授权信息"
-msgstr ""
+msgstr "授權信息"
 
 #: Disabled references:1
 msgid "已使用 %0 人"
-msgstr ""
+msgstr "已使用 %0 人"
 
 #: Disabled references:1
 msgid "版本信息"
-msgstr ""
+msgstr "版本信息"
 
 #: Disabled references:1
 msgid "平台版本"
-msgstr ""
+msgstr "平台版本"
 
 #: Disabled references:1
 msgid "密钥版本"
-msgstr ""
+msgstr "密鑰版本"
 
 #: Disabled references:1
 msgid "授权日志"
-msgstr ""
+msgstr "授權日誌"
 
 #: Disabled references:1
 msgid "更新密钥"
-msgstr ""
+msgstr "更新密鑰"
 
 #: Disabled references:1
 msgid "品牌名称"
-msgstr ""
+msgstr "品牌名稱"
 
 #: Disabled references:1
 msgid "输入品牌名称"
-msgstr ""
+msgstr "輸入品牌名稱"
 
 #: Disabled references:1
 msgid "平台登录 / 注册页品牌名称"
-msgstr ""
+msgstr "平台登錄 / 註冊頁品牌名稱"
 
 #: Disabled references:1
 msgid "在登录界面显示"
-msgstr ""
+msgstr "在登錄界面顯示"
 
 #: Disabled references:1
 msgid "品牌LOGO"
-msgstr ""
+msgstr "品牌LOGO"
 
 #: Disabled references:1
 msgid "推荐尺寸 400*180 px，显示在登录、注册页面"
-msgstr ""
+msgstr "推薦尺寸 400*180 px，顯示在登錄、註冊頁面"
 
 #: Disabled references:1
 msgid "LOGO高度"
-msgstr ""
+msgstr "LOGO高度"
 
 #: Disabled references:1
 msgid "长方形推荐40px，方形推荐56px"
-msgstr ""
+msgstr "長方形推薦40px，方形推薦56px"
 
 #: Disabled references:1
 msgid "登录/注册背景图"
-msgstr ""
+msgstr "登錄/註冊背景圖"
 
 #: Disabled references:1
 msgid "推荐尺寸 1920*900，2 M以内"
-msgstr ""
+msgstr "推薦尺寸 1920*900，2 M以內"
 
 #: Disabled references:1
 msgid "Favicon"
-msgstr ""
+msgstr "Favicon"
 
 #: Disabled references:1
 msgid "推荐尺寸 32*32 px，文件格式ico，显示在浏览器页签、浏览器收藏夹"
-msgstr ""
+msgstr "推薦尺寸 32*32 px，文件格式ico，顯示在瀏覽器頁簽、瀏覽器收藏夾"
 
 #: Disabled references:1
 msgid "当前密钥"
-msgstr ""
+msgstr "當前密鑰"
 
 #: Disabled references:1
 msgid "应用创建"
-msgstr ""
+msgstr "應用創建"
 
 #: Disabled references:1
 msgid "配置应用创建的权限"
-msgstr ""
+msgstr "配置應用創建的權限"
 
 #: Disabled references:1
 msgid "允许非管理员创建应用"
-msgstr ""
+msgstr "允許非管理員創建應用"
 
 #: Disabled references:1
 msgid "操作限制"
-msgstr ""
+msgstr "操作限制"
 
 #: Disabled references:1
 msgid "配置应用下，批量数使用上限、附件上传大小上限、自定义页面统计图刷新时间间隔"
-msgstr ""
+msgstr "配置應用下，批量數使用上限、附件上傳大小上限、自定義頁面統計圖刷新時間間隔"
 
 #: Disabled references:1
 msgid "工作流获取批量数据上限"
-msgstr ""
+msgstr "工作流獲取批量數據上限"
 
 #: Disabled references:1
 msgid "子流程可用数据源记录数上限"
-msgstr ""
+msgstr "子流程可用數據源記錄數上限"
 
 #: Disabled references:1
 msgid "工作表Excel导入行数上限"
-msgstr ""
+msgstr "工作表Excel導入行數上限"
 
 #: Disabled references:1
 msgid "工作表批量数据操作上限"
-msgstr ""
+msgstr "工作表批量數據操作上限"
 
 #: Disabled references:1
 msgid "单次附件上传上限"
-msgstr ""
+msgstr "單次附件上傳上限"
 
 #: Disabled references:1
 msgid "自定义页面统计图刷新时间间隔"
-msgstr ""
+msgstr "自定義頁面統計圖刷新時間間隔"
 
 #: Disabled references:1
 msgid "应用批量导出工作表上限"
-msgstr ""
+msgstr "應用批量導出工作表上限"
 
 #: Disabled references:1
 msgid "数据/文件回收站"
-msgstr ""
+msgstr "數據/文件回收站"
 
 #: Disabled references:1
 msgid "配置应用、应用项、工作表数据删除后、在回收站中的保留时长，以及应用备份文件保留时长"
-msgstr ""
+msgstr "配置應用、應用項、工作表數據刪除後、在回收站中的保留時長，以及應用備份文件保留時長"
 
 #: Disabled references:1
 msgid "应用备份文件"
-msgstr ""
+msgstr "應用備份文件"
 
 #: Disabled references:1
 msgid "选项配置"
-msgstr ""
+msgstr "選項配置"
 
 #: Disabled references:1
 msgid "配置应用库是否关闭，启用自建应用库还是明道云共有应用库"
-msgstr ""
+msgstr "配置應用庫是否關閉，啟用自建應用庫還是明道云共有應用庫"
 
 #: Disabled references:1
 msgid "自建应用库"
-msgstr ""
+msgstr "自建應用庫"
 
 #: Disabled references:1
 msgid "明道云应用库"
-msgstr ""
+msgstr "明道云應用庫"
 
 #: Disabled references:1
 msgid "应用发布审批组织"
-msgstr ""
+msgstr "應用發布審批組織"
 
 #: Disabled references:1
 msgid "审批组织"
-msgstr ""
+msgstr "審批組織"
 
 #: Disabled references:1
 msgid "设置审批组织"
-msgstr ""
+msgstr "設置審批組織"
 
 #: Disabled references:1
 msgid "显示功能帮助引导"
-msgstr ""
+msgstr "顯示功能幫助引導"
 
 #: Disabled references:1
 msgid "平台集成中心入口"
-msgstr ""
+msgstr "平台集成中心入口"
 
 #: Disabled references:1
 msgid "显示明道云API库"
-msgstr ""
+msgstr "顯示明道云API庫"
 
 #: Disabled references:1
 msgid "APP下载入口"
-msgstr ""
+msgstr "APP下載入口"
 
 #: Disabled references:1
 msgid "定制版APP下载地址设置"
-msgstr ""
+msgstr "定製版APP下載地址設置"
 
 #: Disabled references:1
 msgid "下载地址"
-msgstr ""
+msgstr "下載地址"
 
 #: Disabled references:1
 msgid "未配置"
-msgstr ""
+msgstr "未配置"
 
 #: Disabled references:1
 msgid "App 下载地址"
-msgstr ""
+msgstr "App 下載地址"
 
 #: Disabled references:1
 msgid "服务运行状态推送"
-msgstr ""
+msgstr "服務運行狀態推送"
 
 #: Disabled references:1
 msgid "平台服务运行健康状态推送，通过配置 Webhook 地址接收状态消息"
-msgstr ""
+msgstr "平台服務運行健康狀態推送，通過配置 Webhook 地址接收狀態消息"
 
 #: Disabled references:1
 msgid "Webhook 地址"
-msgstr ""
+msgstr "Webhook 地址"
 
 #: Disabled references:1
 msgid "邮箱和手机号验证"
-msgstr ""
+msgstr "郵箱和手機號驗證"
 
 #: Disabled references:1
 msgid "开启后绑定邮箱或手机号时，需要验证合法性"
-msgstr ""
+msgstr "開啟後綁定郵箱或手機號時，需要驗證合法性"
 
 #: Disabled references:1
 msgid "允许非平台管理员创建组织（若禁用，仅平台管理员可创建组织）"
-msgstr ""
+msgstr "允許非平台管理員創建組織（若禁用，僅平台管理員可創建組織）"
 
 #: Disabled references:1
 msgid "管理器"
-msgstr ""
+msgstr "管理器"
 
 #: Disabled references:1
 msgid "升级、重启服务，请打开管理器"
-msgstr ""
+msgstr "升級、重啟服務，請打開管理器"
 
 #: Disabled references:1
 msgid "访问地址"
-msgstr ""
+msgstr "訪問地址"
 
 #: Disabled references:1
 msgid "申请上架企业微信通知"
-msgstr ""
+msgstr "申請上架企業微信通知"
 
 #: Disabled references:1
 msgid "平台用户申请将应用上架到企业微信工作台，通过接口将平台用户申请通知到平台管理员"
-msgstr ""
+msgstr "平台用戶申請將應用上架到企業微信工作台，通過接口將平台用戶申請通知到平台管理員"
 
 #: Disabled references:1
 msgid "通知地址"
-msgstr ""
+msgstr "通知地址"
 
 #: Disabled references:1
 msgid "平台默认协作功能模块，可自定义是否启用"
-msgstr ""
+msgstr "平台默認協作功能模塊，可自定義是否啟用"
 
 #: Disabled references:1
 msgid "邮件服务"
-msgstr ""
+msgstr "郵件服務"
 
 #: Disabled references:1
 msgid "设置后系统内邮件相关功能均可正常使用"
-msgstr ""
+msgstr "設置後系統內郵件相關功能均可正常使用"
 
 #: Disabled references:1
 msgid "发送邮箱"
-msgstr ""
+msgstr "發送郵箱"
 
 #: Disabled references:1
 msgid "服务器"
-msgstr ""
+msgstr "服務器"
 
 #: Disabled references:1
 msgid "SSL 链接"
-msgstr ""
+msgstr "SSL 鏈接"
 
 #: Disabled references:1
 msgid "短信模板"
-msgstr ""
+msgstr "短信模板"
 
 #: Disabled references:1
 msgid "腾讯云"
-msgstr ""
+msgstr "騰訊雲"
 
 #: Disabled references:1
 msgid "阿里云"
-msgstr ""
+msgstr "阿里雲"
 
 #: Disabled references:1
 msgid "短信服务"
-msgstr ""
+msgstr "短信服務"
 
 #: Disabled references:1
 msgid "设置后可发送验证码类型短信"
-msgstr ""
+msgstr "設置後可發送驗證碼類型短信"
 
 #: Disabled references:1
 msgid "设置短信服务需要先购买腾讯云或阿里云的「短信服务」，如需自定义短信服务请"
-msgstr ""
+msgstr "設置短信服務需要先購買騰訊雲或阿里雲的「短信服務」，如需自定義短信服務請"
 
 #: Disabled references:1
 msgid "寻求技术支持"
-msgstr ""
+msgstr "尋求技術支持"
 
 #: Disabled references:1
 msgid "%0短信配置服务"
-msgstr ""
+msgstr "%0短信配置服務"
 
 #: Disabled references:1
 msgid "协议 / 隐私"
-msgstr ""
+msgstr "協議 / 隱私"
 
 #: Disabled references:1
 msgid "用户通过 Web 移动端单点登录时，必须同意《服务协议》和《隐私政策》后才可登录平台"
-msgstr ""
+msgstr "用戶通過 Web 移動端單點登錄時，必須同意《服務協議》和《隱私政策》後才可登錄平台"
 
 #: Disabled references:1
 msgid "注册入口"
-msgstr ""
+msgstr "註冊入口"
 
 #: Disabled references:1
 msgid "显示登录界面注册入口"
-msgstr ""
+msgstr "顯示登錄界面註冊入口"
 
 #: Disabled references:1
 msgid "可自定义工作台显示的资源列表项"
-msgstr ""
+msgstr "可自定義工作台顯示的資源列表項"
 
 #: Disabled references:1
 msgid "是否开启两步验证 ?"
-msgstr ""
+msgstr "是否開啟兩步驗證？"
 
 #: Disabled references:1
 msgid "开启后，除了基于账号密码的登录认证，还需要通过手机号或邮箱接收验证码进行二次认证，所以请确保组织成员的手机号、邮箱的合法性，同时确保系统内的短信服务、邮件服务已正常启用。"
-msgstr ""
+msgstr "開啟後，除了基於賬號密碼的登錄認證，還需要通過手機號或郵箱接收驗證碼進行二次認證，所以請確保組織成員的手機號、郵箱的合法性，同時確保系統內的短信服務、郵件服務已正常啟用。"
 
 #: Disabled references:1
 msgid "登录验证"
-msgstr ""
+msgstr "登錄驗證"
 
 #: Disabled references:1
 msgid "二次验证"
-msgstr ""
+msgstr "二次驗證"
 
 #: Disabled references:1
 msgid "此项为“登录二次验证”，开启后，除了基于账号密码的登录认证，还需要通过手机号或邮箱接收验证码进行二次认证，所以请确保组织成员的手机号、邮箱的合法性，同时确保系统内的短信服务、邮件服务已正常启用。"
-msgstr ""
+msgstr "此項為“登錄二次驗證”，開啟後，除了基於賬號密碼的登錄認證，還需要通過手機號或郵箱接收驗證碼進行二次認證，所以請確保組織成員的手機號、郵箱的合法性，同時確保系統內的短信服務、郵件服務已正常啟用。"
 
 #: Disabled references:1
 msgid "二次验证方式优先级"
-msgstr ""
+msgstr "二次驗證方式優先級"
 
 #: Disabled references:1
 msgid "登录时优先采用设置的验证方式进行验证"
-msgstr ""
+msgstr "登錄時優先採用設置的驗證方式進行驗證"
 
 #: Disabled references:1
 msgid "不过期"
-msgstr ""
+msgstr "不過期"
 
 #: Disabled references:1
 msgid "1天"
-msgstr ""
+msgstr "1天"
 
 #: Disabled references:1
 msgid "2天"
-msgstr ""
+msgstr "2天"
 
 #: Disabled references:1
 msgid "5天"
-msgstr ""
+msgstr "5天"
 
 #: Disabled references:1
 msgid "15天"
-msgstr ""
+msgstr "15天"
 
 #: Disabled references:1
 msgid "密码有效期"
-msgstr ""
+msgstr "密碼有效期"
 
 #: Disabled references:1
 msgid "密码过期后，用户需设置新密码才能使用系统"
-msgstr ""
+msgstr "密碼過期後，用戶需設置新密碼才能使用系統"
 
 #: Disabled references:1
 msgid "过期天数"
-msgstr ""
+msgstr "過期天數"
 
 #: Disabled references:1
 msgid "首次登录需修改密码"
-msgstr ""
+msgstr "首次登錄需修改密碼"
 
 #: Disabled references:1
 msgid "此设置仅对自主创建或导入的预设账号生效"
-msgstr ""
+msgstr "此設置僅對自主創建或導入的預設賬號生效"
 
 #: Disabled references:1
 msgid "密码规则"
-msgstr ""
+msgstr "密碼規則"
 
 #: Disabled references:1
 msgid "启用后，平台用户密码安全策略将按配置进行强校验"
-msgstr ""
+msgstr "啟用後，平台用戶密碼安全策略將按配置進行強校驗"
 
 #: Disabled references:1
 msgid "提示说明"
-msgstr ""
+msgstr "提示說明"
 
 #: Disabled references:1
 msgid "开启时，平台账户可自行配置设备登录限制(账户管理-->安全设置)；关闭后，平台用户仅可在同设备类型登录一个终端，例如在Web浏览器登录后，将会使其他Web浏览器登录的同一账号强制退出登录，以确保账户登录安全，手机APP同理"
-msgstr ""
+msgstr "開啟時，平台賬戶可自行配置設備登錄限制(賬戶管理-->安全設置)；關閉後，平台用戶僅可在同設備類型登錄一個終端，例如在Web瀏覽器登錄後，將會使其他Web瀏覽器登錄的同一賬號強制退出登錄，以確保賬戶登錄安全，手機APP同理"
 
 #: Disabled references:1
 msgid "用户密码"
-msgstr ""
+msgstr "用戶密碼"
 
 #: Disabled references:1
 msgid "关闭飞书集成后，无法再从飞书处进入应用"
-msgstr ""
+msgstr "關閉飛書集成後，無法再從飛書處進入應用"
 
 #: Disabled references:1
 msgid "从飞书通讯录同步到该系统"
-msgstr ""
+msgstr "從飛書通訊錄同步到該系統"
 
 #: Disabled references:1
 msgid "单应用版暂不支持线上续费，请联系顾问进行续费"
-msgstr ""
+msgstr "單應用版暫不支持線上續費，請聯繫顧問進行續費"
 
 #: Disabled references:1
 msgid "多组织共享"
-msgstr ""
+msgstr "多組織共享"
 
 #: Disabled references:1
 msgid "安装手机移动客户端"
-msgstr ""
+msgstr "安裝手機移動客戶端"
 
 #: Disabled references:1
 msgid "此密钥是用于访问企业授权开放接口的凭证"
-msgstr ""
+msgstr "此密鑰是用於訪問企業授權開放接口的憑證"
 
 #: Disabled references:1
 msgid "您可以通过组织的二级域名，以SSO登录方式登录到平台"
-msgstr ""
+msgstr "您可以通過組織的二級域名，以SSO登錄方式登錄到平台"
 
 #: Disabled references:1
 msgid "关闭钉钉集成后，无法再从钉钉处进入应用"
-msgstr ""
+msgstr "關閉釘釘集成後，無法再從釘釘處進入應用"
 
 #: Disabled references:1
 msgid "从钉钉通讯录同步到该系统"
-msgstr ""
+msgstr "從釘釘通訊錄同步到該系統"
 
 #: Disabled references:1
 msgid "推荐尺寸"
-msgstr ""
+msgstr "推薦尺寸"
 
 #: Disabled references:1
 msgid "确认删除 %0 ?"
-msgstr ""
+msgstr "確認刪除(%0)"
 
 #: Disabled references:1
 msgid "编辑应用"
-msgstr ""
+msgstr "編輯應用"
 
 #: Disabled references:1
 msgid "App Key"
-msgstr ""
+msgstr "App Key"
 
 #: Disabled references:1
 msgid "App Secret"
-msgstr ""
+msgstr "App Secret"
 
 #: Disabled references:1
 msgid "应用图标"
-msgstr ""
+msgstr "應用圖標"
 
 #: Disabled references:1
 msgid "应用简介"
-msgstr ""
+msgstr "應用簡介"
 
 #: Disabled references:1
 msgid "应用地址"
-msgstr ""
+msgstr "應用地址"
 
 #: Disabled references:1
 msgid "回调地址"
-msgstr ""
+msgstr "回調地址"
 
 #: Disabled references:1
 msgid "第三方应用管理"
-msgstr ""
+msgstr "第三方應用管理"
 
 #: Disabled references:1
 msgid "简介"
-msgstr ""
+msgstr "簡介"
 
 #: Disabled references:1
 msgid "2. 为保证功能的正常使用，授权时请保持默认选择，把开放平台账号管理权限统一授权给此系统"
-msgstr ""
+msgstr "2. 為保證功能的正常使用，授權時請保持默認選擇，把開放平台賬號管理權限統一授權給此系統"
 
 #: Disabled references:1
 msgid "取消授权，本组织公众号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。"
-msgstr ""
+msgstr "取消授權，本組織公眾號所有相關信息將失效（包含但不限於外部用戶、模板消息）請您謹慎操作。"
 
 #: Disabled references:1
 msgid "绑定公众号后，外部门户将可以通过指定的域名获取该服务号下微信用户的授权及openID，可以通过工作流为外部的微信用户推送模板消息"
-msgstr ""
+msgstr "綁定公眾號後，外部門戶將可以通過指定的域名獲取該服務號下微信用戶的授權及openID，可以通過工作流為外部的微信用戶推送模板消息"
 
 #: Disabled references:1
 msgid "1.为了可以获取到 openID及基本信息 或使用模版消息功能必须选择 "
-msgstr ""
+msgstr "1.為了可以獲取到 openID及基本信息 或使用模版消息功能必須選擇 "
 
 #: Disabled references:1
 msgid "已认证的微信服务号"
-msgstr ""
+msgstr "已認證的微信服務號"
 
 #: Disabled references:1
 msgid "2.为获取微信授权需要将您公司的访问域名加入到公众号的网页授权域名内"
-msgstr ""
+msgstr "2.為獲取微信授權需要將您公司的訪問域名加入到公眾號的網頁授權域名內"
 
 #: Disabled references:1
 msgid "关闭Welink集成后，无法再从Welink集成处进入应用"
-msgstr ""
+msgstr "關閉Welink集成後，無法再從Welink集成處進入應用"
 
 #: Disabled references:1
 msgid "从Welink通讯录同步到该系统"
-msgstr ""
+msgstr "從Welink通訊錄同步到該系統"
 
 #: Disabled references:1
 msgid "申请通过后，可将应用安装到Welink集成工作台！"
-msgstr ""
+msgstr "申請通過後，可將應用安裝到Welink集成工作台！"
 
 #: Disabled references:1
 msgid "关闭企业微信集成后，无法再从企业微信处进入应用"
-msgstr ""
+msgstr "關閉企業微信集成後，無法再從企業微信處進入應用"
 
 #: Disabled references:1
 msgid "从企业微信通讯录同步到该系统"
-msgstr ""
+msgstr "從企業微信通訊錄同步到該系統"
 
 #: Disabled references:1
 msgid "申请通过后，可将该系统应用安装到企业微信工作台！"
-msgstr ""
+msgstr "申請通過後，可將該系統應用安裝到企業微信工作台！"
 
 #: Disabled references:1
 msgid "开启后，可使用企业微信扫一扫，直接登录"
-msgstr ""
+msgstr "開啟後，可使用企業微信掃一掃，直接登錄"
 
 #: Disabled references:1
 msgid "申请加入一个组织，开始创建应用"
-msgstr ""
+msgstr "申請加入一個組織，開始創建應用"
 
 #: Disabled references:1
 msgid "感谢你尝试安装！我们精心挑选了两个初始应用，供您体验。"
-msgstr ""
+msgstr "感謝你嘗試安裝！我們精心挑選了兩個初始應用，供您體驗。"
 
 #: Disabled references:1
 msgid "您未拥有任何组织，申请加入组织"
-msgstr ""
+msgstr "您未擁有任何組織，申請加入組織"
 
 #: Disabled references:1
 msgid "邮箱地址"
-msgstr ""
+msgstr "郵箱地址"
 
 #: Disabled references:1
 msgid "新手机号码"
-msgstr ""
+msgstr "新手機號碼"
 
 #: Disabled references:1
 msgid "{0}修改失败"
-msgstr ""
+msgstr "{0}修改失敗"
 
 #: Disabled references:1
 msgid "开启后，登录系统会收到微信通知"
-msgstr ""
+msgstr "開啟後，登錄系統會收到微信通知"
 
 #: Disabled references:1
 msgid "生成失败时，请点击此处刷新试试"
-msgstr ""
+msgstr "生成失敗時，請點擊此處刷新試試"
 
 #: Disabled references:1
 msgid "抱歉，操作过于频繁或者创建的组织已经达到上限，请升级版本！"
-msgstr ""
+msgstr "抱歉，操作過於頻繁或者創建的組織已經達到上限，請升級版本！"
 
 #: Disabled references:1
 msgid "账号已被锁定，请稍后再试"
-msgstr ""
+msgstr "賬號已被鎖定，請稍後再試"
 
 #: Disabled references:1
 msgid "密码已过期，请重置后重新操作"
-msgstr ""
+msgstr "密碼已過期，請重置後重新操作"
 
 #: Disabled references:1
 msgid "《服务协议》"
-msgstr ""
+msgstr "《服務協議》"
 
 #: Disabled references:1
 msgid "《隐私政策》"
-msgstr ""
+msgstr "《隱私政策》"
 
 #: Disabled references:1
 msgid "已经有账号"
-msgstr ""
+msgstr "已經有賬號"
 
 #: Disabled references:1
 msgid "验证码发送过于频繁"
-msgstr ""
+msgstr "驗證碼發送過於頻繁"
 
 #: Disabled references:1
 msgid "收不到验证码？请重新获取"
-msgstr ""
+msgstr "收不到驗證碼？請重新獲取"
 
 #: Disabled references:1
 msgid "对填写的手机号字段进行短信验证，以确保为本人有效手机号。"
-msgstr ""
+msgstr "對填寫的手機號字段進行短信驗證，以確保為本人有效手機號。"
 
 #: Disabled references:1
 msgid "最多添加%0个字段"
-msgstr ""
+msgstr "最多添加%0個字段"
 
 #: Disabled references:1
 msgid "%0/%1"
-msgstr ""
+msgstr "%0/%1"
 
 #: Disabled references:1
 msgid "应用市场"
-msgstr ""
+msgstr "應用市場"
 
 #: Disabled references:1
 msgid "服务器 id"
-msgstr ""
+msgstr "服務器 ID"
 
 #: Disabled references:1
 msgid "添加密钥"
-msgstr ""
+msgstr "添加密鑰"
 
 #: Disabled references:1
 msgid "（添加后请注意关联组织）"
-msgstr ""
+msgstr "（添加後請注意關聯組織）"
 
 #: Disabled references:1
 msgid "您确认要关联新组织吗 ？"
-msgstr ""
+msgstr "您確認要關聯新組織嗎 ？"
 
 #: Disabled references:1
 msgid "关联后会占用租户名额，且不可取消"
-msgstr ""
+msgstr "關聯後會佔用租戶名額，且不可取消"
 
 #: Disabled references:1
 msgid "关联成功"
-msgstr ""
+msgstr "關聯成功"
 
 #: Disabled references:1
 msgid "关联失败"
-msgstr ""
+msgstr "關聯失敗"
 
 #: Disabled references:1
 msgid "关联组织"
-msgstr ""
+msgstr "關聯組織"
 
 #: Disabled references:1
 msgid "关联后会占租户名额，且不可取消"
-msgstr ""
+msgstr "關聯後會佔租戶名額，且不可取消"
 
 #: Disabled references:1
 msgid "大型企业版"
-msgstr ""
+msgstr "大型企業版"
 
 #: Disabled references:1
 msgid "教学版"
-msgstr ""
+msgstr "教學版"
 
 #: Disabled references:1
 msgid "生效中"
-msgstr ""
+msgstr "生效中"
 
 #: Disabled references:1
 msgid "未生效"
-msgstr ""
+msgstr "未生效"
 
 #: Disabled references:1
 msgid "付费升级"
-msgstr ""
+msgstr "付費升級"
 
 #: Disabled references:1
 msgid "密钥"
-msgstr ""
+msgstr "密鑰"
 
 #: Disabled references:1
 msgid "升级服务到期"
-msgstr ""
+msgstr "升級服務到期"
 
 #: Disabled references:1
 msgid "行记录/表"
-msgstr ""
+msgstr "行記錄/表"
 
 #: Disabled references:1
 msgid "工作流执行/月"
-msgstr ""
+msgstr "工作流執行/月"
 
 #: Disabled references:1
 msgid "注册并申请"
-msgstr ""
+msgstr "註冊併申請"
 
 #: Disabled references:1
 msgid "登录并申请"
-msgstr ""
+msgstr "登錄併申請"
 
 #: Disabled references:1
 msgid "请输入0以上的整数"
-msgstr ""
+msgstr "請輸入0以上的整數"
 
 #: Disabled references:1
 msgid "数据操作设置"
-msgstr ""
+msgstr "數據操作設置"
 
 #: Disabled references:1
 msgid "工作流获取批量数据上限（最大2000）"
-msgstr ""
+msgstr "工作流獲取批量數據上限（最大2000）"
 
 #: Disabled references:1
 msgid "条"
-msgstr ""
+msgstr "條"
 
 #: Disabled references:1
 msgid "子流程可用数据源记录数上限（最大20000）"
-msgstr ""
+msgstr "子流程可用數據源記錄數上限（最大20000）"
 
 #: Disabled references:1
 msgid "工作表Excel导入行数上限（最大40000）"
-msgstr ""
+msgstr "工作表Excel導入行數上限（最大40000）"
 
 #: Disabled references:1
 msgid "工作表批量数据操作上限（最大10000）"
-msgstr ""
+msgstr "工作表批量數據操作上限（最大10000）"
 
 #: Disabled references:1
 msgid "附件上传上限（单次）"
-msgstr ""
+msgstr "附件上傳上限（單次）"
 
 #: Disabled references:1
 msgid "应用批量导出工作表上限（最大500）"
-msgstr ""
+msgstr "應用批量導出工作表上限（最大500）"
 
 #: Disabled references:1
 msgid "请输入服务协议"
-msgstr ""
+msgstr "請輸入服務協議"
 
 #: Disabled references:1
 msgid "请输入隐私政策"
-msgstr ""
+msgstr "請輸入隱私政策"
 
 #: Disabled references:1
 msgid "服务协议和隐私政策"
-msgstr ""
+msgstr "服務協議和隱私政策"
 
 #: Disabled references:1
 msgid "请根据自己所在组织的情况填写下方的服务协议和隐私政策"
-msgstr ""
+msgstr "請根據自己所在組織的情況填寫下方的服務協議和隱私政策"
 
 #: Disabled references:1
 msgid "确定退出编辑 ?"
-msgstr ""
+msgstr "確定退出編輯 ?"
 
 #: Disabled references:1
 msgid "退出后，已编辑的内容不会保存"
-msgstr ""
+msgstr "退出後，已編輯的內容不會保存"
 
 #: Disabled references:1
 msgid "请输入发送邮箱"
-msgstr ""
+msgstr "請輸入發送郵箱"
 
 #: Disabled references:1
 msgid "发送邮箱格式错误"
-msgstr ""
+msgstr "發送郵箱格式錯誤"
 
 #: Disabled references:1
 msgid "请输入端口"
-msgstr ""
+msgstr "請輸入端口"
 
 #: Disabled references:1
 msgid "请输入收件邮箱"
-msgstr ""
+msgstr "請輸入收件郵箱"
 
 #: Disabled references:1
 msgid "邮件服务设置"
-msgstr ""
+msgstr "郵件服務設置"
 
 #: Disabled references:1
 msgid "使用 SSL 链接"
-msgstr ""
+msgstr "使用 SSL 鏈接"
 
 #: Disabled references:1
 msgid "发送测试邮件"
-msgstr ""
+msgstr "發送測試郵件"
 
 #: Disabled references:1
 msgid "收件邮箱"
-msgstr ""
+msgstr "收件郵箱"
 
 #: Disabled references:1
 msgid "请输入正确的url"
-msgstr ""
+msgstr "請輸入正確的url"
 
 #: Disabled references:1
 msgid "管理器访问地址"
-msgstr ""
+msgstr "管理器訪問地址"
 
 #: Disabled references:1
 msgid "密码规则设置"
-msgstr ""
+msgstr "密碼規則設置"
 
 #: Disabled references:1
 msgid "密码规则不能为空"
-msgstr ""
+msgstr "密碼規則不能為空"
 
 #: Disabled references:1
 msgid "密码规则提示说明不能为空"
-msgstr ""
+msgstr "密碼規則提示說明不能為空"
 
 #: Disabled references:1
 msgid "密码规则（正则表达式）"
-msgstr ""
+msgstr "密碼規則（正則表達式）"
 
 #: Disabled references:1
 msgid "请输入密码正则表达式"
-msgstr ""
+msgstr "請輸入密碼正則表達式"
 
 #: Disabled references:1
 msgid "请输入密码正则表达式说明文字"
-msgstr ""
+msgstr "請輸入密碼正則表達式說明文字"
 
 #: Disabled references:1
 msgid "请输入正确的地址"
-msgstr ""
+msgstr "請輸入正確的地址"
 
 #: Disabled references:1
 msgid "申请上架企业微信通知地址"
-msgstr ""
+msgstr "申請上架企業微信通知地址"
 
 #: Disabled references:1
 msgid "保存失败，请检查配置信息"
-msgstr ""
+msgstr "保存失敗，請檢查配置信息"
 
 #: Disabled references:1
 msgid "设置完成"
-msgstr ""
+msgstr "設置完成"
 
 #: Disabled references:1
 msgid "模板 Code不能为空"
-msgstr ""
+msgstr "模板 Code不能為空"
 
 #: Disabled references:1
 msgid "模板类型"
-msgstr ""
+msgstr "模板類型"
 
 #: Disabled references:1
 msgid "模板 code"
-msgstr ""
+msgstr "模板 code"
 
 #: Disabled references:1
 msgid "变量参数"
-msgstr ""
+msgstr "變量參數"
 
 #: Disabled references:1
 msgid "（暂仅支持验证码）"
-msgstr ""
+msgstr "（暫僅支持驗證碼）"
 
 #: Disabled references:1
 msgid "模版 Code"
-msgstr ""
+msgstr "模版 Code"
 
 #: Disabled references:1
 msgid "如：\"您的验证码是{1}，感谢您的使用\"，则参数为 {1}。"
-msgstr ""
+msgstr "如：\"您的驗證碼是{1}，感謝您的使用\"，則參數為 {1}。"
 
 #: Disabled references:1
 msgid "如：\"您的验证码是${code}，感谢您的使用\"，则参数为 code。"
-msgstr ""
+msgstr "如：\"您的驗證碼是${code}，感謝您的使用\"，則參數為 code。"
 
 #: Disabled references:1
 msgid "当前版本最多可创建30个应用，请升级版本"
-msgstr ""
+msgstr "當前版本最多可創建30個應用，請升級版本"
 
 #: Disabled references:1
 msgid "当前版本最多可创建100个工作表，请升级版本"
-msgstr ""
+msgstr "當前版本最多可創建100個工作表，請升級版本"
 
 #: Disabled references:1
 msgid "当前版本工作表下最多可创建10万条行记录，请升级版本"
-msgstr ""
+msgstr "當前版本工作表下最多可創建10萬條行記錄，請升級版本"
 
 #: Disabled references:1
 msgid "当前版本最多只能存在1个应用，请联系顾问提供支持"
-msgstr ""
+msgstr "當前版本最多只能存在1個應用，請聯繫顧問提供支持"
 
 #: Disabled references:1
 msgid "当前版本最多可创建50个工作表，请联系顾问提供支持"
-msgstr ""
+msgstr "當前版本最多可創建50個工作表，請聯繫顧問提供支持"
 
 #: Disabled references:1
 msgid "当前版本工作表下最多可创建10万条行记录，请联系顾问提供支持"
-msgstr ""
+msgstr "當前版本工作表下最多可創建10萬條行記錄，請聯繫顧問提供支持"
 
 #: Disabled references:1
 msgid "导出的应用工作表总数上限%0个"
-msgstr ""
+msgstr "導出的應用工作表總數上限%0個"
 
 #: Disabled references:1
 msgid "导出的应用共%0张表，已超过上限%1张，请重新选择"
-msgstr ""
+msgstr "導出的應用共%0張表，已超過上限%1張，請重新選擇"
 
 #: Disabled references:1
 msgid "填入应用名称、应用描述"
-msgstr ""
+msgstr "填入應用名稱、應用描述"
 
 #: Disabled references:1
 msgid "2.切换到“机器人”，启用机器人功能，这样在飞书消息测就能直接收到内部的流程、应用消息"
-msgstr ""
+msgstr "2.切換到“機器人”，啟用機器人功能，這樣在飛書消息測就能直接收到內部的流程、應用消息"
 
 #: Disabled references:1
 msgid "“凭证与基础信息”可以查看该App的ID和Secret；回到该系统管理后台，下一步录入信息将会用到"
-msgstr ""
+msgstr "“憑證與基礎信息”可以查看該App的ID和Secret；回到該系統管理後台，下一步錄入信息將會用到"
 
 #: Disabled references:1
 msgid "升级产品"
-msgstr ""
+msgstr "升級產品"
 
 #: Disabled references:1
 msgid "对不起，您的余额不足！"
-msgstr ""
+msgstr "對不起，您的餘額不足！"
 
 #: Disabled references:1
 msgid "c. 填入应用名称、应用描述、应用图标"
-msgstr ""
+msgstr "c. 填入應用名稱、應用描述、應用圖標"
 
 #: Disabled references:1
 msgid "切换至“基础信息”，将AgentId、AppKey、AppSecret分别填入系统的“组织管理 - 集成 - 钉钉 - 对接信息录入”对应输入框内"
-msgstr ""
+msgstr "切換至“基礎信息”，將AgentId、AppKey、AppSecret分別填入系統的“組織管理 - 集成 - 釘釘 - 對接信息錄入”對應輸入框內"
 
 #: Disabled references:1
 msgid "首页可以找到CorpId，填入对应输入框内"
-msgstr ""
+msgstr "首頁可以找到CorpId，填入對應輸入框內"
 
 #: Disabled references:1
 msgid "当前用户数已超出人数限制"
-msgstr ""
+msgstr "當前用戶數已超出人數限制"
 
 #: Disabled references:1
 msgid "扩展信息"
-msgstr ""
+msgstr "額外資料"
 
 #: Disabled references:1
 msgid "可自定义组织别名和登录背景图片"
-msgstr ""
+msgstr "可自定義組織別名和登錄背景圖片"
 
 #: Disabled references:1
 msgid "您设置的别名已经被占用"
-msgstr ""
+msgstr "您設置的別名已經被佔用"
 
 #: Disabled references:1
 msgid "扩展信息设置"
-msgstr ""
+msgstr "擴展信息設置"
 
 #: Disabled references:1
 msgid "设置组织别名"
-msgstr ""
+msgstr "設置組織別名"
 
 #: Disabled references:1
 msgid "组织别名"
-msgstr ""
+msgstr "組織別名"
 
 #: Disabled references:1
 msgid "可通过设置组织别名来实现更多的使用场景（如：LDAP 登录时指定组织）。"
-msgstr ""
+msgstr "可通過設置組織別名來實現更多的使用場景（如：LDAP 登錄時指定組織）。"
 
 #: Disabled references:1
 msgid "登录背景图片"
-msgstr ""
+msgstr "登錄背景圖片"
 
 #: Disabled references:1
 msgid "中文名"
-msgstr ""
+msgstr "中文名"
 
 #: Disabled references:1
 msgid "2.点击”设置接口权限”，开通集成需要用到的接口权限"
-msgstr ""
+msgstr "2.點擊”設置接口權限”，開通集成需要用到的接口權限"
 
 #: Disabled references:1
 msgid "将应用安装企业微信工作台"
-msgstr ""
+msgstr "將應用安裝企業微信工作台"
 
 #: Disabled references:1
 msgid "企业微信扫码登陆（可选）"
-msgstr ""
+msgstr "企業微信掃碼登陸（可選）"
 
 #: Disabled references:1
 msgid "1.填写授权回调域"
-msgstr ""
+msgstr "1.填寫授權回調域"
 
 #: Disabled references:1
 msgid "2.启用该功能"
-msgstr ""
+msgstr "2.啟用該功能"
 
 #: Disabled references:1
 msgid "填入应用名称"
-msgstr ""
+msgstr "填入應用名稱"
 
 #: Disabled references:1
 msgid "用户服务协议和隐私政策"
-msgstr ""
+msgstr "用戶服務協議和隱私政策"
 
 #: Disabled references:1
 msgid "您拒绝了我们的用户服务协议和隐私政策，很遗憾无法继续提供服务！请手动关闭页面后退出。"
-msgstr ""
+msgstr "您拒絕了我們的用戶服務協議和隱私政策，很遺憾無法繼續提供服務！請手動關閉頁面後退出。"
 
 #: Disabled references:1
 msgid "再次查看"
-msgstr ""
+msgstr "再次查看"
 
 #: Disabled references:1
 msgid "为了更好保护您的个人信息安全，在使用我们的产品前请仔细阅读并同意我们的%0和%1，我们将严格保护您的个人信息和合法权益。"
-msgstr ""
+msgstr "為了更好保護您的個人信息安全，在使用我們的產品前請仔細閱讀並同意我們的%0和%1，我們將嚴格保護您的個人信息和合法權益。"
 
 #: Disabled references:1
 msgid "同意并继续"
-msgstr ""
+msgstr "同意並繼續"
 
 #: Disabled references:1
 msgid "邀请用户并发送短信"
-msgstr ""
+msgstr "邀請用戶並發送短信"
 
 #: Disabled references:1
 msgid "注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。"
-msgstr ""
+msgstr "註冊開啟審核後，審核結果(通過、拒絕)會短信告知註冊用戶；外部門戶類型設為私有後再添加用戶後也會發送邀請通知，支持對短信內容自定義。"
 
 #: Disabled references:1
 msgid "注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对邮件内容自定义。"
-msgstr ""
+msgstr "註冊開啟審核後，審核結果(通過、拒絕)會郵件告知註冊用戶；外部門戶類型設為私有後再添加用戶後也會發送邀請通知，支持對郵件內容自定義。"
 
 #: Disabled references:1
 msgid "上传失败"
-msgstr ""
+msgstr "上傳失敗"
 
 #: Disabled references:1
 msgid "可恢复%0天内删除的字段"
-msgstr ""
+msgstr "可恢復%0天內刪除的字段"
 
 #: Disabled references:1
 msgid "删除后可在字段回收站保留%0天（免费版删除后无法恢复）"
-msgstr ""
+msgstr "刪除後可在字段回收站保留%0天（免費版刪除後無法恢復）"
 
 #: Disabled references:1
 msgid "删除后可在字段回收站保留%0天"
-msgstr ""
+msgstr "刪除後可在字段回收站保留%0天"
 
 #: Disabled references:1
 msgid "添加水印设置只对App有效，勾选后 不支持在App拍摄照片时修改水印"
-msgstr ""
+msgstr "添加水印設置只對App有效，勾選後 不支持在App拍攝照片時修改水印"
 
 #: Disabled references:1
 msgid "现在开始搭建你自己的业务系统吧。"
-msgstr ""
+msgstr "現在開始搭建你自己的業務系統吧。"
 
 #: Disabled references:1
 msgid "最大支持批量执行%0行记录，是否只选中并执行前%0行数据？"
-msgstr ""
+msgstr "最大支持批量執行%0行記錄，是否只選中並執行前%0行數據？"
 
 #: Disabled references:1
 msgid "%0天内可在 回收站 内找回已删除%1，无编辑权限的数据无法删除。"
-msgstr ""
+msgstr "%0天內可在 回收站 內找回已刪除%1，無編輯權限的數據無法刪除。"
 
 #: Disabled references:1
 msgid "批量操作单次最大支持%0行记录，点击删除后将只删除前%0行记录"
-msgstr ""
+msgstr "批量操作單次最大支持%0行記錄，點擊刪除後將只刪除前%0行記錄"
 
 #: Disabled references:1
 msgid "当前所选记录数量超过%0行，数据不会进入回收站而直接进行彻底删除，且不会触发工作流。此操作只有应用管理员可以执行，请请务必确认所有应用成员都不再需要这些数据后再执行此操作"
-msgstr ""
+msgstr "當前所選記錄數量超過%0行，數據不會進入回收站而直接進行徹底刪除，且不會觸發工作流。此操作只有應用管理員可以執行，請請務必確認所有應用成員都不再需要這些數據後再執行此操作"
 
 #: Disabled references:1
 msgid "可恢复%0天内删除的应用项"
-msgstr ""
+msgstr "可恢復%0天內刪除的應用項"
 
 #: Disabled references:1
 msgid "可恢复%0天内删除的应用"
-msgstr ""
+msgstr "可恢復%0天內刪除的應用"
 
 #: Disabled references:1
 msgid "%0%1天后将被自动删除"
-msgstr ""
+msgstr "%0%1天后將被自動刪除"
 
 #: Disabled references:1
 msgid "服务状态提醒"
-msgstr ""
+msgstr "服務狀態提醒"
 
 #: Disabled references:1
 msgid "服务状态 Webhook"
-msgstr ""
+msgstr "服務狀態 Webhook"
 
 #: Disabled references:1
 msgid "您确定要删除 ?"
-msgstr ""
+msgstr "您確定要刪除 ?"
 
 #: Disabled references:1
 msgid "跳转链接"
-msgstr ""
+msgstr "跳轉鏈接"
 
 #: Disabled references:1
 msgid "编辑资源"
-msgstr ""
+msgstr "編輯資源"
 
 #: Disabled references:1
 msgid "添加资源"
-msgstr ""
+msgstr "添加資源"
 
 #: Disabled references:1
 msgid "设计图标"
-msgstr ""
+msgstr "設計圖標"
 
 #: Disabled references:1
 msgid "跳转地址"
-msgstr ""
+msgstr "跳轉地址"
 
 #: Disabled references:1
 msgid "有效期，超过%0天的会自动删除，每个应用最多可备份"
-msgstr ""
+msgstr "有效期，超過%0天的會自動刪除，每個應用最多可備份"
 
 #: Disabled references:1
 msgid "每个应用最多创建10个备份文件，每个文件仅保留%0天有效期"
-msgstr ""
+msgstr "每個應用最多創建10個備份文件，每個文件僅保留%0天有效期"
 
 #: Disabled references:1
 msgid "%0失败"
-msgstr ""
+msgstr "%0失敗"
 
 #: Disabled references:1
 msgid "超过%0数量限制"
-msgstr ""
+msgstr "超過%0數量限制"
 
 #: Disabled references:1
 msgid "创建成功, 账号密码已复制"
-msgstr ""
+msgstr "創建成功, 賬號密碼已復制"
 
 #: Disabled references:1
 msgid "请输入工作电话"
-msgstr ""
+msgstr "請輸入工作電話"
 
 #: Disabled references:1
 msgid "为确保首次集成90天后正常使用，需向企业微信购买接口许可，购买许可费用由平台承担支付，您无需额外支付，您只需提交申请购买即可"
-msgstr ""
+msgstr "為確保首次集成90天后正常使用，需向企業微信購買接口許可，購買許可費用由平台承擔支付，您無需額外支付，您只需提交申請購買即可"
 
 #: Disabled references:1
 msgid "购买费用由平台支付，您只需申请下单即可"
-msgstr ""
+msgstr "購買費用由平台支付，您只需申請下單即可"
 
 #: Disabled references:1
 msgid "向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。"
-msgstr ""
+msgstr "向指定手機號發送短信邀請用戶註冊外部門戶，並在外部門戶下自動創建一條對應的用戶數據（成員狀態為“未激活”）。"
 
 #: Disabled references:1
 msgid "根据此字段发送邀请短信"
-msgstr ""
+msgstr "根據此字段發送邀請短信"
 
 #: Disabled references:1
 msgid "将通过系统消息发送"
-msgstr ""
+msgstr "將通過系統消息發送"
 
 #: Disabled references:1
 msgid "您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持%0条。被子流程节点使用，最多支持%1条。"
-msgstr ""
+msgstr "您獲取的多條數據可供本流程的數據處理節點或子流程節點使用。被數據處理節點（新增、更新、刪除）使用，最多支持%0條。被子流程節點使用，最多支持%1條。"
 
 #: Disabled references:1
 msgid "扫码刷脸"
-msgstr ""
+msgstr "掃碼刷臉"
 
 #: Disabled references:1
 msgid "请用微信、微警或警融App扫下方二维码进行刷脸验证，验证通过后才能提交流程"
-msgstr ""
+msgstr "請用微信、微警或警融App掃下方二維碼進行刷臉驗證，驗證通過後才能提交流程"
 
 #: Disabled references:1
 msgid "认证失败"
-msgstr ""
+msgstr "認證失敗"
 
 #: Disabled references:1
 msgid "人脸信息不匹配"
-msgstr ""
+msgstr "人臉信息不匹配"
 
 #: Disabled references:1
 msgid "点击刷新重试"
-msgstr ""
+msgstr "點擊刷新重試"
 
 #: Disabled references:1
 msgid "二维码已过期"
-msgstr ""
+msgstr "二維碼已過期"
 
 #: Disabled references:1
 msgid "当前sheet行数超过单次导入上限（%0行），无法导入。"
-msgstr ""
-
+msgstr "當前sheet行數超過單次導入上限（%0行），無法導入。"

@@ -23,7 +23,8 @@ const ImageCard = (props) => {
   const { data, isMobile, isDeleteFile, coverType, allowEditName, allowDownload } = props;
   const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
   const { isKc, browse, fileClassName, fileSize, isMore, isDownload } = props;
-  const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/${ coverType === '1' ? '' : 'w/200/h/140'}`);
+  const fullShow = coverType === '1';
+  const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/${fullShow ? 2 : 1}/${ fullShow ? '' : 'w/200/h/140'}`);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -259,7 +260,8 @@ const NotSaveImageCard = (props) => {
   const { onDeleteKCFile, onDeleteFile, onResetNameFile, onKCPreview, onPreview } = props;
   const { isKc, fileClassName, isPicture, fileSize, url } = props;
   const size = coverType === '1' ? '' : 'w/200/h/140';
-  const previewImageUrl = isKc ? data.viewUrl : (url.indexOf('imageView2') > -1 ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/${size}`) : url + `&imageView2/1/${size}`);
+  const mode = coverType === '1' ? 2 : 1;
+  const previewImageUrl = isKc ? data.viewUrl : (url.indexOf('imageView2') > -1 ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/${mode}/${size}`) : url + `&imageView2/${mode}/${size}`);
   const [isEdit, setIsEdit] = useState(false);
   const ref = useRef(null);
 

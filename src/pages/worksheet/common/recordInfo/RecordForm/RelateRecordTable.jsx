@@ -263,8 +263,8 @@ export default function RelateRecordTable(props) {
           getTemplate: true,
           getRules: true,
         });
-        const newTableControls = control.showControls
-          .map(scid => _.find(worksheetInfo.template.controls.concat(SYSTEM_CONTROL), c => c.controlId === scid))
+        const newTableControls = worksheetInfo.template.controls
+          .concat(SYSTEM_CONTROL)
           .filter(c => c && controlState(c).visible);
         setWorksheetOfControl(worksheetInfo);
         setTableControls(newTableControls);
@@ -299,18 +299,16 @@ export default function RelateRecordTable(props) {
       const isLastPage = pageIndex === Math.ceil(res.count / PAGE_SIZE) || res.count === 0;
       let controls = tableControls.slice(0);
       if (res.worksheet) {
-        const newTableControls = control.showControls
-          .map(scid => _.find(res.worksheet.template.controls.concat(SYSTEM_CONTROL), c => c.controlId === scid))
-          .filter(
-            c =>
-              c &&
-              controlState({
-                ...c,
-                controlPermissions: isHiddenOtherViewRecord
-                  ? c.controlPermissions
-                  : replaceByIndex(control.controlPermissions || '111', 0, '1'),
-              }).visible,
-          );
+        const newTableControls = res.worksheet.template.controls.concat(SYSTEM_CONTROL).filter(
+          c =>
+            c &&
+            controlState({
+              ...c,
+              controlPermissions: isHiddenOtherViewRecord
+                ? c.controlPermissions
+                : replaceByIndex(control.controlPermissions || '111', 0, '1'),
+            }).visible,
+        );
         controls = newTableControls;
         setWorksheetOfControl(res.worksheet);
         setTableControls(newTableControls);
@@ -575,7 +573,7 @@ export default function RelateRecordTable(props) {
         rowHeadWidth={rowHeadWidth}
         rowHeight={34}
         controls={tableControls}
-        columns={overrideControls(columns)}
+        columns={overrideControls(columns).filter(c => _.find(control.showControls, sid => c.controlId === sid))}
         data={isNewRecord ? records : records.slice(0, PAGE_SIZE)}
         sheetColumnWidths={{ ...columnWidthsOfSetting, ...sheetColumnWidths }}
         sheetViewHighlightRows={highlightRows}
@@ -762,6 +760,7 @@ export default function RelateRecordTable(props) {
       sheetHiddenColumnIds,
       fixedColumnCount,
       disableMaskDataControls,
+      control.showControls,
     ],
   );
   return (

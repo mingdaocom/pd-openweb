@@ -294,7 +294,7 @@ export default class Item extends Component {
 
     return (
       <div
-        className={cx('valignWrapper workSheetViewItem pointer', {
+        className={cx('valignWrapper workSheetViewItem pointer', `workSheetViewItemViewId-${item.viewId}`, {
           active: currentViewId === item.viewId,
         })}
         style={

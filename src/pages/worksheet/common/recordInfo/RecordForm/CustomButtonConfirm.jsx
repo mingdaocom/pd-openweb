@@ -168,7 +168,7 @@ export default function CustomButtonConfirm(props) {
     }
     return (
       <MenuBox
-        onClickAwayExceptions={['.approveDialog .Textarea']}
+        onClickAwayExceptions={['.customButtonConfirmDialog .Textarea']}
         onClickAway={() => setState({ showTemplateList: false })}
       >
         {list.map((item, index) => (
@@ -188,7 +188,7 @@ export default function CustomButtonConfirm(props) {
       cancelText={cancelText}
       okDisabled={checkIsPending}
       onOk={() => {
-        if (remarkRequired && !(remark || '').trim()) {
+        if (enableRemark && remarkRequired && !(remark || '').trim()) {
           alert(_l('%0不能为空', remarkName), 3);
           return;
         }

@@ -514,6 +514,7 @@ class TableView extends React.Component {
           }
         }}
         onShowFullValue={() => {
+          if (window.shareState.shareId) return;
           this.setState({ disableMaskDataControls: { ...disableMaskDataControls, [control.controlId]: true } });
         }}
         {...rest}

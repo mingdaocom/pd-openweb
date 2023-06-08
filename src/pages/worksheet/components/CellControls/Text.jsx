@@ -308,7 +308,7 @@ export default class Text extends React.Component {
 
   @autobind
   handleUnMask(e) {
-    if (!this.masked) {
+    if (!this.masked || window.shareState.shareId) {
       return;
     }
     e.stopPropagation();
