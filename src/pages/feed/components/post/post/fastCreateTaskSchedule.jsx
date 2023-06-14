@@ -51,18 +51,25 @@ const FastCreateTaskSchedule = createReactClass({
 
   render() {
     return (
-      <Menu style={this.props.style} className={cx('fastCreateTaskSchedule tipBoxShadow', { hide: md.global.SysSettings.forbidSuites.includes('2') && md.global.SysSettings.forbidSuites.includes('3') })}>
-        {!md.global.SysSettings.forbidSuites.includes('2') && (
-          <MenuItem className={'taskItem'} onClick={this.toggleCreateNewTask}>
-            {_l('创建任务')}
-          </MenuItem>
-        )}
-        {!md.global.SysSettings.forbidSuites.includes('3') && (
-          <MenuItem className={'taskItem'} onClick={this.toggleCreateNewCalender}>
-            {_l('加入日程')}
-          </MenuItem>
-        )}
-      </Menu>
+      <ClickAway onClickAway={this.componentClickAway}>
+        <Menu
+          style={this.props.style}
+          className={cx('fastCreateTaskSchedule tipBoxShadow', {
+            hide: md.global.SysSettings.forbidSuites.includes('2') && md.global.SysSettings.forbidSuites.includes('3'),
+          })}
+        >
+          {!md.global.SysSettings.forbidSuites.includes('2') && (
+            <MenuItem className={'taskItem'} onClick={this.toggleCreateNewTask}>
+              {_l('创建任务')}
+            </MenuItem>
+          )}
+          {!md.global.SysSettings.forbidSuites.includes('3') && (
+            <MenuItem className={'taskItem'} onClick={this.toggleCreateNewCalender}>
+              {_l('加入日程')}
+            </MenuItem>
+          )}
+        </Menu>
+      </ClickAway>
     );
   },
 });

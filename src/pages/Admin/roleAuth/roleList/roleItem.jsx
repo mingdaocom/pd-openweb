@@ -139,7 +139,7 @@ class RoleItem extends React.Component {
             <span className="adminHoverColor" onClick={clickHandler('addmember')}>
               {_l('添加成员')}
             </span>
-            {!md.global.Config.IsLocal && isHrVisible && auth.edit ? (
+            {isHrVisible && auth.edit ? (
               <span
                 className="mLeft10 adminHoverColor"
                 onClick={e => {
