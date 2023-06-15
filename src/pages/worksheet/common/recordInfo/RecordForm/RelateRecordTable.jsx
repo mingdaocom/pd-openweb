@@ -478,6 +478,10 @@ export default function RelateRecordTable(props) {
             : c,
         )
     : [{ controlId: 'tip' }];
+  const overrideColumns = overrideControls(columns);
+  const tableVisibleControls = control.showControls
+    .map(sid => _.find(overrideColumns, { controlId: sid }))
+    .filter(_.identity);
   const controlPermission = controlState(control, recordId ? 3 : 2);
   const addVisible =
     !control.disabled &&
@@ -573,7 +577,7 @@ export default function RelateRecordTable(props) {
         rowHeadWidth={rowHeadWidth}
         rowHeight={34}
         controls={tableControls}
-        columns={overrideControls(columns).filter(c => _.find(control.showControls, sid => c.controlId === sid))}
+        columns={tableVisibleControls}
         data={isNewRecord ? records : records.slice(0, PAGE_SIZE)}
         sheetColumnWidths={{ ...columnWidthsOfSetting, ...sheetColumnWidths }}
         sheetViewHighlightRows={highlightRows}
@@ -615,7 +619,9 @@ export default function RelateRecordTable(props) {
               const newControl = _.omit(control, ['relationControls']);
               if (!_.isEmpty(sheetColumnWidths)) {
                 const newWidths = JSON.stringify(
-                  columns.map(c => ({ ...columnWidthsOfSetting, ...sheetColumnWidths }[c.controlId] || 160)),
+                  tableVisibleControls.map(
+                    c => ({ ...columnWidthsOfSetting, ...sheetColumnWidths }[c.controlId] || 160),
+                  ),
                 );
                 newControl.advancedSetting.widths = newWidths;
               }
