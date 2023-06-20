@@ -80,6 +80,7 @@ export default class Projects extends Component {
     });
   }
   handleSave = () => {
+    const { onSave = _.noop } = this.props;
 
     // 如果没有组织id变化，直接关闭弹层即可
     const { projects, bindProjectIds } = this.state;
@@ -101,6 +102,7 @@ export default class Projects extends Component {
           if (result) {
             alert(_l('关联成功'), 1);
             this.setState({ visible: false });
+            onSave();
           } else {
             alert(_l('关联失败'), 2);
           }
@@ -172,7 +174,7 @@ export default class Projects extends Component {
         }}
       >
         <div className={cx({ pointer: usable })}>
-          <span className={cx({ associated: usable })}>{_l('关联')}</span>
+          <span className={cx({ associated: usable })}>{_l('管理')}</span>
         </div>
       </Trigger>
     );

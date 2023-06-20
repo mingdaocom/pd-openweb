@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1684115414210') format('woff2'),
-       url('iconfont.woff?t=1684115414210') format('woff'),
-       url('iconfont.ttf?t=1684115414210') format('truetype');
+  src: url('iconfont.woff2?t=1684483026595') format('woff2'),
+       url('iconfont.woff?t=1684483026595') format('woff'),
+       url('iconfont.ttf?t=1684483026595') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,10 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-a-Data_integration1:before {
+  content: "\e939";
 }
 
 .icon-horizontal:before {

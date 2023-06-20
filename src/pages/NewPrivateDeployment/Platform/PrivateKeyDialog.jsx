@@ -1,10 +1,22 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { Dialog, Textarea, LoadDiv } from 'ming-ui';
+import { Icon, Dialog, Textarea, LoadDiv } from 'ming-ui';
 import privateGuideApi from 'src/api/privateGuide';
+import { LicenseVersions } from '../common';
+import moment from 'moment';
+import cx from 'classnames';
+import styled from 'styled-components';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 
+const CodeInfoWrap = styled.div`
+  .item {
+    width: 25%;
+    margin-bottom: 20px;
+  }
+`;
+
 export default props => {
-  const { originCode, visible, onCancel, onSave } = props;
+  const { codeInfo, visible, onCancel, onSave } = props;
   const [licenseCode, setLicenseCode] = useState('');
   const [verifyLicenseCode, setVerifyLicenseCode] = useState('');
   const [prompt, setPrompt] = useState('');
@@ -42,21 +54,94 @@ export default props => {
     <Dialog
       visible={visible}
       anim={false}
-      title={originCode ? _l('当前密钥') : _l('更新密钥')}
-      width={560}
+      title={codeInfo ? _l('当前密钥') : _l('更新密钥')}
+      width={codeInfo ? 680 : 560}
       onOk={() => {
-        if (originCode) {
+        if (codeInfo) {
           onCancel();
         } else {
           handleAddPrivateKey();
         }
       }}
       onCancel={onCancel}
-      showCancel={originCode ? false : true}
-      okText={originCode ? _l('关闭') : _l('确定')}
+      showCancel={codeInfo ? false : true}
+      okText={codeInfo ? _l('关闭') : _l('确定')}
     >
-      {originCode ? (
-        <div className="breakAll Gray_75">{originCode}</div>
+      {codeInfo ? (
+        <CodeInfoWrap className="overflowHidden">
+          <div className="item left">
+            <div className="Gray_9e">{_l('版本')}</div>
+            <div>{codeInfo.isPlatform ? _l('平台版') : LicenseVersions[codeInfo.licenseVersion]}</div>
+          </div>
+          <div className="item left">
+            <div className="Gray_9e">{_l('密钥到期时间')}</div>
+            <div>{moment(codeInfo.expirationDate).format('YYYY-MM-DD')}</div>
+          </div>
+          <div className="item left">
+            <div className="Gray_9e">{_l('升级服务到期时间')}</div>
+            <div>{moment(codeInfo.upgradeExpirationDate).format('YYYY-MM-DD')}</div>
+          </div>
+          <div className="item left">
+            <div className="Gray_9e">{_l('内部用户配额')}</div>
+            <div>{codeInfo.internalUserNum.toLocaleString()}</div>
+          </div>
+          <div className="item left">
+            <div className="Gray_9e">{_l('外部用户配额')}</div>
+            <div>{codeInfo.externalUserNum.toLocaleString()}</div>
+          </div>
+          {!codeInfo.isPlatform && (
+            <Fragment>
+              <div className="item left">
+                <div className="Gray_9e">{_l('组织数')}</div>
+                <div>{codeInfo.projectNum}</div>
+              </div>
+              <div className="item left">
+                <div className="Gray_9e">{_l('应用总数上限')}</div>
+                <div>{codeInfo.applicationNum === 2147483647 ? _l('不限') : codeInfo.applicationNum}</div>
+              </div>
+              <div className="item left">
+                <div className="Gray_9e">{_l('工作表总数上限')}</div>
+                <div>{codeInfo.worktableNum === 2147483647 ? _l('不限') : codeInfo.worktableNum}</div>
+              </div>
+              <div className="item left">
+                <div className="Gray_9e">{_l('行记录总数上限/单表')}</div>
+                <div>{codeInfo.worktableRowNum === 2147483647 ? _l('不限') : codeInfo.worktableRowNum}</div>
+              </div>
+              <div className="item left">
+                <div className="Gray_9e">{_l('工作流总数上限/单月')}</div>
+                <div>{codeInfo.workflowNum >= 1000000 ? _l('不限') : codeInfo.workflowNum}</div>
+              </div>
+            </Fragment>
+          )}
+          <div className="item left">
+            <div className="Gray_9e">{_l('数据集成')}</div>
+            <div className="valignWrapper">
+              <Icon className={cx('Font20', codeInfo.dp ? 'ThemeColor' : 'Gray_bd')} icon="a-Data_integration1" />
+              <div>{codeInfo.dp ? _l('已授权') : _l('未授权')}</div>
+            </div>
+          </div>
+          <div className="item left">
+            <div className="Gray_9e">{_l('超级搜索')}</div>
+            <div className="valignWrapper">
+              <Icon className={cx('Font20', codeInfo.sse ? 'ThemeColor' : 'Gray_bd')} icon="search" />
+              {codeInfo.sse ? _l('已授权') : _l('未授权')}
+            </div>
+          </div>
+          <div className="item left">
+            <div className="Gray_9e">{_l('密钥')}</div>
+            <div className="valignWrapper" title={codeInfo.originCode}>
+              <div className="ellipsis">{codeInfo.originCode}</div>
+              <Icon
+                icon="copy"
+                className="Gray_9e Font17 pointer"
+                onClick={() => {
+                  copy(codeInfo.originCode);
+                  alert(_l('复制成功'));
+                }}
+              />
+            </div>
+          </div>
+        </CodeInfoWrap>
       ) : (
         <Fragment>
           <div className="mBottom10">
@@ -71,7 +156,7 @@ export default props => {
           {
             loading ? (
               <div className="flexRow verifyInfo Gray_75 mBottom10">
-                <LoadDiv size="small" />
+                <LoadDiv className="mAll0 mRight5" size="small" />
                 {_l('正在验证您的产品密钥')}
               </div>
             ) : (

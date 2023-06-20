@@ -90,17 +90,17 @@ const settingMenus = [
 ];
 
 const managementMenus = [
-  {
-    title: _l('密钥管理'),
-    icon: 'key1',
-    type: 'privateKey',
-    routes: [
-      {
-        path: '/privateDeployment/privateKey',
-        component: () => import('./Management/PrivateKey'),
-      },
-    ],
-  },
+  // {
+  //   title: _l('密钥管理'),
+  //   icon: 'key1',
+  //   type: 'privateKey',
+  //   routes: [
+  //     {
+  //       path: '/privateDeployment/privateKey',
+  //       component: () => import('./Management/PrivateKey'),
+  //     },
+  //   ],
+  // },
   {
     title: _l('管理员'),
     icon: 'admin_panel_settings',
@@ -169,11 +169,6 @@ export const menuGroup = [
   {
     title: _l('平台'),
     type: 'platform',
-    menus: platformMenus.filter(data => {
-      if (data.type === 'authorization') {
-        return md.global.Config.IsPlatformLocal;
-      }
-      return true;
-    }),
+    menus: platformMenus,
   },
 ];

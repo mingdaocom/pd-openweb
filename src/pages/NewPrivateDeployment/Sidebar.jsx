@@ -44,7 +44,7 @@ const Wrap = styled.div`
 
 const Sidebar = props => {
   return (
-    <Wrap>
+    <Wrap className="privateDeploymentSidebar">
       {menuGroup.map(group => (
         <Fragment key={group.type}>
           <div className="title Font13 mBottom8">{group.title}</div>

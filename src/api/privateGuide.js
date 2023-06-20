@@ -30,7 +30,7 @@ export default {
      return $.api('PrivateGuide', 'GetLicenseList', args, options);
    },
   /**
-  * 获取当前服务器秘钥申请列表
+  * 获取当前服务器秘钥申请列表（废弃）
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -110,7 +110,7 @@ export default {
      return $.api('PrivateGuide', 'BindProject', args, options);
    },
   /**
-  * 添加授权
+  * 添加授权（安装流程绑定密钥）
   * @param {Object} args 请求参数
   * @param {string} args.licenseCode 授权码
   * @param {Object} options 配置参数
@@ -122,7 +122,7 @@ export default {
      return $.api('PrivateGuide', 'BindLicenseCode', args, options);
    },
   /**
-  * 启用授权
+  * 启用授权（废弃）
   * @param {Object} args 请求参数
   * @param {string} args.licenseCode 授权码
   * @param {Object} options 配置参数
@@ -134,7 +134,20 @@ export default {
      return $.api('PrivateGuide', 'EnableLicenseCode', args, options);
    },
   /**
-  * 创建管理员账号
+  * 添加试用授权
+  * @param {Object} args 请求参数
+  * @param {string} args.licenseCode 授权码
+  * @param {} args.extendFunType 增值功能类型
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   bindTrialLicenseCode: function (args, options = {}) {
+     
+     return $.api('PrivateGuide', 'BindTrialLicenseCode', args, options);
+   },
+  /**
+  * 创建管理员账号（安装流程）
   * @param {Object} args 请求参数
   * @param {string} args.name 姓名
   * @param {string} args.email 邮箱
@@ -148,7 +161,7 @@ export default {
      return $.api('PrivateGuide', 'AddAdmin', args, options);
    },
   /**
-  * 创建组织
+  * 创建组织（安装流程）
   * @param {Object} args 请求参数
   * @param {string} args.name 网络名称
   * @param {Object} options 配置参数
