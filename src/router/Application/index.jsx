@@ -39,7 +39,10 @@ export default class Application extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.match.params.appId !== this.props.match.params.appId || location.href.indexOf('from=system') > -1) {
+    if (
+      nextProps.match.params.appId !== this.props.match.params.appId ||
+      (window.redirected && location.href.indexOf('from=system') > -1)
+    ) {
       this.checkApp(nextProps.match.params.appId);
     }
   }

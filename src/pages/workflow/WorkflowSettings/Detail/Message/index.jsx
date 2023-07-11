@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import cx from 'classnames';
-import { ScrollView, Menu, Radio, MenuItem, LoadDiv, TagTextarea, Tooltip } from 'ming-ui';
+import { ScrollView, Menu, Radio, MenuItem, LoadDiv, TagTextarea, Tooltip, Support } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { CONTROLS_NAME } from '../../enum';
 import {
@@ -439,14 +439,14 @@ export default class Message extends Component {
     const { data, sign, messageContent, type, showSignList, isSelectNewTpl, showTestDialog, testArray } = this.state;
     const companySignatureList = data.companySignatureList.filter(key => key.indexOf(sign) > -1);
     const MESSAGE_TYPES = [
-      { text: _l('常规'), value: 0, desc: _l('一般性通知。如验证码短信、通知短信、物流快递短信、订单短信') },
+      { text: _l('行业通知'), value: 1, desc: _l('一般性通知。如验证码短信、通知短信、物流快递短信、订单短信') },
       {
-        text: _l('营销'),
+        text: _l('营销推广'),
         value: 2,
         desc: _l('如：促销、优惠、活动报名等产品推广和品牌宣传类短信；系统将自动为此类短信末尾附加【退订】字样'),
       },
       {
-        text: _l('金融（暂不支持）'),
+        text: _l('金融交易（暂不支持）'),
         value: 3,
         desc: _l('如：资金到账提示、支付验证码、交易提醒、催缴通知等'),
         disabled: true,
@@ -572,10 +572,6 @@ export default class Message extends Component {
           </span>
         </div>
         <div className="mTop20 Gray_75 workflowDetailDesc">
-          <div>
-            <span className="mRight10">•</span>
-            {_l('短信必须审核通过后才能启用流程')}
-          </div>
           <div>
             <span className="mRight10">•</span>
             {_l('审核时间约为1小时，非工作时间提交审核会延长')}

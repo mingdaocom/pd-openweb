@@ -753,9 +753,14 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
       // 文本
       if (item.type === 2) {
         if (item.advancedSetting && item.advancedSetting.regex) {
-          const tempRegex = safeParse(item.advancedSetting.regex);
-          errorType =
-            !value || (!tempRegex.err && new RegExp(tempRegex.regex).test(value)) ? '' : FORM_ERROR_TYPE.CUSTOM;
+          let reg;
+          try {
+            reg = new RegExp(safeParse(item.advancedSetting.regex).regex);
+          } catch (error) {
+            console.log(error);
+          }
+          // 无值或正则配置不对不校验，正则匹配成功不报错
+          errorType = !value || !reg || reg.test(value) ? '' : FORM_ERROR_TYPE.CUSTOM;
         }
         if (!errorType) {
           errorType = getRangeErrorType(item);

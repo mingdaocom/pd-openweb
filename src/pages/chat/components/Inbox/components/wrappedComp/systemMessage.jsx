@@ -128,7 +128,11 @@ export default class SystemMessage extends PureComponent {
 
         const matchedAppPath = (location.pathname.match(/\/app\/([\w-]{36})/) || '')[0];
         // 应用首页
-        if (matchedAppPath && matchedAppPath === (href.match(/\/app\/([\w-]{36})/) || '')[0]) {
+        if (
+          matchedAppPath &&
+          /\/app\/[\w-]{36}$/.test(href) &&
+          matchedAppPath === (href.match(/\/app\/([\w-]{36})/) || '')[0]
+        ) {
           evt.preventDefault();
           evt.stopPropagation();
           navigateTo(new URL(href.startsWith('http') ? href : location.origin + href).pathname + '?from=system');

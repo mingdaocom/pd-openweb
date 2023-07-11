@@ -105,7 +105,7 @@ export default function QuickArrange({ widgets, setWidgets }) {
               $originWidgets.current = widgets;
             }}
           >
-            {_l('应用')}
+            {_l('应用%04014')}
           </div>
         </div>
       </div>
