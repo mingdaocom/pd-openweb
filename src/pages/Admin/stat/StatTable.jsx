@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import statisticController from 'src/api/statistic';
-import 'src/components/pager/pager';
+import PaginationWrap from '../components/PaginationWrap';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Icon from 'ming-ui/components/Icon';
 import UserName from 'src/pages/feed/components/userName/userName';
@@ -248,20 +248,6 @@ export default class StatTable extends React.Component {
     }
   }
 
-  componentDidUpdate() {
-    const { allCount, pageIndex, pageSize } = this.state;
-    if (this.pager) {
-      $(this.pager).Pager({
-        pageIndex,
-        pageSize,
-        count: allCount,
-        changePage: pageIndex => {
-          this.setState({ pageIndex }, this.fetchData.bind(this));
-        },
-      });
-    }
-  }
-
   abortRequest() {
     if (this.promise && this.promise.state() === 'pending' && this.promise.abort) {
       this.promise.abort();
@@ -311,9 +297,7 @@ export default class StatTable extends React.Component {
             isLoading: false,
           });
         } else {
-          return $.Deferred()
-            .reject()
-            .promise();
+          return $.Deferred().reject().promise();
         }
       })
       .fail(({ errorCode } = {}) => {
@@ -464,7 +448,7 @@ export default class StatTable extends React.Component {
   }
 
   render() {
-    const { isLoading, list, allCount, pageSize } = this.state;
+    const { isLoading, list, allCount, pageSize, pageIndex } = this.state;
     const { reportType } = this.props;
     const fields = SORT_FILEDS[reportType];
     return (
@@ -500,10 +484,11 @@ export default class StatTable extends React.Component {
           )}
         </div>
         {!isLoading && allCount > PAGE_SIZES.NORMAL ? (
-          <div
-            ref={el => {
-              this.pager = el;
-            }}
+          <PaginationWrap
+            total={allCount}
+            pageSize={pageSize}
+            pageIndex={pageIndex}
+            onChange={pageIndex => this.setState({ pageIndex }, this.fetchData)}
           />
         ) : null}
       </div>

@@ -1,10 +1,39 @@
 import React, { Fragment, Component } from 'react';
-import { Icon } from 'ming-ui';
-import SvgIcon from 'src/components/SvgIcon';
 import Overview from '../Overview';
 import ByUser from '../ByUser';
+import unauthorizedPic from 'src/router/Application/assets/unauthorized.png';
+import styled from 'styled-components';
 import cx from 'classnames';
 import './index.less';
+
+const NoAuthorWrap = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  .imgWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 130px;
+    height: 130px;
+    line-height: 130px;
+    border-radius: 50%;
+    text-align: center;
+    background-color: #f5f5f5;
+    img {
+      width: 100%;
+    }
+  }
+  .explainText {
+    margin: 30px 0 50px 0;
+    font-size: 17px;
+    color: #757575;
+  }
+`;
 
 const tabs = [
   { key: 1, label: _l('总览') },
@@ -15,27 +44,40 @@ export default class AppAnalytics extends Component {
     super(props);
     this.state = {
       currentTab: 1,
+      isAuthority: true,
     };
   }
+  componentDidMount() {
+    if (this.analysisEle) {
+      this.analysisEle.getAuthor().then(res => {
+        const [data1, data2] = res;
+        const { list } = data1;
+        const { workflow = {}, record = {}, app = {}, attachment = {} } = data2;
+        if (data1.resultCode === 7 || data2.resultCode === 7) {
+          this.setState({ isAuthority: false });
+        } else {
+          this.analysisEle.updateChartData({ workflow, record, app, attachment });
+          this.analysisEle.updateAppOverviewData({ list });
+        }
+      });
+    }
+  }
   render() {
-    const { currentAppInfo = {}, projectId, isIndividual } = this.props;
-    const { name, iconColor, iconUrl, appId } = currentAppInfo;
-    let { currentTab } = this.state;
+    const { projectId, appId } = _.get(this.props, 'match.params') || {};
+    let { currentTab, isAuthority } = this.state;
+    if (!isAuthority) {
+      return (
+        <NoAuthorWrap>
+          <div className="imgWrap">
+            <img src={unauthorizedPic} alt={_l('错误图片')} />
+          </div>
+          <div className="explainText">{_l('无权限访问')}</div>
+        </NoAuthorWrap>
+      );
+    }
+
     return (
       <div className="appAnalyticsWrapper">
-        <div className="header">
-          <div className="appInfo flexRow">
-            <div className="appIconWrapper" style={{ backgroundColor: iconColor }}>
-              <SvgIcon url={iconUrl} fill="#fff" size={16} />
-            </div>
-            <div className="mLeft7 bold Font15">{name}</div>
-          </div>
-          {!isIndividual && (
-            <span data-tip={_l('关闭')}>
-              <Icon icon="close" className="pointer Font28 Gray_9d ThemeHoverColor3" onClick={this.props.onCancel} />
-            </span>
-          )}
-        </div>
         <div className="appAnalyticsContent">
           <div className="appAnalytics flexColumn">
             <div className="tabs">
@@ -52,7 +94,9 @@ export default class AppAnalytics extends Component {
               ))}
             </div>
             <div className="flex">
-              {currentTab === 1 && <Overview appId={appId} projectId={projectId} />}
+              {currentTab === 1 && (
+                <Overview appId={appId} projectId={projectId} ref={ele => (this.analysisEle = ele)} />
+              )}
               {currentTab === 2 && <ByUser appId={appId} projectId={projectId} />}
             </div>
           </div>

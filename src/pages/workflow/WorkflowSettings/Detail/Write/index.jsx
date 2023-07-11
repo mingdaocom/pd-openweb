@@ -13,9 +13,11 @@ import {
   Schedule,
   UserRange,
   EmailApproval,
+  UpdateFields,
 } from '../components';
 import styled from 'styled-components';
 import cx from 'classnames';
+import { OPERATION_TYPE } from '../../enum';
 
 const TABS_ITEM = styled.div`
   display: inline-flex;
@@ -71,34 +73,45 @@ export default class Write extends Component {
   /**
    * 获取节点详情
    */
-  getNodeDetail(props) {
+  getNodeDetail(props, sId) {
     const { processId, selectNodeId, selectNodeType, isApproval } = props;
+    const { data } = this.state;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
-      this.setState({ data: result });
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId })
+      .then(result => {
+        if (sId) {
+          result = Object.assign({}, data, {
+            selectNodeId: result.selectNodeId,
+            appList: result.appList,
+            selectNodeObj: result.selectNodeObj,
+            flowNodeMap: Object.assign({}, data.flowNodeMap, {
+              [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE],
+            }),
+          });
+        }
 
-      if (isApproval && !result.selectNodeId) {
-        this.onChange(result.flowNodeList[0].nodeId);
-      }
-    });
+        this.setState({ data: result });
+
+        if (isApproval && !result.selectNodeId) {
+          this.onChange(result.flowNodeList[0].nodeId);
+        }
+      });
   }
 
   /**
    * 下拉框更改
    */
   onChange = selectNodeId => {
-    const { data } = this.state;
-    const selectNodeObj = _.find(data.appList, item => item.nodeId === selectNodeId);
-
-    this.updateSource({ selectNodeId, selectNodeObj });
+    this.getNodeDetail(this.props, selectNodeId);
   };
 
   /**
    * 更新data数据
    */
-  updateSource = obj => {
+  updateSource = (obj, callback = () => {}) => {
     this.props.haveChange(true);
-    this.setState({ data: Object.assign({}, this.state.data, obj) });
+    this.setState({ data: Object.assign({}, this.state.data, obj) }, callback);
   };
 
   /**
@@ -171,7 +184,7 @@ export default class Write extends Component {
     const TABS = [
       { text: _l('填写设置'), value: 1 },
       { text: _l('字段权限'), value: 2 },
-      // { text: _l('数据更新'), value: 3 },
+      { text: _l('数据更新'), value: 3 },
     ];
 
     return (
@@ -180,7 +193,7 @@ export default class Write extends Component {
           return (
             <TABS_ITEM
               key={item.value}
-              className={cx({ active: item.value === tabIndex })}
+              className={cx('pointerEventsAuto', { active: item.value === tabIndex })}
               onClick={() => this.setState({ tabIndex: item.value })}
             >
               {item.text}
@@ -208,7 +221,6 @@ export default class Write extends Component {
   }
 
   render() {
-    const { selectNodeId } = this.props;
     const { data, showSelectUserDialog, tabIndex } = this.state;
 
     if (_.isEmpty(data)) {
@@ -322,9 +334,9 @@ export default class Write extends Component {
                   <EmailApproval
                     {...this.props}
                     title={_l('启用邮件通知')}
-                    desc={_l('启用后，待办消息同时会以邮件的形式发送给相关负责人；邮件0.03元/封，自动从账务中心扣费')}
-                    flowNodeMap={data.flowNodeMap[102]}
-                    updateSource={obj => this.updateFlowMapSource(102, obj)}
+                    desc={_l('启用后，待办消息同时会以邮件的形式发送给相关负责人')}
+                    flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
+                    updateSource={obj => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj)}
                   />
                   <Checkbox
                     className="mTop15 flexRow"
@@ -370,6 +382,49 @@ export default class Write extends Component {
                     <div className="Gray_9e Font13 flexRow flowDetailTips mTop25">
                       <i className="icon-task-setting_promet Font16" />
                       <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
+                    </div>
+                  )}
+                </Fragment>
+              )}
+
+              {tabIndex === 3 && (
+                <Fragment>
+                  {data.selectNodeId ? (
+                    <Fragment>
+                      <div className="Font13 bold mTop25">{_l('节点开始前更新')}</div>
+                      <div className="Font13 Gray_9e mTop10">
+                        {_l('流程进入此节点且填写开始前，更新数据对象的字段值（退回至此节点也会触发更新）')}
+                      </div>
+                      <UpdateFields
+                        type={1}
+                        companyId={this.props.companyId}
+                        processId={this.props.processId}
+                        selectNodeId={this.props.selectNodeId}
+                        nodeId={data.flowNodeMap[OPERATION_TYPE.BEFORE].selectNodeId}
+                        controls={data.flowNodeMap[OPERATION_TYPE.BEFORE].controls.filter(o => o.type !== 29)}
+                        fields={data.flowNodeMap[OPERATION_TYPE.BEFORE].fields}
+                        showCurrent
+                        formulaMap={data.flowNodeMap[OPERATION_TYPE.BEFORE].formulaMap}
+                        updateSource={(obj, callback = () => {}) =>
+                          this.updateSource(
+                            {
+                              flowNodeMap: Object.assign({}, data.flowNodeMap, {
+                                [OPERATION_TYPE.BEFORE]: Object.assign(
+                                  {},
+                                  data.flowNodeMap[OPERATION_TYPE.BEFORE],
+                                  obj,
+                                ),
+                              }),
+                            },
+                            callback,
+                          )
+                        }
+                      />
+                    </Fragment>
+                  ) : (
+                    <div className="Gray_9e Font13 flexRow flowDetailTips mTop25">
+                      <i className="icon-task-setting_promet Font16" />
+                      <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置数据更新')}</div>
                     </div>
                   )}
                 </Fragment>

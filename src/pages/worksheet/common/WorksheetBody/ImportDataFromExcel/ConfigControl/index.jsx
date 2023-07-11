@@ -454,6 +454,10 @@ export default class ConfigControl extends Component {
       const { isCharge } = this.props;
       const { tigger, repeatConfig, repeatRecord, worksheetControls, edited, controlMapping, relateSource } =
         this.state;
+      let columnContent;
+      let fieldContent;
+      let repeatModeContent;
+      let repeatContent;
 
       // 判断是否有匹配字段未选择 或 已删除
       for (const relateMapping of controlMappingFilter) {
@@ -501,43 +505,43 @@ export default class ConfigControl extends Component {
         ) {
           throw _l('依据字段“%0“的匹配字段仅限人员ID', repeatConfig.controlName);
         }
+
+        columnContent = `<span class="Gray Bold">【 ${
+          repeatConfig.controlId === recordObj.value
+            ? recordObj.text
+            : _.get(_.find(controlMappingFilter, item => item.ControlId === repeatConfig.controlId) || {}, 'ColumnName')
+        } 】</span>`;
+
+        fieldContent = `<span class="Gray Bold">【 ${
+          repeatConfig.controlId === recordObj.value ? recordObj.value : repeatConfig.controlName
+        } 】</span>`;
+
+        repeatModeContent = `<span class="Gray Bold">${handleEnumText[repeatConfig.handleEnum]}</span>`;
+
+        repeatContent = `<span>${
+          repeatConfig.handleEnum === 3
+            ? _l('不重复的数据不会作为新记录导入')
+            : _l('将所有不重复的数据作为新记录导入工作表')
+        }</span>`;
       }
 
       Dialog.confirm({
         title: _l('数据导入确认'),
         description: (
           <div className="Font14">
-            <div
-              className="mBottom10 Gray_75"
-              dangerouslySetInnerHTML={{
-                __html: _l(
-                  '1.导入的数据%0',
-                  `<span class="Gray Bold">${tigger ? _l('触发工作流') : _l('不会触发工作流')}</span>`,
-                ),
-              }}
-            />
+            <div className="mBottom10 Gray_75">
+              {_l('1.导入的数据')}
+              <span class="Gray Bold">{tigger ? _l('触发工作流') : _l('不会触发工作流')}</span>
+            </div>
             {repeatRecord ? (
               <div
                 dangerouslySetInnerHTML={{
                   __html: _l(
                     '2.将Excel中%0列与工作表中%1字段逐行对比，%2识别到的重复数据，%3',
-                    `<span class="Gray Bold">【 ${
-                      repeatConfig.controlId === recordObj.value
-                        ? recordObj.text
-                        : _.get(
-                            _.find(controlMappingFilter, item => item.ControlId === repeatConfig.controlId) || {},
-                            'ColumnName',
-                          )
-                    } 】</span>`,
-                    `<span class="Gray Bold">【 ${
-                      repeatConfig.controlId === recordObj.value ? recordObj.value : repeatConfig.controlName
-                    } 】</span>`,
-                    `<span class="Gray Bold">${handleEnumText[repeatConfig.handleEnum]}</span>`,
-                    `<span>${
-                      repeatConfig.handleEnum === 3
-                        ? _l('不重复的数据不会作为新记录导入')
-                        : _l('将所有不重复的数据作为新记录导入工作表')
-                    }</span>`,
+                    columnContent,
+                    fieldContent,
+                    repeatModeContent,
+                    repeatContent,
                   ),
                 }}
               />
@@ -615,7 +619,7 @@ export default class ConfigControl extends Component {
       title: _l('保存导入配置'),
       description: (
         <div className="Font14">
-          <div className="Gray_75">
+          <div className="Gray_75 WordBreak">
             {_l(
               '将当前导入配置保存为默认导入方式供所有用户使用，其中字段映射关系不会保存，若Excel列名称和字段名称相同会自动映射对应',
             )}

@@ -60,6 +60,7 @@ export default function SubControlConfig({
   allControls,
   subQueryConfigs,
   updateSubQueryConfigs,
+  encryData,
   ...rest
 }) {
   const { controlId, type, advancedSetting = {}, enumDefault } = control || {};
@@ -74,6 +75,7 @@ export default function SubControlConfig({
     from: 'subList',
     globalSheetInfo,
     subListSheetId,
+    encryData,
     allControls: controls.filter(c => c.controlId !== controlId),
     globalSheetControls: allControls,
     queryConfig: _.find(subQueryConfigs || [], i => i.controlId === controlId) || {},

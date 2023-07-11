@@ -53,9 +53,10 @@ function FixedTable(props, ref) {
     className,
     width,
     height,
-    columnHeadHeight,
+    columnHeadHeight = 34,
     setHeightAsRowCount,
     rowCount,
+    disableYScroll,
     columnCount,
     barWidth = getScrollBarWidth(),
     sheetColumnWidths = {},
@@ -93,7 +94,7 @@ function FixedTable(props, ref) {
     [width, tableSize.width, leftFixedCount, rightFixedCount, columnCount],
   );
   const YIsScroll = useMemo(
-    () => tableSize.height > height - columnHeadHeight - (bottomFixedCount ? 28 : 0),
+    () => !disableYScroll && tableSize.height > height - columnHeadHeight - (bottomFixedCount ? 28 : 0),
     [height, tableSize.height, topFixedCount, columnHeadHeight, bottomFixedCount, rowCount],
   );
   const tableConfigs = [

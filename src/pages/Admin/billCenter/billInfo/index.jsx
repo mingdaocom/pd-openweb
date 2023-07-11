@@ -302,7 +302,7 @@ export default function BillInfo({ match }) {
   return (
     <BillInfoWrap>
       <div className="billInfoHeader">
-        <div className="title">账务</div>
+        <div className="title">{_l('账务%15000')}</div>
         <div
           className="invoiceSetting pointer adminHoverColor"
           onClick={() => {

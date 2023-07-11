@@ -92,6 +92,9 @@ export default function RowHead(props) {
       </div>
     );
   }
+  if (!row.rowid || row.rowid === 'empty') {
+    return <Con className={cx(className, 'placeholder')} style={style} />;
+  }
   return (
     <Con className={cx(className, { disabled: disabled || (isSavedData && !allowAdd && !allowCancel) })} style={style}>
       <span className="rowIndex">

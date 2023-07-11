@@ -14,6 +14,8 @@ import { getPathById, isHaveGap } from './widgets';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { ControlTag } from '../styled';
 import { Tooltip } from 'ming-ui';
+import { v4 as uuidv4 } from 'uuid';
+import { ALL_SYS } from '../config/widget';
 
 // 获取动态默认值
 export const getDynamicDefaultValue = data => {
@@ -399,7 +401,7 @@ export const formatControlsData = (controls = [], fromSub = false) => {
       return dealUserId(data, 'organizeId');
     }
 
-    if (type === 29) {
+    if (type === 29 || type === 51) {
       // 处理关联表叠加筛选条件里的 成员 部门 地区 他表字段 这几个类型的字段 values 处理成 [id, id]
       // 子表里关联筛选，不清配置rcid
       if (!isEmpty(getAdvanceSetting(data, 'filters'))) {
@@ -615,4 +617,36 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
   if (_.isFunction(callback)) {
     callback();
   }
+};
+
+export const dealCopyWidgetId = (data = {}) => {
+  const newData = {
+    ...data,
+    attribute: 0,
+    controlId: uuidv4(),
+    alias: '',
+    controlName: _l('%0-复制', data.controlName),
+  };
+
+  let ids = {};
+  if (data.type === 34 && _.get(window.subListSheetConfig[data.controlId], 'mode') === 'new') {
+    const relationControls = (newData.relationControls || []).map(item => {
+      if (_.includes(ALL_SYS, item.controlId)) return item;
+      const newItem = { ...item, controlId: uuidv4() };
+      ids[item.controlId] = newItem.controlId;
+      return newItem;
+    });
+
+    let newWidget = JSON.stringify({ ...newData, dataSource: uuidv4(), relationControls });
+    Object.keys(ids).forEach(id => {
+      newWidget = newWidget.replaceAll(id, ids[id]);
+    });
+    newWidget = safeParse(newWidget);
+    window.subListSheetConfig[newData.controlId] = {
+      ...window.subListSheetConfig[data.controlId],
+      sheetInfo: newWidget,
+    };
+    return newWidget;
+  }
+  return newData;
 };

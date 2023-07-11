@@ -17,7 +17,7 @@ const ItemTitle = styled.ul`
   li {
     flex-basis: 280px;
     flex-shrink: 0;
-    margin-left: 120px;
+    margin-left: ${props => (props.isStraightLine ? '100px' : '120px')};
     font-size: 14px;
     .ming.Input {
       border: none;
@@ -40,11 +40,11 @@ const ItemTitle = styled.ul`
   }
 `;
 
-export default function LayerTitle({ layerLength = 1, layersName = [], updateLayersName, scale }) {
+export default function LayerTitle({ layerLength = 1, layersName = [], updateLayersName, scale, isStraightLine=false }) {
   const [activeIndex, setIndex] = useState(-1);
   const [{ titles }, setNames] = useSetState({ titles: layersName });
   return (
-    <ItemTitle scale={scale}>
+    <ItemTitle scale={scale} isStraightLine={isStraightLine}>
       {Array.from({ length: layerLength }).map((item, index) => {
         const value = titles[index];
         return (

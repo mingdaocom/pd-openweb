@@ -67,18 +67,14 @@ const AppSectionItem = props => {
     }
   }
 
-  const handleCreateAppItem = (type, name) => {
-    if (!name) {
-      alert(_l('请填写名称'), 3);
-      return;
-    }
+  const handleCreateAppItem = (type, args) => {
     const singleRef = getAppSectionRef(item.workSheetId);
     singleRef.dispatch(
       createAppItem({
         appId: ids.appId,
         groupId: item.workSheetId,
         type,
-        name: name.slice(0, 25),
+        ...args
       }),
     );
     setCreateType('');

@@ -20,23 +20,6 @@ import { sysRoleType } from 'src/pages/Role/config.js';
 
 const Wrap = styled.div`
   padding: 20px 10px 20px 10px;
-  .bar {
-    padding: 0 20px;
-    .toOthers,
-    .del {
-      font-weight: 400;
-      color: #2196f3;
-      line-height: 37px;
-      height: 37px;
-      background: #f3faff;
-      padding: 0 20px;
-      border-radius: 3px;
-      &.del {
-        background: #feeceb;
-        color: #f44336;
-      }
-    }
-  }
   .wrapTr:not(.checkBoxTr) {
     width: 30%;
   }
@@ -68,7 +51,7 @@ function Apply(props) {
     getAllInfoCount,
     SetAppRolePagingModel,
   } = props;
-  const { selectedIds = [], roleInfos = [] } = appRole;
+  const { selectedIds = [], roleInfos = [], appRolePagingModel = {} } = appRole;
   const [{ keyWords, userList, loading, show }, setState] = useSetState({
     userList: _.get(props, ['appRole', 'apply']) || [],
     loading: props.appRole.loading,
@@ -226,9 +209,9 @@ function Apply(props) {
 
   return (
     <Wrap className={cx('flex flexColumn overflowHidden')}>
-      <div className="bar flexRow">
+      <div className="bar flexRow alignItemsCenter barActionCon">
         <div className="title flex">
-          <span className="Font17 Bold mLeft20">{props.title}</span>{' '}
+          <span className="Font17 Bold">{props.title}</span>{' '}
           {userList.length > 0 && <span className="Gray_9e mLeft10">{_l('%0个人员申请加入', userList.length)}</span>}
         </div>
         {selectedIds.length > 0 && (

@@ -108,7 +108,7 @@ class ExportAttachment extends Component {
         className="exportSheet"
         visible
         anim={false}
-        title="批量导出附件"
+        title={_l('批量导出附件')}
         width={530}
         okText={_l('导出')}
         onCancel={onCancel}

@@ -7,8 +7,8 @@ import groupController from 'src/api/group';
 import DialogLayer from 'src/components/mdDialog/dialog';
 import ReactDom from 'react-dom';
 import Empty from '../common/TableEmpty';
-import cx from 'classnames'
-import 'src/components/pager/pager';
+import cx from 'classnames';
+import PaginationWrap from '../components/PaginationWrap';
 import DialogSelectMapGroupDepart from 'src/components/dialogSelectMapGroupDepart/dialogSelectMapGroupDepart';
 import CreateGroup from 'src/components/group/create/creatGroup';
 import moment from 'moment';
@@ -152,27 +152,9 @@ export default class GroupsList extends Component {
     this.getGroupsList();
   }
 
-  setPager() {
-    const _this = this;
-    $('#divPager')
-      .show()
-      .Pager({
-        pageIndex: _this.state.pageIndex,
-        pageSize: _this.state.pageSize,
-        count: _this.state.count,
-        changePage: function(pIndex) {
-          _this.setState(
-            {
-              pageIndex: pIndex,
-              selectKeys: [],
-            },
-            () => {
-              _this.getGroupsList();
-            },
-          );
-        },
-      });
-  }
+  changPage = page => {
+    this.setState({ pageIndex: page, selectKeys: [] }, () => this.getGroupsList());
+  };
 
   getGroupsList() {
     this.setState({ loading: true, selectKeys: [] });
@@ -194,20 +176,11 @@ export default class GroupsList extends Component {
       reqData.groupType = this.state.types;
     }
     groupController.getGroups(reqData).then(data => {
-      this.setState(
-        {
-          count: data.allCount,
-          list: data.list,
-          loading: false,
-        },
-        () => {
-          if (this.state.count > this.state.pageSize) {
-            this.setPager();
-          } else {
-            $('#divPager').hide();
-          }
-        },
-      );
+      this.setState({
+        count: data.allCount,
+        list: data.list,
+        loading: false,
+      });
     });
   }
 
@@ -419,7 +392,7 @@ export default class GroupsList extends Component {
   };
 
   render() {
-    const { selectKeys, types, status, loading, list, count, pageSize } = this.state;
+    const { selectKeys, types, status, loading, list, count, pageSize, pageIndex } = this.state;
     const rowSelection = {
       selectedRowKeys: selectKeys,
       onChange: this.onSelectChange,
@@ -494,7 +467,9 @@ export default class GroupsList extends Component {
                 onChange={this.handleChangeSort.bind(this)}
                 scroll={{ y: count > pageSize ? 'calc(100vh - 330px)' : 'calc(100vh - 280px)' }}
               />
-              <div id="divPager"></div>
+              {count > pageSize && (
+                <PaginationWrap total={count} pageIndex={pageIndex} pageSize={pageSize} onChange={this.changPage} />
+              )}
             </Spin>
           </ConfigProvider>
         </div>

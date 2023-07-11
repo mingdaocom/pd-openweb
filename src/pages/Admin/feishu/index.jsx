@@ -8,8 +8,9 @@ import Ajax from 'src/api/workWeiXin';
 import Config from '../config';
 import Dialog from 'ming-ui/components/Dialog';
 import IntegrationSetPssword from '../components/IntegrationSetPssword';
-import UpgradeVersion from '../components/UpgradeVersion';
-import { getFeatureStatus } from 'src/util';
+import VertifyClearIntegationData from '../components/VertifyClearIntegationData';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { integrationFailed } from '../utils';
 import './style.less';
 import _ from 'lodash';
 
@@ -83,6 +84,13 @@ export default class FeiShu extends React.Component {
       appId: this.state.AppId,
       appSecret: this.state.AppSecret,
     }).then(res => {
+      if (res.item1 === -1) {
+        VertifyClearIntegationData({
+          projectId: Config.projectId,
+          callback: this.editInfo,
+        });
+        return;
+      }
       if (res) {
         if (res.item1) {
           this.setState({
@@ -122,7 +130,7 @@ export default class FeiShu extends React.Component {
       if (res) {
         callback();
       } else {
-        alert('失败');
+        integrationFailed(Config.projectId);
       }
     });
   };
@@ -442,7 +450,9 @@ export default class FeiShu extends React.Component {
   render() {
     const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
     if (featureType === '2') {
-      return <UpgradeVersion projectId={Config.projectId} featureId={FEATURE_ID} />;
+      return (
+        <div className="orgManagementWrap">{buriedUpgradeVersionDialog(Config.projectId, FEATURE_ID, 'content')}</div>
+      );
     }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;

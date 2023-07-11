@@ -70,7 +70,7 @@ export default class Widgets extends Component {
         )}
         style={{ background: enumDefault2 === 1 ? item.color : '' }}
       >
-        {isMobile && item.key === 'other' ? (otherValue && disabled ? otherValue : _l('其他')) : item.value}
+        {isMobile && item.key === 'other' ? (otherValue && disabled ? otherValue : item.value) : item.value}
       </span>
     );
   };
@@ -141,7 +141,11 @@ export default class Widgets extends Component {
 
     // 搜索
     if (keywords.length) {
-      noDelOptions = noDelOptions.filter(item => item.value.indexOf(keywords) > -1);
+      noDelOptions = noDelOptions.filter(
+        item =>
+          (item.value || '').search(new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !==
+          -1,
+      );
     }
     const checkItems = noDelOptions
       .concat(delOptions)
@@ -164,6 +168,7 @@ export default class Widgets extends Component {
           placeholder={hint}
           suffixIcon={<Icon icon="arrow-down-border Font14" />}
           labelInValue={true}
+          optionFilterProp="children"
           filterOption={() => true}
           notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
           onSearch={keywords => this.setState({ keywords })}
@@ -194,6 +199,7 @@ export default class Widgets extends Component {
               <Select.Option
                 value={item.key}
                 key={i}
+                text={item.text}
                 className={cx({
                   'ant-select-item-option-selected': _.includes(checkIds, item.key),
                   isEmpty: item.key === 'isEmpty',

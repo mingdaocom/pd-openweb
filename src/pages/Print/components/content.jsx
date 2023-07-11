@@ -130,7 +130,7 @@ export default class Con extends React.Component {
           if (isRelationControls) {
             const item = tableData[0];
             if (isHideNull) {
-              if ([29, 34].includes(item[0].type)) {
+              if ([29, 34, 51].includes(item[0].type)) {
                 //关联表,子表，是否空值隐藏
                 let records = [];
                 try {
@@ -141,6 +141,7 @@ export default class Con extends React.Component {
                 }
               }
             }
+
             if (
               (!this.isShow(
                 getPrintContent({ ...item[0], showData: isHideNull, noUnit: true, ...dataInfo }),
@@ -151,6 +152,7 @@ export default class Con extends React.Component {
             ) {
               return null;
             }
+
             return this.renderRelations(item[0]);
           }
           let hideNum = 0;
@@ -289,7 +291,10 @@ export default class Con extends React.Component {
                                   ...STYLE_PRINT.controlDiv_span,
                                   ...STYLE_PRINT.controlDiv_span_value,
                                   overflow: 'hidden',
-                                  width: data.length !== 1 ? `${728 * (it.size / allCountSize) - 78}px` : 'calc(100% - 78px)',
+                                  width:
+                                    data.length !== 1
+                                      ? `${728 * (it.size / allCountSize) - 78}px`
+                                      : 'calc(100% - 78px)',
                                   borderBottom: '0.1px solid #ddd',
                                   borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
                                 }}
@@ -506,7 +511,7 @@ export default class Con extends React.Component {
                           let data = {
                             ...it,
                             value: o[it.controlId],
-                            isRelateMultipleSheet: true,
+                            isRelateMultipleSheet: it.type !== 14,
                             showUnit: true,
                           };
                           if ([29].includes(it.type)) {
@@ -534,7 +539,14 @@ export default class Con extends React.Component {
                               >
                                 {it.controlName || _l('未命名')}
                               </td>
-                              <td style={expStyle}>{getPrintContent(data)}</td>
+                              <td
+                                style={{
+                                  ...expStyle,
+                                  whiteSpace: 'pre-wrap',
+                                }}
+                              >
+                                {getPrintContent(data)}
+                              </td>
                             </tr>
                           );
                         })}

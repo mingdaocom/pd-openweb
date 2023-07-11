@@ -53,7 +53,7 @@ const mapDispatchToProps = dispatch => ({
   setAppStatus: data => dispatch(setAppStatus(data)),
   refreshSheetList: () => dispatch(refreshSheetList()),
 });
-const rowInfoReg = /\/app\/(.*)\/(.*)(\/(.*))?\/row\/(.*)/;
+const rowInfoReg = /\/app\/(.*)\/(.*)(\/(.*))?\/row\/(.*)|\/app\/(.*)\/newrecord\/(.*)\/(.*)/;
 
 let mousePosition = { x: 139, y: 23 };
 @connect(mapStateToProps, mapDispatchToProps)
@@ -472,7 +472,11 @@ export default class AppInfo extends Component {
           }
 
           if (type === 'appAnalytics') {
-            window.open(`/analytics/${projectId}/${appId}`, '__blank');
+            window.open(`/app/${appId}/analytics/${projectId}`, '__blank');
+            return;
+          }
+          if (type === 'appLogs') {
+            window.open(`/app/${appId}/logs/${projectId}`, '__blank');
             return;
           }
 
@@ -580,7 +584,7 @@ export default class AppInfo extends Component {
       sourceType,
     } = data;
     const isNormalApp = _.includes([1, 5], appStatus);
-    const { s, tb } = getAppFeaturesVisible();
+    const { s, tb, tr } = getAppFeaturesVisible();
     let list = APP_CONFIG[permissionType] || [];
     const isAuthorityApp = canEditApp(permissionType, isLock);
     const canLock = _.includes(
@@ -599,7 +603,7 @@ export default class AppInfo extends Component {
     // 加锁应用不限制 修改应用名称和外观、编辑应用说明、使用说明、日志（8.2）
     if (isLock && isPassword && canLock) {
       list = _.filter(list, it =>
-        _.includes(['modify', 'editIntro', 'appAnalytics', 'modifyAppLockPassword'], it.type),
+        _.includes(['modify', 'editIntro', 'appAnalytics', 'appLogs', 'modifyAppLockPassword'], it.type),
       );
     } else {
       list = _.filter(list, it => !_.includes(['modifyAppLockPassword'], it.type));
@@ -723,7 +727,7 @@ export default class AppInfo extends Component {
             <div className="flex">
               {!(window.isPublicApp || !s || md.global.Account.isPortal) && renderHomepageIconWrap()}
             </div>
-            {!(md.global.Account.isPortal || window.isPublicApp) && <MyProcessEntry type="appPkg" renderContent={renderContent} />}
+            {!(md.global.Account.isPortal || window.isPublicApp) && tr && <MyProcessEntry type="appPkg" renderContent={renderContent} />}
           </div>
           <div className="flexRow alignItemsCenter pTop10 Relative">{renderAppDetailWrap()}</div>
         </div>

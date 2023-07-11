@@ -10,7 +10,7 @@ import { Tooltip } from 'antd';
 import update from 'immutability-helper';
 import { useSetState } from 'react-use';
 import { every, includes, pull } from 'lodash';
-import { isLightColor } from 'src/util';
+import { isLightColor, getUnUniqName } from 'src/util';
 import { getAdvanceSetting, parseOptionValue } from '../../../util/setting';
 import SelectColor from './SelectColor';
 import { OPTION_COLORS_LIST } from '../../../config';
@@ -105,9 +105,7 @@ const DragItem = styled.li`
     flex: 1;
     align-items: center;
     border-bottom: 1px solid #f0f0f0;
-    &:hover {
-      border-color: #2196f3;
-    }
+    border-color: ${props => (props.isFocus ? '#2196f3' : '#f0f0f0')};
   }
 
   .checkWrap {
@@ -118,6 +116,7 @@ const DragItem = styled.li`
 
   .optionName {
     flex: 1;
+    padding: 0 8px;
   }
   .ming.Radio {
     margin: 0;
@@ -127,9 +126,10 @@ const DragItem = styled.li`
     width: 100%;
     border: none;
     outline: none;
-    padding: 0 8px;
     line-height: 37px;
-    ${({ isOther }) => (isOther ? 'cursor: not-allowed;' : '')}
+    &:hover {
+      ${props => (props.isFocus ? '' : 'background: #f5f5f5;cursor: pointer;')} ;
+    }
   }
   .deleteWrap {
     color: #9e9e9e;
@@ -157,14 +157,15 @@ const OptionItem = SortableElement(
     colorful,
     isMulti,
     updateOption,
-    showtype,
+    setIndex,
   }) => {
     const [visible, setVisible] = useState(false);
+    const isFocus = index === focusIndex;
     const { key, value, isDeleted, color } = item;
     const checked = includes(checkedValue, key);
     const isOther = key === 'other' && !isDeleted;
     return (
-      <DragItem isOther={isOther}>
+      <DragItem isOther={isOther} isFocus={isFocus}>
         {!isDeleted && (
           <Fragment>
             {!isOther && <DragHandle />}
@@ -189,16 +190,34 @@ const OptionItem = SortableElement(
               <div className="optionName">
                 <input
                   id={key}
-                  disabled={isOther}
-                  autoFocus={index === focusIndex}
+                  autoFocus={isFocus}
                   value={value}
+                  onFocus={() => setIndex(index)}
                   onKeyDown={e => {
-                    if (e.key === 'Enter' && index === options.length - 1) {
-                      addOption();
+                    if (e.key === 'Enter' && !isOther) {
+                      addOption(false, index + 1);
+                    }
+                    // focus上、下
+                    if (e.which === 38 || e.which === 40) {
+                      let nextIndex =
+                        e.which === 38
+                          ? focusIndex === 0
+                            ? options.length - 1
+                            : focusIndex - 1
+                          : focusIndex === options.length - 1
+                          ? 0
+                          : focusIndex + 1;
+                      setIndex(nextIndex);
+                      setTimeout(() => {
+                        document.getElementById(_.get(options[nextIndex], 'key')).select();
+                      }, 50);
                     }
                   }}
                   onChange={e => updateOption(index, { value: e.target.value })}
-                  onBlur={e => updateOption(index, { value: e.target.value.trim() })}
+                  onBlur={e => {
+                    updateOption(index, { value: e.target.value.trim() });
+                    setIndex(-1);
+                  }}
                 />
               </div>
               {mode !== 'list' && (
@@ -259,17 +278,17 @@ export default function SelectOptions(props) {
     batchAddVisible: false,
   });
 
-  const addOption = isOther => {
-    const colorIndex = _.findIndex(OPTION_COLORS_LIST, item => item === (_.last(options) || {}).color);
-    const nextKey = uuidv4();
+  const addOption = (isOther, nextIndex) => {
+    const colorIndex = options.filter(i => i.key !== 'other').length - 1;
+    const nextKey = isOther ? 'other' : uuidv4();
 
-    const newIndex = findOther > -1 ? findOther : options.length;
+    const newIndex = nextIndex || (findOther > -1 ? findOther : options.length);
     const newItem = {
-      key: isOther ? 'other' : nextKey,
-      value: isOther ? _l('其他') : _l('选项%0', newIndex + 1),
+      key: nextKey,
+      value: isOther ? _l('其他') : getUnUniqName(options, _l('选项%0', newIndex + 1), 'value'),
       isDeleted: false,
       index: newIndex + 1,
-      color: OPTION_COLORS_LIST[(colorIndex + 1) % OPTION_COLORS_LIST.length],
+      color: isOther ? '#D3D3D3' : OPTION_COLORS_LIST[(nextIndex || colorIndex + 1) % OPTION_COLORS_LIST.length],
     };
 
     const nextOptions =
@@ -281,12 +300,10 @@ export default function SelectOptions(props) {
       options: nextOptions.map((item, idx) => ({ ...item, index: idx + 1 })),
     });
 
-    if (!isOther) {
-      setIndex(newIndex);
-      setTimeout(() => {
-        document.getElementById(nextKey).select();
-      }, 50);
-    }
+    setIndex(newIndex);
+    setTimeout(() => {
+      document.getElementById(nextKey).select();
+    }, 50);
 
     if (onAdd) {
       onAdd();
@@ -330,6 +347,7 @@ export default function SelectOptions(props) {
         onSortEnd={onSortEnd}
         switchChecked={switchChecked}
         updateOption={updateOption}
+        setIndex={setIndex}
         focusIndex={focusIndex}
         checkedValue={checkedValue}
         helperClass="selectOptionSortableList"
@@ -342,8 +360,9 @@ export default function SelectOptions(props) {
         <div className="batchAdd hoverText mLeft24" onClick={() => updateVisible('batchAdd')}>
           {_l('批量添加')}
         </div>
+        <div className="mLeft12 Gray_d">|</div>
         <div
-          className={cx('otherAdd hoverText mLeft24', { disabled: hasOther, Hidden: showtype === '2' })}
+          className={cx('otherAdd hoverText mLeft12', { disabled: hasOther, Hidden: showtype === '2' })}
           onClick={() => {
             if (hasOther) return;
             addOption(true);
@@ -370,7 +389,7 @@ export default function SelectOptions(props) {
       )}
       {batchAddVisible && (
         <BatchAdd
-          options={mode === 'edit' ? options : []}
+          options={mode === 'edit' ? options.filter(i => i.key !== 'other' && !i.isDeleted) : []}
           onOk={value => {
             const textArr = _.uniqBy(
               value

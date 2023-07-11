@@ -1,0 +1,44 @@
+.orgManagementWrap {
+  margin: 16px;
+  flex: 1;
+  min-height: 0;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+  .orgManagementHeader {
+    height: 56px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eaeaea;
+    font-size: 17px;
+    font-weight: 600;
+    .tabBox {
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+    .tabItem {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      font-size: 17px;
+      font-weight: 600;
+      border-bottom: 2px solid transparent;
+      margin-right: 40px;
+      cursor: pointer;
+      &.active {
+        color: #2196f3;
+        border-bottom-color: #2196f3;
+      }
+    }
+  }
+  .orgManagementContent {
+    padding: 0 24px;
+    flex: 1;
+    min-height: 0;
+    box-sizing: border-box;
+  }
+}

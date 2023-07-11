@@ -80,24 +80,6 @@ export const mergeColumnsCell = (data, yaxisList) => {
     });
   });
 
-  data.forEach(item => {
-    const { t_id, data } = item;
-    item.data = data.map(n => {
-      if (_.isArray(n) || _.isString(n)) {
-        return n;
-      }
-      return formatrChartValue(n, false, yaxisList, t_id);
-      /*
-      if (_.isNumber(n)) {
-        const current = _.find(yaxisList, { controlId: t_id });
-        return formatrChartValue(n, false, yaxisList, t_id);
-      } else {
-        return n;
-      }
-      */
-    });
-  });
-
   return data;
 }
 
@@ -194,3 +176,59 @@ export const getColumnName = (column) => {
   }
   return name;
 }
+
+export const getControlMinAndMax = (yaxisList, data) => {
+  const result = {};
+
+  const get = (id) => {
+    let values = [];
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].t_id === id && !data[i].summary_col) {
+        values.push(data[i].data);
+      }
+    }
+    values = _.flatten(values);
+    const min = _.min(values) || 0;
+    const max = _.max(values);
+    const center = (max + min) / 2;
+    return {
+      min,
+      max,
+      center
+    }
+  }
+
+  yaxisList.forEach(item => {
+    result[item.controlId] = get(item.controlId);
+  });
+
+  return result;
+}
+
+export const getBarStyleColor = ({ value, controlMinAndMax = {}, rule }) => {
+  const { min = 0, max, direction, negativeNumberColor, positiveNumberColor } = rule;
+  const barStyle = {};
+  const minValue = _.isNumber(min) ? min : controlMinAndMax.min || 0;
+  const maxValue = _.isNumber(max) ? max : controlMinAndMax.max || 0;
+  if (direction === 1) {
+    barStyle.left = 0;
+  }
+  if (direction === 2) {
+    barStyle.right = 0;
+  }
+  let percent = parseInt((value - minValue) / (maxValue - minValue) * 100);
+  if (percent >= 100) {
+    percent = 100;
+  }
+  if (percent <= 0) {
+    percent = 0;
+  }
+  if (value < minValue) {
+    percent = 0;
+  }
+  barStyle.width = `${percent}%`;
+  barStyle.backgroundColor = value >= 0 ? positiveNumberColor : negativeNumberColor;
+  return barStyle;
+}
+
+

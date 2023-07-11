@@ -31,6 +31,7 @@ import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import './RecordInfo.less';
 import { controlState, formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import externalPortalAjax from 'src/api/externalPortal';
+import { addBehaviorLog } from 'src/util';
 import _ from 'lodash';
 
 const Drag = styled.div(
@@ -119,6 +120,7 @@ export default class RecordInfo extends Component {
       }),
       allowExAccountDiscuss: false, //允许外部用户讨论
       exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
+      approved: false, //允许外部用户允许查看审批流转详情
       forceShowFullValue: null,
       widgetStyle: props.widgetStyle,
       relateRecordData: {},
@@ -153,15 +155,19 @@ export default class RecordInfo extends Component {
   }
 
   get isPublicShare() {
-    return _.get(window, 'shareState.isPublicRecord') || _.get(window, 'shareState.isPublicView');
+    return (
+      _.get(window, 'shareState.isPublicRecord') ||
+      _.get(window, 'shareState.isPublicView') ||
+      _.get(window, 'shareState.isPublicQuery')
+    );
   }
 
-  getPortalDiscussSet = async nextProps => {
+  getPortalConfigSet = async nextProps => {
     const { appId } = nextProps;
     if (!appId) {
       return {};
     }
-    return externalPortalAjax.getDiscussConfig({ appId });
+    return externalPortalAjax.getConfig({ appId });
   };
 
   getFormWidth(props) {
@@ -223,15 +229,15 @@ export default class RecordInfo extends Component {
         getRules: !rules,
         controls,
       });
-      let portalDiscussSet = {};
+      let portalConfigSet = {};
       if (!isPublicShare) {
         try {
-          portalDiscussSet =
+          portalConfigSet =
             (appId === _.get(window, ['appInfo', 'id']) && !_.get(window, ['appInfo', 'epEnableStatus'])) ||
             !isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId)
               ? //同一个应用 且外部门户为开启的情况 不去获取外部门户讨论设置
                 {}
-              : await this.getPortalDiscussSet(data);
+              : await this.getPortalConfigSet(data);
         } catch (e) {}
       }
       // 设置隐藏字段的 hidden 属性
@@ -250,9 +256,12 @@ export default class RecordInfo extends Component {
         }
       }
       this.setState({
-        ...portalDiscussSet,
+        ...portalConfigSet,
         sideVisible:
-          (md.global.Account.isPortal && !portalDiscussSet.allowExAccountDiscuss) || isPublicShare
+          (md.global.Account.isPortal &&
+            !portalConfigSet.allowExAccountDiscuss &&
+            (!portalConfigSet.approved || !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId))) ||
+          isPublicShare
             ? false
             : this.state.sideVisible, //外部门户是否开启讨论
         recordinfo: {
@@ -319,6 +328,7 @@ export default class RecordInfo extends Component {
   @autobind
   switchRecord(isNext) {
     const { recordId, iseditting, tempFormData } = this.state;
+    const { worksheetId } = this.props;
     if (iseditting) {
       alert(_l('请先保存或取消当前更改'), 3);
       return;
@@ -336,6 +346,9 @@ export default class RecordInfo extends Component {
     this.setState({
       tempFormData: tempFormData.map(c => (isRelateRecordTableControl(c) ? { ...c, value: undefined } : c)),
     });
+    if (location.pathname.indexOf('public') === -1) {
+      addBehaviorLog('worksheetRecord', worksheetId, { rowId: newRecordId }); // 埋点
+    }
     this.loadRecord({ recordId: newRecordId });
     this.setState({
       recordId: newRecordId,
@@ -490,14 +503,17 @@ export default class RecordInfo extends Component {
           return !_.isObject(val)
             ? formatControlToServer({
                 ...it,
-                value: JSON.stringify({
-                  bucket: 4,
-                  key: val.match(/pic\/\d+\/[0-9a-zA-Z]+(.png)/g)[0],
-                }),
+                value: JSON.stringify(
+                  {
+                    bucket: 4,
+                    key: val.match(/Sign\/[0-9a-z-]+\/[0-9a-z]+\/\d+\/[0-9a-zA-Z]+(.png)/g)[0],
+                  },
+                  { isNewRecord: true, isDraft: true },
+                ),
               })
-            : formatControlToServer(it);
+            : formatControlToServer(it, { isNewRecord: true, isDraft: true });
         }
-        return formatControlToServer(it);
+        return formatControlToServer(it, { isNewRecord: true, isDraft: true });
       }
       if (it.type === 34) {
         return formatControlToServer(
@@ -505,11 +521,11 @@ export default class RecordInfo extends Component {
             ...it,
             value: _.isObject(it.value) ? { ...it.value, isAdd: true, updated: [] } : it.value,
           },
-          { isDraft: true },
+          { isNewRecord: true, isDraft: true },
         );
       }
       if (it.type === 14) {
-        return formatControlToServer(it, { isSubListCopy: true });
+        return formatControlToServer(it, { isSubListCopy: true, isNewRecord: true, isDraft: true });
       }
       return formatControlToServer(it, { isNewRecord: true, isDraft: true });
     });
@@ -517,6 +533,7 @@ export default class RecordInfo extends Component {
 
   @autobind
   onSave(error, { data, updateControlIds }) {
+    const { setHighLightOfRows = () => {} } = this.props;
     const { callback = () => {}, noSave, ignoreError } = this.submitOptions || {};
     data = data.filter(c => !isRelateRecordTableControl(c));
     if (error && !ignoreError) {
@@ -644,6 +661,7 @@ export default class RecordInfo extends Component {
             this.props.addNewRecord &&
               _.isFunction(this.props.addNewRecord) &&
               this.props.addNewRecord(res.data, this.props.view);
+            setHighLightOfRows([recordId]);
           } else if (res.resultCode === 11 && res.badData && !_.isEmpty(res.badData)) {
             let checkControl = _.find(data, v => _.includes(res.badData, v.controlId)) || {};
             alert(`${_l('%0不允许重复', checkControl.controlName)}`, 3);
@@ -897,6 +915,7 @@ export default class RecordInfo extends Component {
       dragMaskVisible,
       allowExAccountDiscuss,
       exAccountDiscussEnum,
+      approved,
       forceShowFullValue,
       widgetStyle,
       relateRecordData,
@@ -976,9 +995,11 @@ export default class RecordInfo extends Component {
           >
             {!abnormal && (
               <Header
+                isCharge={isCharge}
                 from={from}
                 allowExAccountDiscuss={allowExAccountDiscuss}
                 exAccountDiscussEnum={exAccountDiscussEnum}
+                approved={approved}
                 loading={loading}
                 viewId={viewId}
                 header={header}
@@ -1099,6 +1120,7 @@ export default class RecordInfo extends Component {
                   if (!this.recordform) {
                     return;
                   }
+                  const tempFormData = this.state.tempFormData;
                   const needUpdateControl = _.find(tempFormData, { controlId });
                   if (needUpdateControl && needUpdateControl.value == num) {
                     return;
@@ -1170,6 +1192,7 @@ export default class RecordInfo extends Component {
                 <RecordInfoRight
                   allowExAccountDiscuss={allowExAccountDiscuss}
                   exAccountDiscussEnum={exAccountDiscussEnum}
+                  approved={approved}
                   className="flex"
                   recordbase={recordbase}
                   workflow={workflow}

@@ -1,10 +1,7 @@
 import styled from 'styled-components';
 
 export const WrapCon = styled.div`
-  margin: 16px 25px 0;
   background: #ffffff;
-  box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.16);
-  border-radius: 5px 5px 5px 5px;
   flex: 1;
   .pLeft26 {
     padding-left: 26px;
@@ -19,16 +16,26 @@ export const WrapHeader = styled.div`
       color: #333;
       display: inline-block;
       margin-right: 20px;
-      padding: 20px 12px 17px;
+      padding: 0 12px;
+      line-height: 42px;
       border-bottom: 3px solid transparent;
+      border-top: 3px solid transparent;
       &.cur {
         color: #2196f3;
         border-bottom: 3px solid #2196f3;
       }
     }
   }
+  .actCheckCon {
+    & > span {
+      height: 20px;
+    }
+  }
   .moreop {
     color: #bdbdbd;
+    &:hover {
+      color: #2196f3;
+    }
   }
 `;
 export const WrapContext = styled.div`
@@ -58,6 +65,9 @@ export const WrapNav = styled.div`
   }
   .navCon {
     padding: 10px 8px;
+    &.roleSet {
+      padding: 6px 8px 10px;
+    }
     li {
       .moreop {
         color: #bdbdbd;
@@ -66,7 +76,8 @@ export const WrapNav = styled.div`
         }
       }
       cursor: pointer;
-      padding: 12px 8px 12px 18px;
+      padding: 0 8px 0 18px;
+      height: 36px;
       &.cur {
         color: #2196f3;
         background: #f3faff !important;
@@ -81,7 +92,7 @@ export const WrapNav = styled.div`
           display: inline-block;
           position: absolute;
           left: 0;
-          top: 14px;
+          top: 10px;
           z-index: 1;
         }
       }
@@ -111,10 +122,13 @@ export const WrapNav = styled.div`
           color: #9e9e9e;
         }
         .tag {
-          padding: 1px 7px;
+          padding: 0 6px;
           color: #2196f3;
           background: rgba(33, 150, 243, 0.1);
-          border-radius: 9px 9px 9px 9px;
+          border-radius: 11px;
+          line-height: 22px;
+          height: 22px;
+          font-size: 13px;
         }
         &:hover {
           background: #fafafa;
@@ -150,4 +164,100 @@ export const WrapNav = styled.div`
 `;
 export const WrapTableCon = styled.div`
   min-height: 0;
+  .barActionCon {
+    padding: 0 44px;
+    .toOthers,
+    .del {
+      font-weight: 400;
+      color: #2196f3;
+      line-height: 37px;
+      height: 37px;
+      background: #f3faff;
+      padding: 0 20px;
+      border-radius: 3px;
+      &:hover {
+        background: #ebf6fe;
+      }
+    }
+  }
+`;
+
+export const WrapFooter = styled.div`
+  .saveBtn {
+    height: 36px;
+    padding: 0 30px;
+    color: #fff;
+    line-height: 36px;
+    border-radius: 4px 4px 4px 4px;
+    font-size: 14px;
+    font-weight: 400;
+    transition: color ease-in 0.2s, border-color ease-in 0.2s, background-color ease-in 0;
+    background: #1e88e5;
+    &:hover {
+      background: #1565c0;
+    }
+    &.disabled {
+      color: #fff;
+      background: #b2dbff;
+      cursor: not-allowed;
+      &:hover {
+        background: #b2dbff;
+      }
+    }
+  }
+  .delBtn {
+    height: 36px;
+    padding: 0 30px;
+    line-height: 36px;
+    border-radius: 4px 4px 4px 4px;
+    font-size: 14px;
+    opacity: 1;
+    border: 1px solid #eaeaea;
+    margin-left: 23px;
+    font-weight: 400;
+    transition: color ease-in 0.2s, border-color ease-in 0.2s, background-color ease-in 0;
+    &:hover {
+      border: 1px solid #ccc;
+    }
+    &.disabled {
+      color: #eaeaea;
+      cursor: not-allowed;
+      &:hover {
+        border: 1px solid #eaeaea;
+      }
+    }
+  }
+  .toUser {
+    color: #333;
+    height: 36px;
+    padding: 0 30px;
+    line-height: 36px;
+    border-radius: 4px 4px 4px 4px;
+    font-size: 14px;
+    opacity: 1;
+    border: 1px solid #eaeaea;
+    font-weight: 400;
+    transition: color ease-in 0.2s, border-color ease-in 0.2s, background-color ease-in 0;
+    &:hover {
+      border: 1px solid #2196f3;
+      color: #2196f3;
+    }
+  }
+  .line {
+    height: 24px;
+    width: 0;
+    border: 1px solid #eaeaea;
+    margin: 0 30px;
+  }
+`;
+export const AddWrap = styled.div`
+  font-size: 13px;
+  font-weight: 400;
+  color: #a2a2a2;
+  padding: 0 12px;
+  line-height: 36px;
+  border-radius: 3px 3px 3px 3px;
+  &:hover {
+    background: #f5f5f5;
+  }
 `;

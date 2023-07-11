@@ -242,9 +242,9 @@ export default class LoopContent extends Component {
     return (
       <Fragment>
         {md.global.Config.IsLocal && this.renderMinute()}
-        {this.renderHour()}
-        {this.renderDay()}
         {this.renderMonth()}
+        {this.renderDay()}
+        {this.renderHour()}
 
         <div
           className="mTop25 webhookBtn InlineBlock"
@@ -260,10 +260,10 @@ export default class LoopContent extends Component {
             }
 
             checkTimingTriggerConfig(data.config) &&
-              getNodeDetail(
-                data.executeTime + (data.executeEndTime ? `&${data.executeEndTime}` : ''),
-                JSON.stringify(data.config),
-              );
+              getNodeDetail({
+                appId: data.executeTime + (data.executeEndTime ? `&${data.executeEndTime}` : ''),
+                fields: JSON.stringify(data.config),
+              });
           }}
         >
           {_l('生成初始七次的执行时间')}
@@ -379,7 +379,10 @@ export default class LoopContent extends Component {
         <div className="Font13 mTop20">{_l('天/星期')}</div>
         <RadioGroup
           className="mTop5 Font12"
-          data={[{ text: _l('天'), value: 1, checked: isDay }, { text: _l('星期'), value: 2, checked: !isDay }]}
+          data={[
+            { text: _l('天'), value: 1, checked: isDay },
+            { text: _l('星期'), value: 2, checked: !isDay },
+          ]}
           onChange={value => {
             if (value === 1) {
               this.updateConfigValue({ day: { type: 1, values: [] }, week: { type: 0, values: [] } });
@@ -431,7 +434,10 @@ export default class LoopContent extends Component {
    */
   renderMonth() {
     const { data } = this.props;
-    const list = [{ text: _l('每月都触发'), value: 1 }, { text: _l('按固定值触发'), value: 3 }];
+    const list = [
+      { text: _l('每月都触发'), value: 1 },
+      { text: _l('按固定值触发'), value: 3 },
+    ];
 
     return (
       <Fragment>

@@ -25,6 +25,8 @@ export default class SubList extends React.Component {
     onChange: PropTypes.func,
   };
 
+  childTable = React.createRef();
+
   constructor(props) {
     super(props);
     this.state = {
@@ -103,7 +105,13 @@ export default class SubList extends React.Component {
   }
 
   @autobind
-  handleChange({ rows, originRows = [], lastAction = {} }) {
+  handleChange({ rows, originRows = [], lastAction = {} }, mode) {
+    if (mode === 'childTableDialog') {
+      this.childTable.current.store.dispatch({
+        type: 'INIT_ROWS',
+        rows,
+      });
+    }
     const { value, recordId, onChange, from } = this.props;
     const { controls } = this.state;
     const isAdd = !recordId;
@@ -180,6 +188,7 @@ export default class SubList extends React.Component {
       >
         {!loading && (
           <ChildTable
+            ref={this.childTable}
             isWorkflow={((instanceId && workId) || this.linkId) && info.workflowChildTableSwitch !== false}
             initSource={initSource}
             entityName={info.entityName}
@@ -195,7 +204,9 @@ export default class SubList extends React.Component {
             sheetSwitchPermit={sheetSwitchPermit}
             masterData={{
               worksheetId,
-              formData: formData.map(c => _.pick(c, ['controlId', 'type', 'value', 'options'])).filter(c => !!c.value),
+              formData: formData
+                .map(c => _.pick(c, ['controlId', 'type', 'value', 'options', 'attribute']))
+                .filter(c => !!c.value),
             }}
             projectId={projectId}
             onChange={this.handleChange}

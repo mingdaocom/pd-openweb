@@ -1,4 +1,3 @@
-
 // 验证一个字符串时候是email
 RegExp.isEmail = function (str) {
   var emailReg = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i;
@@ -40,6 +39,16 @@ RegExp.isPasswordRule = function (str, passwordRegex) {
     return new RegExp(passwordRegex).test(str);
   }
   return /^(?=.*\d)(?=.*[a-zA-Z]).{8,20}$/.test(str);
+};
+// 验证一个字符串是否是链接
+RegExp.isUrlRequest = url => {
+  if (/^data:|^chrome-extension:|^(https?:)?\/\/|^[\{\}\[\]#*;,'§\$%&\(=?`´\^°<>]/.test(url)) return true;
+  if (/^\//.test(url)) return true;
+  return false;
+};
+// 判断是否是视频格式
+RegExp.isVideo = fileExt => {
+  return /.*?\.(mov|mp4|avi|mkv|3gp|3g2|m4v|rm|rmvb|webm)$/.test((fileExt || '').toLowerCase());
 };
 
 export default RegExp;

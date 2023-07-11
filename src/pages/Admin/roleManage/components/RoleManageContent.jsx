@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import { LoadDiv } from 'ming-ui';
-import { Pagination } from 'antd';
+import PaginationWrap from '../../components/PaginationWrap';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from '../../redux/roleManage/action';
 import RoleUserList from './RoleUserList';
-import dialogUserBoard from '../../structure/modules/dialogUserBoard';
+import { dialogUserBoard } from 'src/pages/Admin/components/userBoardDialog';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import organizeAjax from 'src/api/organize.js';
 import cx from 'classnames';
@@ -75,29 +75,14 @@ class RoleManageContent extends Component {
   // 导出
   handleExportUser = () => {
     const { projectId, selectUserIds = [] } = this.props;
-    const _this = this;
-    if (_.isEmpty(selectUserIds)) return;
     dialogUserBoard({
-      type: 'export',
       projectId,
       accountIds: selectUserIds,
-      yesFn() {
-        _this.props.updateSelectUserIds([]); //清空所选
-      },
-      noFn() {
-        _this.props.updateSelectUserIds([]); //清空所选
+      updateSelectUserIds: () => {
+        this.props.updateSelectUserIds([]);
       },
     });
   };
-  itemRender(current, type, originalElement) {
-    if (type === 'prev') {
-      return <a className="page">{_l('上一页')}</a>;
-    }
-    if (type === 'next') {
-      return <a className="page">{_l('下一页')}</a>;
-    }
-    return originalElement;
-  }
   // 分页
   changPage = page => {
     const { currentRole } = this.props;
@@ -135,15 +120,12 @@ class RoleManageContent extends Component {
           )}
         </div>
         {!userLoading && allUserCount > PAGE_SIZE && (
-          <div className="pagination">
-            <Pagination
-              total={allUserCount}
-              itemRender={this.itemRender}
-              onChange={this.changPage}
-              current={userPageIndex}
-              pageSize={50}
-            />
-          </div>
+          <PaginationWrap
+            total={allUserCount}
+            pageSize={PAGE_SIZE}
+            pageIndex={userPageIndex}
+            onChange={this.changPage}
+          />
         )}
       </Fragment>
     );

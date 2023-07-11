@@ -8,7 +8,7 @@ export default ({ companyId, processId, selectNodeId, data, updateSource }) => {
   return data.fields.map((item, i) => {
     const singleObj = _.find(data.subProcessVariables, obj => obj.controlId === item.fieldId) || {};
     const { controlName, sourceEntityName } = singleObj;
-    const parentNode = singleObj.dataSource ? _.find(data.fields, o => o.fieldId === singleObj.dataSource) : {};
+    const parentNode = singleObj.dataSource ? _.find(data.fields, o => o.fieldId === singleObj.dataSource) || {} : {};
 
     if (
       parentNode.type === 10000007 ||

@@ -112,7 +112,7 @@ export default class PublishBtn extends Component {
         <Switch
           disabled={disabled}
           checked={item.enabled}
-          text={item.enabled ? _l('开启') : _l('关闭')}
+          text={item.enabled ? _l('开启') : _l('关闭%03055')}
           onClick={this.switchEnabled}
         />
         {!!showTime && (

@@ -52,6 +52,9 @@ function renderContent(data, recordInfo, extendParam) {
     if (RETURN_OBJECT_CONTROL_TYPE.includes(type)) {
       oldList = safeParse(oldValue, 'array');
       newList = safeParse(newValue, 'array');
+    } else if (type === 36) {
+      oldList = [String(oldValue) === '1' ? '☑' : '☐'];
+      newList = [String(newValue) === '1' ? '☑' : '☐'];
     } else if (type === 40) {
       oldList = [safeParse(oldValue).address].filter(l => l);
       newList = [safeParse(newValue).address].filter(l => l);
@@ -588,7 +591,7 @@ function WorksheetRocordLog(props, ref) {
   }
 
   function loadNewEdition(prop) {
-    const { worksheetId, rowId, pageSize = PAGE_SIZE, filterUniqueIds } = props;
+    const { worksheetId, rowId, pageSize = PAGE_SIZE, filterUniqueIds, isGlobaLog } = props;
     const { pageIndex, filedId, opeartorId, startDateTime, endDateTime } = prop;
     let _opeartorId = prop.hasOwnProperty('opeartorId') ? opeartorId : selectUser && selectUser[0].accountId;
     let _filterId = prop.hasOwnProperty('filedId') ? filedId : selectField && selectField.controlId;
@@ -609,9 +612,15 @@ function WorksheetRocordLog(props, ref) {
       lastMark: _lastMark,
       rowId: rowId,
     };
-    let promise = filterUniqueIds
-      ? sheetAjax.batchGetWorksheetOpeationLogs({ ...param, filterUniqueIds: filterUniqueIds })
-      : sheetAjax.getWorksheetOpeationLogs(param);
+    if (isGlobaLog) {
+      // 全局日志
+      param.filterUniqueIds = filterUniqueIds;
+      param.isGlobaLog = true;
+    }
+    let promise =
+      filterUniqueIds && !isGlobaLog
+        ? sheetAjax.batchGetWorksheetOpeationLogs({ ...param, filterUniqueIds: filterUniqueIds })
+        : sheetAjax.getWorksheetOpeationLogs(param);
     promise.then(res => {
       setMark({ loading: false, lastMark: res.lastMark });
       let data = res.logs;
@@ -836,7 +845,7 @@ function WorksheetRocordLog(props, ref) {
                   _.filter(
                     controls || formdata,
                     it =>
-                      !_.includes([33, 47, 30, 22, 10010, 45, 43, 25], it.type) &&
+                      !_.includes([33, 47, 30, 22, 10010, 45, 43, 25, 51], it.type) &&
                       !_.includes(['caid', 'ctime', 'utime', 'daid', 'rowid', 'uaid'], it.controlId),
                   ),
                 )}

@@ -68,7 +68,7 @@ export function addColumnRules() {
     let { dispalyRulesNum, columnRulesListData = [] } = stateList;
     let selectRulesNew = { ...originRuleItem };
     selectRulesNew.ruleId = `new_${dispalyRulesNum + 1}`;
-    selectRulesNew.name = getUnUniqName(columnRulesListData, _l(`规则${dispalyRulesNum + 1}`));
+    selectRulesNew.name = getUnUniqName(columnRulesListData, _l('规则%0', dispalyRulesNum + 1));
     dispatch(selectColumnRules(selectRulesNew));
   };
 }

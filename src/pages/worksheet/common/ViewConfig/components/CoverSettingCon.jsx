@@ -3,7 +3,7 @@ import { Dropdown, Icon } from 'ming-ui';
 import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
 import { COVER_DISPLAY_MODE, COVER_DISPLAY_POSITION } from '../util';
 import styled from 'styled-components';
-import { isGalleryOrBoard } from 'src/pages/worksheet/constants/common';
+import { isGalleryOrBoardOrStructure } from 'src/pages/worksheet/constants/common';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import cx from 'classnames';
@@ -164,8 +164,8 @@ export default class CoverSetting extends React.Component {
                 <Dropdown
                   disabled={coverValue === 'notDisplay'}
                   data={
-                    // 仅看板视图、画廊视图封面 支持上
-                    isGalleryOrBoard(viewType)
+                    // 仅看板视图、画廊视图、层级封面 支持上
+                    isGalleryOrBoardOrStructure(viewType)
                       ? isGalleryIframe
                         ? COVER_DISPLAY_POSITION.filter(it => Number(it.value) === 2)
                         : COVER_DISPLAY_POSITION

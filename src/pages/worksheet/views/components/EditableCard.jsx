@@ -36,7 +36,7 @@ const EditableCardWrap = styled.div`
 `;
 
 const EditableCard = forwardRef((props, ref) => {
-  const { stateData = {}, data, type, currentView, updateTitleData } = props;
+  const { stateData = {}, data, type, currentView, updateTitleData, showNull = false } = props;
   const rowId = data.rowId;
   let { childType, viewControls } = currentView;
 

@@ -486,7 +486,7 @@ class Detail extends React.Component {
             <div className={cx('detailAttribute boxSizing', { hide: !this.state.isAttribute })}>
               <ul className={cx('attributeList', { removeBorder: isFolder })}>
                 <AttributePair
-                  name={_l('创建者')}
+                  name={_l('创建人')}
                   value={
                     <span>
                       <UserHead

@@ -388,6 +388,7 @@ export default class GetMoreRecord extends Component {
         data={data}
         updateSource={this.updateSource}
         filterText={_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获得所有来自对象的数据')}
+        filterEncryptCondition={data.actionId === ACTION_ID.FROM_WORKSHEET}
       />
     );
   }

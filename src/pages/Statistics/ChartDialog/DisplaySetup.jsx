@@ -44,11 +44,11 @@ const DisplaySetup = ({
                   changeCurrentReport({
                     displaySetup: data,
                     sorts: sorts.filter(item => _.findKey(item) !== xaxes.controlId),
-                  });
+                  }, true);
                 } else {
                   changeCurrentReport({
                     displaySetup: data
-                  });
+                  }, true);
                 }
               }}
               chartType={reportData.reportType}

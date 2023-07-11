@@ -135,6 +135,7 @@ export default class RelateRecordList extends React.PureComponent {
       controlId,
       multiple,
       staticRecords,
+      fastSearchControlArgs,
     } = this.props;
     if (!_.isEmpty(staticRecords)) {
       return;
@@ -172,6 +173,29 @@ export default class RelateRecordList extends React.PureComponent {
       getType: 7,
       filterControls,
     };
+    if (fastSearchControlArgs) {
+      delete args['keyWords'];
+      if (String(keyWords || '').trim()) {
+        args.fastFilters = [
+          {
+            spliceType: 1,
+            isGroup: true,
+            groupFilters: [
+              {
+                controlId: fastSearchControlArgs.controlId,
+                dataType: 2,
+                spliceType: 1,
+                filterType: fastSearchControlArgs.filterType,
+                dateRange: 0,
+                dateRangeType: 1,
+                isDynamicsource: false,
+                values: [keyWords],
+              },
+            ],
+          },
+        ];
+      }
+    }
     if (parentWorksheetId && controlId) {
       args.relationWorksheetId = parentWorksheetId;
       args.controlId = controlId;

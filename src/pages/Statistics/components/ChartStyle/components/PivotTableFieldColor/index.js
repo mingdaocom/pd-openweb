@@ -3,7 +3,7 @@ import cx from 'classnames';
 import { Icon, Tooltip } from 'ming-ui';
 import { Menu, Dropdown, Select } from 'antd';
 import styled from 'styled-components';
-import DataItemColor from './DataItemColor';
+import DataBarColor from './DataBarColor';
 import RuleColor from '../Color/RuleColor';
 
 const AddLine = styled.div`
@@ -18,10 +18,46 @@ const EntranceWrapper = styled.div`
   border-radius: 4px;
   height: 30px;
   background-color: #fff;
+  position: relative;
   &.ruleIcon {
     width: 30px;
     margin-left: 5px;
     justify-content: center;
+    &:hover {
+      background-color: #f5f5f5;
+    }
+    .icon-closeelement-bg-circle:hover {
+      color: #2196f3 !important;
+    }
+  }
+  &:hover {
+    .close {
+      display: block;
+    }
+  }
+  .close {
+    position: absolute;
+    right: -6px;
+    top: -6px;
+    display: none;
+  }
+`;
+
+const ColorRuleItem = styled.div`
+  position: relative;
+  &:hover .deleteColorRule {
+    display: block;
+  }
+  .deleteColorRule {
+    position: absolute;
+    top: 0;
+    left: -37px;
+    padding: 7px;
+    display: none;
+    &:hover {
+      color: #2196f3 !important;
+      display: block;
+    }
   }
 `;
 
@@ -31,73 +67,80 @@ export default class PivotTableFieldColor extends Component {
     this.state = {
       editControlId: null,
       applyType: null,
-      dataItemColorModalVisible: false,
+      dataBarColorModalVisible: false,
       ruleColorModalVisible: false,
     }
   }
-  renderDataItemModal() {
-    const { dataItemColorModalVisible, editControlId, applyType } = this.state;
-    const { onChangeStyle, currentReport } = this.props;
-    const { yaxisList, style } = currentReport;
-    const { pivotTableFieldColorRule = [] } = style;
+  renderDataBarModal() {
+    const { dataBarColorModalVisible, editControlId, applyType } = this.state;
+    const { onChangeDisplayValue, currentReport } = this.props;
+    const { yaxisList, displaySetup } = currentReport;
+    const { colorRules = [] } = displaySetup;
+    const colorRule = _.find(colorRules, { controlId: editControlId });
+    const onCancel = () => {
+      this.setState({
+        applyType: null,
+        editControlId: null,
+        dataBarColorModalVisible: false,
+      });
+    }
     return (
-      <DataItemColor
-        visible={dataItemColorModalVisible}
+      <DataBarColor
+        visible={dataBarColorModalVisible}
+        colorRule={_.get(colorRule, applyType) || {}}
         onSave={(data) => {
-          onChangeStyle({
-            pivotTableFieldColorRule: pivotTableFieldColorRule.map(rule => {
-              if (rule.controlId === editControlId) {
-                rule[applyType] = data;
-              }
-              return rule;
-            })
+          const rules = colorRules.map(rule => {
+            if (rule.controlId === editControlId) {
+              rule[applyType] = data;
+            }
+            return rule;
           });
+          onChangeDisplayValue('colorRules', rules);
+          onCancel();
         }}
-        onCancel={() => {
-          this.setState({
-            applyType: null,
-            editControlId: null,
-            dataItemColorModalVisible: false,
-          });
-        }}
+        onCancel={onCancel}
       />
     );
   }
   renderRuleColorModal() {
     const { ruleColorModalVisible, editControlId, applyType } = this.state;
-    const { onChangeStyle, currentReport } = this.props;
-    const { yaxisList, style } = currentReport;
-    const { pivotTableFieldColorRule = [] } = style;
+    const { onChangeDisplayValue, currentReport } = this.props;
+    const { yaxisList, displaySetup, reportType } = currentReport;
+    const { colorRules = [] } = displaySetup;
+    const colorRule = _.find(colorRules, { controlId: editControlId });
+    const onCancel = () => {
+      this.setState({
+        applyType: null,
+        editControlId: null,
+        ruleColorModalVisible: false,
+      });
+    }
     return (
       <RuleColor
         visible={ruleColorModalVisible}
+        reportType={reportType}
         yaxisList={yaxisList}
+        colorRule={_.get(colorRule, applyType) || {}}
         onSave={(data) => {
-          onChangeStyle({
-            pivotTableFieldColorRule: pivotTableFieldColorRule.map(rule => {
-              if (rule.controlId === editControlId) {
-                rule[applyType] = data;
-              }
-              return rule;
-            })
+          const rules = colorRules.map(rule => {
+            if (rule.controlId === editControlId) {
+              rule[applyType] = data;
+            }
+            return rule;
           });
+          onChangeDisplayValue('colorRules', rules);
+          onCancel();
         }}
-        onCancel={() => {
-          this.setState({
-            applyType: null,
-            editControlId: null,
-            ruleColorModalVisible: false,
-          });
-        }}
+        onCancel={onCancel}
       />
     );
   }
   renderAddDropdown() {
-    const { onChangeStyle, currentReport } = this.props;
-    const { yaxisList, style } = currentReport;
-    const { pivotTableFieldColorRule = [] } = style;
-    const selectIds = pivotTableFieldColorRule.map(data => data.controlId);
-    const data = yaxisList.filter(data => !selectIds.includes(data.controlId));
+    const { onChangeDisplayValue, currentReport } = this.props;
+    const { yaxisList, displaySetup } = currentReport;
+    const { colorRules = [] } = displaySetup;
+    const selectIds = colorRules.map(data => data.controlId);
+    const data = yaxisList.filter(data => !selectIds.includes(data.controlId)).filter(data => data.normType !== 7);
     if (data.length) {
       return (
         <Dropdown
@@ -110,11 +153,10 @@ export default class PivotTableFieldColor extends Component {
                   key={data.controlId}
                   className="pTop7 pBottom7 pLeft20"
                   onClick={() => {
-                    onChangeStyle({
-                      pivotTableFieldColorRule: pivotTableFieldColorRule.concat({
-                        controlId: data.controlId
-                      })
+                    const rules = colorRules.concat({
+                      controlId: data.controlId
                     });
+                    onChangeDisplayValue('colorRules', rules);
                   }}
                 >
                   {data.controlName}
@@ -134,30 +176,39 @@ export default class PivotTableFieldColor extends Component {
     }
   }
   render() {
-    const { onChangeStyle, currentReport } = this.props;
-    const { yaxisList, style } = currentReport;
-    const { pivotTableFieldColorRule = [] } = style;
-    const selectIds = pivotTableFieldColorRule.map(data => data.controlId);
+    const { onChangeDisplayValue, currentReport } = this.props;
+    const { yaxisList, displaySetup } = currentReport;
+    const { colorRules = [] } = displaySetup;
+    const selectIds = colorRules.map(data => data.controlId);
+    const filterYaxisList = yaxisList.filter(data => data.normType !== 7);
     return (
       <div className="mBottom16">
-        {pivotTableFieldColorRule.map(data => (
-          <div key={data.controlId} className="flexRow valignWrapper mBottom10">
+        {colorRules.map(data => (
+          <ColorRuleItem key={data.controlId} className="flexRow valignWrapper mBottom10">
+            <Icon
+              icon="delete2"
+              className="Gray_9e Font18 pointer mLeft5 deleteColorRule"
+              onClick={() => {
+                const rules = colorRules.filter(item => item.controlId !== data.controlId);
+                onChangeDisplayValue('colorRules', rules);
+              }}
+            />
             <Select
-              className="chartSelect flex mRight5"
-              value={data.controlId}
+              className={cx('chartSelect flex mRight5', { Red: data.controlId && !_.find(filterYaxisList, { controlId: data.controlId }) })}
+              style={{ minWidth: 0 }}
+              value={data.controlId ? (_.find(filterYaxisList, { controlId: data.controlId }) ? data.controlId : _l('已删除')) : undefined}
               suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
               onChange={(value) => {
-                onChangeStyle({
-                  pivotTableFieldColorRule: pivotTableFieldColorRule.map(item => {
-                    if (item.controlId === data.controlId) {
-                      item.controlId = value;
-                    }
-                    return item;
-                  })
+                const rules = colorRules.map(item => {
+                  if (item.controlId === data.controlId) {
+                    item.controlId = value;
+                  }
+                  return item;
                 });
+                onChangeDisplayValue('colorRules', rules);
               }}
             >
-              {yaxisList.map(item => (
+              {filterYaxisList.map(item => (
                 <Select.Option
                   key={item.controlId}
                   className="selectOptionWrapper"
@@ -173,7 +224,23 @@ export default class PivotTableFieldColor extends Component {
                 className="ruleIcon flexRow valignWrapper pointer"
                 onClick={() => { this.setState({ ruleColorModalVisible: true, editControlId: data.controlId, applyType: 'textColorRule' }); }}
               >
-                <Icon className="Gray_9e Font16" icon="letter_a" />
+                <Icon className={cx('Font16', data.textColorRule ? 'ThemeColor' : 'Gray_9e')} icon="letter_a" />
+                {data.textColorRule && (
+                  <Icon
+                    icon="closeelement-bg-circle"
+                    className="Gray_9e Font15 pointer close"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const rules = colorRules.map(item => {
+                        if (item.controlId === data.controlId) {
+                          item.textColorRule = undefined;
+                        }
+                        return item;
+                      });
+                      onChangeDisplayValue('colorRules', rules);
+                    }}
+                  />
+                )}
               </EntranceWrapper>
             </Tooltip>
             <Tooltip text={<span>{_l('背景色')}</span>}>
@@ -181,22 +248,54 @@ export default class PivotTableFieldColor extends Component {
                 className="ruleIcon flexRow valignWrapper pointer"
                 onClick={() => { this.setState({ ruleColorModalVisible: true, editControlId: data.controlId, applyType: 'bgColorRule' }); }}
               >
-                <Icon className="Gray_9e Font16" icon="letter_a" />
+                <Icon className={cx('Font18', data.bgColorRule ? 'ThemeColor' : 'Gray_9e')} icon="background_color" />
+                {data.bgColorRule && (
+                  <Icon
+                    icon="closeelement-bg-circle"
+                    className="Gray_9e Font15 pointer close"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const rules = colorRules.map(item => {
+                        if (item.controlId === data.controlId) {
+                          item.bgColorRule = undefined;
+                        }
+                        return item;
+                      });
+                      onChangeDisplayValue('colorRules', rules);
+                    }}
+                  />
+                )}
               </EntranceWrapper>
             </Tooltip>
             <Tooltip text={<span>{_l('数据条')}</span>}>
               <EntranceWrapper
                 className="ruleIcon flexRow valignWrapper pointer"
-                onClick={() => { this.setState({ dataItemColorModalVisible: true, editControlId: data.controlId, applyType: 'dataItemRule' }) }}
+                onClick={() => { this.setState({ dataBarColorModalVisible: true, editControlId: data.controlId, applyType: 'dataBarRule' }) }}
               >
-                <Icon className="Gray_9e Font16" icon="letter_a" />
+                <Icon className={cx('Font16', data.dataBarRule ? 'ThemeColor' : 'Gray_9e')} icon="data_bar" />
+                {data.dataBarRule && (
+                  <Icon
+                    icon="closeelement-bg-circle"
+                    className="Gray_9e Font15 pointer close"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const rules = colorRules.map(item => {
+                        if (item.controlId === data.controlId) {
+                          item.dataBarRule = undefined;
+                        }
+                        return item;
+                      });
+                      onChangeDisplayValue('colorRules', rules);
+                    }}
+                  />
+                )}
               </EntranceWrapper>
             </Tooltip>
-          </div>
+          </ColorRuleItem>
         ))}
         {this.renderAddDropdown()}
         {this.renderRuleColorModal()}
-        {this.renderDataItemModal()}
+        {this.renderDataBarModal()}
       </div>
     );
   }

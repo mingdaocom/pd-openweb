@@ -5,9 +5,17 @@ import { Icon } from 'ming-ui';
 import { Toast } from 'antd-mobile';
 import Amap from 'ming-ui/components/amap/Amap';
 import MDMap from 'ming-ui/components/amap/MDMap';
+import MapLoader from 'ming-ui/components/amap/MapLoader';
 import { FROM } from '../../tools/config';
 import { browserIsMobile } from 'src/util';
-import { bindWeiXin, bindWxWork, bindFeishu, bindDing, bindWeLink, handleTriggerEvent } from '../../tools/authentication';
+import {
+  bindWeiXin,
+  bindWxWork,
+  bindFeishu,
+  bindDing,
+  bindWeLink,
+  handleTriggerEvent,
+} from '../../tools/authentication';
 import _ from 'lodash';
 
 const LocationWrap = styled.div`
@@ -126,43 +134,45 @@ export default class Widgets extends Component {
       }
       return;
     }
-  }
+  };
 
   handleDingSelectLocation = () => {
     const { onChange } = this.props;
     Toast.loading(_l('正在获取取经纬度，请稍后'));
     window.dd.device.geolocation.get({
-      targetAccuracy : 200,
-      coordinate : 1,
-      withReGeocode : false,
+      targetAccuracy: 200,
+      coordinate: 1,
+      withReGeocode: false,
       useCache: true,
-      onSuccess: (result) => {
+      onSuccess: result => {
         const { longitude, latitude } = result;
         onChange(JSON.stringify({ x: longitude, y: latitude }));
         Toast.hide();
       },
-      onFail: (err) => {
+      onFail: err => {
         window.nativeAlert(JSON.stringify(err));
         Toast.hide();
-      }
+      },
     });
-  }
+  };
 
   handleWeLinkSelectLocation = () => {
     const { onChange } = this.props;
     Toast.loading(_l('正在获取取经纬度，请稍后'));
-    window.HWH5.getLocation({ 
+    window.HWH5.getLocation({
       type: 0,
-      mode: 'gps'
-    }).then(result => {
-      const { longitude, latitude } = result;
-      onChange(JSON.stringify({ x: longitude, y: latitude }));
-      Toast.hide();
-    }).catch(err => {
-      window.nativeAlert(JSON.stringify(err));
-      Toast.hide();
-    });
-  }
+      mode: 'gps',
+    })
+      .then(result => {
+        const { longitude, latitude } = result;
+        onChange(JSON.stringify({ x: longitude, y: latitude }));
+        Toast.hide();
+      })
+      .catch(err => {
+        window.nativeAlert(JSON.stringify(err));
+        Toast.hide();
+      });
+  };
 
   handleFeishuSelectLocation = () => {
     const { strDefault, onChange } = this.props;
@@ -186,7 +196,7 @@ export default class Widgets extends Component {
             window.nativeAlert(JSON.stringify(res));
           }
           Toast.hide();
-        }
+        },
       });
     } else {
       // 地图打开
@@ -201,10 +211,10 @@ export default class Widgets extends Component {
           if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
             window.nativeAlert(JSON.stringify(res));
           }
-        }
+        },
       });
     }
-  }
+  };
 
   handleWxSelectLocation = () => {
     const { onChange } = this.props;
@@ -219,9 +229,32 @@ export default class Widgets extends Component {
       error(res) {
         window.nativeAlert(JSON.stringify(res));
         Toast.hide();
-      }
+      },
     });
-  }
+  };
+
+  handleH5Location = () => {
+    const { onChange } = this.props;
+    Toast.loading(_l('正在获取取经纬度，请稍后'));
+    new MapLoader().loadJs().then(AMap => {
+      const mapObj = new AMap.Map('iCenter');
+      mapObj.plugin('AMap.Geolocation', () => {
+        const geolocation = new AMap.Geolocation();
+        geolocation.getCurrentPosition();
+        AMap.event.addListener(geolocation, 'complete', res => {
+          onChange(
+            JSON.stringify({
+              x: res.position.lng,
+              y: res.position.lat,
+              address: res.formattedAddress || '',
+              title: (res.addressComponent || {}).building || '',
+            }),
+          );
+          Toast.hide();
+        });
+      });
+    });
+  };
 
   render() {
     const { disabled, value, enumDefault, enumDefault2, advancedSetting, onChange, from, strDefault } = this.props;
@@ -238,9 +271,17 @@ export default class Widgets extends Component {
     }
 
     if (onlyCanAppUse && !value) {
+      if (isMobile) {
+        return (
+          <div className="customFormControlBox customFormButton TxtCenter" onClick={() => this.handleH5Location()}>
+            <span className="Bold Font13 LineHeight34">{_l('点击获取当前位置经纬度')}</span>
+          </div>
+        );
+      }
+
       return (
         <div className="customLocationDisabled">
-          <span>{_l('请在app中获取当前位置')}</span>
+          <span>{_l('请在移动端中获取当前位置')}</span>
           <Icon
             icon={_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) ? 'arrow-right-border' : 'location'}
             className="Font16"
@@ -285,7 +326,7 @@ export default class Widgets extends Component {
             }}
           >
             <div className="location">
-              {!disabled && !onlyCanAppUse && (
+              {!disabled && (
                 <Icon
                   icon="minus-square"
                   className="Font20 pointer Absolute"

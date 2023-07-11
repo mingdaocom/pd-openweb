@@ -22,12 +22,12 @@ import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCod
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { Icon } from 'ming-ui';
 import { completeControls } from 'worksheet/util';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, addBehaviorLog } from 'src/util';
 import _ from 'lodash';
 
 const MAX_COUNT = 50;
 
-const Button = styled.div`
+export const Button = styled.div`
   cursor: pointer;
   height: 36px;
   font-weight: bold;
@@ -46,7 +46,7 @@ const Button = styled.div`
   }
 `;
 
-const LoadingButton = styled.div`
+export const LoadingButton = styled.div`
   display: inline-block;
   cursor: pointer;
   height: 29px;
@@ -117,6 +117,31 @@ const SearchRecordsButton = styled(Icon)`
     color: #757575;
   }
 `;
+
+export function getCardWidth({ width, isMobile, enumDefault }) {
+  let cardWidth;
+  let colNum = 1;
+  if (width) {
+    const containerWidth = width - 2;
+    if (isMobile) {
+      cardWidth = '100%';
+    } else if (enumDefault === 1) {
+      cardWidth = containerWidth - 12;
+    } else if (containerWidth >= 1200) {
+      cardWidth = Math.floor(containerWidth / 3) - 10;
+      colNum = 3;
+    } else if (containerWidth >= 800) {
+      cardWidth = Math.floor(containerWidth / 2) - 10;
+      colNum = 2;
+    } else {
+      cardWidth = containerWidth - 10;
+      colNum = 1;
+    }
+  } else {
+    cardWidth = '100%';
+  }
+  return { cardWidth, colNum };
+}
 
 @autoSize
 export default class RelateRecordCards extends Component {
@@ -346,6 +371,7 @@ export default class RelateRecordCards extends Component {
   handleAdd(newAdded) {
     const { multiple } = this.props;
     const { count, records, addedIds = [] } = this.state;
+    newAdded = newAdded.map(r => ({ ...r, isNewAdd: true }));
     const newRecords = multiple ? _.uniqBy(newAdded.concat(records), r => r.rowid) : newAdded;
     this.setState(
       {
@@ -431,29 +457,7 @@ export default class RelateRecordCards extends Component {
     const isCard =
       parseInt(advancedSetting.showtype, 10) === 1 ||
       (from === FROM.H5_ADD && parseInt(advancedSetting.showtype, 10) === 2);
-    let cardWidth;
-    let colNum = 1;
-
-    if (width) {
-      const containerWidth = width - 2;
-      if (isMobile) {
-        cardWidth = '100%';
-      } else if (enumDefault === 1) {
-        cardWidth = containerWidth - 12;
-      } else if (containerWidth >= 1200) {
-        cardWidth = Math.floor(containerWidth / 3) - 10;
-        colNum = 3;
-      } else if (containerWidth >= 800) {
-        cardWidth = Math.floor(containerWidth / 2) - 10;
-        colNum = 2;
-      } else {
-        cardWidth = containerWidth - 10;
-        colNum = 1;
-      }
-    } else {
-      cardWidth = '100%';
-    }
-
+    const { cardWidth, colNum } = getCardWidth({ width, isMobile, enumDefault });
     if (isCard) {
       return (
         <div className="recordsCon mBottom6">
@@ -465,7 +469,7 @@ export default class RelateRecordCards extends Component {
               <RecordCoverCard
                 projectId={projectId}
                 viewId={viewId}
-                disabled={disabled || !allowRemove}
+                disabled={disabled || (!allowRemove && !record.isNewAdd)}
                 width={cardWidth}
                 isCharge={isCharge}
                 key={i}
@@ -482,6 +486,9 @@ export default class RelateRecordCards extends Component {
                   allowlink === '0'
                     ? () => {}
                     : () => {
+                        if (location.pathname.indexOf('public') === -1) {
+                          addBehaviorLog('worksheetRecord', dataSource, { rowId: record.rowid }); // 埋点
+                        }
                         this.setState({ previewRecord: { recordId: record.rowid } });
                       }
                 }
@@ -712,7 +719,7 @@ export default class RelateRecordCards extends Component {
                   }}
                   defaultRelatedSheet={this.getDefaultRelateSheetValue()}
                   onAdd={record => {
-                    this.handleAdd([record]);
+                    this.handleAdd([{ ...record, isNewAdd: true }]);
                   }}
                 />
               )}

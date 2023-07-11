@@ -10,7 +10,9 @@ import {
   formatYaxisList,
   getChartColors,
   getAlienationColor,
-  getAuxiliaryLineConfig
+  getAuxiliaryLineConfig,
+  getControlMinAndMax,
+  getStyleColor
 } from './common';
 import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
@@ -46,9 +48,9 @@ export const formatDataCount = (data, isVertical, newYaxisList) => {
   });
 };
 
-export const formatChartData = (data, yaxisList, splitControlId) => {
+export const formatChartData = (data, yaxisList, splitControlId, xaxesControlId) => {
   if (_.isEmpty(data)) return [];
-  const result = [];
+  let result = [];
   const { value } = data[0];
   value.forEach(item => {
     const name = item.x;
@@ -57,19 +59,41 @@ export const formatChartData = (data, yaxisList, splitControlId) => {
       if (target.length) {
         const { rename, emptyShowType } = element.c_id ? (_.find(yaxisList, { controlId: element.c_id }) || {}) : yaxisList[0];
         const hideEmptyValue = !emptyShowType && !target[0].v;
-        if (!hideEmptyValue) {
+        if (!hideEmptyValue && element.originalKey) {
           result.push({
             controlId: element.c_id,
             groupName: `${splitControlId ? element.key : (rename || element.key)}-md-${reportTypes.BarChart}-chart-${element.c_id || element.originalKey}`,
             groupKey: element.originalKey,
             value: target[0].v,
-            name,
-            originalId: item.originalX || name
+            name: name || (!splitControlId && !xaxesControlId ? element.originalKey : undefined),
+            originalId: item.originalX || name || element.originalKey
           });
         }
       }
     });
   });
+  if (!xaxesControlId && splitControlId && yaxisList.length) {
+    if (yaxisList.length === 1) {
+      result.forEach(data => {
+        data.name = yaxisList[0].controlName;
+        data.originalId = '';
+      });
+    } else {
+      result = [];
+      yaxisList.forEach(yaxis => {
+        data.forEach(data => {
+          const value = data.value[0];
+          result.push({
+            groupName: `${data.key}-md-${reportTypes.BarChart}-chart-${data.originalKey}`,
+            groupKey: data.originalKey,
+            value: value.m[yaxis.controlId],
+            name: yaxis.controlName,
+            originalId: yaxis.controlName,
+          });
+        });
+      });
+    }
+  }
   return result;
 };
 
@@ -115,7 +139,8 @@ export default class extends Component {
       displaySetup.ydisplay.minValue !== oldDisplaySetup.ydisplay.minValue ||
       displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
       displaySetup.ydisplay.lineStyle !== oldDisplaySetup.ydisplay.lineStyle ||
-      !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines)
+      !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
+      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules)
     ) {
       const { BarChartConfig } = this.getComponentConfig(nextProps);
       this.BarChart.update(BarChartConfig);
@@ -196,9 +221,10 @@ export default class extends Component {
       showNumber,
       ydisplay,
       auxiliaryLines,
+      colorRules,
     } = displaySetup;
     const { position } = getLegendType(legendType);
-    const data = formatChartData(map, yaxisList, split.controlId);
+    const data = formatChartData(map, yaxisList, split.controlId, xaxes.controlId);
     const isVertical = showChartType === 1;
     const newYaxisList = formatYaxisList(data, yaxisList);
     const countConfig = showPileTotal && isPile && (yaxisList.length > 1 || split.controlId) ? formatDataCount(data, isVertical, newYaxisList) : [];
@@ -210,6 +236,10 @@ export default class extends Component {
     const isOptionsColor = isNewChart ? isAlienationColor : (style ? (style.colorType === 0 && isAlienationColor) : false);
     const isCustomColor = style ? (style.colorType === 2 && isAlienationColor) : false;
     const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, data, { yaxisList: isPile || isPerPile ? [] : yaxisList, colors });
+    const rule = _.get(colorRules[0], 'dataBarRule') || {};
+    const isRuleColor = yaxisList.length === 1 && _.isEmpty(split.controlId) && !_.isEmpty(rule);
+    const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
+    let index = -1;
     const getColor = () => {
       if (isOptionsColor) {
         return getAlienationColor.bind(this, xaxes);
@@ -229,6 +259,20 @@ export default class extends Component {
       } else {
         return colors;
       }
+    }
+    const getRuleColor = () => {
+      if (index >= data.length - 1) {
+        index = -1;
+      }
+      index = index + 1;
+      const { value } = data[index] || {};
+      const color = getStyleColor({
+        value,
+        controlMinAndMax,
+        rule,
+        controlId: yaxisList[0].controlId
+      });
+      return color || colors[0];
     }
 
     const baseConfig = {
@@ -260,7 +304,7 @@ export default class extends Component {
         start: 0,
         end: 0.5,
       } : undefined,
-      color: getColor(),
+      color: isRuleColor ? getRuleColor : getColor(),
       legend: showLegend && (yaxisList.length > 1 || split.controlId)
         ? {
             position,

@@ -28,6 +28,8 @@ export const orderRecordType = enumObj({
   DataPipelinePackage: 22,
   MonthlyDataPipelinePackage: 23,
   APIIntegration: 24,
+  ComputingInstance: 25,
+  MonthlyComputingInstance: 26,
 });
 
 export const orderTypeText = {
@@ -54,7 +56,9 @@ export const orderTypeText = {
   EXTERNALUSER: _l('外部用户增补包'), // 外部用户增补包
   DataPipelinePackage: _l('每月数据同步算力包'),
   MonthlyDataPipelinePackage: _l('当月数据同步算力包'),
-  APIIntegration:_l('API集成')
+  APIIntegration:_l('API集成'),
+  ComputingInstance: _l('专属算力每月升级包'),
+  MonthlyComputingInstance: _l('专属算力单月包'),
 };
 
 export const enumInvoiceStatus = enumObj({
@@ -95,7 +99,7 @@ export const orderRecordStatusDropdownData = [{ value: 0, text: _l('全部') }].
 
 export const enumOrderRecordStatus = enumObj(orderRecordStatus);
 
-export const PAID_RECORD_TYPE = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23];
+export const PAID_RECORD_TYPE = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23, 25, 26];
 export const RECHARGE_RECORD_TYPE = [1, 15, 20, 24];
 
 export const invoiceConfig = [

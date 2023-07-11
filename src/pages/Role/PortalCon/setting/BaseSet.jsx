@@ -344,6 +344,56 @@ export default function BaseSet(props) {
             <div className="mTop12">
               <SwitchStyle>
                 <Icon
+                  icon={!!portalSetModel.termsAndAgreementEnable ? 'ic_toggle_on' : 'ic_toggle_off'}
+                  className="Font32 Hand TxtBottom"
+                  onClick={() => {
+                    onChangePortalSet({
+                      portalSetModel: {
+                        ...portalSetModel,
+                        termsAndAgreementEnable: !portalSetModel.termsAndAgreementEnable,
+                      },
+                    });
+                  }}
+                />
+                <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+                  {_l('登录时需同意用户协议和隐私条款')}
+                </div>
+              </SwitchStyle>
+              <div style={{ 'margin-left': '44px' }}>
+                {!!portalSetModel.termsAndAgreementEnable && (
+                  <React.Fragment>
+                    <p className="Gray_9e LineHeight18 mBottom8">
+                      {_l(
+                        '平台已预置了通用协议内容（无公司主体），因各门户的具体业务不同收集的用户信息不同，请您务必根据公司实际业务重新上传符合规定的协议内容',
+                      )}
+                    </p>
+                    <div className="bold mTop6 LineHeight24">
+                      {_l('设置')}
+                      <span
+                        className="ThemeColor3 Hand mRight10 mLeft10"
+                        onClick={() => {
+                          setCommonState({ type: 0, show: true });
+                        }}
+                      >
+                        {_l('用户协议')}
+                      </span>
+                      {_l('和')}
+                      <span
+                        className="ThemeColor3 Hand mLeft10"
+                        onClick={() => {
+                          setCommonState({ type: 1, show: true });
+                        }}
+                      >
+                        {_l('隐私政策')}
+                      </span>
+                    </div>
+                  </React.Fragment>
+                )}
+              </div>
+            </div>
+            <div className="mTop12">
+              <SwitchStyle>
+                <Icon
                   icon={!!portalSetModel.subscribeWXOfficial ? 'ic_toggle_on' : 'ic_toggle_off'}
                   className="Font32 Hand"
                   onClick={() => {
@@ -359,7 +409,7 @@ export default function BaseSet(props) {
                   }}
                 />
                 <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
-                  {_l('扫码登录后需要先关注微信公众号')}
+                  {_l('通过微信扫码登录时，需先关注公众号')}
                 </div>
               </SwitchStyle>
             </div>
@@ -392,23 +442,10 @@ export default function BaseSet(props) {
                 });
               }}
             />
-            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
-              {_l('允许外部用户对记录讨论')}
-              {portalSetModel.allowExAccountDiscuss && (
-                <Tooltip
-                  text={<span className="Block">{_l('记录讨论的使用范围继承设置：工作表-功能开关-讨论范围设置')}</span>}
-                >
-                  <i className="icon-help Hand Font16 Gray_9e mLeft3" />
-                </Tooltip>
-              )}
-            </div>
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('允许参与记录讨论')}</div>
           </SwitchStyle>
           <div style={{ 'margin-left': '36px' }}>
-            {!portalSetModel.allowExAccountDiscuss ? (
-              <p className="mLeft8 LineHeight24 Gray_9e">
-                {_l('记录讨论的使用范围继承设置工作表-功能开关-讨论范围设置')}
-              </p>
-            ) : (
+            {portalSetModel.allowExAccountDiscuss && (
               <React.Fragment>
                 <div className="mTop8 mLeft8">
                   {DIS_SET.map((o, i) => {
@@ -486,56 +523,19 @@ export default function BaseSet(props) {
         <div className="mTop12">
           <SwitchStyle>
             <Icon
-              icon={!!portalSetModel.termsAndAgreementEnable ? 'ic_toggle_on' : 'ic_toggle_off'}
-              className="Font32 Hand TxtBottom"
+              icon={!!portalSetModel.approved ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font32 Hand"
               onClick={() => {
                 onChangePortalSet({
                   portalSetModel: {
                     ...portalSetModel,
-                    termsAndAgreementEnable: !portalSetModel.termsAndAgreementEnable,
+                    approved: !portalSetModel.approved,
                   },
                 });
               }}
             />
-            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('用户协议和隐私条款')}</div>
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('允许查看审批流转详情')}</div>
           </SwitchStyle>
-          <div style={{ 'margin-left': '44px' }}>
-            {!!portalSetModel.termsAndAgreementEnable ? (
-              <React.Fragment>
-                <p className="Gray_9e LineHeight18 mBottom8">
-                  {_l(
-                    '平台已预置了通用协议内容（无公司主体），因各门户的具体业务不同收集的用户信息不同，请您务必根据公司实际业务重新上传符合规定的协议内容',
-                  )}
-                </p>
-                <div className="bold mTop6 LineHeight24">
-                  {_l('设置')}
-                  <span
-                    className="ThemeColor3 Hand mRight10 mLeft10"
-                    onClick={() => {
-                      setCommonState({ type: 0, show: true });
-                    }}
-                  >
-                    {_l('用户协议')}
-                  </span>
-                  {_l('和')}
-                  <span
-                    className="ThemeColor3 Hand mLeft10"
-                    onClick={() => {
-                      setCommonState({ type: 1, show: true });
-                    }}
-                  >
-                    {_l('隐私政策')}
-                  </span>
-                </div>
-              </React.Fragment>
-            ) : (
-              <p className="Gray_9e LineHeight18">
-                {_l(
-                  '根据工信部等相关部门要求，用户在注册、登录网站时需要提供相应的协议及隐私政策内容告知用户同意后才可以注册',
-                )}
-              </p>
-            )}
-          </div>
         </div>
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('通知设置')}</h6>
         <div className="mTop12">

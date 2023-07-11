@@ -31,6 +31,8 @@ export default class TriggerCondition extends Component {
     singleCondition: PropTypes.bool,
     isLast: PropTypes.bool,
     addConditions: PropTypes.func,
+    filterEncryptCondition: PropTypes.bool,
+    excludingDepartmentSpecialFilter: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -47,6 +49,8 @@ export default class TriggerCondition extends Component {
     singleCondition: false,
     isLast: false,
     addConditions: () => {},
+    filterEncryptCondition: false,
+    excludingDepartmentSpecialFilter: false,
   };
 
   constructor(props) {
@@ -125,7 +129,15 @@ export default class TriggerCondition extends Component {
    * 渲染单个条件
    */
   renderItem(item, i, j, hasOr, hasAnd) {
-    const { singleCondition, controls, isNodeHeader, openNewFilter, isLast } = this.props;
+    const {
+      singleCondition,
+      controls,
+      isNodeHeader,
+      openNewFilter,
+      isLast,
+      filterEncryptCondition,
+      excludingDepartmentSpecialFilter,
+    } = this.props;
     let controlNumber;
     let conditionData = [];
     let conditionIndex;
@@ -187,6 +199,18 @@ export default class TriggerCondition extends Component {
         value: item.conditionId,
         disabled: true,
       });
+    }
+
+    // 加密字段去除部分筛选条件
+    if (filterEncryptCondition && single && single.encryId) {
+      _.remove(conditionData, o =>
+        _.includes(['3', '4', '5', '6', '11', '12', '13', '14', '15', '16', '44', '45'], o.value),
+      );
+    }
+
+    // 过滤特殊的部门筛选条件
+    if (excludingDepartmentSpecialFilter && single && single.type === 27) {
+      _.remove(conditionData, o => _.includes(['48', '49'], o.value));
     }
 
     return (
@@ -1043,7 +1067,12 @@ export default class TriggerCondition extends Component {
       filedTypeId === 33 ||
       filedTypeId === 50
     ) {
-      if (_.includes(data[i][j].conditionValues.map(obj => obj.value), value)) {
+      if (
+        _.includes(
+          data[i][j].conditionValues.map(obj => obj.value),
+          value,
+        )
+      ) {
         _.remove(data[i][j].conditionValues, obj => obj.value === value);
       } else {
         data[i][j].conditionValues.push({ value });

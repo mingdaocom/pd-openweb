@@ -42,7 +42,15 @@ export default class Widgets extends Component {
     return _.isUndefined(recordsCount) ? count : recordsCount;
   }
 
+  get isCard() {
+    let { showtype = RELATE_RECORD_SHOW_TYPE.LIST } = this.props.advancedSetting; // 1 卡片 2 列表 3 下拉
+    return parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.CARD;
+  }
+
   componentWillReceiveProps(nextProps) {
+    if (!this.isCard) {
+      return;
+    }
     try {
       if (nextProps.value === 'deleteRowIds: all') {
         this.cardsComp.current.table.deleteAllRecord();
@@ -58,7 +66,7 @@ export default class Widgets extends Component {
 
   shouldComponentUpdate(nextProps) {
     const nextData = this.parseValue(nextProps.value);
-    return nextProps.value !== 'deleteRowIds: all' && !_.get(nextData, '0.isWorksheetQueryFill');
+    return (nextProps.value !== 'deleteRowIds: all' && !_.get(nextData, '0.isWorksheetQueryFill')) || !this.isCard;
   }
 
   parseValue(value) {
@@ -137,8 +145,6 @@ export default class Widgets extends Component {
                 ? records.filter((_, index) => !index)
                 : records
             }
-            // addedIds={deletedIds}
-            // deletedIds={deletedIds}
             multiple={enumDefault === 2}
             showCoverAndControls={advancedSetting.ddset === '1'}
             onChange={this.handleChange}

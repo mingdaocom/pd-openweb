@@ -115,6 +115,7 @@ export default function CustomButtonConfirm(props) {
     showTemplateList: false,
   });
   const passwordRef = useRef();
+  const remarkRef = useRef();
   useEffect(() => {
     setState({ checkIsPending: true });
     verifyPassword({
@@ -126,6 +127,9 @@ export default function CustomButtonConfirm(props) {
         setState({ checkIsPending: false, needPassWord: true });
       },
     });
+    if (_.get(remarkRef, 'current.textarea') && !remarkoptions) {
+      _.get(remarkRef, 'current.textarea').focus();
+    }
   }, []);
   /**
    * 意见只能选择模板
@@ -218,6 +222,7 @@ export default function CustomButtonConfirm(props) {
               renderSelectTemplate()
             ) : (
               <RemarkTextArea
+                ref={remarkRef}
                 minHeight={0}
                 style={{ paddingTop: 9, paddingBottom: 9 }}
                 maxHeight={240}

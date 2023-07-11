@@ -188,24 +188,29 @@ function AddSourceOrDest(props) {
                 datasourceId: id,
               };
             }
+            let config = {
+              ...(_.get(node, 'nodeConfig.config') || {}),
+              ...param,
+              dsType: type,
+              dbName: '',
+              tableName: '',
+              schema: '',
+              className,
+              iconBgColor,
+              workSheetId: '',
+              appId: '',
+            };
+            if ('SOURCE_TABLE' === nodeType) {
+              config = { ...config, fields: [] };
+            } else {
+              config = { ...config, fieldsMapping: [] };
+            }
             onUpdate({
               ...node,
               name,
               nodeConfig: {
                 ...(node.nodeConfig || {}),
-                config: {
-                  ...(_.get(node, 'nodeConfig.config') || {}),
-                  ...param,
-                  dsType: type,
-                  dbName: '',
-                  tableName: '',
-                  schema: '',
-                  className,
-                  iconBgColor,
-                  workSheetId: '',
-                  appId: '',
-                  fieldsMapping: [],
-                },
+                config,
                 fields: [],
               },
             });

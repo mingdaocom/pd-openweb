@@ -7,6 +7,7 @@ import Api from 'api/homeApp';
 import _ from 'lodash';
 import html2canvas from 'html2canvas';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
+import { addBehaviorLog } from 'src/util';
 
 class Header extends React.Component {
   constructor(props) {
@@ -134,7 +135,7 @@ class Header extends React.Component {
 
   render() {
     const { params, printData, handChange, saveTem, saveFn, downFn, showPdf } = this.props;
-    const { printId, type, from, printType, isDefault } = params;
+    const { printId, type, from, printType, isDefault, worksheetId, rowId } = params;
     const { isEdit, exportLoading, href } = this.state;
 
     return (
@@ -258,6 +259,7 @@ class Header extends React.Component {
                     <div
                       className="printButton Hand InlineBlock bold mLeft20"
                       onClick={() => {
+                        addBehaviorLog('printRecord', worksheetId, { printId, rowId }); // 埋点
                         window.print();
                         return false;
                       }}

@@ -176,9 +176,10 @@ export default function Conditions(props) {
             ...filter,
             dataType: newControl ? newControl.type : filter.dataType,
             control: newControl,
+            filterType: newControl && newControl.encryId ? 2 : filter.filterType,
           };
         })
-        .filter(c => c.control),
+        .filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type))), // 分享状态快速筛选不应该显示 成员 部门 角色
     [JSON.stringify(filters), JSON.stringify(controls.map(c => _.pick(c, ['controlName', 'options'])))],
   );
   function update(newValues) {

@@ -2,17 +2,12 @@ import React, { Component } from 'react';
 import Config from '../config';
 import cx from 'classnames';
 import OtherTools from './OtherTools';
-import LoginLog from './Loginlog';
 import './index.less';
 
 const toolTabList = [
   {
     tabType: 'otherTools',
-    tabName: _l('工具'),
-  },
-  {
-    tabType: 'loginLog',
-    tabName: _l('登录日志'),
+    tabName: _l('管理工具'),
   },
 ];
 
@@ -21,15 +16,12 @@ export default class AdminTools extends Component {
     super(props);
     Config.setPageTitle(_l('管理工具'));
     this.state = {
-      activeTab: localStorage.getItem('userloginLogTab') ? localStorage.getItem('userloginLogTab') : 'otherTools',
+      activeTab: 'otherTools',
     };
   }
-  componentWillUnmount() {
-    localStorage.removeItem('userloginLogTab');
-  }
+
   // tab切换
   changeTab = item => {
-    safeLocalStorageSetItem('userloginLogTab', item.tabType);
     this.setState({ activeTab: item.tabType });
   };
   render() {
@@ -40,21 +32,14 @@ export default class AdminTools extends Component {
           <div className="tabBox">
             {toolTabList.map(item => {
               return (
-                <div
-                  key={item.tabType}
-                  className={cx('adminToolTab', { active: item.tabType === activeTab })}
-                  onClick={() => this.changeTab(item)}
-                >
+                <div key={item.tabType} className="adminToolTab" onClick={() => this.changeTab(item)}>
                   {item.tabName}
                 </div>
               );
             })}
           </div>
         </div>
-        <div className="adminToolsContent">
-          {activeTab === 'otherTools' && <OtherTools />}
-          {activeTab === 'loginLog' && <LoginLog />}
-        </div>
+        <div className="adminToolsContent">{activeTab === 'otherTools' && <OtherTools />}</div>
       </div>
     );
   }

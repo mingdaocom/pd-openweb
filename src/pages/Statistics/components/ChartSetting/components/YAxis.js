@@ -30,8 +30,12 @@ const SortableItemContent = styled.div`
 
 const renderOverlay = (props) => {
   const { item, onNormType, onEmptyShowType, onChangeControlId, onChangeCurrentReport, currentReport, sortIndex } = props;
-  const { reportType, sorts } = currentReport;
-  const { controlId, controlType, normType, emptyShowType } = item;
+  const { reportType, sorts, xaxes, yaxisList } = currentReport;
+  const { controlId, controlType, normType } = item;
+  const isNumberChart = reportTypes.NumberChart === reportType;
+  const oneNumber = xaxes.controlId && yaxisList.length === 1;
+  const hideVisible = isNumberChart ? oneNumber : true;
+  const emptyShowType = isNumberChart && !oneNumber && item.emptyShowType === 0 ? 1 : item.emptyShowType;
   return (
     <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />}>
       <Menu.Item
@@ -80,7 +84,7 @@ const renderOverlay = (props) => {
           ))}
         </Menu.SubMenu>
       )}
-      {[reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart, reportTypes.BidirectionalBarChart].includes(reportType) && (
+      {[reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart, reportTypes.NumberChart, reportTypes.BidirectionalBarChart].includes(reportType) && (
         <Menu.SubMenu
           popupClassName="chartMenu"
           title={(
@@ -91,7 +95,7 @@ const renderOverlay = (props) => {
           )}
           popupOffset={[0, -15]}
         >
-          {emptyShowTypes.map(item => (
+          {emptyShowTypes.filter(data => data.value ? true : hideVisible).map(item => (
             <Menu.Item
               style={{ width: 120, color: item.value === emptyShowType ? '#1e88e5' : null }}
               key={item.value}
@@ -173,10 +177,15 @@ export default class YAxis extends Component {
   }
   handleVerification = (data, isAlert = false) => {
     const { currentReport, yaxisList } = this.props;
-    const { reportType } = currentReport;
+    const { xaxes, split, reportType } = currentReport;
 
     if (_.find(yaxisList, { controlId: data.controlId })) {
       isAlert && alert(_l('不允许添加重复字段'), 2);
+      return false;
+    }
+
+    if ([reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) && split.controlId && xaxes.controlId && yaxisList.length >= 1) {
+      isAlert && alert(_l('多数值时不能同时配置维度和分组'), 2);
       return false;
     }
 
@@ -284,7 +293,7 @@ export default class YAxis extends Component {
       return _.isEmpty(yaxisList) && Content;
     }
 
-    return _.isEmpty(split.controlId) && Content;
+    return Content;
   }
   render() {
     const { name, currentReport, axisControls, allControls, yaxisList } = this.props;

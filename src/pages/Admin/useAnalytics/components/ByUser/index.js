@@ -136,6 +136,15 @@ export default class ByUser extends Component {
       {
         dataIndex: 'appAccess',
         title: _l('应用访问次数'),
+        explain: (
+          <span>
+            {_l('应用访问次数计数说明：')}
+            <br />
+            {_l('· 通过应用图标点击进入应用')}
+            <br />
+            {_l('· 通过系统消息打开了应用')}
+          </span>
+        ),
         className: 'width150',
         sorter: true,
         render: item => {
@@ -145,6 +154,13 @@ export default class ByUser extends Component {
       {
         dataIndex: 'addRow',
         title: _l('记录创建次数'),
+        explain: (
+          <span>
+            {_l('记录创建次数计数说明：')}
+            <br />
+            {_l('通过工作表表单页面创建的记录、不包含Excel导入、工作流创建、API调用的方式')}
+          </span>
+        ),
         className: 'width150',
         sorter: true,
         render: item => {
@@ -262,7 +278,7 @@ export default class ByUser extends Component {
       <ByUserWrap>
         <div className="searchWrap flexRow">
           <Select
-            className="userSelect"
+            className="userSelect mdAntSelect"
             style={{ width: '200px' }}
             value={userInfo.map(item => item.fullname).join(',') || undefined}
             placeholder={_l('搜索成员')}
@@ -284,7 +300,7 @@ export default class ByUser extends Component {
             }}
           />
           <Select
-            className="mLeft16"
+            className="mLeft16 mdAntSelect"
             style={{ width: '200px' }}
             placeholder={_l('最近30天')}
             suffixIcon={<Icon icon="arrow-down-border" className="Font18" />}

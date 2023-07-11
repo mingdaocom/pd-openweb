@@ -1,0 +1,170 @@
+.tableWrap {
+  width: 100%;
+  height: 100%;
+  .ant-table-wrapper,
+  .ant-table,
+  .ant-spin-nested-loading,
+  .ant-spin-container,
+  .ant-table-empty,
+  .ant-table-container,
+  .ant-table-content {
+    height: 100%;
+  }
+  .ant-table {
+    .ant-table-thead {
+      font-size: 13px;
+      color: #333333;
+      tr {
+        th {
+          height: 48px;
+          background: #fff;
+          // padding: 1px 24px 12px 1px;
+          box-sizing: border-box;
+          font-weight: 600;
+          font-size: 13px;
+          color: #333333;
+          &:hover {
+            background: #fff !important;
+          }
+        }
+        th:nth-child(2),
+        th:nth-child(3),
+        th:nth-child(5) {
+          width: 200px;
+        }
+        th:nth-child(4) {
+          width: 150px;
+        }
+      }
+    }
+    .ant-table-body {
+      height: calc(~'100vh - 257px');
+      tr {
+        td:nth-child(2),
+        td:nth-child(3),
+        td:nth-child(5) {
+          width: 200px;
+        }
+        td:nth-child(4) {
+          width: 150px;
+        }
+      }
+    }
+    .ant-empty-normal {
+      display: none;
+    }
+    .ant-table-thead
+      > tr
+      > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan]):before {
+      width: 0px !important;
+    }
+  }
+  .ant-table-ping-left:not(.ant-table-has-fix-left) .ant-table-container::before,
+  .ant-table-ping-right:not(.ant-table-has-fix-right) .ant-table-container::after,
+  .ant-table-ping-left .ant-table-cell-fix-left-first::after,
+  .ant-table-ping-left .ant-table-cell-fix-left-last::after,
+  .ant-table-ping-right .ant-table-cell-fix-right-first::after,
+  .ant-table-ping-right .ant-table-cell-fix-right-last::after {
+    width: 1px;
+    box-shadow: unset;
+  }
+  .ant-table-ping-left .ant-table-cell-fix-left-first::after,
+  .ant-table-ping-left .ant-table-cell-fix-left-last::after {
+    right: 1px !important;
+    border-right: 1px solid #eaeaea;
+  }
+  .ant-table-cell-ellipsis.ant-table-cell-fix-right-first,
+  .ant-table-ping-right .ant-table-cell-fix-right-first::after,
+  .ant-table-ping-right .ant-table-cell-fix-right-last::after {
+    border-left: 1px solid #eaeaea;
+  }
+  .ant-table-cell-ellipsis.ant-table-cell-fix-left-last,
+  .ant-table-ping-left .ant-table-thead .ant-table-cell-fix-left-first::after,
+  .ant-table-ping-left .ant-table-thead .ant-table-cell-fix-left-last::after,
+  .ant-table-ping-right .ant-table-thead .ant-table-cell-fix-right-first::after,
+  .ant-table-ping-right .ant-table-thead .ant-table-cell-fix-right-last::after {
+    border-right: none !important;
+    border-left: none !important;
+  }
+
+  .ant-table-empty .ant-table-tbody > tr > td {
+    border-bottom: none;
+  }
+  .emptyBox {
+    margin: 50px 0;
+    justify-content: center;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #9e9e9e;
+    .emptyIcon {
+      width: 90px;
+      height: 90px;
+      background-color: #f5f5f5;
+      border-radius: 50%;
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      & > i {
+        color: #c4c4c4;
+      }
+    }
+  }
+  .showColsWrap {
+    width: 32px;
+    height: 52px;
+    background: #fff;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    line-height: 52px;
+    z-index: 99;
+  }
+}
+
+.customColsWrap {
+  width: 300px;
+  max-height: 280px;
+  overflow: auto;
+  z-index: 1;
+  background-color: #fff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+  padding: 24px 24px 12px;
+  border-radius: 3px;
+  .statistics {
+    margin-bottom: 24px;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 26px;
+  }
+  ul {
+    li {
+      margin-bottom: 16px;
+      font-size: 13px;
+      line-height: 20px;
+      .ming.Checkbox.Checkbox--disabled.checked {
+        .Checkbox-box {
+          background-color: #81bceb;
+          border-color: #81bceb;
+        }
+      }
+    }
+  }
+  .checkBoxHalf {
+    .Checkbox-box {
+      background-color: #1e88e5 !important;
+      border: none !important;
+      &::before {
+        content: '';
+        height: 2px;
+        background: #fff;
+        position: absolute;
+        top: 7px;
+        width: 8px;
+        left: 5px;
+      }
+    }
+  }
+}

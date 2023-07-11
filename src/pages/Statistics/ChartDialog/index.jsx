@@ -202,7 +202,7 @@ export default class ChartDialog extends Component {
     const { report, permissions, isCharge, isLock, permissionType, sourceType, currentReport, reportData, worksheetInfo, base, onRemove, ownerId } = this.props;
     const { saveLoading, settingVisible } = this.state;
     const isPublicShareChart = location.href.includes('public/chart');
-    const isPublicSharePage = location.href.includes('public/page') || window.shareAuthor;
+    const isPublicSharePage = location.href.includes('public/page') || window.shareAuthor || window.share;
     return (
       <div className="header valignWrapper">
         <Header {...this.props} />

@@ -2,11 +2,21 @@ import React, { useState, useRef } from 'react';
 import { func, shape, string } from 'prop-types';
 import { Menu, MenuItem, Input } from 'ming-ui';
 import cx from 'classnames';
+import _ from 'lodash';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 
 export default function SelectControls(props) {
-  const { style, maxHeight, className, filterColumnClassName, onAdd = () => {}, onClose = () => {} } = props;
+  const {
+    style,
+    maxHeight,
+    footer,
+    className,
+    filterColumnClassName,
+    selected = [],
+    onAdd = () => {},
+    onClose = () => {},
+  } = props;
   const inputRef = useRef();
   const [keyword, setKeyword] = useState('');
   const controls = keyword
@@ -38,7 +48,7 @@ export default function SelectControls(props) {
         {controls.length ? (
           controls.map((c, i) => (
             <MenuItem
-              className={cx({ segmentationLine: 'segmentation' in c })}
+              className={cx({ segmentationLine: 'segmentation' in c, selected: _.includes(selected, c.controlId) })}
               onClick={() => {
                 onAdd(c);
                 setKeyword('');
@@ -55,6 +65,7 @@ export default function SelectControls(props) {
           <div className="tip TxtCenter">{keyword ? _l('没有搜索结果') : _l('没有更多字段')}</div>
         )}
       </Menu>
+      {footer}
     </div>
   );
 }

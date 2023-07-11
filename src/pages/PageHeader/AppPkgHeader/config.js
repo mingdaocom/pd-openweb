@@ -44,6 +44,12 @@ const adminAction = [
     featureId: 17,
   },
   {
+    type: 'appLogs',
+    icon: 'wysiwyg',
+    text: _l('日志'),
+    featureId: 31,
+  },
+  {
     type: 'modifyAppLockPassword',
     icon: 'lock',
     text: _l('解锁应用%02048'),
@@ -81,8 +87,8 @@ const adminAction = [
 ]
 //没有 导航设置 选项集 应用项回收站 发布设置 API开发文档 管理应用(复制应用,导出应用,创建应用备份,从备份文件还原)
 const runnerAction = adminAction.filter(o => !['editNavigation', 'optionList', 'appItemTrash', 'publishSettings', 'worksheetapi', 'appManageMenu'].includes(o.type))
-//没有 使用分析
-const developerAction = adminAction.filter(o => !['appAnalytics'].includes(o.type)).map(o => {
+//没有 使用分析 日志
+const developerAction = adminAction.filter(o => !['appAnalytics','appLogs'].includes(o.type)).map(o => {
   if (o.type === 'appManageMenu') {
     return {
       //没有复制应用、导出应用
@@ -158,6 +164,12 @@ export const APP_CONFIG = {
       featureId: 17,
     },
     {
+      type: 'appLogs',
+      icon: 'wysiwyg',
+      text: _l('日志'),
+      featureId: 31,
+    },
+    {
       type: 'modifyAppLockPassword',
       icon: 'lock',
       text: _l('解锁应用%02048'),
@@ -220,6 +232,12 @@ export const APP_CONFIG = {
       text: _l('使用分析%02049'),
       action: 'appAnalyticsVisible',
       featureId: 17,
+    },
+    {
+      type: 'appLogs',
+      icon: 'wysiwyg',
+      text: _l('日志'),
+      featureId: 31,
     },
     { type: 'optionList', icon: 'dropdown', action: 'optionListVisible', text: _l('选项集') },
     { type: 'appItemTrash', icon: 'knowledge-recycle', text: _l('应用项回收站'), featureId: 16 },

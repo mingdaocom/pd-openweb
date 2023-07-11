@@ -130,10 +130,12 @@ export default function WidgetOperation(props) {
 
     const deleteRelateControl = e => {
       e.stopPropagation();
-      worksheetAjax.editWorksheetControls({
-        worksheetId: dataSource,
-        controls: [handleAdvancedSettingChange(sourceControl, { hide: '1' })],
-      }).then(res => {});
+      worksheetAjax
+        .editWorksheetControls({
+          worksheetId: dataSource,
+          controls: [handleAdvancedSettingChange(sourceControl, { hide: '1' })],
+        })
+        .then(res => {});
       handleDelete();
     };
     // 关联记录类型 且双向关联了其他表  删除需要异化为选择删除单个控件和删除双向控件
@@ -210,19 +212,17 @@ export default function WidgetOperation(props) {
             </div>
           </Tooltip>
         )}
-        {!includes([34], type) && (
-          <Tooltip placement="bottom" trigger={['hover']} title={_l('复制')}>
-            <div
-              className="copyControl operationIconWrap"
-              onClick={e => {
-                e.stopPropagation();
-                handleOperate('copy', queryConfig);
-              }}
-            >
-              <i className="icon-copy" />
-            </div>
-          </Tooltip>
-        )}
+        <Tooltip placement="bottom" trigger={['hover']} title={_l('复制')}>
+          <div
+            className="copyControl operationIconWrap"
+            onClick={e => {
+              e.stopPropagation();
+              handleOperate('copy', queryConfig);
+            }}
+          >
+            <i className="icon-copy" />
+          </div>
+        </Tooltip>
         {renderDelete()}
       </div>
       {resizeWidthVisible && (

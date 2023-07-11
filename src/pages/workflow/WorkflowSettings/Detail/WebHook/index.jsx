@@ -606,12 +606,12 @@ export default class WebHook extends Component {
                   }
                   type="number"
                   min={5}
-                  max={90}
+                  max={120}
                   hasOtherField={false}
                   data={{ fieldValue: data.settings.timeout }}
                 />
               </div>
-              <div className="mLeft10">{_l('秒')}（5 ~ 90）</div>
+              <div className="mLeft10">{_l('秒')}（5 ~ 120）</div>
 
               <Checkbox
                 style={{ marginLeft: 80 }}

@@ -8,10 +8,10 @@ import { WHOLE_SIZE } from '../../config/Drag';
 import { AnimationWrap } from './WidgetStyle';
 
 const ARRANGE_TYPE = [
-  { text: '一列', value: 1 },
-  { text: '二列', value: 2 },
-  { text: '三列', value: 3 },
-  { text: '四列', value: 4 },
+  { text: _l('一列'), value: 1 },
+  { text: _l('二列'), value: 2 },
+  { text: _l('三列'), value: 3 },
+  { text: _l('四列'), value: 4 },
 ];
 
 export default function QuickArrange({ widgets, setWidgets }) {

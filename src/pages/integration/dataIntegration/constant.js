@@ -153,3 +153,9 @@ export const SORT_TYPE = {
 export const isValidName = name => {
   return /^[^`~!@#$%^&*()\-+=<>?:"{}|,./;'\[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]+$/.test(name);
 };
+
+export const TRIGGER_WORKFLOW_CHECKBOX_OPTIONS = [
+  { key: 'insertTrigger', text: _l('新增记录时触发') },
+  { key: 'updateTrigger', text: _l('更新记录时触发') },
+  { key: 'deleteTrigger', text: _l('删除记录时触发') },
+];

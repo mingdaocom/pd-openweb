@@ -148,6 +148,7 @@ export default function RelateRecordTableNav(props) {
             )}
             {control.controlName}
             {_.get(control, 'advancedSetting.showcount') !== '1' &&
+              control.type !== 51 &&
               _.isNumber(Number(control.value)) &&
               !_.isNaN(Number(control.value)) &&
               Number(control.value) !== 0 && <Num> ( {control.value || 0} ) </Num>}

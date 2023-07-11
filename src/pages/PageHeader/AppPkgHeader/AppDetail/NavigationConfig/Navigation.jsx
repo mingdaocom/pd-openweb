@@ -215,7 +215,7 @@ const Group = props => {
     <div
       ref={ref}
       data-handler-id={collectProps.handlerId}
-      className={cx({ firstGroup: isFirstGroup, [activeFirst ? 'activeFirst' : 'active']: collectProps.isOver && active && !activeGroup, Border0: hideAppSection })}
+      className={cx({ firstGroup: isFirstGroup, [activeFirst ? 'activeFirst' : 'active']: collectProps.isOver && active && !activeGroup })}
       style={{ opacity: isDragging ? 0 : 1, transform: 'translate(0px, 0px)' }}
     >
       {isFirstGroup ? (
@@ -342,12 +342,11 @@ const Group = props => {
 }
 
 const Container = props => {
-  const { app, setIsChange } = props;
+  const { app } = props;
   const [loading, setLoading] = useState(true);
   const [navigationGroup, setNavigationGroup] = useState([]);
 
   const handleSetNavigationGroup = data => {
-    setIsChange(true);
     setNavigationGroup(data);
   }
 
@@ -436,7 +435,8 @@ const Container = props => {
           icon: dragData.icon,
           iconColor: app.iconColor,
           iconUrl: dragData.iconUrl,
-          workSheetName: dragData.name
+          workSheetName: dragData.name,
+          createType: dragData.createType
         }]
       }).then(result => {
         if (!result) {
@@ -462,7 +462,8 @@ const Container = props => {
             icon: dragData.icon || '8_4_folder',
             iconColor: app.iconColor,
             iconUrl: dragData.iconUrl,
-            workSheetName: dragData.name
+            workSheetName: dragData.name,
+            createType: dragData.createType
           }]
         }).then(result => {
           if (result) {
@@ -658,7 +659,7 @@ const Container = props => {
       <div className="flexRow alignItemsCenter ThemeColor bold mBottom20">
         <div className="pointer" onClick={() => handleAddGroup()}>
           <Icon icon="add" />
-          <span>{_l('一级分组')}</span>
+          <span>{_l('分组')}</span>
         </div>
       </div>
     </DndProvider>

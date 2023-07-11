@@ -207,6 +207,13 @@ export const RELATE_RECORD_SHOW_TYPE = {
   DROPDOWN: 3,
 };
 
+/** 关联记录显示类型 */
+export const RELATION_SEARCH_SHOW_TYPE = {
+  CARD: 1,
+  LIST: 2,
+  TEXT: 3,
+};
+
 /** 工作表表格位置 */
 export const WORKSHEETTABLE_FROM_MODULE = {
   APP: 1,
@@ -225,7 +232,7 @@ export const SYSTEM_CONTROLS = [
   },
   {
     controlId: 'caid',
-    controlName: _l('创建者'),
+    controlName: _l('创建人'),
     controlPermissions: '100',
     type: 26,
     display: true,
@@ -246,7 +253,9 @@ export const SYSTEM_CONTROLS = [
   },
 ];
 
-export const CONTROL_EDITABLE_BLACKLIST = [22, 25, 30, 31, 32, 33, 34, 37, 38, 42, 45, 47];
+export const CONTROL_EDITABLE_WHITELIST = [
+  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 35, 36, 40, 41, 46, 48,
+];
 
 export const SHEET_VIEW_HIDDEN_TYPES = [
   10010, // REMARK 备注
@@ -254,4 +263,5 @@ export const SHEET_VIEW_HIDDEN_TYPES = [
   43, // OCR
   45, // EMBED 嵌入
   49, // SEARCH_BTN 查询按钮
+  51, // RELATION_SEARCH 查询记录
 ];

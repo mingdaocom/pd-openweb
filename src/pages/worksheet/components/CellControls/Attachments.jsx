@@ -234,6 +234,7 @@ function previewAttachment(
   viewId = '',
   disableDownload,
   handleOpenControlAttachmentInNewTab,
+  worksheetId,
 ) {
   const recordAttachmentSwitch =
     !!_.get(window, 'shareState.shareId') || isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
@@ -262,6 +263,7 @@ function previewAttachment(
       showThumbnail: true,
       hideFunctions: hideFunctions,
       disableNoPeimission: true,
+      worksheetId,
     },
     {
       openControlAttachmentInNewTab: handleOpenControlAttachmentInNewTab,
@@ -345,7 +347,9 @@ function HoverPreviewPanel(props, cb = () => {}) {
             <Tooltip text={<span>{_l('下载')}</span>} popupPlacement="top">
               <i
                 className="icon icon-download downloadBtn ThemeHoverColor3"
-                onClick={() => downloadAttachmentById({ fileId: attachment.fileID, refId: attachment.refId })}
+                onClick={() =>
+                  downloadAttachmentById({ fileId: attachment.fileID, refId: attachment.refId, worksheetId })
+                }
               ></i>
             </Tooltip>
           )}
@@ -434,6 +438,7 @@ function Attachment(props) {
                     getType: from === 21 ? from : undefined,
                   });
                 },
+            worksheetId,
           );
           e.stopPropagation();
         }}

@@ -14,8 +14,11 @@ import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import _ from 'lodash';
 import loadScript from 'load-script';
 import moment from 'moment';
-
+import { Dropdown } from 'ming-ui';
 const Wrap = styled.div`
+  .mLeft18 {
+    margin-left: 18px;
+  }
   background: #fff;
   min-height: 100%;
   .tips {
@@ -118,9 +121,26 @@ function ConnectAndAuthCon(props) {
     keywords: '',
     showConnect: false,
     connectData: null,
+    countSort: 0,
+    timeSort: 0,
+    searchType: 0,
   };
   const [
-    { tab, loading, noMore, pageIndex, listData, keywords, showConnect, connectData, hasChange, listCount },
+    {
+      tab,
+      loading,
+      noMore,
+      pageIndex,
+      listData,
+      keywords,
+      showConnect,
+      connectData,
+      hasChange,
+      listCount,
+      countSort,
+      timeSort,
+      searchType,
+    },
     setState,
   ] = useSetState({ ...initData, listCount: 0 });
   const featureType = getFeatureStatus(props.currentProjectId, 3);
@@ -132,6 +152,13 @@ function ConnectAndAuthCon(props) {
       ajaxPromise.abort();
     }
     setState({ loading: true });
+    let sorter = {
+      lastModifiedDate: timeSort === 1 ? 'ascend' : timeSort === 2 ? 'descend' : undefined,
+      apiCount: countSort === 1 ? 'ascend' : countSort === 2 ? 'descend' : undefined,
+    };
+    if (!sorter.lastModifiedDate && !sorter.apiCount) {
+      sorter = undefined;
+    }
     ajaxPromise = packageVersionAjax.getList(
       {
         companyId: props.currentProjectId,
@@ -139,6 +166,8 @@ function ConnectAndAuthCon(props) {
         pageIndex: pageIndex,
         pageSize: PageSize,
         keyword: keywords,
+        isOwner: searchType !== 0,
+        sorter,
       },
       { isIntegration: true },
     );
@@ -162,6 +191,9 @@ function ConnectAndAuthCon(props) {
       showConnect: false,
       connectData: null,
       hasChange: hasChange + 1,
+      countSort: 0,
+      timeSort: 0,
+      searchType: 0,
     });
   };
 
@@ -195,7 +227,7 @@ function ConnectAndAuthCon(props) {
 
   useEffect(() => {
     fetchData();
-  }, [props.currentProjectId, pageIndex, keywords, tab, hasChange]);
+  }, [props.currentProjectId, pageIndex, keywords, tab, hasChange, countSort, timeSort, searchType]);
 
   useEffect(() => {
     packageVersionAjax
@@ -205,6 +237,7 @@ function ConnectAndAuthCon(props) {
           types: [1, 2],
           pageIndex: 1,
           pageSize: 10000000,
+          isOwner: searchType !== 0,
         },
         { isIntegration: true },
       )
@@ -220,13 +253,45 @@ function ConnectAndAuthCon(props) {
       return (
         <React.Fragment>
           <WrapListHeader className={cx('headCon flexRow', { pBottom12: !props.isSuperAdmin })}>
-            <div className="flex">
+            <div className="flex flexRow">
               <SearchInput
                 className="searchCon"
                 placeholder={_l('搜索连接')}
                 value={keywords}
                 onChange={handleSearch}
               />
+              {/* ① 组织管理员，可以选择查看所有连接和我的连接
+              1、我的连接即拥有者包含我的连接
+              2、仅对组织应用管理员展示
+              3、筛选后，「我的连接」后的数量也需变化 */}
+              {props.isSuperAdmin && (
+                <Dropdown
+                  value={searchType}
+                  className="dropSearchType mLeft18"
+                  onChange={value => {
+                    if (searchType === value) {
+                      return;
+                    }
+                    setState({
+                      searchType: value,
+                      pageIndex: 1,
+                      hasChange: hasChange + 1,
+                    });
+                  }}
+                  border
+                  isAppendToBody
+                  data={[
+                    {
+                      text: _l('所有连接'),
+                      value: 0,
+                    },
+                    {
+                      text: _l('我的连接'),
+                      value: 1,
+                    },
+                  ]}
+                />
+              )}
             </div>
             {featureType && (
               <span
@@ -285,6 +350,8 @@ function ConnectAndAuthCon(props) {
       list: listData,
       showConnect,
       connectData,
+      countSort,
+      timeSort,
       onChange: res => {
         setState({ ...res });
       },
@@ -355,7 +422,7 @@ function ConnectAndAuthCon(props) {
               {_l('连接第三方 API 并保存鉴权认证，在工作表或工作流中调用')}{' '}
               <Support
                 type={3}
-                href="https://help.mingdao.com/zh/integration.html#第一步、连接与认证"
+                href="https://help.mingdao.com/integration#第一步、连接与认证"
                 text={_l('使用帮助')}
               />
             </p>

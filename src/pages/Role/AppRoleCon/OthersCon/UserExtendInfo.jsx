@@ -87,7 +87,7 @@ export default function UserExtendInfo(props) {
         {_l(
           '选择用户扩展信息表中作为用户权限标签字段（仅支持关联记录字段），可启用的字段上限为3个，每个标签字段的有效值上限为1000个，超过时默认取前1000个，当其他工作表记录也关联了此标签字段时，可以在角色权限、或筛选器中过滤出当前用户对应标签的记录',
         )}
-        <Support className="help" type={3} href="https://help.mingdao.com/zh/user4.html" text={_l('帮助')} />
+        <Support className="help" type={3} href="https://help.mingdao.com/user4" text={_l('帮助')} />
       </div>
       <div>
         {data.optionalControls

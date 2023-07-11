@@ -109,6 +109,7 @@ export default class RelationFields extends Component {
               sortText={_l(
                 '当查找到多个数据时，将按照以下排序规则获得第一条数据。如果未设置规则，按照字段配置的排序规则返回第一条数据',
               )}
+              filterEncryptCondition={true}
             />
 
             {!isApproval && (

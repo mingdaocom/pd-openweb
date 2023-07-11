@@ -344,7 +344,9 @@ export default class CustomFields extends Component {
             )}
 
             <div className="customFormItemControl">
-              {this.getWidgets(Object.assign({}, item, controlProps, { richTextControlCount }))}
+              {this.getWidgets(
+                Object.assign({}, item, controlProps, { richTextControlCount, isDraft: from === FROM.DRAFT }),
+              )}
               {this.renderVerifyCode(item)}
             </div>
 
@@ -501,7 +503,7 @@ export default class CustomFields extends Component {
     // (禁用或只读) 且 内容不存在
     if (
       (item.disabled || _.includes([25, 31, 32, 33, 37, 38], item.type) || !isEditable) &&
-      ((!item.value && item.value !== 0 && !_.includes([28, 47], item.type)) ||
+      ((!item.value && item.value !== 0 && !_.includes([28, 47, 51], item.type)) ||
         (item.type === 29 &&
           (safeParse(item.value).length <= 0 ||
             (typeof item.value === 'string' && item.value.startsWith('deleteRowIds')))) ||
@@ -564,7 +566,9 @@ export default class CustomFields extends Component {
             .concat(systemControlData || [])
             .concat(getMasterFormData() || [])}
         />
-        {!recordId && !item.isSubList && item.type !== 34 && <WidgetsDesc item={item} from={from} />}
+        {from !== FROM.RECORDINFO && !recordId && !item.isSubList && item.type !== 34 && (
+          <WidgetsDesc item={item} from={from} />
+        )}
       </React.Fragment>
     );
   }

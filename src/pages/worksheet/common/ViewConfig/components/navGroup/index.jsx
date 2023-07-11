@@ -143,7 +143,7 @@ const Wrap = styled.div`
     .cover {
       padding-top: 60px;
       img {
-        height: 212px;
+        width: 100%;
         display: block;
       }
     }
@@ -305,7 +305,7 @@ export default function NavGroup(params) {
         )}
         onAdd={addNavGroups}
         style={{
-          width: width || '360px',
+          width: width || '440px',
         }}
         offset={[0, 0]}
         classNamePopup="addControlDrop"

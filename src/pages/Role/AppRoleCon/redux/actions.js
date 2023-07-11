@@ -1,4 +1,9 @@
 import appManagementAjax from 'src/api/appManagement.js';
+export const setLoading = data => {
+  return (dispatch, getState) => {
+    dispatch({ type: 'UPDATE_ROLE_LOADING', data });
+  };
+};
 //角色列表
 export const setRoleId = data => {
   return (dispatch, getState) => {
@@ -116,16 +121,12 @@ export const getApplyList = (props, isApply) => {
 };
 
 let ajax = null;
-let data = {}
 export const getUserList = (props, isUserList) => {
   // isAllCount 用于左侧nav的计数 全部
   return (dispatch, getState) => {
     const { appRolePagingModel = {}, roleId = 'all', userList = [] } = getState().appRole;
     const { pageIndex = 1 } = appRolePagingModel;
     const { appId } = props;
-    if (_.isEqual(data, appRolePagingModel) && pageIndex > 1) {
-      return
-    }
     isUserList && dispatch({ type: 'UPDATE_ROLE_LOADING', data: true });
     if (ajax) {
       ajax.abort();
@@ -140,7 +141,6 @@ export const getUserList = (props, isUserList) => {
         roleId,
         ...appRolePagingModel,
       });
-    data = appRolePagingModel
     ajax.then(res => {
       ['all', 'apply', 'outsourcing'].includes(roleId) &&
         dispatch({ type: 'UPDATE_APPUSER_LIST_ALL_TOTAL', data: res.totalCount });

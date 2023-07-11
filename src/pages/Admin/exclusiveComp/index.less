@@ -1,0 +1,208 @@
+.exclusiveComp {
+  margin: 16px 16px 0 16px;
+  > div {
+    background: #fff;
+  }
+  .exclusiveCompHeader {
+    height: 56px;
+    color: #212121;
+    padding: 14px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    .exclusiveCompButton {
+      padding: 0 16px;
+      line-height: 32px;
+      .icon {
+        margin-right: 8px;
+      }
+    }
+    .refresh {
+      border-radius: 50%;
+      color: #999;
+      height: 32px;
+      line-height: 32px;
+      text-align: center;
+      width: 32px;
+      &:hover {
+        background-color: #f7f7f7;
+      }
+    }
+    .betaIcon {
+      color: rgb(76, 175, 80);
+      margin-left: 4px;
+    }
+  }
+  .exclusiveCompContent {
+    padding: 0 20px;
+    .exclusiveCompExplan {
+      background: #f2fafe;
+      border-radius: 3px;
+      line-height: 40px;
+      font-size: 13px;
+      padding: 0 12px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    .exclusiveCompList {
+      li {
+        padding: 18px 20px;
+        border-radius: 3px 3px 3px 3px;
+        border: 1px solid #e6e6e6;
+        .explanCardHeader {
+          justify-content: space-between;
+          margin-bottom: 29px;
+          align-items: center;
+          .headerLeft {
+            line-height: 24px;
+            display: flex;
+            align-items: center;
+            img {
+              width: 25px;
+              margin-right: 10px;
+              vertical-align: top;
+            }
+          }
+          .actionsRight {
+            .manageBtn {
+              cursor: pointer;
+              background: #ffffff;
+              border: 1px solid #eaeaea;
+              font-weight: 600;
+              color: #2196f3;
+              padding: 8px 18px;
+              border-radius: 16px;
+              margin-left: 24px;
+              &:hover {
+                border: 1px solid #2196f3;
+              }
+            }
+            .repurchaseBtn {
+              color: #2196f3;
+              cursor: pointer;
+            }
+          }
+        }
+        .explanCardContent {
+          display: flex;
+          .explanCardContentItem {
+            flex: 1;
+            gap: 37px;
+            .label {
+              font-size: 13px;
+              line-height: 13px;
+              color: #9e9e9e;
+              margin-bottom: 7px;
+            }
+            .value {
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .explanDetailHeader {
+    display: flex;
+    align-items: center;
+    .explanDetailLabel {
+      font-size: 16px;
+      font-weight: 600;
+      color: #212121;
+      margin-left: 17px;
+      margin-right: 9px;
+    }
+  }
+  .explanDetailContent {
+    padding: 18px 24px 5px 24px;
+    display: flex;
+    flex-direction: column;
+    .actionCon {
+      .selectItem {
+        width: 160px;
+        margin-right: 16px;
+        .ant-select-selector {
+          height: 36px;
+          line-height: 36px;
+        }
+        .ant-select-selection-item {
+          line-height: 36px;
+        }
+        input {
+          height: 36px !important;
+        }
+      }
+      .addBtn {
+        height: 32px;
+        padding: 0 16px;
+        .Icon {
+          margin-right: 8px;
+        }
+      }
+      .actionBtn {
+        width: 88px;
+        display: inline-block;
+        height: 32px;
+        line-height: 32px;
+        cursor: pointer;
+        text-align: center;
+        font-size: 13px;
+        color: #212121;
+        border-radius: 3px;
+        border: 1px solid #eaeaea;
+      }
+      .actionBtn:hover {
+        border: 1px solid #2196f3;
+        color: #2196f3;
+      }
+      .actionBtn.disabled {
+        color: #9e9e9e !important;
+        cursor: not-allowed;
+        border: 1px solid #eaeaea !important;
+      }
+    }
+    .workflowTable {
+      .ant-table-thead > tr > th {
+        font-size: 13px;
+        color: #999;
+        font-weight: 600;
+        background: #fff;
+      }
+      .ant-table-thead > tr > th::before {
+        display: none;
+      }
+      .workflowTableTitleRow > td {
+        padding: 12px 16px;
+      }
+      .workflowTableTitleRow {
+        .workfloeRowName {
+          .workflowCheckWrap {
+            width: 100%;
+          }
+          .iconWrap {
+            align-items: center;
+            border-radius: 5px;
+            display: flex;
+            height: 36px;
+            justify-content: center;
+            width: 36px;
+            margin-right: 10px;
+            .icon {
+              color: #fff;
+              font-size: 24px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.checkedWorkflowDialog {
+  height: 540px !important;
+}
+
+.addWorkflowDialogContainer {
+  .mui-dialog-mask {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+  }
+}

@@ -65,14 +65,16 @@ export default function AddControlDiaLog(params) {
   const onSave = () => {
     let row = Math.max(...controls.filter(o => !SYS.includes(o.controlId)).map(o => o.row));
     let control = { ...data, row: row + 1 };
-    worksheetAjax.addWorksheetControls({
-      worksheetId: worksheetId,
-      controls: [_.omit(control, ['controlId'])],
-    }).then(({ code, data, msg }) => {
-      onAdd(formatControlsData(controls.concat({ ...control, controlId: msg.split(':')[0] })));
-      onChange && onChange(msg.split(':')[0]);
-      setVisible(false);
-    });
+    worksheetAjax
+      .addWorksheetControls({
+        worksheetId: worksheetId,
+        controls: [_.omit(control, ['controlId'])],
+      })
+      .then(({ code, data, msg }) => {
+        onAdd(controls.concat({ ...control, controlId: msg.split(':')[0] }));
+        onChange && onChange(msg.split(':')[0]);
+        setVisible(false);
+      });
   };
   return (
     <Dialog

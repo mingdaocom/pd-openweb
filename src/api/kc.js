@@ -242,6 +242,7 @@ export default {
   * @param {} args.actionType 查看类型是分享地址还是从知识中心读取
   * @param {string} args.versionId 版本Id
   * @param {boolean} args.isOldest 获取最老的版本
+  * @param {string} args.worksheetId 工作表Id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

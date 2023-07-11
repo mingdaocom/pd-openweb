@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, Input } from 'ming-ui';
+import { Dialog, Input, Icon } from 'ming-ui';
+import { Tooltip } from 'antd';
 import privateSysSetting from 'src/api/privateSysSetting';
 
 const formattingValue = (value = 1, maxValue) => {
@@ -106,7 +107,12 @@ export default class DataRestrictionDialog extends Component {
         onCancel={this.props.onCancel}
       >
         <div className="mTop20 mBottom20">
-          <div className="mBottom5 Font14">{_l('工作流获取批量数据上限（最大2000）')}</div>
+          <div className="flexRow valignWrapper mBottom5 Font14">
+            {_l('非子流程节点数据处理上限（最大2000）')}
+            <Tooltip title={_l('工作流“获取多条数据”节点获取的数据，被后续数据处理节点(非子流程)使用时，可处理的数据量上限')} placement="bottom">
+              <Icon className="Font16 Gray_bd pointer" icon="info_outline" />
+            </Tooltip>
+          </div>
           <Input
             className="Width120 mRight10"
             value={workflowBatchGetDataLimitCount}
@@ -117,7 +123,12 @@ export default class DataRestrictionDialog extends Component {
           <span>{_l('条')}</span>
         </div>
         <div className="mBottom20">
-          <div className="mBottom5 Font14">{_l('子流程可用数据源记录数上限（最大20000）')}</div>
+          <div className="flexRow valignWrapper mBottom5 Font14">
+            {_l('子流程节点可处理的数据上限（最大20000）')}
+            <Tooltip title={_l('工作流“获取多条数据”节点获取的数据，被子流程节点使用时，可处理的数据量上限')} placement="bottom">
+              <Icon className="Font16 Gray_bd pointer" icon="info_outline" />
+            </Tooltip>
+          </div>
           <Input
             className="Width120 mRight10"
             value={workflowSubProcessDataLimitCount}

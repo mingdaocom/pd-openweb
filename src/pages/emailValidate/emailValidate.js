@@ -12,7 +12,7 @@ var ACTIONRESULTS = {
 };
 
 var render = function (result) {
-  $('#app').after(`
+  $('#app').append(`
     <div class="staticPageForm">
     <div class="header">
         <div class="content">

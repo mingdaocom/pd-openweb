@@ -187,7 +187,9 @@ export default function FormCover(props) {
     let newData = [];
     if (coverid) {
       const control = _.find(formData, i => i.controlId === coverid) || {};
-      newData = JSON.parse(control.value || '[]').filter(i => _.includes(['.png', '.jpg', '.jpeg'], i.ext));
+      newData = JSON.parse(control.value || '[]').filter(i =>
+        _.includes(['.png', '.jpg', '.jpeg'], (i.ext || '').toLowerCase()),
+      );
     }
     setImageData(newData);
   }, [flag]);

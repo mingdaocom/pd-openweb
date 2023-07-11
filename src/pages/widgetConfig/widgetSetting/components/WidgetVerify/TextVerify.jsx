@@ -29,12 +29,12 @@ const FORMAT_CONFIG = [
     regExp: '^https?:\\/\\/\\w+\\.\\w+\\.\\w+.*$',
   },
   {
-    text: _l('车牌号'),
+    text: _l('车牌号%04012'),
     value: 'car',
     regExp: '^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领]\\w{4,9}$',
   },
   {
-    text: _l('身份证号'),
+    text: _l('身份证号%04013'),
     value: 'idCard',
     regExp: '^\\d{17}[\\dX]$',
   },
@@ -160,7 +160,7 @@ export default function InputFormatConfig({ data, onChange }) {
           <div className="formatList">
             <div className="title Gray_75">
               {_l('选择下方常用表达式或自定义输入')}
-              <a href="https://help.mingdao.com/zh/sheet31.html" target="__blank" className="mLeft4">
+              <a href="https://help.mingdao.com/sheet31" target="__blank" className="mLeft4">
                 {_l('帮助')}
               </a>
             </div>

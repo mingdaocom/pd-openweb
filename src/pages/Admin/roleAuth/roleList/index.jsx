@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import RoleController from 'src/api/role';
-import 'src/components/pager/pager';
+import PaginationWrap from '../../components/PaginationWrap';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import RoleItem from './roleItem';
 import RoleAuthCommon from '../common/common';
@@ -42,20 +42,6 @@ class RoleList extends React.Component {
 
   componentWillMount() {
     this.fetchRoles();
-  }
-
-  componentDidUpdate() {
-    const { totalCount, pageIndex, pageSize } = this.state;
-    if (this.pager) {
-      $(this.pager).Pager({
-        pageIndex,
-        pageSize,
-        count: totalCount,
-        changePage: pageIndex => {
-          this.setState({ pageIndex }, this.fetchRoles);
-        },
-      });
-    }
   }
 
   fetchRoles(isReload) {
@@ -118,7 +104,7 @@ class RoleList extends React.Component {
   }
 
   render() {
-    const { isLoading, list, totalCount, pageSize } = this.state;
+    const { isLoading, list, totalCount, pageSize, pageIndex } = this.state;
     return (
       <div className="roleAuthTable">
         <table className="w100 verticalTop">
@@ -147,10 +133,11 @@ class RoleList extends React.Component {
           </table>
         </div>
         {list && totalCount > pageSize ? (
-          <div
-            ref={el => {
-              this.pager = el;
-            }}
+          <PaginationWrap
+            total={totalCount}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            onChange={pageIndex => this.setState({ pageIndex }, this.fetchRoles)}
           />
         ) : null}
       </div>

@@ -11,7 +11,7 @@ import moment from 'moment';
  * 获取浏览器默认语言
  */
 window.getNavigatorLang = () => {
-  let lang = navigator.language || navigator.userLanguage;
+  let lang = navigator.language;
   if (lang.substr(0, 2) === 'en') {
     return 'en';
   } else {
@@ -114,7 +114,6 @@ window._l = function () {
  * 是否是钉钉环境下
  */
 window.isDingTalk = window.navigator.userAgent.toLowerCase().includes('dingtalk');
-
 
 /**
  * 全局变量
@@ -274,8 +273,7 @@ window.safeParseArray = str => {
  * @returns {string} 相对的时间，如15分钟前
  */
 window.createTimeSpan = dateStr => {
-  let isoDateStr = dateStr.split(' ').join('T') + '+0800';
-  let dateTime = moment(isoDateStr).toDate();
+  let dateTime = moment(dateStr).toDate();
 
   let year = dateTime.getFullYear();
   let month = dateTime.getMonth();

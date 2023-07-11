@@ -146,7 +146,7 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
   };
 
   return (
-    <Modal visible type="fixed" width={880} bodyStyle={{ padding: '32px' }} onCancel={onClose}>
+    <Modal visible type="fixed" width={900} bodyStyle={{ padding: '32px' }} onCancel={onClose}>
       <Wrapper>
         <div className="headerWrapper">
           <h5 className="Font17 Gray bold mBottom20">{_l('选择数据源类型')}</h5>

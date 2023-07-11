@@ -12,8 +12,8 @@ import { Dropdown, Menu } from 'antd';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import _ from 'lodash';
 
-const formatChartData = (data, yaxisList, splitControlId, minValue, maxValue) => {
-  const result = [];
+const formatChartData = (data, yaxisList, splitControlId, xaxesControlId, minValue, maxValue) => {
+  let result = [];
   const { value } = data[0];
   const formatValue = value => {
     if (_.isNumber(minValue) && value < minValue) return minValue;
@@ -34,13 +34,36 @@ const formatChartData = (data, yaxisList, splitControlId, minValue, maxValue) =>
             groupKey: element.originalKey,
             value: formatValue(value),
             originalValue: value,
-            name,
-            originalId: item.originalX || name
+            name: name || (!splitControlId && !xaxesControlId ? element.originalKey : undefined),
+            originalId: item.originalX || name || element.originalKey
         });
         }
       }
     });
   });
+  if (!xaxesControlId && splitControlId && yaxisList.length) {
+    if (yaxisList.length === 1) {
+      result.forEach(data => {
+        data.name = yaxisList[0].controlName;
+        data.originalId = '';
+      });
+    } else {
+      result = [];
+      yaxisList.forEach(yaxis => {
+        data.forEach(data => {
+          const value = data.value[0];
+          result.push({
+            groupName: data.key,
+            groupKey: data.originalKey,
+            value: formatValue(value.m[yaxis.controlId]),
+            originalValue: value.m[yaxis.controlId],
+            name: yaxis.controlName,
+            originalId: yaxis.controlName,
+          });
+        });
+      });
+    }
+  }
   return result;
 };
 
@@ -131,10 +154,10 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { map, displaySetup, yaxisList, style, split } = props.reportData;
+    const { map, displaySetup, yaxisList, style, split, xaxes } = props.reportData;
     const { position } = getLegendType(displaySetup.legendType);
     const { ydisplay } = displaySetup;
-    const data = formatChartData(map, yaxisList, split.controlId, ydisplay.minValue, ydisplay.maxValue);
+    const data = formatChartData(map, yaxisList, split.controlId, xaxes.controlId, ydisplay.minValue, ydisplay.maxValue);
     const newYaxisList = formatYaxisList(data, yaxisList);
     const colors = getChartColors(style);
     const baseConfig = {

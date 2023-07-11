@@ -6,6 +6,7 @@ import { ScrollView, WaterMark } from 'ming-ui';
 import Back from '../components/Back';
 import styled from 'styled-components';
 import customApi from 'statistics/api/custom';
+import homeAppApi from 'src/api/homeApp';
 import DocumentTitle from 'react-document-title';
 import GridLayout from 'react-grid-layout';
 import { getDefaultLayout } from 'src/pages/customPage/util';
@@ -14,6 +15,8 @@ import WidgetDisplay from './WidgetDisplay';
 import { getEnumType } from 'src/pages/customPage/util';
 import AppPermissions from '../components/AppPermissions';
 import workflowPushSoket from 'mobile/Record/socket/workflowPushSoket';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
 import 'react-grid-layout/css/styles.css';
 import _ from 'lodash';
 
@@ -82,11 +85,13 @@ export default class CustomPage extends Component {
       loading: false,
       apk: {},
       pageComponents: [],
-      pagName: '',
+      pageName: '',
+      urlTemplate: '',
     };
   }
   componentDidMount() {
     this.getPage(this.props);
+    this.getPageInfo(this.props);
     if (!isMingdao) {
       workflowPushSoket();
     }
@@ -117,7 +122,7 @@ export default class CustomPage extends Component {
       this.setState({
         pageComponents: ((currentNavWorksheetInfo || {}).components || []).filter(item => item.mobile.visible),
         loading: false,
-        pagName: currentNavWorksheetInfo.name,
+        pageName: currentNavWorksheetInfo.name,
       });
     } else {
       this.setState({ loading: true });
@@ -144,15 +149,28 @@ export default class CustomPage extends Component {
             });
           }
           this.setState({
-            apk: result.apk,
+            apk: result.apk || {},
             pageComponents: result.components.filter(item => item.mobile.visible),
             loading: false,
-            pagName: result.name,
+            pageName: result.name,
           });
         });
     }
     $(window).bind('orientationchange', () => {
       location.reload();
+    });
+  }
+  getPageInfo(props) {
+    const { params } = props.match;
+    homeAppApi.getPageInfo({
+      appId: params.appId,
+      groupId: params.groupId,
+      id: params.worksheetId,
+    }).then(data => {
+      this.setState({
+        pageName: data.name,
+        urlTemplate: data.urlTemplate
+      });
     });
   }
   renderLoading() {
@@ -216,14 +234,46 @@ export default class CustomPage extends Component {
       </GridLayout>
     );
   }
+  renderUrlTemplate() {
+    const { params } = this.props.match;
+    const { urlTemplate } = this.state;
+    const dataSource = transferValue(urlTemplate);
+    const urlList = [];
+    dataSource.map(o => {
+      if (!!o.staticValue) {
+        urlList.push(o.staticValue);
+      } else {
+        urlList.push(
+          getEmbedValue(
+            {
+              // projectId: appPkg.projectId,
+              appId: params.appId,
+              groupId: params.groupId,
+              worksheetId: params.worksheetId,
+            },
+            o.cid,
+          ),
+        );
+      }
+    });
+    return (
+      <div className="h100 w100">
+        <iframe className="w100 h100" style={{ border: 'none' }} src={urlList.join('')} />
+      </div>
+    );
+  }
   render() {
     const { pageTitle } = this.props;
-    const { pageComponents, loading, pagName, apk } = this.state;
+    const { pageComponents, loading, pageName, apk, urlTemplate } = this.state;
     return (
       <WaterMark projectId={apk.projectId}>
         <ScrollView className="h100 w100 GrayBG">
-          <DocumentTitle title={pageTitle || pagName || _l('自定义页面')} />
-          {loading ? this.renderLoading() : pageComponents.length ? this.renderContent() : this.renderWithoutData()}
+          <DocumentTitle title={pageTitle || pageName || _l('自定义页面')} />
+          {urlTemplate ? (
+            this.renderUrlTemplate()
+          ) : (
+            loading ? this.renderLoading() : pageComponents.length ? this.renderContent() : this.renderWithoutData()
+          )}
           {!(location.href.includes('mobile/app') || isMingdao) && (
             <Back
               className="low"

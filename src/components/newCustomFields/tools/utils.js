@@ -2,7 +2,7 @@ import renderCellText from 'src/pages/worksheet/components/CellControls/renderTe
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FROM, FORM_ERROR_TYPE, UN_TEXT_TYPE } from './config';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getStringBytes, accMul, browserIsMobile, formatStrZero } from 'src/util';
+import { getStringBytes, accMul, browserIsMobile, formatStrZero, isUUID } from 'src/util';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import { getRelateRecordCountFromValue } from 'worksheet/util';
@@ -10,6 +10,7 @@ import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import _ from 'lodash';
 import moment from 'moment';
 import renderText from 'src/pages/worksheet/components/CellControls/renderText';
+import { WFSTATUS_OPTIONS } from 'src/pages/worksheet/components/WorksheetRecordLog/enum.js';
 
 export const convertControl = type => {
   switch (type) {
@@ -121,6 +122,8 @@ export const convertControl = type => {
       return 'Search'; // api查询--按钮
     case 50:
       return 'Search'; // api查询--下拉框
+    case 51:
+      return 'RelationSearch'; // 查询记录
   }
 };
 
@@ -171,7 +174,11 @@ function formatRowToServer(row, controls = [], { isDraft } = {}) {
         return _.pick(
           formatControlToServer(
             { ...c, value: row[key] },
-            { isSubListCopy: row.isCopy, isDraft, isNewRecord: row.rowid && row.rowid.startsWith('temp') },
+            {
+              isSubListCopy: row.isCopy,
+              isDraft,
+              isNewRecord: row.rowid && (row.rowid.startsWith('temp') || row.rowid.startsWith('default')),
+            },
           ),
           ['controlId', 'value', 'editType'],
         );
@@ -195,7 +202,7 @@ export function formatControlToServer(
     controlName: control.controlName,
     dot: control.dot,
   };
-  if (!control.value) {
+  if (_.isUndefined(control.value)) {
     return result;
   }
   let parsedValue;
@@ -220,7 +227,7 @@ export function formatControlToServer(
       result.value = JSON.stringify(options);
       break;
     case 14: // 附件
-      let parsed = JSON.parse(control.value);
+      let parsed = safeParse(control.value);
       let oldAttachments = [];
       let oldKnowledgeAtts = [];
 
@@ -271,7 +278,7 @@ export function formatControlToServer(
                     sid: item.sid,
                     sourcevalue: needSourceValue && item.sourcevalue,
                   }))
-                  .filter(item => !_.isEmpty(item.sid)),
+                  .filter(item => !_.isEmpty(item.sid) && isUUID(item.sid)),
               )
             : '';
         } else {
@@ -284,7 +291,11 @@ export function formatControlToServer(
             addedIds.map(id => ({ editType: 1, rowid: id })).concat(deletedIds.map(id => ({ editType: 2, rowid: id }))),
           );
         }
-      } else if (typeof control.value === 'string' && control.value.startsWith('deleteRowIds')) {
+      } else if (
+        typeof control.value === 'string' &&
+        control.value.startsWith('deleteRowIds') &&
+        control.value !== 'deleteRowIds: all'
+      ) {
         let deletedIds = [];
         try {
           deletedIds = control.value.replace('deleteRowIds: ', '').split(',').filter(_.identity);
@@ -594,18 +605,25 @@ export const getCurrentValue = (item, data, control) => {
               if (d.toString().indexOf('add_') > -1) {
                 return d.split('add_')[1];
               }
-              if (d === 'other') {
-                return _l('其他');
+
+              if (item.controlId === 'wfstatus') {
+                return (
+                  _.get(
+                    _.find(WFSTATUS_OPTIONS, t => t.key === d && !t.isDeleted),
+                    'value',
+                  ) || ''
+                );
               }
-              if (d.toString().indexOf('other:') > -1) {
-                return _.replace(d, 'other:', '') || _l('其他');
-              }
-              return (
+
+              const curValue =
                 _.get(
                   _.find(item.options || [], t => t.key === d && !t.isDeleted),
                   'value',
-                ) || ''
-              );
+                ) || '';
+              if (d.toString().indexOf('other:') > -1) {
+                return _.replace(d, 'other:', '') || curValue;
+              }
+              return curValue;
             })
             .join('、');
         case 15:
@@ -654,9 +672,7 @@ export const getCurrentValue = (item, data, control) => {
 
 // 特殊手机号验证是否合法
 export const specialTelVerify = value => {
-  return /\+234\d{10}$|\+63\d{10}$|\+61\d{9}$|\+60\d{8,10}$|\+852\d{8}$|\+85368\d{6}$|\+861[3-9]\d{9}$|\+5551\d{8}$/.test(
-    value || '',
-  );
+  return /\+861[3-9]\d{9}$/.test(value || '');
 };
 
 export const compareWithTime = (start, end, type) => {

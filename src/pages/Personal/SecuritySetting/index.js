@@ -194,7 +194,7 @@ export default class SecuritySetting extends Component {
           </div>
           <div>{browserName}</div>
         </div>
-        <div class="flex2">{current ? _l('现在') : `${passTime}前使用`}</div>
+        <div class="flex2">{current ? _l('现在') : `${_l('%0前使用', passTime)}`}</div>
         <div class="flex3 pLeft24">
           {ip}
           {!!geoCity && `（${geoCity}）`}

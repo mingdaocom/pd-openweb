@@ -7,7 +7,7 @@ import { emitter } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
-import { getAdvanceSetting, browserIsMobile } from 'src/util';
+import { getAdvanceSetting, browserIsMobile, addBehaviorLog } from 'src/util';
 import NoRecords from 'src/pages/worksheet/components/WorksheetTable/components/NoRecords';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -307,6 +307,9 @@ export default class RecordGallery extends Component {
                     return;
                   }
                   this.setState({ recordId: item.rowid, recordInfoVisible: true });
+                  if (location.pathname.indexOf('public') === -1) {
+                    addBehaviorLog('worksheetRecord', worksheetId, { rowId: item.rowid }); // 埋点
+                  }
                 }}
               >
                 <GalleryItem

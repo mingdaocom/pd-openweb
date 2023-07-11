@@ -145,6 +145,7 @@ export default class SingleControlValue extends Component {
     return (
       <SelectOtherFields
         showClear={this.props.showClear}
+        showCurrent={this.props.showCurrent}
         item={item}
         fieldsVisible={this.state.moreFieldsIndex === i}
         processId={this.props.processId}
@@ -732,7 +733,11 @@ export default class SingleControlValue extends Component {
 
     // 日期 || 日期时间
     if (item.type === 15 || item.type === 16) {
-      const showType = _.get(_.find(controls, obj => obj.controlId === item.fieldId), 'advancedSetting.showtype') || 1;
+      const showType =
+        _.get(
+          _.find(controls, obj => obj.controlId === item.fieldId),
+          'advancedSetting.showtype',
+        ) || 1;
       const mode = { 3: 'date', 4: 'month', 5: 'year' };
       const timeMode = { 1: 'minute', 2: 'hour', 6: 'second' };
 
@@ -741,7 +746,7 @@ export default class SingleControlValue extends Component {
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius">
+            <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius actionControlBoxClear">
               <DateTime
                 selectedValue={item.fieldValue ? moment(item.fieldValue) : null}
                 timePicker={item.type === 16}
@@ -756,39 +761,14 @@ export default class SingleControlValue extends Component {
                   <span className="Gray_bd">{_l('请选择日期')}</span>
                 )}
               </DateTime>
-            </div>
-          )}
-          {this.renderOtherFields(item, i)}
-        </div>
-      );
-    }
-
-    // 地区
-    if (item.type === 19 || item.type === 23 || item.type === 24) {
-      const level = item.type === 19 ? 1 : item.type === 23 ? 2 : 3;
-
-      return (
-        <div className="mTop8 flexRow relative">
-          {item.fieldValueId ? (
-            this.renderSelectFieldsValue(item, i)
-          ) : (
-            <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius">
-              <CityPicker
-                level={level}
-                defaultValue={item.fieldValue ? JSON.parse(item.fieldValue).value : ''}
-                placeholder={item.type === 19 ? _l('省') : item.type === 23 ? _l('省/市') : _l('省/市/县')}
-                callback={citys =>
-                  this.updateSingleControlValue(
-                    {
-                      fieldValue: JSON.stringify({
-                        id: citys[citys.length - 1].id,
-                        value: citys.map(o => o.name).join('/'),
-                      }),
-                    },
-                    i,
-                  )
-                }
-              />
+              {item.fieldValue && (
+                <Icon
+                  icon="cancel1"
+                  className="Font16 Gray_9e ThemeHoverColor3 Absolute"
+                  style={{ top: 9, right: 10 }}
+                  onClick={() => this.updateSingleControlValue({ fieldValue: '' }, i)}
+                />
+              )}
             </div>
           )}
           {this.renderOtherFields(item, i)}
@@ -826,6 +806,54 @@ export default class SingleControlValue extends Component {
                   <span className="Gray_bd">{_l('请选择日期')}</span>
                 )}
               </DateTimeRange>
+            </div>
+          )}
+          {this.renderOtherFields(item, i)}
+        </div>
+      );
+    }
+
+    // 地区
+    if (item.type === 19 || item.type === 23 || item.type === 24) {
+      const level = item.type === 19 ? 1 : item.type === 23 ? 2 : 3;
+      const cityText = safeParse(item.fieldValue || '{}').value || '';
+
+      return (
+        <div className="mTop8 flexRow relative">
+          {item.fieldValueId ? (
+            this.renderSelectFieldsValue(item, i)
+          ) : (
+            <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius actionControlBoxClear">
+              <CityPicker
+                level={level}
+                callback={citys =>
+                  this.updateSingleControlValue(
+                    {
+                      fieldValue: JSON.stringify({
+                        id: citys[citys.length - 1].id,
+                        value: citys.map(o => o.name).join('/'),
+                      }),
+                    },
+                    i,
+                  )
+                }
+              >
+                {cityText ? (
+                  <span>{cityText}</span>
+                ) : (
+                  <span className="Gray_bd">
+                    {item.type === 19 ? _l('省') : item.type === 23 ? _l('省/市') : _l('省/市/县')}
+                  </span>
+                )}
+              </CityPicker>
+              {cityText && (
+                <Icon
+                  icon="cancel1"
+                  className="Font16 Gray_9e ThemeHoverColor3 Absolute"
+                  style={{ top: 9, right: 10 }}
+                  onClick={() => this.updateSingleControlValue({ fieldValue: '' }, i)}
+                />
+              )}
             </div>
           )}
           {this.renderOtherFields(item, i)}
@@ -969,7 +997,9 @@ export default class SingleControlValue extends Component {
               border
               isAppendToBody
               placeholder={_l('选择流程中对应此工作表的节点对象')}
-              renderTitle={() => this.renderRelationField(_.find(relationControls, o => o.nodeId === item.nodeId))}
+              renderTitle={() =>
+                this.renderRelationField(_.find(relationControls, o => o.nodeId === item.nodeId) || item)
+              }
               onChange={nodeId => this.updateSingleControlValue({ nodeId }, i)}
             />
           )}
@@ -1007,8 +1037,8 @@ export default class SingleControlValue extends Component {
                 className="triggerConditionTime"
                 showNow={false}
                 bordered={false}
-                allowClear={false}
                 suffixIcon={null}
+                clearIcon={<Icon icon="cancel1" className="Font16 Gray_9e ThemeHoverColor3" />}
                 inputReadOnly
                 placeholder={_l('请选择时间')}
                 format={timeFormat}

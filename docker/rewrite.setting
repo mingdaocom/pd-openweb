@@ -41,7 +41,6 @@ rewrite (?i)^/worksheetapi/ /worksheetapi.html break;
 rewrite (?i)^/public/workflow /workflowrecordshare.html break;
 rewrite (?i)^/m/detail/calendar /calendar-share.html break;
 rewrite (?i)^/excelfile /excelfile.html break;
-rewrite (?i)^/analytics /analytics.html break;
 
 # 企业微信落地
 rewrite (?i)^/workweixin /workWeixin.html break;

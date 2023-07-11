@@ -125,7 +125,9 @@ export function UserItem(props) {
         size={28}
       />
       <div className="flex flexColumn text">
-        <div className="name">{fullname}</div>
+        <div className="name ellipsis" title={fullname}>
+          {fullname}
+        </div>
         <div
           className="description ellipsis"
           title={type === 'external' ? phone : [department, job].filter(_.identity).join(' | ')}

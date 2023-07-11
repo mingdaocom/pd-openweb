@@ -57,7 +57,10 @@ export default function MobileTable(props) {
       <div className="mobileTableHeader flexRow valignWrapper">
         {!_.isEmpty(showRows) && <div className="mobileTableItem tableIndex"></div>}
         {showControls.map((c, cIndex) => (
-          <div key={cIndex} className={cx('mobileTableItem flex Font13', { mRight30: cIndex === showControls.length - 1 })}>
+          <div
+            key={cIndex}
+            className={cx('mobileTableItem flex Font13', { mRight30: cIndex === showControls.length - 1 })}
+          >
             {c.controlName}
           </div>
         ))}
@@ -93,6 +96,7 @@ export default function MobileTable(props) {
               }}
             >
               <CellControl
+                isMobileTable
                 className="cell flex"
                 sheetSwitchPermit={sheetSwitchPermit}
                 cell={{ ...c, value: row[c.controlId] }}

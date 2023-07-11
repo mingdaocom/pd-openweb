@@ -6,7 +6,7 @@ import { Tooltip, Icon, Dialog, Input } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import sheetAjax from 'src/api/worksheet';
-import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
 import { getDefaultViewSet } from 'worksheet/constants/common';
 import ViewDisplayMenu from './viewDisplayMenu';
 import './ViewItems.less';
@@ -16,6 +16,7 @@ import { Drawer } from 'antd';
 import { withRouter } from 'react-router-dom';
 import HideItem from './HideItem';
 import styled from 'styled-components';
+import { navigateTo } from 'src/router/navigateTo';
 
 const EmptyData = styled.div`
   font-size: 12px;
@@ -115,7 +116,7 @@ export default class ViewItems extends Component {
         alert(_l('获取视图列表失败'), 2);
       });
   }
-  handleAddView = (viewType = 'sheet') => {
+  handleAddView = (id = 'sheet') => {
     const { worksheetId, viewList, appId, worksheetControls, worksheetInfo } = this.props;
     const titleControl = _.get(
       _.find(worksheetControls, item => item.attribute === 1),
@@ -129,14 +130,17 @@ export default class ViewItems extends Component {
       'controlId',
     );
     const coverCid =
-      viewType === 'gallery'
+      id === 'gallery'
         ? _.get(worksheetInfo, ['advancedSetting', 'coverid']) || //默认取表单设置里的封面
           coverId
         : coverId;
+    const viewType = VIEW_DISPLAY_TYPE[id];
+    const view = _.find(VIEW_TYPE_ICON, { id }) || {};
+    const viewTypeCount = viewList.filter(n => n.viewType == viewType).length;
     let params = {
       viewId: '',
       appId,
-      viewType: VIEW_DISPLAY_TYPE[viewType],
+      viewType,
       displayControls: _.slice(defaultDisplayControls, 0, 2),
       // showControls: worksheetControls
       //   .filter(
@@ -145,7 +149,7 @@ export default class ViewItems extends Component {
       //   )
       //   .map(item => item.controlId),
       coverCid,
-      name: viewList.length ? _l('视图%0', viewList.length) : _l('视图'),
+      name: viewList.length ? `${view.text}${viewTypeCount ? viewTypeCount : ''}` : _l('视图'),
       sortType: 0,
       coverType: 0,
       worksheetId,
@@ -209,12 +213,25 @@ export default class ViewItems extends Component {
         viewId: view.viewId,
       })
       .then(result => {
-        const newViewList = viewList.concat(result);
-        this.props.onAddView(newViewList, result);
+        const list = viewList.slice();
+        const newIndex = _.findIndex(list, { viewId: view.viewId });
+        list.splice(newIndex + 1, 0, result);
+        this.handleSortViews(list);
+        this.props.onAddView(list, result);
       })
       .fail(err => {
         alert(_l('复制视图失败'), 2);
       });
+  };
+  handleSortViews = views => {
+    const { appId, worksheetId } = this.props;
+    sheetAjax
+      .sortWorksheetViews({
+        appId,
+        worksheetId,
+        viewIds: views.map(view => view.viewId),
+      })
+      .then(result => {});
   };
   computeDirectionVisible() {
     if (!this.scrollWraperEl) return;
@@ -407,7 +424,7 @@ export default class ViewItems extends Component {
                         index={index}
                         style={{ zIndex: 999999 }}
                         type="drawerWorksheetShowList"
-                        toView={() => this.props.history.push(getNavigateUrl(item))}
+                        toView={() => navigateTo(getNavigateUrl(item))}
                         isCharge={isCharge}
                         onCopyView={this.handleCopyView}
                         updateAdvancedSetting={this.updateAdvancedSetting}
@@ -453,7 +470,7 @@ export default class ViewItems extends Component {
                           index={index}
                           style={{ zIndex: 999999 }}
                           type="drawerWorksheetHiddenList"
-                          toView={() => this.props.history.push(getNavigateUrl(item))}
+                          toView={() => navigateTo(getNavigateUrl(item))}
                           isCharge={isCharge}
                           onCopyView={this.handleCopyView}
                           updateAdvancedSetting={this.updateAdvancedSetting}
@@ -475,15 +492,10 @@ export default class ViewItems extends Component {
             popupAlign={{ points: ['tl', 'bl'], offset: [-10, 8] }}
             popupVisible={addMenuVisible}
             onPopupVisibleChange={visible => this.setState({ addMenuVisible: visible })}
-            popup={
-              <ViewDisplayMenu onClick={this.handleAdd} />
-            }
+            popup={<ViewDisplayMenu onClick={this.handleAdd} />}
           >
             <Tooltip popupPlacement="bottom" text={<span>{_l('添加视图')}</span>}>
-              <Icon
-                icon="add"
-                className="Font20 Gray_75 pointer addViewIcon mLeft8 hoverGray"
-              />
+              <Icon icon="add" className="Font20 Gray_75 pointer addViewIcon mLeft8 hoverGray" />
             </Tooltip>
           </Trigger>
         )}

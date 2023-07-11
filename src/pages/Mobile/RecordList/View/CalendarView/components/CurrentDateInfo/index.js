@@ -5,6 +5,7 @@ import { ScrollView, Icon } from 'ming-ui';
 import { Modal } from 'antd-mobile';
 import * as actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { RecordInfoModal } from 'mobile/Record';
+import { addBehaviorLog } from 'src/util';
 import './index.less';
 import { dateFormat } from '../util.js';
 import withoutRows from '../../../../SheetRows/assets/withoutRows.png';
@@ -129,7 +130,12 @@ class CurrentDateInfo extends Component {
                     <div
                       className="listItem"
                       key={item.extendedProps.rowid}
-                      onClick={() => this.navigateToDetail(item.extendedProps.rowid)}
+                      onClick={() => {
+                        this.navigateToDetail(item.extendedProps.rowid);
+                        if (location.pathname.indexOf('public') === -1) {
+                          addBehaviorLog('worksheetRecord', base.worksheetId, { rowId: item.extendedProps.rowid }); // 埋点
+                        }
+                      }}
                     >
                       <div
                         className="title Font14 Bold ellipsis"

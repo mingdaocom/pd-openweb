@@ -208,7 +208,7 @@ export default function TodoEntrustModal(props) {
               <div className="Font13 mBottom5">{_l('开始')}</div>
               <DatePicker
                 style={{ width: '100%', borderRadius: '3px' }}
-                placeholder="此刻"
+                placeholder={_l('此刻')}
                 showTime
                 disabledDate={date => date < moment().subtract(1, 'd')}
                 disabledTime={disabledDateTime}
@@ -226,6 +226,7 @@ export default function TodoEntrustModal(props) {
               </div>
               <DatePicker
                 style={{ width: '100%', borderRadius: '3px' }}
+                placeholder={_l('请选择日期')}
                 showTime
                 disabledDate={date => date < moment().subtract(1, 'd')}
                 disabledTime={disabledDateTime}

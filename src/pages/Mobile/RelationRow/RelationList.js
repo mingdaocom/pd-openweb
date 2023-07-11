@@ -8,6 +8,7 @@ import { Flex, ActivityIndicator, WhiteSpace, WingBlank } from 'antd-mobile';
 import RecordCard from 'src/components/recordCard';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
+import { addBehaviorLog } from 'src/util';
 import './index.less';
 import _ from 'lodash';
 
@@ -46,10 +47,10 @@ class RelationList extends Component {
     this.props.reset();
   }
   handleSelect = (record, selected) => {
-    const { controlId, rowInfo, relationRow, actionParams, updateActionParams, permissionInfo } = this.props;
+    const { relationRow, actionParams, updateActionParams, permissionInfo } = this.props;
     const { worksheet } = relationRow;
     const { isEdit, selectedRecordIds } = actionParams;
-    const control = _.find(rowInfo.receiveControls, { controlId }) || {};
+
     if (isEdit) {
       updateActionParams({
         selectedRecordIds: selected
@@ -58,17 +59,21 @@ class RelationList extends Component {
       });
     } else {
       if (permissionInfo.allowLink) {
+        if (location.pathname.indexOf('public') === -1) {
+          addBehaviorLog('worksheetRecord', worksheet.worksheetId, { rowId: record.rowid }); // 埋点
+        }
         this.setState({
-          previewRecordId: record.rowid
+          previewRecordId: record.rowid,
         });
       }
     }
   };
   renderRow = item => {
-    const { relationRow, actionParams } = this.props;
+    const { relationRow, actionParams, permissionInfo } = this.props;
     const { showControls, selectedRecordIds, coverCid } = actionParams;
     const { controls } = relationRow.template;
     const selected = !!_.find(selectedRecordIds, id => id === item.rowid);
+
     return (
       <WingBlank size="md" key={item.rowid}>
         <RecordCard
@@ -79,6 +84,7 @@ class RelationList extends Component {
           showControls={showControls}
           data={item}
           onClick={() => this.handleSelect(item, !selected)}
+          disabledLink={!permissionInfo.allowLink}
         />
       </WingBlank>
     );

@@ -262,7 +262,7 @@ export default class extends Component {
     const { data } = this.state;
     const { appSectionId } = data[0] || {};
     const temp = _.cloneDeep(data);
-    temp[0] = { ...temp[0], name: '未命名分组', type: DEFAULT_CREATE };
+    temp[0] = { ...temp[0], name: _l('未命名分组'), type: DEFAULT_CREATE };
     this.setState({ focusGroupId: appSectionId, data: temp });
     this.props.updateAppGroup(temp);
   };

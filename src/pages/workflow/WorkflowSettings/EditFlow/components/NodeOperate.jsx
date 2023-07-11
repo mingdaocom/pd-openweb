@@ -270,7 +270,8 @@ export default class NodeOperate extends Component {
     const list = [
       { text: _l('修改名称'), icon: 'edit', events: () => this.setState({ isEdit: true }) },
       { text: _l('编辑节点别名和说明'), icon: 'knowledge-message', events: () => this.addNodeDescribe() },
-      { text: _l('节点复制'), icon: 'copy', events: copyBranchNode },
+      { text: _l('复制'), icon: 'copy', events: () => copyBranchNode(false) },
+      { text: _l('复制整个分支'), icon: 'flow', events: () => copyBranchNode(true) },
       {
         text: _l('删除'),
         icon: 'delete1',
@@ -281,12 +282,12 @@ export default class NodeOperate extends Component {
 
     // 触发节点没有删除 || 禁用删除
     if (item.typeId === NODE_TYPE.FIRST || noDelete) {
-      _.remove(list, (o, index) => index === 3);
+      _.remove(list, (o, index) => index === 4);
     }
 
     // 只有分支节点有复制
     if (item.typeId !== NODE_TYPE.BRANCH_ITEM) {
-      _.remove(list, (o, index) => index === 2);
+      _.remove(list, (o, index) => _.includes([2, 3], index));
     }
 
     // 当前分支节点的位置

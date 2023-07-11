@@ -404,9 +404,9 @@ export default class AccountChart extends React.Component {
       if (res === 1) {
         location.href = '/cancellation.htm';
       } else if (res === 20) {
-        alert(_l('您是平台唯一管理员，无法注销'));
+        alert(_l('您是平台唯一管理员，无法注销'), 2);
       } else if (res === 30) {
-        alert(_l('您尚有未退出的组织，请先至 个人中心-我的组织 退出所有组织，方可注销'));
+        alert(_l('您尚有未退出的组织，请先至 个人中心-我的组织 退出所有组织，方可注销'), 2);
       }
     });
   };

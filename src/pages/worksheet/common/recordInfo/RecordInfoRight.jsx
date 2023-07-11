@@ -5,19 +5,12 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 
 export default function RecordInfoRight(props) {
-  const {
-    className,
-    recordbase,
-    workflow,
-    approval,
-    sheetSwitchPermit,
-    onFold,
-    projectId,
-    formFlag,
-    formdata,
-  } = props;
+  const { className, recordbase, workflow, approval, sheetSwitchPermit, onFold, projectId, formFlag, formdata } = props;
   const { isSubList, appId, viewId, appSectionId, worksheetId, recordId, recordTitle } = recordbase;
   let hiddenTabs = [];
+  const noApproved =
+    !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId) ||
+    (md.global.Account.isPortal && !props.approved);
   if (isSubList) {
     hiddenTabs.push('discuss', 'discussPortal', 'files');
   }
@@ -30,19 +23,18 @@ export default function RecordInfoRight(props) {
     hiddenTabs.push('logs');
   }
   // 审批权限 || 流程详情不需要显示表审批
-  if (!isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId) || workflow || md.global.Account.isPortal) {
+  if (noApproved || workflow) {
     hiddenTabs.push('approval');
   }
   if (!workflow) {
     hiddenTabs.push('workflow');
   }
 
-
   if (md.global.Account.isPortal) {
     //外部门户 需要判断当前是否开始讨论
     hiddenTabs.push('logs', 'files'); //外部门户不可见日志和文件
     if (!props.allowExAccountDiscuss) {
-      return '';
+      hiddenTabs.push('discuss', 'discussPortal');
     } else {
       if (props.exAccountDiscussEnum === 0) {
         hiddenTabs.push('discussPortal'); //允许外部门户参与讨论，且全部可见 不显示外部门户讨论
@@ -82,6 +74,7 @@ export default function RecordInfoRight(props) {
         formdata={formdata}
         allowExAccountDiscuss={props.allowExAccountDiscuss}
         exAccountDiscussEnum={props.exAccountDiscussEnum}
+        approved={props.approved}
       />
     </div>
   );

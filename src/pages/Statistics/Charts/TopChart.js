@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Dropdown, Menu } from 'antd';
 import { ScrollView } from 'ming-ui';
-import { formatChartData } from './BarChart';
 import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import styled from 'styled-components';
@@ -189,7 +188,7 @@ export default class extends Component {
         )}
         {yaxisList.map(item => (
           <div key={item.controlId} className="value ellipsis">
-            {formatrChartValue(data[item.controlId], false, yaxisList, item.controlId)}
+            {formatrChartValue(data[item.controlId], false, yaxisList, item.controlId, false)}
           </div>
         ))}
       </div>

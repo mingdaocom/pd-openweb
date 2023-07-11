@@ -29,19 +29,14 @@ class WorksheetEmpty extends Component {
       flag: true,
     };
   }
-  handleCreate = (type, name) => {
+  handleCreate = (type, args) => {
     const { appId, groupId, createAppItem } = this.props;
-
-    if (!name) {
-      alert(_l('请填写名称'), 3);
-      return;
-    }
     createAppItem({
       appId,
       groupId,
       type,
-      name: name.slice(0, 25),
       icon: type === 0 ? '1_worksheet' : '1_0_home',
+      ...args,
     });
     this.setState({ createType: '' });
   };

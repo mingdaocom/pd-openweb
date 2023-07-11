@@ -6,7 +6,7 @@ import _ from 'lodash';
 export default class Controls extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { height: document.documentElement.clientHeight - 320 };
+    this.state = { height: document.documentElement.clientHeight - 280 };
   }
   componentDidMount() {
     $(window).on('resize', this.getHeight);
@@ -16,7 +16,7 @@ export default class Controls extends React.Component {
   }
   getHeight = () => {
     this.setState({
-      height: document.documentElement.clientHeight - 320,
+      height: document.documentElement.clientHeight - 280,
     });
   };
   render() {

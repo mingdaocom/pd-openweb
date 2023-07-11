@@ -12,6 +12,7 @@ import _ from 'lodash';
 const CreateRecordWrap = styled.div`
   width: 280px;
   margin-bottom: 8px;
+  position: relative;
   textarea {
     padding: 12px 30px 12px 12px;
     resize: none;
@@ -38,8 +39,11 @@ export default function CreateRecord(props) {
     removeHierarchyTempItem,
     createTextTitleRecord,
     handleAddRecord,
+    isStraightLine = false,
+    view = {},
   } = props;
   const { pid, rowId, pathId } = itemData;
+  const { advancedSetting } = view;
 
   // 用来防止触发失焦
   const [isOutFocus, setOutFocus] = useState(false);
@@ -50,6 +54,8 @@ export default function CreateRecord(props) {
 
   // 绘制连接线
   const drawConnector = () => {
+    const { view = {} } = props;
+    const { advancedSetting = {} } = view;
     // 顶级记录没有连线
     if (!pid) return;
     const $svgWrap = document.getElementById(`svg-${pathId.join('-')}`);
@@ -57,10 +63,14 @@ export default function CreateRecord(props) {
     if ($ele) {
       const $parent = document.getElementById(`${data.pathId.join('-')}`);
       if ($parent === $ele) return;
-      const { height = 0, top = 0, start = [], end = [] } = getPosition($parent, $ele, scale);
-      $($svgWrap)
-        .height(height)
-        .css({ top: -top });
+      const {
+        height = 0,
+        top = 0,
+        start = [],
+        end = [],
+        straightLineInflection = [],
+      } = getPosition($parent, $ele, scale, advancedSetting.hierarchyViewConnectLine === '1' || isStraightLine);
+      $($svgWrap).height(height).css({ top: -top });
 
       /* 为了防止连线过于重叠,处理控制点的横坐标
        靠上的记录的控制点靠右 靠下的记录控制点靠左，最右到父子记录间隔的一半即60px,最左为起点0
@@ -73,11 +83,12 @@ export default function CreateRecord(props) {
         $svgWrap.childNodes.forEach(child => $svgWrap.removeChild(child));
       }
       const draw = SVG(`svg-${pathId.join('-')}`).size('100%', '100%');
-      const linePath = ['M', ...start, 'Q', ...controlPoint, ...end].join(' ');
-      draw
-        .path(linePath)
-        .stroke({ width: 2, color: '#d3d3d3' })
-        .fill('none');
+      if (advancedSetting.hierarchyViewConnectLine === '1' || isStraightLine) {
+        draw.polyline([start, straightLineInflection, end]).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
+      } else {
+        const linePath = ['M', ...start, 'Q', ...controlPoint, ...end].join(' ');
+        draw.path(linePath).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
+      }
     }
   };
 
@@ -93,7 +104,10 @@ export default function CreateRecord(props) {
   };
   return (
     <div className="sortableTreeNodeWrap" id={pathId.join('-')} ref={$itemWrap}>
-      <div id={`svg-${pathId.join('-')}`} className="svgWrap" />
+      <div
+        id={`svg-${pathId.join('-')}`}
+        className={isStraightLine || advancedSetting.hierarchyViewConnectLine === '1' ? 'svgStraightWrap' : 'svgWrap'}
+      />
       <Trigger
         popupAlign={{ points: ['tl', 'bl'], offset: [0, 4] }}
         popupVisible={lines.length > 1}
@@ -109,7 +123,8 @@ export default function CreateRecord(props) {
               {_l('只创建一条记录')}
             </Button>
           </div>
-        }>
+        }
+      >
         <CreateRecordWrap>
           <Input.TextArea
             autoSize={{ minRows: 1, maxRows: 10 }}
@@ -133,14 +148,16 @@ export default function CreateRecord(props) {
               } else {
                 removeHierarchyTempItem({ rowId, path: data.path });
               }
-            }}></Input.TextArea>
+            }}
+          ></Input.TextArea>
           <div
             className="switchToCompleteCreate pointer"
             onMouseDown={() => {
               setOutFocus(true);
               handleAddRecord({ path: itemData.path, pathId: itemData.pathId });
               removeHierarchyTempItem({ rowId, path: data.path });
-            }}>
+            }}
+          >
             <i className="icon-worksheet_enlarge"></i>
           </div>
         </CreateRecordWrap>

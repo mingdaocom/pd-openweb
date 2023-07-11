@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { Dropdown, Modal } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
-import { Menu, MenuItem, Dialog } from 'ming-ui';
+import { Menu, MenuItem, Dialog, Support } from 'ming-ui';
 import { arrayMove, SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import update from 'immutability-helper';
 import { useSetState } from 'react-use';
@@ -175,8 +175,8 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                   type,
                   controlId: uuidv4(),
                 };
-                // 子表表单不允许再添加子表、分割线、文本识别、嵌入
-                if (_.includes([22, 34, 43, 45, 47, 49], type)) return null;
+                // 子表表单不允许再添加子表、分割线、文本识别、嵌入、查询记录
+                if (_.includes([22, 34, 43, 45, 47, 49, 51], type)) return null;
                 return (
                   <MenuItem
                     key={type}
@@ -194,14 +194,7 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                             <Fragment>
                               <div className="intro" style={{ color: '#9e9e9e' }}>
                                 {_l('在表单中显示关联的记录。如：订单关联客户')}
-                                <span
-                                  style={{
-                                    color: '#2196f3',
-                                    marginLeft: '6px',
-                                  }}
-                                >
-                                  {_l('帮助')}
-                                </span>
+                                <Support type={3} text={_l('帮助')} href={'https://help.mingdao.com/sheet11'} />
                               </div>
                               <SelectSheetFromApp
                                 globalSheetInfo={globalSheetInfo}

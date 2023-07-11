@@ -4,8 +4,7 @@ import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import Overview from './components/Overview';
 import ByApp from './components/ByApp';
 import ByUser from './components/ByUser';
-import UpgradeVersion from '../components/UpgradeVersion';
-import { getFeatureStatus } from '../../../util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 import moment from 'moment';
@@ -35,30 +34,27 @@ export default class UseAnalytics extends Component {
     const featureType = getFeatureStatus(params.projectId, FEATURE_ID);
     if (featureType === '2') {
       return (
-        <div className="useAnalyticsContainer">
-          <AdminTitle prefix={_l('使用分析')} />
-          <UpgradeVersion projectId={params.projectId} featureId={FEATURE_ID} />
-        </div>
+        <div className="orgManagementWrap">{buriedUpgradeVersionDialog(params.projectId, FEATURE_ID, 'content')}</div>
       );
     }
     let deadLine = moment().subtract(1, 'days').format(_l('YYYY年MM月DD日'));
 
     return (
-      <div className="useAnalyticsContainer flexColumn">
+      <div className="useAnalyticsContainer orgManagementWrap">
         <AdminTitle prefix={_l('使用分析')} />
-        <div className="header">
-          <div className="tabs">
+        <div className="orgManagementHeader">
+          <div className="tabBox">
             {TABS.map(item => (
               <span
                 key={item.key}
-                className={cx('tabItem Hand', { currentTab: currentTab === item.key })}
+                className={cx('tabItem Hand', { active: currentTab === item.key })}
                 onClick={() => this.changeTab(item)}
               >
                 {item.label}
               </span>
             ))}
           </div>
-          <div>
+          <div className="extraInfo">
             {_l('截止到%0的最新数据', deadLine)}
             <Tooltip
               tooltipClass="analyticsTooltip"

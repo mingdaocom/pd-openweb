@@ -18,7 +18,7 @@ export default function Footer(props) {
   const { onClose, onSave } = props;
   return (
     <FooterCon>
-      <Support href="https://help.mingdao.com/zh/function.html" type={3} text={_l('使用帮助')} />
+      <Support href="https://help.mingdao.com/function" type={3} text={_l('使用帮助')} />
       <div className="flex"></div>
       <Button type="link" onClick={onClose}>
         {_l('取消')}

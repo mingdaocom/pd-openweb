@@ -52,8 +52,9 @@ export default class SelectApp extends React.Component {
       filterType: 1, // 1:过滤加锁应用 0 or null 默认
     });
     this.postList.then(({ apps }) => {
+      const filteredApps = apps.filter(item => item.createType !== 1);
       this.setState({
-        list: pageIndex === 1 ? apps : list.concat(apps),
+        list: pageIndex === 1 ? filteredApps : list.concat(filteredApps),
         isMore: apps.length === 30,
         pageIndex: pageIndex + 1,
         loading: false,
@@ -86,7 +87,7 @@ export default class SelectApp extends React.Component {
               <div className="mRight10 svgBox" style={{ backgroundColor: item.iconColor }}>
                 <SvgIcon url={item.iconUrl} fill="#fff" size={14} />
               </div>
-              {item.appName}
+              <div className="flex ellipsis">{item.appName}</div>
             </Checkbox>
           );
         })}
@@ -183,7 +184,10 @@ export default class SelectApp extends React.Component {
             <div className="selectBox">
               <Search
                 placeholder={_l('搜索应用名称')}
-                handleChange={keyword => this.setState({ list: null, pageIndex: 1, keyword }, this.searchDataList)}
+                handleChange={_.debounce(
+                  keyword => this.setState({ list: null, pageIndex: 1, keyword }, this.searchDataList),
+                  500,
+                )}
               />
               {this.renderList()}
             </div>

@@ -13,7 +13,7 @@ import { RecordInfoModal } from 'mobile/Record';
 import worksheetAjax from 'src/api/worksheet';
 import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../config';
 import Components from '../../components';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, addBehaviorLog } from 'src/util';
 import { getTargetName } from '../util';
 
 const RELATION_SHEET_TYPE = 29;
@@ -176,6 +176,9 @@ function SortableRecordItem(props) {
       onClick={() => {
         if (!recordInfoVisible) {
           showRecordInfo({ recordInfoType: keyType, recordInfoRowId: rowId });
+          if (location.pathname.indexOf('public') === -1) {
+            addBehaviorLog('worksheetRecord', worksheetId, { rowId }); // 埋点
+          }
         }
       }}
       className={cx('boardDataRecordItemWrap', { isDragging, isDraggingTemp: type === 'temp' })}

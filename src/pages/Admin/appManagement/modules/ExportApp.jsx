@@ -242,7 +242,7 @@ export default class ExportApp extends React.Component {
             <span className="Gray_75">
               {_l('将应用配置导出为文件，之后可以将此文件导入其他组织以实现应用迁移，可选择同时导出部分示例数据。')}
             </span>
-            <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/zh/apply3.html" />
+            <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/apply3" />
           </div>
           {relation && (
             <div className="exportWarning">

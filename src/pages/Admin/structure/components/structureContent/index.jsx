@@ -8,7 +8,7 @@ import DialogBatchEdit from '../../modules/dialogBatchEdit';
 import UserTable from '../userList/userTable';
 import RoleController from 'src/api/role';
 import cx from 'classnames';
-import { Pagination, Drawer } from 'antd';
+import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import addFriends from 'src/components/addFriends/addFriends';
 import AddUser from '../AddUser';
 
@@ -24,6 +24,9 @@ class StructureContent extends Component {
   componentDidMount() {
     this.loadData(1);
     md.global.Config.IsLocal && this.getPermission();
+  }
+  componentWillUnmount() {
+    localStorage.removeItem('columnsInfoData');
   }
   getPermission = () => {
     const { projectId } = this.props;
@@ -86,16 +89,6 @@ class StructureContent extends Component {
   batchEdit = () => {
     this.setState({ batchEditVisible: true });
   };
-
-  itemRender(current, type, originalElement) {
-    if (type === 'prev') {
-      return <a className="page">{_l('上一页')}</a>;
-    }
-    if (type === 'next') {
-      return <a className="page">{_l('下一页')}</a>;
-    }
-    return originalElement;
-  }
 
   // 分页
   changPage = page => {
@@ -181,15 +174,7 @@ class StructureContent extends Component {
             <UserTable projectId={projectId} />
           )}
           {allCount > pageSize && (
-            <div className="pagination">
-              <Pagination
-                total={allCount}
-                itemRender={this.itemRender}
-                onChange={this.changPage}
-                current={pageIndex}
-                pageSize={pageSize || 50}
-              />
-            </div>
+            <PaginationWrap total={allCount} pageIndex={pageIndex} pageSize={pageSize} onChange={this.changPage} />
           )}
         </div>
 

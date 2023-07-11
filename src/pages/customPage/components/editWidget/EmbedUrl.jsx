@@ -102,6 +102,7 @@ function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
               <Input.TextArea
                 className="urlInput"
                 autoSize={{ minRows: 4, maxRows: 30 }}
+                placeholder={_l('请输入完整链接，以 http:// 或 https:// 开头')}
                 value={url}
                 onChange={e => {
                   const value = e.target.value;

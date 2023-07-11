@@ -206,7 +206,7 @@ export default class PrintQrCode extends Component {
             <div className="title">
               {_l('打印设置')}
               <span className="Right">
-                <Support type={2} href="https://help.mingdao.com/zh/operation13.html" text={_l('使用帮助')} />
+                <Support type={2} href="https://help.mingdao.com/operation13" text={_l('使用帮助')} />
               </span>
             </div>
             <Dropdown

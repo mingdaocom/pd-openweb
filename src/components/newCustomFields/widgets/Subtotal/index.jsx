@@ -69,7 +69,7 @@ export default class Widgets extends Component {
                 <Support
                   className="customSubtotalMessage"
                   type={3}
-                  href="https://help.mingdao.com/zh/sheet20.html"
+                  href="https://help.mingdao.com/sheet20"
                   text={_l('【点击查看帮助】')}
                 />
               </Tips>

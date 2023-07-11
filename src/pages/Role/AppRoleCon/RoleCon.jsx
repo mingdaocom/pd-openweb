@@ -36,19 +36,20 @@ class Con extends React.Component {
       roleList: roleInfos,
       dataList: [
         {
-          text: _l('查看用户'),
+          text: _l('管理角色'),
           key: 10,
         },
         {
-          text: _l('复制角色'),
+          text: _l('复制'),
           key: 0,
         },
         {
-          text: _l('复制角色到外部门户'),
+          text: _l('复制到外部门户'),
           key: 1,
         },
         {
           text: _l('删除'),
+          type: 'err',
           key: 3,
         },
       ].filter(o => (canEditUser ? true : o.key !== 10)),
@@ -124,7 +125,9 @@ class Con extends React.Component {
         }
       });
   };
-
+  quickTag = data => {
+    this.props.setQuickTag(data);
+  };
   render() {
     const { showRoleSet, getRoleSummary, isOpenPortal, appId, projectId, setQuickTag, setRoleId } = this.props;
     const { dataList = [], copyData, roleList = [], loading, roleId, showDeleRoleByMoveUser } = this.state;
@@ -154,8 +157,7 @@ class Con extends React.Component {
         <RoleTem
           {...this.props}
           setQuickTag={data => {
-            setQuickTag(data);
-            !!data.roleId && setRoleId(data.roleId);
+            this.quickTag(data);
           }}
           projectId={projectId}
           key={this.state.roleId}
@@ -173,7 +175,7 @@ class Con extends React.Component {
             this.delDialog(data);
           }}
           onSelect={roleId => {
-            setQuickTag({ roleId: roleId, tab: 'roleSet' });
+            this.quickTag({ roleId: roleId, tab: 'roleSet' });
           }}
           handleMoveApp={list => {
             appManagementAjax
@@ -191,7 +193,7 @@ class Con extends React.Component {
           onAction={(o, data) => {
             switch (o.key) {
               case 10:
-                setQuickTag({ roleId: data.roleId, tab: 'user' });
+                this.quickTag({ roleId: data.roleId, tab: 'user' });
                 break;
               case 0:
                 this.setState({

@@ -17,7 +17,7 @@ import { WHOLE_SIZE } from '../config/Drag';
 import { NOT_AS_TITLE_CONTROL } from '../config';
 import { RELATION_OPTIONS, DEFAULT_TEXT } from '../config/setting';
 import { compose } from 'redux';
-import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../config/widget';
+import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS } from '../config/widget';
 import { getCurrentRowSize } from './widgets';
 import { browserIsMobile } from 'src/util';
 
@@ -387,12 +387,18 @@ export const supportDisplayRow = item => {
   // 附件、单条关联记录、多条关联记录（列表、卡片）、子表、分割线、备注
   if (browserIsMobile()) {
     return (
-      !includes([14, 29, 34, 22], item.type) ||
-      (item.type === 29 && _.get(item, 'advancedSetting.showtype') === '3')
+      !includes([14, 29, 34, 22, 51], item.type) ||
+      ((item.type === 29 || item.type === 51) && _.get(item, 'advancedSetting.showtype') === '3')
     );
   }
-  // 多条关联记录（列表）、子表、分割线、备注
+  // 多条关联记录（列表）、查询记录列表、子表、分割线、备注
   return (
-    (item.type === 29 && _.get(item, 'advancedSetting.showtype') !== '2') || !includes([29, 34, 22], item.type)
+    ((item.type === 29 || item.type === 51) && _.get(item, 'advancedSetting.showtype') !== '2') ||
+    !includes([29, 34, 22, 51], item.type)
   );
+};
+
+// 关联记录、关联查询须过滤的字段
+export const getFilterRelateControls = (controls = []) => {
+  return _.filter(controls, item => !_.includes([22, 43, 45, 47, 49, 51, ...SYS_CONTROLS], item.type));
 };

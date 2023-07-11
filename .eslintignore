@@ -1,6 +1,5 @@
 ﻿src/api/*
 src/library/*
-src/components/*
 !src/components/customWidget
 src/components/attachment/*
 src/components/modernizr/*

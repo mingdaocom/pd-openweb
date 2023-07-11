@@ -8,9 +8,10 @@ import EditableCellCon from '../EditableCellCon';
 import { browserIsMobile } from 'src/util';
 
 function Location(props, ref) {
-  const { className, style, cell, editable, recordId, isediting, updateCell, onClick, updateEditingStatus } = props;
+  const { className, style, cell, editable, recordId, updateCell, onClick, updateEditingStatus } = props;
   const { enumDefault2, advancedSetting, strDefault } = cell;
   const onlyCanAppUse = (strDefault || '00')[0] === '1';
+  const isediting = props.isediting && !onlyCanAppUse;
   let { value } = cell;
   let locationData;
   try {

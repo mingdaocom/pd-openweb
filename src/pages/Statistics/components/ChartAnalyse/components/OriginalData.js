@@ -32,7 +32,7 @@ export default class OriginalData extends Component {
       return showControls.map(controlId => _.find(columns, { controlId })).filter(_ => _);
     } else {
       return columns.filter(item => {
-        return ![10010, 45, 47, 22].includes(item.type);
+        return ![10010, 22, 45, 47, 51].includes(item.type);
       }).sort((a, b) => {
         if (a.row === b.row) {
           return a.col - b.col;

@@ -6,6 +6,7 @@ import SheetTable, { changeSheetModel } from './SheetTable';
 import { PERMISSION_WAYS, TEXTS, roleDetailPropType, actionList } from 'src/pages/Role/config.js';
 import styled from 'styled-components';
 import _ from 'lodash';
+import { WrapFooter } from 'src/pages/Role/style.jsx';
 
 const WrapCon = styled.div`
   .optionTxt {
@@ -13,7 +14,7 @@ const WrapCon = styled.div`
     color: #919191;
   }
   .toUser {
-    color: #757575;
+    color: #5a5a5a;
     &:hover {
       color: #2196f3;
     }
@@ -29,52 +30,7 @@ const WrapCon = styled.div`
 const Wrap = styled.div`
   width: 52%;
 `;
-const WrapFooter = styled.div`
-  .saveBtn {
-    height: 36px;
-    padding: 0 30px;
-    color: #fff;
-    line-height: 36px;
-    border-radius: 4px 4px 4px 4px;
-    font-size: 14px;
-    font-weight: 400;
-    transition: color ease-in 0.2s, border-color ease-in 0.2s, background-color ease-in 0;
-    background: #1e88e5;
-    &:hover {
-      background: #1565c0;
-    }
-    &.disabled {
-      color: #fff;
-      background: #b2dbff;
-      cursor: not-allowed;
-      &:hover {
-        background: #b2dbff;
-      }
-    }
-  }
-  .delBtn {
-    height: 36px;
-    padding: 0 30px;
-    line-height: 36px;
-    border-radius: 4px 4px 4px 4px;
-    font-size: 14px;
-    opacity: 1;
-    border: 1px solid #eaeaea;
-    margin-left: 23px;
-    font-weight: 400;
-    transition: color ease-in 0.2s, border-color ease-in 0.2s, background-color ease-in 0;
-    &:hover {
-      border: 1px solid #ccc;
-    }
-    &.disabled {
-      color: #eaeaea;
-      cursor: not-allowed;
-      &:hover {
-        border: 1px solid #eaeaea;
-      }
-    }
-  }
-`;
+
 const PERMISSION_WAYS_WITH_CHECKBOX = [
   PERMISSION_WAYS.OnlyManageSelfRecord,
   PERMISSION_WAYS.OnlyManageSelfAndSubRecord,
@@ -516,18 +472,19 @@ export default class extends PureComponent {
   };
 
   render() {
-    const {
+    let {
       roleDetail: { name, description, roleId, hideAppForMembers } = {},
       loading,
       onChange,
       onSave,
-      setQuickTag,
       onDel,
       saveLoading,
       roleDetailCache,
       isForPortal,
+      setQuickTag,
+      canEditUser,
     } = this.props;
-
+    roleId = roleId === 'new' ? '' : roleId;
     if (loading) return <LoadDiv className="mTop10" />;
 
     return (
@@ -540,10 +497,27 @@ export default class extends PureComponent {
                 this.container = el;
               }}
             >
-              <div className="flexRow alignItemsCenter">
+              <div className="roleTitle Bold Font17">{!roleId ? _l('创建角色') : _l('编辑角色')}</div>
+              <div className="flexRow alignItemsCenter mTop30">
                 <div className="Font14 bold flex">{_l('角色名称')}</div>
+              </div>
+              <div className="mTop8 flexRow">
+                <Input
+                  type="text"
+                  value={name}
+                  className={'nameInput'}
+                  manualRef={el => {
+                    this.input = el;
+                  }}
+                  maxLength={20}
+                  onChange={value => {
+                    onChange({
+                      name: value,
+                    });
+                  }}
+                />
                 {!!roleId && !isForPortal && (
-                  <span className="Font14 toUser Hand flexRow alignItemsCenter">
+                  <span className="Font14 toUser Hand flexRow alignItemsCenter mLeft30">
                     <Checkbox
                       className="Gray"
                       size="small"
@@ -570,22 +544,6 @@ export default class extends PureComponent {
                   </span>
                 )}
               </div>
-              <div className="mTop8">
-                <Input
-                  type="text"
-                  value={name}
-                  className={'nameInput'}
-                  manualRef={el => {
-                    this.input = el;
-                  }}
-                  maxLength={20}
-                  onChange={value => {
-                    onChange({
-                      name: value,
-                    });
-                  }}
-                />
-              </div>
               <div className="Font14 mTop25 bold">{_l('描述')}</div>
               <div className="mTop8">
                 <Input
@@ -604,7 +562,7 @@ export default class extends PureComponent {
             </div>
           </ScrollView>
         </WrapCon>
-        <WrapFooter className={'footer flexRow'}>
+        <WrapFooter className={'footer flexRow alignItemsCenter'}>
           <div
             className={cx('saveBtn Hand flexRow alignItemsCenter', {
               disabled: saveLoading || (_.isEqual(this.props.roleDetail, roleDetailCache) && !!roleId),
@@ -626,10 +584,27 @@ export default class extends PureComponent {
                 onDel();
               }
             }}
-            className={cx('delBtn Hand', { disabled: _.isEqual(this.props.roleDetail, roleDetailCache) && !!roleId })}
+            className={cx('delBtn Hand', {
+              disabled: _.isEqual(this.props.roleDetail, roleDetailCache) && !!roleId,
+            })}
           >
             {!roleId ? _l('删除') : _l('取消')}
           </div>
+          {!!roleId && canEditUser && (
+            <React.Fragment>
+              <div className="line"></div>
+              <div
+                className="toUser Hand Bold"
+                onClick={() => {
+                  this.props.handleChangePage(() => {
+                    setQuickTag({ roleId: roleId, tab: 'user' });
+                  });
+                }}
+              >
+                {_l('管理用户')}
+              </div>
+            </React.Fragment>
+          )}
         </WrapFooter>
       </React.Fragment>
     );

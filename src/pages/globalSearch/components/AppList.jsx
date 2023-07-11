@@ -9,6 +9,8 @@ import SvgIcon from 'src/components/SvgIcon';
 import { createTimeSpan } from 'src/pages/chat/utils';
 import renderText from 'src/pages/worksheet/components/CellControls/renderText.js';
 import { getAppResultCodeText } from '../utils';
+import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
+import { addBehaviorLog } from 'src/util';
 
 const Box = styled.div`
   padding-bottom: 12px;
@@ -132,6 +134,7 @@ export default function AppList(props) {
     viewName = true,
     loadMore = false,
     getNextPage = () => {},
+    currentProjectId,
   } = props;
 
   const settingInfo = GLOBAL_SEARCH_LIST_SETTING[dataKey];
@@ -275,12 +278,19 @@ export default function AppList(props) {
   const skipHandle = item => {
     let url = '';
     if (dataKey === 'app') {
+      //埋点
+      const typeObj = { 0: 'worksheet', 1: 'customPage', 2: 'app', 3: 'app' };
+      addBehaviorLog(typeObj[item.itemType], item.itemType === 3 || item.itemType === 2 ? item.appId : item.itemId);
+
       const parameter = [
         item.appId,
         item.sectionId,
-        !_.includes([item.appId, item.sectionId], item.itemId) ? item.itemId : '',
+        !_.includes([item.appId, item.sectionId], item.itemId) && item.itemType !== 2 ? item.itemId : '',
       ];
-      url = encodeURI(`/app/${parameter.filter(o => o).join('/')}`);
+      url =
+        item.createType === 1
+          ? transferExternalLinkUrl(item.urlTemplate, currentProjectId, item.appId)
+          : encodeURI(`/app/${parameter.filter(o => o).join('/')}`);
     } else {
       url = encodeURI(`/app/${item.appId}/${item.itemId}/row/${item.rowId}`);
     }

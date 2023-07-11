@@ -445,9 +445,9 @@ export default class WorkflowMonitor extends Component {
               <div className="cloumnItem columnWidth170 textalignR pRight25">{formatter(producer)}</div>
               <div className="cloumnItem columnWidth170 textalignR pRight25">
                 {waiting ? (
-                  <span className="waitText textalignR pRight25">{_l('暂停')}</span>
+                  <span className="waitText textalignR">{_l('暂停')}</span>
                 ) : (
-                  <span className="waitText textalignR pRight25">{formatter(consumer)}</span>
+                  <span className="waitText textalignR">{formatter(consumer)}</span>
                 )}
               </div>
               <div className="cloumnItem columnWidth170 textalignR pRight25">{formatter(difference)}</div>
@@ -817,7 +817,7 @@ export default class WorkflowMonitor extends Component {
               {md.global.Config.IsLocal &&
                 Object.keys(routerList).map(v => (
                   <Button type="ghostgray" className="mRight10" onClick={() => this.updateRouterIndex(v)}>
-                    {_l(`通道：${routerList[v]}`)}
+                    {_l('通道：%0', routerList[v])}
                   </Button>
                 ))}
             </div>
@@ -850,7 +850,7 @@ export default class WorkflowMonitor extends Component {
           title={_l('管理工作流“%0”', checkAdmin.title)}
           description={_l('如果你不是工作流所在应用的管理员，需要将自己加为管理员以获得权限')}
           cancelText=""
-          okText={checkAdmin.post ? _l('验证权限...') : _l('加为应用管理员')}
+          okText={checkAdmin.post ? _l('验证权限...') : _l('加为此应用管理员')}
           onOk={checkAdmin.post ? () => {} : this.addRoleMemberForAppAdmin}
           onCancel={() => this.setState({ checkAdmin: Object.assign({}, this.state.checkAdmin, { visible: false }) })}
         />

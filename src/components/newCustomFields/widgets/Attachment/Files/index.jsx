@@ -6,8 +6,7 @@ import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-ho
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import { isDocument, formatTime } from 'src/components/UploadFiles/utils';
-import { formatFileSize, isVideo, getClassNameByExt } from 'src/util';
+import { formatFileSize, getClassNameByExt } from 'src/util';
 import { browserIsMobile } from 'src/util';
 import ImageCard from './ImageCard';
 import SmallCard from './SmallCard';
@@ -164,7 +163,7 @@ const Files = props => {
     if (_.isEmpty(newName)) {
       alert(_l('名称不能为空'), 2);
       return;
-    } 
+    }
     const files = attachments.map(item => {
       if (item.fileID === id) {
         item.originalFileName = newName;
@@ -190,6 +189,7 @@ const Files = props => {
         showThumbnail: true,
         showAttInfo: false,
         hideFunctions: hideFunctions,
+        worksheetId: recordBaseInfo.worksheetId,
       },
       {
         mdReplaceAttachment: newAttachment => {
@@ -312,7 +312,7 @@ const Files = props => {
           if (_.isEmpty(name)) {
             alert(_l('名称不能为空'), 2);
             return;
-          } 
+          }
           onAttachmentName(id, name, {
             instanceId: recordBaseInfo.instanceId,
             workId: recordBaseInfo.workId,

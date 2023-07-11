@@ -73,7 +73,7 @@ export default function WeekdaySetting({ data, onChange }) {
     });
     return isContinue && weekdayText.length > 1
       ? _l('%0至%1', weekdayText[0], weekdayText[weekdayText.length - 1])
-      : _l(`${weekdayText.join('、')}`);
+      : weekdayText.join('、');
   };
 
   const renderPanel = () => {

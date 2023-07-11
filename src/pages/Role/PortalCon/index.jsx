@@ -14,7 +14,6 @@ import UserCon from './tabCon/UserCon';
 import RoleCon from './tabCon/RoleCon';
 import { navigateTo } from 'router/navigateTo';
 import _ from 'lodash';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 
 const Wrap = styled.div`
   width: 60%;
@@ -25,15 +24,32 @@ const Wrap = styled.div`
   }
   .mainShareUrl {
     flex: 1;
+    & > div {
+      height: 32px;
+      line-height: 32px;
+      .icon-new_mail {
+        line-height: 32px !important;
+      }
+      &:nth-child(3) {
+        line-height: 30px !important;
+      }
+      &:nth-child(4),
+      &:nth-child(2) {
+        width: 32px;
+      }
+    }
+    .icon-qr_code {
+      line-height: 32px !important;
+    }
   }
   .setBtn {
     margin-left: 14px;
-    height: 36px;
+    height: 32px;
+    line-height: 30px;
     padding: 0 20px;
     background: #ffffff;
     border: 1px solid #2196f3;
     border-radius: 3px;
-    line-height: 36px;
     text-align: center;
     color: #2196f3;
     overflow: hidden;
@@ -47,9 +63,9 @@ const conList = [
   {
     url: '/user',
     key: 'user',
-    txt: _l('管理用户'),
+    txt: _l('用户'),
   },
-  { url: '/roleSet', key: 'roleSet', txt: _l('编辑角色权限') },
+  { url: '/roleSet', key: 'roleSet', txt: _l('角色') },
   {
     url: '/statistics',
     key: 'statistics',
@@ -155,6 +171,7 @@ class PortalCon extends React.Component {
               return (
                 <span
                   className={cx('tab Hand Font14 Bold', { cur: this.state.tab === o.key })}
+                  id={`tab_${o.key}`}
                   onClick={() => {
                     const listType = _.get(this.props, ['match', 'params', 'listType']);
                     listType === 'pending' && navigateTo(`/app/${appId}/role/external`);

@@ -73,7 +73,7 @@ export default function ApiSearchConfig(props) {
   const { showtype } = config;
 
   const [{ searchfilters, searchcontrol, searchtype, clicksearch }, setState] = useSetState({
-    searchtype: config.searchtype || '0',
+    searchtype: config.searchtype || '1',
     searchcontrol: config.searchcontrol || defaultSearchControl,
     clicksearch: config.clicksearch || '0',
     searchfilters: getAdvanceSetting(data, 'searchfilters') || [],
@@ -84,6 +84,13 @@ export default function ApiSearchConfig(props) {
     if (index > -1) {
       setState({ searchfilters: update(searchfilters, { $splice: [[index, 1]] }) });
     }
+  };
+
+  const isForbidEncry = id => {
+    return _.get(
+      _.find(controls, i => i.controlId === (id || searchcontrol)),
+      'encryId',
+    );
   };
 
   return (
@@ -120,7 +127,7 @@ export default function ApiSearchConfig(props) {
             value={searchcontrol}
             data={searchableControls}
             onChange={value => {
-              setState({ searchcontrol: value });
+              setState({ searchcontrol: value, searchtype: isForbidEncry(value) ? '1' : searchtype });
             }}
           />
         </SettingItem>
@@ -129,14 +136,15 @@ export default function ApiSearchConfig(props) {
           <RadioGroup
             checkedValue={searchtype}
             data={[
-              { value: '0', text: _l('模糊搜索') },
               { value: '1', text: _l('精确搜索') },
+              { value: '0', text: _l('模糊搜索'), disabled: isForbidEncry() },
             ]}
             onChange={value => {
               setState({ searchtype: value });
             }}
           />
         </div>
+        {isForbidEncry() && <div className="Gray_9e mTop10 mLeft80">{_l('当前字段已加密，按照精确搜索查询')}</div>}
         <div className="configItem">
           <div className="title">{_l('设置')}</div>
           <Checkbox

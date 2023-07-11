@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { MenuItemWrap } from '../style';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
-import { Icon, Support, LoadDiv, Menu } from 'ming-ui';
+import { Icon, Support, LoadDiv, Tooltip, Checkbox } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { CardTopWrap } from '../style';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
@@ -135,6 +133,36 @@ export default function Card(props) {
       )
       .then(res => {
         setState({ node: { ...node, ...res }, loading: false });
+      });
+  };
+  const update = node => {
+    flowNodeAjax
+      .saveNode(
+        {
+          ..._.pick(node, [
+            'name',
+            'selectNodeId',
+            'sendContent',
+            'body',
+            'headers',
+            'method',
+            'contentType',
+            'formControls',
+            'settings',
+            'testMap',
+            'successCode',
+            'errorMap',
+            'errorMsg',
+            'executeType',
+          ]),
+          processId: info.id,
+          nodeId: node.id,
+          flowNodeType: node.typeId,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({ node });
       });
   };
   if (loading) {
@@ -283,7 +311,36 @@ export default function Card(props) {
             <Icon icon={props.icon || 'parameter'} className="iconParam Font26" />
           </div>
           <div className="flex pLeft16">
-            <p className="Font17 Bold">{props.title || _l('输入参数')}</p>
+            <p className="Font17 Bold">
+              {!props.title ? (
+                _l('输入参数')
+              ) : [8].includes(props.typeId) && props.connectInfo.type === 2 ? (
+                <div className="flexRow alignItemsCenter">
+                  <div className="flex">{props.title}</div>
+                  <div className="flexRow alignItemsCenter">
+                    <Checkbox
+                      className="checkBox InlineBlock Gray_75"
+                      text={_l('使用网络代理')}
+                      checked={node.settings.useProxy}
+                      onClick={() => {
+                        update({
+                          ...node,
+                          settings: { ...node.settings, useProxy: !node.settings.useProxy },
+                        });
+                      }}
+                    />
+                    <Tooltip
+                      popupPlacement="topLeft"
+                      text={<span>{_l('安装的API，允许在卡片上修改是否使用网络代理')}</span>}
+                    >
+                      <Icon icon="info_outline" className="Gray_75 Font16 mLeft10 mTop4" />
+                    </Tooltip>
+                  </div>
+                </div>
+              ) : (
+                props.title
+              )}
+            </p>
             <p className="Font13 Gray_75 mTop4">
               <span className="TxtMiddle">
                 {props.des || _l('输入参数用于在工作表或工作流中使用 API 查询时，可以传入动态值')}

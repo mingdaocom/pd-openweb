@@ -143,7 +143,7 @@ export const expandMultiLevelHierarchyDataOfMultiRelate = level => {
           type: 'CHANGE_HIERARCHY_TOP_LEVEL_DATA_COUNT',
           count: count,
         });
-        dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: false, pageIndex: 1 } });
+        dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { pageIndex: 1 } });
         if (!kanbanKey || level <= 1) {
           const treeData = dealData(data);
           dispatch({
@@ -151,6 +151,7 @@ export const expandMultiLevelHierarchyDataOfMultiRelate = level => {
             data: { treeData, data, level: 1 },
           });
           dispatch({ type: 'INIT_HIERARCHY_VIEW_DATA', data: treeData });
+          dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: false } });
           return;
         }
         const para = {
@@ -650,8 +651,9 @@ export function getDefaultHierarchyData(view) {
         }),
       );
     } else {
+      const { level } = getItem(`hierarchyConfig-${viewId}`) || {};
       // 多表关联层级视图获取多级数据 默认加载3级
-      dispatch(expandMultiLevelHierarchyDataOfMultiRelate(3));
+      dispatch(expandMultiLevelHierarchyDataOfMultiRelate(level || 3));
     }
   };
 }

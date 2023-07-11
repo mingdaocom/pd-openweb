@@ -6,13 +6,13 @@ import { handleShare, handleSaveKcCloud, handleDownload, loadImage } from '../ut
 import Trigger from 'rc-trigger';
 import './index.less';
 
-const renderFileImage = (url, coverType) => {
+const renderFileImage = (url, coverType, imgClassName = 'w100') => {
   if (coverType === '0') {
     return <div className="fileImage" style={{ backgroundImage: `url(${url})` }}/>;
   } else {
     return (
       <div className="flexRow alignItemsCenter justifyContentCenter overflowHidden h100 GrayBGF8">
-        <img className="w100" src={url} />
+        <img className={imgClassName} src={url} />
       </div>
     );
   }
@@ -28,12 +28,16 @@ const ImageCard = (props) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [imgClassName, setImgClassName] = useState('w100');
   const ref = useRef(null);
   const [isPicture, setIsPicture] = useState(props.isPicture);
 
   useEffect(() => {
     if (isPicture) {
-      loadImage(previewUrl).then().catch(error => {
+      loadImage(previewUrl).then(image => {
+        const { width, height } = image;
+        setImgClassName(width > height ? 'w100' : 'h100');
+      }).catch(error => {
         setIsPicture(false);
       });
     }
@@ -119,7 +123,7 @@ const ImageCard = (props) => {
         <div className="kcIcon flexRow alignItemsCenter justifyContentCenter"><Icon className="Font17" icon="knowledge1" /></div>
       )}
       {isPicture ? (
-        renderFileImage(previewUrl, coverType)
+        renderFileImage(previewUrl, coverType, imgClassName)
       ) : (
         <div className="fileAccessory flexColumn">
           <div className="fileIconWrap flexRow alignItemsCenter justifyContentCenter"><div className={cx(fileClassName, 'fileIcon')} /></div>
@@ -258,12 +262,25 @@ const ImageCard = (props) => {
 const NotSaveImageCard = (props) => {
   const { data, isMobile, coverType } = props;
   const { onDeleteKCFile, onDeleteFile, onResetNameFile, onKCPreview, onPreview } = props;
-  const { isKc, fileClassName, isPicture, fileSize, url } = props;
+  const { isKc, fileClassName, fileSize, url } = props;
   const size = coverType === '1' ? '' : 'w/200/h/140';
   const mode = coverType === '1' ? 2 : 1;
   const previewImageUrl = isKc ? data.viewUrl : (url.indexOf('imageView2') > -1 ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/${mode}/${size}`) : url + `&imageView2/${mode}/${size}`);
   const [isEdit, setIsEdit] = useState(false);
+  const [isPicture, setIsPicture] = useState(props.isPicture);
+  const [imgClassName, setImgClassName] = useState('w100');
   const ref = useRef(null);
+
+  useEffect(() => {
+    if (isPicture) {
+      loadImage(previewImageUrl).then(image => {
+        const { width, height } = image;
+        setImgClassName(width > height ? 'w100' : 'h100');
+      }).catch(error => {
+        setIsPicture(false);
+      });
+    }
+  }, []);
 
   const handleFocus = (e) => {
     setTimeout(() => {
@@ -293,7 +310,7 @@ const NotSaveImageCard = (props) => {
         <div className="kcIcon flexRow alignItemsCenter justifyContentCenter"><Icon className="Font17" icon="knowledge1" /></div>
       )}
       {isPicture ? (
-        renderFileImage(previewImageUrl, coverType)
+        renderFileImage(previewImageUrl, coverType, imgClassName)
       ) : (
         <div className="fileAccessory flexColumn">
           <div className="fileIconWrap flexRow alignItemsCenter justifyContentCenter"><div className={cx(fileClassName, 'fileIcon')} /></div>

@@ -88,17 +88,21 @@ export default function Cascader(props) {
   }, [controlId]);
   useEffect(() => {
     if (!dataSource) return;
-    worksheetAjax.getWorksheetInfo({
-      worksheetId: dataSource,
-      getViews: true,
-      getTemplate: true,
-      appId,
-    })
+    worksheetAjax
+      .getWorksheetInfo({
+        worksheetId: dataSource,
+        getViews: true,
+        getTemplate: true,
+        appId,
+      })
       .then(res => {
         const viewInfo = _.find(res.views, item => item.viewId === viewId);
         if (!viewInfo) {
           setInfo({ sheetInfo: res, hasError: true });
           return;
+        }
+        if (_.isEmpty(data.relationControls)) {
+          onChange({ relationControls: _.get(res, 'template.controls') });
         }
         setInfo({ sheetInfo: res, viewInfo });
       })

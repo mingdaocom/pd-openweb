@@ -12,6 +12,7 @@ import qiniuAjax from 'src/api/qiniu';
 import projectAjax from 'src/api/project';
 import captcha from 'src/components/captcha';
 import accountAjax from 'src/api/account';
+import actionLogAjax from 'src/api/actionLog';
 
 export const emitter = new EventEmitter();
 
@@ -215,20 +216,6 @@ export const formatFileSize = (size, accuracy, space, units) => {
 };
 
 /**
- * 判断是否是视频格式
- * @param {string} fileExt
- * @returns {boolean}
- */
-export const isVideo = fileExt => {
-  let fileExts = ['.mov', '.mp4', '.avi', '.mkv', '.3gp', '.3g2', '.m4v', '.rm', '.rmvb', '.webm'];
-  if (fileExt) {
-    fileExt = fileExt.toLowerCase();
-    return fileExts.indexOf(fileExt) >= 0;
-  }
-  return false;
-};
-
-/**
  * 随机生成一个字符串
  * @param {number} length 长度
  * @param {string} customStr 自定义字符串
@@ -246,12 +233,6 @@ export const getRandomString = (length, customStr) => {
     str += chars[Math.floor(Math.random() * chars.length)];
   }
   return str;
-};
-
-export const isUrlRequest = url => {
-  if (/^data:|^chrome-extension:|^(https?:)?\/\/|^[\{\}\[\]#*;,'§\$%&\(=?`´\^°<>]/.test(url)) return true;
-  if (/^\//.test(url)) return true;
-  return false;
 };
 
 export const downloadFile = url => {
@@ -785,9 +766,10 @@ export function getFeatureStatus(projectId, featureId) {
 /**
  * 功能埋点授权显示升级版本内容dialogType： dialog弹层（默认） content 页面
  */
-export function buriedUpgradeVersionDialog(projectId, featureId, dialogType) {
+export function buriedUpgradeVersionDialog(projectId, featureId, dialogType, extra) {
   const { Versions = [] } = md.global || {};
   const { licenseType } = getSyncLicenseInfo(projectId);
+  const { explainText = '' } = extra || {};
   let upgradeName, versionType;
 
   if (!md.global.Config.IsLocal) {
@@ -812,6 +794,8 @@ export function buriedUpgradeVersionDialog(projectId, featureId, dialogType) {
       explainText:
         md.global.Config.IsLocal || md.global.Account.isPortal
           ? _l('请升级版本')
+          : !!explainText
+          ? explainText
           : _l('请升级至%0解锁开启', upgradeName),
       dialogType,
       versionType,
@@ -823,6 +807,8 @@ export function buriedUpgradeVersionDialog(projectId, featureId, dialogType) {
       explainText:
         md.global.Config.IsLocal || md.global.Account.isPortal
           ? _l('请升级版本')
+          : !!explainText
+          ? explainText
           : _l('请升级至%0解锁开启', upgradeName),
       versionType,
     });
@@ -937,16 +923,41 @@ export function formatStrZero(str = '') {
 }
 
 // 根据索引获取不重复名称
-export const getUnUniqName = (data, name = '') => {
-  for (var i = 0; i < data.length; i++) {
-    const item = data[i];
-    if (item.name === name) {
-      const num = (String(name).match(/\d+$/) || [])[0];
-      if (num) {
-        name = getUnUniqName(data, String(name).replace(num, parseFloat(num) + 1));
-      }
-    }
+export const getUnUniqName = (data, name = '', key = 'name') => {
+  if (data.filter(item => item[key] === name).length) {
+    const maxNumber = _.max(
+      data
+        .filter(item => item[key].indexOf(String(name).replace(/\d*$/, '')) > -1)
+        .map(item => parseInt(item[key].match(/\d*$/)[0])),
+    );
+
+    name = String(name).replace(/\d*$/, maxNumber + 1);
   }
 
   return name;
 };
+
+// 添加行为日志
+export const addBehaviorLog = (type, entityId, params = {}) => {
+  const typeObj = {
+    app: 1, // 应用
+    worksheet: 2, // 工作表
+    customPage: 3, // 自定义页面
+    worksheetRecord: 4, // 工作表记录
+    printRecord: 5, // 打印了记录
+    printWord: 6, // 使用了word模板打印
+    pintTemplate: 7, // 使用了模板打印了记录
+    printQRCode: 8, // 打印了二维码
+    printBarCode: 9, // 打印了条形码
+    batchPrintWord: 10, // 批量word打印
+  };
+  actionLogAjax.addLog({
+    type: typeObj[type],
+    entityId,
+    params,
+  });
+};
+
+export function isUUID(id = '') {
+  return /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(id);
+}

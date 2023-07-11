@@ -54,6 +54,8 @@ export default class SortColumns extends React.Component {
       children,
       onChange,
       maxHeight,
+      isShowColumns = false,
+      sortAutoChange = false,
     } = this.props;
     const columns = this.props.columns.filter(c => !_.find(ghostControlIds, gcid => gcid === c.controlId));
     const displayControls = showControls.filter(dcid => _.find(columns, fc => fc.controlId === dcid));
@@ -79,6 +81,8 @@ export default class SortColumns extends React.Component {
                   newControlSorts: _.uniqBy(ghostControlIds.concat(newControlSorts)),
                 });
               }}
+              isShowColumns={isShowColumns}
+              sortAutoChange={sortAutoChange}
             />
           }
         >
@@ -112,6 +116,8 @@ export default class SortColumns extends React.Component {
               });
             }}
             maxHeight={maxHeight}
+            isShowColumns={isShowColumns}
+            sortAutoChange={sortAutoChange}
           />
         </div>
       );

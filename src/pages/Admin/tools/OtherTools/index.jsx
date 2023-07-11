@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import Config from '../../config';
-import { Icon, Switch, Checkbox, LoadDiv } from 'ming-ui';
-import { Input, Button } from 'antd';
+import { Checkbox, LoadDiv } from 'ming-ui';
+import { Input } from 'antd';
 import cx from 'classnames';
-import projectSettingController from 'src/api/projectSetting';
 import messageController from 'src/api/message';
 import './index.less';
 import AdminCommon from 'src/pages/Admin/common/common';
@@ -42,12 +41,6 @@ const indexConfig = [
     click: 'handleChangeVisible',
     desc: _l('可以导出用户、群组、任务列表'),
   },
-  {
-    label: _l('水印设置'),
-    key: 'watermark',
-    click: 'setEnabledWatermark',
-    desc: _l('开启后，将在组织所有应用内显示当前使用者的姓名+手机号后4位或邮箱前缀'),
-  },
 ];
 
 export default class OtherTools extends Component {
@@ -75,14 +68,7 @@ export default class OtherTools extends Component {
       groups: [],
       attachments: [],
       loading: false,
-      watermark: false,
     };
-  }
-
-  componentDidMount() {
-    projectSettingController.getEnabledWatermark({ projectId: Config.projectId }).then(res => {
-      this.setState({ watermark: res.enabledWatermark });
-    });
   }
 
   toggleComp(level) {
@@ -291,21 +277,6 @@ export default class OtherTools extends Component {
       });
   }
 
-  setEnabledWatermark() {
-    const { watermark } = this.state;
-
-    projectSettingController
-      .setEnabledWatermark({ projectId: Config.projectId, enabledWatermark: !watermark })
-      .then(res => {
-        if (res) {
-          this.setState({ watermark: !watermark });
-          setTimeout(() => {
-            location.reload();
-          }, 500);
-        }
-      });
-  }
-
   render() {
     const {
       level,
@@ -322,7 +293,6 @@ export default class OtherTools extends Component {
       projectAdminUserCount,
       projectDepartmentChargeUserCount,
       loading,
-      watermark,
     } = this.state;
     const title = headerTitle[level];
     if (loading) {
@@ -466,17 +436,13 @@ export default class OtherTools extends Component {
                 <div className="toolItemLabel">{item.label}</div>
                 <div className="toolItemRight">
                   <div>
-                    {item.key === 'watermark' ? (
-                      <Switch checked={watermark} onClick={this[item.click].bind(this)} />
-                    ) : (
-                      <button
-                        type="button"
-                        className="ming Button Button--link ThemeColor3 adminHoverColor"
-                        onClick={this[item.click].bind(this, item.key, true)}
-                      >
-                        {item.clickValue}
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      className="ming Button Button--link ThemeColor3 adminHoverColor"
+                      onClick={this[item.click].bind(this, item.key, true)}
+                    >
+                      {item.clickValue}
+                    </button>
                   </div>
                   <div className="toolItemDescribe mLeft5">{item.desc}</div>
                 </div>

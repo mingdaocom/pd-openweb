@@ -17,6 +17,16 @@
     .nano-content {
       padding: 0 20px 0 20px;
     }
+    .dragCon {
+      cursor: grab;
+    }
+    .columnCheckListTitle {
+      cursor: text;
+    }
+    .dragListEmptyTip {
+      color: #9F9F9F;
+      margin-bottom: 33px;
+    }
     margin-top: 6px;
     max-height: 238px;
   }
@@ -36,7 +46,6 @@
     color: #bdbdbd;
   }
   .searchBar {
-    padding: 0 10px;
     height: 38px;
     border-bottom: 1px solid #eaeaea;
     .icon {
@@ -52,24 +61,33 @@
       }
     }
   }
+
   .quickOperate {
-    height: 42px;
-    padding: 6px 10px 3px;
     box-sizing: border-box;
+    display: flex;
+    gap: 6px;
+    margin-top: 5px;
     button {
       cursor: pointer;
       border: none;
       outline: none;
       border-radius: 3px;
-      width: 46%;
+      padding: 0 14px;
       text-align: center;
       line-height: 32px;
-      height: 32px;
+      height: 28px;
       color: #757575;
       background-color: #f5f5f5;
       &:hover {
         color: #333;
         background-color: #f0f0f0;
+      }
+      &.iconButton {
+        padding: 0 8px;
+        margin-right: 0;
+        .icon {
+          line-height: 29px !important;
+        }
       }
     }
   }
@@ -82,17 +100,18 @@
 
 .showControlsColumnCheckItem {
   border-radius: 3px;
-  padding: 0 10px;
-  height: 36px;
-  line-height: 36px;
+  padding-right: 10px;
+  height: 32px;
+  line-height: 32px;
   z-index: 13;
+  background: #fff;
   > div {
     display: flex;
     align-items: center;
   }
   .dragHandle {
     visibility: hidden;
-    line-height: 36px;
+    line-height: 32px;
   }
   .icon {
     &-ic_toggle_on {
@@ -101,6 +120,10 @@
     &-ic_toggle_off {
       color: #bdbdbd;
     }
+    &-backspace {
+      transform: rotate(180deg);
+      color: #1e88e5 !important;
+    }
   }
   &:hover,
   &.active {
@@ -108,5 +131,43 @@
     .dragHandle {
       visibility: visible;
     }
+    .searchIcon {
+      display: block !important;
+      visibility: visible !important;
+    }
   }
+  .switchIcon {
+    text-align: center;
+    width: 45px;
+    &:hover {
+      background: rgba(0,0,0,0.05);
+    }
+  }
+  &.focusColumnItem {
+    background-color: #F2F9FF;
+    .focusColor {
+      color: #2196F3 !important;
+    }
+    .dragHandle {
+      visibility: visible;
+    }
+    .searchIcon {
+      display: block !important;
+      visibility: visible !important;
+    }
+  }
+}
+
+.viewContentGrabbing {
+  cursor: grabbing !important;
+  .dragCon {
+    cursor: grabbing !important;
+  }
+  .columnCheckListTitle {
+    cursor: grabbing !important;
+  }
+}
+
+.HandImportant {
+  cursor: pointer !important;
 }

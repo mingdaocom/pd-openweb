@@ -40,8 +40,9 @@ const Con = styled.div(
         color: #2196f3;
       }
     }
-    .Input {
+    input {
       width: 100%;
+      height: 36px;
       border: none;
       padding-left: 6px;
       font-size: 13px;
@@ -152,6 +153,7 @@ function GroupFilter(props) {
     getNavGroupCount,
     sheetSwitchPermit = [],
   } = props;
+  const inputRef = useRef(null);
   const { appId, worksheetId, viewId } = base;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
   const navGroup = _.isEmpty(view.navGroup) ? {} : view.navGroup[0];
@@ -167,6 +169,10 @@ function GroupFilter(props) {
     setKeywords('');
   }, [navGroup, navGroup.controlId, navGroup.viewId, navGroup.isAsc]);
   useEffect(() => {
+    let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
+    if (29 === soucre.type && getAdvanceSetting(view).navshow === '1' && isOpenGroup) {
+      getNavGroupCount();
+    }
     isOpenGroup && fetch();
   }, [
     navGroup.controlId,
@@ -186,6 +192,13 @@ function GroupFilter(props) {
   useEffect(() => {
     fetch();
   }, [keywords]);
+  useEffect(() => {
+    let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
+    let { navshow } = getAdvanceSetting(view);
+    if (29 === soucre.type && navshow === '1') {
+      fetch();
+    }
+  }, [navGroupCounts]);
   const handleSearch = useCallback(
     _.throttle(value => {
       let keyWords = value.trim();
@@ -235,6 +248,9 @@ function GroupFilter(props) {
     return !keywords && isSoucreTree();
   };
   const fetch = () => {
+    if (inputRef && inputRef.current) {
+      inputRef.current.value = keywords;
+    }
     const { controlId } = navGroup;
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
     if (controlId === 'wfstatus' && !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit)) {
@@ -269,12 +285,30 @@ function GroupFilter(props) {
     let soucre = controls.find(o => o.controlId === filter.controlId) || {};
     //级联选择字段 或 已配置层级展示的关联字段
     if ([29, 35].includes(soucre.type)) {
-      loadData({
-        worksheetId: soucre.dataSource,
-        viewId: 29 === soucre.type ? filter.viewId : soucre.viewId,
-        rowId,
-        cb,
-      });
+      let { navshow } = getAdvanceSetting(view);
+      if (29 === soucre.type && navshow === '1') {
+        dataUpdate({
+          filterData: navGroupData,
+          data: navGroupCounts
+            .filter(o => !['all', ''].includes(o.key)) //排除全部和空
+            .map(item => {
+              return {
+                value: item.key,
+                txt: item.name, //renderTxt(item, control, viewId),
+                isLeaf: false,
+              };
+            }),
+          rowId,
+          cb,
+        });
+      } else {
+        loadData({
+          worksheetId: soucre.dataSource,
+          viewId: 29 === soucre.type ? filter.viewId : soucre.viewId,
+          rowId,
+          cb,
+        });
+      }
     } else {
       let options = (controls.find(o => o.controlId === filter.controlId) || {}).options || [];
       data = !filter.isAsc ? options.slice().reverse() : options;
@@ -599,11 +633,12 @@ function GroupFilter(props) {
         {isOpenGroup && (
           <React.Fragment>
             <i className="icon icon-search"></i>
-            <Input
-              value={keywords}
+            <input
+              type="text"
               placeholder={_l('搜索')}
+              ref={inputRef}
               className={cx('flex', { placeholderColor: !keywords })}
-              onChange={handleSearch}
+              onChange={e => handleSearch(e.target.value)}
             />
           </React.Fragment>
         )}

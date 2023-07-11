@@ -161,7 +161,9 @@ class Header extends Component {
 
     if (!onBack) {
       onBack = () => {
-        location.href = `/app/${flowInfo.relationId}/workflow`;
+        location.href = `/app/${flowInfo.relationId}/workflow${
+          location.hash ? '?' + location.hash.replace('#', '') : ''
+        }`;
       };
     }
 

@@ -61,7 +61,7 @@ export default class App extends Component {
     $('body').on('click', 'a', function interceptLinkClick(e) {
       if (e.which !== 1) return;
       if (e.ctrlKey || e.shiftKey || e.metaKey) return;
-      if (e.originalEvent && e.originalEvent.defaultPrevented) return;
+      // if (e.originalEvent && e.originalEvent.defaultPrevented) return;
       if ($(e.target).closest('.mdEditorContent').length) return;
       if ($(e.target).closest('.stopPropagation').length) return;
       const $a = $(this);

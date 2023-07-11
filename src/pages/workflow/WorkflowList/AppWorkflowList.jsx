@@ -22,7 +22,6 @@ import DocumentTitle from 'react-document-title';
 import homeApp from 'src/api/homeApp';
 import processAjax from 'src/pages/workflow/api/process';
 import appManagementAjax from 'src/api/appManagement';
-import unauthorizedImg from 'src/router/Application/assets/unauthorized.png';
 import _ from 'lodash';
 import moment from 'moment';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
@@ -66,17 +65,6 @@ const CreateBtn = styled.div`
     .icon {
       margin-right: 2px;
     }
-  }
-`;
-
-const IconUnauthorized = styled.div`
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  background: #ddd;
-  margin-bottom: 20px;
-  img {
-    width: 100%;
   }
 `;
 
@@ -341,7 +329,7 @@ class AppWorkflowList extends Component {
               : _l('类型')}
           </div>
           <div className="w270">{type === FLOW_TYPE.OTHER_APP ? _l('执行动作') : _l('状态')}</div>
-          <div className="w120">{_l('创建者')}</div>
+          <div className="w120">{_l('创建人')}</div>
           <div className="w20 mRight20" />
         </div>
         <ScrollView className="flex">
@@ -402,7 +390,7 @@ class AppWorkflowList extends Component {
               <Icon icon={(START_APP_TYPE[data.child ? 'subprocess' : data.startAppType] || {}).iconName} />
             </div>
             <div className="flex name mLeft10 mRight24">
-              <ListName item={data} />
+              <ListName item={data} type={this.state.type} />
             </div>
             <div className="w180 pRight20">{this.column2Content(data)}</div>
             <div className="w270 pRight20">{this.column3Content(data)}</div>
@@ -717,37 +705,13 @@ class AppWorkflowList extends Component {
   }
 
   render() {
-    const { appId, isLock } = this.props.match.params;
+    const { appId } = this.props.match.params;
     const { type, loading, list, selectFilter, selectItem, appDetail } = this.state;
     const filterList = [[{ text: type === FLOW_TYPE.OTHER_APP ? _l('全部应用') : _l('全部'), value: '' }], []];
 
     (list || []).forEach(item => {
       filterList[1].push({ text: item.groupName, value: item.groupId });
     });
-
-    if (isLock === 'true') {
-      return (
-        <div className="flexColumn h100">
-          <HeaderWrap className="flexRow alignItemsCenter">
-            <div
-              className="flexRow pointer Gray_bd alignItemsCenter"
-              onClick={() => {
-                window.disabledSideButton = true;
-                navigateTo(`/app/${appId}`);
-              }}
-            >
-              <i className="icon-navigate_before Font20" />
-            </div>
-          </HeaderWrap>
-          <div className="flex flexColumn alignItemsCenter justifyContentCenter">
-            <IconUnauthorized>
-              <img src={unauthorizedImg} />
-            </IconUnauthorized>
-            <div className="Gray_9e">{_l('您无权访问或已删除')}</div>
-          </div>
-        </div>
-      );
-    }
 
     return (
       <WaterMark projectId={appDetail.projectId}>
@@ -792,7 +756,7 @@ class AppWorkflowList extends Component {
                             {FLOW_TYPE.PBC === type && (
                               <Support
                                 className="pointer Gray_9e mLeft2"
-                                href="https://help.mingdao.com/zh/flow_pbp.html"
+                                href="https://help.mingdao.com/flow_pbp"
                                 type={3}
                                 text={_l('帮助')}
                               />

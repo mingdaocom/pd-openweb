@@ -9,6 +9,7 @@ import WithoutFidldItem from './WithoutFidldItem';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import {
   normTypes,
+  textNormTypes,
   timeParticleSizeDropdownData,
   areaParticleSizeDropdownData,
   timeDataParticle,
@@ -41,21 +42,6 @@ const SortableItemContent = styled.div`
     }
   }
 `;
-
-const textNormTypes = [
-  {
-    text: _l('具体值'),
-    value: 7,
-  },
-  {
-    text: _l('计数'),
-    value: 5,
-  },
-  {
-    text: _l('去重计数'),
-    value: 6,
-  }
-];
 
 const renderOverlay = ({
   axis,

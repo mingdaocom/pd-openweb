@@ -20,7 +20,7 @@ export const getMyApp = projectId => dispatch => {
   dispatch({
     type: 'MOBILE_FETCHHOMELIST_START',
   });
-  homeAppAjax.getMyApp({ projectId }).then(res => {
+  homeAppAjax.getMyApp({ projectId, containsLinks: true }).then(res => {
     const { markedGroupIds = [], personalGroups = [], projectGroups = [], apps = [] } = res;
     let markedGroup = markedGroupIds
       .map(id => _.find([...personalGroups, ...projectGroups], { id }))

@@ -13,6 +13,7 @@ export default class SelectOtherFields extends Component {
     sourceNodeId: PropTypes.string,
     fieldsVisible: PropTypes.bool,
     showClear: PropTypes.bool,
+    showCurrent: PropTypes.bool,
     processId: PropTypes.string,
     selectNodeId: PropTypes.string,
     sourceAppId: PropTypes.string,
@@ -35,6 +36,7 @@ export default class SelectOtherFields extends Component {
     sourceNodeId: '',
     isIntegration: false,
     showClear: false,
+    showCurrent: false,
   };
 
   constructor(props) {
@@ -64,6 +66,7 @@ export default class SelectOtherFields extends Component {
       conditionId,
       dataSource,
       isIntegration,
+      showCurrent,
     } = this.props;
 
     flowNode[isFilter ? 'getFlowAppDtos' : 'getFlowNodeAppDtos'](
@@ -76,6 +79,7 @@ export default class SelectOtherFields extends Component {
         selectNodeId: sourceNodeId,
         conditionId,
         dataSource,
+        current: showCurrent,
       },
       { isIntegration },
     ).then(result => {

@@ -8,7 +8,7 @@ import RadioGroup from 'ming-ui/components/RadioGroup';
 import CustomFields from 'src/components/newCustomFields';
 import { SYSTEM_CONTROL_WITH_UAID, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
-import { CONTROL_EDITABLE_BLACKLIST } from 'worksheet/constants/enum';
+import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
@@ -58,7 +58,8 @@ export default class EditRecord extends Component {
       const controlsForSelect = data.template.controls.filter(
         control =>
           ((control.type < 10000 &&
-            !_.includes(CONTROL_EDITABLE_BLACKLIST, control.type) &&
+            _.includes(CONTROL_EDITABLE_WHITELIST, control.type) &&
+            !(control.type === 29 && _.get(control, 'advancedSetting.showtype') === '2') &&
             !_.find(SYSTEM_CONTROL_WITH_UAID.concat(WORKFLOW_SYSTEM_CONTROL), { controlId: control.controlId }) &&
             !_.find(view.controls, id => control.controlId === id)) ||
             control.controlId === 'ownerid') &&
@@ -172,7 +173,7 @@ export default class EditRecord extends Component {
     }
     const hasAuthRowIds = selectedRows.filter(row => row.allowedit || row.allowEdit).map(row => row.rowid);
     if (!allWorksheetIsSelected && hasAuthRowIds.length === 0) {
-      alert(_l('无权限修改选择的%0', worksheetInfo.entityName));
+      alert(_l('无权限修改选择的%0', worksheetInfo.entityName), 2);
       return false;
     }
     if (hasError) {

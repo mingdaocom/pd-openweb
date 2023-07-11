@@ -34,7 +34,7 @@ export default class AdminLeftMenu extends Component {
       });
   }
 
-  renderLinkItem = ({ icon, name, menuPath, routes, featureId, key }, index) => {
+  renderLinkItem = ({ icon, name, menuPath, routes, featureId, key, hasBeta = false }, index) => {
     const {
       location: { pathname },
       match: {
@@ -51,7 +51,14 @@ export default class AdminLeftMenu extends Component {
     const path =
       route.path && route.path.indexOf(':projectId') === -1 ? compile({ 0: projectId }) : compile({ projectId });
     let featureType = getFeatureStatus(projectId, featureId);
-    if (_.includes(['workwxapp', 'ding', 'welink', 'feishu', 'analytics', 'contactsHidden'], key) && !featureType) return;
+    if (
+      _.includes(
+        ['workwxapp', 'ding', 'welink', 'feishu', 'analytics', 'contactsHidden', 'appLog', 'computing', 'appLog'],
+        key,
+      ) &&
+      !featureType
+    )
+      return;
     return (
       <Tooltip
         disable={this.state.isExtend}
@@ -69,7 +76,10 @@ export default class AdminLeftMenu extends Component {
             isActive={isActive}
           >
             <i className={cx('Font20 color_c iconBox', icon)} />
-            <div className="subName">{name}</div>
+            <div className="subName">
+              {name}
+              {hasBeta && <i className="icon-beta1 betaIcon" />}
+            </div>
           </NavLink>
         </li>
       </Tooltip>
@@ -91,6 +101,8 @@ export default class AdminLeftMenu extends Component {
     const { currentCompanyName, isExtend } = this.state;
     const { menuList, match } = this.props;
     const { params } = match;
+    const { isSuperAdmin } = md.global.Account.projects.find(v => v.projectId === params.projectId) || {};
+
     return (
       <div id="menuList" className={cx(isExtend ? 'extendList' : 'closeList')}>
         <div className="ThemeBGColor9 h100 Relative menuContainer">
@@ -116,16 +128,18 @@ export default class AdminLeftMenu extends Component {
           </div>
           <div className="listContainer">
             {menuList &&
-              menuList.map((item, index) => {
-                return (
-                  <div key={index} className={cx({ Hidden: item.subMenuList && !item.subMenuList.length })}>
-                    <div className="Font12 mTop24 mBottom4 color_c pLeft20">
-                      {!isExtend && item.title ? <span className="muneSplitLine"></span> : item.title}
+              menuList
+                .filter(it => (isSuperAdmin ? true : !_.includes(['logs'], it.key)))
+                .map((item, index) => {
+                  return (
+                    <div key={index} className={cx({ Hidden: item.subMenuList && !item.subMenuList.length })}>
+                      <div className="Font12 mTop24 mBottom4 color_c pLeft20">
+                        {!isExtend && item.title ? <span className="muneSplitLine"></span> : item.title}
+                      </div>
+                      <ul className="manageItems">{_.map(item.subMenuList, this.renderLinkItem)}</ul>
                     </div>
-                    <ul className="manageItems">{_.map(item.subMenuList, this.renderLinkItem)}</ul>
-                  </div>
-                );
-              })}
+                  );
+                })}
           </div>
         </div>
       </div>

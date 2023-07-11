@@ -19,7 +19,7 @@ export default class Widgets extends Component {
               <li key={i}>
                 <div className="customRecordList flexRow" onClick={() => openRelateRecord(item.controlId)}>
                   <div className="flex Gray_75 ellipsis">{item.controlName}</div>
-                  <div className="ThemeColor3 mLeft15">{item.value || 0}</div>
+                  {item.type !== 51 && <div className="ThemeColor3 mLeft15">{item.value || 0}</div>}
                   <i className="icon-arrow-right-border Font16 Gray_bd mLeft5" style={{ marginRight: -5 }} />
                 </div>
               </li>

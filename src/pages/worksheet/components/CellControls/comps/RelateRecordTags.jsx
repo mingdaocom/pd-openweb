@@ -9,6 +9,7 @@ import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelat
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import { selectRecord } from 'src/components/recordCardListDialog';
+import { addBehaviorLog } from 'src/util';
 
 function getCellHeight(texts = [], width) {
   let result;
@@ -143,6 +144,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
   const {
     disabled,
     isediting,
+    rowIndex,
     allowOpenRecord,
     style = {},
     control,
@@ -162,6 +164,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
   const multiple = control.enumDefault === 2;
   const allowRemove = control.advancedSetting.allowcancel !== '0' || !multiple;
   const allowSelect = control.enumDefault2 !== 10 && control.enumDefault2 !== 11;
+  const canAdd = control.enumDefault === 2 ? count < 50 : records.length === 0;
   let maxShowNum = getCellMaxShowNum(
     records.map(r => getTitleTextFromRelateControl(control, r)),
     { width: style.width, maxHeight: style.height },
@@ -178,8 +181,10 @@ export default forwardRef(function RelateRecordTags(props, ref) {
           '.mui-dialog-container',
           '.UploadFilesTriggerWrap',
           '.rc-trigger-popup',
+          '#attachemntsPreviewContainer',
         ].join(','),
-      )
+      ) ||
+      e.target.contains(conRef.current)
     ) {
       onClose({ deletedIds, addedIds, records, count });
     }
@@ -228,7 +233,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
     });
   }
   function handleSelectRecords() {
-    if (!allowSelect) {
+    if (!allowSelect || !canAdd) {
       return;
     }
     onOpenDialog();
@@ -242,7 +247,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       controlId: control.controlId,
       recordId,
       relateSheetId: control.dataSource,
-      filterRowIds: addedIds,
+      filterRowIds: records.map(r => r.rowid),
       selectedCount: count,
       maxCount: 50,
       formData: rowFormData(),
@@ -266,8 +271,15 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       style={
         isediting
           ? {
-              minHeight: style.height,
               width: style.width,
+              ...(rowIndex === 0
+                ? {
+                    height: 56,
+                    overflow: 'auto',
+                  }
+                : {
+                    minHeight: style.height,
+                  }),
             }
           : {
               width: style.width,
@@ -285,6 +297,9 @@ export default forwardRef(function RelateRecordTags(props, ref) {
               onClick={e => {
                 e.stopPropagation();
                 if (allowOpenRecord) {
+                  if (location.pathname.indexOf('public') === -1) {
+                    addBehaviorLog('worksheetRecord', control.dataSource, { rowId: record.rowid }); // 埋点
+                  }
                   handleOpenRecord({
                     viewId: _.get(control, 'advancedSetting.openview') || control.viewId,
                     worksheetId: control.dataSource,

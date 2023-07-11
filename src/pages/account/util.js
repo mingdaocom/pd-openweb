@@ -6,9 +6,7 @@ import _ from 'lodash';
 
 // 特殊手机号验证是否合法
 export const specialTelVerify = value => {
-  return /\+234\d{10}$|\+63\d{10}$|\+60\d{8,10}$|\+852\d{8}$|\+85368\d{6}$|\+861[3-9]\d{9}$|\+5551\d{8}$/.test(
-    value || '',
-  );
+  return /\+861[3-9]\d{9}$/.test(value || '');
 };
 
 export const inputFocusFn = (e, cb) => {

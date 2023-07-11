@@ -348,6 +348,7 @@ export default function ConfigForm(props) {
             setConnectorConfigData({
               [roleType]: Object.assign({}, value, { createType: CREATE_TYPE.NEW, sourceName: '', formData: {} }),
             });
+            setSaveDisabled(true);
             setSelectModalVisible(false);
           }}
           onClose={() => setSelectModalVisible(false)}

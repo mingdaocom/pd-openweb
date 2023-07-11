@@ -966,7 +966,7 @@ export const MENU_LIST_APPENDIX = [
       },
       {
         name: 51,
-        type: _l('关联查询'),
+        type: _l('查询记录'),
         desc: '',
       },
       {

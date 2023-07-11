@@ -11,7 +11,7 @@ import { WorkSheetLeft, WorkSheetPortal, WorksheetEmpty } from './common';
 import Sheet from './common/Sheet';
 import { updateBase, updateWorksheetLoading } from './redux/actions';
 import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
-import CustomPageContent from 'worksheet/components/CustomPageContent';
+import CustomPageContent from 'src/pages/customPage/pageContent';
 import homeAppApi from 'src/api/homeApp';
 import UnNormal from 'worksheet/views/components/UnNormal';
 import { getSheetListFirstId, findSheet, moveSheetCache } from './util';
@@ -38,9 +38,13 @@ const WorkSheetContainer = (props) => {
           sectionId: params.groupId
         });
         request.then(data => {
-          if (![1, 4].includes(data.resultCode) && appId) {
+          const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
+          if (![1, 4].includes(data.resultCode) || (storage.lastWorksheetId === id && data.resultCode === 4)) {
             moveSheetCache(appId, params.groupId);
-            homeAppApi.getAppFirstInfo({ appId }).then(data => {
+            homeAppApi.getAppFirstInfo({
+              appId,
+              appSectionId: params.groupId
+            }).then(data => {
               navigateTo(`/app/${appId}/${data.appSectionId}/${data.workSheetId || ''}`);
             });
             return;

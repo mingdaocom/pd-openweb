@@ -7,6 +7,7 @@ import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import SvgIcon from 'src/components/SvgIcon';
 import Trigger from 'rc-trigger';
 import { normTypes } from 'statistics/common';
+import RuleColor from './Color/RuleColor';
 
 const Wrap = styled.div`
   .chartTypeSelect {
@@ -54,6 +55,21 @@ const Wrap = styled.div`
   }
   .circle {
     border-radius: 50%;
+  }
+`;
+
+const EntranceWrapper = styled.div`
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  height: 30px;
+  background-color: #fff;
+  &.ruleIcon {
+    width: 30px;
+    margin-left: 10px;
+    justify-content: center;
+    &:hover {
+      background-color: #f5f5f5;
+    }
   }
 `;
 
@@ -271,7 +287,14 @@ const IconSetting = props => {
 }
 
 const StatisticsValue = props => {
-  const { numberChartStyle, onChangeNumberStyle } = props;
+  const { currentReport, onChangeDisplayValue, numberChartStyle, onChangeNumberStyle } = props;
+  const [ruleColorModalVisible, setRuleColorModalVisible] = useState(false);
+  const { controlId } = currentReport.xaxes;
+  const { colorRules } = currentReport.displaySetup;
+  const colorRule = _.get(colorRules[0], 'dataBarRule');
+  const onCancel = () => {
+    setRuleColorModalVisible(false);
+  }
   return (
     <Wrap className="mBottom16">
       <div className="mBottom12">{_l('文字')}</div>
@@ -294,18 +317,57 @@ const StatisticsValue = props => {
       </div>
       <div className="flexRow valignWrapper mBottom12">
         <div style={{ width: 50 }}>{_l('颜色')}</div>
-        <div className="colorWrap">
-          <div className="colorBlock" style={{ backgroundColor: numberChartStyle.fontColor }}>
-            <input
-              type="color"
-              className="colorInput pointer"
-              value={numberChartStyle.fontColor}
-              onChange={(event) => {
-                onChangeNumberStyle({ fontColor: event.target.value });
-              }}
-            />
+        {!colorRule && (
+          <div className="colorWrap">
+            <div className="colorBlock" style={{ backgroundColor: numberChartStyle.fontColor }}>
+              <input
+                type="color"
+                className="colorInput pointer"
+                value={numberChartStyle.fontColor}
+                onChange={(event) => {
+                  onChangeNumberStyle({ fontColor: event.target.value });
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
+        {controlId && (
+          <Tooltip title={_l('颜色规则')}>
+            <EntranceWrapper
+              className="ruleIcon flexRow valignWrapper pointer"
+              onClick={() => {
+                setRuleColorModalVisible(true);
+              }}
+            >
+              <Icon className="Font16 Gray_9e" icon="formula" />
+            </EntranceWrapper>
+          </Tooltip>
+        )}
+        {colorRule && (
+          <EntranceWrapper
+            className="ruleIcon flexRow valignWrapper pointer"
+            onClick={() => {
+              onChangeDisplayValue('colorRules', []);
+            }}
+          >
+            <Icon className="Font16 Gray_9e" icon="delete2" />
+          </EntranceWrapper>
+        )}
+        <RuleColor
+          visible={ruleColorModalVisible}
+          yaxisList={currentReport.yaxisList}
+          reportType={currentReport.reportType}
+          colorRule={colorRule || {}}
+          onSave={(data) => {
+            const rule = {
+              controlId: '',
+              dataBarRule: data
+            }
+            onChangeDisplayValue('colorRules', [rule]);
+            onCancel();
+          }}
+          onCancel={onCancel}
+        />
       </div>
     </Wrap>
   );
@@ -479,7 +541,7 @@ export function numberSummaryPanelGenerator(props) {
 }
 
 export default function numberStylePanelGenerator(props) {
-  const { projectId, currentReport, onChangeStyle, ...collapseProps } = props;
+  const { projectId, currentReport, onChangeStyle, onChangeDisplayValue, ...collapseProps } = props;
   const { style, xaxes, yaxisList } = currentReport;
   const { numberChartStyle = defaultNumberChartStyle } = style;
   const onChangeNumberStyle = (data) => {
@@ -538,6 +600,8 @@ export default function numberStylePanelGenerator(props) {
         {...collapseProps}
       >
         <StatisticsValue
+          currentReport={currentReport}
+          onChangeDisplayValue={onChangeDisplayValue}
           numberChartStyle={numberChartStyle}
           onChangeNumberStyle={onChangeNumberStyle}
         />

@@ -175,7 +175,6 @@ export const sysRoleList = [
       return (
         <div>
           {_l('拥有所有权限')}
-          <span className="Gray_9e">（{_l('管理员为系统内置角色，不可修改')}）</span>
         </div>
       );
     },

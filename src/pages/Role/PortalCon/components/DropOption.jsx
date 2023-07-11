@@ -23,7 +23,7 @@ export default function DropOption(props) {
   const { popupAlign, key, dataList = [] } = props;
   const [optionShow, setOptionShow] = useState(false);
   if (dataList.length <= 0) {
-    return;
+    return null;
   }
   return (
     <Trigger

@@ -91,12 +91,12 @@ class CreateCustomBtnCon extends React.Component {
         verifyPwd,
         advancedSetting: {
           ...advancedSetting,
-          remarkname: advancedSetting.remarkname || '备注',
+          remarkname: advancedSetting.remarkname || _l('备注'),
         },
         doubleConfirm: {
-          confirmMsg: btnDataInfo.confirmMsg || '你确认对记录执行此操作吗？',
-          cancelName: btnDataInfo.cancelName || '取消',
-          sureName: btnDataInfo.sureName || '确认',
+          confirmMsg: btnDataInfo.confirmMsg || _l('你确认对记录执行此操作吗？'),
+          cancelName: btnDataInfo.cancelName || _l('取消'),
+          sureName: btnDataInfo.sureName || _l('确认'),
         },
         writeObject,
         relationControl,
@@ -114,12 +114,12 @@ class CreateCustomBtnCon extends React.Component {
         cloneInfo: {
           advancedSetting: {
             ...advancedSetting,
-            remarkname: advancedSetting.remarkname || '备注',
+            remarkname: advancedSetting.remarkname || _l('备注'),
           },
           doubleConfirm: {
-            confirmMsg: btnDataInfo.confirmMsg || '你确认对记录执行此操作吗？',
-            cancelName: btnDataInfo.cancelName || '取消',
-            sureName: btnDataInfo.sureName || '确认',
+            confirmMsg: btnDataInfo.confirmMsg || _l('你确认对记录执行此操作吗？'),
+            cancelName: btnDataInfo.cancelName || _l('取消'),
+            sureName: btnDataInfo.sureName || _l('确认'),
           },
         },
       },
@@ -309,7 +309,6 @@ class CreateCustomBtnCon extends React.Component {
               this.setState(
                 {
                   clickType: 3,
-                  workflowType: 2,
                 },
                 () => {
                   if (writeObject === '' || writeType === '' || isFillOutNull) {

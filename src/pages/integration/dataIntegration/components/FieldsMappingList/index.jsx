@@ -29,13 +29,14 @@ const Wrapper = styled.div`
       padding-right: 20px;
       position: relative;
     }
-
     .arrowIcon {
       width: 20px;
       height: 20px;
       transform: rotate(-90deg);
       color: #2196f3;
     }
+  }
+  .dataItem {
     .isOperateCommonIcon {
       display: none;
       width: fit-content;
@@ -66,9 +67,40 @@ const Wrapper = styled.div`
       }
     }
   }
+  .itemWrapper {
+    position: relative;
+    margin-left: -16px;
+    padding-left: 16px;
+
+    .deleteIcon {
+      position: absolute;
+      left: 0px;
+      top: 16px;
+      display: none;
+      font-size: 16px;
+      color: #bdbdbd;
+      cursor: pointer;
+      &:hover {
+        color: #f00;
+      }
+    }
+    &:hover {
+      .deleteIcon {
+        display: block;
+      }
+    }
+  }
   .ant-select:not(.ant-select-customize-input) .ant-select-selector {
     border-radius: 3px;
     /* border: 1px solid #ccc !important; */
+  }
+`;
+
+const SelectWrapper = styled.div`
+  .isNoMatchOption {
+    .ant-select-selector .ant-select-selection-item {
+      color: #f00;
+    }
   }
 `;
 
@@ -76,10 +108,14 @@ export default function FieldMappingList(props) {
   const { sourceData = {}, destData = {}, isCreate, fieldsMapping, setFieldsMapping, matchedTypes } = props;
   const checkAll =
     fieldsMapping.filter(
-      item => !_.get(item, 'destField.isCheck') && (isValidName(item.sourceField.name) || !sourceData.isDbType),
+      item =>
+        !_.get(item, 'destField.isCheck') &&
+        (isValidName(item.sourceField.name) || !sourceData.isDbType) &&
+        matchedTypes &&
+        !!(matchedTypes[item.sourceField.id] || []).length,
     ).length === 0;
   const selectedFieldIds = fieldsMapping.map(item => _.get(item, 'destField.id')).filter(o => o);
-  const selectNameRef = useRef();
+  const selectNameRef = useRef([]);
 
   let leftColumns = [];
   let rightColumns = [];
@@ -97,12 +133,14 @@ export default function FieldMappingList(props) {
   };
 
   const renderInputName = data => {
+    const sourceField = data.sourceField || {};
     const destField = data.destField || {};
 
     return (
       <Input
         className="w100"
         value={destField.name || ''}
+        disabled={sourceField.id === 'rowid'}
         onBlur={event => {
           const hasRepeatName = fieldsMapping.filter(item => item.destField.name === event.target.value).length > 1;
           if (hasRepeatName) {
@@ -178,14 +216,15 @@ export default function FieldMappingList(props) {
         onClick={checked => {
           const newFieldsMapping = fieldsMapping.map(item => {
             const isValidField = isValidName(item.sourceField.name) || !sourceData.isDbType;
+            const isNotSupport = !(matchedTypes[item.sourceField.id] || []).length;
             return {
               sourceField: {
                 ...item.sourceField,
-                isCheck: item.sourceField.isPk ? true : isValidField ? !checked : false,
+                isCheck: item.sourceField.isPk ? true : isValidField && !isNotSupport ? !checked : false,
               },
               destField: {
                 ...item.destField,
-                isCheck: item.destField.isPk ? true : isValidField ? !checked : false,
+                isCheck: item.destField.isPk ? true : isValidField && !isNotSupport ? !checked : false,
               },
             };
           });
@@ -197,13 +236,15 @@ export default function FieldMappingList(props) {
   const renderCheckbox = (data, key) => {
     const destField = data.destField || {};
     const sourceField = data.sourceField || {};
+    if (!matchedTypes) return;
+    const isNotSupport = !(matchedTypes[sourceField.id] || []).length;
 
     return (
       <Checkbox
         size="small"
         className={cx({ customDisabled: sourceField.isPk })}
         checked={!!destField[key]}
-        disabled={sourceField.isPk || (key !== 'isNotNull' && sourceField.disabled)}
+        disabled={sourceField.isPk || (key !== 'isNotNull' && (sourceField.disabled || isNotSupport))}
         onClick={() => {
           updateFieldsMapping({
             sourceField: key === 'isCheck' ? { ...sourceField, isCheck: !sourceField.isCheck } : sourceField,
@@ -220,6 +261,7 @@ export default function FieldMappingList(props) {
     if (!matchedTypes) return;
     const matchedTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.dataType));
     const matchedMdTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.mdType));
+    const isNotSupport = !(matchedTypes[sourceField.id] || []).length;
 
     const filterOptions = destData.isDbType
       ? (destData.destFields || []).filter(
@@ -258,7 +300,16 @@ export default function FieldMappingList(props) {
       };
     });
 
+    const isNoMatchOption =
+      destField.id &&
+      options.filter(o =>
+        destData.isOurCreateTable ? o.value.toLowerCase() === destField.id.toLowerCase() : o.value === destField.id,
+      ).length === 0;
+
     const getValue = () => {
+      if (isNoMatchOption) {
+        return _l('映射关系失效');
+      }
       //如果目的地表是通过我们同步任务创建的表时，id忽略大小写匹配
       if (destData.isOurCreateTable && options.length && destField.id) {
         return (options.filter(o => o.value.toLowerCase() === destField.id.toLowerCase())[0] || {}).value;
@@ -267,14 +318,15 @@ export default function FieldMappingList(props) {
     };
 
     return (
-      <div ref={selectNameRef}>
+      <SelectWrapper ref={select => (selectNameRef.current[sourceField.id] = select)}>
         <Select
-          disabled={!isValidField}
-          className="selectItem w100"
+          disabled={!isValidField || isNotSupport}
+          className={cx('selectItem w100', { isNoMatchOption })}
           placeholder={_l('无')}
           notFoundContent={_l('暂无数据')}
-          getPopupContainer={() => selectNameRef.current}
+          getPopupContainer={() => selectNameRef.current[sourceField.id]}
           allowClear={true}
+          status={isNoMatchOption && 'error'}
           value={getValue()}
           options={options}
           onChange={(value, option = {}) => {
@@ -316,7 +368,7 @@ export default function FieldMappingList(props) {
             updateFieldsMapping(updatedMapping);
           }}
         />
-      </div>
+      </SelectWrapper>
     );
   };
 
@@ -328,23 +380,35 @@ export default function FieldMappingList(props) {
           title: _l('字段(源)'),
           flex: 3,
           render: data => {
-            const item = data.sourceField;
+            const sourceField = data.sourceField;
+            if (!matchedTypes) return;
+            const isNotSupport = !(matchedTypes[sourceField.id] || []).length;
             return (
               <div className="flexRow">
-                <span title={item.name} className="overflow_ellipsis">
-                  {item.name}
+                <span title={sourceField.name} className={`overflow_ellipsis ${sourceField.isDelete ? 'Red' : ''}`}>
+                  {sourceField.name}
                 </span>
-                {item.isPk && (
+                {sourceField.isPk && (
                   <div data-tip={_l('主键')} className="tip-top">
                     <Icon icon="key1" className="Gray_bd mLeft5" />
                   </div>
                 )}
-                {item.disabled && (
-                  <a href="https://help.mingdao.com/zh/integration2.html" target="_blank">
+                {sourceField.disabled && (
+                  <a href="https://help.mingdao.com/integration2" target="_blank">
                     <div data-tip={_l('名称包含特殊字符，无法同步')} className="tip-top">
                       <Icon icon="help" className="Gray_bd mLeft5" />
                     </div>
                   </a>
+                )}
+                {sourceField.isDelete && (
+                  <div data-tip={_l('字段已删除')} className="tip-top">
+                    <Icon icon="info1" className="Red mLeft5" />
+                  </div>
+                )}
+                {isNotSupport && (
+                  <div data-tip={_l('暂不支持同步')} className="tip-top">
+                    <Icon icon="info1" className="Gray_bd mLeft5" />
+                  </div>
                 )}
               </div>
             );
@@ -355,17 +419,17 @@ export default function FieldMappingList(props) {
           title: _l('类型'),
           flex: 3,
           render: data => {
-            const item = data.sourceField;
+            const sourceField = data.sourceField;
             return (
-              <div title={item.dataType} className="overflow_ellipsis">
-                <span>{item.dataType}</span>
+              <div title={sourceField.dataType} className="overflow_ellipsis">
+                <span>{sourceField.dataType}</span>
               </div>
             );
           },
         },
         {
           dataIndex: 'isNotNull',
-          title: _l('不允许null'),
+          title: _l('不允许NULL'),
           flex: 3,
           render: data => {
             const item = data.sourceField;
@@ -380,24 +444,39 @@ export default function FieldMappingList(props) {
           title: _l('字段(源)'),
           flex: 9,
           render: data => {
-            const item = data.sourceField;
+            const sourceField = data.sourceField;
+            if (!matchedTypes) return;
+            const isNotSupport = !(matchedTypes[sourceField.id] || []).length;
             return (
               <div className="flexRow alignItemsCenter">
-                <Icon icon={getIconByType(item.mdType, false)} className={cx('Font18 Gray_9e')} />
-                <span title={item.name} className="mLeft8 overflow_ellipsis">
-                  {item.name}
+                <Icon icon={getIconByType(sourceField.mdType, false)} className={cx('Font18 Gray_9e')} />
+                <span
+                  title={sourceField.name}
+                  className={`mLeft8 overflow_ellipsis ${sourceField.isDelete ? 'Red' : ''}`}
+                >
+                  {sourceField.name}
                 </span>
-                {item.isPk && (
+                {sourceField.isPk && (
                   <div data-tip={_l('主键')} className="tip-top">
                     <Icon icon="key1" className="Gray_bd mLeft5" />
                   </div>
                 )}
-                {item.disabled && (
-                  <a href="https://help.mingdao.com/zh/integration2.html" target="_blank">
+                {sourceField.disabled && (
+                  <a href="https://help.mingdao.com/integration2" target="_blank">
                     <div data-tip={_l('名称包含特殊字符，无法同步')} className="tip-top">
                       <Icon icon="help" className="Gray_bd mLeft5" />
                     </div>
                   </a>
+                )}
+                {sourceField.isDelete && (
+                  <div data-tip={_l('字段已删除')} className="tip-top">
+                    <Icon icon="info1" className="Red mLeft5" />
+                  </div>
+                )}
+                {isNotSupport && (
+                  <div data-tip={_l('暂不支持同步')} className="tip-top">
+                    <Icon icon="info1" className="Gray_bd mLeft5" />
+                  </div>
                 )}
               </div>
             );
@@ -423,7 +502,7 @@ export default function FieldMappingList(props) {
           },
           {
             dataIndex: 'isNotNull_dest',
-            title: _l('不允许null'),
+            title: _l('不允许NULL'),
             flex: 2,
             render: item => renderCheckbox(item, 'isNotNull'),
           },
@@ -480,7 +559,8 @@ export default function FieldMappingList(props) {
             render: data => {
               const destField = data.destField || {};
               const sourceField = data.sourceField || {};
-              return canSetAsTitle({ type: destField.mdType }) ? (
+              const canSetTitle = canSetAsTitle({ type: destField.mdType }) && sourceField.id !== 'rowid';
+              return canSetTitle ? (
                 <div
                   className={cx('isOperateCommonIcon', { isActive: destField.isTitle })}
                   data-tip={destField.isTitle ? _l('取消设为标题') : _l('设为标题')}
@@ -522,7 +602,8 @@ export default function FieldMappingList(props) {
             render: data => {
               const destField = data.destField || {};
               const sourceField = data.sourceField || {};
-              return canSetAsTitle({ type: destField.mdType }) ? (
+              const canSetTitle = canSetAsTitle({ type: destField.mdType }) && sourceField.id !== 'rowid';
+              return canSetTitle ? (
                 <div
                   className={cx('isOperateCommonIcon', { isActive: destField.isTitle })}
                   data-tip={destField.isTitle ? _l('取消设为标题') : _l('设为标题')}
@@ -559,7 +640,7 @@ export default function FieldMappingList(props) {
           },
           {
             dataIndex: 'isNotNull_dest',
-            title: _l('不允许null'),
+            title: _l('不允许NULL'),
             flex: 3,
             render: item => {
               return _.get(item, 'destField.isNotNull') ? <span className="Gray_9e">{_l('是')}</span> : '';
@@ -595,10 +676,11 @@ export default function FieldMappingList(props) {
         title: '',
         flex: 3,
         render: data => {
-          const item = data.destField || {};
+          const sourceField = data.sourceField || {};
+          const destField = data.destField || {};
           return (
-            <div className={cx('arrowIcon', { Gray_c: !item.isCheck })}>
-              <Icon icon="arrow_down" className="Font20" />
+            <div className={sourceField.isDelete ? 'Red' : cx('arrowIcon', { Gray_c: !destField.isCheck })}>
+              <Icon icon={sourceField.isDelete ? 'close' : 'arrow_down'} className="Font20" />
             </div>
           );
         },
@@ -625,15 +707,28 @@ export default function FieldMappingList(props) {
       </div>
       {fieldsMapping &&
         fieldsMapping.map((field, i) => {
+          const sourceField = field.sourceField || {};
           return (
-            <div key={i} className="dataItem">
-              {getColumns().map((column, j) => {
-                return (
-                  <div key={`${i}-${j}`} style={{ flex: column.flex }} className={`${column.dataIndex}`}>
-                    {column.render ? column.render(field, column) : field[column.dataIndex]}
-                  </div>
-                );
-              })}
+            <div className="itemWrapper">
+              <div key={i} className="dataItem">
+                {getColumns().map((column, j) => {
+                  return (
+                    <div key={`${i}-${j}`} style={{ flex: column.flex }} className={`${column.dataIndex}`}>
+                      {column.render ? column.render(field, column) : field[column.dataIndex]}
+                    </div>
+                  );
+                })}
+              </div>
+              {sourceField.isDelete && (
+                <Icon
+                  className="deleteIcon"
+                  icon="delete1"
+                  onClick={() => {
+                    const newFieldsMapping = fieldsMapping.filter(item => item.sourceField.id !== sourceField.id);
+                    setFieldsMapping(newFieldsMapping);
+                  }}
+                />
+              )}
             </div>
           );
         })}

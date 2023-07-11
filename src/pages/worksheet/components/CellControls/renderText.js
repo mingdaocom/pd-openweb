@@ -1,4 +1,4 @@
-import { formatFormulaDate, domFilterHtmlScript, getSelectedOptions } from '../../util';
+import { formatFormulaDate, domFilterHtmlScript, getSelectedOptions, checkIsTextControl } from '../../util';
 import { RELATION_TYPE_NAME } from './enum';
 import { accMul, formatStrZero, toFixed } from 'src/util';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
@@ -23,6 +23,10 @@ export default function renderText(cell, options = {}) {
     }
     if (value === '' || value === null) {
       return '';
+    }
+    if (!checkIsTextControl(cell) && cell.value === '已删除') {
+      // 处理关联已删除，非文本作为标题时卡片标题显示异常问题
+      return _l('已删除');
     }
     if (type === 37) {
       if (cell.advancedSetting && cell.advancedSetting.summaryresult === '1') {
@@ -177,7 +181,7 @@ export default function renderText(cell, options = {}) {
           .map((option, index) => {
             if (option.key === 'other') {
               const otherValue = _.find(JSON.parse(cell.value || '[]'), i => i.includes(option.key));
-              return otherValue === 'other' ? _l('其他') : _.replace(otherValue, 'other:', '') || _l('其他');
+              return otherValue === 'other' ? option.value : _.replace(otherValue, 'other:', '') || option.value;
             }
             return option.value;
           })

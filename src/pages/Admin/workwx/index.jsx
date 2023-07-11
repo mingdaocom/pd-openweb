@@ -13,8 +13,9 @@ import BuildAppNewRules from './BuildAppNewRules';
 import IntegrationSetPssword from '../components/IntegrationSetPssword';
 import SyncDialog from './components/SyncDialog';
 import InterfaceLicense from './components/InterfaceLicense';
-import UpgradeVersion from '../components/UpgradeVersion';
-import { getFeatureStatus } from 'src/util';
+import VertifyClearIntegationData from '../components/VertifyClearIntegationData';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { integrationFailed } from '../utils';
 import fucExampleImg from 'src/pages/Admin/workwx/img/fucExample.png';
 import setApiExampleImg from 'src/pages/Admin/workwx/img/setApiExample.png';
 import './style.less';
@@ -126,15 +127,19 @@ export default class Workwx extends React.Component {
       secret: this.state.Secret,
       corpId: this.state.CorpId,
     }).then(res => {
-      if (res) {
-        if (res.item1) {
-          this.setState({
-            isHasInfo: true,
-            canEditInfo: false,
-          });
-        } else {
-          alert(res.item2, 2);
-        }
+      if (res.item1 === -1) {
+        VertifyClearIntegationData({
+          projectId: Config.projectId,
+          callback: this.editInfo,
+        });
+        return;
+      } else if (res.item1) {
+        this.setState({
+          isHasInfo: true,
+          canEditInfo: false,
+        });
+      } else {
+        alert(res.item2, 2);
       }
     });
   };
@@ -525,7 +530,7 @@ export default class Workwx extends React.Component {
       if (res) {
         callback();
       } else {
-        alert('失败', 2);
+        integrationFailed(Config.projectId);
       }
     });
   };
@@ -612,7 +617,9 @@ export default class Workwx extends React.Component {
     } = this.state;
     const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
     if (featureType === '2') {
-      return <UpgradeVersion projectId={Config.projectId} featureId={FEATURE_ID} />;
+      return (
+        <div className="orgManagementWrap">{buriedUpgradeVersionDialog(Config.projectId, FEATURE_ID, 'content')}</div>
+      );
     }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
@@ -736,7 +743,7 @@ export default class Workwx extends React.Component {
                       ) : (
                         <a
                           target="_blank"
-                          href="https://help.mingdao.com/zh/wecom3.html#%E4%BA%8C%E3%80%81%E5%9C%A8%E6%98%8E%E9%81%93%E4%BA%91%E4%BA%8C%E7%BA%A7%E7%99%BB%E5%BD%95%E9%A1%B5%E9%9D%A2%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%89%AB%E7%A0%81%E7%99%BB%E5%BD%95"
+                          href="https://help.mingdao.com/wecom3#%E4%BA%8C%E3%80%81%E5%9C%A8%E6%98%8E%E9%81%93%E4%BA%91%E4%BA%8C%E7%BA%A7%E7%99%BB%E5%BD%95%E9%A1%B5%E9%9D%A2%EF%BC%8C%E4%BD%BF%E7%94%A8%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%E6%89%AB%E7%A0%81%E7%99%BB%E5%BD%95"
                           className="helpEntry"
                         >
                           {_l('如何实现企业微信扫码登录？')}

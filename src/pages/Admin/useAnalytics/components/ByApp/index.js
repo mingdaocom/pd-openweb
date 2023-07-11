@@ -7,7 +7,7 @@ import SvgIcon from 'src/components/SvgIcon';
 import TableCom from '../TableCom';
 import AppAnalytics from '../AppAnalytics';
 import { selectDateList, formatter } from '../../util';
-import { formatFileSize } from 'src/util';
+import { formatFileSize, addBehaviorLog } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
 import cx from 'classnames';
 import styled from 'styled-components';
@@ -66,10 +66,10 @@ const ByAppWrap = styled.div`
   .useage {
     padding: 6px 24px 0;
     .width120 {
-      width: 150px;
-    }
-    .width120 {
       width: 120px;
+    }
+    .width130 {
+      width: 130px;
     }
     .width50 {
       width: 50px;
@@ -126,7 +126,6 @@ export default class ByApp extends Component {
       useageList: [],
       useageLoading: false,
       useagePageIndex: 1,
-      appAnalyticsVisible: false,
       currentAppInfo: {},
       checkAdmin: {
         id: '',
@@ -253,7 +252,14 @@ export default class ByApp extends Component {
       {
         dataIndex: 'addRow',
         title: _l('记录创建次数'),
-        className: 'width120',
+        explain: (
+          <span>
+            {_l('记录创建次数计数说明：')}
+            <br />
+            {_l('通过工作表表单页面创建的记录、不包含Excel导入、工作流创建、API调用的方式')}
+          </span>
+        ),
+        className: 'width130',
         sorter: true,
         render: item => {
           return formatter(item.addRow);
@@ -271,6 +277,15 @@ export default class ByApp extends Component {
       {
         dataIndex: 'appAccess',
         title: _l('访问次数'),
+        explain: (
+          <span>
+            {_l('应用访问次数计数说明：')}
+            <br />
+            {_l('· 通过应用图标点击进入应用')}
+            <br />
+            {_l('· 通过系统消息打开了应用')}
+          </span>
+        ),
         className: 'width120',
         sorter: true,
         render: item => {
@@ -287,9 +302,13 @@ export default class ByApp extends Component {
         },
       },
       {
-        dataIndex: 'addWorkFlow', title: _l('工作流执行数'), className: 'width120', sorter: true, render: (item) => {
+        dataIndex: 'addWorkFlow',
+        title: _l('工作流执行数'),
+        className: 'width120',
+        sorter: true,
+        render: item => {
           return formatter(item.addWorkFlow);
-        }
+        },
       },
       {
         dataIndex: 'attachmentUpload',
@@ -462,22 +481,25 @@ export default class ByApp extends Component {
       };
     };
     this.setState({ checkAdmin: opts(true) }, () => {
-      appManagementAjax.checkAppAdminForUser({
-        appId,
-      }).then(result => {
-        if (result) {
-          if (isAnalysis) {
-            this.setState({
-              checkAdmin: Object.assign({}, this.state.checkAdmin, { visible: false }),
-              appAnalyticsVisible: true,
-            });
-          } else {
-            navigateTo(`/app/${appId}`);
+      appManagementAjax
+        .checkAppAdminForUser({
+          appId,
+        })
+        .then(result => {
+          if (result) {
+            if (isAnalysis) {
+              this.setState({
+                checkAdmin: Object.assign({}, this.state.checkAdmin, { visible: false }),
+              });
+              window.open(`/app/${appId}/analytics/${this.props.projectId}`, '__blank');
+            } else {
+              addBehaviorLog('app', appId); // 埋点
+              navigateTo(`/app/${appId}`);
+            }
+          } else if (this.state.checkAdmin.visible) {
+            this.setState({ checkAdmin: opts(false) });
           }
-        } else if (this.state.checkAdmin.visible) {
-          this.setState({ checkAdmin: opts(false) });
-        }
-      });
+        });
     });
   }
   addRoleMemberForAppAdmin = () => {
@@ -485,17 +507,21 @@ export default class ByApp extends Component {
       checkAdmin: { id },
       isAnalysis,
     } = this.state;
-    appManagementAjax.addRoleMemberForAppAdmin({
-      appId: id,
-    }).then(result => {
-      if (result) {
-        if (isAnalysis) {
-          this.setState({ appAnalyticsVisible: true, isAnalysis: false });
-        } else {
-          navigateTo(`/app/${id}`);
+    appManagementAjax
+      .addRoleMemberForAppAdmin({
+        appId: id,
+      })
+      .then(result => {
+        if (result) {
+          if (isAnalysis) {
+            this.setState({ isAnalysis: false });
+            window.open(`/app/${id}/analytics/${this.props.projectId}`, '__blank');
+          } else {
+            addBehaviorLog('app', id); // 埋点
+            navigateTo(`/app/${id}`);
+          }
         }
-      }
-    });
+      });
   };
   changeTab = item => {
     const { pageIndex, useagePageIndex } = this.state;
@@ -526,7 +552,6 @@ export default class ByApp extends Component {
       useageLoading,
       useagePageIndex,
       selectedDate,
-      appAnalyticsVisible,
       currentAppInfo = {},
       checkAdmin,
     } = this.state;
@@ -549,7 +574,7 @@ export default class ByApp extends Component {
           <div className="searchWrap flexRow">
             {currentTab === 2 && (
               <Select
-                className="mRight10"
+                className="mRight10 mdAntSelect"
                 style={{ width: '200px' }}
                 placeholder={_l('最近30天')}
                 suffixIcon={<Icon icon="arrow-down-border" className="Font18" />}
@@ -596,23 +621,13 @@ export default class ByApp extends Component {
           </div>
         )}
 
-        {appAnalyticsVisible && (
-          <AppAnalytics
-            currentAppInfo={currentAppInfo}
-            projectId={projectId}
-            onCancel={() => {
-              this.setState({ appAnalyticsVisible: false });
-            }}
-          />
-        )}
-
         <Dialog
           visible={checkAdmin.visible}
           className={cx({ checkAdminDialog: checkAdmin.post })}
           title={_l('管理应用“%0”', checkAdmin.title)}
           description={_l('如果你不是应用的管理员，需要将自己加为管理员以获得权限')}
           cancelText=""
-          okText={checkAdmin.post ? _l('验证权限...') : _l('加为应用管理员')}
+          okText={checkAdmin.post ? _l('验证权限...') : _l('加为此应用管理员')}
           onOk={checkAdmin.post ? () => {} : this.addRoleMemberForAppAdmin}
           onCancel={() => this.setState({ checkAdmin: Object.assign({}, this.state.checkAdmin, { visible: false }) })}
         />

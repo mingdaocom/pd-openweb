@@ -294,9 +294,11 @@ export const setHighLightOfRows = (rowIds, tableId) => {
       if (_.isUndefined(rowIndex)) {
         return;
       }
-      $(`${tableId ? `.sheetViewTable.id-${tableId}-id` : '.sheetViewTable'} .cell.row-${rowIndex}`).addClass(
-        'highlight',
-      );
+      setTimeout(() => {
+        $(`${tableId ? `.sheetViewTable.id-${tableId}-id` : '.sheetViewTable'} .cell.row-${rowIndex}`).addClass(
+          'highlight',
+        );
+      }, 100);
       window[`sheetTableHighlightRow${tableId}`] = rowIndex;
     });
   };

@@ -22,7 +22,7 @@ import _, { includes } from 'lodash';
 const Wrap = styled.div(
   ({ len }) => `
   .toRole {
-    color: #9E9E9E;
+    color: #5a5a5a;
     &:hover {
       color: #2196f3;
     }
@@ -67,6 +67,17 @@ const Wrap = styled.div(
             }
           }
         }
+      }
+    }
+    .toRole {
+      border-radius: 3px 3px 3px 3px;
+      padding: 0 12px;
+      border: 1px solid #dddddd;
+      line-height: 32px;
+      display: inline-block;
+      &:hover {
+        border: 1px solid #2196f3;
+        color: #2196f3;
       }
     }
     .addUser {
@@ -199,6 +210,8 @@ function User(props) {
     commonCount,
     portalSetModel,
     setQuickTag,
+    canEditApp,
+    roleId,
   } = props;
   const {
     roleList = [],
@@ -679,48 +692,60 @@ function User(props) {
             appId={appId}
             comp={() => {
               return (
-                <div className="addUser InlineBlock Hand Bold">
-                  <span
-                    className="lAdd"
-                    onClick={() => {
-                      setAddUserByTelDialog(true);
-                    }}
-                  >
-                    {_l('邀请用户')}
-                  </span>
-                  |
-                  <Trigger
-                    popupVisible={popupVisible}
-                    action={['click']}
-                    onPopupVisibleChange={popupVisible => {
-                      setPopupVisible(popupVisible);
-                    }}
-                    popup={
-                      <WrapPop className="Hand InlineBlock mTop6 uploadUser">
-                        <MenuItem
-                          className=""
-                          onClick={evt => {
-                            setAddUserDialog(true);
-                            setPopupVisible(false);
-                          }}
-                        >
-                          <Icon className="Font18 TxtMiddle mRight6" type="new_excel" />
-                          <span className=""> {_l('从Excel导入数据')}</span>
-                        </MenuItem>
-                      </WrapPop>
-                    }
-                    popupAlign={{ points: ['tr', 'br'], offset: [8, 0] }}
-                  >
-                    <span
-                      className="rAdd hand"
+                <React.Fragment>
+                  {roleId !== 'all' && canEditApp && (
+                    <div
+                      className="toRole Hand mRight14 TxtTop Bold"
                       onClick={() => {
-                        setPopupVisible(!popupVisible);
+                        setQuickTag({ roleId: roleId, tab: 'roleSet' });
                       }}
                     >
-                      <Icon className="TxtMiddle mLeft6 " type="arrow-down" />
+                      {_l('编辑角色')}
+                    </div>
+                  )}
+                  <div className="addUser InlineBlock Hand Bold">
+                    <span
+                      className="lAdd"
+                      onClick={() => {
+                        setAddUserByTelDialog(true);
+                      }}
+                    >
+                      {_l('邀请用户')}
                     </span>
-                  </Trigger>
-                </div>
+                    |
+                    <Trigger
+                      popupVisible={popupVisible}
+                      action={['click']}
+                      onPopupVisibleChange={popupVisible => {
+                        setPopupVisible(popupVisible);
+                      }}
+                      popup={
+                        <WrapPop className="Hand InlineBlock mTop6 uploadUser">
+                          <MenuItem
+                            className=""
+                            onClick={evt => {
+                              setAddUserDialog(true);
+                              setPopupVisible(false);
+                            }}
+                          >
+                            <Icon className="Font18 TxtMiddle mRight6" type="new_excel" />
+                            <span className=""> {_l('从Excel导入数据')}</span>
+                          </MenuItem>
+                        </WrapPop>
+                      }
+                      popupAlign={{ points: ['tr', 'br'], offset: [8, 0] }}
+                    >
+                      <span
+                        className="rAdd hand"
+                        onClick={() => {
+                          setPopupVisible(!popupVisible);
+                        }}
+                      >
+                        <Icon className="TxtMiddle mLeft6 " type="arrow-down" />
+                      </span>
+                    </Trigger>
+                  </div>
+                </React.Fragment>
               );
             }}
             refresh={() => {

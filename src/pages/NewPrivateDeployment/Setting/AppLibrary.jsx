@@ -89,8 +89,7 @@ export default function AppLibrary(props) {
       <div className="Font17 bold mBottom8">{_l('应用库')}</div>
       <div className="flexRow">
         <div className="flex flexColumn">
-          <div className="Font14 bold mBottom8">{_l('选项配置')}</div>
-          <div className="Gray_9e mBottom30">{_l('配置应用库是否关闭，启用自建应用库还是明道云共有应用库')}</div>
+          <div className="Font14 bold mBottom8">{_l('启用应用库')}</div>
         </div>
         <Switch
           checked={!hideTemplateLibrary}
@@ -106,7 +105,7 @@ export default function AppLibrary(props) {
       {!hideTemplateLibrary && (
         <Fragment>
           <div className="flexRow">
-            {[{ text: _l('自建应用库'), value: '2' }, { text: _l('明道云应用库'), value: '1' }].map((item, index) => (
+            {[{ text: _l('自建应用库'), value: '2' }, { text: _l('使用明道云应用库'), value: '1' }].map((item, index) => (
               <div className="mRight30">
                 <Radio
                   key={index}

@@ -12,7 +12,9 @@ import CalendarView from './CalendarView';
 import GunterView from './GunterView';
 import GroupFilter from '../GroupFilter';
 import State from '../State';
+import worksheetAjax from 'src/api/worksheet';
 import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import { emitter } from 'worksheet/util';
 import _ from 'lodash';
 
 const { board, sheet, calendar, gallery, structure, gunter } = VIEW_DISPLAY_TYPE;
@@ -36,12 +38,33 @@ class View extends Component {
     } else {
       this.props.fetchSheetRows();
     }
+    emitter.addListener('MOBILE_RELOAD_SHEETVIVELIST', this.refreshList);
   }
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.mobileNavGroupFilters, nextProps.mobileNavGroupFilters)) {
       this.props.fetchSheetRows({ navGroupFilters: nextProps.mobileNavGroupFilters });
     }
   }
+  refreshList = ({ worksheetId, recordId }) => {
+    const { view, base = {}, currentSheetRows = [] } = this.props;
+
+    if (worksheetId === base.worksheetId && _.find(currentSheetRows, r => r.rowid === recordId)) {
+      worksheetAjax
+        .getRowDetail({
+          checkView: true,
+          getType: 1,
+          rowId: recordId,
+          viewId: view.viewId,
+          worksheetId: base.worksheetId,
+        })
+        .then(row => {
+          if (!row.isViewData) {
+            const temp = _.filter(currentSheetRows, v => v.rowid !== recordId);
+            this.props.changeMobileSheetRows(temp);
+          }
+        });
+    }
+  };
   renderError() {
     const { view } = this.props;
     return (
@@ -103,6 +126,7 @@ export default connect(
       'mobileNavGroupFilters',
       'batchOptVisible',
       'appColor',
+      'currentSheetRows',
     ]),
     controls: state.sheet.controls,
     views: state.sheet.views,
@@ -122,6 +146,7 @@ export default connect(
           'changeBatchOptVisible',
           'changeMobileGroupFilters',
           'unshiftSheetRow',
+          'changeMobileSheetRows',
         ]),
       },
       dispatch,

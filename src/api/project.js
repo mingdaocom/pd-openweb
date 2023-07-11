@@ -130,6 +130,7 @@ export default {
   /**
   * 获取网络授权辅助信息
   * @param {Object} args 请求参数
+  * @param {boolean} args.onlyNormal 是否只需要基本信息
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -377,5 +378,61 @@ export default {
    addTpAuthorizerInfo: function (args, options = {}) {
      
      return $.api('Project', 'AddTpAuthorizerInfo', args, options);
+   },
+  /**
+  * 获取所有专属算力实例
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {array} args.resourceIds 资源id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getComputingInstances: function (args, options = {}) {
+     
+     return $.api('Project', 'GetComputingInstances', args, options);
+   },
+  /**
+  * 获取专属算力实例详情
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.id 组织id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getComputingInstanceDetail: function (args, options = {}) {
+     
+     return $.api('Project', 'GetComputingInstanceDetail', args, options);
+   },
+  /**
+  * 更新专属算力实例名称
+删除专属算力
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.instanceId 专属算力实例id
+  * @param {string} args.name 专属算力实例name
+  * @param {boolean} args.isDelete 是否删除  true表示删除，默认为false
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateComputingInstance: function (args, options = {}) {
+     
+     return $.api('Project', 'UpdateComputingInstance', args, options);
+   },
+  /**
+  * 重试创建专属算力实例
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.id id
+  * @param {string} args.resourceId 资源id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   retryComputingInstance: function (args, options = {}) {
+     
+     return $.api('Project', 'RetryComputingInstance', args, options);
    },
 };

@@ -44,7 +44,7 @@ function ItemCon(props) {
         {...props}
         title={_l('代码块')}
         icon={'worksheet_API'}
-        support={'https://help.mingdao.com/zh/integration.html#输入参数'}
+        support={'https://help.mingdao.com/integration#输入参数'}
       />
       <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
     </React.Fragment>

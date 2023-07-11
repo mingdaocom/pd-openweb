@@ -23,7 +23,16 @@ export const FORM_ERROR_TYPE = {
 };
 
 export const FORM_ERROR_TYPE_TEXT = {
-  REQUIRED: ({ controlName: label }) => {
+  REQUIRED: ({ controlName: label, advancedSetting, type }) => {
+    if (type === 36) {
+      if (advancedSetting.showtype === '1') {
+        return _l('请开启此项');
+      } else if (advancedSetting.showtype === '2') {
+        return _l('请选择{是}');
+      } else {
+        return _l('请勾选此项');
+      }
+    }
     return `${_l('请填写%0', label)}`;
   },
   REQUIRED_SELECT: ({ controlName: label }) => {

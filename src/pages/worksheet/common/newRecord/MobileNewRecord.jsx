@@ -107,6 +107,7 @@ function NewRecord(props) {
     advancedSetting = {},
     showDraftsEntry,
     sheetSwitchPermit,
+    customButtonConfirm,
     ...rest
   } = props;
   const { appId, viewId, worksheetInfo } = rest;
@@ -182,8 +183,7 @@ function NewRecord(props) {
           hideNewRecord();
           removeFromLocal('tempNewRecord', viewId);
         }}
-      >
-      </i>
+      ></i>
     </div>
   );
   const content = (
@@ -257,7 +257,14 @@ function NewRecord(props) {
         <Button
           className="Font13 bold"
           type="primary"
-          onClick={() => {
+          onClick={async () => {
+            if (customButtonConfirm) {
+              try {
+                await customButtonConfirm();
+              } catch (err) {
+                return;
+              }
+            }
             if (advancedSetting.autoFillVisible && advancedSetting.submitEndAction === 2 && _.isNull(autoFill)) {
               const retain = () => {
                 newRecordContent.current.newRecord({

@@ -141,7 +141,7 @@ export default ({
             {item.controlName}
             {_.get(item, 'advancedSetting.showcount') !== '1' && renderCount(item)}
           </div>
-          {(recordId || item.isSubList) && <WidgetsDesc item={item} from={from} />}
+          {(recordId || item.isSubList || from === FROM.RECORDINFO) && <WidgetsDesc item={item} from={from} />}
 
           {from !== FROM.DRAFT && !_.get(window, 'shareState.isPublicView') && (
             <RefreshBtn worksheetId={worksheetId} recordId={recordId} item={item} onChange={handleChange} />

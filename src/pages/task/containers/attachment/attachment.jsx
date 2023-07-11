@@ -9,7 +9,8 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { attachmentSwitch } from '../../redux/actions';
 import TaskDetail from '../taskDetail/taskDetail';
-import { isVideo, downloadFile, getClassNameByExt } from 'src/util';
+import { downloadFile, getClassNameByExt } from 'src/util';
+import RegExp from 'src/util/expression';
 
 const attachmentSettings = {
   dialog:
@@ -312,7 +313,7 @@ class Attachment extends Component {
           <div className="taskThumbnailBox boxSizing boderRadAll_3 animatedFast">
             <div className="taskThumbnailImg">
               {(extClass.indexOf('img') >= 0 && !(item.refId && !item.shareUrl)) ||
-              (isVideo(item.ext) && item.previewUrl) ? (
+              (RegExp.isVideo(item.ext) && item.previewUrl) ? (
                 <img src={item.previewUrl} />
               ) : (
                 <span

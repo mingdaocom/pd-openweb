@@ -1,5 +1,4 @@
-import { useState, useCallback } from 'react';
-import { isUrlRequest } from 'src/util';
+import RegExp from 'src/util/expression';
 
 export function getUrlList(text) {
   const array = text.replace(/\n/, ' ').split(' ');
@@ -7,7 +6,7 @@ export function getUrlList(text) {
 
   for(let i = 0; i < array.length; i++) {
     let content = array[i];
-    if (isUrlRequest(content)) {
+    if (RegExp.isUrlRequest(content)) {
       result.push(content);
     }
   }

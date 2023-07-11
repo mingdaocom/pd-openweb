@@ -52,6 +52,8 @@ export default function FlatMenu({ data, onChange, globalSheetInfo, fromPortal, 
                   _.find(OPTIONS_DISPLAY, i => i.value === value),
                   'type',
                 ),
+                // 进度清除其他选项
+                options: value === '2' ? (data.options || []).filter(i => i.key !== 'other') : data.options,
               });
             }}
           />

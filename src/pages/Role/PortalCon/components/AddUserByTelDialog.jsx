@@ -95,7 +95,7 @@ const Wrap = styled.div`
     }
   }
 `;
-const TYPELIST = ['手机邀请', '邮箱邀请'];
+const TYPELIST = [_l('手机邀请'), _l('邮箱邀请')];
 function AddUserByTelDialog(props) {
   const { appId, show, setAddUserByTelDialog, getUserList, roleList, registerMode = {} } = props;
   const roleId = props.roleId || roleList.find(o => o.isDefault).roleId;

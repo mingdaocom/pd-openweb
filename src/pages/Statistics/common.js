@@ -121,6 +121,9 @@ export function initConfigDetail(id, data, currentReport) {
     } else if (item.type === 37) {
       item.type = item.enumDefault2;
     }
+    if (item.encryId) {
+      item.type = 2;
+    }
     return item;
   });
 
@@ -287,6 +290,7 @@ export function initConfigDetail(id, data, currentReport) {
       result.displaySetup.xdisplay.title = result.xaxes ? result.xaxes.controlName : null;
       result.displaySetup.ydisplay.title = result.yaxisList.length ? result.yaxisList[0].controlName : '';
       result.displaySetup.showChartType = 1;
+      result.displaySetup.colorRules = [];
     }
   }
 
@@ -446,7 +450,8 @@ export function getSortData(type) {
     type === WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT ||
     type === WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN ||
     type === WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU ||
-    type === WIDGETS_TO_API_TYPE_ENUM.SCORE
+    type === WIDGETS_TO_API_TYPE_ENUM.SCORE ||
+    type === WIDGETS_TO_API_TYPE_ENUM.SWITCH
   ) {
     return [
       {
@@ -1324,7 +1329,7 @@ export const systemControls = [
   },
   {
     controlId: 'caid',
-    controlName: _l('创建者'),
+    controlName: _l('创建人'),
     type: 26,
   },
   {
@@ -1500,6 +1505,24 @@ export const normTypes = [
     text: _l('平均值'),
     value: 4,
   },
+];
+
+/**
+ * 非数值控件的计算类型
+ */
+export const textNormTypes = [
+  {
+    text: _l('具体值'),
+    value: 7,
+  },
+  {
+    text: _l('计数'),
+    value: 5,
+  },
+  {
+    text: _l('去重计数'),
+    value: 6,
+  }
 ];
 
 /**

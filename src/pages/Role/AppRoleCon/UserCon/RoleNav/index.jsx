@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import { WrapNav } from 'src/pages/Role/style';
+import { WrapNav, AddWrap } from 'src/pages/Role/style';
 import _ from 'lodash';
 import styled from 'styled-components';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
@@ -17,9 +17,9 @@ const WrapL = styled.div`
 `;
 const Wrap = styled.p`
   font-size: 12px;
-  font-weight: 400;
+  font-weight: bold;
   color: #9e9e9e;
-  padding-left: 20px;
+  padding-left: 18px;
   margin: 10px 0 4px 0;
 `;
 
@@ -47,6 +47,7 @@ export default class Con extends React.Component {
       SetAppRolePagingModel,
       setSelectedIds,
       appId,
+      canEditApp,
     } = this.props;
     const { roleInfos = [], apply = [], outsourcing = {}, total } = appRole;
     const { roleId, roleList = [], keywords } = this.props;
@@ -113,6 +114,7 @@ export default class Con extends React.Component {
               {sysList.map(o => {
                 return <ItemCon {...this.props} data={o} />;
               })}
+              {sysList.length > 0 && <div style={{ paddingTop: 6 }}></div>}
               {otherList.length > 0 && (
                 <React.Fragment>
                   <Wrap>{_l('普通')}</Wrap>
@@ -120,6 +122,20 @@ export default class Con extends React.Component {
                     return <ItemCon {...this.props} data={o} />;
                   })}
                 </React.Fragment>
+              )}
+              {canEditApp && (
+                <AddWrap
+                  className="Hand"
+                  onClick={() => {
+                    this.props.setQuickTag({ roleId: 'new', tab: 'roleSet' });
+                    setTimeout(() => {
+                      this.props.setQuickTag({ roleId: '', tab: 'roleSet' });
+                    }, 0);
+                  }}
+                >
+                  <i class="ming Icon icon-add icon icon-undefined"></i>
+                  {_l('创建角色')}
+                </AddWrap>
               )}
             </ul>
           )}

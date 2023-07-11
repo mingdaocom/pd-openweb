@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import _ from 'lodash';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, isUUID } from 'src/util';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import CardCellControls from './CardCellControls';
 
@@ -92,7 +92,7 @@ export default function RecordCoverCard(props) {
     projectId,
     viewId,
     allowlink,
-    sourceEntityName,
+    sourceEntityName = '',
     parentControl,
     isCharge,
   } = props;
@@ -106,7 +106,7 @@ export default function RecordCoverCard(props) {
     _.get(titleControl, 'advancedSetting.isdecrypt') === '1';
   const title =
     props.title ||
-    (data.rowid
+    (data.rowid && isUUID(data.rowid)
       ? getTitleTextFromRelateControl(parentControl, data, { noMask: forceShowFullValue })
       : _l('关联当前%0', sourceEntityName));
   return (
@@ -140,9 +140,11 @@ export default function RecordCoverCard(props) {
           )}
         </Title>
         <CardCellControls
+          parentControl={parentControl}
           width={width}
           controls={controls}
           data={data}
+          worksheetId={parentControl.dataSource}
           projectId={projectId}
           viewId={viewId}
           isCharge={isCharge}

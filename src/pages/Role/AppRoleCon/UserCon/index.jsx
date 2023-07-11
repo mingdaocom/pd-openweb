@@ -17,6 +17,7 @@ const Wrap = styled.div`
   height: 100%;
   .navConList {
     overflow: auto !important;
+    padding: 6px 8px 10px;
   }
   .overflowHidden {
     overflow: hidden !important;
@@ -136,16 +137,12 @@ class Con extends React.Component {
     } = this.props;
     const { roleInfos = [] } = appRole;
     const { quickTag } = appRole;
-    if (!isAdmin) {
+    if (quickTag.roleId) {
+      this.setState({
+        roleId: editType || quickTag.roleId,
+      });
     } else {
-      if (quickTag.roleId) {
-        this.setState({
-          roleId: quickTag.roleId,
-          roleId: editType || quickTag.roleId,
-        });
-      } else {
-        setRoleId(editType ? editType : appRole.roleId ? appRole.roleId : 'all');
-      }
+      setRoleId(editType ? editType : appRole.roleId ? appRole.roleId : 'all');
     }
     if (!!editType && editType !== 'all') {
       //申请加入等地址，获取全部项计数

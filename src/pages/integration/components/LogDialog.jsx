@@ -46,24 +46,26 @@ export default function LogDialog(props) {
   }, []);
   const getLogDetail = () => {
     setState({ loading: true });
-    packageVersionAjax.getHistoryDetail(
-      {
-        instanceId: props.info.id,
-      },
-      { isIntegration: true },
-    ).then(
-      res => {
-        setState({ loading: false, data: res, isErr: false });
-      },
-      () => {
-        setState({
-          isErr: true,
+    packageVersionAjax
+      .getHistoryDetail(
+        {
+          instanceId: props.info.id,
+        },
+        { isIntegration: true },
+      )
+      .then(
+        res => {
+          setState({ loading: false, data: res, isErr: false });
+        },
+        () => {
+          setState({
+            isErr: true,
 
-          loading: false,
-          data: props.info.instanceLog,
-        });
-      },
-    );
+            loading: false,
+            data: props.info.instanceLog,
+          });
+        },
+      );
   };
   const renderTabCon = () => {
     return (
@@ -126,18 +128,32 @@ export default function LogDialog(props) {
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  {_l(
-                    '请求时间 %0, 状态码 %1，耗时 %2 秒',
-                    props.info.createDate,
-                    data.json.code,
-                    !props.info.completeDate
-                      ? ''
-                      : moment(props.info.completeDate).diff(moment(props.info.createDate), 'seconds'),
-                  )}
+                  {!_.get(data, 'json.code')
+                    ? _l(
+                        '请求时间 %0, 耗时 %1 秒',
+                        _.get(props, 'info.createDate'),
+                        !_.get(props, 'info.completeDate')
+                          ? ''
+                          : moment(_.get(props, 'info.completeDate')).diff(
+                              moment(_.get(props, 'info.createDate')),
+                              'seconds',
+                            ),
+                      )
+                    : _l(
+                        '请求时间 %0, 状态码 %1，耗时 %2 秒',
+                        _.get(props, 'info.createDate'),
+                        _.get(data, 'json.code'),
+                        !_.get(props, 'info.completeDate')
+                          ? ''
+                          : moment(_.get(props, 'info.completeDate')).diff(
+                              moment(_.get(props, 'info.createDate')),
+                              'seconds',
+                            ),
+                      )}
                   ，{_l('请求结果')}
-                  <span className={cx('mLeft5', { Red: props.info.status === 4 })}>
-                    {FLOW_STATUS[props.info.status].text}
-                    {props.info.status === 4
+                  <span className={cx('mLeft5', { Red: _.get(props, 'info.status') === 4 })}>
+                    {FLOW_STATUS[_.get(props, 'info.status')].text}
+                    {_.get(props, 'info.status') === 4
                       ? _.get(props, ['info', 'instanceLog', 'causeMsg'])
                         ? `: ${_.get(props, ['info', 'instanceLog', 'causeMsg'])}`
                         : ''
@@ -150,7 +166,7 @@ export default function LogDialog(props) {
               <JsonView
                 src={
                   tab !== 0
-                    ? getInfo(data.json.result)
+                    ? getInfo(_.get(data, 'json.result'))
                     : [1, 4, 5].includes(data.contentType) //contentType 1 4 5 请求使用这个requests
                     ? data.requests
                     : getInfo(data.body)

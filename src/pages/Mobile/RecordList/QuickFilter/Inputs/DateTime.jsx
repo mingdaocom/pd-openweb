@@ -38,7 +38,7 @@ export default function DateTime(props) {
       )
         .filter(item => item.length)
         .map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)))
-    : DATE_OPTIONS.map(v => v.filter(item => item.value !== 18)).filter(t => !_.isEmpty(t));
+    : DATE_OPTIONS.map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)));
   const optionDate = _.flatten(date);
   const startDateValue = minValue ? moment(minValue).toDate() : null;
   const endDateValue = maxValue ? moment(maxValue).toDate() : null;

@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import store from 'src/redux/configureStore';
 import SvgIcon from 'src/components/SvgIcon';
 import appManagement from 'src/api/appManagement';
-import CustomPageContent from 'worksheet/components/CustomPageContent';
+import CustomPageContent from 'src/pages/customPage/pageContent';
 import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
 import { LoadDiv } from 'ming-ui';
 import styled from 'styled-components';

@@ -211,9 +211,6 @@
             display: none !important;
           }
         }
-        .workflowNodeNameText {
-          color: #757575;
-        }
         .workflowNodeName {
           flex: 1;
           background: #f5f5f5;
@@ -670,8 +667,10 @@
       &:hover {
         background: #f5f5f5;
       }
-      .Radio-box {
-        background: #fff !important;
+      &:not(.disabled) {
+        .Radio-box {
+          background: #fff !important;
+        }
       }
       .Radio-text {
         color: #333 !important;

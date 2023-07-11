@@ -73,6 +73,13 @@ const GroupFilter = props => {
     fetch();
   }, [keywords]);
   useEffect(() => {
+    let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
+    let { navshow } = getAdvanceSetting(view);
+    if (29 === soucre.type && navshow === '1') {
+      fetch();
+    }
+  }, [navGroupCounts]);
+  useEffect(() => {
     setCurrentNodeId();
     setKeywords('');
     fetch();
@@ -98,12 +105,30 @@ const GroupFilter = props => {
     let data = [];
     //级联选择字段 或 已配置层级展示的关联字段
     if ([29, 35].includes(soucre.type)) {
-      fetchData({
-        worksheetId: soucre.dataSource,
-        viewId: 29 === soucre.type ? navGroup.viewId : soucre.viewId,
-        rowId,
-        cb,
-      });
+      let { navshow } = getAdvanceSetting(view);
+      if (29 === soucre.type && navshow === '1') {
+        dataUpdate({
+          filterData: navGroupData,
+          data: navGroupCounts
+            .filter(o => !['all', ''].includes(o.key)) //排除全部和空
+            .map(item => {
+              return {
+                value: item.key,
+                txt: item.name, //renderTxt(item, control, viewId),
+                isLeaf: false,
+              };
+            }),
+          rowId,
+          cb,
+        });
+      } else {
+        fetchData({
+          worksheetId: soucre.dataSource,
+          viewId: 29 === soucre.type ? navGroup.viewId : soucre.viewId,
+          rowId,
+          cb,
+        });
+      }
     } else {
       let options = (controls.find(o => o.controlId === navGroup.controlId) || {}).options || [];
       data = !navGroup.isAsc ? options.slice().reverse() : options;
@@ -285,7 +310,10 @@ const GroupFilter = props => {
   };
   const renderContent = data => {
     return data.map(item => {
-      let count = Number((navGroupCounts.find(o => o.key === (!item.value ? 'all' : item.value)) || {}).count || 0);
+      let count = Number(
+        (navGroupCounts.find(o => o.key === (!item.value ? 'all' : item.value === 'null' ? '' : item.value)) || {})
+          .count || 0,
+      );
       let { navshow } = getAdvanceSetting(view);
       let hasChildren = !item.isLeaf;
       if (isSoucreTree()) {
@@ -387,29 +415,40 @@ const GroupFilter = props => {
         </div>
       );
     }
-    let tempData = keywords
-      ? renderData
-      : !keywords && navGroupData && currentNodeId
-      ? renderData
-      : (soucre.type === 29 && !!navGroup.viewId) || [35].includes(soucre.type)
-      ? [
+
+    let tempData = renderData;
+    if (!keywords && !currentNodeId) {
+      if ((soucre.type === 29 && !!navGroup.viewId) || [35].includes(soucre.type)) {
+        //关联记录以层级视图时|| 级联没有显示项
+        tempData = [
           {
             txt: _l('全部'),
             value: '',
             isLeaf: true,
           },
-        ].concat(renderData)
-      : showallitem !== '1'
-      ? [{ txt: allitemname || _l('全部'), value: '', isLeaf: true }].concat(renderData)
-      : renderData;
-    tempData =
-      shownullitem === '1'
-        ? tempData.concat({
-            txt: nullitemname || _l('为空'),
-            value: 'null',
-            isLeaf: true,
-          })
-        : tempData;
+        ].concat(tempData);
+      } else {
+        tempData =
+          showallitem !== '1'
+            ? [
+                {
+                  txt: allitemname || _l('全部'),
+                  value: '',
+                  isLeaf: true,
+                },
+              ].concat(tempData)
+            : tempData;
+        tempData =
+          shownullitem === '1'
+            ? tempData.concat({
+                txt: nullitemname || _l('为空'),
+                value: 'null',
+                isLeaf: true,
+              })
+            : tempData;
+      }
+    }
+
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
     try {
       navfilters = JSON.parse(navfilters);

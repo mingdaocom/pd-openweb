@@ -280,9 +280,6 @@ export default class Text extends React.Component {
     } else if (e.keyCode === 13) {
       if (this.isMultipleLine && !(e.ctrlKey || e.metaKey)) {
         return;
-      } else {
-        e.preventDefault();
-        this.handleBlur();
       }
       e.preventDefault();
       this.handleBlur();

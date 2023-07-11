@@ -18,7 +18,7 @@ export default function SideContent(props) {
   const getData = () => {
     setLoading(true);
     api
-      .getAllHomeApp()
+      .getAllHomeApp({ containsLinks: true })
       .then(data => {
         setData({ data, filteredData: data });
       })

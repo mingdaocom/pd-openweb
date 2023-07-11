@@ -102,7 +102,7 @@ function NewRecord(props) {
             }
             newRecordContent.current.newRecord({
               isContinue: true,
-              autoFill,
+              autoFill: autoFill && advancedSetting.autoFillVisible,
               actionType: advancedSetting.continueEndAction,
               rowStatus: 1,
             });

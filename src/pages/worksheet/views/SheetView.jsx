@@ -17,7 +17,7 @@ import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { updateWorksheetSomeControls, refreshWorksheetControls } from 'worksheet/redux/actions';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
-import { getAdvanceSetting } from 'src/util';
+import { getAdvanceSetting, addBehaviorLog } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
@@ -77,7 +77,13 @@ class TableView extends React.Component {
     }
     if (
       _.some(
-        ['sheetFetchParams', 'view.moreSort', 'view.advancedSetting.clicksearch', 'navGroupFilters'],
+        [
+          'sheetFetchParams',
+          'view.moreSort',
+          'view.advancedSetting.clicksearch',
+          'view.advancedSetting.enablerules',
+          'navGroupFilters',
+        ],
         key => !_.isEqual(_.get(nextProps, key), _.get(this.props, key)),
       ) ||
       changeView
@@ -187,7 +193,10 @@ class TableView extends React.Component {
   @autobind
   outerClickEvent(e) {
     const { clearHighLight } = this.props;
-    if (!$(e.target).closest('.sheetViewTable, .recordInfoCon')[0] || /-grid/.test(e.target.className)) {
+    if (
+      !$(e.target).closest('.sheetViewTable, .recordInfoCon, .workSheetNewRecord, .mdModal')[0] ||
+      /-grid/.test(e.target.className)
+    ) {
       clearHighLight(this.tableId);
       $(`.sheetViewTable.id-${this.tableId}-id .cell`).removeClass('hover');
     }
@@ -220,7 +229,10 @@ class TableView extends React.Component {
 
   @autobind
   handleCellClick(cell, row, rowIndex) {
-    const { setHighLight } = this.props;
+    const { setHighLight, worksheetId } = this.props;
+    if (location.pathname.indexOf('public') === -1) {
+      addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
+    }
     setHighLight(this.tableId, rowIndex);
     const newState = {
       recordInfoVisible: true,
@@ -737,6 +749,7 @@ class TableView extends React.Component {
     const showAsZebra = (_.get(view, 'advancedSetting.alternatecolor') || '0') === '1'; // 斑马颜色
     const wrapControlName = (_.get(view, 'advancedSetting.titlewrap') || '0') === '1';
     const lineEditable = (_.get(view, 'advancedSetting.fastedit') || '1') === '1';
+    const enableRules = (_.get(view, 'advancedSetting.enablerules') || '1') === '1';
     const { rowHeadWidth } = this;
     return (
       <React.Fragment>
@@ -811,6 +824,7 @@ class TableView extends React.Component {
             tableId={this.tableId}
             viewId={viewId}
             appId={appId}
+            enableRules={enableRules}
             rules={rules}
             isCharge={isCharge}
             worksheetId={worksheetId}

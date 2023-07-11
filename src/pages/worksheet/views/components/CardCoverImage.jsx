@@ -154,6 +154,7 @@ export default function CardCoverImage(props) {
   const { previewUrl, ext } = head(allAttachments) || {};
   const { viewType, appId, worksheetId } = currentView;
   const isGalleryView = String(viewType) === '3';
+  const isHierarchyView = String(viewType) === '2';
   const coverImage = data.coverImage || previewUrl;
   const coverSetting = getMultiRelateViewConfig(currentView, stateData);
   const { coverCid, coverType } = coverSetting;
@@ -161,7 +162,7 @@ export default function CardCoverImage(props) {
   const position = COVER_IMAGE_POSITION[coverposition];
 
   if (!coverCid) return null;
-  if (!isGalleryView && position !== 'left' && !coverImage && type !== 47) return null;
+  if (!isGalleryView && !isHierarchyView && position !== 'left' && !coverImage && type !== 47) return null;
   // 嵌入字段iframe展示
   const isIframeCover = isIframeControl(coverData);
   const previewAttachment = e => {

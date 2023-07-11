@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Gauge, G2 } from '@antv/g2plot';
-import { formatYaxisList, formatrChartValue, formatControlInfo } from './common';
+import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors, getStyleColor } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 const { Util, registerShape } = G2;
 
@@ -117,6 +117,7 @@ export default class extends Component {
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
       displaySetup.showPercent !== oldDisplaySetup.showPercent ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
+      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       style.indicatorVisible !== oldStyle.indicatorVisible ||
       style.scaleType !== oldStyle.scaleType
     ) {
@@ -142,13 +143,15 @@ export default class extends Component {
   getComponentConfig(props) {
     const { reportData, isThumbnail } = props;
     const { map, yaxisList, displaySetup, style } = reportData;
-    const { showChartType, showDimension, showNumber, showPercent } = displaySetup;
+    const { showChartType, showDimension, showNumber, showPercent, colorRules } = displaySetup;
     const { indicatorVisible } = style;
     const scaleType = _.isUndefined(style.scaleType) ? 1 : style.scaleType;
     const numberControlId = _.get(yaxisList[0], 'controlId');
     const numberControlName = _.get(yaxisList[0], 'rename') || _.get(yaxisList[0], 'controlName');
     const data = map[numberControlId];
     const { clientHeight } = this.chartEl;
+    const colors = getChartColors(style);
+    const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const getOffset = () => {
       if (showChartType === 1) {
         return clientHeight / 7;
@@ -158,11 +161,33 @@ export default class extends Component {
       }
       return clientHeight / 9;
     }
+    const getColor = () => {
+      if (_.isEmpty(rule)) {
+        return colors[0];
+      } else {
+        const controlId = yaxisList[0].controlId;
+        const color = getStyleColor({
+          value: data.value,
+          controlMinAndMax: {
+            [controlId]: {
+              min: data.min,
+              max: data.max,
+              center: (data.max + data.min) / 2
+            }
+          },
+          rule,
+          controlId
+        });
+        return color || colors[0];
+      }
+    }
+    const percent = data.value < data.min ? 0 : data.value * 1 / (data.max || 1);
+
     const base = {
-      percent: data.value * 1 / (data.max || 1),
+      percent,
       appendPadding: [20, 10, showChartType == 2 ? 65 : 50, 10],
       range: {
-        color: '#0095f1',
+        color: getColor(),
         width: 32
       },
       indicator: {

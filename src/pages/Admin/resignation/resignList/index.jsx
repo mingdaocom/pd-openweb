@@ -11,7 +11,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
-import 'src/components/pager/pager';
+import PaginationWrap from '../../components/PaginationWrap';
 import './style.less';
 import Empty from '../../common/TableEmpty';
 import { verifyPassword } from 'src/util';
@@ -54,20 +54,6 @@ export default class ResignList extends React.Component {
         },
         this.fetchList.bind(this),
       );
-    }
-  }
-
-  componentDidUpdate() {
-    const { allCount, pageIndex } = this.state;
-    if (this.pager) {
-      $(this.pager).Pager({
-        pageIndex,
-        pageSize: 20,
-        count: allCount,
-        changePage: pageIndex => {
-          this.setState({ pageIndex }, this.fetchList.bind(this));
-        },
-      });
     }
   }
 
@@ -298,7 +284,7 @@ export default class ResignList extends React.Component {
   }
 
   renderContent() {
-    const { allCount, isLoading, list, selectedAccountIds = {}, showMenu } = this.state;
+    const { allCount, isLoading, list, selectedAccountIds = {}, showMenu, pageIndex } = this.state;
     const accountIds = _.keys(selectedAccountIds).filter(id => selectedAccountIds[id]);
 
     const isAllChecked = !!(
@@ -364,10 +350,15 @@ export default class ResignList extends React.Component {
             <tbody>{this.renderList()}</tbody>
           </table>
         </div>
-        {!isLoading && allCount && allCount > 10 ? (
-          <div
-            ref={el => {
-              this.pager = el;
+        {!isLoading && allCount && allCount > 20 ? (
+          <PaginationWrap
+            total={allCount}
+            pageIndex={pageIndex}
+            pageSize={20}
+            onChange={pageIndex => {
+              this.setState({ pageIndex }, () => {
+                this.fetchList();
+              });
             }}
           />
         ) : null}

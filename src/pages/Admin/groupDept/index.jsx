@@ -43,14 +43,14 @@ export default class GroupDept extends Component {
   render() {
     const { activeTab, level, name, groupId } = this.state;
     return (
-      <div id="groupDept">
-        <div className="groupHeader">
+      <div id="groupDept" className="orgManagementWrap">
+        <div className="orgManagementHeader">
           {level === 'index' ? (
             <div className="tabBox">
               {routeList.map(item => {
                 return (
                   <div
-                    className={cx('groupTab', {active: item.routeType === activeTab })}
+                    className={cx('tabItem', {active: item.routeType === activeTab })}
                     onClick={this.handleChangeTab.bind(this, item)}>
                     {item.tabName}
                   </div>

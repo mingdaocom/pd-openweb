@@ -11,7 +11,7 @@ import cx from 'classnames';
 import './alias.less';
 import sheetAjax from 'src/api/worksheet';
 import { NOT_AS_TITLE_CONTROL } from '../../widgetConfig/config';
-import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget.js';
 import _ from 'lodash';
 @withClickAway
 class DropControlList extends React.Component {
@@ -74,7 +74,7 @@ class Alias extends React.Component {
       this.setState({
         name: entityName || '记录',
         id: attribute.controlId,
-        controls: controls.filter(it => !SYS.includes(it.controlId)),
+        controls: controls.filter(it => !ALL_SYS.includes(it.controlId)),
         alias,
       });
     }
@@ -101,7 +101,7 @@ class Alias extends React.Component {
                 <h6 className="Font13 mTop24">{_l('标题字段')}</h6>
                 <div className="attr mTop6">
                   <div
-                    className={cx('inputTxt', { noData: !data.controlName })}
+                    className={cx('inputTxt overflow_ellipsis', { noData: !data.controlName })}
                     onClick={() => {
                       this.setState({
                         showControlList: !showControlList,
@@ -121,7 +121,7 @@ class Alias extends React.Component {
                   />
                   {showControlList && (
                     <DropControlList
-                      columsList={controls}
+                      columsList={controls.filter(o => !ALL_SYS.includes(o.controlId))}
                       onClickAwayExceptions={[]}
                       onClickAway={() => this.setState({ showControlList: false })}
                       id={id}
@@ -208,9 +208,12 @@ class Alias extends React.Component {
                       </span>
                       <span className="textCon">
                         <span className="text">
-                          应用消息:您已被<span className="">@刘兰</span>添加为
+                          {_l('应用消息:您已被')}
+                          <span className="">@{_l('刘兰')}</span>
+                          {_l('添加为')}
                           <b className={cx('Normal', { nameFocus: nameFocus })}>{name}</b>：
-                          <span className="">销售线索管理</span>的负责人
+                          <span className="">{_l('销售线索管理')}</span>
+                          {_l('的负责人')}
                         </span>
                         <span className="time mTop20 Block">2020-05-09 10:21:35</span>
                       </span>

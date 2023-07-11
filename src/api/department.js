@@ -334,6 +334,23 @@ export default {
      return $.api('Department', 'GetProjectSubDepartmentByDepartmentId', args, options);
    },
   /**
+  * 获取 成员及下级部门
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {integer} args.pageIndex
+  * @param {integer} args.pageSize
+  * @param {boolean} args.onlyMyJoin
+  * @param {array} args.filterAccountIds
+  * @param {string} args.departmentId 可空（空时 仅返回 用户可见的  最顶级部门）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMembersAndSubs: function (args, options = {}) {
+     
+     return $.api('Department', 'GetMembersAndSubs', args, options);
+   },
+  /**
   * 分页获取部门列表
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id

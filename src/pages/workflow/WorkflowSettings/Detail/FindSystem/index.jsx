@@ -283,6 +283,7 @@ export default class FindSystem extends Component {
             updateSource={data => this.updateSource({ conditions: data })}
             projectId={this.props.companyId}
             singleCondition={data.appType === APP_TYPE.EXTERNAL_USER}
+            excludingDepartmentSpecialFilter
           />
         )}
 

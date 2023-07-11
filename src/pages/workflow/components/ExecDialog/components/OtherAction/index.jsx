@@ -452,11 +452,10 @@ export default class Approve extends Component {
    */
   renderTemplateList() {
     const { action, data } = this.props;
-    const { showTemplateList, content } = this.state;
+    const { showTemplateList } = this.state;
     const { opinionTemplate } = data;
-    let list = (
-      (_.includes(['pass', 'after'], action) ? opinionTemplate.opinions[4] : opinionTemplate.opinions[5]) || []
-    ).filter(item => item.value.indexOf(content) > -1);
+    let list =
+      (_.includes(['pass', 'after'], action) ? opinionTemplate.opinions[4] : opinionTemplate.opinions[5]) || [];
 
     if (!showTemplateList || !list.length) {
       return null;
@@ -464,6 +463,7 @@ export default class Approve extends Component {
 
     return (
       <MenuBox
+        className="mTop1"
         onClickAwayExceptions={['.approveDialog .Textarea']}
         onClickAway={() => this.setState({ showTemplateList: false })}
       >
@@ -496,7 +496,7 @@ export default class Approve extends Component {
       <SelectBox
         showSearch
         allowClear
-        defaultValue={content}
+        defaultValue={content || undefined}
         suffixIcon={<Icon icon="arrow-down-border Font14" />}
         notFoundContent={<span className="Gray_9e">{_l('无匹配结果')}</span>}
         dropdownClassName="workflowTemplateListSelect"
@@ -626,9 +626,9 @@ export default class Approve extends Component {
             this.renderSelectTemplate()
           ) : (
             <Textarea
-              className="Font13"
+              className="Font13 TxtTop"
               minHeight={0}
-              style={{ paddingTop: 9, paddingBottom: 9 }}
+              style={{ paddingTop: 7, paddingBottom: 7 }}
               maxHeight={240}
               value={content}
               onChange={content => this.setState({ content })}

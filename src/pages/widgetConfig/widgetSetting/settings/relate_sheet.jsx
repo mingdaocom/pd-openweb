@@ -17,10 +17,10 @@ import {
 } from '../../util/setting';
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import { getSortData } from 'src/pages/worksheet/util';
-import { EditInfo, SettingItem } from '../../styled';
+import { EditInfo, SettingItem, RelateDetail } from '../../styled';
 import { useSheetInfo } from '../../hooks';
 import components from '../components';
-import { formatViewToDropdown } from '../../util';
+import { formatViewToDropdown, getFilterRelateControls, toEditWidgetPage } from '../../util';
 import sheetComponents from '../components/relateSheet';
 import { SYSTEM_CONTROL } from '../../config/widget';
 import { FilterItemTexts, FilterDialog } from '../components/FilterData';
@@ -28,6 +28,7 @@ import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import { WHOLE_SIZE } from '../../config/Drag';
 import WidgetVerify from '../components/WidgetVerify';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
+import { v4 as uuidv4 } from 'uuid';
 
 const { ConfigRelate, BothWayRelate, SearchConfig } = sheetComponents;
 const { SheetDealDataType, RelateSheetInfo } = components;
@@ -151,7 +152,7 @@ export default function RelateSheet(props) {
     globalSheetControls,
     status: { saveIndex = 0 } = {},
   } = props;
-  const { worksheetId: sourceId, appId: defaultAppId } = globalSheetInfo;
+  const { worksheetId: sourceId, appId: defaultAppId, name: defaultWorksheetName } = globalSheetInfo;
   const {
     controlId,
     enumDefault = 1,
@@ -162,6 +163,7 @@ export default function RelateSheet(props) {
     dataSource,
     viewId,
     coverCid,
+    sourceControl,
   } = data;
   let {
     showtype = String(enumDefault),
@@ -217,7 +219,7 @@ export default function RelateSheet(props) {
   const selectedOpenViewIsDelete = !loading && openview && !_.find(views, sheet => sheet.viewId === openview);
 
   const isListDisplay = String(showtype) === '2';
-  const filterControls = _.filter(relationControls, item => !_.includes([22, 43, 45, 47, 49], item.type));
+  const filterControls = getFilterRelateControls(relationControls);
   const titleControl = _.find(filterControls, item => item.attribute === 1);
   const disableOpenViewDrop = !openview && viewId && !selectedViewIsDeleted;
 
@@ -233,8 +235,8 @@ export default function RelateSheet(props) {
 
   const getShowControls = controls => {
     if (ddset !== '1' && showtype === '3') return [];
-    const feControls = _.filter(controls, item => !_.includes([22, 43, 45, 47, 49], item.type));
-    if (isEmpty(showControls)) return feControls.slice(0, 4).map(item => item.controlId);
+    const feControls = getFilterRelateControls(controls);
+    if (isEmpty(showControls) && controlId.indexOf('-') > -1) return feControls.slice(0, 4).map(item => item.controlId);
     // 删除掉showControls 中已经被删掉的控件
     const allControlId = controls.map(item => item.controlId);
     return showControls.filter(i => allControlId.includes(i));
@@ -335,11 +337,34 @@ export default function RelateSheet(props) {
   return (
     <RelateSheetWrap>
       {dataSource ? (
-        <RelateSheetInfo
-          name={sourceEntityName || worksheetInfo.name}
-          id={dataSource}
-          appName={globalSheetInfo.appId === worksheetInfo.appId ? _l('本应用') : worksheetInfo.appName}
-        />
+        <RelateDetail>
+          <div className="text">{defaultWorksheetName}</div>
+          <i
+            className={cx(
+              'Font16 Gray_9e mRight6',
+              !_.get(sourceControl, 'controlId') ? 'icon-trending' : 'icon-sync1',
+            )}
+          />
+          <div
+            className="name flexCenter overflow_ellipsis"
+            onClick={() => {
+              const toPage = () =>
+                toEditWidgetPage({
+                  sourceId: dataSource,
+                  ...(!_.get(sourceControl, 'controlId') ? {} : { targetControl: sourceControl.controlId }),
+                  fromURL: 'newPage',
+                });
+              props.relateToNewPage(toPage);
+            }}
+          >
+            <span className="overflow_ellipsis pointer ThemeColor3 Bold" title={sourceEntityName}>
+              {sourceEntityName}
+            </span>
+            {!loading && defaultAppId !== worksheetInfo.appId && (
+              <span className="mLeft6">({worksheetInfo.appName})</span>
+            )}
+          </div>
+        </RelateDetail>
       ) : (
         <ConfigRelate
           {...props}

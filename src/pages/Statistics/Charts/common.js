@@ -354,7 +354,7 @@ export const formatControlValueDot = (value, data) => {
       if (dotformat === '0') {
         newValue = Number(toFixed(value, dot)).toLocaleString('zh', { minimumFractionDigits: dot });
       } else {
-        newValue = value;
+        newValue = Number(toFixed(value, dot));
       }
     } else {
       const dot = isRecordCount ? 0 : ydot;
@@ -373,7 +373,7 @@ export const formatControlValueDot = (value, data) => {
  */
 export const formatrChartValue = (value, isPerPile, yaxisList, id, isHideEmptyValue = true) => {
   if (!value && isHideEmptyValue) {
-    const { emptyShowType } = _.find(yaxisList, { controlId: id }) || {};
+    const { emptyShowType } = _.find(yaxisList, { controlId: id }) || yaxisList[0] || {};
     if (emptyShowType === 0) {
       return '';
     } else if (emptyShowType === 1) {
@@ -433,6 +433,155 @@ export const formatControlInfo = value => {
     id = null;
   }
   return { name, id };
+}
+
+const isApplyStyle = (applyValue, recordKey) => {
+  if (applyValue === 1) {
+    return recordKey !== 'sum';
+  }
+  if (applyValue === 2) {
+    return true;
+  }
+  if (applyValue === 3) {
+    return recordKey === 'sum';
+  }
+}
+
+export const getScopeRuleColor = (value, controlMinAndMax = {}, scopeRules, emptyShowType) => {
+  let result = null;
+
+  scopeRules.forEach(rule => {
+    const { type, and, min, max, color } = rule;
+    const minValue = _.isNumber(min) ? min : controlMinAndMax.min || 0;
+    const maxValue = _.isNumber(max) ? max : controlMinAndMax.max || 0;
+    if (type === 1 && value > minValue) {
+      if (and === 5 && value < maxValue) {
+        result = color;
+      }
+      if (and === 6 && value <= maxValue) {
+        result = color;
+      }
+    }
+    if (type === 2 && value >= minValue) {
+      if (and === 5 && value < maxValue) {
+        result = color;
+      }
+      if (and === 6 && value <= maxValue) {
+        result = color;
+      }
+    }
+    if (type === 3 && value === rule.value) {
+      result = color;
+    }
+    if (type === 4 && emptyShowType === 1 ? _.isNull(value) : !value) {
+      result = color;
+    }
+  });
+
+  return result;
+}
+
+export const getStyleColor = ({ value = 0, controlMinAndMax, rule, controlId, record = {}, emptyShowType }) => {
+  const { model, applyValue } = rule;
+  if (model === 1 && isApplyStyle(applyValue, record.key)) {
+    const { min, max, center, centerVisible, colors, controlId: applyControlId } = rule;
+    const applyControl = controlMinAndMax[applyControlId];
+    const minValue = _.isNumber(min.value) ? min.value : (applyControl ? applyControl.min : 0);
+    const maxValue = _.isNumber(max.value) ? max.value : (applyControl ? applyControl.max : 0);
+    const centerValue = _.isNumber(center.value) ? center.value : (applyControl ? applyControl.center : 0);
+    let percent = 0;
+    if (centerVisible) {
+      //（（当前值 - 中间值）/（最大值 - 中间值）* 50% ）+ 50%
+      percent = ((value - centerValue) / (maxValue - centerValue) * 50) + 50;
+    } else {
+      // （当前值 - 最小值）/（最大值 - 最小值）* 100%
+      percent = (value - minValue) / (maxValue - minValue) * 100;
+    }
+    /*
+    if (value >= 0) {
+      if (centerVisible) {
+        if (value <= centerValue) {
+          percent = value / centerValue * 50;
+        } else {
+          percent = (value - centerValue) / (maxValue - centerValue) * 50 + 50;
+        }
+      } else {
+        percent = value / (maxValue - minValue) * 100;
+      }
+    } else {
+      // 有中间值
+      if (centerVisible) {
+        // 当前值小于等于中间值
+        if (value <= centerValue) {
+          //（1-最小值+当前值）/（1-最小值+中间值）* 50
+          percent = (1 - minValue + value) / (1 - minValue + centerValue) * 50;
+        } else {
+          if (maxValue) {
+            // 最大值(正数)
+            // [（1-最小值+当前值）-（1-最小值+中间值）] / [（1-最小值+最大值）-（1-最小值+中间值）] * 50 + 50
+            percent = ((1 - minValue + value) - (1 - minValue + centerValue)) / ((1 - minValue + maxValue) - (1 - minValue + centerValue)) * 50 + 50;
+          } else {
+            // 最大值(负数)
+            //  [（1-最小值+当前值）-（1-最小值+中间值）] / [（1-最小值-最大值）-（1-最小值+中间值）] * 50 + 50
+            percent = ((1 - minValue + value) - (1 - minValue + centerValue)) / ((1 - minValue - maxValue) - (1 - minValue + centerValue)) * 50 + 50;
+          }
+        }
+      } else {
+        // 没有中间值
+        //（1-最小值+当前值）/（1-最小值+最大值）
+        percent = (1 - minValue + value) / (1 - minValue + maxValue);
+      }
+    }
+    */
+    percent = parseInt(percent);
+    if (value <= minValue) {
+      percent = 0;
+    }
+    if (value === centerValue) {
+      percent = 50;
+    }
+    if (value >= maxValue) {
+      percent = 100;
+    }
+    if (percent >= 100) {
+      percent = 99;
+    }
+    if (percent <= 0) {
+      percent = 0;
+    }
+    return colors[percent];
+  }
+  if (model === 2) {
+    const { scopeRules } = rule;
+    return getScopeRuleColor(value, controlMinAndMax[controlId], scopeRules, emptyShowType);
+  }
+}
+
+export const getControlMinAndMax = (yaxisList, data) => {
+  const result = {};
+
+  const get = (id) => {
+    let values = [];
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].controlId === id) {
+        values.push(data[i].value);
+      }
+    }
+    const min = _.min(values) || 0;
+    const max = _.max(values);
+    const center = (max + min) / 2;
+    return {
+      min,
+      max,
+      center
+    }
+  }
+
+  yaxisList.forEach(item => {
+    result[item.controlId] = get(item.controlId);
+  });
+
+  return result;
 }
 
 /**

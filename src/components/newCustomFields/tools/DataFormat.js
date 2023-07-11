@@ -179,10 +179,10 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
         ) {
           try {
             let cValue = 0;
-            const { options } = _.find(parentControl.relationControls, o => o.controlId === item.cid);
+            const { options, enumDefault } = _.find(parentControl.relationControls, o => o.controlId === item.cid);
 
             safeParse(sourcevalue).forEach(key => {
-              cValue += options.find(o => o.key === key).score;
+              cValue += !!enumDefault ? options.find(o => o.key === key).score : 0;
             });
 
             return cValue;
@@ -194,8 +194,12 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
         //文本类控件(默认值为选项、成员、部门等异化)
         if (_.includes([2], currentItem.type)) {
           let currentControl = _.find(parentControl.relationControls || [], re => re.controlId === item.cid);
-          if (!currentControl && _.includes(['ownerid', 'caid', 'uaid', 'wfcuaids', 'wfcaid'], item.cid)) {
-            currentControl = { type: 26 };
+          if (!currentControl) {
+            if (_.includes(['ownerid', 'caid', 'uaid', 'wfcuaids', 'wfcaid'], item.cid)) {
+              currentControl = { type: 26 };
+            } else if (_.includes(['wfstatus'], item.cid)) {
+              currentControl = { type: 11, controlId: 'wfstatus' };
+            }
           }
           return getCurrentValue(currentControl, sourcevalue, currentItem);
         }
@@ -658,7 +662,7 @@ const getControlValue = (data, currentItem, controlId) => {
     let cValue = 0;
     safeParse(obj.value || '[]').forEach(key => {
       // 新增的项默认0
-      cValue += key.indexOf('add_') > -1 ? 0 : obj.options.find(o => o.key === key).score;
+      cValue += key.indexOf('add_') > -1 || !obj.enumDefault ? 0 : obj.options.find(o => o.key === key).score;
     });
 
     return cValue;
@@ -716,8 +720,7 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
           !value ||
           (iti.isValidNumber() && _.get(iti.getSelectedCountryData(), 'dialCode') === '86'
             ? specialTelVerify(_.startsWith(value, '+86') ? value : '+86' + value)
-            : iti.isValidNumber()) ||
-          specialTelVerify(value)
+            : iti.isValidNumber())
             ? ''
             : FORM_ERROR_TYPE.MOBILE_PHONE;
       }
@@ -1875,10 +1878,10 @@ export default class DataFormat {
   /**
    * 查询记录
    */
-  getFilterRowsData = (filters = [], para, controlId) => {
+  getFilterRowsData = (filters = [], para, controlId, effectControlId) => {
     this.setLoadingInfo(controlId, true);
-    if (!_.includes(this.loopList, controlId)) {
-      this.loopList.push(controlId);
+    if (!_.includes(this.loopList, effectControlId)) {
+      this.loopList.push(`${effectControlId}-${controlId}`);
     }
 
     const formatFilters = formatFiltersValue(filters, this.data);
@@ -1966,7 +1969,7 @@ export default class DataFormat {
           controls.length > 0 &&
           canSearch &&
           currentControl &&
-          !_.includes(this.loopList, controlId)
+          !_.includes(this.loopList, `${control.controlId}-${controlId}`)
         ) {
           //关联记录
           if (_.includes([29], controlType)) {
@@ -1985,6 +1988,7 @@ export default class DataFormat {
                 getAllControls: true,
               },
               controlId,
+              control.controlId,
             ).then(res => {
               this.setLoadingInfo(controlId, false);
               if (res.resultCode === 1) {
@@ -2021,6 +2025,7 @@ export default class DataFormat {
                   getAllControls: controlType === 34,
                 },
                 controlId,
+                control.controlId,
               ).then(res => {
                 this.setLoadingInfo(controlId, false);
                 if (res.resultCode === 1) {

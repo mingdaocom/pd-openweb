@@ -81,6 +81,7 @@ export default class Date extends React.Component {
       tableFromModule,
       needLineLimit,
       cell,
+      rowFormData,
       popupContainer,
       editable,
       isediting,
@@ -142,6 +143,7 @@ export default class Date extends React.Component {
               <div className="cellControlDatePickerCon">
                 <TimePicker
                   {...cell}
+                  formData={!rowFormData ? null : rowFormData()}
                   value={value}
                   onChange={this.handleChange}
                   compProps={{

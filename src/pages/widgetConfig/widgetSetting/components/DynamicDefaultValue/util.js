@@ -68,7 +68,7 @@ export const showClear = (data = {}, dynamicValue) => {
   const { staticValue } = dynamicValue[0] || {};
   if (_.includes(CAN_SHOW_CLEAR_FIELD, data.type) && staticValue) return true;
   if (data.type === 26) {
-    const transferValue = typeof staticValue === 'string' ? JSON.parse(staticValue || '{}') : staticValue;
+    const transferValue = typeof staticValue === 'string' ? safeParse(staticValue || '{}') : staticValue;
     return _.includes(['user-self'], (transferValue || {}).accountId);
   }
   return false;

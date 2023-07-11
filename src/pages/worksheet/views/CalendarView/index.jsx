@@ -9,7 +9,7 @@ import cx from 'classnames';
 import SelectField from '../components/SelectField';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getAdvanceSetting, browserIsMobile } from 'src/util';
+import { getAdvanceSetting, browserIsMobile, addBehaviorLog } from 'src/util';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import moment from 'moment';
@@ -633,6 +633,7 @@ class RecordCalendar extends Component {
       base,
       calendarview = {},
       mobileCalendarSetting = {},
+      setViewConfigVisible,
     } = this.props;
     const { calendarData = {}, editable, calenderEventList = {} } = calendarview;
     const { eventScheduled = [] } = calenderEventList;
@@ -694,6 +695,7 @@ class RecordCalendar extends Component {
                     };
                   }
                   this.props.saveView(data, { ...viewNew, ...viewData });
+                  setViewConfigVisible(true);
                 }}
                 view={currentView}
                 isDelete={isDelete}
@@ -914,6 +916,9 @@ class RecordCalendar extends Component {
                   rows: this.getRows(eventInfo.event.start, eventInfo.event.start),
                   showPrevNext: true,
                 });
+                if (location.pathname.indexOf('public') === -1) {
+                  addBehaviorLog('worksheetRecord', worksheetId, { rowId: extendedProps.rowid }); // 埋点
+                }
               }}
               eventDidMount={info => {
                 let startData = _.get(info, ['event', 'extendedProps', 'startData']) || {};

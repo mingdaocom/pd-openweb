@@ -126,6 +126,7 @@ export default class Operates extends Component {
 
   render() {
     const {
+      isCharge,
       iseditting,
       recordbase,
       recordinfo,
@@ -144,6 +145,7 @@ export default class Operates extends Component {
         <div className="flex" style={{ lineHeight: 1 }} ref={this.customButtonsCon}>
           <div className="customButtons">
             <CustomButtons
+              isCharge={isCharge}
               iseditting={iseditting}
               viewId={viewId}
               appId={appId}

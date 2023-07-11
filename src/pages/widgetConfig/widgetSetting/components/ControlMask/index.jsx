@@ -1,15 +1,45 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tooltip } from 'antd';
-import { Checkbox, Icon } from 'ming-ui';
+import { Checkbox, Icon, Support } from 'ming-ui';
 import { SettingItem, EditInfo } from 'src/pages/widgetConfig/styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { DISPLAY_MASK, CUSTOM_DISPLAY } from 'src/pages/widgetConfig/config/setting';
 import MaskSettingDialog from './MaskSettingDialog';
+import EncryptSettingDialog from './EncryptSettingDialog';
+import styled from 'styled-components';
+import { buriedUpgradeVersionDialog, getFeatureStatus } from 'src/util';
+import cx from 'classnames';
+import _ from 'lodash';
+
+const ViewWrap = styled.div`
+  display: flex;
+  border-radius: 3px;
+  border: 1px solid #dddddd;
+  margin-top: 8px;
+  .viewCon {
+    padding: 0 16px;
+    background: #fafafa;
+    line-height: 34px;
+    text-align: center;
+    color: #757575;
+    border-right: 1px solid #ddd;
+  }
+`;
 
 export default function ControlMask(props) {
-  const { data = {}, onChange } = props;
+  const { data = {}, encryData = [], globalSheetInfo, onChange } = props;
+  const { encryId = '', type } = data;
   const { datamask, masktype } = getAdvanceSetting(data);
   const [visible, setVisible] = useState(false);
+  const [encryptVisible, setEncryptVisible] = useState(false);
+
+  const ruleName = _.get(
+    _.find(encryData, i => i.encryptRuleId === encryId),
+    'name',
+  );
+  const isDeleteRule = encryId && !ruleName;
+  // 旗舰版可用
+  const isPayType = getFeatureStatus(globalSheetInfo.projectId, 29) === '2';
 
   return (
     <SettingItem>
@@ -44,7 +74,7 @@ export default function ControlMask(props) {
       </div>
 
       {datamask === '1' && (
-        <EditInfo style={{ marginTop: '12px' }} onClick={() => setVisible({ visible: true })}>
+        <EditInfo style={{ marginTop: '12px' }} onClick={() => setVisible(true)}>
           <div className="text overflow_ellipsis Gray">
             <span className="Bold">{_l('掩码方式： ')}</span>
             {_.get(
@@ -59,6 +89,78 @@ export default function ControlMask(props) {
       )}
 
       {visible && <MaskSettingDialog {...props} onCancel={() => setVisible(false)} />}
+
+      {!_.includes([6, 8], type) && (
+        <div className="labelWrap">
+          <Checkbox
+            className="customWidgetCheckbox"
+            size="small"
+            checked={encryId}
+            onClick={checked => {
+              if (!checked) {
+                if (isPayType) {
+                  buriedUpgradeVersionDialog(globalSheetInfo.projectId, 29);
+                  return;
+                }
+                setEncryptVisible(true);
+              } else {
+                onChange({ encryId: '' });
+              }
+            }}
+          >
+            <span className="mRight5">{_l('数据加密')}</span>
+            {isPayType && <Icon icon="auto_awesome" className="mRight5 Font16" style={{ color: '#ffb432' }} />}
+            <Tooltip
+              placement="bottom"
+              title={
+                <span>
+                  {_l('对字段数据进行加密存储，保护重要信息。注意：字段加密后。一些使用将会受限。')}
+                  <Support type={3} text={_l('了解详情')} href="https://help.mingdao.com/sheet29" />
+                </span>
+              }
+            >
+              <Icon icon="help" className="Font16 Gray_9e" />
+            </Tooltip>
+          </Checkbox>
+        </div>
+      )}
+
+      {encryId && (
+        <ViewWrap>
+          <div className="viewCon">{_l('规则')}</div>
+          <EditInfo
+            onClick={() => {
+              if (isPayType) {
+                buriedUpgradeVersionDialog(globalSheetInfo.projectId, 29);
+                return;
+              }
+              setEncryptVisible(true);
+            }}
+            className="flex Border0"
+          >
+            <div className={cx('text overflow_ellipsis', isDeleteRule ? 'Red' : 'Gray')}>
+              {isDeleteRule ? _l('规则已删除') : ruleName}
+            </div>
+            <div className="edit">
+              <i className="icon-edit"></i>
+            </div>
+          </EditInfo>
+        </ViewWrap>
+      )}
+
+      {encryptVisible && (
+        <EncryptSettingDialog
+          {...props}
+          encryData={encryData.map(item => ({
+            value: item.encryptRuleId,
+            text: item.name,
+            state: item.state,
+            isDefault: item.isDefault,
+          }))}
+          isDeleteRule={isDeleteRule}
+          onCancel={() => setEncryptVisible(false)}
+        />
+      )}
     </SettingItem>
   );
 }

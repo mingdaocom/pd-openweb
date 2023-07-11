@@ -35,6 +35,8 @@ export default class MajorAxisLabel extends Component {
       reset: true
     }
     this.$axisRef = createRef(null);
+    this.$yearRef = createRef(null);
+    this.yearLabelWidth = 0;
   }
   componentDidMount() {
     const { chartScroll } = this.props;
@@ -42,17 +44,17 @@ export default class MajorAxisLabel extends Component {
       chartScroll.on('scroll', this.onScroll);
       this.setState({ reset: true });
     }
+    this.yearLabelWidth = (_.get(this.$yearRef, 'current.offsetWidth') || 52) - paddingLeft;
   }
   componentWillUnmount() {
     const { chartScroll } = this.props;
     chartScroll.off('scroll', this.onScroll);
   }
-  onScroll = (type) => {
+  onScroll = () => {
     const { item, periodType, chartScroll } = this.props;
     const [ y, m ] = item.time.split('-');
     const yearVisible = [PERIOD_TYPE.day, PERIOD_TYPE.week].includes(periodType) && !isGunterExport;
-    const width = 38;  // YearLabel width
-    const scrollLeft = Math.abs(chartScroll.x - paddingLeft) + (yearVisible ? width : 0);
+    const scrollLeft = Math.abs(chartScroll.x - paddingLeft) + (yearVisible ? this.yearLabelWidth : 0);
     const currentEl = this.$axisRef.current;
     const { offsetLeft, offsetWidth } = currentEl;
     if (scrollLeft >= offsetLeft && scrollLeft <= offsetLeft + offsetWidth) {
@@ -74,7 +76,7 @@ export default class MajorAxisLabel extends Component {
     if (this.state.reset) {
       const left = Math.abs(chartScroll.x);
       return (
-        <YearLabel style={{ paddingLeft, transform: `translateX(${left}px)` }}>{`${y}-`}</YearLabel>
+        <YearLabel ref={this.$yearRef} style={{ paddingLeft, transform: `translateX(${left}px)` }}>{`${y}-`}</YearLabel>
       );
     } else {
       return null;

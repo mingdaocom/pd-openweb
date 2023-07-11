@@ -273,7 +273,7 @@ export default class SearchWorksheetDialog extends Component {
     //空白子表、关联类型子表
     const subField = _.includes([34], data.type);
 
-    const checkFilters = _.isEmpty(items) || !checkConditionCanSave(items);
+    const checkFilters = _.isEmpty(items) || !checkConditionCanSave(items, true);
     const checkConfigs = _.isEmpty(configs) || !_.every(configs, con => !!con.cid);
     const okDisabled = normalField
       ? !sheetId || checkFilters || _.isEmpty(configs)

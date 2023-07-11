@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import RecordBlock from './RecordBlock';
 import RecordInfo from 'worksheet/views/GunterView/components/RecordInfo';
+import { addBehaviorLog } from 'src/util';
 import _ from 'lodash';
 
 @connect(
@@ -34,7 +35,10 @@ export default class RecordWrapper extends Component {
         recordInfoVisible: true
       });
     }
-  }
+    if (location.pathname.indexOf('public') === -1) {
+      addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
+    }
+  };
   render() {
     const { recordInfoVisible } = this.state;
     const { row, style } = this.props;

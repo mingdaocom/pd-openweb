@@ -38,6 +38,7 @@ class FillRecordControls extends React.Component {
     writeControls: PropTypes.arrayOf(PropTypes.shape({})),
     hideDialog: PropTypes.func,
     onSubmit: PropTypes.func,
+    customButtonConfirm: PropTypes.func,
   };
 
   constructor(props) {
@@ -161,12 +162,12 @@ class FillRecordControls extends React.Component {
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData();
   }
-  onSave(error, { data, updateControlIds }) {
+  async onSave(error, { data, updateControlIds }) {
     if (error) {
       this.setState({ submitLoading: false });
       return;
     }
-    const { writeControls, onSubmit } = this.props;
+    const { writeControls, onSubmit, customButtonConfirm } = this.props;
     let hasError;
     const newData = data.filter(item =>
       _.find(writeControls, writeControl => writeControl.controlId === item.controlId),
@@ -224,6 +225,16 @@ class FillRecordControls extends React.Component {
       });
       return;
     }
+    if (customButtonConfirm) {
+      try {
+        await customButtonConfirm();
+      } catch (err) {
+        this.setState({
+          submitLoading: false,
+        });
+        return;
+      }
+    }
     this.setState({ isSubmitting: true, submitLoading: false });
     updateControlIds = _.uniq(updateControlIds.concat(writeControls.filter(c => c.defsource).map(c => c.controlId)));
     onSubmit(
@@ -238,7 +249,8 @@ class FillRecordControls extends React.Component {
   }
 
   render() {
-    const { widgetStyle, recordId, visible, className, title, worksheetId, projectId, hideDialog } = this.props;
+    const { isCharge, widgetStyle, recordId, visible, className, title, worksheetId, projectId, hideDialog } =
+      this.props;
     const { submitLoading, formData, showError, formFlag, isSubmitting } = this.state;
     return (
       <Modal
@@ -261,6 +273,7 @@ class FillRecordControls extends React.Component {
         )}
         <div ref={this.formcon}>
           <CustomFields
+            isCharge={isCharge}
             widgetStyle={widgetStyle}
             isWorksheetQuery
             ignoreLock

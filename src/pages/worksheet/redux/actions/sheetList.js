@@ -464,7 +464,7 @@ export function addWorkSheet(args, cb) {
             workSheetId: pageId,
             navigateHide: false,
             status: 1,
-            ...pick(args, ['icon', 'iconColor', 'iconUrl', 'type']),
+            ...pick(args, ['icon', 'iconColor', 'iconUrl', 'type', 'configuration', 'urlTemplate', 'createType']),
           };
           if (firstGroupId) {
             data.parentGroupId = args.appSectionId;
@@ -543,7 +543,7 @@ export function addAppSection(args, cb) {
 let pending = false;
 export function createAppItem(args) {
   return function (dispatch, getState) {
-    let { appId, firstGroupId, groupId, type, name } = args;
+    let { appId, firstGroupId, groupId, type, name, configuration, urlTemplate } = args;
 
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
@@ -563,6 +563,9 @@ export function createAppItem(args) {
       icon,
       iconUrl,
       type: enumType,
+      configuration,
+      urlTemplate,
+      createType: enumType === 1 ? (urlTemplate ? 1 : 0) : undefined
     };
     const callBack = res => {
       pending = false;
@@ -570,7 +573,9 @@ export function createAppItem(args) {
       if (type === 'customPage') {
         navigateTo(`/app/${appId}/${firstGroupId || groupId}/${pageId}`);
         store.dispatch(updatePageInfo({ pageName: name, pageId }));
-        store.dispatch(updateEditPageVisible(true));
+        if (!urlTemplate) {
+          store.dispatch(updateEditPageVisible(true));
+        }
       }
     };
     pending = true;
@@ -579,7 +584,7 @@ export function createAppItem(args) {
 }
 
 // 复制自定义页面
-export function copyCustomPage(para) {
+export function copyCustomPage(para, externalLink) {
   return function (dispatch, getState) {
     const { sheetList } = getState();
     const { parentGroupId } = para;
@@ -598,6 +603,7 @@ export function copyCustomPage(para) {
           icon: para.icon || '1_0_home',
           iconColor: para.iconColor || '#616161',
           iconUrl: para.iconUrl,
+          ...externalLink
         };
         if (parentGroupId) {
           item.parentGroupId = parentGroupId;

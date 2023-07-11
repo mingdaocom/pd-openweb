@@ -328,7 +328,7 @@ export default ({
     projectId,
     appId,
     worksheetId,
-  }
+  };
 
   function initEditor() {
     import('@mdfe/ckeditor5-custom-build').then(component => {
@@ -340,6 +340,9 @@ export default ({
           };
           if (clickInit || autoFocus) {
             editorDom.current.editor.focus();
+            editorDom.current.editor.model.change(writer => {
+              writer.setSelection(writer.createPositionAt(editorDom.current.editor.model.document.getRoot(), 'end'));
+            });
           }
         }
       }, 20);

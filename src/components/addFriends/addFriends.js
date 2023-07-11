@@ -33,7 +33,6 @@ const DETAIL_MODE_TEXT = {
   2: _l('邀请记录'),
 };
 
-
 class AddFriends extends Component {
   constructor(props) {
     super(props);
@@ -94,7 +93,7 @@ class AddFriends extends Component {
       );
     } else {
       content = (
-        <div className="headerText ellipsis w100">
+        <div className="headerText ellipsis w100 TxtCenter">
           <span className="Gray_75">{_l('邀请用户加入')}</span>
           <span className="mLeft3">
             {fromText ||

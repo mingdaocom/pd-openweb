@@ -33,11 +33,20 @@ export default function Des(props) {
         ).txt;
         break;
       case 'FILTER':
-        const items = _.get(nodeData, ['nodeConfig', 'config', 'items']) || [];
-        if (items.length > 1) {
+        let items = _.get(nodeData, ['nodeConfig', 'config', 'items']) || [];
+        let data = [];
+        (items || []).map(o => {
+          if (!!o.isGroup) {
+            data = [...data, ...o.groupFilters];
+          } else {
+            data = [...data, o];
+          }
+        });
+        items = data.filter(o => !!o);
+        if (items.length > 0) {
           txt = _l('%0个筛选条件', items.length);
         } else {
-          txt = '筛选';
+          txt = <span className="ThemeColor3">{'设置此节点'}</span>;
         }
         break;
       case 'AGGREGATE':

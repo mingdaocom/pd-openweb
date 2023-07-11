@@ -123,7 +123,7 @@ function ViewControl(props) {
         }}
         onAddView={(newViews, newView) => {
           updateViews(newViews);
-          if (Number(newView.viewType) === 0) {
+          if ([0, 3].includes(Number(newView.viewType))) {
             setViewConfigVisible(true);
           }
           navigateTo(`/app/${appId}/${groupId}/${worksheetId}/${newView.viewId}`);
@@ -163,9 +163,16 @@ function ViewControl(props) {
             searchArgs: filters,
             selectRowIds: sheetSelectedRows.map(item => item.rowid),
             sheetSwitchPermit,
-            columns: (hasCharge ? controls : filterHidedControls(controls, view.controls)).filter(item => {
-              return item.controlPermissions && item.controlPermissions[0] === '1' && item.controlId !== 'rowid';
-            }),
+            columns: hasCharge
+              ? controls.filter(item => {
+                  return item.controlId !== 'rowid';
+                })
+              : filterHidedControls(controls, view.controls, false).filter(item => {
+                  return (
+                    ((item.controlPermissions && item.controlPermissions[0] === '1') || !item.controlPermissions) &&
+                    item.controlId !== 'rowid'
+                  );
+                }),
             downLoadUrl: worksheetInfo.downLoadUrl,
             worksheetSummaryTypes: rowsSummary.types,
             quickFilter,

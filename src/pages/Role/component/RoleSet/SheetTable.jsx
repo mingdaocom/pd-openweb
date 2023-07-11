@@ -112,30 +112,6 @@ export default class extends PureComponent {
       ...sheet,
       ...payload,
     });
-    // const k = _.keys(payload)[0];
-    // const v = _.values(payload)[0];
-    // if (v === 0 && ['readLevel', 'editLevel', 'removeLevel'].includes(k)) {
-    //   let key = k === 'readLevel' ? 'READ' : k === 'editLevel' ? 'EDIT' : 'REMOVE';
-    //   onChange(changeSheetModel(sheet, key, false));
-    // } else {
-    //   // let sheetsData = sheet;
-    //   // if (['readLevel', 'editLevel', 'removeLevel'].includes(k)) {
-    //   //   let ks = k === 'readLevel' ? 'canRead' : k === 'editLevel' ? 'canEdit' : 'canRemove';
-    //   //   sheetsData = {
-    //   //     ...sheet,
-    //   //     views: sheet.views.map(o => {
-    //   //       return {
-    //   //         ...o,
-    //   //         [ks]: true,
-    //   //       };
-    //   //     }),
-    //   //   };
-    //   // }
-    //   onChange({
-    //     ...sheet,
-    //     ...payload,
-    //   });
-    // }
   };
 
   changeSheetOptionInfo = payload => {

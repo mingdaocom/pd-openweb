@@ -7,9 +7,8 @@ import { Prompt } from 'react-router';
 import './index.less';
 import EditCon from '../modules/editCon';
 import PeopleAvatar from '../modules/peopleAvatar';
-import UpgradeVersion from '../../components/UpgradeVersion';
 import cx from 'classnames';
-import { getFeatureStatus } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import _ from 'lodash';
 const FEATURE_ID = 6;
 let rules = [
@@ -167,7 +166,7 @@ class ContactsHidden extends React.Component {
     if (loading) return <LoadDiv className="mTop10" />;
     const featureType = getFeatureStatus(projectId, FEATURE_ID);
     if (featureType === '2') {
-      return <UpgradeVersion projectId={projectId} featureId={FEATURE_ID} />;
+      return <div className="orgManagementWrap">{buriedUpgradeVersionDialog(projectId, FEATURE_ID, 'content')}</div>;
     }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
@@ -229,7 +228,7 @@ class ContactsHidden extends React.Component {
           <div className="con flexColumn">
             <div className="headerCon">
               <h5 className="Font17">{_l('通讯录隔离')}</h5>
-              <Support className="forHelp" type={2} href="https://help.mingdao.com/zh/geli.html" text={_l('帮助')} />
+              <Support className="forHelp" type={2} href="https://help.mingdao.com/geli" text={_l('帮助')} />
             </div>
             <div className="conBox flex">
               <div className="">{this.renderCon(2)}</div>

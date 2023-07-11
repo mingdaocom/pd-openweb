@@ -94,6 +94,11 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
       component: () => import('mobile/RecordList'),
       title: _l('记录'),
     },
+    mobileView: {
+      path: '/mobile/mobileView/:appId/:groupId/:worksheetId/:viewId?',
+      component: () => import('mobile/RecordList/mobile'),
+      title: _l('层级视图'),
+    },
     customPage: {
       path: '/mobile/customPage/:appId/:groupId/:worksheetId',
       component: () => import('mobile/CustomPage'),

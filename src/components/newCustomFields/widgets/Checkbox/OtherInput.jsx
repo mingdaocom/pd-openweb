@@ -73,9 +73,9 @@ export default class OtherInput extends Component {
             spellCheck={false}
             defaultValue={otherValue || ''}
             placeholder={advancedSetting.otherhint}
-            onChange={e => {
+            onChange={value => {
               if (!this.isOnComposition) {
-                this.handleChange(checkIds, e.target.value.trim());
+                this.handleChange(checkIds, value.trim());
               }
             }}
             onBlur={e => {

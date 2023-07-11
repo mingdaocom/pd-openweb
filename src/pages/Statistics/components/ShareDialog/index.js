@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import appManagement from 'src/api/appManagement';
 import { Icon, Switch, LoadDiv } from 'ming-ui';
 import { Modal, Tooltip, Popover } from 'antd';
-import { BtnWrap, UrlWrap } from 'worksheet/components/CustomPageContent/ShareDialog';
+import { BtnWrap, UrlWrap } from 'src/pages/customPage/pageContent/ShareDialog';
 import ClipboardButton from 'react-clipboard.js';
 import { saveAs } from 'file-saver';
 import { getAppFeaturesPath } from 'src/util';

@@ -246,6 +246,7 @@ class PortalSetting extends React.Component {
             'customizeName',
             'exAccountDiscussEnum',
             'allowExAccountDiscuss',
+            'approved',
             'loginMode',
             'registerMode',
             'subscribeWXOfficial',

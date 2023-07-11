@@ -37,10 +37,19 @@
     .cell.readonly {
       background-color: #f5f5f5 !important;
     }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    &:hover {
+      ::-webkit-scrollbar {
+        display: inherit;
+      }
+    }
   }
   .operate {
-    margin: 10px 0 0;
+    margin: 14px 0 0;
     .addRowByLine,
+    .importFromFile,
     .addRowByDialog {
       font-weight: bold;
       border-radius: 4px;
@@ -67,7 +76,12 @@
         background-color: transparent;
       }
     }
-    .addRowByLine:not(.disabled):hover {
+    .importFromFile {
+      width: 36px;
+      display: inline-flex;
+      justify-content: center;
+    }
+    .addRowByLine:not(.disabled):hover, .importFromFile:not(.disabled):hover {
       background-color: #f5f5f5;
     }
     .addRowByDialog {

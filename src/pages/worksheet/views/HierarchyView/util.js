@@ -11,7 +11,7 @@ import renderCellText from 'src/pages/worksheet/components/CellControls/renderTe
 import _ from 'lodash';
 
 // 获取svg的相关位置数据
-export const getPosition = ($parent, $cur, scale = 1) => {
+export const getPosition = ($parent, $cur, scale = 1, isStraightLine = false) => {
   if (!$parent || !$cur) return {};
   const { top, bottom, height } = $parent.getBoundingClientRect();
   const { top: curTop, bottom: curBottom, height: curHeight } = $cur.getBoundingClientRect();
@@ -20,17 +20,21 @@ export const getPosition = ($parent, $cur, scale = 1) => {
   // svg向上位移的像素值
   const svgTop = curTop - top;
   // 曲线起点坐标, -10 是为了抵消marginBottom值
-  const startY = (height - 8) / 2 / scale;
-  const startPoint = [28, startY];
+  const startY = ($parent.className || '').includes('sortableVerticalTreeNodeWrap')
+    ? Math.ceil((height + 6) / scale)
+    : Math.ceil((height - 8) / 2 / scale);
+  const startPoint = [isStraightLine ? 16 : 28, startY];
   // 曲线终点坐标
-  const endY = ((curHeight - 8) / 2 + svgTop) / scale;
+  const endY = Math.ceil(((curHeight - 8) / 2 + svgTop) / scale);
 
-  const endPoint = [120, endY];
+  const endPoint = [isStraightLine ? 100 : 120, endY];
+
   return {
     height: svgHeight,
     top: svgTop / scale,
     start: startPoint,
     end: endPoint,
+    straightLineInflection: [16, endY],
   };
 };
 
@@ -77,7 +81,7 @@ export const dealHierarchyData = (
   return {
     rowId,
     item,
-    fields: items,
+    fields: items.filter(i => !_.includes([51], i.type)),
     allowEdit,
     allowDelete,
     ...getRecordAttachments(item[coverCid]),

@@ -64,13 +64,12 @@ const Wrap = styled.div`
   & > span {
     padding: 0 12px;
     margin: 0 10px;
-    // color: #757575;
     line-height: 48px;
     display: inline-block;
     box-sizing: border-box;
-    // &:hover {
-    //   color: #2196f3;
-    // }
+    line-height: 44px;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
     &.current {
       position: relative;
       color: #2196f3;
@@ -268,7 +267,7 @@ class AppRole extends Component {
 
   handleChangePage = callback => {
     if (this.child && this.child.state.hasChange) {
-      let isNew = !this.child.props.roleId;
+      let isNew = !this.child.props.roleId || this.child.props.roleId === 'new';
       return Dialog.confirm({
         title: isNew ? _l('创建当前新增的角色？') : _l('保存当前角色权限配置 ？'),
         okText: isNew ? _l('创建') : _l('保存'),
@@ -439,7 +438,7 @@ class AppRole extends Component {
                         {openLoading ? _l('开启中...') : _l('启用外部门户')}
                       </div>
                       <Support
-                        href="https://help.mingdao.com/zh/external.html"
+                        href="https://help.mingdao.com/external"
                         type={3}
                         className="helpPortal"
                         text={_l('了解更多')}

@@ -57,7 +57,7 @@ export default function Date(props) {
         <div className="dateInputCon customDate">
           <MdAntDateRangePicker
             disabled={disabled}
-            defaultValue={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
+            value={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
             showTime={timeFormat ? { format: timeFormat } : false}
             picker={getPicker(showType)}
             format={showValueFormat}

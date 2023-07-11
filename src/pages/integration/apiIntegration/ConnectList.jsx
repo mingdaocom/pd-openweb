@@ -6,8 +6,16 @@ import { LoadDiv, Icon, Menu, MenuItem, Dialog } from 'ming-ui';
 import ConnectAvator from '../components/ConnectAvator';
 import PublishDialog from 'src/pages/integration/components/PublishDialog.jsx';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import cx from 'classnames';
 import { Link } from 'react-router-dom';
 const Wrap = styled.div`
+  .manageListOrder {
+    transform: scale(0.8);
+    color: #bfbfbf;
+    .icon-arrow-down {
+      margin-top: -4px;
+    }
+  }
   padding: 0 32px 32px;
   .noData {
     .iconCon {
@@ -304,7 +312,23 @@ const keys = [
   },
   {
     key: 'apiCount',
-    name: _l('API数量'),
+    sortKey: 'countSort',
+    renderHead: info => {
+      return (
+        <div
+          className="pRight12 Hand ThemeHoverColor3 flexRow"
+          onClick={() =>
+            info.onChange({ countSort: info.countSort === 2 ? 0 : info.countSort === 0 ? 1 : 2, pageIndex: 1 })
+          }
+        >
+          <span className="">{_l('API数量')}</span>
+          <div className="flexColumn manageListOrder">
+            <Icon icon="arrow-up" className={cx('flex', { ThemeColor3: info.countSort === 2 })} />
+            <Icon icon="arrow-down" className={cx('flex', { ThemeColor3: info.countSort === 1 })} />
+          </div>
+        </div>
+      );
+    },
   },
   {
     key: 'apkCount',
@@ -319,7 +343,23 @@ const keys = [
   },
   {
     key: 'ctime',
-    name: _l('创建时间'),
+    sortKey: 'timeSort',
+    renderHead: info => {
+      return (
+        <div
+          className="pRight12 Hand ThemeHoverColor3 flexRow"
+          onClick={() =>
+            info.onChange({ timeSort: info.timeSort === 2 ? 0 : info.timeSort === 0 ? 1 : 2, pageIndex: 1 })
+          }
+        >
+          <span className="">{_l('创建时间')}</span>
+          <div className="flexColumn manageListOrder">
+            <Icon icon="arrow-up" className={cx('flex', { ThemeColor3: info.timeSort === 2 })} />
+            <Icon icon="arrow-down" className={cx('flex', { ThemeColor3: info.timeSort === 1 })} />
+          </div>
+        </div>
+      );
+    },
     render: item => {
       return <span className="">{item.createdDate}</span>;
     },
@@ -343,7 +383,18 @@ function ConnectList(props) {
           <div className="tableCon">
             <div className="headTr">
               {keys.map(o => {
-                return <div className={`${o.key}`}>{o.name}</div>;
+                return (
+                  <div className={`${o.key}`}>
+                    {o.renderHead
+                      ? o.renderHead({
+                          [o.sortKey]: props[o.sortKey],
+                          onChange: info => {
+                            props.onChange(info);
+                          },
+                        })
+                      : o.name}
+                  </div>
+                );
               })}
             </div>
             {props.list.map(item => {

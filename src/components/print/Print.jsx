@@ -29,7 +29,7 @@ const systemControl = [
   },
   {
     controlId: 'caid',
-    controlName: _l('创建者'),
+    controlName: _l('创建人'),
     type: 26,
   },
   {

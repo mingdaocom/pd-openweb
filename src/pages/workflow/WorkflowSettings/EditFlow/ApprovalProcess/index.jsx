@@ -171,9 +171,9 @@ export default props => {
             <span className="approvalIcon">
               <Icon type="approval" />
             </span>
-            <div className="flex Font14 bold Gray_75 ellipsis TxtCenter">{item.name}</div>
+            <div className="flex Font14 bold ellipsis TxtCenter">{item.name}</div>
             <span
-              className="mLeft10 ThemeHoverColor3 pointer"
+              className="mLeft10 ThemeHoverColor3 pointer Gray_9e"
               data-tip={isHide ? _l('展开') : _l('收起')}
               onMouseDown={e => {
                 e.stopPropagation();

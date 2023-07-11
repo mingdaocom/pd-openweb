@@ -286,6 +286,7 @@ class PreviewHeader extends React.Component {
             </Trigger>
           )}
           {_.isFunction(extra.openControlAttachmentInNewTab) &&
+            attachment.previewAttachmentType !== 'QINIU' &&
             canDownload &&
             showDownload &&
             ((attachment.originNode || attachment.sourceNode || {}).fileID ||

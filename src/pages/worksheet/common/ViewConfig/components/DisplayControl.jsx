@@ -43,7 +43,7 @@ export default class DisplayControl extends React.Component {
       : worksheetControls.map(o => o.controlId).concat(NORMAL_SYSTEM_FIELDS_SORT);
     displayControls = displayControls.filter(c => controlIds.includes(c)); //排除已删除的控件
     const allCanDisplayControls = worksheetControls.filter(
-      c => c.attribute !== 1 && !!c.controlName && !_.includes([22, 10010, 43, 45, 47, 49], c.type),
+      c => c.attribute !== 1 && !!c.controlName && !_.includes([22, 10010, 43, 45, 47, 49, 51], c.type),
     );
     const { appshowtype = '0' } = getAdvanceSetting(view);
     return (

@@ -9,10 +9,11 @@ import kcService from 'src/pages/kc/api/service';
 import attachmentAjax from 'src/api/attachment';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { getFileExtends, isDocument, formatTime } from './utils';
-import { formatFileSize, isVideo, downloadFile, getClassNameByExt } from 'src/util';
+import { formatFileSize, downloadFile, getClassNameByExt } from 'src/util';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
 import addLinkFile from 'src/components/addLinkFile/addLinkFile';
 import _ from 'lodash';
+import RegExp from 'src/util/expression';
 
 const vertical = {
   WebkitBoxOrient: 'vertical',
@@ -631,7 +632,7 @@ export default class FileComponent extends Component {
     // fileResponse.previewUrl = "https://www.mingdao.com/api/file/owa?id=0efdb627-a3bf-486b-b27c-e9cf3c486e38&pst=1&type=preview";
     // 如果是文档，显示文档的缩略图，previewUrl 字段
     let isDoc = isDocument(fileResponse.ext);
-    let isVid = isVideo(fileResponse.ext);
+    let isVid = RegExp.isVideo(fileResponse.ext);
 
     // 如果没有 shareUrl 字段，表示权限不能浏览
     if (isKc && !fileResponse.shareUrl) {
@@ -692,7 +693,7 @@ export default class FileComponent extends Component {
     let { penelVisible, moreVisible, isDelete } = this.state;
     let { isUpload } = this.props;
     let isKc = !!fileResponse.refId;
-    let isPicture = File.isPicture(fileResponse.ext) || (isVideo(fileResponse.ext) && fileResponse.previewUrl);
+    let isPicture = File.isPicture(fileResponse.ext) || (RegExp.isVideo(fileResponse.ext) && fileResponse.previewUrl);
     let fileSize = formatFileSize(fileResponse.filesize);
     let isMDLink = fileResponse.viewType === 5;
 

@@ -12,6 +12,7 @@ const ScrollCon = styled(ScrollView)`
   flex: 1;
 `;
 const FullCon = styled.div`
+  height: 100%;
   padding-top: 160px;
   background: #fff;
   text-align: center;

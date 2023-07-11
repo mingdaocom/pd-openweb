@@ -30,7 +30,7 @@ const Wrap = styled.div`
     .cover {
       padding-top: 60px;
       img {
-        height: 212px;
+        width: 100%;
         display: block;
       }
     }

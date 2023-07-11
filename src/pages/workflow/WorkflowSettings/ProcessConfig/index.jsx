@@ -96,6 +96,7 @@ class ProcessConfig extends Component {
       responseContentType,
       value,
       triggerView,
+      required,
     } = data;
 
     if (_.find(errorItems, o => o)) {
@@ -132,6 +133,7 @@ class ProcessConfig extends Component {
         responseContentType,
         value: value.trim(),
         triggerView,
+        required,
       })
       .then(result => {
         if (result) {
@@ -351,7 +353,7 @@ class ProcessConfig extends Component {
     const isSheetOrButton = _.includes([1, 8], flowInfo.startAppType);
     const nodeSettings = [
       {
-        text: _l('审批'),
+        text: _l('审批自动通过'),
         list: [
           {
             text: _l('工作流触发者自动通过'),
@@ -359,12 +361,18 @@ class ProcessConfig extends Component {
             disabled: !isSheetOrButton,
             key: 'startEventPass',
           },
-          { text: _l('审批人为空时自动通过'), checked: data.userTaskNullPass, key: 'userTaskNullPass' },
           { text: _l('已经审批过该对象的审批人自动通过'), checked: data.userTaskPass, key: 'userTaskPass' },
+          { text: _l('审批人为空时自动通过'), checked: data.userTaskNullPass, key: 'userTaskNullPass' },
+          {
+            text: _l('验证必填字段'),
+            checked: data.required,
+            key: 'required',
+            tip: _l('勾选后，当有必填字段为空时不自动通过，仍需进行审批操作。[审批人为空时自动通过]不受此配置影响。'),
+          },
         ],
       },
       {
-        text: _l('通知'),
+        text: _l('通知节点设置'),
         list: [{ text: _l('工作流触发者不发送通知'), checked: data.sendTaskPass, key: 'sendTaskPass' }],
       },
     ];
@@ -416,19 +424,23 @@ class ProcessConfig extends Component {
           />
         </div>
 
-        <div className="bold Font16 mTop20">{_l('人工节点设置')}</div>
         {nodeSettings.map((item, i) => {
           return (
             <Fragment key={i}>
-              <div className="Font14 mTop10 Gray_75 bold">{item.text}</div>
+              <div className="bold Font16 mTop20">{item.text}</div>
               {item.list.map(o => {
                 return (
-                  <div className="mTop15" key={o.key}>
+                  <div className="mTop15 flexRow" key={o.key}>
                     <Checkbox
                       {...o}
                       className="InlineFlex TxtTop"
                       onClick={checked => this.updateSource({ [o.key]: !checked })}
                     />
+                    {o.tip && (
+                      <span className="workflowDetailTipsWidth mLeft5" data-tip={o.tip}>
+                        <Icon icon="info" className="Gray_9e" />
+                      </span>
+                    )}
                   </div>
                 );
               })}
@@ -488,7 +500,7 @@ class ProcessConfig extends Component {
         <div className="mTop10">
           <Switch
             checked={data.pbcConfig.enable}
-            text={data.pbcConfig.enable ? _l('开启') : _l('关闭')}
+            text={data.pbcConfig.enable ? _l('开启') : _l('关闭%03087')}
             onClick={() =>
               this.updateSource({ pbcConfig: Object.assign({}, data.pbcConfig, { enable: !data.pbcConfig.enable }) })
             }
@@ -775,8 +787,8 @@ class ProcessConfig extends Component {
                 <Icon icon={item.icon} />
                 {item.text}
                 {item.tip && (
-                  <span className="workflowDetailTipsWidth" data-tip={item.tip}>
-                    <Icon icon="info" className="mLeft5 Gray_9e" />
+                  <span className="workflowDetailTipsWidth mLeft5" data-tip={item.tip}>
+                    <Icon icon="info" className="Gray_9e" />
                   </span>
                 )}
               </li>
@@ -787,7 +799,7 @@ class ProcessConfig extends Component {
             <div className="Font15 flex">{settings.find(item => item.value === tab).text}</div>
             <Support
               className="pointer Gray_9e"
-              href="https://help.mingdao.com/zh/flow5.html"
+              href="https://help.mingdao.com/flow5"
               type={2}
               text={_l('帮助')}
             />

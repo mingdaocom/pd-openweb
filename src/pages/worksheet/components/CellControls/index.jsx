@@ -40,6 +40,7 @@ import BarCode from './BarCode';
 import Time from './Time';
 import OrgRole from './OrgRole';
 import Search from './Search';
+import RelationSearch from './RelationSearch';
 
 import './CellControls.less';
 import _ from 'lodash';
@@ -201,12 +202,16 @@ export default class CellControl extends React.Component {
       row,
     );
     let errorText;
-    if (_.includes([15, 16], cell.type) && errorType && errorType !== 'REQUIRED') {
-      errorText = onValidator(cell, _.isFunction(rowFormData) ? rowFormData() : rowFormData, undefined, true).errorText;
+    if (_.includes([15, 16, 46], cell.type) && errorType && errorType !== 'REQUIRED') {
+      errorText = onValidator({
+        item: { ...cell, value },
+        data: _.isFunction(rowFormData) ? rowFormData() : rowFormData,
+        ignoreRequired: true,
+      }).errorText;
     } else {
       errorText = errorType && this.getErrorText(errorType, { ...cell, value });
     }
-    if (_.includes([15, 16], cell.type) && !errorText) {
+    if (_.includes([15, 16, 46], cell.type) && !errorText) {
       clearCellError(`${(row || {}).rowid}-${cell.controlId}`);
       $('.mdTableErrorTip').remove();
     }
@@ -456,6 +461,7 @@ export default class CellControl extends React.Component {
       tableId,
       tableType,
       worksheetId,
+      isMobileTable,
       isSubList,
       isTrash,
       cache,
@@ -554,6 +560,7 @@ export default class CellControl extends React.Component {
       tableId,
       tableType,
       cache,
+      isMobileTable,
       isSubList,
       isTrash,
       worksheetId,
@@ -677,6 +684,9 @@ export default class CellControl extends React.Component {
     }
     if (cell.type === 49 || cell.type === 50) {
       return <Search {...props} />;
+    }
+    if (cell.type === 51) {
+      return <RelationSearch {...props} />;
     }
     return <div className={className} onClick={this.props.onClick} style={style} />;
   }

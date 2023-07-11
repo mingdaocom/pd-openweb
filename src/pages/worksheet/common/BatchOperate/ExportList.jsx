@@ -111,11 +111,17 @@ export default function ExportList(props) {
                       searchArgs: filters,
                       sheetSwitchPermit,
                       selectRowIds: selectedRows.map(item => item.rowid),
-                      columns: (hasCharge ? controls : filterHidedControls(controls, view.controls)).filter(item => {
-                        return (
-                          item.controlPermissions && item.controlPermissions[0] === '1' && item.controlId !== 'rowid'
-                        );
-                      }),
+                      columns: hasCharge
+                        ? controls.filter(item => {
+                            return item.controlId !== 'rowid';
+                          })
+                        : filterHidedControls(controls, view.controls, false).filter(item => {
+                            return (
+                              ((item.controlPermissions && item.controlPermissions[0] === '1') ||
+                                !item.controlPermissions) &&
+                              item.controlId !== 'rowid'
+                            );
+                          }),
                       downLoadUrl: downLoadUrl,
                       worksheetSummaryTypes: rowsSummary.types,
                       quickFilter,

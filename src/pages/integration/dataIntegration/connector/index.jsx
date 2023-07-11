@@ -238,8 +238,8 @@ function Connector(props) {
             projectId: props.currentProjectId,
             hint: _l('余量已达到最大值'),
             explainText: md.global.Config.IsLocal
-              ? _l(`当前版本最多可创建${res.maxTaskNum}个同步任务, 请升级版本以创建更多同步任务`)
-              : _l(`免费版最多可创建${res.maxTaskNum}个同步任务, 请升级版本以创建更多同步任务`),
+              ? _l('当前版本最多可创建%0个同步任务, 请升级版本以创建更多同步任务', res.maxTaskNum)
+              : _l('免费版最多可创建%0个同步任务, 请升级版本以创建更多同步任务', res.maxTaskNum),
             isFree: true,
           });
         } else {
@@ -257,7 +257,7 @@ function Connector(props) {
             <h3 className="Bold Font24">{_l('创建连接器')}</h3>
             <p className="Font15 flexRow alignItemsCenter">
               {_l('连接到外部数据源进行数据实时同步')}{' '}
-              <Support type={3} href="https://help.mingdao.com/zh/integration2.html" text={_l('使用帮助')} />
+              <Support type={3} href="https://help.mingdao.com/integration2" text={_l('使用帮助')} />
             </p>
           </div>
         </div>

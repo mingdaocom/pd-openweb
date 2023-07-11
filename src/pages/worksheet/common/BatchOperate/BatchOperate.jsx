@@ -24,7 +24,7 @@ import './BatchOperate.less';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
-import { canEditData, canEditApp } from 'worksheet/redux/actions/util';
+import { canEditData, canEditApp, isHaveCharge } from 'worksheet/redux/actions/util';
 
 const CancelTextContent = styled.div`
   display: flex;
@@ -589,7 +589,7 @@ class BatchOperate extends React.Component {
                             ),
                       onOk: handleDelete,
                     };
-                    if (isCharge && selectedLength >= md.global.SysSettings.worktableBatchOperateDataLimitCount) {
+                    if (isHaveCharge(permissionType) && selectedLength >= md.global.SysSettings.worktableBatchOperateDataLimitCount) {
                       configOptions.onlyClose = true;
                       configOptions.cancelType = 'danger-gray';
                       configOptions.onCancel = () => {
@@ -634,6 +634,7 @@ class BatchOperate extends React.Component {
               <div className="flex">
                 {showCusTomBtn && (
                   <Buttons
+                    isCharge={isCharge}
                     count={selectedLength}
                     buttons={customButtons}
                     appId={appId}

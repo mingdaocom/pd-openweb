@@ -56,7 +56,8 @@ function OthersCon(props) {
   const [step, setStep] = useState(0);
   const [data, setData] = useState(undefined);
   const [loading, setLoading] = useState(true);
-  const currentProjectId = projectId || localStorage.getItem('currentProjectId') || md.global.Account.projects[0].projectId;
+  const currentProjectId =
+    projectId || localStorage.getItem('currentProjectId') || md.global.Account.projects[0].projectId;
   const FEATURE_STATUS = getFeatureStatus(currentProjectId, USER_EXTEND_INFO_FEATURE_ID);
 
   useEffect(() => {
@@ -97,17 +98,14 @@ function OthersCon(props) {
           <img src={ExplainImg} />
         </div>
         <div className="explain-title mTop50 center">
-          <h5 className="mBottom0 Font16 Normal LineHeight30">
-            {_l('通过工作表管理应用成员额外的扩展信息字段')}
-          </h5>
+          <h5 className="mBottom0 Font16 Normal LineHeight30">{_l('通过工作表管理应用成员额外的扩展信息字段')}</h5>
           <h5 className="mBottom0 Font16 Normal LineHeight30">
             {_l('在角色权限、筛选器中可以使用用户的扩展信息字段来作为动态筛选条件')}
           </h5>
         </div>
         <div className="explain-desc">
-          如在销售管理应用中： <br />
-          - 可以通过建立成员表来管理销售人员的团队、地区、关联订单等扩展信息 <br />-
-          可以根据订单所关联的团队，来筛选出当前销售人员所在团队的订单
+          {_l('如在销售管理应用中')}： <br />- {_l('可以通过建立成员表来管理销售人员的团队、地区、关联订单等扩展信息')}{' '}
+          <br />-{_l('可以根据订单所关联的团队，来筛选出当前销售人员所在团队的订单')}
         </div>
         <div className="mTop30 center">
           <button
@@ -121,7 +119,7 @@ function OthersCon(props) {
           </button>
         </div>
         <div className="center mTop30">
-          <Support type={3} href="https://help.mingdao.com/zh/user4.html" text={_l('帮助')} />
+          <Support type={3} href="https://help.mingdao.com/user4" text={_l('帮助')} />
         </div>
       </ExplainCon>
     );

@@ -38,6 +38,15 @@ export default {
   * @param {boolean} args.smsVerification 短信验证 需要短信验证-true 不需要短信验证-false
   * @param {string} args.smsVerificationFiled 选择的手机号验证的字段
   * @param {string} args.smsSignature 短信签名
+  * @param {integer} args.writeScope 填写人群范围
+  * @param {} args.linkSwitchTime 设置链接开启停止时间
+  * @param {} args.limitWriteTime 限制填写时间
+  * @param {} args.limitWriteCount 限制收集数量上限 0 or number
+  * @param {} args.limitPasswordWrite 限制密码写入 empty or string
+  * @param {boolean} args.cacheDraft 缓存未提交内容，下次自动填充
+  * @param {} args.cacheFieldData 缓存本次填写数据，下次自动填充
+  * @param {} args.weChatSetting 微信设置
+  * @param {} args.abilityExpand 能力增强
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -190,11 +199,12 @@ export default {
   * @param {boolean} args.getViews 是否获取Views
   * @param {string} args.appId 应用Id
   * @param {boolean} args.handleDefault 处理默认值
-  * @param {integer} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部 9:回收站的控件
+  * @param {} args.getControlType 0:显示控件 1：不显示控件（被动关联） 2：全部 3:全部关联控件 9:回收站的控件 11:获取表信息不处理隐藏controlSource
   * @param {array} args.worksheetIds 批量工作表id
   * @param {boolean} args.handControlSource 是否处理关联的原始类型
   * @param {boolean} args.getRules 是否需要验证规则
   * @param {boolean} args.getSwitchPermit 是否获取功能开关
+  * @param {boolean} args.getRelationSearch
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -233,6 +243,7 @@ export default {
   * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
   * @param {integer} args.rowStatus 1：正常 21：草稿箱
   * @param {string} args.draftRowId 草稿ID
+  * @param {string} args.password 密码填写
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
   * @param {} args.captchaType 验证码类型（默认腾讯云）

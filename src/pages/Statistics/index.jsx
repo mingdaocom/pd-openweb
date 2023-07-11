@@ -108,7 +108,7 @@ export default class Statistics extends Component {
     this.getReportConfigList();
   }
   getReportConfigList() {
-    const { worksheetId } = this.props;
+    const { worksheetId, isFullScreen } = this.props;
     const { ownerId, pageIndex, reports, pageLoading, loading } = this.state;
     const loadingKey = pageIndex > 1 ? 'pageLoading' : 'loading';
     if ((pageIndex > 1 ? pageLoading : false) || !pageIndex) {
@@ -125,7 +125,7 @@ export default class Statistics extends Component {
         appId: worksheetId,
         isOwner: !!ownerId,
         pageIndex,
-        pageSize: 10,
+        pageSize: isFullScreen ? 20 : 10,
       },
       { fireImmediately: false },
     );

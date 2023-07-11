@@ -81,7 +81,7 @@ export default class Branch extends Component {
             <span className="flex ellipsis">{name || _l('分支')}</span>
 
             <span className="mLeft10">
-              <Support type={1} className="workflowDialogSupport" href="https://help.mingdao.com/zh/flow41.html" />
+              <Support type={1} className="workflowDialogSupport" href="https://help.mingdao.com/flow41" />
             </span>
           </div>
         }

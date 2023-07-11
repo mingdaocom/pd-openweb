@@ -7,7 +7,8 @@
   position: relative;
   background-color: #fff;
   border-radius: 3px;
-  display: block;
+  display: flex;
+  flex-direction: column;
   button:disabled {
     background: #9e9e9e !important;
     cursor: not-allowed;
@@ -32,11 +33,13 @@
     padding-left: 24px;
   }
 
-  .workflowTypeContent {
+  .workflowTypeContent,
+  .exclusiveSpecsWrap {
     display: flex;
     align-items: center;
     margin-top: 40px;
-    .workflowTypeItem {
+    .workflowTypeItem,
+    .exclusiveSpecsCard {
       width: 240px;
       height: 80px;
       border: 2px solid #eaeaea;
@@ -93,6 +96,10 @@
       &:hover {
         color: #2196f3;
       }
+    }
+    &.disabled {
+      cursor: not-allowed;
+      background: #fafafa;
     }
   }
 
@@ -207,6 +214,42 @@
   .warpTowStep .warpNeedHelp .imgMiddle {
     vertical-align: -3px;
   }
+
+  .exclusiveTypeCard {
+    width: 231px;
+    height: 80px;
+    border-radius: 3px;
+    opacity: 1;
+    border: 2px solid #bdbdbd;
+    text-align: center;
+    margin-right: 15px;
+    cursor: pointer;
+    &:last-child {
+      margin-right: 0;
+    }
+    &.active {
+      border: 2px solid #2196f3;
+    }
+  }
+
+  .renewExclusiveInfo {
+    margin-top: 15px;
+    .label {
+      width: 40px;
+      display: inline-block;
+      margin-right: 14px;
+      color: #757575;
+    }
+  }
+
+  .renewExclusiveCard {
+    width: 231px;
+    padding: 20px 0;
+    background: #ffffff;
+    border-radius: 3px 3px 3px 3px;
+    border: 2px solid #2196f3;
+    text-align: center;
+  }
 }
 
 .portalProgressContainer {
@@ -298,4 +341,8 @@
       z-index: 2;
     }
   }
+}
+
+.Gray_b4 {
+  color: #b4b4b4;
 }

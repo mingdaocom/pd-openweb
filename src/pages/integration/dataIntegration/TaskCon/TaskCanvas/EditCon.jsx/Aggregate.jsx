@@ -107,7 +107,7 @@ export default function Aggregate(props) {
   return (
     <WrapL>
       <div className="title Bold">{_l('分类汇总')}</div>
-      <div className="des mTop14 Gray_9e">{_l('对源数据进行分类和汇总统计运算后，作为新的数据进入本节点。')}</div>
+      <div className="des mTop15 Gray_9e">{_l('对源数据进行分类和汇总统计运算后，作为新的数据进入本节点。')}</div>
       <div className="title mTop16">{_l('分类字段')}</div>
       <div className="groupCon">
         {fieldsSetting

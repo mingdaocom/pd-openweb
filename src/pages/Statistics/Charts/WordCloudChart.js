@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { WordCloud } from '@antv/g2plot';
 import { formatChartData } from './BarChart';
 import { Dropdown, Menu } from 'antd';
-import { formatYaxisList, formatrChartValue, formatControlInfo } from './common';
+import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 
 export default class extends Component {
@@ -83,6 +83,7 @@ export default class extends Component {
     const data = formatChartData(map, yaxisList);
     const newYaxisList = formatYaxisList(data, yaxisList);
     const { ydisplay } = displaySetup;
+    const colors = getChartColors(style);
     const baseConfig = {
       data,
       // meta: {
@@ -103,6 +104,7 @@ export default class extends Component {
       wordStyle: {
         fontSize: [ydisplay.minValue || 20, ydisplay.maxValue || 60],
       },
+      color: colors
     }
 
     this.setCount(newYaxisList);

@@ -93,18 +93,19 @@ export default class extends Component {
     const { xdisplay, ydisplay, showPileTotal, isPile, legendType, auxiliaryLines, showLegend, showChartType } = displaySetup;
     const rightYDisplay = rightY.display.ydisplay;
     const splitId = split.controlId;
+    const xaxesId = xaxes.controlId;
     const rightSplitId = _.get(rightY, 'split.controlId');
     const { position } = getLegendType(legendType);
     const isVertical = showChartType === 1;
     const sortsKey = sorts.map(n => _.findKey(n));
     const leftSorts = yaxisList.filter(item => sortsKey.includes(item.controlId));
     const rightSorts = rightY.yaxisList.filter(item => sortsKey.includes(item.controlId));
-    const data = formatBarChartData(map, yaxisList, splitId);
-    const contrastData = formatBarChartData(contrastMap, rightY.yaxisList, rightSplitId);
+    const data = formatBarChartData(map, yaxisList, splitId, xaxesId);
+    const contrastData = formatBarChartData(contrastMap, rightY.yaxisList, rightSplitId, xaxesId);
     const mergeData = rightSorts.length ? mergeChartData(contrastData, data) : mergeChartData(data, contrastData);
     const control = yaxisList[0] || {};
     const contrastControl = rightY.yaxisList[0] || {};
-    const colors = getChartColors();
+    const colors = getChartColors(style);
 
     const lineConfig = {
       style: {

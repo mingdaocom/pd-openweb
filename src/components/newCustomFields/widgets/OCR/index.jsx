@@ -250,7 +250,13 @@ export default class Widgets extends Component {
           multi_selection: false,
           chunk_size: 0,
           filters: {
-            mime_types: [{ title: 'image', extensions: enumDefault === 3 ? 'jpg,jpeg,png,pdf' : 'jpg,jpeg,png' }],
+            mime_types: [
+              {
+                title: 'image',
+                extensions:
+                  advancedSetting.ocrapitype === '1' || enumDefault === 3 ? 'jpg,jpeg,png,pdf' : 'jpg,jpeg,png',
+              },
+            ],
           },
         }}
         onUploaded={this.handleUploaded}
@@ -259,9 +265,10 @@ export default class Widgets extends Component {
           up.disableBrowse();
         }}
         onInit={() => {
-          if (isMobile && _.get(this.props, 'advancedSetting.ocrapitype') !== '0') {
+          if (isMobile && _.get(this.props, 'strDefault') === '10') {
             // 是否禁用相册
             const ele = this.file.upload.nextSibling.querySelector('input');
+
             ele.setAttribute('capture', 'camera');
           }
         }}

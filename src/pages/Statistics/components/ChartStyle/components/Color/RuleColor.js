@@ -3,13 +3,13 @@ import cx from 'classnames';
 import { Modal, ConfigProvider, Button, Radio, Input, Select, Checkbox } from 'antd';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
 import { Icon } from 'ming-ui';
-import { colorGroup } from 'statistics/Charts/common';
+import { colorGroup, reportTypes } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common';
 import { formatNumberFromInput } from 'src/util';
-import { getGradientColors } from 'statistics/common';
+import { getGradientColors, isNumberControl, textNormTypes } from 'statistics/common';
 import './RuleColor.less';
 
-const SortableItem = SortableElement(({ item, ruleIndex, ...otherProps }) => {
+const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, ...otherProps }) => {
   const { type, and, min, max, value, color } = item;
   return (
     <div className="flexRow valignWrapper scopeRule" key={ruleIndex}>
@@ -37,8 +37,11 @@ const SortableItem = SortableElement(({ item, ruleIndex, ...otherProps }) => {
             placeholder={_l('最小值')}
             className="chartInput"
             onChange={(e) => {
-              const { value } = event.target;
-              otherProps.onSetRule({ min: Number(formatNumberFromInput(value)) }, ruleIndex);
+              const value = formatNumberFromInput(event.target.value);
+              otherProps.onSetRule({ min: value ? value : undefined }, ruleIndex);
+            }}
+            onBlur={() => {
+              otherProps.onSetRule({ min: min ? Number(min) : undefined }, ruleIndex);
             }}
           />
         )}
@@ -49,8 +52,11 @@ const SortableItem = SortableElement(({ item, ruleIndex, ...otherProps }) => {
             placeholder={_l('值')}
             className="chartInput"
             onChange={(e) => {
-              const { value } = event.target;
-              otherProps.onSetRule({ value: Number(formatNumberFromInput(value)) }, ruleIndex);
+              const value = formatNumberFromInput(event.target.value);
+              otherProps.onSetRule({ value: value ? value : undefined }, ruleIndex);
+            }}
+            onBlur={() => {
+              otherProps.onSetRule({ value: value ? Number(value) : undefined }, ruleIndex);
             }}
           />
         )}
@@ -75,8 +81,11 @@ const SortableItem = SortableElement(({ item, ruleIndex, ...otherProps }) => {
               placeholder={_l('最大值')}
               className="chartInput"
               onChange={(e) => {
-                const { value } = event.target;
-                otherProps.onSetRule({ max: Number(formatNumberFromInput(value)) }, ruleIndex);
+                const value = formatNumberFromInput(event.target.value);
+                otherProps.onSetRule({ max: value ? value : undefined }, ruleIndex);
+              }}
+              onBlur={() => {
+                otherProps.onSetRule({ max: max ? Number(max) : undefined }, ruleIndex);
               }}
             />
           </Fragment>
@@ -96,10 +105,10 @@ const SortableItem = SortableElement(({ item, ruleIndex, ...otherProps }) => {
         <Icon icon="expand_more" className="Gray_9e Font20" />
       </div>
       <Icon
-        className={cx('pointer Font20 mLeft5', ruleIndex === 0 ? 'Gray_d' : 'Gray_bd')}
+        className={cx('pointer Font20 mLeft5', rulesLength === 1 ? 'Gray_d' : 'Gray_bd')}
         icon="close"
         onClick={() => {
-          if (ruleIndex === 0) return;
+          if (rulesLength === 1) return;
           otherProps.onDeleteRule(ruleIndex);
         }}
       />
@@ -115,6 +124,7 @@ const SortableList = SortableContainer(({ rules, ...otherProps }) => {
           key={index}
           index={index}
           ruleIndex={index}
+          rulesLength={rules.length}
           item={item}
           {...otherProps}
         />
@@ -126,23 +136,23 @@ const SortableList = SortableContainer(({ rules, ...otherProps }) => {
 class ColorLevel extends Component {
   constructor(props) {
     super(props);
-    const { yaxisList } = props;
+    const { yaxisList, colorRule = {} } = props;
     this.state = {
-      min: {
+      min: colorRule.min || {
         value: undefined,
         color: '#0096fe',
       },
-      center: {
+      center: colorRule.center || {
         value: undefined,
         color: '#ffa330',
       },
-      max: {
+      max: colorRule.max || {
         value: undefined,
         color: '#3bb057'
       },
-      controlId: _.get(yaxisList[0], 'controlId') || null,
-      applyValue: 1,
-      centerVisible: false,
+      controlId: colorRule.controlId || _.get(yaxisList[0], 'controlId') || null,
+      applyValue: colorRule.applyValue || 1,
+      centerVisible: colorRule.centerVisible || false,
       colors: []
     }
   }
@@ -151,20 +161,24 @@ class ColorLevel extends Component {
     if (centerVisible) {
       const colors1 = getGradientColors(min.color, center.color, 50);
       const colors2 = getGradientColors(center.color, max.color, 50);
-      this.setState({ colors: colors1.concat(colors2) });
+      return colors1.concat(colors2);
     } else {
       const colors = getGradientColors(min.color, max.color, 100);
-      this.setState({ colors });
+      return colors;
     }
   }
   getSaveData = () => {
-    const { min, center, max, controlId, applyValue } = this.state;
+    const { reportType } = this.props;
+    const { min, center, max, controlId, applyValue, centerVisible } = this.state;
+    const colors = this.getGradientColors();
     return {
       min,
       center,
       max,
       controlId,
-      applyValue
+      applyValue: reportType === reportTypes.PivotTable ? applyValue : 2,
+      centerVisible,
+      colors
     }
   }
   handleChangeMin = (data) => {
@@ -208,10 +222,16 @@ class ColorLevel extends Component {
             placeholder={placeholder}
             className="chartInput flex mRight10"
             onChange={(e) => {
-              let value = event.target.value;
+              let value = formatNumberFromInput(event.target.value);
               onChange({
                 ...data,
-                value: Number(formatNumberFromInput(value))
+                value: value ? value : undefined
+              });
+            }}
+            onBlur={() => {
+              onChange({
+                ...data,
+                value: value ? Number(value) : undefined
               });
             }}
           />
@@ -220,8 +240,18 @@ class ColorLevel extends Component {
     );
   }
   render() {
-    const { yaxisList } = this.props;
+    const { yaxisList, reportType } = this.props;
     const { min, center, max, centerVisible, controlId, applyValue } = this.state;
+    const filterYaxisList = _.uniqBy(yaxisList, 'controlId').filter(data => data.normType !== 7);
+    const renderOption = data => {
+      const norm = _.find(textNormTypes, { value: data.normType });
+      return (
+        <Select.Option className="selectOptionWrapper" key={data.controlId} value={data.controlId}>
+          {data.controlName}
+          {!isNumberControl(data.controlType) && norm && ` (${norm.text})`}
+        </Select.Option>
+      );
+    }
     return (
       <Fragment>
         <div className="flexRow valignWrapper mTop16">
@@ -229,34 +259,34 @@ class ColorLevel extends Component {
             <div className="mBottom8">{_l('选择依据的字段')}</div>
             <Select
               style={{ width: 130 }}
-              className="chartSelect mRight10"
-              value={controlId}
+              className={cx('chartSelect mRight10', { Red: controlId && !_.find(filterYaxisList, { controlId }) })}
+              value={controlId ? (_.find(filterYaxisList, { controlId }) ? controlId : _l('已删除')) : undefined}
               suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
               onChange={(controlId) => {
                 this.setState({ controlId });
               }}
             >
-              {yaxisList.map(data => (
-                <Select.Option className="selectOptionWrapper" value={data.controlId}>{data.controlName}</Select.Option>
-              ))}
+              {filterYaxisList.map(renderOption)}
             </Select>
           </div>
-          <div>
-            <div className="mBottom8">{_l('应用内容')}</div>
-            <Select
-              style={{ width: 130 }}
-              className="chartSelect mRight10"
-              value={applyValue}
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-              onChange={(applyValue) => {
-                this.setState({ applyValue });
-              }}
-            >
-              <Select.Option className="selectOptionWrapper" value={1}>{_l('仅值')}</Select.Option>
-              <Select.Option className="selectOptionWrapper" value={2}>{_l('值和总计')}</Select.Option>
-              <Select.Option className="selectOptionWrapper" value={3}>{_l('仅总计')}</Select.Option>
-            </Select>
-          </div>
+          {reportType === reportTypes.PivotTable && (
+            <div>
+              <div className="mBottom8">{_l('应用内容')}</div>
+              <Select
+                style={{ width: 130 }}
+                className="chartSelect mRight10"
+                value={applyValue}
+                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                onChange={(applyValue) => {
+                  this.setState({ applyValue });
+                }}
+              >
+                <Select.Option className="selectOptionWrapper" value={1}>{_l('仅值')}</Select.Option>
+                <Select.Option className="selectOptionWrapper" value={2}>{_l('值和总计')}</Select.Option>
+                <Select.Option className="selectOptionWrapper" value={3}>{_l('仅总计')}</Select.Option>
+              </Select>
+            </div>
+          )}
         </div>
         <div className="flexRow valignWrapper">
           <div className="flex mRight10">
@@ -290,11 +320,12 @@ class ColorLevel extends Component {
 class ColorScope extends Component {
   constructor(props) {
     super(props);
+    const { scopeRules } = props.colorRule;
     this.state = {
-      scopeRules: [
+      scopeRules: scopeRules || [
         {
-          type: 1,
-          and: 5,
+          type: 2,
+          and: 6,
           min: undefined,
           max: undefined,
           value: undefined,
@@ -307,8 +338,8 @@ class ColorScope extends Component {
     const { scopeRules } = this.state;
     this.setState({
       scopeRules: scopeRules.concat({
-        type: 1,
-        and: 5,
+        type: 2,
+        and: 6,
         min: undefined,
         max: undefined,
         value: undefined,
@@ -355,7 +386,7 @@ class ColorScope extends Component {
       <Fragment>
         <div className="flexRow valignWrapper mTop16 mBottom8">
           <div className="flex">{_l('规则')}</div>
-          <div className="flexRow valignWrapper ThemeColor pointer" onClick={this.handleAddRule}>
+          <div className="flexRow valignWrapper ThemeColor pointer addRuleColor" onClick={this.handleAddRule}>
             <Icon icon="add" />
             {_l('添加规则')}
           </div>
@@ -379,6 +410,12 @@ export default class RuleColor extends Component {
     super(props);
     this.state = {
       model: 1
+    }
+  }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.visible) {
+      const { model = 1 } = nextProps.colorRule || {};
+      this.setState({ model });
     }
   }
   handleChangeType = (event) => {
@@ -414,7 +451,7 @@ export default class RuleColor extends Component {
     );
   }
   render() {
-    const { visible, onCancel, yaxisList = [] } = this.props;
+    const { visible, onCancel, yaxisList = [], colorRule, reportType } = this.props;
     const { model } = this.state;
     return (
       <Modal
@@ -435,7 +472,9 @@ export default class RuleColor extends Component {
         </Radio.Group>
         {model === 1 && (
           <ColorLevel
+            reportType={reportType}
             yaxisList={yaxisList}
+            colorRule={colorRule}
             ref={el => {
               this.colorLevelEl = el;
             }}
@@ -443,6 +482,7 @@ export default class RuleColor extends Component {
         )}
         {model === 2 && (
           <ColorScope
+            colorRule={colorRule}
             ref={el => {
               this.colorLevelEl = el;
             }}

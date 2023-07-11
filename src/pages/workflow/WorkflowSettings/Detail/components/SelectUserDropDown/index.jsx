@@ -193,21 +193,17 @@ export default class SelectUserDropDown extends Component {
       unique: unique,
       showCreateBtn: false,
       selectFn: departments => {
-        const ids = accounts.map(dept => dept.entityId);
-
-        departments = departments
-          .filter(o => ids.indexOf(o.departmentId) === -1)
-          .map(o => {
-            return {
-              type: USER_TYPE.DEPARTMENT,
-              entityId: o.departmentId,
-              entityName: o.departmentName,
-              roleId: '',
-              roleName: '',
-              avatar: '',
-              count: o.userCount,
-            };
-          });
+        departments = departments.map(o => {
+          return {
+            type: USER_TYPE.DEPARTMENT,
+            entityId: o.departmentId,
+            entityName: o.departmentName,
+            roleId: '',
+            roleName: '',
+            avatar: '',
+            count: o.userCount,
+          };
+        });
 
         if (departments.length) {
           updateSource({ accounts: unique ? departments : accounts.concat(departments) });

@@ -30,6 +30,7 @@ const FilterTextWrap = styled.div`
     font-size: 13px;
     color: #333;
     line-height: 20px;
+    padding-left: 20px;
 
     p {
       line-height: 22px;
@@ -58,7 +59,6 @@ const FilterTextWrap = styled.div`
 
   .filterGroup {
     position: relative;
-    margin-left: 22px;
     .spliceText {
       position: absolute;
       left: -20px;

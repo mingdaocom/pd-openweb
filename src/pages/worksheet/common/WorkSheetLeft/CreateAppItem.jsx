@@ -31,16 +31,12 @@ export default function CreateAppItem(props) {
     };
   }, []);
 
-  const handleCreate = (type, name) => {
-    if (!name) {
-      alert(_l('请填写名称'), 3);
-      return;
-    }
+  const handleCreate = (type, args) => {
     sheetListActions.createAppItem({
       appId,
       groupId,
       type,
-      name: name.slice(0, 25),
+      ...args
     });
     setCreateType('');
   };

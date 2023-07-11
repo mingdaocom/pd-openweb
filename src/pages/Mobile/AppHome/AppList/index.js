@@ -104,6 +104,7 @@ class AppList extends Component {
   };
   render() {
     let { currentGroupList, loading, groupInfo = {} } = this.state;
+    currentGroupList = currentGroupList.filter(it => !it.webMobileDisplay);
     if (loading) return <LoadDiv className="h100 flexColumn justifyCenter" />;
     return (
       <div className="appList">

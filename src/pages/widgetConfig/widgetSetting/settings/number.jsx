@@ -112,6 +112,8 @@ export default function Number(props) {
               newOptions.showinput = '1';
               newOptions.datamask = '';
               setNumValue(newOptions.numinterval);
+              onChange({ ...handleAdvancedSettingChange(data, newOptions), dot: 0 });
+              return;
             }
             onChange(handleAdvancedSettingChange(data, newOptions));
           }}
@@ -160,7 +162,11 @@ export default function Number(props) {
                   tempValue = numinterval;
                 }
                 setNumValue(tempValue);
-                onChange(handleAdvancedSettingChange(data, { numinterval: tempValue }));
+                const pointIndex = String(tempValue).indexOf('.') + 1;
+                onChange({
+                  ...handleAdvancedSettingChange(data, { numinterval: tempValue }),
+                  dot: pointIndex > 0 ? String(tempValue).length - pointIndex : 0,
+                });
               }}
             />
             <div className="labelWrap mTop12">

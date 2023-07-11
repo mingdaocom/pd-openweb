@@ -279,7 +279,7 @@ export default function RecordOperate(props) {
           {!!(disableLoadCustomButtons ? defaultCustomButtons : customButtons).length && (
             <CustomButtons
               type="menu"
-              {...{ projectId, appId, viewId, worksheetId, recordId }}
+              {...{ projectId, appId, viewId, worksheetId, recordId, isCharge }}
               buttons={disableLoadCustomButtons ? defaultCustomButtons : customButtons}
               loadBtns={loadButtons}
               triggerCallback={() => changePopupVisible(false)}

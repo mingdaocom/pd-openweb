@@ -143,12 +143,12 @@ class FillRecordControls extends React.Component {
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData();
   };
-  onSave = (error, { data, updateControlIds }) => {
+  onSave = async (error, { data, updateControlIds }) => {
     if (error) {
       this.setState({ submitLoading: false });
       return;
     }
-    const { onSubmit, writeControls } = this.props;
+    const { onSubmit, writeControls, customButtonConfirm } = this.props;
     let hasError;
     const newData = data.filter(item =>
       _.find(writeControls, writeControl => writeControl.controlId === item.controlId),
@@ -204,6 +204,19 @@ class FillRecordControls extends React.Component {
       alert(_l('请正确填写记录'), 3);
       this.setState({ submitLoading: false });
       return;
+    }
+    if (customButtonConfirm) {
+      try {
+        await customButtonConfirm();
+        this.setState({
+          submitLoading: false,
+        });
+      } catch (err) {
+        this.setState({
+          submitLoading: false,
+        });
+        return;
+      }
     }
     this.setState({ submitLoading: false });
     updateControlIds = _.uniq(updateControlIds.concat(writeControls.filter(c => c.defsource).map(c => c.controlId)));

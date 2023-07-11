@@ -13,12 +13,14 @@ import {
   Schedule,
   UserRange,
   EmailApproval,
+  UpdateFields,
 } from '../components';
 import styled from 'styled-components';
 import cx from 'classnames';
 import OpinionTemplate from './OpinionTemplate';
 import NoticeTemplate from './NoticeTemplate';
 import CallbackSettings from './CallbackSettings';
+import { OPERATION_TYPE } from '../../enum';
 
 const GraduallyMember = styled.div`
   .actionFields {
@@ -95,16 +97,35 @@ export default class Approval extends Component {
   /**
    * 获取节点详情
    */
-  getNodeDetail(props) {
+  getNodeDetail(props, sId) {
     const { processId, selectNodeId, selectNodeType, isApproval } = props;
+    const { data } = this.state;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
-      this.setState({ data: result });
+    flowNode
+      .getNodeDetail(
+        { processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId },
+        { fireImmediately: true },
+      )
+      .then(result => {
+        if (sId) {
+          result = Object.assign({}, data, {
+            selectNodeId: result.selectNodeId,
+            appList: result.appList,
+            selectNodeObj: result.selectNodeObj,
+            flowNodeMap: Object.assign({}, data.flowNodeMap, {
+              [OPERATION_TYPE.PASS]: result.flowNodeMap[OPERATION_TYPE.PASS],
+              [OPERATION_TYPE.OVERRULE]: result.flowNodeMap[OPERATION_TYPE.OVERRULE],
+              [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE],
+            }),
+          });
+        }
 
-      if (isApproval && !result.selectNodeId) {
-        this.onChange(result.flowNodeList[0].nodeId);
-      }
-    });
+        this.setState({ data: result });
+
+        if (isApproval && !result.selectNodeId) {
+          this.onChange(result.flowNodeList[0].nodeId);
+        }
+      });
   }
 
   /**
@@ -225,9 +246,8 @@ export default class Approval extends Component {
    */
   onChange = selectNodeId => {
     const { data } = this.state;
-    const selectNodeObj = _.find(data.appList, item => item.nodeId === selectNodeId);
 
-    this.updateSource({ selectNodeId, selectNodeObj });
+    this.getNodeDetail(this.props, selectNodeId);
 
     if (data.isCallBack) {
       this.getCallBackNodeNames(selectNodeId, data.callBackType);
@@ -254,15 +274,16 @@ export default class Approval extends Component {
               <Radio
                 text={item.text}
                 checked={data.multipleLevelType === item.value || (item.value === 1 && data.multipleLevelType === 2)}
-                onClick={() =>
+                onClick={() => {
                   this.updateSource({
                     multipleLevelType: item.value,
                     callBackMultipleLevel: -1,
                     accounts: [],
                     multipleLevel: -1,
                     schedule: Object.assign({}, data.schedule, { enable: false }),
-                  })
-                }
+                  });
+                  this.setState({ tabIndex: 1 });
+                }}
               />
             </div>
           ))}
@@ -280,7 +301,7 @@ export default class Approval extends Component {
     const { data, showSelectUserDialog } = this.state;
     const { accounts } = data;
     const updateAccounts = ({ accounts }) => {
-      this.updateSource({ accounts, countersignType: accounts.length <= 1 ? 0 : 3 }, () => {
+      this.updateSource({ accounts }, () => {
         this.switchApprovalSettings(false, 16);
       });
     };
@@ -408,10 +429,10 @@ export default class Approval extends Component {
   renderApprovalMode() {
     const { data } = this.state;
     const personsPassing = [
-      { text: _l('或签（一名审批人通过或否决即可）'), value: 3 },
-      { text: _l('会签（需所有审批人通过）'), value: 1 },
-      { text: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2 },
-      { text: _l('会签（按比例投票通过）'), value: 4 },
+      { text: _l('或签（一名审批人通过或否决即可）'), value: 3, includeType: [6, 7, 13] },
+      { text: _l('会签（需所有审批人通过）'), value: 1, includeType: [6, 13, 16] },
+      { text: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2, includeType: [13, 16] },
+      { text: _l('会签（按比例投票通过）'), value: 4, includeType: [6, 13, 16] },
     ];
     const conditionList = [
       { text: '10%', value: '10' },
@@ -434,6 +455,9 @@ export default class Approval extends Component {
           data={personsPassing}
           value={data.countersignType}
           border
+          placeholder={
+            data.multipleLevelType === 0 ? _l('或签（一名审批人通过或否决即可）') : _l('会签（需所有审批人通过）')
+          }
           onChange={countersignType => {
             let condition = '';
             if (countersignType === 4) {
@@ -441,9 +465,12 @@ export default class Approval extends Component {
             }
             this.updateSource({
               countersignType,
-              operationTypeList: [],
+              operationTypeList: _.intersection(
+                data.operationTypeList,
+                personsPassing.find(item => item.value === countersignType).includeType,
+              ),
               ignoreRequired: false,
-              isCallBack: false,
+              isCallBack: countersignType === 2 ? false : data.isCallBack,
               condition,
             });
           }}
@@ -478,7 +505,7 @@ export default class Approval extends Component {
     const TABS = [
       { text: _l('审批设置'), value: 1 },
       { text: _l('字段权限'), value: 2 },
-      // { text: _l('数据更新'), value: 3 },
+      { text: _l('数据更新'), value: 3 },
     ];
 
     return (
@@ -487,7 +514,7 @@ export default class Approval extends Component {
           return (
             <TABS_ITEM
               key={item.value}
-              className={cx({ active: item.value === tabIndex })}
+              className={cx('pointerEventsAuto', { active: item.value === tabIndex })}
               onClick={() => this.setState({ tabIndex: item.value })}
             >
               {item.text}
@@ -806,10 +833,10 @@ export default class Approval extends Component {
         <EmailApproval
           {...this.props}
           title={_l('启用邮件通知')}
-          desc={_l('启用后，待办消息同时会以邮件的形式发送给相关负责人；邮件0.03元/封，自动从账务中心扣费')}
+          desc={_l('启用后，待办消息同时会以邮件的形式发送给相关负责人')}
           showApprovalBtn={!data.encrypt}
-          flowNodeMap={data.flowNodeMap[102]}
-          updateSource={obj => this.updateFlowMapSource(102, obj)}
+          flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
+          updateSource={obj => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj)}
         />
 
         {data.multipleLevelType === 0 && (
@@ -838,6 +865,23 @@ export default class Approval extends Component {
       4: _l('二级：实名+实人+网证（开发中...）'),
       5: _l('一级：实名+实人+网证+实证（开发中...）'),
     };
+    const SOURCE_HANDLE_LIST = [
+      {
+        title: _l('节点开始前更新'),
+        desc: _l('流程进入此节点且审批开始前，更新数据对象的字段值（退回至此节点也会触发更新）'),
+        key: OPERATION_TYPE.BEFORE,
+      },
+      {
+        title: _l('通过后更新'),
+        desc: _l('通过此节点后，更新数据对象的字段值'),
+        key: OPERATION_TYPE.PASS,
+      },
+      {
+        title: _l('否决后更新'),
+        desc: _l('此节点被否决后，更新数据对象的字段值'),
+        key: OPERATION_TYPE.OVERRULE,
+      },
+    ];
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -879,12 +923,12 @@ export default class Approval extends Component {
                   <CustomMessageBox className="mTop15 flexRow">
                     <div className="flex mRight20 ellipsis Font12">
                       {data.opinionTemplate.inputType === 1 ? _l('用户自由输入；') : _l('仅支持选择指定模板；')}
-                      {(data.opinionTemplate.opinions[4] || []).length &&
-                      (data.opinionTemplate.opinions[5] || []).length
+                      {(data.opinionTemplate.opinions[OPERATION_TYPE.PASS] || []).length &&
+                      (data.opinionTemplate.opinions[OPERATION_TYPE.OVERRULE] || []).length
                         ? _l('已设置通过、否决/退回时的意见模板')
-                        : (data.opinionTemplate.opinions[4] || []).length
+                        : (data.opinionTemplate.opinions[OPERATION_TYPE.PASS] || []).length
                         ? _l('已设置通过时的意见模板')
-                        : (data.opinionTemplate.opinions[5] || []).length
+                        : (data.opinionTemplate.opinions[OPERATION_TYPE.OVERRULE] || []).length
                         ? _l('已设置否决/退回时的意见模板')
                         : _l('未设置意见模版')}
                     </div>
@@ -968,7 +1012,7 @@ export default class Approval extends Component {
                     checked={data.encrypt}
                     onClick={checked =>
                       this.updateSource({ encrypt: !checked }, () => {
-                        this.updateFlowMapSource(102, { batch: false });
+                        this.updateFlowMapSource(OPERATION_TYPE.EMAIL, { batch: false });
                       })
                     }
                   />
@@ -1021,6 +1065,49 @@ export default class Approval extends Component {
                   )}
                 </Fragment>
               )}
+
+              {tabIndex === 3 && (
+                <Fragment>
+                  {data.selectNodeId ? (
+                    SOURCE_HANDLE_LIST.map(item => {
+                      const sourceData = data.flowNodeMap[item.key] || {};
+
+                      return (
+                        <Fragment key={item.key}>
+                          <div className="Font13 bold mTop25">{item.title}</div>
+                          <div className="Font13 Gray_9e mTop10">{item.desc}</div>
+                          <UpdateFields
+                            type={1}
+                            companyId={this.props.companyId}
+                            processId={this.props.processId}
+                            selectNodeId={this.props.selectNodeId}
+                            nodeId={sourceData.selectNodeId}
+                            controls={sourceData.controls.filter(o => o.type !== 29)}
+                            fields={sourceData.fields}
+                            showCurrent={item.key !== OPERATION_TYPE.BEFORE}
+                            formulaMap={sourceData.formulaMap}
+                            updateSource={(obj, callback = () => {}) =>
+                              this.updateSource(
+                                {
+                                  flowNodeMap: Object.assign({}, data.flowNodeMap, {
+                                    [item.key]: Object.assign({}, data.flowNodeMap[item.key], obj),
+                                  }),
+                                },
+                                callback,
+                              )
+                            }
+                          />
+                        </Fragment>
+                      );
+                    })
+                  ) : (
+                    <div className="Gray_9e Font13 flexRow flowDetailTips mTop25">
+                      <i className="icon-task-setting_promet Font16" />
+                      <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置数据更新')}</div>
+                    </div>
+                  )}
+                </Fragment>
+              )}
             </div>
           </ScrollView>
         </div>
@@ -1058,8 +1145,8 @@ export default class Approval extends Component {
             title={_l('意见模板')}
             description={_l('预置常用的意见作为模板，帮助审批人快捷填写')}
             keys={[
-              { key: 4, text: _l('通过时的模板') },
-              { key: 5, text: _l('否决/退回时的模板') },
+              { key: OPERATION_TYPE.PASS, text: _l('通过时的模板') },
+              { key: OPERATION_TYPE.OVERRULE, text: _l('否决/退回时的模板') },
             ]}
             opinionTemplate={data.opinionTemplate}
             onSave={opinionTemplate => this.updateSource({ opinionTemplate })}

@@ -93,7 +93,7 @@ class WorksheetRowLand extends Component {
             worksheetId={worksheetId}
             viewId={viewId}
             recordId={rowId}
-            hideRecordInfo={() => navigateTo(`/app/${appId}`)}
+            hideRecordInfo={() => navigateTo(worksheetId ? `/worksheet/${worksheetId}` : `/app/${appId}`)}
           />
         )}
       </div>

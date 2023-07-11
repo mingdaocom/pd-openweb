@@ -180,6 +180,7 @@ const BaseCard = props => {
     onUpdate = noop,
     onDelete = noop,
     onCopySuccess = noop,
+    showNull = false,
   } = props;
   let { rowId, coverImage, allowEdit, allowDelete, abstractValue } = data;
   const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
@@ -216,6 +217,8 @@ const BaseCard = props => {
   if (isEmpty(data)) return null;
 
   const isGalleryView = String(viewType) === '3';
+  const isVerticalHierarchy = String(viewType) === '2' && ['1', '2'].includes(_.get(para, 'advancedSetting.hierarchyViewType'));
+
   abstractValue = abstract ? abstractValue : '';
 
   const otherFields = update(fields, { $splice: [[titleIndex, 1]] });
@@ -313,7 +316,7 @@ const BaseCard = props => {
 
   const renderAbstract = () => {
     return abstract ? (
-      <div className={cx('abstractWrap', { galleryViewAbstract: isGalleryView })}>
+      <div className={cx('abstractWrap', { galleryViewAbstract: isGalleryView || isVerticalHierarchy })}>
         {abstractValue || <div className="emptyHolder"></div>}
       </div>
     ) : null;
@@ -357,11 +360,12 @@ const BaseCard = props => {
             {otherFields
               // .filter(o => controlState(o).visible)//排除无查看权限的字段
               .map(item => {
-                if (checkCellIsEmpty(item.value) && !isGalleryView) return null;
+                if (checkCellIsEmpty(item.value) && !isGalleryView && !showNull) return null;
                 const content = (
                   <CellControl
                     from={4}
-                    cell={item}
+                    cell={_.find(data.formData, c => c.controlId === item.controlId) || item}
+                    rowFormData={() => data.formData || []}
                     sheetSwitchPermit={sheetSwitchPermit}
                     worksheetId={worksheetId}
                     viewId={viewId}

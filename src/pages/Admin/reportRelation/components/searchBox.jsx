@@ -112,7 +112,7 @@ class SearchInput extends Component {
           <input
             type="text"
             id="searchText"
-            placeholder={_l('搜索部门/员工')}
+            placeholder={_l('搜索员工')}
             value={keywords}
             className={keywords.length ? 'Gray' : ''}
             onChange={event => {

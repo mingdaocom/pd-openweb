@@ -355,6 +355,7 @@ export default class ChartSetting extends Component {
             <GroupingAxis
               reportType={reportType}
               split={currentReport.split}
+              xaxes={currentReport.xaxes}
               yaxisList={currentReport.yaxisList}
               disableParticleSizeTypes={disableParticleSizeTypes}
               axisControls={axisControls}
@@ -368,6 +369,7 @@ export default class ChartSetting extends Component {
             <GroupingAxis
               name={_l('分组(%0)', isDualAxes ? _l('辅助Y轴') : _l('数值2'))}
               split={currentReport.rightY.split}
+              xaxes={currentReport.xaxes}
               yaxisList={currentReport.rightY.yaxisList}
               disableParticleSizeTypes={disableParticleSizeTypes}
               axisControls={axisControls}
@@ -448,7 +450,7 @@ export default class ChartSetting extends Component {
   }
   renderTargetValueAxis() {
     const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
-    const { yaxisList, config } = currentReport;
+    const { yaxisList, config, formulas = [] } = currentReport;
     const targetList = config.targetList || [];
     return (
       <div className="fieldWrapper targetValueAxis mBottom20">
@@ -470,7 +472,7 @@ export default class ChartSetting extends Component {
             currentReport={currentReport}
             onChangeCurrentReport={changeCurrentReport}
             allControls={worksheetInfo.columns}
-            axisControls={axisControls}
+            axisControls={axisControls.concat(formulas)}
             addValueAxis={(data) => {
               this.props.addTargetValueAxis(index, data);
             }}

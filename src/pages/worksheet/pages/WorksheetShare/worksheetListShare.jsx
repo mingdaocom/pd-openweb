@@ -146,7 +146,7 @@ class WorksheetListShare extends React.Component {
                   {rowsList.length > 0 && (
                     <div className={cx('flexRow', { minW: coverCidData.length })}>
                       {this.getCardControlsForTitle(Controls)
-                        .filter(item => ![14, 43].includes(item.type) && controlState(item).visible)
+                        .filter(item => ![14, 43, 51].includes(item.type) && controlState(item).visible)
                         .slice(0, 7)
                         .map((control, i) => {
                           const itemType = control.sourceControlType || control.type;

@@ -2,6 +2,7 @@ import React, { Fragment, useState, useRef, useEffect } from 'react';
 import { useSetState, useTitle } from 'react-use';
 import worksheetAjax from 'src/api/worksheet';
 import externalPortalAjax from 'src/api/externalPortal';
+import projectEncryptAjax from 'src/api/projectEncrypt';
 import update from 'immutability-helper';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
@@ -14,6 +15,7 @@ import { getCurrentRowSize, getPathById } from './util/widgets';
 import { formatControlsData, getMsgByCode } from './util/data';
 import { getUrlPara, genWidgetsByControls, genControlsByWidgets, returnMasterPage, formatSearchConfigs } from './util';
 import Components from './widgetSetting/components';
+import { verifyModifyDialog } from './widgetSetting/components/VerifyModifyDialog';
 import './index.less';
 import { WHOLE_SIZE } from './config/Drag';
 import ErrorState from 'src/components/errorPage/errorState';
@@ -43,6 +45,8 @@ export default function Container(props) {
   const [queryConfigs, setQueryConfigs] = useState([]);
   // 外部门户开启状态
   const [enableState, setEnableState] = useState(false);
+  // 加密数据源
+  const [encryData, setEncryData] = useState([]);
   // 表单样式
   const [styleInfo, setStyle] = useState({
     activeStatus: true,
@@ -119,6 +123,7 @@ export default function Container(props) {
     if (targetControlId) {
       const activeControl = flattenControls.find(item => item.controlId === targetControlId) || {};
       setActiveWidget(activeControl);
+      setStyleInfo({ activeStatus: false });
       // 滚动到激活控件
       setTimeout(() => {
         const $ele = document.getElementById(`widget-${targetControlId}`);
@@ -149,14 +154,22 @@ export default function Container(props) {
         setEnableState(res.isEnable);
       });
     }
+    if (globalInfo && globalInfo.projectId) {
+      // 加密规则
+      projectEncryptAjax.getProjectEncryptRules({ projectId: globalInfo.projectId }).then(res => {
+        setEncryData(res.encryptRules);
+      });
+    }
   }, [globalInfo]);
 
   useEffect(() => {
+    // 子表配置,防止激活子表掉接口冲掉临时变更
     window.subListSheetConfig = {};
     setLoading({ getLoading: true });
     worksheetAjax
       .getWorksheetControls({
         worksheetId: sourceId,
+        getRelationSearch: true,
       })
       .then(({ code, data }) => {
         if (code === 1) {
@@ -275,7 +288,10 @@ export default function Container(props) {
     if (currentControls.length !== prevControls.length) return true;
     return currentControls.some(item => {
       const prevItem = find(prevControls, ({ controlId }) => item.controlId === controlId);
-      return !isEqual(_.omit(prevItem, ['half', 'relationControls']), _.omit(item, ['half', 'relationControls']));
+      return !isEqual(
+        _.omit(prevItem, ['half', 'relationControls', 'sourceEntityName', 'deleteAccount']),
+        _.omit(item, ['half', 'relationControls', 'sourceEntityName', 'deleteAccount']),
+      );
     });
   };
 
@@ -297,6 +313,20 @@ export default function Container(props) {
     }
   };
 
+  const relateToNewPage = toPage => {
+    if (isControlsModified()) {
+      verifyModifyDialog({
+        desc: _l('当前有尚未保存的更改，您在打开新页面前是否需要先保存这些更改'),
+        cancelText: _l('否，暂不打开'),
+        okText: _l('是，保存更改'),
+        handleSave,
+        toPage,
+      });
+    } else {
+      toPage();
+    }
+  };
+
   const widgetProps = {
     activeWidget,
     setActiveWidget: handleActiveSet,
@@ -308,11 +338,13 @@ export default function Container(props) {
     status,
     getLoading,
     queryConfigs,
+    encryData,
     updateQueryConfigs,
     allControls: genControlsByWidgets(widgets),
     enableState,
     styleInfo,
     setStyleInfo,
+    relateToNewPage,
     // 全局表信息
     globalSheetInfo: pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'groupId', 'roleType']),
   };

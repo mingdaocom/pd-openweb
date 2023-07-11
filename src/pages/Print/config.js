@@ -61,7 +61,7 @@ export const SYSTOPRINT = {
 
 export const SYSTOPRINTTXT = {
   ownerAccount: _l('拥有者：'),
-  createAccount: _l('创建者：'),
+  createAccount: _l('创建人：'),
   createTime: _l('创建时间：'),
   updateTime: _l('最近修改时间：'),
   updateAccount: _l('最近修改人：')

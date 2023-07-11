@@ -500,7 +500,7 @@ class KcMain extends Component {
                   />
                 </span>
                 <div className="kcToolbarRight transitions">
-                  <span className={cx('createUser ellipsis', { hide: isRecycle })}>{_l('创建者')}</span>
+                  <span className={cx('createUser ellipsis', { hide: isRecycle })}>{_l('创建人')}</span>
                   {!isRecycle ? (
                     <span
                       className={cx('editTime ellipsis', { disabledSort: currentRoot === PICK_TYPE.RECENT })}

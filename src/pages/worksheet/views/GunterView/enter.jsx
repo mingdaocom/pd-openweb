@@ -24,7 +24,15 @@ export default class GunterEnter extends Component {
     super(props);
   }
   render() {
-    const { isCharge, view, toCustomWidget, controls = [], updateWorksheetControls, sheetSwitchPermit } = this.props;
+    const {
+      isCharge,
+      view,
+      toCustomWidget,
+      controls = [],
+      updateWorksheetControls,
+      sheetSwitchPermit,
+      setViewConfigVisible,
+    } = this.props;
     const { begindate = '', enddate = '' } = getAdvanceSetting(view);
     let timeControls = controls.filter(
       item =>
@@ -71,6 +79,7 @@ export default class GunterEnter extends Component {
                     };
                   }
                   this.props.saveView(data, { ...viewNew, ...viewData });
+                  setViewConfigVisible(true);
                 }}
                 updateWorksheetControls={updateWorksheetControls}
                 view={view}

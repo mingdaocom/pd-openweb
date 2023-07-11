@@ -4,7 +4,7 @@ import flowNode from '../../../../api/flowNode';
 import _ from 'lodash';
 import styled from 'styled-components';
 
-const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47];
+const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47, 51];
 
 const Box = styled.ul`
   > li {
@@ -183,12 +183,12 @@ export default class WriteFields extends Component {
     updateSource({ formProperties });
   }
 
-  renderContent(data, showCard) {
+  renderContent({ data, showCard = false, isChildTable = false }) {
     const { hideTypes } = this.props;
 
     return (
       <Box className="mTop15">
-        <li className="flexRow" style={{ background: '#f4f4f4' }}>
+        <li className="flexRow">
           <div className="flex" />
           <div className="mLeft16">
             {!_.includes(hideTypes, 1) && (
@@ -269,7 +269,7 @@ export default class WriteFields extends Component {
                 )}
               </div>
               <div className="mLeft16">
-                {!this.isDisabled(item) && !_.includes(hideTypes, 2) && (
+                {!this.isDisabled(item) && (!isChildTable || !item.detailTable) && !_.includes(hideTypes, 2) && (
                   <Checkbox
                     checked={item.property === 2 || item.property === 3}
                     onClick={checked => this.onChange(item.id, checked ? 1 : 2)}
@@ -277,16 +277,18 @@ export default class WriteFields extends Component {
                 )}
               </div>
               <div className="mLeft16">
-                {!this.isDisabled(item, 'REQUIRED') && !_.includes(hideTypes, 3) && (
-                  <Checkbox
-                    checked={item.property === 3}
-                    onClick={checked => this.onChange(item.id, checked ? 2 : 3)}
-                  />
-                )}
+                {!this.isDisabled(item, 'REQUIRED') &&
+                  (!isChildTable || !item.detailTable) &&
+                  !_.includes(hideTypes, 3) && (
+                    <Checkbox
+                      checked={item.property === 3}
+                      onClick={checked => this.onChange(item.id, checked ? 2 : 3)}
+                    />
+                  )}
               </div>
               {showCard && (
                 <div className="mLeft16 mRight16" style={{ width: 60 }}>
-                  {!_.includes([14, 21, 40, 41, 42, 43, 45, 47, 49], item.type) && (
+                  {!_.includes([14, 21, 40, 41, 42, 43, 45, 47, 49, 51], item.type) && (
                     <Checkbox
                       checked={item.showCard}
                       onClick={checked => this.onChangeCard(item.id, checked ? 0 : 1)}
@@ -307,7 +309,7 @@ export default class WriteFields extends Component {
 
     return (
       <Fragment>
-        {this.renderContent(data, showCard)}
+        {this.renderContent({ data, showCard })}
 
         {showTableControls && (
           <Dialog
@@ -333,7 +335,7 @@ export default class WriteFields extends Component {
             <Switch
               className="mTop10"
               checked={selectItem.workflow}
-              text={selectItem.workflow ? _l('开启') : _l('关闭')}
+              text={selectItem.workflow ? _l('开启') : _l('关闭%03087')}
               onClick={() =>
                 this.setState({ selectItem: Object.assign({}, selectItem, { workflow: !selectItem.workflow }) })
               }
@@ -368,7 +370,7 @@ export default class WriteFields extends Component {
 
                 <div className="flex">
                   <div className="bold">{_l('列权限')}</div>
-                  {this.renderContent(selectItem.subFormProperties)}
+                  {this.renderContent({ data: selectItem.subFormProperties, isChildTable: true })}
                 </div>
               </div>
             )}

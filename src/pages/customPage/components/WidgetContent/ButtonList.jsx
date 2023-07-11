@@ -16,7 +16,7 @@ import { hrefReg } from 'src/pages/customPage/components/previewContent';
 import { RecordInfoModal } from 'mobile/Record';
 import { genUrl } from '../../util';
 import { connect } from 'react-redux';
-import { browserIsMobile, mdAppResponse } from 'src/util';
+import { browserIsMobile, mdAppResponse, addBehaviorLog } from 'src/util';
 import { getRequest } from 'src/util';
 import customBtnWorkflow from 'mobile/Record/socket/customBtnWorkflow';
 import { navigateTo } from 'src/router/navigateTo';
@@ -165,6 +165,10 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       } else {
         navigateTo(url);
       }
+
+      if (!viewId) {
+        addBehaviorLog('customPage', value); //浏览自定义页面埋点
+      }
     }
     if (action === 4 && value) {
       const url = genUrl(value, param, info);
@@ -291,7 +295,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
       const searchId = scanBtn.searchId ? scanBtn.searchId : '';
       window.mobileNavigateTo(`/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(result)}&filterId=${filterId}&searchId=${searchId}`);
     }
-    // 文本，调用业务流程
+    // 文本，调用封装业务流程
     if (config.text === 2) {
       runStartProcessByPBC(scanBtn, result);
     }

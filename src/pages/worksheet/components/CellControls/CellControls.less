@@ -277,6 +277,16 @@
     position: relative;
     top: 2px;
   }
+  &.allowOpenList {
+    cursor: pointer;
+    &:hover {
+      color: #2196f3;
+      .icon {
+        color: #2196f3;
+      }
+      background-color: #dfebfa;
+    }
+  }
 }
 
 .cellSwitch {
@@ -702,19 +712,17 @@
 .sheetViewTable {
   .cell.focus.editable {
     .guideText {
-      font-size: 13px;;
+      font-size: 13px;
       display: inline-block !important;
     }
   }
 }
-
 
 .workSheetTextCell {
   &.empty {
     text-align: left !important;
   }
 }
-
 
 .editableCellCon.maskHoverTheme {
   cursor: pointer;

@@ -9,6 +9,7 @@ import Empty from './common/TableEmpty';
 import { menuList, permissionObj } from './router.config.js';
 import Loadable from 'react-loadable';
 import { navigateTo } from 'router/navigateTo';
+import './index.less';
 import _ from 'lodash';
 
 const getComponent = component =>
@@ -122,8 +123,8 @@ export default class AdminEntryPoint extends PureComponent {
     // 根据权限控制模块展示
     const routesWithAuthority = _.reduce(
       menuList,
-      (result, { title, subMenuList = [] }) => {
-        let item = { title, subMenuList: subMenuList.filter(item => routeKeys.includes(item.key)) };
+      (result, { title, subMenuList = [], key }) => {
+        let item = { title, subMenuList: subMenuList.filter(item => routeKeys.includes(item.key)), key };
         return result.concat([item]);
       },
       [],

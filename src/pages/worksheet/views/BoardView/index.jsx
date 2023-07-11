@@ -165,6 +165,7 @@ function BoardView(props) {
     view.advancedSetting.freezenav,
     view.advancedSetting.navempty,
     view.advancedSetting.navshow,
+    view.moreSort,
     props.navGroupFilters,
   ]);
 

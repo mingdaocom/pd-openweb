@@ -38,12 +38,7 @@ function CreateAppItem(props) {
     };
   }, []);
 
-  const handleCreate = (type, name) => {
-    if (!name) {
-      alert(_l('请填写名称'), 3);
-      return;
-    }
-
+  const handleCreate = (type, args) => {
     if (singleRef) {
       singleRef.dispatch(
         createAppItem({
@@ -51,7 +46,7 @@ function CreateAppItem(props) {
           groupId: appItem ? appItem.parentGroupId || appItem.parentId : groupId,
           firstGroupId: appItem && appItem.parentGroupId ? groupId : undefined,
           type,
-          name: name.slice(0, 25),
+          ...args,
         }),
       );
     }

@@ -15,6 +15,7 @@ export { default as KeyPairs } from './KeyPairs';
 export { default as Member } from './Member';
 export { default as NodeNameInput } from './NodeNameInput';
 export { default as ParameterList } from './ParameterList';
+export { default as ProcessDetails } from './ProcessDetails';
 export { default as ProcessParameters } from './ProcessParameters';
 export { default as Schedule } from './Schedule';
 export { default as SelectFields } from './SelectFields';

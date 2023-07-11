@@ -57,9 +57,23 @@ export default {
      return $.api('Order', 'GetAuthorizeOrderPrice', args, options);
    },
   /**
+  * 获取专属算力实例规格列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getProjectComputingInstances: function (args, options = {}) {
+     
+     return $.api('Order', 'GetProjectComputingInstances', args, options);
+   },
+  /**
   * 获取增补用户拓展包订单总价
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
   * @param {integer} args.num 数量
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -73,6 +87,7 @@ export default {
   * 添加增补用户拓展包订单
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
   * @param {integer} args.num 数量
   * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
   * @param {Object} options 配置参数
@@ -87,6 +102,8 @@ export default {
   * 获取增补应用附件上传量拓展包订单总价
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
   * @param {integer} args.num 数量
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -100,6 +117,7 @@ export default {
   * 添加增补应用附件上传量拓展包订单
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
   * @param {integer} args.num 数量
   * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
   * @param {Object} options 配置参数
@@ -114,6 +132,8 @@ export default {
   * 获取增补应用拓展包订单总价
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
   * @param {integer} args.num 数量
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -127,6 +147,7 @@ export default {
   * 添加增补应用拓展包订单
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
   * @param {integer} args.num 数量
   * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
   * @param {Object} options 配置参数
@@ -141,6 +162,8 @@ export default {
   * 获取增补工作流拓展包订单总价
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
   * @param {integer} args.num 数量
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -154,6 +177,7 @@ export default {
   * 添加增补工作流拓展包订单
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
   * @param {integer} args.num 数量
   * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
   * @param {Object} options 配置参数
@@ -168,6 +192,8 @@ export default {
   * 获取本月工作流拓展包订单总价
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
   * @param {integer} args.num 数量
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -181,6 +207,7 @@ export default {
   * 添加本月增补工作流拓展包订单
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
   * @param {integer} args.num 数量
   * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
   * @param {Object} options 配置参数
@@ -195,6 +222,8 @@ export default {
   * 获取增补外部用户拓展包订单总价
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
   * @param {integer} args.num 数量
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -208,6 +237,8 @@ export default {
   * 获取增补外部用户续费订单总价
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
   * @param {integer} args.num 数量
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -221,6 +252,7 @@ export default {
   * 添加增补外部用户拓展包订单
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
   * @param {integer} args.num 数量
   * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
   * @param {Object} options 配置参数
@@ -248,6 +280,8 @@ export default {
   * 获取增补数据集成运行行数拓展包订单总价
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
   * @param {integer} args.num 数量
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -261,6 +295,7 @@ export default {
   * 添加增补数据集成运行行数拓展包订单
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
   * @param {integer} args.num 数量
   * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
   * @param {Object} options 配置参数
@@ -275,6 +310,8 @@ export default {
   * 获取本月增补数据集成运行行数拓展包订单总价
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
   * @param {integer} args.num 数量
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -288,6 +325,7 @@ export default {
   * 添加本月增补数据集成运行行数拓展包订单
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
   * @param {integer} args.num 数量
   * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
   * @param {Object} options 配置参数
@@ -297,6 +335,96 @@ export default {
    addMonthlyDataPipelineOrder: function (args, options = {}) {
      
      return $.api('Order', 'AddMonthlyDataPipelineOrder', args, options);
+   },
+  /**
+  * 获取专属算力实例订单总价
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
+  * @param {integer} args.num 数量
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getComputingInstanceOrderPrice: function (args, options = {}) {
+     
+     return $.api('Order', 'GetComputingInstanceOrderPrice', args, options);
+   },
+  /**
+  * 获取专属算力实例续费订单总价
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
+  * @param {integer} args.num 数量
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getComputingInstanceExtensionOrderPrice: function (args, options = {}) {
+     
+     return $.api('Order', 'GetComputingInstanceExtensionOrderPrice', args, options);
+   },
+  /**
+  * 添加专属算力实例订单
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {integer} args.num 数量
+  * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addComputingInstanceOrder: function (args, options = {}) {
+     
+     return $.api('Order', 'AddComputingInstanceOrder', args, options);
+   },
+  /**
+  * 添加专属算力实例续费订单
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.orderId 订单id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.id 实例id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addComputingInstanceExtensionOrder: function (args, options = {}) {
+     
+     return $.api('Order', 'AddComputingInstanceExtensionOrder', args, options);
+   },
+  /**
+  * 获取本月专属算力实例订单总价
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.orderId 续费订单ID
+  * @param {integer} args.num 数量
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMonthlyComputingInstanceOrderPrice: function (args, options = {}) {
+     
+     return $.api('Order', 'GetMonthlyComputingInstanceOrderPrice', args, options);
+   },
+  /**
+  * 添加专属算力实例订单
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.productId 产品规格ID
+  * @param {integer} args.num 数量
+  * @param {boolean} args.needSalesAssistance 是否需要明道云顾问
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addMonthlyComputingInstanceOrder: function (args, options = {}) {
+     
+     return $.api('Order', 'AddMonthlyComputingInstanceOrder', args, options);
    },
   /**
   * 其他方式付款（记录用户操作日志）
@@ -418,6 +546,8 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.orderId 订单id
+  * @param {string} args.productId 产品规格ID
+  * @param {string} args.id 实例id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -46,6 +46,7 @@ class TabList extends React.Component {
       loadInactiveUsers = () => {},
       loadApprovalUsers = () => {},
     } = this.props;
+    localStorage.removeItem('columnsInfoData');
     updateCursor('');
     updateTypeCursor(typeCursor);
     switch (typeCursor) {

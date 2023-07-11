@@ -208,7 +208,7 @@ const CLICK_ACTION = [
     svgIcon: 'qr_code_19'
   },
   {
-    text: _l('调用业务流程'),
+    text: _l('调用封装业务流程'),
     value: 6,
     svgIcon: 'custom_actions'
   }
@@ -595,7 +595,7 @@ function BtnSetting(props) {
                   value: 1,
                 },
                 {
-                  text: _l('调用业务流程'),
+                  text: _l('调用封装业务流程'),
                   value: 2,
                 },
                 {
@@ -712,7 +712,7 @@ function BtnSetting(props) {
         </Fragment>
       );
     }
-    // 调用业务流程
+    // 调用封装业务流程
     if (action === 6) {
       return (
         <Fragment>

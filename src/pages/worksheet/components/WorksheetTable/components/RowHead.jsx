@@ -193,7 +193,7 @@ export default function RowHead(props) {
               {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId, isCharge }}
               formdata={controls.map(c => ({ ...c, value: row[c.controlId] }))}
               shows={['share', 'print', 'copy', 'openinnew']}
-              allowCopy={allowAdd}
+              allowCopy={allowAdd && row.allowedit}
               defaultCustomButtons={customButtons}
               allowDelete={row.allowdelete}
               sheetSwitchPermit={sheetSwitchPermit}

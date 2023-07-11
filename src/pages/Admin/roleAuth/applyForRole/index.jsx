@@ -5,6 +5,7 @@ import RoleController from 'src/api/role';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Dialog from 'ming-ui/components/Dialog';
 import UserHead from 'src/pages/feed/components/userHead';
+import PaginationWrap from '../../components/PaginationWrap';
 
 import './style.less';
 import _ from 'lodash';
@@ -25,22 +26,6 @@ export default class ApplyForRole extends React.Component {
 
   componentWillMount() {
     this.fetchData();
-  }
-
-  componentDidUpdate() {
-    const { totalCount, pageIndex, pageSize } = this.state;
-    if (this.pager) {
-      $(this.pager)
-        .show()
-        .Pager({
-          pageIndex,
-          pageSize,
-          count: totalCount,
-          changePage: pageIndex => {
-            this.setState({ pageIndex }, this.fetchData);
-          },
-        });
-    }
   }
 
   fetchData() {
@@ -195,10 +180,11 @@ export default class ApplyForRole extends React.Component {
               </table>
               {isLoading ? <LoadDiv /> : null}
               {!isLoading && list && totalCount > pageSize ? (
-                <div
-                  ref={el => {
-                    this.pager = el;
-                  }}
+                <PaginationWrap
+                  total={totalCount}
+                  pageSize={pageSize}
+                  pageIndex={this.state.pageIndex}
+                  onChange={pageIndex => this.setState({ pageIndex }, this.fetchData)}
                 />
               ) : null}
             </div>

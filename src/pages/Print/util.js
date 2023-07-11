@@ -76,6 +76,129 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
             'value',
           ) || _l('%0 级', value)
         : '';
+    case 51:
+      if (item.advancedSetting && item.advancedSetting.showtype !== '2') {
+        let records = [];
+        try {
+          records = JSON.parse(value);
+        } catch (err) {
+          return null;
+        }
+        let list = (dataItem.relationControls || []).find(o => o.attribute === 1) || [];
+        if (list.type && ![29, 30, dataItem.sourceControlType].includes(list.type)) {
+          dataItem = { ...dataItem, sourceControlType: list.type };
+        }
+        // 1 卡片 2 列表 3 文本
+        if (item.advancedSetting && item.advancedSetting.showtype === '3') {
+          //下拉 显示关联表名称
+          if (item.isRelateMultipleSheet && records.length <= 0) {
+            return '';
+          }
+          let controlId = (item.relationControls.find(l => l.attribute === 1) || item.relationControls[0]).controlId;
+
+
+          return <span className="relaList">{records.map(l => l[controlId] || _l('未命名')).join(', ')}</span>;
+        }
+        //关联表内除标题字段外的其他字段
+        let showControlsList = [];
+        item.showControls.map(o => {
+          let data = (item.relationControls || []).find(it => it.controlId === o && it.attribute !== 1);
+          if (data) {
+            showControlsList.push(data);
+          }
+        });
+        //关联表的标题字段
+        let coverCidData = item.coverCid
+          ? (item.relationControls || []).filter(o => item.coverCid === o.controlId)
+          : [];
+        //平铺的关联表多条显示除了附件外的前三个
+        showControlsList = showControlsList.filter(o => o.type !== 14).splice(0, 3);
+        // 1 卡片 显示关联表名称
+        return _.isArray(records) && records.length > 0 ? (
+          <table className="relaList" style={STYLE_PRINT.table} border="0" cellPadding="0" cellSpacing="0">
+            <tbody>
+              {records.map((da, i) => {
+                let data = da;
+                let coverCid = coverCidData.length > 0 ? coverCidData[0].controlId || '' : '';
+                let cover = coverCid ? JSON.parse(data[coverCid] || '[]') : [];
+                let coverData = cover.length > 0 ? cover[0] : '';
+                let list = (item.relationControls || []).find(o => o.attribute === 1) || [];
+                return (
+                  <tr>
+                    <td className="listTextDiv">
+                      {list.type === 38
+                        ? renderCellText(item.controls.find(it => it.attribute === 1))
+                        : renderCellText({
+                            ...dataItem,
+                            type:
+                              list.type && ![29, 30, item.sourceControlType].includes(list.type)
+                                ? list.type
+                                : item.sourceControlType,
+                            value: data[list.controlId],
+                          }) || _l('未命名')}
+                      {showControlsList.map(it => {
+                        if (it.type === 41 || it.type === 22) {
+                          return '';
+                        }
+                        // 若设置不显示无内容字段=>计算内容
+                        if (
+                          item.showData &&
+                          !getPrintContent(
+                            { ...it, isRelateMultipleSheet: true, showUnit: true, printOption: false },
+                            it.type,
+                            data[it.controlId],
+                          )
+                        ) {
+                          return '';
+                        }
+                        return (
+                          <div>
+                            {it.controlName || _l('未命名')}
+                            {' : '}
+                            <div className="listRight">
+                              {/* 关联表单选多选不需要特殊处理 printOption: false */}
+                              {getPrintContent(
+                                { ...it, isRelateMultipleSheet: true, showUnit: true, printOption: false },
+                                it.type,
+                                data[it.controlId],
+                              ) || ''}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </td>
+                    {coverData && coverData.previewUrl && (
+                      <td width="100px">
+                        <img
+                          style={{
+                            width: 100,
+                            height: 100,
+                            verticalAlign: 'middle',
+                          }}
+                          className="cover thumbnail"
+                          role="presentation"
+                          src={
+                            File.isPicture(coverData.ext)
+                              ? coverData.previewUrl.indexOf('imageView2') > -1
+                                ? coverData.previewUrl.replace(
+                                    /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+                                    'imageView2/1/w/76/h/76/q/90',
+                                  )
+                                : `${coverData.previewUrl}&imageView2/1/w/76/h/76/q/90`
+                              : coverData.previewUrl
+                          }
+                        />
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : null;
+      } else {
+        return value;
+      }
     case 29:
       if (item.advancedSetting && item.advancedSetting.showtype !== '2') {
         //非列表
@@ -478,6 +601,8 @@ export const sysToPrintData = data => {
 
 export const isRelation = control => {
   return (
-    (control.type === 29 && control.advancedSetting && control.advancedSetting.showtype === '2') || control.type === 34
+    (control.type === 29 && control.advancedSetting && control.advancedSetting.showtype === '2') ||
+    control.type === 34 ||
+    (control.type === 51 && control.advancedSetting && control.advancedSetting.showtype === '2')
   );
 };

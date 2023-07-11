@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'src/pages/Role/PortalCon/redux/actions';
-import { WrapTableCon, WrapNav } from 'src/pages/Role/style';
+import { WrapTableCon, WrapNav, AddWrap } from 'src/pages/Role/style';
 import User from './User';
 import PendingReview from './PendingReview';
 import _ from 'lodash';
@@ -18,6 +18,7 @@ const Wrap = styled.div`
   height: 100%;
   .navConList {
     overflow: auto !important;
+    padding: 6px 8px 10px;
   }
   .optionNs {
     width: 20px;
@@ -225,7 +226,7 @@ class Con extends React.Component {
                   ...optList,
                   {
                     value: 1,
-                    text: _l('编辑角色权限'),
+                    text: _l('编辑角色'),
                   },
                   {
                     value: 2,
@@ -289,6 +290,20 @@ class Con extends React.Component {
                   </li>
                 );
               })
+            )}
+            {canEditApp && navList.length > 0 && (
+              <AddWrap
+                className="Hand"
+                onClick={() => {
+                  this.props.setQuickTag({ roleId: 'new', tab: 'roleSet' });
+                  setTimeout(() => {
+                    this.props.setQuickTag({ roleId: '', tab: 'roleSet' });
+                  }, 0);
+                }}
+              >
+                <i class="ming Icon icon-add icon icon-undefined"></i>
+                {_l('创建角色')}
+              </AddWrap>
             )}
           </ul>
         </div>

@@ -63,12 +63,14 @@ function DraftModal(props) {
   const {
     onCancel = () => {},
     appId,
+    view = {},
     worksheetInfo = {},
     sheetSwitchPermit,
     isCharge,
     allowAdd,
     sheetViewData = {},
     updateDraftDataCount = () => {},
+    setHighLightOfRows = () => {},
   } = props;
   const { worksheetId, projectId, rules = [], isWorksheetQuery, advancedSetting = {} } = worksheetInfo;
   const { rows } = sheetViewData;
@@ -336,6 +338,7 @@ function DraftModal(props) {
           isCharge={isCharge}
           allowAdd={allowAdd || advancedSetting.closedrafts !== '1'}
           appId={appId}
+          view={view}
           from={21}
           visible={recordInfoVisible}
           hideRecordInfo={closeId => {
@@ -377,6 +380,7 @@ function DraftModal(props) {
           loadDraftList={loadRows}
           currentSheetRows={records}
           addNewRecord={props.addNewRecord}
+          setHighLightOfRows={setHighLightOfRows}
         />
       )}
     </Modal>
@@ -385,7 +389,16 @@ function DraftModal(props) {
 export const openWorkSheetDraft = props => functionWrap(DraftModal, { ...props, closeFnName: 'onCancel' });
 
 function WorksheetDraft(props) {
-  const { appId, worksheetInfo = {}, sheetSwitchPermit, isCharge, sheetViewData = {}, allowAdd } = props;
+  const {
+    appId,
+    view = {},
+    worksheetInfo = {},
+    sheetSwitchPermit,
+    isCharge,
+    sheetViewData = {},
+    allowAdd,
+    setHighLightOfRows,
+  } = props;
   const [draftDataCount, setDraftDataCount] = useState(props.draftDataCount);
 
   useEffect(() => {
@@ -398,17 +411,18 @@ function WorksheetDraft(props) {
         className="mRight16 mTop4 Relative"
         onClick={() => {
           openWorkSheetDraft({
+            view,
             appId,
             worksheetInfo,
             sheetSwitchPermit,
             isCharge,
-            sheetViewData,
             sheetViewData,
             allowAdd,
             addNewRecord: props.addNewRecord,
             updateDraftDataCount: draftDataCount => {
               setDraftDataCount(draftDataCount);
             },
+            setHighLightOfRows,
           });
         }}
       >

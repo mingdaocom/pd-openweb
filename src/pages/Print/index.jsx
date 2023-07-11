@@ -17,6 +17,7 @@ import { getControlsForPrint, sysToPrintData, isRelation } from './util';
 import appManagementAjax from 'src/api/appManagement';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import _ from 'lodash';
+import { addBehaviorLog } from 'src/util';
 
 class PrintForm extends React.Component {
   constructor(props) {
@@ -254,6 +255,60 @@ class PrintForm extends React.Component {
     });
   };
 
+  getRowRelationRows = () => {
+    const { printData, params } = this.state;
+    const { worksheetId, rowId } = params;
+    const { receiveControls = [] } = printData;
+    let controls = receiveControls.filter(l => l.type === 51);
+    if (controls.length === 0) return;
+    let promiseList = controls.map(control => {
+      const { advancedSetting = {} } = control;
+      let _filter = safeParse(advancedSetting.resultfilters || '[]', 'array');
+      _filter.forEach((dat, index) => {
+        dat.groupFilters.forEach((item, i) => {
+          if(item.dynamicSource.find(l => l.cid==='current-rowid')) {
+            _filter[index].groupFilters[i] = {
+              ...item,
+              values: (item.values || []).concat(rowId)
+            }
+          }
+        })
+      })
+
+      return sheetAjax.getRowRelationRows({
+        worksheetId,
+        controlId: control.controlId,
+        getRules: true,
+        getWorksheet: true,
+        keywords: '',
+        pageIndex: 1,
+        pageSize: 1000,
+        rowId,
+        filterControls: _filter,
+      });
+    });
+    let _printData = _.cloneDeep(printData);
+    Promise.all(promiseList).then(res => {
+      printData.receiveControls.forEach((item, index) => {
+        let _index = controls.findIndex(l => l.controlId === item.controlId);
+        if (_index > -1 && item.type === 51) {
+          _printData.receiveControls[index].relationControls = res[_index].template.controls.map(l => {
+            return {
+              ...l,
+              checked: true,
+            };
+          });
+          _printData.receiveControls[index].value =
+            res[_index].data.length === 0 ? '' : JSON.stringify(res[_index].data);
+          _printData.receiveControls[index].relationsData = res[_index];
+        }
+      });
+      this.setState({
+        printData: _printData,
+      });
+    });
+  };
+
   getData = () => {
     const { params } = this.state;
     const {
@@ -342,7 +397,10 @@ class PrintForm extends React.Component {
           },
           isLoading: false,
         },
-        this.getApproval,
+        () => {
+          this.getApproval();
+          this.getRowRelationRows();
+        },
       );
     });
   };
@@ -535,8 +593,20 @@ class PrintForm extends React.Component {
     window.open(ajaxUrl);
   };
 
+  // 埋点
+  handleBehaviorLog = () => {
+    const { params = {} } = this.state;
+    const { isBatch, worksheetId, rowId, printId } = params;
+    if (isBatch) {
+      addBehaviorLog('batchPrintWord', worksheetId, { printId, msg: [rowId.split(',').length] });
+    } else {
+      addBehaviorLog('printWord', worksheetId, { printId, rowId });
+    }
+  };
+
   renderWordCon = () => {
     const { ajaxUrlStr, showPdf } = this.state;
+
     if (!showPdf) {
       return (
         <div className="toWordLoadCon">
@@ -556,6 +626,7 @@ class PrintForm extends React.Component {
               <p
                 className="downWord"
                 onClick={() => {
+                  this.handleBehaviorLog();
                   this.downFn();
                 }}
               >
@@ -569,6 +640,7 @@ class PrintForm extends React.Component {
               <div
                 className="toPdf"
                 onClick={() => {
+                  this.handleBehaviorLog();
                   this.setState({
                     showPdf: true,
                   });

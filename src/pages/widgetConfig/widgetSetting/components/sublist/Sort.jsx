@@ -32,8 +32,9 @@ export default function SubListSort(props) {
     >
       <SortConditions
         className="subListSortCondition"
-        columns={controls.filter(o => ![43].includes(o.type))}
+        columns={controls.filter(o => ![43, 49, 51].includes(o.type))}
         sortConditions={sorts}
+        showSystemControls
         onChange={setSorts}
         isSubList={true}
       />

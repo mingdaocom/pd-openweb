@@ -60,6 +60,7 @@ class RecordAction extends Component {
       rowId,
       handleUpdateWorksheetRow,
       handleBatchOperateCustomBtn, // 批量处理
+      batchOptCheckedData = [],
     } = this.props;
     this.setState({ custBtnName: btn.name });
     this.remark = undefined;
@@ -68,23 +69,15 @@ class RecordAction extends Component {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
-
-    const needConform = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM;
-
     const run = ({ remark } = {}) => {
-      const trigger = btn => {
+      const trigger = () => {
         if (_.isFunction(handleBatchOperateCustomBtn)) {
           handleBatchOperateCustomBtn(btn);
           return;
         }
         _this.triggerImmediately(btn);
       };
-
-      if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
-        // 填写字段
-        _this.remark = remark;
-        _this.fillRecord(btn);
-      } else if (_.get(btn, 'advancedSetting.enableremark') && remark) {
+      if (_.get(btn, 'advancedSetting.enableremark') && remark) {
         if (_.isFunction(handleUpdateWorksheetRow)) {
           handleUpdateWorksheetRow({
             worksheetId,
@@ -114,51 +107,81 @@ class RecordAction extends Component {
         trigger(btn);
       }
     };
-
-    const verifyAndRun = () => {
-      if (btn.verifyPwd) {
-        verifyPassword({
-          checkNeedAuth: true,
-          closeImageValidation: true,
-          success: run,
-          fail: () => {
-            MobileVertifyPassword.confirm({
-              title: _l('安全认证'),
-              inputName: _l('登录密码验证'),
-              passwordPlaceHolder: _l('输入当前用户（%0）的登录密码', md.global.Account.fullname),
-              onOk: run,
-            });
-          },
+    const handleTrigger = () => {
+      const needConfirm = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM;
+      function confirm({ onOk, onClose = () => {} } = {}) {
+        const { confirmcontent, enableremark, remarkname, remarkhint, remarkrequired, remarktype, remarkoptions } =
+          _.get(btn, 'advancedSetting') || {};
+        doubleConfirmFunc({
+          title: btn.confirmMsg,
+          description: confirmcontent,
+          enableRemark: enableremark,
+          remarkName: remarkname,
+          remarkHint: remarkhint,
+          remarkRequired: remarkrequired,
+          remarktype,
+          remarkoptions,
+          verifyPwd: btn.verifyPwd,
+          enableConfirm: btn.enableConfirm,
+          okText: btn.sureName,
+          cancelText: btn.cancelName,
+          btn,
+          onOk: onOk ? onOk : btnInfo => run(btnInfo),
+          onClose,
         });
+      }
+      if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
+        // 填写字段
+        _this.fillRecord({
+          ...btn,
+          confirm: !needConfirm
+            ? () => {}
+            : () =>
+                new Promise((resolve, reject) => {
+                  confirm({
+                    onOk: ({ remark }) => {
+                      _this.remark = remark;
+                      resolve();
+                    },
+                    onClose: reject,
+                  });
+                }),
+        });
+        return;
+      }
+      function verifyAndRun() {
+        if (btn.verifyPwd) {
+          verifyPassword({
+            checkNeedAuth: true,
+            closeImageValidation: true,
+            success: run,
+            fail: () => {
+              MobileVertifyPassword.confirm({
+                title: _l('安全认证'),
+                inputName: _l('登录密码验证'),
+                passwordPlaceHolder: _l('输入当前用户（%0）的登录密码', md.global.Account.fullname),
+                onOk: run,
+              });
+            },
+          });
+        } else {
+          run();
+        }
+      }
+      if (needConfirm) {
+        // 二次确认
+        confirm();
       } else {
-        run();
+        verifyAndRun();
       }
     };
-
-    if (needConform) {
-      const { confirmcontent, enableremark, remarkname, remarkhint, remarkrequired, remarktype, remarkoptions } =
-        _.get(btn, 'advancedSetting') || {};
-
-      doubleConfirmFunc({
-        title: btn.confirmMsg,
-        description: confirmcontent,
-        enableRemark: enableremark,
-        remarkName: remarkname,
-        remarkHint: remarkhint,
-        remarkRequired: remarkrequired,
-        remarktype,
-        remarkoptions,
-        verifyPwd: btn.verifyPwd,
-        enableConfirm: btn.enableConfirm,
-        okText: btn.sureName,
-        cancelText: btn.cancelName,
-        btn,
-        onOk: btnInfo => run(btnInfo),
-      });
-    } else if (btn.verifyPwd) {
-      verifyAndRun();
+    if (batchOptCheckedData.length > 1000) {
+      Modal.alert(_l('最大支持批量执行1000行记录，是否只选中并执行前1000行数据？'), '', [
+        { text: '取消', onPress: () => {} },
+        { text: '确认', onPress: () => handleTrigger() },
+      ]);
     } else {
-      run();
+      handleTrigger();
     }
     this.props.hideRecordActionVisible();
   };
@@ -214,6 +237,7 @@ class RecordAction extends Component {
     this.activeBtn = btn;
     this.masterRecord = {};
     this.fillRecordProps = {};
+    this.customButtonConfirm = btn.confirm;
     switch (caseStr) {
       case '11': // 本记录 - 填写字段
         this.btnRelateWorksheetId = worksheetId;
@@ -411,7 +435,7 @@ class RecordAction extends Component {
             className: 'flowToastInfo',
             content: (
               <div className="feedbackInfo">
-                <span className="custBtnName">{_l('“%0"', custBtnName)}</span>
+                <span className="custBtnName">“{custBtnName}”</span>
                 <span className="verticalAlignM">{_l('正在执行...')}</span>
               </div>
             ),
@@ -435,7 +459,7 @@ class RecordAction extends Component {
   handleAddRecordCallback = () => {
     const { isBatchOperate } = this.props;
     if (this.activeBtn.workflowType === 2) {
-      alert(_l('创建成功'), 3);
+      alert(_l('创建成功'));
     }
     !isBatchOperate && this.props.loadRow();
     this.props.loadCustomBtns();
@@ -469,6 +493,7 @@ class RecordAction extends Component {
             });
           }}
           {...fillRecordProps}
+          customButtonConfirm={this.customButtonConfirm}
         />
       </Modal>
     );
@@ -517,6 +542,7 @@ class RecordAction extends Component {
             });
           }}
           onAdd={this.handleAddRecordCallback}
+          customButtonConfirm={this.customButtonConfirm}
         />
       )
     );

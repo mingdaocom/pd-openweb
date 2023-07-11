@@ -2,6 +2,7 @@ import React from 'react';
 import { arrayOf, bool, func, number, string, shape } from 'prop-types';
 import styled from 'styled-components';
 import RecordCoverCard from '../RelateRecordCards/RecordCoverCard';
+import { get, find } from 'lodash';
 
 const Con = styled.div`
   padding: 10px 0;
@@ -25,6 +26,7 @@ export default function RecordCoverCardList(props) {
     onCardClick = () => {},
     onDelete = () => {},
   } = props;
+  const showControls = get(props, 'control.showControls') || [];
   return (
     <Con
       style={{
@@ -35,7 +37,9 @@ export default function RecordCoverCardList(props) {
         <RecordCoverCard
           style={{ margin: 0 }}
           key={i}
-          controls={controls}
+          controls={showControls
+            .map(scid => find(controls, c => c.controlId === scid))
+            .filter(c => c && c.attribute !== 1)}
           parentControl={control}
           data={record}
           viewId={viewId}

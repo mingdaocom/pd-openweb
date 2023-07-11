@@ -139,30 +139,19 @@ export default class Overview extends Component {
     };
   }
   componentDidMount() {
-    this.props.appId ? this.getAppOverviewData() : this.getOverviewData();
+    if (this.props.appId) {
+      return;
+    }
+    this.getOverviewData();
     this.getChartData();
   }
-  getAppOverviewData = () => {
-    const { projectId, appId } = this.props;
-    appManagement
-      .appUsageOverviewStatistics({
-        projectId,
-        appId,
-        pageIndex: 1,
-        pageSize: 50,
-        sortFiled: 'status',
-        sorted: false,
-      })
-      .then(({ list = [] }) => {
-        let overviewData = _.isEmpty(list) ? {} : list[0];
-        const { workSheetCount, rowCount, workFlowCount, userCount } = overviewData;
-        this.setState({ workSheetCount, rowCount, workFlowCount, userCount });
-      });
-  };
   getOverviewData = () => {
     const { projectId } = this.props;
     axios
-      .all([projectAjax.getProjectLicenseSupportInfo({ projectId }), processVersionAjax.getProcessUseCount({ companyId: projectId })])
+      .all([
+        projectAjax.getProjectLicenseSupportInfo({ projectId }),
+        processVersionAjax.getProcessUseCount({ companyId: projectId }),
+      ])
       .then(([data1, data2]) => {
         const { effectiveApkCount = 0, effectiveWorksheetCount = 0, effectiveWorksheetRowCount = 0 } = data1;
         const { useProcessCount: effectiveWorkflowCount } = data2;
@@ -204,75 +193,110 @@ export default class Overview extends Component {
         ...extra,
       })
       .then(({ workflow = {}, record = {}, app = {}, attachment = {} }) => {
-        const { totalNumberOfexecute = 0, statisticsResult: workflowStatisticsResult } = workflow;
-        const {
-          totalNumberOfRow = 0,
-          totalNumberOfPerson: recordTotal,
-          personStatisticsResult = [],
-          rowStatisticsResult = [],
-        } = record;
-        const { totalDegree = 0, totalNumberOfPerson: appTotal, degreeStatisticsResult = [] } = app;
-        const { totalCapacityUsage, statisticsResult: attachmentStatisticsResult } = attachment;
-        const apppersonStatisticsResult = app.personStatisticsResult || [];
-        let maxSize = Math.max(...attachmentStatisticsResult.map(item => item.value));
-        let maxValue = (maxSize / Math.pow(1024, 2)).toFixed(2) * 1;
-        this.setState({
-          totalNumberOfexecute: formatter(totalNumberOfexecute) + _l(' 次'),
-          workflowStatisticsResult: workflowStatisticsResult.map(item => ({ ...item, category: _l('工作流执行数') })),
-          totalCapacityUsage:
-            maxValue > 1024
-              ? formatter((totalCapacityUsage / Math.pow(1024, 3)).toFixed(2) * 1) + ' GB'
-              : formatter((totalCapacityUsage / Math.pow(1024, 2)).toFixed(2) * 1) + ' MB',
-          attachmentStatisticsResult: attachmentStatisticsResult.map(item => ({
-            ...item,
-            category: _l('附件上传量'),
-            value:
-              maxValue > 1024
-                ? (item.value / Math.pow(1024, 3)).toFixed(2) * 1
-                : (item.value / Math.pow(1024, 2)).toFixed(2) * 1,
-          })),
-          totalNumberOfRow: formatter(totalNumberOfRow) + _l(' 条'),
-          recordTotal: formatter(recordTotal) + _l(' 人'),
-          recordStatisticsResult: [
-            _.isEmpty(rowStatisticsResult)
-              ? [{ value1: 10000, value: 10000, category: _l('行记录数') }]
-              : rowStatisticsResult.map(item => ({
-                  ...item,
-                  value1: item.value,
-                  category: _l('行记录数'),
-                })),
-            _.isEmpty(personStatisticsResult)
-              ? [{ value1: 10000, value: 10000, category: _l('人数') }]
-              : personStatisticsResult.map(item => ({
-                  ...item,
-                  value2: item.value,
-                  category: _l('人数'),
-                })),
-          ],
-          totalDegree: formatter(totalDegree) + _l(' 次'),
-          appTotal: formatter(appTotal) + _l(' 人'),
-          appStatisticsResult: [
-            _.isEmpty(degreeStatisticsResult)
-              ? [{ value1: 10000, value: 10000, category: _l('次数') }]
-              : degreeStatisticsResult.map(item => ({
-                  ...item,
-                  value1: item.value,
-                  category: _l('次数'),
-                })),
-            _.isEmpty(apppersonStatisticsResult)
-              ? [{ value2: 10000, value: 10000, category: _l('人数') }]
-              : apppersonStatisticsResult.map(item => ({
-                  ...item,
-                  value2: item.value,
-                  category: _l('人数'),
-                })),
-          ],
-          loading: false,
-        });
+        this.updateChartData({ workflow, record, app, attachment });
       })
       .fail(err => {
         this.setState({ loading: false });
       });
+  };
+  updateChartData = ({ workflow = {}, record = {}, app = {}, attachment = {} }) => {
+    const { totalNumberOfexecute = 0, statisticsResult: workflowStatisticsResult } = workflow;
+    const {
+      totalNumberOfRow = 0,
+      totalNumberOfPerson: recordTotal,
+      personStatisticsResult = [],
+      rowStatisticsResult = [],
+    } = record;
+    const { totalDegree = 0, totalNumberOfPerson: appTotal, degreeStatisticsResult = [] } = app;
+    const { totalCapacityUsage, statisticsResult: attachmentStatisticsResult } = attachment;
+    const apppersonStatisticsResult = app.personStatisticsResult || [];
+    let maxSize = Math.max(...attachmentStatisticsResult.map(item => item.value));
+    let maxValue = (maxSize / Math.pow(1024, 2)).toFixed(2) * 1;
+    this.setState({
+      totalNumberOfexecute: formatter(totalNumberOfexecute) + _l(' 次'),
+      workflowStatisticsResult: workflowStatisticsResult.map(item => ({ ...item, category: _l('工作流执行数') })),
+      totalCapacityUsage:
+        maxValue > 1024
+          ? formatter((totalCapacityUsage / Math.pow(1024, 3)).toFixed(2) * 1) + ' GB'
+          : formatter((totalCapacityUsage / Math.pow(1024, 2)).toFixed(2) * 1) + ' MB',
+      attachmentStatisticsResult: attachmentStatisticsResult.map(item => ({
+        ...item,
+        category: _l('附件上传量'),
+        value:
+          maxValue > 1024
+            ? (item.value / Math.pow(1024, 3)).toFixed(2) * 1
+            : (item.value / Math.pow(1024, 2)).toFixed(2) * 1,
+      })),
+      totalNumberOfRow: formatter(totalNumberOfRow) + _l(' 条'),
+      recordTotal: formatter(recordTotal) + _l(' 人'),
+      recordStatisticsResult: [
+        _.isEmpty(rowStatisticsResult)
+          ? [{ value1: 10000, value: 10000, category: _l('行记录数') }]
+          : rowStatisticsResult.map(item => ({
+              ...item,
+              value1: item.value,
+              category: _l('行记录数'),
+            })),
+        _.isEmpty(personStatisticsResult)
+          ? [{ value1: 10000, value: 10000, category: _l('人数') }]
+          : personStatisticsResult.map(item => ({
+              ...item,
+              value2: item.value,
+              category: _l('人数'),
+            })),
+      ],
+      totalDegree: formatter(totalDegree) + _l(' 次'),
+      appTotal: formatter(appTotal) + _l(' 人'),
+      appStatisticsResult: [
+        _.isEmpty(degreeStatisticsResult)
+          ? [{ value1: 10000, value: 10000, category: _l('次数') }]
+          : degreeStatisticsResult.map(item => ({
+              ...item,
+              value1: item.value,
+              category: _l('次数'),
+            })),
+        _.isEmpty(apppersonStatisticsResult)
+          ? [{ value2: 10000, value: 10000, category: _l('人数') }]
+          : apppersonStatisticsResult.map(item => ({
+              ...item,
+              value2: item.value,
+              category: _l('人数'),
+            })),
+      ],
+      loading: false,
+    });
+  };
+  updateAppOverviewData = ({ list = [] }) => {
+    let overviewData = _.isEmpty(list) ? {} : list[0];
+    const { workSheetCount, rowCount, workFlowCount, userCount } = overviewData;
+    this.setState({ workSheetCount, rowCount, workFlowCount, userCount, loading: false });
+  };
+
+  getAuthor = () => {
+    this.setState({ loading: true });
+    const { projectId, appId } = this.props;
+    const { departmentInfo = {}, selectedDate, currentDimension, depFlag } = this.state;
+    let extra =
+      departmentInfo.departmentId && departmentInfo.departmentId.indexOf('org') > -1
+        ? {}
+        : { departmentId: departmentInfo.departmentId };
+    const promise1 = appManagement.appUsageOverviewStatistics({
+      projectId,
+      appId,
+      pageIndex: 1,
+      pageSize: 50,
+      sortFiled: 'status',
+      sorted: false,
+    });
+    const promise2 = appManagement.allUsageOverviewStatistics({
+      projectId,
+      appId,
+      dayRange: selectedDate,
+      dateDemension: selectedDate === 0 ? '1d' : currentDimension,
+      depFlag,
+      ...extra,
+    });
+    return Promise.all([promise1, promise2]);
   };
 
   renderChart = (data = [], isDualAxes, chartInfo) => {
@@ -461,7 +485,7 @@ export default class Overview extends Component {
           <div className="conditions flexRow">
             <div className="selectCondition flexRow flex">
               <Select
-                className="width200 mRight15"
+                className="width200 mRight15 mdAntSelect"
                 placeholder={_l('按部门')}
                 value={departmentInfo.departmentName}
                 dropdownRender={null}
@@ -474,7 +498,7 @@ export default class Overview extends Component {
               />
               {!this.props.appId && (
                 <Select
-                  className="width200 mRight15"
+                  className="width200 mRight15 mdAntSelect"
                   showSearch
                   defaultValue={appId}
                   options={appList}
@@ -495,7 +519,7 @@ export default class Overview extends Component {
                 />
               )}
               <Select
-                className="width200 mRight15"
+                className="width200 mRight15 mdAntSelect"
                 placeholder={_l('最近30天')}
                 value={selectedDate}
                 suffixIcon={<Icon icon="arrow-down-border" className="Font18" />}
@@ -537,14 +561,39 @@ export default class Overview extends Component {
           <div className="charContainer">
             <div className="Font15 fontWeight600 mBotto8 Black">
               {_l('应用访问量')}
-              <Tooltip text={<span>{_l('应用访问量统计仅包含组织内用户，不包含外部门户')}</span>}>
+              <Tooltip
+                popupPlacement="bottom"
+                text={
+                  <span>
+                    {_l('应用访问次数计数说明：')}
+                    <br />
+                    {_l('· 通过应用图标点击进入应用')}
+                    <br />
+                    {_l('· 通过系统消息打开了应用')}
+                  </span>
+                }
+              >
                 <Icon icon="info" className="Font16 Gray_9e mLeft12 hover_f3" />
               </Tooltip>
             </div>
             {this.renderChart(appStatisticsResult, true, { type: 'app', total1: totalDegree, total2: appTotal })}
           </div>
           <div className="charContainer">
-            <div className="Font15 fontWeight600 mBotto8 Black">{_l('记录创建量')}</div>
+            <div className="Font15 fontWeight600 mBotto8 Black">
+              {_l('记录创建量')}
+              <Tooltip
+                popupPlacement="bottom"
+                text={
+                  <span>
+                    {_l('记录创建次数计数说明：')}
+                    <br />
+                    {_l('通过工作表表单页面创建的记录、不包含Excel导入、工作流创建、API调用的方式')}
+                  </span>
+                }
+              >
+                <Icon icon="info" className="Font16 Gray_9e mLeft12 hover_f3" />
+              </Tooltip>
+            </div>
             {this.renderChart(recordStatisticsResult, true, {
               type: 'record',
               total1: totalNumberOfRow,
@@ -554,7 +603,7 @@ export default class Overview extends Component {
           <div className="charContainer">
             <div className="Font15 fontWeight600 mBotto8 Black">
               {_l('工作流执行数')}
-              <Tooltip text={<span>{_l('筛选条件“按部门”不生效')}</span>}>
+              <Tooltip text={<span>{_l('筛选条件“按部门”不生效')}</span>} popupPlacement="bottom">
                 <Icon icon="info" className="Font16 Gray_9e mLeft12 hover_f3" />
               </Tooltip>
             </div>

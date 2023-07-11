@@ -101,7 +101,7 @@ export default class UserListCon extends React.Component {
    * 添加部门
    */
   addDepartmentToRole = () => {
-    const { projectId = '', appRole = {}, roleId } = this.props;
+    const { projectId = '', appRole = {}, roleId, isExternal } = this.props;
     const { roleInfos = [] } = appRole;
     const roleInfo = roleInfos.find(o => o.roleId === roleId);
     new DialogSelectDept({
@@ -110,11 +110,12 @@ export default class UserListCon extends React.Component {
       unique: false,
       showCreateBtn: false,
       checkIncludeChilren: true, //选中是否包含子级
-      allProject:
-        !!projectId &&
-        ![APP_ROLE_TYPE.ADMIN_ROLE, APP_ROLE_TYPE.DEVELOPERS_ROLE, APP_ROLE_TYPE.RUNNER_ROLE].includes(
-          roleInfo.roleType, //管理员，开发者，运营者不能添加全组织
-        ),
+      allProject: isExternal
+        ? false
+        : !!projectId &&
+          ![APP_ROLE_TYPE.ADMIN_ROLE, APP_ROLE_TYPE.DEVELOPERS_ROLE, APP_ROLE_TYPE.RUNNER_ROLE].includes(
+            roleInfo.roleType, //管理员，开发者，运营者不能添加全组织
+          ),
       selectFn: (departments, departmentTrees) => {
         this.addRoleMembers(roleId, {
           departments,
@@ -144,15 +145,21 @@ export default class UserListCon extends React.Component {
     });
   };
 
+  getExternalNormalRoleId = () => {
+    const { appRole = {} } = this.props;
+    const { roleInfos = [] } = appRole;
+    return (roleInfos.filter(o => !sysRoleType.includes(o.roleType))[0] || {}).roleId;
+  };
+
   /**
    * 添加成员提交
    */
   addRoleMembers = (roleId, { users = [], departments = [], jobs = [], departmentTrees = [], addOrgRoleList = [] }) => {
-    const { projectId = '', appId = '', SetAppRolePagingModel, freshNum } = this.props;
+    const { projectId = '', appId = '', SetAppRolePagingModel, freshNum, isExternal } = this.props;
     AppAjax.addRoleMembers({
       projectId,
       appId,
-      roleId,
+      roleId: isExternal ? this.getExternalNormalRoleId() : roleId,
       userIds: _.map(users, ({ accountId }) => accountId),
       departmentIds: _.map(departments, ({ departmentId }) => departmentId),
       jobIds: _.map(jobs, ({ jobId }) => jobId),
@@ -197,15 +204,7 @@ export default class UserListCon extends React.Component {
   };
   delFromRole = () => {
     const { userIds = [], isAll = false } = this.state;
-    const {
-      appRole = {},
-      appId = '',
-      SetAppRolePagingModel,
-      setSelectedIds,
-
-      freshNum,
-      roleId,
-    } = this.props;
+    const { appRole = {}, appId = '', SetAppRolePagingModel, setSelectedIds, freshNum, roleId } = this.props;
     const { outsourcing = {}, userList = [] } = appRole;
     const { memberModels = [] } = outsourcing;
     let data = [...memberModels, ...userList].find(o => o.id === userIds[0].split('_')[0]);
@@ -247,8 +246,8 @@ export default class UserListCon extends React.Component {
     return userIds.map(o => o.split('_')[0]);
   };
   //批量编辑用户角色,添加角色
-  editRole = roleIds => {
-    const { roleId } = this.props;
+  editRole = (roleIds, cb) => {
+    const { roleId, isExternal } = this.props;
     const { appRole = {}, setOutsourcingList, setUserList, setUser, getRoleSummary } = this.props;
     const { outsourcing = {}, userList = [], user = {}, roleInfos = [] } = appRole;
     let { userIds = [] } = this.state;
@@ -273,11 +272,11 @@ export default class UserListCon extends React.Component {
         operater: md.global.Account.fullname,
       };
       //全部/外协 修改角色，数据更新优化
-      if ('all' === roleId) {
+      if ('all' === roleId || isExternal) {
         setUserList(
           userList.map(o => {
             if (userIds.includes(o.id)) {
-              return { ...o, ...data };
+              return { ...o, ...data, isManager: isExternal ? !o.isManager : o.isManager };
             } else {
               return o;
             }
@@ -287,7 +286,7 @@ export default class UserListCon extends React.Component {
           ...user,
           memberModels: user.memberModels.map(o => {
             if (userIds.includes(o.id)) {
-              return { ...o, ...data };
+              return { ...o, ...data, isManager: isExternal ? !o.isManager : o.isManager };
             } else {
               return o;
             }
@@ -306,7 +305,8 @@ export default class UserListCon extends React.Component {
           }),
         });
       }
-      getRoleSummary(appId);
+      cb && cb();
+      !isExternal && getRoleSummary(appId);
       this.setState({
         show: false,
         userIds: [],
@@ -358,7 +358,7 @@ export default class UserListCon extends React.Component {
   };
 
   renderCon = () => {
-    const { roleId = 'all', loading, appRole = {}, projectId, freshNum } = this.props;
+    const { roleId = 'all', loading, appRole = {}, projectId, freshNum, isExternal } = this.props;
     const { roleInfos = [] } = appRole;
     if (loading) {
       return <LoadDiv />;
@@ -403,7 +403,13 @@ export default class UserListCon extends React.Component {
             {...this.props}
             roleId={roleId}
             placeholder={_l('搜索用户')}
-            title={roleId === 'all' ? _l('全部') : (roleInfos.find(o => o.roleId === roleId) || {}).name}
+            title={
+              isExternal
+                ? _l('管理用户')
+                : roleId === 'all'
+                ? _l('全部')
+                : (roleInfos.find(o => o.roleId === roleId) || {}).name
+            }
             // des={roleId === 'all' ? '' : (roleInfos.find(o => o.roleId === roleId) || {}).description}
             isMyRole={
               roleId === 'all'
@@ -444,6 +450,11 @@ export default class UserListCon extends React.Component {
             changeUserRole={(userIds, isAll = false) => {
               this.setState({ show: true, userIds, isAll });
             }}
+            changeExternalManager={(dstRoleIds, userIds, isAll = false, cb) => {
+              this.setState({ userIds, isAll }, () => {
+                this.editRole(dstRoleIds, cb);
+              });
+            }}
           />
         );
     }
@@ -451,11 +462,11 @@ export default class UserListCon extends React.Component {
 
   render() {
     const { show, userIds = [] } = this.state;
-    const { roleId, appRole = {}, projectId, canEditUser } = this.props;
+    const { roleId, appRole = {}, projectId, canEditUser, isExternal } = this.props;
     const { outsourcing = {}, userList = [], roleInfos = [] } = appRole;
     const { memberModels = [] } = outsourcing;
     return (
-      <WrapTableCon className="flex overflowHidden flexColumn Relative">
+      <WrapTableCon className={cx('flex flexColumn Relative overflowHidden')}>
         {this.renderCon()}
         {show && (
           <BatchDialog

@@ -13,6 +13,8 @@ import { navigateTo } from 'src/router/navigateTo';
 import xss from 'xss';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import TaskCenterController from 'src/api/taskCenter';
+import worksheetAjax from 'src/api/worksheet';
+import { addBehaviorLog } from 'src/util';
 
 /**
  * 系统消息
@@ -58,6 +60,7 @@ export default class SystemMessage extends PureComponent {
         // 群组 和 好友
         if (href.indexOf('addresslist') > -1) {
           evt.preventDefault();
+          evt.stopPropagation();
           const { type, gid } = getRequest(href.slice(href.indexOf('?')));
 
           if (type === 'group' && gid) {
@@ -75,9 +78,17 @@ export default class SystemMessage extends PureComponent {
         // 工作流
         if (href.indexOf('workflowinstance') > -1) {
           evt.preventDefault();
+          evt.stopPropagation();
           const ids = href.slice(href.indexOf('workflowinstance') + 17).split('/');
           const div = document.createElement('div');
-
+          worksheetAjax
+            .getWorkItem({
+              instanceId: ids[0],
+              workId: ids[1],
+            })
+            .then(res => {
+              addBehaviorLog('worksheetRecord', res.worksheetId, { rowId: res.rowId }); // 埋点
+            });
           ReactDOM.render(
             <ExecDialog
               id={ids[0]}
@@ -94,6 +105,7 @@ export default class SystemMessage extends PureComponent {
         // 工作表导入
         if (href.indexOf('excelerrorpage') > -1) {
           evt.preventDefault();
+          evt.stopPropagation();
           const id = href.slice(href.indexOf('excelerrorpage') + 15).split('/');
           new ErrorDialog({ fileKey: id[0] });
           return;
@@ -101,6 +113,7 @@ export default class SystemMessage extends PureComponent {
         // 工作表导入
         if (href.indexOf('excelbatcherrorpage') > -1) {
           evt.preventDefault();
+          evt.stopPropagation();
           const id = href.slice(href.indexOf('excelbatcherrorpage') + 15).split('/');
           new ErrorDialog({ fileKey: id[1], isBatch: true });
           return;
@@ -117,7 +130,16 @@ export default class SystemMessage extends PureComponent {
         // 应用首页
         if (matchedAppPath && matchedAppPath === (href.match(/\/app\/([\w-]{36})/) || '')[0]) {
           evt.preventDefault();
+          evt.stopPropagation();
           navigateTo(new URL(href.startsWith('http') ? href : location.origin + href).pathname + '?from=system');
+        }
+
+        // 浏览应用埋点
+        if (/\/app\/([\w-]{36})$/.test(href)) {
+          evt.preventDefault();
+          const appId = (href.match(/[\w-]{36}/) || '')[0];
+          addBehaviorLog('app', appId);
+          return;
         }
       });
     }
@@ -136,9 +158,17 @@ export default class SystemMessage extends PureComponent {
 
     delete xss.whiteList.video;
     let content = Message.content || '';
+    const xssOptions = {
+      stripIgnoreTag: true,
+      whiteList: Object.assign({}, xss.whiteList, {
+        a: ['target', 'href', 'title', 'optype', 'opvalue', 'taskid', 'opuser', 't'],
+      }),
+    };
+
     if (md.global.Account.isPortal) {
       content = content.replace(/<a data-accountid=[^>]*/gi, '<a'); //外部门户不能点击用户
     }
+
     return (
       <div className="messageItem">
         <div className="Left">
@@ -156,26 +186,24 @@ export default class SystemMessage extends PureComponent {
                   __html: parse(
                     xss(
                       linkify(
-                        content
-                          .replace(/<a/g, '_$a_$')
-                          .replace(/<span/g, '_$span_$')
-                          .replace(/<br/g, '_$br_$')
-                          .replace(/<\//g, '_$/_$')
-                          .replace(/</g, '')
-                          .replace(/_\$a_\$/g, '<a')
-                          .replace(/_\$span_\$/g, '<span')
-                          .replace(/_\$br_\$/g, '<br')
-                          .replace(/_\$\/_\$/g, '</')
-                          .replace(/[\r\n]/g, '<br />')
-                          .replace(/&/g, '&amp;')
-                          .replace(/，<a href=.*personal\?type=enterprise.*<\/a>/gi, ''),
+                        xss(
+                          content
+                            .replace(/<a/g, '_$a_$')
+                            .replace(/<span/g, '_$span_$')
+                            .replace(/<br/g, '_$br_$')
+                            .replace(/<\//g, '_$/_$')
+                            .replace(/</g, '')
+                            .replace(/_\$a_\$/g, '<a')
+                            .replace(/_\$span_\$/g, '<span')
+                            .replace(/_\$br_\$/g, '<br')
+                            .replace(/_\$\/_\$/g, '</')
+                            .replace(/[\r\n]/g, '<br />')
+                            .replace(/&/g, '&amp;')
+                            .replace(/，<a href=.*personal\?type=enterprise.*<\/a>/gi, ''),
+                        ),
+                        xssOptions,
                       ),
-                      {
-                        stripIgnoreTag: true,
-                        whiteList: Object.assign({}, xss.whiteList, {
-                          a: ['target', 'href', 'title', 'optype', 'opvalue', 'taskid', 'opuser', 't'],
-                        }),
-                      },
+                      xssOptions,
                     ),
                   ),
                 }}

@@ -345,6 +345,7 @@ class DepartmentTree extends React.Component {
                   <span
                     className="departmentAction"
                     onClick={e => {
+                      localStorage.removeItem('columnsInfoData');
                       const target = e.target;
                       let top = $(target).offset().top - $('.departmentTreeBox').offset().top;
                       let height = $('.departmentTreeBox').height();

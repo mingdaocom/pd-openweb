@@ -1,7 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Dialog, Checkbox, Dropdown, Icon } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, SelectNodeObject, Member, SelectUserDropDown } from '../components';
+import {
+  DetailHeader,
+  DetailFooter,
+  SelectNodeObject,
+  Member,
+  SelectUserDropDown,
+  ProcessDetails,
+} from '../components';
 import cx from 'classnames';
 import { Tooltip } from 'antd';
 import _ from 'lodash';
@@ -38,12 +45,23 @@ export default class ApprovalProcess extends Component {
   /**
    * 获取节点详情
    */
-  getNodeDetail(props) {
+  getNodeDetail(props, { sId, fields } = {}) {
     const { processId, selectNodeId, selectNodeType } = props;
 
-    flowNode.getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType }).then(result => {
-      this.setState({ data: result });
-    });
+    flowNode
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, fields })
+      .then(result => {
+        if (sId && !fields) {
+          result.fields = [];
+          result.flowNodeMap = {};
+        }
+
+        if (fields) {
+          result = Object.assign(this.state.data, { fields: result.fields, flowNodeMap: result.flowNodeMap });
+        }
+
+        this.setState({ data: result });
+      });
   }
 
   /**
@@ -59,7 +77,7 @@ export default class ApprovalProcess extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { appId, name, selectNodeId, accounts, processConfig } = data;
+    const { appId, name, selectNodeId, accounts, processConfig, fields, flowNodeMap } = data;
 
     if (!selectNodeId) {
       alert(_l('必须先选择一个数据对象'), 2);
@@ -85,6 +103,8 @@ export default class ApprovalProcess extends Component {
         selectNodeId,
         accounts,
         processConfig,
+        fields,
+        flowNodeMap,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -105,8 +125,13 @@ export default class ApprovalProcess extends Component {
     ];
     const AutoPass = [
       { text: _l('发起人无需审批自动通过'), key: 'startEventPass' },
-      { text: _l('审批人为空时自动通过'), key: 'userTaskNullPass' },
       { text: _l('已审批过的审批人自动通过'), key: 'userTaskPass' },
+      { text: _l('审批人为空时自动通过'), key: 'userTaskNullPass' },
+      {
+        text: _l('验证必填字段'),
+        key: 'required',
+        tip: _l('勾选后，当有必填字段为空时不自动通过，仍需进行审批操作。[审批人为空时自动通过]不受此配置影响。'),
+      },
     ];
 
     return (
@@ -165,20 +190,34 @@ export default class ApprovalProcess extends Component {
 
             <div className="Font13 mTop20 bold">{_l('自动通过')}</div>
             {AutoPass.map((item, i) => (
-              <Checkbox
-                key={i}
-                className="mTop15 flexRow"
-                text={item.text}
-                checked={data.processConfig[item.key]}
-                onClick={checked =>
-                  this.updateSource({
-                    processConfig: Object.assign({}, data.processConfig, { [item.key]: !checked }),
-                  })
-                }
-              />
+              <div key={i} className="flexRow mTop15 alignItemsCenter">
+                <Checkbox
+                  text={item.text}
+                  checked={data.processConfig[item.key]}
+                  onClick={checked =>
+                    this.updateSource({
+                      processConfig: Object.assign({}, data.processConfig, { [item.key]: !checked }),
+                    })
+                  }
+                />
+                {item.tip && (
+                  <span className="workflowDetailTipsWidth mLeft5" data-tip={item.tip}>
+                    <Icon icon="info" className="Gray_9e" />
+                  </span>
+                )}
+              </div>
             ))}
           </Fragment>
         )}
+
+        <ProcessDetails
+          {...this.props}
+          processId={data.appId}
+          selectNodeId={data.startNodeId}
+          data={data}
+          getNodeDetail={({ fields }) => this.getNodeDetail(this.props, { sId: data.selectNodeId, fields })}
+          updateSource={this.updateSource}
+        />
       </Fragment>
     );
   }
@@ -188,7 +227,6 @@ export default class ApprovalProcess extends Component {
    */
   switchDataSource = selectNodeId => {
     const { data } = this.state;
-    const selectNodeObj = _.find(data.flowNodeList, item => item.nodeId === selectNodeId);
 
     if (data.selectNodeId) {
       Dialog.confirm({
@@ -198,11 +236,11 @@ export default class ApprovalProcess extends Component {
         ),
         okText: _l('确认更改'),
         onOk: () => {
-          this.updateSource({ selectNodeId, selectNodeObj });
+          this.getNodeDetail(this.props, { sId: selectNodeId });
         },
       });
     } else {
-      this.updateSource({ selectNodeId, selectNodeObj });
+      this.getNodeDetail(this.props, { sId: selectNodeId });
     }
   };
 

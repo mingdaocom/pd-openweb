@@ -2,10 +2,10 @@ import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import cx from 'classnames';
 
-export default ({ item }) => {
+export default ({ item, type }) => {
   return (
     <Link
-      to={`/workflowedit/${item.id}`}
+      to={`/workflowedit/${item.id}#type=${type}`}
       target="_blank"
       className={cx('flexColumn nameBox ThemeColor3', { unable: !item.enabled })}
     >

@@ -12,8 +12,9 @@ import GroupController from 'src/api/group';
 import chatAjax from 'src/api/chat';
 import _ from 'lodash';
 import '../../lib/mentionInput/js/mentionInput';
-import { isVideo, setCaretPosition, getToken } from 'src/util';
+import { setCaretPosition, getToken } from 'src/util';
 import { errorCode } from 'src/components/UploadFiles';
+import RegExp from 'src/util/expression';
 
 const recurShowFileConfirm = (up, files, i, length, cb) => {
   if (i >= length) {
@@ -196,7 +197,7 @@ export default class SendToolbar extends Component {
           const uploadFile = JSON.parse(response.response);
           const ext = uploadFile.fileExt;
           const isPicture = File.isPicture(ext);
-          const isVideoFile = isVideo(ext);
+          const isVideoFile = RegExp.isVideo(ext);
           const msg = isPicture ? `[${_l('图片')}]` : isVideoFile ? `[${_l('视频')}]` : `[${_l('文件')}] ${file.name}`;
           const type = isPicture
             ? Constant.MSGTYPE_PIC

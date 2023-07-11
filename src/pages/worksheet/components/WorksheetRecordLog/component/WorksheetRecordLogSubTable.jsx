@@ -194,6 +194,9 @@ function WorksheetRecordLogSubTable(props) {
           );
         });
       }
+      if (type === 36) {
+        _value = String(_value) === '1' ? '☑' : '☐';
+      }
       return (
         <span
           className={`rectTag ${

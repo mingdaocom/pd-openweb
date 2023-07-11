@@ -8,7 +8,9 @@ import {
   formatYaxisList,
   getMinValue,
   getChartColors,
-  getAuxiliaryLineConfig
+  getAuxiliaryLineConfig,
+  getControlMinAndMax,
+  getStyleColor
 } from './common';
 import { formatChartData as formatLineChartData } from './LineChart';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
@@ -98,7 +100,8 @@ export default class extends Component {
       rightYDisplay.title !== oldRightYDisplay.title ||
       rightYDisplay.minValue !== oldRightYDisplay.minValue ||
       rightYDisplay.maxValue !== oldRightYDisplay.maxValue ||
-      !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines)
+      !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
+      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules)
     ) {
       const config = this.getComponentConfig(nextProps);
       this.DualAxes.update(config);
@@ -129,7 +132,8 @@ export default class extends Component {
   getComponentConfig(props) {
     const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, split, sorts, style } = props.reportData;
     const splitId = split.controlId;
-    const { xdisplay, ydisplay, showPileTotal, isPile, legendType, auxiliaryLines } = displaySetup;
+    const xaxesId = xaxes.controlId;
+    const { xdisplay, ydisplay, showPileTotal, isPile, legendType, auxiliaryLines, colorRules } = displaySetup;
     const { position } = getLegendType(legendType);
     const sortsKey = sorts.map(n => _.findKey(n));
     const leftSorts = yaxisList.filter(item => sortsKey.includes(item.controlId));
@@ -144,7 +148,7 @@ export default class extends Component {
     let data =
       yreportType === reportTypes.LineChart
         ? formatLineChartData(map, yaxisList, displaySetup, splitId)
-        : formatBarChartData(map, yaxisList, splitId);
+        : formatBarChartData(map, yaxisList, splitId, xaxesId);
     let lineData = _.isEmpty(contrastMap) ? [] : formatLineChartData(contrastMap, rightY.yaxisList, { ...rightY.display }, _.get(rightY, 'split.controlId'));
     let names = [];
 
@@ -188,13 +192,31 @@ export default class extends Component {
     const leftAuxiliaryLineConfig = getAuxiliaryLineConfig(leftAuxiliaryLines, data, { yaxisList, colors });
     const rightAuxiliaryLines = filterAuxiliaryLines('right', auxiliaryLines, rightY.yaxisList);
     const rightAuxiliaryLineConfig = getAuxiliaryLineConfig(rightAuxiliaryLines, lineData, { yaxisList: rightY.yaxisList, colors: rightYColors });
+    const rule = _.get(colorRules[0], 'dataBarRule') || {};
+    const isRuleColor = yaxisList.length === 1 && _.isEmpty(split.controlId) && !_.isEmpty(rule);
+    const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
+    let index = -1;
+    const getRuleColor = () => {
+      if (index >= data.length - 1) {
+        index = -1;
+      }
+      index = index + 1;
+      const { value } = data[index] || {};
+      const color = getStyleColor({
+        value,
+        controlMinAndMax,
+        rule,
+        controlId: yaxisList[0].controlId
+      });
+      return color || colors[0];
+    }
 
     const columnConfig = {
       geometry: 'column',
       isGroup: !displaySetup.isPile,
       isStack: displaySetup.isPile,
       seriesField: 'groupName',
-      color: colors,
+      color: isRuleColor ? getRuleColor : colors,
       label: displaySetup.showNumber
         ? {
             position: displaySetup.isPile ? 'middle' : 'top',

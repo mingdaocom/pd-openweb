@@ -21,15 +21,21 @@ export default ({ accounts, multipleLevelAccounts }) => {
       }
 
       if (_.includes([USER_TYPE.ROLE, USER_TYPE.DEPARTMENT, USER_TYPE.JOB], obj.type)) {
+        const department =
+          obj.type === USER_TYPE.DEPARTMENT && obj.roleTypeId ? ` - ${DEPARTMENT_ORGANIZE[obj.roleTypeId]}` : '';
+
         if (obj.count === 0) {
           return (
             <Fragment key={i}>
-              <span className="yellow">{obj.roleName ? obj.roleName + `（${obj.entityName}）` : obj.entityName}</span>
+              <span className="yellow">
+                {obj.roleName ? obj.roleName + `（${obj.entityName}）` : obj.entityName}
+                {department}
+              </span>
               {split}
             </Fragment>
           );
         }
-        return (obj.roleName ? obj.roleName + `（${obj.entityName}）` : obj.entityName) + split;
+        return (obj.roleName ? obj.roleName + `（${obj.entityName}）` : obj.entityName) + department + split;
       } else {
         if (!obj.roleName || !obj.entityName) {
           return (

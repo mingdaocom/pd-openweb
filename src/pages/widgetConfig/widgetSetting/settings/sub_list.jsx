@@ -59,6 +59,7 @@ export default function SubListSetting(props) {
   const [subListMode, setMode] = useState('new');
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(batchcids.length > 0);
+  const [needUpdate, setUpdate] = useState(false);
 
   const [{ setTitleVisible, switchVisible, sortVisible }, setConfig] = useSetState({
     setTitleVisible: false,
@@ -94,7 +95,7 @@ export default function SubListSetting(props) {
     if (saveIndex && dataSource && !dataSource.includes('-')) {
       setLoading(true);
       worksheetAjax
-        .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
+        .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true, getControlType: 11 })
         .then(res => {
           const controls = _.get(res, ['template', 'controls']);
           const saveData = _.find(allControls, i => i.controlId === data.controlId);
@@ -148,7 +149,22 @@ export default function SubListSetting(props) {
   };
 
   const filterRelationControls = info => {
-    return (_.get(info, ['template', 'controls']) || []).filter(item => !_.includes([45, 47, 49], item.type));
+    const reControls = _.get(info, ['template', 'controls']) || _.get(info, 'relationControls') || [];
+    const needShow = (showControls || []).some(i => {
+      const c = _.find(reControls || [], a => a.controlId === i) || {};
+      return (
+        c.type === 34 ||
+        (c.type === 29 && String(c.enumDefault) === '2' && _.get(c, 'advancedSetting.showtype') === '2')
+      );
+    });
+    return reControls.filter(item =>
+      needShow
+        ? !_.includes([45, 47, 49, 51], item.type)
+        : !(
+            _.includes([34, 45, 47, 49, 51], item.type) ||
+            (item.type === 29 && String(item.enumDefault) === '2' && _.get(item, 'advancedSetting.showtype') === '2')
+          ),
+    );
   };
 
   useEffect(() => {
@@ -158,13 +174,17 @@ export default function SubListSetting(props) {
       setMode('new');
       return;
     }
-    if ((window.subListSheetConfig[controlId] || {}).status) {
+    if (
+      (window.subListSheetConfig[controlId] || {}).status &&
+      !needUpdate &&
+      (window.subListSheetConfig[controlId] || {}).resultCode === 1
+    ) {
       setMode(_.get(window.subListSheetConfig[controlId], 'mode'));
       return;
     }
     setLoading(true);
     worksheetAjax
-      .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true })
+      .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true, getControlType: 11 })
       .then(res => {
         const controls = filterRelationControls(res);
         const defaultShowControls = getDefaultShowControls(controls);
@@ -176,7 +196,12 @@ export default function SubListSetting(props) {
           sheetInfo: res,
         };
         setMode(res.type === 2 ? 'new' : 'relate');
-        let oriShowControls = isEmpty(showControls) ? defaultShowControls : showControls;
+        setUpdate(false);
+        let oriShowControls = isEmpty(showControls)
+          ? defaultShowControls
+          : _.isEmpty(showControls.filter(s => find(controls, c => c.controlId === s)))
+          ? defaultShowControls.slice(0, (showControls || []).length)
+          : showControls;
         let nextData = {
           showControls:
             res.type === 2 ? oriShowControls.filter(i => !_.includes(['caid', 'utime', 'ctime'], i)) : oriShowControls,
@@ -191,7 +216,7 @@ export default function SubListSetting(props) {
       .always(() => {
         setLoading(false);
       });
-  }, [dataSource]);
+  }, [dataSource, needUpdate]);
 
   const onOk = ({ createType, sheetId, appId, controlName }) => {
     // 从空白创建时,创建一个占位dataSource
@@ -232,6 +257,7 @@ export default function SubListSetting(props) {
             .then(res => {
               if (res) {
                 setMode('relate');
+                setUpdate(true);
                 if (window.subListSheetConfig[controlId]) {
                   window.subListSheetConfig[controlId].mode = 'relate';
                 }
@@ -378,7 +404,7 @@ export default function SubListSetting(props) {
           )}
         </SettingItem>
       )}
-      <DynamicDefaultValue {...props} />
+      <DynamicDefaultValue {...props} appId={sheetInfo.appId} />
       <SettingItem>
         <div className="settingItemTitle">{_l('操作')}</div>
         {DEFAULT_SETTING_OPTIONS.map(item => {

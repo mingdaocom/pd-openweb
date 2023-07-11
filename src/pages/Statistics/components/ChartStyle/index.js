@@ -234,7 +234,11 @@ export default class ChartStyle extends Component {
     );
   }
   renderNumberStyle() {
-    return numberStylePanelGenerator({ ...this.props, onChangeStyle: this.handleChangeStyle });
+    return numberStylePanelGenerator({
+      ...this.props,
+      onChangeStyle: this.handleChangeStyle,
+      onChangeDisplayValue: this.handleChangeDisplayValue
+    });
   }
   renderPreinstallStyle() {
     const { style } = this.props.currentReport;
@@ -981,6 +985,7 @@ export default class ChartStyle extends Component {
           columns={worksheetInfo.columns}
           currentReport={currentReport}
           onChangeCurrentReport={changeCurrentReport}
+          onChangeDisplayValue={this.handleChangeDisplayValue}
         />
       </Collapse.Panel>
     );
@@ -988,11 +993,11 @@ export default class ChartStyle extends Component {
   renderPivotTableFieldColor() {
     const { currentReport, changeCurrentReport } = this.props;
     return (
-      <Collapse.Panel header={_l('颜色')} key="pivotTableFieldColor">
+      <Collapse.Panel header={_l('颜色')} key="pivotTableFieldColor" className="pivotTableFieldColorPanel">
         <PivotTableFieldColor
           currentReport={currentReport}
           onChangeCurrentReport={changeCurrentReport}
-          onChangeStyle={this.handleChangeStyle}
+          onChangeDisplayValue={this.handleChangeDisplayValue}
         />
       </Collapse.Panel>
     );
@@ -1052,9 +1057,9 @@ export default class ChartStyle extends Component {
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.DualAxes, reportTypes.BidirectionalBarChart, reportTypes.WordCloudChart, reportTypes.GaugeChart, reportTypes.ProgressChart, reportTypes.ScatterChart].includes(reportType) &&
             this.renderDataFilter()}
           {![reportTypes.WordCloudChart].includes(reportType) && this.renderUnit()}
-          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable, reportTypes.WordCloudChart, reportTypes.GaugeChart, reportTypes.ProgressChart, reportTypes.ScatterChart, reportTypes.BidirectionalBarChart].includes(reportType) &&
+          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable, reportTypes.GaugeChart].includes(reportType) &&
             this.renderColor()}
-          {/*reportTypes.PivotTable === reportType && this.renderPivotTableFieldColor()*/}
+          {reportTypes.PivotTable === reportType && this.renderPivotTableFieldColor()}
         </Collapse>
       </div>
     );

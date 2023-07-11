@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Icon, Checkbox, Tooltip } from 'ming-ui';
+import { Dropdown, Icon, Checkbox, Tooltip, RadioGroup } from 'ming-ui';
 import { Text, FlexCenter } from 'worksheet/styled';
 import styled from 'styled-components';
 import { getAdvanceSetting } from 'src/util';
@@ -11,7 +11,12 @@ import Abstract from './components/Abstract';
 import CoverSetting from './components/CoverSettingCon';
 import DisplayControl from './components/DisplayControl';
 import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
-import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
+import {
+  NAVSHOW_TYPE,
+  HIERARCHY_VIEW_TYPE,
+  CONNECT_LINE_TYPE,
+  HIERARCHY_MIX_LEVEL,
+} from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 import _ from 'lodash';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 
@@ -76,15 +81,60 @@ const Wrap = styled.div`
     }
   }
 `;
+
+const HierarchyViewConfigWrap = styled.div`
+  text-align: center;
+  justify-content: space-between;
+  .hierachyViewCard {
+    width: 120px;
+    height: 70px;
+    border-radius: 6px;
+    color: #9e9e9e;
+    line-height: 70px;
+    background: #f8f8f8;
+    &:hover {
+      box-shadow: rgba(0,0,0,0.1) 0 3px 6px;
+    }
+    & + .activeIcon {
+      display: none;
+    }
+    &.active {
+      background: #f2f9ff;
+      color: #2196f3;
+      & + .activeIcon {
+        display: flex;
+        background-color: #2196f3;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        color: #fff;
+        height: 18px;
+        position: absolute;
+        right: -8px;
+        top: -6px;
+        width: 18px;
+      }
+    }
+  }
+`;
+
+const HierarchyViewConnectLineConfigWrap = styled(RadioGroup)`
+  .ming.Radio:first-child {
+    margin-right: 60px;
+  }
+`;
 export default class CardAppearance extends Component {
   static propTypes = {};
   static defaultProps = {};
   constructor(props) {
     super(props);
+    const { advancedSetting = {} } = props.view;
     this.state = {
       relateControls: [],
       emptyname: '',
       showChangeName: false,
+      hierarchyViewType: advancedSetting.hierarchyViewType || '0',
+      hierarchyViewConnectLine: advancedSetting.hierarchyViewConnectLine || '0',
+      minHierarchyLevel: advancedSetting.minHierarchyLevel || '0',
     };
   }
 
@@ -107,7 +157,7 @@ export default class CardAppearance extends Component {
   }
 
   render() {
-    const { showChangeName } = this.state;
+    const { showChangeName, hierarchyViewType, hierarchyViewConnectLine, minHierarchyLevel } = this.state;
     const { worksheetControls, currentSheetInfo, updateCurrentView, view, appId, columns } = this.props;
     const allCanSelectFieldsInBoardControls = filterAndFormatterControls({
       controls: worksheetControls,
@@ -319,6 +369,129 @@ export default class CardAppearance extends Component {
                   </div>
                 </SwitchStyle>
               </WrapBoard>
+            )}
+            <div
+              className="line mTop32 mBottom32"
+              style={{
+                borderBottom: '1px solid #EAEAEA',
+              }}
+            />
+          </Fragment>
+        )}
+        {isHierarchyView && (
+          <Fragment>
+            <div className="title withSwitchConfig" style={{ marginTop: '0px', height: '24px' }}>
+              {_l('显示样式')}
+            </div>
+            <div className="settingContent">
+              <HierarchyViewConfigWrap className="valignWrapper flex">
+                {HIERARCHY_VIEW_TYPE.map(item => {
+                  return (
+                    <div className="Relative">
+                      <div
+                        className={`hierachyViewCard mBottom8 Font48 ${item.icon} ${
+                          (hierarchyViewType || '0') === item.value ? 'active' : ''
+                        }`}
+                        onClick={() => {
+                          if (hierarchyViewType === item.value) {
+                            return;
+                          }
+                          const hadnleCoverPosition = {};
+                          if (hierarchyViewType === '0' && [0, 1].includes(view.coverType)) {
+                            hadnleCoverPosition.coverposition = '2';
+                          }
+                          this.setState(
+                            {
+                              hierarchyViewType: item.value,
+                            },
+                            () => {
+                              updateCurrentView({
+                                ...view,
+                                appId,
+                                advancedSetting: {
+                                  ...getAdvanceSetting(view),
+                                  hierarchyViewType: item.value,
+                                  ...hadnleCoverPosition,
+                                },
+                                editAttrs: ['advancedSetting'],
+                              });
+                            },
+                          );
+                        }}
+                      ></div>
+                      <div className="activeIcon">
+                        <span className="icon-done"></span>
+                      </div>
+                      <div>{item.text}</div>
+                    </div>
+                  );
+                })}
+              </HierarchyViewConfigWrap>
+            </div>
+            {hierarchyViewType === '0' && (
+              <div className="title mTop32 mBottom18 valignWrapper">
+                <span className="Font13 bold mRight60">{_l('连接线样式')}</span>
+                <HierarchyViewConnectLineConfigWrap
+                  size="middle"
+                  checkedValue={hierarchyViewConnectLine}
+                  data={CONNECT_LINE_TYPE}
+                  onChange={value => {
+                    if (hierarchyViewConnectLine === value) {
+                      return;
+                    }
+                    this.setState(
+                      {
+                        hierarchyViewConnectLine: value,
+                      },
+                      () => {
+                        updateCurrentView({
+                          ...view,
+                          appId,
+                          advancedSetting: {
+                            ...getAdvanceSetting(view),
+                            hierarchyViewConnectLine: value,
+                          },
+                          editAttrs: ['advancedSetting'],
+                        });
+                      },
+                    );
+                  }}
+                />
+              </div>
+            )}
+            {hierarchyViewType === '2' && (
+              <Fragment>
+                <div className="title title Font13 bold mTop32 mBottom18">{_l('竖向层级数')}</div>
+                <Dropdown
+                  className=""
+                  data={HIERARCHY_MIX_LEVEL}
+                  value={minHierarchyLevel}
+                  style={{ width: '100%' }}
+                  border
+                  onChange={value => {
+                    if (minHierarchyLevel === value) {
+                      return;
+                    }
+                    this.setState(
+                      {
+                        minHierarchyLevel: value,
+                      },
+                      () => {
+                        updateCurrentView({
+                          ...view,
+                          appId,
+                          advancedSetting: {
+                            ...getAdvanceSetting(view),
+                            minHierarchyLevel: value,
+                          },
+                          editAttrs: ['advancedSetting'],
+                        });
+                      },
+                    );
+                  }}
+                  placeholder={_l('2级')}
+                />
+              </Fragment>
             )}
             <div
               className="line mTop32 mBottom32"

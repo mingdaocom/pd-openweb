@@ -252,7 +252,7 @@ export default class EnterpriseCard extends Component {
       case 'default':
         return (
           <span className="Gray_9e">
-            {card.isProjectAdmin ? (card.isCreateUser ? _l('管理员') + _l('(创建者)') : _l('管理员')) : _l('普通成员')}
+            {card.isProjectAdmin ? (card.isCreateUser ? _l('管理员') + _l('(创建人)') : _l('管理员')) : _l('普通成员')}
           </span>
         );
     }

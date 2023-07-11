@@ -48,7 +48,7 @@ export default class Start extends Component {
   /**
    * 获取动作详情
    */
-  getNodeDetail = (appId, fields) => {
+  getNodeDetail = ({ appId = undefined, fields = undefined } = {}) => {
     const { processId, selectNodeId, selectNodeType, flowInfo, isIntegration } = this.props;
 
     flowNode
@@ -57,12 +57,12 @@ export default class Start extends Component {
         { isIntegration },
       )
       .then(result => {
-        if (result.appType === APP_TYPE.LOOP && !result.executeTime) {
-          result.executeTime = moment().format('YYYY-MM-DD 08:00');
-        }
-
         if (result.appType === APP_TYPE.PBC && !flowInfo.child && !result.controls.length) {
           result.controls = [{ controlId: uuidv4(), controlName: '', type: 2, alias: '', required: false, desc: '' }];
+        }
+
+        if (result.appType === APP_TYPE.APPROVAL_START && fields) {
+          result = Object.assign(this.state.data, { fields: result.fields, flowNodeMap: result.flowNodeMap });
         }
 
         this.setState({ data: result });
@@ -85,8 +85,10 @@ export default class Start extends Component {
     const { data, saveRequest } = this.state;
     // 处理按时间触发时间日期
     const isDateField =
-      _.get(_.find(data.controls, ({ controlId }) => controlId === _.get(data, 'assignFieldId')), 'type') ===
-      START_NODE_EXECUTE_DATE_TYPE;
+      _.get(
+        _.find(data.controls, ({ controlId }) => controlId === _.get(data, 'assignFieldId')),
+        'type',
+      ) === START_NODE_EXECUTE_DATE_TYPE;
     const {
       appId,
       appType,
@@ -112,6 +114,8 @@ export default class Start extends Component {
       processConfig,
       hooksAll,
       hooksBody,
+      fields,
+      flowNodeMap,
     } = data;
     let { time } = data;
     time = isDateField ? '' : time;
@@ -226,6 +230,8 @@ export default class Start extends Component {
           returns: returns.filter(o => !!o.name),
           processConfig,
           hooksBody,
+          fields,
+          flowNodeMap,
         },
         { isIntegration: this.props.isIntegration },
       )
@@ -242,7 +248,7 @@ export default class Start extends Component {
    * 切换工作表
    */
   switchWorksheet = appId => {
-    const refreshSource = () => this.getNodeDetail(appId);
+    const refreshSource = () => this.getNodeDetail({ appId });
 
     if (this.state.data.appId) {
       Dialog.confirm({
@@ -403,7 +409,12 @@ export default class Start extends Component {
                 )}
                 {data.triggerId === TRIGGER_ID.DISCUSS && <DiscussContent data={data} />}
                 {data.appType === APP_TYPE.APPROVAL_START && (
-                  <ApprovalProcess data={data} updateSource={this.updateSource} />
+                  <ApprovalProcess
+                    {...this.props}
+                    data={data}
+                    getNodeDetail={this.getNodeDetail}
+                    updateSource={this.updateSource}
+                  />
                 )}
               </Fragment>
             )}

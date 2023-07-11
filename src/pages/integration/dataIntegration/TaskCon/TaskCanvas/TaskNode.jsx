@@ -14,20 +14,8 @@ import Avator from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/com
 import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Des';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
-// 暂时不开放
-const Coding = styled.span`
-   {
-    padding: 0 10px;
-    text-align: center;
-    background: #4caf50;
-    border-radius: 3px;
-    color: #fff;
-    line-height: 24px;
-    .icon {
-      color: #fff;
-    }
-  }
-`;
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+
 const Wrap = styled.div`
   position: absolute;
   height: auto;
@@ -243,93 +231,94 @@ class TaskNode extends Component {
   };
 
   renderPopup = () => {
-    const { onAddNodes, nodeData } = this.props;
+    const { onAddNodes, nodeData, currentProjectId } = this.props;
     const { pathIds = [], nodeId, y } = nodeData;
     if (pathIds.length <= 0) {
       return;
     }
-    const { fromDt = {}, toDt = {} } = pathIds[0];
+    // const { fromDt = {}, toDt = {} } = pathIds[0];
+    const featureType = getFeatureStatus(currentProjectId, 26);
     return (
       <WrapAct>
-        {/* 暂时不开放 */}
-        <div className="Gray_bd Font12 pLeft16" style={{ height: 32 }}>
-          <Coding className="Font12 isCoding Bold InlineBlock">
-            <Icon icon={'auto_awesome'} className="mRight5 Font14 TxtMiddle" />
-            {_l('即将上线')}
-          </Coding>
-        </div>
         <ul>
           {ACTION_LIST.map(o => {
             return (
               <React.Fragment>
                 <li
-                  className={cx('flexRow alignItemsCenter Hand Alpha3', { Alpha3: o.type !== 'FILTER' })}
+                  className={cx('flexRow alignItemsCenter Hand', { Alpha3: o.type !== 'FILTER' })}
                   onClick={() => {
-                    return;
                     if (o.type !== 'FILTER') {
                       return;
                     }
-                    let nodeId = uuidv4();
-                    let addNodes = [];
-                    let updateNodes = [];
-                    //添加出两个节点（源+本身）
-                    if (['JOIN', 'UNION'].includes(o.type)) {
-                      let sourceNodeId = uuidv4();
-                      const newNode = {
-                        nodeId,
-                        name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
-                        nodeType: o.type,
-                        prevIds: nodeData.y === 0 ? [sourceNodeId] : [nodeData.nodeId, sourceNodeId],
-                        nextIds: nodeData.y === 0 ? [toDt.nodeId] : [],
-                      };
-                      const sourceNode = {
-                        nodeId: sourceNodeId,
-                        nodeType: 'SOURCE_TABLE',
-                        name: NODE_TYPE_LIST.find(a => a.nodeType === 'SOURCE_TABLE').name,
-                        prevIds: [],
-                        nextIds: [],
-                      };
-                      addNodes = [newNode, sourceNode];
-                    } else {
-                      const newNode = {
-                        nodeId,
-                        nodeType: o.type,
-                        name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
-                        nextIds: nodeData.y === 0 ? [toDt.nodeId] : [],
-                        prevIds: nodeData.y === 0 ? [] : [fromDt.nodeId],
-                      };
-                      addNodes = [newNode];
+                    //公有云的旗舰版可用
+                    if (featureType === '2') {
+                      buriedUpgradeVersionDialog(currentProjectId, 26);
+                      return;
                     }
-                    if (nodeData.y === 0) {
-                      let from = {
-                        ..._.omit(
-                          this.props.list.find(a => a.nodeId === fromDt.nodeId),
-                          ['x', 'y', 'pathIds'],
-                        ),
-                        nextIds: [nodeId],
-                      };
-                      updateNodes = [from];
-                    } else {
-                      let to = {
-                        ..._.omit(
-                          this.props.list.find(a => a.nodeId === toDt.nodeId),
-                          ['x', 'y', 'pathIds'],
-                        ),
-                        prevIds: [...toDt.prevIds.filter(o => o !== nodeData.nodeId), nodeId],
-                      };
-                      updateNodes = [to];
-                    }
-                    onAddNodes({ toAdd: addNodes, toUpdate: updateNodes, toDeleteIds: [] });
-                    // this.onAddNode({
-                    //   name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
-                    //   nodeType: o.type,
-                    //   upstreamId: nodeId,
-                    //   isOnTrunk: y <= 0,
-                    // });
+                    // let nodeId = uuidv4();
+                    // let addNodes = [];
+                    // let updateNodes = [];
+                    // //添加出两个节点（源+本身）
+                    // if (['JOIN', 'UNION'].includes(o.type)) {
+                    //   let sourceNodeId = uuidv4();
+                    //   const newNode = {
+                    //     nodeId,
+                    //     name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
+                    //     nodeType: o.type,
+                    //     prevIds: nodeData.y === 0 ? [sourceNodeId] : [nodeData.nodeId, sourceNodeId],
+                    //     nextIds: nodeData.y === 0 ? [toDt.nodeId] : [],
+                    //   };
+                    //   const sourceNode = {
+                    //     nodeId: sourceNodeId,
+                    //     nodeType: 'SOURCE_TABLE',
+                    //     name: NODE_TYPE_LIST.find(a => a.nodeType === 'SOURCE_TABLE').name,
+                    //     prevIds: [],
+                    //     nextIds: [],
+                    //   };
+                    //   addNodes = [newNode, sourceNode];
+                    // } else {
+                    //   const newNode = {
+                    //     nodeId,
+                    //     nodeType: o.type,
+                    //     name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
+                    //     nextIds: nodeData.y === 0 ? [toDt.nodeId] : [],
+                    //     prevIds: nodeData.y === 0 ? [] : [fromDt.nodeId],
+                    //   };
+                    //   addNodes = [newNode];
+                    // }
+                    // if (nodeData.y === 0) {
+                    //   let from = {
+                    //     ..._.omit(
+                    //       this.props.list.find(a => a.nodeId === fromDt.nodeId),
+                    //       ['x', 'y', 'pathIds'],
+                    //     ),
+                    //     nextIds: [nodeId],
+                    //   };
+                    //   updateNodes = [from];
+                    // } else {
+                    //   let to = {
+                    //     ..._.omit(
+                    //       this.props.list.find(a => a.nodeId === toDt.nodeId),
+                    //       ['x', 'y', 'pathIds'],
+                    //     ),
+                    //     prevIds: [...toDt.prevIds.filter(o => o !== nodeData.nodeId), nodeId],
+                    //   };
+                    //   updateNodes = [to];
+                    // }
+                    // onAddNodes({ toAdd: addNodes, toUpdate: updateNodes, toDeleteIds: [] });
+                    this.onAddNode({
+                      name: NODE_TYPE_LIST.find(a => a.nodeType === o.type).name,
+                      nodeType: o.type,
+                      upstreamId: nodeId,
+                      isOnTrunk: y <= 0,
+                    });
                   }}
                 >
                   <Icon type={o.icon} style={{ color: o.color }} className="Font17" />
                   <span className="Font14">{o.txt}</span>
+                  {o.type === 'FILTER' && featureType === '2' && (
+                    <Icon type={'auto_awesome'} style={{ color: '#FBB400' }} className="Font17 mLeft10" />
+                  )}
                 </li>
               </React.Fragment>
             );
@@ -348,7 +337,7 @@ class TaskNode extends Component {
       yN = pathIds[0].fromDt.y - pathIds[0].toDt.y;
       const id = `svg-${pathIds[0].fromDt.nodeId}-${pathIds[0].toDt.nodeId}`;
       const $svgWrap = document.getElementById(id);
-      if ($svgWrap.childElementCount > 0) {
+      if ($svgWrap && $svgWrap.childElementCount > 0) {
         $svgWrap.childNodes.forEach(child => $svgWrap.removeChild(child));
       }
       const draw = SVG(id).size('100%', '100%');
@@ -452,23 +441,24 @@ class TaskNode extends Component {
               <Des nodeData={nodeData} className="Font12 Gray_9e" />
             )}
           </div>
-          {/* 暂时不开放 */}
-          {/* <Trigger
-            action={['click']}
-            popupClassName="moOption"
-            getPopupContainer={() => document.body}
-            popupVisible={popupVisible}
-            onPopupVisibleChange={popupVisible => {
-              this.setState({ popupVisible });
-            }}
-            popupAlign={{
-              points: ['tr', 'br'],
-              offset: [0, 10],
-              overflow: { adjustX: true, adjustY: true },
-            }}
-            popup={
-              <MenuWrap>
-                <MenuItemWrap
+
+          {!['DEST_TABLE', 'SOURCE_TABLE'].includes(nodeData.nodeType) && (
+            <Trigger
+              action={['click']}
+              popupClassName="moOption"
+              getPopupContainer={() => document.body}
+              popupVisible={popupVisible}
+              onPopupVisibleChange={popupVisible => {
+                this.setState({ popupVisible });
+              }}
+              popupAlign={{
+                points: ['tr', 'br'],
+                offset: [0, 10],
+                overflow: { adjustX: true, adjustY: true },
+              }}
+              popup={
+                <MenuWrap>
+                  {/* <MenuItemWrap
                   icon={<Icon icon="edit" className="Font17 mLeft5" />}
                   onClick={e => {
                     this.setState({ popupVisible: false, showChangeName: true });
@@ -476,29 +466,33 @@ class TaskNode extends Component {
                   }}
                 >
                   {_l('重命名')}
-                </MenuItemWrap>
-                <RedMenuItemWrap
-                  icon={<Icon icon="delete1" className="Font17 mLeft5" />}
-                  onClick={e => {
-                    this.setState({ popupVisible: false, showDel: true });
-                    e.stopPropagation();
-                  }}
-                >
-                  {_l('删除')}
-                </RedMenuItemWrap>
-              </MenuWrap>
-            }
-          >
-            <MoreOperate
-              className="moreOperate mTop3"
-              style={popupVisible ? { display: 'inline-block' } : {}}
-              onClick={e => {
-                e.stopPropagation();
-              }}
+                </MenuItemWrap> */}
+                  {/* 除了目的地和源，都可删除 */}
+                  {!['DEST_TABLE', 'SOURCE_TABLE'].includes(nodeData.nodeType) && (
+                    <RedMenuItemWrap
+                      icon={<Icon icon="delete1" className="Font17 mLeft5" />}
+                      onClick={e => {
+                        this.setState({ popupVisible: false, showDel: true });
+                        e.stopPropagation();
+                      }}
+                    >
+                      {_l('删除')}
+                    </RedMenuItemWrap>
+                  )}
+                </MenuWrap>
+              }
             >
-              <i className="icon icon-task-point-more"></i>
-            </MoreOperate>
-          </Trigger> */}
+              <MoreOperate
+                className="moreOperate mTop3"
+                style={popupVisible ? { display: 'inline-block' } : {}}
+                onClick={e => {
+                  e.stopPropagation();
+                }}
+              >
+                <i className="icon icon-task-point-more"></i>
+              </MoreOperate>
+            </Trigger>
+          )}
         </div>
         {/*目的地后不能添加操作 */}
         {nodeData.nodeType !== 'DEST_TABLE' && (
@@ -515,6 +509,7 @@ class TaskNode extends Component {
               offset: [0, 10],
               overflow: { adjustX: true, adjustY: true },
             }}
+            zIndex={1000}
           >
             <AddNode size={24} className={cx('addNode', { visible })}>
               <i className="icon icon-add" />

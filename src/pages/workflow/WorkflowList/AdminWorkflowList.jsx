@@ -20,7 +20,10 @@ import WorkflowMonitor from './components/WorkflowMonitor';
 import _ from 'lodash';
 import moment from 'moment';
 
-const tablist = [{ tab: 'workflowList', tabName: _l('工作流') }, { tab: 'monitorTab', tabName: _l('监控') }];
+const tablist = [
+  { tab: 'workflowList', tabName: _l('工作流') },
+  { tab: 'monitorTab', tabName: _l('监控') },
+];
 
 const typeList = [
   { label: _l('全部类型'), value: '' },
@@ -267,8 +270,12 @@ export default class AdminWorkflowList extends Component {
             className={cx('flexColumn nameBox ThemeColor3 pointer', { unable: !item.enabled })}
             onClick={() => this.checkIsAppAdmin(item.apkId, item.id, item.processName)}
           >
-            <div className="ellipsis Font14">{item.processName}</div>
-            <div className="ellipsis Font12 Gray_bd">{item.apkName}</div>
+            <div className="ellipsis Font14" title={item.processName}>
+              {item.processName}
+            </div>
+            <div className="ellipsis Font12 Gray_bd" title={item.apkName}>
+              {item.apkName}
+            </div>
           </div>
         </div>
         <div className="columnWidth">{loading ? '-' : item.count.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,')}</div>
@@ -506,7 +513,7 @@ export default class AdminWorkflowList extends Component {
                   {/* {licenseType === 1 ? (
                     <Link
                       className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
-                      to={`/admin/expansionservice/${params.projectId}/workflow`}
+                      to={`/admin/expansionserviceWorkflow/${params.projectId}/workflow`}
                     >
                       {_l('购买升级包')}
                     </Link>
@@ -539,7 +546,7 @@ export default class AdminWorkflowList extends Component {
             </div>
             <div className="manageListSearch flexRow">
               <Select
-                className="w180 manageListSelect"
+                className="w180 mdAntSelect"
                 showSearch
                 defaultValue={apkId}
                 options={appList}
@@ -555,14 +562,14 @@ export default class AdminWorkflowList extends Component {
                 onChange={value => this.updateState({ apkId: value })}
               />
               <Select
-                className="w180 manageListSelect mLeft15"
+                className="w180 mdAntSelect mLeft15"
                 defaultValue={enabled}
                 options={enabledList}
                 suffixIcon={<Icon icon="arrow-down-border Font14" />}
                 onChange={value => this.updateState({ enabled: value })}
               />
               <Select
-                className="w180 manageListSelect mLeft15"
+                className="w180 mdAntSelect mLeft15"
                 defaultValue={processListType}
                 options={typeList}
                 suffixIcon={<Icon icon="arrow-down-border Font14" />}
@@ -571,7 +578,7 @@ export default class AdminWorkflowList extends Component {
 
               <div className="flex" />
               <Search
-                placeholder={_l('流程名称 / 创建者')}
+                placeholder={_l('流程名称 / 创建人')}
                 handleChange={keyWords => this.updateState({ keyWords: keyWords.trim() })}
               />
             </div>
@@ -607,7 +614,7 @@ export default class AdminWorkflowList extends Component {
                   <Icon icon="arrow-down" className={cx({ ThemeColor3: !isAsc && sortId === 'createdDate' })} />
                 </div>
               </div>
-              <div className="columnWidth">{_l('创建者')}</div>
+              <div className="columnWidth">{_l('创建人')}</div>
               <div className="w20 mRight20" />
             </div>
             {loading && pageIndex === 1 && <LoadDiv className="mTop15" />}
@@ -635,7 +642,7 @@ export default class AdminWorkflowList extends Component {
           title={_l('管理工作流“%0”', checkAdmin.title)}
           description={_l('如果你不是工作流所在应用的管理员，需要将自己加为管理员以获得权限')}
           cancelText=""
-          okText={checkAdmin.post ? _l('验证权限...') : _l('加为应用管理员')}
+          okText={checkAdmin.post ? _l('验证权限...') : _l('加为此应用管理员')}
           onOk={checkAdmin.post ? () => {} : this.addRoleMemberForAppAdmin}
           onCancel={() => this.setState({ checkAdmin: Object.assign({}, this.state.checkAdmin, { visible: false }) })}
         />

@@ -4,15 +4,22 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Dialog, Radio, ScrollView, Support, Icon, Tooltip } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { NODE_TYPE, ACTION_ID, APP_TYPE, TRIGGER_ID } from '../../enum';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, getCurrentProject } from 'src/util';
 import SelectApprovalProcess from '../../../components/SelectApprovalProcess';
 import _ from 'lodash';
+import CodeSnippet from '../../../components/CodeSnippet';
+import { Base64 } from 'js-base64';
+import cx from 'classnames';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 export default class CreateNodeDialog extends Component {
   constructor(props) {
     super(props);
+
+    const currentProject = getCurrentProject(props.flowInfo.companyId);
+    const isDisabled = !currentProject.isProjectAdmin && !currentProject.isSuperAdmin;
+
     this.state = {
       list: [
         {
@@ -285,7 +292,7 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 20,
-              name: _l('调用业务流程%03039'),
+              name: _l('调用封装业务流程%03039'),
               appType: 17,
               actionId: '500',
               iconColor: '#4C7D9E',
@@ -340,7 +347,7 @@ export default class CreateNodeDialog extends Component {
               name: _l('代码块%03044'),
               iconColor: '#4C7D9E',
               iconName: 'icon-url',
-              typeText: _l('选择代码块语言'),
+              typeText: _l('新建或选择已有代码片段'),
               secondList: [
                 {
                   type: 14,
@@ -353,6 +360,12 @@ export default class CreateNodeDialog extends Component {
                   name: _l('Python'),
                   actionId: '103',
                   describe: _l('使用Python语言'),
+                },
+                {
+                  type: 14,
+                  name: _l('从代码片段库中选择'),
+                  describe: _l('直接选择已有的代码片段'),
+                  isCustom: true,
                 },
               ],
             },
@@ -375,49 +388,66 @@ export default class CreateNodeDialog extends Component {
               name: _l('获取单条人员/部门/组织角色数据%03047'),
               iconColor: '#2196f3',
               iconName: 'icon-person_search',
-              typeText: _l('获取方式'),
+              isGroupList: true,
               secondList: [
                 {
-                  type: 1000,
-                  appType: 20,
-                  actionId: '20',
-                  name: _l('从人员字段获取'),
-                  describe: _l('从人员字段获取一名指定人员的相关信息'),
+                  typeText: _l('获取单条人员信息'),
+                  describe: _l(
+                    '获取一名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级（可选））',
+                  ),
+                  source: [
+                    {
+                      type: 1000,
+                      appType: 20,
+                      actionId: '20',
+                      name: _l('从成员字段获取'),
+                    },
+                    {
+                      type: 1000,
+                      appType: 20,
+                      actionId: '406',
+                      name: _l('从所有组织成员中查找'),
+                      disabled: isDisabled,
+                    },
+                  ],
                 },
                 {
-                  type: 1000,
-                  appType: 21,
-                  actionId: '20',
-                  name: _l('从部门字段获取'),
-                  describe: _l('从部门字段获取一个指定部门的相关信息'),
+                  typeText: _l('获取单条部门信息'),
+                  describe: _l('获取一个部门的相关信息，包含部门名称、部门负责人、部门人员及上下级部门'),
+                  source: [
+                    {
+                      type: 1000,
+                      appType: 21,
+                      actionId: '20',
+                      name: _l('从部门字段获取'),
+                    },
+                    {
+                      type: 1000,
+                      appType: 21,
+                      actionId: '406',
+                      name: _l('从所有组织部门中查找'),
+                      disabled: isDisabled,
+                    },
+                  ],
                 },
                 {
-                  type: 1000,
-                  appType: 24,
-                  actionId: '20',
-                  name: _l('从组织角色字段获取'),
-                  describe: _l('从组织角色字段获取一个指定角色的相关信息'),
-                },
-                {
-                  type: 1000,
-                  appType: 20,
-                  actionId: '406',
-                  name: _l('从组织人员中获取'),
-                  describe: _l('从当前组织的所有人员中获取一名指定人员的相关信息'),
-                },
-                {
-                  type: 1000,
-                  appType: 21,
-                  actionId: '406',
-                  name: _l('从组织部门中获取'),
-                  describe: _l('从当前组织的所有部门中获取一个指定部门的相关信息'),
-                },
-                {
-                  type: 1000,
-                  appType: 24,
-                  actionId: '406',
-                  name: _l('从组织角色中获取'),
-                  describe: _l('从当前组织的所有组织角色中获取一个指定角色的相关信息'),
+                  typeText: _l('获取单条组织角色信息'),
+                  describe: _l('获取一个组织角色的相关信息，包含角色名称、备注、角色下人员'),
+                  source: [
+                    {
+                      type: 1000,
+                      appType: 24,
+                      actionId: '20',
+                      name: _l('从组织角色字段获取'),
+                    },
+                    {
+                      type: 1000,
+                      appType: 24,
+                      actionId: '406',
+                      name: _l('从所有组织角色中查找'),
+                      disabled: isDisabled,
+                    },
+                  ],
                 },
               ],
             },
@@ -426,49 +456,67 @@ export default class CreateNodeDialog extends Component {
               name: _l('获取多条人员/部门/组织角色数据%03048'),
               iconColor: '#2196f3',
               iconName: 'icon-group-members',
-              typeText: _l('获取方式'),
+              isGroupList: true,
               secondList: [
                 {
-                  type: 1001,
-                  appType: 20,
-                  actionId: '401',
-                  name: _l('从人员字段获取'),
-                  describe: _l('从人员字段获取批量人员的相关信息'),
+                  typeText: _l('获取多条人员信息'),
+                  describe: _l(
+                    '获取多名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级（可选））',
+                  ),
+                  source: [
+                    {
+                      type: 1001,
+                      appType: 20,
+                      actionId: '401',
+                      name: _l('从成员字段获取'),
+                    },
+                    {
+                      type: 1001,
+                      appType: 20,
+                      actionId: '400',
+                      name: _l('从所有组织成员中查找'),
+                      disabled: isDisabled,
+                    },
+                  ],
                 },
                 {
-                  type: 1001,
-                  appType: 21,
-                  actionId: '401',
-                  name: _l('从部门字段获取'),
-                  describe: _l('从部门字段获取批量部门的相关信息'),
+                  typeText: _l('获取多条部门信息'),
+                  describe: _l('获取多个部门的相关信息，包含部门名称、部门负责人、部门人员及上下级部门'),
+                  source: [
+                    {
+                      type: 1001,
+                      appType: 21,
+                      actionId: '401',
+                      name: _l('从部门字段获取'),
+                    },
+                    {
+                      type: 1001,
+                      appType: 21,
+                      actionId: '400',
+                      name: _l('从所有组织部门中查找'),
+                      disabled: isDisabled,
+                    },
+                  ],
                 },
                 {
-                  type: 1001,
-                  appType: 24,
-                  actionId: '401',
-                  name: _l('从组织角色字段获取'),
-                  describe: _l('从组织角色字段获取批量角色的相关信息'),
-                },
-                {
-                  type: 1001,
-                  appType: 20,
-                  actionId: '400',
-                  name: _l('从组织人员中获取'),
-                  describe: _l('从当前组织的所有人员中获取批量人员的相关信息'),
-                },
-                {
-                  type: 1001,
-                  appType: 21,
-                  actionId: '400',
-                  name: _l('从组织部门中获取'),
-                  describe: _l('从当前组织的所有部门中获取批量部门的相关信息'),
-                },
-                {
-                  type: 1001,
-                  appType: 24,
-                  actionId: '400',
-                  name: _l('从组织角色中获取'),
-                  describe: _l('从当前组织的所有组织角色中获取批量角色的相关信息'),
+                  typeText: _l('获取多条组织角色信息'),
+                  describe: _l('获取多个组织角色的相关信息，包含角色名称、备注、角色下人员'),
+                  source: [
+                    {
+                      type: 1001,
+                      appType: 24,
+                      actionId: '401',
+                      name: _l('从组织角色字段获取'),
+                    },
+
+                    {
+                      type: 1001,
+                      appType: 24,
+                      actionId: '400',
+                      name: _l('从所有组织角色中查找'),
+                      disabled: isDisabled,
+                    },
+                  ],
                 },
               ],
             },
@@ -559,6 +607,7 @@ export default class CreateNodeDialog extends Component {
       moveType: 1,
       foldFeatures: safeParse(localStorage.getItem(`workflowFoldFeatures-${md.global.Account.accountId}`)) || {},
       showApprovalDialog: false,
+      showCodeSnippetDialog: false,
     };
 
     if (!_.includes([APP_TYPE.CUSTOM_ACTION, APP_TYPE.PBC], props.flowInfo.startAppType) || props.flowInfo.child) {
@@ -620,13 +669,13 @@ export default class CreateNodeDialog extends Component {
     // 渲染二级数据
     if (selectSecond) {
       return (
-        <div className="pTop20 pBottom15 pLeft12 pRight12">
-          {selectItem.typeText && <div className="bold pLeft10">{selectItem.typeText}</div>}
+        <div className="pTop20 pBottom15 pLeft20 pRight15">
+          {selectItem.typeText && <div className="bold pLeft10 Font14">{selectItem.typeText}</div>}
           {selectItem.type === NODE_TYPE.CODE && (
             <div className="Gray_75 mTop10 pLeft10">
               {_l('查看当前代码脚本的')}
               <a
-                href="https://help.mingdao.com/zh/flow34.html#%E4%BB%A3%E7%A0%81%E8%84%9A%E6%9C%AC%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83"
+                href="https://help.mingdao.com/flow34#%E4%BB%A3%E7%A0%81%E8%84%9A%E6%9C%AC%E8%BF%90%E8%A1%8C%E7%8E%AF%E5%A2%83"
                 className="ThemeColor3 ThemeHoverColor2 mLeft3"
                 target="_blank"
               >
@@ -635,16 +684,45 @@ export default class CreateNodeDialog extends Component {
             </div>
           )}
 
-          <ul className="secondNodeList">
-            {(selectItem.secondList || []).map((item, i) => {
-              return (
-                <li key={i} onClick={() => this.createNodeClick(item)}>
-                  <Radio className="Font15" text={item.name} disabled />
-                  <div className="Gray_75 Font13 mLeft30 mTop5">{item.describe}</div>
-                </li>
-              );
-            })}
-          </ul>
+          {selectItem.isGroupList ? (
+            (selectItem.secondList || []).map((item, i) => (
+              <Fragment key={i}>
+                <div className="bold pLeft10 Font14">{item.typeText}</div>
+                <div className="Gray_75 pLeft10 mTop5">{item.describe}</div>
+                <ul className="secondNodeList mBottom25 mTop10">
+                  {(item.source || []).map((o, j) => {
+                    return (
+                      <li
+                        key={j}
+                        className={cx('mTop0', { disabled: o.disabled })}
+                        onClick={() => {
+                          if (o.disabled) {
+                            alert(_l('仅组织管理员可以添加'), 3);
+                            return;
+                          }
+
+                          this.createNodeClick(Object.assign({}, o, { name: item.typeText }));
+                        }}
+                      >
+                        <Radio className="Font15" text={o.name} disabled />
+                      </li>
+                    );
+                  })}
+                </ul>
+              </Fragment>
+            ))
+          ) : (
+            <ul className="secondNodeList">
+              {(selectItem.secondList || []).map((item, i) => {
+                return (
+                  <li key={i} onClick={() => this.createNodeClick(item)}>
+                    <Radio className="Font15" text={item.name} disabled />
+                    <div className="Gray_75 mLeft30 mTop5">{item.describe}</div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       );
     }
@@ -688,7 +766,7 @@ export default class CreateNodeDialog extends Component {
                               '使用「发起审批流程」节点可提供更完整的审批能力，旧「审批」节点即将被下线。流程中已添加的审批节点不受影响，仍可以继续使用。',
                             )}
                           >
-                            <div className="Font12 nodeListOverdue">{_l('即将下线')}</div>
+                            <div className="Font12 nodeListOverdue">{_l('旧')}</div>
                           </Tooltip>
                         )}
                       </li>
@@ -861,6 +939,8 @@ export default class CreateNodeDialog extends Component {
       buriedUpgradeVersionDialog(flowInfo.companyId, featureId);
     } else if (item.type === NODE_TYPE.APPROVAL_PROCESS && !item.isNew) {
       this.setState({ showApprovalDialog: true });
+    } else if (item.type === NODE_TYPE.CODE && item.isCustom) {
+      this.setState({ showCodeSnippetDialog: true });
     } else {
       this.addFlowNode({
         actionId: item.actionId,
@@ -911,7 +991,8 @@ export default class CreateNodeDialog extends Component {
 
   render() {
     const { nodeId, selectAddNodeId, flowInfo } = this.props;
-    const { selectItem, selectSecond, showDialog, showBranchDialog, showApprovalDialog } = this.state;
+    const { selectItem, selectSecond, showDialog, showBranchDialog, showApprovalDialog, showCodeSnippetDialog } =
+      this.state;
 
     return (
       <ReactCSSTransitionGroup
@@ -926,6 +1007,7 @@ export default class CreateNodeDialog extends Component {
               '.workflowLineBtn .icon-custom_add_circle',
               '.mui-dialog-container',
               '.workflowCopyBtn',
+              '.ming.List',
             ]}
             onClickAway={() => selectAddNodeId('')}
           >
@@ -948,7 +1030,7 @@ export default class CreateNodeDialog extends Component {
                     className="createNodeExplain"
                     type={2}
                     text={_l('了解这些动作')}
-                    href="https://help.mingdao.com/zh/flow51.html"
+                    href="https://help.mingdao.com/flow51"
                   />
                 </Fragment>
               )}
@@ -973,10 +1055,28 @@ export default class CreateNodeDialog extends Component {
                     name: _l('发起审批'),
                     prveId: nodeId,
                     typeId: NODE_TYPE.APPROVAL_PROCESS,
-                    approvalId: processId,
+                    appId: processId,
                   })
                 }
                 onCancel={() => this.setState({ showApprovalDialog: false })}
+              />
+            )}
+
+            {showCodeSnippetDialog && (
+              <CodeSnippet
+                projectId={flowInfo.companyId}
+                type={0}
+                onSave={({ actionId, inputData, code }) => {
+                  this.setState({ showCodeSnippetDialog: false });
+                  this.addFlowNode({
+                    actionId,
+                    name: actionId === ACTION_ID.JAVASCRIPT ? _l('JavaScript') : _l('Python'),
+                    prveId: nodeId,
+                    typeId: NODE_TYPE.CODE,
+                    appId: JSON.stringify({ inputData, code: Base64.encode(code) }),
+                  });
+                }}
+                onClose={() => this.setState({ showCodeSnippetDialog: false })}
               />
             )}
           </ClickAwayable>

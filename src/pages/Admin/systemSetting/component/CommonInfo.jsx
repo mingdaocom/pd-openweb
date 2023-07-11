@@ -291,7 +291,7 @@ export default class CommonInfo extends Component {
               </div>
               <div className="common-info-row mTop24">
                 <div className="common-info-row-label">{_l('组织名称')}</div>
-                {companyDisplayName && <span className="mRight16">{_l(`${companyDisplayName}`)}</span>}
+                {companyDisplayName && <span className="mRight16">{companyDisplayName}</span>}
                 <button
                   type="button"
                   className="ming Button Button--link ThemeColor3 adminHoverColor"

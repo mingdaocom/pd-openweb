@@ -56,7 +56,7 @@ export default class PBC extends Component {
         result.fields = [{ fieldName: '', desc: '', type: 2, fieldId: uuidv4() }];
       }
 
-      if (appId && result.name === _l('调用业务流程')) {
+      if (appId && result.name === _l('调用封装业务流程')) {
         result.name = result.appList.find(item => item.id === appId).name;
       }
 

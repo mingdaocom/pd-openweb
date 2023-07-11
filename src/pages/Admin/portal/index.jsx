@@ -304,7 +304,7 @@ export default class Portal extends Component {
               {/* <span className="Gray_9e mRight5">{_l('%0天后到期', expireDays)}</span> */}
               <Link
                 className="ThemeColor3 ThemeHoverColor2  NoUnderline"
-                to={`/admin/expansionservice/${this.props.match.params.projectId}/portalupgrade`}
+                to={`/admin/expansionservicePotal/${this.props.match.params.projectId}/portalupgrade`}
               >
                 {_l('续费')}
               </Link>
@@ -315,7 +315,7 @@ export default class Portal extends Component {
           {/* {showOption && (
             <Link
               className={cx('ThemeColor3 ThemeHoverColor2  NoUnderline', { mLeft20: !allowUpgradeExternalPortal })}
-              to={`/admin/expansionservice/${this.props.match.params.projectId}/portaluser`}
+              to={`/admin/expansionservicePotal/${this.props.match.params.projectId}/portaluser`}
             >
               {_l('扩充')}
             </Link>

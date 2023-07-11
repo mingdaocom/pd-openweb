@@ -7,6 +7,7 @@ export const listConfigStr = {
   11: _l('讨论'),//工作表讨论
   12: _l('日志'),//工作表日志
   13: _l('从Excel导入数据'),
+  14: _l('回收站'),
   500: _l('统计'),
   50: _l('公共'),
   51: _l('个人'),
@@ -36,16 +37,17 @@ export const batch = [24, 26, 23, 27, 28, 29]; //批量操作下的操作
 export const statisticsConst = 500; //统计
 export const statistics = [50, 51]; //统计下的操作
 export const noRangeList = [25, 40, statisticsConst]; //没有范围选择
-export const hasRangeList = [...batch, 10, 11, 12, 13, ...statistics, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 41]; //有作用范围
+export const hasRangeList = [...batch, 10, 11, 12, 13, 14, ...statistics, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 41]; //有作用范围
 export const helfList = [10, 22, 23, 33, 32, 40]; //有帮助提示
 export const listPermit = [
-  10, 11, 12, 13, 500, 50, 51, 20, 21, 22, 25, 24, 26, 23, 27, 28, 29, 30, 36, 35, 32, 33, 34, 40, 41,
+  10, 11, 12, 13, 14, 500, 50, 51, 20, 21, 22, 25, 24, 26, 23, 27, 28, 29, 30, 36, 35, 32, 33, 34, 40, 41,
 ];
 export const permitList = {
   createButtonSwitch: 10, // createButtonSwitch 显示创建按钮
   discussSwitch: 11, // discussSwitch 工作表讨论
   logSwitch: 12, // logSwitch 工作表日志
   importSwitch: 13, // importSwitch 导入数据
+  sheetTrash: 14, // 工作表回收站
   statisticsSwitch: 50, // 公共统计
   statisticsSelfSwitch: 51, // 个人统计
   viewShareSwitch: 20, // viewShareSwitch 分享视图

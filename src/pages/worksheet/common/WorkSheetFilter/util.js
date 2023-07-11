@@ -257,7 +257,7 @@ export function checkConditionAvailable(condition) {
 }
 
 export function getConditionOverrideValue(type, condition) {
-  const { conditionGroupType, value, values, dateRange, dateRangeType } = condition;
+  const { conditionGroupType, value, values, dateRange, dateRangeType, fullValues } = condition;
   const base = {
     type,
     values: [],
@@ -268,6 +268,8 @@ export function getConditionOverrideValue(type, condition) {
     dateRangeType: 1,
     dynamicSource: [],
     isDynamicsource: false,
+    // 兼容values清空，fullValues值还存在的问题
+    ...(_.isUndefined(fullValues) ? {} : { fullValues: _.isEmpty(values) ? [] : fullValues }),
   };
   if (type === FILTER_CONDITION_TYPE.ISNULL || type === FILTER_CONDITION_TYPE.HASVALUE) {
     return base;
@@ -519,6 +521,14 @@ export function getFilterTypes(control = {}, conditionType, from) {
   if (from === 'subTotal') {
     typeEnums = typeEnums.filter(type => type !== FILTER_CONDITION_TYPE.ALLCONTAIN);
   }
+  if (control.encryId) {
+    typeEnums = [
+      FILTER_CONDITION_TYPE.EQ,
+      FILTER_CONDITION_TYPE.NE,
+      FILTER_CONDITION_TYPE.ISNULL,
+      FILTER_CONDITION_TYPE.HASVALUE,
+    ];
+  }
   return typeEnums.map(filterType => ({
     value: filterType,
     text: getFilterTypeLabel(typeKey, filterType, control),
@@ -528,7 +538,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
 function getDefaultFilterType(control) {
   // 文本类
   if (_.includes([2, 3, 4, 5, 7, 32, 33], control.type)) {
-    return FILTER_CONDITION_TYPE.LIKE;
+    return FILTER_CONDITION_TYPE.EQ;
   }
   // 数值类
   if (_.includes([6, 8, 25, 31, 37], control.type)) {
@@ -543,8 +553,9 @@ function getDefaultFilterType(control) {
   if (_.includes([15, 46], control.type)) {
     return FILTER_CONDITION_TYPE.DATEENUM;
   }
-  if (_.includes([29, 35], control.type)) {
-    return FILTER_CONDITION_TYPE.RCEQ;
+  // 29 关联、35 级联、9 10 11 选项、26 人员、27 部门、48 角色
+  if (_.includes([29, 35, 9, 10, 11, 26, 27, 48], control.type)) {
+    return FILTER_CONDITION_TYPE.ARREQ;
   }
 }
 
@@ -699,6 +710,7 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
         API_ENUM_TO_TYPE.EMBED,
         API_ENUM_TO_TYPE.BARCODE,
         API_ENUM_TO_TYPE.CASCADER,
+        API_ENUM_TO_TYPE.RELATESEARCH,
       ];
       return _.filter(contorls, items => !_.includes(typeList, items.type));
     // 电话、证件、邮件
@@ -827,18 +839,18 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
   }
 }
 
-export function getFilter({ control, formData = [] }) {
+export function getFilter({ control, formData = [], filterKey = 'filters' }) {
   if (
     !control ||
     _.isEmpty(control.advancedSetting) ||
-    _.isEmpty(control.advancedSetting.filters) ||
-    control.advancedSetting.filters === '[]'
+    _.isEmpty(control.advancedSetting[filterKey]) ||
+    control.advancedSetting[filterKey] === '[]'
   ) {
     return [];
   }
   let conditions;
   try {
-    conditions = JSON.parse(control.advancedSetting.filters);
+    conditions = JSON.parse(control.advancedSetting[filterKey]);
   } catch (err) {
     return [];
   }
@@ -903,7 +915,7 @@ export function fillConditionValue({ condition, formData, relateControl }) {
     },
     {
       controlId: 'caid',
-      controlName: _l('创建者'),
+      controlName: _l('创建人'),
       type: 26,
     },
     {
@@ -927,6 +939,13 @@ export function fillConditionValue({ condition, formData, relateControl }) {
   const { cid } = dynamicSource;
   if (!cid) {
     return;
+  }
+  if (cid === 'current-rowid') {
+    if (!relateControl.recordId) {
+      return;
+    }
+    condition.values = [relateControl.recordId];
+    return condition;
   }
   let dynamicControl;
   dynamicControl = _.find(formData, c => c && c.controlId === cid);

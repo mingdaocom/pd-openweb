@@ -91,11 +91,7 @@ export default class CustomButtons extends React.Component {
         _this.triggerImmediately(btn.btnId);
         triggerCallback();
       }
-      if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
-        // 填写字段
-        _this.remark = remark;
-        _this.fillRecord(btn);
-      } else if (_.get(btn, 'advancedSetting.enableremark') && remark) {
+      if (_.get(btn, 'advancedSetting.enableremark') && remark) {
         if (_.isFunction(handleUpdateWorksheetRow)) {
           handleUpdateWorksheetRow({
             worksheetId,
@@ -131,20 +127,8 @@ export default class CustomButtons extends React.Component {
       });
     }
     function handleTrigger() {
-      const needConform = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM;
-      function verifyAndRun() {
-        if (btn.verifyPwd) {
-          verifyPassword({
-            checkNeedAuth: true,
-            success: run,
-            fail: () => verifyConform(),
-          });
-        } else {
-          run();
-        }
-      }
-      if (needConform) {
-        // 二次确认
+      const needConfirm = btn.enableConfirm || btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM;
+      function confirm({ onOk, onClose = () => {} } = {}) {
         confirmClick({
           title: btn.confirmMsg,
           description: _.get(btn, 'advancedSetting.confirmcontent'),
@@ -157,8 +141,42 @@ export default class CustomButtons extends React.Component {
           verifyPwd: btn.verifyPwd,
           okText: btn.sureName,
           cancelText: btn.cancelName,
-          onOk: run,
+          onOk: onOk || run,
+          onClose,
         });
+      }
+      if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.FILL_RECORD) {
+        _this.fillRecord({
+          ...btn,
+          confirm: needConfirm
+            ? () =>
+                new Promise((resolve, reject) => {
+                  confirm({
+                    onOk: ({ remark }) => {
+                      _this.remark = remark;
+                      resolve(remark);
+                    },
+                    onClose: reject,
+                  });
+                })
+            : undefined,
+        });
+        return;
+      }
+      function verifyAndRun() {
+        if (btn.verifyPwd) {
+          verifyPassword({
+            checkNeedAuth: true,
+            success: run,
+            fail: () => verifyConform(),
+          });
+        } else {
+          run();
+        }
+      }
+      if (needConfirm) {
+        // 二次确认
+        confirm();
       } else {
         verifyAndRun();
       }
@@ -327,6 +345,7 @@ export default class CustomButtons extends React.Component {
     const addRelationControl = _.find(rowInfo.formData || [], c => c.controlId === btn.addRelationControl);
     this.activeBtn = btn;
     this.fillRecordProps = {};
+    this.customButtonConfirm = btn.confirm;
     switch (caseStr) {
       case '11': // 本记录 - 填写字段
         this.btnRelateWorksheetId = worksheetId;
@@ -483,7 +502,7 @@ export default class CustomButtons extends React.Component {
   }
 
   renderDialogs() {
-    const { worksheetId, viewId, appId, recordId, projectId, isBatchOperate, triggerCallback } = this.props;
+    const { isCharge, worksheetId, viewId, appId, recordId, projectId, isBatchOperate, triggerCallback } = this.props;
     const { rowInfo, fillRecordControlsVisible, newRecordVisible } = this.state;
     const { activeBtn = {}, fillRecordId, btnRelateWorksheetId, fillRecordProps } = this;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
@@ -491,6 +510,7 @@ export default class CustomButtons extends React.Component {
       <React.Fragment key="dialogs">
         {fillRecordControlsVisible && (
           <FillRecordControls
+            isCharge={isCharge}
             isBatchOperate={isBatchOperate}
             className="recordOperateDialog"
             title={activeBtn.name}
@@ -510,6 +530,7 @@ export default class CustomButtons extends React.Component {
               triggerCallback();
             }}
             {...fillRecordProps}
+            customButtonConfirm={this.customButtonConfirm}
           />
         )}
         {newRecordVisible && (
@@ -527,8 +548,8 @@ export default class CustomButtons extends React.Component {
               btnId: this.activeBtn.btnId,
               btnWorksheetId: worksheetId,
               btnRowId: recordId,
-              btnRemark: this.remark,
             }}
+            customButtonConfirm={this.customButtonConfirm}
             defaultRelatedSheet={{
               worksheetId,
               relateSheetControlId: activeBtn.addRelationControl,

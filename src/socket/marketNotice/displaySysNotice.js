@@ -13,12 +13,14 @@ export default function sysNotice(data) {
         title: title,
         description: desc,
         duration: null,
-        btnList: [
-          {
-            text: _l('查看详情'),
-            onClick: () => window.open(link),
-          },
-        ],
+        btnList: link
+          ? [
+              {
+                text: _l('查看详情'),
+                onClick: () => window.open(link),
+              },
+            ]
+          : [],
         onClose: function () {
           $.ajax({
             dataType: 'jsonp',

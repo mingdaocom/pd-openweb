@@ -221,7 +221,10 @@ export const getOptions = data => (data.options || []).filter(item => !item.isDe
 
 export const getShowControls = (controls = [], showControls = []) => {
   // 删除掉showControls 中已经被删掉的控件
-  const allControlId = controls.concat(SYSTEM_CONTROLS).map(item => item.controlId);
+  const allControlId = controls
+    .filter(i => !_.includes([51], i.type))
+    .concat(SYSTEM_CONTROLS)
+    .map(item => item.controlId);
   return showControls
     .map(id => {
       if (!allControlId.includes(id)) return '';

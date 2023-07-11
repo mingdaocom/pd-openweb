@@ -1,6 +1,6 @@
 import React, { useState, useReducer, useEffect, useRef } from 'react';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
-import { Modal, Dialog, Checkbox } from 'ming-ui';
+import { Modal, Dialog, Checkbox, VerifyPasswordConfirm } from 'ming-ui';
 import styled from 'styled-components';
 import update from 'immutability-helper';
 import worksheetAjax from 'src/api/worksheet';
@@ -11,6 +11,7 @@ import ColumnHead from './TrashColumnHead';
 import TrashBatchOperate from './TrashBatchOperate';
 import Header from './Header';
 import _ from 'lodash';
+import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 
 const Con = styled.div`
   width: 100%;
@@ -161,7 +162,12 @@ export default function WorkSheetTrash(props) {
   const hasAuthRowIds = hasAuthRows.map(item => item.rowid);
   const actions = createActions(dispatch, state);
   const controlsForShow = controls
-    .filter(column => !_.includes(['utime', 'uaid'], column.controlId) && controlState(column).visible)
+    .filter(
+      column =>
+        !_.includes(SHEET_VIEW_HIDDEN_TYPES, column.type) &&
+        !_.includes(['utime', 'uaid'], column.controlId) &&
+        controlState(column).visible,
+    )
     .map(c =>
       disableMaskDataControls[c.controlId]
         ? {
@@ -275,11 +281,21 @@ export default function WorkSheetTrash(props) {
             setSelectRows([]);
           }}
           onHardDelete={() => {
-            Dialog.confirm({
-              title: <span style={{ color: '#f44336' }}>{_l('彻底删除%0', worksheetInfo.entityName)}</span>,
-              buttonType: 'danger',
-              description: _l('记录删除后无法恢复，请确认您和工作表成员都不再需要这些记录再行删除。'),
-              okText: _l('删除'),
+            VerifyPasswordConfirm.confirm({
+              title: (
+                <div className="Bold" style={{ color: '#f44336', display: 'flex', alignItems: 'center' }}>
+                  <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }}></i>
+                  {_l('彻底删除%0', worksheetInfo.entityName)}
+                </div>
+              ),
+              description: (
+                <div className="Font14 Gray_75">
+                  {_l('记录删除后无法恢复，请确认您和工作表成员都不再需要这些记录再行删除。')}
+                </div>
+              ),
+              confirmType: 'danger',
+              passwordPlaceHolder: _l('请输入密码确认删除'),
+              allowNoVerify: false,
               onOk: () => {
                 if (!isAll && hasAuthRowIds.length === 0) {
                   alert(_l('无权限删除选择的记录'), 3);

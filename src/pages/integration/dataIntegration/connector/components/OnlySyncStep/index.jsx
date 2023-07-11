@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Icon, RadioGroup, Input, Tooltip } from 'ming-ui';
+import { Icon, RadioGroup, Input, Tooltip, Checkbox } from 'ming-ui';
 import { Select } from 'antd';
 import _ from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
 import {
   CREATE_TYPE_RADIO_LIST,
   CREATE_TYPE,
   DATABASE_TYPE,
-  INVALID_MD_TYPE,
-  INVALID_MD_TYPE_SHEET,
-  SYSTEM_FIELD_IDS,
   namePattern,
   isValidName,
+  TRIGGER_WORKFLOW_CHECKBOX_OPTIONS,
+  SYSTEM_FIELD_IDS,
 } from '../../../constant';
 import FieldMappingList from '../../../components/FieldsMappingList/index';
 import LeftTableList from './LeftTableList';
@@ -22,6 +20,7 @@ import dataSourceApi from '../../../../api/datasource';
 import worksheetApi from 'src/api/worksheet';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
+import SheetGroupSelect from './SheetGroupSelect';
 
 const OnlySyncWrapper = styled.div`
   padding: 16px 24px;
@@ -44,21 +43,8 @@ const OnlySyncWrapper = styled.div`
       width: 300px;
     }
   }
-  .sheetName {
-    display: flex;
-    justify-content: space-between;
-    position: relative;
-
-    .sheetNameWidth {
-      width: 643px;
-    }
-    .writeModeTip {
-      position: absolute;
-      right: 0;
-      top: 44px;
-      padding: 8px 16px;
-      background: rgba(254, 249, 233, 1);
-    }
+  .sheetNameWidth {
+    width: 643px;
   }
 `;
 
@@ -168,14 +154,14 @@ export default function OnlySyncStep(props) {
     return getDuplicateFieldsRenamedList(mapping);
   };
 
-  const getInitWorkSheetFields = (controls, isGetSource) => {
+  const getInitWorkSheetFields = (controls = [], isGetDest) => {
     const rowIDField = controls
       .filter(c => c.controlId === 'rowid')
       .map(rowId => {
         return {
           id: rowId.controlId,
-          name: 'rowID',
-          alias: 'rowID',
+          name: 'rowid',
+          alias: 'rowid',
           dataType: null,
           jdbcTypeId: null,
           precision: 0,
@@ -192,12 +178,7 @@ export default function OnlySyncStep(props) {
       });
 
     const fields = controls
-      .filter(
-        control =>
-          ((isGetSource && !_.includes(isDestAppType ? INVALID_MD_TYPE_SHEET : INVALID_MD_TYPE, control.type)) ||
-            !isGetSource) &&
-          !_.includes(SYSTEM_FIELD_IDS, control.controlId),
-      )
+      .filter(c => (isGetDest ? !_.includes(SYSTEM_FIELD_IDS, c.controlId) : c.controlId !== 'rowid'))
       .map(control => {
         return {
           id: control.controlId,
@@ -222,7 +203,7 @@ export default function OnlySyncStep(props) {
         };
       });
 
-    return isSourceAppType && !isDestAppType ? rowIDField.concat(fields) : fields;
+    return isSourceAppType ? rowIDField.concat(fields) : fields;
   };
 
   const getMatchedFieldsOptions = (types, sourceField, destFields) => {
@@ -366,27 +347,25 @@ export default function OnlySyncStep(props) {
             if (isCreate) {
               return isSourceAppType && isDestAppType
                 ? {
-                    sourceField: _.pick(item.sourceField, ['id', 'isTitle', 'jdbcTypeId']),
+                    sourceField: _.pick(item.sourceField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck']),
                     destField: item.destField.isCheck
-                      ? _.pick(item.destField, ['name', 'isTitle', 'jdbcTypeId'])
+                      ? _.pick(item.destField, ['name', 'isTitle', 'jdbcTypeId', 'isCheck'])
                       : null,
                   }
                 : {
                     ...item,
-                    destField: item.destField.isCheck
-                      ? { ...item.destField, id: item.sourceField.id === 'rowid' ? 'rowid' : uuidv4() }
-                      : null,
+                    destField: item.destField.isCheck ? item.destField : null,
                   };
             } else {
               return isDestAppType
                 ? {
                     sourceField: isSourceAppType
-                      ? _.pick(item.sourceField, ['id', 'isTitle', 'jdbcTypeId'])
+                      ? _.pick(item.sourceField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck'])
                       : item.sourceField,
                     destField: item.destField.isCheck
                       ? isSourceAppType
-                        ? _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId'])
-                        : _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId', 'isPk', 'isNotNull'])
+                        ? _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck'])
+                        : _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId', 'isPk', 'isNotNull', 'isCheck'])
                       : null,
                   }
                 : item.destField.isCheck
@@ -444,8 +423,16 @@ export default function OnlySyncStep(props) {
                   _.get(sheetData, [db, table, 'sheetCreateType']) === CREATE_TYPE.SELECT_EXIST
                     ? _.get(sheetData, [db, table, 'writeMode'])
                     : undefined,
+                appSectionId: _.get(sheetData, [db, table, 'appSectionId']),
               },
             },
+            workflowConfig: isDestAppType
+              ? {
+                  insertTrigger: !!_.get(sheetData, [db, table, 'insertTrigger']),
+                  updateTrigger: !!_.get(sheetData, [db, table, 'updateTrigger']),
+                  deleteTrigger: !!_.get(sheetData, [db, table, 'deleteTrigger']),
+                }
+              : undefined,
             tableList: _.get(optionList, [currentTab.db, currentTab.table, 'sheetOptionList']) || [],
           };
           submitData.push(data);
@@ -465,7 +452,7 @@ export default function OnlySyncStep(props) {
         if (isSourceAppType) {
           worksheetApi.getWorksheetInfo({ worksheetId: currentTab.table, getTemplate: true }).then(res => {
             if (res) {
-              const fieldsParams = getInitWorkSheetFields(res.template.controls, true);
+              const fieldsParams = getInitWorkSheetFields(_.get(res, 'template.controls'));
               _.isEmpty(fieldsParams)
                 ? onChangeStateData(fieldsMapping, setFieldsMapping, { fieldsMapping: [] })
                 : dataSourceApi.fillJdbcType(fieldsParams).then(res => {
@@ -631,6 +618,7 @@ export default function OnlySyncStep(props) {
       initSheetData.sheetName = currentTab.tableName;
     } else {
       initSheetData.sheetName = sheetNameValue || '';
+      initSheetData.appSectionId = null;
       if (!writeNode) {
         initSheetData.writeMode = 'SKIP';
       }
@@ -701,7 +689,7 @@ export default function OnlySyncStep(props) {
       });
       worksheetApi.getWorksheetInfo({ worksheetId: sheet.value, getTemplate: true }).then(res => {
         if (res) {
-          const fieldsParams = getInitWorkSheetFields(res.template.controls, false);
+          const fieldsParams = getInitWorkSheetFields(_.get(res, 'template.controls'), true);
           dataSourceApi.fillJdbcType(fieldsParams).then(res => {
             if (res) {
               onChangeStateData(destFields, setDestFields, { fields: res, workSheetId: sheet.value });
@@ -835,12 +823,23 @@ export default function OnlySyncStep(props) {
                     onChange={sheetCreateType => onChangeSheetCreateType(sheetCreateType)}
                   />
 
-                  <p className="mBottom8 bold">{isDestAppType ? _l('工作表名称') : _l('数据表名称')}</p>
-                  <div className="sheetName">
-                    {_.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) ===
-                    CREATE_TYPE.SELECT_EXIST ? (
-                      <React.Fragment>
-                        <div className="sheetNameWidth">
+                  <div className="flexRow">
+                    {isDestAppType &&
+                      _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !==
+                        CREATE_TYPE.SELECT_EXIST && (
+                        <SheetGroupSelect
+                          appId={dest.id}
+                          value={_.get(sheetData, [currentTab.db, currentTab.table, 'appSectionId'])}
+                          onChange={appSectionId => {
+                            onChangeStateData(sheetData, setSheetData, { appSectionId });
+                          }}
+                        />
+                      )}
+                    <div>
+                      <p className="mBottom8 bold">{isDestAppType ? _l('工作表名称') : _l('数据表名称')}</p>
+                      <div className="sheetNameWidth">
+                        {_.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) ===
+                        CREATE_TYPE.SELECT_EXIST ? (
                           <Select
                             className="selectItem mBottom20"
                             showSearch={true}
@@ -856,42 +855,20 @@ export default function OnlySyncStep(props) {
                             }}
                             onChange={sheet => onChangeSheet(sheet)}
                           />
-                        </div>
-
-                        {!isSourceAppType && isDestAppType && (
-                          <div className="mBottom20 flexRow alignItemsCenter">
-                            <span className="mLeft5 nowrap">{_l('根据主键识别重复，并')}</span>
-                            <div className="Width70 mLeft10">
-                              <Select
-                                className="selectItem"
-                                options={[
-                                  { label: _l('跳过'), value: 'SKIP' },
-                                  { label: _l('覆盖'), value: 'OVERWRITE' },
-                                ]}
-                                value={_.get(sheetData, [currentTab.db, currentTab.table, 'writeMode'])}
-                                onChange={writeMode => onChangeStateData(sheetData, setSheetData, { writeMode })}
-                              />
-                            </div>
-                            {_.get(sheetData, [currentTab.db, currentTab.table, 'writeMode']) === 'OVERWRITE' && (
-                              <div className="writeModeTip">
-                                {_l('根据主键判断已有数据的重复，"覆盖"会导致数据变慢。')}
-                              </div>
-                            )}
-                          </div>
+                        ) : (
+                          <Input
+                            className="mBottom20 w100"
+                            value={_.get(sheetData, [currentTab.db, currentTab.table, 'sheetName'])}
+                            onBlur={event =>
+                              onChangeStateData(sheetData, setSheetData, {
+                                sheetName: event.target.value.replace(namePattern, ''),
+                              })
+                            }
+                            onChange={sheetName => onChangeStateData(sheetData, setSheetData, { sheetName })}
+                          />
                         )}
-                      </React.Fragment>
-                    ) : (
-                      <Input
-                        className="mBottom20 sheetNameWidth"
-                        value={_.get(sheetData, [currentTab.db, currentTab.table, 'sheetName'])}
-                        onBlur={event =>
-                          onChangeStateData(sheetData, setSheetData, {
-                            sheetName: event.target.value.replace(namePattern, ''),
-                          })
-                        }
-                        onChange={sheetName => onChangeStateData(sheetData, setSheetData, { sheetName })}
-                      />
-                    )}
+                      </div>
+                    </div>
                   </div>
 
                   {(_.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !==
@@ -910,26 +887,86 @@ export default function OnlySyncStep(props) {
                             </div>
                           </NoDataContent>
                         ) : (
-                          <FieldMappingList
-                            isCreate={
-                              _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !==
-                              CREATE_TYPE.SELECT_EXIST
-                            }
-                            sourceData={{
-                              sourceFields: _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']),
-                              isDbType: !isSourceAppType,
-                            }}
-                            destData={{
-                              destFields: _.get(destFields, [currentTab.db, currentTab.table, 'fields']),
-                              isDbType: !isDestAppType,
-                              dsType: dest.type,
-                            }}
-                            fieldsMapping={_.get(fieldsMapping, [currentTab.db, currentTab.table, 'fieldsMapping'])}
-                            setFieldsMapping={mapping =>
-                              onChangeStateData(fieldsMapping, setFieldsMapping, { fieldsMapping: mapping })
-                            }
-                            matchedTypes={_.get(matchedTypes, [currentTab.db, currentTab.table, 'matchedTypes'])}
-                          />
+                          <React.Fragment>
+                            <FieldMappingList
+                              isCreate={
+                                _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !==
+                                CREATE_TYPE.SELECT_EXIST
+                              }
+                              sourceData={{
+                                sourceFields: _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']),
+                                isDbType: !isSourceAppType,
+                              }}
+                              destData={{
+                                destFields: _.get(destFields, [currentTab.db, currentTab.table, 'fields']),
+                                isDbType: !isDestAppType,
+                                dsType: dest.type,
+                              }}
+                              fieldsMapping={_.get(fieldsMapping, [currentTab.db, currentTab.table, 'fieldsMapping'])}
+                              setFieldsMapping={mapping =>
+                                onChangeStateData(fieldsMapping, setFieldsMapping, { fieldsMapping: mapping })
+                              }
+                              matchedTypes={_.get(matchedTypes, [currentTab.db, currentTab.table, 'matchedTypes'])}
+                            />
+
+                            {!isSourceAppType &&
+                              isDestAppType &&
+                              _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) ===
+                                CREATE_TYPE.SELECT_EXIST && (
+                                <React.Fragment>
+                                  <p className="mTop20 mBottom8 bold">{_l('识别重复数据')}</p>
+                                  <div className="flexRow alignItemsCenter">
+                                    <span className="nowrap">{_l('根据主键识别重复，并')}</span>
+                                    <div className="Width70 mLeft12 mRight12">
+                                      <Select
+                                        className="selectItem"
+                                        options={[
+                                          { label: _l('跳过'), value: 'SKIP' },
+                                          { label: _l('覆盖'), value: 'OVERWRITE' },
+                                        ]}
+                                        value={_.get(sheetData, [currentTab.db, currentTab.table, 'writeMode'])}
+                                        onChange={writeMode =>
+                                          onChangeStateData(sheetData, setSheetData, { writeMode })
+                                        }
+                                      />
+                                    </div>
+                                    {_.get(sheetData, [currentTab.db, currentTab.table, 'writeMode']) ===
+                                      'OVERWRITE' && (
+                                      <Tooltip text={_l('根据主键判断已有数据的重复，"覆盖"会导致数据同步变慢。')}>
+                                        <Icon icon="info_outline" className="Font16 Gray_bd pointer" />
+                                      </Tooltip>
+                                    )}
+                                  </div>
+                                </React.Fragment>
+                              )}
+
+                            {isDestAppType && (
+                              <React.Fragment>
+                                <p className="mTop20 mBottom8 bold">{_l('触发工作流')}</p>
+                                <p className="mBottom12 Gray_9e">
+                                  {_l('同步数据时，是否触发工作表绑定的自动化工作流')}
+                                </p>
+                                <div className="flexRow">
+                                  {TRIGGER_WORKFLOW_CHECKBOX_OPTIONS.map(item => {
+                                    const isChecked = _.get(sheetData, [currentTab.db, currentTab.table, item.key]);
+                                    return (
+                                      <Checkbox
+                                        key={item.key}
+                                        size="small"
+                                        className="pRight30"
+                                        checked={isChecked}
+                                        onClick={() =>
+                                          onChangeStateData(sheetData, setSheetData, { [item.key]: !isChecked })
+                                        }
+                                      >
+                                        {item.text}
+                                      </Checkbox>
+                                    );
+                                  })}
+                                </div>
+                              </React.Fragment>
+                            )}
+                          </React.Fragment>
                         )}
                       </div>
                     )}

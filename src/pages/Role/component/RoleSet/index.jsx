@@ -9,174 +9,172 @@ import _ from 'lodash';
 import { sysRoleType, sysRoleList } from 'src/pages/Role/config.js';
 
 const Wrap = styled.div`
-   {
-    flex: 1;
-    display: flex;
-    flex-flow: column nowrap;
-    background: #fff;
-    .header {
-      padding: 14px 32px;
-      border-bottom: 1px solid #ddd;
+  flex: 1;
+  display: flex;
+  flex-flow: column nowrap;
+  background: #fff;
+  .header {
+    padding: 14px 32px;
+    border-bottom: 1px solid #ddd;
+  }
+  .footer {
+    padding: 15px 48px 28px;
+    background-color: #fff;
+  }
+  .setBody {
+    flex: 1 1 0;
+    .settingForm {
+      padding: 25px 48px 30px;
+      max-width: 1250px;
     }
-    .footer {
-      padding: 15px 48px 28px;
-      background-color: #fff;
+
+    .nameInput {
+      width: 300px;
     }
-    .setBody {
-      flex: 1 1 0;
-      .settingForm {
-        padding: 25px 48px 30px;
-        max-width: 1250px;
-      }
 
-      .nameInput {
-        width: 300px;
-      }
+    .subCheckbox :global(.Checkbox-box) {
+      margin-right: 10px !important;
+    }
 
-      .subCheckbox :global(.Checkbox-box) {
-        margin-right: 10px !important;
-      }
-
-      .authTable {
-        .tableHeader {
-          background-color: #f5f5f5;
+    .authTable {
+      .tableHeader {
+        background-color: #f5f5f5;
+        display: flex;
+        flex-flow: row nowrap;
+        height: 40px;
+        line-height: 40px;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        .tableHeaderItemMax {
+          width: 35%;
+          text-align: center;
+          font-weight: bold;
+        }
+        .tableHeaderOption {
+          width: 13%;
+          justify-content: center !important;
+        }
+        .tableHeaderOther {
+          width: 25%;
+        }
+        .tableHeaderItem {
+          font-weight: bold;
           display: flex;
           flex-flow: row nowrap;
-          height: 40px;
-          line-height: 40px;
-          position: sticky;
-          top: 0;
-          z-index: 1;
-          .tableHeaderItemMax {
-            width: 35%;
+          align-items: center;
+          justify-content: left;
+        }
+      }
+      .emptyContent {
+        border-bottom: 1px solid #eaeaea;
+        color: #bdbdbd;
+        line-height: 45px;
+        padding-left: 24px;
+      }
+      .tableRow {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        border-bottom: 1px solid #eaeaea;
+        text-align: center;
+
+        .viewsGroup {
+          border-right: 1px solid #eaeaea;
+          width: 87%; //13*4+35
+        }
+
+        .viewSetting {
+          display: flex;
+          flex-flow: row nowrap;
+          align-items: center;
+          line-height: normal;
+          line-height: 32px;
+          svg {
+            vertical-align: middle !important;
+          }
+          .arrowIconShow {
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 20px;
+            opacity: 0;
+            transition: all 0.4s ease;
+            width: 32px;
             text-align: center;
-            font-weight: bold;
+            i {
+              color: #bdbdbd;
+              line-height: 1;
+            }
+            &.canShow:hover {
+              background-color: #f7f7f7;
+              opacity: 1;
+              i {
+                color: #2196f3;
+              }
+            }
+            &.show {
+              opacity: 1;
+              i {
+                color: #ff8a00 !important;
+              }
+            }
           }
-          .tableHeaderOption {
-            width: 13%;
-            justify-content: center !important;
+          &:hover {
+            .arrowIconShow.canShow {
+              opacity: 1;
+            }
           }
-          .tableHeaderOther {
-            width: 25%;
+          .viewSettingItemMax {
+            width: 100%;
+            flex: 35;
+            .mLeft52 {
+              margin-left: 52px;
+            }
           }
-          .tableHeaderItem {
-            font-weight: bold;
+          .viewSettingItem {
+            flex: 13;
             display: flex;
             flex-flow: row nowrap;
             align-items: center;
             justify-content: left;
           }
         }
-        .emptyContent {
-          border-bottom: 1px solid #eaeaea;
-          color: #bdbdbd;
-          line-height: 45px;
-          padding-left: 24px;
-        }
-        .tableRow {
-          display: flex;
-          flex-flow: row nowrap;
-          align-items: center;
-          border-bottom: 1px solid #eaeaea;
-          text-align: center;
 
-          .viewsGroup {
-            border-right: 1px solid #eaeaea;
-            width: 87%; //13*4+35
-          }
-
-          .viewSetting {
-            display: flex;
-            flex-flow: row nowrap;
-            align-items: center;
-            line-height: normal;
-            line-height: 32px;
-            svg {
-              vertical-align: middle !important;
-            }
-            .arrowIconShow {
-              border-radius: 50%;
-              display: inline-block;
-              margin-right: 20px;
-              opacity: 0;
-              transition: all 0.4s ease;
-              width: 32px;
-              text-align: center;
-              i {
-                color: #bdbdbd;
-                line-height: 1;
-              }
-              &.canShow:hover {
+        .settingGroup {
+          width: 13%;
+          padding: 0 10px;
+          &.showSet {
+            span {
+              padding: 5px 10px;
+              &:hover {
                 background-color: #f7f7f7;
-                opacity: 1;
-                i {
-                  color: #2196f3;
-                }
-              }
-              &.show {
-                opacity: 1;
-                i {
-                  color: #ff8a00 !important;
-                }
-              }
-            }
-            &:hover {
-              .arrowIconShow.canShow {
-                opacity: 1;
-              }
-            }
-            .viewSettingItemMax {
-              width: 100%;
-              flex: 35;
-              .mLeft52 {
-                margin-left: 52px;
-              }
-            }
-            .viewSettingItem {
-              flex: 13;
-              display: flex;
-              flex-flow: row nowrap;
-              align-items: center;
-              justify-content: left;
-            }
-          }
-
-          .settingGroup {
-            width: 13%;
-            padding: 0 10px;
-            &.showSet {
-              span {
-                padding: 5px 10px;
-                &:hover {
-                  background-color: #f7f7f7;
-                  border-radius: 5px;
-                }
+                border-radius: 5px;
               }
             }
           }
+        }
 
-          .arrowIcon {
-            width: 20px;
-            line-height: 32px;
-            transition: transform 0.2s ease;
-            transform: rotate(0deg);
-            transform-origin: 6px center;
-            &.rotated {
-              transform: rotate(90deg);
-            }
+        .arrowIcon {
+          width: 20px;
+          line-height: 32px;
+          transition: transform 0.2s ease;
+          transform: rotate(0deg);
+          transform-origin: 6px center;
+          &.rotated {
+            transform: rotate(90deg);
           }
         }
       }
     }
-    .list {
-      margin-top: 15px;
-      li {
-        width: 25%;
-        float: left;
-        margin-bottom: 15px;
-        padding-right: 20px;
-        box-sizing: border-box;
-      }
+  }
+  .list {
+    margin-top: 15px;
+    li {
+      width: 25%;
+      float: left;
+      margin-bottom: 15px;
+      padding-right: 20px;
+      box-sizing: border-box;
     }
   }
 `;
@@ -215,7 +213,8 @@ export default class RoleSet extends PureComponent {
   }
 
   fetchRoleDetail(props = this.props) {
-    const { roleId, appId, roleList } = props;
+    let { roleId, appId, roleList } = props;
+    roleId = roleId === 'new' ? '' : roleId;
     const data = roleList.find(o => o.roleId === roleId) || {};
 
     if (sysRoleType.includes(data.roleType)) {
@@ -285,8 +284,8 @@ export default class RoleSet extends PureComponent {
   };
 
   onSave = isConfirm => {
-    const { appId, roleId, editCallback, isForPortal, projectId } = this.props;
-
+    let { appId, roleId, editCallback, isForPortal, projectId } = this.props;
+    roleId = roleId === 'new' ? '' : roleId;
     if (!roleId) {
       // 创建
       const {
@@ -358,9 +357,12 @@ export default class RoleSet extends PureComponent {
   };
 
   render() {
-    const { roleId, isForPortal, showRoleSet, projectId, appId, setQuickTag, onDelRole, handleChangePage } = this.props;
+    let { roleId, isForPortal, showRoleSet, projectId, appId, setQuickTag, onDelRole, handleChangePage, canEditUser } =
+      this.props;
+    roleId = roleId === 'new' ? '' : roleId;
     const { roleDetail, loading, saveLoading, roleDetailCache } = this.state;
     const formProps = {
+      canEditUser,
       setQuickTag,
       showRoleSet,
       isForPortal,

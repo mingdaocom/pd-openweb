@@ -26,7 +26,7 @@ WorkWeiXin.options = {
 };
 
 WorkWeiXin.init = function () {
-  $('#app').after(`<div class="header">
+  $('#app').append(`<div class="header">
     <div class="content">
         <a href="/home" target="_blank" class="InlineBlock">
             <div class="mingdaoLogo"></div>

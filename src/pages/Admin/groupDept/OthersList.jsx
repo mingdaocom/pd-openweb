@@ -8,7 +8,8 @@ import Config from '../config';
 import DetailDialog from './DetailDialog';
 import DialogLayer from 'src/components/mdDialog/dialog';
 import ReactDom from 'react-dom';
-import Empty from '../common/TableEmpty'
+import Empty from '../common/TableEmpty';
+import PaginationWrap from '../components/PaginationWrap';
 
 const { Search } = Input;
 
@@ -116,27 +117,9 @@ export default class OthersList extends Component {
     this.getGroupsList();
   }
 
-  setPager() {
-    const _this = this;
-    $('#divPager')
-      .show()
-      .Pager({
-        pageIndex: _this.state.pageIndex,
-        pageSize: _this.state.pageSize,
-        count: _this.state.count,
-        changePage: function(pIndex) {
-          _this.setState(
-            {
-              pageIndex: pIndex,
-              selectKeys: [],
-            },
-            () => {
-              _this.getGroupsList();
-            },
-          );
-        },
-      });
-  }
+  changePage = page => {
+    this.setState({ pageIndex: page, selectKeys: [] }, () => this.getGroupsList());
+  };
 
   getGroupsList() {
     this.setState({ loading: true });
@@ -148,20 +131,11 @@ export default class OthersList extends Component {
         keyWords: this.state.keywords,
       })
       .then(res => {
-        this.setState(
-          {
-            list: res.list,
-            count: res.allCount,
-            loading: false,
-          },
-          () => {
-            if (this.state.count > this.state.pageSize) {
-              this.setPager();
-            } else {
-              $('#divPager').hide();
-            }
-          },
-        );
+        this.setState({
+          list: res.list,
+          count: res.allCount,
+          loading: false,
+        });
       });
   }
 
@@ -274,7 +248,7 @@ export default class OthersList extends Component {
   }
 
   render() {
-    const { selectKeys, count, pageSize, loading, list } = this.state;
+    const { selectKeys, count, pageSize, pageIndex, loading, list } = this.state;
     const rowSelection = {
       selectKeys,
       onChange: this.onSelectChange,
@@ -318,7 +292,9 @@ export default class OthersList extends Component {
                 pagination={false}
                 scroll={{ y: count > pageSize ? 'calc(100vh - 330px)' : 'calc(100vh - 280px)' }}
               />
-              <div id="divPager"></div>
+              {count > pageSize && (
+                <PaginationWrap total={count} pageIndex={pageIndex} pageSize={pageSize} onChange={this.changePage} />
+              )}
             </Spin>
           </ConfigProvider>
         </div>

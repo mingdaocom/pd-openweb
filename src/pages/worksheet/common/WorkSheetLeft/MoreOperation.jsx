@@ -7,6 +7,7 @@ import Trigger from 'rc-trigger';
 import homeAppApi from 'src/api/homeApp';
 import sheetApi from 'src/api/worksheet';
 import CreateNew from './CreateNew';
+import { EditExternalLink } from './ExternalLink';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 import { canEditApp } from 'worksheet/redux/actions/util';
 
@@ -159,7 +160,7 @@ const handleDeleteGroup = ({ projectId, appId, groupId, appItem, sheetListAction
 
 const handleCopyWorkSheet = props => {
   const { appId, groupId, appItem, sheetListActions } = props;
-  const { workSheetId, workSheetName, type, icon, iconColor, iconUrl, parentGroupId } = appItem;
+  const { workSheetId, workSheetName, type, icon, iconColor, iconUrl, parentGroupId, configuration, urlTemplate, createType } = appItem;
   const copyArgs = {
     worksheetId: workSheetId,
     appId,
@@ -195,6 +196,8 @@ const handleCopyWorkSheet = props => {
           iconColor,
           iconUrl,
           parentGroupId,
+        }, {
+          configuration, urlTemplate, createType
         });
         return;
       }
@@ -232,8 +235,10 @@ export default function MoreOperation(props) {
     appPkg.currentPcNaviStyle === 2 ? false : appItem.edit || false,
   );
   const [sheetMoveVisible, setSheetMoveVisible] = useState(false);
+  const [externalLinkVisible, setExternalLinkVisible] = useState(false);
   const [createType, setCreateType] = useState('');
 
+  const isEditApp = canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock']));
   const isWorksheet = appItem.type === 0;
   const isActive = activeSheetId === appItem.workSheetId;
   const deleteText = {
@@ -242,17 +247,13 @@ export default function MoreOperation(props) {
     2: _l('删除分组%02012'),
   };
 
-  const handleCreateAppItem = (type, name) => {
-    if (!name) {
-      alert(_l('请填写名称'), 3);
-      return;
-    }
+  const handleCreateAppItem = (type, args) => {
     sheetListActions.createAppItem({
       appId,
       groupId: appItem.workSheetId,
       firstGroupId: groupId,
       type,
-      name: name.slice(0, 25),
+      ...args
     });
     setCreateType('');
   };
@@ -260,6 +261,20 @@ export default function MoreOperation(props) {
   const renderMenu = () => {
     return (
       <Menu className="worksheetItemOperate">
+        {appItem.urlTemplate && isEditApp && (
+          <Fragment>
+            <MenuItem
+              icon={<Icon icon="settings" className="Font16" />}
+              onClick={() => {
+                setExternalLinkVisible(true);
+                setPopupVisible(false);
+              }}
+            >
+              <span className="text">{_l('编辑外部链接')}</span>
+            </MenuItem>
+            <hr className="splitter" />
+          </Fragment>
+        )}
         <MenuItem
           icon={<Icon icon="edit" className="Font16" />}
           onClick={() => {
@@ -273,8 +288,8 @@ export default function MoreOperation(props) {
         >
           <span className="text">{onChangeEdit ? _l('修改名称') : _l('修改名称和图标%02023')}</span>
         </MenuItem>
-        {canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock'])) && (
-          <React.Fragment>
+        {isEditApp && (
+          <Fragment>
             {!isGroup && (
               <MenuItem
                 icon={<Icon icon="content-copy" className="Font16" />}
@@ -365,7 +380,7 @@ export default function MoreOperation(props) {
             >
               <span className="text">{deleteText[appItem.type]}</span>
             </MenuItem>
-          </React.Fragment>
+          </Fragment>
         )}
       </Menu>
     );
@@ -448,6 +463,15 @@ export default function MoreOperation(props) {
             });
           }}
           onClose={() => setSheetMoveVisible(false)}
+        />
+      )}
+      {externalLinkVisible && (
+        <EditExternalLink
+          appId={appId}
+          groupId={groupId}
+          appItem={appItem}
+          updateSheetListAppItem={sheetListActions.updateSheetListAppItem}
+          onCancel={() => setExternalLinkVisible(false)}
         />
       )}
       {!!createType &&

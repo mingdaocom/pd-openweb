@@ -481,7 +481,7 @@ export const switchFilterConditions = conditions => {
   return [
     {
       conditions,
-      spliceType: 1,
+      spliceType: 2,
     },
   ];
 };

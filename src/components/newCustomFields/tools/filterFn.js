@@ -295,7 +295,7 @@ export const filterFn = (filterData, originControl, data = []) => {
         //是(等于)、不是(不等于) && (OPTIONS && (单选) || USER)
       } else if (
         _.includes([2, 6, 26, 27], filterType) &&
-        ((_.includes([5], conditionGroupType) && _.includes([9, 11, 27, 48], dataType)) ||
+        ((_.includes([5], conditionGroupType) && _.includes([9, 10, 11, 27, 48], dataType)) ||
           _.includes([6], conditionGroupType))
       ) {
         const val = currentControl.value ? safeParse(currentControl.value) : currentControl.value;

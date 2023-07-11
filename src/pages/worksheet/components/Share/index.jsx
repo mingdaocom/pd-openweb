@@ -119,7 +119,7 @@ export default function Share(props) {
             ]}
             {...(_.isFunction(getCopyContent)
               ? {
-                  getCopyContent: urlForCopy => getCopyContent('private', urlForCopy),
+                  getCopyContent: urlForCopy => getCopyContent('private', urlForCopy + '?'),
                 }
               : {})}
           />

@@ -17,6 +17,9 @@ const EntranceWrapper = styled.div`
     width: 30px;
     margin-left: 10px;
     justify-content: center;
+    &:hover {
+      background-color: #f5f5f5;
+    }
   }
 `;
 
@@ -27,6 +30,20 @@ export default class ColorEntrance extends Component {
       baseColorModalVisible: false,
       ruleColorModalVisible: false
     }
+  }
+  getRuleVisible() {
+    const { currentReport } = this.props;
+    const { reportType, yaxisList, split, yreportType } = currentReport;
+    if ([reportTypes.BarChart].includes(reportType)) {
+      return yaxisList.length === 1 && _.isEmpty(split.controlId);
+    }
+    if ([reportTypes.DualAxes].includes(reportType)) {
+      return yaxisList.length === 1 && _.isEmpty(split.controlId) && yreportType === reportTypes.BarChart;
+    }
+    if ([reportTypes.ScatterChart].includes(reportType)) {
+      return _.isEmpty(split.controlId);
+    }
+    return [reportTypes.FunnelChart, reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType);
   }
   getColorName() {
     const { style = {}, reportType, split } = this.props.currentReport;
@@ -70,40 +87,79 @@ export default class ColorEntrance extends Component {
     );
   }
   renderRuleColorModal() {
-    const { currentReport } = this.props;
+    const { currentReport, onChangeDisplayValue } = this.props;
     const { ruleColorModalVisible } = this.state;
+    const { colorRules } = currentReport.displaySetup;
+    const onCancel = () => {
+      this.setState({
+        ruleColorModalVisible: false,
+      });
+    }
     return (
       <RuleColor
         visible={ruleColorModalVisible}
         yaxisList={currentReport.yaxisList}
-        onCancel={() => {
-          this.setState({
-            ruleColorModalVisible: false,
-          });
+        reportType={currentReport.reportType}
+        colorRule={colorRules.length ? _.get(colorRules[0], 'dataBarRule') || {} : {}}
+        onSave={(data) => {
+          const rule = {
+            controlId: '',
+            dataBarRule: data
+          }
+          onChangeDisplayValue('colorRules', [rule]);
+          onCancel();
         }}
+        onCancel={onCancel}
       />
     );
   }
   render() {
     const name = this.getColorName();
+    const { displaySetup } = this.props.currentReport;
+    const ruleVisible = this.getRuleVisible();
+    const colorRules = ruleVisible ? displaySetup.colorRules : [];
     return (
       <div className="mBottom16 flexRow valignWrapper">
         <EntranceWrapper
           className="flex flexRow valignWrapper pointer pLeft10"
-          onClick={() => { this.setState({ baseColorModalVisible: true }); }}
+          onClick={() => {
+            if (colorRules.length) {
+              this.setState({ ruleColorModalVisible: true });
+            } else {
+              this.setState({ baseColorModalVisible: true });
+            }
+          }}
         >
-          <span>{name}</span>
+          {colorRules.length ? (
+            <Fragment>
+              <Icon className="Font16 Gray_9e mRight10" icon="formula" />
+              <span>{_l('规则')}</span>
+            </Fragment>
+          ) : (
+            <span>{name}</span>
+          )}
         </EntranceWrapper>
-        {/*
-        <Tooltip text={<span>{_l('颜色规则')}</span>}>
-          <EntranceWrapper
-            className="ruleIcon flexRow valignWrapper pointer"
-            onClick={() => { this.setState({ ruleColorModalVisible: true }); }}
-          >
-            <Icon className="Gray_9e Font16" icon="formula" />
-          </EntranceWrapper>
-        </Tooltip>
-        */}
+        {ruleVisible && (
+          colorRules.length ? (
+            <EntranceWrapper
+              className="ruleIcon flexRow valignWrapper pointer"
+              onClick={() => {
+                this.props.onChangeDisplayValue('colorRules', []);
+              }}
+            >
+              <Icon className="Font16 Gray_9e" icon="delete2" />
+            </EntranceWrapper>
+          ) : (
+            <Tooltip text={<span>{_l('颜色规则')}</span>}>
+              <EntranceWrapper
+                className="ruleIcon flexRow valignWrapper pointer"
+                onClick={() => { this.setState({ ruleColorModalVisible: true }); }}
+              >
+                <Icon className="Font16 Gray_9e" icon="formula" />
+              </EntranceWrapper>
+            </Tooltip>
+          )
+        )}
         {this.renderBaseColorModal()}
         {this.renderRuleColorModal()}
       </div>

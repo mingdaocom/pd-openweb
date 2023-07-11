@@ -40,16 +40,16 @@ class AddDiscuss extends Component {
     };
   }
   componentDidMount() {
-    this.getPortalDiscussSet();
+    this.getPortalConfigSet();
   }
   componentWillUnmount() {
     ActionSheet.close();
   }
-  getPortalDiscussSet = () => {
+  getPortalConfigSet = () => {
     const { params } = this.props.match;
     const { appId } = params;
 
-    externalPortalAjax.getDiscussConfig({ appId }).then(res => {
+    externalPortalAjax.getConfig({ appId }).then(res => {
       const {
         allowExAccountDiscuss, //允许外部用户讨论
         exAccountDiscussEnum,

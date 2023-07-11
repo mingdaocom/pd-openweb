@@ -13,7 +13,11 @@ import arrowLeftImg from './img/arrowLeft.png';
 import './index.less';
 import SvgIcon from 'src/components/SvgIcon';
 import AppGroupSkeleton from './AppGroupSkeleton';
-import { getRandomString, getCurrentProject } from 'src/util';
+import { getRandomString, getCurrentProject, addBehaviorLog } from 'src/util';
+import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
+import TextScanQRCode from 'src/components/newCustomFields/components/TextScanQRCode';
+import { loadSDK } from 'src/components/newCustomFields/tools/utils';
+import RegExp from 'src/util/expression';
 import styled from 'styled-components';
 import _ from 'lodash';
 import moment from 'moment';
@@ -75,6 +79,7 @@ class AppHome extends React.Component {
       this.getWebCache();
     }
     window.addEventListener('popstate', this.closePage);
+    loadSDK();
   }
   componentWillUnmount() {
     $('html').removeClass('appHomeMobile');
@@ -184,23 +189,52 @@ class AppHome extends React.Component {
     let { searchValue } = this.state;
     const { myAppData = {} } = this.props;
     const { apps = [], externalApps = [], aloneApps = [] } = myAppData;
+
     return (
-      <div className="appSearchWrapper">
-        <Icon icon="h5_search" className="Font16 mRight8 searchIcon" />
-        <form
-          action="#"
-          className="flex"
-          onSubmit={e => {
-            e.preventDefault();
-          }}
-        >
-          <input
-            type="search"
-            className="pAll0 Border0 w100 Font14"
-            placeholder={_l('搜索应用')}
-            value={searchValue}
-            onChange={e => {
-              const { value } = e.target;
+      <div className="flexRow">
+        <div className="appSearchWrapper flex">
+          <Icon icon="h5_search" className="Font16 mRight8 searchIcon" />
+          <form
+            action="#"
+            className="flex"
+            onSubmit={e => {
+              e.preventDefault();
+            }}
+          >
+            <input
+              type="search"
+              className="pAll0 Border0 w100 Font14"
+              placeholder={_l('搜索应用')}
+              value={searchValue}
+              onChange={e => {
+                const { value } = e.target;
+                let searchResult = [
+                  ...this.filterSearchResult(apps, value),
+                  ...this.filterSearchResult(externalApps, value),
+                  ...this.filterSearchResult(aloneApps, value),
+                ];
+                this.setState({ searchValue: value, searchResult });
+              }}
+            />
+          </form>
+          {searchValue && (
+            <Icon
+              className="Gray_bd mLeft8"
+              icon="workflow_cancel"
+              onClick={() => {
+                this.setState({ searchValue: '', searchResult: [] });
+              }}
+            />
+          )}
+        </div>
+        <div className="textScanQRCodeWrap">
+          <TextScanQRCode
+            projectId={localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId}
+            onChange={value => {
+              if (RegExp.isUrl(value)) {
+                window.open(value);
+                return;
+              }
               let searchResult = [
                 ...this.filterSearchResult(apps, value),
                 ...this.filterSearchResult(externalApps, value),
@@ -209,16 +243,7 @@ class AppHome extends React.Component {
               this.setState({ searchValue: value, searchResult });
             }}
           />
-        </form>
-        {searchValue && (
-          <Icon
-            className="Gray_bd mLeft8"
-            icon="workflow_cancel"
-            onClick={() => {
-              this.setState({ searchValue: '', searchResult: [] });
-            }}
-          />
-        )}
+        </div>
       </div>
     );
   };
@@ -286,6 +311,15 @@ class AppHome extends React.Component {
         <div
           className="myAppItem mTop24"
           onClick={e => {
+            if (data.id !== 'add') {
+              addBehaviorLog('app', data.id); // 埋点
+            }
+            if (data.createType === 1) {
+              e.stopPropagation();
+              e.preventDefault();
+              window.open(transferExternalLinkUrl(data.urlTemplate, data.projectId, data.id));
+              return;
+            }
             localStorage.removeItem('currentNavWorksheetId');
             safeLocalStorageSetItem('currentGroupInfo', JSON.stringify({}));
             data.onClick ? data.onClick() : window.mobileNavigateTo(`/mobile/app/${data.id}`);

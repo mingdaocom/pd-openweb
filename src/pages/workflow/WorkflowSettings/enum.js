@@ -112,6 +112,29 @@ export const APP_TYPE = {
   WORKSHEET_LOG: 103,
 };
 
+export const OPERATION_TYPE = {
+  REVOKE: 3,
+  PASS: 4,
+  OVERRULE: 5,
+  FORWARD: 6,
+  SIGN: 7,
+  WORK: 8,
+  SUBMIT: 9,
+  TRANSFER: 10,
+  PRINT: 12,
+  UPDATE: 13,
+  REPLACE: 14,
+  CONTINUE: 15,
+  ADD: 16,
+  RETURN: 18,
+  URGE: 19,
+  BEFORE: 101,
+  EMAIL: 102,
+  GET_OPERATION: 103,
+  ADD_OPERATION: 104,
+  RELATION_OPERATION: 105,
+};
+
 export const CONTROLS_NAME = {
   1: _l('文本'),
   2: _l('文本'),
@@ -159,6 +182,7 @@ export const CONTROLS_NAME = {
   48: _l('组织角色'),
   49: _l('API查询'),
   50: _l('API查询'),
+  51: _l('查询记录'),
   10000001: _l('人员'),
   10000002: _l('人员'),
   10000003: _l('数组'),
@@ -299,77 +323,77 @@ export const TIME_TYPE_NAME = {
 
 export const SUPPORT_HREF = {
   // worksheet
-  '0-1': 'https://help.mingdao.com/zh/flow7.html',
+  '0-1': 'https://help.mingdao.com/flow7',
   // loop
-  '0-5': 'https://help.mingdao.com/zh/flow8.html',
+  '0-5': 'https://help.mingdao.com/flow8',
   // date
-  '0-6': 'https://help.mingdao.com/zh/flow9.html',
+  '0-6': 'https://help.mingdao.com/flow9',
   // webhook触发
-  '0-7': 'https://help.mingdao.com/zh/flow10.html',
+  '0-7': 'https://help.mingdao.com/flow10',
   // 分支
-  1: 'https://help.mingdao.com/zh/flow25.html',
+  1: 'https://help.mingdao.com/flow25',
   // 填写节点
-  3: 'https://help.mingdao.com/zh/flow20.html',
+  3: 'https://help.mingdao.com/flow20',
   // 审批节点
-  4: 'https://help.mingdao.com/zh/flow19.html',
+  4: 'https://help.mingdao.com/flow19',
   // 通知节点
-  5: 'https://help.mingdao.com/zh/flow21.html',
+  5: 'https://help.mingdao.com/flow21',
   // 新增记录
-  '6-1-1': 'https://help.mingdao.com/zh/flow11.html',
+  '6-1-1': 'https://help.mingdao.com/flow11',
   // 新增任务
-  '6-1-2': 'https://help.mingdao.com/zh/flow31.html',
+  '6-1-2': 'https://help.mingdao.com/flow31',
   // 更新记录
-  '6-2': 'https://help.mingdao.com/zh/flow12.html',
+  '6-2': 'https://help.mingdao.com/flow12',
   // 更新流程参数
-  '6-2-102': 'https://help.mingdao.com/zh/flow13.html',
+  '6-2-102': 'https://help.mingdao.com/flow13',
   // 删除记录
-  '6-3': 'https://help.mingdao.com/zh/flow18.html',
+  '6-3': 'https://help.mingdao.com/flow18',
   // 获取关联记录
-  '6-20': 'https://help.mingdao.com/zh/flow49.html',
+  '6-20': 'https://help.mingdao.com/flow49',
   // 批量新增
-  '6-21': 'https://help.mingdao.com/zh/flow11.html',
+  '6-21': 'https://help.mingdao.com/flow11',
   // 从工作表获取一条指定记录
-  '7-406': 'https://help.mingdao.com/zh/flow49.html',
+  '7-406': 'https://help.mingdao.com/flow49',
   // 从多条数据节点获取一条指定记录
-  '7-407': 'https://help.mingdao.com/zh/flow49.html',
+  '7-407': 'https://help.mingdao.com/flow49',
   // 发送API请求
-  8: 'https://help.mingdao.com/zh/flow33.html',
+  8: 'https://help.mingdao.com/flow33',
   // 公式
-  9: 'https://help.mingdao.com/zh/flow27.html',
+  9: 'https://help.mingdao.com/flow27',
   // 短信
-  10: 'https://help.mingdao.com/zh/flow22.html',
+  10: 'https://help.mingdao.com/flow22',
   // 邮件
-  11: 'https://help.mingdao.com/zh/flow24.html',
+  11: 'https://help.mingdao.com/flow24',
   // 延时
-  12: 'https://help.mingdao.com/zh/flow26.html',
+  12: 'https://help.mingdao.com/flow26',
   // 获取多条
-  13: 'https://help.mingdao.com/zh/flow15.html',
+  13: 'https://help.mingdao.com/flow15',
   // 代码块
-  14: 'https://help.mingdao.com/zh/flow34.html',
+  14: 'https://help.mingdao.com/flow34',
   // 获取链接
-  15: 'https://help.mingdao.com/zh/flow28.html',
+  15: 'https://help.mingdao.com/flow28',
   // 子流程
-  16: 'https://help.mingdao.com/zh/flow29.html',
+  16: 'https://help.mingdao.com/flow29',
   // 界面推送
-  17: 'https://help.mingdao.com/zh/flow32.html',
+  17: 'https://help.mingdao.com/flow32',
   // 获取记录打印文件
-  18: 'https://help.mingdao.com/zh/flow30.html',
+  18: 'https://help.mingdao.com/flow30',
   // 发送服务号消息
-  19: 'https://help.mingdao.com/zh/flow_wechat.html',
-  // 调用业务流程
-  20: 'https://help.mingdao.com/zh/flow70.html',
+  19: 'https://help.mingdao.com/flow_wechat',
+  // 调用封装业务流程
+  20: 'https://help.mingdao.com/flow70',
   // JSON解析
-  21: 'https://help.mingdao.com/zh/flow75.html',
+  21: 'https://help.mingdao.com/flow75',
   // 调用已集成 API
-  25: 'https://help.mingdao.com/zh/flow60.html',
+  25: 'https://help.mingdao.com/flow60',
   // 发起审批
-  26: 'https://help.mingdao.com/zh/flow85.html',
+  26: 'https://help.mingdao.com/flow85',
   // 获取单条系统信息
-  1000: 'https://help.mingdao.com/zh/flow44.html',
+  1000: 'https://help.mingdao.com/flow44',
   // 获取多条系统信息
-  1001: 'https://help.mingdao.com/zh/flow45.html',
+  1001: 'https://help.mingdao.com/flow45',
   // 什么是排队中
-  queue: 'https://help.mingdao.com/zh/flow65.html',
+  queue: 'https://help.mingdao.com/flow65',
 };
 
 export const RELATION_TYPE = {

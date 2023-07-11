@@ -23,9 +23,6 @@
 .workflowList {
   height: 100%;
   &.workflowListShadow {
-    margin: 16px 24px 0;
-    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.16);
-    border-radius: 5px;
     background-color: #fff;
     overflow: hidden;
   }
@@ -285,7 +282,7 @@
         display: flex;
         align-items: center;
         color: #9e9e9e;
-        font-size: 15px;
+        font-size: 17px;
         font-weight: 600;
         border-bottom: 2px solid transparent;
         margin-right: 32px;
@@ -310,9 +307,9 @@
   }
 
   .columnWidth {
-    width: 150px;
+    width: 120px;
     @media (max-width: 1280px) {
-      width: 120px;
+      width: 100px;
     }
   }
 
@@ -446,32 +443,6 @@
     font-size: 18px;
     visibility: hidden;
     cursor: pointer;
-  }
-  .manageListSelect {
-    font-size: 13px;
-    &.ant-select-open {
-      .ant-select-selector {
-        border-color: #2196f3;
-        box-shadow: none;
-      }
-    }
-    &.ant-select-focused {
-      .ant-select-selector {
-        border-color: #ddd;
-        box-shadow: none;
-      }
-    }
-    .ant-select-selector {
-      border-color: #ddd;
-      height: 36px;
-      border-radius: 4px;
-      .ant-select-selection-search-input {
-        height: 34px;
-      }
-      .ant-select-selection-item {
-        line-height: 34px;
-      }
-    }
   }
   .workflowAutoOrder {
     margin: 0 0 0 auto;

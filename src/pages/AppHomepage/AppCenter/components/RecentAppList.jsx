@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import { Icon, MdLink, Tooltip } from 'ming-ui';
 import SvgIcon from 'src/components/SvgIcon';
 import AppStatusComp from './AppStatus';
-import { getAppNavigateUrl } from '../utils';
+import { getAppNavigateUrl, transferExternalLinkUrl } from '../utils';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
+import { addBehaviorLog } from 'src/util';
 
 const Wrapper = styled.div`
   display: flex;
@@ -96,7 +97,20 @@ export default function RecentAppList(props) {
     <Wrapper>
       {apps.map((item, index) => {
         return (
-          <MdLink className="mBottom8" to={getAppNavigateUrl(item.id, pcNaviStyle)}>
+          <MdLink
+            className="mBottom8 stopPropagation"
+            to={getAppNavigateUrl(item.id, pcNaviStyle)}
+            onClick={() => {
+              addBehaviorLog('app', item.id); // 浏览应用埋点
+
+              if (item.createType === 1) {
+                //是外部链接应用
+                e.stopPropagation();
+                e.preventDefault();
+                window.open(transferExternalLinkUrl(item.urlTemplate, projectId, item.id));
+              }
+            }}
+          >
             <AppItem key={item.id || index}>
               <div className="flexRow alignItemsCenter">
                 <div className="appIcon" style={{ backgroundColor: getBackgroundColor(item).bg }}>

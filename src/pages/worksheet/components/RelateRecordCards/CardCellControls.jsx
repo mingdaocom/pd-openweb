@@ -47,7 +47,7 @@ const Control = styled.div`
 `;
 
 export default function CardCellControls(props) {
-  const { width, controls, data, projectId, viewId, isCharge } = props;
+  const { width, controls, data, parentControl, projectId, worksheetId, viewId, isCharge } = props;
   let showColNum = 1;
   if (width > 950 && controls.length > 6) {
     showColNum = 3;
@@ -71,7 +71,10 @@ export default function CardCellControls(props) {
                 {!checkCellIsEmpty(data[control.controlId]) ? (
                   <CellControl
                     cell={Object.assign({}, control, { value: data[control.controlId] })}
+                    row={data}
+                    worksheetId={worksheetId}
                     from={4}
+                    rowFormData={() => _.get(parentControl, 'formData') || []}
                     projectId={projectId}
                     viewId={viewId}
                     disableDownload

@@ -10,6 +10,12 @@ export default {
   * @param {string} args.lightColor 背景色
   * @param {string} args.groupId 分组id
   * @param {} args.groupType 分组类型 0 = 个人，1= 网络
+  * @param {string} args.urlTemplate url链接模板
+  * @param {object} args.configuratiuon 链接配置
+  * @param {} args.createType 创建类型 0-表示默认类型, 1表示链接类型
+  * @param {boolean} args.pcDisplay Pc端显示,
+  * @param {boolean} args.webMobileDisplay web移动端显示
+  * @param {boolean} args.appDisplay app端显示
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -106,6 +112,11 @@ export default {
   * @param {string} args.lightColor 淡色色值
   * @param {integer} args.gridDisplayMode 宫格显示模式
   * @param {integer} args.appNavDisplayType 导航列表显示类型
+  * @param {string} args.urlTemplate 外部链接url
+  * @param {object} args.configuration 链接配置
+  * @param {boolean} args.pcDisplay Pc端显示,
+  * @param {boolean} args.webMobileDisplay web移动端显示
+  * @param {boolean} args.appDisplay app端显示
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -216,6 +227,7 @@ export default {
   /**
   * 获取首页所有应用信息
   * @param {Object} args 请求参数
+  * @param {boolean} args.containsLinks
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -489,6 +501,7 @@ export default {
   * 获取我的应用
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {boolean} args.containsLinks 是否包含外部链接
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -503,6 +516,7 @@ export default {
   * @param {string} args.id 首页分组id
   * @param {} args.groupType 分组类型 0 = 个人，1= 网络
   * @param {string} args.projectId 网络id
+  * @param {boolean} args.containsLinks 是否包含外部链接
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

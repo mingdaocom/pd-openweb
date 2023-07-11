@@ -116,6 +116,7 @@ class AppointDialog extends React.Component {
         10010, // 备注
         45, // 嵌入
         47, //条码
+        51, //查询记录
       ].indexOf(type) >= 0
     );
   };
@@ -262,7 +263,7 @@ class AppointDialog extends React.Component {
               }
               const type = writeControlsData.type;
               const controlName = writeControlsData.controlName;
-              let isList = type === 29 && writeControlsData.advancedSetting.showtype === '2';
+              let isList = [29, 51].includes(type) && writeControlsData.advancedSetting.showtype === '2';
               return (
                 <div className="itemBox mTop10">
                   <span
@@ -298,7 +299,7 @@ class AppointDialog extends React.Component {
                         value: i + 1,
                         disabled:
                           (this.isDisable(type) && i > 0) ||
-                          (type === 29 && writeControlsData.advancedSetting.showtype === '2') ||
+                          ([29, 51].includes(type) && writeControlsData.advancedSetting.showtype === '2') ||
                           ([49, 21, 43].includes(type) && i > 1), //api查询,自由连接,文本识别 屏蔽必填
                       };
                     })}

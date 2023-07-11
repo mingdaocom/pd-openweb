@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import RoleController from 'src/api/role';
 
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import 'src/components/pager/pager';
+import PaginationWrap from '../../components/PaginationWrap';
 import './style.less';
 import _ from 'lodash';
+import { pageIndex } from 'src/pages/feed/redux/postReducers';
 
 class RoleLog extends React.Component {
   static propTypes = {
@@ -25,22 +26,6 @@ class RoleLog extends React.Component {
 
   componentWillMount() {
     this.fetchLogs();
-  }
-
-  componentDidUpdate() {
-    const { allCount, pageIndex, pageSize } = this.state;
-    if (this.pager) {
-      $(this.pager)
-        .show()
-        .Pager({
-          pageIndex,
-          pageSize,
-          count: allCount,
-          changePage: pageIndex => {
-            this.setState({ pageIndex }, this.fetchLogs);
-          },
-        });
-    }
   }
 
   fetchLogs() {
@@ -95,16 +80,16 @@ class RoleLog extends React.Component {
   }
 
   render() {
-    const { isLoading, allCount, list, pageSize } = this.state;
+    const { isLoading, allCount, list, pageSize, pageIndex } = this.state;
     return (
       <div className="roleAuthLogTable">
         {isLoading ? <LoadDiv /> : this.renderLogs()}
         {!isLoading && list && allCount > pageSize ? (
-          <div
-            className="mTop20"
-            ref={el => {
-              this.pager = el;
-            }}
+          <PaginationWrap
+            total={allCount}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            onChange={pageIndex => this.setState({ pageIndex }, this.fetchLogs)}
           />
         ) : null}
       </div>

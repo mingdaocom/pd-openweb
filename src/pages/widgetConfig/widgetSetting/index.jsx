@@ -70,6 +70,7 @@ function WidgetSetting(props) {
   const queryConfig = _.find(queryConfigs, item => item.controlId === controlId) || {};
 
   const onChange = (obj, callback) => {
+    if (isEmpty(obj)) return;
     handleDataChange(controlId, { ...data, ...obj }, callback);
   };
 

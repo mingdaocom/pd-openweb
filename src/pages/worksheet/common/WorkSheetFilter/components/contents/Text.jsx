@@ -38,7 +38,7 @@ export default class Text extends Component {
         },
         render: {
           option_create(data, escape) {
-            return `<div class="create ThemeColor3">${_l('使用"%0"', filterXSS(data.input))}</div>`;
+            return `<div class="create ThemeColor3">${_l('使用“%0”', filterXSS(data.input))}</div>`;
           },
         },
         onInitialize: function () {

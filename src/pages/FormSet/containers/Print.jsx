@@ -336,7 +336,7 @@ class Print extends React.Component {
                   <span className="Font13 Gray_9e">
                     {_l('保存系统打印的配置为模板，或上传word模板自由定义记录打印的样式。')}
                   </span>
-                  <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/zh/operation15.html" />
+                  <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/operation15" />
                 </p>
               </div>
               <span

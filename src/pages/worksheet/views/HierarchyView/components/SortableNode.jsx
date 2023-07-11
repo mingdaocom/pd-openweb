@@ -8,7 +8,7 @@ import { getItem } from '../../util';
 import { getPosition } from '../util';
 import SVG from 'svg.js';
 import DraggableRecord from './DraggableRecord';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, addBehaviorLog } from 'src/util';
 
 const isMobile = browserIsMobile();
 
@@ -62,8 +62,9 @@ export default class SortableRecordItem extends Component {
   };
 
   // 获取连接线位置
-  getConnectLinePos = ({ stateTree, pid, data, scale, view = {} }) => {
+  getConnectLinePos = ({ stateTree, pid, data, scale, view = {}, isStraightLine = false }) => {
     const { path = [], rowId } = data;
+    const { advancedSetting = {} } = view;
     const $ele = _.get(this.$itemWrap, ['current']);
     if ($ele && pid) {
       const getParent = this.getNode(stateTree, path.slice(0, -1));
@@ -80,22 +81,26 @@ export default class SortableRecordItem extends Component {
        */
 
       const controlPointX = ((childrenCount - currentIndex) / childrenCount) * 60;
-      return { controlPointX, ...getPosition($parent, $ele, scale) };
+      return {
+        controlPointX,
+        ...getPosition($parent, $ele, scale, isStraightLine || advancedSetting.hierarchyViewConnectLine === '1'),
+      };
     }
     return {};
   };
 
   // 绘制连接线
   drawConnector = () => {
-    const { data, view = {} } = this.props;
+    const { data, view = {}, isStraightLine } = this.props;
     const { pathId } = data;
+    const { advancedSetting = {} } = view;
     const $svgWrap = document.getElementById(`svg-${view.viewId}${pathId.join('-')}`);
 
     const position = this.getConnectLinePos(this.props);
 
     if (isEmpty(position)) return;
 
-    const { height = 0, top = 0, start = [], end = [], controlPointX } = position;
+    const { height = 0, top = 0, start = [], end = [], controlPointX, straightLineInflection = [] } = position;
     $($svgWrap).height(height).css({ top: -top });
 
     // 获取控制点
@@ -104,8 +109,13 @@ export default class SortableRecordItem extends Component {
       $svgWrap.childNodes.forEach(child => $svgWrap.removeChild(child));
     }
     const draw = SVG(`svg-${view.viewId}${pathId.join('-')}`).size('100%', '100%');
-    const linePath = ['M', ...start, 'Q', ...controlPoint, ...end].join(' ');
-    draw.path(linePath).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
+
+    if (advancedSetting.hierarchyViewConnectLine === '1' || isStraightLine) {
+      draw.polyline([start, straightLineInflection, end]).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
+    } else {
+      const linePath = ['M', ...start, 'Q', ...controlPoint, ...end].join(' ');
+      draw.path(linePath).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
+    }
   };
   handleRecordVisible = rowId => {
     const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
@@ -169,13 +179,15 @@ export default class SortableRecordItem extends Component {
       deleteHierarchyRecord,
       hideHierarchyRecord,
       sheetSwitchPermit,
-      view,
+      view = {},
       worksheetInfo,
+      isStraightLine,
     } = this.props;
     const { recordInfoRowId, recordInfoVisible } = this.state;
     const { rowId, path = [], pathId = [] } = data;
     const { rowId: draggingId } = getItem('draggingHierarchyItem') || '';
     const recordInfoPara = this.getRecordInfoPara();
+    const { advancedSetting = {} } = view;
     if (recordInfoPara.worksheetId === worksheetInfo.worksheetId) {
       recordInfoPara.rules = worksheetInfo.rules;
     }
@@ -185,9 +197,13 @@ export default class SortableRecordItem extends Component {
           className={cx('sortableTreeNodeWrap', { isDragging: draggingId === rowId })}
           id={pathId.join('-')}
           ref={this.$itemWrap}
-          onClick={() => this.handleRecordVisible(rowId)}
         >
-          <div id={`svg-${view.viewId}${pathId.join('-')}`} className="svgWrap" />
+          <div
+            id={`svg-${view.viewId}${pathId.join('-')}`}
+            className={
+              isStraightLine || advancedSetting.hierarchyViewConnectLine === '1' ? 'svgStraightWrap' : 'svgWrap'
+            }
+          />
           <DraggableRecord
             {...this.props}
             viewParaOfRecord={recordInfoPara}
@@ -195,6 +211,12 @@ export default class SortableRecordItem extends Component {
             onUpdate={(value, relateSheet) =>
               updateHierarchyData({ path, pathId, recordId: rowId, value, relateSheet })
             }
+            onClick={() => {
+              this.handleRecordVisible(rowId);
+              if (location.pathname.indexOf('public') === -1) {
+                addBehaviorLog('worksheetRecord', worksheetInfo.worksheetId, { rowId }); // 埋点
+              }
+            }}
           />
         </div>
         {recordInfoVisible &&

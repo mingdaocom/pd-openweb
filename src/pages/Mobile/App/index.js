@@ -17,8 +17,11 @@ import FixedPage from './FixedPage';
 import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet/index.jsx';
 import WorksheetUnNormal from 'mobile/RecordList/State';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
 import MoreAction from './MoreAction';
 import _ from 'lodash';
+import { addBehaviorLog } from 'src/util';
 const Item = List.Item;
 let modal = null;
 
@@ -118,6 +121,7 @@ class App extends Component {
   };
 
   handleOpenSheet = (data, item) => {
+    addBehaviorLog(item.type == 0 ? 'worksheet' : 'customPage', item.workSheetId); // 埋点
     const { params } = this.props.match;
     localStorage.removeItem('currentNavWorksheetId');
     if (item.type === 0) {
@@ -128,7 +132,32 @@ class App extends Component {
       );
     }
     if (item.type === 1) {
-      this.navigateTo(`/mobile/customPage/${params.appId}/${data.appSectionId}/${item.workSheetId}`);
+      const { urlTemplate, configuration = {}} = item;
+      if (urlTemplate && configuration.openType == '2') {
+        const { detail } = this.props.appDetail;
+        const dataSource = transferValue(urlTemplate);
+        const urlList = [];
+        dataSource.map(o => {
+          if (!!o.staticValue) {
+            urlList.push(o.staticValue);
+          } else {
+            urlList.push(
+              getEmbedValue(
+                {
+                  projectId: detail.projectId,
+                  appId: params.appId,
+                  groupId: params.appSectionId,
+                  worksheetId: params.workSheetId,
+                },
+                o.cid,
+              ),
+            );
+          }
+        });
+        window.open(urlList.join(''));
+      } else {
+        this.navigateTo(`/mobile/customPage/${params.appId}/${data.appSectionId}/${item.workSheetId}`);
+      }
     }
   };
 
@@ -636,6 +665,7 @@ class App extends Component {
                 selectedIcon={<SvgIcon url={item.iconUrl} fill={detail.iconColor} size={20} />}
                 selected={selectedTab === item.workSheetId}
                 onPress={() => {
+                  addBehaviorLog(item.type == 0 ? 'worksheet' : 'customPage', item.workSheetId); // 埋点
                   this.handleSwitchSheet(item, data);
                 }}
               />

@@ -118,31 +118,35 @@ export default function SendToChat(props) {
         );
       });
     } else {
-      chatAjax.getChatList({
-        keywords,
-        size: 20,
-      }).then(data => {
-        setLoading(false);
-        setList(data);
-      });
+      chatAjax
+        .getChatList({
+          keywords,
+          size: 20,
+        })
+        .then(data => {
+          setLoading(false);
+          setList(data);
+        });
     }
   }
   function handleSend() {
     if (card && !card.url) {
       card.url = url;
     }
-    chatAjax.sendCardToChat({
-      cards: card ? [card] : [],
-      message: description,
-      [selectedUser.type === 1 ? 'toAccountId' : 'toGroupId']: selectedUser.value,
-    }).then(data => {
-      if (data) {
-        onClose();
-        alert(_l('发送成功'));
-      } else {
-        alert(_l('发送失败'), 3);
-      }
-    });
+    chatAjax
+      .sendCardToChat({
+        cards: card ? [card] : [],
+        message: description,
+        [selectedUser.type === 1 ? 'toAccountId' : 'toGroupId']: selectedUser.value,
+      })
+      .then(data => {
+        if (data) {
+          onClose();
+          alert(_l('发送成功'));
+        } else {
+          alert(_l('发送失败'), 3);
+        }
+      });
   }
   const debounceLoadChat = useCallback(debounce(loadChat, 300), []);
   const chatListComp = (
@@ -166,6 +170,7 @@ export default function SendToChat(props) {
                     }}
                   >
                     <UserHead
+                      lazy="false"
                       className="mRight10"
                       user={{
                         userHead: account.logo,

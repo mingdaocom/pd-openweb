@@ -10,6 +10,7 @@ import MdBusinessCard from 'src/components/mdBusinessCard/reactMdBusinessCard';
 import Empty from '../../common/TableEmpty';
 import { htmlEncodeReg } from 'src/util';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import PaginationWrap from '../../components/PaginationWrap';
 import _ from 'lodash';
 
 const TYPES = {
@@ -118,17 +119,6 @@ export default class Detail extends React.Component {
     const keys = ['pageIndex', 'currentType', 'currentOAType', 'currentOACompleteType', 'currentWorksheetType'];
     if (!_.isEqual(_.pick(prevState, keys), _.pick(this.state, keys))) {
       this.fetchList();
-    }
-    if (this.pager) {
-      const { pageIndex, allCount, pageSize } = this.state;
-      $(this.pager).Pager({
-        pageIndex: pageIndex,
-        pageSize,
-        count: allCount,
-        changePage: pageIndex => {
-          this.setState({ pageIndex });
-        },
-      });
     }
   }
 
@@ -615,7 +605,7 @@ export default class Detail extends React.Component {
 
   renderList() {
     const { currentType, currentWorksheetType, currentOAType, selectItems, list } = this.state;
-    const { isLoading, allCount } = this.state;
+    const { isLoading, allCount, pageIndex, pageSize } = this.state;
 
     const name = (() => {
       if (currentType === TYPES.OA) {
@@ -690,10 +680,11 @@ export default class Detail extends React.Component {
           </table>
         </div>
         {!isLoading && allCount && allCount > 10 ? (
-          <div
-            ref={el => {
-              this.pager = el;
-            }}
+          <PaginationWrap
+            total={allCount}
+            pageSize={pageSize}
+            pageIndex={pageIndex}
+            onChange={pageIndex => this.setState({ pageIndex }, this.fetchList)}
           />
         ) : null}
       </React.Fragment>

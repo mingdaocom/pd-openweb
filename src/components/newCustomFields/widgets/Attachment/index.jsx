@@ -396,7 +396,7 @@ export default class Widgets extends Component {
     const recordAttachmentSwitch = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewIdForPermit);
 
     const coverType = advancedSetting.covertype || '0';
-    const allAownload = advancedSetting.alldownload !== '0' && recordAttachmentSwitch;
+    const allAownload = advancedSetting.alldownload !== '0' && recordAttachmentSwitch && !_.get(window, 'shareState.shareId');
 
     const filesProps = {
       flag,

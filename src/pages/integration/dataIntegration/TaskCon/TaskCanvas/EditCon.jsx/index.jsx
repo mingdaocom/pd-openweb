@@ -135,6 +135,15 @@ const WrapR = styled.div`
     .icon {
       color: #2196f3;
     }
+    &.disable {
+      border: 1px solid #bdbdbd;
+      color: #bdbdbd;
+      background: #fff;
+      .icon,
+      .icon:hover {
+        color: #bdbdbd;
+      }
+    }
   }
   .tableCon {
     overflow: auto;
@@ -186,22 +195,41 @@ export default class EditorCon extends Component {
   }
   componentWillReceiveProps(nextProps, nextState) {
     if (!_.isEqual(this.props.node, nextProps.node)) {
-      this.setState({
-        fieldNames: [],
-        rows: [],
-      });
+      this.setState(
+        {
+          fieldNames: [],
+          rows: [],
+          loading: true,
+        },
+        () => {
+          this.setState({
+            loading: false,
+          });
+        },
+      );
     }
   }
 
+  isShowMDCell = () => {
+    const { node, list } = this.props;
+    // const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
+    //源节点 且是工作表
+    return (
+      ['SOURCE_TABLE'].includes(_.get(node, ['nodeType'])) &&
+      _.get(node, ['nodeConfig', 'config', 'dsType']) === DATABASE_TYPE.APPLICATION_WORKSHEET
+      //   ||
+      // //目的地节点 且是工作表 且上个节点也是工作表
+      // (['DEST_TABLE'].includes(_.get(node, ['nodeType'])) &&
+      //   _.get(node, ['nodeConfig', 'config', 'dsType']) === DATABASE_TYPE.APPLICATION_WORKSHEET &&
+      //   _.get(preNode, ['nodeConfig', 'config', 'dsType']) === DATABASE_TYPE.APPLICATION_WORKSHEET)
+    );
+  };
   //预览节点数据 每次需要手动预览数据
   getNodeDataPreview = () => {
-    const { currentProjectId: projectId, flowId, node } = this.props;
+    const { currentProjectId: projectId, flowId, node, list } = this.props;
     const { nodeId } = node;
     this.setState({ loading: true });
-    if (
-      _.get(node, ['nodeType']) === 'SOURCE_TABLE' &&
-      _.get(node, ['nodeConfig', 'config', 'dsType']) === DATABASE_TYPE.APPLICATION_WORKSHEET
-    ) {
+    if (this.isShowMDCell()) {
       axios
         .all([
           sheetAjax.getWorksheetInfo({
@@ -213,6 +241,7 @@ export default class EditorCon extends Component {
             worksheetId: _.get(node, 'nodeConfig.config.workSheetId'),
             pageSize: 100,
             pageIndex: 1,
+            getType: 7, //获取表全部数据
           }),
         ])
         .then(res => {
@@ -223,20 +252,37 @@ export default class EditorCon extends Component {
             rows: _.get(res[1], 'data'),
             loading: false,
           });
+          if ((_.get(res[0], 'template.controls') || []).length <= 0) {
+            alert(_l('相关工作表已删除，或存在异常'), 2);
+          }
         });
     } else {
       TaskFlow.nodeDataPreview({
         projectId,
         flowId,
         nodeId,
-      }).then(res => {
-        const { fieldNames = [], rows = [] } = res || {};
-        this.setState({
-          fieldNames,
-          rows,
-          loading: false,
-        });
-      });
+      }).then(
+        res => {
+          const { fieldNames = [], rows = [], isSucceeded, errorMsgList } = res || {};
+          this.setState({
+            fieldNames: fieldNames || [],
+            rows: rows || [],
+            loading: false,
+          });
+          if (!isSucceeded && (errorMsgList || []).length > 0) {
+            let str = errorMsgList.join(',');
+            alert(str, 2);
+          }
+        },
+        () => {
+          this.setState({
+            fieldNames: [],
+            rows: [],
+            loading: false,
+          });
+          alert(_l('相关工作表已删除，或存在异常'), 2);
+        },
+      );
     }
   };
 
@@ -334,16 +380,15 @@ export default class EditorCon extends Component {
     const { nodeType = '' } = node;
     const { rows = [], fieldNames = [], maxTable, loading } = this.state;
     let canEditControl = false; //能否编辑字段
-    const showMDCell =
-      _.get(node, ['nodeType']) === 'SOURCE_TABLE' &&
-      _.get(node, ['nodeConfig', 'config', 'dsType']) === DATABASE_TYPE.APPLICATION_WORKSHEET;
+    const showMDCell = this.isShowMDCell();
+
     switch (nodeType) {
       case 'UNION':
       case 'JOIN':
       case 'DEST_TABLE':
+      case 'SOURCE_TABLE':
         canEditControl = true;
         break;
-      case 'SOURCE_TABLE':
       case 'FILTER':
       case 'AGGREGATE':
         canEditControl = false;
@@ -358,17 +403,24 @@ export default class EditorCon extends Component {
       case 'AGGREGATE':
       case 'DEST_TABLE':
         let disable = false;
-        if (nodeType === 'DEST_TABLE') {
+        if (['DEST_TABLE', 'SOURCE_TABLE'].includes(nodeType)) {
           let { dsType, tableName, workSheetId, createTable, fieldsMapping } =
             _.get(node, ['nodeConfig', 'config']) || {};
           disable =
             ((dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? !workSheetId : !tableName) && !createTable) || //选择已已有，未配置表
             (createTable && (fieldsMapping.length <= 0 || !tableName)); //选择新建，未设置名称或映射
         }
+        if (['FILTER'].includes(nodeType)) {
+          disable = true; //1.3暂不处理预览
+        }
         return (
           <WrapR className={cx('flexColumn')}>
             <div className="headCon flexRow alignItemsCenter">
-              <span className="Gray_9e flex">{nodeType !== 'DEST_TABLE' && _l('仅预览前100行数据')}</span>
+              <span className="Gray_9e flex">
+                {!['DEST_TABLE'].includes(nodeType)
+                  ? _l('仅预览前100行数据')
+                  : _l('预览数据仅显示从数据源同步至当前节点时的前100行记录')}
+              </span>
               {(rows.length > 0 || fieldNames.length > 0) && canEditControl && (
                 <span
                   className={cx('editControl flexRow alignItemsCenter mRight10', { disable, Hand: !disable })}
@@ -385,10 +437,16 @@ export default class EditorCon extends Component {
                   {_l('字段配置')}
                 </span>
               )}
-              {nodeType !== 'DEST_TABLE' && (rows.length > 0 || fieldNames.length > 0) && (
+              {(rows.length > 0 || fieldNames.length > 0) && (
                 <span
-                  className="previewData Hand flexRow alignItemsCenter"
+                  className={cx(
+                    'previewData flexRow alignItemsCenter',
+                    disable || ['DEST_TABLE'].includes(nodeType) ? 'disable' : 'Hand',
+                  )}
                   onClick={() => {
+                    if (disable || ['DEST_TABLE'].includes(nodeType)) {
+                      return;
+                    }
                     this.refresh();
                   }}
                 >
@@ -396,14 +454,12 @@ export default class EditorCon extends Component {
                   {_l('预览数据')}
                 </span>
               )}
-              {nodeType !== 'DEST_TABLE' && (
-                <i
-                  className={`icon  Hand Font20 mLeft10 ${maxTable ? 'icon-close_fullscreen' : 'icon-open_in_full'}`}
-                  onClick={() => {
-                    this.setState({ maxTable: !maxTable });
-                  }}
-                ></i>
-              )}
+              <i
+                className={`icon  Hand Font20 mLeft10 ${maxTable ? 'icon-close_fullscreen' : 'icon-open_in_full'}`}
+                onClick={() => {
+                  this.setState({ maxTable: !maxTable });
+                }}
+              ></i>
               <i
                 className="icon icon-close  Hand Font20 mLeft10"
                 onClick={() => {
@@ -465,17 +521,21 @@ export default class EditorCon extends Component {
                         {_l('字段配置')}
                       </span>
                     )}
-                    {nodeType !== 'DEST_TABLE' && (
-                      <span
-                        className="previewData Hand flexRow alignItemsCenter"
-                        onClick={() => {
-                          this.refresh();
-                        }}
-                      >
-                        <i className="icon icon-refresh1 Hand Font16 mRight5"></i>
-                        {_l('预览数据')}
-                      </span>
-                    )}
+                    <span
+                      className={cx(
+                        'previewData flexRow alignItemsCenter',
+                        disable || ['DEST_TABLE'].includes(nodeType) ? 'disable' : 'Hand',
+                      )}
+                      onClick={() => {
+                        if (disable || ['DEST_TABLE'].includes(nodeType)) {
+                          return;
+                        }
+                        this.refresh();
+                      }}
+                    >
+                      <i className="icon icon-refresh1 Hand Font16 mRight5"></i>
+                      {_l('预览数据')}
+                    </span>
                   </div>
                 ) : (
                   <React.Fragment>

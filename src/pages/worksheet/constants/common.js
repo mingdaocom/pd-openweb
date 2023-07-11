@@ -244,6 +244,11 @@ export const isGalleryOrBoard = type => {
   return [VIEW_DISPLAY_TYPE.gallery, VIEW_DISPLAY_TYPE.board].includes(String(type));
 };
 
+// 是否看板视图、画廊视图、层级视图
+export const isGalleryOrBoardOrStructure = type => {
+  return [VIEW_DISPLAY_TYPE.gallery, VIEW_DISPLAY_TYPE.board, VIEW_DISPLAY_TYPE.structure].includes(String(type));
+};
+
 // 根据视图类型，设置封面位置和显示方式的默认值
 export const getDefaultViewSet = data => {
   let { viewType, advancedSetting = {}, coverType = 0 } = data;
@@ -266,6 +271,10 @@ export const getDefaultViewSet = data => {
     let { coverposition = '0' } = advancedSetting;
     if (coverposition === '2') {
       coverposition = '0';
+    }
+    //表视图 新建默认不启用业务规则
+    if (VIEW_DISPLAY_TYPE.sheet === String(viewType)) {
+      advancedSetting = { ...advancedSetting, enablerules: '1' }
     }
     return {
       ...data,

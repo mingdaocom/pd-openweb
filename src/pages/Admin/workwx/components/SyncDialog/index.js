@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Dialog, Icon, ScrollView, LoadDiv } from 'ming-ui';
-import { Pagination, Input } from 'antd';
+import { Input } from 'antd';
+import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import workWeiXinAjax from 'src/api/workWeiXin';
 import Trigger from 'rc-trigger';
 import './index.less';
@@ -207,16 +208,6 @@ export default class SyncDialog extends Component {
       });
     }
   };
-
-  itemRender(current, type, originalElement) {
-    if (type === 'prev') {
-      return <a className="page">{_l('上一页')}</a>;
-    }
-    if (type === 'next') {
-      return <a className="page">{_l('下一页')}</a>;
-    }
-    return originalElement;
-  }
 
   // 分页
   changPage = page => {
@@ -535,15 +526,7 @@ export default class SyncDialog extends Component {
           </div>
         )}
         {isBindRelationship && allCount > pageSize && (
-          <div className="pagination">
-            <Pagination
-              total={allCount}
-              itemRender={this.itemRender}
-              onChange={this.changPage}
-              current={pageIndex}
-              pageSize={pageSize}
-            />
-          </div>
+          <PaginationWrap total={allCount} pageIndex={pageIndex} pageSize={pageSize} onChange={this.changPage} />
         )}
       </Dialog>
     );

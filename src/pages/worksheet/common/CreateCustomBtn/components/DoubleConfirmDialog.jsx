@@ -93,13 +93,13 @@ class DoubleConfirmDialog extends React.Component {
           this.props.onChange({
             doubleConfirm: {
               confirmMsg:
-                confirmMsg.trim() || _.get(cloneInfo, 'doubleConfirm.confirmMsg') || '你确认对记录执行此操作吗？',
-              sureName: sureName.trim() || _.get(cloneInfo, 'doubleConfirm.sureName') || '确认',
-              cancelName: cancelName.trim() || _.get(cloneInfo, 'doubleConfirm.cancelName') || '取消',
+                confirmMsg.trim() || _.get(cloneInfo, 'doubleConfirm.confirmMsg') || _l('你确认对记录执行此操作吗？'),
+              sureName: sureName.trim() || _.get(cloneInfo, 'doubleConfirm.sureName') || _l('确认'),
+              cancelName: cancelName.trim() || _.get(cloneInfo, 'doubleConfirm.cancelName') || _l('取消'),
             },
             advancedSetting: {
               ...advancedSetting,
-              remarkname: remarkname.trim() || _.get(cloneInfo, 'advancedSetting.remarkname') || '备注',
+              remarkname: remarkname.trim() || _.get(cloneInfo, 'advancedSetting.remarkname') || _l('备注'),
             },
           });
         }}
@@ -266,7 +266,7 @@ class DoubleConfirmDialog extends React.Component {
           {showApprovalTemplate && (
             <OpinionTemplate
               title={_l('备注模版')}
-              description={_l('预置常用的意见作为模板，帮助审批人快捷填写')}
+              description={_l('预置常用项作为模板，帮助操作人快捷填写')}
               keys={[{ key: 'template', text: _l('模板') }]}
               opinionTemplate={{ opinions: safeParse(remarkoptions), inputType: remarktype === '1' ? 2 : 1 }}
               onSave={data => {

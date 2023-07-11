@@ -1,3 +1,6 @@
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { getEmbedValue } from 'src/components/newCustomFields/tools/utils';
+
 export function getAppNavigateUrl(appId, pcNaviStyle) {
   const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`));
   if (storage) {
@@ -18,3 +21,17 @@ export function getAppNavigateUrl(appId, pcNaviStyle) {
     return `/app/${appId}`;
   }
 }
+
+export const transferExternalLinkUrl = (urlTemplate, projectId, appId) => {
+  let transferUrl = '';
+  const urlValue = transferValue(urlTemplate);
+  urlValue.forEach(item => {
+    const { cid, staticValue } = item;
+    if (cid) {
+      transferUrl += getEmbedValue({ projectId, appId }, cid);
+    } else {
+      transferUrl += staticValue;
+    }
+  });
+  return transferUrl;
+};

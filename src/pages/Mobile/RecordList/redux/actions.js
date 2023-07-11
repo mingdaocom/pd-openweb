@@ -167,6 +167,9 @@ export const fetchSheetRows = params => (dispatch, getState) => {
     dispatch({ type: 'MOBILE_FETCH_SHEETROW_SUCCESS' });
   });
 };
+export const changeMobileSheetRows = data => (dispatch, getState) => {
+  dispatch({ type: 'MOBILE_CHANGE_SHEET_ROWS', data });
+};
 
 export const unshiftSheetRow = data => (dispatch, getState) => {
   dispatch({
@@ -235,7 +238,7 @@ export const resetSheetView = () => (dispatch, getState) => {
 };
 
 export const emptySheetRows = () => (dispatch, getState) => {
-  dispatch({ type: 'MOBILE_CHANGE_SHEET_ROWS', data: [] });
+  changeMobileSheetRows([]);
   dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: {} });
 };
 

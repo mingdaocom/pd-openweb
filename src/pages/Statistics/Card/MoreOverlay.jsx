@@ -22,7 +22,7 @@ export default class MoreOverlay extends Component {
     };
   }
   handleExportExcel = exportType => {
-    const { report, worksheetId, exportData } = this.props;
+    const { report, worksheetId, exportData, filter } = this.props;
     const {
       filters = [],
       filtersGroup = [],
@@ -42,6 +42,7 @@ export default class MoreOverlay extends Component {
         filterRangeId,
         rangeType,
         rangeValue,
+        dynamicFilter: rangeType ? filter.dynamicFilter : undefined,
         sorts,
         filters: [filters, filtersGroup, filterControls].filter(n => !_.isEmpty(n)),
       })
@@ -204,10 +205,13 @@ export default class MoreOverlay extends Component {
             <div className="flexRow valignWrapper">{_l('按显示单位导出%06001')}</div>
           </Menu.Item>
         </Menu.SubMenu>
-        {[reportTypes.PivotTable].includes(reportType) && (
+        {[reportTypes.PivotTable].includes(reportType) && !md.global.Account.isPortal && (
           <Menu.Item
             className="pLeft10"
             onClick={() => {
+              const { filters = [], filtersGroup = [] } = this.props.exportData;
+              const printFilter = [filters, filtersGroup].filter(n => !_.isEmpty(n));
+              sessionStorage.setItem(`printFilter-${report.id}`, JSON.stringify(printFilter));
               window.open(`/printPivotTable/${report.id}`);
             }}
           >

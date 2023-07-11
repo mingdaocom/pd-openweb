@@ -117,7 +117,7 @@ export function reducer(state, action = {}) {
       if (!newApp) {
         return state;
       }
-      newApp = { ...newApp, id: action.newAppId, name: _l('%0-复制', newApp.name) };
+      newApp = { ...newApp, id: action.newAppId, name: _l('%0-复制', newApp.name), isNew: true, isMarked: false };
       return updateAppOfState({
         ...state,
         ...(state.activeGroup && action.groupId === state.activeGroup.id
@@ -237,7 +237,7 @@ export class CreateActions {
     if (window.homeGetMyAppAjax) {
       window.homeGetMyAppAjax.abort();
     }
-    window.homeGetMyAppAjax = homeAppAjax.getMyApp({ projectId });
+    window.homeGetMyAppAjax = homeAppAjax.getMyApp({ projectId, containsLinks: true });
     window.homeGetMyAppAjax.then(data => {
       delete window.homeGetMyAppAjax;
       if (
@@ -448,12 +448,17 @@ export class CreateActions {
       value: rest,
     });
   }
-  saveApp(app) {
+  saveApp(app, isUpdateExternalLink) {
     homeAppAjax
       .editAppInfo(app)
-      .then()
+      .then(res => {
+        if (isUpdateExternalLink) {
+          res.data && this.updateApp(_.omit(app, 'projectId'));
+          res.data ? alert(_l('设置链接成功')) : alert(_l('设置链接失败!'), 2);
+        }
+      })
       .fail(() => {
-        alert(_l('更新应用失败！'), 2);
+        alert(isUpdateExternalLink ? _l('设置链接失败！') : _l('更新应用失败！'), 2);
       });
   }
   deleteApp(para) {

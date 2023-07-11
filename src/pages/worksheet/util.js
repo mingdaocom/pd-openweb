@@ -10,7 +10,7 @@ import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import renderCellText from 'worksheet/components/CellControls/renderText';
 import { SYSTEM_CONTROLS, RECORD_INFO_FROM } from 'worksheet/constants/enum';
@@ -163,11 +163,11 @@ export function getSortData(type, control = {}) {
   } else if (type === 15 || type === 16 || type === 17 || type === 18) {
     return [
       {
-        text: _l('最新的在前'),
+        text: _l('最新的在前%05029'),
         value: descendingValue,
       },
       {
-        text: _l('最旧的在前'),
+        text: _l('最旧的在前%05030'),
         value: ascendingValue,
       },
     ];
@@ -194,11 +194,11 @@ export function getSortData(type, control = {}) {
   } else {
     return [
       {
-        text: _l('升序'),
+        text: _l('升序%05031'),
         value: ascendingValue,
       },
       {
-        text: _l('降序'),
+        text: _l('降序%05032'),
         value: descendingValue,
       },
     ];
@@ -573,7 +573,10 @@ export function controlIsNumber({ type, sourceControlType, enumDefault, enumDefa
  * 是否是按关联表格呈现的控件
  */
 export function isRelateRecordTableControl({ type, enumDefault, advancedSetting = {} }) {
-  return type === 29 && enumDefault === 2 && parseInt(advancedSetting.showtype, 10) === RELATE_RECORD_SHOW_TYPE.LIST;
+  return (
+    (type === 29 && enumDefault === 2 && parseInt(advancedSetting.showtype, 10) === RELATE_RECORD_SHOW_TYPE.LIST) ||
+    (type === 51 && advancedSetting.showtype === String(RELATION_SEARCH_SHOW_TYPE.LIST))
+  );
 }
 
 export function replaceByIndex(str = '111', index = 0, replacestr = '') {
@@ -1236,6 +1239,21 @@ export async function postWithToken(url, tokenArgs = {}, body = {}, axiosConfig 
   );
 }
 
+export async function getWithToken(url, tokenArgs = {}, body = {}, axiosConfig = {}) {
+  const token = await appManagementAjax.getToken(tokenArgs);
+  if (!token) {
+    return Promise.reject('获取token失败');
+  }
+  return axios.get(url, {
+    ...axiosConfig,
+    params: {
+      ...body,
+      token,
+      accountId: md.global.Account.accountId,
+    },
+  });
+}
+
 export function download(blob = '', name) {
   name = name || blob.name || 'file';
   function down(href) {
@@ -1260,5 +1278,6 @@ export const moveSheetCache = (appId, groupId) => {
     return data;
   });
   storage.worksheets = worksheets;
+  storage.lastWorksheetId = '';
   safeLocalStorageSetItem(`mdAppCache_${md.global.Account.accountId}_${appId}`, JSON.stringify(storage));
 };

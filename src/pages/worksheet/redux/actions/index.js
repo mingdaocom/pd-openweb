@@ -4,7 +4,12 @@ import update from 'immutability-helper';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { formatValuesOfCondition } from 'worksheet/common/WorkSheetFilter/util';
 import addRecord from 'worksheet/common/newRecord/addRecord';
-import { refresh as sheetViewRefresh, addRecord as sheetViewAddRecord, setViewLayout } from './sheetview';
+import {
+  refresh as sheetViewRefresh,
+  addRecord as sheetViewAddRecord,
+  setViewLayout,
+  setHighLightOfRows,
+} from './sheetview';
 import { refresh as galleryViewRefresh } from './galleryview';
 import { refresh as calendarViewRefresh } from './calendarview';
 import { resetLoadGunterView, addNewRecord as addGunterNewRecord } from './gunterview';
@@ -318,6 +323,7 @@ export function openNewRecord() {
         onAdd: data => {
           if (!_.isEmpty(data)) {
             dispatch(addNewRecord(data, view));
+            dispatch(setHighLightOfRows([data.rowid]));
             return;
           }
           dispatch({ type: 'UPDATE_DRAFT_DATA_COUNT', data: draftDataCount + 1 });

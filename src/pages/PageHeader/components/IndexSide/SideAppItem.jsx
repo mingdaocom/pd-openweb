@@ -7,6 +7,8 @@ import cx from 'classnames';
 import { getAppStatusText } from 'src/pages/PageHeader/util';
 import SvgIcon from 'src/components/SvgIcon';
 import _ from 'lodash';
+import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
+import { addBehaviorLog } from 'src/util';
 
 const AppStatus = styled.div`
   border-radius: 10px;
@@ -40,10 +42,13 @@ function SideAppItem({
   isGoodsStatus,
   isNew,
   fixed,
+  createType,
+  urlTemplate,
 }) {
   const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${id}`));
   return (
     <MdLink
+      className="stopPropagation"
       key={id}
       to={
         storage
@@ -54,8 +59,17 @@ function SideAppItem({
           : `/app/${id}`
       }
       onClick={e => {
-        if (!e.ctrlKey && !e.metaKey) {
-          closeIndexSide();
+        addBehaviorLog('app', id); // 浏览应用埋点
+
+        if (createType === 1) {
+          //应用为外部链接类型
+          e.stopPropagation();
+          e.preventDefault();
+          window.open(transferExternalLinkUrl(urlTemplate, projectId, id), '_blank');
+        } else {
+          if (!e.ctrlKey && !e.metaKey) {
+            closeIndexSide();
+          }
         }
       }}
     >

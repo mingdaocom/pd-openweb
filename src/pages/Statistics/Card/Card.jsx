@@ -80,6 +80,7 @@ class Card extends Component {
     const headersConfig = {
       share: shareAuthor,
     };
+    const printFilter = location.href.includes('printPivotTable') && JSON.parse(sessionStorage.getItem(`printFilter-${report.id}`));
     this.setState({ loading: true });
     this.abortRequest();
     this.request = reportApi.getData(
@@ -87,7 +88,7 @@ class Card extends Component {
         reportId: report.id,
         version: '6.5',
         reload,
-        filters: [filters, filtersGroup].filter(_ => _)
+        filters: printFilter ? printFilter : [filters, filtersGroup].filter(_ => _)
       },
       {
         fireImmediately: true,
@@ -113,7 +114,7 @@ class Card extends Component {
     });
   }
   handleOpenChartDialog = (data) => {
-    const { report, filtersGroup = [] } = this.props;
+    const { report, filters, filtersGroup } = this.props;
     const { reportData } = this.state;
     const { appId, filter, style, country } = reportData;
     const { filterRangeId, rangeType, rangeValue, dynamicFilter } = filter;
@@ -128,7 +129,7 @@ class Card extends Component {
         rangeValue,
         dynamicFilter,
         particleSizeType: drillParticleSizeType,
-        filters: [filtersGroup],
+        filters: [filters, filtersGroup].filter(_ => _),
         isPersonal: true,
         reportId: report.id
       }).then(result => {

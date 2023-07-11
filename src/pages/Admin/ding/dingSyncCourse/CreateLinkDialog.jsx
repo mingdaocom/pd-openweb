@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { Icon, Button, Dialog, Input } from 'ming-ui';
 import copy from 'copy-to-clipboard';
-import { isUrlRequest } from 'src/util';
+import RegExp from 'src/util/expression';
 
 const CreateLinkDialog = props => {
   const { visible, onCancel } = props;
@@ -11,7 +11,7 @@ const CreateLinkDialog = props => {
   const title = isWX ? _l('企业微信') : _l('钉钉');
 
   const handleCreateLink = () => {
-    if (!isUrlRequest(appLink)) {
+    if (!RegExp.isUrlRequest(appLink)) {
       alert(_l('url 格式不正确'), 3);
       return;
     }

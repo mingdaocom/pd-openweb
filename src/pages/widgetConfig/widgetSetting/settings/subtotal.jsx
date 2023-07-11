@@ -132,7 +132,7 @@ export default function Subtotal(props) {
 
   const filterControls = filterByTypeAndSheetFieldType(
     resortControlByColRow(filterOnlyShowField(availableControls) || []),
-    type => !includes([22, 25, 29, 30, 45, 47, 10010], type),
+    type => !includes([22, 25, 29, 30, 43, 45, 47, 49, 50, 51, 10010], type),
   ).map(item => ({ value: item.controlId, text: item.controlName, icon: getIconByType(item.type) }));
 
   const handleChange = value => {
@@ -326,7 +326,7 @@ export default function Subtotal(props) {
                 {...props}
                 relationControls={availableControls}
                 fromCondition={'subTotal'}
-                helpHref="https://help.mingdao.com/zh/sheet19.html"
+                helpHref="https://help.mingdao.com/sheet19"
                 onChange={({ filters }) => {
                   filtersCache.current = filters;
                   onChange(handleAdvancedSettingChange(data, { filters: JSON.stringify(filters) }));

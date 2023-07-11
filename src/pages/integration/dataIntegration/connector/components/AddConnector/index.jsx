@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, Button, Dialog } from 'ming-ui';
+import { Icon, Button, Dialog, LoadDiv } from 'ming-ui';
 import ConfigForm from '../../../components/configForm';
 import ConfigGuide from '../../../components/configGuide';
 import CreateSyncTask from '../CreateSyncTask';
@@ -146,7 +146,6 @@ export default function AddConnector(props) {
   const [nextOrSaveDisabled, setNextOrSaveDisabled] = useState(true);
   const [submitData, setSubmitData] = useState([]);
   const [resDialog, setResDialog] = useState({ visible: false });
-  const [isCreating, setIsCreating] = useState(false);
   const isSourceAppType = connectorConfigData.source.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
   const isDestAppType = connectorConfigData.dest.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
 
@@ -261,12 +260,12 @@ export default function AddConnector(props) {
               }
               break;
             case !isSourceAppType && isDestAppType:
-              if (!field.id || !field.name.trim() || !field.alias || !field.jdbcTypeId || !field.mdType) {
+              if (!field.name.trim() || !field.alias || !field.jdbcTypeId || !field.mdType) {
                 isComplete_new = false;
               }
               break;
             default:
-              if (!field.id || !field.name.trim() || !field.alias || !field.jdbcTypeId) {
+              if (!field.name.trim() || !field.alias || !field.jdbcTypeId) {
                 isComplete_new = false;
               }
               break;
@@ -363,7 +362,7 @@ export default function AddConnector(props) {
           });
         } else {
           setNextOrSaveDisabled(true);
-          setIsCreating(true);
+          setResDialog({ visible: true, type: 'loading' });
           //创建同步任务
           const submitParams = submitData.map(item => _.omit(item, 'tableList'));
           taskFlowApi
@@ -377,7 +376,7 @@ export default function AddConnector(props) {
             })
             .fail(() => {
               setNextOrSaveDisabled(false);
-              setIsCreating(false);
+              setResDialog({ visible: false });
             });
         }
       });
@@ -428,13 +427,11 @@ export default function AddConnector(props) {
             disabled={nextOrSaveDisabled}
             onClick={currentStep !== 2 ? onClickNext : onCreateTask}
           >
-            {!isCreating
-              ? currentStep === 2
-                ? submitData.length
-                  ? _l('创建%0个同步任务', submitData.length)
-                  : _l('创建同步任务')
-                : _l('下一步')
-              : _l('创建同步任务中...')}
+            {currentStep === 2
+              ? submitData.length
+                ? _l('创建%0个同步任务', submitData.length)
+                : _l('创建同步任务')
+              : _l('下一步')}
           </Button>
         </div>
       </HeaderWrapper>
@@ -466,30 +463,40 @@ export default function AddConnector(props) {
       )}
 
       {resDialog.visible &&
-        (resDialog.type === 'success' ? (
+        (resDialog.type !== 'error' ? (
           <Dialog visible width={480} className="connectorResultDialog" showFooter={false} closable={false}>
-            <div className="flexColumn alignItemsCenter">
-              <img src="/staticfiles/images/trophy.png" width={190} height={170} />
-              <div className="Font20 bold mTop20">{_l('太棒了！同步任务创建成功')}</div>
-              <div className="Font14 Gray_75 mTop20">
-                {_l('可在')}
-                <a
-                  className="mLeft5 mRight5"
-                  onClick={() => {
-                    window.location.href = '/integration/task';
-                  }}
-                >
-                  {_l('数据同步任务')}
-                </a>
-                {_l('中查看任务的运行状态与同步详情')}
-              </div>
-              <div className="flexRow alignItemsCenter mTop20">
-                <Icon icon="info_outline" className="Gray_9e Font16" />
-                <span className="Gray_9e mLeft8">{_l('连续60天无数据同步，会自动停止')}</span>
-              </div>
-              <Button type="primary" className="mTop36" onClick={onClose}>
-                {_l('知道了')}
-              </Button>
+            <div className="flexColumn alignItemsCenter justifyContentCenter h100">
+              {resDialog.type === 'success' ? (
+                <React.Fragment>
+                  <img src="/staticfiles/images/trophy.png" width={190} height={170} />
+                  <div className="Font20 bold mTop20">{_l('太棒了！同步任务创建成功')}</div>
+                  <div className="Font14 Gray_75 mTop20">
+                    {_l('可在')}
+                    <a
+                      className="mLeft5 mRight5"
+                      onClick={() => {
+                        window.location.href = '/integration/task';
+                      }}
+                    >
+                      {_l('数据同步任务')}
+                    </a>
+                    {_l('中查看任务的运行状态与同步详情')}
+                  </div>
+                  <div className="flexRow alignItemsCenter mTop20">
+                    <Icon icon="info_outline" className="Gray_9e Font16" />
+                    <span className="Gray_9e mLeft8">{_l('连续60天无数据同步，会自动停止')}</span>
+                  </div>
+                  <Button type="primary" className="mTop36" onClick={onClose}>
+                    {_l('知道了')}
+                  </Button>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <LoadDiv />
+                  <div className="Font20 bold mTop36">{_l('任务创建中...')}</div>
+                  <div className="Font14 Gray_75 mTop8">{_l('可能需要一些时间，请耐心等待')}</div>
+                </React.Fragment>
+              )}
             </div>
           </Dialog>
         ) : (
@@ -503,12 +510,10 @@ export default function AddConnector(props) {
             onOk={() => {
               setResDialog({ visible: false });
               setNextOrSaveDisabled(false);
-              setIsCreating(false);
             }}
             onCancel={() => {
               setResDialog({ visible: false });
               setNextOrSaveDisabled(false);
-              setIsCreating(false);
             }}
           >
             {resDialog.errorMsgList && resDialog.errorMsgList.length > 0 && (

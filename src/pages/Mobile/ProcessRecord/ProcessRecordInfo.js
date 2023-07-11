@@ -265,11 +265,11 @@ class ProcessRecord extends Component {
     const { projectId, receiveControls } = sheetRow;
     const { result, cells } = this.handleVerify(fn, id);
 
+    if (!result) return;
     if (_.isEmpty(cells)) {
       fn && fn();
       return;
     }
-    if (!result) return;
 
     worksheetAjax
       .updateWorksheetRow({
@@ -820,7 +820,7 @@ class ProcessRecord extends Component {
     );
   }
   renderCustomFields() {
-    const { viewId, isEdit, random, sheetRow, rowId, worksheetId, instance, otherActionVisible } = this.state;
+    const { viewId, isEdit, random, sheetRow, rowId, worksheetId, instance, otherActionVisible, switchPermit } = this.state;
     const { operationTypeList, flowNode, app } = instance;
     const { type } = flowNode;
     const { params } = this.props.match;
@@ -844,6 +844,7 @@ class ProcessRecord extends Component {
             worksheetId={worksheetId}
             data={sheetRow.receiveControls}
             registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
+            sheetSwitchPermit={switchPermit}
             controlProps={{
               updateRelationControls: (worksheetIdOfControl, newControls) => {
                 this.setState(oldState => ({

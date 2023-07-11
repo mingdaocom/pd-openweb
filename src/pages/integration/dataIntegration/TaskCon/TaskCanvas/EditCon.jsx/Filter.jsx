@@ -15,28 +15,8 @@ export default function Filter(props) {
   });
   useEffect(() => {
     const { list = [], node = {}, currentProjectId: projectId } = props;
-    const preNode = list.find(o => o.y === node.y && o.y === node.x - 1);
-    let relateControls = formatControls(
-      _.get(preNode, ['nodeConfig', 'fields']) || [
-        {
-          id: '156',
-          dependFieldIds: ['o30kpy'],
-          name: 'sharmaine.cormier',
-          dataType: 'ufo7fo',
-          jdbcTypeId: 709,
-          precision: 710,
-          scale: 693,
-          isPk: true,
-          isNotNull: true,
-          alias: 'jb1imz',
-          isCheck: true,
-          orderNo: 172,
-          status: 'NORMAL',
-          defaultValue: 'pfyr6q',
-          comment: 'xs6oha',
-        },
-      ],
-    );
+    const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
+    let relateControls = formatControls(_.get(preNode, ['nodeConfig', 'fields']) || []).filter(o => o.isCheck); //过滤掉未勾选的字段
     setState({
       relateControls: relateControls,
       filterInfo: {
@@ -66,7 +46,7 @@ export default function Filter(props) {
   return (
     <WrapL>
       <div className="title Bold">{_l('筛选')}</div>
-      <div className="des mTop14 Gray_9e">
+      <div className="des mTop15 Gray_9e">
         {_l(
           '设置筛选条件后，只有满足条件的数据才能进入本节点。允许添加多个筛选过滤节点分支将数据写入不同的数据目的地。',
         )}
@@ -88,6 +68,7 @@ export default function Filter(props) {
         <FilterDialog
           allowEmpty
           data={data}
+          fromCondition="subTotal" //只能设置指定时间，套用原有设置
           overlayClosable={false}
           relationControls={relateControls}
           title={'筛选'}
@@ -95,22 +76,46 @@ export default function Filter(props) {
           allControls={filterInfo.allControls}
           globalSheetInfo={filterInfo.globalSheetInfo}
           onChange={({ filters }) => {
+            let items = filters.map(o => {
+              if (o.isGroup) {
+                return {
+                  ...o,
+                  groupFilters: o.groupFilters.map(it => {
+                    return {
+                      ...it,
+                      fieldName: (relateControls.find(a => a.id === it.controlId) || {}).name,
+                    };
+                  }),
+                };
+              } else {
+                return {
+                  ...o,
+                  fieldName: (relateControls.find(a => a.id === o.controlId) || {}).name,
+                };
+              }
+            });
             // onChange({ navfilters: JSON.stringify(filters.map(handleCondition)) });
-            setData({ items: filters });
+            setData({
+              items,
+            });
             setState({ filterVisible: false });
           }}
           onClose={() => setState({ filterVisible: false })}
+          hideSupport
+          supportGroup
         />
       )}
-      <FilterItemTexts
-        data={data}
-        filters={filters}
-        loading={false}
-        globalSheetInfo={filterInfo.globalSheetInfo}
-        controls={relateControls}
-        allControls={filterInfo.allControls}
-        editFn={() => setState({ filterVisible: true })}
-      />
+      <div className="mTop16">
+        <FilterItemTexts
+          data={data}
+          filters={filters}
+          loading={false}
+          globalSheetInfo={filterInfo.globalSheetInfo}
+          controls={relateControls}
+          allControls={filterInfo.allControls}
+          editFn={() => setState({ filterVisible: true })}
+        />
+      </div>
     </WrapL>
   );
 }

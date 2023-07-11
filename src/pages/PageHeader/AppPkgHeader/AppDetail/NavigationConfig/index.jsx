@@ -10,7 +10,6 @@ export default function NavigationConfig(props) {
   const { projectId, appId, visible, onClose } = props;
   const { app, onChangeApp } = props;
   const [loading, setLoading] = useState(false);
-  const [isChange, setIsChange] = useState(false);
   const [gridDisplayMode, setGridDisplayMode] = useState(app.gridDisplayMode || 0);
   const [appNavDisplayType, setAppNavDisplayType] = useState(app.appNavDisplayType || 0);
 
@@ -28,7 +27,6 @@ export default function NavigationConfig(props) {
             type={type}
             data={app}
             onChangeApp={data => {
-              setIsChange(true);
               onChangeApp(data);
             }}
           />
@@ -46,7 +44,6 @@ export default function NavigationConfig(props) {
           <Checkbox
             checked={app.viewHideNavi}
             onChange={e => {
-              setIsChange(true);
               onChangeApp({ viewHideNavi: e.target.checked });
             }}
           >
@@ -61,7 +58,7 @@ export default function NavigationConfig(props) {
           </Tooltip>
         </div>
         <div className="content">
-          <Navigation {...props} setIsChange={setIsChange} />
+          <Navigation {...props} />
         </div>
       </Fragment>
     );
@@ -88,7 +85,6 @@ export default function NavigationConfig(props) {
               ]}
               checkedValue={gridDisplayMode}
               onChange={value => {
-                setIsChange(true);
                 setGridDisplayMode(value);
                 onChangeApp({ gridDisplayMode: value });
               }}
@@ -115,7 +111,6 @@ export default function NavigationConfig(props) {
           ]}
           checkedValue={appNavDisplayType}
           onChange={value => {
-            setIsChange(true);
             setAppNavDisplayType(value);
             onChangeApp({ appNavDisplayType: value });
           }}
@@ -128,12 +123,6 @@ export default function NavigationConfig(props) {
     <div className="navigationConfig">
       <div className="flexRow alignItemsCenter title">
         <div className="flex Font17 bold">{_l('导航设置')}</div>
-        {isChange && (
-          <div className="flexRow alignItemsCenter Gray_9e mRight10">
-            <Icon icon="save_as_black_24dp" className="Gray_9e mRight5 Font20" />
-            <div className="Font13">{_l('导航修改实时生效')}</div>
-          </div>
-        )}
         <Icon icon="close" className="Font20 Gray_9e pointer" onClick={onClose} />
       </div>
       <Tabs defaultActiveKey="pc">

@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
+import { Button } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 import sheetAjax from 'src/api/worksheet';
 import NewRecord from 'src/pages/worksheet/common/newRecord';
+import successPng from './success.png';
 import './index.less';
+import { navigateTo } from 'src/router/navigateTo';
 
 const ScaleButton = styled.div`
   position: absolute;
@@ -24,13 +27,33 @@ const ScaleButton = styled.div`
     color: #2196f3;
   }
 `;
+
+const Success = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  img {
+    width: 120px;
+  }
+  .status {
+    font-size: 17px;
+    color: #757575;
+    margin: 24px 0 32px;
+  }
+`;
+
+const STATUS = {
+  NORMAL: 1,
+  SUCCESS: 2,
+  ERROR: 3,
+};
 @withRouter
 export default class NewRecordLand extends Component {
   constructor(props) {
     super(props);
     this.state = {
       isLarge: localStorage.getItem('NEW_RECORD_IS_LARGE') === 'true',
-      error: false,
+      status: STATUS.NORMAL,
     };
   }
   handleAddWorksheetRow(args, callBack) {
@@ -48,28 +71,43 @@ export default class NewRecordLand extends Component {
   render() {
     const { match = {} } = this.props;
     const { appId, worksheetId, viewId } = match.params || {};
-    const { isLarge, error } = this.state;
+    const { isLarge, status } = this.state;
     return (
       <div className={cx('newRecordLand')} style={isLarge ? { width: 'calc(100% - 64px)', maxWidth: '1200px' } : {}}>
-        <ScaleButton
-          onClick={() => {
-            safeLocalStorageSetItem('NEW_RECORD_IS_LARGE', !isLarge);
-            this.setState({ isLarge: !isLarge });
-          }}
-        >
-          <span data-tip={isLarge ? _l('缩小') : _l('放大')}>
-            <i className={`icon icon-${isLarge ? 'worksheet_narrow' : 'worksheet_enlarge'}`}></i>
-          </span>
-        </ScaleButton>
-        {error && (
-          <div
-            className="errorCon shadow"
-            style={{ height: window.innerHeight - 130 + 'px', lineHeight: window.innerHeight - 130 + 'px' }}
+        {status === STATUS.NORMAL && (
+          <ScaleButton
+            onClick={() => {
+              safeLocalStorageSetItem('NEW_RECORD_IS_LARGE', !isLarge);
+              this.setState({ isLarge: !isLarge });
+            }}
           >
-            {_l('您没有新建记录权限，请联系该应用管理员')}
+            <span data-tip={isLarge ? _l('缩小') : _l('放大')}>
+              <i className={`icon icon-${isLarge ? 'worksheet_narrow' : 'worksheet_enlarge'}`}></i>
+            </span>
+          </ScaleButton>
+        )}
+        {status !== STATUS.NORMAL && (
+          <div className="errorCon shadow" style={{ height: window.innerHeight - 130 + 'px' }}>
+            {status === STATUS.ERROR && _l('您没有新建记录权限，请联系该应用管理员')}
+            {status === STATUS.SUCCESS && (
+              <Success>
+                <img src={successPng} alt="" />
+                <span className="status">{_l('创建成功')}</span>
+                <div>
+                  <Button onClick={() => this.setState({ status: STATUS.NORMAL })}>{_l('继续创建')}</Button>
+                  <Button
+                    type="ghost"
+                    className="mLeft10"
+                    onClick={() => navigateTo(`/worksheet/${worksheetId}${viewId ? `/view/${viewId}` : ''}`)}
+                  >
+                    {_l('查看我的数据')}
+                  </Button>
+                </div>
+              </Success>
+            )}
           </div>
         )}
-        {!error && (
+        {status === STATUS.NORMAL && (
           <div className="newRecordCon" style={{ minHeight: window.innerHeight - 130 + 'px' }}>
             <NewRecord
               showFillNext
@@ -80,7 +118,13 @@ export default class NewRecordLand extends Component {
               worksheetId={worksheetId}
               addType={1}
               visible
-              changeWorksheetStatusCode={() => this.setState({ error: true })}
+              changeWorksheetStatusCode={() => this.setState({ status: STATUS.ERROR })}
+              onAdd={(row, { continueAdd }) => {
+                if (!continueAdd) {
+                  //
+                  this.setState({ status: STATUS.SUCCESS });
+                }
+              }}
             />
           </div>
         )}

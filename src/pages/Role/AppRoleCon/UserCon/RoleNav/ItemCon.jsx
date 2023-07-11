@@ -9,7 +9,8 @@ import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 
 export default class ItemCon extends React.Component {
   render() {
-    const { setRoleId, SetAppRolePagingModel, setSelectedIds, isOwner, appId, appDetail, canEditApp } = this.props;
+    const { setRoleId, SetAppRolePagingModel, setSelectedIds, isOwner, appId, appDetail, canEditApp } =
+      this.props;
     const { data, roleId } = this.props;
     let optList = [];
     //离开自己所在的角色
@@ -24,20 +25,30 @@ export default class ItemCon extends React.Component {
       ];
     }
     //编辑自己有权限的自定义角色
-    if (canEditApp && !sysRoleType.includes(data.roleType)) {
-      optList = [
-        ...optList,
-        {
-          value: 1,
-          text: _l('编辑角色权限'),
-          showLine: data.isMyRole,
-        },
-        {
-          value: 2,
-          type: 'err',
-          text: _l('删除'),
-        },
-      ];
+    if (canEditApp) {
+      if (!sysRoleType.includes(data.roleType)) {
+        optList = [
+          ...optList,
+          {
+            value: 1,
+            text: _l('编辑角色'),
+            showLine: data.isMyRole,
+          },
+          {
+            value: 2,
+            type: 'err',
+            text: _l('删除'),
+          },
+        ];
+      } else {
+        optList = [
+          ...optList,
+          {
+            value: 1,
+            text: _l('查看角色'),
+          },
+        ];
+      }
     }
     return (
       <li
@@ -68,7 +79,7 @@ export default class ItemCon extends React.Component {
             <DropOption
               dataList={optList}
               showHeader={() => {
-                if (!data.isMyRole) {
+                if (!data.isMyRole || sysRoleType.includes(data.roleType)) {
                   return null;
                 }
                 return (

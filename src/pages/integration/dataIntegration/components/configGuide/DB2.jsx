@@ -19,7 +19,7 @@ export default function DB2Guide(props) {
 
       <h5>{_l('DB2数据库在DDL事件后，需要执行存储过程')}</h5>
       <div className="sqlText">
-        <div>{_l("CALL SYSPROC.ADMIN_CMD('REORG TABLE <模型名称>.<表名称>')")}</div>
+        <div>CALL SYSPROC.ADMIN_CMD('REORG TABLE {_l('<模型名称>.<表名称>')}')</div>
       </div>
 
       <h5>{_l('不支持 DB2 上的 布尔类型')}</h5>

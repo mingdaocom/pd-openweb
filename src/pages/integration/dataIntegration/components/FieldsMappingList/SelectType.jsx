@@ -58,24 +58,36 @@ export default function SelectType(props) {
     //对应类型的可选配置
     if (destField.mdType) {
       const ENUM_TYPE = enumWidgetType[destField.mdType];
-      const data =
-        ENUM_TYPE === 'DATE_TIME'
-          ? { type: destField.mdType, advancedSetting: { showtype: '6' } }
-          : { type: destField.mdType, ..._.omit(DEFAULT_DATA[ENUM_TYPE], ['controlName']) };
       setSettingComponent({
         component: Settings[ENUM_TYPE],
-        data,
+        data: destField.controlSetting,
       });
-      updateFieldsMapping &&
-        updateFieldsMapping({
-          ...itemData,
-          destField: {
-            ...destField,
-            controlSetting: _.pick(data, ['advancedSetting', 'enumDefault', 'type', 'dot']),
-          },
-        });
     }
   }, [destField.mdType]);
+
+  const onWorkSheetTypeChange = (value, option) => {
+    const ENUM_TYPE = enumWidgetType[value];
+    const data =
+      ENUM_TYPE === 'DATE_TIME'
+        ? { type: value, advancedSetting: { showtype: '6' } }
+        : { type: value, ..._.omit(DEFAULT_DATA[ENUM_TYPE], ['controlName']) };
+    setSettingComponent({
+      component: Settings[ENUM_TYPE],
+      data,
+    });
+    updateFieldsMapping &&
+      updateFieldsMapping({
+        ...itemData,
+        destField: {
+          ...destField,
+          dataType: option.typeName,
+          jdbcTypeId: option.dataType,
+          mdType: value,
+          //对应类型的可选配置
+          controlSetting: _.pick(data, ['advancedSetting', 'enumDefault', 'type', 'dot']),
+        },
+      });
+  };
 
   const onPopupVisibleChange = visible => {
     setVisible(visible);
@@ -200,18 +212,7 @@ export default function SelectType(props) {
                 getPopupContainer={() => selectOptionListRef.current}
                 value={destField.mdType}
                 options={options}
-                onChange={(value, option) => {
-                  updateFieldsMapping &&
-                    updateFieldsMapping({
-                      ...itemData,
-                      destField: {
-                        ...destField,
-                        dataType: option.typeName,
-                        jdbcTypeId: option.dataType,
-                        mdType: value,
-                      },
-                    });
-                }}
+                onChange={(value, option) => onWorkSheetTypeChange(value, option)}
               />
             </div>
 

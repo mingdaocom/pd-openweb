@@ -15,6 +15,7 @@ export default ({
   showRandom = false,
   openNewFilter = false,
   disabledNewFilter = false,
+  filterEncryptCondition = false,
 }) => {
   return (
     <Fragment>
@@ -31,6 +32,7 @@ export default ({
           data={openNewFilter ? data.filters : data.conditions}
           updateSource={data => updateSource(openNewFilter ? { filters: data } : { conditions: data })}
           singleCondition={!openNewFilter}
+          filterEncryptCondition={filterEncryptCondition}
         />
       ) : (
         <div className="mTop15">

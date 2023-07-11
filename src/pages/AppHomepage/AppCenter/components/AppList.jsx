@@ -25,8 +25,8 @@ export default function AppList(props) {
         handleModify={app => {
           actions.updateApp(app);
         }}
-        onAppChange={app => {
-          actions.saveApp(app);
+        onAppChange={(app, isUpdateExternalLink) => {
+          actions.saveApp(app, isUpdateExternalLink);
         }}
         onCopy={({ id, appId }) => {
           actions.copyApp({ id, groupId }, appId);

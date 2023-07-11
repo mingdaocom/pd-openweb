@@ -539,7 +539,7 @@ export default class JSONParse extends Component {
           <Support
             type={3}
             className="workflowDialogSupport"
-            href="https://help.mingdao.com/zh/flow75.html"
+            href="https://help.mingdao.com/flow75"
             text={_l('了解 JSON Path')}
           />
         </span>
@@ -731,7 +731,7 @@ export default class JSONParse extends Component {
             </div>
           </OutputList>
           {isIntegration && (
-            <div className="mBottom10 flexRow alignItemsCenter">
+            <div className={cx('mBottom10 flexRow alignItemsCenter', { pLeft20: item.dataSource })}>
               <input
                 type="text"
                 className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"

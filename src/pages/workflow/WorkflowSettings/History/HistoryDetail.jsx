@@ -18,6 +18,7 @@ import instanceVersion from '../../api/instanceVersion';
 import process from '../../api/process';
 import _ from 'lodash';
 import moment from 'moment';
+import { OPERATION_TYPE } from '../enum';
 
 export default class HistoryDetail extends Component {
   static propTypes = {
@@ -73,6 +74,7 @@ export default class HistoryDetail extends Component {
       sourceId,
       scheduleActions,
       updateLogs,
+      updateWorks,
     } = item;
 
     if (!sourceId && log.executeType === 2) {
@@ -104,6 +106,21 @@ export default class HistoryDetail extends Component {
               {FLOW_FAIL_REASON[updateLogs[key].cause] || updateLogs[key].causeMsg}
             </div>
           ))}
+
+        {!!(updateWorks || {})[OPERATION_TYPE.BEFORE] && (
+          <div className="breakAll mBottom12 Gray_75">{_l('审批前更新了记录')}</div>
+        )}
+
+        {countersign && _.includes([1, 2, 4], countersignType) && (
+          <div className="breakAll mBottom12 Gray_75">
+            <span>{_l('开始审批')}</span>
+            <span>(</span>
+            <span>{_l('会签：')}</span>
+            <span>{COUNTER_TYPE[countersignType]}</span>
+            <span>)</span>
+          </div>
+        )}
+
         <div className="personDetail flex Gray_75 flexRow">
           {(_.includes([0, 3, 4, 5], type) || isApproval) && (
             <Fragment>
@@ -142,27 +159,32 @@ export default class HistoryDetail extends Component {
             </Fragment>
           )}
         </div>
-        {countersign && _.includes([1, 2], countersignType) ? (
-          <div className="info">
-            <span>{_l('会签：')}</span>
-            <span>{COUNTER_TYPE[countersignType]}</span>
-            {names.some(item => item && item.action === 5) && <span className="overrule">{_l(', 审批被否决')}</span>}
-          </div>
-        ) : (
-          names.map((item, key) => {
-            if (item) {
-              const { action, target } = item;
-              if (!action) return <div key={key} />;
-              return _.includes([2, 8, 16], action) ? (
-                <div key={key} className="actionDetail flexRow Gray_75">
-                  <div className="actionType">{_l('%0：', ACTION_TYPE[action].text)}</div>
-                  {target && <div className="actionTarget">{target}</div>}
-                </div>
-              ) : (
-                <div key={key} />
-              );
-            }
-          })
+
+        {!countersign ||
+          (!_.includes([1, 2, 4], countersignType) &&
+            names.map((item, key) => {
+              if (item) {
+                const { action, target } = item;
+                if (!action) return <div key={key} />;
+                return _.includes([2, 8, 16], action) ? (
+                  <div key={key} className="actionDetail flexRow Gray_75">
+                    <div className="actionType">{_l('%0：', ACTION_TYPE[action].text)}</div>
+                    {target && <div className="actionTarget">{target}</div>}
+                  </div>
+                ) : (
+                  <div key={key} />
+                );
+              }
+            }))}
+
+        {!!updateWorks && (
+          <Fragment>
+            {!!updateWorks[OPERATION_TYPE.PASS] && <div className="info Gray_75">{_l('通过后更新了记录')}</div>}
+            {!!updateWorks[OPERATION_TYPE.OVERRULE] && <div className="info Gray_75">{_l('否决后更新了记录')}</div>}
+            {!!updateWorks[OPERATION_TYPE.ADD_OPERATION] && (
+              <div className="info Gray_75">{_l('新增节点操作明细')}</div>
+            )}
+          </Fragment>
         )}
       </Fragment>
     );

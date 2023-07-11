@@ -115,6 +115,7 @@ export default class MobileSearch extends Component {
                       const value = e.target.value.trim();
                       if (clicksearch === '1') {
                         this.setState({ keywords: value });
+                        if (keywords.length < parseInt(min)) return;
                         this.props.realTimeSearch(value);
                       } else {
                         let searchResult = optionData.filter(item => `${item[itemtitle]}`.indexOf(value) > -1);

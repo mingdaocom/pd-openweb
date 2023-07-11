@@ -71,6 +71,7 @@ function loadAttachment(attachment, options = {}) {
           ? 11
           : 14;
     }
+    args.worksheetId = options.worksheetId;
     attachmentPromise = attachmentAjax.getAttachmentDetail(args).then(data => {
       if (!data) {
         promise.reject({

@@ -14,7 +14,7 @@ const Item = SortableElement(({ name, icon, color, btnId, editBtn, deleteBtn, is
   <div className="customBtn mBottom10" style={{}}>
     <SortHandle />
     <span
-      className="Hand con"
+      className="Hand con overflow_ellipsis alignItemsCenter"
       onClick={() => {
         editBtn(btnId);
       }}

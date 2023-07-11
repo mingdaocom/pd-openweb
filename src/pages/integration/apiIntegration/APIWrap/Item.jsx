@@ -9,6 +9,8 @@ import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
 import Trigger from 'rc-trigger';
 import { RedMenuItemWrap, ActWrap } from '../style';
 import { TYPENODE } from 'src/pages/integration/config';
+import CodeSnippet from 'src/pages/workflow/components/CodeSnippet/index.jsx';
+import { Base64 } from 'js-base64';
 
 const Wrap = styled.div`
   p {
@@ -74,12 +76,13 @@ const Wrap = styled.div`
   }
 `;
 export default function Item(props) {
-  const [{ info, loading, showEdit, node, showMenu }, setState] = useSetState({
+  const [{ info, loading, showEdit, node, showMenu, showCodeSnippetDialog }, setState] = useSetState({
     info: props.info,
     node: props.nodeInfo ? props.nodeInfo : {},
     loading: true,
     showEdit: false,
     showMenu: false,
+    showCodeSnippetDialog: false,
   });
   const [actionId, setActionId] = useState(props.nodeInfo ? props.nodeInfo.actionId : '102');
   useEffect(() => {
@@ -90,38 +93,43 @@ export default function Item(props) {
       : getCardInfo();
   }, []);
   const getCardInfo = () => {
-    flowNodeAjax.getNodeDetail(
-      {
-        processId: info.id,
-        nodeId: node.id,
-        flowNodeType: node.typeId,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setState({
-        node: { ...node, ...res },
-        loading: false,
+    flowNodeAjax
+      .getNodeDetail(
+        {
+          processId: info.id,
+          nodeId: node.id,
+          flowNodeType: node.typeId,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({
+          node: { ...node, ...res },
+          loading: false,
+        });
       });
-    });
   };
   if (loading) {
     return <LoadDiv className="mTop24" />;
   }
 
-  const addNode = () => {
-    let typeInfo = TYPENODE.find(o => o.actionId === actionId) || {};
-    flowNodeAjax.add(
-      {
-        processId: info.id,
-        actionId,
-        name: '代码块',
-        prveId: props.prveId,
-        typeId: typeInfo.typeId,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      props.hasChange();
-    });
+  const addNode = (id = actionId, appId) => {
+    let typeInfo = TYPENODE.find(o => o.actionId === id) || {};
+    flowNodeAjax
+      .add(
+        {
+          processId: info.id,
+          actionId: id,
+          name: '代码块',
+          prveId: props.prveId,
+          typeId: typeInfo.typeId,
+          appId,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        props.hasChange();
+      });
   };
 
   const deleNode = () => {
@@ -135,7 +143,7 @@ export default function Item(props) {
       return (
         <div className="con">
           <div className="mTop30">
-            {TYPENODE.map(o => {
+            {[...TYPENODE, { txt: _l('从代码片段库中选择'), key: 'codeSnippet' }].map(o => {
               return (
                 <span className="chooseTypeCon">
                   <Radio
@@ -143,7 +151,13 @@ export default function Item(props) {
                     text={o.txt}
                     checked={actionId === o.actionId}
                     onClick={() => {
-                      setActionId(o.actionId);
+                      if (o.key === 'codeSnippet') {
+                        setState({
+                          showCodeSnippetDialog: true,
+                        });
+                      } else {
+                        setActionId(o.actionId);
+                      }
                     }}
                   />
                 </span>
@@ -270,6 +284,16 @@ export default function Item(props) {
               }}
             />
           </div>
+        )}
+        {showCodeSnippetDialog && (
+          <CodeSnippet
+            projectId={localStorage.getItem('currentProjectId')}
+            onSave={({ actionId, inputData, code }) => {
+              addNode(actionId, JSON.stringify({ inputData, code: Base64.encode(code) }));
+              setState({ showCodeSnippetDialog: false });
+            }}
+            onClose={() => setState({ showCodeSnippetDialog: false })}
+          />
         )}
       </Wrap>
     </div>

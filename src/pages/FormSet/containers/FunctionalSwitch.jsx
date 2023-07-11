@@ -87,6 +87,18 @@ function FunctionalSwitch(props) {
   const getSwitchData = () => {
     sheetAjax.getSwitch({ worksheetId: info.worksheetId }).then(res => {
       let data = res;
+      // //测试
+      // data.push(
+      //   ...[14].map(o => {
+      //     return {
+      //       view: [],
+      //       state: true,
+      //       type: o,
+      //       roleType: 0,
+      //       viewIds: [],
+      //     };
+      //   }),
+      // );
       setInfo({
         ...info,
         loading: false,
@@ -404,7 +416,7 @@ function FunctionalSwitch(props) {
             {info.showDialog && !noRangeList.includes(info.showData.type || '') && (
               <Range
                 showDialog={info.showDialog}
-                hasViewRange={![...statistics, 10, 11, 12, 13].includes(info.showData.type || '')} //是否可选视图范围
+                hasViewRange={![...statistics, 10, 11, 12, 13, 14].includes(info.showData.type || '')} //是否可选视图范围
                 text={{
                   allview: info.showData.type / 10 >= 4 ? _l('所有记录') : '',
                   assignview: info.showData.type / 10 >= 4 ? _l('应用于指定的视图下的记录') : '',

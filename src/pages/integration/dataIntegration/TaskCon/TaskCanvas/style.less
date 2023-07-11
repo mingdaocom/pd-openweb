@@ -91,9 +91,15 @@
     .Icon {
       color: #2196f3 !important;
       margin-left: 5px;
+      &.icon-add1 {
+        line-height: 40px;
+        bottom: 1;
+      }
     }
     .itemText {
       padding-left: 20px;
+      line-height: 40px;
+      vertical-align: bottom;
       color: #2196f3;
     }
     &:hover {
@@ -105,5 +111,9 @@
   }
   ul li:last-child {
     border-bottom: 1px solid #fff;
+  }
+  .disabledIcon {
+    position: initial !important;
+    vertical-align: middle !important;
   }
 }

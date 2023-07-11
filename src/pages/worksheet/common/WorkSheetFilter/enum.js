@@ -181,6 +181,7 @@ export const API_ENUM_TO_TYPE = {
   EMBED: 45, // 嵌入
   BARCODE: 47, // 条码
   ORG_ROLE: 48, // 组织角色
+  RELATESEARCH: 51, // 查询记录
 };
 
 export function getFilterTypeLabel(typeKey, type, control, controlType) {

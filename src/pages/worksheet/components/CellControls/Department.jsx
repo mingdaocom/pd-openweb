@@ -225,20 +225,23 @@ export default class Text extends React.Component {
                 <Tooltip
                   mouseEnterDelay={0.6}
                   disable={!projectId}
-                  text={() =>
-                    new Promise((resolve, reject) => {
-                      if (!projectId) {
-                        return reject();
-                      }
-                      departmentAjax
-                        .getDepartmentFullNameByIds({
-                          projectId,
-                          departmentIds: [department.departmentId],
-                        })
-                        .then(res => {
-                          resolve(_.get(res, '0.name'));
-                        });
-                    })
+                  text={
+                    !_.get(window, 'shareState.shareId')
+                      ? () =>
+                          new Promise((resolve, reject) => {
+                            if (!projectId) {
+                              return reject();
+                            }
+                            departmentAjax
+                              .getDepartmentFullNameByIds({
+                                projectId,
+                                departmentIds: [department.departmentId],
+                              })
+                              .then(res => {
+                                resolve(_.get(res, '0.name'));
+                              });
+                          })
+                      : null
                   }
                 >
                   <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>

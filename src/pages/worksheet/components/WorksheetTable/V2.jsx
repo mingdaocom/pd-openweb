@@ -41,7 +41,7 @@ const StyledFixedTable = styled(FixedTable)`
     &.highlightFromProps {
       background-color: #f5fbff !important;
     }
-    &.grayHover:not(.cellControlErrorStatus) {
+    &.grayHover:not(.cellControlErrorStatus):not(.placeholder) {
       box-shadow: inset 0 0 0 1px #e0e0e0 !important;
     }
     &.focus:not(.cellControlErrorStatus):not(.control-10.isediting):not(.control-11.isediting) {
@@ -113,6 +113,7 @@ const StyledFixedTable = styled(FixedTable)`
 function WorksheetTable(props, ref) {
   const {
     fromModule = WORKSHEETTABLE_FROM_MODULE.APP,
+    enableRules = true,
     // 相关 id
     appId,
     worksheetId,
@@ -150,13 +151,14 @@ function WorksheetTable(props, ref) {
   const { keyWords } = props; // 搜索
   const { showSummary = false, showVerticalLine = true, showAsZebra = true, wrapControlName = false } = props; // 显示
   const { rowHeadWidth = 70, renderRowHead } = props;
-  const { onColumnWidthChange = () => {}, onCellClick } = props;
+  const { onColumnWidthChange = () => {}, onCellClick, onFocusCell = () => {} } = props;
   const { masterFormData = () => [], masterData = () => {}, getRowsCache } = props; // 获取子表所在记录表单数据
   const { updateCell } = props;
+  const isRelateRecordTable = fromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD;
   const [state, setState] = useSetState({
     tableId: props.tableId || Math.random().toString(32).slice(2),
-    rules: props.rules && props.rules.length ? props.rules : [],
-    rulesLoading: !props.rules,
+    rules: (enableRules || isRelateRecordTable) && props.rules && props.rules.length ? props.rules : [],
+    rulesLoading: !props.rules && (enableRules || isRelateRecordTable),
     data: props.data,
     maskVisible: false,
     sheetColumnWidths: props.sheetColumnWidths || {},
@@ -181,7 +183,7 @@ function WorksheetTable(props, ref) {
           isSubList,
           columns,
           controls,
-          rules: props.rules,
+          rules: rules,
           data,
         })
       : {},
@@ -242,6 +244,7 @@ function WorksheetTable(props, ref) {
       'cell',
       `rowHeight-${_.findIndex(ROW_HEIGHT, h => h === rowHeight) || 0}`,
       {
+        placeholder: !row.rowid,
         oddRow: rowIndex % 2 === 1,
         readonly:
           lineEditable &&
@@ -371,6 +374,7 @@ function WorksheetTable(props, ref) {
           // 方法
           onCellClick={onCellClick}
           onFocusCell={action => {
+            onFocusCell(row, cellIndex);
             if (action === 'openRecord') {
               onCellClick();
             } else {
@@ -398,7 +402,7 @@ function WorksheetTable(props, ref) {
                       newRow,
                       (isSubList ? columns : controls).map(c => ({
                         ...c,
-                        fieldPermission: rulePermissions[`${row.rowid}-${c.controlId}`] || c.fieldPermission,
+                        fieldPermission: c.fieldPermission,
                       })),
                       rules,
                     ),
@@ -487,10 +491,6 @@ function WorksheetTable(props, ref) {
       })
       .then(newRules => {
         if (newRules.length) {
-          setState({
-            rules: newRules,
-            rulesLoading: false,
-          });
           updateRulePermissions(
             getRulePermissions({
               isSubList,
@@ -500,6 +500,10 @@ function WorksheetTable(props, ref) {
               data,
             }),
           );
+          setState({
+            rules: newRules,
+            rulesLoading: false,
+          });
         } else {
           setState({
             rulesLoading: false,

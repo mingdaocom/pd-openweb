@@ -258,7 +258,7 @@ export default class ImportApp extends React.Component {
                   <div className="mRight15 svgBox" style={{ backgroundColor: item.iconColor }}>
                     <SvgIcon url={item.iconUrl} fill="#fff" size={14} />
                   </div>
-                  {item.name}
+                  <div className="flex ellipsis">{item.name}</div>
                   {isHighVersions && <span className="Gray_9e">{_l('（从高版本系统导出）')}</span>}
                 </div>
               );
@@ -278,7 +278,7 @@ export default class ImportApp extends React.Component {
               '将应用文件导入组织生成一个新的应用，以实现应用快速迁移或创建。在导入私有部署环境前，请确认私有部署的版本，高版本向低版本导入，可能会导入失败。',
             )}
           </span>
-          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/zh/apply3.html" />
+          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/apply3" />
         </div>
         {this.renderStepContent()}
         {step === 3 && (

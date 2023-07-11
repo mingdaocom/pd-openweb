@@ -267,7 +267,7 @@ export default class CardMessage extends Component {
               <div className={cx('Message-cardItem-voteState', isOverdue ? 'proceed' : 'end')}>
                 {isOverdue ? _l('投票进行中') : _l('投票已关闭')}
               </div>
-              <div>{_l(`${Num_User}人参加投票`)}</div>
+              <div>{_l('%0人参加投票', Num_User)}</div>
             </div>
           }
         </div>

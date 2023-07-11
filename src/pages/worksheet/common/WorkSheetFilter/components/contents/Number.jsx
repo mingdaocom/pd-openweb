@@ -48,9 +48,7 @@ export default class Number extends Component {
     if (isEmpty(value) && isEmpty(minValue) && isEmpty(maxValue)) {
       return;
     }
-    minValue = NumberUtil.parseFloat(minValue);
-    maxValue = NumberUtil.parseFloat(maxValue);
-    if (minValue && maxValue && maxValue < minValue) {
+    if (minValue && maxValue && NumberUtil.parseFloat(maxValue) < NumberUtil.parseFloat(minValue)) {
       changes.minValue = maxValue;
       changes.maxValue = minValue;
       this.setState({
@@ -79,7 +77,7 @@ export default class Number extends Component {
   }
   render() {
     const { type, disabled } = this.props;
-    const { value, maxValue, minValue } = this.state;
+    const { value = '', maxValue = '', minValue = '' } = this.state;
     return (
       <div className="worksheetFilterNumberCondition">
         {type === FILTER_CONDITION_TYPE.BETWEEN || type === FILTER_CONDITION_TYPE.NBETWEEN ? (

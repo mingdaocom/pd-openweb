@@ -96,7 +96,7 @@ class ProjectCard extends Component {
       if (projectStatus === common.PROJECT_STATUS_TYPES.FREE) {
         return null;
       }
-      return isProjectAdmin ? (isCreateUser ? _l('管理员') + _l('(创建者)') : _l('管理员')) : _l('普通成员');
+      return isProjectAdmin ? (isCreateUser ? _l('管理员') + _l('(创建人)') : _l('管理员')) : _l('普通成员');
     }
   }
   renderUserCard() {

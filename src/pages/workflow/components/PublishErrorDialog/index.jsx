@@ -30,14 +30,14 @@ export default ({ onOk, onCancel, info }) => {
       okText={_l('前往修改')}
     >
       <ul className="reasonList">
-        {processWarnings.map((item) => {
+        {processWarnings.map(item => {
           const warnNum = _.includes(FATAL_ERROR, item.warningType) ? '' : item.errorCount;
           return (
             <li className="errorItem" key={item.warningType}>
               <span className={cx('iconBox', { warn: item.yellow })}>
                 <Icon className={cx('Font20', item.yellow ? 'icon-wc-sysmsg' : 'icon-workflow_info')} />
               </span>
-              <span className="detail">{_l(`${warnNum}${warnTypes[item.warningType]}`)}</span>
+              <span className="detail">{`${warnNum}${warnTypes[item.warningType]}`}</span>
             </li>
           );
         })}

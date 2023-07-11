@@ -203,7 +203,7 @@ export default class ChooseWidget extends React.Component {
                 .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1))
                 .map((item, index) => {
                   if (
-                    (item.type === 29 && item.enumDefault === 2 && item.advancedSetting.showtype === '2') || //排除关联表多条
+                    ([29, 51].includes(item.type) && item.advancedSetting.showtype === '2') || //排除关联表多条
                     ALL_SYS.includes(item.controlId) //排除系统字段
                   ) {
                     return '';

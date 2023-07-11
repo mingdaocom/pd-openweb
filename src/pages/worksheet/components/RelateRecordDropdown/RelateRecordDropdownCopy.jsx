@@ -115,6 +115,12 @@ export default class RelateRecordDropdown extends React.Component {
     if (nextProps.flag !== this.props.flag) {
       this.setState({ addedIds: [], deletedIds: [] });
     }
+    if (
+      _.get(nextProps, 'control.advancedSetting.searchcontrol') !==
+      _.get(this.props, 'control.advancedSetting.searchcontrol')
+    ) {
+      this.initSearchControl(nextProps);
+    }
   }
 
   cell = React.createRef();
@@ -541,6 +547,7 @@ export default class RelateRecordDropdown extends React.Component {
               'coverCid',
               'showControls',
               'showCoverAndControls',
+              'fastSearchControlArgs',
             ])}
             isMobile={this.isMobile}
             selectedIds={selected.map(r => r.rowid)}
@@ -580,7 +587,7 @@ export default class RelateRecordDropdown extends React.Component {
     } else if (multiple && !isQuickFilter) {
       content = this.renderMultipe();
     } else {
-      content = this.renderSingle();
+      content = _.isArray(selected) && selected.length > 1 ? this.renderMultipe() : this.renderSingle();
     }
     return (
       <div
@@ -623,6 +630,7 @@ export default class RelateRecordDropdown extends React.Component {
 
   render() {
     const {
+      from,
       insheet,
       zIndex,
       isediting,
@@ -691,7 +699,7 @@ export default class RelateRecordDropdown extends React.Component {
             onAdd={record => this.handleItemClick(record)}
           />
         )}
-        {previewRecord && (
+        {from !== FROM.PUBLIC && previewRecord && (
           <RecordInfoWrapper
             visible
             viewId={_.get(control, 'advancedSetting.openview') || control.viewId}

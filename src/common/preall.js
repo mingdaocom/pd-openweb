@@ -7,138 +7,7 @@ import { LoadDiv } from 'ming-ui';
 import { getPssId, setPssId } from 'src/util/pssId';
 import _ from 'lodash';
 import moment from 'moment';
-
-function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
-  const urlparams = qs.parse(unescape(unescape(window.location.search.slice(1))));
-  let args = {};
-  const urlObj = new URL(decodeURIComponent(location.href));
-  if (/^#publicapp/.test(urlObj.hash)) {
-    window.isPublicApp = true;
-    window.publicAppAuthorization = urlObj.hash.slice(10).replace('#isPrivateBuild', '');
-  }
-  if (transfertoken && urlparams.token) {
-    args.token = urlparams.token;
-  }
-  if (urlparams.access_token) {
-    window.access_token = urlparams.access_token;
-  }
-  parseShareId();
-  clearLocalStorage(); // 清除 AMap 和 体积大于200k的 localStorage
-  global.getGlobalMeta(args).then(data => {
-    if (allownotlogin || window.isPublicApp) {
-      window.config = data.config;
-      if (!window.md) {
-        window.md = { global: data['md.global'] };
-      } else {
-        window.md.global = data['md.global'];
-      }
-      if (window.md.global && !window.md.global.Account) {
-        window.md.global.Account = {};
-      }
-      let SysSettings = _.get(window.md.global, ['SysSettings']);
-      if (!SysSettings) {
-        window.md.global.SysSettings = _.get(md.staticglobal, ['SysSettings']);
-      }
-      cb();
-      return;
-    }
-    if (!data['md.global'].Account) {
-      const host = location.host;
-      const url = `?ReturnUrl=${encodeURIComponent(location.href)}`;
-      location.href = `${window.subPath || ''}/network${url}`;
-      return;
-    }
-
-    const ua = window.navigator.userAgent.toLowerCase();
-    if (
-      ua.match(/MicroMessenger/i) == 'micromessenger' &&
-      ((window.subPath && !data['md.global'].Account.isPortal) ||
-        (!window.subPath && data['md.global'].Account.isPortal))
-    ) {
-      location.href = `${
-        data['md.global'].Account.isPortal ? '' : window.subPath || ''
-      }/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
-      return;
-    }
-
-    window.config = data.config;
-    window.md.global = data['md.global'];
-    window.md.global.Config.ServiceTel = '400-665-6655';
-    let SysSettings = _.get(window.md.global, ['SysSettings']);
-    if (!SysSettings) {
-      window.md.global.SysSettings = _.get(md.staticglobal, ['SysSettings']);
-    }
-    !md.global.Account.isPortal && window.mdKF5 && window.mdKF5();
-
-    if (md.global.SysSettings && md.global.SysSettings.forbidSuites) {
-      md.global.Config.ForbidSuites = md.global.SysSettings.forbidSuites.split('|').map(item => Number(item));
-    }
-
-    const lang = getCookie('i18n_langtag') || getNavigatorLang();
-    if (lang) {
-      moment.locale(getMomentLocale(lang));
-    }
-
-    setPssId(getPssId());
-    if (redirect(location.pathname)) {
-      return;
-    }
-    cb();
-  });
-}
-
-const wrapComponent = function(Comp, { allownotlogin, hideloading, transfertoken } = {}) {
-  class Pre extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        loading: true,
-      };
-    }
-    componentDidMount() {
-      getGlobalMeta({ allownotlogin, transfertoken }, () => {
-        this.setState({
-          loading: false,
-        });
-      });
-    }
-
-    render() {
-      const { loading } = this.state;
-
-      if (
-        navigator.userAgent.toLowerCase().indexOf('mobile') > -1 &&
-        navigator.userAgent.toLowerCase().indexOf('dingtalk') > -1
-      ) {
-        document.title = _l('应用');
-      }
-
-      return loading ? !hideloading && <LoadDiv size="big" className="pre" /> : <Comp {...this.props} />;
-    }
-  }
-
-  return Pre;
-};
-
-function getMomentLocale(lang) {
-  if (lang === 'en') {
-    return 'en';
-  } else if (lang === 'zh-Hant') {
-    return 'zh-tw';
-  } else if (lang === 'ja') {
-    return 'ja';
-  } else {
-    return 'zh-cn';
-  }
-}
-
-export default function(Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
-  if (_.isObject(Comp) && Comp.type === 'function') {
-    getGlobalMeta({ allownotlogin, transfertoken }, preloadcb);
-  } else {
-    return wrapComponent(Comp, { allownotlogin, hideloading, transfertoken });
-  }
-}
+import accountSetting from 'src/api/accountSetting';
 
 /** 存储分发类入口 状态 和 分享id */
 function parseShareId() {
@@ -186,4 +55,130 @@ function clearLocalStorage() {
         localStorage.removeItem(item.key);
       });
   } catch (err) {}
+}
+
+function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
+  const lang = getCookie('i18n_langtag') || getNavigatorLang();
+  const urlparams = qs.parse(unescape(unescape(window.location.search.slice(1))));
+  let args = {};
+  const urlObj = new URL(decodeURIComponent(location.href));
+
+  // 设置语言
+  $('body').attr('id', lang);
+
+  if (/^#publicapp/.test(urlObj.hash)) {
+    window.isPublicApp = true;
+    window.publicAppAuthorization = urlObj.hash.slice(10).replace('#isPrivateBuild', '');
+  }
+  if (transfertoken && urlparams.token) {
+    args.token = urlparams.token;
+  }
+  if (urlparams.access_token) {
+    window.access_token = urlparams.access_token;
+  }
+  parseShareId();
+  clearLocalStorage(); // 清除 AMap 和 体积大于200k的 localStorage
+  global.getGlobalMeta(args).then(data => {
+    if (allownotlogin || window.isPublicApp) {
+      window.config = data.config;
+      if (!window.md) {
+        window.md = { global: data['md.global'] };
+      } else {
+        window.md.global = data['md.global'];
+      }
+      if (window.md.global && !window.md.global.Account) {
+        window.md.global.Account = {};
+      }
+      let SysSettings = _.get(window.md.global, ['SysSettings']);
+      if (!SysSettings) {
+        window.md.global.SysSettings = _.get(md.staticglobal, ['SysSettings']);
+      }
+      cb();
+      return;
+    }
+
+    if (!data['md.global'].Account) {
+      const host = location.host;
+      const url = `?ReturnUrl=${encodeURIComponent(location.href)}`;
+      location.href = `${window.subPath || ''}/network${url}`;
+      return;
+    }
+
+    if (
+      window.navigator.userAgent.toLowerCase().match(/MicroMessenger/i) == 'micromessenger' &&
+      ((window.subPath && !data['md.global'].Account.isPortal) ||
+        (!window.subPath && data['md.global'].Account.isPortal))
+    ) {
+      location.href = `${
+        data['md.global'].Account.isPortal ? '' : window.subPath || ''
+      }/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
+      return;
+    }
+
+    window.config = data.config;
+    window.md.global = data['md.global'];
+    window.md.global.Config.ServiceTel = '400-665-6655';
+    let SysSettings = _.get(window.md.global, ['SysSettings']);
+    if (!SysSettings) {
+      window.md.global.SysSettings = _.get(md.staticglobal, ['SysSettings']);
+    }
+    !md.global.Account.isPortal && window.mdKF5 && window.mdKF5();
+
+    if (md.global.SysSettings && md.global.SysSettings.forbidSuites) {
+      md.global.Config.ForbidSuites = md.global.SysSettings.forbidSuites.split('|').map(item => Number(item));
+    }
+
+    // 检测语言是否一致
+    if (md.global.Account.lang && md.global.Account.lang !== lang && !md.global.Account.isPortal) {
+      const settingValue = { 'zh-Hans': '0', en: '1', ja: '2', 'zh-Hant': '3' };
+      accountSetting.editAccountSetting({ settingType: '6', settingValue: settingValue[lang] });
+    }
+
+    setPssId(getPssId());
+    if (redirect(location.pathname)) {
+      return;
+    }
+    cb();
+  });
+}
+
+const wrapComponent = function (Comp, { allownotlogin, hideloading, transfertoken } = {}) {
+  class Pre extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = {
+        loading: true,
+      };
+    }
+    componentDidMount() {
+      getGlobalMeta({ allownotlogin, transfertoken }, () => {
+        this.setState({
+          loading: false,
+        });
+      });
+    }
+
+    render() {
+      const { loading } = this.state;
+
+      if (
+        navigator.userAgent.toLowerCase().indexOf('mobile') > -1 &&
+        navigator.userAgent.toLowerCase().indexOf('dingtalk') > -1
+      ) {
+        document.title = _l('应用');
+      }
+
+      return loading ? !hideloading && <LoadDiv size="big" className="pre" /> : <Comp {...this.props} />;
+    }
+  }
+
+  return Pre;
+};
+
+export default function (Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
+  if (_.isObject(Comp) && Comp.type === 'function') {
+    getGlobalMeta({ allownotlogin, transfertoken }, preloadcb);
+  } else {
+    return wrapComponent(Comp, { allownotlogin, hideloading, transfertoken });
+  }
 }

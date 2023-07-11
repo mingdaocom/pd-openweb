@@ -35,7 +35,7 @@ export default class PBC extends Component {
     return (
       <div className="pLeft8 pRight8 flexRow" style={{ alignItems: 'center' }}>
         <div className="ellipsis">
-          <span className="Gray_75">{_l('调用业务流程：')}</span>
+          <span className="Gray_75">{_l('调用封装业务流程：')}</span>
           {item.appName}
         </div>
         <i className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2" onMouseDown={this.openProcess} />

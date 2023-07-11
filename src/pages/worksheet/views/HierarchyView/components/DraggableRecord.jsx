@@ -59,6 +59,10 @@ export default function DraggableRecord(props) {
     sheetButtons = [],
     viewId,
     isCharge,
+    onClick,
+    isMix,
+    isNarrow,
+    stateTree,
   } = props;
   const { rowId, visible, path = [], pathId = [], children } = data;
   const recordData = dealHierarchyData(treeData[rowId], {
@@ -152,12 +156,21 @@ export default function DraggableRecord(props) {
     const { childType, viewControls } = view;
     if (isDisabledCreate(sheetSwitchPermit)) return;
     if (childType === 2) {
-      return allowAdd && depth + 1 < viewControls.length;
+      let _depth = (isMix && stateTree.length > 1) ? depth : depth + 1;
+      return allowAdd && _depth < viewControls.length;
     }
     return allowAdd;
   };
 
   drag(drop($dragDropRef));
+
+  let STYLE = {};
+  if (isNarrow) {
+    STYLE = {
+      minWidth: 240,
+      maxWidth: 240,
+    };
+  }
 
   return (
     <div
@@ -165,8 +178,9 @@ export default function DraggableRecord(props) {
         normalOver: isOver && canDrop,
         directParentOver: isOver && !canDrop,
       })}
+      onClick={onClick}
     >
-      <div ref={$dragDropRef} id={rowId} className={cx('dragDropRecordWrap', { highLight: rowId === searchRecordId })}>
+      <div ref={$dragDropRef} id={rowId} className={cx('dragDropRecordWrap', { highLight: rowId === searchRecordId })} style={STYLE}>
         <Components.EditableCard
           {...pick(props, ['viewParaOfRecord', 'sheetSwitchPermit', 'onUpdate', 'onDelete'])}
           data={{ ...recordData, rowId }}
@@ -184,6 +198,7 @@ export default function DraggableRecord(props) {
             onCopySuccess({ path, pathId, item: data });
           }}
           updateTitleData={updateTitleData}
+          showNull={isMix}
         />
       </div>
       {isEditTitle && (
@@ -194,9 +209,10 @@ export default function DraggableRecord(props) {
             currentView={view}
             allowCopy={allowAdd}
             isCharge={isCharge}
-            style={{ ...getStyle() }}
+            style={{ ...getStyle(), ...STYLE }}
             closeEdit={closeEdit}
             updateTitleData={updateTitleData}
+            showNull={isMix}
           />
         </Components.RecordPortal>
       )}

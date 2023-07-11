@@ -5,6 +5,8 @@ import MenuItem from 'ming-ui/components/MenuItem';
 import EditGroupMenuItem from './EditGroupMenuItem';
 import update from 'immutability-helper';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 
 const ROLE_OPERATION = {
   // 无权限
@@ -35,6 +37,17 @@ const ROLE_OPERATION = {
 
 const DEFAULT_ROLE_OPERATION = [{ type: 'setGroup' }];
 
+const EXTERNAL_LINK_OPERATION = [
+  { type: 'setExternalLink', icon: 'settings', text: _l('设置外部链接') },
+  { type: 'manageUser', icon: 'group', text: _l('管理用户') },
+  { type: 'del', icon: 'delete2', text: _l('删除'), className: 'delApp' },
+];
+
+const Divider = styled.div`
+  border-top: 1px solid #ddd;
+  margin: 5px 0;
+`;
+
 export default ({
   groupType,
   projectId,
@@ -44,6 +57,7 @@ export default ({
   onClickAway,
   onUpdateAppBelongGroups,
   isLock,
+  createType,
   ...propsRest
 }) => {
   let list = [...(ROLE_OPERATION[role] || DEFAULT_ROLE_OPERATION)];
@@ -60,7 +74,7 @@ export default ({
     _.remove(list, o => o.type === 'setGroup');
   }
 
-  if (isLock) {
+  if (isLock || createType === 1) {
     list = _.filter(list, it => _.includes(['setGroup', 'edit'], it.type));
   }
 
@@ -82,6 +96,26 @@ export default ({
             {text}
           </MenuItem>
         ),
+      )}
+      {createType === 1 && role >= APP_ROLE_TYPE.ADMIN_ROLE && (
+        <React.Fragment>
+          <Divider />
+          {EXTERNAL_LINK_OPERATION.filter(item => (role < APP_ROLE_TYPE.POSSESS_ROLE ? item.type !== 'del' : true)).map(
+            ({ type, icon, text, className }) => (
+              <MenuItem
+                key={type}
+                className={className}
+                icon={<Icon className="operationIcon" icon={icon} />}
+                onClick={e => {
+                  e.stopPropagation();
+                  onClick(type);
+                }}
+              >
+                {text}
+              </MenuItem>
+            ),
+          )}
+        </React.Fragment>
       )}
     </Menu>
   );

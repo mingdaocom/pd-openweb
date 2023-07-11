@@ -14,6 +14,7 @@ export default class UpdateFields extends Component {
     nodeId: '',
     controls: [],
     fields: [],
+    showCurrent: false,
     formulaMap: {},
     updateSource: () => {},
   };
@@ -154,6 +155,7 @@ export default class UpdateFields extends Component {
       type,
       nodeId,
       isSubProcessNode,
+      showCurrent,
     } = this.props;
     const relationList = controls
       .filter(v => v.type === 29)
@@ -213,6 +215,7 @@ export default class UpdateFields extends Component {
 
                 <SingleControlValue
                   showClear
+                  showCurrent={showCurrent}
                   companyId={companyId}
                   processId={processId}
                   selectNodeId={selectNodeId}

@@ -286,7 +286,7 @@ export default class SetInfoDialog extends Component {
     return (
       <Dialog
         visible={visible}
-        title={<span className="Font17 Bold">{_l(`${title}`)}</span>}
+        title={<span className="Font17 Bold">{title}</span>}
         cancelText={_l('取消')}
         okText={_l('确定')}
         width="480"

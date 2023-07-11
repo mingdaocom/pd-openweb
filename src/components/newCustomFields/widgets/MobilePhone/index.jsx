@@ -208,11 +208,14 @@ export default class Widgets extends Component {
           </ClickAwayable>
         </PhoneWrap>
 
-        {!isMask && (_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (browserIsMobile() && disabled)) && !!value && (
-          <a href={`tel:${value}`} className="Absolute customFormControlTelBtn" style={{ right: 0, top: 10 }}>
-            <Icon icon="phone22" className="Font16 ThemeColor3" />
-          </a>
-        )}
+        {maskPermissions &&
+          value &&
+          (_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (browserIsMobile() && disabled)) &&
+          !!value && (
+            <a href={`tel:${value}`} className="Absolute customFormControlTelBtn" style={{ right: 0, top: 10 }}>
+              <Icon icon="phone22" className="Font16 ThemeColor3" />
+            </a>
+          )}
       </div>
     );
   }

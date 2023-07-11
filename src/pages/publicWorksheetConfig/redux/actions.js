@@ -118,8 +118,10 @@ export function loadPublicWorksheet({ worksheetId }) {
           controls: data.controls,
           originalControls: data.originalControls.filter(
             control =>
-              !(control.type === 29 && !_.includes([0, 1], control.enumDefault2)) &&
-              !_.includes(['caid', 'ownerid', 'ctime', 'utime'], control.controlId),
+              !(
+                (control.type === 29 && !_.includes([0, 1], control.enumDefault2)) ||
+                (control.type === 51 && _.get(control, 'advancedSetting.showtype') === '2')
+              ) && !_.includes(['caid', 'ownerid', 'ctime', 'utime'], control.controlId),
           ),
           shareId: data.shareId,
           url: data.url,
@@ -233,8 +235,10 @@ export function resetControls() {
             controls: data.controls,
             originalControls: data.originalControls.filter(
               control =>
-                !(control.type === 29 && !_.includes([0, 1], control.enumDefault2)) &&
-                !_.includes(['caid', 'ownerid', 'ctime', 'utime'], control.controlId),
+                !(
+                  (control.type === 29 && !_.includes([0, 1], control.enumDefault2)) ||
+                  (control.type === 51 && _.get(control, 'advancedSetting.showtype') === '2')
+                ) && !_.includes(['caid', 'ownerid', 'ctime', 'utime'], control.controlId),
             ),
             shareId: data.shareId,
             url: data.url,

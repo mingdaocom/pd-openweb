@@ -7,6 +7,14 @@ export const PAGE_HEADER_ROUTE_CONFIG = {
     path: '/app/lib',
     component: () => import('src/pages/PageHeader/AppCenterHeader'),
   },
+  appLogs: {
+    path: '/app/:appId/logs/:projectId',
+    component: () => import('src/pages/PageHeader/AppPkgSimpleHeader'),
+  },
+  analytics: {
+    path: '/app/:appId/analytics/:projectId',
+    component: () => import('src/pages/PageHeader/AppPkgSimpleHeader'),
+  },
   appPkg: {
     path: '/app/:appId/:groupId?/:worksheetId?/:viewId?',
     component: () => import('src/pages/PageHeader/AppPkgHeader'),

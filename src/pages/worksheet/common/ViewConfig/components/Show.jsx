@@ -28,7 +28,7 @@ const SysSortColumn = styled.div`
 export default class Show extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { height: document.documentElement.clientHeight - 360 };
+    this.state = { height: document.documentElement.clientHeight - 323 };
   }
   componentDidMount() {
     $(window).on('resize', this.getHeight);
@@ -38,7 +38,7 @@ export default class Show extends React.Component {
   }
   getHeight = () => {
     this.setState({
-      height: document.documentElement.clientHeight - 360,
+      height: document.documentElement.clientHeight - 323,
     });
   };
   render() {
@@ -47,7 +47,7 @@ export default class Show extends React.Component {
     const { showControls = [], customdisplay = '0', sysids, syssort } = info;
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
-      c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49], c.type),
+      c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type),
     );
     const showControlsForSortControl = showControls.filter(id =>
       _.find(filteredColumns, column => column.controlId === id),
@@ -89,6 +89,7 @@ export default class Show extends React.Component {
         {customdisplay === '1' ? (
           <SortColumns
             layout={2}
+            placeholder={_l('查找字段')}
             noempty={false} //不需要至少显示一列
             maxHeight={height}
             showControls={showControlsForSortControl}
@@ -97,6 +98,8 @@ export default class Show extends React.Component {
             onChange={({ newShowControls, newControlSorts }) => {
               this.props.onChangeColumns({ newShowControls, newControlSorts });
             }}
+            isShowColumns={true}
+            sortAutoChange={true}
           />
         ) : (
           <SysSortColumn>
@@ -108,9 +111,11 @@ export default class Show extends React.Component {
               dragable={false} //不可排序
               columns={sysControlsColumnsForSort}
               controlsSorts={syssort}
+              maxHeight={height}
               onChange={({ newShowControls, newControlSorts }) => {
                 this.props.onChangeColumns({ newShowControls, newControlSorts });
               }}
+              sortAutoChange={true}
             />
           </SysSortColumn>
         )}

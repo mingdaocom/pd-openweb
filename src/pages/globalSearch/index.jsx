@@ -359,6 +359,7 @@ export default class GlobalSearch extends Component {
 
       content = (
         <AppList
+          currentProjectId={currentProject.projectId}
           data={searchType === 'app' ? appData.apps : appData.rows}
           dataKey={searchType}
           searchKeyword={searchKey}
@@ -417,6 +418,7 @@ export default class GlobalSearch extends Component {
 
             return (
               <AppList
+                currentProjectId={currentProject.projectId}
                 key={`global-search-appList-${item}`}
                 data={appData[item] || {}}
                 dataKey={type}

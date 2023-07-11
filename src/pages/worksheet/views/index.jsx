@@ -13,6 +13,8 @@ import UnNormal from 'worksheet/views/components/UnNormal';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import styled from 'styled-components';
 import _ from 'lodash';
+import HierarchyVerticalView from './HierarchyVerticalView';
+import HierarchyMixView from './HierarchyMixView';
 
 const { board, sheet, calendar, gallery, structure, gunter } = VIEW_DISPLAY_TYPE;
 
@@ -32,9 +34,13 @@ const TYPE_TO_COMP = {
   [calendar]: props => <CalendarView watchHeight {...props} />,
   [structure]: HierarchyView,
   [gunter]: GunterView,
+  structureVertical: HierarchyVerticalView,
+  structureMix: HierarchyMixView,
 };
 function View(props) {
   const { loading, error, view, showAsSheetView } = props;
+  const { advancedSetting = {} } = view;
+
   let activeViewStatus = props.activeViewStatus;
   if (loading) {
     return (
@@ -94,7 +100,16 @@ function View(props) {
     activeViewStatus = -10000;
   }
 
-  const Component = TYPE_TO_COMP[String(showAsSheetView ? sheet : view.viewType)];
+  let viewType = String(showAsSheetView ? sheet : view.viewType);
+
+  if(!showAsSheetView && view.viewType===2 && advancedSetting.hierarchyViewType === '1') {
+    viewType = 'structureVertical';
+  } else if(!showAsSheetView && view.viewType===2 && advancedSetting.hierarchyViewType === '2') {
+    viewType = 'structureMix';
+  }
+
+  const Component = TYPE_TO_COMP[viewType];
+
   return (
     <Con>
       {!Component || activeViewStatus !== 1 ? (

@@ -209,13 +209,48 @@ export default {
   /**
   * 导出登录日志
   * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {integer} args.pageIndex 当前页码
+  * @param {integer} args.pageSize 页面尺寸
+  * @param {string} args.startDateTime 开始时间
+  * @param {string} args.endDateTime 结束时间
+  * @param {} args.logType 用户行为日志类型 1=登录 2=登出
+  * @param {array} args.accountIds 用户ID
+  * @param {array} args.columnNames 列名称
+  * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    exportLoginLog: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     
      return $.api('Download', 'ExportLoginLog', args, options);
+   },
+  /**
+  * 导出应用全局日志
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {} args.queryType 应用日志查询类型,默认不传查询所有
+  * @param {array} args.operators 操作人id数组
+  * @param {array} args.appIds 应用id数组
+  * @param {array} args.worksheetIds 工作表id数组
+  * @param {array} args.modules 所属日志模块
+  * @param {array} args.operationTypes 操作类型
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {array} args.columnNames 列名称
+  * @param {string} args.menuName 菜单名称
+  * @param {string} args.startDateTime 开始时间
+  * @param {string} args.endDateTime 结束时间
+  * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
+  * @param {boolean} args.isSingle 是否是单个应用
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exportGlobalLogs: function (args, options = {}) {
+     
+     return $.api('Download', 'ExportGlobalLogs', args, options);
    },
   /**
   * 下载应用备份文件

@@ -34,7 +34,7 @@ export default function NoTitleControlDialog({ onClose }) {
           </span>
           <Support
             type={3}
-            href="https://help.mingdao.com/zh/sheet9.html"
+            href="https://help.mingdao.com/sheet9"
             text={_l('哪些字段可以设为标题？')}
           />
         </Fragment>

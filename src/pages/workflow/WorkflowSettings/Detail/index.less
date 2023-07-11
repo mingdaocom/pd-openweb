@@ -47,8 +47,7 @@
     right: 0;
     bottom: 0;
     background: #fff;
-    box-shadow: 0 10px 23px 2px rgba(0, 0, 0, 0.2),
-      0 3px 6px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 23px 2px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
     ::-webkit-input-placeholder {
       color: #bdbdbd;
     }
@@ -130,7 +129,7 @@
         background: #01ca83;
       }
       &.BGDarkBlue {
-        background: #4158DB;
+        background: #4158db;
       }
       input {
         height: 34px;
@@ -143,6 +142,7 @@
         color: #fff;
         margin-left: 5px;
         font-size: 17px;
+        font-weight: bold;
         &:hover {
           background: rgba(255, 255, 255, 0.12);
         }
@@ -167,13 +167,13 @@
         background: #2196f3;
       }
       &.BGBlueAsh {
-        background: #4C7D9E;
+        background: #4c7d9e;
       }
       &.BGGreen {
         background: #01ca83;
       }
       &.BGDarkBlue {
-        background: #4158DB;
+        background: #4158db;
       }
       .flowDetailStartIcon {
         width: 68px;
@@ -190,7 +190,7 @@
             color: #ffa340;
           }
           &.gray {
-            color: #4C7D9E;
+            color: #4c7d9e;
           }
           &.green {
             color: #01ca83;
@@ -287,7 +287,6 @@
               margin-right: 5px;
               color: #8f8f8f;
             }
-
           }
         }
         .dropdown-btn {
@@ -323,9 +322,9 @@
             background-color: #f5f5f5;
             border: 1px solid #ddd;
             &.error {
-              background-color: #FEF3F2;
-              border-color: #E8DBD9;
-              color: #B53026;
+              background-color: #fef3f2;
+              border-color: #e8dbd9;
+              color: #b53026;
             }
             .tag {
               margin-right: 5px;
@@ -542,6 +541,18 @@
       &.actionClearBorder {
         border-color: #f5f5f5 !important;
       }
+      &.actionControlBoxClear {
+        position: relative;
+        &:hover {
+          .icon-cancel1 {
+            display: block;
+          }
+        }
+        .icon-cancel1 {
+          display: none;
+          cursor: pointer;
+        }
+      }
       .CityPicker-wrapper {
         .CityPicker-input-container {
           height: 34px;
@@ -701,7 +712,7 @@
       }
     }
     .flowBackBox {
-      background: #F4F4F4;
+      background: #f4f4f4;
       padding: 8px 26px 8px 12px;
       border-radius: 4px;
       position: relative;
@@ -947,8 +958,8 @@
     .flowTplContent {
       .tagInputareaIuput {
         border: none !important;
-        .CodeMirror-line  {
-          padding: 0 !important
+        .CodeMirror-line {
+          padding: 0 !important;
         }
       }
     }
@@ -1015,7 +1026,12 @@
     border: 1px solid #ddd;
     background: #f4f4f4;
     color: #757575;
-    &:hover {
+    &.disabled {
+      color: #bdbdbd;
+      background: #f5f5f5;
+      cursor: not-allowed;
+    }
+    &:not(.disabled):hover {
       background: #2196f3;
       color: #fff;
       border-color: #2196f3;
@@ -1027,7 +1043,7 @@
     box-sizing: border-box;
     overflow: hidden;
     .webhookHeader {
-      background: #F2F2F2;
+      background: #f2f2f2;
       height: 40px;
       line-height: 40px;
       padding: 0 16px;
@@ -1051,7 +1067,7 @@
         padding: 0 16px;
         border-top: 1px solid #ddd;
         &:hover {
-          background: #FAFAFA;
+          background: #fafafa;
         }
         div {
           word-break: break-all;

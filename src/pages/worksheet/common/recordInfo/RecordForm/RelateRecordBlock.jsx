@@ -125,6 +125,9 @@ export default function RelateRecordBlock(props) {
         addRefreshEvents={addRefreshEvents}
         from={from}
         setRelateNumOfControl={num => {
+          if (!recordId) {
+            return;
+          }
           setRelateNumOfControl(num, activeControl.controlId, activeControl);
         }}
         setLoading={setLoading}

@@ -97,6 +97,7 @@ function OtherOptionTextInput(props) {
         onKeyDown={e => {
           if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
             handleSave();
+            e.stopPropagation();
             return;
           }
         }}
@@ -116,7 +117,7 @@ OtherOptionTextInput.propTypes = {
 };
 
 function OtherOption(props) {
-  const { style, otherRequired, otherValue = '', getPopupContainer, onSave = () => {} } = props;
+  const { style, otherRequired, otherValue = '', getPopupContainer, selected = {}, onSave = () => {} } = props;
   const [value, setValue] = useState(otherValue);
   const [error, setError] = useState();
   const conRef = useRef();
@@ -156,7 +157,7 @@ function OtherOption(props) {
       }}
     >
       <OtherOptionCon className="cellControlEdittingStatus" style={style}>
-        {_l('其他')}
+        {selected.value}
         <span className="icon icon-arrow-down-border"></span>
       </OtherOptionCon>
     </Trigger>
@@ -322,7 +323,7 @@ export default class Options extends React.Component {
       if (defaultEmpty && otherValue === 'other') {
         return;
       }
-      return otherValue === 'other' ? _l('其他') : _.replace(otherValue, 'other:', '') || _l('其他');
+      return otherValue === 'other' ? option.value : _.replace(otherValue, 'other:', '') || option.value;
     }
     return option.value;
   }

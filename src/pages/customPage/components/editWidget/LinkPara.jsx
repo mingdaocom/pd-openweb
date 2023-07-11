@@ -4,30 +4,7 @@ import update from 'immutability-helper';
 import cx from 'classnames';
 import { DropdownContent } from '../../../widgetConfig/styled';
 import { Checkbox, Dropdown, Input } from 'antd';
-const SELECTABLE_FIELD = [
-  {
-    title: _l('当前用户信息'),
-    type: 'user',
-    fields: [
-      { text: _l('用户ID'), value: 'userId' },
-      { text: _l('手机号'), value: 'phone' },
-      { text: _l('邮箱'), value: 'email' },
-      // { text: _l('工号'), value: 'workId' },
-    ],
-  },
-  {
-    title: _l('系统信息'),
-    type: 'sys',
-    fields: [
-      { text: _l('组织门牌号'), value: 'projectId' },
-      { text: _l('应用ID'), value: 'appId' },
-      { text: _l('分组ID'), value: 'groupId' },
-      { text: _l('应用项ID'), value: 'itemId' },
-      { text: _l('UserAgent'), value: 'ua' },
-      { text: _l('时间戳'), value: 'timestamp' },
-    ],
-  },
-];
+import { LINK_PARA_FIELDS } from '../../config';
 
 const DEFAULT_PARA_ITEM = { key: '', value: { type: 'static', data: '' } };
 const LinkParaWrap = styled.div`
@@ -130,7 +107,7 @@ function ParaItem({ deleteItem, item, updateItem }) {
           onVisibleChange={setVisible}
           overlay={
             <DropdownContent style={{ width: '180px' }}>
-              {SELECTABLE_FIELD.map(({ type, title, fields }) => {
+              {LINK_PARA_FIELDS.map(({ type, title, fields }) => {
                 return (
                   <Fragment key={type}>
                     <div className="title">{title}</div>

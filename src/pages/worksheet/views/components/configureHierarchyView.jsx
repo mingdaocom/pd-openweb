@@ -99,7 +99,7 @@ export default function HierarchyViewConfig({
 
   const handleClick = () => {
     if (isRelateOtherSheet) {
-      handleSelect({ childType: relateType, viewControls: hierarchyControls });
+      handleSelect({ childType: relateType, viewControls: hierarchyControls, viewControl: '' });
       return;
     }
     if (singleRelate) {

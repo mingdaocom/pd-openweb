@@ -144,3 +144,17 @@ export const CUSTOM_DISPLAY = [
     value: 'custom',
   },
 ];
+
+export const RELATION_SEARCH_DISPLAY = [
+  {
+    key: 'card',
+    text: _l('卡片'),
+    value: '1',
+  },
+  {
+    key: 'list',
+    text: _l('列表'),
+    value: '2',
+  },
+  { key: 'text', text: _l('文本'), value: '3' },
+];

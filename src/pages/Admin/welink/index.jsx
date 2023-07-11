@@ -10,8 +10,9 @@ import Dialog from 'ming-ui/components/Dialog';
 import { map } from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
 import clientIdImg from './img/client_id.png';
-import UpgradeVersion from '../components/UpgradeVersion';
-import { getFeatureStatus } from 'src/util';
+import VertifyClearIntegationData from '../components/VertifyClearIntegationData';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { integrationFailed } from '../utils';
 import './style.less';
 
 const FEATURE_ID = 18;
@@ -88,15 +89,19 @@ export default class Workwx extends React.Component {
       clientSecret: this.state.Secret,
       clientId: this.state.CorpId,
     }).then(res => {
-      if (res) {
-        if (res.item1) {
-          this.setState({
-            isHasInfo: true,
-            canEditInfo: false,
-          });
-        } else {
-          alert(res.item2);
-        }
+      if (res.item1 === -1) {
+        VertifyClearIntegationData({
+          projectId: Config.projectId,
+          callback: this.editInfo,
+        });
+        return;
+      } else if (res.item1) {
+        this.setState({
+          isHasInfo: true,
+          canEditInfo: false,
+        });
+      } else {
+        alert(res.item2);
       }
     });
   };
@@ -425,7 +430,7 @@ export default class Workwx extends React.Component {
       if (res) {
         callback();
       } else {
-        alert('失败');
+        integrationFailed(Config.projectId);
       }
     });
   };
@@ -433,7 +438,9 @@ export default class Workwx extends React.Component {
   render() {
     const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
     if (featureType === '2') {
-      return <UpgradeVersion projectId={Config.projectId} featureId={FEATURE_ID} />;
+      return (
+        <div className="orgManagementWrap">{buriedUpgradeVersionDialog(Config.projectId, FEATURE_ID, 'content')}</div>
+      );
     }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;

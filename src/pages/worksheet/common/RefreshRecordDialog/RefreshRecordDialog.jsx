@@ -81,6 +81,7 @@ function getRefreshSortControls(controls) {
   return controls.filter(c =>
     _.includes(
       [
+        WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, // 单选
         WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN, // 单选
         WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, // 多选
       ],
@@ -189,7 +190,8 @@ export default function RefreshRecordDialog(props) {
   );
   const refreshControls = getRefreshControls(visibleControls);
   const refreshSortControls = getRefreshSortControls(visibleControls);
-  const refreshVisible = !!refreshControls.concat(refreshSortControls).length;
+  const encryptControls = visibleControls.filter(c => c.encryId);
+  const refreshVisible = !!refreshControls.concat(refreshSortControls).concat(encryptControls).length;
   const [calibrateConfig, setCalibrateConfig] = useState({});
   const [calibrateSortConfig, setCalibrateSortConfig] = useState({});
   const [controlMapList, setControlMapList] = useState([]);
@@ -220,7 +222,7 @@ export default function RefreshRecordDialog(props) {
       description={
         <div>
           {_l('此操作仅系统角色可以执行。单次最多刷新10w行数据，后台异步完成后会发送通知。')}
-          <Support className="moreHelp" type={3} href="https://help.mingdao.com/zh/sheet43.html" text={_l('使用帮助')} />
+          <Support className="moreHelp" type={3} href="https://help.mingdao.com/sheet43" text={_l('使用帮助')} />
         </div>
       }
       overlayClosable={false}
@@ -237,11 +239,14 @@ export default function RefreshRecordDialog(props) {
             .filter(key => allConfig[key])
             .map(key => {
               const control = _.find(controls, { controlId: key });
-              return (
-                control && {
-                  ..._.pick(control, ['controlId', 'type']),
-                }
-              );
+              return control
+                ? {
+                    ...{
+                      ..._.pick(control, ['controlId', 'type']),
+                    },
+                    ...(control.encryId ? { editType: 21 } : {}),
+                  }
+                : undefined;
             })
             .filter(_.identity);
         } else {
@@ -328,42 +333,33 @@ export default function RefreshRecordDialog(props) {
             />
           ))}
         </RadioCon> */}
-        {activeType === ACTIVE_TYPE.CALIBRATE.value && (
-          <Fragment>
-            {!!refreshControls.length && <div className="secTitle Gray_75">{_l('刷新字段值')}</div>}
-            {refreshControls.map((c, i) => (
-              <Checkbox
-                key={i}
-                text={
-                  <span>
-                    <i className={`icon-${getIconByType(c.type)} Gray_9e Font16 mRight8`}></i>
-                    {c.controlName}
-                  </span>
-                }
-                checked={calibrateConfig[c.controlId]}
-                onClick={() => {
-                  setCalibrateConfig(config => ({ ...config, [c.controlId]: !calibrateConfig[c.controlId] }));
-                }}
-              />
+        {activeType === ACTIVE_TYPE.CALIBRATE.value &&
+          [
+            { title: _l('刷新字段值'), controls: refreshControls },
+            { title: _l('刷新选项排序和分值'), controls: refreshSortControls },
+            { title: _l('刷新加密规则字段值'), controls: encryptControls },
+          ]
+            .filter(item => item.controls.length)
+            .map(item => (
+              <Fragment>
+                <div className="secTitle Gray_75">{item.title}</div>
+                {item.controls.map((c, i) => (
+                  <Checkbox
+                    key={i}
+                    text={
+                      <span>
+                        <i className={`icon-${getIconByType(c.type)} Gray_9e Font16 mRight8`}></i>
+                        {c.controlName}
+                      </span>
+                    }
+                    checked={calibrateConfig[c.controlId]}
+                    onClick={() => {
+                      setCalibrateConfig(config => ({ ...config, [c.controlId]: !calibrateConfig[c.controlId] }));
+                    }}
+                  />
+                ))}
+              </Fragment>
             ))}
-            {!!refreshSortControls.length && <div className="secTitle Gray_75">{_l('刷新选项排序和分值')}</div>}
-            {refreshSortControls.map((c, i) => (
-              <Checkbox
-                key={i}
-                text={
-                  <span>
-                    <i className={`icon-${getIconByType(c.type)} Gray_9e Font16 mRight8`}></i>
-                    {c.controlName}
-                  </span>
-                }
-                checked={calibrateSortConfig[c.controlId]}
-                onClick={() => {
-                  setCalibrateSortConfig(config => ({ ...config, [c.controlId]: !calibrateSortConfig[c.controlId] }));
-                }}
-              />
-            ))}
-          </Fragment>
-        )}
 
         {/* {activeType === ACTIVE_TYPE.REFRESH.value && ( */}
         {false && ( // 刷新为其他字段先不上线

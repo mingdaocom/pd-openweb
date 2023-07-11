@@ -12,7 +12,7 @@ const MenuCon = styled.div`
   position: absolute;
 `;
 
-const Button = styled.div`
+export const Button = styled.div`
   display: inline-flex;
   font-weight: 500;
   border-radius: 4px;

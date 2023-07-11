@@ -159,7 +159,11 @@ export default class Widgets extends Component {
 
     // 搜索
     if (keywords.length) {
-      noDelOptions = noDelOptions.filter(item => (item.value || '').toString().indexOf(keywords) > -1);
+      noDelOptions = noDelOptions.filter(
+        item =>
+          (item.value || '').search(new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !==
+          -1,
+      );
     }
 
     return (

@@ -137,7 +137,7 @@ export default class Widgets extends Component {
 
     // 开启扫码输入并且禁止手动输入
     if (startTextScanCode && disabledInput) {
-      hint = _l('请扫码输入');
+      hint = hint || _l('请扫码输入');
     } else if (disabledInput) {
       hint = _l('请在移动端扫码输入');
     }

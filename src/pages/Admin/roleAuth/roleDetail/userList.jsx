@@ -4,6 +4,7 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import UserHead from 'src/pages/feed/components/userHead';
 
 import RoleController from 'src/api/role';
+import PaginationWrap from '../../components/PaginationWrap';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -58,22 +59,6 @@ class RoleUserList extends React.Component {
           this.getUserList();
         },
       );
-    }
-  }
-
-  componentDidUpdate() {
-    const { allCount, pageIndex, pageSize } = this.state;
-    if (this.pager) {
-      $(this.pager)
-        .show()
-        .Pager({
-          pageIndex,
-          pageSize,
-          count: allCount,
-          changePage: pageIndex => {
-            this.setState({ pageIndex }, this.getUserList);
-          },
-        });
     }
   }
 
@@ -205,10 +190,11 @@ class RoleUserList extends React.Component {
           </table>
         </div>
         {!isLoading && users && allCount > pageSize ? (
-          <div
-            ref={el => {
-              this.pager = el;
-            }}
+          <PaginationWrap
+            total={allCount}
+            pageSize={pageSize}
+            pageIndex={this.state.pageIndex}
+            onChange={pageIndex => this.setState({ pageIndex }, this.getUserList)}
           />
         ) : null}
       </div>

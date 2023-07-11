@@ -54,12 +54,13 @@ export default class BranchItem extends Component {
               this.setState({ isMove: true });
               updateBranchSort(processId, nodeId, flowIds);
             }}
-            copyBranchNode={() =>
+            copyBranchNode={all =>
               this.props.dispatch(
                 addFlowNode(processId, {
                   prveId,
                   nodeIds: [item.id],
                   name: item.name ? _l('-复制') : _l('分支-复制'),
+                  all,
                 }),
               )
             }

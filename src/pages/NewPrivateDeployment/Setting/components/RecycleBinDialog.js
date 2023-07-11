@@ -80,12 +80,11 @@ export default class RecycleBinDialog extends Component {
       <Dialog
         visible={visible}
         anim={false}
-        title={_l('数据/文件回收站')}
+        title={_l('数据回收站/备份文件保留时长')}
         width={560}
         onOk={this.handleSave}
         onCancel={this.props.onCancel}
       >
-        <div className="Gray_9e mBottom18">{_l('配置应用、应用项、工作表数据删除后、在回收站中的保留时长，以及应用备份文件保留时长')}</div>
         <div className="mTop20 mBottom20 flexRow valignWrapper">
           <div className="mBottom5 Font14" style={style}>{_l('应用')}</div>
           <Input

@@ -32,10 +32,20 @@ export default class Con extends React.Component {
               </span>
             </Tooltip>
           )}
-          {item.isDefault && <span className="tag mLeft3 InlineBlock">{_l('默认权限')}</span>}
+          {item.isDefault && <span className="tag mLeft3 InlineBlock">{_l('默认')}</span>}
         </span>
-        {!sysRoleType.includes(item.roleType) && item.roleId !== '' && (
-          <DropOption key={`${item.roleId}-li`} dataList={dataList} onAction={o => onAction(o, item)} />
+        {item.roleId !== '' && (
+          <DropOption
+            key={`${item.roleId}-li`}
+            dataList={dataList.filter(o => {
+              if (!sysRoleType.includes(item.roleType)) {
+                return true;
+              } else {
+                return o.key === 10;
+              }
+            })}
+            onAction={o => onAction(o, item)}
+          />
         )}
       </li>
     );

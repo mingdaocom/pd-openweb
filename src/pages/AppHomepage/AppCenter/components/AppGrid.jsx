@@ -795,7 +795,7 @@ export default function AppGrid(props) {
               />
             </React.Fragment>
           )}
-          {type === 'project' && !apps.length && (
+          {type === 'project' && !apps.length && keywords && (
             <NoSearchResultTip className="Font14 Gray_9e">{_l('无搜索结果')}</NoSearchResultTip>
           )}
           {type === 'external' && isExternal && !apps.length && (
@@ -905,7 +905,7 @@ export default function AppGrid(props) {
             projectId={projectId}
             createAppFromEmpty={(...args) =>
               actions.createAppFromEmpty(...args, id => {
-                navigateTo('/app/' + id);
+                args[0].createType !== 1 ? navigateTo('/app/' + id) : alert(_l('添加外部链接成功'));
               })
             }
           >

@@ -12,20 +12,19 @@ import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import projectSettingAjaxRequest from 'src/api/projectSetting';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
-import CustomIcon from './CustomIcon';
 import SvgIcon from 'src/components/SvgIcon';
 import Trigger from 'rc-trigger';
 import ReactDom from 'react-dom';
 import ExportApp from './modules/ExportApp';
 import ImportApp from './modules/ImportApp';
 import SelectApp from './modules/SelectApp';
-import AppAnalytics from 'src/pages/Admin/useAnalytics/components/AppAnalytics';
 import AppLog from './modules/AppLog';
 import { Drawer } from 'antd';
 import EventEmitter from 'events';
-import { upgradeVersionDialog, getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import {  getFeatureStatus, buriedUpgradeVersionDialog, addBehaviorLog } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
+import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 
 export const emitter = new EventEmitter();
 
@@ -67,7 +66,6 @@ export default class AppManagement extends Component {
         visible: false,
         title: '',
       },
-      uploadSvg: false,
 
       moreVisible: false,
       rowVisible: null,
@@ -100,7 +98,6 @@ export default class AppManagement extends Component {
         keyword: '',
         isMore: true,
         loading: false,
-        uploadSvg: false,
         isFree: false,
       });
 
@@ -151,7 +148,8 @@ export default class AppManagement extends Component {
       order,
       pageIndex,
       pageSize: 30,
-      keyword,
+      keyword: keyword.trim(),
+      containsLink: true,
     });
     this.postList.then(({ apps, maxCount, total, count }) => {
       this.setState({
@@ -204,23 +202,43 @@ export default class AppManagement extends Component {
       <div className="flexRow manageList" key={item.appId}>
         <div className={cx('iconWrap mLeft10', { unable: !item.status })} style={{ backgroundColor: item.iconColor }}>
           <SvgIcon url={item.iconUrl} fill="#fff" size={24} />
+          {item.createType === 1 && (
+            <div className="linkIcon">
+              <Tooltip text={_l('外部链接')}>
+                <Icon icon="link1" />
+              </Tooltip>
+            </div>
+          )}
         </div>
         <div className="flex name mLeft10 mRight40 overflowHidden">
           <div
             className={cx('flexRow nameBox ThemeColor3', { unable: !item.status })}
-            onClick={() => this.checkIsAppAdmin(item.appId, item.appName)}
+            onClick={() => {
+              if (item.createType === 1) {
+                window.open(transferExternalLinkUrl(item.urlTemplate, projectId, item.appId));
+                addBehaviorLog('app', item.appId); // 埋点
+              } else {
+                this.checkIsAppAdmin(item.appId, item.appName);
+              }
+            }}
           >
             <div className="ellipsis Font14">{item.appName}</div>
             {item.isLock && <Icon icon="lock" className="Gray_bd mLeft20 Font16" />}
           </div>
         </div>
-        <div className="columnWidth">{item.sheetCount.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,')}</div>
         <div className="columnWidth">
-          <Switch
-            checked={!!item.status}
-            text={item.status ? _l('开启') : _l('关闭')}
-            onClick={checked => this.editAppStatus(item.appId, checked ? 0 : 1)}
-          />
+          {item.createType !== 1 ? item.sheetCount.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,') : '-'}
+        </div>
+        <div className="columnWidth">
+          {item.createType !== 1 ? (
+            <Switch
+              checked={!!item.status}
+              text={item.status ? _l('开启') : _l('关闭')}
+              onClick={checked => this.editAppStatus(item.appId, checked ? 0 : 1)}
+            />
+          ) : (
+            '-'
+          )}
         </div>
         <div className="columnWidth Gray_9e">{moment(item.ctime).format('YYYY-MM-DD')}</div>
         <div className="columnWidth Gray_75 flexRow">
@@ -237,13 +255,15 @@ export default class AppManagement extends Component {
           {getFeatureStatus(projectId, 17) && (
             <Tooltip text={<span>{_l('使用分析')}</span>}>
               <span
-                className="Gray_9e Hand Font18 icon-worksheet_column_chart Hover_49 mRight16 chartIcon"
+                className={cx('Gray_9e Hand Font18 icon-worksheet_column_chart Hover_49 mRight16 chartIcon', {
+                  isShow: item.createType !== 1,
+                })}
                 onClick={() => {
                   if (getFeatureStatus(projectId, 17) === '2') {
                     buriedUpgradeVersionDialog(projectId, 17);
                     return;
                   }
-                  this.setState({ appAnalyticsVisible: true, currentAppInfo: { ...item, name: item.appName } });
+                  window.open(`/app/${item.appId}/analytics/${projectId}`, '__blank');
                 }}
               ></span>
             </Tooltip>
@@ -255,7 +275,7 @@ export default class AppManagement extends Component {
             popup={() => {
               return (
                 <ul className="optionPanelTrigger">
-                  {item.isLock || item.isGoods || !featureType ? null : (
+                  {item.isLock || item.isGoods || !featureType || item.createType === 1 ? null : (
                     <li
                       onClick={() => {
                         if (featureType === '2') {
@@ -552,6 +572,7 @@ export default class AppManagement extends Component {
         })
         .then(result => {
           if (result) {
+            addBehaviorLog('app', appId); // 浏览应用埋点
             navigateTo(`/app/${appId}`);
           } else if (this.state.checkAdmin.visible) {
             this.setState({ checkAdmin: opts(false) });
@@ -574,6 +595,7 @@ export default class AppManagement extends Component {
       })
       .then(result => {
         if (result) {
+          addBehaviorLog('app', id); // 浏览应用埋点
           navigateTo(`/app/${id}`);
         }
       });
@@ -606,18 +628,6 @@ export default class AppManagement extends Component {
   }
 
   /**
-   * 打开自定义图标
-   */
-  openCustomSvg = featureType => {
-    const { projectId } = this.props.match.params;
-    if (featureType === '2') {
-      buriedUpgradeVersionDialog(projectId, 7);
-    } else {
-      this.setState({ uploadSvg: true });
-    }
-  };
-
-  /**
    * 更多操作项
    */
   renderMore = list => {
@@ -645,13 +655,10 @@ export default class AppManagement extends Component {
       pageIndex,
       order,
       onlyManagerCreateApp,
-      uploadSvg,
       moreVisible,
       drawerVisible,
       exportIds,
       appTrashVisible,
-      appAnalyticsVisible,
-      currentAppInfo = {},
     } = this.state;
     const projectId = this.props.match.params.projectId;
     const { version, licenseType } = _.find(md.global.Account.projects || [], o => o.projectId === projectId) || {};
@@ -660,13 +667,6 @@ export default class AppManagement extends Component {
       { text: _l('开启'), value: 1 },
       { text: _l('关闭'), value: 0 },
     ];
-    const featureType = getFeatureStatus(projectId, 7);
-
-    if (uploadSvg) {
-      return (
-        <CustomIcon onClose={() => this.setState({ uploadSvg: false })} projectId={this.props.match.params.projectId} />
-      );
-    }
 
     return (
       <div className="appManagementList flex flexColumn">
@@ -677,12 +677,6 @@ export default class AppManagement extends Component {
             {_l('应用')}
             {total ? `（${total}）` : ''}
           </div>
-          {featureType && (
-            <div className="ThemeHoverColor3 pointer" onClick={() => this.openCustomSvg(featureType)}>
-              <Icon icon="hr_custom" className="Font18 mRight5" />
-              {_l('自定义图标')}
-            </div>
-          )}
           {md.global.Config.IsPlatformLocal && (
             <span
               data-tip={_l('勾选后，只允许组织后台的应用管理员创建应用；不勾选则允许全员创建应用')}
@@ -778,7 +772,7 @@ export default class AppManagement extends Component {
           <div className="flex" />
           <Search
             placeholder={_l('应用名称 / 拥有者')}
-            handleChange={keyword => this.updateState({ keyword: keyword.trim() })}
+            handleChange={_.debounce(keyword => this.updateState({ keyword }), 500)}
           />
         </div>
 
@@ -825,7 +819,7 @@ export default class AppManagement extends Component {
           title={_l('管理应用“%0”', checkAdmin.title)}
           description={_l('如果你不是应用的管理员，需要将自己加为管理员以获得权限')}
           cancelText=""
-          okText={checkAdmin.post ? _l('验证权限...') : _l('加为应用管理员')}
+          okText={checkAdmin.post ? _l('验证权限...') : _l('加为此应用管理员')}
           onOk={checkAdmin.post ? () => {} : this.addRoleMemberForAppAdmin}
           onCancel={() => this.setState({ checkAdmin: Object.assign({}, this.state.checkAdmin, { visible: false }) })}
         />
@@ -862,16 +856,6 @@ export default class AppManagement extends Component {
             onCancel={() => this.setState({ appTrashVisible: false })}
             onRestore={() => {
               this.setState({ pageIndex: 1 }, this.searchDataList);
-            }}
-          />
-        )}
-
-        {appAnalyticsVisible && (
-          <AppAnalytics
-            currentAppInfo={currentAppInfo}
-            projectId={projectId}
-            onCancel={() => {
-              this.setState({ appAnalyticsVisible: false });
             }}
           />
         )}

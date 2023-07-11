@@ -91,7 +91,11 @@ const WrapHeader = styled.div`
     }
   }
 `;
-const WrapList = styled.div``;
+const WrapList = styled.div`
+  &.empty {
+    height: 300px;
+  }
+`;
 const WrapLi = styled.div`
   border-radius: 5px 5px 5px 5px;
   .optionWrapTr {
@@ -113,8 +117,10 @@ const WrapLi = styled.div`
       opacity: 1;
     }
     .optionWrapTr {
-      .moreop::hover {
-        color: #2196f3 !important;
+      .moreop {
+        &:hover {
+          color: #2196f3 !important;
+        }
       }
     }
   }
@@ -297,7 +303,7 @@ export default function PorTalTable(props) {
           );
         })}
       </WrapHeader>
-      <WrapList className="">
+      <WrapList className={cx({ empty: listCell.length <= 0 && !props.loading })}>
         {listCell.length <= 0 && !props.loading && customizeRenderEmpty()}
         {listCell.length > 0 &&
           listCell.map(item => {

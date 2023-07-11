@@ -45,18 +45,19 @@ export default class extends React.Component {
     const { keywords, activeTab, level } = this.state;
     const props = {
       projectId: Config.projectId,
-      keywords
+      keywords,
     };
     return (
-      <div id="groupDept">
-        <div className="groupHeader">
+      <div id="groupDept" className="orgManagementWrap">
+        <div className="orgManagementHeader">
           {level === 'index' ? (
             <div className="tabBox">
               {routeList.map(item => {
                 return (
                   <div
-                    className={cx('groupTab', { active: item.routeType === activeTab })}
-                    onClick={this.handleChangeTab.bind(this, item)}>
+                    className={cx('tabItem', { active: item.routeType === activeTab })}
+                    onClick={this.handleChangeTab.bind(this, item)}
+                  >
                     {item.tabName}
                   </div>
                 );

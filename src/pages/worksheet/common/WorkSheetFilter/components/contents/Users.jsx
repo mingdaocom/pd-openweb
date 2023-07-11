@@ -73,7 +73,7 @@ export default class Users extends Component {
     quickSelectUser(this.userscon, {
       showMoreInvite: false,
       isTask: false,
-      includeUndefinedAndMySelf: !_.includes(['rule', 'portal'], from),
+      includeUndefinedAndMySelf: !_.includes(['rule', 'portal', 'subTotal'], from),
       includeSystemField: !_.includes(['rule', 'portal', 'subTotal'], from),
       ...(_.includes(['rule'], from)
         ? {

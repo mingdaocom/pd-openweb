@@ -26,6 +26,7 @@ import {
 } from './util';
 import { generatePdf } from '.';
 import _ from 'lodash';
+import { addBehaviorLog } from 'src/util';
 
 const Con = styled.div`
   height: 100vh
@@ -197,6 +198,9 @@ export default function PrintQrBarCode(props) {
   }
   const maxLineNumber = (labelObject || {}).maxLineNumber || 0;
   function handlePrint() {
+    const printTypeObj = { 1: 'printQRCode', 3: 'printBarCode' };
+    addBehaviorLog(printTypeObj[config.printType], worksheetId, { msg: [allowLoadMore ? count : selectedRows.length] }); // 埋点
+
     generatePdf({
       config,
       name: base.name,

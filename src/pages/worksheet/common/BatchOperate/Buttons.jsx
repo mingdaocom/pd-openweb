@@ -58,6 +58,7 @@ function getButtonWidth({ icon, name }) {
 
 function Buttons(props) {
   const {
+    isCharge,
     count,
     width,
     appId,
@@ -106,6 +107,7 @@ function Buttons(props) {
   return (
     <Con>
       <CustomButtons
+        isCharge={isCharge}
         hideDisabled
         isBatchOperate
         type="iconText"
@@ -148,6 +150,7 @@ function Buttons(props) {
               ]}
             >
               <CustomButtons
+                isCharge={isCharge}
                 hideDisabled
                 isBatchOperate
                 type="menu"

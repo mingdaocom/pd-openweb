@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import workWeiXinAjax from 'src/api/workWeiXin.js';
 import Config from '../../config';
 import { Icon, Button, LoadDiv } from 'ming-ui';
+import VertifyClearIntegationData from '../../components/VertifyClearIntegationData';
 import wechatIcon from '../img/wechat_work.png';
 import styled from 'styled-components';
 import gearImg from '../img/gear.gif';
@@ -161,13 +162,23 @@ export default class BuildAppNewRules extends Component {
   };
   // 确认授权
   confirmAuthorize = () => {
-    workWeiXinAjax.editWorkWXAlternativeAppStatus({
-      projectId: Config.projectId,
-    }).then(res => {
-      if (res) {
-        this.setState({ step: 2 });
-      }
-    });
+    workWeiXinAjax
+      .editWorkWXAlternativeAppStatus({
+        projectId: Config.projectId,
+      })
+      .then(res => {
+        if (res === -1) {
+          VertifyClearIntegationData({
+            projectId: Config.projectId,
+            callback: this.confirmAuthorize,
+          });
+          return;
+        } else if (res) {
+          this.setState({ step: 2 });
+        } else {
+          alert(_l('失败'), 2);
+        }
+      });
   };
   renderStepOne = () => {
     let { url = '', isLoading } = this.state;

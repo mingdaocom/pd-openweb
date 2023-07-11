@@ -98,16 +98,16 @@ export default {
    },
   /**
   * 根据 AppId
-获取 门户讨论配置
+获取功能配置
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getDiscussConfig: function (args, options = {}) {
+   getConfig: function (args, options = {}) {
      
-     return $.api('ExternalPortal', 'GetDiscussConfig', args, options);
+     return $.api('ExternalPortal', 'GetConfig', args, options);
    },
   /**
   * 创建 外部门户讨论工作流

@@ -120,7 +120,7 @@ export default class ExportSheet extends Component {
       });
 
       columns
-        .filter(item => isRelateRecordTableControl(item) || item.type === 34)
+        .filter(item => (isRelateRecordTableControl(item) && item.type !== 51) || item.type === 34)
         .forEach(({ controlId }) => {
           if (_.includes(res.controlIds, controlId)) {
             columnsSelected[controlId] = true;
@@ -244,7 +244,9 @@ export default class ExportSheet extends Component {
    * 全选 / 取消全选
    */
   selectAllColumnId() {
-    let oldColumns = this.props.columns.filter(item => isRelateRecordTableControl(item) || item.type === 34);
+    let oldColumns = this.props.columns.filter(
+      item => (isRelateRecordTableControl(item) && item.type !== 51) || item.type === 34,
+    );
     const { exportExtIds, columnsSelected } = this.state;
 
     // 判断当前状态是否全选
@@ -437,15 +439,8 @@ export default class ExportSheet extends Component {
           worksheetId,
           exportView: { viewId },
         } = this.props;
-        const {
-          columnsSelected,
-          exportShowColumns,
-          exportExtIds,
-          type,
-          showTabs,
-          isStatistics,
-          initEdited,
-        } = this.state;
+        const { columnsSelected, exportShowColumns, exportExtIds, type, showTabs, isStatistics, initEdited } =
+          this.state;
         const controlIds = [];
         _.forEach(columnsSelected, (value, key) => {
           columnsSelected[key] && controlIds.push(key);
@@ -519,7 +514,7 @@ export default class ExportSheet extends Component {
     }
 
     // 过滤掉不支持导出的字段、无权限字段
-    const notSupportableTtpe = [22, 34, 42, 43, 45, 47, 10010];
+    const notSupportableTtpe = [22, 34, 42, 43, 45, 47, 49, 50, 51, 10010];
     const exportColumns = columns.filter(
       item =>
         !isRelateRecordTableControl(item) &&
@@ -529,7 +524,9 @@ export default class ExportSheet extends Component {
     );
 
     // 关联、字表字段列表
-    const exportMoreRecord = columns.filter(item => isRelateRecordTableControl(item) || item.type === 34);
+    const exportMoreRecord = columns.filter(
+      item => (isRelateRecordTableControl(item) && item.type !== 51) || item.type === 34,
+    );
 
     // 判断当前状态是否全选
     const columnsShow = Object.keys(columnsSelected).filter(id => exportColumns.find(column => column.controlId == id));
@@ -788,7 +785,10 @@ export default class ExportSheet extends Component {
 
             <div className="title">{_l('导出格式')}</div>
             <RadioGroup
-              data={[{ text: _l('Excel 文件（.xlsx）'), value: 0 }, { text: _l('CSV 文件（.csv）'), value: 1 }]}
+              data={[
+                { text: _l('Excel 文件（.xlsx）'), value: 0 },
+                { text: _l('CSV 文件（.csv）'), value: 1 },
+              ]}
               size="small"
               checkedValue={type}
               disabled={edited}

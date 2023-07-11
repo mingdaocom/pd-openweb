@@ -11,7 +11,7 @@ import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum'
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
-import { CONTROL_EDITABLE_BLACKLIST } from 'worksheet/constants/enum';
+import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
 import { emitter, getSortData, fieldCanSort, getLRUWorksheetConfig, saveLRUWorksheetConfig } from 'worksheet/util';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
@@ -134,7 +134,7 @@ class ColumnHead extends Component {
     const itemType = this.getType(control);
     const canSort = fieldCanSort(itemType, control);
     const canEdit =
-      !_.includes(CONTROL_EDITABLE_BLACKLIST, control.type) &&
+      _.includes(CONTROL_EDITABLE_WHITELIST, control.type) &&
       controlState(control).editable &&
       canBatchEdit &&
       !SYS.filter(o => o !== 'ownerid').includes(control.controlId); //系统字段(除了拥有者字段)，不可编辑

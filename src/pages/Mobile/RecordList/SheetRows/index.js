@@ -8,7 +8,7 @@ import * as actions from '../redux/actions';
 import { WORKSHEET_TABLE_PAGESIZE } from 'src/pages/worksheet/constants/enum';
 import { RecordInfoModal } from 'mobile/Record';
 import withoutRows from './assets/withoutRows.png';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, addBehaviorLog } from 'src/util';
 import './index.less';
 import _ from 'lodash';
 
@@ -74,6 +74,9 @@ class SheetRows extends Component {
               this.setState({
                 previewRecordId: item.rowid
               });
+            }
+            if (location.pathname.indexOf('public') === -1) {
+              addBehaviorLog('worksheetRecord', base.worksheetId, { rowId: item.rowid }); // 埋点
             }
           }}
         />

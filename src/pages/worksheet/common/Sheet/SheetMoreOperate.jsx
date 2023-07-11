@@ -29,13 +29,19 @@ export default function SheetMoreOperate(props) {
   const { name, projectId, worksheetId, allowAdd, entityName, btnName } = worksheetInfo;
   const [menuVisible, setMenuVisible] = useState();
   const autoNumberControls = _.filter(controls, item => item.type === 33);
-
+  const canDelete = isCharge && !isLock;
+  const canSheetTrash = isOpenPermit(permitList.sheetTrash, sheetSwitchPermit);
+  const canImportSwitch = isOpenPermit(permitList.importSwitch, sheetSwitchPermit) && allowAdd;
+  const canEdit = canEditApp(permissionType) || canEditData(permissionType);
+  if (!canEdit && !canImportSwitch && !canSheetTrash && !canDelete) {
+    return null;
+  }
   return (
     <span className="moreOperate mLeft6 pointer" onClick={() => setMenuVisible(true)}>
       <Icon className="Gray_9d Font20" icon="more_horiz" />
       {menuVisible && (
         <Menu style={{ zIndex: 999 }} onClick={e => e.stopPropagation()} onClickAway={() => setMenuVisible(false)}>
-          {(canEditApp(permissionType) || canEditData(permissionType)) && (
+          {canEdit && (
             // 运营者有 修改名称和图标和 编辑工作表说明
             <Fragment>
               {isCharge && !isLock && (
@@ -122,48 +128,46 @@ export default function SheetMoreOperate(props) {
               >
                 <span className="text">{_l('编辑工作表说明%02033')}</span>
               </MenuItem>
-              {(canEditApp(permissionType) || canEditData(permissionType)) && (
-                //重置自动编号 =>开发者|管理员|运营者 设置记录名称=>开发者|管理员
-                <Fragment>
-                  {isCharge && !isLock && (
-                    <MenuItem
-                      icon={<Icon icon="button-edit" />}
-                      onClick={() => {
-                        setMenuVisible(false);
-                        setSheetName({
-                          projectId: projectId,
-                          worksheetId: worksheetId,
-                          entityName: entityName,
-                          btnName: btnName,
-                          updateSheetInfo: (id, data) => {
-                            updateWorksheetInfo(data);
-                          },
-                        });
-                      }}
-                    >
-                      <span className="text">{_l('设置记录名称%02032')}</span>
-                    </MenuItem>
-                  )}
-                  {!_.isEmpty(autoNumberControls) && (
-                    <MenuItem
-                      icon={<Icon icon="auto_number" />}
-                      onClick={() => {
-                        setMenuVisible(false);
-                        openResetAutoNumber({
-                          worksheetInfo,
-                        });
-                      }}
-                    >
-                      <span className="text">{_l('重置自动编号')}</span>
-                    </MenuItem>
-                  )}
-                </Fragment>
-              )}
+              {/* //重置自动编号 =>开发者|管理员|运营者 设置记录名称=>开发者|管理员 */}
+              <Fragment>
+                {isCharge && !isLock && (
+                  <MenuItem
+                    icon={<Icon icon="button-edit" />}
+                    onClick={() => {
+                      setMenuVisible(false);
+                      setSheetName({
+                        projectId: projectId,
+                        worksheetId: worksheetId,
+                        entityName: entityName,
+                        btnName: btnName,
+                        updateSheetInfo: (id, data) => {
+                          updateWorksheetInfo(data);
+                        },
+                      });
+                    }}
+                  >
+                    <span className="text">{_l('设置记录名称%02032')}</span>
+                  </MenuItem>
+                )}
+                {!_.isEmpty(autoNumberControls) && (
+                  <MenuItem
+                    icon={<Icon icon="auto_number" />}
+                    onClick={() => {
+                      setMenuVisible(false);
+                      openResetAutoNumber({
+                        worksheetInfo,
+                      });
+                    }}
+                  >
+                    <span className="text">{_l('重置自动编号')}</span>
+                  </MenuItem>
+                )}
+              </Fragment>
               <hr className="splitLine" />
             </Fragment>
           )}
           {/* 导入数据权限 */}
-          {isOpenPermit(permitList.importSwitch, sheetSwitchPermit) && allowAdd && (
+          {canImportSwitch && (
             <MenuItem
               icon={<Icon icon="restart" className="Font16" />}
               onClick={() => {
@@ -183,25 +187,27 @@ export default function SheetMoreOperate(props) {
               <span className="text">{_l('从Excel导入数据%02031')}</span>
             </MenuItem>
           )}
-          <MenuItem
-            icon={<Icon icon="recycle" />}
-            onClick={() => {
-              openWorkSheetTrash({
-                appId,
-                worksheetInfo,
-                projectId,
-                isCharge: isHaveCharge(permissionType),
-                isAdmin: isCharge,
-                controls,
-                worksheetId: worksheetId,
-                reloadWorksheet,
-              });
-              setMenuVisible(false);
-            }}
-          >
-            <span className="text">{_l('回收站%02030')}</span>
-          </MenuItem>
-          {isCharge && !isLock && (
+          {canSheetTrash && (
+            <MenuItem
+              icon={<Icon icon="recycle" />}
+              onClick={() => {
+                openWorkSheetTrash({
+                  appId,
+                  worksheetInfo,
+                  projectId,
+                  isCharge: isHaveCharge(permissionType),
+                  isAdmin: isCharge,
+                  controls,
+                  worksheetId: worksheetId,
+                  reloadWorksheet,
+                });
+                setMenuVisible(false);
+              }}
+            >
+              <span className="text">{_l('回收站%02030')}</span>
+            </MenuItem>
+          )}
+          {canDelete && (
             <MenuItem
               icon={<Icon icon="delete2" />}
               className="delete"

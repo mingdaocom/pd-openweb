@@ -64,6 +64,17 @@ export default function RelateRecord(props) {
       .map(safeParse)
       .map(r => ({ rowid: r.id, ...r }));
   }
+  let fastSearchControlArgs;
+  if (advancedSetting.searchcontrol) {
+    control.advancedSetting.searchcontrol = advancedSetting.searchcontrol;
+    fastSearchControlArgs = {
+      controlId: advancedSetting.searchcontrol,
+      filterType: advancedSetting.searchtype === '1' ? 2 : 1,
+    };
+  }
+  if (advancedSetting.clicksearch) {
+    control.advancedSetting.clicksearch = advancedSetting.clicksearch;
+  }
   const [active, setActive] = useState();
   const isMultiple = String(allowitem) === '2';
   const prefixRecords =
@@ -116,6 +127,9 @@ export default function RelateRecord(props) {
       />
     );
   }
+  // searchcontrol
+  // searchtype 0 模糊[default] 1精确
+  // clicksearch 1 搜索后限制 0[default]
   return (
     <Con>
       <Dropdown
@@ -134,6 +148,7 @@ export default function RelateRecord(props) {
         renderSelected={active ? undefined : renderSelected}
         prefixRecords={prefixRecords}
         staticRecords={staticRecords}
+        fastSearchControlArgs={fastSearchControlArgs}
         onChange={newRecords => {
           handleChange({ values: newRecords });
         }}

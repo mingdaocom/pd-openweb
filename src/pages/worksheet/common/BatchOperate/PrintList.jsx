@@ -6,7 +6,7 @@ import worksheetAjax from 'src/api/worksheet';
 import webCacheAjax from 'src/api/webCache';
 import IconText from 'worksheet/components/IconText';
 import { printQrBarCode, generatePdf } from 'worksheet/common/PrintQrBarCode';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, addBehaviorLog } from 'src/util';
 import _ from 'lodash';
 
 const Con = styled.div`
@@ -192,6 +192,11 @@ export default function PrintList(props) {
                   icon={<Icon icon={getPrintCardInfoOfTemplate(template).icon} className="Font18" />}
                   onClick={() => {
                     if (_.includes([3, 4], template.type)) {
+                      const logType = template.type === 3 ? 'printQRCode' : 'printBarCode';
+                      addBehaviorLog(logType, worksheetId, {
+                        printId: template.id,
+                        msg: [allowLoadMore ? count : selectedRows.length],
+                      }); // 埋点
                       handlePrintQrCode({ id: template.id, printType: template.type === 3 ? 1 : 3 });
                     } else {
                       if (featureType === '2') {

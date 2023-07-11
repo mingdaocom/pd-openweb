@@ -1,7 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getRequest } from 'src/util';
 import { Icon, WaterMark, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
 import DocumentTitle from 'react-document-title';
@@ -54,13 +53,12 @@ class Record extends Component {
       abnormal: null,
       originalData: null,
       currentTab: {},
-      allowExAccountDiscuss: false, //允许外部用户讨论
-      exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
+      externalPortalConfig: {},
       approveCount: 0,
       btnDisable: {},
       advancedSetting: {},
       formStyleImggeData: [], // 表单样式封面字段值
-      rulesLocked: false
+      rulesLocked: false,
     };
     this.refreshEvents = {};
     this.cellObjs = {};
@@ -71,7 +69,7 @@ class Record extends Component {
     this.loadRow();
     if (this.props.getDataType !== 21 && !this.isSharePage) {
       this.loadCustomBtns();
-      this.getPortalDiscussSet();
+      this.getPortalConfigSet();
       this.getApproveTodoList();
     }
   }
@@ -135,7 +133,7 @@ class Record extends Component {
         advancedSetting: worksheetInfoResult.advancedSetting,
         switchPermit: worksheetInfoResult.switches,
         formStyleImggeData,
-        rulesLocked: checkRuleLocked(worksheetInfoResult.rules, rowResult.receiveControls)
+        rulesLocked: checkRuleLocked(worksheetInfoResult.rules, rowResult.receiveControls),
       });
 
       if (props && props.executionFinished && !rowResult.isViewData) {
@@ -182,25 +180,31 @@ class Record extends Component {
         let val = it.value && JSON.parse(JSON.stringify(it.value));
         if (val) {
           return !_.isObject(val)
-            ? formatControlToServer({
-                ...it,
-                value: JSON.stringify({
-                  bucket: 4,
-                  key: val.match(/pic\/\d+\/[0-9a-zA-Z]+(.png)/g)[0],
-                }),
-              })
-            : formatControlToServer(it);
+            ? formatControlToServer(
+                {
+                  ...it,
+                  value: JSON.stringify({
+                    bucket: 4,
+                    key: val.match(/Sign\/[0-9a-z-]+\/[0-9a-z]+\/\d+\/[0-9a-zA-Z]+(.png)/g)[0],
+                  }),
+                },
+                { isNewRecord: true, isDraft: true },
+              )
+            : formatControlToServer(it, { isNewRecord: true, isDraft: true });
         }
-        return formatControlToServer(it);
+        return formatControlToServer(it, { isNewRecord: true, isDraft: true });
       }
       if (it.type === 34) {
-        return formatControlToServer({
-          ...it,
-          value: _.isObject(it.value) ? { ...it.value, isAdd: true, updated: [] } : it.value,
-        });
+        return formatControlToServer(
+          {
+            ...it,
+            value: _.isObject(it.value) ? { ...it.value, isAdd: true, updated: [] } : it.value,
+          },
+          { isNewRecord: true, isDraft: true },
+        );
       }
       if (it.type === 14) {
-        return formatControlToServer(it, { isSubListCopy: true });
+        return formatControlToServer(it, { isSubListCopy: true, isNewRecord: true, isDraft: true });
       }
       return formatControlToServer(it, { isNewRecord: true, isDraft: true });
     });
@@ -868,7 +872,7 @@ class Record extends Component {
           tab.value ? (
             <Fragment>
               <span className="tabName ellipsis mRight2">{tab.name}</span>
-              <span>{`(${tab.value})`}</span>
+              {_.get(tab, 'control.type') !== 51 && <span>{`(${tab.value})`}</span>}
             </Fragment>
           ) : (
             <Fragment>
@@ -934,6 +938,7 @@ class Record extends Component {
       advancedSetting,
       switchPermit,
       formStyleImggeData = [],
+      externalPortalConfig
     } = this.state;
     const { relationRow, isModal, onClose, getDataType } = this.props;
     const viewHideControls = _.get(sheetRow, 'view.controls') || [];
@@ -943,7 +948,7 @@ class Record extends Component {
     const allowApprove =
       isOpenPermit(permitList.approveDetailsSwitch, switchPermit, baseIds.viewId) &&
       !this.isSharePage &&
-      getDataType !== 21 && !md.global.Account.isPortal;
+      getDataType !== 21 && (md.global.Account.isPortal ? externalPortalConfig.approved : true);
     const recordMuster = _.sortBy(
       updateRulesData({ rules: rules, data: sheetRow.receiveControls }).filter(
         control =>
@@ -1048,18 +1053,13 @@ class Record extends Component {
       </Fragment>
     );
   }
-  getPortalDiscussSet = () => {
+  getPortalConfigSet = () => {
     const baseIds = this.getBaseIds();
     const { appId } = baseIds;
 
-    externalPortalAjax.getDiscussConfig({ appId }).then(res => {
-      const {
-        allowExAccountDiscuss, //允许外部用户讨论
-        exAccountDiscussEnum,
-      } = res;
+    externalPortalAjax.getConfig({ appId }).then(res => {
       this.setState({
-        allowExAccountDiscuss, //允许外部用户讨论
-        exAccountDiscussEnum,
+        externalPortalConfig: res
       });
     });
   };
@@ -1074,11 +1074,11 @@ class Record extends Component {
       isEdit,
       switchPermit,
       sheetRow,
-      allowExAccountDiscuss,
-      exAccountDiscussEnum,
+      externalPortalConfig,
       customBtns,
       originalData,
     } = this.state;
+    const { allowExAccountDiscuss, exAccountDiscussEnum } = externalPortalConfig;
     const { viewId, appId, worksheetId, rowId } = baseIds;
 
     if (loading) {
@@ -1107,7 +1107,8 @@ class Record extends Component {
           {(((!getDataType || getDataType !== 21) &&
             !this.isSharePage &&
             !isPortal &&
-            (isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) || isOpenPermit(permitList.recordLogSwitch, switchPermit, viewId))) ||
+            (isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId) ||
+              isOpenPermit(permitList.recordLogSwitch, switchPermit, viewId))) ||
             (isPortal && allowExAccountDiscuss)) && ( //外部门户开启讨论的
             <div className="chatMessageContainer">
               {!isEdit && appId && !isSubList && !abnormal && (

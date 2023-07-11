@@ -22,7 +22,7 @@ export default class CustomDefaultValue extends Component {
   }
 
   render() {
-    const { onClose, data = {}, globalSheetInfo = {}, onChange } = this.props;
+    const { onClose, data = {}, globalSheetInfo = {}, appId, onChange } = this.props;
     const { filterRows = [], rowData = [] } = this.state;
     const controls = (data.relationControls || []).map(i => ({
       ...i,
@@ -67,6 +67,7 @@ export default class CustomDefaultValue extends Component {
             }}
             controls={controls}
             projectId={globalSheetInfo.projectId}
+            appId={appId || globalSheetInfo.appId}
             registerCell={() => {}}
             onChange={({ rows = [] }) => {
               const filterRows = rows.map(row => {

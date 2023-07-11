@@ -1,5 +1,62 @@
 export default {
   /**
+  * map解锁
+  * @param {Object} args 请求参数
+  * @param {string} args.appId
+  * @param {string} args.password
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   unlock: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'Unlock', args, options);
+   },
+  /**
+  * 修改锁定密码
+  * @param {Object} args 请求参数
+  * @param {string} args.newPassword
+  * @param {string} args.appId
+  * @param {string} args.password
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editLockPassword: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'EditLockPassword', args, options);
+   },
+  /**
+  * 重新锁定
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   resetLock: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'ResetLock', args, options);
+   },
+  /**
   * 关闭应用锁
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
@@ -444,6 +501,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {} args.type 应用分组下实体类型（0=工作表，1=自定义页面）
+  * @param {boolean} args.containsLinks 是否包含链接类型
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -456,6 +514,7 @@ export default {
   * 网络下用户为管理员的应用集合
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {boolean} args.containsLinks 是否包含链接类型
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -488,6 +547,7 @@ export default {
   * @param {string} args.keyword 搜索关键字（支持名称和拥有者名称）
   * @param {integer} args.sourceType 来源 默认0=全部，2=过滤分发平台
   * @param {} args.filterType 过滤类型（1 = 过滤加锁的,0 or 不传 = 默认）
+  * @param {boolean} args.containsLinks 是否包含链接类型
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -495,6 +555,26 @@ export default {
    getAppsForProject: function (args, options = {}) {
      
      return $.api('AppManagement', 'GetAppsForProject', args, options);
+   },
+  /**
+  * 分页获取网络下应用信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {integer} args.status 应用状态  0=关闭 1=启用  可空
+  * @param {} args.order 排序 0=默认 ，1=表数量降序，2=表数量升序，3=创建时间降序，4=创建时间升序
+  * @param {integer} args.pageIndex 页数（从1开始）
+  * @param {integer} args.pageSize 每页显示数
+  * @param {string} args.keyword 搜索关键字（支持名称和拥有者名称）
+  * @param {integer} args.sourceType 来源 默认0=全部，2=过滤分发平台
+  * @param {} args.filterType 过滤类型（1 = 过滤加锁的,0 or 不传 = 默认）
+  * @param {boolean} args.containsLinks 是否包含链接类型
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppsByProject: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetAppsByProject', args, options);
    },
   /**
   * 获取应用信息（批量）
@@ -523,7 +603,7 @@ export default {
   /**
   * 获取导出相关功能模块token
   * @param {Object} args 请求参数
-  * @param {} args.tokenType 功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
+  * @param {} args.tokenType 功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印,6 =导入创建应用，7=子表导入
   * @param {string} args.worksheetId
   * @param {string} args.viewId
   * @param {string} args.projectId 网络id ，TokenType = 4或6时，这个必穿
@@ -657,6 +737,8 @@ export default {
   * @param {string} args.workSheetName 名称
   * @param {string} args.icon 图标
   * @param {integer} args.type 类型
+  * @param {string} args.urlTemplate 链接
+  * @param {object} args.configuration 链接配置
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -686,6 +768,9 @@ export default {
   * @param {string} args.name 名称
   * @param {string} args.icon Logo
   * @param {integer} args.type 类型 0=工作表 1=自定义页面
+  * @param {integer} args.createType 创建类型（创建自定义页面得时候需要传）0-表示普通 1-表示外部链接
+  * @param {string} args.urlTemplate 链接
+  * @param {object} args.configuration 链接配置
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1214,6 +1299,46 @@ export default {
      return $.api('AppManagement', 'UsageStatisticsForDimension', args, options);
    },
   /**
+  * 获取应用日志
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {} args.queryType 应用日志查询类型,默认不传查询所有
+  * @param {array} args.operators 操作人id数组
+  * @param {array} args.appIds 应用id数组
+  * @param {array} args.worksheetIds 工作表id数组
+  * @param {array} args.modules 所属日志模块
+  * @param {array} args.operationTypes 操作类型
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {array} args.columnNames 列名称
+  * @param {string} args.menuName 菜单名称
+  * @param {string} args.startDateTime 开始时间
+  * @param {string} args.endDateTime 结束时间
+  * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
+  * @param {boolean} args.isSingle 是否是单个应用
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getGlobalLogs: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetGlobalLogs', args, options);
+   },
+  /**
+  * 获取应用下工作表信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {array} args.appIds 应用ids
+  * @param {boolean} args.isFilterCustomPage 是否过滤自定义页面
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorksheetsUnderTheApp: function (args, options = {}) {
+     
+     return $.api('AppManagement', 'GetWorksheetsUnderTheApp', args, options);
+   },
+  /**
   * 开启密码锁
   * @param {Object} args 请求参数
   * @param {string} args.appId
@@ -1231,62 +1356,5 @@ export default {
    addLock: function (args, options = {}) {
      
      return $.api('AppManagement', 'AddLock', args, options);
-   },
-  /**
-  * map解锁
-  * @param {Object} args 请求参数
-  * @param {string} args.appId
-  * @param {string} args.password
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   unlock: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'Unlock', args, options);
-   },
-  /**
-  * 修改锁定密码
-  * @param {Object} args 请求参数
-  * @param {string} args.newPassword
-  * @param {string} args.appId
-  * @param {string} args.password
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editLockPassword: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'EditLockPassword', args, options);
-   },
-  /**
-  * 重新锁定
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用id
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   resetLock: function (args, options = {}) {
-     
-     return $.api('AppManagement', 'ResetLock', args, options);
    },
 };

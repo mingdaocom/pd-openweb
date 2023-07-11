@@ -1039,7 +1039,7 @@ export default class GeneraSelect extends Component {
         selectedData,
       });
     };
-    if (group.users.length < group[COUNT]) {
+    if ((group.users || []).length < group[COUNT]) {
       let promiseObj = null;
       if (this.state.selectedUserTabId === UserTabsId.DEPARTMENT) {
         promiseObj = this.handlePromise(

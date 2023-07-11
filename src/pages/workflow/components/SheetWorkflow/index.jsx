@@ -233,7 +233,7 @@ export default function SheetWorkflow(props) {
         );
         setList(list);
         setLoading(false);
-        if (list.length === 1) {
+        if (list.length === 1 && unfinished.length === 1) {
           handleViewFlowStep(list[0]);
         } else {
           resolve(list);

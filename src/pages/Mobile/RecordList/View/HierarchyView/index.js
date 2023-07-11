@@ -5,16 +5,17 @@ import { bindActionCreators } from 'redux';
 import HierarchyView from 'src/pages/worksheet/views/HierarchyView';
 import ViewErrorPage from '../components/ViewErrorPage'
 import _ from 'lodash';
-
+import HierarchyVerticalView from 'src/pages/worksheet/views/HierarchyVerticalView';
+import HierarchyMixView from 'src/pages/worksheet/views/HierarchyMixView';
 
 class MobileHierarchyView extends Component {
   constructor(props) {
     super(props);
   }
   componentDidMount() {}
-  render() { 
+  render() {
     const { currentSheetRows = [], view = {}, controls = [] } = this.props
-    const { viewControl, viewControls } = view;
+    const { viewControl, viewControls, advancedSetting={} } = view;
     const isHaveSelectControl =
       viewControl === 'create' ||
       (viewControl && _.find(controls, item => item.controlId === viewControl)) ||
@@ -27,6 +28,15 @@ class MobileHierarchyView extends Component {
         color="#9c27af"
       />)
     }
+
+    if(advancedSetting.hierarchyViewType==='1') {
+      return <HierarchyVerticalView {...this.props} />
+    }
+
+    if(advancedSetting.hierarchyViewType==='2') {
+      return <HierarchyMixView {...this.props} />
+    }
+
     return (
       <HierarchyView {...this.props} />
     );

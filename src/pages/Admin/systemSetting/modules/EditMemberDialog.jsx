@@ -160,7 +160,7 @@ export default class EditMemberDialog extends Component {
     return (
       <Dialog
         visible={this.props.visible}
-        title={_l(`添加成员(${userCount})`)}
+        title={_l('添加成员(%0)', userCount)}
         width="480"
         overlayClosable={false}
         footer={null}

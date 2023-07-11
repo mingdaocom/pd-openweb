@@ -174,10 +174,10 @@ export default class Widgets extends Component {
 
     if (keywords) {
       const path = JSON.parse(item.path);
-      return path.map((text, i) => {
+      return path.map((text = '', i) => {
         const isLast = i === path.length - 1;
 
-        if (text.indexOf(keywords) > -1) {
+        if (text.search(new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !== -1) {
           return (
             <Fragment key={i}>
               <span className="ThemeColor3">{text}</span>
@@ -585,7 +585,7 @@ export default class Widgets extends Component {
               option =>
                 JSON.parse(option.path || '[]')
                   .join('/')
-                  .indexOf(inputValue) > -1,
+                  .search(new RegExp(inputValue.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !== -1,
             );
           },
           render: (inputValue, resultArr = []) => {

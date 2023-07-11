@@ -9,7 +9,7 @@ import previewAttachments from 'src/components/previewAttachments/previewAttachm
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
 import { RecordInfoModal } from 'mobile/Record';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, addBehaviorLog } from 'src/util';
 import { getUrlList } from './util';
 import _ from 'lodash';
 
@@ -232,6 +232,8 @@ export default function CarouselPreview(props) {
     // 打开记录
     if (action === 1 && !window.share) {
       const { appId } = await homeAppAjax.getAppSimpleInfo({ workSheetId: worksheetId });
+      
+      addBehaviorLog('worksheetRecord', worksheetId, { rowId: rowid }); // 埋点
 
       if (isMingdao) {
         location.href = `/app/${appId}/${worksheetId}/${viewId}/row/${rowid}`;

@@ -35,7 +35,7 @@ TPAuth.options = {
 };
 
 TPAuth.init = function() {
-  $('#app').after(`
+  $('#app').append(`
   <div class="header">
       <div class="content">
           <a href="/" class="InlineBlock"><span class="mingdaoLogo"></span></a>

@@ -14,8 +14,22 @@ import cx from 'classnames';
 import { Link } from 'react-router-dom';
 import ConnectAvator from '../components/ConnectAvator';
 import _ from 'lodash';
+import { Dropdown } from 'ming-ui';
 
 const Wrap = styled.div`
+  .mLeft18 {
+    margin-left: 18px;
+  }
+  .dropSearchType {
+    width: 100px;
+  }
+  .manageListOrder {
+    transform: scale(0.8);
+    color: #bfbfbf;
+    .icon-arrow-down {
+      margin-top: -4px;
+    }
+  }
   background: #fff;
   padding: 28px 48px;
   min-height: 100%;
@@ -154,33 +168,60 @@ const Wrap = styled.div`
 // hover时显示日志详情、复制按钮（仅自定义连接下API有）、删除按钮（仅自定义连接下API有），标题变蓝色；
 // 点击卡片右侧拉出API详情
 function APICon(props) {
-  const [{ loading, keywords, pageIndex, isMore, list, publishing, show, listId, showType, hasOnchange }, setState] =
-    useSetState({
-      loading: true,
-      keywords: '',
-      pageIndex: 1,
-      isMore: false,
-      list: [],
-      publishing: false,
-      show: false,
-      listId: '',
-      showType: 0,
-      hasOnchange: 0, //用于更新获取
-    });
+  const [
+    {
+      loading,
+      keywords,
+      pageIndex,
+      isMore,
+      list,
+      publishing,
+      show,
+      listId,
+      showType,
+      hasOnchange,
+      timeSort,
+      searchType,
+    },
+    setState,
+  ] = useSetState({
+    loading: true,
+    keywords: '',
+    pageIndex: 1,
+    isMore: false,
+    list: [],
+    publishing: false,
+    show: false,
+    listId: '',
+    showType: 0,
+    hasOnchange: 0, //用于更新获取
+    timeSort: 0,
+    searchType: 0,
+  });
   const fetchData = () => {
     setState({ loading: true });
-    packageVersionAjax.getApiList(
-      {
-        companyId: props.currentProjectId,
-        types: [1, 2], //（包括安装的和自定义添加的）
-        pageIndex,
-        pageSize: PageSize,
-        keyword: keywords,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setState({ loading: false, list: pageIndex > 1 ? list.concat(res) : res, isMore: res.length <= 0 });
-    });
+    let sorter = {
+      lastModifiedDate: timeSort === 1 ? 'ascend' : timeSort === 2 ? 'descend' : undefined,
+    };
+    if (!sorter.lastModifiedDate) {
+      sorter = undefined;
+    }
+    packageVersionAjax
+      .getApiList(
+        {
+          companyId: props.currentProjectId,
+          types: [1, 2], //（包括安装的和自定义添加的）
+          pageIndex,
+          pageSize: PageSize,
+          keyword: keywords,
+          sorter,
+          enabled: searchType === 1 ? true : searchType === 2 ? false : undefined,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({ loading: false, list: pageIndex > 1 ? list.concat(res) : res, isMore: res.length <= 0 });
+      });
   };
   useEffect(() => {
     if (!props.currentProjectId) {
@@ -188,7 +229,7 @@ function APICon(props) {
       return;
     }
     fetchData();
-  }, [props.currentProjectId, keywords, pageIndex, hasOnchange]);
+  }, [props.currentProjectId, keywords, timeSort, searchType, pageIndex, hasOnchange]);
   const handleSearch = useCallback(
     _.throttle(v => {
       setState({ keywords: v, pageIndex: 1 });
@@ -380,8 +421,23 @@ function APICon(props) {
       },
     },
     {
-      title: _l('最近操作'),
       dataIndex: 'lastModifiedDate',
+      renderHead: info => {
+        return (
+          <div
+            className="pRight12 Hand ThemeHoverColor3 flexRow"
+            onClick={() =>
+              info.onChange({ timeSort: info.timeSort === 2 ? 0 : info.timeSort === 0 ? 1 : 2, pageIndex: 1 })
+            }
+          >
+            <span className="">{_l('最近操作')}</span>
+            <div className="flexColumn manageListOrder">
+              <Icon icon="arrow-up" className={cx('flex', { ThemeColor3: info.timeSort === 2 })} />
+              <Icon icon="arrow-down" className={cx('flex', { ThemeColor3: info.timeSort === 1 })} />
+            </div>
+          </div>
+        );
+      },
       render: (text, record) => {
         return (
           <div className="Gray_9e overflow_ellipsis WordBreak">
@@ -477,9 +533,40 @@ function APICon(props) {
           <p className="Font15 mBottom4 mTop8 flexRow alignItemsCenter">
             <span className="flex">
               <span className="TxtMiddle">{_l('管理第三方 API ，在工作表或工作流中调用')}</span>
-              <Support type={3} href="https://help.mingdao.com/zh/integration.html#api管理" text={_l('使用帮助')} />
+              <Support type={3} href="https://help.mingdao.com/integration#api管理" text={_l('使用帮助')} />
             </span>
-            <SearchInput className="searchCon" placeholder={_l('搜索 API')} value={keywords} onChange={handleSearch} />
+            <Dropdown
+              value={searchType}
+              className="dropSearchType mLeft18 Font13"
+              onChange={searchType => {
+                setState({
+                  searchType,
+                  pageIndex: 1,
+                });
+              }}
+              border
+              isAppendToBody
+              data={[
+                {
+                  text: _l('全部状态'),
+                  value: 0,
+                },
+                {
+                  text: _l('开启'),
+                  value: 1,
+                },
+                {
+                  text: _l('关闭'),
+                  value: 2,
+                },
+              ]}
+            />
+            <SearchInput
+              className="searchCon mLeft18"
+              placeholder={_l('搜索 API')}
+              value={keywords}
+              onChange={handleSearch}
+            />
           </p>
         </div>
         {loading && pageIndex === 1 ? (
@@ -492,7 +579,18 @@ function APICon(props) {
               <div className="tableCon">
                 <div className="headTr">
                   {columns.map(o => {
-                    return <div className={`${o.dataIndex}`}>{o.title}</div>;
+                    return (
+                      <div className={`${o.dataIndex}`}>
+                        {o.renderHead
+                          ? o.renderHead({
+                              timeSort,
+                              onChange: info => {
+                                setState(info);
+                              },
+                            })
+                          : o.title}
+                      </div>
+                    );
                   })}
                 </div>
                 {list.map(item => {

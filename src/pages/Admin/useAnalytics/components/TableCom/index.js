@@ -1,5 +1,5 @@
 import React, { Fragment, Component } from 'react';
-import { Icon, ScrollView, LoadDiv } from 'ming-ui';
+import { Icon, ScrollView, LoadDiv, Tooltip } from 'ming-ui';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import './index.less';
@@ -63,9 +63,14 @@ export default class TableCom extends Component {
         <div className="tableHeader flexRow">
           {columns.map(item => {
             return (
-              <div className={`${item.className} flexRow`}>
+              <div className={`${item.className} flexRow alignItemsCenter`}>
                 <div
-                  className={cx('pRight12 pTop2', { ThemeHoverColor3: item.sorter, pointer: item.sorter })}
+                  className={cx({
+                    ThemeHoverColor3: item.sorter,
+                    pointer: item.sorter,
+                    mRight12: !item.explain,
+                    mRight0: !!item.explain,
+                  })}
                   style={{ zIndex: 1 }}
                   onClick={() => {
                     this.clickSorter(item);
@@ -73,6 +78,11 @@ export default class TableCom extends Component {
                 >
                   {item.title}
                 </div>
+                {!!item.explain && (
+                  <Tooltip text={<span>{item.explain}</span>} popupPlacement="bottom">
+                    <Icon icon="info" className="Font16 Gray_9e mLeft3 mRight12 hover_f3" />
+                  </Tooltip>
+                )}
                 {item.sorter && (
                   <div className="flexColumn sorter">
                     <Icon

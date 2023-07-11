@@ -86,20 +86,23 @@ export default class Widgets extends Component {
             <Tooltip
               mouseEnterDelay={0.6}
               disable={!projectId}
-              text={() =>
-                new Promise((resolve, reject) => {
-                  if (!projectId) {
-                    return reject();
-                  }
-                  departmentAjax
-                    .getDepartmentFullNameByIds({
-                      projectId,
-                      departmentIds: [item.departmentId],
-                    })
-                    .then(res => {
-                      resolve(_.get(res, '0.name'));
-                    });
-                })
+              text={
+                !_.get(window, 'shareState.shareId')
+                  ? () =>
+                      new Promise((resolve, reject) => {
+                        if (!projectId) {
+                          return reject();
+                        }
+                        departmentAjax
+                          .getDepartmentFullNameByIds({
+                            projectId,
+                            departmentIds: [item.departmentId],
+                          })
+                          .then(res => {
+                            resolve(_.get(res, '0.name'));
+                          });
+                      })
+                  : null
               }
             >
               <div className={cx('customFormControlTags', { selected: browserIsMobile() && !disabled })} key={index}>

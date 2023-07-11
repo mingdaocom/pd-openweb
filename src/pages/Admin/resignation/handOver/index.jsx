@@ -9,8 +9,7 @@ import UserHead from 'src/pages/feed/components/userHead';
 import MdBusinessCard from 'src/components/mdBusinessCard/reactMdBusinessCard';
 
 import Empty from '../../common/TableEmpty';
-
-import 'src/components/pager/pager';
+import PaginationWrap from '../../components/PaginationWrap';
 import './style.less';
 
 import { default as Detail, callDialogSelectUser } from './detail';
@@ -54,20 +53,6 @@ export default class HandOver extends React.Component {
         },
         this.fetchList.bind(this)
       );
-    }
-  }
-
-  componentDidUpdate() {
-    const { allCount, pageIndex } = this.state;
-    if (this.pager) {
-      $(this.pager).Pager({
-        pageIndex,
-        pageSize: 20,
-        count: allCount,
-        changePage: pageIndex => {
-          this.setState({ pageIndex }, this.fetchList.bind(this));
-        },
-      });
     }
   }
 
@@ -262,7 +247,7 @@ export default class HandOver extends React.Component {
   }
 
   renderContent() {
-    const { allCount, isLoading } = this.state;
+    const { allCount, isLoading, pageIndex } = this.state;
 
     return (
       <div className="transferList Relative">
@@ -282,10 +267,15 @@ export default class HandOver extends React.Component {
             <tbody>{this.renderList()}</tbody>
           </table>
         </div>
-        {!isLoading && allCount && allCount > 10 ? (
-          <div
-            ref={el => {
-              this.pager = el;
+        {!isLoading && allCount && allCount > 20 ? (
+          <PaginationWrap
+            total={allCount}
+            pageIndex={pageIndex}
+            pageSize={20}
+            onChange={pageIndex => {
+              this.setState({ pageIndex }, () => {
+                this.fetchList();
+              });
             }}
           />
         ) : null}

@@ -1,5 +1,6 @@
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
 import modalMessage from './modalMessage';
+import { emitter } from 'worksheet/util';
 
 const STATUS = {
   0: { id: 'closed', text: _l('流程未启用'), action: 'error', promptType: 2 },
@@ -31,6 +32,13 @@ export default () => {
   let complete = {};
   IM.socket.on('workflow', data => {
     const { status, type, worksheetId, rowId, storeId, total, finished, title, executeType, close } = data;
+
+    if (status === 2 || (type === 4 && status === 1)) {
+      emitter.emit('MOBILE_RELOAD_SHEETVIVELIST', {
+        worksheetId,
+        recordId: rowId.indexOf('_') > 0 ? (rowId.match(/(.+?)_/) || '')[1] : rowId,
+      });
+    }
 
     if (close) {
       destroyAlert('workflow');

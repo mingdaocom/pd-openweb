@@ -29,7 +29,7 @@ export default ({ data, onChange }) => {
         ...(dismanual || getinput || getsave
           ? handleAdvancedSettingChange(data, { dismanual: '0', getinput: '0', getsave: '0' })
           : {}),
-        strDefault: data.strDefault ? updateConfig({ config: strDefault, value: 0, index: 0 }) : data.strDefault,
+        ...(data.strDefault ? { strDefault: updateConfig({ config: strDefault, value: 0, index: 0 }) } : {}),
       });
     }
   }, [data.controlId]);

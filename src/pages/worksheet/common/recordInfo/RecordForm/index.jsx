@@ -181,7 +181,11 @@ export default function RecordForm(props) {
         control =>
           isRelateRecordTableControl(control) && controlState(control, recordId && from !== 21 ? 3 : 2).visible,
       )
-      .map(c => (!ignoreLock && isLock ? { ...c, disabled: true } : c)),
+      .map(c =>
+        Object.assign(!ignoreLock && isLock ? { ...c, disabled: true } : c, {
+          isDraft: from === RECORD_INFO_FROM.DRAFT,
+        }),
+      ),
     'row',
   ).filter(c => !c.hidden);
   const scrollRef = useRef();

@@ -10,6 +10,7 @@ import { resetWidgets, getDefaultSizeByData } from '../util';
 import { insertNewLine, insertToCol, insertToRowEnd, isFullLineDragItem } from '../util/drag';
 import { getPathById, isFullLineControl } from '../util/widgets';
 import { getVerifyInfo, isExceedMaxControlLimit } from '../util/setting';
+import { dealCopyWidgetId } from '../util/data';
 import Components from './components';
 import WidgetDisplay from './widgetDisplay';
 
@@ -271,13 +272,7 @@ export default function DisplayItem(props) {
     };
 
     if (mode === 'copy') {
-      const newWidget = {
-        ...data,
-        attribute: 0,
-        controlId: uuidv4(),
-        alias: '',
-        controlName: _l('%0-复制', data.controlName),
-      };
+      const newWidget = dealCopyWidgetId(data);
       if (isExceedMaxControlLimit(allControls)) return;
       setActiveWidget(newWidget);
       setWidgets(update(widgets, { $splice: [[row + 1, 0, [newWidget]]] }));

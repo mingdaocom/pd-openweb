@@ -3,7 +3,7 @@ import ReactDom from 'react-dom';
 import preall from 'src/common/preall';
 import { Provider } from 'react-redux';
 import store from 'src/redux/configureStore';
-import CustomPageContent from 'worksheet/components/CustomPageContent';
+import CustomPageContent from 'src/pages/customPage/pageContent';
 import { LoadDiv } from 'ming-ui';
 import homeApp from 'src/api/homeApp';
 import UnusualContent from 'src/router/Application/UnusualContent';

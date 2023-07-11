@@ -1,5 +1,5 @@
 export default {
-  SupportFindVerifyCodeUrl: 'https://help.mingdao.com/zh/introduction4.html',
+  SupportFindVerifyCodeUrl: 'https://help.mingdao.com/introduction4',
   InviteFromType: {
     register: -1, // 主动注册
     friend: 0, // 好友

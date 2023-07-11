@@ -63,12 +63,50 @@ const PivotTableContent = styled.div`
     text-align: right;
   }
   .cell-content {
+    color: ${props => props.pivotTableStyle.textColor};
     text-align: ${props => props.pivotTableStyle.cellTextAlign || 'right'};
+  }
+  tbody {
+    .cell-content {
+      padding: 0 !important;
+      position: relative;
+    }
+    .cell-value {
+      padding: 8px;
+      // height: 38px;
+      position: relative;
+      overflow-wrap: break-word;
+      z-index: 2;
+    }
+    .data-bar, .data-bg {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .data-bg {
+      z-index: 0;
+    }
+    .data-bar, .data-axis {
+      z-index: 1;
+    }
+    .data-axis {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      border-left: 1px dashed #333;
+    }
+    .ant-table-cell-fix-left {
+      z-index: 3;
+    }
   }
   .line-content {
     text-align: ${props => props.pivotTableStyle.lineTextAlign || 'left'};
     color: ${props => props.pivotTableStyle.lineTextColor || '#000000d9'};
     background-color: ${props => props.pivotTableStyle.lineBgColor || '#fff'} !important;
+  }
+  .line-content, .cell-content {
+    white-space: pre-wrap;
   }
   .ant-table-container {
     th.ant-table-cell-ellipsis {

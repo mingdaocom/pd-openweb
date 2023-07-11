@@ -5,6 +5,15 @@ import CoverSetting from './components/CoverSettingCon';
 import DisplayControl from './components/DisplayControl';
 import _ from 'lodash';
 
+const isVisible = control => {
+  let { fieldPermission = '111' } = control;
+  const [visible, editable, canAdd] = fieldPermission.split('');
+  if (visible === '0') {
+    return false;
+  }
+  return true;
+};
+
 export default function CardDisplay(props) {
   const {
     visible,
@@ -17,15 +26,16 @@ export default function CardDisplay(props) {
     advancedSetting,
   } = props;
   if (!visible) return null;
-  const [{ sheetInfo, availableControls }, setInfo] = useState({
+  const [{ sheetInfo, availableControls, coverColumns }, setInfo] = useState({
     sheetInfo: {},
     availableControls: [],
+    coverColumns: [],
   });
 
   const excludeTitleControls = controls => controls.filter(item => item.attribute !== 1);
   // 默认取标题控件 和 前三个控件
   const getDefaultShowControls = controls => {
-    return controls.slice(0, 3).map(({ controlId }) => controlId);
+    return controls.slice(0, 2).map(({ controlId }) => controlId);
   };
   useEffect(() => {
     if (!worksheetId) return;
@@ -33,11 +43,13 @@ export default function CardDisplay(props) {
       const controls = _.get(data, ['template', 'controls']);
       const excludedTitle = excludeTitleControls(controls);
       const defaultShowControls = getDefaultShowControls(excludedTitle);
+      const coverColumns = controls.filter(l => isVisible(l)).filter(c => !!c.controlName);
       setInfo({
         sheetInfo: data,
         availableControls: excludedTitle,
         showControls: defaultShowControls,
         controlsSorts: excludedTitle.map(({ controlId }) => controlId),
+        coverColumns: coverColumns,
       });
     });
   }, [worksheetId]);
@@ -77,6 +89,7 @@ export default function CardDisplay(props) {
       {/* 封面图片 */}
       <CoverSetting
         {...props}
+        coverColumns={coverColumns}
         viewType={'2'} // 层级视图
         fromRelative={true} // 关联表的相关设置
         advancedSetting={advancedSetting}

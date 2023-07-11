@@ -82,8 +82,20 @@ export default class AccountChart extends React.Component {
                 active: (getCookie('i18n_langtag') || getNavigatorLang()) === item.key,
               })}
               onClick={() => {
-                setCookie('i18n_langtag', item.key);
-                window.location.reload();
+                if (!md.global.Account.isPortal) {
+                  const settingValue = { 'zh-Hans': '0', en: '1', ja: '2', 'zh-Hant': '3' };
+                  accountSetting
+                    .editAccountSetting({ settingType: '6', settingValue: settingValue[item.key] })
+                    .then(res => {
+                      if (res) {
+                        setCookie('i18n_langtag', item.key);
+                        window.location.reload();
+                      }
+                    });
+                } else {
+                  setCookie('i18n_langtag', item.key);
+                  window.location.reload();
+                }
               }}
             >
               {item.value}

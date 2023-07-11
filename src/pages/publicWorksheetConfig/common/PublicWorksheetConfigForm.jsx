@@ -109,7 +109,13 @@ class PublicWorksheetConfigForm extends React.Component {
                 <i className="icon icon-task-color"></i>
                 {_l('主题背景')}
               </BlackBtn>
-              <BlackBtn onClick={() => window.open(`/worksheet/form/preview/${worksheetInfo.worksheetId}`)}>
+              <BlackBtn
+                onClick={() =>
+                  window.open(
+                    `/worksheet/form/preview/${worksheetInfo.worksheetId}?url=${encodeURIComponent(shareUrl)}`,
+                  )
+                }
+              >
                 <i className="icon icon-eye"></i>
                 {_l('预览')}
               </BlackBtn>

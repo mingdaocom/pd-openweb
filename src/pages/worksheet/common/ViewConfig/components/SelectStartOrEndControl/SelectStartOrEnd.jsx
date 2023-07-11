@@ -65,7 +65,7 @@ export default function SelectStartOrEnd(props) {
           <div className="startCom flexRow">
             <span className="tag"></span>
             <span className="txt">{_l('开始')}</span>
-            <div className="con Relative flex">
+            <div className="con Relative flex flexRow">
               <Select
                 className={cx('dropCon', { isDelete: props.beginIsDel || isIllegal(startData) })}
                 allowClear={false}
@@ -128,7 +128,7 @@ export default function SelectStartOrEnd(props) {
           <div className="startCom end mTop16 flexRow">
             <span className={cx('tag', { has: enddate })}></span>
             <span className="txt">{_l('结束')}</span>
-            <div className="con Relative flex">
+            <div className="con Relative flex flexRow">
               <Select
                 className={cx('dropCon', { isDelete: props.endIsDel || isIllegal(endData) })}
                 allowClear={allowClear}

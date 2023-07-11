@@ -8,7 +8,7 @@ import Star from './star';
 import ReplyTo from './replyTo';
 import CommentArea from './commentArea';
 import { SOURCE_TYPE } from '../../constants';
-import { cutStringWithHtml } from 'src/util';
+import { addBehaviorLog, cutStringWithHtml } from 'src/util';
 import xss from 'xss';
 
 export default class BaseMessageComponent extends React.Component {
@@ -135,7 +135,17 @@ export default class BaseMessageComponent extends React.Component {
     return (
       <div className="mTop5 comeFrom">
         {sourceId ? (
-          <a className="fromLink" target="_blank" href={fromLink} data-title={fromTitle}>
+          <a
+            className="fromLink"
+            target="_blank"
+            href={fromLink}
+            data-title={fromTitle}
+            onClick={() => {
+              const worksheetId = sourceId.split('|')[0];
+              const rowId = sourceId.split('|')[1];
+              addBehaviorLog('worksheetRecord', worksheetId, { rowId }); // 埋点
+            }}
+          >
             <span className="sourceName Font12" title={msg}>
               {msg}
             </span>

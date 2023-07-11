@@ -13,10 +13,10 @@ const LOCATION_RANGE_TYPE = [
   { value: '0', text: _l('定位地图上的位置') },
   {
     value: '1',
-    text: _l('获取当前位置经纬度（仅app）'),
+    text: _l('获取当前位置经纬度'),
     children: (
       <Tooltip popupPlacement={'bottom'} text={<span>{_l('通过手机gps获取经纬度获取定位，使用WGS84坐标系')}</span>}>
-        <i className="icon-help Gray_9e Font16 pointer"></i>
+        <i className="icon-help Gray_9e Font16 pointer mLeft8"></i>
       </Tooltip>
     ),
   },

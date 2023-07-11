@@ -4,12 +4,10 @@ import worksheetApi from 'src/api/worksheet';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
 import {
-  INVALID_MD_TYPE_SHEET,
-  INVALID_MD_TYPE,
-  SYSTEM_FIELD_IDS,
   namePattern,
   isValidName,
   DATABASE_TYPE,
+  SYSTEM_FIELD_IDS,
 } from 'src/pages/integration/dataIntegration/constant.js';
 import _ from 'lodash';
 
@@ -27,8 +25,8 @@ export const formatTaskNodeData = (list = [], firstId) => {
     currentItem.x = currentId === firstId ? 0 : x;
     currentItem.y = currentId === firstId ? 0 : y;
 
-    if (currentItem.prevIds.length) {
-      parentIds = parentIds.concat(currentItem.prevIds);
+    if ((currentItem.prevIds || []).length) {
+      parentIds = parentIds.concat(currentItem.prevIds || []);
     }
 
     currentItem.nextIds.forEach(o => {
@@ -42,15 +40,15 @@ export const formatTaskNodeData = (list = [], firstId) => {
       if (!currentItem) {
         return;
       }
-      const parentNode = list.find(obj => obj.prevIds.indexOf(currentId) > -1);
-      if (!newY || parentNode.prevIds.indexOf(currentId) > 0) {
+      const parentNode = list.find(obj => (obj.prevIds || []).indexOf(currentId) > -1);
+      if (!newY || (parentNode.prevIds || []).indexOf(currentId) > 0) {
         maxY = maxY + 1;
       }
       // console.log(currentItem, parentNode);
       currentItem.x = parentNode.x - 1;
       currentItem.y = maxY;
 
-      generateCoordinateParent(currentItem.prevIds, maxY);
+      generateCoordinateParent(currentItem.prevIds || [], maxY);
     });
   };
 
@@ -132,8 +130,8 @@ export const formatDataWithLine = list => {
     };
   });
   list.map(o => {
-    if (o.prevIds.length > 0) {
-      o.prevIds.map(it => {
+    if ((o.prevIds || []).length > 0) {
+      (o.prevIds || []).map(it => {
         let index = list.findIndex(a => a.nodeId === it);
         if (index > -1) {
           l[index] = { ...l[index], pathIds: [...(l[index].pathIds || []), { fromDt: l[index], toDt: o }] };
@@ -194,14 +192,14 @@ export const getNodeInfo = async (projectId, flowId, nodeId) => {
   return node;
 };
 
-export const getInitWorkSheetFields = (controls, isGetSource, isSourceAppType, isDestAppType) => {
+export const getInitWorkSheetFields = (controls = [], isGetDest, isSourceAppType) => {
   const rowIDField = controls
     .filter(c => c.controlId === 'rowid')
     .map(rowId => {
       return {
         id: rowId.controlId,
-        name: 'rowID',
-        alias: 'rowID',
+        name: 'rowid',
+        alias: 'rowid',
         dataType: null,
         jdbcTypeId: null,
         precision: 0,
@@ -218,12 +216,7 @@ export const getInitWorkSheetFields = (controls, isGetSource, isSourceAppType, i
     });
 
   const fields = controls
-    .filter(
-      control =>
-        ((isGetSource && !_.includes(isDestAppType ? INVALID_MD_TYPE_SHEET : INVALID_MD_TYPE, control.type)) ||
-          !isGetSource) &&
-        !_.includes(SYSTEM_FIELD_IDS, control.controlId),
-    )
+    .filter(c => (isGetDest ? !_.includes(SYSTEM_FIELD_IDS, c.controlId) : c.controlId !== 'rowid'))
     .map(control => {
       return {
         id: control.controlId,
@@ -248,7 +241,7 @@ export const getInitWorkSheetFields = (controls, isGetSource, isSourceAppType, i
       };
     });
 
-  return isSourceAppType && !isDestAppType ? rowIDField.concat(fields) : fields;
+  return isSourceAppType ? rowIDField.concat(fields) : fields;
 };
 export const getInitFieldsMapping = (sourceFields, isSourceAppType, isDestAppType) => {
   let pkFieldMapping = {};
@@ -441,17 +434,12 @@ export const setDefaultData = (mapping, types, isSetDefaultFields, destFields, i
 };
 
 //获取当前节点的fields
-export const getFields = async (preNode, nextNode, projectId, isGetPreFields) => {
+export const getFields = async (node, projectId, isGetDest, isSourceAppType) => {
   let { dsType, workSheetId, tableName, dbName, schema, datasourceId, dataDestId } =
-    _.get(isGetPreFields ? preNode : nextNode, ['nodeConfig', 'config']) || {};
+    _.get(node, ['nodeConfig', 'config']) || {};
   if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
     const res = await worksheetApi.getWorksheetInfo({ worksheetId: workSheetId, getTemplate: true });
-    const fieldsParams = getInitWorkSheetFields(
-      res.template.controls,
-      false,
-      _.get(preNode, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET,
-      _.get(nextNode, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET,
-    );
+    const fieldsParams = getInitWorkSheetFields(_.get(res, 'template.controls'), !isGetDest, isSourceAppType);
     if (_.isEmpty(fieldsParams)) {
       return [];
     } else {

@@ -64,11 +64,11 @@ export const SYSTEM_TIME = [
   },
 ];
 
-export const SYSTEM_USER = [{ controlId: 'caid', controlName: _l('创建者'), type: 26 }];
+export const SYSTEM_USER = [{ controlId: 'caid', controlName: _l('创建人'), type: 26 }];
 
 export const SYSTEM_FIELD_TO_TEXT = {
   ctime: _l('创建时间'),
-  caid: _l('创建者'),
+  caid: _l('创建人'),
   utime: _l('最近修改时间'),
   ownerid: _l('拥有者'),
   rowid: _l('记录ID'),

@@ -44,7 +44,7 @@ export default function DataSource(props) {
           <h3 className="Bold Font24">{_l('数据源')}</h3>
           <p className="Font15 mBottom0 flexRow alignItemsCenter">
             {_l('管理外部数据源和目的地')}
-            <Support type={3} href="https://help.mingdao.com/zh/integration2.html" text={_l('使用帮助')} />
+            <Support type={3} href="https://help.mingdao.com/integration2" text={_l('使用帮助')} />
           </p>
         </div>
         <div className="addSourceButton" onClick={() => setSelectModalVisible(true)}>

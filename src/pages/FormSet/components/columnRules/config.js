@@ -34,7 +34,7 @@ export const originActionItem = {
 
 export const conditionTypeListData = [
   { value: 1, label: _l('固定值') },
-  { value: 2, label: _l('字段值') },
+  { value: 2, label: _l('动态值') },
 ];
 
 export const actionsListData = [
@@ -121,7 +121,7 @@ export function getNewDropDownData(dropDownData = [], actionType) {
   // 公式 汇总 文本组合 自动编号 他表字段 分割线 大写金额 备注 文本识别
   let filterControls = [];
   if (_.includes([3, 4, 5], actionType)) {
-    filterControls.push(31, 38, 37, 32, 33, 30, 22, 25, 45, 47, 10010);
+    filterControls.push(31, 38, 37, 32, 33, 30, 22, 25, 45, 47, 51, 10010);
     if (actionType === 5) {
       filterControls.push(43, 49);
     }
@@ -180,13 +180,24 @@ export function getActionLabelByType(type) {
 }
 
 //判断规则是否有效并能否提交
-export function checkConditionCanSave(filters = []) {
+export function checkConditionCanSave(filters = [], isSingle) {
+  if (_.isEmpty(filters)) return false;
   const formatFilter = formatOriginFilterGroupValue({ items: filters }) || {};
-  return (formatFilter.conditionsGroups || []).every(data =>
-    (data.conditions || []).every(i =>
-      checkConditionAvailable({ ...i, isDynamicsource: i.isDynamicsource || _.get(i, 'dynamicSource.length') }),
-    ),
-  );
+  return (formatFilter.conditionsGroups || []).every(data => {
+    const tempData = isSingle ? data.conditions : data.groupFilters;
+    if (_.isEmpty(tempData)) return false;
+    return tempData.every(i => {
+      const conditionGroupKey = getTypeKey(i.dataType);
+      const conditionGroup = CONTROL_FILTER_WHITELIST[conditionGroupKey] || {};
+      const conditionGroupType = conditionGroup.value;
+      return checkConditionAvailable({
+        ...i,
+        type: i.filterType || i.type,
+        isDynamicsource: i.isDynamicsource || _.get(i, 'dynamicSource.length'),
+        conditionGroupType: i.conditionGroupType || conditionGroupType,
+      });
+    });
+  });
 }
 
 //判断条件是否填写
@@ -478,6 +489,9 @@ export const filterData = (columns = [], filterItem = [], isSetting, relationCon
       });
     }
   });
+  if (dataList.every(i => i.isGroup && _.isEmpty(i.groupFilters))) {
+    return [];
+  }
   return dataList;
 };
 

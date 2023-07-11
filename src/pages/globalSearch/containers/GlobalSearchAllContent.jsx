@@ -363,6 +363,7 @@ export default class GlobalSearchAllContent extends Component {
       <React.Fragment>
         {appData && (
           <AppList
+            currentProjectId={appProjectId}
             title={searchScope === 'record' ? _l('应用项') : undefined}
             isApp={isApp}
             data={appData}

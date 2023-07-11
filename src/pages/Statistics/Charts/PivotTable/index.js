@@ -1,12 +1,12 @@
 import React, { Component, Fragment, createRef } from 'react';
 import cx from 'classnames';
-import { formatrChartValue } from '../common';
+import { formatrChartValue, getStyleColor } from '../common';
 import { isFormatNumber, relevanceImageSize } from 'statistics/common';
 import { Table } from 'antd';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { browserIsMobile, getClassNameByExt } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { uniqMerge, mergeTableCell, mergeColumnsCell, mergeLinesCell, getColumnName, renderValue } from './util';
+import { uniqMerge, mergeTableCell, mergeColumnsCell, mergeLinesCell, getColumnName, renderValue, getControlMinAndMax, getBarStyleColor } from './util';
 import PivotTableContent from './styled';
 import _ from 'lodash';
 
@@ -237,6 +237,7 @@ export default class extends Component {
     const { columns, lines, valueMap, yaxisList, pivotTable, data, displaySetup } = reportData;
     const { columnSummary = {}, showColumnTotal } = pivotTable || reportData;
     const dataList = [];
+    const controlMinAndMax = getControlMinAndMax(yaxisList, result);
 
     const getTitle = (id, data) => {
       if (_.isNull(data)) return;
@@ -255,7 +256,6 @@ export default class extends Component {
         const { rename, controlName } = item;
         const name = rename || controlName;
         const dragIndex = index + i + lines.length;
-
         return {
           title: () => {
             return (
@@ -291,7 +291,8 @@ export default class extends Component {
                 this.handleOpenSheet(param);
               }
             };
-          }
+          },
+          render: (value, record) => this.renderBodyTd(value, record, item.controlId, controlMinAndMax)
         }
       });
       return yaxisColumn;
@@ -353,7 +354,7 @@ export default class extends Component {
       dataList.push(...getYaxisList(0));
     }
 
-    const columnTotal = yaxisList.length && this.getColumnTotal(result);
+    const columnTotal = yaxisList.length && this.getColumnTotal(result, controlMinAndMax);
 
     if (columnSummary.location === 3 && columnTotal) {
       dataList.unshift(columnTotal);
@@ -364,7 +365,7 @@ export default class extends Component {
 
     return dataList;
   }
-  getColumnTotal(result) {
+  getColumnTotal(result, controlMinAndMax) {
     const { reportData } = this.props;
     const { yaxisList, columns, pivotTable } = reportData;
     const { showColumnTotal, columnSummary } = pivotTable || reportData;
@@ -423,7 +424,8 @@ export default class extends Component {
           dataIndex: `${item.t_id}-${index}`,
           colSpan: 1,
           width: yaxisList.length === 1 ? this.getColumnWidth(result.length + 1) : this.getColumnWidth(index + 1),
-          className: 'cell-content'
+          className: 'cell-content',
+          render: (value, record) => this.renderBodyTd(value, { key: 'sum' }, item.t_id, controlMinAndMax)
         });
       }
     });
@@ -477,9 +479,17 @@ export default class extends Component {
     });
 
     result.forEach((item, i) => {
-      const value = _.isNumber(item.sum) ? formatrChartValue(item.sum, false, yaxisList, item.t_id) : '';
+      const value = _.isNumber(item.sum) ? item.sum : '';
       const sumData = _.find(lineSummary.controlList, { controlId: item.t_id }) || {};
-      summary[`${item.t_id}-${i}`] = value ? (sumData.name && !item.summary_col ? `${sumData.name} ${value}` : value) : '';
+      const sumSuffix = value && sumData.name && !item.summary_col ? sumData.name : undefined;
+      if (sumSuffix) {
+        summary[`${item.t_id}-${i}`] = {
+          value,
+          sumSuffix
+        };
+      } else {
+        summary[`${item.t_id}-${i}`] = value;
+      }
     });
 
     if (showLineTotal && lineSummary.location == 1) {
@@ -672,6 +682,59 @@ export default class extends Component {
       <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>{data}</div>
     );
   }
+  renderBodyTd(value, record, controlId, controlMinAndMax) {
+    const { yaxisList, displaySetup } = this.props.reportData;
+    const { colorRules = [] } = displaySetup;
+    const style = {};
+    const barStyle = {};
+    const axisStyle = {};
+    const emptyShowType = _.get(_.find(yaxisList, { controlId }), 'emptyShowType');
+    let onlyShowBar = false;
+    let sumSuffix = '';
+    if (_.isObject(value)) {
+      sumSuffix = value.sumSuffix;
+      value = value.value;
+    }
+    
+    if (_.isNumber(value) || _.isEmpty(value) || emptyShowType === 1) {
+      const colorRule = _.find(colorRules, { controlId: controlId }) || {};
+      const textColorRule = colorRule.textColorRule || {};
+      const bgColorRule = colorRule.bgColorRule || {};
+      const dataBarRule = colorRule.dataBarRule || {};
+      const data = {
+        value, controlMinAndMax, controlId, record
+      }
+
+      if (textColorRule.model) {
+        style.color = getStyleColor(Object.assign(data, { rule: textColorRule, emptyShowType }));
+      }
+      if (bgColorRule.model) {
+        style.backgroundColor = getStyleColor(Object.assign(data, { rule: bgColorRule, emptyShowType }));
+      }
+      if (dataBarRule && record.key !== 'sum') {
+        Object.assign(barStyle, getBarStyleColor({
+          value,
+          controlMinAndMax: controlMinAndMax[controlId],
+          rule: dataBarRule
+        }));
+        axisStyle[dataBarRule.direction === 1 ? 'left' : 'right'] = 0;
+        axisStyle.borderColor = dataBarRule.axisColor;
+        onlyShowBar = dataBarRule.onlyShowBar;
+      }
+      value = formatrChartValue(value, false, yaxisList, controlId);
+      if (sumSuffix) {
+        value = `${sumSuffix} ${value}`;
+      }
+    }
+    return (
+      <Fragment>
+        {!onlyShowBar && <div className="cell-value" style={{ color: style.color }}>{value}</div>}
+        {style.backgroundColor && <div className="data-bg" style={{ backgroundColor: style.backgroundColor }}></div>}
+        {barStyle.width && <div className="data-bar" style={barStyle}></div>}
+        {axisStyle.borderColor && <div className="data-axis" style={axisStyle}></div>}
+      </Fragment>
+    );
+  }
   render() {
     const { dragValue } = this.state;
     const { reportId, data, yaxisList, columns, lines, valueMap, style } = this.props.reportData;
@@ -706,7 +769,7 @@ export default class extends Component {
             hideHeaderLastTr: columns.length && yaxisList.length === 1,
             hideBody: _.isEmpty(lines) && _.isEmpty(yaxisList),
             noSelect: dragValue,
-            safariScroll: isSafari && scrollConfig.y
+            safariScroll: scrollConfig.y
           })
         }
       >

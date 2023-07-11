@@ -153,9 +153,9 @@ export default function Groups(props) {
   const isFree = currentProject.licenseType === 0;
   const editingGroup = _.find(groups, { id: editingGroupId });
   const list = [
-    { name: '星标', type: 'star', groups: markedGroup },
-    { name: '个人', type: 'personal', groups: groups.filter(g => g.groupType === 0) },
-    { name: '组织', type: 'project', groups: groups.filter(g => g.groupType === 1) },
+    { name: _l('星标'), type: 'star', groups: markedGroup },
+    { name: _l('个人'), type: 'personal', groups: groups.filter(g => g.groupType === 0) },
+    { name: _l('组织'), type: 'project', groups: groups.filter(g => g.groupType === 1) },
   ].map(item => ({
     ...item,
     groups: _.sortBy(item.groups, g => (sorts[item.type] || []).indexOf(g.id)),

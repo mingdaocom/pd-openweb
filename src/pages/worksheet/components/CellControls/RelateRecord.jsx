@@ -7,11 +7,14 @@ import { formatRecordToRelateRecord } from 'worksheet/util';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { getTitleTextFromControls, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { isKeyBoardInputChar } from 'worksheet/util';
 import RelateRecordTags from './comps/RelateRecordTags';
 import EditableCellCon from '../EditableCellCon';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
+import { openChildTable } from '../ChildTableDialog';
+import { openRelateRelateRecordTable } from '../RelateRecordTableDialog';
 import autobind from 'core-decorators/lib/autobind';
 import _ from 'lodash';
 import { browserIsMobile } from 'src/util';
@@ -140,21 +143,30 @@ export default class RelateRecord extends React.Component {
     return length;
   }
   renderSelected() {
-    const { cell = {} } = this.props;
+    const { isMobileTable, cell = {} } = this.props;
     const { relationControls = [] } = cell;
     const titleControl = _.find(relationControls, c => c.attribute === 1);
     let records = [];
-    try {
-      records = JSON.parse(cell.value);
-    } catch (err) {}
-    if (!_.isArray(records) || !titleControl) {
+    if (!titleControl) {
       return null;
     }
-    return records.map((record, index) => (
-      <RecordCardCellRelateRecord key={index}>
-        {renderCellText({ ...titleControl, value: record.name })}
-      </RecordCardCellRelateRecord>
-    ));
+    if (isMobileTable) {
+      records = this.state.records;
+      return records.map((record, index) => (
+        <RecordCardCellRelateRecord key={index}>
+          {getTitleTextFromRelateControl(cell, record)}
+        </RecordCardCellRelateRecord>
+      ));
+    } else {
+      try {
+        records = JSON.parse(cell.value);
+      } catch (err) {}
+      return records.map((record, index) => (
+        <RecordCardCellRelateRecord key={index}>
+          {renderCellText({ ...titleControl, value: record.name })}
+        </RecordCardCellRelateRecord>
+      ));
+    }
   }
 
   @autobind
@@ -217,15 +229,21 @@ export default class RelateRecord extends React.Component {
 
   render() {
     const {
+      projectId,
+      appId,
+      viewId,
       tableId,
+      isTrash,
       singleLine,
       className,
       style,
+      rowIndex,
       from,
-      rowFormData,
+      rowFormData = () => [],
       recordId,
       worksheetId,
       rowHeightEnum = 0,
+      sheetSwitchPermit,
       count,
       cell,
       editable,
@@ -239,14 +257,56 @@ export default class RelateRecord extends React.Component {
     const { advancedSetting = {} } = cell;
     const isSublist = cell.type === 34;
     const { showtype, allowlink, ddset } = advancedSetting; // 1 卡片 2 列表 3 下拉
-
+    const allowOpenList = from !== 21 && !isTrash && worksheetId && recordId;
     const recordsLength = this.getReordsLength(cell.value);
 
     if (parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.LIST || isSublist) {
       return (
         <div className={className} style={style} onClick={onClick}>
           {recordsLength > 0 && (
-            <div className="cellRelateRecordMultiple">
+            <div
+              className={cx('cellRelateRecordMultiple', { allowOpenList })}
+              onClick={e => {
+                if (!allowOpenList || browserIsMobile()) {
+                  return;
+                }
+                e.stopPropagation();
+                if (isSublist) {
+                  openChildTable({
+                    openFrom: 'cell',
+                    allowEdit: editable && from !== 4,
+                    title: getTitleTextFromControls(rowFormData()),
+                    entityName: cell.sourceEntityName,
+                    appId,
+                    worksheetId,
+                    viewId,
+                    from,
+                    control: { ...cell, isDraft: from === 21 },
+                    controls: cell.relationControls,
+                    recordId,
+                    sheetSwitchPermit,
+                    masterData: {
+                      worksheetId,
+                      formData: rowFormData()
+                        .map(c => _.pick(c, ['controlId', 'type', 'value', 'options']))
+                        .filter(c => !!c.value),
+                    },
+                    projectId,
+                  });
+                } else {
+                  openRelateRelateRecordTable({
+                    title: getTitleTextFromControls(rowFormData()),
+                    appId,
+                    viewId,
+                    worksheetId,
+                    recordId,
+                    control: { ...cell, isDraft: from === 21 },
+                    allowEdit: editable,
+                    formdata: rowFormData(),
+                  });
+                }
+              }}
+            >
               <i className={cx('icon', isSublist ? 'icon-table' : 'icon-link_record')}></i>
               {recordsLength >= 1000 ? '999+' : recordsLength}
             </div>
@@ -342,6 +402,7 @@ export default class RelateRecord extends React.Component {
             zIndex={99}
             popup={
               <RelateRecordTags
+                rowIndex={rowIndex}
                 ref={this.relateRecordTagsPopup}
                 isediting
                 count={count}

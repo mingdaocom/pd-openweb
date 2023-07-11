@@ -60,3 +60,9 @@ export const APPLICATION_ICON = {
   applist: 'chat_worksheet',
   workflow: 'chat_workflow',
 };
+
+//  版本功能类型
+export const VersionProductType = {
+  GL: 31, // 全局日志
+  GAL: 32, // 全局行为日志
+};

@@ -20,6 +20,8 @@ import {
   NAV_SHOW_TYPE,
   getSetDefault,
   getControlFormatType,
+  DATE_TYPE_M,
+  DATE_TYPE_Y,
 } from './util';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Radio } from 'antd';
@@ -31,6 +33,7 @@ import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/n
 import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import { formatAdvancedSettingByNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
+import SearchConfig from './SearchConfig';
 const Wrap = styled.div`
   width: 400px;
   .boxEditFastFilterCover {
@@ -214,7 +217,6 @@ function Edit(params) {
   } = params;
   let [fastFilters, setData] = useState();
   let [control, setControl] = useState();
-  let [fastFilterDataControls, setDatas] = useState();
   let [dataControls, setDataControls] = useState({});
   let boxConT = useRef(null);
   let [advancedSetting, setAdvancedSetting] = useState();
@@ -232,7 +234,6 @@ function Edit(params) {
         sourceControl: c.sourceControl,
       };
     });
-    setDatas(controlsFilter);
     let dd = worksheetControls.find(item => item.controlId === activeFastFilterId) || {};
     setDataControls(dd);
     let controlNew = controlsFilter.find(o => o.controlId === activeFastFilterId);
@@ -283,11 +284,14 @@ function Edit(params) {
   };
 
   const renderDrop = data => {
+    let conData = worksheetControls.find(item => item.controlId === control.controlId) || {};
     return (
       <React.Fragment>
         <div className="title">{data.txt}</div>
         <Dropdown
-          data={data.types}
+          data={data.types.map(o => {
+            return { ...o, disabled: !!conData.encryId && o.value !== FILTER_CONDITION_TYPE.EQ };
+          })}
           value={data.key === 'filterType' ? control[data.key] : JSON.parse(advancedSetting[data.key]) || data.default}
           className="flex"
           onChange={newValue => {
@@ -295,6 +299,12 @@ function Edit(params) {
           }}
           isAppendToBody
         />
+        {!!conData.encryId && (
+          <span className="Gray_75 mTop8 Block">
+            {_l('当前字段已加密，只支持按照')}
+            {(data.types.find(o => o.value === FILTER_CONDITION_TYPE.EQ) || {}).text}
+          </span>
+        )}
       </React.Fragment>
     );
   };
@@ -378,18 +388,15 @@ function Edit(params) {
   };
   const renderTimeType = () => {
     let daterange = getDaterange();
-    let isAllRange = daterange.length >= DATE_RANGE.default.length;
     let dateRanges = DATE_RANGE.types;
     const activeControl = worksheetControls.find(item => item.controlId === control.controlId);
     const showType = _.get(activeControl, 'advancedSetting.showtype');
+    let isAllRange = daterange.length >= DATE_RANGE.default.length;
     if (_.includes(['4', '5'], showType)) {
       dateRanges = dateRanges
-        .map(options =>
-          options.filter(o =>
-            _.includes(showType === '5' ? [15, 16, 17, 18] : [7, 8, 9, 12, 13, 14, 15, 16, 17, 18], o.value),
-          ),
-        )
+        .map(options => options.filter(o => _.includes(showType === '5' ? DATE_TYPE_Y : DATE_TYPE_M, o.value)))
         .filter(options => options.length);
+      isAllRange = showType === '5' ? daterange.length >= DATE_TYPE_Y.length : daterange.length >= DATE_TYPE_M.length;
     }
     return (
       <React.Fragment>
@@ -566,6 +573,17 @@ function Edit(params) {
             }}
           />
         </div> */}
+        {[29].includes(dataType) && (
+          <SearchConfig
+            controls={dataControls.relationControls}
+            data={advancedSetting}
+            onChange={newValue => {
+              updateViewSet({
+                ...newValue,
+              });
+            }}
+          />
+        )}
       </div>
     </React.Fragment>
   );

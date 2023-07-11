@@ -102,14 +102,18 @@ export default class extends React.Component {
       type = 6;
     }
     let summaryName, summaryDataValue;
+    const isPercent = _.get(control, 'advancedSetting.numshow') === '1';
     if (summaryType) {
       summaryName = getSummaryNameByType(summaryType);
       if (!_.isUndefined(summaryValue)) {
         summaryDataValue = summaryValue;
         if (_.includes([3, 4, 5, 6], summaryType)) {
-          summaryDataValue = String(_.round(summaryValue, control.dot).toFixed(control.dot));
+          summaryDataValue = String(_.round(summaryValue, control.dot) * (isPercent ? 100 : 1).toFixed(control.dot));
           const reg = summaryDataValue.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
           summaryDataValue = summaryDataValue.replace(reg, '$1,');
+        }
+        if (isPercent) {
+          summaryDataValue = summaryDataValue + '%';
         }
       }
     }

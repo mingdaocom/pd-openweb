@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
-import { Dropdown } from 'ming-ui';
+import { Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'antd';
+import cx from 'classnames';
 import Datasource from 'src/pages/integration/api/datasource';
 import { WrapL } from './style';
 import AddSourceOrDest from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/AddSourceOrDest';
 import homeAppAjax from 'src/api/homeApp.js';
 import appManagementAjax from 'src/api/appManagement.js';
 import _ from 'lodash';
-import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
+import { DATABASE_TYPE, isValidName } from 'src/pages/integration/dataIntegration/constant.js';
 import { schemaTypes } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
 const initData = {
   dbList: [], //数据库列表
@@ -228,16 +230,21 @@ export default class SourceDest extends Component {
   };
   onChangeConfig = (options, cb) => {
     const { onUpdate, node = {} } = this.props;
+    let config = {
+      ...(_.get(node, 'nodeConfig.config') || {}),
+      ...options,
+    };
+    if ('SOURCE_TABLE' === node.nodeType) {
+      config = { ...config, fields: [] };
+    } else {
+      config = { ...config, fieldsMapping: [] };
+    }
     let nodeData = {
       ...node,
       nodeConfig: {
         ...(node.nodeConfig || {}),
         fields: [],
-        config: {
-          ...(_.get(node, 'nodeConfig.config') || {}),
-          ...options,
-          fieldsMapping: [],
-        },
+        config,
       },
     };
     onUpdate(nodeData);
@@ -247,17 +254,29 @@ export default class SourceDest extends Component {
     const { node = {} } = this.props;
     const { dsType } = _.get(node, ['nodeConfig', 'config']) || {};
     //排除源或者目的地的表
-    const data = sheetList.filter(it =>
-      dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET
-        ? true
-        : 'DEST_TABLE' !== node.nodeType //当前是否源
-        ? ![
-            _.get(this.props.list.find(o => 'DEST_TABLE' === o.nodeType) || {}, 'nodeConfig.config.workSheetId'),
-          ].includes(it.value)
-        : ![
-            _.get(this.props.list.find(o => 'SOURCE_TABLE' === o.nodeType) || {}, 'nodeConfig.config.workSheetId'),
-          ].includes(it.value),
-    );
+    const data = sheetList
+      .filter(it =>
+        dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET
+          ? true
+          : 'DEST_TABLE' !== node.nodeType //当前是否源
+          ? ![
+              _.get(this.props.list.find(o => 'DEST_TABLE' === o.nodeType) || {}, 'nodeConfig.config.workSheetId'),
+            ].includes(it.value)
+          : ![
+              _.get(this.props.list.find(o => 'SOURCE_TABLE' === o.nodeType) || {}, 'nodeConfig.config.workSheetId'),
+            ].includes(it.value),
+      )
+      .map(o => {
+        if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
+          return o;
+        } else {
+          return {
+            ...o,
+            disabled: !isValidName(o.text),
+          }; //数据库表 不合法的表 不可选
+        }
+      });
+
     return 'DEST_TABLE' === node.nodeType //目的地才有新建工作表
       ? [
           {
@@ -291,7 +310,6 @@ export default class SourceDest extends Component {
       value: !tbValue && !tableName ? undefined : tbValue || '',
       renderValue: tableName,
     };
-    const obj = 'DEST_TABLE' !== node.nodeType ? { disabled: true, cancelAble: false } : {};
     return (
       <WrapL>
         <div className="title Bold">{_l('数据源')}</div>
@@ -308,7 +326,7 @@ export default class SourceDest extends Component {
                 },
               );
             }}
-            canEdit={'DEST_TABLE' === node.nodeType}
+            canEdit={true}
           />
         </div>
         {!!dsType && (
@@ -360,7 +378,6 @@ export default class SourceDest extends Component {
               cancelAble
               isAppendToBody
               data={dbList}
-              {...obj}
             />
             {schemaTypes.includes(className) && (
               <React.Fragment>
@@ -395,7 +412,6 @@ export default class SourceDest extends Component {
                   cancelAble
                   isAppendToBody
                   data={schemaList}
-                  {...obj}
                 />
               </React.Fragment>
             )}
@@ -410,6 +426,18 @@ export default class SourceDest extends Component {
                 if (visible) {
                   this.getSheetList(projectId);
                 }
+              }}
+              renderItem={item => {
+                return (
+                  <div className={cx('itemText', { disabled: item.disabled })}>
+                    {item.text}
+                    {item.disabled && (
+                      <Tooltip title={_l('名称包含特殊字符，无法同步')} placement="top" zIndex="100000">
+                        <Icon icon="info1" className="Gray_bd mLeft5 disabledIcon" />
+                      </Tooltip>
+                    )}
+                  </div>
+                );
               }}
               itemLoading={loading}
               onChange={value => {
@@ -475,7 +503,6 @@ export default class SourceDest extends Component {
               isAppendToBody
               // openSearch
               data={sheetList}
-              {...obj}
             />
           </React.Fragment>
         )}

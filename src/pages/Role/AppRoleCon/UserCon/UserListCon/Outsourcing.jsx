@@ -17,19 +17,6 @@ import moment from 'moment';
 
 const Wrap = styled.div`
   padding: 20px 10px 20px 10px;
-  .bar {
-    padding: 0 44px;
-    .toOthers,
-    .del {
-      font-weight: 400;
-      color: #2196f3;
-      line-height: 37px;
-      height: 37px;
-      background: #f3faff;
-      padding: 0 20px;
-      border-radius: 3px;
-    }
-  }
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
     width: calc(calc(calc(100% - 70px - 38px) / 100) * 15);
   }
@@ -216,9 +203,9 @@ function Others(props) {
   ];
   return (
     <Wrap className={cx('flex flexColumn overflowHidden', { isAllType: roleId !== 'all' })}>
-      <div className="bar flexRow">
+      <div className="bar flexRow alignItemsCenter barActionCon">
         <div className="title flex">
-          <span className="Font17 Bold">{props.title}</span>{' '}
+          <span className="Font17 Bold">{props.title}</span>
           <span className="Gray_9e mLeft10">{_l('%0个外协用户', total || 0)}</span>
         </div>
         {selectedIds.length > 0 && (

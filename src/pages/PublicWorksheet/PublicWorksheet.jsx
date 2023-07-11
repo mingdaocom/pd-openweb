@@ -111,7 +111,15 @@ export default class PublicWorksheet extends React.Component {
                   <div
                     className="qrIcon icon icon-zendeskHelp-qrcode"
                     onMouseEnter={() => {
-                      this.setState({ qrurl: location.href });
+                      let qrurl = location.href;
+                      if (isPreview) {
+                        try {
+                          qrurl = new URL(location.href).searchParams.get('url');
+                        } catch (err) {
+                          console.error(err);
+                        }
+                      }
+                      this.setState({ qrurl });
                     }}
                   >
                     <Qr url={qrurl} />

@@ -79,12 +79,13 @@ export default class CommonUserHandle extends Component {
           <BtnCon
             onClick={this.openGlobalSearch.bind(this)}
             data-tip={_l('超级搜索(F)')}
+            className="tip-bottom-left"
           >
             <Icon icon="search" />
           </BtnCon>
         )}
         {type === 'appPkg' && (
-          <div className="appPkgHeaderSearch" data-tip={_l('超级搜索(F)')}>
+          <div className="appPkgHeaderSearch tip-bottom-left" data-tip={_l('超级搜索(F)')}>
             <Icon
               icon="search"
               className="Font20"

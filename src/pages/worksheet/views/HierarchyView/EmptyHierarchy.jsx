@@ -48,28 +48,33 @@ const EmptyHierarchyWrap = styled.div`
   }
 `;
 
-export default function EmptyHierarchy({ allowAdd, onAdd, layersName, updateLayersName }) {
+export default function EmptyHierarchy({ allowAdd, onAdd, layersName, updateLayersName, needTitle = true }) {
   const [isEdit, setEdit] = useState(false);
   const [value, setValue] = useState(layersName[0] || '');
   return (
     <EmptyHierarchyWrap>
-      <div className="titleWrap">
-        {isEdit ? (
-          <Input
-            value={value}
-            autoFocus
-            onChange={setValue}
-            onBlur={() => {
-              setEdit(false);
-              updateLayersName([value]);
-            }}
-          />
-        ) : (
-          <span className={cx('overflow_ellipsis layerTitle', value ? 'Gray_75 Bold' : 'Gray_bd Bold')} onClick={() => setEdit(true)}>
-            {value || _l('一级')}
-          </span>
-        )}
-      </div>
+      {needTitle && (
+        <div className="titleWrap">
+          {isEdit ? (
+            <Input
+              value={value}
+              autoFocus
+              onChange={setValue}
+              onBlur={() => {
+                setEdit(false);
+                updateLayersName([value]);
+              }}
+            />
+          ) : (
+            <span
+              className={cx('overflow_ellipsis layerTitle', value ? 'Gray_75 Bold' : 'Gray_bd Bold')}
+              onClick={() => setEdit(true)}
+            >
+              {value || _l('一级')}
+            </span>
+          )}
+        </div>
+      )}
 
       <div onClick={onAdd} className={cx('addWrap', { allowAdd })}>
         <i className="icon-add"></i>

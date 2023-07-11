@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Scatter } from '@antv/g2plot';
 import { uniq } from '@antv/util';
 import { Dropdown, Menu } from 'antd';
-import { formatYaxisList, formatrChartValue, formatControlInfo, formatrChartAxisValue, getLegendType, getChartColors } from './common';
+import { formatYaxisList, formatrChartValue, formatControlInfo, formatrChartAxisValue, getLegendType, getChartColors, getStyleColor } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 
 const formatChartData = (data, splitId) => {
@@ -44,6 +44,32 @@ const formatChartData = (data, splitId) => {
   return result;
 }
 
+const getControlMinAndMax = (yaxisList, data) => {
+  const result = {};
+
+  const get = (id) => {
+    let values = [];
+    for (let i = 0; i < data.length; i++) {
+      if (id in data[i]) {
+        values.push(data[i][id]);
+      }
+    }
+    const min = _.min(values) || 0;
+    const max = _.max(values);
+    return {
+      min,
+      max,
+      center: (max + min) / 2
+    }
+  }
+
+  yaxisList.forEach(item => {
+    result[item.controlId] = get(item.controlId);
+  });
+
+  return result;
+}
+
 export default class extends Component {
   constructor(props) {
     super(props);
@@ -71,7 +97,8 @@ export default class extends Component {
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       !_.isEqual(displaySetup.xdisplay, oldDisplaySetup.xdisplay) ||
-      !_.isEqual(displaySetup.ydisplay, oldDisplaySetup.ydisplay)
+      !_.isEqual(displaySetup.ydisplay, oldDisplaySetup.ydisplay) ||
+      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules)
     ) {
       const config = this.getComponentConfig(nextProps);
       this.ScatterChart.update(config);
@@ -131,10 +158,23 @@ export default class extends Component {
   }
   getComponentConfig(props) {
     const { map, displaySetup, xaxes, yaxisList, split, style = {} } = props.reportData;
-    const { xdisplay, ydisplay } = displaySetup;
+    const { xdisplay, ydisplay, colorRules } = displaySetup;
     const data = formatChartData(map, split.controlId);
     const { position } = getLegendType(displaySetup.legendType);
-    const colors = getChartColors();
+    const colors = getChartColors(style);
+    const rule = _.get(colorRules[0], 'dataBarRule') || {};
+    const isRuleColor = _.isEmpty(split.controlId) && !_.isEmpty(rule);
+    const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
+    const getRuleColor = (data) => {
+      const value = data[_.get(yaxisList[0], 'controlId')] || 0;
+      const color = getStyleColor({
+        value,
+        controlMinAndMax,
+        rule,
+        controlId: rule.controlId || yaxisList[0].controlId
+      });
+      return color || colors[0];
+    }
     const xField = _.get(yaxisList[0], 'controlId');
     const yField = _.get(yaxisList[1], 'controlId');
     const sizeField = _.get(yaxisList[2], 'controlId');
@@ -147,7 +187,7 @@ export default class extends Component {
       sizeField,
       colorField: split.controlId,
       size: [5, 20],
-      colors,
+      color: isRuleColor ? getRuleColor : colors,
       legend: displaySetup.showLegend && split.controlId ? {
         position
       } : false,

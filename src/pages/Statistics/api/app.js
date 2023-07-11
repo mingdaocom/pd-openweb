@@ -19,6 +19,18 @@ var app = {
     return $.api(controllerName, 'appgetDate', args, $.extend(base, options));
   },
   /**
+   * 获取图表信息
+   * @param {Object} args 请求参数
+   * @param {string} [args.id] id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  getReport: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/app/getReport';
+    base.ajaxOptions.type = 'GET';
+    return $.api(controllerName, 'appgetReport', args, $.extend(base, options));
+  },
+  /**
    * 获取工作表控件
    * @param {Object} args 请求参数
    * @param {string} [args.appId] *工作表ID

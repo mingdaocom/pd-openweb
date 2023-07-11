@@ -182,7 +182,7 @@ const Con = styled.div`
 
 const MAX_COUNT = md.global.Config.IsLocal ? 10 : 5;
 const sortRules = { 1: _l('升序'), '-1': _l('降序'), text: _l('文本索引') };
-const FILTER_TYPE_LIST = [40, 42, 43, 21, 25, 45, 14, 34, 22, 10010, 30, 47, 49, 50];
+const FILTER_TYPE_LIST = [40, 42, 43, 21, 25, 45, 14, 34, 22, 10010, 30, 47, 49, 50, 51];
 
 function FormIndexSetting(props) {
   const { worksheetId, appId } = props;
@@ -269,7 +269,7 @@ function FormIndexSetting(props) {
                 <span className="Font13 Gray_9e">
                   {_l('手动为大数据量的工作表建立合适的索引，可以加快工作表检索速度，最多创建%0个。', MAX_COUNT)}
                 </span>
-                <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/zh/sheet34.html" />
+                <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/sheet34" />
               </p>
             </div>
             <span

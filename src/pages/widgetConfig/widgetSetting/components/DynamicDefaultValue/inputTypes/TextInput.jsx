@@ -4,6 +4,7 @@ import { TagTextarea } from 'ming-ui';
 import { SelectOtherField, OtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import { transferValue } from '../util';
+import { handleAdvancedSettingChange } from '../../../../util/setting';
 import _ from 'lodash';
 
 export default class TextInput extends Component {
@@ -19,12 +20,20 @@ export default class TextInput extends Component {
   };
 
   componentDidMount() {
-    const { dynamicValue, data, clearOldDefault, onDynamicValueChange } = this.props;
+    const { dynamicValue, data, onChange } = this.props;
     const { default: defaultValue } = data;
     if (defaultValue) {
       const newDynamicValue = dynamicValue.concat({ cid: '', rcid: '', staticValue: defaultValue });
-      onDynamicValueChange(newDynamicValue);
-      clearOldDefault();
+      onChange({
+        ...handleAdvancedSettingChange(data, {
+          defsource: JSON.stringify(newDynamicValue),
+          defaulttype: '',
+          defaultfunc: '',
+          dynamicsrc: '',
+        }),
+        default: '',
+      });
+
       this.setDynamicValue(newDynamicValue);
     } else {
       this.setDynamicValue(dynamicValue);

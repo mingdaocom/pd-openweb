@@ -15,8 +15,10 @@ import AppStatusComp from './AppStatus';
 import SvgIcon from 'src/components/SvgIcon';
 import _ from 'lodash';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
-import { getAppNavigateUrl } from '../utils';
-
+import { getAppNavigateUrl, transferExternalLinkUrl } from '../utils';
+import ExternalLinkDialog from './ExternalLinkDialog';
+import ManageUserDialog from 'src/pages/Role/AppRoleCon/ManageUserDialog.jsx';
+import { addBehaviorLog } from 'src/util';
 @withClickAway
 export default class MyAppItem extends Component {
   static propTypes = {
@@ -48,6 +50,8 @@ export default class MyAppItem extends Component {
     selectIconVisible: false,
     delAppConfirmVisible: false,
     copyAppVisible: false,
+    externalLinkVisible: false,
+    showRoleDialog: false,
   };
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -64,6 +68,11 @@ export default class MyAppItem extends Component {
         'lightColor',
         'icon',
         'groupIds',
+        'urlTemplate',
+        'pcDisplay',
+        'webMobileDisplay',
+        'appDisplay',
+        'isNew',
       ]) ||
       compareProps(nextState, this.state) ||
       id === this.props.newAppItemId ||
@@ -115,6 +124,12 @@ export default class MyAppItem extends Component {
       case 'copy':
         this.switchVisible({ copyAppVisible: true });
         break;
+      case 'setExternalLink':
+        this.switchVisible({ externalLinkVisible: true });
+        break;
+      case 'manageUser':
+        this.switchVisible({ showRoleDialog: true });
+        break;
       default:
         break;
     }
@@ -126,7 +141,14 @@ export default class MyAppItem extends Component {
   };
 
   render() {
-    const { editAppVisible, selectIconVisible, delAppConfirmVisible, copyAppVisible } = this.state;
+    const {
+      editAppVisible,
+      selectIconVisible,
+      delAppConfirmVisible,
+      copyAppVisible,
+      externalLinkVisible,
+      showRoleDialog,
+    } = this.state;
     const {
       groupId,
       groupType,
@@ -150,6 +172,11 @@ export default class MyAppItem extends Component {
       onCopy,
       onUpdateAppBelongGroups,
       pcNaviStyle,
+      createType,
+      urlTemplate,
+      pcDisplay,
+      webMobileDisplay,
+      appDisplay,
     } = this.props;
     const isShowSelectIcon = selectIconVisible || newAppItemId === id;
     const offsetLeft = _.get(this, '$myAppItem.current.offsetLeft');
@@ -165,7 +192,21 @@ export default class MyAppItem extends Component {
         className={cx('sortableMyAppItemWrap', { active: editAppVisible, isSelectingIcon: isShowSelectIcon })}
       >
         <div className={cx('myAppItemWrap')}>
-          <MdLink className="myAppItem" to={getAppNavigateUrl(id, pcNaviStyle)}>
+          <MdLink
+            className="myAppItem stopPropagation"
+            to={getAppNavigateUrl(id, pcNaviStyle)}
+            onClick={e => {
+              addBehaviorLog('app', id); // 浏览应用埋点
+
+              if (createType === 1) {
+                //是外部链接应用
+                e.stopPropagation();
+                e.preventDefault();
+                this.props.isNew && this.handleModify({ isNew: false });
+                window.open(transferExternalLinkUrl(urlTemplate, projectId, id));
+              }
+            }}
+          >
             <div className="myAppItemDetail" style={{ backgroundColor: light ? lightColor : navColor || iconColor }}>
               <SvgIcon url={iconUrl} fill={black || light ? iconColor : '#fff'} size={48} />
               <AppStatusComp {..._.pick(this.props, ['isGoodsStatus', 'isNew', 'fixed'])} />
@@ -208,6 +249,7 @@ export default class MyAppItem extends Component {
                   selectedGroupIds={groupIds}
                   role={permissionType}
                   isLock={isLock}
+                  createType={createType}
                   onUpdateAppBelongGroups={args => onUpdateAppBelongGroups({ ...args, appId: id })}
                   onClick={id => this.switchVisible({ editAppVisible: false }, () => this.handleMoreClick(id))}
                   onClickAway={() => this.switchVisible({ editAppVisible: false })}
@@ -260,6 +302,24 @@ export default class MyAppItem extends Component {
                 onClickAwayExceptions={['.mui-dialog-container']}
               />
             </div>
+          )}
+          {externalLinkVisible && (
+            <ExternalLinkDialog
+              projectId={projectId}
+              isEdit={true}
+              record={{ id, name, urlTemplate, pcDisplay, webMobileDisplay, appDisplay }}
+              onCancel={() => this.switchVisible({ externalLinkVisible: false })}
+              onAppChange={this.props.onAppChange}
+            />
+          )}
+          {showRoleDialog && (
+            <ManageUserDialog
+              appId={id}
+              projectId={projectId}
+              onCancel={() => {
+                this.switchVisible({ showRoleDialog: false });
+              }}
+            />
           )}
         </div>
       </div>

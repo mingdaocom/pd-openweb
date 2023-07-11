@@ -5473,11 +5473,11 @@ msgid "附件"
 msgstr "アタッチメント"
 
 #: Disabled references:1
-msgid "日期: 年-月-日"
+msgid "日期: 年-月-日"
 msgstr "日付：年-月-日"
 
 #: Disabled references:1
-msgid "日期: 年-月-日 时:分"
+msgid "日期: 年-月-日 时:分"
 msgstr "日付：年-月-日 時：分"
 
 #: Disabled references:1
@@ -5485,7 +5485,7 @@ msgid "地区"
 msgstr "地域"
 
 #: Disabled references:1
-msgid "地区: 省"
+msgid "地区: 省"
 msgstr "地域：都道府県"
 
 #: Disabled references:1
@@ -5497,11 +5497,11 @@ msgid "分段"
 msgstr "セグメンテーション"
 
 #: Disabled references:1
-msgid "地区: 省/市"
+msgid "地区: 省/市"
 msgstr "地域：都道府県/市区町村"
 
 #: Disabled references:1
-msgid "地区: 省/市/县"
+msgid "地区: 省/市/县"
 msgstr "地域：都道府県/市町村/郡"
 
 #: Disabled references:1
@@ -32185,7 +32185,7 @@ msgid "允许用户读取指定数据库;"
 msgstr "指定されたデータベースの読み込みを許可する。"
 
 #: Disabled references:1
-msgid "允许用户读写指定数据库 "
+msgid "允许用户读写指定数据库 "
 msgstr "指定されたデータベースに対するユーザーの読み取りと書き込みを許可する"
 
 #: Disabled references:1
@@ -32197,11 +32197,11 @@ msgid "允许用户向system.users集合写入，可以找指定数据库里创�
 msgstr "ユーザーがsystem.usersコレクションに書き込み、指定されたデータベース内のユーザーを作成、削除、管理できるようにします。"
 
 #: Disabled references:1
-msgid "只在admin数据库中可用，赋予用户所有分片和复制集相关函数的管理权限; "
+msgid "只在admin数据库中可用，赋予用户所有分片和复制集相关函数的管理权限; "
 msgstr "管理者データベースでのみ利用可能で、シャーディングとレプリカセットに関連するすべての機能の管理者権限をユーザーに付与します。"
 
 #: Disabled references:1
-msgid "只在admin数据库中可用，赋予用户所有数据库的读权限; "
+msgid "只在admin数据库中可用，赋予用户所有数据库的读权限; "
 msgstr "管理者データベースでのみ利用可能で、すべてのデータベースへの読み取り権限を付与します。"
 
 #: Disabled references:1
@@ -32209,11 +32209,11 @@ msgid "只在admin数据库中可用，赋予用户所有数据库的读写权�
 msgstr "管理者データベースでのみ利用可能で、すべてのデータベースに対する読み取りと書き込みの権限が付与されます。"
 
 #: Disabled references:1
-msgid "只在admin数据库中可用，赋予用户所有数据库的userAdmin权限; "
+msgid "只在admin数据库中可用，赋予用户所有数据库的userAdmin权限; "
 msgstr "adminデータベースでのみ利用可能で、ユーザーuserAdminはすべてのデータベースへのアクセス権を持ちます。"
 
 #: Disabled references:1
-msgid "只在admin数据库中可用，赋予用户所有数据库的dbAdmin权限; "
+msgid "只在admin数据库中可用，赋予用户所有数据库的dbAdmin权限; "
 msgstr "管理データベースでのみ利用可能で、ユーザーdbAdminはすべてのデータベースへのアクセスが可能です。"
 
 #: Disabled references:1
@@ -32273,7 +32273,7 @@ msgid "你可以将其它数据源的数据实时同步到 MySQL"
 msgstr "他のデータソースからMySQLにリアルタイムでデータを同期させることができる"
 
 #: Disabled references:1
-msgid "将系统 IP 添加到 MySQL 服务器的访问白名单 "
+msgid "将系统 IP 添加到 MySQL 服务器的访问白名单 "
 msgstr "MySQLサーバーのアクセスホワイトリストにシステムIPを追加します。"
 
 #: Disabled references:1
@@ -32289,7 +32289,7 @@ msgid "启用Oracle数据库的日志存档"
 msgstr "Oracleデータベースのログアーカイブを有効にする"
 
 #: Disabled references:1
-msgid "将系统 IP 添加到 Oracle 服务器的访问白名单 "
+msgid "将系统 IP 添加到 Oracle 服务器的访问白名单 "
 msgstr "OracleサーバーのアクセスホワイトリストにシステムIPを追加する"
 
 #: Disabled references:1
@@ -38297,7 +38297,7 @@ msgid "删除失败 "
 msgstr "削除に失敗しました"
 
 #: Disabled references:1
-msgid " 暂无备份文件"
+msgid " 暂无备份文件"
 msgstr " 現在、バックアップファイルはありません"
 
 #: Disabled references:1
@@ -40493,8 +40493,8 @@ msgid "数据导入确认"
 msgstr "データインポートの確認"
 
 #: Disabled references:1
-msgid "1.导入的数据%0"
-msgstr "1.インポートされたデータ %0"
+msgid "1.导入的数据"
+msgstr "1.インポートされたデータ "
 
 #: Disabled references:1
 msgid "不会触发工作流"
@@ -43085,1537 +43085,1370 @@ msgid "二次确认"
 msgstr "二次確認"
 
 #: Disabled references:1
-msgid "系统配置"
-msgstr "システム構成"
+msgid "通用设置"
+msgstr "一般的な設定"
 
 #: Disabled references:1
-msgid "App下载与设置"
-msgstr "アプリのダウンロードとセットアップ"
+msgid "应用日志"
+msgstr "アプリケーションログ"
 
 #: Disabled references:1
-msgid "升级受限提醒"
-msgstr "アップグレード制限のアラート"
+msgid "用户登录"
+msgstr "ユーザーログイン"
 
 #: Disabled references:1
-msgid "我已知晓"
-msgstr "私はすでに知っている"
+msgid "专属算力"
+msgstr "独自の演算処理能力"
 
 #: Disabled references:1
-msgid "由于当前系统绑定的密钥技术支持时间已到期（%0 到期），无法升级到 %1 版本（发布时间早于到期时间的版本可升级），现已自动降为免费版，"
-msgstr "現在のシステムバンドルのテクニカルサポートタイムが切れたため（%0 expiry）、%1バージョンへのアップグレードができず（期限前にリリースされたバージョンはアップグレード可能）、自動的にフリーバージョンにダウングレードされました。"
+msgid "子表、关联记录、关联查询（列表）"
+msgstr "サブテーブル、リンクレコード、リンククエリ（リスト）"
 
 #: Disabled references:1
-msgid "您可以"
-msgstr "することができます。"
+msgid "关联记录（列表）、子表中的字段支持三种打印方式。"
+msgstr "関連レコード（リスト）、サブテーブルのフィールドは、3種類の印刷に対応しています。"
 
 #: Disabled references:1
-msgid "咨询并延长技术支持或查看 "
-msgstr "テクニカルサポートの依頼と延長、または閲覧"
+msgid "（1）表格打印（默认）：直接将字段代码放入表格中，在表格中逐行向下列出所有记录的字段值。如果要对相同值进行合并单元格，可在字段代码中加上“[M]”，如：#{客户.客户名称[M]}"
+msgstr "(1) フォーム印刷（デフォルト）：フィールドコードを直接フォームに配置し、フォームの行の下にあるすべてのレコードのフィールド値をリストアップします。同じ値のセルをマージしたい場合は、フィールドコードに\"[M]\"を付けて、次のようにします： #{客户.客户名称[M]}"
 
 #: Disabled references:1
-msgid "其他可升级的版本"
-msgstr "その他アップグレード可能なバージョン"
+msgid "（2）逐条打印：关联记录（列表）中 每一条记录作为一个整体依次逐条打印。可以将以下代码插入到模板中，代码下方的内容将识别为记录的基本单元。"
+msgstr "(2) 項目ごとに印刷：関連レコード（リスト）の各レコードが、項目ごとに全体として印刷されます。テンプレートに以下のコードを挿入することで、コード以下の内容がレコードの基本単位と認識されます。"
 
 #: Disabled references:1
-msgid "请尽快联系系统管理员"
-msgstr "できるだけ早く、システム管理者にご連絡ください"
+msgid "（3）拼接打印：以逗号隔开列出所有记录的字段值。可在字段代码中加上“[S]”，如#{客户.客户名称[S]}。"
+msgstr "(3) 分割印刷：全レコードのフィールド値をカンマ区切りにしたリストです。これは、#{客户.客户名称[S]}のように、フィールドコードに\"[S]\"を追加することで実現できます。"
 
 #: Disabled references:1
-msgid "安装预集成的API，或自定义添加"
-msgstr "統合済みのAPIをインストールしたり、カスタムAPIを追加することができます。"
+msgid "审批明细字段支持三种打印方式。如果同一条审批流程被重复发起了多次，则只会打印发起时间最近的一次。"
+msgstr "承認内容欄は、3つの印刷方法に対応しています。同じ承認処理が複数回行われた場合は、最新のもののみ印刷されます。"
 
 #: Disabled references:1
-msgid "鉴权失败"
-msgstr "フォレンジックの失敗"
+msgid "2. 字段代码必须按照表中的格式填写，否则无法获取到对应字段的数据；如果某两个字段的字段名称相同，为了系统能够识别请选择复制字段ID/字段别名用于制作模板。"
+msgstr "2. フィールドコードは、表のフォーマットで記入する必要があります。そうしないと、対応するフィールドのデータを取得できません。2つのフィールドが同じフィールド名を持つ場合、システムがテンプレートのためにそれを認識できるようにフィールドID/フィールドエイリアスをコピーすることを選択してください。"
 
 #: Disabled references:1
-msgid "非法的文件类型"
-msgstr "不正なドキュメントタイプ"
+msgid "3. 平铺类的选项字段如需打印未选中的选项，可在字段代码或ID/别名后加“_Alloptions”，例如：#{单选_Alloptions}。"
+msgstr "3. チェックされていないオプションを表示する必要があるタイル型クラスのオプションフィールドは、フィールドコードまたはID/エイリアスの後に\"_Alloptions \"を付けて追加できます（例: #{单选_Alloptions}）。"
 
 #: Disabled references:1
-msgid "bucket 不存在"
-msgstr "バケツが存在しない"
+msgid "4. 可获取附件字段中的图片，字段代码为：#{附件$[90*auto_L]$}。其中：90*auto 表示图片宽/高尺寸（单位mm）；_L表示获取的图片质量。"
+msgstr "4. 添付フィールドの画像は、フィールドコード：#{附件$[90*auto_L]$}で取得できます。ここで、90*auto は画像の幅／高さの寸法（単位：mm）、_L は得られた画像の品質を示します。"
 
 #: Disabled references:1
-msgid "文件大小错误"
-msgstr "ファイルサイズエラー"
+msgid "（1）图片尺寸支持4种设置方式。[90*auto] 表示宽度固定为90，高度自适应。[auto*90] 表示宽度自适应，高度固定为90。[90*50_auto]表示宽高在90*50的范围内同时自适应。[90*50]表示宽高为固定尺寸。"
+msgstr "(1) 画像サイズは、4種類の設定方法に対応しています。[90*auto]は、幅が90で固定され、高さが適応的に設定されることを意味します。[auto*90]は、幅が適応的で高さが90で固定されることを意味します。 90*50_auto]は、幅と高さが90*50の範囲内で同時に適応的であることを意味します。[90*50]は、幅と高さが固定寸法であることを表します。"
 
 #: Disabled references:1
-msgid "系统错误 metadata error"
-msgstr "システムエラー メタデータエラー"
+msgid "（2）图片质量支持低、中、高三种设置（默认为低）。低（L）—生成速度快，用于一般打印；中（M）—生成速度适中，打印较清晰；高（H）—生成速度慢，用于高质量彩色打印。"
+msgstr "(2) 画質は、低・中・高の設定に対応しています（初期設定は低）。低（L）-生成速度が速く、一般的な印刷向け、中（M）-生成速度が中程度で、鮮明な印刷向け、高（H）-生成速度が遅く、高画質なカラー印刷向け。"
 
 #: Disabled references:1
-msgid "系统错误 hash error"
-msgstr "システムエラー ハッシュエラー"
+msgid "5.可通过代码 #{[qrcode]字段名$[20*20]$} 或 #{[barcode]字段名$[40*10]$} 获取任意字段的二维码 或 条形码。二维码编码方式：QR-code，最大包含150个字（支持汉字）；条形码编码方式：code128，最大包含30个字符（仅支持数字、字母、符号）。"
+msgstr "5.コード#{[qrcode]字段名$[20*20]$}または#{[barcode]字段名$[40*10]$}を使用することで、どの分野でもQRコードやバーコードを取得することができます。QRコードの符号化方式：QR-code、最大150文字（漢字対応）、バーコードの符号化方式：code128、最大30文字（数字、文字、記号のみ）。"
 
 #: Disabled references:1
-msgid "系统错误"
-msgstr "システムエラー"
+msgid "6. 如需不打印没有数据的关联表/子表，请将代码：#NoDataNotPrint[start]# 和 #NoDataNotPrint[end]# 插入到模板中，代码之间的关联记录/子表没有数据则不会打印。"
+msgstr "6. データのない関連テーブル/サブテーブルを印刷しないようにするには、テンプレートにコード：#NoDataNotPrint[start]#と#NoDataNotPrint[end]#を挿入すると、コードの間の関連レコード/サブテーブルがデータのない場合は印刷しません。"
 
 #: Disabled references:1
-msgid "至多本地,链接各20个"
-msgstr "ローカル、リンクそれぞれ最大20本まで"
+msgid "7. 批量打印时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页。设置方法可参考"
+msgstr "7. 一括印刷の場合、デフォルトではすべてのデータが連続して印刷されますので、ページング（各データが別ページになる）を実施したい場合は、テンプレートで最初の段落の前にページングを設定することが必要です。設定方法は、以下の通りです。"
 
 #: Disabled references:1
-msgid "至多本地文件各20个"
-msgstr "ローカルドキュメントをそれぞれ最大20枚まで"
+msgid "了解更多制作技巧和注意事项。"
+msgstr "制作のヒントや注意点を確認することができます。"
 
 #: Disabled references:1
-msgid "关注服务号"
-msgstr "サービス番号に従う"
+msgid "示范模板快速开始"
+msgstr "クイックスタートのためのデモ用テンプレート"
 
 #: Disabled references:1
-msgid "服务协议"
-msgstr "サービス規約"
+msgid "外部链接"
+msgstr "外部リンク"
 
 #: Disabled references:1
-msgid "通用"
-msgstr "一般"
+msgid "您是否确认进行保存？"
+msgstr "本当に保存するんですか？"
 
 #: Disabled references:1
-msgid "密钥管理"
-msgstr "キーマネージメント"
+msgid "保存后，您的原始集成映射关系将被清理。"
+msgstr "保存後、元の統合マッピングの関係はきれいになります。"
 
 #: Disabled references:1
-msgid "品牌"
-msgstr "ブランド"
+msgid "请确认是否不需要原始集成关系，再执行此操作"
+msgstr "この操作を行う前に、元の統合関係が不要であることを確認してください"
 
 #: Disabled references:1
-msgid "授权"
-msgstr "オーソライズ"
+msgid "请输入您的登录密码，以验证您的身份信息"
+msgstr "本人情報を確認するため、ログインパスワードを入力してください。"
+
+#: Disabled references:1
+msgid "添加人"
+msgstr "によって追加されました。"
+
+#: Disabled references:1
+msgid "管理算力"
+msgstr "マネージド・コンピューティング・パワー"
+
+#: Disabled references:1
+msgid "服务已过期"
+msgstr "サービスの有効期限が切れています"
+
+#: Disabled references:1
+msgid "工作流名称"
+msgstr "ワークフロー名"
+
+#: Disabled references:1
+msgid "移出工作流"
+msgstr "ムーブアウトワークフロー"
+
+#: Disabled references:1
+msgid "移出%0个工作流"
+msgstr "ムーブアウト %0 ワークフロー"
+
+#: Disabled references:1
+msgid "请联系组织管理员购买"
+msgstr "ご購入の際は、組織管理者までご連絡ください"
+
+#: Disabled references:1
+msgid "购买数量超出上限"
+msgstr "最大数量を超えて購入したもの"
+
+#: Disabled references:1
+msgid "重新创建中..."
+msgstr "再創造中...。"
+
+#: Disabled references:1
+msgid "配置专属算力"
+msgstr "専用コンピューティングパワーを構成する"
+
+#: Disabled references:1
+msgid "您的组织购买专属算力服务后，将重要的工作流添加到专属算力服务中运行，可免受本组织或平台其他组织的流程堵塞影响"
+msgstr "お客様の組織がDedicated Computing Serviceを購入する際、Dedicated Computing Serviceで実行する重要なワークフローを追加することで、お客様の組織やプラットフォーム上の他の組織でのプロセスの混雑からお客様を保護します。"
+
+#: Disabled references:1
+msgid "购买专属算力"
+msgstr "専用演算処理装置の購入"
+
+#: Disabled references:1
+msgid "资源ID"
+msgstr "リソースID"
+
+#: Disabled references:1
+msgid "复制资源ID"
+msgstr "コピーリソースID"
+
+#: Disabled references:1
+msgid "重新创建"
+msgstr "リ・クリエイト"
 
 #: Disabled references:1
 msgid "管理"
 msgstr "マネジメント"
 
 #: Disabled references:1
-msgid "平台"
-msgstr "プラットフォーム"
+msgid "请联系组织管理员续费"
+msgstr "更新の際は、組織管理者までご連絡ください。"
 
 #: Disabled references:1
-msgid "直接用浏览器打印"
-msgstr "ブラウザから直接プリント"
+msgid "规格"
+msgstr "仕様"
 
 #: Disabled references:1
-msgid "正在生成..."
-msgstr "生成される..."
+msgid "%0并发数"
+msgstr "0コンカレンシー"
 
 #: Disabled references:1
-msgid "App 初次启动需要填写的配置信息"
-msgstr "本アプリの初回起動に必要な設定情報"
+msgid "工作流数"
+msgstr "ワークフロー数"
 
 #: Disabled references:1
-msgid "扫描二维码填写"
-msgstr "QRコードを読み取って記入する"
+msgid "将重要的工作流添加到专属算力中运行，可免受本组织或平台其他组织的流程堵塞影响"
+msgstr "専用計算機で実行する重要なワークフローを追加し、自組織やプラットフォーム上の他の組織でプロセスがブロックされないように保護します。"
 
 #: Disabled references:1
-msgid "下载客户端"
-msgstr "クライアントをダウンロードする"
+msgid "应用管理"
+msgstr "アプリケーション管理"
 
 #: Disabled references:1
-msgid "工作信息时刻保持连接"
-msgstr "仕事の情報が常につながっている"
+msgid "记录操作"
+msgstr "ロギング操作"
 
 #: Disabled references:1
-msgid "不管是在电脑前，还是出门在外，都能让你与工作信息时刻保持连接"
-msgstr "パソコンでも外出先でも、いつでも仕事の情報につながるように"
+msgid "用户行为"
+msgstr "ユーザーの行動"
 
 #: Disabled references:1
-msgid "PC桌面端"
-msgstr "PCデスクトップ"
+msgid "浏览"
+msgstr "ブラウズ"
 
 #: Disabled references:1
-msgid "Mac 下载"
-msgstr "Macのダウンロード"
+msgid "批量更新"
+msgstr "バッチの更新"
 
 #: Disabled references:1
-msgid "敬请期待"
-msgstr "ご期待ください"
+msgid "附件预览"
+msgstr "アネックスプレビュー"
 
 #: Disabled references:1
-msgid "Windows 下载"
-msgstr "Windowsダウンロード"
+msgid "登录/登出时间"
+msgstr "ログイン／ログアウト時間"
 
 #: Disabled references:1
-msgid "扫码下载"
-msgstr "スキャンコードでダウンロード"
+msgid "登录类型"
+msgstr "ログインタイプ"
 
 #: Disabled references:1
-msgid "账号被禁用，请联系系统管理员进行恢复"
-msgstr "アカウントが無効になっています。回復するには、システム管理者に連絡してください"
+msgid "IP归属地"
+msgstr "IPアトリビューション"
 
 #: Disabled references:1
-msgid "基于明道云应用平台内核"
-msgstr "Mindo Cloud Application Platform Kernelをベースとする。"
+msgid "浏览器版本"
+msgstr "ブラウザのバージョン"
 
 #: Disabled references:1
-msgid "当前地址错误"
-msgstr "カレントアドレスエラー"
+msgid "操作系统类型"
+msgstr "オペレーティングシステムの種類"
 
 #: Disabled references:1
-msgid "请输入确认密码"
-msgstr "確認用パスワードを入力してください"
+msgid "操作系统版本"
+msgstr "オペレーティングシステムバージョン"
 
 #: Disabled references:1
-msgid "请确保确认密码与密码一致"
-msgstr "パスワードと同じであることを確認してください"
+msgid "经纬度"
+msgstr "経度・緯度"
 
 #: Disabled references:1
-msgid "密码修改失败，请稍后再试"
-msgstr "パスワードの変更に失敗しました、後でもう一度やり直してください"
+msgid "设备类型"
+msgstr "機器の種類"
 
 #: Disabled references:1
-msgid "旧密码已过期，请重新设置密码"
-msgstr "旧パスワードの有効期限が切れているため、パスワードを再設定してください。"
+msgid "设备型号"
+msgstr "機器モデル"
 
 #: Disabled references:1
-msgid "首次登录需设置密码"
-msgstr "初回ログイン時にパスワードが必要"
+msgid "设备ID"
+msgstr "デバイスID"
 
 #: Disabled references:1
-msgid "请设置密码"
-msgstr "パスワードを設定してください"
+msgid "IMEI"
+msgstr "アイエムイーアイ"
 
 #: Disabled references:1
-msgid "请确认密码"
-msgstr "パスワードを確認してください"
+msgid "操作内容"
+msgstr "操作内容"
 
 #: Disabled references:1
-msgid "两次输入的密码不一致"
-msgstr "2回入力されたパスワードが一致しません"
+msgid "操作对象"
+msgstr "操作対象"
 
 #: Disabled references:1
-msgid "请输入密钥"
-msgstr "キーを入力してください"
+msgid "操作类型"
+msgstr "操作の種類"
 
 #: Disabled references:1
-msgid "请输入姓名"
-msgstr "お名前を入力してください"
+msgid "停留时长"
+msgstr "滞在期間"
 
 #: Disabled references:1
-msgid "密码不一致，请重新输入"
-msgstr "パスワードが一致しないので、再入力してください"
+msgid "登出"
+msgstr "サインアウト"
 
 #: Disabled references:1
-msgid "请输入企业名称"
-msgstr "事業所名を入力してください"
+msgid "数据导出超过100,000行，本次仅导出前100,000行记录"
+msgstr "10万行以上のデータをエクスポート、今回は最初の10万行のみをエクスポート"
 
 #: Disabled references:1
-msgid "请输入您的密钥"
-msgstr "キーを入力してください"
+msgid "加密规则"
+msgstr "暗号化ルール"
 
 #: Disabled references:1
-msgid "注册并申请密钥"
-msgstr "キー登録とリクエスト"
+msgid "设置字段在加密时可用的加密方式"
+msgstr "フィールドを暗号化する際に利用できる暗号化方式を設定します。"
 
 #: Disabled references:1
-msgid "登录并申请密钥"
-msgstr "ログインしてキーをリクエストする"
+msgid "上传的图标可用于应用、应用项等地方"
+msgstr "アップロードしたアイコンは、アプリケーションやアプリケーションアイテムなどで使用することができます。"
 
 #: Disabled references:1
-msgid "正在验证您的产品密钥"
-msgstr "プロダクトキーの確認"
+msgid "启用水印配置后，将在组织所有应用内显示当前使用者的姓名+手机号后4位或邮箱前缀"
+msgstr "ウォーターマーク設定を有効にすると、組織のすべてのアプリケーションで、現在のユーザー名＋携帯電話番号の下4桁またはEメールのプレフィックスが表示されます。"
 
 #: Disabled references:1
-msgid "密钥验证失败, 请重新填写"
-msgstr "キー認証に失敗しました、もう一度入力してください"
+msgid "通用配置"
+msgstr "一般的な構成"
 
 #: Disabled references:1
-msgid "设置管理员账户"
-msgstr "管理者アカウントの設定"
+msgid "设置链接成功"
+msgstr "リンクのセットアップに成功"
 
 #: Disabled references:1
-msgid "请输入管理员账户信息"
-msgstr "管理者アカウント情報を入力してください"
+msgid "设置链接失败!"
+msgstr "リンクの設定に失敗しました！"
 
 #: Disabled references:1
-msgid "邮箱地址（邮箱作为登录账户）"
-msgstr "メールアドレス（ログインアカウントとしてのメール）"
+msgid "设置链接失败！"
+msgstr "リンクの設定に失敗しました！"
 
 #: Disabled references:1
-msgid "确认密码"
-msgstr "パスワードの確認"
+msgid "APP"
+msgstr "APP"
 
 #: Disabled references:1
-msgid "企业名称"
-msgstr "会社名"
+msgid "管理角色"
+msgstr "管理職の役割"
 
 #: Disabled references:1
-msgid "创建组织后可以邀请团队成员加入"
-msgstr "組織作成後、チームメンバーを招待することができます"
+msgid "复制到外部门户"
+msgstr "外部ポータルにコピー"
 
 #: Disabled references:1
-msgid "太棒了！ 您完成了安装"
-msgstr "素晴らしい！ インストールが完了しました"
+msgid "扩展"
+msgstr "拡張"
 
 #: Disabled references:1
-msgid "私有部署版"
-msgstr "プライベートデプロイメント版"
+msgid "编辑画布%07005"
+msgstr "キャンバスを編集する%07005"
 
 #: Disabled references:1
-msgid "还未绑定帐号"
-msgstr "まだアカウントに紐づいていない"
+msgid "编辑外部链接"
+msgstr "外部リンクの編集"
 
 #: Disabled references:1
-msgid "该%0 API提供了一个简单的方法来整合您的%0与任何外部系统的数据。API严格遵循REST语义，使用JSON编码对象，并依赖标准HTTP代码来指示操作结果。"
-msgstr "この%0 APIは、%0と外部システムのデータを簡単に統合する方法を提供します。APIは厳密なRESTセマンティクスに従い、JSONエンコードされたオブジェクトを使用し、操作の結果を示すために標準HTTPコードに依存します。"
+msgid "所有连接"
+msgstr "すべての接続"
 
 #: Disabled references:1
-msgid "v%0"
-msgstr "v%0"
+msgid "请求时间 %0, 耗时 %1 秒"
+msgstr "リクエスト時間 %0、経過時間 %1秒"
 
 #: Disabled references:1
-msgid "确定移除%0 ?"
-msgstr "の除去を決定する %0 ?"
+msgid "请正确填写表单"
+msgstr "正しくご記入ください"
 
 #: Disabled references:1
-msgid "平台管理员账号管理，可从管理员所属组织中直接添加管理员成员，也可移除成员"
-msgstr "プラットフォーム管理者アカウント管理では、管理者が所属する組織から直接管理者メンバーを追加することができ、メンバーの削除も可能です"
+msgid "当前有尚末保存的更改，您在离开当前页面前是否需要保存这些更改。"
+msgstr "まだ保存されていない変更があり、現在のページを離れる前に保存する必要があるかどうかです。"
 
 #: Disabled references:1
-msgid "服务名"
-msgstr "サービス名"
+msgid "否，放弃更改"
+msgstr "いいえ、変更放棄"
 
 #: Disabled references:1
-msgid "输入完整的服务名"
-msgstr "完全なサービス名を入力する"
+msgid "点击获取当前位置经纬度"
+msgstr "クリックすると現在地の緯度・経度が表示されます。"
 
 #: Disabled references:1
-msgid "日志内容"
-msgstr "ログコンテンツ"
+msgid "请在移动端中获取当前位置"
+msgstr "モバイルで現在位置を取得してください"
 
 #: Disabled references:1
-msgid "输入日志内容"
-msgstr "ログの内容を入力する"
+msgid "专属算力每月升级包"
+msgstr "コンピューティングパワーのアップグレードパッケージを毎月特別に提供"
 
 #: Disabled references:1
-msgid "导出前500条日志"
-msgstr "最初の500個のログをエクスポートする"
+msgid "专属算力单月包"
+msgstr "コンピューティングパワーの独占的な月額パッケージ"
 
 #: Disabled references:1
-msgid "未查询到相关内容"
-msgstr "該当するコンテンツは見つかりませんでした"
+msgid "续费专属算力"
+msgstr "専用演算装置のリニューアル"
 
 #: Disabled references:1
-msgid "更新密钥时间"
-msgstr "アップデートキータイム"
+msgid "选择规格"
+msgstr "仕様を選択"
 
 #: Disabled references:1
-msgid "密钥生效时间"
-msgstr "キーエフェクティブタイム"
+msgid "确认续费信息"
+msgstr "更新情報の確認"
 
 #: Disabled references:1
-msgid "密钥到期时间"
-msgstr "鍵の有効期限"
+msgid "每月升级包"
+msgstr "月額アップグレードパック"
 
 #: Disabled references:1
-msgid "升级服务到期时间"
-msgstr "アップグレードサービス有効期限"
+msgid "并发数是指同一个时间点可同时运行的实例数"
+msgstr "同時実行数は、同じ時点で同時に実行可能なインスタンスの数です"
 
 #: Disabled references:1
-msgid "内部用户配额"
-msgstr "社内ユーザークォータ"
+msgid "台"
+msgstr "テラス"
 
 #: Disabled references:1
-msgid "外部用户配额"
-msgstr "外部ユーザークォータ"
+msgid "计费"
+msgstr "請求書作成"
 
 #: Disabled references:1
-msgid "剩余%0天"
-msgstr "残り0日"
+msgid "并发数"
+msgstr "同時接続数"
 
 #: Disabled references:1
-msgid "授权信息"
-msgstr "オーソライズド・インフォメーション"
+msgid "%0核"
+msgstr "0コア"
 
 #: Disabled references:1
-msgid "已使用 %0 人"
-msgstr "使用人数 %0 人"
+msgid "用户列表： 已选择"
+msgstr "ユーザーリスト：選択済み"
 
 #: Disabled references:1
-msgid "版本信息"
-msgstr "バージョン情報"
+msgid "个用户"
+msgstr "ユーザー"
 
 #: Disabled references:1
-msgid "平台版本"
-msgstr "プラットフォームバージョン"
+msgid "添加工作流"
+msgstr "ワークフローを追加する"
 
 #: Disabled references:1
-msgid "密钥版本"
-msgstr "キーバージョン"
+msgid "添加(%0)"
+msgstr "追加(%0)"
 
 #: Disabled references:1
-msgid "授权日志"
-msgstr "オーソライズログ"
+msgid "工流程名称"
+msgstr "ワークフロー名"
 
 #: Disabled references:1
-msgid "更新密钥"
-msgstr "アップデートキー"
+msgid "检测到工作流已存在其他专属算力中，是否移动？"
+msgstr "他の専用計算機で既にワークフローが存在することを検知し、それを移動させるか？"
 
 #: Disabled references:1
-msgid "品牌名称"
-msgstr "ブランド名"
+msgid "所属算力服务"
+msgstr "提携算術サービス"
 
 #: Disabled references:1
-msgid "输入品牌名称"
-msgstr "ブランド名を入力する"
+msgid "没有可选算力"
+msgstr "オプション電源なし"
 
 #: Disabled references:1
-msgid "平台登录 / 注册页品牌名称"
-msgstr "プラットフォームログイン/登録ページ ブランド名"
+msgid "创建中，请稍候（约需要几分钟）..."
+msgstr "作成されるまでお待ちください（数分かかります）...。"
 
 #: Disabled references:1
-msgid "在登录界面显示"
-msgstr "ログイン画面に表示される"
+msgid "启动中"
+msgstr "発売開始"
 
 #: Disabled references:1
-msgid "品牌LOGO"
-msgstr "ブランドロゴ"
+msgid "停止中"
+msgstr "停止中"
 
 #: Disabled references:1
-msgid "推荐尺寸 400*180 px，显示在登录、注册页面"
-msgstr "推奨サイズ400*180px、ログインページや登録ページで表示されます。"
+msgid "重启中"
+msgstr "リブート中"
 
 #: Disabled references:1
-msgid "LOGO高度"
-msgstr "LOGOの高さ"
+msgid "销毁中"
+msgstr "破壊の進行中"
 
 #: Disabled references:1
-msgid "长方形推荐40px，方形推荐56px"
-msgstr "長方形は40px、正方形は56pxを推奨します。"
+msgid "已销毁"
+msgstr "破壊された"
 
 #: Disabled references:1
-msgid "登录/注册背景图"
-msgstr "ログイン/レジストレーションの背景画像"
+msgid "销毁失败"
+msgstr "破壊に失敗しました"
 
 #: Disabled references:1
-msgid "推荐尺寸 1920*900，2 M以内"
-msgstr "推奨サイズ1920*900、2M以内"
+msgid "新建失败"
+msgstr "新規構築は失敗"
 
 #: Disabled references:1
-msgid "Favicon"
-msgstr "ファビコン"
+msgid "名称重复"
+msgstr "重複する名前"
 
 #: Disabled references:1
-msgid "推荐尺寸 32*32 px，文件格式ico，显示在浏览器页签、浏览器收藏夹"
-msgstr "推奨サイズ32*32px、ファイル形式ico、ブラウザのタブ、ブラウザのお気に入りに表示されます。"
+msgid "Key无效"
+msgstr "キー無効"
 
 #: Disabled references:1
-msgid "当前密钥"
-msgstr "現在のキー"
+msgid "IV无效 "
+msgstr "IVは有効ではありません"
 
 #: Disabled references:1
-msgid "应用创建"
-msgstr "アプリケーションの作成"
+msgid "规则名称不能为空"
+msgstr "ルール名を空にすることはできません"
 
 #: Disabled references:1
-msgid "配置应用创建的权限"
-msgstr "アプリケーション作成時の権限を設定する"
+msgid "Key不能为空"
+msgstr "キーを空にすることはできません"
 
 #: Disabled references:1
-msgid "允许非管理员创建应用"
-msgstr "管理者以外でもアプリケーションを作成できるようにする"
+msgid "IV不能为空"
+msgstr "IVが空であることはありえません"
 
 #: Disabled references:1
-msgid "操作限制"
-msgstr "動作制限について"
+msgid "规则名称1"
+msgstr "ルール名1"
 
 #: Disabled references:1
-msgid "配置应用下，批量数使用上限、附件上传大小上限、自定义页面统计图刷新时间间隔"
-msgstr "バッチカウントの最大使用量、添付ファイルの最大アップロードサイズ、カスタムページ統計グラフの更新間隔をアプリケーションに設定する。"
+msgid "新建加密规则"
+msgstr "新しい暗号化ルール"
 
 #: Disabled references:1
-msgid "工作流获取批量数据上限"
-msgstr "大量データ取得のためのワークフローキャップ"
+msgid "加密方式"
+msgstr "暗号化方式"
 
 #: Disabled references:1
-msgid "子流程可用数据源记录数上限"
-msgstr "サブプロセスのデータソースから利用可能な最大レコード数"
+msgid "请输入%0位字符"
+msgstr "0文字を入力してください"
 
 #: Disabled references:1
-msgid "工作表Excel导入行数上限"
-msgstr "ワークシートExcelインポートの最大行数"
+msgid "请输入16位字符"
+msgstr "16文字を入力してください。"
 
 #: Disabled references:1
-msgid "工作表批量数据操作上限"
-msgstr "ワークシート一括データ操作の制限"
+msgid "修改信息"
+msgstr "情報の修正"
 
 #: Disabled references:1
-msgid "单次附件上传上限"
-msgstr "1回の添付ファイルアップロード制限"
+msgid "已加密字段"
+msgstr "暗号化されたフィールド"
 
 #: Disabled references:1
-msgid "自定义页面统计图刷新时间间隔"
-msgstr "ページ統計チャートの更新間隔をカスタマイズする"
+msgid "加密规则详情"
+msgstr "暗号化ルールの詳細"
 
 #: Disabled references:1
-msgid "应用批量导出工作表上限"
-msgstr "ワークシートの一括書き出し制限を適用する"
+msgid "全部工作表"
+msgstr "すべてのワークシート"
 
 #: Disabled references:1
-msgid "数据/文件回收站"
-msgstr "データ/ドキュメントのごみ箱"
+msgid "加密字段"
+msgstr "暗号化されたフィールド"
 
 #: Disabled references:1
-msgid "配置应用、应用项、工作表数据删除后、在回收站中的保留时长，以及应用备份文件保留时长"
-msgstr "アプリケーション、アプリケーションアイテム、ワークシートのデータを削除した後、ごみ箱に保持する期間、およびアプリケーションのバックアップファイルを保持する期間を設定することができます。"
+msgid "所属工作表"
+msgstr "付属のワークシート"
 
 #: Disabled references:1
-msgid "应用备份文件"
-msgstr "アプリケーションのバックアップファイル"
+msgid "全部方式"
+msgstr "すべての方法"
 
 #: Disabled references:1
-msgid "选项配置"
-msgstr "オプション構成"
+msgid "删除失败，引用的规则不能删除"
+msgstr "削除に失敗しました。参照されたルールは削除できませんでした。"
 
 #: Disabled references:1
-msgid "配置应用库是否关闭，启用自建应用库还是明道云共有应用库"
-msgstr "アプリケーション・ライブラリをオフにして、自作アプリケーション・ライブラリまたは明道クラウド共有アプリケーション・ライブラリを有効にするかどうかを設定します。"
+msgid "搜索规则名称"
+msgstr "検索ルール名"
 
 #: Disabled references:1
-msgid "自建应用库"
-msgstr "独自のアプリケーションライブラリーを構築"
+msgid "设置默认规则"
+msgstr "デフォルトルールの設定"
 
 #: Disabled references:1
-msgid "明道云应用库"
-msgstr "Mindoクラウドアプリケーションライブラリ"
+msgid "可以删除未被引用的加密规则"
+msgstr "引用されていない暗号化規則を削除することができます"
 
 #: Disabled references:1
-msgid "应用发布审批组织"
-msgstr "アプリケーションリリース承認機関"
+msgid "添加外部链接"
+msgstr "外部リンクの追加"
 
 #: Disabled references:1
-msgid "审批组织"
-msgstr "承認機関"
+msgid "添加外部链接成功"
+msgstr "外部リンクの追加に成功"
 
 #: Disabled references:1
-msgid "设置审批组织"
-msgstr "承認組織の立ち上げ"
+msgid "设置外部链接"
+msgstr "外部リンクの設定"
 
 #: Disabled references:1
-msgid "显示功能帮助引导"
-msgstr "機能ヘルプガイドを表示する"
+msgid "页面名称不能为空"
+msgstr "ページ名を空にすることはできません"
 
 #: Disabled references:1
-msgid "平台集成中心入口"
-msgstr "プラットフォーム・インテグレーション・センター・ポータル"
+msgid "链接不能为空"
+msgstr "リンクが空であることはできません"
 
 #: Disabled references:1
-msgid "显示明道云API库"
-msgstr "Mindo Cloud API ライブラリを表示する"
+msgid "输入完整链接，以http://或https://开头"
+msgstr "http://或https://开头 にフルリンクを入力してください。"
 
 #: Disabled references:1
-msgid "APP下载入口"
-msgstr "APPダウンロードポータル"
+msgid "复制到常规"
+msgstr "一般にコピーする"
 
 #: Disabled references:1
-msgid "定制版APP下载地址设置"
-msgstr "APPダウンロードアドレス設定のカスタマイズ"
+msgid "系统角色"
+msgstr "システムの役割"
 
 #: Disabled references:1
-msgid "下载地址"
-msgstr "ダウンロードアドレス"
+msgid "请输入完整链接，以 http:// 或 https:// 开头"
+msgstr "http:// または https:// で始まるフルリンクを入力してください。"
 
 #: Disabled references:1
-msgid "未配置"
-msgstr "設定されていない"
+msgid "安装的API，允许在卡片上修改是否使用网络代理"
+msgstr "カードでWebプロキシを使用するかどうかを変更できるAPIをインストールしました。"
 
 #: Disabled references:1
-msgid "App 下载地址"
-msgstr "アプリダウンロード"
+msgid "从代码片段库中选择"
+msgstr "コードスニペットライブラリから選択"
 
 #: Disabled references:1
-msgid "服务运行状态推送"
-msgstr "サービス動作状態プッシュ"
+msgid "搜索来源名称"
+msgstr "検索ソース名"
 
 #: Disabled references:1
-msgid "平台服务运行健康状态推送，通过配置 Webhook 地址接收状态消息"
-msgstr "プラットフォームサービスの稼働状況プッシュ、Webhookアドレス設定によるステータスメッセージの受信。"
+msgid "获取当前位置经纬度"
+msgstr "現在位置の緯度・経度取得"
 
 #: Disabled references:1
-msgid "Webhook 地址"
-msgstr "Webhookアドレス"
+msgid "关联当前"
+msgstr "関連する電流"
 
 #: Disabled references:1
-msgid "邮箱和手机号验证"
-msgstr "電子メールと携帯電話番号の認証"
+msgid "未勾选时，用户可查看所有查询结果。勾选后，按照用户对数据的权限查看，隐藏无权限的数据或字段"
+msgstr "チェックされていない場合、ユーザーはすべてのクエリ結果を見ることができます。チェックされている場合、権限のないデータやフィールドは、ユーザーの閲覧権限に応じて非表示になります"
 
 #: Disabled references:1
-msgid "开启后绑定邮箱或手机号时，需要验证合法性"
-msgstr "アクティベーション後に電子メールや携帯電話番号を束ねる際に、正当性の確認が必要です"
+msgid "审批自动通过"
+msgstr "自動承認"
 
 #: Disabled references:1
-msgid "允许非平台管理员创建组织（若禁用，仅平台管理员可创建组织）"
-msgstr "プラットフォーム管理者以外が組織を作成できるようにする（無効の場合、プラットフォーム管理者のみが組織を作成できるようにする）。"
+msgid "验证必填字段"
+msgstr "必須項目の有効化"
 
 #: Disabled references:1
-msgid "管理器"
-msgstr "アドミニストレーターズ"
+msgid "勾选后，当有必填字段为空时不自动通过，仍需进行审批操作。[审批人为空时自动通过]不受此配置影响。"
+msgstr "チェックすると、必須項目が空の場合、自動承認されず、承認プロセスが必要なままとなります。[承認者が空の場合、自動承認する］は、この設定の影響を受けません。"
 
 #: Disabled references:1
-msgid "升级、重启服务，请打开管理器"
-msgstr "サービスのアップグレードと再起動を行うには、マネージャーを開く"
+msgid "通知节点设置"
+msgstr "通知ノードの設定"
 
 #: Disabled references:1
-msgid "访问地址"
-msgstr "アクセスアドレス"
+msgid "需所有审批人通过"
+msgstr "全承認者の可決が必要"
 
 #: Disabled references:1
-msgid "申请上架企业微信通知"
-msgstr "Enterprise WeChat Notificationへの掲載を申請する。"
+msgid "只需一名审批人通过"
+msgstr "承認者は1名のみで問題ありません"
 
 #: Disabled references:1
-msgid "平台用户申请将应用上架到企业微信工作台，通过接口将平台用户申请通知到平台管理员"
-msgstr "プラットフォームユーザーが企業WeChatワークベンチに掲載申請し、プラットフォームユーザーの申請がインターフェースを通じてプラットフォーム管理者に通知される。"
+msgid "审批前更新了记录"
+msgstr "承認前に更新された記録"
 
 #: Disabled references:1
-msgid "通知地址"
-msgstr "通知先"
+msgid "开始审批"
+msgstr "承認開始日"
 
 #: Disabled references:1
-msgid "平台默认协作功能模块，可自定义是否启用"
-msgstr "プラットフォームデフォルトのコラボレーション機能モジュール、有効・無効をカスタマイズ可能"
+msgid "通过后更新了记录"
+msgstr "採用後に更新される記録"
 
 #: Disabled references:1
-msgid "邮件服务"
-msgstr "メールサービス"
+msgid "否决后更新了记录"
+msgstr "リジェクト後に更新された記録"
 
 #: Disabled references:1
-msgid "设置后系统内邮件相关功能均可正常使用"
-msgstr "設定後、メール関連のすべての機能が正常に動作するようになります"
+msgid "新增节点操作明细"
+msgstr "新規ノードの操作内容"
 
 #: Disabled references:1
-msgid "发送邮箱"
-msgstr "メールに送信する"
+msgid "编辑代码片段"
+msgstr "コードスニペットの編集"
 
 #: Disabled references:1
-msgid "服务器"
-msgstr "サーバー"
+msgid "保存代码片段"
+msgstr "コードスニペットの保存"
 
 #: Disabled references:1
-msgid "SSL 链接"
-msgstr "SSLリンク"
+msgid "代码片段名称不能为空"
+msgstr "コードフラグメントの名前を空にすることはできません"
 
 #: Disabled references:1
-msgid "短信模板"
-msgstr "SMSテンプレート"
+msgid "代码片段名称"
+msgstr "コードスニペット名"
 
 #: Disabled references:1
-msgid "腾讯云"
-msgstr "テンセントクラウド"
+msgid "选择代码片段"
+msgstr "コードスニペットを選択"
 
 #: Disabled references:1
-msgid "阿里云"
-msgstr "AliCloud（アリクラウド"
+msgid "插入JavaScript代码片段"
+msgstr "JavaScriptのコードスニペットを挿入する"
 
 #: Disabled references:1
-msgid "短信服务"
-msgstr "ショートメッセージサービス"
+msgid "插入Python代码片段"
+msgstr "Pythonのコードスニペットを挿入"
 
 #: Disabled references:1
-msgid "设置后可发送验证码类型短信"
-msgstr "設定後、CaptchaタイプのSMSを送信することができます。"
+msgid "您确定要删除片段“%0”吗？"
+msgstr "本当にフラグメント\"%0 \"を削除するのでしょうか？"
 
 #: Disabled references:1
-msgid "设置短信服务需要先购买腾讯云或阿里云的「短信服务」，如需自定义短信服务请"
-msgstr "SMSサービスの設定には、まずTencent CloudまたはAliCloudの「SMSサービス」の購入が必要です。"
+msgid "未搜索到"
+msgstr "検索に引っかからない"
 
 #: Disabled references:1
-msgid "寻求技术支持"
-msgstr "テクニカルサポートを希望する"
+msgid "相关的代码片段"
+msgstr "関連するコードスニペット"
 
 #: Disabled references:1
-msgid "%0短信配置服务"
-msgstr "%0 SMSコンフィギュレーションサービス"
+msgid "无代码片段"
+msgstr "コードスニペットがない"
 
 #: Disabled references:1
-msgid "协议 / 隐私"
-msgstr "同意書 / プライバシー"
+msgid "使用时清空现有input参数与代码块"
+msgstr "既存の入力パラメータとコードブロックを使用する場合はクリアします。"
 
 #: Disabled references:1
-msgid "用户通过 Web 移动端单点登录时，必须同意《服务协议》和《隐私政策》后才可登录平台"
-msgstr "ユーザーは、Webモバイルシングルサインオンでプラットフォームにログインする前に、サービス契約とプライバシーポリシーに同意する必要があります。"
+msgid "开启或拖拽到这里"
+msgstr "ここでオンにするか、ドラッグ＆ドロップ"
 
 #: Disabled references:1
-msgid "注册入口"
-msgstr "登録ポータル"
+msgid "关闭或拖拽到这里"
+msgstr "ここで閉じるか、ドラッグ＆ドロップしてください"
 
 #: Disabled references:1
-msgid "显示登录界面注册入口"
-msgstr "ログイン画面登録ポータルを表示"
+msgid "全显示"
+msgstr "フルディスプレイ"
 
 #: Disabled references:1
-msgid "可自定义工作台显示的资源列表项"
-msgstr "ワークベンチに表示されるリソースアイテムのリストをカスタマイズ可能"
+msgid "全隐藏"
+msgstr "完全非表示"
 
 #: Disabled references:1
-msgid "是否开启两步验证 ?"
-msgstr "二段階認証は有効ですか？"
+msgid "按表单字段重置"
+msgstr "フォームフィールドによるリセット"
 
 #: Disabled references:1
-msgid "开启后，除了基于账号密码的登录认证，还需要通过手机号或邮箱接收验证码进行二次认证，所以请确保组织成员的手机号、邮箱的合法性，同时确保系统内的短信服务、邮件服务已正常启用。"
-msgstr "開設後、アカウントパスワードによるログイン認証の他に、二次認証として携帯電話番号や電子メールによる認証コードを受け取る必要がありますので、組織メンバーの携帯電話番号や電子メールアドレスの正当性を確認し、システム内のSMSサービスや電子メールサービスが正常に有効であることを確認してください。"
+msgid "刷新加密规则字段值"
+msgstr "暗号化ルールのフィールド値をリフレッシュ"
 
 #: Disabled references:1
-msgid "登录验证"
-msgstr "ログイン認証"
+msgid "显示样式"
+msgstr "表示スタイル"
 
 #: Disabled references:1
-msgid "二次验证"
-msgstr "二次検証"
+msgid "连接线样式"
+msgstr "接続ケーブルのスタイル"
 
 #: Disabled references:1
-msgid "此项为“登录二次验证”，开启后，除了基于账号密码的登录认证，还需要通过手机号或邮箱接收验证码进行二次认证，所以请确保组织成员的手机号、邮箱的合法性，同时确保系统内的短信服务、邮件服务已正常启用。"
-msgstr "この項目は「ログイン時の二次認証」で、開設後、アカウントパスワードに基づくログイン認証に加えて、二次認証のために携帯電話番号や電子メールで認証コードを受け取る必要がありますので、組織メンバーの携帯電話番号や電子メールアドレスの正当性を確認し、システム内のSMSサービスやメールサービスが正常に有効であることを確認してください。"
+msgid "竖向层级数"
+msgstr "垂直方向のレベル数"
 
 #: Disabled references:1
-msgid "二次验证方式优先级"
-msgstr "二次認証方式の優先順位"
+msgid "启用业务规则"
+msgstr "ビジネスルールの有効化"
 
 #: Disabled references:1
-msgid "登录时优先采用设置的验证方式进行验证"
-msgstr "ログイン時の優先認証方式が設定されている"
-
-#: Disabled references:1
-msgid "不过期"
-msgstr "みのらなかったっ"
-
-#: Disabled references:1
-msgid "1天"
-msgstr "1日"
-
-#: Disabled references:1
-msgid "2天"
-msgstr "2日"
-
-#: Disabled references:1
-msgid "5天"
-msgstr "5日"
-
-#: Disabled references:1
-msgid "15天"
-msgstr "15日"
-
-#: Disabled references:1
-msgid "密码有效期"
-msgstr "パスワードの有効期限"
-
-#: Disabled references:1
-msgid "密码过期后，用户需设置新密码才能使用系统"
-msgstr "パスワードの有効期限が切れた後、システムを利用するためには、新しいパスワードを設定する必要があります"
-
-#: Disabled references:1
-msgid "过期天数"
-msgstr "有効期限切れ日"
-
-#: Disabled references:1
-msgid "首次登录需修改密码"
-msgstr "初回ログイン時にパスワードの変更が必要"
-
-#: Disabled references:1
-msgid "此设置仅对自主创建或导入的预设账号生效"
-msgstr "この設定は、お客様が作成またはインポートした事前定義されたアカウントにのみ有効です。"
-
-#: Disabled references:1
-msgid "密码规则"
-msgstr "パスワードルール"
-
-#: Disabled references:1
-msgid "启用后，平台用户密码安全策略将按配置进行强校验"
-msgstr "有効な場合、プラットフォームユーザーのパスワードのセキュリティポリシーは、設定された通りに強く検証されます"
-
-#: Disabled references:1
-msgid "提示说明"
-msgstr "チップノート"
-
-#: Disabled references:1
-msgid "开启时，平台账户可自行配置设备登录限制(账户管理-->安全设置)；关闭后，平台用户仅可在同设备类型登录一个终端，例如在Web浏览器登录后，将会使其他Web浏览器登录的同一账号强制退出登录，以确保账户登录安全，手机APP同理"
-msgstr "オンにすると、プラットフォームアカウントは、独自の端末ログイン制限を設定できます（アカウント管理 -> セキュリティ設定）。オフにすると、プラットフォームユーザーは、同じデバイスタイプの1つの端末にしかログインできません。例えば、Webブラウザでログインした後、他のWebブラウザでログインした同じアカウントは、アカウントログインのセキュリティを確保するために強制ログアウトします。モバイルアプリも同様です"
-
-#: Disabled references:1
-msgid "用户密码"
-msgstr "ユーザーパスワード"
-
-#: Disabled references:1
-msgid "关闭飞书集成后，无法再从飞书处进入应用"
-msgstr "FeiShiとの連携を終了した後、FeiShiからアプリケーションにアクセスできなくなる"
-
-#: Disabled references:1
-msgid "从飞书通讯录同步到该系统"
-msgstr "FeiBookのアドレス帳から本システムに同期する"
-
-#: Disabled references:1
-msgid "单应用版暂不支持线上续费，请联系顾问进行续费"
-msgstr "シングルアプリ版はオンライン更新ができませんので、更新の際は担当コンサルタントにお問い合わせください"
-
-#: Disabled references:1
-msgid "多组织共享"
-msgstr "複数の組織で共有する"
-
-#: Disabled references:1
-msgid "安装手机移动客户端"
-msgstr "モバイルクライアントのインストール"
-
-#: Disabled references:1
-msgid "此密钥是用于访问企业授权开放接口的凭证"
-msgstr "このキーは、Enterprise Authorization Open Interfaceにアクセスするために使用されるクレデンシャルです。"
-
-#: Disabled references:1
-msgid "您可以通过组织的二级域名，以SSO登录方式登录到平台"
-msgstr "組織のセカンダリドメイン名で、SSOログインとしてプラットフォームにログインすることができます"
-
-#: Disabled references:1
-msgid "关闭钉钉集成后，无法再从钉钉处进入应用"
-msgstr "ピンニング統合を終了した後、ピンニングからアプリにアクセスできなくなる"
-
-#: Disabled references:1
-msgid "从钉钉通讯录同步到该系统"
-msgstr "ピン留めした連絡先から本システムにシンク"
-
-#: Disabled references:1
-msgid "推荐尺寸"
-msgstr "推奨サイズ"
-
-#: Disabled references:1
-msgid "确认删除 %0 ?"
-msgstr "削除の確認 %0 ?"
-
-#: Disabled references:1
-msgid "编辑应用"
-msgstr "アプリケーションの編集"
-
-#: Disabled references:1
-msgid "App Key"
-msgstr "アプリのキー"
-
-#: Disabled references:1
-msgid "App Secret"
-msgstr "アプリの秘密"
-
-#: Disabled references:1
-msgid "应用图标"
-msgstr "アプリケーションアイコン"
-
-#: Disabled references:1
-msgid "应用简介"
-msgstr "アプリケーションプロファイル"
-
-#: Disabled references:1
-msgid "应用地址"
-msgstr "応募先"
-
-#: Disabled references:1
-msgid "回调地址"
-msgstr "コールバックアドレス"
-
-#: Disabled references:1
-msgid "第三方应用管理"
-msgstr "サードパーティアプリケーションの管理"
-
-#: Disabled references:1
-msgid "简介"
-msgstr "はじめに"
-
-#: Disabled references:1
-msgid "2. 为保证功能的正常使用，授权时请保持默认选择，把开放平台账号管理权限统一授权给此系统"
-msgstr "2. 機能を適切に使用するために、権限のデフォルトオプションを維持し、本システムにオープンプラットフォームのアカウント管理権限を付与してください"
-
-#: Disabled references:1
-msgid "取消授权，本组织公众号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。"
-msgstr "認証の取り消しにより、組織の公開サイトに関連するすべての情報（外部ユーザー、テンプレートメッセージを含むがこれに限定されない）が無効になります 注意してください。"
-
-#: Disabled references:1
-msgid "绑定公众号后，外部门户将可以通过指定的域名获取该服务号下微信用户的授权及openID，可以通过工作流为外部的微信用户推送模板消息"
-msgstr "公開番号をバインドした後、外部ポータルは指定されたドメイン名を通じてサービス番号下のWeChatユーザーの認証とopenIDを取得することができ、ワークフローを通じて外部のWeChatユーザー向けのテンプレートメッセージをプッシュすることができます。"
-
-#: Disabled references:1
-msgid "1.为了可以获取到 openID及基本信息 或使用模版消息功能必须选择 "
-msgstr "1.openIDや基本情報を取得したり、テンプレートメッセージ機能を利用するためには、以下の選択が必要です。"
-
-#: Disabled references:1
-msgid "已认证的微信服务号"
-msgstr "認定WeChatサービス番号"
-
-#: Disabled references:1
-msgid "2.为获取微信授权需要将您公司的访问域名加入到公众号的网页授权域名内"
-msgstr "2.WeChatのライセンスを取得するためには、公開されているウェブライセンスのドメインに自社のアクセスドメインを追加する必要があります"
-
-#: Disabled references:1
-msgid "关闭Welink集成后，无法再从Welink集成处进入应用"
-msgstr "Welink連携を終了した後、Welink連携からアプリケーションにアクセスできなくなる"
-
-#: Disabled references:1
-msgid "从Welink通讯录同步到该系统"
-msgstr "Welinkのアドレス帳から本システムに同期させる"
-
-#: Disabled references:1
-msgid "申请通过后，可将应用安装到Welink集成工作台！"
-msgstr "申請が承認されると、Welink Integration Workbenchにアプリケーションをインストールすることができます！"
-
-#: Disabled references:1
-msgid "关闭企业微信集成后，无法再从企业微信处进入应用"
-msgstr "Enterprise Wechatの連携を終了した後、Enterprise Wechatからアプリにアクセスできなくなった"
-
-#: Disabled references:1
-msgid "从企业微信通讯录同步到该系统"
-msgstr "企業のWeChatアドレス帳から本システムに同期させる"
-
-#: Disabled references:1
-msgid "申请通过后，可将该系统应用安装到企业微信工作台！"
-msgstr "申請が承認されると、システムアプリケーションをEnterprise WeChat Workbenchにインストールすることができます！"
-
-#: Disabled references:1
-msgid "开启后，可使用企业微信扫一扫，直接登录"
-msgstr "開封後は、Enterprise WeChatを使用してスワイプし、直接ログインすることができます"
-
-#: Disabled references:1
-msgid "申请加入一个组织，开始创建应用"
-msgstr "組織への参加を申請し、アプリケーションの作成を開始する"
-
-#: Disabled references:1
-msgid "感谢你尝试安装！我们精心挑选了两个初始应用，供您体验。"
-msgstr "インストールをお試しいただき、ありがとうございます！今回は、初期アプリケーションを2つ厳選し、体験していただきました。"
-
-#: Disabled references:1
-msgid "您未拥有任何组织，申请加入组织"
-msgstr "組織をお持ちでない方、入会を希望される方"
-
-#: Disabled references:1
-msgid "邮箱地址"
-msgstr "メールアドレス"
-
-#: Disabled references:1
-msgid "新手机号码"
-msgstr "新しい携帯電話番号"
-
-#: Disabled references:1
-msgid "{0}修改失败"
-msgstr "{0} 変更に失敗しました"
-
-#: Disabled references:1
-msgid "开启后，登录系统会收到微信通知"
-msgstr "オンにすると、システムにログインすると、WeChatの通知が表示されるようになります"
-
-#: Disabled references:1
-msgid "生成失败时，请点击此处刷新试试"
-msgstr "生成に失敗した場合は、こちらをクリックして更新してお試しください。"
-
-#: Disabled references:1
-msgid "抱歉，操作过于频繁或者创建的组织已经达到上限，请升级版本！"
-msgstr "申し訳ありませんが、操作が多すぎるか、作成された組織の数が限界に達しているため、バージョンをアップしてください！"
-
-#: Disabled references:1
-msgid "账号已被锁定，请稍后再试"
-msgstr "アカウントがロックされました。後でもう一度試してください"
-
-#: Disabled references:1
-msgid "密码已过期，请重置后重新操作"
-msgstr "パスワードの有効期限が切れているため、再設定して再度操作してください。"
-
-#: Disabled references:1
-msgid "《服务协议》"
-msgstr "サービス規約"
-
-#: Disabled references:1
-msgid "《隐私政策》"
-msgstr "個人情報保護方針"
-
-#: Disabled references:1
-msgid "已经有账号"
-msgstr "すでにアカウントをお持ちの方"
-
-#: Disabled references:1
-msgid "验证码发送过于频繁"
-msgstr "Captchaの送信頻度が高すぎる"
-
-#: Disabled references:1
-msgid "收不到验证码？请重新获取"
-msgstr "認証コードを受信できないのですか？再度取得してください"
-
-#: Disabled references:1
-msgid "对填写的手机号字段进行短信验证，以确保为本人有效手机号。"
-msgstr "記入された携帯電話番号の欄がお客様の有効な携帯電話番号であることをSMSで確認します。"
-
-#: Disabled references:1
-msgid "最多添加%0个字段"
-msgstr "最大 %0 のフィールドを追加する"
-
-#: Disabled references:1
-msgid "%0/%1"
-msgstr "%0/%1"
-
-#: Disabled references:1
-msgid "应用市场"
-msgstr "アプリケーション市場"
-
-#: Disabled references:1
-msgid "服务器 id"
-msgstr "サーバーID"
-
-#: Disabled references:1
-msgid "添加密钥"
-msgstr "キーを追加する"
-
-#: Disabled references:1
-msgid "（添加后请注意关联组织）"
-msgstr "(追加後は関連する組織にご注意ください)"
-
-#: Disabled references:1
-msgid "您确认要关联新组织吗 ？"
-msgstr "本当に新しい組織に所属していいのでしょうか？"
-
-#: Disabled references:1
-msgid "关联后会占用租户名额，且不可取消"
-msgstr "アフィリエイトはテナントプレイスを占有するため、キャンセルはできません"
-
-#: Disabled references:1
-msgid "关联成功"
-msgstr "アソシエイトの成功"
-
-#: Disabled references:1
-msgid "关联失败"
-msgstr "リンケージ不良"
-
-#: Disabled references:1
-msgid "关联组织"
-msgstr "所属団体"
-
-#: Disabled references:1
-msgid "关联后会占租户名额，且不可取消"
-msgstr "アフィリエイトはテナントプレイスを占有するため、キャンセルはできません"
-
-#: Disabled references:1
-msgid "大型企业版"
-msgstr "ラージエンタープライズエディション"
-
-#: Disabled references:1
-msgid "教学版"
-msgstr "ティーチングエディション"
-
-#: Disabled references:1
-msgid "生效中"
-msgstr "インフォース"
-
-#: Disabled references:1
-msgid "未生效"
-msgstr "効力なし"
-
-#: Disabled references:1
-msgid "付费升级"
-msgstr "有償アップグレード"
-
-#: Disabled references:1
-msgid "密钥"
-msgstr "キー"
-
-#: Disabled references:1
-msgid "升级服务到期"
-msgstr "アップグレードサービス予定"
-
-#: Disabled references:1
-msgid "行记录/表"
-msgstr "行のレコード/テーブル"
-
-#: Disabled references:1
-msgid "工作流执行/月"
-msgstr "ワークフローの実行／月"
-
-#: Disabled references:1
-msgid "注册并申请"
-msgstr "登録・応募"
-
-#: Disabled references:1
-msgid "登录并申请"
-msgstr "ログインして応募する"
-
-#: Disabled references:1
-msgid "请输入0以上的整数"
-msgstr "0以上の整数を入力してください"
-
-#: Disabled references:1
-msgid "数据操作设置"
-msgstr "データ操作の設定"
-
-#: Disabled references:1
-msgid "工作流获取批量数据上限（最大2000）"
-msgstr "ワークフローフェッチバッチデータ制限（最大2000件）"
-
-#: Disabled references:1
-msgid "条"
-msgstr "記事"
-
-#: Disabled references:1
-msgid "子流程可用数据源记录数上限（最大20000）"
-msgstr "サブプロセスのデータソースから利用可能な最大レコード数（最大20,000件）"
-
-#: Disabled references:1
-msgid "工作表Excel导入行数上限（最大40000）"
-msgstr "ワークシートExcelインポート時の最大行数（最大40,000行）"
-
-#: Disabled references:1
-msgid "工作表批量数据操作上限（最大10000）"
-msgstr "ワークシートのバッチデータ操作の上限（最大10000件）"
-
-#: Disabled references:1
-msgid "附件上传上限（单次）"
-msgstr "添付ファイルのアップロード制限（シングル）"
-
-#: Disabled references:1
-msgid "应用批量导出工作表上限（最大500）"
-msgstr "一括書き出しワークシートの最大数（最大500枚）を適用する。"
-
-#: Disabled references:1
-msgid "请输入服务协议"
-msgstr "サービス規約を入力してください"
-
-#: Disabled references:1
-msgid "请输入隐私政策"
-msgstr "プライバシーポリシーを入力してください"
-
-#: Disabled references:1
-msgid "服务协议和隐私政策"
-msgstr "サービス規約とプライバシーポリシー"
-
-#: Disabled references:1
-msgid "请根据自己所在组织的情况填写下方的服务协议和隐私政策"
-msgstr "以下のサービス契約書とプライバシーポリシーは、お客様の組織に合わせてご記入ください。"
-
-#: Disabled references:1
-msgid "确定退出编辑 ?"
-msgstr "OK to exit editing ?"
-
-#: Disabled references:1
-msgid "退出后，已编辑的内容不会保存"
-msgstr "編集したコンテンツが終了後に保存されない"
-
-#: Disabled references:1
-msgid "请输入发送邮箱"
-msgstr "送信メールを入力してください"
-
-#: Disabled references:1
-msgid "发送邮箱格式错误"
-msgstr "メール送信の形式が違う"
-
-#: Disabled references:1
-msgid "请输入端口"
-msgstr "ポートを入力してください"
-
-#: Disabled references:1
-msgid "请输入收件邮箱"
-msgstr "受信用メールアドレスを入力してください"
-
-#: Disabled references:1
-msgid "邮件服务设置"
-msgstr "メールサービス設定"
-
-#: Disabled references:1
-msgid "使用 SSL 链接"
-msgstr "SSLリンクの使用"
-
-#: Disabled references:1
-msgid "发送测试邮件"
-msgstr "テストメールを送信する"
-
-#: Disabled references:1
-msgid "收件邮箱"
-msgstr "受信メール"
+msgid "在表格中生效业务规则，但会影响表格性能"
+msgstr "ビジネスルールはフォームに反映されますが、フォームのパフォーマンスに影響を与える可能性があります。"
 
 #: Disabled references:1
 msgid "请输入正确的url"
 msgstr "正しいURLを入力してください"
 
 #: Disabled references:1
-msgid "管理器访问地址"
-msgstr "管理者アクセスアドレス"
+msgid "画布"
+msgstr "キャンバス"
 
 #: Disabled references:1
-msgid "密码规则设置"
-msgstr "パスワードルール設定"
+msgid "创建一个画布页面，在页面中添加统计报表、按钮、视图等组件"
+msgstr "キャンバスページを作成し、統計レポート、ボタン、ビューなどのコンポーネントをページに追加します"
 
 #: Disabled references:1
-msgid "密码规则不能为空"
-msgstr "パスワードルールを空にすることはできません"
+msgid "将一个已有外部链接作为页面"
+msgstr "既存の外部リンクをページとして使用"
 
 #: Disabled references:1
-msgid "密码规则提示说明不能为空"
-msgstr "パスワードルールのプロンプトには、「空にはできない」と記載されています"
+msgid "嵌入页面"
+msgstr "エンベデッドページ"
 
 #: Disabled references:1
-msgid "密码规则（正则表达式）"
-msgstr "パスワードルール（正規表現）"
+msgid "嵌入页面时只支持 http:// 或 https:// 开头的链接"
+msgstr "ページを埋め込む場合、http:// または https:// で始まるリンクのみがサポートされます。"
 
 #: Disabled references:1
-msgid "请输入密码正则表达式"
-msgstr "パスワードの正規表現を入力してください"
+msgid "隐藏标题栏"
+msgstr "タイトルバーを隠す"
 
 #: Disabled references:1
-msgid "请输入密码正则表达式说明文字"
-msgstr "パスワードの正規表現の説明テキストを入力してください"
+msgid "Excel导入"
+msgstr "エクセルインポート"
 
 #: Disabled references:1
-msgid "请输入正确的地址"
-msgstr "正しいアドレスを入力してください"
+msgid "粘贴导入"
+msgstr "ペーストインポート"
 
 #: Disabled references:1
-msgid "申请上架企业微信通知地址"
-msgstr "法人向けWeChat通知アドレスの申請"
+msgid "导入数据"
+msgstr "データの取り込み"
 
 #: Disabled references:1
-msgid "保存失败，请检查配置信息"
-msgstr "保存に失敗しました、設定情報を確認してください"
+msgid "Excel文件解析失败！"
+msgstr "Excelファイルのパースに失敗しました！"
 
 #: Disabled references:1
-msgid "设置完成"
-msgstr "設定完了"
+msgid "已隐藏不可导入字段。使用ctrl+v从excel中粘贴数据，ctr+z撒销上次操作"
+msgstr "インポート不可能なフィールドを非表示にしました。ctrl+vでExcelからデータを貼り付け、ctr+zで最後の操作をキャンセルします。"
 
 #: Disabled references:1
-msgid "模板 Code不能为空"
-msgstr "テンプレートコードを空にすることはできません"
+msgid "分隔符"
+msgstr "セパレーター"
 
 #: Disabled references:1
-msgid "模板类型"
-msgstr "テンプレートタイプ"
+msgid "分号(:)"
+msgstr "セミコロン(:)"
 
 #: Disabled references:1
-msgid "模板 code"
-msgstr "テンプレートコード"
+msgid "竖线("
+msgstr "縦線("
 
 #: Disabled references:1
-msgid "变量参数"
-msgstr "可変型パラメータ"
+msgid "逗号(,)"
+msgstr "カンマ（、）。"
 
 #: Disabled references:1
-msgid "（暂仅支持验证码）"
-msgstr "(現時点ではCaptchaのみ)"
+msgid "检查即将导入的数据，你可以调整数据导入的对应字段"
+msgstr "インポートするデータを確認し、データインポートの対応フィールドを調整できます"
 
 #: Disabled references:1
-msgid "模版 Code"
-msgstr "テンプレートコード"
+msgid "导入 %0 行数据， %1/共 %2 列"
+msgstr "データの %0 行、%1/ 合計 %2 列をインポートします。"
 
 #: Disabled references:1
-msgid "如：\"您的验证码是{1}，感谢您的使用\"，则参数为 {1}。"
-msgstr "例：「あなたの認証コードは{1}です、ご利用ありがとうございます」、パラメータは{1}です。"
+msgid "查看角色"
+msgstr "キャラクターを見る"
 
 #: Disabled references:1
-msgid "如：\"您的验证码是${code}，感谢您的使用\"，则参数为 code。"
-msgstr "例：「あなたの認証コードは${code}です、ご利用ありがとうございます」、パラメータはcodeとなります。"
+msgid "取消管理员"
+msgstr "キャンセルアドミニストレーター"
 
 #: Disabled references:1
-msgid "当前版本最多可创建30个应用，请升级版本"
-msgstr "現在のバージョンでは、最大30個のアプリケーションを作成することができますので、バージョンアップをお願いします。"
+msgid "移交应用"
+msgstr "ハンドオーバアプリケーション"
 
 #: Disabled references:1
-msgid "当前版本最多可创建100个工作表，请升级版本"
-msgstr "現在のバージョンでは、最大100枚のワークシートを作成することができますので、バージョンアップをお願いします。"
+msgid "多数值时不能同时配置维度和分组"
+msgstr "ディメンジョンとグループの両方に複数の値を設定することはできません。"
 
 #: Disabled references:1
-msgid "当前版本工作表下最多可创建10万条行记录，请升级版本"
-msgstr "現在のバージョンのワークシートは、最大100,000行まで作成できますので、バージョンを上げてください"
+msgid "文本颜色"
+msgstr "文字色"
 
 #: Disabled references:1
-msgid "当前版本最多只能存在1个应用，请联系顾问提供支持"
-msgstr "現在のバージョンでは最大1つのアプリケーションしか存在できませんので、サポートについてはコンサルタントにお問い合わせください"
+msgid "无可用加密规则，请"
+msgstr "暗号化ルールはありません、ご了承ください"
 
 #: Disabled references:1
-msgid "当前版本最多可创建50个工作表，请联系顾问提供支持"
-msgstr "現在のバージョンでは、最大50枚のワークシートを作成できます。サポートについては、コンサルタントにお問い合わせください。"
+msgid "前往组织后台 "
+msgstr "組織のバックオフィスへ"
 
 #: Disabled references:1
-msgid "当前版本工作表下最多可创建10万条行记录，请联系顾问提供支持"
-msgstr "ワークシートの現在のバージョンは、最大10万行のレコードを作成することができます、サポートについては、コンサルタントにお問い合わせください"
+msgid "进行配置"
+msgstr "コンフィギュレーションの実行"
 
 #: Disabled references:1
-msgid "导出的应用工作表总数上限%0个"
-msgstr "エクスポートしたアプリケーション・ワークシートの最大数 %0"
+msgid "设置加密规则"
+msgstr "暗号化ルールの設定"
 
 #: Disabled references:1
-msgid "导出的应用共%0张表，已超过上限%1张，请重新选择"
-msgstr "エクスポートされたアプリケーションの合計数は %0 テーブルで、制限 %1 を超えましたので、再選択してください。"
+msgid "注意：设置后，新保存的字段值将按按照新规则加密，历史值不会自动刷新。之后您需要手动刷新历史数据，未刷新时历史数据可查看，但无法被筛选。"
+msgstr "注：一度設定すると、新しく保存されたフィールド値は新しいルールに従って暗号化され、履歴値は自動的にリフレッシュされません。この場合、履歴データを手動で更新する必要があります。履歴データが更新されない場合、閲覧は可能ですが、フィルタリングはできません。"
 
 #: Disabled references:1
-msgid "填入应用名称、应用描述"
-msgstr "アプリケーション名、アプリケーションの説明文を記入する"
+msgid "如何刷新数据？"
+msgstr "データをリフレッシュするにはどうしたらいいですか？"
 
 #: Disabled references:1
-msgid "2.切换到“机器人”，启用机器人功能，这样在飞书消息测就能直接收到内部的流程、应用消息"
-msgstr "2.ボット」に切り替え、ボット機能を有効にすることで、Fishuメッセージテストで内部プロセスやアプリケーションのメッセージを直接受信できるようになります。"
+msgid "当前规则"
+msgstr "現在のルール"
 
 #: Disabled references:1
-msgid "“凭证与基础信息”可以查看该App的ID和Secret；回到该系统管理后台，下一步录入信息将会用到"
-msgstr "資格情報と基本情報」では、App IDとSecretを確認できます。システム管理のバックオフィスに戻ると、次のように入力します。"
+msgid "规则已删除"
+msgstr "ルール削除"
 
 #: Disabled references:1
-msgid "升级产品"
-msgstr "バージョンアップした製品"
+msgid "新规则"
+msgstr "新ルール"
 
 #: Disabled references:1
-msgid "对不起，您的余额不足！"
-msgstr "申し訳ありませんが、残高が不足しています！"
+msgid "数据加密"
+msgstr "データの暗号化"
 
 #: Disabled references:1
-msgid "c. 填入应用名称、应用描述、应用图标"
-msgstr "c. アプリケーション名、アプリケーションの説明、アプリケーションのアイコンを入力します。"
+msgid "对字段数据进行加密存储，保护重要信息。注意：字段加密后。一些使用将会受限。"
+msgstr "フィールドデータを暗号化して保存し、重要な情報を保護します。注）フィールドが暗号化されている場合。一部の利用が制限されます。"
 
 #: Disabled references:1
-msgid "切换至“基础信息”，将AgentId、AppKey、AppSecret分别填入系统的“组织管理 - 集成 - 钉钉 - 对接信息录入”对应输入框内"
-msgstr "基本情報」に切り替え、システムの「組織管理-統合-ピン留め-ドッキング情報入力」でAgentId、AppKey、AppSecretを対応する入力ボックスに入力します。"
+msgid "了解详情"
+msgstr "詳細はこちら"
 
 #: Disabled references:1
-msgid "首页可以找到CorpId，填入对应输入框内"
-msgstr "CorpIdはホームページで確認できますので、該当する入力ボックスに入力してください。"
+msgid "支持拼音排序"
+msgstr "ピンインの並び替えに対応"
 
 #: Disabled references:1
-msgid "当前用户数已超出人数限制"
-msgstr "現在のユーザー数が人数制限を超えました"
+msgid "勾选后，中文可按拼音A-Z进行排序。如无需要时建议不勾选"
+msgstr "チェックを入れると、中国語をピンインA-Zでソートすることができます。必要ない場合は、チェックを外しておくことをお勧めします。"
 
 #: Disabled references:1
-msgid "扩展信息"
-msgstr "%0 ユーザー拡張情報テーブル"
+msgid "查询关联当前"
+msgstr "クエリーアソシエーションカレント"
 
 #: Disabled references:1
-msgid "可自定义组织别名和登录背景图片"
-msgstr "組織名やログイン時の背景画像をカスタマイズ可能"
+msgid " - %0：%1"
+msgstr " - %0: %1"
 
 #: Disabled references:1
-msgid "您设置的别名已经被占用"
-msgstr "設定したエイリアスはすでに使用されています"
+msgid "当前字段已加密，按照精确搜索查询"
+msgstr "現在のフィールドは暗号化され、完全検索で検索"
 
 #: Disabled references:1
-msgid "扩展信息设置"
-msgstr "拡張情報設定"
+msgid "节点开始前更新"
+msgstr "ノードの開始前に更新"
 
 #: Disabled references:1
-msgid "设置组织别名"
-msgstr "組織の別名を設定する"
+msgid "流程进入此节点且审批开始前，更新数据对象的字段值（退回至此节点也会触发更新）"
+msgstr "プロセスがこのノードに入り、承認が始まる前に、データオブジェクトのフィールド値を更新します（このノードに戻ると更新も行われます）。"
 
 #: Disabled references:1
-msgid "组织别名"
-msgstr "組織名エイリアス"
+msgid "通过后更新"
+msgstr "採用後のアップデート"
 
 #: Disabled references:1
-msgid "可通过设置组织别名来实现更多的使用场景（如：LDAP 登录时指定组织）。"
-msgstr "組織のエイリアスを設定することで、さらなる利用シーンを実現できます（LDAPにログインする際に組織を指定する等）。"
+msgid "通过此节点后，更新数据对象的字段值"
+msgstr "このノードを通過した後、データオブジェクトのフィールド値を更新します。"
 
 #: Disabled references:1
-msgid "登录背景图片"
-msgstr "ログイン時の背景画像"
+msgid "否决后更新"
+msgstr "不採用後更新"
 
 #: Disabled references:1
-msgid "中文名"
-msgstr "中国名"
+msgid "此节点被否决后，更新数据对象的字段值"
+msgstr "このノードが拒否された後、データオブジェクトのフィールド値を更新します。"
 
 #: Disabled references:1
-msgid "2.点击”设置接口权限”，开通集成需要用到的接口权限"
-msgstr "2.インターフェース許可の設定」をクリックすると、統合に必要なインターフェース許可が表示されます"
+msgid "必须先选择一个对象后，才能设置数据更新"
+msgstr "データの更新を設定する前に、オブジェクトが選択されている必要があります"
 
 #: Disabled references:1
-msgid "将应用安装企业微信工作台"
-msgstr "Enterprise WeChat Workbenchにアプリをインストールする。"
+msgid "代码片段不允许为空"
+msgstr "コードスニペットは空白にすることはできません。"
 
 #: Disabled references:1
-msgid "企业微信扫码登陆（可选）"
-msgstr "エンタープライズWeChatスイープコードログイン（オプション）"
+msgid "保存到代码片段库"
+msgstr "コードスニペットライブラリに保存"
 
 #: Disabled references:1
-msgid "1.填写授权回调域"
-msgstr "1.認可コールバックフィールドを記入する"
+msgid "代码片段库"
+msgstr "コードスニペットライブラリ"
 
 #: Disabled references:1
-msgid "2.启用该功能"
-msgstr "2.この機能を有効にする"
+msgid "编辑测试数据"
+msgstr "テストデータの編集"
 
 #: Disabled references:1
-msgid "填入应用名称"
-msgstr "アプリケーション名を記入する"
+msgid "流程进入此节点且填写开始前，更新数据对象的字段值（退回至此节点也会触发更新）"
+msgstr "プロセスがこのノードに入り、充填が始まる前に、データオブジェクトのフィールド値を更新します（このノードに戻ると、更新もトリガーされます）。"
 
 #: Disabled references:1
-msgid "用户服务协议和隐私政策"
-msgstr "ユーザーサービス規約とプライバシーポリシー"
+msgid "新建或选择已有代码片段"
+msgstr "新規作成または既存のコードスニペットを選択"
 
 #: Disabled references:1
-msgid "您拒绝了我们的用户服务协议和隐私政策，很遗憾无法继续提供服务！请手动关闭页面后退出。"
-msgstr "当社のユーザーサービス契約およびプライバシーポリシーを拒否されたため、残念ながらサービスの提供を継続することができません！手動でページを閉じ、終了してください。"
+msgid "直接选择已有的代码片段"
+msgstr "既存のコードスニペットを直接選択可能"
 
 #: Disabled references:1
-msgid "再次查看"
-msgstr "もう一度確認する"
+msgid "复制整个分支"
+msgstr "ブランチ全体をコピー"
 
 #: Disabled references:1
-msgid "为了更好保护您的个人信息安全，在使用我们的产品前请仔细阅读并同意我们的%0和%1，我们将严格保护您的个人信息和合法权益。"
-msgstr "お客様の個人情報の安全性をより高めるため、弊社製品をご利用になる前に、弊社の%0と%1にご同意いただき、お客様の個人情報と法的権利を厳格に保護します。"
+msgid "预置常用项作为模板，帮助操作人快捷填写"
+msgstr "オペレーターが素早く記入できるように、あらかじめ共通項目をテンプレートとして作成。"
 
 #: Disabled references:1
-msgid "同意并继续"
-msgstr "同意して継続する"
+msgid "查找字段"
+msgstr "フィールドを探す"
 
 #: Disabled references:1
-msgid "邀请用户并发送短信"
-msgstr "ユーザーを招待してSMSを送信する"
+msgid "获取流程操作明细"
+msgstr "プロセス操作の詳細な内訳を知ることができます"
 
 #: Disabled references:1
-msgid "注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。"
-msgstr "登録が開始され、監査が行われた後、登録ユーザーにはSMSで監査結果（合格または不合格）が通知されます。招待通知は、外部ポータルタイプが非公開に設定され、ユーザーが再度追加され、SMSコンテンツのカスタマイズがサポートされている場合にも送信されます。"
+msgid "选择一个子表或关联表，系统将于每个节点完成后，自动同步本流程的各人工节点的操作明细至该表"
+msgstr "サブテーブルまたは関連テーブルを選択すると、各ノードの完了時に、プロセスの各手動ノードの操作内容がこのテーブルに自動的に同期されます"
 
 #: Disabled references:1
-msgid "注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对邮件内容自定义。"
-msgstr "登録が開始され、監査が行われた後、登録ユーザーには監査結果（合格または不合格）がメールで通知されます。招待通知は、外部ポータルタイプが非公開に設定され、ユーザーが再度追加された後も送信され、メール内容のカスタマイズがサポートされています。"
+msgid "当前字段已加密，只支持按照"
+msgstr "現在のフィールドは暗号化され、以下のようにのみサポートされます。"
 
 #: Disabled references:1
-msgid "上传失败"
-msgstr "アップロード失敗"
+msgid "下拉框搜索设置"
+msgstr "ドロップダウン・ボックスの検索設定"
 
 #: Disabled references:1
-msgid "可恢复%0天内删除的字段"
-msgstr "0日以内に削除されたフィールドを復元することができます。"
+msgid "横向显示"
+msgstr "横型ディスプレイ"
 
 #: Disabled references:1
-msgid "删除后可在字段回收站保留%0天（免费版删除后无法恢复）"
-msgstr "削除後%0日間、フィールドのごみ箱に保管可能（無料版は削除後の復旧は不可）"
+msgid "竖向显示"
+msgstr "縦型ディスプレイ"
 
 #: Disabled references:1
-msgid "删除后可在字段回收站保留%0天"
-msgstr "削除後、フィールドのごみ箱に %0 日間保持可能"
+msgid "混合显示"
+msgstr "ミックスディスプレイ"
 
 #: Disabled references:1
-msgid "添加水印设置只对App有效，勾选后 不支持在App拍摄照片时修改水印"
-msgstr "透かしを追加する設定はアプリのみで、チェックを入れるとアプリで写真を撮影した際の透かしの変更に対応しない"
+msgid "直线"
+msgstr "ストレートライン"
 
 #: Disabled references:1
-msgid "现在开始搭建你自己的业务系统吧。"
-msgstr "今すぐ、あなただけのビジネスシステムを構築しましょう。"
+msgid "子表、关联记录、查询记录（列表）"
+msgstr "サブテーブル、リンクレコード、検索レコード（リスト）"
 
 #: Disabled references:1
-msgid "最大支持批量执行%0行记录，是否只选中并执行前%0行数据？"
-msgstr "レコード数 %0 行のバッチ実行の最大サポートは、最初の %0 行のデータのみを選択し実行するのですか？"
+msgid "查询记录"
+msgstr "お問い合わせの記録"
 
 #: Disabled references:1
-msgid "%0天内可在 回收站 内找回已删除%1，无编辑权限的数据无法删除。"
-msgstr "削除された%1は、%0日以内にごみ箱に回収することができ、編集権限のないデータは削除することができません。"
+msgid "当前有尚未保存的更改，您在打开新页面前是否需要先保存这些更改"
+msgstr "現在、未保存の変更がありますが、新しいページを開く前に保存する必要がありますか？"
 
 #: Disabled references:1
-msgid "批量操作单次最大支持%0行记录，点击删除后将只删除前%0行记录"
-msgstr "一括操作では、1回の操作で最大%0行まで削除でき、Deleteをクリックすると最初の%0行だけが削除されます。"
+msgid "暂不保存"
+msgstr "一時的に保存されない"
 
 #: Disabled references:1
-msgid "当前所选记录数量超过%0行，数据不会进入回收站而直接进行彻底删除，且不会触发工作流。此操作只有应用管理员可以执行，请请务必确认所有应用成员都不再需要这些数据后再执行此操作"
-msgstr "現在選択されているレコードの数が %0 行を超える場合、データはごみ箱に移動せず、完全に削除され、ワークフローはトリガーされません。このアクションはアプリケーション管理者のみが実行できます。このアクションを実行する前に、すべてのアプリケーションメンバーがデータを必要としなくなったことを確認してください。"
+msgid "浏览器平台仅https环境支持调用摄像头api"
+msgstr "ブラウザのプラットフォームは、https環境のカメラapiの呼び出しにのみ対応しています。"
 
 #: Disabled references:1
-msgid "可恢复%0天内删除的应用项"
-msgstr "0日以内に削除されたアプリケーションの項目を復元する"
+msgid "请联系组织管理员购买或升级"
+msgstr "購入・アップグレードをご希望の方は、組織管理者までご連絡ください。"
 
 #: Disabled references:1
-msgid "可恢复%0天内删除的应用"
-msgstr "0日以内に削除されたアプリケーションをリストアする"
+msgid "批量创建"
+msgstr "一括作成"
 
 #: Disabled references:1
-msgid "%0%1天后将被自动删除"
-msgstr "%0%は1日後に自動的に削除されます。"
+msgid "日志 - 应用"
+msgstr "ログ - アプリケーション"
 
 #: Disabled references:1
-msgid "服务状态提醒"
-msgstr "サービスステータスアラート"
+msgid "保留最近6个月的应用日志"
+msgstr "過去6ヶ月の応募履歴を残す"
 
 #: Disabled references:1
-msgid "服务状态 Webhook"
-msgstr "サービスステータスWebhook"
+msgid "日志 - 登录"
+msgstr "ログ - ログイン"
 
 #: Disabled references:1
-msgid "您确定要删除 ?"
-msgstr "本当に削除していいんですか？"
+msgid "批量导出附件"
+msgstr "添付ファイルの一括エクスポート"
 
 #: Disabled references:1
-msgid "跳转链接"
-msgstr "ジャンプリンク"
+msgid "部分字段可设置“数据加密”属性，设置后，数据以密文的形式存储到数据库中，在前端显示和使用时返回为明文，搜索、筛选、排序功能部分将受限"
+msgstr "一部のフィールドに「データ暗号化」プロパティを設定することができます。設定後、データは暗号テキストとしてデータベースに保存され、フロントエンドで表示および使用する場合はプレーンテキストとして返されます。検索、フィルタリング、ソート機能は一部制限されます。"
 
 #: Disabled references:1
-msgid "编辑资源"
-msgstr "エディトリアルリソース"
+msgid "用户行为日志"
+msgstr "ユーザー行動ログ"
 
 #: Disabled references:1
-msgid "添加资源"
-msgstr "リソースを追加する"
+msgid "可将重要的工作流添加到专属算力中运行，可免受本组织或平台其他组织流程堵塞的影响"
+msgstr "重要なワークフローは、専用の計算機で実行するように追加でき、組織内またはプラットフォーム上の他の組織でのプロセスのブロックから保護されます。"
 
 #: Disabled references:1
-msgid "设计图标"
-msgstr "デザインアイコン"
+msgid "用户操作日志"
+msgstr "ユーザー操作ログ"
 
 #: Disabled references:1
-msgid "跳转地址"
-msgstr "アドレスにジャンプします"
+msgid "动态值"
+msgstr "ダイナミックな価値観"
 
 #: Disabled references:1
-msgid "有效期，超过%0天的会自动删除，每个应用最多可备份"
-msgstr "有効期限、%0日以上古いものは自動的に削除、1アプリあたりの最大バックアップ数"
+msgid "设为默认"
+msgstr "デフォルトで設定する"
 
 #: Disabled references:1
-msgid "每个应用最多创建10个备份文件，每个文件仅保留%0天有效期"
-msgstr "アプリケーションごとに最大10個のバックアップファイルを作成し、各ファイルの有効期限を%0日だけにする"
+msgid "前往"
+msgstr "に進む"
 
 #: Disabled references:1
-msgid "%0失败"
-msgstr "%0 失敗"
+msgid "嵌入页面时只支持 https:// 开头的链接"
+msgstr "ページ埋め込み時に https:// で始まるリンクのみ対応"
 
 #: Disabled references:1
-msgid "超过%0数量限制"
-msgstr "数量制限 %0 を超えています"
+msgid "最多查询50条结果"
+msgstr "最大50件まで検索可能"
 
 #: Disabled references:1
-msgid "创建成功, 账号密码已复制"
-msgstr "正常に作成され、アカウントパスワードはコピーされました"
+msgid "记录创建次数计数说明："
+msgstr "レコード作成回数の説明："
 
 #: Disabled references:1
-msgid "请输入工作电话"
-msgstr "勤務先の電話番号を入力してください"
+msgid "通过工作表表单页面创建的记录、不包含Excel导入、工作流创建、API调用的方式"
+msgstr "ワークシートフォームページで作成されたレコード。Excelインポート、ワークフロー作成、APIコールは含まれません。"
 
 #: Disabled references:1
-msgid "为确保首次集成90天后正常使用，需向企业微信购买接口许可，购买许可费用由平台承担支付，您无需额外支付，您只需提交申请购买即可"
-msgstr "最初の統合の90日後に正常な使用を確保するために、あなたは、エンタープライズWeChatからインタフェースライセンスを購入する必要があります、ライセンス料は、プラットフォームによって支払われる、あなたは余分な支払う必要はありません、あなたはちょうど購入するアプリケーションを提出する必要があります"
+msgid "应用访问次数计数说明："
+msgstr "アプリケーションの訪問回数の説明："
 
 #: Disabled references:1
-msgid "购买费用由平台支付，您只需申请下单即可"
-msgstr "購入はプラットフォームが負担するので、注文を依頼するだけでよい"
+msgid "· 通过应用图标点击进入应用"
+msgstr "- アプリケーションアイコンをクリックすると、アプリケーションにアクセスできます"
 
 #: Disabled references:1
-msgid "向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。"
-msgstr "指定された携帯電話番号に、外部ポータルへの登録を促すSMSが送信され、外部ポータルの下に対応するユーザーデータが自動的に作成されます（会員ステータスは「not active」です）。"
+msgid "· 通过系统消息打开了应用"
+msgstr "- システムメッセージでアプリを開く"
 
 #: Disabled references:1
-msgid "根据此字段发送邀请短信"
-msgstr "このフィールドに基づいた招待メッセージを送信する"
+msgid "获取单条人员信息"
+msgstr "人に関する単一の情報を得ること"
 
 #: Disabled references:1
-msgid "将通过系统消息发送"
-msgstr "は、システムメッセージで送信されます。"
+msgid "获取一名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级（可选））"
+msgstr "個人情報（氏名、性別、生年月日、携帯電話、電子メール）、組織情報（部署、役職、役職番号、部下（任意））を含む個人に関する情報を取得する。"
 
 #: Disabled references:1
-msgid "您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持%0条。被子流程节点使用，最多支持%1条。"
-msgstr "取得した複数のデータは、本プロセスのデータ処理ノードやサブプロセスノードで使用することができます。データ処理ノードで使用（追加、更新、削除）、最大%0項目まで対応。サブプロセスノードで使用する場合、最大%1まで対応。"
+msgid "从成员字段获取"
+msgstr "メンバーフィールドから取得"
 
 #: Disabled references:1
-msgid "扫码刷脸"
-msgstr "コードで顔をスワイプ"
+msgid "从所有组织成员中查找"
+msgstr "全組織のメンバーから探す"
 
 #: Disabled references:1
-msgid "请用微信、微警或警融App扫下方二维码进行刷脸验证，验证通过后才能提交流程"
-msgstr "WeChat、微信、警察融合アプリで下記のQRコードを読み取って顔認証を行い、認証が通った後に手続きを行ってください。"
+msgid "获取单条部门信息"
+msgstr "単一セクターの情報を取得する"
 
 #: Disabled references:1
-msgid "认证失败"
-msgstr "認証に失敗した"
+msgid "获取一个部门的相关信息，包含部门名称、部门负责人、部门人员及上下级部门"
+msgstr "部門名、部門長、部門内の人、下位の部門など、部門に関する情報を取得できる"
 
 #: Disabled references:1
-msgid "人脸信息不匹配"
-msgstr "顔情報の不一致"
+msgid "从所有组织部门中查找"
+msgstr "すべての組織分野から探す"
 
 #: Disabled references:1
-msgid "点击刷新重试"
-msgstr "リフレッシュをクリックすると再試行されます"
+msgid "获取单条组织角色信息"
+msgstr "単一の組織の役割に関する情報を取得する"
 
 #: Disabled references:1
-msgid "二维码已过期"
-msgstr "QRコードの有効期限が切れている"
+msgid "获取一个组织角色的相关信息，包含角色名称、备注、角色下人员"
+msgstr "組織の役割に関する情報（役割名、メモ、役割の下にいる人など）を取得します。"
 
 #: Disabled references:1
-msgid "当前sheet行数超过单次导入上限（%0行），无法导入。"
-msgstr "現在のシートは、1回のインポート制限（%0行）を超える行数があるため、インポートすることができません。"
+msgid "从所有组织角色中查找"
+msgstr "すべての組織的役割から探す"
+
+#: Disabled references:1
+msgid "获取多条人员信息"
+msgstr "複数人の情報を取得する"
+
+#: Disabled references:1
+msgid "获取多名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级（可选））"
+msgstr "個人情報（氏名、性別、生年月日、携帯電話、電子メール）、組織情報（部署、役職、役職番号、部下（任意））を含む複数人に関する情報を取得する。"
+
+#: Disabled references:1
+msgid "获取多条部门信息"
+msgstr "複数セクターの情報を取得する"
+
+#: Disabled references:1
+msgid "获取多个部门的相关信息，包含部门名称、部门负责人、部门人员及上下级部门"
+msgstr "部門名、部門長、部門スタッフ、下位部門など、複数の部門に関する情報を取得できる"
+
+#: Disabled references:1
+msgid "获取多条组织角色信息"
+msgstr "複数の組織の役割情報を取得する"
+
+#: Disabled references:1
+msgid "获取多个组织角色的相关信息，包含角色名称、备注、角色下人员"
+msgstr "役割名、メモ、役割の下にいる人など、複数の組織的な役割に関する情報を取得する。"
+
+#: Disabled references:1
+msgid "仅组织管理员可以添加"
+msgstr "を追加できるのは、組織管理者のみです。"
+
+#: Disabled references:1
+msgid "旧"
+msgstr "旧"
+
+#: Disabled references:1
+msgid "检测到所选表已关联 %0，是否建立"
+msgstr "選択したテーブルが%0に関連することが検出されましたが、作成されましたか？"
+
+#: Disabled references:1
+msgid "同步数据？"
+msgstr "同期したデータ？"
+
+#: Disabled references:1
+msgid "%0 中的关联字段"
+msgstr "0に関連するフィールド"
+
+#: Disabled references:1
+msgid "添加关联当前"
+msgstr "現在のリンクを追加する"
+
+#: Disabled references:1
+msgid "建立"
+msgstr "エスタブリッシュメント"
+
+#: Disabled references:1
+msgid "同步数据"
+msgstr "同期したデータ"
+
+#: Disabled references:1
+msgid "新建查询"
+msgstr "新規お問い合わせ"
+
+#: Disabled references:1
+msgid "检测到已有关联，是否查询关联当前 %0 的 %1 ？"
+msgstr "既存の関連が検出された場合、クエリは現在の%0の%1を関連付けるか？"
+
+#: Disabled references:1
+msgid "依据关联记录"
+msgstr "アソシエーションレコードに基づく"
+
+#: Disabled references:1
+msgid "根据条件查询目标工作表的记录。如：查询关联客户的订单。"
+msgstr "条件に基づいて、対象のワークシートのレコードを照会する。例：関連する顧客からの注文を照会する。"
+
+#: Disabled references:1
+msgid "记录用户的浏览和打印行为，包含访问应用、工作表、自定义页面，浏览工作表记录"
+msgstr "アプリケーション、ワークシート、カスタムページへのアクセス、ワークシートレコードの閲覧など、ユーザーの閲覧・印刷行動のログを記録"
+
+#: Disabled references:1
+msgid "可独立购买"
+msgstr "単体での購入も可能"
+
+#: Disabled references:1
+msgid "无权限访问"
+msgstr "許可なくアクセスする"
+
+#: Disabled references:1
+msgid "工作流中引用的子流程、封装业务流程，会在工作流所在的专属算力资源上运行。"
+msgstr "ワークフローで参照されるカプセル化されたビジネスプロセスであるサブプロセスは、ワークフローが配置された排他的演算資源上で実行されます。"
+
+#: Disabled references:1
+msgid "登录时需同意用户协议和隐私条款"
+msgstr "ユーザー同意書とプライバシーポリシーに同意してサインインする"
+
+#: Disabled references:1
+msgid "通过微信扫码登录时，需先关注公众号"
+msgstr "WeChatでログインするには、まず公開番号をフォローする必要があります"
+
+#: Disabled references:1
+msgid "允许参与记录讨论"
+msgstr "録音されたディスカッションへの参加許可"
+
+#: Disabled references:1
+msgid "允许查看审批流转详情"
+msgstr "承認フローの詳細を閲覧できるようにする"
+
+#: Disabled references:1
+msgid "发布流程%03088"
+msgstr "リリースプロセス%03088"
+
+#: Disabled references:1
+msgid "映射关系失效"
+msgstr "人間関係の失敗をマッピングする"
+
+#: Disabled references:1
+msgid "暂不支持同步"
+msgstr "シンクロは現時点ではサポートされていません"
+
+#: Disabled references:1
+msgid "不允许NULL"
+msgstr "NULLは不可"
+
+#: Disabled references:1
+msgid "存在错误映射"
+msgstr "エラーマッピングが存在する"
+
+#: Disabled references:1
+msgid "未设置相关字段"
+msgstr "関連分野が設定されていない"
+
+#: Disabled references:1
+msgid "字段名称不能重复"
+msgstr "フィールド名の繰り返しは不可"
+
+#: Disabled references:1
+msgid "刷新数据源字段"
+msgstr "データソースのフィールドをリフレッシュする"
+
+#: Disabled references:1
+msgid "相关工作表已删除，或存在异常"
+msgstr "該当するワークシートが削除された、または例外がある。"
+
+#: Disabled references:1
+msgid "预览数据仅显示从数据源同步至当前节点时的前100行记录"
+msgstr "データソースから現在のノードに同期した場合、プレビューデータには最初の100行のレコードしか表示されない"
+
+#: Disabled references:1
+msgid "任务创建中..."
+msgstr "タスク作成中..."
+
+#: Disabled references:1
+msgid "可能需要一些时间，请耐心等待"
+msgstr "時間がかかる場合がありますので、しばらくお待ちください"
+
+#: Disabled references:1
+msgid "请选择分组"
+msgstr "グループを選択してください"
+
+#: Disabled references:1
+msgid "识别重复数据"
+msgstr "重複するデータを特定する"
+
+#: Disabled references:1
+msgid "根据主键判断已有数据的重复，\"覆盖\"会导致数据同步变慢。"
+msgstr "既存データの重複は主キーで判断され、「上書き」はデータの同期を遅くする原因になります。"
+
+#: Disabled references:1
+msgid "使用“%0”"
+msgstr "\"%0 \"を使用する。"
+
+#: Disabled references:1
+msgid "创建人："
+msgstr ""
+
+#: Disabled references:1
+msgid "(创建人)"
+msgstr ""
+
+#: Disabled references:1
+msgid "申请加入失败，您在该企业已离职，请联系管理员恢复权限"
+msgstr ""
+
+#: Disabled references:1
+msgid "流程名称 / 创建人"
+msgstr ""
+
+#: Disabled references:1
+msgid "搜索员工"
+msgstr ""
+
+#: Disabled references:1
+msgid "账务%15000"
+msgstr ""
+
+#: Disabled references:1
+msgid "2.将Excel中%0列与工作表中%1字段逐行对比，%2识别到的重复数据，%3"
+msgstr ""
+
+#: Disabled references:1
+msgid "最新的在前%05029"
+msgstr "9 → 1"
+
+#: Disabled references:1
+msgid "最旧的在前%05030"
+msgstr "1 → 9"
+
+#: Disabled references:1
+msgid "升序%05031"
+msgstr "1 → 9"
+
+#: Disabled references:1
+msgid "降序%05032"
+msgstr "9 → 1"
+
+#: Disabled references:1
+msgid "排序%05028"
+msgstr "ソート"
+

@@ -1,5 +1,5 @@
 // @containerWidth: 360px;
-@containerWidth: 640px;
+@containerWidth: 720px;
 @transitionTime: 0.25s;
 @blue: #2196f3;
 
@@ -45,7 +45,7 @@
     border-radius: 4px;
 
     .Dropdown--border {
-      border: 1px solid rgba(33, 150, 243, 0.3);
+      // border: 1px solid rgba(33, 150, 243, 0.3);
     }
 
     .Item-content {
@@ -70,7 +70,7 @@
       > li {
         display: inline-block;
         width: ~'calc(50% - 6px)';
-        height: 86px;
+        height: 106px;
         border-radius: 3px;
         position: relative;
         vertical-align: top;
@@ -104,7 +104,7 @@
         }
 
         &:last-child {
-          height: 70px;
+          height: 88px;
 
           &::before {
             background-image: url('./components/mobileSet/img/line3.png');
@@ -205,7 +205,6 @@
     overflow: auto;
     width: 200px;
     font-size: 13px;
-    // display: flex;
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid #eaeaea;
@@ -293,14 +292,11 @@
     padding: 32px 0 0;
     .groupSelectStartOrEnd .selectStartOrEndCon {
       .dropCon {
-        width: 133px !important;
+        flex: 1;
+        flex-shrink: 0;
       }
     }
 
-    .cardAppearanceWrap {
-      // padding: 0 20px 20px 20px;
-      // margin-top: -20px;
-    }
 
     .dataSetting {
       .Radio-box {
@@ -325,10 +321,6 @@
   .viewContent {
     .viewContentCon {
       padding: 0 40px 32px;
-      // height: 100%;
-      .sortColumnWrap {
-        // padding-bottom: 40px;
-      }
       .sortColumnWrap .Dropdown--input {
         padding: 0 5px 0 12px;
       }
@@ -391,9 +383,6 @@
 
       &.exist {
         border-radius: 0;
-        // background-color: #fafafa;
-        // border-top: 1px solid #eaeaea;
-        // border-bottom: 1px solid #eaeaea;
       }
     }
   }

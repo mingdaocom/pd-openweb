@@ -127,6 +127,10 @@
     padding: 6px 12px;
     box-sizing: border-box;
 
+    .formItemHoverShow {
+      display: none;
+    }
+
     &.customFormItemRow {
       flex-direction: row;
       .customFormItemLabel {
@@ -143,6 +147,12 @@
       display: block;
       width: 100%;
       clear: both;
+    }
+
+    &:hover {
+      .formItemHoverShow {
+        display: inline-block;
+      }
     }
   }
 

@@ -7,7 +7,7 @@ import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 import { updateOptionsOfControls, checkCellIsEmpty } from 'worksheet/util';
 import _ from 'lodash';
 
-export async function downloadAttachmentById({ fileId, refId }) {
+export async function downloadAttachmentById({ fileId, refId, worksheetId = undefined }) {
   try {
     if (!fileId && !refId) {
       throw new Error();
@@ -17,10 +17,12 @@ export async function downloadAttachmentById({ fileId, refId }) {
       data = await kcAjax.getNodeDetail({
         actionType: 14,
         id: refId,
+        worksheetId,
       });
     } else {
       data = await attachmentAjax.getAttachmentDetail({
         fileId,
+        worksheetId,
       });
     }
     window.open(data.downloadUrl);
@@ -173,7 +175,7 @@ export function submitNewRecord(props) {
     rowStatus,
   } = props;
   const receiveControls = formdata
-    .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32)
+    .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32 && item.type !== 51)
     .map(c => formatControlToServer(c, { isNewRecord: true }))
     .filter(item => !checkCellIsEmpty(item.value));
   const args = {

@@ -203,7 +203,7 @@ export default class AppLog extends React.Component {
             value={keyword}
             ref={con => (this.search = con)}
             placeholder={_l('搜索应用名称/操作者')}
-            onChange={e => this.updateState({ keyword: e.target.value })}
+            onChange={_.debounce(e => this.updateState({ keyword: e.target.value }), 500)}
           />
           <Icon icon="workflow_find" className="search Gray_9e Font16" />
           <Icon

@@ -39,20 +39,36 @@ const CASCADER_CONFIG = [
 export default function WidgetConfig(props) {
   const { data, onChange } = props;
   const { type, enumDefault, advancedSetting = {}, strDefault } = data;
-  const { showxy, showtype, analysislink, uselast } = getAdvanceSetting(data);
+  const { showxy, showtype, analysislink, uselast, sorttype = 'zh' } = getAdvanceSetting(data);
 
   const getConfig = () => {
     if (type === 2 || type === 32) {
       return (
-        <div className="labelWrap">
-          <Checkbox
-            size="small"
-            checked={analysislink === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { analysislink: checked ? '0' : '1' }))}
-          >
-            <span>{_l('解析链接')}</span>
-          </Checkbox>
-        </div>
+        <Fragment>
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={analysislink === '1'}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { analysislink: checked ? '0' : '1' }))}
+            >
+              <span>{_l('解析链接')}</span>
+            </Checkbox>
+          </div>
+          {type === 2 && (
+            <div className="labelWrap">
+              <Checkbox
+                size="small"
+                checked={sorttype === 'zh'}
+                onClick={checked => onChange(handleAdvancedSettingChange(data, { sorttype: checked ? 'en' : 'zh' }))}
+              >
+                <span>{_l('支持拼音排序')}</span>
+                <Tooltip placement={'bottom'} title={_l('勾选后，中文可按拼音A-Z进行排序。如无需要时建议不勾选')}>
+                  <i className="icon-help Gray_bd Font15"></i>
+                </Tooltip>
+              </Checkbox>
+            </div>
+          )}
+        </Fragment>
       );
     }
     if (_.includes([9, 10, 11], type)) {

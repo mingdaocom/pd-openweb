@@ -56,6 +56,7 @@ class TaskCanvas extends Component {
 
   componentDidMount() {
     const { flowData = {}, flowId } = this.props;
+    // console.log(flowData);
     const { flowNodes, firstNodeId } = flowData;
     this.setState({
       flowNodes,
@@ -78,6 +79,7 @@ class TaskCanvas extends Component {
       this.setState({
         flowNodes,
         list: formatDataWithLine(formatTaskNodeData(_.values(flowNodes), firstNodeId)),
+        loading: false,
       });
     }
   }
@@ -91,33 +93,32 @@ class TaskCanvas extends Component {
       flowId,
       nodeId,
     }).then(res => {
-      // const { toAdd, toUpdate, toDeleteIds = [] } = res;
+      this.setState({
+        currentId: '',
+      });
       this.onCompute(res);
     });
   };
   //计算更新后的数据
   onCompute = data => {
-    const { firstNodeId, flowNodes } = this.state;
-    const { toAdd = [], toUpdate = [], toDeleteIds = [] } = data;
-    let a = _.cloneDeep(formatTaskNodeData(_.values(flowNodes), firstNodeId));
+    const { flowNodes } = this.state;
+    const { toAdd = [], toUpdate = [], toDeleteIds = [], srcIsDb } = data;
     const updateIds = (toUpdate || []).map(o => o.nodeId);
-    a = a.filter(o => ![...updateIds, ...toDeleteIds].includes(o.nodeId)).concat([...toAdd, ...toUpdate]);
-    let map = {};
-    a.forEach(row => {
-      map[row.nodeId] = row;
+    let map = _.omit(flowNodes, [...updateIds]);
+    map = _.omit(map, [(toDeleteIds || [])[0] || '']);
+    [...(toUpdate || []), ...(toAdd || [])].map(o => {
+      map[o.nodeId] = o;
     });
-    this.props.onUpdate({ ...this.props.flowData, flowNodes: map });
+    _.mapKeys(map, o => {
+      map[o.nodeId] = _.omit(o, ['x', 'y']);
+    });
     this.setState(
       {
-        list: formatDataWithLine(formatTaskNodeData(a, firstNodeId)),
-        // loading: true,
-        flowNodes: map,
+        loading: true,
       },
-      // () => {
-      //   this.setState({
-      //     loading: false,
-      //   });
-      // },
+      () => {
+        this.props.onUpdate({ ...this.props.flowData, flowNodes: map, srcIsDb });
+      },
     );
   };
 
@@ -136,11 +137,12 @@ class TaskCanvas extends Component {
       // description: 'm52di3',
       nodeConfig,
     }).then(res => {
-      const { errorMsg, isSucceeded, toAdd, toDeleteIds, toUpdate } = res;
+      const { errorMsg, isSucceeded, toAdd, toDeleteIds, toUpdate, srcIsDb } = res;
       this.onCompute({
-        toUpdate: !!toUpdate ? toUpdate : [node],
+        toUpdate: !!toUpdate ? [...toUpdate, node] : [node],
         toAdd: !!toAdd ? toAdd : [],
         toDeleteIds: !!toDeleteIds ? toDeleteIds : [],
+        srcIsDb,
       });
     });
   };
@@ -188,9 +190,6 @@ class TaskCanvas extends Component {
 
   render() {
     const { loading, scale, list, currentId, firstNodeId, flowNodes } = this.state;
-    if (loading) {
-      return <LoadDiv />;
-    }
     return (
       <Wrap className="taskContainer Relative flex">
         <div
@@ -206,35 +205,39 @@ class TaskCanvas extends Component {
               this.closeEdit();
             }}
           >
-            {list.map(o => {
-              return (
-                <TaskNode
-                  {...this.props}
-                  onChangeCurrentNode={currentId => {
-                    this.setState({
-                      currentId,
-                    });
-                  }}
-                  currentId={currentId}
-                  nodeData={o}
-                  nodes={flowNodes}
-                  list={list}
-                  onDelete={() => {
-                    this.deleteNode(o.nodeId);
-                  }}
-                  onUpdate={node => {
-                    this.updateNode({
-                      ...node,
-                      status: 'NORMAL',
-                    });
-                  }}
-                  key={o.nodeId}
-                  onAddNodes={data => {
-                    this.onCompute(data);
-                  }}
-                />
-              );
-            })}
+            {loading ? (
+              <LoadDiv />
+            ) : (
+              list.map(o => {
+                return (
+                  <TaskNode
+                    {...this.props}
+                    onChangeCurrentNode={currentId => {
+                      this.setState({
+                        currentId,
+                      });
+                    }}
+                    currentId={currentId}
+                    nodeData={o}
+                    nodes={flowNodes}
+                    list={list}
+                    onDelete={() => {
+                      this.deleteNode(o.nodeId);
+                    }}
+                    onUpdate={node => {
+                      this.updateNode({
+                        ...node,
+                        status: 'NORMAL',
+                      });
+                    }}
+                    key={o.nodeId}
+                    onAddNodes={data => {
+                      this.onCompute(data);
+                    }}
+                  />
+                );
+              })
+            )}
           </TableTreeWrap>
         </div>
         {/* 暂时不开放 */}

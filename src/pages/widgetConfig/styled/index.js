@@ -178,6 +178,11 @@ export const EditInfo = styled(InfoWrap)`
     background: #fef2f4;
     color: #f44336;
   }
+  &.disabled {
+    cursor: not-allowed;
+    background: #f7f7f7 !important;
+    height: 36px;
+  }
 `;
 
 export const DropdownPlaceholder = styled.div`
@@ -674,6 +679,22 @@ export const TitleContentWrap = styled.div`
     color: #9e9e9e;
     margin-top: 8px;
     line-height: 13px;
+  }
+`;
+
+export const RelateDetail = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+  .text {
+    margin: 0 6px;
+  }
+  .name {
+    flex: 1;
+    &.needLink {
+      cursor: pointer;
+      color: #2196f3;
+    }
   }
 `;
 

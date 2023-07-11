@@ -20,12 +20,15 @@ export const permissionObj = {
     'sysroles',
     'rolelog',
     'systools',
+    'settings',
     'integration_others',
     'weixin',
     'thirdapp',
+    'appLog',
+    'loginLog',
   ],
   // 应用管理('应用‘，’工作流‘，‘使用分析’)
-  APK_ADMIN: ['app', 'workflows', 'analytics'],
+  APK_ADMIN: ['app', 'workflows', 'analytics', 'computing', 'appLog'],
   // 钉钉
   HAS_DING: ['ding'],
   // 微信集成
@@ -129,6 +132,10 @@ export const menuList = [
             exact: true,
             component: () => import('./portal'),
           },
+          {
+            path: '/admin/expansionservicePotal/(.*)',
+            component: () => import('./billCenter/expansionService'),
+          },
         ],
       },
       {
@@ -152,6 +159,10 @@ export const menuList = [
           {
             path: '/admin/(transfer|resignlist)/:projectId',
             component: () => import('./resignation'),
+          },
+          {
+            path: '/admin/expansionserviceResign/(.*)',
+            component: () => import('./billCenter/expansionService'),
           },
         ],
       },
@@ -210,6 +221,17 @@ export const menuList = [
           },
         ],
       },
+      {
+        icon: 'icon-table_rows',
+        name: _l('通用设置'),
+        key: 'settings',
+        routes: [
+          {
+            path: '/admin/settings/:projectId',
+            component: () => import('./settings'),
+          },
+        ],
+      },
     ],
   },
   // 应用
@@ -238,6 +260,10 @@ export const menuList = [
             path: '/admin/workflows/:projectId',
             component: () => import('src/pages/workflow/WorkflowList/AdminWorkflowList'),
           },
+          {
+            path: '/admin/expansionserviceWorkflow/(.*)',
+            component: () => import('./billCenter/expansionService'),
+          },
         ],
       },
       {
@@ -249,6 +275,56 @@ export const menuList = [
           {
             path: '/admin/analytics/:projectId',
             component: () => import('./useAnalytics'),
+          },
+        ],
+      },
+      {
+        icon: 'icon-dns1',
+        name: _l('专属算力'),
+        featureId: 30,
+        key: 'computing',
+        hasBeta: true,
+        routes: [
+          {
+            path: '/admin/computing/:projectId/:explanId?',
+            component: () => import('./exclusiveComp'),
+          },
+          {
+            path: '/admin/expansionserviceComputing/(.*)',
+            component: () => import('./billCenter/expansionService'),
+          },
+        ],
+      },
+    ],
+  },
+  // 日志
+  {
+    title: _l('日志'),
+    subMenuList: [
+      {
+        icon: 'icon-wysiwyg',
+        name: _l('应用'),
+        featureId: 31,
+        key: 'appLog',
+        menuPath: '/admin/appLog/:projectId',
+        routes: [
+          {
+            path: '/admin/appLog/:projectId',
+            exact: true,
+            component: () => import('./logs/AppLog'),
+          },
+        ],
+      },
+      {
+        icon: 'icon-user_Review',
+        name: _l('登录'),
+        key: 'loginLog',
+        menuPath: '/admin/loginLog/:projectId',
+        routes: [
+          {
+            path: '/admin/loginLog/:projectId',
+            exact: true,
+            component: () => import('./logs/LoginLog'),
           },
         ],
       },

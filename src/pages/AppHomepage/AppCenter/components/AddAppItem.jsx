@@ -11,6 +11,7 @@ import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
 import { generate } from '@ant-design/colors';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import _ from 'lodash';
+import ExternalLinkDialog from './ExternalLinkDialog';
 
 const ADD_APP_MODE = [
   { id: 'createFromEmpty', icon: 'plus', text: _l('从空白创建%01003'), href: '/app/lib' },
@@ -46,7 +47,7 @@ export default class AddAppItem extends Component {
     createAppFromEmpty: _.noop,
   };
 
-  state = { addTypeVisible: false };
+  state = { addTypeVisible: false, externalLinkDialogVisible: false };
 
   handleClick = ({ id, href }) => {
     const { projectId, type } = this.props;
@@ -83,7 +84,7 @@ export default class AddAppItem extends Component {
     }
   };
 
-  rednerImportApp = () => {
+  renderImportApp = () => {
     const { projectId, groupId, groupType } = this.props;
     const { importAppDialog } = this.state;
     return (
@@ -113,8 +114,8 @@ export default class AddAppItem extends Component {
   };
 
   render() {
-    const { groupId, projectId, groupType, children, className = '' } = this.props;
-    const { addTypeVisible, dialogImportExcel } = this.state;
+    const { groupId, projectId, groupType, children, className = '', createAppFromEmpty } = this.props;
+    const { addTypeVisible, dialogImportExcel, externalLinkDialogVisible } = this.state;
     return (
       <div className={'addAppItemWrap ' + className}>
         {children ? (
@@ -157,6 +158,14 @@ export default class AddAppItem extends Component {
                 );
               },
             )}
+            <hr className="divider" />
+            <MenuItem
+              key="externalLink"
+              icon={<Icon icon="add_link" className="addItemIcon Font18" />}
+              onClick={() => this.setState({ externalLinkDialogVisible: true })}
+            >
+              {_l('添加外部链接')}
+            </MenuItem>
           </Menu>
         )}
         {dialogImportExcel && (
@@ -168,7 +177,14 @@ export default class AddAppItem extends Component {
             createType="app"
           />
         )}
-        {this.rednerImportApp()}
+        {this.renderImportApp()}
+        {externalLinkDialogVisible && (
+          <ExternalLinkDialog
+            projectId={projectId}
+            createAppFromEmpty={createAppFromEmpty}
+            onCancel={() => this.setState({ externalLinkDialogVisible: false })}
+          />
+        )}
       </div>
     );
   }

@@ -78,7 +78,7 @@ export default class SheetMove extends Component {
         type: 1,
       })
       .then(res => {
-        res = res.map(item => {
+        res = res.filter(item => !item.urlTemplate).map(item => {
           return {
             text: item.workSheetName,
             value: item.workSheetId,

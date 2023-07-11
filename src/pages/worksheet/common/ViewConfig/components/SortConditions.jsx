@@ -60,7 +60,7 @@ const Item = SortableElement(props => {
                 <Support
                   className="InlineBlock"
                   type={3}
-                  href="https://help.mingdao.com/zh/sheet43.html"
+                  href="https://help.mingdao.com/sheet43"
                   text={_l('点击了解更多')}
                 />
               </span>
@@ -262,7 +262,7 @@ export default class SortConditions extends React.Component {
     const groupCondition = _.find(sortConditionControls, scc => scc.type === 27);
     const existControls = [optionCondition, userCondition, groupCondition].filter(_.identity);
     return filterOnlyShowField(columns)
-      .filter(o => ![42, 47, 49].includes(o.type)) //排除签名字段 扫码 接口查询按钮
+      .filter(o => ![42, 47, 49, 51].includes(o.type)) //排除签名字段 扫码 接口查询按钮 查询记录
       .filter(
         c =>
           (!_.find(sortConditions, sc => sc.controlId === c.controlId) || c.controlId === controlId) &&

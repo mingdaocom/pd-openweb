@@ -56,7 +56,8 @@ export const defaultPivotTableStyle = {
   lineTextColor: '#333',
   lineBgColor: '#fff',
   evenBgColor: '#fafcfd',
-  oddBgColor: 'transparent'
+  oddBgColor: 'transparent',
+  textColor: '#000000d9'
 };
 
 const TitleStyle = props => {
@@ -147,6 +148,23 @@ const TitleStyle = props => {
                     />
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+          <div className="flexRow valignWrapper mBottom12">
+            <div className="lable">{_l('文本颜色')}</div>
+            <div className="colorWrap">
+              <div className="colorBlock" style={{ backgroundColor: pivotTableStyle.textColor }}>
+                <input
+                  type="color"
+                  className="colorInput pointer"
+                  value={pivotTableStyle.textColor}
+                  onChange={(event) => {
+                    handleChangePivotTableStyle({
+                      textColor: event.target.value
+                    });
+                  }}
+                />
               </div>
             </div>
           </div>

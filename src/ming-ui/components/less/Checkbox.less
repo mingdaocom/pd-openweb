@@ -77,6 +77,9 @@
     & > i.icon {
       display: inline-block;
     }
+    &:hover {
+      background-color: #017ad9;
+    }
   }
   &:not(.checked) .Checkbox-box {
     background-color: #fff;
@@ -117,14 +120,16 @@
   }
 
   &.Checkbox--disabled {
+    cursor: not-allowed;
     color: #9e9e9e;
-    cursor: default;
     .Checkbox-box {
       border-color: #ddd;
       background-color: #f5f5f5;
     }
     &.checked .Checkbox-box {
-      background-color: #bdbdbd;
+      opacity: 0.7;
+      border-color: @themeColor3;
+      background-color: @themeColor3;
     }
   }
 }

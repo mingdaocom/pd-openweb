@@ -8,8 +8,9 @@ import Ajax from 'src/api/workWeiXin';
 import Config from '../config';
 import Dialog from 'ming-ui/components/Dialog';
 import IntegrationSetPssword from '../components/IntegrationSetPssword';
-import UpgradeVersion from '../components/UpgradeVersion';
-import { getFeatureStatus } from 'src/util';
+import VertifyClearIntegationData from '../components/VertifyClearIntegationData';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { integrationFailed } from '../utils';
 import './style.less';
 import _ from 'lodash';
 
@@ -92,7 +93,7 @@ export default class Ding extends React.Component {
   // 保存信息/编辑信息
   editInfo = () => {
     if (!this.state.AppKey || !this.state.AppSecret || !this.state.CorpId || !this.state.AgentId) {
-      alert('请输入相关信息');
+      alert(_l('请输入相关信息'), 2);
       return;
     }
     Ajax.editDDProjectSetting({
@@ -101,7 +102,13 @@ export default class Ding extends React.Component {
       appSecret: this.state.AppSecret,
       corpId: this.state.CorpId,
     }).then(res => {
-      if (res.item1) {
+      if (res.item1 === -1) {
+        VertifyClearIntegationData({
+          projectId: Config.projectId,
+          callback: this.editInfo,
+        });
+        return;
+      } else if (res.item1) {
         Ajax.editDDAppNoticeSetting({
           projectId: Config.projectId,
           agentId: this.state.AgentId,
@@ -451,7 +458,7 @@ export default class Ding extends React.Component {
       if (res) {
         callback();
       } else {
-        alert('失败');
+        integrationFailed(Config.projectId);
       }
     });
   };
@@ -469,7 +476,7 @@ export default class Ding extends React.Component {
           intergrationTodoMessageEnabled: !this.state.intergrationTodoMessageEnabled,
         });
       } else {
-        alert('失败');
+        alert(_l('失败'), 2);
       }
     });
   }
@@ -487,7 +494,7 @@ export default class Ding extends React.Component {
           intergrationClientWorkingPattern: value,
         });
       } else {
-        alert('失败');
+        alert(_l('失败'), 2);
       }
     });
   }
@@ -502,7 +509,7 @@ export default class Ding extends React.Component {
           ddMessagUrlPcSlide: value,
         });
       } else {
-        alert('失败');
+        alert(_l('失败'), 2);
       }
     });
   };
@@ -524,7 +531,9 @@ export default class Ding extends React.Component {
   render() {
     const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
     if (featureType === '2') {
-      return <UpgradeVersion projectId={Config.projectId} featureId={FEATURE_ID} />;
+      return (
+        <div className="orgManagementWrap">{buriedUpgradeVersionDialog(Config.projectId, FEATURE_ID, 'content')}</div>
+      );
     }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
@@ -536,7 +545,7 @@ export default class Ding extends React.Component {
           onChange={this.changeTab}
           className={cx({ tabStyle: !(this.state.status === 1 && !this.state.isCloseDing) })}
         >
-          <Tabs.TabPane tab={_l('钉钉集成')} key="base">
+          <Tabs.TabPane className="Font17" tab={_l('钉钉集成')} key="base">
             {this.stepRender()}
           </Tabs.TabPane>
           {this.state.status === 1 && !this.state.isCloseDing && (
@@ -587,7 +596,7 @@ export default class Ding extends React.Component {
                         dangerouslySetInnerHTML={{
                           __html: _l(
                             '此功能需要在钉钉中开启添加待办任务接口权限。%0如何开启？%1',
-                            '<a href="https://help.mingdao.com/zh/dingding.html#1%E3%80%81%E5%BE%85%E5%8A%9E%E6%B6%88%E6%81%AF%E5%90%8C%E6%AD%A5" target="_blank">',
+                            '<a href="https://help.mingdao.com/dingding#1%E3%80%81%E5%BE%85%E5%8A%9E%E6%B6%88%E6%81%AF%E5%90%8C%E6%AD%A5" target="_blank">',
                             '</a>',
                           ),
                         }}

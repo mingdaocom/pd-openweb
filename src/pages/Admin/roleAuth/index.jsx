@@ -128,16 +128,18 @@ export default class RoleAuth extends React.Component {
                   checked={allowApplyManage}
                   onClick={val => {
                     this.setState({ allowApplyManage: !val }, () => {
-                      projectSettingAjax.setAllowApplyManageRole({
-                        projectId,
-                        allowApplyManageRole: !val,
-                      }).then(res => {
-                        if (res) {
-                          alert(_l('设置成功'));
-                        } else {
-                          alert(_l('设置失败'), 2);
-                        }
-                      });
+                      projectSettingAjax
+                        .setAllowApplyManageRole({
+                          projectId,
+                          allowApplyManageRole: !val,
+                        })
+                        .then(res => {
+                          if (res) {
+                            alert(_l('设置成功'));
+                          } else {
+                            alert(_l('设置失败'), 2);
+                          }
+                        });
                     });
                   }}
                 >

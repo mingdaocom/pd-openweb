@@ -39,7 +39,7 @@ export default class SiteName extends Component {
             projectId: this.props.projectId,
           }).then(data => {
             if (data === 1) {
-              alert(_l(`${this.dialogtype}成功`));
+              alert(_l('%0成功', this.dialogtype));
               this.setState({
                 workSiteName: '',
               });
@@ -47,7 +47,7 @@ export default class SiteName extends Component {
             } else if (data === 2) {
               this.showMes(_l('此工作地点已存在'));
             } else {
-              alert(_l(`${this.dialogtype}失败`));
+              alert(_l('%0失败', this.dialogtype));
             }
           });
         }
@@ -68,7 +68,7 @@ export default class SiteName extends Component {
     return (
       <Dialog
         visible={this.props.visible}
-        title={_l(`${this.dialogtype}工作地点`)}
+        title={_l('%0工作地点', this.dialogtype)}
         cancelText={_l('取消')}
         okText={_l('确定')}
         width="413"

@@ -37,7 +37,7 @@ export default props => {
         {i !== props.data.length - 1 && (
           <div className="flowDetailTrigger">
             <div className="Font14 triggerConditionSplit mTop15">
-              <span>{_l('或')}</span>
+              <span>{props.data[0].spliceType === 1 ? _l('且') : _l('或')}</span>
             </div>
           </div>
         )}
