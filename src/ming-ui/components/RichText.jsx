@@ -370,7 +370,6 @@ export default ({
             contenteditable="false"
             dangerouslySetInnerHTML={{
               __html: filterXSS(data || placeholder, {
-                stripIgnoreTag: true,
                 whiteList: newWhiteList,
                 css: false,
               }),

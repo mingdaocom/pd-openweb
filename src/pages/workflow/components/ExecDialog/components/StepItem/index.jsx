@@ -475,9 +475,7 @@ export default class StepItem extends Component {
                   className="pLeft16 pRight16 pTop6 breakAll Gray_75"
                   style={{ whiteSpace: 'normal' }}
                   dangerouslySetInnerHTML={{
-                    __html: filterXSS(this.generateLink(workItems[0].opinion), {
-                      stripIgnoreTag: true,
-                    }),
+                    __html: filterXSS(this.generateLink(workItems[0].opinion)),
                   }}
                 />
               </Fragment>

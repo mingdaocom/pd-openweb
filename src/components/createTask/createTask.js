@@ -894,7 +894,7 @@ CreateTask.Motheds = {
 
     var startTime = $('#txtLastDate').data('start');
     var deadline = $('#txtLastDate').data('end');
-    var description = filterXss($('#txtDescriptionbox').val().replace(/\n/g, '<br/>'), { stripIgnoreTag: true });
+    var description = filterXss($('#txtDescriptionbox').val().replace(/\n/g, '<br/>'));
     var folderID = settings.FolderID === 1 ? '' : settings.FolderID;
     var folderName = $.trim($('#txtTaskFolder').val());
     var toUserID = $('#taskUserBox').attr('data-id');

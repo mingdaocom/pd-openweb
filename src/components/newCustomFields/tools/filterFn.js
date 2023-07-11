@@ -1502,7 +1502,7 @@ export const updateRulesData = ({
               if (!childControlIds.length) {
                 pushType('parent', controlId, currentType);
               } else {
-                childControlIds.map(child => pushType('child', child, currentType));
+                childControlIds.map(child => pushType('child', `${controlId}-${child}`, currentType));
               }
             });
           }
@@ -1511,9 +1511,11 @@ export const updateRulesData = ({
 
       formatData.forEach(it => {
         it.relationControls.forEach(re => {
-          if ((relateRuleType['child'] || {})[re.controlId]) {
+          // 子表会出现控件id重复的情况
+          const id = `${it.controlId}-${re.controlId}`;
+          if ((relateRuleType['child'] || {})[id]) {
             updataDataPermission({
-              attrs: relateRuleType['child'][re.controlId],
+              attrs: relateRuleType['child'][id],
               it: re,
               checkRuleValidator,
               from,

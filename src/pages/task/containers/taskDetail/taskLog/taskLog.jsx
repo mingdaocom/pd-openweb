@@ -85,9 +85,7 @@ export default class TaskDetail extends Component {
               <i className={cx('singleDdailyType', this.returnIcons(item.type))} />
               <div
                 dangerouslySetInnerHTML={{
-                  __html: filterXSS(item.msg, {
-                    stripIgnoreTag: true,
-                  }),
+                  __html: filterXSS(item.msg),
                 }}
               />
               <span className="singleDdailyTime">{createTimeSpan(item.createTime)}</span>

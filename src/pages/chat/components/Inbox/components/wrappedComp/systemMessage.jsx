@@ -159,7 +159,6 @@ export default class SystemMessage extends PureComponent {
     delete xss.whiteList.video;
     let content = Message.content || '';
     const xssOptions = {
-      stripIgnoreTag: true,
       whiteList: Object.assign({}, xss.whiteList, {
         a: ['target', 'href', 'title', 'optype', 'opvalue', 'taskid', 'opuser', 't'],
       }),

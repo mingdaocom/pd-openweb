@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
@@ -76,6 +76,20 @@ const EmptyHint = styled.div`
   font-weight: 500;
 `;
 
+const InputWrap = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 12px;
+  border-bottom: 1px solid #f0f0f0;
+  input {
+    line-height: 32px;
+    border: none;
+    outline: none;
+    padding-left: 8px;
+  }
+`;
+
 const isVisible = control => {
   let { fieldPermission = '111' } = control;
   const [visible, editable, canAdd] = fieldPermission.split('');
@@ -98,10 +112,12 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
   });
 
   const [delIndex, setIndex] = useState(-1);
+  const [searchValue, setValue] = useState('');
 
   const getAvailableControls = () => {
     const { worksheetId } = _.last(viewControls);
     if (controlLoading) return;
+    setValue('');
     setControls({ controlLoading: true });
     worksheetAjax
       .getWorksheetInfo({ worksheetId, getTemplate: true })
@@ -146,27 +162,45 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
 
   const renderRelate = () => {
     if (controlLoading) return <LoadDiv />;
-    return availableControls.length > 0 ? (
-      <Menu>
-        {availableControls.map(item => {
-          const { controlId, controlName } = item;
-          return (
-            <Menu.Item
-              key={controlId}
-              onClick={() => {
-                addViewControl(item);
-              }}
-            >
-              <i className="icon-link2 Gray_9e Font15"></i>
-              <span style={{ marginLeft: '6px' }} className="controlName Bold">
-                {controlName}
-              </span>
-            </Menu.Item>
-          );
-        })}
+    const filterData = searchValue
+      ? availableControls.filter(i => i.controlName.includes(searchValue))
+      : availableControls;
+    return (
+      <Menu style={{ maxHeight: 300, overflowY: 'auto' }}>
+        <InputWrap>
+          <i className="icon-search Gray_75 Font16"></i>
+          <input
+            autoFocus
+            value={searchValue}
+            placeholder={_l('搜索')}
+            onChange={e => {
+              setValue(e.target.value);
+            }}
+          />
+        </InputWrap>
+        {filterData.length > 0 ? (
+          <Fragment>
+            {filterData.map(item => {
+              const { controlId, controlName } = item;
+              return (
+                <Menu.Item
+                  key={controlId}
+                  onClick={() => {
+                    addViewControl(item);
+                  }}
+                >
+                  <i className="icon-link2 Gray_9e Font15"></i>
+                  <span style={{ marginLeft: '6px' }} className="controlName Bold">
+                    {controlName}
+                  </span>
+                </Menu.Item>
+              );
+            })}
+          </Fragment>
+        ) : (
+          <EmptyHint>{_l('没有可选择的关联字段')}</EmptyHint>
+        )}
       </Menu>
-    ) : (
-      <EmptyHint>{_l('没有可选择的关联字段')}</EmptyHint>
     );
   };
   return (

@@ -24,19 +24,22 @@ const Wrap = styled.div`
   }
   .mainShareUrl {
     flex: 1;
-    & > div {
+    .shareInput,
+    .copy,
+    .qrCode,
+    .openIcon {
       height: 32px;
       line-height: 32px;
-      .icon-new_mail {
-        line-height: 32px !important;
-      }
-      &:nth-child(3) {
-        line-height: 30px !important;
-      }
-      &:nth-child(4),
-      &:nth-child(2) {
-        width: 32px;
-      }
+    }
+    .icon-new_mail {
+      line-height: 32px !important;
+    }
+    .copy {
+      line-height: 30px !important;
+    }
+    .qrCode,
+    .openIcon {
+      width: 32px;
     }
     .icon-qr_code {
       line-height: 32px !important;

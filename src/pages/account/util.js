@@ -81,7 +81,6 @@ export const getDataByFilterXSS = summary => {
     return '/app';
   }
   return filterXSS(summary, {
-    stripIgnoreTag: true,
     whiteList: Object.assign({}, whiteList, { span: ['style'] }),
   });
 };

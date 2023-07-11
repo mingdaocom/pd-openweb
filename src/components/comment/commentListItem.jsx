@@ -80,9 +80,7 @@ export default class CommentListItem extends React.Component {
               removeComment(discussionId);
             } else {
               alert(_l('删除讨论失败'), 2);
-              return $.Deferred()
-                .reject()
-                .promise();
+              return $.Deferred().reject().promise();
             }
           });
       },
@@ -181,9 +179,7 @@ export default class CommentListItem extends React.Component {
                   />
                 </ToolTip>
               </span>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
             <div className="Right">
               {createAccount.accountId === md.global.Account.accountId ? (
                 <a
@@ -192,9 +188,7 @@ export default class CommentListItem extends React.Component {
                 >
                   {_l('删除')}
                 </a>
-              ) : (
-                undefined
-              )}
+              ) : undefined}
               <a
                 className="Hidden ThemeColor3"
                 onMouseDown={evt =>
@@ -210,7 +204,6 @@ export default class CommentListItem extends React.Component {
             className="singeText"
             dangerouslySetInnerHTML={{
               __html: filterXSS(message, {
-                stripIgnoreTag: true,
                 whiteList: newWhiteList,
               }),
             }}
@@ -234,9 +227,9 @@ export default class CommentListItem extends React.Component {
                 }}
               >
                 <a
-                  href={`http://ditu.amap.com/regeo?lng=${location.longitude}&lat=${
-                    location.latitude
-                  }&name=${location.name || ''}&src=uriapi`}
+                  href={`http://ditu.amap.com/regeo?lng=${location.longitude}&lat=${location.latitude}&name=${
+                    location.name || ''
+                  }&src=uriapi`}
                   className="commentLocation Font12 ThemeColor3 Hand"
                   rel="noopener noreferrer"
                   target="_blank"

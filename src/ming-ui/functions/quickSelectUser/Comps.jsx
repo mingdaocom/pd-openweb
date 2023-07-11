@@ -7,7 +7,7 @@ import _ from 'lodash';
 
 export const Con = styled.div`
   overflow: hidden;
-  width: 280px;
+  width: 360px;
   background-color: #fff;
   border-radius: 4px;
   box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.16);

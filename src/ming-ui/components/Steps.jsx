@@ -247,9 +247,7 @@ export default function Steps(props) {
   const [width, setWidth] = useState(0);
 
   useEffect(() => {
-    if (value) {
-      setCurrentValue(getCurrent(value));
-    }
+    setCurrentValue(getCurrent(value));
   }, [value]);
 
   useEffect(() => {

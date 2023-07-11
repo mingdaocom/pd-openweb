@@ -323,7 +323,7 @@ SelectWrapper.propTypes = {
 };
 
 export default function quickSelectUser(target, props = {}) {
-  const panelWidth = 280;
+  const panelWidth = 360;
   const panelHeight = 48 + (props.minHeight || 328);
   let targetLeft;
   let targetTop;

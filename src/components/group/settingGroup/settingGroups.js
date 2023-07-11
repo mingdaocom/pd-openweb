@@ -155,9 +155,7 @@ $.extend(SettingGroup.prototype, {
     var _this = this;
     var options = _this.options;
     options.isRefresh.info = false;
-    result.name = filterXSS(result.name, {
-      stripIgnoreTag: true,
-    });
+    result.name = filterXSS(result.name);
     options.isPost = result.isPost;
     options.isApproval = result.isApproval;
     options.isAdmin = result.isAdmin;
@@ -641,7 +639,7 @@ $.extend(SettingGroup.prototype, {
         ChooseInviteSettings: {
           callback: function (data, callbackInviteResult) {
             var accountObj = {};
-            $.map(data, function(item) {
+            $.map(data, function (item) {
               accountObj[encrypt(item.account)] = item.fullname;
             });
             _this.inviteMembers(accountObj, callbackInviteResult);

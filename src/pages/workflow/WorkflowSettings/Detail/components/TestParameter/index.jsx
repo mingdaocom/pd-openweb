@@ -124,7 +124,6 @@ export default ({
     });
 
     return filterXSS(content, {
-      stripIgnoreTag: true,
       whiteList: Object.assign({}, whiteList, { span: ['style'] }),
     });
   };

@@ -127,7 +127,7 @@ export default class ShareUrl extends React.Component {
     const qrurlDownload = md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${url}&size=20&download=true`;
     const renderButtons = (btn, index) => (
       <Tooltip key={index} popupPlacement="bottom" text={<span>{btn.tip}</span>}>
-        <Icon style={btn.style} theme={theme} onClick={btn.onClick}>
+        <Icon style={btn.style} theme={theme} className={btn.className} onClick={btn.onClick}>
           <i style={btn.iconStyle} className={`icon-${btn.icon}`}></i>
         </Icon>
       </Tooltip>
@@ -135,7 +135,7 @@ export default class ShareUrl extends React.Component {
     return (
       <Fragment>
         <div className={`flexRow ${className}`} style={style}>
-          <Url className="flex flexRow" title={url}>
+          <Url className="flex flexRow shareInput" title={url}>
             {showinput ? (
               <input
                 type="text"
@@ -183,19 +183,19 @@ export default class ShareUrl extends React.Component {
           {customBtns.map(renderButtons)}
           {copyShowText ? (
             !copyTip ? (
-              <TextIcon theme={theme} onClick={() => this.handleCopy(url)}>
+              <TextIcon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
                 <span className="text">{_l('复制')}</span>
               </TextIcon>
             ) : (
               <Tooltip popupPlacement="bottom" text={<span>{copyTip}</span>}>
-                <TextIcon theme={theme} onClick={() => this.handleCopy(url)}>
+                <TextIcon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
                   <span className="text">{_l('复制')}</span>
                 </TextIcon>
               </Tooltip>
             )
           ) : (
             <Tooltip popupPlacement="bottom" text={<span>{_l('复制链接')}</span>}>
-              <Icon theme={theme} onClick={() => this.handleCopy(url)}>
+              <Icon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
                 <i className="icon-content-copy"></i>
               </Icon>
             </Tooltip>
@@ -225,7 +225,7 @@ export default class ShareUrl extends React.Component {
                 </React.Fragment>
               }
             >
-              <Icon theme={theme} className="Hand">
+              <Icon theme={theme} className="Hand qrCode">
                 <i className="icon-qr_code Font22 LineHeight36"></i>
               </Icon>
             </Tooltip>

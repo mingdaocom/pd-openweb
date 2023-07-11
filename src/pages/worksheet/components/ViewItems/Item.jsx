@@ -64,7 +64,7 @@ export default class Item extends Component {
             return fieldPermission[0] === '1' && controlPermissions[0] === '1';
           });
 
-    const featureType = getFeatureStatus(projectId, exportAttachmentFeatureId);
+    const featureType = window.isPublicApp ? '' : getFeatureStatus(projectId, exportAttachmentFeatureId);
 
     return (
       <Menu className="viewItemMoreOperate">
@@ -186,7 +186,7 @@ export default class Item extends Component {
                     <MenuItem
                       icon={<Icon icon={it.icon} />}
                       onClick={() => {
-                        if (window.isPublicApp === 1) {
+                        if (window.isPublicApp) {
                           alert(_l('预览模式下，不能操作'), 3);
                           return;
                         }

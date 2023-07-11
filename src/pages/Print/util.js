@@ -577,7 +577,8 @@ export const getControlsForPrint = (receiveControls, relations = []) => {
     control => (control.type === 29 && control.enumDefault === 2) || control.type === 34,
   );
   relation = relation.map((it, i) => {
-    return { ...it, relationControls: getShowControl(it.relationControls), relationsData: relations[i] };
+    let relationsData = relations.find(l => l.template.worksheetId === it.dataSource) || relations[i];
+    return { ...it, relationControls: getShowControl(it.relationControls), relationsData: relationsData };
   });
   receiveControls = receiveControls.map(control => {
     let data = relation.find(it => it.controlId === control.controlId);

@@ -400,7 +400,6 @@ export default function WidgetAiRecommend({ worksheetName, ...rest }) {
                 <span
                   dangerouslySetInnerHTML={{
                     __html: filterXSS(resultData, {
-                      stripIgnoreTag: true,
                       whiteList: whiteList,
                     }),
                   }}

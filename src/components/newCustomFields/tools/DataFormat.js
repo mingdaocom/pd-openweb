@@ -753,8 +753,9 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
       // 文本
       if (item.type === 2) {
         if (item.advancedSetting && item.advancedSetting.regex) {
+          const tempRegex = safeParse(item.advancedSetting.regex);
           errorType =
-            !value || new RegExp(safeParse(item.advancedSetting.regex).regex).test(value) ? '' : FORM_ERROR_TYPE.CUSTOM;
+            !value || (!tempRegex.err && new RegExp(tempRegex.regex).test(value)) ? '' : FORM_ERROR_TYPE.CUSTOM;
         }
         if (!errorType) {
           errorType = getRangeErrorType(item);

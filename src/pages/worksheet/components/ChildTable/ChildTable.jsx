@@ -859,7 +859,7 @@ class ChildTable extends React.Component {
     }
     let tableData = [];
     if (tableRows.length === 0) {
-      tableData = [{ rowid: 'empty', allowedit: true }];
+      tableData = [{ rowid: 'empty', allowedit }];
     } else if (tableRows.length === 1) {
       tableData = tableRows.concat({ isSubListFooter: true });
     } else {

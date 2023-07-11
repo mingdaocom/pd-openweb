@@ -18,6 +18,7 @@ import appManagementAjax from 'src/api/appManagement';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import _ from 'lodash';
 import { addBehaviorLog } from 'src/util';
+import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 
 class PrintForm extends React.Component {
   constructor(props) {
@@ -262,18 +263,11 @@ class PrintForm extends React.Component {
     let controls = receiveControls.filter(l => l.type === 51);
     if (controls.length === 0) return;
     let promiseList = controls.map(control => {
-      const { advancedSetting = {} } = control;
-      let _filter = safeParse(advancedSetting.resultfilters || '[]', 'array');
-      _filter.forEach((dat, index) => {
-        dat.groupFilters.forEach((item, i) => {
-          if(item.dynamicSource.find(l => l.cid==='current-rowid')) {
-            _filter[index].groupFilters[i] = {
-              ...item,
-              values: (item.values || []).concat(rowId)
-            }
-          }
-        })
-      })
+      const newFilter = getFilter({
+        control: { ...control, recordId: rowId },
+        formData: receiveControls,
+        filterKey: 'resultfilters',
+      });
 
       return sheetAjax.getRowRelationRows({
         worksheetId,
@@ -284,7 +278,7 @@ class PrintForm extends React.Component {
         pageIndex: 1,
         pageSize: 1000,
         rowId,
-        filterControls: _filter,
+        filterControls: newFilter,
       });
     });
     let _printData = _.cloneDeep(printData);
@@ -376,32 +370,52 @@ class PrintForm extends React.Component {
       if (from === fromType.PRINT && printType !== 'flow') {
         document.title = printId ? `${res.name}-${attributeName}` : `${_l('系统打印')}-${attributeName}`;
       }
-      this.setState(
-        {
-          printData: {
-            ...this.state.printData,
-            ..._.omit(res, ['rowId']),
-            rowIdForQr: res.rowId,
-            receiveControls,
-            rules,
-            attributeName,
-            font: Number(res.font || DEFAULT_FONT_SIZE),
-            orderNumber: dat
-              .filter(control => isRelation(control))
-              .map(it => {
-                // res.orderNumber取消序号呈现的关联表id
-                return { receiveControlId: it.controlId, checked: !(res.orderNumber || []).includes(it.controlId) };
+      let infoPromiseList = [];
+      receiveControls.forEach(l => {
+        if (l.type === 51) {
+          infoPromiseList.push(
+            sheetAjax.getWorksheetInfo({
+              worksheetId: l.dataSource,
+              getTemplate: true,
+            }),
+          );
+        }
+      });
+      Promise.all(infoPromiseList).then(res => {
+        this.setState(
+          {
+            printData: {
+              ...this.state.printData,
+              ..._.omit(res, ['rowId']),
+              rowIdForQr: res.rowId,
+              receiveControls: receiveControls.map(item => {
+                return {
+                  ...item,
+                  relationControls: item.type === 51 ? ((res.find(l => l.worksheetId === item.dataSource) || {template: {}}).template.controls || []) : (item.relationControls || [])
+                }
               }),
-            systemControl: sysToPrintData(res),
-            approvalIds: res.approvalIds,
+              rules,
+              attributeName,
+              font: Number(res.font || DEFAULT_FONT_SIZE),
+              orderNumber: dat
+                .filter(control => isRelation(control))
+                .map(it => {
+                  // res.orderNumber取消序号呈现的关联表id
+                  return { receiveControlId: it.controlId, checked: !(res.orderNumber || []).includes(it.controlId) };
+                }),
+              systemControl: sysToPrintData(res),
+              approvalIds: res.approvalIds,
+            },
+            isLoading: false,
           },
-          isLoading: false,
-        },
-        () => {
-          this.getApproval();
-          this.getRowRelationRows();
-        },
-      );
+          () => {
+            this.getApproval();
+            this.getRowRelationRows();
+          },
+        );
+      })
+
+
     });
   };
 
