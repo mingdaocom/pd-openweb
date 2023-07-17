@@ -37,7 +37,8 @@ export default class Widgets extends Component {
     // 单多行均有此问题
     // 文本框 tab键聚焦或shift+tab键聚焦 值不写入问题
     if ((!this.text && this.props.value) || (this.text && this.text.value !== this.props.value)) {
-      if (this.props.enumDefault !== 2) {
+      // 客户配置出现enumDefault为0的情况，统一按单行来
+      if (!_.includes([0, 2], this.props.enumDefault)) {
         this.joinTextareaEdit(e);
       } else {
         e.target.value = this.props.value || '';
@@ -229,7 +230,13 @@ export default class Widgets extends Component {
           />
         )}
 
-        {startTextScanCode && <TextScanQRCode projectId={projectId} disablePhoto={strDefault.split('')[0] === '1'} onChange={this.onChange} />}
+        {startTextScanCode && (
+          <TextScanQRCode
+            projectId={projectId}
+            disablePhoto={strDefault.split('')[0] === '1'}
+            onChange={this.onChange}
+          />
+        )}
       </Fragment>
     );
   }

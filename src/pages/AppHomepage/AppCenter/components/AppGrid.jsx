@@ -103,7 +103,7 @@ const GroupTab = styled.div`
   margin-right: 8px;
   border-radius: 36px;
   font-weight: bolder;
-  max-width: 156px;
+  max-width: 200px;
   margin-bottom: 8px;
   &.active,
   &:hover {
@@ -220,7 +220,7 @@ const GroupTabList = styled.div`
         .itemText {
           border-bottom: 2px solid rgba(0, 0, 0, 0);
           padding-bottom: 2px;
-          max-width: 120px;
+          max-width: 200px;
           color: #757575;
           font-weight: bold;
 
@@ -773,7 +773,7 @@ export default function AppGrid(props) {
               {setting.isAllAndProject && type === 'project' && !isAllActive && !keywords && renderProjectGroups()}
               <AppList
                 {...props}
-                type={type}
+                type={currentGroupTab === 'all' ? type : 'group'}
                 projectId={projectId}
                 allowCreate={allowCreate}
                 groupId={currentGroupTab !== 'all' && !!groups.length && !isAllActive ? currentGroupTab : undefined}

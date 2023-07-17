@@ -32,7 +32,7 @@ export const UPDATE_HIGHLIGHT = 'UPDATE_HIGHLIGHT';
 export const UPDATE_IS_LOADING = 'UPDATE_IS_LOADING';
 export const UPDATE_FIRST_LEVEL_LOADING = 'UPDATE_FIRST_LEVEL_LOADING';
 
-const PAGE_SIZE = 2;
+const PAGE_SIZE = 20;
 
 // 公司节点
 export const initRoot = () => dispatch => {
@@ -59,7 +59,7 @@ export const updateCollapse = (id = COMPANY_FAKE_ACCOUNTID, open = true) => ({
 });
 
 export const addSubordinates =
-  ({ id, accounts }) =>
+  ({ id, accounts, callback }) =>
   (dispatch, getState) => {
     StructureController.addStructure({
       projectId: Config.projectId,
@@ -74,6 +74,7 @@ export const addSubordinates =
           successAccounts = _.filter(accounts, account => failedAccountIds.indexOf(account.accountId) === -1);
         }
         const { users = {} } = getState().entities;
+        callback && callback();
         // 添加实体
         dispatch({
           type: ADD_STRUCTURES,
@@ -116,7 +117,7 @@ export const addSubordinates =
  * @param { string } params.parentId 替换的节点的父节点 update children用
  */
 export const replaceStructure =
-  ({ account, parentId, replacedAccountId }) =>
+  ({ account, parentId, replacedAccountId, callback }) =>
   dispatch => {
     const { accountId } = account;
     StructureController.replaceUserStructure({
@@ -126,6 +127,7 @@ export const replaceStructure =
     }).then(res => {
       if (res) {
         const { accountId } = account;
+        callback && callback();
         // 添加实体
         dispatch({
           type: ADD_STRUCTURES,
@@ -168,13 +170,14 @@ export const replaceStructure =
  * 移除节点
  */
 export const removeStructure =
-  ({ parentId, accountId }) =>
+  ({ parentId, accountId, callback }) =>
   dispatch => {
     StructureController.removeParentID({
       projectId: Config.projectId,
       accountId,
     }).then(res => {
       if (res) {
+        callback && callback();
         // 父实体修改
         dispatch({
           type: REMOVE_PARENT_CHILDREN,
@@ -202,10 +205,11 @@ export const fetchRootSubordinates =
     dispatch({ type: SUBORDINATES_REQUEST, payload: { id: parentId } });
     pageIndex <= 1 && dispatch({ type: UPDATE_IS_LOADING, payload: { data: true } });
     pageIndex > 1 && dispatch({ type: UPDATE_FIRST_LEVEL_LOADING, payload: { data: true } });
-    return StructureController.pagedTopAccountIdsWith3Level({
+    return StructureController.pagedGetAccountList({
       projectId: Config.projectId,
       pageIndex,
-      // pageSize: PAGE_SIZE,
+      pageSize: PAGE_SIZE,
+      parentId: parentId || '',
     }).then(
       ({ totalCount, pagedDatas: source }) => {
         dispatch({ type: ADD_STRUCTURES, payload: { source } });
@@ -227,11 +231,11 @@ export const fetchSubordinates =
   (parentId, pageIndex = 1) =>
   dispatch => {
     dispatch({ type: UPDATE_ENTITY_CHILDS, payload: { id: parentId, source: [], moreLoading: true } });
-    return StructureController.pagedSubIdsWithByAccountId({
+    return StructureController.pagedGetAccountList({
       projectId: Config.projectId,
-      accountId: parentId,
       pageIndex,
-      // pageSize: PAGE_SIZE,
+      pageSize: PAGE_SIZE,
+      parentId: parentId || '',
     }).then(({ pagedDatas: source, totalCount }) => {
       dispatch({ type: ADD_STRUCTURES, payload: { source } });
       dispatch({
@@ -279,6 +283,7 @@ export const fetchParent =
                 type: UPDATE_HIGHLIGHT,
                 payload: {
                   highLightId: id,
+                  highLightRootId: parentIds[0],
                 },
               });
             });
@@ -288,6 +293,7 @@ export const fetchParent =
           type: UPDATE_HIGHLIGHT,
           payload: {
             highLightId: id,
+            highLightRootId: id,
           },
         });
       }

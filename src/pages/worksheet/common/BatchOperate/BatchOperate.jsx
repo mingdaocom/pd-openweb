@@ -235,6 +235,7 @@ class BatchOperate extends React.Component {
       refreshWorksheetControls,
     } = this.props;
     const rowIds = selectedRows.map(row => row.rowid);
+    const isEditSingle = rowIds.length === 1 && !allWorksheetIsSelected;
     const controls =
       rowIds.length === 1 ? args.newOldControl : args.newOldControl.filter(c => !checkCellIsEmpty(c.value));
     delete args.newOldControl;
@@ -246,6 +247,12 @@ class BatchOperate extends React.Component {
       rowIds,
       controls,
     };
+    if (isEditSingle) {
+      updateArgs.newOldControl = controls;
+      updateArgs.rowId = rowIds[0];
+      delete updateArgs.controls;
+      delete updateArgs.rowIds;
+    }
     if (allWorksheetIsSelected) {
       delete args.rowIds;
       updateArgs.isAll = true;
@@ -268,9 +275,9 @@ class BatchOperate extends React.Component {
       );
       updateArgs.navGroupFilters = navGroupFilters;
     }
-    worksheetAjax.updateWorksheetRows(updateArgs).then(data => {
+    (isEditSingle ? worksheetAjax.updateWorksheetRow : worksheetAjax.updateWorksheetRows)(updateArgs).then(data => {
       callback();
-      if (data.successCount === selectedRows.length) {
+      if (isEditSingle ? data.resultCode === 1 : data.successCount === selectedRows.length) {
         alert(_l('修改成功'));
       }
       if (_.find(controls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {

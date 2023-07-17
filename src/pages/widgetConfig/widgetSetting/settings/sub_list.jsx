@@ -28,6 +28,7 @@ import { DEFAULT_SETTING_OPTIONS } from '../../config/setting';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import WidgetVerify from '../components/WidgetVerify';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
+import WidgetRowHeight from '../components/WidgetRowHeight';
 const { AddSubList, ConfigureControls, Sort } = subListComponents;
 
 const SettingModelWrap = styled.div`
@@ -292,6 +293,7 @@ export default function SubListSetting(props) {
           ) : (
             <LoadDiv />
           )}
+          <WidgetRowHeight {...props} />
         </Fragment>
       );
     }
@@ -316,6 +318,7 @@ export default function SubListSetting(props) {
             }}
           />
         )}
+        <WidgetRowHeight {...props} />
       </Fragment>
     );
   };

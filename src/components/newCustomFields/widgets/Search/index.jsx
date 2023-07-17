@@ -69,9 +69,9 @@ export default class Widgets extends Component {
     }
   }
 
-  realTimeSearch = _.debounce(mobileKeywords => this.handleSearch(mobileKeywords), 500);
+  realTimeSearch = _.debounce(() => this.handleSearch(), 500);
 
-  handleSearch = (mobileKeywords = '') => {
+  handleSearch = () => {
     const {
       advancedSetting: { requestmap, itemsource, itemtitle } = {},
       dataSource,
@@ -84,7 +84,6 @@ export default class Widgets extends Component {
       getControlRef,
     } = this.props;
     const { keywords } = this.state;
-    const isMobile = browserIsMobile();
 
     this.setState({ data: null });
 
@@ -97,8 +96,7 @@ export default class Widgets extends Component {
     }
 
     this.setState({ loading: true, open: true });
-    let searchValue = isMobile ? mobileKeywords : keywords;
-    const paramsData = getParamsByConfigs(requestMap, formData, searchValue, getControlRef);
+    const paramsData = getParamsByConfigs(requestMap, formData, keywords, getControlRef);
 
     let params = {
       data: !requestMap.length || _.isEmpty(paramsData) ? '' : paramsData,
@@ -360,11 +358,21 @@ export default class Widgets extends Component {
           controlName={controlName}
           advancedSetting={advancedSetting}
           optionData={optionData}
-          handleSearch={this.handleSearch}
+          handleSearch={keywords => {
+            this.setState({ keywords }, this.handleSearch);
+          }}
           renderList={this.renderList}
-          realTimeSearch={this.realTimeSearch}
+          realTimeSearch={keywords => {
+            this.setState({ keywords }, () => {
+              if (this.state.keywords.length < parseInt(min)) return;
+              this.realTimeSearch();
+            });
+          }}
           disabled={disabled}
           handleSelect={this.handleSelect}
+          clearData={() => {
+            this.setState({ data: [] });
+          }}
         />
       );
     }

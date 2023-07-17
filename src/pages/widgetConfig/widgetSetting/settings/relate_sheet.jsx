@@ -29,6 +29,7 @@ import { WHOLE_SIZE } from '../../config/Drag';
 import WidgetVerify from '../components/WidgetVerify';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { v4 as uuidv4 } from 'uuid';
+import WidgetRowHeight from '../components/WidgetRowHeight';
 
 const { ConfigRelate, BothWayRelate, SearchConfig } = sheetComponents;
 const { SheetDealDataType, RelateSheetInfo } = components;
@@ -525,6 +526,7 @@ export default function RelateSheet(props) {
           </RelateSheetCover>
         </SettingItem>
       )}
+      {isListDisplay && <WidgetRowHeight {...props} />}
       {showtype === '2' && (
         <SettingItem>
           <div className="settingItemTitle">{_l('排序')}</div>

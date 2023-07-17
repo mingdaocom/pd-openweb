@@ -109,7 +109,7 @@ function Buttons(props) {
       <CustomButtons
         isCharge={isCharge}
         hideDisabled
-        isBatchOperate
+        isBatchOperate={selectedRows.length > 1}
         type="iconText"
         {...buttonsProps}
         buttons={buttons.slice(0, buttonShowNum)}
@@ -152,7 +152,7 @@ function Buttons(props) {
               <CustomButtons
                 isCharge={isCharge}
                 hideDisabled
-                isBatchOperate
+                isBatchOperate={selectedRows.length > 1}
                 type="menu"
                 icon
                 {...buttonsProps}

@@ -990,13 +990,14 @@ export function validateFnExpression(expression, type = 'mdfunction') {
 /**
  * 对字段的 advancedSettings 进行解析处理
  */
-export function parseAdvancedSetting(setting) {
+export function parseAdvancedSetting(setting = {}) {
   return {
     allowadd: setting.allowadd === '1', // 子表允许新增
     allowcancel: setting.allowcancel === '1', // 子表允许删除
     allowedit: setting.allowedit === '1', // 子表允许编辑
     allowsingle: setting.allowsingle === '1', // 子表允许单条添加
     batchcids: safeParseArray(setting.batchcids), // 子表从指定字段添加记录
+    rowheight: Number(setting.rowheight || 0), // 行高
   };
 }
 

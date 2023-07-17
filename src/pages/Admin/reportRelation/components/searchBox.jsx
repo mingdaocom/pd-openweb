@@ -1,14 +1,9 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-
-import { fetchParent } from '../actions';
 import { searchUser } from '../common';
-
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import _ from 'lodash';
-const ClickAwayable = createDecoratedComponent(withClickAway);
+import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
+import Config from '../../config';
 
 class SearchInput extends Component {
   constructor(props) {
@@ -50,51 +45,26 @@ class SearchInput extends Component {
 
   promise = null;
 
-  handler(value) {
-    this.setState(
-      {
-        keywords: value,
-        isLoading: true,
+  selectUser = (e) => {
+    e.stopPropagation();
+    dialogSelectUser({
+      sourceId: 0,
+      fromType: 0,
+      fromAdmin: true,
+      SelectUserSettings: {
+        filterAll: true, // 过滤全部
+        filterFriend: true, // 是否过滤好友
+        filterOthers: true,
+        filterOtherProject: true,
+        projectId: Config.projectId,
+        inProject: true,
+        unique: true,
+        callback: users => {
+          const user = users[0];
+          this.props.onChange(user);
+        },
       },
-      () => {
-        this.debounced();
-      },
-    );
-  }
-
-  renderSearchResult() {
-    const { dispatch } = this.props;
-    const { result, keywords, isLoading, showList } = this.state;
-    if (keywords === '' || !showList) return null;
-    if (result.length) {
-      return (
-        <ClickAwayable className="searchUserList" onClickAway={() => this.setState({ showList: false })}>
-          {_.map(result, user => {
-            return (
-              <div
-                onClick={() => {
-                  dispatch(fetchParent(user.accountId));
-                }}
-                className="resultItem ThemeHoverBGColor7"
-                key={user.accountId}
-              >
-                <div className="Font16 Gray">{user.fullname}</div>
-                <div className="Font13 Gray_75 info">
-                  <span className="department">{user.department}</span>
-                  <span className="job">{user.job}</span>
-                </div>
-              </div>
-            );
-          })}
-        </ClickAwayable>
-      );
-    } else if (!isLoading) {
-      return (
-        <div className="searchUserList">
-          <div className="nullDataDiv pLeft10">{_l('暂无搜索结果')}</div>
-        </div>
-      );
-    }
+    });
   }
 
   componentWillUnmount() {
@@ -104,31 +74,10 @@ class SearchInput extends Component {
   }
 
   render() {
-    const { keywords } = this.state;
     return (
-      <div className="searchBox Relative">
-        <span className="Left mTop6 mLeft5 icon-search Font16 Gray_9" />
-        <div className="searchDiv">
-          <input
-            type="text"
-            id="searchText"
-            placeholder={_l('搜索员工')}
-            value={keywords}
-            className={keywords.length ? 'Gray' : ''}
-            onChange={event => {
-              this.handler(event.target.value);
-            }}
-          />
-        </div>
-        {keywords && keywords.length ? (
-          <span
-            className="Right icon-close Font14 mTop6 mRight5 Gray_9 Hand"
-            onClick={event => {
-              this.handler('');
-            }}
-          />
-        ) : null}
-        {this.renderSearchResult()}
+      <div className="searchUserBox Relative Hand" onClick={this.selectUser}>
+        <span className="Left icon-charger Font16 selectIcon mRight8" />
+        <span className='Font13'>{_l('查看成员')}</span>
       </div>
     );
   }

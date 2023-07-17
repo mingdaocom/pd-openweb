@@ -962,10 +962,13 @@ export function fillConditionValue({ condition, formData, relateControl }) {
   }
   if (dataType === 2 || dataType === 32 || dataType === 3 || dataType === 7 || dataType === 5) {
     condition.values = [
-      renderCellText({
-        ...dynamicControl,
-        value,
-      }),
+      renderCellText(
+        {
+          ...dynamicControl,
+          value,
+        },
+        { noMask: true },
+      ),
     ];
   } else if (
     dataType === 6 ||

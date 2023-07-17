@@ -9,7 +9,6 @@ export default class MobileSearch extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      keywords: '',
       currentChecked: props.value,
     };
   }
@@ -18,15 +17,31 @@ export default class MobileSearch extends Component {
       this.searchInput && this.searchInput.focus();
     }
   }
+
+  searchRealTime = value => {
+    const { advancedSetting = {} } = this.props;
+    const { itemtitle = '', clicksearch } = advancedSetting;
+    let optionData = (this.props.optionData || []).map((it, index) => ({ ...it, index }));
+
+    if (clicksearch === '1') {
+      this.props.realTimeSearch(value);
+    } else {
+      let searchResult = optionData.filter(item => `${item[itemtitle]}`.indexOf(value) > -1);
+      this.setState({ mobileSearchResult: searchResult });
+    }
+  };
+
   render() {
     const { enumDefault, controlName, value, loading, advancedSetting = {}, disabled, hint } = this.props;
-    const { keywords, currentChecked = '', visible, mobileSearchResult = [] } = this.state;
+    const { currentChecked = '', visible, mobileSearchResult = [] } = this.state;
     const { itemtitle = '', clicksearch, searchfirst, min = '0' } = advancedSetting;
     let optionData = (this.props.optionData || []).map((it, index) => ({ ...it, index }));
-    let mobileOptionData = keywords && enumDefault === 1 ? mobileSearchResult : optionData;
+    let mobileOptionData =
+      this.searchInput && this.searchInput.value && enumDefault === 1 ? mobileSearchResult : optionData;
     if (disabled) {
       return <div className="customFormControlBox customFormButton flexRow controlDisabled">{value}</div>;
     }
+
     return (
       <Fragment>
         <Select
@@ -35,7 +50,7 @@ export default class MobileSearch extends Component {
           onClick={() => {
             this.setState({ visible: true });
             if ((enumDefault === 2 && searchfirst === '1') || enumDefault === 1) {
-              this.props.handleSearch(keywords);
+              this.props.handleSearch(_.get(this.searchInput || {}, 'value'));
             }
           }}
           value={value}
@@ -43,7 +58,7 @@ export default class MobileSearch extends Component {
           suffixIcon={<Icon icon="arrow-right-border Font14" />}
           onChange={value => {
             // keywords判断是为了直接点击删除
-            if (value || !keywords.length) {
+            if (value || (this.searchInput && !this.searchInput.value.length)) {
               this.props.onChange(value);
             }
           }}
@@ -60,7 +75,10 @@ export default class MobileSearch extends Component {
               <div
                 className="ThemeColor3 TxtLeft pRight16 Font15"
                 onClick={() => {
-                  this.setState({ visible: false, keywords: '' });
+                  this.setState({ visible: false, mobileOptionData: [] });
+                  if (this.searchInput) {
+                    this.searchInput.value = '';
+                  }
                 }}
               >
                 {_l('取消')}
@@ -69,7 +87,10 @@ export default class MobileSearch extends Component {
               <div
                 className="ThemeColor3 pLeft16 TxtRight Font15"
                 onClick={() => {
-                  this.setState({ visible: false, currentChecked: '', keywords: '' });
+                  this.setState({ visible: false, currentChecked: '', mobileOptionData: [] });
+                  if (this.searchInput) {
+                    this.searchInput.value = '';
+                  }
                   this.props.onChange();
                 }}
               >
@@ -87,17 +108,12 @@ export default class MobileSearch extends Component {
                     type="text"
                     className="cursorText flex Gray"
                     placeholder={hint || _l('请选择')}
-                    onChange={e => {
-                      const value = e.target.value.trim();
-                      this.setState({ keywords: value });
-                    }}
-                    value={keywords}
                   />
                   <div
                     className="searchBtn"
                     onClick={() => {
-                      if (keywords.length < parseInt(min)) return;
-                      this.props.handleSearch(keywords);
+                      if (this.searchInput.value.length < parseInt(min)) return;
+                      this.props.handleSearch(this.searchInput.value);
                     }}
                   >
                     <Icon icon="search" className="Font18 Gray_75" />
@@ -112,17 +128,22 @@ export default class MobileSearch extends Component {
                     placeholder={hint || _l('请选择')}
                     ref={node => (this.searchInput = node)}
                     onChange={e => {
-                      const value = e.target.value.trim();
-                      if (clicksearch === '1') {
-                        this.setState({ keywords: value });
-                        if (keywords.length < parseInt(min)) return;
-                        this.props.realTimeSearch(value);
-                      } else {
-                        let searchResult = optionData.filter(item => `${item[itemtitle]}`.indexOf(value) > -1);
-                        this.setState({ keywords: value, mobileSearchResult: searchResult });
+                      const value = this.searchInput.value.trim();
+                      if (!value) {
+                        this.props.clearData();
+                        return;
                       }
+                      if (this.isOnComposition) return;
+                      this.searchRealTime(value);
                     }}
-                    value={keywords}
+                    onCompositionStart={() => (this.isOnComposition = true)}
+                    onCompositionEnd={event => {
+                      const value = this.searchInput.value.trim();
+                      if (event.type === 'compositionend') {
+                        this.isOnComposition = false;
+                      }
+                      this.searchRealTime(value);
+                    }}
                   />
                 </div>
               )}
@@ -130,7 +151,7 @@ export default class MobileSearch extends Component {
                 <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter">
                   <LoadDiv />
                 </div>
-              ) : keywords && enumDefault === 1 && _.isEmpty(mobileSearchResult) ? (
+              ) : _.get(this.searchInput || {}, 'value') && enumDefault === 1 && _.isEmpty(mobileSearchResult) ? (
                 <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter">
                   <Icon icon="h5_search" className="Font50" />
                   <div className="Gray_bd Font17 Bold mTop40">{_l('没有搜索结果')}</div>

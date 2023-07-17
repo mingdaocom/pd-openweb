@@ -43,7 +43,7 @@ export default class ValueAddService extends Component {
   handleInputFocus() {
     this.setState({
       isInput: true,
-      inputValue: Number(this.state.inputValue) ? this.state.inputValue : 1,
+      inputValue: Number(this.state.inputValue) ? this.state.inputValue : 200,
     });
   }
 
@@ -53,7 +53,7 @@ export default class ValueAddService extends Component {
 
   //自定义金额
   handleInputChange(e) {
-    let tmpPrince = parseInt(e.target.value) || 1;
+    let tmpPrince = parseInt(e.target.value) || 200;
     if (tmpPrince > 999999) {
       tmpPrince = 999999;
       alert(_l('最多充值金额 999999 元'), 3);
@@ -136,6 +136,11 @@ export default class ValueAddService extends Component {
                       value={inputValue}
                       onFocus={this.handleInputFocus.bind(this)}
                       onChange={e => this.handleInputChange(e)}
+                      onBlur={e => {
+                        this.setState({
+                          inputValue: Number(e.target.value) && Number(e.target.value) >= 200 ? e.target.value : 200,
+                        });
+                      }}
                     />
                   </li>
                 </ul>

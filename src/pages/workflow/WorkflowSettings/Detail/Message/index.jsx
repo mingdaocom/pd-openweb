@@ -237,7 +237,11 @@ export default class Message extends Component {
             <div className="mTop5">{data.messageTemplate.companySignature}</div>
 
             <div className="mTop15 bold">{_l('类型：')}</div>
-            {data.messageTemplate.type === 2 ? _l('营销') : data.messageTemplate.type === 3 ? _l('金融') : _l('常规')}
+            {data.messageTemplate.type === 2
+              ? _l('营销推广')
+              : data.messageTemplate.type === 3
+              ? _l('金融交易')
+              : _l('行业通知')}
 
             <div className="mTop15 bold">{_l('内容')}</div>
             <TagTextarea
@@ -378,7 +382,7 @@ export default class Message extends Component {
                 >
                   <Radio className="Font15" disabled />
                   <TagBox className={cx('mRight10', { yellow: item.type === 2, blue: item.type === 3 })}>
-                    {item.type === 2 ? _l('营销') : item.type === 3 ? _l('金融') : _l('常规')}
+                    {item.type === 2 ? _l('营销推广') : item.type === 3 ? _l('金融交易') : _l('行业通知')}
                   </TagBox>
                   <div className="alignItemsCenter workflowMessageListItem">
                     {this.getTemplateListContent(

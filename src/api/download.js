@@ -185,7 +185,7 @@ export default {
      return $.api('Download', 'CustomIcon', args, options);
    },
   /**
-  * 下载应用文件包
+  * 下载应用包
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -196,7 +196,7 @@ export default {
      return $.api('Download', 'AppFile', args, options);
    },
   /**
-  * 
+  * 下载导出的工作表附件跳转
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -253,17 +253,6 @@ export default {
      return $.api('Download', 'ExportGlobalLogs', args, options);
    },
   /**
-  * 下载应用备份文件
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   downloadBackupFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return $.api('Download', 'DownloadBackupFile', args, options);
-   },
-  /**
   * 批量下载行记录附件
   * @param {Object} args 请求参数
   * @param {string} args.controlId 附件控件id
@@ -286,7 +275,18 @@ export default {
      return $.api('Download', 'RowAttachments', args, options);
    },
   /**
-  * 下载应用库模板
+  * 下载应用备份文件
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   downloadBackupFile: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return $.api('Download', 'DownloadBackupFile', args, options);
+   },
+  /**
+  * 下载应用库模板文件
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

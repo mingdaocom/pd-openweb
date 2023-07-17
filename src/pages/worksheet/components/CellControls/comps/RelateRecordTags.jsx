@@ -272,7 +272,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
         isediting
           ? {
               width: style.width,
-              ...(rowIndex === 0
+              ...(rowIndex === 0 && style.height < 56
                 ? {
                     height: 56,
                     overflow: 'auto',

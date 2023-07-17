@@ -19,6 +19,7 @@ import { FilterItemTexts } from '../components/FilterData';
 import { RELATION_SEARCH_DISPLAY } from '../../config/setting';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { RelateSearchWorksheet, relateSearchWorksheet } from '../components/relationSearch/relateSearchWorksheet';
+import WidgetRowHeight from '../components/WidgetRowHeight';
 
 const FILL_TYPES = [
   {
@@ -435,6 +436,7 @@ export default function RelationSearch(props) {
           </RelateSheetCover>
         </SettingItem>
       )}
+      {isSheetDisplay() && <WidgetRowHeight {...props} />}
       {relationControls.length > 0 && (
         <SettingItem>
           <div className="settingItemTitle">{_l('排序')}</div>

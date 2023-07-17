@@ -5,6 +5,7 @@ import ajax from 'src/api/worksheet';
 import { upgradeVersionDialog, browserIsMobile } from 'src/util';
 import { getParamsByConfigs } from '../Search/util';
 import { formatResponseData } from 'src/components/UploadFiles/utils.js';
+import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 
 export default class Widgets extends Component {

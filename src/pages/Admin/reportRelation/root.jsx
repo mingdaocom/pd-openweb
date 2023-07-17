@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-
+import { ScrollView } from 'ming-ui';
 import Checkbox from 'ming-ui/components/Checkbox';
 import Node from './components/node';
 import SearchInput from './components/searchBox';
@@ -9,6 +9,7 @@ import { initRoot, fetchRootSubordinates, updateCollapse } from './actions';
 import { getAuth, setStructureForAll, setStructureSelfEdit } from './common';
 import cx from 'classnames';
 
+import NodeDialog from './components/NodeDialog';
 class Root extends Component {
   static defaultProps = {
     isProjectAdmin: true,
@@ -19,6 +20,8 @@ class Root extends Component {
     this.state = {
       auth: props.from != 'myReport',
       authForAll: false,
+      searchUser: undefined,
+      nodeDialogVisible: false,
     };
   }
 
@@ -77,8 +80,8 @@ class Root extends Component {
   };
 
   render() {
-    const { isProjectAdmin } = this.props;
-    const { auth, authForAll, allowStructureSelfEdit } = this.state;
+    const { isProjectAdmin, highLightRootId } = this.props;
+    const { auth, authForAll, allowStructureSelfEdit, searchUser, nodeDialogVisible } = this.state;
 
     return (
       <Fragment>
@@ -109,7 +112,23 @@ class Root extends Component {
         )}
         <div className={cx('mainContent rootBoard box-sizing', { rootBoardBox: auth })}>
           <div className="card pAll20 box-sizing mLeft16 mRight16 h100">
-            {auth && <SearchInput />}
+            {auth && <SearchInput onChange={user => this.setState({ searchUser: user, nodeDialogVisible: true })} />}
+            {nodeDialogVisible && (
+              <NodeDialog
+                auth={auth}
+                id={searchUser.accountId}
+                user={searchUser}
+                handleClose={() => {
+                  this.setState({
+                    nodeDialogVisible: false,
+                    searchUser: undefined,
+                  });
+                }}
+                selectSearchUser={user => {
+                  this.setState({ searchUser: user });
+                }}
+              />
+            )}
             <div
               className="wrapper"
               ref={el => {

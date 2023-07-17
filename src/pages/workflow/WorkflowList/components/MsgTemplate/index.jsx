@@ -117,7 +117,9 @@ export default class MsgTemplate extends Component {
                       <div className="content flex">
                         [{companySignature}] {messageContent}
                       </div>
-                      <div className="type">{type === 2 ? _l('营销') : type === 3 ? _l('金融') : _l('常规')}</div>
+                      <div className="type">
+                        {type === 2 ? _l('营销推广') : type === 3 ? _l('金融交易') : _l('行业通知')}
+                      </div>
                       <div className="status">
                         <StatusIcon status={status} />
                       </div>

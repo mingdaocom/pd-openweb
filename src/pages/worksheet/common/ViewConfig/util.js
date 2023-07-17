@@ -31,7 +31,7 @@ export const updateAdvancedSetting = (view, obj) => {
 };
 
 //格式化advancedSetting的navfilters
-export const formatAdvancedSettingByNavfilters = (view, newValue) => {
+export const formatAdvancedSettingByNavfilters = (view, newValue = {}) => {
   const { navfilters } = newValue;
   const { advancedSetting = {} } = view;
   const { navshow } = advancedSetting;
@@ -60,6 +60,19 @@ export const formatAdvancedSettingByNavfilters = (view, newValue) => {
           ),
     });
   }
+};
+
+//格式化带有Navfilters的配置数据
+export const formatObjWithNavfilters = (o) => {
+  if (!!_.get(o, 'advancedSetting.navfilters')) {
+    return {
+      ...o,
+      advancedSetting: formatAdvancedSettingByNavfilters(o),
+    };
+  } else {
+    return o;
+  }
+
 };
 
 // 不能作为视图排序的控件

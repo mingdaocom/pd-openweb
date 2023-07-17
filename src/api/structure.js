@@ -62,6 +62,34 @@ export default {
      return $.api('Structure', 'PagedTopAccountIdsWith3Level', args, options);
    },
   /**
+  * 分页获取最顶层员工
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.parentId
+  * @param {integer} args.pageIndex
+  * @param {integer} args.pageSize
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   pagedGetAccountList: function (args, options = {}) {
+     
+     return $.api('Structure', 'PagedGetAccountList', args, options);
+   },
+  /**
+  * 获取员工上级用户信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.accountId 账号id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getTreesByAccountId: function (args, options = {}) {
+     
+     return $.api('Structure', 'GetTreesByAccountId', args, options);
+   },
+  /**
   * 获取员工下属
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id

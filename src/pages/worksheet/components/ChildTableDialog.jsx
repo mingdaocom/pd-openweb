@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { Button, Modal, Dialog } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import styled from 'styled-components';
+import { ROW_HEIGHT } from 'worksheet/constants/enum';
 import ChildTable from 'worksheet/components/ChildTable';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
@@ -99,13 +100,14 @@ export default function ChildTableDialog(props) {
     onChange = () => {},
   } = props;
   const cache = useRef({});
+  const rowHeight = ROW_HEIGHT[Number(_.get(control, 'advancedSetting.rowheight'))] || 34;
   const meedUpdateControls = _.isEmpty(controls) || hasNoRelationRelateControl(controls);
   const [changed, setChanged] = useState(false);
   const [refreshFlag, setRefreshFlag] = useState(Math.random());
   const [value, setValue] = useState({});
   const conHeight = window.innerHeight - 32 - 50;
-  const maxShowRowCount = Math.floor((conHeight - 30) / 34);
   const maxHeight = conHeight - 31 - 36 - 10;
+  const maxShowRowCount = Math.floor((maxHeight - 30) / rowHeight);
   const allowOpenInNew = !control.isDraft && !_.get(window, 'shareState.shareId');
   const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
   function handleSave(close) {

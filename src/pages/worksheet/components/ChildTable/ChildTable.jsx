@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
 import moment from 'moment';
 import { browserIsMobile, createElementFromHtml } from 'src/util';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import { RECORD_INFO_FROM, ROW_HEIGHT } from 'worksheet/constants/enum';
 import worksheetAjax from 'src/api/worksheet';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import Skeleton from 'src/router/Application/Skeleton';
@@ -822,7 +822,10 @@ class ChildTable extends React.Component {
       searchConfig,
       sheetSwitchPermit,
     } = this.props;
-    let { allowadd, allowcancel, allowedit, batchcids, allowsingle } = parseAdvancedSetting(control.advancedSetting);
+    let { allowadd, allowcancel, allowedit, batchcids, allowsingle, rowheight } = parseAdvancedSetting(
+      control.advancedSetting,
+    );
+    const rowHeight = ROW_HEIGHT[rowheight] || 34;
     const {
       loading,
       tempSheetColumnWidths,
@@ -847,7 +850,7 @@ class ChildTable extends React.Component {
     const disabledNew = tableRows.length === maxCount || noColumns || disabled || !allowadd;
     const RowDetailComponent = isMobile ? RowDetailMobile : RowDetail;
     const fullShowTable = tableRows.length <= maxShowRowCount;
-    let tableHeight = ((fullShowTable ? tableRows.length || 1 : maxShowRowCount) + 1) * 34;
+    let tableHeight = (fullShowTable ? tableRows.length || 1 : maxShowRowCount) * rowHeight + 34;
     if (maxHeight && tableHeight > maxHeight) {
       tableHeight = maxHeight;
     }
@@ -859,7 +862,7 @@ class ChildTable extends React.Component {
     }
     let tableData = [];
     if (tableRows.length === 0) {
-      tableData = [{ rowid: 'empty', allowedit }];
+      tableData = [{ rowid: 'empty', allowedit: allowadd }];
     } else if (tableRows.length === 1) {
       tableData = tableRows.concat({ isSubListFooter: true });
     } else {
@@ -932,7 +935,7 @@ class ChildTable extends React.Component {
               fixedColumnCount={0}
               lineEditable={!disabled}
               noRenderEmpty
-              rowHeight={34}
+              rowHeight={rowHeight}
               worksheetId={control.dataSource}
               projectId={projectId}
               appId={appId}

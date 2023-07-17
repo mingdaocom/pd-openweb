@@ -28,7 +28,14 @@ export const FORM_ERROR_TYPE_TEXT = {
       if (advancedSetting.showtype === '1') {
         return _l('请开启此项');
       } else if (advancedSetting.showtype === '2') {
-        return _l('请选择{是}');
+        const itemNames = safeParse((advancedSetting || {}).itemnames || '[]');
+        return _l(
+          '请选择%0',
+          _.get(
+            _.find(itemNames, i => i.key === '1'),
+            'value',
+          ),
+        );
       } else {
         return _l('请勾选此项');
       }

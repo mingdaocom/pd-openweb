@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import cx from 'classnames';
 import worksheetAjax from 'src/api/worksheet';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import Option from './StyledOption';
 import _ from 'lodash';
@@ -44,8 +44,7 @@ export default function RelateRecordOptions(props) {
   return (
     <Con>
       {prefixRecords.concat(records).map((record, i) => {
-        const title =
-          record.rowid === 'isEmpty' ? record.name : getTitleTextFromControls(control.relationControls, record);
+        const title = record.rowid === 'isEmpty' ? record.name : getTitleTextFromRelateControl(control, record);
         return (
           <Option
             className={cx('ellipsis', { checked: _.find(selected, { rowid: record.rowid }) })}

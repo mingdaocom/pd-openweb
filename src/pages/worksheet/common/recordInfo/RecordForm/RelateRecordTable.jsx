@@ -9,7 +9,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { replaceByIndex, emitter } from 'worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { WORKSHEETTABLE_FROM_MODULE, RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import { WORKSHEETTABLE_FROM_MODULE, RECORD_INFO_FROM, ROW_HEIGHT } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import Skeleton from 'src/router/Application/Skeleton';
 import { Input } from 'ming-ui';
@@ -249,6 +249,7 @@ export default function RelateRecordTable(props) {
   } = props;
   const { worksheetId, recordId, isCharge, allowEdit } = recordbase;
   const allowlink = (control.advancedSetting || {}).allowlink;
+  const rowHeight = Number((control.advancedSetting || {}).rowheight || 0);
   const columnWidthsOfSetting = getCellWidths(control);
   const [isHiddenOtherViewRecord, , onlyRelateByScanCode] = (control.strDefault || '').split('').map(b => !!+b);
   const disabledManualWrite = onlyRelateByScanCode && control.advancedSetting.dismanual === '1';
@@ -725,7 +726,7 @@ export default function RelateRecordTable(props) {
         worksheetId={worksheetOfControl.worksheetId}
         // rules={worksheetOfControl.rules}
         rowHeadWidth={rowHeadWidth}
-        rowHeight={34}
+        rowHeight={ROW_HEIGHT[rowHeight] || 34}
         controls={tableControls}
         data={isNewRecord ? records : records.slice(0, pageSize)}
         columns={tableVisibleControls}

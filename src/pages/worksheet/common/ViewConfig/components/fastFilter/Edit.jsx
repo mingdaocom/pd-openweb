@@ -32,7 +32,7 @@ import _ from 'lodash';
 import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { formatAdvancedSettingByNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
+import { formatAdvancedSettingByNavfilters, formatObjWithNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
 import SearchConfig from './SearchConfig';
 const Wrap = styled.div`
   width: 400px;
@@ -203,6 +203,9 @@ const Wrap = styled.div`
       font-weight: bold;
     }
   }
+  .RelateRecordDropdown-selected {
+    height: auto;
+  }
 `;
 
 function Edit(params) {
@@ -275,7 +278,7 @@ function Edit(params) {
             }
             return filters;
           } else {
-            return o;
+            return formatObjWithNavfilters(o);
           }
         }),
         editAttrs: ['fastFilters'],

@@ -76,6 +76,7 @@ const initialState = {
   },
   highLightId: null,
   isLoading: false,
+  highLightRootId: null,
 };
 
 export default (state = initialState, action) => {
@@ -83,6 +84,7 @@ export default (state = initialState, action) => {
   if (ACTIONS[type] === undefined) return state;
   const users = state.entities.users;
   const highLightId = state.highLightId;
+  const highLightRootId = state.highLightRootId;
   let id, user;
   switch (type) {
     case ACTIONS.ADD_STRUCTURES:
@@ -150,11 +152,13 @@ export default (state = initialState, action) => {
       return {
         ...state,
         highLightId: null,
+        highLightRootId: null,
       };
     case ACTIONS.UPDATE_HIGHLIGHT:
       return {
         ...state,
         highLightId: payload.highLightId,
+        highLightRootId: payload.highLightRootId,
       };
     case ACTIONS.UPDATE_IS_LOADING:
       return {

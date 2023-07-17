@@ -370,6 +370,24 @@ class PrintForm extends React.Component {
       if (from === fromType.PRINT && printType !== 'flow') {
         document.title = printId ? `${res.name}-${attributeName}` : `${_l('系统打印')}-${attributeName}`;
       }
+      let _printData = {
+        ...this.state.printData,
+        ..._.omit(res, ['rowId']),
+        rowIdForQr: res.rowId,
+        receiveControls,
+        rules,
+        attributeName,
+        font: Number(res.font || DEFAULT_FONT_SIZE),
+        orderNumber: dat
+          .filter(control => isRelation(control))
+          .map(it => {
+            // res.orderNumber取消序号呈现的关联表id
+            return { receiveControlId: it.controlId, checked: !(res.orderNumber || []).includes(it.controlId) };
+          }),
+        systemControl: sysToPrintData(res),
+        approvalIds: res.approvalIds,
+      };
+
       let infoPromiseList = [];
       receiveControls.forEach(l => {
         if (l.type === 51) {
@@ -381,31 +399,11 @@ class PrintForm extends React.Component {
           );
         }
       });
-      Promise.all(infoPromiseList).then(res => {
+
+      if (infoPromiseList.length === 0) {
         this.setState(
           {
-            printData: {
-              ...this.state.printData,
-              ..._.omit(res, ['rowId']),
-              rowIdForQr: res.rowId,
-              receiveControls: receiveControls.map(item => {
-                return {
-                  ...item,
-                  relationControls: item.type === 51 ? ((res.find(l => l.worksheetId === item.dataSource) || {template: {}}).template.controls || []) : (item.relationControls || [])
-                }
-              }),
-              rules,
-              attributeName,
-              font: Number(res.font || DEFAULT_FONT_SIZE),
-              orderNumber: dat
-                .filter(control => isRelation(control))
-                .map(it => {
-                  // res.orderNumber取消序号呈现的关联表id
-                  return { receiveControlId: it.controlId, checked: !(res.orderNumber || []).includes(it.controlId) };
-                }),
-              systemControl: sysToPrintData(res),
-              approvalIds: res.approvalIds,
-            },
+            printData: _printData,
             isLoading: false,
           },
           () => {
@@ -413,9 +411,32 @@ class PrintForm extends React.Component {
             this.getRowRelationRows();
           },
         );
-      })
-
-
+      } else {
+        Promise.all(infoPromiseList).then(res => {
+          let _receiveControls = receiveControls.map(item => {
+            return {
+              ...item,
+              relationControls:
+                item.type === 51
+                  ? (res.find(l => l.worksheetId === item.dataSource) || { template: {} }).template.controls || []
+                  : item.relationControls || [],
+            };
+          })
+          this.setState(
+            {
+              printData: {
+                ..._printData,
+                receiveControls: _receiveControls,
+              },
+              isLoading: false,
+            },
+            () => {
+              this.getApproval();
+              this.getRowRelationRows();
+            },
+          );
+        });
+      }
     });
   };
 

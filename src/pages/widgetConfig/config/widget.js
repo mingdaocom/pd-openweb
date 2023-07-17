@@ -533,6 +533,7 @@ export const DEFAULT_DATA = {
       allowedit: '1',
       allowsingle: '1',
       allowexport: '1',
+      rowheight: '0',
     },
   },
   SWITCH: {

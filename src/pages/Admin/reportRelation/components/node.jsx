@@ -48,8 +48,21 @@ class Node extends Component {
   };
 
   renderChilds() {
-    const { subordinates, collapsed, id, auth, pageIndex, dispatch, moreLoading, subTotalCount, firstLevelLoading } =
-      this.props;
+    const {
+      subordinates,
+      collapsed,
+      id,
+      auth,
+      pageIndex,
+      dispatch,
+      moreLoading,
+      subTotalCount,
+      firstLevelLoading,
+      dataFromProps = false,
+      data = {},
+      onChangeData,
+      disableMore = false,
+    } = this.props;
     if (subordinates && !collapsed) {
       return (
         <div className="childNodeList">
@@ -62,9 +75,16 @@ class Node extends Component {
               isLast: index === subordinates.length - 1,
               auth,
             };
+
+            if (dataFromProps) {
+              _props.onChangeData = onChangeData;
+              _props.data = data;
+              _props.dataFromProps = dataFromProps;
+            }
+
             return <ConnectedNode {..._props} key={_props.id} />;
           })}
-          {subTotalCount > subordinates.length && (
+          {!disableMore && subTotalCount > subordinates.length && (
             <div
               className="loadMore Hand"
               onClick={() => {
@@ -81,24 +101,25 @@ class Node extends Component {
   }
 
   toggle() {
-    const { dispatch, id, collapsed, subordinates } = this.props;
+    const { dispatch, id, collapsed, subordinates, hasSub } = this.props;
     dispatch(updateCollapse(id, collapsed));
-    if (collapsed && subordinates) {
+    if (collapsed && hasSub && !subordinates) {
       dispatch(fetchSubordinates(id));
     }
   }
 
   renderToggleButton() {
-    const { subordinates, collapsed, id } = this.props;
-    const len = subordinates && subordinates.length;
-    if (subordinates && len) {
+    const { collapsed, id, hasSub, dataFromProps, onChangeData, data } = this.props;
+    if (hasSub) {
       const font = collapsed ? 'plus' : 'minus';
       return (
         <Icon
           className="toggleButton"
           icon={font}
           onClick={() => {
-            this.toggle();
+            if (dataFromProps) {
+              onChangeData({ type: 'EXPEND', value: !collapsed, id: id });
+            } else this.toggle();
           }}
         />
       );
@@ -106,51 +127,54 @@ class Node extends Component {
   }
 
   add() {
-    const { id, dispatch } = this.props;
+    const { id, dispatch, dataFromProps, onChangeData } = this.props;
     selectUser({
       title: _l('添加下属'),
       accountId: id,
       callback: accounts => {
-        dispatch(
-          addSubordinates({
-            id,
-            accounts,
-          }),
-        );
+        let param = { id, accounts };
+        if (dataFromProps) {
+          param.callback = () => onChangeData({ type: 'ADD', value: accounts, id });
+        }
+        dispatch(addSubordinates(param));
       },
     });
   }
 
   replace() {
-    const { id, parentId, dispatch } = this.props;
+    const { id, parentId, dispatch, onChangeData, dataFromProps } = this.props;
     selectUser({
       title: _l('替换成员'),
       accountId: id,
       unique: true,
       callback: accounts => {
-        dispatch(
-          replaceStructure({
-            parentId,
-            account: accounts[0],
-            replacedAccountId: id,
-          }),
-        );
+        let param = {
+          parentId,
+          account: accounts[0],
+          replacedAccountId: id,
+        };
+        if (dataFromProps) {
+          param.callback = () => onChangeData({ type: 'REPLACE', value: accounts[0], id: parentId });
+        }
+        dispatch(replaceStructure(param));
       },
     });
   }
 
   remove() {
-    const { id, parentId, fullname, dispatch } = this.props;
+    const { id, parentId, fullname, dispatch, dataFromProps, onChangeData } = this.props;
     Dialog.confirm({
       title: _l('确认移除 %0 ?', fullname),
       description: _l('移除后，其下属成员也将从汇报关系中移除'),
       onOk: () => {
-        dispatch(
-          removeStructure({
-            parentId,
-            accountId: id,
-          }),
-        );
+        let param = {
+          parentId,
+          accountId: id,
+        };
+        if (dataFromProps) {
+          param.callback = () => onChangeData({ type: 'REMOVE', id: parentId, values: id });
+        }
+        dispatch(removeStructure(param));
       },
     });
   }
@@ -185,11 +209,7 @@ class Node extends Component {
   }
 
   componentDidMount() {
-    const { level, dispatch, id, collapsed } = this.props;
-    if (level === 1) {
-      // 默认打开公司下第一层节点
-      dispatch(updateCollapse(id, collapsed));
-    }
+    const { level, dispatch, id, collapsed, dataFromProps } = this.props;
     this.handleSearchHighLight();
   }
 
@@ -198,8 +218,6 @@ class Node extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    // const isSubordinateChange = !arrayEqual(this.props.subordinates || [], nextProps.subordinates || []);
-    // const isCollapseChange = this.props.collapsed !== nextProps.collapsed;
     return !_.isEqual(this.props, nextProps);
   }
 
@@ -253,13 +271,20 @@ const ConnectedNode = connect((state, ownProps) => {
     isLoading,
     firstLevelLoading,
   } = state;
-  const user = users[ownProps.id];
+  const user = ownProps.dataFromProps
+    ? {
+        ...ownProps.data[ownProps.id],
+        disableMore: ownProps.data[ownProps.id].disableMore,
+      }
+    : users[ownProps.id];
+
   return {
     ...user,
+    // ...ownProps,
     level: ownProps.level,
     isHighLight: highLightId === ownProps.id,
     isLoading,
-    firstLevelLoading,
+    firstLevelLoading: ownProps.dataFromProps ? ownProps.firstLevelLoading : firstLevelLoading,
   };
 })(Node);
 

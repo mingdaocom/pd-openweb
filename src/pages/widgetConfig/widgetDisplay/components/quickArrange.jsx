@@ -5,7 +5,7 @@ import cx from 'classnames';
 import { SettingItem } from '../../styled';
 import { isFullLineControl, isHaveGap } from '../../util/widgets';
 import { WHOLE_SIZE } from '../../config/Drag';
-import { AnimationWrap } from './WidgetStyle';
+import { AnimationWrap } from '../../styled';
 
 const ARRANGE_TYPE = [
   { text: _l('一列'), value: 1 },
@@ -90,7 +90,7 @@ export default function QuickArrange({ widgets, setWidgets }) {
   return (
     <SettingItem className="settingItem withSplitLine">
       <div className="settingItemTitle">
-        <span className='Font14'>{_l('快速排列')}</span>
+        <span className="Font14">{_l('快速排列')}</span>
         <div className="Absolute Right1 flexCenter">
           {activeColumn > 0 && (
             <div className="arrangeBtn mRight16" onClick={restore}>

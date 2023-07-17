@@ -1,9 +1,9 @@
 import React, { createRef, useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util';
+import { updateViewAdvancedSetting, formatObjWithNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
 import { Icon, Tooltip } from 'ming-ui';
 import './index.less';
-import { FASTFILTER_CONDITION_TYPE, getSetDefault } from './util';
+import { getSetDefault } from './util';
 import { Checkbox } from 'ming-ui';
 import bgFastFilters from './img/bgFastFilters.png';
 import FastFilterCon from './fastFilterCon';
@@ -81,7 +81,9 @@ export default function FastFilter(params) {
   const updateView = fastFilters => {
     updateCurrentView(
       Object.assign(view, {
-        fastFilters,
+        fastFilters: fastFilters.map(o => {
+          return formatObjWithNavfilters(o);
+        }),
         advancedSetting:
           fastFilters.length > 0
             ? {

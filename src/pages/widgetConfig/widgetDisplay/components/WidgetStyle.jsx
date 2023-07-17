@@ -9,30 +9,7 @@ import QuickArrange from './quickArrange';
 import './FieldRecycleBin.less';
 import img from 'staticfiles/images/colour.png';
 import _ from 'lodash';
-
-export const AnimationWrap = styled.div`
-  display: flex;
-  padding: 2px;
-  background: #f8f8f8;
-  border-radius: 3px;
-  .animaItem {
-    height: 32px;
-    border-radius: 3px;
-    line-height: 32px;
-    text-align: center;
-    cursor: pointer;
-    font-weight: bold;
-    color: #757575;
-    flex: 1;
-    &:hover {
-      color: #2196f3;
-    }
-    &.active {
-      background: #ffffff;
-      color: #2196f3;
-    }
-  }
-`;
+import { AnimationWrap } from '../../styled';
 
 const FILL_TYPE = [
   { value: '0', text: _l('填满') },

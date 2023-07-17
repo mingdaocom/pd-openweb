@@ -19,7 +19,7 @@ export default class Item extends Component {
     super(props);
 
     this.state = {
-      isDisabled: props.status === 4,
+      isDisabled: props.status !== 1,
       showOpList: false,
     };
     this.timer = null;
