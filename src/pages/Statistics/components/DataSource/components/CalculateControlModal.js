@@ -134,7 +134,7 @@ class CalculateControl extends Component {
             style={{ color: norm.value === item.value ? '#2196f3' : null }}
             onClick={() => {
               const newFormulaStr = this.state.formulaStr.replace(
-                new RegExp(`${controlId}-\\w`),
+                new RegExp(`${controlId}-${norm.value}`),
                 `${controlId}-${item.value}`,
               );
               this.tagtextarea.setValue(newFormulaStr);

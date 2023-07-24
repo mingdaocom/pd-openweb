@@ -458,7 +458,7 @@ export default class Text extends React.Component {
                 return (
                   <span
                     className={
-                      cell.type === 32
+                      rowHeight > 34 && (cell.type === 32 || (cell.type === 2 && cell.enumDefault === 1))
                         ? cx('worksheetCellPureString nowrap', {
                             linelimit: needLineLimit,
                             ellipsis: isMobile,

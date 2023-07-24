@@ -453,7 +453,7 @@ export default class AppAndWorksheetLog extends Component {
       })
       .then(res => {
         if (res.resultCode === 7) {
-          this.setState({ isAuthority: false });
+          this.setState({ isAuthority: false, loading: false });
           return;
         }
         !this.props.appId && this.getAppList();
@@ -551,7 +551,7 @@ export default class AppAndWorksheetLog extends Component {
         </div>
       );
     }
-    if (appId && !isAuthority) {
+    if (!isAuthority) {
       return (
         <NoAuthorWrap>
           <div className="imgWrap">

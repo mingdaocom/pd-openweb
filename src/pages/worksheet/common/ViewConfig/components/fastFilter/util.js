@@ -314,6 +314,9 @@ export const ADVANCEDSETTING_KEYS = [
   'searchcontrol',
   'clicksearch',
 ];
+export const Filter_KEYS = [
+  'filterType',
+];
 
 export const getControlFormatType = (control = {}) => {
   return redefineComplexControl(control).type;

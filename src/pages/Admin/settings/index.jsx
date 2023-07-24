@@ -26,7 +26,7 @@ const CONFIGS = [
   {
     key: 'encryptRules',
     title: _l('加密规则'),
-    descrption: _l('设置字段在加密时可用的加密方式'),
+    descrption: _l('配置工作表字段加密存储时可以选择的加密方式'),
     clickFunc: 'setEncryptRules',
   },
   {

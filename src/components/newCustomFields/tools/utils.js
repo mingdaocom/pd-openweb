@@ -205,7 +205,7 @@ export function formatControlToServer(
   if (_.isUndefined(control.value)) {
     return result;
   }
-  let parsedValue;
+  let parsedValue, childTableControls;
   const isRelateRecordDropdown =
     control.type === 29 &&
     String(_.get(control, 'advancedSetting.showtype')) === String(RELATE_RECORD_SHOW_TYPE.DROPDOWN);
@@ -309,9 +309,15 @@ export function formatControlToServer(
       }
       break;
     case 34: // 子表
+      childTableControls = !_.isEmpty(control.relationControls)
+        ? control.relationControls
+        : _.get(result, 'value.controls');
+      if (_.isEmpty(childTableControls)) {
+        console.log('childTableControls is empty');
+      }
       if (result.value.isAdd) {
         result.value = JSON.stringify(
-          control.value.rows.map(row => formatRowToServer(row, control.relationControls, { isDraft })),
+          control.value.rows.map(row => formatRowToServer(row, childTableControls || [], { isDraft })),
         );
         if (result.value === '[]') {
           result.value = '';
@@ -339,7 +345,7 @@ export function formatControlToServer(
                 if (isNew) {
                   return {
                     editType: 0,
-                    newOldControl: formatRowToServer(row, control.relationControls),
+                    newOldControl: formatRowToServer(row, childTableControls),
                   };
                 } else {
                   if (row && row.updatedControlIds) {
@@ -349,7 +355,7 @@ export function formatControlToServer(
                   return {
                     rowid,
                     editType: 0,
-                    newOldControl: formatRowToServer(row, control.relationControls),
+                    newOldControl: formatRowToServer(row, childTableControls),
                   };
                 }
               })

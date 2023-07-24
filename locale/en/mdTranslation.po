@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: POT-Creation-Date: 2023/3/2 14:42:32+08:00MIME-Version: 1.0\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2023-06-14 16:52+0800\n"
+"PO-Revision-Date: 2023-07-20 16:59+0800\n"
 "Last-Translator: 1 <1>\n"
 "Language-Team: 官网-英语\n"
 "Language: en\n"
@@ -1482,15 +1482,15 @@ msgstr "Classic"
 
 #: Disabled references:1
 msgid "人物"
-msgstr "Smileys &amp; People"
+msgstr "Smileys People"
 
 #: Disabled references:1
 msgid "动物和大自然"
-msgstr "Animals &amp; Nature"
+msgstr "Animals Nature"
 
 #: Disabled references:1
 msgid "食物和饮料"
-msgstr "Food &amp; Drink"
+msgstr "Food Drink"
 
 #: Disabled references:1
 msgid "物体"
@@ -2682,7 +2682,7 @@ msgstr "Close pop-up "
 
 #: Disabled references:1
 msgid "继续创建下一条"
-msgstr "Save &amp; Add Next"
+msgstr "Save Add Next"
 
 #: Disabled references:1
 msgid "打开刚刚创建的记录"
@@ -3230,11 +3230,11 @@ msgstr "Unsaved changes detected, do you want to save the changes before leaving
 
 #: Disabled references:1
 msgid "否，放弃保存"
-msgstr "No, waive the changes"
+msgstr "Don't save"
 
 #: Disabled references:1
 msgid "是，保存修改"
-msgstr "Yes, save the changes"
+msgstr "Save"
 
 #: Disabled references:1
 msgid "暂未设置%0"
@@ -5654,11 +5654,11 @@ msgstr ">="
 
 #: Disabled references:1
 msgid "<"
-msgstr "&lt;"
+msgstr "<"
 
 #: Disabled references:1
 msgid "<="
-msgstr "&lt;="
+msgstr "<="
 
 #: Disabled references:1
 msgid "常规用户"
@@ -6062,7 +6062,7 @@ msgstr "Response content: "
 
 #: Disabled references:1
 msgid "获取二三级 城市/区县信息"
-msgstr "Get info of the second level City &amp; third level District"
+msgstr "Get info of the second level City third level District"
 
 #: Disabled references:1
 msgid "提交参数：{\"id\": \"省份or城市id\"}"
@@ -6358,7 +6358,7 @@ msgstr "Enter event location…"
 
 #: Disabled references:1
 msgid "描述和附件"
-msgstr "Details &amp; files"
+msgstr "Details files"
 
 #: Disabled references:1
 msgid "填写描述"
@@ -9718,7 +9718,7 @@ msgstr "You can also add apps from the Template Library."
 
 #: Disabled references:1
 msgid "筛选与排序"
-msgstr "Filter &amp; Sort"
+msgstr "Filter Sort"
 
 #: Disabled references:1
 msgid "打开链接"
@@ -17266,7 +17266,7 @@ msgstr "5. Request to turn on Enterprise Address Book permissions"
 
 #: Disabled references:1
 msgid "回到自建应用的“权限管理”"
-msgstr "Turn back to “权限管理” of Custom Tools &amp; Links"
+msgstr "Turn back to “权限管理” of Custom Tools Links"
 
 #: Disabled references:1
 msgid "a. 权限范围：建议选择“全部员工”"
@@ -18778,7 +18778,7 @@ msgstr "Costume"
 
 #: Disabled references:1
 msgid "饮食"
-msgstr "Food &amp; Drink"
+msgstr "Food Drink"
 
 #: Disabled references:1
 msgid "活动"
@@ -20014,7 +20014,7 @@ msgstr "Highest position"
 
 #: Disabled references:1
 msgid "专业和学历"
-msgstr "Major &amp; degree"
+msgstr "Major degree"
 
 #: Disabled references:1
 msgid "核心课程"
@@ -20642,7 +20642,7 @@ msgstr "Center"
 
 #: Disabled references:1
 msgid "左右"
-msgstr "Left&amp;Right"
+msgstr "Left&Right"
 
 #: Disabled references:1
 msgid "背景设置"
@@ -23042,7 +23042,7 @@ msgstr "Only effective for members and sharing group members. Admin will be able
 
 #: Disabled references:1
 msgid "获取链接与二维码"
-msgstr "Get link &amp; QR code"
+msgstr "Get link QR code"
 
 #: Disabled references:1
 msgid "默认值"
@@ -24962,7 +24962,7 @@ msgstr "Do you want to save the changes"
 
 #: Disabled references:1
 msgid "是，保存更改"
-msgstr "Yes, save them"
+msgstr "Save"
 
 #: Disabled references:1
 msgid "字段说明"
@@ -25214,11 +25214,11 @@ msgstr "There are unsaved changes at the current node, do you want to save these
 
 #: Disabled references:1
 msgid "否，放弃修改"
-msgstr "No, discard the changes"
+msgstr "Don't save"
 
 #: Disabled references:1
 msgid "是，前往保存"
-msgstr "Yes, save the changes"
+msgstr "Save"
 
 #: Disabled references:1
 msgid "画布概览"
@@ -25254,7 +25254,7 @@ msgstr "The Workflow without a triggering way can not be saved"
 
 #: Disabled references:1
 msgid "放弃保存"
-msgstr "Discard saving"
+msgstr "Don't save"
 
 #: Disabled references:1
 msgid "确定恢复到当前版本吗？"
@@ -31686,7 +31686,7 @@ msgstr "Question"
 
 #: Disabled references:1
 msgid "音视频"
-msgstr "Audio &amp; Video"
+msgstr "Audio Video"
 
 #: Disabled references:1
 msgid "无星标动态"
@@ -36194,7 +36194,7 @@ msgstr "There is no Word printing template"
 
 #: Disabled references:1
 msgid "系统默认使用记录标题作为文件名，自定义名称时不得包含英文字符/:*?\"<>|"
-msgstr "The system defaults to using the record title as the file name; custom names must not contain the character /:*?\" &lt;>|"
+msgstr "The system defaults to using the record title as the file name; custom names must not contain the character /:*?\" <>|"
 
 #: Disabled references:1
 msgid "必须选择对象"
@@ -40657,8 +40657,8 @@ msgid "数据导入 - 上传Excel（1/3）"
 msgstr "Data import - upload excel (1/3)"
 
 #: Disabled references:1
-msgid "支持10MB以内的xls、xlsx、csv文件, 最大行数不超过20000行，列数不超过200列；导入多选类型的控件，请确保Excel字段内各个选项/人员用“，”隔开；导入地区控件，省市县之间以“/”隔开，如：江西省/上饶市/铅山县，如填写的地区格式没有“/”，则会按照名称精准匹配"
-msgstr "Support xls, xlsx, csv files within 10MB, maximum rows not more than 20000, columns not more than 200; Importing multiple selection type control, please make sure that each option/person in the Excel field is separated by \",\"; Importing region control, provinces, cities and counties are separated by \"/\" , e.g: Jiangxi Province / Shangrao City / Lingshan County, if the filled area format does not have \"/\", it will be wholly matched according to the name"
+msgid "支持10MB以内的xls、xlsx、csv文件, 最大行数不超过%0行，列数不超过200列；导入多选类型的控件，请确保Excel字段内各个选项/人员用“，”隔开；导入地区控件，省市县之间以“/”隔开，如：江西省/上饶市/铅山县，如填写的地区格式没有“/”，则会按照名称精准匹配"
+msgstr "Support xls, xlsx, csv files within 10MB, maximum rows not more than %0, columns not more than 200; Importing multiple selection type control, please make sure that each option/person in the Excel field is separated by \",\"; Importing region control, provinces, cities and counties are separated by \"/\" , e.g: Jiangxi Province / Shangrao City / Lingshan County, if the filled area format does not have \"/\", it will be wholly matched according to the name"
 
 #: Disabled references:1
 msgid "编辑选中记录"
@@ -44057,14 +44057,6 @@ msgid "复制整个分支"
 msgstr "Copy the entire branch"
 
 #: Disabled references:1
-msgid "预置常用项作为模板，帮助操作人快捷填写"
-msgstr "Pre-populate common items as templates to assist users in quickly filling out the form."
-
-#: Disabled references:1
-msgid "查找字段"
-msgstr "Search for fields"
-
-#: Disabled references:1
 msgid "获取流程操作明细"
 msgstr "Get process operation details"
 
@@ -44265,10 +44257,6 @@ msgid "仅组织管理员可以添加"
 msgstr "Only organization administrators can add"
 
 #: Disabled references:1
-msgid "旧"
-msgstr "The oldest is at the top"
-
-#: Disabled references:1
 msgid "检测到所选表已关联 %0，是否建立"
 msgstr "The selected table is detected to be associated with %0, continue to creat?"
 
@@ -44299,10 +44287,6 @@ msgstr "New query"
 #: Disabled references:1
 msgid "检测到已有关联，是否查询关联当前 %0 的 %1 ？"
 msgstr "An association has been detected. Do you want to query the %1 which associated %0?"
-
-#: Disabled references:1
-msgid "依据关联记录"
-msgstr "Based on relationship records"
 
 #: Disabled references:1
 msgid "根据条件查询目标工作表的记录。如：查询关联客户的订单。"
@@ -44339,10 +44323,6 @@ msgstr "Allow participation in recording discussions"
 #: Disabled references:1
 msgid "允许查看审批流转详情"
 msgstr "Allow viewing approval process details"
-
-#: Disabled references:1
-msgid "发布流程%03088"
-msgstr "Publish%03088"
 
 #: Disabled references:1
 msgid "映射关系失效"
@@ -44406,31 +44386,31 @@ msgstr "Use\"%0\""
 
 #: Disabled references:1
 msgid "创建人："
-msgstr ""
+msgstr "Creator:"
 
 #: Disabled references:1
 msgid "(创建人)"
-msgstr ""
+msgstr "(Creator)"
 
 #: Disabled references:1
 msgid "申请加入失败，您在该企业已离职，请联系管理员恢复权限"
-msgstr ""
+msgstr "If the application to join fails and you have left the company. Please contact the administrator to restore the permission"
 
 #: Disabled references:1
 msgid "流程名称 / 创建人"
-msgstr ""
+msgstr "Workflow name / Creator"
 
 #: Disabled references:1
 msgid "搜索员工"
-msgstr ""
+msgstr "Search Employee"
 
 #: Disabled references:1
 msgid "账务%15000"
-msgstr ""
+msgstr "Billing"
 
 #: Disabled references:1
 msgid "2.将Excel中%0列与工作表中%1字段逐行对比，%2识别到的重复数据，%3"
-msgstr ""
+msgstr "2. Compare the %0 column in Excel with the %1 field in the worksheet row by row, duplicate data identified by %2, %3"
 
 #: Disabled references:1
 msgid "最新的在前%05029"
@@ -44451,4 +44431,1999 @@ msgstr "9 → 1"
 #: Disabled references:1
 msgid "排序%05028"
 msgstr "Sort"
+
+#: Disabled references:1
+msgid "通用设置"
+msgstr "General settings"
+
+#: Disabled references:1
+msgid "专属算力"
+msgstr "Exclusive computing power"
+
+#: Disabled references:1
+msgid "操作失败，已启用“%0”集成"
+msgstr "Operation failure, \"%0\" integration enabled"
+
+#: Disabled references:1
+msgid "查看我的数据"
+msgstr "View my data"
+
+#: Disabled references:1
+msgid "创建人："
+msgstr "Creator:"
+
+#: Disabled references:1
+msgid "子表、关联记录、查询记录（列表）"
+msgstr "Subform, associated records, inquiry records (list)"
+
+#: Disabled references:1
+msgid "关联记录（列表）、子表中的字段支持三种打印方式。"
+msgstr "Fields in associated records (list) and subform can be printed in three ways."
+
+#: Disabled references:1
+msgid "（1）表格打印（默认）：直接将字段代码放入表格中，在表格中逐行向下列出所有记录的字段值。如果要对相同值进行合并单元格，可在字段代码中加上“[M]”，如：#{客户.客户名称[M]}"
+msgstr "(1) Form printing (default): Directly put the field code into the form, and list the field values of all records row by row in the form. If you want to combine form cells for the same value, you can add \"[M]\" to the field code, such as: #{Customer.Customer Name[M]}"
+
+#: Disabled references:1
+msgid "（2）逐条打印：关联记录（列表）中 每一条记录作为一个整体依次逐条打印。可以将以下代码插入到模板中，代码下方的内容将识别为记录的基本单元。"
+msgstr "(2) Print one by one: Each record in the associated record (list) is printed one by one as a whole. You can insert the following code into the template, and the content below the code will be recognized as the base unit of the record."
+
+#: Disabled references:1
+msgid "（3）拼接打印：以逗号隔开列出所有记录的字段值。可在字段代码中加上“[S]”，如#{客户.客户名称[S]}。"
+msgstr "(3) Splicing printing: List the field values of all records separated by commas. You can add \"[S]\" to the field code, such as #{Customer.Customer Name[S]}."
+
+#: Disabled references:1
+msgid "审批明细字段支持三种打印方式。如果同一条审批流程被重复发起了多次，则只会打印发起时间最近的一次。"
+msgstr "Approval summary fields support three printing methods. If the same approval process is initiated multiple times, only the recent initiated process is printed."
+
+#: Disabled references:1
+msgid "2. 字段代码必须按照表中的格式填写，否则无法获取到对应字段的数据；如果某两个字段的字段名称相同，为了系统能够识别请选择复制字段ID/字段别名用于制作模板。"
+msgstr "2. The field code must be filled according to the format in the form, otherwise the data of the corresponding field cannot be obtained. If two fields are with the same name, please use copied field ID/field alias to make the template for system identification."
+
+#: Disabled references:1
+msgid "3. 平铺类的选项字段如需打印未选中的选项，可在字段代码或ID/别名后加“_Alloptions”，例如：#{单选_Alloptions}。"
+msgstr "3.If you need to print the unselected options for a flat-style option field, you can add \"_Alloptions\" to the field code or ID/alias. For example: #{SingleChoice_Alloptions}."
+
+#: Disabled references:1
+msgid "4. 可获取附件字段中的图片，字段代码为：#{附件$[90*auto_L]$}。其中：90*auto 表示图片宽/高尺寸（单位mm）；_L表示获取的图片质量。"
+msgstr "4. You can get the picture in the attachment field, and the field code is: #{attachment $[90*auto_L]$}, where: 90*auto indicates the width/height of the image (in mm); _L indicates the quality of the image acquired."
+
+#: Disabled references:1
+msgid "（1）图片尺寸支持4种设置方式。[90*auto] 表示宽度固定为90，高度自适应。[auto*90] 表示宽度自适应，高度固定为90。[90*50_auto]表示宽高在90*50的范围内同时自适应。[90*50]表示宽高为固定尺寸。"
+msgstr "(1) The image size supports 4 settings. [90*auto] means that the width is fixed at 90 and the height is adaptive. [auto*90] means that the width is adaptive, and the height fixed at 90. [90*50_auto] means that the width and height are simultaneously adaptive in the range of 90*50. [90*50] indicates that the width and height are fixed dimensions."
+
+#: Disabled references:1
+msgid "（2）图片质量支持低、中、高三种设置（默认为低）。低（L）—生成速度快，用于一般打印；中（M）—生成速度适中，打印较清晰；高（H）—生成速度慢，用于高质量彩色打印。"
+msgstr "(2) The picture quality supports three settings: low, medium and high (the default is low). Low (L) - Fast generation speed for general printing; Medium (M) - Moderate generation speed for clear printing; High (H) - Slow generation for high-quality color printing."
+
+#: Disabled references:1
+msgid "5.可通过代码 #{[qrcode]字段名$[20*20]$} 或 #{[barcode]字段名$[40*10]$} 获取任意字段的二维码 或 条形码。二维码编码方式：QR-code，最大包含150个字（支持汉字）；条形码编码方式：code128，最大包含30个字符（仅支持数字、字母、符号）。"
+msgstr "5. The QR code or barcode of any field can be obtained by code #{[qrcode]field name$[20*20]$} or #{[barcode]field name$[40*10]$}. The QR code encoding method: QR-code, containing 150 characters at most (Chinese characters are supported); barcode encoding method: code128, including 30 characters at most (only numbers, letters and symbols are supported)."
+
+#: Disabled references:1
+msgid "6. 如需不打印没有数据的关联表/子表，请将代码：#NoDataNotPrint[start]# 和 #NoDataNotPrint[end]# 插入到模板中，代码之间的关联记录/子表没有数据则不会打印。"
+msgstr "6. To prevent printing of associated tables/subtables without data, please insert the codes: #NoDataNotPrint[start]# and #NoDataNotPrint[end]# into the template. If there is no data between these codes for the associated records/subtables, they will not be printed."
+
+#: Disabled references:1
+msgid "7. 批量打印时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页。设置方法可参考"
+msgstr "7. All data are printed continuously by default in batch printing. If you want to implement pagination (each record starts on a new page), you need to set a page break in the first paragraph in the template. Method referred"
+
+#: Disabled references:1
+msgid "了解更多制作技巧和注意事项。"
+msgstr "Learn more production tips and considerations."
+
+#: Disabled references:1
+msgid "示范模板快速开始"
+msgstr "Demo template, Quick start"
+
+#: Disabled references:1
+msgid "当前有尚未保存的更改，您在打开新页面前是否需要先保存这些更改"
+msgstr "There are unsaved changes at present. Save these changes before opening a new page?"
+
+#: Disabled references:1
+msgid "否，暂不打开"
+msgstr "No, don’t open at this time"
+
+#: Disabled references:1
+msgid "最新的在前%05029"
+msgstr "9 → 1"
+
+#: Disabled references:1
+msgid "最旧的在前%05030"
+msgstr "1 → 9"
+
+#: Disabled references:1
+msgid "升序%05031"
+msgstr "1 → 9"
+
+#: Disabled references:1
+msgid "降序%05032"
+msgstr "9 → 1"
+
+#: Disabled references:1
+msgid "查询记录"
+msgstr "Inquiry records"
+
+#: Disabled references:1
+msgid "浏览器平台仅https环境支持调用摄像头api"
+msgstr "The browser platform only supports calling camera APIs in HTTPS environments"
+
+#: Disabled references:1
+msgid "请开启此项"
+msgstr "Please enable this option"
+
+#: Disabled references:1
+msgid "请勾选此项"
+msgstr "Please check this option"
+
+#: Disabled references:1
+msgid "设置链接成功"
+msgstr "set a link successfully"
+
+#: Disabled references:1
+msgid "设置链接失败!"
+msgstr "Failed to set a link!"
+
+#: Disabled references:1
+msgid "设置链接失败！"
+msgstr "Failed to set a link!"
+
+#: Disabled references:1
+msgid "APP"
+msgstr "APP"
+
+#: Disabled references:1
+msgid "外部链接"
+msgstr "External links"
+
+#: Disabled references:1
+msgid "加为此应用管理员"
+msgstr "Add as an Admin to this APP"
+
+#: Disabled references:1
+msgid "您是否确认进行保存？"
+msgstr "Are you sure to save?"
+
+#: Disabled references:1
+msgid "保存后，您的原始集成映射关系将被清理。"
+msgstr "After saving, your original integration mapping relationship is cleaned up."
+
+#: Disabled references:1
+msgid "请确认是否不需要原始集成关系，再执行此操作"
+msgstr "Verify that you don't need the original integration relationship before you perform this operation"
+
+#: Disabled references:1
+msgid "请输入您的登录密码，以验证您的身份信息"
+msgstr "Please enter your login password to verify your identity"
+
+#: Disabled references:1
+msgid "请输入相关信息"
+msgstr "Please enter the relevant information"
+
+#: Disabled references:1
+msgid "添加人"
+msgstr "Adder"
+
+#: Disabled references:1
+msgid "管理算力"
+msgstr "Manage computing power"
+
+#: Disabled references:1
+msgid "服务已过期"
+msgstr "Service expired"
+
+#: Disabled references:1
+msgid "工作流名称"
+msgstr "Name of workflow"
+
+#: Disabled references:1
+msgid "移出工作流"
+msgstr "Remove workflow"
+
+#: Disabled references:1
+msgid "移出%0个工作流"
+msgstr "Remove %0 workflows"
+
+#: Disabled references:1
+msgid "请联系组织管理员购买或升级"
+msgstr "Contact your organization administrator to purchase or upgrade"
+
+#: Disabled references:1
+msgid "购买数量超出上限"
+msgstr "Number of purchase exceeds the limit"
+
+#: Disabled references:1
+msgid "重新创建中..."
+msgstr "Recreating..."
+
+#: Disabled references:1
+msgid "配置专属算力"
+msgstr "Configure exclusive computing power"
+
+#: Disabled references:1
+msgid "您的组织购买专属算力服务后，将重要的工作流添加到专属算力服务中运行，可免受本组织或平台其他组织的流程堵塞影响"
+msgstr "After your organization purchases the exclusive computing power service, add important workflows to the exclusive computing power service to run, which can be protected from process blockage in the organization or other organizations on the platform"
+
+#: Disabled references:1
+msgid "购买专属算力"
+msgstr "Purchase exclusive computing"
+
+#: Disabled references:1
+msgid "资源ID"
+msgstr "Resource ID"
+
+#: Disabled references:1
+msgid "复制资源ID"
+msgstr "Copy the resource ID"
+
+#: Disabled references:1
+msgid "重新创建"
+msgstr "Recreate"
+
+#: Disabled references:1
+msgid "请联系组织管理员续费"
+msgstr "Contact your organization administrator to renew"
+
+#: Disabled references:1
+msgid "规格"
+msgstr "Specification"
+
+#: Disabled references:1
+msgid "%0并发数"
+msgstr "%0 concurrency"
+
+#: Disabled references:1
+msgid "到期"
+msgstr "Expire"
+
+#: Disabled references:1
+msgid "工作流数"
+msgstr "Number of workflows"
+
+#: Disabled references:1
+msgid "将重要的工作流添加到专属算力中运行，可免受本组织或平台其他组织的流程堵塞影响"
+msgstr "Add important workflows to the exclusive computing to run, which can be protected from process blockage in the organization or other organizations on the platform"
+
+#: Disabled references:1
+msgid "已选择%0条"
+msgstr "%0 entries selected"
+
+#: Disabled references:1
+msgid "应用管理"
+msgstr "Application management"
+
+#: Disabled references:1
+msgid "记录操作"
+msgstr "Record operation"
+
+#: Disabled references:1
+msgid "用户行为"
+msgstr "User behavior"
+
+#: Disabled references:1
+msgid "浏览"
+msgstr "Browse"
+
+#: Disabled references:1
+msgid "批量创建"
+msgstr "Batch creation"
+
+#: Disabled references:1
+msgid "批量更新"
+msgstr "Batch updates"
+
+#: Disabled references:1
+msgid "附件预览"
+msgstr "Attachment preview"
+
+#: Disabled references:1
+msgid "登录/登出时间"
+msgstr "Login/logout time"
+
+#: Disabled references:1
+msgid "登录类型"
+msgstr "Login type"
+
+#: Disabled references:1
+msgid "IP归属地"
+msgstr "IP attribution"
+
+#: Disabled references:1
+msgid "浏览器版本"
+msgstr "Web browser version"
+
+#: Disabled references:1
+msgid "操作系统类型"
+msgstr "Operating system type"
+
+#: Disabled references:1
+msgid "操作系统版本"
+msgstr "Operating system version"
+
+#: Disabled references:1
+msgid "经纬度"
+msgstr "Latitude and longitude"
+
+#: Disabled references:1
+msgid "设备类型"
+msgstr "Device type"
+
+#: Disabled references:1
+msgid "设备型号"
+msgstr "Device model"
+
+#: Disabled references:1
+msgid "设备ID"
+msgstr "Device ID"
+
+#: Disabled references:1
+msgid "IMEI"
+msgstr "IMEI"
+
+#: Disabled references:1
+msgid "操作内容"
+msgstr "Action content"
+
+#: Disabled references:1
+msgid "操作对象"
+msgstr "Action objects"
+
+#: Disabled references:1
+msgid "操作类型"
+msgstr "Action type"
+
+#: Disabled references:1
+msgid "停留时长"
+msgstr "Duration"
+
+#: Disabled references:1
+msgid "日志 - 应用"
+msgstr "Log - Apply"
+
+#: Disabled references:1
+msgid "登出"
+msgstr "Logout"
+
+#: Disabled references:1
+msgid "数据导出超过100,000行，本次仅导出前100,000行记录"
+msgstr "The data exported exceeds 100,000 rows, and only the first 100,000 rows of records are exported this time"
+
+#: Disabled references:1
+msgid "日志 - 登录"
+msgstr "Log - Login"
+
+#: Disabled references:1
+msgid "加密规则"
+msgstr "Encryption rules"
+
+#: Disabled references:1
+msgid "设置字段在加密时可用的加密方式"
+msgstr "Set the encryption method that the field can use when it is encrypted"
+
+#: Disabled references:1
+msgid "上传的图标可用于应用、应用项等地方"
+msgstr "Uploaded icons can be used in places such as apps, app items, and so on"
+
+#: Disabled references:1
+msgid "启用水印配置后，将在组织所有应用内显示当前使用者的姓名+手机号后4位或邮箱前缀"
+msgstr "If watermark configuration is enabled, watermark will be displayed in all apps of this org, which is made up of the last 4 digits of the phone or the mail prefix of the current user"
+
+#: Disabled references:1
+msgid "通用配置"
+msgstr "General configuration"
+
+#: Disabled references:1
+msgid "应用消息:您已被"
+msgstr "App message: You have been"
+
+#: Disabled references:1
+msgid "刘兰"
+msgstr "added as"
+
+#: Disabled references:1
+msgid "添加为"
+msgstr "an owner of"
+
+#: Disabled references:1
+msgid "销售线索管理"
+msgstr "sales lead management"
+
+#: Disabled references:1
+msgid "的负责人"
+msgstr "by Liu Lan"
+
+#: Disabled references:1
+msgid "平台版"
+msgstr "Platform edition"
+
+#: Disabled references:1
+msgid "组织数"
+msgstr "Number of organizations"
+
+#: Disabled references:1
+msgid "应用总数上限"
+msgstr "Maximum total number of apps"
+
+#: Disabled references:1
+msgid "工作表总数上限"
+msgstr "Maximum total number of worksheets"
+
+#: Disabled references:1
+msgid "行记录总数上限/单表"
+msgstr "Maximum total number of row records/single form"
+
+#: Disabled references:1
+msgid "工作流总数上限/单月"
+msgstr "Maximum total number of workflows/single month"
+
+#: Disabled references:1
+msgid "更新试用密钥"
+msgstr "Update the trial key"
+
+#: Disabled references:1
+msgid "数据同步算力数"
+msgstr "Computing power pack in data sync"
+
+#: Disabled references:1
+msgid "增值服务"
+msgstr "Value-added services"
+
+#: Disabled references:1
+msgid "已授权"
+msgstr "Authorized"
+
+#: Disabled references:1
+msgid "未授权"
+msgstr "Unauthorized"
+
+#: Disabled references:1
+msgid "试用密钥"
+msgstr "Trial key"
+
+#: Disabled references:1
+msgid "正在验证您的试用密钥"
+msgstr "Verifying your trial key"
+
+#: Disabled references:1
+msgid "非子流程节点数据处理上限"
+msgstr "Data processing limits for non-subflow nodes"
+
+#: Disabled references:1
+msgid "工作流“获取多条数据”节点获取的数据，被后续数据处理节点(非子流程)使用时，可处理的数据量上限"
+msgstr "The maximum amount of data that can be processed when the data obtained by the workflow \"Get multiple pieces of data\" node is used by subsequent data processing nodes (non-subflow)"
+
+#: Disabled references:1
+msgid "子流程节点可处理的数据上限"
+msgstr "The upper limit of data that can be processed by a subflow node"
+
+#: Disabled references:1
+msgid "工作流“获取多条数据”节点获取的数据，被子流程节点使用时，可处理的数据量上限"
+msgstr "The maximum amount of data that can be processed when the data obtained by the workflow \"Get multiple pieces of data\" node is used by non-subflow"
+
+#: Disabled references:1
+msgid "数据回收站/备份文件保留时长"
+msgstr "Duration of data recycle bin/backup file"
+
+#: Disabled references:1
+msgid "启用应用库"
+msgstr "Enable the App Library"
+
+#: Disabled references:1
+msgid "使用明道云应用库"
+msgstr "Use Mingdao Cloud App Library"
+
+#: Disabled references:1
+msgid "(创建人)"
+msgstr "(Creator)"
+
+#: Disabled references:1
+msgid "%0前使用"
+msgstr "Used before %0"
+
+#: Disabled references:1
+msgid "管理角色"
+msgstr "Administrative roles"
+
+#: Disabled references:1
+msgid "复制到外部门户"
+msgstr "Copy to an external portal"
+
+#: Disabled references:1
+msgid "扩展"
+msgstr "Extension"
+
+#: Disabled references:1
+msgid "申请加入失败，您在该企业已离职，请联系管理员恢复权限"
+msgstr "If the application to join fails and you have left the company. Please contact the administrator to restore the permission"
+
+#: Disabled references:1
+msgid "编辑画布%07005"
+msgstr "Edit canvas"
+
+#: Disabled references:1
+msgid "编辑外部链接"
+msgstr "Edit external links"
+
+#: Disabled references:1
+msgid "所有连接"
+msgstr "All links"
+
+#: Disabled references:1
+msgid "请求时间 %0, 耗时 %1 秒"
+msgstr "Request time %0, elapsed time %1 seconds"
+
+#: Disabled references:1
+msgid "请正确填写表单"
+msgstr "Please fill in form correctly"
+
+#: Disabled references:1
+msgid "当前有尚末保存的更改，您在离开当前页面前是否需要保存这些更改。"
+msgstr "There are unsaved changes at present. Save these changes before your leave the current page?"
+
+#: Disabled references:1
+msgid "否，放弃更改"
+msgstr "No, discard the changes"
+
+#: Disabled references:1
+msgid "流程名称 / 创建人"
+msgstr "Workflow name / creator"
+
+#: Disabled references:1
+msgid "点击获取当前位置经纬度"
+msgstr "Get the latitude and longitude of the current location"
+
+#: Disabled references:1
+msgid "请在移动端中获取当前位置"
+msgstr "Please get your current location in mobile"
+
+#: Disabled references:1
+msgid "添加外部链接"
+msgstr "Add external links"
+
+#: Disabled references:1
+msgid "添加外部链接成功"
+msgstr "Add external links successfully"
+
+#: Disabled references:1
+msgid "设置外部链接"
+msgstr "Set external links"
+
+#: Disabled references:1
+msgid "页面名称不能为空"
+msgstr "The page name cannot be blank"
+
+#: Disabled references:1
+msgid "链接不能为空"
+msgstr "The link cannot be blank"
+
+#: Disabled references:1
+msgid "输入完整链接，以http://或https://开头"
+msgstr "Enter the full link, starting with http:// or https://"
+
+#: Disabled references:1
+msgid "删除分组\"%0\""
+msgstr "Delete group \"%0\""
+
+#: Disabled references:1
+msgid "续费专属算力"
+msgstr "Renew exclusive computing power"
+
+#: Disabled references:1
+msgid "选择规格"
+msgstr "Select specifications"
+
+#: Disabled references:1
+msgid "确认续费信息"
+msgstr "Confirm the renewal information"
+
+#: Disabled references:1
+msgid "每月升级包"
+msgstr "Monthly upgrade package"
+
+#: Disabled references:1
+msgid "并发数是指同一个时间点可同时运行的实例数"
+msgstr "Number of concurrency refers to the number of instances that can run at the same time at the same point in time"
+
+#: Disabled references:1
+msgid "台"
+msgstr "pcs"
+
+#: Disabled references:1
+msgid "计费"
+msgstr "Billing"
+
+#: Disabled references:1
+msgid "并发数"
+msgstr "Number of concurrency"
+
+#: Disabled references:1
+msgid "%0核"
+msgstr "%0 core"
+
+#: Disabled references:1
+msgid "专属算力每月升级包"
+msgstr "Monthly upgrade package for exclusive computing power"
+
+#: Disabled references:1
+msgid "专属算力单月包"
+msgstr "Single month package for exclusive computing power"
+
+#: Disabled references:1
+msgid "账务%15000"
+msgstr "Billing"
+
+#: Disabled references:1
+msgid "用户列表： 已选择"
+msgstr "User list: Selected"
+
+#: Disabled references:1
+msgid "个用户"
+msgstr "users"
+
+#: Disabled references:1
+msgid "添加工作流"
+msgstr "Add a workflow"
+
+#: Disabled references:1
+msgid "工作流中引用的子流程、封装业务流程，会在工作流所在的专属算力资源上运行。"
+msgstr "The subflow and packaged business process referenced in the workflow will run on the exclusive computing power resource where the workflow is located."
+
+#: Disabled references:1
+msgid "添加(%0)"
+msgstr "Add (%0)"
+
+#: Disabled references:1
+msgid "未选择工作流"
+msgstr "Workflow not selected"
+
+#: Disabled references:1
+msgid "工流程名称"
+msgstr "Workflow Name"
+
+#: Disabled references:1
+msgid "检测到工作流已存在其他专属算力中，是否移动？"
+msgstr "If the workflow is detected to exist in other exclusive computing power, is it moved?"
+
+#: Disabled references:1
+msgid "所属算力服务"
+msgstr "Computing power service to which it belongs"
+
+#: Disabled references:1
+msgid "没有可选算力"
+msgstr "No available computing power"
+
+#: Disabled references:1
+msgid "创建中，请稍候（约需要几分钟）..."
+msgstr "Creating... Please wait (it will take a few minutes)..."
+
+#: Disabled references:1
+msgid "启动中"
+msgstr "Starting"
+
+#: Disabled references:1
+msgid "停止中"
+msgstr "Stopping"
+
+#: Disabled references:1
+msgid "重启中"
+msgstr "Rebooting"
+
+#: Disabled references:1
+msgid "销毁中"
+msgstr "Destroying"
+
+#: Disabled references:1
+msgid "已销毁"
+msgstr "Destroyed"
+
+#: Disabled references:1
+msgid "销毁失败"
+msgstr "Destruction failed"
+
+#: Disabled references:1
+msgid "成员暂无汇报关系"
+msgstr "Members do not have a reporting relationship"
+
+#: Disabled references:1
+msgid "的汇报关系"
+msgstr "Reporting relationship of"
+
+#: Disabled references:1
+msgid "查看成员"
+msgstr "View members"
+
+#: Disabled references:1
+msgid "新建失败"
+msgstr "Failed to create"
+
+#: Disabled references:1
+msgid "名称重复"
+msgstr "Duplicate names"
+
+#: Disabled references:1
+msgid "Key无效"
+msgstr "Key is invalid"
+
+#: Disabled references:1
+msgid "IV无效 "
+msgstr "IV is invalid"
+
+#: Disabled references:1
+msgid "规则名称不能为空"
+msgstr "Rule name cannot be blank"
+
+#: Disabled references:1
+msgid "Key不能为空"
+msgstr "Key cannot be blank"
+
+#: Disabled references:1
+msgid "IV不能为空"
+msgstr "IV cannot be blank"
+
+#: Disabled references:1
+msgid "规则名称1"
+msgstr "Rule name 1"
+
+#: Disabled references:1
+msgid "新建加密规则"
+msgstr "Create a new encryption rule"
+
+#: Disabled references:1
+msgid "加密方式"
+msgstr "Encryption method"
+
+#: Disabled references:1
+msgid "请输入%0位字符"
+msgstr "Please enter %0 characters"
+
+#: Disabled references:1
+msgid "请输入16位字符"
+msgstr "Please enter 16 characters"
+
+#: Disabled references:1
+msgid "修改信息"
+msgstr "Modify information"
+
+#: Disabled references:1
+msgid "已加密字段"
+msgstr "Encrypted fields"
+
+#: Disabled references:1
+msgid "加密规则详情"
+msgstr "Encryption rule details"
+
+#: Disabled references:1
+msgid "全部工作表"
+msgstr "All worksheets"
+
+#: Disabled references:1
+msgid "加密字段"
+msgstr "Encrypt fields"
+
+#: Disabled references:1
+msgid "所属工作表"
+msgstr "Worksheet to which it belongs"
+
+#: Disabled references:1
+msgid "全部方式"
+msgstr "All methods"
+
+#: Disabled references:1
+msgid "删除失败，引用的规则不能删除"
+msgstr "Delete failed and the referenced rule cannot be deleted"
+
+#: Disabled references:1
+msgid "搜索规则名称"
+msgstr "Search the rule name"
+
+#: Disabled references:1
+msgid "设置默认规则"
+msgstr "Set the default rule"
+
+#: Disabled references:1
+msgid "可以删除未被引用的加密规则"
+msgstr "You can delete encryption rules that are not referenced"
+
+#: Disabled references:1
+msgid "%0成功"
+msgstr "%0 done"
+
+#: Disabled references:1
+msgid "%0工作地点"
+msgstr "%0 locations"
+
+#: Disabled references:1
+msgid "添加成员(%0)"
+msgstr "Add members (%0)"
+
+#: Disabled references:1
+msgid "确认删除所选择的工作地点？"
+msgstr "Confirm to delete the selected working locations?"
+
+#: Disabled references:1
+msgid "动态值"
+msgstr "Dynamic values"
+
+#: Disabled references:1
+msgid "非子流程节点数据处理上限（最大2000）"
+msgstr "Data processing limit for non-subflow nodes (up to 20,000)"
+
+#: Disabled references:1
+msgid "子流程节点可处理的数据上限（最大20000）"
+msgstr "Upper limit of data that can be processed by a subflow node (up to 20,000)"
+
+#: Disabled references:1
+msgid "如在销售管理应用中"
+msgstr "Such as in sales management applications"
+
+#: Disabled references:1
+msgid "可以通过建立成员表来管理销售人员的团队、地区、关联订单等扩展信息"
+msgstr "You can manage extended information such as teams, regions/cities, associated orders, and more for salesmen by establishing a member worksheet"
+
+#: Disabled references:1
+msgid "可以根据订单所关联的团队，来筛选出当前销售人员所在团队的订单"
+msgstr "You can filter the orders based on the team associated with the order, according to the salesperson's current team"
+
+#: Disabled references:1
+msgid "手机邀请"
+msgstr "Invite by mobile phone"
+
+#: Disabled references:1
+msgid "邮箱邀请"
+msgstr "Invite by email"
+
+#: Disabled references:1
+msgid "登录时需同意用户协议和隐私条款"
+msgstr "You need to agree to the User Agreement and Privacy Policy when you log in"
+
+#: Disabled references:1
+msgid "通过微信扫码登录时，需先关注公众号"
+msgstr "When logging in through scanning the code by Wechat, you need to follow the official account first"
+
+#: Disabled references:1
+msgid "允许参与记录讨论"
+msgstr "Allow participation in recording discussions"
+
+#: Disabled references:1
+msgid "允许查看审批流转详情"
+msgstr "Allow viewing circulation of approval"
+
+#: Disabled references:1
+msgid "复制到常规"
+msgstr "Copy to general"
+
+#: Disabled references:1
+msgid "设为默认"
+msgstr "Set as default"
+
+#: Disabled references:1
+msgid "系统角色"
+msgstr "System roles"
+
+#: Disabled references:1
+msgid "请输入完整链接，以 http:// 或 https:// 开头"
+msgstr "Please enter the full link, starting with http:// or https://"
+
+#: Disabled references:1
+msgid "彻底删除共享文件夹\"%0\""
+msgstr "Delete shared folder \"%0\" completely"
+
+#: Disabled references:1
+msgid "退出共享文件夹\"%0\""
+msgstr "Exit shared folder \"%0\""
+
+#: Disabled references:1
+msgid "安装的API，允许在卡片上修改是否使用网络代理"
+msgstr "The installed API allows to modify the use of Network Agent on the card"
+
+#: Disabled references:1
+msgid "从代码片段库中选择"
+msgstr "Select from the Code Snippet Library"
+
+#: Disabled references:1
+msgid "搜索来源名称"
+msgstr "Search for the source name"
+
+#: Disabled references:1
+msgid "当前版本最多可创建%0个同步任务, 请升级版本以创建更多同步任务"
+msgstr "Up to %0 sync tasks can be created in current edition. Please upgrade to create more"
+
+#: Disabled references:1
+msgid "免费版最多可创建%0个同步任务, 请升级版本以创建更多同步任务"
+msgstr "Up to %0 sync tasks can be created in Free edition. Please upgrade to create more"
+
+#: Disabled references:1
+msgid "一列"
+msgstr "One column"
+
+#: Disabled references:1
+msgid "二列"
+msgstr "Two columns"
+
+#: Disabled references:1
+msgid "三列"
+msgstr "Three columns"
+
+#: Disabled references:1
+msgid "四列"
+msgstr "Four columns"
+
+#: Disabled references:1
+msgid "应用%04014"
+msgstr "Apply"
+
+#: Disabled references:1
+msgid "获取当前位置经纬度"
+msgstr "Get the latitude and longitude of the current location"
+
+#: Disabled references:1
+msgid "关联当前"
+msgstr "Relate with current"
+
+#: Disabled references:1
+msgid "未勾选时，用户可查看所有查询结果。勾选后，按照用户对数据的权限查看，隐藏无权限的数据或字段"
+msgstr "If unchecked, users can view all inquiry results. After checking, view data according to the user's permissions to hide data or fields without permissions"
+
+#: Disabled references:1
+msgid "批量操作\"%0\""
+msgstr "Batch operation \"%0\""
+
+#: Disabled references:1
+msgid "前往"
+msgstr "Go to"
+
+#: Disabled references:1
+msgid "开启或拖拽到这里"
+msgstr "Open or drag it here"
+
+#: Disabled references:1
+msgid "关闭或拖拽到这里"
+msgstr "Close or drag it here"
+
+#: Disabled references:1
+msgid "全显示"
+msgstr "Full display"
+
+#: Disabled references:1
+msgid "全隐藏"
+msgstr "All hidden"
+
+#: Disabled references:1
+msgid "按表单字段重置"
+msgstr "Reset by form field"
+
+#: Disabled references:1
+msgid "批量导出附件"
+msgstr "Batch export attachments"
+
+#: Disabled references:1
+msgid "刷新加密规则字段值"
+msgstr "Refresh the encryption rule field value"
+
+#: Disabled references:1
+msgid "将彻底删除工作表\"%0\""
+msgstr "The worksheet \"%0\" will be deleted completely"
+
+#: Disabled references:1
+msgid "排序%05028"
+msgstr "Sort"
+
+#: Disabled references:1
+msgid "显示样式"
+msgstr "Display style"
+
+#: Disabled references:1
+msgid "连接线样式"
+msgstr "Connector style"
+
+#: Disabled references:1
+msgid "竖向层级数"
+msgstr "Number of vertical levels"
+
+#: Disabled references:1
+msgid "启用业务规则"
+msgstr "Enable business rules"
+
+#: Disabled references:1
+msgid "在表格中生效业务规则，但会影响表格性能"
+msgstr "Business rules take effect in forms, but affect form performance"
+
+#: Disabled references:1
+msgid "画布"
+msgstr "Canvas"
+
+#: Disabled references:1
+msgid "创建一个画布页面，在页面中添加统计报表、按钮、视图等组件"
+msgstr "Create a canvas page and add components such as statistical reports, buttons, views, and so on"
+
+#: Disabled references:1
+msgid "将一个已有外部链接作为页面"
+msgstr "Use an existing external link as a page"
+
+#: Disabled references:1
+msgid "嵌入页面"
+msgstr "Embed the page"
+
+#: Disabled references:1
+msgid "嵌入页面时只支持 https:// 开头的链接"
+msgstr "Only links starting with https:// are supported when embedding a page"
+
+#: Disabled references:1
+msgid "隐藏标题栏"
+msgstr "Hide the title bar"
+
+#: Disabled references:1
+msgid "Excel导入"
+msgstr "Import from Excel"
+
+#: Disabled references:1
+msgid "粘贴导入"
+msgstr "Paste and import"
+
+#: Disabled references:1
+msgid "导入数据"
+msgstr "Import data"
+
+#: Disabled references:1
+msgid "Excel文件解析失败！"
+msgstr "Excel file parsing failed!"
+
+#: Disabled references:1
+msgid "已隐藏不可导入字段。使用ctrl+v从excel中粘贴数据，ctr+z撒销上次操作"
+msgstr "Non-importable fields are hidden. Use CTRL+V to paste data from Excel and use CTR+Z to cancel the last action"
+
+#: Disabled references:1
+msgid "分隔符"
+msgstr "Separator"
+
+#: Disabled references:1
+msgid "分号(:)"
+msgstr "Semicolon (:)"
+
+#: Disabled references:1
+msgid "竖线(|)"
+msgstr "Vertical bar (|)"
+
+#: Disabled references:1
+msgid "逗号(,)"
+msgstr "Comma (,)"
+
+#: Disabled references:1
+msgid "检查即将导入的数据，你可以调整数据导入的对应字段"
+msgstr "Check the data to be imported, and you can adjust the corresponding fields for data to be imported"
+
+#: Disabled references:1
+msgid "导入 %0 行数据， %1/共 %2 列"
+msgstr "Import %0 rows of data, %1/of %2 columns"
+
+#: Disabled references:1
+msgid "最多查询50条结果"
+msgstr "You can query up to 50 results"
+
+#: Disabled references:1
+msgid "需所有审批人通过"
+msgstr "All approvers are required to approve"
+
+#: Disabled references:1
+msgid "只需一名审批人通过"
+msgstr "Only one approver is required to approve"
+
+#: Disabled references:1
+msgid "审批前更新了记录"
+msgstr "The record is updated before approval"
+
+#: Disabled references:1
+msgid "开始审批"
+msgstr "Start the approval"
+
+#: Disabled references:1
+msgid "通过后更新了记录"
+msgstr "The record is updated after approval"
+
+#: Disabled references:1
+msgid "否决后更新了记录"
+msgstr "The record is updated after the reject"
+
+#: Disabled references:1
+msgid "新增节点操作明细"
+msgstr "New node operation details"
+
+#: Disabled references:1
+msgid "审批自动通过"
+msgstr "Approvals are automatically approved"
+
+#: Disabled references:1
+msgid "验证必填字段"
+msgstr "Verify the required fields"
+
+#: Disabled references:1
+msgid "勾选后，当有必填字段为空时不自动通过，仍需进行审批操作。[审批人为空时自动通过]不受此配置影响。"
+msgstr "After checked, if any required fields are blank, they will not be automatically approved, and approval operations are still required. [Automatic approval when approver is blank] is not affected by this configuration."
+
+#: Disabled references:1
+msgid "发布流程%03088"
+msgstr "Publish process"
+
+#: Disabled references:1
+msgid "${month}月"
+msgstr "${month} month"
+
+#: Disabled references:1
+msgid "无未激活成员"
+msgstr "No inactivated members"
+
+#: Disabled references:1
+msgid "无待审核成员"
+msgstr "No pending members"
+
+#: Disabled references:1
+msgid "管理员通过手机和邮箱添加的成员未激活时会显示在这里"
+msgstr "Members added by Admin through mobile phone and email will appear here when they are not activated"
+
+#: Disabled references:1
+msgid "通过链接、搜索企业账号、非管理员通过邮箱或手机号邀请的成员会显示在这里"
+msgstr "Members invited via link, search for enterprise accounts, non-administrator through email or mobile phone number will appear here"
+
+#: Disabled references:1
+msgid "已选中%0条"
+msgstr "%0 entries selected"
+
+#: Disabled references:1
+msgid "%0人参加投票"
+msgstr "%0 users voted"
+
+#: Disabled references:1
+msgid "对方不是您的联系人，可以%0或%1成为组织成员"
+msgstr "The other party is not your contact and can be a member of the organization with %0 or %1"
+
+#: Disabled references:1
+msgid "调用封装业务流程"
+msgstr "Call encapsulate business processes"
+
+#: Disabled references:1
+msgid "<模型名称>.<表名称>"
+msgstr "<模型名称>.<表名称>"
+
+#: Disabled references:1
+msgid "车牌号%04012"
+msgstr "License plate number"
+
+#: Disabled references:1
+msgid "身份证号%04013"
+msgstr "ID number"
+
+#: Disabled references:1
+msgid "新建查询"
+msgstr "Create a new inquiry"
+
+#: Disabled references:1
+msgid "检测到已有关联，是否查询关联当前 %0 的 %1 ？"
+msgstr "An existing association is detected. Inquire %1 associated with the current %0?"
+
+#: Disabled references:1
+msgid "依据关联记录"
+msgstr "Based on associated records"
+
+#: Disabled references:1
+msgid "根据条件查询目标工作表的记录。如：查询关联客户的订单。"
+msgstr "Inquire the records of the target worksheet based on criteria. For example, inquire the orders of related customers."
+
+#: Disabled references:1
+msgid "未添加"
+msgstr "Not added"
+
+#: Disabled references:1
+msgid "关联的%0"
+msgstr "%0 related"
+
+#: Disabled references:1
+msgid "新版本如果要建立双向关联，需要前往关联表（%0）中添加关联本表（%1）的关联记录"
+msgstr "To establish a bi-directional relationship for a new edition, go to the related worksheet (%0) and add the related records linked to the same worksheet (%1)"
+
+#: Disabled references:1
+msgid "什么是双向关联?"
+msgstr "What is a bi-directional relationship?"
+
+#: Disabled references:1
+msgid "预置常用项作为模板，帮助操作人快捷填写"
+msgstr "Use preset common items as templates to help operators fill in quickly"
+
+#: Disabled references:1
+msgid "查找字段"
+msgstr "Search for fields"
+
+#: Disabled references:1
+msgid "通道：%0"
+msgstr "Channel: %0"
+
+#: Disabled references:1
+msgid "营销推广"
+msgstr "Marketing promotion"
+
+#: Disabled references:1
+msgid "金融交易"
+msgstr "Financial transactions"
+
+#: Disabled references:1
+msgid "行业通知"
+msgstr "Industry Notices"
+
+#: Disabled references:1
+msgid "金融交易（暂不支持）"
+msgstr "Financial transactions (not supported)"
+
+#: Disabled references:1
+msgid "调用封装业务流程："
+msgstr "Call encapsulate business processes:"
+
+#: Disabled references:1
+msgid "调用封装业务流程%03039"
+msgstr "Call encapsulate business processes"
+
+#: Disabled references:1
+msgid "旧"
+msgstr "Outdated"
+
+#: Disabled references:1
+msgid "当前版本最多可创建${res.maxTaskNum}个同步任务, 请升级版本以创建更多同步任务"
+msgstr "Up to ${res.maxTaskNum} sync tasks can be created in current edition. Please upgrade to create more"
+
+#: Disabled references:1
+msgid "免费版最多可创建${res.maxTaskNum}个同步任务, 请升级版本以创建更多同步任务"
+msgstr "Up to ${res.maxTaskNum} sync tasks can be created under the free edition. Please upgrade to create more"
+
+#: Disabled references:1
+msgid "任务创建中..."
+msgstr "Task creating..."
+
+#: Disabled references:1
+msgid "可能需要一些时间，请耐心等待"
+msgstr "It may take some time. Please be patient"
+
+#: Disabled references:1
+msgid "NETWORKDAY(开始日期,结束日期,[节假日期1,节假日期2,...])"
+msgstr "NETWORKDAY(Start date, End date, [Holiday 1, Holiday 2,...])"
+
+#: Disabled references:1
+msgid "[节假日期组]：使用字段值或固定值指明哪些天是节假日；如果不指定这个参数，系统只会自动排除掉周六及周日"
+msgstr "[Holiday group]: Use field values or fixed values to indicate which days are holidays; If this parameter is not specified, the system will only exclude Saturdays and Sundays automatically"
+
+#: Disabled references:1
+msgid "示例：=NETWORKDAY('2021-3-8','2021-3-14',['2021-3-8']) ，结果：4天"
+msgstr "Example: =NETWORKDAY('2021-3-8','2021-3-14',['2021-3-8']), result: 4 days"
+
+#: Disabled references:1
+msgid "计算 2021-3-8 至 2021-3-14 期间的工作日，排除三八妇女节"
+msgstr "Calculate working days from March 8, 2021 to March 14, 2021, excluding Women's Day"
+
+#: Disabled references:1
+msgid "MINUTE(日期时间/时间)"
+msgstr "MINUTE(Date/Time)"
+
+#: Disabled references:1
+msgid "示例：=MINUTE('2021-5-1 11:59') ，结果：59"
+msgstr "Example: =MINUTE('2021-5-1 11:59'), result: 59"
+
+#: Disabled references:1
+msgid "返回 2021-5-1 11:59 的分钟数"
+msgstr "Return the number of minutes for 2021-5-1 11:59"
+
+#: Disabled references:1
+msgid "HOUR(日期时间/时间)"
+msgstr "HOUR(Date/Time/Time)"
+
+#: Disabled references:1
+msgid "示例：=HOUR('2021-5-1 11:59') ，结果：11"
+msgstr "Example: =HOUR('2021-5-1 11:59'), result: 11"
+
+#: Disabled references:1
+msgid "返回 2021-5-1 11:59 的小时数"
+msgstr "Return the number of hours for 2021-5-1 11:59"
+
+#: Disabled references:1
+msgid "WEEKDAY(日期时间)"
+msgstr "WEEKDAY(Date)"
+
+#: Disabled references:1
+msgid "示例：=WEEKDAY('2021-5-1') ，结果：6"
+msgstr "Example: =WEEKDAY('2021-5-1'), result: 6"
+
+#: Disabled references:1
+msgid "返回 2021-5-1 的星期数"
+msgstr "Return the number of weeks for 2021-5-1"
+
+#: Disabled references:1
+msgid "DAY(日期时间)"
+msgstr "DAY(Date/Time)"
+
+#: Disabled references:1
+msgid "示例：=DAY('2021-5-1') ，结果：1"
+msgstr "Example: =DAY('2021-5-1'), result: 1"
+
+#: Disabled references:1
+msgid "返回 2021-5-1 的天数"
+msgstr "Return the weekday for 2021-5-1"
+
+#: Disabled references:1
+msgid "MONTH(日期时间)"
+msgstr "MONTH(Date/Time)"
+
+#: Disabled references:1
+msgid "示例：=MONTH('2021-5-1') ，结果：5"
+msgstr "Example: =MONTH('2021-5-1'), result: 5"
+
+#: Disabled references:1
+msgid "返回 2021-5-1 的月份"
+msgstr "Return the month for 2021-5-1"
+
+#: Disabled references:1
+msgid "YEAR(日期时间)"
+msgstr "YEAR(Date/Time)"
+
+#: Disabled references:1
+msgid "示例：=YEAR('2021-5-1') ，结果：2021"
+msgstr "Example: =YEAR('2021-5-1'), result: 2021"
+
+#: Disabled references:1
+msgid "返回 2021-5-1 的年份"
+msgstr "Return the year for 2021-5-1"
+
+#: Disabled references:1
+msgid "DATEADD(初始日期,计算式,[输出格式])"
+msgstr "DATEADD(Initial date, Formula, [Output format])"
+
+#: Disabled references:1
+msgid "计算式：'+'或'-'代表添加或减去；时间段的单位，'Y'代表年、'M'代表月、'd'代表天、'h'代表小时、'm'代表分钟；也可以添加或减去一个时间字段"
+msgstr "Formula: '+' or '-' stands for addition or subtraction; for the unit of time span, 'Y' for year, 'M' for month, 'd' for day, 'h' for hour, and 'm' for minute; you can also add or subtract a time field"
+
+#: Disabled references:1
+msgid "[输出格式]：1代表日期格式，2代表日期时间格式；如果不指定这个参数，则默认是类型1"
+msgstr "[Output format]: 1 for date format, 2 for date/time format; If this parameter is not specified, it defaults to is type 1"
+
+#: Disabled references:1
+msgid "示例：=DATEADD('2008-11-11 12:23','+8h',2) ，结果：2008-11-11 20:23"
+msgstr "Example: =DATEADD('2008-11-11 12:23','+8h',2) , result: 2008-11-11 20:23"
+
+#: Disabled references:1
+msgid "求 2008-11-11 12:23 8小时后的时间点，结果保持日期时间格式"
+msgstr "Calculate the time 8 hours after 2008-11-11 12:23, and keep the result in date/time format"
+
+#: Disabled references:1
+msgid "DATEIF(开始,结束,格式化方式,[输出单位])"
+msgstr "DATEIF(Start, End, Formatting method, [Output unit])"
+
+#: Disabled references:1
+msgid "格式化方式：1-开始日期00:00结束日期00:00，2-开始日期00:00结束日期24:00"
+msgstr "Formatting method: 1 - Start date 00:00 End date 00:00, 2 - Start date 00:00 End date 24:00"
+
+#: Disabled references:1
+msgid "输出单位：'Y'-年；'M'-月；'d'-天；'h'-小时；'m'-分钟；如果不指定这个参数，则默认为'd'"
+msgstr "Output unit: 'Y'-year; 'M' - month; 'd' - day; 'h' - hour; 'm' - minute; if this parameter is not specified, it defaults to 'd'"
+
+#: Disabled references:1
+msgid "示例：=DATEIF('2021-3-8','2021-3-14',2,'d') ，结果：7天"
+msgstr "Example: =DATEIF('2021-3-8','2021-3-14',2,'d'), result: 7 days"
+
+#: Disabled references:1
+msgid "计算 2021-3-8 至 2021-3-14 期间的时长，精确到天"
+msgstr "Calculate the duration from 2021-3-8 to 2021-3-14, accurate to days"
+
+#: Disabled references:1
+msgid "DATENOW()"
+msgstr "DATENOW()"
+
+#: Disabled references:1
+msgid "示例：=DATENOW() ，结果：2008-11-11 12:23"
+msgstr "EXAMPLE: =DATENOW() , result: 2008-11-11 12:23"
+
+#: Disabled references:1
+msgid "COUNTARRAY(数组类字段)"
+msgstr "COUNTARRAY(Array class field)"
+
+#: Disabled references:1
+msgid "示例：=COUNTARRAY(工序) ，结果：7"
+msgstr "Example: =COUNTARRAY(Procedures), result: 7"
+
+#: Disabled references:1
+msgid "计算名称为“工序”的子表数量（实际有7道工序）"
+msgstr "Calculate the number of sub forms named \"Procedures\" (there are actually 7 procedures)"
+
+#: Disabled references:1
+msgid "RANDBETWEEN(最小值,最大值)"
+msgstr "RANDBETWEEN(Minimum, Maximum)"
+
+#: Disabled references:1
+msgid "示例：=RANDBETWEEN(1,10) ，结果：7"
+msgstr "EXAMPLE: =RANDBETWEEN(1,10), result: 7"
+
+#: Disabled references:1
+msgid "随机输出1-10之间的一个数字"
+msgstr "Randomly output a number between 1-10"
+
+#: Disabled references:1
+msgid "ROUNDDOWN(数值,位数)"
+msgstr "ROUNDDOWN(Num, Digits)"
+
+#: Disabled references:1
+msgid "示例：=ROUNDDOWN(3.14159265,4) ，结果：3.1415"
+msgstr "EXAMPLE: =ROUNDDOWN(3.14159265,4), result: 3.1415"
+
+#: Disabled references:1
+msgid "保留 3.14159265 的四位小数"
+msgstr "Reserve up to four decimal places of 3.14159265"
+
+#: Disabled references:1
+msgid "CEILING(数值,基数)"
+msgstr "CEILING(Num, Cardinal)"
+
+#: Disabled references:1
+msgid "示例：=CEILING(7,3)，结果：9"
+msgstr "Example: =CEILING(7,3), result: 9"
+
+#: Disabled references:1
+msgid "取最接近7且大于7的3的倍数"
+msgstr "Take a multiple of 3 that is closest to 7 and greater than 7"
+
+#: Disabled references:1
+msgid "FLOOR(数值,基数)"
+msgstr "FLOOR(Num, Cardinal)"
+
+#: Disabled references:1
+msgid "示例：=FLOOR(7,3)，结果：6"
+msgstr "Example: =FLOOR(7,3), result: 6"
+
+#: Disabled references:1
+msgid "取最接近7且小于7的3的倍数"
+msgstr "Take a multiple of 3 that are closest to 7 and less than 7"
+
+#: Disabled references:1
+msgid "ROUNDUP(数值,位数)"
+msgstr "ROUNDUP(Num, Digits)"
+
+#: Disabled references:1
+msgid "示例：=ROUNDUP(3.14159265,4) ，结果：3.1416"
+msgstr "EXAMPLE: =ROUNDUP(3.14159265,4), result: 3.1416"
+
+#: Disabled references:1
+msgid "ROUND(数值,位数)"
+msgstr "ROUND(Num, Digits)"
+
+#: Disabled references:1
+msgid "示例：=ROUND(3.14159265,4) ，结果：3.1416"
+msgstr "Example: =ROUND(3.14159265,4), result: 3.1416"
+
+#: Disabled references:1
+msgid "MOD(被除数,除数)"
+msgstr "MOD(Divisor, Dividend)"
+
+#: Disabled references:1
+msgid "示例：=MOD(15,4) ，结果：3"
+msgstr "Example: =MOD(15,4), result: 3"
+
+#: Disabled references:1
+msgid "计算 15 除以 4 的余数"
+msgstr "Calculate the remainder of 15 divided by 4"
+
+#: Disabled references:1
+msgid "INT(数值)"
+msgstr "INT(Num)"
+
+#: Disabled references:1
+msgid "示例：=INT(-3.14159265) ，结果：-4"
+msgstr "Example: =INT(-3.14159265), result: -4"
+
+#: Disabled references:1
+msgid "对 -3.14159265 进行求整"
+msgstr "Round -3.14159265 to the nearest integer"
+
+#: Disabled references:1
+msgid "ABS(数值)"
+msgstr "ABS(Num)"
+
+#: Disabled references:1
+msgid "示例：=ABS(-7) ，结果：7"
+msgstr "Example: =ABS(-7), result: 7"
+
+#: Disabled references:1
+msgid "求 -7 的绝对值"
+msgstr "Calculate the absolute value of -7"
+
+#: Disabled references:1
+msgid "COUNTA(数值1,数值2...)"
+msgstr "COUNTA(Num1, Num2...)"
+
+#: Disabled references:1
+msgid "示例：=COUNTA(1月,2月,3月) ，结果：2"
+msgstr "Example: =COUNTA(January, February, March), result: 2"
+
+#: Disabled references:1
+msgid "计算第一季度指标的完成数量，该表有三个检查框对应1、2、3月指标是否完成，名称分别为1月、2月、3月，2月份未完成"
+msgstr "Calculates the number of completed indicators in the first quarter. The form has three check boxes corresponding to the completion of indicators in January, February and March named January, February and March respectively, in which February is marked incomplete."
+
+#: Disabled references:1
+msgid "COUNTBLANK(数值1,数值2...)"
+msgstr "COUNTBLANK(Num1, Num2...)"
+
+#: Disabled references:1
+msgid "示例：=COUNTBLANK(1月,2月,3月) ，结果：1"
+msgstr "Example: =COUNTBLANK(January, February, March), result: 1"
+
+#: Disabled references:1
+msgid "计算第一季度指标的未完成数量，该表有三个检查框对应1、2、3月指标是否完成，名称分别为1月、2月、3月，2月份未完成"
+msgstr "Calculates the number of completed indicators in the first quarter. The form has three check boxes corresponding to the completion of indicators in January, February and March named January, February and March respectively, in which February is marked incomplete."
+
+#: Disabled references:1
+msgid "PRODUCT(数值1,数值2...)"
+msgstr "PRODUCT(Num1, Num2...)"
+
+#: Disabled references:1
+msgid "示例：=PRODUCT(15,4) ，结果：60"
+msgstr "Example: =PRODUCT(15,4), result: 60"
+
+#: Disabled references:1
+msgid "计算 15 乘以 4 的积"
+msgstr "Calculate the product of 15 times 4"
+
+#: Disabled references:1
+msgid "MAX(数值1,数值2...)"
+msgstr "MAX(Num1, Num2...)"
+
+#: Disabled references:1
+msgid "示例：=MAX(10,20,30) ，结果：30"
+msgstr "Example: =MAX(10,20,30), result: 30"
+
+#: Disabled references:1
+msgid "返回10,20,30中最大的数字"
+msgstr "Return the maximum number of 10, 20, 30"
+
+#: Disabled references:1
+msgid "MIN(数值1,数值2...)"
+msgstr "MIN(Num1, Num2...)"
+
+#: Disabled references:1
+msgid "示例：=MIN(10,20,30) ，结果：10"
+msgstr "Example: =MIN(10,20,30), result: 10"
+
+#: Disabled references:1
+msgid "返回10,20,30中最小的数字"
+msgstr "Return the minimum number of 10, 20, 30"
+
+#: Disabled references:1
+msgid "AVERAGE(数值1,数值2...)"
+msgstr "AVERAGE(Num1, Num2...)"
+
+#: Disabled references:1
+msgid "示例：=AVERAGE(10,20,30) ，结果：20"
+msgstr "Example: =AVERAGE(10,20,30), result: 20"
+
+#: Disabled references:1
+msgid "计算10,20,30的平均值"
+msgstr "Calculate the average of 10, 20, 30"
+
+#: Disabled references:1
+msgid "SUM(数值1,数值2...)"
+msgstr "SUM(Num1, Num2...)"
+
+#: Disabled references:1
+msgid "示例：=SUM(10,20,30) ，结果：60"
+msgstr "Example: =SUM(10,20,30), result: 60"
+
+#: Disabled references:1
+msgid "计算10,20,30的和"
+msgstr "Calculate the sum of 10, 20, 30"
+
+#: Disabled references:1
+msgid "NUMBER(文本)"
+msgstr "NUMBER(Text)"
+
+#: Disabled references:1
+msgid "示例：=NUMBER(IF(TRUE(),'-1','0'))+5，结果：4"
+msgstr "Example: =NUMBER(IF(TRUE(),'-1','0')))+5, result: 4"
+
+#: Disabled references:1
+msgid "将 '-1' 和 5 相加（if输出的结果类型固定为文本）"
+msgstr "Add '-1' and 5 (if output result type fixed to text)"
+
+#: Disabled references:1
+msgid "POWER(底数，指数)"
+msgstr "POWER(Radix, Index)"
+
+#: Disabled references:1
+msgid "示例：=POWER(2,3)，结果：8"
+msgstr "Example: =POWER(2,3), result: 8"
+
+#: Disabled references:1
+msgid "计算2的3次方"
+msgstr "Calculate the cube of 2"
+
+#: Disabled references:1
+msgid "LOG(真数,底数)"
+msgstr "LOG(Antilog, Radix)"
+
+#: Disabled references:1
+msgid "示例：=LOG(8,2)，结果：3"
+msgstr "Example: =LOG(8,2), result: 3"
+
+#: Disabled references:1
+msgid "计算以2为底8的对数"
+msgstr "Calculate the logarithm of 8 based on 2"
+
+#: Disabled references:1
+msgid "REPLACE(原文本,开始位置,字符数,替换文本)"
+msgstr "REPLACE(Original text, Start position, Number of characters, Replacement text)"
+
+#: Disabled references:1
+msgid "开始位置：1代表从第一个字符开始，且第一个字符也要被替换"
+msgstr "Start position: 1 means to start from the first character, and the first character is also replaced"
+
+#: Disabled references:1
+msgid "字符数：需要替换的字符数，字母、汉字、数字、空格都记为1个字符"
+msgstr "Number of characters: For the number of characters that need to be replaced, letters, Chinese characters, numbers, and spaces are all recorded as 1 character"
+
+#: Disabled references:1
+msgid "示例：=REPLACE(+8613534257715,1,3,'') ，结果：13534257715"
+msgstr "Example: =REPLACE(+8613534257715,1,3,''), result: 13534257715"
+
+#: Disabled references:1
+msgid "将带 +86 头的手机号码缩短为纯11位的数字（即将'+86'三个字符替换为空即可）"
+msgstr "Shorten mobile phone numbers started with +86 to only 11-digit numbers (i.e. replace the three characters '+86' with empty)"
+
+#: Disabled references:1
+msgid "示例：=REPT('*',5) ，结果：*****"
+msgstr "Example: =REPT('*',5) , result: *****"
+
+#: Disabled references:1
+msgid "重复生成5个星号"
+msgstr "Generate the 5 asterisks repeatedly"
+
+#: Disabled references:1
+msgid "MID(原文本,开始位置,字符数)"
+msgstr "MID(Original text, Start position, Number of characters)"
+
+#: Disabled references:1
+msgid "开始位置：1代表从第一个字符开始，且第一个字符也要被提取"
+msgstr "Start position: 1 means to start from the first character, and the first character is also extracted"
+
+#: Disabled references:1
+msgid "字符数：需要提取的字符数，字母、汉字、数字、空格都记为1个字符"
+msgstr "Number of characters: For the number of characters that need to be extracted, letters, Chinese characters, numbers, and spaces are all recorded as 1 character"
+
+#: Disabled references:1
+msgid "示例：=MID($编号字段$,5,4) ，结果：2021"
+msgstr "Example: =MID($Number field $,5,4), result: 2021"
+
+#: Disabled references:1
+msgid "从规律为aaaa2021MMDDbbbb的编号中提取出年份"
+msgstr "Extract the year from the patterned code 'aaaa2021MMDDbbbb'"
+
+#: Disabled references:1
+msgid "RIGHT(原文本,[字符数])"
+msgstr "RIGHT(Original text, [Number of characters])"
+
+#: Disabled references:1
+msgid "示例：=RIGHT($编号字段$,4) ，结果：'bbbb'"
+msgstr "Example: =RIGHT($Number field $,4), result: 'bbbb'"
+
+#: Disabled references:1
+msgid "从规律为aaaa2021MMDDbbbb的编号中提取出bbbb"
+msgstr "Extract the 'bbbb' from the patterned code 'aaaa2021MMDDbbbb'"
+
+#: Disabled references:1
+msgid "LEFT(原文本,[字符数])"
+msgstr "LEFT(Original text, [Number of characters])"
+
+#: Disabled references:1
+msgid "示例：=LEFT($编号字段$,4) ，结果：'aaaa'"
+msgstr "Example: =LEFT($Number field $,4), result: 'aaaa'"
+
+#: Disabled references:1
+msgid "从规律为aaaa2021MMDDbbbb的编号中提取出aaaa"
+msgstr "Extract the 'aaaa' from the patterned code 'aaaa2021MMDDbbbb'"
+
+#: Disabled references:1
+msgid "UPPER(文本)"
+msgstr "UPPER(Text)"
+
+#: Disabled references:1
+msgid "示例：=UPPER(' hello world! ') ，结果：' HELLO WORLD! '"
+msgstr "Example: =UPPER(' hello world! '), result: 'HELLO WORLD! '"
+
+#: Disabled references:1
+msgid "将' hello world! '转换成大写"
+msgstr "Convert 'hello world! ' into uppercase"
+
+#: Disabled references:1
+msgid "LOWER(文本)"
+msgstr "LOWER (Text)"
+
+#: Disabled references:1
+msgid "示例：=LOWER(' HELLO WORLD! ') ，结果：' hello world! '"
+msgstr "Example: =LOWER(' HELLO WORLD! '), result: 'hello world! '"
+
+#: Disabled references:1
+msgid "将' HELLO WORLD! '转换成小写"
+msgstr "Convert 'HELLO WORLD! ' into lowercase"
+
+#: Disabled references:1
+msgid "CONCAT(文本1,文本2...)"
+msgstr "CONCAT(Text 1, Text 2...)"
+
+#: Disabled references:1
+msgid "示例：=CONCAT('aaaa','2021MMDD','bbbb') ，结果：aaaa2021MMDDbbbb"
+msgstr "Example: =CONCAT('aaaa','2021MMDD','bbbb'), result: aaaa2021MMDDbbbb"
+
+#: Disabled references:1
+msgid "合并aaaa、2021MMDD、bbbb三段文本"
+msgstr "Concatenate 'aaaa', '2021MMDD', and 'bbbb'"
+
+#: Disabled references:1
+msgid "STRING(数值)"
+msgstr "STRING(Num)"
+
+#: Disabled references:1
+msgid "示例：=STRING(-1)+STRING(5)，结果：'-15'"
+msgstr "Example: =STRING(-1)+STRING(5), result: '-15'"
+
+#: Disabled references:1
+msgid "将-1、5两个数值拼接在一起"
+msgstr "Concatenate -1 and 5 in text form"
+
+#: Disabled references:1
+msgid "TRIM(文本)"
+msgstr "TRIM(Text)"
+
+#: Disabled references:1
+msgid "示例：=TRIM(' 南京 ')，结果：'南京'"
+msgstr "Example: =TRIM('    Nanjing    '), result: 'Nanjing'"
+
+#: Disabled references:1
+msgid "删除首尾空格"
+msgstr "Remove the leading and trailing spaces"
+
+#: Disabled references:1
+msgid "CLEAN(文本)"
+msgstr "CLEAN(Text)"
+
+#: Disabled references:1
+msgid "示例：=CLEAN('135 3425 7715')，结果：\"13534257715\""
+msgstr "Example: =CLEAN('135 3425 7715'), result: \"13534257715\""
+
+#: Disabled references:1
+msgid "删除手机号码字段中间的空格"
+msgstr "Remove the space in the middle of the mobile phone number field"
+
+#: Disabled references:1
+msgid "IF(表达式,成立时输出,不成立时输出)"
+msgstr "IF(Expression, Output if true, Output when if false)"
+
+#: Disabled references:1
+msgid "无论表达式成立或不成立时，输出结果固定为文本类型"
+msgstr "When the expression is true or false, the output is fixed to the text type"
+
+#: Disabled references:1
+msgid "示例：=IF($分数$>=60,'及格','不及格')，结果：'及格'"
+msgstr "Example: =IF($Score$>=60, 'Pass', 'Fail'), result: 'Pass'"
+
+#: Disabled references:1
+msgid "如果分数大于等于60分，则记为及格，否则记为不及格"
+msgstr "If the score is greater than or equal to 60 points, it is counted as pass, otherwise it is counted as fail"
+
+#: Disabled references:1
+msgid "OR(表达式1,表达式2,...)"
+msgstr "OR(Expression 1, Expression 2,...)"
+
+#: Disabled references:1
+msgid "示例：=OR($语文分数$<=60,$英语分数$<=60,$数学分数$<=60) ，结果：TRUE"
+msgstr "Example: =OR($Language score$<=60, $English score$<=60, $Math score$<=60), result: TRUE"
+
+#: Disabled references:1
+msgid "验证语数英三门课程是否有任何一门没有及格（实际只有两门及格）"
+msgstr "Verify that any of the three courses in Language, Math and English has failed (only two have actually passed)"
+
+#: Disabled references:1
+msgid "AND(表达式1,表达式2,...)"
+msgstr "AND(Expression 1, Expression 2,...)"
+
+#: Disabled references:1
+msgid "示例：=AND($语文分数$>=60,$英语分数$>=60,$数学分数$>=60) ，结果：FALSE"
+msgstr "Examples: =AND($Language score $>=60, $English score $>=60, $Math score $>=60), result: FALSE"
+
+#: Disabled references:1
+msgid "验证语数英三门课程是否都及格（实际只有两门及格）"
+msgstr "Verify that all three courses of Language, Math and English have passed (only two have actually passed)"
+
+#: Disabled references:1
+msgid "NOT(表达式)"
+msgstr "NOT(Expression)"
+
+#: Disabled references:1
+msgid "示例：=NOT($分数$==60) ，结果：TRUE"
+msgstr "Example: =NOT($score$==60), result: FALSE"
+
+#: Disabled references:1
+msgid "对成绩是否刚好等于60分求反（实则刚好60分）"
+msgstr "Take the negation of whether the score is exactly equal to 60 (while it is exactly 60 in this case)"
+
+#: Disabled references:1
+msgid "示例：=FALSE() ，结果：FALSE"
+msgstr "Example: =FALSE(), result: FALSE"
+
+#: Disabled references:1
+msgid "示例：=TRUE() ，结果：TRUE"
+msgstr "Example: =TRUE(), result: TRUE"
+
+#: Disabled references:1
+msgid "ISBLANK(文本)"
+msgstr "ISBLANK(Text)"
+
+#: Disabled references:1
+msgid "示例：=ISBLANK($年龄$)，结果：TRUE"
+msgstr "Example: =ISBLANK($age$), result: TRUE"
+
+#: Disabled references:1
+msgid "判断年龄字段是否为空"
+msgstr "Determine whether the age field is empty"
+
+#: Disabled references:1
+msgid "不转义"
+msgstr "Unescaped"
+
+#: Disabled references:1
+msgid "ENCODEURL(文本)"
+msgstr "ENCODEURL(Text)"
+
+#: Disabled references:1
+msgid "示例：=ENCODEURI('name=系统')，结果：'name=%E7%B3%BB%E7%BB%9F'"
+msgstr "Example: =ENCODEURI('name=System'), result: 'name=%E7%B3%BB%E7%BB%9F'"
+
+#: Disabled references:1
+msgid "对文本“name=系统”进行编码"
+msgstr "Encode the text \"name=System\""
+
+#: Disabled references:1
+msgid "DECODEURI(文本)"
+msgstr "DECODEURI(Text)"
+
+#: Disabled references:1
+msgid "示例：=DECODEURI('name=%E7%B3%BB%E7%BB%9F')，结果：\"name=系统\""
+msgstr "Example: =DECODEURI('name=%E7%B3%BB%E7%BB%9F'), result: \"name=System\""
+
+#: Disabled references:1
+msgid "对文本“name=%E7%B3%BB%E7%BB%9F”进行解码"
+msgstr "Decode the text \"name=%E7%B3%BB%E7%BB%9F\""
+
+#: Disabled references:1
+msgid "示例：=ENCODEURI('name=系统')，结果：'name%3D%E7%B3%BB%E7%BB%9F'"
+msgstr "Example: =ENCODEURI('name=System'), result: 'name%3D%E7%B3%BB%E7%BB%9F'"
+
+#: Disabled references:1
+msgid "示例：=DECODEURI('name%3D%E7%B3%BB%E7%BB%9F')，结果：\"name=系统\""
+msgstr "Example: =DECODEURI('name%3D%E7%B3%BB%E7%BB%9F'), result: \"name=System\""
+
+#: Disabled references:1
+msgid "对文本“name%3D%E7%B3%BB%E7%BB%9F进行解码"
+msgstr "Decode the text \"name%3D%E7%B3%BB%E7%BB%9F\""
+
+#: Disabled references:1
+msgid "DISTANCE(定位字段1,定位字段2)"
+msgstr "DISTANCE(Positioning field 1, Positioning field 2)"
+
+#: Disabled references:1
+msgid "定位字段：如果需要设为静态值，格式为“经度,维度”"
+msgstr "Positioning field: to set as a static value, the format is \"longitude, dimension\""
+
+#: Disabled references:1
+msgid "示例：=DISTANCE(\"121.4224,31.1785\",目的地定位)，结果：2.1358(km)"
+msgstr "Example: =DISTANCE(\"121.4224,31.1785\", Destination positioning), result: 2.1358 (km)"
+
+#: Disabled references:1
+msgid "计算上海市第六人民医院到漕河泾智汇园的距离"
+msgstr "Calculate the distance from Shanghai Sixth People's Hospital to Shanghai Caohejing Development District Huizhiyuan"
+
+#: Disabled references:1
+msgid "FIND(原文本, 开始字符, 结束字符)"
+msgstr "FIND(Original text, Start character, End character)"
+
+#: Disabled references:1
+msgid "开始字符：如果是空，表示从第一个字符开始返回"
+msgstr "Start character: If empty, it means that it returns from the first character"
+
+#: Disabled references:1
+msgid "结束字符：如果是空，表示返回直至最后一个字符"
+msgstr "End character: If empty, it means that it returns up to the last character"
+
+#: Disabled references:1
+msgid "示例：=FIND(“1天23小时15分钟”,\"\",\"天\")，结果：1"
+msgstr "EXAMPLE: =FIND(\"1 day, 23 hours and 15 minutes\",\"\",\"day\"), result: 1"
+
+#: Disabled references:1
+msgid "获取日期时间计算结果的“天”"
+msgstr "Get the \"day\" of the date/time calculation"
+
+#: Disabled references:1
+msgid "开始字符：如果是空，将无法得到结果"
+msgstr "Start character: If empty, the result cannot be obtained"
+
+#: Disabled references:1
+msgid "结束字符：如果是空，将无法得到结果"
+msgstr "End character: If empty, the result cannot be obtained"
+
+#: Disabled references:1
+msgid "示例：=FINDA(“(X2022)2f8f0af(NZP001)”,\"(\",\")\")，结果：X2022,NZP001"
+msgstr "Example: =FINDA(\"(X2022)2f8f0af(NZP001)\",\"(\",\")\"), result: X2022, NZP001"
+
+#: Disabled references:1
+msgid "获取条码中两组括号间的内容，并写入另一个文本字段中"
+msgstr "Get the content between two sets of parentheses in the barcode and writes it to another text field"
+
+#: Disabled references:1
+msgid "SPLIT(原文本,间隔符)"
+msgstr "SPLIT(Original text, Space character)"
+
+#: Disabled references:1
+msgid "间隔符：如果为空，将分割每一个字符"
+msgstr "Space character: If empty, each character will be divided"
+
+#: Disabled references:1
+msgid "示例：=SPLIT(\"HX045-SZ190-NZ021-LS097\",\"-\")，结果：'HX045,SZ190,NZ021,LS097'"
+msgstr "Example: =SPLIT(\"HX045-SZ190-NZ021-LS097\",\"-\"), result: 'HX045,SZ190,NZ021,LS097'"
+
+#: Disabled references:1
+msgid "以“-”分割1组带4个物料ID的文本，并写入另一个文本字段中"
+msgstr "Split 1 group of text with 4 item IDs with \"-\" and write it into another text field"
+
+#: Disabled references:1
+msgid "JOIN(数组,间隔符)"
+msgstr "JOIN(Array, Concatenation character)"
+
+#: Disabled references:1
+msgid "示例：=JOIN(部门字段,\"-\")，结果：\"产品部-销售部-研发部\""
+msgstr "Example: =JOIN(Department field, \"-\"), result: \"Product Department - Sales Department - R&D Department\""
+
+#: Disabled references:1
+msgid "把部门字段里的多个部门拼接成一个字符串整体"
+msgstr "Concatenate multiple departments in the Department field into a whole string"
+
+#: Disabled references:1
+msgid "INCLUDE(原文本,检索的字符)"
+msgstr "INCLUDE(Original text, Retrieved characters)"
+
+#: Disabled references:1
+msgid "示例：=INCLUDE(\"上海市闵行区钦州北路\",'闵行')，结果：TRUE"
+msgstr "Example: =INCLUDE(\"Qinzhou North Road, Minhang District, Shanghai\", 'Minhang'), result: TRUE"
+
+#: Disabled references:1
+msgid "判断文本里是否包含\"闵行\""
+msgstr "Determine if the text contains \"Minhang\""
+
+#: Disabled references:1
+msgid "GETPOSITION(定位字段,需要的信息)"
+msgstr "GETPOSITION(Positioning field, Required information)"
+
+#: Disabled references:1
+msgid "需要的信息：'title'-位置标题；'address'-详细地址；'x'-经度；'y'-纬度；'x,y'-经纬度"
+msgstr "Required information: 'title' - position title; 'address' - full address; 'x' - longitude; 'y' - latitude; 'x,y' - latitude and longitude"
+
+#: Disabled references:1
+msgid "示例：=GETPOSITION(打卡地点,'address')，结果：'上海市徐汇区漕河泾新兴技术开发区上海漕河泾开发区智汇园'"
+msgstr "Example: =GETPOSITION(Check-in location, 'address'), result: 'Shanghai Caohejing Development District Huizhiyuan, Shanghai Caohejing Development District, Xuhui District, Shanghai'"
+
+#: Disabled references:1
+msgid "返回打卡地点的详细地址"
+msgstr "Return the full address of the check-in location"
+
+#: Disabled references:1
+msgid "COUNTCHAR(文本)"
+msgstr "COUNTCHAR(Text)"
+
+#: Disabled references:1
+msgid "示例：=COUNTCHAR(标题)，结果：12"
+msgstr "Example: =COUNTCHAR(Title), result: 12"
+
+#: Disabled references:1
+msgid "计算标题“通过函数计算赋字段默认值”的字数"
+msgstr "Count the number of words in the title \"Assignment field default values by function calculation\""
+
+
+
 

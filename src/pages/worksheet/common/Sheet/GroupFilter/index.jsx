@@ -286,7 +286,7 @@ function GroupFilter(props) {
     //级联选择字段 或 已配置层级展示的关联字段
     if ([29, 35].includes(soucre.type)) {
       let { navshow } = getAdvanceSetting(view);
-      if (29 === soucre.type && navshow === '1') {
+      if (29 === soucre.type && navshow === '1' && !key) {
         dataUpdate({
           filterData: navGroupData,
           data: navGroupCounts

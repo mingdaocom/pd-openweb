@@ -183,6 +183,7 @@ class BatchOperate extends React.Component {
         appId: worksheetId,
         sources: selectedRows.map(item => item.rowid),
         triggerId: btn.btnId,
+        pushUniqueId: _.get(window, 'md.global.Config.pushUniqueId'),
         ...args,
       })
       .then(data => {

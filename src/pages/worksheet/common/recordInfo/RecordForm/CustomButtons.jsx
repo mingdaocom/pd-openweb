@@ -207,7 +207,7 @@ export default class CustomButtons extends React.Component {
         appId: worksheetId,
         sources: [recordId],
         triggerId: btnId,
-        pushUniqueId: md.global.Config.pushUniqueId,
+        pushUniqueId: _.get(window, 'md.global.Config.pushUniqueId'),
       })
       .then(data => {
         loadBtns();

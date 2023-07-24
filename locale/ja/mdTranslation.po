@@ -40657,8 +40657,8 @@ msgid "数据导入 - 上传Excel（1/3）"
 msgstr "データインポート - エクセルのアップロード (1/3)"
 
 #: Disabled references:1
-msgid "支持10MB以内的xls、xlsx、csv文件, 最大行数不超过20000行，列数不超过200列；导入多选类型的控件，请确保Excel字段内各个选项/人员用“，”隔开；导入地区控件，省市县之间以“/”隔开，如：江西省/上饶市/铅山县，如填写的地区格式没有“/”，则会按照名称精准匹配"
-msgstr "最大10MBまでのxls、xlsx、csvファイル、最大20000までの行、最大200までの列をサポートします。インポート複数選択タイプコントロール、Excelフィールドの各オプション/人が「、」によって分離されていることを確認してください。インポート地域コントロール、県、市、郡は\"例：江西省/上饒市/霊山県、地域形式が\"/\"でない場合、名前で正確にマッチングされるでしょう"
+msgid "支持10MB以内的xls、xlsx、csv文件, 最大行数不超过%0行，列数不超过200列；导入多选类型的控件，请确保Excel字段内各个选项/人员用“，”隔开；导入地区控件，省市县之间以“/”隔开，如：江西省/上饶市/铅山县，如填写的地区格式没有“/”，则会按照名称精准匹配"
+msgstr "最大10MBまでのxls、xlsx、csvファイル、最大%0までの行、最大200までの列をサポートします。インポート複数選択タイプコントロール、Excelフィールドの各オプション/人が「、」によって分離されていることを確認してください。インポート地域コントロール、県、市、郡は\"例：江西省/上饒市/霊山県、地域形式が\"/\"でない場合、名前で正確にマッチングされるでしょう"
 
 #: Disabled references:1
 msgid "编辑选中记录"
@@ -44406,31 +44406,31 @@ msgstr "\"%0 \"を使用する。"
 
 #: Disabled references:1
 msgid "创建人："
-msgstr ""
+msgstr "クリエイティッドバイ"
 
 #: Disabled references:1
 msgid "(创建人)"
-msgstr ""
+msgstr "(作成者)"
 
 #: Disabled references:1
 msgid "申请加入失败，您在该企业已离职，请联系管理员恢复权限"
-msgstr ""
+msgstr "入会申し込みに失敗しました、退会されたようです、管理者に連絡して権限を回復してください"
 
 #: Disabled references:1
 msgid "流程名称 / 创建人"
-msgstr ""
+msgstr "プロセス名 / 作成者"
 
 #: Disabled references:1
 msgid "搜索员工"
-msgstr ""
+msgstr "スタッフを検索する"
 
 #: Disabled references:1
 msgid "账务%15000"
-msgstr ""
+msgstr "アカウント %15000"
 
 #: Disabled references:1
 msgid "2.将Excel中%0列与工作表中%1字段逐行对比，%2识别到的重复数据，%3"
-msgstr ""
+msgstr "2.Excel の %0 列とワークシートの %1 フィールドの行ごとの比較、%2 重複を確認、%3"
 
 #: Disabled references:1
 msgid "最新的在前%05029"
@@ -44451,4 +44451,2408 @@ msgstr "9 → 1"
 #: Disabled references:1
 msgid "排序%05028"
 msgstr "ソート"
+
+#: Disabled references:1
+msgid "通用设置"
+msgstr "一般的な設定"
+
+#: Disabled references:1
+msgid "专属算力"
+msgstr "独自の演算処理能力"
+
+#: Disabled references:1
+msgid "操作失败，已启用“%0”集成"
+msgstr "操作に失敗しました。"
+
+#: Disabled references:1
+msgid "查看我的数据"
+msgstr "私のデータを見る"
+
+#: Disabled references:1
+msgid "创建人："
+msgstr "クリエイティッドバイ"
+
+#: Disabled references:1
+msgid "子表、关联记录、查询记录（列表）"
+msgstr "サブテーブル、リンクレコード、検索レコード（リスト）"
+
+#: Disabled references:1
+msgid "关联记录（列表）、子表中的字段支持三种打印方式。"
+msgstr "関連レコード（リスト）、サブテーブルのフィールドは、3種類の印刷に対応しています。"
+
+#: Disabled references:1
+msgid "（1）表格打印（默认）：直接将字段代码放入表格中，在表格中逐行向下列出所有记录的字段值。如果要对相同值进行合并单元格，可在字段代码中加上“[M]”，如：#{客户.客户名称[M]}"
+msgstr "(1) フォーム印刷（デフォルト）：フィールドコードを直接フォームに配置し、フォームの行末に全レコードのフィールド値をリストアップします。同じ値のセルをマージしたい場合は、フィールドコードに\"[M]\"を付けて、次のようにします：#{客户.客户名称[M]}"
+
+#: Disabled references:1
+msgid "（2）逐条打印：关联记录（列表）中 每一条记录作为一个整体依次逐条打印。可以将以下代码插入到模板中，代码下方的内容将识别为记录的基本单元。"
+msgstr "(2) 項目ごとに印刷：関連レコード（リスト）の各レコードが、項目ごとに全体として印刷される。テンプレートに以下のコードを挿入することで、コード以下の内容がレコードの基本単位として認識されます。"
+
+#: Disabled references:1
+msgid "（3）拼接打印：以逗号隔开列出所有记录的字段值。可在字段代码中加上“[S]”，如#{客户.客户名称[S]}。"
+msgstr "(3) 分割印刷：全レコードのフィールド値をカンマ区切りにしたリスト。これは、#{客户.客户名称[S]}のようにフィールドコードに\"[S]\"を追加することで可能です。"
+
+#: Disabled references:1
+msgid "审批明细字段支持三种打印方式。如果同一条审批流程被重复发起了多次，则只会打印发起时间最近的一次。"
+msgstr "承認内容欄は、3つの印刷方法に対応しています。同じ承認処理が複数回行われた場合は、最新のもののみ印刷されます。"
+
+#: Disabled references:1
+msgid "2. 字段代码必须按照表中的格式填写，否则无法获取到对应字段的数据；如果某两个字段的字段名称相同，为了系统能够识别请选择复制字段ID/字段别名用于制作模板。"
+msgstr "2. フィールドコードは、表のフォーマットで記入する必要があります。そうしないと、対応するフィールドのデータを取得できません。2つのフィールドが同じフィールド名を持つ場合、システムがテンプレートのためにそれを認識できるように、フィールドID/フィールドエイリアスをコピーすることを選択してください。"
+
+#: Disabled references:1
+msgid "3. 平铺类的选项字段如需打印未选中的选项，可在字段代码或ID/别名后加“_Alloptions”，例如：#{单选_Alloptions}。"
+msgstr "3. チェックされていないオプションを表示する必要があるタイル型クラスのオプションフィールドは、フィールドコードまたはID/エイリアスの後に\"_Alloptions \"を付けて追加できます（例: #{单选_Alloptions}）。"
+
+#: Disabled references:1
+msgid "4. 可获取附件字段中的图片，字段代码为：#{附件$[90*auto_L]$}。其中：90*auto 表示图片宽/高尺寸（单位mm）；_L表示获取的图片质量。"
+msgstr "4. 添付ファイルの画像は、フィールドコード：#{附件$[90*auto_L]$}で取得することができます。ここで、90*auto は画像の幅／高さの寸法（単位：mm）、_L は得られた画像の品質を示す。"
+
+#: Disabled references:1
+msgid "（1）图片尺寸支持4种设置方式。[90*auto] 表示宽度固定为90，高度自适应。[auto*90] 表示宽度自适应，高度固定为90。[90*50_auto]表示宽高在90*50的范围内同时自适应。[90*50]表示宽高为固定尺寸。"
+msgstr "(1) 画像サイズは、4種類の設定方法に対応しています。[90*auto]は、幅が90で固定され、高さが適応的に設定されることを意味します。[auto*90]は、幅が適応的で高さが90で固定されることを意味します。 90*50_auto]は、幅と高さが同時に90*50の範囲内で適応的であることを意味します。[90*50]は、幅と高さが固定寸法であることを意味します。"
+
+#: Disabled references:1
+msgid "（2）图片质量支持低、中、高三种设置（默认为低）。低（L）—生成速度快，用于一般打印；中（M）—生成速度适中，打印较清晰；高（H）—生成速度慢，用于高质量彩色打印。"
+msgstr "(2) 画質は、低・中・高に対応（デフォルトは低）。低（L）-生成速度が速く、一般的な印刷向け、中（M）-生成速度が中程度で、鮮明な印刷向け、高（H）-生成速度が遅く、高画質のカラー印刷向け。"
+
+#: Disabled references:1
+msgid "5.可通过代码 #{[qrcode]字段名$[20*20]$} 或 #{[barcode]字段名$[40*10]$} 获取任意字段的二维码 或 条形码。二维码编码方式：QR-code，最大包含150个字（支持汉字）；条形码编码方式：code128，最大包含30个字符（仅支持数字、字母、符号）。"
+msgstr "5.コード#{[qrcode]字段名$[20*20]$}または#{[barcode]字段名$[40*10]$}を使用することで、どの分野でもQRコードやバーコードを取得することができます。QRコードの符号化方式：QRコード、最大150文字（漢字対応）、バーコードの符号化方式：code128、最大30文字（数字、文字、記号のみ）。"
+
+#: Disabled references:1
+msgid "6. 如需不打印没有数据的关联表/子表，请将代码：#NoDataNotPrint[start]# 和 #NoDataNotPrint[end]# 插入到模板中，代码之间的关联记录/子表没有数据则不会打印。"
+msgstr "6. データのない関連テーブル/サブテーブルを印刷しないようにするには、テンプレートにコード：#NoDataNotPrint[start]#と#NoDataNotPrint[end]#を挿入すると、コード間の関連レコード/サブテーブルがデータのない場合は印刷しない。"
+
+#: Disabled references:1
+msgid "7. 批量打印时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页。设置方法可参考"
+msgstr "7. 一括印刷の場合、デフォルトではすべてのデータが連続して印刷されるため、ページング（各データが別ページになる）を実施したい場合は、テンプレートで最初の段落の前にページングを設定する必要があります。設定方法は、以下の通りです。"
+
+#: Disabled references:1
+msgid "了解更多制作技巧和注意事项。"
+msgstr "制作上のヒントや注意点を確認することができます。"
+
+#: Disabled references:1
+msgid "示范模板快速开始"
+msgstr "クイックスタートのためのデモ用テンプレート"
+
+#: Disabled references:1
+msgid "当前有尚未保存的更改，您在打开新页面前是否需要先保存这些更改"
+msgstr "現在、未保存の変更がありますが、新しいページを開く前に保存する必要がありますか？"
+
+#: Disabled references:1
+msgid "否，暂不打开"
+msgstr "いいえ、今のところオープンしていません"
+
+#: Disabled references:1
+msgid "最新的在前%05029"
+msgstr "最新フロント %05029"
+
+#: Disabled references:1
+msgid "最旧的在前%05030"
+msgstr "最年長のフロント %05030"
+
+#: Disabled references:1
+msgid "升序%05031"
+msgstr "昇順 %05031"
+
+#: Disabled references:1
+msgid "降序%05032"
+msgstr "降順 %05032"
+
+#: Disabled references:1
+msgid "查询记录"
+msgstr "お問い合わせの記録"
+
+#: Disabled references:1
+msgid "浏览器平台仅https环境支持调用摄像头api"
+msgstr "ブラウザのプラットフォームは、https環境のカメラapiの呼び出しにのみ対応しています。"
+
+#: Disabled references:1
+msgid "请开启此项"
+msgstr "スイッチを入れてください。"
+
+#: Disabled references:1
+msgid "请勾选此项"
+msgstr "このボックスにチェックを入れてください。"
+
+#: Disabled references:1
+msgid "设置链接成功"
+msgstr "リンクのセットアップに成功"
+
+#: Disabled references:1
+msgid "设置链接失败!"
+msgstr "リンクのセットアップに失敗しました！"
+
+#: Disabled references:1
+msgid "设置链接失败！"
+msgstr "リンクの設定に失敗しました！"
+
+#: Disabled references:1
+msgid "APP"
+msgstr "APP"
+
+#: Disabled references:1
+msgid "外部链接"
+msgstr "外部リンク"
+
+#: Disabled references:1
+msgid "加为此应用管理员"
+msgstr "そのためのプラス・アプリケーション管理者"
+
+#: Disabled references:1
+msgid "您是否确认进行保存？"
+msgstr "本当に保存するんですか？"
+
+#: Disabled references:1
+msgid "保存后，您的原始集成映射关系将被清理。"
+msgstr "保存後、元の統合マッピングの関係はきれいになります。"
+
+#: Disabled references:1
+msgid "请确认是否不需要原始集成关系，再执行此操作"
+msgstr "この操作を行う前に、元の統合関係が不要であることを確認してください"
+
+#: Disabled references:1
+msgid "请输入您的登录密码，以验证您的身份信息"
+msgstr "本人情報を確認するため、ログインパスワードを入力してください。"
+
+#: Disabled references:1
+msgid "请输入相关信息"
+msgstr "関連情報を入力してください"
+
+#: Disabled references:1
+msgid "添加人"
+msgstr "によって追加されました。"
+
+#: Disabled references:1
+msgid "管理算力"
+msgstr "マネージド・コンピューティング・パワー"
+
+#: Disabled references:1
+msgid "服务已过期"
+msgstr "サービスの有効期限が切れている"
+
+#: Disabled references:1
+msgid "工作流名称"
+msgstr "ワークフロー名"
+
+#: Disabled references:1
+msgid "移出工作流"
+msgstr "ムーブアウトワークフロー"
+
+#: Disabled references:1
+msgid "移出%0个工作流"
+msgstr "ワークフローを %0 移動させる"
+
+#: Disabled references:1
+msgid "请联系组织管理员购买或升级"
+msgstr "購入・アップグレードをご希望の方は、組織管理者までご連絡ください。"
+
+#: Disabled references:1
+msgid "购买数量超出上限"
+msgstr "最大数量を超えて購入したもの"
+
+#: Disabled references:1
+msgid "重新创建中..."
+msgstr "再創造中...。"
+
+#: Disabled references:1
+msgid "配置专属算力"
+msgstr "専用コンピューティングパワーを構成する"
+
+#: Disabled references:1
+msgid "您的组织购买专属算力服务后，将重要的工作流添加到专属算力服务中运行，可免受本组织或平台其他组织的流程堵塞影响"
+msgstr "お客様の組織がDedicated Computing Serviceを購入する際、Dedicated Computing Serviceで実行する重要なワークフローを追加することで、お客様の組織やプラットフォーム上の他の組織でのプロセスの混雑からお客様を保護します。"
+
+#: Disabled references:1
+msgid "购买专属算力"
+msgstr "専用演算処理装置の購入"
+
+#: Disabled references:1
+msgid "资源ID"
+msgstr "リソースID"
+
+#: Disabled references:1
+msgid "复制资源ID"
+msgstr "コピーリソースID"
+
+#: Disabled references:1
+msgid "重新创建"
+msgstr "再作成"
+
+#: Disabled references:1
+msgid "请联系组织管理员续费"
+msgstr "更新の際は、組織管理者までご連絡ください。"
+
+#: Disabled references:1
+msgid "规格"
+msgstr "仕様"
+
+#: Disabled references:1
+msgid "%0并发数"
+msgstr "0コンカレンシー"
+
+#: Disabled references:1
+msgid "到期"
+msgstr "期限が切れる"
+
+#: Disabled references:1
+msgid "工作流数"
+msgstr "ワークフロー数"
+
+#: Disabled references:1
+msgid "将重要的工作流添加到专属算力中运行，可免受本组织或平台其他组织的流程堵塞影响"
+msgstr "重要なワークフローを追加し、専用計算機で実行することで、自組織やプラットフォーム上の他の組織でのプロセスブロックから保護します。"
+
+#: Disabled references:1
+msgid "已选择%0条"
+msgstr "選択された %0 アイテム"
+
+#: Disabled references:1
+msgid "应用管理"
+msgstr "アプリケーション管理"
+
+#: Disabled references:1
+msgid "记录操作"
+msgstr "ロギング操作"
+
+#: Disabled references:1
+msgid "用户行为"
+msgstr "ユーザーの行動"
+
+#: Disabled references:1
+msgid "浏览"
+msgstr "ブラウズ"
+
+#: Disabled references:1
+msgid "批量创建"
+msgstr "一括作成"
+
+#: Disabled references:1
+msgid "批量更新"
+msgstr "バッチの更新"
+
+#: Disabled references:1
+msgid "附件预览"
+msgstr "アネックスプレビュー"
+
+#: Disabled references:1
+msgid "登录/登出时间"
+msgstr "ログイン／ログアウト時間"
+
+#: Disabled references:1
+msgid "登录类型"
+msgstr "ログインタイプ"
+
+#: Disabled references:1
+msgid "IP归属地"
+msgstr "IPアトリビューション"
+
+#: Disabled references:1
+msgid "浏览器版本"
+msgstr "ブラウザのバージョン"
+
+#: Disabled references:1
+msgid "操作系统类型"
+msgstr "オペレーティングシステムの種類"
+
+#: Disabled references:1
+msgid "操作系统版本"
+msgstr "オペレーティングシステムバージョン"
+
+#: Disabled references:1
+msgid "经纬度"
+msgstr "経度・緯度"
+
+#: Disabled references:1
+msgid "设备类型"
+msgstr "機器の種類"
+
+#: Disabled references:1
+msgid "设备型号"
+msgstr "機器モデル"
+
+#: Disabled references:1
+msgid "设备ID"
+msgstr "デバイスID"
+
+#: Disabled references:1
+msgid "IMEI"
+msgstr "アイエムイーアイ"
+
+#: Disabled references:1
+msgid "操作内容"
+msgstr "操作内容"
+
+#: Disabled references:1
+msgid "操作对象"
+msgstr "操作対象"
+
+#: Disabled references:1
+msgid "操作类型"
+msgstr "操作の種類"
+
+#: Disabled references:1
+msgid "停留时长"
+msgstr "滞在期間"
+
+#: Disabled references:1
+msgid "日志 - 应用"
+msgstr "ログ - アプリケーション"
+
+#: Disabled references:1
+msgid "登出"
+msgstr "サインアウト"
+
+#: Disabled references:1
+msgid "数据导出超过100,000行，本次仅导出前100,000行记录"
+msgstr "10万行を超えるデータをエクスポート、今回は最初の10万行のみエクスポート"
+
+#: Disabled references:1
+msgid "日志 - 登录"
+msgstr "ログ - ログイン"
+
+#: Disabled references:1
+msgid "加密规则"
+msgstr "暗号化ルール"
+
+#: Disabled references:1
+msgid "设置字段在加密时可用的加密方式"
+msgstr "フィールドを暗号化する際に利用できる暗号化方式を設定する"
+
+#: Disabled references:1
+msgid "上传的图标可用于应用、应用项等地方"
+msgstr "アップロードしたアイコンは、アプリケーションやアプリケーションの項目などで使用することができます。"
+
+#: Disabled references:1
+msgid "启用水印配置后，将在组织所有应用内显示当前使用者的姓名+手机号后4位或邮箱前缀"
+msgstr "ウォーターマーク設定を有効にすると、組織のすべてのアプリケーションで、現在のユーザー名＋携帯電話番号の下4桁またはEメールのプレフィックスが表示されます。"
+
+#: Disabled references:1
+msgid "通用配置"
+msgstr "一般的な構成"
+
+#: Disabled references:1
+msgid "应用消息:您已被"
+msgstr "応募メッセージ"
+
+#: Disabled references:1
+msgid "刘兰"
+msgstr "リウ・ラン"
+
+#: Disabled references:1
+msgid "添加为"
+msgstr "として追加"
+
+#: Disabled references:1
+msgid "销售线索管理"
+msgstr "リード管理"
+
+#: Disabled references:1
+msgid "的负责人"
+msgstr "の責任者。"
+
+#: Disabled references:1
+msgid "平台版"
+msgstr "プラットフォーム版"
+
+#: Disabled references:1
+msgid "组织数"
+msgstr "組織数"
+
+#: Disabled references:1
+msgid "应用总数上限"
+msgstr "応募総数の上限"
+
+#: Disabled references:1
+msgid "工作表总数上限"
+msgstr "ワークシートの最大総数"
+
+#: Disabled references:1
+msgid "行记录总数上限/单表"
+msgstr "行レコードの最大総数/単一テーブル"
+
+#: Disabled references:1
+msgid "工作流总数上限/单月"
+msgstr "ワークフローの最大総数/単月"
+
+#: Disabled references:1
+msgid "更新试用密钥"
+msgstr "トライアルキーの更新"
+
+#: Disabled references:1
+msgid "数据同步算力数"
+msgstr "データ同期演算"
+
+#: Disabled references:1
+msgid "增值服务"
+msgstr "付加価値サービス"
+
+#: Disabled references:1
+msgid "已授权"
+msgstr "きんてい"
+
+#: Disabled references:1
+msgid "未授权"
+msgstr "ひこうにん"
+
+#: Disabled references:1
+msgid "试用密钥"
+msgstr "トライアルキー"
+
+#: Disabled references:1
+msgid "正在验证您的试用密钥"
+msgstr "トライアルキーの認証"
+
+#: Disabled references:1
+msgid "非子流程节点数据处理上限"
+msgstr "サブプロセスノード以外のデータ処理容量"
+
+#: Disabled references:1
+msgid "工作流“获取多条数据”节点获取的数据，被后续数据处理节点(非子流程)使用时，可处理的数据量上限"
+msgstr "ワークフローの「複数のデータを取得」ノードが、後続のデータ処理ノード（サブプロセスではない）で使用される場合に処理できるデータ量の最大値。"
+
+#: Disabled references:1
+msgid "子流程节点可处理的数据上限"
+msgstr "サブプロセスノードが処理できる最大データ量"
+
+#: Disabled references:1
+msgid "工作流“获取多条数据”节点获取的数据，被子流程节点使用时，可处理的数据量上限"
+msgstr "ワークフロー \"Get multiple data \"ノードがサブプロセスノードで使用される場合に処理可能な最大データ量"
+
+#: Disabled references:1
+msgid "数据回收站/备份文件保留时长"
+msgstr "データ・リサイクル・ビン／バックアップ・ファイルの保存期間"
+
+#: Disabled references:1
+msgid "启用应用库"
+msgstr "アプリケーション・ライブラリの有効化"
+
+#: Disabled references:1
+msgid "使用明道云应用库"
+msgstr "Mintoクラウドアプリケーションライブラリの使用"
+
+#: Disabled references:1
+msgid "(创建人)"
+msgstr "(作成者)"
+
+#: Disabled references:1
+msgid "%0前使用"
+msgstr "0より前に使用"
+
+#: Disabled references:1
+msgid "管理角色"
+msgstr "管理職の役割"
+
+#: Disabled references:1
+msgid "复制到外部门户"
+msgstr "外部ポータルへのコピー"
+
+#: Disabled references:1
+msgid "扩展"
+msgstr "拡張"
+
+#: Disabled references:1
+msgid "申请加入失败，您在该企业已离职，请联系管理员恢复权限"
+msgstr "入会申し込みに失敗しました、退会されたようです、管理者に連絡して権限を回復してください"
+
+#: Disabled references:1
+msgid "编辑画布%07005"
+msgstr "キャンバスを編集する%07005"
+
+#: Disabled references:1
+msgid "编辑外部链接"
+msgstr "外部リンクを編集する"
+
+#: Disabled references:1
+msgid "所有连接"
+msgstr "すべての接続"
+
+#: Disabled references:1
+msgid "请求时间 %0, 耗时 %1 秒"
+msgstr "リクエスト時間 %0、経過時間 %1 秒"
+
+#: Disabled references:1
+msgid "请正确填写表单"
+msgstr "正しくご記入ください"
+
+#: Disabled references:1
+msgid "当前有尚末保存的更改，您在离开当前页面前是否需要保存这些更改。"
+msgstr "まだ保存されていない変更があり、現在のページを離れる前に保存する必要があるかどうか。"
+
+#: Disabled references:1
+msgid "否，放弃更改"
+msgstr "いいえ、変更放棄"
+
+#: Disabled references:1
+msgid "流程名称 / 创建人"
+msgstr "プロセス名 / 作成者"
+
+#: Disabled references:1
+msgid "点击获取当前位置经纬度"
+msgstr "クリックすると現在地の緯度・経度が表示されます"
+
+#: Disabled references:1
+msgid "请在移动端中获取当前位置"
+msgstr "モバイルで現在位置を取得してください"
+
+#: Disabled references:1
+msgid "添加外部链接"
+msgstr "外部リンクの追加"
+
+#: Disabled references:1
+msgid "添加外部链接成功"
+msgstr "外部リンクの追加に成功"
+
+#: Disabled references:1
+msgid "设置外部链接"
+msgstr "外部リンクの設定"
+
+#: Disabled references:1
+msgid "页面名称不能为空"
+msgstr "ページ名を空にすることはできません"
+
+#: Disabled references:1
+msgid "链接不能为空"
+msgstr "リンクが空であることはできません"
+
+#: Disabled references:1
+msgid "输入完整链接，以http://或https://开头"
+msgstr "http://或https://开头 にフルリンクを入力してください。"
+
+#: Disabled references:1
+msgid "删除分组\"%0\""
+msgstr "グループ \"%0\" を削除"
+
+#: Disabled references:1
+msgid "续费专属算力"
+msgstr "専用演算装置のリニューアル"
+
+#: Disabled references:1
+msgid "选择规格"
+msgstr "仕様を選択"
+
+#: Disabled references:1
+msgid "确认续费信息"
+msgstr "更新情報の確認"
+
+#: Disabled references:1
+msgid "每月升级包"
+msgstr "月額アップグレードパック"
+
+#: Disabled references:1
+msgid "并发数是指同一个时间点可同时运行的实例数"
+msgstr "同時実行数は、同じ時点で同時に実行可能なインスタンスの数です"
+
+#: Disabled references:1
+msgid "台"
+msgstr "テラス"
+
+#: Disabled references:1
+msgid "计费"
+msgstr "請求書作成"
+
+#: Disabled references:1
+msgid "并发数"
+msgstr "同時接続数"
+
+#: Disabled references:1
+msgid "%0核"
+msgstr "0コア"
+
+#: Disabled references:1
+msgid "专属算力每月升级包"
+msgstr "コンピューティングパワーのアップグレードパッケージを毎月特別に提供"
+
+#: Disabled references:1
+msgid "专属算力单月包"
+msgstr "コンピューティングパワーの独占的な月額パッケージ"
+
+#: Disabled references:1
+msgid "账务%15000"
+msgstr "アカウント %15000"
+
+#: Disabled references:1
+msgid "用户列表： 已选择"
+msgstr "ユーザーリスト：選択済み"
+
+#: Disabled references:1
+msgid "个用户"
+msgstr "ユーザー"
+
+#: Disabled references:1
+msgid "添加工作流"
+msgstr "ワークフローを追加する"
+
+#: Disabled references:1
+msgid "工作流中引用的子流程、封装业务流程，会在工作流所在的专属算力资源上运行。"
+msgstr "ワークフローで参照されるカプセル化されたビジネスプロセスであるサブプロセスは、ワークフローが配置された排他的演算資源上で実行されます。"
+
+#: Disabled references:1
+msgid "添加(%0)"
+msgstr "追加(%0)"
+
+#: Disabled references:1
+msgid "未选择工作流"
+msgstr "ワークフローが選択されていない"
+
+#: Disabled references:1
+msgid "工流程名称"
+msgstr "ワークフロー名"
+
+#: Disabled references:1
+msgid "检测到工作流已存在其他专属算力中，是否移动？"
+msgstr "他の専用計算機で既にワークフローが存在することを検知し、それを移動させるか？"
+
+#: Disabled references:1
+msgid "所属算力服务"
+msgstr "提携算術サービス"
+
+#: Disabled references:1
+msgid "没有可选算力"
+msgstr "オプション電源なし"
+
+#: Disabled references:1
+msgid "创建中，请稍候（约需要几分钟）..."
+msgstr "作成されるまでお待ちください（数分かかります）...。"
+
+#: Disabled references:1
+msgid "启动中"
+msgstr "発売開始"
+
+#: Disabled references:1
+msgid "停止中"
+msgstr "停止中"
+
+#: Disabled references:1
+msgid "重启中"
+msgstr "リブート中"
+
+#: Disabled references:1
+msgid "销毁中"
+msgstr "進行中の破壊"
+
+#: Disabled references:1
+msgid "已销毁"
+msgstr "破壊された"
+
+#: Disabled references:1
+msgid "销毁失败"
+msgstr "破壊に失敗した"
+
+#: Disabled references:1
+msgid "成员暂无汇报关系"
+msgstr "現在、メンバーにはレポートラインはない"
+
+#: Disabled references:1
+msgid "的汇报关系"
+msgstr "報告関係"
+
+#: Disabled references:1
+msgid "查看成员"
+msgstr "メンバーを見る"
+
+#: Disabled references:1
+msgid "新建失败"
+msgstr "新規構築は失敗"
+
+#: Disabled references:1
+msgid "名称重复"
+msgstr "重複する名前"
+
+#: Disabled references:1
+msgid "Key无效"
+msgstr "キー無効"
+
+#: Disabled references:1
+msgid "IV无效 "
+msgstr "IVが有効でない"
+
+#: Disabled references:1
+msgid "规则名称不能为空"
+msgstr "ルール名を空にすることはできません"
+
+#: Disabled references:1
+msgid "Key不能为空"
+msgstr "キーが空であることはできません"
+
+#: Disabled references:1
+msgid "IV不能为空"
+msgstr "IVが空であることはありえない"
+
+#: Disabled references:1
+msgid "规则名称1"
+msgstr "ルール名1"
+
+#: Disabled references:1
+msgid "新建加密规则"
+msgstr "新しい暗号化ルール"
+
+#: Disabled references:1
+msgid "加密方式"
+msgstr "暗号化方式"
+
+#: Disabled references:1
+msgid "请输入%0位字符"
+msgstr "0文字を入力してください"
+
+#: Disabled references:1
+msgid "请输入16位字符"
+msgstr "16文字を入力してください。"
+
+#: Disabled references:1
+msgid "修改信息"
+msgstr "情報の修正"
+
+#: Disabled references:1
+msgid "已加密字段"
+msgstr "暗号化されたフィールド"
+
+#: Disabled references:1
+msgid "加密规则详情"
+msgstr "暗号化ルールの詳細"
+
+#: Disabled references:1
+msgid "全部工作表"
+msgstr "すべてのワークシート"
+
+#: Disabled references:1
+msgid "加密字段"
+msgstr "暗号化されたフィールド"
+
+#: Disabled references:1
+msgid "所属工作表"
+msgstr "提携ワークシート"
+
+#: Disabled references:1
+msgid "全部方式"
+msgstr "すべての方法"
+
+#: Disabled references:1
+msgid "删除失败，引用的规则不能删除"
+msgstr "削除に失敗しました。参照されたルールは削除できませんでした。"
+
+#: Disabled references:1
+msgid "搜索规则名称"
+msgstr "検索ルール名"
+
+#: Disabled references:1
+msgid "设置默认规则"
+msgstr "デフォルトのルールを設定する"
+
+#: Disabled references:1
+msgid "可以删除未被引用的加密规则"
+msgstr "引用されていない暗号化ルールを削除することができます"
+
+#: Disabled references:1
+msgid "%0成功"
+msgstr "0 成功"
+
+#: Disabled references:1
+msgid "%0工作地点"
+msgstr "0 職場"
+
+#: Disabled references:1
+msgid "添加成员(%0)"
+msgstr "メンバを追加 (%0)"
+
+#: Disabled references:1
+msgid "确认删除所选择的工作地点？"
+msgstr "選択した職場の削除を確認しますか？"
+
+#: Disabled references:1
+msgid "动态值"
+msgstr "ダイナミックな価値観"
+
+#: Disabled references:1
+msgid "非子流程节点数据处理上限（最大2000）"
+msgstr "非サブプロセスノードのデータ処理制限（最大2000）"
+
+#: Disabled references:1
+msgid "子流程节点可处理的数据上限（最大20000）"
+msgstr "サブプロセスノードが処理できる最大データ量（最大20,000件）"
+
+#: Disabled references:1
+msgid "如在销售管理应用中"
+msgstr "例えば、販売管理アプリケーションの場合"
+
+#: Disabled references:1
+msgid "可以通过建立成员表来管理销售人员的团队、地区、关联订单等扩展信息"
+msgstr "営業スタッフ用のメンバーテーブルを作成することで、チーム、地域、関連する注文などの拡張情報を管理できる。"
+
+#: Disabled references:1
+msgid "可以根据订单所关联的团队，来筛选出当前销售人员所在团队的订单"
+msgstr "注文は、注文が関連付けられているチームでフィルタリングすることができ、営業担当者が現在所属しているチームを見つけることができます。"
+
+#: Disabled references:1
+msgid "手机邀请"
+msgstr "モバイル招待"
+
+#: Disabled references:1
+msgid "邮箱邀请"
+msgstr "招待メール"
+
+#: Disabled references:1
+msgid "登录时需同意用户协议和隐私条款"
+msgstr "ユーザー同意書とプライバシーポリシーに同意してサインインする"
+
+#: Disabled references:1
+msgid "通过微信扫码登录时，需先关注公众号"
+msgstr "WeChatでログインするには、まず公開番号をフォローする必要があります"
+
+#: Disabled references:1
+msgid "允许参与记录讨论"
+msgstr "録音されたディスカッションへの参加許可"
+
+#: Disabled references:1
+msgid "允许查看审批流转详情"
+msgstr "承認フローの詳細を閲覧できるようにする"
+
+#: Disabled references:1
+msgid "复制到常规"
+msgstr "一般にコピーする"
+
+#: Disabled references:1
+msgid "设为默认"
+msgstr "デフォルトで設定する"
+
+#: Disabled references:1
+msgid "系统角色"
+msgstr "システムの役割"
+
+#: Disabled references:1
+msgid "请输入完整链接，以 http:// 或 https:// 开头"
+msgstr "http:// または https:// で始まるフルリンクを入力してください。"
+
+#: Disabled references:1
+msgid "彻底删除共享文件夹\"%0\""
+msgstr "共有フォルダ「%0」を完全に削除する"
+
+#: Disabled references:1
+msgid "退出共享文件夹\"%0\""
+msgstr "共有フォルダ \"%0\" を終了する"
+
+#: Disabled references:1
+msgid "安装的API，允许在卡片上修改是否使用网络代理"
+msgstr "カードでWebプロキシを使用するかどうかを変更できるAPIをインストールしました。"
+
+#: Disabled references:1
+msgid "从代码片段库中选择"
+msgstr "コードスニペットライブラリーから選択"
+
+#: Disabled references:1
+msgid "搜索来源名称"
+msgstr "検索元名"
+
+#: Disabled references:1
+msgid "当前版本最多可创建%0个同步任务, 请升级版本以创建更多同步任务"
+msgstr "現在のバージョンで作成できる同期タスクは %0 までです。"
+
+#: Disabled references:1
+msgid "免费版最多可创建%0个同步任务, 请升级版本以创建更多同步任务"
+msgstr "無料版で作成できる同期タスクは %0 までです。"
+
+#: Disabled references:1
+msgid "一列"
+msgstr "Aライン"
+
+#: Disabled references:1
+msgid "二列"
+msgstr "2列目"
+
+#: Disabled references:1
+msgid "三列"
+msgstr "3列"
+
+#: Disabled references:1
+msgid "四列"
+msgstr "4列"
+
+#: Disabled references:1
+msgid "应用%04014"
+msgstr "アプリケーション %04014"
+
+#: Disabled references:1
+msgid "获取当前位置经纬度"
+msgstr "現在位置の緯度・経度を取得する"
+
+#: Disabled references:1
+msgid "关联当前"
+msgstr "関連する電流"
+
+#: Disabled references:1
+msgid "未勾选时，用户可查看所有查询结果。勾选后，按照用户对数据的权限查看，隐藏无权限的数据或字段"
+msgstr "チェックされていない場合、ユーザーはすべてのクエリ結果を見ることができます。チェックされている場合、権限のないデータまたはフィールドは、ユーザーの閲覧権限に応じて非表示になる"
+
+#: Disabled references:1
+msgid "批量操作\"%0\""
+msgstr "バッチ操作 \"%0\""
+
+#: Disabled references:1
+msgid "前往"
+msgstr "に進む"
+
+#: Disabled references:1
+msgid "开启或拖拽到这里"
+msgstr "ここでオンにするか、ドラッグ＆ドロップ"
+
+#: Disabled references:1
+msgid "关闭或拖拽到这里"
+msgstr "ここで閉じるか、ドラッグ＆ドロップしてください"
+
+#: Disabled references:1
+msgid "全显示"
+msgstr "フルディスプレイ"
+
+#: Disabled references:1
+msgid "全隐藏"
+msgstr "完全非表示"
+
+#: Disabled references:1
+msgid "按表单字段重置"
+msgstr "フォームフィールドによるリセット"
+
+#: Disabled references:1
+msgid "批量导出附件"
+msgstr "添付ファイルの一括エクスポート"
+
+#: Disabled references:1
+msgid "刷新加密规则字段值"
+msgstr "暗号化ルールのフィールド値をリフレッシュする"
+
+#: Disabled references:1
+msgid "将彻底删除工作表\"%0\""
+msgstr "ワークシート \"%0\" は完全に削除されます。"
+
+#: Disabled references:1
+msgid "排序%05028"
+msgstr "ソート %05028"
+
+#: Disabled references:1
+msgid "显示样式"
+msgstr "表示スタイル"
+
+#: Disabled references:1
+msgid "连接线样式"
+msgstr "接続ケーブルのスタイル"
+
+#: Disabled references:1
+msgid "竖向层级数"
+msgstr "垂直方向のレベル数"
+
+#: Disabled references:1
+msgid "启用业务规则"
+msgstr "ビジネスルールの有効化"
+
+#: Disabled references:1
+msgid "在表格中生效业务规则，但会影响表格性能"
+msgstr "ビジネスルールはフォームに反映されるが、フォームの性能に影響を与える可能性がある"
+
+#: Disabled references:1
+msgid "画布"
+msgstr "キャンバス"
+
+#: Disabled references:1
+msgid "创建一个画布页面，在页面中添加统计报表、按钮、视图等组件"
+msgstr "キャンバスページを作成し、統計レポート、ボタン、ビューなどのコンポーネントをページに追加する。"
+
+#: Disabled references:1
+msgid "将一个已有外部链接作为页面"
+msgstr "既存の外部リンクをページとして使用する"
+
+#: Disabled references:1
+msgid "嵌入页面"
+msgstr "エンベデッドページ"
+
+#: Disabled references:1
+msgid "嵌入页面时只支持 https:// 开头的链接"
+msgstr "ページ埋め込み時に https:// で始まるリンクのみ対応"
+
+#: Disabled references:1
+msgid "隐藏标题栏"
+msgstr "タイトルバーを隠す"
+
+#: Disabled references:1
+msgid "Excel导入"
+msgstr "エクセルインポート"
+
+#: Disabled references:1
+msgid "粘贴导入"
+msgstr "ペーストインポート"
+
+#: Disabled references:1
+msgid "导入数据"
+msgstr "データの取り込み"
+
+#: Disabled references:1
+msgid "Excel文件解析失败！"
+msgstr "Excelファイルのパースに失敗しました！"
+
+#: Disabled references:1
+msgid "已隐藏不可导入字段。使用ctrl+v从excel中粘贴数据，ctr+z撒销上次操作"
+msgstr "インポート不可能なフィールドを非表示にする。ctrl+vでエクセルからデータを貼り付け、ctr+zで最後の操作をキャンセルする。"
+
+#: Disabled references:1
+msgid "分隔符"
+msgstr "セパレーター"
+
+#: Disabled references:1
+msgid "分号(:)"
+msgstr "セミコロン(:)"
+
+#: Disabled references:1
+msgid "竖线(|)"
+msgstr "縦線 (|)"
+
+#: Disabled references:1
+msgid "逗号(,)"
+msgstr "カンマ（、）。"
+
+#: Disabled references:1
+msgid "检查即将导入的数据，你可以调整数据导入的对应字段"
+msgstr "インポートするデータを確認し、データインポートの対応するフィールドを調整することができます"
+
+#: Disabled references:1
+msgid "导入 %0 行数据， %1/共 %2 列"
+msgstr "データ %0 行、%1/ 合計 %2 列をインポートします。"
+
+#: Disabled references:1
+msgid "最多查询50条结果"
+msgstr "最大50件まで検索可能"
+
+#: Disabled references:1
+msgid "需所有审批人通过"
+msgstr "全承認者の可決が必要"
+
+#: Disabled references:1
+msgid "只需一名审批人通过"
+msgstr "承認者は1名のみで、合格となります"
+
+#: Disabled references:1
+msgid "审批前更新了记录"
+msgstr "承認前に更新された記録"
+
+#: Disabled references:1
+msgid "开始审批"
+msgstr "承認開始日"
+
+#: Disabled references:1
+msgid "通过后更新了记录"
+msgstr "採用後に更新される記録"
+
+#: Disabled references:1
+msgid "否决后更新了记录"
+msgstr "リジェクト後に更新された記録"
+
+#: Disabled references:1
+msgid "新增节点操作明细"
+msgstr "新規ノードの操作内容"
+
+#: Disabled references:1
+msgid "审批自动通过"
+msgstr "自動承認"
+
+#: Disabled references:1
+msgid "验证必填字段"
+msgstr "必須項目を確認する"
+
+#: Disabled references:1
+msgid "勾选后，当有必填字段为空时不自动通过，仍需进行审批操作。[审批人为空时自动通过]不受此配置影响。"
+msgstr "チェックを入れると、必須項目が空の場合、自動承認されず、承認プロセスが必要になります。[承認者が空の場合、自動承認する］は、この設定の影響を受けません。"
+
+#: Disabled references:1
+msgid "通知节点设置"
+msgstr "通知ノードの設定"
+
+#: Disabled references:1
+msgid "编辑代码片段"
+msgstr "コードスニペットの編集"
+
+#: Disabled references:1
+msgid "保存代码片段"
+msgstr "コードスニペットの保存"
+
+#: Disabled references:1
+msgid "代码片段名称不能为空"
+msgstr "コードフラグメントの名前を空にすることはできません"
+
+#: Disabled references:1
+msgid "代码片段名称"
+msgstr "コードスニペット名"
+
+#: Disabled references:1
+msgid "选择代码片段"
+msgstr "コードスニペットを選択する"
+
+#: Disabled references:1
+msgid "插入JavaScript代码片段"
+msgstr "JavaScriptのコードスニペットを挿入する"
+
+#: Disabled references:1
+msgid "插入Python代码片段"
+msgstr "Pythonのコードスニペットを挿入する"
+
+#: Disabled references:1
+msgid "您确定要删除片段“%0”吗？"
+msgstr "本当にフラグメント\"%0 \"を削除するのでしょうか？"
+
+#: Disabled references:1
+msgid "未搜索到"
+msgstr "検索に引っかからない"
+
+#: Disabled references:1
+msgid "相关的代码片段"
+msgstr "関連するコードスニペット"
+
+#: Disabled references:1
+msgid "无代码片段"
+msgstr "コードスニペットがない"
+
+#: Disabled references:1
+msgid "使用时清空现有input参数与代码块"
+msgstr "使用する場合は、既存の入力パラメータとコードブロックをクリアする"
+
+#: Disabled references:1
+msgid "发布流程%03088"
+msgstr "リリースプロセス%03088"
+
+#: Disabled references:1
+msgid "${month}月"
+msgstr "0]月"
+
+#: Disabled references:1
+msgid "无权限访问"
+msgstr "許可なくアクセスする"
+
+#: Disabled references:1
+msgid "保留最近6个月的应用日志"
+msgstr "過去6ヶ月の応募履歴を残す"
+
+#: Disabled references:1
+msgid "无未激活成员"
+msgstr "非アクティブ・メンバーなし"
+
+#: Disabled references:1
+msgid "无待审核成员"
+msgstr "監査待ちの会員なし"
+
+#: Disabled references:1
+msgid "管理员通过手机和邮箱添加的成员未激活时会显示在这里"
+msgstr "管理者が携帯電話や電子メールで追加したメンバーは、有効化されていない場合、ここに表示されます。"
+
+#: Disabled references:1
+msgid "通过链接、搜索企业账号、非管理员通过邮箱或手机号邀请的成员会显示在这里"
+msgstr "リンク経由で招待された会員、法人アカウントの検索、電子メールまたは携帯電話番号経由の非管理者はここに表示されます。"
+
+#: Disabled references:1
+msgid "记录创建次数计数说明："
+msgstr "レコード作成回数の説明："
+
+#: Disabled references:1
+msgid "通过工作表表单页面创建的记录、不包含Excel导入、工作流创建、API调用的方式"
+msgstr "ワークシートフォームページで作成されたレコード。Excelインポート、ワークフロー作成、APIコールは含まれません。"
+
+#: Disabled references:1
+msgid "应用访问次数计数说明："
+msgstr "アプリケーションの訪問回数の説明："
+
+#: Disabled references:1
+msgid "· 通过应用图标点击进入应用"
+msgstr "- アプリケーションアイコンをクリックすると、アプリケーションにアクセスできます"
+
+#: Disabled references:1
+msgid "· 通过系统消息打开了应用"
+msgstr "- システムメッセージでアプリを開く"
+
+#: Disabled references:1
+msgid "已选中%0条"
+msgstr "チェックした項目 %0"
+
+#: Disabled references:1
+msgid "文本颜色"
+msgstr "文字色"
+
+#: Disabled references:1
+msgid "多数值时不能同时配置维度和分组"
+msgstr "ディメンジョンとグループの両方に複数の値を設定することはできない"
+
+#: Disabled references:1
+msgid "取消管理员"
+msgstr "キャンセルアドミニストレーター"
+
+#: Disabled references:1
+msgid "移交应用"
+msgstr "ハンドオーバアプリケーション"
+
+#: Disabled references:1
+msgid "查看角色"
+msgstr "キャラクターを見る"
+
+#: Disabled references:1
+msgid "%0人参加投票"
+msgstr "0人が投票"
+
+#: Disabled references:1
+msgid "对方不是您的联系人，可以%0或%1成为组织成员"
+msgstr "相手はあなたの担当者ではなく、%0または%1を組織のメンバーにすることができます。"
+
+#: Disabled references:1
+msgid "调用封装业务流程"
+msgstr "カプセル化されたビジネスプロセスを呼び出す"
+
+#: Disabled references:1
+msgid "映射关系失效"
+msgstr "人間関係の失敗をマッピングする"
+
+#: Disabled references:1
+msgid "暂不支持同步"
+msgstr "シンクロは現時点ではサポートされていません"
+
+#: Disabled references:1
+msgid "不允许NULL"
+msgstr "NULLは不可"
+
+#: Disabled references:1
+msgid "<模型名称>.<表名称>"
+msgstr "<モデル名>.<table name>."
+
+#: Disabled references:1
+msgid "支持拼音排序"
+msgstr "ピンインの並び替えに対応"
+
+#: Disabled references:1
+msgid "勾选后，中文可按拼音A-Z进行排序。如无需要时建议不勾选"
+msgstr "チェックを入れると、中国語をピンインA-Zでソートすることができます。必要ない場合は、チェックを外しておくことをお勧めします。"
+
+#: Disabled references:1
+msgid "无可用加密规则，请"
+msgstr "暗号化ルールがないので、お願いします"
+
+#: Disabled references:1
+msgid "前往组织后台 "
+msgstr "組織のバックオフィスへ行く"
+
+#: Disabled references:1
+msgid "进行配置"
+msgstr "コンフィギュレーションを実行する"
+
+#: Disabled references:1
+msgid "设置加密规则"
+msgstr "暗号化ルールの設定"
+
+#: Disabled references:1
+msgid "注意：设置后，新保存的字段值将按按照新规则加密，历史值不会自动刷新。之后您需要手动刷新历史数据，未刷新时历史数据可查看，但无法被筛选。"
+msgstr "注：一度設定すると、新しく保存されたフィールド値は新しいルールに従って暗号化され、履歴値は自動的にリフレッシュされません。この場合、履歴データを手動で更新する必要があります。履歴データが更新されない場合、閲覧は可能ですが、フィルタリングはできません。"
+
+#: Disabled references:1
+msgid "如何刷新数据？"
+msgstr "データをリフレッシュするにはどうしたらいいですか？"
+
+#: Disabled references:1
+msgid "当前规则"
+msgstr "現在のルール"
+
+#: Disabled references:1
+msgid "规则已删除"
+msgstr "ルール削除"
+
+#: Disabled references:1
+msgid "新规则"
+msgstr "新ルール"
+
+#: Disabled references:1
+msgid "数据加密"
+msgstr "データの暗号化"
+
+#: Disabled references:1
+msgid "对字段数据进行加密存储，保护重要信息。注意：字段加密后。一些使用将会受限。"
+msgstr "フィールドデータを暗号化して保存し、重要な情報を保護します。注）フィールドが暗号化されている場合。一部の利用が制限されます。"
+
+#: Disabled references:1
+msgid "了解详情"
+msgstr "詳細はこちら"
+
+#: Disabled references:1
+msgid "车牌号%04012"
+msgstr "ナンバー %04012"
+
+#: Disabled references:1
+msgid "身份证号%04013"
+msgstr "IDカード番号 %04013"
+
+#: Disabled references:1
+msgid "新建查询"
+msgstr "新規お問い合わせ"
+
+#: Disabled references:1
+msgid "检测到已有关联，是否查询关联当前 %0 的 %1 ？"
+msgstr "既存の関連が検出された場合、クエリは現在の%0の%1を関連付けるか？"
+
+#: Disabled references:1
+msgid "依据关联记录"
+msgstr "アソシエーションレコードに基づく"
+
+#: Disabled references:1
+msgid "查询关联当前"
+msgstr "クエリーアソシエーションカレント"
+
+#: Disabled references:1
+msgid " - %0：%1"
+msgstr " - %0: %1"
+
+#: Disabled references:1
+msgid "根据条件查询目标工作表的记录。如：查询关联客户的订单。"
+msgstr "条件に基づいて、対象のワークシートのレコードを照会する。例：関連する顧客からの注文を照会する。"
+
+#: Disabled references:1
+msgid "未添加"
+msgstr "未追加"
+
+#: Disabled references:1
+msgid "关联的%0"
+msgstr "関連 %0"
+
+#: Disabled references:1
+msgid "新版本如果要建立双向关联，需要前往关联表（%0）中添加关联本表（%1）的关联记录"
+msgstr "新しいバージョンで双方向関連を作成するには、関連テーブル (%0) に移動し、このテーブル (%1) に関連レコードを追加する必要があります。"
+
+#: Disabled references:1
+msgid "什么是双向关联?"
+msgstr "双方向の関連性とは何か？"
+
+#: Disabled references:1
+msgid "检测到所选表已关联 %0，是否建立"
+msgstr "選択したテーブルが%0に関連することが検出されましたが、作成されましたか？"
+
+#: Disabled references:1
+msgid "同步数据？"
+msgstr "同期したデータ？"
+
+#: Disabled references:1
+msgid "%0 中的关联字段"
+msgstr "0に関連するフィールド"
+
+#: Disabled references:1
+msgid "添加关联当前"
+msgstr "現在のリンクを追加する"
+
+#: Disabled references:1
+msgid "建立"
+msgstr "エスタブリッシュメント"
+
+#: Disabled references:1
+msgid "同步数据"
+msgstr "同期したデータ"
+
+#: Disabled references:1
+msgid "当前字段已加密，按照精确搜索查询"
+msgstr "現在のフィールドは暗号化され、完全検索で検索"
+
+#: Disabled references:1
+msgid "预置常用项作为模板，帮助操作人快捷填写"
+msgstr "オペレーターが素早く記入できるように、あらかじめ共通項目をテンプレートとして作成。"
+
+#: Disabled references:1
+msgid "查找字段"
+msgstr "フィールドを探す"
+
+#: Disabled references:1
+msgid "通道：%0"
+msgstr "チャンネル: %0"
+
+#: Disabled references:1
+msgid "营销推广"
+msgstr "マーケティング・プロモーション"
+
+#: Disabled references:1
+msgid "金融交易"
+msgstr "財務トランザクション"
+
+#: Disabled references:1
+msgid "行业通知"
+msgstr "業界からのお知らせ"
+
+#: Disabled references:1
+msgid "节点开始前更新"
+msgstr "ノードの開始前に更新"
+
+#: Disabled references:1
+msgid "流程进入此节点且审批开始前，更新数据对象的字段值（退回至此节点也会触发更新）"
+msgstr "プロセスがこのノードに入り、承認が始まる前に、データオブジェクトのフィールド値を更新する（このノードに戻ると更新も発生する）"
+
+#: Disabled references:1
+msgid "通过后更新"
+msgstr "採用後のアップデート"
+
+#: Disabled references:1
+msgid "通过此节点后，更新数据对象的字段值"
+msgstr "このノードを通過した後、データオブジェクトのフィールド値を更新します。"
+
+#: Disabled references:1
+msgid "否决后更新"
+msgstr "不採用後更新"
+
+#: Disabled references:1
+msgid "此节点被否决后，更新数据对象的字段值"
+msgstr "このノードが拒否された後、データオブジェクトのフィールド値を更新する。"
+
+#: Disabled references:1
+msgid "必须先选择一个对象后，才能设置数据更新"
+msgstr "データの更新を設定する前に、オブジェクトが選択されている必要があります"
+
+#: Disabled references:1
+msgid "代码片段不允许为空"
+msgstr "コードスニペットの空白は許されない"
+
+#: Disabled references:1
+msgid "保存到代码片段库"
+msgstr "コードスニペットライブラリに保存"
+
+#: Disabled references:1
+msgid "代码片段库"
+msgstr "コードスニペットライブラリ"
+
+#: Disabled references:1
+msgid "编辑测试数据"
+msgstr "テストデータを編集する"
+
+#: Disabled references:1
+msgid "金融交易（暂不支持）"
+msgstr "金融取引（現時点ではサポートされていません）"
+
+#: Disabled references:1
+msgid "流程进入此节点且填写开始前，更新数据对象的字段值（退回至此节点也会触发更新）"
+msgstr "プロセスがこのノードに入り、充填が始まる前に、データオブジェクトのフィールド値を更新する（このノードに戻ると、更新のトリガーにもなる）。"
+
+#: Disabled references:1
+msgid "调用封装业务流程："
+msgstr "呼び出しはビジネスプロセスをカプセル化する："
+
+#: Disabled references:1
+msgid "调用封装业务流程%03039"
+msgstr "ビジネス・プロセスをカプセル化する呼び出し %03039"
+
+#: Disabled references:1
+msgid "新建或选择已有代码片段"
+msgstr "新規作成または既存のコードスニペットを選択"
+
+#: Disabled references:1
+msgid "直接选择已有的代码片段"
+msgstr "既存のコードスニペットを直接選択可能"
+
+#: Disabled references:1
+msgid "获取单条人员信息"
+msgstr "人に関する単一の情報を得ること"
+
+#: Disabled references:1
+msgid "获取一名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级（可选））"
+msgstr "個人情報（氏名、性別、生年月日、携帯電話、電子メール）、組織情報（部署、役職、役職番号、部下（任意））を含む個人に関する情報を取得する。"
+
+#: Disabled references:1
+msgid "从成员字段获取"
+msgstr "メンバーフィールドから取得"
+
+#: Disabled references:1
+msgid "从所有组织成员中查找"
+msgstr "全組織のメンバーから探す"
+
+#: Disabled references:1
+msgid "获取单条部门信息"
+msgstr "単一セクターの情報を取得する"
+
+#: Disabled references:1
+msgid "获取一个部门的相关信息，包含部门名称、部门负责人、部门人员及上下级部门"
+msgstr "部門名、部門長、部門内の人、下位の部門など、部門に関する情報を取得できる"
+
+#: Disabled references:1
+msgid "从所有组织部门中查找"
+msgstr "すべての組織分野から探す"
+
+#: Disabled references:1
+msgid "获取单条组织角色信息"
+msgstr "単一の組織の役割に関する情報を取得する"
+
+#: Disabled references:1
+msgid "获取一个组织角色的相关信息，包含角色名称、备注、角色下人员"
+msgstr "組織の役割に関する情報（役割名、メモ、役割の下にいる人など）を取得します。"
+
+#: Disabled references:1
+msgid "从所有组织角色中查找"
+msgstr "すべての組織的役割から探す"
+
+#: Disabled references:1
+msgid "获取多条人员信息"
+msgstr "複数人の情報を取得する"
+
+#: Disabled references:1
+msgid "获取多名人员的相关信息，包含个人信息（姓名、性别、生日、手机、邮箱）和组织信息（部门、职位、工号、上下级（可选））"
+msgstr "個人情報（氏名、性別、生年月日、携帯電話、電子メール）、組織情報（部署、役職、役職番号、部下（任意））を含む複数人に関する情報を取得する。"
+
+#: Disabled references:1
+msgid "获取多条部门信息"
+msgstr "複数セクターの情報を取得する"
+
+#: Disabled references:1
+msgid "获取多个部门的相关信息，包含部门名称、部门负责人、部门人员及上下级部门"
+msgstr "部門名、部門長、部門スタッフ、下位部門など、複数の部門に関する情報を取得できる"
+
+#: Disabled references:1
+msgid "获取多条组织角色信息"
+msgstr "複数の組織の役割情報を取得する"
+
+#: Disabled references:1
+msgid "获取多个组织角色的相关信息，包含角色名称、备注、角色下人员"
+msgstr "役割名、メモ、役割の下にいる人など、複数の組織的な役割に関する情報を取得する。"
+
+#: Disabled references:1
+msgid "仅组织管理员可以添加"
+msgstr "を追加できるのは、組織管理者のみです。"
+
+#: Disabled references:1
+msgid "旧"
+msgstr "旧"
+
+#: Disabled references:1
+msgid "复制整个分支"
+msgstr "ブランチ全体をコピーする"
+
+#: Disabled references:1
+msgid "存在错误映射"
+msgstr "エラーマッピングが存在する"
+
+#: Disabled references:1
+msgid "未设置相关字段"
+msgstr "関連分野が設定されていない"
+
+#: Disabled references:1
+msgid "字段名称不能重复"
+msgstr "フィールド名の繰り返しは不可"
+
+#: Disabled references:1
+msgid "刷新数据源字段"
+msgstr "データソースのフィールドをリフレッシュする"
+
+#: Disabled references:1
+msgid "相关工作表已删除，或存在异常"
+msgstr "該当するワークシートが削除された、または例外がある。"
+
+#: Disabled references:1
+msgid "预览数据仅显示从数据源同步至当前节点时的前100行记录"
+msgstr "データソースから現在のノードに同期した場合、プレビューデータには最初の100行のレコードしか表示されない"
+
+#: Disabled references:1
+msgid "请选择分组"
+msgstr "グループを選択してください"
+
+#: Disabled references:1
+msgid "识别重复数据"
+msgstr "重複するデータを特定する"
+
+#: Disabled references:1
+msgid "根据主键判断已有数据的重复，\"覆盖\"会导致数据同步变慢。"
+msgstr "既存データの重複は主キーで判断され、「上書き」はデータの同期を遅くする原因になります。"
+
+#: Disabled references:1
+msgid "当前版本最多可创建${res.maxTaskNum}个同步任务, 请升级版本以创建更多同步任务"
+msgstr "現在のバージョンでは、${res.maxTaskNum}までの同期タスクを作成できます。"
+
+#: Disabled references:1
+msgid "免费版最多可创建${res.maxTaskNum}个同步任务, 请升级版本以创建更多同步任务"
+msgstr "無料版では${res.maxTaskNum}までの同期タスクを作成できます。"
+
+#: Disabled references:1
+msgid "任务创建中..."
+msgstr "タスク作成中..."
+
+#: Disabled references:1
+msgid "可能需要一些时间，请耐心等待"
+msgstr "時間がかかる場合がありますので、しばらくお待ちください"
+
+#: Disabled references:1
+msgid "NETWORKDAY(开始日期,结束日期,[节假日期1,节假日期2,...])"
+msgstr "NETWORKDAY(開始日, 終了日, [休日期間1, 休日期間2, ...])"
+
+#: Disabled references:1
+msgid "[节假日期组]：使用字段值或固定值指明哪些天是节假日；如果不指定这个参数，系统只会自动排除掉周六及周日"
+msgstr "[休日期間グループ]：フィールド値または固定値を使用して、休日となる日を指定する。このパラメータが指定されていない場合、土曜日と日曜日のみが自動的に除外される"
+
+#: Disabled references:1
+msgid "示例：=NETWORKDAY('2021-3-8','2021-3-14',['2021-3-8']) ，结果：4天"
+msgstr "例： =NETWORKDAY('2021-3-8','2021-3-14',['2021-3-8']) , 結果：4日間"
+
+#: Disabled references:1
+msgid "计算 2021-3-8 至 2021-3-14 期间的工作日，排除三八妇女节"
+msgstr "2021年3月8日～2021年3月14日（3月8日「女性の日」を除く）の労働日数の計算"
+
+#: Disabled references:1
+msgid "MINUTE(日期时间/时间)"
+msgstr "分（日付 時間）"
+
+#: Disabled references:1
+msgid "示例：=MINUTE('2021-5-1 11:59') ，结果：59"
+msgstr "例: =MINUTE('2021-5-1 11:59') , 結果: 59"
+
+#: Disabled references:1
+msgid "返回 2021-5-1 11:59 的分钟数"
+msgstr "2021年5月1日 11:59の議事録に戻る"
+
+#: Disabled references:1
+msgid "HOUR(日期时间/时间)"
+msgstr "時間（日付 時間）"
+
+#: Disabled references:1
+msgid "示例：=HOUR('2021-5-1 11:59') ，结果：11"
+msgstr "例: =HOUR('2021-5-1 11:59') , 結果: 11"
+
+#: Disabled references:1
+msgid "返回 2021-5-1 11:59 的小时数"
+msgstr "2021-5-1 11:59の時間に戻る"
+
+#: Disabled references:1
+msgid "WEEKDAY(日期时间)"
+msgstr "平日（日付と時間）"
+
+#: Disabled references:1
+msgid "示例：=WEEKDAY('2021-5-1') ，结果：6"
+msgstr "例: =WEEKDAY('2021-5-1') , 結果: 6"
+
+#: Disabled references:1
+msgid "返回 2021-5-1 的星期数"
+msgstr "2021-5-1の週数を返す"
+
+#: Disabled references:1
+msgid "DAY(日期时间)"
+msgstr "DAY（日時）"
+
+#: Disabled references:1
+msgid "示例：=DAY('2021-5-1') ，结果：1"
+msgstr "例: =DAY('2021-5-1') , 結果: 1"
+
+#: Disabled references:1
+msgid "返回 2021-5-1 的天数"
+msgstr "2021-5-1の日々へ戻る"
+
+#: Disabled references:1
+msgid "MONTH(日期时间)"
+msgstr "月（日付と時間）"
+
+#: Disabled references:1
+msgid "示例：=MONTH('2021-5-1') ，结果：5"
+msgstr "例: =MONTH('2021-5-1') , 結果: 5"
+
+#: Disabled references:1
+msgid "返回 2021-5-1 的月份"
+msgstr "2021年5月1日に戻る"
+
+#: Disabled references:1
+msgid "YEAR(日期时间)"
+msgstr "年（日付と時間）"
+
+#: Disabled references:1
+msgid "示例：=YEAR('2021-5-1') ，结果：2021"
+msgstr "例： =YEAR('2021-5-1') , 結果：2021年"
+
+#: Disabled references:1
+msgid "返回 2021-5-1 的年份"
+msgstr "2021年5月1日に戻る"
+
+#: Disabled references:1
+msgid "DATEADD(初始日期,计算式,[输出格式])"
+msgstr "DATEADD(最初の日付、計算式、[出力形式])"
+
+#: Disabled references:1
+msgid "计算式：'+'或'-'代表添加或减去；时间段的单位，'Y'代表年、'M'代表月、'd'代表天、'h'代表小时、'm'代表分钟；也可以添加或减去一个时间字段"
+msgstr "計算式：「+」または「-」で加算または減算、期間の単位：「Y」で年、「M」で月、「d」で日、「h」で時間、「m」で分、時間フィールドも加算または減算可能"
+
+#: Disabled references:1
+msgid "[输出格式]：1代表日期格式，2代表日期时间格式；如果不指定这个参数，则默认是类型1"
+msgstr "[出力フォーマット]: 1は日付フォーマット、2は日時フォーマット。"
+
+#: Disabled references:1
+msgid "示例：=DATEADD('2008-11-11 12:23','+8h',2) ，结果：2008-11-11 20:23"
+msgstr "例: =DATEADD('2008-11-11 12:23','+8h',2) , 結果: 2008-11-11 20:23"
+
+#: Disabled references:1
+msgid "求 2008-11-11 12:23 8小时后的时间点，结果保持日期时间格式"
+msgstr "2008-11-11 12:23から8時間後の時点を要求すると、結果は日付の時間形式を維持します。"
+
+#: Disabled references:1
+msgid "DATEIF(开始,结束,格式化方式,[输出单位])"
+msgstr "DATEIF(開始,終了,書式設定方法,[出力単位])"
+
+#: Disabled references:1
+msgid "格式化方式：1-开始日期00:00结束日期00:00，2-开始日期00:00结束日期24:00"
+msgstr "フォーマット: 1 - 開始日 00:00 終了日 00:00, 2 - 開始日 00:00 終了日 24:00"
+
+#: Disabled references:1
+msgid "输出单位：'Y'-年；'M'-月；'d'-天；'h'-小时；'m'-分钟；如果不指定这个参数，则默认为'd'"
+msgstr "出力単位：'Y'-年、'M'-月、'd'-日、'h'-時、'm'-分。"
+
+#: Disabled references:1
+msgid "示例：=DATEIF('2021-3-8','2021-3-14',2,'d') ，结果：7天"
+msgstr "例: =DATEIF('2021-3-8','2021-3-14',2,'d') , 結果: 7日"
+
+#: Disabled references:1
+msgid "计算 2021-3-8 至 2021-3-14 期间的时长，精确到天"
+msgstr "2021-3-8から2021-3-14までの期間を1日単位で計算する。"
+
+#: Disabled references:1
+msgid "DATENOW()"
+msgstr "DATENOW()"
+
+#: Disabled references:1
+msgid "示例：=DATENOW() ，结果：2008-11-11 12:23"
+msgstr "例: =DATENOW() , 結果: 2008-11-11 12:23"
+
+#: Disabled references:1
+msgid "COUNTARRAY(数组类字段)"
+msgstr "COUNTARRAY(配列クラスフィールド)"
+
+#: Disabled references:1
+msgid "示例：=COUNTARRAY(工序) ，结果：7"
+msgstr "例: =COUNTARRAY(process) , 結果: 7"
+
+#: Disabled references:1
+msgid "计算名称为“工序”的子表数量（实际有7道工序）"
+msgstr "プロセス \"という名前のサブテーブルの数を計算する（実際には7つのプロセスがある）"
+
+#: Disabled references:1
+msgid "RANDBETWEEN(最小值,最大值)"
+msgstr "RANDBETWEEN(min,max)"
+
+#: Disabled references:1
+msgid "示例：=RANDBETWEEN(1,10) ，结果：7"
+msgstr "例: = RANDBETWEEN(1,10) , 結果: 7"
+
+#: Disabled references:1
+msgid "随机输出1-10之间的一个数字"
+msgstr "1から10までの数字をランダムに出力する。"
+
+#: Disabled references:1
+msgid "ROUNDDOWN(数值,位数)"
+msgstr "ROUNDDOWN(値, 桁)"
+
+#: Disabled references:1
+msgid "示例：=ROUNDDOWN(3.14159265,4) ，结果：3.1415"
+msgstr "例： =ROUNDDOWN(3.14159265,4) , 結果：3.1415"
+
+#: Disabled references:1
+msgid "保留 3.14159265 的四位小数"
+msgstr "3.14159265の小数点以下4桁を維持"
+
+#: Disabled references:1
+msgid "CEILING(数值,基数)"
+msgstr "CEILING(値, ベース)"
+
+#: Disabled references:1
+msgid "示例：=CEILING(7,3)，结果：9"
+msgstr "例：=CEILING(7,3)、結果：9"
+
+#: Disabled references:1
+msgid "取最接近7且大于7的3的倍数"
+msgstr "最も近い3の倍数のうち、7以上かつ7未満の数を取る。"
+
+#: Disabled references:1
+msgid "FLOOR(数值,基数)"
+msgstr "FLOOR(値,ベース)"
+
+#: Disabled references:1
+msgid "示例：=FLOOR(7,3)，结果：6"
+msgstr "例：=FLOOR(7,3)、結果：6"
+
+#: Disabled references:1
+msgid "取最接近7且小于7的3的倍数"
+msgstr "最も近い3の倍数のうち、7以上7未満のものを選びなさい。"
+
+#: Disabled references:1
+msgid "ROUNDUP(数值,位数)"
+msgstr "ROUNDUP(value, digit)"
+
+#: Disabled references:1
+msgid "示例：=ROUNDUP(3.14159265,4) ，结果：3.1416"
+msgstr "例: =ROUNDUP(3.14159265,4) , 結果: 3.1416"
+
+#: Disabled references:1
+msgid "ROUND(数值,位数)"
+msgstr "ROUND(value, digit)"
+
+#: Disabled references:1
+msgid "示例：=ROUND(3.14159265,4) ，结果：3.1416"
+msgstr "例: =ROUND(3.14159265,4) , 結果: 3.1416"
+
+#: Disabled references:1
+msgid "MOD(被除数,除数)"
+msgstr "MOD(除数,除数)"
+
+#: Disabled references:1
+msgid "示例：=MOD(15,4) ，结果：3"
+msgstr "例：=MOD(15,4) , 結果：3"
+
+#: Disabled references:1
+msgid "计算 15 除以 4 的余数"
+msgstr "15を4で割った余りを計算する。"
+
+#: Disabled references:1
+msgid "INT(数值)"
+msgstr "INT(値)"
+
+#: Disabled references:1
+msgid "示例：=INT(-3.14159265) ，结果：-4"
+msgstr "例： =INT(-3.14159265) , 結果： -4"
+
+#: Disabled references:1
+msgid "对 -3.14159265 进行求整"
+msgstr "四捨五入して-3.14159265"
+
+#: Disabled references:1
+msgid "ABS(数值)"
+msgstr "ABS（価値）"
+
+#: Disabled references:1
+msgid "示例：=ABS(-7) ，结果：7"
+msgstr "例: =ABS(-7) , 結果: 7"
+
+#: Disabled references:1
+msgid "求 -7 的绝对值"
+msgstr "7の絶対値を求めよ"
+
+#: Disabled references:1
+msgid "COUNTA(数值1,数值2...)"
+msgstr "COUNTA(値1,値2...)"
+
+#: Disabled references:1
+msgid "示例：=COUNTA(1月,2月,3月) ，结果：2"
+msgstr "例: =COUNTA(Jan,Feb,Mar) , 結果: 2"
+
+#: Disabled references:1
+msgid "计算第一季度指标的完成数量，该表有三个检查框对应1、2、3月指标是否完成，名称分别为1月、2月、3月，2月份未完成"
+msgstr "第1四半期に完了した指標の数を計算する。表には、指標が1月、2月、3月に完了したかどうかに対応する3つのチェックボックスがあり、それぞれ1月、2月、3月と名付けられ、2月は完了していない。"
+
+#: Disabled references:1
+msgid "COUNTBLANK(数值1,数值2...)"
+msgstr "COUNTBLANK(値1,値2...)"
+
+#: Disabled references:1
+msgid "示例：=COUNTBLANK(1月,2月,3月) ，结果：1"
+msgstr "例: =COUNTBLANK(Jan,Feb,Mar) , 結果: 1"
+
+#: Disabled references:1
+msgid "计算第一季度指标的未完成数量，该表有三个检查框对应1、2、3月指标是否完成，名称分别为1月、2月、3月，2月份未完成"
+msgstr "第1四半期の未完了の指標の数を計算する。表には、指標が1月、2月、3月に完了したかどうかに対応する3つのチェックボックスがあり、それぞれ1月、2月、3月と名付けられ、2月は完了していない。"
+
+#: Disabled references:1
+msgid "PRODUCT(数值1,数值2...)"
+msgstr "PRODUCT(値1、値2...)"
+
+#: Disabled references:1
+msgid "示例：=PRODUCT(15,4) ，结果：60"
+msgstr "例： =PRODUCT(15,4) , 結果： 60"
+
+#: Disabled references:1
+msgid "计算 15 乘以 4 的积"
+msgstr "15に4を掛けた積を計算する。"
+
+#: Disabled references:1
+msgid "MAX(数值1,数值2...)"
+msgstr "MAX(値1,値2...)"
+
+#: Disabled references:1
+msgid "示例：=MAX(10,20,30) ，结果：30"
+msgstr "例：=MAX(10,20,30) , 結果：30"
+
+#: Disabled references:1
+msgid "返回10,20,30中最大的数字"
+msgstr "10,20,30から最大の数を返します。"
+
+#: Disabled references:1
+msgid "MIN(数值1,数值2...)"
+msgstr "MIN(値1,値2...)"
+
+#: Disabled references:1
+msgid "示例：=MIN(10,20,30) ，结果：10"
+msgstr "例：=MIN(10,20,30) , 結果：10"
+
+#: Disabled references:1
+msgid "返回10,20,30中最小的数字"
+msgstr "10,20,30から最小の数を返します。"
+
+#: Disabled references:1
+msgid "AVERAGE(数值1,数值2...)"
+msgstr "AVERAGE(値1,値2...)"
+
+#: Disabled references:1
+msgid "示例：=AVERAGE(10,20,30) ，结果：20"
+msgstr "例： =AVERAGE(10,20,30) , 結果： 20"
+
+#: Disabled references:1
+msgid "计算10,20,30的平均值"
+msgstr "10,20,30の平均を計算する"
+
+#: Disabled references:1
+msgid "SUM(数值1,数值2...)"
+msgstr "SUM(値1,値2...)"
+
+#: Disabled references:1
+msgid "示例：=SUM(10,20,30) ，结果：60"
+msgstr "例：=SUM(10,20,30) , 結果：60"
+
+#: Disabled references:1
+msgid "计算10,20,30的和"
+msgstr "10,20,30の合計を計算する。"
+
+#: Disabled references:1
+msgid "NUMBER(文本)"
+msgstr "NUMBER(テキスト)"
+
+#: Disabled references:1
+msgid "示例：=NUMBER(IF(TRUE(),'-1','0'))+5，结果：4"
+msgstr "例: =NUMBER(IF(TRUE(),'-1','0'))+5, 結果: 4"
+
+#: Disabled references:1
+msgid "将 '-1' 和 5 相加（if输出的结果类型固定为文本）"
+msgstr "'-1'と5を追加（if出力の結果タイプはテキストに固定される）"
+
+#: Disabled references:1
+msgid "POWER(底数，指数)"
+msgstr "POWER（ベース、インデックス）"
+
+#: Disabled references:1
+msgid "示例：=POWER(2,3)，结果：8"
+msgstr "例：=POWER(2,3)、結果：8"
+
+#: Disabled references:1
+msgid "计算2的3次方"
+msgstr "2の3乗を計算する"
+
+#: Disabled references:1
+msgid "LOG(真数,底数)"
+msgstr "LOG(真数, 基数)"
+
+#: Disabled references:1
+msgid "示例：=LOG(8,2)，结果：3"
+msgstr "例：=LOG(8,2)、結果：3"
+
+#: Disabled references:1
+msgid "计算以2为底8的对数"
+msgstr "底8の対数を2で計算する"
+
+#: Disabled references:1
+msgid "REPLACE(原文本,开始位置,字符数,替换文本)"
+msgstr "REPLACE(原文, 開始位置, 文字数, 置換テキスト)"
+
+#: Disabled references:1
+msgid "开始位置：1代表从第一个字符开始，且第一个字符也要被替换"
+msgstr "開始位置：1は、最初の文字から開始することを意味し、最初の文字も置換されるべきである"
+
+#: Disabled references:1
+msgid "字符数：需要替换的字符数，字母、汉字、数字、空格都记为1个字符"
+msgstr "文字数：置換する文字数。文字、漢字、数字、スペースは1文字としてカウントされます。"
+
+#: Disabled references:1
+msgid "示例：=REPLACE(+8613534257715,1,3,'') ，结果：13534257715"
+msgstr "例： =REPLACE(+8613534257715,1,3,'') , 結果： 13534257715"
+
+#: Disabled references:1
+msgid "将带 +86 头的手机号码缩短为纯11位的数字（即将'+86'三个字符替换为空即可）"
+msgstr "プレフィックスが「+86」の携帯電話番号を、純粋な11桁の番号に短縮する（つまり、「+86」の3文字を空文字に置き換えるだけ）。"
+
+#: Disabled references:1
+msgid "示例：=REPT('*',5) ，结果：*****"
+msgstr "例: =REPT('*',5) , 結果: *****"
+
+#: Disabled references:1
+msgid "重复生成5个星号"
+msgstr "5つのアスタリスクを生成するために繰り返す"
+
+#: Disabled references:1
+msgid "MID(原文本,开始位置,字符数)"
+msgstr "MID（原文、開始位置、文字数）"
+
+#: Disabled references:1
+msgid "开始位置：1代表从第一个字符开始，且第一个字符也要被提取"
+msgstr "開始位置：1は最初の文字から開始することを意味し、最初の文字も抽出されるべきである"
+
+#: Disabled references:1
+msgid "字符数：需要提取的字符数，字母、汉字、数字、空格都记为1个字符"
+msgstr "文字数：抽出する文字数、アルファベット、漢字、数字、スペースはすべて1文字として記録されます。"
+
+#: Disabled references:1
+msgid "示例：=MID($编号字段$,5,4) ，结果：2021"
+msgstr "例: =MID($number field$,5,4) , 結果: 2021"
+
+#: Disabled references:1
+msgid "从规律为aaaa2021MMDDbbbb的编号中提取出年份"
+msgstr "aaaa2021MMDDbbbの規則性で数字から年を抽出する。"
+
+#: Disabled references:1
+msgid "RIGHT(原文本,[字符数])"
+msgstr "RIGHT(原文, [文字数])"
+
+#: Disabled references:1
+msgid "示例：=RIGHT($编号字段$,4) ，结果：'bbbb'"
+msgstr "例： =RIGHT($number field$,4) , 結果： 'bbbb'"
+
+#: Disabled references:1
+msgid "从规律为aaaa2021MMDDbbbb的编号中提取出bbbb"
+msgstr "aaaa2021MMDDbbbの規則性を持つ数字からbbbbを抽出する。"
+
+#: Disabled references:1
+msgid "LEFT(原文本,[字符数])"
+msgstr "LEFT(原文, [文字数])"
+
+#: Disabled references:1
+msgid "示例：=LEFT($编号字段$,4) ，结果：'aaaa'"
+msgstr "例: =LEFT($number field$,4) , 結果: 'aaaa'"
+
+#: Disabled references:1
+msgid "从规律为aaaa2021MMDDbbbb的编号中提取出aaaa"
+msgstr "aaaa2021MMDDbbbの規則性を持つ数字からaaaaを抽出する。"
+
+#: Disabled references:1
+msgid "UPPER(文本)"
+msgstr "上（テキスト）"
+
+#: Disabled references:1
+msgid "示例：=UPPER(' hello world! ') ，结果：' HELLO WORLD! '"
+msgstr "例： =UPPER(' ハローワールド！ ') , 結果： ' ハローワールド！"
+
+#: Disabled references:1
+msgid "将' hello world! '转换成大写"
+msgstr "こんにちは、世界！"
+
+#: Disabled references:1
+msgid "LOWER(文本)"
+msgstr "LOWER（テキスト）"
+
+#: Disabled references:1
+msgid "示例：=LOWER(' HELLO WORLD! ') ，结果：' hello world! '"
+msgstr "例: =LOWER(' HELLO WORLD! ') , 結果: ' ハロー・ワールド！"
+
+#: Disabled references:1
+msgid "将' HELLO WORLD! '转换成小写"
+msgstr "HELLO WORLD！"
+
+#: Disabled references:1
+msgid "CONCAT(文本1,文本2...)"
+msgstr "CONCAT(テキスト1,テキスト2...)"
+
+#: Disabled references:1
+msgid "示例：=CONCAT('aaaa','2021MMDD','bbbb') ，结果：aaaa2021MMDDbbbb"
+msgstr "例: =CONCAT('aaaa','2021MMDD','bbbb') , 結果: aaaa2021MMDDbb"
+
+#: Disabled references:1
+msgid "合并aaaa、2021MMDD、bbbb三段文本"
+msgstr "aaaa、2021MMMDD、bbbbのテキストをマージする。"
+
+#: Disabled references:1
+msgid "STRING(数值)"
+msgstr "STRING(値)"
+
+#: Disabled references:1
+msgid "示例：=STRING(-1)+STRING(5)，结果：'-15'"
+msgstr "例：=STRING(-1)+STRING(5)、結果：'-15'"
+
+#: Disabled references:1
+msgid "将-1、5两个数值拼接在一起"
+msgstr "1と5をつなぎ合わせる"
+
+#: Disabled references:1
+msgid "TRIM(文本)"
+msgstr "TRIM（テキスト）"
+
+#: Disabled references:1
+msgid "示例：=TRIM(' 南京 ')，结果：'南京'"
+msgstr "例：=TRIM('南京')、結果：'南京'"
+
+#: Disabled references:1
+msgid "删除首尾空格"
+msgstr "開閉スペースの削除"
+
+#: Disabled references:1
+msgid "CLEAN(文本)"
+msgstr "CLEAN（テキスト）"
+
+#: Disabled references:1
+msgid "示例：=CLEAN('135 3425 7715')，结果：\"13534257715\""
+msgstr "例：=CLEAN('135 3425 7715')、結果：\"13534257715\""
+
+#: Disabled references:1
+msgid "删除手机号码字段中间的空格"
+msgstr "携帯電話番号欄の真ん中のスペースを削除する。"
+
+#: Disabled references:1
+msgid "IF(表达式,成立时输出,不成立时输出)"
+msgstr "IF(式, 真のとき出力, 真でないとき出力)"
+
+#: Disabled references:1
+msgid "无论表达式成立或不成立时，输出结果固定为文本类型"
+msgstr "式が有効かどうかにかかわらず、出力はテキスト型に固定される。"
+
+#: Disabled references:1
+msgid "示例：=IF($分数$>=60,'及格','不及格')，结果：'及格'"
+msgstr "例： =IF($Score$>=60,'Pass','Fail'), 結果：'Pass'"
+
+#: Disabled references:1
+msgid "如果分数大于等于60分，则记为及格，否则记为不及格"
+msgstr "スコアが60点以上であれば合格、そうでなければ不合格となる。"
+
+#: Disabled references:1
+msgid "OR(表达式1,表达式2,...)"
+msgstr "OR(式1,式2,...)"
+
+#: Disabled references:1
+msgid "示例：=OR($语文分数$<=60,$英语分数$<=60,$数学分数$<=60) ，结果：TRUE"
+msgstr "例: =OR($言語スコア$<=60,$英語スコア$<=60,$数学スコア$<=60) , 結果: TRUE"
+
+#: Disabled references:1
+msgid "验证语数英三门课程是否有任何一门没有及格（实际只有两门及格）"
+msgstr "国語、数学、英語の3科目のいずれにも合格していないことを確認する（実際に合格したのは2科目のみ）"
+
+#: Disabled references:1
+msgid "AND(表达式1,表达式2,...)"
+msgstr "AND(式1,式2,...)"
+
+#: Disabled references:1
+msgid "示例：=AND($语文分数$>=60,$英语分数$>=60,$数学分数$>=60) ，结果：FALSE"
+msgstr "例: =AND($言語スコア$>=60,$英語スコア$>=60,$数学スコア$>=60) , 結果: FALSE"
+
+#: Disabled references:1
+msgid "验证语数英三门课程是否都及格（实际只有两门及格）"
+msgstr "3コースすべてに合格していることを確認する（実際に合格しているのは2コースのみ）"
+
+#: Disabled references:1
+msgid "NOT(表达式)"
+msgstr "NOT(式)"
+
+#: Disabled references:1
+msgid "示例：=NOT($分数$==60) ，结果：TRUE"
+msgstr "例: =NOT($Score$==60) , 結果: TRUE"
+
+#: Disabled references:1
+msgid "对成绩是否刚好等于60分求反（实则刚好60分）"
+msgstr "評点がちょうど60に等しいかどうかの逆数（実際はちょうど60）"
+
+#: Disabled references:1
+msgid "示例：=FALSE() ，结果：FALSE"
+msgstr "例： =FALSE() , 結果： FALSE"
+
+#: Disabled references:1
+msgid "示例：=TRUE() ，结果：TRUE"
+msgstr "例: =TRUE() , 結果: TRUE"
+
+#: Disabled references:1
+msgid "ISBLANK(文本)"
+msgstr "ISBLANK(テキスト)"
+
+#: Disabled references:1
+msgid "示例：=ISBLANK($年龄$)，结果：TRUE"
+msgstr "例: =ISBLANK($age$), 結果: TRUE"
+
+#: Disabled references:1
+msgid "判断年龄字段是否为空"
+msgstr "年齢フィールドが空かどうかを判断する"
+
+#: Disabled references:1
+msgid "不转义"
+msgstr "逃げ場なし"
+
+#: Disabled references:1
+msgid "ENCODEURL(文本)"
+msgstr "ENCODEURL(テキスト)"
+
+#: Disabled references:1
+msgid "示例：=ENCODEURI('name=系统')，结果：'name=%E7%B3%BB%E7%BB%9F'"
+msgstr "例：=ENCODEURI('name=system')、結果：'name=%E7%B3%BB%E7%BB%9F'"
+
+#: Disabled references:1
+msgid "对文本“name=系统”进行编码"
+msgstr "テキスト \"name=system \"のエンコーディング"
+
+#: Disabled references:1
+msgid "DECODEURI(文本)"
+msgstr "DECODEURI(テキスト)"
+
+#: Disabled references:1
+msgid "示例：=DECODEURI('name=%E7%B3%BB%E7%BB%9F')，结果：\"name=系统\""
+msgstr "例：=DECODEURI('name=%E7%B3%BB%E7%BB%9F')、結果：\"name=system\""
+
+#: Disabled references:1
+msgid "对文本“name=%E7%B3%BB%E7%BB%9F”进行解码"
+msgstr "テキスト \"name=%E7%B3%BB%E7%BB%9F \"をデコードする。"
+
+#: Disabled references:1
+msgid "示例：=ENCODEURI('name=系统')，结果：'name%3D%E7%B3%BB%E7%BB%9F'"
+msgstr "例：=ENCODEURI('name=system')、結果：'name%3D%E7%B3%BB%E7%BB%9F'"
+
+#: Disabled references:1
+msgid "示例：=DECODEURI('name%3D%E7%B3%BB%E7%BB%9F')，结果：\"name=系统\""
+msgstr "例：=DECODEURI('name%3D%E7%B3%BB%E7%BB%9F'), 結果： \"name=system\""
+
+#: Disabled references:1
+msgid "对文本“name%3D%E7%B3%BB%E7%BB%9F进行解码"
+msgstr "テキスト \"name%3D%E7%B3%BB%E7%BB%9F\"をデコードする。"
+
+#: Disabled references:1
+msgid "DISTANCE(定位字段1,定位字段2)"
+msgstr "DISTANCE(ロケートフィールド1,ロケートフィールド2)"
+
+#: Disabled references:1
+msgid "定位字段：如果需要设为静态值，格式为“经度,维度”"
+msgstr "位置フィールド：静的な値が必要な場合、フォーマットは \"経度,寸法\""
+
+#: Disabled references:1
+msgid "示例：=DISTANCE(\"121.4224,31.1785\",目的地定位)，结果：2.1358(km)"
+msgstr "例：=DISTANCE(\"121.4224,31.1785\",目的地)、結果：2.1358(km)"
+
+#: Disabled references:1
+msgid "计算上海市第六人民医院到漕河泾智汇园的距离"
+msgstr "上海第六人民病院から曹禾京子匯公園までの距離を計算する"
+
+#: Disabled references:1
+msgid "FIND(原文本, 开始字符, 结束字符)"
+msgstr "FIND(原文, 開始文字, 終了文字)"
+
+#: Disabled references:1
+msgid "开始字符：如果是空，表示从第一个字符开始返回"
+msgstr "開始文字：空の場合、最初の文字から戻ることを意味する。"
+
+#: Disabled references:1
+msgid "结束字符：如果是空，表示返回直至最后一个字符"
+msgstr "終了文字：空の場合、最後の文字まで返すことを意味する。"
+
+#: Disabled references:1
+msgid "示例：=FIND(“1天23小时15分钟”,\"\",\"天\")，结果：1"
+msgstr "例：=FIND(\"1日23時間15分\",\", \"日\"), 結果：1"
+
+#: Disabled references:1
+msgid "获取日期时间计算结果的“天”"
+msgstr "日付時間計算の「日数」を取得する"
+
+#: Disabled references:1
+msgid "开始字符：如果是空，将无法得到结果"
+msgstr "開始文字：空の場合、結果は得られない。"
+
+#: Disabled references:1
+msgid "结束字符：如果是空，将无法得到结果"
+msgstr "終了文字：空の場合、結果は得られない。"
+
+#: Disabled references:1
+msgid "示例：=FINDA(“(X2022)2f8f0af(NZP001)”,\"(\",\")\")，结果：X2022,NZP001"
+msgstr "例：=FINDA(\"(X2022)2f8f0af(NZP001)\",\"(\",\")\"), 結果：X2022,NZP001"
+
+#: Disabled references:1
+msgid "获取条码中两组括号间的内容，并写入另一个文本字段中"
+msgstr "2つの括弧で囲まれたバーコードの内容を取得し、別のテキスト・フィールドに書き込む。"
+
+#: Disabled references:1
+msgid "SPLIT(原文本,间隔符)"
+msgstr "SPLIT（原文、スペーサー）"
+
+#: Disabled references:1
+msgid "间隔符：如果为空，将分割每一个字符"
+msgstr "スペーサー: 空の場合、各文字を分割します。"
+
+#: Disabled references:1
+msgid "示例：=SPLIT(\"HX045-SZ190-NZ021-LS097\",\"-\")，结果：'HX045,SZ190,NZ021,LS097'"
+msgstr "例：=SPLIT(\"HX045-SZ190-NZ021-LS097\",\"-\"), 結果：'HX045,SZ190,NZ021,LS097'"
+
+#: Disabled references:1
+msgid "以“-”分割1组带4个物料ID的文本，并写入另一个文本字段中"
+msgstr "4つの材料IDを持つ1つのテキストグループを\"-\"で分割し、別のテキストフィールドに書き込む。"
+
+#: Disabled references:1
+msgid "JOIN(数组,间隔符)"
+msgstr "JOIN(配列, スペーサー)"
+
+#: Disabled references:1
+msgid "示例：=JOIN(部门字段,\"-\")，结果：\"产品部-销售部-研发部\""
+msgstr "例：=JOIN(部署フィールド, \"-\"), 結果：\"商品部-営業部-研究開発部\""
+
+#: Disabled references:1
+msgid "把部门字段里的多个部门拼接成一个字符串整体"
+msgstr "部署フィールドの複数の部署を、全体として1つの文字列に分割する。"
+
+#: Disabled references:1
+msgid "INCLUDE(原文本,检索的字符)"
+msgstr "INCLUDE（原文、検索された文字）"
+
+#: Disabled references:1
+msgid "示例：=INCLUDE(\"上海市闵行区钦州北路\",'闵行')，结果：TRUE"
+msgstr "例：=INCLUDE(\"上海市閔行区欽州北路\",'閔行'), 結果：TRUE"
+
+#: Disabled references:1
+msgid "判断文本里是否包含\"闵行\""
+msgstr "テキストに \"Minhang \"が含まれているかどうかを判断する"
+
+#: Disabled references:1
+msgid "GETPOSITION(定位字段,需要的信息)"
+msgstr "GETPOSITION(フィールドを見つける、必須情報)"
+
+#: Disabled references:1
+msgid "需要的信息：'title'-位置标题；'address'-详细地址；'x'-经度；'y'-纬度；'x,y'-经纬度"
+msgstr "必要な情報：'title' - ロケーションのタイトル、'address' - 住所の詳細、'x' - 経度、'y' - 緯度、'x,y' - 緯度と経度。"
+
+#: Disabled references:1
+msgid "示例：=GETPOSITION(打卡地点,'address')，结果：'上海市徐汇区漕河泾新兴技术开发区上海漕河泾开发区智汇园'"
+msgstr "例: =GETPOSITION(時計位置,'住所'), 結果: '上海市徐匯区曹和京新技術開発区、上海市曹和京開発区、紫輝公園'"
+
+#: Disabled references:1
+msgid "返回打卡地点的详细地址"
+msgstr "パンチング場所の住所詳細に戻る"
+
+#: Disabled references:1
+msgid "COUNTCHAR(文本)"
+msgstr "COUNTCHAR(テキスト)"
+
+#: Disabled references:1
+msgid "示例：=COUNTCHAR(标题)，结果：12"
+msgstr "例: =COUNTCHAR(タイトル), 結果: 12"
+
+#: Disabled references:1
+msgid "计算标题“通过函数计算赋字段默认值”的字数"
+msgstr "見出し「関数によるフィールドへのデフォルト値の割り当て」の単語数を計算する。"
+
+#: Disabled references:1
+msgid "当前字段已加密，只支持按照"
+msgstr "現在のフィールドは暗号化され、以下のようにのみサポートされます。"
+
+#: Disabled references:1
+msgid "下拉框搜索设置"
+msgstr "ドロップダウン・ボックスの検索設定"
+
+#: Disabled references:1
+msgid "横向显示"
+msgstr "水平表示"
+
+#: Disabled references:1
+msgid "竖向显示"
+msgstr "縦型ディスプレイ"
+
+#: Disabled references:1
+msgid "混合显示"
+msgstr "ミックスディスプレイ"
+
+#: Disabled references:1
+msgid "直线"
+msgstr "ストレートライン"
+
+#: Disabled references:1
+msgid "使用“%0”"
+msgstr "\"%0 \"を使用する。"
+
+#: Disabled references:1
+msgid "1.导入的数据"
+msgstr "1.インポートデータ"
+
+#: Disabled references:1
+msgid "2.将Excel中%0列与工作表中%1字段逐行对比，%2识别到的重复数据，%3"
+msgstr "2.Excel の %0 列とワークシートの %1 フィールドの行ごとの比較、%2 重複を確認、%3"
+
+#: Disabled references:1
+msgid "获取流程操作明细"
+msgstr "プロセス操作の詳細なブレイクダウンを取得する"
+
+#: Disabled references:1
+msgid "选择一个子表或关联表，系统将于每个节点完成后，自动同步本流程的各人工节点的操作明细至该表"
+msgstr "サブテーブルまたは関連テーブルを選択すると、各ノードの完了時に、プロセスの各手動ノードの操作内容がこのテーブルに自動的に同期されます"
 

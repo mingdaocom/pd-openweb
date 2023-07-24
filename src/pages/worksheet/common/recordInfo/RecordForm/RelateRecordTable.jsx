@@ -207,7 +207,7 @@ const IconBtn = styled.span`
   }
 `;
 
-function getCellWidths(control) {
+function getCellWidths(control, tableControls) {
   const result = {};
   let widths = [];
   try {
@@ -215,7 +215,9 @@ function getCellWidths(control) {
   } catch (err) {}
   if (widths.length) {
     control.showControls
-      .map(scid => _.find((control.relationControls || []).concat(SYSTEM_CONTROL), c => c.controlId === scid))
+      .map(scid =>
+        _.find((tableControls || control.relationControls || []).concat(SYSTEM_CONTROL), c => c.controlId === scid),
+      )
       .filter(c => c && controlState(c).visible)
       .forEach((c, i) => {
         result[c.controlId] = widths[i];
@@ -250,7 +252,6 @@ export default function RelateRecordTable(props) {
   const { worksheetId, recordId, isCharge, allowEdit } = recordbase;
   const allowlink = (control.advancedSetting || {}).allowlink;
   const rowHeight = Number((control.advancedSetting || {}).rowheight || 0);
-  const columnWidthsOfSetting = getCellWidths(control);
   const [isHiddenOtherViewRecord, , onlyRelateByScanCode] = (control.strDefault || '').split('').map(b => !!+b);
   const disabledManualWrite = onlyRelateByScanCode && control.advancedSetting.dismanual === '1';
   const pageSize = props.pageSize || PAGE_SIZE;
@@ -283,6 +284,7 @@ export default function RelateRecordTable(props) {
   const [highlightRows, setHighlightRows] = useState({});
   const [disableMaskDataControls, setDisableMaskDataControls] = useState({});
   const [defaultScrollLeft, setDefaultScrollLeft] = useState(0);
+  const columnWidthsOfSetting = getCellWidths(control, tableControls);
   const isNewRecord = !recordId;
   const relateNum = useRef();
   relateNum.current = control.value;

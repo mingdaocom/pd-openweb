@@ -299,6 +299,9 @@ export default class RelateRecordDropdown extends React.Component {
     } else if (e.key === 'Enter') {
       this.list.current.handleEnter();
     } else if (e.key === 'Backspace') {
+      if (_.get(this, 'inputRef.current.value')) {
+        return;
+      }
       const needDelete = selected.slice(-1)[0];
       if (needDelete && control.enumDefault !== 1) {
         this.handleDelete(needDelete);

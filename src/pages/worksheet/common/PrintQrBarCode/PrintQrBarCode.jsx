@@ -372,7 +372,7 @@ export default function PrintQrBarCode(props) {
             <Sider
               config={config}
               maxLineNumber={maxLineNumber}
-              controls={controls.filter(FILTER[2])}
+              controls={controls.filter(c => FILTER[2](c) || _.includes([37], c.type))}
               onUpdate={changes => {
                 setChanged(true);
                 setConfig(oldConfig => ({ ...oldConfig, ...changes }));

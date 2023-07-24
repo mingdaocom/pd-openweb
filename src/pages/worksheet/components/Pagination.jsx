@@ -37,7 +37,6 @@ const Btn = styled.span`
 `;
 
 const Popup = styled.div`
-  width: 160px;
   border-radius: 3px;
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
   background: #fff;
@@ -65,7 +64,6 @@ const PageSizeConfig = styled.div`
   padding: 0 14px;
   .Dropdown--input {
     height: 28px !important;
-    width: 90px;
   }
 `;
 const JumpPage = styled.div`

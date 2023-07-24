@@ -155,6 +155,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
     onCloseDialog = () => {},
     onOpenDialog = () => {},
   } = props;
+  const [changed, setChanged] = useState(false);
   const [count, setCount] = useState(props.count || 0);
   const [records, setRecords] = useState(props.records || []);
   const [addedIds, setAddedIds] = useState(props.addedIds || []);
@@ -186,7 +187,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       ) ||
       e.target.contains(conRef.current)
     ) {
-      onClose({ deletedIds, addedIds, records, count });
+      onClose({ deletedIds, addedIds, records, count, changed });
     }
   });
   useEffect(() => {
@@ -225,6 +226,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
               });
             },
       onDelete: deletedRecord => {
+        setChanged(true);
         setRecords(records.filter(r => r.rowid !== deletedRecord.rowid));
         setDeletedIds([...deletedIds, deletedRecord.rowid]);
         setCount(count - 1);
@@ -253,6 +255,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       formData: rowFormData(),
       defaultRelatedSheet: getDefaultRelateSheetValue({ worksheetId, control, recordId, rowFormData }),
       onOk: async selectedRecords => {
+        setChanged(true);
         setRecords(records.concat(selectedRecords));
         setAddedIds([...addedIds, ...selectedRecords.map(r => r.rowid)]);
         setCount(count + selectedRecords.length);
@@ -314,6 +317,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
                   className="icon-close"
                   onClick={e => {
                     e.stopPropagation();
+                    setChanged(true);
                     setRecords(records.filter(r => r.rowid !== record.rowid));
                     setDeletedIds([...deletedIds, record.rowid]);
                     setCount(count - 1);
@@ -358,6 +362,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
                   masterRecordRowId: recordId,
                   defaultRelatedSheet: getDefaultRelateSheetValue({ worksheetId, control, recordId, rowFormData }),
                   onAdd: record => {
+                    setChanged(true);
                     setRecords(records.concat(record));
                     setAddedIds([...addedIds, record.rowid]);
                     setCount(count + 1);

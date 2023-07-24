@@ -286,8 +286,10 @@ export default class EncryptRules extends Component {
                                 onClick={() => {
                                   this.setState({ showMoreRuleId: null });
                                   Confirm({
-                                    title: '删除加密规则',
-                                    description: <span className="Gray">{_l('可以删除未被引用的加密规则')}</span>,
+                                    title: _l('删除 %0 加密规则', item.name),
+                                    description: (
+                                      <span className="Gray">{_l('若此规则有被字段使用，则该规则不能删除')}</span>
+                                    ),
                                     okText: _l('删除'),
                                     buttonType: 'danger',
                                     onOk: () => {

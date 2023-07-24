@@ -9,7 +9,7 @@ import cx from 'classnames';
 const DetailDialog = styled(Dialog)`
   height: unset !important;
   .mui-dialog-header {
-    padding: 22px 20px 20px;
+    padding: 22px 20px 20px !important;
     .mui-dialog-default-title {
       font-weight: 600;
     }
@@ -70,7 +70,7 @@ class EncryptDetail extends Component {
             {TabList.map(item => (
               <div
                 key={item.tab}
-                className={cx('tabItem', { active: currentTab === item.tab })}
+                className={cx('tabItem Hand', { active: currentTab === item.tab })}
                 onClick={() => this.setState({ currentTab: item.tab })}
               >
                 {item.title}

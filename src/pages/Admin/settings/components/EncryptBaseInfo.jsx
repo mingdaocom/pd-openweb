@@ -1,5 +1,5 @@
 import React, { Component, useState, useEffect, createRef } from 'react';
-import { Icon, Dialog, Input, Textarea } from 'ming-ui';
+import { Icon, Dialog, Input, Textarea, Tooltip } from 'ming-ui';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import { encryptList } from './EncryptRules';
 import styled from 'styled-components';
@@ -35,6 +35,21 @@ const Wrap = styled.div`
 `;
 
 const errors = { 0: _l('保存失败'), 3: _l('名称重复'), 21: _l('Key无效'), 22: _l('IV无效 ') };
+
+const handleMask = (val, isMask) => {
+  if (!val) return;
+  if (!isMask) return val;
+
+  let arr = val.split('');
+  let result = arr.map((it, index) => {
+    if (index < 4 || index > arr.length - 5) {
+      return it;
+    }
+    return '*';
+  });
+
+  return result.join('');
+};
 
 function EditBaseInfo(props) {
   const { visible, onCancel, ruleDetail = {}, projectId, getDetail = () => {}, updateCurrentRow = () => {} } = props;
@@ -106,7 +121,10 @@ function EditBaseInfo(props) {
 export default class EncryptBaseInfo extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      maskKey: true,
+      maskIv: true,
+    };
   }
   componentDidMount() {
     if (this.props.ruleDetail) {
@@ -126,14 +144,13 @@ export default class EncryptBaseInfo extends Component {
       });
   };
   render() {
-    const { showEditBaseInfo, ruleDetail = {} } = this.state;
+    const { showEditBaseInfo, ruleDetail = {}, maskIv, maskKey } = this.state;
     const { projectId } = this.props;
 
     return (
       <Wrap>
         <div className="encryptWay">
-          <Icon icon="share" className="Font18 ThemeColor TxtMiddle" />
-          <span className="Font17 bold mLeft6 mRight6 Gray">{ruleDetail.name}</span>
+          <span className="Font17 bold mRight6 Gray">{ruleDetail.name}</span>
           {!ruleDetail.isSystem && (
             <Icon icon="edit" className="Gray_bd Hand" onClick={() => this.setState({ showEditBaseInfo: true })} />
           )}
@@ -146,9 +163,25 @@ export default class EncryptBaseInfo extends Component {
           {_.get(_.find(encryptList, it => it.value === ruleDetail.type) || {}, 'label')}
         </div>
         <div>Key</div>
-        <div className="Gray mBottom30 keyInfo">{ruleDetail.key}</div>
+        <div className="Gray mBottom30 keyInfo">
+          {handleMask(ruleDetail.key, maskKey)}
+          <Tooltip text={maskKey ? _l('解码') : _l('掩码')}>
+            <i
+              className={`icon Font14 Gray_bd mLeft10 ${maskKey ? 'icon-eye_off' : 'icon-eye'}`}
+              onClick={() => this.setState({ maskKey: !maskKey })}
+            ></i>
+          </Tooltip>
+        </div>
         <div>IV</div>
-        <div className="Gray mBottom30">{ruleDetail.iv}</div>
+        <div className="Gray mBottom30">
+          {handleMask(ruleDetail.iv, maskIv)}
+          <Tooltip text={maskIv ? _l('解码') : _l('掩码')}>
+            <i
+              className={`icon Font14 Gray_bd mLeft10 ${maskIv ? 'icon-eye_off' : 'icon-eye'}`}
+              onClick={() => this.setState({ maskIv: !maskIv })}
+            ></i>
+          </Tooltip>
+        </div>
 
         <EditBaseInfo
           visible={showEditBaseInfo}

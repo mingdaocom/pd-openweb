@@ -264,7 +264,10 @@ function ExplanList(props) {
               COMPUTING_INSTANCE_STATUS.Restarting,
             ].includes(item.status) && (
               <Fragment>
-                {item.status !== COMPUTING_INSTANCE_STATUS.Destroyed && (
+                {(![COMPUTING_INSTANCE_STATUS.Destroyed, COMPUTING_INSTANCE_STATUS.DestroyFailed].includes(
+                  item.status,
+                ) ||
+                  item.workflowCount > 0) && (
                   <span
                     className="manageBtn"
                     onClick={() => {

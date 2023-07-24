@@ -639,6 +639,7 @@ export const DEFAULT_DATA = {
       allowlink: '1',
       searchrange: '1',
       showtype: '2',
+      sorts: '[{"controlId":"ctime","isAsc":true}]',
     },
     strDefault: '000',
     enumDefault: 2,

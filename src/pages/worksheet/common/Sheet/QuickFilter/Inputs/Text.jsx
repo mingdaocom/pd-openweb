@@ -113,8 +113,6 @@ export default function Text(props) {
                   )
                 ) {
                   onChange({ values: [newValue.replace(/ /g, '')] });
-                } else if (filterType === FILTER_CONDITION_TYPE.LIKE) {
-                  onChange({ values: newValue.split(' ') });
                 } else {
                   onChange({ values: [newValue] });
                 }

@@ -101,6 +101,7 @@ export default class Con extends React.Component {
     const tableList = [];
     let preRelationControls = false;
     let colNum = 1;
+
     Object.keys(controlData).map(key => {
       const item = controlData[key];
 

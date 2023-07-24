@@ -36,6 +36,7 @@ class PrintForm extends React.Component {
         printOption: false, //选择平铺 //打印未选中的项
         shareType: 0, //0 = 默认，1= 内部
         approval: [],
+        views: [],
       },
       isChange: false, // 当前模板是否修改
       appId,
@@ -357,7 +358,7 @@ class PrintForm extends React.Component {
         rules: rules,
         data: res.receiveControls,
       });
-      receiveControls = getControlsForPrint(receiveControls, res.relations)
+      receiveControls = getControlsForPrint(receiveControls.filter(l => l.checked), res.relations)
         .filter(o => ![43, 49].includes(o.type) && !FILTER_SYS.includes(o.controlId))
         .filter(o =>
           printId || (!printId && type === typeForCon.NEW && from === fromType.FORMSET) // 模版打印/配置（新建模版）=> 不考虑显隐设置

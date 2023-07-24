@@ -313,6 +313,7 @@ class SheetView extends Component {
         appId: worksheetId,
         sources: batchOptCheckedData,
         triggerId: btn.btnId,
+        pushUniqueId: _.get(window, 'md.global.Config.pushUniqueId'),
         ...args,
       })
       .then(data => {

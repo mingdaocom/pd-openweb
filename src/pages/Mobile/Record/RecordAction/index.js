@@ -194,6 +194,7 @@ class RecordAction extends Component {
         appId: worksheetId,
         sources: [rowId],
         triggerId: btn.btnId,
+        pushUniqueId: _.get(window, 'md.global.Config.pushUniqueId'),
       })
       .then(data => {
         this.props.loadRow();

@@ -215,6 +215,7 @@ export function handleLifeEffect(
     }
   }
   function handleOuterClick(e) {
+    removeReadOnlyTip();
     if (
       e.target.closest('.cellNeedFocus,.mdDialog,.mui-dialog-container,.UploadFilesTriggerWrap,.rc-trigger-popup') ||
       (!isSubList && e.target.closest('.recordInfoCon'))
@@ -223,7 +224,6 @@ export function handleLifeEffect(
     }
     if (!e.target.closest(`.sheetViewTable.id-${tableId}-id`)) {
       window.tempCopyForSheetView = undefined;
-      removeReadOnlyTip();
       focusCell(-10000);
     }
   }

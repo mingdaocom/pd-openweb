@@ -31,7 +31,7 @@ const FILE_TYPE = [
   {
     value: '1',
     text: _l('图片'),
-    desc: _l('支持上传JPG、JPEG、PNG、Gif、WebP、Tiff、bmp格式的文件（在附件中支持预览）'),
+    desc: _l('支持上传JPG、JPEG、PNG、Gif、WebP、Tiff、bmp、HEIC格式的文件（在附件中支持预览）'),
   },
   { value: '2', text: _l('文档'), desc: _l('支持除图片、音频、视频以外的文件') },
   {

@@ -442,7 +442,9 @@ export function getFilterTypes(control = {}, conditionType, from) {
         FILTER_CONDITION_TYPE.ISNULL,
         FILTER_CONDITION_TYPE.HASVALUE,
       ].concat(
-        _.includes(['caid', 'ownerid'], control.controlId) && from !== 'rule'
+        _.includes(['caid', 'ownerid'], control.controlId) &&
+          from !== 'rule' &&
+          !_.get(window, 'md.global.Account.isPortal')
           ? [FILTER_CONDITION_TYPE.NORMALUSER, FILTER_CONDITION_TYPE.PORTALUSER]
           : [],
       );

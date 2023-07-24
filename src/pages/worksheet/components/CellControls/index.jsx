@@ -6,7 +6,7 @@ import { RELATE_RECORD_SHOW_TYPE, ROW_HEIGHT } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { Validator, getRangeErrorType } from 'src/components/newCustomFields/tools/utils';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
-import { onValidator } from 'src/components/newCustomFields/tools/DataFormat';
+import DataFormat, { onValidator } from 'src/components/newCustomFields/tools/DataFormat';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import {
   checkIsTextControl,
@@ -192,7 +192,7 @@ export default class CellControl extends React.Component {
 
   @autobind
   onValidate(value, returnObject = false) {
-    const { cell, row, checkRulesErrorOfControl, rowFormData, clearCellError } = this.props;
+    const { projectId, cell, row, checkRulesErrorOfControl, rowFormData, clearCellError } = this.props;
     // 百分比值处理
     if (_.includes([6], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
       value = accDiv(value, 100);
@@ -215,7 +215,18 @@ export default class CellControl extends React.Component {
       clearCellError(`${(row || {}).rowid}-${cell.controlId}`);
       $('.mdTableErrorTip').remove();
     }
-    const error = checkRulesErrorOfControl(cell, { ...row, [cell.controlId]: value });
+    let rowForCheckRule = { ...row, [cell.controlId]: value };
+    try {
+      const tempRow = new DataFormat({
+        projectId,
+        data: _.isFunction(rowFormData) ? rowFormData() : rowFormData,
+      });
+      tempRow.updateDataSource({ controlId: cell.controlId, value });
+      rowForCheckRule = [{}, ...tempRow.data].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
+    } catch (err) {
+      console.log(err);
+    }
+    const error = checkRulesErrorOfControl(cell, rowForCheckRule);
     if (error) {
       this.setState({ error: error.errorMessage });
       return !error;
@@ -275,6 +286,7 @@ export default class CellControl extends React.Component {
   handleTableKeyDown(e, cache) {
     const { tableType, cell, onClick } = this.props;
     const { isediting } = this.state;
+    const haveEditingStatus = this.haveEditingStatus(cell);
     if (e.key === 'c' && (e.metaKey || e.ctrlKey)) {
       this.handleCopy(cell);
       return;
@@ -293,7 +305,7 @@ export default class CellControl extends React.Component {
     }
     switch (e.key) {
       case 'Backspace':
-        if (this.editable && !isediting && !cell.required) {
+        if (this.editable && haveEditingStatus && !isediting && !cell.required) {
           this.handleUpdateCell({ value: '' });
         }
         break;
@@ -303,7 +315,7 @@ export default class CellControl extends React.Component {
         }
         break;
       case 'Enter':
-        if (this.editable && this.haveEditingStatus(cell) && !isediting) {
+        if (this.editable && haveEditingStatus && !isediting) {
           this.handleUpdateEditing(true);
           if (tableType === 'classic') {
             cache.hasEditingCell = true;
@@ -602,7 +614,7 @@ export default class CellControl extends React.Component {
       onFocusCell,
     };
     if (isTextControl) {
-      if (cell.type === 41 || cell.type === 32 || cell.type === 10010) {
+      if (cell.type === 41 || cell.type === 32 || cell.type === 10010 || (cell.type === 2 && cell.enumDefault === 1)) {
         needLineLimit = true;
       }
       if (cell.type === 41) {

@@ -111,7 +111,7 @@ export default class UserListCon extends React.Component {
       showCreateBtn: false,
       checkIncludeChilren: true, //选中是否包含子级
       allProject: isExternal
-        ? false
+        ? true
         : !!projectId &&
           ![APP_ROLE_TYPE.ADMIN_ROLE, APP_ROLE_TYPE.DEVELOPERS_ROLE, APP_ROLE_TYPE.RUNNER_ROLE].includes(
             roleInfo.roleType, //管理员，开发者，运营者不能添加全组织

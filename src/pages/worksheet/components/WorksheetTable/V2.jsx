@@ -222,7 +222,7 @@ function WorksheetTable(props, ref) {
     const XIsScroll = _.sum(visibleColumns.map((a, i) => getColumnWidth(i, true) || 200)) > width;
     tableHeight = tableRowCount * rowHeight + 34 + (XIsScroll ? getScrollBarWidth() : 0);
     if (isSubList && (_.last(data) || {}).isSubListFooter) {
-      tableHeight -= rowHeight - 8;
+      tableHeight -= rowHeight - 26;
     }
   }
   function renderCell({ columnIndex, rowIndex, style, key, type }) {

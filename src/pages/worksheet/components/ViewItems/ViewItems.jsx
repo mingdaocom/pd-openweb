@@ -11,12 +11,12 @@ import { getDefaultViewSet } from 'worksheet/constants/common';
 import ViewDisplayMenu from './viewDisplayMenu';
 import './ViewItems.less';
 import Item from './Item';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { Drawer } from 'antd';
 import { withRouter } from 'react-router-dom';
 import HideItem from './HideItem';
 import styled from 'styled-components';
 import { navigateTo } from 'src/router/navigateTo';
+import { formatAdvancedSettingByNavfilters } from 'src/pages/worksheet/common/ViewConfig/util.js';
 
 const EmptyData = styled.div`
   font-size: 12px;
@@ -36,7 +36,7 @@ const SortableList = SortableContainer(({ list, onScroll, ...other }) => {
     <div className="viewsScroll" onScroll={onScroll}>
       <div className="stance" />
       {list.map((item, index) => (
-        <SortableItem key={index} index={index} item={item} {...other} />
+        <SortableItem key={index} index={index} item={item} list={list} {...other} />
       ))}
       <div className="stance" />
     </div>
@@ -307,13 +307,16 @@ export default class ViewItems extends Component {
     this.setState({ addMenuVisible: false });
   };
   updateAdvancedSetting = view => {
+    let advancedSetting = formatAdvancedSettingByNavfilters(
+      view,
+      { ..._.omit(view.advancedSetting, ['navfilters']) },
+      true,
+    );
     this.props.updateCurrentView(
       {
         appId: this.props.appId,
         ...view,
-        advancedSetting: {
-          ...view.advancedSetting,
-        },
+        advancedSetting,
         editAttrs: ['advancedSetting'],
       },
       false,

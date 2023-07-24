@@ -12,6 +12,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import HiddenMenu from './HiddenMenu';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import _ from 'lodash';
+import { navigateTo } from 'src/router/navigateTo';
 
 const exportAttachmentFeatureId = 28;
 export default class Item extends Component {
@@ -51,6 +52,8 @@ export default class Item extends Component {
       appId,
       controls,
       projectId,
+      list,
+      getNavigateUrl,
     } = this.props;
 
     const { changeViewDisplayTypeVisible, changeHiddenTypeVisible } = this.state;
@@ -252,6 +255,18 @@ export default class Item extends Component {
                       showhide: showhiden,
                     },
                   });
+                  if (showhiden.search(/hide|hpc/g) > -1) {
+                    let showList = list.filter(l => {
+                      return (
+                        l.viewId !== item.viewId &&
+                        l.advancedSetting.showhide &&
+                        l.advancedSetting.showhide.search(/hide|hpc/g) === -1
+                      );
+                    });
+
+                    if (showList.length === 0) return;
+                    navigateTo(getNavigateUrl(showList[0]));
+                  }
                   this.setState({ visible: false });
                 }}
                 style={{ top: '-6px', left: '100%' }}

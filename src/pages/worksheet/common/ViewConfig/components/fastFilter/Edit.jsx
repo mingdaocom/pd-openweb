@@ -16,6 +16,7 @@ import {
   SHOW_RELATE_TYPE,
   APP_ALLOWSCAN,
   ADVANCEDSETTING_KEYS,
+  Filter_KEYS,
   FASTFILTER_CONDITION_TYPE,
   NAV_SHOW_TYPE,
   getSetDefault,
@@ -264,7 +265,7 @@ function Edit(params) {
         fastFilters: fastFilters.map((o, i) => {
           if (o.controlId === activeFastFilterId) {
             let filters = o;
-            if (!ADVANCEDSETTING_KEYS.includes(Object.keys(data)[0])) {
+            if (![...ADVANCEDSETTING_KEYS, ...Filter_KEYS].includes(Object.keys(data)[0])) {
               filters = {
                 ...filters,
                 ...data,

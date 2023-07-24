@@ -195,8 +195,12 @@ export default class RelateRecord extends React.Component {
   }
 
   @autobind
-  handleRelateRecordTagChange({ addedIds, deletedIds, records = [], count } = {}) {
+  handleRelateRecordTagChange({ changed, addedIds, deletedIds, records = [], count } = {}) {
     const { cell, updateEditingStatus, updateCell, onValidate } = this.props;
+    if (!changed) {
+      updateEditingStatus(false);
+      return;
+    }
     const newValue = records.length
       ? JSON.stringify(formatRecordToRelateRecord(cell.relationControls, records, { addedIds, deletedIds }))
       : `deleteRowIds: ${deletedIds.join(',')}`;
