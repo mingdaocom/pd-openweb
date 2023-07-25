@@ -96,7 +96,6 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           }
           let controlId = (item.relationControls.find(l => l.attribute === 1) || item.relationControls[0]).controlId;
 
-
           return <span className="relaList">{records.map(l => l[controlId] || _l('未命名')).join(', ')}</span>;
         }
         //关联表内除标题字段外的其他字段
@@ -216,7 +215,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           if (item.isRelateMultipleSheet && records.length <= 0) {
             return '';
           }
-          if(!item.isRelateMultipleSheet && dataItem.sourceControlType===11 && dataItem.enumDefault === 2) {
+          if (!item.isRelateMultipleSheet && dataItem.sourceControlType === 11 && dataItem.enumDefault === 2) {
             dataItem = { ...dataItem, enumDefault: 1 };
           }
 
@@ -576,10 +575,12 @@ export const getControlsForPrint = (receiveControls, relations = []) => {
   let relation = receiveControls.filter(
     control => (control.type === 29 && control.enumDefault === 2) || control.type === 34,
   );
-  relation = relation.map((it, i) => {
-    let relationsData = relations[i];
-    return { ...it, relationControls: getShowControl(it.relationControls), relationsData: relationsData };
-  });
+  relation = relation
+    .filter(l => l.checked)
+    .map((it, i) => {
+      let relationsData = relations[i];
+      return { ...it, relationControls: getShowControl(it.relationControls), relationsData: relationsData };
+    });
   receiveControls = receiveControls.map(control => {
     let data = relation.find(it => it.controlId === control.controlId);
     return data || control;

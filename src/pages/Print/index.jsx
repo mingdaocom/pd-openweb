@@ -358,7 +358,7 @@ class PrintForm extends React.Component {
         rules: rules,
         data: res.receiveControls,
       });
-      receiveControls = getControlsForPrint(receiveControls.filter(l => l.checked), res.relations)
+      receiveControls = getControlsForPrint(receiveControls, res.relations)
         .filter(o => ![43, 49].includes(o.type) && !FILTER_SYS.includes(o.controlId))
         .filter(o =>
           printId || (!printId && type === typeForCon.NEW && from === fromType.FORMSET) // 模版打印/配置（新建模版）=> 不考虑显隐设置
@@ -422,7 +422,7 @@ class PrintForm extends React.Component {
                   ? (res.find(l => l.worksheetId === item.dataSource) || { template: {} }).template.controls || []
                   : item.relationControls || [],
             };
-          })
+          });
           this.setState(
             {
               printData: {
@@ -770,6 +770,7 @@ class PrintForm extends React.Component {
       showPdf,
       sheetSwitchPermit: sheetSwitchPermit,
     };
+
     return (
       <div className="printTem">
         <Header {...data} />
