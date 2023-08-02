@@ -44,13 +44,13 @@ export default function CustomSelectDate(props) {
         endDate = moment().subtract(1, 'months').endOf('months').format(dateFormat);
         break;
       case 6:
-        startDate = moment().subtract(1, 'week').format(dateFormat);
+        startDate = moment().subtract(1, 'week').startOf('day').format(dateFormat);
         break;
       case 7:
-        startDate = moment().subtract(30, 'days').format(dateFormat);
+        startDate = moment().subtract(30, 'days').startOf('day').format(dateFormat);
         break;
       case 8:
-        startDate = moment().subtract(6, 'months').format(dateFormat);
+        startDate = moment().subtract(6, 'months').startOf('day').format(dateFormat);
         break;
     }
     changeDate({ startDate, endDate, searchDateStr: item.label });

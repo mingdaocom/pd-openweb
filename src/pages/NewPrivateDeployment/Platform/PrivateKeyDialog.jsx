@@ -79,7 +79,7 @@ export default props => {
           </div>
           <div className="item left">
             <div className="Gray_9e">{_l('升级服务到期时间')}</div>
-            <div>{moment(codeInfo.upgradeExpirationDate).format('YYYY-MM-DD')}</div>
+            <div>{codeInfo.upgradeExpirationDate ? moment(codeInfo.upgradeExpirationDate).format('YYYY-MM-DD') : '-'}</div>
           </div>
           <div className="item left">
             <div className="Gray_9e">{_l('内部用户配额')}</div>

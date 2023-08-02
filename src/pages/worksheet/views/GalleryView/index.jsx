@@ -221,23 +221,7 @@ export default class RecordGallery extends Component {
       if (filters.keyWords || !isEmpty(filters.filterControls) || isMobile) {
         return <ViewEmpty filters={filters} />;
       }
-      return (
-        <NoRecords
-          sheetIsFiltered={!this.noFilter()}
-          allowAdd={isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && worksheetInfo.allowAdd}
-          showNewRecord={() => {
-            addRecord({
-              worksheetId,
-              // defaultFormData,
-              defaultFormDataEditable: true,
-              directAdd: true,
-              onAdd: record => {
-                this.props.updateRow(record);
-              },
-            });
-          }}
-        />
-      );
+      return <NoRecords sheetIsFiltered={!this.noFilter()} />;
     }
     return (
       <ScrollView className="galleryScrollWrap" updateEvent={_.throttle(this.scrollLoad, 400)}>

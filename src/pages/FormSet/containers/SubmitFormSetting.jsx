@@ -379,7 +379,10 @@ function SubmitFormSetting(props) {
                   data={views.map(item => {
                     return { text: item.name, value: item.viewId };
                   })}
-                  value={data.viewId || defaultId}
+                  value={
+                    data.viewId ? (!views.find(o => o.viewId === data.viewId) ? undefined : data.viewId) : defaultId
+                  }
+                  placeholder={data.viewId ? <span className="Red">{_l('视图已删除')}</span> : _l('选择视图')}
                   className={cx('flex InlineBlock')}
                   onChange={newValue => {
                     if (newValue === data.viewId) {

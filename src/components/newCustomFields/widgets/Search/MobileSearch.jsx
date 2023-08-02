@@ -50,7 +50,7 @@ export default class MobileSearch extends Component {
           onClick={() => {
             this.setState({ visible: true });
             if ((enumDefault === 2 && searchfirst === '1') || enumDefault === 1) {
-              this.props.handleSearch(_.get(this.searchInput || {}, 'value'));
+              this.props.handleSearch('');
             }
           }}
           value={value}

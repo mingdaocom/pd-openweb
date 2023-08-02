@@ -121,6 +121,7 @@ const handleMoveDepartment = ({
   workSiteId,
   contactPhone,
   userName,
+  fullname,
   email,
   mobilePhone,
   companyName,
@@ -160,7 +161,7 @@ const handleMoveDepartment = ({
       contactPhone: '',
       departmentIds,
       email,
-      fullname: userName,
+      fullname: userName || fullname,
       jobIds,
       jobNumber,
       mobilePhone,
@@ -173,6 +174,7 @@ const handleMoveDepartment = ({
       result => {
         if (result === 1) {
           alert(_l('设置成功'), 1);
+          callback();
         } else {
           alert(_l('设置失败'), 2);
         }

@@ -35,6 +35,7 @@ export default class EditRecord extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isUpdating: false,
       worksheetId: props.worksheetId,
       controlsForSelect: [],
       selectedControlId: undefined, // 选中的要修改数据的字段id
@@ -236,12 +237,11 @@ export default class EditRecord extends Component {
       args.keyWords = searchArgs.keyWords;
       args.searchType = searchArgs.searchType;
     }
-
-    this.updating = true;
+    this.setState({ isUpdating: true });
 
     sheetAjax.updateWorksheetRows(args).then(data => {
-      this.updating = false;
       if (data.isSuccess) {
+        this.setState({ isUpdating: false });
         clearSelect();
         hideEditRecord();
         if (data.successCount === selectedRows.length) {
@@ -310,6 +310,7 @@ export default class EditRecord extends Component {
 
   render() {
     const {
+      isUpdating,
       updateType,
       selectedControlId,
       formData = [],
@@ -328,8 +329,12 @@ export default class EditRecord extends Component {
         overlayClosable={false}
         width="560"
         anim={false}
-        okDisabled={selectedControl && selectedControl.required && selectedControl.unique}
+        okText={isUpdating ? _l('操作中...') : undefined}
+        okDisabled={(selectedControl && selectedControl.required && selectedControl.unique) || isUpdating}
         onCancel={() => {
+          if (isUpdating) {
+            return;
+          }
           hideEditRecord();
         }}
         onOk={this.updateRecords}

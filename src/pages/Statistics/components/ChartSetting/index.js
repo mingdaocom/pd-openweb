@@ -152,10 +152,11 @@ export default class ChartSetting extends Component {
     );
   }
   renderAccumulate() {
-    const { reportData, currentReport, changeCurrentReport } = this.props;
+    const { reportData, currentReport, worksheetInfo, changeCurrentReport } = this.props;
     return (
       <Accumulate
         reportData={reportData}
+        allControls={worksheetInfo.columns}
         currentReport={currentReport}
         changeCurrentReport={changeCurrentReport}
       />

@@ -45,6 +45,9 @@
   line-height: 28px;
   padding-bottom: 5px;
 }
+.voteContent .voteResult img {
+  object-fit: contain;
+}
 .voteContent .voteResult li > div {
   width: 100%;
   word-wrap: break-word;

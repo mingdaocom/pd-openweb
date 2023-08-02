@@ -21,6 +21,7 @@ import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/config';
 import { TYPE_LIST, COMPUTING_INSTANCE_STATUS } from './config';
 import './index.less';
 import IsAppAdmin from '../components/IsAppAdmin';
+import { navigateTo } from 'src/router/navigateTo';
 
 const ActionOpWrap = styled.ul`
   background: #fff;
@@ -177,6 +178,9 @@ function ExplanDetail(props) {
                 (START_APP_TYPE[record.process.child ? 'subprocess' : record.process.startAppType] || {}).iconColor
               }
               createType={2}
+              ckeckSuccessCb = {() => {
+                navigateTo(`/workflowedit/${value}`);
+              }}
             />
           </div>
         );
@@ -263,7 +267,7 @@ function ExplanDetail(props) {
           {explanInfo && `${explanInfo.name}（${explanInfo.resourceId}）`}
         </span>
         <span className="flex"></span>
-        {explanInfo && moment(explanInfo.expirationDatetime).isBefore(new Date()) && (
+        {explanInfo && moment(explanInfo.expirationDatetime).add(1, 'd').isBefore(new Date()) && (
           <span className="" style={{ color: '#f51744' }}>
             {_l('服务已过期')}
           </span>

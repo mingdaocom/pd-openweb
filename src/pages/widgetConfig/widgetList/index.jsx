@@ -60,7 +60,7 @@ const WidgetList = styled.div`
         line-height: 12px;
         flex-grow: 0;
         padding-right: 12px;
-        word-break: break-all;
+        word-break: break-word;
       }
       i {
         flex-shrink: 0;

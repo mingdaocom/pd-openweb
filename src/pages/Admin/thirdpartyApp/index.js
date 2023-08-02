@@ -6,9 +6,10 @@ import Trigger from 'rc-trigger';
 import Config from '../config';
 import styled from 'styled-components';
 import application from 'src/api/application';
-import { isUrlRequest, getToken } from 'src/util';
+import { getToken } from 'src/util';
 import 'rc-trigger/assets/index.css';
 import './index.less';
+import RegExp from 'src/util/expression';
 
 const UploadContent = styled.div`
   align-items: flex-end;
@@ -250,14 +251,14 @@ export default class ThirdpartyApp extends Component {
     if (_.isEmpty(appUrl)) {
       alert('请输入应用地址', 3);
       return;
-    } else if (!isUrlRequest(appUrl)) {
+    } else if (!RegExp.isUrlRequest(appUrl)) {
       alert('请正确的 url 地址', 3);
       return;
     }
     if (_.isEmpty(callbackUrl)) {
       alert('请输入回调地址', 3);
       return;
-    } else if (!isUrlRequest(callbackUrl)) {
+    } else if (!RegExp.isUrlRequest(callbackUrl)) {
       alert('请正确的 url 地址', 3);
       return;
     }

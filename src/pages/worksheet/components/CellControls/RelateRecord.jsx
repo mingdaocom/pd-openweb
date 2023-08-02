@@ -263,7 +263,10 @@ export default class RelateRecord extends React.Component {
     const { showtype, allowlink, ddset } = advancedSetting; // 1 卡片 2 列表 3 下拉
     const allowOpenList = from !== 21 && !isTrash && worksheetId && recordId;
     const recordsLength = this.getReordsLength(cell.value);
-
+    let showCount = recordsLength >= 1000 ? '999+' : recordsLength;
+    if (isSublist && recordsLength > 200) {
+      showCount = 200;
+    }
     if (parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.LIST || isSublist) {
       return (
         <div className={className} style={style} onClick={onClick}>
@@ -312,7 +315,7 @@ export default class RelateRecord extends React.Component {
               }}
             >
               <i className={cx('icon', isSublist ? 'icon-table' : 'icon-link_record')}></i>
-              {recordsLength >= 1000 ? '999+' : recordsLength}
+              {showCount}
             </div>
           )}
         </div>

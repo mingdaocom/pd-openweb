@@ -94,9 +94,11 @@ export const loadWorksheet = () => (dispatch, getState) => {
 };
 
 export const fetchSheetRows = params => (dispatch, getState) => {
-  const { base, filters, sheetView, quickFilter, sheetFiltersGroup, mobileNavGroupFilters, sheetRowLoading } =
+  const { base, filters, sheetView, worksheetInfo = {}, quickFilter, sheetFiltersGroup, mobileNavGroupFilters, sheetRowLoading, } =
     getState().mobile;
   const { appId, worksheetId, viewId, maxCount } = base;
+  const { views = [] } = worksheetInfo;
+  const defaultViewId = _.get(views[0], 'viewId');
   const { keyWords } = filters;
   const { chartId } = getRequest();
   let { pageIndex } = sheetView;
@@ -118,7 +120,7 @@ export const fetchSheetRows = params => (dispatch, getState) => {
     pageSize,
     pageIndex,
     status: 1,
-    viewId,
+    viewId: viewId || defaultViewId,
     keyWords,
     filterControls: [],
     sortControls: [],

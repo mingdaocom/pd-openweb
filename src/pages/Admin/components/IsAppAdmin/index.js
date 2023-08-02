@@ -31,6 +31,7 @@ export default function IsAppAdmin(props) {
     defaultIcon,
     className,
     desc = undefined,
+    ckeckSuccessCb,
   } = props;
   const [checkAdmin, setCheckAdmin] = useState({ id: '', post: false, visible: false, title: '' });
 
@@ -69,7 +70,7 @@ export default function IsAppAdmin(props) {
       })
       .then(result => {
         if (result) {
-          window.open(`/app/${appId}`);
+          ckeckSuccessCb ? ckeckSuccessCb() : window.open(`/app/${appId}`);
           setCheckAdmin(Object.assign({}, checkAdmin, { visible: false }));
         } else {
           setCheckAdmin(opts(false));

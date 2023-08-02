@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
-import { QiniuImg } from '../../../common/img';
 import cx from 'classnames';
 /**
  * 单条投票项
@@ -37,14 +36,7 @@ class VoteItem extends React.Component {
         </div>
         {option.file && option.file !== 'undefined' ? (
           <div onClick={() => previewQiniuUrl(option.file)}>
-            <QiniuImg
-              className="mTop10 mLeft30"
-              lazy
-              width={130}
-              height={90}
-              src={option.thumbnailFile}
-              alt={_l('加载中, 请稍候...')}
-            />
+            <img className="mTop10 mLeft30" width={130} height={90} src={option.thumbnailFile} />
           </div>
         ) : undefined}
       </li>

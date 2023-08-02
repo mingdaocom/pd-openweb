@@ -172,7 +172,7 @@ export default class extends Component {
     const param = {};
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
-      const value = currentData.data.originalId;
+      const value = currentData.data.name ? currentData.data.originalId : '';
       param[xaxes.cid] = isNumber && value ? Number(value) : value;
     }
     if (split.controlId) {

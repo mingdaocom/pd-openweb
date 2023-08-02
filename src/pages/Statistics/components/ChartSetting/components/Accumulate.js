@@ -80,14 +80,15 @@ export default class Accumulate extends Component {
     );
   }
   render() {
+    const { allControls, reportData, currentReport } = this.props;
     const { showControlVisible, showOptionIds } = this.state;
-    const { valueMap = {} } = this.props.reportData;
-    const { xaxes, displaySetup } = this.props.currentReport;
-    const xAxesValueMap = valueMap[xaxes.controlId] || {};
-    const optionList = Object.keys(xAxesValueMap).map(id => {
+    const { xaxes, displaySetup } = currentReport;
+    const control = _.find(allControls, { controlId: xaxes.controlId }) || {};
+    const { options = [] } = control;
+    const optionList = options.filter(item => !item.isDeleted).map(item => {
       return {
-        controlId: id,
-        controlName: xAxesValueMap[id],
+        controlId: item.key,
+        controlName: item.value,
         type: xaxes.controlType
       }
     });

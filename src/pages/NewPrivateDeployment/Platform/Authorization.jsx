@@ -97,7 +97,7 @@ const columns = [
     title: _l('升级服务到期时间'),
     dataIndex: 'upgradeExpirationDate',
     key: 'upgradeExpirationDate',
-    render: (_, data) => moment(data.upgradeExpirationDate).format('YYYY-MM-DD'),
+    render: (_, data) => data.upgradeExpirationDate ? moment(data.upgradeExpirationDate).format('YYYY-MM-DD') : '-',
     width: 150
   },
   {
@@ -176,8 +176,8 @@ const AuthorizationInfo = props => {
             </div>
             <div className="flexColumn valignWrapper flex">
               <div className="Font14 Gray_9e mBottom5 pBottom2">{_l('升级服务到期时间')}</div>
-              <div className="Font17 mBottom5 bold">{formatDate(platformLicenseInfo.upgradeExpirationDate)}</div>
-              <div className="Font13 Gray_bd">{_l('%0到期', moment(platformLicenseInfo.upgradeExpirationDate).format('YYYY年MM月DD日') )}</div>
+              <div className="Font17 mBottom5 bold">{platformLicenseInfo.upgradeExpirationDate ? formatDate(platformLicenseInfo.upgradeExpirationDate) : '-'}</div>
+              <div className="Font13 Gray_bd">{platformLicenseInfo.upgradeExpirationDate ? _l('%0到期', moment(platformLicenseInfo.upgradeExpirationDate).format('YYYY年MM月DD日')) : '-'}</div>
             </div>
             <div className="flexColumn valignWrapper flex">
               <div className="Font14 Gray_9e mBottom5 pBottom2">{_l('内部用户配额')}</div>

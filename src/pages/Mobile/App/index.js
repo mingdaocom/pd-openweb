@@ -176,6 +176,7 @@ class App extends Component {
 
     return workSheetInfo
       .filter(item => (viewHideNavi ? true : item.status !== 2))
+      .filter(it => it.status === 1 && !it.navigateHide)
       .map(item => {
         if (item.type !== 2) {
           return (
@@ -255,6 +256,7 @@ class App extends Component {
             <Flex className="sudokuWrapper" wrap="wrap">
               {v.workSheetInfo
                 .filter(v => (viewHideNavi ? true : v.status !== 2))
+                .filter(it => it.status === 1 && !it.navigateHide)
                 .map(v => (
                   <div
                     key={v.workSheetId}

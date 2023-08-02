@@ -1,6 +1,5 @@
 ﻿import _ from 'lodash';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
-import { QiniuImg } from '../../../common/img';
 import VoteOptionMemberList from './voteOptionMemberList';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -39,7 +38,7 @@ class VoteResult extends React.Component {
               <div>{o.name}</div>
               {o.file && o.file !== 'undefined' ? (
                 <div onClick={() => previewQiniuUrl(o.file)}>
-                  <QiniuImg lazy width={130} height={90} src={o.thumbnailFile} alt={_l('加载中, 请稍候...')} />
+                  <img width={130} height={90} src={o.thumbnailFile} />
                 </div>
               ) : undefined}
               <div className="clearfix">

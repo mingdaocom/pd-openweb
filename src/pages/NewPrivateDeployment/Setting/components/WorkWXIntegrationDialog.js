@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Dialog, Input } from 'ming-ui';
 import privateSysSetting from 'src/api/privateSysSetting';
-import { isUrlRequest } from 'src/util';
+import RegExp from 'src/util/expression';
 
 export default class WorkWXIntegrationDialog extends Component {
   constructor(props) {
@@ -12,12 +12,12 @@ export default class WorkWXIntegrationDialog extends Component {
   }
   handleSave = () => {
     const { workWxSelfBuildNoticUrl } = this.state;
-    if (workWxSelfBuildNoticUrl && !isUrlRequest(workWxSelfBuildNoticUrl)) {
+    if (workWxSelfBuildNoticUrl && !RegExp.isUrlRequest(workWxSelfBuildNoticUrl)) {
       alert(_l('请输入正确的地址'), 2);
       return;
     }
 
-    if (isUrlRequest(workWxSelfBuildNoticUrl)) {
+    if (RegExp.isUrlRequest(workWxSelfBuildNoticUrl)) {
       privateSysSetting
         .editSysSettings({
           settings: {

@@ -164,9 +164,7 @@ function BoardView(props) {
     view.advancedSetting.navfilters,
     view.advancedSetting.freezenav,
     view.advancedSetting.navempty,
-    view.advancedSetting.navshow,
     view.moreSort,
-    props.navGroupFilters,
   ]);
 
   const handleSelectField = obj => {

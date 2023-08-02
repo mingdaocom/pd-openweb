@@ -688,7 +688,7 @@ class Record extends Component {
                           text: _l('保存'),
                           style: {},
                           onPress: () =>
-                            getDataType === 21 ? this.saveDraftData({ draftType: 'draft' }) : this.handleSave,
+                            getDataType === 21 ? this.saveDraftData({ draftType: 'draft' }) : this.handleSave(),
                         },
                       ]);
                     } else {

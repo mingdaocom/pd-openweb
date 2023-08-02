@@ -160,7 +160,7 @@ export default class extends React.PureComponent {
       <div className="">
         {_.map(
           fields,
-          ({ fieldName, fieldId, type, notAdd, notEdit, notRead, isDecrypt, isReadField, hideWhenAdded, dataMask }) => {
+          ({ fieldName, fieldId, type, notAdd, notEdit, notRead, isDecrypt, hideWhenAdded, dataMask }) => {
             const isDecryptField = dataMask === '1';
             return (
               <div className={'fieldItem flexRow alignItemsCenter'} key={fieldId}>
@@ -185,14 +185,12 @@ export default class extends React.PureComponent {
                   <Checkbox checked={!notRead} value={fieldId} onClick={this.changeFieldReadAuth} />
                 </div>
                 <div className={'filedSetting flex'}>
-                  {!isReadField && (
-                    <Checkbox
-                      checked={showEdit ? !notEdit : false}
-                      disabled={!showEdit}
-                      value={fieldId}
-                      onClick={this.changeFieldEditAuth}
-                    />
-                  )}
+                  <Checkbox
+                    checked={showEdit ? !notEdit : false}
+                    disabled={!showEdit}
+                    value={fieldId}
+                    onClick={this.changeFieldEditAuth}
+                  />
                 </div>
                 {/* 解密 */}
                 {showDecrypt && (

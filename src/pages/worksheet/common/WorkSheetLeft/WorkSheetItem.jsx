@@ -126,8 +126,8 @@ export default class WorkSheetItem extends Component {
         )}
         {(status === 2 || parentStatus === 2) && (
           <Tooltip
-            popupPlacement="bottom"
-            text={<span>{_l('仅系统角色可见（包含管理员、运营者、开发者）')}</span>}
+            popupPlacement="right"
+            text={<span>{_l('仅系统角色在导航中可见（包含管理员、运营者、开发者），应用项权限依然遵循角色权限原则')}</span>}
           >
             <Icon
               className="Font16 mRight10"

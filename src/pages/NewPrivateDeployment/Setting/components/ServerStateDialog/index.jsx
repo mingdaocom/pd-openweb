@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Dialog, Input, Icon, Tooltip } from 'ming-ui';
 import privateSysSetting from 'src/api/privateSysSetting';
-import { isUrlRequest } from 'src/util';
+import RegExp from 'src/util/expression';
 import './index.less';
 
 export default class ServerStateDialog extends Component {
@@ -14,7 +14,7 @@ export default class ServerStateDialog extends Component {
   handleSave = () => {
     const { serviceStatusWebhookUrl } = this.state;
 
-    if(serviceStatusWebhookUrl && !isUrlRequest(serviceStatusWebhookUrl)) {
+    if(serviceStatusWebhookUrl && !RegExp.isUrlRequest(serviceStatusWebhookUrl)) {
       alert(_l('请输入正确的地址'), 2);
       return;
     }

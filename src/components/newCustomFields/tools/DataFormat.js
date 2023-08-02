@@ -2089,6 +2089,8 @@ export default class DataFormat {
                     //取该控件值去填充
                     const item = _.find(controls, c => c.controlId === currentId);
                     const value = getCurrentValue(item, (filterData[0] || {})[currentId], currentControl);
+                    // 防止新建的时候无效变更引起的报错提示
+                    if (searchType === 'init' && _.isEqual(value, currentControl.value)) return;
                     updateData(value);
                   }
                 }

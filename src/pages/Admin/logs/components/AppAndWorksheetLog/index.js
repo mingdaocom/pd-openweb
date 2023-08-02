@@ -573,7 +573,7 @@ export default class AppAndWorksheetLog extends Component {
                 onClick={() => {
                   safeLocalStorageSetItem('globalLogTab', item.tab);
                   this.setState({ logType: item.tab, searchValues: {} }, this.getLoglist);
-                  this.tableWrap.setCheckedCols(this.columns.map(it => it.dataIndex));
+                  this.tableWrap && this.tableWrap.setCheckedCols(this.columns.map(it => it.dataIndex));
                 }}
               >
                 {item.tabName}

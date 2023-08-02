@@ -368,9 +368,10 @@ const PostCommentInput = createReactClass({
                     onClick={this.handleReshareToggle}
                   />
                 </span>
+                <div className="flex"></div>
                 <input
                   id={'buttonComment_' + postItem.postID + '_' + postItem.commentID}
-                  className="right mRight12 btnBootstrap btnBootstrap-primary btnBootstrap-small"
+                  className="mRight12 btnBootstrap btnBootstrap-primary btnBootstrap-small"
                   type="button"
                   ref={button => {
                     this.button = button;
@@ -379,7 +380,6 @@ const PostCommentInput = createReactClass({
                 />
                 <input
                   id={'hidden_GroupID_' + postItem.postID + '_' + postItem.commentID + 'C'}
-                  className="right"
                   type="hidden"
                   defaultValue="everyone"
                   ref={selectGroup => {

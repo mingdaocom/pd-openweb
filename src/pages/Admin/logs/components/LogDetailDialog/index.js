@@ -30,20 +30,16 @@ const RecordLogDialogWrap = styled(Dialog)`
 export default function LogDetailDialog(props) {
   const { visible, onCancel, currentRowInfo = {} } = props;
   const [titleName, setTitleName] = useState('');
-  const [controls, setControls] = useState([]);
-  const appId = _.get('currentRowInfo.application.appId');
+  const [controls, setControls] = useState(undefined);
+  const appId = _.get(currentRowInfo, 'application.appId');
   const worksheetId = _.get(currentRowInfo, 'appItem.id');
   const rowId = _.get(currentRowInfo, 'rowId');
+
+  const [filterUniqueIds, setFilterUniqueIds] = useState([currentRowInfo.uniqueId]);
 
   useEffect(() => {
     getData();
   }, []);
-
-  const getRowInfo = () => {
-    sheetAjax.getRowDetail({ appId, worksheetId, rowId }).then(res => {
-      setTitleName(res.titleName);
-    });
-  };
 
   const getData = () => {
     Promise.all([
@@ -70,15 +66,17 @@ export default function LogDetailDialog(props) {
 
   return (
     <RecordLogDialogWrap title={titleName} width={650} visible={visible} onCancel={onCancel} footer={null}>
-      <WorksheetRocordLog
-        appId={appId}
-        rowId={rowId}
-        worksheetId={worksheetId}
-        showFilter={false}
-        filterUniqueIds={[currentRowInfo.uniqueId]}
-        isGlobaLog={true}
-        controls={controls}
-      />
+      {controls && (
+        <WorksheetRocordLog
+          appId={appId}
+          rowId={rowId}
+          worksheetId={worksheetId}
+          showFilter={false}
+          filterUniqueIds={filterUniqueIds}
+          isGlobaLog={true}
+          controls={controls}
+        />
+      )}
     </RecordLogDialogWrap>
   );
 }

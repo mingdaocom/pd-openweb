@@ -809,6 +809,9 @@ export const renderCount = item => {
       } else if (!_.isNaN(parseInt(item.value, 10))) {
         count = parseInt(item.value, 10);
       }
+      if (count > 200) {
+        count = 200;
+      }
     } catch (err) {
       console.log(err);
     }
