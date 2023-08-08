@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Button ,Tooltip} from 'ming-ui';
+import { Icon, Button, Tooltip } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import actionLogAjax from 'src/api/actionLog';
@@ -170,8 +170,8 @@ export default class LoginLog extends Component {
       pageIndex,
       pageSize,
       projectId: Config.projectId,
-      startDateTime: startDate ? startDate : moment().subtract(30, 'days').format('YYYY-MM-DD HH:mm:ss'),
-      endDateTime: endDate ? endDate : moment().format('YYYY-MM-DD HH:mm:ss'),
+      startDateTime: startDate ? startDate : moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+      endDateTime: endDate ? endDate : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
       logType, // ogin=1 logout=2
       accountIds: loginerInfo.map(item => item.accountId),
     };
@@ -196,8 +196,8 @@ export default class LoginLog extends Component {
       pageIndex,
       pageSize,
       projectId: Config.projectId,
-      startDateTime: startDate ? startDate : moment().subtract(30, 'days').format('YYYY-MM-DD HH:mm:ss'),
-      endDateTime: endDate ? endDate : moment().format('YYYY-MM-DD HH:mm:ss'),
+      startDateTime: startDate ? startDate : moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+      endDateTime: endDate ? endDate : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
       logType, // ogin=1 logout=2
       accountIds: loginerInfo.map(item => item.accountId),
       columnNames: this.columns.map(it => it.title),
@@ -221,7 +221,7 @@ export default class LoginLog extends Component {
 
     return (
       <LoginLogWrap>
-         <AdminTitle prefix={_l('日志 - 登录')} />
+        <AdminTitle prefix={_l('日志 - 登录')} />
         <div className="header Font17 flexRow">
           <span className="flex">{_l('登录')}</span>
           <div>

@@ -11,26 +11,22 @@ export default function CustomSelectDate(props) {
   const [dateInfo, setDateInfo] = useState({});
   const $ref = useRef();
   const dateFormat = props.dateFormat ? props.dateFormat : 'YYYY-MM-DD';
-  const reciseSecond = props.dateFormat && props.dateFormat === 'YYYY-MM-DD HH:mm:ss';
 
   const changeFileds = item => {
-    let startDate = moment().subtract(30, 'days').format(dateFormat),
-      endDate = moment().format(dateFormat);
+    let startDate = moment().subtract(29, 'days').startOf('day').format(dateFormat),
+      endDate = moment().endOf('day').format(dateFormat);
     switch (item.value) {
       case 0:
-        startDate = reciseSecond ? moment().startOf('day').format(dateFormat) : moment().format(dateFormat);
-        endDate = reciseSecond ? moment().endOf('day').format(dateFormat) : endDate;
+        startDate = moment().startOf('day').format(dateFormat);
         break;
       case 1:
-        startDate = reciseSecond
-          ? moment().subtract(1, 'days').startOf('day').format(dateFormat)
-          : moment().subtract(1, 'days').format(dateFormat);
-        endDate = reciseSecond
-          ? moment().subtract(1, 'days').endOf('day').format(dateFormat)
-          : moment().subtract(1, 'days').format(dateFormat);
+        startDate = moment().subtract(1, 'days').startOf('day').format(dateFormat);
+        endDate = moment().subtract(1, 'days').endOf('day').format(dateFormat);
+
         break;
       case 2:
         startDate = moment().startOf('week').format(dateFormat);
+        endDate = moment().endOf('week').format(dateFormat);
         break;
       case 3:
         startDate = moment().subtract(1, 'week').startOf('week').format(dateFormat);
@@ -38,16 +34,17 @@ export default function CustomSelectDate(props) {
         break;
       case 4:
         startDate = moment().startOf('months').format(dateFormat);
+        endDate = moment().endOf('months').format(dateFormat);
         break;
       case 5:
         startDate = moment().subtract(1, 'months').startOf('months').format(dateFormat);
         endDate = moment().subtract(1, 'months').endOf('months').format(dateFormat);
         break;
       case 6:
-        startDate = moment().subtract(1, 'week').startOf('day').format(dateFormat);
+        startDate = moment().subtract(6, 'days').startOf('day').format(dateFormat);
         break;
       case 7:
-        startDate = moment().subtract(30, 'days').startOf('day').format(dateFormat);
+        startDate = moment().subtract(29, 'days').startOf('day').format(dateFormat);
         break;
       case 8:
         startDate = moment().subtract(6, 'months').startOf('day').format(dateFormat);

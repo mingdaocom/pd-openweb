@@ -175,11 +175,7 @@ export default function SubListSetting(props) {
       setMode('new');
       return;
     }
-    if (
-      (window.subListSheetConfig[controlId] || {}).status &&
-      !needUpdate &&
-      (window.subListSheetConfig[controlId] || {}).resultCode === 1
-    ) {
+    if ((window.subListSheetConfig[controlId] || {}).status && !needUpdate) {
       setMode(_.get(window.subListSheetConfig[controlId], 'mode'));
       return;
     }

@@ -572,7 +572,9 @@ export const getCurrentValue = (item, data, control) => {
         //用户
         case 26:
           return JSON.parse(data || '[]')
-            .map(item => (item.accountId === md.global.Account.accountId ? md.global.Account.fullname : item.fullname))
+            .map(item =>
+              item.accountId === md.global.Account.accountId ? md.global.Account.fullname : item.name || item.fullname,
+            )
             .join('、');
         //部门
         case 27:

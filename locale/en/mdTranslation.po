@@ -42646,7 +42646,7 @@ msgstr "'s title contain"
 
 #: Disabled references:1
 msgid "包含其中一个%03082"
-msgstr "is none of"
+msgstr "is any of"
 
 #: Disabled references:1
 msgid "包含%03058"
@@ -42662,7 +42662,7 @@ msgstr "'s title doesn’t contain"
 
 #: Disabled references:1
 msgid "不包含任何一个%03083"
-msgstr "is any of"
+msgstr "is none of"
 
 #: Disabled references:1
 msgid "不包含%03059"

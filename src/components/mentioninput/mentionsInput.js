@@ -798,9 +798,9 @@ Modified by Kenneth Auchenberg
 
     function doSearch(query) {
       if (atLetterArr.indexOf(currentType) > -1) {
-        //!query 使用localStorage  atData
+        //!query 使用sessionStorage  atData
         if (settings.forReacordDiscussion && !query) {
-          let atData = localStorage.getItem('atData') || '[]';
+          let atData = sessionStorage.getItem('atData') || '[]';
           let recordAtdatas = JSON.parse(atData) || [];
           recordAtdatas = recordAtdatas.map(o => {
             return {

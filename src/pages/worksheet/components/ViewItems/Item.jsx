@@ -320,7 +320,7 @@ export default class Item extends Component {
       >
         <MdLink
           className={cx('name valignWrapper overflowHidden h100', {
-            pRight20: !(isCharge || this.canExport()),
+            pRight20: !(isCharge || this.canExport() || this.canShare()),
           })}
           to={getNavigateUrl(item)}
         >

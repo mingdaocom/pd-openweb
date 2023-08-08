@@ -407,8 +407,8 @@ export default class Widgets extends Component {
           onSelect={(value, option) => this.handleSelect(option)}
           onChange={(value, option) => {
             // keywords判断是为了直接点击删除
-            if (option.label || !keywords.length) {
-              this.props.onChange(option.label);
+            if (_.get(option, 'label') || !keywords.length) {
+              this.props.onChange(_.get(option, 'label'));
             }
           }}
           onFocus={() => this.setState({ open: true })}

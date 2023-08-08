@@ -224,6 +224,7 @@ export function UserSelector(props) {
           <Fragment>
             <UserList
               showMore
+              notShowCurrentUserName
               type={type}
               activeIndex={activeIndex}
               list={prefixUsers}

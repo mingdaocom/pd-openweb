@@ -69,7 +69,7 @@ export default class Widgets extends Component {
             ? [
                 {
                   accountId: md.global.Account.accountId,
-                  fullname: _l('我自己'),
+                  fullname: md.global.Account.fullname,
                   avatar: md.global.Account.avatar,
                 },
               ]

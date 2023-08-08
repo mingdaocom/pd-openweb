@@ -93,7 +93,7 @@ const HierarchyViewConfigWrap = styled.div`
     line-height: 70px;
     background: #f8f8f8;
     &:hover {
-      box-shadow: rgba(0,0,0,0.1) 0 3px 6px;
+      box-shadow: rgba(0, 0, 0, 0.1) 0 3px 6px;
     }
     & + .activeIcon {
       display: none;
@@ -280,8 +280,7 @@ export default class CardAppearance extends Component {
                   advancedSetting={advancedSetting}
                   navfilters={navfilters}
                   filterInfo={{
-                    relateControls: worksheetControls,
-                    allControls: worksheetControls,
+                    allControls: (worksheetControls.find(o => o.controlId === viewControl) || {}).relationControls,
                     globalSheetInfo: _.pick(currentSheetInfo, [
                       'appId',
                       'groupId',

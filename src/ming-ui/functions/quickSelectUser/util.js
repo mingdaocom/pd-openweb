@@ -85,12 +85,7 @@ export function getUsers(args) {
           },
         ].concat(result);
       } else if (!args.keywords && currentAccount) {
-        result = [
-          {
-            ...currentAccount,
-            fullname: _l('我自己'),
-          },
-        ].concat(result);
+        result = [currentAccount].concat(result);
       }
       return result;
     });

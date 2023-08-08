@@ -109,8 +109,8 @@ class Node extends Component {
   }
 
   renderToggleButton() {
-    const { collapsed, id, hasSub, dataFromProps, onChangeData, data } = this.props;
-    if (hasSub) {
+    const { collapsed, id, hasSub, dataFromProps, onChangeData, data, subordinates } = this.props;
+    if (hasSub || (subordinates && subordinates.length)) {
       const font = collapsed ? 'plus' : 'minus';
       return (
         <Icon

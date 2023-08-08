@@ -126,7 +126,7 @@ class Commenter extends React.Component {
     // @
     if (!this.props.disableMentions) {
       const { sourceType } = this.props;
-      safeLocalStorageSetItem('atData', JSON.stringify(this.props.atData || []));
+      sessionStorage.setItem('atData', JSON.stringify(this.props.atData || []));
       $textarea.mentionsInput(
         Object.assign(
           {
@@ -186,7 +186,7 @@ class Commenter extends React.Component {
       !_.isEqual(this.props.atData, nextProps.atData) &&
       nextProps.forReacordDiscussion
     ) {
-      safeLocalStorageSetItem('atData', JSON.stringify(nextProps.atData || []));
+      sessionStorage.setItem('atData', JSON.stringify(nextProps.atData || []));
     }
   }
 
