@@ -428,6 +428,9 @@ export default class Widgets extends Component {
             <div className="triggerTraget mobile" style={{ height: 34 }}>
               <UploadFileWrapper
                 from={from}
+                projectId={projectId}
+                appId={appId}
+                worksheetId={worksheetId}
                 className="Block"
                 inputType={enumDefault2}
                 advancedSetting={advancedSetting}

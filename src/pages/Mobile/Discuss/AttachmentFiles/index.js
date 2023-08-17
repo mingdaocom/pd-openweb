@@ -6,6 +6,7 @@ import './index.less';
 import { getRandomString, getClassNameByExt, getToken } from 'src/util';
 import { checkFileAvailable } from 'src/components/UploadFiles/utils.js';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { formatFileSize } from 'src/util';
 
 const formatResponseData = (file, response) => {
   const item = {};
@@ -49,11 +50,12 @@ export class UploadFileWrapper extends Component {
   }
   uploadFile() {
     const self = this;
-    const { advancedSetting } = self.props;
+    const { advancedSetting, projectId, appId, worksheetId } = self.props;
+
     const method = {
       FilesAdded(uploader, files) {
         if (parseFloat(files.reduce((total, file) => total + (file.size || 0), 0) / 1024 / 1024) > md.global.SysSettings.fileUploadLimitSize) {
-          Toast.info('附件总大小超过 ' + utils.formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024) + '，请您分批次上传');
+          Toast.info('附件总大小超过 ' + formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024) + '，请您分批次上传');
           uploader.stop();
           uploader.splice(uploader.files.length - files.length, uploader.files.length);
           return false;
@@ -92,7 +94,9 @@ export class UploadFileWrapper extends Component {
             tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
             self.props.onChange(newFiles);
           });
-        getToken(tokenFiles).then(res => {
+        getToken(tokenFiles, 0, {
+          projectId, appId, worksheetId
+        }).then(res => {
           files.forEach((item, i) => {
             item.token = res[i].uptoken;
             item.key = res[i].key;
@@ -100,7 +104,6 @@ export class UploadFileWrapper extends Component {
             item.fileName = res[i].fileName;
             item.url = res[i].url;
           });
-
           uploader.start();
         });
       },
@@ -156,7 +159,7 @@ export class UploadFileWrapper extends Component {
       },
       Error(uploader, error) {
         if (error.code === window.plupload.FILE_SIZE_ERROR) {
-          Toast.info(_l('单个文件大小超过%0，无法支持上传', utils.formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024)));
+          Toast.info(_l('单个文件大小超过%0，无法支持上传', formatFileSize(md.global.SysSettings.fileUploadLimitSize * 1024 * 1024)));
         } else {
           Toast.info(_l('上传失败，请稍后再试。'));
         }
