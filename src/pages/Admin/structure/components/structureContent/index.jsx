@@ -116,7 +116,7 @@ class StructureContent extends Component {
     return (
       <Fragment>
         {!isSearch ? (
-          <div className="Font15 departmentTitle">
+          <div className="Font17 departmentTitle">
             <span className="departmentNameValue" title={!!departmentId && departmentName}>
               {!!departmentId && departmentName}
             </span>
@@ -139,7 +139,7 @@ class StructureContent extends Component {
                   }
                 }}
               >
-                {_l('仅看无部门人员')}
+                <span className="Font12">{_l('仅看无部门人员')}</span>
               </Checkbox>
             )}
           </div>
@@ -173,9 +173,7 @@ class StructureContent extends Component {
           ) : (
             <UserTable projectId={projectId} />
           )}
-          {allCount > pageSize && (
-            <PaginationWrap total={allCount} pageIndex={pageIndex} pageSize={pageSize} onChange={this.changPage} />
-          )}
+          <PaginationWrap total={allCount} pageIndex={pageIndex} pageSize={pageSize || 50} onChange={this.changPage} />
         </div>
 
         {batchEditVisible && (
@@ -205,6 +203,8 @@ class StructureContent extends Component {
             cancelInviteRemove={() => this.props.loadInactiveUsers(projectId, pageIndex)}
             departmentId={departmentId}
             refreshData={this.loadData}
+            fetchInActive={() => this.props.fetchInActive(projectId)}
+            fetchApproval={() => this.props.fetchApproval(projectId)}
           />
         )}
       </Fragment>
@@ -258,6 +258,8 @@ export default connect(
           'updateShowExport',
           'emptyUserSet',
           'removeUserFromSet',
+          'fetchInActive',
+          'fetchApproval',
         ]),
       },
       dispatch,

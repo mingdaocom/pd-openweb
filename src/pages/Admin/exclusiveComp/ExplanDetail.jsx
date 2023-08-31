@@ -17,7 +17,7 @@ import EXCLUSIVE_EXPLAN_IMG from './images/exclusive_explan.png';
 import resourceApi from 'src/pages/workflow/api/resource';
 import appManagement from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
-import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/config';
+import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
 import { TYPE_LIST, COMPUTING_INSTANCE_STATUS } from './config';
 import './index.less';
 import IsAppAdmin from '../components/IsAppAdmin';
@@ -178,7 +178,7 @@ function ExplanDetail(props) {
                 (START_APP_TYPE[record.process.child ? 'subprocess' : record.process.startAppType] || {}).iconColor
               }
               createType={2}
-              ckeckSuccessCb = {() => {
+              ckeckSuccessCb={() => {
                 navigateTo(`/workflowedit/${value}`);
               }}
             />

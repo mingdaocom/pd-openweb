@@ -1,9 +1,10 @@
 .flowChartModal {
   .ant-modal-header {
-    border-bottom: 1px solid #EAEAEA !important;
+    border-bottom: 1px solid #eaeaea !important;
     padding: 15px 24px !important;
   }
-  .ant-modal-body, .am-modal-body {
+  .ant-modal-body,
+  .am-modal-body {
     background-color: #f5f5f9;
     display: flex;
     padding: 0;
@@ -33,5 +34,36 @@
     right: 10px;
     top: 11px;
     z-index: 1;
+  }
+  .workflowBranch {
+    overflow: hidden;
+
+    &:not(.workflowBoxPending) {
+      > .flexColumn.executed {
+        .workflowExecLine {
+          height: auto;
+          bottom: -2000px;
+        }
+      }
+      .executed {
+        > .workflowBox:before {
+          background-color: #2196f3;
+        }
+      }
+
+      &.workflowInclusionBranch {
+        > .flexColumn.executed {
+          .workflowBox:before {
+            background-color: #2196f3;
+          }
+        }
+      }
+
+      &:not(.workflowInclusionBranch) {
+        .workflowBox:before {
+          background-color: #ccc !important;
+        }
+      }
+    }
   }
 }

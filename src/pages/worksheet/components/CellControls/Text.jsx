@@ -232,7 +232,7 @@ export default class Text extends React.Component {
         }, 10);
       });
     };
-    if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
+    function handleCopyFromWindow() {
       if (window.tempCopyForSheetView) {
         const data = safeParse(window.tempCopyForSheetView);
         if (data.type === 'text') {
@@ -240,20 +240,41 @@ export default class Text extends React.Component {
         } else {
           setKeyboardValue(data.textValue);
         }
-      } else if (_.isFunction(navigator.clipboard.readText)) {
-        navigator.clipboard.readText().then(setKeyboardValue);
+      }
+    }
+    if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
+      if (_.isFunction(navigator.clipboard.readText)) {
+        navigator.clipboard
+          .readText()
+          .then(setKeyboardValue)
+          .catch(err => {
+            if (window.tempCopyForSheetView) {
+              handleCopyFromWindow();
+            } else {
+              alert(_l('请开启浏览器针对此页面的剪贴板读取权限'), 3);
+            }
+          });
+      } else {
+        handleCopyFromWindow();
       }
       return;
     }
     switch (e.key) {
       default:
         (() => {
-          const value = cell.type === 6 || cell.type === 8 ? formatNumberFromInput(e.key, false) : e.key;
-          if (!value || !isKeyBoardInputChar(e.key)) {
+          let value = e.key;
+          if (cell.type === 6 || cell.type === 8) {
+            value = formatNumberFromInput(e.key, false);
+          }
+          if (!e.isInputValue && (!value || !isKeyBoardInputChar(e.key))) {
             return;
           }
           updateEditingStatus(true, () => {
             setTimeout(() => {
+              if (e.keyCode === 229) {
+                this.handleChange('');
+                return;
+              }
               const inputDom = this.input.current;
               if (inputDom) {
                 inputDom.value = value;
@@ -287,6 +308,7 @@ export default class Text extends React.Component {
         () =>
           emitter.emit('TRIGGER_TABLE_KEYDOWN_' + tableId, {
             keyCode: 40,
+            action: 'text_enter_to_next',
             stopPropagation: () => {},
             preventDefault: () => {},
           }),
@@ -444,6 +466,7 @@ export default class Text extends React.Component {
             masked: this.masked && !isCard,
             empty: !value,
             maskHoverTheme: this.masked && isCard && !forceShowFullValue,
+            focusInput: cell.type === 2 && editable && canedit,
           })}
           style={style}
           iconName="hr_edit"

@@ -110,6 +110,7 @@ export default class Switch extends React.Component {
   render() {
     const {
       className,
+      recordId,
       style,
       from,
       mode,
@@ -145,7 +146,7 @@ export default class Switch extends React.Component {
             e.preventDefault();
           }}
         >
-          {this.renderContent()}
+          {recordId !== 'empty' && this.renderContent()}
         </div>
       </div>
     );

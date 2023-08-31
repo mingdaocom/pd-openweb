@@ -13,6 +13,7 @@ import { getAppFeaturesVisible } from 'src/util';
 import _ from 'lodash';
 import GlobalSearch from '../GlobalSearch/index';
 import { withRouter } from 'react-router-dom';
+import appManagementApi from 'src/api/appManagement';
 
 const BtnCon = styled.div`
   cursor: pointer;
@@ -76,21 +77,13 @@ export default class CommonUserHandle extends Component {
           </Tooltip>
         )}
         {!['appPkg'].includes(type) && (
-          <BtnCon
-            onClick={this.openGlobalSearch.bind(this)}
-            data-tip={_l('超级搜索(F)')}
-            className="tip-bottom-left"
-          >
+          <BtnCon onClick={this.openGlobalSearch.bind(this)} data-tip={_l('超级搜索(F)')} className="tip-bottom-left">
             <Icon icon="search" />
           </BtnCon>
         )}
         {type === 'appPkg' && (
           <div className="appPkgHeaderSearch tip-bottom-left" data-tip={_l('超级搜索(F)')}>
-            <Icon
-              icon="search"
-              className="Font20"
-              onClick={this.openGlobalSearch.bind(this)}
-            />
+            <Icon icon="search" className="Font20" onClick={this.openGlobalSearch.bind(this)} />
           </div>
         )}
         {_.includes(['native'], type) && (
@@ -110,7 +103,7 @@ export default class CommonUserHandle extends Component {
           mouseEnterDelay={0.2}
           action={['click']}
           themeColor="white"
-          tooltipClass="pageHeadUser commonHeaderUser"
+          tooltipClass="pageHeadUser commonHeaderUser Normal"
           getPopupContainer={() => this.avatar}
           offset={[70, 0]}
           popupVisible={userVisible}
@@ -139,7 +132,22 @@ export class LeftCommonUserHandle extends Component {
   state = {
     globalSearchVisible: false,
     userVisible: false,
+    roleEntryVisible: true,
   };
+
+  componentDidMount() {
+    const { id, permissionType, isLock } = this.props.data;
+    if (!canEditData(permissionType) && !canEditApp(permissionType, isLock)) {
+      appManagementApi
+        .getAppRoleSetting({
+          appId: id,
+        })
+        .then(data => {
+          const { appSettingsEnum } = data;
+          this.setState({ roleEntryVisible: appSettingsEnum === 1 });
+        });
+    }
+  }
 
   handleUserVisibleChange(visible) {
     this.setState({
@@ -156,7 +164,7 @@ export class LeftCommonUserHandle extends Component {
   }
 
   render() {
-    const { globalSearchVisible, userVisible } = this.state;
+    const { globalSearchVisible, userVisible, roleEntryVisible } = this.state;
     const { isAuthorityApp, type, data, sheet, match } = this.props;
     const { projectId, id, permissionType, isLock, appStatus, fixed, pcDisplay } = data;
     // 获取url参数
@@ -185,10 +193,7 @@ export class LeftCommonUserHandle extends Component {
                 <Icon icon="workflow" className="Font20 headerColorSwitch" />
               </MdLink>
             )}
-            {!(
-              (pcDisplay || fixed) &&
-              !(canEditApp(permissionType, isLock) || canEditData(permissionType))
-            ) && (
+            {roleEntryVisible && (
               <MdLink data-tip={_l('用户')} className="tip-top" to={`/app/${id}/role`}>
                 <Icon icon="group" className="Font20 headerColorSwitch" />
               </MdLink>
@@ -197,11 +202,7 @@ export class LeftCommonUserHandle extends Component {
         )}
         {type === 'appPkg' && (
           <div className="headerColorSwitch tip-top pointer" data-tip={_l('超级搜索(F)')}>
-            <Icon
-              icon="search"
-              className="Font20"
-              onClick={this.openGlobalSearch.bind(this)}
-            />
+            <Icon icon="search" className="Font20" onClick={this.openGlobalSearch.bind(this)} />
           </div>
         )}
         <div

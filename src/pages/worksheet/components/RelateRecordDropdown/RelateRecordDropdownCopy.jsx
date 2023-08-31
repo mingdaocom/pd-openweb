@@ -522,6 +522,7 @@ export default class RelateRecordDropdown extends React.Component {
             ref={this.list}
             activeIndex={activeIndex}
             keyWords={keywords}
+            searchControl={this.searchControl}
             control={control}
             formData={formDataArray}
             prefixRecords={prefixRecords}
@@ -702,7 +703,7 @@ export default class RelateRecordDropdown extends React.Component {
             onAdd={record => this.handleItemClick(record)}
           />
         )}
-        {from !== FROM.PUBLIC && previewRecord && (
+        {from !== FROM.PUBLIC_ADD && previewRecord && (
           <RecordInfoWrapper
             visible
             viewId={_.get(control, 'advancedSetting.openview') || control.viewId}

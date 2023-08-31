@@ -2,23 +2,29 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { autobind } from 'core-decorators';
-import { Button, Dialog, RichText, Linkify } from 'ming-ui';
+import { Button, RichText } from 'ming-ui';
 import captcha from 'src/components/captcha';
 import CustomFields from 'src/components/newCustomFields';
-import { Hr } from 'worksheet/components/Basics';
 import { addWorksheetRow } from './action';
 import { getSubListError, filterHidedSubList } from 'worksheet/util';
 import { checkMobileVerify, controlState } from 'src/components/newCustomFields/tools/utils';
 import './index.less';
 import _ from 'lodash';
+import moment from 'moment';
+import { TIME_TYPE } from '../publicWorksheetConfig/enum';
+import { getLimitWriteTimeDisplayText } from '../publicWorksheetConfig/utils';
+import FilledRecord from './FilledRecord';
+import { FILL_STATUS } from './enum';
+import CountDown from '../publicWorksheetConfig/common/CountDown';
+import { getRgbaByColor } from '../widgetConfig/util';
 
 const ImgCon = styled.div`
   position: relative;
   display: inline-block;
   margin-top: 32px;
-  height: 59px;
+  height: 40px;
   img {
-    height: 59px;
+    height: 40px;
     max-width: 100%;
     object-fit: contain;
   }
@@ -42,13 +48,14 @@ const LoadMask = styled.div`
   z-index: 2;
 `;
 
-export default class FillWorkseet extends React.Component {
+export default class FillWorksheet extends React.Component {
   static propTypes = {
     loading: PropTypes.bool,
     rules: PropTypes.arrayOf(PropTypes.shape({})),
     publicWorksheetInfo: PropTypes.shape({}),
     formData: PropTypes.arrayOf(PropTypes.shape({})),
     onSubmit: PropTypes.func,
+    status: PropTypes.string,
   };
 
   constructor(props) {
@@ -91,8 +98,15 @@ export default class FillWorkseet extends React.Component {
       return;
     }
     if (!this.customwidget.current) return;
-    const { isPreview, publicWorksheetInfo = {}, onSubmit } = this.props;
-    const { shareId, worksheetId, needCaptcha, smsVerificationFiled, smsVerification } = publicWorksheetInfo;
+    const { publicWorksheetInfo = {}, onSubmit } = this.props;
+    const {
+      shareId,
+      worksheetId,
+      needCaptcha,
+      smsVerificationFiled,
+      smsVerification,
+      cacheFieldData = {},
+    } = publicWorksheetInfo;
     let hasError;
     const subListControls = filterHidedSubList(data, 2);
     if (subListControls.length) {
@@ -143,12 +157,6 @@ export default class FillWorkseet extends React.Component {
       }
     }
 
-    if (isPreview) {
-      Dialog.confirm({
-        title: _l('目前为预览模式，不可提交表单'),
-      });
-      return;
-    }
     const submit = res => {
       if (res && !res.ticket) {
         this.setState({
@@ -169,8 +177,8 @@ export default class FillWorkseet extends React.Component {
       }
       addWorksheetRow(
         {
-          shareId,
           worksheetId,
+          shareId,
           formData: data,
           publicWorksheetInfo,
           triggerUniqueError: badData => {
@@ -180,7 +188,7 @@ export default class FillWorkseet extends React.Component {
           },
           params,
         },
-        (err, data) => {
+        (err, res) => {
           this.issubmitting = false;
           if (err) {
             this.setState({
@@ -188,7 +196,7 @@ export default class FillWorkseet extends React.Component {
             });
             return;
           }
-          if (!data) {
+          if (!res) {
             alert(_l('当前表单已过期'), 3);
             this.setState({
               submitLoading: false,
@@ -197,6 +205,10 @@ export default class FillWorkseet extends React.Component {
           }
           // 添加成功
           safeLocalStorageSetItem('publicWorksheetLastSubmit_' + publicWorksheetInfo.shareId, new Date().toISOString());
+          if (cacheFieldData.isEnable) {
+            safeLocalStorageSetItem('cacheFieldData_' + publicWorksheetInfo.shareId, JSON.stringify(data || []));
+          }
+          localStorage.removeItem('cacheDraft_' + publicWorksheetInfo.shareId); //提交成功，清除未提交缓存
           window.onbeforeunload = null;
           this.setState({
             submitLoading: false,
@@ -225,7 +237,7 @@ export default class FillWorkseet extends React.Component {
   }
 
   render() {
-    const { loading, publicWorksheetInfo = {}, rules } = this.props;
+    const { loading, publicWorksheetInfo = {}, rules, status, isPreview } = this.props;
     const { submitLoading, formData, showError } = this.state;
     const {
       name,
@@ -238,7 +250,14 @@ export default class FillWorkseet extends React.Component {
       smsVerification,
       appId,
       projectId,
+      linkSwitchTime,
+      limitWriteCount,
+      limitWriteTime,
+      completeNumber,
+      cacheDraft,
+      themeBgColor,
     } = publicWorksheetInfo;
+
     return (
       <React.Fragment>
         {submitLoading && <LoadMask />}
@@ -251,13 +270,79 @@ export default class FillWorkseet extends React.Component {
             <div style={{ marginTop: 32 }}></div>
           )}
           <div className="worksheetName">{name || _l('未命名表单')}</div>
+
           <div className="mdEditor">
             {!!desc && (
-              <RichText data={desc || ''} className="worksheetDescription WordBreak mdEditorContent " disabled={true} />
+              <RichText
+                data={desc || ''}
+                className="worksheetDescription WordBreak mdEditorContent "
+                disabled={true}
+                minHeight={64}
+              />
             )}
           </div>
+          {!isPreview && (
+            <React.Fragment>
+              <div className="worksheetLimitInfo" style={{ borderColor: getRgbaByColor(themeBgColor, 0.2) }}>
+                {linkSwitchTime && linkSwitchTime.isEnable && (
+                  <div className="itemInfo">
+                    <React.Fragment>
+                      {linkSwitchTime.isShowCountDown ? (
+                        <CountDown
+                          className="Gray"
+                          endTime={linkSwitchTime.endTime}
+                          beforeText={_l('链接将于')}
+                          afterText={_l('后截止')}
+                          arriveText={_l('链接已截止') + ';'}
+                        />
+                      ) : (
+                        <React.Fragment>
+                          <span>{_l('链接将于')}</span>
+                          <span className="bold Gray mLeft5 mRight5">
+                            {moment(linkSwitchTime.endTime).format('YYYY-MM-DD HH:mm')}
+                          </span>
+                          <span>{_l('截止')};</span>
+                        </React.Fragment>
+                      )}
+                    </React.Fragment>
+                  </div>
+                )}
+                {limitWriteCount && limitWriteCount.isEnable && (
+                  <div className="itemInfo">
+                    <span>{_l('已收集')}</span>
+                    <span className="Gray mLeft5 mRight5">
+                      {_l(`${completeNumber || 0}/${limitWriteCount.limitWriteCount} `)}
+                    </span>
+                    <span>{_l('份, 还剩')}</span>
+                    <span className="Gray mLeft5 mRight5">
+                      {limitWriteCount.limitWriteCount - (completeNumber || 0)}
+                    </span>
+                    <span>{_l('份结束收集')};</span>
+                  </div>
+                )}
+                {limitWriteTime && limitWriteTime.isEnable && (
+                  <div className="itemInfo">
+                    <span className="Gray">{getLimitWriteTimeDisplayText(TIME_TYPE.MONTH, limitWriteTime)}</span>
+                    <span className="mLeft5 mRight5">{_l('的')}</span>
+                    <span className="Gray">{getLimitWriteTimeDisplayText(TIME_TYPE.DAY, limitWriteTime)}</span>
+                    {!!getLimitWriteTimeDisplayText(TIME_TYPE.HOUR, limitWriteTime) && (
+                      <span className="mLeft5 mRight5">{_l('的')}</span>
+                    )}
+                    <span className="Gray">{getLimitWriteTimeDisplayText(TIME_TYPE.HOUR, limitWriteTime)}</span>
+                    <span className="mLeft5">{_l('可填写')}</span>
+                  </div>
+                )}
+              </div>
+              <FilledRecord
+                isFillPage={true}
+                publicWorksheetInfo={publicWorksheetInfo}
+                formData={formData}
+                rules={rules}
+                status={status}
+              />
+            </React.Fragment>
+          )}
         </div>
-        <Hr style={{ margin: '16px 0' }} />
         <div className="formMain" ref={this.con} style={{ padding: '0 32px' }}>
           {!loading && (
             <CustomFields
@@ -275,6 +360,8 @@ export default class FillWorkseet extends React.Component {
               showError={showError}
               registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
               onChange={(data, id) => {
+                cacheDraft &&
+                  safeLocalStorageSetItem('cacheDraft_' + publicWorksheetInfo.shareId, JSON.stringify(data || []));
                 this.setState({
                   formData: data,
                 });
@@ -288,14 +375,17 @@ export default class FillWorkseet extends React.Component {
         </div>
         <div className="submitCon">
           <Button
-            disabled={!formData.filter(c => controlState(c, 4).visible).length}
+            className="submitBtn"
+            disabled={
+              !formData.filter(c => controlState(c, 4).visible).length ||
+              status === FILL_STATUS.NOT_IN_FILL_TIME ||
+              isPreview
+            }
             loading={submitLoading}
-            style={{ height: '40px', lineHeight: '40px' }}
+            style={{ height: '40px', lineHeight: '40px', background: themeBgColor, padding: 0 }}
             onClick={this.handleSubmit}
           >
-            <span className="InlineBlock ellipsis" style={{ maxWidth: 140 }}>
-              {submitBtnName}
-            </span>
+            <span className="InlineBlock ellipsis w100">{submitBtnName}</span>
           </Button>
         </div>
       </React.Fragment>

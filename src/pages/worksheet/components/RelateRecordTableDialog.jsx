@@ -68,7 +68,7 @@ const Content = styled.div`
 `;
 
 function Table(props) {
-  const { title, appId, worksheetId, recordId, allowEdit, formdata, control } = props;
+  const { title, appId, worksheetId, recordId, allowEdit, formdata, control, onUpdateCount } = props;
   const [loading, setLoading] = useState(true);
   return (
     <RelateRecordTable
@@ -89,6 +89,7 @@ function Table(props) {
       controls={control.relationControls}
       from={control.isDraft ? 21 : undefined}
       onRelateRecordsChange={records => {}}
+      setRelateNumOfControl={onUpdateCount}
       updateLoading={setLoading}
     />
   );
@@ -101,6 +102,7 @@ Table.propTypes = {
   formdata: PropTypes.arrayOf(PropTypes.shape({})),
   recordId: PropTypes.string,
   worksheetId: PropTypes.string,
+  onUpdateCount: PropTypes.func,
 };
 
 export default function RelateRecordTableDialog(props) {
@@ -115,6 +117,7 @@ export default function RelateRecordTableDialog(props) {
     allowEdit,
     onClose,
     reloadTable = () => {},
+    onUpdateCount = () => {},
   } = props;
   const allowOpenInNew = !control.isDraft && !_.get(window, 'shareState.shareId');
   const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
@@ -148,7 +151,7 @@ export default function RelateRecordTableDialog(props) {
           </div>
         </Header>
         <Content>
-          <Table {...{ appId, worksheetId, recordId, allowEdit, formdata, control }} />
+          <Table {...{ appId, worksheetId, recordId, allowEdit, formdata, control, onUpdateCount }} />
         </Content>
       </Con>
     </Modal>
@@ -164,6 +167,7 @@ RelateRecordTableDialog.propTypes = {
   formdata: PropTypes.arrayOf(PropTypes.shape({})),
   reloadTable: PropTypes.func,
   onClose: PropTypes.func,
+  onUpdateCount: PropTypes.func,
 };
 
 export const openRelateRelateRecordTable = props => functionWrap(RelateRecordTableDialog, props);

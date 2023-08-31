@@ -152,6 +152,15 @@ function loadMoreFinished(state = false, action) {
   }
 }
 
+function previewService(state = false, action) {
+  switch (action.type) {
+    case 'CHANGE_PREVIEW_SERVICE':
+      return action.previewService;
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   attachments,
   originAttachments,
@@ -166,4 +175,5 @@ export default combineReducers({
   isLoadingMore,
   loadMoreFinished,
   onClose,
+  previewService,
 });

@@ -6,6 +6,7 @@ import { Dialog } from 'ming-ui';
 import { Modal } from 'antd-mobile';
 import projectApi from 'src/api/project';
 import { navigateTo } from 'src/router/navigateTo';
+import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 import {
   INDIVIDUAL_NET_TEXT,
   PAID_VERSION_TO_TEXT,
@@ -66,7 +67,7 @@ class NetState extends Component {
     if (type === 'operationBtn') {
       // 体验版跳转
       if (_.includes(['experience', 'overdue'], versionType)) {
-        navigateTo(`/upgrade/choose?projectId=${projectId}`);
+        purchaseMethodFunc({ projectId });
       } else if (_.includes(['app', 'workflow', 'storage', 'portaluser'], serviceType)) {
         navigateTo(`/admin/expansionservice/${projectId}/${serviceType}`);
       } else if (_.includes(['ocr', 'portalupgrade'], serviceType)) {

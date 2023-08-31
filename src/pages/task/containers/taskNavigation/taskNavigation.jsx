@@ -11,7 +11,7 @@ import {
   setStateToStorage,
 } from '../../utils/utils';
 import { connect } from 'react-redux';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import singleFolderComm from './tpl/singleFolderComm.html';
 import singleFolder from './tpl/singleFolder.html';
 import topFolder from './tpl/topFolder.html';

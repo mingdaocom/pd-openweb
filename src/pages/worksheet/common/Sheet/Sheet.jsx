@@ -102,7 +102,11 @@ function Sheet(props) {
   );
   let { viewId } = props;
   const { loadWorksheet } = props;
-  const view = _.find(views, { viewId }) || (!viewId && !chartId && views[0]) || {};
+  const showViews = views.filter(view => {
+    const showhide = _.get(view, 'advancedSetting.showhide') || '';
+    return !showhide.includes('hpc') && !showhide.includes('hide');
+  });
+  const view = _.find(views, { viewId }) || (!viewId && !chartId && showViews[0]) || {};
   const hasGroupFilter =
     !_.isEmpty(view.navGroup) && view.navGroup.length > 0 && _.includes([sheet, gallery], String(view.viewType));
   const showQuickFilter =
@@ -157,7 +161,7 @@ function Sheet(props) {
   }, [view.viewId, worksheetId]);
 
   return (
-    <SheetContext.Provider base={basePara} value={{ config }}>
+    <SheetContext.Provider value={{ config, isRequestingRelationControls: worksheetInfo.isRequestingRelationControls }}>
       <Con className="worksheetSheet">
         {type === 'common' && worksheetInfo.name && (
           <DocumentTitle

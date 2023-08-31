@@ -5,7 +5,7 @@ import ajaxRequest from 'src/api/taskCenter';
 import { errorMessage, taskStatusDialog, getCurrentTime, formatTaskTime, formatStatus, checkIsProject, returnCustonValue } from './utils';
 import 'src/components/mdDialog/dialog';
 import Store from 'redux/configureStore';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import { addTask } from '../redux/actions';
 import singleFolder from '../containers/taskNavigation/tpl/singleFolder.html';
 import singleFolderComm from '../containers/taskNavigation/tpl/singleFolderComm.html';

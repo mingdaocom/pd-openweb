@@ -4,6 +4,7 @@ import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Button, MenuItem, Icon, Tooltip, Dialog, VerifyPasswordConfirm } from 'ming-ui';
+import mdNotification from 'ming-ui/functions/notify';
 import { verifyPassword } from 'src/util';
 import IconText from 'worksheet/components/IconText';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
@@ -88,7 +89,7 @@ export default class CustomButtons extends React.Component {
           handleTriggerCustomBtn(btn);
           return;
         }
-        _this.triggerImmediately(btn.btnId);
+        _this.triggerImmediately(btn.btnId, btn);
         triggerCallback();
       }
       if (_.get(btn, 'advancedSetting.enableremark') && remark) {
@@ -199,7 +200,7 @@ export default class CustomButtons extends React.Component {
   }
 
   @autobind
-  triggerImmediately(btnId) {
+  triggerImmediately(btnId, btn) {
     const { worksheetId, recordId, loadBtns, onButtonClick } = this.props;
     onButtonClick(btnId);
     processAjax
@@ -210,7 +211,15 @@ export default class CustomButtons extends React.Component {
         pushUniqueId: _.get(window, 'md.global.Config.pushUniqueId'),
       })
       .then(data => {
-        loadBtns();
+        if (!data) {
+          mdNotification.error({
+            title: _l('批量操作"%0"', btn.name),
+            description: _l('失败，记录不满足执行条件或流程尚未启用'),
+            duration: 3,
+          });
+        } else {
+          loadBtns();
+        }
       });
   }
 

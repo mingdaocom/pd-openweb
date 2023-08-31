@@ -40,6 +40,7 @@ export default class Header extends Component {
     addApproveWayVisible: false,
     otherActionVisible: false,
     isRequest: false,
+    isUrged: false,
   };
 
   password = '';
@@ -67,9 +68,7 @@ export default class Header extends Component {
         appId: app.id,
         workId,
       };
-      let printKey = Math.random()
-        .toString(36)
-        .substring(2);
+      let printKey = Math.random().toString(36).substring(2);
       webCacheAjax.add({
         key: `${printKey}`,
         value: JSON.stringify(printData),
@@ -210,8 +209,17 @@ export default class Header extends Component {
           logId,
           ...restPara,
         }).then(() => {
-          onSave(isStash);
-          onClose();
+          if (_.includes([13, 18], restPara.operationType)) {
+            if (isStash) {
+              alert(_l('保存成功'));
+              this.setState({ isRequest: false });
+            } else {
+              this.setState({ isRequest: false, isUrged: true });
+            }
+          } else {
+            onSave();
+            onClose();
+          }
         });
       }
     };
@@ -277,7 +285,7 @@ export default class Header extends Component {
       works,
     } = this.props;
     const { flowNode, operationTypeList, btnMap = {}, app, processName } = data;
-    const { moreOperationVisible, addApproveWayVisible, otherActionVisible, action, isRequest } = this.state;
+    const { moreOperationVisible, addApproveWayVisible, otherActionVisible, action, isRequest, isUrged } = this.state;
 
     if (errorMsg) {
       return (
@@ -339,14 +347,18 @@ export default class Header extends Component {
                     let { id, text, icon, key } = item;
                     return (
                       <Button
-                        disabled={isRequest && id === action}
+                        disabled={(isRequest && id === action) || (isUrged && id === 'urge')}
                         key={id}
                         size={'tiny'}
                         onClick={() => this.handleClick(id)}
-                        className={cx('headerBtn mLeft16', id)}
+                        className={cx('headerBtn mLeft10', id)}
                       >
-                        {icon && <Icon type={icon} className="Font16 mRight3" />}
-                        {isRequest && id === action ? _l('处理中...') : btnMap[key] || text}
+                        <Icon type={icon} className="Font16 mRight3" />
+                        {isRequest && id === action
+                          ? _l('处理中...')
+                          : isUrged && id === 'urge'
+                          ? _l('已催办')
+                          : btnMap[key] || text}
                       </Button>
                     );
                   })}

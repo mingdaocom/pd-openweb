@@ -167,10 +167,10 @@ export default class BaseMessageComponent extends React.Component {
       <div className="mTop10 pBottom10">
         {sourceId ? (
           <a href={fromLink} target="_blank" className="Gray_a NoUnderline">
-            {createTime}
+            {createTimeSpan(createTime)}
           </a>
         ) : (
-          <span className="Gray_a">{createTime}</span>
+          <span className="Gray_a">{createTimeSpan(createTime)}</span>
         )}
       </div>
     );

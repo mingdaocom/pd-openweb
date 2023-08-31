@@ -14,6 +14,7 @@ import {
   UserRange,
   EmailApproval,
   UpdateFields,
+  OperatorEmpty,
 } from '../components';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -141,10 +142,16 @@ export default class Write extends Component {
       encrypt,
       operationUserRange,
       flowNodeMap,
+      userTaskNullMap,
     } = data;
 
     if (!selectNodeId) {
       alert(_l('必须先选择一个对象'), 2);
+      return;
+    }
+
+    if (userTaskNullMap[5] && !userTaskNullMap[5].length) {
+      alert(_l('必须指定代理人'), 2);
       return;
     }
 
@@ -167,6 +174,7 @@ export default class Write extends Component {
         encrypt,
         operationUserRange,
         flowNodeMap,
+        userTaskNullMap,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -221,6 +229,7 @@ export default class Write extends Component {
   }
 
   render() {
+    const { selectNodeType } = this.props;
     const { data, showSelectUserDialog, tabIndex } = this.state;
 
     if (_.isEmpty(data)) {
@@ -236,7 +245,7 @@ export default class Write extends Component {
           bg="BGSkyBlue"
           updateSource={this.updateSource}
         />
-        <div className="flex mTop20">
+        <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">
               <div className="Font13 bold">{_l('数据对象')}</div>
@@ -249,37 +258,40 @@ export default class Write extends Component {
               />
 
               <div className="Font13 mTop25 bold">{_l('指定人')}</div>
-              {(data.accounts || []).length ? (
-                <Member accounts={data.accounts} updateSource={this.updateSource} />
-              ) : (
-                <div
-                  className="mTop12 flexRow ThemeColor3 workflowDetailAddBtn"
-                  onClick={() => this.setState({ showSelectUserDialog: true })}
-                >
-                  <i className="Font28 icon-task-add-member-circle mRight10" />
-                  {_l('指定填写人')}
-                  <SelectUserDropDown
-                    appId={this.props.relationType === 2 ? this.props.relationId : ''}
-                    visible={showSelectUserDialog}
-                    companyId={this.props.companyId}
-                    processId={this.props.processId}
-                    nodeId={this.props.selectNodeId}
-                    unique
-                    accounts={data.accounts}
-                    updateSource={this.updateSource}
-                    onClose={() => this.setState({ showSelectUserDialog: false })}
-                  />
-                </div>
-              )}
+
+              <Member accounts={data.accounts} updateSource={this.updateSource} />
+              <div
+                className="mTop12 flexRow ThemeColor3 workflowDetailAddBtn"
+                onClick={() => this.setState({ showSelectUserDialog: true })}
+              >
+                <i className="Font28 icon-task-add-member-circle mRight10" />
+                {_l('指定填写人')}
+                <SelectUserDropDown
+                  appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                  visible={showSelectUserDialog}
+                  companyId={this.props.companyId}
+                  processId={this.props.processId}
+                  nodeId={this.props.selectNodeId}
+                  accounts={data.accounts}
+                  updateSource={this.updateSource}
+                  onClose={() => this.setState({ showSelectUserDialog: false })}
+                />
+              </div>
 
               {this.renderTabs()}
 
               {tabIndex === 1 && (
                 <Fragment>
-                  <div className="Font13 mTop25 bold">{_l('操作')}</div>
+                  <div className="Font13 mTop25 bold">{_l('填写人操作')}</div>
                   <Checkbox
                     className="mTop15 flexRow"
-                    text={_l('允许转交他人填写')}
+                    text={_l('暂存')}
+                    checked={_.includes(data.operationTypeList, 13)}
+                    onClick={checked => this.switchWriteSettings(!checked, 13)}
+                  />
+                  <Checkbox
+                    className="mTop15 flexRow"
+                    text={_l('转交他人填写')}
                     checked={_.includes(data.operationTypeList, 10)}
                     onClick={checked => this.switchWriteSettings(!checked, 10)}
                   />
@@ -293,11 +305,13 @@ export default class Write extends Component {
                       updateSource={({ accounts }) => this.updateSource({ operationUserRange: { [10]: accounts } })}
                     />
                   )}
-                  <Checkbox
-                    className="mTop15 flexRow"
-                    text={_l('允许填写人暂存')}
-                    checked={_.includes(data.operationTypeList, 13)}
-                    onClick={checked => this.switchWriteSettings(!checked, 13)}
+
+                  <OperatorEmpty
+                    projectId={this.props.companyId}
+                    title={_l('填写人为空时')}
+                    showDefaultItem
+                    userTaskNullMap={data.userTaskNullMap}
+                    updateSource={userTaskNullMap => this.updateSource({ userTaskNullMap })}
                   />
 
                   <div className="Font13 mTop25 bold">{_l('安全')}</div>
@@ -334,7 +348,7 @@ export default class Write extends Component {
                   <EmailApproval
                     {...this.props}
                     title={_l('启用邮件通知')}
-                    desc={_l('启用后，待办消息同时会以邮件的形式发送给相关负责人')}
+                    desc={md.global.Config.IsPlatformLocal ? _l('启用后，待办消息同时会以邮件的形式发送给相关负责人；邮件0.03元/封，自动从账务中心扣费') : _l('启用后，待办消息同时会以邮件的形式发送给相关负责人')}
                     flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
                     updateSource={obj => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj)}
                   />
@@ -403,7 +417,6 @@ export default class Write extends Component {
                         nodeId={data.flowNodeMap[OPERATION_TYPE.BEFORE].selectNodeId}
                         controls={data.flowNodeMap[OPERATION_TYPE.BEFORE].controls.filter(o => o.type !== 29)}
                         fields={data.flowNodeMap[OPERATION_TYPE.BEFORE].fields}
-                        showCurrent
                         formulaMap={data.flowNodeMap[OPERATION_TYPE.BEFORE].formulaMap}
                         updateSource={(obj, callback = () => {}) =>
                           this.updateSource(

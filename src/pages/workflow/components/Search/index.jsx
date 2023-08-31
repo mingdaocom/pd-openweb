@@ -17,6 +17,13 @@ export default class Search extends Component {
     onFocus: _.noop,
   };
   state = { value: '' };
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.value !== this.props.value) {
+      this.setState({
+        value: nextProps.value,
+      });
+    }
+  }
   handleChange = value => {
     this.setState({ value });
     this.props.handleChange(value);
@@ -35,7 +42,11 @@ export default class Search extends Component {
           onChange={e => this.handleChange(e.target.value)}
         />
         <Icon icon="workflow_find" className="search Gray_9e Font16" />
-        <Icon icon="close" onClick={() => this.handleChange('')} className={cx('close pointer', { hide: !value.length })} />
+        <Icon
+          icon="close"
+          onClick={() => this.handleChange('')}
+          className={cx('close pointer', { hide: !value.length })}
+        />
       </div>
     );
   }

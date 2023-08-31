@@ -124,6 +124,8 @@ export const convertControl = type => {
       return 'Search'; // api查询--下拉框
     case 51:
       return 'RelationSearch'; // 查询记录
+    case 52:
+      return 'Section'; // 分段
   }
 };
 
@@ -168,7 +170,7 @@ function formatRowToServer(row, controls = [], { isDraft } = {}) {
   return Object.keys(row)
     .map(key => {
       const c = _.find(controls, c => c.controlId === key);
-      if (!c) {
+      if (!c || key === 'rowid') {
         return undefined;
       } else {
         return _.pick(
@@ -269,7 +271,7 @@ export function formatControlToServer(
     case 29:
       parsedValue = safeParse(control.value);
       if (_.isArray(parsedValue)) {
-        if (isNewRecord || needFullUpdate || isRelateRecordDropdown || isSingleRelateRecord) {
+        if (isDraft || isNewRecord || needFullUpdate || isRelateRecordDropdown || isSingleRelateRecord) {
           result.value = _.isArray(parsedValue)
             ? JSON.stringify(
                 parsedValue
@@ -373,6 +375,17 @@ export function formatControlToServer(
         }
       }
       break;
+    case 42: // 签名（草稿箱新增编辑传参同新建记录传参）
+      if (isDraft) {
+        let val = control.value && JSON.parse(JSON.stringify(control.value));
+        result.value = _.isObject(val)
+          ? result.value
+          : JSON.stringify({
+              bucket: 4,
+              key: val.match(/Sign\/[0-9a-z-]+\/[0-9a-z]+\/\d+\/[0-9a-zA-Z]+(.png)/g)[0],
+            });
+      }
+      break;
   }
 
   return result;
@@ -428,7 +441,7 @@ export const controlState = (data, from) => {
     editable: true,
   };
 
-  if (_.includes([FROM.NEWRECORD, FROM.PUBLIC, FROM.H5_ADD, FROM.DRAFT], from)) {
+  if (_.includes([FROM.NEWRECORD, FROM.PUBLIC_ADD, FROM.H5_ADD, FROM.DRAFT], from)) {
     state.visible = fieldPermission[0] === '1' && fieldPermission[2] === '1' && controlPermissions[2] === '1';
     state.editable = fieldPermission[1] === '1';
   } else {
@@ -747,7 +760,7 @@ export const checkMobileVerify = (data, smsVerificationFiled) => {
   if (!selectControl) return false;
   // 手机号是否是电话 | 手机号只读 ｜ 手机号隐藏
   if (selectControl.type !== 3) return false;
-  if (!controlState(selectControl, FROM.PUBLIC).editable || !controlState(selectControl, FROM.PUBLIC).visible)
+  if (!controlState(selectControl, FROM.PUBLIC_ADD).editable || !controlState(selectControl, FROM.PUBLIC_ADD).visible)
     return false;
   if (!selectControl.value) return false;
   return true;
@@ -831,7 +844,7 @@ export const halfSwitchSize = (item, from) => {
       item.enumDefault === 1 &&
       parseInt(item.advancedSetting.showtype, 10) === 3 &&
       from !== FROM.H5_ADD &&
-      from !== FROM.PUBLIC);
+      from !== FROM.PUBLIC_ADD);
 
   return half ? 6 : 12;
 };

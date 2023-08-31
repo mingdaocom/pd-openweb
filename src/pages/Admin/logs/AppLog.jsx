@@ -5,7 +5,6 @@ import Config from '../config';
 import styled from 'styled-components';
 
 const AppLogWrap = styled.div`
-  margin: 16px;
   flex: 1;
   min-height: 0;
   background-color: #ffffff;
@@ -39,7 +38,7 @@ export default class AppLog extends Component {
     const { appId, projectId } = _.get(this.props, 'match.params') || '';
 
     return (
-      <AppLogWrap style={{ height: appId ? 'calc(100% - 32px)' : '100%' }}>
+      <AppLogWrap className="orgManagementWrap" style={{ height: appId ? 'calc(100% - 32px)' : '100%' }}>
         {!appId && <AdminTitle prefix={_l('日志 - 应用')} />}
 
         <AppAndWorksheetLog projectId={appId ? projectId : Config.projectId} appId={appId} />

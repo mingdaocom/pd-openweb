@@ -64,7 +64,7 @@ export default class UserHead extends React.Component {
   bindCard = () => {
     const $this = $(ReactDom.findDOMNode(this));
     let { opHtml, projectId } = this.props;
-    if (!this.props.bindBusinessCard || window.isPublicApp) {
+    if (!this.props.bindBusinessCard || window.isPublicApp || !md.global.Account.accountId) {
       return false;
     }
     // 特殊角色不用hover出名片层

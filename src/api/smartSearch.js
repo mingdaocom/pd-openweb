@@ -58,4 +58,55 @@ export default {
      
      return $.api('SmartSearch', 'SearchApp', args, options);
    },
+  /**
+  * 获取过滤总数
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFilterCount: function (args, options = {}) {
+     
+     return $.api('SmartSearch', 'GetFilterCount', args, options);
+   },
+  /**
+  * 获取过滤列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFilters: function (args, options = {}) {
+     
+     return $.api('SmartSearch', 'GetFilters', args, options);
+   },
+  /**
+  * 设置过滤项目
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {} args.itemType 过滤的应用项类型,0 = 工作表，1= 自定义页面,2 = 分组,3 = 应用
+  * @param {string} args.itemId 过滤的应用项id
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setFilter: function (args, options = {}) {
+     
+     return $.api('SmartSearch', 'SetFilter', args, options);
+   },
+  /**
+  * 删除过滤项目
+  * @param {Object} args 请求参数
+  * @param {string} args.itemId 过滤的应用项id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   removeFilter: function (args, options = {}) {
+     
+     return $.api('SmartSearch', 'RemoveFilter', args, options);
+   },
 };

@@ -2,12 +2,12 @@ import React, { useEffect } from 'react';
 import { useDrag } from 'react-dnd-latest';
 import { getEmptyImage } from 'react-dnd-html5-backend-latest';
 import { v4 as uuidv4 } from 'uuid';
-import { DRAG_ITEMS, DRAG_MODE } from '../config/Drag';
-import { DEFAULT_DATA } from '../config/widget';
+import { DRAG_ITEMS } from '../config/Drag';
+import { DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../config/widget';
 import { enumWidgetType } from '../util';
 import { buriedUpgradeVersionDialog } from 'src/util';
 
-export default function DraggableItem({ activeWidget, item, addWidget, globalSheetInfo }) {
+export default function DraggableItem({ activeWidget = {}, item, addWidget, globalSheetInfo }) {
   const { widgetName, icon, enumType, featureType } = item;
 
   const handleAdd = para => {
@@ -15,6 +15,8 @@ export default function DraggableItem({ activeWidget, item, addWidget, globalShe
       buriedUpgradeVersionDialog(globalSheetInfo.projectId, item.featureId);
       return;
     }
+    // 分段禁止多层嵌套
+    if (activeWidget.type === 52 && enumWidgetType[enumType] === 52) return;
     const data = {
       ...DEFAULT_DATA[enumType],
       type: enumWidgetType[enumType],
@@ -24,7 +26,7 @@ export default function DraggableItem({ activeWidget, item, addWidget, globalShe
   };
 
   const [collectDrag, drag, preview] = useDrag({
-    item: { enumType: enumType, type: DRAG_ITEMS.LIST_ITEM },
+    item: { enumType: enumType, type: DRAG_ITEMS.LIST_ITEM, widgetType: WIDGETS_TO_API_TYPE_ENUM[enumType] },
 
     previewOptions: { captureDraggingState: true },
 

@@ -21,18 +21,39 @@ import SelectApp from './modules/SelectApp';
 import AppLog from './modules/AppLog';
 import { Drawer } from 'antd';
 import EventEmitter from 'events';
-import {  getFeatureStatus, buriedUpgradeVersionDialog, addBehaviorLog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, addBehaviorLog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
+import PaginationWrap from '../components/PaginationWrap';
 import _ from 'lodash';
 import moment from 'moment';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
+import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 
 export const emitter = new EventEmitter();
 
 const optionData = [
-  { label: _l('导入应用'), icon: 'reply1', action: 'handleImport', hasBeta: true, featureId: 2 },
-  { label: _l('批量导出'), icon: 'cloud_download', action: 'handleExportAll', hasBeta: true, featureId: 2 },
+  {
+    label: _l('导入应用'),
+    icon: 'reply1',
+    action: 'handleImport',
+    hasBeta: true,
+    featureId: VersionProductType.appImportExport,
+  },
+  {
+    label: _l('批量导出'),
+    icon: 'cloud_download',
+    action: 'handleExportAll',
+    hasBeta: true,
+    featureId: VersionProductType.appImportExport,
+  },
   { label: _l('日志'), icon: 'assignment', action: 'handleLog', hasBeta: false },
-  { label: _l('应用回收站'), icon: 'knowledge-recycle', action: 'openAppTrash', hasBeta: false, featureId: 16 },
+  {
+    label: _l('应用回收站'),
+    icon: 'knowledge-recycle',
+    action: 'openAppTrash',
+    hasBeta: false,
+    featureId: VersionProductType.recycle,
+  },
 ];
 
 const dialogHeader = {
@@ -58,7 +79,6 @@ export default class AppManagement extends Component {
       pageIndex: 1,
       keyword: '',
 
-      isMore: true,
       loading: false,
       checkAdmin: {
         id: '',
@@ -82,7 +102,7 @@ export default class AppManagement extends Component {
 
   componentDidMount() {
     const { projectId } = this.props.match.params;
-    this.getAppList(projectId);
+    this.getAppList();
     this.checkExportOrImportAuth(projectId);
     this.getOnlyManagerCreateApp(projectId);
   }
@@ -96,13 +116,12 @@ export default class AppManagement extends Component {
         order: 3,
         pageIndex: 1,
         keyword: '',
-        isMore: true,
         loading: false,
         isFree: false,
       });
 
       const { projectId } = nextProps.match.params;
-      this.getAppList(projectId);
+      this.getAppList();
       this.checkExportOrImportAuth(projectId);
       this.getOnlyManagerCreateApp(projectId);
     }
@@ -128,13 +147,9 @@ export default class AppManagement extends Component {
   /**
    * 获取应用列表
    */
-  getAppList(projectId) {
-    const { status, order, pageIndex, keyword, loading, isMore } = this.state;
-
-    // 加载更多
-    if (pageIndex > 1 && ((loading && isMore) || !isMore)) {
-      return;
-    }
+  getAppList() {
+    const { status, order, pageIndex, keyword } = this.state;
+    const { projectId } = this.props.match.params;
 
     this.setState({ loading: true });
 
@@ -147,19 +162,17 @@ export default class AppManagement extends Component {
       status,
       order,
       pageIndex,
-      pageSize: 30,
+      pageSize: 50,
       keyword: keyword.trim(),
       containsLink: true,
     });
     this.postList.then(({ apps, maxCount, total, count }) => {
       this.setState({
-        list: pageIndex === 1 ? apps : this.state.list.concat(apps),
-        pageIndex: pageIndex + 1,
+        list: apps,
         maxCount,
         total,
         count,
         loading: false,
-        isMore: apps.length === 30,
       });
     });
   }
@@ -184,9 +197,9 @@ export default class AppManagement extends Component {
     }
 
     return (
-      <ScrollView className="flex" onScrollEnd={this.searchDataList}>
+      <ScrollView className="flex">
         {list.filter(item => !_.includes(hiddenIds, item.appId)).map(item => this.renderListItem(item))}
-        {loading && pageIndex > 1 && <LoadDiv className="mTop15" size="small" />}
+        {loading && <LoadDiv className="mTop15" size="small" />}
       </ScrollView>
     );
   }
@@ -197,7 +210,7 @@ export default class AppManagement extends Component {
   renderListItem(item) {
     const { projectId } = this.props.match.params;
     const { list, hiddenIds } = this.state;
-    const featureType = getFeatureStatus(projectId, 2);
+    const featureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
     return (
       <div className="flexRow manageList" key={item.appId}>
         <div className={cx('iconWrap mLeft10', { unable: !item.status })} style={{ backgroundColor: item.iconColor }}>
@@ -252,15 +265,15 @@ export default class AppManagement extends Component {
           <div className="mLeft12 ellipsis flex mRight20">{item.createAccountInfo.fullName}</div>
         </div>
         <div className="w50 mRight20 TxtCenter flexRow">
-          {getFeatureStatus(projectId, 17) && (
+          {getFeatureStatus(projectId, VersionProductType.analysis) && (
             <Tooltip text={<span>{_l('使用分析')}</span>}>
               <span
                 className={cx('Gray_9e Hand Font18 icon-worksheet_column_chart Hover_49 mRight16 chartIcon', {
                   isShow: item.createType !== 1,
                 })}
                 onClick={() => {
-                  if (getFeatureStatus(projectId, 17) === '2') {
-                    buriedUpgradeVersionDialog(projectId, 17);
+                  if (getFeatureStatus(projectId, VersionProductType.analysis) === '2') {
+                    buriedUpgradeVersionDialog(projectId, VersionProductType.analysis);
                     return;
                   }
                   window.open(`/app/${item.appId}/analytics/${projectId}`, '__blank');
@@ -275,12 +288,12 @@ export default class AppManagement extends Component {
             popup={() => {
               return (
                 <ul className="optionPanelTrigger">
-                  {item.isLock || item.isGoods || !featureType || item.createType === 1 ? null : (
+                  {!featureType || item.isLock || item.isGoods || !featureType || item.createType === 1 ? null : (
                     <li
                       onClick={() => {
                         if (featureType === '2') {
                           this.setState({ rowVisible: false });
-                          buriedUpgradeVersionDialog(projectId, 2);
+                          buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
                           return;
                         }
                         this.handleExport([item]);
@@ -406,9 +419,9 @@ export default class AppManagement extends Component {
   // 应用回收站
   openAppTrash() {
     const { projectId } = this.props.match.params;
-    const featureType = getFeatureStatus(projectId, 16);
+    const featureType = getFeatureStatus(projectId, VersionProductType.recycle);
     if (featureType === '2') {
-      buriedUpgradeVersionDialog(projectId, 16);
+      buriedUpgradeVersionDialog(projectId, VersionProductType.recycle);
     } else {
       this.setState({ appTrashVisible: true });
     }
@@ -612,8 +625,7 @@ export default class AppManagement extends Component {
    * 搜索数据
    */
   searchDataList = _.throttle(() => {
-    const { projectId } = this.props.match.params;
-    this.getAppList(projectId);
+    this.getAppList();
   }, 200);
 
   /**
@@ -669,10 +681,10 @@ export default class AppManagement extends Component {
     ];
 
     return (
-      <div className="appManagementList flex flexColumn">
+      <div className="orgManagementWrap appManagementList flex flexColumn">
         <AdminTitle prefix={_l('应用')} />
 
-        <div className="appManagementHeader flexRow">
+        <div className="orgManagementHeader flexRow">
           <div className="Font17 bold flex">
             {_l('应用')}
             {total ? `（${total}）` : ''}
@@ -751,13 +763,16 @@ export default class AppManagement extends Component {
                 {_l('升级版本')}
               </Link>
             ) : (
-              <Link
-                className={cx('ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline')}
-                to={`/upgrade/choose?projectId=${this.props.match.params.projectId}`}
+              <a
+                href="javascript:void(0);"
+                className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
+                onClick={() => {
+                  purchaseMethodFunc({ projectId: this.props.match.params.projectId });
+                }}
               >
                 {_l('购买付费版')}
-              </Link>
-            )} */}
+              </a>
+            )}*/}
           </div>
         )}
 
@@ -809,9 +824,16 @@ export default class AppManagement extends Component {
           <div className="w50 mRight20" />
         </div>
 
-        {loading && pageIndex === 1 && <LoadDiv className="mTop15" />}
+        {loading && <LoadDiv className="mTop15" />}
 
         <div className="flex flexColumn mTop16">{this.renderList()}</div>
+
+        <PaginationWrap
+          total={total}
+          pageIndex={pageIndex}
+          pageSize={50}
+          onChange={pageIndex => this.setState({ pageIndex }, this.getAppList)}
+        />
 
         <Dialog
           visible={checkAdmin.visible}

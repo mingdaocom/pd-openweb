@@ -1,7 +1,6 @@
 ﻿.adminStructureBox {
   box-sizing: border-box;
   height: 100%;
-  padding: 16px;
   .adminStructureContent {
     background: #fff;
     border-radius: 4px;
@@ -11,6 +10,7 @@
     .adminStructure {
       width: 280px;
       border-right: 1px solid #eaeaea;
+      border-left: 1px solid #eaeaea;
       .headerInfo {
         height: 48px;
         line-height: 57px;
@@ -33,7 +33,7 @@
 
           .btnSearch {
             font-size: 18px;
-            
+
             position: absolute;
 
             margin: 7px 14px;
@@ -175,8 +175,10 @@
       padding-top: 14px;
       .departmentTitle {
         height: 44px;
-        font-weight: 500;
+        font-weight: 600;
         padding: 0px 24px 16px 24px;
+        display: flex;
+        align-items: center;
         .departmentNameValue {
           display: inline-block;
           max-width: 500px;
@@ -190,9 +192,7 @@
           border-radius: 6px;
           .Checkbox-box {
             transform: scale(0.7);
-            vertical-align: top;
-            margin-top: 2px;
-            margin-right: 4px;
+            vertical-align: middle;
           }
         }
         .noDepartment.bgColorHover:hover {
@@ -494,6 +494,19 @@
                       z-index: 1;
                       background-color: #fff;
                       padding: 0 30px;
+                      .icon-moreop {
+                        width: 24px;
+                        height: 24px;
+                        display: inline-block;
+                        line-height: 24px;
+                        text-align: center;
+                        font-size: 20px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        &:hover {
+                          background: #fff;
+                        }
+                      }
                     }
                   }
                   .fixedLeft {

@@ -139,7 +139,7 @@ class ViewConfigCon extends Component {
       : NORMAL_SYSTEM_FIELDS_SORT;
     const syssort = getAdvanceSetting(view, 'syssort') || defaultSysSort.filter(o => !controls.includes(o));
     const sysids = getAdvanceSetting(view, 'sysids') || [];
-    const customShowControls = getAdvanceSetting(view, 'customShowControls') || [];
+    const customShowControls = getAdvanceSetting(view, 'customShowControls') || showControls || [];
     // sysids：显示的系统字段 syssort：系统字段顺序
     const config = {
       name: view.name,
@@ -825,7 +825,7 @@ class ViewConfigCon extends Component {
   };
 
   renderSetting = () => {
-    const { viewSetting, customdisplay = '0' } = this.state;
+    const { viewSetting, customdisplay = '0', customShowControls, showControls } = this.state;
     const {
       showCreateCustomBtnFn,
       worksheetId,
@@ -916,6 +916,7 @@ class ViewConfigCon extends Component {
                 this.setState(
                   {
                     customdisplay: '0',
+                    customShowControls: showControls,
                   },
                   () => {
                     this.handleSave({
@@ -928,11 +929,11 @@ class ViewConfigCon extends Component {
                   {
                     customdisplay: '1',
                     showControls:
-                      (this.state.customShowControls || []).length !== 0
-                        ? this.state.customShowControls
+                      (customShowControls || []).length !== 0
+                        ? customShowControls
                         : filteredColumns
                             .filter(l => l.controlId.length > 20)
-                            .slice(0, 30)
+                            .slice(0, 50)
                             .map(c => c.controlId),
                   },
                   () => {

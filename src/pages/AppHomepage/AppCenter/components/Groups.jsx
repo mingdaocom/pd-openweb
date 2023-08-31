@@ -8,6 +8,7 @@ import { VerticalMiddle, FlexCenter } from 'worksheet/components/Basics';
 import { navigateTo } from 'router/navigateTo';
 import homeAppAjax from 'src/api/homeApp';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
 import GroupsSkeleton from './GroupsSkeleton';
 import EditGroup from './EditGroup';
@@ -160,7 +161,7 @@ export default function Groups(props) {
     ...item,
     groups: _.sortBy(item.groups, g => (sorts[item.type] || []).indexOf(g.id)),
   }));
-  const featureType = getFeatureStatus(projectId, 16);
+  const featureType = getFeatureStatus(projectId, VersionProductType.recycle);
   const expandBtn = (
     <BaseBtnCon
       className={isFolded ? 'mLeft16' : ''}
@@ -251,7 +252,7 @@ export default function Groups(props) {
                 }
                 onClick={() => {
                   if (featureType === '2') {
-                    buriedUpgradeVersionDialog(projectId, 16);
+                    buriedUpgradeVersionDialog(projectId, VersionProductType.recycle);
                   } else {
                     setTrashVisible(true);
                   }

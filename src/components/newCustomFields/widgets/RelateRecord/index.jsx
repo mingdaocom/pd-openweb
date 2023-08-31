@@ -77,6 +77,9 @@ export default class Widgets extends Component {
     } catch (err) {
       return [];
     }
+    if (!_.isObject(data)) {
+      return [];
+    }
     return _.isArray(data) ? data : [data];
   }
 
@@ -148,6 +151,7 @@ export default class Widgets extends Component {
             multiple={enumDefault === 2}
             showCoverAndControls={advancedSetting.ddset === '1'}
             onChange={this.handleChange}
+            from={from}
           />
         ) : (
           <RelateRecordDropdown

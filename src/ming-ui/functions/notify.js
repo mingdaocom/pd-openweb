@@ -18,7 +18,7 @@ const Btn = styled.div`
   cursor: pointer;
 `;
 
-function renderBtnList(list) {
+export function renderBtnList(list) {
   return (
     <div>
       {list.reverse().map(btn => (

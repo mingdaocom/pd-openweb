@@ -40,7 +40,7 @@ export default function AppPkgSimpleHeader(props) {
   const text = isLog ? _l('日志') : isAnalytics ? _l('使用分析') : '';
 
   const getAppDetail = () => {
-    homeApp.getAppDetail({ appId }).then(appDetail => {
+    homeApp.getApp({ appId }).then(appDetail => {
       setAppDetail(appDetail);
 
       //   navigateTo(`/app/${appId}`);

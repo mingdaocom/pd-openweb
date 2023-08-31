@@ -9,15 +9,15 @@ import Components from './components';
 import { getVerifyInfo } from '../util/setting';
 
 export default function WidgetDisplay(props) {
-  const { data = {}, activeWidget, allControls, actualControls, styleInfo: { info = {} } = {} } = props;
-  const { type, sourceControlType, required, hint, unit, desc, strDefault } = data;
+  const { data = {}, activeWidget, allControls = [], actualControls, styleInfo: { info = {} } = {}, fromType } = props;
+  const { type, sourceControlType, required, hint, unit, desc, strDefault, controlId } = data;
   const { prefix, suffix, hidetitle } = getAdvanceSetting(data);
   const { titlelayout_pc = '1', titlewidth_pc = '100', align_pc = '1' } = info;
 
   // 分割线字段
   const isSplitLine = type === 22;
   const isSpecialControl = includes([22, 10010], type);
-  const isActive = data.controlId === (activeWidget || {}).controlId;
+  const isActive = controlId === (activeWidget || {}).controlId;
 
   // 他表字段
   const showIcon = type === 30 && (strDefault || '')[0] !== '1';
@@ -55,6 +55,16 @@ export default function WidgetDisplay(props) {
     );
   };
 
+  if (type === 52) {
+    return (
+      <TitleContentWrap>
+        <div className="flex overflow_ellipsis">
+          <Component {...props} />
+        </div>
+      </TitleContentWrap>
+    );
+  }
+
   return (
     <TitleContentWrap displayRow={displayRow} titleWidth={titlewidth_pc} textAlign={align_pc}>
       <div className={cx('nameAndStatus', { minHeight18: !isSpecialControl && hidetitle === '1' })}>
@@ -66,7 +76,7 @@ export default function WidgetDisplay(props) {
 
       <div className="flex overflow_ellipsis">
         {includes(NEED_SPECIAL_DISPLAY_CONTROLS, type) ? (
-          <Component data={data} controls={actualControls} displayRow={displayRow} />
+          <Component data={data} controls={actualControls} displayRow={displayRow} fromType={fromType} />
         ) : (
           <CommonDisplay>
             {prefix && <div className="unit prefix">{prefix}</div>}

@@ -142,6 +142,7 @@ function getDefaultRelateSheetValue({ worksheetId, control, recordId, rowFormDat
 
 export default forwardRef(function RelateRecordTags(props, ref) {
   const {
+    from,
     disabled,
     isediting,
     rowIndex,
@@ -161,6 +162,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
   const [addedIds, setAddedIds] = useState(props.addedIds || []);
   const [deletedIds, setDeletedIds] = useState(props.deletedIds || []);
   const conRef = useRef(null);
+  const cache = useRef({});
   const allowNewRecord = control.enumDefault2 !== 1 && control.enumDefault2 !== 11 && !window.isPublicWorksheet;
   const multiple = control.enumDefault === 2;
   const allowRemove = control.advancedSetting.allowcancel !== '0' || !multiple;
@@ -171,39 +173,35 @@ export default forwardRef(function RelateRecordTags(props, ref) {
     { width: style.width, maxHeight: style.height },
   );
   useClickAway(conRef, e => {
-    if (
-      !e.target.closest(
-        [
-          '.searchRelateRecordsModal',
-          '.recordCardListDialog',
-          '.worksheetRelateNewRecordFromSelectRelateRecord',
-          '.worksheetRelateNewRecordFromTags',
-          '.mdDialog',
-          '.mui-dialog-container',
-          '.UploadFilesTriggerWrap',
-          '.rc-trigger-popup',
-          '#attachemntsPreviewContainer',
-        ].join(','),
-      ) ||
-      e.target.contains(conRef.current)
-    ) {
+    if (!cache.current.isActive) {
       onClose({ deletedIds, addedIds, records, count, changed });
     }
   });
+  function openDialogCallback() {
+    cache.current.isActive = true;
+    onOpenDialog();
+  }
+  function closeDialogCallback() {
+    cache.current.isActive = false;
+    onCloseDialog();
+  }
   useEffect(() => {
     setRecords(props.records);
   }, [JSON.stringify(props.records.map(r => r.rowid))]);
   function handleOpenRecord({ appId, worksheetId, recordId, viewId }) {
+    openDialogCallback();
     openRecordInfo({
       appId: appId,
       worksheetId: worksheetId,
       recordId,
       viewId,
+      onClose: closeDialogCallback,
     });
   }
   function handleSearchRecords() {
-    onOpenDialog();
+    openDialogCallback();
     searchRecordInDialog({
+      from,
       disabled: disabled || !allowRemove,
       title: control.controlName,
       worksheetId: worksheetId,
@@ -231,14 +229,14 @@ export default forwardRef(function RelateRecordTags(props, ref) {
         setDeletedIds([...deletedIds, deletedRecord.rowid]);
         setCount(count - 1);
       },
-      onClose: onCloseDialog,
+      onCancel: closeDialogCallback,
     });
   }
   function handleSelectRecords() {
     if (!allowSelect || !canAdd) {
       return;
     }
-    onOpenDialog();
+    openDialogCallback();
     selectRecord({
       // canSelectAll: true,
       multiple,
@@ -260,7 +258,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
         setAddedIds([...addedIds, ...selectedRecords.map(r => r.rowid)]);
         setCount(count + selectedRecords.length);
       },
-      onClose: onCloseDialog,
+      onClose: closeDialogCallback,
     });
   }
   useImperativeHandle(ref, () => ({
@@ -294,10 +292,13 @@ export default forwardRef(function RelateRecordTags(props, ref) {
           const text = getTitleTextFromRelateControl(control, record);
           return (
             <Tag
-              className={cx('ellipsis', { isediting, allowOpenRecord, allowRemove })}
+              className={cx('ellipsis', { isediting, allowOpenRecord: allowOpenRecord && record.rowid, allowRemove })}
               key={i}
               title={text}
               onClick={e => {
+                if (!record.rowid) {
+                  return;
+                }
                 e.stopPropagation();
                 if (allowOpenRecord) {
                   if (location.pathname.indexOf('public') === -1) {
@@ -350,6 +351,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
               if (allowSelect) {
                 handleSelectRecords();
               } else if (allowNewRecord) {
+                openDialogCallback();
                 addRecord({
                   showFillNext: true,
                   directAdd: true,
@@ -366,7 +368,9 @@ export default forwardRef(function RelateRecordTags(props, ref) {
                     setRecords(records.concat(record));
                     setAddedIds([...addedIds, record.rowid]);
                     setCount(count + 1);
+                    closeDialogCallback();
                   },
+                  onCloseDialog: closeDialogCallback,
                 });
               }
             }}

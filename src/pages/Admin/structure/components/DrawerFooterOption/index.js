@@ -231,6 +231,7 @@ export default function DrawerFooterOption(props) {
                     .done(function (result) {
                       if (result) {
                         clickSave();
+                        props.fetchInActive();
                       } else {
                         alert(_l('取消失败'), 2);
                       }
@@ -275,6 +276,7 @@ export default function DrawerFooterOption(props) {
           setValue={({ isOk = false }) => {
             if (isOk) {
               clickSave();
+              props.fetchApproval();
             }
             setShowRefuseUserJoin(false);
           }}

@@ -655,7 +655,7 @@ export default class GetMoreRecord extends Component {
       appList.push({ id: appId, name, otherApkId, otherApkName });
     }
 
-    this.updateSource({ appId, appList, conditions: [], fields: [], controls: [] }, () => {
+    this.updateSource({ appId, appList, conditions: [], filters: [], fields: [], controls: [] }, () => {
       this.getWorksheetFields(appId);
     });
   };
@@ -676,7 +676,7 @@ export default class GetMoreRecord extends Component {
           bg="BGYellow"
           updateSource={this.updateSource}
         />
-        <div className="flex mTop20">
+        <div className="flex">
           <ScrollView>{this.renderContent()}</ScrollView>
         </div>
         <DetailFooter

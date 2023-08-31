@@ -53,7 +53,7 @@ export default class ImportApp extends React.Component {
       init: {
         BeforeUpload: (up, file) => {
           if (File.GetExt(file.name) != 'mdy') {
-            alert(_l('上传失败，文件类型错误'), 3, 1000);
+            alert(_l('上传失败，文件类型错误'), 2, 1000);
             return false;
           }
           this.setState({ file: file });

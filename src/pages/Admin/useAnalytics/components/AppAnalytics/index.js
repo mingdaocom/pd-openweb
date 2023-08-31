@@ -48,6 +48,15 @@ export default class AppAnalytics extends Component {
     };
   }
   componentDidMount() {
+    this.getData();
+  }
+  componentDidUpdate() {
+    if (this.state.currentTab === 1) {
+      this.getData();
+    }
+  }
+
+  getData = () => {
     if (this.analysisEle) {
       this.analysisEle.getAuthor().then(res => {
         const [data1, data2] = res;
@@ -61,7 +70,7 @@ export default class AppAnalytics extends Component {
         }
       });
     }
-  }
+  };
   render() {
     const { projectId, appId } = _.get(this.props, 'match.params') || {};
     let { currentTab, isAuthority } = this.state;

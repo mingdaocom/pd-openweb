@@ -122,9 +122,9 @@ export default class RoleAuth extends React.Component {
           render={({ match }) => {
             if (!this.state.isSuperAdmin) return null;
             return (
-              <div className="roleListAction flexRow">
+              <div className="roleListAction flexRow alignItemsCenter">
                 <Checkbox
-                  className="mRight40 lineHeight36 "
+                  className="lineHeight36"
                   checked={allowApplyManage}
                   onClick={val => {
                     this.setState({ allowApplyManage: !val }, () => {

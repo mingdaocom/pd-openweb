@@ -104,6 +104,7 @@ export default class SelectApprovalProcess extends Component {
               className="w100"
               placeholder={_l('请选择')}
               noData={_l('没有可选的应用')}
+              openSearch
               value={selectAppId}
               data={appList}
               onChange={id => {
@@ -121,6 +122,7 @@ export default class SelectApprovalProcess extends Component {
               className="w100"
               placeholder={_l('请选择')}
               noData={_l('没有可选的审批流程')}
+              openSearch
               value={selectProcessId}
               data={processList}
               onChange={id => this.setState({ selectProcessId: id })}

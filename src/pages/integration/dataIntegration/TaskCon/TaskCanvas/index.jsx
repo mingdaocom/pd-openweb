@@ -4,7 +4,7 @@ import domtoimage from 'dom-to-image';
 import { saveAs } from 'file-saver';
 import styled from 'styled-components';
 import ToolBar from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/ToolBar';
-import EditCon from './EditCon.jsx/index.jsx';
+import EditCon from './EditCon/index.jsx';
 import TaskNode from './TaskNode';
 import { formatTaskNodeData, formatDataWithLine } from './util';
 import _ from 'lodash';
@@ -104,8 +104,8 @@ class TaskCanvas extends Component {
     const { flowNodes } = this.state;
     const { toAdd = [], toUpdate = [], toDeleteIds = [], srcIsDb } = data;
     const updateIds = (toUpdate || []).map(o => o.nodeId);
-    let map = _.omit(flowNodes, [...updateIds]);
-    map = _.omit(map, [(toDeleteIds || [])[0] || '']);
+    let map = _.omit(flowNodes, updateIds);
+    map = _.omit(map, toDeleteIds || []);
     [...(toUpdate || []), ...(toAdd || [])].map(o => {
       map[o.nodeId] = o;
     });
@@ -123,18 +123,33 @@ class TaskCanvas extends Component {
   };
 
   //更新节点信息
-  updateNode = node => {
-    const { currentProjectId: projectId, onUpdate } = this.props;
-    const { flowId = '', list = [] } = this.state;
+  updateNode = (node, forName) => {
+    const { currentProjectId: projectId } = this.props;
+    const { flowId = '' } = this.state;
     const { nodeId, name, nodeType, nodeConfig } = node;
+    if (forName) {
+      TaskFlow.renameNode({
+        projectId,
+        flowId,
+        nodeId,
+        name,
+      }).then(res => {
+        const { srcIsDb } = res;
+        this.onCompute({
+          toUpdate: [node],
+          toAdd: [],
+          toDeleteIds: [],
+          srcIsDb,
+        });
+      });
+      return;
+    }
     TaskFlow.updateNode({
       projectId,
       flowId,
       nodeId,
       name,
       nodeType,
-      // status: 'NORMAL',
-      // description: 'm52di3',
       nodeConfig,
     }).then(res => {
       const { errorMsg, isSucceeded, toAdd, toDeleteIds, toUpdate, srcIsDb } = res;
@@ -224,11 +239,14 @@ class TaskCanvas extends Component {
                     onDelete={() => {
                       this.deleteNode(o.nodeId);
                     }}
-                    onUpdate={node => {
-                      this.updateNode({
-                        ...node,
-                        status: 'NORMAL',
-                      });
+                    onUpdate={(node, forName) => {
+                      this.updateNode(
+                        {
+                          ...node,
+                          status: 'NORMAL',
+                        },
+                        forName,
+                      );
                     }}
                     key={o.nodeId}
                     onAddNodes={data => {
@@ -246,6 +264,11 @@ class TaskCanvas extends Component {
           <WrapEdit className="editTaskNodes">
             <EditCon
               {...this.props}
+              onChangeCurrentNode={currentId => {
+                this.setState({
+                  currentId,
+                });
+              }}
               node={list.find(o => o.nodeId === currentId)}
               nodeList={flowNodes}
               list={list}

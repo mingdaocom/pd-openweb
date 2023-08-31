@@ -106,7 +106,7 @@ export default class extends Component {
                 menuClass="selectWorksheetDropdownMenu"
                 placeholder={_l('选择') + worksheetTypeName}
                 noData={_l('没有可选的') + worksheetTypeName}
-                defaultValue={selectedWrorkesheetId}
+                value={selectedWrorkesheetId}
                 data={worksheetsOfSelectedApp}
                 onChange={value => {
                   this.setState({ selectedWrorkesheetId: value });

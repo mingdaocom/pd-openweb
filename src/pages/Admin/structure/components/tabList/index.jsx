@@ -111,7 +111,7 @@ class TabList extends React.Component {
                   </Menu>
                 }
               >
-                <div style={{ width: 24 }} onClick={e => e.stopPropagation()}>
+                <div className="moreopWrap" onClick={e => e.stopPropagation()}>
                   <Icon icon="moreop" />
                 </div>
               </Dropdown>

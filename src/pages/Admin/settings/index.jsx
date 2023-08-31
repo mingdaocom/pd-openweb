@@ -5,6 +5,7 @@ import EncryptRules from './components/EncryptRules';
 import Config from '../config';
 import projectSettingController from 'src/api/projectSetting';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import cx from 'classnames';
 import styled from 'styled-components';
 
@@ -42,8 +43,6 @@ const CONFIGS = [
     showSwitch: true,
   },
 ];
-
-const customIconFeatureId = 7;
 export default class GeneralSettings extends Component {
   constructor(props) {
     super(props);
@@ -51,7 +50,7 @@ export default class GeneralSettings extends Component {
       watermark: false,
       uploadSvg: false,
     };
-    Config.setPageTitle(_l('通用配置'));
+    Config.setPageTitle(_l('通用设置'));
   }
   componentDidMount() {
     projectSettingController.getEnabledWatermark({ projectId: Config.projectId }).then(res => {
@@ -68,9 +67,9 @@ export default class GeneralSettings extends Component {
    * 打开自定义图标
    */
   openCustomSvg = () => {
-    const featureType = getFeatureStatus(Config.projectId, customIconFeatureId);
+    const featureType = getFeatureStatus(Config.projectId, VersionProductType.customIcon);
     if (featureType === '2') {
-      buriedUpgradeVersionDialog(Config.projectId, customIconFeatureId);
+      buriedUpgradeVersionDialog(Config.projectId, VersionProductType.customIcon);
     } else {
       this.setState({ uploadSvg: true });
     }
@@ -101,11 +100,11 @@ export default class GeneralSettings extends Component {
     }
     return (
       <div className="orgManagementWrap">
-        <div className="orgManagementHeader Font17">{_l('通用配置')}</div>
+        <div className="orgManagementHeader Font17">{_l('通用设置')}</div>
         <Fragment>
           {CONFIGS.map(item => {
             const { key, title, descrption, clickFunc, showSwitch } = item;
-            const featureType = getFeatureStatus(Config.projectId, customIconFeatureId);
+            const featureType = getFeatureStatus(Config.projectId, VersionProductType.customIcon);
             if (key === 'customIcon' && !featureType) return;
             return (
               <ConfigItemWrap
@@ -114,7 +113,7 @@ export default class GeneralSettings extends Component {
               >
                 <Item key={key}>
                   <div className="flex">
-                    <div className="bold mBottom5">{title}</div>
+                    <div className="bold mBottom5 Font14">{title}</div>
                     <div className="Gray_9e">{descrption}</div>
                   </div>
                   <div>
@@ -122,7 +121,7 @@ export default class GeneralSettings extends Component {
                     {clickFunc && (
                       <Icon
                         icon="sidebar-more"
-                        className="Font13 Gray_9d Right Hand"
+                        className="Font18 Gray_9d Right Hand"
                         onClick={() => this[clickFunc]()}
                       />
                     )}

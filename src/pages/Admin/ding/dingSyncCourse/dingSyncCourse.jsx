@@ -140,7 +140,7 @@ export default class DingSyncCourse extends React.Component {
   };
 
   getDetail = (appId, callback) => {
-    Api.getAppDetail({ appId: appId }, { silent: true }).then(data => {
+    Api.getApp({ appId: appId }, { silent: true }).then(data => {
       this.setState({
         loading: false,
         iconUrl: data.iconUrl,

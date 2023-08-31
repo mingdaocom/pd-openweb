@@ -149,10 +149,7 @@ export default class WeiXin extends Component {
         className: 'weixinFuncInfoDialog',
         overlayClosable: false,
         onCancel: () => {
-          $('.weixinFuncInfoDialog')
-            .parents('.mui-dialog-container')
-            .parents('div')
-            .remove();
+          $('.weixinFuncInfoDialog').parents('.mui-dialog-container').parents('div').remove();
         },
       };
       ReactDom.render(
@@ -404,11 +401,15 @@ export default class WeiXin extends Component {
   render() {
     let { isBind, loading } = this.state;
     if (loading) {
-      return <LoadDiv />;
+      return (
+        <div className="orgManagementWrap">
+          <LoadDiv />
+        </div>
+      );
     }
     return (
-      <div className="wechatContainer">
-        <div className="pageTitle fontWeight600">{_l('微信公众号')}</div>
+      <div className="orgManagementWrap adminWeiXinContainer">
+        <div className="Font17 Bold weixinHeader">{_l('微信公众号')}</div>
         <div className="wechatInfo flex">
           {isBind ? (
             <div className="wechatSuccessContent">{this.renderSuccessContent()}</div>

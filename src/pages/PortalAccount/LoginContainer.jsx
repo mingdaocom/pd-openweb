@@ -120,7 +120,7 @@ export default function LoginContainer(props) {
     loginForTypeBack,
   } = props;
   let request = getRequest();
-  const [{ stateWX, scan, urlWX, isRegister, type, loading, sending, txt }, setState] = useSetState({
+  const [{ stateWX, scan, urlWX, isRegister, type, loading, sending, txt, hasCheck }, setState] = useSetState({
     stateWX: '',
     scan: true,
     urlWX: '', //微信二维码url
@@ -129,6 +129,7 @@ export default function LoginContainer(props) {
     loading: true, //二维码获取
     sending: false, //点击登录
     txt: '',
+    hasCheck: false,
   });
 
   useEffect(() => {
@@ -440,7 +441,7 @@ export default function LoginContainer(props) {
               });
             } else {
               //-4代表用户未设置密码不能以密码方式登录，需要使用其他模式登录
-              alert(_l('验证码登录后在个人信息页面完成密码设置!'), 2);
+              alert(_l('未设置密码，请登录后完成密码设置!'), 2);
               setState({
                 sending: false,
               });
@@ -457,15 +458,6 @@ export default function LoginContainer(props) {
       <React.Fragment>
         {!paramForPcWx && (
           <div className="mTop16 flexRow alignItemsCenter">
-            <div
-              className="flexRow alignItemsCenter"
-              onClick={() => {
-                setAutoLogin(!isAutoLogin);
-              }}
-            >
-              <Checkbox checked={isAutoLogin} className="Hand" name="" />
-              <span className="Gray_9e Hand">{_l('7天内免登录')}</span>
-            </div>
             {findPassword && (
               <span
                 className="Hand ThemeHoverColor3 Gray_9e"
@@ -485,6 +477,9 @@ export default function LoginContainer(props) {
           })}
           onClick={() => {
             if (isValid()) {
+              if (termsAndAgreementEnable && !hasCheck) {
+                return alert(_l('请先勾选同意《用户协议》和《隐私政策》'), 3);
+              }
               sendCode();
             }
           }}
@@ -493,9 +488,19 @@ export default function LoginContainer(props) {
           {sending ? '...' : ''}
         </div>
         {termsAndAgreementEnable && (
-          <div className=" mTop12">
-            <div className="InlineBlock Gray_9e mLeft5 TxtTop LineHeight22">
-              {_l('点登录即代表同意')}
+          <div className="mTop12 Gray_9e TxtTop LineHeight22 flexRow alignItemsCenter">
+            <Checkbox
+              checked={hasCheck}
+              onClick={() => {
+                setState({
+                  hasCheck: !hasCheck,
+                });
+              }}
+              className="Hand"
+              name=""
+            />
+            <div className="flex alignItemsCenter flexRow">
+              {_l('同意')}
               <span
                 className="ThemeColor3 Hand mRight5 mLeft5"
                 onClick={() => {
@@ -504,7 +509,7 @@ export default function LoginContainer(props) {
               >
                 《{_l('用户协议')}》
               </span>
-              {_l('和')}
+              {_l('与')}
               <span
                 className="ThemeColor3 Hand mLeft5"
                 onClick={() => {
@@ -513,6 +518,19 @@ export default function LoginContainer(props) {
               >
                 《{_l('隐私政策')}》
               </span>
+            </div>
+          </div>
+        )}
+        {!paramForPcWx && (
+          <div className="mTop12 flexRow alignItemsCenter">
+            <div
+              className="flexRow alignItemsCenter"
+              onClick={() => {
+                setAutoLogin(!isAutoLogin);
+              }}
+            >
+              <Checkbox checked={isAutoLogin} className="Hand" name="" />
+              <span className="Gray_9e Hand">{_l('7天内免登录')}</span>
             </div>
           </div>
         )}

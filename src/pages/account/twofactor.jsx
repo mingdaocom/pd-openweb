@@ -60,69 +60,72 @@ class TwofactorContainer extends React.Component {
         captchaType,
       };
     }
-    loginAjax.sendTwofactorVerifyCode({
-      state,
-      type, //1为手机号，2为邮箱,
-      ...info,
-      regFrom: request.s,
-    }).then(data => {
-      this.setState({
-        needTicket: true, //除了第一次 都需要图形验证码
-        hasSend: true,
-      });
-      const { actionResult, user = {} } = data;
-      const { failed, success, failInvalidVerifyCode, userInvalid, sendFrequent, noEmail, noTel } = ActionResult;
-      //图形验证码错误 //需要图形验证
-      if ([failInvalidVerifyCode].includes(actionResult)) {
-        this.setState({ needTicket: true, isFail: true }, () => {
-          if (cb) {
-            cb();
-          }
-        });
-        return;
-      } else if ([failed, noEmail, noTel, sendFrequent].includes(actionResult)) {
-        //失败
+    loginAjax
+      .sendTwofactorVerifyCode({
+        state,
+        type, //1为手机号，2为邮箱,
+        ...info,
+        regFrom: request.s,
+      })
+      .then(data => {
         this.setState({
-          isFail: true,
+          needTicket: true, //除了第一次 都需要图形验证码
+          hasSend: true,
         });
-        let msg = _l('验证码发送失败!');
-        if (actionResult === sendFrequent) {
-          msg = _l('验证码发送过于频繁，请切换验证方式!');
-        }
-        if ([noEmail, noTel].includes(actionResult)) {
-          //未绑定手机号 除第一次外，提示未绑定
-          if (hasSendTel) {
-            msg = actionResult === noTel ? _l('手机未绑定，请使用邮箱验证！') : _l('邮箱未绑定，请使用手机短信验证！');
-            this.setState({
-              type: type !== 1 ? 1 : 2,
-              account: '',
-            });
+        const { actionResult, user = {} } = data;
+        const { failed, success, failInvalidVerifyCode, userInvalid, sendFrequent, noEmail, noTel } = ActionResult;
+        //图形验证码错误 //需要图形验证
+        if ([failInvalidVerifyCode].includes(actionResult)) {
+          this.setState({ needTicket: true, isFail: true }, () => {
+            if (cb) {
+              cb();
+            }
+          });
+          return;
+        } else if ([failed, noEmail, noTel, sendFrequent].includes(actionResult)) {
+          //失败
+          this.setState({
+            isFail: true,
+          });
+          let msg = _l('验证码发送失败!');
+          if (actionResult === sendFrequent) {
+            msg = _l('验证码发送过于频繁，请切换验证方式!');
+          }
+          if ([noEmail, noTel].includes(actionResult)) {
+            //未绑定手机号 除第一次外，提示未绑定
+            if (hasSendTel) {
+              msg =
+                actionResult === noTel ? _l('手机未绑定，请使用邮箱验证！') : _l('邮箱未绑定，请使用手机短信验证！');
+              this.setState({
+                type: type !== 1 ? 1 : 2,
+                account: '',
+              });
+            } else {
+              this.setState({
+                type: type !== 1 ? 1 : 2,
+                hasSendTel: true,
+              });
+              return;
+            }
+          }
+          alert(msg, 3);
+          return;
+        } else if (actionResult === userInvalid) {
+          window.location.replace('/login');
+        } else if (actionResult === success) {
+          let parm = {};
+          if (type === 1) {
+            parm = { telTime: new Date(), tel: user.account };
           } else {
-            this.setState({
-              type: type !== 1 ? 1 : 2,
-              hasSendTel: true,
-            });
-            return;
+            parm = { emailTime: new Date(), email: user.account };
           }
+          this.setState({
+            ...parm,
+            account: user.account,
+            isFail: false,
+          });
         }
-        alert(msg, 3);
-        return;
-      } else if (actionResult === userInvalid) {
-        window.location.replace('/login');
-      } else if (actionResult === success) {
-        let parm = {};
-        if (type === 1) {
-          parm = { telTime: new Date(), tel: user.account };
-        } else {
-          parm = { emailTime: new Date(), email: user.account };
-        }
-        this.setState({
-          ...parm,
-          account: user.account,
-          isFail: false,
-        });
-      }
-    });
+      });
   };
   //获取验证码
   sendFn = (data = {}) => {

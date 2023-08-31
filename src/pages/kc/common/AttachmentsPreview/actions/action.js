@@ -65,9 +65,9 @@ function loadAttachment(attachment, options = {}) {
     if (window.shareState && window.shareState.shareId) {
       args.shareId = window.shareState.shareId;
       args.type =
-        window.shareState.isRecordShare || window.shareState.isPublicRecord
+        window.shareState.isRecordShare || window.shareState.isPublicRecord || _.get(window, 'shareState.isPublicView')
           ? 3
-          : window.shareState.isPublicQuery || window.shareState.isPublicView
+          : _.get(window, 'shareState.isPublicQuery') || _.get(window, 'shareState.isPublicForm')
           ? 11
           : 14;
     }
@@ -589,6 +589,15 @@ export function onClose() {
     if (state.onClose) {
       state.onClose();
     }
+  };
+}
+
+export function changePreviewService(previewService) {
+  return dispatch => {
+    dispatch({
+      type: 'CHANGE_PREVIEW_SERVICE',
+      previewService,
+    });
   };
 }
 

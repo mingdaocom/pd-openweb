@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react';
-import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, Dialog, ScrollView } from 'ming-ui';
+import { Modal } from 'antd-mobile';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import UserHead from 'src/pages/feed/components/userHead/userHead';
@@ -21,15 +22,80 @@ import './index.less';
 
 const isMobile = browserIsMobile();
 
-function WorkflowCard(props) {
-  const { data, formWidth } = props;
-  const { onAction, onRevoke, onUrge, onViewFlowStep, onViewExecDialog } = props;
-  const { createDate, completeDate, completed, createAccount, flowNode, workItem, process, instanceLog } = data;
-  const { receiveTime } = workItem || {};
-  const { name, type } = flowNode || {};
-  const wrapRef = useRef();
+const renderTimeConsuming = (data) => {
+  const { createDate, completeDate } = data;
+  const timeConsuming = moment(createDate) - moment(completeDate);
+  if (timeConsuming) {
+    return (
+      <div className="flexRow valignWrapper mBottom12">
+        <div className="Font13 Gray_9e label">{_l('整体耗时')}</div>
+        <div>{covertTime(timeConsuming)}</div>
+      </div>
+    );
+  }
+};
+
+const renderState = (data) => {
+  const { status, completed, flowNode, instanceLog, workItem } = data;
+  const { type } = flowNode || {};
+
+  if (workItem) {
+    if (type === 3 || type === 0) return <span className="bold" style={{ color: '#2196F3' }}>{_l('等我填写...')}</span>;
+    if (type === 4) return <span className="bold" style={{ color: '#2196F3' }}>{_l('等我审批...')}</span>;
+  } else {
+    if (type === 3 || type === 0) return <span className="bold Gray_9e">{_l('填写中...')}</span>;
+    if (type === 4) return <span className="bold Gray_9e">{_l('审批中...')}</span>;
+  }
+
+  if (completed) {
+    const instanceStatus = status === 3 || status === 4 ? instanceLog.status : status;
+    const { text, bg, icon } = INSTANCELOG_STATUS[instanceStatus];
+    return (
+      <div className="state bold valignWrapper" style={{ backgroundColor: bg }}>
+        {icon ? <Icon icon={icon} className="mRight5" /> : null}
+        <div className="Font13">{text}</div>
+      </div>
+    );
+  }
+};
+
+const renderSurplusTime = (data) => {
+  const { workItem } = data;
+  let currentAccountNotified = false;
+  const workItems = (_.get(workItem, 'workId') ? [workItem] : []).filter(item => {
+    if (item.executeTime) {
+      currentAccountNotified = true;
+    }
+    return _.includes([3, 4], item.type) && !item.operationTime && item.dueTime;
+  });
+
+  if (!workItems.length) return null;
+
+  const time = moment() - moment(workItems[0].dueTime) || 0;
+
+  return (
+    <div className="flexRow valignWrapper mBottom12">
+      <div className="Font13 Gray_9e label">{_l('剩余时间')}</div>
+      <div>
+        <span
+          className="stepTimeConsuming flexRow"
+          style={{
+            color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : undefined,
+          }}
+        >
+          {time > 0 ? _l('已超时%0', covertTime(time)) : covertTime(time)}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+function CurrentWorkItems(props) {
+  const { formWidth, data } = props;
+  const { type } = data.flowNode || {};
   const allCurrentWorkItems = (data.currentWorkItems || []).filter(c => c.operationType !== 5);
   const [currentWorkItems, setCurrentWorkItems] = useState(allCurrentWorkItems);
+  const wrapRef = useRef();
 
   useEffect(
     () => {
@@ -44,73 +110,116 @@ function WorkflowCard(props) {
     [formWidth],
   );
 
-  const renderSurplusTime = () => {
-    let currentAccountNotified = false;
-    const workItems = (_.get(workItem, 'workId') ? [workItem] : []).filter(item => {
-      if (item.executeTime) {
-        currentAccountNotified = true;
-      }
-      return _.includes([3, 4], item.type) && !item.operationTime && item.dueTime;
-    });
-
-    if (!workItems.length) return null;
-
-    const time = moment() - moment(workItems[0].dueTime) || 0;
-
-    return (
+  return (
+    !!(currentWorkItems || []).length && (
       <div className="flexRow valignWrapper mBottom12">
-        <div className="Font13 Gray_9e label">{_l('剩余时间')}</div>
-        <div>
-          <span
-            className="stepTimeConsuming flexRow"
-            style={{
-              color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : undefined,
-            }}
-          >
-            {time > 0 ? _l('已超时%0', covertTime(time)) : covertTime(time)}
-          </span>
+        <div className="Font13 Gray_9e label">{type === 4 ? _l('审批人') : _l('填写人')}</div>
+        <div className="flex flexRow valignWrapper flexWrap" ref={wrapRef}>
+          {currentWorkItems.map(data => (
+            <span className="InlineBlock Relative mRight8">
+              {data.workItemAccount.accountId === md.global.Account.accountId ? (
+                <div className="flexRow valignWrapper myAvatar">{_l('我')}</div>
+              ) : (
+                <UserHead
+                  lazy="false"
+                  size={24}
+                  user={{ userHead: data.workItemAccount.avatar, accountId: data.workItemAccount.accountId }}
+                />
+              )}
+              <Fragment>
+                {(data.operationType === 1 || _.get(data, 'workItemLog.action') === 17) && (
+                  <div className="flexRow valignWrapper approveState pass">
+                    <Icon className="Font12" icon="ok" />
+                  </div>
+                )}
+                {data.operationType === 4 && (
+                  <div className="flexRow valignWrapper approveState overrule">
+                    <Icon className="Font12" icon="clear" />
+                  </div>
+                )}
+              </Fragment>
+            </span>
+          ))}
+          {allCurrentWorkItems.length !== currentWorkItems.length && (
+            <span className="InlineBlock Relative mRight8">
+              <div className="flexRow valignWrapper hideAvatar">
+                +{allCurrentWorkItems.length - currentWorkItems.length}
+              </div>
+            </span>
+          )}
         </div>
       </div>
-    );
-  };
+    )
+  );
+}
 
-  const renderTimeConsuming = () => {
-    const timeConsuming = moment(createDate) - moment(completeDate);
-    if (timeConsuming) {
-      return (
-        <div className="flexRow valignWrapper mBottom12">
-          <div className="Font13 Gray_9e label">{_l('整体耗时')}</div>
-          <div>{covertTime(timeConsuming)}</div>
-        </div>
-      );
-    }
-  };
-
-  const renderState = () => {
-    const { status } = data;
-    if (workItem) {
-      if (type === 3) return <span style={{ color: '#2196F3' }}>{_l('等我填写...')}</span>;
-      if (type === 4) return <span style={{ color: '#2196F3' }}>{_l('等我审批...')}</span>;
+function WorkflowCard(props) {
+  const { data, formWidth } = props;
+  const { onAction, onRevoke, onUrge, onViewFlowStep, onViewExecDialog } = props;
+  const { currents, createDate, completeDate, completed, createAccount, flowNode, workItem, process } = data;
+  const currentWorkItems = data.currentWorkItems || [];
+  const receiveTime = _.get(workItem, 'receiveTime') || _.get(currentWorkItems[0], 'receiveTime');
+  const isBranch = !!(currents || []).length;
+  const getIsRevoke = () => {
+    const current = currents[0];
+    const { allowRevoke, allowApproval, workItem } = current;
+    return isBranch && ((allowRevoke && allowApproval) || workItem ? false : allowRevoke);
+  }
+  const handleRevoke = () => {
+    if (isMobile) {
+      Modal.alert(_l('确认撤回此条流程 ?'), '', [
+        {
+          text: _l('取消'),
+        },
+        {
+          text: _l('确认'),
+          onPress: () => onRevoke(currents[0]),
+        },
+      ]);
     } else {
-      if (type === 3) return <span className="Gray_9e">{_l('填写中...')}</span>;
-      if (type === 4) return <span className="Gray_9e">{_l('审批中...')}</span>;
+      Dialog.confirm({
+        title: _l('确认撤回此条流程 ?'),
+        onOk: () => onRevoke(currents[0]),
+      });
     }
+  }
 
-    if (completed) {
-      const instanceStatus = status === 3 || status === 4 ? instanceLog.status : status;
-      const { text, bg, icon } = INSTANCELOG_STATUS[instanceStatus];
-      return (
-        <div className="state bold valignWrapper" style={{ backgroundColor: bg }}>
-          {icon ? <Icon icon={icon} className="mRight5" /> : null}
-          <div className="Font13">{text}</div>
-        </div>
-      );
-    }
-  };
+  const renderContent = (data) => {
+    const { flowNode } = data;
+    const { name } = flowNode || {};
+    return (
+      <div className={cx('flexColumn itemWrapper', { mTop18: !isBranch })} onClick={isBranch ? () => onViewFlowStep(data) : undefined}>
+        {name && (
+          <div className="flexRow valignWrapper mBottom12">
+            <div className="flexRow valignWrapper flex">
+              <div className="Font13 Gray_9e label">{_l('当前节点')}</div>
+              <div className="flowNodeName">{name}</div>
+            </div>
+            {isBranch && renderState(data)}
+          </div>
+        )}
+        <CurrentWorkItems data={data} formWidth={formWidth} />
+        {receiveTime && (
+          <div className="flexRow valignWrapper mBottom12">
+            <div className="Font13 Gray_9e label">{_l('处理开始')}</div>
+            <div>{receiveTime}</div>
+          </div>
+        )}
+        {completeDate && (
+          <div className="flexRow valignWrapper mBottom12">
+            <div className="Font13 Gray_9e label">{_l('完成时间')}</div>
+            <div>{completeDate}</div>
+          </div>
+        )}
+        {completed && renderTimeConsuming(data)}
+        {renderSurplusTime(data)}
+      </div>
+    );
+  }
 
   return (
     <div className={cx('workflowCard', isMobile ? 'mBottom10' : 'mBottom18')}>
-      <div className="pointer" onClick={onViewFlowStep}>
+      <div className={cx({ pointer: !isBranch })} onClick={!isBranch ? () => onViewFlowStep(data) : undefined}>
         <div className="flexRow valignWrapper">
           <UserHead
             lazy="false"
@@ -127,75 +236,47 @@ function WorkflowCard(props) {
               )}
             </div>
           </div>
-          <div className="bold">{renderState()}</div>
-        </div>
-        <div className="flexColumn mTop18 itemWrapper">
-          {name && (
-            <div className="flexRow valignWrapper mBottom12">
-              <div className="Font13 Gray_9e label">{_l('当前节点')}</div>
-              <div className="flowNodeName">{name}</div>
-            </div>
+          {isBranch && getIsRevoke() && (
+            <div className="ThemeColor bold Font14 pointer" onClick={handleRevoke}>{_l('撤回')}</div>
           )}
-          {!!(currentWorkItems || []).length && (
-            <div className="flexRow valignWrapper mBottom12">
-              <div className="Font13 Gray_9e label">{type === 4 ? _l('审批人') : _l('填写人')}</div>
-              <div className="flex flexRow valignWrapper flexWrap" ref={wrapRef}>
-                {currentWorkItems.map(data => (
-                  <span className="InlineBlock Relative mRight8">
-                    {data.workItemAccount.accountId === md.global.Account.accountId ? (
-                      <div className="flexRow valignWrapper myAvatar">{_l('我')}</div>
-                    ) : (
-                      <UserHead
-                        lazy="false"
-                        size={24}
-                        user={{ userHead: data.workItemAccount.avatar, accountId: data.workItemAccount.accountId }}
-                      />
-                    )}
-                    <Fragment>
-                      {(data.operationType === 1 || _.get(data, 'workItemLog.action') === 17) && (
-                        <div className="flexRow valignWrapper approveState pass">
-                          <Icon className="Font12" icon="ok" />
-                        </div>
-                      )}
-                      {data.operationType === 4 && (
-                        <div className="flexRow valignWrapper approveState overrule">
-                          <Icon className="Font12" icon="clear" />
-                        </div>
-                      )}
-                    </Fragment>
-                  </span>
-                ))}
-                {allCurrentWorkItems.length !== currentWorkItems.length && (
-                  <span className="InlineBlock Relative mRight8">
-                    <div className="flexRow valignWrapper hideAvatar">
-                      +{allCurrentWorkItems.length - currentWorkItems.length}
-                    </div>
-                  </span>
-                )}
+          {!isBranch && renderState(data)}
+        </div>
+        {isBranch && (
+          <Fragment>
+            <div className="branchNode" style={{ margin: '5px 0 5px 43px' }}>{_l('%0个节点办理中...', (currents || []).length)}</div>
+            <div className="branchNodeLine" />
+          </Fragment>
+        )}
+        {isBranch ? (
+          currents.map(data => {
+            data.parentCurrents = currents;
+            return data;
+          }).map((data, index) => (
+            <Fragment key={data.workId}>
+              <div className={cx('branchWrap pointer', { hover: !isMobile })}>
+                {renderContent(data)}
+                <WorkflowAction
+                  className={cx('mTop20', { mBottom5: index !== currents.length - 1 })}
+                  isBranch={isBranch}
+                  data={data}
+                  {...{ onAction, onRevoke, onUrge, onViewExecDialog }}
+                />
               </div>
-            </div>
-          )}
-          {receiveTime && (
-            <div className="flexRow valignWrapper mBottom12">
-              <div className="Font13 Gray_9e label">{_l('处理开始')}</div>
-              <div>{receiveTime}</div>
-            </div>
-          )}
-          {completeDate && (
-            <div className="flexRow valignWrapper mBottom12">
-              <div className="Font13 Gray_9e label">{_l('完成时间')}</div>
-              <div>{completeDate}</div>
-            </div>
-          )}
-          {completed && renderTimeConsuming()}
-          {renderSurplusTime()}
-        </div>
+              {index !== currents.length - 1 && (
+                <div className="branchWrapLine" />
+              )}
+            </Fragment>
+          ))
+        ) : (
+          renderContent(data)
+        )}
       </div>
-      {!completed && (
+      {!isBranch && !completed && (
         <WorkflowAction
           className="mTop20"
+          isBranch={isBranch}
           data={data}
-          {...{ onAction, onRevoke, onUrge, onViewFlowStep, onViewExecDialog }}
+          {...{ onAction, onRevoke, onUrge, onViewExecDialog }}
         />
       )}
     </div>
@@ -309,6 +390,43 @@ export default function SheetWorkflow(props) {
       operationType: 18,
     }).then(result => {
       if (result) {
+        window[`urgeDisable-workId-${data.workId}`] = true;
+        const { cardData = {} } = currentWorkflow;
+        if (cardData.workId === data.workId) {
+          setCurrentWorkflow({
+            ...currentWorkflow,
+            cardData: {
+              ...cardData,
+              urgeDisable: true
+            }
+          });
+        }
+        setList(list.map(item => {
+          if (item.id === data.id) {
+            if (_.get(item, 'currents.length')) {
+              const currents = item.currents.map(item => {
+                if (item.workId === data.workId) {
+                  return {
+                    ...item,
+                    urgeDisable: true
+                  }
+                } else {
+                  return item;
+                }
+              });
+              return {
+                ...item,
+                currents
+              }
+            }
+            return {
+              ...item,
+              urgeDisable: true
+            }
+          } else {
+            return item;
+          }
+        }));
         alert(_l('催办成功'));
       }
     });
@@ -405,11 +523,11 @@ export default function SheetWorkflow(props) {
       processName,
       works = [],
       workItem,
-      currentWork,
       currentWorkItem,
       status,
     } = currentWorkflow;
-    const { id, workId, completed } = cardData;
+    const { id, workId, flowNode, completed, parentCurrents = [] } = cardData;
+    const currentWork = parentCurrents.length ? _.find(parentCurrents, { workId }) : currentWorkflow.currentWork;
     return (
       <div className="h100 flexColumn">
         <StepHeader
@@ -417,35 +535,50 @@ export default function SheetWorkflow(props) {
           instanceId={id}
           processName={processName}
           hasBack={true}
+          currentWork={currentWork}
           onClose={handleCloseDrawer}
           isApproval
         />
+        {!!parentCurrents.length && <div className="branchNode" style={{ margin: isMobile ? '3px 0px 6px 35px' : '3px 0px 6px 55px' }}>{_l('%0个节点办理中...', parentCurrents.length)}</div>}
         <ScrollView className="flex">
           <Steps
             worksheetId={worksheetId}
             rowId={recordId}
             currentWork={currentWork}
-            currentType={(currentWorkItem || {}).type}
+            currentType={_.get(currentWork, 'flowNode.type')}
+            currents={parentCurrents.map(n => n.workId)}
+            onChangeCurrentWork={workId => {
+              const newCardData = _.find(parentCurrents, { workId });
+              setCurrentWorkflow({
+                ...currentWorkflow,
+                cardData: {
+                  ...newCardData,
+                  workId
+                }
+              });
+            }}
             works={works}
             status={status}
           />
         </ScrollView>
         {id && !completed && (
-          <div className={cx('workflowStepFooter', isMobile ? 'pLeft10 pRight10' : '')}>
+          <div className={cx('workflowStepFooter flexColumn justifyContentCenter', isMobile ? 'pLeft10 pRight10' : '')}>
+            <div className="mLeft1 Font13 Gray_75">{_.get(currentWork, 'flowNode.name')}</div>
             <WorkflowAction
+              className="mBottom2 mTop5"
               hasMore={true}
               isCharge={isCharge}
+              isBranch={!!parentCurrents.length}
               projectId={projectId}
-              className="h100"
               data={cardData}
-              onAction={value => handleQuickAction(cardData, value)}
-              onRevoke={() => handleRevoke(cardData)}
-              onUrge={() => handleUrge(cardData)}
-              onSkip={() => handleSkip(cardData)}
-              onEndInstance={() => handleEndInstance(cardData)}
-              onUpdateWorkAccounts={ids => handleUpdateWorkAccounts(cardData, ids)}
-              onViewFlowStep={() => handleViewFlowStep(cardData)}
-              onViewExecDialog={() => handleViewExecDialog(cardData)}
+              onAction={handleQuickAction}
+              onRevoke={handleRevoke}
+              onUrge={handleUrge}
+              onSkip={handleSkip}
+              onEndInstance={handleEndInstance}
+              onUpdateWorkAccounts={handleUpdateWorkAccounts}
+              onViewFlowStep={handleViewFlowStep}
+              onViewExecDialog={handleViewExecDialog}
             />
           </div>
         )}
@@ -468,11 +601,11 @@ export default function SheetWorkflow(props) {
                   key={data.id}
                   formWidth={formWidth}
                   data={data}
-                  onAction={value => handleQuickAction(data, value)}
-                  onRevoke={() => handleRevoke(data)}
-                  onUrge={() => handleUrge(data)}
-                  onViewFlowStep={() => handleViewFlowStep(data)}
-                  onViewExecDialog={() => handleViewExecDialog(data)}
+                  onAction={handleQuickAction}
+                  onRevoke={handleRevoke}
+                  onUrge={handleUrge}
+                  onViewFlowStep={handleViewFlowStep}
+                  onViewExecDialog={handleViewExecDialog}
                 />
               ))
             ) : isMobile ? (

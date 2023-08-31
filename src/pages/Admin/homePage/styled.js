@@ -7,6 +7,7 @@ export const HomePageWrap = styled.div`
   padding-top: 0;
   box-sizing: border-box;
   overflow-y: auto;
+  background: #f5f5f5;
   .infoWrap {
     display: flex;
     @media (max-width: 1320px) {

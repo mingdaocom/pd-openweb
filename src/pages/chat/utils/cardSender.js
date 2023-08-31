@@ -4,7 +4,7 @@ import Constant from './constant';
 import { createLinksForMessage } from 'src/components/common/function';
 import RelationControl from 'src/components/relationControl/relationControl';
 import 'src/components/createTask/createTask';
-import 'src/components/createCalendar/createCalendar';
+import createCalendar from 'src/components/createCalendar/createCalendar';
 import s from 'src/components/common/mstc/s/s';
 import moment from 'moment';
 
@@ -129,7 +129,7 @@ export const newSchedule = (acceptor, options = {}) => {
         },
       ];
     }
-    $.CreateCalendar({
+    createCalendar({
       MemberArray: members,
       createShare: options.showSuccessTip,
       Message: options.description || '',

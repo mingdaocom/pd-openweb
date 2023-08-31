@@ -17,6 +17,7 @@ const Operation = ({
   currentReport,
   reportData,
   worksheetInfo,
+  sourceType,
   base,
   onChangeScopeVisible,
   onChangeSheetVisible,
@@ -99,10 +100,12 @@ const Operation = ({
         </Tooltip>
       )}
       <Sort
+        sourceType={sourceType}
         currentReport={currentReport}
         reportType={reportData.reportType}
         map={reportData.map}
         valueMap={reportData.valueMap}
+        reportData={reportData}
         onChangeCurrentReport={data => {
           changeCurrentReport(data, true);
           if (sheetVisible) {

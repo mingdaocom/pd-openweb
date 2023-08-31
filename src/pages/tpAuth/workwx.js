@@ -1,5 +1,5 @@
 import { getRequest } from 'src/util';
-import DoT from '@mdfe/dot';
+import DoT from 'dot';
 import loginController from 'src/api/login';
 import './style.css';
 import tpl from './tpl/noticeMessage.html';

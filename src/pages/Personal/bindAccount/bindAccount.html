@@ -19,26 +19,36 @@
                     </div>
                 </td>
                 <td>
-                <div class="stepPlan pRight8">
-                    <div class="stepPlanLine lineUnfinsh"></div>
-                    <div class="stepCircle lineUnfinsh circleRight" data-id="last">
-                        <div class="stepCircleS"></div>
+                    <div class="stepPlan pRight8">
+                        <div class="stepPlanLine lineUnfinsh"></div>
+                        <div class="stepCircle lineUnfinsh circleRight" data-id="last">
+                            <div class="stepCircleS"></div>
+                        </div>
                     </div>
-                </div>
                 </td>
             </tr>
         </table>
     </div>
     <div class="step1">
-        <div class="mBottom20  Relative">
-            <input type="password" autocomplete="new-password" class="inputBox txtLoginPassword w100" placeholder="{{=_l('请输入登录密码')}}" />
+        <div class="mBottom10">{{=_l('登录密码')}}</div>
+        <div class="mBottom20 Relative">
+            <input
+                type="password"
+                autocomplete="new-password"
+                class="inputBox txtLoginPassword w100"
+                placeholder="{{=_l('请输入登录密码')}}"
+            />
         </div>
         <div>
-            <input type="button" class="ming btnPasswordValidate Button Button--primary Button--medium w100" value='{{=_l('下一步')}}'/>
+            <input
+                type="button"
+                class="ming btnPasswordValidate Button Button--primary Button--medium w100"
+                value="{{=_l('下一步')}}"
+            />
         </div>
     </div>
     <div class="step2 Hidden">
-    <!-- //邮箱  手机号 -->
+        <!-- //邮箱  手机号 -->
         {{?it.data}}
         <div class="mBottom20 inputContainer">
             <input type="text" placeholder="{{=_l('请输入邮箱地址')}}" class="inputBox txtEmail Left" maxlength="64" />

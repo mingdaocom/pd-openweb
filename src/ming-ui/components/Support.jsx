@@ -22,10 +22,11 @@ export default class Support extends Component {
      */
     className: PropTypes.string,
     style: PropTypes.object,
+    title: PropTypes.string,
   };
 
   render() {
-    const { href, text, type = 2, className, style } = this.props;
+    const { href, text, type = 2, className, style, title } = this.props;
 
     if (md.global.SysSettings.hideHelpTip) return null;
 
@@ -40,7 +41,7 @@ export default class Support extends Component {
         onClick={() => window.open(href)}
       >
         {type < 3 && (
-          <Tooltip disable={type > 1} popupPlacement="bottom" text={<span>{_l('使用帮助')}</span>}>
+          <Tooltip disable={type > 1} popupPlacement="bottom" text={<span>{title || _l('使用帮助')}</span>}>
             <Icon icon="workflow_help" className="Font16" />
           </Tooltip>
         )}

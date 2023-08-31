@@ -79,9 +79,9 @@ function deepSearch(tree = [], controlId) {
   return retNode;
 }
 
-//备注、分割线没有标题（兼容）
+//备注、分段没有标题（兼容）
 export function getControlSpecialName(type) {
-  return type ? (type === 10010 ? _l('备注') : _l('分割线')) : _l('字段已删除');
+  return type ? (type === 10010 ? _l('备注') : _l('分段')) : _l('字段已删除');
 }
 
 //根据controls获取controlName
@@ -118,7 +118,7 @@ export function getTextById(tree, controls = []) {
 
 //过滤隐藏的子表字段
 export function getNewDropDownData(dropDownData = [], actionType) {
-  // 公式 汇总 文本组合 自动编号 他表字段 分割线 大写金额 备注 文本识别
+  // 公式 汇总 文本组合 自动编号 他表字段 分段 大写金额 备注 文本识别
   let filterControls = [];
   if (_.includes([3, 4, 5], actionType)) {
     filterControls.push(31, 38, 37, 32, 33, 30, 22, 25, 45, 47, 51, 10010);

@@ -1,6 +1,5 @@
 .roleManageContainer {
   height: 100%;
-  margin: 16px;
   background-color: #fff;
   display: flex;
   overflow: hidden;
@@ -233,11 +232,13 @@
     }
     .userList {
       flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       .userTableBody {
         overflow: auto;
-        height: calc(~'100vh - 285px');
+        flex: 1;
+        min-height: 0;
       }
       .usersTable {
         table-layout: fixed;

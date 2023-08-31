@@ -21,6 +21,7 @@ export default class RecordInfoWrapper extends Component {
     workId: PropTypes.string,
     hideRecordInfo: PropTypes.func,
     onError: PropTypes.func,
+    allowEdit: PropTypes.bool,
   };
 
   static defaultProps = {

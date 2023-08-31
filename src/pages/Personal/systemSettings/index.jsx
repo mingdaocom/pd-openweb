@@ -108,7 +108,7 @@ export default class AccountChart extends React.Component {
 
   render() {
     if (this.state.loading) {
-      return <LoadDiv />;
+      return <LoadDiv className="mTop40" />;
     }
     return (
       <div className="systemSettingsContainer">

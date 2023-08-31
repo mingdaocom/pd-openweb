@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import { Icon, Support, LoadDiv, Tooltip, Checkbox } from 'ming-ui';
 import { useSetState } from 'react-use';
-import { CardTopWrap } from '../style';
+import { CardTopWrap, WrapBtn } from '../style';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
@@ -77,18 +78,9 @@ const Wrap = styled.div`
     line-height: 51px;
   }
 `;
-const WrapBtn = styled.div`
-  background: #ffffff;
-  border-radius: 18px;
-  color: #bdbdbd;
-  padding: 8px 12px;
-  margin: 0 auto;
-  &:hover {
-    color: #2196f3;
-  }
-`;
+
 function AddNode(props) {
-  const featureType = getFeatureStatus(localStorage.getItem('currentProjectId'), 8);
+  const featureType = getFeatureStatus(localStorage.getItem('currentProjectId'), VersionProductType.codeBlockNode);
   if (!props.canEdit || !featureType) {
     return '';
   }
@@ -99,7 +91,7 @@ function AddNode(props) {
         className="Hand flexRow alignItemsCenter"
         onClick={() => {
           if (featureType === '2') {
-            buriedUpgradeVersionDialog(localStorage.getItem('currentProjectId'), 8);
+            buriedUpgradeVersionDialog(localStorage.getItem('currentProjectId'), VersionProductType.codeBlockNode);
             return;
           }
           props.onAdd();

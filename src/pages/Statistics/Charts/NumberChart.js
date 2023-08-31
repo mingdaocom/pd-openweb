@@ -308,14 +308,14 @@ export default class extends Component {
         <div className="mRight5 Gray_75">{name}</div>
         {
           contrastValue && percentage ? (
-            <Tooltip title={tipsText} overlayInnerStyle={{ textAlign: 'center' }}>
+            //<Tooltip title={tipsText} overlayInnerStyle={{ textAlign: 'center' }}>
               <div className={`tip-top ${positiveNumber ? (contrastColor ? 'Red' : 'DepGreen') : (contrastColor ? 'DepGreen' : 'Red')}`}>
                 <div className="valignWrapper">
                   {isEquality ? null : <Icon className="mRight3" icon={`${positiveNumber ? 'worksheet_rise' : 'worksheet_fall'}`} />}
                   <span className={cx('bold', { Gray_75: isEquality })}>{contrastValueShowType ? contrastValue : `${Math.abs(toFixed(percentage, contrastValueDot))}%`}</span>
                 </div>
               </div>
-            </Tooltip>
+            //</Tooltip>
           ) : (
             <span className="Gray range">- -</span>
           )

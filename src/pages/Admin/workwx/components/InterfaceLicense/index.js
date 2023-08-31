@@ -170,7 +170,7 @@ export default class InterfaceLicense extends Component {
       <div className="pLeft24 pRight24">
         <div className="Font15 bold mBottom18">
           {_l(
-            '为确保首次集成90天后正常使用，需向企业微信购买接口许可，购买许可费用由平台承担支付，您无需额外支付，您只需提交申请购买即可',
+            '为确保首次集成90天后正常使用，需向企业微信购买接口许可，由组织自己支付接口许可的费用，平台收到付费后在企微服务商后台代为缴费',
           )}
         </div>
         <div className="Font13 mBottom5">{_l('已同步账号：%0个', licenseDetail.allAccountCount)}</div>
@@ -224,7 +224,7 @@ export default class InterfaceLicense extends Component {
           <div className="row mBottom40">
             <div className="label">{_l('购买时长')}</div>
             <div className="value">
-              {_l('%0个月', orderInfo.months || '-')}
+              {_l('%0天', orderInfo.days || '-')}
               <span className="Font13 Gray_9e">
                 {buyMore ? _l('（截止到接口许可到期时间）') : _l('（截止到版本到期时间）')}
               </span>
@@ -255,7 +255,7 @@ export default class InterfaceLicense extends Component {
       <OrderDetail>
         <div className="Font15 bold mBottom20">
           {_l(
-            '为确保首次集成90天后正常使用，需向企业微信购买接口许可，购买许可费用由平台承担支付，您无需额外支付，您只需提交申请购买即可',
+            '为确保首次集成90天后正常使用，需向企业微信购买接口许可，由组织自己支付接口许可的费用，平台收到付费后在企微服务商后台代为缴费',
           )}
         </div>
         <div className="Font14">
@@ -298,7 +298,7 @@ export default class InterfaceLicense extends Component {
                     <div className="bodyItem orderId pLeft8 flex ellipsis">{item.orderId}</div>
                     <div className="bodyItem ellipsis">{orderTypes[item.orderType]}</div>
                     <div className="bodyItem ellipsis">{_l('%0个', item.accountCount)}</div>
-                    <div className="bodyItem ellipsis">{_l('%0月', item.accountDuration)}</div>
+                    <div className="bodyItem ellipsis">{_l('%0天', item.accountDuration)}</div>
                     <div className="bodyItem ellipsis">{item.price}</div>
                     <div className="bodyItem ellipsis">{orderStatus[item.orderStatus]}</div>
                     <div className="bodyItem ellipsis">{moment(item.createTime).format('YYYY-MM-DD')}</div>

@@ -67,6 +67,26 @@ const countArrayData = {
   },
   formData: [{ type: 26, controlId: '6189ddd91c2854dd35392445', value: '[1]' }],
 };
+const distanceData = {
+  control: {
+    type: 2,
+    expression: 'DISTANCE($64ba3c8d743a9579030d2498$,$64c0d8d14443151e8536f5a8$) * 1000',
+  },
+  formData: [
+    {
+      type: 40,
+      controlId: '64ba3c8d743a9579030d2498',
+      value:
+        '{\n  "title": "磨憨口岸",\n  "address": "云南省西双版纳傣族自治州勐腊县磨憨镇磨憨口岸",\n  "x": 101.683764,\n  "y": 21.18293,\n  "coordinate": null\n}',
+    },
+    {
+      type: 40,
+      controlId: '64c0d8d14443151e8536f5a8',
+      value:
+        '{\n  "title": "磨憨口岸 - wgs84",\n  "address": "云南省西双版纳傣族自治州勐腊县磨憨镇磨憨口岸",\n  "x": 101.68239271683325,\n  "y": 21.18558295211555,\n  "coordinate": "wgs84"\n}',
+    },
+  ],
+};
 
 const jsData = {
   control: JSON.parse(
@@ -85,6 +105,7 @@ async function test(prefix, data) {
   await test('日期计算 DATEADD(DATENOW(), "+1Y")', dateaddData);
   await test('求和', sumData);
   await test('dateif时间字段', dateifTimeData);
+  await test('地点之间的距离', distanceData);
   await test('countArray', countArrayData);
   await test('javascript', jsData);
 })();

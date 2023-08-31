@@ -37,7 +37,7 @@ class DropControlList extends React.Component {
             }}
           >
             <i className={cx('icon mRight10 Font14', 'icon-' + getIconByType(column.type))}></i>
-            <span className="Font13">{column.controlName || (column.type === 22 ? _l('分割线') : _l('备注'))}</span>
+            <span className="Font13">{column.controlName || (column.type === 22 ? _l('分段') : _l('备注'))}</span>
           </li>
         ))}
       </ul>

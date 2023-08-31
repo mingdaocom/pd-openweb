@@ -18,7 +18,6 @@ export const TAB_LIST = [
 ];
 
 export const MODULE_LIST = [
-  { value: 'all', label: _l('全部') },
   { value: 1, label: _l('应用') },
   { value: 2, label: _l('工作表') },
   { value: 7, label: _l('自定义页面') },
@@ -30,7 +29,6 @@ export const MODULE_LIST = [
 ];
 
 export const OPERATE_LIST = [
-  { value: 'all', label: _l('全部') },
   { value: 1, label: _l('创建') },
   { value: 2, label: _l('删除') },
   { value: 3, label: _l('更新') },

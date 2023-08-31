@@ -2,7 +2,7 @@
 import 'src/components/select/select';
 import { formatFileSize } from 'src/util';
 import copy from 'copy-to-clipboard';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import mainHtml from './tpl/main.htm';
 import searchListHtml from './tpl/searchList.htm';
 import searchListItemHtml from './tpl/searchListItem.htm';
@@ -949,6 +949,7 @@ ShareAttachment.prototype = {
       case SEND_TO_TYPE.CHAT: {
         if (!SA.selectedChat) {
           alert(_l('请选择要发送到的聊天'), 3);
+          return;
         }
         var CHAT_TYPE = {
           PERSON: 1,

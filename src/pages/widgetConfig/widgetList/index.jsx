@@ -74,10 +74,14 @@ const WidgetList = styled.div`
 `;
 
 export default function List(props) {
-  const { globalSheetInfo = {} } = props;
+  const { globalSheetInfo = {}, activeWidget = {} } = props;
 
   const handleAdd = (data, para) => {
-    handleAddWidgets([data], para, props);
+    const newData = {
+      ...data,
+      sectionId: activeWidget.type === 52 ? activeWidget.controlId : activeWidget.sectionId,
+    };
+    handleAddWidgets([newData], para, props);
   };
 
   return (

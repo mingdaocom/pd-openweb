@@ -27,8 +27,9 @@ export default class AddOrEditItem extends React.Component {
       title: '',
       isSoFar: false,
     };
+    const baseInfo = _.isArray(this.props.item) ? originItem : this.props.item;
     this.state = {
-      baseInfo: _.isArray(this.props.item) ? originItem : this.props.item,
+      baseInfo: { ...baseInfo, isSoFar: moment().format('YYYY-MM-DD') === baseInfo.endDate },
       errorList,
     };
   }
@@ -239,7 +240,7 @@ export default class AddOrEditItem extends React.Component {
                 className={cx('formControl', { error: !baseInfo.isSoFar && errorList.endDate })}
                 placeholder={_l('结束时间')}
                 disabled={baseInfo.isSoFar}
-                value={baseInfo.endDate}
+                value={baseInfo.isSoFar ? _l('至今') : baseInfo.endDate}
                 onBlur={() => this.updateError('endDate', !baseInfo.endDate)}
                 onFocus={() => this.updateError('endDate', false)}
               />

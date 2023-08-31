@@ -180,31 +180,33 @@ export default class MoreOverlay extends Component {
             </div>
           </Menu.Item>
         )}
-        <Menu.SubMenu
-          popupClassName="chartMenu"
-          title={_l('导出Excel%06002')}
-          icon={<Icon className="Gray_9e Font18 mRight5" icon="file_download" />}
-          popupOffset={[0, 0]}
-        >
-          <Menu.Item
-            style={{ width: 180 }}
-            className="pLeft20"
-            onClick={() => {
-              this.handleExportExcel(0);
-            }}
+        {!window.isPublicApp && (
+          <Menu.SubMenu
+            popupClassName="chartMenu"
+            title={_l('导出Excel%06002')}
+            icon={<Icon className="Gray_9e Font18 mRight5" icon="file_download" />}
+            popupOffset={[0, 0]}
           >
-            <div className="flexRow valignWrapper">{_l('按照原值导出%06000')}</div>
-          </Menu.Item>
-          <Menu.Item
-            style={{ width: 180 }}
-            className="pLeft20"
-            onClick={() => {
-              this.handleExportExcel(1);
-            }}
-          >
-            <div className="flexRow valignWrapper">{_l('按显示单位导出%06001')}</div>
-          </Menu.Item>
-        </Menu.SubMenu>
+            <Menu.Item
+              style={{ width: 180 }}
+              className="pLeft20"
+              onClick={() => {
+                this.handleExportExcel(0);
+              }}
+            >
+              <div className="flexRow valignWrapper">{_l('按照原值导出%06000')}</div>
+            </Menu.Item>
+            <Menu.Item
+              style={{ width: 180 }}
+              className="pLeft20"
+              onClick={() => {
+                this.handleExportExcel(1);
+              }}
+            >
+              <div className="flexRow valignWrapper">{_l('按显示单位导出%06001')}</div>
+            </Menu.Item>
+          </Menu.SubMenu>
+        )}
         {[reportTypes.PivotTable].includes(reportType) && !md.global.Account.isPortal && (
           <Menu.Item
             className="pLeft10"

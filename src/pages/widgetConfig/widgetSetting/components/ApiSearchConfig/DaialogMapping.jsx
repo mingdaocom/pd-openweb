@@ -93,7 +93,7 @@ export default function DialogMapping(props) {
       const parentControl = _.find(filterSelf, i => i.controlId === parentMappingItem.cid) || {};
       filterData = getMapControls(
         item,
-        parentControl.relationControls.filter(i => !_.includes(filterSYS, i.controlId)),
+        (parentControl.relationControls || []).filter(i => !_.includes(filterSYS, i.controlId)),
       ).filter(
         i =>
           !_.includes(
@@ -261,12 +261,7 @@ export default function DialogMapping(props) {
   const renderNoData = () => {
     return (
       <div className="mappingNoDataBox">
-        <Support
-          className="Gray_9e Right"
-          type={2}
-          text={_l('映射规则')}
-          href="https://help.mingdao.com/sheet47"
-        />
+        <Support className="Gray_9e Right" type={2} text={_l('映射规则')} href="https://help.mingdao.com/sheet47" />
         <div className="noDataContent">{_l('没有返回参数, 请检查模版配置')}</div>
       </div>
     );

@@ -52,6 +52,9 @@ export default function OcrDisplay(props) {
             onChange(newData);
           }}
         />
+        {ocrapitype !== '1' && md.global.Config.IsPlatformLocal && (
+          <div className="mTop10 Gray_9e">{_l('使用系统集成的识别服务。0.1元/次，从企业账务中心直接扣费')}</div>
+        )}
       </SettingItem>
 
       {ocrapitype === '1' ? (

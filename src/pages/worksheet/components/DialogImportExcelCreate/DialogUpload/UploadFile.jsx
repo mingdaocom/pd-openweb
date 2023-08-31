@@ -81,9 +81,10 @@ export default class UploadFile extends Component {
     });
   }
   render() {
+    const { style } = this.props;
     const { file = {} } = this.state;
     return file.name ? (
-      <UploadSuccess>
+      <UploadSuccess style={style}>
         <Icon icon="new_excel" className="excelIcon mBottom18 Font50" />
         <div className="Font14">{file.name}</div>
         <Progress
@@ -96,7 +97,7 @@ export default class UploadFile extends Component {
         <div className="Gray_9e">{formatFileSize(file.size)}</div>
       </UploadSuccess>
     ) : (
-      <UploadWrap>
+      <UploadWrap style={style}>
         <div
           id="uploadExcel"
           ref={node => (this.uplaodaExcel = node)}

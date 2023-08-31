@@ -1,12 +1,13 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import { string } from 'prop-types';
 import { Checkbox } from 'ming-ui';
 import { isLightColor } from 'src/util';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { OptionsWrap, OptionWrap, CommonDisplay } from '../../styled';
-import { getAdvanceSetting, getOptions, parseOptionValue } from '../../util/setting';
+import { getAdvanceSetting, getOptions, parseOptionValue, getItemOptionWidth } from '../../util/setting';
 import { find } from 'lodash';
+import autoSize from 'ming-ui/decorators/autoSize';
 
 const MultiSelectDrop = styled(CommonDisplay)`
   min-height: 34px;
@@ -23,10 +24,12 @@ const MultiSelectDrop = styled(CommonDisplay)`
   }
 `;
 
-export default function MultiSelect({ data }) {
+function MultiSelect({ data, fromType }) {
   const { options, hint } = data;
-  const { direction, checktype = '0' } = getAdvanceSetting(data);
+  const { direction = '2', checktype = '0', width = '200' } = getAdvanceSetting(data);
   const checkedValue = parseOptionValue(data.default);
+  const params = { direction, width };
+
   if (checktype === '1') {
     return (
       <MultiSelectDrop>
@@ -61,22 +64,32 @@ export default function MultiSelect({ data }) {
       className={cx({
         horizontal: direction !== '1',
       })}
+      {...params}
     >
       {getOptions(data).map(item => (
-        <div key={item.key} className="option">
-          <Checkbox checked={checkedValue.includes(item.key)} />
-          <OptionWrap
-            className={cx({
-              light: isLightColor(item.color),
-              withoutColor: data.enumDefault2 !== 1,
-              horizontal: direction !== '1',
-            })}
-            color={item.color}
-          >
-            {item.value}
-          </OptionWrap>
+        <div
+          key={item.key}
+          className="option"
+          style={direction === '0' ? { width: `${getItemOptionWidth(data, fromType)}%` } : {}}
+        >
+          <div className="optionItem">
+            <Checkbox checked={checkedValue.includes(item.key)} />
+            <OptionWrap
+              className={cx({
+                light: isLightColor(item.color),
+                withoutColor: data.enumDefault2 !== 1,
+                horizontal: direction !== '1',
+              })}
+              color={item.color}
+              {...params}
+            >
+              {item.value}
+            </OptionWrap>
+          </div>
         </div>
       ))}
     </OptionsWrap>
   );
 }
+
+export default autoSize(MultiSelect);

@@ -128,7 +128,7 @@ export default class SortableAppItem extends Component {
     const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
     const worksheets = _.filter(storage.worksheets || [], item => item.groupId === appSectionId);
     const { worksheetId, viewId } = worksheets.length ? worksheets[worksheets.length - 1] : {};
-    if (appPkg.pcNaviStyle === 2) {
+    if (appPkg.pcNaviStyle === 2 || appPkg.selectAppItmeType === 1) {
       return `/app/${appId}/${appSectionId}?from=insite`;
     }
     return `/app/${appId}/${appSectionId}/${_.filter([worksheetId, viewId], item => !!item).join('/')}?from=insite`;
@@ -183,6 +183,12 @@ export default class SortableAppItem extends Component {
             onClick={event => {
               if (this.ids.groupId !== appSectionId) {
                 changeBoardViewData([]);
+              }
+              if (appPkg.pcNaviStyle === 2) {
+                const key = `mdAppCache_${md.global.Account.accountId}_${appPkg.id}`;
+                const storage = JSON.parse(localStorage.getItem(key));
+                storage.lastGroupId = appSectionId;
+                safeLocalStorageSetItem(key, JSON.stringify(storage));
               }
             }}
           >

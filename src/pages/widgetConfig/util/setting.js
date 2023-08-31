@@ -209,7 +209,7 @@ export const isAutoNumberSelectableControl = item => {
  */
 export const isExceedMaxControlLimit = (controls = [], addCount = 0) => {
   const existedControls = controls.filter(item => !NO_CONTENT_CONTROL.includes(item.type)) || [];
-  if (existedControls.length + addCount >= MAX_CONTROLS_COUNT) {
+  if (existedControls.length + addCount > MAX_CONTROLS_COUNT) {
     alert(_l('表单中添加字段数量已达上限（%0个)', MAX_CONTROLS_COUNT), 3);
     return true;
   }
@@ -346,4 +346,25 @@ export const getShowFormat = data => {
     return showformat === '1' ? _l('YYYY年M月') : _.includes(['2', '3'], showformat) ? 'M/YYYY' : formatMode;
   }
   return formatMode.replace('YYYY-MM-DD', showType);
+};
+
+// 计算矩阵选项均分多少份
+export const getItemOptionWidth = (data, fromType) => {
+  let itemWidth = 100;
+  const options = getOptions(data);
+  const displayWidth =
+    fromType === 'public'
+      ? (document.querySelector('.publicWorksheetForm .rowsWrap') || {}).clientWidth
+      : (document.querySelector('#widgetDisplayWrap .rowsWrap') || {}).clientWidth;
+  const widthSize = data.size / 12;
+  const { direction = '2', width = '200' } = getAdvanceSetting(data);
+  if (displayWidth && direction === '0') {
+    // padding: 8
+    const boxWidth = (displayWidth - 8 * 2) * widthSize;
+    // padding: 12, border: 2
+    const optionsWidth = boxWidth - 14 * 2;
+    const num = Math.floor(optionsWidth / Number(width)) || 1;
+    itemWidth = 100 / (num > options.length ? options.length : num);
+  }
+  return itemWidth;
 };

@@ -5,20 +5,19 @@ import { Modal, Toast } from 'antd-mobile';
 import _ from 'lodash';
 
 export const getAppDetail = (appId, cb) => (dispatch, getState) => {
-  const params = {
-    appId,
-  };
   dispatch({
     type: 'MOBILE_FETCH_START',
   });
   Promise.all([
-    homeAppAjax.getAppDetail(params).then(),
-    homeAppAjax.getAppInfo(params).then(),
+    homeAppAjax.getApp({
+      appId,
+      getSection: true
+    }).then(),
     homeAppAjax.checkApp({ appId }, { silent: true }).then(),
     window.isPublicApp ? undefined : instanceVersion.getTodoListFilter({ type: -1 }).then(),
   ]).then(
     result => {
-      let [detail, info, status, processTodoList] = result;
+      let [detail, status, processTodoList] = result;
       const processData = _.find(processTodoList, { app: { id: appId } });
       const appExpandGroupInfo =
         (localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
@@ -35,7 +34,7 @@ export const getAppDetail = (appId, cb) => (dispatch, getState) => {
         data: {
           appName: detail.name,
           detail: detail,
-          appSection: info.appSectionDetail,
+          appSection: detail.sections,
           status: status,
           processCount: processData ? processData.count : 0,
         },
@@ -43,7 +42,7 @@ export const getAppDetail = (appId, cb) => (dispatch, getState) => {
       dispatch({
         type: 'MOBILE_FETCH_SUCCESS',
       });
-      cb && cb(info);
+      cb && cb(detail);
     },
     () => {
       dispatch({

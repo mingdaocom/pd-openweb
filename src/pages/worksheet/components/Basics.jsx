@@ -203,3 +203,25 @@ export const rotate = keyframes`
     transform: rotate(360deg);
   }
 `;
+
+export const CardButton = styled.span`
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
+  font-size: 14px;
+  border-radius: 22px;
+  background: #fff;
+  color: #757575;
+  box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #f5f5f5;
+  &:hover {
+    color: #333;
+    box-shadow: 0px 2px 8px 1px rgba(0, 0, 0, 0.16);
+  }
+  &.red:hover {
+    color: #f44336;
+  }
+`;

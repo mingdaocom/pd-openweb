@@ -250,6 +250,11 @@ export function initConfigDetail(id, data, currentReport) {
       }
       result.split = {};
     }
+    if (reportTypes.BidirectionalBarChart === reportType) {
+      result.yaxisList = currentReport.yaxisList.length ? [currentReport.yaxisList[0]] : [];
+      rightY.yaxisList = currentReport.yaxisList.length > 1 ? [currentReport.yaxisList[1]] : [];
+      result.split = {};
+    }
     if (reportTypes.PivotTable === reportType) {
       result.pivotTable.lines = currentReport.xaxes.controlId ? [currentReport.xaxes] : [];
       result.pivotTable.columns = currentReport.split.controlId ? [currentReport.split] : [];
@@ -915,7 +920,7 @@ export const getAxisText = (reportType, showChartType) => {
   }
   if (reportTypes.BidirectionalBarChart === reportType) {
     return {
-      x: _l('X轴(维度)'),
+      x: _l('维度'),
       y: _l('方向1(数值)'),
     };
   }
@@ -1027,6 +1032,19 @@ export const chartType = {
       },
     ],
   },
+  [reportTypes.ScatterChart]: {
+    title: _l('图形'),
+    items: [
+      {
+        name: _l('圆形'),
+        value: 1,
+      },
+      {
+        name: _l('多图形'),
+        value: 2,
+      },
+    ],
+  },
   [reportTypes.WordCloudChart]: {
     title: _l('图形'),
     items: [
@@ -1129,7 +1147,7 @@ export const fillValueMap = result => {
   const { map, valueMap = {}, reportType, xaxes, split, rightY, status } = result;
   const splitId = split ? split.controlId : '';
 
-  if (!status) {
+  if (status <= 0) {
     return result;
   }
 
@@ -1253,7 +1271,7 @@ export const mergeReportData = (currentReport, result, id) => {
   const isBarChart = result.reportType === reportTypes.BarChart;
   const isPivotTable = result.reportType === reportTypes.PivotTable;
   const param = {}
-  if (result.status) {
+  if (result.status > 0) {
     if (isPivotTable) {
       param.pivotTable = {
         showColumnCount: result.showColumnCount,
@@ -1264,6 +1282,12 @@ export const mergeReportData = (currentReport, result, id) => {
         columnSummary: result.columnSummary,
         lines: result.lines,
         lineSummary: result.lineSummary,
+      }
+      if (_.isUndefined(_.get(result, 'style.paginationVisible'))) {
+        param.style = {
+          ...result.style,
+          paginationVisible: true,
+        }
       }
     } else {
       param.xaxes = result.xaxes;
@@ -1505,6 +1529,10 @@ export const normTypes = [
     text: _l('平均值'),
     value: 4,
   },
+  {
+    text: _l('计算'),
+    value: 5
+  }
 ];
 
 /**

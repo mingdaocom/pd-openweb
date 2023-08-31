@@ -23,7 +23,6 @@ import { OPERATION_TYPE } from '../enum';
 export default class HistoryDetail extends Component {
   static propTypes = {
     id: string,
-    disabled: bool,
     onClick: func,
   };
 
@@ -63,7 +62,7 @@ export default class HistoryDetail extends Component {
   };
 
   renderOperationInfo = item => {
-    const { cause, causeMsg } = this.state.data.instanceLog;
+    const { cause, causeMsg, causeAccount } = this.state.data.instanceLog;
     const {
       flowNode,
       workItems,
@@ -81,6 +80,10 @@ export default class HistoryDetail extends Component {
       return <div className="Gray_75">{_l('跳过')}</div>;
     }
 
+    if (cause === 7777 && status === 3 && causeAccount) {
+      return <div className="personDetail flex Gray_75 flexRow">{_l('管理员：%0 中止', causeAccount.fullName)}</div>;
+    }
+
     const { type, appType } = flowNode;
     const names = workItems.map(item => {
       const { workItemAccount, workItemLog } = item;
@@ -88,7 +91,10 @@ export default class HistoryDetail extends Component {
         return { name: workItemAccount.fullName, action: workItemLog.action, target: workItemLog.actionTargetName };
       }
       if (workItemAccount) {
-        return { name: workItemAccount.fullName };
+        return {
+          name:
+            type === 0 && workItemAccount.accountId === 'user-undefined' ? _l('发起人为空') : workItemAccount.fullName,
+        };
       }
     });
 
@@ -122,7 +128,7 @@ export default class HistoryDetail extends Component {
         )}
 
         <div className="personDetail flex Gray_75 flexRow">
-          {(_.includes([0, 3, 4, 5], type) || isApproval) && (
+          {(_.includes([0, 3, 4, 5, 27], type) || isApproval) && (
             <Fragment>
               <div className="personInfo inlineFlexRow">
                 <span>
@@ -154,7 +160,9 @@ export default class HistoryDetail extends Component {
                 )}
               </div>
               {_.includes([4, 5], status) && !countersign && (
-                <div className={NODE_STATUS[status].status}>{FLOW_FAIL_REASON[cause] || causeMsg}</div>
+                <div className={NODE_STATUS[status].status}>
+                  {cause === 7777 && flowNode.name ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg}
+                </div>
               )}
             </Fragment>
           )}
@@ -204,14 +212,13 @@ export default class HistoryDetail extends Component {
   }
 
   renderRetryBtn(retryPosition) {
-    const { disabled } = this.props;
     const { data, isRetry } = this.state;
     const { instanceLog, logs } = data;
     const { cause } = instanceLog;
     const showRetry = (data.status === 3 && _.includes([20001, 20002], cause)) || (status === 4 && cause !== 7777);
     const showSuspend = data.status === 1;
 
-    if ((showRetry || showSuspend) && !disabled) {
+    if (showRetry || showSuspend) {
       return (
         <div
           className={cx(
@@ -291,7 +298,11 @@ export default class HistoryDetail extends Component {
                 {cause
                   ? cause === 40007
                     ? FLOW_FAIL_REASON[cause]
-                    : `${_l('节点: ')} ${nodeName}, ${FLOW_FAIL_REASON[cause] || causeMsg}`
+                    : !nodeName
+                    ? FLOW_FAIL_REASON[cause] || causeMsg
+                    : `${_l('节点: ')} ${nodeName}, ${
+                        cause === 7777 ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg
+                      }`
                   : ''}
               </div>
             </div>

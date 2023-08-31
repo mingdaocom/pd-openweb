@@ -3,7 +3,7 @@ import { Icon } from 'ming-ui';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import { Flex, ActivityIndicator, Drawer, Button, WingBlank, Tabs, ActionSheet } from 'antd-mobile';
+import { Flex, ActivityIndicator, Drawer, Button, WingBlank, Tabs, ActionSheet, Modal } from 'antd-mobile';
 import worksheetAjax from 'src/api/worksheet';
 import instance from 'src/pages/workflow/api/instance';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
@@ -418,12 +418,23 @@ class ProcessRecord extends Component {
       return;
     }
     if (id === 'revoke') {
-      this.handleSave(() => {
-        this.request('revoke');
-      });
+      Modal.alert(_l('确认撤回此条流程 ?'), '', [
+        {
+          text: _l('取消'),
+        },
+        {
+          text: _l('确认'),
+          onPress: () => {
+            this.handleSave(() => {
+              this.request('revoke');
+            });
+          },
+        },
+      ]);
       return;
     }
     if (id === 'urge') {
+      if (this.state.isHasten) return;
       this.request('operation', { operationType: 18 });
       return;
     }
@@ -494,7 +505,7 @@ class ProcessRecord extends Component {
      */
     if (_.includes(['before', 'after'], action)) {
       this.handleSave(() => {
-        this.request(ACTION_TO_METHOD[action], { before: action === 'before', opinion: content, forwardAccountId });
+        this.request(ACTION_TO_METHOD[action], { before: action === 'before', opinion: content, forwardAccountId, signature });
       });
     }
 
@@ -527,16 +538,26 @@ class ProcessRecord extends Component {
     const { instanceId, workId } = params;
     const { submitLoading, sheetRow } = this.state;
     const isStash = restPara.operationType === 13;
+    const isUrge = restPara.operationType === 18;
     if (submitLoading) return;
     this.setState({ submitLoading: true, otherActionVisible: false });
     instance[action === 'return' ? 'overrule' : action]({
       id: instanceId,
-      workId: restPara.operationType === 18 ? '' : workId,
+      workId: isUrge ? '' : workId,
       logId: sheetRow.logId,
       ...restPara,
     }).then(() => {
       if (isModal) {
-        onClose({ id: instanceId, isStash });
+        if (isStash) {
+          alert(_l('保存成功'));
+          this.setState({ submitLoading: false });
+          return;
+        }
+        if (isUrge) {
+          this.setState({ isHasten: true, submitLoading: false });
+          return;
+        }
+        onClose({ id: instanceId, workId });
       } else {
         window.mobileNavigateTo('/mobile/processMatters');
       }
@@ -573,7 +594,7 @@ class ProcessRecord extends Component {
   renderProcessHandle() {
     const { instance, submitLoading, submitAction, isHasten } = this.state;
     const { operationTypeList, btnMap = {}, works } = instance;
-    const baseActionList = [3, 4, 5, 9, 18];
+    const baseActionList = [3, 4, 5, 9, 17, 18];
     const actionList = operationTypeList[0].filter(n => baseActionList.includes(n));
     const newOperationTypeList = operationTypeList[1]
       .concat(operationTypeList[0].filter(n => !baseActionList.includes(n)))
@@ -627,7 +648,7 @@ class ProcessRecord extends Component {
                   _l('提交中...')
                 ) : (
                   <Fragment>
-                    <span className="ellipsis">{btnMap[item] || text}</span>
+                    <span className="ellipsis">{id === 'urge' && isHasten ? _l('已催办') : (btnMap[item] || text)}</span>
                   </Fragment>
                 )}
               </div>

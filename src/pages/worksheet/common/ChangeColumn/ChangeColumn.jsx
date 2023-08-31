@@ -13,13 +13,13 @@ const renderSortCon = ({ column, dragable, search, onClearSearch }) => (
   <div
     className={cx('flex dragCon', { HandImportant: !dragable })}
     onClick={() => {
-    if (dragable || !search) return;
+      if (dragable || !search) return;
       onClearSearch();
     }}
   >
     <i className={cx('icon focusColor Gray_9e mRight6 Font16', 'icon-' + getIconByType(column.type))}></i>
     <span className="flex overflow_ellipsis focusColor">
-      {column.controlName || (column.type === 22 ? _l('分割线') : _l('备注'))}
+      {column.controlName || (column.type === 22 ? _l('分段') : _l('备注'))}
     </span>
     <Tooltip popupPlacement="bottom" text={dragable ? null : _l('前往')}>
       <i
@@ -46,7 +46,12 @@ const SortableItem = SortableElement(
         onClick={() => handleItemClick(column)}
       />
       {dragable ? (
-        <SortHandle search={search} column={column} dragable={dragable} onClearSearch={() => onClearSearch(column.controlId)} />
+        <SortHandle
+          search={search}
+          column={column}
+          dragable={dragable}
+          onClearSearch={() => onClearSearch(column.controlId)}
+        />
       ) : (
         renderSortCon({ column, search, dragable, onClearSearch: () => onClearSearch(column.controlId) })
       )}
@@ -316,8 +321,14 @@ export default class ChangeColumn extends Component {
               onClick={() => {
                 this.handleChange({
                   selected: columns
+                    .sort((a, b) => {
+                      if (a.row === b.row) {
+                        return a.col - b.col;
+                      }
+                      return a.row - b.row;
+                    })
                     .filter(l => l.controlId.length > 20)
-                    .slice(0, 30)
+                    .slice(0, 50)
                     .map(l => l.controlId),
                   controlsSorts: columns.map(l => l.controlId),
                 });
@@ -375,10 +386,8 @@ export default class ChangeColumn extends Component {
             onClearSearch={controlId => {
               this.setState({ search: '', focusControlId: controlId }, () => {
                 let focusElem = document.querySelector('.columnCheckList .focusColumnItem');
-                if(!focusElem) return;
-                let top =
-                  focusElem.offsetTop -
-                  document.querySelector('.columnCheckList').offsetTop;
+                if (!focusElem) return;
+                let top = focusElem.offsetTop - document.querySelector('.columnCheckList').offsetTop;
                 $('.columnCheckList').scrollTop(top - 40);
               });
             }}

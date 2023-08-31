@@ -19,26 +19,31 @@ function changeKeyToServer(value) {
   return value;
 }
 
-export const updateSettings = value => (dispatch, getState) => {
-  const {
-    publicWorksheet: {
-      worksheetInfo: { worksheetId, projectId },
-    },
-  } = getState();
-  publicWorksheetAjax
-    .saveSetting({
-      projectId,
-      worksheetId,
-      ...value,
-    })
-    .then(data => {
-      console.log('save success');
-      dispatch({ type: 'PUBLICWORKSHEET_UPDATE_SETTINGS', value });
-    })
-    .fail(err => {
-      alert(_l('保存失败'), 3);
-    });
-};
+export const updateSettings =
+  (value, cb = isSuccess => {}) =>
+  (dispatch, getState) => {
+    const {
+      publicWorksheet: {
+        worksheetInfo: { worksheetId, projectId },
+      },
+    } = getState();
+    publicWorksheetAjax
+      .saveSetting({
+        projectId,
+        worksheetId,
+        ...value,
+      })
+      .then(data => {
+        if (data) {
+          cb(true);
+          console.log('save success');
+          dispatch({ type: 'PUBLICWORKSHEET_UPDATE_SETTINGS', value });
+        }
+      })
+      .fail(err => {
+        cb(false);
+      });
+  };
 
 function updateBaseConfig(dispatch, getState, value, cb) {
   const {
@@ -99,7 +104,7 @@ export function addWorksheetControl(controlName, cb = () => {}) {
       })
       .then(data => {
         dispatch({ type: 'PUBLICWORKSHEET_ADD_CONTROL', control: data });
-        dispatch(showControl(data));
+        dispatch(hideControl(data.controlId));
         cb(data);
       })
       .fail(err => {
@@ -127,6 +132,7 @@ export function loadPublicWorksheet({ worksheetId }) {
           url: data.url,
           worksheetInfo: {
             themeIndex: data.themeColor,
+            themeBgColor: data.themeBgColor,
             logoUrl: data.logo,
             coverUrl: data.cover,
             ..._.pick(data, [
@@ -154,6 +160,16 @@ export function loadPublicWorksheet({ worksheetId }) {
               'smsVerification',
               'smsVerificationFiled',
               'smsSignature',
+              'writeScope',
+              'linkSwitchTime',
+              'limitWriteTime',
+              'limitWriteCount',
+              'limitPasswordWrite',
+              'cacheDraft',
+              'cacheFieldData',
+              'weChatSetting',
+              'abilityExpand',
+              'completeNumber',
             ]),
           },
           hidedControlIds: data.hidedControlIds || [],
@@ -244,6 +260,7 @@ export function resetControls() {
             url: data.url,
             worksheetInfo: {
               themeIndex: data.themeColor,
+              themeBgColor: data.themeBgColor,
               logoUrl: data.logo,
               coverUrl: data.cover,
               ..._.pick(data, [
@@ -270,6 +287,16 @@ export function resetControls() {
                 'smsVerification',
                 'smsVerificationFiled',
                 'smsSignature',
+                'writeScope',
+                'linkSwitchTime',
+                'limitWriteTime',
+                'limitWriteCount',
+                'limitPasswordWrite',
+                'cacheDraft',
+                'cacheFieldData',
+                'weChatSetting',
+                'abilityExpand',
+                'completeNumber',
               ]),
             },
             hidedControlIds: data.hidedControlIds || [],

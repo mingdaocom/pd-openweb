@@ -43,10 +43,17 @@ export default class RelateRecordList extends React.PureComponent {
   con = React.createRef();
 
   componentDidMount() {
-    const { control } = this.props;
+    const { control, parentWorksheetId } = this.props;
     if (control) {
-      (window.isPublicWorksheet ? publicWorksheetAjax : sheetAjax)
-        .getWorksheetInfo({ worksheetId: control.dataSource, getTemplate: true })
+      (window.isPublicWorksheet && !_.get(window, 'shareState.isPublicWorkflowRecord')
+        ? publicWorksheetAjax
+        : sheetAjax
+      )
+        .getWorksheetInfo({
+          worksheetId: control.dataSource,
+          getTemplate: true,
+          relationWorksheetId: parentWorksheetId,
+        })
         .then(data => {
           this.setState(
             {
@@ -133,6 +140,7 @@ export default class RelateRecordList extends React.PureComponent {
       parentWorksheetId,
       recordId,
       controlId,
+      searchControl,
       multiple,
       staticRecords,
       fastSearchControlArgs,
@@ -165,7 +173,7 @@ export default class RelateRecordList extends React.PureComponent {
       worksheetId: dataSource,
       viewId,
       searchType: 1,
-      pageSize: 20,
+      pageSize: 50,
       pageIndex,
       status: 1,
       keyWords,
@@ -196,7 +204,7 @@ export default class RelateRecordList extends React.PureComponent {
         ];
       }
     }
-    if (parentWorksheetId && controlId) {
+    if (parentWorksheetId && controlId && _.get(parentWorksheetId, 'length') === 24) {
       args.relationWorksheetId = parentWorksheetId;
       args.controlId = controlId;
     }
@@ -209,19 +217,28 @@ export default class RelateRecordList extends React.PureComponent {
       if (window.recordShareLinkId) {
         args.linkId = window.recordShareLinkId;
       }
-      args.formId = window.publicWorksheetShareId;
+      args.shareId = window.publicWorksheetShareId;
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
     }
     this.searchAjax = getFilterRowsPromise(args);
     this.searchAjax.then(res => {
       if (res.resultCode === 1) {
-        let newRecords = res.data.filter(row => row.rowid !== recordId);
+        let newRecords = records.concat(res.data.filter(row => row.rowid !== recordId));
+        const needSort =
+          keyWords && pageIndex === 1 && _.get(control, 'advancedSetting.searchcontrol') && searchControl;
+        if (needSort && _.get(control, 'advancedSetting.searchtype') !== '1') {
+          newRecords = newRecords.sort((a, b) => (b[searchControl.controlId] === keyWords ? 1 : -1));
+        }
         this.setState({
-          records: records.concat(newRecords),
+          records: newRecords,
           loading: false,
           loadouted: res.data.length < 20,
           controls: res.template ? res.template.controls : [],
           worksheet: res.worksheet || {},
+          activeId:
+            needSort && newRecords[0] && newRecords[0][searchControl.controlId] === keyWords
+              ? newRecords[0].rowid
+              : undefined,
         });
       } else {
         this.setState({
@@ -262,6 +279,7 @@ export default class RelateRecordList extends React.PureComponent {
       control,
       coverCid,
       showControls,
+      searchControl,
       multiple,
       selectedIds,
       showCoverAndControls,
@@ -322,6 +340,7 @@ export default class RelateRecordList extends React.PureComponent {
                   <ReacordItem
                     active={activeId === record.rowid}
                     multiple={multiple}
+                    titleIsBold={searchControl && keyWords && record[searchControl.controlId] === keyWords}
                     selected={_.find(selectedIds, fid => record.rowid === fid)}
                     showCoverAndControls={showCoverAndControls}
                     control={control}

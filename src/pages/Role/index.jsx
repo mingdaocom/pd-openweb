@@ -17,6 +17,7 @@ import openImg from './img/open.gif';
 import externalPortalAjax from 'src/api/externalPortal';
 import AppRoleCon from 'src/pages/Role/AppRoleCon';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 const EDITTYLE_CONFIG = [_l('常规'), _l('外部门户')];
 const RoleWrapper = styled.div`
@@ -212,7 +213,7 @@ class AppRole extends Component {
       },
     } = props;
 
-    HomeAjax.getAppDetail({
+    HomeAjax.getApp({
       appId,
     }).then(appDetail => {
       this.setState({ appDetail, loading: false });
@@ -311,7 +312,7 @@ class AppRole extends Component {
     if (loading) {
       return <LoadDiv />;
     }
-    const featureType = canEndterPortal ? getFeatureStatus(projectId, 11) : false;
+    const featureType = canEndterPortal ? getFeatureStatus(projectId, VersionProductType.externalPortal) : false;
 
     return (
       <WaterMark projectId={projectId}>
@@ -374,7 +375,7 @@ class AppRole extends Component {
                           this.handleChangePage(() => {
                             if (o === 1) {
                               if (featureType === '2') {
-                                buriedUpgradeVersionDialog(projectId, 11);
+                                buriedUpgradeVersionDialog(projectId, VersionProductType.externalPortal);
                                 return;
                               }
                               navigateTo(`/app/${appId}/role/external`);

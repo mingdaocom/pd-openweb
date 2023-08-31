@@ -42,6 +42,9 @@ export default {
   * 重新锁定
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {boolean} args.getSection 是否获取分组信息
+  * @param {boolean} args.getManager 是否获取管理员列表信息
+  * @param {boolean} args.getProject 获取组织信息
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
@@ -60,6 +63,9 @@ export default {
   * 关闭应用锁
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {boolean} args.getSection 是否获取分组信息
+  * @param {boolean} args.getManager 是否获取管理员列表信息
+  * @param {boolean} args.getProject 获取组织信息
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
@@ -393,9 +399,9 @@ export default {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getTotalMemrber: function (args, options = {}) {
+   getTotalMember: function (args, options = {}) {
      
-     return $.api('AppManagement', 'GetTotalMemrber', args, options);
+     return $.api('AppManagement', 'GetTotalMember', args, options);
    },
   /**
   * 分页获取 外协成员

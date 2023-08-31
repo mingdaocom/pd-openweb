@@ -32,7 +32,7 @@ export const Overload = (props) => {
 }
 
 export const Abnormal = (props) => {
-  const { isEdit } = props;
+  const { isEdit, status } = props;
   if (isEdit) {
     return (
       <div className="flex flexColumn valignWrapper Gray_9e Font16 h100" style={style}>
@@ -40,12 +40,22 @@ export const Abnormal = (props) => {
       </div>
     );
   } else {
-    return (
-      <div className="flex flexColumn valignWrapper Gray_c" style={style}>
-        <Icon icon="workflow_failure" className="Font64 Gray_c mBottom10" />
-        <div className="Gray_9e Font20 mBottom2">{_l('无法形成图表')}</div>
-        <div className="Gray_9e Font16">{_l('构成要素不存在或已删除')}</div>
-      </div>
-    );
+    if (status === -1) {
+      return (
+        <div className="flex flexColumn valignWrapper Gray_c" style={style}>
+          <Icon icon="password" className="Font64 Gray_c mBottom10" />
+          <div className="Gray_9e Font20 mBottom2">{_l('无法形成图表')}</div>
+          <div className="Gray_9e Font16">{_l('无权限')}</div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex flexColumn valignWrapper Gray_c" style={style}>
+          <Icon icon="workflow_failure" className="Font64 Gray_c mBottom10" />
+          <div className="Gray_9e Font20 mBottom2">{_l('无法形成图表')}</div>
+          <div className="Gray_9e Font16">{_l('构成要素不存在或已删除')}</div>
+        </div>
+      );
+    }
   }
 }

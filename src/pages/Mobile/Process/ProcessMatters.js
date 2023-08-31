@@ -1,8 +1,9 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
-import { Tabs, Flex, Checkbox, Toast, Modal } from 'antd-mobile';
+import { Tabs, Flex, Checkbox, Modal } from 'antd-mobile';
 import { Icon, LoadDiv, ScrollView, Signature } from 'ming-ui';
 import Back from '../components/Back';
+import styled from 'styled-components';
 import ProcessRecordInfo from 'mobile/ProcessRecord';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
@@ -15,6 +16,36 @@ import './index.less';
 import 'src/pages/worksheet/common/newRecord/NewRecord.less';
 import 'mobile/ProcessRecord/OtherAction/index.less';
 import _ from 'lodash';
+
+const ModalWrap = styled(Modal)`
+  height: 95%;
+  overflow: hidden;
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+  .content {
+    background-color: #f3f3f3;
+  }
+  .closeBtn, .rejectApprove {
+    color: #999;
+    text-align: center;
+    padding: 4px 15px;
+    border-radius: 24px;
+    border: 1px solid #DDDDDD;
+    background-color: #fff;
+  }
+  .rejectApprove {
+    &.select {
+      color: #F44336;
+      border-color: #F44336;
+      background-color: rgba(244, 67, 54, 0.12);
+    }
+    &.all {
+      color: #fff;
+      border-color: #F44336;
+      background-color: #F44336;
+    }
+  }
+`;
 
 const tabs = [
   {
@@ -204,7 +235,7 @@ export default class ProcessMatters extends Component {
   handleScrollEnd = tab => {
     this.getTodoList();
   };
-  handleApproveDone = ({ id }) => {
+  handleApproveDone = ({ id, workId }) => {
     const { list, countData, appCount, topTab = {} } = this.state;
     const { appId } = getRequest();
     if (appId) {
@@ -218,7 +249,7 @@ export default class ProcessMatters extends Component {
         countDataState.writeCount = appCount.writeCount - 1;
       }
       this.setState({
-        list: list.filter(item => item.id !== id),
+        list: list.filter(item => item.workId !== workId),
         appCount: countDataState,
       });
     } else {
@@ -232,17 +263,19 @@ export default class ProcessMatters extends Component {
         countDataState.waitingWrite = countData.waitingWrite - 1;
       }
       this.setState({
-        list: list.filter(item => item.id !== id),
+        list: list.filter(item => item.workId !== workId),
         countData: countDataState,
       });
     }
   };
   hanndleApprove = (type, batchType) => {
     const { approveCards, showPassword } = this.state;
-    const signatureCard = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
-    const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
-    if (_.isEmpty(approveCards)) {
-      Toast.info(_l('请先勾选需要处理的审批'), 2);
+    const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+    const cards = type === 5 ? rejectCards : approveCards;
+    const signatureCard = cards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
+    const encryptCard = cards.filter(card => _.get(card.flowNode, 'encrypt'));
+    if (_.isEmpty(cards)) {
+      alert(_l('请先勾选需要处理的审批'), 2);
     }
     if (signatureCard.length || (encryptCard.length && showPassword)) {
       if (signatureCard.length) {
@@ -258,7 +291,9 @@ export default class ProcessMatters extends Component {
   handleBatchApprove = (signature, approveType) => {
     const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
     const { approveCards } = this.state;
-    const selects = approveCards.map(({ id, workId, flowNode }) => {
+    const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+    const cards = approveType === 5 ? rejectCards : approveCards;
+    const selects = cards.map(({ id, workId, flowNode }) => {
       const data = { id, workId, opinion: _l('批量处理') };
       if ((_.get(flowNode, batchType) || []).includes(1)) {
         return {
@@ -277,7 +312,7 @@ export default class ProcessMatters extends Component {
       })
       .then(result => {
         if (result) {
-          Toast.info(_l('操作成功'), 2);
+          alert(_l('操作成功'), 1);
           this.setState({ batchApproval: false, approveCards: [] });
           this.getTodoList();
           this.getTodoCount();
@@ -285,8 +320,10 @@ export default class ProcessMatters extends Component {
       });
   };
   renderSignatureDialog() {
-    const { approveCards, approveType, encryptType, showPassword } = this.state;
-    const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
+    const { approveType, encryptType, showPassword } = this.state;
+    const type = approveType || encryptType;
+    const batchType = type === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
+    const approveCards = type === 4 ? this.state.approveCards : this.state.approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
     const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
     return (
@@ -298,7 +335,7 @@ export default class ProcessMatters extends Component {
         }}
         animationType="slide-up"
       >
-        <div className={cx('otherActionWrapper flexColumn')}>
+        <div className="otherActionWrapper flexColumn">
           <div className="flex pAll10">
             <div className="Gray_75 Font14 TxtLeft mBottom10">
               {_l('其中')}
@@ -370,11 +407,96 @@ export default class ProcessMatters extends Component {
                 }
               }}
             >
-              {_l('通过')}
+              {_l('确定')}
             </div>
           </div>
         </div>
       </Modal>
+    );
+  }
+  renderRejectDialog() {
+    const { approveCards, batchApproval, filter, topTab } = this.state;
+    const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+    const noRejectCards = approveCards.filter(c => !_.get(c, 'flowNode.btnMap')[5]);
+    return (
+      <ModalWrap
+        popup
+        visible={true}
+        onClose={() => {
+          this.setState({ rejectVisible: false });
+        }}
+        animationType="slide-up"
+      >
+        <div className="flexColumn h100 content">
+          <div className="flex flexColumn" style={{ overflowY: 'auto' }}>
+            <div className="pLeft10 mTop16 mBottom10 TxtLeft Gray bold">{_l('有%0个可否决的审批事项', rejectCards.length)}</div>
+            {rejectCards.map(item => (
+              <div className="pLeft10 pRight10" key={item.workId}>
+                <Card
+                  item={item}
+                  type={filter ? filter.type : null}
+                  time={createTimeSpan(item.workItem.receiveTime)}
+                  currentTab={topTab ? topTab.id : bottomTab.id}
+                  showApproveChecked={false}
+                  batchApproval={batchApproval}
+                  renderBodyTitle={() => {
+                    return item.entityName ? `${item.entityName}: ${item.title}` : item.title;
+                  }}
+                  onClick={() => {
+                    this.setState({
+                      previewRecord: { instanceId: item.id, workId: item.workId },
+                    });
+                  }}
+                />
+              </div>
+            ))}
+            {!!noRejectCards.length && (
+              <Fragment>
+                <div className="pLeft10 mTop6 mBottom10 Gray_75 TxtLeft bold">{_l('不能否决事项')} {noRejectCards.length}</div>
+                {noRejectCards.map(item => (
+                  <div className="pLeft10 pRight10" key={item.workId}>
+                    <Card
+                      item={item}
+                      type={filter ? filter.type : null}
+                      time={createTimeSpan(item.workItem.receiveTime)}
+                      currentTab={topTab ? topTab.id : bottomTab.id}
+                      showApproveChecked={false}
+                      batchApproval={batchApproval}
+                      renderBodyTitle={() => {
+                        return item.entityName ? `${item.entityName}: ${item.title}` : item.title;
+                      }}
+                      onClick={() => {
+                        this.setState({
+                          previewRecord: { instanceId: item.id, workId: item.workId },
+                        });
+                      }}
+                    />
+                  </div>
+                ))}
+              </Fragment>
+            )}
+          </div>
+          <div className="flexRow valignWrapper pAll10 WhiteBG">
+            <div
+              className="closeBtn flex bold mRight10"
+              onClick={() => {
+                this.setState({ rejectVisible: false });
+              }}
+            >
+              {_l('取消')}
+            </div>
+            <div
+              className={cx('rejectApprove flex bold all')}
+              onClick={() => {
+                this.hanndleApprove(5, 'auth.overruleTypeList');
+                this.setState({ rejectVisible: false });
+              }}
+            >
+              <span className="mRight5">{_l('否决')}</span>
+            </div>
+          </div>
+        </div>
+      </ModalWrap>
     );
   }
   renderCount(tab) {
@@ -459,13 +581,13 @@ export default class ProcessMatters extends Component {
     return (
       <ScrollView className="flex" onScrollEnd={this.handleScrollEnd}>
         {list.map(item => (
-          <div className="pLeft10 pRight10" key={item.id}>
+          <div className="pLeft10 pRight10" key={item.workId}>
             <Card
               item={item}
               type={filter ? filter.type : null}
               time={createTimeSpan(item.workItem.receiveTime)}
               currentTab={topTab ? topTab.id : bottomTab.id}
-              approveChecked={!_.isEmpty(_.find(approveCards, { id: item.id }))}
+              approveChecked={!_.isEmpty(_.find(approveCards, { workId: item.workId }))}
               batchApproval={batchApproval}
               renderBodyTitle={() => {
                 return item.entityName ? `${item.entityName}: ${item.title}` : item.title;
@@ -474,7 +596,6 @@ export default class ProcessMatters extends Component {
                 this.setState({
                   previewRecord: { instanceId: item.id, workId: item.workId },
                 });
-                // console.log(`/mobile/processRecord/${item.id}/${item.workId}`);
               }}
               onApproveDone={this.handleApproveDone}
               onChangeApproveCards={e => {
@@ -485,7 +606,7 @@ export default class ProcessMatters extends Component {
                   });
                 } else {
                   this.setState({
-                    approveCards: approveCards.filter(n => n.id !== item.id),
+                    approveCards: approveCards.filter(n => n.workId !== item.workId),
                   });
                 }
               }}
@@ -512,9 +633,11 @@ export default class ProcessMatters extends Component {
       approveCards,
       approveType,
       encryptType,
+      rejectVisible,
     } = this.state;
     const currentTabs = bottomTab.tabs;
     const allowApproveList = list.filter(c => _.get(c, 'flowNode.batch'));
+    const rejectList = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
     return (
       <div className="processContent flexColumn h100">
         <div className="flex flexColumn">
@@ -547,18 +670,19 @@ export default class ProcessMatters extends Component {
             )}
           </div>
           {batchApproval && (
-            <div className="batchApprovalFooter">
+            <div className="batchApprovalFooter flexColumn">
               <div className="valignWrapper">
                 <Checkbox
                   checked={allowApproveList.length && allowApproveList.length === approveCards.length}
+                  className={cx({ checkboxDisabled: !allowApproveList.length })}
                   onChange={e => {
                     const { checked } = e.target;
                     if (checked) {
                       if (allowApproveList.length) {
-                        Toast.info(_l('全选%0条可批量审批的记录', allowApproveList.length), 2);
+                        alert(_l('全选%0条可批量审批的记录', allowApproveList.length), 1);
                         this.setState({ approveCards: allowApproveList });
                       } else {
-                        Toast.info(_l('没有允许批量审批的记录，请打开记录逐条审批'), 2);
+                        alert(_l('没有可批量操作的审批事项'), 2);
                       }
                     } else {
                       this.setState({ approveCards: [] });
@@ -572,9 +696,9 @@ export default class ProcessMatters extends Component {
                     : list.length !== countData.waitingApproval && _l('（已加载%0条）', list.length)}
                 </div>
               </div>
-              <div className="valignWrapper">
+              <div className="valignWrapper mTop10">
                 <div
-                  className="pass mRight30"
+                  className={cx('passApprove flex mRight10', { all: approveCards.length })}
                   onClick={() => {
                     this.hanndleApprove(4, 'auth.passTypeList');
                   }}
@@ -582,12 +706,19 @@ export default class ProcessMatters extends Component {
                   {_l('通过')}
                 </div>
                 <div
-                  className="overrule"
+                  className={cx('rejectApprove flex', { select: rejectList.length, all: approveCards.length && rejectList.length === approveCards.length })}
                   onClick={() => {
-                    this.hanndleApprove(5, 'auth.overruleTypeList');
+                    if (_.isEmpty(approveCards)) {
+                      alert(_l('请先勾选需要处理的审批'), 2);
+                    } else if (_.isEmpty(rejectList)) {
+                      alert(_l('没有可否决的审批事项'), 2);
+                    } else {
+                      this.setState({ rejectVisible: true });
+                    }
                   }}
                 >
-                  {_l('否决')}
+                  <span className="mRight5">{_l('否决')}</span>
+                  {!(approveCards.length && rejectList.length === approveCards.length) && !!rejectList.length && rejectList.length}
                 </div>
               </div>
             </div>
@@ -610,12 +741,13 @@ export default class ProcessMatters extends Component {
         </div>
         {!batchApproval && (
           <Back
+            style={{ bottom: 60 }}
             onClick={() => {
               history.back();
             }}
           />
         )}
-        {topTab && (topTab.id === 'waitingApproval' || topTab.id === 'waitingWrite') && (
+        {!batchApproval && topTab && (topTab.id === 'waitingApproval' || topTab.id === 'waitingWrite') && (
           <ProcessDelegation topTab={topTab} className={cx({ bottom60: !list.length })} />
         )}
         {topTab && topTab.id === 'waitingApproval' && !batchApproval && !!list.length && (
@@ -637,7 +769,7 @@ export default class ProcessMatters extends Component {
           instanceId={previewRecord.instanceId}
           workId={previewRecord.workId}
           onClose={data => {
-            if (data.id && !data.isStash) {
+            if (data.id) {
               this.handleApproveDone(data);
             }
             this.setState({
@@ -646,6 +778,7 @@ export default class ProcessMatters extends Component {
           }}
         />
         {(approveType || encryptType) && this.renderSignatureDialog()}
+        {rejectVisible && this.renderRejectDialog()}
       </div>
     );
   }

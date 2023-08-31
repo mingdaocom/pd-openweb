@@ -32,6 +32,7 @@ import BarCode from './BarCode';
 import OrgRole from './OrgRole';
 import Search from './Search';
 import RelationSearch from './RelationSearch';
+import Section from './Section';
 
 export default {
   RADIO: Radio,
@@ -68,4 +69,5 @@ export default {
   OrgRole: OrgRole,
   Search: Search,
   RelationSearch: RelationSearch,
+  Section: Section,
 };

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import update from 'immutability-helper';
 import worksheetAjax from 'src/api/worksheet';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import WorksheetTable from 'worksheet/components/WorksheetTable/V2';
+import WorksheetTable from 'worksheet/components/WorksheetTable';
 import { RowHead } from 'worksheet/components/WorksheetTable/components/';
 import ColumnHead from './TrashColumnHead';
 import TrashBatchOperate from './TrashBatchOperate';

@@ -1920,13 +1920,7 @@ export default class DataFormat {
           if (controlType === 29) {
             isNull = _.isEmpty(safeParse(curValue));
           } else {
-            isNull =
-              controlType === 34
-                ? !curValue
-                : !_.get(
-                    _.find(this.data, d => d.controlId === _.get(configs, '0.subCid')),
-                    'value',
-                  );
+            isNull = controlType === 34 ? !curValue : true;
           }
 
           return _.every(items, item => (item.dynamicSource || []).length === 0) && isNull;

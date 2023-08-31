@@ -1,5 +1,5 @@
 ﻿import './css/quickCreateTask.less';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import ajaxRequest from 'src/api/taskCenter';
 import 'src/components/mdDatePicker/mdDatePicker';
 import 'src/components/mdBusinessCard/mdBusinessCard';

@@ -10,6 +10,7 @@ import ShareUrl from 'worksheet/components/ShareUrl';
 import * as actions from '../redux/actions';
 import { VISIBLE_TYPE } from '../enum';
 import _ from 'lodash';
+import { renderLimitInfo, isDisplayPromptText } from '../utils';
 
 function EnablePanel(props) {
   const {
@@ -20,13 +21,26 @@ function EnablePanel(props) {
     updateWorksheetVisibleType,
     clear,
     setHederVisible,
+    refreshShareUrl,
+    worksheetSettings,
   } = props;
   const [formVisible, setFormVisible] = useState(/detail/.test(location.hash));
   const enabled = worksheetInfo.visibleType === VISIBLE_TYPE.PUBLIC;
+
   function updateFormVisible(value) {
     setHederVisible(!value);
     setFormVisible(value);
   }
+
+  function onSwitchChange() {
+    const newVisibleType = worksheetInfo.visibleType === VISIBLE_TYPE.PUBLIC ? VISIBLE_TYPE.CLOSE : VISIBLE_TYPE.PUBLIC;
+    updateWorksheetVisibleType(newVisibleType, () => {
+      if (newVisibleType === VISIBLE_TYPE.PUBLIC) {
+        updateFormVisible(true);
+      }
+    });
+  }
+
   useEffect(() => {
     if (/detail/.test(location.hash)) {
       location.hash = '';
@@ -54,7 +68,7 @@ function EnablePanel(props) {
   if (formVisible) {
     return (
       <div className="publicWorksheetConfigCon flexRow">
-        <ConfigPanel onCloseConfig={() => updateFormVisible(false)} />
+        <ConfigPanel onCloseConfig={() => updateFormVisible(false)} enabled={enabled} onSwitchChange={onSwitchChange} />
         <PublicWorksheetConfigForm />
       </div>
     );
@@ -66,27 +80,19 @@ function EnablePanel(props) {
         {_l('启用后，将表单公开发布给应用外的用户填写，为你的工作表收集数据')}
         <Support type={3} href="https://help.mingdao.com/sheet8" text={_l('帮助')} />
       </div>
-      <Switch
-        className="publishSwitch"
-        checked={enabled}
-        onClick={() => {
-          const newVisibleType =
-            worksheetInfo.visibleType === VISIBLE_TYPE.PUBLIC ? VISIBLE_TYPE.CLOSE : VISIBLE_TYPE.PUBLIC;
-          updateWorksheetVisibleType(newVisibleType, () => {
-            if (newVisibleType === VISIBLE_TYPE.PUBLIC) {
-              updateFormVisible(true);
-            }
-          });
-        }}
-      />
+      <Switch className="publishSwitch" checked={enabled} onClick={onSwitchChange} />
       <span className="status">{enabled ? _l('启用') : _l('关闭')}</span>
       {enabled && (
         <React.Fragment>
+          {isDisplayPromptText(worksheetSettings) && (
+            <div className="promptText mTop16">{renderLimitInfo(worksheetSettings)}</div>
+          )}
           <ShareUrl
             copyShowText
             theme="light"
-            className="mainShareUrl mTop15 mBottom20"
+            className="mainShareUrl mTop16 mBottom20"
             url={shareUrl}
+            refreshShareUrl={refreshShareUrl}
             customBtns={[{ tip: _l('打开'), icon: 'launch', onClick: () => window.open(shareUrl) }]}
           />
           <Button size="mdbig" onClick={() => updateFormVisible(true)}>
@@ -109,7 +115,7 @@ EnablePanel.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  ..._.pick(state.publicWorksheet, ['shareUrl', 'worksheetInfo']),
+  ..._.pick(state.publicWorksheet, ['shareUrl', 'worksheetInfo', 'worksheetSettings']),
 });
 const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 

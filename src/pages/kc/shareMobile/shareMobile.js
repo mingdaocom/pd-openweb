@@ -1,5 +1,5 @@
 import './css/mobileShare.less';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import qs from 'query-string';
 import { downloadFile, formatFileSize, getClassNameByExt } from 'src/util';
 import mobileShareHtml from './tpl/mobileShare.htm';

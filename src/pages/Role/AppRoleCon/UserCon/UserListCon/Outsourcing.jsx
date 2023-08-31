@@ -12,9 +12,9 @@ import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput'
 import _ from 'lodash';
 import { getCurrentProject } from 'src/util';
 import UserHead from 'src/pages/feed/components/userHead';
-import { getIcon, getColor, getTxtColor, pageSize } from 'src/pages/Role/AppRoleCon/UserCon/config';
+import { getIcon, getColor, getTxtColor } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import moment from 'moment';
-
+const pageSize = 1000;
 const Wrap = styled.div`
   padding: 20px 10px 20px 10px;
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
@@ -159,7 +159,7 @@ function Others(props) {
     {
       id: 'operateTime',
       name: _l('添加时间'),
-      sorter: true,
+      // sorter: true,
       className: 'timeTr',
       minW: 130,
       render: (text, data, index) => {
@@ -201,6 +201,15 @@ function Others(props) {
       },
     },
   ];
+  const handleSearch = keyWords => {
+    setState({ keyWords });
+    SetAppRolePagingModel({
+      ...appRolePagingModel,
+      pageIndex: 1,
+      keywords: keyWords,
+    });
+  };
+  const onSearch = _.debounce(keywords => handleSearch(keywords), 500);
   return (
     <Wrap className={cx('flex flexColumn overflowHidden', { isAllType: roleId !== 'all' })}>
       <div className="bar flexRow alignItemsCenter barActionCon">
@@ -235,15 +244,7 @@ function Others(props) {
                 className="roleSearch"
                 placeholder={props.placeholder || _l('搜索')}
                 value={keyWords}
-                onChange={keyWords => {
-                  setState({ keyWords });
-                  SetAppRolePagingModel({
-                    ...appRolePagingModel,
-                    pageIndex: 1,
-                    keywords: keyWords,
-                  });
-                  getOutList({ appId }, true);
-                }}
+                onChange={onSearch}
               />
             </div>
           </WrapBar>
@@ -263,7 +264,9 @@ function Others(props) {
           setSelectedIds(list);
         }}
         showCheck={canEdit}
-        list={pageIndex <= 1 && loading ? [] : userList}
+        list={
+          pageIndex <= 1 && loading ? [] : !keyWords ? userList : userList.filter(o => o.name.indexOf(keyWords) >= 0)
+        }
         pageIndex={pageIndex}
         total={total}
         onScrollEnd={() => {

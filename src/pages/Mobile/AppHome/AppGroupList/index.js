@@ -85,7 +85,7 @@ class AppGroupList extends Component {
         {!_.isEmpty(personalGroups) && this.renderlist(personalGroups, 'personalGroups')}
         {!_.isEmpty(projectGroups) && this.renderlist(projectGroups, 'projectGroups')}
         <Back
-          style={{ bottom: '20px' }}
+          icon="home"
           onClick={() => {
             window.mobileNavigateTo('/mobile/appHome');
           }}

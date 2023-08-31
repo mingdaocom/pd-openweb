@@ -171,7 +171,7 @@ function NewRecord(props) {
       {visible && advancedSetting.closedrafts !== '1' && showDraftsEntry && (
         <MobileDraft
           appId={appId}
-          worksheetId={worksheetInfo.worksheetId}
+          worksheetId={props.worksheetId || worksheetInfo.worksheetId}
           controls={_.get(worksheetInfo, 'template.controls')}
           worksheetInfo={worksheetInfo}
           sheetSwitchPermit={sheetSwitchPermit}

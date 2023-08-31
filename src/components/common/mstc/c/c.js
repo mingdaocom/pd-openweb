@@ -1,6 +1,6 @@
-import 'src/components/createCalendar/createCalendar';
+import createCalendar from 'src/components/createCalendar/createCalendar';
 
-export default function(options) {
+export default function (options) {
   if (
     $('#dialogSendMessage').is(':visible') ||
     $('#easyDialogBoxMDUpdater').is(':visible') ||
@@ -9,5 +9,5 @@ export default function(options) {
   ) {
     return;
   }
-  $.CreateCalendar(options);
+  createCalendar(options);
 }

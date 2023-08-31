@@ -16,6 +16,14 @@ export default addSubPathOfRoutes(
       sensitive: true,
     },
 
+    //外部门户个人详情
+    portaluser: {
+      path: '/app/:appId/portaluser/:id?',
+      component: () => import('pages/Role/PortalCon/portalUser'),
+      sensitive: true,
+      title: _l('用户审核'),
+    },
+
     // 日志
     appLogs: {
       path: '/app/:appId/logs/:projectId',

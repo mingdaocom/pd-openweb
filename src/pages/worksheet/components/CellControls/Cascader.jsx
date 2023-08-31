@@ -41,7 +41,7 @@ export default class Cascader extends React.Component {
     switch (e.key) {
       default:
         (() => {
-          if (isediting || !e.key || !isKeyBoardInputChar(e.key)) {
+          if (!e.isInputValue && (isediting || !e.key || !isKeyBoardInputChar(e.key))) {
             return;
           }
           updateEditingStatus(true, () => {});
@@ -72,7 +72,7 @@ export default class Cascader extends React.Component {
       <EditableCellCon
         conRef={this.con}
         onClick={onClick}
-        className={cx(className, 'cellControlCascader', { canedit: editable })}
+        className={cx(className, 'cellControlCascader', { canedit: editable, focusInput: editable })}
         style={style}
         isediting={isediting}
         hideOutline

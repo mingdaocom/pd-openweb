@@ -210,7 +210,7 @@ export default class Sort extends Component {
     }
   }
   getCustomSort = (controlId, value) => {
-    const { currentReport } = this.props;
+    const { sourceType, currentReport, reportData } = this.props;
 
     this.setState({
       customSortLoading: true,
@@ -222,6 +222,9 @@ export default class Sort extends Component {
       .customSort({
         appId: currentReport.appId,
         controlId,
+        auth: reportData.auth,
+        owner: reportData.owner,
+        sourceType,
         filter: currentReport.filter,
         sort: value
       })

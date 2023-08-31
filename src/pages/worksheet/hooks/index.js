@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 /** global hooks */
 
 export function useRefStore(initialValue = {}) {
@@ -30,4 +30,17 @@ export function useRefStore(initialValue = {}) {
     }
   }
   return [cache.current, set];
+}
+
+export function usePasteText(onPaste = () => {}, ...args) {
+  useEffect(() => {
+    const handlePaste = e => {
+      const text = e.clipboardData.getData('text');
+      onPaste(text);
+    };
+    document.addEventListener('paste', handlePaste);
+    return () => {
+      document.removeEventListener('paste', handlePaste);
+    };
+  }, [...args]);
 }

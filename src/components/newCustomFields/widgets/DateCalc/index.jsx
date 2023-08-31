@@ -47,7 +47,9 @@ export default class Widgets extends Component {
       content = hideUnit ? prefix + formatValue + suffix : formatValue;
     } else {
       const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: unit || '1' } });
-      content = moment(moment(value), showFormat).format(showFormat);
+      content = moment(value).year()
+        ? moment(moment(value), showFormat).format(showFormat)
+        : moment(value, showFormat).format(showFormat);
     }
 
     return <div className={cx('customFormControlBox customFormReadonly customFormTextareaBox')}>{content}</div>;

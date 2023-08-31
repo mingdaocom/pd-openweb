@@ -3,7 +3,7 @@ import AccountController from 'src/api/account';
 import './style.less';
 import { encrypt } from 'src/util';
 import captcha from 'src/components/captcha';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import tpl from './validatePassword.html';
 
 var ajax = null;

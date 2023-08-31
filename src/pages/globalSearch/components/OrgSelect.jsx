@@ -30,30 +30,24 @@ const OrgSelectCon = styled.div`
 const ALL_ORG = { companyName: '全部组织', projectId: 'all' };
 
 export default function OrgSelect(props) {
-  const { currentProjectId, needAll = false, onChange, style = {} } = props;
+  const { currentProjectId, needAll = false, onChange, style = {}, filterFucntion = l => l } = props;
 
   const [orgList, setOrgList] = useState(md.global.Account.projects || []);
   const [selected, setSelected] = useState(undefined);
   const [search, setSearch] = useState(undefined);
   const [visible, setVisible] = useState(false);
 
-  useEffect(
-    () => {
-      let current = currentProjectId || getCurrentProjectId();
+  useEffect(() => {
+    let current = currentProjectId || getCurrentProjectId();
 
-      setSelected(needAll ? ALL_ORG : _.find(orgList, { projectId: current }));
-      setOrgList((needAll ? [ALL_ORG] : []).concat(md.global.Account.projects));
-    },
-    [needAll],
-  );
+    setSelected(needAll ? ALL_ORG : _.find(orgList, { projectId: current }));
+    setOrgList((needAll ? [ALL_ORG] : []).concat(md.global.Account.projects));
+  }, [needAll]);
 
-  useEffect(
-    () => {
-      let current = currentProjectId || getCurrentProjectId();
-      setSelected(_.find(orgList, { projectId: current }) || ALL_ORG);
-    },
-    [currentProjectId],
-  );
+  useEffect(() => {
+    let current = currentProjectId || getCurrentProjectId();
+    setSelected(_.find(orgList, { projectId: current }) || ALL_ORG);
+  }, [currentProjectId]);
 
   const onClick = item => {
     setSelected(item);
@@ -92,7 +86,7 @@ export default function OrgSelect(props) {
               </Tooltip>
             </div>
             <ul className="orgList">
-              {orgList.map(item => {
+              {orgList.filter(filterFucntion).map(item => {
                 return (
                   <li
                     className={cx('orgListItem overflow_ellipsis', {
@@ -105,13 +99,16 @@ export default function OrgSelect(props) {
                   </li>
                 );
               })}
-              {orgList.length === 0 && <span className="orgListItem Gray_9">{_l('暂无搜索结果')}</span>}
+              {orgList.filter(filterFucntion).length === 0 && (
+                <span className="orgListItem Gray_9">{_l('暂无搜索结果')}</span>
+              )}
             </ul>
           </div>
         }
       >
         <div className="orgShowCon">
-          <span className='ellipsis'>{selected && selected.companyName}</span> <Icon icon="expand_more" className="Font20 Gray_bd mLeft9" />
+          <span className="ellipsis">{selected && selected.companyName}</span>{' '}
+          <Icon icon="expand_more" className="Font20 Gray_bd mLeft9" />
         </div>
       </Trigger>
     </OrgSelectCon>

@@ -10,7 +10,7 @@ const LayoutContent = styled.div`
   display: flex;
 `;
 
-const { processId, instanceId } = getRequest();
+const { processId, instanceId, selectNodeId } = getRequest();
 
 class MobileFlowChart extends React.Component {
   constructor(props) {
@@ -19,7 +19,7 @@ class MobileFlowChart extends React.Component {
   render() {
     return (
       <LayoutContent className="flowChartModal h100">
-        <FlowChart processId={processId} instanceId={instanceId} />
+        <FlowChart processId={processId} instanceId={instanceId} selectNodeId={selectNodeId} />
       </LayoutContent>
     );
   }

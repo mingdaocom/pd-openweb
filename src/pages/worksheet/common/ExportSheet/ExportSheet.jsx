@@ -95,7 +95,8 @@ export default class ExportSheet extends Component {
       exportView: { viewId },
       isCharge,
     } = this.props;
-    const { showTabs, columnsSelected, exportExtIds } = this.state;
+    let { columnsSelected } = this.state;
+    const { showTabs, exportExtIds } = this.state;
 
     worksheetAjax.getExportConfig({ worksheetId, viewId }).then(res => {
       if (res.status === 0) {
@@ -103,12 +104,15 @@ export default class ExportSheet extends Component {
         return;
       }
 
+      // 导出所有字段的时候默认值处理
+      if (showTabs && res.exportFieldType === 0) {
+        columnsSelected = this.getDefaultColumnsSelected();
+      }
+
       let exportRelationalSheet = false;
 
       Object.keys(columnsSelected).forEach(key => {
-        if (!_.includes(res.controlIds, key)) {
-          columnsSelected[key] = false;
-        }
+        columnsSelected[key] = _.includes(res.controlIds, key);
       });
 
       res.exportExtIds.forEach(item => {

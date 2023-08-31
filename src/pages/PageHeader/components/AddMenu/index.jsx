@@ -14,7 +14,7 @@ export default function UserMenu() {
   const calendarVisible = !md.global.SysSettings.forbidSuites.includes('3');
   const knowledgeVisible = !md.global.SysSettings.forbidSuites.includes('4');
   return (
-    <div className="commonTopBarMenu Relative">
+    <div className="commonTopBarMenu Relative Normal">
       <ul>
         {
           feedVisible && (

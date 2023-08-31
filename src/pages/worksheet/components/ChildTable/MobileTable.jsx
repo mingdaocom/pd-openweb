@@ -46,12 +46,14 @@ const MobileTableContent = styled.div`
 `;
 
 export default function MobileTable(props) {
-  const { onOpen, controls, rows, isEdit, allowcancel, allowadd, disabled, sheetSwitchPermit, onDelete } = props;
+  const { onOpen, controls, rows, isEdit, allowcancel, allowadd, disabled, sheetSwitchPermit, onDelete, showNumber } =
+    props;
   const defaultMaxLength = 10;
   const [maxShowLength, setMaxShowLength] = useState(defaultMaxLength);
   const showRows = isEdit ? rows : rows.slice(0, maxShowLength);
   const showControls = controls.slice(0, 3);
   const isShowAll = maxShowLength === rows.length;
+
   return (
     <MobileTableContent>
       <div className="mobileTableHeader flexRow valignWrapper">
@@ -83,8 +85,10 @@ export default function MobileTable(props) {
                   ]);
                 }}
               ></i>
-            ) : (
+            ) : showNumber ? (
               i + 1
+            ) : (
+              ''
             )}
           </div>
           {showControls.map((c, cIndex) => (

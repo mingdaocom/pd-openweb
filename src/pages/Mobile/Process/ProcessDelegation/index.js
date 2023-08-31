@@ -61,7 +61,7 @@ export default function ProcessDelegation(props) {
   };
 
   return (
-    <div className={cx(`card processDelegation ${className}`, { bottom122: topTab.id === 'waitingApproval' })}>
+    <div className={cx(`card processDelegation ${className}`, { bottom180: topTab.id === 'waitingApproval' })}>
       <Flex justify="center" align="center" onClick={handleClickDelegation}>
         <Icon className="Font24 Gray_9e" icon="lift" />
         {!_.isEmpty(delegationList) && <div className="redDot"></div>}

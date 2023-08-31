@@ -22,18 +22,15 @@ export default function Des(props) {
     let txt = '';
     switch (nodeData.nodeType) {
       case 'UNION':
-        txt = (
-          UNION_TYPE_LIST.find(o => o.type === (_.get(nodeData, ['nodeConfig', 'config', 'unionType']) || 'UNION')) ||
-          {}
-        ).txt;
+        txt = (UNION_TYPE_LIST.find(o => o.type === (_.get(nodeData, 'nodeConfig.config.unionType') || 'UNION')) || {})
+          .txt;
         break;
       case 'JOIN':
-        txt = (
-          JOIN_TYPE.find(o => o.type === (_.get(nodeData, ['nodeConfig', 'config', 'joinType']) || 'INNER_JOIN')) || {}
-        ).txt;
+        txt = (JOIN_TYPE.find(o => o.type === (_.get(nodeData, 'nodeConfig.config.joinType') || 'INNER_JOIN')) || {})
+          .txt;
         break;
       case 'FILTER':
-        let items = _.get(nodeData, ['nodeConfig', 'config', 'items']) || [];
+        let items = _.get(nodeData, 'nodeConfig.config.items') || [];
         let data = [];
         (items || []).map(o => {
           if (!!o.isGroup) {

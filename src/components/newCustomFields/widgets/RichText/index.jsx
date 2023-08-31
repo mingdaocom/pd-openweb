@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import { RichText } from 'ming-ui';
 import { browserIsMobile } from 'src/util';
-import autoSize from 'ming-ui/decorators/autoSize';
 import _ from 'lodash';
 
 export default class Widgets extends Component {

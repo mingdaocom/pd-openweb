@@ -79,7 +79,6 @@
   min-height: 0;
   font-size: 13px;
   color: #333333;
-  position: relative;
   .ant-table {
     .ant-table-column-sorters {
       padding: 0 !important;
@@ -125,6 +124,12 @@
       background: #f5f5f5;
       &.ant-table-column-sort {
         background: #f5f5f5 !important;
+      }
+    }
+    &.ant-table-empty {
+      tbody > tr > td {
+        height: unset;
+        background: #fff;
       }
     }
   }

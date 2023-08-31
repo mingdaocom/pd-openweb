@@ -73,7 +73,6 @@ export const addGroupMembers = session => {
         .then(data => {
           const accountInfos = data.results[0].accountInfos || [];
           existAccountHint(data);
-          // console.log('addMembers', accountInfos);
         });
     } else if (type === Constant.SESSIONTYPE_USER) {
       accountIds.push(sessionTarget.id); // 将当前聊天人加入群组会话
@@ -108,7 +107,6 @@ export const addGroupMembers = session => {
         .then(data => {
           const accountInfos = data.results[0].accountInfos || [];
           existAccountHint(data, cb);
-          // console.log('inviteCallback addMembers', accountInfos);
         });
     }
   };

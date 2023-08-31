@@ -5,6 +5,7 @@ import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 import { VCenterIconText, Tooltip, Dialog } from 'ming-ui';
 import cx from 'classnames';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import SaveButton from './SaveButton';
 import FilterDetailName from './FilterDetailName';
 import SplitDropdown from './SplitDropdown';
@@ -98,7 +99,7 @@ export default function FilterDetail(props) {
   const scrollRef = useRef();
   const [foldedMap, setFoldedMap] = useState({});
   const { projectId, appId, worksheetId, isCharge } = base;
-  const featureType = getFeatureStatus(projectId, 24);
+  const featureType = getFeatureStatus(projectId, VersionProductType.filterGroup);
   let canEdit = props.canEdit;
   if (_.isUndefined(canEdit)) {
     canEdit = filter.type === FILTER_TYPE.PUBLIC ? isCharge : filter.createAccountId === md.global.Account.accountId;
@@ -167,7 +168,7 @@ export default function FilterDetail(props) {
       {!isSingleFilter && !isNew && (
         <Header>
           <BackBtn onClick={handleBack}>
-            <i className="icon icon-knowledge-return" />
+            <i className="icon icon-knowledge-return"></i>
           </BackBtn>
           <FilterDetailName
             editable={canEdit}
@@ -270,33 +271,35 @@ export default function FilterDetail(props) {
           </AddCondition>
         )}
         {supportGroup && featureType && (
-          <AddButton
-            icon="add"
-            textLeft={4}
-            iconSize={18}
-            text={_l('条件组')}
-            afterElement={
-              featureType === '2' && <icon className="icon-auto_awesome Font16 mLeft6" style={{ color: '#fcb400' }} />
-            }
-            textSize={13}
-            onClick={() => {
-              if (featureType === '2') {
-                buriedUpgradeVersionDialog(projectId, 24);
-              } else {
-                const spliceType = _.get(conditionsGroups, '0.spliceType');
-                actions.addGroup(spliceType);
-                onAddCondition();
-                scrollToEnd();
+          <Tooltip popupPlacement="bottom" text={featureType === '2' ? _l('条件组为专业版功能') : ''}>
+            <AddButton
+              icon="add"
+              textLeft={4}
+              iconSize={18}
+              text={_l('条件组')}
+              afterElement={
+                featureType === '2' && <icon className="icon-auto_awesome Font16 mLeft6" style={{ color: '#fcb400' }} />
               }
-            }}
-          />
+              textSize={13}
+              onClick={() => {
+                if (featureType === '2') {
+                  buriedUpgradeVersionDialog(projectId, VersionProductType.filterGroup);
+                } else {
+                  const spliceType = _.get(conditionsGroups, '0.spliceType');
+                  actions.addGroup(spliceType);
+                  onAddCondition();
+                  scrollToEnd();
+                }
+              }}
+            />
+          </Tooltip>
         )}
         {supportGroup && (
           <Tooltip text={_l('添加条件组，结合 且/或 条件进行筛选')}>
-            <i className="addGroupTip icon icon-help Font16 mLeft6" />
+            <i className="addGroupTip icon icon-help Font16 mLeft6"></i>
           </Tooltip>
         )}
-        <div className="flex" />
+        <div className="flex"></div>
         {!isSingleFilter && !hideSave && (
           <SaveButton
             disabled={saveButtonDisabled}

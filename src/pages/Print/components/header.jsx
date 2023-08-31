@@ -23,7 +23,7 @@ class Header extends React.Component {
     const { params } = this.props;
     const { type, from, appId, printType } = params;
     if (from === fromType.PRINT && type === typeForCon.NEW && appId && printType !== 'flow') {
-      Api.getAppDetail({ appId: appId }, { silent: true }).then(data => {
+      Api.getApp({ appId: appId }, { silent: true }).then(data => {
         this.setState({
           isUserAdmin: canEditApp(data.permissionType, data.isLock), //开发者|管理员
         });
@@ -135,7 +135,7 @@ class Header extends React.Component {
 
   render() {
     const { params, printData, handChange, saveTem, saveFn, downFn, showPdf } = this.props;
-    const { printId, type, from, printType, isDefault, worksheetId, rowId } = params;
+    const { printId, type, from, printType, isDefault, worksheetId, rowId, fileTypeNum } = params;
     const { isEdit, exportLoading, href } = this.state;
 
     return (
@@ -276,8 +276,8 @@ class Header extends React.Component {
                         downFn();
                       }}
                     >
-                      <i className="icon-new_word Font15 mRight10"></i>
-                      {_l('导出为word')}
+                      <i className={` Font15 mRight10 ${fileTypeNum===5 ? 'icon-new_excel' : 'icon-new_word'}`}></i>
+                      {fileTypeNum===5 ? _l('导出为excel') : _l('导出为word')}
                     </div>
                   )
                 )}

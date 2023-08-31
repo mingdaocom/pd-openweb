@@ -35,6 +35,7 @@ export class BarLabel {
     pixelRadio = 2,
     width = 100,
     height = 100,
+    fontSize = 1,
     firstIsTitle = false,
     codePosition = 'top',
     size = 'm',
@@ -47,6 +48,7 @@ export class BarLabel {
       pixelRadio,
       width,
       height,
+      fontSize: fontSize || 1,
       size,
       firstIsTitle,
       codePosition,
@@ -66,7 +68,7 @@ export class BarLabel {
         ? {
             l: 18,
             m: 14,
-            s: 14,
+            s: 9,
           }
         : {
             l: 19,
@@ -251,7 +253,11 @@ export class BarLabel {
               forceInLine,
               isBold: firstIsTitle && i === 0,
             }
-          : this.cutTextByWidth(textHeight * 0.6, text, this._width - paddingX * 2 * this.unitSize).map(t => ({
+          : this.cutTextByWidth(
+              textHeight * 0.6 * (firstIsTitle && i === 0 ? 1 : this.options.fontSize),
+              text,
+              this._width - paddingX * 2 * this.unitSize,
+            ).map(t => ({
               text: t,
               isBold: firstIsTitle && i === 0,
             })),
@@ -266,7 +272,7 @@ export class BarLabel {
       if (!text) {
         return;
       }
-      let textFontSize = textHeight * 0.6;
+      let textFontSize = textHeight * 0.6 * (isBold ? 1 : this.options.fontSize);
       const isCenter = !titleIsSplitted && isBold && i === 0;
       if (forceInLine) {
         const contentWidth = this.measureTextWidth(text, textFontSize);

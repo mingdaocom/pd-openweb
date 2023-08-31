@@ -26,7 +26,7 @@ export default props => {
       if (pushType === PUSH_TYPE.CREATE) {
         getAppSimpleInfo(worksheetId).then(({ appId }) => {
           location.href = `${window.subPath || ''}/mobile/addRecord/${appId}/${worksheetId}/${
-            viewId ? viewId : props.viewId
+            viewId ? viewId : (_.get(props, 'viewId') || '')
           }`;
         });
       }

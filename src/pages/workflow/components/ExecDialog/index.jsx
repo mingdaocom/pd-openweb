@@ -175,6 +175,7 @@ export default class ExecDialog extends Component {
                   worksheetId={worksheetId}
                   works={works}
                   status={data.status}
+                  currents={data.currentWorkIds}
                 />
               </ul>
             </ScrollView>

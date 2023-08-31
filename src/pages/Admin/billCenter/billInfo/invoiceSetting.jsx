@@ -75,6 +75,7 @@ export default function InvoiceSetting(props) {
                 'text',
               ),
             ),
+            2,
           );
         }
         return data[key];
@@ -115,7 +116,7 @@ export default function InvoiceSetting(props) {
                     const value = e.target.value;
                     if (verify && value && !verify.test(value)) {
                       setData({ [key]: '' });
-                      alert(_l('%0填写格式有误', text));
+                      alert(_l('%0填写格式有误', text), 2);
                     }
                   }}
                 />
@@ -146,7 +147,7 @@ export default function InvoiceSetting(props) {
                   onBlur={e => {
                     const value = e.target.value;
                     if (verify && value && !verify.test(value)) {
-                      alert(_l('%0填写格式有误', text));
+                      alert(_l('%0填写格式有误', text), 2);
                       setData({ [key]: '' });
                     }
                   }}

@@ -47,7 +47,7 @@ export default class FixedPage extends Component {
     if (isNoPublish) {
       return (
         <FixedContent>
-          <div className="iconInfo mBottom18" style={{ 'marginTop': document.body.clientHeight / 4 }}>
+          <div className="iconInfo mBottom18" style={{ marginTop: document.body.clientHeight / 4 }}>
             <Icon className="Font56 Gray_75" icon="send" />
           </div>
           <div className="Font18 mBottom20 fixeding">{_l('该应用暂未在此平台发布')}</div>
@@ -63,6 +63,7 @@ export default class FixedPage extends Component {
         <div className="fixedInfo mBottom20">{_l('该应用被%0设置为维护中状态,暂停访问', fullName)}</div>
         <div className="fixRemark">{fixRemark}</div>
         <Back
+          icon="home"
           style={{ bottom: '20px' }}
           onClick={() => {
             window.mobileNavigateTo('/mobile/appHome');

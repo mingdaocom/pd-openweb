@@ -102,6 +102,9 @@ export default class ChartSheet extends Component {
       .map(item => {
         const map = valueMap[item.cid] || {};
         const key = match[item.cid];
+        if (item.controlType === 29) {
+          return _l('关联表');
+        }
         return map[key] || key;
       })
       .filter(_ => _);

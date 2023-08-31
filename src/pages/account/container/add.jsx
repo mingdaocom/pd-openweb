@@ -5,6 +5,8 @@ import RegisterController from 'src/api/register';
 import captcha from 'src/components/captcha';
 import { inputFocusFn, inputBlurFn } from '../util';
 import { Support } from 'ming-ui';
+import { mdAppResponse } from 'src/util';
+
 export default class Add extends React.Component {
   constructor(props) {
     super(props);
@@ -48,6 +50,7 @@ export default class Add extends React.Component {
             ...registerData,
             projectId: data.userCard.user.projectId,
             userCard: data.userCard,
+            tokenProjectCode: data.token,
           });
           callback();
         } else if (data.joinProjectResult === 11) {
@@ -60,8 +63,17 @@ export default class Add extends React.Component {
             loading: false,
           });
           let str = _l('操作失败');
+          let { dialCode, password = '', emailOrTel = '' } = registerData;
+          const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
           if (data.joinProjectResult === 2) {
             str = _l('您已提交申请，请耐心等待管理员审批！');
+            if (isMingdao) {
+              mdAppResponse({
+                sessionId: 'register',
+                type: 'native',
+                settings: { action: 'enterpriseRegister.addPending', account: dialCode + emailOrTel, password },
+              });
+            }
           } else if (data.joinProjectResult === 3) {
             str = _l('您已是该组织成员');
           } else if (data.joinProjectResult === 4) {
@@ -79,6 +91,13 @@ export default class Add extends React.Component {
           }
           if (data.joinProjectResult === 3) {
             alert(str, 1, 2000, function () {
+              if (isMingdao) {
+                mdAppResponse({
+                  sessionId: 'register',
+                  type: 'native',
+                  settings: { action: 'enterpriseRegister.addSuccess', account: dialCode + emailOrTel, password },
+                });
+              }
               location.href = '/personal?type=enterprise';
             });
           } else {

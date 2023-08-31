@@ -4,7 +4,7 @@ import './css/folderChart.less';
 import { Icon } from 'ming-ui';
 import { connect } from 'react-redux';
 import ajaxRequest from 'src/api/taskFolderStatistics';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import filterXss from 'xss';
 import { listLoadingContent } from '../../utils/taskComm';
 import config from '../../config/config';

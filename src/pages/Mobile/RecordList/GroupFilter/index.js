@@ -38,6 +38,7 @@ const GroupFilter = props => {
     worksheetInfo,
     appColor,
     mobileNavGroupFilters,
+    appNaviStyle,
   } = props;
   const { appId, viewId } = base;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
@@ -613,7 +614,11 @@ const GroupFilter = props => {
               ) : null}
             </div>
             {(canDelete || showCusTomBtn) && view.viewType === 0 && !batchOptVisible && (
-              <div className="batchOperation" onClick={() => props.changeBatchOptVisible(true)}>
+              <div
+                className="batchOperation"
+                style={{ bottom: appNaviStyle === 2 && view.viewType === 0 ? '70px' : '20px' }}
+                onClick={() => props.changeBatchOptVisible(true)}
+              >
                 <Icon icon={'task-complete'} className="Font24" />
               </div>
             )}

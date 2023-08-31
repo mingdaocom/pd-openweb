@@ -7,7 +7,7 @@ import captcha from 'src/components/captcha';
 import { encrypt } from 'src/util';
 import RegExp from 'src/util/expression';
 import tpl from './bindAccount.html';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import accountController from 'src/api/account';
 
 var BindAccount = {};

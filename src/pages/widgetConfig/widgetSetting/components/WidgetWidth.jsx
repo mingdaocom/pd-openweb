@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { SettingItem } from '../../styled';
+import { SettingItem, AnimationWrap } from '../../styled';
 import { WHOLE_SIZE } from '../../config/Drag';
 import { adjustWidthList } from '../../util/setting';
 
@@ -32,58 +32,29 @@ const WIDTH_SETTING_LIST = [
   },
 ];
 
-const WidthList = styled.ul`
-  display: flex;
-  justify-content: space-between;
-  li {
-    flex: 1;
-    line-height: 32px;
-    text-align: center;
-    cursor: pointer;
-    border: 1px solid #eaeaea;
-    border-left: none;
-    &:first-child {
-      border-left: 1px solid #eaeaea;
-      border-radius: 3px 0 0 3px;
-    }
-    &:last-child {
-      border-radius: 0 3px 3px 0;
-    }
-    &.isActive {
-      background-color: #2196f3;
-      color: #fff;
-      border-color: #2196f3;
-    }
-    &.disabled {
-      color: #bdbdbd;
-      cursor: not-allowed;
-    }
-  }
-`;
-
 export default function WidgetWidth({ data, widgets, handleClick }) {
   const { size } = data;
   const availableWidth = adjustWidthList(widgets, data);
   return (
     <SettingItem className="withSplitLine">
       <div className="settingItemTitle">{_l('宽度')}</div>
-      <WidthList>
+      <AnimationWrap>
         {WIDTH_SETTING_LIST.map(({ text, value }) => {
           const disabled = !availableWidth.includes(value);
           const isActive = size === value;
           return (
-            <li
-              key={value}
-              className={cx({ isActive, disabled })}
+            <div
+              className={cx('animaItem overflow_ellipsis', { active: isActive, disabled })}
               onClick={() => {
                 if (isActive || disabled) return;
                 handleClick(value);
-              }}>
+              }}
+            >
               {text}
-            </li>
+            </div>
           );
         })}
-      </WidthList>
+      </AnimationWrap>
     </SettingItem>
   );
 }

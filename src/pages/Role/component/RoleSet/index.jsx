@@ -320,7 +320,7 @@ export default class RoleSet extends PureComponent {
       });
     } else {
       // 编辑  内部和外部门户同一个接口
-      const { roleDetail } = this.state;
+      const { roleDetail = {} } = this.state;
       this.setState({
         saveLoading: true,
       });

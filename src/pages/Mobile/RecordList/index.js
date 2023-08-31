@@ -154,6 +154,7 @@ class RecordList extends Component {
         </div>
       );
     }
+
     return (
       <Fragment>
         <div
@@ -178,42 +179,52 @@ class RecordList extends Component {
               ></Tabs>
             </div>
           )}
-          <View view={view} key={worksheetInfo.worksheetId} routerParams={params} />
-          {!batchOptVisible && (!md.global.Account.isPortal || (md.global.Account.isPortal && appNaviStyle !== 2)) && (
-            <Back
-              style={
-                !isHideTabBar && location.href.includes('mobile/app')
-                  ? [1, 3, 4].includes(view.viewType) ||
-                    (appNaviStyle === 2 && !_.isEmpty(view.navGroup) && view.navGroup.length)
-                    ? { bottom: '78px' }
-                    : { bottom: '130px' }
-                  : [1, 3, 4].includes(view.viewType) ||
-                    (!_.isEmpty(view.navGroup) && view.navGroup.length) ||
-                    !(canDelete || showCusTomBtn)
-                  ? { bottom: '20px' }
-                  : { bottom: '78px' }
-              }
-              onClick={() => {
-                if (!isHideTabBar && location.href.includes('mobile/app')) {
-                  let currentGroupInfo =
-                    localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
-                  if (_.isEmpty(currentGroupInfo)) {
-                    window.mobileNavigateTo('/mobile/appHome');
-                  } else {
-                    window.mobileNavigateTo(
-                      `/mobile/groupAppList/${currentGroupInfo.id}/${currentGroupInfo.groupType}`,
-                    );
-                  }
-                  localStorage.removeItem('currentNavWorksheetId');
-                } else {
-                  window.mobileNavigateTo(`/mobile/app/${params.appId}`);
+          <View view={view} key={worksheetInfo.worksheetId} routerParams={params} appNaviStyle={appNaviStyle} />
+          {!batchOptVisible &&
+            !(appNaviStyle === 2 && location.href.includes('mobile/app') && md.global.Account.isPortal) && (
+              <Back
+                icon={appNaviStyle === 2 && location.href.includes('mobile/app') ? 'home' : 'back'}
+                style={
+                  !isHideTabBar && appNaviStyle === 2 && location.href.includes('mobile/app')
+                    ? {
+                        bottom:
+                          _.includes([1, 3, 4], view.viewType) || (!_.isEmpty(view.navGroup) && view.navGroup.length)
+                            ? '70px'
+                            : '130px',
+                      }
+                    : {
+                        bottom:
+                          [1, 3, 4].includes(view.viewType) ||
+                          (!_.isEmpty(view.navGroup) && view.navGroup.length && _.includes([0], view.viewType)) ||
+                          !(canDelete || showCusTomBtn)
+                            ? '20px'
+                            : '78px',
+                      }
                 }
-              }}
-            />
-          )}
+                onClick={() => {
+                  if (!isHideTabBar && location.href.includes('mobile/app')) {
+                    let currentGroupInfo =
+                      localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
+                    if (_.isEmpty(currentGroupInfo)) {
+                      window.mobileNavigateTo('/mobile/appHome');
+                    } else {
+                      window.mobileNavigateTo(
+                        `/mobile/groupAppList/${currentGroupInfo.id}/${currentGroupInfo.groupType}`,
+                      );
+                    }
+                    localStorage.removeItem('currentNavWorksheetId');
+                  } else {
+                    window.mobileNavigateTo(`/mobile/app/${params.appId}`);
+                  }
+                }}
+              />
+            )}
           {(canDelete || showCusTomBtn) && view.viewType === 0 && !batchOptVisible && _.isEmpty(view.navGroup) && (
             <div
-              className={cx('batchOperation', { bottom70: appNaviStyle === 2 && location.href.includes('mobile/app') })}
+              className="batchOperation"
+              style={{
+                bottom: appNaviStyle === 2 && location.href.includes('mobile/app') ? '70px' : '20px',
+              }}
               onClick={() => this.props.changeBatchOptVisible(true)}
             >
               <Icon icon={'task-complete'} className="Font24" />

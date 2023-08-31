@@ -6,6 +6,7 @@ import { LoadDiv, DatePicker, Icon, ScrollView, DeleteReconfirm, Dialog, Checkbo
 import cx from 'classnames';
 import Search from 'src/pages/workflow/components/Search';
 import UserHead from 'src/pages/feed/components/userHead/userHead';
+import PaginationWrap from '../components/PaginationWrap';
 import ajaxRequest from 'src/api/externalPortal';
 import projectAjax from 'src/api/project';
 import _ from 'lodash';
@@ -34,7 +35,6 @@ export default class Portal extends Component {
       list: null,
       total: 0,
       selectedColumnIds: [],
-      isMore: true,
       loading: false,
       projectId: '',
       apps: [],
@@ -42,7 +42,7 @@ export default class Portal extends Component {
       appId: '',
       keywords: '',
       pageIndex: 1,
-      pageSize: 20,
+      pageSize: 50,
       createTimeStart: '',
       createTimeEnd: '',
       lastTimeStart: '',
@@ -53,6 +53,7 @@ export default class Portal extends Component {
       limitExternalUserCount: 0,
       allowUpgradeExternalPortal: false,
       showOption: false,
+      allCount: 0,
     };
   }
 
@@ -109,15 +110,8 @@ export default class Portal extends Component {
       lastTimeTimeEnd,
       sortType,
       appId,
-      loading,
-      isMore,
       projectId,
     } = this.state;
-
-    // 加载更多
-    if (pageIndex > 1 && ((loading && isMore) || !isMore)) {
-      return;
-    }
 
     this.setState({ loading: true });
 
@@ -136,14 +130,24 @@ export default class Portal extends Component {
       lastTimeTimeEnd: getValue(lastTimeTimeEnd, 'end'),
       appId,
       sortType,
+      isReturnTotal: pageIndex === 1 ? true : false,
     });
     this.postList.then(({ users, total }) => {
       this.setState({
-        list: pageIndex === 1 ? users : this.state.list.concat(users),
-        pageIndex: pageIndex + 1,
+        list: users,
         loading: false,
-        total,
-        isMore: users.length === pageSize,
+        total: pageIndex === 1 ? total : this.state.total,
+        allCount:
+          pageIndex === 1 &&
+          !appId &&
+          !getValue(createTimeStart, 'start') &&
+          !getValue(createTimeEnd, 'end') &&
+          !getValue(lastTimeStart, 'start') &&
+          !getValue(lastTimeTimeEnd, 'end') &&
+          !keywords &&
+          sortType === 0
+            ? total
+            : this.state.allCount,
       });
     });
   }
@@ -168,9 +172,8 @@ export default class Portal extends Component {
     }
 
     return (
-      <ScrollView className="flex" onScrollEnd={this.searchDataList}>
-        {list.map(item => this.renderListItem(item))}
-        {loading && pageIndex > 1 && <LoadDiv className="mTop15" size="small" />}
+      <ScrollView className="flex">
+        {loading ? <LoadDiv className="mTop15" size="small" /> : list.map(item => this.renderListItem(item))}
       </ScrollView>
     );
   }
@@ -252,15 +255,12 @@ export default class Portal extends Component {
    * 更新状态
    */
   updateState = obj => {
-    this.setState({ list: null, pageIndex: 1, ...obj }, this.searchDataList);
+    this.setState({ list: null, pageIndex: 1, ...obj }, this.getPortalList);
   };
 
-  /**
-   * 搜索数据
-   */
-  searchDataList = _.throttle(() => {
-    this.getPortalList();
-  }, 200);
+  changPage = page => {
+    this.setState({ pageIndex: page }, this.getPortalList);
+  };
 
   render() {
     const {
@@ -276,27 +276,30 @@ export default class Portal extends Component {
       sortType,
       showOption,
       total,
+      allCount,
     } = this.state;
     const totalCount = (list || []).length;
 
     return (
-      <div className="portalManagementList flex flexColumn">
+      <div className="portalManagementList orgManagementWrap flex flexColumn">
         <AdminTitle prefix={_l('外部门户')} />
 
-        <div className="appManagementHeader flexRow">
-          <span className="Font17 bold">{_l('外部门户')}</span>
-          <span className="Gray_9e mTop5 mLeft6">{_l('通过外部门户访问应用的用户')}</span>
+        <div className="orgManagementHeader flexRow">
+          <div>
+            <span className="Font17 bold">{_l('外部门户')}</span>
+            <span className="Gray_9e mTop5 mLeft6 Font13">{_l('通过外部门户访问应用的用户')}</span>
+          </div>
         </div>
 
         <div className="appManagementCount flexRow">
           <span className="Gray_9e mRight5">{_l('计费外部用户人数')}</span>
           <span className="bold">
-            {total} / {limitExternalUserCount}
+            {allCount} / {limitExternalUserCount}
           </span>
 
           <span className="Gray_9e mLeft15 mRight5">{_l('剩余')}</span>
           <span className="bold">
-            {_l('%0人', limitExternalUserCount - total < 0 ? 0 : limitExternalUserCount - total)}
+            {_l('%0人', limitExternalUserCount - allCount < 0 ? 0 : limitExternalUserCount - allCount)}
           </span>
 
           {allowUpgradeExternalPortal && showOption && (
@@ -468,9 +471,8 @@ export default class Portal extends Component {
           <div className="w60 mRight20">{_l('操作')}</div>
         </div>
 
-        {loading && pageIndex === 1 && <LoadDiv className="mTop15" />}
-
-        <div className="flex flexColumn mTop16">{this.renderList()}</div>
+        <div className="flex flexColumn mTop16">{loading ? <LoadDiv className="mTop15" /> : this.renderList()}</div>
+        <PaginationWrap total={total} pageIndex={pageIndex} pageSize={this.state.pageSize} onChange={this.changPage} />
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import './voteUpdater.css';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import 'src/components/uploadAttachment/uploadAttachment';
 import 'src/components/mdDatePicker/mdDatePicker';
 import _ from 'lodash';

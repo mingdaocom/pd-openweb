@@ -141,10 +141,7 @@ export default function RecordOperate(props) {
     onPopupVisibleChange = () => {},
     hideRecordInfo = () => {},
   } = props;
-  const showShare =
-    _.includes(shows, 'share') &&
-    isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) &&
-    !md.global.Account.isPortal;
+  const showShare = _.includes(shows, 'share') && !md.global.Account.isPortal;
   const showCopy =
     _.includes(shows, 'copy') &&
     allowCopy &&
@@ -303,6 +300,9 @@ export default function RecordOperate(props) {
                   worksheetId,
                   viewId,
                   recordId,
+                  hidePublicShare: !(
+                    isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) && !md.global.Account.isPortal
+                  ),
                 });
                 changePopupVisible(false);
               }}
@@ -418,11 +418,11 @@ export default function RecordOperate(props) {
                 if (showRemoveRelation) {
                   Dialog.confirm({
                     onlyClose: true,
-                    title: <DangerConfirmTitle>{_l('注意：此操作将彻底删除原始记录')}</DangerConfirmTitle>,
+                    title: <DangerConfirmTitle>{_l('注意：此操作将删除原始记录')}</DangerConfirmTitle>,
                     description: _l('如果只需要取消与当前记录的关联关系，仍保留原始记录。可以选择仅取消关联关系'),
                     buttonType: 'danger',
                     cancelType: 'ghostgray',
-                    okText: _l('彻底删除记录'),
+                    okText: _l('删除记录'),
                     cancelText: _l('仅取消关联关系'),
                     onOk: deleteRow,
                     onCancel: () => onRemoveRelation({ confirm: false }),

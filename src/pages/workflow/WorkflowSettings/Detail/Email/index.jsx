@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Dropdown, Radio, RichText } from 'ming-ui';
-import { NODE_TYPE, ACTION_ID, CONTROLS_NAME } from '../../enum';
+import { ACTION_ID, CONTROLS_NAME } from '../../enum';
 import flowNode from '../../../api/flowNode';
 import {
   Member,
@@ -158,10 +158,18 @@ export default class Email extends Component {
         value: ACTION_ID.SEND_EMAIL_SINGLE_DISPLAY,
       },
     ];
-    const contentTypes = [{ text: _l('纯文本'), value: 0 }, { text: _l('富文本（支持html样式）'), value: 1 }];
+    const contentTypes = [
+      { text: _l('纯文本'), value: 0 },
+      { text: _l('富文本（支持html样式）'), value: 1 },
+    ];
 
     return (
       <Fragment>
+        {md.global.Config.IsPlatformLocal && (
+          <div className="Gray_75 workflowDetailDesc">
+            {_l('邮件0.03元/封，自动从账务中心扣费。')}
+          </div>
+        )}
 
         <div className="mTop20 bold">{_l('发送方式')}</div>
         <Dropdown
@@ -424,7 +432,7 @@ export default class Email extends Component {
           bg="BGBlue"
           updateSource={this.updateSource}
         />
-        <div className="flex mTop20">
+        <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>

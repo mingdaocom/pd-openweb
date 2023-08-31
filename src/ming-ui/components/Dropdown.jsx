@@ -190,7 +190,7 @@ class Dropdown extends Component {
   };
   /* eslint-enable */
   static defaultProps = {
-    noData: '无数据',
+    noData: _l('无数据'),
     placeholder: _l('请选择'),
     renderValue: '{{value}}',
     isAppendToBody: false,
@@ -213,7 +213,7 @@ class Dropdown extends Component {
     this.state = {
       value,
       showMenu: false,
-      keywords: '111',
+      keywords: '',
     };
   }
 

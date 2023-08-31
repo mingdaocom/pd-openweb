@@ -3,14 +3,14 @@ import '../components/message.less';
 import cx from 'classnames';
 import RegisterController from 'src/api/register';
 import Config from '../config';
-import { getRequest } from 'src/util';
+import { getRequest, mdAppResponse } from 'src/util';
 import { Dropdown, LoadDiv } from 'ming-ui';
 import account from 'src/api/account';
 let request = getRequest();
 import { inputFocusFn, inputBlurFn, setWarnningData } from '../util';
 import { encrypt } from 'src/util';
 import _ from 'lodash';
-
+import DepDropDown from 'src/pages/account/components/DepDropDown.jsx';
 export default class EditInfo extends React.Component {
   constructor(props) {
     super(props);
@@ -26,8 +26,8 @@ export default class EditInfo extends React.Component {
   componentDidMount() {
     const { registerData } = this.props;
     const { userCard = [] } = registerData;
-    const { isMustCompanyName, isMustWorkSite, isMustDepartment, isMustJobNumber, isMustJob } = userCard;
-    if (!isMustCompanyName && !isMustWorkSite && !isMustDepartment && !isMustJobNumber && !isMustJob) {
+    const { isMustWorkSite, isMustDepartment, isMustJobNumber, isMustJob } = userCard;
+    if (!isMustWorkSite && !isMustDepartment && !isMustJobNumber && !isMustJob) {
       this.submitUserCard();
     } else {
       this.setState(
@@ -191,6 +191,11 @@ export default class EditInfo extends React.Component {
         }
       }
       joinCompanyAction(params).then(data => {
+        data.token &&
+          onChangeData({
+            ...registerData,
+            tokenProjectCode: data.token,
+          });
         if (isApplyJoinOrInviteJoin) {
           // 接口调用成功后需要删除 cookie RegFrom 和  Referrer
           window.localStorage.removeItem('RegFrom');
@@ -233,15 +238,32 @@ export default class EditInfo extends React.Component {
   };
 
   validateEditCard = data => {
+    const { registerData } = this.props;
+    let { dialCode, password = '', emailOrTel = '' } = registerData;
+    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
     switch (data.joinProjectResult) {
       case 1:
         alert(_l('您已成功加入该组织'), 1, 2000, function () {
           location.href = '/app';
+          if (isMingdao) {
+            mdAppResponse({
+              sessionId: 'register',
+              type: 'native',
+              settings: { action: 'enterpriseRegister.addSuccess', account: dialCode + emailOrTel, password },
+            });
+          }
         });
         break;
       case 2:
         alert(_l('您的申请已提交，请等待管理员审批'), 1, 2000, function () {
           location.href = '/personal?type=enterprise';
+          if (isMingdao) {
+            mdAppResponse({
+              sessionId: 'register',
+              type: 'native',
+              settings: { action: 'enterpriseRegister.addPending', account: dialCode + emailOrTel, password },
+            });
+          }
         });
         break;
       case 3:
@@ -261,26 +283,15 @@ export default class EditInfo extends React.Component {
     const { registerData, onChangeData } = this.props;
     const { company = {} } = registerData;
     const {
-      companyName = '',
       departmentId = '',
       jobId = '', // 加入网络使用
       workSiteId = '',
       jobNumber = '',
     } = company;
     const { userCard = [] } = registerData;
-    const {
-      isMustCompanyName = true,
-      isMustWorkSite = true,
-      isMustDepartment = true,
-      isMustJobNumber = true,
-      isMustJob = true,
-    } = userCard;
+    const { isMustWorkSite = true, isMustDepartment = true, isMustJobNumber = true, isMustJob = true } = userCard;
     let isRight = true;
     let warnningData = [];
-    if (isMustCompanyName && !companyName) {
-      warnningData.push({ tipDom: this.companyName, warnningText: _l('请填写组织') });
-      isRight = false;
-    }
     if (isMustDepartment && !departmentId) {
       warnningData.push({ tipDom: this.departmentId, warnningText: _l('请填写部门') });
       isRight = false;
@@ -308,9 +319,8 @@ export default class EditInfo extends React.Component {
     const { registerData, onChangeData } = this.props;
     const { company = {}, userCard = [], warnningData } = registerData;
     const { loading, focusDiv } = this.state;
-    const { isMustCompanyName, isMustWorkSite, isMustDepartment, isMustJobNumber, isMustJob } = userCard;
+    const { isMustWorkSite, isMustDepartment, isMustJobNumber, isMustJob } = userCard;
     const {
-      companyName,
       departmentId,
       jobId, // 加入网络使用
       workSiteId,
@@ -319,57 +329,6 @@ export default class EditInfo extends React.Component {
     return (
       <React.Fragment>
         <div className="messageBox mTop5">
-          {/* {isMustCompanyName && (
-            <div
-              className={cx('mesDiv', {
-                ...setWarnningData(warnningData, ['.companyName', this.companyName], focusDiv, companyName),
-              })}
-            >
-              <input
-                type="text"
-                className="companyName"
-                maxLength={'60'}
-                autoComplete="off"
-                ref={companyName => (this.companyName = companyName)}
-                onBlur={this.inputOnBlur}
-                onFocus={this.inputOnFocus}
-                onChange={e => {
-                  let data = _.filter(registerData.warnningData, it => it.tipDom !== this.companyName);
-                  onChangeData({
-                    ...registerData,
-                    warnningData: data,
-                    company: {
-                      ...company,
-                      companyName: e.target.value,
-                    },
-                  });
-                }}
-                value={companyName}
-              />
-              <div
-                className="title"
-                onClick={e => {
-                  $(this.companyName).focus();
-                }}
-              >
-                {_l('组织')}
-              </div>
-              {_.find(warnningData, it => it.tipDom === this.companyName || it.tipDom === '.companyName') && (
-                <div
-                  className={cx('warnningTip', {
-                    Hidden:
-                      (!!warnningData[0] && !_.includes([this.companyName], warnningData[0].tipDom)) ||
-                      warnningData[0].tipDom !== focusDiv,
-                  })}
-                >
-                  {
-                    _.find(warnningData, it => it.tipDom === this.companyName || it.tipDom === '.companyName')
-                      .warnningText
-                  }
-                </div>
-              )}
-            </div>
-          )} */}
           {isMustDepartment && (
             <div
               className={cx('mesDiv current', {
@@ -377,9 +336,8 @@ export default class EditInfo extends React.Component {
               })}
             >
               <div ref={departmentId => (this.departmentId = departmentId)}>
-                <Dropdown
-                  showItemTitle
-                  value={departmentId || undefined}
+                <DepDropDown
+                  {...this.props}
                   onBlur={this.inputOnBlur}
                   onFocus={this.inputOnFocus}
                   onChange={value => {
@@ -393,7 +351,6 @@ export default class EditInfo extends React.Component {
                       },
                     });
                   }}
-                  data={this.state.departmentsArr}
                 />
               </div>
               <div className="title">{_l('部门')}</div>

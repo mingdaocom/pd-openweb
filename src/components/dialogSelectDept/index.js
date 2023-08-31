@@ -231,7 +231,7 @@ class DialogSelectDept extends React.Component {
             };
         this.setState({
           list,
-          activeIds: [list[0].departmentId],
+          activeIds: !_.isEmpty(list) ? [list[0].departmentId] : [],
           loading: false,
           rootLoading: false,
           rootPageAll: usePageDepartment && (list.length % this.state.pageSize > 0 || data.length <= 0),

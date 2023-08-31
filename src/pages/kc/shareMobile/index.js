@@ -8,7 +8,6 @@ export default function () {
     { type: 'function' },
     {
       allownotlogin: true,
-      transfertoken: true,
       preloadcb: () => {
         window.hello = new MobileSharePreview();
       },

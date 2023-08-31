@@ -22,7 +22,10 @@ const PhoneWrap = styled.div`
   .cellMobileInput {
     line-height: 30px;
   }
-  ${props => (props.showCountry && !props.isEditing && props.itiWidth ? `width: ${props.itiWidth};` : '')};
+  ${props =>
+    props.showCountry && !props.isEditing && props.itiWidth
+      ? `width: ${props.isMobile ? 'unset' : props.itiWidth};`
+      : ''};
   input {
     padding-right: ${props => (props.showCountry && !props.isEditing && props.itiWidth ? '0px !important' : '12px')};
   }
@@ -189,7 +192,13 @@ export default class Widgets extends Component {
           </span>
         </MobilePhoneBox>
 
-        <PhoneWrap isEditing={isEditing} showCountry={!hiddenCountry} itiWidth={itiWidth} isCell={isCell}>
+        <PhoneWrap
+          isEditing={isEditing}
+          showCountry={!hiddenCountry}
+          itiWidth={itiWidth}
+          isCell={isCell}
+          isMobile={browserIsMobile()}
+        >
           <ClickAwayable onClickAway={() => this.setState({ isEditing: false })}>
             <input
               type="tel"

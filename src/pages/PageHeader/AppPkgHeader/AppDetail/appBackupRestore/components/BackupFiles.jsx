@@ -89,7 +89,7 @@ export default function BackupFiles(props) {
   // 还原应用
   const restoreApp = item => {
     getToken();
-    HomeApiController.getAppDetail({
+    HomeApiController.getApp({
       appId,
     }).then(res => {
       setAppDetail(res);

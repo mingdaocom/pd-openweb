@@ -292,8 +292,8 @@ function Disposition(props) {
                 });
                 updateSource({ ownerList: members });
               }}
-              from="integration"
-              isSingle
+              leastOne
+              inline
             />
             <br />
             <span

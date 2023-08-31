@@ -28,8 +28,11 @@ export default class User extends Component {
     });
   };
   render() {
-    let { projectId, user, checked, includeUndefinedAndMySelf, currentId } = this.props;
-    const shouldShowInfo = !(includeUndefinedAndMySelf && user.accountId === md.global.Account.accountId);
+    let { projectId, user, checked, includeMySelf, includeUndefinedAndMySelf, currentId } = this.props;
+    const shouldShowInfo = !(
+      (includeMySelf || includeUndefinedAndMySelf) &&
+      user.accountId === md.global.Account.accountId
+    );
     let { departmentName, departmentId } = _.get(user, 'departmentInfo') || {};
     let { currentFullDepartment = '' } = this.state;
 

@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import ExplainImg from '../../img/userExtendInfo.png';
 import { Support, LoadDiv } from 'ming-ui';
 import { getRequest, getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import EditUserExtendInfo from './EditUserExtendInfo.jsx';
 import UserExtendInfo from './UserExtendInfo.jsx';
 import worksheetAjax from 'src/api/worksheet';
-import { USER_EXTEND_INFO_FEATURE_ID } from '../../config';
 
 const Con = styled.div`
   margin: 0 41px;
@@ -58,7 +58,7 @@ function OthersCon(props) {
   const [loading, setLoading] = useState(true);
   const currentProjectId =
     projectId || localStorage.getItem('currentProjectId') || md.global.Account.projects[0].projectId;
-  const FEATURE_STATUS = getFeatureStatus(currentProjectId, USER_EXTEND_INFO_FEATURE_ID);
+  const FEATURE_STATUS = getFeatureStatus(currentProjectId, VersionProductType.userExtensionInformation);
 
   useEffect(() => {
     if (FEATURE_STATUS === '2') return;
@@ -105,7 +105,7 @@ function OthersCon(props) {
         </div>
         <div className="explain-desc">
           {_l('如在销售管理应用中')}： <br />- {_l('可以通过建立成员表来管理销售人员的团队、地区、关联订单等扩展信息')}{' '}
-          <br />-{_l('可以根据订单所关联的团队，来筛选出当前销售人员所在团队的订单')}
+          <br />- {_l('可以根据订单所关联的团队，来筛选出当前销售人员所在团队的订单')}
         </div>
         <div className="mTop30 center">
           <button
@@ -127,7 +127,7 @@ function OthersCon(props) {
 
   const renderCon = () => {
     if (FEATURE_STATUS === '2') {
-      return buriedUpgradeVersionDialog(currentProjectId, USER_EXTEND_INFO_FEATURE_ID, 'content');
+      return buriedUpgradeVersionDialog(currentProjectId, VersionProductType.userExtensionInformation, 'content');
     }
 
     if (loading) return <LoadDiv />;

@@ -74,7 +74,7 @@ export function sheetFetchParams(state = initialSheetFetchParams, action) {
     case 'WORKSHEET_SHEETVIEW_CHANGE_PAGEINDEX':
       return { ...state, pageIndex: action.pageIndex };
     case 'WORKSHEET_SHEETVIEW_CHANGE_PAGESIZE':
-      return { ...state, pageSize: action.pageSize, pageIndex: 1 };
+      return { ...state, pageSize: action.pageSize, pageIndex: action.pageIndex || 1 };
     case 'WORKSHEET_SHEETVIEW_UPDATE_SORTS':
       return {
         ...state,

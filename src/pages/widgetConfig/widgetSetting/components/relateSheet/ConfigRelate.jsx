@@ -11,6 +11,22 @@ import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 import { AddRelate } from '../relationSearch/styled';
 import _ from 'lodash';
 
+const InputWrap = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+  padding-right: 10px;
+  border-bottom: 1px solid #f0f0f0;
+  input {
+    line-height: 36px;
+    flex: 1;
+    border: none;
+    outline: none;
+    padding-left: 8px;
+  }
+`;
+
 const RELATE_TYPE = [
   { key: 'new', text: _l('新建关联') },
   { key: 'exist', text: _l('已有关联') },
@@ -35,6 +51,7 @@ export default function ConfigRelate(props) {
   });
   const [relateType, setType] = useState('new');
   const [visible, setVisible] = useState(true);
+  const [searchValue, setSearchValue] = useState('');
 
   useEffect(() => {
     if (!_.isEmpty(relateControls) && relateType === 'new') {
@@ -131,13 +148,16 @@ export default function ConfigRelate(props) {
       );
     }
     if (loading) return <LoadDiv />;
+    const filterData = searchValue
+      ? relateControls.filter(i => i.sourceEntityName.includes(searchValue))
+      : relateControls;
     return (
       <div className="existRelateWrap">
         {_.isEmpty(relateControls) ? (
           <div className="emptyHint">{_l('没有与当前工作表关联的表')}</div>
         ) : (
           <div className="relateListWrap">
-            <div className="title">
+            <div className="title mBottom0">
               {_l('添加关联当前')}
               <span className="Bold mLeft5 mRight5">{sourceName}</span>
               {_l('的')}
@@ -147,27 +167,46 @@ export default function ConfigRelate(props) {
                 {_l('同步数据')}）
               </span>
             </div>
-            <ul>
-              {relateControls.map(item => {
-                const { type, controlName } = item.sourceControl || {};
-                return (
-                  <li
-                    className={cx({ active: item.controlId === selectedControl.controlId })}
-                    key={item.controlId}
-                    onClick={() => {
-                      setControls({ selectedControl: item });
-                      setSelectedId({ sheetId: item.dataSource, sheetName: item.controlName });
-                    }}
-                  >
-                    <SvgIcon url={item.iconUrl} fill="#999999" size={18} className="InlineBlock" />
-                    <span className="Bold mLeft10">{item.sourceEntityName}</span>
-                    <span className="Gray_9e mLeft4 Font14">
-                      {_l(' - %0：%1', _.get(DEFAULT_CONFIG[enumWidgetType[type]], 'widgetName'), controlName)}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
+            <InputWrap>
+              <i className="icon-search Gray_75 Font16"></i>
+              <input
+                autoFocus
+                value={searchValue}
+                placeholder={_l('搜索')}
+                onChange={e => {
+                  setSearchValue(e.target.value);
+                }}
+              />
+              {searchValue && (
+                <i className="icon-cancel1 Gray_9e Font16 pointer" onClick={() => setSearchValue('')}></i>
+              )}
+            </InputWrap>
+
+            {_.isEmpty(filterData) ? (
+              <div className="TxtCenter mTop50">{_l('暂无搜索结果')}</div>
+            ) : (
+              <ul>
+                {filterData.map(item => {
+                  const { type, controlName } = item.sourceControl || {};
+                  return (
+                    <li
+                      className={cx({ active: item.controlId === selectedControl.controlId })}
+                      key={item.controlId}
+                      onClick={() => {
+                        setControls({ selectedControl: item });
+                        setSelectedId({ sheetId: item.dataSource, sheetName: item.controlName });
+                      }}
+                    >
+                      <SvgIcon url={item.iconUrl} fill="#999999" size={18} className="InlineBlock Width18" />
+                      <span className="Bold mLeft10">{item.sourceEntityName}</span>
+                      <span className="Gray_9e mLeft4 Font14">
+                        {_l(' - %0：%1', _.get(DEFAULT_CONFIG[enumWidgetType[type]], 'widgetName'), controlName)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         )}
       </div>
@@ -198,6 +237,7 @@ export default function ConfigRelate(props) {
                   setSelectedId({});
                   setControls({ selectedControl: {} });
                   setFields({ relateFields: [], open: false });
+                  setSearchValue('');
                 }}
               >
                 {text}

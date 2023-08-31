@@ -8,8 +8,7 @@ import _ from 'lodash';
 import { FILTER_SYS, APPROVAL_SYS } from 'src/pages/Print/config';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
 
-// let controlNo = [22, 10010, 43, 45, 47]; //分割线、备注、OCR、嵌入字段,条码/
-let controlNo = [22, 10010, 43, 45]; //分割线、备注、OCR、嵌入字段/
+let controlNo = [22, 10010, 43, 45, 21]; //分割线、备注、OCR、嵌入字段、自由链接/
 const qrcodeField = ['sharelink', 'privatelink', 'recordid'];
 export default class UploadTemplateSheet extends React.Component {
   constructor(props) {
@@ -135,7 +134,10 @@ export default class UploadTemplateSheet extends React.Component {
         controls[i].showDialog = false;
 
         // 是否为关联记录（列表）、子表
-        const isRalate = (type == 29 && advancedSetting && advancedSetting.showtype === '2') || type == 34 || (type == 51 && advancedSetting && advancedSetting.showtype === '2');
+        const isRalate =
+          (type == 29 && advancedSetting && advancedSetting.showtype === '2') ||
+          type == 34 ||
+          (type == 51 && advancedSetting && advancedSetting.showtype === '2');
         if (isRalate) cardControls.push(controls[i]);
         else commonControls.push(controls[i]);
       }
@@ -172,6 +174,9 @@ export default class UploadTemplateSheet extends React.Component {
       // 下载功能
       $('.urlForTel').on('click', () => {
         this.downTem();
+      });
+      $('.urlForExcelTel').on('click', () => {
+        this.downTem('Xlsx');
       });
     })().catch(console.error);
   }
@@ -406,7 +411,7 @@ export default class UploadTemplateSheet extends React.Component {
    * 字段列表
    */
   renderList = () => {
-    const { systemControl = [], cardControls = [], controls = [] } = this.state;
+    const { systemControl = [], cardControls = [], controls = [], approvalList = [] } = this.state;
     const that = this;
     return (
       <div className="listCon">
@@ -439,12 +444,16 @@ export default class UploadTemplateSheet extends React.Component {
         })}
 
         {/** 关联记录、子表 */}
-        {cardControls.length > 0 && (
+        {(cardControls.length > 0 || approvalList.length > 0) && (
           <React.Fragment>
             <p className="line" />
-            <div className="title">{_l('子表、关联记录、查询记录（列表）')}</div>
+            <div className="title">{_l('子表、关联记录、查询记录（列表）、审批明细')}</div>
             <p className="mTop12 Gray_75">
-              <span>{_l('关联记录（列表）、子表中的字段支持三种打印方式。')}</span>
+              <span>
+                {_l(
+                  '子表、关联记录（列表）、查询记录（列表）、审批明细中的字段支持四种打印方式。打印审批明细时，如果同一条审批流程被重复发起了多次，则只会打印发起时间最近的一次。',
+                )}
+              </span>
               <ol>
                 <li className="Gray_75 pLeft12">
                   {_l(
@@ -453,12 +462,17 @@ export default class UploadTemplateSheet extends React.Component {
                 </li>
                 <li className="Gray_75 pLeft12">
                   {_l(
-                    '（2）逐条打印：关联记录（列表）中 每一条记录作为一个整体依次逐条打印。可以将以下代码插入到模板中，代码下方的内容将识别为记录的基本单元。',
+                    '（2）拼接打印：以逗号隔开列出所有记录的字段值。可在字段代码中加上“[S]”，如#{客户.客户名称[S]}。',
                   )}
                 </li>
                 <li className="Gray_75 pLeft12">
                   {_l(
-                    '（3）拼接打印：以逗号隔开列出所有记录的字段值。可在字段代码中加上“[S]”，如#{客户.客户名称[S]}。',
+                    '（3）填充打印：在指定位置填充列表中固定某一行记录的字段，可在字段代码或字段ID的子表或关联表名后加索引值，如固定显示第一行记录的#{客户.客户名称}加索引号写法为#{客户[1].客户名称}；',
+                  )}
+                </li>
+                <li className="Gray_75 pLeft12">
+                  {_l(
+                    '（4）逐条打印：关联记录（列表）中 每一条记录作为一个整体依次逐条打印。可以将以下代码插入到模板中，代码下方的内容将识别为记录的基本单元。',
                   )}
                 </li>
               </ol>
@@ -477,11 +491,18 @@ export default class UploadTemplateSheet extends React.Component {
             {/** 字段列表 */}
             <div className="bgCon mTop18">
               <ul>
-                <li>
-                  <span>#{_l('关联表.整体重复')}#</span>
-                  <span>
+                <li className="mBottom16">
+                  <span className="Width180 TxtTop ">#Relation.Repeat[start]#</span>
+                  <span style={{ maxWidth: '100%' }}>
                     ——
-                    {_l('单独一行放置在模板中，表示下方的明细记录需要一条条单独列出。')}
+                    {_l('单独一行放置在模板中要重复的明细上方，表示下方的明细记录需要一条条单独列出。')}
+                  </span>
+                </li>
+                <li>
+                  <span className="Width180 TxtTop">#Relation.Repeat[end]#</span>
+                  <span style={{ maxWidth: '100%' }}>
+                    ——
+                    {_l('单独一行放置在模板中要重复的明细下方，表示重复的部分到这里就结束了。')}
                   </span>
                 </li>
               </ul>
@@ -548,7 +569,8 @@ export default class UploadTemplateSheet extends React.Component {
                         const { type, advancedSetting } = o;
 
                         // 过滤掉关联字段列表类型
-                        const isRealtionList = [29, 51].includes(type) && advancedSetting && advancedSetting.showtype === '2';
+                        const isRealtionList =
+                          [29, 51].includes(type) && advancedSetting && advancedSetting.showtype === '2';
 
                         // 是否为子表。分割线。备注
                         const isNotSupport = controlNo.includes(type) || type == 34;
@@ -561,39 +583,6 @@ export default class UploadTemplateSheet extends React.Component {
             ))}
           </React.Fragment>
         )}
-
-        {/* 审批明细 */}
-        <p className="line" />
-        <div className="title">{_l('审批明细')}</div>
-
-        <p className="mTop12 Gray_75">
-          <span>{_l('审批明细字段支持三种打印方式。如果同一条审批流程被重复发起了多次，则只会打印发起时间最近的一次。')}</span>
-          <ol>
-            <li className="Gray_75 pLeft12">
-              {_l(
-                '（1）表格打印（默认）：直接将字段代码放入表格中，在表格中逐行向下列出所有记录的字段值。如果要对相同值进行合并单元格，可在字段代码中加上“[M]”，如：#{客户.客户名称[M]}',
-              )}
-            </li>
-            <li className="Gray_75 pLeft12">
-              {_l(
-                '（2）逐条打印：关联记录（列表）中 每一条记录作为一个整体依次逐条打印。可以将以下代码插入到模板中，代码下方的内容将识别为记录的基本单元。',
-              )}
-            </li>
-            <li className="Gray_75 pLeft12">
-              {_l('（3）拼接打印：以逗号隔开列出所有记录的字段值。可在字段代码中加上“[S]”，如#{客户.客户名称[S]}。')}
-            </li>
-          </ol>
-        </p>
-        <p className="mTop12 Gray_75">
-          {_l('查看')}
-          <Support
-            className="mRight5 supportVerticalTop"
-            type={3}
-            href="https://help.mingdao.com/operation18"
-            text={_l('帮助文档')}
-          />
-          {_l('了解更多')}
-        </p>
       </div>
     );
   };
@@ -603,17 +592,6 @@ export default class UploadTemplateSheet extends React.Component {
 
     return (
       <div className="listCon">
-        <div className="bgCon mTop18">
-          <ul>
-            <li>
-              <span>#{_l('审批.整体重复')}#</span>
-              <span>
-                ——
-                {_l('单独一行放置在模板中，表示下方的明细记录需要一条条单独列出。')}
-              </span>
-            </li>
-          </ul>
-        </div>
         {approvalList.map((item, i) => (
           <React.Fragment>
             <p
@@ -651,11 +629,12 @@ export default class UploadTemplateSheet extends React.Component {
     );
   };
 
-  downTem = () => {
+  downTem = text => {
     const { downLoadUrl } = this.state;
     const { match } = this.props;
     const { worksheetId } = match.params;
-    let ajaxUrl = downLoadUrl + '/ExportWord/DownloadDefaultWord';
+    const words = text || 'Word';
+    let ajaxUrl = `${downLoadUrl}/Export${words}/DownloadDefault${words}`;
     let str = `<form action=${ajaxUrl} method="get" id="forms">
         <input type="hidden" name="worksheetId" value=${worksheetId} />
         <input type="hidden" name="accountId" value=${md.global.Account.accountId} />
@@ -678,7 +657,7 @@ export default class UploadTemplateSheet extends React.Component {
           <div className="mTop20">
             <p className="Gray_75">
               {_l(
-                '1. 复制你需要的字段代码然后粘贴到您本地 Word 模板（只支持docx格式）中相应的位置，打印时会获取实际数据中该字段填写的内容。',
+                '1. 复制你需要的字段代码然后粘贴到您本地 Word 模板（只支持docx格式）或 Excel 模板（只支持xlsx格式）中相应的位置，打印时会获取实际数据中该字段填写的内容。',
               )}
             </p>
             <p className="Gray_75">
@@ -728,11 +707,13 @@ export default class UploadTemplateSheet extends React.Component {
             <p className="Gray_75">
               <span>
                 {_l(
-                  '7. 批量打印时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页。设置方法可参考',
+                  '7. 批量打印 Word 模板时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页。设置方法可参考',
                 )}
               </span>
-              <Support type={3} href="https://help.mingdao.com/operation20" text={_l('这里')} />
+              <Support type={3} href="https://help.mingdao.com/operation20" text={_l('这里')} />。
+              <span>{_l(' Excel 模板批量打印时会自动分页打印，无需特殊设置。')}</span>
             </p>
+            <br />
             <p className="Gray_75">
               <span>
                 {_l('查看')}
@@ -744,8 +725,9 @@ export default class UploadTemplateSheet extends React.Component {
                 />
               </span>
               {_l('了解更多制作技巧和注意事项。')}
-              {_l('或')}
-              <span className="urlForTel mLeft5 mRight5">{_l('下载')}</span>
+              {_l('或下载')}
+              <span className="urlForTel mLeft5 mRight5">{_l('系统 Word 模板')}</span>、
+              <span className="urlForExcelTel mLeft5 mRight5">{_l('系统 Excel 模板')}</span>
               {_l('示范模板快速开始')}
             </p>
           </div>

@@ -189,7 +189,7 @@ export default function AddConnector(props) {
                 [JSON.parse(formData.serviceType)[0] === 'ServiceName' ? 'serviceName' : 'SID']: formData.serviceName,
               }
             : currentData.type === DATABASE_TYPE.MONGO_DB
-            ? { isSrvProtocol: !!parseInt(formData.isSrvProtocol) }
+            ? { isSrvProtocol: formData.isSrvProtocol }
             : {},
       };
 
@@ -464,8 +464,8 @@ export default function AddConnector(props) {
 
       {resDialog.visible &&
         (resDialog.type !== 'error' ? (
-          <Dialog visible width={480} className="connectorResultDialog" showFooter={false} closable={false}>
-            <div className="flexColumn alignItemsCenter justifyContentCenter h100">
+          <Dialog visible width={640} className="connectorResultDialog" showFooter={false} closable={false}>
+            <div className="flexColumn alignItemsCenter justifyContentCenter h100 TxtCenter">
               {resDialog.type === 'success' ? (
                 <React.Fragment>
                   <img src="/staticfiles/images/trophy.png" width={190} height={170} />

@@ -35,7 +35,7 @@ const MULTI_SELECT_DISPLAY = [
 ];
 
 export default function DropdownCom({ data, onChange, globalSheetInfo, fromPortal, fromExcel }) {
-  const { showtype = '0', direction = '0', otherrequired = '0' } = getAdvanceSetting(data);
+  const { showtype = '0', direction, otherrequired = '0' } = getAdvanceSetting(data);
   const FILTER_OPTIONS_DISPLAY = fromPortal ? OPTIONS_DISPLAY.filter(i => i.value !== '2') : OPTIONS_DISPLAY;
   return (
     <Fragment>
@@ -48,14 +48,17 @@ export default function DropdownCom({ data, onChange, globalSheetInfo, fromPorta
             value={showtype}
             onChange={value => {
               onChange({
-                ...handleAdvancedSettingChange(data, { showtype: value }),
+                ...handleAdvancedSettingChange(data, {
+                  showtype: value,
+                  otherrequired: value === '2' ? '0' : otherrequired,
+                }),
                 type: _.get(
                   _.find(OPTIONS_DISPLAY, i => i.value === value),
                   'type',
                 ),
+                ...(value === '1' && _.isUndefined(direction) ? { size: 12 } : {}),
                 // 进度清除其他选项
-                options: value === '2' ? (data.options || []).filter(i => i.key !== 'other') : data.options,
-                otherrequired: value === '2' ? '0' : otherrequired,
+                ...(value === '2' ? { options: (data.options || []).filter(i => i.key !== 'other') } : {}),
               });
             }}
           />
@@ -66,7 +69,7 @@ export default function DropdownCom({ data, onChange, globalSheetInfo, fromPorta
           <div className="settingItemTitle">{_l('移动端显示')}</div>
           <Dropdown
             border
-            value={direction}
+            value={direction || '0'}
             data={MULTI_SELECT_DISPLAY}
             onChange={value => onChange(handleAdvancedSettingChange(data, { direction: value }))}
           />

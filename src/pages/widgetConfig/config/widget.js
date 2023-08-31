@@ -66,6 +66,7 @@ export const WIDGETS_TO_API_TYPE_ENUM = {
   SEARCH_BTN: 49,
   SEARCH: 50,
   RELATION_SEARCH: 51,
+  SECTION: 52,
   REMARK: 10010,
 };
 
@@ -165,7 +166,7 @@ export const DEFAULT_CONFIG = {
   },
   SPLIT_LINE: {
     icon: 'menu',
-    widgetName: _l('分割线%04006'),
+    widgetName: _l('分段%04006'),
     intro: _l('对表单进行分段'),
     minSize: WHOLE_SIZE,
   },
@@ -326,6 +327,10 @@ export const DEFAULT_CONFIG = {
     icon: 'Worksheet_query',
     widgetName: _l('查询记录'),
   },
+  // SECTION: {
+  //   icon: 'view_agenda',
+  //   widgetName: _l('分段'),
+  // },
 };
 
 export const DEFAULT_DATA = {
@@ -391,15 +396,15 @@ export const DEFAULT_DATA = {
     ...genDefaultOptionsAndChecked(),
     controlName: _l('单选'),
     size: 12,
-    enumDefault2: 1,
+    enumDefault2: 0,
   },
   MULTI_SELECT: {
     ...genDefaultOptionsAndChecked(),
     controlName: _l('多选'),
     size: 12,
-    enumDefault2: 1,
+    enumDefault2: 0,
     advancedSetting: {
-      direction: '0',
+      direction: '2',
       checktype: '0',
     },
   },
@@ -407,7 +412,7 @@ export const DEFAULT_DATA = {
     ...genDefaultOptionsAndChecked(),
     controlName: _l('单选'),
     size: 6,
-    enumDefault2: 1,
+    enumDefault2: 0,
     hint: _l('请选择'),
     advancedSetting: {
       showtype: '0',
@@ -451,8 +456,9 @@ export const DEFAULT_DATA = {
     enumDefault: 0,
   },
   SPLIT_LINE: {
-    controlName: _l('分割线%04006'),
+    controlName: _l('分段%04006'),
     size: 12,
+    // enumDefault: 2, // 根据enumDefault区分新旧分割线，2：新
     advancedSetting: {
       hidetitle: '1',
     },
@@ -494,6 +500,8 @@ export const DEFAULT_DATA = {
     advancedSetting: {
       allowlink: '1',
       searchrange: '1',
+      scanlink: '1',
+      scancontrol: '1',
     },
     size: 12,
     strDefault: '000',
@@ -645,6 +653,18 @@ export const DEFAULT_DATA = {
     enumDefault: 2,
     enumDefault2: 1,
   },
+  // SECTION: {
+  //   controlName: _l('分段'),
+  //   size: 12,
+  //   advancedSetting: {
+  //     theme: '#2196F3',
+  //     title: '#333333',
+  //     titlealign: '1',
+  //     background: '',
+  //   },
+  //   enumDefault: 1,
+  //   enumDefault2: 0,
+  // },
 };
 export const WORKFLOW_SYSTEM_CONTROL = [
   { controlId: 'wfname', controlName: _l('流程名称'), type: 2, display: true },
@@ -770,6 +790,8 @@ export const ADVANCE_WIDGETS = pick(DEFAULT_CONFIG, [
   'OCR',
   'SEARCH_BTN',
   'BAR_CODE',
+  'MONEY_CN',
+  'EMBED',
 ]);
 
 export const RELATE_WIDGETS = pick(DEFAULT_CONFIG, [
@@ -779,15 +801,16 @@ export const RELATE_WIDGETS = pick(DEFAULT_CONFIG, [
   'CASCADER',
   'SHEET_FIELD',
   'SUBTOTAL',
+  'RELATION',
 ]);
 
-export const SPECIAL_WIDGETS = pick(DEFAULT_CONFIG, ['SPLIT_LINE', 'REMARK', 'RELATION', 'MONEY_CN', 'EMBED']);
+export const SPECIAL_WIDGETS = pick(DEFAULT_CONFIG, ['REMARK', 'SPLIT_LINE']);
 
 export const WIDGET_GROUP_TYPE = {
   COMMON_USE: { widgets: COMMON_USE_WIDGETS, title: _l('常用') },
   ADVANCE: { widgets: ADVANCE_WIDGETS, title: _l('高级') },
   RELATE: { widgets: RELATE_WIDGETS, title: _l('关联') },
-  SPECIAL: { widgets: SPECIAL_WIDGETS, title: _l('特殊') },
+  SPECIAL: { widgets: SPECIAL_WIDGETS, title: _l('布局字段') },
 };
 
 export const NORMAL_CONTROLS = ['uaid', 'rowid'];

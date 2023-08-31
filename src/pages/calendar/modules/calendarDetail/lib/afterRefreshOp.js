@@ -1,7 +1,7 @@
 import 'src/components/mdDialog/dialog';
 import tpl from './template/reInvited.html';
 import './css/reInvite.less';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 
 // 更新日程后操作 是否弹出提示层 发送私信重新确认
 export default function (confirmCallback, closeCallback) {

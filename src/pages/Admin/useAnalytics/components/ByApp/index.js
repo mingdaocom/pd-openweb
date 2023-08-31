@@ -120,7 +120,6 @@ export default class ByApp extends Component {
       selectedDate: 1,
       list: [],
       loading: false,
-      isMore: false,
       pageIndex: 1,
       sorterInfo: { sortFiled: '', order: '' },
       useageList: [],
@@ -370,13 +369,8 @@ export default class ByApp extends Component {
 
   getList = () => {
     const { projectId } = this.props;
-    const { pageIndex, loading, isMore, sorterInfo = {}, keyword } = this.state;
+    const { pageIndex, sorterInfo = {}, keyword } = this.state;
     const { sortFiled, order } = sorterInfo;
-
-    // 加载更多
-    if (pageIndex > 1 && ((loading && isMore) || !isMore)) {
-      return;
-    }
 
     this.setState({ loading: true });
 
@@ -395,30 +389,22 @@ export default class ByApp extends Component {
     this.ajaxRequst
       .then(({ list, allCount }) => {
         this.setState({
-          list: pageIndex === 1 ? list : this.state.list.concat(list),
-          pageIndex: pageIndex + 1,
+          list,
           total: allCount,
           loading: false,
-          isMore: list.length >= 50,
         });
       })
       .fail(err => {
         this.setState({
           pageIndex: 1,
           loading: false,
-          isMore: false,
         });
       });
   };
   getUseageList = () => {
     const { projectId } = this.props;
-    const { useagePageIndex, useageLoading, isMore, sorterInfo = {}, keyword, selectedDate } = this.state;
+    const { useagePageIndex, sorterInfo = {}, keyword, selectedDate } = this.state;
     const { sortFiled, order } = sorterInfo;
-
-    // 加载更多
-    if (useagePageIndex > 1 && ((useageLoading && isMore) || !isMore)) {
-      return;
-    }
 
     this.setState({ useageLoading: true });
 
@@ -444,13 +430,11 @@ export default class ByApp extends Component {
           useagePageIndex: useagePageIndex + 1,
           total: allCount,
           useageLoading: false,
-          isMore: list.length >= 50,
         });
       })
       .fail(err => {
         this.setState({
           useageLoading: false,
-          isMore: false,
         });
       });
   };
@@ -554,6 +538,7 @@ export default class ByApp extends Component {
       selectedDate,
       currentAppInfo = {},
       checkAdmin,
+      total,
     } = this.state;
     return (
       <ByAppWrap>
@@ -602,9 +587,11 @@ export default class ByApp extends Component {
             <TableCom
               dataSource={list}
               columns={this.columns}
-              loadNextPage={this.getList}
-              loading={loading && pageIndex === 1}
+              loading={loading}
               dealSorter={this.dealSorter}
+              total={total}
+              pageIndex={pageIndex}
+              changePage={pageIndex => this.setState({ pageIndex }, this.getList)}
             />
           </div>
         )}
@@ -613,10 +600,12 @@ export default class ByApp extends Component {
             <TableCom
               dataSource={useageList}
               columns={this.useageColumns}
-              loadNextPage={this.getUseageList}
               loading={useageLoading && useagePageIndex === 1}
               defaultSorter={{ sortFiled: 'appAccessNumber', order: 'desc' }}
               dealSorter={this.dealSorter}
+              total={total}
+              pageIndex={useagePageIndex}
+              changePage={useagePageIndex => this.setState({ useagePageIndex }, this.getList)}
             />
           </div>
         )}

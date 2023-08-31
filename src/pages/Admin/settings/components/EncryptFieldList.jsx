@@ -3,6 +3,7 @@ import { ScrollView, Input, Icon, LoadDiv } from 'ming-ui';
 import { Select } from 'antd';
 import appManagementAjax from 'src/api/appManagement';
 import projectEncryptAjax from 'src/api/projectEncrypt';
+import Empty from 'src/pages/Admin/common/TableEmpty';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import SvgIcon from 'src/components/SvgIcon';
 import styled from 'styled-components';
@@ -59,8 +60,6 @@ const Wrap = styled.div`
     right: 14px !important;
   }
 `;
-
-const PAGE_SIZE = 10;
 export default class EncryptFieldList extends Component {
   constructor(props) {
     super(props);
@@ -70,7 +69,6 @@ export default class EncryptFieldList extends Component {
       searchParams: { appId: '', worksheetId: '', keywords: '' },
       dataList: [],
       pageIndex: 1,
-      isMore: false,
       loading: false,
       appPageIndex: 1,
     };
@@ -143,12 +141,8 @@ export default class EncryptFieldList extends Component {
 
   getList = () => {
     const { projectId, encryptRuleId } = this.props;
-    const { searchParams, pageIndex, loading, isMore, dataList } = this.state;
+    const { searchParams, pageIndex } = this.state;
 
-    // 加载更多
-    if (pageIndex > 1 && ((loading && isMore) || !isMore)) {
-      return;
-    }
     this.setState({ loading: true });
     if (this.promise) {
       this.promise.abort();
@@ -160,16 +154,13 @@ export default class EncryptFieldList extends Component {
       worksheetId: searchParams.worksheetId,
       keywords: searchParams.keywords,
       pageIndex,
-      pageSize: PAGE_SIZE,
+      pageSize: 1000,
     });
 
     this.promise
       .then(res => {
-        let encryptControls = pageIndex === 1 ? res.encryptControls : dataList.concat(res.encryptControls);
         this.setState({
-          dataList: encryptControls,
-          isMore: res.encryptControls.length >= PAGE_SIZE,
-          pageIndex: this.state.pageIndex + 1,
+          dataList: res.encryptControls,
           loading: false,
         });
       })
@@ -194,13 +185,9 @@ export default class EncryptFieldList extends Component {
     );
   };
 
-  onScrollEnd = _.throttle(() => {
-    this.getList();
-  }, 200);
-
   render() {
     const { projectId } = this.props;
-    const { appList, worksheetList, searchParams, dataList, loading, pageIndex, isMoreApp } = this.state;
+    const { appList, worksheetList, searchParams, dataList, loading, isMoreApp } = this.state;
     return (
       <Wrap>
         <div className="searchWrap flexRow mBottom20">
@@ -282,38 +269,43 @@ export default class EncryptFieldList extends Component {
           <div className="worksheetName w30">{_l('所属工作表')}</div>
         </div>
         <div className="listContent">
-          <ScrollView onScrollEnd={this.onScrollEnd}>
-            {dataList.map((item, index) => {
-              const { controlName, type, appName, iconColor, appIconUrl, worksheetName, iconUrl } = item;
+          <ScrollView>
+            {loading ? (
+              <LoadDiv className="mTop40" />
+            ) : _.isEmpty(dataList) ? (
+              <Empty className="w100 h100" detail={{ icon: 'icon-verify', desc: _l('无数据') }} />
+            ) : (
+              dataList.map((item, index) => {
+                const { controlName, type, appName, iconColor, appIconUrl, worksheetName, iconUrl } = item;
 
-              return (
-                <div className="listItem flexRow" key={index}>
-                  <div className="controlName w50 ellipsis">
-                    <i className={`Gray_bd mRight5 Font16 TxtMiddle icon-${getIconByType(type)}`}></i>
-                    {controlName}
-                  </div>
-                  <div className="appName w20 flexRow alignItemsCenter">
-                    {!!appName ? (
-                      <Fragment>
-                        <div className="iconWrap pTop2" style={{ backgroundColor: 'rgb(212, 136, 37)' }}>
-                          <SvgIcon url={appIconUrl} fill="#fff" size={12} />
-                        </div>
-                        <div className="flex ellipsis">{appName}</div>
-                      </Fragment>
-                    ) : (
-                      '-'
-                    )}
-                  </div>
-                  <div className="worksheetName w30 flexRow alignItemsCenter">
-                    <div className="iconWrap">
-                      <SvgIcon url={iconUrl} fill="#757575" size={16} />
+                return (
+                  <div className="listItem flexRow" key={index}>
+                    <div className="controlName w50 ellipsis">
+                      <i className={`Gray_bd mRight5 Font16 TxtMiddle icon-${getIconByType(type)}`}></i>
+                      {controlName}
                     </div>
-                    <div className="flex ellipsis">{worksheetName}</div>
+                    <div className="appName w20 flexRow alignItemsCenter">
+                      {!!appName ? (
+                        <Fragment>
+                          <div className="iconWrap pTop2" style={{ backgroundColor: 'rgb(212, 136, 37)' }}>
+                            <SvgIcon url={appIconUrl} fill="#fff" size={12} />
+                          </div>
+                          <div className="flex ellipsis">{appName}</div>
+                        </Fragment>
+                      ) : (
+                        '-'
+                      )}
+                    </div>
+                    <div className="worksheetName w30 flexRow alignItemsCenter">
+                      <div className="iconWrap">
+                        <SvgIcon url={iconUrl} fill="#757575" size={16} />
+                      </div>
+                      <div className="flex ellipsis">{worksheetName}</div>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-            {loading && pageIndex && <LoadDiv className="mTop30" />}
+                );
+              })
+            )}
           </ScrollView>
         </div>
       </Wrap>

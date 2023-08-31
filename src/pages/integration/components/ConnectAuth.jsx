@@ -73,6 +73,9 @@ function ConnectAuth(props) {
   }, []);
   // 获取连接详情
   const getInfo = () => {
+    if (!node || !node.id) {
+      return;
+    }
     axios
       .all([
         flowNodeAjax.get(
@@ -91,28 +94,30 @@ function ConnectAuth(props) {
         ),
       ])
       .then(res => {
+        //更新鉴权认证节点
+        const list = _.toArray((res[0] || {}).flowNodeMap || {});
         setState({
           node: {
             ...node,
-            ...(res[0].flowNodeMap && res[0].startEventId
-              ? res[0].flowNodeMap[res[0].flowNodeMap[res[0].startEventId].nextId]
-              : null),
+            ...(list.find(o => o.typeId === 22) || {}),
             ...res[1],
           },
         });
       });
   };
   const getNodeInfo = () => {
-    flowNodeAjax.getNodeDetail(
-      {
-        processId: props.id,
-        nodeId: node.id,
-        flowNodeType: node.typeId,
-      },
-      { isIntegration: true },
-    ).then(res => {
-      setState({ node: { ...node, ...res }, loading: false });
-    });
+    flowNodeAjax
+      .getNodeDetail(
+        {
+          processId: props.id,
+          nodeId: node.id,
+          flowNodeType: node.typeId,
+        },
+        { isIntegration: true },
+      )
+      .then(res => {
+        setState({ node: { ...node, ...res }, loading: false });
+      });
   };
 
   const renderList = fields => {

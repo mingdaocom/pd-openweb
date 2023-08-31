@@ -4,13 +4,13 @@ import { Icon, RadioGroup, Dialog, Checkbox } from 'ming-ui';
 import CustomBtnList from './CustomBtnList.jsx';
 import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
 import sheetAjax from 'src/api/worksheet';
-import { COLORS, ICONS, BORDERCOLORS } from 'src/pages/worksheet/common/CreateCustomBtn/config.js';
 import cx from 'classnames';
 import _ from 'lodash';
+const confirm = Dialog.confirm;
 
 const SortHandle = SortableHandle(() => <Icon className="mRight10 Font16 mLeft7 Hand" icon="drag" />);
 
-const Item = SortableElement(({ name, icon, color, btnId, editBtn, deleteBtn, isAllView }) => (
+const Item = SortableElement(({ name, icon, color, btnId, editBtn, deleteBtn, isAllView, handleCopy }) => (
   <div className="customBtn mBottom10" style={{}}>
     <SortHandle />
     <span
@@ -27,7 +27,21 @@ const Item = SortableElement(({ name, icon, color, btnId, editBtn, deleteBtn, is
         />
         {name || ''}
       </span>
-      <Icon className="Font16 Hand editIcon" icon="new_mail" />
+      <Icon
+        className="Font16 Hand copyIcon"
+        icon="copy"
+        onClick={e => {
+          e.stopPropagation();
+          return confirm({
+            title: <span className='WordBreak Block'>{_l('复制自定义动作“%0”', name)}</span>,
+            description: _l('将复制目标自定义动作的所有节点和配置'),
+            onOk: () => {
+              handleCopy(btnId);
+            },
+          });
+        }}
+      />
+      <Icon className="Font16 Hand editIcon mLeft15" icon="new_mail" />
     </span>
     <Icon
       className="Font16 Hand mLeft15 mRight15"
@@ -39,7 +53,7 @@ const Item = SortableElement(({ name, icon, color, btnId, editBtn, deleteBtn, is
   </div>
 ));
 
-const SortableList = SortableContainer(({ items, editBtn, deleteBtn }) => {
+const SortableList = SortableContainer(({ items, editBtn, deleteBtn, handleCopy }) => {
   return (
     <div className="mTop24">
       {_.map(items, (item, index) => {
@@ -53,6 +67,7 @@ const SortableList = SortableContainer(({ items, editBtn, deleteBtn }) => {
             index={index}
             editBtn={editBtn.bind(item)}
             deleteBtn={deleteBtn.bind(item)}
+            handleCopy={handleCopy.bind(item)}
           />
         );
       })}
@@ -73,7 +88,7 @@ const deleteStr = isAllView => {
     },
     {
       value: 1,
-      text: _l('彻底删除按钮，与之对应触发的工作流也将被删除'),
+      text: _l('删除按钮，与之对应触发的工作流也将被删除'),
     },
   ];
   return list.filter(o => o.value !== (!isAllView ? 2 : 0));
@@ -195,8 +210,27 @@ class CustomBtn extends Component {
       showDeleteDialog: true,
       btnId: id,
       isAllView,
-      value: isAllView ? 1 : 0
+      value: isAllView ? 1 : 0,
     });
+  };
+
+  handleCopy = btnId => {
+    const { worksheetId, appId, viewId } = this.props;
+    sheetAjax
+      .copyWorksheetBtn({
+        appId,
+        viewId,
+        btnId,
+        worksheetId,
+      })
+      .then(data => {
+        if (data) {
+          this.fresh(true);
+          alert(_l('复制成功'));
+        } else {
+          alert(_l('复制失败'), 2);
+        }
+      });
   };
 
   renderDeleteDialog = () => {
@@ -260,6 +294,7 @@ class CustomBtn extends Component {
               helperClass={'customBtnSortableList'}
               editBtn={this.editBtn}
               deleteBtn={this.deleteBtn}
+              handleCopy={this.handleCopy}
             />
           )}
           <div

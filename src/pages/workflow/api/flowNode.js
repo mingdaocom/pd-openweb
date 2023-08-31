@@ -85,6 +85,7 @@ var flowNode = {
    * 获取流程详情
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
+   * @param {integer} [args.count] count
    * @param {string} [args.instanceId] instanceId
    * @param {string} [args.processId] processId
    * @param {Object} options 配置参数
@@ -186,6 +187,7 @@ var flowNode = {
    * 动作节点选择字段的下拉列表
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
+   * @param {string} [args.current] 是否需要当前节点
    * @param {string} [args.dataSource] 关联他表的appID
    * @param {integer} [args.enumDefault] enumDefault
    * @param {string} [args.nodeId] *节点ID

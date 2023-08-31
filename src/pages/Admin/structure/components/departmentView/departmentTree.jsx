@@ -298,6 +298,7 @@ class DepartmentTree extends React.Component {
         showAction={this.state.showAction}
         dropData={this.state.dropData}
         onClickAwayExceptions={[]}
+        closeAction={() => this.setState({ showAction: false })}
         onClickAway={() =>
           this.setState({
             showAction: false,

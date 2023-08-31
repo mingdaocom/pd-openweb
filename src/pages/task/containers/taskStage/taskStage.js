@@ -2,7 +2,7 @@
 import ReactDom from 'react-dom';
 import './css/taskStage.less';
 import { connect } from 'react-redux';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import ajaxRequest from 'src/api/taskCenter';
 import Score from 'ming-ui/components/Score';
 import { listLoadingContent } from '../../utils/taskComm';

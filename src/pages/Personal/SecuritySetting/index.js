@@ -157,7 +157,7 @@ export default class SecuritySetting extends Component {
         onCancel={() => this.setState({ openWXRemindDialog: false })}
       >
         <div className="weixinImg">
-          {wxQRCodeLoading ? <LoadDiv className="mTop80" /> : <img className="w100 h100" src={wxQRCode} />}
+          {wxQRCodeLoading ? <LoadDiv className="mTop40" /> : <img className="w100 h100" src={wxQRCode} />}
         </div>
         <div className="mTop8 mBottom24 Font17">{_l('使用微信扫码绑定账号，开启登录微信提醒')}</div>
         <Button type="primary" onClick={this.checkIsBindWX}>
@@ -257,7 +257,7 @@ export default class SecuritySetting extends Component {
       <div className="securitySettingContainer">
         {!md.global.Config.IsLocal && (
           <Fragment>
-            <div className="Font15 mBottom30 Bold">{_l('安全')}</div>
+            <div className="Font17 mBottom30 Bold">{_l('安全')}</div>
             <div>
               {!md.global.Config.IsLocal && (
                 <div className="setRowItem">
@@ -280,7 +280,7 @@ export default class SecuritySetting extends Component {
             </div>
           </Fragment>
         )}
-        <div className="Font15 mTop30 Bold">{_l('设备管理')}</div>
+        <div className="Font17 mTop30 Bold">{_l('设备管理')}</div>
         {!md.global.Config.IsLocal && (
           <div className="setRowItem loginSameTime">
             <div className="label Gray_75">{_l('允许同时登录')}</div>

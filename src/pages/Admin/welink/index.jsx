@@ -12,11 +12,10 @@ import { navigateTo } from 'src/router/navigateTo';
 import clientIdImg from './img/client_id.png';
 import VertifyClearIntegationData from '../components/VertifyClearIntegationData';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import { integrationFailed } from '../utils';
+import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 import './style.less';
-
-const FEATURE_ID = 18;
-
 export default class Workwx extends React.Component {
   constructor(props) {
     super(props);
@@ -174,7 +173,7 @@ export default class Workwx extends React.Component {
                 value={!this.state[`isShow${strId}`] ? this.state[`${strId}Format`] : this.state[strId]}
               />
               <Icon
-                icon={!this.state[`isShow${strId}`] ? 'circulated' : 'public-folder-hidden'}
+                icon={!this.state[`isShow${strId}`] ? 'public-folder-hidden' : 'circulated'}
                 className="Gray_9e Font18 isShowIcon"
                 onClick={() => {
                   this.setState({
@@ -436,17 +435,19 @@ export default class Workwx extends React.Component {
   };
 
   render() {
-    const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
+    const featureType = getFeatureStatus(Config.projectId, VersionProductType.WelinkIntergration);
     if (featureType === '2') {
       return (
-        <div className="orgManagementWrap">{buriedUpgradeVersionDialog(Config.projectId, FEATURE_ID, 'content')}</div>
+        <div className="orgManagementWrap">
+          {buriedUpgradeVersionDialog(Config.projectId, VersionProductType.WelinkIntergration, 'content')}
+        </div>
       );
     }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }
     return (
-      <div className="welinkMainContent">
+      <div className="orgManagementWrap welinkMainContent">
         {!this.state.isPassApply ? (
           <div className="TxtMiddle">
             <div className="TxtCenter logoBox">
@@ -496,7 +497,7 @@ export default class Workwx extends React.Component {
                       className="applyBtn mBottom10 mTop25"
                       onClick={e => {
                         // 前往付费
-                        navigateTo(`/upgrade/choose?projectId=${Config.projectId}`);
+                        purchaseMethodFunc({ projectId: Config.projectId });
                       }}
                     >
                       {_l('前往付费')}
@@ -514,7 +515,7 @@ export default class Workwx extends React.Component {
             )}
           </div>
         ) : (
-          <Tabs defaultActiveKey="base">
+          <Tabs defaultActiveKey="base" className="mdAntTabs singleTab">
             <Tabs.TabPane tab={_l('基础')} key="base">
               {this.stepRender()}
             </Tabs.TabPane>

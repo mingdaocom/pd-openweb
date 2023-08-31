@@ -1,5 +1,6 @@
 import React from 'react';
 import { antNotification, Icon } from 'ming-ui';
+import { renderBtnList } from 'ming-ui/functions/notify';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import { downloadFile } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
@@ -58,8 +59,12 @@ export default function customNotice() {
     });
 
     socket.on('custom', data => {
-      const { id, status, title, msg } = data;
+      const { id, status, title, msg, link, color } = data;
       let action = '';
+      const linkBtn = {
+        text: _l('查看详情'),
+        onClick: () => window.open(link),
+      };
 
       if (status === 1) {
         action = 'info';
@@ -79,6 +84,8 @@ export default function customNotice() {
         message: title,
         description: <div dangerouslySetInnerHTML={{ __html: msg }} />,
         loading: status === 1,
+        btn: link ? renderBtnList([linkBtn]) : undefined,
+        color,
         onBtnClick: () => {
           antNotification.close(id);
         },

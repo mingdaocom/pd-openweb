@@ -53,7 +53,7 @@ export default class Write extends Component {
   }
 
   render() {
-    const { processId, item, disabled, selectNodeId, openDetail, approvalSelectNodeId } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
 
     return (
       <div className="flexColumn">
@@ -65,13 +65,15 @@ export default class Write extends Component {
               { errorShadow: item.selectNodeId && item.isException },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId, approvalSelectNodeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
               <i className={cx('workflowAvatar icon-workflow_write', item.selectNodeId ? 'BGSkyBlue' : 'BGGray')} />
             </div>
             <NodeOperate nodeClassName="BGSkyBlue" {...this.props} />
-            <div className="workflowContent Font13">{this.renderContent()}</div>
+            <div className="workflowContent Font13">
+              {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
+            </div>
           </div>
           <CreateNode {...this.props} />
         </section>

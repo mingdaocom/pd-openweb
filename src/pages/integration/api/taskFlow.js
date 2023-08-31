@@ -83,7 +83,7 @@ var taskFlow = {
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
    * @param {string} args.flowId 任务流id
-   * @param {string} args.nodeId 节点id
+   * @param {string} args.nodeId 待删除的节点id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -189,6 +189,7 @@ var taskFlow = {
    * @param {string} args.owner 所属用户id
    * @param {object} args.sourceNode 源表节点(object)
    * @param {object} args.destNode 目的地节点(object)
+   * @param {object} args.workflowConfig 工作流配置(object)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -207,6 +208,7 @@ var taskFlow = {
    * @param {string} args.owner 所属用户id
    * @param {object} args.sourceNode 源表节点(object)
    * @param {object} args.destNode 目的地节点(object)
+   * @param {object} args.workflowConfig 工作流配置(object)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -231,6 +233,25 @@ var taskFlow = {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/getTaskFlow';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'taskFlowgetTaskFlow', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 重命名节点
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.flowId 任务流id
+   * @param {string} args.nodeId 当前节点id
+   * @param {string} args.name 节点名称
+   * @param {string} args.description 描述
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  renameNode: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'taskFlow/renameNode';
+    base.ajaxOptions.type = 'POST';
+    return $.api(controllerName, 'taskFlowrenameNode', JSON.stringify(args), $.extend(base, options));
   },
 
   /**

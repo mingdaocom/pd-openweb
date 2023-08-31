@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import PublicFormDisplay from '../../widgetConfig/widgetDisplay/publicFormDisplay';
+import { isRelateRecordTableControl } from 'src/pages/worksheet/util.js';
 
 export default class FormPreview extends React.Component {
   static propTypes = {
@@ -36,7 +37,15 @@ export default class FormPreview extends React.Component {
       <div className="customWidgetForWorksheetWrap publicWorksheetForm">
         <PublicFormDisplay
           styleInfo={{ info: advancedSetting }}
-          controls={controls.filter(c => !_.includes(SYS_CONTROLS_WORKFLOW.concat(['rowid']), c.controlId))}
+          controls={controls
+            .filter(c => !_.includes(SYS_CONTROLS_WORKFLOW.concat(['rowid']), c.controlId))
+            .map(item => {
+              // 公开表单关联多条列表改成卡片显示，让配置能随意拖动
+              if (isRelateRecordTableControl(item)) {
+                return { ...item, advancedSetting: Object.assign({}, item.advancedSetting, { showtype: '1' }) };
+              }
+              return item;
+            })}
           fromType="public"
           onChange={(newControls, hidedControlId) => {
             if (hidedControlId) {

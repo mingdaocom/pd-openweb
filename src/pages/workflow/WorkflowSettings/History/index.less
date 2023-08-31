@@ -9,8 +9,11 @@
 
 .workflowHistoryWrap {
   margin-top: 20px;
+  .nano-content {
+    padding: 0 20px;
+  }
   .lastPublishInfo {
-    width: 960px;
+    max-width: 1400px;
     display: flex;
     margin: 10px auto 20px;
     color: #757575;
@@ -22,7 +25,7 @@
     }
   }
   .workflowHistoryContentWrap {
-    max-width: 960px;
+    max-width: 1400px;
     margin: 0 auto 20px;
     box-sizing: border-box;
     background-color: #fff;
@@ -39,7 +42,7 @@
         border: 1px solid #ddd;
         border-radius: 3px;
         padding: 0 5px;
-        width: 112px;
+        min-width: 112px;
         margin-left: 10px;
         margin-right: 10px;
         .arrow {
@@ -278,6 +281,7 @@
                 .personInfo {
                   white-space: normal;
                   word-break: break-all;
+                  flex-wrap: wrap;
                   span {
                     max-width: 200px;
                     overflow: hidden;
@@ -376,8 +380,7 @@
   position: absolute;
   z-index: 1;
   margin-top: 5px;
-  left: 50%;
-  margin-left: -240px;
+  right: 0;
   .historyReleaseItem {
     height: 40px;
     align-items: center;

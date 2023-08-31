@@ -101,7 +101,7 @@ const ListCard = props => {
               </Fragment>
             ) : (
               <Fragment>
-                {allowEditName && !isKc && (
+                {allowEditName && !isKc && !_.get(window,"shareState.isPublicForm") && (
                   <ResetNamePopup
                     originalFileName={data.originalFilename}
                     isEdit={isEdit}

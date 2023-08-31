@@ -139,6 +139,9 @@ function ViewControl(props) {
             isCharge: hasCharge,
             title: _l('分享视图'),
             isPublic: view.shareRange === 2,
+            hidePublicShare: !(
+              isOpenPermit(permitList.viewShareSwitch, sheetSwitchPermit, viewId) && !md.global.Account.isPortal
+            ),
             params: {
               appId,
               worksheetId,

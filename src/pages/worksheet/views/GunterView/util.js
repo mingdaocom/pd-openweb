@@ -7,13 +7,14 @@ import moment from 'moment';
 /**
  * 修改当前视图配置
  */
-export const changeViewConfig = (value = PERIOD_TYPE.day, viewConfig) => {
-  const { minDayWidth, defaultMinDayWidth } = _.find(PERIODS, { value });
-  const count = getPeriodCount(value, minDayWidth, viewConfig);
+export const changeViewConfig = (value, viewConfig) => {
+  const periodType = value || PERIOD_TYPE.day;
+  const { minDayWidth, defaultMinDayWidth } = _.find(PERIODS, { value: periodType });
+  const count = getPeriodCount(periodType, minDayWidth, viewConfig);
   return Object.assign(viewConfig, {
     periodCount: count,
     minDayWidth,
-    periodType: value
+    periodType
   });
 }
 

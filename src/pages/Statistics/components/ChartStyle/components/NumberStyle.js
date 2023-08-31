@@ -516,7 +516,7 @@ export function numberSummaryPanelGenerator(props) {
       <div className="mBottom16">
         <div className="mBottom8">{_l('汇总方式')}</div>
         <div className="chartTypeSelect flexRow valignWrapper">
-          {normTypes.map(item => (
+          {normTypes.filter(n => n.value !== 5).map(item => (
             <div
               key={item.value}
               className={cx('flex centerAlign pointer Gray_75', { active: summary.type == item.value })}

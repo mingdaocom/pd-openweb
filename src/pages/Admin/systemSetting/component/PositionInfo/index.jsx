@@ -49,7 +49,7 @@ class PositionInfo extends Component {
     })
       .then(response => response.blob())
       .then(blob => {
-        let date = moment(new Date()).format('YYYYMMDDHHmmss');
+        let date = moment().format('YYYYMMDDHHmmss');
         const fileName = `${projectName}_${_l('职位')}_${date}` + '.xlsx';
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
@@ -122,8 +122,8 @@ class PositionInfo extends Component {
       return this.renderImportInfo();
     }
     return (
-      <div className="system-set-box">
-        <div className="system-set-header">
+      <div className="orgManagementWrap">
+        <div className="orgManagementHeader justifyContentLeft">
           <Icon
             icon="backspace"
             className="Hand mRight18 TxtMiddle Font24 adminHeaderIconColor"

@@ -9,7 +9,7 @@ import timezone from './timezone';
 import SelectTimezone from './component/SelectTimezone';
 import RegExp from 'src/util/expression';
 import { htmlEncodeReg, htmlDecodeReg } from 'src/util';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import taskHtml from './tpl/createCalendar.html';
 import 'src/components/mdDialog/dialog';
 import 'src/components/mdDatePicker/mdDatePicker';

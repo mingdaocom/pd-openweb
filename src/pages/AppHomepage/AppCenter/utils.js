@@ -1,9 +1,9 @@
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils';
 
-export function getAppNavigateUrl(appId, pcNaviStyle) {
+export function getAppNavigateUrl(appId, pcNaviStyle, selectAppItmeType = 2) {
   const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`));
-  if (storage) {
+  if (storage && selectAppItmeType === 2) {
     const { lastGroupId, lastWorksheetId, lastViewId } = storage;
     if (pcNaviStyle === 2) {
       return lastGroupId ? `/app/${appId}/${lastGroupId}?from=insite` : `/app/${appId}`;

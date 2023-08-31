@@ -31,9 +31,6 @@ export default class Approval extends Component {
       return (
         <Fragment>
           <div className="pLeft8 pRight8">{_l('按部门层级逐级审批')}</div>
-          <div className="pLeft8 pRight8 mTop4">
-            <MembersName accounts={item.accounts} multipleLevelAccounts={item.multipleLevelAccounts} />
-          </div>
         </Fragment>
       );
     }
@@ -47,32 +44,30 @@ export default class Approval extends Component {
       );
     }
 
-    const hasApprovalMethod = item.accounts.length > 1 || item.accounts[0].type !== 1;
+    const hasApprovalMethod =
+      (item.accounts.length > 1 || item.accounts[0].type !== 1) && _.includes([1, 2, 4], item.countersignType);
 
     return (
       <Fragment>
         {hasApprovalMethod && (
-          <div className="workflowContentInfo ellipsis pTop5">
+          <div className="workflowContentInfo ellipsis pTop5 mBottom4">
             {item.countersignType === 1
               ? _l('需全员通过')
               : item.countersignType === 2
               ? _l('只需一人通过，需全员否决')
-              : item.countersignType === 4
-              ? _l('按比例投票通过')
-              : _l('一人通过或否决即可')}
+              : _l('按比例投票通过')}
           </div>
         )}
-        <div className={cx('pLeft8 pRight8 mTop4', { pTop5: !hasApprovalMethod }, { pBottom5: !item.isCallBack })}>
+        <div className={cx('pLeft8 pRight8 pBottom5', { pTop5: !hasApprovalMethod })}>
           <span className="Gray_75">{_l('审批人：')}</span>
-          <MembersName accounts={item.accounts} />
+          {item.accounts.length ? <MembersName accounts={item.accounts} /> : '[]'}
         </div>
-        {item.isCallBack && <div className="pLeft8 pRight8 mTop4 pBottom5">{_l('否决后，允许退回')}</div>}
       </Fragment>
     );
   }
 
   render() {
-    const { processId, item, disabled, selectNodeId, openDetail, approvalSelectNodeId } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
 
     return (
       <div className="flexColumn">
@@ -84,13 +79,15 @@ export default class Approval extends Component {
               { errorShadow: item.selectNodeId && item.isException },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId, approvalSelectNodeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
               <i className={cx('workflowAvatar icon-workflow_ea', item.selectNodeId ? 'BGViolet' : 'BGGray')} />
             </div>
             <NodeOperate nodeClassName="BGViolet" {...this.props} />
-            <div className="workflowContent">{this.renderContent()}</div>
+            <div className="workflowContent">
+              {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
+            </div>
           </div>
           {item.resultTypeId ? <div className="workflowLineBtn" /> : <CreateNode {...this.props} />}
         </section>

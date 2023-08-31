@@ -15,11 +15,11 @@ body,
     height: 40px;
     text-align: center;
     line-height: 40px;
-    background-color: #FFFFFF;
+    background-color: #fff;
     font-size: 30px;
     border-radius: 2px;
 
-    >div {
+    > div {
       position: absolute;
       left: -60px;
       top: 56px;
@@ -31,7 +31,7 @@ body,
         color: #2196f3;
       }
 
-      >div {
+      > div {
         display: inline-block;
       }
     }
@@ -47,10 +47,25 @@ body,
 
     .worksheetName {
       white-space: break-spaces;
-      line-height: 1.2em;
-      font-size: 36px;
-      font-weight: 500;
-      margin: 14px 0 10px;
+      line-height: 1em;
+      font-size: 32px;
+      font-weight: 600;
+      margin: 32px 0 20px;
+    }
+
+    .worksheetLimitInfo {
+      margin-bottom: 20px;
+      border-left: 5px solid rgba(33, 150, 243, 0.3);
+      .itemInfo {
+        height: 22px;
+        margin-left: 8px;
+        span {
+          font-size: 13px;
+          font-weight: bold;
+          line-height: 22px;
+          color: #757575;
+        }
+      }
     }
 
     .worksheetDescription {
@@ -59,6 +74,7 @@ body,
       width: 100%;
       box-sizing: border-box;
       overflow: auto;
+      margin-bottom: 16px;
 
       ol,
       ul {
@@ -80,29 +96,42 @@ body,
   .submitCon {
     text-align: center;
     margin: 30px 0 30px;
-  }
-
-  .UploadFiles-entrys {
-    >div:nth-child(2) {
-      display: none;
+    .submitBtn {
+      max-width: 736px;
+      span {
+        padding: 0 32px;
+      }
+      :hover {
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 3px;
+      }
     }
   }
 
   .mingdaoCon {
     font-size: 12px;
-    color: #bdbdbd;
+    color: rgba(0, 0, 0, 0.6);
     margin: 0 auto;
     width: 800px;
     padding: 10px 0 30px;
 
     a {
-      color: #757575;
+      color: #000;
       text-decoration: none;
 
       &:hover {
         color: #2196f3;
       }
     }
+  }
+}
+
+@media (min-width: 1200px) {
+  .formContent {
+    width: 1100px !important;
+  }
+  .mingdaoCon {
+    width: 1100px !important;
   }
 }
 
@@ -123,7 +152,7 @@ body,
     .logo {
       max-width: 100%;
       height: auto !important;
-      max-height: 59px;
+      max-height: 40px;
     }
 
     .formContent {
@@ -150,6 +179,57 @@ body,
         display: block;
         float: none !important;
         margin-top: 5px;
+      }
+    }
+  }
+}
+
+.filledRecordDialog {
+  .mui-dialog-default-title {
+    font-weight: 600;
+  }
+  .mui-dialog-body {
+    background: #f8f8f8;
+    padding: 0px !important;
+  }
+  .recordItem {
+    display: flex;
+    flex-direction: column;
+    height: 82px;
+    padding: 6px 12px;
+    margin: 10px;
+    background: #fff;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.16);
+    border-radius: 3px;
+    cursor: pointer;
+    &:hover {
+      background: #fcfcfc;
+    }
+
+    .recordFooter {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .optionIcon {
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        text-align: center;
+        margin-left: 12px;
+        border-radius: 50%;
+        background: #f5f5f5;
+        font-size: 16px;
+        .editIcon {
+          color: #2196f3;
+        }
+        .deleteIcon {
+          color: #ff0000;
+        }
+
+        &:hover {
+          box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.16);
+        }
       }
     }
   }

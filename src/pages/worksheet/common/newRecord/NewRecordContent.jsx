@@ -88,6 +88,7 @@ function NewRecordForm(props) {
     openRecord,
     loadDraftDataCount = () => {},
     addNewRecord = () => {},
+    hidePublicShare,
   } = props;
   const tempNewRecord = needCache && viewId && localStorage.getItem('tempNewRecord_' + viewId);
   const cache = useRef({});
@@ -409,6 +410,7 @@ function NewRecordForm(props) {
             canEditForm={isCharge} //仅 管理员|开发者 可设置公开表单
             isPublic={visibleType === 2}
             publicUrl={publicShareUrl}
+            hidePublicShare={hidePublicShare}
             isCharge={isCharge || canEditData(appPkgData.appRoleType)} //运营者具体分享权限
             params={{
               appId,
@@ -436,7 +438,7 @@ function NewRecordForm(props) {
             onClose={() => setShareVisible(false)}
           />
         )}
-        {showTitle && <div className="newRecordTitle ellipsis Font19 mBottom10">{recordTitle}</div>}
+        {showTitle && <div className="newRecordTitle ellipsis Font19 mBottom10 Bold">{recordTitle}</div>}
         <div className="customFieldsCon" ref={formcon}>
           <RecordForm
             from={2}
@@ -499,6 +501,15 @@ function NewRecordForm(props) {
                     } catch (err) {
                       c.value = '0';
                     }
+                  } else if (c.value === 'deleteRowIds: all') {
+                    setRelateRecordData(oldValue => ({
+                      ...oldValue,
+                      [c.controlId]: {
+                        ...c,
+                        value: [],
+                      },
+                    }));
+                    c.value = '0';
                   }
                 });
               }

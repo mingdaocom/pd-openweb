@@ -542,6 +542,7 @@ export function handleMoveOrCopy(options) {
       /* 操作提示*/
       window.destroyAlert(key);
       const operationTips = returnOperationTips(data, message);
+      window.destroyAlert(key);
       if (ids.length === noRightIds.length) {
         alert(_l('操作成功（部分文件您无权操作）'), 3);
       } else if (operationTips.type === EXECUTE_RESULT.SUCCESS || operationTips.type === EXECUTE_RESULT.NO_RIGHT) {

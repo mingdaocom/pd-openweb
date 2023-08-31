@@ -16,7 +16,7 @@ const ItemLayer = styled.div`
   width: 100%;
   height: 100%;
   .itemLayer {
-    width: 180px;
+    width: 160px;
     line-height: 40px;
     padding-left: 12px;
     background: #fff;
@@ -51,7 +51,7 @@ export default function ListItemLayer() {
     return data;
   });
 
-  if ([DRAG_ITEMS.DISPLAY_ITEM].includes(itemType)) return null;
+  if ([DRAG_ITEMS.DISPLAY_ITEM, DRAG_ITEMS.DISPLAY_ITEM_RELATE].includes(itemType)) return null;
 
   if (item) {
     $init.current = { initialClientOffset, item };
@@ -86,7 +86,8 @@ export default function ListItemLayer() {
     if (!item) return { display: 'none' };
 
     const { x, y } = currentOffset;
-    const transform = `translate(${x}px, ${y}px) `;
+    // 为了使鼠标在元素中间
+    const transform = `translate(${x - 80 >= 0 ? x - 80 : x}px, ${y - 20 >= 0 ? y - 20 : y}px) `;
     return {
       transform: transform,
       WebkitTransform: transform,

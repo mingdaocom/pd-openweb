@@ -1,3 +1,5 @@
+import React from 'react';
+
 export const themes = [
   { main: '#E91E63', second: '#FEF3F7' },
   { main: '#FF9800', second: '#FFFAF2' },
@@ -46,3 +48,99 @@ export const FILL_TIMES = {
   DAILY: 2,
   UNLIMITED: 3,
 };
+
+export const PUBLISH_CONFIG_TABS = [
+  { text: _l('链接设置'), value: 1 },
+  { text: _l('来源参数'), value: 2 },
+  { text: _l('嵌入HTML'), value: 3 },
+];
+
+export const FILL_TIMES_OPTIONS = [
+  { text: _l('仅一次'), value: FILL_TIMES.ONETIME },
+  { text: _l('每天一次'), value: FILL_TIMES.DAILY },
+];
+
+export const FILL_OBJECT = {
+  ALL: 1,
+  PLATFORM: 2,
+  ORGANIZATION: 3,
+};
+
+export const FILL_OBJECT_OPTIONS = [
+  { text: _l('所有人'), value: FILL_OBJECT.ALL },
+  { text: _l('平台用户'), value: FILL_OBJECT.PLATFORM },
+  { text: _l('本组织用户'), value: FILL_OBJECT.ORGANIZATION },
+];
+
+export const TIME_TYPE = {
+  MONTH: 'month',
+  DAY: 'day',
+  HOUR: 'hour',
+};
+
+export const TIME_PERIOD_TYPE = {
+  MONTHLY: 1,
+  SPECIFY_MONTH: 2,
+  SPECIFY_RANGE_MONTH: 3,
+  DAILY: 1,
+  SPECIFY_DAY: 2,
+  SPECIFY_RANGE_DAY: 3,
+  WEEKLY: 4,
+  UNLIMITED: 1,
+  SPECIFY_RANGE_HOUR: 2,
+};
+
+export const TIME_PERIOD_OPTIONS = {
+  month: [
+    { text: '每月', value: TIME_PERIOD_TYPE.MONTHLY },
+    { text: '指定月份', value: TIME_PERIOD_TYPE.SPECIFY_MONTH },
+    { text: '指定范围', value: TIME_PERIOD_TYPE.SPECIFY_RANGE_MONTH },
+  ],
+  day: [
+    { text: '每天', value: TIME_PERIOD_TYPE.DAILY },
+    { text: '指定日期', value: TIME_PERIOD_TYPE.SPECIFY_DAY },
+    { text: '指定范围', value: TIME_PERIOD_TYPE.SPECIFY_RANGE_DAY },
+    { text: '每周', value: TIME_PERIOD_TYPE.WEEKLY },
+  ],
+  hour: [
+    { text: '不限', value: TIME_PERIOD_TYPE.UNLIMITED },
+    { text: '指定范围', value: TIME_PERIOD_TYPE.SPECIFY_RANGE_HOUR },
+  ],
+};
+
+export const COLLECT_WAY_OPTIONS = [
+  // { text: _l('平台官方微信服务号'), value: 1 },
+  { text: _l('组织的微信认证服务号'), value: 2 },
+];
+
+export const AUTH_OPTIONS = [
+  { text: _l('无需授权,静默获取'), value: false },
+  { text: _l('需授权,用户允许后获取'), value: true },
+];
+
+export const ALLOW_EDIT_TYPES = [
+  { text: _l('仅查看'), value: 1 },
+  { text: _l('允许修改'), value: 2 },
+];
+
+export const WEEKS = [
+  { text: _l('周一'), value: 1 },
+  { text: _l('周二'), value: 2 },
+  { text: _l('周三'), value: 3 },
+  { text: _l('周四'), value: 4 },
+  { text: _l('周五'), value: 5 },
+  { text: _l('周六'), value: 6 },
+  { text: _l('周日'), value: 0 },
+];
+
+export const WECHAT_FIELD_KEY = {
+  OPEN_ID: 'openId',
+  NICK_NAME: 'nickName',
+  HEAD_IMG_URL: 'headImgUrl',
+};
+
+export const WECHAT_MAPPING_SOURCE_FIELDS = [
+  { key: WECHAT_FIELD_KEY.OPEN_ID, name: _l('微信OpenID'), required: true },
+  { key: WECHAT_FIELD_KEY.NICK_NAME, name: _l('微信昵称') },
+  { key: WECHAT_FIELD_KEY.HEAD_IMG_URL, name: _l('微信头像') },
+];

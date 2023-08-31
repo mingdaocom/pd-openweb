@@ -1,4 +1,4 @@
-﻿import doT from '@mdfe/dot';
+﻿import doT from 'dot';
 import addressBookController from 'src/api/addressBook';
 import userController from 'src/api/user';
 import tpl from './tpl/addFriendConfirm.html'

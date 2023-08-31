@@ -172,6 +172,7 @@ export default class MyAppItem extends Component {
       onCopy,
       onUpdateAppBelongGroups,
       pcNaviStyle,
+      selectAppItmeType,
       createType,
       urlTemplate,
       pcDisplay,
@@ -194,7 +195,7 @@ export default class MyAppItem extends Component {
         <div className={cx('myAppItemWrap')}>
           <MdLink
             className="myAppItem stopPropagation"
-            to={getAppNavigateUrl(id, pcNaviStyle)}
+            to={getAppNavigateUrl(id, pcNaviStyle, selectAppItmeType)}
             onClick={e => {
               addBehaviorLog('app', id); // 浏览应用埋点
 

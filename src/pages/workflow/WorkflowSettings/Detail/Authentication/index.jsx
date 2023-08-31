@@ -588,7 +588,7 @@ export default class Authentication extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex mTop20">
+        <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">
               {data.appType === APP_TYPE.BASIC_AUTH && this.renderBasicAuthContent()}

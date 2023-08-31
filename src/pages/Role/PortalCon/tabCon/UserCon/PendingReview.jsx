@@ -10,9 +10,11 @@ import Table from 'src/pages/Role/component/Table';
 import ChangeRoleDialog from 'src/pages/Role/PortalCon/components/ChangeRoleDialog';
 import externalPortalAjax from 'src/api/externalPortal';
 import ReviewFree from 'src/pages/Role/PortalCon/components/ReviewFree';
-import { pageSize, renderText } from '../util';
+import { pageSize, renderText, formatPortalData } from '../util';
 import noVerifyAjax from 'src/api/noVerify';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
+import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 
 const Wrap = styled.div`
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
@@ -75,6 +77,12 @@ const Wrap = styled.div`
     }
   }
 `;
+const WrapRejectBtn = styled.div`
+  color: red;
+  &:hover {
+    color: red;
+  }
+`;
 function PendingReview(props) {
   const {
     portal = {},
@@ -97,6 +105,10 @@ function PendingReview(props) {
   const [selectedIds, setSelectedIds] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [data, setData] = useState({});
+  const [showUserInfoDialog, setShowUserInfoDialog] = useState(false);
+  const [currentData, setCurrentData] = useState([]); //当前用户详情
+  const [currentId, setCurrentId] = useState(''); //当前用户id
+
   //controls 信息收集的配置项
   const [columns, setColumns] = useState([]);
   //当前免审名单相关信息
@@ -148,7 +160,9 @@ function PendingReview(props) {
             render: (control, data) => {
               return (
                 <div className="userImgBox overflowHidden">
-                  <span className="name overflow_ellipsis Block TxtLeft breakAll">{data['portal_name']}</span>
+                  <span className="name overflow_ellipsis Block TxtLeft breakAll" title={data['portal_name']}>
+                    {data['portal_name']}
+                  </span>
                 </div>
               );
             },
@@ -157,13 +171,13 @@ function PendingReview(props) {
           columns.push({
             ...o,
             id: o.controlId,
-            name: '手机号',
+            name: _l('手机号'),
           });
         } else if (o.controlId === 'portal_email') {
           columns.push({
             ...o,
             id: o.controlId,
-            name: '邮箱',
+            name: _l('邮箱'),
             render: (text, data, index) => {
               return (
                 <div className="flex overflowHidden">
@@ -183,7 +197,11 @@ function PendingReview(props) {
             name: o.controlName,
             sorter: [15, 16].includes(o.type),
             render: (control, data) => {
-              return <div className="ellipsis TxtMiddle">{renderText({ ...o, value: data[o.controlId] })}</div>;
+              return (
+                <div className="ellipsis TxtMiddle" title={renderCellText({ ...o, value: data[o.controlId] })}>
+                  {renderText({ ...o, value: data[o.controlId] })}
+                </div>
+              );
             },
           });
         }
@@ -197,17 +215,19 @@ function PendingReview(props) {
           <React.Fragment>
             <div
               className="addUser InlineBlock Hand ThemeColor3 Bold"
-              onClick={() => {
+              onClick={e => {
                 setSelectedIds([data.rowid]);
                 setShowPassDrop(true);
+                e.stopPropagation();
               }}
             >
               {_l('同意')}
             </div>
             <div
               className="reject InlineBlock Hand Red mLeft25"
-              onClick={() => {
+              onClick={e => {
                 rejectDialog([data.rowid]);
+                e.stopPropagation();
               }}
             >
               {_l('拒绝')}
@@ -242,6 +262,7 @@ function PendingReview(props) {
       description: _l('拒绝后会从列表中删除此用户'),
       onOk: () => {
         editAppApplyStatus(rowIds || selectedIds);
+        setShowUserInfoDialog(false);
       },
     });
   };
@@ -301,6 +322,7 @@ function PendingReview(props) {
       </div>
       <Table
         showCheck
+        showTips
         pageSize={pageSize}
         columns={columns}
         controls={controls}
@@ -331,6 +353,14 @@ function PendingReview(props) {
         loading={props.portal.loading}
         handleChangeSortHeader={sorter => {
           handleChangeSort(sorter, 3);
+        }}
+        clickRow={(info, id) => {
+          let data = controls.map(it => {
+            return { ...it, value: (props.portal.list.find(item => item.rowid === id) || {})[it.controlId] };
+          });
+          setCurrentId(id);
+          setCurrentData(data);
+          setShowUserInfoDialog(true);
         }}
       />
       {showPassDrop && (
@@ -372,6 +402,62 @@ function PendingReview(props) {
           controls={controls}
           onCancel={() => {
             setShow(false);
+          }}
+        />
+      )}
+      {showUserInfoDialog && (
+        <UserInfoWrap
+          show={showUserInfoDialog}
+          showClose={true}
+          appId={appId}
+          width={'640px'}
+          currentData={formatPortalData(
+            currentData.map(o => {
+              if (o.controlId === 'portal_status') {
+                return { ...o, value: '["1"]' };
+              } else {
+                return o;
+              }
+            }),
+          )}
+          setShow={setShowUserInfoDialog}
+          onOk={(data, ids) => {
+            let newCell = data
+              .filter(o =>
+                [...ids, 'portal_role', 'portal_status'] //角色和状态默认更新
+                  .includes(o.controlId),
+              )
+              .map(formatControlToServer);
+            ///更新数据 /////
+            externalPortalAjax
+              .auditPassExAccountToNewRole({
+                appId,
+                roleId: (newCell.find(o => o.controlId === 'portal_role') || {}).value,
+                rowIds: [currentId],
+                newCell,
+              })
+              .then(res => {
+                if (res.success) {
+                  getCount(appId); //重新获取总计数
+                  fetch();
+                } else {
+                  alert(_l('操作失败，请稍后再试'), 3);
+                }
+              });
+          }}
+          okText={_l('同意')}
+          title={_l('用户信息')}
+          renderCancel={() => {
+            return (
+              <WrapRejectBtn
+                className="btn rejectBtn Hand mLeft10"
+                onClick={() => {
+                  rejectDialog([currentId]);
+                }}
+              >
+                {_l('拒绝')}
+              </WrapRejectBtn>
+            );
           }}
         />
       )}

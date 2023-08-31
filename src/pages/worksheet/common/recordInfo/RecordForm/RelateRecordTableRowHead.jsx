@@ -58,7 +58,7 @@ export default function RowHead(props) {
     deleteRelateRow,
     addReocord = () => {},
     saveSheetLayout = () => {},
-    resetSehetLayout = () => {},
+    resetSheetLayout = () => {},
     removeRecords = () => {},
   } = props;
   return (
@@ -80,7 +80,7 @@ export default function RowHead(props) {
           <ChangeSheetLayout
             description={_l('保存表格当前的列宽配置，并应用给所有用户')}
             onSave={saveSheetLayout}
-            onCancel={resetSehetLayout}
+            onCancel={resetSheetLayout}
           />
         )}
         {row.rowid && (

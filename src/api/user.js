@@ -178,6 +178,7 @@ export default {
   * @param {array} args.filterAccountIds 过滤的需要排除的帐号
   * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
   * @param {boolean} args.includeUndefinedAndMyself 是否在前面插入未指定和我自己
+  * @param {boolean} args.includeMyself 是否在前面插入我自己
   * @param {boolean} args.includeSystemField 是否包含系统预设账户
 比如当前用户、当前用户的下属、未指定、工作流、公开表单、API等
   * @param {array} args.appointedAccountIds 指定的账户列表
@@ -220,6 +221,7 @@ export default {
   * @param {array} args.filterAccountIds 过滤的需要排除的帐号
   * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
   * @param {boolean} args.includeUndefinedAndMyself 是否在前面插入未指定和我自己
+  * @param {boolean} args.includeMyself 是否在前面插入我自己
   * @param {boolean} args.includeSystemField 是否包含系统预设账户
 比如当前用户、当前用户的下属、未指定、工作流、公开表单、API等
   * @param {array} args.appointedAccountIds 指定的账户列表
@@ -246,6 +248,7 @@ export default {
   * @param {array} args.filterAccountIds 过滤的需要排除的帐号
   * @param {array} args.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
   * @param {boolean} args.includeUndefinedAndMyself 是否在前面插入未指定和我自己
+  * @param {boolean} args.includeMyself 是否在前面插入我自己
   * @param {boolean} args.includeSystemField 是否包含系统预设账户
 比如当前用户、当前用户的下属、未指定、工作流、公开表单、API等
   * @param {array} args.appointedAccountIds 指定的账户列表

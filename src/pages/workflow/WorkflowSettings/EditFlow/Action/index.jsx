@@ -32,13 +32,10 @@ export default class Action extends Component {
                 <span className="Gray_9e mRight5">{item.appTypeName}</span>“{item.appName}”
               </div>
             )}
-            <div className="pLeft8 pRight8 mTop8 Gray_75">
-              {item.appType === APP_TYPE.EXTERNAL_USER ? _l('更新用户信息') : _l('更新记录')}
-            </div>
             {item.fields.length === 0 ? (
-              <div className="pLeft8 pRight8 mTop4 yellow pBottom5">{_l('未设置可执行的动作')}</div>
+              <div className="pLeft8 pRight8 mTop8 yellow pBottom5">{_l('未设置可执行的动作')}</div>
             ) : (
-              <div className="pLeft8 pRight8 mTop4 Gray_75 pBottom5">
+              <div className="pLeft8 pRight8 mTop8 Gray_75 pBottom5">
                 {_l('修改了%0个字段', item.fields.length)}
                 {item.errorFields.length > 0 ? '，' : ''}
                 <span className="yellow">{item.errorFields.length || ''}</span>
@@ -65,11 +62,14 @@ export default class Action extends Component {
             <div className="workflowContentInfo ellipsis workflowContentBG">
               <span className="Gray_9e mRight5">{item.appTypeName}</span>“{item.appName}”
             </div>
-            <div className="workflowContentInfo ellipsis Gray_75 mTop4">{_l('在工作表中新增记录')}</div>
+            {item.selectNodeId && <div className="pLeft8 pRight8 mTop8 Gray_75">{_l('批量新增')}</div>}
+
             {item.fields.length === 0 ? (
-              <div className="pLeft8 pRight8 mTop4 yellow pBottom5">{_l('未设置可执行的动作')}</div>
+              <div className={cx('pLeft8 pRight8 yellow pBottom5', item.selectNodeId ? 'mTop4' : 'mTop8')}>
+                {_l('未设置可执行的动作')}
+              </div>
             ) : (
-              <div className="pLeft8 pRight8 mTop4 Gray_75 pBottom5">
+              <div className={cx('pLeft8 pRight8 Gray_75 pBottom5', item.selectNodeId ? 'mTop4' : 'mTop8')}>
                 {_l('填写了%0个字段', item.fields.length)}
                 {item.errorFields.length > 0 ? '，' : ''}
                 <span className="yellow">{item.errorFields.length || ''}</span>
@@ -251,7 +251,7 @@ export default class Action extends Component {
   }
 
   render() {
-    const { processId, item, disabled, selectNodeId, openDetail, approvalSelectNodeId } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
     const bgClassName = item.appType === APP_TYPE.TASK ? 'BGGreen' : 'BGYellow';
 
     return (
@@ -264,19 +264,21 @@ export default class Action extends Component {
               {
                 errorShadow:
                   (((item.appId || item.selectNodeId) && item.appType !== APP_TYPE.PROCESS) ||
-                    (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER], item.appType) && item.fields.length)) &&
+                    (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER], item.appType) &&
+                      (item.fields || []).length)) &&
                   item.isException,
               },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId, approvalSelectNodeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
               <i
                 className={cx(
                   'workflowAvatar',
                   (!item.appId && !item.selectNodeId && item.appType !== APP_TYPE.PROCESS) ||
-                    (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER], item.appType) && !item.fields.length)
+                    (_.includes([APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER], item.appType) &&
+                      !(item.fields || []).length)
                     ? 'BGGray'
                     : bgClassName,
                   this.getIcon(),
@@ -284,7 +286,9 @@ export default class Action extends Component {
               />
             </div>
             <NodeOperate nodeClassName={bgClassName} {...this.props} />
-            <div className="workflowContent">{this.renderContent()}</div>
+            <div className="workflowContent">
+              {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
+            </div>
           </div>
           <CreateNode {...this.props} />
         </section>

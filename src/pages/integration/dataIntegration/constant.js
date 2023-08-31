@@ -159,3 +159,17 @@ export const TRIGGER_WORKFLOW_CHECKBOX_OPTIONS = [
   { key: 'updateTrigger', text: _l('更新记录时触发') },
   { key: 'deleteTrigger', text: _l('删除记录时触发') },
 ];
+
+export const PERSONNEL_FIELDS = [
+  { id: 'pName', name: '姓名' },
+  { id: 'jobNo', name: '工号' },
+  { id: 'pId', name: '人员ID' },
+];
+export const DEPT_FIELDS = [
+  { id: 'deptName', name: '名称' },
+  { id: 'deptId', name: '部门系统ID' },
+];
+export const RELATED_RECORD_FIELDS = [
+  { id: 'rId', name: 'ID' },
+  { id: 'rTitle', name: '标题' },
+];

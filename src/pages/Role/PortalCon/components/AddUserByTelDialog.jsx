@@ -175,6 +175,13 @@ function AddUserByTelDialog(props) {
             />
           );
         })}
+        {md.global.Config.IsPlatformLocal && (
+          <p className="mTop16">
+            {_l(
+              '短信0.05元/条、邮件0.03/封，自动从企业账户扣费，请保持企业账户余额充足，目前短信邀请外部用户仅支持大陆手机号',
+            )}
+          </p>
+        )}
         <div className="list">
           {list.map((o, i) => {
             return (

@@ -84,7 +84,9 @@ export default class FilterItemTexts extends React.Component {
     return (
       <div key={`${item.id}--${key || index}`} className="pRight10 mTop6 flexBox renderFilterItem">
         {index ? <span className="mRight10 Gray_75 Font13">{spliceText}</span> : null}
-        <span className="mRight10">{item.name}</span>
+        <span className="mRight10" style={{ flexShrink: 0 }}>
+          {item.name}
+        </span>
         {item.type ? <span className="Bold LineHeight19 mRight10 Gray Font13">{item.type.text}</span> : null}
         {item.value && item.value.type === 'dynamicSource' ? (
           item.value.data.map(it => {
@@ -99,7 +101,7 @@ export default class FilterItemTexts extends React.Component {
             );
           })
         ) : (
-          <span className="WordBreak flexItem">{item.value}</span>
+          <span className="breakAll">{item.value}</span>
         )}
       </div>
     );

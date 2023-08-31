@@ -31,7 +31,7 @@
     }
   }
   .workflowBox {
-    padding: 16px 36px 0;
+    padding: 16px 24px 0;
     position: relative;
     &::before,
     ~ .workflowLineBtn::before {
@@ -55,7 +55,7 @@
     }
   }
   .workflowBoxBranchPending {
-    .workflowExecBottomLine {
+    > .workflowExecBottomLine {
       background-color: #ccc;
     }
   }
@@ -158,7 +158,7 @@
       &.workflowBranchItem {
         font-size: 13px;
         border-bottom: 1px solid #ccc;
-        padding: 8px;
+        padding: 8px 8px 12px 8px;
         min-height: 50px;
         display: flex;
         flex-direction: column;
@@ -292,9 +292,10 @@
         margin: 6px auto;
         color: #2196f3;
         font-size: 14px;
-        width: 140px;
+        min-width: 140px;
         box-sizing: border-box;
         background: #e6f4ff;
+        padding: 0 16px;
         &:hover {
           color: #fff;
           background: #2196f3;
@@ -442,6 +443,8 @@
       background: #fff;
       margin: 20px 0;
       position: relative;
+      padding: 16px;
+      flex-wrap: wrap;
       .workflowCopyBtn {
         &:hover {
           text-decoration: underline;
@@ -592,19 +595,36 @@
       }
     }
     .createNodeExplain {
-      padding: 0 10px;
-      height: 32px;
-      border-radius: 16px;
-      color: #fff !important;
       cursor: pointer;
-      background: rgba(75, 179, 255, .6);
+      color: rgba(255, 255, 255, 0.7) !important;
+      &:hover {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+    }
+    .copyNodeBtn {
+      padding: 0 16px;
+      height: 36px;
+      border-radius: 18px;
+      color: #fff;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.2);
       font-weight: bold;
       font-size: 13px;
       margin-right: 15px;
+      display: inline-flex;
+      align-items: center;
+      box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1) inset;
+      transition: all 250ms ease-out;
       &:hover {
-        background: rgba(75, 179, 255, 1);
+        background: rgba(0, 0, 0, 0.15);
+        box-shadow: none;
       }
     }
+  }
+  .createNodeMessageBox {
+    background: #f5f5f5;
+    border-radius: 3px;
+    padding: 16px;
   }
   .nodeList {
     margin: 0 21px;

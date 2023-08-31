@@ -55,7 +55,7 @@ export default function SelectProcess(props) {
         processId: btnSetting.processId
       }).then(data => {
         if (data.relationId !== appId) {
-          homeAppApi.getAppDetail({
+          homeAppApi.getApp({
             appId: data.relationId
           }).then(app => {
             setOtherAppProcess({

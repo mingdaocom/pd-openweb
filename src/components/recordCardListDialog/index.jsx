@@ -98,10 +98,17 @@ export default class RecordCardListDialog extends Component {
     this.handleSearch = _.debounce(this.handleSearch, 500);
   }
   componentDidMount() {
-    const { control } = this.props;
+    const { control, parentWorksheetId } = this.props;
     if (control) {
-      (window.isPublicWorksheet ? publicWorksheetAjax : sheetAjax)
-        .getWorksheetInfo({ worksheetId: control.dataSource, getTemplate: true })
+      (window.isPublicWorksheet && !_.get(window, 'shareState.isPublicWorkflowRecord')
+        ? publicWorksheetAjax
+        : sheetAjax
+      )
+        .getWorksheetInfo({
+          worksheetId: control.dataSource,
+          getTemplate: true,
+          relationWorksheetId: parentWorksheetId,
+        })
         .then(data => {
           window.worksheetControlsCache = {};
           data.template.controls.forEach(c => {
@@ -201,6 +208,8 @@ export default class RecordCardListDialog extends Component {
       filterForControlSearch,
       worksheetInfo,
     } = this.state;
+    const searchConfig = control ? getSearchConfig(control) : {};
+    const { searchControl } = searchConfig;
     let getFilterRowsPromise, args;
     let filterControls;
     if (control && control.advancedSetting.filters) {
@@ -253,9 +262,9 @@ export default class RecordCardListDialog extends Component {
       if (window.recordShareLinkId) {
         args.linkId = window.recordShareLinkId;
       }
-      args.formId = window.publicWorksheetShareId;
+      args.shareId = window.publicWorksheetShareId;
     }
-    if (parentWorksheetId && controlId) {
+    if (parentWorksheetId && controlId && _.get(parentWorksheetId, 'length') === 24) {
       args.relationWorksheetId = parentWorksheetId;
       args.rowId = recordId;
       args.controlId = controlId;
@@ -263,13 +272,18 @@ export default class RecordCardListDialog extends Component {
     this.searchAjax = getFilterRowsPromise(args);
     this.searchAjax.then(res => {
       if (res.resultCode === 1) {
-        const filteredList = _.uniqBy(
+        let filteredList = _.uniqBy(
           list.concat(res.data.filter(record => !_.find(filterRowIds, fid => record.rowid === fid))),
           'rowid',
         );
+        const needSort =
+          (keyWords && pageIndex === 1, _.get(control, 'advancedSetting.searchcontrol') && searchControl);
+        if (needSort && _.get(control, 'advancedSetting.searchtype') !== '1') {
+          filteredList = filteredList.sort((a, b) => (b[searchControl.controlId] === keyWords ? 1 : -1));
+        }
         this.setState(
           {
-            focusIndex: -1,
+            focusIndex: needSort && filteredList[0] && filteredList[0][searchControl.controlId] === keyWords ? 0 : -1,
             list: filteredList,
             loading: false,
             loadouted: res.data.length < pageSize,

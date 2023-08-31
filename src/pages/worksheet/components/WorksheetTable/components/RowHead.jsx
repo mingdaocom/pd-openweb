@@ -145,7 +145,7 @@ export default function RowHead(props) {
     handleAddSheetRow = () => {},
     onReverseSelect = () => {},
     saveSheetLayout,
-    resetSehetLayout,
+    resetSheetLayout,
     setHighLight = () => {},
     refreshWorksheetControls = () => {},
     onOpenRecord = () => {},
@@ -254,7 +254,7 @@ export default function RowHead(props) {
       )}
       {!readonly && rowIndex === -1 && (
         <Fragment>
-          {layoutChangeVisible && <ChangeSheetLayout onSave={saveSheetLayout} onCancel={resetSehetLayout} />}
+          {layoutChangeVisible && <ChangeSheetLayout onSave={saveSheetLayout} onCancel={resetSheetLayout} />}
           <div className="topCheckbox" style={{ right: tableType === 'classic' ? 38 : 22, width: numberWidth }}>
             {hasBatch && (
               <div className="checkboxCon mTop3">

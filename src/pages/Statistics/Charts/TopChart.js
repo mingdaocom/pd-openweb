@@ -5,6 +5,15 @@ import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors }
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import styled from 'styled-components';
 import cx from 'classnames';
+import gold_medal from 'statistics/assets/topChart/gold_medal.png';
+import silver_medal from 'statistics/assets/topChart/silver_medal.png';
+import copper_medal from 'statistics/assets/topChart/copper_medal.png';
+import gold_crown from 'statistics/assets/topChart/gold_crown.png';
+import silver_crown from 'statistics/assets/topChart/silver_crown.png';
+import copper_crown from 'statistics/assets/topChart/copper_crown.png';
+import one from 'statistics/assets/topChart/one.png';
+import two from 'statistics/assets/topChart/two.png';
+import there from 'statistics/assets/topChart/there.png';
 
 const formatTopChartData = (map) => {
   const data = _.get(map[0], 'value') || [];
@@ -64,6 +73,41 @@ const TopChartContent = styled.div`
     width: 20px;
     height: 20px;
     background-size: cover;
+  }
+  &.topChart {
+    .medal {
+      &-1 {
+        background-image: url(${gold_medal});
+      }
+      &-2 {
+        background-image: url(${silver_medal});
+      }
+      &-3 {
+        background-image: url(${copper_medal});
+      }
+    }
+    .crown {
+      &-1 {
+        background-image: url(${gold_crown});
+      }
+      &-2 {
+        background-image: url(${silver_crown});
+      }
+      &-3 {
+        background-image: url(${copper_crown});
+      }
+    }
+    .number {
+      &-1 {
+        background-image: url(${one});
+      }
+      &-2 {
+        background-image: url(${two});
+      }
+      &-3 {
+        background-image: url(${there});
+      }
+    }
   }
 `;
 

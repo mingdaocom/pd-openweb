@@ -20,9 +20,9 @@ const Content = styled.div`
   }
 `;
 
-function Chart({ data, mobileCount }) {
-  if (!data.status) {
-    return <Abnormal />;
+function Chart({ data, mobileCount, isHorizontal }) {
+  if (data.status <= 0) {
+    return <Abnormal status={data.status} />;
   }
 
   const isMingdao = navigator.userAgent.toLowerCase().includes('mingdao application');
@@ -58,7 +58,7 @@ function Chart({ data, mobileCount }) {
   }
   const isPublicShare = location.href.includes('public/page') || window.shareAuthor || window.share;
   const isViewOriginalData = filter.viewId && [VIEW_DISPLAY_TYPE.sheet].includes(filter.viewType.toString()) && !isPublicShare;
-  const ChartComponent = <Charts reportData={data} isThumbnail={true} isViewOriginalData={isViewOriginalData} onOpenChartDialog={viewOriginalSheet} mobileCount={mobileCount} />;
+  const ChartComponent = <Charts reportData={data} isThumbnail={true} isViewOriginalData={isViewOriginalData} onOpenChartDialog={viewOriginalSheet} mobileCount={mobileCount} isHorizontal={isHorizontal} />;
 
   switch (data.reportType) {
     case reportTypes.BarChart:
@@ -127,7 +127,7 @@ function ChartWrapper({ data, loading, mobileCount, onOpenFilterModal, onOpenZoo
             <ActivityIndicator size="large" />
           </Flex>
         ) : (
-          <Chart data={data} mobileCount={mobileCount} />
+          <Chart data={data} mobileCount={mobileCount} isHorizontal={isHorizontal} />
         )}
       </Content>
     </Fragment>

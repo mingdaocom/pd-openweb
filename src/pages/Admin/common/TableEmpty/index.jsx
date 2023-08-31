@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './index.less';
-import cx from 'classnames'
+import cx from 'classnames';
 
 export default class TableEmpty extends React.Component {
   static propTypes = {
@@ -9,9 +9,11 @@ export default class TableEmpty extends React.Component {
   };
 
   render() {
-    const { icon, desc } = this.props.detail
+    const { icon, desc } = this.props.detail;
+    const { className } = this.props;
+
     return (
-      <div className="tableEmptyBox">
+      <div className={`tableEmptyBox ${className}`}>
         <div className="emptyIcon">
           <span className={cx('Font40', icon)} />
         </div>

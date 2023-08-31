@@ -141,11 +141,12 @@ export const FROM = {
   SHARE: 1,
   NEWRECORD: 2,
   RECORDINFO: 3,
-  PUBLIC: 4, // 公开表单
+  PUBLIC_ADD: 4, // 公开表单新增
   H5_ADD: 5,
   H5_EDIT: 6,
   WORKFLOW: 7, // 工作流
   CUSTOM_BUTTON: 8, // 自定义动作
+  PUBLIC_EDIT: 9, // 公开表单编辑
   DRAFT: 21,
 };
 

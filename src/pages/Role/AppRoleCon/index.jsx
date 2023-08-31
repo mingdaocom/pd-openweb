@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import { WrapCon, WrapHeader, WrapContext } from 'src/pages/Role/style';
 import AppAjax from 'src/api/appManagement';
-import { ROLE_CONFIG, USER_EXTEND_INFO_FEATURE_ID } from 'src/pages/Role/config';
+import { ROLE_CONFIG } from 'src/pages/Role/config';
 import UserCon from './UserCon';
 import RoleCon from './RoleCon';
 import { Checkbox, Tooltip } from 'ming-ui';
@@ -15,6 +15,7 @@ import _ from 'lodash';
 import OthersCon from './OthersCon';
 import { navigateTo } from 'src/router/navigateTo';
 import { getFeatureStatus } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 
 const conList = [
   {
@@ -28,7 +29,7 @@ const conList = [
 const getTabList = () => {
   const currentProjectId =
     localStorage.getItem('currentProjectId') || ((_.get(md, 'global.Account.projects') || [])[0] || {}).projectId;
-  const FEATURE_STATUS = getFeatureStatus(currentProjectId, USER_EXTEND_INFO_FEATURE_ID);
+  const FEATURE_STATUS = getFeatureStatus(currentProjectId, VersionProductType.userExtensionInformation);
   if (FEATURE_STATUS) {
     return conList.concat({
       url: '/others',
@@ -179,9 +180,10 @@ class Con extends React.Component {
         params: { appId },
       },
       setQuickTag,
+      SetAppRolePagingModel,
     } = this.props;
     const { notify, rolesVisibleConfig } = this.state;
-    const { pageLoading } = appRole;
+    const { pageLoading, appRolePagingModel } = appRole;
     if (pageLoading) {
       return <LoadDiv />;
     }
@@ -199,6 +201,11 @@ class Con extends React.Component {
                       id={`tab_${o.key}`}
                       onClick={() => {
                         this.props.handleChangePage(() => {
+                          SetAppRolePagingModel({
+                            ...appRolePagingModel,
+                            pageIndex: 1,
+                            keywords: '',
+                          });
                           setQuickTag({ ...appRole.quickTag, tab: o.key });
                           navigateTo(`/app/${appId}/role`);
                           this.setState({
@@ -236,9 +243,7 @@ class Con extends React.Component {
                   <Tooltip
                     text={
                       <span>
-                        {_l(
-                          '开启时，普通角色成员可以查看应用下所有角色和人员。关闭后，普通角色成员将只能看到系统角色。',
-                        )}
+                        {_l('勾选时，普通角色可以查看应用下所有角色和人员。未勾选时，对普通角色直接隐藏用户入口')}
                       </span>
                     }
                     popupPlacement={'top'}

@@ -31,6 +31,8 @@ export function worksheetInfo(state = {}, action) {
       return action.value;
     case 'WORKSHEET_UPDATE_WORKSHEETINFO':
       return { ...state, ...action.info };
+    case 'WORKSHEET_UPDATE_IS_REQUESTING_RELATION_CONTROLS':
+      return { ...state, isRequestingRelationControls: action.value };
     case 'WORKSHEET_UPDATE_SOME_CONTROLS':
       try {
         newState = {

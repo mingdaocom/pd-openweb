@@ -1,8 +1,8 @@
-import React, { useState, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Checkbox, Tooltip } from 'antd';
+import { Checkbox, Select, Tooltip } from 'antd';
 
 const Wrap = styled.div`
   .chartTypeSelect {
@@ -56,15 +56,16 @@ export const defaultPivotTableStyle = {
   lineTextColor: '#333',
   lineBgColor: '#fff',
   evenBgColor: '#fafcfd',
-  oddBgColor: 'transparent',
+  oddBgColor: '#ffffff',
   textColor: '#000000d9'
 };
 
 const TitleStyle = props => {
-  const { name, type, style, onChangeStyle } = props;
+  const { name, type, style, pivotTable = {}, onChangeStyle } = props;
   const { pivotTableStyle = defaultPivotTableStyle } = style;
   const textColor = type === 'line' ? pivotTableStyle.lineTextColor : pivotTableStyle.columnTextColor;
   const bgColor = type === 'line' ? pivotTableStyle.lineBgColor : pivotTableStyle.columnBgColor;
+  const { lines = [] } = pivotTable;
 
   const handleChangePivotTableStyle = (data) => {
     onChangeStyle({
@@ -221,48 +222,113 @@ const TitleStyle = props => {
               </div>
             </div>
           </div>
-          <div className="flexRow valignWrapper mBottom12">
-            <div className="lable">{_l('冻结%0标题', name)}</div>
-            <div className="flexRow valignWrapper">
-              <Checkbox
-                checked={type === 'line' ? style.pivotTableLineFreeze : style.pivotTableColumnFreeze}
-                onChange={event => {
-                  const { checked } = event.target;
-                  if (type === 'line') {
+          {type === 'line' ? (
+            <div className="mBottom12">
+              <div className="lable mBottom10">{_l('冻结行标题')}</div>
+              <div className="flexRow valignWrapper mBottom5">
+                <Checkbox
+                  style={{ width: 60 }}
+                  checked={style.pivotTableLineFreeze}
+                  onChange={event => {
+                    const { checked } = event.target;
                     onChangeStyle({
                       pivotTableLineFreeze: checked
                     });
-                  } else {
+                  }}
+                >
+                  {_l('PC')}
+                </Checkbox>
+                <Select
+                  style={{ width: 130 }}
+                  className="chartSelect"
+                  value={_.isNumber(style.pivotTableLineFreezeIndex) ? style.pivotTableLineFreezeIndex : 'all'}
+                  suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                  onChange={value => {
                     onChangeStyle({
-                      pivotTableColumnFreeze: checked
+                      pivotTableLineFreezeIndex: value
                     });
-                  }
-                }}
-              >
-                {_l('PC')}
-              </Checkbox>
-              <Checkbox
-                checked={type === 'line' ? style.mobilePivotTableLineFreeze : style.mobilePivotTableColumnFreeze}
-                onChange={event => {
-                  const { checked } = event.target;
-                  if (type === 'line') {
+                  }}
+                >
+                  <Select.Option className="selectOptionWrapper" value="all">
+                    {_l('全部列')}
+                  </Select.Option>
+                  {lines.slice(0, lines.length - 1).map((data, index) => (
+                    <Select.Option className="selectOptionWrapper" value={index} key={index}>
+                      {_l('%0列', index + 1)}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+              <div className="flexRow valignWrapper">
+                <Checkbox
+                  style={{ width: 60 }}
+                  checked={style.mobilePivotTableLineFreeze}
+                  onChange={event => {
+                    const { checked } = event.target;
                     onChangeStyle({
                       mobilePivotTableLineFreeze: checked
                     });
-                  } else {
+                  }}
+                >
+                  {_l('移动')}
+                </Checkbox>
+                <Select
+                  style={{ width: 130 }}
+                  className="chartSelect mRight10"
+                  value={_.isNumber(style.mobilePivotTableLineFreezeIndex) ? style.mobilePivotTableLineFreezeIndex : 'all'}
+                  suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                  onChange={value => {
+                    onChangeStyle({
+                      mobilePivotTableLineFreezeIndex: value
+                    });
+                  }}
+                >
+                  <Select.Option className="selectOptionWrapper" value="all">
+                    {_l('全部列')}
+                  </Select.Option>
+                  {lines.slice(0, lines.length - 1).map((data, index) => (
+                    <Select.Option className="selectOptionWrapper" value={index} key={index}>
+                      {_l('%0列', index + 1)}
+                    </Select.Option>
+                  ))}
+                </Select>
+                <Tooltip title={_l('移动端屏幕尺寸较小，设置时请注意宽度和高度')} overlayStyle={{ width: 170 }} placement="bottomRight" arrowPointAtCenter>
+                  <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+                </Tooltip>
+              </div>
+            </div>
+          ) : (
+            <div className="flexRow mBottom12">
+              <div className="lable">{_l('冻结列标题')}</div>
+              <div className="flexRow valignWrapper">
+                <Checkbox
+                  checked={style.pivotTableColumnFreeze}
+                  onChange={event => {
+                    const { checked } = event.target;
+                    onChangeStyle({
+                      pivotTableColumnFreeze: checked
+                    });
+                  }}
+                >
+                  {_l('PC')}
+                </Checkbox>
+                <Checkbox
+                  checked={style.mobilePivotTableColumnFreeze}
+                  onChange={event => {
+                    const { checked } = event.target;
                     onChangeStyle({
                       mobilePivotTableColumnFreeze: checked
                     });
-                  }
-                }}
-              >
-                {_l('移动')}
-              </Checkbox>
-              <Tooltip title={_l('移动端屏幕尺寸较小，设置时请注意宽度和高度')} overlayStyle={{ width: 170 }} placement="bottomRight" arrowPointAtCenter>
-                <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
-              </Tooltip>
+                  }}
+                >
+                  {_l('移动')}
+                </Checkbox>
+                <Tooltip title={_l('移动端屏幕尺寸较小，设置时请注意宽度和高度')} overlayStyle={{ width: 170 }} placement="bottomRight" arrowPointAtCenter>
+                  <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+                </Tooltip>
+              </div>
             </div>
-          </div>
+          )}
         </Fragment>
       )}
     </Wrap>

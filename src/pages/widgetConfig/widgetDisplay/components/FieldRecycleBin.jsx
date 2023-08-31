@@ -6,6 +6,7 @@ import { getWidgetInfo } from '../../util';
 import { isExceedMaxControlLimit } from '../../util/setting';
 import WidgetDeatail from 'src/pages/widgetConfig/widgetSetting';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import { handleAddWidgets } from 'src/pages/widgetConfig/util/data';
 import SearchInput from 'worksheet/components/SearchInput';
 import cx from 'classnames';
@@ -243,7 +244,7 @@ export default class FieldRecycleBin extends Component {
         _.find(md.global.Account.projects, item => item.projectId === projectId),
         'licenseType',
       ) === 0;
-    const featureType = getFeatureStatus(projectId, 16);
+    const featureType = getFeatureStatus(projectId, VersionProductType.recycle);
     return (
       <Fragment>
         <Dialog
@@ -262,7 +263,7 @@ export default class FieldRecycleBin extends Component {
             className="fieldRecycleBinText"
             onClick={() => {
               if (featureType === '2') {
-                buriedUpgradeVersionDialog(projectId, 16);
+                buriedUpgradeVersionDialog(projectId, VersionProductType.recycle);
                 return;
               }
               this.setState({ visible: true }, this.getRecycleList);

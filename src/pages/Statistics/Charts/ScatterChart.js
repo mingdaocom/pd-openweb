@@ -19,7 +19,7 @@ const formatChartData = (data, splitId) => {
         result.push({
           name,
           originalId: item.originalX,
-          [splitId]: element.key,
+          [splitId]: element.originalKey,
           ...target.m
         });
       });
@@ -70,6 +70,13 @@ const getControlMinAndMax = (yaxisList, data) => {
   return result;
 }
 
+const getControlMedianValue = data => {
+  const min = _.min(data);
+  const max = _.max(data);
+  const middle = (min + max) / 2;
+  return middle;
+}
+
 export default class extends Component {
   constructor(props) {
     super(props);
@@ -89,16 +96,18 @@ export default class extends Component {
     this.ScatterChart && this.ScatterChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
-    const { displaySetup } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup } = this.props.reportData;
+    const { displaySetup, style } = nextProps.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
     if (
       displaySetup.showLegend !== oldDisplaySetup.showLegend ||
       displaySetup.legendType !== oldDisplaySetup.legendType ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
+      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       !_.isEqual(displaySetup.xdisplay, oldDisplaySetup.xdisplay) ||
       !_.isEqual(displaySetup.ydisplay, oldDisplaySetup.ydisplay) ||
-      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules)
+      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
+      !_.isEqual(style.quadrant, oldStyle.quadrant)
     ) {
       const config = this.getComponentConfig(nextProps);
       this.ScatterChart.update(config);
@@ -157,8 +166,9 @@ export default class extends Component {
     }
   }
   getComponentConfig(props) {
-    const { map, displaySetup, xaxes, yaxisList, split, style = {} } = props.reportData;
-    const { xdisplay, ydisplay, colorRules } = displaySetup;
+    const { map, displaySetup, xaxes, yaxisList, split, style = {}, valueMap = {} } = props.reportData;
+    const { xdisplay, ydisplay, colorRules, showChartType } = displaySetup;
+    const { quadrant = {} } = style;
     const data = formatChartData(map, split.controlId);
     const { position } = getLegendType(displaySetup.legendType);
     const colors = getChartColors(style);
@@ -193,10 +203,13 @@ export default class extends Component {
       } : false,
       shapeLegend: false,
       shape: ({ originalId }) => {
-        // const shapes = ['circle', 'square', 'triangle', 'hexagon', 'diamond', 'bowtie'];
-        // const idx = uniq(data.map((d) => d.originalId)).indexOf(originalId);
-        // return shapes[idx] || 'circle';
-        return 'circle';
+        if (showChartType === 1) {
+          return 'circle';
+        } else {
+          const shapes = ['circle', 'square', 'triangle', 'hexagon', 'diamond', 'bowtie'];
+          const idx = uniq(data.map((d) => d.originalId)).indexOf(originalId);
+          return shapes[idx] || 'circle';
+        }
       },
       meta: {
         originalId: {
@@ -216,7 +229,11 @@ export default class extends Component {
           alias: _.get(yaxisList[2], 'rename') || _.get(yaxisList[2], 'controlName')
         },
         [split.controlId]: {
-          alias: split.controlName
+          alias: split.controlName,
+          formatter: value => {
+            const map = valueMap[split.controlId];
+            return map ? map[value] || value : value;
+          }
         }
       },
       label: displaySetup.showNumber ? {
@@ -279,6 +296,57 @@ export default class extends Component {
           },
         },
       },
+      quadrant: quadrant.visible ? {
+        xBaseline: _.isNumber(quadrant.xValue) ? quadrant.xValue : getControlMedianValue(data.map(data => data[xField])),
+        yBaseline: _.isNumber(quadrant.yValue) ? quadrant.yValue : getControlMedianValue(data.map(data => data[yField])),
+        lineStyle: {
+          stroke: quadrant.axisColor
+        },
+        regionStyle: [
+          {
+            fill: quadrant.topRightBgColor,
+            fillOpacity: 0.1
+          },
+          {
+            fill: quadrant.topLeftBgColor,
+            fillOpacity: 0.1
+          },
+          {
+            fill: quadrant.bottomLeftBgColor,
+            fillOpacity: 0.1
+          },
+          {
+            fill: quadrant.bottomRightBgColor,
+            fillOpacity: 0.1
+          }
+        ],
+        labels: [
+          {
+            content: quadrant.topRightText,
+            style: {
+              fill: quadrant.textColor
+            }
+          },
+          {
+            content: quadrant.topLeftText,
+            style: {
+              fill: quadrant.textColor
+            }
+          },
+          {
+            content: quadrant.bottomLeftText,
+            style: {
+              fill: quadrant.textColor
+            }
+          },
+          {
+            content: quadrant.bottomRightText,
+            style: {
+              fill: quadrant.textColor
+            }
+          },
+        ],
+      } : null
     }
     return base;
   }

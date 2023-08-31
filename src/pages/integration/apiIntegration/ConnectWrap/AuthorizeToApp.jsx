@@ -377,8 +377,8 @@ function AuthorizeToApp(props) {
             type={NODE_TYPE.MESSAGE}
             accounts={info.errorNotifiers}
             updateSource={({ accounts }) => updateSource({ errorNotifiers: accounts })}
-            from="integration"
-            isSingle
+            leastOne
+            inline
           />
           <div
             className="TxtCenter Relative Gray_75 ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn mTop12 Block"

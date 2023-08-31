@@ -16,6 +16,7 @@ import './style.less';
 import Empty from '../../common/TableEmpty';
 import { verifyPassword } from 'src/util';
 import { getPssId } from 'src/util/pssId';
+import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -126,7 +127,7 @@ export default class ResignList extends React.Component {
     })
       .then(response => response.blob())
       .then(blob => {
-        let date = moment(new Date()).format('YYYYMMDDHHmmss');
+        let date = moment().format('YYYYMMDDHHmmss');
         const fileName = `${date}` + '.xlsx';
         const link = document.createElement('a');
 

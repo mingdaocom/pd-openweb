@@ -23,7 +23,7 @@ const Wrap = styled.div`
   background: #fff;
   // border: 1px solid #ebebeb;
   border-radius: 10px;
-  max-width: 800px;
+  max-width: ${props => `${props.maxW || '800px'}`};
   margin: 0 auto 0;
   .Green_right {
     color: #4caf50;
@@ -84,7 +84,7 @@ export default function Item(props) {
     showMenu: false,
     showCodeSnippetDialog: false,
   });
-  const [actionId, setActionId] = useState(props.nodeInfo ? props.nodeInfo.actionId : '102');
+  const [actionId, setActionId] = useState(_.get(props, 'nodeInfo.actionId') || '102');
   useEffect(() => {
     props.isNew
       ? setState({
@@ -92,19 +92,31 @@ export default function Item(props) {
         })
       : getCardInfo();
   }, []);
-  const getCardInfo = () => {
+  useEffect(() => {
+    if (!_.get(props, 'nodeInfo.id')) {
+      setState({
+        node: {},
+      });
+    } else {
+      getCardInfo(props.nodeInfo);
+    }
+  }, [props.nodeInfo]);
+  const getCardInfo = (data = node) => {
+    if (!data.id) {
+      return;
+    }
     flowNodeAjax
       .getNodeDetail(
         {
           processId: info.id,
-          nodeId: node.id,
-          flowNodeType: node.typeId,
+          nodeId: data.id,
+          flowNodeType: data.typeId,
         },
         { isIntegration: true },
       )
       .then(res => {
         setState({
-          node: { ...node, ...res },
+          node: { ...data, ...res },
           loading: false,
         });
       });
@@ -188,7 +200,7 @@ export default function Item(props) {
 
   return (
     <div className="flexColumn">
-      <Wrap className={props.className}>
+      <Wrap className={props.className} maxW={props.maxW}>
         <CardTopWrap className="flexRow flex">
           <div className={cx('iconCon')}>
             {renderTips()}
@@ -215,7 +227,7 @@ export default function Item(props) {
                 }
               >
                 {_l('编辑')}
-              </div>{' '}
+              </div>
               <Trigger
                 action={['click']}
                 popup={

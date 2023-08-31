@@ -5,62 +5,58 @@ import moment from 'moment';
 import _ from 'lodash';
 import locale from 'antd/es/date-picker/locale/zh_CN';
 import './Validity.less';
+import { randomPassword } from 'src/util';
 
 const alwaysValue = '9999-12-31 23:59:59';
 
-const validityDateTypes = [{
-  label: _l('永久有效'),
-  value: alwaysValue,
-  getValidTime: () => alwaysValue
-}, {
-  label: _l('1小时后'),
-  getSubLabel: () => {
-    const current = moment();
-    const date = current.add(1, 'h');
-    return `${moment(date).isSame(current, 'd') ? _l('今天') : _l('明天')} ${date.format('HH:mm')}`;
+const validityDateTypes = [
+  {
+    label: _l('永久有效'),
+    value: alwaysValue,
+    getValidTime: () => alwaysValue,
   },
-  getValidTime: () => moment().add(1, 'h').format('YYYY-MM-DD HH:mm'),
-  value: 1,
-}, {
-  label: _l('1天后'),
-  getSubLabel: () => moment().add(1, 'd').format(`DD${_l('日')} HH:mm`),
-  getValidTime: () => moment().add(1, 'd').format('YYYY-MM-DD HH:mm'),
-  value: 2,
-}, {
-  label: _l('3天后'),
-  getSubLabel: () => moment().add(3, 'd').format(`DD${_l('日')} HH:mm`),
-  getValidTime: () => moment().add(3, 'd').format('YYYY-MM-DD HH:mm'),
-  value: 3,
-}, {
-  label: _l('7天后'),
-  getSubLabel: () => moment().add(7, 'd').format(`MM${_l('月')}DD${_l('日')} HH:mm`),
-  getValidTime: () => moment().add(7, 'd').format('YYYY-MM-DD HH:mm'),
-  value: 4,
-}, {
-  label: _l('自定义'),
-  value: 5,
-}];
-
-const randomPassword = length => {
-  let passwordArray = ['ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz', '1234567890'];
-  var password = [];
-  let n = 0;
-  for (let i = 0; i < length; i++) {
-    if ( password.length < (length - 3) ) {
-      let arrayRandom = Math.floor(Math.random() * 3);
-      let passwordItem = passwordArray[arrayRandom];
-      let item = passwordItem[Math.floor(Math.random() * passwordItem.length)];
-      password.push(item);
-    } else {
-      let newItem = passwordArray[n];
-      let lastItem = newItem[Math.floor(Math.random() * newItem.length)];
-      let spliceIndex = Math.floor(Math.random() * password.length);
-      password.splice(spliceIndex, 0, lastItem);
-      n++;
-    }
-  }
-  return password.join('');
-}
+  {
+    label: _l('1小时后'),
+    getSubLabel: () => {
+      const current = moment();
+      const date = current.add(1, 'h');
+      return `${moment(date).isSame(current, 'd') ? _l('今天') : _l('明天')} ${date.format('HH:mm')}`;
+    },
+    getValidTime: () => moment().add(1, 'h').format('YYYY-MM-DD HH:mm'),
+    value: 1,
+  },
+  {
+    label: _l('1天后'),
+    getSubLabel: () =>
+      moment()
+        .add(1, 'd')
+        .format(`DD${_l('日')} HH:mm`),
+    getValidTime: () => moment().add(1, 'd').format('YYYY-MM-DD HH:mm'),
+    value: 2,
+  },
+  {
+    label: _l('3天后'),
+    getSubLabel: () =>
+      moment()
+        .add(3, 'd')
+        .format(`DD${_l('日')} HH:mm`),
+    getValidTime: () => moment().add(3, 'd').format('YYYY-MM-DD HH:mm'),
+    value: 3,
+  },
+  {
+    label: _l('7天后'),
+    getSubLabel: () =>
+      moment()
+        .add(7, 'd')
+        .format(`MM${_l('月')}DD${_l('日')} HH:mm`),
+    getValidTime: () => moment().add(7, 'd').format('YYYY-MM-DD HH:mm'),
+    value: 4,
+  },
+  {
+    label: _l('自定义'),
+    value: 5,
+  },
+];
 
 export default function Validity(props) {
   const { data, onChange } = props;
@@ -87,7 +83,7 @@ export default function Validity(props) {
       return;
     }
     onChange({ password: customPassword });
-  }
+  };
 
   return (
     <div className="flexRow alignItemsCenter mTop16 validityDateConfig mBottom8">
@@ -105,7 +101,7 @@ export default function Validity(props) {
             format={`YYYY${_l('年')}MM${_l('月')}DD${_l('日')} HH:mm`}
             value={customDate}
             clearIcon={<Icon icon="cancel1" className="Gray_bd Font17" />}
-            disabledDate={(current) => {
+            disabledDate={current => {
               if (current) {
                 return current < moment();
               } else {
@@ -125,7 +121,7 @@ export default function Validity(props) {
           />
         ) : (
           <Select
-            value={isAlways ? alwaysValue : (validTime ? moment(validTime).format('YYYY-MM-DD HH:mm') : null)}
+            value={isAlways ? alwaysValue : validTime ? moment(validTime).format('YYYY-MM-DD HH:mm') : null}
             className="dateSelect"
             suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
             allowClear={validTime ? true : false}
@@ -142,11 +138,7 @@ export default function Validity(props) {
             }}
           >
             {validityDateTypes.map(data => (
-              <Select.Option
-                key={data.value}
-                value={data.value}
-                className="validityDateOption pLeft20 pRight20"
-              >
+              <Select.Option key={data.value} value={data.value} className="validityDateOption pLeft20 pRight20">
                 <div className="Font13 ellipsis">
                   <span>{data.label}</span>
                   {data.getSubLabel && <span className="Gray_9e mLeft5">( {data.getSubLabel()} )</span>}
@@ -160,7 +152,7 @@ export default function Validity(props) {
         <Checkbox
           checked={password}
           className="mRight10"
-          onChange={(event) => {
+          onChange={event => {
             const password = randomPassword(4);
             if (event.target.checked) {
               setCustomPassword(password);
@@ -169,7 +161,7 @@ export default function Validity(props) {
               onChange({ password: '' });
             }
           }}
-        > 
+        >
           {_l('密码保护')}
         </Checkbox>
         {password && (

@@ -693,6 +693,8 @@ export default class AddUser extends Component {
                   jobList={jobList}
                   worksiteList={worksiteList}
                   baseInfo={{ ...baseInfo, departmentIds: departmentId ? [departmentId] : [] }}
+                  fetchInActive={this.props.fetchInActive}
+                  fetchApproval={this.props.fetchApproval}
                 />
               </Fragment>
             )}
@@ -725,6 +727,8 @@ export default class AddUser extends Component {
               this.reviewUserInfo();
             }}
             cancelInviteRemove={this.props.cancelInviteRemove}
+            fetchInActive={this.props.fetchInActive}
+            fetchApproval={this.props.fetchApproval}
           />
         )}
       </Fragment>

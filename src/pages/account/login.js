@@ -70,7 +70,7 @@ class LoginContainer extends React.Component {
         },
       },
       isFrequentLoginError: false, // 是否需要验证登录
-      homeImage: ''
+      homeImage: '',
     };
   }
 
@@ -85,16 +85,20 @@ class LoginContainer extends React.Component {
       location.href = browserIsMobile() ? `/mobile` : `/app`;
       return;
     }
-    const { accountId = '', encryptPassword = '', account = '', projectId = '', loginType = 0 } = JSON.parse(
-      window.localStorage.getItem('LoginCheckList') || '{}',
-    );
+    const {
+      accountId = '',
+      encryptPassword = '',
+      account = '',
+      projectId = '',
+      loginType = 0,
+    } = JSON.parse(window.localStorage.getItem('LoginCheckList') || '{}');
     if (request.unionId || !accountId || !encryptPassword || (loginType === 1 && (!projectId || !account))) {
       if (location.href.indexOf('network') < 0) {
         //network =>getProjectBaseInfo 获取信息后 更新loading
         this.setState({ loading: false });
       }
     } else {
-      let param = { loginType, accountId, encryptPassword, };
+      let param = { loginType, accountId, encryptPassword };
       if (loginType === 1) {
         param = { ...param, account, projectId };
       }
@@ -150,6 +154,20 @@ class LoginContainer extends React.Component {
       if (ignoreError) return;
 
       var msg = '';
+      if (data.accountResult === ActionResult.accountNotExist) {
+        this.setState({
+          loginData: {
+            ...this.state.loginData,
+            warnningData: [
+              {
+                tipDom: '#txtMobilePhone',
+                warnningText: _l('账号未注册'),
+              },
+            ],
+          },
+        });
+        return;
+      }
       if (data.accountResult === ActionResult.accountFrequentLoginError) {
         this.setState({ isFrequentLoginError: true }, () => {
           if (callback) {
@@ -159,14 +177,47 @@ class LoginContainer extends React.Component {
         return;
       } else if (data.accountResult === ActionResult.isLock) {
         let t = data.state ? Math.ceil(data.state / 60) : 20;
-        msg = _l('密码错误次数过多被锁定，请 %0 分钟后再试，或 重置密码', t);
+        this.setState({
+          loginData: {
+            ...this.state.loginData,
+            warnningData: [
+              {
+                tipDom: '.warnningDiv',
+                warnningText: _l(
+                  '错误次数过多，出于安全考虑，暂时锁定您的账户，请 %0 分钟后尝试，或%1重置密码%2解除锁定',
+                  t,
+                  '<a href="/findPassword" target="_blank">',
+                  '</a>',
+                ),
+              },
+            ],
+          },
+        });
+        return;
       } else if (data.accountResult === ActionResult.userFromError) {
         msg = _l('账号来源类型受限');
       } else if (data.accountResult === ActionResult.accountDisabled) {
         msg = _l('账号被禁用，请联系系统管理员进行恢复');
       } else {
-        if (isMDLogin && data.accountResult === ActionResult.accountNotExist) {
-          msg = _l('该帐号未注册');
+        //密码错误
+        if (isMDLogin && data.accountResult === ActionResult.passwordError) {
+          const { state } = data;
+          const t = (state || '').split('|');
+          if (t.length > 1) {
+            this.setState({
+              loginData: {
+                ...this.state.loginData,
+                warnningData: [
+                  {
+                    tipDom: '.warnningDiv',
+                    warnningText: _l('您输入错误%0次，还可尝试%1次', t[1], t[0] - t[1]),
+                  },
+                ],
+              },
+            });
+            return;
+          }
+          msg = _l('用户名或密码不正确');
         } else {
           msg = data.accountResult === ActionResult.verifyCodeError ? _l('验证码输入错误') : _l('用户名或密码不正确');
         }
@@ -201,7 +252,7 @@ class LoginContainer extends React.Component {
               homeImage: data.homeImage,
               intergrationScanEnabled: data.intergrationScanEnabled,
               hideRegister: data.hideRegister,
-              loading: false
+              loading: false,
             },
             () => {
               document.title = data.companyName;
@@ -317,8 +368,17 @@ class LoginContainer extends React.Component {
   };
 
   renderFooter = () => {
-    let { linkInvite, isNetwork, openLDAP, canLDAP, intergrationScanEnabled, isOpenSso, ssoWebUrl, ssoAppUrl, hideRegister } =
-      this.state;
+    let {
+      linkInvite,
+      isNetwork,
+      openLDAP,
+      canLDAP,
+      intergrationScanEnabled,
+      isOpenSso,
+      ssoWebUrl,
+      ssoAppUrl,
+      hideRegister,
+    } = this.state;
     const isBindAccount = !!request.unionId;
     const isMobile = browserIsMobile();
     const scanLoginEnabled = intergrationScanEnabled && !isMobile;
@@ -400,20 +460,31 @@ class LoginContainer extends React.Component {
           'background-image': 'url(' + this.state.homeImage + ')',
           'background-size': 'cover',
         });
+
       return (
         <div className="loginBox">
           <div className="loginContainer">
             <div className="titleHeader">
-              {this.state.isNetwork && !SysSettings.hideBrandLogo && this.state.logo && <img src={this.state.logo} height={SysSettings.brandLogoHeight || 30} />}
-              {this.state.isNetwork && !SysSettings.hideBrandName && <p className="Font17 Gray mAll0 mTop8">{this.state.text}</p>}
+              {this.state.isNetwork && !SysSettings.hideBrandLogo && this.state.logo && (
+                <img src={this.state.logo} height={SysSettings.brandLogoHeight || 30} />
+              )}
+              {this.state.isNetwork && !SysSettings.hideBrandName && (
+                <p className="Font17 Gray mAll0 mTop8">{this.state.text}</p>
+              )}
             </div>
             {this.renderCon()}
             {this.renderFooter()}
           </div>
           <ChangeLang />
           {md.global.Config.IsPlatformLocal && md.global.Config.IsCobranding && (
-            <div className={cx('powered w100 flexRow valignWrapper Font12', this.state.homeImage ? 'White' : 'Gray_9e', { linearGradientBg: this.state.homeImage })}>
-              <span className="pointer info mTop10" onClick={() => window.open('https://www.mingdao.com')}>{_l('基于明道云应用平台内核')}</span>
+            <div
+              className={cx('powered w100 flexRow valignWrapper Font12', this.state.homeImage ? 'White' : 'Gray_9e', {
+                linearGradientBg: this.state.homeImage,
+              })}
+            >
+              <span className="pointer info mTop10" onClick={() => window.open('https://www.mingdao.com')}>
+                {_l('基于明道云应用平台内核')}
+              </span>
             </div>
           )}
         </div>

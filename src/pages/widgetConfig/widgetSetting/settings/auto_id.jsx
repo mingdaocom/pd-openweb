@@ -210,6 +210,7 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
       return (
         <Dropdown
           trigger="click"
+          className="mTop0"
           overlay={
             <Components.SelectControlWithRelate
               {...rest}
@@ -233,6 +234,7 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
       return (
         <Dropdown
           trigger="click"
+          className="mTop0"
           overlay={
             <Menu width={'100%'}>
               {TIME_MODE.map(({ value, text }) => (
@@ -361,6 +363,7 @@ export default function AutoId({ data, onChange, ...rest }) {
         <div className="settingItemTitle">{_l('编号规则')}</div>
         <SortableRules
           {...rest}
+          helperClass="zIndex99999"
           distance={5}
           rules={rules}
           onSortEnd={({ oldIndex, newIndex }) => {

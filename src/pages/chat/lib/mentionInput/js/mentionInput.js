@@ -69,11 +69,7 @@ const Request = getRequest();
         //        $(this).find("input, textarea").andSelf().filter("input, textarea").bind("propertychange." + ns, propHandler);
       } else {
         // Else clutch at straws!
-        $(this)
-          .find('input, textarea')
-          .andSelf()
-          .filter('input, textarea')
-          .bind(evts, handler);
+        $(this).find('input, textarea').andSelf().filter('input, textarea').bind(evts, handler);
       }
       $(this).data('inputEventHandlerNS', ns);
     },
@@ -273,7 +269,7 @@ const Request = getRequest();
         });
 
         // And this line is to catch the browser paste event
-        $textarea.bind('input paste', (e) => {
+        $textarea.bind('input paste', e => {
           setTimeout(update, 250);
         });
 
@@ -357,7 +353,9 @@ const Request = getRequest();
     templates: {
       wrapper: _.template('<div class="mentions-input-box"></div>'),
       autocompleteList: _.template('<div class="mentions-autocomplete-list nano"><ul class="nano-content"></ul></div>'),
-      autocompleteListItem: _.template('<li data-ref-id="<%= id %>" data-ref-type="<%= type %>" data-display="<%= display %>"><%= content %></li>'),
+      autocompleteListItem: _.template(
+        '<li data-ref-id="<%= id %>" data-ref-type="<%= type %>" data-display="<%= display %>"><%= content %></li>',
+      ),
       autocompleteListItemAvatar: _.template('<img src="<%= avatar %>" />'),
       autocompleteListItemIcon: _.template('<div class="icon <%= icon %>"></div>'),
       mentionsOverlay: _.template('<div class="mentions"><div></div></div>'),
@@ -382,7 +380,13 @@ const Request = getRequest();
   };
 
   const MentionsInput = function (settings) {
-    let domInput, elmInputBox, elmInputWrapper, elmAutocompleteList, elmWrapperBox, elmMentionsOverlay, elmActiveAutoCompleteItem;
+    let domInput,
+      elmInputBox,
+      elmInputWrapper,
+      elmAutocompleteList,
+      elmWrapperBox,
+      elmMentionsOverlay,
+      elmActiveAutoCompleteItem;
     let mentionsCollection = [];
     const autocompleteItemCollection = {};
     let inputBuffer = [];
@@ -448,14 +452,14 @@ const Request = getRequest();
     function updateValues() {
       let syntaxMessage = getInputBoxValue();
 
-      _.each(mentionsCollection, (mention) => {
+      _.each(mentionsCollection, mention => {
         const textSyntax = settings.templates.mentionItemSyntax(mention);
         syntaxMessage = syntaxMessage.replace('@' + mention.value, textSyntax);
       });
 
       let mentionText = htmlEncodeReg(syntaxMessage);
 
-      _.each(mentionsCollection, (mention) => {
+      _.each(mentionsCollection, mention => {
         const formattedMention = _.extend({}, mention, { value: htmlEncodeReg(mention.value) });
         const textSyntax = settings.templates.mentionItemSyntax(formattedMention);
         const textHighlight = settings.templates.mentionItemHighlight(formattedMention);
@@ -668,7 +672,7 @@ const Request = getRequest();
       }
       const paras = settings.remoteURLParas;
       paras.pageIndex = settings.pageIndex;
-      settings.ajaxController.getGroupUsers(paras).done((data) => {
+      settings.ajaxController.getGroupUsers(paras).done(data => {
         let result = null;
         const users = settings.format(data.groupUsers);
         settings.pageIndex += 1;
@@ -691,9 +695,8 @@ const Request = getRequest();
       const elmDropDownList = elmAutocompleteList.find('ul');
 
       if (results.UserItems && results.UserItems.length > 0) {
-        results.UserItems = results.UserItems.filter((user) => {
+        results.UserItems = results.UserItems.filter(user => {
           if (elmDropDownList.find('[data-accountid="' + user.id + '"]').length) {
-            console.log(user.id);
             return false;
           } else {
             return true;
@@ -722,9 +725,9 @@ const Request = getRequest();
                   "</div> <span class='status'><i class=" +
                   item.statusClass +
                   '></i></span>',
-                query
+                query,
               ),
-            })
+            }),
           ).attr('data-uid', itemUid);
 
           if (settings.showAvatars) {
@@ -742,8 +745,10 @@ const Request = getRequest();
       //    .nanoScroller()
       //    .nanoScroller({scrollTo: $scrollTo.prevAll()});
       // .nanoScroller({scrollTop: 300 });
-      if (results.UserItems && results.UserItems.length > 0 && (results.GroupItems && results.GroupItems.length > 0)) {
-        elmAutocompleteList.find('li:eq(' + (results.UserItems.length - 1) + ')').css('borderBottom', '1px dashed #e3e3e3');
+      if (results.UserItems && results.UserItems.length > 0 && results.GroupItems && results.GroupItems.length > 0) {
+        elmAutocompleteList
+          .find('li:eq(' + (results.UserItems.length - 1) + ')')
+          .css('borderBottom', '1px dashed #e3e3e3');
       }
     }
 
@@ -775,9 +780,8 @@ const Request = getRequest();
       const elmDropDownList = elmAutocompleteList.find('ul');
 
       if (results.UserItems && results.UserItems.length > 0) {
-        results.UserItems = results.UserItems.filter((user) => {
+        results.UserItems = results.UserItems.filter(user => {
           if (elmDropDownList.find('[data-accountid="' + user.id + '"]').length) {
-            console.log(user.id);
             return false;
           } else {
             return true;
@@ -806,9 +810,9 @@ const Request = getRequest();
                   "</div> <span class='status'><i class=" +
                   item.statusClass +
                   '></i></span>',
-                query
+                query,
               ),
-            })
+            }),
           ).attr('data-uid', itemUid);
 
           if (index === 0) {
@@ -833,8 +837,10 @@ const Request = getRequest();
           if (item.is_public == '0' && item.isVerified == '1') {
             groupTag =
               "<span class='groupTag icon-private-group Gray_c6 Font16' title='私有群组'></span><span class='groupTag mRight5 Font16 icon-official-group ShaYellowNew' title='官方群组'></span>";
-          } else if (item.is_public == '0') groupTag = "<span class='groupTag Font16 icon-private-group Gray_c6' title='私有群组'></span>";
-          else if (item.isVerified == '1') groupTag = "<span class='groupTag Font16 icon-official-group ShaYellowNew' title='官方群组'></span>";
+          } else if (item.is_public == '0')
+            groupTag = "<span class='groupTag Font16 icon-private-group Gray_c6' title='私有群组'></span>";
+          else if (item.isVerified == '1')
+            groupTag = "<span class='groupTag Font16 icon-official-group ShaYellowNew' title='官方群组'></span>";
 
           let elmListItem = $(
             settings.templates.autocompleteListItem({
@@ -849,9 +855,9 @@ const Request = getRequest();
                   ')</span>' +
                   groupTag +
                   "<div class='Clear'></div>",
-                query
+                query,
               ),
-            })
+            }),
           ).attr('data-uid', itemUid);
 
           if (!results.UserItems.length && index === 0) {
@@ -869,8 +875,10 @@ const Request = getRequest();
       elmAutocompleteList.show();
       elmDropDownList.show();
 
-      if (results.UserItems && results.UserItems.length > 0 && (results.GroupItems && results.GroupItems.length > 0)) {
-        elmAutocompleteList.find('li:eq(' + (results.UserItems.length - 1) + ')').css('borderBottom', '1px dashed #e3e3e3');
+      if (results.UserItems && results.UserItems.length > 0 && results.GroupItems && results.GroupItems.length > 0) {
+        elmAutocompleteList
+          .find('li:eq(' + (results.UserItems.length - 1) + ')')
+          .css('borderBottom', '1px dashed #e3e3e3');
       }
     }
 
@@ -883,9 +891,7 @@ const Request = getRequest();
       }
 
       elmAutocompleteList.empty();
-      const elmDropDownList = $('<ul>')
-        .appendTo(elmAutocompleteList)
-        .hide();
+      const elmDropDownList = $('<ul>').appendTo(elmAutocompleteList).hide();
 
       if (results.Categorys && results.Categorys.length > 0) {
         _.each(results.Categorys, (item, index) => {
@@ -896,7 +902,7 @@ const Request = getRequest();
           let elmListItem = $(
             settings.templates.categoryListItem({
               content: utils.highlightTerm(item.name, query),
-            })
+            }),
           ).attr('data-uid', itemUid);
 
           if (index === 0) {
@@ -930,7 +936,7 @@ const Request = getRequest();
         if (!query) {
           paras.pageIndex = settings.pageIndex;
           delete paras.keywords;
-          settings.ajaxController.getGroupUsers(paras).done((data) => {
+          settings.ajaxController.getGroupUsers(paras).done(data => {
             let users = settings.format(data.groupUsers);
             users = settings.addAtAll(query).concat(users);
             settings.pageIndex = 2;
@@ -944,7 +950,7 @@ const Request = getRequest();
             settings.$deferred.abort();
           }
           settings.$deferred = settings.ajaxController.getGroupUsers(paras);
-          settings.$deferred.done((data) => {
+          settings.$deferred.done(data => {
             // 个人化
             let users = settings.format(data.groupUsers);
             users = settings.addAtAll(query).concat(users);

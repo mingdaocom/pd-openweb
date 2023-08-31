@@ -1,22 +1,25 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Collapse, Checkbox, Switch, Input, Tooltip } from 'antd';
+import { Collapse, Checkbox, Switch, Input, Tooltip, Select } from 'antd';
 import { Count, Location } from './components/Count';
 import DataFilter from './components/DataFilter';
 import Label from './components/Label';
 import XAxis from './components/XAxis';
-import yAxisPanelGenerator from './components/YAxis';
+import yAxisPanelGenerator, { bidirectionalBarChartYAxisPanelGenerator } from './components/YAxis';
+import Quadrant from './components/Quadrant';
 import MeasureAxis from './components/MeasureAxis';
 import unitPanelGenerator from './components/Unit';
+import { gaugeColorPanelGenerator, scalePanelGenerator, indicatorPanelGenerator } from './components/GaugeChartConfig';
 import numberStylePanelGenerator, { numberSummaryPanelGenerator } from './components/NumberStyle';
 import Color from './components/Color/index';
 import PivotTableFieldColor from './components/PivotTableFieldColor/index';
 import PreinstallStyle from './components/PreinstallStyle';
 import TitleStyle from './components/TitleStyle';
+import SubLineCount from './components/SubLineCount';
 import topChartPanelGenerator from './components/TopChartPanel';
 import { reportTypes, LegendTypeData } from 'statistics/Charts/common';
-import { isTimeControl } from 'statistics/common';
+import { isTimeControl, isNumberControl } from 'statistics/common';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'statistics/redux/actions';
@@ -245,7 +248,7 @@ export default class ChartStyle extends Component {
     return (
       <Collapse.Panel
         key="preinstallStyle"
-        header={_l('预设样式')}
+        header={_l('表')}
       >
         <PreinstallStyle
           style={style}
@@ -270,16 +273,16 @@ export default class ChartStyle extends Component {
     );
   }
   renderLineTitleStyle() {
-    const { style } = this.props.currentReport;
+    const { style, pivotTable } = this.props.currentReport;
     return (
       <Collapse.Panel
         key="lineTitleStyle"
         header={_l('行标题')}
       >
         <TitleStyle
-          name={_l('行')}
           type="line"
           style={style}
+          pivotTable={pivotTable}
           onChangeStyle={this.handleChangeStyle}
         />
       </Collapse.Panel>
@@ -293,10 +296,55 @@ export default class ChartStyle extends Component {
         header={_l('列标题')}
       >
         <TitleStyle
-          name={_l('列')}
           type="column"
           style={style}
           onChangeStyle={this.handleChangeStyle}
+        />
+      </Collapse.Panel>
+    );
+  }
+  renderSubLineCount() {
+    const { currentReport, changeCurrentReport } = this.props;
+    const { lines } = currentReport.pivotTable;
+    const switchChecked = !!lines.slice(1, lines.length).filter(n => n.subTotal).length;
+    return (
+      <Collapse.Panel
+        key="subLineCount"
+        header={_l('行小计')}
+        className={cx({ collapsible: !switchChecked })}
+        extra={
+          <Switch
+            size="small"
+            checked={switchChecked}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+            }}
+            onChange={checked => {
+              this.props.changeCurrentReport(
+                {
+                  pivotTable: {
+                    ...currentReport.pivotTable,
+                    lines: lines.map((n, index) => {
+                      if (index) {
+                        return {
+                          ...n,
+                          subTotal: checked
+                        }
+                      } else {
+                        return n;
+                      }
+                    })
+                  },
+                },
+                true,
+              );
+            }}
+          />
+        }
+      >
+        <SubLineCount
+          currentReport={currentReport}
+          onChangeCurrentReport={changeCurrentReport}
         />
       </Collapse.Panel>
     );
@@ -347,9 +395,15 @@ export default class ChartStyle extends Component {
               }}
             />
           </div>
-          {yaxisList.map(item => (
+          <Location
+            summary={lineSummary}
+            locationType="line"
+            onChangeSummary={this.handleChangeLineSummary}
+          />
+          {yaxisList.filter(item => isNumberControl(item.controlType) ? true : item.normType !== 7).map(item => (
             <Count
               key={item.controlId}
+              yAxis={item}
               isPivotTable={true}
               extra={
                 <Checkbox
@@ -423,11 +477,6 @@ export default class ChartStyle extends Component {
               }}
             />
           ))}
-          <Location
-            summary={lineSummary}
-            locationType="line"
-            onChangeSummary={this.handleChangeLineSummary}
-          />
         </Fragment>
       </Collapse.Panel>
     );
@@ -436,6 +485,106 @@ export default class ChartStyle extends Component {
     const { reportType, displaySetup, yaxisList, pivotTable = {} } = this.props.currentReport;
     const { showColumnTotal, columnSummary = {} } = pivotTable;
     const { controlList = [], rename } = columnSummary;
+    const onChangeCountVisible = (id, checked, data) => {
+      if (checked) {
+        const control = {
+          controlId: id,
+          name: '',
+          sum: 0,
+          type: 1,
+          ...data
+        }
+        this.props.changeCurrentReport(
+          {
+            pivotTable: {
+              ...pivotTable,
+              columnSummary: {
+                ...columnSummary,
+                controlList: controlList.concat(control)
+              }
+            },
+          },
+          true,
+        );
+      } else {
+        this.props.changeCurrentReport(
+          {
+            pivotTable: {
+              ...pivotTable,
+              columnSummary: {
+                ...columnSummary,
+                controlList: controlList.filter(item => item.controlId !== id)
+              }
+            },
+          },
+          true,
+        );
+      }
+    }
+    const onChangeSummary = (id, data, isRequest = true) => {
+      const newControlList = controlList.map(item => {
+        if (id === item.controlId) {
+          return {
+            ...item,
+            ...data
+          }
+        } else {
+          return item;
+        }
+      }).filter(item => item.number || item.percent);
+      this.props.changeCurrentReport(
+        {
+          pivotTable: {
+            ...pivotTable,
+            columnSummary: {
+              ...columnSummary,
+              controlList: newControlList
+            }
+          },
+        },
+        isRequest,
+      );
+    }
+    const renderExtra = (item) => {
+      const control = _.find(controlList, { controlId: item.controlId });
+      return (
+        <Fragment>
+          <div className="mBottom5 bold">{item.controlName}</div>
+          <div className="flexRow valignWrapper mBottom15">
+            <Checkbox
+              className="flex"
+              checked={control ? control.number : false}
+              onChange={(event) => {
+                const { checked } = event.target;
+                const id = item.controlId;
+                if (control) {
+                  onChangeSummary(id, { number: checked });
+                } else {
+                  onChangeCountVisible(id, checked, checked ? { number: true, percent: false } : undefined);
+                }
+              }}
+            >
+              {_l('数值')}
+            </Checkbox>
+            <Checkbox
+              className="flex"
+              checked={control ? control.percent : false}
+              onChange={(event) => {
+                const { checked } = event.target;
+                const id = item.controlId;
+                if (control) {
+                  onChangeSummary(id, { percent: checked });
+                } else {
+                  onChangeCountVisible(id, checked, checked ? { number: false, percent: true } : undefined);
+                }
+              }}
+            >
+              {_l('百分比')}
+            </Checkbox>
+          </div>
+        </Fragment>
+      );
+    }
     return (
       <Collapse.Panel
         key="columnCount"
@@ -478,113 +627,24 @@ export default class ChartStyle extends Component {
               }}
             />
           </div>
-          {yaxisList.map(item => (
-            <Count
-              key={item.controlId}
-              isPivotTable={true}
-              extra={
-                <Checkbox
-                  className="mLeft0 mBottom15"
-                  checked={!!_.find(controlList, { controlId: item.controlId })}
-                  onChange={(event) => {
-                    const id = item.controlId;
-                    if (event.target.checked) {
-                      const data = {
-                        controlId: id,
-                        name: '',
-                        sum: 0,
-                        type: 1
-                      }
-                      this.props.changeCurrentReport(
-                        {
-                          pivotTable: {
-                            ...pivotTable,
-                            columnSummary: {
-                              ...columnSummary,
-                              controlList: controlList.concat(data)
-                            }
-                          },
-                        },
-                        true,
-                      );
-                    } else {
-                      this.props.changeCurrentReport(
-                        {
-                          pivotTable: {
-                            ...pivotTable,
-                            columnSummary: {
-                              ...columnSummary,
-                              controlList: controlList.filter(item => item.controlId !== id)
-                            }
-                          },
-                        },
-                        true,
-                      );
-                    }
-                  }}
-                >
-                  {item.controlName}
-                </Checkbox>
-              }
-              summary={_.find(controlList, { controlId: item.controlId }) || { type: 1 }}
-              onChangeSummary={(data, isRequest = true) => {
-                const id = item.controlId;
-                const newControlList = controlList.map(item => {
-                  if (id === item.controlId) {
-                    return {
-                      ...item,
-                      ...data
-                    }
-                  } else {
-                    return item;
-                  }
-                });
-                this.props.changeCurrentReport(
-                  {
-                    pivotTable: {
-                      ...pivotTable,
-                      columnSummary: {
-                        ...columnSummary,
-                        controlList: newControlList
-                      }
-                    },
-                  },
-                  isRequest,
-                );
-              }}
-            />
-          ))}
           <Location
             summary={columnSummary}
             locationType="column"
             onChangeSummary={this.handleChangeColumnSummary}
           />
+          {yaxisList.filter(item => isNumberControl(item.controlType) ? true : item.normType !== 7).map(item => (
+            <Count
+              key={item.controlId}
+              yAxis={item}
+              isPivotTable={true}
+              extra={renderExtra(item)}
+              summary={_.find(controlList, { controlId: item.controlId }) || { type: 1 }}
+              onChangeSummary={(data, isRequest) => {
+                onChangeSummary(item.controlId, data, isRequest);
+              }}
+            />
+          ))}
         </Fragment>
-      </Collapse.Panel>
-    );
-  }
-  renderLineHeight() {
-    const { currentReport } = this.props;
-    const { style } = currentReport;
-    const unilineShow = style.pivotTableUnilineShow;
-    return (
-      <Collapse.Panel
-        key="lienHeight"
-        header={_l('单行显示')}
-        className={cx('hideArrowIcon', { collapsible: !unilineShow })}
-        extra={
-          <Switch
-            size="small"
-            checked={unilineShow}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              this.handleChangeStyle({ pivotTableUnilineShow: checked });
-            }}
-          />
-        }
-      >
       </Collapse.Panel>
     );
   }
@@ -655,6 +715,7 @@ export default class ChartStyle extends Component {
                 showPileTotal: checked,
                 hideOverlapText: checked,
               });
+              this.handleChangeStyle({ showLabelPercent: checked });
             }}
           />
         }
@@ -668,73 +729,24 @@ export default class ChartStyle extends Component {
       </Collapse.Panel>
     );
   }
+  renderGaugeColor() {
+    return gaugeColorPanelGenerator({
+      ...this.props,
+      onChangeStyle: this.handleChangeStyle,
+      onChangeDisplayValue: this.handleChangeDisplayValue
+    });
+  }
   renderScale() {
-    const { currentReport } = this.props;
-    const { style } = currentReport;
-    const scaleType = _.isUndefined(style.scaleType) ? 1 : style.scaleType;
-    return (
-      <Collapse.Panel
-        key="scale"
-        header={_l('刻度')}
-        className={cx({ collapsible: !scaleType })}
-        extra={
-          <Switch
-            size="small"
-            checked={!!scaleType}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              this.handleChangeStyle({ scaleType: checked ? 1 : null });
-            }}
-          />
-        }
-      >
-        <div className="chartTypeSelect flexRow valignWrapper mBottom16 mLeft25">
-          <div
-            className={cx('flex centerAlign pointer Gray_75', { active: scaleType === 1 || _.isNull(style.scaleType) })}
-            onClick={() => {
-              this.handleChangeStyle({ scaleType: 1 });
-            }}
-          >
-            {_l('数值')}
-          </div>
-          <div
-            className={cx('flex centerAlign pointer Gray_75', { active: scaleType === 2 })}
-            onClick={() => {
-              this.handleChangeStyle({ scaleType: 2 });
-            }}
-          >
-            {_l('百分比')}
-          </div>
-        </div>
-      </Collapse.Panel>
-    );
+    return scalePanelGenerator({
+      ...this.props,
+      onChangeStyle: this.handleChangeStyle
+    });
   }
   renderIndicator() {
-    const { currentReport } = this.props;
-    const { style } = currentReport;
-    const indicatorVisible = _.isUndefined(style.indicatorVisible) ? true : style.indicatorVisible;
-    return (
-      <Collapse.Panel
-        key="indicator"
-        header={_l('指针')}
-        className="hideArrowIcon"
-        extra={
-          <Switch
-            size="small"
-            checked={indicatorVisible}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              this.handleChangeStyle({ indicatorVisible: checked });
-            }}
-          />
-        }
-      >
-      </Collapse.Panel>
-    );
+    return indicatorPanelGenerator({
+      ...this.props,
+      onChangeStyle: this.handleChangeStyle
+    });
   }
   renderLayout() {
     const { currentReport } = this.props;
@@ -811,11 +823,12 @@ export default class ChartStyle extends Component {
     const { xdisplay, fontStyle, showChartType } = currentReport.displaySetup;
     const switchChecked = !!fontStyle || xdisplay.showDial || xdisplay.showTitle;
     const isBarChart = currentReport.reportType === reportTypes.BarChart;
+    const isBidirectionalBarChart = currentReport.reportType === reportTypes.BidirectionalBarChart;
     const isVertical = isBarChart && showChartType === 2;
     return (
       <Collapse.Panel
         key="xAxis"
-        header={isVertical ? _l('Y轴') : _l('X轴')}
+        header={isVertical ? _l('Y轴') : isBidirectionalBarChart ? _l('维度轴') : _l('X轴')}
         className={cx({ collapsible: !switchChecked })}
         extra={
           <Switch
@@ -843,7 +856,61 @@ export default class ChartStyle extends Component {
     );
   }
   renderYAxis() {
-    return yAxisPanelGenerator(this.props);
+    const { currentReport } = this.props;
+    const isBidirectionalBarChart = currentReport.reportType === reportTypes.BidirectionalBarChart;
+    return isBidirectionalBarChart ? bidirectionalBarChartYAxisPanelGenerator(this.props) : yAxisPanelGenerator(this.props);
+  }
+  renderQuadrant() {
+    const { style } = this.props.currentReport;
+    const { quadrant = {} } = style;
+    return (
+      <Collapse.Panel
+        key="quadrant"
+        header={_l('四象限')}
+        className={cx({ collapsible: !quadrant.visible })}
+        extra={
+          <Switch
+            size="small"
+            checked={quadrant.visible}
+            onClick={(checked, event) => {
+              event.stopPropagation();
+            }}
+            onChange={checked => {
+              const defaultQuadrant = {
+                axisColor: '#9e9e9e',
+                topRightBgColor: '#F44336',
+                topRightText: _l('右上象限'),
+                topLeftBgColor: '#FFA340',
+                topLeftText: _l('左上象限'),
+                bottomLeftBgColor: '#4CAF50',
+                bottomLeftText: _l('左下象限'),
+                bottomRightBgColor: '#2196F3',
+                bottomRightText: _l('右下象限'),
+                textColor: '#9e9e9e'
+              }
+              this.handleChangeStyle({
+                quadrant: {
+                  ...(_.isEmpty(quadrant) ? defaultQuadrant : quadrant),
+                  visible: checked
+                }
+              });
+            }}
+          />
+        }
+      >
+        <Quadrant
+          quadrant={quadrant}
+          onChangeQuadrant={(data) => {
+            this.handleChangeStyle({
+              quadrant: {
+                ...quadrant,
+                ...data
+              }
+            });
+          }}
+        />
+      </Collapse.Panel>
+    );
   }
   renderMeasureAxis() {
     const { currentReport } = this.props;
@@ -1023,6 +1090,7 @@ export default class ChartStyle extends Component {
               {this.renderCell()}
               {this.renderLineTitleStyle()}
               {this.renderColumnTitleStyle()}
+              {this.renderSubLineCount()}
               {this.renderPivotTableLineCount()}
               {this.renderPivotTableColumnCount()}
             </Fragment>
@@ -1035,7 +1103,6 @@ export default class ChartStyle extends Component {
           )}
           {reportTypes.NumberChart === reportType && this.renderNumberStyle()}
           {sourceType && this.renderTitle()}
-          {[reportTypes.PivotTable].includes(reportType) && this.renderLineHeight()}
           {[reportTypes.WordCloudChart].includes(reportType) && this.renderWordCloudFontSize()}
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable, reportTypes.WordCloudChart, reportTypes.TopChart, reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType) &&
             this.renderLegend()}
@@ -1043,14 +1110,17 @@ export default class ChartStyle extends Component {
             this.renderXAxis()}
           {[reportTypes.LineChart, reportTypes.BarChart, reportTypes.DualAxes, reportTypes.BidirectionalBarChart, reportTypes.ScatterChart].includes(reportType) &&
             this.renderYAxis()}
+          {reportTypes.ScatterChart === reportType && this.renderQuadrant()}
           {[reportTypes.RadarChart].includes(reportType) &&
             this.renderMeasureAxis()}
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable, reportTypes.WordCloudChart, reportTypes.TopChart].includes(reportType) &&
             this.renderLabel()}
-          {reportTypes.GaugeChart === reportType && this.renderScale()}
-          {reportTypes.GaugeChart === reportType && this.renderIndicator()}
-          {[reportTypes.ProgressChart].includes(reportType) && (
-            this.renderLayout()
+          {reportTypes.GaugeChart === reportType && (
+            <Fragment key="gaugeChart">
+              {this.renderGaugeColor()}
+              {this.renderScale()}
+              {this.renderIndicator()}
+            </Fragment>
           )}
           {[reportTypes.TopChart].includes(reportType) &&
             this.renderTopChart()}

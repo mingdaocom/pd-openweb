@@ -5,7 +5,7 @@ import '@mdfe/poshytip';
 import { htmlEncodeReg, encrypt } from 'src/util';
 import groupController from 'src/api/group';
 import invitationController from 'src/api/invitation';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import { index as dialog } from 'src/components/mdDialog/dialog';
 var ActionResult = {
   MissParams: -2,

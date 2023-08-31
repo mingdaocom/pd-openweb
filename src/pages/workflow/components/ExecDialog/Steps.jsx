@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, Fragment } from 'react';
 import StepItem from './components/StepItem';
 
-export default ({ worksheetId, rowId, currentWork, currentType, works, status }) => {
+export default ({ worksheetId, rowId, currentWork, currentType, works, status, currents = [], onChangeCurrentWork = () => {} }) => {
   useLayoutEffect(() => {
     if (currentWork) {
       const $el = $(`#workflowStep_${currentWork.workId}`);
@@ -22,6 +22,8 @@ export default ({ worksheetId, rowId, currentWork, currentType, works, status })
           worksheetId={worksheetId}
           rowId={rowId}
           status={status}
+          currents={currents}
+          onChangeCurrentWork={onChangeCurrentWork}
         />
       ))}
       {_.includes([2, 3, 4], status) && (

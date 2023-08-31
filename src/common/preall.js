@@ -16,21 +16,20 @@ function parseShareId() {
     window.shareState.isRecordShare = true;
     window.shareState.shareId = (location.pathname.match(/.*\/worksheetshare\/(\w{24})/) || '')[1];
   }
-  if (/\/printshare/.test(location.pathname)) {
+  if (/\/public\/print/.test(location.pathname)) {
     window.shareState.isPrintShare = true;
-    window.shareState.shareId = (location.pathname.match(/.*\/printshare\/(\w{24})/) || '')[1];
+    window.shareState.shareId = (location.pathname.match(/.*\/public\/print\/(\w{24})/) || '')[1];
   }
   if (/\/public\/query/.test(location.pathname)) {
     window.shareState.isPublicQuery = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/query\/(\w{24})/) || '')[1];
   }
-  if (/\/recordshare/.test(location.pathname)) {
-    window.shareState.isUpdateRecordShare = true;
-    window.shareState.shareId = (location.pathname.match(/.*\/recordshare\/(\w{24})/) || '')[1];
+  if (/\/public\/form/.test(location.pathname)) {
+    window.shareState.isPublicForm = true;
+    window.shareState.shareId = (location.pathname.match(/.*\/public\/form\/(\w{32})/) || '')[1];
   }
-  if (/\/form/.test(location.pathname)) {
-    window.shareState.isPublicQuery = true;
-    window.shareState.shareId = (location.pathname.match(/.*\/form\/(\w{32})/) || '')[1];
+  if (/\/worksheet\/form\/preview/.test(location.pathname)) {
+    window.shareState.isPublicFormPreview = true;
   }
   if (/\/public\/view/.test(location.pathname)) {
     window.shareState.isPublicView = true;
@@ -57,7 +56,7 @@ function clearLocalStorage() {
   } catch (err) {}
 }
 
-function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
+function getGlobalMeta({ allownotlogin } = {}, cb = () => {}) {
   const lang = getCookie('i18n_langtag') || getNavigatorLang();
   const urlparams = qs.parse(unescape(unescape(window.location.search.slice(1))));
   let args = {};
@@ -70,7 +69,8 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
     window.isPublicApp = true;
     window.publicAppAuthorization = urlObj.hash.slice(10).replace('#isPrivateBuild', '');
   }
-  if (transfertoken && urlparams.token) {
+
+  if (urlparams.token) {
     args.token = urlparams.token;
   }
   if (urlparams.access_token) {
@@ -130,8 +130,17 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
 
     // 检测语言是否一致
     if (md.global.Account.lang && md.global.Account.lang !== lang && !md.global.Account.isPortal) {
-      const settingValue = { 'zh-Hans': '0', en: '1', ja: '2', 'zh-Hant': '3' };
-      accountSetting.editAccountSetting({ settingType: '6', settingValue: settingValue[lang] });
+      if (md.global.Account.defaultLang === lang) {
+        setCookie('i18n_langtag', md.global.Account.lang);
+        window.location.reload();
+      } else {
+        const settingValue = { 'zh-Hans': '0', en: '1', ja: '2', 'zh-Hant': '3' };
+        accountSetting.editAccountSetting({ settingType: '6', settingValue: settingValue[lang] }).then(res => {
+          if (res) {
+            setCookie('i18n_langtag', lang);
+          }
+        });
+      }
     }
 
     setPssId(getPssId());
@@ -142,7 +151,7 @@ function getGlobalMeta({ allownotlogin, transfertoken } = {}, cb = () => {}) {
   });
 }
 
-const wrapComponent = function (Comp, { allownotlogin, hideloading, transfertoken } = {}) {
+const wrapComponent = function (Comp, { allownotlogin } = {}) {
   class Pre extends React.Component {
     constructor(props) {
       super(props);
@@ -151,7 +160,7 @@ const wrapComponent = function (Comp, { allownotlogin, hideloading, transfertoke
       };
     }
     componentDidMount() {
-      getGlobalMeta({ allownotlogin, transfertoken }, () => {
+      getGlobalMeta({ allownotlogin }, () => {
         this.setState({
           loading: false,
         });
@@ -168,17 +177,17 @@ const wrapComponent = function (Comp, { allownotlogin, hideloading, transfertoke
         document.title = _l('应用');
       }
 
-      return loading ? !hideloading && <LoadDiv size="big" className="pre" /> : <Comp {...this.props} />;
+      return loading ? <LoadDiv size="big" className="pre" /> : <Comp {...this.props} />;
     }
   }
 
   return Pre;
 };
 
-export default function (Comp, { allownotlogin, preloadcb, hideloading, transfertoken } = {}) {
+export default function (Comp, { allownotlogin, preloadcb } = {}) {
   if (_.isObject(Comp) && Comp.type === 'function') {
-    getGlobalMeta({ allownotlogin, transfertoken }, preloadcb);
+    getGlobalMeta({ allownotlogin }, preloadcb);
   } else {
-    return wrapComponent(Comp, { allownotlogin, hideloading, transfertoken });
+    return wrapComponent(Comp, { allownotlogin });
   }
 }

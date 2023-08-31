@@ -116,6 +116,7 @@ export default function FieldMappingList(props) {
     ).length === 0;
   const selectedFieldIds = fieldsMapping.map(item => _.get(item, 'destField.id')).filter(o => o);
   const selectNameRef = useRef([]);
+  const isExistJoinPk = !!(sourceData.sourceFields || []).filter(item => item.isJoinPk).length;
 
   let leftColumns = [];
   let rightColumns = [];
@@ -123,7 +124,10 @@ export default function FieldMappingList(props) {
   //更新FieldsMapping
   const updateFieldsMapping = data => {
     const newFieldsMapping = (fieldsMapping || []).map(o => {
-      if (_.get(o, ['sourceField', 'id']) === _.get(data, ['sourceField', 'id'])) {
+      if (
+        _.get(o, ['sourceField', 'id']) === _.get(data, ['sourceField', 'id']) &&
+        _.get(o, ['sourceField', 'alias']) === _.get(data, ['sourceField', 'alias'])
+      ) {
         return data;
       } else {
         return o;
@@ -132,17 +136,34 @@ export default function FieldMappingList(props) {
     setFieldsMapping && setFieldsMapping(newFieldsMapping);
   };
 
+  const isNotSupportField = sourceField => {
+    const isOtherTable_onlyDisplay_orLink =
+      sourceField.mdType === 30 &&
+      (sourceField.controlSetting.strDefault === '10' || sourceField.controlSetting.sourceControlType === 21); //他表字段-仅显示,他表字段-自由连接类型
+    const isRelated_multiple = sourceField.mdType === 29 && sourceField.controlSetting.enumDefault === 2; //关联记录-多条
+    const isNotSupport =
+      !(matchedTypes[sourceField.id] || []).length || isOtherTable_onlyDisplay_orLink || isRelated_multiple;
+    return isNotSupport;
+  };
+
   const renderInputName = data => {
     const sourceField = data.sourceField || {};
     const destField = data.destField || {};
+    const isDisabled =
+      !sourceData.isDbType && !destData.isDbType
+        ? isExistJoinPk
+          ? sourceField.isJoinPk
+          : (sourceField.oid || '').split('_')[1] === 'rowid'
+        : false;
 
     return (
       <Input
         className="w100"
         value={destField.name || ''}
-        disabled={sourceField.id === 'rowid'}
+        disabled={isDisabled}
         onBlur={event => {
-          const hasRepeatName = fieldsMapping.filter(item => item.destField.name === event.target.value).length > 1;
+          const hasRepeatName =
+            fieldsMapping.filter(item => _.get(item, 'destField.name') === event.target.value).length > 1;
           if (hasRepeatName) {
             const newName = destField.name + Math.floor(Math.random() * 10000);
             updateFieldsMapping({
@@ -215,16 +236,17 @@ export default function FieldMappingList(props) {
         checked={checkAll}
         onClick={checked => {
           const newFieldsMapping = fieldsMapping.map(item => {
-            const isValidField = isValidName(item.sourceField.name) || !sourceData.isDbType;
-            const isNotSupport = !(matchedTypes[item.sourceField.id] || []).length;
+            const { sourceField = {}, destField = {} } = item;
+            const isValidField = isValidName(sourceField.name) || !sourceData.isDbType;
+            const isNotSupport = isNotSupportField(sourceField);
             return {
               sourceField: {
-                ...item.sourceField,
-                isCheck: item.sourceField.isPk ? true : isValidField && !isNotSupport ? !checked : false,
+                ...sourceField,
+                isCheck: sourceField.isPk ? true : isValidField && !isNotSupport ? !checked : false,
               },
               destField: {
-                ...item.destField,
-                isCheck: item.destField.isPk ? true : isValidField && !isNotSupport ? !checked : false,
+                ...destField,
+                isCheck: destField && destField.isPk ? true : isValidField && !isNotSupport ? !checked : false,
               },
             };
           });
@@ -237,12 +259,13 @@ export default function FieldMappingList(props) {
     const destField = data.destField || {};
     const sourceField = data.sourceField || {};
     if (!matchedTypes) return;
-    const isNotSupport = !(matchedTypes[sourceField.id] || []).length;
+    const isNotSupport = isNotSupportField(sourceField);
 
     return (
       <Checkbox
         size="small"
-        className={cx({ customDisabled: sourceField.isPk })}
+        //是主键，并且勾选状态样式
+        className={cx({ customDisabled: sourceField.isPk && !!destField[key] })}
         checked={!!destField[key]}
         disabled={sourceField.isPk || (key !== 'isNotNull' && (sourceField.disabled || isNotSupport))}
         onClick={() => {
@@ -261,15 +284,21 @@ export default function FieldMappingList(props) {
     if (!matchedTypes) return;
     const matchedTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.dataType));
     const matchedMdTypeIds = _.uniq((matchedTypes[sourceField.id] || []).map(type => type.mdType));
-    const isNotSupport = !(matchedTypes[sourceField.id] || []).length;
+    const isNotSupport = isNotSupportField(sourceField);
 
     const filterOptions = destData.isDbType
       ? (destData.destFields || []).filter(
-          o => !!o.isPk === !!sourceField.isPk && _.includes(matchedTypeIds, o.jdbcTypeId),
+          o =>
+            (isExistJoinPk ? !!o.isPk === !!sourceField.isJoinPk : !!o.isPk === !!sourceField.isPk) &&
+            _.includes(matchedTypeIds, o.jdbcTypeId),
         )
       : (destData.destFields || []).filter(
           o =>
-            (!sourceData.isDbType ? !!o.isPk === !!sourceField.isPk : true) && _.includes(matchedMdTypeIds, o.mdType),
+            (!sourceData.isDbType
+              ? isExistJoinPk
+                ? !!o.isPk === !!sourceField.isJoinPk
+                : !!o.isPk === !!sourceField.isPk
+              : true) && _.includes(matchedMdTypeIds, o.mdType),
         );
 
     const options = filterOptions.map(item => {
@@ -346,6 +375,7 @@ export default function FieldMappingList(props) {
                     isNotNull: option.isNotNull,
                     mdType: option.mdType,
                     controlSetting: option.controlSetting,
+                    oid: option.oid,
                   },
                 }
               : {
@@ -363,6 +393,7 @@ export default function FieldMappingList(props) {
                     isNotNull: destField.isPk,
                     mdType: null,
                     controlSetting: null,
+                    oid: null,
                   },
                 };
             updateFieldsMapping(updatedMapping);
@@ -382,11 +413,15 @@ export default function FieldMappingList(props) {
           render: data => {
             const sourceField = data.sourceField;
             if (!matchedTypes) return;
-            const isNotSupport = !(matchedTypes[sourceField.id] || []).length;
+            const isNotSupport = isNotSupportField(sourceField);
+
             return (
               <div className="flexRow">
-                <span title={sourceField.name} className={`overflow_ellipsis ${sourceField.isDelete ? 'Red' : ''}`}>
-                  {sourceField.name}
+                <span
+                  title={sourceField.alias || sourceField.name}
+                  className={`overflow_ellipsis ${sourceField.isDelete ? 'Red' : ''}`}
+                >
+                  {sourceField.alias || sourceField.name}
                 </span>
                 {sourceField.isPk && (
                   <div data-tip={_l('主键')} className="tip-top">
@@ -420,9 +455,10 @@ export default function FieldMappingList(props) {
           flex: 3,
           render: data => {
             const sourceField = data.sourceField;
+            let dataType = sourceField.mdType && !sourceField.isJoinPk ? '' : sourceField.dataType; //表字段(有mdType) 不显示datatype
             return (
-              <div title={sourceField.dataType} className="overflow_ellipsis">
-                <span>{sourceField.dataType}</span>
+              <div title={dataType} className="overflow_ellipsis">
+                <span>{dataType}</span>
               </div>
             );
           },
@@ -446,15 +482,16 @@ export default function FieldMappingList(props) {
           render: data => {
             const sourceField = data.sourceField;
             if (!matchedTypes) return;
-            const isNotSupport = !(matchedTypes[sourceField.id] || []).length;
+            const isNotSupport = isNotSupportField(sourceField);
+
             return (
               <div className="flexRow alignItemsCenter">
                 <Icon icon={getIconByType(sourceField.mdType, false)} className={cx('Font18 Gray_9e')} />
                 <span
-                  title={sourceField.name}
+                  title={sourceField.alias || sourceField.name}
                   className={`mLeft8 overflow_ellipsis ${sourceField.isDelete ? 'Red' : ''}`}
                 >
-                  {sourceField.name}
+                  {sourceField.alias || sourceField.name}
                 </span>
                 {sourceField.isPk && (
                   <div data-tip={_l('主键')} className="tip-top">
@@ -511,8 +548,10 @@ export default function FieldMappingList(props) {
             title: _l('主键'),
             flex: 1,
             render: data => {
-              const item = data.destField || {};
-              return item.isPk ? (
+              const destField = data.destField || {};
+              const sourceField = data.sourceField || {};
+              //存在多表连接主键，joinPk显示主键，原主键字段不显示主键标识
+              return (isExistJoinPk ? sourceField.isJoinPk : destField.isPk) ? (
                 <div data-tip={_l('主键')} className="tip-top">
                   <Icon icon="key1" className="Font16 Gray_bd" />
                 </div>
@@ -559,7 +598,7 @@ export default function FieldMappingList(props) {
             render: data => {
               const destField = data.destField || {};
               const sourceField = data.sourceField || {};
-              const canSetTitle = canSetAsTitle({ type: destField.mdType }) && sourceField.id !== 'rowid';
+              const canSetTitle = canSetAsTitle({ type: destField.mdType });
               return canSetTitle ? (
                 <div
                   className={cx('isOperateCommonIcon', { isActive: destField.isTitle })}
@@ -602,7 +641,10 @@ export default function FieldMappingList(props) {
             render: data => {
               const destField = data.destField || {};
               const sourceField = data.sourceField || {};
-              const canSetTitle = canSetAsTitle({ type: destField.mdType }) && sourceField.id !== 'rowid';
+              const canSetTitle =
+                canSetAsTitle({ type: destField.mdType }) &&
+                //如果存在joinPk，joinPk字段不允许设为标题，否则rowid不允许设为标题
+                (isExistJoinPk ? !sourceField.isJoinPk : (sourceField.oid || '').split('_')[1] !== 'rowid');
               return canSetTitle ? (
                 <div
                   className={cx('isOperateCommonIcon', { isActive: destField.isTitle })}

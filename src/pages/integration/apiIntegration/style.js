@@ -147,3 +147,13 @@ export const CardTopWrap = styled.div`
     }
   }
 `;
+export const WrapBtn = styled.div`
+  background: #ffffff;
+  border-radius: 18px;
+  color: #bdbdbd;
+  padding: 8px 12px;
+  margin: 0 auto;
+  &:hover {
+    color: #2196f3;
+  }
+`;

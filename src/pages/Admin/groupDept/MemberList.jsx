@@ -113,9 +113,9 @@ export default class MemberList extends Component {
     );
   }
 
-  handleSet(id) {
+  handleSet = id => {
     const reqData = {
-      accountIds: [id] || this.state.selectKeys,
+      accountIds: id ? [id] : this.state.selectKeys,
       groupId: this.props.groupId,
     };
     const _this = this;
@@ -139,7 +139,7 @@ export default class MemberList extends Component {
       height: '150',
     };
     ReactDom.render(<DialogLayer {...options} />, document.createElement('div'));
-  }
+  };
 
   handleDelete(id, name) {
     const reqData = {
@@ -200,7 +200,7 @@ export default class MemberList extends Component {
             {selectKeys.length ? (
               <Fragment>
                 <span className="Font16 color_b Bold">{_l(`已选择%0条`, selectKeys.length)}</span>
-                <div className="ThemeColor3 mLeft30 Hand" onClick={this.handleSet.bind(this)}>
+                <div className="ThemeColor3 mLeft30 Hand" onClick={() => this.handleSet()}>
                   <span className="icon icon-sp_filter_none_white"></span>
                   <span>{_l('设置为管理员')}</span>
                 </div>
@@ -214,7 +214,7 @@ export default class MemberList extends Component {
             )}
           </div>
         </div>
-        <div className="tableList Relative">
+        <div className="tableList">
           <ConfigProvider renderEmpty={MemberEmpty}>
             <Spin indicator={<LoadDiv />} spinning={loading}>
               <Table
@@ -223,7 +223,7 @@ export default class MemberList extends Component {
                 columns={this.columns}
                 dataSource={list}
                 pagination={false}
-                scroll={{ y: count > pageSize ? 'calc(100vh - 330px)' : 'calc(100vh - 280px)' }}
+                scroll={count == 0 ? {} : { y: count > pageSize ? 'calc(100vh - 300px)' : 'calc(100vh - 260px)' }}
               />
               {count > pageSize && (
                 <PaginationWrap total={count} pageIndex={pageIndex} pageSize={pageSize} onChange={this.changePage} />

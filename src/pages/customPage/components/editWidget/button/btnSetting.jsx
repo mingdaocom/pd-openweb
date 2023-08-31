@@ -634,6 +634,7 @@ function BtnSetting(props) {
                   onChange={(__, itemId) => {
                     setBtnSetting({
                       ...btnSetting,
+                      filterId: null,
                       value: itemId,
                       config: {
                         ...config,

@@ -66,7 +66,11 @@ export default function Set(props) {
       }
     };
     getList(startEventId);
-    setList(l.filter(o => [23, 8, 21, 14].includes(o.typeId)));
+    let list = l.filter(o => [23, 8, 21, 14].includes(o.typeId));
+    const i = list.findIndex(it => it.typeId === 23);
+    list = list.filter((o, index) => index >= i);
+    //过滤掉 输入参数 前面的节点
+    setList(list);
   }, []);
 
   return (
@@ -101,11 +105,7 @@ export default function Set(props) {
 
             {/* 超级管理员和拥有者才能查看连接 */}
             {props.isConnectOwner && (
-              <a
-                className="mLeft15 toConnect"
-                href={`/integrationConnect/${props.connectInfo.id}`}
-                target="_blank"
-              >
+              <a className="mLeft15 toConnect" href={`/integrationConnect/${props.connectInfo.id}`} target="_blank">
                 {_l('查看')}
               </a>
             )}
@@ -166,7 +166,7 @@ export default function Set(props) {
               prveId={o.prveId}
               nodeInfo={o}
               des={
-                list[i - 1].typeId !== 8
+                (list[i - 1] || {}).typeId !== 8
                   ? _l('编写代码对输入参数进行处理后用于 API 请求参数，如计算签名等')
                   : _l('编写代码对 API 请求结果进行处理后用于输出参数')
               }

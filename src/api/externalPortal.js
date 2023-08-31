@@ -407,6 +407,7 @@ export default {
   * @param {string} args.roleId 角色Id
   * @param {array} args.rowIds 行Id
   * @param {array} args.exAccountIds 外部账户Id
+  * @param {array} args.newCell 修改的控件信息
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -594,6 +595,7 @@ export default {
   * @param {integer} args.pageIndex
   * @param {integer} args.pageSize
   * @param {integer} args.sortType 排序 0 =默认排序，10 = 注册时间正序，11=注册时间倒序，20 =登录时间正序，21 = 登录时间倒序
+  * @param {boolean} args.isReturnTotal 是否返回 总计
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -729,6 +731,89 @@ export default {
      return $.api('ExternalPortal', 'RemoveExRole', args, options);
    },
   /**
+  * 发送外部门户验证码
+  * @param {Object} args 请求参数
+  * @param {string} args.account 账号：手机号/邮箱
+  * @param {string} args.appId 应用ID
+  * @param {} args.verifyCodeType 类型短信或语音
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   sendVerifyCode: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'SendVerifyCode', args, options);
+   },
+  /**
+  * 自动登录
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {string} args.autoLoginKey 自动密钥
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   autoLogin: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'AutoLogin', args, options);
+   },
+  /**
+  * 外部门户验证码登录与注册
+  * @param {Object} args 请求参数
+  * @param {string} args.account 账号
+  * @param {string} args.verifyCode 验证码
+  * @param {string} args.appId 应用ID
+  * @param {string} args.state 微信登录成功之后返回的临时状态码
+用于反向存储微信相关信息，具备有效期
+  * @param {boolean} args.autoLogin 是否自动登录
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   login: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'Login', args, options);
+   },
+  /**
+  * 外部门户密码登录与注册
+  * @param {Object} args 请求参数
+  * @param {string} args.account 账号
+  * @param {string} args.password 前端RSA加密过后的密码
+  * @param {string} args.appId 应用ID
+  * @param {string} args.verifyCode 验证码
+  * @param {boolean} args.autoLogin 是否自动登录
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType 验证码类型（默认腾讯云）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   pwdLogin: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'PwdLogin', args, options);
+   },
+  /**
+  * 外部门户单点登录
+  * @param {Object} args 请求参数
+  * @param {string} args.unionId 第三方Id
+  * @param {string} args.appId 外部门户所属应用Id
+  * @param {string} args.state 第三方状态
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exportalSSO: function (args, options = {}) {
+     
+     return $.api('ExternalPortal', 'ExportalSSO', args, options);
+   },
+  /**
   * 收集信息与登录
   * @param {Object} args 请求参数
   * @param {string} args.state 验证码或者微信登录成功之后返回的临时状态码
@@ -840,88 +925,5 @@ export default {
    findPwd: function (args, options = {}) {
      
      return $.api('ExternalPortal', 'FindPwd', args, options);
-   },
-  /**
-  * 发送外部门户验证码
-  * @param {Object} args 请求参数
-  * @param {string} args.account 账号：手机号/邮箱
-  * @param {string} args.appId 应用ID
-  * @param {} args.verifyCodeType 类型短信或语音
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   sendVerifyCode: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'SendVerifyCode', args, options);
-   },
-  /**
-  * 自动登录
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用Id
-  * @param {string} args.autoLoginKey 自动密钥
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   autoLogin: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'AutoLogin', args, options);
-   },
-  /**
-  * 外部门户验证码登录与注册
-  * @param {Object} args 请求参数
-  * @param {string} args.account 账号
-  * @param {string} args.verifyCode 验证码
-  * @param {string} args.appId 应用ID
-  * @param {string} args.state 微信登录成功之后返回的临时状态码
-用于反向存储微信相关信息，具备有效期
-  * @param {boolean} args.autoLogin 是否自动登录
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   login: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'Login', args, options);
-   },
-  /**
-  * 外部门户密码登录与注册
-  * @param {Object} args 请求参数
-  * @param {string} args.account 账号
-  * @param {string} args.password 前端RSA加密过后的密码
-  * @param {string} args.appId 应用ID
-  * @param {string} args.verifyCode 验证码
-  * @param {boolean} args.autoLogin 是否自动登录
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType 验证码类型（默认腾讯云）
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   pwdLogin: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'PwdLogin', args, options);
-   },
-  /**
-  * 外部门户单点登录
-  * @param {Object} args 请求参数
-  * @param {string} args.unionId 第三方Id
-  * @param {string} args.appId 外部门户所属应用Id
-  * @param {string} args.state 第三方状态
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   exportalSSO: function (args, options = {}) {
-     
-     return $.api('ExternalPortal', 'ExportalSSO', args, options);
    },
 };

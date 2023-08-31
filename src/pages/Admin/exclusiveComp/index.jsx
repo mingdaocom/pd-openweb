@@ -11,7 +11,7 @@ export default class ExclusiveComp extends Component {
   }
   render() {
     return (
-      <div className="exclusiveComp flex flexColumn">
+      <div className="orgManagementWrap exclusiveComp flex flexColumn">
         <AdminTitle prefix={_l('专属算力')} />
         <Route
           path={'/admin/computing/:projectId'}

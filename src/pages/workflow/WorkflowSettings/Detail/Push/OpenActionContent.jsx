@@ -27,7 +27,7 @@ export default class OpenActionContent extends Component {
    * 获取应用详情
    */
   getAppDetail(appId) {
-    homeApp.getAppDetail({ appId }).then(result => {
+    homeApp.getApp({ appId }).then(result => {
       this.setState({ otherAppName: result.name });
     });
   }

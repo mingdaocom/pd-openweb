@@ -13,6 +13,7 @@ import { fieldCanSort } from 'src/pages/worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
+import RegExp from 'src/util/expression';
 import './mobile.less';
 import _ from 'lodash';
 
@@ -67,14 +68,18 @@ export default class RecordCardListDialog extends Component {
     this.lazyLoadRecorcd = _.debounce(this.loadRecorcd, 500);
   }
   componentDidMount() {
-    const { control, keyWords, staticRecords = [] } = this.props;
+    const { control, keyWords, parentWorksheetId, staticRecords = [] } = this.props;
     if (!_.isEmpty(staticRecords)) {
       this.setState({ list: staticRecords, loading: false });
       return;
     }
     if (control) {
       (window.isPublicWorksheet ? publicWorksheetAjax : sheetAjax)
-        .getWorksheetInfo({ worksheetId: control.dataSource, getTemplate: true })
+        .getWorksheetInfo({
+          worksheetId: control.dataSource,
+          getTemplate: true,
+          relationWorksheetId: parentWorksheetId,
+        })
         .then(data => {
           window.worksheetControlsCache = {};
           data.template.controls.forEach(c => {
@@ -123,6 +128,7 @@ export default class RecordCardListDialog extends Component {
       formData,
       getDataType,
       relationRowIds = [],
+      isScan,
     } = this.props;
     const { pageIndex, keyWords, list, sortControls, worksheetInfo } = this.state;
     if (!keyWords && this.clickSearch) {
@@ -142,7 +148,16 @@ export default class RecordCardListDialog extends Component {
       return;
     }
 
-    if (from !== FROM.PUBLIC && !window.isPublicWorksheet) {
+    const { scanlink, scancontrol, scancontrolid } = _.get(control, 'advancedSetting') || {};
+
+    if (isScan && ((scanlink !== '1' && RegExp.isUrl(keyWords)) || (scancontrol !== '1' && !RegExp.isUrl(keyWords)))) {
+      this.setState({ loading: false });
+      return;
+    }
+
+    const scanControl = _.find(worksheetInfo.template.controls || [], it => it.controlId === scancontrolid);
+
+    if (from !== FROM.PUBLIC_ADD && !window.isPublicWorksheet) {
       getFilterRowsPromise = sheetAjax.getFilterRows;
       args = {
         worksheetId: relateSheetId,
@@ -152,11 +167,27 @@ export default class RecordCardListDialog extends Component {
         pageSize: 20,
         pageIndex,
         status: 1,
-        keyWords,
+        keyWords: scancontrol === '1' && scancontrolid ? '' : keyWords,
         isGetWorksheet: true,
         getType: 7,
         sortControls,
         filterControls,
+        fastFilters:
+          scancontrol === '1' && scancontrolid
+            ? [
+                {
+                  controlId: scancontrolid,
+                  dataType: scanControl.type,
+                  spliceType: 1,
+                  filterType: 1,
+                  dateRange: 0,
+                  minValue: '',
+                  maxValue: '',
+                  value: '',
+                  values: [keyWords],
+                },
+              ]
+            : [],
       };
     } else {
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
@@ -173,7 +204,7 @@ export default class RecordCardListDialog extends Component {
         getType: 7,
         sortControls,
         filterControls,
-        formId: window.publicWorksheetShareId,
+        shareId: window.publicWorksheetShareId,
       };
       if (window.recordShareLinkId) {
         args.linkId = window.recordShareLinkId;
@@ -363,12 +394,21 @@ export default class RecordCardListDialog extends Component {
               worksheetId={relateSheetId}
               filterControls={filterControls}
               parentWorksheetId={parentWorksheetId}
+              control={control}
               onChange={data => {
                 onOk([data]);
                 onClose();
               }}
               onOpenRecordCardListDialog={keyWords => {
+                const { scanlink, scancontrol } = _.get(control, 'advancedSetting') || {};
                 setTimeout(() => {
+                  if (
+                    (scanlink !== '1' && RegExp.isUrl(keyWords)) ||
+                    (scancontrol !== '1' && !RegExp.isUrl(keyWords))
+                  ) {
+                    this.setState({ pageIndex: 1, list: [] });
+                    return;
+                  }
                   this.handleSearch(keyWords);
                 }, 200);
               }}

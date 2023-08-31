@@ -8,7 +8,7 @@ import './index.less';
 
 const renderFileImage = (url, coverType, imgClassName = 'w100') => {
   if (coverType === '0') {
-    return <div className="fileImage" style={{ backgroundImage: `url(${url})` }}/>;
+    return <div className="fileImage" style={{ backgroundImage: `url(${url})` }} />;
   } else {
     return (
       <div className="flexRow alignItemsCenter justifyContentCenter overflowHidden h100 GrayBGF8">
@@ -16,15 +16,18 @@ const renderFileImage = (url, coverType, imgClassName = 'w100') => {
       </div>
     );
   }
-}
+};
 
 // 渲染明道云附件
-const ImageCard = (props) => {
+const ImageCard = props => {
   const { data, isMobile, isDeleteFile, coverType, allowEditName, allowDownload } = props;
   const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
   const { isKc, browse, fileClassName, fileSize, isMore, isDownload } = props;
   const fullShow = coverType === '1';
-  const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/${fullShow ? 2 : 1}/${ fullShow ? '' : 'w/200/h/140'}`);
+  const previewUrl = data.previewUrl.replace(
+    /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
+    `imageView2/${fullShow ? 2 : 1}/w/200/h/140`,
+  );
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -34,12 +37,14 @@ const ImageCard = (props) => {
 
   useEffect(() => {
     if (isPicture) {
-      loadImage(previewUrl).then(image => {
-        const { width, height } = image;
-        setImgClassName(width > height ? 'w100' : 'h100');
-      }).catch(error => {
-        setIsPicture(false);
-      });
+      loadImage(previewUrl)
+        .then(image => {
+          const { width, height } = image;
+          setImgClassName(width > height ? 'w100' : 'h100');
+        })
+        .catch(error => {
+          setIsPicture(false);
+        });
     }
   }, []);
 
@@ -49,7 +54,7 @@ const ImageCard = (props) => {
         <MenuItem
           key="newPage"
           icon={<Icon icon="launch" className="Font17 pRight5" />}
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             onOpenControlAttachmentInNewTab(data.fileID);
             setDropdownVisible(false);
@@ -62,7 +67,7 @@ const ImageCard = (props) => {
         <MenuItem
           key="editName"
           icon={<Icon icon="new_mail" className="Font17 pRight5" />}
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             setIsEdit(true);
             setDropdownVisible(false);
@@ -74,7 +79,7 @@ const ImageCard = (props) => {
       <MenuItem
         key="share"
         icon={<Icon icon="share" className="Font17 pRight5" />}
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
           handleShare(data, isDownload);
           setDropdownVisible(false);
@@ -85,7 +90,7 @@ const ImageCard = (props) => {
       <MenuItem
         key="saveKcCloud"
         icon={<Icon icon="knowledge-cloud" className="Font17 pRight5" />}
-        onClick={(e) => {
+        onClick={e => {
           e.stopPropagation();
           handleSaveKcCloud(data, isDownload);
           setDropdownVisible(false);
@@ -96,11 +101,11 @@ const ImageCard = (props) => {
     </Menu>
   );
 
-  const handleFocus = (e) => {
+  const handleFocus = e => {
     setTimeout(() => {
       ref && ref.current && ref.current.select();
     }, 0);
-  }
+  };
 
   return (
     <div
@@ -113,22 +118,27 @@ const ImageCard = (props) => {
         <Icon
           icon="close"
           className="closeIcon flexRow alignItemsCenter justifyContentCenter"
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             onDeleteMDFile(data);
           }}
         />
       )}
       {isKc && (
-        <div className="kcIcon flexRow alignItemsCenter justifyContentCenter"><Icon className="Font17" icon="knowledge1" /></div>
+        <div className="kcIcon flexRow alignItemsCenter justifyContentCenter">
+          <Icon className="Font17" icon="knowledge1" />
+        </div>
       )}
       {isPicture ? (
         renderFileImage(previewUrl, coverType, imgClassName)
       ) : (
         <div className="fileAccessory flexColumn">
-          <div className="fileIconWrap flexRow alignItemsCenter justifyContentCenter"><div className={cx(fileClassName, 'fileIcon')} /></div>
+          <div className="fileIconWrap flexRow alignItemsCenter justifyContentCenter">
+            <div className={cx(fileClassName, 'fileIcon')} />
+          </div>
           <div className="fileName Font13 flexRow alignItemsCenter textEllipsis">
-            {data.originalFilename}{data.ext}
+            {data.originalFilename}
+            {data.ext}
           </div>
         </div>
       )}
@@ -142,7 +152,7 @@ const ImageCard = (props) => {
               onFocus={handleFocus}
               className="resetNameInput Font13"
               defaultValue={data.originalFilename}
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
               }}
               onBlur={e => {
@@ -159,8 +169,14 @@ const ImageCard = (props) => {
           </div>
         ) : (
           <div className="flex">
-            <div className={cx('Font13 flexRow alignItemsCenter textEllipsis mBottom5 name', isPicture ? 'White' : 'ThemeColor')}>
-              {data.originalFilename}{data.ext}
+            <div
+              className={cx(
+                'Font13 flexRow alignItemsCenter textEllipsis mBottom5 name',
+                isPicture ? 'White' : 'ThemeColor',
+              )}
+            >
+              {data.originalFilename}
+              {data.ext}
             </div>
             <div className="flexRow alignItemsCenter Gray_bd">
               {isKc ? (
@@ -178,7 +194,7 @@ const ImageCard = (props) => {
           <div className="operateBtns confirm flexRow">
             <div
               className="deleteBtn mRight10"
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 onDeleteMDFile(data);
                 setDeleteConfirmVisible(false);
@@ -188,7 +204,7 @@ const ImageCard = (props) => {
             </div>
             <div
               className="cancelBtn"
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 setDeleteConfirmVisible(false);
               }}
@@ -203,7 +219,7 @@ const ImageCard = (props) => {
                 <div
                   onClick={e => {
                     e.stopPropagation();
-                    setDeleteConfirmVisible(true)
+                    setDeleteConfirmVisible(true);
                   }}
                   className="panelBtn delete"
                 >
@@ -215,7 +231,7 @@ const ImageCard = (props) => {
               {allowDownload && (
                 <Tooltip title={_l('下载')} placement="bottom">
                   <div
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       handleDownload(data, isDownload);
                     }}
@@ -239,7 +255,7 @@ const ImageCard = (props) => {
                 >
                   <Tooltip title={_l('更多')} placement="bottom">
                     <div
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         setDropdownVisible(true);
                       }}
@@ -256,16 +272,20 @@ const ImageCard = (props) => {
       </div>
     </div>
   );
-}
+};
 
 // 渲染未保存的附件
-const NotSaveImageCard = (props) => {
+const NotSaveImageCard = props => {
   const { data, isMobile, coverType } = props;
   const { onDeleteKCFile, onDeleteFile, onResetNameFile, onKCPreview, onPreview } = props;
   const { isKc, fileClassName, fileSize, url } = props;
-  const size = coverType === '1' ? '' : 'w/200/h/140';
+  const size = 'w/200/h/140';
   const mode = coverType === '1' ? 2 : 1;
-  const previewImageUrl = isKc ? data.viewUrl : (url.indexOf('imageView2') > -1 ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/${mode}/${size}`) : url + `&imageView2/${mode}/${size}`);
+  const previewImageUrl = isKc
+    ? data.viewUrl
+    : url.indexOf('imageView2') > -1
+    ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/${mode}/${size}`)
+    : url + `&imageView2/${mode}/${size}`;
   const [isEdit, setIsEdit] = useState(false);
   const [isPicture, setIsPicture] = useState(props.isPicture);
   const [imgClassName, setImgClassName] = useState('w100');
@@ -273,20 +293,22 @@ const NotSaveImageCard = (props) => {
 
   useEffect(() => {
     if (isPicture) {
-      loadImage(previewImageUrl).then(image => {
-        const { width, height } = image;
-        setImgClassName(width > height ? 'w100' : 'h100');
-      }).catch(error => {
-        setIsPicture(false);
-      });
+      loadImage(previewImageUrl)
+        .then(image => {
+          const { width, height } = image;
+          setImgClassName(width > height ? 'w100' : 'h100');
+        })
+        .catch(error => {
+          setIsPicture(false);
+        });
     }
   }, []);
 
-  const handleFocus = (e) => {
+  const handleFocus = e => {
     setTimeout(() => {
       ref && ref.current && ref.current.select();
     }, 0);
-  }
+  };
 
   return (
     <div
@@ -300,22 +322,27 @@ const NotSaveImageCard = (props) => {
         <Icon
           icon="close"
           className="closeIcon flexRow alignItemsCenter justifyContentCenter"
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             isKc ? onDeleteKCFile(data) : onDeleteFile(data);
           }}
         />
       )}
       {isKc && (
-        <div className="kcIcon flexRow alignItemsCenter justifyContentCenter"><Icon className="Font17" icon="knowledge1" /></div>
+        <div className="kcIcon flexRow alignItemsCenter justifyContentCenter">
+          <Icon className="Font17" icon="knowledge1" />
+        </div>
       )}
       {isPicture ? (
         renderFileImage(previewImageUrl, coverType, imgClassName)
       ) : (
         <div className="fileAccessory flexColumn">
-          <div className="fileIconWrap flexRow alignItemsCenter justifyContentCenter"><div className={cx(fileClassName, 'fileIcon')} /></div>
+          <div className="fileIconWrap flexRow alignItemsCenter justifyContentCenter">
+            <div className={cx(fileClassName, 'fileIcon')} />
+          </div>
           <div className="fileName Font13 flexRow alignItemsCenter textEllipsis">
-            {data.originalFileName}{data.fileExt}
+            {data.originalFileName}
+            {data.fileExt}
           </div>
         </div>
       )}
@@ -343,8 +370,14 @@ const NotSaveImageCard = (props) => {
           </div>
         ) : (
           <div className="flex">
-            <div className={cx('Font13 flexRow alignItemsCenter textEllipsis mBottom5 name', isPicture ? 'White' : 'ThemeColor')}>
-              {data.originalFileName}{data.fileExt}
+            <div
+              className={cx(
+                'Font13 flexRow alignItemsCenter textEllipsis mBottom5 name',
+                isPicture ? 'White' : 'ThemeColor',
+              )}
+            >
+              {data.originalFileName}
+              {data.fileExt}
             </div>
             <div className="flexRow alignItemsCenter Gray_bd">
               {isKc ? (
@@ -361,7 +394,7 @@ const NotSaveImageCard = (props) => {
         <div className="operateBtns flexRow">
           <Tooltip title={_l('删除')} placement="bottom">
             <div
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 isKc ? onDeleteKCFile(data) : onDeleteFile(data);
               }}
@@ -373,7 +406,7 @@ const NotSaveImageCard = (props) => {
           {!isKc && (
             <Tooltip title={_l('重命名')} placement="bottom">
               <div
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation();
                   setIsEdit(true);
                 }}
@@ -387,9 +420,9 @@ const NotSaveImageCard = (props) => {
       </div>
     </div>
   );
-}
+};
 
-export default (props) => {
+export default props => {
   const { data, removeUploadingFile, ...otherProps } = props;
   const { isMdFile } = props;
 
@@ -419,7 +452,10 @@ export default (props) => {
               percent={parseInt(progress)}
             />
           </div>
-          <div className="fileName Font13 flexRow alignItemsCenter textEllipsis">{base.fileName}{base.fileExt}</div>
+          <div className="fileName Font13 flexRow alignItemsCenter textEllipsis">
+            {base.fileName}
+            {base.fileExt}
+          </div>
         </div>
       </div>
     );
@@ -431,4 +467,3 @@ export default (props) => {
     </div>
   );
 };
-

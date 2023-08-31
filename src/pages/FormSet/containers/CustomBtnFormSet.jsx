@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import * as actions from '../redux/actions/action';
 import { connect } from 'react-redux';
-import { Icon, ScrollView, LoadDiv, Dialog, Support, Menu, MenuItem } from 'ming-ui';
+import { Icon, Dialog } from 'ming-ui';
 import { bindActionCreators } from 'redux';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
 import { CreateCustomBtn } from 'worksheet/common';
@@ -14,6 +14,11 @@ import cx from 'classnames';
 import { RangeDrop } from 'src/pages/FormSet/components/RangeDrop';
 import { refreshBtnData } from 'src/pages/FormSet/util';
 import _ from 'lodash';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
+import TrashDialog from '../components/Trash';
+const confirm = Dialog.confirm;
+
 const Con = styled.div`
   width: 100%;
   height: 100%;
@@ -50,13 +55,28 @@ const Con = styled.div`
       position: relative;
     }
   }
+  .trash {
+    color: #757575;
+    .trashIcon {
+      color: #9e9e9e;
+    }
+    .freeIcon {
+      color: #f1b73f;
+    }
+    &:hover {
+      color: #2196f3;
+      .trashIcon {
+        color: #2196f3;
+      }
+    }
+  }
 `;
 function CustomBtnFormSet(props) {
   const input = React.createRef();
   const { worksheetId, worksheetControls, worksheetInfo } = props;
   const [showCreateCustomBtn, setShowCreateCustomBtn] = useState(false);
   const [btnId, setBtnId] = useState();
-  const [showactDia, setShowactDia] = useState(false);
+  const [showTrash, setShowTrash] = useState(false);
   const [isRename, setIsRename] = useState(false);
   const [templateId, setTemplateId] = useState('');
   const [btnList, setBtnList] = useState([]);
@@ -99,7 +119,12 @@ function CustomBtnFormSet(props) {
         optionType: optionType, // * @param { integer } args.optionType 操作类型 1：视图添加按钮 2：视图删除按钮 9：删除按钮
       })
       .then(data => {
-        getdata();
+        if (data) {
+          alert(_l('删除成功'));
+          getdata();
+        } else {
+          alert(_l('删除失败'), 2);
+        }
       });
   };
 
@@ -115,18 +140,59 @@ function CustomBtnFormSet(props) {
       });
   };
 
+  const handleCopy = btnId => {
+    sheetAjax
+      .copyWorksheetBtn({
+        appId: worksheetInfo.appId,
+        viewId: '',
+        btnId,
+        worksheetId,
+      })
+      .then(data => {
+        if (data) {
+          getdata();
+          alert(_l('复制成功'));
+        } else {
+          alert(_l('复制失败'), 2);
+        }
+      });
+  };
+
+  const isFree =
+    _.get(
+      _.find(md.global.Account.projects, item => item.projectId === worksheetInfo.projectId),
+      'licenseType',
+    ) === 0;
+  const featureType = getFeatureStatus(worksheetInfo.projectId, VersionProductType.recycle);
+
   return (
     <React.Fragment>
       <Con className="printBox Relative">
         <div className="printBoxList">
           <div className="">
-            <div className="topBoxText">
-              <div className="textCon">
+            <div className="topBoxText flexRow alignItemsCenter">
+              <div className="textCon flex">
                 <h5 className="formName Gray Font17 Bold">{_l('自定义动作')}</h5>
                 <p className="desc mTop8">
                   <span className="Font13 Gray_9e">{_l('自定义在查看记录时可执行的操作')}</span>
                 </p>
               </div>
+              {featureType && (
+                <div
+                  className="trash mRight20 ThemeHoverColor3 flexRow"
+                  onClick={() => {
+                    if (isFree) {
+                      buriedUpgradeVersionDialog(worksheetInfo.projectId, VersionProductType.recycle);
+                      return;
+                    }
+                    setShowTrash(true);
+                  }}
+                >
+                  <Icon icon="knowledge-recycle" className="trashIcon Hand Font18" />
+                  <div className="recycle InlineBlock Hand mLeft5">{_l('回收站')}</div>
+                  {isFree && <Icon icon="auto_awesome" className="freeIcon mLeft8" />}
+                </div>
+              )}
               <span
                 className="add Relative bold"
                 onClick={() => {
@@ -201,7 +267,18 @@ function CustomBtnFormSet(props) {
                         />
                         {showMoreOption && templateId === it.btnId && (
                           <MoreOption
+                            showCopy
+                            onCopy={() => {
+                              return confirm({
+                                title: <span className="WordBreak Block">{_l('复制自定义动作“%0”', it.name)}</span>,
+                                description: _l('将复制目标自定义动作的所有节点和配置'),
+                                onOk: () => {
+                                  handleCopy(it.btnId);
+                                },
+                              });
+                            }}
                             delTxt={_l('删除动作')}
+                            description={_l('动作将被删除，请确认执行此操作')}
                             showMoreOption={showMoreOption}
                             onClickAwayExceptions={[]}
                             onClickAway={() => {
@@ -408,6 +485,19 @@ function CustomBtnFormSet(props) {
           )}
         </CSSTransitionGroup>
       </Con>
+      {showTrash && (
+        <TrashDialog
+          appId={worksheetInfo.appId}
+          worksheetId={worksheetId}
+          views={worksheetInfo.views || []}
+          onCancel={() => {
+            setShowTrash(false);
+          }}
+          onChange={() => {
+            getdata();
+          }}
+        />
+      )}
     </React.Fragment>
   );
 }

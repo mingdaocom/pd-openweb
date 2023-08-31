@@ -2,7 +2,7 @@ import './folderSelectStyle.css';
 import '../layerMain.css';
 import { getClassNameByExt } from 'src/util';
 import { expireDialogAsync } from 'src/components/common/function';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import rootTpl from './tpl/rootTpl.html';
 import nodeTpl from './tpl/nodeTpl.html';
 import ajax from 'src/api/kc';

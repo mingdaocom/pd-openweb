@@ -93,15 +93,8 @@ export default function UserConfig(props) {
   };
 
   const handleFieldClick = selectData => {
-    const value = head(selectData) || {};
-    // 单选排除
-    if (value.cid && enumDefault !== 1) {
-      const isExist = userRange.some(item => item.cid === value.cid && item.rcid === value.rcid);
-      if (isExist) return;
-    }
-    const availUsers = selectData.map(item => ({ ..._.pick(item, ['cid', 'rcid']), type: 4 }));
-    const nextValue = enumDefault === 1 ? availUsers : userRange.concat(availUsers);
-    onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }));
+    const availUsers = selectData.map(item => (item.cid ? { ..._.pick(item, ['cid', 'rcid']), type: 4 } : item));
+    onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(availUsers) }));
   };
 
   const getUserDisplay = item => {
@@ -222,6 +215,7 @@ export default function UserConfig(props) {
               </div>
               <SelectOtherField
                 {...props}
+                data={{ ...props.data, enumDefault: 1 }}
                 controls={props.allControls || []}
                 needFilter={true}
                 dynamicValue={userRange}

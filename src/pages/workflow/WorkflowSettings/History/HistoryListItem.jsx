@@ -17,7 +17,6 @@ export default ({
   onClick,
   index,
   updateSource,
-  disabled,
 }) => {
   const { cause, nodeName, causeMsg } = instanceLog;
   const { color } = STATUS2COLOR[FLOW_STATUS[status].status];
@@ -44,21 +43,29 @@ export default ({
           cause
             ? cause === 40007
               ? FLOW_FAIL_REASON[cause]
-              : `${_l('节点: ')} ${nodeName}, ${FLOW_FAIL_REASON[cause] || causeMsg}`
+              : !nodeName
+              ? FLOW_FAIL_REASON[cause] || causeMsg
+              : `${_l('节点: ')} ${nodeName}, ${
+                  cause === 7777 ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg
+                }`
             : ''
         }
       >
         {cause
           ? cause === 40007
             ? FLOW_FAIL_REASON[cause]
-            : `${_l('节点: ')} ${nodeName}, ${FLOW_FAIL_REASON[cause] || causeMsg}`
+            : !nodeName
+            ? FLOW_FAIL_REASON[cause] || causeMsg
+            : `${_l('节点: ')} ${nodeName}, ${
+                cause === 7777 ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg
+              }`
           : ''}
       </div>
       <div className="triggerTime Gray_75">
         {displayedDate.isValid() ? displayedDate.format('YYYY-MM-DD HH:mm:ss') : ''}
       </div>
       <div className="retry">
-        {(showRetry || showSuspend) && !disabled && (
+        {(showRetry || showSuspend) && (
           <span
             data-tip={showRetry ? _l('重试') : _l('中止')}
             onClick={e => {
@@ -67,10 +74,12 @@ export default ({
 
               setRetry(true);
 
-              (showRetry ? instanceVersion.resetInstance : instanceVersion.endInstance)({ instanceId: id }).then(res => {
-                updateSource(Object.assign(res, { id }), index);
-                setRetry(false);
-              });
+              (showRetry ? instanceVersion.resetInstance : instanceVersion.endInstance)({ instanceId: id }).then(
+                res => {
+                  updateSource(Object.assign(res, { id }), index);
+                  setRetry(false);
+                },
+              );
             }}
           >
             <Icon className="Font16 pointer ThemeHoverColor3 Block Gray_9e" icon={showRetry ? 'replay' : 'delete'} />

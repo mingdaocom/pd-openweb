@@ -11,10 +11,9 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import HiddenMenu from './HiddenMenu';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
-
-const exportAttachmentFeatureId = 28;
 export default class Item extends Component {
   static defaultProps = {
     item: {},
@@ -33,8 +32,7 @@ export default class Item extends Component {
   }
 
   canShare = () => {
-    const { item, currentView, sheetSwitchPermit } = this.props;
-    return isOpenPermit(permitList.viewShareSwitch, sheetSwitchPermit, item.viewId) && !md.global.Account.isPortal;
+    return !md.global.Account.isPortal;
   };
   canExport = () => {
     const { item, sheetSwitchPermit } = this.props;
@@ -67,7 +65,7 @@ export default class Item extends Component {
             return fieldPermission[0] === '1' && controlPermissions[0] === '1';
           });
 
-    const featureType = window.isPublicApp ? '' : getFeatureStatus(projectId, exportAttachmentFeatureId);
+    const featureType = window.isPublicApp ? '' : getFeatureStatus(projectId, VersionProductType.batchDownloadFiles);
 
     return (
       <Menu className="viewItemMoreOperate">
@@ -207,7 +205,7 @@ export default class Item extends Component {
                             return alert(_l('无附件下载权限，无法导出'), 2);
                           }
                           if (featureType === '2') {
-                            buriedUpgradeVersionDialog(projectId, exportAttachmentFeatureId);
+                            buriedUpgradeVersionDialog(projectId, VersionProductType.batchDownloadFiles);
                             return;
                           }
                           this.props.onExportAttachment();

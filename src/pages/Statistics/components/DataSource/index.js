@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon, ScrollView } from 'ming-ui';
-import { Collapse, Dropdown } from 'antd';
+import { Collapse, Dropdown, Menu } from 'antd';
 import ControlItem from './components/ControlItem';
 import CalculateControlItem from './components/CalculateControlItem';
 import SheetModal from './components/SheetModal';
@@ -17,6 +17,14 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'statistics/redux/actions';
 import './index.less';
 import _ from 'lodash';
+
+const authList = [{
+  value: 0,
+  name: _l('所有记录'),
+}, {
+  value: 1,
+  name: _l('有查看权限的记录')
+}];
 
 @connect(
   state => ({
@@ -71,7 +79,7 @@ export default class DataSource extends Component {
         if (!sysControlSwitch && _.find(WORKFLOW_SYSTEM_CONTROL, { controlId: item.controlId })) {
           return false;
         }
-        if (view && view.controls.includes(item.controlId)) {
+        if (view.controls && view.controls.includes(item.controlId)) {
           return false;
         }
         const control = _.find(worksheetInfo.columns, { controlId: item.controlId });
@@ -174,41 +182,65 @@ export default class DataSource extends Component {
     const { filter = {}, displaySetup } = currentReport;
     const { timeModalVisible } = this.state;
     return (
-      <Fragment>
-        <div className="mTop15 horizontalPaddingWrapper">
-          <div className="Bold Font13 Gray mBottom10">{_l('时间')}</div>
-          <div className="timeWrapper flexRow valignWrapper pointer" onClick={() => { this.setState({ timeModalVisible: true }) }}>
-            <div className={cx('flex Font13 Bold', [20, 21].includes(filter.rangeType) ? 'flexColumn' : 'flexRow')}>
-              <span className="nowrap">{filter.filterRangeName}</span>
-              <span className={cx({ mLeft5: ![20, 21].includes(filter.rangeType) })}>({formatrChartTimeText(filter)})</span>
-            </div>
+      <div className="mTop15 horizontalPaddingWrapper">
+        <div className="Bold Font13 Gray mBottom10">{_l('时间')}</div>
+        <div className="timeWrapper flexRow valignWrapper pointer" onClick={() => { this.setState({ timeModalVisible: true }) }}>
+          <div className={cx('flex Font13 Bold', [20, 21].includes(filter.rangeType) ? 'flexColumn' : 'flexRow')}>
+            <span className="nowrap">{filter.filterRangeName}</span>
+            <span className={cx({ mLeft5: ![20, 21].includes(filter.rangeType) })}>({formatrChartTimeText(filter)})</span>
+          </div>
+          <Icon className="Gray_9e Font14" icon="arrow-down-border" />
+        </div>
+        <TimeModal
+          filter={filter}
+          controls={axisControls.filter(item => isTimeControl(item.type))}
+          visible={timeModalVisible}
+          onCancel={() => {
+            this.setState({ timeModalVisible: false })
+          }}
+          onChangeFilter={data => {
+            this.props.changeCurrentReport(
+              {
+                displaySetup: {
+                  ...displaySetup,
+                  contrastType: 0,
+                },
+                filter: {
+                  ...filter,
+                  ...data,
+                },
+              },
+              true,
+            );
+          }}
+        />
+      </div>
+    );
+  }
+  renderPermission() {
+    const { currentReport, changeCurrentReport } = this.props;
+    const { auth = 0 } = currentReport;
+    const renderOverlay = () => {
+      return (
+        <Menu className="chartMenu">
+          {authList.map(data => (
+            <Menu.Item key={data.value} onClick={() => changeCurrentReport({ auth: data.value }, true)}>
+              {data.name}
+            </Menu.Item>
+          ))}
+        </Menu>
+      );
+    }
+    return (
+      <div className="mTop15 horizontalPaddingWrapper">
+        <div className="Bold Font13 Gray mBottom10">{_l('权限')}</div>
+        <Dropdown overlay={renderOverlay()} trigger={['click']} placement="bottomRight">
+          <div className="timeWrapper flexRow valignWrapper pointer">
+            <div className="flex Font13 Bold">{_.get(_.find(authList, { value: auth }), 'name')}</div>
             <Icon className="Gray_9e Font14" icon="arrow-down-border" />
           </div>
-          <TimeModal
-            filter={filter}
-            controls={axisControls.filter(item => isTimeControl(item.type))}
-            visible={timeModalVisible}
-            onCancel={() => {
-              this.setState({ timeModalVisible: false })
-            }}
-            onChangeFilter={data => {
-              this.props.changeCurrentReport(
-                {
-                  displaySetup: {
-                    ...displaySetup,
-                    contrastType: 0,
-                  },
-                  filter: {
-                    ...filter,
-                    ...data,
-                  },
-                },
-                true,
-              );
-            }}
-          />
-        </div>
-      </Fragment>
+        </Dropdown>
+      </div>
     );
   }
   renderSearch() {
@@ -360,7 +392,7 @@ export default class DataSource extends Component {
     );
   }
   render() {
-    const { dataIsUnfold } = this.props;
+    const { dataIsUnfold, ownerId } = this.props;
     return (
       <div className={cx('chartDataSource flexColumn', { small: !dataIsUnfold })}>
         {dataIsUnfold ? (
@@ -369,6 +401,7 @@ export default class DataSource extends Component {
             <ScrollView className="flex scrollWrapper">
               {this.renderSheet()}
               {this.renderTime()}
+              {!ownerId && this.renderPermission()}
               {this.renderField()}
             </ScrollView>
           </Fragment>

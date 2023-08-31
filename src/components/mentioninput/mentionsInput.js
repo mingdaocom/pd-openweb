@@ -1,7 +1,7 @@
 import './css/mentionsInput.css';
 import { AT_ALL_TEXT, SOURCE_TYPE } from 'src/components/comment/config';
 import { htmlEncodeReg, getCaretPosition, setCaretPosition } from 'src/util';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import addFriends from 'src/components/addFriends/addFriends';
 import categoryAjax from 'src/api/category';
 import userAjax from 'src/api/user';
@@ -517,12 +517,12 @@ Modified by Kenneth Auchenberg
         if (results.isNewAccount) {
           $noData.append(
             '<div class="invite"><i class="icon-invite"></i><p>' +
-            _l('您还没有一起协作的小伙伴，') +
-            '<br/><span class="ThemeColor3 Hand">' +
-            _l('邀请更多的同事') +
-            ' </span>' +
-            _l('加入吧！') +
-            ' </p></div>',
+              _l('您还没有一起协作的小伙伴，') +
+              '<br/><span class="ThemeColor3 Hand">' +
+              _l('邀请更多的同事') +
+              ' </span>' +
+              _l('加入吧！') +
+              ' </p></div>',
           );
         } else if (currentDataQuery === '') {
           var strNoOne = _l('输入姓名或群组名，提醒TA查看');
@@ -533,17 +533,17 @@ Modified by Kenneth Auchenberg
           } else {
             $noData.append(
               '<div class="invite"><i class="icon-invite"></i><p>' +
-              _l('没有找到，') +
-              '<span class="ThemeColor3 Hand">' +
-              _l('邀请更多的同事') +
-              ' </span>' +
-              _l('加入吧！') +
-              ' </p></div>',
+                _l('没有找到，') +
+                '<span class="ThemeColor3 Hand">' +
+                _l('邀请更多的同事') +
+                ' </span>' +
+                _l('加入吧！') +
+                ' </p></div>',
             );
           }
         }
         $noData.find('.invite').on('mousedown', function (evt) {
-          addFriends();
+          addFriends({ fromType: 0 });
           evt.stopPropagation();
         });
         elmAutocompleteList.append($noData);

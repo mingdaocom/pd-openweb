@@ -192,7 +192,7 @@ class RelationAction extends Component {
             control={_.find(rowInfo.receiveControls, { controlId: controlId })}
             formData={rowInfo.receiveControls}
             visible={showRelevanceRecord}
-            allowNewRecord={isCreate}
+            allowNewRecord={isCreate && !_.get(window, 'shareState.isPublicForm')}
             disabledManualWrite={disabledManualWrite}
             coverCid={coverCid}
             keyWords={recordkeyWords}
@@ -218,30 +218,32 @@ class RelationAction extends Component {
             }}
           />
         )}
-        <NewRecord
-          hideFillNext
-          className="worksheetRelateNewRecord"
-          title={isSubList && _l('创建%0', activeRelateSheetControl.controlName)}
-          appId={worksheet.appId}
-          worksheetId={worksheet.worksheetId}
-          projectId={worksheet.projectId}
-          addType={2}
-          entityName={worksheet.entityName}
-          filterRelateSheetIds={[worksheet.worksheetId]}
-          filterRelatesheetControlIds={[controlId]}
-          defaultRelatedSheet={{
-            worksheetId,
-            relateSheetControlId: activeRelateSheetControl.controlId,
-            value: defaultRelatedSheetValue,
-          }}
-          visible={showCreateRecord}
-          hideNewRecord={() => {
-            this.setState({ showCreateRecord: false });
-          }}
-          onAdd={row => {
-            this.addRelationRows([row]);
-          }}
-        />
+        {showCreateRecord && (
+          <NewRecord
+            hideFillNext
+            className="worksheetRelateNewRecord"
+            title={isSubList && _l('创建%0', activeRelateSheetControl.controlName)}
+            appId={worksheet.appId}
+            worksheetId={worksheet.worksheetId}
+            projectId={worksheet.projectId}
+            addType={2}
+            entityName={worksheet.entityName}
+            filterRelateSheetIds={[worksheet.worksheetId]}
+            filterRelatesheetControlIds={[controlId]}
+            defaultRelatedSheet={{
+              worksheetId,
+              relateSheetControlId: activeRelateSheetControl.controlId,
+              value: defaultRelatedSheetValue,
+            }}
+            visible={showCreateRecord}
+            hideNewRecord={() => {
+              this.setState({ showCreateRecord: false });
+            }}
+            onAdd={row => {
+              this.addRelationRows([row]);
+            }}
+          />
+        )}
       </Fragment>
     );
   }
@@ -257,10 +259,15 @@ class RelationAction extends Component {
         projectId={worksheet.projectId}
         worksheetId={worksheet.worksheetId}
         filterControls={filterControls}
+        control={control}
         onChange={data => {
           this.addRelationRows([data]);
         }}
         onOpenRecordCardListDialog={keyWords => {
+          const { scanlink, scancontrol } = _.get(control, 'advancedSetting') || {};
+          if ((scanlink !== '1' && RegExp.isUrl(keyWords)) || (scancontrol !== '1' && !RegExp.isUrl(keyWords))) {
+            return;
+          }
           this.setState({ showRelevanceRecord: true, recordkeyWords: keyWords });
         }}
       >

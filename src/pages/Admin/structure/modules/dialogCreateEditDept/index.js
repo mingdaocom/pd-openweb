@@ -1,6 +1,6 @@
 import './style.less';
 import 'src/components/mdDialog/dialog';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import { getRenderInfo } from '../util';
 import departmentController from 'src/api/department';
 import fixedDataAjax from 'src/api/fixedData.js';
@@ -18,17 +18,6 @@ var RESULTS = {
   NOTDEPARTMENTUSER: 3,
   PARENTNOTTOSUB: 4,
   /* 设置的上级部门是自己的子部门 */
-};
-
-var DELETE_RESULTS = {
-  FAILED: 0,
-  /* 失败 */
-  SUCCESS: 1,
-  /* 成功 */
-  EXISTSUBDEPARTMENT: 2,
-  /* 存在子部门 */
-  EXISTUSER: 3,
-  /* 部门存在成员 */
 };
 
 var DEFAULTS = {
@@ -87,24 +76,10 @@ CreateEditDeptDialog.prototype.renderMain = function () {
     });
     _this.dialog.content(tplFunc(renderData));
     setTimeout(function () {
-      if (options.type === 'edit') {
-        _this.appendDeleteDeptBtn();
-      }
       _this.getDom();
       _this.bindEvent();
     }, 0);
   });
-};
-
-CreateEditDeptDialog.prototype.appendDeleteDeptBtn = function () {
-  this.$deleteBtn = $(
-    '<span style="" class="LineHeight20 Left mTop5 Hand deleteBtn"><i class="icon-task-new-delete Font16 mRight10"></i><span>' +
-      _l('删除') +
-      '</span></span>',
-  );
-  $('#' + this.options.dialogBoxID)
-    .find('.footer')
-    .prepend(this.$deleteBtn);
 };
 
 CreateEditDeptDialog.prototype.getDom = function () {
@@ -154,9 +129,6 @@ CreateEditDeptDialog.prototype.bindEvent = function () {
   });
 
   if (options.type === 'edit') {
-    this.$deleteBtn.on('click', function () {
-      _this.deleteDepartment();
-    });
 
     this.$charger.on('click', function () {
       var chargeAccountIds = [];
@@ -318,48 +290,6 @@ CreateEditDeptDialog.prototype.editErrorHandler = function (errMessage) {
     case RESULTS.PARENTNOTTOSUB:
       alert(_l('不能设置子部门为自己的上级部门'), 3);
       break;
-    default:
-      break;
-  }
-};
-
-CreateEditDeptDialog.prototype.deleteDepartment = function () {
-  var options = this.options;
-  var _this = this;
-  const { departmentId } = options.data.parentDepartment;
-  options.promise = departmentController
-    .deleteDepartments({
-      projectId: options.projectId,
-      departmentId: options.departmentId,
-    })
-    .then(function (data) {
-      if (data !== DELETE_RESULTS.SUCCESS) {
-        return $.Deferred().reject(data).promise();
-      } else {
-        alert(_l('删除成功'));
-        options.callback.call(null, {
-          type: 'DELETE',
-          response: {
-            departmentId: options.departmentId,
-            parentDepartmentId: departmentId,
-          },
-        });
-        _this.dialog.closeDialog();
-      }
-    })
-    .then(null, function (error) {
-      _this.deleteErrorHandler(error);
-    });
-};
-
-CreateEditDeptDialog.prototype.deleteErrorHandler = function (errMessage) {
-  switch (errMessage) {
-    case DELETE_RESULTS.FAILED:
-      return alert(_l('删除失败'), 2);
-    case DELETE_RESULTS.EXISTUSER:
-      return alert(_l('部门存在成员，无法删除'), 3);
-    case DELETE_RESULTS.EXISTSUBDEPARTMENT:
-      return alert(_l('部门存在子部门，无法删除'), 3);
     default:
       break;
   }

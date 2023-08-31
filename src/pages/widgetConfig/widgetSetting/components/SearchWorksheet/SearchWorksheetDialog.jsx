@@ -11,6 +11,7 @@ import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
 import SelectControl from '../SelectControl';
 import { getControls } from '../DynamicDefaultValue/util';
+import { SYS_CONTROLS, FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget.js';
 import '../DynamicDefaultValue/inputTypes/SubSheet/style.less';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -163,7 +164,7 @@ export default class SearchWorksheetDialog extends Component {
   // 过滤已经选中的映射字段
   filterSelectControls = (controls = []) => {
     const { configs = [] } = this.state;
-    controls = controls.filter(i => !_.includes(['wfftime', 'rowid'], i.controlId));
+    controls = controls.filter(i => !_.includes([...SYS_CONTROLS, ...FORM_HIDDEN_CONTROL_IDS], i.controlId));
     controls = controls.filter(co => {
       return (
         _.includes([2, 3, 4, 5, 6, 8, 15, 16, 19, 23, 24, 26, 27, 28, 36, 46, 48], co.type) ||

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Icon, Tooltip, Dropdown } from 'ming-ui';
+import { Icon, Tooltip, Dropdown, Dialog } from 'ming-ui';
 import { useSetState } from 'react-use';
 import moment from 'moment';
 import cx from 'classnames';
 import MonitorAjax from 'src/pages/integration/api/monitor.js';
 import LogAjax from 'src/pages/integration/api/log.js';
 import _ from 'lodash';
+import copy from 'copy-to-clipboard';
 
 const Wrap = styled.div`
   flex: 1;
@@ -79,6 +80,9 @@ const WrapCon = styled.div`
       .item {
         flex-shrink: 0;
         padding: 8px 6px;
+        &.width100 {
+          width: 100px;
+        }
       }
     }
     .flex2 {
@@ -118,6 +122,8 @@ function Monitor(props) {
       totalPages,
       history,
       jobId,
+      errorDetail,
+      showErr,
     },
     setState,
   ] = useSetState({
@@ -134,6 +140,8 @@ function Monitor(props) {
     writeRecord: 0,
     totalPages: 0,
     history: [],
+    errorDetail: '',
+    showErr: false,
   });
   const chantRef = useRef();
 
@@ -355,6 +363,7 @@ function Monitor(props) {
               <div className="item flex">{_l('时间')}</div>
               <div className="item flex">{_l('操作人/来源')}</div>
               <div className="item flex2">{_l('内容')}</div>
+              <div className="item width100"></div>
             </div>
             {list.length <= 0 && <div className="TxtCenter pTop80 pBottom140 Font17 Gray_9e">{_l('暂无相关数据')}</div>}
             {list.map(o => {
@@ -363,6 +372,20 @@ function Monitor(props) {
                   <div className="item flex">{moment(Number(o.createTime)).format('YYYY-MM-DD HH:mm')}</div>
                   <div className="item flex">{!o.ip ? o.operator : `${o.operator}（${o.ip}）`}</div>
                   <div className="item flex2">{o.center}</div>
+                  <div
+                    className={cx('item width100 ThemeColor3', { Hand: !!o.errorDetail })}
+                    onClick={() => {
+                      if (!o.errorDetail) {
+                        return;
+                      }
+                      setState({
+                        showErr: true,
+                        errorDetail: o.errorDetail,
+                      });
+                    }}
+                  >
+                    {!!o.errorDetail && _l('查看')}
+                  </div>
                 </div>
               );
             })}
@@ -402,6 +425,36 @@ function Monitor(props) {
               </span>
             </div>
           </div>
+          {showErr && (
+            <Dialog
+              visible
+              title={
+                <span>
+                  {_l('报错信息')}
+                  <Icon
+                    type="copy"
+                    className="Gray_9e Font18 Hand mLeft10 ThemeHoverColor3"
+                    onClick={() => {
+                      copy(errorDetail);
+                      alert(_l('复制成功'));
+                    }}
+                  />
+                </span>
+              }
+              width={680}
+              className="connectorErrorDialog"
+              showCancel={false}
+              okText={_l('关闭')}
+              onOk={() => {
+                setState({ showErr: false });
+              }}
+              onCancel={() => {
+                setState({ showErr: false });
+              }}
+            >
+              {!!errorDetail && <div className="errorInfo">{errorDetail}</div>}
+            </Dialog>
+          )}
         </WrapCon>
       </Con>
     </Wrap>

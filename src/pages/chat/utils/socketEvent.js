@@ -3,9 +3,10 @@ import * as actions from '../redux/actions';
 import mdNotification from 'ming-ui/functions/notify';
 import renderLogout from '../components/Logout';
 import { getPssId } from 'src/util/pssId';
+import { removeFlashTitle } from './index';
 import newMsgAudio from 'src/pages/chat/lib/mp3player/newMsgAudio.html';
 
-export const socketInitEvent = function() {
+export const socketInitEvent = function () {
   $(newMsgAudio).appendTo('body');
 
   stateInit.call(this);
@@ -30,7 +31,7 @@ export const socketInitEvent = function() {
   });
 };
 
-export const groupInit = function() {
+export const groupInit = function () {
   // 创建群组
   IM.socket.on('new group', message => {
     this.props.dispatch(actions.newGroup(message));
@@ -80,7 +81,6 @@ export const groupInit = function() {
 
   // 群组移除管理
   IM.socket.on('group admin removed', data => {
-    // console.log('group admin removed', data);
     const { gid, removedAid } = data;
     const { accountId } = md.global.Account;
     if (accountId === removedAid) {
@@ -101,10 +101,9 @@ export const groupInit = function() {
   });
 };
 
-export const userInit = function() {
+export const userInit = function () {
   // 新的个人信息
   IM.socket.on('new message', message => {
-    // console.log('new message', message);
     this.props.dispatch(actions.newUserMessage(message));
   });
 
@@ -115,7 +114,6 @@ export const userInit = function() {
 
   // 收到个人撤回消息
   IM.socket.on('new withdraw usermessage', message => {
-    // console.log('new withdraw usermessage', message);
     const id = md.global.Account.accountId === message.from ? message.to : message.from;
     this.props.dispatch(actions.updateWithdrawMessage(id, message));
     this.props.dispatch(
@@ -127,14 +125,14 @@ export const userInit = function() {
   });
 };
 
-export const notifyInit = function() {
+export const notifyInit = function () {
   // 新的系统消息
   IM.socket.on('new notify', message => {
     this.props.dispatch(actions.newNotifyMessage(message));
   });
 };
 
-export const stateInit = function() {
+export const stateInit = function () {
   const key = 'chat';
   const isFirefox = navigator.userAgent.indexOf('Firefox') > 0;
   let isOpen = true;
@@ -145,7 +143,7 @@ export const stateInit = function() {
     mdNotification.success({
       key,
       title: _l('网络已连接'),
-      duration: 2
+      duration: 2,
     });
     IM.socket.off('reconnect', reconnectFn);
     IM.socket.off('reconnect_failed', reconnectFailedFn);
@@ -194,7 +192,6 @@ export const stateInit = function() {
   };
 
   IM.socket.on('error', () => {
-    // console.log('error 连接失败，区别于重连失败');
     if (isOpen) {
       isOpen = false;
       open();
@@ -202,16 +199,15 @@ export const stateInit = function() {
   });
 
   IM.socket.on('disconnect', () => {
-    // console.log('disconnect 连接断开');
     if (isOpen) {
       isOpen = false;
       open();
     }
+    removeFlashTitle('', []);
   });
 
   IM.socket.on('reconnecting', () => {
     if (reconnectCount > 1) {
-      // console.log('reconnecting 重连中');
     } else {
       reconnectCount++;
     }
@@ -221,7 +217,6 @@ export const stateInit = function() {
   });
 
   IM.socket.on('reconnect', () => {
-    // console.log('reconnect 重连成功');
     if (reconnectCount > 1) {
       isOpen = true;
       setTimeout(() => {
@@ -233,7 +228,7 @@ export const stateInit = function() {
   });
 };
 
-export const sync = function() {
+export const sync = function () {
   // 清除单个会话 其他页面接收到推送
   IM.socket.on('session removed', message => {
     this.props.dispatch(actions.sessionRemoved(message));
@@ -260,5 +255,11 @@ export const sync = function() {
 
   IM.socket.on('clear all unread', status => {
     this.props.dispatch(actions.clearAllUnread());
+  });
+
+  IM.socket.on('new silence message', status => {
+    const { isSilent } = status;
+    this.props.dispatch(actions.setSlience(status));
+    isSilent ? alert(_l('已开启消息免打扰')) : alert(_l('已关闭消息免打扰'));
   });
 };

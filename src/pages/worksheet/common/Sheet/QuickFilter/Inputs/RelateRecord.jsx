@@ -38,6 +38,13 @@ const Dropdown = styled(RelateRecordDropdown)`
       line-height: 32px !important;
       display: block;
     }
+    .clearIcon,
+    .dropIcon {
+      margin: 8px;
+    }
+    .activeSelectedItem {
+      margin-top: 0px !important;
+    }
   }
 `;
 

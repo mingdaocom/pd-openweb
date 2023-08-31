@@ -320,6 +320,7 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
           worksheetId={worksheetId}
           viewId={viewId}
           writeControls={writeControls}
+          showDraftsEntry={isMobile ? true : false}
           openRecord={isMobile ? (recordId, viewId) => {
             setPreviewRecord({
               appId,

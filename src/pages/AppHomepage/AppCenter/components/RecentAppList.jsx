@@ -78,7 +78,7 @@ const AppItem = styled.div`
 `;
 
 export default function RecentAppList(props) {
-  const { projectId, apps, onMarkApp, pcNaviStyle } = props;
+  const { projectId, apps, onMarkApp } = props;
 
   const getBackgroundColor = appItem => {
     const iconColor = appItem.iconColor || '#2196f3';
@@ -99,7 +99,7 @@ export default function RecentAppList(props) {
         return (
           <MdLink
             className="mBottom8 stopPropagation"
-            to={getAppNavigateUrl(item.id, pcNaviStyle)}
+            to={getAppNavigateUrl(item.id, item.pcNaviStyle, item.selectAppItmeType)}
             onClick={() => {
               addBehaviorLog('app', item.id); // 浏览应用埋点
 

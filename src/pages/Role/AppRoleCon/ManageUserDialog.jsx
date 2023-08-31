@@ -79,7 +79,7 @@ function ManageUserDialog(props) {
   });
   useEffect(() => {
     setLoading(true);
-    HomeAjax.getAppDetail({
+    HomeAjax.getApp({
       appId,
     }).then(appDetail => {
       setState({

@@ -37,7 +37,7 @@ export default class QiniuUpload extends React.Component {
                 const response = info.response;
 
                 // 处理分片上传之后返回值少了的问题
-                if (response.serverName === 'null') {
+                if (!response.serverName || response.serverName === 'null') {
                   response.fileExt = `.${File.GetExt(file.name)}`;
                   response.fileName = File.GetName(file.name);
                   response.filePath = file.key.replace(new RegExp(file.fileName), '');

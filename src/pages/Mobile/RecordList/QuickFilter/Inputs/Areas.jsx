@@ -5,6 +5,8 @@ import _ from 'lodash';
 
 const AreaCon = styled.div`
   position: relative;
+  display: flex;
+  flex-wrap: wrap;
   .addBtn {
     display: inline-block;
     width: 26px;
@@ -25,6 +27,7 @@ const AreaCon = styled.div`
   }
 `;
 const AreaItem = styled.span`
+  max-width: ${props => (props.isMultiple ? '100%' : 'calc(100% - 20px)')};
   display: inline-block;
   height: 28px;
   background: #f5f5f5;
@@ -32,12 +35,15 @@ const AreaItem = styled.span`
   margin: 0 8px 10px 0;
   padding-right: 12px;
   line-height: 28px;
+  overflow: hidden;
   .userAvatar {
     width: 28px;
     height: 28px;
     border-radius: 50%;
   }
   .userName {
+    display: inline-block;
+    width: calc(100% - 41px);
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -59,7 +65,7 @@ export default function Areas(props) {
       <div className="Font14 bold mBottom15">{control.controlName}</div>
       <AreaCon>
         {values.map(item => (
-          <AreaItem>
+          <AreaItem isMultiple={isMultiple}>
             <span className="userName">{item.name}</span>
             <Icon icon="close" onClick={() => deleteCurrentArea(item)} />
           </AreaItem>

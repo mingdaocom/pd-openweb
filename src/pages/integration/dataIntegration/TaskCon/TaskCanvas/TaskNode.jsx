@@ -15,6 +15,7 @@ import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/compon
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 
 const Wrap = styled.div`
   position: absolute;
@@ -237,7 +238,7 @@ class TaskNode extends Component {
       return;
     }
     // const { fromDt = {}, toDt = {} } = pathIds[0];
-    const featureType = getFeatureStatus(currentProjectId, 26);
+    const featureType = getFeatureStatus(currentProjectId, VersionProductType.datantergration);
     return (
       <WrapAct>
         <ul>
@@ -245,14 +246,14 @@ class TaskNode extends Component {
             return (
               <React.Fragment>
                 <li
-                  className={cx('flexRow alignItemsCenter Hand', { Alpha3: o.type !== 'FILTER' })}
+                  className={cx('flexRow alignItemsCenter Hand', { Alpha3: !['FILTER', 'JOIN'].includes(o.type) })}
                   onClick={() => {
-                    if (o.type !== 'FILTER') {
+                    if (!['FILTER', 'JOIN'].includes(o.type)) {
                       return;
                     }
                     //公有云的旗舰版可用
                     if (featureType === '2') {
-                      buriedUpgradeVersionDialog(currentProjectId, 26);
+                      buriedUpgradeVersionDialog(currentProjectId, VersionProductType.datantergration);
                       return;
                     }
                     // let nodeId = uuidv4();
@@ -316,7 +317,7 @@ class TaskNode extends Component {
                 >
                   <Icon type={o.icon} style={{ color: o.color }} className="Font17" />
                   <span className="Font14">{o.txt}</span>
-                  {o.type === 'FILTER' && featureType === '2' && (
+                  {['FILTER', 'JOIN'].includes(o.type) && featureType === '2' && (
                     <Icon type={'auto_awesome'} style={{ color: '#FBB400' }} className="Font17 mLeft10" />
                   )}
                 </li>
@@ -458,15 +459,15 @@ class TaskNode extends Component {
               }}
               popup={
                 <MenuWrap>
-                  {/* <MenuItemWrap
-                  icon={<Icon icon="edit" className="Font17 mLeft5" />}
-                  onClick={e => {
-                    this.setState({ popupVisible: false, showChangeName: true });
-                    e.stopPropagation();
-                  }}
-                >
-                  {_l('重命名')}
-                </MenuItemWrap> */}
+                  <MenuItemWrap
+                    icon={<Icon icon="edit" className="Font17 mLeft5" />}
+                    onClick={e => {
+                      this.setState({ popupVisible: false, showChangeName: true });
+                      e.stopPropagation();
+                    }}
+                  >
+                    {_l('重命名')}
+                  </MenuItemWrap>
                   {/* 除了目的地和源，都可删除 */}
                   {!['DEST_TABLE', 'SOURCE_TABLE'].includes(nodeData.nodeType) && (
                     <RedMenuItemWrap
@@ -538,7 +539,7 @@ class TaskNode extends Component {
               });
             }}
             onChange={name => {
-              onUpdate({ ...nodeData, name });
+              onUpdate({ ...nodeData, name }, true);
               this.setState({
                 showChangeName: false,
               });

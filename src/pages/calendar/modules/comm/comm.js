@@ -1,4 +1,4 @@
-﻿import doT from '@mdfe/dot';
+﻿import doT from 'dot';
 import inviteSingleTpl from './tpl/refuserDialogHtml.html';
 import calendarController from 'src/api/calendar';
 

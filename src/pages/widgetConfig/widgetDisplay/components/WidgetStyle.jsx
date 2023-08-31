@@ -274,6 +274,7 @@ export default function WidgetStyle(props) {
     styleInfo: { activeStatus = false, info = {} } = {},
     setStyleInfo = () => {},
     setActiveWidget = () => {},
+    setBatchActive = () => {},
   } = props;
 
   const handleChange = obj => {
@@ -287,6 +288,7 @@ export default function WidgetStyle(props) {
         onClick={() => {
           setStyleInfo({ activeStatus: !activeStatus });
           setActiveWidget({});
+          setBatchActive([]);
         }}
       >
         <Icon icon="style" />

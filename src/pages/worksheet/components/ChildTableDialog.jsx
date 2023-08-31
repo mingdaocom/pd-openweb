@@ -55,7 +55,7 @@ const Header = styled.div`
   }
 `;
 const Content = styled.div`
-  overflow: hidden;
+  position: relative;
   padding: 0 25px 36px;
   flex: 1;
   display: flex;
@@ -68,6 +68,14 @@ const Content = styled.div`
   }
   .childTableCon {
     height: 100%;
+  }
+  .operates {
+    display: none;
+  }
+  .selectedTip {
+    padding: 0 24px;
+    line-height: 50px !important;
+    top: -50px !important;
   }
 `;
 
@@ -230,7 +238,7 @@ export default function ChildTableDialog(props) {
                 ? control
                 : {
                     ...control,
-                    advancedSetting: Object.assign(control.advancedSetting, {
+                    advancedSetting: Object.assign({}, control.advancedSetting, {
                       allowadd: '0',
                       allowcancel: '0',
                       allowedit: '0',
@@ -246,14 +254,17 @@ export default function ChildTableDialog(props) {
             onChange={changedValues => {
               if (openFrom === 'cell') {
                 const { rows, lastAction = {} } = changedValues;
-                if (!_.includes(['DELETE_ROW', 'ADD_ROW', 'UPDATE_ROW', 'ADD_ROWS'], lastAction.type)) {
+                if (!_.includes(['DELETE_ROW', 'DELETE_ROWS', 'ADD_ROW', 'UPDATE_ROW', 'ADD_ROWS'], lastAction.type)) {
                   return;
                 }
                 setValue(oldValue => {
                   let { deleted = [], updated = [] } = oldValue;
                   if (lastAction.type === 'DELETE_ROW') {
                     deleted = _.uniqBy(deleted.concat(lastAction.rowid)).filter(id => !/^(temp|default)/.test(id));
-                  } else if (lastAction.type === 'ADD_ROW' || lastAction.type === 'UPDATE_ROW') {
+                  } else if (lastAction.type === 'DELETE_ROWS') {
+                    deleted = _.uniqBy(deleted.concat(lastAction.rowIds)).filter(id => !/^(temp|default)/.test(id));
+                  }
+                  if (lastAction.type === 'ADD_ROW' || lastAction.type === 'UPDATE_ROW') {
                     updated = _.uniqBy(updated.concat(lastAction.rowid));
                   } else if (lastAction.type === 'ADD_ROWS') {
                     updated = _.uniqBy(updated.concat(lastAction.rows.map(r => r.rowid)));

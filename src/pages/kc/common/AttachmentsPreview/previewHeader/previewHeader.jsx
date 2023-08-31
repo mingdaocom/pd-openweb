@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { Fragment } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import cx from 'classnames';
@@ -8,9 +8,15 @@ import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import Icon from 'ming-ui/components/Icon';
 import Popup from 'ming-ui/components/Popup';
-import { renameFile, saveToKnowlwdge, replaceAttachment, updateAllowDownload } from '../actions/action';
+import {
+  renameFile,
+  saveToKnowlwdge,
+  replaceAttachment,
+  updateAllowDownload,
+  changePreviewService,
+} from '../actions/action';
 import UploadNewVersion from '../../../components/UploadNewVersion';
-import { validateFileName } from '../../../utils';
+import { validateFileName, isWpsPreview } from '../../../utils';
 import * as previewUtil from '../constant/util';
 import { PREVIEW_TYPE, LOADED_STATUS } from '../constant/enum';
 import EditableBlock from '../editableBlock';
@@ -34,11 +40,16 @@ class PreviewHeader extends React.Component {
     hideFunctions: PropTypes.array,
     fromType: PropTypes.number,
     error: PropTypes.bool,
+    changePreviewService: PropTypes.func,
   };
 
   state = {
     attachment: this.props.attachment,
   };
+
+  componentDidMount() {
+    this.props.changePreviewService('original');
+  }
 
   handleShareNode = attachment => {
     const attachmentType =
@@ -109,7 +120,7 @@ class PreviewHeader extends React.Component {
   };
 
   render() {
-    const { attachment, fromType, hideFunctions, className, error, extra } = this.props;
+    const { attachment, fromType, hideFunctions, className, error, extra, previewService } = this.props;
     const { name, ext, previewType } = attachment;
     const deleted = error.status === LOADED_STATUS.DELETED;
     const {
@@ -127,9 +138,11 @@ class PreviewHeader extends React.Component {
           hideFunctions,
           fromType,
         });
+    const isWps = previewService === 'wps';
+
     return (
       <div className={cx('previewHeader flexRow', className)}>
-        <div className="flexRow Width500">
+        <div className="flexRow">
           <EditableBlock
             onChange={value => {
               this.props.renameFile(value);
@@ -186,105 +199,184 @@ class PreviewHeader extends React.Component {
             </div>
           )}
         </div>
-        <div className="flexRow flex newVersion">
-          {showKcVersionPanel && attachment.sourceNode.canEdit && (
-            <div className="viewHistory relative historyPanel Hand valignWrapper big">
-              <UploadNewVersion
-                item={attachment.sourceNode}
-                callback={item => {
-                  this.props.replaceAttachment(item, this.props.index, 'kc');
-                  this.props.performUpdateItem(item);
-                  const mdReplaceAttachment = this.props.extra.mdReplaceAttachment;
-                  if (typeof mdReplaceAttachment === 'function') {
-                    const originAttachment = this.props.originAttachments[this.props.index];
-                    if (originAttachment) {
-                      mdReplaceAttachment(
-                        Object.assign({}, originAttachment, {
-                          originalFilename: item.name,
-                          filesize: item.size,
-                          downloadUrl: item.downloadUrl,
-                        }),
-                      );
-                    }
+        <div className="flexRow flex justifyContentCenter">
+          {!md.global.Config.IsLocal && isWpsPreview(ext) ? (
+            <Fragment>
+              {!isWps ? (
+                <div
+                  className={cx('setWPSPreview', {})}
+                  onClick={() => {
+                    this.props.changePreviewService('wps');
+                  }}
+                >
+                  <span className="bold">{_l('预览失败？使用WPS预览')}</span>
+                  <span className="beta">Beta</span>
+                </div>
+              ) : (
+                <Trigger
+                  popupVisible={this.state.showSavePreviewService}
+                  onPopupVisibleChange={visible => {
+                    this.setState({
+                      showSavePreviewService: visible,
+                    });
+                  }}
+                  action={['click']}
+                  popupAlign={{
+                    points: ['tl', 'bl'],
+                    offset: [76, 0],
+                    overflow: { adjustX: true, adjustY: true },
+                  }}
+                  popup={
+                    <Menu style={{ width: 237 }}>
+                      {/* <MenuItem
+                        disabled={this.state.isPreferred}
+                        onClick={() => {
+                          this.setState({
+                            isPreferred: true,
+                            showSavePreviewService: false,
+                          });
+                        }}
+                      >
+                        {_l('设为首选项')}
+                      </MenuItem> */}
+                      <MenuItem
+                        onClick={() => {
+                          this.setState({
+                            isPreferred: false,
+                            showSavePreviewService: false,
+                          });
+                          this.props.changePreviewService('original');
+                        }}
+                      >
+                        {_l('还原')}
+                      </MenuItem>
+                    </Menu>
                   }
-                }}
-              />
-              <Icon icon="knowledge-upload" />
-              <span>{_l('上传新版本')}</span>
-            </div>
+                >
+                  <div
+                    className="setWPSPreview useingWPS"
+                    onClick={() => {
+                      this.setState({ showSavePreviewService: true, wpsPreviewUrl: 'https://www.mingdao.com/' });
+                    }}
+                  >
+                    <span className="bold">{_l('正在使用WPS服务预览')}</span>
+                    <span className="beta bold">Beta</span>
+                    <i className="icon icon-arrow-down White mLeft5"></i>
+                  </div>
+                </Trigger>
+              )}
+            </Fragment>
+          ) : (
+            ''
           )}
         </div>
-        <div className="flexRow Width500 btns">
-          {showSaveToKnowlege && !md.global.Account.isPortal && !window.share && (
-            <Trigger
-              popupVisible={this.state.showSaveTo}
-              onPopupVisibleChange={visible => {
-                this.setState({
-                  showSaveTo: visible,
-                });
-              }}
-              action={['click']}
-              popupPlacement="bottom"
-              builtinPlacements={{
-                bottom: {
-                  points: ['tc', 'bc'],
-                },
-              }}
-              popup={
-                <Menu className="selectOptions" width={{ width: 120 }}>
-                  <MenuItem
-                    icon={<Icon icon="attachment" />}
-                    onClick={() => {
-                      this.setState({ showSaveTo: false });
-                      if (!md.global.Account || !md.global.Account.accountId) {
-                        this.handleLogin();
-                        return;
+        <div className="flexRow btns">
+          {showKcVersionPanel && attachment.sourceNode.canEdit && (
+            <div className="historyPanel">
+              <span className="normal" data-tip={_l('上传新版本')}>
+                <UploadNewVersion
+                  item={attachment.sourceNode}
+                  callback={item => {
+                    this.props.replaceAttachment(item, this.props.index, 'kc');
+                    this.props.performUpdateItem(item);
+                    const mdReplaceAttachment = this.props.extra.mdReplaceAttachment;
+                    if (typeof mdReplaceAttachment === 'function') {
+                      const originAttachment = this.props.originAttachments[this.props.index];
+                      if (originAttachment) {
+                        mdReplaceAttachment(
+                          Object.assign({}, originAttachment, {
+                            originalFilename: item.name,
+                            filesize: item.size,
+                            downloadUrl: item.downloadUrl,
+                          }),
+                        );
                       }
-                      if (canSaveToKnowlege) {
-                        this.props.saveToKnowlwdge(1);
-                      } else {
-                        alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
-                      }
-                    }}
-                  >
-                    {_l('我的文件')}
-                  </MenuItem>
-                  <MenuItem
-                    icon={<Icon icon="task-folder-solid" />}
-                    onClick={() => {
-                      this.setState({ showSaveTo: false });
-                      if (!md.global.Account || !md.global.Account.accountId) {
-                        this.handleLogin();
-                        return;
-                      }
-                      if (canSaveToKnowlege) {
-                        this.props.saveToKnowlwdge(2);
-                      } else {
-                        alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
-                      }
-                    }}
-                  >
-                    {_l('选择文件夹')}
-                  </MenuItem>
-                </Menu>
-              }
-              popupAlign={{ offset: [-80, -5] }}
-            >
-              <div className="saveTo">
-                <span className="normal" data-tip={_l('添加到知识文件')}>
-                  <Icon
-                    icon="add-files"
-                    className="Hand"
-                    onClick={() => {
-                      this.setState({
-                        showSaveTo: !this.state.showSaveTo,
-                      });
-                    }}
-                  />
-                </span>
-              </div>
-            </Trigger>
+                    }
+                  }}
+                />
+                <i
+                  className="icon-upload_file Hand"
+                  onClick={() => {
+                    this.handleShareNode(attachment);
+                  }}
+                />
+              </span>
+            </div>
           )}
+          {showSaveToKnowlege &&
+            md.global.Account.accountId &&
+            !md.global.Account.isPortal &&
+            !window.share &&
+            !_.get(window, 'shareState.isPublicForm') && (
+              <Trigger
+                popupVisible={this.state.showSaveTo}
+                onPopupVisibleChange={visible => {
+                  this.setState({
+                    showSaveTo: visible,
+                  });
+                }}
+                action={['click']}
+                popupPlacement="bottom"
+                builtinPlacements={{
+                  bottom: {
+                    points: ['tc', 'bc'],
+                  },
+                }}
+                popup={
+                  <Menu className="selectOptions" width={{ width: 120 }}>
+                    <MenuItem
+                      icon={<Icon icon="attachment" />}
+                      onClick={() => {
+                        this.setState({ showSaveTo: false });
+                        if (!md.global.Account || !md.global.Account.accountId) {
+                          this.handleLogin();
+                          return;
+                        }
+                        if (canSaveToKnowlege) {
+                          this.props.saveToKnowlwdge(1);
+                        } else {
+                          alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
+                        }
+                      }}
+                    >
+                      {_l('我的文件')}
+                    </MenuItem>
+                    <MenuItem
+                      icon={<Icon icon="task-folder-solid" />}
+                      onClick={() => {
+                        this.setState({ showSaveTo: false });
+                        if (!md.global.Account || !md.global.Account.accountId) {
+                          this.handleLogin();
+                          return;
+                        }
+                        if (canSaveToKnowlege) {
+                          this.props.saveToKnowlwdge(2);
+                        } else {
+                          alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
+                        }
+                      }}
+                    >
+                      {_l('选择文件夹')}
+                    </MenuItem>
+                  </Menu>
+                }
+                popupAlign={{ offset: [-80, -5] }}
+              >
+                <div className="saveTo">
+                  <span className="normal" data-tip={_l('添加到知识文件')}>
+                    <Icon
+                      icon="add-files"
+                      className="Hand"
+                      onClick={() => {
+                        this.setState({
+                          showSaveTo: !this.state.showSaveTo,
+                        });
+                      }}
+                    />
+                  </span>
+                </div>
+              </Trigger>
+            )}
           {_.isFunction(extra.openControlAttachmentInNewTab) &&
             attachment.previewAttachmentType !== 'QINIU' &&
             canDownload &&
@@ -292,7 +384,7 @@ class PreviewHeader extends React.Component {
             ((attachment.originNode || attachment.sourceNode || {}).fileID ||
               (attachment.originNode || attachment.sourceNode || {}).fileId) &&
             !window.share &&
-            !_.get(window, 'shareState.isPublicQuery') && (
+            !(_.get(window, 'shareState.isPublicQuery') || _.get(window, 'shareState.isPublicForm')) && (
               <div className="openNewPage">
                 <span className="normal" data-tip={_l('新页面打开')}>
                   <i
@@ -307,23 +399,30 @@ class PreviewHeader extends React.Component {
                 </span>
               </div>
             )}
-          {canDownload && showShare && !md.global.Account.isPortal && !window.share && (
-            <div className="shareNode">
-              <span className="normal" data-tip={_l('分享')}>
-                <i
-                  className="icon-share Hand"
-                  onClick={() => {
-                    this.handleShareNode(attachment);
-                  }}
-                />
-              </span>
-            </div>
-          )}
-          {!deleted && showDownload && !window.navigator.userAgent.toLowerCase().includes('miniprogram') && (
-            <div className="download relative Hand" onClick={this.downloadAttachment} data-tip={_l('下载')}>
-              <Icon icon="download" className="valignWrapper mTop1" />
-            </div>
-          )}
+          {canDownload &&
+            showShare &&
+            !md.global.Account.isPortal &&
+            !window.share &&
+            !_.get(window, 'shareState.isPublicForm') && (
+              <div className="shareNode">
+                <span className="normal" data-tip={_l('分享')}>
+                  <i
+                    className="icon-share Hand"
+                    onClick={() => {
+                      this.handleShareNode(attachment);
+                    }}
+                  />
+                </span>
+              </div>
+            )}
+          {!deleted &&
+            showDownload &&
+            !window.navigator.userAgent.toLowerCase().includes('miniprogram') &&
+            !_.get(window, 'shareState.isPublicForm') && (
+              <div className="download relative Hand" onClick={this.downloadAttachment} data-tip={_l('下载')}>
+                <Icon icon="download" className="valignWrapper mTop1" />
+              </div>
+            )}
           {this.props.onClose && (
             <div
               className="close Hand"
@@ -354,6 +453,7 @@ function mapStateToProps(state) {
     performRemoveItems: state.performRemoveItems,
     hideFunctions: state.hideFunctions,
     fromType: state.fromType,
+    previewService: state.previewService,
   };
 }
 
@@ -363,6 +463,7 @@ function mapDispatchToProps(dispatch) {
     saveToKnowlwdge: bindActionCreators(saveToKnowlwdge, dispatch),
     replaceAttachment: bindActionCreators(replaceAttachment, dispatch),
     updateAllowDownload: bindActionCreators(updateAllowDownload, dispatch),
+    changePreviewService: bindActionCreators(changePreviewService, dispatch),
   };
 }
 

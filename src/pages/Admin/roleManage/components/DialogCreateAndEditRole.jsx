@@ -51,24 +51,35 @@ class DialogCreateAndEditRole extends React.Component {
                 return alert(_l('输入内容包含敏感词，请重新填写'), 3);
               }
               if (filed === 'edit') {
-                organizeAjax.editOrganizeName({
-                  organizeName: roleName,
-                  projectId,
-                  remark,
-                  organizeId: currentRole.organizeId,
-                }).then(res => {
-                  if (!res) {
-                    alert(_l('修改失败'), 2);
-                  } else if (res === 1) {
-                    let roleInfo = (roleList && !_.isEmpty(roleList) && roleList[0]) || {};
-                    alert(_l('修改成功'));
-                    this.props.updateCurrentRole(roleInfo);
-                    this.props.getRoleList();
-                  } else if (res === 2) {
-                    alert(_l('该角色名称已存在'), 3);
-                  }
-                  this.props.onCancel();
-                });
+                organizeAjax
+                  .editOrganizeName({
+                    organizeName: roleName,
+                    projectId,
+                    remark,
+                    organizeId: currentRole.organizeId,
+                  })
+                  .then(res => {
+                    if (!res) {
+                      alert(_l('修改失败'), 2);
+                    } else if (res === 1) {
+                      alert(_l('修改成功'));
+                      let list = roleList.map(it => {
+                        if (it.organizeId === currentRole.organizeId) {
+                          return { ...it, organizeName: roleName, organizeId: currentRole.organizeId, remark };
+                        }
+                        return it;
+                      });
+                      this.props.updateCurrentRole({
+                        organizeName: roleName,
+                        organizeId: currentRole.organizeId,
+                        remark,
+                      });
+                      this.props.updateRoleList(list);
+                    } else if (res === 2) {
+                      alert(_l('该角色名称已存在'), 3);
+                    }
+                    this.props.onCancel();
+                  });
               } else {
                 organizeAjax.addOrganize({ organizeName: roleName, projectId, remark }).then(res => {
                   if (!res) {
@@ -76,6 +87,8 @@ class DialogCreateAndEditRole extends React.Component {
                     this.props.onCancel();
                   } else if (res === 1) {
                     alert(_l('创建成功'));
+                    this.props.updateIsRequestList(false);
+                    this.props.updateCurrentRole({ organizeName: roleName, remark });
                     this.props.getRoleList();
                     this.props.onCancel();
                   } else if (res === 2) {

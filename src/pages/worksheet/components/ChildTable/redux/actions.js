@@ -1,5 +1,6 @@
 import { handleSortRows, postWithToken, download } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
+import _ from 'lodash';
 
 const PAGE_SIZE = 200;
 
@@ -23,6 +24,7 @@ export const setOriginRows = rows => ({ type: 'LOAD_ROWS', rows });
 export const addRow = (row, insertRowId) => ({ type: 'ADD_ROW', row, rowid: row.rowid, insertRowId });
 
 export const deleteRow = rowid => ({ type: 'DELETE_ROW', rowid });
+export const deleteRows = rowIds => ({ type: 'DELETE_ROWS', rowIds });
 
 export const updateRow = ({ rowid, value }) => {
   return dispatch => {
@@ -45,8 +47,6 @@ export const loadRows = ({
   from,
   callback = () => {},
 }) => {
-  const isPrintShare = /\/printshare/.test(location.pathname);
-  const isPublicQuery = /\/public\/query/.test(location.pathname);
   return (dispatch, getState) => {
     const args = {
       worksheetId,
@@ -57,18 +57,15 @@ export const loadRows = ({
       pageSize: PAGE_SIZE,
       getType: from === 21 ? from : undefined,
     };
-    const isShare =
-      /\/public\/record/.test(location.pathname) ||
-      /\/public\/view/.test(location.pathname) ||
-      /\/public\/workflow/.test(location.pathname);
-    if (isShare) {
-      args.shareId = (location.href.match(/\/public\/(record|view|workflow)\/(\w{24})/) || '')[2];
-    }
-    if (isPrintShare) {
-      args.shareId = (location.pathname.match(/.*\/printshare\/(\w{24})/) || '')[1];
-    }
-    if (isPublicQuery) {
-      args.shareId = (location.pathname.match(/.*\/public\/query\/(\w{24})/) || '')[1];
+    if (
+      _.get(window, 'shareState.isPublicRecord') ||
+      _.get(window, 'shareState.isPublicView') ||
+      _.get(window, 'shareState.isPublicWorkflowRecord') ||
+      _.get(window, 'shareState.isPrintShare') ||
+      _.get(window, 'shareState.isPublicQuery') ||
+      _.get(window, 'shareState.isPublicForm')
+    ) {
+      args.shareId = _.get(window, 'shareState.shareId');
     }
     worksheetAjax.getRowRelationRows(args).then(res => {
       const rows = (res.data || []).map((row, i) => ({ ...row, allowedit: true, addTime: i }));

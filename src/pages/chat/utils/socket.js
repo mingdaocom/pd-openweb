@@ -143,7 +143,7 @@ export const Contact = {
             } else {
               resolve(data);
             }
-          }
+          },
         );
       } else {
         IM.socket.emit(
@@ -159,7 +159,7 @@ export const Contact = {
             } else {
               resolve(data);
             }
-          }
+          },
         );
       }
     });
@@ -169,7 +169,7 @@ export const Contact = {
    */
   clearAllUnread() {
     return new Promise((resolve, reject) => {
-      IM.socket.emit('clear all unread', {},(data) => {
+      IM.socket.emit('clear all unread', {}, data => {
         resolve(data);
       });
     });
@@ -180,7 +180,7 @@ export const Contact = {
    */
   remove(param) {
     return new Promise((resolve, reject) => {
-      IM.socket.emit('remove session', param, (data) => {
+      IM.socket.emit('remove session', param, data => {
         resolve(data);
       });
     });
@@ -203,15 +203,18 @@ export const Contact = {
    */
   recordAction(contact) {
     return new Promise((resolve, reject) => {
-      IM.socket.emit('operate', {
+      IM.socket.emit(
+        'operate',
+        {
           contact: contact,
           isclose: contact.id ? false : true,
           isopen: contact.id ? true : false,
           // ismin: '',
           // closeAll: '',
-        }, function (data) {
+        },
+        function (data) {
           resolve(data);
-        }
+        },
       );
     });
   },
@@ -221,18 +224,29 @@ export const Contact = {
    */
   setTop(param) {
     return new Promise((resolve, reject) => {
-      IM.socket.emit('sticky on top', param, (data) => {
+      IM.socket.emit('sticky on top', param, data => {
         resolve(data);
       });
     });
-  }
+  },
+  /**
+   * 设置免打扰
+   * @param {*} param
+   */
+  setSlience(param) {
+    return new Promise((resolve, reject) => {
+      IM.socket.emit('silence message', param, data => {
+        resolve(data);
+      });
+    });
+  },
 };
 
 /**
  * 获取上传token
  * @param {*} param
  */
-export const fetchUploadToken = (param) => {
+export const fetchUploadToken = param => {
   return new Promise((resolve, reject) => {
     IM.socket.emit('upload token', param, (err, data) => {
       if (data.token && data.key) {

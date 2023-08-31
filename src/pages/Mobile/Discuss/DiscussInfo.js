@@ -94,12 +94,13 @@ class Discuss extends Component {
     const { params } = this.props.match;
     const { appId, worksheetId } = params;
     homeAppAjax
-      .getAppInfo({
+      .getApp({
         appId,
+        getSection: true
       })
       .then(result => {
         this.setState({
-          groupId: getGroupId(result.appSectionDetail, worksheetId),
+          groupId: getGroupId(result.sections, worksheetId),
         });
       });
   }

@@ -1,6 +1,6 @@
 ﻿import './style.less';
 import { index as DialogLayer} from 'src/components/mdDialog/dialog';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import tpl from './addLinkFile.html';
 import _ from 'lodash';
 

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { withRouter } from 'react-router-dom';
 import { Flex, ActivityIndicator } from 'antd-mobile';
 import { ScrollView, WaterMark } from 'ming-ui';
 import Back from '../components/Back';
@@ -9,10 +8,9 @@ import customApi from 'statistics/api/custom';
 import homeAppApi from 'src/api/homeApp';
 import DocumentTitle from 'react-document-title';
 import GridLayout from 'react-grid-layout';
-import { getDefaultLayout } from 'src/pages/customPage/util';
+import { getDefaultLayout, getEnumType, reorderComponents } from 'src/pages/customPage/util';
 import { loadSDK } from 'src/components/newCustomFields/tools/utils';
 import WidgetDisplay from './WidgetDisplay';
-import { getEnumType } from 'src/pages/customPage/util';
 import AppPermissions from '../components/AppPermissions';
 import workflowPushSoket from 'mobile/Record/socket/workflowPushSoket';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
@@ -76,7 +74,6 @@ const EmptyData = styled.div`
   }
 `;
 
-@withRouter
 @AppPermissions
 export default class CustomPage extends Component {
   constructor(props) {
@@ -119,8 +116,10 @@ export default class CustomPage extends Component {
       localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`) &&
       JSON.parse(localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`));
     if (appNaviStyle === 2 && currentNavWorksheetInfo) {
+      const components = (currentNavWorksheetInfo || {}).components || [];
+      const pageComponents = reorderComponents(components);
       this.setState({
-        pageComponents: ((currentNavWorksheetInfo || {}).components || []).filter(item => item.mobile.visible),
+        pageComponents: (pageComponents ? pageComponents : components).filter(item => item.mobile.visible),
         loading: false,
         pageName: currentNavWorksheetInfo.name,
       });
@@ -148,9 +147,11 @@ export default class CustomPage extends Component {
               }
             });
           }
+          const components = result.components;
+          const pageComponents = reorderComponents(components);
           this.setState({
             apk: result.apk || {},
-            pageComponents: result.components.filter(item => item.mobile.visible),
+            pageComponents: (pageComponents ? pageComponents : components).filter(item => item.mobile.visible),
             loading: false,
             pageName: result.name,
           });
@@ -263,7 +264,7 @@ export default class CustomPage extends Component {
     );
   }
   render() {
-    const { pageTitle } = this.props;
+    const { pageTitle, appNaviStyle } = this.props;
     const { pageComponents, loading, pageName, apk, urlTemplate } = this.state;
     return (
       <WaterMark projectId={apk.projectId}>
@@ -274,9 +275,11 @@ export default class CustomPage extends Component {
           ) : (
             loading ? this.renderLoading() : pageComponents.length ? this.renderContent() : this.renderWithoutData()
           )}
-          {!(location.href.includes('mobile/app') || isMingdao) && (
+          {!isMingdao && !(appNaviStyle === 2 && location.href.includes('mobile/app') && md.global.Account.isPortal) && (
             <Back
+              style={{ bottom: appNaviStyle === 2 ? '70px' : '20px' }}
               className="low"
+              icon={appNaviStyle === 2 && location.href.includes('mobile/app') ? 'home' : 'back'}
               onClick={() => {
                 const { params } = this.props.match;
                 window.mobileNavigateTo(`/mobile/app/${params.appId}`);

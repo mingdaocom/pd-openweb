@@ -71,6 +71,12 @@
     .publicConfig {
       height: 100%;
       padding: 0 20px;
+
+      .icon-refresh1 {
+        &:hover {
+          color: #2196f3 !important;
+        }
+      }
     }
   }
 
@@ -145,6 +151,14 @@
       }
     }
   }
+
+  .promptText {
+    padding: 12px 10px;
+    background: rgba(254, 249, 233, 1);
+    color: #757575;
+    line-height: 22px;
+    font-weight: 700;
+  }
 }
 
 .publicWorksheetForm.customWidgetForWorksheetWrap {
@@ -185,46 +199,171 @@
   }
 }
 
-.publicConfigSettingDiaLog {
-  .customFormControlBox {
-    line-height: 21px;
-    box-sizing: border-box;
-    font-size: 13px;
-    border-radius: 4px;
-    width: 100%;
-    outline: none;
-    -webkit-appearance: none;
-    min-height: 90px;
-    max-height: 700px;
-    border: 1px solid #ddd;
-    padding: 0 12px;
-
-    &.customFormEditor {
-      height: auto;
-      background: #fff !important;
-      border: 1px solid #2196f3 !important;
-      min-height: 250px;
-      max-height: 700px;
-    }
-
-    .mdEditorContent {
-      img {
-        max-width: 100%;
+.publicConfigSettingDrawer {
+  .ant-drawer-header {
+    background: #f8f8f8;
+    border-bottom: 0;
+    padding: 24px 24px 16px;
+    .ant-drawer-header-title {
+      flex-direction: row-reverse;
+      .ant-drawer-close {
+        padding: 0;
+        margin-top: -24px;
+        margin-right: -12px;
       }
     }
   }
-  .codeContent {
+  .ant-drawer-body {
     display: flex;
-    align-items: center;
-    margin: 10px 0px 0 44px;
-    .Dropdown  {
-      width: 240px;
-      &.deleteCode {
-        .Dropdown--border {
-          border-color: #F44336;
-          background-color: #FFF2F4;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;
+    .headerTab {
+      background: #f8f8f8;
+    }
+    .settingContent {
+      padding: 0 24px 22px;
+      flex: 1;
+      overflow: auto;
+
+      .customFormControlBox {
+        line-height: 21px;
+        box-sizing: border-box;
+        font-size: 13px;
+        border-radius: 4px;
+        width: 100%;
+        outline: none;
+        -webkit-appearance: none;
+        min-height: 90px;
+        max-height: 700px;
+        border: 1px solid #ddd;
+        padding: 0 12px;
+
+        &.customFormEditor {
+          height: auto;
+          background: #fff !important;
+          border: 1px solid #2196f3 !important;
+          min-height: 250px;
+          max-height: 700px;
+        }
+
+        .mdEditorContent {
+          img {
+            max-width: 100%;
+          }
         }
       }
+      .codeContent {
+        display: flex;
+        align-items: center;
+        margin: 10px 0px 0 44px;
+        .Dropdown {
+          width: 240px;
+          &.deleteCode {
+            .Dropdown--border {
+              border-color: #f44336;
+              background-color: #fff2f4;
+            }
+          }
+        }
+      }
+
+      .commonMargin {
+        margin: 16px 0px 0 44px;
+
+        .monthDropdown {
+          width: 320px;
+          .Dropdown--input {
+            height: 32px;
+          }
+        }
+        .mRight4 {
+          margin-right: 4px;
+        }
+        .limitInput {
+          width: 80px;
+          height: 32px;
+          margin-left: 8px;
+          margin-right: 8px;
+        }
+        .effectiveTimeDropdown {
+          width: 180px;
+          margin-left: 5px;
+          .Dropdown--border {
+            height: 32px;
+          }
+        }
+      }
+      .passwordInput {
+        width: 380px;
+        font-size: 13px;
+        border-color: #ddd;
+      }
+      .ant-picker {
+        width: 380px;
+        height: 36px;
+        border-radius: 4px !important;
+        border-color: #ddd;
+        box-shadow: none;
+        &:hover,
+        &.ant-picker-focused {
+          border-color: #2196f3;
+        }
+      }
+      .Width380 {
+        width: 380px;
+      }
+      .ming.Radio {
+        margin-right: 32px;
+      }
     }
+    .footer {
+      min-height: 66px;
+      justify-content: flex-end;
+      padding: 10px 24px 20px;
+      text-align: left;
+    }
+  }
+}
+
+.customFieldDropdown {
+  width: 380px;
+  .ming.Menu {
+    width: 320px;
+    padding: 12px 0;
+
+    .customFieldSearch {
+      &.ming.MenuItem {
+        .Item-content {
+          &:hover {
+            color: #333 !important;
+            background: #fff !important;
+          }
+        }
+        .itemText {
+          border-bottom: 1px solid #ddd;
+        }
+      }
+      .searchInput {
+        width: 100%;
+        background: #fff;
+        border-radius: 0;
+        padding: 0;
+      }
+    }
+  }
+}
+
+.mappingSection {
+  margin-top: 20px;
+  .fieldText {
+    width: 100%;
+    display: inline-block;
+    height: 36px;
+    line-height: 36px;
+    background: #f4f4f4;
+    padding: 0 12px;
+    font-weight: 500;
+    border-radius: 4px;
   }
 }

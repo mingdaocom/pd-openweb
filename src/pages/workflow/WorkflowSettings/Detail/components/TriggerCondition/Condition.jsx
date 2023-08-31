@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Dropdown, CityPicker, Icon } from 'ming-ui';
+import { Dropdown, CityPicker, Icon, Checkbox } from 'ming-ui';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
 import dialogSelectUser from 'src/components/dialogSelectUser/dialogSelectUser';
 import DialogSelectDept from 'src/components/dialogSelectDept';
@@ -217,7 +217,7 @@ export default class TriggerCondition extends Component {
       <div key={i + '-' + j} className="mTop15 triggerConditionItem">
         {this.renderControls(item, i, j)}
 
-        <div className="mTop10">
+        <div className="mTop10 flexRow alignItemsCenter">
           <Dropdown
             className={cx('flowDropdown fixedHeight Width200')}
             isAppendToBody
@@ -236,6 +236,18 @@ export default class TriggerCondition extends Component {
             }
             onChange={conditionId => this.switchCondition(conditionId, i, j)}
           />
+          <div className="flex"></div>
+          {item.conditionId &&
+            openNewFilter &&
+            !_.includes(['7', '8', '31', '32'], item.conditionId) &&
+            item.conditionValues[0] &&
+            item.conditionValues[0].controlId && (
+              <Checkbox
+                text={_l('为空时忽略')}
+                checked={item.ignoreEmpty === 1}
+                onClick={checked => this.switchFilterCondition(checked ? 0 : 1, i, j)}
+              />
+            )}
         </div>
         <div className="mTop10 relative flexRow">
           {this.renderItemValue(item, controlNumber, i, j, showType, unit)}
@@ -1150,6 +1162,17 @@ export default class TriggerCondition extends Component {
 
     data[i][j].conditionId = conditionId;
     data[i][j].conditionValues = [];
+    updateSource(data);
+  };
+
+  /**
+   * 切换过滤为空条件
+   */
+  switchFilterCondition = (ignoreEmpty, i, j) => {
+    const data = _.cloneDeep(this.props.data);
+    const { updateSource } = this.props;
+
+    data[i][j].ignoreEmpty = ignoreEmpty;
     updateSource(data);
   };
 

@@ -21,6 +21,7 @@ let whiteListClone = Object.assign({}, whiteList, {
   thead: [],
   tr: [],
   figure: [],
+  oembed: ['url'],
   label: [],
   input: [],
   button: [],

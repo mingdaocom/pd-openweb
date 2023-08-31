@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router';
 import _ from 'lodash';
 import moment from 'moment';
-import { ScrollView, LoadDiv, Checkbox, WaterMark } from 'ming-ui';
+import { ScrollView, LoadDiv, Checkbox, WaterMark, Icon, Tooltip } from 'ming-ui';
 import { Skeleton } from 'antd';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import GlobalSearchSide from './containers/GlobalSearchSide';
@@ -14,11 +14,13 @@ import AppList from './components/AppList';
 import { navigateTo } from 'src/router/navigateTo';
 import smartSearchAjax from 'src/api/smartSearch';
 import { getRequest, getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
-import { NEED_ALL_ORG_TAB, SEARCH_APP_SEARCH_TYPE, GLOBAL_SEARCH_FEATURE_ID } from './enum';
+import { VersionProductType } from 'src/util/enum';
+import { NEED_ALL_ORG_TAB, SEARCH_APP_SEARCH_TYPE } from './enum';
 import './index.less';
 import SelectApp from './components/selectApp';
 import SelectSort from './components/SelectSort';
 import DateFilter from './components/DateFilter';
+import FilterPosition from './components/FilterPosition';
 import { getCurrentProjectId } from './utils';
 
 @withRouter
@@ -44,6 +46,7 @@ export default class GlobalSearch extends Component {
       appProjectId: '',
       highlightType: '',
       onlyTitle: true,
+      filterCount: undefined,
     };
   }
 
@@ -52,7 +55,7 @@ export default class GlobalSearch extends Component {
 
     this.initParam();
 
-    if (urlParam.appId) {
+    if (urlParam.appId && urlParam.appId!=='undefined') {
       this.setState({ appId: urlParam.appId });
     }
   }
@@ -72,6 +75,12 @@ export default class GlobalSearch extends Component {
     const urlParam = getRequest(this.props.search);
     const { searchType, projectId, appProjectId } = this.state;
 
+    const _projectId = NEED_ALL_ORG_TAB.includes(urlParam.search_type)
+      ? 'all'
+      : urlParam.search_type !== searchType
+      ? getCurrentProjectId()
+      : projectId;
+
     this.updateSearchParam({
       searchKey: urlParam.search_key,
       searchType: urlParam.search_type || 'all',
@@ -86,8 +95,43 @@ export default class GlobalSearch extends Component {
     });
   }
 
+  getFilterCount = () => {
+    const { projectId, searchType } = this.state;
+    const proId = projectId === 'all' || !projectId ? getCurrentProjectId() : projectId;
+
+    const proObj = _.find(md.global.Account.projects || [], {
+      projectId: proId,
+    });
+
+    if (
+      searchType === 'record' &&
+      (getFeatureStatus(proId, VersionProductType.globalSearch) !== '1' || proObj.licenseType === 2)
+    ) {
+      this.setState({
+        filterCount: 0
+      })
+      return;
+    }
+
+
+    smartSearchAjax
+      .getFilterCount({
+        projectId: proId,
+      })
+      .then(res => {
+        this.setState({
+          filterCount: res,
+        });
+      });
+  };
+
   updateSearchParam = (options = {}) => {
-    this.setState(options, this.getData);
+    this.setState(options, () => {
+      this.getData();
+      if (options.hasOwnProperty('projectId') && ['record', 'all'].includes(this.state.searchType)) {
+        this.getFilterCount();
+      }
+    });
   };
 
   getData = () => {
@@ -100,13 +144,16 @@ export default class GlobalSearch extends Component {
 
     this.setState({ loading: true, otherLoading: true });
 
+    const proId = projectId === 'all' || !projectId ? getCurrentProjectId() : projectId;
+
+
     const searchAppParam = {
       keywords: searchKey,
       searchType: SEARCH_APP_SEARCH_TYPE[searchType],
       searchRange: _searchRange,
       pageIndex,
       pageSize: searchType === 'all' ? 5 : 50,
-      projectId: projectId === 'all' || !projectId ? getCurrentProjectId() : projectId,
+      projectId: proId,
       appId: _searchRange === 1 ? appId : undefined,
       sort: searchType === 'record' ? sort : 0,
       onlyTitle: onlyTitle,
@@ -152,15 +199,13 @@ export default class GlobalSearch extends Component {
         );
       }
     } else {
-      const proId = projectId === 'all' || !projectId ? getCurrentProjectId() : projectId;
-
       const proObj = _.find(md.global.Account.projects || [], {
         projectId: proId,
       });
 
       if (
         searchType === 'record' &&
-        (getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) !== '1' || proObj.licenseType === 2)
+        (getFeatureStatus(proId, VersionProductType.globalSearch) !== '1' || proObj.licenseType === 2)
       ) {
         this.setState({
           loading: false,
@@ -218,7 +263,7 @@ export default class GlobalSearch extends Component {
 
   updateSearchApp = (options = {}) => {
     this.setState({ loading: true });
-    const { searchKey, projectId, appProjectId, resultCode, appData, onlyTitle } = this.state;
+    const { searchKey, projectId, appProjectId, resultCode, appData, onlyTitle, searchType } = this.state;
     const { type } = options;
     const param = {
       keywords: searchKey,
@@ -229,6 +274,7 @@ export default class GlobalSearch extends Component {
       projectId: !projectId ? getCurrentProjectId() : type === 7 ? appProjectId : projectId,
       sort: 0,
       onlyTitle: onlyTitle,
+      bombLayer: searchType === 'all' ? true : false,
     };
     smartSearchAjax.searchApp(param).then(res => {
       let _data = _.cloneDeep(appData);
@@ -314,7 +360,7 @@ export default class GlobalSearch extends Component {
 
     if (
       searchType === 'record' &&
-      (getFeatureStatus(currentProject.projectId, GLOBAL_SEARCH_FEATURE_ID) !== '1' || currentProject.licenseType === 2)
+      (getFeatureStatus(currentProject.projectId, VersionProductType.globalSearch) !== '1' || currentProject.licenseType === 2)
     )
       return null;
 
@@ -377,10 +423,14 @@ export default class GlobalSearch extends Component {
 
             this.updateSearchParam({ pageIndex: this.state.pageIndex + 1 });
           }}
+          update={() => {
+            this.updateSearchParam({ pageIndex: 1 })
+            this.getFilterCount();
+          }}
         />
       );
     } else if (searchType === 'all') {
-      const { appProjectId, highlightType } = this.state;
+      const { appProjectId, highlightType, filterCount } = this.state;
 
       return (
         <React.Fragment>
@@ -397,7 +447,10 @@ export default class GlobalSearch extends Component {
                     this.setState({ appProjectId: projectId }, () => this.updateSearchApp({ type: 7 }));
                     return;
                   }
-                  this.setState({ projectId }, () => this.updateSearchApp({ type: 8 }));
+                  this.setState({ projectId }, () => {
+                    this.updateSearchApp({ type: 8 });
+                    this.getFilterCount();
+                  });
                 }}
               />,
             ];
@@ -405,14 +458,27 @@ export default class GlobalSearch extends Component {
 
             if (item === 'rows') {
               buttons.push(
-                <Checkbox
-                  text={_l('只搜索记录标题')}
-                  className="Gray_9e mLeftAuto"
-                  checked={onlyTitle}
-                  onClick={value => {
-                    this.setState({ onlyTitle: !onlyTitle }, () => this.updateSearchApp({ type: 8 }));
-                  }}
-                />,
+                <div className="mLeftAuto valignWrapper">
+                  <FilterPosition
+                    className="mRight20"
+                    projectId={projectId || getCurrentProjectId()}
+                    count={filterCount}
+                    update={() => this.updateSearchApp({ type: 8 })}
+                    onChangeCount={count =>
+                      this.setState({
+                        filterCount: count,
+                      })
+                    }
+                  />
+                  <Checkbox
+                    text={_l('只搜索记录标题')}
+                    className="Gray_9e"
+                    checked={onlyTitle}
+                    onClick={value => {
+                      this.setState({ onlyTitle: !onlyTitle }, () => this.updateSearchApp({ type: 8 }));
+                    }}
+                  />
+                </div>,
               );
             }
 
@@ -433,6 +499,11 @@ export default class GlobalSearch extends Component {
                 explore={item === 'rows' && searchAppResCode === 4}
                 onStartBetween={() => this.onStartBetween(type)}
                 resultCode={item === 'rows' ? (currentProject.licenseType === 2 ? 3 : resultCode) : null}
+                update={() => {
+                  if (item === 'apps') return;
+                  this.updateSearchApp({ type: 8 });
+                  this.getFilterCount();
+                }}
               />
             );
           })}
@@ -515,6 +586,7 @@ export default class GlobalSearch extends Component {
       otherLoading,
       onlyTitle,
       pageIndex,
+      filterCount,
     } = this.state;
 
     if (!searchType) return null;
@@ -549,23 +621,35 @@ export default class GlobalSearch extends Component {
                     />
                     <div className="mRight24 valignWrapper">
                       {searchType === 'record' && (
-                        <Checkbox
-                          text={_l('只搜索记录标题')}
-                          className="Gray_9e"
-                          checked={onlyTitle}
-                          onClick={value => {
-                            this.updateSearchParam({ onlyTitle: !onlyTitle, pageIndex: 1 });
-                          }}
-                        />
-                      )}
-                      {searchType === 'record' && (
-                        <SelectApp
-                          className="mLeft16"
-                          projectId={projectId}
-                          defaultAppId={appId}
-                          filterIds={_.uniq((appData ? appData.rows.list || [] : []).map(l => l.appId))}
-                          onChange={newAppId => this.updateSearchParam({ appId: newAppId, pageIndex: 1 })}
-                        />
+                        <Fragment>
+                          <FilterPosition
+                            projectId={projectId || getCurrentProjectId()}
+                            count={filterCount}
+                            update={() => {
+                              this.updateSearchParam({ pageIndex: 1 });
+                            }}
+                            onChangeCount={count =>
+                              this.setState({
+                                filterCount: count,
+                              })
+                            }
+                          />
+                          <Checkbox
+                            text={_l('只搜索记录标题')}
+                            className="Gray_9e mLeft20"
+                            checked={onlyTitle}
+                            onClick={value => {
+                              this.updateSearchParam({ onlyTitle: !onlyTitle, pageIndex: 1 });
+                            }}
+                          />
+                          <SelectApp
+                            className="mLeft16"
+                            projectId={projectId}
+                            defaultAppId={appId}
+                            filterIds={_.uniq((appData ? appData.rows.list || [] : []).map(l => l.appId))}
+                            onChange={newAppId => this.updateSearchParam({ appId: newAppId, pageIndex: 1 })}
+                          />
+                        </Fragment>
                       )}
                       {['record'].indexOf(searchType) > -1 && (
                         <SelectSort
@@ -585,7 +669,7 @@ export default class GlobalSearch extends Component {
 
                   {searchKey &&
                     (searchType === 'record'
-                      ? getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) !== '2' && proObj.licenseType !== 2
+                      ? getFeatureStatus(proId, VersionProductType.globalSearch) !== '2' && proObj.licenseType !== 2
                       : true) && (
                       <Skeleton
                         round={true}
@@ -613,7 +697,7 @@ export default class GlobalSearch extends Component {
 
               {(!searchKey || !searchKey.trim()) &&
                 (searchType === 'record'
-                  ? getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) === '1' && proObj.licenseType !== 2
+                  ? getFeatureStatus(proId, VersionProductType.globalSearch) === '1' && proObj.licenseType !== 2
                   : true) && (
                   <GlobalSearchEmpty
                     positionStyle={{ top: '97px', transform: 'translate(-50%, 0)' }}
@@ -622,9 +706,9 @@ export default class GlobalSearch extends Component {
                 )}
               {searchType === 'record' &&
                 !loading &&
-                (getFeatureStatus(proId, GLOBAL_SEARCH_FEATURE_ID) !== '1' || proObj.licenseType === 2) && (
+                (getFeatureStatus(proId, VersionProductType.globalSearch) !== '1' || proObj.licenseType === 2) && (
                   <div className="upgradeVersion ">
-                    {buriedUpgradeVersionDialog(proId, GLOBAL_SEARCH_FEATURE_ID, 'content')}
+                    {buriedUpgradeVersionDialog(proId, VersionProductType.globalSearch, 'content')}
                   </div>
                 )}
               <ScrollView onScrollEnd={this.handleScrollEnd}>

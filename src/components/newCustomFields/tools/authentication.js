@@ -3,8 +3,9 @@ import workWeiXinApi from 'src/api/workWeiXin';
 
 export const bindWeiXin = () => {
   return new Promise((reslove, reject) => {
+    const isIphone = window.navigator.userAgent.toLowerCase().includes('iphone');
     const entryUrl = sessionStorage.getItem('entryUrl');
-    const url = (entryUrl || location.href).split('#')[0];
+    const url = (isIphone ? entryUrl || location.href : location.href).split('#')[0];
     weixinApi.getWeiXinConfig({
       url: encodeURI(url),
     }).then(({ data, code }) => {
@@ -75,7 +76,7 @@ export const bindFeishu = projectId => {
       window.h5sdk.config({
         appId: data.appId,
         timestamp: data.timestamp,
-        nonceStr: data.nonceStr,
+        nonceStr: data.noncestr,
         signature: data.signature,
         jsApiList: ['scanCode', 'getLocation'],
         onSuccess: (res) => {},
@@ -94,7 +95,9 @@ export const bindFeishu = projectId => {
 
 export const bindDing = projectId => {
   return new Promise((reslove, reject) => {
-    const url = encodeURI(location.href.split('#')[0]);
+    const isIphone = window.navigator.userAgent.toLowerCase().includes('iphone');
+    const entryUrl = sessionStorage.getItem('entryUrl') || location.href;
+    const url = (isIphone ? location.href : entryUrl).split('#')[0];
     workWeiXinApi.getDDSignatureInfo({
       projectId,
       url,

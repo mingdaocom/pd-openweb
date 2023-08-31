@@ -23,16 +23,16 @@ export const ACTION_TYPES = {
 };
 
 export const ACTION_LIST = {
-  3: { id: 'revoke', text: _l('撤回'), sort: 0 },
-  4: { id: 'pass', text: _l('通过'), sort: 1 },
-  5: { id: 'overrule', text: _l('否决'), sort: 2 },
-  6: { id: 'transferApprove', text: _l('转审'), sort: 4 },
-  7: { id: 'sign', text: _l('加签'), sort: 5 },
-  9: { id: 'submit', text: _l('提交'), sort: 6 },
-  10: { id: 'transfer', text: _l('转交'), sort: 7 },
-  13: { id: 'stash', text: _l('暂存'), icon: 'save1', sort: -1 },
-  17: { id: 'return', text: _l('退回'), sort: 3 },
-  18: { id: 'urge', text: _l('催办'), sort: 8 },
+  3: { id: 'revoke', text: _l('撤回'), icon: 'repeal-o', sort: 3 },
+  4: { id: 'pass', text: _l('通过'), icon: 'done_2', sort: 1 },
+  5: { id: 'overrule', text: _l('否决'), icon: 'clear', sort: 2 },
+  6: { id: 'transferApprove', text: _l('转审'), icon: 'sp_post_exchange_white', sort: 5 },
+  7: { id: 'sign', text: _l('加签'), icon: 'person_add', sort: 6 },
+  9: { id: 'submit', text: _l('提交'), icon: 'done', sort: 7 },
+  10: { id: 'transfer', text: _l('转交'), icon: 'sp_post_exchange_white', sort: 8 },
+  13: { id: 'stash', text: _l('暂存'), icon: 'save1', sort: 0 },
+  17: { id: 'return', text: _l('退回'), icon: 'repeal-o', sort: 4 },
+  18: { id: 'urge', text: _l('催办'), icon: 'start_time', sort: 9 },
 };
 
 export const OPERATION_LIST = {

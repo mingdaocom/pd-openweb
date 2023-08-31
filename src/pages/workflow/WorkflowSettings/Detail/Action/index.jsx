@@ -347,7 +347,7 @@ export default class Action extends Component {
           bg={bgClassName}
           updateSource={this.updateSource}
         />
-        <div className="flex mTop20">
+        <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">
               {this.renderContent()}

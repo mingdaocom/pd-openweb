@@ -11,16 +11,14 @@ import {
   namePattern,
   isValidName,
   TRIGGER_WORKFLOW_CHECKBOX_OPTIONS,
-  SYSTEM_FIELD_IDS,
 } from '../../../constant';
 import FieldMappingList from '../../../components/FieldsMappingList/index';
 import LeftTableList from './LeftTableList';
 import homeAppApi from 'src/api/homeApp';
 import dataSourceApi from '../../../../api/datasource';
 import worksheetApi from 'src/api/worksheet';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
 import SheetGroupSelect from './SheetGroupSelect';
+import { getInitFieldsMapping, getInitWorkSheetFields, getDefaultData } from '../../../utils';
 
 const OnlySyncWrapper = styled.div`
   padding: 16px 24px;
@@ -97,193 +95,6 @@ export default function OnlySyncStep(props) {
     });
   };
 
-  const getDuplicateFieldsRenamedList = list => {
-    const tempObj = {};
-    list.forEach(item => {
-      const fieldName = item.destField.name;
-      tempObj[fieldName] = !tempObj[fieldName] ? 1 : tempObj[fieldName] + 1;
-      if (tempObj[fieldName] > 1) {
-        item.destField.name = item.destField.alias = fieldName + Math.floor(Math.random() * 10000);
-      }
-    });
-    return list;
-  };
-
-  const getInitFieldsMapping = sourceFields => {
-    let pkFieldMapping = {};
-    const needReplace = !isSourceAppType || !isDestAppType;
-    const mapping = sourceFields.map(item => {
-      return {
-        sourceField: item,
-        destField: {
-          dependFieldIds: [item.id],
-          isCheck: item.isPk,
-          isNotNull: item.isPk,
-          isPk: item.isPk,
-          name: needReplace
-            ? item.alias.replace(namePattern, '') || item.name.replace(namePattern, '')
-            : item.alias || item.name,
-          alias: needReplace
-            ? item.alias.replace(namePattern, '') || item.name.replace(namePattern, '')
-            : item.alias || item.name,
-
-          dataType: null,
-          jdbcTypeId: null,
-          precision: null,
-          scale: null,
-          mdType: null, //仅用于工作表
-          controlSetting: null, //仅用于工作表
-
-          id: null,
-          status: 'NORMAL',
-          orderNo: null,
-          isTitle: false, //仅用于工作表
-        },
-      };
-    });
-    if (!(isSourceAppType && isDestAppType)) {
-      mapping.forEach((item, index) => {
-        if (item.sourceField.isPk) {
-          pkFieldMapping = item;
-          mapping.splice(index, 1);
-          return;
-        }
-      });
-      mapping.unshift(pkFieldMapping);
-    }
-    return getDuplicateFieldsRenamedList(mapping);
-  };
-
-  const getInitWorkSheetFields = (controls = [], isGetDest) => {
-    const rowIDField = controls
-      .filter(c => c.controlId === 'rowid')
-      .map(rowId => {
-        return {
-          id: rowId.controlId,
-          name: 'rowid',
-          alias: 'rowid',
-          dataType: null,
-          jdbcTypeId: null,
-          precision: 0,
-          scale: 0,
-          isPk: true,
-          isNotNull: true,
-          isCheck: true,
-          status: 'NORMAL',
-          mdType: rowId.type,
-          isTitle: false,
-          orderNo: null,
-          controlSetting: { advancedSetting: rowId.advancedSetting, enumDefault: rowId.enumDefault, dot: rowId.dot },
-        };
-      });
-
-    const fields = controls
-      .filter(c => (isGetDest ? !_.includes(SYSTEM_FIELD_IDS, c.controlId) : c.controlId !== 'rowid'))
-      .map(control => {
-        return {
-          id: control.controlId,
-          name: control.controlName,
-          alias: control.alias || control.controlName,
-          dataType: null,
-          jdbcTypeId: null,
-          precision: 0,
-          scale: 0,
-          isPk: false,
-          isNotNull: control.required,
-          isCheck: false,
-          status: 'NORMAL',
-          mdType: control.type,
-          isTitle: false,
-          orderNo: null,
-          controlSetting: {
-            advancedSetting: control.advancedSetting,
-            enumDefault: control.enumDefault,
-            dot: control.dot,
-          },
-        };
-      });
-
-    return isSourceAppType ? rowIDField.concat(fields) : fields;
-  };
-
-  const getMatchedFieldsOptions = (types, sourceField, destFields) => {
-    const matchedTypeIds = _.uniq(types[sourceField.id].map(type => type.dataType));
-    const matchedMdTypeIds = _.uniq(types[sourceField.id].map(type => type.mdType));
-
-    const matchedFieldsOptions = isDestAppType
-      ? destFields.filter(
-          o => (isSourceAppType ? !!o.isPk === !!sourceField.isPk : true) && _.includes(matchedMdTypeIds, o.mdType),
-        )
-      : destFields.filter(o => !!o.isPk === !!sourceField.isPk && _.includes(matchedTypeIds, o.jdbcTypeId));
-    return matchedFieldsOptions;
-  };
-
-  const setDefaultData = (mapping, types, isSetDefaultFields, destFields) => {
-    let hasSetFields = {};
-    const newFieldsMapping = (mapping || []).map(item => {
-      const isValidField = isValidName(item.sourceField.name) || isSourceAppType;
-      //设置默认选中字段--仅对于选择已有表情况
-      if (isSetDefaultFields) {
-        const matchedFields = getMatchedFieldsOptions(types, item.sourceField, destFields);
-        const sameNameFields = matchedFields.filter(f => f.name === item.sourceField.name);
-        if (!item.destField.id && sameNameFields.length > 0 && !hasSetFields[sameNameFields[0].name]) {
-          hasSetFields[sameNameFields[0].name] = 1;
-          return {
-            sourceField: { ...item.sourceField, isCheck: isValidField },
-            destField: isValidField
-              ? {
-                  ...item.destField,
-                  isCheck: true,
-                  isNotNull: sameNameFields[0].isNotNull,
-                  id: sameNameFields[0].id,
-                  name: sameNameFields[0].name,
-                  alias: sameNameFields[0].alias,
-                  dataType: sameNameFields[0].dataType,
-                  jdbcTypeId: sameNameFields[0].jdbcTypeId,
-                  precision: sameNameFields[0].precision,
-                  scale: sameNameFields[0].scale,
-                  mdType: sameNameFields[0].mdType,
-                  controlSetting: sameNameFields[0].controlSetting,
-                }
-              : item.destField,
-          };
-        }
-      }
-      const itemOptions = types[item.sourceField.id];
-      if (itemOptions.length === 0) {
-        return item;
-      }
-      const initOption = itemOptions.filter(o =>
-        isDestAppType ? o.mdType === item.sourceField.mdType : o.typeName.toLowerCase() === item.sourceField.dataType,
-      )[0];
-
-      const ENUM_TYPE = enumWidgetType[itemOptions[0].mdType];
-      const settingData =
-        ENUM_TYPE === 'DATE_TIME'
-          ? { type: itemOptions[0].mdType, advancedSetting: { showtype: '6' } }
-          : {
-              type: itemOptions[0].mdType,
-              ..._.omit(DEFAULT_DATA[ENUM_TYPE], ['controlName']),
-            };
-
-      return {
-        sourceField: { ...item.sourceField, disabled: !isValidField },
-        destField: {
-          ...item.destField,
-          dataType: (initOption || itemOptions[0]).typeName.toLowerCase(),
-          jdbcTypeId: (initOption || itemOptions[0]).dataType,
-          precision: (initOption || itemOptions[0]).maxLength,
-          scale: (initOption || itemOptions[0]).defaultScale,
-          //工作表
-          mdType: (initOption || itemOptions[0]).mdType,
-          controlSetting: isDestAppType ? _.pick(settingData, ['advancedSetting', 'enumDefault', 'type', 'dot']) : null,
-        },
-      };
-    });
-
-    onChangeStateData(fieldsMapping, setFieldsMapping, { fieldsMapping: newFieldsMapping });
-  };
-
   /**
    * @param {Object} props
    * {Array} props.initMapping 要更新的fieldsMapping
@@ -297,12 +108,15 @@ export default function OnlySyncStep(props) {
   const setFieldsMappingDefaultData = props => {
     const { initMapping, sourceFields, isCreate, noFetchSet, isSetDefaultFields, destFields } = props;
     if (noFetchSet) {
-      setDefaultData(
+      const defaultData = getDefaultData(
         initMapping,
         _.get(matchedTypes, [currentTab.db, currentTab.table, 'matchedTypes']),
         isSetDefaultFields,
         destFields,
+        isSourceAppType,
+        isDestAppType,
       );
+      onChangeStateData(fieldsMapping, setFieldsMapping, { fieldsMapping: defaultData });
       return;
     }
     //通过接口获取当前源字段对应 目的地字段字段可选的字段类型
@@ -313,7 +127,15 @@ export default function OnlySyncStep(props) {
         isCreate,
       })
       .then(res => {
-        setDefaultData(initMapping, res.matchedTypes, isSetDefaultFields, destFields);
+        const defaultData = getDefaultData(
+          initMapping,
+          res.matchedTypes,
+          isSetDefaultFields,
+          destFields,
+          isSourceAppType,
+          isDestAppType,
+        );
+        onChangeStateData(fieldsMapping, setFieldsMapping, { fieldsMapping: defaultData });
         onChangeStateData(matchedTypes, setMatchedTypes, { matchedTypes: res.matchedTypes });
       });
   };
@@ -347,9 +169,9 @@ export default function OnlySyncStep(props) {
             if (isCreate) {
               return isSourceAppType && isDestAppType
                 ? {
-                    sourceField: _.pick(item.sourceField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck']),
+                    sourceField: _.pick(item.sourceField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid']),
                     destField: item.destField.isCheck
-                      ? _.pick(item.destField, ['name', 'isTitle', 'jdbcTypeId', 'isCheck'])
+                      ? _.pick(item.destField, ['name', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid'])
                       : null,
                   }
                 : {
@@ -360,12 +182,12 @@ export default function OnlySyncStep(props) {
               return isDestAppType
                 ? {
                     sourceField: isSourceAppType
-                      ? _.pick(item.sourceField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck'])
+                      ? _.pick(item.sourceField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid'])
                       : item.sourceField,
                     destField: item.destField.isCheck
                       ? isSourceAppType
-                        ? _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck'])
-                        : _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId', 'isPk', 'isNotNull', 'isCheck'])
+                        ? _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid'])
+                        : _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId', 'isPk', 'isNotNull', 'isCheck', 'oid'])
                       : null,
                   }
                 : item.destField.isCheck
@@ -452,17 +274,23 @@ export default function OnlySyncStep(props) {
         if (isSourceAppType) {
           worksheetApi.getWorksheetInfo({ worksheetId: currentTab.table, getTemplate: true }).then(res => {
             if (res) {
-              const fieldsParams = getInitWorkSheetFields(_.get(res, 'template.controls'));
+              const fieldsParams = getInitWorkSheetFields(
+                res.template.controls,
+                false,
+                isSourceAppType,
+                isDestAppType,
+                currentTab.table,
+              );
               _.isEmpty(fieldsParams)
                 ? onChangeStateData(fieldsMapping, setFieldsMapping, { fieldsMapping: [] })
-                : dataSourceApi.fillJdbcType(fieldsParams).then(res => {
+                : dataSourceApi.fillJdbcType({ worksheetId: currentTab.table, fields: fieldsParams }).then(res => {
                     if (res) {
                       onChangeStateData(sourceFields, setSourceFields, {
                         fields: res,
                         workSheetId: currentTab.table,
                       });
                       setFieldsMappingDefaultData({
-                        initMapping: getInitFieldsMapping(res),
+                        initMapping: getInitFieldsMapping(res, isSourceAppType, isDestAppType),
                         sourceFields: res,
                         isCreate:
                           _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !==
@@ -485,7 +313,7 @@ export default function OnlySyncStep(props) {
             if (res) {
               onChangeStateData(sourceFields, setSourceFields, { fields: res });
               setFieldsMappingDefaultData({
-                initMapping: getInitFieldsMapping(res),
+                initMapping: getInitFieldsMapping(res, isSourceAppType, isDestAppType),
                 sourceFields: res,
                 isCreate:
                   _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']) !== CREATE_TYPE.SELECT_EXIST,
@@ -501,32 +329,42 @@ export default function OnlySyncStep(props) {
     const currentDb = _.get(sheetData, [currentTab.db, currentTab.table, 'dbName']);
     const currentSchema = _.get(sheetData, [currentTab.db, currentTab.table, 'schemaName']);
     const currentSheetName = _.get(sheetData, [currentTab.db, currentTab.table, 'sheetName']);
-    let hasSetDb;
-    let hasSetSchema;
+    const currentSheetCreateType = _.get(sheetData, [currentTab.db, currentTab.table, 'sheetCreateType']);
+    let hasSetData = { dbName: null, schemaName: null, schemaOptionList: null, sheetOptionList: null };
 
     if (!_.isEmpty(sheetData)) {
       for (let dbItem in sheetData) {
         for (let tableItem in sheetData[dbItem]) {
           if (!!sheetData[dbItem][tableItem].dbName) {
-            hasSetDb = sheetData[dbItem][tableItem].dbName;
-            hasSetSchema = sheetData[dbItem][tableItem].schemaName;
+            hasSetData = {
+              ..._.pick(sheetData[dbItem][tableItem], ['dbName', 'schemaName']),
+              ..._.pick(optionList[dbItem][tableItem], ['schemaOptionList', 'sheetOptionList']),
+            };
             break;
           }
         }
       }
     }
 
-    if ((!currentDb && hasSetDb) || (!currentSchema && hasSetSchema) || !currentSheetName) {
+    if (
+      (!currentDb && !!hasSetData.dbName) ||
+      (!currentSchema && !!hasSetData.schemaName) ||
+      (!currentSheetName && currentSheetCreateType !== CREATE_TYPE.SELECT_EXIST)
+    ) {
       onChangeStateData(sheetData, setSheetData, {
-        dbName: hasSetDb,
-        schemaName: hasSetSchema,
+        ..._.pick(hasSetData, ['dbName', 'schemaName']),
         sheetName: currentTab.tableName,
       });
+      onChangeStateData(optionList, setOptionList, _.pick(hasSetData, ['schemaOptionList', 'sheetOptionList']));
     }
   };
 
   const onChangeDb = db => {
-    const initMapping = getInitFieldsMapping(_.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || []);
+    const initMapping = getInitFieldsMapping(
+      _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || [],
+      isSourceAppType,
+      isDestAppType,
+    );
     setFieldsMappingDefaultData({ initMapping, noFetchSet: true });
 
     if (destHasSchema) {
@@ -575,7 +413,11 @@ export default function OnlySyncStep(props) {
   };
 
   const onChangeSchema = schema => {
-    const initMapping = getInitFieldsMapping(_.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || []);
+    const initMapping = getInitFieldsMapping(
+      _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || [],
+      isSourceAppType,
+      isDestAppType,
+    );
     setFieldsMappingDefaultData({ initMapping, noFetchSet: true });
 
     dataSourceApi
@@ -658,7 +500,11 @@ export default function OnlySyncStep(props) {
     }
 
     onChangeStateData(sheetData, setSheetData, { sheetCreateType, ...initSheetData });
-    const initMapping = getInitFieldsMapping(_.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || []);
+    const initMapping = getInitFieldsMapping(
+      _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || [],
+      isSourceAppType,
+      isDestAppType,
+    );
     !_.isEmpty(initMapping) &&
       setFieldsMappingDefaultData({
         initMapping,
@@ -673,7 +519,11 @@ export default function OnlySyncStep(props) {
   };
 
   const onChangeSheet = sheet => {
-    const initMapping = getInitFieldsMapping(_.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || []);
+    const initMapping = getInitFieldsMapping(
+      _.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || [],
+      isSourceAppType,
+      isDestAppType,
+    );
     if (_.isEmpty(initMapping)) {
       onChangeStateData(sheetData, setSheetData, {
         sheetName: sheet.label,
@@ -689,8 +539,14 @@ export default function OnlySyncStep(props) {
       });
       worksheetApi.getWorksheetInfo({ worksheetId: sheet.value, getTemplate: true }).then(res => {
         if (res) {
-          const fieldsParams = getInitWorkSheetFields(_.get(res, 'template.controls'), true);
-          dataSourceApi.fillJdbcType(fieldsParams).then(res => {
+          const fieldsParams = getInitWorkSheetFields(
+            res.template.controls,
+            true,
+            isSourceAppType,
+            isDestAppType,
+            sheet.value,
+          );
+          dataSourceApi.fillJdbcType({ worksheetId: sheet.value, fields: fieldsParams }).then(res => {
             if (res) {
               onChangeStateData(destFields, setDestFields, { fields: res, workSheetId: sheet.value });
               setFieldsMappingDefaultData({

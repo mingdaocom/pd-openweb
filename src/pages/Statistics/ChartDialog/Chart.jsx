@@ -89,7 +89,7 @@ export default class Chart extends Component {
     const { reportData, currentReport, base, direction, getReportSingleCacheId, requestOriginalData, changeCurrentReport } = this.props;
     const { settingVisible, report = {}, sourceType } = base;
     const reportId = report.id;
-    const { reportType } = reportData;
+    const { reportType, valueMap } = reportData;
     const Chart = charts[reportType];
     const isPublicShareChart = location.href.includes('public/chart');
     const isPublicSharePage = location.href.includes('public/page') || window.shareAuthor || window.share;
@@ -102,7 +102,7 @@ export default class Chart extends Component {
     };
 
     if ([reportTypes.PivotTable].includes(reportType)) {
-      const { data, columns, ylist, lines, valueMap } = reportData;
+      const { data, columns, ylist, lines } = reportData;
       return _.isEmpty(data.data) ? (
         <WithoutData />
       ) : (
@@ -175,6 +175,7 @@ export default class Chart extends Component {
             ...currentReport,
             map,
             contrastMap,
+            valueMap,
             summary: settingVisible ? currentReport.summary : summary,
             rightY: settingVisible ? currentReport.rightY : rightY,
             reportId,
@@ -236,13 +237,13 @@ export default class Chart extends Component {
         ref={this.$chartRef}
       >
         <div className={cx('chart flexColumn', direction)}>
-          {reportData.status ? renderHeaderDisplaySetup() : null}
+          {reportData.status > 0 ? renderHeaderDisplaySetup() : null}
           {loading ? (
             <Loading />
-          ) : reportData.status ? (
+          ) : reportData.status > 0 ? (
             <Fragment>{this.renderChart()}</Fragment>
           ) : (
-            <Abnormal isEdit={settingVisible ? !(viewId && _.isEmpty(view)) : false} />
+            <Abnormal isEdit={settingVisible ? !(viewId && _.isEmpty(view)) : false} status={reportData.status} />
           )}
         </div>
         {sheetVisible && (
@@ -261,6 +262,16 @@ export default class Chart extends Component {
                     dragMaskVisible: false,
                     dragValue,
                     sheetSize,
+                  }, () => {
+                    const { style } = reportData;
+                    if (
+                      direction === 'vertical' &&
+                      reportData.reportType === reportTypes.PivotTable &&
+                      (style.pivotTableColumnFreeze || style.pivotTableLineFreeze) &&
+                      style.paginationVisible
+                    ) {
+                      this.props.getReportData();
+                    }
                   });
                   safeLocalStorageSetItem(`${direction}ChartSheetDragValue`, dragValue);
                   safeLocalStorageSetItem(`${direction}ChartSheetSheetSize`, sheetSize);

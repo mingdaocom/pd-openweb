@@ -1,7 +1,7 @@
 ﻿import 'src/components/mdDialog/dialog';
 import './css/recurUpdate.less';
 import tpl from './template/repeatCalendarOperator.html';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 
 export default function recurCalendarUpdate(
   { operatorTitle, recurTitle, recurCalendarUpdateFun },

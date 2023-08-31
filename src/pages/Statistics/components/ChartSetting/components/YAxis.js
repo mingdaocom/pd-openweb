@@ -47,7 +47,7 @@ const renderOverlay = (props) => {
       </Menu.Item>
       {isNumberControl(controlType, false) && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-          {normTypes.map(item => (
+          {normTypes.filter(n => n.value !== 5).map(item => (
             <Menu.Item
               style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
               key={item.value}
@@ -176,11 +176,16 @@ export default class YAxis extends Component {
     };
   }
   handleVerification = (data, isAlert = false) => {
-    const { currentReport, yaxisList } = this.props;
-    const { xaxes, split, reportType } = currentReport;
+    const { currentReport } = this.props;
+    const { xaxes, split, yaxisList, reportType } = currentReport;
 
     if (_.find(yaxisList, { controlId: data.controlId })) {
       isAlert && alert(_l('不允许添加重复字段'), 2);
+      return false;
+    }
+
+    if ([reportTypes.ScatterChart].includes(reportType) && data.controlId === split.controlId) {
+      isAlert && alert(_l('数值和颜色不允许重复'), 2);
       return false;
     }
 

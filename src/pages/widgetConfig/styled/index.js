@@ -393,22 +393,24 @@ export const OptionsWrap = styled.div`
   flex-direction: column;
   &.horizontal {
     flex-direction: row;
-    .option {
-      width: 140px;
-    }
   }
   flex-wrap: wrap;
   .option {
     display: flex;
-    align-items: center;
-    max-width: 100%;
-    margin-right: 16px;
-    margin-top: 8px;
+    .optionItem {
+      display: flex;
+      max-width: 100%;
+      margin-right: 16px;
+      margin-top: 8px;
+      ${props => (props.direction === '0' ? `width: ${props.width}px;` : 'width: fit-content;')}
+    }
     .ming.Radio {
       margin: 0;
+      line-height: 22px;
     }
     .ming.Checkbox {
       flex-shrink: 0;
+      line-height: 22px;
     }
   }
 `;
@@ -417,11 +419,11 @@ export const OptionWrap = styled.div`
   line-height: 24px;
   border-radius: 18px;
   color: #fff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  ${props =>
+    props.direction !== '0' ? 'white-space: normal' : 'white-space: nowrap;overflow: hidden;text-overflow: ellipsis;'};
+
   &.horizontal {
-    max-width: 140px;
+    ${props => (props.direction === '0' ? `max-width: ${props.width}px;` : '')}
   }
   &.light {
     color: #333;
@@ -432,13 +434,9 @@ export const OptionWrap = styled.div`
     padding: 0 4px;
   }
   background-color: ${props => props.color || '#2196f3'};
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 `;
 
 export const EditModelWrap = styled.div`
-  padding: 0px 0 20px 0;
   .desc {
     line-height: 13px;
     &.subList {
@@ -641,7 +639,7 @@ export const TitleContentWrap = styled.div`
     display: flex;
     line-height: 18px;
     margin-right: ${props => (props.displayRow ? '1px' : '0px')};
-    margin-bottom: ${props => (props.displayRow ? '0px' : '8px')};
+    margin-bottom: ${props => (props.displayRow ? '0px' : '6px')};
     padding-top: ${props => (props.displayRow ? '7px' : '0px')};
     .required {
       position: absolute;
@@ -718,6 +716,10 @@ export const AnimationWrap = styled.div`
     &.active {
       background: #ffffff;
       color: #2196f3;
+    }
+    &.disabled {
+      color: #bdbdbd;
+      cursor: not-allowed;
     }
   }
 `;

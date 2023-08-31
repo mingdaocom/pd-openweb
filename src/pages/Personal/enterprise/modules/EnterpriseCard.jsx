@@ -10,6 +10,7 @@ import EditCardInfo from './EditCardInfo';
 import DialogLayer from 'src/components/mdDialog/dialog';
 import ReactDom from 'react-dom';
 import { navigateTo } from 'router/navigateTo';
+import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 
 import './index.less';
 
@@ -260,7 +261,7 @@ export default class EnterpriseCard extends Component {
 
   //开通
   handleOpenCard(card) {
-    location.href = '/upgrade/choose?projectId=' + card.projectId;
+    purchaseMethodFunc({ projectId: card.projectId });
   }
 
   //待审核

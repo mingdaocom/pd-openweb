@@ -40,10 +40,11 @@ export default class SheetDesc extends Component {
     }
   }
   render() {
-    const { worksheetId, title, visible, onClose, isEditing, isCharge } = this.props;
+    const { worksheetId, title, visible, onClose, isEditing, setDescIsEditing, isCharge } = this.props;
     const { desc } = this.state;
     return (
       <RcDialog
+        zIndex={1000}
         className="appIntroDialog"
         wrapClassName="appIntroDialogWrapCenter"
         visible={visible}
@@ -65,8 +66,9 @@ export default class SheetDesc extends Component {
           isEditing={isEditing}
           changeSetting={() => {}}
           onSave={value => {
+            setDescIsEditing(false);
             if (value === null) {
-              onClose();
+              // onClose();
             } else {
               this.setState({
                 desc: value

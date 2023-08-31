@@ -56,15 +56,15 @@ export default class extends Component {
   }
 
   componentDidMount() {
-    this.getData();
+    this.getData(this.props);
     this.removeEventBind = this.bindEvent();
     window.updateAppGroups = this.getData;
   }
 
   componentWillReceiveProps(nextProps) {
     this.ids = getIds(nextProps);
-    if (compareProps(nextProps.match.params, this.props.match.params, ['appId'])) {
-      this.getData();
+    if (compareProps(nextProps.appPkg, this.props.appPkg, ['id'])) {
+      this.getData(nextProps);
     }
   }
 
@@ -75,33 +75,36 @@ export default class extends Component {
   // 当前处理的分组id
   handledAppItemId = '';
 
-  getData = () => {
+  getData = (props = this.props) => {
     let { appId } = this.ids;
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
     if (!appId) return;
-    api.getAppInfo({ appId }).then(({ appRoleType, isLock, appSectionDetail: data = [] }) => {
-      const isCharge = canEditApp(appRoleType, isLock);
-      this.props.updateIsCharge(isCharge);
-      this.props.updateAppPkgData({ appRoleType, isLock });
-      data = isCharge
-        ? data
-        : data
-            .map(item => {
-              return {
-                ...item,
-                workSheetInfo: item.workSheetInfo.filter(o => o.status === 1 && !o.navigateHide),
-              };
-            })
-            .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
-      this.props.updateAppGroup(data);
-      window[`app_${appId}_is_charge`] = isCharge;
-      this.setState({ appRoleType, data }, () => {
-        setTimeout(() => {
-          this.ensurePointerVisible();
-        }, 500);
-      });
+    const { appPkg } = props;
+    const { sections, permissionType, isLock } = appPkg;
+    const isCharge = canEditApp(permissionType, isLock);
+    this.props.updateIsCharge(isCharge);
+    this.props.updateAppPkgData({ appRoleType: permissionType, isLock });
+    const filterSections = isCharge
+      ? sections
+      : sections
+          .map(item => {
+            return {
+              ...item,
+              workSheetInfo: item.workSheetInfo.filter(o => o.status === 1 && !o.navigateHide),
+            };
+          })
+          .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
+    this.props.updateAppGroup(filterSections);
+    window[`app_${appId}_is_charge`] = isCharge;
+    this.setState({
+      appRoleType: permissionType,
+      data: filterSections
+    }, () => {
+      setTimeout(() => {
+        this.ensurePointerVisible();
+      }, 500);
     });
   };
 

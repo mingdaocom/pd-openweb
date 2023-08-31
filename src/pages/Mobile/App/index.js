@@ -107,12 +107,12 @@ class App extends Component {
     this.props.history.push(url);
   }
 
-  detectionUrl = ({ appRoleType, isLock, appNaviStyle, appSectionDetail }) => {
+  detectionUrl = ({ permissionType, isLock, appNaviStyle, sections }) => {
     const { params } = this.props.match;
     if (appNaviStyle === 2 && !params.worksheetId && !sessionStorage.getItem('detectionUrl')) {
-      const isCharge = canEditApp(appRoleType, isLock);
-      const { appSectionId } = appSectionDetail[0];
-      const workSheetInfo = this.getWorksheetList(appSectionDetail);
+      const isCharge = canEditApp(permissionType, isLock);
+      const { appSectionId } = sections[0];
+      const workSheetInfo = this.getWorksheetList(sections);
       const { workSheetId } = isCharge
         ? workSheetInfo[0]
         : workSheetInfo.filter(o => o.status === 1 && !o.navigateHide)[0];
@@ -132,7 +132,7 @@ class App extends Component {
       );
     }
     if (item.type === 1) {
-      const { urlTemplate, configuration = {}} = item;
+      const { urlTemplate, configuration = {} } = item;
       if (urlTemplate && configuration.openType == '2') {
         const { detail } = this.props.appDetail;
         const dataSource = transferValue(urlTemplate);
@@ -536,23 +536,13 @@ class App extends Component {
               </div>
             )}
           </div>
-          {((!isHideTabBar &&
-            !window.isPublicApp &&
-            !md.global.Account.isPortal &&
-            detail.appNaviStyle !== 2 &&
-            !fixed) ||
+          {((!isHideTabBar && !window.isPublicApp && !md.global.Account.isPortal && !fixed) ||
             (fixed && isAuthorityApp)) && (
             <Back
-              style={{ bottom: detail.appNaviStyle == 2 && location.href.includes('mobile/app') ? '78px' : '20px' }}
-              className="low"
+              style={{ bottom: detail.appNaviStyle === 2 ? '70px' : '20px' }}
+              icon="home"
               onClick={() => {
-                let currentGroupInfo =
-                  localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
-                if (_.isEmpty(currentGroupInfo)) {
-                  this.navigateTo('/mobile/appHome');
-                } else {
-                  history.back();
-                }
+                this.navigateTo('/mobile/appHome');
               }}
             />
           )}
@@ -599,6 +589,7 @@ class App extends Component {
             now={Date.now()}
             appNaviStyle={appNaviStyle}
             appSection={appSection}
+            match={this.props.match}
           />
         </div>
       );

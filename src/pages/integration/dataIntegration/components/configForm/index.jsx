@@ -11,6 +11,8 @@ import dataSourceApi from '../../../api/datasource';
 import appManagementApi from 'src/api/appManagement';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import SSHConnect from './SSHConnect';
+import TestConnectButton from './testConnectButton';
 
 const Wrapper = styled.div`
   .selectItem {
@@ -70,54 +72,6 @@ const FormFooter = styled.div`
     background-color: rgba(244, 67, 54, 0.05);
     border-radius: 3px;
     padding: 8px 16px;
-  }
-`;
-
-const TestConnectButton = styled.div`
-  display: inline-block;
-  border: 1px solid #2196f3;
-  border-radius: 3px;
-  color: #2196f3;
-  background-color: #fff;
-  font-size: 14px;
-  line-height: 18px;
-  height: 36px;
-  padding: 8px 30px;
-  margin-top: 48px;
-  cursor: pointer;
-
-  &.default {
-    &:hover {
-      color: #fff;
-      background-color: #2196f3;
-    }
-  }
-
-  &.testing {
-    display: inline-flex;
-    align-items: center;
-  }
-
-  &.testSuccess {
-    color: #4caf50;
-    border-color: #4caf50;
-    i {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      margin-right: 5px;
-      background: #4caf50;
-      color: #fff;
-    }
-  }
-
-  &.testFailed {
-    color: #f44336;
-    border-color: #f44336;
-    i {
-      color: #f44336;
-      margin-right: 5px;
-    }
   }
 `;
 
@@ -182,7 +136,7 @@ export default function ConfigForm(props) {
             [JSON.parse(formData.serviceType)[0] === 'ServiceName' ? 'serviceName' : 'SID']: formData.serviceName,
           }
         : connectorConfigData[roleType].type === DATABASE_TYPE.MONGO_DB
-        ? { isSrvProtocol: !!parseInt(formData.isSrvProtocol) }
+        ? { isSrvProtocol: formData.isSrvProtocol }
         : {};
     return extraParams;
   };
@@ -219,6 +173,11 @@ export default function ConfigForm(props) {
 
     if (error) return;
 
+    if (connectorConfigData[roleType].formData.enableSsh && !connectorConfigData[roleType].formData.sshConfigId) {
+      alert(_l('请选择SSH进行测试连接'), 3);
+      return;
+    }
+
     data.forEach(element => {
       formData[element.controlId] = element.value;
     });
@@ -235,6 +194,8 @@ export default function ConfigForm(props) {
       cdcParams: formData.cdcParams,
       type: connectorConfigData[roleType].type,
       extraParams: getExtraParams(formData),
+      enableSsh: connectorConfigData[roleType].formData.enableSsh,
+      sshConfigId: connectorConfigData[roleType].formData.sshConfigId,
     };
 
     setTestStatus(TEST_STATUS.TESTING);
@@ -253,6 +214,7 @@ export default function ConfigForm(props) {
         setConnectorConfigData({
           [roleType]: Object.assign({}, connectorConfigData[roleType], {
             formData: {
+              ...connectorConfigData[roleType].formData,
               ...formData,
               id: connectorConfigData[roleType].formData.id,
               extraParams: getExtraParams(formData),
@@ -407,36 +369,54 @@ export default function ConfigForm(props) {
           </FormItem>
         </div>
       ) : (
-        <CustomFields
-          ref={fieldRef}
-          flag={flag}
-          from={3}
-          recordId={uuidv4()}
-          data={customFormData(
-            connectorConfigData[roleType].type,
-            connectorConfigData[roleType].roleType,
-            isCreateConnector,
-            connectorConfigData[roleType].formData,
-            allFieldDisabled,
-          )}
-          onChange={(data, changed) => {
-            const formData = {};
-            data.forEach(element => {
-              formData[element.controlId] = element.value;
-            });
+        <React.Fragment>
+          <CustomFields
+            ref={fieldRef}
+            flag={flag}
+            from={3}
+            recordId={uuidv4()}
+            data={customFormData(
+              connectorConfigData[roleType].type,
+              connectorConfigData[roleType].roleType,
+              isCreateConnector,
+              connectorConfigData[roleType].formData,
+              allFieldDisabled,
+            )}
+            onChange={(data, changed) => {
+              const formData = {};
+              data.forEach(element => {
+                formData[element.controlId] = element.value;
+              });
 
-            setConnectorConfigData({
-              [roleType]: Object.assign({}, connectorConfigData[roleType], {
-                formData: {
-                  ...formData,
-                  id: (connectorConfigData[roleType].formData || {}).id,
-                  extraParams: getExtraParams(formData),
-                },
-              }),
-            });
-            setSaveDisabled(!(_.includes(['name', 'roleType'], changed[0]) && isEditSource));
-          }}
-        />
+              setConnectorConfigData({
+                [roleType]: Object.assign({}, connectorConfigData[roleType], {
+                  formData: {
+                    ...connectorConfigData[roleType].formData,
+                    ...formData,
+                    id: (connectorConfigData[roleType].formData || {}).id,
+                    extraParams: getExtraParams(formData),
+                  },
+                }),
+              });
+              setSaveDisabled(!(_.includes(['name', 'roleType'], changed[0]) && isEditSource));
+            }}
+          />
+          {/* 
+          暂时关闭ssh连接入口
+          <SSHConnect
+            projectId={props.currentProjectId}
+            data={connectorConfigData[roleType].formData}
+            onChange={obj => {
+              setConnectorConfigData({
+                [roleType]: Object.assign({}, connectorConfigData[roleType], {
+                  formData: { ...connectorConfigData[roleType].formData, ...obj },
+                }),
+              });
+            }}
+            setSubmitDisabled={setSaveDisabled}
+            disabled={isCreateConnector && connectorConfigData[roleType].createType === CREATE_TYPE.SELECT_EXIST}
+          /> */}
+        </React.Fragment>
       )}
 
       {((!isApplicationSheet && connectorConfigData[roleType].createType !== CREATE_TYPE.SELECT_EXIST) ||
@@ -449,12 +429,7 @@ export default function ConfigForm(props) {
             </div>
           )}
 
-          <TestConnectButton className={testStatus.className} onClick={onTestConnect}>
-            {testStatus === TEST_STATUS.TESTING && <LoadDiv size="small" style={{ marginRight: 5 }} />}
-            {testStatus === TEST_STATUS.SUCCESS && <Icon icon="done" />}
-            {testStatus === TEST_STATUS.FAILED && <Icon icon="info1" />}
-            {testStatus.text}
-          </TestConnectButton>
+          <TestConnectButton testStatus={testStatus} onTestConnect={onTestConnect} className="mTop50" />
 
           {errorInfo.length > 0 && (
             <div className="info mTop15">

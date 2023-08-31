@@ -8,7 +8,7 @@ import appManagement from 'src/api/appManagement';
 import SvgIcon from 'src/components/SvgIcon';
 import resourceApi from 'src/pages/workflow/api/resource';
 import processVersion from 'src/pages/workflow/api/processVersion';
-import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/config';
+import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
 import projectAjax from 'src/api/project';
 import IsAppAdmin from '../../components/IsAppAdmin';
 

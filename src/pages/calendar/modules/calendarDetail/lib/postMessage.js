@@ -3,7 +3,7 @@ import ajaxRequest from 'src/api/message';
 import './css/postMessage.less';
 import 'src/components/mdDialog/dialog';
 import tpl from './template/postMessage.html';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import _ from 'lodash';
 
 export default function({ createUser, members, address, description, allDay, start, end, title }) {

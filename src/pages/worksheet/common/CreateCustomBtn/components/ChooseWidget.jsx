@@ -3,11 +3,12 @@ import { Icon } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import cx from 'classnames';
-import { Switch } from 'antd';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import styled from 'styled-components';
-
+import { Checkbox } from 'ming-ui';
+import { formatControlsChildBySectionId, getRealData } from 'src/pages/worksheet/common/CreateCustomBtn/utils.js';
 import _ from 'lodash';
+
 const ChooseWidgetWrap = styled.div`
    {
     width: 300px;
@@ -46,9 +47,20 @@ const ChooseWidgetWrap = styled.div`
       }
       .widgetList {
         padding: 8px 16px;
-        &:hover {
-          background: #f5f5f5;
-          border-radius: 4px;
+        .childCon {
+          position: relative;
+          padding-left: 8px;
+          &::before {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 10px;
+            width: 8px;
+            height: calc(100% - 30px);
+            border-left: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+            border-radius: 2px;
+          }
         }
         .widgetIcon {
           margin-right: 13px;
@@ -90,6 +102,7 @@ export default class ChooseWidget extends React.Component {
       keyWords: '',
       initData: this.getData(props),
       writeControls,
+      closeList: [],
     };
     this.chooseDia = null;
   }
@@ -103,12 +116,6 @@ export default class ChooseWidget extends React.Component {
     });
     this.setPoint();
     $('.cursorText').focus();
-    // $('.listBox').scroll(function() {
-    //   $('.listBox').addClass('move');
-    //   setTimeout(() => {
-    //     $('.listBox').removeClass('move');
-    //   }, 500);
-    // });
   }
   componentWillReceiveProps(nextProps) {
     const { writeControls = [], showChooseWidgetDialog } = nextProps;
@@ -143,9 +150,99 @@ export default class ChooseWidget extends React.Component {
         height: wh - 106 > hh ? hh : wh - 106,
       });
   };
+
+  handSet = (item, isAdd) => {
+    const controls = this.getData(this.props);
+    const writeControlsIds = this.state.writeControls.map(it => it.controlId);
+    const list = getRealData(
+      item,
+      controls.filter(o => writeControlsIds.includes(o.controlId)),
+      controls,
+      isAdd,
+    );
+    const othersAdd = list.filter(o => !writeControlsIds.includes(o.controlId));
+    const othersDel = this.state.writeControls.filter(o => !list.map(it => it.controlId).includes(o.controlId));
+    this.props.SwitchFn(
+      isAdd
+        ? this.state.writeControls.concat(
+            othersAdd.map(o => {
+              return {
+                controlId: o.controlId,
+                type: this.props.isDisable(o.type) ? 1 : o.required ? 3 : 2, //1：只读 2：填写 3：必填
+              };
+            }),
+          )
+        : this.state.writeControls.filter(o => !othersDel.map(it => it.controlId).includes(o.controlId)),
+    );
+  };
+
+  renderCon = item => {
+    const { closeList = [], writeControls = [] } = this.state;
+    if (
+      ([29, 51].includes(item.type) && item.advancedSetting.showtype === '2') || //排除关联表多条
+      ALL_SYS.includes(item.controlId) //排除系统字段
+    ) {
+      return '';
+    }
+    const ids = writeControls.map(o => o.controlId);
+    let isChecked = ids.includes(item.controlId);
+    return (
+      <div className="widgetList overflow_ellipsis WordBreak Hand" key={`widgetList-${item.controlId}`}>
+        <div className="flexRow alignItemsCenter">
+          <div
+            className="flex flexRow alignItemsCenter Hand"
+            onClick={() => {
+              this.handSet(item, !isChecked);
+            }}
+          >
+            <Checkbox
+              className="InlineBlock"
+              // size="small"
+              checked={isChecked}
+              clearselected={
+                isChecked &&
+                !!item.child &&
+                item.child.length > item.child.filter(o => ids.includes(o.controlId)).length
+              }
+              text={null}
+            />
+            <span className="Gray_75 flex flexRow alignItemsCenter">
+              <Icon icon={getIconByType(item.type)} className={cx('Font14 Gray_9e widgetIcon')} />
+              <span className="Font13 Gray WordBreak overflow_ellipsis">
+                {item.controlName || (item.type === 22 ? _l('分段') : _l('备注'))}
+              </span>
+            </span>
+          </div>
+          {!!item.child && item.child.length > 0 && (
+            <Icon
+              icon={closeList.includes(item.controlId) ? 'expand_less' : 'expand_more'}
+              className={cx('Font18 Hand ThemeHoverColor3 Gray_9e widgetIcon')}
+              onClick={e => {
+                e.stopPropagation();
+                this.setState({
+                  closeList: !closeList.includes(item.controlId)
+                    ? closeList.concat(item.controlId)
+                    : closeList.filter(o => o !== item.controlId),
+                });
+              }}
+            />
+          )}
+        </div>
+        {!!item.child && item.child.length > 0 && !closeList.includes(item.controlId) && (
+          <div className="childCon">
+            {item.child.map(o => {
+              return this.renderCon(o);
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   render() {
-    const { SwitchFn, hideFn } = this.props;
-    const { data = [], keyWords, writeControls = [], initData = [] } = this.state;
+    const { hideFn } = this.props;
+    const { data = [], keyWords, initData = [] } = this.state;
+    const list = keyWords ? data : formatControlsChildBySectionId(data);
     return (
       <div
         className="ChooseWidgetDialogWrap"
@@ -198,42 +295,11 @@ export default class ChooseWidget extends React.Component {
             )}
           </div>
           <div className="listBox mTop10">
-            {data.length > 0 ? (
-              data
+            {list.length > 0 ? (
+              list
                 .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1))
-                .map((item, index) => {
-                  if (
-                    ([29, 51].includes(item.type) && item.advancedSetting.showtype === '2') || //排除关联表多条
-                    ALL_SYS.includes(item.controlId) //排除系统字段
-                  ) {
-                    return '';
-                  }
-                  let isChecked = writeControls.map(o => o.controlId).includes(item.controlId);
-                  return (
-                    <div
-                      className="widgetList overflow_ellipsis WordBreak Hand"
-                      key={`widgetList-${index}`}
-                      onClick={() => {
-                        if (!isChecked) {
-                          let Controls = this.props.writeControls.concat({
-                            controlId: item.controlId,
-                            type: this.props.isDisable(item.type) ? 1 : item.required ? 3 : 2, //1：只读 2：填写 3：必填
-                          });
-                          SwitchFn(Controls);
-                        } else {
-                          SwitchFn(writeControls.filter(o => o.controlId !== item.controlId));
-                        }
-                      }}
-                    >
-                      <Switch checked={isChecked} size="small" />
-                      <span className="Gray_75">
-                        <Icon icon={getIconByType(item.type)} className={cx('Font14 Gray_9e widgetIcon')} />
-                        <span className="Font13 Gray">
-                          {item.controlName || (item.type === 22 ? _l('分割线') : _l('备注'))}
-                        </span>
-                      </span>
-                    </div>
-                  );
+                .map(item => {
+                  return this.renderCon(item);
                 })
             ) : (
               <div className="Gray_75 TxtCenter pTop20 Font14 pBottom20">{_l('无可填写字段')}</div>

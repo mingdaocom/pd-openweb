@@ -217,7 +217,7 @@ export default class BaseFormInfo extends Component {
   };
 
   render() {
-    const { typeCursor, errors = {} } = this.props;
+    const { typeCursor, errors = {}, projectId } = this.props;
     const {
       departmentInfos = [],
       fullDepartmentInfo = {},
@@ -342,13 +342,23 @@ export default class BaseFormInfo extends Component {
           )}
         </div>
         <div className="formGroup">
-          <div className="formLabel">{_l('职位')}</div>
+          <div className="formLabel">
+            <span>{_l('职位')}</span>
+            <span
+              className="Gray_9e Hover_21 Hand Right"
+              onClick={() => {
+                location.assign(`/admin/sysinfo/${projectId}?level5`);
+              }}
+            >
+              {_l('管理')}
+            </span>
+          </div>
           <Select
             disabled={typeCursor === 2}
             ref={select => {
               this.select = select;
             }}
-            className="w100 jobSelect"
+            className={cx('w100 mdAntSelect', { noBorder: typeCursor === 2 })}
             dropdownClassName="dropJobList"
             showSearch
             allowClear={jobIds.length > 0}
@@ -397,66 +407,73 @@ export default class BaseFormInfo extends Component {
             )}
           </Select>
         </div>
-        {typeCursor === 2 ? (
-          <TextInput label={_l('工作地点')} value={workSite} disabled={typeCursor === 2} placeholder={_l('')} />
-        ) : (
-          <div className="formGroup">
-            <div className="formLabel">{_l('工作地点')}</div>
-            <Select
-              ref={select => {
-                this.worksiteSelect = select;
-              }}
-              disabled={typeCursor === 2}
-              className="w100 jobSelect"
-              dropdownClassName="dropJobList"
-              showSearch
-              listHeight={285}
-              optionLabelProp="label"
-              value={workSiteId}
-              placeholder="请选择"
-              suffixIcon={<Icon icon="arrow-down-border Font14" />}
-              filterOption={() => true}
-              notFoundContent={<span className="Gray_99">{_l('可直接输入创建新的工作地点')}</span>}
-              onSearch={worksiteKeywords =>
-                this.setState({
-                  worksiteKeywords,
-                })
-              }
-              onDropdownVisibleChange={open => {
-                this.setState({ worksiteKeywords: '' });
-                !open && this.worksiteSelect.blur();
-              }}
-              onChange={workSiteId => {
-                if (workSiteId.indexOf('add_') > -1) {
-                  const worksiteName = workSiteId.split('add_')[1];
-                  this.setState({ worksiteKeywords: '' }, () => this.handleAddWorksite(worksiteName));
-                } else {
-                  this.setState({ workSiteId });
-                }
-
-                let val = workSiteId.indexOf('add_') > -1 ? workSiteId.split('add_')[1] : workSiteId;
-                this.setState({ workSiteId: val });
+        <div className="formGroup">
+          <div className="formLabel">
+            <span>{_l('工作地点')}</span>
+            <span
+              className="Gray_9e Hover_21 Hand Right"
+              onClick={() => {
+                location.assign(`/admin/sysinfo/${projectId}?level3`);
               }}
             >
-              {!!worksiteKeywords && _.isEmpty(worksiteList) && (
-                <Option disabled>
-                  <span className="ellipsis customRadioItem Gray_9e">{_l('可直接输入创建新的工作地点')}</span>
-                </Option>
-              )}
-              {worksiteResult.map(item => (
-                <Option key={item.workSiteId} value={item.workSiteId} label={item.workSiteName}>
-                  {item.workSiteName}
-                </Option>
-              ))}
-
-              {worksiteKeywords && !worksiteResult.find(item => item.workSiteName === worksiteKeywords) && (
-                <Option value={`add_${worksiteKeywords}`} label={worksiteKeywords}>
-                  <span>{_l('创建新工作地点：%0', worksiteKeywords)}</span>
-                </Option>
-              )}
-            </Select>
+              {_l('管理')}
+            </span>
           </div>
-        )}
+          <Select
+            ref={select => {
+              this.worksiteSelect = select;
+            }}
+            disabled={typeCursor === 2}
+            className={cx('w100 mdAntSelect', { noBorder: typeCursor === 2 })}
+            dropdownClassName="dropJobList"
+            showSearch
+            allowClear
+            listHeight={285}
+            optionLabelProp="label"
+            value={workSiteId || undefined}
+            placeholder="请选择"
+            suffixIcon={<Icon icon="arrow-down-border Font14" />}
+            filterOption={() => true}
+            notFoundContent={<span className="Gray_99">{_l('可直接输入创建新的工作地点')}</span>}
+            onSearch={worksiteKeywords =>
+              this.setState({
+                worksiteKeywords,
+              })
+            }
+            onDropdownVisibleChange={open => {
+              this.setState({ worksiteKeywords: '' });
+              !open && this.worksiteSelect.blur();
+            }}
+            onChange={workSiteId => {
+              if (workSiteId && workSiteId.indexOf('add_') > -1) {
+                const worksiteName = workSiteId.split('add_')[1];
+                this.setState({ worksiteKeywords: '' }, () => this.handleAddWorksite(worksiteName));
+              } else {
+                this.setState({ workSiteId });
+              }
+
+              let val = workSiteId.indexOf('add_') > -1 ? workSiteId.split('add_')[1] : workSiteId;
+              this.setState({ workSiteId: val });
+            }}
+          >
+            {!!worksiteKeywords && _.isEmpty(worksiteList) && (
+              <Option disabled>
+                <span className="ellipsis customRadioItem Gray_9e">{_l('可直接输入创建新的工作地点')}</span>
+              </Option>
+            )}
+            {worksiteResult.map(item => (
+              <Option key={item.workSiteId} value={item.workSiteId} label={item.workSiteName}>
+                {item.workSiteName}
+              </Option>
+            ))}
+
+            {worksiteKeywords && !worksiteResult.find(item => item.workSiteName === worksiteKeywords) && (
+              <Option value={`add_${worksiteKeywords}`} label={worksiteKeywords}>
+                <span>{_l('创建新工作地点：%0', worksiteKeywords)}</span>
+              </Option>
+            )}
+          </Select>
+        </div>
         <TextInput
           label={_l('工号')}
           value={jobNumber}

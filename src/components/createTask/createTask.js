@@ -15,7 +15,7 @@ import { expireDialogAsync } from 'src/components/common/function';
 import filterXss from 'xss';
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import { htmlEncodeReg } from 'src/util';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import taskHtml from './tpl/createTask.html';
 import 'src/components/mdDialog/dialog';
 import 'src/components/select/select';

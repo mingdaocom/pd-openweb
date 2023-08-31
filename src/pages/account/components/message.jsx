@@ -11,7 +11,9 @@ import { inputFocusFn, inputBlurFn, warnningTipFn, setWarnningData } from '../ut
 import RegExp from 'src/util/expression';
 import { specialTelVerify } from 'src/pages/account/util.js';
 import _ from 'lodash';
-import { encrypt } from 'src/util';
+import { encrypt, mdAppResponse } from 'src/util';
+import Checkbox from 'ming-ui/components/Checkbox';
+import Icon from 'ming-ui/components/Icon';
 
 let sendVerifyCodeTimer = null;
 let hasClick = false;
@@ -20,6 +22,7 @@ let hasClick = false;
 // 'fullName' //验证用户名
 // 'code'  //验证码
 // 'password','setPassword' //密码
+// 'privacy' //隐私
 class Message extends React.Component {
   constructor(props) {
     super(props);
@@ -34,10 +37,14 @@ class Message extends React.Component {
       loading: false,
       firstSendVerifyCode: true,
       verifyCodeText: '',
-      verifyCodeLoading: false, // 已发送并在30内true
+      verifyCodeLoading: false, // 已发送并在60内true
       focusDiv: '',
       passwordRegexTip,
       passwordRegex,
+      hasCheck: false,
+      isUpperCase: false,
+      // isCapsLock: false,
+      isOpen: false,
     };
   }
   componentDidMount() {
@@ -101,6 +108,7 @@ class Message extends React.Component {
   }
 
   inputOnFocus = e => {
+    e.persist();
     inputFocusFn(e, () => {
       this.setState({
         focusDiv: e.target,
@@ -109,6 +117,7 @@ class Message extends React.Component {
   };
 
   inputOnBlur = e => {
+    e.persist();
     inputBlurFn(e, () => {
       this.setState({
         focusDiv: '',
@@ -141,8 +150,21 @@ class Message extends React.Component {
     }
   };
 
-  getDialCode = () => {
-    return this.iti ? (this.state.isMobile ? `+${this.iti.getSelectedCountryData().dialCode}` : '') : '';
+  goLogin = () => {
+    const { dataList = {} } = this.props;
+    const { emailOrTel = '', dialCode = '' } = dataList;
+    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
+    if (isMingdao) {
+      mdAppResponse({
+        sessionId: 'register',
+        type: 'native',
+        settings: { action: 'registerSuccess', account: dialCode + emailOrTel },
+      });
+    }
+  };
+
+  getDialCode = isMobile => {
+    return this.iti ? (isMobile ? `+${this.iti.getSelectedCountryData().dialCode}` : '') : '';
   };
 
   getEmailOrTel = (str = '', withDialCode) => {
@@ -246,8 +268,9 @@ class Message extends React.Component {
 
   // 验证input内容 手机 验证码 密码
   isValid = isForSendCode => {
-    const { type = 'register', dataList = {}, onChangeData, keys = [] } = this.props;
+    const { dataList = {}, onChangeData, keys = [] } = this.props;
     const { emailOrTel = '', verifyCode = '', password = '', fullName = '', onlyRead } = dataList;
+    const { hasCheck } = this.state;
     let isRight = true;
     let warnningData = [];
     if (keys.includes('emailOrTel') || keys.includes('tel') || keys.includes('email')) {
@@ -319,18 +342,31 @@ class Message extends React.Component {
             if (!this.isPasswordRule(password)) {
               warnningData.push({
                 tipDom: this.password,
-                warnningText: this.state.passwordRegexTip || _l('8-20位，需包含字母和数字'),
+                warnningText: _l('密码格式错误'),
               });
               isRight = false;
             }
           }
         }
       }
+      if (keys.includes('privacy') && !hasCheck) {
+        warnningData.push({
+          tipDom: this.privacy,
+          warnningText: _l('请勾选同意后注册'),
+          isError: true,
+        });
+        isRight = false;
+      }
     }
     onChangeData({
       ...dataList,
       warnningData: warnningData,
     });
+    if (!isRight) {
+      setTimeout(() => {
+        $(warnningData[0].tipDom).click();
+      }, 200);
+    }
     return isRight;
   };
 
@@ -375,7 +411,13 @@ class Message extends React.Component {
           } else if (data.actionResult == ActionResult.userAccountExists) {
             onChangeData({
               ...dataList,
-              warnningData: [{ tipDom: this.mobile, warnningText: _l('该号码已注册，您可以使用已有账号登录') }],
+              warnningData: [
+                {
+                  tipDom: this.mobile,
+                  warnningText: _l('账号已注册'),
+                  onClick: () => this.goLogin(),
+                },
+              ],
             });
           } else if (data.actionResult == ActionResult.sendMobileMessageFrequent) {
             onChangeData({
@@ -388,10 +430,22 @@ class Message extends React.Component {
               ],
             });
           } else if (data.actionResult == ActionResult.userInfoNotFound) {
-            onChangeData({
-              ...dataList,
-              warnningData: [{ tipDom: '.warnningDiv', warnningText: _l('账号不正确') }],
-            });
+            if (type === 'findPassword') {
+              onChangeData({
+                ...dataList,
+                warnningData: [
+                  {
+                    tipDom: '#txtMobilePhone',
+                    warnningText: _l('账号未注册'),
+                  },
+                ],
+              });
+            } else {
+              onChangeData({
+                ...dataList,
+                warnningData: [{ tipDom: '.warnningDiv', warnningText: _l('账号不正确') }],
+              });
+            }
           } else if (data.actionResult == ActionResult.failInvalidVerifyCode) {
             onChangeData({
               ...dataList,
@@ -452,7 +506,7 @@ class Message extends React.Component {
 
   countDown = () => {
     const { onChangeData } = this.props;
-    let seconds = 30;
+    let seconds = 60;
     let hasWarn = false;
     $(this.code).focus();
     sendVerifyCodeTimer = setInterval(() => {
@@ -500,10 +554,21 @@ class Message extends React.Component {
     }, 1000);
   };
 
+  handleKeyPress = event => {
+    const isCapsLockOn = event.getModifierState('CapsLock');
+    const key = event.key;
+    if (key.length === 1 && key.match(/[a-z]/i)) {
+      this.setState({
+        // isCapsLock: isCapsLockOn,
+        isUpperCase: isCapsLockOn || key === key.toUpperCase(),
+      });
+    }
+  };
+
   render() {
     const { type = 'register', dataList = {}, onChangeData, nextHtml, maxLength, keys = [] } = this.props;
     const { emailOrTel = '', verifyCode = '', password = '', fullName = '', warnningData = [], onlyRead } = dataList;
-    let { isMobile, verifyCodeText, verifyCodeLoading, focusDiv } = this.state;
+    let { isMobile, verifyCodeText, verifyCodeLoading, focusDiv, hasCheck, isUpperCase, isOpen } = this.state;
     let str = this.iti && isMobile ? this.getEmailOrTel(emailOrTel) : emailOrTel;
 
     let warnningDiv = _.find(warnningData, it => it.tipDom === '.warnningDiv');
@@ -542,15 +607,23 @@ class Message extends React.Component {
                 className={cx({ onlyRead: onlyRead })}
                 disabled={onlyRead ? 'disabled' : ''}
                 ref={mobile => (this.mobile = mobile)}
-                onBlur={this.inputOnBlur}
+                onBlur={e => {
+                  e.persist();
+                  setTimeout(() => {
+                    this.inputOnBlur(e);
+                  }, 500);
+                }}
                 onFocus={this.inputOnFocus}
                 placeholder={str}
                 onPaste={e => {
+                  let value = this.getEmailOrTel(e.target.value);
                   onChangeData(
                     {
                       ...dataList,
-                      emailOrTel: this.getEmailOrTel(e.target.value),
-                      dialCode: keys.includes('email') ? '' : this.getDialCode(),
+                      emailOrTel: value,
+                      dialCode: keys.includes('email')
+                        ? ''
+                        : this.getDialCode(value.indexOf('@') < 0 && !isNaN(value.replace(/\s*/g, ''))),
                     },
                     () => {
                       this.eventItiFn(this.props);
@@ -559,13 +632,19 @@ class Message extends React.Component {
                   );
                 }}
                 onChange={e => {
-                  let data = _.filter(dataList.warnningData, it => it.tipDom !== this.mobile);
+                  let data = _.filter(
+                    dataList.warnningData,
+                    it => !(it.tipDom === this.mobile || '#txtMobilePhone' === it.tipDom),
+                  );
+                  let value = this.getEmailOrTel(e.target.value);
                   onChangeData(
                     {
                       ...dataList,
                       warnningData: data,
-                      emailOrTel: this.getEmailOrTel(e.target.value),
-                      dialCode: keys.includes('email') ? '' : this.getDialCode(),
+                      emailOrTel: value,
+                      dialCode: keys.includes('email')
+                        ? ''
+                        : this.getDialCode(value.indexOf('@') < 0 && !isNaN(value.replace(/\s*/g, ''))),
                     },
                     () => {
                       this.eventItiFn(this.props);
@@ -628,7 +707,7 @@ class Message extends React.Component {
           {keys.includes('code') && (
             <div
               className={cx('mesDiv', {
-                ...setWarnningData(warnningData, ['.txtLoginCode'], focusDiv, verifyCode),
+                ...setWarnningData(warnningData, ['.txtLoginCode', this.code], focusDiv, verifyCode),
               })}
             >
               <input
@@ -670,7 +749,7 @@ class Message extends React.Component {
               >
                 {_l('验证码')}
               </div>
-              {warnningTipFn(warnningData, ['.txtLoginCode'], focusDiv)}
+              {warnningTipFn(warnningData, ['.txtLoginCode', this.code], focusDiv)}
             </div>
           )}
           {(keys.includes('password') || keys.includes('setPassword')) && (
@@ -680,7 +759,7 @@ class Message extends React.Component {
               })}
             >
               <input
-                type="password"
+                type={keys.includes('setPassword') && isOpen ? 'text' : 'password'}
                 className="passwordIcon"
                 placeholder={password}
                 ref={password => (this.password = password)}
@@ -688,14 +767,33 @@ class Message extends React.Component {
                 onFocus={this.inputOnFocus}
                 onChange={e => {
                   let data = _.filter(dataList.warnningData, it => it.tipDom !== this.password);
+                  if (keys.includes('setPassword')) {
+                    //设置密码时，提示密码规则
+                    data = [
+                      {
+                        tipDom: this.password,
+                        noErr: true,
+                        warnningText:
+                          this.state.passwordRegexTip ||
+                          `${_l('·密码长度为8-20 字符')}<br/>${_l('·需包含字母和数字,区分大小写')}`,
+                      },
+                    ];
+                  }
                   onChangeData({
                     ...dataList,
                     warnningData: data,
-                    password: e.target.value,
+                    password: e.target.value.trim(),
                   });
+                  if (keys.includes('setPassword')) {
+                    this.inputOnFocus(e);
+                  }
                 }}
                 value={password}
-                autocomplete="new-password" //密码不自动填充
+                autocomplete={
+                  //keys.includes('password') ? 'account-password' :
+                  'new-password'
+                } //密码不自动填充
+                onKeyPress={this.handleKeyPress}
               />
               <div
                 className="title"
@@ -703,11 +801,61 @@ class Message extends React.Component {
                   $(this.password).focus();
                 }}
               >
-                {keys.includes('setPassword')
-                  ? this.state.passwordRegexTip || _l('8-20位，需包含字母和数字')
-                  : _l('密码')}
+                {keys.includes('setPassword') ? _l('新密码') : _l('密码')}
               </div>
+              {isUpperCase && keys.includes('password') && (
+                <span className="isUpperCase">
+                  <Icon type="up" />
+                </span>
+              )}
+              {keys.includes('setPassword') && (
+                <span className="isUpperCase Hand" onClick={() => this.setState({ isOpen: !isOpen })}>
+                  <Icon type={!isOpen ? 'eye_off' : 'eye'} />
+                </span>
+              )}
               {warnningTipFn(warnningData, ['.passwordIcon', this.password], focusDiv)}
+            </div>
+          )}
+          {keys.includes('privacy') && (
+            <div
+              className={cx('termsText Gray_75 privacyText mesDiv', {
+                ...setWarnningData(warnningData, [this.privacy], focusDiv, hasCheck),
+              })}
+              onClick={e => {
+                if (!!warnningData[0] && (warnningData.length <= 1 || !$(focusDiv).is($(warnningData[0].tipDom)))) {
+                  this.inputOnFocus(e);
+                } else {
+                  this.inputOnBlur(e);
+                }
+              }}
+              ref={ref => (this.privacy = ref)}
+            >
+              <span
+                className="flexRow alignItemsCenter Hand"
+                onClick={() => {
+                  if (!hasCheck) {
+                    let data = _.filter(dataList.warnningData, it => it.tipDom !== this.privacy);
+                    onChangeData({
+                      ...dataList,
+                      warnningData: data,
+                    });
+                  }
+                  this.setState({
+                    hasCheck: !hasCheck,
+                  });
+                }}
+              >
+                <Checkbox checked={hasCheck} className="InlineBlock" />
+                {_l('同意')}
+                <a target="_blank" className="terms Hand" href="/terms">
+                  {_l('《使用条款》%14000')}
+                </a>
+                {_l('和')}
+                <a target="_blank" className="terms Hand" href="/privacy">
+                  {_l('《隐私条款》')}
+                </a>
+              </span>
+              {warnningTipFn(warnningData, [this.privacy], focusDiv)}
             </div>
           )}
         </div>

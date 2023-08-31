@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
+import SheetContext from 'worksheet/common/Sheet/SheetContext';
 import { formatRecordToRelateRecord } from 'worksheet/util';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { getTitleTextFromControls, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { isKeyBoardInputChar } from 'worksheet/util';
+import { isKeyBoardInputChar, emitter } from 'worksheet/util';
 import RelateRecordTags from './comps/RelateRecordTags';
 import EditableCellCon from '../EditableCellCon';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
@@ -28,6 +29,7 @@ const RecordCardCellRelateRecord = styled.div`
   margin-right: 6px;
 `;
 export default class RelateRecord extends React.Component {
+  static contextType = SheetContext;
   static propTypes = {
     className: PropTypes.string,
     style: PropTypes.shape({}),
@@ -115,7 +117,7 @@ export default class RelateRecord extends React.Component {
         break;
       default:
         (() => {
-          if (isediting || !e.key || !isKeyBoardInputChar(e.key)) {
+          if (!e.isInputValue && (isediting || !e.key || !isKeyBoardInputChar(e.key))) {
             return;
           }
           updateEditingStatus(true);
@@ -258,6 +260,7 @@ export default class RelateRecord extends React.Component {
     } = this.props;
     const { addedIds = [], deletedIds = [] } = this.isSubList ? this : {};
     let { records } = this.state;
+    const { isRequestingRelationControls } = this.context || {};
     const { advancedSetting = {} } = cell;
     const isSublist = cell.type === 34;
     const { showtype, allowlink, ddset } = advancedSetting; // 1 卡片 2 列表 3 下拉
@@ -266,6 +269,9 @@ export default class RelateRecord extends React.Component {
     let showCount = recordsLength >= 1000 ? '999+' : recordsLength;
     if (isSublist && recordsLength > 200) {
       showCount = 200;
+    }
+    if (isRequestingRelationControls) {
+      return <div className={className} style={style} onClick={onClick} />;
     }
     if (parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.LIST || isSublist) {
       return (
@@ -310,6 +316,12 @@ export default class RelateRecord extends React.Component {
                     control: { ...cell, isDraft: from === 21 },
                     allowEdit: editable,
                     formdata: rowFormData(),
+                    onUpdateCount: () => {
+                      emitter.emit('RELOAD_RECORD_INFO', {
+                        worksheetId,
+                        recordId,
+                      });
+                    },
                   });
                 }
               }}
@@ -325,7 +337,7 @@ export default class RelateRecord extends React.Component {
     } else if (parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.DROPDOWN) {
       return (
         <EditableCellCon
-          className={cx(className, 'cellRelateRecord', { canedit: editable })}
+          className={cx(className, 'cellRelateRecord', { canedit: editable, focusInput: editable })}
           style={style}
           conRef={this.cell}
           hideOutline
@@ -376,7 +388,7 @@ export default class RelateRecord extends React.Component {
         </EditableCellCon>
       );
     } else if (parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.CARD) {
-      records = records.slice(0, [5, 10][rowHeightEnum] || 20);
+      records = /^temp|default/.test(recordId) ? records : records.slice(0, [5, 10][rowHeightEnum] || 20);
       if (!isediting) {
         return (
           <EditableCellCon
@@ -390,6 +402,7 @@ export default class RelateRecord extends React.Component {
             onIconClick={() => updateEditingStatus(true)}
           >
             <RelateRecordTags
+              from={from}
               disabled
               count={count}
               style={style}
@@ -409,6 +422,7 @@ export default class RelateRecord extends React.Component {
             zIndex={99}
             popup={
               <RelateRecordTags
+                from={from}
                 rowIndex={rowIndex}
                 ref={this.relateRecordTagsPopup}
                 isediting

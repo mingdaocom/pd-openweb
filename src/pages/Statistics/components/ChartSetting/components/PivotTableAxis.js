@@ -88,7 +88,7 @@ const renderOverlay = ({
           {xaxisEmpty && <Icon icon="done" className="Font17"/>}
         </Menu.Item>
       ) : (
-        isNumber && (
+        (isNumber || axis.type === 10000001) && (
           <Menu.SubMenu
             popupClassName="chartMenu"
             title={(
@@ -115,7 +115,7 @@ const renderOverlay = ({
       )}
       {isNumber && verifyNumber && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-          {normTypes.map(item => (
+          {normTypes.filter(n => n.value !== 5).map(item => (
             <Menu.Item
               style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
               key={item.value}
@@ -257,8 +257,12 @@ const SortableItem = SortableElement(props => {
             <span className="Gray flex ellipsis">
               {(verifyNumber && ![10000000, 10000001].includes(axis.type)) && `${_.find(normTypes.concat(textNormTypes), { value: item.normType }).text}: `}
               {item.rename || axis.controlName}
-              {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
-              {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
+              {!verifyNumber && (
+                <Fragment>
+                  {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
+                  {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: item.particleSizeType || 1 }).text})`}
+                </Fragment>
+              )}
             </span>
           </Tooltip>
         ) : (

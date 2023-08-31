@@ -17,6 +17,7 @@ rewrite ^/districtDataConfigFile/(.*) /staticfiles/districtDataConfigFile/$1 bre
 rewrite (?i)^/qrcode /staticfiles/html/account-login-qrCode.html break;
 rewrite (?i)^/browserupgrade /staticfiles/html/browserupgrade.html break;
 rewrite (?i)^/appLibrary /staticfiles/html/appLibrary.html break;
+rewrite (?i)^/appShortCut /staticfiles/html/appShortCut.html break;
 
 # 主站 独立入口
 rewrite (?i)^/apps/kcshare/ /kcshare.html break;
@@ -37,6 +38,7 @@ rewrite (?i)^/public/page /custompageshare.html break;
 rewrite (?i)^/embed/page /custompageembed.html break;
 rewrite (?i)^/public/print /worksheetshare.html break;
 rewrite (?i)^/public/form/ /publicworksheet.html break;
+rewrite (?i)^/weixinAuth /weixinAuth.html break;
 rewrite (?i)^/worksheetapi/ /worksheetapi.html break;
 rewrite (?i)^/public/workflow /workflowrecordshare.html break;
 rewrite (?i)^/m/detail/calendar /calendar-share.html break;

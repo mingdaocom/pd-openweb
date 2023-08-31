@@ -7,6 +7,8 @@ import webCacheAjax from 'src/api/webCache';
 import IconText from 'worksheet/components/IconText';
 import { printQrBarCode, generatePdf } from 'worksheet/common/PrintQrBarCode';
 import { getFeatureStatus, buriedUpgradeVersionDialog, addBehaviorLog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
+import { PRINT_TYPE_STYLE, PRINT_TYPE } from 'src/pages/Print/config';
 import _ from 'lodash';
 
 const Con = styled.div`
@@ -38,6 +40,13 @@ const Con = styled.div`
       max-width: 142px;
     }
     .ming.Item .Item-content .Icon {
+      left: 16px;
+    }
+    .ming.Item .Item-content .fileIcon {
+      width: 13px;
+      height: 15px;
+      position: absolute;
+      margin-top: 10px;
       left: 16px;
     }
     .Item.noIcon .Item-content {
@@ -88,7 +97,8 @@ export default function PrintList(props) {
   } = props;
   const [menuVisible, setMenuVisible] = useState(false);
   const [templateList, setTemplateList] = useState(props.templateList || []);
-  const featureType = getFeatureStatus(projectId, 20);
+  const featureType = getFeatureStatus(projectId, VersionProductType.wordPrintTemplate);
+  const values = _.values(PRINT_TYPE);
   function loadPrintList() {
     worksheetAjax
       .getPrintList({
@@ -96,7 +106,7 @@ export default function PrintList(props) {
         viewId,
       })
       .then(data => {
-        setTemplateList(data.filter(d => d.type >= 2).sort((a, b) => a.type - b.type));
+        setTemplateList(data.filter(d => d.type >= 2).sort((a, b) => values.indexOf(a.type) - values.indexOf(b.type)));
       });
   }
   useEffect(() => {
@@ -189,7 +199,13 @@ export default function PrintList(props) {
               templateList.map((template, i) => (
                 <MenuItem
                   key={i}
-                  icon={<Icon icon={getPrintCardInfoOfTemplate(template).icon} className="Font18" />}
+                  icon={
+                    [2, 5].includes(template.type) ? (
+                      <span className={`${PRINT_TYPE_STYLE[template.type].fileIcon} fileIcon`}></span>
+                    ) : (
+                      <Icon icon={getPrintCardInfoOfTemplate(template).icon} className="Font18" />
+                    )
+                  }
                   onClick={() => {
                     if (_.includes([3, 4], template.type)) {
                       const logType = template.type === 3 ? 'printQRCode' : 'printBarCode';
@@ -200,7 +216,7 @@ export default function PrintList(props) {
                       handlePrintQrCode({ id: template.id, printType: template.type === 3 ? 1 : 3 });
                     } else {
                       if (featureType === '2') {
-                        buriedUpgradeVersionDialog(projectId, 20);
+                        buriedUpgradeVersionDialog(projectId, VersionProductType.wordPrintTemplate);
                         return;
                       }
                       let printId = template.id;
@@ -215,6 +231,7 @@ export default function PrintList(props) {
                         appId,
                         name: template.name,
                         isBatch: true,
+                        fileTypeNum: template.type,
                       };
                       let printKey = Math.random().toString(36).substring(2);
                       webCacheAjax.add({

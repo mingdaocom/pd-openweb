@@ -49,7 +49,7 @@ const OptionsWrap = styled.div`
 `;
 
 const OptionListItem = styled.div`
-  margin-top: 20px;
+  margin-top: 12px;
   padding: 0 12px;
   border: 1px solid #ddd;
   background-color: #fff;
@@ -295,7 +295,7 @@ export default function SelectOptions(props) {
         <SelectOptionList
           {...props}
           onOk={({ listId, listItem }) => {
-            onChange({ dataSource: listId, default: '', options: listItem.options });
+            onChange({ dataSource: listId, default: '', options: listItem.options, enumDefault2: +listItem.colorful });
             setOptionList(listItem);
             setVisible({ selectVisible: false });
           }}

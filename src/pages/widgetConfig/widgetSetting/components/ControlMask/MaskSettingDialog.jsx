@@ -103,6 +103,9 @@ const SelectItem = styled.div`
       border-color: #ff0000;
     }
   }
+  .Width100 {
+    width: 100px;
+  }
 `;
 
 const getMaskTypeByType = type => {
@@ -168,7 +171,7 @@ export default function MaskSettingDialog(props) {
 
   return (
     <Dialog
-      width={560}
+      width={640}
       visible={true}
       title={_l('掩码设置')}
       onCancel={onCancel}
@@ -220,12 +223,16 @@ export default function MaskSettingDialog(props) {
             const inputValue = detail[inputKey];
             return (
               <div className="flexCenter mTop12">
-                <span className="InlineBlock Width80 overflow_ellipsis mRight10">{text}</span>
+                <span className="InlineBlock Width100 mRight10">{text}</span>
                 <Dropdown
-                  className="Width180"
+                  className="Width200"
                   border
                   isAppendToBody
+                  showItemTitle
                   value={dropValue}
+                  renderTitle={value => {
+                    return <span title={value.text}>{value.text}</span>;
+                  }}
                   data={data}
                   onChange={value => {
                     setDetail({ [dropdownKey]: value, [inputKey]: '' });
@@ -266,7 +273,7 @@ export default function MaskSettingDialog(props) {
           })}
 
           <div className="flexCenter mTop12">
-            <span className="Width80 mRight10">{_l('中间显示')}</span>
+            <span className="Width100 mRight10">{_l('中间显示')}</span>
             <Input
               className="flex inputBox"
               placeholder={_l('按顺序输入显示的字符，多个使用,隔开。如：a,b,c')}
@@ -326,7 +333,7 @@ export default function MaskSettingDialog(props) {
             onChange={value => setTestInfo({ text: value })}
           />
           <div className="opBtn" onClick={handleTest}>
-            {testInfo.status ? _l('解密') : _l('掩盖')}
+            {testInfo.status ? _l('解码') : _l('掩盖')}
           </div>
         </div>
       </SelectItem>

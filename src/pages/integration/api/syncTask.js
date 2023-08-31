@@ -37,6 +37,21 @@ var syncTask = {
   },
 
   /**
+   * 
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.name No comments found.
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  findByName: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'syncTask/findByName';
+    base.ajaxOptions.type = 'GET';
+    return $.api(controllerName, 'syncTaskfindByName', args, $.extend(base, options));
+  },
+
+  /**
    * 启动同步任务
    *
    * @param {Object} args 请求参数
@@ -121,6 +136,34 @@ var syncTask = {
     base.ajaxOptions.url = base.server(options) + 'syncTask/list';
     base.ajaxOptions.type = 'POST';
     return $.api(controllerName, 'syncTasklist', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  test: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'syncTask/test';
+    base.ajaxOptions.type = 'GET';
+    return $.api(controllerName, 'syncTasktest', args, $.extend(base, options));
+  },
+
+  /**
+   * 
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  findTaskListByPro: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'syncTask/findTaskListByPro';
+    base.ajaxOptions.type = 'GET';
+    return $.api(controllerName, 'syncTaskfindTaskListByPro', args, $.extend(base, options));
   },
 
   /**

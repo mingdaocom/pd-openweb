@@ -158,10 +158,14 @@ function getDefaultValue(value) {
 }
 
 function formatByStep(num, step, min = 0) {
+  if (_.isUndefined(num)) {
+    return;
+  }
   num = num - min;
-  return _.isUndefined(num)
-    ? num + min
-    : (Math.floor(num / step) * step + min).toFixed(((String(step).match(/\.(\d+)/) || '')[1] || '').length);
+  if (num % step > step / 2) {
+    num = Math.ceil(num / step) * step;
+  }
+  return (Math.floor(num / step) * step + min).toFixed(((String(step).match(/\.(\d+)/) || '')[1] || '').length);
 }
 function fixedByStep(num, step) {
   return num.toFixed(((String(step).match(/\.(\d+)/) || '')[1] || '').length);
@@ -205,6 +209,7 @@ export default function Slider(props) {
     showNumber = true,
     showAsPercent,
     tipDirection,
+    triggerWhenMove = false,
     onChange = _.noop,
   } = props;
   let { min = 0, max = 100, step = 5 } = props;
@@ -220,9 +225,12 @@ export default function Slider(props) {
   const dragRef = useRef();
   const contentRef = useRef();
   const inputRef = useRef();
+  const [tempValue, setTempValue] = useState();
   const [numberIsFocusing, setNumberIsFocusing] = useState();
   const [isDragging, setIsDragging] = useState();
-  const [value, setValue] = useState(getDefaultValue(showAsPercent ? fixedByStep(props.value * 100) : props.value));
+  const [value, setValue] = useState(
+    getDefaultValue(showAsPercent ? fixedByStep(props.value * 100, step) : props.value),
+  );
   const [valueForInput, setValueForInput] = useState(value);
   const color = getColor(itemcolor, value, showAsPercent);
   const scalePoints = useMemo(
@@ -249,6 +257,7 @@ export default function Slider(props) {
     if (update) {
       onChange(showAsPercent ? v / 100 : v);
     }
+    setTempValue(showAsPercent ? v / 100 : v);
     if (updateInput) {
       setValueForInput(v);
     }
@@ -290,12 +299,17 @@ export default function Slider(props) {
     cache.current.barLeft = barRef.current.getBoundingClientRect().left;
   }, [disabled]);
   useEffect(() => {
-    const v = getDefaultValue(showAsPercent ? fixedByStep(props.value * 100) : props.value);
+    const v = getDefaultValue(showAsPercent ? fixedByStep(props.value * 100, step) : props.value);
     setValue(v);
     if (document.activeElement !== inputRef.current) {
       setValueForInput(_.isUndefined(v) ? '' : v);
     }
   }, [props.value]);
+  useEffect(() => {
+    if (!_.isUndefined(tempValue) && triggerWhenMove) {
+      onChange(tempValue);
+    }
+  }, [tempValue]);
   return (
     <Con
       className={className}
@@ -440,6 +454,7 @@ export default function Slider(props) {
 
 Slider.propTypes = {
   disabled: bool,
+  triggerWhenMove: bool,
   from: string,
   tipDirection: string,
   showScaleText: bool,

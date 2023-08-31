@@ -38,6 +38,7 @@ export default class EditableText extends React.Component {
     mutiLine: PropTypes.bool, // 多行
     turnLine: PropTypes.bool, // 多行呈现换行
     minHeight: PropTypes.number,
+    maxLength: PropTypes.number,
     style: PropTypes.shape({}),
     emptyTip: PropTypes.string,
     value: PropTypes.string,
@@ -51,7 +52,7 @@ export default class EditableText extends React.Component {
     };
   }
   render() {
-    const { mutiLine, turnLine, minHeight, className, emptyTip, style, value, onChange } = this.props;
+    const { mutiLine, turnLine, minHeight, maxLength, className, emptyTip, style, value, onChange } = this.props;
     const { inputvalue, editting } = this.state;
     return (
       <Con
@@ -80,6 +81,7 @@ export default class EditableText extends React.Component {
         {editting && mutiLine && (
           <NewTextarea
             minHeight={minHeight}
+            maxLength={maxLength}
             manualRef={input => (this.input = input)}
             value={inputvalue}
             onBlur={e => {

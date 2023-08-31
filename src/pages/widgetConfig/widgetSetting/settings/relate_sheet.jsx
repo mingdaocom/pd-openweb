@@ -20,7 +20,7 @@ import { getSortData } from 'src/pages/worksheet/util';
 import { EditInfo, SettingItem, RelateDetail } from '../../styled';
 import { useSheetInfo } from '../../hooks';
 import components from '../components';
-import { formatViewToDropdown, getFilterRelateControls, toEditWidgetPage } from '../../util';
+import { formatViewToDropdown, getFilterRelateControls, toEditWidgetPage, formatControlsToDropdown } from '../../util';
 import sheetComponents from '../components/relateSheet';
 import { SYSTEM_CONTROL } from '../../config/widget';
 import { FilterItemTexts, FilterDialog } from '../components/FilterData';
@@ -33,6 +33,8 @@ import WidgetRowHeight from '../components/WidgetRowHeight';
 
 const { ConfigRelate, BothWayRelate, SearchConfig } = sheetComponents;
 const { SheetDealDataType, RelateSheetInfo } = components;
+
+const TEXT_TYPE_CONTROL = [2, 3, 4, 5, 7, 32, 33];
 
 const FILL_TYPES = [
   {
@@ -176,6 +178,9 @@ export default function RelateSheet(props) {
     dismanual = 0,
     covertype = '0',
     showcount = '0',
+    scanlink = '1',
+    scancontrol = '1',
+    scancontrolid,
     openview = '',
     searchrange = '1',
   } = getAdvanceSetting(data);
@@ -223,6 +228,8 @@ export default function RelateSheet(props) {
   const filterControls = getFilterRelateControls(relationControls);
   const titleControl = _.find(filterControls, item => item.attribute === 1);
   const disableOpenViewDrop = !openview && viewId && !selectedViewIsDeleted;
+  const scanControls = formatControlsToDropdown(relationControls.filter(item => TEXT_TYPE_CONTROL.includes(item.type)));
+  const isScanControlDelete = scancontrolid && _.find(scanControls, s => s.value === scancontrolid) === -1;
 
   useEffect(() => {
     setState({ isRelateView: Boolean(viewId) });
@@ -230,6 +237,18 @@ export default function RelateSheet(props) {
       onChange(handleAdvancedSettingChange(data, { allowlink: '1' }));
     }
   }, [controlId]);
+
+  useEffect(() => {
+    if (scanlink !== '1' && scancontrol !== '1') {
+      onChange({
+        strDefault: updateConfig({
+          config: strDefault,
+          value: '0',
+          index: 2,
+        }),
+      });
+    }
+  }, [scancontrol, scanlink]);
   const isSheetDisplay = () => {
     return showtype === '2';
   };
@@ -582,6 +601,7 @@ export default function RelateSheet(props) {
           <Checkbox
             className="allowSelectRecords InlineBlock Gray"
             size="small"
+            disabled={_.includes([0, 1], enumDefault2) && showtype === '3'} // 下拉框不能取消勾选
             text={_l('允许选择已有记录')}
             checked={_.includes([0, 1], enumDefault2)}
             onClick={checked => {
@@ -943,7 +963,7 @@ export default function RelateSheet(props) {
       )}
       <SettingItem className="withSplitLine">
         <div className="settingItemTitle">
-          {_l('限制移动端输入')}
+          {_l('移动端输入')}
           <Tooltip
             placement={'bottom'}
             title={_l('通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。')}
@@ -956,6 +976,7 @@ export default function RelateSheet(props) {
           checked={!!+onlyRelateByScanCode}
           onClick={checked =>
             onChange({
+              ...handleAdvancedSettingChange(data, { scancontrolid: checked ? '' : scancontrolid }),
               strDefault: updateConfig({
                 config: strDefault,
                 value: +!checked,
@@ -967,39 +988,82 @@ export default function RelateSheet(props) {
         />
       </SettingItem>
       {!!+onlyRelateByScanCode && (
-        <SettingItem>
-          <div className="settingItemTitle" style={{ fontWeight: 'normal' }}>
-            {_l('选项')}
-          </div>
-          <div className="labelWrap">
-            <Checkbox
-              size="small"
-              checked={dismanual === '1'}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { dismanual: String(+!checked) }))}
-              text={_l('禁止手动输入')}
-            />
-            <Tooltip placement={'bottom'} title={_l('勾选后禁止PC端和移动端手动添加关联记录')}>
-              <i className="icon-help Gray_9e Font16 pointer mLeft8"></i>
-            </Tooltip>
-          </div>
-          <div className="labelWrap">
-            <Checkbox
-              size="small"
-              checked={!!+disableAlbum}
-              onClick={checked =>
-                onChange({
-                  strDefault: updateConfig({
-                    config: strDefault,
-                    value: +!checked,
-                    index: 1,
-                  }),
-                })
-              }
-              text={_l('禁用相册')}
-            />
-          </div>
-          <SheetDealDataType {...props} />
-        </SettingItem>
+        <Fragment>
+          <SettingItem>
+            <div className="settingItemTitle" style={{ fontWeight: 'normal' }}>
+              {_l('扫码内容')}
+            </div>
+            <div className="labelWrap">
+              <Checkbox
+                size="small"
+                checked={scanlink === '1'}
+                onClick={checked => onChange(handleAdvancedSettingChange(data, { scanlink: String(+!checked) }))}
+                text={_l('记录链接')}
+              />
+            </div>
+            <div className="labelWrap">
+              <Checkbox
+                size="small"
+                checked={scancontrol === '1'}
+                onClick={checked =>
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      scancontrol: String(+!checked),
+                      scancontrolid: checked ? '' : scancontrolid,
+                    }),
+                  )
+                }
+                text={_l('字段值')}
+              />
+            </div>
+            {scancontrol === '1' && (
+              <Dropdown
+                border
+                className="mTop8"
+                cancelAble
+                placeholder={isScanControlDelete ? <span className="Red">{_l('已删除')}</span> : _l('所有文本类型字段')}
+                data={scanControls}
+                value={isScanControlDelete ? undefined : scancontrolid || undefined}
+                onChange={value => {
+                  onChange(handleAdvancedSettingChange(data, { scancontrolid: value || '' }));
+                }}
+              />
+            )}
+          </SettingItem>
+          <SettingItem>
+            <div className="settingItemTitle" style={{ fontWeight: 'normal' }}>
+              {_l('选项')}
+            </div>
+            <div className="labelWrap">
+              <Checkbox
+                size="small"
+                checked={dismanual === '1'}
+                onClick={checked => onChange(handleAdvancedSettingChange(data, { dismanual: String(+!checked) }))}
+                text={_l('禁止手动输入')}
+              />
+              <Tooltip placement={'bottom'} title={_l('勾选后禁止PC端和移动端手动添加关联记录')}>
+                <i className="icon-help Gray_9e Font16 pointer mLeft8"></i>
+              </Tooltip>
+            </div>
+            <div className="labelWrap">
+              <Checkbox
+                size="small"
+                checked={!!+disableAlbum}
+                onClick={checked =>
+                  onChange({
+                    strDefault: updateConfig({
+                      config: strDefault,
+                      value: +!checked,
+                      index: 1,
+                    }),
+                  })
+                }
+                text={_l('禁用相册')}
+              />
+            </div>
+            <SheetDealDataType {...props} />
+          </SettingItem>
+        </Fragment>
       )}
     </RelateSheetWrap>
   );

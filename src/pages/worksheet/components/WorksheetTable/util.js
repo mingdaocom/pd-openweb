@@ -56,6 +56,7 @@ export function handleLifeEffect(
     cache = {},
     onCellEnter = () => {},
     onCellLeave = () => {},
+    addNewRow = () => {},
     setScroll,
     focusCell,
     handleTableKeyDown,
@@ -154,6 +155,12 @@ export function handleLifeEffect(
       return;
     }
     if (newIndex > cache.rowCount * cache.columnCount - 1) {
+      if (e.action === 'text_enter_to_next' && isSubList) {
+        addNewRow({ noFocus: true });
+        setTimeout(() => {
+          focusCell(newIndex);
+        }, 100);
+      }
       return;
     }
     const nextFocusElement = tableElement.querySelector('.cell-' + newIndex);
@@ -187,7 +194,7 @@ export function handleLifeEffect(
   }
   function handleKeyDown(e) {
     // console.log({ ..._.pick(e, ['key', 'keyCode']), tagName: e.target.tagName });
-    if (tableType !== 'classic' || (!isSubList && window.recordInfoIsOpen)) {
+    if (tableType !== 'classic' || (!isSubList && !!document.querySelector('.workSheetRecordInfo'))) {
       return;
     }
     removeReadOnlyTip();
@@ -211,7 +218,7 @@ export function handleLifeEffect(
     ) {
       handleSwitchCell(e);
     } else {
-      handleTableKeyDown(cache.focusIndex, event);
+      handleTableKeyDown(cache.focusIndex, e);
     }
   }
   function handleOuterClick(e) {
@@ -223,7 +230,11 @@ export function handleLifeEffect(
       return;
     }
     if (!e.target.closest(`.sheetViewTable.id-${tableId}-id`)) {
-      window.tempCopyForSheetView = undefined;
+      try {
+        if (_.get(safeParse(window.tempCopyForSheetView), 'tableId') === tableId) {
+          window.tempCopyForSheetView = undefined;
+        }
+      } catch (err) {}
       focusCell(-10000);
     }
   }

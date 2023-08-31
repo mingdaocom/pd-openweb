@@ -187,11 +187,8 @@ class Enterprise extends Component {
       loading: true,
       projectList: [],
       checkedProjectId:
-        localStorage.getItem('currentProjectId') ||
-        getCurrentProject(
-          localStorage.getItem('currentProjectId') ||
-            (md.global.Account.projects[0] || { projectId: 'external' }).projectId,
-        ).projectId,
+        getCurrentProject(localStorage.getItem('currentProjectId')).projectId ||
+        getCurrentProject((md.global.Account.projects[0] || { projectId: 'external' }).projectId).projectId,
     };
   }
   componentDidMount() {
@@ -277,12 +274,14 @@ class Enterprise extends Component {
         ) : (
           this.renderNoProject()
         )}
-        <Back
-          className="low"
-          onClick={() => {
-            history.back();
-          }}
-        />
+        {!loading && (
+          <Back
+            className="low"
+            onClick={() => {
+              history.back();
+            }}
+          />
+        )}
       </div>
     );
   }

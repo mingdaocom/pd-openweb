@@ -380,11 +380,11 @@ export default class ChartDialog extends Component {
               <Tabs.TabPane tab={_l('配置')} key="setting">
                 <ChartSetting projectId={projectId} />
               </Tabs.TabPane>
-              <Tabs.TabPane tab={_l('样式')} key="style" disabled={!reportData.status}>
+              <Tabs.TabPane tab={_l('样式')} key="style" disabled={reportData.status <= 0}>
                 <ChartStyle projectId={projectId} sourceType={sourceType} />
               </Tabs.TabPane>
               {![reportTypes.GaugeChart, reportTypes.ProgressChart].includes(currentReport.reportType) && (
-                <Tabs.TabPane tab={_l('分析')} key="analyse" disabled={!reportData.status}>
+                <Tabs.TabPane tab={_l('分析')} key="analyse" disabled={reportData.status <= 0}>
                   <ChartAnalyse />
                 </Tabs.TabPane>
               )}

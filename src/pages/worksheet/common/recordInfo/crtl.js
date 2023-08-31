@@ -1,5 +1,6 @@
 import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import worksheetAjax from 'src/api/worksheet';
+import publicWorksheetApi from 'src/api/publicWorksheet';
 import { getRowDetail } from 'worksheet/api';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { formatControlToServer, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils.js';
@@ -25,7 +26,7 @@ export function loadRecord({
   controls,
 }) {
   return new Promise((resolve, reject) => {
-    const apiargs = {
+    let apiargs = {
       worksheetId,
       rowId: recordId,
       getType,
@@ -38,6 +39,7 @@ export function loadRecord({
       apiargs.instanceId = instanceId;
       apiargs.workId = workId;
     }
+
     let promise;
     if (!getRules) {
       promise = Promise.all([(promise = getRowDetail(apiargs, controls, { fireImmediately: true }))]);
@@ -83,7 +85,7 @@ export function updateRecord(
   const updatedControls = data
     .filter(control => updateControlIds.indexOf(control.controlId) > -1 && control.type !== 30)
     .map(control => formatControlToServer(control, { isDraft }));
-  const apiargs = {
+  let apiargs = {
     appId,
     viewId,
     getType,
@@ -98,6 +100,15 @@ export function updateRecord(
     apiargs.workId = workId;
   }
 
+  const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
+
+  if (isPublicForm) {
+    apiargs = {
+      rowId: recordId,
+      newOldControl: updatedControls,
+    };
+  }
+
   // 处理工作流的暂存直接点击的情况
   if (!updatedControls.length) {
     if (!(instanceId && workId)) {
@@ -107,7 +118,7 @@ export function updateRecord(
     return;
   }
 
-  worksheetAjax
+  (isPublicForm ? publicWorksheetApi : worksheetAjax)
     .updateWorksheetRow(apiargs)
     .then(res => {
       if (res && res.data) {
@@ -328,7 +339,7 @@ export function handleChangeOwner({ recordId, ownerAccountId, appId, projectId, 
   });
 }
 
-export async function handleShare({ isCharge, appId, worksheetId, viewId, recordId }, callback) {
+export async function handleShare({ isCharge, appId, worksheetId, viewId, recordId, hidePublicShare }, callback) {
   try {
     const row = await getRowDetail({ appId, worksheetId, viewId, rowId: recordId });
     let recordTitle = getTitleTextFromControls(row.formData);
@@ -339,6 +350,7 @@ export async function handleShare({ isCharge, appId, worksheetId, viewId, record
       title: _l('分享记录'),
       isPublic: shareRange === 2,
       isCharge: allowChange,
+      hidePublicShare,
       params: {
         appId,
         worksheetId,

@@ -63,7 +63,6 @@ export default class ByUser extends Component {
       list: [],
       loading: false,
       pageIndex: 1,
-      isMore: false,
       fullDepartmentInfo: {},
     };
     this.columns = [
@@ -226,13 +225,8 @@ export default class ByUser extends Component {
   };
   getList = () => {
     const { projectId, appId } = this.props;
-    const { pageIndex, loading, isMore, sorterInfo = {}, keyword, selectedDate, userInfo = [] } = this.state;
+    const { pageIndex, sorterInfo = {}, keyword, selectedDate, userInfo = [] } = this.state;
     const { sortFiled, order } = sorterInfo;
-
-    // 加载更多
-    if (pageIndex > 1 && ((loading && isMore) || !isMore)) {
-      return;
-    }
 
     this.setState({ loading: true });
 
@@ -253,17 +247,14 @@ export default class ByUser extends Component {
     this.ajaxRequst
       .then(({ list, allCount }) => {
         this.setState({
-          list: pageIndex === 1 ? list : this.state.list.concat(list),
-          pageIndex: pageIndex + 1,
+          list,
           total: allCount,
           loading: false,
-          isMore: list.length,
         });
       })
       .fail(err => {
         this.setState({
           loading: false,
-          isMore: false,
         });
       });
   };
@@ -273,7 +264,7 @@ export default class ByUser extends Component {
     });
   };
   render() {
-    let { selectedDate, list = [], loading, pageIndex, userInfo = [] } = this.state;
+    let { selectedDate, list = [], loading, pageIndex, userInfo = [], total } = this.state;
     return (
       <ByUserWrap>
         <div className="searchWrap flexRow">
@@ -322,7 +313,7 @@ export default class ByUser extends Component {
           dataSource={list}
           columns={this.columns}
           loadNextPage={this.getList}
-          loading={loading && pageIndex === 1}
+          loading={loading}
           defaultSorter={{ sortFiled: 'appAccess', order: 'desc' }}
           dealSorter={this.dealSorter}
           emptyInfo={
@@ -333,6 +324,9 @@ export default class ByUser extends Component {
                 }
               : {}
           }
+          total={total}
+          pageIndex={pageIndex}
+          changePage={pageIndex => this.setState({ pageIndex }, this.getList)}
         />
       </ByUserWrap>
     );

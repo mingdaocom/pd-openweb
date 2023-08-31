@@ -42,6 +42,7 @@ export default function SearchInput(props) {
   const { clickShowInput, placeholder, value, onChange } = props;
   const inputRef = useRef();
   const [isFocus, setIsFocus] = useState();
+
   useEffect(() => {
     if (clickShowInput && isFocus && inputRef.current) {
       inputRef.current.focus();

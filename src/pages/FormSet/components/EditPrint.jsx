@@ -7,6 +7,16 @@ import { createUploader } from 'src/pages/kc/utils/qiniuUpload';
 import { getUrlByBucketName } from 'src/util';
 import appManagementAjax from 'src/api/appManagement';
 
+const SUFFIX = {
+  Word: 'docx',
+  Excel: 'xlsx',
+};
+
+const AJAXURL = {
+  Word: 'Word',
+  Excel: 'Xlsx',
+}
+
 @withClickAway
 class EditPrint extends React.Component {
   constructor(props) {
@@ -79,15 +89,17 @@ class EditPrint extends React.Component {
    * 创建上传
    */
   createUploader() {
+    const { fileType = 'Word' } = this.props;
+
     this.uploader = createUploader({
       browse_button: 'editorFiles',
       bucket: 3,
       filters: {
-        mime_types: [{ extensions: 'docx' }],
+        mime_types: [{ extensions: SUFFIX[fileType] }],
       },
       init: {
         BeforeUpload: (up, file) => {
-          if (File.GetExt(file.name) != 'docx') {
+          if (File.GetExt(file.name) != SUFFIX[fileType]) {
             alert(_l('上传失败，文件错误'), 3, 1000);
             return false;
           }
@@ -131,7 +143,7 @@ class EditPrint extends React.Component {
 
   render() {
     const { loading, suc, loadPer, fileName, file, url, templateName, hasChange } = this.state;
-    const { onClose, worksheetId, downLoadUrl, templateId, refreshFn } = this.props;
+    const { onClose, worksheetId, downLoadUrl, templateId, refreshFn, fileType = 'Word' } = this.props;
     return (
       <div className="editPrint upload">
         <h5 className="title">
@@ -153,7 +165,8 @@ class EditPrint extends React.Component {
             <p className="desc mTop20">
               <span className="Font13 Gray_9e">
                 {_l(
-                  '请先根据系统提供的字段代码对照表将所需要的字段代码复制后粘贴到对应 的本地的 Word 模板中制作成模板。',
+                  '请先根据系统提供的字段代码对照表将所需要的字段代码复制后粘贴到对应 的本地的 %0 模板中制作成模板。',
+                  fileType,
                 )}
               </span>
             </p>
@@ -176,7 +189,7 @@ class EditPrint extends React.Component {
                 this.con = con;
               }}
             >
-              {fileName ? <span className="wordIcon"></span> : <Icon icon="file" className="LightGray" />}
+              {fileName ? <span className={fileType==='Excel' ? 'icon-new_excel Font50 excelIcon' : 'wordIcon'}></span> : <Icon icon="file" className="LightGray" />}
               <p className="mTop15 TxtCenter">
                 {fileName ? (
                   <React.Fragment>
@@ -209,7 +222,7 @@ class EditPrint extends React.Component {
                     )}
                   </React.Fragment>
                 ) : (
-                  <span className="Gray_9e">{_l('请选择docx格式的Word文件')}</span>
+                  <span className="Gray_9e">{_l('请选择%0格式的%1文件', SUFFIX[fileType], fileType)}</span>
                 )}
               </p>
               {!loading ? (
@@ -268,7 +281,7 @@ class EditPrint extends React.Component {
                 tokenType: 5,
               });
               if (templateId) {
-                ajaxUrl = downLoadUrl + '/ExportWord/UploadWord';
+                ajaxUrl = downLoadUrl + `/Export${AJAXURL[fileType]}/Upload${AJAXURL[fileType]}`;
                 option = {
                   id: templateId,
                   accountId: md.global.Account.accountId,
@@ -277,7 +290,7 @@ class EditPrint extends React.Component {
                   token,
                 };
               } else {
-                ajaxUrl = downLoadUrl + '/ExportWord/CreateWord';
+                ajaxUrl = downLoadUrl + `/Export${AJAXURL[fileType]}/Create${AJAXURL[fileType]}`;
                 option = {
                   worksheetId: worksheetId,
                   accountId: md.global.Account.accountId,
@@ -292,7 +305,7 @@ class EditPrint extends React.Component {
                 data: option,
               }).done(res => {
                 if (res.status !== 1) {
-                  alert(res.message);
+                  alert(res.message, 2);
                 } else {
                   refreshFn();
                   alert(templateId ? _l('修改成功') : _l('添加成功'));

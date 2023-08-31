@@ -225,8 +225,8 @@ export default class WorkPlace extends Component {
     };
     const WorkPlaceEmpty = () => <Empty detail={detail} />;
     return (
-      <div className="system-set-box">
-        <div className="system-set-header">
+      <div className="orgManagementWrap">
+        <div className="orgManagementHeader justifyContentLeft">
           <Icon
             icon="backspace"
             className="Hand mRight18 TxtMiddle Font24 adminHeaderIconColor"

@@ -249,7 +249,7 @@ class Task extends Component {
                   title: _l('报错信息'),
                   className: 'connectorErrorDialog',
                   description: (
-                    <div className="errorInfo" style={{ marginBottom: -30 }}>
+                    <div className="errorInfo" style={{ marginBottom: -30, 'max-height': 500, overflow: 'auto' }}>
                       {errorMsgList.map((error, index) => {
                         return (
                           <div key={index} className="mTop5">

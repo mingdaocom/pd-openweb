@@ -23,12 +23,14 @@ const WorkSheetPortal = (props) => {
   const data = isCharge && appPkg.viewHideNavi ? props.data : props.data.filter(item => item.status === 1 && !item.navigateHide).filter(filterEmptyAppItem);
   const ref = useRef(null);
 
-  useEffect(() => {
+  const getSheetList = () => {
     sheetListActions.getSheetList({
       appId,
       appSectionId: groupId,
     });
-  }, [groupId]);
+  }
+
+  useEffect(getSheetList, [groupId]);
 
   const handleSaveName = (e, id) => {
     setEditId('');
@@ -183,7 +185,7 @@ const WorkSheetPortal = (props) => {
               appId={appId}
               groupId={groupId}
               sheetListActions={sheetListActions}
-              getSheetList={sheetListActions.getSheetList}
+              getSheetList={getSheetList}
             />
           </div>
         </div>

@@ -203,7 +203,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       col: 0,
       required: false,
       size: 6,
-      value: _.get(formData, ['extraParams', 'isSrvProtocol']) === 'true' ? '1' : '0',
+      value: _.get(formData, ['extraParams', 'isSrvProtocol']),
     },
     ...commonRestFields,
     {

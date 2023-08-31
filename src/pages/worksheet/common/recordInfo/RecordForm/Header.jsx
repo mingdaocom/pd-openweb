@@ -71,6 +71,7 @@ export default function InfoHeader(props) {
     _.get(window, 'shareState.isPublicRecord') ||
     _.get(window, 'shareState.isPublicView') ||
     _.get(window, 'shareState.isPublicQuery') ||
+    _.get(window, 'shareState.isPublicForm') ||
     _.get(window, 'shareState.isPublicWorkflowRecord');
   const isPublicRecordLand = isPublicShare && notDialog;
   const showSideBar =

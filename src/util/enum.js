@@ -63,6 +63,36 @@ export const APPLICATION_ICON = {
 
 //  版本功能类型
 export const VersionProductType = {
-  GL: 31, // 全局日志
-  GAL: 32, // 全局行为日志
+  appBackupRestore: 1, // 应用备份与还原
+  appImportExport: 2, // 应用导入导出
+  apiIntergration: 3, // API集成
+  apiIntergrationNode: 4, // API集成工作流节点
+  apiSearch: 5, // API查询字段
+  contactsHide: 6, // 通讯录隐藏
+  customIcon: 7, // 自定义图标
+  codeBlockNode: 8, // 代码块节点
+  collaborationSuite: 9, // 协作套件
+  dingIntergration: 10, // 钉钉整合
+  externalPortal: 11, // 外部门户
+  feishuIntergration: 12, // 飞书整合
+  getPrintFileNode: 13, // 获取打印文件节点
+  interfacePush: 14, // 界面推送
+  LDAPIntergration: 15, // LDAP/AD整合
+  recycle: 16, //  回收站
+  analysis: 17, // 使用分析
+  WelinkIntergration: 18, // Welink整合
+  workwxIntergration: 19, // 企业微信整合
+  wordPrintTemplate: 20, //Word打印模板
+  apiDevDocument: 21, //API开发文档
+  apiRequestProxy: 22, // API请求网络代理
+  encapsulatingBusinessProcess: 23, // 封装业务流程API响应
+  filterGroup: 24, // 筛选条件分组
+  globalSearch: 25, // 全局搜索
+  datantergration: 26, // 数据集成
+  userExtensionInformation: 27, // 用户扩展信息
+  batchDownloadFiles: 28, // 批量下载文件
+  dataEnctypt: 29, // 数据加密
+  exclusiveResource: 30, // 专属隔离计算实例资源
+  glabalLog: 31, // 全局日志
+  globalBehaviorLog: 32, // 全局行为日志
 };

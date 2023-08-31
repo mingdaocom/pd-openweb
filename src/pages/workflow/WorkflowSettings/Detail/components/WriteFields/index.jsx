@@ -3,6 +3,7 @@ import { Checkbox, Icon, Dialog, Switch } from 'ming-ui';
 import flowNode from '../../../../api/flowNode';
 import _ from 'lodash';
 import styled from 'styled-components';
+import cx from 'classnames';
 
 const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47, 51];
 
@@ -53,6 +54,7 @@ export default class WriteFields extends Component {
   state = {
     showTableControls: false,
     selectItem: {},
+    foldIds: [],
   };
 
   componentDidMount() {
@@ -147,16 +149,25 @@ export default class WriteFields extends Component {
     }
   }
 
-  onChange(id, property) {
+  onChange(item, property) {
     const { data, updateSource } = this.props;
     const { showTableControls, selectItem } = this.state;
     const formProperties = _.cloneDeep(showTableControls ? selectItem.subFormProperties : data);
 
-    formProperties.forEach(item => {
-      if (item.id === id) {
-        item.property = property;
+    formProperties.forEach(o => {
+      if (o.id === item.id) {
+        o.property = property;
       }
     });
+
+    // 分段
+    if (item.type === 52) {
+      formProperties.forEach(o => {
+        if (o.sectionId === item.id && !this.isDisabled(o)) {
+          o.property = property;
+        }
+      });
+    }
 
     if (showTableControls) {
       this.setState({ selectItem: Object.assign({}, selectItem, { subFormProperties: formProperties }) });
@@ -195,6 +206,10 @@ export default class WriteFields extends Component {
               <Checkbox
                 className="InlineBlock Font12 TxtMiddle"
                 text={_l('查看')}
+                clearselected={
+                  data.filter(item => item.property === 4).length !== data.length &&
+                  data.filter(item => item.property === 4).length
+                }
                 checked={!data.filter(item => item.property === 4).length}
                 onClick={checked => this.updateAllSettings({ key: 'LOOK', checked: !checked })}
               />
@@ -205,6 +220,13 @@ export default class WriteFields extends Component {
               <Checkbox
                 className="InlineBlock Font12 TxtMiddle"
                 text={_l('编辑')}
+                clearselected={
+                  data.filter(item => item.property === 2 || item.property === 3).length &&
+                  !(
+                    data.filter(item => item.property === 2 || item.property === 3).length ===
+                    data.filter(item => !this.isDisabled(item)).length
+                  )
+                }
                 checked={
                   data.filter(item => item.property === 2 || item.property === 3).length ===
                   data.filter(item => !this.isDisabled(item)).length
@@ -218,6 +240,13 @@ export default class WriteFields extends Component {
               <Checkbox
                 className="InlineBlock Font12 TxtMiddle"
                 text={_l('必填')}
+                clearselected={
+                  data.filter(item => item.property === 3).length &&
+                  !(
+                    data.filter(item => item.property === 3).length ===
+                    data.filter(item => !this.isDisabled(item, 'REQUIRED')).length
+                  )
+                }
                 checked={
                   data.filter(item => item.property === 3).length ===
                   data.filter(item => !this.isDisabled(item, 'REQUIRED')).length
@@ -237,12 +266,46 @@ export default class WriteFields extends Component {
             </div>
           )}
         </li>
-        {data.map((item, i) => {
-          return (
-            <li className="flexRow" key={i}>
-              <div className="flex flexRow alignItemsCenter">
-                <div className="ellipsis" title={item.name || (item.type === 22 ? _l('分割线') : _l('备注'))}>
-                  {item.name || (item.type === 22 ? _l('分割线') : _l('备注'))}
+        {this.renderField(data, showCard, isChildTable)}
+      </Box>
+    );
+  }
+
+  /**
+   * 渲染字段
+   */
+  renderField(data, showCard, isChildTable, isSubData) {
+    const { hideTypes } = this.props;
+    const { foldIds } = this.state;
+
+    return data
+      .filter(item => !item.sectionId || !!isSubData)
+      .map((item, i) => {
+        return (
+          <Fragment>
+            <li className={cx('flexRow', { mLeft30: isSubData })} key={i}>
+              <div
+                className={cx('flex flexRow alignItemsCenter', { 'ThemeHoverColor3 pointer': item.type === 52 })}
+                onClick={() => {
+                  if (item.type === 52) {
+                    this.setState({
+                      foldIds: _.includes(foldIds, item.id)
+                        ? foldIds.filter(o => o !== item.id)
+                        : foldIds.concat(item.id),
+                    });
+                  }
+                }}
+              >
+                {item.type === 52 && (
+                  <i
+                    className={cx(
+                      'mRight5 Gray_75',
+                      _.includes(foldIds, item.id) ? 'icon-arrow-right-tip' : 'icon-arrow-down',
+                    )}
+                  />
+                )}
+                <div className="ellipsis" title={item.name || (item.type === 22 ? _l('分段') : _l('备注'))}>
+                  {item.name || (item.type === 22 ? _l('分段') : _l('备注'))}
                 </div>
                 {item.type === 29 && !!(item.subFormProperties || []).length && (
                   <div
@@ -262,17 +325,14 @@ export default class WriteFields extends Component {
               </div>
               <div className="mLeft16">
                 {!_.includes(hideTypes, item.property) && (
-                  <Checkbox
-                    checked={item.property !== 4}
-                    onClick={checked => this.onChange(item.id, checked ? 4 : 1)}
-                  />
+                  <Checkbox checked={item.property !== 4} onClick={checked => this.onChange(item, checked ? 4 : 1)} />
                 )}
               </div>
               <div className="mLeft16">
                 {!this.isDisabled(item) && (!isChildTable || !item.detailTable) && !_.includes(hideTypes, 2) && (
                   <Checkbox
                     checked={item.property === 2 || item.property === 3}
-                    onClick={checked => this.onChange(item.id, checked ? 1 : 2)}
+                    onClick={checked => this.onChange(item, checked ? 1 : 2)}
                   />
                 )}
               </div>
@@ -280,15 +340,12 @@ export default class WriteFields extends Component {
                 {!this.isDisabled(item, 'REQUIRED') &&
                   (!isChildTable || !item.detailTable) &&
                   !_.includes(hideTypes, 3) && (
-                    <Checkbox
-                      checked={item.property === 3}
-                      onClick={checked => this.onChange(item.id, checked ? 2 : 3)}
-                    />
+                    <Checkbox checked={item.property === 3} onClick={checked => this.onChange(item, checked ? 2 : 3)} />
                   )}
               </div>
               {showCard && (
                 <div className="mLeft16 mRight16" style={{ width: 60 }}>
-                  {!_.includes([14, 21, 40, 41, 42, 43, 45, 47, 49, 51], item.type) && (
+                  {!_.includes([14, 21, 40, 41, 42, 43, 45, 47, 49, 51, 52], item.type) && (
                     <Checkbox
                       checked={item.showCard}
                       onClick={checked => this.onChangeCard(item.id, checked ? 0 : 1)}
@@ -297,10 +354,18 @@ export default class WriteFields extends Component {
                 </div>
               )}
             </li>
-          );
-        })}
-      </Box>
-    );
+            {item.type === 52 &&
+              !_.includes(foldIds, item.id) &&
+              !!data.filter(o => o.sectionId === item.id).length &&
+              this.renderField(
+                data.filter(o => o.sectionId === item.id),
+                showCard,
+                isChildTable,
+                true,
+              )}
+          </Fragment>
+        );
+      });
   }
 
   render() {

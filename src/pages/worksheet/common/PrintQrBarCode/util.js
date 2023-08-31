@@ -9,6 +9,8 @@ import {
   QR_LABEL_SIZE,
   QR_LABEL_SIZES,
   SOURCE_TYPE,
+  PORTRAIT_QR_CODE_SIZE,
+  LANDSCAPE_QR_CODE_SIZE,
 } from './enum';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { QrLabel } from './qr';
@@ -62,7 +64,10 @@ export function createQrLabeObjectFromConfig(config = {}, url, texts = [], optio
   }
   const labelObject = new QrLabel({
     type: layout,
-    size: ['l', 'm', 's'][Number(config.codeSize) - 1],
+    size: (config.layout === QR_LAYOUT.PORTRAIT ? PORTRAIT_QR_CODE_SIZE : LANDSCAPE_QR_CODE_SIZE).shorts[
+      Number(config.codeSize)
+    ],
+    fontSize: config.fontSize,
     width,
     height,
     firstIsTitle: config.firstIsBold,
@@ -161,6 +166,7 @@ export function createBarLabeObjectFromConfig(config = {}, value, texts = [], { 
     width,
     height,
     firstIsTitle: config.firstIsBold,
+    fontSize: config.fontSize,
     codePosition: {
       [BAR_POSITION.TOP]: 'top',
       [BAR_POSITION.BOTTOM]: 'bottom',

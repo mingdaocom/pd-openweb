@@ -39,6 +39,27 @@ export default function NavigationConfig(props) {
     return (
       <Fragment>
         {renderNavStyleConfig('pcNaviStyle')}
+        <div className="content mBottom20">
+          <div className="title Font13 mBottom20 pAll0 bold">{_l('默认选中')}</div>
+          <RadioGroup
+            size="middle"
+            className="mBottom30 mobileNavRadio"
+            data={[
+              {
+                text: _l('第一个%0', app.pcNaviStyle === 2 ? _l('分组') : _l('应用项')),
+                value: 1,
+              },
+              {
+                text: _l('记住上次使用'),
+                value: 2,
+              },
+            ]}
+            checkedValue={app.selectAppItmeType}
+            onChange={value => {
+              onChangeApp({ selectAppItmeType: value });
+            }}
+          ></RadioGroup>
+        </div>
         <div className="flexRow alignItemsCenter mBottom20 title">
           <div className="flex Font13 bold">{_l('导航管理')}</div>
           <Checkbox

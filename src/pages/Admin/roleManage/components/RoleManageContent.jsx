@@ -93,7 +93,7 @@ class RoleManageContent extends Component {
     const { currentRole, allUserCount, userPageIndex, userLoading, selectUserIds, userList } = this.props;
     return (
       <Fragment>
-        <div className="roleContentHeader Font15">
+        <div className="roleContentHeader Font17">
           <span className="Bold">{currentRole.organizeName}</span>
           {allUserCount ? <span className="Gray_9e mLeft10">{allUserCount}</span> : ''}
         </div>

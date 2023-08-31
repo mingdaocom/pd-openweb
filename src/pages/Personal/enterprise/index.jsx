@@ -177,7 +177,7 @@ export default class AccountChart extends React.Component {
   render() {
     const { loading, isEnterprise, authCount } = this.state;
     if (loading) {
-      return <LoadDiv />;
+      return <LoadDiv className="mTop40" />;
     }
     return (
       <Fragment>

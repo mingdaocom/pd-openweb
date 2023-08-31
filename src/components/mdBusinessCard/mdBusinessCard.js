@@ -2,7 +2,7 @@
 import * as actions from 'src/pages/chat/redux/actions';
 import * as utils from 'src/pages/chat/utils';
 import departmentController from 'src/api/department';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import userController from 'src/api/user';
 import groupController from 'src/api/group';
 import cardTpl from './tpl/mdBusinessCard.html';

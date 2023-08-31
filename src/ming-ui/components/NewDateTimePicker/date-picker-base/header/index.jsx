@@ -36,7 +36,7 @@ class Header extends Component {
       timeButtons.push(
         <span key="year-range" className="year">
           {startYear} ~ {endYear}
-        </span>
+        </span>,
       );
     }
     if (this.props.view === 'month') {
@@ -44,29 +44,7 @@ class Header extends Component {
         <button
           key="year"
           className="year ThemeHoverColor3"
-          onClick={(event) => {
-            event.nativeEvent.stopImmediatePropagation();
-            this.buttonOnClick(event, 'year');
-          }}
-        >
-          {year}
-          {_l('年')}
-        </button>
-      );
-    }
-    if (this.props.view === 'date') {
-      if (this.props.prefix) {
-        timeButtons.push(
-          <span key="prefix" className="year">
-            {this.props.prefix}
-          </span>
-        );
-      }
-      timeButtons.push([
-        <button
-          key="year"
-          className="year ThemeHoverColor3"
-          onClick={(event) => {
+          onClick={event => {
             event.nativeEvent.stopImmediatePropagation();
             this.buttonOnClick(event, 'year');
           }}
@@ -74,15 +52,36 @@ class Header extends Component {
           {year}
           {_l('年')}
         </button>,
+      );
+    }
+    if (this.props.view === 'date') {
+      if (this.props.prefix) {
+        timeButtons.push(
+          <span key="prefix" className="year">
+            {this.props.prefix}
+          </span>,
+        );
+      }
+      timeButtons.push([
+        <button
+          key="year"
+          className="year ThemeHoverColor3"
+          onClick={event => {
+            event.nativeEvent.stopImmediatePropagation();
+            this.buttonOnClick(event, 'year');
+          }}
+        >
+          {_l('%0年', year)}
+        </button>,
         <button
           key="month"
           className="month ThemeHoverColor3"
-          onClick={(event) => {
+          onClick={event => {
             event.nativeEvent.stopImmediatePropagation();
             this.buttonOnClick(event, 'month');
           }}
         >
-          {_l(`${month}月`)}
+          {_l('%0月', month)}
         </button>,
       ]);
     }
@@ -93,7 +92,7 @@ class Header extends Component {
         <div className="pager">
           <button
             className="prev ThemeHoverColor3"
-            onClick={(event) => {
+            onClick={event => {
               event.nativeEvent.stopImmediatePropagation();
               this.buttonOnClick(event, 'prev');
             }}
@@ -102,7 +101,7 @@ class Header extends Component {
           </button>
           <button
             className="now ThemeHoverColor3"
-            onClick={(event) => {
+            onClick={event => {
               event.nativeEvent.stopImmediatePropagation();
               this.buttonOnClick(event, 'now');
             }}
@@ -111,7 +110,7 @@ class Header extends Component {
           </button>
           <button
             className="next ThemeHoverColor3"
-            onClick={(event) => {
+            onClick={event => {
               event.nativeEvent.stopImmediatePropagation();
               this.buttonOnClick(event, 'next');
             }}

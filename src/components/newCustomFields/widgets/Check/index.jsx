@@ -78,6 +78,7 @@ export default class Widgets extends Component {
           controlDisabled: disabled,
           customFormSwitchColumn: advancedSetting.showtype === '2', // 详情排列格式
         })}
+        style={{ height: 'auto' }}
       >
         {this.renderContent()}
       </div>

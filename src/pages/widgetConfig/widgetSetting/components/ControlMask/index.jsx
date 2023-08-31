@@ -8,6 +8,7 @@ import MaskSettingDialog from './MaskSettingDialog';
 import EncryptSettingDialog from './EncryptSettingDialog';
 import styled from 'styled-components';
 import { buriedUpgradeVersionDialog, getFeatureStatus } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -39,7 +40,7 @@ export default function ControlMask(props) {
   );
   const isDeleteRule = encryId && !ruleName;
   // 旗舰版可用
-  const isPayType = getFeatureStatus(globalSheetInfo.projectId, 29) === '2';
+  const isPayType = getFeatureStatus(globalSheetInfo.projectId, VersionProductType.dataEnctypt) === '2';
 
   return (
     <SettingItem>
@@ -65,7 +66,7 @@ export default function ControlMask(props) {
           <Tooltip
             placement="bottom"
             title={_l(
-              '将字段值显示为掩码，应用管理员和有解密权限的用户可以点击后解密查看（解密权限需要在用户-角色-字段权限中配置）。在对外公开分享时始终掩盖',
+              '将字段值显示为掩码，应用管理员和有解码权限的用户可以点击后解码查看（解码权限需要在用户-角色-字段权限中配置）。在对外公开分享时始终掩盖',
             )}
           >
             <Icon icon="help" className="Font16 Gray_9e" />
@@ -99,7 +100,7 @@ export default function ControlMask(props) {
             onClick={checked => {
               if (!checked) {
                 if (isPayType) {
-                  buriedUpgradeVersionDialog(globalSheetInfo.projectId, 29);
+                  buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.dataEnctypt);
                   return;
                 }
                 setEncryptVisible(true);
@@ -131,7 +132,7 @@ export default function ControlMask(props) {
           <EditInfo
             onClick={() => {
               if (isPayType) {
-                buriedUpgradeVersionDialog(globalSheetInfo.projectId, 29);
+                buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.dataEnctypt);
                 return;
               }
               setEncryptVisible(true);

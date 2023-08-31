@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import genQrDataURL from 'src/pages/worksheet/common/PrintQrCode/genQrDataurl';
+import genQrDataURL from 'src/pages/worksheet/common/PrintQrBarCode/genQrDataurl';
 
 export class QrLabel {
   // portrait 肖像 高度大
@@ -18,12 +18,12 @@ export class QrLabel {
     }
   }
   setOptions() {
-    const { pixelRadio = 2, width = 100, height = 100, firstIsTitle } = this.options;
+    const { pixelRadio = 2, width = 100, height = 100, fontSize = 1, firstIsTitle } = this.options;
     this.pixelRadio = pixelRadio;
     this.width = width * pixelRadio;
     this.height = height * pixelRadio;
     this.firstIsTitle = firstIsTitle;
-    this.isDebug = true;
+    this.fontSize = fontSize || 1;
   }
   setLayout() {
     const { size } = this.options;
@@ -34,15 +34,17 @@ export class QrLabel {
     };
     if (this.options.type === 'p') {
       this.layout.codeSize = {
-        s: 15,
-        m: 20,
-        l: 24,
+        s: 11,
+        m: 16,
+        l: 20,
+        h: 24,
       }[size];
     } else {
       this.layout.codeSize = {
         s: 13,
         m: 16,
-        l: 24,
+        l: 20,
+        h: 24,
       }[size];
     }
   }
@@ -66,7 +68,7 @@ export class QrLabel {
   // 处理文字换行
   cutTextByWidth(fontSize, context, maxWidth, isBold) {
     let result = [];
-    this.ctx.font = (isBold ? 'bold ' : '') + fontSize + 'px sans-serif';
+    this.ctx.font = (isBold ? 'bold ' : '') + fontSize * (isBold ? 1 : this.fontSize) + 'px sans-serif';
     if (this.ctx.measureText(context).width < maxWidth) {
       return [context];
     }
@@ -99,7 +101,7 @@ export class QrLabel {
   }
   renderText({ x = 0, y = 0, fontSize, content, width, isCenter, forceInLine, isBold, color = '#222' }) {
     this.ctx.textBaseline = 'top';
-    let textFontSize = fontSize * 0.55;
+    let textFontSize = fontSize * 0.55 * (isBold ? 1 : this.fontSize);
     if (forceInLine) {
       const textWidth = this.measureTextWidth(content, textFontSize);
       if (textWidth > width) {
@@ -200,6 +202,7 @@ export class QrLabel {
       s: 2,
       m: 1,
       l: 0,
+      h: 0,
     }[size];
     this.renderVerticalTexts({
       textList: texts.slice(0, topTextNum).slice(0, this.maxLineNumber),

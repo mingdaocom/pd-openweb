@@ -10,7 +10,7 @@ import 'src/components/mentioninput/mentionsInput';
 import 'src/components/selectGroup/selectAllGroup';
 import LinkView from 'src/components/linkView/linkView';
 import createShare from 'src/components/createShare/createShare';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import { index as mdDialog } from 'src/components/mdDialog/dialog';
 import 'src/components/autoTextarea/autoTextarea';
 import _ from 'lodash';

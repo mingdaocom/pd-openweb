@@ -997,6 +997,7 @@ export function parseAdvancedSetting(setting = {}) {
     allowedit: setting.allowedit === '1', // 子表允许编辑
     allowsingle: setting.allowsingle === '1', // 子表允许单条添加
     batchcids: safeParseArray(setting.batchcids), // 子表从指定字段添加记录
+    hidenumber: setting.hidenumber === '1', // 隐藏序号
     rowheight: Number(setting.rowheight || 0), // 行高
   };
 }
@@ -1075,9 +1076,9 @@ export function getCopyControlText(control) {
   return content;
 }
 
-export function handleCopyControlText(control) {
+export function handleCopyControlText(control, tableId) {
   const content = getCopyControlText(control);
-  window.tempCopyForSheetView = JSON.stringify({ type: 'text', value: content, controlType: control.type });
+  window.tempCopyForSheetView = JSON.stringify({ type: 'text', value: content, controlType: control.type, tableId });
   copy(content);
 }
 
@@ -1212,7 +1213,8 @@ export function formatQuickFilter(items = []) {
 export function getRelateRecordCountFromValue(value) {
   let count;
   try {
-    const savedCount = safeParse(value, 'array')[0].count;
+    const parsedValue = safeParse(value, 'array');
+    const savedCount = parsedValue[0].count || _.get(parsedValue, 'length');
     if (!_.isUndefined(savedCount) && !_.isNaN(Number(savedCount))) {
       count = Number(savedCount);
     }

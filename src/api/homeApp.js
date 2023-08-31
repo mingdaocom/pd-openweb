@@ -117,6 +117,7 @@ export default {
   * @param {boolean} args.pcDisplay Pc端显示,
   * @param {boolean} args.webMobileDisplay web移动端显示
   * @param {boolean} args.appDisplay app端显示
+  * @param {integer} args.selectAppItmeType 导航应用项默认是否选中
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -237,18 +238,6 @@ export default {
      return $.api('HomeApp', 'GetAllHomeApp', args, options);
    },
   /**
-  * 获取应用分组的详情（包含导航头和工作表基础信息）
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAppInfo: function (args, options = {}) {
-     
-     return $.api('HomeApp', 'GetAppInfo', args, options);
-   },
-  /**
   * 获取应用下所有工作表信息
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
@@ -292,7 +281,7 @@ export default {
      return $.api('HomeApp', 'GetPageInfo', args, options);
    },
   /**
-  * 
+  * 批量获取应用项信息
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -303,9 +292,12 @@ export default {
      return $.api('HomeApp', 'GetAppItemDetail', args, options);
    },
   /**
-  * 获取应用详细信息
+  * 获取应用详情（包含分组信息，请求参数可选）
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
+  * @param {boolean} args.getSection 是否获取分组信息
+  * @param {boolean} args.getManager 是否获取管理员列表信息
+  * @param {boolean} args.getProject 获取组织信息
   * @param {string} args.clientId 客户端标识
 记录输入密码之后，页面刷新不用重复输入密码操作
 滑动过期
@@ -316,9 +308,9 @@ export default {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getAppDetail: function (args, options = {}) {
+   getApp: function (args, options = {}) {
      
-     return $.api('HomeApp', 'GetAppDetail', args, options);
+     return $.api('HomeApp', 'GetApp', args, options);
    },
   /**
   * 验证应用有效性

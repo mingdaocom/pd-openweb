@@ -3,7 +3,7 @@ import quickSelectUser from 'ming-ui/functions/quickSelectUser';
 import '@mdfe/selectize';
 import 'src/components/mdDialog/dialog';
 import mdAutocomplete from 'src/components/mdAutocomplete/mdAutocomplete';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import config from '../../config/config';
 import batchTaskTpl from './tpl/batchTask.html';
 import { htmlEncodeReg } from 'src/util';

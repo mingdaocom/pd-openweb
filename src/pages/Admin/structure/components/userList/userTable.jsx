@@ -6,7 +6,14 @@ import { LoadDiv, Icon, Checkbox, Tooltip } from 'ming-ui';
 import { Dropdown } from 'antd';
 import EditUser from '../EditUser';
 import classNames from 'classnames';
-import { updateUserOpList, removeUserFromSet, addUserToSet, updateSelectAll } from '../../actions/current';
+import {
+  updateUserOpList,
+  removeUserFromSet,
+  addUserToSet,
+  updateSelectAll,
+  fetchInActive,
+  fetchApproval,
+} from '../../actions/current';
 import { loadUsers, loadInactiveUsers, loadApprovalUsers, loadAllUsers } from '../../actions/entities';
 import cx from 'classnames';
 import './userItem.less';
@@ -406,6 +413,8 @@ class UserTable extends React.Component {
             cancelInviteRemove={() => {
               dispatch(loadInactiveUsers(projectId, 1));
             }}
+            fetchInActive={() => dispatch(fetchInActive(projectId))}
+            fetchApproval={() => dispatch(fetchApproval(projectId))}
           />
         )}
       </div>

@@ -149,7 +149,7 @@ export default class ProcessInform extends Component {
     return (
       <ScrollView className="flex" onScrollEnd={this.handleScrollEnd}>
         {list.map(item => (
-          <div className="pLeft10 pRight10" key={item.id}>
+          <div className="pLeft10 pRight10" key={item.workId}>
             <Card
               item={item}
               type={filter ? filter.type : null}
@@ -162,7 +162,6 @@ export default class ProcessInform extends Component {
                 this.setState({
                   previewRecord: { instanceId: item.id, workId: item.workId }
                 });
-                // console.log(`/mobile/processRecord/${item.id}/${item.workId}`);
               }}
             />
           </div>

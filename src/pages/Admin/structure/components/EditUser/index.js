@@ -10,6 +10,7 @@ import BaseFormInfo from '../BaseFormInfo';
 import TextInput from '../TextInput';
 import { checkForm } from '../../constant';
 import fixedDataAjax from 'src/api/fixedData.js';
+import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 import cx from 'classnames';
 import './index.less';
 
@@ -133,19 +134,10 @@ export default class EditUser extends Component {
           if (result === 1) {
             alert(_l('批准成功'));
             onClose();
+            this.props.fetchApproval();
             this.props.clickSave();
           } else if (result === 4) {
-            const licenseType = _.get(
-              _.find(md.global.Account.projects, project => project.projectId === projectId) || {},
-              'licenseType',
-            );
-            let link = '';
-            if (licenseType === 0) {
-              link = <span>{_l('当前用户数已超出人数限制')}</span>;
-            } else {
-              link = <span>{_l('当前用户数已超出人数限制')}</span>;
-            }
-            alert(link, 3);
+            alert(_l('当前用户数已超出人数限制'), 3);
           } else {
             alert(_l('操作失败'), 2);
           }
@@ -395,6 +387,8 @@ export default class EditUser extends Component {
                 saveFn={this.saveFn}
                 agreeJoin={this.agreeJoin}
                 onClose={onClose}
+                fetchInActive={this.props.fetchInActive}
+                fetchApproval={this.props.fetchApproval}
               />
             </Fragment>
           )}

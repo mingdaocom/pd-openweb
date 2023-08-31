@@ -1,9 +1,8 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { Dropdown, Dialog, Icon } from 'ming-ui';
+import { Dropdown, Dialog, Icon, Radio } from 'ming-ui';
 import { TIME_TYPE, TIME_TYPE_NAME, EXEC_TIME_TYPE, NODE_TYPE } from '../../../enum';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Switch } from 'antd';
 import cx from 'classnames';
 import SpecificFieldsValue from '../SpecificFieldsValue';
 import Member from '../Member';
@@ -14,12 +13,13 @@ import Deadline from '../Deadline';
 
 const Button = styled.span`
   border: 1px solid #2196f3;
-  padding: 0 24px;
-  height: 36px;
-  line-height: 36px;
-  display: inline-block;
-  border-radius: 36px;
+  padding: 0 16px;
+  height: 28px;
+  line-height: 28px;
+  display: inline-flex;
+  border-radius: 28px;
   cursor: pointer;
+  align-items: center;
 `;
 
 const Box = styled.div`
@@ -33,6 +33,12 @@ const Box = styled.div`
     top: 10px;
     right: 10px;
   }
+`;
+
+const EndBox = styled.div`
+  padding: 16px;
+  border-radius: 3px 3px 3px 3px;
+  border: 1px solid #eaeaea;
 `;
 
 export default ({
@@ -49,7 +55,10 @@ export default ({
   const [data, changeData] = useState(schedule);
   const [isShowDialog, showDialog] = useState(false);
   const [userDialogState, showUserDialog] = useState({});
-  const TYPE_List = [{ text: _l('自定义'), value: 1 }, { text: _l('指定的日期时间'), value: 2 }];
+  const TYPE_List = [
+    { text: _l('自定义'), value: 1 },
+    { text: _l('指定的日期时间'), value: 2 },
+  ];
   const UNIT_List = [
     { text: TIME_TYPE_NAME[TIME_TYPE.MINUTE], value: TIME_TYPE.MINUTE },
     { text: TIME_TYPE_NAME[TIME_TYPE.HOUR], value: TIME_TYPE.HOUR },
@@ -67,7 +76,7 @@ export default ({
           entityName: selectNodeName,
           flowNodeType: selectNodeType,
           roleId: selectNodeType === NODE_TYPE.WRITE ? 'editid' : 'approveid',
-          roleName: selectNodeType === NODE_TYPE.WRITE ? _l('填写人') : _l('审批人'),
+          roleName: selectNodeType === NODE_TYPE.WRITE ? _l('设置的填写人') : _l('设置的审批人'),
           roleTypeId: 0,
           type: 6,
         },
@@ -85,6 +94,12 @@ export default ({
     { text: _l('当时'), value: EXEC_TIME_TYPE.CURRENT },
     { text: _l('之后'), value: EXEC_TIME_TYPE.AFTER },
   ];
+  const OVERDUE_OPTIONS = [
+    { text: selectNodeType === NODE_TYPE.WRITE ? _l('自动提交') : _l('自动通过'), value: 2 },
+    { text: _l('自动否决'), value: 3 },
+    { text: _l('流程中止'), value: 4 },
+    { text: _l('什么也不做'), value: 0 },
+  ];
   const changeAction = (id, obj) => {
     const newActions = [].concat(data.actions);
 
@@ -100,11 +115,11 @@ export default ({
   };
   const renderDeadlineContent = (item, autoPass) => {
     return (
-      <div className="mTop15 flexRow alignItemsCenter">
+      <div className="mTop10 flexRow alignItemsCenter">
         <div>{_l('在截止时刻')}</div>
         <Dropdown
           className={cx('mLeft10', { flex: item.executeTimeType === 0 && !autoPass })}
-          style={{ width: item.executeTimeType === 0 && !autoPass ? 'auto' : 100 }}
+          style={{ width: item.executeTimeType === 0 && !autoPass ? 'auto' : 110 }}
           data={EXECUTE_TIME_TYPE_LIST.filter(o => o.value !== EXEC_TIME_TYPE.BEFORE || !autoPass)}
           value={item.executeTimeType}
           border
@@ -131,7 +146,7 @@ export default ({
             </div>
             <Dropdown
               className="mLeft10"
-              style={{ width: 100 }}
+              style={{ width: 110 }}
               data={UNIT_List}
               value={item.unit}
               border
@@ -139,19 +154,16 @@ export default ({
             />
           </Fragment>
         )}
-        {!autoPass ? (
-          <Icon
-            type="delete2"
-            className="Font16 Gray_9e ThemeHoverColor3 mLeft10 pointer"
-            onClick={() => {
-              const actions = [].concat(data.actions);
-
-              _.remove(actions, o => o.id === item.id);
-              changeData(Object.assign({}, data, { actions }));
-            }}
-          />
-        ) : (
-          <div className="mLeft10">{selectNodeType === NODE_TYPE.WRITE ? _l('自动提交') : _l('自动通过')}</div>
+        {autoPass && (
+          <div className="mLeft10">
+            {item.type === 3
+              ? _l('自动否决')
+              : item.type === 4
+              ? _l('流程中止')
+              : selectNodeType === NODE_TYPE.WRITE
+              ? _l('自动提交')
+              : _l('自动通过')}
+          </div>
         )}
       </div>
     );
@@ -180,35 +192,37 @@ export default ({
             </span>
           </Fragment>
         ) : (
-          <span className="mLeft3 Gray_9e">{selectNodeType === NODE_TYPE.WRITE ? _l('自动提交') : _l('自动通过')}</span>
+          <span className="mLeft3 Gray_9e">
+            {item.type === 3
+              ? _l('自动否决')
+              : item.type === 4
+              ? _l('流程中止')
+              : selectNodeType === NODE_TYPE.WRITE
+              ? _l('自动提交')
+              : _l('自动通过')}
+          </span>
         )}
       </div>
     );
   };
 
-  useEffect(
-    () => {
-      changeData(schedule);
-    },
-    [schedule],
-  );
+  useEffect(() => {
+    changeData(schedule);
+  }, [schedule]);
 
-  useEffect(
-    () => {
-      if (!schedule.type) {
-        changeData(
-          Object.assign({}, data, {
-            type: 1,
-            unit: 3,
-            executeTime: { fieldValue: '1' },
-            actions: [getDefaultAction()],
-          }),
-        );
-        showDialog(true);
-      }
-    },
-    [schedule.enable],
-  );
+  useEffect(() => {
+    if (!schedule.type) {
+      changeData(
+        Object.assign({}, data, {
+          type: 1,
+          unit: 3,
+          executeTime: { fieldValue: '1' },
+          actions: [getDefaultAction()],
+        }),
+      );
+      showDialog(true);
+    }
+  }, [schedule.enable]);
 
   if (!schedule.enable) return null;
 
@@ -219,7 +233,7 @@ export default ({
           <Icon icon="edit" className="Gray_9e ThemeHoverColor3 pointer" onClick={() => showDialog(true)} />
           <div className="bold">{_l('截止：到达此节点后的%0', getHeaderText())}</div>
           {schedule.actions.filter(o => o.type === 1).map(renderRemindContent)}
-          {schedule.actions.filter(o => o.type === 2).map(renderRemindContent)}
+          {schedule.actions.filter(o => _.includes([2, 3, 4], o.type)).map(renderRemindContent)}
         </Box>
       )}
 
@@ -227,7 +241,7 @@ export default ({
         <Dialog
           className="workflowDialogBox"
           visible
-          width={640}
+          width={800}
           title={_l('限时处理')}
           onCancel={() => {
             if (schedule.type) {
@@ -256,10 +270,9 @@ export default ({
             }
           }}
         >
-          <div className="flexRow alignItemsCenter">
-            <div>{_l('截止时刻是')}</div>
+          <div className="bold mTop10">{_l('截止时刻')}</div>
+          <div className="mTop10">
             <Dropdown
-              className="mLeft10"
               style={{ width: 240 }}
               data={TYPE_List}
               value={data.type}
@@ -284,54 +297,29 @@ export default ({
             onChange={changeData}
           />
 
-          <div className="mTop25 flexRow alignItemsCenter">
-            <div className="bold">{_l('截止提醒')}</div>
-            <Switch
-              className="mLeft10"
-              size="small"
-              checked={!!data.actions.filter(o => o.type === 1).length}
-              onChange={checked =>
-                changeData(
-                  Object.assign({}, data, {
-                    actions: checked
-                      ? data.actions.concat([getDefaultAction()])
-                      : data.actions.filter(o => o.type === 2),
-                  }),
-                )
-              }
-            />
-          </div>
-          <div className="mTop10 Gray_9e">{_l('设置提醒规则，在停留时间到达某时刻时提醒相关人员查看')}</div>
-
+          <div className="mTop25 bold">{_l('截止提醒')}</div>
           {data.actions
             .filter(o => o.type === 1)
             .map((item, index) => {
               return (
-                <Fragment key={item.id}>
-                  {renderDeadlineContent(item)}
-                  <Member accounts={item.accounts} updateSource={accounts => changeAction(item.id, accounts)} />
-                  <div
-                    className="flexRow ThemeColor3 workflowDetailAddBtn mTop15"
-                    onClick={() => showUserDialog(Object.assign({}, userDialogState, { [item.id]: true }))}
-                  >
-                    <i className="Font28 icon-task-add-member-circle mRight10" />
-                    {_l('添加提醒人')}
-                    <SelectUserDropDown
-                      appId={relationType === 2 ? relationId : ''}
-                      visible={userDialogState[item.id]}
-                      companyId={companyId}
-                      processId={processId}
-                      nodeId={selectNodeId}
-                      unique={false}
-                      schedule={true}
-                      accounts={item.accounts}
-                      updateSource={accounts => changeAction(item.id, accounts)}
-                      onClose={() => showUserDialog(Object.assign({}, userDialogState, { [item.id]: false }))}
+                <EndBox className="mTop10" key={item.id}>
+                  <div className="flexRow">
+                    <div className="flex bold Gray_75">{_l('提醒%0', index + 1)}</div>
+                    <Icon
+                      type="delete2"
+                      className="Font16 Gray_9e ThemeHoverColor3 mLeft10 pointer"
+                      onClick={() => {
+                        const actions = [].concat(data.actions);
+
+                        _.remove(actions, o => o.id === item.id);
+                        changeData(Object.assign({}, data, { actions }));
+                      }}
                     />
                   </div>
+                  {renderDeadlineContent(item)}
 
-                  <div className="mTop15 flexRow alignItemsCenter">
-                    <div>{_l('通知内容')}</div>
+                  <div className="mTop10 flexRow alignItemsCenter">
+                    <div>{_l('提醒内容')}</div>
                     <input
                       type="text"
                       className="mLeft10 flex ThemeBorderColor3 actionControlBox pLeft10 pRight10"
@@ -347,14 +335,36 @@ export default ({
                     />
                   </div>
 
-                  {index !== data.actions.length - 1 && (
-                    <div className="mTop20 mBottom20" style={{ backgroundColor: '#ddd', height: 1 }} />
-                  )}
-                </Fragment>
+                  <div className="flexRow">
+                    <div className="pTop16">{_l('提醒人')}</div>
+                    <div className="flex mLeft10">
+                      <Member accounts={item.accounts} updateSource={accounts => changeAction(item.id, accounts)} />
+                      <div
+                        className="flexRow ThemeColor3 workflowDetailAddBtn mTop15"
+                        onClick={() => showUserDialog(Object.assign({}, userDialogState, { [item.id]: true }))}
+                      >
+                        <i className="Font28 icon-task-add-member-circle mRight10" />
+                        {_l('添加提醒人')}
+                        <SelectUserDropDown
+                          appId={relationType === 2 ? relationId : ''}
+                          visible={userDialogState[item.id]}
+                          companyId={companyId}
+                          processId={processId}
+                          nodeId={selectNodeId}
+                          unique={false}
+                          schedule={true}
+                          accounts={item.accounts}
+                          updateSource={accounts => changeAction(item.id, accounts)}
+                          onClose={() => showUserDialog(Object.assign({}, userDialogState, { [item.id]: false }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </EndBox>
               );
             })}
 
-          <div className="mTop25">
+          <div className="mTop15">
             <Button
               className="ThemeColor3 ThemeHoverColor2 ThemeBorderColor3 ThemeHoverBorderColor2"
               onClick={() =>
@@ -369,36 +379,38 @@ export default ({
             </Button>
           </div>
 
-          <div className="mTop25 flexRow alignItemsCenter">
-            <div className="bold">{selectNodeType === NODE_TYPE.WRITE ? _l('自动提交') : _l('自动通过')}</div>
-            <Switch
-              className="mLeft10"
-              size="small"
-              checked={!!data.actions.filter(o => o.type === 2).length}
-              onChange={checked =>
-                changeData(
-                  Object.assign({}, data, {
-                    actions: checked
-                      ? data.actions.concat([
-                          {
-                            executeTime: {},
-                            executeTimeType: 0,
-                            id: uuidv4(),
-                            type: 2,
-                          },
-                        ])
-                      : data.actions.filter(o => o.type === 1),
-                  }),
-                )
-              }
-            />
+          <div className="mTop25 bold">{_l('超期后')}</div>
+
+          <div className="flexRow mTop10">
+            {OVERDUE_OPTIONS.filter(item => selectNodeType !== NODE_TYPE.WRITE || item.value !== 3).map(
+              (item, index) => (
+                <Radio
+                  key={index}
+                  text={item.text}
+                  checked={(data.actions.find(o => _.includes([2, 3, 4], o.type)) || { type: 0 }).type === item.value}
+                  onClick={() => {
+                    changeData(
+                      Object.assign({}, data, {
+                        actions: item.value
+                          ? data.actions
+                              .filter(o => o.type === 1)
+                              .concat([
+                                {
+                                  executeTime: {},
+                                  executeTimeType: 0,
+                                  id: uuidv4(),
+                                  type: item.value,
+                                },
+                              ])
+                          : data.actions.filter(o => o.type === 1),
+                      }),
+                    );
+                  }}
+                />
+              ),
+            )}
           </div>
-          <div className="mTop10 Gray_9e">
-            {selectNodeType === NODE_TYPE.WRITE
-              ? _l('设置自动提交规则，当节点超时后进行自动提交')
-              : _l('设置自动通过规则，当节点超时后进行自动通过')}
-          </div>
-          {data.actions.filter(o => o.type === 2).map(item => renderDeadlineContent(item, true))}
+          {data.actions.filter(o => _.includes([2, 3, 4], o.type)).map(item => renderDeadlineContent(item, true))}
         </Dialog>
       )}
     </Fragment>

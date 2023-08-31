@@ -9,6 +9,7 @@ import { SelectOtherField, OtherField, DynamicInput } from '../components';
 import { getOptions } from '../../../../util/setting';
 
 export const DefaultOptionSetting = styled(SettingItem)`
+  margin-top: 12px !important;
   .holder {
     height: 34px;
   }

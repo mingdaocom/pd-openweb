@@ -4,12 +4,14 @@ import { connect } from 'react-redux';
 import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
 import _ from 'lodash';
 
+const emptyArray = [];
+
 const ViewDisplay = props => {
-  const { setting, filtersGroup } = props;
+  const { setting } = props;
   const objectId = _.get(setting, 'config.objectId');
-  const filters = formatFiltersGroup(objectId, filtersGroup);
+  const filtersGroup = formatFiltersGroup(objectId, props.filtersGroup);
   return (
-    <View {...props} filtersGroup={filters} />
+    <View {...props} filtersGroup={filtersGroup.length ? filtersGroup : emptyArray} />
   );
 }
 

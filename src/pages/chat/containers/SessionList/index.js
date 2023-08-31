@@ -16,6 +16,8 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import './index.less';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import GroupController from 'src/api/group';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class ContextMenu extends Component {
@@ -55,9 +57,9 @@ const getOffsetData = function (rootW, rootH, nativeEvent) {
   const { clientX, clientY } = nativeEvent;
   const screenW = window.innerWidth;
   const screenH = window.innerHeight;
-  const right = (screenW - clientX) > rootW;
+  const right = screenW - clientX > rootW;
   const left = !right;
-  const top = (screenH - clientY) > rootH;
+  const top = screenH - clientY > rootH;
   const bottom = !top;
   const offset = {};
 
@@ -77,7 +79,7 @@ const getOffsetData = function (rootW, rootH, nativeEvent) {
     offset.y = clientY - rootH - 5;
   }
   return offset;
-}
+};
 
 class SessionList extends Component {
   constructor(props) {
@@ -108,8 +110,11 @@ class SessionList extends Component {
       return;
     }
     const currentChatCount = sessionList.reduce((count, item) => {
-      if (item.count && ('isPush' in item ? item.isPush : true)) {
-        return count += item.count;
+      if(item.count && 'isSilent' in item) {
+        return item.isSilent ? count : (count += item.count);
+      }
+      else if (item.count && ('isPush' in item ? item.isPush : true)) {
+        return (count += item.count);
       } else {
         return count;
       }
@@ -134,7 +139,7 @@ class SessionList extends Component {
         pageIndex,
         pageSize: 30,
       })
-      .done((sessionList) => {
+      .done(sessionList => {
         if (_.isEmpty(sessionList)) {
           this.setState({
             isMore: false,
@@ -154,7 +159,8 @@ class SessionList extends Component {
           for (let i = 0; i < sessionList.length; i++) {
             const session = sessionList[i] || {};
             const hasPush = 'isPush' in session ? session.isPush : true;
-            if (session && session.count && hasPush) {
+            const notSilient = 'isSilent' in session ? (!session.isSilent || [1, 2].includes(session.showBadge) )  : true;
+            if (session && session.count && hasPush && notSilient) {
               utils.flashTitle();
               continue;
             }
@@ -180,15 +186,19 @@ class SessionList extends Component {
     //   return;
     // }
     // 设置当前会话窗口
+    if ('showBadge' in item) {
+      item.showBadge = 0;
+    }
     this.props.dispatch(actions.setNewCurrentSession(item));
+
     // 清除计数
     if (item.count || item.weak_count) {
-      socket.Contact.clearUnread(Object.assign({}, item)).then((result) => {
+      socket.Contact.clearUnread(Object.assign({}, item)).then(result => {
         this.props.dispatch(
           actions.updateSessionList({
             id: item.value,
             clearCount: item.count,
-          })
+          }),
         );
       });
     }
@@ -198,7 +208,7 @@ class SessionList extends Component {
         actions.updateSessionList({
           id: item.value,
           atlist: [],
-        })
+        }),
       );
     }
     // 清除回复我
@@ -207,15 +217,19 @@ class SessionList extends Component {
         actions.updateSessionList({
           id: item.value,
           refer: null,
-        })
+        }),
       );
     }
     // 如果不存在其他计数关闭新消息提醒
     this.handleRemoveFlashTitle(item.value);
-    socket.Contact.recordAction({
+    const param = {
       id: item.value,
       type: item.isGroup ? 2 : 1,
-    });
+    };
+    if ('showBadge' in item) {
+      param.showBadge = 0;
+    }
+    socket.Contact.recordAction(param);
   }
   handleRemoveSession(item, event) {
     event.stopPropagation();
@@ -226,7 +240,7 @@ class SessionList extends Component {
     socket.Contact.remove({
       id: item.value,
       type: item.type,
-    }).then((result) => {});
+    }).then(result => {});
   }
   handleContextMenu(item, event) {
     event.preventDefault();
@@ -267,16 +281,18 @@ class SessionList extends Component {
         hoverItem: {},
         isClear: false,
       });
-    };
+    }
   }
   handleStick() {
     const { type, value, top_info } = this.state.hoverItem;
     const isTop = top_info ? top_info.isTop : false;
-    this.props.dispatch(actions.sendSetTop({
-      type,
-      value,
-      isTop: !isTop,
-    }));
+    this.props.dispatch(
+      actions.sendSetTop({
+        type,
+        value,
+        isTop: !isTop,
+      }),
+    );
     this.handleClickAway();
   }
   handleOpenFeed() {
@@ -320,26 +336,72 @@ class SessionList extends Component {
       $(scrollView).nanoScroller({ scrollTop: 0 });
     }
   }
+
+  handleUpdatePushNotice() {
+    const { hoverItem } = this.state;
+    const { type, isPush, value, isSilent } = hoverItem;
+
+    switch (type) {
+      case Constant.SESSIONTYPE_GROUP:
+        GroupController.updateGroupPushNotice({
+          groupId: value,
+          isPushNotice: !isPush,
+        }).then(result => {
+          this.props.dispatch(actions.updateGroupPushNotice(value, !isPush));
+          this.handleClickAway();
+        });
+        break;
+      default:
+        this.props.dispatch(
+          actions.sendSetSlience({
+            type,
+            AccountID: md.global.Account.accountId,
+            isSilent: !isSilent,
+          }),
+        );
+        setTimeout(() => {
+          this.handleClickAway();
+        }, 500);
+        break;
+    }
+  }
+
   renderMenu() {
     const { isFeed, hoverItem } = this.state;
-    const { top_info, type } = hoverItem;
+    const { top_info, type, isPush, isSilent } = hoverItem;
     const isTop = top_info ? top_info.isTop : false;
     const isSet = 'isSession' in hoverItem ? (type === Constant.SESSIONTYPE_GROUP ? true : false) : true;
+    const isPushNotice = ('isPush' in hoverItem && type === Constant.SESSIONTYPE_GROUP) || 'isSilent' in hoverItem;
+    const isPushNoticeValue = type === 2 ? isPush : !isSilent;
+
     return (
       <div className="ChatPanel-addToolbar-menu">
-        {
-          isSet ?
+        {isSet ? (
           <div className="menuItem ThemeBGColor3" onClick={this.handleStick.bind(this)}>
+            <Icon icon={isTop ? 'unpin' : 'set_top'} className="Font16" />
             <div className="menuItem-text">{isTop ? _l('取消置顶') : _l('置顶')}</div>
-          </div> : undefined
-        }
-        {
-          isFeed ?
+          </div>
+        ) : undefined}
+        {isFeed ? (
           <div className="menuItem ThemeBGColor3" onClick={this.handleOpenFeed.bind(this)}>
+            <Icon icon="chat1" className="Font16" />
             <div className="menuItem-text">{_l('查看动态')}</div>
-          </div> : undefined
-        }
-        <div className="menuItem ThemeBGColor3" onClick={(event) => {this.handleRemoveSession(this.state.hoverItem, event); this.handleClickAway();}}>
+          </div>
+        ) : undefined}
+        {isPushNotice && (
+          <div className="menuItem ThemeBGColor3" onClick={this.handleUpdatePushNotice.bind(this)}>
+            <Icon icon={isPushNoticeValue ? 'notifications_off' : 'notifications'} className="Font16" />
+            <div className="menuItem-text">{isPushNoticeValue ? _l('消息免打扰') : _l('允许提醒')}</div>
+          </div>
+        )}
+        <div
+          className="menuItem ThemeBGColor3"
+          onClick={event => {
+            this.handleRemoveSession(this.state.hoverItem, event);
+            this.handleClickAway();
+          }}
+        >
+          <Icon icon="clear" className="Font16" />
           <div className="menuItem-text">{_l('移除会话')}</div>
         </div>
       </div>
@@ -370,16 +432,33 @@ class SessionList extends Component {
         <div className="SessionList-clearAll ThemeBGColor9">
           <div onClick={this.handleGotoSession.bind(this)}>
             <h3 className="ThemeColor10">{_l('消息')}</h3>
-            <div className={cx('text', {red: chatCount})}>{chatCount ? _l('%0条新消息', chatCount) : _l('暂无新消息')}</div>
+            <div className={cx('text', { red: chatCount })}>
+              {chatCount ? _l('%0条新消息', chatCount) : _l('暂无新消息')}
+            </div>
           </div>
-          <div data-tip={_l('忽略全部消息')} className="tip-left clearAll" onClick={this.handleClearAllCount.bind(this, visible)}><i className="icon-clean_all ThemeColor3"></i></div>
+          <div
+            data-tip={_l('忽略全部消息')}
+            className="tip-left clearAll"
+            onClick={this.handleClearAllCount.bind(this, visible)}
+          >
+            <i className="icon-clean_all ThemeColor3"></i>
+          </div>
         </div>
       );
     } else {
       return (
-        <div className="SessionList-clearAll ThemeBGColor9" onClick={this.handleClearAllCount.bind(this, visible)} onContextMenu={(event) => {this.handleContextClearMenu(event)}}>
-          <Tooltip popupPlacement='left' text={<span>{chatCount ? _l('%0条未读消息', chatCount) : _l('暂无新消息')}</span>}>
-            <div className="SessionList-bell" style={{cursor: chatCount ? 'pointer' : 'initial'}}>
+        <div
+          className="SessionList-clearAll ThemeBGColor9"
+          onClick={this.handleClearAllCount.bind(this, visible)}
+          onContextMenu={event => {
+            this.handleContextClearMenu(event);
+          }}
+        >
+          <Tooltip
+            popupPlacement="left"
+            text={<span>{chatCount ? _l('%0条未读消息', chatCount) : _l('暂无新消息')}</span>}
+          >
+            <div className="SessionList-bell" style={{ cursor: chatCount ? 'pointer' : 'initial' }}>
               <i className="icon-hr_message_reminder"></i>
               {chatCount ? <span>{chatCount >= 99 ? '99+' : chatCount}</span> : undefined}
             </div>
@@ -397,7 +476,7 @@ class SessionList extends Component {
         <ScrollView
           onScrollEnd={this.handleScrollEnd.bind(this)}
           className="SessionList-scrollView ThemeBGColor9"
-          ref={(scrollView) => {
+          ref={scrollView => {
             this.scrollView = scrollView;
           }}
         >
@@ -406,7 +485,7 @@ class SessionList extends Component {
             onClickAway={this.handleClickAway.bind(this)}
             onClickAwayExceptions={['.ChatPanel-addToolbar-menu']}
           >
-            <ContextMenu visible={menuVisible} offset={offset} >
+            <ContextMenu visible={menuVisible} offset={offset}>
               {isClear ? this.renderClearMenu() : this.renderMenu()}
             </ContextMenu>
           </ClickAwayable>
@@ -414,7 +493,9 @@ class SessionList extends Component {
             <SessionItem
               onOpenPanel={this.handleOpenPanel.bind(this, item)}
               onRemoveSession={this.handleRemoveSession.bind(this, item)}
-              onContextMenu={(event) => {this.handleContextMenu(item, event)}}
+              onContextMenu={event => {
+                this.handleContextMenu(item, event);
+              }}
               item={item}
               visible={visible}
               key={item.value}
@@ -422,21 +503,19 @@ class SessionList extends Component {
               isHover={item.value === hoverItem.value}
             />
           ))}
-          {(!sessionList.length && visible && !loading) ? this.renderEmpty() : undefined}
+          {!sessionList.length && visible && !loading ? this.renderEmpty() : undefined}
           {loading ? (
             <div className={cx('ChatList-sessionList-loading', { visible: !visible, nodata: !sessionList.length })}>
               <LoadDiv size="small" />
             </div>
-          ) : (
-            undefined
-          )}
+          ) : undefined}
         </ScrollView>
       </div>
     );
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { currentSession, currentSessionList, sessionList, visible } = state.chat;
   return {
     currentSession,

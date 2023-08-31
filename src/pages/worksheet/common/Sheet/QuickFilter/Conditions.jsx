@@ -180,7 +180,10 @@ export default function Conditions(props) {
           };
         })
         .filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type))), // 分享状态快速筛选不应该显示 成员 部门 角色
-    [JSON.stringify(filters), JSON.stringify(controls.map(c => _.pick(c, ['controlName', 'options'])))],
+    [
+      JSON.stringify(filters),
+      JSON.stringify(controls.map(c => _.pick(c, ['controlName', 'options', 'relationControls']))),
+    ],
   );
   function update(newValues) {
     didMount.current = true;
@@ -236,10 +239,6 @@ export default function Conditions(props) {
       {visibleItems.map((item, i) => (
         <Item
           isConfigMode={isConfigMode}
-          isLastLine={
-            isFilterComp &&
-            Math.ceil((i + 1) / colNum) === Math.ceil((items.length + (showQueryBtn || showExpand ? 1 : 0)) / colNum)
-          }
           highlight={activeFilterId === item.fid}
           key={i}
           className={cx(

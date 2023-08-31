@@ -2,8 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import CustomFields from 'src/components/newCustomFields';
 import CSSTransitionGroup from 'react-addons-css-transition-group';
+import cx from 'classnames';
+import Icon from 'ming-ui/components/Icon';
 
-const Wrap = styled.div`
+const Wrap = styled.div(
+  ({ width }) => `
+  .disable {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+  }
   position: fixed;
   top: 0;
   bottom: 0;
@@ -12,15 +19,15 @@ const Wrap = styled.div`
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-flow: column nowrap;
-  width: 580px;
+  width: ${width || '580px'};
   background: #fff;
   .cover {
     position: fixed;
     left: 0;
     top: 0;
     bottom: 0;
-    right: 580px;
-    background: rgba(0, 0, 0, 0.7);
+    right: ${width || '580px'};
+    // background: rgba(0, 0, 0, 0.7);
     z-index: -1;
   }
   .headerWrap {
@@ -60,7 +67,8 @@ const Wrap = styled.div`
       }
     }
   }
-`;
+`,
+);
 const UserInfoDialogWrap = styled.div`
   width: 100%;
   overflow-y: auto;
@@ -72,26 +80,30 @@ const UserInfoDialogWrap = styled.div`
   }
 `;
 export default function UserInfoWrap(props) {
-  const { setShow, title, onDel, currentData } = props;
+  const { setShow, title, onDel, currentData, renderCancel, okText, isPage, disable, width, showClose } = props;
   const customwidget = useRef(null);
   const [ids, setIds] = useState([]);
-
-  return (
-    <CSSTransitionGroup
-      component={'div'}
-      transitionName={'userInfoSlide'}
-      transitionAppearTimeout={500}
-      transitionEnterTimeout={500}
-      transitionLeaveTimeout={500}
-    >
-      <Wrap className="flexColumn">
+  const renderCon = () => {
+    return (
+      <Wrap className="flexColumn" width={width}>
         <span
           className="cover"
           onClick={() => {
             setShow(false);
           }}
         ></span>
-        <div className="headerWrap">{title || _l('修改用户信息')}</div>
+        <div className="headerWrap flexRow">
+          <span className="flex">{title || _l('修改用户信息')}</span>
+          {showClose && (
+            <Icon
+              className="Gray_9e Font22 Hand ThemeHoverColor3"
+              icon="close"
+              onClick={() => {
+                setShow(false);
+              }}
+            />
+          )}
+        </div>
         <UserInfoDialogWrap className="flex">
           <CustomFields
             disableRules
@@ -109,8 +121,11 @@ export default function UserInfoWrap(props) {
         <div className="footerWrap flexRow">
           <div className="flex">
             <div
-              className="btn saveBtn Hand"
+              className={cx('btn saveBtn Hand', { disable })}
               onClick={() => {
+                if (disable) {
+                  return;
+                }
                 let { data, hasError } = customwidget.current.getSubmitData();
                 if (hasError) {
                   return;
@@ -119,24 +134,45 @@ export default function UserInfoWrap(props) {
                 setShow(false);
               }}
             >
-              {_l('保存')}
+              {okText ? okText : _l('保存')}
             </div>
-            <div
-              className="btn cancelBtn Hand mLeft10"
-              onClick={() => {
-                setShow(false);
-              }}
-            >
-              {_l('取消')}
-            </div>
+            {renderCancel ? (
+              renderCancel(currentData)
+            ) : (
+              <div
+                className={cx('btn cancelBtn Hand mLeft10', { disable })}
+                onClick={() => {
+                  if (disable) {
+                    return;
+                  }
+                  setShow(false);
+                }}
+              >
+                {_l('取消')}
+              </div>
+            )}
           </div>
           {onDel && (
-            <span className="del Hand" onClick={onDel}>
+            <span className={cx('del Hand', { disable })} onClick={disable ? null : onDel}>
               {_l('注销用户')}
             </span>
           )}
         </div>
       </Wrap>
+    );
+  };
+  if (isPage) {
+    return renderCon();
+  }
+  return (
+    <CSSTransitionGroup
+      component={'div'}
+      transitionName={'thumbnailTransition'}
+      transitionAppearTimeout={500}
+      transitionEnterTimeout={500}
+      transitionLeaveTimeout={500}
+    >
+      {renderCon()}
     </CSSTransitionGroup>
   );
 }

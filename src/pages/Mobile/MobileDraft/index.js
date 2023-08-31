@@ -238,7 +238,7 @@ function MobileDraftList(props) {
 }
 
 export default function MobileDraft(props) {
-  const { appId, controls = [], worksheetInfo,  sheetSwitchPermit } = props;
+  const { appId, controls = [], worksheetInfo, worksheetId, sheetSwitchPermit } = props;
   const [visible, setVisible] = useState(false);
   const [draftData, setDraftData] = useState([]);
 
@@ -250,7 +250,7 @@ export default function MobileDraft(props) {
     worksheetAjax
       .getFilterRows({
         appId,
-        worksheetId: worksheetInfo.worksheetId,
+        worksheetId: worksheetId || worksheetInfo.worksheetId,
         getType: 21,
       })
       .then(res => {

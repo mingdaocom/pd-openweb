@@ -28,7 +28,6 @@ export default class At extends Component {
       pageSize: 20,
       keywords: '',
     }).then((res) => {
-      console.log('at', res);
       this.setState({
         member: res.groupUsers,
       });

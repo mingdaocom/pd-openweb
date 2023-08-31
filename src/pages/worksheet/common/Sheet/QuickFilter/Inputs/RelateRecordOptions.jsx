@@ -45,9 +45,10 @@ export default function RelateRecordOptions(props) {
     <Con>
       {prefixRecords.concat(records).map((record, i) => {
         const title = record.rowid === 'isEmpty' ? record.name : getTitleTextFromRelateControl(control, record);
+        const checked = _.find(selected, { rowid: record.rowid });
         return (
           <Option
-            className={cx('ellipsis', { checked: _.find(selected, { rowid: record.rowid }) })}
+            className={cx('ellipsis', { multiple, checked })}
             title={title}
             key={i}
             onClick={() => {
@@ -60,7 +61,8 @@ export default function RelateRecordOptions(props) {
               }
             }}
           >
-            {title}
+            {multiple && checked && <span className="icon-hr_ok selectedIcon"></span>}
+            <div className="ellipsis">{title}</div>
           </Option>
         );
       })}

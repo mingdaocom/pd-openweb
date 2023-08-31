@@ -25,6 +25,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import { canEditData, canEditApp, isHaveCharge } from 'worksheet/redux/actions/util';
+import { PRINT_TYPE } from 'src/pages/Print/config';
 
 const CancelTextContent = styled.div`
   display: flex;
@@ -107,8 +108,9 @@ class BatchOperate extends React.Component {
         viewId,
       })
       .then(data => {
+        const values = _.values(PRINT_TYPE);
         this.setState({
-          templateList: data.filter(d => d.type >= 2).sort((a, b) => a.type - b.type),
+          templateList: data.filter(d => d.type >= 2).sort((a, b) => values.indexOf(a.type) - values.indexOf(b.type)),
           loading: false,
         });
       });
@@ -399,7 +401,13 @@ class BatchOperate extends React.Component {
       <div className="selected">
         <span className="selectedStatus">
           {allWorksheetIsSelected
-            ? _l(select1000 ? `已选择 ${md.global.SysSettings.worktableBatchOperateDataLimitCount} 条数据` : `已选择"${view.name}"所有 %0 条%1`, selectedLength, entityName)
+            ? _l(
+                select1000
+                  ? `已选择 ${md.global.SysSettings.worktableBatchOperateDataLimitCount} 条数据`
+                  : `已选择"${view.name}"所有 %0 条%1`,
+                selectedLength,
+                entityName,
+              )
             : _l('已选择本页 %0 条%1', selectedLength, entityName)}
         </span>
       </div>
@@ -509,7 +517,9 @@ class BatchOperate extends React.Component {
                     controls,
                     selectedRows,
                     selectedRowIds: selectedRows.map(r => r.rowid),
-                    templateList: allWorksheetIsSelected ? templateList.filter(d => d.type > 2) : templateList,
+                    templateList: allWorksheetIsSelected
+                      ? templateList.filter(d => d.type > 2 && d.type !== 5)
+                      : templateList,
                     count: count,
                     allowLoadMore: allWorksheetIsSelected,
                   }}
@@ -590,14 +600,21 @@ class BatchOperate extends React.Component {
                       buttonType: 'danger',
                       description:
                         selectedLength <= md.global.SysSettings.worktableBatchOperateDataLimitCount
-                          ? _l('%0天内可在 回收站 内找回已删除%1，无编辑权限的数据无法删除。', md.global.SysSettings.worksheetRowRecycleDays, entityName)
+                          ? _l(
+                              '%0天内可在 回收站 内找回已删除%1，无编辑权限的数据无法删除。',
+                              md.global.SysSettings.worksheetRowRecycleDays,
+                              entityName,
+                            )
                           : _l(
                               '批量操作单次最大支持%0行记录，点击删除后将只删除前%0行记录',
                               md.global.SysSettings.worktableBatchOperateDataLimitCount,
                             ),
                       onOk: handleDelete,
                     };
-                    if (isHaveCharge(permissionType) && selectedLength >= md.global.SysSettings.worktableBatchOperateDataLimitCount) {
+                    if (
+                      isHaveCharge(permissionType) &&
+                      selectedLength >= md.global.SysSettings.worktableBatchOperateDataLimitCount
+                    ) {
                       configOptions.onlyClose = true;
                       configOptions.cancelType = 'danger-gray';
                       configOptions.onCancel = () => {
@@ -616,7 +633,7 @@ class BatchOperate extends React.Component {
                                 {_l('注意：此操作将彻底删除所有数据，不可从回收站中恢复！')}
                               </span>
                               {_l(
-                                '当前所选记录数量超过%0行，数据不会进入回收站而直接进行彻底删除，且不会触发工作流。此操作只有应用管理员可以执行，请请务必确认所有应用成员都不再需要这些数据后再执行此操作',
+                                '当前所选记录数量超过%0行，数据不会进入回收站而直接进行彻底删除，且不会触发工作流。此操作只有应用管理员可以执行，请务必确认所有应用成员都不再需要这些数据后再执行此操作',
                                 md.global.SysSettings.worktableBatchOperateDataLimitCount,
                               )}
                               {!isCharge && <div className="Gray mTop20">{_l('你没有权限进行此操作！')}</div>}

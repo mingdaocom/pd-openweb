@@ -15,7 +15,10 @@ export default class DefaultUserList extends Component {
   }
   render() {
     let data = this.props.data;
-    const includeUndefinedAndMySelf = { includeUndefinedAndMySelf: this.props.includeUndefinedAndMySelf || false };
+    const otherOptions = {
+      includeMySelf: this.props.includeMySelf || false,
+      includeUndefinedAndMySelf: this.props.includeUndefinedAndMySelf || false,
+    };
     if (
       (data.oftenUsers && data.oftenUsers.list && data.oftenUsers.list.length) ||
       (data.users && data.users.list.length)
@@ -33,8 +36,8 @@ export default class DefaultUserList extends Component {
               <div className="GSelect-navTitle">{_l('最常协作')}</div>
               {data.oftenUsers.list.map(user => (
                 <User
+                  {...otherOptions}
                   user={user}
-                  {...includeUndefinedAndMySelf}
                   onChange={this.props.onChange}
                   projectId={this.props.projectId}
                   checked={this.getChecked(user)}
@@ -49,6 +52,7 @@ export default class DefaultUserList extends Component {
               <div className="GSelect-navTitle">{_l('按拼音A-Z排序')}</div>
               {data.users.list.map(user => (
                 <User
+                  {...otherOptions}
                   user={user}
                   onChange={this.props.onChange}
                   projectId={this.props.projectId}

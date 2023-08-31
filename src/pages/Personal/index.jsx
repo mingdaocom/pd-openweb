@@ -25,7 +25,7 @@ export default class PersonalEntrypoint extends Component {
   }
 
   handleClick(type) {
-    const defaultType = type[0]
+    const defaultType = type[0];
     navigateTo(common.url({ type: defaultType }));
   }
 
@@ -42,30 +42,27 @@ export default class PersonalEntrypoint extends Component {
     });
     return (
       <div className="mainBoxAccount">
-        <div id="accountNav" className="Relative">
-          <div className="ThemeBG leftNavHairGlass" />
-          <div className="h100 ThemeBGColor9">
-            <ul className="accountTab">
-              {menus &&
-                menus.map(item => {
-                  return (
-                    <li
-                      className={cx('ThemeHoverBGColor7 Hand Relative', { active: item.typetag.includes(type) })}
-                      key={item.typetag}
-                      onClick={() => this.handleClick(item.typetag)}
-                    >
-                      <span className={cx('Font20 pRight15 Gray_9e', item.icon)} />
-                      {item.title}
-                      {item.typetag === 'account' && showWarn && type !== 'account' && (
-                        <span className="warnLight warnLightMyaccount" />
-                      )}
-                    </li>
-                  );
-                })}
-            </ul>
-          </div>
+        <div className="h100 ThemeBGColor9 accountTabWrap">
+          <ul className="accountTab">
+            {menus &&
+              menus.map(item => {
+                return (
+                  <li
+                    className={cx('ThemeHoverBGColor7 Hand Relative', { active: item.typetag.includes(type) })}
+                    key={item.typetag}
+                    onClick={() => this.handleClick(item.typetag)}
+                  >
+                    <span className={cx('Font20 pRight15 Gray_9e', item.icon)} />
+                    {item.title}
+                    {item.typetag === 'account' && showWarn && type !== 'account' && (
+                      <span className="warnLight warnLightMyaccount" />
+                    )}
+                  </li>
+                );
+              })}
+          </ul>
         </div>
-        <div id="accountCenterMainBox" className="mainPage">
+        <div id="accountCenterMainBox" className="mainPage flex">
           <MainComponent />
         </div>
       </div>

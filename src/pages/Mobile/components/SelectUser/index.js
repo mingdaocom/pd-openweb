@@ -36,7 +36,7 @@ export default class SelectUser extends Component {
       loading: false,
       isMore: true,
       pageIndex: 1,
-      pageSize: 20,
+      pageSize: 50,
       users: [],
       selectedUsers: selectedUsers || [],
       onlyJoinDepartmentChecked: false,

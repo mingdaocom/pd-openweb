@@ -35,6 +35,8 @@ function rows(state = [], action) {
       return state.map(row => (row.rowid === action.rowid ? { ...row, ...action.value } : row));
     case 'DELETE_ROW':
       return state.filter(row => row.rowid !== action.rowid);
+    case 'DELETE_ROWS':
+      return state.filter(row => !_.includes(action.rowIds, row.rowid));
     case 'UPDATE_STATE':
       return action.state;
     default:

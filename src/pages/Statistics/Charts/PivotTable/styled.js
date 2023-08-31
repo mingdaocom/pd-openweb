@@ -17,6 +17,9 @@ const PivotTableContent = styled.div`
     .ant-table-content {
       overflow: auto !important;
     }
+    .ant-table {
+      height: ${props => props.paginationVisible ? 'calc(100% - 45px)' : '100%'};
+    }
   }
   &.contentXAuto {
     .ant-table-container {
@@ -120,6 +123,15 @@ const PivotTableContent = styled.div`
       font-weight: bold;
     }
   }
+  .ant-pagination-options {
+    display: block !important;
+  }
+  .ant-table-pagination.ant-pagination {
+    margin-bottom: 5px;
+    .ant-select-selector {
+      border-radius: 4px;
+    }
+  }
   .ant-table-container, table, tr>th, tr>td {
     border-color: #E0E0E0 !important;
   }
@@ -138,12 +150,15 @@ const PivotTableContent = styled.div`
       background-color: ${props => props.pivotTableStyle.oddBgColor ? `${props.pivotTableStyle.oddBgColor}e8` : '#fafafa'};
     }
   }
-  .ant-table-tbody tr:not(tr[data-row-key='sum']) .contentValue {
+  .ant-table-tbody tr:not(tr.sum-content) .contentValue {
     cursor: pointer;
     &:hover {
       color: ${props => props.pivotTableStyle.lineTextColor || '#2196f3'} !important;
       background-color: ${props => props.pivotTableStyle.lineBgColor || '#E3F2FD'} !important;
     }
+  }
+  .ant-table-tbody .sum-content .ant-table-cell {
+    font-weight: bold;
   }
   .drag {
     position: absolute;

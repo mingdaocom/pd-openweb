@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { useSetState } from 'react-use';
 import ConnectParam from '../../components/ConnectParam';
 import ConnectAuth from '../../components/ConnectAuth';
+import ConnectItem from '../../components/ConnectItem';
 import { LoadDiv, Icon } from 'ming-ui';
 import EditIntro from 'src/pages/integration/components/EditDes';
 const Wrap = styled.div`
@@ -136,21 +137,29 @@ const Wrap = styled.div`
 //连接设置
 function ConnectSet(props) {
   const { updateIntroduce } = props;
-  const [{ data1, data2, loading }, setState] = useSetState({
+  const [{ data1, data2, dataCode, loading }, setState] = useSetState({
     data1: {},
     data2: {},
+    dataCode: {},
     loading: true,
   });
   useEffect(() => {
+    let l = [];
+    const getList = startEventId => {
+      let data = props.flowNodeMap[startEventId];
+      l.push(data);
+      if (!!props.flowNodeMap[data.nextId]) {
+        getList(data.nextId);
+      }
+    };
+    getList(props.startEventId);
     setState({
-      data1: props.flowNodeMap && props.startEventId ? props.flowNodeMap[props.startEventId] : null,
-      data2:
-        props.flowNodeMap && props.startEventId
-          ? props.flowNodeMap[props.flowNodeMap[props.startEventId].nextId]
-          : null,
+      data1: l.find(o => o.typeId === 0),
+      data2: l.find(o => o.typeId === 22),
+      dataCode: l.find(o => o.typeId === 14) || {},
       loading: false,
     });
-  }, []);
+  }, [props.flowNodeMap]);
 
   if (loading) {
     return <LoadDiv />;
@@ -170,6 +179,24 @@ function ConnectSet(props) {
       />
       {data2.appType !== 30 && props.connectType === 1 && (
         <React.Fragment>
+          {data2.appType === 32 && (
+            <React.Fragment>
+              <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
+              <ConnectItem
+                {...props}
+                info={{ id: props.id, relationId: props.relationId, relationType: props.relationType }}
+                prveId={data1.id}
+                id={props.id}
+                node={dataCode}
+                connectType={props.connectType}
+                onChange={v => {
+                  props.fetchInfo();
+                }}
+                canEdit={props.isConnectOwner}
+                showAdd={true}
+              />
+            </React.Fragment>
+          )}
           <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
           <ConnectAuth
             {...props}

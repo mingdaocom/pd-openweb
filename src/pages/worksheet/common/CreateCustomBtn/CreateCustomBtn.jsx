@@ -136,8 +136,8 @@ class CreateCustomBtnCon extends React.Component {
 
   getProcessByTriggerId = callback => {
     const { worksheetId } = this.props;
-    const { btnId } = this.state;
-    if (btnId && worksheetId) {
+    const { btnId, clickType, workflowType } = this.state;
+    if (btnId && worksheetId && (clickType === 1 || workflowType === 1)) {
       if (this.ajaxRequest) {
         this.ajaxRequest.abort();
       }
@@ -696,8 +696,22 @@ class CreateCustomBtnCon extends React.Component {
                 if (!btnId) {
                   params = { ...params, btnId: data };
                 }
-                this.props.onClose();
-                this.props.updateCustomButtons(params, !btnId);
+                if (
+                  (this.state.workflowType === 1 || this.state.clickType === 1) &&
+                  this.state.isEdit &&
+                  !this.state.flowName //编辑 且 需要创建工作流
+                ) {
+                  this.getProcessByTriggerId(workflowId => {
+                    params = { ...params, workflowId };
+                    this.props.updateCustomButtons(params, !btnId);
+                    this.setState({
+                      showWorkflowDialog: true,
+                    });
+                  });
+                } else {
+                  this.props.updateCustomButtons(params, !btnId);
+                  this.props.onClose();
+                }
               }
             });
           }}

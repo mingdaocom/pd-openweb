@@ -1,15 +1,18 @@
 import React, { useState, Fragment, useEffect, useRef } from 'react';
-import { Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, BarCode, Qr } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import cx from 'classnames';
 import { Carousel } from 'antd';
 import styled from 'styled-components';
 import homeAppAjax from 'src/api/homeApp';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { previewQiniuUrl } from 'src/components/previewAttachments';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/ControlMask/util';
 import { RecordInfoModal } from 'mobile/Record';
 import { browserIsMobile, addBehaviorLog } from 'src/util';
+import { getBarCodeValue } from 'src/components/newCustomFields/tools/utils';
+import { parseDataSource } from 'src/pages/widgetConfig/util/setting';
 import { getUrlList } from './util';
 import _ from 'lodash';
 
@@ -146,6 +149,13 @@ const CarouselComponent = styled(Carousel)`
   }
 `;
 
+const QRErrorCorrectLevel = {
+  '7%': 1,
+  '15%': 0,
+  '25%': 3,
+  '30%': 2,
+};
+
 function Explain(props) {
   const { title, subTitle, onClick } = props;
   const [showMore, setShowMore] = useState(false);
@@ -183,6 +193,7 @@ export default function CarouselPreview(props) {
   const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
 
   const { worksheetId, viewId, image, count, title, subTitle, url } = componentConfig;
+  const imageControl = _.find(controls, { controlId: image }) || {};
 
   useEffect(() => {
     if (worksheetId && viewId && image) {
@@ -196,15 +207,44 @@ export default function CarouselPreview(props) {
           displayMode: config.displayMode,
         })
         .then(data => {
-          const { code, imageData = [], rowData = [], controls = [] } = data;
-          setImageData(
-            imageData.map(data => {
-              return {
-                ...JSON.parse(data.image),
-                rowId: data.rowId,
-              };
-            }),
-          );
+          const { appId, code, imageData = [], rowData = [], controls = [] } = data;
+          const imageControl = _.find(controls, { controlId: image }) || {};
+          if (imageControl.type === 14) {
+            setImageData(
+              imageData.map(data => {
+                return {
+                  ...JSON.parse(data.image),
+                  rowId: data.rowId,
+                };
+              })
+            );
+          }
+          if (imageControl.type === 47) {
+            setImageData(
+              imageData.map(data => {
+                return {
+                  image: getBarCodeValue({
+                    data: [{
+                      ...imageControl,
+                      value: data.image
+                    }],
+                    control: {
+                      enumDefault: imageControl.enumDefault,
+                      enumDefault2: imageControl.enumDefault2,
+                      dataSource: image
+                    },
+                    codeInfo: {
+                      recordId: data.rowId,
+                      appId,
+                      worksheetId,
+                      viewId
+                    },
+                  }),
+                  rowId: data.rowId,
+                }
+              }).filter(n => n.image)
+            );
+          }
           setRowData(rowData.map(data => JSON.parse(data)));
           setControls(controls);
           setCode(code);
@@ -217,10 +257,12 @@ export default function CarouselPreview(props) {
     }
   }, [worksheetId, viewId, image, title, subTitle, url, config.displayMode]);
 
+  const contentWidth = _.get(contentRef.current, 'clientWidth');
+  const contentHeight = _.get(contentRef.current, 'clientHeight');
   const style = {
     position: 'relative',
-    height: _.get(contentRef.current, 'clientHeight'),
-    backgroundColor: config.fillColor,
+    height: contentHeight,
+    backgroundColor: imageControl.type === 14 ? config.fillColor : '#fff',
   };
 
   async function handleTriggerAction(data) {
@@ -264,13 +306,19 @@ export default function CarouselPreview(props) {
 
     // 打开图片
     if (action === 3) {
-      previewAttachments({
-        index: currentIndex,
-        attachments: imageData,
-        callFrom: 'player',
-        showThumbnail: true,
-        hideFunctions: ['editFileName', 'saveToKnowlege', 'share'],
-      });
+      if (imageControl.type === 14) {
+        previewAttachments({
+          index: currentIndex,
+          attachments: imageData,
+          callFrom: 'player',
+          showThumbnail: true,
+          hideFunctions: ['editFileName', 'saveToKnowlege', 'share'],
+        });
+      }
+      if (imageControl.type === 47) {
+        const img = contentRef.current.querySelector('.slick-list .slick-active img');
+        previewQiniuUrl(img.src, { disableDownload: true, ext: 'png', name: 'code.png', theme: 'light' });
+      }
     }
   }
 
@@ -302,6 +350,39 @@ export default function CarouselPreview(props) {
     );
   };
 
+  const renderFileImage = (record, data) => {
+    return (
+      <div
+        onClick={() => handleTriggerAction(record)}
+        className={cx('image pointer', { fill: config.fill === 1, full: config.fill === 2 })}
+        style={{ backgroundImage: `url(${data.viewUrl}|imageView2/0/q/100)` }}
+      />
+    );
+  }
+
+  const renderBarCode = (record, data) => {
+    const { advancedSetting: { width, faultrate } = {}, enumDefault } = imageControl;
+    const parseWidth = parseFloat(width);
+    return (
+      <div
+        onClick={() => handleTriggerAction(record)}
+        className="image pointer flexRow alignItemsCenter justifyContentCenter"
+      >
+        {enumDefault === 1 ? (
+          <BarCode value={data.image} renderer="img" renderWidth={contentWidth} />
+        ) : (
+          <Qr
+            gap={6}
+            content={data.image}
+            width={contentHeight}
+            height={contentHeight}
+            correctLevel={QRErrorCorrectLevel[faultrate]}
+          />
+        )}
+      </div>
+    );
+  }
+
   const renderImage = data => {
     const record = _.find(rowData, { rowid: data.rowId }) || {};
     const titleControl = _.find(controls, { controlId: title }) || {};
@@ -309,11 +390,8 @@ export default function CarouselPreview(props) {
     return (
       <div key={data.fileID}>
         <div style={style}>
-          <div
-            onClick={() => handleTriggerAction(record)}
-            className={cx('image pointer', { fill: config.fill === 1, full: config.fill === 2 })}
-            style={{ backgroundImage: `url(${data.viewUrl}|imageView2/0/q/100)` }}
-          />
+          {imageControl.type === 14 && renderFileImage(record, data)}
+          {imageControl.type === 47 && renderBarCode(record, data)}
           <div className="mask" />
           {(record[title] || record[subTitle]) && (
             <Explain
@@ -331,7 +409,7 @@ export default function CarouselPreview(props) {
     return (
       <Fragment>
         <CarouselComponent
-          autoplay={previewRecord.rowId ? false : config.autoplaySpeed!==false}
+          autoplay={previewRecord.rowId ? false : config.autoplaySpeed !== false}
           arrows={true}
           prevArrow={
             <div>

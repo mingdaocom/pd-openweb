@@ -48,7 +48,8 @@ export default function FormHeader(props) {
     ownerControl &&
     controlState(ownerControl).editable &&
     !isLock &&
-    from !== RECORD_INFO_FROM.DRAFT;
+    from !== RECORD_INFO_FROM.DRAFT &&
+    !window.isPublicApp;
   let isOpenLogs = true;
   if (!isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) {
     isOpenLogs = false;

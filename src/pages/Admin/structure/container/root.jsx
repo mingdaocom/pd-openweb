@@ -4,6 +4,7 @@ import SearchBox from '../components/search/searchBox';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from '../actions/entities';
+import * as currentActions from '../actions/current';
 import TabList from '../components/tabList';
 import StructureContent from '../components/structureContent';
 import ImportAndExport from '../components/structureContent/ImportAndExport';
@@ -29,12 +30,11 @@ class Root extends React.Component {
   }
 
   setValue = ({ showDialogSettingInviteRules, ischage }) => {
-    const { dispatch } = this.props;
     this.setState({
       showDialogSettingInviteRules: showDialogSettingInviteRules,
     });
     if (ischage) {
-      dispatch(updateType(0));
+      this.props.updateType(0)
     }
   };
 
@@ -48,7 +48,7 @@ class Root extends React.Component {
             <div className="adminStructureContent flexRow">
               <div className="adminStructure">
                 <div className="structureNavigator">
-                  <div className="Bold Font15 mBottom20 pLeft24">
+                  <div className="Bold Font17 mBottom20 pLeft24">
                     {_l('成员与部门')}
                     <Tooltip text={<span>{_l('人员加入规则设置')}</span>} action={['hover']}>
                       <Icon
@@ -100,7 +100,7 @@ const mapStateToProps = state => {
 };
 
 const connectedJopList = connect(mapStateToProps, dispatch =>
-  bindActionCreators({ ..._.pick(actions, ['updateShowExport']) }, dispatch),
+  bindActionCreators({ ..._.pick({ ...actions, ...currentActions }, ['updateShowExport', 'updateType']) }, dispatch),
 )(Root);
 
 export default connectedJopList;

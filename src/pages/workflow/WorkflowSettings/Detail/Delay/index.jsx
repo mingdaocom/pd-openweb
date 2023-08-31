@@ -186,7 +186,7 @@ export default class Delay extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex mTop20">
+        <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">
               {data.actionId === '300' ? this.renderDelayTo() : this.renderDelayFor()}

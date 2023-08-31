@@ -3,7 +3,7 @@ import './css/taskList.less';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import ajaxRequest from 'src/api/taskCenter';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import config from '../../config/config';
 import { listLoadingContent } from '../../utils/taskComm';
 import { formatTaskTime, errorMessage, formatStatus, buildMyTaskIcon } from '../../utils/utils';

@@ -67,7 +67,7 @@ export default class GetMoreRecord extends Component {
   }
 
   render() {
-    const { processId, item, disabled, selectNodeId, openDetail, approvalSelectNodeId } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
 
     return (
       <div className="flexColumn">
@@ -79,7 +79,7 @@ export default class GetMoreRecord extends Component {
               { errorShadow: (item.appId || item.selectNodeId) && item.isException },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId, approvalSelectNodeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
               <i
@@ -87,7 +87,9 @@ export default class GetMoreRecord extends Component {
               />
             </div>
             <NodeOperate nodeClassName="BGYellow" {...this.props} />
-            <div className="workflowContent Font13">{this.renderContent()}</div>
+            <div className="workflowContent Font13">
+              {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
+            </div>
           </div>
           <CreateNode {...this.props} />
         </section>

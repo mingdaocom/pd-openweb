@@ -34,7 +34,18 @@ function genCard(from, type = 'public', params = {}) {
 }
 
 export default function Share(props) {
-  const { from, title, isCharge, card, params = {}, onUpdate = () => {}, onClose, getCopyContent, canEditForm } = props;
+  const {
+    from,
+    title,
+    isCharge,
+    card,
+    params = {},
+    onUpdate = () => {},
+    onClose,
+    getCopyContent,
+    canEditForm,
+    hidePublicShare,
+  } = props;
   const [url, setUrl] = useState();
   const [isPublic, setIsPublic] = useState(props.isPublic);
   const [publicUrl, setPublicUrl] = useState(isPublic && props.publicUrl);
@@ -91,7 +102,7 @@ export default function Share(props) {
   }, []);
   useEffect(() => {
     (async () => {
-      if (!publicUrl) {
+      if (!publicUrl && !hidePublicShare) {
         getPublicShareInfo();
       }
     })();
@@ -126,68 +137,72 @@ export default function Share(props) {
           <Hr style={{ margin: '25px 0 22px' }} />
         </React.Fragment>
       )}
-      <Bold600 className="Font15">{_l('对外公开分享')}</Bold600>
-      <Tip99 className="mTop10">{_l('获得链接的所有人都可以查看')}</Tip99>
-      <span data-tip={disabledTip} className="InlineBlock mTop15 tip-right">
-        <Switch disabled={!isCharge} checked={!!publicUrl} onClick={() => updatePublicShare(!publicUrl)} />
-      </span>
-      {!!publicUrl && (
-        <Fragment>
-          <ShareUrl
-            chatCard={genCard(from, 'public', params)}
-            className="mTop20"
-            theme="light"
-            copyShowText
-            allowSendToChat
-            inputBtns={[
-              {
-                tip: _l('新窗口打开'),
-                icon: 'task-new-detail',
-                onClick: () => window.open(publicUrl),
-              },
-            ]}
-            url={publicUrl}
-            {...(_.isFunction(getCopyContent)
-              ? {
-                  getCopyContent: urlForCopy =>
-                    getCopyContent(
-                      'public',
-                      shareData.password ? `${urlForCopy}? ${_l('密码')}: ${shareData.password}` : urlForCopy + '?',
-                    ),
-                }
-              : {})}
-          />
-          {from === 'newRecord' && canEditForm && (
-            <a
-              href={`/worksheet/form/edit/${params.worksheetId}?#detail`}
-              target="_blank"
-              className="mTop13 InlineBlock"
-            >
-              {_l('编辑公开表单')}
-            </a>
+      {!hidePublicShare && (
+        <React.Fragment>
+          <Bold600 className="Font15">{_l('对外公开分享')}</Bold600>
+          <Tip99 className="mTop10">{_l('获得链接的所有人都可以查看')}</Tip99>
+          <span data-tip={disabledTip} className="InlineBlock mTop15 tip-right">
+            <Switch disabled={!isCharge} checked={!!publicUrl} onClick={() => updatePublicShare(!publicUrl)} />
+          </span>
+          {!!publicUrl && (
+            <Fragment>
+              <ShareUrl
+                chatCard={genCard(from, 'public', params)}
+                className="mTop20"
+                theme="light"
+                copyShowText
+                allowSendToChat
+                inputBtns={[
+                  {
+                    tip: _l('新窗口打开'),
+                    icon: 'task-new-detail',
+                    onClick: () => window.open(publicUrl),
+                  },
+                ]}
+                url={publicUrl}
+                {...(_.isFunction(getCopyContent)
+                  ? {
+                      getCopyContent: urlForCopy =>
+                        getCopyContent(
+                          'public',
+                          shareData.password ? `${urlForCopy}? ${_l('密码')}: ${shareData.password}` : urlForCopy + '?',
+                        ),
+                    }
+                  : {})}
+              />
+              {from === 'newRecord' && canEditForm && (
+                <a
+                  href={`/worksheet/form/edit/${params.worksheetId}?#detail`}
+                  target="_blank"
+                  className="mTop13 InlineBlock"
+                >
+                  {_l('编辑公开表单')}
+                </a>
+              )}
+              {_.includes(['view', 'recordInfo', 'customPage'], from) && (
+                <Validity
+                  data={shareData}
+                  onChange={data => {
+                    setShareData({
+                      ...shareData,
+                      ...data,
+                    });
+                    if (_.includes(['view', 'recordInfo'], from)) {
+                      getPublicShareInfo({
+                        isEdit: true,
+                        ...shareData,
+                        ...data,
+                      });
+                    }
+                    if (_.includes(['customPage'], from)) {
+                      editEntityShare(data);
+                    }
+                  }}
+                />
+              )}
+            </Fragment>
           )}
-          {_.includes(['view', 'recordInfo', 'customPage'], from) && (
-            <Validity
-              data={shareData}
-              onChange={data => {
-                setShareData({
-                  ...shareData,
-                  ...data,
-                });
-                if (_.includes(['view', 'recordInfo'], from)) {
-                  getPublicShareInfo({
-                    isEdit: true,
-                    ...shareData,
-                    ...data,
-                  });
-                }
-                if (_.includes(['customPage'], from)) {
-                  editEntityShare(data);
-                }
-              }}
-            />
-          )}
-        </Fragment>
+        </React.Fragment>
       )}
     </Modal>
   );

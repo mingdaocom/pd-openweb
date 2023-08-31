@@ -49,7 +49,7 @@ export default class NodeOperate extends Component {
     const name = evt.currentTarget.value.trim();
 
     if (name && name !== item.name) {
-      updateNodeName(processId, name, item.id);
+      updateNodeName(processId, item.id, name);
     } else {
       this.workflowNodeName.value = item.name;
     }
@@ -211,7 +211,7 @@ export default class NodeOperate extends Component {
         <div className={cx('TxtCenter Font15', { mTop10: item.typeId !== NODE_TYPE.BRANCH_ITEM })}>
           {item.typeId === NODE_TYPE.BRANCH_ITEM ? _l('同时删除分支下所有节点') : _l('确定删除此节点？')}
         </div>
-        <div className="flexRow Font13 mTop20">
+        <div className="flexRow Font13 mTop10">
           <div
             className="delNodeCancelBtn"
             onMouseDown={e => {

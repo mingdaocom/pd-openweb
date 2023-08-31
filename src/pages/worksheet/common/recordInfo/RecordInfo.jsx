@@ -135,7 +135,6 @@ export default class RecordInfo extends Component {
     emitter.addListener('RELOAD_RECORD_INFO', this.debounceRefresh);
     window.addEventListener('keydown', this.handleRecordInfoKeyDown);
     this.loadRecord({ recordId: this.state.recordId });
-    window.recordInfoIsOpen = true;
   }
 
   componentWillReceiveProps(nextProps) {
@@ -151,7 +150,6 @@ export default class RecordInfo extends Component {
   componentWillUnmount() {
     window.removeEventListener('keydown', this.handleRecordInfoKeyDown);
     emitter.removeListener('RELOAD_RECORD_INFO', this.debounceRefresh);
-    window.recordInfoIsOpen = false;
   }
 
   get isPublicShare() {
@@ -261,7 +259,8 @@ export default class RecordInfo extends Component {
           (md.global.Account.isPortal &&
             !portalConfigSet.allowExAccountDiscuss &&
             (!portalConfigSet.approved || !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId))) ||
-          isPublicShare
+          isPublicShare ||
+          _.get(window, 'shareState.isPublicForm')
             ? false
             : this.state.sideVisible, //外部门户是否开启讨论
         recordinfo: {
@@ -497,24 +496,6 @@ export default class RecordInfo extends Component {
       );
 
     return paramControls.map(it => {
-      if (it.type === 42) {
-        let val = it.value && JSON.parse(JSON.stringify(it.value));
-        if (val) {
-          return !_.isObject(val)
-            ? formatControlToServer({
-                ...it,
-                value: JSON.stringify(
-                  {
-                    bucket: 4,
-                    key: val.match(/Sign\/[0-9a-z-]+\/[0-9a-z]+\/\d+\/[0-9a-zA-Z]+(.png)/g)[0],
-                  },
-                  { isNewRecord: true, isDraft: true },
-                ),
-              })
-            : formatControlToServer(it, { isNewRecord: true, isDraft: true });
-        }
-        return formatControlToServer(it, { isNewRecord: true, isDraft: true });
-      }
       if (it.type === 34) {
         return formatControlToServer(
           {
@@ -1201,7 +1182,7 @@ export default class RecordInfo extends Component {
                       projectId={this.props.projectId}
                       worksheetId={worksheetId}
                       recordId={recordId}
-                      isCharge={isCharge}
+                      isCharge={recordinfo.roleType === 2}
                       refreshBtnNeedLoading={refreshBtnNeedLoading}
                       formWidth={formWidth}
                     />

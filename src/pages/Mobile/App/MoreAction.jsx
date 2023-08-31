@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
+import appManagementApi from 'src/api/appManagement';
 import styled from 'styled-components';
 import cx from 'classnames';
 
@@ -53,6 +54,20 @@ export default function MoreAction(props) {
     navigateTo = () => {},
     dealViewHideNavi = () => {},
   } = props;
+  const [roleEntryVisible, setRoleEntryVisible] = useState(true);
+
+  useEffect(() => {
+    if (!canEditData(detail.permissionType) && !canEditApp(detail.permissionType, detail.isLock)) {
+      appManagementApi
+        .getAppRoleSetting({
+          appId: detail.id,
+        })
+        .then(data => {
+          const { appSettingsEnum } = data;
+          setRoleEntryVisible(appSettingsEnum === 1);
+        });
+    }
+  }, []);
 
   return (
     <ModalWrap popup animationType="slide-up" visible={visible} className="appMoreActionWrap" onClose={() => onClose}>
@@ -69,15 +84,17 @@ export default function MoreAction(props) {
             <span>{detail.isMarked ? _l('取消标星') : _l('标星')}</span>
           </div>
         )}
-        <div
-          onClick={() => {
-            window.mobileNavigateTo(`/mobile/members/${detail.id}`);
-            onClose();
-          }}
-        >
-          <Icon icon="group" className="Gray_9e mRight24 Font20 TxtMiddle" />
-          <span>{_l('人员管理')}</span>
-        </div>
+        {roleEntryVisible && (
+          <div
+            onClick={() => {
+              window.mobileNavigateTo(`/mobile/members/${detail.id}`);
+              onClose();
+            }}
+          >
+            <Icon icon="group" className="Gray_9e mRight24 Font20 TxtMiddle" />
+            <span>{_l('人员管理')}</span>
+          </div>
+        )}
         {(canEditApp(detail.permissionType, detail.isLock) || canEditData(detail.permissionType)) && (
           <div
             onClick={() => {

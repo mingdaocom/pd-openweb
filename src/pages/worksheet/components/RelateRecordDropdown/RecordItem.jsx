@@ -104,8 +104,18 @@ export default class RecordItem extends React.PureComponent {
   }
 
   render() {
-    const { active, multiple, coverCid, control, showControls, data, selected, showCoverAndControls, onClick } =
-      this.props;
+    const {
+      titleIsBold,
+      active,
+      multiple,
+      coverCid,
+      control,
+      showControls,
+      data,
+      selected,
+      showCoverAndControls,
+      onClick,
+    } = this.props;
     const { cover } = this;
     const titleText = getTitleTextFromRelateControl(control, data);
     const size = showCoverAndControls && showControls.length ? SIZE.BIG : SIZE.NORMAL;
@@ -142,7 +152,7 @@ export default class RecordItem extends React.PureComponent {
         {showCoverAndControls && coverCid && <Cover size={coverSize}>{coverUrl && <img src={coverUrl} />}</Cover>}
         <div className="flex overflowHidden">
           <div
-            className="title"
+            className={cx('title', { Bold: titleIsBold })}
             title={titleText}
             style={{
               color: '#333',

@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 function getList(value = {}) {
   return Object.keys(value)
-    .filter(key => key !== 'texts')
+    .filter(key => !_.includes(['texts', 'shorts'], key))
     .map(key => ({
       value: value[key],
       text: (value.texts || {})[key],
@@ -107,17 +107,58 @@ export const QR_LAYOUT = {
 export const QR_LAYOUT_LIST = getList(QR_LAYOUT);
 
 // 二维码大小
-export const QR_CODE_SIZE = {
-  LARGE: 1, // 大
-  MIDDLE: 2, // 中
-  SMALL: 3, // 小
+/**
+ * 二维码打印增加超大尺寸
+ * 纵向布局：原大作为超大。增加小尺寸（默认超大）
+ * 横向布局：原大作为超大。增加大尺寸（默认小）
+ * --------------------------
+ * 上面是 8.4 新增需求，迷惑的调整逻辑导致枚举值也变乱了
+ * 新枚举值
+ * 纵向 1:超大[默认] 2:大 3:中 4:小
+ * 横向 1:超大 4:大 2:中 3:小[默认]
+ */
+
+// 纵向布局
+export const PORTRAIT_QR_CODE_SIZE = {
+  HUGE: 1, // 超大
+  LARGE: 2, // 大
+  MIDDLE: 3, // 中
+  SMALL: 4, // 小
   texts: {
+    HUGE: _l('超大'),
     LARGE: _l('大'),
     MIDDLE: _l('中'),
     SMALL: _l('小'),
   },
+  shorts: {
+    1: 'h',
+    2: 'l',
+    3: 'm',
+    4: 's',
+  },
 };
-export const QR_CODE_SIZE_LIST = getList(QR_CODE_SIZE);
+
+// 横向布局
+export const LANDSCAPE_QR_CODE_SIZE = {
+  HUGE: 1, // 超大
+  LARGE: 4, // 大
+  MIDDLE: 2, // 中
+  SMALL: 3, // 小
+  texts: {
+    HUGE: _l('超大'),
+    LARGE: _l('大'),
+    MIDDLE: _l('中'),
+    SMALL: _l('小'),
+  },
+  shorts: {
+    1: 'h',
+    4: 'l',
+    2: 'm',
+    3: 's',
+  },
+};
+export const PORTRAIT_CODE_SIZE_LIST = getList(PORTRAIT_QR_CODE_SIZE);
+export const LANDSCAPE_QR_CODE_SIZE_LIST = getList(LANDSCAPE_QR_CODE_SIZE);
 
 // 二维码位置
 export const QR_POSITION = {

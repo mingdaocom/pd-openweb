@@ -874,10 +874,12 @@
       cursor: pointer;
       background: #fff;
       box-sizing: border-box;
-      display: inline-block;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
       margin: 6px 6px 0 0;
       padding: 0 10px;
-      line-height: 26px;
+      height: 26px;
       color: #aaa;
       font-size: 13px;
       border-radius: 26px;
@@ -886,6 +888,15 @@
 
       &.checked {
         color: #fff;
+        &.multiple {
+          .selectedIcon {
+            font-size: 16px;
+            margin: 0 5px 0 -4px;
+          }
+          color: #1565c0;
+          background-color: #e3f2fd !important;
+          border: 1px solid rgba(21, 101, 192, 0.17) !important;
+        }
       }
     }
 

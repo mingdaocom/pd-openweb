@@ -49,15 +49,16 @@
 
 [data-tip]:after {
   content: attr(data-tip);
-  background: #383838;
+  background: #212121;
   color: #fff;
   padding: 5px 10px;
-  font-size: 12px;
-  line-height: 18px;
+  font-size: 13px;
+  line-height: 1.5;
   white-space: nowrap;
   text-shadow: 0 -1px 0 #000;
-  border-radius: 3px;
+  border-radius: 4px;
   box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
 }
 
 [data-tip='']:before,
@@ -68,22 +69,22 @@
 .tip-top:before,
 .tip-top-left:before,
 .tip-top-right:before {
-  border-top-color: #383838;
+  border-top-color: #212121;
 }
 
 .tip-bottom:before,
 .tip-bottom-left:before,
 .tip-bottom-right:before,
 [data-tip]:not(.tip-top):not(.tip-left):not(.tip-right):not(.tip-top-left):not(.tip-top-right):not(.tip-bottom-left):not(.tip-bottom-right):before {
-  border-bottom-color: #383838;
+  border-bottom-color: #212121;
 }
 
 .tip-left:before {
-  border-left-color: #383838;
+  border-left-color: #212121;
 }
 
 .tip-right:before {
-  border-right-color: #383838;
+  border-right-color: #212121;
 }
 
 /**

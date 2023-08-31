@@ -15,8 +15,7 @@
         <div class="flexRow alignItemsCenter">
             {{?data.status === 3}}
             <span class="name overflow_ellipsis ThemeColor3 flex">
-                {{! data.fullname }}
-                {{? !data.isPortal}}
+                {{! data.fullname }} {{? !data.isPortal}}
                 <span class="icon-folder-public smallEarth"></span>
                 {{?}}
             </span>
@@ -38,7 +37,7 @@
             </div>
 
             {{?data.status==1 && md.global.Account && data.accountId != md.global.Account.accountId && data.accountId !=
-            'user-workflow'}}
+            'user-workflow' && !_.get(window, 'shareState.shareId')}}
             <div class="mLeft10">
                 <span data-tip="{{= _l('发消息')}}">
                     <span
@@ -61,22 +60,22 @@
             <span class="overflow_ellipsis contentItem">
                 {{?data.orgName}}
                 <span class="orgName">{{!data.orgName}}</span>
-                {{?}}
-                {{?(data.orgName && data.profession)}}
+                {{?}} {{?(data.orgName && data.profession)}}
                 <span>|</span>
-                {{?}}
-                {{?data.profession}}
+                {{?}} {{?data.profession}}
                 <span title="{{!data.profession}}">{{!data.profession}}</span>
                 {{?}}
             </span>
             {{?}} {{?data.currentJobNumber}}
-            <span class="overflow_ellipsis contentItem" title="{{!data.currentJobNumber}}">{{!data.currentJobNumber}}</span>
+            <span class="overflow_ellipsis contentItem" title="{{!data.currentJobNumber}}"
+                >{{!data.currentJobNumber}}</span
+            >
             {{?}} {{??}}
             <span class="contentTagItemCon">
                 {{?data.companyName}}
                 <span class="contentItemLeft" title="{{!data.companyName}}">{{!data.companyName}}</span>
                 {{?}} {{?!data.currentProjectName}}
-                <span class="contentTagItem">{{= _l('外协')}}</span>
+                <span class="contentTagItem">{{= _l('外协%08000')}}</span>
                 {{?}}
             </span>
             {{?data.profession}}

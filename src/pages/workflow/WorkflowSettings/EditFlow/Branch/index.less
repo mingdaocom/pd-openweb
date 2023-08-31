@@ -13,7 +13,7 @@
     }
     ~ .workflowLineBtn {
       &::before {
-        content: "";
+        content: '';
         position: absolute;
         top: 0;
         left: 0;
@@ -29,7 +29,7 @@
       border-top: 1px solid #ccc;
       border-bottom: 1px solid #ccc;
       &::before {
-        content: "";
+        content: '';
         position: absolute;
         top: 0;
         left: 0;
@@ -57,7 +57,7 @@
         bottom: 0;
         width: 100%;
         &::before {
-          content: "";
+          content: '';
           position: absolute;
           left: 0;
           top: -5px;
@@ -66,7 +66,7 @@
           height: 10px;
         }
         &::after {
-          content: "";
+          content: '';
           position: absolute;
           left: 0;
           bottom: -5px;
@@ -82,7 +82,7 @@
         bottom: 0;
         width: 100%;
         &::before {
-          content: "";
+          content: '';
           position: absolute;
           right: 0;
           top: -5px;
@@ -91,7 +91,7 @@
           height: 10px;
         }
         &::after {
-          content: "";
+          content: '';
           position: absolute;
           right: 0;
           bottom: -5px;
@@ -110,10 +110,15 @@
       width: 34px;
       cursor: pointer;
       margin-left: -17px;
-      background: #f5f5f9;
-      color: #2196f3;
-      &:hover {
-        color: #1565c0;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.24);
+      .icon-clear_bold,
+      .icon-all_run2 {
+        color: #2196f3;
+        position: absolute;
+        left: 9px;
+        top: 9px;
+        text-shadow: none;
       }
     }
     .workflowBranchSpecial {
@@ -125,7 +130,7 @@
         align-items: center;
         justify-content: center;
         .workflowYes {
-          color: #01CA86;
+          color: #01ca86;
         }
         .workflowNo {
           color: #f44336;
@@ -147,6 +152,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #fff;
   }
 }
 
@@ -167,7 +173,7 @@
   .workflowBranchBtnSmall {
     width: 24px;
     height: 24px;
-    background: #FFFFFF;
+    background: #ffffff;
     box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
     border-radius: 50%;
     display: flex;

@@ -9,8 +9,9 @@ import EditCon from '../modules/editCon';
 import PeopleAvatar from '../modules/peopleAvatar';
 import cx from 'classnames';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
-const FEATURE_ID = 6;
+
 let rules = [
   { type: 'hiddeRules', title: _l('隐藏的成员'), description: _l('被隐藏的成员 ，不会显示在通讯录中') },
   {
@@ -164,9 +165,13 @@ class ContactsHidden extends React.Component {
       isSaveing,
     } = this.props;
     if (loading) return <LoadDiv className="mTop10" />;
-    const featureType = getFeatureStatus(projectId, FEATURE_ID);
+    const featureType = getFeatureStatus(projectId, VersionProductType.contactsHide);
     if (featureType === '2') {
-      return <div className="orgManagementWrap">{buriedUpgradeVersionDialog(projectId, FEATURE_ID, 'content')}</div>;
+      return (
+        <div className="orgManagementWrap">
+          {buriedUpgradeVersionDialog(projectId, VersionProductType.contactsHide, 'content')}
+        </div>
+      );
     }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
@@ -174,7 +179,7 @@ class ContactsHidden extends React.Component {
     const currentEditRule = _.find(rules, it => it.type === editType) || {};
 
     return (
-      <div className="contactsHiddenBox">
+      <div className="contactsHiddenBox orgManagementWrap">
         {showEdit ? (
           <div className="editCon flexColumn">
             {isEdit && (
@@ -226,7 +231,7 @@ class ContactsHidden extends React.Component {
           </div>
         ) : (
           <div className="con flexColumn">
-            <div className="headerCon">
+            <div className="headerCon orgManagementHeader">
               <h5 className="Font17">{_l('通讯录隔离')}</h5>
               <Support className="forHelp" type={2} href="https://help.mingdao.com/geli" text={_l('帮助')} />
             </div>

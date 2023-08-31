@@ -6,12 +6,35 @@ import { Checkbox, Input } from 'antd';
 import orderController from 'src/api/order';
 import cx from 'classnames';
 import './style.less';
-import alipayDialog from 'src/components/pay/payDialog/alipayDialog';
+import { payDialogFunc } from 'src/components/pay/payDialog';
 import { encrypt, addToken } from 'src/util';
 import contact from 'src/components/common/contact/contact';
+import { navigateTo } from 'src/router/navigateTo';
 
 const params = Config.params;
 const orderId = params[3];
+const _payStyleArr = [
+  {
+    name: _l('余额付款'),
+    id: 'balancePay',
+    icon: 'icon-sp_account_balance_wallet_white Font24',
+  },
+  {
+    name: _l('支付宝付款'),
+    id: 'aliPay',
+    icon: 'icon-order-alipay Font24',
+  },
+  {
+    name: _l('微信支付'),
+    id: 'wechartPay',
+    icon: 'icon-wechat_pay Font24',
+  },
+  {
+    name: _l('银行转账'),
+    id: 'bankPay',
+    icon: 'icon-credit-card Font24',
+  },
+];
 
 export default class WaitingPay extends Component {
   constructor() {
@@ -65,48 +88,35 @@ export default class WaitingPay extends Component {
    * @return {[type]} [description]
    */
   viewByCurrRecordObj() {
-    if (this.state.currRecordObj) {
-      //如果状态不在待付款状态直接返回首页
-      if (this.state.currRecordObj.status !== billCommon.orderRecordStatus.wating) {
-        window.location.href = '/admin/billinfo/' + Config.projectId;
-        return false;
-      }
-
-      const _payStyleArr = [
-        {
-          name: _l('余额付款'),
-          id: 'balancePay',
-          icon: 'icon-sp_account_balance_wallet_white Font24',
-        },
-        {
-          name: _l('支付宝付款'),
-          id: 'aliPay',
-          icon: 'icon-order-alipay Font24',
-        },
-        {
-          name: _l('银行转账'),
-          id: 'bankPay',
-          icon: 'icon-credit-card Font24',
-        },
-      ];
-      //充值、升级没有余额支付
-      if (
-        this.state.currRecordObj.recordType === billCommon.orderRecordType.ReCharge ||
-        this.state.currRecordObj.recordType === billCommon.orderRecordType.Ultimate ||
-        this.state.currRecordObj.recordType === billCommon.orderRecordType.Enterprise
-      ) {
-        _payStyleArr.shift();
-      }
-      //payStyle默认第一项
-      const firstItem = _payStyleArr[0].id;
-      const balanceNotEnough = parseFloat(this.state.currRecordObj.price) > parseFloat(this.state.balance);
-      this.setState({
-        payStyleArr: _payStyleArr,
-        balanceNotEnough,
-        payStyle: firstItem,
-        loading: false,
-      });
+    const { currRecordObj, balance } = this.state;
+    const { ReCharge, Ultimate, Enterprise } = billCommon.orderRecordType || {};
+    if (!currRecordObj) return;
+    const { status, recordType, price } = currRecordObj;
+    //如果状态不在待付款状态直接返回首页
+    if (status !== billCommon.orderRecordStatus.wating) {
+      window.location.href = '/admin/billinfo/' + Config.projectId;
+      return false;
     }
+    let temp = _payStyleArr.filter(it => {
+      if (it.id === 'balancePay' && _.includes([ReCharge, Ultimate, Enterprise], recordType)) {
+        //充值、升级没有余额支付
+        return false;
+      } else if (price === 0) {
+        // 免费试用支付订单只保留余额支付
+        return !_.includes(['aliPay', 'wechartPay', 'bankPay'], it.id);
+      }
+      return true;
+    });
+
+    //payStyle默认第一项
+    const firstItem = temp[0].id;
+    const balanceNotEnough = parseFloat(price) > parseFloat(balance);
+    this.setState({
+      payStyleArr: temp,
+      balanceNotEnough,
+      payStyle: firstItem,
+      loading: false,
+    });
   }
 
   handleBack() {
@@ -175,7 +185,11 @@ export default class WaitingPay extends Component {
               }}
             >
               <span
-                className={cx('Font12 mRight8', item.icon, item.id === 'bankPay' ? 'bankPayColor' : 'otherPayColor')}
+                className={cx(
+                  'Font12 mRight8',
+                  item.icon,
+                  item.id === 'bankPay' ? 'bankPayColor' : item.id === 'wechartPay' ? 'wxPayColor' : 'otherPayColor',
+                )}
               ></span>
               <span>{item.name}</span>
             </div>
@@ -204,6 +218,11 @@ export default class WaitingPay extends Component {
       this.bankPay();
     } else if (this.state.payStyle == 'balancePay') {
       this.balancePay();
+    } else if (this.state.payStyle == 'wechartPay') {
+      if (confirm(_l('确定以【微信支付】方式进行本次付款？'))) {
+        window.open(`/wechatPay/${Config.projectId}/${orderId}`);
+        payDialogFunc({ url: `/admin/billinfo/${Config.projectId}` });
+      }
     } else if (this.state.payStyle == 'aliPay') {
       this.aliPay();
     }
@@ -273,7 +292,7 @@ export default class WaitingPay extends Component {
       const setting = {
         url: '/admin/billinfo/' + Config.projectId,
       };
-      alipayDialog.init(setting);
+      payDialogFunc({ url: '/admin/billinfo/' + Config.projectId });
       //操作日志
       orderController.addThreePartPayOrderLog({
         projectId: Config.projectId,

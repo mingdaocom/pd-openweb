@@ -18,29 +18,19 @@ export const formatInboxItem = function (inboxItem) {
       break;
     // 各种系统消息
     case MSGTYPES.SystemMessage:
-      typeName = "<span class='Gray_9'>" + _l('系统通知') + '</span>';
-      break;
     case MSGTYPES.CalendarMessage:
-      typeName = "<a href='/apps/calendar/home' target='_blank'>" + _l('日程中心') + '</a>';
-      break;
     case MSGTYPES.TaskMessage:
     case MSGTYPES.FolderMessage:
-      typeName = "<a href='/apps/taskcenter/' target='_blank'>" + _l('任务中心') + '</a>';
-      break;
     case MSGTYPES.KCMessage:
-      typeName = "<a href='/apps/kc/my' target='_blank'>" + _l('知识中心') + '</a>';
-      break;
     case MSGTYPES.ApprovalMessage:
-      typeName = "<span class='Gray_9'>" + _l('审批消息') + '</span>';
+    case MSGTYPES.WorkSheetMessage:
+      typeName = '';
       break;
     case MSGTYPES.AttendanceMessage:
       typeName = "<span class='Gray_9'>" + _l('考勤消息') + '</span>';
       break;
     case MSGTYPES.DossierMessage:
       typeName = "<span class='Gray_9'>" + _l('人事消息') + '</span>';
-      break;
-    case MSGTYPES.WorkSheetMessage:
-      typeName = "<span class='Gray_9'>" + _l('应用消息') + '</span>';
       break;
     // 动态消息
     case MSGTYPES.PostMentionedUser:
@@ -125,7 +115,7 @@ export const formatInboxItem = function (inboxItem) {
       typeName = _l('发表了%0讨论', discussion.entityName);
       break;
     case MSGTYPES.WorkFlowMessage:
-      typeName = "<span class='Gray_9'>" + _l('工作流') + '</span>';
+      typeName = '';
       break;
 
     default:
@@ -214,7 +204,6 @@ export const formatTopic = function (item, type) {
       accountsInMessage: topic.accountsInMessage,
     };
   }
-  // console.log(formatedData);
   return { ...formatedData, sourceType: type };
 };
 

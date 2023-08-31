@@ -7,6 +7,7 @@ import LibCalender from 'ming-ui/components/lib/calender';
 import DateTable from './date-table';
 import MonthTable from './month-table';
 import YearTable from './year-table';
+import moment from 'moment';
 
 class Calender extends Component {
   constructor(props) {
@@ -82,7 +83,10 @@ class Calender extends Component {
    * 生成周数据
    */
   generateWeekList = props => {
-    const WeekDays = ['日', '一', '二', '三', '四', '五', '六'];
+    console.log(moment);
+    const WeekDays = [0, 1, 2, 3, 4, 5, 6].map(function (item) {
+      return moment().day(item).format('dd');
+    });
 
     const firstDayOfWeek = props.firstDayOfWeek;
     const list = [];

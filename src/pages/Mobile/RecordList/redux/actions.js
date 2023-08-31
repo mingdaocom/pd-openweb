@@ -66,7 +66,7 @@ export const loadWorksheet = () => (dispatch, getState) => {
       dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
     });
   homeAppAjax
-    .getAppDetail({
+    .getApp({
       appId: base.appId,
     })
     .then(data => {

@@ -13,13 +13,17 @@ import { formatFileSize } from 'src/util';
 import fixedDataAjax from 'src/api/fixedData.js';
 import cx from 'classnames';
 import _ from 'lodash';
+import moment from 'moment';
 const detailList = [
   { label: _l('生日'), key: 'birthdate', filter: 'transFromDate' },
   { label: _l('性别'), key: 'gender', filter: 'transFormGender' },
   { label: _l('职位'), key: 'profession' },
 ];
 
-const infoList = [{ label: _l('邮箱'), key: 'email' }, { label: _l('手机'), key: 'mobilePhone' }];
+const infoList = [
+  { label: _l('邮箱'), key: 'email' },
+  { label: _l('手机'), key: 'mobilePhone' },
+];
 
 export default class PersonalInfo extends React.Component {
   constructor(props) {
@@ -148,7 +152,7 @@ export default class PersonalInfo extends React.Component {
             className="ming Button Button--link ThemeColor3 Hover_49"
             onClick={this.handleEditDetail.bind(this)}
           >
-            {_l('编辑')}
+            {_l('更多')}
           </button>
         </div>
       </div>
@@ -198,7 +202,7 @@ export default class PersonalInfo extends React.Component {
             className="ming Button Button--link ThemeColor3 Hover_49"
             onClick={this.handleEditInfo.bind(this)}
           >
-            {_l('编辑')}
+            {_l('更多')}
           </button>
         </div>
       </div>
@@ -262,7 +266,9 @@ export default class PersonalInfo extends React.Component {
       <div className="eduOrWorkItemBox" key={item.autoId}>
         <div className="itemHeader">
           <div className="itemName overflow_ellipsis Bold Gray">{item.name}</div>
-          <div className="Gray_9e itemDate">{_l('%0 至 %1', item.startDate, item.endDate)}</div>
+          <div className="Gray_9e itemDate">
+            {_l('%0 至 %1', item.startDate, moment().format('YYYY-MM-DD') === item.endDate ? _l('至今') : item.endDate)}
+          </div>
           <div className="itemOption">
             <span className="ThemeColor3 Hover_49 mRight24" onClick={() => this.handleAddOrEditItem(type, item)}>
               <span className="mLeft6 icon-edit_17" />
@@ -401,7 +407,7 @@ export default class PersonalInfo extends React.Component {
   render() {
     const { accountInfo, loading, educationList, workList, baseDetail, editFullName, isErr } = this.state;
     if (loading) {
-      return <LoadDiv />;
+      return <LoadDiv className="mTop40" />;
     }
     return (
       <div className="personalInfoContainer">

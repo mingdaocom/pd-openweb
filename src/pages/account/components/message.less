@@ -8,6 +8,34 @@
   button {
     -webkit-appearance: none;
   }
+  .Hidden {
+    display: none !important;
+  }
+
+  .privacyText {
+    margin: 8px 0 !important;
+    line-height: 40px;
+    padding: 0 4px;
+    border-radius: 3px;
+    &.errorDiv {
+      background: #fff0f0;
+      &:hover {
+        background: #fff0f0;
+      }
+    }
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+  .isUpperCase {
+    line-height: 40px;
+    border-radius: 50%;
+    text-align: center;
+    color: #757575;
+    position: absolute;
+    right: 8px;
+    font-size: 20px;
+  }
 
   .iti {
     width: 100%;
@@ -101,6 +129,11 @@
     &:hover {
       box-shadow: 0px 1px 2px #00000014;
     }
+    &.termsText {
+      &:hover {
+        box-shadow: none;
+      }
+    }
 
     #txtMobilePhone,
     .fullName,
@@ -138,10 +171,24 @@
 
       input[type='text'],
       input[type='password'],
-      .Dropdown--input {
+      .Dropdown--input,
+      .ant-select-selector {
         border: 1px solid red !important;
       }
-
+      &.warnDiv {
+        input[type='text'],
+        input[type='password'],
+        .Dropdown--input {
+          border: 1px solid #e6e6e6 !important;
+        }
+        &.errorDivCu {
+          input[type='text'],
+          input[type='password'],
+          .Dropdown--input {
+            border: 1px solid #2196f3 !important;
+          }
+        }
+      }
       #btnSendVerifyCode {
         border: 1px solid #2196f3 !important;
       }
@@ -182,17 +229,37 @@
           left: 10px;
           top: 12px;
         }
+        &.noIcon {
+          padding-left: 10px;
+          &::before {
+            content: '';
+            width: 0;
+            display: none;
+          }
+        }
 
         @media screen and (max-width: 414px) {
-          right: -35px;
+          right: 0;
+          top: initial;
+          bottom: 44px;
           left: initial;
         }
       }
     }
-
+    .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
+      border: 1px solid #e6e6e6;
+      box-shadow: none;
+    }
+    .ant-select-show-search.ant-select:not(.ant-select-customize-input) .ant-select-selector input {
+      border: none;
+    }
+    .ant-select-single:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-search-input {
+      height: 40px;
+    }
     input[type='text'],
     input[type='password'],
-    .Dropdown--input {
+    .Dropdown--input,
+    .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
       vertical-align: top;
       border: 0px;
       width: 100%;
@@ -235,7 +302,7 @@
         // color: #2196F3;
         color: #757575;
         top: -9px;
-        z-index: 1;
+        z-index: 0;
         background: #fff;
         padding: 0 4px;
         &.focusTitle {

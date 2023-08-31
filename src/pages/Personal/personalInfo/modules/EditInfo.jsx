@@ -64,7 +64,7 @@ export default class EditInfo extends React.Component {
             this.props.closeDialog();
             navigateTo(common.url({ type: 'account' }));
           }}>
-            {_l('账户与安全')}
+            {_l('账户与隐私')}
           </span>
           {_l(' 页面设置')}
         </div>

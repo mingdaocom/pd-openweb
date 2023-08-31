@@ -122,6 +122,7 @@ export default class SelectUsersFromApp extends Component {
             <Dropdown
               isAppendToBody
               border
+              openSearch
               className="w100"
               placeholder={_l('请选择')}
               noData={_l('没有可选的应用')}
@@ -145,6 +146,8 @@ export default class SelectUsersFromApp extends Component {
               label={label.length ? label.join('、') : _l('选择角色')}
               multipleLevel={false}
               multipleHideDropdownNav
+              filter
+              filterHint={_l('搜索')}
               onChange={(evt, ids) => this.setState({ selectRoleIds: multiChoose ? ids : [ids] })}
             />
           </div>

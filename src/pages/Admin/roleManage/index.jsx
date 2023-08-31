@@ -56,7 +56,7 @@ class RoleManage extends Component {
     })
       .then(response => response.blob())
       .then(blob => {
-        let date = moment(new Date()).format('YYYYMMDDHHmmss');
+        let date = moment().format('YYYYMMDDHHmmss');
         const fileName = `${projectName}_${_l('职位')}_${date}` + '.xlsx';
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
@@ -96,20 +96,22 @@ class RoleManage extends Component {
   };
   delCurrentRole = item => {
     const { projectId } = this.props;
-    organizeAjax.deleteOrganizes({
-      organizeIds: [item.organizeId],
-      projectId,
-    }).then(res => {
-      this.setState({ popupVisible: false, showDeleteId: '' });
-      if (res === 1) {
-        alert(_l('删除成功'));
-        this.props.getRoleList();
-      } else if (res === 24004) {
-        alert(_l('角色存在成员，无法删除'), 3);
-      } else {
-        alert(_l('删除失败'), 2);
-      }
-    });
+    organizeAjax
+      .deleteOrganizes({
+        organizeIds: [item.organizeId],
+        projectId,
+      })
+      .then(res => {
+        this.setState({ popupVisible: false, showDeleteId: '' });
+        if (res === 1) {
+          alert(_l('删除成功'));
+          this.props.getRoleList();
+        } else if (res === 24004) {
+          alert(_l('角色存在成员，无法删除'), 3);
+        } else {
+          alert(_l('删除失败'), 2);
+        }
+      });
   };
   render() {
     const { roleList = [], isLoading = false, currentRole, projectId, isImportRole, searchValue } = this.props;
@@ -121,7 +123,7 @@ class RoleManage extends Component {
       <div className="roleManageContainer">
         <AdminTitle prefix={_l('组织角色')} />
         <div className="roleManageLeft">
-          <div className="Bold Font15 mBottom20 pLeft24">{_l('组织角色')}</div>
+          <div className="Bold Font17 mBottom20 pLeft24">{_l('组织角色')}</div>
           <RoleSearchBox
             projectId={projectId}
             updateSearchValue={this.props.updateSearchValue}
@@ -197,7 +199,6 @@ class RoleManage extends Component {
                                   this.props.updateUserPageIndex(1);
                                   this.props.updateCurrentRole(item);
                                   this.props.updateSelectUserIds([]);
-                                  this.props.getUserList({ roleId: item.organizeId });
                                 }}
                               >
                                 {_l('编辑')}
@@ -222,7 +223,6 @@ class RoleManage extends Component {
                         <Trigger
                           popupAlign={{ points: ['tl', 'cr'], offset: [0, 0] }}
                           popupVisible={item.organizeId === showDeleteId}
-                          popupVisible={popupVisible}
                           popup={
                             <div className="delConfirmWrap">
                               <div className="Gray Bold Font15 mBootom20">{_l('确定要删除此角色？')}</div>
@@ -266,7 +266,7 @@ class RoleManage extends Component {
             </ScrollView>
           </div>
         </div>
-        <div className="roleManageRight">
+        <div className="roleManageRight flexColumn">
           {_.isEmpty(roleList) && !searchValue ? (
             <EmptyStatus
               tipTxt={_l('可以根据成员属性去创建角色，如，技术、生产、销售设置后应用可以直接选择角色')}
@@ -280,14 +280,16 @@ class RoleManage extends Component {
           <DialogCreateAndEditRole
             showRoleDialog={showRoleDialog}
             filed={filed}
-            onCancel={() => {
-              this.setState({ showRoleDialog: false });
-            }}
-            updateCurrentRole={this.props.updateCurrentRole}
             roleList={roleList}
             projectId={projectId}
             currentRole={currentRole}
             getRoleList={this.props.getRoleList}
+            updateCurrentRole={this.props.updateCurrentRole}
+            updateRoleList={this.props.updateRoleList}
+            updateIsRequestList={this.props.updateIsRequestList}
+            onCancel={() => {
+              this.setState({ showRoleDialog: false });
+            }}
           />
         )}
       </div>
@@ -316,6 +318,7 @@ export default connect(
           'updateRolePageInfo',
           'updateIsRequestList',
           'updateUserLoading',
+          'updateRoleList',
         ]),
       },
       dispatch,

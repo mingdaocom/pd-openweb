@@ -503,6 +503,12 @@ function ConnectCon(props) {
               })
             }
             {...nodeInfo}
+            fetchInfo={() => {
+              getInfo(connectData.id);
+              setState({
+                isChange: true,
+              });
+            }}
             controls={controls}
             updateIntroduce={value => updateIntroduce(value)}
             introduce={introduce}

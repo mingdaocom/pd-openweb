@@ -57,16 +57,21 @@ export default class Widgets extends Component {
    * 渲染列表
    */
   renderList = item => {
-    const { enumDefault2, value, disabled } = this.props;
+    const { enumDefault2, value, disabled, advancedSetting } = this.props;
     const { otherValue } = getCheckAndOther(value);
     const isMobile = browserIsMobile();
+    const { direction, checktype } = advancedSetting || {};
 
     return (
       <span
         className={cx(
-          'ellipsis customRadioItem',
-          { White: enumDefault2 === 1 && !isLightColor(item.color) },
-          { 'pLeft12 pRight12': enumDefault2 === 1 },
+          'customRadioItem',
+          { White: enumDefault2 === 1 && !isLightColor(item.color), ellipsis: !browserIsMobile() },
+          {
+            'pLeft12 pRight12': enumDefault2 === 1,
+            horizonArrangementItem: checktype === '2' && (direction === '0' || direction === '2') && browserIsMobile(),
+            showRadioTxtAll: browserIsMobile(),
+          },
         )}
         style={{ background: enumDefault2 === 1 ? item.color : '' }}
       >
@@ -113,7 +118,7 @@ export default class Widgets extends Component {
             renderText={this.renderList}
             {...this.props}
           >
-            <div className={cx('w100 customFormControlBox', { controlDisabled: disabled })}>
+            <div className={cx('w100 customFormControlBox', { controlDisabled: disabled })} style={{ height: 'auto' }}>
               <div className="flexRow h100" style={{ alignItems: 'center', minHeight: 34 }}>
                 <div className="flex minWidth0">
                   {checkIds.length ? (

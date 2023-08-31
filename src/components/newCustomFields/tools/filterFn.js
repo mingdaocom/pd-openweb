@@ -300,6 +300,9 @@ export const filterFn = (filterData, originControl, data = []) => {
       ) {
         const val = currentControl.value ? safeParse(currentControl.value) : currentControl.value;
         compareValues = typeof val === 'object' ? val : [currentControl.value];
+      } else if (_.includes([24, 25, 26, 27, 28], filterType) && _.includes([29], dataType)) {
+        const val = currentControl.value ? safeParse(currentControl.value) : currentControl.value;
+        compareValues = typeof val === 'object' ? val : [currentControl.value];
       } else {
         compareValues = [currentControl.value];
       }
@@ -344,7 +347,6 @@ export const filterFn = (filterData, originControl, data = []) => {
       case FILTER_CONDITION_TYPE.LIKE:
         switch (conditionGroupType) {
           case CONTROL_FILTER_WHITELIST.TEXT.value:
-          case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
             let isInValue = false;
             _.map(compareValues, it => {
               if (value.indexOf(it) >= 0) {
@@ -516,7 +518,6 @@ export const filterFn = (filterData, originControl, data = []) => {
       case FILTER_CONDITION_TYPE.NCONTAIN:
         switch (conditionGroupType) {
           case CONTROL_FILTER_WHITELIST.TEXT.value:
-          case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
             let isInValue = true;
             _.map(compareValues, it => {
               if (value.indexOf(it) >= 0) {
@@ -1020,7 +1021,7 @@ export const filterFn = (filterData, originControl, data = []) => {
           case CONTROL_FILTER_WHITELIST.CASCADER.value:
             let isInValue = false;
             _.map(compareValues, it => {
-              let itValue = dynamicSource.length > 0 ? safeParse(it || '[]')[0] || {} : safeParse(it || '{}');
+              let itValue = dynamicSource.length > 0 ? it || {} : safeParse(it || '{}');
               let valueN = _.isArray(value) ? value : safeParse(value || '[]', 'array');
               _.map(valueN, item => {
                 let curId = dynamicSource.length > 0 ? itValue.sid : itValue.id;
@@ -1041,7 +1042,7 @@ export const filterFn = (filterData, originControl, data = []) => {
             let isInValue = true;
             _.map(compareValues, it => {
               let itValue = {};
-              itValue = dynamicSource.length > 0 ? safeParse(it || '[]')[0] || {} : safeParse(it || '{}');
+              itValue = dynamicSource.length > 0 ? it || {} : safeParse(it || '{}');
               let valueN = _.isArray(value) ? value : safeParse(value || '[]', 'array');
               _.map(valueN, item => {
                 let curId = dynamicSource.length > 0 ? itValue.sid : itValue.id;
@@ -1103,7 +1104,7 @@ export const filterFn = (filterData, originControl, data = []) => {
               compareValues
                 .map(it =>
                   dynamicSource.length > 0
-                    ? _.get(safeParse(it || '[]')[0], 'sid')
+                    ? _.get(it, 'sid')
                     : _.get(safeParse(it || '{}'), 'id'),
                 )
                 .sort(),
@@ -1163,7 +1164,7 @@ export const filterFn = (filterData, originControl, data = []) => {
               compareValues
                 .map(it =>
                   dynamicSource.length > 0
-                    ? _.get(safeParse(it || '[]')[0], 'sid')
+                    ? _.get(it, 'sid')
                     : _.get(safeParse(it || '{}'), 'id'),
                 )
                 .sort(),
@@ -1209,7 +1210,7 @@ export const filterFn = (filterData, originControl, data = []) => {
             if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
 
             const reCompareArr = compareValues.map(it =>
-              dynamicSource.length > 0 ? _.get(safeParse(it || '[]')[0], 'sid') : _.get(safeParse(it || '{}'), 'id'),
+              dynamicSource.length > 0 ? _.get(it, 'sid') : _.get(safeParse(it || '{}'), 'id'),
             );
             const reArr = safeParse(value || '[]', 'array').map(it => it.sid);
             return _.every(reCompareArr, its => _.includes(reArr, its));

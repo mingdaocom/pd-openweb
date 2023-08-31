@@ -210,7 +210,10 @@ function User(props) {
     (_.get(props, ['appRole', 'roleInfos']) || []).find(o => o.roleId === _.get(props, ['appRole', 'roleId'])) || {}
   ).canSetMembers; //是否当前角色的负责人或者有权管理改角色
   const isRunner = appDetail.permissionType === APP_ROLE_TYPE.RUNNER_ROLE; //运营者
-  const canEdit = (isRoleCharger || isAdmin) && !(isRunner && ['all', 'apply', 'outsourcing'].includes(roleId)); //运营者不可编辑全部|审批|外协
+  const canEdit =
+    !window.isPublicApp && //非分享状态
+    (isRoleCharger || isAdmin) &&
+    !(isRunner && ['all', 'apply', 'outsourcing'].includes(roleId)); //运营者不可编辑全部|审批|外协
   useEffect(() => {
     setState({
       roleId: _.get(props, ['roleId']),
@@ -524,7 +527,7 @@ function User(props) {
     },
   };
   const triggerProps = {
-    popupClassName: 'ming Tooltip-white',
+    popupClassName: 'ming Tooltip-white Normal',
     prefixCls: 'Tooltip',
     action: ['click'],
     popup: renderPopup(),
@@ -547,6 +550,16 @@ function User(props) {
       return document.body;
     },
   };
+  const handleSearch = keyWords => {
+    setState({ keyWords });
+    SetAppRolePagingModel({
+      ...appRolePagingModel,
+      pageIndex: 1,
+      keywords: keyWords,
+    });
+    getUserList({ appId }, true);
+  };
+  const onSearch = _.debounce(keywords => handleSearch(keywords), 500);
 
   return (
     <Wrap className={cx('flex flexColumn overflowHidden', { isAllType: roleId !== 'all', conExternal: isExternal })}>
@@ -608,15 +621,7 @@ function User(props) {
                 className="roleSearch"
                 placeholder={props.placeholder || _l('搜索')}
                 value={keyWords}
-                onChange={keyWords => {
-                  setState({ keyWords });
-                  SetAppRolePagingModel({
-                    ...appRolePagingModel,
-                    pageIndex: 1,
-                    keywords: keyWords,
-                  });
-                  getUserList({ appId }, true);
-                }}
+                onChange={onSearch}
               />
             </div>
             {roleId !== 'all' && canEditApp && !isExternal && (

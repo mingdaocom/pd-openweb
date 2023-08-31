@@ -154,6 +154,7 @@ class DialogSelectUser extends Component {
     };
 
     const userSettings = {
+      includeMySelf: settings.includeMySelf,
       includeUndefinedAndMySelf: settings.includeUndefinedAndMySelf,
       includeSystemField: settings.includeSystemField,
       filterSystemAccountId: settings.filterSystemAccountId,
@@ -228,6 +229,7 @@ class DialogSelectUser extends Component {
 export default function dialogSelectUser(opts) {
   let DEFAULTS = {
     SelectUserSettings: {
+      includeMySelf: true, // 包含我自己
       includeUndefinedAndMySelf: false,
       includeSystemField: false,
       filterSystemAccountId: [],

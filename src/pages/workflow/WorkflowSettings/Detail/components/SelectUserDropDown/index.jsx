@@ -21,7 +21,7 @@ export default class SelectUserDropDown extends Component {
   }
 
   componentWillReceiveProps(nextProps, nextState) {
-    if (nextProps.nodeId !== this.props.nodeId) {
+    if (nextProps.nodeId !== this.props.nodeId || nextProps.specialType !== this.props.specialType) {
       this.setState({ fieldsData: [] });
     }
 
@@ -63,7 +63,7 @@ export default class SelectUserDropDown extends Component {
    * 头部
    */
   header() {
-    const { specialType, disabledNodeRole, onlyNodeRole } = this.props;
+    const { specialType, onlyNodeRole } = this.props;
 
     return (
       <ul className="flowDetailUserList">
@@ -353,7 +353,7 @@ export default class SelectUserDropDown extends Component {
   };
 
   render() {
-    const { visible, appId, companyId, onClose, unique } = this.props;
+    const { visible, appId, companyId, onClose, unique, disabledNodeRole } = this.props;
     const { fieldsData, showSelectAppUserDialog } = this.state;
 
     if (!visible) {
@@ -380,7 +380,7 @@ export default class SelectUserDropDown extends Component {
       <ActionFields
         header={this.header()}
         className="actionFields"
-        openSearch
+        openSearch={!disabledNodeRole}
         noItemTips={_l('没有可用的字段')}
         condition={fieldsData}
         handleFieldClick={this.handleFieldClick}

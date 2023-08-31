@@ -10,6 +10,7 @@ import Dialog from 'ming-ui/components/Dialog';
 import IntegrationSetPssword from '../components/IntegrationSetPssword';
 import VertifyClearIntegationData from '../components/VertifyClearIntegationData';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import { integrationFailed } from '../utils';
 import './style.less';
 import _ from 'lodash';
@@ -22,7 +23,6 @@ const messageLinkTypes = [
   { label: _l('独立窗口'), key: 2 },
   { label: _l('侧边栏打开'), key: 1 },
 ];
-const FEATURE_ID = 10;
 
 export default class Ding extends React.Component {
   constructor(props) {
@@ -200,7 +200,7 @@ export default class Ding extends React.Component {
                 value={!this.state[`isShow${strId}`] ? this.state[`${strId}Format`] : this.state[strId]}
               />
               <Icon
-                icon={!this.state[`isShow${strId}`] ? 'circulated' : 'visibility_off'}
+                icon={!this.state[`isShow${strId}`] ? 'visibility_off' : 'circulated'}
                 className="Gray_9e Font18 isShowIcon"
                 onClick={() => {
                   this.setState({
@@ -529,23 +529,28 @@ export default class Ding extends React.Component {
     }
   };
   render() {
-    const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
+    const featureType = getFeatureStatus(Config.projectId, VersionProductType.dingIntergration);
     if (featureType === '2') {
       return (
-        <div className="orgManagementWrap">{buriedUpgradeVersionDialog(Config.projectId, FEATURE_ID, 'content')}</div>
+        <div className="orgManagementWrap">
+          {buriedUpgradeVersionDialog(Config.projectId, VersionProductType.dingIntergration, 'content')}
+        </div>
       );
     }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }
     return (
-      <div className="dingMainContent">
+      <div className="orgManagementWrap dingMainContent">
         <Tabs
           defaultActiveKey="base"
           onChange={this.changeTab}
-          className={cx({ tabStyle: !(this.state.status === 1 && !this.state.isCloseDing) })}
+          className={cx('mdAntTabs', {
+            tabStyle: !(this.state.status === 1 && !this.state.isCloseDing),
+            singleTab: !(this.state.status === 1 && !this.state.isCloseDing),
+          })}
         >
-          <Tabs.TabPane className="Font17" tab={_l('钉钉集成')} key="base">
+          <Tabs.TabPane tab={_l('钉钉集成')} key="base">
             {this.stepRender()}
           </Tabs.TabPane>
           {this.state.status === 1 && !this.state.isCloseDing && (

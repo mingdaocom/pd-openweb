@@ -23,6 +23,7 @@ function NewRecord(props) {
     showFillNext,
     showContinueAdd = true,
     hideNewRecord,
+    onCloseDialog = () => {},
     showShare,
     advancedSetting = {},
   } = props;
@@ -82,6 +83,10 @@ function NewRecord(props) {
           type="button"
           className="ming Button--medium Button saveAndContinueBtn ellipsis mRight12"
           onClick={() => {
+            if (window.isPublicApp) {
+              alert(_l('预览模式下，不能操作'), 3);
+              return;
+            }
             newRecordContent.current.newRecord({
               autoFill,
               rowStatus: 21,
@@ -137,6 +142,7 @@ function NewRecord(props) {
     verticalAlign: 'bottom',
     width: browserIsMobile() ? window.innerWidth - 20 : 960,
     onCancel: () => {
+      onCloseDialog();
       hideNewRecord();
       removeFromLocal('tempNewRecord', viewId);
     },

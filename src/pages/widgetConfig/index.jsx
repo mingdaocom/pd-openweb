@@ -13,7 +13,13 @@ import Header from './Header';
 import Content from './content';
 import { getCurrentRowSize, getPathById } from './util/widgets';
 import { formatControlsData, getMsgByCode } from './util/data';
-import { getUrlPara, genWidgetsByControls, genControlsByWidgets, returnMasterPage, formatSearchConfigs } from './util';
+import {
+  getUrlPara,
+  genWidgetsByControls,
+  genControlsByWidgets,
+  returnMasterPage,
+  formatSearchConfigs,
+} from './util';
 import Components from './widgetSetting/components';
 import { verifyModifyDialog } from './widgetSetting/components/VerifyModifyDialog';
 import './index.less';
@@ -41,6 +47,8 @@ export default function Container(props) {
   const [widgets, setWidgets] = useState([]);
   // 选中的控件
   const [activeWidget, setActiveWidget] = useState({});
+  // 批量选中
+  const [batchActive, setBatchActive] = useState([]);
   // 查询工作表配置
   const [queryConfigs, setQueryConfigs] = useState([]);
   // 外部门户开启状态
@@ -97,7 +105,7 @@ export default function Container(props) {
   };
 
   const handleDataChange = (id, data, callback) => {
-    const nextWidgets = handleSizeChange(id, data);
+    let nextWidgets = handleSizeChange(id, data);
     setWidgets(nextWidgets);
 
     try {
@@ -133,8 +141,6 @@ export default function Container(props) {
       }, 0);
       return;
     }
-    // 取第一个控件作为激活控件
-    // setActiveWidget(head(head(widgets)));
   };
 
   const getQueryConfigs = (hasSearchQuery = false) => {
@@ -243,6 +249,7 @@ export default function Container(props) {
           : head(flattenControls);
 
         setActiveWidget(nextActiveWidget);
+        setBatchActive([]);
         //初始isWorksheetQuery为false, 新控件保存时手动判断是否要拉取配置
         const newQueryConfigs = (controls || []).reduce((total, cur) => {
           if (cur.advancedSetting && cur.advancedSetting.dynamicsrc) {
@@ -296,6 +303,10 @@ export default function Container(props) {
   };
 
   const updateQueryConfigs = (value = {}, mode) => {
+    if (mode === 'cover') {
+      setQueryConfigs(value);
+    }
+
     const index = findIndex(queryConfigs, item => item.controlId === value.controlId);
     let newQueryConfigs = queryConfigs.slice();
     if (mode) {
@@ -308,6 +319,8 @@ export default function Container(props) {
 
   const handleActiveSet = newWidgets => {
     setActiveWidget(newWidgets);
+    // 单独激活时取消批量激活
+    setBatchActive([]);
     if (!_.isEmpty(newWidgets)) {
       setStyleInfo({ activeStatus: false });
     }
@@ -345,6 +358,8 @@ export default function Container(props) {
     styleInfo,
     setStyleInfo,
     relateToNewPage,
+    batchActive,
+    setBatchActive,
     // 全局表信息
     globalSheetInfo: pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'groupId', 'roleType']),
   };
@@ -368,10 +383,6 @@ export default function Container(props) {
   };
 
   const handleSave = () => {
-    if (isEmpty(widgets)) {
-      alert(_l('当前表没有配置字段，无法保存'));
-      return;
-    }
     if (!activeWidget) {
       saveStyleInfo();
       saveControls();

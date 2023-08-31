@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import Sidenav from './components/sidenav';
 import Header from './components/header';
 import Con from './components/content';
@@ -150,7 +150,7 @@ class PrintForm extends React.Component {
 
   getDownLoadUrl = async downLoadUrl => {
     const { params } = this.state;
-    const { worksheetId, rowId, printId, projectId, appId, viewId } = params;
+    const { worksheetId, rowId, printId, projectId, appId, viewId, fileTypeNum } = params;
     //功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
     const token = await appManagementAjax.getToken({ worksheetId, viewId, tokenType: 5 });
     let payload = {
@@ -165,21 +165,25 @@ class PrintForm extends React.Component {
       token,
     };
     $.ajax({
-      url: downLoadUrl + '/ExportWord/GetWordPath',
+      url: downLoadUrl + `/Export${fileTypeNum === 5 ? 'Xlsx' : 'Word'}/Get${fileTypeNum === 5 ? 'Xlsx' : 'Word'}Path`,
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
       data: JSON.stringify(payload),
-    }).done(r => {
-      this.setState(
-        {
-          ajaxUrlStr: r.data,
-        },
-        () => {
-          this.getFiles();
-        },
-      );
-    });
+    })
+      .done(r => {
+        this.setState(
+          {
+            ajaxUrlStr: r.data,
+          },
+          () => {
+            this.getFiles();
+          },
+        );
+      })
+      .fail(() => {
+        this.setState({ ajaxUrlStr: 'error' });
+      });
   };
 
   getApproval = () => {
@@ -641,7 +645,8 @@ class PrintForm extends React.Component {
   };
 
   renderWordCon = () => {
-    const { ajaxUrlStr, showPdf } = this.state;
+    const { ajaxUrlStr, showPdf, params } = this.state;
+    const { fileTypeNum } = params;
 
     if (!showPdf) {
       return (
@@ -651,40 +656,48 @@ class PrintForm extends React.Component {
               <div className="wordPng"></div>
               <p className="dec">
                 <LoadDiv size="small" className="mRight10" />
-                {_l('正在导出word文件...')}
+                {_l(fileTypeNum === 5 ? '正在导出Excel文件...' : '正在导出Word文件...')}
               </p>
               <p className="txt">{_l('包含图片时生成速度较慢，请耐心等待...')}</p>
             </React.Fragment>
           ) : (
             <React.Fragment>
-              <div className="exportPng"></div>
-              <p className="dec">{_l('导出成功！')}</p>
-              <p
-                className="downWord"
-                onClick={() => {
-                  this.handleBehaviorLog();
-                  this.downFn();
-                }}
-              >
-                <Icon
-                  icon={'file_download'}
-                  className="Font16"
-                  style={{ marginLeft: -14, 'vertical-align': 'bottom' }}
-                />
-                {_l('下载word文件')}
-              </p>
-              <div
-                className="toPdf"
-                onClick={() => {
-                  this.handleBehaviorLog();
-                  this.setState({
-                    showPdf: true,
-                  });
-                }}
-              >
-                {_l('直接用浏览器打印')}
-              </div>
-              <p className="txt">{_l('文件复杂时可能会失败')}</p>
+              {ajaxUrlStr === 'error' ? <div className='icon-error_outline Red Font64'></div> : <div className="exportPng"></div>}
+              <p className="dec">{ajaxUrlStr === 'error' ? _l('导出失败') : _l('导出成功！')}</p>
+
+              {ajaxUrlStr !== 'error' && (
+                <Fragment>
+                  <p
+                    className="downWord"
+                    onClick={() => {
+                      this.handleBehaviorLog();
+                      this.downFn();
+                    }}
+                  >
+                    <Icon
+                      icon={'file_download'}
+                      className="Font16"
+                      style={{ marginLeft: -14, 'vertical-align': 'bottom' }}
+                    />
+                    {_l(fileTypeNum === 5 ? '下载Excel文件' : '下载Word文件')}
+                  </p>
+                  {fileTypeNum !== 5 && (
+                    <div
+                      className="toPdf"
+                      onClick={() => {
+                        this.handleBehaviorLog();
+                        this.setState({
+                          showPdf: true,
+                        });
+                      }}
+                    >
+                      {_l('直接用浏览器打印')}
+                    </div>
+                  )}
+
+                </Fragment>
+              )}
+              <p className="txt">{_l('文件复杂时可能会失败')}</p>{' '}
             </React.Fragment>
           )}
         </div>

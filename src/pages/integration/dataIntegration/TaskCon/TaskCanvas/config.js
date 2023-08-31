@@ -93,13 +93,13 @@ export const JOIN_TYPE = [
     img: 'joinRight',
     tips: _l('右查左，合并全部'),
   },
-  {
-    txt: _l('全连接'), //全外连接
-    type: 'FULL_OUTER_JOIN',
-    color: '#2196F3',
-    img: 'joinFull',
-    tips: _l('左右表按连接字段全部合并'),
-  },
+  // {
+  //   txt: _l('全连接'), //全外连接
+  //   type: 'FULL_OUTER_JOIN',
+  //   color: '#2196F3',
+  //   img: 'joinFull',
+  //   tips: _l('左右表按连接字段全部合并'),
+  // },
 ];
 
 export const FILTER_RELATION_TYPE_DATA = [
@@ -111,6 +111,9 @@ export const TYPE_DATA = [
   { text: _l('或'), value: 'OR' },
   // { text: _l('非'), value: 'NOT' },
 ];
+export const REL_OPERATOR_TYPE = {
+  EQ: 'EQ',
+};
 //节点状态 //字段状态
 export const node_status = [
   { text: _l('正常'), value: 'NORMAL' },
@@ -325,3 +328,26 @@ export const schemaTypes = [
     weight: 2147483629,
   },
 ].filter(o => o.hasSchema).map(o => { return o.className });
+
+export const mdJoinPkData = {
+  id: 'join_pk_mdy0000',
+  oid: 'join_pk_mdy0000',
+  dependFieldIds: ['join_pk_mdy0000'],
+  name: 'join_pk_mdy0000',
+  dataType: 'varchar',
+  jdbcTypeId: 12,
+  precision: 255,
+  scale: 0,
+  isPk: true,
+  isJoinPk: true,
+  mdType: 2,
+  isTitle: null,
+  isNotNull: true,
+  alias: 'join_pk_mdy0000',
+  isCheck: true,
+  orderNo: 0,
+  status: 'NORMAL',
+  defaultValue: null,
+  comment: null,
+  controlSetting: null,
+}

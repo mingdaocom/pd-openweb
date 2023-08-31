@@ -65,9 +65,9 @@ export default class extends Component {
     const { auth, encrypt } = (instance || {}).flowNode || {};
 
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
-    const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
-    const overruleContent = action === 'overrule' && _.includes(auth.overruleTypeList, 100);
-    const overruleSignature = action === 'overrule' && _.includes(auth.overruleTypeList, 1);
+    const overruleContent = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 100);
+    const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
+    const overruleSignature = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 1);
     const forwardAccountId = (_.isArray(selectedUser) ? selectedUser : [selectedUser]).map(user => {
       if (entrustList[user.accountId]) {
         return entrustList[user.accountId].trustee.accountId;
@@ -380,8 +380,8 @@ export default class extends Component {
     const { inputType } = opinionTemplate;
     const { auth, isCallBack } = flowNode || {};
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
-    const overruleContent = action === 'overrule' && _.includes(auth.overruleTypeList, 100);
-    const passSignature = action === 'pass' && _.includes(auth.passTypeList, 1);
+    const overruleContent = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 100);
+    const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
     const overruleSignature = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 1);
     const isSignature = passSignature || overruleSignature;
     const isAndroid = navigator.userAgent.toLowerCase().includes('android');

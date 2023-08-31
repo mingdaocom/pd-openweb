@@ -3,18 +3,9 @@ import { string } from 'prop-types';
 import { Dropdown, RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import OptionList from '../components/OptionList';
+import DisplayOptions from '../components/OptionList/DisplayOptions';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
-const MULTI_SELECT_DISPLAY = [
-  {
-    value: '0',
-    text: _l('横向排列'),
-  },
-  {
-    value: '1',
-    text: _l('纵向排列'),
-  },
-];
 const OPTIONS_DISPLAY = [
   {
     value: '1',
@@ -25,8 +16,10 @@ const OPTIONS_DISPLAY = [
     text: _l('平铺'),
   },
 ];
-export default function MultiSelect({ data, onChange, globalSheetInfo, fromPortal, fromExcel }) {
-  const { direction = '0', checktype = '0' } = getAdvanceSetting(data);
+export default function MultiSelect(props) {
+  const { data, onChange, globalSheetInfo, fromPortal, fromExcel } = props;
+  const { checktype = '0' } = getAdvanceSetting(data);
+
   return (
     <Fragment>
       <SettingItem>
@@ -41,17 +34,9 @@ export default function MultiSelect({ data, onChange, globalSheetInfo, fromPorta
           }}
         />
       </SettingItem>
-      {checktype !== '1' && (
-        <SettingItem>
-          <div className="settingItemTitle">{_l('排列方式')}</div>
-          <Dropdown
-            border
-            value={direction}
-            data={MULTI_SELECT_DISPLAY}
-            onChange={value => onChange(handleAdvancedSettingChange(data, { direction: value }))}
-          />
-        </SettingItem>
-      )}
+
+      {checktype !== '1' && <DisplayOptions {...props} />}
+
       {!fromExcel && (
         <OptionList.SelectOptions
           data={data}

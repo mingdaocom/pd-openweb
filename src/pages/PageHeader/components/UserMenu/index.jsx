@@ -32,7 +32,7 @@ export default function UserMenu(props) {
           $('#userSet #userSetItem').removeClass('active');
         }}
       >
-        <ul className="userSetTooltip">
+        <ul className="userSetTooltip Normal">
           {_.map(md.global.Account.projects, project => {
             return (
               <li

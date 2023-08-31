@@ -43,6 +43,12 @@ export const clearChartId = base => {
   };
 };
 
+// 更新个别字段
+export const updateWorksheetSomeControls = controls => ({
+  type: 'WORKSHEET_UPDATE_SOME_CONTROLS',
+  controls,
+});
+
 export const updateIsCharge = isCharge => ({ type: 'WORKSHEET_UPDATE_IS_CHARGE', isCharge });
 export const updateAppPkgData = appPkgData => ({ type: 'WORKSHEET_UPDATE_APPPKGDATA', appPkgData });
 
@@ -68,14 +74,17 @@ export function loadWorksheet(worksheetId) {
       type: 'WORKSHEET_FETCH_START',
     });
 
-    worksheetRequest = worksheetAjax.getWorksheetInfo({
+    const args = {
       worksheetId,
       reportId: chartId || undefined,
       getViews: true,
       getTemplate: true,
       getRules: true,
       getSwitchPermit: true,
-    });
+      resultType: 2,
+    };
+
+    worksheetRequest = worksheetAjax.getWorksheetInfo(args);
 
     worksheetRequest
       .then(async res => {
@@ -95,7 +104,17 @@ export function loadWorksheet(worksheetId) {
         if (!res.isWorksheetQuery || queryRes) {
           dispatch({
             type: 'WORKSHEET_INIT',
-            value: !chartId ? res : { ...res, views: res.views.map(v => ({ ...v, viewType: 0 })) },
+            value: Object.assign(
+              !chartId
+                ? res
+                : {
+                    ...res,
+                    views: res.views.map(v => ({ ...v, viewType: 0 })),
+                  },
+              {
+                isRequestingRelationControls: res.requestAgain,
+              },
+            ),
           });
           dispatch(setViewLayout(viewId));
           dispatch({
@@ -107,6 +126,20 @@ export function loadWorksheet(worksheetId) {
           dispatch({
             type: 'WORKSHEET_PERMISSION_INIT',
             value: res.switches,
+          });
+        }
+        if (res.requestAgain) {
+          worksheetRequest = worksheetAjax.getWorksheetInfo({ ...args, resultType: undefined });
+          worksheetRequest.then(infoRes => {
+            const newControls = _.get(infoRes, 'template.controls');
+            if (_.isEmpty(newControls)) {
+              return;
+            }
+            dispatch(updateWorksheetSomeControls(newControls));
+            dispatch({
+              type: 'WORKSHEET_UPDATE_IS_REQUESTING_RELATION_CONTROLS',
+              value: false,
+            });
           });
         }
       })
@@ -316,7 +349,10 @@ export function openNewRecord() {
         projectId: worksheetInfo.projectId,
         needCache: true,
         addType: 1,
-        showShare: isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId),
+        showShare: true,
+        hidePublicShare: !(
+          isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) && !md.global.Account.isPortal
+        ),
         isCharge: isCharge,
         appPkgData: appPkgData,
         entityName: worksheetInfo.entityName,
@@ -383,12 +419,6 @@ export function openNewRecord() {
 // 更新字段
 export const updateWorksheetControls = controls => ({
   type: 'WORKSHEET_UPDATE_CONTROLS',
-  controls,
-});
-
-// 更新个别字段
-export const updateWorksheetSomeControls = controls => ({
-  type: 'WORKSHEET_UPDATE_SOME_CONTROLS',
   controls,
 });
 

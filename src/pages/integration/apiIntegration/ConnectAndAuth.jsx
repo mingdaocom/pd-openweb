@@ -11,6 +11,7 @@ import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput'
 import ConnectWrap from './ConnectWrap';
 import bg from 'staticfiles/images/query.png';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 import loadScript from 'load-script';
 import moment from 'moment';
@@ -143,7 +144,7 @@ function ConnectAndAuthCon(props) {
     },
     setState,
   ] = useSetState({ ...initData, listCount: 0 });
-  const featureType = getFeatureStatus(props.currentProjectId, 3);
+  const featureType = getFeatureStatus(props.currentProjectId, VersionProductType.apiIntergration);
   const fetchData = () => {
     if (tab !== 'connectList' || !props.currentProjectId) {
       return;
@@ -299,7 +300,7 @@ function ConnectAndAuthCon(props) {
                 onClick={() => {
                   const projectId = props.currentProjectId;
                   if (featureType === '2') {
-                    buriedUpgradeVersionDialog(projectId, 3);
+                    buriedUpgradeVersionDialog(projectId, VersionProductType.apiIntergration);
                   } else {
                     setState({ showConnect: true, connectData: null });
                   }
@@ -326,7 +327,7 @@ function ConnectAndAuthCon(props) {
           setState({ showConnect: true, connectData: { id }, hasChange: hasChange + 1 });
         },
         buriedUpgradeVersionDialog: () => {
-          buriedUpgradeVersionDialog(props.currentProjectId, 3);
+          buriedUpgradeVersionDialog(props.currentProjectId, VersionProductType.apiIntergration);
         },
         currentProjectId: props.currentProjectId,
         getUrl: 'https://api.mingdao.com/integration',
@@ -365,7 +366,7 @@ function ConnectAndAuthCon(props) {
         return alert(_l('请创建或申请加入一个组织'), 3);
       }
       if (featureType === '2') {
-        buriedUpgradeVersionDialog(projectId, 3);
+        buriedUpgradeVersionDialog(projectId, VersionProductType.apiIntergration);
       } else {
         setState({ showConnect: true, connectData: null });
       }

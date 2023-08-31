@@ -104,15 +104,18 @@ export function refreshSheetList() {
 
 export function getAllAppSectionDetail(appId, callBack) {
   return function (dispatch, getState) {
-    homeAppApi.getAppInfo({ appId }).then(result => {
-      const { appRoleType, isLock, appSectionDetail = [] } = result;
-      const isCharge = canEditApp(appRoleType, isLock);
+    homeAppApi.getApp({
+      appId,
+      getSection: true
+    }).then(result => {
+      const { permissionType, isLock, sections = [] } = result;
+      const isCharge = canEditApp(permissionType, isLock);
       dispatch(updateIsCharge(isCharge));
-      dispatch(updateAppGroup(appSectionDetail));
-      dispatch(updateAppPkgData({appRoleType, isLock}))
+      dispatch(updateAppGroup(sections));
+      dispatch(updateAppPkgData({ appRoleType: permissionType, isLock }))
       dispatch(
         updateALLSheetList(
-          appSectionDetail.map(data => {
+          sections.map(data => {
             return {
               ...data,
               workSheetId: data.appSectionId,

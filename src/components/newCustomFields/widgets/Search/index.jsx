@@ -237,7 +237,7 @@ export default class Widgets extends Component {
 
   getSuffixIcon = () => {
     const { enumDefault, disabled, advancedSetting: { clicksearch, min = '0' } = {} } = this.props;
-    const canClick = this.state.keywords.length >= parseInt(min);
+    const canClick = _.get(this.state, 'keywords.length') >= parseInt(min);
     if (enumDefault === 2) {
       if (clicksearch === '1') {
         return <Icon icon="search1 Font14" />;

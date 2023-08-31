@@ -107,11 +107,14 @@ function OperateMenu(props) {
   }, []);
   useEffect(() => {
     if (selectedApp) {
-      homeApp.getAppInfo({ appId: selectedApp }).then(res => {
-        const { appSectionDetail } = res;
+      homeApp.getApp({
+        appId: selectedApp,
+        getSection: true
+      }).then(res => {
+        const { sections } = res;
         setList({
           ...valueList,
-          groupList: appSectionDetail.map(item => ({ value: item.appSectionId, text: item.name || _l('未命名分组') })),
+          groupList: sections.map(item => ({ value: item.appSectionId, text: item.name || _l('未命名分组') })),
         });
       });
     }

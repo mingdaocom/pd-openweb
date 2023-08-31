@@ -127,7 +127,7 @@ export default function Options(props) {
           .filter(o => !o.isDeleted)
           .map((o, i) => (
             <Option
-              className={cx('ellipsis', { checked: _.includes(values, o.key) })}
+              className={cx({ multiple, checked: _.includes(values, o.key) })}
               title={o.value}
               key={i}
               onClick={() => {
@@ -142,7 +142,8 @@ export default function Options(props) {
                 }
               }}
             >
-              {o.value}
+              {multiple && _.includes(values, o.key) && <span className="icon-hr_ok selectedIcon"></span>}
+              <div className="ellipsis">{o.value}</div>
             </Option>
           ))}
       </FullLineCon>

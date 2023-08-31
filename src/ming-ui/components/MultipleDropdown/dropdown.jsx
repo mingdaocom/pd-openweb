@@ -189,6 +189,7 @@ class MultipleDropdown extends Component {
         </button>
         <MultipleDropdownMenu
           value={this.state.value}
+          openMenu={this.state.menuOpened}
           options={this.props.options}
           emptyHint={this.props.emptyHint}
           multipleLevel={this.props.multipleLevel}

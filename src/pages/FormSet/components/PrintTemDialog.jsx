@@ -13,7 +13,7 @@ export default class PrintTemDialog extends Component {
   };
 
   render() {
-    const { onBack, isDefault, type, from, printId, worksheetId, projectId, rowId, getType, viewId, appId, name } = this.props;
+    const { onBack, isDefault, type, from, printId, worksheetId, projectId, rowId, getType, viewId, appId, name, fileTypeNum } = this.props;
     const match = {
       params: {
         printType: 'worksheet',
@@ -28,6 +28,7 @@ export default class PrintTemDialog extends Component {
         viewId,
         appId,
         name,
+        fileTypeNum,
       },
     };
 

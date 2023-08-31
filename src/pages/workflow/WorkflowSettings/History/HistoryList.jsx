@@ -4,10 +4,11 @@ import cx from 'classnames';
 import HistoryListItem from './HistoryListItem';
 import { STATUS2COLOR } from './config';
 import styled from 'styled-components';
-import { Menu, MenuItem, Support } from 'ming-ui';
+import { Menu, MenuItem, Support, Dialog } from 'ming-ui';
 import { SUPPORT_HREF } from '../enum';
 import _ from 'lodash';
 import moment from 'moment';
+import processVersion from '../../api/processVersion';
 
 const HISTORY_TITLE = [
   { id: 'status', text: _l('状态') },
@@ -36,6 +37,7 @@ const Box = styled.div`
 `;
 export default class HistoryList extends Component {
   static propTypes = {
+    processId: string,
     data: arrayOf(
       shape({
         createDate: string,
@@ -50,11 +52,13 @@ export default class HistoryList extends Component {
     hasMoreData: bool,
     requestPending: bool,
     onRecovery: func,
+    onRefreshAccumulation: func,
   };
   static defaultProps = {
     data: [],
     getMore: () => {},
     onRecovery: () => {},
+    onRefreshAccumulation: () => {},
   };
 
   state = {
@@ -70,16 +74,18 @@ export default class HistoryList extends Component {
     return (
       <Box style={{ backgroundColor: STATUS2COLOR[accumulation.waiting ? 'suspend' : 'pending'].bgColor }}>
         <span className="bold">{_l('%0条排队中...', accumulation.difference)}</span>
+        <Support className="mLeft10" type={1} href={SUPPORT_HREF['queue']} title={_l('什么是排队中？')} />
+        <div className="flex" />
+
         {!accumulation.waiting && (
           <Fragment>
-            <div className="mLeft10 relative">
+            <div className="relative">
               <span className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => this.setState({ showList: true })}>
-                {_l('暂停消费')}
+                {_l('暂停')}
               </span>
               {this.renderSuspendList()}
             </div>
-            <div className="flex" />
-            <Support type={3} href={SUPPORT_HREF['queue']} text={_l('什么是排队中？')} />
+            {this.discardAction()}
           </Fragment>
         )}
 
@@ -103,10 +109,14 @@ export default class HistoryList extends Component {
             <span>{_l('后恢复')}</span>
           </Fragment>
         )}
+
         {accumulation.waiting && (
-          <span className="ThemeColor3 ThemeHoverColor2 pointer mLeft10" onClick={() => onRecovery(false)}>
-            {_l('立即恢复')}
-          </span>
+          <Fragment>
+            <span className="ThemeColor3 ThemeHoverColor2 pointer mLeft10" onClick={() => onRecovery(false)}>
+              {_l('立即恢复')}
+            </span>
+            {this.discardAction()}
+          </Fragment>
         )}
       </Box>
     );
@@ -155,6 +165,31 @@ export default class HistoryList extends Component {
     const second = Math.floor(diff - hour * 60 * 60 - minute * 60);
 
     return `${hour ? _l('%0小时', hour) : ''}${minute ? _l('%0分钟', minute) : ''}${second ? _l('%0秒', second) : ''}`;
+  }
+
+  /**
+   * 丢弃执行
+   */
+  discardAction() {
+    const { processId, onRefreshAccumulation } = this.props;
+    const discardFun = () => {
+      Dialog.confirm({
+        className: 'deleteApprovalProcessDialog',
+        title: <span style={{ color: '#f44336' }}>{_l('丢弃排队中的执行')}</span>,
+        description: _l('这些已触发的流程实例将不会被执行'),
+        onOk: () => {
+          processVersion.remove({ processIds: [processId] }).then(() => {
+            onRefreshAccumulation();
+          });
+        },
+      });
+    };
+
+    return (
+      <span className="ThemeColor3 ThemeHoverColor2 pointer mLeft20" onClick={discardFun}>
+        {_l('丢弃')}
+      </span>
+    );
   }
 
   render() {

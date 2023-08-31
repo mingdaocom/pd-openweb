@@ -1,16 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Select, Input } from 'antd';
+import { Select, Input, Tooltip } from 'antd';
 import { normTypes } from 'statistics/common';
 
 export class Count extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
   }
   render() {
-    const { smallTitle, isPivotTable, summary, yaxisList, extra, onChangeSummary } = this.props;
+    const { smallTitle, isPivotTable, summary, yaxisList, yAxis, extra, onChangeSummary } = this.props;
     return (
       <Fragment>
         {isPivotTable && extra}
@@ -41,9 +40,16 @@ export class Count extends Component {
         )}
         {(isPivotTable ? true : summary.controlId) && (
           <div className="mBottom16">
-            <div className="mBottom8">{_l('汇总方式')}</div>
+            <div className="flexRow valignWrapper mBottom8">
+              <div>{_l('汇总方式')}</div>
+              {isPivotTable && summary.type === 5 && (
+                <Tooltip placement="bottom" title={_l('汇总按照计算方式显示，需要计算选择的字段和添加的计算字段都显示在透视表中')}>
+                  <Icon className="Font15 Gray_9e pointer mLeft5" icon="info" />
+                </Tooltip>
+              )}
+            </div>
             <div className="chartTypeSelect flexRow valignWrapper">
-              {normTypes.map(item => (
+              {(isPivotTable && yAxis.controlType === 10000001 ? normTypes : normTypes.filter(n => n.value !== 5)).map(item => (
                 <div
                   key={item.value}
                   className={cx('flex centerAlign pointer Gray_75', { active: summary.type == item.value })}

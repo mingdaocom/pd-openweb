@@ -105,6 +105,6 @@ export default class Application extends Component {
     if (_.includes([1], status) || (status === 5 && _.includes(pathname, 'role'))) {
       return <Switch>{this.genRouteComponent(md.global.Account.isPortal ? PORTAL_ROUTE_CONFIG : ROUTE_CONFIG)}</Switch>;
     }
-    return <UnusualContent status={status} appId={appId} />;
+    return <UnusualContent appPkg={appPkg} status={status} appId={appId} />;
   }
 }

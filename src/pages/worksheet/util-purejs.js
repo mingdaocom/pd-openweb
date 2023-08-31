@@ -51,6 +51,7 @@ export function formatControlValue(cell) {
     if (!cell) {
       return;
     }
+    let newPos = [];
     let { type, value } = cell;
     let parsedData, selectedOptions;
     if (type === 37) {
@@ -79,7 +80,18 @@ export function formatControlValue(cell) {
         return JSON.parse(value);
       case 40: // LOCATION 定位
         parsedData = JSON.parse(value) || {};
-        return _.isObject(parsedData) ? parsedData : undefined;
+        if (!_.isObject(parsedData)) {
+          return undefined;
+        }
+        if ((parsedData.coordinate || '').toLowerCase() === 'wgs84') {
+          newPos = wgs84togcj02(parsedData.x, parsedData.y);
+          return {
+            ...parsedData,
+            x: newPos[0],
+            y: newPos[1],
+          };
+        }
+        return parsedData;
       // 组件
       case 9: // OPTIONS 单选 平铺
       case 10: // MULTI_SELECT 多选
@@ -171,4 +183,43 @@ export function getSelectedOptions(options, value) {
       return s === option.key;
     }),
   );
+}
+
+function transformLat(lng, lat) {
+  var pi = 3.14159265358979324;
+  var a = 6378245.0;
+  var ee = 0.00669342162296594323;
+  var dLat = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
+  dLat += ((20.0 * Math.sin(6.0 * lng * pi) + 20.0 * Math.sin(2.0 * lng * pi)) * 2.0) / 3.0;
+  dLat += ((20.0 * Math.sin(lat * pi) + 40.0 * Math.sin((lat / 3.0) * pi)) * 2.0) / 3.0;
+  dLat += ((160.0 * Math.sin((lat / 12.0) * pi) + 320 * Math.sin((lat * pi) / 30.0)) * 2.0) / 3.0;
+  return dLat;
+}
+
+function transformLng(lng, lat) {
+  var pi = 3.14159265358979324;
+  var a = 6378245.0;
+  var ee = 0.00669342162296594323;
+  var dLng = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
+  dLng += ((20.0 * Math.sin(6.0 * lng * pi) + 20.0 * Math.sin(2.0 * lng * pi)) * 2.0) / 3.0;
+  dLng += ((20.0 * Math.sin(lng * pi) + 40.0 * Math.sin((lng / 3.0) * pi)) * 2.0) / 3.0;
+  dLng += ((150.0 * Math.sin((lng / 12.0) * pi) + 300.0 * Math.sin((lng / 30.0) * pi)) * 2.0) / 3.0;
+  return dLng;
+}
+
+export function wgs84togcj02(lng, lat) {
+  var a = 6378245.0;
+  var ee = 0.00669342162296594323;
+  var pi = 3.14159265358979324;
+  var dLat = transformLat(lng - 105.0, lat - 35.0);
+  var dLng = transformLng(lng - 105.0, lat - 35.0);
+  var radLat = (lat / 180.0) * pi;
+  var magic = Math.sin(radLat);
+  magic = 1 - ee * magic * magic;
+  var sqrtMagic = Math.sqrt(magic);
+  dLat = (dLat * 180.0) / (((a * (1 - ee)) / (magic * sqrtMagic)) * pi);
+  dLng = (dLng * 180.0) / ((a / sqrtMagic) * Math.cos(radLat) * pi);
+  var mgLat = lat + dLat;
+  var mgLng = lng + dLng;
+  return [mgLng, mgLat];
 }

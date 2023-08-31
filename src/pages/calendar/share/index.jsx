@@ -615,6 +615,6 @@ class CalendarShare extends Component {
   }
 }
 
-const WrappedComp = preall(CalendarShare, { allownotlogin: true, hideloading: true });
+const WrappedComp = preall(CalendarShare, { allownotlogin: true });
 
 render(<WrappedComp />, document.getElementById('app'));

@@ -45,9 +45,9 @@ export default function SheetGroupSelect(props) {
   const groupRef = useRef();
 
   useEffect(() => {
-    homeApp.getAppInfo({ appId }).then(result => {
+    homeApp.getApp({ appId, getSection: true }).then(result => {
       setGroups(
-        result.appSectionDetail.map(item => {
+        result.sections.map(item => {
           item.subVisible = true;
           return item;
         }),

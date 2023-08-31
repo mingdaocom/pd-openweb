@@ -2,7 +2,7 @@
 import { formatFileSize, getClassNameByExt } from 'src/util';
 import mainTpl from './main.htm';
 import { index as DialogLayer} from 'src/components/mdDialog/dialog';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import moment from 'moment';
 
 var FileConfirm = function(file, callback) {

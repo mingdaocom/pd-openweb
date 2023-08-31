@@ -1,7 +1,7 @@
 import 'src/components/mdDialog/dialog';
 import './style.less';
 import { verifyPassword } from 'src/util';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import tpl from './validatePassword.html';
 
 var ajax = null;

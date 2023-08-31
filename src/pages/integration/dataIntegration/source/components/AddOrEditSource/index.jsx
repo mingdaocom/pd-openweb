@@ -158,8 +158,10 @@ export default function AddOrEditSource(props) {
         dataSource.type === DATABASE_TYPE.ORACLE
           ? { [JSON.parse(formData.serviceType)[0] === 'ServiceName' ? 'serviceName' : 'SID']: formData.serviceName }
           : dataSource.type === DATABASE_TYPE.MONGO_DB
-          ? { isSrvProtocol: !!parseInt(formData.isSrvProtocol) }
+          ? { isSrvProtocol: formData.isSrvProtocol }
           : {},
+      enableSsh: formData.enableSsh,
+      sshConfigId: formData.sshConfigId,
     };
     if (isEdit) {
       setDialogVisible(true);

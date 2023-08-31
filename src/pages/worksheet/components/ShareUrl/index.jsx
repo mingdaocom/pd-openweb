@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import copy from 'copy-to-clipboard';
 import { saveAs } from 'file-saver';
-import { Tooltip } from 'ming-ui';
+import { Tooltip, Dialog } from 'ming-ui';
 import { TextBlock } from 'worksheet/components/Basics';
 import SendToChat from './SendToChat';
 import './ShareUrl.less';
@@ -17,6 +17,13 @@ const Url = styled(TextBlock)`
     font-size: inherit;
     width: 100%;
     margin-left: -1px;
+    height: 36px;
+    line-height: 36px;
+  }
+  .icon-refresh {
+    &:hover {
+      color: #2196f3 !important;
+    }
   }
 `;
 
@@ -75,6 +82,43 @@ const TextIcon = styled(TextBlock)`
   `}
 `;
 
+const SeparateDisplayButton = styled(TextBlock)`
+  cursor: pointer;
+  line-height: 36px;
+  width: 80px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 5px;
+  color: #333;
+  font-size: 13px;
+  font-weight: 500;
+  i {
+    color: #757575;
+    font-size: 18px;
+  }
+
+  :hover {
+    color: #2196f3;
+    i {
+      color: #2196f3;
+    }
+  }
+  ${({ theme }) =>
+    theme === 'light' &&
+    `
+    background: #fff;
+    border: 1px solid #ddd;
+    :hover {
+      border-color: #2196f3;
+    }
+  `}
+`;
+
+const Danger = styled.span`
+  color: #f44336;
+`;
+
 export default class ShareUrl extends React.Component {
   static propTypes = {
     copyShowText: PropTypes.bool,
@@ -87,12 +131,19 @@ export default class ShareUrl extends React.Component {
       PropTypes.shape({
         tip: PropTypes.string,
         icon: PropTypes.string,
+        text: PropTypes.string,
+        showCompletely: PropTypes.bool,
         onClick: PropTypes.func,
       }),
     ),
     className: PropTypes.string,
     style: PropTypes.shape({}),
     getCopyContent: PropTypes.func,
+    showCompletely: PropTypes.shape({
+      copy: PropTypes.bool,
+      qr: PropTypes.bool,
+    }),
+    refreshShareUrl: PropTypes.func,
   };
 
   constructor(props) {
@@ -101,11 +152,23 @@ export default class ShareUrl extends React.Component {
       showinput: false,
     };
   }
+
   async handleCopy(content) {
     const { getCopyContent } = this.props;
     copy(_.isFunction(getCopyContent) ? await getCopyContent(content) : content);
     alert(_l('复制成功'));
   }
+
+  handleRefreshShareUrl() {
+    const { refreshShareUrl } = this.props;
+    Dialog.confirm({
+      buttonType: 'danger',
+      title: <Danger> {_l('确认生成新链接吗？')} </Danger>,
+      description: _l('如果您选择生成新链接，则旧链接将不再可用'),
+      onOk: refreshShareUrl,
+    });
+  }
+
   render() {
     const {
       url,
@@ -121,17 +184,25 @@ export default class ShareUrl extends React.Component {
       chatCard,
       editUrl,
       editTip,
+      showCompletely = {},
+      refreshShareUrl,
     } = this.props;
     const { showinput, chatVisible } = this.state;
     const qrurl = md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${url}`;
     const qrurlDownload = md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${url}&size=20&download=true`;
-    const renderButtons = (btn, index) => (
-      <Tooltip key={index} popupPlacement="bottom" text={<span>{btn.tip}</span>}>
-        <Icon style={btn.style} theme={theme} className={btn.className} onClick={btn.onClick}>
+    const renderButtons = (btn, index) =>
+      btn.showCompletely ? (
+        <SeparateDisplayButton style={btn.style} theme={theme} onClick={btn.onClick}>
           <i style={btn.iconStyle} className={`icon-${btn.icon}`}></i>
-        </Icon>
-      </Tooltip>
-    );
+          <span>{btn.text}</span>
+        </SeparateDisplayButton>
+      ) : (
+        <Tooltip key={index} popupPlacement="bottom" text={<span>{btn.tip}</span>}>
+          <Icon style={btn.style} theme={theme} className={btn.className} onClick={btn.onClick}>
+            <i style={btn.iconStyle} className={`icon-${btn.icon}`}></i>
+          </Icon>
+        </Tooltip>
+      );
     return (
       <Fragment>
         <div className={`flexRow ${className}`} style={style}>
@@ -159,6 +230,14 @@ export default class ShareUrl extends React.Component {
                 >
                   {url}
                 </div>
+                {refreshShareUrl && (
+                  <Tooltip popupPlacement="bottom" text={<span>{_l('重新生成链接')}</span>}>
+                    <i
+                      className="icon-refresh Font18 InlineBlock Hand Gray_9e LineHeight36 mLeft10"
+                      onClick={() => this.handleRefreshShareUrl()}
+                    ></i>
+                  </Tooltip>
+                )}
                 {editUrl && (
                   <Tooltip popupPlacement="bottom" text={<span>{editTip}</span>}>
                     <i
@@ -180,72 +259,85 @@ export default class ShareUrl extends React.Component {
               </Tooltip>
             ))}
           </Url>
-          {customBtns.map(renderButtons)}
-          {copyShowText ? (
-            !copyTip ? (
-              <TextIcon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
+          <div className="flexRow">
+            {customBtns.map(renderButtons)}
+            {showCompletely.copy ? (
+              <SeparateDisplayButton theme={theme} onClick={() => this.handleCopy(url)}>
+                <i className="icon-content-copy"></i>
                 <span className="text">{_l('复制')}</span>
-              </TextIcon>
-            ) : (
-              <Tooltip popupPlacement="bottom" text={<span>{copyTip}</span>}>
+              </SeparateDisplayButton>
+            ) : copyShowText ? (
+              !copyTip ? (
                 <TextIcon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
                   <span className="text">{_l('复制')}</span>
                 </TextIcon>
+              ) : (
+                <Tooltip popupPlacement="bottom" text={<span>{copyTip}</span>}>
+                  <TextIcon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
+                    <span className="text">{_l('复制')}</span>
+                  </TextIcon>
+                </Tooltip>
+              )
+            ) : (
+              <Tooltip popupPlacement="bottom" text={<span>{_l('复制链接')}</span>}>
+                <Icon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
+                  <i className="icon-content-copy"></i>
+                </Icon>
               </Tooltip>
-            )
-          ) : (
-            <Tooltip popupPlacement="bottom" text={<span>{_l('复制链接')}</span>}>
-              <Icon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
-                <i className="icon-content-copy"></i>
-              </Icon>
-            </Tooltip>
-          )}
-          {qrVisible && (
-            <Tooltip
-              themeColor="white"
-              tooltipClass="qrHoverPanel"
-              popupPlacement="bottom"
-              popupAlign={{
-                offset: [-9, 9],
-                points: ['tc', 'bc'],
-              }}
-              text={
-                <React.Fragment>
-                  <img src={qrurl} />
-                  <p className="ThemeColor3">
-                    <span
-                      className="Hand"
-                      onClick={() => {
-                        saveAs(qrurlDownload, 'qrcode.jpg');
-                      }}
-                    >
-                      {_l('点击下载')}
-                    </span>
-                  </p>
-                </React.Fragment>
-              }
-            >
-              <Icon theme={theme} className="Hand qrCode">
-                <i className="icon-qr_code Font22 LineHeight36"></i>
-              </Icon>
-            </Tooltip>
-          )}
-          {allowSendToChat && (
-            <Tooltip popupPlacement="bottom" text={<span>{_l('发消息')}</span>}>
-              <Icon
-                style={chatVisible ? { borderColor: '#2196f3' } : {}}
-                theme={theme}
-                onClick={() => {
-                  this.setState({ chatVisible: !chatVisible });
+            )}
+            {qrVisible && (
+              <Tooltip
+                themeColor="white"
+                tooltipClass="qrHoverPanel"
+                popupPlacement="bottomRight"
+                popupAlign={{
+                  overflow: { adjustX: true, adjustY: true },
                 }}
+                text={
+                  <React.Fragment>
+                    <img src={qrurl} />
+                    <p className="ThemeColor3">
+                      <span
+                        className="Hand"
+                        onClick={() => {
+                          saveAs(qrurlDownload, 'qrcode.jpg');
+                        }}
+                      >
+                        {_l('点击下载')}
+                      </span>
+                    </p>
+                  </React.Fragment>
+                }
               >
-                <i
-                  style={chatVisible ? { color: '#2196f3' } : { color: '#F79104' }}
-                  className={`icon-${chatVisible ? 'arrow-up-border' : 'replyto'}`}
-                ></i>
-              </Icon>
-            </Tooltip>
-          )}
+                {showCompletely.qr ? (
+                  <SeparateDisplayButton theme={theme}>
+                    <i className="icon-qr_code Font22 LineHeight36"></i>
+                    <span className="text">{_l('二维码')}</span>
+                  </SeparateDisplayButton>
+                ) : (
+                  <Icon theme={theme} className="Hand qrCode">
+                    <i className="icon-qr_code Font22 LineHeight36"></i>
+                  </Icon>
+                )}
+              </Tooltip>
+            )}
+            {allowSendToChat && (
+              <Tooltip popupPlacement="bottom" text={<span>{_l('发消息')}</span>}>
+                <Icon
+                  style={chatVisible ? { borderColor: '#2196f3' } : {}}
+                  theme={theme}
+                  onClick={() => {
+                    this.setState({ chatVisible: !chatVisible });
+                  }}
+                >
+                  <i
+                    style={chatVisible ? { color: '#2196f3' } : { color: '#F79104' }}
+                    className={`icon-${chatVisible ? 'arrow-up-border' : 'replyto'}`}
+                  ></i>
+                </Icon>
+              </Tooltip>
+            )}
+          </div>
         </div>
         {chatVisible && <SendToChat card={chatCard} url={url} onClose={() => this.setState({ chatVisible: false })} />}
       </Fragment>

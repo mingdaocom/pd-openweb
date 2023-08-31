@@ -15,7 +15,7 @@ export default class CC extends Component {
   renderContent() {
     const { item } = this.props;
 
-    if (!item.accounts.length) {
+    if (!item.accounts.length && !item.selectNodeId) {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
     }
 
@@ -45,7 +45,7 @@ export default class CC extends Component {
   }
 
   render() {
-    const { processId, item, disabled, selectNodeId, openDetail, approvalSelectNodeId } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
 
     return (
       <div className="flexColumn">
@@ -54,22 +54,24 @@ export default class CC extends Component {
             className={cx(
               'workflowItem',
               { workflowItemDisabled: disabled },
-              { errorShadow: !!item.accounts.length && item.isException },
+              { errorShadow: (!!item.accounts.length || item.selectNodeId) && item.isException },
               { active: selectNodeId === item.id },
             )}
-            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId, approvalSelectNodeId)}
+            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
               <i
                 className={cx(
                   'workflowAvatar',
-                  item.accounts.length ? 'BGBlue' : 'BGGray',
+                  item.accounts.length || item.selectNodeId ? 'BGBlue' : 'BGGray',
                   item.typeId === NODE_TYPE.CC ? 'icon-workflow_notice' : 'icon-hr_message_reminder',
                 )}
               />
             </div>
             <NodeOperate nodeClassName="BGBlue" {...this.props} />
-            <div className="workflowContent">{this.renderContent()}</div>
+            <div className="workflowContent">
+              {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
+            </div>
           </div>
           <CreateNode {...this.props} />
         </section>

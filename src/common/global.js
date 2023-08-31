@@ -166,9 +166,23 @@ md.staticglobal = md.global = {
 /**
  * 自定义alert
  */
-window.nativeAlert = window.alert;
-window.alert = antAlert;
-window.destroyAlert = destroyAlert;
+
+function customAlert() {
+  window.nativeAlert = window.alert;
+  window.alert = antAlert;
+  window.destroyAlert = destroyAlert;
+}
+
+const isWeiXin = navigator.userAgent.toLowerCase().indexOf('micromessenger') >= 0;
+
+customAlert();
+
+if (isWeiXin) {
+  document.addEventListener('WeixinJSBridgeReady', () => {
+    customAlert();
+  });
+}
+
 // import mdNotification from 'ming-ui/functions/notify';
 // window.mdNotification = mdNotification; // TODO 测试用
 
@@ -482,6 +496,10 @@ window.createTimeSpan = dateStr => {
     if (window.share) {
       headers.share = window.share;
       headers.Authorization = '';
+    }
+
+    if (sessionStorage.getItem('clientId')) {
+      headers.clientId = sessionStorage.getItem('clientId');
     }
 
     if (window.publicAppAuthorization) {

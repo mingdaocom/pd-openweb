@@ -39,7 +39,7 @@ function getIconName(type = 'success') {
 }
 
 const getProps = (props, type = 'success') => {
-  const { className, btnText, onBtnClick, loading, message, description, ...rest } = props;
+  const { className, btnText, onBtnClick, loading, message, description, color, ...rest } = props;
 
   const getIcon = () => {
     if (loading) {
@@ -49,13 +49,14 @@ const getProps = (props, type = 'success') => {
         </div>
       );
     }
-    return <i className={`${type} icon-${getIconName(type)}`}></i>;
+    return <i className={`${type} icon-${getIconName(type)}`} style={{ color }}></i>;
   };
   // 如果使用默认样式，传入按钮文字, 否则传入自定义按钮
   return {
     ...defaultProps,
     btn: btnText ? <DefaultBtn onClick={onBtnClick}>{btnText}</DefaultBtn> : null,
     icon: getIcon(),
+    style: { borderTopColor: color },
     ...rest,
     message: message && (
       <div className="ellipsis" title={message}>

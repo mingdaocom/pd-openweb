@@ -160,19 +160,31 @@
       }
     }
     .passApprove, .rejectApprove {
+      color: #999;
+      padding: 3px 15px;
       border-radius: 24px;
-      &:hover, &.active {
-        background-color: #ebebeb;
-      }
+      border: 1px solid #DDDDDD;
+      background-color: #fff;
     }
     .passApprove {
-      color: #4caf50;
-      padding: 5px 13px;
-      margin-right: 2px;
+      margin-right: 5px;
+      &.all {
+        color: #fff;
+        border-color: #4CAF50;
+        background-color: #4CAF50;
+      }
     }
     .rejectApprove {
-      padding: 5px 13px;
-      color: #f44336;
+      &.select {
+        color: #F44336;
+        border-color: #F44336;
+        background-color: rgba(244, 67, 54, 0.12);
+      }
+      &.all {
+        color: #fff;
+        border-color: #F44336;
+        background-color: #F44336;
+      }
     }
     .ant-checkbox-input {
       position: absolute !important;

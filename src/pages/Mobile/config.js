@@ -115,7 +115,7 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
       title: _l('流程详情'),
     },
     addRecord: {
-      path: '/mobile/addRecord/:appId/:worksheetId/:viewId',
+      path: '/mobile/addRecord/:appId/:worksheetId/:viewId?',
       component: () => import('mobile/Record/addRecord'),
       title: _l('添加记录'),
     },

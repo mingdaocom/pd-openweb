@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Icon, Menu, MenuItem } from 'ming-ui';
 import IconText from 'worksheet/components/IconText';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import { exportSheet } from 'worksheet/common/ExportSheet';
 import { exportAttachment } from 'worksheet/common/ExportAttachment';
 import { canEditData } from 'worksheet/redux/actions/util';
@@ -31,7 +32,6 @@ const EXPORT_LIST = [
     exportType: 2,
   },
 ];
-const exportAttachmentFeatureId = 28;
 
 export default function ExportList(props) {
   const {
@@ -63,7 +63,7 @@ export default function ExportList(props) {
           return item.type === 14 && fieldPermission[0] === '1' && controlPermissions[0] === '1';
         });
 
-  const featureType = getFeatureStatus(projectId, exportAttachmentFeatureId);
+  const featureType = getFeatureStatus(projectId, VersionProductType.batchDownloadFiles);
 
   useEffect(() => {}, []);
   return (
@@ -141,7 +141,7 @@ export default function ExportList(props) {
                       return alert(_l('无附件下载权限，无法导出'), 2);
                     }
                     if (featureType === '2') {
-                      buriedUpgradeVersionDialog(projectId, exportAttachmentFeatureId);
+                      buriedUpgradeVersionDialog(projectId, VersionProductType.batchDownloadFiles);
                       return;
                     }
                     exportAttachment({

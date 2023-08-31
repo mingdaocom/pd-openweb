@@ -254,12 +254,13 @@ function SheetHeader(props) {
             visible={sheetDescVisible}
             worksheetId={worksheetId}
             isEditing={descIsEditing}
+            setDescIsEditing={setDescIsEditing}
             desc={desc || ''}
             onClose={() => {
               setSheetDescVisible(false);
             }}
             onSave={value => {
-              setSheetDescVisible(false);
+              // setSheetDescVisible(false);
               updateWorksheetInfo({ desc: value });
             }}
           />
@@ -411,7 +412,7 @@ function SheetHeader(props) {
               />
             )}
             {/* 显示创建按钮 */}
-            {canNewRecord && (
+            {canNewRecord && !worksheetInfo.isRequestingRelationControls && (
               <span
                 style={{ backgroundColor: appPkg.iconColor || '#2196f3' }}
                 className="addRow"
@@ -509,7 +510,7 @@ export default connect(
           'updateControlOfRow',
           'refresh',
           'saveSheetLayout',
-          'resetSehetLayout',
+          'resetSheetLayout',
           'clearSelect',
         ]),
         updateSheetList,

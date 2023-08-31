@@ -20,7 +20,7 @@ const getAppApplyInfo = appId => (dispatch, getState) => {
 export const getMembers = appId => (dispatch, getState) => {
   dispatch({ type: 'MOBILE_FETCH_MEMBER_START' });
   Promise.all([
-    homeAppAjax.getAppDetail({ appId }).then(),
+    homeAppAjax.getApp({ appId }).then(),
     // 根据应用获取角色
     ajaxRequest.getRolesWithUsers({ appId }).then(),
     // 获取成员是否可角色见列表状态

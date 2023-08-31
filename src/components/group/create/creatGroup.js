@@ -1,7 +1,7 @@
 ﻿import './createGroup.css';
 import '@mdfe/poshytip';
 import { getStringBytes, upgradeVersionDialog } from 'src/util';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import mainHtml from './tpl/main.html';
 import groupHeadHtml from '../settingGroup/tpl/groupHead.html';
 import { expireDialogAsync } from 'src/components/common/function';

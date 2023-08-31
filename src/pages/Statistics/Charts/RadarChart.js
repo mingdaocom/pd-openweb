@@ -285,8 +285,9 @@ export default class extends Component {
                 onClick={() => {
                   const { xaxes, split } = this.props.reportData;
                   const isNumber = isFormatNumber(xaxes.controlType);
-                  const param = {
-                    [xaxes.cid]: isNumber ? Number(item.originalId) : item.originalId
+                  const param = {};
+                  if (xaxes.cid) {
+                    param[xaxes.cid] = isNumber ? Number(item.originalId) : item.originalId;
                   }
                   if (split.controlId) {
                     param[split.controlId] = item.groupKey;

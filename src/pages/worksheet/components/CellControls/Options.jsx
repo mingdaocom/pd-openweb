@@ -58,17 +58,6 @@ const OtherOptionTextInputCon = styled.div`
   }
 `;
 
-const MultipleLineTip = styled.div`
-  position: absolute;
-  padding: 4px;
-  bottom: 14px;
-  left: 14px;
-  right: 30px;
-  font-size: 12px;
-  color: #bdbdbd;
-  background: #fff;
-`;
-
 function OtherOptionTextInput(props) {
   const { className, value = '', onChange, handleSave, onSave } = props;
   const textRef = useRef();
@@ -95,16 +84,13 @@ function OtherOptionTextInput(props) {
         maxHeight={122}
         onChange={onChange}
         onKeyDown={e => {
-          if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+          if (e.key === 'Enter') {
             handleSave();
             e.stopPropagation();
             return;
           }
         }}
       />
-      <MultipleLineTip className="ellipsis">
-        {navigator.userAgent.indexOf('Mac OS') > 0 ? _l('⌘+Enter结束编辑') : _l('Ctrl+Enter结束编辑')}
-      </MultipleLineTip>
     </OtherOptionTextInputCon>
   );
 }
@@ -387,6 +373,7 @@ export default class Options extends React.Component {
           {isMultiple ? (
             <Checkbox
               {...{ ...cell, advancedSetting: { ...cell.advancedSetting, checktype: '1' } }}
+              isSubList={this.isSubList}
               isFocus
               dropdownClassName="scrollInTable"
               value={value}
@@ -416,6 +403,7 @@ export default class Options extends React.Component {
           ) : (
             <Dropdown
               {...cell}
+              isSubList={this.isSubList}
               dropdownClassName="scrollInTable"
               value={value}
               selectProps={{

@@ -69,6 +69,7 @@ export default function RelateRecordBtn(props) {
   return (
     <Con ref={conRef}>
       <Trigger
+        zIndex={999}
         popupVisible={menuVisible && addVisible && selectVisible}
         actions={['click']}
         getPopupContainer={() => conRef.current}

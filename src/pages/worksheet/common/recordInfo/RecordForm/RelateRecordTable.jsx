@@ -18,7 +18,7 @@ import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { selectRecord } from 'src/components/recordCardListDialog';
 import Pagination from 'worksheet/components/Pagination';
-import WorksheetTable from 'worksheet/components/WorksheetTable/V2';
+import WorksheetTable from 'worksheet/components/WorksheetTable';
 import ColumnHead from './RelateRecordTableColumnHead';
 import RowHead from './RelateRecordTableRowHead';
 import RelateRecordBtn from './RelateRecordBtn';
@@ -643,7 +643,8 @@ export default function RelateRecordTable(props) {
     control.enumDefault2 !== 1 &&
     control.enumDefault2 !== 11 &&
     !disabledManualWrite &&
-    !(isNewRecord && control.type === 51);
+    !(isNewRecord && control.type === 51) &&
+    !_.get(window, 'shareState.isPublicForm');
   const selectVisible =
     !control.disabled &&
     !_.isEmpty(worksheetOfControl) &&
@@ -797,7 +798,7 @@ export default function RelateRecordTable(props) {
                   setLayoutChanged(false);
                 });
             }}
-            resetSehetLayout={() => {
+            resetSheetLayout={() => {
               setLayoutChanged(false);
               setSortControl(undefined);
               setFixedColumnCount(0);

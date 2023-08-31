@@ -26,8 +26,9 @@ export default class GroupingAxis extends Component {
   }
   handleVerification = (data, isAlert = false) => {
     const { reportType, xaxes, yaxisList } = this.props;
-    if (reportType === reportTypes.ScatterChart) {
-      return true;
+    if ([reportTypes.ScatterChart].includes(reportType) && _.find(yaxisList, { controlId: data.controlId })) {
+      isAlert && alert(_l('数值和颜色不允许重复'), 2);
+      return false;
     }
     if ([reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) && xaxes.controlId && yaxisList.length > 1) {
       isAlert && alert(_l('多数值时不能同时配置维度和分组'), 2);

@@ -11,6 +11,7 @@ import { getCurrentProject } from 'src/util';
 import InstallDialog from './installDialog';
 import { Support, Tooltip, Icon } from 'ming-ui';
 import addFriends from 'src/components/addFriends/addFriends';
+import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 import _ from 'lodash';
 
 export default function HomePage({ match, location: routerLocation }) {
@@ -85,7 +86,7 @@ export default function HomePage({ match, location: routerLocation }) {
       location.assign(`/admin/upgradeservice/${projectId}`);
     }
     if (type === 'renew') {
-      location.assign(`/upgrade/choose?projectId=${projectId}`);
+      purchaseMethodFunc({ projectId });
     }
     if (type === 'toast') {
       alert(_l('单应用版暂不支持线上续费，请联系顾问进行续费'), 3);
@@ -396,44 +397,63 @@ export default function HomePage({ match, location: routerLocation }) {
               <ul>
                 {UPLOAD_COUNT.filter(item =>
                   md.global.Config.IsPlatformLocal ? item : item.key === 'useExecCount',
-                ).map(({ key, limit, text, link, click, unit }) => (
-                  <li
-                    className="pLeft10 pRight10 Hand"
-                    onClick={() => {
-                      if (key == 'effectiveDataPipelineRowCount') {
-                        localStorage.setItem('currentProjectId', projectId);
-                        return location.assign('/integration/task');
-                      }
-                      linkHref(link);
-                    }}
-                  >
-                    <div className="workflowTitle">
-                      {text}
-                      <span className="Gray_9e">{unit}</span>
-                      {key === 'effectiveApkStorageCount' && (
-                        <Tooltip
-                          popupPlacement="top"
-                          text={<span>{_l('应用中本年的附件上传量，上传即占用，删除不会恢复')}</span>}
-                        >
-                          <span className="icon-help1 Font13 Gray_9e" />
-                        </Tooltip>
-                      )}
-                    </div>
-                    <Progress
-                      showInfo={false}
-                      style={{ margin: '7px 0', textAlign: 'left' }}
-                      trailColor="#eaeaea"
-                      strokeColor={
-                        getCountProcess(key, limit) > 90
-                          ? { from: '#F51744 ', to: '  #FF5779' }
-                          : { from: '#2196f3 ', to: '  #4bb2ff' }
-                      }
-                      strokeWidth={4}
-                      percent={getCountProcess(key, limit)}
-                    />
-                    <div className="useCount pointer">{getCountText(key, limit)}</div>
-                  </li>
-                ))}
+                ).map(({ key, limit, text, link, click, unit }) => {
+                  const percentValue = getCountProcess(key, limit);
+                  return (
+                    <li
+                      className="pLeft10 pRight10 Hand"
+                      onClick={() => {
+                        if (key == 'effectiveDataPipelineRowCount') {
+                          localStorage.setItem('currentProjectId', projectId);
+                          return location.assign('/integration/task');
+                        }
+                        linkHref(link);
+                      }}
+                    >
+                      <div className="workflowTitle">
+                        {text}
+                        <span className="Gray_9e">{unit}</span>
+                        {key === 'effectiveApkStorageCount' && (
+                          <Tooltip
+                            popupPlacement="top"
+                            text={<span>{_l('应用中本年的附件上传量，上传即占用，删除不会恢复')}</span>}
+                          >
+                            <span className="icon-help1 Font13 Gray_9e" />
+                          </Tooltip>
+                        )}
+                      </div>
+                      <Progress
+                        showInfo={false}
+                        style={{ margin: '7px 0', textAlign: 'left' }}
+                        trailColor="#eaeaea"
+                        strokeColor={
+                          _.isNaN(Number(percentValue))
+                            ? '#eaeaea'
+                            : percentValue > 90
+                            ? { from: '#F51744 ', to: '#FF5779' }
+                            : { from: '#2196f3 ', to: '#4bb2ff' }
+                        }
+                        strokeWidth={4}
+                        percent={percentValue}
+                      />
+                      <div className="useCount pointer">
+                        {getCountText(key, limit, unit)}
+                        {!isTrial && !isFree ? (
+                          <span
+                            className="dilatation"
+                            onClick={e => {
+                              e.stopPropagation();
+                              e.nativeEvent.stopImmediatePropagation();
+                              handleClick(click);
+                            }}
+                          >
+                            {_l('扩容')}
+                          </span>
+                        ) : null}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>

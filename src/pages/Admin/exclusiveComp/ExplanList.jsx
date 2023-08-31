@@ -12,12 +12,11 @@ import Status from './component/Status';
 import EditNameDialog from './component/EditNameDialog';
 import projectAjax from 'src/api/project';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import UserName from 'src/pages/feed/components/userName/userName';
 import { navigateTo } from 'src/router/navigateTo';
 import { COMPUTING_INSTANCE_STATUS } from './config';
 import './index.less';
-
-const DICI = 30;
 
 const MoreOperateMenu = styled.ul`
   background: #fff;
@@ -69,7 +68,7 @@ function ExplanList(props) {
   const { projectId, history } = props;
 
   const { isSuperAdmin } = md.global.Account.projects.find(l => l.projectId === projectId) || {};
-  const FEATURE_STATUS = getFeatureStatus(projectId, DICI);
+  const FEATURE_STATUS = getFeatureStatus(projectId, VersionProductType.exclusiveResource);
   const [operateMenuVisible, setOperateMenuVisible] = useState(-1);
   const [editNameParam, setEditNameParam] = useState({
     visible: false,
@@ -171,7 +170,7 @@ function ExplanList(props) {
             '您的组织购买专属算力服务后，将重要的工作流添加到专属算力服务中运行，可免受本组织或平台其他组织的流程堵塞影响',
           )}
         </div>
-        <Button radius className="exclusiveCompButton" onClick={goToPurchase}>
+        <Button radius className="exclusiveCompButton Font14" onClick={goToPurchase}>
           {_l('购买专属算力')}
         </Button>
       </EmptyWrap>
@@ -394,7 +393,7 @@ function ExplanList(props) {
             <i className="icon-task-later Gray_9" />
           </div>
         )}
-        <Support className="mRight24" text={_l('帮助')} type={2} href="https://help.mingdao.com/apply3" />
+        <Support className="mRight24" text={_l('帮助')}  type={2} href="https://help.mingdao.com/apply18" />
         {!config.isInit && (
           <Button icon="add" radius className="exclusiveCompButton" onClick={goToPurchase}>
             {_l('购买专属算力')}
@@ -418,7 +417,9 @@ function ExplanList(props) {
           </ul>
         </div>
       )}
-      {config.upgradeVersionDialog && FEATURE_STATUS && buriedUpgradeVersionDialog(projectId, DICI)}
+      {config.upgradeVersionDialog &&
+        FEATURE_STATUS &&
+        buriedUpgradeVersionDialog(projectId, VersionProductType.exclusiveResource)}
       <EditNameDialog
         visible={editNameParam.visible}
         defauleValue={editNameParam.value}

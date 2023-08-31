@@ -4,41 +4,58 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { Drawer, QiniuUpload } from 'ming-ui';
+import { Drawer, QiniuUpload, Icon, ScrollView } from 'ming-ui';
 import * as actions from '../redux/actions';
 import PictureSelect from '../components/PictureSelect';
-import { Hr, H1, H3, Absolute, Circle, CustomButton } from 'worksheet/components/Basics';
-import { themes, coverurls } from '../enum';
+import { Hr, H1, H3, Absolute, CustomButton } from 'worksheet/components/Basics';
+import { coverurls } from '../enum';
 import _ from 'lodash';
+import { Tooltip } from 'antd';
+import { COLORS, COLORS_TEST } from 'src/pages/AppHomepage/components/SelectIcon/config';
+import AddColorDialog from 'src/pages/AppHomepage/components/SelectIcon/AddColorDialog';
+import cx from 'classnames';
 
 const Con = styled.div`
   padding: 0 24px;
+  width: 300px;
 `;
 const Close = styled.span`
   font-size: 18px;
   color: #9e9e9e;
   cursor: pointer;
 `;
-const ColorCircle = styled(Circle)`
-  cursor: pointer;
-  margin-right: 6px;
-  color: #fff;
-  font-size: 18px;
-  text-align: center;
-  transition: 0.4s ease;
-  background: ${({ bg }) => bg};
-  :last-child {
-    margin: 0;
+
+const ThemeColorWrapper = styled.ul`
+  display: flex;
+  flex-wrap: wrap;
+
+  li {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    margin: 0 12px 12px 0;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 50%;
+    cursor: pointer;
+    &:not(.isCurrentColor):hover {
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.2);
+      }
+    }
+    & > .icon {
+      color: #fff;
+      font-size: 18px;
+      line-height: 30px;
+    }
   }
-  .icon {
-    position: absolute;
-    left: 4px;
-    top: 4px;
-  }
-  :hover {
-    transform: scale(1.15);
-  }
-  ${({ active }) => active && 'transform: scale(1.15);'};
 `;
 
 const UploadBtn = styled(CustomButton)`
@@ -65,12 +82,21 @@ class AppearanceConfig extends React.Component {
     worksheetInfo: PropTypes.shape({}),
     updateWorksheetInfo: PropTypes.func,
     onClose: PropTypes.func,
+    theme: PropTypes.string,
   };
 
   constructor(props) {
     super(props);
     this.state = {
       isUploading: false,
+      customColors: (_.find(
+        COLORS.concat((localStorage.getItem('customColors') || '').split(',').filter(_ => _)),
+        color => color.toLocaleUpperCase() === this.props.theme.toLocaleUpperCase(),
+      )
+        ? []
+        : [this.props.theme]
+      ).concat((localStorage.getItem('customColors') || '').split(',').filter(_ => _)),
+      addColorDialogVisible: false,
     };
   }
 
@@ -89,73 +115,124 @@ class AppearanceConfig extends React.Component {
     up.disableBrowse(false);
   }
 
+  @autobind
+  renderCustomColor(iconColor) {
+    const { addColorDialogVisible, customColors } = this.state;
+    const { updateWorksheetInfo } = this.props;
+    return (
+      <React.Fragment>
+        <div className="Gray_9e">{_l('自定义')}</div>
+        <ThemeColorWrapper className="pTop12">
+          <li className="isCurrentColor">
+            <Icon
+              icon="task-add-member-circle"
+              className="Gray_bd Font30 pointer"
+              onClick={() => this.setState({ addColorDialogVisible: true })}
+            />
+          </li>
+          {customColors.map((item, index) => (
+            <Tooltip key={index} title={item} color="#000" placement="bottom">
+              <li
+                className={cx({ isCurrentColor: item.toLocaleUpperCase() === iconColor.toLocaleUpperCase() })}
+                style={{ backgroundColor: item }}
+                onClick={() => updateWorksheetInfo({ themeBgColor: item })}
+              >
+                {item.toLocaleUpperCase() === iconColor.toLocaleUpperCase() && <Icon icon="hr_ok" />}
+              </li>
+            </Tooltip>
+          ))}
+        </ThemeColorWrapper>
+        {addColorDialogVisible && (
+          <AddColorDialog
+            onSave={color => {
+              const colors = [color].concat(customColors).slice(0, 5);
+              this.setState({ customColors: colors });
+              localStorage.setItem('customColors', colors);
+              updateWorksheetInfo({ themeBgColor: color });
+            }}
+            onCancel={() => this.setState({ addColorDialogVisible: false })}
+          />
+        )}
+      </React.Fragment>
+    );
+  }
+
   render() {
-    const { open, worksheetInfo, onClose, updateWorksheetInfo } = this.props;
-    const { themeIndex, coverUrl } = worksheetInfo;
+    const { open, worksheetInfo, onClose, updateWorksheetInfo, theme } = this.props;
+    const { coverUrl } = worksheetInfo;
     const { isUploading } = this.state;
     return (
-      <Drawer open={open} style={{ position: 'absolute', top: 0, width: 300 }} onRequestClose={onClose}>
-        <Con>
-          <Absolute right="24" top="-2">
-            <Close onClick={onClose}>
-              <i className="icon icon-close ThemeHoverColor3"></i>
-            </Close>
-          </Absolute>
-          <H1>{_l('主题背景')}</H1>
-          <H3>{_l('主题颜色')}</H3>
-          <div className="themePicker">
-            {themes.map((theme, i) => (
-              <ColorCircle
-                width="26"
-                key={i}
-                bg={theme.main}
-                active={i === themeIndex}
-                onClick={() => updateWorksheetInfo({ themeIndex: i })}
-              >
-                {i === themeIndex && <i className="icon icon-hr_ok"></i>}
-              </ColorCircle>
-            ))}
-          </div>
-          <Hr />
-          <div className="flexRow">
-            <H3 className="flex" style={{ margin: '4px 0' }}>
-              {_l('封面图片')}
-            </H3>
-            <ClearCover height="28" borderRadius="14" onClick={() => this.changeCover('')}>
-              {' '}
-              {_l('清除图片')}{' '}
-            </ClearCover>
-          </div>
-          <PictureSelect coverUrl={coverUrl} images={coverurls} onChange={url => this.changeCover(url)} />
-          <QiniuUpload
-            className="Block"
-            options={{
-              multi_selection: false,
-              filters: {
-                mime_types: [{ title: 'image', extensions: 'jpg,jpeg,png' }],
-              },
-              error_callback: () => {
-                alert(_l('有不合法的文件格式，请重新选择图片上传'), 3);
-                return;
-              },
-            }}
-            bucket={2}
-            onUploaded={this.handleUploaded}
-            onAdd={(up, files) => {
-              this.setState({ isUploading: true });
-              up.disableBrowse();
-            }}
-          >
-            <UploadBtn height="44" bg="#F3FAFF" color="#2196F3" hoverBg="#EBF6FE" style={{ margin: '10px 0' }}>
-              {isUploading ? (
-                <i className="icon icon-loading_button rotate"></i>
-              ) : (
-                <i className="icon icon-custom_insert_photo"></i>
-              )}
-              {_l('上传自定义图片')}
-            </UploadBtn>
-          </QiniuUpload>
-        </Con>
+      <Drawer
+        open={open}
+        style={{ position: 'absolute', top: 0, width: 300 }}
+        onRequestClose={onClose}
+        onClickAwayExceptions={['.mui-dialog-container']}
+      >
+        <ScrollView>
+          <Con>
+            <Absolute right="24" top="-2">
+              <Close onClick={onClose}>
+                <i className="icon icon-close ThemeHoverColor3"></i>
+              </Close>
+            </Absolute>
+            <H1>{_l('主题背景')}</H1>
+            <H3>{_l('主题颜色')}</H3>
+            <ThemeColorWrapper>
+              {COLORS.map((item, index) => (
+                <Tooltip key={item} title={COLORS_TEST[index]} color="#000" placement="bottom">
+                  <li
+                    className={cx({ isCurrentColor: item.toLocaleUpperCase() === theme.toLocaleUpperCase() })}
+                    style={{ backgroundColor: item }}
+                    onClick={() => updateWorksheetInfo({ themeBgColor: item })}
+                  >
+                    {item.toLocaleUpperCase() === theme.toLocaleUpperCase() && <Icon icon="hr_ok" />}
+                  </li>
+                </Tooltip>
+              ))}
+            </ThemeColorWrapper>
+            {this.renderCustomColor(theme)}
+            <Hr />
+
+            <div className="flexRow">
+              <H3 className="flex" style={{ margin: '4px 0' }}>
+                {_l('封面图片')}
+              </H3>
+              <ClearCover height="28" borderRadius="14" onClick={() => this.changeCover('')}>
+                {' '}
+                {_l('清除图片')}{' '}
+              </ClearCover>
+            </div>
+            <PictureSelect coverUrl={coverUrl} images={coverurls} onChange={url => this.changeCover(url)} />
+            <QiniuUpload
+              className="Block"
+              options={{
+                multi_selection: false,
+                filters: {
+                  mime_types: [{ title: 'image', extensions: 'jpg,jpeg,png' }],
+                },
+                error_callback: () => {
+                  alert(_l('有不合法的文件格式，请重新选择图片上传'), 3);
+                  return;
+                },
+              }}
+              bucket={2}
+              onUploaded={this.handleUploaded}
+              onAdd={(up, files) => {
+                this.setState({ isUploading: true });
+                up.disableBrowse();
+              }}
+            >
+              <UploadBtn height="44" bg="#F3FAFF" color="#2196F3" hoverBg="#EBF6FE" style={{ margin: '10px 0' }}>
+                {isUploading ? (
+                  <i className="icon icon-loading_button rotate"></i>
+                ) : (
+                  <i className="icon icon-custom_insert_photo"></i>
+                )}
+                {_l('上传自定义图片')}
+              </UploadBtn>
+            </QiniuUpload>
+          </Con>
+        </ScrollView>
       </Drawer>
     );
   }

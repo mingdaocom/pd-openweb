@@ -9,12 +9,12 @@ import { navigateTo } from 'router/navigateTo';
 import cx from 'classnames';
 import Search from '../components/Search';
 import UserHead from 'src/pages/feed/components/userHead/userHead';
-import { DATE_TYPE, EXEC_TIME_TYPE, TIME_TYPE_NAME, APP_TYPE } from '../WorkflowSettings/enum';
+import { APP_TYPE } from '../WorkflowSettings/enum';
 import PublishBtn from './components/PublishBtn';
 import DeleteFlowBtn from './components/DeleteFlowBtn';
 import CopyFlowBtn from './components/CopyFlowBtn';
 import ListName from './components/ListName';
-import { FLOW_TYPE, FLOW_TYPE_NULL, START_APP_TYPE } from './config/index';
+import { FLOW_TYPE, TYPES, FLOW_TYPE_NULL, START_APP_TYPE, getActionTypeContent } from './utils/index';
 import SvgIcon from 'src/components/SvgIcon';
 import CreateWorkflow from './components/CreateWorkflow';
 import styled from 'styled-components';
@@ -23,8 +23,10 @@ import homeApp from 'src/api/homeApp';
 import processAjax from 'src/pages/workflow/api/process';
 import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
-import moment from 'moment';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
+import TrashDialog from 'src/pages/workflow/WorkflowList/components/Trash';
 
 const HeaderWrap = styled.div`
   height: 50px;
@@ -47,6 +49,21 @@ const HeaderWrap = styled.div`
       color: #9e9e9e !important;
       .applicationIcon {
         box-shadow: 0 0 20px 20px rgb(0 0 0 / 10%) inset;
+      }
+    }
+  }
+  .trash {
+    color: #757575;
+    .trashIcon {
+      color: #9e9e9e;
+    }
+    .freeIcon {
+      color: #f1b73f;
+    }
+    &:hover {
+      color: #2196f3;
+      .trashIcon {
+        color: #2196f3;
       }
     }
   }
@@ -83,6 +100,7 @@ class AppWorkflowList extends Component {
       appDetail: {},
       selectFlowId: '',
       selectItem: '',
+      showTrash: false,
     };
   }
 
@@ -119,7 +137,7 @@ class AppWorkflowList extends Component {
   getAppDetail() {
     const appId = this.props.match.params.appId;
 
-    homeApp.getAppDetail({ appId }).then(appDetail => {
+    homeApp.getApp({ appId }).then(appDetail => {
       this.setState({ appDetail });
     });
   }
@@ -183,6 +201,12 @@ class AppWorkflowList extends Component {
     const appId = this.props.match.params.appId;
     const { type, appDetail, isCreate } = this.state;
 
+    const isFree =
+      _.get(
+        _.find(md.global.Account.projects, item => item.projectId === appDetail.projectId),
+        'licenseType',
+      ) === 0;
+    const featureType = getFeatureStatus(appDetail.projectId, VersionProductType.recycle);
     return (
       <HeaderWrap className="flexRow alignItemsCenter">
         <DocumentTitle title={`${appDetail.name ? appDetail.name + ' - ' : ''}${_l('工作流')}`} />
@@ -216,7 +240,24 @@ class AppWorkflowList extends Component {
         </Tooltip>
 
         <div className="flex nativeTitle Font17 bold mLeft16">{_l('自动化工作流')}</div>
-
+        {featureType && (
+          <div
+            className="trash mRight20 ThemeHoverColor3 flexRow"
+            onClick={() => {
+              if (isFree) {
+                buriedUpgradeVersionDialog(appDetail.projectId, VersionProductType.recycle);
+                return;
+              }
+              this.setState({
+                showTrash: true,
+              });
+            }}
+          >
+            <Icon icon="knowledge-recycle" className="trashIcon Hand Font18" />
+            <div className="recycle InlineBlock Hand mLeft5">{_l('回收站')}</div>
+            {isFree && <Icon icon="auto_awesome" className="freeIcon mLeft8" />}
+          </div>
+        )}
         <CreateBtn>
           {type !== FLOW_TYPE.PBC ? (
             <Button
@@ -257,18 +298,6 @@ class AppWorkflowList extends Component {
   renderNavigation() {
     const { url } = this.props.match;
     const { type, count } = this.state;
-
-    const TYPES = [
-      { text: _l('工作表事件%03003'), value: FLOW_TYPE.APP, icon: 'icon-table' },
-      { text: _l('时间%03004'), value: FLOW_TYPE.TIME, icon: 'icon-hr_time' },
-      { text: _l('人员事件%03005'), value: FLOW_TYPE.USER, icon: 'icon-hr_structure' },
-      { text: _l('Webhook'), value: FLOW_TYPE.OTHER, icon: 'icon-workflow_webhook' },
-      { text: _l('子流程%03006'), value: FLOW_TYPE.SUB_PROCESS, icon: 'icon-subprocess' },
-      { text: _l('自定义动作'), value: FLOW_TYPE.CUSTOM_ACTION, icon: 'icon-custom_actions' },
-      { text: _l('审批流程%03007'), value: FLOW_TYPE.APPROVAL, icon: 'icon-approval' },
-      { text: _l('外部流程修改本应用%03008'), value: FLOW_TYPE.OTHER_APP, icon: 'icon-public' },
-      { text: _l('封装业务流程%03009'), value: FLOW_TYPE.PBC, icon: 'icon-pbc' },
-    ];
 
     return (
       <ul className="workflowHeader flexColumn">
@@ -392,7 +421,7 @@ class AppWorkflowList extends Component {
             <div className="flex name mLeft10 mRight24">
               <ListName item={data} type={this.state.type} />
             </div>
-            <div className="w180 pRight20">{this.column2Content(data)}</div>
+            <div className="w180 pRight20">{getActionTypeContent(this.state.type, data)}</div>
             <div className="w270 pRight20">{this.column3Content(data)}</div>
             <div className="w120 Gray_75 flexRow">
               <UserHead
@@ -413,140 +442,6 @@ class AppWorkflowList extends Component {
         ))}
       </Fragment>
     );
-  }
-
-  /**
-   * 列2内容
-   */
-  column2Content(item) {
-    const { type } = this.state;
-    const days = [_l('星期日'), _l('星期一'), _l('星期二'), _l('星期三'), _l('星期四'), _l('星期五'), _l('星期六')];
-    const triggerText = {
-      1: _l('仅新增记录时'),
-      2: _l('当新增或更新记录时'),
-      3: _l('当删除记录时'),
-      4: _l('当更新记录时'),
-    };
-    const userTriggerText = {
-      20: {
-        1: _l('当新人入职时'),
-        3: _l('当人员离职时'),
-      },
-      21: {
-        1: _l('当创建部门时'),
-        3: _l('当解散部门时'),
-      },
-      23: {
-        1: _l('当新用户注册时'),
-        3: _l('当用户注销时'),
-        4: _l('当用户登录时'),
-        105: _l('当用户被停用时'),
-      },
-    };
-
-    // 工作表触发
-    if (type === FLOW_TYPE.APP) {
-      return triggerText[item.triggerId];
-    }
-
-    // 时间触发
-    if (type === FLOW_TYPE.TIME) {
-      // 循环
-      if (item.startAppType === 5) {
-        return (
-          <div className="twoRowsContent">
-            {_l('%0 开始', moment(item.executeTime).format('YYYY-MM-DD HH:mm'))}
-
-            {item.frequency === DATE_TYPE.DAY &&
-              _l('每%0天 %1', item.interval > 1 ? ` ${item.interval} ` : '', moment(item.executeTime).format('HH:mm'))}
-
-            {item.frequency === DATE_TYPE.WEEK &&
-              _l(
-                '每%0周(%1) %2',
-                item.interval > 1 ? ` ${item.interval} ` : '',
-                item.weekDays
-                  .sort((a, b) => a - b)
-                  .map(o => days[o])
-                  .join('、'),
-                moment(item.executeTime).format('HH:mm'),
-              )}
-
-            {item.frequency === DATE_TYPE.MONTH &&
-              _l(
-                '每%0个月在第 %1 天 %2',
-                item.interval > 1 ? ` ${item.interval} ` : '',
-                moment(item.executeTime).format('DD'),
-                moment(item.executeTime).format('HH:mm'),
-              )}
-
-            {item.frequency === DATE_TYPE.YEAR &&
-              _l(
-                '每%0年在 %1',
-                item.interval > 1 ? ` ${item.interval} ` : '',
-                moment(item.executeTime).format('MMMDo HH:mm'),
-              )}
-          </div>
-        );
-      }
-
-      // 日期触发
-      return (
-        <Fragment>
-          <span>{item.assignFieldName || _l('字段不存在')}</span>
-          {!!item.number && (
-            <span className="mLeft5">
-              {item.executeTimeType === EXEC_TIME_TYPE.BEFORE
-                ? _l('之前')
-                : item.executeTimeType === EXEC_TIME_TYPE.AFTER
-                ? _l('之后')
-                : ''}
-              {item.executeTimeType !== EXEC_TIME_TYPE.CURRENT && (
-                <span>{item.number + TIME_TYPE_NAME[item.unit]}</span>
-              )}
-            </span>
-          )}
-
-          <span className="mLeft5">{item.time}</span>
-          {item.assignFieldName && <span className="mLeft5">{_l('执行')}</span>}
-        </Fragment>
-      );
-    }
-
-    // webhook触发
-    if (type === FLOW_TYPE.OTHER) {
-      return _l('Webhook触发');
-    }
-
-    // 自定义动作触发
-    if (type === FLOW_TYPE.CUSTOM_ACTION) {
-      return item.triggerName;
-    }
-
-    // 子流程触发
-    if (type === FLOW_TYPE.SUB_PROCESS) {
-      return _l('子流程触发');
-    }
-
-    // 封装业务流程
-    if (type === FLOW_TYPE.PBC) {
-      return _l('封装业务流程');
-    }
-
-    // 人员或部门
-    if (type === FLOW_TYPE.USER) {
-      return userTriggerText[item.startAppType][item.triggerId];
-    }
-
-    // 审批流程
-    if (type === FLOW_TYPE.APPROVAL) {
-      return (
-        <Link to={`/workflowedit/${item.triggerId}`} className="Gray ThemeHoverColor3">
-          {item.triggerName}
-        </Link>
-      );
-    }
-
-    return item.appNames.join('、');
   }
 
   /**
@@ -704,9 +599,18 @@ class AppWorkflowList extends Component {
     this.setState({ count, list: newList });
   }
 
+  /**
+   * 恢复流程后续处理
+   */
+  replyProcessHandle(type) {
+    let count = _.cloneDeep(this.state.count);
+    count[type] = count[type] + 1;
+    this.setState({ count });
+  }
+
   render() {
     const { appId } = this.props.match.params;
-    const { type, loading, list, selectFilter, selectItem, appDetail } = this.state;
+    const { type, loading, list, selectFilter, selectItem, appDetail, showTrash } = this.state;
     const filterList = [[{ text: type === FLOW_TYPE.OTHER_APP ? _l('全部应用') : _l('全部'), value: '' }], []];
 
     (list || []).forEach(item => {
@@ -799,6 +703,20 @@ class AppWorkflowList extends Component {
               }
             }}
             onHide={() => this.setState({ selectItem: '' })}
+          />
+        )}
+        {showTrash && (
+          <TrashDialog
+            appId={appId}
+            onCancel={() => {
+              this.setState({
+                showTrash: false,
+              });
+            }}
+            onChange={processListType => {
+              this.getList(type);
+              this.replyProcessHandle(processListType);
+            }}
           />
         )}
       </WaterMark>

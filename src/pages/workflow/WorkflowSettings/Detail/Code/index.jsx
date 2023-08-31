@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Icon, Dialog } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, ParameterList, KeyPairs, TestParameter } from '../components';
+import { DetailHeader, DetailFooter, ParameterList, KeyPairs, TestParameter, ChatGPT } from '../components';
 import { ACTION_ID } from '../../enum';
 import Editor from 'react-simple-code-editor';
 import { highlight, languages } from 'prismjs/components/prism-core';
@@ -26,6 +26,7 @@ const CodeSnippetButton = styled.div`
   }
   i {
     color: #00bcd7;
+    margin-right: 3px;
   }
 `;
 
@@ -41,6 +42,7 @@ export default class Code extends Component {
       showSaveCodeDialog: false,
       showCodeSnippetDialog: false,
       showTestDialog: false,
+      showChatGPTDialog: false,
     };
   }
 
@@ -266,8 +268,31 @@ export default class Code extends Component {
     );
   }
 
+  /**
+   * 选择代码回调
+   */
+  selectCodeCallback = ({ clearParams, inputData, code }) => {
+    const { data } = this.state;
+    const newInputData = [];
+
+    Object.keys(inputData).forEach(name => {
+      newInputData.push({ name, value: '' });
+    });
+
+    if (clearParams) {
+      this.updateSource({ inputDatas: newInputData, code });
+    } else {
+      this.updateSource({
+        inputDatas: _.uniqBy(data.inputDatas.concat(newInputData), o => o.name),
+        code: `${data.code}\n\n${code}`,
+      });
+    }
+
+    this.setState({ showCodeSnippetDialog: false, showChatGPTDialog: false });
+  };
+
   render() {
-    const { data, msg, isFullCode, showCodeSnippetDialog, showTestDialog } = this.state;
+    const { data, msg, isFullCode, showCodeSnippetDialog, showTestDialog, showChatGPTDialog } = this.state;
     const testMapList = (data.inputDatas || []).filter(item => item.name && item.value && !/\$.*?\$/.test(item.value));
 
     if (_.isEmpty(data)) {
@@ -283,7 +308,7 @@ export default class Code extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex mTop20">
+        <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">
               <div className="Font14 Gray_75 workflowDetailDesc">
@@ -317,6 +342,15 @@ export default class Code extends Component {
                   <i className="icon-custom-description Font16" />
                   {_l('代码片段库')}
                 </CodeSnippetButton>
+                {!md.global.Config.IsLocal && (
+                  <CodeSnippetButton
+                    className="flexRow alignItemsCenter mLeft15"
+                    onClick={() => this.setState({ showChatGPTDialog: true })}
+                  >
+                    <i className="icon-ai1 Font16" style={{ color: '#FF9A00' }} />
+                    {_l('生成代码')}
+                  </CodeSnippetButton>
+                )}
               </div>
 
               <div className="mTop5 relative">
@@ -373,24 +407,7 @@ export default class Code extends Component {
           <CodeSnippet
             projectId={this.props.companyId}
             type={data.actionId === ACTION_ID.JAVASCRIPT ? 1 : 2}
-            onSave={({ clearParams, inputData, code }) => {
-              const newInputData = [];
-
-              Object.keys(inputData).forEach(name => {
-                newInputData.push({ name, value: '' });
-              });
-
-              if (clearParams) {
-                this.updateSource({ inputDatas: newInputData, code });
-              } else {
-                this.updateSource({
-                  inputDatas: _.uniqBy(data.inputDatas.concat(newInputData), o => o.name),
-                  code: `${data.code}\n\n${code}`,
-                });
-              }
-
-              this.setState({ showCodeSnippetDialog: false });
-            }}
+            onSave={this.selectCodeCallback}
             onClose={() => this.setState({ showCodeSnippetDialog: false })}
           />
         )}
@@ -417,6 +434,16 @@ export default class Code extends Component {
                 testMapList.map(o => o.value),
               ),
             )}
+          />
+        )}
+
+        {showChatGPTDialog && (
+          <ChatGPT
+            processId={this.props.processId}
+            nodeId={this.props.selectNodeId}
+            codeType={data.actionId === ACTION_ID.JAVASCRIPT ? 1 : 2}
+            onSave={this.selectCodeCallback}
+            onClose={() => this.setState({ showChatGPTDialog: false })}
           />
         )}
       </Fragment>

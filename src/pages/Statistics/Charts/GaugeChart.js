@@ -118,8 +118,7 @@ export default class extends Component {
       displaySetup.showPercent !== oldDisplaySetup.showPercent ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
-      style.indicatorVisible !== oldStyle.indicatorVisible ||
-      style.scaleType !== oldStyle.scaleType
+      !_.isEqual(style, oldStyle)
     ) {
       const GaugeChartConfig = this.getComponentConfig(nextProps);
       this.GaugeChart.update(GaugeChartConfig);
@@ -144,14 +143,17 @@ export default class extends Component {
     const { reportData, isThumbnail } = props;
     const { map, yaxisList, displaySetup, style } = reportData;
     const { showChartType, showDimension, showNumber, showPercent, colorRules } = displaySetup;
-    const { indicatorVisible } = style;
+    const { indicatorVisible, fontColor = 'rgba(0, 0, 0, 1)', gaugeColor, gaugeColorType = 1, sectionColorConfig = {}, isApplyGaugeColor } = style;
     const scaleType = _.isUndefined(style.scaleType) ? 1 : style.scaleType;
     const numberControlId = _.get(yaxisList[0], 'controlId');
     const numberControlName = _.get(yaxisList[0], 'rename') || _.get(yaxisList[0], 'controlName');
     const data = map[numberControlId];
     const { clientHeight } = this.chartEl;
     const colors = getChartColors(style);
-    const rule = _.get(colorRules[0], 'dataBarRule') || {};
+    const fontColorRule = _.get(colorRules[0], 'dataBarRule') || {};
+    const gaugeColorRule = _.get(colorRules[1], 'dataBarRule') || {};
+    const maxValue = data.max || 1;
+    const percent = data.value <= data.min ? 0 : (data.value - data.min) / (maxValue - data.min);
     const getOffset = () => {
       if (showChartType === 1) {
         return clientHeight / 7;
@@ -161,9 +163,26 @@ export default class extends Component {
       }
       return clientHeight / 9;
     }
-    const getColor = () => {
-      if (_.isEmpty(rule)) {
-        return colors[0];
+    const getFontColor = () => {
+      if (isApplyGaugeColor) {
+        if (gaugeColorType === 1) {
+          return getGaugeColor();
+        } else {
+          const ticks = getTicks();
+          const sectionColors = getSectionColors();
+          const getIndex = () => {
+            let index = null;
+            ticks.forEach((n, i) => {
+              if (n >= percent && _.isNull(index)) {
+                index = i;
+              }
+            });
+            return index - 1;
+          }
+          return sectionColors[getIndex()];
+        }
+      } else if (_.isEmpty(fontColorRule)) {
+        return fontColor;
       } else {
         const controlId = yaxisList[0].controlId;
         const color = getStyleColor({
@@ -175,19 +194,46 @@ export default class extends Component {
               center: (data.max + data.min) / 2
             }
           },
-          rule,
+          rule: fontColorRule,
           controlId
         });
-        return color || colors[0];
+        return color || fontColor;
       }
     }
-    const percent = data.value < data.min ? 0 : data.value * 1 / (data.max || 1);
-
+    const getGaugeColor = () => {
+      if (_.isEmpty(gaugeColorRule)) {
+        return gaugeColor || colors[0];
+      } else {
+        const controlId = yaxisList[0].controlId;
+        const color = getStyleColor({
+          value: Number((percent * 100).toFixed(0)),
+          controlMinAndMax: {
+            [controlId]: {
+              min: data.min,
+              max: data.max,
+              center: (data.max + data.min) / 2
+            }
+          },
+          rule: gaugeColorRule,
+          controlId
+        });
+        return color || gaugeColor || colors[0];
+      }
+    }
+    const getSectionColors = () => {
+      const { sectionColors = [] } = sectionColorConfig;
+      return sectionColors.map((data, index) => data.color || colors[index]).reverse();
+    }
+    const getTicks = () => {
+      const { sectionColors = [] } = sectionColorConfig;
+      return [0].concat(_.cloneDeep(sectionColors).reverse().map(data => data.value / 100));
+    }
     const base = {
       percent,
       appendPadding: [20, 10, showChartType == 2 ? 65 : 50, 10],
       range: {
-        color: getColor(),
+        color: gaugeColorType === 2 && !_.isEmpty(sectionColorConfig) ? getSectionColors() : getGaugeColor(),
+        ticks: gaugeColorType === 2 && !_.isEmpty(sectionColorConfig) ? getTicks() : undefined,
         width: 32
       },
       indicator: {
@@ -244,9 +290,13 @@ export default class extends Component {
       },
       statistic: {
         content: (showNumber || showPercent) ? {
-          formatter: ({ percent }) => showPercent ? `${(percent * 100).toFixed(0)}%` : `${formatrChartValue(data.value, false, yaxisList)}`,
+          formatter: ({ percent }) => {
+            const value = formatrChartValue(data.value, false, yaxisList);
+            const percentValue = `(${(percent * 100).toFixed(0)}%)`;
+            return `${showNumber ? value : ''} ${showPercent ? percentValue : ''}`;
+          },
           style: {
-            color: 'rgba(0, 0, 0, 1)',
+            color: getFontColor(),
             fontSize: '20px',
             lineHeight: '24px',
             width: '50%',
@@ -254,7 +304,7 @@ export default class extends Component {
             overflow: 'hidden',
             display: 'block',
           },
-          offsetY: showChartType == 2 ? clientHeight / 2 : 50
+          offsetY: showChartType == 2 ? clientHeight / 2 : 40
         } : null,
         title: showDimension ? {
           formatter: ({ percent }) => `${numberControlName}`,
@@ -263,11 +313,10 @@ export default class extends Component {
             lineHeight: 4,
             fontSize: '13px',
           },
-          offsetY: showChartType == 2 ? clientHeight / 2 : 50
+          offsetY: showChartType == 2 ? clientHeight / 2 : 43
         } : null
       },
     }
-
     if (indicatorVisible === false) {
       base.indicator.pointer = null;
       base.indicator.pin = null;

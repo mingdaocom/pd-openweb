@@ -6,8 +6,10 @@ import { Toast } from 'antd-mobile';
 import Amap from 'ming-ui/components/amap/Amap';
 import MDMap from 'ming-ui/components/amap/MDMap';
 import MapLoader from 'ming-ui/components/amap/MapLoader';
+import { wgs84togcj02 } from 'worksheet/util-purejs';
 import { FROM } from '../../tools/config';
 import { browserIsMobile } from 'src/util';
+import { CardButton } from 'src/pages/worksheet/components/Basics.jsx';
 import {
   bindWeiXin,
   bindWxWork,
@@ -25,7 +27,7 @@ const LocationWrap = styled.div`
     position: relative;
     &:hover {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 0 2px rgba(0, 0, 0, 0.12);
-      .icon-minus-square {
+      .deleteIcon {
         display: block;
       }
     }
@@ -46,14 +48,10 @@ const LocationWrap = styled.div`
       padding: 0 12px 10px;
       margin-top: -5px;
     }
-    .icon-minus-square {
+    .deleteIcon {
       display: none;
-      color: #757575;
       top: -12px;
-      right: -10px;
-      &:hover {
-        color: #515151;
-      }
+      right: -12px;
     }
     .locationIcon {
       margin-left: 10px;
@@ -223,7 +221,7 @@ export default class Widgets extends Component {
       type: 'wgs84',
       success(res) {
         const { longitude, latitude, address, name } = res;
-        onChange(JSON.stringify({ x: longitude, y: latitude, address, title: name }));
+        onChange(JSON.stringify({ x: longitude, y: latitude, address, title: name, coordinate: 'WGS84' }));
         Toast.hide();
       },
       error(res) {
@@ -269,7 +267,12 @@ export default class Widgets extends Component {
         console.log(error);
       }
     }
-
+    let locationForShow = location || {};
+    if ((locationForShow.coordinate || '').toLowerCase() === 'wgs84' && locationForShow.x && locationForShow.y) {
+      const coordinate = wgs84togcj02(location.x, location.y);
+      locationForShow.x = coordinate[0];
+      locationForShow.y = coordinate[1];
+    }
     if (onlyCanAppUse && !value) {
       if (isMobile) {
         return (
@@ -327,14 +330,16 @@ export default class Widgets extends Component {
           >
             <div className="location">
               {!disabled && (
-                <Icon
-                  icon="minus-square"
-                  className="Font20 pointer Absolute"
-                  onClick={evt => {
-                    evt.stopPropagation();
-                    onChange('');
-                  }}
-                />
+                <div className="deleteIcon Absolute">
+                  <CardButton
+                    onClick={evt => {
+                      evt.stopPropagation();
+                      onChange('');
+                    }}
+                  >
+                    <i className="icon icon-close" />
+                  </CardButton>
+                </div>
               )}
 
               <div className="flexRow">
@@ -378,8 +383,8 @@ export default class Widgets extends Component {
                     mapSearch={false}
                     mapStyle={{ minHeight: '110px', minWidth: 'auto' }}
                     defaultAddress={{
-                      lng: location.x,
-                      lat: location.y,
+                      lng: locationForShow.x,
+                      lat: locationForShow.y,
                     }}
                   />
                 </div>

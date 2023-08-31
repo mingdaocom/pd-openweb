@@ -26,10 +26,9 @@ class MyHome extends Component {
     });
   };
   render() {
-    let currentProject = getCurrentProject(
-      localStorage.getItem('currentProjectId') ||
-        (md.global.Account.projects[0] || { projectId: 'external' }).projectId,
-    );
+    let currentProject = !_.isEmpty(getCurrentProject(localStorage.getItem('currentProjectId')))
+      ? getCurrentProject(localStorage.getItem('currentProjectId'))
+      : getCurrentProject((md.global.Account.projects[0] || { projectId: 'external' }).projectId);
     return (
       <div className="MyHome flexColumn h100">
         <div className="flex flexColumn WhiteBG">

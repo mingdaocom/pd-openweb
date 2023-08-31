@@ -110,7 +110,7 @@ export default {
     paddingLeft: 24,
     paddingRight: 5,
     boxSizing: 'border-box',
-    width: 'calc(100% - 78px)',
+    width: 650,
     whiteSpace: 'pre-wrap',
   },
   controlDiv_span_title: {
@@ -168,7 +168,7 @@ export default {
     paddingLeft: 24,
     paddingRight: 5,
     boxSizing: 'border-box',
-    width: 'calc(100% - 78px)',
+    width: 650,
     whiteSpace: 'pre-wrap',
   },
   worksTable_workPersons_th: {
@@ -187,7 +187,7 @@ export default {
     boxSizing: 'border-box',
   },
   worksTable_workPersons_infoSignature: {
-    height: 100,
+    height: 45,
     backgroundColor: '#fff',
     backgroundRepeat: 'no-repeat',
     backgroundSize: 'contain',
@@ -201,7 +201,7 @@ export default {
   },
   relationPrintTable: {
     tableLayout: 'auto',
-    borderTop: '0.1px solid #f0f0f0',
+    borderTop: '0.1px solid #ddd',
     borderBottom: 'none',
     borderLeft: 'none',
     borderRadius: 0,

@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { object, number, string, bool } from 'prop-types';
+import { object, number, string, bool, array, func } from 'prop-types';
 import cx from 'classnames';
 import UserHead from 'src/pages/feed/components/userHead/userHead';
 import { Tooltip, Icon, Linkify } from 'ming-ui';
@@ -70,6 +70,8 @@ export default class StepItem extends Component {
     rowId: string,
     isLast: bool,
     status: number,
+    currents: array,
+    onChangeCurrentWork: func,
   };
   static defaultProps = {
     data: {},
@@ -79,6 +81,8 @@ export default class StepItem extends Component {
     rowId: '',
     isLast: false,
     status: 0,
+    currents: [],
+    onChangeCurrentWork: () => {},
   };
 
   state = {
@@ -94,7 +98,8 @@ export default class StepItem extends Component {
     if (
       nextState.moreOperationVisible !== this.state.moreOperationVisible ||
       nextState.showLogDialog !== this.state.showLogDialog ||
-      nextState.showMore !== this.state.showMore
+      nextState.showMore !== this.state.showMore ||
+      (nextProps.currentWork || {}).workId !== (this.props.currentWork || {}).workId
     ) {
       return true;
     }
@@ -146,11 +151,15 @@ export default class StepItem extends Component {
       const { triggerId, triggerField } = flowNode;
       return (
         <Fragment>
-          <div className="userName">{workItemAccount.fullName}</div>
-          <div className="info">
-            {START_TYPE_TEXT[triggerId]}
-            {triggerField && <span className="mLeft4"> ({triggerField})</span>}
+          <div className="userName">
+            {workItemAccount.accountId === 'user-undefined' ? _l('发起人为空') : workItemAccount.fullName}
           </div>
+          {START_TYPE_TEXT[triggerId] && (
+            <div className="info">
+              {START_TYPE_TEXT[triggerId]}
+              {triggerField && <span className="mLeft4"> ({triggerField})</span>}
+            </div>
+          )}
         </Fragment>
       );
     }
@@ -194,13 +203,15 @@ export default class StepItem extends Component {
                 {workItemAccount.fullName + (principal ? _l('(%0委托)', principal.fullName) : '')}
               </div>
               <div className={cx('action ellipsis', `action-${action}`)}>
-                {action === UNNECESSARY_OPERATION_CODE
-                  ? UNNECESSARY_OPERATION[type]
-                  : action === OVERRULE && actionTargetName
-                  ? _l('退回到%0', actionTargetName)
-                  : !operationTime && !!logIds
-                  ? _l('暂存')
-                  : OPERATION_LOG_ACTION[action] + (_.includes([8, 9, 16, 17], action) ? actionTargetName : '')}
+                {action === UNNECESSARY_OPERATION_CODE ? (
+                  UNNECESSARY_OPERATION[type]
+                ) : action === OVERRULE && actionTargetName ? (
+                  <span style={{ color: '#ff982d' }}>{_l('退回到%0', actionTargetName)}</span>
+                ) : !operationTime && !!logIds ? (
+                  _l('暂存')
+                ) : (
+                  OPERATION_LOG_ACTION[action] + (_.includes([8, 9, 16, 17], action) ? actionTargetName : '')
+                )}
               </div>
               {this.renderLogsContent(item)}
               <div className="flex" />
@@ -431,31 +442,74 @@ export default class StepItem extends Component {
     );
   }
 
+  /**
+   * 渲染操作副标题
+   */
+  renderOperatorSubtitle(type, key, debugEventDump) {
+    const isTest =
+      _.includes(['1', '2', '3'], key) && debugEventDump && debugEventDump[key] && !!debugEventDump[key].length;
+
+    if (!_.includes(['1', '2', '3', '102', '105'], key)) return null;
+
+    if (type === 0) {
+      return _.includes(['1', '2', '3'], key) ? _l('（测试）') : _l('（原发起人为空）');
+    }
+
+    if (type === 3) {
+      return isTest ? _l('（原填写人）') : _l('（没有填写人）');
+    }
+
+    if (type === 4) {
+      return isTest ? _l('（原审批人）') : _l('（没有审批人）');
+    }
+
+    return isTest ? _l('（原抄送人）') : _l('（没有抄送人）');
+  }
+
   render() {
-    const { data, currentWork, currentType, isLast, status } = this.props;
+    const { data, currentWork, currentType, isLast, status, currents, onChangeCurrentWork } = this.props;
     const { showMore } = this.state;
-    const { workId, flowNode, workItems, countersign, countersignType, condition, multipleLevelType, sort } =
-      data || {};
+    const {
+      workId,
+      flowNode,
+      workItems,
+      countersign,
+      countersignType,
+      condition,
+      multipleLevelType,
+      sort,
+      debugEventDump,
+    } = data || {};
     /** 是否是当前流程节点 */
     let isCurrentWork =
       workId === (currentWork || {}).workId && _.includes([3, 4, 5], currentType) && !_.includes([2, 3, 4], status);
     const isCC = flowNode.type === 5;
 
     return (
-      <li className="workflowStep flexRow" id={`workflowStep_${workId}`}>
-        <div className={cx('flowPointer flexColumn', { active: isCurrentWork })}>
+      <li
+        className={cx('workflowStep flexRow', { allowSelect: _.includes(currents, workId) && !isCurrentWork })}
+        id={`workflowStep_${workId}`}
+      >
+        <div className="flowPointer flexColumn">
           <div className={cx('pointerItem', { active: isCurrentWork })} />
           {!isLast && <div className="pointerLine" />}
         </div>
         <div className="stepItem flex flexColumn">
           <div className="flexRow alignItemsCenter">
-            <div className={cx('stepItemTime Font15 flex ellipsis', isCurrentWork ? 'ThemeColor3 bold' : 'Gray_75')}>
+            <div className="stepItemTime Font15 flex ellipsis Gray_75 bold">
               {workItems[0] && moment(workItems[0].receiveTime).format('MM-DD HH:mm')}
             </div>
             {this.renderTimeConsuming()}
             {this.renderSurplusTime()}
           </div>
-          <div className="stepContentWrap mTop10">
+          <div
+            className={cx('stepContentWrap mTop10', { active: isCurrentWork })}
+            onClick={() => {
+              if (_.includes(currents, workId) && !isCurrentWork) {
+                onChangeCurrentWork(workId);
+              }
+            }}
+          >
             <div className={'stepName bold Font15 flex ellipsis'}>
               {flowNode.name}
               {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
@@ -496,6 +550,29 @@ export default class StepItem extends Component {
                 </div>
               );
             })}
+
+            {debugEventDump &&
+              Object.keys(debugEventDump).map((key, index) => {
+                return (
+                  <div className="stepContent pBottom16" key={index}>
+                    <div className="mTop10 Gray_9e Font12">
+                      {_.includes(['1', '2', '3'], key) && _l('测试')}
+                      {key === '101' && _l('自动通过')}
+                      {_.includes(['102', '105'], key) && _l('代理')}
+                      {key === '103' && _l('流程中止')}
+                      {key === '104' && _l('自动进入下一个节点')}
+
+                      {this.renderOperatorSubtitle(flowNode.type, key, debugEventDump)}
+                    </div>
+                    {debugEventDump[key].map(({ avatar, accountId, fullName }) => (
+                      <div className="flexRow alignItemsCenter mTop8" key={accountId}>
+                        <UserHead lazy="false" size={24} user={{ userHead: avatar, accountId }} />
+                        <span className="flex ellipsis mLeft12">{fullName}</span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
 
             {isCC && workItems.length > 5 && (
               <div

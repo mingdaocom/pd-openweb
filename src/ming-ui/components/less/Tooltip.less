@@ -9,7 +9,7 @@
 
 /* 黑色风格 Black */
 @tooltip-black-color: #fff;
-@tooltip-black-bg: rgba(56, 56, 56, 1);
+@tooltip-black-bg: #212121;
 @tooltip-black-arrow-color: @tooltip-black-bg;
 
 /* 白色风格 */
@@ -103,7 +103,7 @@
   z-index: 1060;
   display: block;
   visibility: visible;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
 
   &-hidden {
@@ -115,6 +115,10 @@
     box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
   }
 
+  &-black {
+    font-weight: bold;
+  }
+
   &-black .@{tooltip-cls}-wrapper {
     color: @tooltip-black-color;
     background-color: @tooltip-black-bg;
@@ -123,9 +127,9 @@
 
   &-wrapper {
     max-width: @tooltip-max-width;
-    padding: 8px 10px;
+    padding: 5px 10px;
     text-decoration: none;
-    border-radius: 3px;
+    border-radius: 4px;
     word-break: break-word;
   }
 

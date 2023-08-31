@@ -13,18 +13,24 @@ import {
 } from 'worksheet/util';
 import { getNavGroupCount } from './index';
 
+const DEFAULT_PAGESIZE = 50;
+
 export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, updateWorksheetControls } = {}) => {
   return (dispatch, getState) => {
     const { base, filters, sheetview, quickFilter, navGroupFilters } = getState().sheet;
     const { appId, viewId, worksheetId, maxCount, chartId, showAsSheetView } = base;
-    let { pageSize, pageIndex, sortControls } = sheetview.sheetFetchParams;
+    let savedPageSize = parseInt(getLRUWorksheetConfig('WORKSHEET_VIEW_PAGESIZE', viewId), 10);
+    if (_.isNaN(savedPageSize)) {
+      savedPageSize = undefined;
+    }
+    let { pageIndex, sortControls } = sheetview.sheetFetchParams;
     if (changeView) {
       pageIndex = 1;
       dispatch(resetView());
     }
     const args = {
       worksheetId,
-      pageSize,
+      pageSize: savedPageSize || DEFAULT_PAGESIZE,
       pageIndex,
       status: 1,
       appId,
@@ -44,6 +50,9 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
     }
     if (changeView || isFirst) {
       dispatch(setViewLayout(viewId));
+    }
+    if (savedPageSize && savedPageSize !== DEFAULT_PAGESIZE) {
+      dispatch(changePageSize(savedPageSize, args.pageIndex));
     }
     dispatch({
       type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS_START',
@@ -412,7 +421,7 @@ export function saveSheetLayout({ closePopup = () => {} }) {
       });
   };
 }
-export function resetSehetLayout() {
+export function resetSheetLayout() {
   return function (dispatch, getState) {
     const { base, views } = getState().sheet;
     const { viewId } = base;
@@ -442,11 +451,11 @@ export const updateDefaultScrollLeft = value => ({
 });
 
 // 更新每页数量
-export function changePageSize(pageSize) {
+export function changePageSize(pageSize, pageIndex) {
   return function (dispatch, getState) {
     const { base } = getState().sheet;
     saveLRUWorksheetConfig('WORKSHEET_VIEW_PAGESIZE', base.viewId, pageSize);
-    dispatch({ type: 'WORKSHEET_SHEETVIEW_CHANGE_PAGESIZE', pageSize });
+    dispatch({ type: 'WORKSHEET_SHEETVIEW_CHANGE_PAGESIZE', pageSize, pageIndex });
   };
 }
 // 分页

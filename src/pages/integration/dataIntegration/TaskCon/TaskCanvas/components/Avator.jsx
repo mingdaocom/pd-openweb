@@ -71,7 +71,7 @@ export default function Avator(props) {
         <div
           className={cx(
             `iconImg ${
-              JOIN_TYPE.find(o => o.type === (_.get(nodeData, ['nodeConfig', 'config', 'joinType']) || 'INNER_JOIN'))
+              (JOIN_TYPE.find(o => o.type === (_.get(nodeData, 'nodeConfig.config.joinType') || 'INNER_JOIN')) || {})
                 .img
             }`,
           )}

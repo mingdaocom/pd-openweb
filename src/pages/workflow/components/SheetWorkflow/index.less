@@ -7,10 +7,34 @@
     box-shadow: 0px 1px 2px 0px #0000000f;
     transition: box-shadow 0.2s;
     background: #FFFFFF;
+    position: relative;
+    overflow: hidden;
     &:hover {
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     }
 
+    .branchNodeLine {
+      width: auto;
+      height: 1px;
+      margin: 10px -20px 0;
+      background-color: #f1f1f1;
+    }
+    .branchWrap {
+      margin: 0 -20px;
+      padding: 15px 20px;
+      &.hover:hover {
+        background-color: #fafafa;
+      }
+      &:last-child {
+        margin-bottom: -20px;
+        padding-bottom: 20px;
+      }
+    }
+    .branchWrapLine {
+      width: 100%;
+      height: 1px;
+      background-color: #ebeaea;
+    }
     .itemWrapper {
       >div:last-child {
         margin-bottom: 0 !important;
@@ -100,12 +124,24 @@
     background-color: #fff;
   }
   .workflowStepFooter {
-    height: 50px;
+    height: 80px;
     padding: 0 20px;
     border-top: 1px solid #EAEAEA;
     background-color: #fff;
   }
   .icon-arrow-left-border:hover {
     color: #2196F3 !important;
+  }
+}
+
+.sheetWorkflowWrapper, .sheetWorkflowDrawer {
+  .branchNode {
+    color: #fff;
+    background-color: #0097EF;
+    border-radius: 20px;
+    width: max-content;
+    padding: 2px 7px;
+    font-size: 12px;
+    font-weight: bold;
   }
 }

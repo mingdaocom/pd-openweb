@@ -258,6 +258,12 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/integration/integrationApi'),
     title: _l('集成中心'),
   },
+  // 微信支付
+  wechatPay: {
+    path: '/wechatPay/:projectId/:orderId',
+    component: () => import('src/components/pay/wechatPay'),
+    title: _l('微信支付'),
+  },
   default: {
     path: '/app',
     redirect: '/app/my',
@@ -288,6 +294,7 @@ const withoutHeaderPathList = [
   'gunterExport',
   'integrationConnect',
   'role',
+  'portaluser',
 ];
 const withoutChatPathList = [
   'demo',
@@ -316,6 +323,8 @@ const withoutChatPathList = [
   'land',
   'integrationConnect',
   'integrationApi',
+  'portaluser',
+  'wechatPay',
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;
 export const withoutChatUrl = `/(.*)(${withoutChatPathList.join('|')})`;

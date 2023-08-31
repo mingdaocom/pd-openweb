@@ -3,8 +3,9 @@ import ReactDom from 'react-dom';
 import WorksheetShareHeader from './header';
 import sheetAjax from 'src/api/worksheet';
 import preall from 'src/common/preall';
-import api from 'api/homeApp';
+import api from 'src/api/homeApp';
 import cx from 'classnames';
+import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
@@ -218,7 +219,16 @@ class WorksheetSahre extends React.Component {
   };
   //获取记录关联记录
   getRowRelationRowsData = (id, pageIndex) => {
-    const { rowRelationRowsData = {} } = this.state;
+    const { cardControls, rowRelationRowsData = {} } = this.state;
+    const control = _.find(cardControls, { controlId: id });
+    let filterControls;
+    if (control && control.type === 51) {
+      filterControls = getFilter({
+        control,
+        formData: cardControls,
+        filterKey: 'resultfilters',
+      });
+    }
     let index = pageIndex ? pageIndex : 1;
     this.setState({
       controlId: id,
@@ -245,6 +255,7 @@ class WorksheetSahre extends React.Component {
       pageSize: PAGESIZE,
       getWorksheet: true,
       shareId: this.state.shareId,
+      filterControls,
     });
 
     this.promiseRowRelationRows.then(data => {
@@ -276,7 +287,7 @@ class WorksheetSahre extends React.Component {
 
   getHeaderData = appId => {
     this.abortRequest(this.promiseAppDetail);
-    this.promiseAppDetail = api.getAppDetail({ appId }, { silent: true });
+    this.promiseAppDetail = api.getApp({ appId }, { silent: true });
     this.promiseAppDetail.then(data => {
       this.setState({
         iconUrl: data.iconUrl,

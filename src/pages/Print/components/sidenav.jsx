@@ -1,4 +1,5 @@
 import React from 'react';
+import cx from 'classnames';
 import { Icon, Dropdown, Tooltip, ScrollView, Checkbox, Switch } from 'ming-ui';
 
 import Api from 'api/homeApp';
@@ -17,6 +18,7 @@ import './sidenav.less';
 import moment from 'moment';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import _ from 'lodash';
 
 let sidenavList = [
   'setting', //设置
@@ -113,19 +115,32 @@ class Sidenav extends React.Component {
     return list.length >= controls.length && !!orderNumberCheck;
   };
 
-  renderLi = list => {
+  renderLi = (list, filterSection = true) => {
     const { handChange, printData = [], systemControl } = this.props;
     const { receiveControls = [] } = printData;
+    let listData = (list || []).filter(o => !UNPRINTCONTROL.includes(o.type));
+
     return (
       <React.Fragment>
-        {(list || [])
-          .filter(o => !UNPRINTCONTROL.includes(o.type))
+        {listData
+          .filter(l => !l.sectionId || !filterSection)
           .map(it => {
             let isRelationControls = isRelation(it);
             let isClearselected = isRelationControls && this.getRelationControlsShowPart(it);
+            let sectionLi = [];
             let isChecked = !isRelationControls ? it.checked : this.getIsChecked(it);
+            if (it.type === 52) {
+              sectionLi = listData.filter(l => l.sectionId === it.controlId);
+              isChecked = sectionLi.every(l => l.checked);
+              isClearselected = isChecked ? false : sectionLi.some(l => l.checked);
+            }
+
             return (
-              <div className="Relative">
+              <div
+                className={cx('Relative', {
+                  mLeft25: !!it.sectionId,
+                })}
+              >
                 <Checkbox
                   checked={isChecked}
                   clearselected={isClearselected}
@@ -148,14 +163,14 @@ class Sidenav extends React.Component {
                     } else if (it.controlId === 'uaid') {
                       printDataN = this.changeSysFn('uaid', !printData.updateAccountChecked);
                       handChange(printDataN);
-                    }  else {
+                    } else {
                       this.setData(it, 'checked', isRelationControls);
                     }
                   }}
                   text={it.controlName || _l('未命名')}
                 />
-                {isRelationControls && (
-                  <div className="mLeft24">
+                {(isRelationControls || it.type === 52) && (
+                  <div className={it.type === 52 ? '' : 'mLeft24'}>
                     <Icon
                       icon={it.expand ? 'expand_less' : 'expand_more'}
                       className="Font18 moreList Hand TxtCenter TxtBottom"
@@ -163,7 +178,10 @@ class Sidenav extends React.Component {
                         this.setData(it, 'expand');
                       }}
                     />
-                    {it.expand && this.renderLirelation(it)}
+                    {it.expand && isRelationControls && this.renderLirelation(it)}
+                    {it.expand && it.type === 52 && (
+                      <div className="Relative sectionLiCon">{this.renderLi(sectionLi, false)}</div>
+                    )}
                   </div>
                 )}
               </div>
@@ -317,7 +335,6 @@ class Sidenav extends React.Component {
     });
   }
 
-
   renderWorkflow() {
     const { handChange, printData = [], systemControl } = this.props;
     const { workflow = [] } = printData;
@@ -371,8 +388,8 @@ class Sidenav extends React.Component {
                     if (item.child.length < 2) return;
                     if (openApprovalList.find(l => l === item.processId)) {
                       this.setState({
-                        openApprovalList: openApprovalList.filter(l=>l!==item.processId)
-                      })
+                        openApprovalList: openApprovalList.filter(l => l !== item.processId),
+                      });
                     } else {
                       this.setState({
                         openApprovalList: openApprovalList.concat(item.processId),
@@ -411,6 +428,7 @@ class Sidenav extends React.Component {
     let data = receiveControls.filter(control => control.controlId === o.controlId);
     let dataOther = [];
     let isCheck;
+    let isSection = o.type === 52 && key === 'checked';
     receiveControls.map(item => {
       if (item.controlId === o.controlId) {
         if (!isRelationControls) {
@@ -430,7 +448,11 @@ class Sidenav extends React.Component {
           });
         }
       } else {
-        dataOther.push(item);
+        let _item = { ...item };
+        if (isSection && item.sectionId === o.controlId) {
+          _item.checked = !item.checked;
+        }
+        dataOther.push(_item);
       }
     });
     let list = {
@@ -449,6 +471,7 @@ class Sidenav extends React.Component {
         }),
       };
     }
+
     handChange(list);
   };
 
@@ -609,8 +632,17 @@ class Sidenav extends React.Component {
   };
 
   render() {
-    const { handChange, params, printData, systemControl, controls = [], signature = [], saveTem, sheetSwitchPermit } = this.props;
-    const { printId, type, from, printType, isDefault, viewId  } = params;
+    const {
+      handChange,
+      params,
+      printData,
+      systemControl,
+      controls = [],
+      signature = [],
+      saveTem,
+      sheetSwitchPermit,
+    } = this.props;
+    const { printId, type, from, printType, isDefault, viewId } = params;
     const { receiveControls = [], workflow = [], shareType = 0, approval = [] } = printData;
     const { receiveControlsCheckAll, workflowCheckAll, closeList = [] } = this.state;
     return (

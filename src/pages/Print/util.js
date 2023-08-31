@@ -336,7 +336,20 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
     case 34: // 子表
       return value;
     case 42: {
-      return value ? <img src={value} style={{ width: 168 }} /> : '';
+      return value ? (
+        <img
+          src={value}
+          style={{ maxHeight: 45, maxWidth: 160 }}
+          onLoad={(e) => {
+            $(e.target).attr({
+              width: e.target.width,
+              height: e.target.height,
+            });
+          }}
+        />
+      ) : (
+        ''
+      );
     }
     case 45: {
       return value ? <Embed {...dataItem} formData={dataItem.controls} from="print" /> : '';

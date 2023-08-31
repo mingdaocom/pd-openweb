@@ -6,16 +6,30 @@ import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import update from 'immutability-helper';
-import _, { includes, get, isEmpty, omit, findIndex, filter, find, head, last } from 'lodash';
+import _, {
+  includes,
+  get,
+  isEmpty,
+  omit,
+  findIndex,
+  filter,
+  find,
+  head,
+  last,
+  flatten,
+  isUndefined,
+  cloneDeep,
+} from 'lodash';
 import { getAdvanceSetting, handleAdvancedSettingChange, isExceedMaxControlLimit } from './setting';
 import { insertControlInSameLine } from './drag';
-import { getControlByControlId, adjustControlSize } from '.';
+import { getControlByControlId, adjustControlSize, putControlByOrder } from '.';
 import { getPathById, isHaveGap } from './widgets';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { ControlTag } from '../styled';
 import { Tooltip } from 'ming-ui';
 import { v4 as uuidv4 } from 'uuid';
 import { ALL_SYS } from '../config/widget';
+import { isRelateRecordTableControl } from 'worksheet/util';
 
 // 获取动态默认值
 export const getDynamicDefaultValue = data => {
@@ -356,7 +370,7 @@ export function navigateToApp(worksheetId) {
     const viewId =
       (
         _.find(
-          storage.worksheets || [],
+          _.get(storage, 'worksheets') || [],
           item => item.groupId === data.groupId && item.worksheetId === data.worksheetId,
         ) || {}
       ).viewId || '';
@@ -468,6 +482,14 @@ export const formatControlsData = (controls = [], fromSub = false) => {
       return handleAdvancedSettingChange(data, { increase: JSON.stringify(nextIncrease) });
     }
 
+    /**
+     * 分组icon只保存fileName,接口补全对象返回
+     * */
+    if (type === 52) {
+      const { icon = '' } = getAdvanceSetting(data, 'icon') || {};
+      return handleAdvancedSettingChange(data, { icon });
+    }
+
     return data;
   });
 };
@@ -511,7 +533,7 @@ export const dealRequestControls = (controls, needChild) => {
 };
 
 // 如果新增控件在可视区外则滚动至可视区内
-const scrollToVisibleRange = (data, widgetProps) => {
+export const scrollToVisibleRange = (data, widgetProps) => {
   const { activeWidget } = widgetProps;
   const $contentWrap = document.getElementById('widgetDisplayWrap');
   const $activeWidget = document.getElementById(`widget-${(activeWidget || {}).controlId}`);
@@ -535,9 +557,10 @@ const scrollToVisibleRange = (data, widgetProps) => {
 export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
   const { widgets, activeWidget, allControls, setWidgets, setActiveWidget, globalSheetInfo = {} } = widgetProps;
   const { mode, path, location, rowIndex } = para;
-  const featureType = getFeatureStatus(globalSheetInfo.projectId, data.featureId);
-  if (_.includes([49, 50], data.type) && featureType === '2') {
-    buriedUpgradeVersionDialog(globalSheetInfo.projectId, data.featureId);
+  const tempData = head(data);
+  const featureType = getFeatureStatus(globalSheetInfo.projectId, tempData.featureId);
+  if (_.includes([49, 50], tempData.type) && featureType === '2') {
+    buriedUpgradeVersionDialog(globalSheetInfo.projectId, tempData.featureId);
     return;
   }
 
@@ -549,7 +572,7 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
   // 如果当前控件列表为空 直接添加
   if (isEmpty(widgets)) {
     setWidgets(update(widgets, { $push: [data] }));
-    setActiveWidget(newActiveData);
+    setActiveWidget(data[0]);
     return;
   }
 
@@ -596,13 +619,21 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
       currentRowIndex = head(
         getPathById(newWidgets, index ? _.get(data[index - 1], 'controlId') : activeWidget.controlId),
       );
+
+      // 如果当前控件是分段控件，则添加在当前控件内
+      if (activeWidget.type === 52) {
+        const childrenList = getChildWidgetsBySection(allControls, activeWidget.controlId);
+        currentRowIndex = currentRowIndex + childrenList.length;
+      }
     }
 
     // 如果当前激活控件所在行没有空位则另起下一行，否则放到当前行后面
     if (isHaveGap(newWidgets[currentRowIndex], item)) {
       newWidgets = update(newWidgets, { [currentRowIndex]: { $push: [item] } });
     } else {
-      newWidgets = update(newWidgets, { $splice: [[currentRowIndex + 1, 0, [item]]] });
+      newWidgets = update(newWidgets, {
+        $splice: [[currentRowIndex + 1, 0, [item]]],
+      });
     }
 
     if (index === data.length - 1) {
@@ -617,6 +648,40 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
   if (_.isFunction(callback)) {
     callback();
   }
+};
+
+// 批量移动
+export const handleMoveWidgets = (data, widgetProps) => {
+  const { widgets, activeWidget, allControls, setWidgets, setActiveWidget } = widgetProps;
+
+  if (isExceedMaxControlLimit(allControls, data.length)) {
+    alert(_l('当前表存在的控件已达到最大值，无法添加继续添加新控件!'), 3);
+    return;
+  }
+
+  let newWidgets = widgets;
+
+  let currentRowIndex = head(getPathById(newWidgets, activeWidget.controlId));
+  const childrenList = getChildWidgetsBySection(allControls, activeWidget.controlId);
+  currentRowIndex = currentRowIndex + childrenList.length;
+
+  data.map((item, index) => {
+    // 如果当前激活控件所在行没有空位则另起下一行，否则放到当前行后面
+    if (isHaveGap(newWidgets[currentRowIndex], item)) {
+      newWidgets = update(newWidgets, { [currentRowIndex]: { $push: [item] } });
+    } else {
+      currentRowIndex = currentRowIndex + 1;
+      newWidgets = update(newWidgets, { $splice: [[currentRowIndex, 0, [item]]] });
+    }
+
+    if (index === data.length - 1) {
+      setWidgets(newWidgets);
+      setActiveWidget(item);
+      setTimeout(() => {
+        scrollToVisibleRange(item, { ...widgetProps, activeWidget: item });
+      }, 50);
+    }
+  });
 };
 
 export const dealCopyWidgetId = (data = {}) => {
@@ -649,4 +714,79 @@ export const dealCopyWidgetId = (data = {}) => {
     return newWidget;
   }
   return newData;
+};
+
+// 获取当前分段控件子布局控件
+export const getChildWidgetsBySection = (controls = [], id) => {
+  const childControls = controls.filter(i => i.sectionId === id);
+  return putControlByOrder(childControls);
+};
+
+// 批量复制控件数据处理
+export const batchCopyWidgets = (props, selectWidgets = []) => {
+  const { widgets, allControls, queryConfigs, setActiveWidget, setWidgets, updateQueryConfigs } = props;
+
+  const copyWidgets = [];
+  let childCount = 0;
+  let newWidgets = widgets;
+  let sectionIds = {};
+  let newQueries = [];
+  let newActiveWidget = {};
+
+  selectWidgets.map(item => {
+    copyWidgets.push(item);
+    if (item.type === 52) {
+      copyWidgets.push(...allControls.filter(i => i.sectionId === item.controlId));
+    }
+  });
+
+  const orderCopyWidgets = putControlByOrder(copyWidgets);
+
+  orderCopyWidgets.forEach(row => {
+    const currentRow = head(getPathById(newWidgets, get(last(row), 'controlId')));
+    const dealRow = row.map(data => {
+      let dealItem = dealCopyWidgetId(data);
+      // 替换分段内字段sectionId
+      if (sectionIds[dealItem.sectionId]) {
+        dealItem.sectionId = sectionIds[dealItem.sectionId];
+      } else {
+        // 没有sectionId,清空childCount,防止插入位置不对
+        childCount = 0;
+      }
+      // 工作表查询配置复制
+      const currentQuery = find(queryConfigs, queryItem => queryItem.controlId === data.controlId);
+      currentQuery && newQueries.push({ ...currentQuery, id: `${uuidv4()}_new`, controlId: dealItem.controlId });
+
+      if (data.type === 52) {
+        // 缓存sectionId
+        sectionIds[data.controlId] = dealItem.controlId;
+        const childControls = getChildWidgetsBySection(allControls, data.controlId);
+        childCount = childControls.length;
+      }
+
+      return dealItem;
+    });
+    newActiveWidget = last(dealRow);
+    newWidgets = update(newWidgets, {
+      $splice: [[currentRow + childCount + 1, 0, dealRow]],
+    });
+  });
+
+  if (isExceedMaxControlLimit(flatten(newWidgets))) return;
+
+  setActiveWidget(newActiveWidget);
+  setWidgets(newWidgets);
+  updateQueryConfigs(queryConfigs.concat(newQueries), 'cover');
+  return;
+};
+
+// 批量设置属性
+export const batchResetWidgets = (props, selectWidgets = [], fieldPermission) => {
+  let { widgets, setWidgets } = props;
+  selectWidgets.forEach(item => {
+    const [row, col] = getPathById(widgets, item.controlId);
+    widgets = update(widgets, { [row]: { [col]: { $set: item } } });
+  });
+
+  setWidgets(widgets);
 };

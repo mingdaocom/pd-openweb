@@ -224,7 +224,7 @@ function Texts(props) {
       {records.map((record, i) => (
         <RecordText
           key={i}
-          className={cx('ellipsis', { 'ThemeColor3 Hand': allowOpenRecord })}
+          className={cx('w100 ellipsis', { 'ThemeColor3 Hand': allowOpenRecord })}
           onClick={() => {
             if (!allowOpenRecord) {
               return;

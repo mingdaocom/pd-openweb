@@ -87,7 +87,7 @@ function EditWidget(props) {
           handleEdit({ value });
         }}
         onCancel={onClose}
-        cacheKey="appIntroDescription"
+        cacheKey="customPageEditWidget"
         title={widgets[type].name}
       />
     </RcDialog>

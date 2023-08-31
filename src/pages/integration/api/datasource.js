@@ -84,6 +84,9 @@ var datasource = {
    * @param {string} args.type 数据源类型
    * @param {string} args.connectOptions 数据库连接串
    * @param {object} args.extraParams 扩展参数，存放各个数据库独有的参数(map data)
+   * @param {string} args.cdcParams cdc参数，格式：k1=v1,k2=v2
+   * @param {integer} args.enableSsh Connecting Through SSH是否启用(EnableEnum.INACTIVE.getCode();)<br>0-未启用；1-启用<br>启用之后，需要替换数据库连接地址port为隧道分配的本地port，转发到数据库中的port
+   * @param {string} args.sshConfigId ssh配置id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -100,6 +103,7 @@ var datasource = {
    * @param {Object} args 请求参数
    * @param {string} args.dataDestType 目的地类型
    * @param {boolean} args.isCreate 是否新建表
+   * @param {boolean} args.hasJoinPk 是否有多表连接主键
    * @param {array} args.sourceFields 源字段列表
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -148,6 +152,9 @@ var datasource = {
    * @param {string} args.roleType 角色类型(See: 数据源的角色类型)
    * @param {string} args.connectOptions 数据库连接串
    * @param {object} args.extraParams 扩展参数，存放各个数据库独有的参数(map data)
+   * @param {string} args.cdcParams cdc参数，格式：k1=v1,k2=v2
+   * @param {integer} args.enableSsh Connecting Through SSH是否启用(EnableEnum.INACTIVE.getCode();)<br>启用之后，需要替换数据库连接地址port为隧道分配的本地port，转发到数据库中的port
+   * @param {string} args.sshConfigId ssh配置id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -190,6 +197,9 @@ var datasource = {
    * @param {string} args.roleType 角色类型(See: 数据源的角色类型)
    * @param {string} args.connectOptions 数据库连接串
    * @param {object} args.extraParams 扩展参数，存放各个数据库独有的参数(map data)
+   * @param {string} args.cdcParams cdc参数，格式：k1=v1,k2=v2
+   * @param {integer} args.enableSsh Connecting Through SSH是否启用(EnableEnum.INACTIVE.getCode();)<br>启用之后，需要替换数据库连接地址port为隧道分配的本地port，转发到数据库中的port
+   * @param {string} args.sshConfigId ssh配置id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -268,25 +278,9 @@ var datasource = {
   /**
    * 为工作表字段填充jdbc类型id
    *
-   * @param {array} args 请求参数
-   * @param {string} args.id 字段id
-   * @param {array} args.dependFieldIds 依赖的字段id列表
-   * @param {string} args.name 字段名
-   * @param {string} args.dataType 数据类型
-   * @param {integer} args.jdbcTypeId jdbc类型id，用于类型匹配
-   * @param {integer} args.precision 类型长度
-   * @param {integer} args.scale 精度，整数时为0，小数时为小数的位数
-   * @param {boolean} args.isPk 是否主键
-   * @param {integer} args.mdType 工作表字段类型编号，只有是工作表字段才有值
-   * @param {boolean} args.isTitle 是否是标题，只有是工作表字段才有值
-   * @param {boolean} args.isNotNull 是否可为null
-   * @param {string} args.alias 字段别名，即重命名后的名称
-   * @param {boolean} args.isCheck 是否勾选
-   * @param {integer} args.orderNo 排序字段
-   * @param {string} args.status 字段状态(See: 字段状态)
-   * @param {string} args.defaultValue 默认值
-   * @param {string} args.comment 字段注释
-   * @param {object} args.controlSetting 需要创建工作表时，工作字段的其他配置信息(object)
+   * @param {Object} args 请求参数
+   * @param {string} args.worksheetId 工作表id
+   * @param {array} args.fields 映射字段
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

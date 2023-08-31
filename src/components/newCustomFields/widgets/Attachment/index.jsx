@@ -107,7 +107,11 @@ export default class Widgets extends Component {
     const args = { fileIds };
     if (window.shareState && window.shareState.shareId) {
       args.shareId = window.shareState.shareId;
-      args.type = window.shareState.isRecordShare ? 3 : window.shareState.isPublicQuery ? 11 : 14;
+      args.type = window.shareState.isRecordShare
+        ? 3
+        : _.get(window, 'shareState.isPublicForm') || _.get(window, 'shareState.isPublicForm')
+        ? 11
+        : 14;
     }
     attachmentApi
       .getAttachmentToList(args)
@@ -396,7 +400,8 @@ export default class Widgets extends Component {
     const recordAttachmentSwitch = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewIdForPermit);
 
     const coverType = advancedSetting.covertype || '0';
-    const allAownload = advancedSetting.alldownload !== '0' && recordAttachmentSwitch && !_.get(window, 'shareState.shareId');
+    const allAownload =
+      advancedSetting.alldownload !== '0' && recordAttachmentSwitch && !_.get(window, 'shareState.shareId');
 
     const filesProps = {
       flag,

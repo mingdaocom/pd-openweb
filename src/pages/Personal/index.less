@@ -5,8 +5,9 @@
     display: flex;
   }
 
-  #accountNav {
-    flex: 0 0 240px;
+  .accountTabWrap {
+    width: 240px;
+    border-right: 1px solid #eaeaea;
   }
 
   .accountTitle {
@@ -34,19 +35,19 @@
     color: #333333;
     &.active {
       color: #ffffff !important;
-      background-color: #1294F7 !important;
+      background-color: #1294f7 !important;
       span {
         color: #ffffff !important;
       }
     }
   }
   .mainPage {
-    width: 100%;
     height: 100%;
     overflow-y: auto;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    background-color: #fff;
   }
   .accountTipIcon {
     color: #ffffff;

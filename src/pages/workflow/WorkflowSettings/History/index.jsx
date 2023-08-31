@@ -64,9 +64,7 @@ class History extends Component {
     let para = { pageIndex, processId, pageSize, workId, instanceId, ...filterPara };
 
     if (_.isEmpty(filters) && !para.startDate) {
-      para.startDate = moment()
-        .add(-6, 'M')
-        .format('YYYY/MM/DD HH:mm');
+      para.startDate = moment().add(-6, 'M').format('YYYY/MM/DD HH:mm');
     }
 
     if (requestPending) return;
@@ -258,11 +256,9 @@ class History extends Component {
   getProcessAccumulation() {
     const { flowInfo } = this.props;
 
-    if (flowInfo.enabled) {
-      processVersion.getDifferenceByProcessId({ processId: flowInfo.id }).then(accumulation => {
-        this.setState({ accumulation });
-      });
-    }
+    processVersion.getDifferenceByProcessId({ processId: flowInfo.id }).then(accumulation => {
+      this.setState({ accumulation });
+    });
   }
 
   /**
@@ -278,16 +274,8 @@ class History extends Component {
 
   render() {
     const { flowInfo } = this.props;
-    const {
-      data,
-      selectActionId,
-      hasMoreData,
-      historyVisible,
-      showFilter,
-      filters,
-      accumulation,
-      requestPending,
-    } = this.state;
+    const { data, selectActionId, hasMoreData, historyVisible, showFilter, filters, accumulation, requestPending } =
+      this.state;
     const { lastPublishDate, parentId, enabled } = flowInfo;
     const isMoreHistory = !_.isEmpty(filters) && !showFilter;
 
@@ -295,11 +283,7 @@ class History extends Component {
       return (
         <ScrollView className="workflowHistoryWrap flex">
           <div className="workflowHistoryContentWrap">
-            <HistoryDetail
-              id={selectActionId}
-              disabled={isMoreHistory}
-              onClick={() => this.setState({ selectActionId: '' })}
-            />
+            <HistoryDetail id={selectActionId} onClick={() => this.setState({ selectActionId: '' })} />
           </div>
         </ScrollView>
       );
@@ -413,6 +397,7 @@ class History extends Component {
             }}
           />
           <HistoryList
+            processId={flowInfo.id}
             data={data}
             accumulation={accumulation}
             disabled={isMoreHistory}
@@ -426,6 +411,7 @@ class History extends Component {
             requestPending={requestPending}
             onClick={selectActionId => this.setState({ selectActionId })}
             onRecovery={this.onRecovery}
+            onRefreshAccumulation={() => this.getProcessAccumulation()}
           />
         </div>
 

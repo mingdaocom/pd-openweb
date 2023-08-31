@@ -65,6 +65,14 @@ export default class Start extends Component {
           result = Object.assign(this.state.data, { fields: result.fields, flowNodeMap: result.flowNodeMap });
         }
 
+        if (
+          result.appType === APP_TYPE.APPROVAL_START &&
+          (!result.processConfig.userTaskNullMaps || result.processConfig.userTaskNullMaps[0])
+        ) {
+          result.processConfig.userTaskNullMaps = { [result.processConfig.userTaskNullPass ? 1 : 3]: [] };
+          result.processConfig.userTaskNullPass = false;
+        }
+
         this.setState({ data: result });
       });
   };
@@ -193,6 +201,15 @@ export default class Start extends Component {
 
       if (appType === APP_TYPE.LOOP && executeEndTime && moment(executeTime) >= moment(executeEndTime)) {
         alert(_l('结束执行时间不能小于开始执行时间'), 2);
+        return;
+      }
+
+      if (
+        appType === APP_TYPE.APPROVAL_START &&
+        ((processConfig.initiatorMaps[5] && !processConfig.initiatorMaps[5].length) ||
+          (processConfig.userTaskNullMaps[5] && !processConfig.userTaskNullMaps[5].length))
+      ) {
+        alert(_l('必须指定代理人'), 2);
         return;
       }
     }

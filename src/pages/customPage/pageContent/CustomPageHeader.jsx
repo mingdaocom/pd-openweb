@@ -347,6 +347,7 @@ export default function CustomPageHeader(props) {
         visible={editIntroVisible}
         desc={desc || ''}
         isEditing={descIsEditing}
+        setDescIsEditing={setDescIsEditing}
         onClose={() => {
           handleVisibleChange(false, 'editIntroVisible');
         }}
@@ -356,7 +357,7 @@ export default function CustomPageHeader(props) {
           } else {
             handleUpdatePage({ desc: value });
           }
-          handleVisibleChange(false, 'editIntroVisible');
+          // handleVisibleChange(false, 'editIntroVisible');
         }}
       />
       {editNameVisible && (

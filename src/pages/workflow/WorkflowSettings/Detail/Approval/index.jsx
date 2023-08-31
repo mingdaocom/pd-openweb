@@ -14,6 +14,7 @@ import {
   UserRange,
   EmailApproval,
   UpdateFields,
+  OperatorEmpty,
 } from '../components';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -22,13 +23,19 @@ import NoticeTemplate from './NoticeTemplate';
 import CallbackSettings from './CallbackSettings';
 import { OPERATION_TYPE } from '../../enum';
 
-const GraduallyMember = styled.div`
-  .actionFields {
-    width: 752px !important;
-    left: 0;
-  }
-  .flowDetailMemberDel {
-    display: block !important;
+const GraduallyMemberBox = styled.div`
+  padding: 5px 10px;
+  border-radius: 4px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  min-width: 0;
+  cursor: pointer;
+  position: relative;
+  .flowDetailMembers {
+    margin-top: -12px;
+    min-width: 0;
   }
 `;
 
@@ -97,7 +104,7 @@ export default class Approval extends Component {
   /**
    * 获取节点详情
    */
-  getNodeDetail(props, sId) {
+  getNodeDetail(props, sId, callback = () => {}) {
     const { processId, selectNodeId, selectNodeType, isApproval } = props;
     const { data } = this.state;
 
@@ -120,7 +127,7 @@ export default class Approval extends Component {
           });
         }
 
-        this.setState({ data: result });
+        this.setState({ data: result }, callback);
 
         if (isApproval && !result.selectNodeId) {
           this.onChange(result.flowNodeList[0].nodeId);
@@ -182,6 +189,8 @@ export default class Approval extends Component {
       returnBtnName,
       opinionTemplate,
       flowNodeMap,
+      userTaskNullMap,
+      candidateUserMap,
     } = data;
 
     if (!selectNodeId) {
@@ -191,6 +200,11 @@ export default class Approval extends Component {
 
     if (!accounts.length && multipleLevelType === 0) {
       alert(_l('必须指定审批人'), 2);
+      return;
+    }
+
+    if (userTaskNullMap[5] && !userTaskNullMap[5].length) {
+      alert(_l('必须指定代理人'), 2);
       return;
     }
 
@@ -208,7 +222,7 @@ export default class Approval extends Component {
         multipleLevelType,
         multipleLevel,
         accounts,
-        countersignType,
+        countersignType: multipleLevelType !== 0 && countersignType === 0 ? 1 : countersignType,
         condition,
         operationTypeList,
         ignoreRequired,
@@ -232,6 +246,8 @@ export default class Approval extends Component {
         operationUserRange,
         opinionTemplate,
         flowNodeMap,
+        userTaskNullMap,
+        candidateUserMap,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -247,17 +263,18 @@ export default class Approval extends Component {
   onChange = selectNodeId => {
     const { data } = this.state;
 
-    this.getNodeDetail(this.props, selectNodeId);
-
-    if (data.isCallBack) {
-      this.getCallBackNodeNames(selectNodeId, data.callBackType);
-    }
+    this.getNodeDetail(this.props, selectNodeId, () => {
+      if (data.isCallBack) {
+        this.getCallBackNodeNames(selectNodeId, data.callBackType);
+      }
+    });
   };
 
   /**
    * 渲染审批人
    */
   renderApprovalUser() {
+    const { isApproval } = this.props;
     const { data } = this.state;
     const list = [
       { text: _l('自定义'), value: 0 },
@@ -281,6 +298,7 @@ export default class Approval extends Component {
                     accounts: [],
                     multipleLevel: -1,
                     schedule: Object.assign({}, data.schedule, { enable: false }),
+                    candidateUserMap: data.multipleLevelType === 0 && isApproval ? { 11: [] } : {},
                   });
                   this.setState({ tabIndex: 1 });
                 }}
@@ -336,64 +354,102 @@ export default class Approval extends Component {
    * 渲染审批起点和终点
    */
   renderApprovalStartAndEnd() {
+    const { isApproval } = this.props;
     const { data, showSelectUserDialog } = this.state;
     const multipleLevelList = [
-      { text: _l('最高级'), value: -1 },
-      { text: _l('2级'), value: 2 },
-      { text: _l('3级'), value: 3 },
-      { text: _l('4级'), value: 4 },
-      { text: _l('5级'), value: 5 },
-      { text: _l('6级'), value: 6 },
-      { text: _l('7级'), value: 7 },
-      { text: _l('8级'), value: 8 },
-      { text: _l('9级'), value: 9 },
-      { text: _l('10级'), value: 10 },
-      { text: _l('11级'), value: 11 },
-      { text: _l('12级'), value: 12 },
-      { text: _l('13级'), value: 13 },
-      { text: _l('14级'), value: 14 },
-      { text: _l('15级'), value: 15 },
-      { text: _l('16级'), value: 16 },
-      { text: _l('17级'), value: 17 },
-      { text: _l('18级'), value: 18 },
-      { text: _l('19级'), value: 19 },
-      { text: _l('20级'), value: 20 },
+      { text: _l('直到通讯录的最高级'), value: -1 },
+      { text: _l('上1级'), value: 2 },
+      { text: _l('上2级'), value: 3 },
+      { text: _l('上3级'), value: 4 },
+      { text: _l('上4级'), value: 5 },
+      { text: _l('上5级'), value: 6 },
+      { text: _l('上6级'), value: 7 },
+      { text: _l('上7级'), value: 8 },
+      { text: _l('上8级'), value: 9 },
+      { text: _l('上9级'), value: 10 },
+      { text: _l('上10级'), value: 11 },
+      { text: _l('上11级'), value: 12 },
+      { text: _l('上12级'), value: 13 },
+      { text: _l('上13级'), value: 14 },
+      { text: _l('上14级'), value: 15 },
+      { text: _l('上15级'), value: 16 },
+      { text: _l('上16级'), value: 17 },
+      { text: _l('上17级'), value: 18 },
+      { text: _l('上18级'), value: 19 },
+      { text: _l('上19级'), value: 20 },
     ];
+    const USER_TYPE = [
+      { text: _l('发起人'), value: '11' },
+      { text: _l('指定人员'), value: '12' },
+      { text: _l('指定部门'), value: '13' },
+    ];
+    const userType = Object.keys(data.candidateUserMap || {}).filter(key => key !== '0')[0] || '12';
+
+    if (!isApproval) {
+      _.remove(USER_TYPE, o => o.value === '11');
+    }
 
     return (
       <Fragment>
-        <div className="Font13 bold mTop20">{_l('起点')}</div>
+        <div className="Font13 bold mTop20">{_l('审批起点')}</div>
 
-        <GraduallyMember className="flexRow alignItemsCenter">
-          {(data.accounts || []).length ? (
-            <Member accounts={data.accounts} removeOrganization={true} updateSource={this.updateSource} />
-          ) : (
-            <div
-              className="mTop12 flexRow ThemeColor3 workflowDetailAddBtn"
-              onClick={() => this.setState({ showSelectUserDialog: true })}
-            >
-              <i className="Font28 icon-task-add-member-circle mRight10" />
-              {_l('指定成员')}
+        <div className="flexRow alignItemsCenter mTop10">
+          <Dropdown
+            style={{ minWidth: 180 }}
+            data={USER_TYPE}
+            value={userType}
+            border
+            onChange={type => {
+              this.updateSource({ candidateUserMap: { [type]: [] }, accounts: [] });
+            }}
+          />
+
+          {userType !== '11' && (
+            <GraduallyMemberBox className="flex mLeft10" onClick={() => this.setState({ showSelectUserDialog: true })}>
+              {!((data.candidateUserMap || {})[userType] || []).concat(data.accounts).length ? (
+                <span className="Gray_9e">{userType === '12' ? _l('选择人员字段') : _l('选择部门字段')}</span>
+              ) : (
+                <Member
+                  leastOne
+                  accounts={
+                    data.candidateUserMap && data.candidateUserMap[userType]
+                      ? data.candidateUserMap[userType]
+                      : data.accounts
+                  }
+                  removeOrganization={true}
+                />
+              )}
+
+              {userType === '12' && !!data.accounts.length && data.accounts[0].controlType === 27 && (
+                <div className="mLeft5">{_l('部门负责人')}</div>
+              )}
+              <div className="flex" />
+              <i className="icon-arrow-down-border mLeft8 Gray_9e" />
+
               <SelectUserDropDown
                 appId={this.props.relationType === 2 ? this.props.relationId : ''}
                 visible={showSelectUserDialog}
                 companyId={this.props.companyId}
                 processId={this.props.processId}
                 nodeId={this.props.selectNodeId}
+                specialType={userType === '12' ? 26 : 27}
                 onlyNodeRole
                 unique
                 accounts={data.accounts}
-                updateSource={this.updateSource}
+                updateSource={({ accounts }) =>
+                  this.updateSource({ candidateUserMap: { [userType]: accounts }, accounts: [] })
+                }
                 onClose={() => this.setState({ showSelectUserDialog: false })}
               />
-            </div>
+            </GraduallyMemberBox>
           )}
-          <div className="mLeft10 mTop12">{_l('的直属部门负责人')}</div>
-        </GraduallyMember>
 
-        <div className="Font13 bold mTop20">{_l('终点')}</div>
+          <div className="mLeft10">{_l('的直接部门负责人')}</div>
+        </div>
+
+        <div className="Font13 bold mTop20">{_l('审批终点')}</div>
         <div className="flexRow alignItemsCenter mTop10">
-          {_l('该成员在通讯录中的')}
+          {_l('从起点向上的级数')}
           <Dropdown
             className="flowDropdown mLeft10 mRight10 flex"
             data={multipleLevelList}
@@ -405,20 +461,22 @@ export default class Approval extends Component {
           />
           {_l('部门负责人')}
         </div>
-        <div className="flexRow alignItemsCenter mTop20">
-          <Checkbox
-            className="InlineFlex"
-            text={_l('仅主部门负责人需要审批')}
-            checked={data.multipleLevelType === 2}
-            onClick={checked => this.updateSource({ multipleLevelType: checked ? 1 : 2 })}
-          />
-          <span
-            className="workflowDetailTipsWidth mLeft5 Gray_9e"
-            data-tip={_l('如不勾选，则需要触发者所属的所有部门的对应层级的部门负责人一起审批')}
-          >
-            <i className="Font14 icon-workflow_help" />
-          </span>
-        </div>
+        {userType !== '13' && (
+          <div className="flexRow alignItemsCenter mTop20">
+            <Checkbox
+              className="InlineFlex"
+              text={_l('仅主部门负责人需要审批')}
+              checked={data.multipleLevelType === 2}
+              onClick={checked => this.updateSource({ multipleLevelType: checked ? 1 : 2 })}
+            />
+            <span
+              className="workflowDetailTipsWidth mLeft5 Gray_9e"
+              data-tip={_l('如不勾选，则需要触发者所属的所有部门的对应层级的部门负责人一起审批')}
+            >
+              <i className="Font14 icon-workflow_help" />
+            </span>
+          </div>
+        )}
       </Fragment>
     );
   }
@@ -533,92 +591,22 @@ export default class Approval extends Component {
 
     return (
       <Fragment>
-        <div className="Font13 bold mTop25">{_l('操作')}</div>
+        <div className="Font13 bold mTop25">{_l('审批人操作')}</div>
 
-        {data.countersignType !== 2 && (
-          <Fragment>
-            <div className="mTop15">
-              <Checkbox
-                className="InlineFlex"
-                text={_l('转审')}
-                checked={_.includes(data.operationTypeList, 6)}
-                onClick={checked => this.switchApprovalSettings(!checked, 6)}
-              />
-            </div>
-            {_.includes(data.operationTypeList, 6) && (
-              <UserRange
-                {...this.props}
-                operationUserRange={data.operationUserRange}
-                operationType="6"
-                title={_l('可转审给：')}
-                btnText={_l('添加转审候选人')}
-                updateSource={({ accounts }) =>
-                  this.updateSource({
-                    operationUserRange: Object.assign({}, data.operationUserRange, { [6]: accounts }),
-                  })
-                }
-              />
-            )}
-          </Fragment>
-        )}
-        {_.includes([1, 2, 4], data.countersignType) && (
-          <Fragment>
-            <div className="mTop15">
-              <Checkbox
-                className="InlineFlex"
-                text={_l('添加审批人')}
-                checked={_.includes(data.operationTypeList, 16)}
-                onClick={checked => this.switchApprovalSettings(!checked, 16)}
-              />
-            </div>
-            {_.includes(data.operationTypeList, 16) && (
-              <UserRange
-                {...this.props}
-                operationUserRange={data.operationUserRange}
-                operationType="16"
-                title={_l('可添加：')}
-                btnText={_l('添加候选人')}
-                updateSource={({ accounts }) =>
-                  this.updateSource({
-                    operationUserRange: Object.assign({}, data.operationUserRange, { [16]: accounts }),
-                  })
-                }
-              />
-            )}
-          </Fragment>
-        )}
-        {!_.includes([1, 2, 4], data.countersignType) && (
-          <Fragment>
-            <div className="mTop15">
-              <Checkbox
-                className="InlineFlex"
-                text={_l('加签')}
-                checked={_.includes(data.operationTypeList, 7)}
-                onClick={checked => this.switchApprovalSettings(!checked, 7)}
-              />
-            </div>
-            {_.includes(data.operationTypeList, 7) && (
-              <UserRange
-                {...this.props}
-                operationUserRange={data.operationUserRange}
-                operationType="7"
-                title={_l('可加签给：')}
-                btnText={_l('添加加签候选人')}
-                updateSource={({ accounts }) =>
-                  this.updateSource({
-                    operationUserRange: Object.assign({}, data.operationUserRange, { [7]: accounts }),
-                  })
-                }
-              />
-            )}
-          </Fragment>
-        )}
         <Checkbox
           className="mTop15 flexRow"
           text={_l('暂存')}
           checked={_.includes(data.operationTypeList, 13)}
           onClick={checked => this.switchApprovalSettings(!checked, 13)}
         />
+
+        <Checkbox
+          className="mTop15 flexRow"
+          text={_l('否决')}
+          checked={!_.includes(data.operationTypeList, -5)}
+          onClick={checked => this.switchApprovalSettings(checked, -5)}
+        />
+
         {data.countersignType !== 2 && (
           <Fragment>
             <div className="flexRow alignItemsCenter mTop15">
@@ -672,6 +660,99 @@ export default class Approval extends Component {
             )}
           </Fragment>
         )}
+
+        {data.countersignType !== 2 && (
+          <Fragment>
+            <div className="mTop15">
+              <Checkbox
+                className="InlineFlex"
+                text={_l('转审')}
+                checked={_.includes(data.operationTypeList, 6)}
+                onClick={checked => this.switchApprovalSettings(!checked, 6)}
+              />
+            </div>
+            {_.includes(data.operationTypeList, 6) && (
+              <UserRange
+                {...this.props}
+                operationUserRange={data.operationUserRange}
+                operationType="6"
+                title={_l('可转审给：')}
+                btnText={_l('添加转审候选人')}
+                updateSource={({ accounts }) =>
+                  this.updateSource({
+                    operationUserRange: Object.assign({}, data.operationUserRange, { [6]: accounts }),
+                  })
+                }
+              />
+            )}
+          </Fragment>
+        )}
+
+        {!(
+          _.includes([1, 2, 4], data.countersignType) ||
+          (data.countersignType === 0 && data.multipleLevelType !== 0)
+        ) && (
+          <Fragment>
+            <div className="mTop15">
+              <Checkbox
+                className="InlineFlex"
+                text={_l('加签')}
+                checked={_.includes(data.operationTypeList, 7)}
+                onClick={checked => this.switchApprovalSettings(!checked, 7)}
+              />
+            </div>
+            {_.includes(data.operationTypeList, 7) && (
+              <UserRange
+                {...this.props}
+                operationUserRange={data.operationUserRange}
+                operationType="7"
+                title={_l('可加签给：')}
+                btnText={_l('添加加签候选人')}
+                updateSource={({ accounts }) =>
+                  this.updateSource({
+                    operationUserRange: Object.assign({}, data.operationUserRange, { [7]: accounts }),
+                  })
+                }
+              />
+            )}
+          </Fragment>
+        )}
+
+        {(_.includes([1, 2, 4], data.countersignType) ||
+          (data.countersignType === 0 && data.multipleLevelType !== 0)) && (
+          <Fragment>
+            <div className="mTop15">
+              <Checkbox
+                className="InlineFlex"
+                text={_l('添加审批人')}
+                checked={_.includes(data.operationTypeList, 16)}
+                onClick={checked => this.switchApprovalSettings(!checked, 16)}
+              />
+            </div>
+            {_.includes(data.operationTypeList, 16) && (
+              <UserRange
+                {...this.props}
+                operationUserRange={data.operationUserRange}
+                operationType="16"
+                title={_l('可添加：')}
+                btnText={_l('添加候选人')}
+                updateSource={({ accounts }) =>
+                  this.updateSource({
+                    operationUserRange: Object.assign({}, data.operationUserRange, { [16]: accounts }),
+                  })
+                }
+              />
+            )}
+          </Fragment>
+        )}
+
+        <OperatorEmpty
+          projectId={this.props.companyId}
+          title={_l('审批人为空时')}
+          showDefaultItem
+          userTaskNullMap={data.userTaskNullMap}
+          updateSource={userTaskNullMap => this.updateSource({ userTaskNullMap })}
+        />
       </Fragment>
     );
   }
@@ -833,7 +914,7 @@ export default class Approval extends Component {
         <EmailApproval
           {...this.props}
           title={_l('启用邮件通知')}
-          desc={_l('启用后，待办消息同时会以邮件的形式发送给相关负责人')}
+          desc={md.global.Config.IsPlatformLocal ? _l('启用后，待办消息同时会以邮件的形式发送给相关负责人；邮件0.03元/封，自动从账务中心扣费') : _l('启用后，待办消息同时会以邮件的形式发送给相关负责人')}
           showApprovalBtn={!data.encrypt}
           flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
           updateSource={obj => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj)}
@@ -896,7 +977,7 @@ export default class Approval extends Component {
           bg="BGViolet"
           updateSource={this.updateSource}
         />
-        <div className="flex mTop20">
+        <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">
               <div className="Font13 bold">{_l('数据对象')}</div>

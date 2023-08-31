@@ -15,13 +15,14 @@ import SyncDialog from './components/SyncDialog';
 import InterfaceLicense from './components/InterfaceLicense';
 import VertifyClearIntegationData from '../components/VertifyClearIntegationData';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import { integrationFailed } from '../utils';
+import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 import fucExampleImg from 'src/pages/Admin/workwx/img/fucExample.png';
 import setApiExampleImg from 'src/pages/Admin/workwx/img/setApiExample.png';
 import './style.less';
 import _ from 'lodash';
 
-const FEATURE_ID = 19;
 const quickAprData = [
   { label: 'URL', key: 'url' },
   { label: 'Token', key: 'token' },
@@ -118,7 +119,7 @@ export default class Workwx extends React.Component {
   // 保存信息/编辑信息
   editInfo = () => {
     if (!this.state.AgentId || !this.state.Secret || !this.state.CorpId) {
-      alert('请输入相关信息');
+      alert('请输入相关信息', 3);
       return;
     }
     Ajax.editWXProjectSetting({
@@ -279,7 +280,7 @@ export default class Workwx extends React.Component {
                 value={!this.state[`isShow${strId}`] ? this.state[`${strId}Format`] : this.state[strId]}
               />
               <Icon
-                icon={!this.state[`isShow${strId}`] ? 'circulated' : 'public-folder-hidden'}
+                icon={!this.state[`isShow${strId}`] ? 'public-folder-hidden' : 'circulated'}
                 className="Gray_9e Font18 isShowIcon"
                 onClick={() => {
                   this.setState({
@@ -615,17 +616,19 @@ export default class Workwx extends React.Component {
       logDetailItems = [],
       qwQuickAprData = {},
     } = this.state;
-    const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
+    const featureType = getFeatureStatus(Config.projectId, VersionProductType.workwxIntergration);
     if (featureType === '2') {
       return (
-        <div className="orgManagementWrap">{buriedUpgradeVersionDialog(Config.projectId, FEATURE_ID, 'content')}</div>
+        <div className="orgManagementWrap">
+          {buriedUpgradeVersionDialog(Config.projectId, VersionProductType.workwxIntergration, 'content')}
+        </div>
       );
     }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }
     return (
-      <div className="workwxMainContent">
+      <div className="orgManagementWrap workwxMainContent">
         {!this.state.isPassApply &&
         !(!this.state.CorpId && (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal)) &&
         intergrationType !== 2 ? (
@@ -677,7 +680,7 @@ export default class Workwx extends React.Component {
                       className="applyBtn mBottom10 mTop25"
                       onClick={e => {
                         // 前往付费
-                        navigateTo(`/upgrade/choose?projectId=${Config.projectId}`);
+                        purchaseMethodFunc({ projectId: Config.projectId });
                       }}
                     >
                       {_l('前往付费')}
@@ -697,7 +700,10 @@ export default class Workwx extends React.Component {
         ) : (
           <Tabs
             defaultActiveKey="base"
-            className={cx({ tabStyle: !this.state.status === 1 })}
+            className={cx('mdAntTabs', {
+              tabStyle: !this.state.status === 1,
+              singleTab: !(this.state.status === 1 || intergrationType === 2),
+            })}
             onChange={this.changeTab}
           >
             <Tabs.TabPane tab={_l('企业微信集成')} key="base" className="tabStyles">

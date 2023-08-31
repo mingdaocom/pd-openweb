@@ -46,9 +46,7 @@ class App extends Component {
   }
   componentDidMount() {
     this.switchPath(this.props.location);
-    if (window.navigator.userAgent.toLowerCase().includes('iphone')) {
-      sessionStorage.setItem('entryUrl', location.href);
-    }
+    sessionStorage.setItem('entryUrl', location.href);
     window.mobileNavigateTo = (url, isReplace) => {
       url = (window.subPath || '') + url;
 

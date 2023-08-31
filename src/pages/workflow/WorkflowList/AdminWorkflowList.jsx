@@ -12,11 +12,13 @@ import MsgTemplate from './components/MsgTemplate';
 import Search from '../components/Search';
 import UserHead from 'src/pages/feed/components/userHead/userHead';
 import PublishBtn from './components/PublishBtn';
-import { START_APP_TYPE } from './config/index';
+import { START_APP_TYPE } from './utils/index';
 import appManagement from 'src/api/appManagement';
 import projectSetting from 'src/api/projectSetting';
 import { Select } from 'antd';
 import WorkflowMonitor from './components/WorkflowMonitor';
+import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -56,7 +58,6 @@ export default class AdminWorkflowList extends Component {
       sortId: 'createdDate',
 
       msgVisible: false,
-      isMore: true,
       loading: false,
       checkAdmin: {
         appId: '',
@@ -69,7 +70,11 @@ export default class AdminWorkflowList extends Component {
       autoPurchaseWorkflowExtPack: false,
       autoOrderVisible: false,
 
-      activeTab: localStorage.getItem('workflowTab') ? localStorage.getItem('workflowTab') : 'workflowList',
+      activeTab: location.href.includes('monitor')
+        ? 'monitorTab'
+        : localStorage.getItem('workflowTab')
+        ? localStorage.getItem('workflowTab')
+        : 'workflowList',
     });
   }
 
@@ -78,7 +83,7 @@ export default class AdminWorkflowList extends Component {
   componentDidMount() {
     const { projectId } = this.props.match.params;
 
-    this.getList(projectId);
+    this.getList();
     this.getWorkflowCount(projectId);
     this.getAutoOrderStatus(projectId);
   }
@@ -96,13 +101,12 @@ export default class AdminWorkflowList extends Component {
           keyWords: '',
           pageIndex: 1,
           sortId: 'createdDate',
-          isMore: true,
           loading: false,
         }),
       );
 
       const { projectId } = nextProps.match.params;
-      this.getList(projectId);
+      this.getList();
       this.getWorkflowCount(projectId);
     }
   }
@@ -114,13 +118,9 @@ export default class AdminWorkflowList extends Component {
   /**
    * 获取list
    */
-  getList(projectId) {
-    const { list, apkId, enabled, processListType, isAsc, keyWords, pageIndex, sortId, loading, isMore } = this.state;
-
-    // 加载更多
-    if (pageIndex > 1 && ((loading && isMore) || !isMore)) {
-      return;
-    }
+  getList() {
+    const { list, apkId, enabled, processListType, isAsc, keyWords, pageIndex, sortId } = this.state;
+    const { projectId } = this.props.match.params;
 
     this.setState({ loading: true });
 
@@ -136,7 +136,7 @@ export default class AdminWorkflowList extends Component {
       isAsc,
       keyWords,
       pageIndex,
-      pageSize: 30,
+      pageSize: 50,
       sortId,
     });
 
@@ -144,9 +144,7 @@ export default class AdminWorkflowList extends Component {
       this.setState({
         list: pageIndex === 1 ? result.processes : list.concat(result.processes),
         count: result.count,
-        pageIndex: pageIndex + 1,
         loading: false,
-        isMore: result.processes.length === 30,
       });
     });
   }
@@ -244,9 +242,8 @@ export default class AdminWorkflowList extends Component {
     }
 
     return (
-      <ScrollView className="flex" onScrollEnd={this.searchDataList}>
-        {list.map(item => this.renderListItem(item))}
-        {loading && pageIndex > 1 && <LoadDiv className="mTop15" size="small" />}
+      <ScrollView className="flex">
+        {loading ? <LoadDiv className="mTop15" size="small" /> : list.map(item => this.renderListItem(item))}
       </ScrollView>
     );
   }
@@ -362,8 +359,7 @@ export default class AdminWorkflowList extends Component {
    * 搜索数据
    */
   searchDataList = _.throttle(() => {
-    const { projectId } = this.props.match.params;
-    this.getList(projectId);
+    this.getList();
   }, 200);
 
   changeTab = tab => {
@@ -375,7 +371,7 @@ export default class AdminWorkflowList extends Component {
     const { projectId } = this.props.match.params;
     const { apkId, enabled, processListType, isAsc, keyWords, pageIndex, sortId, activeTab } = this.state;
     if (activeTab !== 'workflowList') {
-      this.setState({ dateNow: Date.now() });
+      this.workflowMonotor && this.workflowMonotor.refreshWorkflowMonitor();
     } else {
       this.setState({ loading: true });
       processVersion
@@ -446,8 +442,8 @@ export default class AdminWorkflowList extends Component {
     ];
     const licenseType = md.global.Account.projects.find(o => o.projectId === params.projectId).licenseType;
     return (
-      <div className="adminWorkflowList flex flexColumn">
-        <div className="wokflowInfoHeader flexRow">
+      <div className="adminWorkflowList flex flexColumn orgManagementWrap">
+        <div className="flexRow orgManagementHeader">
           <div className="tabBox flexRow">
             {tablist.map(item => (
               <div
@@ -462,14 +458,14 @@ export default class AdminWorkflowList extends Component {
           </div>
           <div className="pre">
             <div
-              className={cx('refresh Hand Font20', { mRight24: activeTab === 'workflowList' })}
+              className={cx('refresh Hand Font20 Normal', { mRight24: activeTab === 'workflowList' })}
               onClick={this.refresh}
             >
               <Icon icon="task-later" />
             </div>
 
             {activeTab === 'workflowList' && (
-              <div className="pointer ThemeHoverColor3 Gray_9e" onClick={() => this.setState({ msgVisible: true })}>
+              <div className="pointer ThemeHoverColor3 Gray_9e Font13 Normal" onClick={() => this.setState({ msgVisible: true })}>
                 <Icon icon="workflow_sms" />
                 <span className="mLeft5">{_l('短信模版')}</span>
               </div>
@@ -478,7 +474,6 @@ export default class AdminWorkflowList extends Component {
         </div>
         {activeTab === 'workflowList' ? (
           <Fragment>
-            <AdminTitle prefix={_l('工作流')} />
             <div className="adminWorkflowCount flexRow">
               {useCount ? (
                 <Fragment>
@@ -510,7 +505,7 @@ export default class AdminWorkflowList extends Component {
                     {(overage || 0).toFixed(2)}%
                   </span>
 
-                  {/* {licenseType === 1 ? (
+                  {licenseType === 1 ? (
                     <Link
                       className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
                       to={`/admin/expansionserviceWorkflow/${params.projectId}/workflow`}
@@ -518,13 +513,16 @@ export default class AdminWorkflowList extends Component {
                       {_l('购买升级包')}
                     </Link>
                   ) : (
-                    <Link
+                    <a
+                      href="javascript:void(0);"
                       className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
-                      to={`/upgrade/choose?projectId=${params.projectId}`}
+                      onClick={() => {
+                        purchaseMethodFunc({ projectId: params.projectId });
+                      }}
                     >
                       {_l('购买付费版')}
-                    </Link>
-                  )} */}
+                    </a>
+                  )}
                 </Fragment>
               ) : (
                 _l('加载中...')
@@ -619,11 +617,16 @@ export default class AdminWorkflowList extends Component {
             </div>
             {loading && pageIndex === 1 && <LoadDiv className="mTop15" />}
             <div className="flex flexColumn mTop16">{this.renderList()}</div>
+            <PaginationWrap
+              total={count}
+              pageIndex={pageIndex}
+              pageSize={50}
+              onChange={pageIndex => this.setState({ pageIndex }, this.getList)}
+            />
           </Fragment>
         ) : (
           <Fragment>
-            <AdminTitle prefix={_l('工作流')} />
-            <WorkflowMonitor match={this.props.match} dateNow={this.state.dateNow} />
+            <WorkflowMonitor match={this.props.match} ref={ele => (this.workflowMonotor = ele)} />
           </Fragment>
         )}
 

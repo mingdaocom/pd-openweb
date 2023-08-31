@@ -36,6 +36,9 @@ export const RecordInfoModal = forwardRef((props, ref) => {
     from,
     getDraftData = () => {},
     notModal = false,
+    editable,
+    hideOtherOperate,
+    updateSuccess,
   } = props;
   const { className, visible, onClose } = props;
   const store = useMemo(configureStore, []);
@@ -53,6 +56,9 @@ export const RecordInfoModal = forwardRef((props, ref) => {
         getDataType={getDataType}
         getDraftData={getDraftData}
         from={from}
+        editable={editable}
+        hideOtherOperate={hideOtherOperate}
+        updateSuccess={updateSuccess}
       />
     </Provider>
   );

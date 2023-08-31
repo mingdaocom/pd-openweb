@@ -100,12 +100,6 @@ export default class AddBoxList extends Component {
         ) : (
           this.renderAppsInfo()
         )}
-        <Back
-          className="low"
-          onClick={() => {
-            this.props.history.push('/mobile/appBox');
-          }}
-        />
       </Fragment>
     );
   }

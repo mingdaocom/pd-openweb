@@ -139,7 +139,7 @@ export default class PageTableCon extends Component {
       <div className={`tableWrap flexColumn Relative ${className}`}>
         <div className="flex" style={{ overflow: 'hidden', minHeight: 0 }}>
           {loading ? (
-            <LoadDiv />
+            <LoadDiv className="mTop40" />
           ) : (
             <ConfigProvider
               renderEmpty={() => (

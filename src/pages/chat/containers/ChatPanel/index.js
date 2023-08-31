@@ -113,6 +113,7 @@ class ChatPanel extends Component {
   }
   renderInbox() {
     const { currentSession } = this.props;
+
     return (
       <div className="ChatPanel ChatPanel-inbox">
         <i onClick={this.handleClosePanel.bind(this)} className="ChatPanel-inbox-close icon-close ThemeColor3" />
@@ -129,6 +130,7 @@ class ChatPanel extends Component {
       // '.ChatList-wrapper .SessionList-clearAll',
       '.dialogScroll',
       '.ant-modal',
+      '.rc-dialog-close',
       '.mdModal',
       '.ChatPanel-Trigger',
       '.attachmentsPreview',

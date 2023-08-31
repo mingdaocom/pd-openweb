@@ -1,6 +1,6 @@
 ﻿import './style.css';
 import '@mdfe/nanoscroller';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import headerTpl from './tpl/header.html';
 import listTpl from './tpl/groupList.html';
 import { index as DialogLayer } from 'src/components/mdDialog/dialog';

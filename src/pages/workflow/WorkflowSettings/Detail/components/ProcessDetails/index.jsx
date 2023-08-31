@@ -7,7 +7,7 @@ import { OPERATION_TYPE } from '../../../enum';
 
 export default props => {
   const { data, getNodeDetail, updateSource } = props;
-  const fieldId = (data.fields[0] || {}).fieldId || '';
+  const fieldId = ((data.fields || [])[0] || {}).fieldId || '';
   const item = data.controls.find(({ controlId }) => controlId === fieldId);
   const list = data.controls.map(({ controlId, controlName, sourceEntityName }) => ({
     text: (
@@ -29,7 +29,7 @@ export default props => {
 
   return (
     <Fragment>
-      <div className="Font13 mTop20 bold">{_l('获取流程操作明细')}</div>
+      <div className="Font13 mTop20 bold">{_l('更新流程操作明细（每个节点完成后）')}</div>
       <div className="Font13 Gray_9e mTop10">
         {_l('选择一个子表或关联表，系统将于每个节点完成后，自动同步本流程的各人工节点的操作明细至该表')}
       </div>
@@ -81,11 +81,11 @@ export default props => {
               companyId={props.companyId}
               processId={props.processId}
               selectNodeId={props.selectNodeId}
-              sourceAppId={detailSource.appId}
               sourceNodeId={detailSource.selectNodeId}
               controls={detailSource.controls}
               formulaMap={detailSource.formulaMap}
               fields={detailSource.fields}
+              showCurrent
               updateSource={(obj, callback = () => {}) =>
                 updateSource(
                   {

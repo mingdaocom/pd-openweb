@@ -9,7 +9,6 @@ import * as actions from 'statistics/redux/actions';
 import { bindActionCreators } from 'redux';
 import reportRequestAjax from '../api/report';
 import { version, fillValueMap } from '../common';
-import Hammer from 'l7hammerjs';
 import _ from 'lodash';
 
 const PathWrapper = styled.div`
@@ -46,6 +45,7 @@ const ZoomWrapper = styled.div`
 `;
 
 
+const municipality = ['110000', '310000', '120000', '500000'];
 const colors = ['#E3F2FD', '#BBDEFB', '#90CAF9', '#2196F3', '#1565C0', '#0D47A1'];
 
 const setColorLavel = data => {
@@ -194,6 +194,7 @@ export default class extends Component {
 
         scene.on('loaded', () => {
           this.CountryLayerChart = new ChartComponent(scene, config);
+          if (country.municipality) return;
           if (displaySetup.showRowList && isViewOriginalData && !style.isDrillDownLayer) {
             this.CountryLayerChart.on('click', this.handleClick);
           }
@@ -227,6 +228,7 @@ export default class extends Component {
     const { displaySetup = {}, map } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup = {} } = this.props.reportData;
     if (
+      !_.isEmpty(displaySetup) &&
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag
     ) {
@@ -335,6 +337,17 @@ export default class extends Component {
         this.setState({ drillDownLoading: false, dropdownVisible: false });
         const data = setColorLavel(result.map);
 
+        if (municipality.includes(code)) {
+          const last = _.find(this.CountryLayerChart.provinceLayer.options.data, { code: code });
+          this.setState({ path: [_l('全国'), last.name] });
+          this.CountryLayerChart.depth = 3;
+          this.CountryLayerChart.drillState = 'Province';
+          this.CountryLayerChart.drillDown(code, data);
+          this.CountryLayerChart.drillState = 'City';
+          this.CountryLayerChart.drillDown(code, data);
+          return;
+        } 
+
         if (path.length) {
           const last = _.find(this.CountryLayerChart.cityLayer.options.data, { code: code });
           const city = last.name.split('/')[1];
@@ -365,7 +378,7 @@ export default class extends Component {
   };
   handleDrillUpTriggleData = index => {
     const { path } = this.state;
-    const { reportData, base } = this.props;
+    const { isThumbnail, reportData, base } = this.props;
     const { country } = reportData;
 
     if (path.length) {
@@ -381,7 +394,17 @@ export default class extends Component {
         path.pop();
         this.setState({ path });
       } else {
-        this.props.closeCurrentReport();
+        if (isThumbnail) {
+          this.props.closeCurrentReport();
+        } else {
+          this.props.changeCurrentReport({
+            country: {
+              ...country,
+              drillFilterCode: '',
+              drillParticleSizeType: 1,
+            },
+          });
+        }
         this.CountryLayerChart.drillUp('Province');
         this.CountryLayerChart.drillUp('Country');
         this.setState({ path: [] });
@@ -489,7 +512,7 @@ export default class extends Component {
     }
 
     // 钻取地图
-    if (style && style.isDrillDownLayer && [1, 2].includes(country.particleSizeType)) {
+    if (style && style.isDrillDownLayer && [1, 2].includes(country.particleSizeType) && !country.municipality) {
       config.customTrigger = true;
       config.data = undefined;
       // 省

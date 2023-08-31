@@ -60,10 +60,11 @@ const SYSTEM_TYLE = [
 
 const scrollCurrentIcon = () => {
   let currentEle = document.querySelector('.iconsScrollViewWrap .isCurrentIcon');
-  if (!currentEle) return;
+  let scrollCon = document.querySelector('.iconsScrollViewWrap .nano-content');
+  if (!currentEle || !scrollCon) return;
 
   let _scrollTop = currentEle.offsetTop;
-  document.querySelector('.iconsScrollViewWrap .nano-content').scrollTo({
+  scrollCon.scrollTo({
     top: _scrollTop,
     behavior: 'instant',
   });

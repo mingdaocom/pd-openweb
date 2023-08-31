@@ -13,9 +13,8 @@ const Con = styled.div`
   p {
     margin: 0;
   }
-  max-width: 720px;
-  width: 100%;
-  margin-left: 40px;
+  max-width: 800px;
+  margin: 0 40px;
   padding-bottom: 100px;
   h5,
   h6 {
@@ -358,7 +357,7 @@ function SubmitFormSetting(props) {
           <span className="after flex">
             <span className="Gray_75 TxtMiddle">{_l('提交后：')}</span>
             <Dropdown
-              menuStyle={{ width: 150 }}
+              menuStyle={{ minWidth: 150, width: 'auto' }}
               currentItemClass="currentMenu"
               data={SUBMIT_NEXT_ACTION_LIST}
               value={data.after}

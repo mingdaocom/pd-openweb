@@ -70,11 +70,12 @@ export default class SubList extends React.Component {
       args.workId = workId;
       args.controlId = controlId;
       getWorksheetInfoPromise = sheetAjax.getWorksheetInfoByWorkItem;
-    } else if (this.props.from !== FROM.PUBLIC) {
+    } else if (this.props.from !== FROM.PUBLIC_ADD || _.get(window, 'shareState.isPublicFormPreview')) {
       getWorksheetInfoPromise = sheetAjax.getWorksheetInfo;
     } else {
       getWorksheetInfoPromise = publicWorksheetAjax.getWorksheetInfo;
     }
+    args.relationWorksheetId = this.props.worksheetId;
     Promise.all([getWorksheetInfoPromise(args), sheetAjax.getQueryBySheetId({ worksheetId })]).then(
       ([info, queryRes]) => {
         const isWorkflow = ((instanceId && workId) || linkId) && info.workflowChildTableSwitch !== false;
@@ -138,6 +139,8 @@ export default class SubList extends React.Component {
         } catch (err) {}
         if (lastAction.type === 'DELETE_ROW') {
           deleted = _.uniqBy(deleted.concat(lastAction.rowid)).filter(id => !/^(temp|default)/.test(id));
+        } else if (lastAction.type === 'DELETE_ROWS') {
+          deleted = _.uniqBy(deleted.concat(lastAction.rowIds)).filter(id => !/^(temp|default)/.test(id));
         } else if (lastAction.type === 'ADD_ROW' || lastAction.type === 'UPDATE_ROW') {
           updated = _.uniqBy(updated.concat(lastAction.rowid));
         } else if (lastAction.type === 'ADD_ROWS') {

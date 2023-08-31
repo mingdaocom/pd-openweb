@@ -11,7 +11,7 @@ import { Button, Icon, Checkbox } from 'ming-ui';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import PublishErrorDialog from '../../components/PublishErrorDialog';
-import { APP_TYPE } from '../enum';
+import { APP_TYPE, NODE_TYPE } from '../enum';
 import { selectRecord } from 'src/components/recordCardListDialog';
 import sheetAjax from 'src/api/worksheet';
 import systemFieldsPNG from './images/systemFields.png';
@@ -217,7 +217,10 @@ class Header extends Component {
     if (
       flowInfo.publishStatus === 2 &&
       flowInfo.enabled &&
-      _.includes([APP_TYPE.SHEET, APP_TYPE.LOOP, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION], flowInfo.startAppType)
+      _.includes(
+        [APP_TYPE.SHEET, APP_TYPE.LOOP, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION, APP_TYPE.APPROVAL_START],
+        flowInfo.startAppType,
+      )
     ) {
       return (
         <span
@@ -237,27 +240,87 @@ class Header extends Component {
    * 立即执行
    */
   action = () => {
-    const { flowInfo, tabIndex } = this.props;
+    const { flowInfo, tabIndex, workflowDetail } = this.props;
     const { isProgressing } = this.state;
     const actionProcess = sourceId => {
-      this.setState({ isProgressing: true });
+      const { flowNodeMap } = workflowDetail;
+      let showSendModeDialog = this.hasTodoNode(flowNodeMap);
+      const execFunc = (debugEvents = []) => {
+        this.setState({ isProgressing: true });
 
-      process.startProcessById({ processId: flowInfo.id, sourceId }).then(result => {
-        if (result) {
-          alert(_l('执行成功'));
-        }
+        process.startProcessById({ processId: flowInfo.id, sourceId, debugEvents }).then(result => {
+          if (result) {
+            alert(_l('执行成功'));
+          }
 
-        this.setState({ isProgressing: false });
-        // 手动刷新一下历史数据
-        if (tabIndex === 2) {
-          document.getElementById('historyRefresh') && document.getElementById('historyRefresh').click();
+          this.setState({ isProgressing: false });
+          // 手动刷新一下历史数据
+          if (tabIndex === 2) {
+            document.getElementById('historyRefresh') && document.getElementById('historyRefresh').click();
+          }
+        });
+      };
+
+      // 检测审批流中的待办节点
+      Object.keys(flowNodeMap).forEach(key => {
+        if (flowNodeMap[key].typeId === NODE_TYPE.APPROVAL_PROCESS) {
+          if (this.hasTodoNode(flowNodeMap[key].processNode.flowNodeMap)) {
+            showSendModeDialog = true;
+          }
         }
       });
+
+      if (showSendModeDialog) {
+        Confirm({
+          width: 560,
+          className: 'actionProcessDialog',
+          title: _l('待办、通知发送方式'),
+          description: (
+            <div>
+              <p className="Gray">
+                {_l('点击【发给我自己测试】时，实际执行人不收到消息，由我作为节点的执行人进行测试。')}
+              </p>
+              <p>
+                •
+                <span className="mLeft5">
+                  {_l('包含待办节点（审批、填写、抄送），通知节点（站内消息、短信、邮件）。')}
+                </span>
+              </p>
+              <p>
+                •<span className="mLeft5">{_l('短信、邮件将发送给我的账号绑定的手机、邮箱测试。')}</span>
+              </p>
+              <p>
+                •
+                <span className="mLeft5">
+                  {_l(
+                    '暂时仅主流程中的节点支持此功能。引用的子流程、PBP中的节点仍为实际执行人，可 单独去测试这些节点。',
+                  )}
+                </span>
+              </p>
+            </div>
+          ),
+          okText: _l('发给实际执行人'),
+          cancelText: _l('发给我自己测试'),
+          cancelType: 'primary',
+          onlyClose: true,
+          onOk: execFunc,
+          onCancel: () => {
+            execFunc([1, 2, 3]);
+          },
+        });
+      } else {
+        execFunc();
+      }
     };
 
     if (isProgressing) return false;
 
-    if (_.includes([APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION], flowInfo.startAppType)) {
+    if (
+      _.includes(
+        [APP_TYPE.SHEET, APP_TYPE.DATE, APP_TYPE.CUSTOM_ACTION, APP_TYPE.APPROVAL_START],
+        flowInfo.startAppType,
+      )
+    ) {
       selectRecord({
         canSelectAll: false,
         pageSize: 25,
@@ -283,7 +346,7 @@ class Header extends Component {
     if (!showPublishDialog) return null;
 
     return (
-      <DialogBase visible width={480}>
+      <DialogBase visible width={640}>
         <div className="publishSuccessDialog">
           <div className="publishSuccessImg" />
 
@@ -309,11 +372,11 @@ class Header extends Component {
           ) : (
             <Fragment>
               <div className="Font20 mTop35">{_l('流程已成功发布！')}</div>
-              <div className="Font14 mTop25 Gray_75">
-                {_l('是否为%0开启审批功能项（已开启可忽略）', data.apps.map(item => `“${item.name}”`).join('、'))}
+              <div className="Font14 mTop25 bold">
+                {_l('是否为%0开启审批功能项', data.apps.map(item => `“${item.name}”`).join('、'))}
               </div>
 
-              <div className="mTop30 flexRow w100 alignItemsCenter" style={{ marginLeft: 180 }}>
+              <div className="mTop30 flexRow w100 alignItemsCenter justifyContentCenter">
                 <Checkbox
                   className="mRight5"
                   checked={showApprovalFields}
@@ -329,7 +392,7 @@ class Header extends Component {
                   <Icon type="workflow_help" className="Font16 Gray_9e" />
                 </Popover>
               </div>
-              <div className="mTop15 flexRow w100 alignItemsCenter" style={{ marginLeft: 180 }}>
+              <div className="mTop15 flexRow w100 alignItemsCenter justifyContentCenter">
                 <Checkbox
                   className="mRight5"
                   checked={showApprovalDetail}
@@ -379,6 +442,26 @@ class Header extends Component {
         </div>
       </DialogBase>
     );
+  }
+
+  /**
+   * 是否有待办节点
+   */
+  hasTodoNode(flowNodeMap) {
+    let showSendModeDialog = false;
+
+    Object.keys(flowNodeMap).forEach(key => {
+      if (
+        _.includes(
+          [NODE_TYPE.WRITE, NODE_TYPE.APPROVAL, NODE_TYPE.CC, NODE_TYPE.MESSAGE, NODE_TYPE.EMAIL, NODE_TYPE.NOTICE],
+          flowNodeMap[key].typeId,
+        )
+      ) {
+        showSendModeDialog = true;
+      }
+    });
+
+    return showSendModeDialog;
   }
 
   render() {

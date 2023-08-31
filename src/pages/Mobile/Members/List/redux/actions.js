@@ -6,7 +6,7 @@ import _ from 'lodash';
 export const getMembersList = (appId, roleId) => (dispatch, getState) => {
   dispatch({ type: 'MOBILE_LIST_FETCH_START' });
   Promise.all([
-    homeAppAjax.getAppDetail({ appId }).then(),
+    homeAppAjax.getApp({ appId }).then(),
     // ajaxRequest.getRoleDetail({ appId, roleId }).then(),
     ajaxRequest.getRolesWithUsers({ appId }).then(),
   ]).then(res => {

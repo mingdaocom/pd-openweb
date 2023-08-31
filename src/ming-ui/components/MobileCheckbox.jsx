@@ -101,6 +101,7 @@ export default class MobileCheckbox extends Component {
                 .map(item => (
                   <List.Item key={item.key} onClick={() => this.onChange(item.key)}>
                     <Checkbox
+                      className="flexRow alignItemsCenter"
                       text={renderText ? renderText(item) : item.value}
                       value={item.key}
                       checked={_.includes(selectChecked, item.key)}

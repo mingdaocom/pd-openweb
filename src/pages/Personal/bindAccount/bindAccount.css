@@ -25,13 +25,14 @@
 }
 
 #bindAccountDialog .accountUpdateContainer .inputBox {
+  width: 100%;
   line-height: 38px;
   height: 38px;
   background-color: #f5f5f5;
   border-radius: 3px;
   padding-left: 10px;
   border: 0px;
-  padding-right: 40px;
+  padding-right: 10px;
   box-sizing: border-box;
 }
 
@@ -41,7 +42,7 @@
 
 #bindAccountDialog .stepLine {
   width: 98%;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 #bindAccountDialog .stepLine .stepLineTable {

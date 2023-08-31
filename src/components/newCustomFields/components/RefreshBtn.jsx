@@ -8,6 +8,7 @@ export default ({ worksheetId, recordId, item, onChange = () => {} }) => {
 
   if (
     !recordId ||
+    !md.global.Account.accountId ||
     (item.type === 30 && (item.strDefault || '').split('')[0] === '1') ||
     !_.includes([30, 31, 32, 37, 38], item.type)
   )

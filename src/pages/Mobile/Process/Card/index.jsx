@@ -222,7 +222,7 @@ export default class Card extends Component {
               {btnMap[4] || _l('通过')}
             </Button>
           )}
-          {batch && (
+          {batch && btnMap[5] && (
             <Button
               className="ellipsis overrule"
               type="ghostgray"
@@ -325,13 +325,13 @@ export default class Card extends Component {
   }
   render() {
     const { otherActionVisible, action, instance } = this.state;
-    const { item, approveChecked, onClick, onChangeApproveCards, batchApproval } = this.props;
+    const { item, approveChecked, onClick, onChangeApproveCards = _.noop, batchApproval, showApproveChecked = true } = this.props;
     const { batch } = item.flowNode || {};
     const disabled = !batch;
     return (
       <Fragment>
         <div className={cx('mobileProcessCardWrapper flexRow', { batchApproval, approveChecked })}>
-          {batchApproval && (
+          {batchApproval && showApproveChecked && (
             <Checkbox
               className="mRight5"
               disabled={disabled}

@@ -17,17 +17,21 @@
       margin-top: 24px;
       .tabs {
         height: 58px;
-        line-height: 58px;
         border-bottom: 1px solid #e0e0e0;
         display: flex;
+        flex-shrink: 0;
+        align-items: center;
         padding-left: 24px;
         .tabItem {
           font-size: 15px;
           font-weight: 600;
           margin-right: 40px;
+          height: 100%;
+          line-height: 58px;
           &.currentTab {
             color: #2196f3;
             border-bottom: 2px solid #2196f3;
+            border-radius: unset !important;
           }
         }
       }

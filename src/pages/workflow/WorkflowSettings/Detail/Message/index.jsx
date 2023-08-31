@@ -161,6 +161,15 @@ export default class Message extends Component {
 
     return (
       <Fragment>
+        {md.global.Config.IsPlatformLocal && (
+          <div className="Gray_75 workflowDetailDesc">
+            <span className="TxtMiddle">
+              {_l(
+                '短信0.05元/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。暂不支持海外手机号。',
+              )}
+            </span>
+          </div>
+        )}
         <div className="mTop20 bold">{_l('发送给')}</div>
 
         <Member accounts={data.accounts} updateSource={this.updateSource} />
@@ -843,7 +852,7 @@ export default class Message extends Component {
           bg="BGBlue"
           updateSource={this.updateSource}
         />
-        <div className="flex mTop20">
+        <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">
               {!addNewTemplate && !showSetTemplate && this.renderContent()}

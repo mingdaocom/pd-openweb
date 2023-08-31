@@ -13,7 +13,7 @@ const Btn = styled.div`
   }
 `;
 
-export default ({ processId, instanceId, processName = '', hasBack = false, onClose = () => {}, isApproval }) => {
+export default ({ processId, instanceId, processName = '', currentWork, hasBack = false, onClose = () => {}, isApproval }) => {
   const [visible, setVisible] = useState(false);
   const isMobile = browserIsMobile();
   const Modal = isMobile ? MobileFlowChart : FlowChart;
@@ -33,7 +33,7 @@ export default ({ processId, instanceId, processName = '', hasBack = false, onCl
         </div>
       )}
 
-      {visible && <Modal processId={processId} instanceId={instanceId} onClose={() => setVisible(false)} />}
+      {visible && <Modal processId={processId} instanceId={instanceId} selectNodeId={_.get(currentWork, 'flowNode.id')} onClose={() => setVisible(false)} />}
     </div>
   );
 };

@@ -7,24 +7,10 @@ const Wrap = styled.div`
   display: flex;
   justify-content: center;
   min-height: 0;
-  padding: 12px;
   .ant-pagination {
-    .ant-pagination-prev,
-    .ant-pagination-next {
-      height: unset;
-      line-height: unset;
-      a {
-        display: inline-block;
-        padding: 3px 8px;
-        border: 1px solid #ccc;
-        color: #666;
-        font-size: 12px;
-      }
-    }
-    .ant-pagination-disabled a {
-      color: #ccc;
-      border: 1px solid #fff;
-      font-size: 12px;
+    padding: 12px;
+    .ant-pagination-options {
+      display: none;
     }
     .ant-pagination-item {
       height: unset;
@@ -33,36 +19,46 @@ const Wrap = styled.div`
       min-width: 0;
       border: 1px solid #fff;
       a {
-        color: #666;
+        color: #333;
         display: inline-block;
         padding: 3px 8px;
         text-align: center;
         vertical-align: middle;
         border: 1px solid #fff;
-        font-size: 12px;
+        font-size: 13px;
+        border-radius: 5px;
       }
       a:hover {
-        border: 1px solid #ccc;
-        color: #666;
-      }
-    }
-    .ant-pagination-item-active {
-      // border: none;
-      border: 1px solid #fff;
-      color: #333;
-      a {
-        // border: none;
-        border: 1px solid #fff;
-        text-decoration: underline;
+        background-color: #f5f5f5;
+        border: 1px solid #f5f5f5;
         color: #333;
       }
     }
-    .ant-pagination-jump-prev .ant-pagination-item-container .ant-pagination-item-link-icon,
-    .ant-pagination-jump-next .ant-pagination-item-container .ant-pagination-item-link-icon {
-      color: #666;
+    .ant-pagination-item-active {
+      border: 1px solid #fff;
+      color: #333;
+      a {
+        text-decoration: none;
+        color: #1294f7;
+        font-weight: 600;
+        border: 1px solid #1294f7 !important;
+        &:hover {
+          background-color: #fff;
+        }
+      }
     }
-    .ant-pagination-options {
-      display: none;
+    .ant-pagination-prev,
+    .ant-pagination-next {
+      a {
+        color: #333;
+        &:hover {
+          color: #1294f7;
+        }
+      }
+      a[disabled] {
+        color: rgba(0, 0, 0, 0.25);
+        cursor: not-allowed;
+      }
     }
   }
 `;
@@ -91,6 +87,7 @@ export default class PaginationWrap extends Component {
           total={total}
           pageSize={pageSize || 50}
           current={pageIndex || 1}
+          hideOnSinglePage={true}
           itemRender={this.itemRender}
           onChange={onChange}
           {...this.props}

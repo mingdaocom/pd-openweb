@@ -38,7 +38,7 @@ export default class AppIntro extends Component {
 
   handleSave = val => {
     this.props.onSave(val);
-    this.setState({ isEditing: false });
+    // this.setState({ isEditing: false });
   };
 
   render() {
@@ -51,10 +51,12 @@ export default class AppIntro extends Component {
       changeEditState = _.noop,
       minHeight,
       maxHeight,
+      data,
     } = this.props;
     const { isEditing } = this.state;
     return (
       <Editor
+        data={data}
         className="appIntroDescriptionEditor "
         summary={summary}
         isEditing={isEditing}

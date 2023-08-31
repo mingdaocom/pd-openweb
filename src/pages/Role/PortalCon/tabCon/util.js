@@ -4,7 +4,7 @@ import renderCellText from 'src/pages/worksheet/components/CellControls/renderTe
 import { Checkbox, Switch, Radio } from 'ming-ui';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
-
+import { portalBaseControl } from './config'
 export const pageSize = 20;
 export const COLORS = [
   '#F5F5F5',
@@ -63,3 +63,34 @@ export const renderText = o => {
     return <CellControl cell={{ ...o }} from={4} mode="portal" />;
   }
 };
+
+export const formatPortalData = (currentData) => {
+  return currentData
+    .filter(o => portalBaseControl.includes(o.controlId))
+    .concat(...currentData.filter(o => !portalBaseControl.includes(o.controlId)))
+    .filter(o => !['portal_avatar'].includes(o.controlId)) //详情不显示
+    .map((o, i) => {
+      if (portalBaseControl.includes(o.controlId) && !['portal_status', 'portal_role'].includes(o.controlId)) {
+        return { ...o, row: i, disabled: true, fieldPermission: '' };
+      } else if (['portal_status', 'portal_role'].includes(o.controlId)) {
+        let da = {
+          ...o,
+          row: i,
+          fieldPermission: '',
+        };
+        if ('portal_status' === o.controlId) {
+          return {
+            ...da,
+            options: !safeParseArray(o.value).includes('5')
+              ? o.options.filter(it => it.key !== '5')
+              : o.options,
+            disabled: safeParseArray(o.value).includes('5'),
+          };
+        } else {
+          return da;
+        }
+      } else {
+        return { ...o, row: i, fieldPermission: '' };
+      }
+    })
+}

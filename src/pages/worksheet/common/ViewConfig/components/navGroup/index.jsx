@@ -199,6 +199,9 @@ const Wrap = styled.div`
       }
     }
   }
+  .RelateRecordDropdown-selected {
+    height: auto;
+  }
 `;
 
 export default function NavGroup(params) {

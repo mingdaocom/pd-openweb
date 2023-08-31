@@ -351,12 +351,13 @@ const Container = props => {
   }
 
   useEffect(() => {
-    homeAppApi.getAppInfo({
+    homeAppApi.getApp({
       appId: app.id,
+      getSection: true
     }).then(data => {
-      const { appSectionDetail } = data;
+      const { sections } = data;
       setLoading(false);
-      setNavigationGroup(appSectionDetail.map(data => {
+      setNavigationGroup(sections.map(data => {
         data.items = data.workSheetInfo.map(appItem => {
           if (appItem.type === 2) {
             const { workSheetInfo = [] } = _.find(data.childSections, { appSectionId: appItem.workSheetId }) || {};

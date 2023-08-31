@@ -36,7 +36,7 @@ export default class UploadFile extends Component {
           }
 
           if (File.GetExt(file.name) != 'xlsx' && File.GetExt(file.name) != 'xls') {
-            alert(_l('上传失败，文件错误，请下载专用模板'), 3, 1000);
+            alert(_l('上传失败，文件错误，请下载专用模板'), 2, 1000);
             up.stop();
             up.removeFile(file);
             return false;

@@ -168,7 +168,7 @@ function AddUserDialog(props) {
             </div>
             <Checkbox
               className="TxtCenter InlineBlock Hand mTop10 Gray_75"
-              text={_l('邀请用户并发送短信')}
+              text={md.global.Config.IsPlatformLocal ? _l('邀请用户并发送短信/邮箱（短信0.05元/条、邮箱0.03/封，自动从企业账户扣费）') : _l('邀请用户并发送短信/邮箱')}
               checked={isSendMsgs}
               onClick={checked => {
                 setIsSend(!isSendMsgs);

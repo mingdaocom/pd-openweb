@@ -5,7 +5,7 @@ import './style.css';
 import contactController from 'src/api/contact';
 import RegExp from 'src/util/expression';
 import tpl from './tpl/form.html';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import { index as dialog } from 'src/components/mdDialog/dialog';
 import 'src/components/select/select';
 import SelectLocation from 'src/components/selectLocation/selectLocation';

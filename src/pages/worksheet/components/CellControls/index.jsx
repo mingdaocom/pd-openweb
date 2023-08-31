@@ -244,7 +244,8 @@ export default class CellControl extends React.Component {
   }
   @autobind
   handleCopy(cell) {
-    handleCopyControlText(cell);
+    const { tableId } = this.props;
+    handleCopyControlText(cell, tableId);
     if (!_.includes([2, 3, 4, 7, 5, 6, 8], cell.type)) {
       window.tempCopyForSheetView = JSON.stringify({
         type: 'origin',
@@ -252,6 +253,7 @@ export default class CellControl extends React.Component {
         textValue: getCopyControlText(cell),
         controlId: cell.controlId,
         controlType: cell.type,
+        tableId,
       });
     }
   }
@@ -310,13 +312,14 @@ export default class CellControl extends React.Component {
         }
         break;
       case ' ':
-        if (e.target.tagName.toLowerCase() === 'body') {
+        if (e.target.tagName.toLowerCase() === 'body' || e.target.classList.contains('body')) {
           onClick();
         }
         break;
       case 'Enter':
         if (this.editable && haveEditingStatus && !isediting) {
           this.handleUpdateEditing(true);
+          e.preventDefault();
           if (tableType === 'classic') {
             cache.hasEditingCell = true;
             window.hasEditingCell = true;

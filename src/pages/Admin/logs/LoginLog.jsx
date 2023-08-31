@@ -15,22 +15,6 @@ import _ from 'lodash';
 import styled from 'styled-components';
 
 const LoginLogWrap = styled.div`
-  margin: 16px;
-  border-radius: 4px;
-  background: #fff;
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  .header {
-    height: 56px;
-    font-weight: 600;
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #eaeaea;
-  }
   .tipInfo {
     color: #212121;
     font-size: 13px;
@@ -220,9 +204,9 @@ export default class LoginLog extends Component {
     const { loading, dataSource = [], count = 0, disabledExportBtn, searchValues, pageIndex } = this.state;
 
     return (
-      <LoginLogWrap>
+      <LoginLogWrap className="orgManagementWrap">
         <AdminTitle prefix={_l('日志 - 登录')} />
-        <div className="header Font17 flexRow">
+        <div className="orgManagementHeader Font17 flexRow">
           <span className="flex">{_l('登录')}</span>
           <div>
             <span className="tipInfo">

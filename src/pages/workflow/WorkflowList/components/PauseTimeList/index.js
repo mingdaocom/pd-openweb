@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 
@@ -10,7 +10,7 @@ const PauseTimeListCon = styled.div`
   .runDateItem {
     line-height: 32px;
     color: #333;
-    padding: 0 32px;
+    padding: 0 24px;
     .pause {
       color: #f44336;
     }
@@ -45,16 +45,23 @@ const runDateList = [
 export default function PauseTimeList(props) {
   const { changeOperation = () => {}, clickRecover = () => {}, item = {} } = props;
   const { waiting } = item;
+  const [visible, setVisible] = useState(false);
+
   return (
     <Trigger
       getPopupContainer={props.getPopupContainer}
+      popupVisible={visible}
+      onPopupVisibleChange={visible => {
+        setVisible(visible);
+      }}
       popup={() => (
-        <PauseTimeListCon>
+        <PauseTimeListCon className="pauseTimeListCon">
           {runDateList.map(v => (
             <div
-              className="runDateItem Font13"
+              className="runDateItem Font13 Hand"
               key={v.value}
               onClick={() => {
+                setVisible(false);
                 if (v.value === 0 && waiting) {
                   clickRecover(item);
                   return;
@@ -87,7 +94,7 @@ export default function PauseTimeList(props) {
         overflow: { adjustX: true, adjustY: true },
       }}
     >
-      <span>{props.children}</span>
+      <span onClick={() => setVisible(true)}>{props.children}</span>
     </Trigger>
   );
 }

@@ -1,12 +1,8 @@
 .workflowSettings {
   .processConfig {
-    width: 800px;
     background: #fff;
-    padding-bottom: 32px;
+    padding-bottom: 20px;
     box-sizing: border-box;
-    border-radius: 3px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
-    margin-bottom: 20px;
     position: relative;
     .Dropdown.disabled {
       .icon-arrow-down-border {
@@ -14,43 +10,9 @@
       }
     }
 
-    .processConfigTab {
-      position: absolute;
-      width: 200px;
-      padding: 10px 0;
-      left: -216px;
-      box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.16);
-      border-radius: 3px;
-      background: #fff;
-      font-size: 14px;
-      li {
-        border-left: 3px solid #fff;
-        cursor: pointer;
-        height: 42px;
-        line-height: 42px;
-        color: #757575;
-        .icon {
-          margin-left: 10px;
-          margin-right: 10px;
-          &.icon-screen_normal {
-            margin-right: 7px !important;
-            font-size: 17px;
-          }
-        }
-        &:hover:not(.active) {
-          border-color: #f5f5f5;
-          background: #f5f5f5;
-        }
-        &.active {
-          color: #2196f3;
-          border-color: #2196f3;
-        }
-      }
-    }
-
     .processConfigFlow {
       padding: 9px 12px;
-      background: #F5F5F5;
+      background: #f5f5f5;
       border-radius: 2px;
     }
     .processConfigSave {
@@ -152,9 +114,51 @@
           padding-bottom: 5px;
         }
       }
-      .ming.Item .Item-content:not(.disabled):hover  {
-        .Gray_9e{
+      .ming.Item .Item-content:not(.disabled):hover {
+        .Gray_9e {
           color: #fff !important;
+        }
+      }
+    }
+  }
+  .processConfigTab {
+    width: 240px;
+    padding: 16px 8px;
+    border-right: 1px solid #ddd;
+    background: #fff;
+    font-size: 14px;
+    li {
+      cursor: pointer;
+      height: 42px;
+      line-height: 42px;
+      position: relative;
+      border-radius: 3px;
+      .icon {
+        margin-left: 10px;
+        margin-right: 10px;
+        color: #757575;
+        &.icon-screen_normal {
+          margin-right: 7px !important;
+          font-size: 17px;
+        }
+      }
+      &:hover:not(.active) {
+        background: #f5f5f5;
+      }
+      &.active {
+        color: #2196f3;
+        background-color: #f3faff;
+        font-weight: bold;
+        &:before {
+          position: absolute;
+          width: 3px;
+          height: 16px;
+          background-color: #2196f3;
+          content: '';
+          top: 13px;
+        }
+        .icon {
+          color: #2196f3;
         }
       }
     }

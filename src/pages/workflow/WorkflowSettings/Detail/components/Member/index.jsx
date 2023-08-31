@@ -3,7 +3,7 @@ import './index.less';
 import cx from 'classnames';
 import { Dropdown } from 'ming-ui';
 import UserHead from 'src/pages/feed/components/userHead';
-import { USER_TYPE, NODE_TYPE, USER_ORGANIZE, DEPARTMENT_ORGANIZE } from '../../../enum';
+import { USER_TYPE, USER_ORGANIZE, DEPARTMENT_ORGANIZE } from '../../../enum';
 import Tag from '../Tag';
 import _ from 'lodash';
 
@@ -209,7 +209,7 @@ export default class Member extends Component {
   }
 
   render() {
-    const { accounts, from, isSingle } = this.props;
+    const { accounts, leastOne, inline } = this.props;
     const nullText = {
       [USER_TYPE.ROLE]: _l('角色下未设置人员'),
       [USER_TYPE.DEPARTMENT]: _l('部门下未设置人员'),
@@ -222,8 +222,8 @@ export default class Member extends Component {
           return (
             <li
               key={i}
-              className={cx(isSingle ? 'inlineFlexRow' : 'flexRow', {
-                noDel: from === 'integration' && accounts.length <= 1,
+              className={cx(inline ? 'inlineFlexRow' : 'flexRow', {
+                noDel: leastOne && accounts.length <= 1,
               })}
               style={{ zIndex: accounts.length - i }}
             >
@@ -234,12 +234,12 @@ export default class Member extends Component {
               {item.type === USER_TYPE.DEPARTMENT && this.renderDepartment(item, i)}
               {_.includes([USER_TYPE.JOB, USER_TYPE.ORGANIZE_ROLE], item.type) && this.renderTags(item)}
 
-              {!(from === 'integration' && accounts.length <= 1) && (
+              {!(leastOne && accounts.length <= 1) && (
                 <span className="mLeft5 flowDetailMemberDel" data-tip={_l('刪除')} onClick={() => this.removeMember(i)}>
-                  <i className={cx('icon-delete', isSingle ? 'Font14' : 'Font18')} />
+                  <i className={cx('icon-delete', inline ? 'Font14' : 'Font18')} />
                 </span>
               )}
-              {!isSingle &&
+              {!inline &&
                 _.includes([USER_TYPE.ROLE, USER_TYPE.DEPARTMENT, USER_TYPE.JOB], item.type) &&
                 !item.count && (
                   <div className="flowDetailMemberError flex">
@@ -247,7 +247,7 @@ export default class Member extends Component {
                     {nullText[item.type]}
                   </div>
                 )}
-              {!isSingle && _.includes([USER_TYPE.ROLE], item.type) && item.count === -1 && (
+              {!inline && _.includes([USER_TYPE.ROLE], item.type) && item.count === -1 && (
                 <div className="flowDetailMemberError flex">
                   <i className="mRight5 Font16 icon-workflow_error" />
                   {_l('不支持包含全组织的角色')}

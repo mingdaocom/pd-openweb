@@ -568,7 +568,7 @@ export const changeControlCheckbox = (event, item) => {
         }));
         return
       }
-      if ([reportTypes.PieChart, reportTypes.FunnelChart, reportTypes.WordCloudChart]) {
+      if ([reportTypes.PieChart, reportTypes.FunnelChart, reportTypes.WordCloudChart].includes(reportType)) {
         if (_.isEmpty(xaxes.controlId) && !isNumber) {
           dispatch(addXaxes(item));
           return;

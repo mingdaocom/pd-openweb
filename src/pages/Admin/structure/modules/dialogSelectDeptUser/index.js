@@ -1,6 +1,6 @@
 import './style.less';
 import '@mdfe/nanoscroller';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import mainHtml from './tpl/main.html';
 import itemHtml from './tpl/item.html';
 import { index as mdDialog } from 'src/components/mdDialog/dialog';

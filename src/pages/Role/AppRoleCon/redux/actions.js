@@ -132,7 +132,7 @@ export const getUserList = (props, isUserList) => {
       ajax.abort();
     }
     ajax = ['all', 'apply', 'outsourcing'].includes(roleId)
-      ? appManagementAjax.getTotalMemrber({
+      ? appManagementAjax.getTotalMember({
         appId,
         ...appRolePagingModel,
       })
@@ -159,7 +159,7 @@ export const getUserAllCount = props => {
     if (CountAllAjax) {
       CountAllAjax.abort();
     }
-    CountAllAjax = appManagementAjax.getTotalMemrber({
+    CountAllAjax = appManagementAjax.getTotalMember({
       appId,
     });
     CountAllAjax.then(res => {

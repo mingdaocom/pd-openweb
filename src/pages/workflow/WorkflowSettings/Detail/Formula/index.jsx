@@ -450,7 +450,7 @@ export default class Formula extends Component {
             { text: _l('日期+时间'), value: 1 },
             { text: _l('日期'), value: 3 },
             { text: _l('时分'), value: 8 },
-            // { text: _l('时分秒'), value: 9 },
+            { text: _l('时分秒'), value: 9 },
           ]}
           value={data.unit}
           border
@@ -667,7 +667,7 @@ export default class Formula extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex mTop20">
+        <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">
               {data.actionId === ACTION_ID.NUMBER_FORMULA && this.renderNumberContent()}

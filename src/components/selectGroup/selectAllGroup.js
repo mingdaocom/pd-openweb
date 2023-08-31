@@ -3,7 +3,7 @@ import '@mdfe/nanoscroller';
 import 'src/components/mdBusinessCard/mdBusinessCard';
 import { upgradeVersionDialog, htmlEncodeReg } from 'src/util';
 import groupController from 'src/api/group';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import selectGroupTpl from './selectAllGroup.html';
 import singleTplHtml from './singleTpl.html';
 import normalGroupHtml from './normalGroup.html';

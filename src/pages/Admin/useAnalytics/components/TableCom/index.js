@@ -1,6 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { Icon, ScrollView, LoadDiv, Tooltip } from 'ming-ui';
 import PropTypes from 'prop-types';
+import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
@@ -19,11 +20,6 @@ export default class TableCom extends Component {
       this.setState({ dataSource: nextProps.dataSource });
     }
   }
-  updateState = () => {};
-
-  loadNextPage = _.throttle(() => {
-    this.props.loadNextPage();
-  }, 200);
 
   renderEmpty = () => {
     const { emptyInfo = {} } = this.props;
@@ -56,10 +52,10 @@ export default class TableCom extends Component {
   };
 
   render() {
-    const { columns = [], loading } = this.props;
+    const { columns = [], loading, total, pageIndex } = this.props;
     let { dataSource = [], sorterInfo = {} } = this.state;
     return (
-      <div className="tableWrap">
+      <div className="tableWrap flexColumn">
         <div className="tableHeader flexRow">
           {columns.map(item => {
             return (
@@ -103,13 +99,13 @@ export default class TableCom extends Component {
             );
           })}
         </div>
-        <div className="tableContent">
+        <div className="tableContent flex">
           {loading ? (
             <LoadDiv className="top20" />
           ) : _.isEmpty(dataSource) ? (
             this.renderEmpty()
           ) : (
-            <ScrollView onScrollEnd={this.loadNextPage}>
+            <ScrollView>
               {dataSource.map(item => {
                 return (
                   <div className="row flexRow alignItemsCenter">
@@ -126,6 +122,7 @@ export default class TableCom extends Component {
             </ScrollView>
           )}
         </div>
+        <PaginationWrap total={total} pageIndex={pageIndex} pageSize={50} onChange={this.props.changePage} />
       </div>
     );
   }
@@ -134,7 +131,6 @@ TableCom.propTypes = {
   loading: PropTypes.bool,
   columns: PropTypes.array,
   dataSource: PropTypes.array,
-  loadNextPage: PropTypes.func,
   dealSorter: PropTypes.func,
   defaultSorter: PropTypes.object,
 };

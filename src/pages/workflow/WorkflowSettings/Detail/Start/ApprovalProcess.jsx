@@ -1,31 +1,9 @@
 import React, { Fragment } from 'react';
 import { Checkbox, Icon } from 'ming-ui';
-import { ProcessDetails } from '../components';
+import { ApprovalProcessSettings } from '../components';
 
 export default props => {
   const { data, updateSource } = props;
-  const LIST = [
-    {
-      title: _l('发起人操作'),
-      source: [
-        { text: _l('允许发起人撤回'), key: 'allowRevoke' },
-        { text: _l('允许发起人催办'), key: 'allowUrge' },
-      ],
-    },
-    {
-      title: _l('自动通过'),
-      source: [
-        { text: _l('发起人无需审批自动通过'), key: 'startEventPass' },
-        { text: _l('已审批过的审批人自动通过'), key: 'userTaskPass' },
-        { text: _l('审批人为空时自动通过'), key: 'userTaskNullPass' },
-        {
-          text: _l('验证必填字段'),
-          key: 'required',
-          tip: _l('勾选后，当有必填字段为空时不自动通过，仍需进行审批操作。[审批人为空时自动通过]不受此配置影响。'),
-        },
-      ],
-    },
-  ];
 
   return (
     <Fragment>
@@ -57,34 +35,26 @@ export default props => {
           {_l('工作表“%0”', data.appName)}
         </div>
 
-        {LIST.map((item, index) => {
-          return (
-            <Fragment key={index}>
-              <div className="Font13 mTop20 bold">{item.title}</div>
-              {item.source.map(o => (
-                <div key={o.key} className="mTop15 flexRow alignItemsCenter">
-                  <Checkbox
-                    className=" flexRow"
-                    text={o.text}
-                    checked={data.processConfig[o.key]}
-                    onClick={checked =>
-                      updateSource({
-                        processConfig: Object.assign({}, data.processConfig, { [o.key]: !checked }),
-                      })
-                    }
-                  />
-                  {o.tip && (
-                    <span className="workflowDetailTipsWidth mLeft5" data-tip={o.tip}>
-                      <Icon icon="info" className="Gray_9e" />
-                    </span>
-                  )}
-                </div>
-              ))}
-            </Fragment>
-          );
-        })}
+        <div className="Font13 mTop20 bold">{_l('发起人操作')}</div>
+        {[
+          { text: _l('允许发起人撤回'), key: 'allowRevoke' },
+          { text: _l('允许发起人催办'), key: 'allowUrge' },
+        ].map(o => (
+          <div key={o.key} className="mTop15 flexRow alignItemsCenter">
+            <Checkbox
+              className=" flexRow"
+              text={o.text}
+              checked={data.processConfig[o.key]}
+              onClick={checked =>
+                updateSource({
+                  processConfig: Object.assign({}, data.processConfig, { [o.key]: !checked }),
+                })
+              }
+            />
+          </div>
+        ))}
 
-        <ProcessDetails {...props} />
+        <ApprovalProcessSettings {...props} />
       </div>
     </Fragment>
   );

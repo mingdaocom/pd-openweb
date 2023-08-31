@@ -60,7 +60,7 @@ export default function ColumnHead(props) {
           {maskData && (
             <MenuItem onClick={onShowFullValue}>
               <i className="icon icon-eye_off"></i>
-              {_l('解密')}
+              {_l('解码')}
             </MenuItem>
           )}
           {canFilter && !selected && !isShowOtherField && (

@@ -11,6 +11,7 @@ export default function InboxMessage(_props) {
   let props = _.extend({}, inboxItem, {
     inboxType,
   });
+
   switch (props.inboxType) {
     // 各种系统消息
     case MSGTYPES.SystemMessage:

@@ -51,8 +51,8 @@ export default class extends Component {
     this.BidirectionalBarChart && this.BidirectionalBarChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
-    const { map, displaySetup, rightY } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup, rightY: oldRightY } = this.props.reportData;
+    const { map, displaySetup, rightY, style } = nextProps.reportData;
+    const { displaySetup: oldDisplaySetup, rightY: oldRightY, style: oldStyle } = this.props.reportData;
 
     if (_.isEmpty(rightY)) {
       return;
@@ -72,7 +72,8 @@ export default class extends Component {
       !_.isEqual(displaySetup.xdisplay, oldDisplaySetup.xdisplay) ||
       !_.isEqual(displaySetup.ydisplay, oldDisplaySetup.ydisplay) ||
       !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
-      !_.isEqual(rightYDisplay, oldRightYDisplay)
+      !_.isEqual(rightYDisplay, oldRightYDisplay) ||
+      style.showLabelPercent !== oldStyle.showLabelPercent
     ) {
       const config = this.getComponentConfig(nextProps);
       this.BidirectionalBarChart.update(config);
@@ -89,7 +90,7 @@ export default class extends Component {
     this.BidirectionalBarChart.render();
   }
   getComponentConfig(props) {
-    const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, split, sorts, style } = props.reportData;
+    const { map, contrastMap, displaySetup, yaxisList, summary, rightY, yreportType, xaxes, split, sorts, style } = props.reportData;
     const { xdisplay, ydisplay, showPileTotal, isPile, legendType, auxiliaryLines, showLegend, showChartType } = displaySetup;
     const rightYDisplay = rightY.display.ydisplay;
     const splitId = split.controlId;
@@ -144,10 +145,20 @@ export default class extends Component {
         offset: 0,
         content: (data) => {
           if (data['series-field-key'] === control.controlId) {
-            return formatrChartValue(data[control.controlId], false, yaxisList);
+            const value = data[control.controlId] || 0;
+            const labelValue = formatrChartValue(value, false, yaxisList);
+            if (style.showLabelPercent && summary.showTotal && summary.sum) {
+              return `${labelValue} (${(value / summary.sum * 100).toFixed(2)}%)`;
+            }
+            return labelValue;
           }
           if (data['series-field-key'] === contrastControl.controlId) {
-            return formatrChartValue(data[contrastControl.controlId], false, rightY.yaxisList);
+            const value = data[contrastControl.controlId] || 0;
+            const labelValue = formatrChartValue(value, false, rightY.yaxisList);
+            if (style.showLabelPercent && _.get(rightY, 'summary.showTotal') && _.get(rightY, 'summary.sum')) {
+              return `${labelValue} (${(value / _.get(rightY, 'summary.sum') * 100).toFixed(2)}%)`;
+            }
+            return labelValue;
           }
         }
       } : null,
@@ -179,7 +190,7 @@ export default class extends Component {
           minLimit: _.isNumber(rightYDisplay.minValue) ? rightYDisplay.minValue : null,
           maxLimit: _.isNumber(rightYDisplay.maxValue) ? rightYDisplay.maxValue : null,
           // title: rightYDisplay.showTitle && rightYDisplay.title ? { text: rightYDisplay.title } : null,
-          label: rightYDisplay.showDial ? {
+          label: ydisplay.showDial ? {
             formatter: (value) => {
               return value ? formatrChartAxisValue(Number(value), false, rightY.yaxisList) : null;
             }
@@ -201,6 +212,34 @@ export default class extends Component {
       tooltip: {
         shared: true,
         showMarkers: false,
+        formatter: (data) => {
+          if (data['series-field-key'] === control.controlId) {
+            const value = data[control.controlId] || 0;
+            if (style.showLabelPercent && summary.showTotal && summary.sum) {
+              return {
+                name: data.originalId,
+                value: `${value} (${(value / summary.sum * 100).toFixed(2)}%)`
+              }
+            }
+            return {
+              name: data.originalId,
+              value
+            };
+          }
+          if (data['series-field-key'] === contrastControl.controlId) {
+            const value = data[contrastControl.controlId] || 0;
+            if (style.showLabelPercent && _.get(rightY, 'summary.showTotal') && _.get(rightY, 'summary.sum')) {
+              return {
+                name: data.originalId,
+                value: `${value} (${(value / _.get(rightY, 'summary.sum') * 100).toFixed(2)}%)`
+              };
+            }
+            return {
+              name: data.originalId,
+              value
+            };
+          }
+        }
       }
     }
 

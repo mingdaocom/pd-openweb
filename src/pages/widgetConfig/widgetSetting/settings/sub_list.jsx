@@ -53,7 +53,7 @@ export default function SubListSetting(props) {
   const { widgetName, icon, intro, moreIntroLink } = info;
   const { worksheetId: currentWorksheetId } = globalSheetInfo;
   const { controlId, dataSource, relationControls = [], showControls = [], advancedSetting = {} } = data;
-  const { allowadd, allowsingle, allowexport = '1' } = advancedSetting;
+  const { allowadd, allowsingle, allowexport = '1', hidenumber } = advancedSetting;
   const batchcids = getAdvanceSetting(data, 'batchcids') || [];
   const [sheetInfo, setInfo] = useState({});
   const [subQueryConfigs, setSubQueryConfigs] = useState([]);
@@ -491,6 +491,20 @@ export default function SubListSetting(props) {
       )}
       <SettingItem>
         <div className="settingItemTitle">{_l('设置')}</div>
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={hidenumber === '1'}
+            text={_l('隐藏序号')}
+            onClick={checked => {
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  hidenumber: checked ? '0' : '1',
+                }),
+              );
+            }}
+          />
+        </div>
         <div className="labelWrap">
           <Checkbox
             size="small"

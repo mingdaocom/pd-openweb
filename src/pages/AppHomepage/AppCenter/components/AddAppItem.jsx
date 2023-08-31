@@ -10,6 +10,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
 import { generate } from '@ant-design/colors';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 import ExternalLinkDialog from './ExternalLinkDialog';
 
@@ -31,7 +32,7 @@ const ADD_APP_MODE = [
     id: 'installLoacal',
     icon: 'file_upload',
     text: _l('导入%01006'),
-    featureId: 2,
+    featureId: VersionProductType.appImportExport,
     href: '#',
   },
 ];
@@ -136,7 +137,7 @@ export default class AddAppItem extends Component {
           >
             {ADD_APP_MODE.filter(o => !(o.id === 'installFromLib' && md.global.SysSettings.hideTemplateLibrary)).map(
               ({ id, icon, text, href, featureId }) => {
-                const featureType = getFeatureStatus(projectId, 2);
+                const featureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
                 if (featureId && !featureType) return;
                 return (
                   <MenuItem
@@ -144,7 +145,7 @@ export default class AddAppItem extends Component {
                     icon={<Icon icon={icon} className="addItemIcon Font18" />}
                     onClick={() => {
                       if (featureType === 2) {
-                        buriedUpgradeVersionDialog(projectId, 2);
+                        buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
                         return;
                       }
                       if (id === 'importExcelCreateApp') {

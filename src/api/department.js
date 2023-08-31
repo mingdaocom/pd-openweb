@@ -169,8 +169,8 @@ export default {
   /**
   * 网络管理 - 查询部门并且没有关键字
   * @param {Object} args 请求参数
-  * @param {integer} args.pageIndex
-  * @param {integer} args.pageSize
+  * @param {integer} args.pageIndex 页码
+  * @param {integer} args.pageSize 每页条数
   * @param {string} args.projectId 网络id
   * @param {string} args.departmentId 部门id
   * @param {string} args.keywords 关键词
@@ -491,10 +491,28 @@ export default {
      return $.api('Department', 'SearchDepartment', args, options);
    },
   /**
+  * 通过组织code加入组织验证Token 获取部门架构
+  * @param {Object} args 请求参数
+  * @param {string} args.token 接口返回的校验Token(必填)
+  * @param {integer} args.pageIndex 页码
+  * @param {integer} args.pageSize 每页条数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.departmentId 部门id
+  * @param {string} args.keywords 关键词
+  * @param {boolean} args.returnCount 是否返回用户数量
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getDepartmentByJoinProject: function (args, options = {}) {
+     
+     return $.api('Department', 'GetDepartmentByJoinProject', args, options);
+   },
+  /**
   * 查询部门（分页）
   * @param {Object} args 请求参数
-  * @param {integer} args.pageIndex
-  * @param {integer} args.pageSize
+  * @param {integer} args.pageIndex 页码
+  * @param {integer} args.pageSize 每页条数
   * @param {string} args.projectId 网络id
   * @param {string} args.departmentId 部门id
   * @param {string} args.keywords 关键词

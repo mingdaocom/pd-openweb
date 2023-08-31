@@ -388,3 +388,32 @@ export function isOffice(fileExt) {
   }
   return false;
 }
+
+export function isWpsPreview(fileExt) {
+  var fileExts = [
+    'xls',
+    'xlsx',
+    'xlsm',
+    'xlm',
+    'xlsb',
+    'doc',
+    'docx',
+    'dotx',
+    'dot',
+    'dotm',
+    'ppt',
+    'pptx',
+    'pps',
+    'ppsx',
+    'potx',
+    'pot',
+    'pptm',
+    'potm',
+    'ppsm',
+  ];
+  if (fileExt) {
+    fileExt = fileExt.toLowerCase();
+    return fileExts.indexOf(fileExt) !== -1;
+  }
+  return false;
+}

@@ -278,7 +278,7 @@ export default class Start extends Component {
   };
 
   render() {
-    const { processId, item, selectNodeId, openDetail, isCopy, child } = this.props;
+    const { processId, item, selectNodeId, openDetail, isCopy, child, isSimple } = this.props;
 
     return (
       <div className="flexColumn">
@@ -309,7 +309,9 @@ export default class Start extends Component {
               nodeClassName={child ? 'BGBlueAsh' : getStartNodeColor(item.appType, item.triggerId)}
               {...this.props}
             />
-            <div className="workflowContent">{this.renderContent()}</div>
+            <div className="workflowContent">
+              {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
+            </div>
           </div>
           <CreateNode {...this.props} />
         </section>

@@ -109,7 +109,10 @@ class ImportAndExport extends Component {
     verifyPassword({
       password,
       success: () => {
-        _this.exportUsers(projectId, orgnazation.map(item => item.departmentId));
+        _this.exportUsers(
+          projectId,
+          orgnazation.map(item => item.departmentId),
+        );
         _this.setState({ showInputPassword: false, password: undefined });
       },
     });
@@ -132,7 +135,7 @@ class ImportAndExport extends Component {
     })
       .then(response => response.blob())
       .then(blob => {
-        let date = moment(new Date()).format('YYYYMMDDHHmmss');
+        let date = moment().format('YYYYMMDDHHmmss');
         const fileName = `${projectName}_${date}` + '.xlsx';
         const link = document.createElement('a');
 

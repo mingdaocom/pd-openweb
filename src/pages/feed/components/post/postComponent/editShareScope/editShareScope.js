@@ -1,5 +1,5 @@
 import { index as DialogLayer } from 'src/components/mdDialog/dialog';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import postAjax from 'src/api/post';
 import SelectGroup from 'src/components/selectGroup/selectAllGroup';
 import './style.less';

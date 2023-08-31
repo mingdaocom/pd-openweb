@@ -13,6 +13,7 @@ import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponen
 import { browserIsMobile, getToken } from 'src/util';
 import accountSettingAjax from 'src/api/accountSetting';
 import { Base64 } from 'js-base64';
+import { CardButton } from 'src/pages/worksheet/components/Basics.jsx';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -79,13 +80,9 @@ const SignatureWrap = styled.div`
   }
   .remove {
     position: absolute;
-    right: -8px;
-    top: -8px;
+    right: -12px;
+    top: -12px;
     visibility: hidden;
-    i {
-      font-size: 18px;
-      color: #757575;
-    }
   }
 `;
 const Footer = styled.div`
@@ -274,8 +271,17 @@ export default class Signature extends Component {
   preview = e => {
     e.nativeEvent.stopImmediatePropagation();
     const { value } = this.props;
+
     previewAttachments({
-      attachments: [{ previewType: 1, ext: 'png', name: 'signature.png', previewAttachmentType: 'QINIU', path: value }],
+      attachments: [
+        {
+          previewType: 1,
+          ext: 'png',
+          name: 'signature.png',
+          previewAttachmentType: 'QINIU',
+          path: value.indexOf('bucket') > -1 ? md.global.FileStoreConfig.pictureHost + safeParse(value).key : value,
+        },
+      ],
       index: 0,
       callFrom: 'player',
       hideFunctions: ['editFileName'],
@@ -430,7 +436,9 @@ export default class Signature extends Component {
             style={{ backgroundImage: `url(${signature || value})` }}
           >
             <div className="remove" onClick={this.removeSignature}>
-              <i className="icon-minus-square" />
+              <CardButton>
+                <i className="icon icon-close" />
+              </CardButton>
             </div>
           </SignatureWrap>
         ) : (

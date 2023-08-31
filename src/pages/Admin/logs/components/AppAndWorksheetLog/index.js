@@ -33,7 +33,7 @@ const FlexWrap = styled.div`
 `;
 const TabWrap = styled.div`
   height: 56px;
-  padding: 0 24px;
+  padding: 0 24px 0 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -52,8 +52,12 @@ const TabWrap = styled.div`
     font-size: 17px;
     font-weight: 600;
     border-bottom: 2px solid transparent;
-    margin-right: 40px;
+    margin-right: 4px;
+    padding: 0 16px;
     cursor: pointer;
+    &:hover{
+      background-color: #f5f5f5;
+    }
     &.active {
       color: #2196f3;
       border-bottom-color: #2196f3;
@@ -96,7 +100,7 @@ export default class AppAndWorksheetLog extends Component {
       ? APP_WORKSHEET_LOG_COLUMNS.concat(PRIVATE_APP_WORKSHEET_LOG_COLUMNS)
       : APP_WORKSHEET_LOG_COLUMNS;
     this.state = {
-      appList: [{ label: _l('全部'), value: 'all' }],
+      appList: [],
       worksheetList: [],
       searchValues: {},
       showColumns: columns.map(it => it.dataIndex),
@@ -267,10 +271,7 @@ export default class AppAndWorksheetLog extends Component {
           };
         });
         this.setState({
-          appList:
-            appPageIndex === 1
-              ? [{ label: _l('全部'), value: '' }].concat(newAppList)
-              : this.state.appList.concat(newAppList),
+          appList: appPageIndex === 1 ? [].concat(newAppList) : this.state.appList.concat(newAppList),
           isMoreApp: newAppList.length >= 50,
           loadingApp: false,
           appPageIndex: appPageIndex + 1,
@@ -283,7 +284,7 @@ export default class AppAndWorksheetLog extends Component {
 
   getWorksheetList = (appIds = []) => {
     appManagementAjax.getWorksheetsUnderTheApp({ projectId: this.props.projectId, appIds }).then(res => {
-      let newWorksheetList = [{ label: _l('全部'), value: 'all' }];
+      let newWorksheetList = [];
       appIds.forEach(item => {
         newWorksheetList = newWorksheetList.concat(
           (res[item] || []).map(it => ({ label: it.worksheetName, value: it.worksheetId })),
@@ -298,7 +299,7 @@ export default class AppAndWorksheetLog extends Component {
     const { appId, projectId } = this.props;
     const { logType, appList, searchValues, worksheetList, isMoreApp } = this.state;
     const { appIds = [], worksheetIds = [], modules = [], operationTypes = [] } = searchValues;
-    const galFeatureType = getFeatureStatus(projectId, VersionProductType.GAL);
+    const galFeatureType = getFeatureStatus(projectId, VersionProductType.globalBehaviorLog);
     let operationTypesData = OPERATE_LIST.filter(it =>
       logType === 1
         ? _.includes(['all', 1, 2, 3, 6, 7], it.value)
@@ -540,14 +541,14 @@ export default class AppAndWorksheetLog extends Component {
       isAuthority,
     } = this.state;
     const { appIds = [], worksheetIds = [] } = searchValues;
-    const glFeatureType = getFeatureStatus(projectId, VersionProductType.GL);
-    const galFeatureType = getFeatureStatus(projectId, VersionProductType.GAL);
+    const glFeatureType = getFeatureStatus(projectId, VersionProductType.glabalLog);
+    const galFeatureType = getFeatureStatus(projectId, VersionProductType.globalBehaviorLog);
     const tabList = TAB_LIST.filter(it => (!galFeatureType ? it.tab !== 3 : true));
 
     if (glFeatureType === '2') {
       return (
         <div className="orgManagementWrap h100">
-          {buriedUpgradeVersionDialog(projectId, VersionProductType.GL, 'content', {
+          {buriedUpgradeVersionDialog(projectId, VersionProductType.glabalLog, 'content', {
             explainText: _l('请升级至付费版解锁开启'),
           })}
         </div>
@@ -566,7 +567,7 @@ export default class AppAndWorksheetLog extends Component {
 
     return (
       <Fragment>
-        <TabWrap>
+        <TabWrap className="orgManagementHeader">
           <div className="tabBox flex">
             {tabList.map(item => (
               <div
@@ -607,7 +608,9 @@ export default class AppAndWorksheetLog extends Component {
           </div>
         </TabWrap>
         {logType === 3 && galFeatureType === '2' ? (
-          <div className="flex">{buriedUpgradeVersionDialog(projectId, VersionProductType.GAL, 'content')}</div>
+          <div className="flex">
+            {buriedUpgradeVersionDialog(projectId, VersionProductType.globalBehaviorLog, 'content')}
+          </div>
         ) : (
           <FlexWrap className="flexColumn pLeft24 pRight24">
             <div ref={ele => (this.seatchWrap = ele)}>

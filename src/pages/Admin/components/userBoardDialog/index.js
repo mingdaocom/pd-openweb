@@ -62,7 +62,7 @@ class UserBoardDialog extends Component {
         })
           .then(response => response.blob())
           .then(blob => {
-            let date = moment(new Date()).format('YYYYMMDDHHmmss');
+            let date = moment().format('YYYYMMDDHHmmss');
             const fileName = `${projectName}_${_l('人员')}_${date}` + '.xlsx';
             const link = document.createElement('a');
 

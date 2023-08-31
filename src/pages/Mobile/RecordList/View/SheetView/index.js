@@ -136,6 +136,7 @@ class SheetView extends Component {
   // 加载自定义按钮数据
   loadCustomBtns = (props = this.props) => {
     const { appId, worksheetId, viewId } = props;
+    if (window.shareState.shareId) return;
     this.setState({ customButtonLoading: true });
     worksheetAjax
       .getWorksheetBtns({

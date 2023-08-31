@@ -7,6 +7,7 @@ import DocumentTitle from 'react-document-title';
 import { Flex, ActivityIndicator, WingBlank, Button, Tabs, Modal, ActionSheet, Toast } from 'antd-mobile';
 import copy from 'copy-to-clipboard';
 import worksheetAjax from 'src/api/worksheet';
+import publicWorksheetApi from 'src/api/publicWorksheet';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import RelationList from 'mobile/RelationRow/RelationList';
 import RelationAction from 'mobile/RelationRow/RelationAction';
@@ -27,6 +28,7 @@ import './index.less';
 import externalPortalAjax from 'src/api/externalPortal';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 import FormCover from 'src/pages/worksheet/common/recordInfo/RecordForm/FormCover.jsx';
+import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
 
 const formatParams = params => {
@@ -82,12 +84,20 @@ class Record extends Component {
   loadRow = props => {
     const { getDataType } = this.props;
     const baseIds = this.getBaseIds();
-    const getRowByIdRequest = worksheetAjax.getRowDetail({
-      ...baseIds,
-      getType: getDataType ? getDataType : location.search.includes('share') || this.isSharePage ? 3 : 1,
-      checkView: true,
-      appId: null,
-    });
+    const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
+    const getRowByIdRequest = isPublicForm
+      ? publicWorksheetApi.getRowDetail({
+          rowId: baseIds.rowId,
+          worksheetId: baseIds.worksheetId,
+          getType: 1,
+          checkView: true,
+          getTemplate: true,
+        })
+      : worksheetAjax.getRowDetail({
+          ...baseIds,
+          getType: getDataType ? getDataType : location.search.includes('share') || this.isSharePage ? 3 : 1,
+          checkView: true,
+        });
     const getWorksheetInfoRequest = worksheetAjax.getWorksheetInfo({
       getRules: true,
       getViews: true,
@@ -97,7 +107,9 @@ class Record extends Component {
     });
     Promise.all([getRowByIdRequest, getWorksheetInfoRequest]).then(data => {
       const [rowResult, worksheetInfoResult] = data;
-      const controls = _.get(worksheetInfoResult, 'template.controls') || [];
+      const controls = isPublicForm
+        ? _.get(rowResult, 'templateControls') || []
+        : _.get(worksheetInfoResult, 'template.controls') || [];
       const viewControls = _.get(rowResult, 'view.controls') || [];
       const rowData = safeParse(rowResult.rowData);
       let controlPermissions = safeParse(rowData.controlpermissions);
@@ -108,6 +120,12 @@ class Record extends Component {
         value: rowData[c.controlId],
         hidden: _.includes(FORM_HIDDEN_CONTROL_IDS, c.controlId) || viewControls.includes(c.controlId),
         count: rowData['rq' + c.controlId],
+        advancedSetting:
+          isPublicForm && c.type === 29 && c.advancedSetting
+            ? c.advancedSetting.showtype === '2'
+              ? { ...c.advancedSetting, showtype: '1', originShowType: '2', allowlink: false }
+              : { ...c.advancedSetting, allowlink: false }
+            : c.advancedSetting || {},
       }));
       this.formData = receiveControls;
       rowResult.receiveControls = receiveControls;
@@ -142,6 +160,8 @@ class Record extends Component {
     });
   };
   loadCustomBtns = () => {
+    const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
+    if (isPublicForm) return;
     const baseIds = this.getBaseIds();
     worksheetAjax.getWorksheetBtns(baseIds).then(data => {
       this.setState({
@@ -176,24 +196,6 @@ class Record extends Component {
     let paramControls = draftFormControls.filter(it => !_.includes(formDataIds, it.controlId)).concat(formData);
 
     return paramControls.map(it => {
-      if (it.type === 42) {
-        let val = it.value && JSON.parse(JSON.stringify(it.value));
-        if (val) {
-          return !_.isObject(val)
-            ? formatControlToServer(
-                {
-                  ...it,
-                  value: JSON.stringify({
-                    bucket: 4,
-                    key: val.match(/Sign\/[0-9a-z-]+\/[0-9a-z]+\/\d+\/[0-9a-zA-Z]+(.png)/g)[0],
-                  }),
-                },
-                { isNewRecord: true, isDraft: true },
-              )
-            : formatControlToServer(it, { isNewRecord: true, isDraft: true });
-        }
-        return formatControlToServer(it, { isNewRecord: true, isDraft: true });
-      }
       if (it.type === 34) {
         return formatControlToServer(
           {
@@ -292,8 +294,11 @@ class Record extends Component {
     });
   };
   handleShare = () => {
+    const { switchPermit } = this.state;
+    const baseIds = this.getBaseIds();
     const BUTTONS = [
       {
+        key: 'innerShare',
         name: _l('内部成员访问'),
         info: _l('仅限内部成员登录系统后根据权限访问'),
         icon: 'share',
@@ -302,6 +307,7 @@ class Record extends Component {
         className: 'mBottom10',
       },
       {
+        key: 'publicShare',
         name: _l('对外公开分享'),
         info: _l('获得链接的所有人都可以查看'),
         icon: 'delete2',
@@ -310,7 +316,9 @@ class Record extends Component {
       },
     ];
     ActionSheet.showActionSheetWithOptions({
-      options: BUTTONS.map(item => (
+      options: BUTTONS.filter(v =>
+        isOpenPermit(permitList.recordShareSwitch, switchPermit, baseIds.viewId) ? true : v.key !== 'publicShare',
+      ).map(item => (
         <div className={cx('flexRow valignWrapper w100', item.className)} onClick={item.fn}>
           <div className="flex flexColumn" style={{ lineHeight: '22px' }}>
             <span className="Bold">{item.name}</span>
@@ -382,6 +390,7 @@ class Record extends Component {
     let hasError = false;
     const baseIds = this.getBaseIds();
     const { sheetRow, originalData } = this.state;
+    const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
 
     const cells =
       this.submitType === 'draft'
@@ -501,11 +510,16 @@ class Record extends Component {
       return;
     }
 
-    worksheetAjax
-      .updateWorksheetRow({
-        ...baseIds,
-        newOldControl: cells,
-      })
+    (isPublicForm
+      ? publicWorksheetApi.updateWorksheetRow({
+          rowId: baseIds.rowId,
+          newOldControl: cells,
+        })
+      : worksheetAjax.updateWorksheetRow({
+          ...baseIds,
+          newOldControl: cells,
+        })
+    )
       .then(result => {
         this.setState({ submitLoading: false });
         if (result && result.data) {
@@ -520,6 +534,14 @@ class Record extends Component {
           this.loadRow();
           this.loadCustomBtns();
           this.refreshSubList(data, updateControlIds);
+
+          if (typeof this.props.updateSuccess === 'function') {
+            this.props.updateSuccess(
+              [baseIds.rowId],
+              _.assign({}, ...cells.map(control => ({ [control.controlId]: result.data[control.controlId] }))),
+              result.data,
+            );
+          }
         } else {
           if (result.resultCode === 11) {
             if (this.customwidget.current && _.isFunction(this.customwidget.current.uniqueErrorUpdate)) {
@@ -597,19 +619,7 @@ class Record extends Component {
       />
     );
   }
-  renderBack() {
-    const baseIds = this.getBaseIds();
-    const { appId, viewId } = baseIds;
-    return (
-      <Back
-        style={appId ? { position: 'unset' } : {}}
-        onClick={() => {
-          const { sheetRow } = this.state;
-          window.mobileNavigateTo(`/mobile/recordList/${appId}/${sheetRow.groupId}/${baseIds.worksheetId}/${viewId}`);
-        }}
-      />
-    );
-  }
+
   renderWithoutJurisdiction() {
     const { resultCode, entityName } = this.state.sheetRow;
     return (
@@ -658,12 +668,11 @@ class Record extends Component {
 
   renderRecordBtns() {
     const { isSubList, editable, getDataType } = this.props;
-    const { isEdit, sheetRow, customBtns, advancedSetting, rules, switchPermit, rulesLocked } = this.state;
+    const { isEdit, sheetRow, customBtns, advancedSetting, rules, rulesLocked } = this.state;
     const baseIds = this.getBaseIds();
     const allowEdit = sheetRow.allowEdit || editable;
     const allowDelete = sheetRow.allowDelete || (isSubList && editable);
-    const allowShare =
-      isOpenPermit(permitList.recordShareSwitch, switchPermit, baseIds.viewId) && !md.global.Account.isPortal;
+    const allowShare = !md.global.Account.isPortal;
     let copyCustomBtns = _.cloneDeep(customBtns);
     let showBtnsOut =
       copyCustomBtns.length && copyCustomBtns.length >= 2
@@ -768,19 +777,22 @@ class Record extends Component {
                   </WingBlank>
                 );
               })}
-              {(!getDataType || getDataType !== 21) && (allowDelete || allowShare) && !customBtns.length && (
-                <WingBlank className="flex mLeft6 mRight6" size="sm">
-                  <Button
-                    className="Font13"
-                    type="primary"
-                    onClick={() => {
-                      this.handleMoreOperation({ allowDelete, allowShare });
-                    }}
-                  >
-                    <span>{_l('更多操作')}</span>
-                  </Button>
-                </WingBlank>
-              )}
+              {(!getDataType || getDataType !== 21) &&
+                (allowDelete || allowShare) &&
+                !customBtns.length &&
+                !this.props.hideOtherOperate && (
+                  <WingBlank className="flex mLeft6 mRight6" size="sm">
+                    <Button
+                      className="Font13"
+                      type="primary"
+                      onClick={() => {
+                        this.handleMoreOperation({ allowDelete, allowShare });
+                      }}
+                    >
+                      <span>{_l('更多操作')}</span>
+                    </Button>
+                  </WingBlank>
+                )}
               {customBtns.length && baseIds.appId && !this.props.isMobileOperate ? (
                 <div
                   className="moreOperation"
@@ -938,7 +950,7 @@ class Record extends Component {
       advancedSetting,
       switchPermit,
       formStyleImggeData = [],
-      externalPortalConfig
+      externalPortalConfig,
     } = this.state;
     const { relationRow, isModal, onClose, getDataType } = this.props;
     const viewHideControls = _.get(sheetRow, 'view.controls') || [];
@@ -948,7 +960,8 @@ class Record extends Component {
     const allowApprove =
       isOpenPermit(permitList.approveDetailsSwitch, switchPermit, baseIds.viewId) &&
       !this.isSharePage &&
-      getDataType !== 21 && (md.global.Account.isPortal ? externalPortalConfig.approved : true);
+      getDataType !== 21 &&
+      (md.global.Account.isPortal ? externalPortalConfig.approved : true);
     const recordMuster = _.sortBy(
       updateRulesData({ rules: rules, data: sheetRow.receiveControls }).filter(
         control =>
@@ -1010,7 +1023,15 @@ class Record extends Component {
                 {getDataType === 21 ? (
                   <div className="sheetName ellipsis">{`${advancedSetting.title || '创建记录'}（${_l('草稿')}）`}</div>
                 ) : (
-                  <div className="sheetName ellipsis">{_l('工作表：%0', sheetRow.worksheetName)}</div>
+                  <div
+                    className="sheetName ellipsis"
+                    onClick={() => {
+                      if (location.pathname.indexOf('public') > -1) return;
+                      navigateTo(`/mobile/recordList/${sheetRow.appId}/${sheetRow.groupId}/${baseIds.worksheetId}`);
+                    }}
+                  >
+                    {_l('工作表：%0', sheetRow.worksheetName)}
+                  </div>
                 )}
                 {!isEdit && onClose && (
                   <Icon icon="closeelement-bg-circle" className="Gray_9e Font22 mLeft5" onClick={onClose} />
@@ -1026,7 +1047,15 @@ class Record extends Component {
             <div className="mobileFormTop Relative">
               <FormCover flag={random.toString()} formData={this.formData} widgetStyle={advancedSetting} />
               <div className="flexRow sheetNameWrap fixedSheetNameWrap ">
-                <div className="sheetName ellipsis">{_l('工作表：%0', sheetRow.worksheetName)}</div>
+                <div
+                  className="sheetName ellipsis"
+                  onClick={() => {
+                    if (location.pathname.indexOf('public') > -1) return;
+                    navigateTo(`/mobile/recordList/${sheetRow.appId}/${sheetRow.groupId}/${baseIds.worksheetId}`);
+                  }}
+                >
+                  {_l('工作表：%0', sheetRow.worksheetName)}
+                </div>
                 {!isEdit && onClose && (
                   <Icon icon="closeelement-bg-circle" className="Gray_9e Font22 mLeft5" onClick={onClose} />
                 )}
@@ -1049,7 +1078,7 @@ class Record extends Component {
             {this.renderTabs(tabs, false)}
           </div>
         )}
-        {!this.isSharePage && this.renderAction()}
+        {(!this.isSharePage || this.props.hideOtherOperate) && this.renderAction()}
       </Fragment>
     );
   }
@@ -1059,7 +1088,7 @@ class Record extends Component {
 
     externalPortalAjax.getConfig({ appId }).then(res => {
       this.setState({
-        externalPortalConfig: res
+        externalPortalConfig: res,
       });
     });
   };
@@ -1103,7 +1132,6 @@ class Record extends Component {
         {abnormal ? this.renderWithoutJurisdiction() : this.renderContent()}
         {this.renderRecordAction()}
         <div className="extraAction" style={{ bottom: currentTab.id == 'approve' ? 13 : undefined }}>
-          <div className="backContainer">{!isEdit && !isModal && this.renderBack()}</div>
           {(((!getDataType || getDataType !== 21) &&
             !this.isSharePage &&
             !isPortal &&

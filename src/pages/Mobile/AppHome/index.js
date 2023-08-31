@@ -62,10 +62,9 @@ class AppHome extends React.Component {
     };
   }
   componentDidMount() {
-    const currentProject = getCurrentProject(
-      localStorage.getItem('currentProjectId') ||
-        (md.global.Account.projects[0] || { projectId: 'external' }).projectId,
-    );
+    const currentProject = !_.isEmpty(getCurrentProject(localStorage.getItem('currentProjectId')))
+      ? getCurrentProject(localStorage.getItem('currentProjectId'))
+      : getCurrentProject((md.global.Account.projects[0] || { projectId: 'external' }).projectId);
     const maturityTime = moment(md.global.Account.createTime).add(7, 'day').format('YYYY-MM-DD');
     const isAdmin = md.global.Account.projects[0]
       ? md.global.Account.projects[0].createAccountId === md.global.Account.accountId
@@ -530,9 +529,9 @@ class AppHome extends React.Component {
       recentAppIds = [],
     } = myAppData;
     const recentApps = recentAppIds.slice(0, 8).map(item => _.filter(apps, it => item === it.id)[0]);
-    const currentProject = getCurrentProject(
-      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
-    );
+    const currentProject = !_.isEmpty(getCurrentProject(localStorage.getItem('currentProjectId')))
+      ? getCurrentProject(localStorage.getItem('currentProjectId'))
+      : getCurrentProject((md.global.Account.projects[0] || { projectId: 'external' }).projectId);
     const distance = ((this.state.width - 12) / 4 - 56) / 2;
 
     if (isHomeLoading) {

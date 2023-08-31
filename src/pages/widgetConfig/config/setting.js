@@ -83,7 +83,7 @@ export const DEFAULT_TEXT = {
     { key: '0', value: _l('关闭') },
   ],
   2: [
-    { key: '1', value: _l('是') },
+    { key: '1', value: _l('是%04015') },
     { key: '0', value: _l('否') },
   ],
 };
@@ -95,11 +95,11 @@ export const SWITCH_TYPES = [
   },
   {
     value: '1',
-    text: _l('开关'),
+    text: _l('开关%02066'),
   },
   {
     value: '2',
-    text: _l('是/否'),
+    text: _l('是/否%02067'),
   },
 ];
 

@@ -172,7 +172,7 @@ export default class OtherTools extends Component {
 
   handleRemove(list, idName, id) {
     this.setState({
-      [list]: this.state[list].filter(x => x[idName] === id),
+      [list]: this.state[list].filter(x => x[idName] !== id),
     });
   }
 
@@ -384,6 +384,7 @@ export default class OtherTools extends Component {
                 {groups.map(item => {
                   return (
                     <span className="announceLabel" key={item.groupId}>
+                      {item.avatar && <img src={item.avatar} className="circle avatar" />}
                       <span className="announceLabelName">{item.name}</span>
                       <span
                         className="mLeft5 icon-closeelement-bg-circle Font14 removeBtn"
@@ -408,6 +409,7 @@ export default class OtherTools extends Component {
                 {users.map(item => {
                   return (
                     <span className="announceLabel" key={item.accountId}>
+                      {item.avatar && <img src={item.avatar} className="circle avatar" />}
                       <span className="announceLabelName">{item.fullname}</span>
                       <span
                         className="mLeft5 icon-closeelement-bg-circle Font14 removeBtn"

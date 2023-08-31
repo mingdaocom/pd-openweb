@@ -1,14 +1,18 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState, useRef } from 'react';
 import cx from 'classnames';
 import { CreateNode } from '../components';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
+import { Icon, Dialog } from 'ming-ui';
 import { addFlowNode } from '../../../redux/actions';
 import _ from 'lodash';
+import { Tooltip } from 'antd';
+import Trigger from 'rc-trigger';
+import 'rc-trigger/assets/index.css';
 
 const ApprovalProcessBox = styled.div`
-  min-width: 333px;
+  min-width: 309px;
   border-radius: 24px 24px 24px 24px;
+  padding: 0 12px;
   &:not(.foldCurrentNode) {
     background: #ededf4;
   }
@@ -98,6 +102,20 @@ const Box = styled.div`
     border-color: transparent;
     box-shadow: 0 0 1px 1px rgba(244, 67, 54, 1), 0 2px 6px rgba(244, 67, 54, 0.4), 0 6px 24px rgba(33, 150, 243, 0.4);
   }
+  &.foldNode {
+    color: #fff;
+    background: #2747f9;
+    .approvalIcon {
+      background: #fff;
+      color: #2747f9;
+    }
+    .workflowOperate {
+      color: rgba(255, 255, 255, 0.8);
+      &:hover {
+        color: #fff;
+      }
+    }
+  }
   .approvalIcon {
     width: 30px;
     height: 30px;
@@ -109,6 +127,21 @@ const Box = styled.div`
     border-radius: 50%;
     color: #fff;
     font-size: 20px;
+  }
+  .workflowOperate {
+    color: #9e9e9e;
+    &:hover {
+      color: #2196f3;
+    }
+  }
+  .workflowNodeName {
+    height: 28px;
+    padding: 4px;
+    font-size: 15px;
+    text-align: left;
+    background: #efefef;
+    color: #333;
+    border: none;
   }
 `;
 
@@ -125,10 +158,117 @@ export default props => {
     isCopy,
     processId,
     updateRefreshThumbnail,
+    deleteNode,
+    updateNodeName,
   } = props;
-  const { flowNodeMap = {}, startEventId, id } = item.processNode;
+  const nodeNameRef = useRef(null);
+  const [foldBtn, showFoldBtn] = useState(true);
+  const [showOperate, setShowOperate] = useState(false);
+  const [editName, setEditName] = useState(false);
+  const { flowNodeMap = {}, startEventId, id } = item.processNode || {};
   const isEmpty = (flowNodeMap[startEventId] || {}).nextId === '99';
   const isHide = _.includes(hideNodes, item.id);
+  const list = [
+    {
+      text: _l('修改名称'),
+      icon: 'edit',
+      events: () => {
+        setEditName(true);
+        setTimeout(() => {
+          nodeNameRef && nodeNameRef.current.focus();
+        }, 100);
+      },
+    },
+    {
+      text: _l('删除'),
+      icon: 'delete1',
+      events: () => {
+        Dialog.confirm({
+          className: 'deleteApprovalProcessDialog',
+          title: <span style={{ color: '#f44336' }}>{_l('删除“%0”', item.name)}</span>,
+          description: _l('这些已触发的流程实例将不会被执行'),
+          onOk: () => {
+            deleteNode(processId, item.id);
+          },
+        });
+      },
+      className: 'flowNodeDel',
+    },
+  ];
+  const NodeCard = () => (
+    <Box
+      className={cx(
+        'flexRow alignItemsCenter',
+        { workflowItemDisabled: disabled || isCopy },
+        { errorShadow: item.selectNodeId && item.isException && _.isEmpty(flowNodeMap) },
+        { active: selectNodeId === item.id },
+        { foldNode: isHide },
+      )}
+      onMouseDown={() => {
+        if (isHide) {
+          changeShrink();
+        } else if (!disabled) {
+          openDetail(processId, item.id, item.typeId);
+          handleFoldBtnTipsPosition();
+        }
+        setShowOperate(false);
+      }}
+    >
+      <span className="approvalIcon">
+        <Icon type="approval" />
+      </span>
+      <div className="flex Font14 bold ellipsis TxtCenter">
+        {editName ? (
+          <input
+            type="text"
+            ref={nodeNameRef}
+            className="workflowNodeName"
+            defaultValue={item.name}
+            onMouseDown={evt => evt.stopPropagation()}
+            onKeyDown={evt => evt.keyCode === 13 && updateName(evt)}
+            onBlur={updateName}
+          />
+        ) : (
+          item.name
+        )}
+      </div>
+      <span className="workflowOperate mLeft10">
+        <Trigger
+          popupVisible={showOperate}
+          action={['click']}
+          popup={
+            showOperate ? (
+              <div className="flowNodeOperateList" style={{ minWidth: 180 }}>
+                <ul>
+                  {list.map((item, index) => (
+                    <li
+                      key={index}
+                      className={cx(item.className)}
+                      onMouseDown={e => {
+                        e.stopPropagation();
+                        item.events();
+                        setShowOperate(false);
+                        handleFoldBtnTipsPosition();
+                      }}
+                    >
+                      <Icon icon={item.icon} />
+                      {item.text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div />
+            )
+          }
+          popupAlign={{ points: ['tr', 'br'] }}
+          onPopupVisibleChange={showOperate => setShowOperate(showOperate)}
+        >
+          <i className="Font18 pointer icon-more_horiz" onMouseDown={e => e.stopPropagation()} />
+        </Trigger>
+      </span>
+    </Box>
+  );
   const AddBtn = options => {
     return (
       <CreateNode
@@ -154,35 +294,54 @@ export default props => {
     safeLocalStorageSetItem('workflowHideNodes', JSON.stringify(workflowHideNodes));
     updateRefreshThumbnail();
   };
+  // 处理折叠按钮tips位置问题
+  const handleFoldBtnTipsPosition = () => {
+    showFoldBtn(false);
+
+    setTimeout(() => {
+      showFoldBtn(true);
+    }, 50);
+  };
+  // 修改节点名称
+  const updateName = evt => {
+    const name = evt.currentTarget.value.trim();
+
+    if (name && name !== item.name) {
+      updateNodeName(processId, item.id, name);
+    }
+
+    setEditName(false);
+  };
 
   return (
     <div className="flexColumn">
       <section className="workflowBox pTop20 approvalProcessBoxBox" data-id={item.id}>
         <ApprovalProcessBox className={cx('flexColumn', { foldCurrentNode: isHide })}>
-          <Box
-            className={cx(
-              'flexRow alignItemsCenter',
-              { workflowItemDisabled: disabled || isCopy },
-              { errorShadow: item.selectNodeId && item.isException && _.isEmpty(flowNodeMap) },
-              { active: selectNodeId === item.id },
-            )}
-            onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
-          >
-            <span className="approvalIcon">
-              <Icon type="approval" />
-            </span>
-            <div className="flex Font14 bold ellipsis TxtCenter">{item.name}</div>
-            <span
-              className="mLeft10 ThemeHoverColor3 pointer Gray_9e"
-              data-tip={isHide ? _l('展开') : _l('收起')}
-              onMouseDown={e => {
-                e.stopPropagation();
-                changeShrink();
-              }}
+          {foldBtn && !isHide ? (
+            <Tooltip
+              title={() => (
+                <span
+                  className="workflowBranchBtnSmall Gray_9e ThemeHoverColor3 mTop7"
+                  data-tip={isHide ? _l('展开') : _l('收起')}
+                  onMouseDown={e => {
+                    e.stopPropagation();
+                    setShowOperate(false);
+                    changeShrink();
+                    handleFoldBtnTipsPosition();
+                  }}
+                >
+                  <Icon type={isHide ? 'arrow-down-border' : 'arrow-up-border'} />
+                </span>
+              )}
+              overlayClassName="workflowBranchTips"
+              overlayStyle={{ width: 34 }}
+              placement="rightTop"
             >
-              <Icon type={isHide ? 'arrow-down-border' : 'arrow-up-border'} />
-            </span>
-          </Box>
+              {NodeCard()}
+            </Tooltip>
+          ) : (
+            NodeCard()
+          )}
 
           {!isHide && startEventId && (
             <Fragment>
@@ -198,7 +357,6 @@ export default props => {
                       firstId: startEventId,
                       excludeFirstId: true,
                       isApproval: true,
-                      approvalSelectNodeId: item.selectNodeId,
                     })}
                 </Fragment>
               )}

@@ -252,7 +252,7 @@ export const getTypeList = (data = {}) => {
     ];
   } else if (showtype === '2') {
     return [
-      { id: '1', text: _l('是') },
+      { id: '1', text: _l('是%04015') },
       { id: '0', text: _l('否') },
     ];
   } else {

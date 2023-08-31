@@ -1,7 +1,7 @@
 ﻿/*
 依赖：字符图标、dialog、plupload、global.js
 */
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import kcCtrl from 'src/api/kc';
 import './css/uploadAttachment.css';
 import headerTpl from './tpl/header.htm';

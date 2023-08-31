@@ -122,7 +122,6 @@ class AppList extends Component {
           })}
         </Flex>
         <Back
-          style={{ bottom: '20px' }}
           onClick={() => {
             window.mobileNavigateTo('/mobile/appGroupList');
           }}

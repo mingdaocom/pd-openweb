@@ -17,12 +17,12 @@ export default function ChangeName(props) {
       title={_l('重命名')}
       onCancel={onCancel}
       onOk={() => {
-        onChange(value);
+        onChange(value.trim());
         onCancel();
       }}
     >
       <EditShowNameCon>
-        <Input className="w100" value={value} onChange={setValue} />
+        <Input className="w100" value={value} onChange={setValue} autoFocus />
       </EditShowNameCon>
     </Dialog>
   );

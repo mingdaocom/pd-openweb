@@ -61,7 +61,13 @@ const SortableItem = SortableElement(props => {
       browse: isKc ? !!data.shareUrl : true,
       fileClassName: getClassNameByExt(data.attachmentType === 5 ? false : data.ext),
       fileSize: formatFileSize(data.filesize),
-      isMore: allowDownload && !md.global.Account.isPortal && !window.share && !location.href.includes('public/query'),
+      isMore:
+        allowDownload &&
+        md.global.Account.accountId &&
+        !md.global.Account.isPortal &&
+        !window.share &&
+        !location.href.includes('public/query') &&
+        !_.get(window, 'shareState.isPublicForm'),
       isDownload: isKc ? data.allowDown === 'ok' : data.accountId === md.global.Account.accountId || isPicture || data.allowDown === 'ok',
     });
   } else {
@@ -214,7 +220,7 @@ const Files = props => {
         attachments: res,
         index: _.findIndex(res, { id: data.fileID }),
         callFrom: 'kc',
-        hideFunctions: ['editFileName'],
+        hideFunctions: ['editFileName', 'share', 'saveToKnowlege'],
       }
     );
   }
@@ -237,7 +243,7 @@ const Files = props => {
       attachments: res,
       index: _.findIndex(attachments, { fileID: data.fileID }),
       callFrom: 'chat',
-      hideFunctions: ['editFileName'],
+      hideFunctions: ['editFileName', 'share', 'saveToKnowlege'],
     });
   }
 

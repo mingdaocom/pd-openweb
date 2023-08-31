@@ -1,23 +1,31 @@
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
 import dataSourceApi from 'src/pages/integration/api/datasource.js';
 import worksheetApi from 'src/api/worksheet';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
-import {
-  namePattern,
-  isValidName,
-  DATABASE_TYPE,
-  SYSTEM_FIELD_IDS,
-} from 'src/pages/integration/dataIntegration/constant.js';
 import _ from 'lodash';
+import { getDefaultData, getInitWorkSheetFields } from '../../utils';
+import {
+  PERSONNEL_FIELDS,
+  DEPT_FIELDS,
+  RELATED_RECORD_FIELDS,
+  DATABASE_TYPE,
+} from 'src/pages/integration/dataIntegration/constant.js';
 
-export const formatTaskNodeData = (list = [], firstId) => {
+export const formatTaskNodeData = (dataList = [], firstId) => {
   // const firstId = "source1";
-  if (list.length <= 0) {
+  if (dataList.length <= 0) {
     return [];
   }
   let parentIds = [];
   let maxY = 0;
+  let list = dataList.map(o => {
+    return {
+      ..._.omit(o, ['x', 'y']),
+      prevIds:
+        ['JOIN', 'UNION'].includes(o.nodeType) && (o.prevIds || []).length > 1
+          ? [_.get(o, 'nodeConfig.config.leftTableId'), _.get(o, 'nodeConfig.config.rightTableId')]
+          : o.prevIds,
+    };
+  });
 
   const generateCoordinateX = (currentId, x, y) => {
     const currentItem = list.find(item => item.nodeId === currentId);
@@ -47,7 +55,6 @@ export const formatTaskNodeData = (list = [], firstId) => {
       // console.log(currentItem, parentNode);
       currentItem.x = parentNode.x - 1;
       currentItem.y = maxY;
-
       generateCoordinateParent(currentItem.prevIds || [], maxY);
     });
   };
@@ -110,18 +117,25 @@ export const formatTaskNodeData = (list = [], firstId) => {
   generateCoordinateParent(parentIds);
   translationX();
   calculationAllRowPosition();
-
   return list;
 };
 
 //计算pathIds
-export const formatDataWithLine = list => {
-  // console.log(list);
+export const formatDataWithLine = dataList => {
+  let list = dataList.map(o => {
+    return {
+      ...o,
+      prevIds:
+        ['JOIN', 'UNION'].includes(o.nodeType) && (o.prevIds || []).length > 1
+          ? [_.get(o, 'nodeConfig.config.leftTableId'), _.get(o, 'nodeConfig.config.rightTableId')]
+          : o.prevIds,
+    };
+  });
   const l = list.map(o => {
     let pathIds = [];
-    if (o.nextIds.length > 0) {
-      o.nextIds.map(it => {
-        pathIds.push({ fromDt: o, toDt: list.find(a => a.nodeId === it) });
+    if ((o.nextIds || []).length > 0) {
+      (o.nextIds || []).map(it => {
+        pathIds.push({ fromDt: o, toDt: list.find(a => a.nodeId === it) || {} });
       });
     }
     return {
@@ -162,7 +176,7 @@ export const formatControls = controls => {
       case 2013:
       case 91:
       case 2014:
-        return { ...o, type: 16, controlId: o.id, controlName: o.name };
+        return { ...o, type: 16, controlId: o.alias, controlName: o.alias };
       case 6:
       case 3:
       case 8:
@@ -174,10 +188,10 @@ export const formatControls = controls => {
       case 16:
       case 5:
       case 7:
-        return { ...o, type: 6, controlId: o.id, controlName: o.name };
+        return { ...o, type: 6, controlId: o.alias, controlName: o.alias };
       default:
         //其他都转成文本类型
-        return { ...o, type: 2, controlId: o.id, controlName: o.name };
+        return { ...o, type: 2, controlId: o.alias, controlName: o.alias };
     }
   });
   return templateControls;
@@ -192,112 +206,6 @@ export const getNodeInfo = async (projectId, flowId, nodeId) => {
   return node;
 };
 
-export const getInitWorkSheetFields = (controls = [], isGetDest, isSourceAppType) => {
-  const rowIDField = controls
-    .filter(c => c.controlId === 'rowid')
-    .map(rowId => {
-      return {
-        id: rowId.controlId,
-        name: 'rowid',
-        alias: 'rowid',
-        dataType: null,
-        jdbcTypeId: null,
-        precision: 0,
-        scale: 0,
-        isPk: true,
-        isNotNull: true,
-        isCheck: true,
-        status: 'NORMAL',
-        mdType: rowId.type,
-        isTitle: false,
-        orderNo: null,
-        controlSetting: { advancedSetting: rowId.advancedSetting, enumDefault: rowId.enumDefault, dot: rowId.dot },
-      };
-    });
-
-  const fields = controls
-    .filter(c => (isGetDest ? !_.includes(SYSTEM_FIELD_IDS, c.controlId) : c.controlId !== 'rowid'))
-    .map(control => {
-      return {
-        id: control.controlId,
-        name: control.controlName,
-        alias: control.alias || control.controlName,
-        dataType: null,
-        jdbcTypeId: null,
-        precision: 0,
-        scale: 0,
-        isPk: false,
-        isNotNull: control.required,
-        isCheck: false,
-        status: 'NORMAL',
-        mdType: control.type,
-        isTitle: false,
-        orderNo: null,
-        controlSetting: {
-          advancedSetting: control.advancedSetting,
-          enumDefault: control.enumDefault,
-          dot: control.dot,
-        },
-      };
-    });
-
-  return isSourceAppType ? rowIDField.concat(fields) : fields;
-};
-export const getInitFieldsMapping = (sourceFields, isSourceAppType, isDestAppType) => {
-  let pkFieldMapping = {};
-  const needReplace = !isSourceAppType || !isDestAppType;
-  const mapping = sourceFields.map(item => {
-    return {
-      sourceField: item,
-      destField: {
-        dependFieldIds: [item.id],
-        isCheck: !!item.isPk,
-        isNotNull: item.isPk,
-        isPk: item.isPk,
-        name: needReplace
-          ? item.alias.replace(namePattern, '') || item.name.replace(namePattern, '')
-          : item.alias || item.name,
-        alias: needReplace
-          ? item.alias.replace(namePattern, '') || item.name.replace(namePattern, '')
-          : item.alias || item.name,
-
-        dataType: null,
-        jdbcTypeId: null,
-        precision: null,
-        scale: null,
-        mdType: null, //仅用于工作表
-        controlSetting: null, //仅用于工作表
-
-        id: null,
-        status: 'NORMAL',
-        orderNo: null,
-        isTitle: false, //仅用于工作表
-      },
-    };
-  });
-  if (!(isSourceAppType && isDestAppType)) {
-    mapping.forEach((item, index) => {
-      if (item.sourceField.isPk) {
-        pkFieldMapping = item;
-        mapping.splice(index, 1);
-        return;
-      }
-    });
-    mapping.unshift(pkFieldMapping);
-  }
-  return getDuplicateFieldsRenamedList(mapping.filter(o => !!o.sourceField));
-};
-export const getDuplicateFieldsRenamedList = list => {
-  const tempObj = {};
-  list.forEach(item => {
-    const fieldName = item.destField.name;
-    tempObj[fieldName] = !tempObj[fieldName] ? 1 : tempObj[fieldName] + 1;
-    if (tempObj[fieldName] > 1) {
-      item.destField.name = item.destField.alias = fieldName + Math.floor(Math.random() * 10000);
-    }
-  });
-  return list;
-};
 /**
  * @param {Object} props
  * {Array} props.initMapping 要更新的fieldsMapping
@@ -322,7 +230,7 @@ export const setFieldsMappingDefaultData = async props => {
   } = props;
   if (matchedTypes) {
     return {
-      fieldsMapping: setDefaultData(
+      fieldsMapping: getDefaultData(
         initMapping,
         matchedTypes,
         isSetDefaultFields,
@@ -339,7 +247,7 @@ export const setFieldsMappingDefaultData = async props => {
     isCreate,
   });
   return {
-    fieldsMapping: setDefaultData(
+    fieldsMapping: getDefaultData(
       initMapping,
       res.matchedTypes,
       isSetDefaultFields,
@@ -350,100 +258,34 @@ export const setFieldsMappingDefaultData = async props => {
     matchedTypes: res.matchedTypes,
   };
 };
-export const getMatchedFieldsOptions = (types, sourceField, destFields, isSourceAppType, isDestAppType) => {
-  const matchedTypeIds = _.uniq(types[sourceField.id].map(type => type.dataType));
-  const matchedMdTypeIds = _.uniq(types[sourceField.id].map(type => type.mdType));
-
-  const matchedFieldsOptions = isDestAppType
-    ? destFields.filter(
-        o => (isSourceAppType ? !!o.isPk === !!sourceField.isPk : true) && _.includes(matchedMdTypeIds, o.mdType),
-      )
-    : destFields.filter(o => !!o.isPk === !!sourceField.isPk && _.includes(matchedTypeIds, o.jdbcTypeId));
-  return matchedFieldsOptions;
-};
-export const setDefaultData = (mapping, types, isSetDefaultFields, destFields, isSourceAppType, isDestAppType) => {
-  let hasSetFields = {};
-  const newFieldsMapping = (mapping || []).map(item => {
-    const isValidField = isValidName(item.sourceField.name) || isSourceAppType;
-    //设置默认选中字段--仅对于选择已有表情况
-    if (isSetDefaultFields) {
-      const matchedFields = getMatchedFieldsOptions(
-        types,
-        item.sourceField,
-        destFields,
-        isSourceAppType,
-        isDestAppType,
-      );
-      const sameNameFields = matchedFields.filter(f => f.name === item.sourceField.name);
-      if (!item.destField.id && sameNameFields.length > 0 && !hasSetFields[sameNameFields[0].name]) {
-        hasSetFields[sameNameFields[0].name] = 1;
-        return {
-          sourceField: { ...item.sourceField, isCheck: !!isValidField },
-          destField: isValidField
-            ? {
-                ...item.destField,
-                isCheck: true,
-                isNotNull: sameNameFields[0].isNotNull,
-                id: sameNameFields[0].id,
-                name: sameNameFields[0].name,
-                alias: sameNameFields[0].alias,
-                dataType: sameNameFields[0].dataType,
-                jdbcTypeId: sameNameFields[0].jdbcTypeId,
-                precision: sameNameFields[0].precision,
-                scale: sameNameFields[0].scale,
-                mdType: sameNameFields[0].mdType,
-                controlSetting: sameNameFields[0].controlSetting,
-              }
-            : item.destField,
-        };
-      }
-    }
-    const itemOptions = types[item.sourceField.id];
-    if (itemOptions.length === 0) {
-      return item;
-    }
-    const initOption = itemOptions.filter(o =>
-      isDestAppType ? o.mdType === item.sourceField.mdType : o.typeName.toLowerCase() === item.sourceField.dataType,
-    )[0];
-
-    const ENUM_TYPE = enumWidgetType[itemOptions[0].mdType];
-    const settingData =
-      ENUM_TYPE === 'DATE_TIME'
-        ? { type: itemOptions[0].mdType, advancedSetting: { showtype: '6' } }
-        : {
-            type: itemOptions[0].mdType,
-            ..._.omit(DEFAULT_DATA[ENUM_TYPE], ['controlName']),
-          };
-
-    return {
-      sourceField: { ...item.sourceField, disabled: !isValidField },
-      destField: {
-        ...item.destField,
-        dataType: (initOption || itemOptions[0]).typeName.toLowerCase(),
-        jdbcTypeId: (initOption || itemOptions[0]).dataType,
-        precision: (initOption || itemOptions[0]).maxLength,
-        scale: (initOption || itemOptions[0]).defaultScale,
-        //工作表
-        mdType: (initOption || itemOptions[0]).mdType,
-        controlSetting: isDestAppType ? _.pick(settingData, ['advancedSetting', 'enumDefault', 'type', 'dot']) : null,
-      },
-    };
-  });
-
-  return newFieldsMapping;
-};
 
 //获取当前节点的fields
-export const getFields = async (node, projectId, isGetDest, isSourceAppType) => {
+export const getFields = async ({
+  node,
+  projectId,
+  isGetDest,
+  isSourceAppType,
+  isDestAppType = true,
+  withRowId,
+  withSys,
+}) => {
   let { dsType, workSheetId, tableName, dbName, schema, datasourceId, dataDestId } =
     _.get(node, ['nodeConfig', 'config']) || {};
   if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
     const res = await worksheetApi.getWorksheetInfo({ worksheetId: workSheetId, getTemplate: true });
-    const fieldsParams = getInitWorkSheetFields(_.get(res, 'template.controls'), !isGetDest, isSourceAppType);
+    const fieldsParams = getInitWorkSheetFields(
+      _.get(res, 'template.controls'),
+      !isGetDest,
+      isSourceAppType,
+      isDestAppType,
+      workSheetId,
+      withRowId,
+      withSys,
+    );
     if (_.isEmpty(fieldsParams)) {
       return [];
     } else {
-      const ress = await dataSourceApi.fillJdbcType(fieldsParams);
+      const ress = await dataSourceApi.fillJdbcType({ worksheetId: workSheetId, fields: fieldsParams });
       return ress;
     }
   } else {
@@ -454,7 +296,64 @@ export const getFields = async (node, projectId, isGetDest, isSourceAppType) => 
       schema,
       tableName,
     };
-    const res = await dataSourceApi.getTableFields(params);
+    const res = await dataSourceApi.getTableFields(params, { fireImmediately: true });
     return res;
   }
+};
+
+export const formatFieldsByType = list => {
+  let initWorkSheetFields = [];
+  const oidStrList = [...PERSONNEL_FIELDS, ...DEPT_FIELDS, ...RELATED_RECORD_FIELDS].map(o => o.id);
+  const isIn = str => {
+    let inStr = false;
+    oidStrList.map(o => {
+      if (str.indexOf(o) >= 0) {
+        inStr = true;
+      }
+    });
+    return inStr;
+  };
+  list.map(control => {
+    const commonObj = control;
+    if (_.includes([26, 27, 29], control.mdType) && !isIn(control.oid)) {
+      const type = control.mdType;
+      if (type === 26) {
+        //人员字段拆分
+        const isExternalUser = _.get(control, 'controlSetting.advancedSetting.usertype') === '2'; // 外部成员
+        if (isExternalUser) {
+          initWorkSheetFields.push({
+            ...commonObj,
+            id: `${control.id}_pName`,
+            oid: `${control.oid}_pName`,
+          });
+        } else {
+          PERSONNEL_FIELDS.forEach(item => {
+            const childField = {
+              ...commonObj,
+              id: `${control.id}_${item.id}`,
+              name: `${control.name} - ${item.name}`,
+              alias: `${control.alias || control.name} - ${item.name}`,
+              oid: `${control.oid}_${item.id}`,
+            };
+            initWorkSheetFields.push(childField);
+          });
+        }
+      } else {
+        (type === 27 ? DEPT_FIELDS : RELATED_RECORD_FIELDS).forEach(item => {
+          //部门和关联记录字段拆分
+          const childField = {
+            ...commonObj,
+            id: `${control.id}_${item.id}`,
+            name: `${control.name} - ${item.name}`,
+            alias: `${control.alias || control.name} - ${item.name}`,
+            oid: `${control.oid}_${item.id}`,
+          };
+          initWorkSheetFields.push(childField);
+        });
+      }
+    } else {
+      initWorkSheetFields.push(commonObj);
+    }
+  });
+  return initWorkSheetFields;
 };

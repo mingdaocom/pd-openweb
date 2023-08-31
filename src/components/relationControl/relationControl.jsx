@@ -6,7 +6,7 @@ import cx from 'classnames';
 import UserHead from 'src/pages/feed/components/userHead';
 import ajaxRequest from 'src/api/form';
 import 'src/components/createTask/createTask';
-import 'src/components/createCalendar/createCalendar';
+import createCalendar from 'src/components/createCalendar/createCalendar';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import DatePicker from 'ming-ui/components/DatePicker';
 import { getClassNameByExt } from 'src/util';
@@ -257,7 +257,7 @@ export default class RelationControl extends Component {
 
     // 新建日程
     if (this.state.selectIndex === 3) {
-      $.CreateCalendar({
+      createCalendar({
         createShare: false,
         callback: item => {
           let { list, repeatList } = this.state;

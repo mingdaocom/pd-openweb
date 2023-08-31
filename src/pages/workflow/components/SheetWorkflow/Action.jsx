@@ -15,38 +15,57 @@ const MenuItem = Menu.Item;
 const WrapCon = styled.div`
   &.hoverBtnWrap .btn {
     &.pass:hover {
-      color: #fff;
-      background: #4caf50;
+      background-color: rgba(76, 175, 80, 0.23);
     }
-    &.handle:hover {
-      color: #fff;
-      background: #2196f3;
+    &.handle:hover,
+    &.revoke:hover,
+    &.urge:hover {
+      background-color: #ececec;
     }
-    &.overrule:hover,
-    &.revoke:hover {
-      color: #fff;
-      background: #f44336;
+    &.overrule:hover {
+      background-color: rgba(244, 67, 54, 0.23);
+    }
+    &.return:hover {
+      background-color: rgba(255, 152, 45, 0.23);
     }
   }
   .btn {
     color: #333;
+    font-weight: bold;
     flex: 1;
     height: 32px;
     min-width: 0;
     padding: 0 10px;
     background: #f7f7f7;
-    border-radius: 6px;
+    border-radius: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-right: 10px;
     transition: 0.2s;
     &.pass {
-      color: #4caf50;
+      .icon {
+        color: rgba(76, 175, 80, 1);
+      }
+      background-color: rgba(76, 175, 80, 0.13);
     }
-    &.overrule,
     &.revoke {
-      color: #f44336;
+      color: rgba(244, 67, 54, 1);
+    }
+    &.overrule {
+      .icon {
+        color: rgba(244, 67, 54, 1);
+      }
+      background-color: rgba(244, 67, 54, 0.13);
+    }
+    &.return {
+      .icon {
+        color: rgba(255, 152, 45, 1);
+      }
+      background-color: rgba(255, 152, 45, 0.13);
+    }
+    &.urgeDisable {
+      opacity: 0.6;
     }
     &:last-child {
       margin-right: 0;
@@ -361,15 +380,16 @@ function MobileUpdateUserDialog(props) {
 }
 
 export default function WorkflowAction(props) {
-  const { className, hasMore, isCharge, projectId, data } = props;
-  const { onAction, onRevoke, onUrge, onSkip, onUpdateWorkAccounts, onEndInstance, onViewFlowStep, onViewExecDialog } =
-    props;
-  const { allowRevoke, allowUrge, flowNode, workItem } = data;
+  const { className, isBranch, hasMore, isCharge, projectId, data } = props;
+  const { onAction, onRevoke, onUrge, onSkip, onUpdateWorkAccounts, onEndInstance, onViewExecDialog } = props;
+  const { workId, allowRevoke, allowUrge, flowNode, workItem } = data;
   const { type, batch, btnMap, callBackType } = flowNode || {};
   const allowBatch = type === 4 && batch;
   const allowApproval = allowBatch && workItem;
-  const allowCallBack = callBackType !== -1 && workItem;
+  const allOverrule = btnMap[5] && batch && workItem;
+  const allowCallBack = callBackType !== -1 && !allOverrule && batch && workItem;
   const [updateUserDialogVisible, setUpdateUserDialogVisible] = useState(false);
+  const urgeDisable = window[`urgeDisable-workId-${workId}`] || data.urgeDisable || false;
 
   const handleSkip = () => {
     const description =
@@ -381,14 +401,14 @@ export default function WorkflowAction(props) {
         },
         {
           text: _l('确认'),
-          onPress: onSkip,
+          onPress: () => onSkip(data),
         },
       ]);
     } else {
       Dialog.confirm({
         title: _l('确认跳过当前节点 ?'),
         description,
-        onOk: onSkip,
+        onOk: () => onSkip(data),
       });
     }
   };
@@ -403,28 +423,53 @@ export default function WorkflowAction(props) {
         {
           text: _l('确认'),
           style: { color: 'red' },
-          onPress: onEndInstance,
+          onPress: () => onEndInstance(data),
         },
       ]);
     } else {
       Dialog.confirm({
         title: _l('确认中止此条流程 ?'),
-        onOk: onEndInstance,
+        onOk: () => onEndInstance(data),
       });
     }
   };
+
+  const handleRevoke = () => {
+    if (isMobile) {
+      Modal.alert(_l('确认撤回此条流程 ?'), '', [
+        {
+          text: _l('取消'),
+        },
+        {
+          text: _l('确认'),
+          onPress: () => onRevoke(data),
+        },
+      ]);
+    } else {
+      Dialog.confirm({
+        title: _l('确认撤回此条流程 ?'),
+        onOk: () => onRevoke(data),
+      });
+    }
+  };
+
+  const handleUrge = () => {
+    if (!urgeDisable) {
+      onUrge(data);
+    }
+  }
 
   const renderDropdownOverlay = ({ width }) => {
     return (
       <Menu style={{ width, borderRadius: 4 }}>
         <MenuItem
           key="urge"
-          icon={<Icon icon="notifications" className="Font17 Gray_9e pRight5" />}
+          icon={<Icon icon="access_alarm" className="Font17 Gray_9e pRight5" />}
           className="pLeft15 pRight15"
-          style={{ height: 36 }}
-          onClick={onUrge}
+          style={{ height: 36, opacity: urgeDisable ? 0.6 : 1 }}
+          onClick={handleUrge}
         >
-          {_l('催办')}
+          {urgeDisable ? _l('已催') : _l('催办')}
         </MenuItem>
         <MenuItem
           key="skip"
@@ -460,7 +505,7 @@ export default function WorkflowAction(props) {
 
   const handleMobileMoreAction = () => {
     const BUTTONS = [
-      { name: _l('催办'), icon: 'notifications', fn: onUrge },
+      { name: urgeDisable ? _l('已催') : _l('催办'), icon: 'access_alarm', fn: handleUrge },
       { name: _l('跳过当前节点'), icon: 'calendar-task', fn: handleSkip },
       { name: _l('调整当前节点负责人'), icon: 'ic-adjust-department', fn: () => setUpdateUserDialogVisible(true) },
       { name: _l('中止'), icon: 'close', className: 'Red', fn: handleEndInstance },
@@ -495,7 +540,7 @@ export default function WorkflowAction(props) {
         visible={updateUserDialogVisible}
         onCancel={() => setUpdateUserDialogVisible(false)}
         onOK={ids => {
-          onUpdateWorkAccounts(ids);
+          onUpdateWorkAccounts(data, ids);
         }}
       />
     );
@@ -534,39 +579,42 @@ export default function WorkflowAction(props) {
     <WrapCon className={cx('flexRow valignWrapper approveBtnWrapper', className, { hoverBtnWrap: !isMobile })}>
       <Fragment>
         {allowApproval && (
-          <div className="btn pass" onClick={() => onAction('pass')}>
+          <div className="btn pass" onClick={() => onAction(data, 'pass')}>
+            <Icon icon="done" className="Font17 mRight3" />
             <span className="ellipsis">{btnMap[4] || _l('通过')}</span>
           </div>
         )}
-        {allowApproval && (
-          <div className="btn overrule" onClick={() => onAction('overrule')}>
+        {allOverrule && (
+          <div className="btn overrule" onClick={() => onAction(data, 'overrule')}>
+            <Icon icon="clear" className="Font17 mRight3" />
             <span className="ellipsis">{btnMap[5] || _l('否决')}</span>
           </div>
         )}
       </Fragment>
-      {/*allowCallBack && (
-        <div className="btn handle" onClick={() => onAction('return')}>
-          <span className="ellipsis">{_l('退回')}</span>
+      {allowCallBack && (
+        <div className="btn return" onClick={() => onAction(data, 'return')}>
+          <Icon icon="repeal-o" className="Font17 mRight3" />
+          <span className="ellipsis">{btnMap[17] || _l('退回')}</span>
         </div>
-      )*/}
-      {workItem && type === 3 && (
-        <div className="btn handle" onClick={() => onViewExecDialog()}>
+      )}
+      {workItem && (type === 3 || type === 0) && (
+        <div className="btn handle" onClick={() => onViewExecDialog(data)}>
           <span className="ellipsis">{_l('前往填写')}</span>
         </div>
       )}
       {workItem && type === 4 && (
-        <div className="btn handle" onClick={() => onViewExecDialog()}>
+        <div className="btn handle" onClick={() => onViewExecDialog(data)}>
           <span className="ellipsis">{_l('前往办理')}</span>
         </div>
       )}
-      {((allowRevoke && allowApproval) || workItem ? false : allowRevoke) && (
-        <div className="btn revoke" onClick={() => onRevoke()}>
+      {((allowRevoke && allowApproval) || workItem ? false : allowRevoke) && !isBranch && (
+        <div className="btn revoke" onClick={handleRevoke}>
           {_l('撤回')}
         </div>
       )}
       {((allowUrge && allowApproval) || workItem ? false : allowUrge) && (
-        <div className="btn handle" onClick={onUrge}>
-          {_l('催办')}
+        <div className={cx('btn urge', { urgeDisable })} onClick={handleUrge}>
+          {urgeDisable ? _l('已催') : _l('催办')}
         </div>
       )}
       {hasMore &&

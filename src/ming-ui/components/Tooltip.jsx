@@ -93,7 +93,7 @@ class Tooltip extends Component {
     text: <span />,
     popupPlacement: 'top',
     themeColor: 'black',
-    offset: [1, 1],
+    offset: [1, 3],
     overflow: [1, 1],
     disable: false,
     tooltipStyle: {},

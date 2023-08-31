@@ -2,6 +2,7 @@ import React, { Fragment, useState } from 'react';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
 import { DropdownOverlay, DropdownPlaceholder } from '../styled';
+import { isEmptyValue } from 'src/components/newCustomFields/tools/filterFn.js';
 import _ from 'lodash';
 
 export default function DropdownWrapper(props) {
@@ -19,7 +20,7 @@ export default function DropdownWrapper(props) {
   const [searchValue, setValue] = useState('');
   const filterData = searchValue ? data.filter(item => item.text.includes(searchValue)) : data;
   const renderPlaceholder = () => {
-    if (!value) return <div className="placeholder">{placeholder || _l('请选择')}</div>;
+    if (isEmptyValue(value)) return <div className="placeholder">{placeholder || _l('请选择')}</div>;
     if (renderDisplay && typeof renderDisplay === 'function') return renderDisplay(value);
     return <div className="text">{(data.find(item => item.value === value) || {}).text}</div>;
   };

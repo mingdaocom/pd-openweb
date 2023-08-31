@@ -43,7 +43,7 @@ import ManageBackupFilesDialog from './appBackupRestore/ManageBackupFilesDialog'
 import AppAnalytics from 'src/pages/Admin/useAnalytics/components/AppAnalytics';
 import { unlockAppLockPassword, lockAppFunc } from './AppLockPasswordDialog';
 import _ from 'lodash';
-import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
+import { isHaveCharge, canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 const mapStateToProps = ({ sheet, sheetList, appPkg: { appStatus } }) => ({ sheet, sheetList, appStatus });
 const mapDispatchToProps = dispatch => ({
@@ -54,6 +54,8 @@ const mapDispatchToProps = dispatch => ({
   refreshSheetList: () => dispatch(refreshSheetList()),
 });
 const rowInfoReg = /\/app\/(.*)\/(.*)(\/(.*))?\/row\/(.*)|\/app\/(.*)\/newrecord\/(.*)\/(.*)/;
+const workflowDetailReg = /\/app\/(.*)\/workflowdetail\/record\/(.*)\/(.*)/;
+const checkRecordInfo = url => rowInfoReg.test(url) || workflowDetailReg.test(url);
 
 let mousePosition = { x: 139, y: 23 };
 @connect(mapStateToProps, mapDispatchToProps)
@@ -116,11 +118,11 @@ export default class AppInfo extends Component {
       this.getData();
     }
     if (
-      (this.ids.appId === getIds(this.props).appId && rowInfoReg.test(nextProps.location.pathname)) ||
-      rowInfoReg.test(this.props.location.pathname)
+      (this.ids.appId === getIds(this.props).appId && checkRecordInfo(nextProps.location.pathname)) ||
+      checkRecordInfo(this.props.location.pathname)
     ) {
       const { data } = this.state;
-      const isRowInfo = rowInfoReg.test(nextProps.location.pathname);
+      const isRowInfo = checkRecordInfo(nextProps.location.pathname);
       const currentPcNaviStyle = isRowInfo ? 0 : data.pcNaviStyle;
       const appStatus = isRowInfo ? 0 : nextProps.appStatus;
       this.setState({
@@ -185,14 +187,16 @@ export default class AppInfo extends Component {
     const { appId, worksheetId } = this.ids;
     if (!appId) return;
     api
-      .getAppDetail(
+      .getApp(
         {
           appId: md.global.Account.isPortal ? md.global.Account.appId : appId,
+          getSection: true,
+          getManager: window.isPublicApp ? false : true,
         },
         { silent: true },
       )
       .then(data => {
-        data.currentPcNaviStyle = rowInfoReg.test(location.pathname) ? 0 : data.pcNaviStyle;
+        data.currentPcNaviStyle = checkRecordInfo(location.pathname) ? 0 : data.pcNaviStyle;
         data.themeType = this.getThemeType(data.iconColor, data.navColor);
 
         this.setState({ data });
@@ -216,6 +220,8 @@ export default class AppInfo extends Component {
           'currentPcNaviStyle',
           'themeType',
           'viewHideNavi',
+          'managers',
+          'selectAppItmeType',
         ]);
         syncAppDetail(appDetail);
         this.checkNavigationStyle(data.currentPcNaviStyle);
@@ -324,7 +330,7 @@ export default class AppInfo extends Component {
     e.stopPropagation();
     const { currentPcNaviStyle } = this.state.data;
     const { location, sheet, sheetList } = this.props;
-    if (/row|role|workflow/.test(location.pathname)) {
+    if (/row|role|workflow|newrecord/.test(location.pathname)) {
       const { appId } = getIds(this.props);
       navigateTo(`/app/${appId}`);
       return;
@@ -675,7 +681,7 @@ export default class AppInfo extends Component {
               )}
             </div>
           )}
-          {description && isNormalApp && (
+          {(isHaveCharge(permissionType, isLock) ? description : true) && isNormalApp && (
             <div
               className="appIntroWrap pointer"
               data-tip={_l('应用说明')}
@@ -727,7 +733,9 @@ export default class AppInfo extends Component {
             <div className="flex">
               {!(window.isPublicApp || !s || md.global.Account.isPortal) && renderHomepageIconWrap()}
             </div>
-            {!(md.global.Account.isPortal || window.isPublicApp) && tr && <MyProcessEntry type="appPkg" renderContent={renderContent} />}
+            {!(md.global.Account.isPortal || window.isPublicApp) && tr && (
+              <MyProcessEntry type="appPkg" renderContent={renderContent} />
+            )}
           </div>
           <div className="flexRow alignItemsCenter pTop10 Relative">{renderAppDetailWrap()}</div>
         </div>
@@ -845,8 +853,9 @@ export default class AppInfo extends Component {
         )}
         {/* 当应用状态正常且应用描述有值且第一次进入此应用会弹出编辑框 */}
         <RcDialog
+          zIndex={1000}
           className="appIntroDialog"
-          wrapClassName="appIntroDialogWrapCenter"
+          wrapClassName={cx('appIntroDialogWrapCenter', { preview: !isEditing })}
           visible={editAppIntroVisible || (!window.isPublicApp && isShowAppIntroFirst && description && isNormalApp)}
           onClose={() => this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false })}
           animation="zoom"
@@ -859,8 +868,10 @@ export default class AppInfo extends Component {
         >
           <EditAppIntro
             cacheKey="appIntroDescription"
+            data={data}
             description={description}
             permissionType={permissionType}
+            isLock={isLock}
             // isEditing={!description && isAuthorityApp}
             isEditing={isEditing}
             changeEditState={isEditing => {
@@ -876,7 +887,7 @@ export default class AppInfo extends Component {
               this.setState({
                 hasChange: false,
               });
-              this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false, hasChange: false });
+              this.switchVisible({ isShowAppIntroFirst: false, hasChange: false });
             }}
             onCancel={() =>
               this.switchVisible({ editAppIntroVisible: false, isShowAppIntroFirst: false, hasChange: false })

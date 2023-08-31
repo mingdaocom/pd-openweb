@@ -7,7 +7,7 @@ import cx from 'classnames';
 import { getAppStatusText } from 'src/pages/PageHeader/util';
 import SvgIcon from 'src/components/SvgIcon';
 import _ from 'lodash';
-import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
+import { getAppNavigateUrl, transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import { addBehaviorLog } from 'src/util';
 
 const AppStatus = styled.div`
@@ -42,6 +42,8 @@ function SideAppItem({
   isGoodsStatus,
   isNew,
   fixed,
+  pcNaviStyle,
+  selectAppItmeType,
   createType,
   urlTemplate,
 }) {
@@ -50,14 +52,7 @@ function SideAppItem({
     <MdLink
       className="stopPropagation"
       key={id}
-      to={
-        storage
-          ? `/app/${id}/${_.filter(
-              [storage.lastGroupId, storage.lastWorksheetId, storage.lastViewId],
-              item => !!item,
-            ).join('/')}?from=insite`
-          : `/app/${id}`
-      }
+      to={getAppNavigateUrl(id, pcNaviStyle, selectAppItmeType)}
       onClick={e => {
         addBehaviorLog('app', id); // 浏览应用埋点
 

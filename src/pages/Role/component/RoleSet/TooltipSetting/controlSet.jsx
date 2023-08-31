@@ -1,20 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Checkbox, Icon, Tooltip } from 'ming-ui';
-import { fieldPropType } from 'src/pages/Role/config.js';
+import { Checkbox, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
 import lookPng from './img/s.png';
 import _ from 'lodash';
+import { formatFields, getSectionIds, getFunction, getDecryptCheckboxProps } from './util';
 
 const Wrap = styled.div`
   text-align: left;
   .title {
     font-weight: 400;
-  }
-  .filedName {
-    flex: 2;
   }
   .fieldsHeader {
     position: sticky;
@@ -24,6 +20,13 @@ const Wrap = styled.div`
     z-index: 1;
     border-bottom: 1px solid #eaeaea;
   }
+  .filedName {
+    width: 260px;
+    padding-left: 2px;
+    .isParent {
+      margin-left: -18px;
+    }
+  }
   .fieldItem {
     border-bottom: 1px solid #eaeaea;
     padding: 13px;
@@ -32,35 +35,23 @@ const Wrap = styled.div`
       background: #ffe49b;
       border-radius: 3px 3px 3px 3px;
     }
+    &.isChild {
+      margin-left: 24px;
+      .filedName {
+        width: 236px;
+      }
+    }
   }
 `;
-const getFunction = function (keyName) {
-  return function (fields) {
-    const isAll = _.every(fields, ({ [keyName]: value }) => !value);
-    const isPart = !isAll && _.some(fields, ({ [keyName]: value }) => !value);
-    return { isAll, isPart };
-  };
-};
 
 export default class extends React.PureComponent {
-  static propTypes = {
-    // showEdit: PropTypes.bool,
-    // showAdd: PropTypes.bool,
-    onChange: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired,
-    fields: PropTypes.arrayOf(fieldPropType),
-  };
-
   constructor(props) {
     super(props);
 
     this.state = {
       fields: this.props.fields,
+      closeList: [],
     };
-
-    this.getAddCheckboxProps = getFunction('notAdd');
-    this.getEditCheckboxProps = getFunction('notEdit');
-    this.getReadCheckboxProps = getFunction('notRead');
   }
 
   componentWillReceiveProps(nextProps) {
@@ -71,64 +62,16 @@ export default class extends React.PureComponent {
     }
   }
 
-  getDecryptCheckboxProps = () => {
-    const { fields = [] } = this.state;
-    let fieldData = fields.filter(o => o.dataMask === '1');
-    const isAll = _.every(fieldData, o => o.isDecrypt);
-    const isPart = !isAll && _.some(fieldData, o => o.isDecrypt);
-    return { isAll, isPart };
-  };
-
   changeFields = (checked, fieldId, key) => {
     const { onChange } = this.props;
-    const { fields } = this.state;
-    const changeField = field => {
-      if (key === 'notEdit' && !checked) {
-        return {
-          ...field,
-          [key]: checked,
-          notRead: checked,
-        };
-      }
-      if (key === 'notRead' && checked) {
-        return {
-          ...field,
-          notRead: true,
-          notEdit: true,
-          isDecrypt: false, //取消查看，同时取消解密
-        };
-      }
-      //勾选解密时，同时勾选查看
-      if (key === 'isDecrypt' && checked && field.dataMask === '1') {
-        return {
-          ...field,
-          isDecrypt: true,
-          notRead: false,
-        };
-      }
-      return {
-        ...field,
-        [key]: checked,
-      };
-    };
-    let fieldsN = _.map(fields, field => {
-      // 全选切换
-      if (fieldId === undefined) {
-        return changeField(field);
-      }
-      // 单选切换
-      if (field.fieldId === fieldId) {
-        return changeField(field);
-      }
-      return field;
-    });
+    const fields = formatFields(checked, fieldId, key, this.state.fields);
     this.setState(
       {
-        fields: fieldsN,
+        fields,
       },
       () => {
         onChange({
-          fields: fieldsN,
+          fields,
         });
       },
     );
@@ -150,74 +93,118 @@ export default class extends React.PureComponent {
     this.changeFields(!checked, fieldId, 'isDecrypt');
   };
 
-  renderList = () => {
+  renderLiCon = ({
+    fieldName,
+    fieldId,
+    type,
+    notAdd,
+    notEdit,
+    notRead,
+    isDecrypt,
+    hideWhenAdded,
+    dataMask,
+    sectionId,
+  }) => {
+    const { fields, closeList } = this.state;
     const { formatViews, sheet } = this.props;
-    const { showEdit, showRead } = formatViews(sheet.views);
+    const { showEdit } = formatViews(sheet.views);
     const showAdd = sheet.canAdd;
-    const { fields } = this.state;
     const showDecrypt = fields.filter(o => o.dataMask === '1').length > 0;
+    const isDecryptField = dataMask === '1';
+    const ids = getSectionIds(fields);
+    if (closeList.includes(sectionId)) {
+      return '';
+    }
+    const sections = fields.filter(o => o.sectionId === fieldId);
+    const isPartAddSection =
+      sections.length > sections.filter(o => !o.notAdd).length && sections.filter(o => !o.notAdd).length > 0;
+    const isPartShowSection =
+      sections.length > sections.filter(o => !o.notRead).length && sections.filter(o => !o.notRead).length > 0;
+
+    return (
+      <div className={cx('fieldItem flexRow alignItemsCenter', { isChild: sectionId })} key={fieldId}>
+        <div
+          className={cx('filedName flexRow alignItemsCenter', { Hand: ids.includes(fieldId) })}
+          onClick={() => {
+            this.setState({
+              closeList: closeList.includes(fieldId) ? closeList.filter(o => o !== fieldId) : closeList.concat(fieldId),
+            });
+          }}
+        >
+          {ids.includes(fieldId) && (
+            <i
+              className={cx(
+                'icon mRight6 Font14 isParent',
+                !closeList.includes(fieldId) ? 'icon-arrow-down' : 'icon-arrow-up',
+              )}
+            ></i>
+          )}
+          {<i className={cx('icon Gray_9e mRight6 Font16', 'icon-' + getIconByType(type))}></i>}
+          <span className="flex">
+            {fieldName || (type === 22 ? _l('分段') : _l('备注'))}
+            {isDecryptField && <span className="isDecrypt mLeft3">{_l('脱敏')}</span>}
+          </span>
+        </div>
+        <div className={'filedSetting flex'}>
+          {!hideWhenAdded && (
+            <Checkbox
+              checked={showAdd ? !notAdd : false}
+              disabled={!showAdd}
+              value={fieldId}
+              onClick={this.changeFieldAddAuth}
+              {...(ids.includes(fieldId) ? { clearselected: isPartAddSection } : {})}
+            />
+          )}
+        </div>
+        <div className={'filedSetting flex'}>
+          <Checkbox
+            checked={!notRead}
+            value={fieldId}
+            onClick={this.changeFieldReadAuth}
+            {...(ids.includes(fieldId) ? { clearselected: isPartShowSection } : {})}
+          />
+        </div>
+        <div className={'filedSetting flex'}>
+          {![52].includes(type) && (
+            <Checkbox
+              checked={showEdit ? !notEdit : false}
+              disabled={!showEdit}
+              value={fieldId}
+              onClick={this.changeFieldEditAuth}
+            />
+          )}
+        </div>
+        {/* 解密 */}
+        {showDecrypt && (
+          <div className={'filedSetting flex'}>
+            {isDecryptField && <Checkbox checked={isDecrypt} value={fieldId} onClick={this.changeFieldDecryptAuth} />}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  renderList = () => {
+    const { fields } = this.state;
     return (
       <div className="">
-        {_.map(
-          fields,
-          ({ fieldName, fieldId, type, notAdd, notEdit, notRead, isDecrypt, hideWhenAdded, dataMask }) => {
-            const isDecryptField = dataMask === '1';
-            return (
-              <div className={'fieldItem flexRow alignItemsCenter'} key={fieldId}>
-                <div className={'filedName flexRow alignItemsCenter'}>
-                  {<i className={cx('icon Gray_9e mRight6 Font16', 'icon-' + getIconByType(type))}></i>}
-                  <span className="flex">
-                    {fieldName || (type === 22 ? _l('分割线') : _l('备注'))}
-                    {isDecryptField && <span className="isDecrypt mLeft3">{_l('脱敏')}</span>}
-                  </span>
-                </div>
-                <div className={'filedSetting flex'}>
-                  {!hideWhenAdded && (
-                    <Checkbox
-                      checked={showAdd ? !notAdd : false}
-                      disabled={!showAdd}
-                      value={fieldId}
-                      onClick={this.changeFieldAddAuth}
-                    />
-                  )}
-                </div>
-                <div className={'filedSetting flex'}>
-                  <Checkbox checked={!notRead} value={fieldId} onClick={this.changeFieldReadAuth} />
-                </div>
-                <div className={'filedSetting flex'}>
-                  <Checkbox
-                    checked={showEdit ? !notEdit : false}
-                    disabled={!showEdit}
-                    value={fieldId}
-                    onClick={this.changeFieldEditAuth}
-                  />
-                </div>
-                {/* 解密 */}
-                {showDecrypt && (
-                  <div className={'filedSetting flex'}>
-                    {isDecryptField && (
-                      <Checkbox checked={isDecrypt} value={fieldId} onClick={this.changeFieldDecryptAuth} />
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          },
-        )}
+        {_.map(fields, data => {
+          return this.renderLiCon(data);
+        })}
       </div>
     );
   };
 
   renderContent() {
     const { formatViews, sheet } = this.props;
-    const { showEdit, showRead } = formatViews(sheet.views);
+    const { showEdit } = formatViews(sheet.views);
     const showAdd = sheet.canAdd;
     const { fields } = this.state;
 
-    const addProps = this.getAddCheckboxProps(fields);
-    const readProps = this.getReadCheckboxProps(fields);
-    const editProps = this.getEditCheckboxProps(fields);
-    const decryptProps = this.getDecryptCheckboxProps();
+    const addProps = getFunction('notAdd')(fields.filter(o => !o.hideWhenAdded));
+    const readProps = getFunction('notRead')(fields);
+    const editProps = getFunction('notEdit')(fields);
+    const decryptProps = getDecryptCheckboxProps(fields);
     const showDecrypt = fields.filter(o => o.dataMask === '1').length > 0;
 
     return (
@@ -263,7 +250,7 @@ export default class extends React.PureComponent {
                 clearselected={decryptProps.isPart}
                 onClick={this.changeFieldDecryptAuth}
               >
-                {_l('解密')}
+                {_l('解码')}
               </Checkbox>
             </div>
           )}

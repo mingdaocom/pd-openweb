@@ -80,7 +80,7 @@ export default class Level extends React.Component {
   }
 
   render() {
-    const { from, className, style, cell, editable, isediting, onClick } = this.props;
+    const { from, recordId, className, style, cell, editable, isediting, onClick } = this.props;
     const { value } = this.state;
     const isMobile = browserIsMobile();
     if (isMobile) {
@@ -101,20 +101,22 @@ export default class Level extends React.Component {
         style={style}
         onClick={onClick}
       >
-        <div className="flex flexRow">
-          {isMobile && (
-            <span className="mRight5" style={{ marginTop: '-2px' }}>
-              {value}
-            </span>
-          )}
-          <CustomScore
-            hideTip
-            score={value}
-            data={cell}
-            disabled={!editable || from === FROM.CARD}
-            callback={this.handleChange}
-          />
-        </div>
+        {recordId !== 'empty' && (
+          <div className="flex flexRow">
+            {isMobile && (
+              <span className="mRight5" style={{ marginTop: '-2px' }}>
+                {value}
+              </span>
+            )}
+            <CustomScore
+              hideTip
+              score={value}
+              data={cell}
+              disabled={!editable || from === FROM.CARD}
+              callback={this.handleChange}
+            />
+          </div>
+        )}
       </div>
     );
   }

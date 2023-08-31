@@ -1,13 +1,9 @@
-import React, { Fragment, useRef, useState } from 'react';
+import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import cx from 'classnames';
 import { ScrollView } from 'ming-ui';
-import { head, isEmpty } from 'lodash';
-import { useDrop } from 'react-dnd-latest';
-import DisplayItem from './displayItem';
-import { DRAG_ITEMS, DRAG_MODE } from '../config/Drag';
+import { isEmpty } from 'lodash';
+import RowItem from './rowItem';
 import Components from './components';
-import { isFullLineDragItem } from '../util/drag';
 import { MAX_CONTROLS_COUNT } from '../config';
 
 const DisplayRowListWrap = styled.div`
@@ -32,6 +28,11 @@ const DisplayRowListWrap = styled.div`
     background: #ffffff;
     display: flex;
     flex-direction: column;
+    .sectionLine {
+      width: calc(100% + 16px);
+      margin: 20px 0 4px -8px;
+      border: 6px solid #f0f0f0;
+    }
   }
   .displayHeader {
     display: flex;
@@ -70,77 +71,26 @@ const DisplayRowListWrap = styled.div`
   }
 `;
 
-const DisplayRowWrap = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0;
-  margin: 0;
-`;
-
-function RowItem({ row, index, ...rest }) {
-  const [pointerDir, setPointerDir] = useState('');
-  const $ref = useRef(null);
-  const [{ isOver }, drop] = useDrop({
-    accept: [DRAG_ITEMS.LIST_ITEM, DRAG_ITEMS.DISPLAY_ITEM],
-    canDrop(item) {
-      const { path } = item;
-      // 同一行的不能拖拽
-      if (!isEmpty(path) && head(path) === index) return false;
-
-      return true;
-    },
-    hover(item, monitor) {
-      if (monitor.isOver({ shallow: true }) && monitor.canDrop()) {
-        if (isFullLineDragItem(item)) {
-          let dir = 'bottom';
-          if ($ref.current) {
-            // 若拖拽点在上半部则指示线在上方
-            const { height, top } = $ref.current.getBoundingClientRect();
-            const { y } = monitor.getClientOffset();
-            if (y - top <= height / 2) dir = 'top';
-          }
-          setPointerDir(dir);
-        } else {
-          setPointerDir('right');
-        }
-      }
-    },
-    drop(item, monitor) {
-      if (monitor.isOver({ shallow: true })) {
-        if (!pointerDir) return;
-        if (pointerDir === 'right') {
-          return { mode: DRAG_MODE.INSERT_TO_ROW_END, rowIndex: index };
-        }
-        // 上下插入整行控件
-        return { mode: DRAG_MODE.INSERT_NEW_LINE, rowIndex: pointerDir === 'top' ? index : index + 1 };
-      }
-    },
-    collect(monitor) {
-      return { isOver: monitor.canDrop() && monitor.isOver({ shallow: true }) };
-    },
-  });
-  drop($ref);
-  return (
-    <div ref={$ref} className={'displayRow'}>
-      <DisplayRowWrap>
-        {row.map((data, columnIndex) => (
-          <DisplayItem key={data.controlId} data={data} path={[index, columnIndex]} {...rest} />
-        ))}
-      </DisplayRowWrap>
-      {isOver && pointerDir && <div className={cx('insertPointer', pointerDir)} />}
-    </div>
-  );
-}
-
 export default function DisplayRow(props) {
-  const { allControls, widgets, fromType } = props;
+  const { allControls, widgets, fromType, batchActive } = props;
+
   const rowsContent = (
     <div className="rowsWrap">
       {widgets.map((row, index) => {
         const id = row.reduce((p, c) => p + c.controlId, '');
-        return !isEmpty(row) && <RowItem key={id} row={row} index={index} {...props} />;
+        const displayItemType = 'common';
+        return (
+          !isEmpty(row) && (
+            <Fragment>
+              {/** 分段内的元素去分段里渲染 */}
+              {row.every(r => r.sectionId && displayItemType !== 'section') ? null : (
+                <RowItem key={id} row={row} index={index} displayItemType={displayItemType} {...props} />
+              )}
+            </Fragment>
+          )
+        );
       })}
-      <Components.BottomDragPointer rowIndex={widgets.length} />
+      <Components.BottomDragPointer height={40} rowIndex={widgets.length} displayItemType={'common'} />
     </div>
   );
   return (
@@ -161,6 +111,8 @@ export default function DisplayRow(props) {
                 <div className="flexRow">
                   <Components.WidgetStyle {...props} />
                   <Components.FieldRecycleBin {...props} />
+
+                  {!isEmpty(batchActive) && <Components.WidgetBatchOption batchActive={batchActive} {...props} />}
                 </div>
               )}
             </div>

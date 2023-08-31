@@ -8,6 +8,12 @@
     font-size: 16px;
     line-height: 50px;
     margin: 0 5px 0 15px;
+    .iconSetting {
+      color: #9e9e9e;
+      &:hover {
+        color: #2196f3;
+      }
+    }
   }
   .inboxItem {
     font-size: 13px;
@@ -263,6 +269,16 @@
           color: #333;
           border: 0;
           background-color: #fff;
+        }
+      }
+    }
+    .bottomAppNameWrap {
+      .fromProcessId {
+        display: none;
+      }
+      &:hover {
+        .fromProcessId {
+          display: inline-block;
         }
       }
     }

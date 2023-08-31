@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Radio } from 'antd';
-import { Tooltip, Checkbox, RadioGroup, Dropdown, Input } from 'ming-ui';
+import { Tooltip, Checkbox, RadioGroup, Dropdown, Input, Slider } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import ControlSelect from 'worksheet/components/ControlSelect';
@@ -14,7 +14,8 @@ import {
   A4_LAYOUT_LIST,
   QR_LABEL_SIZE_LIST,
   QR_LAYOUT_LIST,
-  QR_CODE_SIZE_LIST,
+  PORTRAIT_CODE_SIZE_LIST,
+  LANDSCAPE_QR_CODE_SIZE_LIST,
   QR_POSITION_LIST,
   QR_LAYOUT,
   QR_POSITION,
@@ -26,23 +27,25 @@ import {
   BAR_POSITION,
   BAR_HEIGHT_LIST,
   BAR_POSITION_LIST,
-  QR_CODE_SIZE,
+  PORTRAIT_QR_CODE_SIZE,
+  LANDSCAPE_QR_CODE_SIZE,
 } from './enum';
 import SelectControlWithInput from './SelectControlWithInput';
 import { getDefaultText } from './util';
 import _ from 'lodash';
+import { arrayOf, func, number, shape } from 'prop-types';
 
 const LABEL_MIN_WIDTH = 20;
 const LABEL_MIN_HEIGHT = 20;
-const LABEL_MAX_WIDTH = 100;
-const LABEL_MAX_HEIGHT = 100;
+const LABEL_MAX_WIDTH = 200;
+const LABEL_MAX_HEIGHT = 200;
 
 const Con = styled.div`
   font-size: 13px;
   height: 100%;
   width: 320px;
   background: #fff;
-  padding: 10px 24px 30px;
+  padding: 10px 20px 30px;
   overflow: auto;
   .RadioGroupCon {
     .ming.Radio {
@@ -50,6 +53,16 @@ const Con = styled.div`
       display: inline-block;
       margin: 0;
     }
+  }
+  .switchWH {
+    color: #9d9d9d;
+    margin: 0 8px;
+    line-height: 36px;
+  }
+  .customSizeUnit {
+    font-size: 13px;
+    margin-left: 8px;
+    line-height: 36px;
   }
 `;
 
@@ -73,13 +86,13 @@ const ConfigItem = styled.div(
   ({ label }) => `
   &&:before {
     content: '${label}';
-    width: 64px;
+    width: 80px;
   }
   margin-top: 14px;
   display: flex;
   align-items: center;
   > div {
-    max-width: calc(100% - 64px) !important;
+    max-width: calc(100% - 80px) !important;
   }
   .ant-radio-group {
     width: 100%;
@@ -106,9 +119,6 @@ const InputGroup = styled.div`
     flex: 1;
     overflow: hidden;
     width: auto;
-    &:first-child {
-      margin-right: 10px;
-    }
   }
 `;
 
@@ -144,18 +154,50 @@ function numberFilter(value) {
   return String(value).replace(reg, '');
 }
 
+function OptionsSlider(props) {
+  const { options = [], value, onChange } = props;
+  if (!options.length) {
+    return null;
+  }
+  const selectedIndex = _.findIndex(options, { value }) || 0;
+  return (
+    <Fragment>
+      <Slider
+        triggerWhenMove
+        className="flex"
+        showTip={false}
+        showNumber={false}
+        showInput={false}
+        min={0}
+        max={options.length - 1}
+        step={1}
+        value={options.length - 1 - selectedIndex}
+        onChange={index => {
+          if (options[options.length - 1 - index]) {
+            onChange(options[options.length - 1 - index].value);
+          }
+        }}
+      />
+      {options[selectedIndex] && <span className="mLeft10 Gray_75">{options[selectedIndex].text}</span>}
+    </Fragment>
+  );
+}
+
+OptionsSlider.propTypes = {
+  options: arrayOf(shape({})),
+  value: number,
+  onChange: func,
+};
+
 function LabeSizeConfig(props) {
   const { type, width, height, onChange = () => {} } = props;
   const [size, setSize] = useState({
     width,
     height,
   });
-  useEffect(
-    () => {
-      setSize({ width, height });
-    },
-    [width, height],
-  );
+  useEffect(() => {
+    setSize({ width, height });
+  }, [width, height]);
   function handleWidthChange(e) {
     let newValue = Number(numberFilter(e.target.value) || 0);
     if (newValue < LABEL_MIN_WIDTH) {
@@ -226,6 +268,19 @@ function LabeSizeConfig(props) {
                   }
                 }}
               />
+              <span data-tip={_l('交换')}>
+                <i
+                  className="switchWH icon-sync1 ThemeHoverColor3 Hand"
+                  onClick={() => {
+                    const newSize = { height: size.width, width: size.height };
+                    setSize(newSize);
+                    onChange({
+                      type,
+                      ...newSize,
+                    });
+                  }}
+                />
+              </span>
               <Input
                 value={size.height}
                 onChange={value => {
@@ -238,6 +293,7 @@ function LabeSizeConfig(props) {
                   }
                 }}
               />
+              <span className="customSizeUnit">mm</span>
             </InputGroup>
           </div>
         </ConfigItem>
@@ -261,6 +317,7 @@ export default function Sider(props) {
     labelSize = 0,
     layout = 0,
     codeSize = 0,
+    fontSize = 1,
     position = 0,
     sourceControlId,
   } = config;
@@ -409,7 +466,8 @@ export default function Sider(props) {
                   onUpdate({
                     layout: e.target.value,
                     position: e.target.value === QR_LAYOUT.PORTRAIT ? QR_POSITION.TOP : QR_POSITION.LEFT,
-                    codeSize: e.target.value === QR_LAYOUT.PORTRAIT ? QR_CODE_SIZE.LARGE : QR_CODE_SIZE.SMALL,
+                    codeSize:
+                      e.target.value === QR_LAYOUT.PORTRAIT ? PORTRAIT_QR_CODE_SIZE.HUGE : LANDSCAPE_QR_CODE_SIZE.SMALL,
                   })
                 }
                 value={layout}
@@ -419,12 +477,13 @@ export default function Sider(props) {
           )}
           <TypeLabel>{_l('二维码设置')}</TypeLabel>
           <React.Fragment>
-            <ConfigItem label={_l('尺寸')}>
-              <Radio.Group
-                options={QR_CODE_SIZE_LIST}
-                onChange={e => onUpdate({ codeSize: e.target.value })}
+            <ConfigItem label={_l('大小')}>
+              <OptionsSlider
+                options={layout === QR_LAYOUT.PORTRAIT ? PORTRAIT_CODE_SIZE_LIST : LANDSCAPE_QR_CODE_SIZE_LIST}
                 value={codeSize}
-                optionType="button"
+                onChange={value => {
+                  onUpdate({ codeSize: value });
+                }}
               />
             </ConfigItem>
             <ConfigItem label={_l('位置')}>
@@ -467,9 +526,9 @@ export default function Sider(props) {
               const changes = { labelSize: configValue.type };
               changes.labelCustomWidth = configValue.width || labelCustomWidth || 30;
               changes.labelCustomHeight = configValue.height || labelCustomHeight || 50;
-              if (changes.type === BAR_LABEL_SIZE.CUSTOM) {
+              if (changes.labelSize === BAR_LABEL_SIZE.CUSTOM) {
                 changes.layout =
-                  changes.labelCustomWidth > changes.labelCustomHeight ? BAR_LAYOUT.PORTRAIT : BAR_LAYOUT.LANDSCAPE;
+                  changes.labelCustomHeight > changes.labelCustomWidth ? BAR_LAYOUT.PORTRAIT : BAR_LAYOUT.LANDSCAPE;
               }
               onUpdate(changes);
             }}
@@ -491,7 +550,7 @@ export default function Sider(props) {
           )}
           <TypeLabel>{_l('条形码设置')}</TypeLabel>
           <ConfigItem label={_l('高度')}>
-            <Radio.Group
+            {/* <Radio.Group
               options={BAR_HEIGHT_LIST}
               onChange={e =>
                 onUpdate({
@@ -500,6 +559,13 @@ export default function Sider(props) {
               }
               value={codeSize}
               optionType="button"
+            /> */}
+            <OptionsSlider
+              options={BAR_HEIGHT_LIST}
+              value={codeSize}
+              onChange={value => {
+                onUpdate({ codeSize: value });
+              }}
             />
           </ConfigItem>
           <ConfigItem label={_l('位置')}>
@@ -516,7 +582,32 @@ export default function Sider(props) {
           </ConfigItem>
         </Fragment>
       )}
-      <TypeLabel>{_l('显示文字')}</TypeLabel>
+      <TypeLabel>{_l('显示字段')}</TypeLabel>
+      <ConfigItem label={_l('字号')}>
+        <Slider
+          triggerWhenMove
+          numStyle={{
+            color: '#757575',
+            marginLeft: 18,
+          }}
+          showTip={false}
+          showInput={false}
+          min={0.5}
+          max={1}
+          step={0.1}
+          value={fontSize}
+          onChange={newFontSize => {
+            onUpdate({ fontSize: Number(newFontSize) });
+          }}
+        />
+      </ConfigItem>
+      <Checkbox
+        className="mTop15 mBottom15"
+        size="small"
+        text={_l('显示字段名称')}
+        checked={showControlName}
+        onClick={() => onUpdate({ showControlName: !showControlName })}
+      />
       <Tip>{_l('当前尺寸下最大容纳%0行文字，字段内容超过1行后，默认向下换行直到完整显示。', maxLineNumber)}</Tip>
       <div className="Relative">
         <Tooltip text={<span>{_l('显示为标题')}</span>}>
@@ -543,13 +634,6 @@ export default function Sider(props) {
           }}
         />
       ))}
-      <Checkbox
-        className="mTop10"
-        size="small"
-        text={_l('显示字段名称')}
-        checked={showControlName}
-        onClick={() => onUpdate({ showControlName: !showControlName })}
-      />
     </Con>
   );
 }

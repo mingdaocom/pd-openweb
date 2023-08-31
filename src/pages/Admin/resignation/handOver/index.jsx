@@ -209,8 +209,10 @@ export default class HandOver extends React.Component {
             <td className="tableWork">
               <span className="overflow_ellipsis TxtMiddle Gray Font14">{item.createTime}</span>
             </td>
-            <td className="tableDays">
-              <span className="overflow_ellipsis TxtMiddle color_b Font13">{item.createUser && item.createUser.fullname}</span>
+            <td className="tableDays overflowHidden">
+              <span className="ellipsis TxtMiddle color_b Font13 InlineBlock w100">
+                {item.createUser && item.createUser.fullname}
+              </span>
             </td>
             {ajaxMap[item.originalChargeUser.accountId] ? (
               <td className="tableOptions">

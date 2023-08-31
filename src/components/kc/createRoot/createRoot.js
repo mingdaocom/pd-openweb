@@ -1,5 +1,5 @@
 ﻿import '@mdfe/nanoscroller';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import '../layerMain.css';
 import './createRoot.css';
 import htmlTpl from './tpl/createRoot.html';

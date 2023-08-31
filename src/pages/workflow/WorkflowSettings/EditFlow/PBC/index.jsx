@@ -52,7 +52,7 @@ export default class PBC extends Component {
   };
 
   render() {
-    const { processId, item, disabled, selectNodeId, openDetail } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
     const isPBCExport = item.actionId === ACTION_ID.PBC_OUT;
 
     return (
@@ -77,7 +77,9 @@ export default class PBC extends Component {
               />
             </div>
             <NodeOperate nodeClassName="BGBlueAsh" {...this.props} noDelete={isPBCExport} noCopy={isPBCExport} />
-            <div className="workflowContent Font13">{this.renderContent()}</div>
+            <div className="workflowContent Font13">
+              {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
+            </div>
           </div>
           <CreateNode {...this.props} disabled={isPBCExport} />
         </section>

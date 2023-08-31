@@ -31,6 +31,8 @@ const PAGE_TITLE = {
   portaluser: _l('用户自助购买外部门户用户包'),
   portalupgrade: _l('用户自助购买外部门户用户包'),
   dataSync: _l('用户自助购买数据同步算力升级包'),
+  computing: _l('购买专属算力'),
+  renewcomputing: _l('续费专属算力'),
 };
 
 //主操作标题名称
@@ -271,6 +273,7 @@ export default class ExpansionService extends Component {
               memory: res.specification.memory,
               currentLicense: {
                 ...versionInfo.currentLicense,
+                expireDays: moment(versionInfo.currentLicense.endDate).diff(res.expirationDatetime, 'days'),
               },
             },
           },
@@ -727,7 +730,6 @@ export default class ExpansionService extends Component {
           <span className="Gray_75 mRight24">{_l('到期时间')}</span>
           {moment(renewexclusiveInfo.currentLicense.endDate).format('YYYY年MM月DD日')}
           <span className="Gray_b4">
-            {' '}
             {`（${_l('计费')}：${renewexclusiveInfo.currentLicense.expireDays}${_l('天')}）`}
           </span>
         </div>
@@ -958,7 +960,7 @@ export default class ExpansionService extends Component {
       case EXPAND_TYPE.WORKFLOW:
         return workflowType === 1 ? _l('每月额度升级包') : _l('本月额度升级包');
       case EXPAND_TYPE.COMPUTING:
-        return EXCLUSIVE_TYPE_LIST[exclusiveInfo.type].title;
+        return EXCLUSIVE_TYPE_LIST.find(l => l.key === exclusiveInfo.type).title;
       default:
         return null;
     }

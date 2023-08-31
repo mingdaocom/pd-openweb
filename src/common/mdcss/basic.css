@@ -2587,6 +2587,9 @@ input[type='checkbox']:disabled:checked:after {
 .justifyContentCenter {
   justify-content: center;
 }
+.justifyContentLeft {
+  justify-content: left !important;
+}
 
 .rc-trigger-popup-mask {
   background-color: rgba(0, 0, 0, 0) !important;
@@ -2650,6 +2653,9 @@ html:not(.appHomeMobile) .ant-message {
 .mdAntSelect:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-search-input {
   height: 34px;
 }
+.noBorder:not(.ant-select-customize-input) .ant-select-selector {
+  border: none !important;
+}
 .mdAntSelect.ant-select-single.ant-select-show-arrow .ant-select-selection-item,
 .mdAntSelect.ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
   line-height: 34px;
@@ -2683,3 +2689,19 @@ html:not(.appHomeMobile) .ant-message {
   margin-top: -1px;
 }
 /* ----> antd Select 样式 end */
+
+.ant-tooltip {
+  color: #212121;
+}
+
+.ant-tooltip .ant-tooltip-inner {
+  background-color: #212121;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 5px 10px;
+}
+
+.ant-tooltip .ant-tooltip-arrow-content {
+  --antd-arrow-background-color: #212121;
+}

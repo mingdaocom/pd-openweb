@@ -71,8 +71,11 @@ export function createUploader(option) {
 
       chunkSize = plupload.parseSize(option.chunk_size);
       if (chunkSize > MAX_CHUNK_SIZE) {
+        option.chunk_size = 0;
+      } else {
         option.chunk_size = MAX_CHUNK_SIZE;
       }
+
       // qiniu service  max_chunk_size is 4m
       // reset chunk_size to max_chunk_size(4m) when chunk_size > 4m
     }

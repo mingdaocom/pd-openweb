@@ -15,17 +15,19 @@ import AppearanceConfig from './AppearanceConfig';
 import FormPreview from './FormPreview';
 import { themes } from '../enum';
 import { getDisabledControls, overridePos } from '../utils';
-import cx from 'classnames';
 import _ from 'lodash';
+import { COLORS } from 'src/pages/AppHomepage/components/SelectIcon/config';
+import { generate } from '@ant-design/colors';
 
 const TopBar = styled.div(
   ({ color }) => `height: 10px; background: ${color}; opacity: .4; border-radius: 3px 3px 0 0;`,
 );
-const SubmitCon = styled.div`
+const SubmitCon = styled.div(
+  ({ themeBgColor }) => `
   text-align: center;
   margin: 15px 0 30px;
   .text {
-    max-width: 140px;
+    width: 100%;
   }
   .icon {
     margin-left: 6px;
@@ -33,14 +35,16 @@ const SubmitCon = styled.div`
   }
   input {
     width: 200px;
-    border: 7px solid #2196f3 !important;
+    max-width: calc(100% - 44px);
+    border: 7px solid ${themeBgColor} !important;
     height: 40px !important;
   }
   .Button {
     height: 40px;
     line-height: 40px;
   }
-`;
+`,
+);
 class PublicWorksheetConfigForm extends React.Component {
   static propTypes = {
     controls: PropTypes.arrayOf(PropTypes.shape({})),
@@ -74,6 +78,15 @@ class PublicWorksheetConfigForm extends React.Component {
     delete window.scrollToFormEnd;
   }
 
+  getThemeBgColor = () => {
+    const { themeIndex, themeBgColor } = this.props.worksheetInfo;
+    if (!themeBgColor) {
+      return !themes[themeIndex] ? COLORS[12] : (themes[themeIndex] || {}).main;
+    } else {
+      return themeBgColor;
+    }
+  };
+
   render() {
     const {
       worksheetInfo,
@@ -87,23 +100,24 @@ class PublicWorksheetConfigForm extends React.Component {
       hideControl,
       changeControls,
     } = this.props;
-    const { themeIndex, coverUrl, logoUrl, submitBtnName, advancedSetting } = worksheetInfo;
+    const { coverUrl, logoUrl, submitBtnName, advancedSetting } = worksheetInfo;
     const { appearanceConfigVisible, isEditing } = this.state;
     const disabledControlIds = getDisabledControls(originalControls, worksheetSettings);
     const needHidedControlIds = hidedControlIds.concat(disabledControlIds);
-    const theme = themes[_.isUndefined(themeIndex) ? 4 : themeIndex] || {};
+    const theme = this.getThemeBgColor();
     return (
       <div
         className="publicWorksheetConfigForm flex"
         ref={con => (this.con = con)}
-        style={{ backgroundColor: theme.second }}
+        style={{ backgroundColor: generate(theme)[0] }}
       >
         <AppearanceConfig
+          theme={theme}
           open={appearanceConfigVisible}
           onClose={() => this.setState({ appearanceConfigVisible: false })}
         />
         <ScrollView className="flex">
-          <BgContainer mask {...{ themeIndex, coverUrl }}>
+          <BgContainer mask {...{ theme, coverUrl }}>
             <Absolute top="17" right="24">
               <BlackBtn onClick={() => this.setState({ appearanceConfigVisible: true })}>
                 <i className="icon icon-task-color"></i>
@@ -121,7 +135,7 @@ class PublicWorksheetConfigForm extends React.Component {
               </BlackBtn>
             </Absolute>
             <div className="formContent flexColumn">
-              <TopBar color={theme.main} />
+              <TopBar color={theme} />
               {loading && (
                 <Skeleton
                   direction="column"
@@ -140,6 +154,7 @@ class PublicWorksheetConfigForm extends React.Component {
                       turnLine
                       mutiLine
                       minHeight={38}
+                      maxLength={200}
                       emptyTip={_l('未命名表单')}
                       value={worksheetInfo.name}
                       onChange={value => updateWorksheetInfo({ name: value })}
@@ -193,9 +208,10 @@ class PublicWorksheetConfigForm extends React.Component {
                 />
               )}
               {!loading && (
-                <SubmitCon>
+                <SubmitCon themeBgColor={theme}>
                   <EditableButton
                     name={submitBtnName}
+                    themeBgColor={theme}
                     onChange={value => updateWorksheetInfo({ submitBtnName: value })}
                   />
                 </SubmitCon>

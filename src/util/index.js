@@ -13,6 +13,7 @@ import projectAjax from 'src/api/project';
 import captcha from 'src/components/captcha';
 import accountAjax from 'src/api/account';
 import actionLogAjax from 'src/api/actionLog';
+import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 
 export const emitter = new EventEmitter();
 
@@ -937,7 +938,9 @@ export const getUnUniqName = (data, name = '', key = 'name') => {
   return name;
 };
 
-// 添加行为日志
+/**
+ * 添加行为日志
+ */
 export const addBehaviorLog = (type, entityId, params = {}) => {
   const typeObj = {
     app: 1, // 应用
@@ -958,6 +961,33 @@ export const addBehaviorLog = (type, entityId, params = {}) => {
   });
 };
 
+/**
+ * 判断是否是uuid
+ */
 export function isUUID(id = '') {
   return /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(id);
 }
+
+/**
+ * 随机密码
+ */
+export const randomPassword = length => {
+  let passwordArray = ['ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz', '1234567890'];
+  var password = [];
+  let n = 0;
+  for (let i = 0; i < length; i++) {
+    if (password.length < length - 3) {
+      let arrayRandom = Math.floor(Math.random() * 3);
+      let passwordItem = passwordArray[arrayRandom];
+      let item = passwordItem[Math.floor(Math.random() * passwordItem.length)];
+      password.push(item);
+    } else {
+      let newItem = passwordArray[n];
+      let lastItem = newItem[Math.floor(Math.random() * newItem.length)];
+      let spliceIndex = Math.floor(Math.random() * password.length);
+      password.splice(spliceIndex, 0, lastItem);
+      n++;
+    }
+  }
+  return password.join('');
+};

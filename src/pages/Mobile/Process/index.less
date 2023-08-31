@@ -106,8 +106,6 @@
   }
   .batchApprovalFooter {
     display: flex;
-    height: 56px;
-    justify-content: space-between;
     padding: 17px 13px;
     font-weight: 700;
     box-shadow: 0 -6px 12px rgba(0, 0, 0, 0.12);
@@ -118,15 +116,47 @@
     position: absolute;
     bottom: 0;
     width: 100%;
-    .pass {
-      color: #4CAF50;
+    .passApprove, .rejectApprove {
+      color: #999;
+      text-align: center;
+      padding: 4px 15px;
+      border-radius: 24px;
+      border: 1px solid #DDDDDD;
+      background-color: #fff;
     }
-    .overrule {
-      color: #F44336;
+    .passApprove {
+      &.all {
+        color: #fff;
+        border-color: #4CAF50;
+        background-color: #4CAF50;
+      }
+    }
+    .rejectApprove {
+      &.select {
+        color: #F44336;
+        border-color: #F44336;
+        background-color: rgba(244, 67, 54, 0.12);
+      }
+      &.all {
+        color: #fff;
+        border-color: #F44336;
+        background-color: #F44336;
+      }
     }
     .am-checkbox-inner:after {
       top: 2px;
       right: 7px;
+    }
+    .checkboxDisabled .am-checkbox {
+      background: #00000026;
+      border-radius: 50%;
+      opacity: 0.3;
+      input[type='checkbox']:disabled:after {
+        border-color: #bbbbbb !important;
+      }
+      .am-checkbox-inner {
+        border-color: #9e9e9e;
+      }
     }
   }
   .processBatchOperation {
@@ -137,10 +167,9 @@
     background-color: #fff;
     position: fixed;
     right: 20px;
-    bottom: 60px;
+    bottom: 120px;
     z-index: 99;
   }
-
 }
 
 

@@ -820,14 +820,18 @@ export default class LoopContent extends Component {
             <i className="icon-hr_time Absolute Font16 Gray_9e" style={{ right: 10, top: 10 }} />
           </div>
 
-          <div className="Font13 bold mTop20">{_l('循环')}</div>
-          <Dropdown
-            className="flowDropdown mTop10"
-            data={list}
-            value={data.repeatType}
-            border
-            onChange={value => updateSource({ repeatType: value }, this.disposeDateRule)}
-          />
+          {data.executeTime && (
+            <Fragment>
+              <div className="Font13 bold mTop20">{_l('循环')}</div>
+              <Dropdown
+                className="flowDropdown mTop10"
+                data={list}
+                value={data.repeatType}
+                border
+                onChange={value => updateSource({ repeatType: value }, this.disposeDateRule)}
+              />
+            </Fragment>
+          )}
 
           {data.repeatType !== DATE_TYPE.CUSTOM ? null : isOldCustom ? this.renderOldContent() : this.renderContent()}
         </div>

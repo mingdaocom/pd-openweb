@@ -593,7 +593,7 @@ export default class Push extends Component {
           bg="BGBlue"
           updateSource={this.updateSource}
         />
-        <div className="flex mTop20">
+        <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">{data.pushType ? this.renderContent() : this.renderNullContent()}</div>
           </ScrollView>

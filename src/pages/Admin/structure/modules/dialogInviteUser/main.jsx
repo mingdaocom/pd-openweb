@@ -893,7 +893,7 @@ class Main extends Component {
               ref={select => {
                 this.select = select;
               }}
-              className="w100 jobSelect"
+              className="w100 mdAntSelect"
               dropdownClassName="dropJobList"
               showSearch
               allowClear={jobIds.length > 0}

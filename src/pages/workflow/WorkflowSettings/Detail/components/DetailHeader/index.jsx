@@ -19,32 +19,10 @@ const getNodeTypeForSupportHref = ({ actionId, appType }, selectNodeType) => {
   return String(selectNodeType);
 };
 
-export default function DetailHeader({
-  data,
-  icon,
-  bg,
-  updateSource,
-  closeDetail,
-  selectNodeType,
-  isIntegration,
-  processId,
-  selectNodeId,
-  deleteNode,
-  showDelete,
-}) {
+export default function DetailHeader({ data, icon, bg, updateSource, closeDetail, selectNodeType, isIntegration }) {
   const { name } = data;
   const type = getNodeTypeForSupportHref(data, selectNodeType);
   const href = SUPPORT_HREF[type];
-  const onDelete = () => {
-    Dialog.confirm({
-      className: 'deleteApprovalProcessDialog',
-      title: <span style={{ color: '#f44336' }}>{_l('删除“发起审批流程”')}</span>,
-      description: _l('同时删除审批流程内的所有节点'),
-      onOk: () => {
-        deleteNode(processId, selectNodeId);
-      },
-    });
-  };
 
   if (isIntegration) {
     return (
@@ -60,7 +38,6 @@ export default function DetailHeader({
       <i className={cx('Font24', icon)} />
       <NodeNameInput name={name} updateSource={updateSource} />
       {href && <Support href={href} type={1} className="workflowDetailHeaderSupport mLeft10" />}
-      {showDelete && <i className="icon-delete2 Font18 mLeft10 pointer" onClick={onDelete} />}
       <i className="icon-delete Font18 mLeft10" onClick={closeDetail} />
     </div>
   );

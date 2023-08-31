@@ -1,7 +1,7 @@
 import '@mdfe/jquery-ui';
 import './css/addOldTask.css';
 import { htmlEncodeReg } from 'src/util';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import taskHtml from './tpl/addOldTask.html';
 import 'src/components/mdDialog/dialog';
 import mdAutocomplete from 'src/components/mdAutocomplete/mdAutocomplete';

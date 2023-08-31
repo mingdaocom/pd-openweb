@@ -18,6 +18,7 @@
     align-items: center;
     background: #fff;
     z-index: 1;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 1px 2px;
     &.workflowReleaseHeader {
       background: #313131;
       color: #fff;
@@ -121,7 +122,7 @@
   flex-direction: column;
   text-align: center;
   .publishSuccessImg {
-    background: url("images/icon.png");
+    background: url('images/icon.png');
     width: 190px;
     height: 110px;
     background-size: 190px 110px;
@@ -146,4 +147,18 @@
   vertical-align: top;
   width: 100%;
   border-color: #bdbdbd;
+}
+
+.actionProcessDialog {
+  .Dialog-footer-btns {
+    .Button--primary:first-child {
+      background: #fff;
+      color: #333;
+      border: 1px solid #d0d0d0;
+      &:hover {
+        color: #2196f3;
+        border-color: #2196f3;
+      }
+    }
+  }
 }

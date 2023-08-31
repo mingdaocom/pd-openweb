@@ -422,7 +422,7 @@ export default class AccountChart extends React.Component {
     }
 
     if (loading) {
-      return <LoadDiv />;
+      return <LoadDiv className="mTop40" />;
     }
     return (
       <div className="accountChartContainer">

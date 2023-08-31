@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import { useClickAway } from 'react-use';
 import { Tooltip } from 'ming-ui';
+import cx from 'classnames';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
@@ -18,6 +19,14 @@ const Con = styled.div`
     .CutCon {
       margin-right: 34px;
     }
+    ${({ tableType }) =>
+      tableType !== 'classic'
+        ? `.OperateIcon {
+      display: inline-block;
+    }`
+        : ''}
+  }
+  &.canedit.focusShowEditIcon.focus:not(.isediting) {
     .OperateIcon {
       display: inline-block;
     }
@@ -470,6 +479,7 @@ function cellAttachments(props, sourceRef) {
     isTrash,
     isSubList,
     from = 1,
+    tableType,
     className,
     style,
     projectId,
@@ -660,7 +670,7 @@ function cellAttachments(props, sourceRef) {
     );
   }
   return (
-    <Con className={className} style={style} onClick={onClick}>
+    <Con className={cx(className, { canedit: editable })} tableType={tableType} style={style} onClick={onClick}>
       <CutCon className="CutCon">{attachmentsComp}</CutCon>
       {editable && (
         <OperateIcon className="OperateIcon">

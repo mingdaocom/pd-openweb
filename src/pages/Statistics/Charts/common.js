@@ -134,7 +134,7 @@ export const getAuxiliaryLineConfig = (auxiliaryLines = [], data, { yaxisList, c
     const value = getValue();
     const showText = item.showName || item.showValue;
     const textConfig = {
-      content: `${item.showName ? (item.name || '') : ''} ${item.showValue && _.isNumber(value) ? value : ''}`,
+      content: `${item.showName ? (item.name || '') : ''} ${item.showValue && _.isNumber(value) ? formatrChartValue(value, false, yaxisList, item.controlId) : ''}`,
       offsetY: -5,
       style: {
         fill: item.color

@@ -56,8 +56,18 @@ function renderContent(data, recordInfo, extendParam) {
       oldList = [String(oldValue) === '1' ? '☑' : '☐'];
       newList = [String(newValue) === '1' ? '☑' : '☐'];
     } else if (type === 40) {
-      oldList = [safeParse(oldValue).address].filter(l => l);
-      newList = [safeParse(newValue).address].filter(l => l);
+      let oldObj = safeParse(oldValue);
+      let newObj = safeParse(newValue);
+
+      oldList = [oldObj.address].filter(l => l);
+      newList = [newObj.address].filter(l => l);
+
+      if (oldList.length === 0 && oldObj.x && oldObj.y) {
+        oldList = [`${_l('经度')}：${_.round(oldObj.x, 6)} ${_l('纬度')}：${_.round(oldObj.y, 6)}`];
+      }
+      if (newList.length === 0 && newObj.x && newObj.y) {
+        newList = [`${_l('经度')}：${_.round(newObj.x, 6)} ${_l('纬度')}：${_.round(newObj.y, 6)}`];
+      }
     } else if (id.startsWith('wf') && [16].includes(type)) {
       oldList = oldValue ? [moment(oldValue).format('YYYY-MM-DD HH:mm:ss')] : [];
       newList = newValue ? [moment(newValue).format('YYYY-MM-DD HH:mm:ss')] : [];
@@ -265,13 +275,23 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
               ? safeParse(item.oldValue)
               : undefined;
             if (object && object.rows) {
-              extendText = `${item.editType === 1 ? ' ' + _l('添加了') : ' ' + _l('取消了')}${_l(
+              let newValue = safeParse(item.newValue, 'object');
+              let oldValue = safeParse(item.oldValue, 'object');
+              let _text = ' ';
+              if (item.editType === 1) {
+                _text = ' ' + _l('添加了');
+              } else if (item.editType === 2) {
+                _text = ' ' + _l('取消了');
+              } else {
+                _text = ' ' + (item.newValue ? _l('添加了') : _l('取消了'));
+              }
+              extendText = `${_text}${_l(
                 '%0条',
-                safeParse(object.rows, 'array').length || 1,
+                safeParse(item.newValue ? newValue.rows : oldValue.rows, 'array').length || 1,
               )}`;
             } else if (object) {
               showDelete = false;
-              extendText = `${item.editType === 1 ? ' ' + _l('添加了') : ' ' + _l('取消了')}${_l(
+              extendText = `${item.editType !== 2 ? ' ' + _l('添加了') : ' ' + _l('取消了')}${_l(
                 '%0条',
                 object.length || 1,
               )}关联记录`;
@@ -619,8 +639,8 @@ function WorksheetRocordLog(props, ref) {
     }
     let promise =
       filterUniqueIds && !isGlobaLog
-        ? sheetAjax.batchGetWorksheetOpeationLogs({ ...param, filterUniqueIds: filterUniqueIds })
-        : sheetAjax.getWorksheetOpeationLogs(param);
+        ? sheetAjax.batchGetWorksheetOperationLogs({ ...param, filterUniqueIds: filterUniqueIds })
+        : sheetAjax.getWorksheetOperationLogs(param);
     promise.then(res => {
       setMark({ loading: false, lastMark: res.lastMark });
       let data = res.logs;

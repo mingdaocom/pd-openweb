@@ -17,7 +17,7 @@ export default class AppNameHeader extends Component {
   }
 
   componentDidMount() {
-    api.getAppDetail({ appId: this.props.match.params.apkId }, { silent: true }).then(data => {
+    api.getApp({ appId: this.props.match.params.apkId }, { silent: true }).then(data => {
       this.setState({
         data: data,
         iconUrl: data.iconUrl,

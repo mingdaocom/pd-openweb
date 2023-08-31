@@ -187,7 +187,11 @@ export default class DialogBatchEdit extends Component {
         onOk={this.submit}
       >
         <div className="Gray_75 Bold ">{_l('选择编辑字段')}</div>
-        <RadioGroup data={options} onChange={this.changeRadio} checkedValue={filedValue} />
+        <RadioGroup
+          data={options.filter(it => (!md.global.Config.IsLocal ? it.value !== 4 : true))}
+          onChange={this.changeRadio}
+          checkedValue={filedValue}
+        />
         <div className="Gray_75 Bold mTop20 mBottom12">{_l('设为')}</div>
         {filedValue === 1 &&
           departmentInfos.map((item, i) => {
@@ -311,7 +315,7 @@ export default class DialogBatchEdit extends Component {
             ))}
           </Select>
         )}
-        {filedValue === 4 && (
+        {filedValue === 4 && md.global.Config.IsLocal && (
           <Input
             className="w100"
             type="password"
@@ -324,13 +328,12 @@ export default class DialogBatchEdit extends Component {
           />
         )}
 
-        {/* && md.global.Config.IsLocal */}
-        {/* {filedValue === 4 && (
+        {/* filedValue === 4 && md.global.Config.IsLocal && (
           <div>
             <div className="Gray_75 Bold mTop35">{_l('通知用户新密码')}</div>
             <Checkbox.Group value={messageWay} options={checkedOptions} onChange={this.chnageMessageWay} />
           </div>
-        )} */}
+        ) */}
       </Dialog>
     );
   }

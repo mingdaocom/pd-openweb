@@ -1,21 +1,10 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { string } from 'prop-types';
-import { Dropdown, RadioGroup } from 'ming-ui';
+import React, { Fragment } from 'react';
+import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import OptionList from '../components/OptionList';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import _ from 'lodash';
+import DisplayOptions from '../components/OptionList/DisplayOptions';
 
-const MULTI_SELECT_DISPLAY = [
-  {
-    value: '0',
-    text: _l('横向排列'),
-  },
-  {
-    value: '1',
-    text: _l('纵向排列'),
-  },
-];
 const OPTIONS_DISPLAY = [
   {
     value: '0',
@@ -34,8 +23,9 @@ const OPTIONS_DISPLAY = [
   },
 ];
 
-export default function FlatMenu({ data, onChange, globalSheetInfo, fromPortal, fromExcel }) {
-  const { direction = '0', showtype = '0' } = getAdvanceSetting(data);
+export default function FlatMenu(props) {
+  const { data, onChange, globalSheetInfo, fromPortal, fromExcel } = props;
+  const { showtype = '0' } = getAdvanceSetting(data);
   return (
     <Fragment>
       <SettingItem>
@@ -53,21 +43,13 @@ export default function FlatMenu({ data, onChange, globalSheetInfo, fromPortal, 
                   'type',
                 ),
                 // 进度清除其他选项
-                options: value === '2' ? (data.options || []).filter(i => i.key !== 'other') : data.options,
+                ...(value === '2' ? { options: (data.options || []).filter(i => i.key !== 'other') } : {}),
               });
             }}
           />
         </div>
       </SettingItem>
-      <SettingItem>
-        <div className="settingItemTitle">{_l('排列方式')}</div>
-        <Dropdown
-          border
-          value={direction}
-          data={MULTI_SELECT_DISPLAY}
-          onChange={value => onChange(handleAdvancedSettingChange(data, { direction: value }))}
-        />
-      </SettingItem>
+      <DisplayOptions {...props} />
       {!fromExcel && (
         <OptionList.SelectOptions
           data={data}

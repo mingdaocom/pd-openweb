@@ -19,6 +19,12 @@ export default class OrgInfo extends Component {
     if (this.props.location.search === '?destroy') {
       this.setState({ level: 4 });
     }
+    if (this.props.location.search === '?level3') {
+      this.setState({ level: 3 });
+    }
+    if (this.props.location.search === '?level5') {
+      this.setState({ level: 5 });
+    }
   }
 
   renderBodyContent = () => {
@@ -42,6 +48,6 @@ export default class OrgInfo extends Component {
   };
 
   render() {
-    return <div className="system-set-container">{this.renderBodyContent()}</div>;
+    return <div className="orgManagementWrap">{this.renderBodyContent()}</div>;
   }
 }

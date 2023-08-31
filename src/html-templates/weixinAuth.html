@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no, viewport-fit=cover" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <meta name="renderer" content="webkit" />
+        <meta name="force-rendering" content="webkit" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <title>微信授权</title>
+    </head>
+    <body>
+        <script>
+            var href = location.href;
+
+            if (href.indexOf('code=') > -1 && href.indexOf('state=') > -1) {
+                var returnUrl = decodeURIComponent(href.slice(href.indexOf('returnUrl=') + 10));
+                location.href = returnUrl.indexOf('?') < 0 ? returnUrl.replace(/&/, '?') : returnUrl;
+            } else {
+                location.href = decodeURIComponent(href.slice(href.indexOf('authUrl=') + 8));
+            }
+        </script>
+    </body>
+</html>

@@ -38,7 +38,7 @@
           color: rgba(0, 0, 0, 0.4) !important;
           background-color: rgba(0, 0, 0, 0.08) !important;
           &:hover {
-          background-color: rgba(0, 0, 0, 0.12) !important;
+            background-color: rgba(0, 0, 0, 0.12) !important;
           }
         }
       }
@@ -76,17 +76,6 @@
     }
     .btns {
       justify-content: flex-end;
-    }
-    .newVersion {
-      justify-content: center;
-      .big {
-        width: auto;
-        padding: 0 16px;
-        span {
-          font-size: 13px;
-          margin-left: 5px;
-        }
-      }
     }
     .editName {
       line-height: 54px;
@@ -129,9 +118,6 @@
       }
     }
     .historyPanel {
-      .viewHistory,
-      .uploadNewVersion {
-      }
       .newVersionFile {
         position: absolute;
         left: 0;
@@ -151,6 +137,41 @@
         }
       }
     }
+    .setWPSPreview {
+      height: 36px;
+      white-space: nowrap;
+      padding: 0 17px 0 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #1a80d3;
+      cursor: pointer;
+      border-radius: 18px 18px 18px 18px;
+      color: #fff;
+      margin-top: 9px;
+      .beta {
+        width: 34px;
+        background: #8be0a5;
+        border-radius: 3px 3px 3px 3px;
+        margin-left: 6px;
+        color: #005d03;
+        font-size: 12px;
+        text-align: center;
+      }
+      &:hover {
+        background: #2196f3;
+      }
+      &.useingWPS {
+        background: transparent;
+        opacity: 0.8;
+        &:hover {
+          opacity: 1;
+        }
+        &:hover {
+          background: rgba(0, 0, 0, 0.08);
+        }
+      }
+    }
     .versionListCon {
       padding: 8px 20px;
     }
@@ -163,6 +184,7 @@
         line-height: 40px;
         border-top: 1px dashed #ccc;
         margin-top: -1px;
+        display: flex;
         &.active {
           color: #06c;
         }
@@ -173,6 +195,9 @@
         .updater {
           display: inline-block;
           width: 50px;
+        }
+        .createTime {
+          flex: 1;
         }
         .updateTime {
           display: inline-block;
@@ -200,6 +225,7 @@
     }
     .historyVersion,
     .more,
+    .historyPanel,
     .saveTo,
     .delete,
     .close,
@@ -236,19 +262,7 @@
         font-size: 13px;
       }
     }
-    .viewHistory,
-    .uploadNewVersion {
-      background-color: rgba(255, 255, 255, 0.3);
-      transition: background-color 0.3s;
-      i {
-        font-size: 16px !important;
-      }
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.4) !important;
-      }
-    }
     .download,
-    .viewHistory,
     .uploadNewVersion {
       display: flex;
       align-content: center;
@@ -282,6 +296,7 @@
         }
       }
     }
+    .historyPanel,
     .saveTo,
     .more {
       position: relative;
@@ -687,7 +702,6 @@
     .saveTo,
     .shareNode,
     .more,
-    .newVersion,
     .historyPanel {
       display: none !important;
     }

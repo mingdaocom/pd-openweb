@@ -208,13 +208,13 @@ class Card extends Component {
               <Loading />
             </div>
           )}
-          {reportData.status ? this.renderContent() : <Abnormal />}
+          {reportData.status > 0 ? this.renderContent() : <Abnormal status={reportData.status} />}
         </Fragment>
       );
     } else {
       return (
         <div className="content flexColumn">
-          {loading ? <Loading /> : reportData.status ? this.renderContent() : <Abnormal />}
+          {loading ? <Loading /> : reportData.status > 0 ? this.renderContent() : <Abnormal status={reportData.status} />}
         </div>
       );
     }
@@ -250,7 +250,7 @@ class Card extends Component {
             )}
           </div>
           <div className="operateIconWrap valignWrapper Relative">
-            {needEnlarge && isSheetView && !!reportData.status && (
+            {needEnlarge && isSheetView && reportData.status > 0 && (
               <span
                 className="iconItem Gray_9e"
                 data-tip={_l('以表格显示')}
@@ -267,12 +267,12 @@ class Card extends Component {
                 <Icon icon="table" />
               </span>
             )}
-            {needRefresh && !!reportData.status && (
+            {needRefresh && reportData.status > 0 && (
               <span onClick={() => this.getData(this.props, true)} data-tip={_l('刷新')} className="iconItem Gray_9e freshDataIconWrap">
                 <Icon className="Font20" icon="refresh1" />
               </span>
             )}
-            {needEnlarge && !!reportData.status && (
+            {needEnlarge && reportData.status > 0 && (
               <span
                 className="iconItem Gray_9e"
                 data-tip={_l('放大')}
@@ -286,7 +286,7 @@ class Card extends Component {
                 <Icon icon="task-new-fullscreen" />
               </span>
             )}
-            {needEnlarge && !this.isPublicShare && (sourceType ? !!reportData.status : true) && (
+            {needEnlarge && !this.isPublicShare && (sourceType ? reportData.status > 0 : true) && (
               <MoreOverlay
                 className="iconItem Gray_9e Font20"
                 permissions={sourceType ? null : permissions}

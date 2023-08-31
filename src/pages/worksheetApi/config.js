@@ -315,6 +315,7 @@ export const MENU_LIST = [
         desc: _l('是否获取系统字段，默认false'),
       },
     ]),
+    successData: DATA_RELATIONS_SUCCESS_DATA,
   },
   {
     id: 'GetRowShareLink',
@@ -516,10 +517,27 @@ export const appSuccessData = {
           {
             id: _l('分组下应用项id'),
             name: _l('应用项名称'),
-            type: 0,
+            type: _l('应用项类型 0:工作表、1:自定义页面、2：子分组'),
             iconUrl: _l('应用项图标地址'),
             alias: _l('工作表别名'),
             status: 1,
+          },
+        ],
+        childSections: [
+          {
+            sectionId: _l('子分组id'),
+            name: _l('子分组名称'),
+            items: [
+              {
+                id: _l('分组下应用项id'),
+                name: _l('应用项名称'),
+                type: _l('应用项类型 0:工作表、1:自定义页面、2：子分组'),
+                iconUrl: _l('应用项图标地址'),
+                status: 1,
+                alias: _l('工作表别名'),
+              },
+            ],
+            childSections: [],
           },
         ],
       },
@@ -568,7 +586,7 @@ export const appRoleErrorData = {
   success: false,
 };
 
-const appRoleSuccessData2 = {
+export const appRoleSuccessData2 = {
   data: true,
   error_code: 1,
   success: true,
@@ -836,7 +854,7 @@ export const MENU_LIST_APPENDIX = [
       },
       {
         name: 22,
-        type: _l('分割线'),
+        type: _l('分段'),
         desc: '',
       },
       {
@@ -1671,3 +1689,122 @@ export const ADD_WORKSHEET_SUCCESS = {
   success: true,
   error_code: 1,
 };
+
+// 获取工作表结构信息成功返回
+export const WORKSHEETINFO_SUCCESS_DATA = {
+  data: {
+    worksheetId: _l('工作表id'),
+    name: _l('工作表名称'),
+    views: [
+      {
+        viewId: _l('视图id'),
+        name: _l('视图名称'),
+      },
+    ],
+    controls: [
+      {
+        controlId: _l('控件id'),
+        controlName: _l('控件名称'),
+        type: _l('控件类型，参考枚举'), // 控件类型，参考枚举
+        attribute: _l('属性 1：标题'), //属性 1：标题
+        row: 1,
+        col: 1,
+        hint: _l('引导文字'),
+        default: '',
+        dot: _l('当type=6时，表示保留小数位（0-14）'),
+        unit: _l('单位，当type=46时，1：时分，6：时分秒'),
+        enumDefault: _l('1多选，0单选'),
+        enumDefault2: '',
+        defaultMen: [],
+        dataSource: _l('源数据'),
+        sourceControlId: _l('源控件id'),
+        sourceControlType: _l('源控件类型'),
+        showControls: [_l('显示字段id')],
+        noticeItem: _l('当type=26时，通知项0：不通知 1：添加通知'),
+        userPermission: _l('当type=26时，权限 0：仅录入 1：成员  2：拥有者'),
+        options: [
+          {
+            value: _l('当type=11/10时,表示选项名称'),
+            index: _l('排序'), //排序
+          },
+        ],
+        required: _l('true：必填,false：非必填'),
+        half: false,
+        relationControls: [],
+        viewId: _l('视图Id'),
+        controlPermissions: '111',
+        unique: false,
+        coverCid: '',
+        strDefault: _l('通用string字段,参考说明'),
+        desc: _l('字段描述'),
+        alias: _l('别名（API用）'),
+        fieldPermission: _l('空或者 "111"，第一位能否查看，第二位能否编辑（只读），第三位能否添加； 1：能，0：不能'),
+      },
+    ],
+  },
+};
+
+// 获取列表成功返回
+export const LIST_SUCCESS = {
+  data: {
+    rows: [
+      {
+        rowid: _l('记录id'),
+        ctime: _l('创建时间'),
+        caid: {
+          accountId: _l('创建人账号Id'),
+          fullname: _l('创建者名称'),
+          avatar: _l('头像地址'),
+          status: 1,
+        },
+        uaid: {
+          accountId: _l('编辑者账号id'),
+          fullname: _l('编辑者名称'),
+          avatar: _l('头像地址'),
+          status: 1,
+        },
+        ownerid: {
+          accountId: _l('拥有者账号Id'),
+          fullname: _l('拥有者名称'),
+          avatar: _l('头像地址'),
+          status: 1,
+        },
+        utime: _l('编辑时间'),
+        [_l('控件id/别名')]: _l('控件值'),
+      },
+    ],
+    total: _l('总条数'),
+  },
+  success: true,
+  error_code: 1,
+};
+
+//
+export const BATCH_ADD_WORKSHEET_SUCCESS = {
+  data: [_l('工作表ID')],
+  success: true,
+  error_code: 1,
+};
+
+// 获取关联记录成功返回实例
+export const DATA_RELATIONS_SUCCESS_DATA = {
+  data: {
+    rows: [
+      {
+        rowid: _l('关联记录id'),
+        ctime: _l('创建时间'),
+        utime: _l('更新时间'),
+        [_l('关联记录控件id/别名')]: _l('控件值'),
+      },
+    ],
+    total: _l('总条数'),
+  },
+  success: true,
+  error_code: 1,
+};
+
+export const NUMBER_SUCCESS_DATA = {
+  data: _l('总数量'),
+  success: true,
+  error_code: 1,
+}

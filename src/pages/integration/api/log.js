@@ -8,6 +8,7 @@ var log = {
    * @param {Object} args 请求参数
    * @param {integer} args.pageNo 页码，从0开始
    * @param {integer} args.pageSize 每页数量
+   * @param {string} args.logId No comments found.
    * @param {string} args.jobId No comments found.
    * @param {array} args.jobIds No comments found.
    * @param {string} args.projectId No comments found.
@@ -27,6 +28,7 @@ var log = {
    * @param {Object} args 请求参数
    * @param {integer} args.pageNo 页码，从0开始
    * @param {integer} args.pageSize 每页数量
+   * @param {string} args.logId No comments found.
    * @param {string} args.jobId No comments found.
    * @param {array} args.jobIds No comments found.
    * @param {string} args.projectId No comments found.
@@ -46,6 +48,7 @@ var log = {
    * @param {Object} args 请求参数
    * @param {integer} args.pageNo 页码，从0开始
    * @param {integer} args.pageSize 每页数量
+   * @param {string} args.logId No comments found.
    * @param {string} args.jobId No comments found.
    * @param {array} args.jobIds No comments found.
    * @param {string} args.projectId No comments found.

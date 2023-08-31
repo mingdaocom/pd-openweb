@@ -14,6 +14,7 @@ export default class MoreOption extends React.Component {
     return confirm({
       title: <span className="Red">{delTxt || _l('删除模板')}</span>,
       description: description || _l('删除后将无法恢复'),
+      buttonType: 'danger',
       onOk: () => {
         deleteFn();
       },
@@ -21,10 +22,19 @@ export default class MoreOption extends React.Component {
   };
 
   render() {
-    const { setFn, delTxt, disabledRename } = this.props;
+    const { setFn, delTxt, disabledRename, showCopy, onCopy } = this.props;
     return (
       <React.Fragment>
         <ul className="moreOptionTrigger">
+          {showCopy && (
+            <li
+              onClick={() => {
+                onCopy();
+              }}
+            >
+              {_l('复制')}
+            </li>
+          )}
           {disabledRename ? (
             ''
           ) : (

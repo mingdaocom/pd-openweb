@@ -69,7 +69,7 @@ export default class Show extends React.Component {
         <div className="">
           <Radio
             className=""
-            text={_l('与表单字段保持一致（显示前30个）')}
+            text={_l('与表单字段保持一致（显示前50个）')}
             checked={customdisplay === '0'}
             onClick={value => {
               this.props.onChange('0');

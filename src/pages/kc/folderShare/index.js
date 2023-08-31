@@ -2,7 +2,7 @@
 import './css/style.less';
 import shareajax from 'src/api/share';
 import qs from 'query-string';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import { downloadFile } from 'src/util';
 import frameTplHtml from './tpl/frame.html';
 import fileItemHtml from './tpl/fileItem.html';
@@ -484,7 +484,6 @@ preall(
   { type: 'function' },
   {
     allownotlogin: true,
-    transfertoken: true,
     preloadcb: () => {
       window.hello = new ShareFolder();
     },

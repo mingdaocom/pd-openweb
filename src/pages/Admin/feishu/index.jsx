@@ -10,12 +10,10 @@ import Dialog from 'ming-ui/components/Dialog';
 import IntegrationSetPssword from '../components/IntegrationSetPssword';
 import VertifyClearIntegationData from '../components/VertifyClearIntegationData';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import { integrationFailed } from '../utils';
 import './style.less';
 import _ from 'lodash';
-
-const FEATURE_ID = 12;
-
 export default class FeiShu extends React.Component {
   constructor(props) {
     super(props);
@@ -76,7 +74,7 @@ export default class FeiShu extends React.Component {
   // 保存信息/编辑信息
   editInfo = () => {
     if (!this.state.AppSecret || !this.state.AppId) {
-      alert('请输入相关信息');
+      alert('请输入相关信息', 3);
       return;
     }
     Ajax.editFeishuProjectSetting({
@@ -98,7 +96,7 @@ export default class FeiShu extends React.Component {
             canEditInfo: false,
           });
         } else {
-          alert(res.item2);
+          alert(res.item2, 2);
         }
       }
     });
@@ -186,7 +184,7 @@ export default class FeiShu extends React.Component {
                 value={!this.state[`isShow${strId}`] ? this.state[`${strId}Format`] : this.state[strId]}
               />
               <Icon
-                icon={!this.state[`isShow${strId}`] ? 'circulated' : 'visibility_off'}
+                icon={!this.state[`isShow${strId}`] ? 'visibility_off' : 'circulated'}
                 className="Gray_9e Font18 isShowIcon"
                 onClick={() => {
                   this.setState({
@@ -448,21 +446,26 @@ export default class FeiShu extends React.Component {
     }
   };
   render() {
-    const featureType = getFeatureStatus(Config.projectId, FEATURE_ID);
+    const featureType = getFeatureStatus(Config.projectId, VersionProductType.feishuIntergration);
     if (featureType === '2') {
       return (
-        <div className="orgManagementWrap">{buriedUpgradeVersionDialog(Config.projectId, FEATURE_ID, 'content')}</div>
+        <div className="orgManagementWrap">
+          {buriedUpgradeVersionDialog(Config.projectId, VersionProductType.feishuIntergration, 'content')}
+        </div>
       );
     }
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }
     return (
-      <div className="feishuMainContent">
+      <div className="orgManagementWrap feishuMainContent">
         <Tabs
           defaultActiveKey="base"
           onChange={this.changeTab}
-          className={cx({ tabStyle: !(this.state.status === 1 && !this.state.isCloseDing) })}
+          className={cx('mdAntTabs', {
+            tabStyle: !(this.state.status === 1 && !this.state.isCloseDing),
+            singleTab: !(md.global.Config.IsLocal && this.state.status === 1 && !this.state.isCloseDing),
+          })}
         >
           <Tabs.TabPane tab={_l('飞书集成')} key="base">
             {this.stepRender()}

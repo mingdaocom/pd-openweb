@@ -740,6 +740,7 @@
       }
     }
 
+    .groupRow,
     .groupColumn {
       &.ming.CheckboxGroup {
         flex-direction: column;
@@ -770,6 +771,21 @@
       }
     }
 
+    .groupRow {
+      &.ming.CheckboxGroup {
+        flex-direction: row !important;
+        .Checkbox {
+          margin-right: 20px !important;
+        }
+      }
+      .RadioGroupCon {
+        flex-direction: row !important;
+        .Radio {
+          margin-right: 20px !important;
+        }
+      }
+    }
+
     .ming.RadioGroup2 {
       .RadioGroupCon {
         display: flex;
@@ -779,7 +795,6 @@
           display: flex;
           min-width: 0;
           margin-bottom: 10px;
-          width: 145px;
 
           &--disabled {
             color: #333;
@@ -808,17 +823,27 @@
           }
         }
       }
+      .horizonArrangementRadio {
+        flex-direction: row !important;
+        .Radio {
+          margin-right: 20px !important;
+        }
+      }
     }
 
     .ming.CheckboxGroup {
       display: flex;
       flex-wrap: wrap;
 
+      .flexWidth > span:nth-child(2) {
+        flex: 1;
+        min-width: 0;
+      }
+
       .Checkbox {
         display: flex;
         min-width: 0;
         margin-bottom: 10px;
-        width: 145px;
         margin-right: 20px;
 
         &--disabled {
@@ -1018,6 +1043,10 @@
   font-size: 12px;
   margin: 0 12px;
 
+  &.isChildTable {
+    transform: translateY(15px);
+  }
+
   span {
     white-space: normal;
     .delIcon {
@@ -1067,6 +1096,15 @@
       background-color: #fff !important;
     }
   }
+}
+.horizonArrangementItem {
+  max-width: 100% !important;
+  white-space: normal !important;
+  height: auto !important;
+}
+.showRadioTxtAll {
+  height: auto !important;
+  white-space: pre-wrap;
 }
 
 .ant-cascader-menus {

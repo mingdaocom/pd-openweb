@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Switch, Dialog } from 'ming-ui';
 import projectSettingAjax from 'src/api/projectSetting';
 import monitorAjax from 'src/pages/integration/api/monitor';
+import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 
 let ajaxPromise = {};
 
@@ -117,7 +118,7 @@ export default ({ projectId }) => {
                 <span
                   className="ThemeColor3 ThemeHoverColor2 mLeft10 NoUnderline"
                   onClick={() => {
-                    location.assign(`/upgrade/choose?projectId=${projectId}`);
+                    purchaseMethodFunc({ projectId });
                   }}
                 >
                   <span className="Bold">{_l('购买付费版')}</span>

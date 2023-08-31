@@ -14,7 +14,7 @@ import { LoadDiv } from 'ming-ui';
 import Config from './config';
 import account from 'src/api/account';
 import './register.css';
-import { getRequest, browserIsMobile, htmlEncodeReg } from 'src/util';
+import { getRequest, mdAppResponse, htmlEncodeReg } from 'src/util';
 let request = getRequest();
 import preall from 'src/common/preall';
 import { getDataByFilterXSS } from './util';
@@ -146,6 +146,7 @@ class RegisterContainer extends React.Component {
                       ...this.state.registerData.company,
                       companyName,
                     },
+                    tokenProjectCode: data.token,
                   },
                 },
                 () => {
@@ -232,7 +233,7 @@ class RegisterContainer extends React.Component {
         this.checkInviteLink(
           this.state.registerData.confirmation,
           location.href.indexOf('linkInvite') >= 0,
-          (inviteInfo = {}, userCard = {}, logo = '') => {
+          (inviteInfo = {}, userCard = {}, logo = '', tokenProjectCode) => {
             let { user = {} } = userCard;
             let { fullname } = user;
             let data = {
@@ -262,6 +263,7 @@ class RegisterContainer extends React.Component {
               registerData: {
                 ...this.state.registerData,
                 ...data,
+                tokenProjectCode,
               },
             });
             this.InviteTitle(inviteInfo);
@@ -318,7 +320,7 @@ class RegisterContainer extends React.Component {
       });
       var actionResult = Config.ActionResult;
       if (data && data.actionResult == actionResult.success) {
-        setFn(data.inviteInfo, data.userCard, data.logo);
+        setFn(data.inviteInfo, data.userCard, data.logo, data.token);
       } else {
         this.setState({
           step: 'inviteLinkExpirate',
@@ -396,10 +398,9 @@ class RegisterContainer extends React.Component {
   };
 
   // 登录成功跳转
-  loginSuc = (encrypeAccount, encrypePassword, createProjectId) => {
+  loginSuc = () => {
     const { registerData } = this.state;
-    const { inviteFromType } = registerData;
-    let isMobile = browserIsMobile();
+    const { emailOrTel, dialCode, password } = registerData
     let request = getRequest();
     let returnUrl = getDataByFilterXSS(request.ReturnUrl || '');
 
@@ -407,6 +408,10 @@ class RegisterContainer extends React.Component {
       location.href = returnUrl;
     } else {
       location.href = '/app';
+    }
+    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
+    if (isMingdao) {
+      mdAppResponse({ sessionId: 'register', type: 'native', settings: { action: 'registerSuccess', account: dialCode + emailOrTel, password } });
     }
   };
 

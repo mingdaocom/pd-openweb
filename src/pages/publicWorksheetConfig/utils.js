@@ -1,6 +1,8 @@
+import React from 'react';
 import _ from 'lodash';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
+import moment from 'moment';
+import { TIME_TYPE, TIME_PERIOD_TYPE, WEEKS } from './enum';
+import CountDown from './common/CountDown';
 
 export function getNewControlColRow(controls, halfOfNewControl = true) {
   if (!controls.length) {
@@ -37,6 +39,9 @@ export function getDisabledControls(controls, systemRelatedIds = {}) {
         systemRelatedIds.deviceControlId,
         systemRelatedIds.systemControlId,
         systemRelatedIds.extendSourceId,
+        _.get(systemRelatedIds, 'weChatSetting.fieldMaps.openId'),
+        _.get(systemRelatedIds, 'weChatSetting.fieldMaps.nickName'),
+        _.get(systemRelatedIds, 'weChatSetting.fieldMaps.headImgUrl'),
       ].includes(control.controlId),
     )
     .map(control => control.controlId);
@@ -67,4 +72,99 @@ export function overridePos(controls = [], newPosControls = []) {
     }
   });
   return newControls;
+}
+
+export function getLimitWriteTimeDisplayText(type, limitWriteTime) {
+  const setting = limitWriteTime[`${type}Setting`];
+  if (type === TIME_TYPE.MONTH) {
+    switch (setting.monthType) {
+      case TIME_PERIOD_TYPE.MONTHLY:
+        return _l('每月');
+      case TIME_PERIOD_TYPE.SPECIFY_MONTH:
+        return setting.defineMonth.join('、') + _l('月');
+      case TIME_PERIOD_TYPE.SPECIFY_RANGE_MONTH:
+        return setting.defineMonth[0] + _l('至') + setting.defineMonth[setting.defineMonth.length - 1] + _l('月');
+      default:
+        return;
+    }
+  } else if (type === TIME_TYPE.DAY) {
+    switch (setting.dayType) {
+      case TIME_PERIOD_TYPE.DAILY:
+        return _l('每天');
+      case TIME_PERIOD_TYPE.SPECIFY_DAY:
+        return setting.defineDay.join('、') + _l('日');
+      case TIME_PERIOD_TYPE.SPECIFY_RANGE_DAY:
+        return setting.defineDay[0] + _l('至') + setting.defineDay[setting.defineDay.length - 1] + _l('日');
+      case TIME_PERIOD_TYPE.WEEKLY:
+        const weekTextArr = setting.defineWeek.map(item => {
+          return WEEKS.filter(w => w.value === item)[0].text;
+        });
+        return weekTextArr.join('、');
+      default:
+        return;
+    }
+  } else {
+    return setting.hourType === TIME_PERIOD_TYPE.SPECIFY_RANGE_HOUR ? setting.rangHour.join('、') : '';
+  }
+}
+
+export function isDisplayPromptText(worksheetSettings) {
+  const displayPromptText =
+    _.get(worksheetSettings, 'linkSwitchTime.isEnable') ||
+    _.get(worksheetSettings, 'limitWriteCount.isEnable') ||
+    _.get(worksheetSettings, 'limitWriteTime.isEnable');
+  return displayPromptText;
+}
+
+export function renderLimitInfo(worksheetSettings) {
+  const { linkSwitchTime = {}, limitWriteCount = {}, completeNumber, limitWriteTime } = worksheetSettings;
+
+  return (
+    <React.Fragment>
+      {linkSwitchTime.isEnable && (
+        <span className="pRight8">
+          {linkSwitchTime.isShowCountDown ? (
+            <CountDown
+              className="bold Gray mLeft5 mRight5"
+              endTime={linkSwitchTime.endTime}
+              beforeText={_l('链接将于')}
+              afterText={_l('后结束收集')}
+              arriveText={_l('链接已结束收集') + ';'}
+            />
+          ) : (
+            <React.Fragment>
+              <span> {_l('链接将于')}</span>
+              <span className="bold Gray mLeft5 mRight5">
+                {moment(linkSwitchTime.endTime).format('YYYY-MM-DD HH:mm')}
+              </span>
+              <span>{_l('结束收集')};</span>
+            </React.Fragment>
+          )}
+        </span>
+      )}
+      {limitWriteCount.isEnable && (
+        <span className="pRight8">
+          <span>{_l('已收集')}</span>
+          <span className="bold Gray mLeft5 mRight5">
+            {`${completeNumber || 0}/${limitWriteCount.limitWriteCount}`}
+          </span>
+          <span>{_l('份, 还剩')}</span>
+          <span className="bold Gray mLeft5 mRight5">{limitWriteCount.limitWriteCount - (completeNumber || 0)}</span>
+          <span>{_l('份结束收集')};</span>
+        </span>
+      )}
+      {limitWriteTime.isEnable && (
+        <span>
+          <span className="bold Gray">{getLimitWriteTimeDisplayText(TIME_TYPE.MONTH, limitWriteTime)}</span>
+          <span className="mLeft5 mRight5">{_l('的')}</span>
+          <span className="bold Gray">{getLimitWriteTimeDisplayText(TIME_TYPE.DAY, limitWriteTime)}</span>
+          {!!getLimitWriteTimeDisplayText(TIME_TYPE.HOUR, limitWriteTime) && (
+            <span className="mLeft5 mRight5">{_l('的')}</span>
+          )}
+          <span className="bold Gray">{getLimitWriteTimeDisplayText(TIME_TYPE.HOUR, limitWriteTime)}</span>
+          <span className="mLeft5">{_l('可填写')}</span>
+        </span>
+      )}
+    </React.Fragment>
+  );
 }

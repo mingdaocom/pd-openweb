@@ -7,6 +7,7 @@ import RefuseUserJoinDia from '../../modules/refuseUserJoinDia';
 import importUserController from 'src/api/importUser';
 import userController from 'src/api/user';
 import { feedbackTypes } from '../../constant';
+import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 import styled from 'styled-components';
 
 const FeedbackDialog = styled(Dialog)`
@@ -48,7 +49,12 @@ const recovery = ({ accountId, fullname, projectId, callback = () => {} }) => {
               link = (
                 <span>
                   {_l('当前用户数已超出人数限制，请去购买')}
-                  <a href={`/upgrade/choose?projectId=${projectId}`} target="_blank">
+                  <a
+                    href="javascript:void(0);"
+                    onClick={() => {
+                      purchaseMethodFunc({ projectId });
+                    }}
+                  >
                     {_l('付费版本')}
                   </a>
                 </span>
@@ -90,17 +96,7 @@ const agreeJoin = ({ projectId, accountId, jobIds, departmentIds, workSiteId, jo
           alert(_l('批准成功'));
           callback();
         } else if (result === 4) {
-          const licenseType = _.get(
-            _.find(md.global.Account.projects, project => project.projectId === projectId) || {},
-            'licenseType',
-          );
-          let link = '';
-          if (licenseType === 0) {
-            link = <span>{_l('当前用户数已超出人数限制')}</span>;
-          } else {
-            link = <span>{_l('当前用户数已超出人数限制')}</span>;
-          }
-          alert(link, 3);
+          alert(_l('当前用户数已超出人数限制'), 3);
         } else {
           alert(_l('操作失败'), 2);
         }

@@ -5,10 +5,9 @@ import '../components/message.less';
 import cx from 'classnames';
 import RegisterController from 'src/api/register';
 import Config from '../config';
-import { getRequest } from 'src/util';
-import { inputFocusFn, inputBlurFn, setWarnningData } from '../util';
+import { getRequest, mdAppResponse } from 'src/util';
+import { inputFocusFn, inputBlurFn, setWarnningData, getDataByFilterXSS } from '../util';
 import { setPssId } from 'src/util/pssId';
-import { getDataByFilterXSS } from '../util';
 import styled from 'styled-components';
 import fixedDataAjax from 'src/api/fixedData.js';
 import _ from 'lodash';
@@ -163,6 +162,16 @@ export default class Create extends React.Component {
     } else {
       location.href = '/app';
     }
+    const { registerData } = this.props;
+    let { dialCode, password = '', emailOrTel = '' } = registerData;
+    const isMingdao = navigator.userAgent.toLowerCase().indexOf('mingdao application') >= 0;
+    if (isMingdao) {
+      mdAppResponse({
+        sessionId: 'register',
+        type: 'native',
+        settings: { action: 'enterpriseRegister.createSuccess', account: dialCode + emailOrTel, password },
+      });
+    }
   };
 
   inputOnFocus = e => {
@@ -193,6 +202,10 @@ export default class Create extends React.Component {
     // 企业网络名称
     let isRight = true;
     let warnningData = [];
+    if (!companyName) {
+      warnningData.push({ tipDom: this.companyName, warnningText: _l('请填写组织名称') });
+      isRight = false;
+    }
     if (!!companyName) {
       await fixedDataAjax.checkSensitive({ content: companyName }).then(res => {
         if (res) {
@@ -226,10 +239,6 @@ export default class Create extends React.Component {
     });
     if (warnningData.length > 0) {
       $(warnningData[0].tipDom).focus();
-    }
-    if (!companyName) {
-      warnningData.push({ tipDom: this.companyName, warnningText: _l('请填写组织名称') });
-      isRight = false;
     }
     return isRight;
   };

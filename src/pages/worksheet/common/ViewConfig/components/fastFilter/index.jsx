@@ -1,6 +1,10 @@
 import React, { createRef, useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { updateViewAdvancedSetting, formatObjWithNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
+import {
+  updateViewAdvancedSetting,
+  formatObjWithNavfilters,
+  formatAdvancedSettingByNavfilters,
+} from 'src/pages/worksheet/common/ViewConfig/util';
 import { Icon, Tooltip } from 'ming-ui';
 import './index.less';
 import { getSetDefault } from './util';
@@ -74,27 +78,29 @@ export default function FastFilter(params) {
   };
   const onEdit = id => {
     setFastFilter(true, id);
+    setShowAddCondition(false);
   };
   const onDelete = controlId => {
     updateView(fastFilters.filter(o => o.controlId !== controlId));
   };
   const updateView = fastFilters => {
+    let data =
+      fastFilters.length > 0
+        ? {
+            ...advancedSetting,
+            enablebtn: fastFilters.length > 3 ? '1' : advancedSetting.enablebtn,
+          }
+        : {
+            ...advancedSetting,
+            clicksearch: '0', //
+            enablebtn: '0',
+          };
     updateCurrentView(
       Object.assign(view, {
         fastFilters: fastFilters.map(o => {
           return formatObjWithNavfilters(o);
         }),
-        advancedSetting:
-          fastFilters.length > 0
-            ? {
-                ...advancedSetting,
-                enablebtn: fastFilters.length > 3 ? '1' : advancedSetting.enablebtn,
-              }
-            : {
-                ...advancedSetting,
-                clicksearch: '0', //
-                enablebtn: '0',
-              },
+        advancedSetting: formatAdvancedSettingByNavfilters(view, _.omit(data, 'navfilters')),
         editAttrs: ['fastFilters', 'advancedSetting'],
       }),
     );

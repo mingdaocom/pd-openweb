@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Icon, Menu, MenuItem, Button, Tooltip } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import WorksheetDraftOperate from './WorksheetDraftOperate';
-import WorksheetTable from 'worksheet/components/WorksheetTable/V2';
+import WorksheetTable from 'worksheet/components/WorksheetTable';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import { RowHead } from 'worksheet/components/WorksheetTable/components/';
 import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
@@ -133,6 +133,8 @@ function DraftModal(props) {
         appId,
         worksheetId,
         getType: 21,
+        pageIndex: 1,
+        pageSize: 10,
       })
       .then(res => {
         updateDraftDataCount(res.data.length);
@@ -173,7 +175,7 @@ function DraftModal(props) {
                 }}
               >
                 <i className="icon icon-eye_off"></i>
-                {_l('解密')}
+                {_l('解码')}
               </MenuItem>
             )}
           </Menu>

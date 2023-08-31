@@ -1,5 +1,5 @@
 import './css/editFolder.less';
-import doT from '@mdfe/dot';
+import doT from 'dot';
 import editFolderTpl from './tpl/editFolder.html';
 import 'src/components/mdDialog/dialog';
 import 'src/components/selectGroup/selectAllGroup';

@@ -648,7 +648,7 @@ export default class SingleControlValue extends Component {
             <Fragment>
               <QiniuUpload
                 className="workflowFileUpload"
-                options={{ max_file_size: '50m' }}
+                options={{ max_file_size: '50m', chunk_size: '50m' }}
                 onUploaded={(up, file, response) => {
                   this.setState({ isUploading: false });
                   up.disableBrowse(false);

@@ -207,8 +207,8 @@ export default class CloseNet extends Component {
       isLoading,
     } = this.state;
     return (
-      <div className="system-set-box">
-        <div className="system-set-header">
+      <div className="orgManagementWrap">
+        <div className="orgManagementHeader justifyContentLeft">
           <Icon
             icon="backspace"
             className="Hand mRight18 TxtMiddle Font24"

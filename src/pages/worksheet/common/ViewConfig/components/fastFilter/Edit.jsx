@@ -318,9 +318,9 @@ function Edit(params) {
         <div className="title">{data.txt}</div>
         <Radio.Group
           onChange={e => {
-            // 单选只支持下拉 筛选方式默认等于
+            //  筛选方式默认等于
             if (data.key === 'allowitem' && e.target.value === 1) {
-              updateViewSet({ [data.key]: e.target.value, direction: 2, filterType: FILTER_CONDITION_TYPE.EQ });
+              updateViewSet({ [data.key]: e.target.value, filterType: FILTER_CONDITION_TYPE.EQ });
             } else {
               updateViewSet({ [data.key]: e.target.value });
             }
@@ -331,7 +331,7 @@ function Edit(params) {
             return (
               <Radio
                 value={o.value}
-                disabled={data.key === 'direction' && Number(advancedSetting.allowitem) === 1 && o.value === 1} // 平铺类型只支持多选
+                // disabled={data.key === 'direction' && Number(advancedSetting.allowitem) === 1 && o.value === 1} // 平铺类型只支持多选
               >
                 {o.text}
                 {o.txt && <span className="Gray_9e">{o.txt}</span>}
@@ -509,7 +509,8 @@ function Edit(params) {
                 params={{
                   types: NAVSHOW_TYPE.filter(o => o.value !== '1').filter(o => {
                     //选项作为分组，分组没有筛选
-                    if ([9, 10, 11, 26].includes(info.type)) {
+                    let type = info.type === 30 ? info.sourceControlType : info.type;
+                    if ([9, 10, 11, 26].includes(type)) {
                       return o.value !== '3';
                     } else {
                       return true;

@@ -18,6 +18,12 @@ const Con = styled.div`
   .clearIcon {
     display: none;
   }
+  .customCascader .ant-select-selector {
+    border: none !important;
+    border-color: transparent !important;
+    min-height: 32px;
+    height: 32px !important;
+  }
   &:hover {
     .clearIcon {
       display: inline-block;

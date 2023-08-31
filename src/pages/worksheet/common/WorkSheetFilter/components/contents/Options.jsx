@@ -271,6 +271,7 @@ export default class Options extends Component {
             <div
               className={cx('optionCheckbox ellipsis', {
                 'ThemeBGColor3 ThemeBorderColor3 checked': _.find(selectedOptions, o => o.id === option.id),
+                multiple: !selectSingle,
               })}
               key={i}
               onClick={() => {
@@ -287,6 +288,9 @@ export default class Options extends Component {
                 }
               }}
             >
+              {!selectSingle && _.find(selectedOptions, o => o.id === option.id) && (
+                <span className="icon-hr_ok selectedIcon"></span>
+              )}
               {option.name}
             </div>
           ))}

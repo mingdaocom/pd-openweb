@@ -267,7 +267,7 @@ export default class CustomFields extends Component {
   /**
    * 渲染表单
    */
-  renderForm() {
+  renderForm(sectionId) {
     const { from, worksheetId, recordId, forceFull, controlProps, widgetStyle = {}, disabled } = this.props;
     const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
     const { errorItems, uniqueErrorItems, loadingItems } = this.state;
@@ -275,7 +275,10 @@ export default class CustomFields extends Component {
     const formList = [];
     let prevRow = -1;
     let preIsSection;
-    let data = [].concat(this.state.renderData);
+    const renderData = sectionId
+      ? this.state.renderData.filter(i => i.sectionId === sectionId)
+      : this.state.renderData.filter(i => !i.sectionId);
+    let data = [].concat(renderData);
 
     data.sort((a, b) => {
       if (a.row === b.row) {
@@ -327,7 +330,7 @@ export default class CustomFields extends Component {
               </div>
             )}
 
-            {!_.includes([45], item.type) && (
+            {!_.includes([45, 52], item.type) && (
               <FormLabel
                 from={from}
                 worksheetId={worksheetId}
@@ -345,7 +348,13 @@ export default class CustomFields extends Component {
 
             <div className="customFormItemControl">
               {this.getWidgets(
-                Object.assign({}, item, controlProps, { richTextControlCount, isDraft: from === FROM.DRAFT }),
+                Object.assign(
+                  {},
+                  item,
+                  controlProps,
+                  { richTextControlCount, isDraft: from === FROM.DRAFT },
+                  item.type === 52 ? { children: this.renderForm(item.controlId) } : {},
+                ),
               )}
               {this.renderVerifyCode(item)}
             </div>
@@ -502,7 +511,7 @@ export default class CustomFields extends Component {
 
     // (禁用或只读) 且 内容不存在
     if (
-      (item.disabled || _.includes([25, 31, 32, 33, 37, 38], item.type) || !isEditable) &&
+      ((item.disabled && item.type !== 52) || _.includes([25, 31, 32, 33, 37, 38], item.type) || !isEditable) &&
       ((!item.value && item.value !== 0 && !_.includes([28, 47, 51], item.type)) ||
         (item.type === 29 &&
           (safeParse(item.value).length <= 0 ||

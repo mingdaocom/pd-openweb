@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import './index.less';
 import cx from 'classnames';
 import BranchItem from './BranchItem';
 import { CreateNode } from '../components';
 import { Tooltip } from 'antd';
 import _ from 'lodash';
+import { Dialog, Radio } from 'ming-ui';
 
 export default class Branch extends Component {
   constructor(props) {
@@ -13,58 +14,44 @@ export default class Branch extends Component {
 
   state = {
     showTips: true,
+    showBranchTypeDialog: false,
+    gatewayType: 1,
   };
 
   renderTips = () => {
-    const { processId, item, isCopy, hideNodes, isApproval } = this.props;
-    const isHide = _.includes(hideNodes, item.id);
+    const { processId, item, isCopy } = this.props;
 
     if (isCopy) return null;
 
     return (
       <div className="flexRow alignItemsCenter">
-        {!isHide && (
-          <span
-            className={cx('workflowBranchBtnSmall Gray_9e ThemeHoverColor3 workflowBranchBtnSmallTips', {
-              Visibility: isApproval,
-            })}
-            onClick={this.switchBranchType}
-            data-tip={
-              item.gatewayType === 1
-                ? _l('转为唯一分支：只执行第一个满足条件的分支下的节点序列，其他分支均不执行')
-                : _l('转为包容分支：满足任一分支条件的节点序列均同步执行，直至合并')
-            }
-          >
-            <i className="icon-swap_horiz" />
-          </span>
-        )}
+        <span
+          className="workflowBranchBtnSmall Gray_9e ThemeHoverColor3"
+          data-tip={_l('添加分支')}
+          onClick={() => {
+            this.props.addFlowNode(processId, { prveId: item.id, name: '', typeId: 2 });
+            this.handleTipsPosition();
+          }}
+        >
+          <i className="icon-add" />
+        </span>
 
         <span
           className="workflowBranchBtnBig mLeft8 mRight8"
-          data-tip={
-            isHide
-              ? _l('展开')
-              : isApproval
-              ? _l('收起')
-              : item.gatewayType === 1
-              ? _l('包容分支(点击折叠)')
-              : _l('唯一分支(点击折叠)')
-          }
-          onClick={this.changeShrink}
+          data-tip={item.gatewayType === 1 ? _l('并行分支') : _l('唯一分支')}
+          onClick={() => {
+            this.handleTipsPosition();
+            this.setState({ showBranchTypeDialog: true, gatewayType: item.gatewayType });
+          }}
         />
 
-        {!isHide && (
-          <span
-            className="workflowBranchBtnSmall Gray_9e ThemeHoverColor3"
-            data-tip={_l('添加分支')}
-            onClick={() => {
-              this.props.addFlowNode(processId, { prveId: item.id, name: '', typeId: 2 });
-              this.handleTipsPosition();
-            }}
-          >
-            <i className="icon-add" />
-          </span>
-        )}
+        <span
+          className="workflowBranchBtnSmall Gray_9e ThemeHoverColor3"
+          onClick={this.changeShrink}
+          data-tip={_l('收起')}
+        >
+          <i className={'icon-arrow-up-border'} />
+        </span>
       </div>
     );
   };
@@ -91,10 +78,10 @@ export default class Branch extends Component {
   /**
    * 切换网关类型
    */
-  switchBranchType = () => {
-    const { item, updateBranchGatewayType } = this.props;
+  switchBranchType = gatewayType => {
+    const { processId, item, updateBranchGatewayType } = this.props;
 
-    updateBranchGatewayType(item.id, item.gatewayType === 1 ? 2 : 1);
+    updateBranchGatewayType(processId, item.id, gatewayType);
   };
 
   /**
@@ -110,24 +97,45 @@ export default class Branch extends Component {
 
   render() {
     const { data, item, hideNodes, disabled } = this.props;
-    const { showTips } = this.state;
+    const { showTips, showBranchTypeDialog, gatewayType } = this.state;
     const showAddBtn = !item.resultTypeId && !disabled;
     const isHide = _.includes(hideNodes, item.id);
+    const BRANCH_TYPE = [
+      {
+        text: _l('唯一分支'),
+        value: 2,
+        desc: _l('按照从左到右的顺序，只执行第一个符合条件的分支。其他分支即使符合条件也不再执行'),
+      },
+      {
+        text: _l('并行分支'),
+        value: 1,
+        desc: _l('执行所有符合条件的分支。等待网关内所有分支全部执行完成后，再继续执行网关外的节点'),
+      },
+    ];
 
     return (
       <div className={cx('flexColumn', { workflowBranchHide: isHide })}>
         <div className={cx('workflowBranch', { pTop0: !showAddBtn })} data-id={item.id}>
           {showAddBtn && showTips && (
-            <Tooltip title={this.renderTips} overlayClassName="workflowBranchTips" align={{ offset: [0, 34] }}>
-              <i
-                className={cx(
-                  'workflowBranchBtn',
-                  isHide ? 'icon-milestone1' : item.gatewayType === 1 ? 'icon-all_run' : 'icon-run_a',
-                )}
-              >
-                {isHide && <span className="Font16 White workflowBranchNumber bold">{item.flowIds.length}</span>}
-              </i>
-            </Tooltip>
+            <Fragment>
+              {isHide ? (
+                <i className={cx('workflowBranchBtn icon-milestone1', { ThemeColor3: isHide })}>
+                  <span
+                    className="Font16 workflowBranchNumber bold pointer"
+                    data-tip={_l('展开')}
+                    onClick={this.changeShrink}
+                  >
+                    {item.flowIds.length}
+                  </span>
+                </i>
+              ) : (
+                <Tooltip title={this.renderTips} overlayClassName="workflowBranchTips" align={{ offset: [0, 34] }}>
+                  <i className="workflowBranchBtn icon-milestone1">
+                    <span className={cx('Font16', item.gatewayType === 1 ? 'icon-all_run2' : 'icon-clear_bold')} />
+                  </i>
+                </Tooltip>
+              )}
+            </Fragment>
           )}
           {!isHide &&
             item.flowIds.map((id, i) => {
@@ -145,6 +153,31 @@ export default class Branch extends Component {
             })}
         </div>
         <CreateNode {...this.props} />
+
+        {showBranchTypeDialog && (
+          <Dialog
+            visible
+            width={560}
+            title={_l('分支类型')}
+            onOk={() => {
+              this.switchBranchType(gatewayType);
+              this.setState({ showBranchTypeDialog: false });
+            }}
+            onCancel={() => this.setState({ showBranchTypeDialog: false })}
+          >
+            {BRANCH_TYPE.map((o, index) => (
+              <div className={cx('flexColumn', { mTop15: index > 0 })} key={index}>
+                <Radio
+                  className="Font15 bold"
+                  text={o.text}
+                  checked={o.value === gatewayType}
+                  onClick={() => this.setState({ gatewayType: o.value })}
+                />
+                <div className="mTop5 mLeft30 Gray_75">{o.desc}</div>
+              </div>
+            ))}
+          </Dialog>
+        )}
       </div>
     );
   }

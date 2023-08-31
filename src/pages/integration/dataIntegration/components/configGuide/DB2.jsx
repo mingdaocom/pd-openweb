@@ -5,48 +5,47 @@ export default function DB2Guide(props) {
   const { type } = props;
   return type === 'source' ? (
     <div className="guideContent">
-      <p>{_l('你可以把 IBM DB2 数据库作为源数据，同步数据到工作表或者其它数据目的地。')}</p>
+      <p>{_l('你可以把 IBM db2 数据库的数据通过系统实时同步到工作表或者其它数据目的地。')}</p>
       <h5>{_l('先决条件')}</h5>
       <ul>
-        <li>{_l('数据库版本：11.5x')}</li>
+        <li>{_l('支持IBM db2的版本：11.5x')}</li>
         <li>{_l('不支持 DB2 上的 布尔类型')}</li>
+        <li>{_l('将数据集成的系统 IP 添加到 DB2 服务器的访问白名单')}</li>
       </ul>
 
-      <h5>{_l('DB2作为源增量读取时，对于数据表需要执行')}</h5>
+      <h5>{_l('查询数据库版本')}</h5>
+      <div className="subTitle">{_l('方法1')}</div>
       <div className="sqlText">
-        <div>{_l('ALTER TABLE <模型名称>.<表名称> DATA CAPTURE CHANGES')}</div>
+        <div>SELECT * FROM SYSIBMADM.ENV_INST_INFO;</div>
+      </div>
+      <div className="subTitle">{_l('方法2')}</div>
+      <div className="sqlText">
+        <div>db2level</div>
       </div>
 
-      <h5>{_l('DB2数据库在DDL事件后，需要执行存储过程')}</h5>
+      <h5>{_l('检查表的 CDC 状态')}</h5>
       <div className="sqlText">
-        <div>CALL SYSPROC.ADMIN_CMD('REORG TABLE {_l('<模型名称>.<表名称>')}')</div>
+        <div>SELECT TABSCHEMA, TABNAME, CAPTURE</div>
+        <div>FROM SYSCAT.TABLES</div>
+        <div>WHERE TABSCHEMA = 'schema_name' AND TABNAME = 'table_name';</div>
       </div>
+      <p>{_l('如果 CAPTURE 列的值为 "Y"，表示表已处于捕获模式。')}</p>
 
-      <h5>{_l('不支持 DB2 上的 布尔类型')}</h5>
+      <h5>{_l('启用表的CDC')}</h5>
+      <div className="sqlText">
+        <div>ALTER TABLE schema_name.table_name ACTIVATE NOT LOGGED INITIALLY;</div>
+      </div>
+      <ul>
+        <li>{_l('schema_name 是表所属的模式名称')}</li>
+        <li>{_l('table_name 是要启用 CDC 的表的名称')}</li>
+      </ul>
       <p>
-        {_l(
-          '目前，Db2上的SQL Replication不支持BOOLEAN，所以Debezium不能在这些表中执行CDC。考虑使用其他类型来代替BOOLEAN类型',
-        )}
-      </p>
-
-      <h5>{_l('测试连接')}</h5>
-      <p>
-        {_l(
-          '创建数据源时，检查数据库服务器的连通性、账户密码等正确性、数据库是否可用、以及检查是否可以作为源或者目的地。只有数据源通过全部测试才能够正常使用数据源。',
-        )}
-      </p>
-
-      <h5>{_l('其他连接器选项')}</h5>
-      <p>
-        {_l(
-          '如果数据源的连接器选项配置和数据库服务器配置不一致时，可能会出现同步错误或者创建同步任务失败的情况。此时可尝试添加额外的连接器选项参数配置。',
-        )}
+        {_l('更多配置项参考')}
         <a
-          href="https://ververica.github.io/flink-cdc-connectors/master/content/connectors/mysql-cdc%28ZH%29.html#id6"
-          target="_blank"
+          href="https://debezium.io/documentation/reference/stable/connectors/db2.html#setting-up-db2"
           className="mLeft8"
         >
-          {_l('查看连接器选项')}
+          Debezium Documentation
         </a>
       </p>
     </div>

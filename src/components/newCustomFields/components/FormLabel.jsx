@@ -95,7 +95,7 @@ export default ({
   return (
     <Fragment>
       {errorMessage && (
-        <div className="customFormErrorMessage">
+        <div className={cx('customFormErrorMessage', { isChildTable: item.type === 34 })}>
           <span>
             {errorMessage}
             <i className="icon-close mLeft6 Bold delIcon" onClick={() => updateErrorState(false, item.controlId)} />
@@ -143,9 +143,11 @@ export default ({
           </div>
           {(recordId || item.isSubList || from === FROM.RECORDINFO) && <WidgetsDesc item={item} from={from} />}
 
-          {from !== FROM.DRAFT && !_.get(window, 'shareState.isPublicView') && (
-            <RefreshBtn worksheetId={worksheetId} recordId={recordId} item={item} onChange={handleChange} />
-          )}
+          {from !== FROM.DRAFT &&
+            !_.get(window, 'shareState.isPublicView') &&
+            !_.get(window, 'shareState.isPublicRecord') && (
+              <RefreshBtn worksheetId={worksheetId} recordId={recordId} item={item} onChange={handleChange} />
+            )}
 
           <div className={cx('mLeft6 pTop4', { Hidden: !loadingItems[item.controlId] })}>
             <i className="icon-loading_button customFormItemLoading Gray_9e" />

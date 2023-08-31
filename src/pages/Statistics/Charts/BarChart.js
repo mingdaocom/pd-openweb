@@ -119,8 +119,8 @@ export default class extends Component {
     this.BarChart && this.BarChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
-    const { displaySetup } = nextProps.reportData;
-    const { displaySetup: oldDisplaySetup } = this.props.reportData;
+    const { displaySetup, style } = nextProps.reportData;
+    const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
     // 显示设置
     if (
       displaySetup.fontStyle !== oldDisplaySetup.fontStyle ||
@@ -140,7 +140,8 @@ export default class extends Component {
       displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
       displaySetup.ydisplay.lineStyle !== oldDisplaySetup.ydisplay.lineStyle ||
       !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
-      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules)
+      !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
+      style.showLabelPercent !== oldStyle.showLabelPercent
     ) {
       const { BarChartConfig } = this.getComponentConfig(nextProps);
       this.BarChart.update(BarChartConfig);
@@ -208,7 +209,7 @@ export default class extends Component {
     return colors[inedx % colors.length];
   }
   getComponentConfig(props) {
-    const { map, displaySetup, xaxes, yaxisList, split, style = {}, reportId } = props.reportData;
+    const { map, displaySetup, xaxes, yaxisList, split, style = {}, reportId, summary } = props.reportData;
     const {
       isPile,
       isPerPile,
@@ -317,12 +318,28 @@ export default class extends Component {
         shared: true,
         showMarkers: false,
         formatter: (item) => {
+          const getLabelPercent = value => {
+            const { originalId } = item;
+            if (style.showLabelPercent) {
+              if (yaxisList.length > 1) {
+                const result = _.filter(data, { originalId });
+                const count = _.reduce(result, (total, item) => total + item.value, 0);
+                const percent = value && count ? (value / count * 100).toFixed(2) : undefined;
+                return percent ? `(${percent}%)` : '';
+              }
+              if (displaySetup.showTotal) {
+                return `(${(value / summary.sum * 100).toFixed(2)}%)`;
+              }
+              return '';
+            }
+            return '';
+          }
           if (isOptionsColor || isCustomColor) {
             const { value } = item;
             const name = yaxisList[0].controlName;
             return {
               name,
-              value
+              value: `${value} ${getLabelPercent(value)}`
             }
           }
           const { value, groupName } = item;
@@ -336,7 +353,7 @@ export default class extends Component {
             const { dot } = _.find(yaxisList, { controlId: id }) || {};
             return {
               name,
-              value: _.isNumber(value) ? value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--'
+              value: _.isNumber(value) ? `${value.toLocaleString('zh', { minimumFractionDigits: dot })} ${getLabelPercent(value)}` : '--'
             }
           }
         }
@@ -349,10 +366,24 @@ export default class extends Component {
               { type: 'adjust-color' },
               (ydisplay.maxValue && ydisplay.maxValue < maxValue) || (ydisplay.minValue && ydisplay.minValue > minValue) ? { type: 'limit-in-plot' } : null,
             ],
-            content: (data) => {
-              const { value, groupName, controlId } = data;
+            content: (labelData) => {
+              const { value, groupName, controlId, originalId } = labelData;
               const id = split.controlId ? newYaxisList[0].controlId : controlId;
-              return formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id);
+              const labelValue = formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id);
+              if (style.showLabelPercent && !isPerPile) {
+                if (yaxisList.length > 1) {
+                  const result = _.filter(data, { originalId });
+                  const count = _.reduce(result, (total, item) => total + item.value, 0);
+                  const percent = value && count ? (value / count * 100).toFixed(2) : undefined;
+                  return `${labelValue} ${percent ? `(${percent}%)` : ''}`;
+                }
+                if (displaySetup.showTotal) {
+                  return `${labelValue} (${(value / summary.sum * 100).toFixed(2)}%)`;
+                }
+                return labelValue;
+              } else {
+                return labelValue;
+              }
             },
           }
         : false,

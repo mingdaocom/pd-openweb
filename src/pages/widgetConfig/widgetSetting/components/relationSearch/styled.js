@@ -87,6 +87,10 @@ export const AddRelate = styled.div`
       &.active {
         background-color: rgba(33, 150, 243, 0.1);
       }
+
+      .Width18 {
+        width: 18px;
+      }
     }
   }
   .relateListWrap {
@@ -139,6 +143,12 @@ export const FilterContent = styled.div`
       .conditionValue {
         flex: 1;
         margin-left: 12px;
+        min-width: 0;
+        .optionCheckbox {
+          word-break: break-all;
+          display: inline-block;
+          line-height: 26px;
+        }
       }
       .deletedColumn {
         margin-left: 12px;
