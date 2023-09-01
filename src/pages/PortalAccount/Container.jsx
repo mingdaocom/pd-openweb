@@ -157,7 +157,7 @@ export default function Container(props) {
         return (
           <React.Fragment>
             {/* isErrUrl status===12 // 进到登录根据配置信息判断当前版本购买人数是否超过当前版本购买人数 */}
-            {isErrUrl ? _l('链接访问存在异常') : _l('运营方使用额度已满')}
+            {isErrUrl ? _l('当前使用人数超出额度') : _l('运营方使用额度已满')}
             <p className="Font15 mTop6">{isErrUrl ? _l('请联系运营方') : _l('无法注册新用户')}</p>
           </React.Fragment>
         );

@@ -31,6 +31,7 @@ const CascaderCon = styled.div`
 `;
 const CascaderItem = styled.span`
   display: inline-block;
+  max-width: 100%;
   height: 28px;
   background: #f5f5f5;
   border-radius: 14px;
@@ -332,13 +333,15 @@ export default class Cascader extends Component {
           <CascaderCon>
             {values.map(item => (
               <CascaderItem>
-                <span className="userName">{item.name}</span>
-                <Icon
-                  icon="close"
-                  onClick={() => {
-                    this.deleteCurrentSelected(item);
-                  }}
-                />
+                <div className="flexRow alignItemsCenter">
+                  <span className="userName flex">{item.name}</span>
+                  <Icon
+                    icon="close"
+                    onClick={() => {
+                      this.deleteCurrentSelected(item);
+                    }}
+                  />
+                </div>
               </CascaderItem>
             ))}
             {((!isMultiple && _.isEmpty(values)) || isMultiple) && (

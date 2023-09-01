@@ -281,6 +281,10 @@ export const filterFn = (filterData, originControl, data = []) => {
     if (dynamicSource.length > 0) {
       const { cid = '' } = dynamicSource[0];
       currentControl = _.find(data, it => it.controlId === cid) || {};
+      // 他表字段取原字段类型，不然日期值截取有问题，比较出错
+      if (currentControl.type === 30) {
+        currentControl.type = currentControl.sourceControlType;
+      }
       //是(等于)、不是(不等于)、大于(等于)、小于(等于) && NUMBER
       //大于、小于 && NUMBER、DATE
       //日期是、日期不是 && DATE
@@ -1102,11 +1106,7 @@ export const filterFn = (filterData, originControl, data = []) => {
 
             return _.isEqual(
               compareValues
-                .map(it =>
-                  dynamicSource.length > 0
-                    ? _.get(it, 'sid')
-                    : _.get(safeParse(it || '{}'), 'id'),
-                )
+                .map(it => (dynamicSource.length > 0 ? _.get(it, 'sid') : _.get(safeParse(it || '{}'), 'id')))
                 .sort(),
               safeParse(value || '[]', 'array')
                 .map(item => item.sid)
@@ -1162,11 +1162,7 @@ export const filterFn = (filterData, originControl, data = []) => {
 
             return !_.isEqual(
               compareValues
-                .map(it =>
-                  dynamicSource.length > 0
-                    ? _.get(it, 'sid')
-                    : _.get(safeParse(it || '{}'), 'id'),
-                )
+                .map(it => (dynamicSource.length > 0 ? _.get(it, 'sid') : _.get(safeParse(it || '{}'), 'id')))
                 .sort(),
               safeParse(value || '[]', 'array')
                 .map(item => item.sid)

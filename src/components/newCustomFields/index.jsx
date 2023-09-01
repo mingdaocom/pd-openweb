@@ -575,7 +575,7 @@ export default class CustomFields extends Component {
             .concat(systemControlData || [])
             .concat(getMasterFormData() || [])}
         />
-        {from !== FROM.RECORDINFO && !recordId && !item.isSubList && item.type !== 34 && (
+        {(from === FROM.DRAFT || (from !== FROM.RECORDINFO && !recordId && !item.isSubList && item.type !== 34)) && (
           <WidgetsDesc item={item} from={from} />
         )}
       </React.Fragment>
@@ -689,7 +689,12 @@ export default class CustomFields extends Component {
    * 更新渲染数据
    */
   updateRenderData() {
-    this.setState({ renderData: this.getFilterDataByRule() });
+    const newErrorItems = this.dataFormat.getErrorControls();
+    const { errorItems = [] } = this.state;
+    this.setState({
+      renderData: this.getFilterDataByRule(),
+      ...(newErrorItems.length !== errorItems.length ? { errorItems: newErrorItems } : {}),
+    });
   }
 
   /**

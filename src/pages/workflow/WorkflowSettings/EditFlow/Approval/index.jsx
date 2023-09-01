@@ -35,17 +35,10 @@ export default class Approval extends Component {
       );
     }
 
-    if (!item.accounts.length) {
-      return (
-        <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
-          {_l('未设置审批人')}
-        </div>
-      );
-    }
-
     const hasApprovalMethod =
-      (item.accounts.length > 1 || item.accounts[0].type !== 1) && _.includes([1, 2, 4], item.countersignType);
+      !!item.accounts.length &&
+      (item.accounts.length > 1 || item.accounts[0].type !== 1) &&
+      _.includes([1, 2, 4], item.countersignType);
 
     return (
       <Fragment>

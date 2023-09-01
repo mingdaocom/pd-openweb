@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { Flex, ActionSheet, Modal } from 'antd-mobile';
-import { Icon, Button } from 'ming-ui';
+import { Icon, Button, WaterMark } from 'ming-ui';
 import cx from 'classnames';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
@@ -635,9 +635,11 @@ class AppHome extends React.Component {
   }
   render() {
     const { guideStep, searchValue } = this.state;
-
+    const projectObj = getCurrentProject(
+      localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
+    );
     return (
-      <Fragment>
+      <WaterMark projectId={projectObj.projectId}>
         <div className="listConBox h100">
           {this.renderProcess()}
           {!searchValue && this.renderContent()}
@@ -645,7 +647,7 @@ class AppHome extends React.Component {
           <TabBar action="appHome" />
         </div>
         {guideStep ? this.renderGuide() : null}
-      </Fragment>
+      </WaterMark>
     );
   }
 }

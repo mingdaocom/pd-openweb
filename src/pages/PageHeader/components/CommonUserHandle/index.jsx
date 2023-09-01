@@ -205,13 +205,13 @@ export class LeftCommonUserHandle extends Component {
             <Icon icon="search" className="Font20" onClick={this.openGlobalSearch.bind(this)} />
           </div>
         )}
-        <div
+        {/* <div
           className="headerColorSwitch tip-top pointer"
           data-tip={_l('帮助')}
           onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
         >
           <Icon icon="workflow_help" className="Font20" />
-        </div>
+        </div> */}
         <Tooltip
           text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
           mouseEnterDelay={0.2}

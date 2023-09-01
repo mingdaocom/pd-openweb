@@ -438,7 +438,7 @@ export default function HomePage({ match, location: routerLocation }) {
                       />
                       <div className="useCount pointer">
                         {getCountText(key, limit, unit)}
-                        {!isTrial && !isFree ? (
+                        {/* !isTrial && !isFree ? (
                           <span
                             className="dilatation"
                             onClick={e => {
@@ -449,7 +449,7 @@ export default function HomePage({ match, location: routerLocation }) {
                           >
                             {_l('扩容')}
                           </span>
-                        ) : null}
+                        ) : null */}
                       </div>
                     </li>
                   );

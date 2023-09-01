@@ -505,7 +505,7 @@ export default class AdminWorkflowList extends Component {
                     {(overage || 0).toFixed(2)}%
                   </span>
 
-                  {licenseType === 1 ? (
+                  {/* licenseType === 1 ? (
                     <Link
                       className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
                       to={`/admin/expansionserviceWorkflow/${params.projectId}/workflow`}
@@ -522,7 +522,7 @@ export default class AdminWorkflowList extends Component {
                     >
                       {_l('购买付费版')}
                     </a>
-                  )}
+                  ) */}
                 </Fragment>
               ) : (
                 _l('加载中...')

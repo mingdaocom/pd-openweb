@@ -14,6 +14,7 @@ import _ from 'lodash';
 import { encrypt, mdAppResponse } from 'src/util';
 import Checkbox from 'ming-ui/components/Checkbox';
 import Icon from 'ming-ui/components/Icon';
+import Tooltip from 'ming-ui/components/Tooltip';
 
 let sendVerifyCodeTimer = null;
 let hasClick = false;
@@ -805,7 +806,9 @@ class Message extends React.Component {
               </div>
               {isUpperCase && keys.includes('password') && (
                 <span className="isUpperCase">
-                  <Icon type="up" />
+                  <Tooltip text={<span>{_l('大写锁定已打开')}</span>} action={['hover']} popupPlacement={'right'}>
+                    <Icon type="up" />
+                  </Tooltip>
                 </span>
               )}
               {keys.includes('setPassword') && (

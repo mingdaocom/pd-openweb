@@ -349,6 +349,7 @@ export default class ChangeColumn extends Component {
             <Input
               value={search}
               placeholder={placeholder}
+              autoFocus={true}
               className="flex"
               onChange={value => {
                 this.setState({ search: value.trim() });

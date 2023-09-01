@@ -1,11 +1,12 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { head, isEmpty, get } from 'lodash';
+import { head, isEmpty, get, some } from 'lodash';
 import { useDrop } from 'react-dnd-latest';
 import DisplayItem from './displayItem';
 import { DRAG_ITEMS, DRAG_MODE } from '../config/Drag';
 import { isFullLineDragItem } from '../util/drag';
+import { isFullLineControl } from '../util/widgets';
 
 const DisplayRowWrap = styled.div`
   display: flex;
@@ -44,6 +45,7 @@ export default function RowItem({ row, index, displayItemType, ...rest }) {
 
           // 拖拽到其他行如果已经有三个以上也不能拖
           if (row !== currentRow && rowItem.length > 3) return false;
+          if (some(rowItem, widget => isFullLineControl(widget))) return false;
           setPointerDir('right');
         }
       }
