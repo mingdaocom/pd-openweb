@@ -194,7 +194,7 @@ export default class Con extends React.Component {
                 //一行一个控件的显示
                 if (item.length === 1) {
                   if (isHideNull) {
-                    if ([41, 10010, 14, 42].includes(item[0].type) && !item[0].value) {
+                    if ([41, 10010, 14, 42].includes(item[0].type) && !item[0].value && !item[0].dataSource) {
                       //富文本、备注、附件、签名，是否空值隐藏0
                       hideNum++;
                       return '';
@@ -227,7 +227,7 @@ export default class Con extends React.Component {
                     borderTop: itemIndex === hideNum ? '0.1px solid #ddd' : 'none',
                   };
 
-                  return item[0].type !== 10010 || item[0].value ? (
+                  return item[0].type !== 10010 || (item[0].type === 10010 && (item[0].value || item[0].dataSource)) ? (
                     <tr style={STYLE_PRINT.controlDiv}>
                       {/* 备注字段无标题 */}
                       {item[0].type !== 10010 && (

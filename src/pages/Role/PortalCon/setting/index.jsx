@@ -199,7 +199,7 @@ class PortalSetting extends React.Component {
     let mdSign = getStrBytesLength(
       ((_.get(md, ['global', 'Account', 'projects']) || []).find(o => o.projectId === projectId) || {}).companyName,
     );
-    const {
+    let {
       pageTitle = '',
       smsSignature = mdSign,
       allowUserType,
@@ -212,6 +212,7 @@ class PortalSetting extends React.Component {
       appId,
       customizeName,
     } = portalSetModel;
+    smsSignature = smsSignature.replace(/\s*/g, ''); //去掉签名中的空格
     if (!customizeName) {
       return alert(_l('请输入外部门户名称'), 3);
     }

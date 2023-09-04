@@ -118,6 +118,9 @@ class TaskCanvas extends Component {
       },
       () => {
         this.props.onUpdate({ ...this.props.flowData, flowNodes: map, srcIsDb });
+        this.setState({
+          loading: false,
+        });
       },
     );
   };

@@ -371,7 +371,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
     }
     case 41:
     case 10010:
-      return value ? <RichText data={value} className="richText" disabled={true} /> : '';
+      return value || item.dataSource ? <RichText data={value || item.dataSource} className="richText" disabled={true} /> : '';
     case 30: {
       if (item.sourceControlType <= 0) {
         return '';

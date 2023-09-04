@@ -106,7 +106,7 @@ function Sheet(props) {
     const showhide = _.get(view, 'advancedSetting.showhide') || '';
     return !showhide.includes('hpc') && !showhide.includes('hide');
   });
-  const view = _.find(views, { viewId }) || (!viewId && !chartId && showViews[0]) || {};
+  const view = _.find(views, { viewId }) || (!viewId && !chartId && (showViews.length ? showViews : views)[0]) || {};
   const hasGroupFilter =
     !_.isEmpty(view.navGroup) && view.navGroup.length > 0 && _.includes([sheet, gallery], String(view.viewType));
   const showQuickFilter =

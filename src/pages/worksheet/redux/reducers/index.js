@@ -22,13 +22,13 @@ function base(state = {}, action) {
       // 自定义页面没有视图
       if (isEmpty(action.value.views)) return state;
       if (state.worksheetId === action.value.worksheetId) {
-        const views = action.value.views.filter(view => {
+        const showViews = action.value.views.filter(view => {
           const showhide = _.get(view, 'advancedSetting.showhide') || '';
           return !showhide.includes('hpc') && !showhide.includes('hide');
         });
         return {
           ...state,
-          viewId: _.get(views[0], 'viewId')
+          viewId: _.get((showViews.length ? showViews : action.value.views)[0], 'viewId')
         };
       }
       return state;
