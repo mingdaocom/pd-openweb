@@ -89,7 +89,7 @@ const PasteHeader = styled.div`
 function parseText(text, splitCharType = 1) {
   const splitter = ['\t', ':', '|', ',', ' '][splitCharType - 1];
   return text
-    .split(/\r\n/)
+    .split(/\r\n|\n/)
     .map(line =>
       (line || '')
         .split(splitter)

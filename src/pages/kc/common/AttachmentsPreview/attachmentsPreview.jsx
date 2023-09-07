@@ -294,7 +294,9 @@ class AttachmentsPreview extends React.Component {
                     if (previewService === 'wps' && isWpsPreview(ext)) {
                       viewUrl = `${md.global.Config.WpsUrl}/view?url=${encodeURIComponent(
                         currentAttachment.viewUrl,
-                      )}&attname=${currentAttachment.name || currentAttachment.sourceNode.originalFilename}.${ext}`;
+                      )}&attname=${encodeURIComponent(
+                        currentAttachment.name || currentAttachment.sourceNode.originalFilename,
+                      )}.${ext}`;
                     }
 
                     viewUrl = addToken(viewUrl, false);

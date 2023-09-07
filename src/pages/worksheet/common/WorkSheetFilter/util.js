@@ -867,7 +867,12 @@ export function getFilter({ control, formData = [], filterKey = 'filters' }) {
       } else {
         condition.dateRange = 0;
       }
-      return fillConditionValue({ condition, formData, relateControl: control });
+      return fillConditionValue({
+        condition,
+        formData,
+        relateControl: control,
+        ignoreFilterControl: control.ignoreFilterControl,
+      });
     }
   }
   conditions = conditions.map(condition => {
@@ -906,7 +911,7 @@ export function getFilter({ control, formData = [], filterKey = 'filters' }) {
   }
 }
 
-export function fillConditionValue({ condition, formData, relateControl }) {
+export function fillConditionValue({ condition, formData, relateControl, ignoreFilterControl = false }) {
   const { dataType, controlId } = condition;
   const dynamicSource = condition.dynamicSource[0];
   const systemControls = [
@@ -935,7 +940,7 @@ export function fillConditionValue({ condition, formData, relateControl }) {
     (relateControl.relationControls || []).concat(systemControls),
     item => item.controlId === controlId,
   );
-  if (!dynamicSource || !filterControl) {
+  if (!dynamicSource || (!filterControl && !ignoreFilterControl)) {
     return;
   }
   const { cid } = dynamicSource;
@@ -1003,7 +1008,9 @@ export function fillConditionValue({ condition, formData, relateControl }) {
       if (!selectedOption) {
         condition.values = [];
       } else {
-        const matchedOptions = filterControl.options.filter(option => option.key === selectedOption.key);
+        const matchedOptions = (_.get(filterControl, 'options') || []).filter(
+          option => option.key === selectedOption.key,
+        );
         if (matchedOptions.length) {
           condition.values = matchedOptions.map(option => option.key);
         } else {
@@ -1016,7 +1023,7 @@ export function fillConditionValue({ condition, formData, relateControl }) {
       if (!selectedOptions.length) {
         condition.values = [];
       } else {
-        const matchedOptions = filterControl.options.filter(option =>
+        const matchedOptions = (_.get(filterControl, 'options') || []).filter(option =>
           _.find(
             selectedOptions.map(o => o.value),
             ov => ov === option.value,
@@ -1030,7 +1037,7 @@ export function fillConditionValue({ condition, formData, relateControl }) {
       }
     } else {
       // 文字
-      condition.values = filterControl.options
+      condition.values = (_.get(filterControl, 'options') || [])
         .filter(option => option.value.indexOf(value) > -1)
         .map(option => option.key);
     }

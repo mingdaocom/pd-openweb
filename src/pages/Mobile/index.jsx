@@ -88,19 +88,20 @@ class App extends Component {
             const home = '/mobile/appHome';
             const page = '/mobile/recordList/';
             const record = '/mobile/record/';
+            const setHash = url => navigateTo(url + location.hash);
             if (location.pathname.includes(record)) {
               const param = location.pathname.replace(record, '').split('/');
               const [appId, worksheetId, viewId, rowId] = param;
               if (!viewId) {
-                return navigateTo(`${record}${appId}/${worksheetId}/null/${rowId}`);
+                return setHash(`${record}${appId}/${worksheetId}/null/${rowId}`);
               } else {
-                return navigateTo(home);
+                return setHash(home);
               }
             } else if (location.pathname.includes(page)) {
               const param = location.pathname.replace(page, '').split('/');
-              return navigateTo(param.length === 1 ? `/mobile/app/${param[0]}` : home);
+              return setHash(param.length === 1 ? `/mobile/app/${param[0]}` : home);
             } else if (!isPortal) {
-              return navigateTo(home);
+              return setHash(home);
             }
           }}
         />

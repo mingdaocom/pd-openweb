@@ -170,7 +170,7 @@ export default function FormulaDate(props) {
       $ref.current.setValue(data.dataSource || '');
     }
     if (enumDefault !== 1) {
-      onChange(handleAdvancedSettingChange({ ...data, dot: 0 }, { dot: 0 }));
+      onChange(handleAdvancedSettingChange({ ...data, dot: 0 }, { dot: '0' }));
     }
   }, [data.controlId, enumDefault]);
   return (

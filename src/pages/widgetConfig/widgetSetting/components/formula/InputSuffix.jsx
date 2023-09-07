@@ -16,7 +16,7 @@ const SuffixWrap = styled(SettingItem)`
 `;
 
 export default function InputSuffix({ data, onChange }) {
-  const { unit, enumDefault, controlId } = data;
+  const { unit, enumDefault, controlId, dot } = data;
   const setting = getAdvanceSetting(data) || {};
   const type = setting.prefix ? 'prefix' : 'suffix';
   const initSuffix = UNIT_TYPE.find(item => _.includes(['3', '4', '5'], unit) && item.value === unit) || {};
@@ -43,7 +43,7 @@ export default function InputSuffix({ data, onChange }) {
           onChange={value => {
             onChange(
               handleAdvancedSettingChange(
-                { ...data, unit: value },
+                { ...data, unit: value, dot: _.includes(['1', '6'], value) ? 0 : dot },
                 _.includes(['3', '5'], value) && setting.autocarry === '1' ? { autocarry: '' } : {},
               ),
             );
@@ -60,7 +60,14 @@ export default function InputSuffix({ data, onChange }) {
         border
         value={unit}
         data={UNIT_TYPE}
-        onChange={value => onChange(handleAdvancedSettingChange({ ...data, unit: value }, { suffix: '' }))}
+        onChange={value =>
+          onChange(
+            handleAdvancedSettingChange(
+              { ...data, unit: value, dot: _.includes(['1', '6'], value) ? 0 : dot },
+              { suffix: '' },
+            ),
+          )
+        }
       />
     </SettingItem>
   );

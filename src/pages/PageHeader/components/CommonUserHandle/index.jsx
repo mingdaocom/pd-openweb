@@ -91,7 +91,7 @@ export default class CommonUserHandle extends Component {
         )}
         {/* {type !== 'appPkg' && (
           <BtnCon
-            className={`mRight16 ${type === 'native' ? 'mLeft10' : ''}`}
+            className={`${type === 'native' ? 'mLeft10' : ''}`}
             data-tip={_l('帮助')}
             onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
           >
@@ -114,7 +114,7 @@ export default class CommonUserHandle extends Component {
               this.avatar = avatar;
             }}
           >
-            <span className="tip-bottom-left" data-tip={md.global.Account.fullname}>
+            <span className="tip-bottom-left mLeft16" data-tip={md.global.Account.fullname}>
               <Avatar src={md.global.Account.avatar.replace(/w\/100\/h\/100/, 'w/90/h/90')} size={30} />
             </span>
           </div>

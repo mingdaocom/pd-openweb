@@ -212,7 +212,10 @@ export default class SystemMessage extends PureComponent {
     };
 
     if (md.global.Account.isPortal) {
-      content = content.replace(/<a data-accountid=[^>]*/gi, '<a'); //外部门户不能点击用户
+      //外部门户
+      content = content
+        .replace(/<a data-accountid=[^>]*/gi, '<a') //不能点击用户
+        .replace(/<a href=\"\/app\/[^>]*/gi, '<a'); //不能点击应用
     }
     if (!browserIsMobile()) {
       //pc端 直接进到外部门户审批列表

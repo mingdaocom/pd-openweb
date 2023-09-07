@@ -177,6 +177,7 @@ export default class SubList extends React.Component {
       initSource,
       viewIdForPermit,
       sheetSwitchPermit,
+      flag,
     } = this.props;
     const { controls, projectId, info } = this.state;
     const { instanceId, workId } = browserIsMobile()
@@ -205,6 +206,7 @@ export default class SubList extends React.Component {
             recordId={recordId}
             searchConfig={searchConfig || []}
             sheetSwitchPermit={sheetSwitchPermit}
+            flag={flag}
             masterData={{
               worksheetId,
               formData: formData

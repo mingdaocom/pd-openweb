@@ -58,4 +58,4 @@ class AgreenOrPrivacy extends React.Component {
   }
 }
 
-ReactDom.render(<AgreenOrPrivacy />, document.getElementById('app'));
+ReactDom.render(<AgreenOrPrivacy />, document.getElementById('agreenOrPrivacy'));

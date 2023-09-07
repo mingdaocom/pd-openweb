@@ -19,7 +19,7 @@ import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/filterFn';
 import { formatControlToServer, controlState } from 'src/components/newCustomFields/tools/utils';
 import Back from '../components/Back';
-import { isRelateRecordTableControl, getSubListError, checkCellIsEmpty } from 'worksheet/util';
+import { isRelateRecordTableControl, getSubListError, checkCellIsEmpty, filterHidedSubList } from 'worksheet/util';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -400,7 +400,7 @@ class Record extends Component {
             .map(formatControlToServer);
 
     const { cellObjs } = this;
-    const subListControls = data.filter(item => item.type === 34).filter(c => controlState(c).editable);
+    const subListControls = filterHidedSubList(data, this.submitType === 'draft' ? 2 : 3);
     function getRows(controlId) {
       try {
         return cellObjs[controlId].cell.props.rows;

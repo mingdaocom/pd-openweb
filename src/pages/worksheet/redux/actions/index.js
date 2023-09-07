@@ -350,6 +350,7 @@ export function openNewRecord() {
         needCache: true,
         addType: 1,
         showShare: true,
+        sheetSwitchPermit,
         hidePublicShare: !(
           isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) && !md.global.Account.isPortal
         ),

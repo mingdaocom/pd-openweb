@@ -38,6 +38,7 @@ export function clearZombie() {
 
 export function fillUrl(url) {
   const hash = url.split('#')[1] || '';
+  const hash2 = url.split('#')[2] || '';
 
   url = url.split('#')[0];
 
@@ -60,7 +61,7 @@ export function fillUrl(url) {
     url = url + (url.indexOf('?') > -1 ? `&${hideOptions}` : `?${hideOptions}`);
   }
   if (window.isPublicApp && !new URL('http://z.z' + url).hash) {
-    url = url + '#publicapp' + window.publicAppAuthorization;
+    url = url + '#publicapp' + window.publicAppAuthorization + (hash2 ? `#${hash2}` : ``);
     return url;
   }
   return url + (hash ? `#${hash}` : '');

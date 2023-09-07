@@ -55,7 +55,7 @@ export default class Entry extends Component {
     return type ? (
       <Tooltip text={<span>{_l('流程待办')}</span>}>
         <div className={`myProcessHeader pointer mLeft10 ${isNative ? 'Gray_75' : 'White'} ${className}`} onClick={onClick}>
-          <Icon icon={cx('task_alt', { appIcon: !isNative })} className="mRight5 Font20" />
+          <Icon icon={cx('task_alt', { appIcon: !isNative })} className="TxtMiddle Font20" />
           {count ? (
             <span className={`count ${isNative ? 'native' : 'app'}`} style={{ color: isNative ? '' : iconColor }}>
               {count}

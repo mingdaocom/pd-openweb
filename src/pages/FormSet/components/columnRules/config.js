@@ -39,12 +39,16 @@ export const conditionTypeListData = [
 
 export const actionsListData = [
   { value: 1, label: _l('显示') },
-  { value: 2, label: _l('隐藏') },
+  { value: 2, label: _l('隐藏'), warnText: _l('隐藏后不验证必填') },
   { value: 3, label: _l('可编辑') },
-  { value: 4, label: _l('只读') },
+  { value: 4, label: _l('只读'), warnText: _l('只读后不验证必填') },
   { value: 5, label: _l('必填') },
   { value: 6, label: _l('提示错误') },
-  { value: 7, label: _l('锁定记录') },
+  {
+    value: 7,
+    label: _l('锁定记录'),
+    warnText: _l('锁定状态在记录保存后生效。锁定的记录不允许用户直接编辑，但可以通过自定义动作和工作流进行填写'),
+  },
   { value: 8, label: _l('解锁记录') },
 ];
 

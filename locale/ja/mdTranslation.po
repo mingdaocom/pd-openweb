@@ -19214,7 +19214,7 @@ msgstr "\"%0"
 
 #: Disabled references:1
 msgid "正在执行..."
-msgstr "処刑される..."
+msgstr "お待ちください、実行中です..."
 
 #: Disabled references:1
 msgid "对选中记录执行操作"

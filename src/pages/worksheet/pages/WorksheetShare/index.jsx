@@ -224,10 +224,21 @@ class WorksheetSahre extends React.Component {
     let filterControls;
     if (control && control.type === 51) {
       filterControls = getFilter({
-        control,
+        control: { ...control, ignoreFilterControl: true },
         formData: cardControls,
         filterKey: 'resultfilters',
       });
+      if (!filterControls) {
+        this.setState({
+          loading: false,
+          rowRelationRowsData: {
+            ...rowRelationRowsData,
+            rowsList: [],
+            count: 0,
+          },
+        });
+        return;
+      }
     }
     let index = pageIndex ? pageIndex : 1;
     this.setState({
@@ -255,7 +266,7 @@ class WorksheetSahre extends React.Component {
       pageSize: PAGESIZE,
       getWorksheet: true,
       shareId: this.state.shareId,
-      filterControls,
+      filterControls: filterControls || [],
     });
 
     this.promiseRowRelationRows.then(data => {

@@ -6,6 +6,7 @@ import { LoadDiv, Button, Icon, ScrollView } from 'ming-ui';
 import { getSubListError, filterHidedSubList } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
 import './index.less';
+import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import CustomFields from 'src/components/newCustomFields';
 import { VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
@@ -78,7 +79,7 @@ class WorksheetRowEdit extends Component {
 
     this.requestLinkDetail({ clientId })
       .then(data => {
-        this.setState({ loading: false, data }, this.bindScroll);
+        this.setState({ loading: false, data, cardControls: data.receiveControls }, this.bindScroll);
       })
       .catch(data => {
         this.setState({ loading: false, data, isError: true });
@@ -111,9 +112,23 @@ class WorksheetRowEdit extends Component {
    * 获得关联多条记录
    */
   getRowRelationRowsData = id => {
-    const { data, pageIndex, rowRelationRowsData = {}, pageSize } = this.state;
+    const { data, pageIndex, rowRelationRowsData = {}, pageSize, cardControls = [] } = this.state;
     const { controlName, coverCid, showControls } = _.find(data.receiveControls, item => item.controlId === id);
     const shareId = location.pathname.match(/.*\/public\/workflow\/(.*)/)[1];
+
+    const control = _.find(cardControls, { controlId: id });
+    let filterControls;
+    if (control && control.type === 51) {
+      filterControls = getFilter({
+        control: { ...control, ignoreFilterControl: true },
+        formData: cardControls,
+        filterKey: 'resultfilters',
+      });
+      if (!filterControls) {
+        this.setState({ loading: false, rowRelationRowsData: { data: [] }, count: 0 });
+        return;
+      }
+    }
 
     this.setState({ controlName, coverCid, showControls, loading: true });
 
@@ -126,6 +141,7 @@ class WorksheetRowEdit extends Component {
         pageSize,
         getWorksheet: true,
         shareId,
+        filterControls: filterControls || [],
       })
       .then(data => {
         this.setState(

@@ -539,7 +539,7 @@ export default class RecordInfo extends Component {
     const { cellObjs } = this;
     const { recordId, recordinfo } = this.state;
     let hasError;
-    const subListControls = filterHidedSubList(data, 3);
+    const subListControls = filterHidedSubList(data, this.submitType === 'draft' ? 2 : 3);
     function getRows(controlId) {
       try {
         return cellObjs[controlId].cell.props.rows;

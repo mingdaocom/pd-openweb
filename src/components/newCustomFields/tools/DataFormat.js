@@ -125,7 +125,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
 
     // 关联他表字段
     if (item.rcid) {
-      if (currentItem.isQueryWorksheetFill && currentItem.value) {
+      if (currentItem.isQueryWorksheetFill && !checkCellIsEmpty(currentItem.value)) {
         return currentItem.value;
       }
       try {

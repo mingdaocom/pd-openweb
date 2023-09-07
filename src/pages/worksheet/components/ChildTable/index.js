@@ -12,6 +12,19 @@ export default class extends React.Component {
     this.bindSubscribe();
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { onChange } = nextProps;
+    const state = this.store.getState() || {};
+    if (nextProps.from === 21 && !_.isEqual(this.props.flag, nextProps.flag) && !_.isEmpty(state.rows)) {
+      // h5草稿箱已有子表值时编辑赋值
+      onChange({
+        rows: state.rows,
+        lastAction: state.lastAction,
+        originRows: state.originRows,
+      });
+    }
+  }
+
   bindSubscribe() {
     const { onChange } = this.props;
     this.store.subscribe(() => {

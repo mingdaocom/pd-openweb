@@ -205,13 +205,8 @@ class EditBox extends React.Component {
               {listData.map(i => (
                 <div onClick={() => updateAction(ruleItems.concat({ ...originActionItem, type: i.value }), true)}>
                   {i.label}
-                  {i.value === 7 && (
-                    <Tooltip
-                      placement="bottom"
-                      title={_l(
-                        '锁定状态在记录保存后生效。锁定的记录不允许用户直接编辑，但可以通过自定义动作和工作流进行填写',
-                      )}
-                    >
+                  {i.warnText && (
+                    <Tooltip placement="bottom" title={i.warnText}>
                       <i className="icon-info_outline Gray_9e Font16"></i>
                     </Tooltip>
                   )}

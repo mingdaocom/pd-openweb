@@ -379,6 +379,16 @@ export default function Steps(props) {
             <Drag
               className={`${tipDirection ? 'tip-' + tipDirection : 'tip-top'}`}
               color={currentColor}
+              onClick={() => {
+                // 选项第一个无法选中，点击元素被覆盖
+                if (!value && !disabled) {
+                  const tempVal = (filterOptions[0] || {}).key || '';
+                  if (tempVal) {
+                    setCurrentValue(0);
+                    onChange(tempVal);
+                  }
+                }
+              }}
               style={{ left: `calc(${width}% - 7px)` }}
               {...(showTip && !_.isUndefined(currentValue)
                 ? { 'data-tip': _.get(filterOptions[currentValue], 'value') }

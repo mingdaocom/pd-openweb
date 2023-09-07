@@ -79,6 +79,7 @@ function NewRecordForm(props) {
     shareVisible,
     customButtonConfirm,
     customBtn,
+    sheetSwitchPermit,
     advancedSetting = {},
     setShareVisible = () => {},
     onSubmitBegin = () => {},
@@ -452,6 +453,7 @@ function NewRecordForm(props) {
               isCharge,
               allowEdit: true,
             }}
+            sheetSwitchPermit={sheetSwitchPermit}
             widgetStyle={worksheetInfo.advancedSetting}
             masterRecordRowId={masterRecordRowId || (masterRecord || {}).rowId}
             registerCell={({ item, cell }) => (cellObjs.current[item.controlId] = { item, cell })}

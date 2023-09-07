@@ -87,6 +87,21 @@ const MobileTestWrap = styled.div`
   }
 `;
 
+function getCoverUrl(coverId, record, controls) {
+  const coverControl = _.find(controls, c => c.controlId && c.controlId === coverId);
+  if (!coverControl) {
+    return;
+  }
+  try {
+    const coverFile = _.find(JSON.parse(record[coverId]), file => File.isPicture(file.ext));
+    const { previewUrl = '' } = coverFile;
+    return previewUrl.indexOf('imageView2') > -1
+      ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
+      : `${previewUrl}&imageView2/1/w/200/h/140`;
+  } catch (err) {}
+  return;
+}
+
 function Cards(props) {
   const {
     loading,
@@ -136,6 +151,7 @@ function Cards(props) {
             width={cardWidth}
             isCharge={isCharge}
             key={i}
+            cover={getCoverUrl(control.coverCid, record, controls)}
             controls={control.showControls
               .map(cid => _.find(controls, { controlId: cid }))
               .filter(c => c && c.attribute !== 1)}
