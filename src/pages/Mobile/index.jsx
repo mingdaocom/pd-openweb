@@ -88,7 +88,7 @@ class App extends Component {
             const home = '/mobile/appHome';
             const page = '/mobile/recordList/';
             const record = '/mobile/record/';
-            const setHash = url => navigateTo(url + location.hash);
+            const setHash = url => navigateTo(url + location.hash, true);
             if (location.pathname.includes(record)) {
               const param = location.pathname.replace(record, '').split('/');
               const [appId, worksheetId, viewId, rowId] = param;
