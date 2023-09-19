@@ -71,7 +71,7 @@ export default function NumberDynamicColor(props) {
           {_l('为进度区间设置颜色。当鼠标悬停或字段值在对应区间，显示该区间设置的颜色。')}
         </div>
         {dynamicColor.map((item, index) => {
-          const deleteDisabled = dynamicColor.length === 1 || parseFloat(item.key) <= parseFloat(max);
+          const deleteDisabled = dynamicColor.length === 1;
           return (
             <DynamicColorWrap>
               <span>{_l('当数值≤')}</span>

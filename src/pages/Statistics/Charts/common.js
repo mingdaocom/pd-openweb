@@ -409,7 +409,7 @@ export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
       const result = toFixed(format(value), 0);
       return fixType ? `${suffix}${result}` : `${result}${suffix}`;
     } else if (magnitude) {
-      const result = Number(toFixed(format(value), ydot));
+      const result = Number(toFixed(format(value), Number(ydot)));
       return magnitude === 1 ? result : fixType ? `${suffix}${result}` : `${result}${suffix}`;
     } else {
       return format(value);

@@ -84,6 +84,7 @@ export default class CustomFields extends Component {
       searchConfig: props.searchConfig || [],
       loadingItems: {},
       verifyCode: '', // 验证码
+      childTableControlIds: [],
     };
 
     this.controlRefs = {};
@@ -434,8 +435,14 @@ export default class CustomFields extends Component {
    * searchByChange: api查询被动赋值引起的工作表查询，文本类按失焦处理
    */
   handleChange = (value, cid, item, searchByChange = true) => {
-    const { onWidgetChange = () => {} } = this.props;
+    const { onWidgetChange = () => {}, disabled, from, getChildTableControlIds = () => {} } = this.props;
     const { uniqueErrorItems } = this.state;
+
+    if (from === 21 && item.type === 34 && disabled) {
+      this.setState({ childTableControlIds: [...this.state.childTableControlIds, item.controlId] }, () =>
+        getChildTableControlIds(_.uniq(this.state.childTableControlIds)),
+      );
+    }
 
     if (!_.get(value, 'rows')) {
       onWidgetChange();

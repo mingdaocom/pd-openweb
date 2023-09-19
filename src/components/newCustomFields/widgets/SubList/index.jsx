@@ -154,12 +154,12 @@ export default class SubList extends React.Component {
         });
       }
     }
-    if (from === 21 && !_.isEmpty(rows) && lastAction.type === 'INIT_ROWS') {
+    if (from === 21 && lastAction.type === 'INIT_ROWS') {
       onChange({
         deleted: [],
-        updated: rows.map(r => r.rowid),
+        updated: (rows || []).map(r => r.rowid),
         controls,
-        rows: rows,
+        rows: rows || [],
         isDefault: true,
       });
     }

@@ -45,25 +45,24 @@ export const formatAdvancedSettingByNavfilters = (view, newValue = {}) => {
         navshow === '3'
           ? JSON.stringify(safeParse(_.get(advancedSetting, 'navfilters')).map(handleCondition))
           : JSON.stringify(
-            safeParse(_.get(advancedSetting, 'navfilters')).map(info => {
-              let id = info;
-              let data = null;
-              try {
-                data = JSON.parse(info);
-                id = data.id || data;
-              } catch (error) {
-                id = info;
-              }
-              return id
-
-            }),
-          ),
+              safeParse(_.get(advancedSetting, 'navfilters')).map(info => {
+                let id = info;
+                let data = null;
+                try {
+                  data = JSON.parse(info);
+                  id = data.id || data;
+                } catch (error) {
+                  id = info;
+                }
+                return id + '';
+              }),
+            ),
     });
   }
 };
 
 //格式化带有Navfilters的配置数据
-export const formatObjWithNavfilters = (o) => {
+export const formatObjWithNavfilters = o => {
   if (!!_.get(o, 'advancedSetting.navfilters')) {
     return {
       ...o,
@@ -72,7 +71,6 @@ export const formatObjWithNavfilters = (o) => {
   } else {
     return o;
   }
-
 };
 
 // 不能作为视图排序的控件

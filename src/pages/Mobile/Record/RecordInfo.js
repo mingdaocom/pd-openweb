@@ -61,6 +61,7 @@ class Record extends Component {
       advancedSetting: {},
       formStyleImggeData: [], // 表单样式封面字段值
       rulesLocked: false,
+      canSubmitDraft: false,
     };
     this.refreshEvents = {};
     this.cellObjs = {};
@@ -82,7 +83,7 @@ class Record extends Component {
     return formatParams(ids || match.params);
   };
   loadRow = props => {
-    const { getDataType } = this.props;
+    const { getDataType, from } = this.props;
     const baseIds = this.getBaseIds();
     const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
     const getRowByIdRequest = isPublicForm
@@ -139,6 +140,9 @@ class Record extends Component {
       let formStyleImggeData = coverid
         ? JSON.parse(formStyleControl.value || '[]').filter(i => _.includes(['.png', '.jpg', '.jpeg'], i.ext))
         : [];
+      const childTableControlIds = updateRulesData({ rules: this.state.rules, data: receiveControls })
+        .filter(item => item.type === 34 && !item.hidden && controlState(item, from).visible)
+        .map(it => it.controlId);
 
       this.setState({
         random: Date.now(),
@@ -152,6 +156,7 @@ class Record extends Component {
         switchPermit: worksheetInfoResult.switches,
         formStyleImggeData,
         rulesLocked: checkRuleLocked(worksheetInfoResult.rules, rowResult.receiveControls),
+        childTableControlIds: !_.isEmpty(childTableControlIds) ? childTableControlIds : undefined,
       });
 
       if (props && props.executionFinished && !rowResult.isViewData) {
@@ -668,7 +673,8 @@ class Record extends Component {
 
   renderRecordBtns() {
     const { isSubList, editable, getDataType } = this.props;
-    const { isEdit, sheetRow, customBtns, advancedSetting, rules, rulesLocked } = this.state;
+    const { isEdit, sheetRow, customBtns, advancedSetting, rules, rulesLocked, childTableControlIds, canSubmitDraft } =
+      this.state;
     const baseIds = this.getBaseIds();
     const allowEdit = sheetRow.allowEdit || editable;
     const allowDelete = sheetRow.allowDelete || (isSubList && editable);
@@ -739,19 +745,21 @@ class Record extends Component {
                   </Button>
                 </WingBlank>
               )}
-              {getDataType === 21 && (
-                <WingBlank className="flex mLeft6 mRight6" size="sm">
-                  <Button
-                    className="Font13"
-                    type="primary"
-                    onClick={() => {
-                      this.saveDraftData({ draftType: 'submit' });
-                    }}
-                  >
-                    <span>{advancedSetting.sub || _l('提交')}</span>
-                  </Button>
-                </WingBlank>
-              )}
+              {getDataType === 21 &&
+                ((childTableControlIds && !_.isEmpty(childTableControlIds) && canSubmitDraft) ||
+                  !childTableControlIds) && (
+                  <WingBlank className="flex mLeft6 mRight6" size="sm">
+                    <Button
+                      className="Font13"
+                      type="primary"
+                      onClick={() => {
+                        this.saveDraftData({ draftType: 'submit' });
+                      }}
+                    >
+                      <span>{advancedSetting.sub || _l('提交')}</span>
+                    </Button>
+                  </WingBlank>
+                )}
               {showBtnsOut.map(item => {
                 let disabled = (this.recordRef.current && this.state.btnDisable[item.btnId]) || item.disabled;
                 return (
@@ -811,6 +819,12 @@ class Record extends Component {
       </div>
     );
   }
+  getChildTableControlIds = ids => {
+    const { childTableControlIds } = this.state;
+    if (childTableControlIds.every(v => _.includes(ids, v))) {
+      this.setState({ canSubmitDraft: true });
+    }
+  };
   renderCustomFields() {
     const baseIds = this.getBaseIds();
     const { getDataType, from } = this.props;
@@ -851,6 +865,7 @@ class Record extends Component {
           }}
           verifyAllControls={getDataType === 21}
           widgetStyle={advancedSetting}
+          getChildTableControlIds={this.getChildTableControlIds}
         />
       </div>
     );

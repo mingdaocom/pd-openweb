@@ -229,6 +229,7 @@ export default class Record extends Component {
             cellUniqueValidate={() => {}}
             cell={{ ...enndControl, value: row.endTime }}
             row={row}
+            rowFormData={() => controls}
             rowIndex={1}
             rowHeight={32}
             from={1}

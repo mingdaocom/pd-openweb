@@ -9,7 +9,7 @@ import { formatNumberFromInput } from 'src/util';
 import { getGradientColors, isNumberControl, textNormTypes } from 'statistics/common';
 import './RuleColor.less';
 
-const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, ...otherProps }) => {
+const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, isPercent, ...otherProps }) => {
   const { type, and, min, max, value, color } = item;
   return (
     <div className="flexRow valignWrapper scopeRule" key={ruleIndex}>
@@ -31,34 +31,40 @@ const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, ...otherPr
           <Select.Option className="selectOptionWrapper" value={4}>{_l('为空')}</Select.Option>
         </Select>
         {[1, 2].includes(type) && (
-          <Input
-            style={{ width: 115 }}
-            value={min}
-            placeholder={_l('最小值')}
-            className="chartInput"
-            onChange={(e) => {
-              const value = formatNumberFromInput(event.target.value);
-              otherProps.onSetRule({ min: value ? value : undefined }, ruleIndex);
-            }}
-            onBlur={() => {
-              otherProps.onSetRule({ min: min ? Number(min) : undefined }, ruleIndex);
-            }}
-          />
+          <Fragment>
+            <Input
+              style={{ width: isPercent ? 90 : 115 }}
+              value={min}
+              placeholder={_l('最小值')}
+              className="chartInput"
+              onChange={(e) => {
+                const value = formatNumberFromInput(event.target.value);
+                otherProps.onSetRule({ min: value ? value : undefined }, ruleIndex);
+              }}
+              onBlur={() => {
+                otherProps.onSetRule({ min: min ? Number(min) : undefined }, ruleIndex);
+              }}
+            />
+            {isPercent && <div className="mLeft5">%</div>}
+          </Fragment>
         )}
         {[3].includes(type) && (
-          <Input
-            style={{ width: 115 }}
-            value={value}
-            placeholder={_l('值')}
-            className="chartInput"
-            onChange={(e) => {
-              const value = formatNumberFromInput(event.target.value);
-              otherProps.onSetRule({ value: value ? value : undefined }, ruleIndex);
-            }}
-            onBlur={() => {
-              otherProps.onSetRule({ value: value ? Number(value) : undefined }, ruleIndex);
-            }}
-          />
+          <Fragment>
+            <Input
+              style={{ width: isPercent ? 90 : 115 }}
+              value={value}
+              placeholder={_l('值')}
+              className="chartInput"
+              onChange={(e) => {
+                const value = formatNumberFromInput(event.target.value);
+                otherProps.onSetRule({ value: value ? value : undefined }, ruleIndex);
+              }}
+              onBlur={() => {
+                otherProps.onSetRule({ value: value ? Number(value) : undefined }, ruleIndex);
+              }}
+            />
+            {isPercent && <div className="mLeft5">%</div>}
+          </Fragment>
         )}
         {[1, 2].includes(type) && (
           <Fragment>
@@ -76,7 +82,7 @@ const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, ...otherPr
               <Select.Option className="selectOptionWrapper" value={6}>{'<='}</Select.Option>
             </Select>
             <Input
-              style={{ width: 115 }}
+              style={{ width: isPercent ? 90 : 115 }}
               value={max}
               placeholder={_l('最大值')}
               className="chartInput"
@@ -88,6 +94,7 @@ const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, ...otherPr
                 otherProps.onSetRule({ max: max ? Number(max) : undefined }, ruleIndex);
               }}
             />
+            {isPercent && <div className="mLeft5">%</div>}
           </Fragment>
         )}
       </div>
@@ -381,6 +388,7 @@ class ColorScope extends Component {
     });
   }
   render() {
+    const { isPercent } = this.props;
     const { scopeRules } = this.state;
     return (
       <Fragment>
@@ -394,6 +402,7 @@ class ColorScope extends Component {
         <SortableList
           axis="y"
           rules={scopeRules}
+          isPercent={isPercent}
           helperClass="sortableScopeRuleWrap"
           shouldCancelStart={e => !e.target.classList.contains('icon-drag')}
           onSortEnd={this.handleSortEnd}
@@ -451,7 +460,7 @@ export default class RuleColor extends Component {
     );
   }
   render() {
-    const { visible, onCancel, yaxisList = [], colorRule, reportType } = this.props;
+    const { visible, onCancel, isPercent = false, yaxisList = [], colorRule, reportType } = this.props;
     const { model } = this.state;
     return (
       <Modal
@@ -482,6 +491,7 @@ export default class RuleColor extends Component {
         )}
         {model === 2 && (
           <ColorScope
+            isPercent={isPercent}
             colorRule={colorRule}
             ref={el => {
               this.colorLevelEl = el;

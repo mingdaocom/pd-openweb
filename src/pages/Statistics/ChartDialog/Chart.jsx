@@ -227,7 +227,8 @@ export default class Chart extends Component {
     const view = _.find(worksheetInfo.views, { viewId });
     const { direction, scopeVisible } = this.props;
     const { dragMaskVisible, min, max, sheetSize } = this.state;
-    const dragValue = this.state.dragValue - (scopeVisible && direction === 'horizontal' ? 320 : 0);
+    const storeDragValue = Number(localStorage.getItem(`${direction}ChartSheetDragValue`) || 0);
+    const dragValue = this.state.dragValue - (scopeVisible && storeDragValue && direction === 'horizontal' ? 320 : 0);
     return (
       <div
         className={cx('chartBody Relative flex', {

@@ -4,7 +4,9 @@ import { Select, DatePicker, Input, Dropdown, Menu } from 'antd';
 import { Icon, ScrollView } from 'ming-ui';
 import { dropdownScopeData, dropdownDayData, isPastAndFuture, isTimeControl, timeDataParticle, timeGatherParticle, timeTypes, unitTypes } from 'statistics/common';
 import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
+import SingleFilter from 'worksheet/common/WorkSheetFilter/common/SingleFilter';
+import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import { reportTypes } from 'statistics/Charts/common';
 import 'moment/locale/zh-cn';
 import locale from 'antd/es/date-picker/locale/zh_CN';
@@ -390,6 +392,22 @@ export default class extends Component {
     const { filter = {}, xaxes = {} } = currentReport || {};
     const xAxisisTime = isTimeControl(xaxes.controlType);
     const sysControlSwitch = isOpenPermit(permitList.sysControlSwitch, worksheetInfo.switches, filter.viewId);
+    const filterWhiteKeys = _.flatten(
+      Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
+    );
+    const controls = worksheetInfo.columns
+      .filter(c => (c.controlPermissions || '111')[0] === '1')
+      .map(redefineComplexControl)
+      .filter(c => _.includes(filterWhiteKeys, c.type))
+      .filter(c => !(c.type === 38 && c.enumDefault === 3))
+      .filter(item => {
+        if (!sysControlSwitch && _.find(WORKFLOW_SYSTEM_CONTROL, { controlId: item.controlId })) {
+          return false;
+        } else {
+          return true;
+        }
+      })
+      .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1));
     return (
       <div className="ChartDialogSetting setting flexColumn ChartFilterPanel">
         <ScrollView className="flex">
@@ -414,13 +432,7 @@ export default class extends Component {
                 canEdit
                 projectId={projectId}
                 appId={worksheetInfo.appId}
-                columns={worksheetInfo.columns.filter(item => {
-                  if (!sysControlSwitch && _.find(WORKFLOW_SYSTEM_CONTROL, { controlId: item.controlId })) {
-                    return false;
-                  } else {
-                    return true;
-                  }
-                })}
+                columns={controls}
                 conditions={[]}
                 filterResigned={false}
                 onConditionsChange={_.debounce((conditions = [], localConditions) => {

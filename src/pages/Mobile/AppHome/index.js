@@ -231,7 +231,11 @@ class AppHome extends React.Component {
             projectId={localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId}
             onChange={value => {
               if (RegExp.isUrl(value)) {
-                window.open(value);
+                if (/iphone/gi.test(window.navigator.userAgent)) {
+                  location.href = value;
+                } else {
+                  window.open(value);
+                }
                 return;
               }
               let searchResult = [

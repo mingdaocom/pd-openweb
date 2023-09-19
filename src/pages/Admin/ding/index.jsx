@@ -8,10 +8,10 @@ import Ajax from 'src/api/workWeiXin';
 import Config from '../config';
 import Dialog from 'ming-ui/components/Dialog';
 import IntegrationSetPssword from '../components/IntegrationSetPssword';
-import VertifyClearIntegationData from '../components/VertifyClearIntegationData';
+import ClearISaventergrationModal from '../components/ClearISaventergrationModal';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
-import { integrationFailed } from '../utils';
+import { integrationFailed, checkClearIntergrationData } from '../utils';
 import './style.less';
 import _ from 'lodash';
 
@@ -90,6 +90,16 @@ export default class Ding extends React.Component {
     });
   }
 
+  checkClearIntergrationData = () => {
+    checkClearIntergrationData(Config.projectId).then(res => {
+      if (res) {
+        this.setState({ showCheckClearModal: true });
+      } else {
+        this.editInfo();
+      }
+    });
+  };
+
   // 保存信息/编辑信息
   editInfo = () => {
     if (!this.state.AppKey || !this.state.AppSecret || !this.state.CorpId || !this.state.AgentId) {
@@ -102,13 +112,7 @@ export default class Ding extends React.Component {
       appSecret: this.state.AppSecret,
       corpId: this.state.CorpId,
     }).then(res => {
-      if (res.item1 === -1) {
-        VertifyClearIntegationData({
-          projectId: Config.projectId,
-          callback: this.editInfo,
-        });
-        return;
-      } else if (res.item1) {
+      if (res.item1) {
         Ajax.editDDAppNoticeSetting({
           projectId: Config.projectId,
           agentId: this.state.AgentId,
@@ -339,7 +343,7 @@ export default class Ding extends React.Component {
                     type="primary"
                     className="saveInfo"
                     onClick={e => {
-                      this.editInfo();
+                      this.checkClearIntergrationData();
                     }}
                   >
                     {_l('保存')}
@@ -621,6 +625,16 @@ export default class Ding extends React.Component {
           )}
         </Tabs>
         {this.state.showSyncDiaLog && this.renderSyncDiaLog()}
+        {this.state.showCheckClearModal && (
+          <ClearISaventergrationModal
+            projectId={Config.projectId}
+            visible={this.state.showCheckClearModal}
+            onSave={this.editInfo}
+            onClose={() => {
+              this.setState({ showCheckClearModal: false });
+            }}
+          />
+        )}
       </div>
     );
   }

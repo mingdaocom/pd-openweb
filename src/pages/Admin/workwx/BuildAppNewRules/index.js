@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import workWeiXinAjax from 'src/api/workWeiXin.js';
 import Config from '../../config';
 import { Icon, Button, LoadDiv } from 'ming-ui';
-import VertifyClearIntegationData from '../../components/VertifyClearIntegationData';
+import ClearISaventergrationModal from '../../components/ClearISaventergrationModal';
+import { checkClearIntergrationData } from '../../utils';
 import wechatIcon from '../img/wechat_work.png';
 import styled from 'styled-components';
 import gearImg from '../img/gear.gif';
@@ -160,6 +161,15 @@ export default class BuildAppNewRules extends Component {
       }
     });
   };
+  checkClearIntergrationData = () => {
+    checkClearIntergrationData(Config.projectId).then(res => {
+      if (res) {
+        this.setState({ showCheckClearModal: true });
+      } else {
+        this.confirmAuthorize();
+      }
+    });
+  };
   // 确认授权
   confirmAuthorize = () => {
     workWeiXinAjax
@@ -167,13 +177,7 @@ export default class BuildAppNewRules extends Component {
         projectId: Config.projectId,
       })
       .then(res => {
-        if (res === -1) {
-          VertifyClearIntegationData({
-            projectId: Config.projectId,
-            callback: this.confirmAuthorize,
-          });
-          return;
-        } else if (res) {
+        if (res) {
           this.setState({ step: 2 });
         } else {
           alert(_l('失败'), 2);
@@ -198,7 +202,7 @@ export default class BuildAppNewRules extends Component {
         <div className="erweima">{isLoading ? <LoadDiv /> : <img src={url} />}</div>
         <div className="tip">{_l('将应用安装企业微信工作台')}</div>
         <div className="subTip">{_l('企业微信管理员扫码并完成授权')}</div>
-        <Button className="confirmBtn" onClick={this.confirmAuthorize}>
+        <Button className="confirmBtn" onClick={this.checkClearIntergrationData}>
           {_l('确认')}
         </Button>
       </div>
@@ -226,11 +230,21 @@ export default class BuildAppNewRules extends Component {
   };
 
   render() {
-    let { step } = this.state;
+    let { step, showCheckClearModal } = this.state;
     return (
       <BuildAppBox>
         {step === 1 && this.renderStepOne()}
         {step === 2 && this.renderStepTwo()}
+        {showCheckClearModal && (
+          <ClearISaventergrationModal
+            projectId={Config.projectId}
+            visible={showCheckClearModal}
+            onSave={this.confirmAuthorize}
+            onClose={() => {
+              this.setState({ showCheckClearModal: false });
+            }}
+          />
+        )}
       </BuildAppBox>
     );
   }

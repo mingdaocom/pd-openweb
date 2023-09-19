@@ -128,8 +128,12 @@ export default class SortableAppItem extends Component {
     const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
     const worksheets = _.filter(storage.worksheets || [], item => item.groupId === appSectionId);
     const { worksheetId, viewId } = worksheets.length ? worksheets[worksheets.length - 1] : {};
-    if (appPkg.pcNaviStyle === 2 || appPkg.selectAppItmeType === 1) {
+    if (appPkg.pcNaviStyle === 2) {
       return `/app/${appId}/${appSectionId}?from=insite`;
+    }
+    if (appPkg.selectAppItmeType === 1) {
+      const worksheetId = this.getFirstAppItemId();
+      return `/app/${appId}/${appSectionId}/${worksheetId || ''}?from=insite`;
     }
     return `/app/${appId}/${appSectionId}/${_.filter([worksheetId, viewId], item => !!item).join('/')}?from=insite`;
   };

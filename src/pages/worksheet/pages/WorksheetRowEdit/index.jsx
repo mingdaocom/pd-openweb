@@ -120,7 +120,7 @@ class WorksheetRowEdit extends Component {
     let filterControls;
     if (control && control.type === 51) {
       filterControls = getFilter({
-        control: { ...control, ignoreFilterControl: true },
+        control: { ...control, ignoreFilterControl: true, recordId: data.rowId },
         formData: cardControls,
         filterKey: 'resultfilters',
       });

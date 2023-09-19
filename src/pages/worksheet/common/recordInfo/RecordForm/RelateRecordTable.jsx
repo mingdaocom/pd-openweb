@@ -323,6 +323,7 @@ export default function RelateRecordTable(props) {
             c &&
             controlState({
               ...c,
+              fieldPermission: '111',
               controlPermissions: isHiddenOtherViewRecord
                 ? c.controlPermissions
                 : replaceByIndex(control.controlPermissions || '111', 0, '1'),
@@ -392,6 +393,7 @@ export default function RelateRecordTable(props) {
             c &&
             controlState({
               ...c,
+              fieldPermission: '111',
               controlPermissions: isHiddenOtherViewRecord
                 ? c.controlPermissions
                 : replaceByIndex(control.controlPermissions || '111', 0, '1'),

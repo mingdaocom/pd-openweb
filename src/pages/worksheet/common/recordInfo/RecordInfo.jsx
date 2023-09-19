@@ -17,7 +17,7 @@ import {
   getRowGetType,
   formatRecordToRelateRecord,
 } from 'worksheet/util';
-import { checkRuleLocked } from 'src/components/newCustomFields/tools/filterFn';
+import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import RecordInfoContext from './RecordInfoContext';
 import { loadRecord, updateRecord, deleteRecord, RecordApi } from './crtl';
@@ -124,6 +124,7 @@ export default class RecordInfo extends Component {
       forceShowFullValue: null,
       widgetStyle: props.widgetStyle,
       relateRecordData: {},
+      canSubmitDraft: false,
     };
     this.hadWaterMark = window.hadWaterMark;
     this.debounceRefresh = _.debounce(this.refreshEvent, 1000);
@@ -253,6 +254,17 @@ export default class RecordInfo extends Component {
           return;
         }
       }
+      const childTableControlIds = updateRulesData({
+        rules,
+        data: needUpdateControlIds
+          ? tempFormData
+              .filter(c => !_.find(needUpdateControlIds, id => c.controlId === id))
+              .concat(needUpdateControlIds.map(id => _.find(data.formData, c => c.controlId === id)).filter(_.identity))
+          : data.formData,
+      })
+        .filter(item => item.type === 34 && !item.hidden && controlState(item, from).visible)
+        .map(it => it.controlId);
+
       this.setState({
         ...portalConfigSet,
         sideVisible:
@@ -278,6 +290,7 @@ export default class RecordInfo extends Component {
         loading: false,
         refreshBtnNeedLoading: false,
         widgetStyle: data.advancedSetting || this.state.widgetStyle,
+        childTableControlIds,
       });
     } catch (err) {
       console.error(err);
@@ -419,7 +432,12 @@ export default class RecordInfo extends Component {
   @autobind
   handleFormChange(data, ids = []) {
     const { from, allowAdd } = this.props;
-    const { recordinfo, updateControlIds } = this.state;
+    const { recordinfo, updateControlIds, childTableControlIds } = this.state;
+
+    if (childTableControlIds.every(v => _.includes(ids, v))) {
+      this.setState({ canSubmitDraft: true });
+    }
+
     const allowEdit =
       from === RECORD_INFO_FROM.DRAFT
         ? allowAdd
@@ -900,6 +918,8 @@ export default class RecordInfo extends Component {
       forceShowFullValue,
       widgetStyle,
       relateRecordData,
+      canSubmitDraft,
+      childTableControlIds = [],
     } = this.state;
     const isLock = checkRuleLocked(recordinfo.rules, recordinfo.formData);
     let { width } = this.props;
@@ -983,7 +1003,13 @@ export default class RecordInfo extends Component {
                 approved={approved}
                 loading={loading}
                 viewId={viewId}
-                header={header}
+                header={
+                  from === 21 && !_.isEmpty(childTableControlIds) && !canSubmitDraft ? (
+                    <div className="flex"></div>
+                  ) : (
+                    header
+                  )
+                }
                 isSmall={isSmall}
                 sideVisible={sideVisible}
                 sheetSwitchPermit={sheetSwitchPermit}

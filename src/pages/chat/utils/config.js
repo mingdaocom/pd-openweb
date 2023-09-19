@@ -29,7 +29,7 @@ const builtinPlacements = {
 
 const Config = {
   // 文件上传路径
-  EmailConnector: 'http://172.17.30.103:4002',
+  EmailConnector: '',
 
   // 头像尺寸
   AVATAR_24: '?imageView2/1/w/100/h/100/q/90',

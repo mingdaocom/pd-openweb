@@ -80,9 +80,7 @@ function QuickFilter(props) {
   let operateIsNewLine = false;
   try {
     const lastIsFullLine = isFullLine(_.last(visibleFilters));
-    if (!_fullShow) {
-      operateIsNewLine = false;
-    } else if (lastIsFullLine) {
+    if (lastIsFullLine) {
       operateIsNewLine = true;
     } else if (fullLineCount === 0) {
       operateIsNewLine = _.sum(visibleFilters.map(f => (isFullLine(f) ? colNum : 1))) % colNum === 0;

@@ -234,7 +234,7 @@ export const functions = {
     if (!_.isNumber(precision) || _.isNaN(precision)) {
       throw new Error(_l('参数不是数字'));
     }
-    return _.ceil(number, precision);
+    return _.ceil(_.round(number, precision + 1), precision);
   },
   // 四舍五入
   ROUND: function (number, precision = 0) {

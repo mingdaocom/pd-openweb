@@ -224,7 +224,7 @@ class WorksheetSahre extends React.Component {
     let filterControls;
     if (control && control.type === 51) {
       filterControls = getFilter({
-        control: { ...control, ignoreFilterControl: true },
+        control: { ...control, ignoreFilterControl: true, recordId: this.state.rowId },
         formData: cardControls,
         filterKey: 'resultfilters',
       });

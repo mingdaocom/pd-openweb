@@ -70,16 +70,6 @@ const formatSortingColumns = columns => {
     });
 };
 
-const segmentation = columns => {
-  for (let i = 0; i < columns.length; i++) {
-    if (SYS.includes(columns[i].controlId)) {
-      columns[i].segmentation = true;
-      break;
-    }
-  }
-  return columns;
-};
-
 @errorBoundary
 class ViewConfigCon extends Component {
   constructor(props) {
@@ -777,7 +767,7 @@ class ViewConfigCon extends Component {
           viewId={view.viewId}
           sheetSwitchPermit={sheetSwitchPermit}
           filterResigned={false}
-          columns={segmentation(columns)}
+          columns={columns}
           conditions={view.filters}
           onConditionsChange={conditions => {
             this.setState(

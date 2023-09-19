@@ -22,3 +22,9 @@ export const integrationFailed = projectId => {
       }
     });
 };
+
+export const checkClearIntergrationData = projectId => {
+  return workwxAjax.checkClearIntergrationData({
+    projectId,
+  });
+};

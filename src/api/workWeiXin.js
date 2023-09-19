@@ -760,6 +760,18 @@ export default {
      return $.api('WorkWeiXin', 'RemoveProjectAllIntergration', args, options);
    },
   /**
+  * 判断是否需要清理集成关系
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkClearIntergrationData: function (args, options = {}) {
+     
+     return $.api('WorkWeiXin', 'CheckClearIntergrationData', args, options);
+   },
+  /**
   * 获取集成账号自定义初始密码值
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id

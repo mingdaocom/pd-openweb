@@ -31,6 +31,12 @@ const RecordText = styled.div`
   color: #333;
   font-size: 13px;
   line-height: 20px;
+  white-space: break-spaces;
+  word-break: break-all;
+  .text {
+    display: inline-block;
+    max-width: 202px;
+  }
   .splitter {
     margin-right: 6px;
   }
@@ -237,21 +243,26 @@ function Texts(props) {
   }
   return (
     <div>
-      {records.map((record, i) => (
-        <RecordText
-          key={i}
-          className={cx('w100 ellipsis', { 'ThemeColor3 Hand': allowOpenRecord })}
-          onClick={() => {
-            if (!allowOpenRecord) {
-              return;
-            }
-            onOpen(record.rowid);
-          }}
-        >
-          {getTitleTextFromRelateControl(control, record)}
-          {i < records.length - 1 && <span className="splitter">,</span>}
-        </RecordText>
-      ))}
+      {records.map((record, i) => {
+        const text = getTitleTextFromRelateControl(control, record);
+        return (
+          <RecordText
+            key={i}
+            className={cx({ 'ThemeColor3 Hand': allowOpenRecord })}
+            onClick={() => {
+              if (!allowOpenRecord) {
+                return;
+              }
+              onOpen(record.rowid);
+            }}
+          >
+            <div className="text ellipsis" title={text}>
+              {text}
+            </div>
+            {i < records.length - 1 && <span className="splitter">,</span>}
+          </RecordText>
+        );
+      })}
       {allowNewRecord && (
         <RecordTextAdd
           data-tip={`新建${entityName || _l('记录')}`}

@@ -13,10 +13,10 @@ import BuildAppNewRules from './BuildAppNewRules';
 import IntegrationSetPssword from '../components/IntegrationSetPssword';
 import SyncDialog from './components/SyncDialog';
 import InterfaceLicense from './components/InterfaceLicense';
-import VertifyClearIntegationData from '../components/VertifyClearIntegationData';
+import ClearISaventergrationModal from '../components/ClearISaventergrationModal';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
-import { integrationFailed } from '../utils';
+import { integrationFailed, checkClearIntergrationData } from '../utils';
 import { purchaseMethodFunc } from 'src/components/upgrade/choose/PurchaseMethodModal';
 import fucExampleImg from 'src/pages/Admin/workwx/img/fucExample.png';
 import setApiExampleImg from 'src/pages/Admin/workwx/img/setApiExample.png';
@@ -116,6 +116,16 @@ export default class Workwx extends React.Component {
     });
   }
 
+  checkClearIntergrationData = () => {
+    checkClearIntergrationData(Config.projectId).then(res => {
+      if (res) {
+        this.setState({ showCheckClearModal: true });
+      } else {
+        this.editInfo();
+      }
+    });
+  };
+
   // 保存信息/编辑信息
   editInfo = () => {
     if (!this.state.AgentId || !this.state.Secret || !this.state.CorpId) {
@@ -128,13 +138,7 @@ export default class Workwx extends React.Component {
       secret: this.state.Secret,
       corpId: this.state.CorpId,
     }).then(res => {
-      if (res.item1 === -1) {
-        VertifyClearIntegationData({
-          projectId: Config.projectId,
-          callback: this.editInfo,
-        });
-        return;
-      } else if (res.item1) {
+      if (res.item1) {
         this.setState({
           isHasInfo: true,
           canEditInfo: false,
@@ -459,13 +463,7 @@ export default class Workwx extends React.Component {
                       {_l('编辑')}
                     </Button>
                   ) : (
-                    <Button
-                      type="primary"
-                      className="saveInfo"
-                      onClick={e => {
-                        this.editInfo();
-                      }}
-                    >
+                    <Button type="primary" className="saveInfo" onClick={this.checkClearIntergrationData}>
                       {_l('保存')}
                     </Button>
                   )}
@@ -615,6 +613,7 @@ export default class Workwx extends React.Component {
       filterMatchPhoneBindUserIds = [],
       logDetailItems = [],
       qwQuickAprData = {},
+      showCheckClearModal,
     } = this.state;
     const featureType = getFeatureStatus(Config.projectId, VersionProductType.workwxIntergration);
     if (featureType === '2') {
@@ -925,6 +924,17 @@ export default class Workwx extends React.Component {
           logDetailItems={logDetailItems}
         />
         {this.renderOverLinitDialog()}
+
+        {showCheckClearModal && (
+          <ClearISaventergrationModal
+            projectId={Config.projectId}
+            visible={showCheckClearModal}
+            onSave={this.editInfo}
+            onClose={() => {
+              this.setState({ showCheckClearModal: false });
+            }}
+          />
+        )}
       </div>
     );
   }

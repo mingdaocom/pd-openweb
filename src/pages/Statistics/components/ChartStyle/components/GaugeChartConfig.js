@@ -378,6 +378,7 @@ const GaugeColor = props => {
         </div>
       )}
       <RuleColor
+        isPercent={true}
         visible={ruleColorModalVisible}
         yaxisList={currentReport.yaxisList}
         reportType={currentReport.reportType}

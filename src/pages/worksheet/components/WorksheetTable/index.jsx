@@ -26,6 +26,7 @@ import {
   getTableHeadHeight,
 } from './util';
 import { MDCell, NoSearch, NoRecords } from './components';
+import './style.less';
 
 const StyledFixedTable = styled(FixedTable)`
   font-size: 13px;
@@ -150,7 +151,13 @@ function WorksheetTable(props, ref) {
   } = props;
   const { emptyIcon, emptyText, sheetIsFiltered, allowAdd, noRecordAllowAdd, showNewRecord } = props; // 空状态
   const { keyWords } = props; // 搜索
-  const { showSummary = false, showVerticalLine = true, showAsZebra = true, wrapControlName = false } = props; // 显示
+  const {
+    showSummary = false,
+    scrollBarHoverShow,
+    showVerticalLine = true,
+    showAsZebra = true,
+    wrapControlName = false,
+  } = props; // 显示
   const { rowHeadWidth = 70, renderRowHead } = props;
   const { onColumnWidthChange = () => {}, onCellClick, onFocusCell = () => {} } = props;
   const { masterFormData = () => [], masterData = () => {}, getRowsCache } = props; // 获取子表所在记录表单数据
@@ -650,7 +657,8 @@ function WorksheetTable(props, ref) {
         noRenderEmpty={noRenderEmpty}
         loading={loading}
         ref={tableRef}
-        className={cx(`sheetViewTable id-${tableId}-id`, tableType, {
+        className={cx(`worksheetTableComp sheetViewTable id-${tableId}-id`, tableType, {
+          scrollBarHoverShow,
           hideVerticalLine: !showVerticalLine,
           showAsZebra,
         })}

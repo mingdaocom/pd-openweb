@@ -154,7 +154,13 @@ function OptionsSteps(props, ref) {
       <div className="flex">{sliderComp}</div>
       {editable && (
         <OperateIcon className="editIcon OperateIcon">
-          <i className="ThemeHoverColor3 icon icon-edit" onClick={() => updateEditingStatus(true)} />
+          <i
+            className="ThemeHoverColor3 icon icon-edit"
+            onClick={e => {
+              e.stopPropagation();
+              updateEditingStatus(true);
+            }}
+          />
         </OperateIcon>
       )}
     </Con>

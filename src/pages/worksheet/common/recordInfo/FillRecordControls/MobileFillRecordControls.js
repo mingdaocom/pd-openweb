@@ -218,7 +218,7 @@ class FillRecordControls extends React.Component {
         return;
       }
     }
-    this.setState({ submitLoading: false });
+    this.setState({ isSubmitting: true, submitLoading: false });
     updateControlIds = _.uniq(updateControlIds.concat(writeControls.filter(c => c.defsource).map(c => c.controlId)));
     onSubmit(
       newData.filter(c => _.find(updateControlIds, controlId => controlId === c.controlId)).map(formatControlToServer),
@@ -230,7 +230,7 @@ class FillRecordControls extends React.Component {
   };
   render() {
     const { appId, recordId, worksheetId, projectId, hideDialog, title } = this.props;
-    const { submitLoading, formData, showError } = this.state;
+    const { submitLoading, isSubmitting, formData, showError } = this.state;
     return (
       <Con>
         <div className="flex customFieldsWrapper">
@@ -272,7 +272,7 @@ class FillRecordControls extends React.Component {
             </Button>
           </WingBlank>
           <WingBlank className="flex" size="sm">
-            <Button className="Font15 bold" type="primary" onClick={this.handleSave}>
+            <Button disabled={submitLoading || isSubmitting} className="Font15 bold" type="primary" onClick={this.handleSave}>
               {_l('确定')}
             </Button>
           </WingBlank>

@@ -7,8 +7,9 @@ import { browserIsMobile } from 'src/util';
 import OtherInput from '../Checkbox/OtherInput';
 import { getCheckAndOther } from '../../tools/utils';
 import _ from 'lodash';
+import autoSize from 'ming-ui/decorators/autoSize';
 
-export default class Widgets extends Component {
+class Widgets extends Component {
   static propTypes = {
     from: PropTypes.number,
     disabled: PropTypes.bool,
@@ -21,8 +22,8 @@ export default class Widgets extends Component {
   getItemWidth = displayOptions => {
     const { width = '200', direction = '2' } = this.props.advancedSetting || {};
     let itemWidth = 100;
-    if (this.box && direction === '0') {
-      const boxWidth = _.get(this.box.getBoundingClientRect(), 'width');
+    const boxWidth = this.props.width;
+    if (boxWidth && direction === '0') {
       const num = Math.floor(boxWidth / Number(width)) || 1;
       itemWidth = 100 / (num > displayOptions.length ? displayOptions.length : num);
     }
@@ -76,7 +77,6 @@ export default class Widgets extends Component {
           { groupRow: direction === '2' && !browserIsMobile() },
         )}
         style={{ height: 'auto' }}
-        ref={box => (this.box = box)}
       >
         <div className={`ming RadioGroup2 ${className || ''}`}>
           <div
@@ -138,3 +138,5 @@ export default class Widgets extends Component {
     );
   }
 }
+
+export default autoSize(Widgets, { onlyWidth: true });

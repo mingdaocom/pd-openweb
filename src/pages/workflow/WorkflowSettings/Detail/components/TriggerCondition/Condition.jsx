@@ -503,6 +503,7 @@ export default class TriggerCondition extends Component {
                 type="text"
                 className="triggerConditionNum flex ThemeBorderColor3 clearBorderRadius"
                 defaultValue={conditionValues[0] ? conditionValues[0].value : ''}
+                placeholder={_.includes(['15', '16'], conditionId) ? _l('最小值') : ''}
                 onKeyUp={evt => this.clearNoNum(evt)}
                 onPaste={evt => this.clearNoNum(evt)}
                 onBlur={evt => this.clearNoNum(evt, true, i, j)}
@@ -522,6 +523,7 @@ export default class TriggerCondition extends Component {
                   type="text"
                   className="triggerConditionNum flex ThemeBorderColor3 clearBorderRadius"
                   defaultValue={conditionValues[1] ? conditionValues[1].value : ''}
+                  placeholder={_.includes(['15', '16'], conditionId) ? _l('最大值') : ''}
                   onKeyUp={evt => this.clearNoNum(evt)}
                   onPaste={evt => this.clearNoNum(evt)}
                   onBlur={evt => this.clearNoNum(evt, true, i, j, true)}

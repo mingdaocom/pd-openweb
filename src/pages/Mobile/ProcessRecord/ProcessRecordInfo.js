@@ -18,6 +18,7 @@ import {
   controlState,
   getTitleTextFromControls,
 } from 'src/components/newCustomFields/tools/utils';
+import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { isRelateRecordTableControl, getSubListError } from 'worksheet/util';
 import RecordAction from 'mobile/Record/RecordAction';
 import ChatCount from '../components/ChatCount';
@@ -63,6 +64,7 @@ class ProcessRecord extends Component {
       isHasten: false,
       switchPermit: [],
       btnDisable: {},
+      rules: []
     };
     this.cellObjs = {};
   }
@@ -239,7 +241,7 @@ class ProcessRecord extends Component {
       }
     }
 
-    if (hasError && id !== 'stash' && !ignoreRequired) {
+    if (hasError && id !== 'stash' && !(_.includes(['overrule', 'return'], id) && ignoreRequired)) {
       alert(_l('请正确填写记录'), 3);
       result = false;
     }
@@ -522,7 +524,7 @@ class ProcessRecord extends Component {
     if (_.includes(['pass', 'overrule', 'return'], action)) {
       this.handleSave(() => {
         this.request(ACTION_TO_METHOD[action], { opinion: content, backNodeId, signature });
-      });
+      }, action);
     }
 
     /**
@@ -889,6 +891,9 @@ class ProcessRecord extends Component {
                 isEdit: true,
               });
             }}
+            onRulesLoad={rules => {
+              this.setState({ rules });
+            }}
           />
           <WorkflowStepItem instance={instance} worksheetId={worksheetId} recordId={rowId} />
         </div>
@@ -1006,6 +1011,7 @@ class ProcessRecord extends Component {
       switchPermit,
       originalData,
       customBtns,
+      rules
     } = this.state;
     const { relationRow, isModal } = this.props;
     const { operationTypeList, flowNode, backFlowNodes, app } = instance;
@@ -1014,9 +1020,9 @@ class ProcessRecord extends Component {
     const action = ACTION_TYPES[type];
     const recordTitle = getTitleTextFromControls(tempFormData.length ? tempFormData : sheetRow.receiveControls || []);
     const recordMuster = _.sortBy(
-      sheetRow.receiveControls.filter(item => isRelateRecordTableControl(item) && controlState(item, 6).visible),
+      updateRulesData({ rules, data: sheetRow.receiveControls }).filter(control => isRelateRecordTableControl(control) && controlState(control, 6).visible),
       'row',
-    );
+    ).filter(c => !c.hidden);
     const tabs = [
       {
         title: _l('详情'),

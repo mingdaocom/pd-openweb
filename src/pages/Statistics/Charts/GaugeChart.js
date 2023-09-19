@@ -93,6 +93,12 @@ registerShape('point', 'custom-gauge-indicator', {
   }
 });
 
+function findNthValueInRange(minValue, maxValue, n) {
+  const interval = (maxValue - minValue) / 99;
+  const nthValue = minValue + (n - 1) * interval;
+  return nthValue;
+}
+
 export default class extends Component {
   constructor(props) {
     super(props);
@@ -255,33 +261,29 @@ export default class extends Component {
       },
       axis: {
         label: {
-          offset: scaleType === 2 ? -24 : (isThumbnail ? getOffset() : 60),
+          // offset: scaleType === 2 ? -24 : (isThumbnail ? getOffset() : 60),
+          offset: -24,
           formatter(value) {
             if (scaleType === null) {
               return undefined;
             }
             if (scaleType === 1) {
               if (value == 0) {
-                return formatrChartValue(data.min, false, yaxisList);
+                return formatrChartValue(data.min, false, yaxisList, null, false);
               }
               if (value == 1) {
-                return formatrChartValue(data.max, false, yaxisList);
+                return formatrChartValue(data.max, false, yaxisList, null, false);
               }
-              return undefined;
+              const rangeValue = findNthValueInRange(data.min, data.max, value * 100);
+              return formatrChartValue(rangeValue, false, yaxisList, null, false);
             } else {
               return `${value * 100}%`;
             }
           },
         },
         tickLine: scaleType === null ? false : {
-          style: (item, index) => {
-            if (scaleType === 1) {
-              return {
-                strokeOpacity: 0
-              }
-            } else {
-              return item;
-            }
+          style: item => {
+            return item;
           }
         },
         subTickLine: {
@@ -339,7 +341,7 @@ export default class extends Component {
     const { displaySetup = {} } = this.props.reportData;
     return (
       <div className="flex flexColumn chartWrapper">
-        <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>
+        <div className="h100" ref={el => (this.chartEl = el)}></div>
       </div>
     );
   }

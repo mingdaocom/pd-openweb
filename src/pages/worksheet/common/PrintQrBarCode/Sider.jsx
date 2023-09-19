@@ -630,7 +630,9 @@ export default function Sider(props) {
           onChange={({ type, value, forceInLine = false, name = '' } = {}) => {
             const newShowTexts = [...showTexts];
             newShowTexts[i] = { type, value, forceInLine, name };
-            onUpdate({ showTexts: [...newShowTexts] });
+            onUpdate({
+              showTexts: [...newShowTexts].map(item => item || { forceInLine: false, name: '', type: 2, value: '' }),
+            });
           }}
         />
       ))}

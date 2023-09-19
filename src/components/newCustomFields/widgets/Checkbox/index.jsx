@@ -9,8 +9,9 @@ import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import OtherInput from './OtherInput';
 import { getCheckAndOther } from '../../tools/utils';
+import autoSize from 'ming-ui/decorators/autoSize';
 
-export default class Widgets extends Component {
+class Widgets extends Component {
   static propTypes = {
     from: PropTypes.number,
     disabled: PropTypes.bool,
@@ -80,16 +81,17 @@ export default class Widgets extends Component {
     this.props.onChange(JSON.stringify(values));
   };
 
-  getItemWidth = displayOptions => {
-    const { width = '200', direction = '2' } = this.props.advancedSetting || {};
+  getItemWidth(displayOptions) {
+    const { width = '200', direction = '2' } = this.props.advancedSetting;
+
     let itemWidth = 100;
-    if (this.box && direction === '0') {
-      const boxWidth = _.get(this.box.getBoundingClientRect(), 'width');
+    const boxWidth = this.props.width;
+    if (boxWidth && direction === '0') {
       const num = Math.floor(boxWidth / Number(width)) || 1;
       itemWidth = 100 / (num > displayOptions.length ? displayOptions.length : num);
     }
     return `${itemWidth}%`;
-  };
+  }
 
   pcContent(checkIds) {
     const { disabled, options, value, advancedSetting } = this.props;
@@ -324,7 +326,6 @@ export default class Widgets extends Component {
           <div
             className={cx('customFormControlBox', { formBoxNoBorder: !isMobile }, { controlDisabled: disabled })}
             style={{ height: 'auto' }}
-            ref={box => (this.box = box)}
           >
             <div
               className={cx('ming CheckboxGroup', {
@@ -343,3 +344,5 @@ export default class Widgets extends Component {
     );
   }
 }
+
+export default autoSize(Widgets, { onlyWidth: true });
