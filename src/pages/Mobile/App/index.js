@@ -173,10 +173,11 @@ class App extends Component {
     const { appDetail } = this.props;
     const { detail } = appDetail;
     const { childSections = [], workSheetInfo = [] } = data;
+    const isCharge = canEditApp(detail.permissionType, detail.isLock);
 
     return workSheetInfo
       .filter(item => (viewHideNavi ? true : item.status !== 2))
-      .filter(it => it.status === 1 && !it.navigateHide)
+      .filter(it => (isCharge ? true : it.status === 1 && !it.navigateHide))
       .map(item => {
         if (item.type !== 2) {
           return (
@@ -233,6 +234,7 @@ class App extends Component {
     const { detail } = appDetail;
     const { childSections = [], workSheetInfo = [] } = data;
     const otherData = workSheetInfo.filter(it => it.type !== 2) || [];
+    const isCharge = canEditApp(detail.permissionType, detail.isLock);
 
     let groupData = workSheetInfo
       .filter(item => item.type === 2)
@@ -256,7 +258,7 @@ class App extends Component {
             <Flex className="sudokuWrapper" wrap="wrap">
               {v.workSheetInfo
                 .filter(v => (viewHideNavi ? true : v.status !== 2))
-                .filter(it => it.status === 1 && !it.navigateHide)
+                .filter(it => (isCharge ? true : it.status === 1 && !it.navigateHide))
                 .map(v => (
                   <div
                     key={v.workSheetId}

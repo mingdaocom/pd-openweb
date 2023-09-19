@@ -100,7 +100,7 @@ class ChatPanelSessionInfo extends Component {
     return (
       <div className={cx('ChatPanel-sessionInfo', { hidden: !infoVisible })}>
         <ScrollView className="flex">
-          {session.isPost && this.first ? <Announcement session={session} /> : undefined}
+          {session.isPost && this.first ? <Announcement session={session} updateGroupAbout={value => { this.props.dispatch(actions.updateGroupAbout(session.groupId, value)); }} /> : undefined}
           {session.isGroup && this.first ? <Members session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'members')} /> : undefined}
           {session.isPost && this.first ? <Feeds session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'feeds')} /> : undefined}
           {/* { this.first && <Files session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'files')}/> } */}

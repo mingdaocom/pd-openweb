@@ -812,7 +812,13 @@ export function relateDy(conditionType, contorls, control, defaultValue) {
     case API_ENUM_TO_TYPE.RELATESHEET:
     case API_ENUM_TO_TYPE.CASCADER:
       typeList = [API_ENUM_TO_TYPE.RELATESHEET, API_ENUM_TO_TYPE.CASCADER];
-      return _.filter(contorls, items => _.includes(typeList, items.type) && items.dataSource === control.dataSource);
+      return _.filter(
+        contorls,
+        items =>
+          _.includes(typeList, items.type) &&
+          items.dataSource === control.dataSource &&
+          !(items.type === 29 && items.advancedSetting.showtype === '2'),
+      );
     // 人员单选 人员多选
     case API_ENUM_TO_TYPE.USER_PICKER:
       // 人员单选、人员多选

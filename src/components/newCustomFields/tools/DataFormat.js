@@ -845,6 +845,7 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
         ) {
           if (selectOther === 'other' || !_.replace(selectOther, 'other:', '')) {
             errorType = FORM_ERROR_TYPE.OTHER_REQUIRED;
+            errorText = FORM_ERROR_TYPE_TEXT.OTHER_REQUIRED(hasOtherOption);
           }
         }
       }

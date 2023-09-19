@@ -156,7 +156,7 @@ export function handleLifeEffect(
     }
     if (newIndex > cache.rowCount * cache.columnCount - 1) {
       if (e.action === 'text_enter_to_next' && isSubList) {
-        addNewRow({ noFocus: true });
+        addNewRow();
         setTimeout(() => {
           focusCell(newIndex);
         }, 100);

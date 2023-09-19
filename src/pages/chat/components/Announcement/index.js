@@ -36,13 +36,17 @@ export default class Announcement extends Component {
       compile: true,
     });
   }
-  handleBlur() {
+  handleBlur(event) {
     const { groupId } = this.props.session;
-    const { value } = this.state;
+    const { value } = event.target;
     GroupController.updateGroupAbout({
       groupId,
       groupAbout: value,
-    }).then((reuslt) => {});
+    }).then((reuslt) => {
+      if (reuslt) {
+        this.props.updateGroupAbout(value);
+      }
+    });
     this.setState({
       compile: false,
     });

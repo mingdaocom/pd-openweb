@@ -24,7 +24,7 @@ const PhoneWrap = styled.div`
   }
   ${props =>
     props.showCountry && !props.isEditing && props.itiWidth
-      ? `width: ${props.isMobile ? 'unset' : props.itiWidth};`
+      ? `width: ${props.isMobile && !props.disabled ? 'unset' : props.itiWidth};`
       : ''};
   input {
     padding-right: ${props => (props.showCountry && !props.isEditing && props.itiWidth ? '0px !important' : '12px')};
@@ -198,6 +198,7 @@ export default class Widgets extends Component {
           itiWidth={itiWidth}
           isCell={isCell}
           isMobile={browserIsMobile()}
+          disabled={disabled}
         >
           <ClickAwayable onClickAway={() => this.setState({ isEditing: false })}>
             <input

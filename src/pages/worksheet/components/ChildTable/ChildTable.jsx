@@ -560,7 +560,7 @@ class ChildTable extends React.Component {
   }
 
   @autobind
-  handleAddRowByLine({ noFocus = false } = {}) {
+  handleAddRowByLine() {
     const { from, control, maxCount, addRow, rows, maxShowRowCount = MAX_SHOW_ROWCOUNT } = this.props;
     const controlPermission = controlState(control, from);
     const disabled = !controlPermission.editable || control.disabled;
@@ -572,9 +572,6 @@ class ChildTable extends React.Component {
     this.updateDefsourceOfControl();
     const row = this.newRow();
     addRow(row);
-    if (noFocus) {
-      return;
-    }
     setTimeout(() => {
       try {
         this.worksheettable.current.table.refs.setScroll(0, rows.length + 1 > maxShowRowCount ? 100000 : 0);
