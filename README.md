@@ -12,7 +12,6 @@
 
 👉  [快速上手](https://docs.pd.mingdao.com/sd/web/start)
 
-
 # 文档
 
 您可以在明道云私有部署文档中心找到 [Openweb](https://docs.pd.mingdao.com/sd/web/) 相关文档。

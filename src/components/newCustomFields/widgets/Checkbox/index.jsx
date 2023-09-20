@@ -54,7 +54,7 @@ class Widgets extends Component {
           background: enumDefault2 === 1 ? item.color : '',
           maxWidth: noMaxWidth
             ? 'auto'
-            : _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (checktype === '1' && browserIsMobile())
+            : _.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || browserIsMobile()
             ? 'unset'
             : 140,
         }}

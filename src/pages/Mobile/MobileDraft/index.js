@@ -114,11 +114,12 @@ function MobileDraftList(props) {
         ) &&
         controlState(item, 2).visible,
     );
+    const utimeControl = controls.find(v => _.includes(['utime'], v.controlId));
     const showControls = displayControls
       .filter(it => !it.attribute)
       .filter(it => !_.includes(['utime'], it.controlId))
       .slice(0, 2)
-      .concat(controls.find(v => _.includes(['utime'], v.controlId)));
+      .concat(utimeControl ? utimeControl : []);
 
     return (
       <div
