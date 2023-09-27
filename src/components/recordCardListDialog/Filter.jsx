@@ -48,7 +48,7 @@ const Icon = styled.div`
 function formatSearchFilters(filters = [], controls = []) {
   return filters.map(f => {
     const control = _.find(controls, { controlId: f.controlId });
-    if (control && _.includes([6, 8], control.type)) {
+    if (control && _.includes([6, 8, 31], control.type)) {
       f.filterType = 11;
     }
     if (

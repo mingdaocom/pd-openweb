@@ -3,8 +3,19 @@ import styled from 'styled-components';
 import { Radio, Dropdown, Input, Icon, Checkbox } from 'ming-ui';
 import { DatePicker, TimePicker } from 'antd';
 import Trigger from 'rc-trigger';
-import locale from 'antd/es/date-picker/locale/zh_CN';
-import { FILL_TIMES_OPTIONS, TIME_PERIOD_TYPE, TIME_PERIOD_OPTIONS, FILL_TIMES, TIME_TYPE, WEEKS } from '../../enum';
+import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
+import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
+import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
+import localeEn from 'antd/es/date-picker/locale/en_US';
+import {
+  FILL_TIMES_OPTIONS,
+  TIME_PERIOD_TYPE,
+  TIME_PERIOD_OPTIONS,
+  FILL_TIMES,
+  TIME_TYPE,
+  WEEKS,
+  MONTHS,
+} from '../../enum';
 import cx from 'classnames';
 import _ from 'lodash';
 import dayjs from 'dayjs';
@@ -190,6 +201,8 @@ export default function DataCollectionSettings(props) {
     { type: TIME_TYPE.DAY, text: _l('日') },
     { type: TIME_TYPE.HOUR, text: _l('时') },
   ];
+  const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
+  const locale = locales[md.global.Account.lang];
 
   const onRangeInputChange = (value, type, from) => {
     if (parseInt(value) || parseInt(value) === 0 || value === '') {
@@ -269,9 +282,6 @@ export default function DataCollectionSettings(props) {
     const selectedDays = limitWriteTime.daySetting.defineDay || [];
     const selectedWeeks = limitWriteTime.daySetting.defineWeek || [];
     const currentPeriodType = limitWriteTime[`${type}Setting`][`${type}Type`];
-    const months = Array.from(Array(12), (_, i) => i + 1).map(item => {
-      return { text: item + _l('月'), value: item };
-    });
 
     return (
       <div className="flexRow mBottom10" key={index}>
@@ -313,7 +323,7 @@ export default function DataCollectionSettings(props) {
                 <span>{selectedMonths.sort((a, b) => a - b).join(', ')}</span>
               )
             }
-            data={months.map((item, index) => {
+            data={MONTHS.map((item, index) => {
               return {
                 text: (
                   <MonthDropdownItem key={index}>

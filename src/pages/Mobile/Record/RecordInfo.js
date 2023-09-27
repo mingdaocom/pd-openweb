@@ -844,6 +844,7 @@ class Record extends Component {
             addRefreshEvents: (id, fn) => {
               this.refreshEvents[id] = fn;
             },
+            refreshRecord: this.loadRow
           }}
           registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
           isWorksheetQuery={isWorksheetQuery}

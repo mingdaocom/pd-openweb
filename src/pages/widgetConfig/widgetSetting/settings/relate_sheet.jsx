@@ -448,12 +448,20 @@ export default function RelateSheet(props) {
               // 下拉框清空
               nextData = { ...handleAdvancedSettingChange(nextData, { searchfilters: '' }), showControls: [] };
             }
-            // 切换为列表 必填置为false, 默认值清空
+            // 切换为列表 必填置为false, 动态默认值清空
             if (value === '2') {
+              const newDefsource = safeParse(_.get(nextData, 'advancedSetting.defsource') || '[]');
+
               nextData = {
                 ...nextData,
                 required: false,
-                advancedSetting: Object.assign(nextData.advancedSetting, { defsource: '', hidetitle: '0' }),
+                advancedSetting: Object.assign(nextData.advancedSetting, {
+                  defsource:
+                    newDefsource.length === 0 || (newDefsource.length > 0 && _.get(newDefsource, '0.cid'))
+                      ? ''
+                      : JSON.stringify(newDefsource),
+                  hidetitle: '0',
+                }),
               };
             } else {
               nextData = handleAdvancedSettingChange(nextData, { sorts: '' });

@@ -71,7 +71,7 @@ function ViewControl(props) {
     setViewConfigVisible,
     searchData,
   } = props;
-  // funcs
+
   const {
     changePageIndex,
     changePageSize,

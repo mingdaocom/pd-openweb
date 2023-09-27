@@ -390,36 +390,39 @@ export async function getFormData(data, status) {
 
         formData[i] = item;
       }
-    }
-    if (weChatSetting.isCollectWxInfo) {
-      formData = fillWxInfo(formData, weChatSetting);
-    }
 
-    return formData;
+      if (weChatSetting.isCollectWxInfo) {
+        formData = fillWxInfo(formData, weChatSetting);
+      }
+
+      return formData;
+    }
   }
 
   //自动填充本地缓存内容
   if (cacheFieldData.isEnable) {
     const cacheData = localStorage.getItem(`cacheFieldData_${shareId}`) || '[]';
     const cacheFormData = JSON.parse(cacheData) || [];
-    let formData = controls.map(item => {
-      if (_.includes(cacheFieldData.cacheField, item.controlId)) {
-        const cacheField = cacheFormData.filter(c => c.controlId === item.controlId)[0] || {};
-        return { ...item, value: cacheField.value };
-      } else {
-        return item;
+    if (!!cacheFormData.length) {
+      let formData = controls.map(item => {
+        if (_.includes(cacheFieldData.cacheField, item.controlId)) {
+          const cacheField = cacheFormData.filter(c => c.controlId === item.controlId)[0] || {};
+          return { ...item, value: cacheField.value };
+        } else {
+          return item;
+        }
+      });
+      if (weChatSetting.isCollectWxInfo) {
+        formData = fillWxInfo(formData, weChatSetting);
       }
-    });
-    if (weChatSetting.isCollectWxInfo) {
-      formData = fillWxInfo(formData, weChatSetting);
+      return formData;
     }
-    return formData;
   }
 
   //自动填充未提交缓存内容
   if (cacheDraft) {
     const cacheData = localStorage.getItem(`cacheDraft_${shareId}`) || '[]';
-    let cacheFormData = JSON.parse(cacheData) || [];
+    const cacheFormData = JSON.parse(cacheData) || [];
     if (!!cacheFormData.length) {
       let formData = controls.map(item => {
         const cacheField = cacheFormData.filter(c => c.controlId === item.controlId)[0] || {};

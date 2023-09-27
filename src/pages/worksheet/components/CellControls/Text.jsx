@@ -90,6 +90,8 @@ export default class Text extends React.Component {
     };
   }
 
+  tempKey = [];
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.cell.value !== this.props.cell.value) {
       this.setState({ value: nextProps.cell.value });
@@ -170,6 +172,7 @@ export default class Text extends React.Component {
   handleBlur(target) {
     this.hadBlur = true;
     const { cell, error, updateCell, updateEditingStatus } = this.props;
+    this.tempKey = [];
     let { oldValue = '' } = this.state;
     let { value = '' } = this.state;
     if (this.isNumberPercent && value) {
@@ -263,6 +266,7 @@ export default class Text extends React.Component {
       default:
         (() => {
           let value = e.key;
+          this.tempKey.push(e.key);
           if (cell.type === 6 || cell.type === 8) {
             value = formatNumberFromInput(e.key, false);
           }
@@ -277,8 +281,8 @@ export default class Text extends React.Component {
               }
               const inputDom = this.input.current;
               if (inputDom) {
-                inputDom.value = value;
-                this.handleChange(value);
+                inputDom.value = this.tempKey.join('');
+                this.handleChange(this.tempKey.join(''));
               }
             }, 10);
             e.stopPropagation();

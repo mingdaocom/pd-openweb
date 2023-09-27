@@ -68,7 +68,7 @@ export class QrLabel {
   // 处理文字换行
   cutTextByWidth(fontSize, context, maxWidth, isBold) {
     let result = [];
-    this.ctx.font = (isBold ? 'bold ' : '') + fontSize * (isBold ? 1 : this.fontSize) + 'px sans-serif';
+    this.ctx.font = (isBold ? 'bold ' : '') + fontSize * this.fontSize + 'px sans-serif';
     if (this.ctx.measureText(context).width < maxWidth) {
       return [context];
     }
@@ -101,7 +101,7 @@ export class QrLabel {
   }
   renderText({ x = 0, y = 0, fontSize, content, width, isCenter, forceInLine, isBold, color = '#222' }) {
     this.ctx.textBaseline = 'top';
-    let textFontSize = fontSize * 0.55 * (isBold ? 1 : this.fontSize);
+    let textFontSize = fontSize * 0.55 * this.fontSize;
     if (forceInLine) {
       const textWidth = this.measureTextWidth(content, textFontSize);
       if (textWidth > width) {

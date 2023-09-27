@@ -125,8 +125,8 @@ export default class Projects extends Component {
     const { projects, loading } = this.state;
     return (
       <PrivateDeploymentProjectPopup className="card z-depth-2 flexColumn">
-        <div className="Font20 Gray bold">{_l('关联组织')}</div>
-        <div className="Gray_75 mTop5 mBottom5">{_l('关联后会占租户名额，且不可取消')}</div>
+        <div className="Font20 Gray bold">{_l('绑定组织')}</div>
+        <div className="Gray_75 mTop5 mBottom5">{_l('绑定后会占组织额度，且不可取消')}</div>
         <div className="flex projectWrapper">
           {
             loading ? (
@@ -174,7 +174,7 @@ export default class Projects extends Component {
         }}
       >
         <div className={cx({ pointer: usable })}>
-          <span className={cx({ associated: usable })}>{_l('管理')}</span>
+          <span className={cx({ associated: usable })}>{_l('绑定')}</span>
         </div>
       </Trigger>
     );

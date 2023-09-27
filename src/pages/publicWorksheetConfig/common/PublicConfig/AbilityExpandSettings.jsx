@@ -128,7 +128,6 @@ export default function AbilityExpandSettings(props) {
                     <span>{_l('修改时效：')}</span>
                     <Dropdown
                       border
-                      isAppendToBody
                       className="effectiveTimeDropdown"
                       value={_.get(abilityExpand, ['allowViewChange', 'changeSetting', 'changeType'])}
                       data={[

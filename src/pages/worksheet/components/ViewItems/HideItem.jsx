@@ -134,13 +134,6 @@ export default function HideItem(props) {
   const clickHandle = e => {
     if (!e.target.className.includes('icon')) {
       toView();
-      const elem = $(`.workSheetViewsWrapper .viewsScroll .workSheetViewItemViewId-${item.viewId}`);
-
-      if (elem[0]) {
-        setTimeout(() => {
-          elem[0].scrollIntoView();
-        }, 100)
-      }
     }
   };
 

@@ -227,7 +227,7 @@ export default class EditUser extends Component {
               this.setState({ isUploading: false });
             },
             () => {
-              alert(_l('保存失败'), 2);
+              // alert(_l('保存失败'), 2);
             },
           );
         } else {

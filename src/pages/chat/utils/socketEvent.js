@@ -134,7 +134,8 @@ export const notifyInit = function () {
 
 export const stateInit = function () {
   const key = 'chat';
-  const isFirefox = navigator.userAgent.indexOf('Firefox') > 0;
+  const reconnectDelayTime = window.config.SocketPolling ? 3000 : 0;
+  let disconnectTime = 0;
   let isOpen = true;
   let reconnectCount = 1;
 
@@ -181,17 +182,15 @@ export const stateInit = function () {
   };
 
   const open = () => {
-    // Firefox 刷新页面是，会触发网络断开的回调，避免这个问题加个延迟
-    setTimeout(
-      () => {
-        mdNotification.close('connectedError');
-        notificationInit();
-      },
-      isFirefox ? 2000 : 0,
-    );
+    mdNotification.close('connectedError');
+    notificationInit();
   };
+  let reconnectTime = null;
 
-  IM.socket.on('error', () => {
+  IM.socket.on('error', (error) => {
+    if (error.code === 'parser error') {
+      return;
+    }
     if (isOpen) {
       isOpen = false;
       open();
@@ -199,11 +198,14 @@ export const stateInit = function () {
   });
 
   IM.socket.on('disconnect', () => {
-    if (isOpen) {
-      isOpen = false;
-      open();
-    }
-    removeFlashTitle('', []);
+    disconnectTime = Date.now();
+    reconnectTime = setTimeout(() => {
+      if (isOpen) {
+        isOpen = false;
+        open();
+      }
+      removeFlashTitle('', []);
+    }, reconnectDelayTime);
   });
 
   IM.socket.on('reconnecting', () => {
@@ -217,6 +219,9 @@ export const stateInit = function () {
   });
 
   IM.socket.on('reconnect', () => {
+    if (Date.now() - disconnectTime < reconnectDelayTime) {
+      clearTimeout(reconnectTime);
+    }
     if (reconnectCount > 1) {
       isOpen = true;
       setTimeout(() => {

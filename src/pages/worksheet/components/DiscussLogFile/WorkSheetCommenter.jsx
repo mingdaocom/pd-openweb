@@ -20,7 +20,7 @@ export default class WorkSheetCommenter extends Component {
       forReacordDiscussion,
       entityType,
       atData,
-      placeholder: window.isPublicApp ? _l('预览模式下，不能参与讨论') : _l('发表评论'),
+      placeholder: window.isPublicApp ? _l('预览模式下，不能参与讨论') : _l('讨论'),
       activePlaceholder: _l('输入@成员，按Ctrl+Enter快速发布'),
       sourceId: id,
       sourceType: rowId ? Commenter.TYPES.WORKSHEETROW : Commenter.TYPES.WORKSHEET,

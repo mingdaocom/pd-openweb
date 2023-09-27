@@ -156,6 +156,9 @@ class ChatPanelSession extends Component {
    * 文字消息
    */
   handleSendMsg(value) {
+    if (window.config.SocketPolling && !IM.socket.connected) {
+      return;
+    }
     if (IM.socket.connected) {
       const sendMsg = {
         type: 1,

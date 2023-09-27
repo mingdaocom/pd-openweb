@@ -92,19 +92,19 @@ export const TIME_PERIOD_TYPE = {
 
 export const TIME_PERIOD_OPTIONS = {
   month: [
-    { text: '每月', value: TIME_PERIOD_TYPE.MONTHLY },
-    { text: '指定月份', value: TIME_PERIOD_TYPE.SPECIFY_MONTH },
-    { text: '指定范围', value: TIME_PERIOD_TYPE.SPECIFY_RANGE_MONTH },
+    { text: _l('每月'), value: TIME_PERIOD_TYPE.MONTHLY },
+    { text: _l('指定月份'), value: TIME_PERIOD_TYPE.SPECIFY_MONTH },
+    { text: _l('指定范围'), value: TIME_PERIOD_TYPE.SPECIFY_RANGE_MONTH },
   ],
   day: [
-    { text: '每天', value: TIME_PERIOD_TYPE.DAILY },
-    { text: '指定日期', value: TIME_PERIOD_TYPE.SPECIFY_DAY },
-    { text: '指定范围', value: TIME_PERIOD_TYPE.SPECIFY_RANGE_DAY },
-    { text: '每周', value: TIME_PERIOD_TYPE.WEEKLY },
+    { text: _l('每天'), value: TIME_PERIOD_TYPE.DAILY },
+    { text: _l('指定日期'), value: TIME_PERIOD_TYPE.SPECIFY_DAY },
+    { text: _l('指定范围'), value: TIME_PERIOD_TYPE.SPECIFY_RANGE_DAY },
+    { text: _l('每周'), value: TIME_PERIOD_TYPE.WEEKLY },
   ],
   hour: [
-    { text: '不限', value: TIME_PERIOD_TYPE.UNLIMITED },
-    { text: '指定范围', value: TIME_PERIOD_TYPE.SPECIFY_RANGE_HOUR },
+    { text: _l('不限'), value: TIME_PERIOD_TYPE.UNLIMITED },
+    { text: _l('指定范围'), value: TIME_PERIOD_TYPE.SPECIFY_RANGE_HOUR },
   ],
 };
 
@@ -143,4 +143,19 @@ export const WECHAT_MAPPING_SOURCE_FIELDS = [
   { key: WECHAT_FIELD_KEY.OPEN_ID, name: _l('微信OpenID'), required: true },
   { key: WECHAT_FIELD_KEY.NICK_NAME, name: _l('微信昵称') },
   { key: WECHAT_FIELD_KEY.HEAD_IMG_URL, name: _l('微信头像') },
+];
+
+export const MONTHS = [
+  { text: _l('1月'), value: 1 },
+  { text: _l('2月'), value: 2 },
+  { text: _l('3月'), value: 3 },
+  { text: _l('4月'), value: 4 },
+  { text: _l('5月'), value: 5 },
+  { text: _l('6月'), value: 6 },
+  { text: _l('7月'), value: 7 },
+  { text: _l('8月'), value: 8 },
+  { text: _l('9月'), value: 9 },
+  { text: _l('10月'), value: 10 },
+  { text: _l('11月'), value: 11 },
+  { text: _l('12月'), value: 12 },
 ];

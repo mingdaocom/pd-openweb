@@ -152,7 +152,7 @@ export default class Contacts extends React.Component {
       <React.Fragment>
         <div className="contacts-list">
           <ListSearchBar search={this.search} keywords={keywords} type={'contacts'} />
-          {isSearch ? null : this.renderFilter()}
+          {/*isSearch ? null : this.renderFilter()*/}
           <div className="contacts-list-content">
             <ContactList
               isSearch={isSearch}

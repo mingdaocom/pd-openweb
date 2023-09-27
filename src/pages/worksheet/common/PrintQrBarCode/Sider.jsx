@@ -593,7 +593,7 @@ export default function Sider(props) {
           showTip={false}
           showInput={false}
           min={0.5}
-          max={1}
+          max={1.5}
           step={0.1}
           value={fontSize}
           onChange={newFontSize => {

@@ -79,6 +79,16 @@ export default class ViewItems extends Component {
     if (nextProps.viewList.length !== this.props.viewList.length) {
       this.flag = null;
     }
+
+    if (nextProps.currentViewId !== this.props.currentViewId) {
+      const elem = $(`.workSheetViewsWrapper .viewsScroll .workSheetViewItemViewId-${nextProps.currentViewId}`);
+
+      if (elem[0]) {
+        setTimeout(() => {
+          elem[0].scrollIntoView();
+        }, 500);
+      }
+    }
     this.computeDirectionVisible();
   }
   componentDidUpdate() {
@@ -349,6 +359,7 @@ export default class ViewItems extends Component {
     if (setWorksheetHidden) {
       this.handleAutoFocus();
     }
+
     return (
       <div className="valignWrapper flex">
         <div>

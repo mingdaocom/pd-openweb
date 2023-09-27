@@ -461,7 +461,13 @@ export default class RecordInfo extends Component {
     }
     this.submitOptions = { callback, noSave, ignoreError };
     this.setState({ submitLoading: true });
-    this.recordform.current.submitFormData({ ignoreAlert, silent });
+    setTimeout(
+      () => {
+        this.hasFocusingRelateRecordTags = false;
+        this.recordform.current.submitFormData({ ignoreAlert, silent });
+      },
+      this.hasFocusingRelateRecordTags ? 1000 : 0,
+    );
   }
 
   @autobind
@@ -984,6 +990,12 @@ export default class RecordInfo extends Component {
               defaultTop={-50}
               visibleTop={8}
               title={_l('正在修改表单数据 ···')}
+              onOkMouseDown={() => {
+                // hasFocusingRelateRecordTags 点击保存是不是有正在编辑的关联记录卡片字段 TODO: 后面从relateRecordTags组件交互方面解决这个问题
+                this.hasFocusingRelateRecordTags = !!this.con.querySelector(
+                  '.cellRelateRecordTags.cellControlEdittingStatus',
+                );
+              }}
               onUpdate={this.onSubmit}
               onCancel={this.handleCancelChange}
             />

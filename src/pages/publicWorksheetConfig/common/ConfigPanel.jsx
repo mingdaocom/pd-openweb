@@ -39,6 +39,11 @@ const ShareUrlContainer = styled.div`
     justify-content: space-between;
     align-items: center;
   }
+  .customShareUrl {
+    .text {
+      line-height: initial;
+    }
+  }
 `;
 
 const PublishUrlContainer = styled.div`

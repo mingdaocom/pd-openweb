@@ -596,10 +596,7 @@ export default class RelateRecordCards extends Component {
                 parentControl={control}
                 sourceEntityName={sourceEntityName}
                 onClick={
-                  !allowOpenRecord ||
-                  (disabled && !recordId) ||
-                  (control.isSubList && _.get(window, 'shareState.shareId')) ||
-                  allowlink === '0'
+                  !allowOpenRecord || (control.isSubList && _.get(window, 'shareState.shareId')) || allowlink === '0'
                     ? () => {}
                     : () => {
                         if (location.pathname.indexOf('public') === -1) {

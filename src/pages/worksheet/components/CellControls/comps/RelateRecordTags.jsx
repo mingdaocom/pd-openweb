@@ -268,7 +268,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
   return (
     <Con
       ref={conRef}
-      className={cx({ isediting, cellControlEdittingStatus: isediting })}
+      className={cx('cellRelateRecordTags', { isediting, cellControlEdittingStatus: isediting })}
       style={
         isediting
           ? {

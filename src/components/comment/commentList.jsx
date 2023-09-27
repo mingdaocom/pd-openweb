@@ -183,7 +183,7 @@ class CommentList extends React.Component {
       if (nullCommentList) {
         return nullCommentList;
       }
-      return <div className="mTop15 Gray_bd Font13">{isFocus ? _l('没有与我有关的内容') : _l('发布评论')}</div>;
+      return <div className="mTop15 Gray_bd Font13">{isFocus ? _l('没有与我有关的内容') : _l('讨论')}</div>;
     }
 
     return (

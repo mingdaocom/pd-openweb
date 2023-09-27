@@ -36,7 +36,7 @@ export default function ClearISaventergrationModal(props) {
           onClick={() => setSaveType('save')}
         />
         <div className="Gray_75 Font12 mTop10 mLeft30">
-          {_l('在企微/钉钉/飞书等平台是私有部署的用户（支持ID自定义）建议选择保留映射关系不需要删除后续修改 ID 即可')}
+          {_l('企微/钉钉/飞书等平台私有部署的用户（支持ID自定义）建议选择保留，映射关系不需要删除，后续修改 ID 即可')}
         </div>
       </Fragment>
     </Modal>

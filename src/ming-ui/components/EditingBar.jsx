@@ -70,6 +70,7 @@ export default function EditingBar(props) {
     cancelText = _l('取消'),
     onUpdate = () => {},
     onCancel = () => {},
+    onOkMouseDown = () => {},
   } = props;
 
   return (
@@ -102,7 +103,11 @@ export default function EditingBar(props) {
                 {cancelText}
               </CancelButton>
             )}
-            {!loading && <OkButton onClick={onUpdate}>{updateText}</OkButton>}
+            {!loading && (
+              <OkButton onMouseDown={onOkMouseDown} onClick={onUpdate}>
+                {updateText}
+              </OkButton>
+            )}
           </Con>
         </ConBox>
       )}
@@ -121,4 +126,5 @@ EditingBar.propTypes = {
   cancelText: PropTypes.string,
   onUpdate: PropTypes.func,
   onCancel: PropTypes.func,
+  onOkMouseDown: PropTypes.func,
 };

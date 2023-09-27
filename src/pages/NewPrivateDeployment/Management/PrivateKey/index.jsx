@@ -364,7 +364,7 @@ const PrivateKey = props => {
           <div className="Bold Gray_75">{_l('工作表')}</div>
           <div className="Bold Gray_75">{_l('行记录/表')}</div>
           <div className="Bold Gray_75">{_l('工作流执行/月')}</div>
-          <div className="Bold Gray_75">{_l('关联组织')}</div>
+          <div className="Bold Gray_75">{_l('绑定组织')}</div>
         </div>
         {
           listLoading ? (

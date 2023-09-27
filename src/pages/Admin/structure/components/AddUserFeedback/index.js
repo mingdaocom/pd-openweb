@@ -176,7 +176,7 @@ const handleMoveDepartment = ({
         }
       },
       () => {
-        alert(_l('设置失败'), 2);
+        // alert(_l('设置失败'), 2);
       },
     );
   }

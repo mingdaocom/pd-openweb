@@ -237,9 +237,9 @@ export default class SelectUser extends Component {
     const { departmentId } = department;
     const { projectId, selectDepartmentType } = this.props;
     const { departmentPath, loading, selectedUsers, rootData = [], treeData = [] } = this.state;
-    if (index) {
+    if (index || index === 0) {
       this.setState({
-        departmentPath: departmentPath.slice(0, index),
+        departmentPath: departmentPath.slice(0, index + 1),
         loading: true,
       });
     } else {
@@ -577,7 +577,7 @@ export default class SelectUser extends Component {
               </ScrollView>
             )
           ) : (
-            <ScrollView className="flex" onScrollEnd={this.requestContactProjectDepartments}>
+            <ScrollView className="flex">
               <div className="flexRow onlyShowJoinDepartment">
                 <span>{_l('只看我加入的部门')}</span>
                 <Switch checked={onlyJoinDepartmentChecked} onClick={this.onlyShowJoinDepartment} />

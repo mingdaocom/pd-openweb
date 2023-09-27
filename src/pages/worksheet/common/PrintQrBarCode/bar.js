@@ -272,7 +272,7 @@ export class BarLabel {
       if (!text) {
         return;
       }
-      let textFontSize = textHeight * 0.6 * (isBold ? 1 : this.options.fontSize);
+      let textFontSize = textHeight * 0.6 * this.options.fontSize;
       const isCenter = !titleIsSplitted && isBold && i === 0;
       if (forceInLine) {
         const contentWidth = this.measureTextWidth(text, textFontSize);

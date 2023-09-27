@@ -55,13 +55,14 @@ export const SIDER_BAR_LIST = [
     name: _l('好友'),
     type: TYPES.FRIENDS,
   },
-  {
-    name: _l('其他协作关系'),
-    type: TYPES.OTHERS,
-    icon: 'help',
-    tip: _l('Ta们是被您的好友或同事邀请加入协作模块与您共同协作'),
-  },
 ];
+
+// {
+//   name: _l('其他协作关系'),
+//   type: TYPES.OTHERS,
+//   icon: 'help',
+//   tip: _l('Ta们是被您的好友或同事邀请加入协作模块与您共同协作'),
+// }
 
 export const SEARCH_GROUP_TYPES = {
   ALL: -1,

@@ -280,7 +280,7 @@ export const filterFn = (filterData, originControl, data = []) => {
     //是否多选
     if (dynamicSource.length > 0) {
       const { cid = '' } = dynamicSource[0];
-      currentControl = _.find(data, it => it.controlId === cid) || {};
+      currentControl = _.cloneDeep(_.find(data, it => it.controlId === cid)) || {};
       // 他表字段取原字段类型，不然日期值截取有问题，比较出错
       if (currentControl.type === 30) {
         currentControl.type = currentControl.sourceControlType;
