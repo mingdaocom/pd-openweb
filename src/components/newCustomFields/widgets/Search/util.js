@@ -177,7 +177,7 @@ export const getParamsByConfigs = (requestMap = [], formData = [], keywords = ''
                   return i;
                 })
               : formData;
-            rowItem[c.id] = childControl ? getDynamicValue(c, controlValues, keywords) : '';
+            rowItem[c.id] = childControl || !cid ? getDynamicValue(c, controlValues, keywords) : '';
           });
           return rowItem;
         });

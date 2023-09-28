@@ -40,6 +40,10 @@ export function loadRecord({
       apiargs.workId = workId;
     }
 
+    if (_.get(window, 'shareState.isPublicWorkflowRecord') && _.get(window, 'shareState.shareId')) {
+      apiargs.shareId = _.get(window, 'shareState.shareId');
+    }
+
     let promise;
     if (!getRules) {
       promise = Promise.all([(promise = getRowDetail(apiargs, controls, { fireImmediately: true }))]);

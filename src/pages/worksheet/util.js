@@ -1151,6 +1151,7 @@ export function getRowGetType(from) {
     from === RECORD_INFO_FROM.CHAT ||
     (from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND && location.search && location.search.indexOf('share') > -1) ||
     _.get(window, 'shareState.isPublicView') ||
+    _.get(window, 'shareState.isPublicWorkflowRecord') ||
     _.get(window, 'shareState.isPublicRecord')
   ) {
     return 3;

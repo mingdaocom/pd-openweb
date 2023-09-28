@@ -375,6 +375,8 @@ export default function RelateRecordTable(props) {
           setTableControls(relationControls);
           setLoading(false);
           setTableLoading(false);
+          tableActions.updateRecords([]);
+          tableActions.updateCount(0);
           return;
         }
       }

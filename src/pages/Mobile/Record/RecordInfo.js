@@ -98,6 +98,9 @@ class Record extends Component {
           ...baseIds,
           getType: getDataType ? getDataType : location.search.includes('share') || this.isSharePage ? 3 : 1,
           checkView: true,
+          ...(_.get(window, 'shareState.isPublicWorkflowRecord') && _.get(window, 'shareState.shareId')
+            ? { shareId: _.get(window, 'shareState.shareId') }
+            : {}),
         });
     const getWorksheetInfoRequest = worksheetAjax.getWorksheetInfo({
       getRules: true,

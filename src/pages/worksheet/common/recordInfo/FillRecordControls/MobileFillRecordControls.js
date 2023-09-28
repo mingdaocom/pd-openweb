@@ -167,7 +167,7 @@ class FillRecordControls extends React.Component {
                 ...control.value,
                 rules: _.get(this.cellObjs || {}, `${control.controlId}.cell.props.rules`),
               },
-              _.get(this.cellObjs || {}, `${control.controlId}.cell.controls`) || control.relationControls,
+              _.get(this.cellObjs || {}, `${control.controlId}.cell.state.controls`) || control.relationControls,
               control.showControls,
               3,
             ),
@@ -272,7 +272,12 @@ class FillRecordControls extends React.Component {
             </Button>
           </WingBlank>
           <WingBlank className="flex" size="sm">
-            <Button disabled={submitLoading || isSubmitting} className="Font15 bold" type="primary" onClick={this.handleSave}>
+            <Button
+              disabled={submitLoading || isSubmitting}
+              className="Font15 bold"
+              type="primary"
+              onClick={this.handleSave}
+            >
               {_l('确定')}
             </Button>
           </WingBlank>

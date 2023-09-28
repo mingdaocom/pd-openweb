@@ -347,7 +347,7 @@ export default function RelationSearch(props) {
     });
     cache.current.filter = filterControls;
     if (filterControls === false) {
-      setState(oldState => ({ ...oldState, isLoadingMore: false }));
+      setState(oldState => ({ ...oldState, isLoadingMore: false, loading: false }));
       return;
     }
     const args = {
