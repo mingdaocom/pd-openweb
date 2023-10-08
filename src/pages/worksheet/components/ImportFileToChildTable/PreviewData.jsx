@@ -142,7 +142,7 @@ export default function PreviewData(props) {
                     { worksheetId, tokenType: 7 },
                     {
                       worksheetId,
-                      filePath: excelUrl,
+                      filePath: excelUrl.replace(/\?.+/, ''),
                       getSheetIndex: newSheetIndex,
                     },
                   );

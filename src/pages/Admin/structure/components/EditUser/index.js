@@ -216,8 +216,9 @@ export default class EditUser extends Component {
         fixedDataAjax.checkSensitive({ content: jobNumber }),
       ]).then(results => {
         if (!results.find(result => result)) {
-          userController.updateUser(params).then(
-            result => {
+          userController
+            .updateUser(params)
+            .then(result => {
               if (result === 1) {
                 alert(_l('修改成功'), 1);
                 this.props.clickSave();
@@ -225,11 +226,11 @@ export default class EditUser extends Component {
                 alert(_l('保存失败'), 2);
               }
               this.setState({ isUploading: false });
-            },
-            () => {
-              // alert(_l('保存失败'), 2);
-            },
-          );
+            })
+            .fail(err => {
+              this.setState({ isUploading: false });
+              this.itiFn();
+            });
         } else {
           alert(_l('输入内容包含敏感词，请重新填写'), 3);
           this.setState({ isUploading: false });

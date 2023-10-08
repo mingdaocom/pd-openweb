@@ -15,8 +15,8 @@ export const dateList = [
 ];
 
 export const justifyInfoData = [
-  { type: 'producer', name: _l('新增'), tableHeaderName: _l('本月新增') },
-  { type: 'consumer', name: _l('消费'), tableHeaderName: _l('本月消费') },
+  { type: 'producer', name: _l('本月新增'), tableHeaderName: _l('本月新增') },
+  { type: 'consumer', name: _l('本月消费'), tableHeaderName: _l('本月消费') },
   { type: 'difference', name: _l('排队'), tableHeaderName: _l('当前排队') },
   { type: 'routerIndex', name: '', tableHeaderName: _l('通道') },
   { type: 'waiting', name: '', tableHeaderName: _l('状态') },

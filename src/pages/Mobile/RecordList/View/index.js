@@ -94,11 +94,14 @@ class View extends Component {
       isCharge,
       view,
     };
+
     let hasGroupFilter =
       view.viewId === base.viewId &&
       !_.isEmpty(view.navGroup) &&
       view.navGroup.length > 0 &&
+      !location.search.includes('chartId') &&
       _.includes([sheet, gallery], String(view.viewType)); // 是否存在分组列表
+
     if (hasGroupFilter) {
       return (
         <GroupFilter

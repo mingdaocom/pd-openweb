@@ -444,13 +444,7 @@ export default class ExecutionDetails extends Component {
       dayStr = _l('今天');
     }
     return (
-      <span>
-        {_l(
-          `正在查看历史执行详情（${dayStr} ${time}），新增和消费指5分钟内（${moment(dateStr)
-            .subtract(5, 'minute')
-            .format('HH:mm')}～${time}）的累计值`,
-        )}
-      </span>
+      <span>{_l(`正在查看历史执行详情（${dayStr} ${time}），本月新增、本月排队指截止到 ${dayStr} ${time} 的值`)}</span>
     );
   };
 

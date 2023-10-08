@@ -687,6 +687,11 @@ export default class UploadTemplateSheet extends React.Component {
                     '（2）图片质量支持低、中、高三种设置（默认为低）。低（L）—生成速度快，用于一般打印；中（M）—生成速度适中，打印较清晰；高（H）—生成速度慢，用于高质量彩色打印。',
                   )}
                 </li>
+                <li className="Gray_75 pLeft12">
+                  {_l(
+                    '（3）在打印 Excel 模板时，多张图片排列可能导致撑高合并单元格引起错位，此时可以加 F 启用图片填充模式，此模式下图片不会撑高单元格，例如：#{附件$[auto*20_F]$} 或 #{附件$[auto*90_HF]$}',
+                  )}
+                </li>
               </ol>
             </p>
             <p className="Gray_75">
