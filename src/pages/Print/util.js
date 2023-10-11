@@ -245,7 +245,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           ? (item.relationControls || []).filter(o => item.coverCid === o.controlId)
           : [];
         //平铺的关联表多条显示除了附件外的前三个
-        showControlsList = showControlsList.filter(o => o.type !== 14).splice(0, 3);
+        showControlsList = showControlsList.filter(o => o.type !== 14);
         // 1 卡片 显示关联表名称
         return _.isArray(records) && records.length > 0 ? (
           <table className="relaList" style={STYLE_PRINT.table} border="0" cellPadding="0" cellSpacing="0">

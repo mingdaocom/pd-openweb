@@ -1204,6 +1204,7 @@ export const filterFn = (filterData, originControl, data = []) => {
           // 关联记录
           case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
             if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
+            if (_.isEmpty(value) || _.isEmpty(compareValues)) return false;
 
             const reCompareArr = compareValues.map(it =>
               dynamicSource.length > 0 ? _.get(it, 'sid') : _.get(safeParse(it || '{}'), 'id'),

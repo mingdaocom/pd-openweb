@@ -249,7 +249,7 @@ export default class extends Component {
     const { reportId, xaxes, yaxisList, style, displaySetup } = this.props.reportData;
     const el = document.querySelector(`.statisticsCard-${reportId}`);
     const parentElement = _.get(el, 'parentElement.parentElement');
-    if (yaxisList.length === 1 && !xaxes.controlId && sourceType && isThumbnail) {
+    if (yaxisList.length === 1 && !xaxes.controlId && sourceType && isThumbnail && !isMobile) {
       if (parentElement) {
         el.classList.add('hideNumberChartName');
         el.classList.add('hideChartHeader');
